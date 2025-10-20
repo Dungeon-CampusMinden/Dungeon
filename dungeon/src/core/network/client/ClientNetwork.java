@@ -34,30 +34,27 @@ import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 
 /**
  * Netty-backed client transport using a single {@link Session} to mirror server-side semantics.
  *
- * <p>Responsibilities: - Establish a TCP connection to the server for reliable messages and
- * handshake. - Bind an ephemeral UDP socket for sending/receiving unreliable messages (inputs,
- * snapshots). - Maintain an inbound queue of deserialized {@link NetworkMessage}s and lifecycle
- * events to be consumed on the game thread via {@link #pollAndDispatch()}. - Manage UDP
- * "registration" (RegisterUdp) retransmits until the server observes the client's UDP source
- * address; retries are cancellable when a UDP response is seen. - Expose a {@link Session} instance
- * backed by client-side senders so message handlers can reply via {@code session.sendMessage(...)}
- * just like on the server.
+ * <p>Responsibilities:
  *
- * <p>Threading model: Netty IO threads enqueue messages and lifecycle events; the game thread calls
- * {@link #pollAndDispatch()} and lifecycle listeners are invoked on the game thread via enqueued
- * runnables.
+ * <ul>
+ *   <li>TCP connection for reliable messages and handshake
+ *   <li>UDP socket for unreliable messages (inputs, snapshots)
+ *   <li>Inbound queue of deserialized {@link NetworkMessage}s
+ *   <li>UDP "registration" (RegisterUdp) retransmits until server observes client's UDP source
+ *       address
+ *   <li>Expose a {@link Session} instance for message handlers to reply via {@code
+ *       session.sendMessage(...)}
+ * </ul>
  */
 public final class ClientNetwork {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientNetwork.class);
 
   private static final short CLIENT_PROTOCOL_VERSION = 1;
   private final MessageDispatcher dispatcher = new MessageDispatcher();
-  private volatile BiConsumer<Session, NetworkMessage> rawConsumer;
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
   private final Queue<Tuple<Session, NetworkMessage>> inboundQueue = new ConcurrentLinkedQueue<>();
   private final Queue<Runnable> lifecycleEvents = new ConcurrentLinkedQueue<>();
@@ -65,7 +62,7 @@ public final class ClientNetwork {
   private final AtomicBoolean running = new AtomicBoolean(false);
   private final AtomicBoolean connected = new AtomicBoolean(false);
 
-  private volatile Session session = new Session(null);
+  private volatile Session session;
 
   private String remoteHost;
   private int port;
@@ -86,11 +83,12 @@ public final class ClientNetwork {
   /**
    * Initialize the client network with connection parameters.
    *
+   * <p>This method allocates the event loop group and prepares the UDP remote address. It does not
+   * open sockets call {@link #start()} to connect.
+   *
    * @param host server hostname or IP to connect to
    * @param port server port
    * @param username username used in the TCP ConnectRequest handshake
-   *     <p>This method allocates the event loop group and prepares the UDP remote address. It does
-   *     not open sockets call {@link #start()} to connect.
    */
   public void initialize(String host, int port, String username) {
     this.remoteHost = host;
@@ -141,6 +139,8 @@ public final class ClientNetwork {
    *
    * <p>Note: UDP may be bound even if this returns false during transitional states; use lifecycle
    * callbacks to observe connection changes.
+   *
+   * @return true if TCP is connected, false otherwise
    */
   public boolean isConnected() {
     return connected.get();
@@ -149,8 +149,9 @@ public final class ClientNetwork {
   /**
    * Returns the message dispatcher used for registering handlers for inbound messages.
    *
-   * <p>Handlers registered here will be invoked from {@link #pollAndDispatch()} on the game thread
-   * (or immediately by the raw consumer if set).
+   * <p>Handlers registered here will be invoked on the game thread.
+   *
+   * @return message dispatcher
    */
   public MessageDispatcher dispatcher() {
     return dispatcher;
@@ -169,22 +170,11 @@ public final class ClientNetwork {
   }
 
   /**
-   * Set an optional raw message consumer used by higher-level code to directly receive inbound
-   * {@link NetworkMessage} objects.
-   *
-   * <p>If a raw consumer is set, inbound messages are forwarded to it instead of the dispatcher.
-   *
-   * @param consumer BiConsumer receiving the {@link Session} and the deserialized {@link
-   *     NetworkMessage}.
-   */
-  public void setRawMessageConsumer(BiConsumer<Session, NetworkMessage> consumer) {
-    this.rawConsumer = consumer;
-  }
-
-  /**
    * Returns the client id assigned by the server, or 0 if not yet assigned.
    *
    * <p>The id becomes available after receiving a {@link ConnectAck}.
+   *
+   * @return client id, or 0 if not yet assigned
    */
   public Short clientId() {
     Short id = clientId;
@@ -270,9 +260,7 @@ public final class ClientNetwork {
     Tuple<Session, NetworkMessage> msg;
     while ((msg = inboundQueue.poll()) != null) {
       try {
-        BiConsumer<Session, NetworkMessage> consumer = rawConsumer;
-        if (consumer != null) consumer.accept(msg.a(), msg.b());
-        else dispatcher.dispatch(msg.a(), msg.b());
+        dispatcher.dispatch(msg.a(), msg.b());
       } catch (Exception e) {
         LOGGER.error("Dispatch error", e);
       }
@@ -281,13 +269,19 @@ public final class ClientNetwork {
 
   /**
    * Register a connection lifecycle listener. Callbacks (onConnected/onDisconnected) will be
-   * invoked on the game thread via {@link #pollAndDispatch()}.
+   * invoked on the game thread.
+   *
+   * @param l listener to register
    */
   public void addConnectionListener(ConnectionListener l) {
     if (l != null) connectionListeners.add(l);
   }
 
-  /** Remove a previously registered connection listener. */
+  /**
+   * Remove a previously registered connection listener.
+   *
+   * @param l listener to remove
+   */
   public void removeConnectionListener(ConnectionListener l) {
     if (l != null) connectionListeners.remove(l);
   }
@@ -322,9 +316,9 @@ public final class ClientNetwork {
                           onConnectAck(id, sessionId, sessionToken);
                         } else if (obj instanceof RegisterAck(boolean ok)) {
                           onRegisterAck(ok);
-                        } else if (obj instanceof NetworkMessage nm) {
+                        } else if (obj instanceof NetworkMessage msg) {
                           if (session != null) {
-                            inboundQueue.offer(Tuple.of(session, nm));
+                            inboundQueue.offer(Tuple.of(session, msg));
                           } else {
                             LOGGER.debug(
                                 "Dropping TCP inbound before session init: {} size={}B",
@@ -404,13 +398,13 @@ public final class ClientNetwork {
               protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket pkt) {
                 try {
                   Object obj = deserialize(pkt.content());
-                  if (obj instanceof NetworkMessage nm) {
+                  if (obj instanceof NetworkMessage msg) {
                     if (session != null) {
-                      inboundQueue.offer(Tuple.of(session, nm));
+                      inboundQueue.offer(Tuple.of(session, msg));
                     } else {
                       LOGGER.debug(
                           "Dropping UDP inbound before session init: {}",
-                          nm.getClass().getSimpleName());
+                          msg.getClass().getSimpleName());
                     }
                   }
                 } catch (Exception e) {
@@ -537,7 +531,13 @@ public final class ClientNetwork {
 
   // ---- client-side Session senders ----
 
-  /** Client-side UDP sender for {@link Session}. Mirrors server-side send path and size checks. */
+  /**
+   * Client-side UDP sender for {@link Session}. Mirrors server-side send path and size checks.
+   *
+   * @param target target address
+   * @param obj object to send
+   * @return CompletableFuture indicating success sending the object
+   */
   private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, Object obj) {
     if (udp == null || !udp.isActive()) {
       LOGGER.warn("UDP channel not active; cannot send to {}", target);
@@ -559,7 +559,13 @@ public final class ClientNetwork {
     }
   }
 
-  /** Client-side TCP sender for {@link Session}. Mirrors server-side send path and size checks. */
+  /**
+   * Client-side TCP sender for {@link Session}. Mirrors server-side send path and size checks.
+   *
+   * @param ctx channel context
+   * @param obj object to send
+   * @return CompletableFuture indicating the acknowledgment of the send object by the recipient
+   */
   private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, Object obj) {
     if (ctx == null || ctx.channel() == null || !ctx.channel().isActive()) {
       return CompletableFuture.completedFuture(false);

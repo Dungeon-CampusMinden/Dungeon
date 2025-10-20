@@ -53,7 +53,11 @@ public interface INetworkHandler {
    */
   void broadcast(NetworkMessage message, boolean reliable);
 
-  /** Sends an input message to the server (if client) via the unreliable channel. */
+  /**
+   * Sends an input message to the server (if client) via the unreliable channel.
+   *
+   * @param input The input message to send.
+   */
   void sendInput(InputMessage input);
 
   /** Starts the handler's processing loop (if applicable). */
@@ -89,8 +93,10 @@ public interface INetworkHandler {
    * Returns the assigned client id after a successful handshake (clients only).
    *
    * <p>Implementations that are not clients may return 0.
+   *
+   * @return The assigned client id, or 0 if not applicable.
    */
-  default int getAssignedClientId() {
+  default int assignedClientId() {
     return 0;
   }
 
@@ -109,6 +115,8 @@ public interface INetworkHandler {
    * <p>Callers must set a translator via {@link #snapshotTranslator(SnapshotTranslator)} before
    * first use. Implementations must not lazily create a default; if unset, they should throw an
    * {@link IllegalStateException} with a clear, actionable message.
+   *
+   * @return the current SnapshotTranslator
    */
   SnapshotTranslator snapshotTranslator();
 
@@ -149,8 +157,8 @@ public interface INetworkHandler {
   /**
    * Drains any queued inbound network messages and dispatches them on the game loop thread.
    *
-   * <p>Default is a no-op; implementations with IO threads should override this and deliver
-   * messages to {@link #messageDispatcher()}.
+   * <p>This method should be called regularly from the main game loop to ensure timely processing
+   * of incoming messages.
    */
-  default void pollAndDispatch() {}
+  void pollAndDispatch();
 }

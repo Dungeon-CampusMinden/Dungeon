@@ -3,7 +3,6 @@ package core.network.server;
 import static org.junit.jupiter.api.Assertions.*;
 
 import core.Game;
-import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
 import core.network.messages.NetworkMessage;
@@ -37,11 +36,8 @@ public class ServerRuntimeTests {
   @BeforeEach
   public void setup() {
     runtime = new ServerRuntime(TEST_PORT);
-    PreRunConfiguration.multiplayerEnabled(true);
-    PreRunConfiguration.isNetworkServer(true);
     DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
     Game.add(new LevelSystem(() -> {}));
-    Game.run();
   }
 
   /**
@@ -53,9 +49,6 @@ public class ServerRuntimeTests {
   @AfterEach
   public void cleanup() {
     runtime.stop();
-    PreRunConfiguration.multiplayerEnabled(false);
-    PreRunConfiguration.isNetworkServer(false);
-    Game.exit();
   }
 
   /** Validates that the server runtime starts without throwing exceptions. */

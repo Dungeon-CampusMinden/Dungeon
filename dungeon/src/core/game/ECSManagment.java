@@ -39,6 +39,11 @@ public final class ECSManagment {
   private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
 
   private static int currentTick = 0;
+
+  /**
+   * Set to true if a new level was loaded during the current tick. This flag is used to interrupt
+   * system execution when a level change occurs.
+   */
   public static boolean newLevelLoadedThisTick = false;
 
   static {

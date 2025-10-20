@@ -220,6 +220,7 @@ public final class GameLoop extends ScreenAdapter {
    * <p>Will perform some setup.
    */
   private void setup() {
+    LOGGER.info("Starting game setup");
     doSetup = false;
     createSystems();
     if (PreRunConfiguration.multiplayerEnabled()) {
@@ -239,6 +240,7 @@ public final class GameLoop extends ScreenAdapter {
     setupStage();
     PreRunConfiguration.userOnSetup().execute();
     Game.systems().get(LevelSystem.class).execute();
+    Game.network().start();
   }
 
   private void setupMessageHandlers() {

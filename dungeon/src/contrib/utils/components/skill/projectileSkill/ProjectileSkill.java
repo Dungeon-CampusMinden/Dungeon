@@ -111,6 +111,7 @@ public abstract class ProjectileSkill extends Skill {
    * @param speed Movement speed of the projectile.
    * @param range Maximum travel distance of the projectile.
    * @param ignoreFirstWall whether the projectile ignores the first wall.
+   * @param end Supplier for the target endpoint of the projectile.
    * @param resourceCost Resource costs for casting.
    */
   @SafeVarargs
@@ -147,6 +148,18 @@ public abstract class ProjectileSkill extends Skill {
     shootProjectile(caster, start(caster), endPoint());
   }
 
+  /**
+   * Spawns and configures a projectile entity.
+   *
+   * <p>The projectile is created at the specified starting point, aimed towards the target point.
+   * It is given movement velocity, collision handling, and lifecycle management.
+   *
+   * <p>The projectile will be added to the game upon creation.
+   *
+   * @param caster the entity that casts the projectile
+   * @param start the starting point of the projectile
+   * @param aimedOn the target point the projectile is aimed at
+   */
   public void shootProjectile(Entity caster, Point start, Point aimedOn) {
     Entity projectile = new Entity(name() + "_projectile");
     ignoreEntities.add(caster);

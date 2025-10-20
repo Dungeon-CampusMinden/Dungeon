@@ -7,21 +7,22 @@ import core.game.PreRunConfiguration;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 
-/**
- * Dev client starter that connects to a local Netty server and runs the game.
- *
- * <p>Configures {@link PreRunConfiguration} for multiplayer client mode, initializes a the Netty
- * network handler via {@link core.Game#run()} (based on {@link PreRunConfiguration}) to dispatch
- * messages to the game dispatcher, spawns a local hero, and starts the game loop.
- */
+/** The main class for the Multiplayer Client for development and testing purposes. */
 public final class DevClient {
+
+  /**
+   * Main method to start the dev client.
+   *
+   * @param args command line arguments
+   * @throws IOException if an I/O error occurs
+   */
   public static void main(String[] args) throws IOException {
     // PreRun configuration for multiplayer client
     PreRunConfiguration.multiplayerEnabled(true);
     PreRunConfiguration.isNetworkServer(false);
     PreRunConfiguration.networkServerAddress("127.0.0.1");
     PreRunConfiguration.networkPort(7777);
-    PreRunConfiguration.username("Player2");
+    PreRunConfiguration.username("Player1");
 
     // Game Settings
     Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);

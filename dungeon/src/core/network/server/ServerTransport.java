@@ -4,6 +4,7 @@ import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.*;
 
+import contrib.entities.HeroController;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -36,12 +37,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * The server-side transport layer handling TCP and UDP communication with clients.
+ *
+ * <p>Manages client sessions, message sending/receiving, and dispatching messages to handlers.
+ *
+ * @see Session Represents a client session on the server.
+ * @see MessageDispatcher Dispatches incoming messages to registered handlers
+ * @see ServerRuntime The main server runtime managing the transport and game loop.
+ */
 public final class ServerTransport {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ServerTransport.class);
   private static final short SERVER_PROTOCOL_VERSION = 1;
 
-  private final ConcurrentLinkedQueue<Tuple<ClientState, InputMessage>> inputQueue =
-      new ConcurrentLinkedQueue<>();
+  private final Queue<Tuple<Session, NetworkMessage>> inboundQueue = new ConcurrentLinkedQueue<>();
 
   // Transport/session mappings
   private final ConcurrentHashMap<ChannelId, Session> sessions = new ConcurrentHashMap<>();
@@ -54,13 +63,19 @@ public final class ServerTransport {
 
   private final AtomicInteger nextClientId = new AtomicInteger(1);
 
-  // Netty resources and dispatcher
+  // Netty resources
   private EventLoopGroup bossGroup;
   private EventLoopGroup workerGroup;
   private Channel tcpServer;
   private Channel udpChannel;
-  private MessageDispatcher dispatcher;
 
+  /**
+   * Starts the server transport on the specified port, initializing TCP and UDP channels.
+   *
+   * <p>If the transport is already started, this method logs a warning and returns without action.
+   *
+   * @param port The port to bind the server to for both TCP and UDP communication.
+   */
   public void start(int port) {
     if (bossGroup != null || workerGroup != null) {
       LOGGER.warn("Server already started");
@@ -74,6 +89,13 @@ public final class ServerTransport {
     LOGGER.info("ServerTransport started on port {} (TCP+UDP)", port);
   }
 
+  /**
+   * Stops the server transport, closing TCP and UDP channels and shutting down event loops.
+   *
+   * <p>Any exceptions during channel closure or event loop shutdown are logged as warnings.
+   *
+   * @see #start(int)
+   */
   public void stop() {
     try {
       if (tcpServer != null) tcpServer.close().syncUninterruptibly();
@@ -93,14 +115,27 @@ public final class ServerTransport {
     }
   }
 
-  public ConcurrentLinkedQueue<Tuple<ClientState, InputMessage>> inputQueue() {
-    return inputQueue;
-  }
-
+  /**
+   * Gets a copy of the current active sessions mapped by their channel IDs.
+   *
+   * <p>This map is unmodifiable and represents a snapshot of the sessions at the time of the call.
+   * It contains all sessions, including those that may be closed.
+   *
+   * @return An unmodifiable map of channel IDs to sessions.
+   * @see #connectedClients()
+   */
   public Map<ChannelId, Session> sessions() {
     return Map.copyOf(sessions);
   }
 
+  /**
+   * Gets a set of all currently connected clients' states.
+   *
+   * <p>This method filters out any sessions that are closed and collects the associated ClientState
+   * objects.
+   *
+   * @return A set of ClientState objects representing connected clients.
+   */
   public Set<ClientState> connectedClients() {
     Set<ClientState> clients = new HashSet<>();
     for (Session s : sessions.values()) {
@@ -110,23 +145,37 @@ public final class ServerTransport {
     return clients;
   }
 
+  /**
+   * Gets a copy of the mapping from client IDs to their respective sessions.
+   *
+   * <p>This map is unmodifiable and represents a snapshot of the client ID to session mappings at
+   * the time of the call.
+   *
+   * @return An unmodifiable map of client IDs to sessions.
+   */
   public Map<Short, Session> clientIdToSessionMap() {
     return Map.copyOf(clientIdToSession);
   }
 
-  public int nextClientIdValue() {
-    return nextClientId.get();
-  }
-
-  public MessageDispatcher dispatcher() {
-    return dispatcher;
-  }
-
-  public Channel tcpServerChannel() {
+  /**
+   * Gets the current TCP server channel.
+   *
+   * <p>This channel is used for accepting incoming TCP connections from clients.
+   *
+   * @return The TCP server channel.
+   */
+  Channel tcpServerChannel() {
     return tcpServer;
   }
 
-  public Channel udpChannel() {
+  /**
+   * Gets the current UDP channel.
+   *
+   * <p>This channel is used for sending and receiving UDP packets to/from clients.
+   *
+   * @return The UDP channel.
+   */
+  Channel udpChannel() {
     return udpChannel;
   }
 
@@ -174,6 +223,15 @@ public final class ServerTransport {
     }
   }
 
+  /**
+   * Broadcasts a {@link NetworkMessage} to all connected clients.
+   *
+   * @param msg The message to broadcast.
+   * @param reliable True to send via a reliable channel (TCP), false for unreliable (UDP).
+   * @return A CompletableFuture that completes with true if (reliable) all clients acknowledged the
+   *     message, or false if any failed. For unreliable messages, the Future completes immediately
+   *     with true. For any errors during sending, the Future completes with false.
+   */
   public CompletableFuture<Boolean> broadcast(NetworkMessage msg, boolean reliable) {
     if (sessions.isEmpty()) {
       return CompletableFuture.completedFuture(true);
@@ -246,7 +304,7 @@ public final class ServerTransport {
         return;
       }
       if (obj instanceof NetworkMessage msg) {
-        if (dispatcher != null) dispatcher.dispatch(session, msg);
+        inboundQueue.offer(Tuple.of(session, msg));
       } else {
         LOGGER.debug("TCP received unexpected object: {}", obj.getClass().getName());
       }
@@ -324,8 +382,7 @@ public final class ServerTransport {
       }
 
       if (obj instanceof NetworkMessage msg) {
-        // Enqueue dispatch to Game-Thread instead
-        dispatcher.dispatch(session, msg);
+        inboundQueue.offer(Tuple.of(session, msg));
       } else {
         LOGGER.debug("Unexpected UDP object {} from {}", obj.getClass().getName(), sender);
       }
@@ -337,11 +394,27 @@ public final class ServerTransport {
     }
   }
 
-  private void setupDispatchers() {
-    dispatcher = Game.network().messageDispatcher();
-    if (dispatcher == null)
-      throw new IllegalStateException("Game.network().messageDispatcher() is null");
+  /**
+   * Polls the inbound message queue and dispatches messages to their respective handlers.
+   *
+   * <p>This method should be called regularly on the game loop thread to ensure timely processing
+   * of incoming messages.
+   *
+   * @see MessageDispatcher
+   */
+  public void pollAndDispatch() {
+    Tuple<Session, NetworkMessage> msg;
+    while ((msg = inboundQueue.poll()) != null) {
+      try {
+        Game.network().messageDispatcher().dispatch(msg.a(), msg.b());
+      } catch (Exception e) {
+        LOGGER.error("Dispatch error", e);
+      }
+    }
+  }
 
+  private void setupDispatchers() {
+    MessageDispatcher dispatcher = Game.network().messageDispatcher();
     dispatcher.registerHandler(ConnectRequest.class, this::onConnectRequest);
     dispatcher.registerHandler(RequestEntitySpawn.class, this::onRequestEntitySpawn);
     dispatcher.registerHandler(InputMessage.class, this::onInputMessage);
@@ -522,7 +595,7 @@ public final class ServerTransport {
     }
 
     // 4. Enqueue
-    inputQueue.offer(Tuple.of(state, msg));
+    HeroController.enqueueInput(state, msg);
   }
 
   private void sendInitialLevel(ChannelHandlerContext ctx, int clientId) {
