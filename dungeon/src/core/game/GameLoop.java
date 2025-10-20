@@ -17,7 +17,6 @@ import contrib.systems.HealthBarSystem;
 import contrib.systems.HudSystem;
 import contrib.systems.ManaBarSystem;
 import contrib.utils.CheckPatternPainter;
-import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -195,17 +194,7 @@ public final class GameLoop extends ScreenAdapter {
     final boolean isMultiplayerClient =
         PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
     ECSManagment.runOneFrame(
-        s -> {
-          if (!isMultiplayerClient) return true;
-          return (s instanceof DrawSystem)
-              || (s instanceof CameraSystem)
-              || (s instanceof InputSystem)
-              || (s instanceof ManaBarSystem)
-              || (s instanceof HealthBarSystem)
-              || (s instanceof HudSystem)
-              || (s instanceof Debugger)
-              || (s instanceof DebugDrawSystem);
-        });
+        isMultiplayerClient ? System.AuthoritativeSide.CLIENT : System.AuthoritativeSide.BOTH);
 
     if (Game.network() instanceof LocalNetworkHandler) {
       // If we are in single player, we can send snapshots to ourselves directly.

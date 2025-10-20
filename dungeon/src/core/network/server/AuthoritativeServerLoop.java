@@ -129,7 +129,7 @@ public final class AuthoritativeServerLoop {
       serverTick++;
       syncClientsToEntities();
       drainAndApplyInputs(net.inputQueue());
-      ECSManagment.runOneFrame();
+      ECSManagment.runOneFrame(core.System.AuthoritativeSide.SERVER);
     } catch (Exception e) {
       LOGGER.error("Tick error", e);
     } catch (Throwable t) {

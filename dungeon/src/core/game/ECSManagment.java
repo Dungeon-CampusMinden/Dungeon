@@ -15,7 +15,6 @@ import core.utils.EntitySystemMapper;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -395,12 +394,17 @@ public final class ECSManagment {
    *
    * <p>It breaks the execution if a new level was loaded during this tick.
    *
-   * @param shouldRun a predicate to include/exclude systems (return true to consider a system).
+   * @param side the authoritative side for which to run the frame. (BOTH for all systems)
    */
-  public static void runOneFrame(Predicate<System> shouldRun) {
+  public static void runOneFrame(System.AuthoritativeSide side) {
     for (System system : ECSManagment.systems().values()) {
       if (newLevelLoadedThisTick) break;
-      if (shouldRun != null && !shouldRun.test(system)) continue;
+
+      if (side != System.AuthoritativeSide.BOTH
+          && system.authoritativeSide() != System.AuthoritativeSide.BOTH
+          && system.authoritativeSide() != side) {
+        continue;
+      }
       system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
       if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
         system.execute();
@@ -412,18 +416,8 @@ public final class ECSManagment {
   }
 
   /**
-   * Runs one logical ECS frame.
-   *
-   * <p>Runs every system that is currently registered.
-   *
-   * <p>It breaks the execution if a new level was loaded during this tick.
-   */
-  public static void runOneFrame() {
-    runOneFrame(null);
-  }
-
-  /**
-   * Returns the current tick number, incremented each time {@link #runOneFrame()} is called.
+   * Returns the current tick number, incremented each time {@link
+   * #runOneFrame(System.AuthoritativeSide)} is called.
    *
    * @return the current tick number
    */
