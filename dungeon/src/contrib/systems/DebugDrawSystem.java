@@ -61,6 +61,11 @@ public class DebugDrawSystem extends System {
   private static final BitmapFont FONT = FontHelper.getDefaultFont();
   private boolean render = false;
 
+  /** Creates a new DebugDrawSystem. */
+  public DebugDrawSystem() {
+    super(AuthoritativeSide.CLIENT, PositionComponent.class);
+  }
+
   @Override
   public void execute() {
     UI_CAM.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -68,7 +73,7 @@ public class DebugDrawSystem extends System {
     if (!render) return;
 
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
-    filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
+    filteredEntityStream().forEach(this::drawPosition);
   }
 
   private void drawPosition(Entity entity) {

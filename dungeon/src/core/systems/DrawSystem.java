@@ -59,7 +59,8 @@ public final class DrawSystem extends System {
 
   /** Create a new DrawSystem. */
   public DrawSystem() {
-    super(DrawComponent.class, PositionComponent.class);
+    // both side because we render and update states here
+    super(AuthoritativeSide.BOTH, DrawComponent.class, PositionComponent.class);
     onEntityAdd = (e) -> onEntityChanged(e, true);
     onEntityRemove = (e) -> onEntityChanged(e, false);
   }
