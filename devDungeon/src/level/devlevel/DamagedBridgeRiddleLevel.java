@@ -2,6 +2,7 @@ package level.devlevel;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
+import contrib.entities.deco.Deco;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import core.Entity;
@@ -12,6 +13,8 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import entities.DevDungeonMonster;
 import java.util.*;
@@ -29,10 +32,10 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
   private static final DevDungeonMonster BOSS_TYPE = DevDungeonMonster.CHORT;
 
   // Spawn Points / Locations
-  private final Coordinate bridgeMobSpawn;
+  private final Point bridgeMobSpawn;
   private final Tile[] secretWay;
-  private final Coordinate[] mobSpawns;
-  private final Coordinate levelBossSpawn;
+  private final Point[] mobSpawns;
+  private final Point levelBossSpawn;
 
   private final DamagedBridgeRiddleHandler riddleHandler;
 
@@ -41,27 +44,28 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
    *
    * @param layout The layout of the level.
    * @param designLabel The design label of the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
   public DamagedBridgeRiddleLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints, List<Tuple<Deco, Point>> decorations) {
     super(
         layout,
         designLabel,
-        customPoints,
+        namedPoints,
+        decorations,
         "The Damaged Bridge",
         "I heard that a powerful artifact is hidden nearby. Rumor says it's just beyond an old bridge. Let's see if we can find it.");
-    this.riddleHandler = new DamagedBridgeRiddleHandler(customPoints, this);
-    this.bridgeMobSpawn = customPoints.get(8);
+    this.riddleHandler = new DamagedBridgeRiddleHandler(namedPoints, this);
+    this.bridgeMobSpawn = getPoint("Point8");
 
     this.secretWay =
-        Arrays.stream(getCoordinates(11, 17))
+        Arrays.stream(getPoints("Point", 11, 17))
             .map(this::tileAt) // returns Optional<Tile>
             .flatMap(Optional::stream) // only keep present values
             .toArray(Tile[]::new);
 
-    this.mobSpawns = getCoordinates(18, customPoints().size() - 2);
-    this.levelBossSpawn = customPoints().getLast();
+    this.mobSpawns = getPoints("Point", 18, namedPoints().size() - 2);
+    this.levelBossSpawn = getPoint("Point" + (namedPoints().size() - 1));
   }
 
   @Override
@@ -77,8 +81,12 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
     // Spawn all entities and it's content
     spawnChestsAndCauldrons();
 
+    Coordinate[] mobSpawns =
+        Arrays.stream(this.mobSpawns)
+            .map(Point::toCoordinate)
+            .toArray(Coordinate[]::new);
     EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, mobSpawns);
-    EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn);
+    EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn.toCoordinate());
     riddleHandler.onFirstTick();
   }
 

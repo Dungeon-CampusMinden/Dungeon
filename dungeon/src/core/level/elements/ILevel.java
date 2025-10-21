@@ -418,23 +418,9 @@ public interface ILevel extends IndexedGraph<Tile> {
   }
 
   /**
-   * Returns the list of custom points.
+   * Returns the list of named points.
    *
-   * @return A list of custom points.
+   * @return A list of named points.
    */
-  List<Coordinate> customPoints();
-
-  /**
-   * Adds a new custom point to the list.
-   *
-   * @param point The custom point to be added.
-   */
-  void addCustomPoint(Coordinate point);
-
-  /**
-   * Removes a custom point from the list.
-   *
-   * @param point The custom point to be removed.
-   */
-  void removeCustomPoint(Coordinate point);
+  Map<String, Point> namedPoints();
 }

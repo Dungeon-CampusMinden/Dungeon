@@ -5,6 +5,7 @@ import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.MiscFactory;
+import contrib.entities.deco.Deco;
 import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
@@ -22,18 +23,21 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import entities.DevDungeonMonster;
 import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceMushroomRed;
 import java.util.List;
+import java.util.Map;
+
 import level.DevDungeonLevel;
 
 /** The Tutorial Level. */
 public class TutorialLevel extends DevDungeonLevel {
 
   // Entity spawn points
-  private final Coordinate mobSpawn;
+  private final Point mobSpawn;
   private final Point chestSpawn;
   private final Point cauldronSpawn;
   private Coordinate lastHeroCoords = new Coordinate(0, 0);
@@ -43,20 +47,21 @@ public class TutorialLevel extends DevDungeonLevel {
    *
    * @param layout The layout of the level.
    * @param designLabel The design label of the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
   public TutorialLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints, List<Tuple<Deco, Point>> decorations) {
     super(
         layout,
         designLabel,
-        customPoints,
+        namedPoints,
+        decorations,
         "Tutorial",
         "Willkommen im Tutorial! Hier lernst Du die Grundlagen des Spiels kennen.");
-    this.mobSpawn = customPoints.get(0);
+    this.mobSpawn = getPoint("Point0");
 
-    this.chestSpawn = customPoints.get(1).toPoint();
-    this.cauldronSpawn = customPoints.get(2).toPoint();
+    this.chestSpawn = getPoint("Point1");
+    this.cauldronSpawn = getPoint("Point2");
   }
 
   @Override
@@ -77,7 +82,7 @@ public class TutorialLevel extends DevDungeonLevel {
     if (mob == null) {
       throw new RuntimeException("Failed to create tutorial monster");
     }
-    DoorTile mobDoor = (DoorTile) tileAt(customPoints().get(5)).orElse(null);
+    DoorTile mobDoor = (DoorTile) tileAt(getPoint("Point5")).orElse(null);
     mob.fetch(HealthComponent.class)
         .ifPresent(
             hc ->
@@ -104,9 +109,9 @@ public class TutorialLevel extends DevDungeonLevel {
   }
 
   private void handleTextPopups() {
-    DoorTile frontDoor = (DoorTile) tileAt(customPoints().get(4)).orElse(null);
-    DoorTile mobDoor = (DoorTile) tileAt(customPoints().get(5)).orElse(null);
-    DoorTile CraftingDoor = (DoorTile) tileAt(customPoints().get(6)).orElse(null);
+    DoorTile frontDoor = (DoorTile) tileAt(getPoint("Point4")).orElse(null);
+    DoorTile mobDoor = (DoorTile) tileAt(getPoint("Point5")).orElse(null);
+    DoorTile CraftingDoor = (DoorTile) tileAt(getPoint("Point6")).orElse(null);
     if (EntityUtils.getHeroCoordinate() == null) return;
     Tile heroTile = tileAt(EntityUtils.getHeroCoordinate()).orElse(null);
     if (heroTile == null) return;
@@ -153,8 +158,8 @@ public class TutorialLevel extends DevDungeonLevel {
    * mob.
    */
   private void handleDoors() {
-    DoorTile frontDoor = (DoorTile) tileAt(customPoints().get(4)).orElse(null);
-    DoorTile CraftingDoor = (DoorTile) tileAt(customPoints().get(6)).orElse(null);
+    DoorTile frontDoor = (DoorTile) tileAt(getPoint("Point4")).orElse(null);
+    DoorTile CraftingDoor = (DoorTile) tileAt(getPoint("Point6")).orElse(null);
     Point heroPos;
     try {
       heroPos = SkillTools.heroPositionAsPoint();
@@ -220,7 +225,7 @@ public class TutorialLevel extends DevDungeonLevel {
     ic =
         b.fetch(InventoryComponent.class)
             .orElseThrow(() -> MissingComponentException.build(b, InventoryComponent.class));
-    pc.position(customPoints().get(3).toPoint());
+    pc.position(getPoint("Point3"));
     ic.add(new ItemPotionHealth(HealthPotionType.NORMAL));
     Game.add(b);
   }

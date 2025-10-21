@@ -143,19 +143,19 @@ public class LevelEditorSystem extends System {
   }
 
   private void setCustomPoint() {
-    Point mosPos = SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
-    Tile mouseTile = LevelSystem.level().orElse(null).tileAt(mosPos).orElse(null);
-    if (mouseTile == null) {
-      return;
-    }
-    if (Game.currentLevel().orElse(null) instanceof DungeonLevel devDungeonLevel) {
-      if (devDungeonLevel.customPoints().contains(mouseTile.coordinate())) {
-        java.lang.System.out.println("[-] Custom point: " + mouseTile.coordinate());
-        devDungeonLevel.removeCustomPoint(mouseTile.coordinate());
-      } else {
-        java.lang.System.out.println("[+] Custom point: " + mouseTile.coordinate());
-        devDungeonLevel.addCustomPoint(mouseTile.coordinate());
-      }
-    }
+    //    Point mosPos = SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
+    //    Tile mouseTile = LevelSystem.level().orElse(null).tileAt(mosPos).orElse(null);
+    //    if (mouseTile == null) {
+    //      return;
+    //    }
+    //    if (Game.currentLevel().orElse(null) instanceof DungeonLevel devDungeonLevel) {
+    //      if (devDungeonLevel.namedPoints().contains(mouseTile.coordinate())) {
+    //        java.lang.System.out.println("[-] Custom point: " + mouseTile.coordinate());
+    //        devDungeonLevel.removeNamedPoint(mouseTile.coordinate());
+    //      } else {
+    //        java.lang.System.out.println("[+] Custom point: " + mouseTile.coordinate());
+    //        devDungeonLevel.addNamedPoint(mouseTile.coordinate());
+    //      }
+    //    }
   }
 }

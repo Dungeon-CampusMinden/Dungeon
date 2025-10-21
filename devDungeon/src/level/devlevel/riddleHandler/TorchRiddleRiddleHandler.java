@@ -19,6 +19,7 @@ import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import utils.ArrayUtils;
@@ -40,9 +41,9 @@ public class TorchRiddleRiddleHandler {
   private final Entity riddleSign;
 
   private final DungeonLevel level;
-  private final Coordinate riddleDoor;
-  private final Coordinate[] riddleRoomBounds;
-  private final Coordinate riddleCenter;
+  private final Point riddleDoor;
+  private final Point[] riddleRoomBounds;
+  private final Point riddleCenter;
   private int riddleSearchedSum;
   private boolean rewardGiven = false;
   private boolean broken = false;
@@ -50,17 +51,17 @@ public class TorchRiddleRiddleHandler {
   /**
    * Constructs a new TorchRiddleRiddleHandler with the given custom points and level.
    *
-   * @param customPoints The custom points of the riddle room.
+   * @param namedPoints The custom points of the riddle room.
    * @param level The level of the riddle room.
    */
-  public TorchRiddleRiddleHandler(List<Coordinate> customPoints, DungeonLevel level) {
+  public TorchRiddleRiddleHandler(Map<String, Point> namedPoints, DungeonLevel level) {
     this.level = level;
     // First point is the riddle door
-    this.riddleDoor = customPoints.getFirst();
+    this.riddleDoor = level.getPoint("Point0");
     this.riddleRoomBounds =
-        new Coordinate[] {customPoints.get(1), customPoints.get(2)}; // TopLeft, BottomRight
+      new Point[] {level.getPoint("Point1"), level.getPoint("Point2")}; // TopLeft, BottomRight
     // Next one is the center of the torch circle
-    this.riddleCenter = customPoints.get(17);
+    this.riddleCenter = level.getPoint("Point17");
 
     this.riddleSign =
         SignFactory.createSign(
@@ -188,7 +189,7 @@ public class TorchRiddleRiddleHandler {
         .filter(tile -> tile instanceof DoorTile)
         .map(tile -> (DoorTile) tile)
         .ifPresent(DoorTile::open);
-    LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], true);
+    LevelUtils.changeVisibilityForArea(riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), true);
   }
 
   /**

@@ -3,6 +3,7 @@ package level.devlevel;
 import components.TorchComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
+import contrib.entities.deco.Deco;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.utils.EntityUtils;
@@ -14,6 +15,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.DevDungeonMonster;
@@ -32,12 +34,12 @@ public class TorchRiddleLevel extends DevDungeonLevel {
   private static final DevDungeonMonster BOSS_TYPE = DevDungeonMonster.ZOMBIE;
 
   // Spawn Points / Locations
-  private final Coordinate[] torchPositions;
-  private final Coordinate[] riddleRoomTorches;
-  private final Coordinate[] riddleRoomBounds;
-  private final Coordinate[] riddleRoomContent;
-  private final Coordinate[] mobSpawns;
-  private final Coordinate levelBossSpawn;
+  private final Point[] torchPositions;
+  private final Point[] riddleRoomTorches;
+  private final Point[] riddleRoomBounds;
+  private final Point[] riddleRoomContent;
+  private final Point[] mobSpawns;
+  private final Point levelBossSpawn;
   private final TorchRiddleRiddleHandler riddleHandler;
 
   /**
@@ -45,24 +47,25 @@ public class TorchRiddleLevel extends DevDungeonLevel {
    *
    * @param layout The layout of the level.
    * @param designLabel The design label of the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
   public TorchRiddleLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints, List<Tuple<Deco, Point>> decorations) {
     super(
         layout,
         designLabel,
-        customPoints,
+        namedPoints,
+        decorations,
         "The Torch Riddle",
         "Welcome to the Torch Riddle! This is an ancient test, rewarding rewards to those who look closer. You may find the Riddle Door to proceed. Best of luck!");
-    this.riddleHandler = new TorchRiddleRiddleHandler(customPoints, this);
+    this.riddleHandler = new TorchRiddleRiddleHandler(namedPoints, this);
 
-    this.riddleRoomBounds = new Coordinate[] {customPoints.get(1), customPoints.get(2)};
-    this.torchPositions = getCoordinates(3, 8);
-    this.riddleRoomTorches = getCoordinates(9, 14);
-    this.riddleRoomContent = getCoordinates(15, 16);
-    this.mobSpawns = getCoordinates(18, customPoints.size() - 2);
-    this.levelBossSpawn = customPoints.getLast();
+    this.riddleRoomBounds = new Point[] {getPoint("Point1"), getPoint("Point2")}; // TopLeft, BottomRight
+    this.torchPositions = getPoints("Point", 3, 8);
+    this.riddleRoomTorches = getPoints("Point", 9, 14);
+    this.riddleRoomContent = getPoints("Point", 15, 16);
+    this.mobSpawns = getPoints("Point", 18, namedPoints.size() - 2);
+    this.levelBossSpawn = getPoint("Point" + (namedPoints.size() - 1));
   }
 
   @Override
@@ -78,12 +81,14 @@ public class TorchRiddleLevel extends DevDungeonLevel {
 
   private void handleFirstTick() {
     // Hide Riddle Room at start
-    LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], false);
+    LevelUtils.changeVisibilityForArea(riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), false);
 
     // Spawn all entities and it's content
     spawnTorches();
+
+    Coordinate[] mobSpawns = Arrays.stream(this.mobSpawns).map(Point::toCoordinate).toArray(Coordinate[]::new);
     utils.EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, mobSpawns);
-    utils.EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn);
+    utils.EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn.toCoordinate());
     spawnChestsAndCauldrons();
   }
 
@@ -97,8 +102,8 @@ public class TorchRiddleLevel extends DevDungeonLevel {
    * interactable or have any values.
    */
   private void spawnRiddleRoomTorches() {
-    for (Coordinate riddleRoomTorch : riddleRoomTorches) {
-      Point torchPos = riddleRoomTorch.toPoint().translate(Vector2.of(0, 0.25f));
+    for (Point riddleRoomTorch : riddleRoomTorches) {
+      Point torchPos = riddleRoomTorch.translate(Vector2.of(0, 0.25f));
       utils.EntityUtils.spawnTorch(torchPos, true, false, 0);
     }
   }
@@ -112,10 +117,9 @@ public class TorchRiddleLevel extends DevDungeonLevel {
    */
   private void spawnOutsideTorches() {
     List<Integer> torchNumbers = new ArrayList<>();
-    Coordinate[] positions = torchPositions;
+    Point[] positions = torchPositions;
     for (int i = 0; i < positions.length; i++) {
-      Coordinate torchPosition = positions[i];
-      Point torchPos = torchPosition.toPoint();
+      Point torchPos = positions[i];
       Entity torch =
           utils.EntityUtils.spawnTorch(
               torchPos,
@@ -155,7 +159,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
 
-    pc.position(riddleRoomContent[0].toPoint());
+    pc.position(riddleRoomContent[0]);
 
     InventoryComponent ic =
         chest
@@ -177,7 +181,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
         cauldron
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(cauldron, PositionComponent.class));
-    pc.position(riddleRoomContent[1].toPoint());
+    pc.position(riddleRoomContent[1]);
     Game.add(cauldron);
   }
 }

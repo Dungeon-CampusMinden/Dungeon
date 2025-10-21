@@ -1,5 +1,6 @@
 package core.level;
 
+import contrib.entities.deco.Deco;
 import contrib.utils.level.ITickable;
 import core.level.elements.ILevel;
 import core.level.elements.astar.TileConnection;
@@ -9,10 +10,12 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
+import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import java.util.*;
-import java.util.stream.IntStream;
+import java.util.stream.Collectors;
 
 /**
  * Basic 2D-Matrix Tile-based level.
@@ -27,7 +30,9 @@ import java.util.stream.IntStream;
  */
 public class DungeonLevel implements ILevel, ITickable {
 
-  protected final List<Coordinate> customPoints = new ArrayList<>();
+  protected final Map<String, Point> namedPoints = new HashMap<>();
+  protected final List<Tuple<Deco, Point>> decorations = new ArrayList<>();
+
   private static int levelNameSuffix = 1;
   protected String levelName;
   private static final Vector2[] CONNECTION_OFFSETS = {
@@ -77,9 +82,10 @@ public class DungeonLevel implements ILevel, ITickable {
   public DungeonLevel(
       LevelElement[][] layout,
       DesignLabel designLabel,
-      List<Coordinate> customPoints,
+      Map<String, Point> customPoints,
+      List<Tuple<Deco, Point>> decorations,
       String levelName) {
-    this(layout, designLabel, customPoints);
+    this(layout, designLabel, customPoints, decorations);
     this.levelName = levelName;
   }
 
@@ -88,12 +94,16 @@ public class DungeonLevel implements ILevel, ITickable {
    *
    * @param layout The layout of the level, represented as a 2D array of LevelElements.
    * @param designLabel The design label of the level.
-   * @param customPoints A list of custom points to be added to the level.
+   * @param namedPoints A list of custom points to be added to the level.
    */
   public DungeonLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+      LevelElement[][] layout,
+      DesignLabel designLabel,
+      Map<String, Point> namedPoints,
+      List<Tuple<Deco, Point>> decorations) {
     this(layout, designLabel);
-    this.customPoints.addAll(customPoints);
+    this.namedPoints.putAll(namedPoints);
+    this.decorations.addAll(decorations);
   }
 
   /**
@@ -309,35 +319,61 @@ public class DungeonLevel implements ILevel, ITickable {
     onTick();
   }
 
+  @Override
+  public Map<String, Point> namedPoints() {
+    return namedPoints;
+  }
+
+  public List<Tuple<Deco, Point>> decorations() {
+    return decorations;
+  }
+
+  public Point getPoint(String name) {
+    return namedPoints.get(name);
+  }
+
   /**
-   * Gets the custom points that are within the given bounds.
-   *
-   * @param start The start index of the custom points list.
-   * @param end The end index of the custom points list. (inclusive)
-   * @return An array of custom points within the given bounds.
+   * Get an array of points with the given base name from start to end (inclusive).
+   * @param baseName the base name of the points
+   * @param start the starting index
+   * @param end the ending index
+   * @return the array of points
    */
-  protected Coordinate[] getCoordinates(int start, int end) {
-    return IntStream.rangeClosed(start, end)
-        .mapToObj(customPoints()::get)
-        .toArray(Coordinate[]::new);
+  public Point[] getPoints(String baseName, int start, int end) {
+    Point[] points = new Point[end - start + 1];
+    for (int i = start; i <= end; i++) {
+      points[i - start] = getPoint(baseName + i);
+    }
+    return points;
   }
 
-  @Override
-  public List<Coordinate> customPoints() {
-    // TODO: SMELL – This returns the internal list. Ideally, we should return a copy to avoid
-    // exposing internal state.
-    // However, in Produs we remove custom points during level creation to simplify iteration, which
-    // wouldn't work with a copy.
-    return customPoints;
+  public int getHighestPointNumber(String baseName) {
+    int highestNumber = -1;
+    while (namedPoints.containsKey(baseName + (highestNumber + 1))) {
+      highestNumber++;
+    }
+    return highestNumber;
   }
 
-  @Override
-  public void addCustomPoint(Coordinate point) {
-    customPoints.add(point);
+  public List<Tuple<Point, Integer>> listPointsIndexed(String baseName) {
+    ArrayList<Tuple<Point, Integer>> toRet = new ArrayList<>();
+    int i = 0;
+    while (namedPoints.containsKey(baseName + i)) {
+      toRet.add(new Tuple(getPoint(baseName + i), i));
+      i++;
+    }
+    return toRet;
   }
 
-  @Override
-  public void removeCustomPoint(Coordinate point) {
-    customPoints.remove(point);
+  public List<Point> listPoints(String baseName) {
+    return listPointsIndexed(baseName).stream().map(Tuple::a).collect(Collectors.toList());
+  }
+
+  public Point addNamedPoint(String name, Point position) {
+    return namedPoints.put(name, position);
+  }
+
+  public Point removeNamedPoint(String name) {
+    return namedPoints.remove(name);
   }
 }
