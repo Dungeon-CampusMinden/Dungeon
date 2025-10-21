@@ -95,7 +95,7 @@ public class AnimationConfig implements Cloneable {
   }
 
   /**
-   * Sets the horizontal scaling factor.
+   * Sets the horizontal scaling factor. If y-scale is empty, it will be inferred from this value.
    *
    * @param scaleX new scaleX
    * @return this config for chaining
@@ -113,7 +113,7 @@ public class AnimationConfig implements Cloneable {
   }
 
   /**
-   * Sets the vertical scaling factor.
+   * Sets the vertical scaling factor. If set to {@code 0}, {@link #scaleX()} will be used instead.
    *
    * @param scaleY new scaleY
    * @return this config for chaining

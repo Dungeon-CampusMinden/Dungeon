@@ -5,6 +5,7 @@ import contrib.utils.components.collide.Hitbox;
 import core.Component;
 import core.Entity;
 import core.utils.Direction;
+import core.utils.Rectangle;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.logging.CustomLogLevel;
@@ -105,6 +106,29 @@ public final class CollideComponent implements Component {
    * </ul>
    */
   private TriConsumer<Entity, Entity, Direction> collideHold;
+
+  /**
+   * Creates a new {@code CollideComponent}.
+   *
+   * <p>This component handles collisions for an entity using a hitbox defined by {@code offset} and
+   * {@code size}, and custom behavior for collision events.
+   *
+   * <p>The collision handlers use a {@link TriConsumer} with three parameters:
+   *
+   * <ul>
+   *   <li>the first entity: the entity that holds this {@code CollideComponent}
+   *   <li>the second entity: the entity it collides with
+   *   <li>the third parameter: the collision direction, relative to the first entity
+   * </ul>
+   *
+   * @param rectangle the rectangle defining the size and offset of the hitbox
+   */
+  public CollideComponent(Rectangle rectangle) {
+    this.collider = new Hitbox(rectangle.size(), rectangle.offset());
+    this.collideEnter = DEFAULT_COLLIDER;
+    this.collideLeave = DEFAULT_COLLIDER;
+    this.collideHold = DEFAULT_COLLIDER;
+  }
 
   /**
    * Creates a new {@code CollideComponent}.

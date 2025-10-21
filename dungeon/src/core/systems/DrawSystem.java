@@ -2,6 +2,7 @@ package core.systems;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -12,6 +13,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
@@ -138,7 +140,7 @@ public final class DrawSystem extends System {
     for (List<Entity> group : sortedEntities.values()) {
       group.stream()
           .map(this::buildDataObject)
-          .sorted(Comparator.comparingDouble((DSData d) -> -d.pc.position().y()))
+          .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
           .filter(this::shouldDraw)
           .forEach(this::draw);
     }
@@ -150,8 +152,8 @@ public final class DrawSystem extends System {
    * Checks if an entity should be drawn. By checking:
    *
    * <ol>
-   *   <li>The tile the entity is on is visible
    *   <li>The entity itself is visible
+   *   <li>Any corner of the sprite is visible
    * </ol>
    *
    * @param data the components of the entity to check
@@ -159,11 +161,33 @@ public final class DrawSystem extends System {
    * @see DrawComponent#isVisible()
    */
   private boolean shouldDraw(DSData data) {
+    // New check: first check if entity.dc is visible. Otherwise check if any tiles under the
+    // corners of the sprite are visible.
+    if (!data.dc.isVisible()) {
+      return false;
+    }
+
+    Point pos = data.pc.position();
+    // Use data.dc.getSpriteWidth() and similar
+    float width = data.dc.getWidth() * data.pc.scale().x();
+    float height = data.dc.getHeight() * data.pc.scale().y();
+    List<Point> corners =
+        List.of(
+            pos.translate(0, 0),
+            pos.translate(width, 0),
+            pos.translate(0, height),
+            pos.translate(width, height));
+
     return Game.currentLevel()
-            .flatMap(level -> level.tileAt(data.pc.position()))
-            .map(Tile::visible)
-            .orElse(false)
-        && data.dc.isVisible();
+        .map(
+            level ->
+                corners.stream()
+                    .anyMatch(
+                        c -> {
+                          Tile t = level.tileAt(c).orElse(null);
+                          return t != null && t.visible() && !isTilePitAndOpen(t);
+                        }))
+        .orElse(false);
   }
 
   private void draw(final DSData dsd) {
