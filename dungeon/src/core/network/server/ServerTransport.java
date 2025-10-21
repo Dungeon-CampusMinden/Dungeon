@@ -31,6 +31,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -320,19 +321,27 @@ public final class ServerTransport {
           session.close();
         } catch (Exception ignored) {
         }
-        if (session.clientId() != 0) {
-          clientIdToSession.remove(session.clientId());
-          clientIdToName.remove(session.clientId());
-          LOGGER.info("Client disconnected id={} {}", session.clientId(), ctx.channel());
-        } else {
-          LOGGER.info("TCP channel closed (no assigned clientId) {}", ctx.channel());
+
+        // Clean up UDP mapping
+        InetSocketAddress udpAddr = session.udpAddress();
+        if (udpAddr != null) {
+          udpToClientId.remove(udpAddr);
         }
+
+        // Remove Player Entity on disconnect
+        session.clientState().flatMap(ClientState::heroEntity).ifPresent(Game::remove);
+
+        LOGGER.info("TCP Session closed for {}", session);
       }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-      LOGGER.warn("TCP handler error for {}", ctx.channel(), cause);
+      if (cause instanceof SocketException && "Connection reset".equals(cause.getMessage())) {
+        LOGGER.debug("TCP connection reset by peer: {}", ctx.channel());
+      } else {
+        LOGGER.warn("TCP handler error for {}", ctx.channel(), cause);
+      }
       ctx.close();
     }
   }
@@ -421,34 +430,35 @@ public final class ServerTransport {
   }
 
   private void onConnectRequest(Session session, ConnectRequest req) {
+    LOGGER.info(
+        "Received ConnectRequest protocolVersion={} playerName='{}' sessionId={} from {}",
+        req.protocolVersion(),
+        req.playerName(),
+        req.sessionId(),
+        session);
     if (req.protocolVersion() != SERVER_PROTOCOL_VERSION) {
       session.sendMessage(
           new ConnectReject(
-              "Protocol version mismatch. Server="
-                  + SERVER_PROTOCOL_VERSION
-                  + ", yours="
-                  + req.protocolVersion()),
+              ConnectReject.Reason.INCOMPATIBLE_VERSION,
+              "Server=" + SERVER_PROTOCOL_VERSION + ", yours=" + req.protocolVersion()),
           true);
-      session.close();
+      LOGGER.info(
+          "Rejected ConnectRequest due to incompatible version: server={} client={}",
+          SERVER_PROTOCOL_VERSION,
+          req.protocolVersion());
       return;
     }
 
     String playerName = req.playerName();
     if (!isValidPlayerName(playerName)) {
-      session.sendMessage(
-          new ConnectReject(
-              "Invalid player name. Must be non-empty, without underscores, and unique."),
-          true);
-      session.close();
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.INVALID_NAME), true);
+      LOGGER.info("Rejected ConnectRequest due to invalid player name: '{}'", playerName);
       return;
     }
 
     if (req.sessionToken() != null && req.sessionToken().length > 0) {
-      // TODO: implement session reconnection
-      LOGGER.info(
-          "Session reconnection not implemented yet, ignoring session data. Got: id={} tokenLength={}",
-          req.sessionId(),
-          req.sessionToken().length);
+      handleRestoringSession(session, req);
+      return;
     }
 
     short newClientId = (short) nextClientId.getAndIncrement();
@@ -464,6 +474,70 @@ public final class ServerTransport {
 
     sendInitialLevel(session.tcpCtx(), newClientId);
     LOGGER.info("Accepted client id={} name='{}' {}", newClientId, playerName, session);
+  }
+
+  private void handleRestoringSession(Session session, ConnectRequest req) {
+    // 1. Validate session ID
+    if (req.sessionId() != ServerRuntime.SESSION_ID) {
+      LOGGER.info(
+          "No session found for restore attempt with sessionId={} from {}",
+          req.sessionId(),
+          session);
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.NO_SESSION_FOUND), true);
+      return;
+    }
+
+    // 2. Validate session token and find matching client ID
+    short clientId = -1;
+    Session oldSession = null;
+    for (Map.Entry<Short, Session> entry : clientIdToSession.entrySet()) {
+      Session s = entry.getValue();
+      ClientState state = s.clientState().orElse(null);
+      if (state != null
+          && state.sessionToken() != null
+          && SessionTokenUtil.validate(state.sessionToken(), req.sessionToken())) {
+        clientId = entry.getKey();
+        oldSession = s;
+        // check if the session is already active
+        if (!s.isClosed()) {
+          LOGGER.warn("Session restore attempt for already active clientId={}", clientId);
+          session.sendMessage(new ConnectReject(ConnectReject.Reason.INVALID_SESSION_TOKEN), true);
+          return;
+        }
+        break;
+      }
+    }
+
+    if (clientId == -1) {
+      LOGGER.info("No matching session found for restore attempt");
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.INVALID_SESSION_TOKEN), true);
+      return;
+    }
+
+    // 3. Restore session
+
+    String playerName = req.playerName();
+    byte[] newSessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
+
+    // reattach old ClientState to new Session
+    ClientState oldClientState = oldSession.clientState().orElseThrow();
+    oldClientState.resetForReconnect(ServerRuntime.SESSION_ID, newSessionToken, true);
+    session.attachClientState(oldClientState);
+    clientIdToSession.put(clientId, session);
+
+    // remove old mappings
+    clientIdToName.put(clientId, playerName);
+    sessions.remove(oldSession.tcpCtx().channel().id());
+    try {
+      oldSession.close(); // should be already closed, but just in case
+    } catch (Exception ignored) {
+    }
+
+    // 4. Send ConnectAck
+    session.sendMessage(new ConnectAck(clientId, ServerRuntime.SESSION_ID, newSessionToken), true);
+
+    sendInitialLevel(session.tcpCtx(), clientId);
+    LOGGER.info("Restored client id={} name='{}' {}", clientId, playerName, session);
   }
 
   private void onUdpRegister(InetSocketAddress sender, Session tcpSession, RegisterUdp reg) {
@@ -531,6 +605,7 @@ public final class ServerTransport {
    * <p>Rules:
    *
    * <ul>
+   *   <li>We allow reusing names of disconnected players.
    *   <li>Not null
    *   <li>Not blank
    *   <li>No underscores
@@ -541,6 +616,20 @@ public final class ServerTransport {
    * @return True if valid, false otherwise.
    */
   private boolean isValidPlayerName(String name) {
+    // if we already have this name, check if the session is closed
+    Short clientId =
+        clientIdToName.entrySet().stream()
+            .filter(e -> e.getValue().equals(name))
+            .map(Map.Entry::getKey)
+            .findFirst()
+            .orElse(null);
+    if (clientId != null) {
+      // name is taken, check if session is closed
+      Session sess = clientIdToSession.get(clientId);
+      return sess != null
+          && sess.isClosed(); // previously had to validate, so we can skip other checks
+    }
+
     return name != null
         && !name.isBlank()
         && !name.contains("_")

@@ -105,6 +105,8 @@ public class ClientState {
    * @param newSessionId The new session ID.
    * @param newSessionToken The new session token.
    * @param preserveHero If true, keeps the existing heroEntityId.
+   * @throws IllegalArgumentException If newSessionId is 0 or token is invalid.
+   * @throws IllegalStateException If preserveHero is true but no heroEntityId is assigned
    */
   public synchronized void resetForReconnect(
       int newSessionId, byte[] newSessionToken, boolean preserveHero) {
@@ -123,6 +125,12 @@ public class ClientState {
     if (!preserveHero) {
       Game.remove(this.heroEntity);
       this.heroEntity = null;
+    }
+    {
+      if (this.heroEntity == null) {
+        throw new IllegalStateException("Cannot preserve hero entity on reconnect; none assigned");
+      }
+      Game.add(this.heroEntity);
     }
     this.lastActivityTimeMs = System.currentTimeMillis();
   }

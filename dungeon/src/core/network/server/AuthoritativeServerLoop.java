@@ -167,25 +167,6 @@ public final class AuthoritativeServerLoop {
         state.heroEntity(spawnHeroForClient(state));
       }
     }
-
-    // For every session that is no longer active, remove its entity from the game
-    for (Session session : net.sessions().values()) {
-      if (session.isClosed()) {
-        session
-            .clientState()
-            .ifPresent(
-                state ->
-                    state
-                        .heroEntity()
-                        .ifPresent(
-                            hero -> {
-                              Game.remove(hero);
-                              state.heroEntity(null);
-                              LOGGER.info(
-                                  "Removed entity for disconnected client {}", state.clientId());
-                            }));
-      }
-    }
   }
 
   private Entity spawnHeroForClient(ClientState state) {

@@ -12,6 +12,7 @@ import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.s2c.ConnectAck;
+import core.network.messages.s2c.ConnectReject;
 import core.network.messages.s2c.RegisterAck;
 import core.network.server.ClientState;
 import core.network.server.Session;
@@ -29,6 +30,9 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.*;
@@ -54,6 +58,7 @@ public final class ClientNetwork {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientNetwork.class);
 
   private static final short CLIENT_PROTOCOL_VERSION = 1;
+  public static final String LAST_SESSION_FILE_NAME = "last_session.dat";
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
   private final Queue<Tuple<Session, NetworkMessage>> inboundQueue = new ConcurrentLinkedQueue<>();
@@ -314,19 +319,13 @@ public final class ClientNetwork {
                         if (obj
                             instanceof ConnectAck(short id, int sessionId, byte[] sessionToken)) {
                           onConnectAck(id, sessionId, sessionToken);
+                        } else if (obj instanceof ConnectReject(byte reason, Object extraData)) {
+                          onConnectReject(
+                              session, ConnectReject.Reason.fromCode(reason), extraData);
                         } else if (obj instanceof RegisterAck(boolean ok)) {
                           onRegisterAck(ok);
                         } else if (obj instanceof NetworkMessage msg) {
-                          if (session != null) {
-                            inboundQueue.offer(Tuple.of(session, msg));
-                          } else {
-                            LOGGER.debug(
-                                "Dropping TCP inbound before session init: {} size={}B",
-                                obj.getClass().getSimpleName(),
-                                size);
-                          }
-                          LOGGER.debug(
-                              "TCP inbound {} size={}B", obj.getClass().getSimpleName(), size);
+                          onNetworkMessage(msg, size);
                         }
                       }
 
@@ -345,23 +344,48 @@ public final class ClientNetwork {
 
                         enqueueLifecycle(ClientNetwork.this::notifyConnected);
                         try {
-                          byte[] data =
-                              serialize(new ConnectRequest(CLIENT_PROTOCOL_VERSION, username));
+                          byte[] data;
+                          // Attempt to load last session from file
+                          Tuple<Integer, byte[]> lastSession = loadLastSessionFromFile();
+                          if (lastSession != null) {
+                            int sessionId = lastSession.a();
+                            byte[] sessionToken = lastSession.b();
+                            LOGGER.info(
+                                "Loaded last session from file: sessionId={}; Trying to reconnect.",
+                                sessionId);
+                            data =
+                                serialize(
+                                    new ConnectRequest(
+                                        CLIENT_PROTOCOL_VERSION,
+                                        username,
+                                        sessionId,
+                                        sessionToken));
+                          } else {
+                            LOGGER.info("No valid last session file found; starting new session.");
+                            data = serialize(new ConnectRequest(CLIENT_PROTOCOL_VERSION, username));
+                          }
                           if (data.length <= MAX_TCP_OBJECT_SIZE) {
                             ByteBuf buf = ctx.alloc().buffer(4 + data.length);
                             buf.writeInt(data.length);
                             buf.writeBytes(data);
                             ctx.writeAndFlush(buf);
+                          } else {
+                            LOGGER.error(
+                                "ConnectRequest too large ({} bytes); cannot connect", data.length);
+                            enqueueLifecycle(() -> notifyDisconnected("ConnectRequest too large"));
+                            Game.exit("Unable to connect to server at " + remoteHost + ":" + port);
                           }
-                        } catch (Exception e) {
+                        } catch (IOException e) {
                           LOGGER.warn("Failed to send ConnectRequest", e);
                         }
                       }
 
                       @Override
                       public void channelInactive(ChannelHandlerContext ctx) {
+                        LOGGER.info("TCP connection closed by server");
                         connected.set(false);
                         enqueueLifecycle(() -> notifyDisconnected(null));
+                        // invalidateLastSessionFile(); // TODO: decide if we want this
                       }
 
                       @Override
@@ -386,6 +410,18 @@ public final class ClientNetwork {
         throw e;
       }
     }
+  }
+
+  private void onNetworkMessage(NetworkMessage msg, int size) {
+    if (session != null) {
+      inboundQueue.offer(Tuple.of(session, msg));
+    } else {
+      LOGGER.debug(
+          "Dropping TCP inbound before session init: {} size={}B",
+          msg.getClass().getSimpleName(),
+          size);
+    }
+    LOGGER.debug("TCP inbound {} size={}B", msg.getClass().getSimpleName(), size);
   }
 
   private void startUdp() {
@@ -442,6 +478,89 @@ public final class ClientNetwork {
     LOGGER.info("Received ConnectAck clientId={}, sessionId={}", newClientId, sessionId);
     session.attachClientState(new ClientState(newClientId, username, sessionId, sessionToken));
     scheduleUdpRegistration(newClientId);
+    saveLastSessionToFile(sessionId, sessionToken);
+  }
+
+  private void onConnectReject(Session session, ConnectReject.Reason reason, Object extraData) {
+    String reasonStr =
+        "Connection rejected by server: "
+            + reason
+            + " ("
+            + (extraData != null ? extraData : "no extra data")
+            + ")";
+    LOGGER.warn(reasonStr);
+    if (reason == ConnectReject.Reason.NO_SESSION_FOUND
+        || reason == ConnectReject.Reason.INVALID_SESSION_TOKEN) {
+      // Invalidate last session file upon session-related rejections; Try to connect again without
+      // session
+      invalidateLastSessionFile();
+      session.sendMessage(new ConnectRequest(CLIENT_PROTOCOL_VERSION, username), true);
+    } else {
+      // Close the connection upon rejection
+      enqueueLifecycle(() -> notifyDisconnected(reasonStr));
+      session.tcpCtx().close();
+    }
+  }
+
+  /**
+   * Save session token and session id to a file for future reconnects.
+   *
+   * <p>This method writes the session id (4 bytes) followed by the session token bytes to a file
+   * `last_session.dat`.
+   *
+   * @param sessionId the session id to save
+   * @param sessionToken the session token bytes to save
+   */
+  private void saveLastSessionToFile(int sessionId, byte[] sessionToken) {
+    try {
+      byte[] data =
+          ByteBuffer.allocate(4 + sessionToken.length).putInt(sessionId).put(sessionToken).array();
+      Files.write(Path.of(LAST_SESSION_FILE_NAME), data);
+    } catch (IOException e) {
+      LOGGER.warn("Failed to save last session to file", e);
+    }
+  }
+
+  /**
+   * Load session token and session id from a file for reconnects.
+   *
+   * <p>This method reads the session id (4 bytes) followed by the session token bytes from a file
+   * `last_session.dat`.
+   *
+   * @return a Tuple containing the session id and session token bytes, or null if loading failed
+   */
+  private Tuple<Integer, byte[]> loadLastSessionFromFile() {
+    try {
+      Path filePath = Path.of(LAST_SESSION_FILE_NAME);
+      boolean exists = Files.exists(filePath);
+      if (!exists) {
+        return null;
+      }
+      byte[] data = Files.readAllBytes(filePath);
+      ByteBuffer buffer = ByteBuffer.wrap(data);
+      int sessionId = buffer.getInt();
+      byte[] sessionToken = new byte[buffer.remaining()];
+      buffer.get(sessionToken);
+      return Tuple.of(sessionId, sessionToken);
+    } catch (IOException e) {
+      LOGGER.warn("Failed to load last session from file", e);
+      return null;
+    }
+  }
+
+  /**
+   * Invalidate the last session file `last_session.dat` by deleting it.
+   *
+   * <p>This method is called when you want to discard the saved last session, for example, after a
+   * session-related rejection from the server. Or after completing a session and wanting to start
+   * fresh next time.
+   */
+  public static void invalidateLastSessionFile() {
+    try {
+      Files.deleteIfExists(Path.of(LAST_SESSION_FILE_NAME));
+    } catch (IOException e) {
+      LOGGER.warn("Failed to invalidate last session file", e);
+    }
   }
 
   private void onRegisterAck(boolean ok) {

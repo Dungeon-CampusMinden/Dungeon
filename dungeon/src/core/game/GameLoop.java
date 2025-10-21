@@ -247,13 +247,6 @@ public final class GameLoop extends ScreenAdapter {
     MessageDispatcher dispatcher = Game.network().messageDispatcher();
 
     dispatcher.registerHandler(
-        ConnectReject.class,
-        (ctx, event) -> {
-          LOGGER.warn("Received ConnectReject: {}", event.reason());
-          ctx.close();
-        });
-
-    dispatcher.registerHandler(
         EntitySpawnEvent.class,
         (ctx, event) -> {
           LOGGER.info("Received EntitySpawnEvent event: " + event.entityId());
@@ -315,6 +308,7 @@ public final class GameLoop extends ScreenAdapter {
         GameOverEvent.class,
         (ctx, event) -> {
           LOGGER.info("Received GameOverEvent event (reason: {})", event.reason());
+          ClientNetwork.invalidateLastSessionFile();
           Game.exit(event.reason());
         });
 
