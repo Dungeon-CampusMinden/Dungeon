@@ -81,7 +81,8 @@ public final class MessageDispatcher {
         LOGGER.error(
             "Error in message handler for message {}: {}",
             message.getClass().getSimpleName(),
-            e.getMessage());
+            e.getMessage(),
+            e);
       }
     } else {
       LOGGER.info(
