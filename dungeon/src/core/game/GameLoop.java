@@ -26,6 +26,7 @@ import core.components.PositionComponent;
 import core.level.loader.DungeonLoader;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
+import core.network.client.ClientNetwork;
 import core.network.handler.LocalNetworkHandler;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.*;
@@ -97,7 +98,14 @@ public final class GameLoop extends ScreenAdapter {
   // for singleton
   private GameLoop() {}
 
-  /** Starts the dungeon. */
+  /**
+   * Starts the dungeon.
+   *
+   * <p>If multiplayer is enabled and this is a network server, no window will be created, instead
+   * the server will run headless.
+   *
+   * @see PreRunConfiguration
+   */
   public static void run() {
     Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
     config.setWindowSizeLimits(
@@ -117,14 +125,19 @@ public final class GameLoop extends ScreenAdapter {
       config.setWindowedMode(PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
     }
 
-    new Lwjgl3Application(
-        new com.badlogic.gdx.Game() {
-          @Override
-          public void create() {
-            setScreen(new GameLoop());
-          }
-        },
-        config);
+    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
+      new Lwjgl3Application(
+          new com.badlogic.gdx.Game() {
+            @Override
+            public void create() {
+              setScreen(new GameLoop());
+            }
+          },
+          config);
+    } else {
+      // Server mode does not create a window.
+      new GameLoop().setup();
+    }
   }
 
   /**
@@ -211,17 +224,23 @@ public final class GameLoop extends ScreenAdapter {
   }
 
   /**
-   * Called once at the beginning of the game.
+   * Setup the client side of the game.
    *
-   * <p>Will execute {@link LevelSystem#execute()} once to load the first level before the actual
-   * game loop starts. This ensures the first level is set at the start of the game loop, even if
-   * the {@link LevelSystem} is not executed as the first system in the game loop..
+   * <p>This method should be called only if in single player mode or multiplayer client mode.
+   *
+   * <p>It will:
+   *
+   * <ul>
+   *   <li>Create all client relevant systems.
+   *   <li>Set up the message handlers for network messages. (If multiplayer is enabled)
+   *   <li>Set up connection listeners to reset input sequence on disconnect. (If multiplayer is
+   *       enabled)
+   *   <li>Set up the stage for HUD rendering.
+   * </ul>
    *
    * <p>Will perform some setup.
    */
-  private void setup() {
-    LOGGER.info("Starting game setup");
-    doSetup = false;
+  private void setupClient() {
     createSystems();
     if (PreRunConfiguration.multiplayerEnabled()) {
       setupMessageHandlers();
@@ -238,9 +257,33 @@ public final class GameLoop extends ScreenAdapter {
               });
     }
     setupStage();
+  }
+
+  /**
+   * Called once at the beginning of the game.
+   *
+   * <p>It will:
+   *
+   * <ul>
+   *   <li>Set up the client if not in server mode.
+   *   <li>Execute the user-defined setup callback.
+   *   <li>Execute the LevelSystem to load the initial level.
+   *   <li>Start the network handler.
+   * </ul>
+   *
+   * @see PreRunConfiguration#userOnSetup()
+   */
+  private void setup() {
+    LOGGER.info("Starting game setup");
+    doSetup = false;
+    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
+      setupClient();
+    }
+
     PreRunConfiguration.userOnSetup().execute();
-    Game.systems().get(LevelSystem.class).execute();
     Game.network().start();
+
+    Game.systems().get(LevelSystem.class).execute(); // load initial level
   }
 
   private void setupMessageHandlers() {

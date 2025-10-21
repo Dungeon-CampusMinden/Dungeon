@@ -111,9 +111,7 @@ public final class Game {
         });
 
     // Start the main game loop
-    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
-      GameLoop.run();
-    }
+    GameLoop.run();
   }
 
   /**
