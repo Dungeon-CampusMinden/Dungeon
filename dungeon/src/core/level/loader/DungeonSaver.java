@@ -3,11 +3,11 @@ package core.level.loader;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.DungeonLevel;
-import core.level.utils.Coordinate;
+import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
+import core.utils.ClipboardUtil;
 import core.utils.Point;
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.*;
 
 /**
  * This class is responsible for saving the current state of the dungeon in the game. The "saving"
@@ -27,53 +27,37 @@ public class DungeonSaver {
    * single string and prints it.
    */
   public static void saveCurrentDungeon() {
+    ILevel currentLevel = Game.currentLevel().orElse(null);
+    if (currentLevel == null) {
+      return;
+    }
+    if (!(currentLevel instanceof DungeonLevel dunLevel)) {
+      System.out.println("Current level is not a DungeonLevel. Cannot save.");
+      return;
+    }
+
     String designLabel =
-        Game.currentLevel()
-            .flatMap(level -> level.designLabel())
-            .map(DesignLabel::name)
-            .orElse(DesignLabel.DEFAULT.name());
+        dunLevel.designLabel().map(DesignLabel::name).orElse(DesignLabel.DEFAULT.name());
 
     Point heroPos =
         Game.hero()
             .flatMap(hero -> hero.fetch(PositionComponent.class).map(PositionComponent::position))
             .orElse(new Point(0, 0));
+    String heroPosString = heroPos.x() + "," + heroPos.y();
 
-    List<Coordinate> customPoints = new ArrayList<>();
-    if (Game.currentLevel().orElse(null) instanceof DungeonLevel) {
-      customPoints = Game.currentLevel().orElse(null).customPoints();
-    }
-    StringBuilder customPointsString = new StringBuilder();
-    for (Coordinate customPoint : customPoints) {
-      customPointsString.append(customPoint).append(";");
-    }
+    String customPointsString = LevelParser.v2SerializeNamedPoints(dunLevel.namedPoints());
+    String decorations = LevelParser.v2SerializeDecorationList(dunLevel.decorations());
+    String dunLayout = LevelParser.v2SerializeLevelLayout(dunLevel.layout());
 
-    // Compress the layout of the current level by removing all lines that only contain 'S'
-    String dunLayout = compressDungeonLayout(Game.currentLevel().orElse(null).printLevel());
+    StringBuilder result = new StringBuilder();
+    result.append(designLabel).append("\n");
+    result.append(heroPosString).append("\n");
+    result.append(customPointsString).append("\n");
+    result.append(decorations).append("\n");
+    result.append(dunLayout);
+    String output = result.toString();
 
-    String result =
-        designLabel
-            + "\n"
-            + heroPos.x()
-            + ","
-            + heroPos.y()
-            + "\n"
-            + customPointsString
-            + "\n"
-            + dunLayout;
-
-    System.out.println(result);
-  }
-
-  /**
-   * The compressDungeonLayout method takes a multi-line string as input and returns a string where
-   * all lines containing only 'S' are removed. It does this by using the replaceAll method with a
-   * regular expression that matches lines containing only 'S' and replaces them with an empty
-   * string.
-   *
-   * @param layout The dungeon layout to compress.
-   * @return The compressed dungeon layout.
-   */
-  private static String compressDungeonLayout(String layout) {
-    return layout.replaceAll("(?m)^S+$\\n", "");
+    System.out.println(output);
+    ClipboardUtil.copyToClipboard(output);
   }
 }
