@@ -16,13 +16,25 @@ public class FontHelper {
   /** Internal path to default font file. */
   public static final String DEFAULT_FONT_PATH = "fonts/Roboto-SemiBold.ttf";
 
-  /** Default font: Roboto-SemiBold 16px. */
-  public static final BitmapFont DEFAULT_FONT;
-
   private static final Map<FontEntry, BitmapFont> fontStorage = new HashMap<>();
 
-  static {
-    DEFAULT_FONT = getFont(DEFAULT_FONT_PATH, 16);
+  /**
+   * Loads or retrieves the default font: Roboto-SemiBold at size 16.
+   *
+   * @return the generated or cached {@link BitmapFont}
+   */
+  public static BitmapFont getDefaultFont() {
+    return getDefaultFont(16);
+  }
+
+  /**
+   * Loads or retrieves the default font: Roboto-SemiBold.
+   *
+   * @param size the size of the font
+   * @return the generated or cached {@link BitmapFont}
+   */
+  public static BitmapFont getDefaultFont(int size) {
+    return getFont(DEFAULT_FONT_PATH, size);
   }
 
   /**

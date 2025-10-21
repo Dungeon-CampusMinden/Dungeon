@@ -57,7 +57,7 @@ public class DebugDrawSystem extends System {
       new Color(0f, 0f, 0f, 0.75f); // semi-transparent black
 
   private static final int CIRCLE_SEGMENTS = 60; // resolution of circles (higher = smoother)
-  private static final BitmapFont FONT = FontHelper.DEFAULT_FONT;
+  private static final BitmapFont FONT = FontHelper.getDefaultFont();
   private boolean render = false;
 
   @Override
