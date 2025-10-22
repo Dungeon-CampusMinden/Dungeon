@@ -420,6 +420,13 @@ public class TileTextureFactory {
     Coordinate p = lp.position();
     LevelElement[][] layout = lp.layout();
 
+    if (isUpperLeftEmptyCross(p, layout)
+      || isUpperRightEmptyCross(p, layout)
+      || isBottomRightEmptyCross(p, layout)
+      || isBottomLeftEmptyCross(p, layout)) {
+      return null;
+    }
+
     if (isInnerTJunctionTop(p, layout)) {
       return new SimpleIPath(selectTopTJunctionTexture(p, layout));
     }
@@ -437,6 +444,7 @@ public class TileTextureFactory {
     }
     return null;
   }
+
 
   private static String selectTopTJunctionTexture(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
