@@ -58,7 +58,22 @@ public class AttachmentSystem extends System {
   private void applyAttachment(ASData asData) {
     if (asData.ac.isRotatingWithOrigin()) {
       asData.copypc.position(asData.originpc.position().translate(asData.originpc.viewDirection()));
-      asData.copypc.rotation(asData.originpc.rotation());
+      switch(asData.originpc.viewDirection()) {
+        case UP -> {
+          asData.copypc.rotation(90);
+        }
+        case RIGHT -> {
+          asData.copypc.rotation(0);
+        }
+        case DOWN -> {
+          asData.copypc.rotation(270);
+        }
+        case LEFT -> {
+          asData.copypc.rotation(180);
+        }
+        default -> {}
+      }
+//      asData.copypc.rotation(asData.originpc.rotation());
     } else {
       asData.copypc.position(asData.originpc.position().translate(asData.ac.getOffset()));
     }

@@ -58,6 +58,10 @@ public class MeleeAttackSkill extends Skill {
     this.hitbox = hitbox;
   }
 
+  public MeleeAttackSkill(int damage) {
+      this(damage,DamageType.PHYSICAL,500, Vector2.ZERO, Vector2.of(1.5,1));
+  }
+
   /**
    * Creates a short livid entity in the direction which the caster is looking at. The damage is
    * dealt via the collide component which uses the onCollideEnter to deal the damage. The damage
@@ -102,8 +106,8 @@ public class MeleeAttackSkill extends Skill {
               }
 
               attack.add(attackPositionComponent);
-              AttachmentComponent ac = new AttachmentComponent(Vector2.of(1,1), attackPositionComponent, casterPositionComponent);
-              ac.setRotatingWithOrigin(false);
+              AttachmentComponent ac = new AttachmentComponent(attackPositionComponent, casterPositionComponent);
+              ac.setRotatingWithOrigin(true);
               attack.add(ac);
 
               CollideComponent collideComponent =
