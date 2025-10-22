@@ -6,7 +6,6 @@ import core.Entity;
 import core.System;
 import core.components.PositionComponent;
 import core.utils.components.MissingComponentException;
-
 import java.util.HashMap;
 
 public class AttachmentSystem extends System {
@@ -15,24 +14,31 @@ public class AttachmentSystem extends System {
 
   public AttachmentSystem() {
     super(AttachmentComponent.class);
-    onEntityRemove = (entity -> {
-      entity.fetch(PositionComponent.class).ifPresent(pc -> {
-        if(attachmentMap.containsKey(pc)) {
-          attachmentMap.remove(pc);
-        } else if (attachmentMap.containsValue(pc)) {
-          attachmentMap.remove(attachmentMap.keySet().stream().filter(positionComponent -> attachmentMap.get(positionComponent).equals(pc)).findFirst().get());
-        }
-      });
-    });
+    onEntityRemove =
+        (entity -> {
+          entity
+              .fetch(PositionComponent.class)
+              .ifPresent(
+                  pc -> {
+                    if (attachmentMap.containsKey(pc)) {
+                      attachmentMap.remove(pc);
+                    } else if (attachmentMap.containsValue(pc)) {
+                      attachmentMap.remove(
+                          attachmentMap.keySet().stream()
+                              .filter(
+                                  positionComponent ->
+                                      attachmentMap.get(positionComponent).equals(pc))
+                              .findFirst()
+                              .get());
+                    }
+                  });
+        });
   }
 
   @Override
   public void execute() {
-    filteredEntityStream()
-      .map(this::buildDataObject)
-      .forEach(this::applyAttachment);
+    filteredEntityStream().map(this::buildDataObject).forEach(this::applyAttachment);
   }
-
 
   public static void registerAttachment(PositionComponent copy, PositionComponent origin) {
     attachmentMap.put(copy, origin);
@@ -44,12 +50,12 @@ public class AttachmentSystem extends System {
 
   private ASData buildDataObject(Entity e) {
     PositionComponent copypc =
-      e.fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
+        e.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
 
     AttachmentComponent ac =
-      e.fetch(AttachmentComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(e, AttachmentComponent.class));
+        e.fetch(AttachmentComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(e, AttachmentComponent.class));
 
     PositionComponent originpc = attachmentMap.get(copypc);
 
@@ -59,12 +65,17 @@ public class AttachmentSystem extends System {
   private void applyAttachment(ASData asData) {
     if (asData.ac.isRotatingWithOrigin()) {
       asData.copypc.position(asData.originpc.position().translate(asData.originpc.viewDirection()));
-      asData.e.fetch(CollideComponent.class).ifPresent(cc-> {
-        cc.collider().position(asData.copypc.position());
-      });
-      // this is here because the player doesnt rotate when so the viewdirection has to be used for melee.
+      asData
+          .e
+          .fetch(CollideComponent.class)
+          .ifPresent(
+              cc -> {
+                cc.collider().position(asData.copypc.position());
+              });
+      // this is here because the player doesnt rotate when so the viewdirection has to be used for
+      // melee.
       //      asData.copypc.rotation(asData.originpc.rotation());
-      switch(asData.originpc.viewDirection()) {
+      switch (asData.originpc.viewDirection()) {
         case UP -> {
           asData.copypc.rotation(90);
         }
@@ -82,11 +93,16 @@ public class AttachmentSystem extends System {
 
     } else {
       asData.copypc.position(asData.originpc.position().translate(asData.ac.getOffset()));
-      asData.e.fetch(CollideComponent.class).ifPresent(cc-> {
-        cc.collider().position(asData.copypc.position());
-      });
+      asData
+          .e
+          .fetch(CollideComponent.class)
+          .ifPresent(
+              cc -> {
+                cc.collider().position(asData.copypc.position());
+              });
     }
   }
 
-  private record ASData(Entity e, AttachmentComponent ac, PositionComponent copypc, PositionComponent originpc) {}
+  private record ASData(
+      Entity e, AttachmentComponent ac, PositionComponent copypc, PositionComponent originpc) {}
 }

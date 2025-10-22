@@ -3,7 +3,6 @@ package contrib.utils.components.skill.selfSkill;
 import contrib.components.AttachmentComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
-import contrib.systems.AttachmentSystem;
 import contrib.systems.EventScheduler;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
@@ -13,13 +12,9 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.components.VelocityComponent;
 import core.utils.*;
-import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
-import javax.smartcardio.ATR;
 
 /**
  * A skill that does a melee attack in the direction the entity is looking, generates a short living
@@ -61,7 +56,7 @@ public class MeleeAttackSkill extends Skill {
   }
 
   public MeleeAttackSkill(int damage) {
-      this(damage,DamageType.PHYSICAL,500, Vector2.ZERO, Vector2.ONE);
+    this(damage, DamageType.PHYSICAL, 500, Vector2.ZERO, Vector2.ONE);
   }
 
   /**
@@ -80,7 +75,6 @@ public class MeleeAttackSkill extends Skill {
             casterPositionComponent -> {
               Entity attack = new Entity();
 
-
               DrawComponent drawComponent = new DrawComponent(TEXTURE);
               attack.add(drawComponent);
 
@@ -91,7 +85,7 @@ public class MeleeAttackSkill extends Skill {
               PositionComponent attackPositionComponent = new PositionComponent(attackPosition);
               attackPositionComponent.rotation(casterPositionComponent.rotation());
 
-              switch(casterPositionComponent.viewDirection()) {
+              switch (casterPositionComponent.viewDirection()) {
                 case UP -> {
                   attackPositionComponent.rotation(90);
                 }
@@ -108,7 +102,8 @@ public class MeleeAttackSkill extends Skill {
               }
 
               attack.add(attackPositionComponent);
-              AttachmentComponent ac = new AttachmentComponent(attackPositionComponent, casterPositionComponent);
+              AttachmentComponent ac =
+                  new AttachmentComponent(attackPositionComponent, casterPositionComponent);
               ac.setRotatingWithOrigin(true);
               attack.add(ac);
 

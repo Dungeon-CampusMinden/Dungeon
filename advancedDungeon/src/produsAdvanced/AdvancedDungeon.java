@@ -1,6 +1,6 @@
 package produsAdvanced;
 
-import contrib.crafting.Crafting;
+import contrib.components.SkillComponent;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
@@ -8,11 +8,13 @@ import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.Skill;
+import contrib.utils.components.skill.selfSkill.MeleeAttackSkill;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
-import core.game.WindowEventManager;
 import core.level.loader.DungeonLoader;
+import core.systems.MoveSystem;
+import core.systems.VelocitySystem;
 import core.utils.JsonHandler;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
@@ -24,7 +26,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
-import produsAdvanced.level.*;
+import produsAdvanced.level.PlayGroundLevel;
 
 /**
  * Entry point for the "Advanced Dungeon" game setup.
@@ -45,7 +47,7 @@ public class AdvancedDungeon {
    *
    * <p>Also disables recompilation for player control.
    */
-  public static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = true;
 
   private static final String SAVE_LEVEL_KEY = "LEVEL";
 
@@ -125,6 +127,32 @@ public class AdvancedDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
+          createSystems();
+
+          try {
+            Game.add(HeroFactory.newHero());
+            Game.hero()
+                .ifPresent(
+                    hero -> {
+                      hero.fetch(SkillComponent.class)
+                          .ifPresent(
+                              sc -> {
+                                sc.removeAll();
+                                sc.addSkill(new MeleeAttackSkill(0));
+                                //                                sc.addSkill(new
+                                // FireballSkill(SkillTools::cursorPositionAsPoint));
+                                //                                sc.addSkill(new
+                                // BluePortalSkill(Tuple.of(Resource.MANA, 0)));
+                                //                                sc.addSkill(new
+                                // GreenPortalSkill(Tuple.of(Resource.MANA, 0)));
+                              });
+                    });
+
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+          DungeonLoader.addLevel(Tuple.of("portal", PlayGroundLevel.class));
+          /*
           DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
           DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
           DungeonLoader.addLevel(Tuple.of("control3", AdvancedControlLevel3.class));
@@ -134,21 +162,18 @@ public class AdvancedDungeon {
           DungeonLoader.addLevel(Tuple.of("arrayremove", ArrayRemoveLevel.class));
           DungeonLoader.addLevel(Tuple.of("arrayiterate", ArrayIterateLevel.class));
           DungeonLoader.addLevel(Tuple.of("sort", AdvancedSortLevel.class));
-          createSystems();
+          */
 
-          WindowEventManager.registerFocusChangeListener(
+          /*WindowEventManager.registerFocusChangeListener(
               isInFocus -> {
                 if (isInFocus) recompileHeroControl();
               });
 
           HeroFactory.heroDeath(entity -> restart());
-          try {
-            createHero();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-          Crafting.loadRecipes();
-          DungeonLoader.loadLevel(loadLevelIndex());
+
+          */
+          // Crafting.loadRecipes();
+          // DungeonLoader.loadLevel(loadLevelIndex());
         });
   }
 
@@ -177,6 +202,12 @@ public class AdvancedDungeon {
     Game.add(new StaminaRestoreSystem());
     Game.add(new ManaBarSystem());
     Game.add(new StaminaBarSystem());
+    Game.add(new PressurePlateSystem());
+    Game.add(new VelocitySystem());
+    //    Game.add(new PortalExtendSystem());
+    Game.add(new AttachmentSystem());
+    Game.add(new MoveSystem());
+
     if (DEBUG_MODE) Game.add(new Debugger());
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }
