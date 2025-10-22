@@ -127,7 +127,7 @@ public interface ILevel extends IndexedGraph<Tile> {
    */
   default String printLevel() {
     StringBuilder output = new StringBuilder();
-    for (int y = 0; y < layout().length; y++) {
+    for (int y = layout().length-1; y >= 0; y--) {
       for (int x = 0; x < layout()[0].length; x++) {
         if (layout()[y][x].levelElement() == LevelElement.FLOOR) {
           output.append("F");
