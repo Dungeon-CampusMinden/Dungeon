@@ -114,15 +114,16 @@ public abstract class PortalSkill extends ProjectileSkill {
 
     // Add components
     VelocityComponent vc = new VelocityComponent(speed, handleProjectileWallHit(caster), true);
-    vc.moveboxSize(Vector2.of(0.5, 0.5));
-    vc.moveboxOffset(Vector2.of(0.25, 0.25));
     vc.canEnterGitter(true);
     projectile.add(vc);
     projectile.add(new ProjectileComponent(start, targetPoint, forceToApply, onEndReached(caster)));
 
     CollideComponent cc =
         new CollideComponent(
-            Vector2.of(0, 0), Vector2.of(0, 0), onCollideEnter(caster), onCollideLeave(caster));
+            Vector2.of(0.25, 0 - 25),
+            Vector2.of(0.5, 0.5),
+            onCollideEnter(caster),
+            onCollideLeave(caster));
     cc.onHold(onCollideHold(caster));
     cc.isSolid(false);
     projectile.add(cc);
