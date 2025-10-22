@@ -10,9 +10,11 @@ import core.components.PositionComponent;
 import core.systems.CameraSystem;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.DungeonLogger;
 
 /** SkillTools is a collection of helper methods used for skills. */
 public final class SkillTools {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(SkillTools.class);
 
   /**
    * A skill has a range in which it is effective. This is a calculation of the last position in

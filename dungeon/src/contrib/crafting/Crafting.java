@@ -3,7 +3,7 @@ package contrib.crafting;
 import contrib.item.Item;
 import core.Game;
 import core.utils.JsonHandler;
-import core.utils.logging.CustomLogLevel;
+import core.utils.logging.DungeonLogger;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -12,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
  */
 public final class Crafting {
   private static final HashSet<Recipe> RECIPES = new HashSet<>();
-  private static final Logger LOGGER = Logger.getLogger(Crafting.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Crafting.class);
 
   /**
    * Get a recipe based on the provided items.
@@ -265,17 +264,12 @@ public final class Crafting {
         | InstantiationException
         | IllegalAccessException
         | NoSuchMethodException ex) {
-      LOGGER.log(
-          CustomLogLevel.ERROR, "Error parsing recipe (" + name + "): " + ex.getMessage(), ex);
+      LOGGER.error("Error parsing recipe ({}): {}", name, ex.getMessage(), ex);
     } catch (IllegalArgumentException | InvalidRecipeException | ClassCastException ex) {
       // Catching more specific exceptions from JsonHandler or casting issues
-      LOGGER.log(
-          CustomLogLevel.WARNING, "Warning parsing recipe (" + name + "): " + ex.getMessage(), ex);
+      LOGGER.warn("Warning parsing recipe ({}): {}", name, ex.getMessage(), ex);
     } catch (Exception ex) { // Catch any other unexpected errors
-      LOGGER.log(
-          CustomLogLevel.ERROR,
-          "Unexpected error parsing recipe (" + name + "): " + ex.getMessage(),
-          ex);
+      LOGGER.error("Unexpected error parsing recipe ({}): {}", name, ex.getMessage(), ex);
     }
     return null;
   }

@@ -2,6 +2,7 @@ package core.configuration;
 
 import core.utils.JsonHandler;
 import core.utils.components.path.IPath;
+import core.utils.logging.DungeonLogger;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -9,8 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -29,7 +28,7 @@ import java.util.stream.Stream;
  * @see KeyboardConfig
  */
 public class Configuration {
-  private static final Logger LOGGER = Logger.getLogger(Configuration.class.getName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Configuration.class);
   private static final HashMap<IPath, Configuration> LOADED_CONFIGURATION_FILES = new HashMap<>();
 
   private final Class<?>[] configClasses;
@@ -78,7 +77,7 @@ public class Configuration {
       configRoot = new HashMap<>();
     }
     if (path == null || path.length == 0) {
-      LOGGER.warning("Attempted to set value with no path.");
+      LOGGER.warn("Attempted to set value with no path.");
       return;
     }
     Map<String, Object> currentMap = configRoot;
@@ -150,9 +149,8 @@ public class Configuration {
 
     try {
       configRoot = JsonHandler.readJson(fileContent);
-    } catch (Exception e) {
-      LOGGER.log(
-          Level.WARNING,
+    } catch (IllegalArgumentException e) {
+      LOGGER.warn(
           "Failed to parse existing configuration from "
               + configFilePath.pathString()
               + ". Loading default configuration and saving.",
@@ -172,7 +170,7 @@ public class Configuration {
     try (InputStream fis = new FileInputStream(file)) {
       return new String(fis.readAllBytes(), StandardCharsets.UTF_8);
     } catch (IOException e) {
-      LOGGER.log(Level.SEVERE, "Failed to read configuration file: " + file.getPath(), e);
+      LOGGER.fatal("Failed to read configuration file: {}", file.getPath(), e);
       throw new IOException("Failed to read game configuration file: " + file.getPath(), e);
     }
   }
@@ -185,17 +183,14 @@ public class Configuration {
       } else {
         // This case should ideally not be reached if file.exists() was false before.
         // If it is, it might indicate a race condition or an issue with file system state.
-        LOGGER.warning(
+        LOGGER.warn(
             "File reported as non-existent, but createNewFile failed to create it (already exists?): "
                 + file.getPath()
                 + ". Attempting to load defaults and save.");
         loadDefaultAndSave();
       }
     } catch (IOException e) {
-      LOGGER.log(
-          Level.SEVERE,
-          "Failed to create a new default game configuration at: " + file.getPath(),
-          e);
+      LOGGER.fatal("Failed to create a new default game configuration at: {}", file.getPath(), e);
       throw new IOException(
           "Failed to create a new default game configuration: " + file.getPath(), e);
     }
@@ -236,8 +231,7 @@ public class Configuration {
           try {
             configKeyInstance.value.deserialize(String.valueOf(valueFromConfig));
           } catch (Exception deserializeEx) {
-            LOGGER.log(
-                Level.WARNING,
+            LOGGER.warn(
                 String.format(
                     "Error deserializing value for config key '%s' (field: %s). Value: '%s'. Setting to default.",
                     String.join(".", configKeyInstance.path), field.getName(), valueFromConfig),
@@ -247,8 +241,7 @@ public class Configuration {
           }
         }
       } catch (IllegalAccessException iae) {
-        LOGGER.log(
-            Level.SEVERE,
+        LOGGER.fatal(
             "CRITICAL: Cannot access static ConfigKey field: "
                 + field.getName()
                 + ". Configuration for this key cannot be processed.",
@@ -259,8 +252,7 @@ public class Configuration {
             (configKeyInstance != null)
                 ? String.join(".", configKeyInstance.path)
                 : "unknown (ConfigKey access failed)";
-        LOGGER.log(
-            Level.WARNING,
+        LOGGER.warn(
             String.format(
                 "Unexpected error processing config field '%s' (path: %s). Attempting to set to default if possible.",
                 field.getName(), pathInfo),
@@ -270,18 +262,16 @@ public class Configuration {
             setValueInPath(configKeyInstance.path, configKeyInstance.value.serialize());
             dirty.set(true);
           } catch (Exception exSetDefault) {
-            LOGGER.log(
-                Level.SEVERE,
+            LOGGER.error(
                 String.format(
                     "Failed to set default value for config field '%s' (path: %s) after a previous error.",
                     field.getName(), pathInfo),
                 exSetDefault);
           }
         } else {
-          LOGGER.severe(
-              "Cannot set default for field '"
-                  + field.getName()
-                  + "' as ConfigKey instance could not be retrieved.");
+          LOGGER.error(
+              "Cannot set default for field '{}' as ConfigKey instance could not be retrieved.",
+              field.getName());
         }
       }
     }
@@ -291,11 +281,11 @@ public class Configuration {
   /** Saves the current configuration ({@code configRoot}) to the file. */
   public void saveConfiguration() {
     if (this.configRoot == null) {
-      LOGGER.warning(
+      LOGGER.warn(
           "Attempted to save configuration, but configRoot is null. Initializing to default before saving.");
       loadDefault(); // Initialize configRoot with defaults
       if (this.configRoot == null) { // Should not happen if loadDefault works
-        LOGGER.severe(
+        LOGGER.error(
             "Failed to initialize configRoot even after loadDefault. Aborting save operation for "
                 + configFilePath.pathString());
         return;
@@ -308,7 +298,7 @@ public class Configuration {
       File parentDir = file.getParentFile();
       if (parentDir != null && !parentDir.exists()) {
         if (!parentDir.mkdirs()) {
-          LOGGER.warning(
+          LOGGER.warn(
               "Failed to create parent directories for configuration file: " + file.getPath());
           // Continue attempting to write, FileOutputStream might handle it or fail
         }
@@ -321,12 +311,10 @@ public class Configuration {
       }
       LOGGER.info("Configuration saved to: " + configFilePath.pathString());
     } catch (IOException e) {
-      LOGGER.log(Level.SEVERE, "Error saving configuration to: " + configFilePath.pathString(), e);
+      LOGGER.error("Error saving configuration to: {}", configFilePath.pathString(), e);
     } catch (Exception e) {
-      LOGGER.log(
-          Level.SEVERE,
-          "Unexpected error during configuration save to: " + configFilePath.pathString(),
-          e);
+      LOGGER.error(
+          "Unexpected error during configuration save to: {}", configFilePath.pathString(), e);
     }
   }
 
@@ -342,15 +330,13 @@ public class Configuration {
         ConfigKey<?> key = (ConfigKey<?>) field.get(null);
         setValueInPath(key.path, key.value.serialize());
       } catch (IllegalAccessException e) {
-        LOGGER.log(
-            Level.SEVERE,
+        LOGGER.fatal(
             "Error accessing ConfigKey field '"
                 + field.getName()
                 + "' during loadDefault. This key's default value could not be set.",
             e);
       } catch (Exception e) {
-        LOGGER.log(
-            Level.WARNING,
+        LOGGER.warn(
             "Unexpected error processing ConfigKey field '"
                 + field.getName()
                 + "' during loadDefault.",
@@ -415,8 +401,7 @@ public class Configuration {
                   key.path = newPath;
                 }
               } catch (IllegalAccessException e) {
-                LOGGER.log(
-                    Level.SEVERE,
+                LOGGER.fatal(
                     "Cannot access static ConfigKey field during path preparation: "
                         + field.getName(),
                     e);
@@ -425,10 +410,9 @@ public class Configuration {
                         + field.getName(),
                     e);
               } catch (Exception e) {
-                LOGGER.log(
-                    Level.SEVERE,
-                    "Unexpected error during ConfigKey path preparation for field: "
-                        + field.getName(),
+                LOGGER.error(
+                    "Unexpected error during ConfigKey path preparation for field: {}",
+                    field.getName(),
                     e);
                 // Depending on severity, could rethrow.
               }
@@ -443,13 +427,13 @@ public class Configuration {
    */
   protected void update(ConfigKey<?> key) {
     if (configRoot == null) {
-      LOGGER.warning(
+      LOGGER.warn(
           "ConfigRoot is null during update for key path: "
               + String.join(".", key.path)
               + ". Attempting to load defaults first.");
       loadDefault(); // This will initialize configRoot
       if (configRoot == null) {
-        LOGGER.severe(
+        LOGGER.error(
             "Failed to initialize configRoot in update even after loadDefault. Aborting update for key path: "
                 + String.join(".", key.path));
         return;

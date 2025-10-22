@@ -14,13 +14,15 @@ import core.components.PositionComponent;
 import core.utils.FontHelper;
 import core.utils.Point;
 import core.utils.Vector2;
+import core.utils.logging.DungeonLogger;
 
 /**
  * A system to quickly test decorations, adjust colliders and save the resulting collider as
  * Rectangle definition to the clipboard.
  */
 public class DecoTestSystem extends System {
-
+  private static final DungeonLogger LOGGER =
+      DungeonLogger.getLogger(DecoTestSystem.class.getName());
   private static final int CHANGE_MODE = Input.Keys.UP;
 
   private static final int MODE_MODIFY_PLUS = Input.Keys.RIGHT;

@@ -7,9 +7,9 @@ import core.components.PlayerComponent;
 import core.level.elements.ILevel;
 import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
+import core.utils.logging.DungeonLogger;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  * <p>All API methods can also be accessed via the {@link core.Game} class.
  */
 public final class ECSManagment {
-  private static final Logger LOGGER = Logger.getLogger(ECSManagment.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ECSManagment.class);
   private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
   private static final Map<ILevel, Set<EntitySystemMapper>> LEVEL_STORAGE_MAP = new HashMap<>();
   private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
