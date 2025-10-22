@@ -39,7 +39,7 @@ public record ConnectReject(byte reason, Object extraData) implements NetworkMes
     INCOMPATIBLE_VERSION,
     /** The given session was not found on the server. */
     NO_SESSION_FOUND,
-    /** The given session token was invalid */
+    /** The given session token was invalid. */
     INVALID_SESSION_TOKEN,
     /** Unspecified connection rejection reason. */
     OTHER;

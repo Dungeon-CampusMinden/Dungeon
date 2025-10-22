@@ -68,5 +68,3 @@ replay_pid*
 # Executable binaries
 *.exe
 *.bin
-
-last_session.dat

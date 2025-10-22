@@ -139,9 +139,11 @@ public final class DrawSystem extends System {
             .flatMap(
                 list ->
                     list.stream()
-                        .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
-            .filter(this::shouldDraw)
-            .peek(data -> data.dc.update());
+                        .sorted(
+                            Comparator.comparingDouble(
+                                (DSData d) -> -EntityUtils.getPosition(d.e).y()))
+                        .filter(this::shouldDraw)
+                        .peek(data -> data.dc.update()));
 
     if (Gdx.gl == null) {
       return;
