@@ -1,6 +1,6 @@
 package produsAdvanced;
 
-import contrib.components.SkillComponent;
+import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
@@ -8,13 +8,11 @@ import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.Skill;
-import contrib.utils.components.skill.selfSkill.MeleeAttackSkill;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
+import core.game.WindowEventManager;
 import core.level.loader.DungeonLoader;
-import core.systems.MoveSystem;
-import core.systems.VelocitySystem;
 import core.utils.JsonHandler;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
@@ -26,7 +24,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
-import produsAdvanced.level.PlayGroundLevel;
+import produsAdvanced.level.*;
 
 /**
  * Entry point for the "Advanced Dungeon" game setup.
@@ -47,7 +45,7 @@ public class AdvancedDungeon {
    *
    * <p>Also disables recompilation for player control.
    */
-  public static final boolean DEBUG_MODE = true;
+  public static final boolean DEBUG_MODE = false;
 
   private static final String SAVE_LEVEL_KEY = "LEVEL";
 
@@ -60,14 +58,14 @@ public class AdvancedDungeon {
   private static boolean recompilePaused = false;
 
   private static final String ERROR_MSG_CONTROLLER =
-      "Da scheint etwas mit meinem Steuerrungscode nicht zu stimmen.";
+    "Da scheint etwas mit meinem Steuerrungscode nicht zu stimmen.";
 
   /** Path to the Java source file of the custom player controller. */
   private static final SimpleIPath HERO_CONTROLLER_PATH =
-      new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyPlayerController.java");
+    new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyPlayerController.java");
 
   private static final SimpleIPath FIREBALL_PATH =
-      new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyFireballSkill.java");
+    new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyFireballSkill.java");
 
   /** Fully qualified class name of the custom player controller. */
   private static final String CONTROLLER_CLASSNAME = "produsAdvanced.riddles.MyPlayerController";
@@ -87,8 +85,8 @@ public class AdvancedDungeon {
       Object o = DynamicCompiler.loadUserInstance(FIREBALL_PATH, FIREBALL_CLASSNAME);
       hero.addSkill((Skill) o);
       o =
-          DynamicCompiler.loadUserInstance(
-              HERO_CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
+        DynamicCompiler.loadUserInstance(
+          HERO_CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
       hero.setController((PlayerController) o);
     } catch (Exception e) {
       recompilePaused = true;
@@ -114,11 +112,11 @@ public class AdvancedDungeon {
     Game.frameRate(30);
     Game.disableAudio(true);
     Game.userOnLevelLoad(
-        aBoolean -> {
-          if (aBoolean) {
-            writeLevelIndex(DungeonLoader.currentLevelIndex());
-          }
-        });
+      aBoolean -> {
+        if (aBoolean) {
+          writeLevelIndex(DungeonLoader.currentLevelIndex());
+        }
+      });
     Game.resizeable(true);
     Game.windowTitle("Advanced Dungeon");
   }
@@ -126,55 +124,32 @@ public class AdvancedDungeon {
   /** Initializes the game by setting up levels, systems, the player character, and crafting. */
   private static void onSetup() {
     Game.userOnSetup(
-        () -> {
-          createSystems();
+      () -> {
+        DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
+        DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
+        DungeonLoader.addLevel(Tuple.of("control3", AdvancedControlLevel3.class));
+        DungeonLoader.addLevel(Tuple.of("control4", AdvancedControlLevel4.class));
+        DungeonLoader.addLevel(Tuple.of("interact", AdvancedBerryLevel.class));
+        DungeonLoader.addLevel(Tuple.of("arraycreate", ArrayCreateLevel.class));
+        DungeonLoader.addLevel(Tuple.of("arrayremove", ArrayRemoveLevel.class));
+        DungeonLoader.addLevel(Tuple.of("arrayiterate", ArrayIterateLevel.class));
+        DungeonLoader.addLevel(Tuple.of("sort", AdvancedSortLevel.class));
+        createSystems();
 
-          try {
-            Game.add(HeroFactory.newHero());
-            Game.hero()
-                .ifPresent(
-                    hero -> {
-                      hero.fetch(SkillComponent.class)
-                          .ifPresent(
-                              sc -> {
-                                sc.removeAll();
-                                sc.addSkill(new MeleeAttackSkill(0));
-                                //                                sc.addSkill(new
-                                // FireballSkill(SkillTools::cursorPositionAsPoint));
-                                //                                sc.addSkill(new
-                                // BluePortalSkill(Tuple.of(Resource.MANA, 0)));
-                                //                                sc.addSkill(new
-                                // GreenPortalSkill(Tuple.of(Resource.MANA, 0)));
-                              });
-                    });
+        WindowEventManager.registerFocusChangeListener(
+          isInFocus -> {
+            if (isInFocus) recompileHeroControl();
+          });
 
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-          DungeonLoader.addLevel(Tuple.of("portal", PlayGroundLevel.class));
-          /*
-          DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
-          DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
-          DungeonLoader.addLevel(Tuple.of("control3", AdvancedControlLevel3.class));
-          DungeonLoader.addLevel(Tuple.of("control4", AdvancedControlLevel4.class));
-          DungeonLoader.addLevel(Tuple.of("interact", AdvancedBerryLevel.class));
-          DungeonLoader.addLevel(Tuple.of("arraycreate", ArrayCreateLevel.class));
-          DungeonLoader.addLevel(Tuple.of("arrayremove", ArrayRemoveLevel.class));
-          DungeonLoader.addLevel(Tuple.of("arrayiterate", ArrayIterateLevel.class));
-          DungeonLoader.addLevel(Tuple.of("sort", AdvancedSortLevel.class));
-          */
-
-          /*WindowEventManager.registerFocusChangeListener(
-              isInFocus -> {
-                if (isInFocus) recompileHeroControl();
-              });
-
-          HeroFactory.heroDeath(entity -> restart());
-
-          */
-          // Crafting.loadRecipes();
-          // DungeonLoader.loadLevel(loadLevelIndex());
-        });
+        HeroFactory.heroDeath(entity -> restart());
+        try {
+          createHero();
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+        Crafting.loadRecipes();
+        DungeonLoader.loadLevel(loadLevelIndex());
+      });
   }
 
   /**
@@ -202,12 +177,6 @@ public class AdvancedDungeon {
     Game.add(new StaminaRestoreSystem());
     Game.add(new ManaBarSystem());
     Game.add(new StaminaBarSystem());
-    Game.add(new PressurePlateSystem());
-    Game.add(new VelocitySystem());
-    //    Game.add(new PortalExtendSystem());
-    Game.add(new AttachmentSystem());
-    Game.add(new MoveSystem());
-
     if (DEBUG_MODE) Game.add(new Debugger());
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }
@@ -275,7 +244,7 @@ public class AdvancedDungeon {
       File file = new File(AdvancedDungeon.SAVE_FILE);
       // Ensure parent directory exists
       try (OutputStreamWriter osw =
-          new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8)) {
+             new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8)) {
         osw.write(content);
       }
     } catch (Exception ignored) {
