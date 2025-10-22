@@ -114,6 +114,7 @@ public class DungeonLevel implements ILevel, ITickable {
    * @param layout The layout of the level, represented as a 2D array of LevelElements.
    * @param designLabel The design label of the level.
    * @param namedPoints A list of custom points to be added to the level.
+   * @param levelName The name of the level. (can be empty)
    */
   public DungeonLevel(
       LevelElement[][] layout,
@@ -321,7 +322,6 @@ public class DungeonLevel implements ILevel, ITickable {
    * @see ITickable
    */
   protected void onFirstTick() {}
-  ;
 
   /**
    * Called when the level is ticked.
@@ -330,7 +330,6 @@ public class DungeonLevel implements ILevel, ITickable {
    * @see ITickable
    */
   protected void onTick() {}
-  ;
 
   @Override
   public void onTick(boolean isFirstTick) {
@@ -338,19 +337,41 @@ public class DungeonLevel implements ILevel, ITickable {
     onTick();
   }
 
+  /**
+   * Returns a map of named points in this level.
+   *
+   * @return a map of point names and their coordinates
+   */
   @Override
   public Map<String, Point> namedPoints() {
     return namedPoints;
   }
 
+  /**
+   * Returns a list of decorative elements placed in the level.
+   *
+   * @return a list of decoration tuples
+   */
   public List<Tuple<Deco, Point>> decorations() {
     return decorations;
   }
 
+  /**
+   * Returns a specific point by its legacy numeric index (e.g., "Point0", "Point1").
+   *
+   * @param legacyIndex the numeric index of the point
+   * @return the point associated with the legacy index, or null if not found
+   */
   public Point getPoint(int legacyIndex) {
     return namedPoints.get("Point" + legacyIndex);
   }
 
+  /**
+   * Returns a specific named point by its key.
+   *
+   * @param name the name of the point
+   * @return the point associated with the given name, or null if not found
+   */
   public Point getPoint(String name) {
     return namedPoints.get(name);
   }
@@ -372,7 +393,7 @@ public class DungeonLevel implements ILevel, ITickable {
   }
 
   /**
-   * Get an array of points with the given base name from start to end (inclusive).
+   * Get an array of points using legacy numbering (e.g., Point0, Point1).
    *
    * @param legacyStart the starting index
    * @param legacyEnd the ending index
@@ -382,6 +403,12 @@ public class DungeonLevel implements ILevel, ITickable {
     return getPoints("Point", legacyStart, legacyEnd);
   }
 
+  /**
+   * Returns the highest existing numbered point index for the given base name.
+   *
+   * @param baseName the base name to search for
+   * @return the highest numbered index, or -1 if none exist
+   */
   public int getHighestPointNumber(String baseName) {
     int highestNumber = -1;
     while (namedPoints.containsKey(baseName + (highestNumber + 1))) {
@@ -390,6 +417,12 @@ public class DungeonLevel implements ILevel, ITickable {
     return highestNumber;
   }
 
+  /**
+   * Returns a list of all points with their corresponding numeric indices for the given base name.
+   *
+   * @param baseName the base name to search for
+   * @return a list of point-index tuples
+   */
   public List<Tuple<Point, Integer>> listPointsIndexed(String baseName) {
     ArrayList<Tuple<Point, Integer>> toRet = new ArrayList<>();
     int i = 0;
@@ -400,14 +433,33 @@ public class DungeonLevel implements ILevel, ITickable {
     return toRet;
   }
 
+  /**
+   * Returns a list of all points associated with the given base name.
+   *
+   * @param baseName the base name to search for
+   * @return a list of matching points
+   */
   public List<Point> listPoints(String baseName) {
     return listPointsIndexed(baseName).stream().map(Tuple::a).collect(Collectors.toList());
   }
 
+  /**
+   * Adds a named point to the level.
+   *
+   * @param name the name of the point
+   * @param position the position of the point
+   * @return the previous point associated with the name, or null if none existed
+   */
   public Point addNamedPoint(String name, Point position) {
     return namedPoints.put(name, position);
   }
 
+  /**
+   * Removes a named point from the level.
+   *
+   * @param name the name of the point to remove
+   * @return the removed point, or null if none existed
+   */
   public Point removeNamedPoint(String name) {
     return namedPoints.remove(name);
   }

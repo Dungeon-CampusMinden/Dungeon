@@ -17,15 +17,34 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * The LevelParser class is responsible for parsing dungeon level data from various formats and
+ * versions. It's backwards compatible with all old level data, migrating them to the up-to-date
+ * format.
+ */
 public class LevelParser {
 
   private static final Logger LOGGER = Logger.getLogger(LevelParser.class.getName());
 
+  /**
+   * Parse level data from a string.
+   *
+   * @param levelData The level data as a string
+   * @param levelHandlerName The name of the level handler to use
+   * @return The parsed DungeonLevel
+   */
   public static DungeonLevel parseLevel(String levelData, String levelHandlerName) {
     BufferedReader reader = new BufferedReader(new java.io.StringReader(levelData));
     return parseLevel(reader, levelHandlerName);
   }
 
+  /**
+   * Parse level data from a BufferedReader.
+   *
+   * @param reader The BufferedReader to read level data from
+   * @param levelHandlerName The name of the level handler to use
+   * @return The parsed DungeonLevel
+   */
   public static DungeonLevel parseLevel(BufferedReader reader, String levelHandlerName) {
     // Make a buffered reader for easier parsing:
     String versionLine = "";
@@ -115,16 +134,16 @@ public class LevelParser {
     throw new RuntimeException("No level handler found for level: " + levelName);
   }
 
-  private static Point parseHeroPosition(String heroPositionLine) {
-    if (heroPositionLine.isEmpty()) throw new RuntimeException("Missing Hero Position");
-    String[] parts = heroPositionLine.split(",");
-    if (parts.length != 2) throw new RuntimeException("Invalid Hero Position: " + heroPositionLine);
+  private static Point parseHeroPosition(String line) {
+    if (line.isEmpty()) throw new RuntimeException("Missing Hero Position");
+    String[] parts = line.split(",");
+    if (parts.length != 2) throw new RuntimeException("Invalid Hero Position: " + line);
     try {
       float x = Float.parseFloat(parts[0]);
       float y = Float.parseFloat(parts[1]);
       return new Point(x, y);
     } catch (NumberFormatException e) {
-      throw new RuntimeException("Invalid Hero Position: " + heroPositionLine);
+      throw new RuntimeException("Invalid Hero Position: " + line);
     }
   }
 
@@ -137,6 +156,12 @@ public class LevelParser {
     }
   }
 
+  /**
+   * Get LevelElement from character representation.
+   *
+   * @param c The character representing the LevelElement
+   * @return The corresponding LevelElement
+   */
   public static LevelElement getLevelElementFromChar(char c) {
     return switch (c) {
       case 'F' -> LevelElement.FLOOR;
@@ -150,6 +175,12 @@ public class LevelParser {
     };
   }
 
+  /**
+   * Get character representation from LevelElement.
+   *
+   * @param element The LevelElement to convert
+   * @return The corresponding character
+   */
   public static char getCharFromLevelElement(LevelElement element) {
     return switch (element) {
       case FLOOR -> 'F';
@@ -218,13 +249,13 @@ public class LevelParser {
   private static List<Tuple<Deco, Point>> v2ParseDecorationList(String input) {
     List<Tuple<Deco, Point>> decorations = new ArrayList<>();
 
-    String[] entries = input.split(";"); // Split by semicolon
+    String[] entries = input.split(";");
     for (String entry : entries) {
-      String[] parts = entry.split(":"); // Split by colon
+      String[] parts = entry.split(":");
       if (parts.length == 2) {
         // Name of the deco in the Deco enum
         String decoType = parts[0].trim();
-        String[] coordinates = parts[1].split(","); // Split coordinates
+        String[] coordinates = parts[1].split(",");
         if (coordinates.length == 2) {
           try {
             float x = Float.parseFloat(coordinates[0].trim());
@@ -242,6 +273,12 @@ public class LevelParser {
     return decorations;
   }
 
+  /**
+   * Serialize a decoration list to a string in version 2 format.
+   *
+   * @param decorations The list of decorations to serialize.
+   * @return The serialized decoration list as a string.
+   */
   public static String v2SerializeDecorationList(List<Tuple<Deco, Point>> decorations) {
     return decorations.stream()
         .map(tuple -> tuple.a().name() + ":" + tuple.b().x() + "," + tuple.b().y())
@@ -272,6 +309,12 @@ public class LevelParser {
     return pointsMap;
   }
 
+  /**
+   * Serialize named points to a string in version 2 format.
+   *
+   * @param namedPoints The map of named points to serialize.
+   * @return The serialized named points as a string.
+   */
   public static String v2SerializeNamedPoints(Map<String, Point> namedPoints) {
     return namedPoints.entrySet().stream()
         .map(entry -> entry.getKey() + ":" + entry.getValue().x() + "," + entry.getValue().y())

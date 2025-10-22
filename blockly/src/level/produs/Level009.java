@@ -10,9 +10,13 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.components.MissingComponentException;
+import core.level.utils.DesignLabel;
+import core.level.utils.LevelElement;
+import core.utils.Direction;
+import core.utils.Point;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-import java.util.List;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -33,7 +37,8 @@ public class Level009 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level009(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+  public Level009(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> customPoints) {
     super(layout, designLabel, customPoints, "Level 9");
     this.blockBlocklyElement(
         // Schleifen
@@ -64,14 +69,14 @@ public class Level009 extends BlocklyLevel {
     BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().addToGame();
     guardBuilder.attackRange(5);
     guardBuilder.viewDirection(Direction.UP);
-    guardBuilder.build(customPoints().get(4).toPoint());
+    guardBuilder.build(getPoint(4));
     guardBuilder.attackRange(5);
     guardBuilder.viewDirection(Direction.LEFT);
-    guardBuilder.build(customPoints().get(5).toPoint());
+    guardBuilder.build(getPoint(5));
 
-    Entity s1 = LeverFactory.createLever(customPoints().get(1).toPoint());
-    Entity s2 = LeverFactory.createLever(customPoints().get(2).toPoint());
-    Entity s3 = LeverFactory.createLever(customPoints().get(3).toPoint());
+    Entity s1 = LeverFactory.createLever(getPoint(1));
+    Entity s2 = LeverFactory.createLever(getPoint(2));
+    Entity s3 = LeverFactory.createLever(getPoint(3));
 
     switch1 =
         s1.fetch(LeverComponent.class)
@@ -92,7 +97,7 @@ public class Level009 extends BlocklyLevel {
     door2 = (DoorTile) Game.tileAt(new Coordinate(8, 5)).orElse(null);
     door2.close();
 
-    Game.add(MiscFactory.stone(customPoints().get(0).toPoint()));
+    Game.add(MiscFactory.stone(getPoint(0)));
   }
 
   @Override

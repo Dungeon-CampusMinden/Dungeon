@@ -15,6 +15,11 @@ import entities.monster.BlocklyMonster;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import core.level.utils.DesignLabel;
+import core.level.utils.LevelElement;
+import core.utils.Direction;
+import core.utils.Point;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -33,10 +38,11 @@ public class Level016 extends BlocklyLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level016(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 16");
+  public Level016(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 16");
     this.blockBlocklyElement(
         // Inventar und Charakter
         "drop_item",
@@ -69,22 +75,22 @@ public class Level016 extends BlocklyLevel {
     LevelManagementUtils.heroViewDirection(Direction.UP);
     LevelManagementUtils.zoomDefault();
     Game.hero()
-        .orElseThrow(MissingHeroException::new)
-        .fetch(AmmunitionComponent.class)
-        .orElseThrow()
-        .currentAmmunition(4);
+      .orElseThrow(MissingHeroException::new)
+      .fetch(AmmunitionComponent.class)
+      .orElseThrow()
+      .currentAmmunition(4);
     final int[] counter = {0};
     BlocklyMonster.Builder hedgehogBuilder =
-        BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
+      BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
 
-    customPoints()
-        .forEach(
-            coordinate -> {
-              if (counter[0] == 0 || random.nextBoolean()) {
-                hedgehogBuilder.build(coordinate.toPoint());
-                counter[0]++;
-              }
-            });
+    namedPoints()
+      .forEach(
+        (name, point) -> {
+          if (counter[0] == 0 || random.nextBoolean()) {
+            hedgehogBuilder.build(point);
+            counter[0]++;
+          }
+        });
 
     Coordinate[] coords = {
       new Coordinate(12, 4), new Coordinate(17, 4), new Coordinate(22, 4), new Coordinate(27, 4)

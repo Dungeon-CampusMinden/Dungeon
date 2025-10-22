@@ -16,9 +16,10 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.MissingHeroException;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.monster.BlocklyMonster;
-import java.util.List;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -78,10 +79,11 @@ public class Level020 extends BlocklyLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level020(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 20");
+  public Level020(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 20");
     this.blockBlocklyElement(
         // Inventar und Charakter
         "drop_item",

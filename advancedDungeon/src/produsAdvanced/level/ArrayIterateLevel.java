@@ -9,13 +9,12 @@ import core.Entity;
 import core.Game;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
-import java.util.List;
+import java.util.Map;
 import level.AdvancedLevel;
 import produsAdvanced.abstraction.ArraySummarizer;
 
@@ -52,11 +51,11 @@ public class ArrayIterateLevel extends AdvancedLevel {
    *
    * @param layout Das Layout des Levels, bestehend aus LevelElementen.
    * @param designLabel Das Design-Label für das Level.
-   * @param customPoints Eine Liste von benutzerdefinierten Punkten für das Level.
+   * @param namedPoints Eine Liste von benutzerdefinierten Punkten für das Level.
    */
   public ArrayIterateLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Array-Iterieren");
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Array-Iterieren");
   }
 
   @Override

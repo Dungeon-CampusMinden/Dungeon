@@ -17,6 +17,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import core.utils.Point;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -37,10 +39,11 @@ public class Level013 extends BlocklyLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level013(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 13");
+  public Level013(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 13");
     this.blockBlocklyElement(
         // Schleifen
         "while_loop",
@@ -79,10 +82,10 @@ public class Level013 extends BlocklyLevel {
 
     // create torches and light every second one
     final boolean[] coin = {new Random().nextBoolean()};
-    customPoints()
+    namedPoints()
         .forEach(
-            coordinate -> {
-              Entity torch = LeverFactory.createTorch(coordinate.toPoint());
+          (name, point) -> {
+              Entity torch = LeverFactory.createTorch(point);
               torch.add(new BlockComponent());
               Game.add(torch);
               LeverComponent lc =

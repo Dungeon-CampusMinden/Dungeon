@@ -5,9 +5,11 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.Point;
+import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-import java.util.List;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -23,10 +25,11 @@ public class Level011 extends BlocklyLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level011(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 11");
+  public Level011(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 11");
     this.blockBlocklyElement(
         // Schleifen
         "while_loop",
@@ -48,20 +51,20 @@ public class Level011 extends BlocklyLevel {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(8, 6));
     LevelManagementUtils.heroViewDirection(Direction.RIGHT);
-    Game.add(MiscFactory.fireballScroll(customPoints().get(0).toPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(1).toPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(2).toPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(3).toPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(4).toPoint()));
+    Game.add(MiscFactory.fireballScroll(getPoint(0)));
+    Game.add(MiscFactory.fireballScroll(getPoint(1)));
+    Game.add(MiscFactory.fireballScroll(getPoint(2)));
+    Game.add(MiscFactory.fireballScroll(getPoint(3)));
+    Game.add(MiscFactory.fireballScroll(getPoint(4)));
 
     BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().attackRange(5).addToGame();
     guardBuilder.viewDirection(Direction.DOWN);
-    guardBuilder.build(customPoints().get(5).toPoint());
-    guardBuilder.build(customPoints().get(8).toPoint());
-    guardBuilder.build(customPoints().get(9).toPoint());
+    guardBuilder.build(getPoint(5));
+    guardBuilder.build(getPoint(8));
+    guardBuilder.build(getPoint(9));
     guardBuilder.viewDirection(Direction.RIGHT);
-    guardBuilder.build(customPoints().get(6).toPoint());
-    guardBuilder.build(customPoints().get(7).toPoint());
+    guardBuilder.build(getPoint(6));
+    guardBuilder.build(getPoint(7));
   }
 
   @Override
