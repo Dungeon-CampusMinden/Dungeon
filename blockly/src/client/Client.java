@@ -145,7 +145,7 @@ public class Client {
               s -> {
                 // stopping the system will also avoid adding new commands to the queue. The System
                 // will be reactivated in BlocklyLevel#onTick
-                s.stop();
+                s.fullStop();
                 s.clear();
               });
           Game.hero()
