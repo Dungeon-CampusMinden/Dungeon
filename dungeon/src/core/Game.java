@@ -56,6 +56,9 @@ public final class Game {
 
   /** Starts the dungeon and requires a {@link Game}. */
   public static void run() {
+    if (!DungeonLoggerConfig.isInitialized()) {
+      DungeonLoggerConfig.initDefault();
+    }
     GameLoop.run();
   }
 
