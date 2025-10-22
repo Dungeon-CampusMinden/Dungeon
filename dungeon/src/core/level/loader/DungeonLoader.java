@@ -423,6 +423,7 @@ public class DungeonLoader {
           case 'D' -> layout[y][x] = LevelElement.DOOR;
           case 'T' -> layout[y][x] = LevelElement.PORTAL;
           case 'G' -> layout[y][x] = LevelElement.GITTER;
+          case 'L' -> layout[y][x] = LevelElement.GLASSWALL;
           default -> throw new IllegalArgumentException("Invalid character in level layout: " + c);
         }
       }
