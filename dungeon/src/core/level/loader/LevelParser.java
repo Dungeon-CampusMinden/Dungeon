@@ -95,10 +95,18 @@ public class LevelParser {
       List<Tuple<Deco, Point>> decorations) {
     Class<? extends DungeonLevel> levelHandler = DungeonLoader.levelHandler(levelName);
     if (levelHandler != null) {
+      // Try normal constructor first
       try {
         return levelHandler
-            .getConstructor(LevelElement[][].class, DesignLabel.class, Map.class, List.class)
-            .newInstance(layout, designLabel, namedPoints, decorations);
+          .getConstructor(LevelElement[][].class, DesignLabel.class, Map.class, List.class)
+          .newInstance(layout, designLabel, namedPoints, decorations);
+      } catch (Exception ignored) {}
+
+      //Legacy support: Try old constructor without decorations
+      try {
+        return levelHandler
+            .getConstructor(LevelElement[][].class, DesignLabel.class, Map.class)
+            .newInstance(layout, designLabel, namedPoints);
       } catch (Exception e) {
         throw new RuntimeException("Error creating level handler", e);
       }

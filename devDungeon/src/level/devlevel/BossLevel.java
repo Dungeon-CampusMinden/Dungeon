@@ -64,12 +64,11 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
    * @param namedPoints The custom points of the level.
    */
   public BossLevel(
-    LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints, List<Tuple<Deco, Point>> decorations) {
+    LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(
         layout,
         designLabel,
         namedPoints,
-        decorations,
         "The Final Boss",
         "Woah! What is this place? This place is scorching, and I'm getting uneasy. We should prepare ourselves just in case.");
 

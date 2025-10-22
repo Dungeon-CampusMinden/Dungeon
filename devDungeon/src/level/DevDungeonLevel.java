@@ -39,10 +39,9 @@ public abstract class DevDungeonLevel extends DungeonLevel {
       LevelElement[][] layout,
       DesignLabel designLabel,
       Map<String, Point> namedPoints,
-      List<Tuple<Deco, Point>> decorations,
       String levelName,
       String description) {
-    super(layout, designLabel, namedPoints, decorations, levelName);
+    super(layout, designLabel, namedPoints, levelName);
     this.description = description;
   }
 

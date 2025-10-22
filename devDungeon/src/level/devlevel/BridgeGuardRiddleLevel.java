@@ -42,12 +42,11 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel {
    * @param namedPoints The custom points of the level.
    */
   public BridgeGuardRiddleLevel(
-      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints, List<Tuple<Deco, Point>> decorations) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(
         layout,
         designLabel,
         namedPoints,
-        decorations,
         "The Bridge Guard",
         "Let's try to not get lost, the entire area is brimming with orcs. Let's try to find someone who may be able to help us! The bridge should be a start.");
     this.riddleHandler = new BridgeGuardRiddleHandler(namedPoints, this);

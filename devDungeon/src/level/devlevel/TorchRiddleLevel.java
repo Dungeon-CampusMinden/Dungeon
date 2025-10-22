@@ -50,12 +50,11 @@ public class TorchRiddleLevel extends DevDungeonLevel {
    * @param namedPoints The custom points of the level.
    */
   public TorchRiddleLevel(
-      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints, List<Tuple<Deco, Point>> decorations) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(
         layout,
         designLabel,
         namedPoints,
-        decorations,
         "The Torch Riddle",
         "Welcome to the Torch Riddle! This is an ancient test, rewarding rewards to those who look closer. You may find the Riddle Door to proceed. Best of luck!");
     this.riddleHandler = new TorchRiddleRiddleHandler(namedPoints, this);

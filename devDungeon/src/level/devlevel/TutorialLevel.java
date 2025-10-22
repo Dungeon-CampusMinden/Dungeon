@@ -50,12 +50,11 @@ public class TutorialLevel extends DevDungeonLevel {
    * @param namedPoints The custom points of the level.
    */
   public TutorialLevel(
-      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints, List<Tuple<Deco, Point>> decorations) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(
         layout,
         designLabel,
         namedPoints,
-        decorations,
         "Tutorial",
         "Willkommen im Tutorial! Hier lernst Du die Grundlagen des Spiels kennen.");
     this.mobSpawn = getPoint("Point0");

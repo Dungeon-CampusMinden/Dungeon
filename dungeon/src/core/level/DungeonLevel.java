@@ -77,6 +77,7 @@ public class DungeonLevel implements ILevel, ITickable {
    * @param layout The layout of the level, represented as a 2D array of LevelElements.
    * @param designLabel The design label of the level.
    * @param customPoints A list of custom points to be added to the level.
+   * @param decorations A list of decorations to be added to the level.
    * @param levelName The name of the level. (can be empty)
    */
   public DungeonLevel(
@@ -95,15 +96,33 @@ public class DungeonLevel implements ILevel, ITickable {
    * @param layout The layout of the level, represented as a 2D array of LevelElements.
    * @param designLabel The design label of the level.
    * @param namedPoints A list of custom points to be added to the level.
+   * @param decorations A list of decorations to be added to the level.
+   */
+  public DungeonLevel(
+    LevelElement[][] layout,
+    DesignLabel designLabel,
+    Map<String, Point> namedPoints,
+    List<Tuple<Deco, Point>> decorations) {
+    this(layout, designLabel);
+    this.namedPoints.putAll(namedPoints);
+    this.decorations.addAll(decorations);
+  }
+
+  /**
+   * Constructs a new DevDungeonLevel with the given layout, design label, and custom points.
+   *
+   * @param layout The layout of the level, represented as a 2D array of LevelElements.
+   * @param designLabel The design label of the level.
+   * @param namedPoints A list of custom points to be added to the level.
    */
   public DungeonLevel(
       LevelElement[][] layout,
       DesignLabel designLabel,
       Map<String, Point> namedPoints,
-      List<Tuple<Deco, Point>> decorations) {
+      String levelName) {
     this(layout, designLabel);
     this.namedPoints.putAll(namedPoints);
-    this.decorations.addAll(decorations);
+    this.levelName = levelName;
   }
 
   /**

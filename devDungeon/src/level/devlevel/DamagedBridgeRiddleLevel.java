@@ -47,12 +47,11 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
    * @param namedPoints The custom points of the level.
    */
   public DamagedBridgeRiddleLevel(
-      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints, List<Tuple<Deco, Point>> decorations) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(
         layout,
         designLabel,
         namedPoints,
-        decorations,
         "The Damaged Bridge",
         "I heard that a powerful artifact is hidden nearby. Rumor says it's just beyond an old bridge. Let's see if we can find it.");
     this.riddleHandler = new DamagedBridgeRiddleHandler(namedPoints, this);

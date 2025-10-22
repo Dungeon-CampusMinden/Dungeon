@@ -69,12 +69,11 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
    * @param namedPoints The custom points of the level.
    */
   public IllusionRiddleLevel(
-    LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints, List<Tuple<Deco, Point>> decorations) {
+    LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(
       layout,
       designLabel,
       namedPoints,
-      decorations,
       "The Illusion Riddle",
       "Wait, who turned off the lights? Try to find a way out of this dark place.");
 
