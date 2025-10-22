@@ -19,6 +19,8 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
+import javax.smartcardio.ATR;
+
 /**
  * A skill that does a melee attack in the direction the entity is looking, generates a short living
  * entity that deals damage to all entities colliding with it.
@@ -59,7 +61,7 @@ public class MeleeAttackSkill extends Skill {
   }
 
   public MeleeAttackSkill(int damage) {
-      this(damage,DamageType.PHYSICAL,500, Vector2.ZERO, Vector2.of(1.5,1));
+      this(damage,DamageType.PHYSICAL,500, Vector2.ZERO, Vector2.ONE);
   }
 
   /**
@@ -132,7 +134,7 @@ public class MeleeAttackSkill extends Skill {
                   () -> {
                     Game.remove(attack);
                   },
-                  2500);
+                  230);
             });
   }
 }

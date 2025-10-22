@@ -1,5 +1,6 @@
 -   Quelle: https://opengameart.org/content/pixel-art-sword-slash-effect
 -   Author: tbbk
+-   Modified by: Simon Gartzke
 -   License: CC0 1.0
 
 <details>

@@ -1,6 +1,7 @@
 package contrib.systems;
 
 import contrib.components.AttachmentComponent;
+import contrib.components.CollideComponent;
 import core.Entity;
 import core.System;
 import core.components.PositionComponent;
@@ -58,6 +59,11 @@ public class AttachmentSystem extends System {
   private void applyAttachment(ASData asData) {
     if (asData.ac.isRotatingWithOrigin()) {
       asData.copypc.position(asData.originpc.position().translate(asData.originpc.viewDirection()));
+      asData.e.fetch(CollideComponent.class).ifPresent(cc-> {
+        cc.collider().position(asData.copypc.position());
+      });
+      // this is here because the player doesnt rotate when so the viewdirection has to be used for melee.
+      //      asData.copypc.rotation(asData.originpc.rotation());
       switch(asData.originpc.viewDirection()) {
         case UP -> {
           asData.copypc.rotation(90);
@@ -73,9 +79,12 @@ public class AttachmentSystem extends System {
         }
         default -> {}
       }
-//      asData.copypc.rotation(asData.originpc.rotation());
+
     } else {
       asData.copypc.position(asData.originpc.position().translate(asData.ac.getOffset()));
+      asData.e.fetch(CollideComponent.class).ifPresent(cc-> {
+        cc.collider().position(asData.copypc.position());
+      });
     }
   }
 
