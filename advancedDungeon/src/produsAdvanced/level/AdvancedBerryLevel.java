@@ -13,7 +13,6 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.elements.tile.ExitTile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
@@ -21,6 +20,7 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import level.AdvancedLevel;
@@ -118,11 +118,11 @@ public class AdvancedBerryLevel extends AdvancedLevel {
    *
    * @param layout 2D array representing the level layout.
    * @param designLabel The design label for the level.
-   * @param customPoints Custom positions used in this level (e.g., for NPC and chest).
+   * @param namedPoints Custom positions used in this level (e.g., for NPC and chest).
    */
   public AdvancedBerryLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Berry");
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Berry");
   }
 
   @Override
@@ -179,7 +179,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
   /** Creates a chest at the second custom point. */
   private void createChest() {
     try {
-      chest = EntityFactory.newChest(Set.of(), customPoints().get(1).toPoint());
+      chest = EntityFactory.newChest(Set.of(), getPoint(1));
     } catch (IOException e) {
       throw new RuntimeException("Failed to create chest", e);
     }
@@ -189,7 +189,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
   /** Creates an NPC that gives the player a berry-fetching quest. */
   private void createNPC() {
     Entity npc = new Entity("NPC");
-    npc.add(new PositionComponent(customPoints().get(0).toPoint()));
+    npc.add(new PositionComponent(getPoint(0)));
 
     npc.add(new DrawComponent(new SimpleIPath(NPC_TEXTURE_PATH)));
     npc.add(new CollideComponent());

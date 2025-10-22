@@ -99,10 +99,10 @@ public class DungeonLevel implements ILevel, ITickable {
    * @param decorations A list of decorations to be added to the level.
    */
   public DungeonLevel(
-    LevelElement[][] layout,
-    DesignLabel designLabel,
-    Map<String, Point> namedPoints,
-    List<Tuple<Deco, Point>> decorations) {
+      LevelElement[][] layout,
+      DesignLabel designLabel,
+      Map<String, Point> namedPoints,
+      List<Tuple<Deco, Point>> decorations) {
     this(layout, designLabel);
     this.namedPoints.putAll(namedPoints);
     this.decorations.addAll(decorations);
@@ -347,12 +347,17 @@ public class DungeonLevel implements ILevel, ITickable {
     return decorations;
   }
 
+  public Point getPoint(int legacyIndex) {
+    return namedPoints.get("Point" + legacyIndex);
+  }
+
   public Point getPoint(String name) {
     return namedPoints.get(name);
   }
 
   /**
    * Get an array of points with the given base name from start to end (inclusive).
+   *
    * @param baseName the base name of the points
    * @param start the starting index
    * @param end the ending index
@@ -364,6 +369,17 @@ public class DungeonLevel implements ILevel, ITickable {
       points[i - start] = getPoint(baseName + i);
     }
     return points;
+  }
+
+  /**
+   * Get an array of points with the given base name from start to end (inclusive).
+   *
+   * @param legacyStart the starting index
+   * @param legacyEnd the ending index
+   * @return the array of points
+   */
+  public Point[] getPoints(int legacyStart, int legacyEnd) {
+    return getPoints("Point", legacyStart, legacyEnd);
   }
 
   public int getHighestPointNumber(String baseName) {

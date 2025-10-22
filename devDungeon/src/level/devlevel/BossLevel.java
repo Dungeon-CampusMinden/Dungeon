@@ -5,8 +5,6 @@ import contrib.components.AIComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.AIFactory;
 import contrib.entities.MiscFactory;
-import contrib.entities.MonsterBuilder;
-import contrib.entities.deco.Deco;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.systems.HealthSystem;
@@ -24,15 +22,12 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
-import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import entities.BossAttackSkills;
 import entities.DevDungeonMonster;
 import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemReward;
-import java.util.List;
 import java.util.Map;
-
 import level.DevDungeonLevel;
 import systems.DevHealthSystem;
 
@@ -64,7 +59,7 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
    * @param namedPoints The custom points of the level.
    */
   public BossLevel(
-    LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(
         layout,
         designLabel,
@@ -72,16 +67,18 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
         "The Final Boss",
         "Woah! What is this place? This place is scorching, and I'm getting uneasy. We should prepare ourselves just in case.");
 
-    this.levelBossSpawn = getPoint("Point0");
-    this.pillars = getPoints("Point", 1, 4); // Top left corner (each 2x2)
-    this.entrance = getPoint("Point5");
-    this.chestSpawn = getPoint("Point6");
-    this.cauldronSpawn = getPoint("Point7");
+    this.levelBossSpawn = getPoint(0);
+    this.pillars = getPoints(1, 4); // Top left corner (each 2x2)
+    this.entrance = getPoint(5);
+    this.chestSpawn = getPoint(6);
+    this.cauldronSpawn = getPoint(7);
   }
 
   @Override
   protected void onFirstTick() {
-    this.boss = utils.EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn.toCoordinate(), this::handleBossDeath);
+    this.boss =
+        utils.EntityUtils.spawnBoss(
+            BOSS_TYPE, levelBossSpawn.toCoordinate(), this::handleBossDeath);
     ((DevHealthSystem) Game.systems().get(DevHealthSystem.class)).registerObserver(this);
     spawnChestsAndCauldrons();
   }

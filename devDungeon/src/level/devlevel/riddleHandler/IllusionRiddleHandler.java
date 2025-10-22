@@ -27,8 +27,7 @@ public class IllusionRiddleHandler {
   private final Point[][] initTeleporterSpawns;
   private final Point[][] lastTeleporterSpawns;
   private final Point[][] lapCheckpoints; // [location][3 tiles wide]
-  private final Point
-      riddleRewardSpawn; // The spawn point of the reward for solving the riddle
+  private final Point riddleRewardSpawn; // The spawn point of the reward for solving the riddle
   private Point lastHeroPos = new Point(0, 0);
   private boolean rewardGiven = false;
   private int lapCounter = 0;
@@ -45,23 +44,23 @@ public class IllusionRiddleHandler {
    */
   public IllusionRiddleHandler(Map<String, Point> namedPoints, DungeonLevel level) {
     this.initTeleporterSpawns =
-      new Point[][] {
-        { level.getPoint("Point136"), level.getPoint("Point137"), level.getPoint("Point138") },
-        { level.getPoint("Point139"), level.getPoint("Point140"), level.getPoint("Point141") }
-      };
+        new Point[][] {
+          {level.getPoint(136), level.getPoint(137), level.getPoint(138)},
+          {level.getPoint(139), level.getPoint(140), level.getPoint(141)}
+        };
     this.lastTeleporterSpawns =
-      new Point[][] {
-        { level.getPoint("Point142"), level.getPoint("Point143"), level.getPoint("Point144") },
-        { level.getPoint("Point145"), level.getPoint("Point146"), level.getPoint("Point147") }
-      };
+        new Point[][] {
+          {level.getPoint(142), level.getPoint(143), level.getPoint(144)},
+          {level.getPoint(145), level.getPoint(146), level.getPoint(147)}
+        };
     this.lapCheckpoints =
-      new Point[][] {
-        { level.getPoint("Point148"), level.getPoint("Point149"), level.getPoint("Point150") }, // Right
-        { level.getPoint("Point151"), level.getPoint("Point152"), level.getPoint("Point153") }, // Top
-        { level.getPoint("Point154"), level.getPoint("Point155"), level.getPoint("Point156") }, // Left
-        { level.getPoint("Point157"), level.getPoint("Point158"), level.getPoint("Point159") }  // Bottom
-      };
-    this.riddleRewardSpawn = level.getPoint("Point160");
+        new Point[][] {
+          {level.getPoint(148), level.getPoint(149), level.getPoint(150)}, // Right
+          {level.getPoint(151), level.getPoint(152), level.getPoint(153)}, // Top
+          {level.getPoint(154), level.getPoint(155), level.getPoint(156)}, // Left
+          {level.getPoint(157), level.getPoint(158), level.getPoint(159)} // Bottom
+        };
+    this.riddleRewardSpawn = level.getPoint(160);
 
     this.level = level;
   }

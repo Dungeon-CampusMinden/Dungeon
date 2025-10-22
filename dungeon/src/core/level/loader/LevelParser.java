@@ -98,11 +98,12 @@ public class LevelParser {
       // Try normal constructor first
       try {
         return levelHandler
-          .getConstructor(LevelElement[][].class, DesignLabel.class, Map.class, List.class)
-          .newInstance(layout, designLabel, namedPoints, decorations);
-      } catch (Exception ignored) {}
+            .getConstructor(LevelElement[][].class, DesignLabel.class, Map.class, List.class)
+            .newInstance(layout, designLabel, namedPoints, decorations);
+      } catch (Exception ignored) {
+      }
 
-      //Legacy support: Try old constructor without decorations
+      // Legacy support: Try old constructor without decorations
       try {
         return levelHandler
             .getConstructor(LevelElement[][].class, DesignLabel.class, Map.class)
@@ -332,8 +333,8 @@ public class LevelParser {
     }
     LevelElement[][] layout = v1LoadLevelLayout(layoutLines);
 
-        DungeonLevel newLevel =
-                getLevel(levelHandlerName, layout, designLabel, namedPoints, new ArrayList<>());
+    DungeonLevel newLevel =
+        getLevel(levelHandlerName, layout, designLabel, namedPoints, new ArrayList<>());
 
     // Set Hero Position
     Tile heroTile = newLevel.tileAt(heroPos).orElse(null);

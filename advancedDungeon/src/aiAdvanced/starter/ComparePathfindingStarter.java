@@ -30,8 +30,8 @@ import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -124,7 +124,7 @@ public class ComparePathfindingStarter {
         new AiMazeLevel(
             newLevel,
             Game.currentLevel().flatMap(ILevel::designLabel).orElse(DesignLabel.DEFAULT),
-            Game.currentLevel().map(ILevel::customPoints).orElse(Collections.emptyList())));
+            Game.currentLevel().map(ILevel::namedPoints).orElse(Map.of())));
 
     // Position the runners
     Debugger.TELEPORT(orgStart.toPoint());

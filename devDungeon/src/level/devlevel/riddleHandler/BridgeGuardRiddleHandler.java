@@ -34,7 +34,6 @@ import item.concreteItem.ItemPotionAttackSpeed;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import systems.DevHealthSystem;
 import task.game.hud.QuizUI;
 import task.game.hud.UIAnswerCallback;
@@ -75,23 +74,24 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
    */
   public BridgeGuardRiddleHandler(Map<String, Point> namedPoints, DungeonLevel level) {
     this.level = level;
-    this.bridgeBounds = new Point[] { level.getPoint("Point0"), level.getPoint("Point1") };
-    this.bridgePitsBounds = new Point[] { level.getPoint("Point2"), level.getPoint("Point3") };
-    this.bridgeLever = level.getPoint("Point4");
-    this.bridgeLeverSign = level.getPoint("Point5");
-    this.bridgeGuardSpawn = level.getPoint("Point6");
-    this.riddleRoomEntrance = level.getPoint("Point7");
-    this.riddleRoomBounds = new Point[] { level.getPoint("Point8"), level.getPoint("Point9") };
-    this.riddleRoomChest = level.getPoint("Point10");
-    this.riddleRewardSpawn = level.getPoint("Point11");
-    this.riddleRoomExit = level.getPoint("Point12");
+    this.bridgeBounds = new Point[] {level.getPoint(0), level.getPoint(1)};
+    this.bridgePitsBounds = new Point[] {level.getPoint(2), level.getPoint(3)};
+    this.bridgeLever = level.getPoint(4);
+    this.bridgeLeverSign = level.getPoint(5);
+    this.bridgeGuardSpawn = level.getPoint(6);
+    this.riddleRoomEntrance = level.getPoint(7);
+    this.riddleRoomBounds = new Point[] {level.getPoint(8), level.getPoint(9)};
+    this.riddleRoomChest = level.getPoint(10);
+    this.riddleRewardSpawn = level.getPoint(11);
+    this.riddleRoomExit = level.getPoint(12);
 
     setupRiddles();
   }
 
   /** Handles the first tick of the riddle handler. */
   public void onFirstTick() {
-    LevelUtils.changeVisibilityForArea(riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), false);
+    LevelUtils.changeVisibilityForArea(
+        riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), false);
     prepareBridge();
     spawnChestAndCauldron();
     level.tileAt(riddleRewardSpawn).ifPresent(tile -> tile.tintColor(0x22AAFFFF));
@@ -108,14 +108,16 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
   }
 
   private void prepareBridge() {
-    LevelUtils.tilesInArea(bridgePitsBounds[0].toCoordinate(), bridgePitsBounds[1].toCoordinate()).stream()
+    LevelUtils.tilesInArea(bridgePitsBounds[0].toCoordinate(), bridgePitsBounds[1].toCoordinate())
+        .stream()
         .filter(tile -> tile instanceof PitTile || tile instanceof FloorTile)
         .peek(tile -> level.changeTileElementType(tile, LevelElement.PIT))
         .flatMap(tile -> level.tileAt(tile.coordinate()).stream())
         .map(tile -> (PitTile) tile)
         .forEach(PitTile::open);
 
-    LevelUtils.tilesInArea(bridgePitsBounds[0].toCoordinate(), bridgePitsBounds[1].toCoordinate()).stream()
+    LevelUtils.tilesInArea(bridgePitsBounds[0].toCoordinate(), bridgePitsBounds[1].toCoordinate())
+        .stream()
         .filter(tile -> tile instanceof WallTile)
         .peek(wallTile -> level.changeTileElementType(wallTile, LevelElement.FLOOR))
         .forEach(
@@ -136,13 +138,11 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
 
   private void prepareBridgeEntities() {
     EntityUtils.spawnLever(
-        bridgeLever, new BridgeControlCommand(bridgeBounds[0].toCoordinate(), bridgeBounds[1].toCoordinate()));
+        bridgeLever,
+        new BridgeControlCommand(bridgeBounds[0].toCoordinate(), bridgeBounds[1].toCoordinate()));
     EntityUtils.spawnSign(
-        "Pull the lever to raise and lower the bridge",
-        "Bridge Control",
-        bridgeLeverSign);
-    this.bridgeGuard =
-        utils.EntityUtils.spawnBridgeGuard(bridgeGuardSpawn, riddles, lastTask());
+        "Pull the lever to raise and lower the bridge", "Bridge Control", bridgeLeverSign);
+    this.bridgeGuard = utils.EntityUtils.spawnBridgeGuard(bridgeGuardSpawn, riddles, lastTask());
     bridgeGuard
         .fetch(HealthComponent.class)
         .ifPresent(
@@ -206,7 +206,8 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
   @Override
   public void onHealthEvent(HealthSystem.HSData hsData, HealthEvent healthEvent) {
     if (healthEvent == HealthEvent.DEATH && hsData.e().equals(bridgeGuard)) {
-      LevelUtils.changeVisibilityForArea(riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), true);
+      LevelUtils.changeVisibilityForArea(
+          riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), true);
       level
           .tileAt(riddleRoomEntrance)
           .filter(tile -> tile instanceof DoorTile)
@@ -274,7 +275,9 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
         cauldron
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(cauldron, PositionComponent.class));
-    pc.position(new Coordinate(riddleRoomChest.toCoordinate().x() + 1, riddleRoomChest.toCoordinate().y()).toPoint());
+    pc.position(
+        new Coordinate(riddleRoomChest.toCoordinate().x() + 1, riddleRoomChest.toCoordinate().y())
+            .toPoint());
     Game.add(cauldron);
   }
 }

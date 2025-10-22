@@ -1,18 +1,14 @@
 package level.devlevel;
 
 import contrib.entities.MonsterBuilder;
-import contrib.entities.deco.Deco;
 import contrib.hud.DialogUtils;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import core.utils.Tuple;
 import entities.DevDungeonMonster;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.BridgeGuardRiddleHandler;
 import utils.EntityUtils;
@@ -51,16 +47,17 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel {
         "Let's try to not get lost, the entire area is brimming with orcs. Let's try to find someone who may be able to help us! The bridge should be a start.");
     this.riddleHandler = new BridgeGuardRiddleHandler(namedPoints, this);
 
-    this.campSpawns = getPoints("Point", 13, 24);
-    this.mobSpawns = getPoints("Point", 25, 53);
-    this.levelBossSpawn = getPoint("Point54");
+    this.campSpawns = getPoints(13, 24);
+    this.mobSpawns = getPoints(25, 53);
+    this.levelBossSpawn = getPoint(54);
   }
 
   @Override
   protected void onFirstTick() {
     spawnCamps();
 
-    Coordinate[] mobSpawns = Arrays.stream(this.mobSpawns).map(Point::toCoordinate).toArray(Coordinate[]::new);
+    Coordinate[] mobSpawns =
+        Arrays.stream(this.mobSpawns).map(Point::toCoordinate).toArray(Coordinate[]::new);
     EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, mobSpawns);
     EntityUtils.spawnBoss(
         BOSS_TYPE,

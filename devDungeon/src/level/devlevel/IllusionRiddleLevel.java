@@ -6,7 +6,6 @@ import contrib.components.HealthComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
-import contrib.entities.deco.Deco;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.utils.EntityUtils;
@@ -20,7 +19,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import entities.DevDungeonMonster;
 import entities.levercommands.OpenPassageCommand;
@@ -69,97 +67,73 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
    * @param namedPoints The custom points of the level.
    */
   public IllusionRiddleLevel(
-    LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(
-      layout,
-      designLabel,
-      namedPoints,
-      "The Illusion Riddle",
-      "Wait, who turned off the lights? Try to find a way out of this dark place.");
+        layout,
+        designLabel,
+        namedPoints,
+        "The Illusion Riddle",
+        "Wait, who turned off the lights? Try to find a way out of this dark place.");
 
     ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).active(true);
     this.riddleHandler = new IllusionRiddleHandler(namedPoints, this);
     this.teleporterSystem = (TeleporterSystem) Game.systems().get(TeleporterSystem.class);
 
     this.rooms =
-      List.of(
-        new DevDungeonRoom(
-          getPoint("Point0"), // TopLeft
-          getPoint("Point1"), // BottomRight
-          new Point[] {}, // Torch Spawns
-          new Point[] {} // Mob Spawns
-        ),
-        new DevDungeonRoom(
-          getPoint("Point2"),
-          getPoint("Point3"),
-          new Point[] { getPoint("Point4") },
-          new Point[] { getPoint("Point5"), getPoint("Point6") }),
-        new DevDungeonRoom(
-          getPoint("Point7"),
-          getPoint("Point8"),
-          new Point[] { getPoint("Point9") }),
-        new DevDungeonRoom(
-          getPoint("Point10"),
-          getPoint("Point11"),
-          new Point[] { getPoint("Point12"), getPoint("Point13") }),
-        new DevDungeonRoom(
-          getPoint("Point14"),
-          getPoint("Point15"),
-          new Point[] { getPoint("Point16") },
-          new Point[] {}),
-        new DevDungeonRoom(
-          getPoint("Point17"),
-          getPoint("Point18"),
-          new Point[] { getPoint("Point19") },
-          new Point[] {}),
-        new DevDungeonRoom(
-          getPoint("Point20"),
-          getPoint("Point21"),
-          new Point[] { getPoint("Point22"), getPoint("Point23") },
-          new Point[] { getPoint("Point24") }),
-        new DevDungeonRoom(
-          getPoint("Point25"),
-          getPoint("Point26"),
-          new Point[] { getPoint("Point27") },
-          getPoints("Point", 28, 32)),
-        new DevDungeonRoom(
-          getPoint("Point33"),
-          getPoint("Point34"),
-          new Point[] { getPoint("Point35"), getPoint("Point36") }),
-        new DevDungeonRoom(
-          getPoint("Point37"),
-          getPoint("Point38"),
-          new Point[] { getPoint("Point39"), getPoint("Point40") },
-          getPoints("Point", 41, 46)),
-        new DevDungeonRoom(
-          getPoint("Point47"),
-          getPoint("Point48"),
-          new Point[] { getPoint("Point49") }),
-        new DevDungeonRoom(
-          getPoint("Point50"),
-          getPoint("Point51"),
-          new Point[] { getPoint("Point52"), getPoint("Point53") }),
-        new DevDungeonRoom(
-          getPoint("Point54"),
-          getPoint("Point55"),
-          new Point[] { getPoint("Point56") },
-          getPoints("Point", 57, 59)),
-        new DevDungeonRoom(
-          getPoint("Point60"),
-          getPoint("Point61"),
-          new Point[] { getPoint("Point62"), getPoint("Point63") },
-          new Point[] {}));
-    this.levelBossSpawn = getPoint("Point64");
+        List.of(
+            new DevDungeonRoom(
+                getPoint(0), // TopLeft
+                getPoint(1), // BottomRight
+                new Point[] {}, // Torch Spawns
+                new Point[] {} // Mob Spawns
+                ),
+            new DevDungeonRoom(
+                getPoint(2),
+                getPoint(3),
+                new Point[] {getPoint(4)},
+                new Point[] {getPoint(5), getPoint(6)}),
+            new DevDungeonRoom(getPoint(7), getPoint(8), new Point[] {getPoint(9)}),
+            new DevDungeonRoom(
+                getPoint(10), getPoint(11), new Point[] {getPoint(12), getPoint(13)}),
+            new DevDungeonRoom(
+                getPoint(14), getPoint(15), new Point[] {getPoint(16)}, new Point[] {}),
+            new DevDungeonRoom(
+                getPoint(17), getPoint(18), new Point[] {getPoint(19)}, new Point[] {}),
+            new DevDungeonRoom(
+                getPoint(20),
+                getPoint(21),
+                new Point[] {getPoint(22), getPoint(23)},
+                new Point[] {getPoint(24)}),
+            new DevDungeonRoom(
+                getPoint(25), getPoint(26), new Point[] {getPoint(27)}, getPoints(28, 32)),
+            new DevDungeonRoom(
+                getPoint(33), getPoint(34), new Point[] {getPoint(35), getPoint(36)}),
+            new DevDungeonRoom(
+                getPoint(37),
+                getPoint(38),
+                new Point[] {getPoint(39), getPoint(40)},
+                getPoints(41, 46)),
+            new DevDungeonRoom(getPoint(47), getPoint(48), new Point[] {getPoint(49)}),
+            new DevDungeonRoom(
+                getPoint(50), getPoint(51), new Point[] {getPoint(52), getPoint(53)}),
+            new DevDungeonRoom(
+                getPoint(54), getPoint(55), new Point[] {getPoint(56)}, getPoints(57, 59)),
+            new DevDungeonRoom(
+                getPoint(60),
+                getPoint(61),
+                new Point[] {getPoint(62), getPoint(63)},
+                new Point[] {}));
+    this.levelBossSpawn = getPoint(64);
 
     this.secretPassages =
-      new Point[][] {
-        new Point[] { getPoint("Point127"), getPoint("Point128") },
-        new Point[] { getPoint("Point129"), getPoint("Point130") },
-        new Point[] { getPoint("Point131"), getPoint("Point132") }
-      };
-    this.leverSpawns = getPoints("Point", 133, 135);
+        new Point[][] {
+          new Point[] {getPoint(127), getPoint(128)},
+          new Point[] {getPoint(129), getPoint(130)},
+          new Point[] {getPoint(131), getPoint(132)}
+        };
+    this.leverSpawns = getPoints(133, 135);
 
-    this.chestSpawns = new Point[] { getPoint("Point161") };
+    this.chestSpawns = new Point[] {getPoint(161)};
   }
 
   @Override
@@ -168,8 +142,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
 
     // Create teleporters
     for (int i = 65; i < 127; i += 2) {
-      teleporterSystem.registerTeleporter(
-          new Teleporter(getPoint("Point" + i), getPoint("Point" + (i + 1))));
+      teleporterSystem.registerTeleporter(new Teleporter(getPoint(i), getPoint(i + 1)));
     }
 
     // Setup TP Targets for TPBallSkill
@@ -241,13 +214,16 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
     // Secret Passages
     EntityUtils.spawnLever(
         leverSpawns[0],
-        new OpenPassageCommand(secretPassages[0][0].toCoordinate(), secretPassages[0][1].toCoordinate()));
+        new OpenPassageCommand(
+            secretPassages[0][0].toCoordinate(), secretPassages[0][1].toCoordinate()));
     EntityUtils.spawnLever(
         leverSpawns[1],
-        new OpenPassageCommand(secretPassages[1][0].toCoordinate(), secretPassages[1][1].toCoordinate()));
+        new OpenPassageCommand(
+            secretPassages[1][0].toCoordinate(), secretPassages[1][1].toCoordinate()));
     EntityUtils.spawnLever(
         leverSpawns[2],
-        new OpenPassageCommand(secretPassages[2][0].toCoordinate(), secretPassages[2][1].toCoordinate()));
+        new OpenPassageCommand(
+            secretPassages[2][0].toCoordinate(), secretPassages[2][1].toCoordinate()));
     spawnChestsAndCauldrons();
     riddleHandler.onFirstTick();
   }
@@ -339,8 +315,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
       try {
         newIllusionRiddleLevelChestEntity = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
       } catch (Exception e) {
-        throw new RuntimeException(
-            "Failed to create chest entity at " + chestSpawnPoint, e);
+        throw new RuntimeException("Failed to create chest entity at " + chestSpawnPoint, e);
       }
       PositionComponent pc =
           newIllusionRiddleLevelChestEntity

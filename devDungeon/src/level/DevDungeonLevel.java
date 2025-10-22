@@ -1,6 +1,5 @@
 package level;
 
-import contrib.entities.deco.Deco;
 import contrib.hud.DialogUtils;
 import contrib.utils.components.skill.projectileSkill.TPBallSkill;
 import contrib.utils.level.ITickable;
@@ -13,8 +12,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import core.utils.Tuple;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

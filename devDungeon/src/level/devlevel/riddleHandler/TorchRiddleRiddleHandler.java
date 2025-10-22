@@ -57,11 +57,11 @@ public class TorchRiddleRiddleHandler {
   public TorchRiddleRiddleHandler(Map<String, Point> namedPoints, DungeonLevel level) {
     this.level = level;
     // First point is the riddle door
-    this.riddleDoor = level.getPoint("Point0");
+    this.riddleDoor = level.getPoint(0);
     this.riddleRoomBounds =
-      new Point[] {level.getPoint("Point1"), level.getPoint("Point2")}; // TopLeft, BottomRight
+        new Point[] {level.getPoint(1), level.getPoint(2)}; // TopLeft, BottomRight
     // Next one is the center of the torch circle
-    this.riddleCenter = level.getPoint("Point17");
+    this.riddleCenter = level.getPoint(17);
 
     this.riddleSign =
         SignFactory.createSign(
@@ -189,7 +189,8 @@ public class TorchRiddleRiddleHandler {
         .filter(tile -> tile instanceof DoorTile)
         .map(tile -> (DoorTile) tile)
         .ifPresent(DoorTile::open);
-    LevelUtils.changeVisibilityForArea(riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), true);
+    LevelUtils.changeVisibilityForArea(
+        riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), true);
   }
 
   /**

@@ -3,7 +3,6 @@ package level.devlevel;
 import components.TorchComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
-import contrib.entities.deco.Deco;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.utils.EntityUtils;
@@ -15,7 +14,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
-import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.DevDungeonMonster;
@@ -59,12 +57,12 @@ public class TorchRiddleLevel extends DevDungeonLevel {
         "Welcome to the Torch Riddle! This is an ancient test, rewarding rewards to those who look closer. You may find the Riddle Door to proceed. Best of luck!");
     this.riddleHandler = new TorchRiddleRiddleHandler(namedPoints, this);
 
-    this.riddleRoomBounds = new Point[] {getPoint("Point1"), getPoint("Point2")}; // TopLeft, BottomRight
-    this.torchPositions = getPoints("Point", 3, 8);
-    this.riddleRoomTorches = getPoints("Point", 9, 14);
-    this.riddleRoomContent = getPoints("Point", 15, 16);
-    this.mobSpawns = getPoints("Point", 18, namedPoints.size() - 2);
-    this.levelBossSpawn = getPoint("Point" + (namedPoints.size() - 1));
+    this.riddleRoomBounds = new Point[] {getPoint(1), getPoint(2)}; // TopLeft, BottomRight
+    this.torchPositions = getPoints(3, 8);
+    this.riddleRoomTorches = getPoints(9, 14);
+    this.riddleRoomContent = getPoints(15, 16);
+    this.mobSpawns = getPoints(18, namedPoints.size() - 2);
+    this.levelBossSpawn = getPoint(namedPoints.size() - 1);
   }
 
   @Override
@@ -80,12 +78,14 @@ public class TorchRiddleLevel extends DevDungeonLevel {
 
   private void handleFirstTick() {
     // Hide Riddle Room at start
-    LevelUtils.changeVisibilityForArea(riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), false);
+    LevelUtils.changeVisibilityForArea(
+        riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), false);
 
     // Spawn all entities and it's content
     spawnTorches();
 
-    Coordinate[] mobSpawns = Arrays.stream(this.mobSpawns).map(Point::toCoordinate).toArray(Coordinate[]::new);
+    Coordinate[] mobSpawns =
+        Arrays.stream(this.mobSpawns).map(Point::toCoordinate).toArray(Coordinate[]::new);
     utils.EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, mobSpawns);
     utils.EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn.toCoordinate());
     spawnChestsAndCauldrons();

@@ -1,6 +1,5 @@
 package level.utils;
 
-import core.level.utils.Coordinate;
 import core.utils.Point;
 
 /**

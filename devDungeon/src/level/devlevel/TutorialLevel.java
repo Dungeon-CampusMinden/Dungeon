@@ -5,7 +5,6 @@ import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.MiscFactory;
-import contrib.entities.deco.Deco;
 import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
@@ -23,14 +22,11 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.Point;
-import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import entities.DevDungeonMonster;
 import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceMushroomRed;
-import java.util.List;
 import java.util.Map;
-
 import level.DevDungeonLevel;
 
 /** The Tutorial Level. */
@@ -57,10 +53,10 @@ public class TutorialLevel extends DevDungeonLevel {
         namedPoints,
         "Tutorial",
         "Willkommen im Tutorial! Hier lernst Du die Grundlagen des Spiels kennen.");
-    this.mobSpawn = getPoint("Point0");
+    this.mobSpawn = getPoint(0);
 
-    this.chestSpawn = getPoint("Point1");
-    this.cauldronSpawn = getPoint("Point2");
+    this.chestSpawn = getPoint(1);
+    this.cauldronSpawn = getPoint(2);
   }
 
   @Override
@@ -81,7 +77,7 @@ public class TutorialLevel extends DevDungeonLevel {
     if (mob == null) {
       throw new RuntimeException("Failed to create tutorial monster");
     }
-    DoorTile mobDoor = (DoorTile) tileAt(getPoint("Point5")).orElse(null);
+    DoorTile mobDoor = (DoorTile) tileAt(getPoint(5)).orElse(null);
     mob.fetch(HealthComponent.class)
         .ifPresent(
             hc ->
@@ -108,9 +104,9 @@ public class TutorialLevel extends DevDungeonLevel {
   }
 
   private void handleTextPopups() {
-    DoorTile frontDoor = (DoorTile) tileAt(getPoint("Point4")).orElse(null);
-    DoorTile mobDoor = (DoorTile) tileAt(getPoint("Point5")).orElse(null);
-    DoorTile CraftingDoor = (DoorTile) tileAt(getPoint("Point6")).orElse(null);
+    DoorTile frontDoor = (DoorTile) tileAt(getPoint(4)).orElse(null);
+    DoorTile mobDoor = (DoorTile) tileAt(getPoint(5)).orElse(null);
+    DoorTile CraftingDoor = (DoorTile) tileAt(getPoint(6)).orElse(null);
     if (EntityUtils.getHeroCoordinate() == null) return;
     Tile heroTile = tileAt(EntityUtils.getHeroCoordinate()).orElse(null);
     if (heroTile == null) return;
@@ -157,8 +153,8 @@ public class TutorialLevel extends DevDungeonLevel {
    * mob.
    */
   private void handleDoors() {
-    DoorTile frontDoor = (DoorTile) tileAt(getPoint("Point4")).orElse(null);
-    DoorTile CraftingDoor = (DoorTile) tileAt(getPoint("Point6")).orElse(null);
+    DoorTile frontDoor = (DoorTile) tileAt(getPoint(4)).orElse(null);
+    DoorTile CraftingDoor = (DoorTile) tileAt(getPoint(6)).orElse(null);
     Point heroPos;
     try {
       heroPos = SkillTools.heroPositionAsPoint();
@@ -224,7 +220,7 @@ public class TutorialLevel extends DevDungeonLevel {
     ic =
         b.fetch(InventoryComponent.class)
             .orElseThrow(() -> MissingComponentException.build(b, InventoryComponent.class));
-    pc.position(getPoint("Point3"));
+    pc.position(getPoint(3));
     ic.add(new ItemPotionHealth(HealthPotionType.NORMAL));
     Game.add(b);
   }

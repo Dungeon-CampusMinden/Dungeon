@@ -4,11 +4,9 @@ import components.TorchComponent;
 import contrib.components.AIComponent;
 import core.Entity;
 import core.level.Tile;
-import core.level.utils.Coordinate;
 import core.level.utils.LevelUtils;
-import java.util.List;
-
 import core.utils.Point;
+import java.util.List;
 import utils.EntityUtils;
 
 /**
@@ -39,11 +37,7 @@ public class DevDungeonRoom {
    * @param mobSpawns The spawn points for mobs within the room. (Can be empty)
    * @throws IllegalArgumentException if a spawn point is outside the room boundaries.
    */
-  public DevDungeonRoom(
-      Point topLeft,
-      Point bottomRight,
-      Point[] torchSpawns,
-      Point[] mobSpawns) {
+  public DevDungeonRoom(Point topLeft, Point bottomRight, Point[] torchSpawns, Point[] mobSpawns) {
     this.topLeft = topLeft;
     this.bottomRight = bottomRight;
     for (Point torchSpawn : torchSpawns) {
@@ -95,8 +89,7 @@ public class DevDungeonRoom {
   private Entity[] spawnTorches(Point[] torchSpawns) {
     Entity[] torches = new Entity[torchSpawns.length];
     for (int i = 0; i < torchSpawns.length; i++) {
-      torches[i] =
-          EntityUtils.spawnAntiLightTorch(torchSpawns[i], true, true, (x, y) -> {});
+      torches[i] = EntityUtils.spawnAntiLightTorch(torchSpawns[i], true, true, (x, y) -> {});
     }
     return torches;
   }

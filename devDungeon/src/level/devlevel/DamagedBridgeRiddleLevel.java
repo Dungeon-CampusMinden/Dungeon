@@ -2,7 +2,6 @@ package level.devlevel;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
-import contrib.entities.deco.Deco;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import core.Entity;
@@ -14,7 +13,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import entities.DevDungeonMonster;
 import java.util.*;
@@ -55,16 +53,16 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
         "The Damaged Bridge",
         "I heard that a powerful artifact is hidden nearby. Rumor says it's just beyond an old bridge. Let's see if we can find it.");
     this.riddleHandler = new DamagedBridgeRiddleHandler(namedPoints, this);
-    this.bridgeMobSpawn = getPoint("Point8");
+    this.bridgeMobSpawn = getPoint(8);
 
     this.secretWay =
-        Arrays.stream(getPoints("Point", 11, 17))
+        Arrays.stream(getPoints(11, 17))
             .map(this::tileAt) // returns Optional<Tile>
             .flatMap(Optional::stream) // only keep present values
             .toArray(Tile[]::new);
 
-    this.mobSpawns = getPoints("Point", 18, namedPoints().size() - 2);
-    this.levelBossSpawn = getPoint("Point" + (namedPoints().size() - 1));
+    this.mobSpawns = getPoints(18, namedPoints().size() - 2);
+    this.levelBossSpawn = getPoint(namedPoints().size() - 1);
   }
 
   @Override
@@ -81,9 +79,7 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
     spawnChestsAndCauldrons();
 
     Coordinate[] mobSpawns =
-        Arrays.stream(this.mobSpawns)
-            .map(Point::toCoordinate)
-            .toArray(Coordinate[]::new);
+        Arrays.stream(this.mobSpawns).map(Point::toCoordinate).toArray(Coordinate[]::new);
     EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, mobSpawns);
     EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn.toCoordinate());
     riddleHandler.onFirstTick();

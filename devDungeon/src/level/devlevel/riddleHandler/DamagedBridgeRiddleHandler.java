@@ -19,7 +19,6 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import item.concreteItem.ItemPotionRegeneration;
 import item.concreteItem.ItemPotionSpeed;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,12 +38,10 @@ public class DamagedBridgeRiddleHandler {
   private final Point[] riddlePitBounds; // TopLeft, BottomRight
   private final Point
       riddleChestSpawn; // The spawn point of the reward chest for solving the riddle
-  private final Point
-      riddleRewardSpawn; // The spawn point of the reward for solving the riddle
+  private final Point riddleRewardSpawn; // The spawn point of the reward for solving the riddle
   private final DoorTile riddleExit; // The exit of the riddle room
   private final Point speedPotionChest; // The spawn point of the speed potion chest
-  private final Point
-      speedPotionChestHint; // The sign that hints towards the speed potion chest
+  private final Point speedPotionChestHint; // The sign that hints towards the speed potion chest
   private boolean rewardGiven = false;
 
   /**
@@ -54,25 +51,25 @@ public class DamagedBridgeRiddleHandler {
    * @param level The level of the riddle room.
    */
   public DamagedBridgeRiddleHandler(Map<String, Point> namedPoints, DungeonLevel level) {
-    this.riddleRoomBounds = new Point[] { level.getPoint("Point0"), level.getPoint("Point1") };
+    this.riddleRoomBounds = new Point[] {level.getPoint(0), level.getPoint(1)};
     this.riddleEntrance =
-      level
-        .tileAt(level.getPoint("Point2"))
-        .filter(DoorTile.class::isInstance)
-        .map(DoorTile.class::cast)
-        .orElse(null);
-    this.riddleEntranceSign = level.getPoint("Point3");
-    this.riddlePitBounds = new Point[] { level.getPoint("Point4"), level.getPoint("Point5") };
-    this.riddleChestSpawn = level.getPoint("Point6");
-    this.riddleRewardSpawn = new Point(level.getPoint("Point6").x(), level.getPoint("Point6").y() - 1);
+        level
+            .tileAt(level.getPoint(2))
+            .filter(DoorTile.class::isInstance)
+            .map(DoorTile.class::cast)
+            .orElse(null);
+    this.riddleEntranceSign = level.getPoint(3);
+    this.riddlePitBounds = new Point[] {level.getPoint(4), level.getPoint(5)};
+    this.riddleChestSpawn = level.getPoint(6);
+    this.riddleRewardSpawn = new Point(level.getPoint(6).x(), level.getPoint(6).y() - 1);
     this.riddleExit =
-      level
-        .tileAt(level.getPoint("Point7"))
-        .filter(DoorTile.class::isInstance)
-        .map(DoorTile.class::cast)
-        .orElse(null);
-    this.speedPotionChest = level.getPoint("Point9");
-    this.speedPotionChestHint = level.getPoint("Point10");
+        level
+            .tileAt(level.getPoint(7))
+            .filter(DoorTile.class::isInstance)
+            .map(DoorTile.class::cast)
+            .orElse(null);
+    this.speedPotionChest = level.getPoint(9);
+    this.speedPotionChestHint = level.getPoint(10);
 
     this.level = level;
   }
@@ -89,7 +86,8 @@ public class DamagedBridgeRiddleHandler {
   /** Handles the tick of the riddle room. */
   public void onTick() {
     if (isHeroInRiddleRoom()) {
-      LevelUtils.changeVisibilityForArea(riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), true);
+      LevelUtils.changeVisibilityForArea(
+          riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), true);
       riddleExit.open();
 
       Entity hero = Game.hero().orElse(null);
@@ -102,7 +100,8 @@ public class DamagedBridgeRiddleHandler {
         giveReward();
       }
     } else {
-      LevelUtils.changeVisibilityForArea(riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), false);
+      LevelUtils.changeVisibilityForArea(
+          riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), false);
       riddleExit.close();
     }
   }
@@ -139,7 +138,8 @@ public class DamagedBridgeRiddleHandler {
     if (heroPos == null) {
       return true; // if hero dies due to pit, still show riddle room
     }
-    return LevelUtils.isHeroInArea(riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate())
+    return LevelUtils.isHeroInArea(
+            riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate())
         || level.tileAt(heroPos).map(t -> t == riddleEntrance).orElse(false)
         || level.tileAt(heroPos).map(t -> t == riddleExit).orElse(false);
   }

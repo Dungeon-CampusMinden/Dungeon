@@ -5,7 +5,6 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
-import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.Collection;
