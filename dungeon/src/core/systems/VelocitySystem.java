@@ -8,7 +8,7 @@ import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import java.util.logging.Logger;
+import core.utils.logging.DungeonLogger;
 
 /**
  * The VelocitySystem manages the movement and animation state of entities based on their velocity.
@@ -32,7 +32,7 @@ public final class VelocitySystem extends System {
   ;
   private static final double THRESHOLD_VELOCITY = 0.2;
 
-  private static final Logger LOGGER = Logger.getLogger(VelocitySystem.class.getName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(VelocitySystem.class);
 
   // Default time (frames) an animation should be enqueued for
   private static final int DEFAULT_FRAME_TIME = 1;

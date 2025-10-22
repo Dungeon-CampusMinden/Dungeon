@@ -28,7 +28,6 @@ import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemResourceMushroomRed;
 import java.io.IOException;
-import java.util.logging.Level;
 import level.devlevel.*;
 import systems.*;
 
@@ -49,7 +48,6 @@ public class DevDungeon {
    * @throws IOException If an I/O error occurs.
    */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.WARNING);
     configGame();
     onSetup();
 

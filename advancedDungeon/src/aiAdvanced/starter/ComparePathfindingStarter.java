@@ -31,8 +31,6 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
 
 /**
  * This class starts a comparator for the pathfinding algorithms.
@@ -53,8 +51,6 @@ public class ComparePathfindingStarter {
    * @throws IOException If an error occurs while loading.
    */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.WARNING);
-
     // start the game
     configGame();
     // Set up components and level
