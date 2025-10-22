@@ -1,20 +1,35 @@
 package level.produs;
 
+import contrib.components.BlockComponent;
+import contrib.components.LeverComponent;
+import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
+import core.Entity;
+import core.Game;
+import core.components.DrawComponent;
+import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.components.MissingComponentException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
 /**
- * In this level, the player faces a simple maze. The "Left Hand" maze-solving rule can be applied
- * using while loops.
+ * In this level, random pairs of torches are lit—one torch of each pair is on, the other off. There
+ * are multiple pairs, and at the end, all torches must be lit to unlock the exit. Players can use
+ * if and if-else statements to define the necessary algorithms.
  */
 public class Level013 extends BlocklyLevel {
   private static boolean showText = true;
+
+  private final Set<LeverComponent> torches = new HashSet<>();
+  private DoorTile door;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -27,10 +42,16 @@ public class Level013 extends BlocklyLevel {
   public Level013(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Level 13");
     this.blockBlocklyElement(
+        // Schleifen
+        "while_loop",
         // Inventar und Charakter
         "drop_item",
         "Items",
+        "wait",
         // Bedingung
+        "logic_wall_direction",
+        "logic_floor_direction",
+        "logic_pit_direction",
         "logic_monster_direction",
         "logic_breadcrumbs_direction",
         "logic_clover_direction",
@@ -47,17 +68,48 @@ public class Level013 extends BlocklyLevel {
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.cameraFocusOn(new Coordinate(5, 8));
-    LevelManagementUtils.heroViewDirection(Direction.UP);
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(
-          "Ganz schön verwirrend hier. Du brauchst eine gute Strategie um den Ausgang zu finden.",
-          "Kapitel 2: Flucht");
+          "Endlich raus da, aber wie geht es jetzt weiter?", "Kapitel 2: Flucht");
       showText = false;
     }
+
+    // create torches and light every second one
+    final boolean[] coin = {new Random().nextBoolean()};
+    customPoints()
+        .forEach(
+            coordinate -> {
+              Entity torch = LeverFactory.createTorch(coordinate.toPoint());
+              torch.add(new BlockComponent());
+              Game.add(torch);
+              LeverComponent lc =
+                  torch
+                      .fetch(LeverComponent.class)
+                      .orElseThrow(
+                          () -> MissingComponentException.build(torch, LeverComponent.class));
+              torches.add(lc);
+              if (coin[0]) {
+                lc.toggle();
+                DrawComponent dc =
+                    torch
+                        .fetch(DrawComponent.class)
+                        .orElseThrow(
+                            () -> MissingComponentException.build(torch, DrawComponent.class));
+                dc.sendSignal("on");
+                coin[0] = false;
+              } else coin[0] = true;
+            });
+
+    door = (DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow();
+    door.close();
   }
 
   @Override
-  protected void onTick() {}
+  protected void onTick() {
+    if (torches.stream().allMatch(LeverComponent::isOn)) door.open();
+    else door.close();
+  }
 }

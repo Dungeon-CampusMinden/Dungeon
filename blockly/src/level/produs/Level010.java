@@ -1,5 +1,6 @@
 package level.produs;
 
+import contrib.hud.DialogUtils;
 import core.Game;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -11,11 +12,9 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/**
- * This level builds on the previous one: fireball scrolls must be collected to defeat monsters.
- * Now, clever positioning is essential to succeed.
- */
+/** In this level, the fireball scrolls must be collected to defeat two of the three monsters. */
 public class Level010 extends BlocklyLevel {
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -33,6 +32,7 @@ public class Level010 extends BlocklyLevel {
         // Inventar und Charakter
         "drop_item",
         "Items",
+        "wait",
         // Kategorien
         "Abfragen",
         "Bedingung",
@@ -45,22 +45,24 @@ public class Level010 extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    LevelManagementUtils.cameraFocusOn(new Coordinate(8, 6));
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.heroViewDirection(Direction.LEFT);
+    LevelManagementUtils.zoomDefault();
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Mit diesen Spruchrollen kannst du einen mächtigen Feuerball beschwören.",
+          "Kapitel 1: Ausbruch");
+      showText = false;
+    }
     Game.add(MiscFactory.fireballScroll(customPoints().get(0).toPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(1).toPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(2).toPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(3).toPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(4).toPoint()));
 
-    BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().attackRange(5).addToGame();
-    guardBuilder.viewDirection(Direction.DOWN);
-    guardBuilder.build(customPoints().get(5).toPoint());
-    guardBuilder.build(customPoints().get(8).toPoint());
-    guardBuilder.build(customPoints().get(9).toPoint());
-    guardBuilder.viewDirection(Direction.RIGHT);
-    guardBuilder.build(customPoints().get(6).toPoint());
-    guardBuilder.build(customPoints().get(7).toPoint());
+    BlocklyMonster.Builder hedgehogBuilder =
+        BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
+    hedgehogBuilder.build(customPoints().get(2).toPoint());
+    hedgehogBuilder.build(customPoints().get(3).toPoint());
+    hedgehogBuilder.build(customPoints().get(4).toPoint());
   }
 
   @Override

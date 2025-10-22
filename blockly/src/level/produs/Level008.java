@@ -40,6 +40,9 @@ public class Level008 extends BlocklyLevel {
         // Schleifen
         "while_loop",
         // Inventar und Charakter
+        "fireball",
+        "wait",
+        "pickup",
         "drop_item",
         "Items",
         // Kategorien

@@ -1,22 +1,23 @@
 package level.produs;
 
+import components.AmmunitionComponent;
 import contrib.hud.DialogUtils;
 import core.Game;
-import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.MissingHeroException;
+import entities.monster.BlocklyMonster;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
 /**
- * This level features challenging backtracking that requires the use of breadcrumbs and clovers to
- * successfully navigate and solve the maze.
+ * This level extends simple backtracking by adding monsters to the maze. The player must navigate
+ * carefully while avoiding or dealing with monsters.
  */
 public class Level019 extends BlocklyLevel {
-
   private static boolean showText = true;
 
   /**
@@ -30,8 +31,15 @@ public class Level019 extends BlocklyLevel {
   public Level019(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Level 19");
     this.blockBlocklyElement(
+        // Inventar und Charakter
+        "drop_item",
+        "Items",
+        "wait",
         // Variable
         "get_number",
+        "switch_case",
+        "case_block",
+        "default_block",
         // Bedingung
         "logic_bossView_direction",
         // Kategorien
@@ -41,18 +49,28 @@ public class Level019 extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Ich geb dir ein paar Feuerballspruchrollen. Viel Erfolg!", "Kapitel 3: Rache");
+      showText = false;
+    }
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.zoomIn();
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
-    ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
-    if (showText) {
-      DialogUtils.showTextPopup(
-          "Nutz deinen Beutel mit Krumen und Kleeblättern, um deinen Weg hier raus zu finden.",
-          "Kapitel 3: Rache");
-      showText = false;
-    }
+    LevelManagementUtils.heroViewDirection(Direction.LEFT);
+    BlocklyMonster.Builder hedgehogBuilder =
+        BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
+    Game.hero()
+        .orElseThrow(MissingHeroException::new)
+        .fetch(AmmunitionComponent.class)
+        .orElseThrow()
+        .currentAmmunition(20);
+
+    customPoints()
+        .forEach(
+            coordinate -> {
+              hedgehogBuilder.build(coordinate.toPoint());
+            });
   }
 
   @Override

@@ -1,7 +1,5 @@
 package level.produs;
 
-import core.Game;
-import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -24,22 +22,29 @@ public class Level017 extends BlocklyLevel {
   public Level017(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Level 17");
     this.blockBlocklyElement(
+        // Inventar und Charakter
+        "drop_item",
+        "Items",
+        "wait",
         // Variable
         "get_number",
+        "switch_case",
+        "case_block",
+        "default_block",
         // Bedingung
         "logic_bossView_direction",
+        // Kategorien
         // Kategorien
         "Sonstige");
   }
 
   @Override
   protected void onFirstTick() {
-    LevelManagementUtils.fog(true);
-    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.fog(false);
     LevelManagementUtils.centerHero();
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.heroViewDirection(Direction.DOWN);
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
-    ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
   }
 
   @Override
