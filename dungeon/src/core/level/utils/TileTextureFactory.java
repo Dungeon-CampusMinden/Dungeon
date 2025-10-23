@@ -151,6 +151,8 @@ public class TileTextureFactory {
     Coordinate p = levelPart.position();
     LevelElement[][] layout = levelPart.layout();
 
+    if (isDiagonalFloorCross(p, layout)) return new SimpleIPath("wall/cross");
+
     if (isBottomRightInnerEmptyCorner(p, layout)) {
       return new SimpleIPath("wall/corner_bottom_right_inner_empty");
     }
@@ -330,11 +332,6 @@ public class TileTextureFactory {
       return new SimpleIPath("wall/corner_bottom_left_empty_cross");
     if (isBottomLeftEmptyCross(p, layout))
       return new SimpleIPath("wall/corner_bottom_right_empty_cross");
-
-    if (isCrossUpperLeftBottomRight(p, layout))
-      return new SimpleIPath("wall/wall_cross_upper_left_bottom_right");
-    if (isCrossUpperRightBottomLeft(p, layout))
-      return new SimpleIPath("wall/wall_cross_upper_right_bottom_left");
 
     if (isBottomLeftInnerCorner(p, layout))
       return selectInnerCornerTexture(p, layout, 1, 1, "bottom_left");
@@ -752,32 +749,16 @@ public class TileTextureFactory {
         && rightIsWall(p, layout);
   }
 
-  /**
-   * Checks if tile with coordinate p should be a crossUpperLeftBottomRight wall. Tile has to be
-   * surrounded by walls and have accessible tiles in the upper left and bottom right.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if all conditions are met
-   */
-  private static boolean isCrossUpperLeftBottomRight(Coordinate p, LevelElement[][] layout) {
-    return (isInSpaceWall(p, layout)
-        && (upperLeftIsAccessible(p, layout) || upperLeftIsHole(p, layout))
-        && (bottomRightIsAccessible(p, layout) || bottomRightIsHole(p, layout)));
-  }
-
-  /**
-   * Checks if tile with coordinate p should be a crossUpperRightBottomLeft wall. Tile has to be
-   * surrounded by walls and have accessible tiles in the upper right and bottom left.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if all conditions are met
-   */
-  private static boolean isCrossUpperRightBottomLeft(Coordinate p, LevelElement[][] layout) {
-    return (isInSpaceWall(p, layout)
-        && (upperRightIsAccessible(p, layout) || upperRightIsHole(p, layout))
-        && (bottomLeftIsAccessible(p, layout) || bottomLeftIsHole(p, layout)));
+  private static boolean isDiagonalFloorCross(Coordinate p, LevelElement[][] layout) {
+    Neighbors n = Neighbors.of(p, layout);
+    return isNotFloor(n.getUpE())
+        && isNotFloor(n.getDownE())
+        && isNotFloor(n.getLeftE())
+        && isNotFloor(n.getRightE())
+        && n.getUpLeftE() == LevelElement.FLOOR
+        && n.getUpRightE() == LevelElement.FLOOR
+        && n.getDownLeftE() == LevelElement.FLOOR
+        && n.getDownRightE() == LevelElement.FLOOR;
   }
 
   /**
