@@ -755,10 +755,10 @@ public class TileTextureFactory {
         && isNotFloor(n.getDownE())
         && isNotFloor(n.getLeftE())
         && isNotFloor(n.getRightE())
-        && n.getUpLeftE() == LevelElement.FLOOR
-        && n.getUpRightE() == LevelElement.FLOOR
-        && n.getDownLeftE() == LevelElement.FLOOR
-        && n.getDownRightE() == LevelElement.FLOOR;
+        && !isNotFloor(n.getUpLeftE())
+        && !isNotFloor(n.getUpRightE())
+        && !isNotFloor(n.getDownLeftE())
+        && !isNotFloor(n.getDownRightE());
   }
 
   /**
