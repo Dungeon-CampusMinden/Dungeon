@@ -8,8 +8,7 @@ import core.utils.Direction;
 import core.utils.Rectangle;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
-import core.utils.logging.CustomLogLevel;
-import java.util.logging.Logger;
+import core.utils.logging.DungeonLogger;
 
 /**
  * Allow an entity to collide with other entities that have a {@link CollideComponent}.
@@ -41,6 +40,8 @@ import java.util.logging.Logger;
  * @see contrib.systems.CollisionSystem
  */
 public final class CollideComponent implements Component {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CollideComponent.class);
+
   /** The default offset of the hit box. */
   public static final Vector2 DEFAULT_OFFSET = Vector2.of(0.1f, 0.1f);
 
@@ -62,8 +63,6 @@ public final class CollideComponent implements Component {
    * </ul>
    */
   public static final TriConsumer<Entity, Entity, Direction> DEFAULT_COLLIDER = (a, b, c) -> {};
-
-  private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 
   private Collider collider;
   private boolean isSolid = true;
@@ -239,14 +238,11 @@ public final class CollideComponent implements Component {
    */
   public void onLeave(final Entity entity, final Entity other, final Direction direction) {
     if (collideLeave != null) {
-      LOGGER.log(
-          CustomLogLevel.DEBUG,
-          this.getClass().getSimpleName()
-              + " is processing collision between entities '"
-              + entity.getClass().getSimpleName()
-              + "' and '"
-              + other.getClass().getSimpleName()
-              + "'.");
+      LOGGER.debug(
+          "{} is processing collision leave between entities '{}' and '{}'.",
+          this.getClass().getSimpleName(),
+          entity.getClass().getSimpleName(),
+          other.getClass().getSimpleName());
       collideLeave.accept(entity, other, direction);
     }
   }
@@ -260,14 +256,11 @@ public final class CollideComponent implements Component {
    */
   public void onHold(final Entity entity, final Entity other, final Direction direction) {
     if (collideHold != null) {
-      LOGGER.log(
-          CustomLogLevel.DEBUG,
-          this.getClass().getSimpleName()
-              + " is processing collision hold between entities '"
-              + entity.getClass().getSimpleName()
-              + "' and '"
-              + other.getClass().getSimpleName()
-              + "'.");
+      LOGGER.debug(
+          "{} is processing collision hold between entities '{}' and '{}'.",
+          this.getClass().getSimpleName(),
+          entity.getClass().getSimpleName(),
+          other.getClass().getSimpleName());
       collideHold.accept(entity, other, direction);
     }
   }

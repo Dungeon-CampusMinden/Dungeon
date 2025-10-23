@@ -1,6 +1,7 @@
 package coderunner;
 
 import core.Game;
+import core.utils.logging.DungeonLogger;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,8 +16,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -36,7 +35,7 @@ import systems.BlocklyCommandExecuteSystem;
  */
 public class BlocklyCodeRunner {
 
-  private static final Logger LOGGER = Logger.getLogger(BlocklyCodeRunner.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(BlocklyCodeRunner.class);
   private static BlocklyCodeRunner instance;
 
   /** List of whitelisted Blockly command method names without the trailing (); or parameters. */
@@ -166,7 +165,7 @@ public class BlocklyCodeRunner {
       String errors = errorStream.toString();
       System.err.println(errors);
       codeRunning.set(false);
-      LOGGER.warning("Compilation error: " + errors);
+      LOGGER.warn("Compilation error: " + errors);
       throw new RuntimeException("Compilation error:\n" + errors);
     }
 
@@ -177,7 +176,7 @@ public class BlocklyCodeRunner {
       scriptClass = Class.forName("UserScript", true, classLoader);
       method = scriptClass.getMethod("execute", BlocklyCommands.class);
     } catch (ClassNotFoundException | NoSuchMethodException | MalformedURLException e) {
-      LOGGER.warning("Error loading class or method: " + e.getMessage());
+      LOGGER.warn("Error loading class or method: " + e.getMessage());
       codeRunning.set(false);
       throw new RuntimeException("Server error: " + e.getMessage());
     }
@@ -199,8 +198,7 @@ public class BlocklyCodeRunner {
                 String causeMessage =
                     e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
                 causeMessage = causeMessage != null ? causeMessage : e.toString();
-                LOGGER.log(
-                    Level.WARNING, String.format("Error executing code: %s", causeMessage), e);
+                LOGGER.warn(String.format("Error executing code: %s", causeMessage), e);
                 throw new RuntimeException("Execution error: " + causeMessage);
               }
             });
@@ -277,7 +275,7 @@ public class BlocklyCodeRunner {
     try {
       tempDir = Files.createDirectory(Paths.get(tempDir.getPath(), TEMP_FOLDER_NAME)).toFile();
     } catch (IOException e) {
-      LOGGER.severe("Error creating temp folder: " + e.getMessage());
+      LOGGER.error("Error creating temp folder: " + e.getMessage());
       return null;
     }
     return tempDir.toPath();

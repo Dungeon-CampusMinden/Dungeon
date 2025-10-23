@@ -15,7 +15,6 @@ import core.utils.components.path.SimpleIPath;
 import demoDungeon.level.Level01;
 import hint.HintLogComponent;
 import java.io.IOException;
-import java.util.logging.Level;
 
 /**
  * Starter for the Demo Escaperoom Dungeon.
@@ -34,7 +33,6 @@ public class DemoRoom {
    * @throws IOException If an I/O error occurs.
    */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.WARNING);
     configGame();
     onSetup();
 
