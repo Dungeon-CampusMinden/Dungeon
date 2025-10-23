@@ -4,6 +4,7 @@ import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -18,6 +19,8 @@ import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.sound.player.GdxSoundPlayer;
+import core.sound.player.NoSoundPlayer;
 import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
@@ -159,7 +162,7 @@ public final class GameLoop extends ScreenAdapter {
   public void render(float delta) {
     if (doSetup) setup();
     DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
-    frame();
+    frame(delta);
     clearScreen();
 
     for (System system : ECSManagment.systems().values()) {
@@ -182,12 +185,19 @@ public final class GameLoop extends ScreenAdapter {
    *
    * <p>Will execute {@link LevelSystem#execute()} once to load the first level before the actual
    * game loop starts. This ensures the first level is set at the start of the game loop, even if
-   * the {@link LevelSystem} is not executed as the first system in the game loop..
+   * the {@link LevelSystem} is not executed as the first system in the game loop.
    *
    * <p>Will perform some setup.
    */
   private void setup() {
     doSetup = false;
+    if (Gdx.audio != null && !PreRunConfiguration.disableAudio()) {
+      AssetManager assetManager = new AssetManager();
+      GdxSoundPlayer gdxPlayer = new GdxSoundPlayer(assetManager);
+      Game.soundPlayer(gdxPlayer);
+    } else {
+      Game.soundPlayer(new NoSoundPlayer());
+    }
     createSystems();
     setupStage();
     PreRunConfiguration.userOnSetup().execute();
@@ -199,9 +209,12 @@ public final class GameLoop extends ScreenAdapter {
    * executed.
    *
    * <p>This is the place to add basic logic that isn't part of any system.
+   *
+   * @param delta The time since the last loop.
    */
-  private void frame() {
+  private void frame(float delta) {
     fullscreenKey();
+    Game.soundPlayer().update(delta);
     PreRunConfiguration.userOnFrame().execute();
   }
 
@@ -271,5 +284,6 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagment.add(new MoveSystem());
     ECSManagment.add(new InputSystem());
     ECSManagment.add(new DebugDrawSystem());
+    ECSManagment.add(new SoundSystem());
   }
 }
