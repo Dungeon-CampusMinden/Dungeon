@@ -3,6 +3,7 @@ package core.systems;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import contrib.components.CollideComponent;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -12,10 +13,8 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +27,7 @@ public class MoveSystemTest {
   private MoveSystem system;
   private Entity entity;
   private VelocityComponent vc;
+  private CollideComponent cc;
   private PositionComponent pc;
 
   @BeforeEach
@@ -35,9 +35,11 @@ public class MoveSystemTest {
     system = new MoveSystem();
     entity = new Entity();
     pc = new PositionComponent(START_POSITION);
+    entity.add(pc);
     vc = new VelocityComponent(MAX_SPEED);
     entity.add(vc);
-    entity.add(pc);
+    cc = new CollideComponent();
+    entity.add(cc);
     Game.add(entity);
     Game.add(new LevelSystem(() -> {}));
 
@@ -142,21 +144,6 @@ public class MoveSystemTest {
     Point xMove = new Point(newPos.x(), oldPos.y());
     Point yMove = new Point(oldPos.x(), newPos.y());
 
-    Vector2 offset = vc.moveboxOffset();
-    Vector2 size = vc.moveboxSize();
-
-    // Helper to get hitbox corners for a given position
-    Function<Point, List<Point>> hitboxCorners =
-        pos ->
-            List.of(
-                new Point(pos.x() + offset.x(), pos.y() + offset.y()), // top-left
-                new Point(pos.x() + offset.x() + size.x(), pos.y() + offset.y()), // top-right
-                new Point(pos.x() + offset.x(), pos.y() + offset.y() + size.y()), // bottom-left
-                new Point(
-                    pos.x() + offset.x() + size.x(),
-                    pos.y() + offset.y() + size.y()) // bottom-right
-                );
-
     // Mock Tiles
     Tile accessibleTile = mock(Tile.class);
     when(accessibleTile.isAccessible()).thenReturn(true);
@@ -172,19 +159,23 @@ public class MoveSystemTest {
     DungeonLevel level = mock(DungeonLevel.class);
     when(level.tileAt(any(Point.class))).thenReturn(Optional.of(defaultTile));
 
+    // make local lambda function to get the corner positions. collider().corners() returns Vector2
+    // onto which the pos
+    // needs to be added
+
     // Block all corners of newPos
-    for (Point corner : hitboxCorners.apply(newPos)) {
-      when(level.tileAt(eq(corner))).thenReturn(Optional.of(blockedTile));
+    for (Vector2 corner : cc.collider().cornersScaled()) {
+      when(level.tileAt(eq(newPos.translate(corner)))).thenReturn(Optional.of(blockedTile));
     }
 
     // Make all corners of xMove accessible
-    for (Point corner : hitboxCorners.apply(xMove)) {
-      when(level.tileAt(eq(corner))).thenReturn(Optional.of(accessibleTile));
+    for (Vector2 corner : cc.collider().cornersScaled()) {
+      when(level.tileAt(eq(xMove.translate(corner)))).thenReturn(Optional.of(accessibleTile));
     }
 
     // Make all corners of yMove blocked
-    for (Point corner : hitboxCorners.apply(yMove)) {
-      when(level.tileAt(eq(corner))).thenReturn(Optional.of(blockedTile));
+    for (Vector2 corner : cc.collider().cornersScaled()) {
+      when(level.tileAt(eq(yMove.translate(corner)))).thenReturn(Optional.of(blockedTile));
     }
 
     Game.currentLevel(level);

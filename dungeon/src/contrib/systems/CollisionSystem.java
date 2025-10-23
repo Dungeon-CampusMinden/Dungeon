@@ -1,7 +1,8 @@
 package contrib.systems;
 
 import contrib.components.CollideComponent;
-import contrib.utils.CollisionUtils;
+import contrib.utils.components.collide.Collider;
+import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
 import core.System;
 import core.components.PositionComponent;
@@ -30,13 +31,18 @@ import java.util.stream.Stream;
 public final class CollisionSystem extends System {
 
   /** Solid entities will be kept at this distance after colliding. */
-  private static final float COLLIDE_SET_DISTANCE = 0.01f;
+  public static final float COLLIDE_SET_DISTANCE = 0.01f;
 
   private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
 
   /** Create a new CollisionSystem. */
   public CollisionSystem() {
     super(CollideComponent.class);
+    onEntityAdd = this::onAddEntity;
+  }
+
+  private void onAddEntity(Entity e) {
+    PositionSync.syncPosition(e);
   }
 
   /**
@@ -111,8 +117,8 @@ public final class CollisionSystem extends System {
   private void onEnterLeaveCheck(final CollisionData cdata) {
     CollisionKey key = new CollisionKey(cdata.ea.id(), cdata.eb.id());
 
-    if (checkForCollision(cdata.ea, cdata.a, cdata.eb, cdata.b)) {
-      Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
+    if (checkForCollision(cdata.a, cdata.b)) {
+      Direction d = checkDirectionOfCollision(cdata.a.collider(), cdata.b.collider());
       // a collision is currently happening
       if (!collisions.containsKey(key)) {
         // a new collision should call the onEnter on both entities
@@ -130,7 +136,7 @@ public final class CollisionSystem extends System {
       }
 
     } else if (collisions.remove(key) != null) {
-      Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
+      Direction d = checkDirectionOfCollision(cdata.a.collider(), cdata.b.collider());
       // a collision was happening and the two entities are no longer colliding, on Leave
       // called once
       cdata.a.onLeave(cdata.ea, cdata.eb, d);
@@ -148,16 +154,16 @@ public final class CollisionSystem extends System {
       LOGGER.warning(
           "Two stationary solid entities are colliding: " + cdata.ea + " and " + cdata.eb);
     } else if (aStationary) {
-      solidCollide(cdata.ea, cdata.a, cdata.eb, cdata.b, d);
+      solidCollide(cdata.ea, cdata.a.collider(), cdata.eb, cdata.b.collider(), d);
     } else if (bStationary) {
-      solidCollide(cdata.eb, cdata.b, cdata.ea, cdata.a, d.opposite());
+      solidCollide(cdata.eb, cdata.b.collider(), cdata.ea, cdata.a.collider(), d.opposite());
     } else {
       // Determine which entity moves based on their weight. The heavier entity
       // moves the lighter one.
-      if (vca.mass() >= vcb.mass()) {
-        solidCollide(cdata.ea, cdata.a, cdata.eb, cdata.b, d);
+      if (vca.mass() > vcb.mass()) {
+        solidCollide(cdata.ea, cdata.a.collider(), cdata.eb, cdata.b.collider(), d);
       } else {
-        solidCollide(cdata.eb, cdata.b, cdata.ea, cdata.a, d.opposite());
+        solidCollide(cdata.eb, cdata.b.collider(), cdata.ea, cdata.a.collider(), d.opposite());
       }
     }
   }
@@ -165,52 +171,36 @@ public final class CollisionSystem extends System {
   /**
    * Check if two hitBoxes intersect.
    *
-   * @param h1 First entity.
-   * @param hitBox1 First hitBox.
-   * @param h2 Second entity.
-   * @param hitBox2 Second hitBox.
+   * @param cc1 First entity's CollideComponent.
+   * @param cc2 Second entity's CollideComponent.
    * @return true if intersection exists, otherwise false.
    */
-  boolean checkForCollision(
-      final Entity h1,
-      final CollideComponent hitBox1,
-      final Entity h2,
-      final CollideComponent hitBox2) {
-    return hitBox1.bottomLeft(h1).x() < hitBox2.topRight(h2).x()
-        && hitBox1.topRight(h1).x() > hitBox2.bottomLeft(h2).x()
-        && hitBox1.bottomLeft(h1).y() < hitBox2.topRight(h2).y()
-        && hitBox1.topRight(h1).y() > hitBox2.bottomLeft(h2).y();
+  boolean checkForCollision(final CollideComponent cc1, final CollideComponent cc2) {
+    return cc1.collider().collide(cc2.collider());
   }
 
   /**
    * Calculates the direction of a collision.
    *
-   * @param ea First entity.
-   * @param a First entity's hitBox.
-   * @param eb Second entity.
-   * @param b Second entity's hitBox.
+   * @param a First entity's CollideComponent.
+   * @param b Second entity's CollideComponent.
    * @return Direction of the collision between the entities
    */
-  Direction checkDirectionOfCollision(
-      Entity ea, CollideComponent a, Entity eb, CollideComponent b) {
-    Point c1Pos = a.bottomLeft(ea);
-    Vector2 c1Size = a.size();
-    Point c2Pos = b.bottomLeft(eb);
-    Vector2 c2Size = b.size();
+  Direction checkDirectionOfCollision(Collider a, Collider b) {
+    Vector2 c1HalfSize = a.halfSize();
+    Vector2 c2HalfSize = b.halfSize();
 
-    float c1CenterX = c1Pos.x() + c1Size.x() / 2f;
-    float c1CenterY = c1Pos.y() + c1Size.y() / 2f;
-    float c2CenterX = c2Pos.x() + c2Size.x() / 2f;
-    float c2CenterY = c2Pos.y() + c2Size.y() / 2f;
+    Point c1Center = a.absoluteCenter();
+    Point c2Center = b.absoluteCenter();
 
     // Take the distance between the center of both hitboxes in both X and Y direction
-    float dx = c1CenterX - c2CenterX;
-    float dy = c1CenterY - c2CenterY;
+    float dx = c1Center.x() - c2Center.x();
+    float dy = c1Center.y() - c2Center.y();
 
     // Sum of the half widths and half heights = distance between the entities' centers if they are
     // flush with each other
-    float halfXWidths = c1Size.x() / 2f + c2Size.x() / 2f;
-    float halfYHeights = c1Size.y() / 2f + c2Size.y() / 2f;
+    float halfXWidths = c1HalfSize.x() + c2HalfSize.x();
+    float halfYHeights = c1HalfSize.y() + c2HalfSize.y();
 
     // To get the overlap, we subtract the actual distance between the centers. If the entities are
     // overlapping, this will be a positive number
@@ -226,21 +216,15 @@ public final class CollisionSystem extends System {
     }
   }
 
-  private void solidCollide(
-      Entity ea, CollideComponent a, Entity eb, CollideComponent b, Direction direction) {
+  private void solidCollide(Entity ea, Collider a, Entity eb, Collider b, Direction direction) {
     solidCollide(ea, a, eb, b, direction, true);
   }
 
   private void solidCollide(
-      Entity ea,
-      CollideComponent a,
-      Entity eb,
-      CollideComponent b,
-      Direction direction,
-      boolean firstCollision) {
-    Point c1Pos = a.bottomLeft(ea);
+      Entity ea, Collider a, Entity eb, Collider b, Direction direction, boolean firstCollision) {
+    Point c1Pos = a.absolutePosition();
     Vector2 c1Size = a.size();
-    Point c2Pos = b.bottomLeft(eb);
+    Point c2Pos = b.absolutePosition();
     Vector2 c2Size = b.size();
 
     Point newColliderPos =
@@ -253,18 +237,23 @@ public final class CollisionSystem extends System {
         };
 
     if (newColliderPos == null) {
-      LOGGER.warning("Direction was NONE in solid collision, this should never happen!");
+      LOGGER.severe("Direction was NONE in solid collision, this should never happen!");
       return;
     }
 
     Point newPos = newColliderPos.translate(b.offset().inverse());
 
-    boolean bCanEnterOpenPits = eb.fetch(VelocityComponent.class).orElseThrow().canEnterOpenPits();
-    boolean bCanEnterWalls = eb.fetch(VelocityComponent.class).orElseThrow().canEnterWalls();
-    boolean bCanEnterGitter = eb.fetch(VelocityComponent.class).orElseThrow().canEnterGitter();
 
+    boolean bCanEnterOpenPits =
+        eb.fetch(VelocityComponent.class).map(VelocityComponent::canEnterOpenPits).orElse(false);
+    boolean bCanEnterWalls =
+        eb.fetch(VelocityComponent.class).map(VelocityComponent::canEnterWalls).orElse(false);
+    boolean bCanEnterGitter =
+        eb.fetch(VelocityComponent.class).map(VelocityComponent::canEnterGitter).orElse(false);
+    boolean bCanEnterGlasswalls =
+        eb.fetch(VelocityComponent.class).map(VelocityComponent::canEnterGlasswalls).orElse(false);
     if (CollisionUtils.isCollidingWithLevel(
-        newPos, b.offset(), b.size(), bCanEnterOpenPits, bCanEnterWalls, bCanEnterGitter)) {
+        b, newPos, bCanEnterOpenPits, bCanEnterWalls, bCanEnterGitter, bCanEnterGlasswalls)) {
       if (firstCollision) {
         // If the new position collides with the level, block the other entity instead.
         solidCollide(eb, b, ea, a, direction.opposite(), false);
@@ -275,6 +264,7 @@ public final class CollisionSystem extends System {
     }
 
     eb.fetch(PositionComponent.class).orElseThrow().position(newPos);
+    PositionSync.syncPosition(eb);
   }
 
   private record CollisionKey(int a, int b) {}

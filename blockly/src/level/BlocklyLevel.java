@@ -1,13 +1,16 @@
 package level;
 
+import client.Client;
+import contrib.hud.DialogUtils;
+import core.Game;
+import core.System;
 import core.level.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import core.utils.IVoidFunction;
+import java.util.*;
+import systems.BlocklyCommandExecuteSystem;
 
 /**
  * This class is used to store the values from a parsed level file. It contains the layout (the
@@ -18,6 +21,18 @@ public abstract class BlocklyLevel extends DungeonLevel {
 
   private final Set<String> blockedBlocklyElements = new HashSet<>();
   private final DesignLabel designLabel;
+
+  /**
+   * List of Popups to display with {@link #showPopups()} if the game is controlled via the Blockly
+   * Web UI.
+   */
+  private List<Popup> webPopups = new ArrayList<>();
+
+  /**
+   * List of Popups to display with {@link #showPopups()} if the game is controlled via the
+   * Code-API.
+   */
+  private List<Popup> codePopups = new ArrayList<>();
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -41,8 +56,45 @@ public abstract class BlocklyLevel extends DungeonLevel {
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
       onFirstTick();
+
+      Game.system(BlocklyCommandExecuteSystem.class, System::run);
     } else {
       onTick();
+    }
+  }
+
+  /**
+   * Shows each popup in {@link #webPopups} in the order they were added.
+   *
+   * <p>When a popup is closed, the next one in the list will open automatically.
+   */
+  public void showPopups() {
+    if (Client.runInWeb) {
+      if (webPopups.isEmpty()) return;
+      showNextPopup(webPopups, 0);
+    } else {
+      if (codePopups.isEmpty()) return;
+      showNextPopup(codePopups, 0);
+    }
+  }
+
+  /**
+   * Recursively shows popups one after another.
+   *
+   * @param popups Popups to show
+   * @param index the index of the popup to show
+   */
+  private void showNextPopup(List<Popup> popups, int index) {
+    if (index >= popups.size()) return; // all popups shown
+
+    Popup current = popups.get(index);
+
+    IVoidFunction onClose = () -> showNextPopup(popups, index + 1);
+
+    if (current instanceof TextPopup textPopUp) {
+      DialogUtils.showTextPopup(textPopUp.content(), textPopUp.title(), onClose);
+    } else if (current instanceof ImagePopup imagePopUp) {
+      DialogUtils.showImagePopUp(imagePopUp.content(), onClose);
     }
   }
 
@@ -77,5 +129,97 @@ public abstract class BlocklyLevel extends DungeonLevel {
    */
   public Optional<DesignLabel> designLabel() {
     return Optional.ofNullable(designLabel);
+  }
+
+  /**
+   * Adds the given popup to the collection of web popups.
+   *
+   * @param popup the {@link Popup} instance to add to the web popups list
+   */
+  protected void addWebPopup(Popup popup) {
+    this.webPopups.add(popup);
+  }
+
+  /**
+   * Adds the given popup to the collection of code popups.
+   *
+   * @param popup the {@link Popup} instance to add to the code popups list
+   */
+  protected void addCodePopup(Popup popup) {
+    this.codePopups.add(popup);
+  }
+
+  /**
+   * Adds the given popup to both the code and web popup collections.
+   *
+   * @param popup the {@link Popup} instance to add to both lists
+   */
+  protected void addPopup(Popup popup) {
+    addCodePopup(popup);
+    addWebPopup(popup);
+  }
+
+  /**
+   * Represents a popup definition that can be queued and automatically shown at the start of a
+   * level.
+   */
+  protected abstract class Popup {
+    private final String content;
+
+    /**
+     * Creates a new popup with the specified content.
+     *
+     * @param content the content to display when the popup is shown
+     */
+    public Popup(String content) {
+      this.content = content;
+    }
+
+    /**
+     * Returns the content of the popup.
+     *
+     * @return the popup content
+     */
+    public String content() {
+      return this.content;
+    }
+  }
+
+  /** A popup that displays text content along with a title. */
+  protected class TextPopup extends Popup {
+    private final String title;
+
+    /**
+     * Creates a new text popup with the specified content and title.
+     *
+     * @param content the main text displayed in the popup
+     * @param title the title shown at the top of the popup
+     */
+    public TextPopup(String content, String title) {
+      super(content);
+      this.title = title;
+    }
+
+    /**
+     * Returns the title of the popup.
+     *
+     * @return the popup title
+     */
+    public String title() {
+      return title;
+    }
+  }
+
+  /** A popup that displays an image. */
+  protected class ImagePopup extends Popup {
+
+    /**
+     * Creates a new image popup with the specified image path or identifier.
+     *
+     * @param content the image path to display
+     */
+    public ImagePopup(String content) {
+      super(content);
+    }
   }
 }

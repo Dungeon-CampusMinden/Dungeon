@@ -2,6 +2,7 @@ package core.systems;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -12,6 +13,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
@@ -102,35 +104,24 @@ public final class DrawSystem extends System {
   }
 
   /**
-   * Notifies this system of an entity changing its depth, to update the cached depths.
+   * Updates an entities depth. This needs to be called in order to update the internal sorting of
+   * the DrawSystem.
    *
    * @param entity The entity that changed its depth
+   * @param depth The new depth of the entity
    */
-  public void onEntityChangedDepth(Entity entity) {
+  public void changeEntityDepth(Entity entity, int depth) {
     DSData data = buildDataObject(entity);
-    int oldDepth = Integer.MIN_VALUE;
-    int newDepth = data.dc.depth();
 
-    // Find entry in our map
-    for (Map.Entry<Integer, List<Entity>> entry : sortedEntities.entrySet()) {
-      if (entry.getValue().contains(entity)) {
-        oldDepth = entry.getKey();
-      }
-    }
+    int oldDepth = data.dc.depth();
+    data.dc.depth(depth);
 
     // Remove old entry
-    if (oldDepth != Integer.MIN_VALUE) {
-      sortedEntities.get(oldDepth).remove(entity);
-    }
+    sortedEntities.get(oldDepth).remove(entity);
 
     // Add at new depth
-    List<Entity> entitiesAtDepth = sortedEntities.get(newDepth);
-    if (entitiesAtDepth == null) {
-      entitiesAtDepth = new ArrayList<>();
-      sortedEntities.put(newDepth, entitiesAtDepth);
-    } else {
-      entitiesAtDepth.add(entity);
-    }
+    List<Entity> entitiesAtDepth = sortedEntities.computeIfAbsent(depth, k -> new ArrayList<>());
+    entitiesAtDepth.add(entity);
   }
 
   /**
@@ -146,12 +137,13 @@ public final class DrawSystem extends System {
 
     Game.currentLevel().ifPresent(this::drawLevel);
 
-    sortedEntities.values().stream()
-        .flatMap(List::stream)
-        .map(this::buildDataObject)
-        .sorted(Comparator.comparingDouble((DSData data) -> -data.pc.position().y()))
-        .filter(this::shouldDraw)
-        .forEach(this::draw);
+    for (List<Entity> group : sortedEntities.values()) {
+      group.stream()
+          .map(this::buildDataObject)
+          .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
+          .filter(this::shouldDraw)
+          .forEach(this::draw);
+    }
 
     BATCH.end();
   }
@@ -160,8 +152,8 @@ public final class DrawSystem extends System {
    * Checks if an entity should be drawn. By checking:
    *
    * <ol>
-   *   <li>The tile the entity is on is visible
    *   <li>The entity itself is visible
+   *   <li>Any corner of the sprite is visible
    * </ol>
    *
    * @param data the components of the entity to check
@@ -169,11 +161,33 @@ public final class DrawSystem extends System {
    * @see DrawComponent#isVisible()
    */
   private boolean shouldDraw(DSData data) {
+    // New check: first check if entity.dc is visible. Otherwise check if any tiles under the
+    // corners of the sprite are visible.
+    if (!data.dc.isVisible()) {
+      return false;
+    }
+
+    Point pos = data.pc.position();
+    // Use data.dc.getSpriteWidth() and similar
+    float width = data.dc.getWidth() * data.pc.scale().x();
+    float height = data.dc.getHeight() * data.pc.scale().y();
+    List<Point> corners =
+        List.of(
+            pos.translate(0, 0),
+            pos.translate(width, 0),
+            pos.translate(0, height),
+            pos.translate(width, height));
+
     return Game.currentLevel()
-            .flatMap(level -> level.tileAt(data.pc.position()))
-            .map(Tile::visible)
-            .orElse(false)
-        && data.dc.isVisible();
+        .map(
+            level ->
+                corners.stream()
+                    .anyMatch(
+                        c -> {
+                          Tile t = level.tileAt(c).orElse(null);
+                          return t != null && t.visible() && !isTilePitAndOpen(t);
+                        }))
+        .orElse(false);
   }
 
   private void draw(final DSData dsd) {
@@ -181,6 +195,11 @@ public final class DrawSystem extends System {
     Sprite sprite = dsd.dc.getSprite();
     PainterConfig conf =
         new PainterConfig(0, 0, dsd.dc.getWidth(), dsd.dc.getHeight(), dsd.dc.tintColor());
+
+    conf.scale(dsd.pc.scale());
+    conf.rotation(dsd.pc.rotation());
+    conf.mirrored(dsd.dc.currentAnimation().mirrored());
+
     if (dsd.dc.currentAnimation().getConfig().centered()) {
       conf =
           new PainterConfig(
@@ -190,7 +209,7 @@ public final class DrawSystem extends System {
               dsd.dc.getHeight(),
               dsd.dc.tintColor());
     }
-    PAINTER.draw(dsd.pc.position(), sprite, conf, dsd.pc.rotation());
+    PAINTER.draw(dsd.pc.position(), sprite, conf);
   }
 
   /** DrawSystem can't be paused. */

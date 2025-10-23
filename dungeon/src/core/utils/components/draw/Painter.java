@@ -3,7 +3,7 @@ package core.utils.components.draw;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import core.systems.CameraSystem;
+import com.badlogic.gdx.math.Affine2;
 import core.utils.Point;
 import core.utils.components.path.IPath;
 
@@ -46,50 +46,31 @@ public class Painter {
    * @param position the world position where the sprite should be drawn
    * @param sprite the {@link Sprite} to draw
    * @param config the {@link PainterConfig} controlling scaling, tint, and offset
-   * @param rotation rotation in degrees (clockwise)
-   */
-  public void draw(
-      final Point position, final Sprite sprite, final PainterConfig config, float rotation) {
-
-    // Apply offset from configuration
-    Point realPos = position.translate(config.offset());
-
-    // Only draw if visible in the camera frustum
-    if (CameraSystem.isPointInFrustum(realPos)) {
-
-      // Set sprite size and position
-      sprite.setSize(config.scaling().x(), config.scaling().y());
-      sprite.setPosition(realPos.x(), realPos.y());
-
-      // Set rotation around the sprite's center
-      sprite.setOriginCenter();
-      sprite.setRotation(rotation);
-
-      // Apply tint color if specified
-      if (config.tintColor() != -1) {
-        Color color = Color.CLEAR;
-        Color.rgba8888ToColor(color, config.tintColor());
-        sprite.setColor(color);
-      } else {
-        sprite.setColor(Color.WHITE);
-      }
-
-      // Draw the sprite
-      sprite.draw(batch);
-    }
-  }
-
-  /**
-   * Draws a sprite at a given position with the specified configuration.
-   *
-   * <p>This is a convenience overload that draws without rotation (rotation defaults to 0°).
-   *
-   * @param position the world position where the sprite should be drawn
-   * @param sprite the {@link Sprite} to draw
-   * @param config the {@link PainterConfig} controlling scaling, tint, and offset
    */
   public void draw(final Point position, final Sprite sprite, final PainterConfig config) {
-    draw(position, sprite, config, 0);
+    // Only draw if visible in the camera frustum
+    sprite.setFlip(config.mirrored(), false);
+
+    // Calculate transformations
+    Affine2 transform = new Affine2();
+
+    transform.setToTranslation(position.x(), position.y());
+
+    // Scale first while origin is in the bottom-left
+    transform.scale(config.scale().x(), config.scale().y());
+
+    // Then rotate around the middle
+    transform.translate(config.size().x() / 2f, config.size().y() / 2f);
+    transform.rotate(config.rotation());
+    transform.translate(-config.size().x() / 2f, -config.size().y() / 2f);
+
+    // Apply tint color if specified
+    if (config.tintColor() != -1) {
+      batch.setColor(new Color(config.tintColor()));
+    } else {
+      batch.setColor(Color.WHITE);
+    }
+    batch.draw(sprite, config.size().x(), config.size().y(), transform);
   }
 
   /**

@@ -19,10 +19,10 @@ import core.utils.components.MissingComponentException;
  * <p>This Class makes it possible to schedule the shooting of a fireball, which will then be
  * executed inside the ECS thread. This ensures that the textures for the fireball can be loaded.
  */
-public class FireballSchedular {
+public class FireballScheduler {
 
   private static final float FIREBALL_RANGE = Integer.MAX_VALUE;
-  private static final float FIREBALL_SPEED = 15f;
+  private static final float FIREBALL_SPEED = 15;
   private static final int FIREBALL_DMG = 1;
   private static final boolean IGNORE_FIRST_WALL = false;
   private static final FireballSkill fireballSkill =
@@ -30,7 +30,7 @@ public class FireballSchedular {
           () -> {
             Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
             return hero.fetch(CollideComponent.class)
-                .map(cc -> cc.center(hero))
+                .map(cc -> cc.collider().absoluteCenter())
                 .map(p -> p.translate(EntityUtils.getViewDirection(hero)))
                 .orElseThrow(() -> MissingComponentException.build(hero, CollideComponent.class));
           },

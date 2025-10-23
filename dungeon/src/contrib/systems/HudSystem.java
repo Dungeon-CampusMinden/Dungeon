@@ -18,6 +18,7 @@ import java.util.Optional;
  * <p>Entities with the {@link UIComponent} will be processed by this system.
  */
 public final class HudSystem extends System {
+  private boolean ipaused = false;
 
   /**
    * The removeListener only gets the Entity after its Component is removed. Which means no longer
@@ -103,11 +104,13 @@ public final class HudSystem extends System {
   }
 
   private void pauseGame() {
+    ipaused = true;
     Game.systems().values().forEach(System::stop);
   }
 
   private void unpauseGame() {
-    Game.systems().values().forEach(System::run);
+    if (ipaused) Game.systems().values().forEach(System::run);
+    ipaused = false;
   }
 
   /** HudSystem can´t be paused. */

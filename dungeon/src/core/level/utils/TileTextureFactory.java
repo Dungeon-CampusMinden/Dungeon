@@ -19,6 +19,11 @@ public class TileTextureFactory {
       return new SimpleIPath(prefixPath + "portal/gitter.png");
     }
 
+
+    if (levelPart.element == LevelElement.GLASSWALL) {
+      return new SimpleIPath(prefixPath + "portal/glasswall.png");
+    }
+
     IPath path = findTexturePathFloor(levelPart);
     if (path != null) {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");

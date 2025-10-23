@@ -1,18 +1,22 @@
 package entities;
 
 import client.Client;
+import coderunner.BlocklyCodeRunner;
 import coderunner.BlocklyCommands;
+import coderunner.Direction;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import core.Entity;
+import core.Game;
 import core.components.InputComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
-import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
+import java.util.function.Consumer;
+import level.BlocklyLevel;
 
 /**
  * This class is used to create a hero entity with tank controls. The hero can only move in the
@@ -21,43 +25,54 @@ import java.io.IOException;
  */
 public class HeroTankControlledFactory {
 
-  /**
-   * Creates a new hero with tank controls. The hero can only move in the direction it is facing.
-   *
-   * @return the hero entity
-   * @throws IOException if there is an error creating the hero
-   */
-  public static Entity newTankControlledHero() throws IOException {
-    // TODO: Hotfix for multithreading issues during level reset on hero death.
-    // The server executes the next block immediately after the hero dies.
-    // Calling Client.restart() twice ensures the level is fully reset and avoids race conditions.
+  static {
     HeroFactory.heroDeath(
         entity -> {
           Client.restart();
-          Client.restart();
         });
+  }
 
+  /**
+   * Creates a new hero with tank controls. The hero can only move in the direction it is facing.
+   *
+   * @param tankControlls True if the Tanke Controlls should be maped to the default movement keys
+   * @return the hero entity
+   * @throws IOException if there is an error creating the hero
+   */
+  public static Entity blocklyHero(boolean tankControlls) throws IOException {
     Entity hero = EntityFactory.newHero();
     InputComponent ic = hero.fetch(InputComponent.class).orElse(new InputComponent());
 
     // Remove any original movement controls
-    ic.removeCallback(KeyboardConfig.MOVEMENT_UP.value());
-    ic.removeCallback(KeyboardConfig.MOVEMENT_DOWN.value());
-    ic.removeCallback(KeyboardConfig.MOVEMENT_LEFT.value());
-    ic.removeCallback(KeyboardConfig.MOVEMENT_RIGHT.value());
+    ic.removeCallbacks();
+    HeroFactory.registerCloseUI(ic);
 
-    // Add tank controls
-    ic.registerCallback(
-        KeyboardConfig.MOVEMENT_UP.value(), HeroTankControlledFactory::moveEntityInFacingDirection);
+    if (tankControlls) {
+      // Add tank controls
+      ic.registerCallback(
+          KeyboardConfig.MOVEMENT_UP.value(),
+          HeroTankControlledFactory::moveEntityInFacingDirection);
 
-    // Add rotation controls
+      // Add rotation controls
+      ic.registerCallback(
+          KeyboardConfig.MOVEMENT_LEFT.value(),
+          (entity) -> BlocklyCommands.rotate(Direction.LEFT),
+          false);
+      ic.registerCallback(
+          KeyboardConfig.MOVEMENT_RIGHT.value(),
+          (entity) -> BlocklyCommands.rotate(Direction.RIGHT),
+          false);
+    }
+
     ic.registerCallback(
-        KeyboardConfig.MOVEMENT_LEFT.value(),
-        (entity) -> BlocklyCommands.rotate(Direction.LEFT),
-        false);
-    ic.registerCallback(
-        KeyboardConfig.MOVEMENT_RIGHT.value(),
-        (entity) -> BlocklyCommands.rotate(Direction.RIGHT),
+        KeyboardConfig.PAUSE.value(),
+        new Consumer<Entity>() {
+          @Override
+          public void accept(Entity entity) {
+            if (!BlocklyCodeRunner.instance().isCodeRunning())
+              Game.currentLevel().ifPresent(level -> ((BlocklyLevel) level).showPopups());
+          }
+        },
         false);
 
     return hero;
@@ -68,7 +83,7 @@ public class HeroTankControlledFactory {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Direction direction = pc.viewDirection();
+    core.utils.Direction direction = pc.viewDirection();
     VelocityComponent vc =
         entity
             .fetch(VelocityComponent.class)

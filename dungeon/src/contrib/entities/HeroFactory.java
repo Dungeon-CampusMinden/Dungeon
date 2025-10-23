@@ -8,6 +8,7 @@ import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.skill.Skill;
@@ -18,6 +19,7 @@ import core.components.*;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
 import core.level.utils.LevelUtils;
+import core.systems.VelocitySystem;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.*;
@@ -138,24 +140,25 @@ public final class HeroFactory {
 
     Map<String, Animation> animationMap =
         Animation.loadAnimationSpritesheet(characterClass.textures());
-    State stIdle = new DirectionalState("idle", animationMap);
-    State stMove = new DirectionalState("move", animationMap, "run");
+    State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);
+    State stMove = new DirectionalState(VelocitySystem.STATE_NAME, animationMap, "run");
 
     State stDead;
     if (animationMap.containsKey("die_down")) {
-      stDead = new DirectionalState("dead", animationMap, "die");
+      stDead = new DirectionalState(HealthSystem.DEATH_STATE, animationMap, "die");
     } else if (animationMap.containsKey("die")) {
-      stDead = new State("dead", animationMap.get("die"));
+      stDead = new State(HealthSystem.DEATH_STATE, animationMap.get("die"));
     } else {
-      stDead = new State("dead", animationMap.get("idle_down"));
+      stDead = new State(HealthSystem.DEATH_STATE, animationMap.get("idle_down"));
     }
 
     StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove, stDead));
-    sm.addTransition(stIdle, "move", stMove);
-    sm.addTransition(stMove, "move", stMove);
-    sm.addTransition(stMove, "idle", stIdle);
-    sm.addTransition(stIdle, "die", stDead);
-    sm.addTransition(stMove, "die", stDead);
+    sm.addTransition(stIdle, VelocitySystem.MOVE_SIGNAL, stMove);
+    sm.addTransition(stIdle, VelocitySystem.IDLE_SIGNAL, stIdle);
+    sm.addTransition(stMove, VelocitySystem.MOVE_SIGNAL, stMove);
+    sm.addTransition(stMove, VelocitySystem.IDLE_SIGNAL, stIdle);
+    sm.addTransition(stIdle, HealthSystem.DEATH_SIGNAL, stDead);
+    sm.addTransition(stMove, HealthSystem.DEATH_SIGNAL, stDead);
     DrawComponent dc = new DrawComponent(sm);
     dc.depth(DepthLayer.Player.depth());
     hero.add(dc);

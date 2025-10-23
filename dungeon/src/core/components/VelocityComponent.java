@@ -1,6 +1,5 @@
 package core.components;
 
-import contrib.components.CollideComponent;
 import core.Component;
 import core.Entity;
 import core.utils.Vector2;
@@ -55,23 +54,6 @@ import java.util.stream.Stream;
  */
 public final class VelocityComponent implements Component {
 
-  /**
-   * The default offset of the hit box.
-   *
-   * <p>This hitbox is used for level collision checks.
-   */
-  public static final Vector2 MOVEBOX_DEFAULT_OFFSET = CollideComponent.DEFAULT_OFFSET;
-
-  /**
-   * The default size of the hit box.
-   *
-   * <p>This hitbox is used for level collision checks.
-   */
-  public static final Vector2 MOVEBOX_DEFAULT_SIZE = CollideComponent.DEFAULT_SIZE;
-
-  private Vector2 moveboxOffset;
-  private Vector2 moveboxSize;
-
   /** The default mass of an entity, on no other is configurated. */
   public static final float DEFAULT_MASS = 1;
 
@@ -89,6 +71,7 @@ public final class VelocityComponent implements Component {
   private boolean canEnterOpenPits;
   private boolean canEnterWalls;
   private boolean canEnterGitter;
+  private boolean canEnterGlasswalls;
 
   /**
    * Create a new VelocityComponent with the given configuration.
@@ -105,9 +88,8 @@ public final class VelocityComponent implements Component {
     this.canEnterOpenPits = canEnterOpenPits;
     this.canEnterWalls = false;
     this.canEnterGitter = false;
+    this.canEnterGlasswalls = false;
     this.maxSpeed = maxSpeed;
-    moveboxOffset = MOVEBOX_DEFAULT_OFFSET;
-    moveboxSize = MOVEBOX_DEFAULT_SIZE;
   }
 
   /**
@@ -238,6 +220,27 @@ public final class VelocityComponent implements Component {
   }
 
   /**
+<<<<<<< HEAD
+=======
+   * Set whether the entity can enter glasswall tiles.
+   *
+   * @param canEnterGlasswalls true if entity can enter glasswalls, false otherwise.
+   */
+  public void canEnterGlasswalls(boolean canEnterGlasswalls) {
+    this.canEnterGlasswalls = canEnterGlasswalls;
+  }
+
+  /**
+   * Check if the entity can enter glasswall tiles.
+   *
+   * @return true if it can enter glasswall tiles, false otherwise.
+   */
+  public boolean canEnterGlasswalls() {
+    return canEnterGlasswalls;
+  }
+
+  /**
+>>>>>>> 92eb5ef9cc6bfda7aef1d1ec5b4ae6d635e51283
    * Apply or update a force acting on the entity.
    *
    * <p>Multiple forces can be applied simultaneously, identified by unique IDs. The total force
@@ -331,49 +334,5 @@ public final class VelocityComponent implements Component {
    */
   public void maxSpeed(float maxSpeed) {
     this.maxSpeed = maxSpeed;
-  }
-
-  /**
-   * Sets the offset of the collision box relative to the entity's position.
-   *
-   * <p>This hitbox is used for level collision checks.
-   *
-   * @param offset the new offset of the collision box
-   */
-  public void moveboxOffset(Vector2 offset) {
-    moveboxOffset = offset;
-  }
-
-  /**
-   * Sets the size of the collision box for the entity.
-   *
-   * <p>This hitbox is used for level collision checks.
-   *
-   * @param size the new size of the collision box
-   */
-  public void moveboxSize(Vector2 size) {
-    moveboxSize = size;
-  }
-
-  /**
-   * Returns the current size of the collision box.
-   *
-   * <p>This hitbox is used for level collision checks.
-   *
-   * @return the size of the collision box
-   */
-  public Vector2 moveboxSize() {
-    return moveboxSize;
-  }
-
-  /**
-   * Returns the current offset of the collision box relative to the entity's position.
-   *
-   * <p>This hitbox is used for level collision checks.
-   *
-   * @return the offset of the collision box
-   */
-  public Vector2 moveboxOffset() {
-    return moveboxOffset;
   }
 }

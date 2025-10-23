@@ -1,5 +1,5 @@
-- Quelle: https://0x72.itch.io/dungeontileset-ii
-- Author: Robert (0x72)
+- Quelle: https://github.com/Dungeon-CampusMinden (a Dungeon original)
+- Author: Diana Kirzhner
 - License: CC0 1.0
 
 <details>

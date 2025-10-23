@@ -1,6 +1,8 @@
 package core.systems;
 
-import contrib.utils.CollisionUtils;
+import contrib.components.CollideComponent;
+import contrib.systems.PositionSync;
+import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -39,7 +41,11 @@ public class MoveSystem extends System {
    */
   @Override
   public void execute() {
-    filteredEntityStream().map(this::buildDataObject).forEach(this::updatePosition);
+    filteredEntityStream()
+      .map(this::buildDataObject)
+      .peek(this::updatePosition)
+      .map(MSData::e)
+      .forEach(PositionSync::syncPosition);
   }
 
   /**
@@ -70,12 +76,10 @@ public class MoveSystem extends System {
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
     boolean canEnterWalls = data.vc.canEnterWalls();
     boolean canEnterGitter = data.vc.canEnterGitter();
+    boolean canEnterGlasswalls = data.vc.canEnterGlasswalls();
 
-    Vector2 offset = data.vc.moveboxOffset();
-    Vector2 size = data.vc.moveboxSize();
-
-    if (!CollisionUtils.isCollidingWithLevel(
-        newPos, offset, size, canEnterOpenPits, canEnterWalls, canEnterGitter)) {
+    if (!isCollidingWithLevel(
+      data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
       data.pc.position(newPos);
     } else {
       // Try moving only along x or y axis for wall sliding
@@ -83,12 +87,11 @@ public class MoveSystem extends System {
       Point yMove = new Point(oldPos.x(), newPos.y());
 
       boolean xAccessible =
-          !CollisionUtils.isCollidingWithLevel(
-              xMove, offset, size, canEnterOpenPits, canEnterWalls, canEnterGitter);
+        !isCollidingWithLevel(
+          data.cc, xMove, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls);
       boolean yAccessible =
-          !CollisionUtils.isCollidingWithLevel(
-              yMove, offset, size, canEnterOpenPits, canEnterWalls, canEnterGitter);
-
+        !isCollidingWithLevel(
+          data.cc, yMove, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls);
       if (xAccessible) {
         data.pc.position(xMove);
       } else if (yAccessible) {
@@ -98,6 +101,31 @@ public class MoveSystem extends System {
       // Notify entity that it hit a wall
       data.vc.onWallHit().accept(data.e);
     }
+  }
+
+  private boolean isCollidingWithLevel(
+    CollideComponent cc,
+    Point position,
+    boolean canEnterOpenPits,
+    boolean canEnterWalls,
+    boolean canEnterGitter,
+    boolean canEnterGlassWall) {
+    if (cc == null) {
+      return CollisionUtils.isCollidingWithLevel(
+        cc.collider(),
+        position,
+        canEnterOpenPits,
+        canEnterWalls,
+        canEnterGitter,
+        canEnterGlassWall);
+    }
+    return CollisionUtils.isCollidingWithLevel(
+      cc.collider(),
+      position,
+      canEnterOpenPits,
+      canEnterWalls,
+      canEnterGitter,
+      canEnterGlassWall);
   }
 
   /**
@@ -110,14 +138,16 @@ public class MoveSystem extends System {
    */
   private MSData buildDataObject(Entity e) {
     VelocityComponent vc =
-        e.fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(e, VelocityComponent.class));
+      e.fetch(VelocityComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(e, VelocityComponent.class));
 
     PositionComponent pc =
-        e.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
+      e.fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
 
-    return new MSData(e, vc, pc);
+    CollideComponent cc = e.fetch(CollideComponent.class).orElse(null);
+
+    return new MSData(e, vc, pc, cc);
   }
 
   /**
@@ -126,6 +156,8 @@ public class MoveSystem extends System {
    * @param e the entity
    * @param vc the velocity component
    * @param pc the position component
+   * @param cc the collide component (nullable)
    */
-  private record MSData(Entity e, VelocityComponent vc, PositionComponent pc) {}
+  private record MSData(
+    Entity e, VelocityComponent vc, PositionComponent pc, CollideComponent cc) {}
 }

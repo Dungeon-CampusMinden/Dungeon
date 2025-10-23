@@ -1,7 +1,6 @@
 package level.produs;
 
 import client.Client;
-import coderunner.BlocklyCommands;
 import contrib.hud.DialogUtils;
 import contrib.systems.EventScheduler;
 import contrib.utils.IAction;
@@ -30,7 +29,7 @@ import level.LevelManagementUtils;
  */
 public class Level020 extends BlocklyLevel {
   /** Time in milliseconds it takes for a pit to fully open after being triggered. */
-  private static final int PIT_TIME_TO_OPEN_IN_MS = 120;
+  private static final int PIT_TIME_TO_OPEN_IN_MS = 12000;
 
   /** Duration in milliseconds for each turn or decision cycle in the game logic. */
   private static final int TURN_TIMER_IN_MS = 1500;
@@ -63,10 +62,10 @@ public class Level020 extends BlocklyLevel {
   private IAction turnAction =
       () -> {
         if (bosspc.viewDirection() == Direction.LEFT) {
-          BlocklyCommands.turnEntity(boss, Direction.RIGHT);
+          boss.fetch(PositionComponent.class).ifPresent(pc -> pc.viewDirection(Direction.RIGHT));
           executeCheck = false;
         } else {
-          BlocklyCommands.turnEntity(boss, Direction.LEFT);
+          boss.fetch(PositionComponent.class).ifPresent(pc -> pc.viewDirection(Direction.LEFT));
           EventScheduler.scheduleAction(() -> executeCheck = true, COYOTE_TIME_IN_MS);
         }
       };
@@ -84,8 +83,6 @@ public class Level020 extends BlocklyLevel {
   public Level020(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Level 20");
     this.blockBlocklyElement(
-        // MOVEMENT
-        "goToExit",
         // Variable
         "get_number",
         // Kategorien

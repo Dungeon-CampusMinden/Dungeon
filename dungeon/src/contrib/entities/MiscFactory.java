@@ -19,6 +19,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.elements.tile.DoorTile;
+import core.systems.DrawSystem;
 import core.utils.*;
 import core.utils.Direction;
 import core.utils.Point;
@@ -43,6 +44,7 @@ import java.util.stream.IntStream;
 public final class MiscFactory {
 
   private static final Random RANDOM = new Random();
+  private static final float DEFAULT_INTERACTION_RADIUS = 1f;
   private static final int DEFAULT_CHEST_SIZE = 12;
   private static final int MAX_AMOUNT_OF_ITEMS_ON_RANDOM = 5;
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
@@ -60,6 +62,10 @@ public final class MiscFactory {
       new SimpleIPath("items/book/spell_book.png");
   private static final SimpleIPath STONE_TEXTURES = new SimpleIPath("objects/stone");
   private static final SimpleIPath VASE_TEXTURES = new SimpleIPath("objects/vase");
+  private static final SimpleIPath COOKING_POT_TEXTURES = new SimpleIPath("objects/magic_kettle");
+
+  /** Maximum number of items displayed per row in the inventory UI. */
+  private static final int INVENTORY_UI_MAX_ITEMS_PER_ROW = 6;
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -156,7 +162,6 @@ public final class MiscFactory {
    * @return A new Entity.
    */
   public static Entity newChest(final Set<Item> item, final Point position) {
-    final float defaultInteractionRadius = 1f;
     Entity chest = new Entity("chest");
 
     if (position == null) chest.add(new PositionComponent());
@@ -181,7 +186,7 @@ public final class MiscFactory {
 
     chest.add(
         new InteractionComponent(
-            defaultInteractionRadius,
+            DEFAULT_INTERACTION_RADIUS,
             true,
             (interacted, interactor) ->
                 interactor
@@ -191,7 +196,9 @@ public final class MiscFactory {
                           UIComponent uiComponent =
                               new UIComponent(
                                   new GUICombination(
-                                      new InventoryGUI(whoIc), new InventoryGUI("Chest", ic, 6)),
+                                      new InventoryGUI(whoIc),
+                                      new InventoryGUI(
+                                          "Chest", ic, INVENTORY_UI_MAX_ITEMS_PER_ROW)),
                                   true);
                           uiComponent.onClose(
                               () ->
@@ -237,7 +244,6 @@ public final class MiscFactory {
 
     String reqKeyName =
         requiredKeyType.equals(ItemKey.class) ? "silbernen Schlüssel" : "großen goldenen Schlüssel";
-    final float defaultInteractionRadius = 1f;
     Entity lockedChest = newChest(items, position);
 
     lockedChest
@@ -246,7 +252,7 @@ public final class MiscFactory {
             oldIC -> {
               InteractionComponent wrapperIC =
                   new InteractionComponent(
-                      defaultInteractionRadius,
+                      DEFAULT_INTERACTION_RADIUS,
                       true,
                       (interacted, interactor) -> {
                         InventoryComponent invComp =
@@ -398,6 +404,50 @@ public final class MiscFactory {
    */
   public static Entity crate(Point position) {
     return crate(position, VelocityComponent.DEFAULT_MASS, CRATE_TEXTURE);
+  }
+
+  /**
+   * Creates a cooking pot entity that functions as a chest with its own inventory.
+   *
+   * <p>The cooking pot can store items and be interacted with through a UI that combines the
+   * player's and the pot's inventories.
+   *
+   * @param position The spawn position of the cooking pot.
+   * @param inventorysize The initial size of the cooking pot's inventory. Will expand if more items
+   *     are provided than the given size.
+   * @param items The items to initialize inside the cooking pot's inventory.
+   * @return A new {@link Entity} representing the cooking pot with rendering, collision, inventory,
+   *     and interaction behavior.
+   */
+  public static Entity cookingPot(Point position, int inventorysize, Item... items) {
+    if (items.length > inventorysize) inventorysize = items.length;
+    Entity cookingPot = new Entity("cookingPot");
+    cookingPot.add(new PositionComponent(position));
+    cookingPot.add(new DrawComponent(COOKING_POT_TEXTURES));
+    cookingPot.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
+    InventoryComponent ic = new InventoryComponent(inventorysize);
+    Arrays.stream(items).forEach(item -> ic.add(item));
+    cookingPot.add(ic);
+    cookingPot.add(
+        new InteractionComponent(
+            DEFAULT_INTERACTION_RADIUS,
+            true,
+            (interacted, interactor) ->
+                interactor
+                    .fetch(InventoryComponent.class)
+                    .ifPresent(
+                        whoIc -> {
+                          UIComponent uiComponent =
+                              new UIComponent(
+                                  new GUICombination(
+                                      new InventoryGUI(whoIc),
+                                      new InventoryGUI(
+                                          "Cookingpot", ic, INVENTORY_UI_MAX_ITEMS_PER_ROW)),
+                                  true);
+                          interactor.add(uiComponent);
+                        })));
+
+    return cookingPot;
   }
 
   /**
@@ -633,7 +683,8 @@ public final class MiscFactory {
             });
     destroyableObj.add(baseIC);
 
-    destroyableObj.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
+    CollideComponent cc = new CollideComponent(Vector2.ZERO, Vector2.ONE);
+    destroyableObj.add(cc);
 
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(texturePath);
     State stIdle = State.fromMap(animationMap, "idle");
@@ -643,7 +694,18 @@ public final class MiscFactory {
     sm.addTransition(stIdle, "break", stBreaking);
     sm.addEpsilonTransition(stBreaking, State::isAnimationFinished, stBroken);
     DrawComponent dc = new DrawComponent(sm);
+    dc.depth(DepthLayer.Player.depth());
     destroyableObj.add(dc);
+
+    stBreaking.setOnEnter(
+        (s) -> {
+          cc.isSolid(false);
+          Game.system(
+              DrawSystem.class,
+              ds -> {
+                ds.changeEntityDepth(destroyableObj, DepthLayer.BackgroundDeco.depth());
+              });
+        });
 
     // Wrapper-InteractionComponent
     destroyableObj

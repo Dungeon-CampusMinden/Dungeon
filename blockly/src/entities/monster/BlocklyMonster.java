@@ -1,6 +1,5 @@
 package entities.monster;
 
-import coderunner.BlocklyCommands;
 import components.TintDirectionComponent;
 import contrib.components.*;
 import contrib.entities.*;
@@ -11,6 +10,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.systems.VelocitySystem;
 import core.utils.Point;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
@@ -142,12 +142,13 @@ public enum BlocklyMonster {
       // the boss uses hero textures so we can copy the hero statemachine
       if (name().equals("Blockly Black Knight")) {
         Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(texture());
-        State stIdle = new DirectionalState("idle", animationMap);
-        State stMove = new DirectionalState("move", animationMap, "run");
+        State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);
+        State stMove = new DirectionalState(VelocitySystem.STATE_NAME, animationMap, "run");
         StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove));
-        sm.addTransition(stIdle, "move", stMove);
-        sm.addTransition(stMove, "move", stMove);
-        sm.addTransition(stMove, "idle", stIdle);
+        sm.addTransition(stIdle, VelocitySystem.MOVE_SIGNAL, stMove);
+        sm.addTransition(stIdle, VelocitySystem.IDLE_SIGNAL, stIdle);
+        sm.addTransition(stMove, VelocitySystem.MOVE_SIGNAL, stMove);
+        sm.addTransition(stMove, VelocitySystem.IDLE_SIGNAL, stIdle);
         DrawComponent dc = new DrawComponent(sm);
         monster.add(dc);
       } else monster.add(new DrawComponent(texture()));
@@ -173,7 +174,6 @@ public enum BlocklyMonster {
       if (addToGame) {
         Game.add(monster);
       }
-      BlocklyCommands.turnEntity(monster, viewDirection());
       return monster;
     }
 

@@ -1,5 +1,6 @@
 package contrib.systems;
 
+import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
 import contrib.components.HealthComponent;
 import contrib.utils.EntityUtils;
@@ -16,7 +17,6 @@ import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -49,20 +49,12 @@ public class FallingSystem extends System {
   }
 
   private boolean filterFalling(Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Point pos = pc.position();
-
     if (entity.isPresent(FlyComponent.class)) return false;
-    VelocityComponent vc =
+    CollideComponent cc =
         entity
-            .fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
-    Vector2 offset = vc.moveboxOffset();
-    Vector2 size = vc.moveboxSize();
-    Point center = pos.translate(offset).translate(size.scale(0.5f));
+            .fetch(CollideComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, CollideComponent.class));
+    Point center = cc.collider().absoluteCenter();
     Tile tile = Game.tileAt(center).orElse(null);
     if (tile instanceof PitTile pitTile) {
       return pitTile.isOpen();

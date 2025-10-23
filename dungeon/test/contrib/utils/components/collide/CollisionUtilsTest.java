@@ -1,4 +1,4 @@
-package contrib.utils;
+package contrib.utils.components.collide;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -63,16 +63,16 @@ public class CollisionUtilsTest {
     // Mock tiles along the path to be accessible
     DungeonLevel level = mock(DungeonLevel.class);
     when(level.tileAt(any(Point.class)))
-        .thenAnswer(
-            invocation -> {
-              Point p = invocation.getArgument(0);
-              Tile t = mock(Tile.class);
-              when(t.isAccessible()).thenReturn(true);
-              return Optional.of(t);
-            });
+      .thenAnswer(
+        invocation -> {
+          Point p = invocation.getArgument(0);
+          Tile t = mock(Tile.class);
+          when(t.isAccessible()).thenReturn(true);
+          return Optional.of(t);
+        });
     Game.currentLevel(level);
 
-    boolean result = CollisionUtils.isPathClearByStepping(start, end, false, false, false);
+    boolean result = CollisionUtils.isPathClearByStepping(start, end, false, false, false, false);
     assertTrue(result, "Path should be clear when all tiles are accessible");
   }
 
@@ -89,20 +89,20 @@ public class CollisionUtilsTest {
 
     DungeonLevel level = mock(DungeonLevel.class);
     when(level.tileAt(any(Point.class)))
-        .thenAnswer(
-            invocation -> {
-              Point p = invocation.getArgument(0);
-              Tile t = mock(Tile.class);
-              if (p.x() >= 0.5) {
-                when(t.isAccessible()).thenReturn(false);
-              } else {
-                when(t.isAccessible()).thenReturn(true);
-              }
-              return Optional.of(t);
-            });
+      .thenAnswer(
+        invocation -> {
+          Point p = invocation.getArgument(0);
+          Tile t = mock(Tile.class);
+          if (p.x() >= 0.5) {
+            when(t.isAccessible()).thenReturn(false);
+          } else {
+            when(t.isAccessible()).thenReturn(true);
+          }
+          return Optional.of(t);
+        });
     Game.currentLevel(level);
 
-    boolean result = CollisionUtils.isPathClearByStepping(start, end, false, false, false);
+    boolean result = CollisionUtils.isPathClearByStepping(start, end, false, false, false, false);
     assertFalse(result, "Path should be blocked when any tile in path is inaccessible");
   }
 }

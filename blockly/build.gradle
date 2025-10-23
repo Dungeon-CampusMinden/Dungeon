@@ -7,7 +7,7 @@ repositories {
 }
 
 dependencies {
-  implementation project(':dungeon'), 'com.github.javaparser:javaparser-symbol-solver-core:3.27.0'
+  implementation project(':dungeon'), 'com.github.javaparser:javaparser-symbol-solver-core:3.27.1'
 
   // ANTLR version 4 for DSL Grammar
   antlr supportDependencies.antlr
@@ -37,10 +37,13 @@ generateGrammarSource {
 
 
 tasks.register('runBlockly', JavaExec) {
-    group 'starter'
+    group = 'starter'
     mainClass = 'client.Client'
     classpath = sourceSets.main.runtimeClasspath
+    def webFlag = project.hasProperty('web') ? project.property('web') : 'false'
+    args "web=${webFlag}"
 }
+
 
 tasks.register('buildBlocklyJar', Jar) {
     group 'jar'

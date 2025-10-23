@@ -1,0 +1,3 @@
+- Source: https://apoloa4.itch.io/forest-toon-style-sprites-pack
+- Author: apoloa4
+- No credit required

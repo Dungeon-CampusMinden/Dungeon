@@ -11,12 +11,13 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.loader.DungeonLoader;
-import core.systems.InputSystem;
 import core.systems.PositionSystem;
 import core.utils.Tuple;
 import core.utils.Vector2;
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import level.produs.*;
 import server.Server;
+import systems.BlocklyCommandExecuteSystem;
 import systems.TintTilesSystem;
 
 /**
@@ -36,14 +38,23 @@ import systems.TintTilesSystem;
  */
 public class Client {
 
+  /** The name of the blockly hero. */
+  public static final String WIZARD_NAME = "Algorim";
+
   /** Force to apply for movement of all entities. */
   public static final Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
 
   private static final boolean DEBUG_MODE = false;
-  private static final boolean KEYBOARD_DEACTIVATION = !DEBUG_MODE;
+  private static final boolean ACTIVATE_TANKE_CONTROLLS = DEBUG_MODE;
   private static volatile boolean scheduleRestart = false;
 
   private static HttpServer httpServer;
+
+  /**
+   * If true, the Web interface Blockly is used for interaction with the Dunogen. Otherwise, the
+   * Code API is used.
+   */
+  public static boolean runInWeb = false;
 
   /**
    * Setup and run the game. Also start the server that is listening to the requests from blockly
@@ -54,6 +65,14 @@ public class Client {
    */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
+
+    for (String arg : args) {
+      if (arg.equalsIgnoreCase("web=true")) {
+        runInWeb = true;
+      }
+    }
+
+    StateMachine.setResetFrame(false);
     Debugger debugger = new Debugger();
     // start the game
     configGame();
@@ -100,7 +119,7 @@ public class Client {
           // chapter 3
           DungeonLoader.addLevel(Tuple.of("level017", Level017.class));
           DungeonLoader.addLevel(Tuple.of("level018", Level018.class));
-          DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
+          // DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
           DungeonLoader.addLevel(Tuple.of("level020", Level020.class));
           DungeonLoader.addLevel(Tuple.of("level021", Level021.class));
           DungeonLoader.addLevel(Tuple.of("level022", Level022.class));
@@ -113,10 +132,6 @@ public class Client {
 
           Crafting.loadRecipes();
 
-          if (KEYBOARD_DEACTIVATION) {
-            Game.remove(InputSystem.class);
-          }
-
           DungeonLoader.loadLevel(0);
         });
   }
@@ -125,6 +140,14 @@ public class Client {
     Game.userOnLevelLoad(
         (firstLoad) -> {
           BlocklyCodeRunner.instance().stopCode();
+          Game.system(
+              BlocklyCommandExecuteSystem.class,
+              s -> {
+                // stopping the system will also avoid adding new commands to the queue. The System
+                // will be reactivated in BlocklyLevel#onTick
+                s.stop();
+                s.clear();
+              });
           Game.hero()
               .flatMap(e -> e.fetch(VelocityComponent.class))
               .ifPresent(
@@ -136,6 +159,13 @@ public class Client {
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
               .map(AmmunitionComponent::resetCurrentAmmunition);
         });
+    // this makes sure a outsynced command will not replace the hero and the hero will always be on
+    // the starttile of the level
+    Game.hero()
+        .flatMap(e -> e.fetch(PositionComponent.class))
+        .ifPresent(
+            positionComponent ->
+                Game.startTile().ifPresent(tile -> positionComponent.position(tile.position())));
   }
 
   private static void configGame() throws IOException {
@@ -165,9 +195,11 @@ public class Client {
     Game.add(new FallingSystem());
     Game.add(new PitSystem());
     Game.add(new TintTilesSystem());
+    EventScheduler.setPausable(false);
     Game.add(new EventScheduler());
     Game.add(new FogSystem());
     Game.add(new PressurePlateSystem());
+    Game.add(new BlocklyCommandExecuteSystem());
     if (DEBUG_MODE) Game.add(new Debugger());
     Game.add(
         new System() {
@@ -206,7 +238,7 @@ public class Client {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
     Entity hero;
     try {
-      hero = HeroTankControlledFactory.newTankControlledHero();
+      hero = HeroTankControlledFactory.blocklyHero(ACTIVATE_TANKE_CONTROLLS);
       hero.add(new AmmunitionComponent());
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -232,8 +264,10 @@ public class Client {
       Server.waitDelta(); // wait for the next tick to execute the restart
       return;
     }
+    BlocklyCodeRunner.instance().stopCode();
     Game.removeAllEntities();
     Game.system(PositionSystem.class, System::stop);
+    Game.system(BlocklyCommandExecuteSystem.class, s -> s.clear());
     createHero();
     DungeonLoader.reloadCurrentLevel();
     Game.system(PositionSystem.class, System::run);
