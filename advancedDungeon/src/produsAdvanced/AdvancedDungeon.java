@@ -1,7 +1,6 @@
 package produsAdvanced;
 
 import contrib.crafting.Crafting;
-import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
 import contrib.systems.*;
@@ -21,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
 import produsAdvanced.level.*;
@@ -101,7 +99,6 @@ public class AdvancedDungeon {
    * @param args Command-line arguments (not used).
    */
   public static void main(String[] args) {
-    Game.initBaseLogger(Level.WARNING);
     configGame();
     onSetup();
     Game.run();
@@ -190,7 +187,7 @@ public class AdvancedDungeon {
    */
   private static void createHero() throws IOException {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
-    Entity heroEntity = EntityFactory.newHero();
+    Entity heroEntity = HeroFactory.newHero();
     Game.add(heroEntity);
     hero = new Hero(heroEntity);
 

@@ -2,14 +2,19 @@ package core.game;
 
 import core.Component;
 import core.Entity;
+import core.Game;
 import core.System;
+import core.components.DrawComponent;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.level.elements.ILevel;
+import core.network.messages.s2c.EntityDespawnEvent;
+import core.network.messages.s2c.EntitySpawnEvent;
 import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
+import core.utils.logging.DungeonLogger;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -28,10 +33,18 @@ import java.util.stream.Stream;
  * <p>All API methods can also be accessed via the {@link core.Game} class.
  */
 public final class ECSManagment {
-  private static final Logger LOGGER = Logger.getLogger(ECSManagment.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ECSManagment.class);
   private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
   private static final Map<ILevel, Set<EntitySystemMapper>> LEVEL_STORAGE_MAP = new HashMap<>();
   private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
+
+  private static int currentTick = 0;
+
+  /**
+   * Set to true if a new level was loaded during the current tick. This flag is used to interrupt
+   * system execution when a level change occurs.
+   */
+  public static boolean newLevelLoadedThisTick = false;
 
   static {
     LEVEL_STORAGE_MAP.put(null, activeEntityStorage);
@@ -79,6 +92,18 @@ public final class ECSManagment {
 
     activeEntityStorage.forEach(f -> f.add(entity));
     LOGGER.info(entity + " will be added to the Game.");
+
+    try {
+      if (Game.network().isServer()) {
+        if (entity.isPresent(PositionComponent.class) && entity.isPresent(DrawComponent.class)) {
+          Game.network().broadcast(new EntitySpawnEvent(entity), true);
+        }
+      }
+    } catch (IllegalStateException e) {
+      LOGGER.error("Failed to broadcast entity spawn for {}: {}", entity, e.getMessage());
+      // Continue without broadcasting, for unit tests
+    }
+
     return entity;
   }
 
@@ -94,6 +119,17 @@ public final class ECSManagment {
     activeEntityStorage.forEach(f -> f.remove(entity));
     EntityIdProvider.unregister(entity.id());
     LOGGER.info(entity + " will be removed from the Game.");
+
+    try {
+      if (Game.network().isServer()) {
+        Game.network()
+            .broadcast(new EntityDespawnEvent(entity.id(), "Entity removed from game"), true);
+      }
+    } catch (IllegalStateException e) {
+      LOGGER.error("Failed to broadcast entity despawn for {}: {}", entity, e.getMessage());
+      // Continue without broadcasting, for unit tests
+    }
+
     return entity;
   }
 
@@ -232,13 +268,33 @@ public final class ECSManagment {
   }
 
   /**
-   * Searches the current level for the player character.
+   * Returns the local player character, if one exists.
    *
-   * @return an {@link Optional} containing the player character from the current level, or an empty
-   *     {@code Optional} if none is present
+   * <p>A hero entity is defined as an entity that has a {@link PlayerComponent} with {@link
+   * PlayerComponent#isLocalHero()} returning true.
+   *
+   * @return the local player character, can be empty if no local player is present.
+   * @see PlayerComponent
+   * @see #heros()
    */
   public static Optional<Entity> hero() {
-    return levelEntities().filter(e -> e.isPresent(PlayerComponent.class)).findFirst();
+    return heros()
+        .filter(e -> e.fetch(PlayerComponent.class).map(PlayerComponent::isLocalHero).orElse(false))
+        .findFirst();
+  }
+
+  /**
+   * Returns a stream of all hero entities in the game.
+   *
+   * <p>A hero entity is defined as an entity that has a {@link PlayerComponent}.
+   *
+   * <p>This includes both local and remote player characters.
+   *
+   * @return a stream of all hero entities in the game
+   * @see PlayerComponent
+   */
+  public static Stream<Entity> heros() {
+    return levelEntities().filter(e -> e.isPresent(PlayerComponent.class));
   }
 
   /**
@@ -336,5 +392,41 @@ public final class ECSManagment {
    */
   public static boolean existInLevel(Entity entity) {
     return levelEntities().anyMatch(entity1 -> entity1.equals(entity));
+  }
+
+  /**
+   * Runs one logical ECS frame.
+   *
+   * <p>It breaks the execution if a new level was loaded during this tick.
+   *
+   * @param side the authoritative side for which to run the frame. (BOTH for all systems)
+   */
+  public static void runOneFrame(System.AuthoritativeSide side) {
+    for (System system : ECSManagment.systems().values()) {
+      if (newLevelLoadedThisTick) break;
+
+      if (side != System.AuthoritativeSide.BOTH
+          && system.authoritativeSide() != System.AuthoritativeSide.BOTH
+          && system.authoritativeSide() != side) {
+        continue;
+      }
+      system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
+      if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
+        system.execute();
+        system.lastExecuteInFrames(0);
+      }
+    }
+    currentTick++;
+    newLevelLoadedThisTick = false;
+  }
+
+  /**
+   * Returns the current tick number, incremented each time {@link
+   * #runOneFrame(System.AuthoritativeSide)} is called.
+   *
+   * @return the current tick number
+   */
+  public static int currentTick() {
+    return currentTick;
   }
 }

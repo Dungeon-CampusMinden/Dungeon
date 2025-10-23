@@ -2,7 +2,6 @@ plugins {
     id 'java-library'
 }
 
-
 dependencies {
     // LibGDX: expose this API to users because of core.level.elements.ILevel
     api supportDependencies.gdx
@@ -12,6 +11,10 @@ dependencies {
     api supportDependencies.gdx_ai
     api supportDependencies.gdx_freetype
     api supportDependencies.gdx_freetype_platform
+    api supportDependencies.gdx_backend_headless
+
+    // Netty for server-client communication
+    implementation supportDependencies.netty_all
 
     // JUnit and Mockito for testing
     testImplementation supportDependencies.junit
@@ -22,7 +25,6 @@ dependencies {
     testImplementation("com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion")
     testImplementation("com.badlogicgames.gdx:gdx:$gdxVersion")
 }
-
 
 sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
@@ -41,6 +43,18 @@ tasks.register('debugBasicStarter', JavaExec) {
     mainClass = 'starter.BasicStarter'
     classpath = sourceSets.main.runtimeClasspath
     debug = true
+}
+
+tasks.register('runServerStarter', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.DevServer'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runDevClient', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.DevClient'
+    classpath = sourceSets.main.runtimeClasspath
 }
 
 tasks.named('test', Test) {

@@ -3,7 +3,7 @@ package manual.quizquestion;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import contrib.components.InteractionComponent;
-import contrib.entities.EntityFactory;
+import contrib.entities.HeroFactory;
 import contrib.hud.dialogs.TextDialog;
 import contrib.systems.*;
 import core.Entity;
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-import java.util.logging.Level;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -59,9 +58,6 @@ public class CallbackTest {
    * @param args the command line arguments
    */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.ALL);
-    // start the game
-
     Game.loadConfig(
         new SimpleIPath("dungeon_config.json"),
         contrib.configuration.KeyboardConfig.class,
@@ -69,17 +65,13 @@ public class CallbackTest {
     Game.frameRate(30);
     Game.userOnSetup(
         () -> {
-          try {
-            Game.add(new AISystem());
-            Game.add(new CollisionSystem());
-            Game.add(new HealthSystem());
-            Game.add(new ProjectileSystem());
-            Game.add(new HudSystem());
-            Entity hero = EntityFactory.newHero();
-            Game.add(hero);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
+          Game.add(new AISystem());
+          Game.add(new CollisionSystem());
+          Game.add(new HealthSystem());
+          Game.add(new ProjectileSystem());
+          Game.add(new HudSystem());
+          Entity hero = HeroFactory.newHero();
+          Game.add(hero);
         });
     Game.userOnFrame(
         () -> {

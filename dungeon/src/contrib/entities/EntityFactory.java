@@ -7,7 +7,6 @@ import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.BowSkill;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
-import core.components.CameraComponent;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
@@ -16,7 +15,6 @@ import core.utils.Point;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * A utility class for building entities in the game world. The {@link EntityFactory} class provides
@@ -25,39 +23,6 @@ import java.util.function.Consumer;
  * <p>This class only references Methods of the {@link HeroFactory} and {@link MiscFactory}
  */
 public final class EntityFactory {
-
-  /**
-   * Get an Entity that can be used as a playable character.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * <p>It will have a {@link CameraComponent}, {@link core.components.PlayerComponent}. {@link
-   * PositionComponent}, {@link VelocityComponent} {@link core.components.DrawComponent}, {@link
-   * contrib.components.CollideComponent} and {@link HealthComponent}.
-   *
-   * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
-   */
-  public static Entity newHero() throws IOException {
-    return HeroFactory.newHero();
-  }
-
-  /**
-   * Get an Entity that can be used as a playable character.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * <p>It will have a {@link CameraComponent}, {@link core.components.PlayerComponent}. {@link
-   * PositionComponent}, {@link VelocityComponent} {@link core.components.DrawComponent}, {@link
-   * contrib.components.CollideComponent} and {@link HealthComponent}.
-   *
-   * @param deathCallback function that will be executed if the hero dies
-   * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
-   */
-  public static Entity newHero(Consumer<Entity> deathCallback) throws IOException {
-    return HeroFactory.newHero(HeroFactory.DEFAULT_HERO_CLASS, deathCallback);
-  }
 
   /**
    * Get an Entity that can be used as a monster.

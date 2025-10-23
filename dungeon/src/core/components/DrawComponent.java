@@ -11,8 +11,9 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.draw.state.Transition;
 import core.utils.components.path.IPath;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * Store all {@link Animation}s for an entity.
@@ -44,8 +45,8 @@ import java.util.logging.Logger;
  * @see Animation
  * @see IPath
  */
-public final class DrawComponent implements Component {
-  private final Logger LOGGER = Logger.getLogger(this.getClass().getSimpleName());
+public final class DrawComponent implements Component, Serializable {
+  @Serial private static final long serialVersionUID = 1L;
 
   private final StateMachine stateMachine;
   private int depth = DepthLayer.Normal.depth();
@@ -123,25 +124,6 @@ public final class DrawComponent implements Component {
    */
   public DrawComponent(final Animation animation) {
     stateMachine = new StateMachine(animation);
-  }
-
-  /**
-   * Create a new DrawComponent from a list of states.
-   *
-   * @param states The list of states to initialize the state machine with.
-   */
-  public DrawComponent(List<State> states) {
-    stateMachine = new StateMachine(states);
-  }
-
-  /**
-   * Create a new DrawComponent from a list of states.
-   *
-   * @param states The list of states to initialize the state machine with.
-   * @param defaultState The state to be used as default
-   */
-  public DrawComponent(List<State> states, State defaultState) {
-    stateMachine = new StateMachine(states, defaultState);
   }
 
   /**

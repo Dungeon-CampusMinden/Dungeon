@@ -5,12 +5,14 @@ import contrib.utils.components.collide.Collider;
 import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
 import core.System;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.DungeonLogger;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -29,6 +31,13 @@ import java.util.stream.Stream;
  * <p>Entities with the {@link CollideComponent} will be processed by this system.
  */
 public final class CollisionSystem extends System {
+
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CollisionSystem.class);
+
+  /**
+   * If true, players will collide with each other. If false, players will pass through each other.
+   */
+  public static final boolean ALLOW_PLAYER_COLLISIONS = false;
 
   /** Solid entities will be kept at this distance after colliding. */
   public static final float COLLIDE_SET_DISTANCE = 0.01f;
@@ -132,6 +141,13 @@ public final class CollisionSystem extends System {
 
       // Check if both entities are solids, and if so, separate them
       if (cdata.a.isSolid() && cdata.b.isSolid()) {
+        if (!ALLOW_PLAYER_COLLISIONS) {
+          boolean aIsPlayer = cdata.ea.isPresent(PlayerComponent.class);
+          boolean bIsPlayer = cdata.eb.isPresent(PlayerComponent.class);
+          if (aIsPlayer && bIsPlayer) { // player on player collision
+            return;
+          }
+        }
         checkSolidCollision(cdata, d);
       }
 
@@ -151,8 +167,7 @@ public final class CollisionSystem extends System {
     boolean bStationary = vcb == null || vcb.maxSpeed() == 0f;
 
     if (aStationary && bStationary) {
-      LOGGER.warning(
-          "Two stationary solid entities are colliding: " + cdata.ea + " and " + cdata.eb);
+      LOGGER.warn("Two stationary solid entities are colliding: {} and {}", cdata.ea, cdata.eb);
     } else if (aStationary) {
       solidCollide(cdata.ea, cdata.a.collider(), cdata.eb, cdata.b.collider(), d);
     } else if (bStationary) {
@@ -237,7 +252,7 @@ public final class CollisionSystem extends System {
         };
 
     if (newColliderPos == null) {
-      LOGGER.severe("Direction was NONE in solid collision, this should never happen!");
+      LOGGER.error("Direction was NONE in solid collision, this should never happen!");
       return;
     }
 

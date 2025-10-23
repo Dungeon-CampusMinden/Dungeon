@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * This class starts a comparator for the pathfinding algorithms.
@@ -53,8 +52,6 @@ public class ComparePathfindingStarter {
    * @throws IOException If an error occurs while loading.
    */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.WARNING);
-
     // start the game
     configGame();
     // Set up components and level
@@ -235,12 +232,8 @@ public class ComparePathfindingStarter {
    */
   public static Entity createHero() {
     Entity hero;
-    try {
-      hero = HeroFactory.newHero();
-      hero.remove(CameraComponent.class);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    hero = HeroFactory.newHero();
+    hero.remove(CameraComponent.class);
     Game.add(hero);
     return hero;
   }

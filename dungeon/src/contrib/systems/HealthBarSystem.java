@@ -6,9 +6,9 @@ import contrib.utils.AttributeBarUtil;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.utils.logging.DungeonLogger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * A system that displays health bars above entities.
@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  */
 public final class HealthBarSystem extends System {
 
-  private static final Logger LOGGER = Logger.getLogger(HealthBarSystem.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(HealthBarSystem.class);
 
   /** Vertical offset of the health bar above the entity. */
   private static final float VERTICAL_OFFSET = 0f;
@@ -39,11 +39,15 @@ public final class HealthBarSystem extends System {
    * corresponding health bar is removed.
    */
   public HealthBarSystem() {
-    super(DrawComponent.class, HealthComponent.class, PositionComponent.class);
+    super(
+        AuthoritativeSide.CLIENT,
+        DrawComponent.class,
+        HealthComponent.class,
+        PositionComponent.class);
 
     this.onEntityAdd =
         entity -> {
-          LOGGER.fine("Adding health bar for entity " + entity.id());
+          LOGGER.debug("Adding health bar for entity {}", entity);
           AttributeBarUtil.addBarToEntity(
               entity,
               e ->

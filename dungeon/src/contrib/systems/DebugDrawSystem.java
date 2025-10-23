@@ -19,6 +19,7 @@ import contrib.utils.EntityUtils;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.systems.CameraSystem;
@@ -60,6 +61,11 @@ public class DebugDrawSystem extends System {
   private static final BitmapFont FONT = FontHelper.getDefaultFont();
   private boolean render = false;
 
+  /** Creates a new DebugDrawSystem. */
+  public DebugDrawSystem() {
+    super(AuthoritativeSide.CLIENT, PositionComponent.class);
+  }
+
   @Override
   public void execute() {
     UI_CAM.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -67,7 +73,7 @@ public class DebugDrawSystem extends System {
     if (!render) return;
 
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
-    filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
+    filteredEntityStream().forEach(this::drawPosition);
   }
 
   private void drawPosition(Entity entity) {
@@ -282,6 +288,15 @@ public class DebugDrawSystem extends System {
         .ifPresent(
             ai ->
                 info.append("AI State: ").append(ai.active() ? "Active" : "Inactive").append("\n"));
+
+    entity
+        .fetch(PlayerComponent.class)
+        .ifPresent(
+            pcComp ->
+                info.append("Player: ")
+                    .append(pcComp.playerName())
+                    .append(pcComp.isLocalHero() ? " (LOCAL)" : " (REMOTE)")
+                    .append("\n"));
 
     List<String> componentNames =
         entity

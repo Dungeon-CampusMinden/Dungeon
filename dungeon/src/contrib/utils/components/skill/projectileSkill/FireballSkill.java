@@ -26,7 +26,7 @@ public class FireballSkill extends DamageProjectileSkill {
   private static final IPath TEXTURE = new SimpleIPath("skills/fireball");
   private static final IPath SOUND = new SimpleIPath("sounds/fireball.wav");
   private static final float SPEED = 13f;
-  private static final int DAMAGE = 2;
+  private static final int DAMAGE = 20;
   private static final float RANGE = 7f;
   private static final long COOLDOWN = 500;
   private static final boolean IS_PIERCING = false;
@@ -149,6 +149,8 @@ public class FireballSkill extends DamageProjectileSkill {
    */
   @Override
   protected void onSpawn(Entity caster, Entity projectile) {
+    if (Gdx.audio == null) return; // Audio not available
+
     Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(SOUND.pathString()));
 
     // Generate a random pitch between minPitch and maxPitch

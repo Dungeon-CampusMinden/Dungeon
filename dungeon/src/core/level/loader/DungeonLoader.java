@@ -13,12 +13,12 @@ import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.DungeonLogger;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -30,7 +30,7 @@ import java.util.stream.Stream;
  */
 public class DungeonLoader {
 
-  private static final Logger LOGGER = Logger.getLogger(DungeonLoader.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DungeonLoader.class);
   private static final Random RANDOM = new Random();
   private static final String LEVEL_PATH_PREFIX = "/levels";
   private static final Map<String, List<String>> LEVELS = new HashMap<>();
@@ -58,13 +58,13 @@ public class DungeonLoader {
       try {
         getAllLevelFilePathsFromJar();
       } catch (IOException | URISyntaxException e) {
-        LOGGER.warning("Failed to load level files from jar: " + e.getMessage());
+        LOGGER.warn("Failed to load level files from jar: {}", e.getMessage());
       }
     } else {
       try {
         getAllLevelFilePathsFromFileSystem();
       } catch (IOException | URISyntaxException e) {
-        LOGGER.warning("Failed to load level files from file system: " + e.getMessage());
+        LOGGER.warn("Failed to load level files from file system: {}", e.getMessage());
       }
     }
   }
@@ -104,7 +104,7 @@ public class DungeonLoader {
                         .computeIfAbsent(levelName, k -> new ArrayList<>())
                         .add(isJar ? "jar:" + levelFilePath : levelFilePath);
                   } else {
-                    LOGGER.warning("Invalid level file name: " + fileName);
+                    LOGGER.warn("Invalid level file name: {}", fileName);
                   }
                 }
               });
@@ -124,6 +124,17 @@ public class DungeonLoader {
     for (Tuple<String, Class<? extends DungeonLevel>> t : level) {
       levelOrder.add(new Tuple<>(t.a().toLowerCase(), t.b()));
     }
+  }
+
+  /**
+   * Clears all levels from the level order and resets the current level index.
+   *
+   * @see #addLevel(Tuple[])
+   */
+  public static void clearLevels() {
+    levelOrder.clear();
+    currentLevel = -1;
+    currentVariant = 0;
   }
 
   /**
@@ -149,16 +160,16 @@ public class DungeonLoader {
    * Returns the level handler for the given level name.
    *
    * @param levelName The name of the level.
-   * @return The level handler for the given level name. (null if not found)
+   * @return The level handler for the given level name.
    * @see DungeonLevel
    */
-  public static Class<? extends DungeonLevel> levelHandler(String levelName) {
+  public static Optional<Class<? extends DungeonLevel>> levelHandler(String levelName) {
     for (Tuple<String, Class<? extends DungeonLevel>> level : levelOrder) {
       if (level.a().equalsIgnoreCase(levelName)) {
-        return level.b();
+        return Optional.of(level.b());
       }
     }
-    return null;
+    return Optional.empty();
   }
 
   private static ILevel getRandomVariant(String levelName) {
@@ -311,6 +322,25 @@ public class DungeonLoader {
         reader = new BufferedReader(new FileReader(file));
       }
 
+      return parseReaderToLevel(reader, DungeonLoader.currentLevel());
+    } catch (IOException e) {
+      throw new RuntimeException("Error reading level file", e);
+    }
+  }
+
+  /**
+   * Loads a DungeonLevel from the string content.
+   *
+   * @param content The string content of the level file.
+   * @param levelName The name of the level.
+   * @return The loaded DungeonLevel.
+   */
+  public static DungeonLevel loadFromString(String content, String levelName) {
+    return parseReaderToLevel(new BufferedReader(new StringReader(content)), levelName);
+  }
+
+  private static DungeonLevel parseReaderToLevel(BufferedReader reader, String levelName) {
+    try {
       // Parse DesignLabel
       String designLabelLine = readLine(reader);
       DesignLabel designLabel = parseDesignLabel(designLabelLine);
@@ -332,7 +362,11 @@ public class DungeonLoader {
       LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
       DungeonLevel newLevel;
-      newLevel = getLevel(DungeonLoader.currentLevel(), layout, designLabel, customPoints);
+      try {
+        newLevel = createLevelHandler(levelName, layout, designLabel, customPoints);
+      } catch (RuntimeException e) {
+        newLevel = new DungeonLevel(layout, designLabel, customPoints, levelName);
+      }
 
       // Set Hero Position
       Tile heroTile = newLevel.tileAt(heroPos).orElse(null);
@@ -343,7 +377,7 @@ public class DungeonLoader {
 
       return newLevel;
     } catch (IOException e) {
-      throw new RuntimeException("Error reading level file", e);
+      throw new RuntimeException("Error reading level content", e);
     }
   }
 
@@ -429,21 +463,40 @@ public class DungeonLoader {
     return layout;
   }
 
-  private static DungeonLevel getLevel(
+  private static DungeonLevel createLevelHandler(
       String levelName,
       LevelElement[][] layout,
       DesignLabel designLabel,
       List<Coordinate> customPoints) {
-    Class<? extends DungeonLevel> levelHandler = DungeonLoader.levelHandler(levelName);
-    if (levelHandler != null) {
-      try {
-        return levelHandler
-            .getConstructor(LevelElement[][].class, DesignLabel.class, List.class)
-            .newInstance(layout, designLabel, customPoints);
-      } catch (Exception e) {
-        throw new RuntimeException("Error creating level handler", e);
-      }
+    Class<? extends DungeonLevel> levelHandler =
+        DungeonLoader.levelHandler(levelName).orElse(DungeonLevel.class);
+
+    try {
+      return levelHandler
+          .getConstructor(LevelElement[][].class, DesignLabel.class, List.class)
+          .newInstance(layout, designLabel, customPoints);
+    } catch (NoSuchMethodException e) {
+      return createLevelHandlerFallback(levelHandler, layout, designLabel, customPoints, levelName);
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException("Error creating level handler", e);
     }
-    throw new RuntimeException("No level handler found for level: " + levelName);
+  }
+
+  // Fallback method to create level handler with levelName parameter
+  // this should happen if multiplayer sends a level (client should not have a specific level
+  // handler)
+  private static DungeonLevel createLevelHandlerFallback(
+      Class<? extends DungeonLevel> levelHandler,
+      LevelElement[][] layout,
+      DesignLabel designLabel,
+      List<Coordinate> customPoints,
+      String levelName) {
+    try {
+      return levelHandler
+          .getConstructor(LevelElement[][].class, DesignLabel.class, List.class, String.class)
+          .newInstance(layout, designLabel, customPoints, levelName);
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException("Error creating level handler", e);
+    }
   }
 }

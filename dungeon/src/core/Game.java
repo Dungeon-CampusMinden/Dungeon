@@ -3,27 +3,35 @@ package core;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagment;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
+import core.game.WindowEventManager;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
+import core.network.NetworkException;
+import core.network.config.NetworkConfig;
+import core.network.handler.INetworkHandler;
+import core.network.handler.LocalNetworkHandler;
+import core.network.handler.NettyNetworkHandler;
+import core.network.handler.SlowNettyNetworkHandler;
 import core.systems.LevelSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.path.IPath;
+import core.utils.logging.DungeonLogger;
+import core.utils.logging.DungeonLoggerConfig;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,10 +60,57 @@ import java.util.stream.Stream;
  */
 public final class Game {
 
-  private static final Logger LOGGER = Logger.getLogger(Game.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Game.class);
+  private static INetworkHandler networkHandler;
 
-  /** Starts the dungeon and requires a {@link Game}. */
+  private static final boolean SLOW_NETWORK = false;
+
+  /**
+   * Starts the dungeon.
+   *
+   * <ul>
+   *   <li>Initializes the default logger configuration if not already initialized.
+   *   <li>Sets up the appropriate network handler based on multiplayer settings.
+   *   <li>Initializes and starts the network handler.
+   *   <li>Registers a listener for window close requests to exit the game gracefully.
+   *   <li>Starts the main game loop if not in multiplayer server mode.
+   * </ul>
+   *
+   * @see PreRunConfiguration
+   * @see INetworkHandler
+   * @see GameLoop
+   */
   public static void run() {
+    if (!DungeonLoggerConfig.isInitialized()) {
+      DungeonLoggerConfig.initDefault();
+    }
+
+    if (PreRunConfiguration.multiplayerEnabled()) {
+      networkHandler = SLOW_NETWORK ? new SlowNettyNetworkHandler() : new NettyNetworkHandler();
+    } else {
+      networkHandler = new LocalNetworkHandler();
+    }
+
+    try {
+      // Explicitly inject a SnapshotTranslator before initialization
+      networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
+      networkHandler.initialize(
+          PreRunConfiguration.isNetworkServer(),
+          PreRunConfiguration.networkServerAddress(),
+          PreRunConfiguration.networkPort(),
+          PreRunConfiguration.username());
+      LOGGER.info("Network handler initialized.");
+    } catch (NetworkException e) {
+      LOGGER.error("Failed to initialize network handler.", e);
+    }
+
+    WindowEventManager.registerCloseRequestListener(
+        () -> {
+          exit("Game closed");
+          return true;
+        });
+
+    // Start the main game loop
     GameLoop.run();
   }
 
@@ -223,28 +278,6 @@ public final class Game {
   }
 
   /**
-   * Initialize the base logger.
-   *
-   * <p>Set a logging level, and remove the console handler, and write all log messages into the log
-   * files.
-   *
-   * @param level Set logging level to {@code level}
-   */
-  public static void initBaseLogger(Level level) {
-    PreRunConfiguration.initBaseLogger(level);
-  }
-
-  /**
-   * Initialize the base logger.
-   *
-   * <p>Set the logging level to {@code Level.ALL}, and remove the console handler, and write all
-   * log messages into the log files. This is a convenience method.
-   */
-  public static void initBaseLogger() {
-    Game.initBaseLogger(Level.ALL);
-  }
-
-  /**
    * Loads the configuration from the given path. If the configuration has already been loaded, the
    * cached version will be used.
    *
@@ -370,13 +403,31 @@ public final class Game {
   }
 
   /**
-   * Searches the current level for the player character.
+   * Returns the local player character, if one exists.
    *
-   * @return an {@link Optional} containing the player character from the current level, or an empty
-   *     {@code Optional} if none is present
+   * <p>A hero entity is defined as an entity that has a {@link PlayerComponent} with {@link
+   * PlayerComponent#isLocalHero()} returning true.
+   *
+   * @return the local player character, can be empty if no local player is present.
+   * @see PlayerComponent
+   * @see #heros()
    */
   public static Optional<Entity> hero() {
     return ECSManagment.hero();
+  }
+
+  /**
+   * Returns a stream of all hero entities in the game.
+   *
+   * <p>A hero entity is defined as an entity that has a {@link PlayerComponent}.
+   *
+   * <p>This includes both local and remote player characters.
+   *
+   * @return a stream of all hero entities in the game
+   * @see PlayerComponent
+   */
+  public static Stream<Entity> heros() {
+    return ECSManagment.heros();
   }
 
   /**
@@ -764,12 +815,29 @@ public final class Game {
   public static void currentLevel(final ILevel level) {
     LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
     if (levelSystem != null) levelSystem.loadLevel(level);
-    else LOGGER.warning("Can not set Level because levelSystem is null.");
+    else LOGGER.warn("Can not set Level because levelSystem is null.");
   }
 
-  /** Exits the GDX application. */
-  public static void exit() {
-    Gdx.app.exit();
+  /**
+   * Exits the GDX application and shuts down the network handler.
+   *
+   * <p>If the network handler is not initialized, it will simply exit the application.
+   *
+   * <p>If no GDX application is present, it will call {@link java.lang.System#exit(int)}.
+   *
+   * @param reason The reason for exiting the game.
+   */
+  public static void exit(String reason) {
+    if (networkHandler != null) {
+      try {
+        networkHandler.shutdown(reason);
+      } catch (Exception e) {
+        LOGGER.warn("Error shutting down network handler", e);
+      }
+    }
+    if (Gdx.app != null) {
+      Gdx.app.exit();
+    }
   }
 
   /**
@@ -781,5 +849,46 @@ public final class Game {
    */
   public static Stream<Entity> entityAtPoint(Point point) {
     return Game.tileAt(point).map(Game::entityAtTile).orElseGet(Stream::empty);
+  }
+
+  /** Exits the GDX application and shuts down the network handler. */
+  public static void exit() {
+    exit("No reason specified");
+  }
+
+  /**
+   * Gets the network handler instance. This allows other parts of the game (like HeroFactory) to
+   * send messages.
+   *
+   * @return The NetworkHandler instance.
+   * @throws IllegalStateException if the network handler is not initialized.
+   */
+  public static INetworkHandler network() {
+    if (networkHandler == null) {
+      throw new IllegalStateException("Network handler is not initialized. Call Game.run() first.");
+    }
+    return networkHandler;
+  }
+
+  /**
+   * Get the current game tick.
+   *
+   * <p>The game tick is incremented every frame in the game loop.
+   *
+   * @return The current game tick.
+   */
+  public static int currentTick() {
+    return GameLoop.currentTick();
+  }
+
+  /**
+   * Finds an entity by its unique ID.
+   *
+   * @param entityId The unique ID of the entity to find.
+   * @return An {@link Optional} containing the found entity, or an empty {@code Optional} if no
+   *     entity with the given ID exists.
+   */
+  public static Optional<Entity> findEntityById(int entityId) {
+    return Game.allEntities().filter(e -> e.id() == entityId).findFirst();
   }
 }
