@@ -301,6 +301,19 @@ public class DungeonLevel implements ILevel, ITickable {
   }
 
   @Override
+  public void setLayout(LevelElement[][] layout) {
+    this.layout = convertLevelElementToTile(layout, startTile.designLabel);
+    floorTiles.clear();
+    wallTiles.clear();
+    holeTiles.clear();
+    doorTiles.clear();
+    exitTiles.clear();
+    skipTiles.clear();
+    pitTiles.clear();
+    putTilesInLists();
+  }
+
+  @Override
   public void startTile(Tile start) {
     startTile = start;
   }

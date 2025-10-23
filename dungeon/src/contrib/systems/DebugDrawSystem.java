@@ -24,6 +24,7 @@ import core.components.VelocityComponent;
 import core.systems.CameraSystem;
 import core.utils.FontHelper;
 import core.utils.Point;
+import core.utils.Rectangle;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.animation.Animation;
@@ -364,6 +365,16 @@ public class DebugDrawSystem extends System {
   @Override
   public void run() {
     this.run = true;
+  }
+
+  public static void drawRectangleOutline(float x, float y, float width, float height, Color color) {
+    // Enable blending for transparency
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    SHAPE_RENDERER.setColor(color);
+    SHAPE_RENDERER.rect(x, y, width, height);
+    SHAPE_RENDERER.end();
   }
 
   /**

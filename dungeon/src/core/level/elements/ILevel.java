@@ -202,6 +202,13 @@ public interface ILevel extends IndexedGraph<Tile> {
   Tile[][] layout();
 
   /**
+   * Sets the layout of the level.
+   *
+   * @param layout The new layout of the level as a 2D array of LevelElements.
+   */
+  void setLayout(LevelElement[][] layout);
+
+  /**
    * Get the size (row x col) of the level as a Tuple.
    *
    * <p>{@link Tuple#a()} contains the row size (starting at 1).
