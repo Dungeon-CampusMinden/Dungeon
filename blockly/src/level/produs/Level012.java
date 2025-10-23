@@ -14,7 +14,6 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-import java.util.List;
 import java.util.*;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -72,46 +71,46 @@ public class Level012 extends BlocklyLevel {
 
     Entity s1 = LeverFactory.pressurePlate(getPoint(2));
     switch1 =
-      s1.fetch(LeverComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
+        s1.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s1);
 
     Game.add(MiscFactory.fireballScroll(getPoint(3)));
     Entity s2 = LeverFactory.pressurePlate(getPoint(4));
     switch2 =
-      s2.fetch(LeverComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
+        s2.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s2);
     Entity s3 = LeverFactory.createLever(getPoint(5));
     switch3 =
-      s3.fetch(LeverComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
+        s3.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s3);
     Entity s4 = LeverFactory.createLever(getPoint(6));
     switch4 =
-      s4.fetch(LeverComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
+        s4.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s4);
 
     Game.add(MiscFactory.fireballScroll(getPoint(8)));
     Game.add(MiscFactory.fireballScroll(getPoint(9)));
 
     BlocklyMonster.GUARD
-      .builder()
-      .attackRange(5)
-      .viewDirection(Direction.LEFT)
-      .addToGame()
-      .build(getPoint(10));
+        .builder()
+        .attackRange(5)
+        .viewDirection(Direction.LEFT)
+        .addToGame()
+        .build(getPoint(10));
 
     BlocklyMonster.BLACK_KNIGHT
-      .builder()
-      .attackRange(0)
-      .addToGame()
-      .viewDirection(Direction.UP)
-      .onDeath(
-        entity ->
-          DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!"))
-      .build(getPoint(11));
+        .builder()
+        .attackRange(0)
+        .addToGame()
+        .viewDirection(Direction.UP)
+        .onDeath(
+            entity ->
+                DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!"))
+        .build(getPoint(11));
 
     door1 = (DoorTile) Game.tileAt(new Coordinate(4, 9)).orElse(null);
     door2 = (DoorTile) Game.tileAt(new Coordinate(14, 8)).orElse(null);

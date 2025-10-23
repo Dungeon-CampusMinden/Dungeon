@@ -8,17 +8,15 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.level.elements.tile.DoorTile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import core.utils.Point;
-import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -84,7 +82,7 @@ public class Level013 extends BlocklyLevel {
     final boolean[] coin = {new Random().nextBoolean()};
     namedPoints()
         .forEach(
-          (name, point) -> {
+            (name, point) -> {
               Entity torch = LeverFactory.createTorch(point);
               torch.add(new BlockComponent());
               Game.add(torch);

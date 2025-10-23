@@ -3,18 +3,12 @@ package level.produs;
 import components.AmmunitionComponent;
 import contrib.hud.DialogUtils;
 import core.Game;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.MissingHeroException;
-import entities.monster.BlocklyMonster;
-import java.util.List;
-import core.level.elements.tile.DoorTile;
-import core.level.utils.DesignLabel;
-import core.level.utils.LevelElement;
-import core.utils.Direction;
 import core.utils.Point;
+import entities.monster.BlocklyMonster;
 import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -66,18 +60,18 @@ public class Level019 extends BlocklyLevel {
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.heroViewDirection(Direction.LEFT);
     BlocklyMonster.Builder hedgehogBuilder =
-      BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
+        BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
     Game.hero()
-      .orElseThrow(MissingHeroException::new)
-      .fetch(AmmunitionComponent.class)
-      .orElseThrow()
-      .currentAmmunition(20);
+        .orElseThrow(MissingHeroException::new)
+        .fetch(AmmunitionComponent.class)
+        .orElseThrow()
+        .currentAmmunition(20);
 
     namedPoints()
-      .forEach(
-        (name, point) -> {
-          hedgehogBuilder.build(point);
-        });
+        .forEach(
+            (name, point) -> {
+              hedgehogBuilder.build(point);
+            });
   }
 
   @Override

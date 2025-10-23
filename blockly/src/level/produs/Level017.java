@@ -1,8 +1,5 @@
 package level.produs;
 
-import core.level.utils.Coordinate;
-import core.Game;
-import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;

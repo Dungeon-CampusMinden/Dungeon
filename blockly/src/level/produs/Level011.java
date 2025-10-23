@@ -6,7 +6,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
 import java.util.Map;

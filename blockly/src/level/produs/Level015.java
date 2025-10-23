@@ -4,13 +4,8 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
-import java.util.List;
-import core.utils.MissingHeroException;
 import core.utils.Point;
-import entities.monster.BlocklyMonster;
 import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 

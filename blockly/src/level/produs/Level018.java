@@ -2,17 +2,10 @@ package level.produs;
 
 import core.Game;
 import core.level.elements.tile.DoorTile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
-import java.util.List;
-import core.level.utils.DesignLabel;
-import core.level.utils.LevelElement;
-import core.utils.Direction;
-import core.utils.MissingHeroException;
 import core.utils.Point;
-import entities.monster.BlocklyMonster;
 import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
