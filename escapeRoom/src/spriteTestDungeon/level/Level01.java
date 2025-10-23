@@ -4,12 +4,11 @@ import contrib.components.*;
 import contrib.entities.deco.CompositeDecoFactory;
 import core.Game;
 import core.level.DungeonLevel;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import hint.*;
-import java.util.List;
+import java.util.Map;
 
 /**
  * The Demolevel.
@@ -22,10 +21,10 @@ public class Level01 extends DungeonLevel {
    *
    * @param layout The layout of the level.
    * @param designLabel The design label of the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level01(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Demo");
+  public Level01(LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Demo");
   }
 
   @Override

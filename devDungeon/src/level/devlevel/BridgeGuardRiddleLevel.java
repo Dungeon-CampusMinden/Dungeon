@@ -5,9 +5,10 @@ import contrib.hud.DialogUtils;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Point;
 import entities.DevDungeonMonster;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.BridgeGuardRiddleHandler;
 import utils.EntityUtils;
@@ -23,9 +24,9 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel {
   private static final int MOB_COUNT_PER_CAMP = 3;
 
   // Spawn Points / Locations
-  private final Coordinate[] campSpawns;
-  private final Coordinate[] mobSpawns;
-  private final Coordinate levelBossSpawn;
+  private final Point[] campSpawns;
+  private final Point[] mobSpawns;
+  private final Point levelBossSpawn;
 
   private final BridgeGuardRiddleHandler riddleHandler;
 
@@ -34,31 +35,33 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel {
    *
    * @param layout The layout of the level.
    * @param designLabel The design label of the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
   public BridgeGuardRiddleLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(
         layout,
         designLabel,
-        customPoints,
+        namedPoints,
         "The Bridge Guard",
         "Let's try to not get lost, the entire area is brimming with orcs. Let's try to find someone who may be able to help us! The bridge should be a start.");
-    this.riddleHandler = new BridgeGuardRiddleHandler(customPoints, this);
+    this.riddleHandler = new BridgeGuardRiddleHandler(namedPoints, this);
 
-    this.campSpawns = getCoordinates(13, 24);
-    this.mobSpawns = getCoordinates(25, 53);
-    this.levelBossSpawn = customPoints().get(54);
+    this.campSpawns = getPoints(13, 24);
+    this.mobSpawns = getPoints(25, 53);
+    this.levelBossSpawn = getPoint(54);
   }
 
   @Override
   protected void onFirstTick() {
     spawnCamps();
 
+    Coordinate[] mobSpawns =
+        Arrays.stream(this.mobSpawns).map(Point::toCoordinate).toArray(Coordinate[]::new);
     EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, mobSpawns);
     EntityUtils.spawnBoss(
         BOSS_TYPE,
-        levelBossSpawn,
+        levelBossSpawn.toCoordinate(),
         (boss) -> {
           DialogUtils.showTextPopup(
               "The next level is the final boss. You probably want to prepare for that. It's going to be tough.",
@@ -73,12 +76,12 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel {
   }
 
   private void spawnCamps() {
-    for (Coordinate campSpawn : campSpawns) {
+    for (Point campSpawn : campSpawns) {
       MonsterBuilder<?>[] builders =
           Arrays.stream(MONSTER_TYPES)
               .map(DevDungeonMonster::builder)
               .toArray(MonsterBuilder[]::new);
-      EntityUtils.spawnMobSpawner(campSpawn, builders, MOB_COUNT_PER_CAMP);
+      EntityUtils.spawnMobSpawner(campSpawn.toCoordinate(), builders, MOB_COUNT_PER_CAMP);
     }
   }
 }

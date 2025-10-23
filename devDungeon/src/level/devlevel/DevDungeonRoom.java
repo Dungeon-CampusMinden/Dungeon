@@ -4,8 +4,8 @@ import components.TorchComponent;
 import contrib.components.AIComponent;
 import core.Entity;
 import core.level.Tile;
-import core.level.utils.Coordinate;
 import core.level.utils.LevelUtils;
+import core.utils.Point;
 import java.util.List;
 import utils.EntityUtils;
 
@@ -18,11 +18,11 @@ import utils.EntityUtils;
  */
 public class DevDungeonRoom {
   // The top left and bottom right coordinates define the boundaries of the room.
-  private final Coordinate topLeft;
-  private final Coordinate bottomRight;
+  private final Point topLeft;
+  private final Point bottomRight;
   // The spawn points for torches and mobs within the room.
-  private final Coordinate[] torchSpawns;
-  private final Coordinate[] mobSpawns;
+  private final Point[] torchSpawns;
+  private final Point[] mobSpawns;
   // The torch and mob entities within the room.
   private Entity[] torches;
   private Entity[] mobs;
@@ -37,20 +37,16 @@ public class DevDungeonRoom {
    * @param mobSpawns The spawn points for mobs within the room. (Can be empty)
    * @throws IllegalArgumentException if a spawn point is outside the room boundaries.
    */
-  public DevDungeonRoom(
-      Coordinate topLeft,
-      Coordinate bottomRight,
-      Coordinate[] torchSpawns,
-      Coordinate[] mobSpawns) {
+  public DevDungeonRoom(Point topLeft, Point bottomRight, Point[] torchSpawns, Point[] mobSpawns) {
     this.topLeft = topLeft;
     this.bottomRight = bottomRight;
-    for (Coordinate torchSpawn : torchSpawns) {
+    for (Point torchSpawn : torchSpawns) {
       if (!contains(torchSpawn)) {
         throw new IllegalArgumentException("Torch spawn must be within room bounds");
       }
     }
     this.torchSpawns = torchSpawns;
-    for (Coordinate mobSpawn : mobSpawns) {
+    for (Point mobSpawn : mobSpawns) {
       if (!contains(mobSpawn)) {
         throw new IllegalArgumentException("Mob spawn must be within room bounds");
       }
@@ -66,8 +62,8 @@ public class DevDungeonRoom {
    * @param bottomRight The bottom right coordinate of the room.
    * @param mobSpawns The spawn points for mobs within the room.
    */
-  public DevDungeonRoom(Coordinate topLeft, Coordinate bottomRight, Coordinate[] mobSpawns) {
-    this(topLeft, bottomRight, new Coordinate[0], mobSpawns);
+  public DevDungeonRoom(Point topLeft, Point bottomRight, Point[] mobSpawns) {
+    this(topLeft, bottomRight, new Point[0], mobSpawns);
   }
 
   /**
@@ -90,16 +86,15 @@ public class DevDungeonRoom {
     this.mobs = spawnMobs(mobSpawns);
   }
 
-  private Entity[] spawnTorches(Coordinate[] torchSpawns) {
+  private Entity[] spawnTorches(Point[] torchSpawns) {
     Entity[] torches = new Entity[torchSpawns.length];
     for (int i = 0; i < torchSpawns.length; i++) {
-      torches[i] =
-          EntityUtils.spawnAntiLightTorch(torchSpawns[i].toPoint(), true, true, (x, y) -> {});
+      torches[i] = EntityUtils.spawnAntiLightTorch(torchSpawns[i], true, true, (x, y) -> {});
     }
     return torches;
   }
 
-  private Entity[] spawnMobs(Coordinate[] mobSpawns) {
+  private Entity[] spawnMobs(Point[] mobSpawns) {
     Entity[] mobs = new Entity[mobSpawns.length];
     for (int i = 0; i < mobSpawns.length; i++) {
       mobs[i] =
@@ -114,24 +109,6 @@ public class DevDungeonRoom {
             .ifPresent(ai -> ai.active(false)); // Disable AI while not in same room
     }
     return mobs;
-  }
-
-  /**
-   * Returns the top left coordinate of the room.
-   *
-   * @return the top left coordinate of the room.
-   */
-  public Coordinate topLeft() {
-    return topLeft;
-  }
-
-  /**
-   * Returns the bottom right coordinate of the room.
-   *
-   * @return the bottom right coordinate of the room.
-   */
-  public Coordinate bottomRight() {
-    return bottomRight;
   }
 
   /**
@@ -155,14 +132,14 @@ public class DevDungeonRoom {
   /**
    * Checks if a given coordinate is within the room's boundaries.
    *
-   * @param coordinate The coordinate to check.
+   * @param point The coordinate to check.
    * @return true if the coordinate is within the room, false otherwise.
    */
-  public boolean contains(Coordinate coordinate) {
-    return coordinate.x() >= topLeft.x()
-        && coordinate.x() <= bottomRight.x()
-        && coordinate.y() <= topLeft.y()
-        && coordinate.y() >= bottomRight.y();
+  public boolean contains(Point point) {
+    return point.x() >= topLeft.x()
+        && point.x() <= bottomRight.x()
+        && point.y() <= topLeft.y()
+        && point.y() >= bottomRight.y();
   }
 
   /**
@@ -171,7 +148,7 @@ public class DevDungeonRoom {
    * @return a list of tiles within the room.
    */
   public List<Tile> tiles() {
-    return LevelUtils.tilesInArea(topLeft, bottomRight);
+    return LevelUtils.tilesInArea(topLeft.toCoordinate(), bottomRight.toCoordinate());
   }
 
   @Override

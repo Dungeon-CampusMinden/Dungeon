@@ -8,9 +8,10 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.Point;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-import java.util.List;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -27,10 +28,11 @@ public class Level005 extends BlocklyLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level005(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 5");
+  public Level005(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 5");
     this.blockBlocklyElement(
         // Richtungen
         // Schleifen
@@ -63,12 +65,12 @@ public class Level005 extends BlocklyLevel {
     LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    Coordinate stone1C = customPoints().get(1);
-    Coordinate stone2C = customPoints().get(5);
-    Coordinate m1C = customPoints().get(0);
-    Coordinate m2C = customPoints().get(2);
-    Coordinate m3C = customPoints().get(3);
-    Coordinate m4C = customPoints().get(4);
+    Coordinate stone1C = getPoint(1).toCoordinate();
+    Coordinate stone2C = getPoint(5).toCoordinate();
+    Coordinate m1C = getPoint(0).toCoordinate();
+    Coordinate m2C = getPoint(2).toCoordinate();
+    Coordinate m3C = getPoint(3).toCoordinate();
+    Coordinate m4C = getPoint(4).toCoordinate();
 
     Game.add(MiscFactory.stone(stone1C.toPoint()));
     Game.add(MiscFactory.stone(stone2C.toPoint()));

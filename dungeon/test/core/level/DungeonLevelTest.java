@@ -8,13 +8,16 @@ import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.FloorTile;
 import core.level.elements.tile.TileFactory;
 import core.level.elements.tile.WallTile;
+import core.level.loader.parsers.V2FormatParser;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
@@ -367,20 +370,24 @@ public class DungeonLevelTest {
           }
         };
     var level = new DungeonLevel(tileLayout, DesignLabel.DEFAULT);
-    StringBuilder compareString = new StringBuilder();
+    List<String> lines = new ArrayList<>();
     for (LevelElement[] tiles : tileLayout) {
+      String row = "";
       for (LevelElement tile : tiles) {
         if (tile == LevelElement.FLOOR) {
-          compareString.append("F");
+          row += "F";
         } else if (tile == LevelElement.WALL) {
-          compareString.append("W");
+          row += "W";
         } else {
-          compareString.append("E");
+          row += "E";
         }
       }
-      compareString.append("\n");
+      lines.add(row);
     }
-    assertEquals(compareString.toString(), level.printLevel());
+    // Reverse
+    lines = lines.reversed();
+    String compareString = String.join(System.lineSeparator(), lines);
+    assertEquals(compareString, V2FormatParser.serializeLevelLayout(level.layout));
   }
 
   /** WTF? . */

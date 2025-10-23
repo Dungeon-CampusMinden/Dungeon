@@ -7,8 +7,9 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.Point;
 import entities.MiscFactory;
-import java.util.List;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -25,10 +26,11 @@ public class Level003 extends BlocklyLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level003(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 3");
+  public Level003(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 3");
     this.blockBlocklyElement(
         // Richtungen
         "direction_up",
@@ -59,8 +61,8 @@ public class Level003 extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
-    Coordinate stone1C = customPoints().get(0);
-    Coordinate stone2C = customPoints().get(1);
+    Coordinate stone1C = getPoint(0).toCoordinate();
+    Coordinate stone2C = getPoint(1).toCoordinate();
     Game.add(MiscFactory.stone(stone1C.toPoint()));
     Game.add(MiscFactory.stone(stone2C.toPoint()));
 

@@ -2,11 +2,11 @@ package level.produs;
 
 import core.Game;
 import core.level.elements.tile.DoorTile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
-import java.util.List;
+import core.utils.Point;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -19,10 +19,11 @@ public class Level018 extends BlocklyLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level018(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 18");
+  public Level018(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 18");
     this.blockBlocklyElement(
         // Inventar und Charakter
         "drop_item",

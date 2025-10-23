@@ -4,11 +4,11 @@ import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
-import java.util.List;
+import core.utils.Point;
+import java.util.Map;
 import level.AdvancedLevel;
 
 /**
@@ -28,11 +28,11 @@ public class AiMazeLevel extends AdvancedLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
   public AiMazeLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "AiMaze");
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "AiMaze");
   }
 
   @Override

@@ -49,11 +49,11 @@ public class ArrayCreateLevel extends AdvancedLevel {
    *
    * @param layout Das Layout des Levels.
    * @param designLabel Das Design-Label des Levels.
-   * @param customPoints Eine Liste von benutzerdefinierten Punkten.
+   * @param namedPoints Eine Liste von benutzerdefinierten Punkten.
    */
   public ArrayCreateLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Array-Erstellung");
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Array-Erstellung");
   }
 
   @Override

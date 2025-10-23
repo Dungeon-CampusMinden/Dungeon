@@ -1,12 +1,12 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.Point;
 import entities.monster.BlocklyMonster;
-import java.util.List;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -23,10 +23,11 @@ public class Level002 extends BlocklyLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level002(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 2");
+  public Level002(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 2");
     this.blockBlocklyElement(
         // Richtungen
         "direction_up",
@@ -62,15 +63,15 @@ public class Level002 extends BlocklyLevel {
         .attackRange(3)
         .viewDirection(Direction.LEFT)
         .addToGame()
-        .build(customPoints().getFirst());
+        .build(getPoint(0));
 
-    customPoints().remove(0);
+    removeNamedPoint("Point0");
 
     BlocklyMonster.Builder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder().attackRange(0);
-    customPoints()
+    namedPoints()
         .forEach(
-            coordinate -> {
-              hedgehogBuilder.addToGame().build(coordinate);
+            (name, point) -> {
+              hedgehogBuilder.addToGame().build(point);
             });
   }
 

@@ -1,6 +1,6 @@
 package level.utils;
 
-import core.level.utils.Coordinate;
+import core.utils.Point;
 
 /**
  * The Teleporter class represents a teleporter in the game.
@@ -12,10 +12,10 @@ import core.level.utils.Coordinate;
 public class Teleporter {
 
   /** The location from which the teleporter transports the player. */
-  private final Coordinate from;
+  private final Point from;
 
   /** The location to which the teleporter transports the player. */
-  private final Coordinate to;
+  private final Point to;
 
   /** Indicates whether the teleporter is one-way (true) or two-way (false). */
   private final boolean isOneWay;
@@ -27,7 +27,7 @@ public class Teleporter {
    * @param to The location to which the teleporter transports the player.
    * @param isOneWay Indicates whether the teleporter is one-way (true) or two-way (false).
    */
-  public Teleporter(Coordinate from, Coordinate to, boolean isOneWay) {
+  public Teleporter(Point from, Point to, boolean isOneWay) {
     this.from = from;
     this.to = to;
     this.isOneWay = isOneWay;
@@ -39,7 +39,7 @@ public class Teleporter {
    * @param from The location from which the teleporter transports the player.
    * @param to The location to which the teleporter transports the player.
    */
-  public Teleporter(Coordinate from, Coordinate to) {
+  public Teleporter(Point from, Point to) {
     this(from, to, false);
   }
 
@@ -48,7 +48,7 @@ public class Teleporter {
    *
    * @return The 'from' location of the teleporter.
    */
-  public Coordinate from() {
+  public Point from() {
     return from;
   }
 
@@ -57,7 +57,7 @@ public class Teleporter {
    *
    * @return The 'to' location of the teleporter.
    */
-  public Coordinate to() {
+  public Point to() {
     return to;
   }
 
@@ -80,13 +80,17 @@ public class Teleporter {
    * @param currentPos The current location.
    * @return The current destination of the teleporter, or null if there is no valid destination.
    */
-  public Coordinate getCurrentDestination(Coordinate currentPos) {
-    if (currentPos.equals(from)) {
+  public Point getCurrentDestination(Point currentPos) {
+    if (positionEquals(currentPos, from)) {
       return to;
-    } else if (currentPos.equals(to) && !isOneWay) {
+    } else if (positionEquals(currentPos, to) && !isOneWay) {
       return from;
     }
     return null;
+  }
+
+  private boolean positionEquals(Point p1, Point p2) {
+    return p1.toCoordinate().equals(p2.toCoordinate());
   }
 
   /**

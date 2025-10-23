@@ -9,10 +9,10 @@ import core.Game;
 import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import java.util.List;
+import core.utils.Point;
+import java.util.Map;
 
 /**
  * The first level of the coop Dungeon.
@@ -35,10 +35,10 @@ public class Level01 extends DungeonLevel {
    *
    * @param layout The layout of the level.
    * @param designLabel The design label of the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level01(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Coop 1");
+  public Level01(LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Coop 1");
   }
 
   @Override
@@ -51,18 +51,18 @@ public class Level01 extends DungeonLevel {
   }
 
   private void setupLever() {
-    Entity l = LeverFactory.pressurePlate(customPoints.get(0).toPoint());
+    Entity l = LeverFactory.pressurePlate(getPoint(0));
     Game.add(l);
     l1 = l.fetch(LeverComponent.class).get();
 
-    l = LeverFactory.pressurePlate(customPoints.get(1).toPoint());
+    l = LeverFactory.pressurePlate(getPoint(1));
     Game.add(l);
     l2 = l.fetch(LeverComponent.class).get();
 
-    l = LeverFactory.createTimedLever(customPoints.get(2).toPoint(), DELAY_MILLIS);
+    l = LeverFactory.createTimedLever(getPoint(2), DELAY_MILLIS);
     l3 = l.fetch(LeverComponent.class).get();
     Game.add(l);
-    l = LeverFactory.createTimedLever(customPoints.get(3).toPoint(), DELAY_MILLIS);
+    l = LeverFactory.createTimedLever(getPoint(3), DELAY_MILLIS);
     Game.add(l);
     l4 = l.fetch(LeverComponent.class).get();
   }

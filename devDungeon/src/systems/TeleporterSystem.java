@@ -5,7 +5,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
-import core.level.utils.Coordinate;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,7 +22,7 @@ public class TeleporterSystem extends System {
   // A set of all teleporters in the game.
   private final Set<Teleporter> teleporters = new HashSet<>();
 
-  private Coordinate lastHeroPos = new Coordinate(0, 0);
+  private Point lastHeroPos = new Point(0, 0);
 
   // A flag indicating whether the hero has just teleported.
   private boolean justTeleported = false;
@@ -39,11 +39,11 @@ public class TeleporterSystem extends System {
     }
 
     if (!heroMoved()) return; // Only consider teleporting if the hero has moved
-    this.lastHeroPos = EntityUtils.getHeroCoordinate();
+    this.lastHeroPos = EntityUtils.getHeroPosition();
     if (lastHeroPos == null) {
       return;
     }
-    Coordinate destination = null;
+    Point destination = null;
     for (Teleporter teleporter : teleporters) {
       destination = teleporter.getCurrentDestination(lastHeroPos);
       if (destination != null) {
@@ -66,7 +66,7 @@ public class TeleporterSystem extends System {
    * @return True if the hero has moved, false otherwise.
    */
   private boolean heroMoved() {
-    return lastHeroPos != null && !lastHeroPos.equals(EntityUtils.getHeroCoordinate());
+    return lastHeroPos != null && !lastHeroPos.equals(EntityUtils.getHeroPosition());
   }
 
   /**
@@ -75,7 +75,7 @@ public class TeleporterSystem extends System {
    *
    * @param destination The destination to teleport the hero to.
    */
-  private void teleportHero(Coordinate destination) {
+  private void teleportHero(Point destination) {
     Entity hero = Game.hero().orElse(null);
     if (hero == null) {
       return;
@@ -83,7 +83,7 @@ public class TeleporterSystem extends System {
     PositionComponent heroPosition =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    heroPosition.position(destination.toPoint());
+    heroPosition.position(destination);
     this.justTeleported = true;
   }
 

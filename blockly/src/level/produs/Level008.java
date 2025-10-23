@@ -10,9 +10,10 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
-import java.util.List;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -32,10 +33,11 @@ public class Level008 extends BlocklyLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level008(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 8");
+  public Level008(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 8");
     this.blockBlocklyElement(
         // Schleifen
         "while_loop",
@@ -62,8 +64,8 @@ public class Level008 extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
 
-    Entity s1 = LeverFactory.pressurePlate(customPoints().get(1).toPoint());
-    Entity s2 = LeverFactory.createLever(customPoints().get(2).toPoint());
+    Entity s1 = LeverFactory.pressurePlate(getPoint(1));
+    Entity s2 = LeverFactory.createLever(getPoint(2));
 
     switch1 =
         s1.fetch(LeverComponent.class)
@@ -85,7 +87,7 @@ public class Level008 extends BlocklyLevel {
     exit = (ExitTile) Game.endTile().orElseThrow();
     exit.close();
 
-    Game.add(MiscFactory.stone(customPoints().get(0).toPoint()));
+    Game.add(MiscFactory.stone(getPoint(0)));
   }
 
   @Override
