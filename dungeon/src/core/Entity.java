@@ -2,9 +2,9 @@ package core;
 
 import core.game.ECSManagment;
 import core.utils.EntityIdProvider;
+import core.utils.logging.DungeonLogger;
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * @see EntityIdProvider
  */
 public final class Entity implements Comparable<Entity> {
-  private static final Logger LOGGER = Logger.getLogger(Entity.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Entity.class);
   private final int id;
   private final HashMap<Class<? extends Component>, Component> components;
   private String name;

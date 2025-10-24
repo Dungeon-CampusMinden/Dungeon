@@ -22,10 +22,8 @@ import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.logging.Logger;
+import core.utils.logging.DungeonLogger;
+import java.util.*;
 
 /**
  * The Dungeon-GameLoop.
@@ -39,7 +37,7 @@ import java.util.logging.Logger;
  * <p>All API methods can also be accessed via the {@link core.Game} class.
  */
 public final class GameLoop extends ScreenAdapter {
-  private static final Logger LOGGER = Logger.getLogger(GameLoop.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(GameLoop.class);
   private static Stage stage;
   private boolean doSetup = true;
   private boolean newLevelWasLoadedInThisLoop = false;
@@ -76,7 +74,7 @@ public final class GameLoop extends ScreenAdapter {
         try {
           hero.ifPresent(this::placeOnLevelStart);
         } catch (MissingComponentException e) {
-          LOGGER.warning(e.getMessage());
+          LOGGER.warn(e.getMessage());
         }
         ECSManagment.allEntities()
             .filter(Entity::isPersistent)
@@ -233,8 +231,7 @@ public final class GameLoop extends ScreenAdapter {
             pc -> {
               Game.startTile()
                   .ifPresentOrElse(
-                      pc::position,
-                      () -> LOGGER.warning("No start tile found for the current level"));
+                      pc::position, () -> LOGGER.warn("No start tile found for the current level"));
               pc.viewDirection(Direction.DOWN); // look down by default
             });
 

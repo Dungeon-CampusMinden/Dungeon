@@ -7,6 +7,7 @@ import com.github.javaparser.ast.body.EnumConstantDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.logging.DungeonLogger;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +20,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 public class LanguageServer {
 
-  private static final Logger LOGGER = Logger.getLogger(LanguageServer.class.getName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LanguageServer.class);
   private static final JavaParser javaParser = new JavaParser();
   private static final Map<String, Class<?>> classMap =
       Map.of(
@@ -55,7 +55,7 @@ public class LanguageServer {
   public static String GenerateCompletionItems(String objectName) {
     Class<?> clazz = classMap.get(objectName);
     if (clazz == null) {
-      LOGGER.warning("Class not found for object name: " + objectName);
+      LOGGER.warn("Class not found for object name: " + objectName);
       return "[]";
     }
     return clazz.isEnum() ? GenerateEnumItems(clazz) : GenerateClassItems(clazz);
@@ -202,8 +202,8 @@ public class LanguageServer {
     Class<?>[] params = method.getParameterTypes();
 
     if (params.length != parameters.length) {
-      LOGGER.warning("Wrong number of parameters for method: " + method.getName());
-      LOGGER.warning(
+      LOGGER.warn("Wrong number of parameters for method: " + method.getName());
+      LOGGER.warn(
           "Expected: " + Arrays.toString(params) + ", Found: " + Arrays.toString(parameters));
       return method.getName() + "(?)";
     }
@@ -252,9 +252,9 @@ public class LanguageServer {
                                             parseJavadoc(comment.getContent()))));
               });
     } catch (IOException e) {
-      LOGGER.warning("Error reading class file: " + e.getMessage());
+      LOGGER.warn("Error reading class file: " + e.getMessage());
     } catch (Exception e) {
-      LOGGER.warning("Error parsing class file: " + e.getMessage());
+      LOGGER.warn("Error parsing class file: " + e.getMessage());
     }
     return classDocs;
   }

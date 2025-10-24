@@ -22,7 +22,6 @@ import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.Set;
-import java.util.logging.Level;
 import level.produs.*;
 import server.Server;
 import systems.BlocklyCommandExecuteSystem;
@@ -64,8 +63,6 @@ public class Client {
    * @throws IOException if textures can not be loaded.
    */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.WARNING);
-
     for (String arg : args) {
       if (arg.equalsIgnoreCase("web=true")) {
         runInWeb = true;
