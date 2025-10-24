@@ -55,6 +55,11 @@ public class MeleeAttackSkill extends Skill {
     this.hitbox = hitbox;
   }
 
+  /**
+   * Creates a new skill with the damage and preconfigured parameters.
+   *
+   * @param damage The damage the melee attack deals.
+   */
   public MeleeAttackSkill(int damage) {
     this(damage, DamageType.PHYSICAL, 500, Vector2.ZERO, Vector2.ONE);
   }
@@ -62,7 +67,7 @@ public class MeleeAttackSkill extends Skill {
   /**
    * Creates a short livid entity in the direction which the caster is looking at. The damage is
    * dealt via the collide component which uses the onCollideEnter to deal the damage. The damage
-   * takes the damagetyp into account. Removes itself after {@link #cooldown} milliseconds from the
+   * takes the damagetype into account. Removes itself after {@link #cooldown} milliseconds from the
    * game.
    *
    * @param caster The entity using the skill.
@@ -103,8 +108,8 @@ public class MeleeAttackSkill extends Skill {
 
               attack.add(attackPositionComponent);
               AttachmentComponent ac =
-                  new AttachmentComponent(attackPositionComponent, casterPositionComponent);
-              ac.setRotatingWithOrigin(true);
+                  new AttachmentComponent(
+                      Vector2.ZERO, attackPositionComponent, casterPositionComponent);
               attack.add(ac);
 
               CollideComponent collideComponent =
