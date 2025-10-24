@@ -1,33 +1,38 @@
 package core.utils.logging;
 
+import java.util.logging.Level;
+
 /**
  * Log levels for the Dungeon logging system.
  *
  * <p>Ordered from most verbose (TRACE) to least verbose (FATAL).
  */
 public enum DungeonLogLevel {
+  /** All log messages. */
+  ALL(Level.ALL),
+
   /** Highly detailed diagnostic information for tracing program execution. */
-  TRACE(100),
+  TRACE(CustomLogLevel.TRACE),
 
   /** Detailed information useful for debugging during development. */
-  DEBUG(200),
+  DEBUG(CustomLogLevel.DEBUG),
 
   /** General informational messages about application progress. */
-  INFO(400),
+  INFO(Level.INFO),
 
   /** Warning messages indicating potential issues. */
-  WARN(500),
+  WARN(Level.WARNING),
 
   /** Error messages indicating failures that allow the application to continue. */
-  ERROR(950),
+  ERROR(CustomLogLevel.ERROR),
 
   /** Critical errors that may cause the application to terminate. */
-  FATAL(1100);
+  FATAL(CustomLogLevel.FATAL);
 
-  private final int value;
+  private final Level julLevel;
 
-  DungeonLogLevel(int value) {
-    this.value = value;
+  DungeonLogLevel(Level julLevel) {
+    this.julLevel = julLevel;
   }
 
   /**
@@ -36,7 +41,7 @@ public enum DungeonLogLevel {
    * @return The numeric severity value.
    */
   public int value() {
-    return value;
+    return julLevel.intValue();
   }
 
   /**
@@ -46,6 +51,32 @@ public enum DungeonLogLevel {
    * @return True if this level should be logged.
    */
   public boolean isEnabled(DungeonLogLevel configuredLevel) {
-    return this.value >= configuredLevel.value;
+    return this.value() >= configuredLevel.value();
+  }
+
+  /**
+   * Convert this DungeonLogLevel to the corresponding java.util.logging.Level.
+   *
+   * @return The corresponding java.util.logging.Level.
+   */
+  public Level toJulLevel() {
+    return julLevel;
+  }
+
+  /**
+   * Custom log levels that extend {@link java.util.logging.Level} with additional severity levels.
+   */
+  private static class CustomLogLevel extends Level {
+    private static final Level FATAL = new CustomLogLevel("FATAL", 1100);
+
+    private static final Level ERROR = new CustomLogLevel("ERROR", 950);
+
+    private static final Level DEBUG = new CustomLogLevel("DEBUG", 200);
+
+    private static final Level TRACE = new CustomLogLevel("TRACE", 100);
+
+    private CustomLogLevel(String name, int value) {
+      super(name, value);
+    }
   }
 }

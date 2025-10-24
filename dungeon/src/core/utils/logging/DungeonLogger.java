@@ -1,7 +1,6 @@
 package core.utils.logging;
 
 import java.util.logging.FileHandler;
-import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
@@ -324,28 +323,28 @@ public final class DungeonLogger {
   // ===== Internal logging methods =====
 
   private void log(DungeonLogLevel level, String msg) {
-    if (!baseLogger.isLoggable(toJulLevel(level))) {
+    if (!baseLogger.isLoggable(level.toJulLevel())) {
       return;
     }
-    LogRecord record = new LogRecord(toJulLevel(level), msg);
-    record.setLoggerName(baseLogger.getName());
-    record.setSourceClassName(className);
-    baseLogger.log(record);
+    LogRecord logRecord = new LogRecord(level.toJulLevel(), msg);
+    logRecord.setLoggerName(baseLogger.getName());
+    logRecord.setSourceClassName(className);
+    baseLogger.log(logRecord);
   }
 
   private void log(DungeonLogLevel level, String msg, Throwable throwable) {
-    if (!baseLogger.isLoggable(toJulLevel(level))) {
+    if (!baseLogger.isLoggable(level.toJulLevel())) {
       return;
     }
-    LogRecord record = new LogRecord(toJulLevel(level), msg);
-    record.setLoggerName(baseLogger.getName());
-    record.setSourceClassName(className);
-    record.setThrown(throwable);
-    baseLogger.log(record);
+    LogRecord logRecord = new LogRecord(level.toJulLevel(), msg);
+    logRecord.setLoggerName(baseLogger.getName());
+    logRecord.setSourceClassName(className);
+    logRecord.setThrown(throwable);
+    baseLogger.log(logRecord);
   }
 
   private void log(DungeonLogLevel level, String format, Object arg) {
-    if (!baseLogger.isLoggable(toJulLevel(level))) {
+    if (!baseLogger.isLoggable(level.toJulLevel())) {
       return;
     }
     String msg = formatMessage(format, arg);
@@ -353,7 +352,7 @@ public final class DungeonLogger {
   }
 
   private void log(DungeonLogLevel level, String format, Object arg1, Object arg2) {
-    if (!baseLogger.isLoggable(toJulLevel(level))) {
+    if (!baseLogger.isLoggable(level.toJulLevel())) {
       return;
     }
 
@@ -368,7 +367,7 @@ public final class DungeonLogger {
   }
 
   private void log(DungeonLogLevel level, String format, Object... args) {
-    if (!baseLogger.isLoggable(toJulLevel(level))) {
+    if (!baseLogger.isLoggable(level.toJulLevel())) {
       return;
     }
 
@@ -420,23 +419,6 @@ public final class DungeonLogger {
     }
 
     return result.toString();
-  }
-
-  /**
-   * Convert DungeonLogLevel to java.util.logging.Level.
-   *
-   * @param level The DungeonLogLevel.
-   * @return The corresponding java.util.logging.Level.
-   */
-  private Level toJulLevel(DungeonLogLevel level) {
-    return switch (level) {
-      case TRACE -> CustomLogLevel.TRACE;
-      case DEBUG -> CustomLogLevel.DEBUG;
-      case INFO -> Level.INFO;
-      case WARN -> Level.WARNING;
-      case ERROR -> CustomLogLevel.ERROR;
-      case FATAL -> CustomLogLevel.FATAL;
-    };
   }
 
   /**
