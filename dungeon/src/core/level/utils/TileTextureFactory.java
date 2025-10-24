@@ -43,11 +43,6 @@ public class TileTextureFactory {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");
     }
 
-    path = findTexturePathOuterCorner(levelPart);
-    if (path != null) {
-      return new SimpleIPath(prefixPath + path.pathString() + ".png");
-    }
-
     return new SimpleIPath(prefixPath + "floor/empty.png");
   }
 
@@ -445,19 +440,6 @@ public class TileTextureFactory {
     }
   }
 
-  private static IPath findTexturePathOuterCorner(LevelPart levelPart) {
-    if (isBottomLeftOuterCorner(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/corner_bottom_left");
-    } else if (isBottomRightOuterCorner(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/corner_bottom_right");
-    } else if (isUpperRightOuterCorner(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/corner_upper_right");
-    } else if (isUpperLeftOuterCorner(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/corner_upper_left");
-    }
-    return null;
-  }
-
   private static IPath findTexturePathTJunction(LevelPart lp) {
     Coordinate p = lp.position();
     LevelElement[][] layout = lp.layout();
@@ -807,74 +789,6 @@ public class TileTextureFactory {
   }
 
   /**
-   * Checks if tile with coordinate p should be a bottomLeftOuterCorner wall. Tile has to have walls
-   * above and to the right and an accessible tile to the upper right.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if all conditions are met
-   */
-  private static boolean isBottomLeftOuterCorner(Coordinate p, LevelElement[][] layout) {
-    return aboveIsWall(p, layout)
-        && rightIsWall(p, layout)
-        && !leftIsWall(p, layout)
-        && !leftIsDoor(p, layout)
-        && upperRightIsInside(p, layout)
-        && !belowIsWall(p, layout);
-  }
-
-  /**
-   * Checks if tile with coordinate p should be a bottomRightOuterCorner wall. Tile has to have
-   * walls above and to the left and an accessible tile to the upper left.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if all conditions are met
-   */
-  private static boolean isBottomRightOuterCorner(Coordinate p, LevelElement[][] layout) {
-    return aboveIsWall(p, layout)
-        && leftIsWall(p, layout)
-        && !rightIsWall(p, layout)
-        && !rightIsDoor(p, layout)
-        && upperLeftIsInside(p, layout)
-        && !belowIsWall(p, layout);
-  }
-
-  /**
-   * Checks if tile with coordinate p should be a upperRightOuterCorner wall. Tile has to have walls
-   * below and to the left and an accessible tile to the bottom left.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if all conditions are met
-   */
-  private static boolean isUpperRightOuterCorner(Coordinate p, LevelElement[][] layout) {
-    return belowIsWall(p, layout)
-        && leftIsWall(p, layout)
-        && !rightIsWall(p, layout)
-        && !rightIsDoor(p, layout)
-        && bottomLeftIsInside(p, layout)
-        && !aboveIsWall(p, layout);
-  }
-
-  /**
-   * Checks if tile with coordinate p should be a upperLeftOuterCorner wall. Tile has to have walls
-   * below and to the right and an accessible tile to the bottom right.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if all conditions are met
-   */
-  private static boolean isUpperLeftOuterCorner(Coordinate p, LevelElement[][] layout) {
-    return belowIsWall(p, layout)
-        && rightIsWall(p, layout)
-        && !leftIsWall(p, layout)
-        && !leftIsDoor(p, layout)
-        && bottomRightIsInside(p, layout)
-        && !aboveIsWall(p, layout);
-  }
-
-  /**
    * Checks if tile with coordinate p should be a bottomLeftInnerCorner wall. Tile has to have walls
    * above and to the right and inside tiles (accessible or hole) either to the left and bottom
    * right, below and to the upper left or below and to the left.
@@ -1054,12 +968,16 @@ public class TileTextureFactory {
   }
 
   private static boolean rendersEmptyAt(Coordinate p, LevelElement[][] layout) {
-    if (get(layout, p.x(), p.y()) == LevelElement.PIT) return true;
+    LevelElement here = get(layout, p.x(), p.y());
+    if (here == LevelElement.PIT || here == LevelElement.SKIP || here == LevelElement.HOLE)
+      return true;
     return rendersEmptyAxis(p, layout, true);
   }
 
   private static boolean rendersEmptyUDAt(Coordinate p, LevelElement[][] layout) {
-    if (get(layout, p.x(), p.y()) == LevelElement.PIT) return true;
+    LevelElement here = get(layout, p.x(), p.y());
+    if (here == LevelElement.PIT || here == LevelElement.SKIP || here == LevelElement.HOLE)
+      return true;
     return rendersEmptyAxis(p, layout, false);
   }
 
@@ -1446,6 +1364,21 @@ public class TileTextureFactory {
   }
 
   private static boolean isInnerEmptyCorner(Coordinate p, LevelElement[][] layout, int sx, int sy) {
+    if (!isInnerEmptyCornerBase(p, layout, sx, sy)) return false;
+
+    Coordinate neighborX = new Coordinate(p.x() - sx, p.y());
+    if (isInsideLayout(neighborX.x(), neighborX.y(), layout)
+        && isInnerEmptyCornerBase(neighborX, layout, sx, sy)) return false;
+
+    Coordinate neighborY = new Coordinate(p.x(), p.y() + sy);
+    if (isInsideLayout(neighborY.x(), neighborY.y(), layout)
+        && isInnerEmptyCornerBase(neighborY, layout, sx, sy)) return false;
+
+    return true;
+  }
+
+  private static boolean isInnerEmptyCornerBase(
+      Coordinate p, LevelElement[][] layout, int sx, int sy) {
     if (get(layout, p.x(), p.y()) != LevelElement.WALL) return false;
 
     Coordinate diag = new Coordinate(p.x() + sx, p.y() + sy);
@@ -1466,19 +1399,27 @@ public class TileTextureFactory {
   }
 
   private static boolean isBottomRightInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
-    return isInnerEmptyCorner(p, layout, 1, -1);
+    return isInnerEmptyCorner(p, layout, 1, -1)
+        && !rightIsHole(p, layout)
+        && !belowIsHole(p, layout);
   }
 
   private static boolean isBottomLeftInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
-    return isInnerEmptyCorner(p, layout, -1, -1);
+    return isInnerEmptyCorner(p, layout, -1, -1)
+        && !leftIsHole(p, layout)
+        && !belowIsHole(p, layout);
   }
 
   private static boolean isUpperLeftInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
-    return isInnerEmptyCorner(p, layout, -1, 1);
+    return isInnerEmptyCorner(p, layout, -1, 1)
+        && !leftIsHole(p, layout)
+        && !aboveIsHole(p, layout);
   }
 
   private static boolean isUpperRightInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
-    return isInnerEmptyCorner(p, layout, 1, 1);
+    return isInnerEmptyCorner(p, layout, 1, 1)
+        && !rightIsHole(p, layout)
+        && !aboveIsHole(p, layout);
   }
 
   private static boolean forceDoubleCorner(
@@ -1583,7 +1524,7 @@ public class TileTextureFactory {
 
   private static boolean rendersEmptyLikeWallAt(Coordinate c, LevelElement[][] layout) {
     LevelElement e = get(layout, c.x(), c.y());
-    if (e == LevelElement.PIT) return true;
+    if (e == LevelElement.PIT || e == LevelElement.SKIP || e == LevelElement.HOLE) return true;
     if (e != LevelElement.WALL) return false;
     if (rendersEmptyAt(c, layout) || rendersEmptyUDAt(c, layout) || isStemCrossCenter(c, layout)) {
       return true;
@@ -1632,7 +1573,10 @@ public class TileTextureFactory {
   }
 
   private static boolean isFloorOrDoor(LevelElement e) {
-    return e == LevelElement.FLOOR || e == LevelElement.DOOR;
+    return e == LevelElement.FLOOR
+        || e == LevelElement.DOOR
+        || e == LevelElement.EXIT
+        || e == LevelElement.HOLE;
   }
 
   private static boolean isNotFloor(LevelElement e) {
