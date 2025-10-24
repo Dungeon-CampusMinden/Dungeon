@@ -111,7 +111,7 @@ public final class DungeonLoggerConfig {
      * @return This builder instance for method chaining.
      */
     public Builder consoleLevel(DungeonLogLevel level) {
-      this.consoleLevel = toJulLevel(level);
+      this.consoleLevel = level.toJulLevel();
       return this;
     }
 
@@ -133,7 +133,7 @@ public final class DungeonLoggerConfig {
      * @return This builder instance for method chaining.
      */
     public Builder fileLevel(DungeonLogLevel level) {
-      this.fileLevel = toJulLevel(level);
+      this.fileLevel = level.toJulLevel();
       return this;
     }
 
@@ -289,17 +289,6 @@ public final class DungeonLoggerConfig {
         System.err.println("Failed to create file handler: " + e.getMessage());
         e.printStackTrace();
       }
-    }
-
-    private Level toJulLevel(DungeonLogLevel level) {
-      return switch (level) {
-        case TRACE -> Level.FINEST;
-        case DEBUG -> Level.FINE;
-        case INFO -> Level.INFO;
-        case WARN -> Level.WARNING;
-        case ERROR -> Level.SEVERE;
-        case FATAL -> CustomLogLevel.FATAL;
-      };
     }
 
     private Level getMinLevel(Level level1, Level level2) {
