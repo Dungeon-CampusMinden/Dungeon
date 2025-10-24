@@ -13,6 +13,11 @@ public class TileTextureFactory {
    * @return Path to texture
    */
   public static IPath findTexturePath(LevelPart levelPart) {
+    IPath resolved = resolvePrimaryPath(levelPart);
+    return applyIsolatedWallFallback(levelPart, resolved);
+  }
+
+  private static IPath resolvePrimaryPath(LevelPart levelPart) {
     String prefixPath = "dungeon/" + levelPart.design().name().toLowerCase() + "/";
 
     IPath path = findTexturePathFloor(levelPart);
@@ -43,8 +48,48 @@ public class TileTextureFactory {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");
     }
 
-    // Error state
     return new SimpleIPath(prefixPath + "floor/empty.png");
+  }
+
+  private static IPath applyIsolatedWallFallback(LevelPart levelPart, IPath resolvedFullPath) {
+    if (resolvedFullPath == null) return resolvedFullPath;
+    String s = resolvedFullPath.pathString();
+    if (s != null && s.endsWith("/wall/cross.png")) return resolvedFullPath;
+
+    if (!isVisibleWallPath(resolvedFullPath)) return resolvedFullPath;
+
+    LevelElement[][] layout = levelPart.layout();
+    Coordinate p = levelPart.position();
+    int[][] dirs = new int[][] {{0, 1}, {0, -1}, {-1, 0}, {1, 0}};
+
+    boolean hasVisibleWallNeighbor = false;
+    for (int[] d : dirs) {
+      int nx = p.x() + d[0];
+      int ny = p.y() + d[1];
+      if (!isInsideLayout(nx, ny, layout)) continue;
+      LevelElement ne = get(layout, nx, ny);
+      if (ne == null) continue;
+      LevelPart neighbor = new LevelPart(ne, levelPart.design(), layout, new Coordinate(nx, ny));
+      IPath neighborPath = resolvePrimaryPath(neighbor);
+      if (isVisibleWallPath(neighborPath)) {
+        hasVisibleWallNeighbor = true;
+        break;
+      }
+    }
+
+    if (hasVisibleWallNeighbor) return resolvedFullPath;
+
+    String basePrefix = "dungeon/" + levelPart.design().name().toLowerCase() + "/";
+    return new SimpleIPath(basePrefix + "floor/empty.png");
+  }
+
+  private static boolean isVisibleWallPath(IPath fullPath) {
+    if (fullPath == null) return false;
+    String s = fullPath.pathString();
+    if (s == null) return false;
+    boolean isWall = s.contains("/wall/");
+    boolean isEmptyWall = s.endsWith("/wall/empty.png");
+    return isWall && !isEmptyWall;
   }
 
   /**
@@ -1009,10 +1054,12 @@ public class TileTextureFactory {
   }
 
   private static boolean rendersEmptyAt(Coordinate p, LevelElement[][] layout) {
+    if (get(layout, p.x(), p.y()) == LevelElement.PIT) return true;
     return rendersEmptyAxis(p, layout, true);
   }
 
   private static boolean rendersEmptyUDAt(Coordinate p, LevelElement[][] layout) {
+    if (get(layout, p.x(), p.y()) == LevelElement.PIT) return true;
     return rendersEmptyAxis(p, layout, false);
   }
 
@@ -1535,7 +1582,9 @@ public class TileTextureFactory {
   }
 
   private static boolean rendersEmptyLikeWallAt(Coordinate c, LevelElement[][] layout) {
-    if (get(layout, c.x(), c.y()) != LevelElement.WALL) return false;
+    LevelElement e = get(layout, c.x(), c.y());
+    if (e == LevelElement.PIT) return true;
+    if (e != LevelElement.WALL) return false;
     if (rendersEmptyAt(c, layout) || rendersEmptyUDAt(c, layout) || isStemCrossCenter(c, layout)) {
       return true;
     }
