@@ -4,6 +4,7 @@ import contrib.utils.components.ai.ISkillUser;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.projectileSkill.DamageProjectileSkill;
 import core.Entity;
+import core.Game;
 import core.utils.Direction;
 import core.utils.Point;
 import java.util.function.Consumer;
@@ -22,6 +23,7 @@ public class PelletLauncherBehaviour implements Consumer<Entity>, ISkillUser {
   private final Direction shootDirection;
   private DamageProjectileSkill projectileSkill;
   private long lastAttackTime = 0;
+  private String uniqueSkillName;
 
   /**
    * Creates a new {@code PelletLauncherBehaviour}.
@@ -33,7 +35,12 @@ public class PelletLauncherBehaviour implements Consumer<Entity>, ISkillUser {
    * @param skill the {@link DamageProjectileSkill} used to shoot the projectile (energyPellet).
    */
   public PelletLauncherBehaviour(
-      Point spawnPoint, float attackRange, Direction shootDirection, Skill skill) {
+      String uniqueSkillName,
+      Point spawnPoint,
+      float attackRange,
+      Direction shootDirection,
+      Skill skill) {
+    this.uniqueSkillName = uniqueSkillName;
     this.spawnPoint = spawnPoint;
     this.attackRange = attackRange;
     this.shootDirection = shootDirection;
@@ -78,8 +85,15 @@ public class PelletLauncherBehaviour implements Consumer<Entity>, ISkillUser {
   private void launchEnergyPellet(Entity entity) {
     if (projectileSkill == null) return;
 
-    // TODO: hier zusätzlich prüfen ob sich noch ein EnergyPellet in der Spielwelt befindet (immer
-    // nur eins gleichzeitig)
+    String projectileEntityName = uniqueSkillName + "_projectile";
+    Entity projectileEntity =
+        Game.allEntities()
+            .filter(e -> e.name().equals(projectileEntityName))
+            .findFirst()
+            .orElse(null);
+    // only one projectile at the same time
+    if (projectileEntity != null) return;
+
     long now = System.currentTimeMillis();
     if (now - lastAttackTime >= projectileSkill.cooldown()) {
       useSkill(projectileSkill, entity);

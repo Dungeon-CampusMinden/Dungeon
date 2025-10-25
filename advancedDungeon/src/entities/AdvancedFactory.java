@@ -12,6 +12,7 @@ import contrib.components.SpikyComponent;
 import contrib.utils.ICommand;
 import contrib.utils.components.health.DamageType;
 import core.Component;
+import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
@@ -58,6 +59,7 @@ public class AdvancedFactory {
 
   private static final SimpleIPath PELLET_LAUNCHER = new SimpleIPath("portal/pellet_launcher");
   private static final SimpleIPath PELLET_CATCHER = new SimpleIPath("portal/pellet_catcher");
+  private static int launcherNumber = 0;
 
   /**
    * Creates a laser grid entity at the given position.
@@ -361,26 +363,31 @@ public class AdvancedFactory {
    *
    * @param position the position of the pellet launcher
    * @param direction the direction the pellet launcher is facing.
+   * @param attackRange Maximum travel range of the energy pellet.
    * @return a new energyPelletLauncher entity.
    */
   public static Entity energyPelletLauncher(
       Point position, Direction direction, float attackRange) {
-    Entity launcher = new Entity("energyPelletLauncher");
+    launcherNumber++;
+    String uniqueName = "energyPelletLauncher_" + launcherNumber;
+    Entity launcher = new Entity(uniqueName);
     launcher.add(new PositionComponent(position));
     DrawComponent dc = chooseTexture(direction, PELLET_LAUNCHER);
     launcher.add(dc);
     launcher.add(new CollideComponent());
+    String uniqueSkillName = uniqueName + "_skill";
+    Skill energyPelletSkill =
+        new EnergyPelletSkill(
+            uniqueSkillName,
+            SkillTools::heroPositionAsPoint,
+            EnergyPelletSkill.COOLDOWN,
+            attackRange);
     launcher.add(
         new AIComponent(
             entity -> {},
             new PelletLauncherBehaviour(
-                position,
-                attackRange,
-                direction,
-                new EnergyPelletSkill(
-                    SkillTools::heroPositionAsPoint, EnergyPelletSkill.COOLDOWN, attackRange)),
+                uniqueSkillName, position, attackRange, direction, energyPelletSkill),
             entity -> false));
-    // TODO: PelletLauncherBehaviour soll nur ein Projektil gleichzeitig schießen können
 
     return launcher;
   }
@@ -401,7 +408,7 @@ public class AdvancedFactory {
 
     TriConsumer<Entity, Entity, Direction> action =
         (self, other, direction) -> {
-          if (other.name().equals("ENERGY_PELLET_projectile")) {
+          if (other.name().matches("energyPelletLauncher_\\d+_skill_projectile")) {
             self.fetch(ToggleableComponent.class).ifPresent(ToggleableComponent::toggle);
             Game.remove(other);
           }
