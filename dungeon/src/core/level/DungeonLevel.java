@@ -1,5 +1,6 @@
 package core.level;
 
+import contrib.entities.deco.Deco;
 import contrib.utils.level.ITickable;
 import core.level.elements.ILevel;
 import core.level.elements.astar.TileConnection;
@@ -9,10 +10,12 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
+import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import java.util.*;
-import java.util.stream.IntStream;
+import java.util.stream.Collectors;
 
 /**
  * Basic 2D-Matrix Tile-based level.
@@ -27,7 +30,9 @@ import java.util.stream.IntStream;
  */
 public class DungeonLevel implements ILevel, ITickable {
 
-  protected final List<Coordinate> customPoints = new ArrayList<>();
+  protected final Map<String, Point> namedPoints = new HashMap<>();
+  protected final List<Tuple<Deco, Point>> decorations = new ArrayList<>();
+
   private static int levelNameSuffix = 1;
   protected String levelName;
   private static final Vector2[] CONNECTION_OFFSETS = {
@@ -72,14 +77,16 @@ public class DungeonLevel implements ILevel, ITickable {
    * @param layout The layout of the level, represented as a 2D array of LevelElements.
    * @param designLabel The design label of the level.
    * @param customPoints A list of custom points to be added to the level.
+   * @param decorations A list of decorations to be added to the level.
    * @param levelName The name of the level. (can be empty)
    */
   public DungeonLevel(
       LevelElement[][] layout,
       DesignLabel designLabel,
-      List<Coordinate> customPoints,
+      Map<String, Point> customPoints,
+      List<Tuple<Deco, Point>> decorations,
       String levelName) {
-    this(layout, designLabel, customPoints);
+    this(layout, designLabel, customPoints, decorations);
     this.levelName = levelName;
   }
 
@@ -88,12 +95,35 @@ public class DungeonLevel implements ILevel, ITickable {
    *
    * @param layout The layout of the level, represented as a 2D array of LevelElements.
    * @param designLabel The design label of the level.
-   * @param customPoints A list of custom points to be added to the level.
+   * @param namedPoints A list of custom points to be added to the level.
+   * @param decorations A list of decorations to be added to the level.
    */
   public DungeonLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+      LevelElement[][] layout,
+      DesignLabel designLabel,
+      Map<String, Point> namedPoints,
+      List<Tuple<Deco, Point>> decorations) {
     this(layout, designLabel);
-    this.customPoints.addAll(customPoints);
+    this.namedPoints.putAll(namedPoints);
+    this.decorations.addAll(decorations);
+  }
+
+  /**
+   * Constructs a new DevDungeonLevel with the given layout, design label, and custom points.
+   *
+   * @param layout The layout of the level, represented as a 2D array of LevelElements.
+   * @param designLabel The design label of the level.
+   * @param namedPoints A list of custom points to be added to the level.
+   * @param levelName The name of the level. (can be empty)
+   */
+  public DungeonLevel(
+      LevelElement[][] layout,
+      DesignLabel designLabel,
+      Map<String, Point> namedPoints,
+      String levelName) {
+    this(layout, designLabel);
+    this.namedPoints.putAll(namedPoints);
+    this.levelName = levelName;
   }
 
   /**
@@ -292,7 +322,6 @@ public class DungeonLevel implements ILevel, ITickable {
    * @see ITickable
    */
   protected void onFirstTick() {}
-  ;
 
   /**
    * Called when the level is ticked.
@@ -301,7 +330,6 @@ public class DungeonLevel implements ILevel, ITickable {
    * @see ITickable
    */
   protected void onTick() {}
-  ;
 
   @Override
   public void onTick(boolean isFirstTick) {
@@ -310,34 +338,129 @@ public class DungeonLevel implements ILevel, ITickable {
   }
 
   /**
-   * Gets the custom points that are within the given bounds.
+   * Returns a map of named points in this level.
    *
-   * @param start The start index of the custom points list.
-   * @param end The end index of the custom points list. (inclusive)
-   * @return An array of custom points within the given bounds.
+   * @return a map of point names and their coordinates
    */
-  protected Coordinate[] getCoordinates(int start, int end) {
-    return IntStream.rangeClosed(start, end)
-        .mapToObj(customPoints()::get)
-        .toArray(Coordinate[]::new);
+  @Override
+  public Map<String, Point> namedPoints() {
+    return namedPoints;
   }
 
-  @Override
-  public List<Coordinate> customPoints() {
-    // TODO: SMELL – This returns the internal list. Ideally, we should return a copy to avoid
-    // exposing internal state.
-    // However, in Produs we remove custom points during level creation to simplify iteration, which
-    // wouldn't work with a copy.
-    return customPoints;
+  /**
+   * Returns a list of decorative elements placed in the level.
+   *
+   * @return a list of decoration tuples
+   */
+  public List<Tuple<Deco, Point>> decorations() {
+    return decorations;
   }
 
-  @Override
-  public void addCustomPoint(Coordinate point) {
-    customPoints.add(point);
+  /**
+   * Returns a specific point by its legacy numeric index (e.g., "Point0", "Point1").
+   *
+   * @param legacyIndex the numeric index of the point
+   * @return the point associated with the legacy index, or null if not found
+   */
+  public Point getPoint(int legacyIndex) {
+    return namedPoints.get("Point" + legacyIndex);
   }
 
-  @Override
-  public void removeCustomPoint(Coordinate point) {
-    customPoints.remove(point);
+  /**
+   * Returns a specific named point by its key.
+   *
+   * @param name the name of the point
+   * @return the point associated with the given name, or null if not found
+   */
+  public Point getPoint(String name) {
+    return namedPoints.get(name);
+  }
+
+  /**
+   * Get an array of points with the given base name from start to end (inclusive).
+   *
+   * @param baseName the base name of the points
+   * @param start the starting index
+   * @param end the ending index
+   * @return the array of points
+   */
+  public Point[] getPoints(String baseName, int start, int end) {
+    Point[] points = new Point[end - start + 1];
+    for (int i = start; i <= end; i++) {
+      points[i - start] = getPoint(baseName + i);
+    }
+    return points;
+  }
+
+  /**
+   * Get an array of points using legacy numbering (e.g., Point0, Point1).
+   *
+   * @param legacyStart the starting index
+   * @param legacyEnd the ending index
+   * @return the array of points
+   */
+  public Point[] getPoints(int legacyStart, int legacyEnd) {
+    return getPoints("Point", legacyStart, legacyEnd);
+  }
+
+  /**
+   * Returns the highest existing numbered point index for the given base name.
+   *
+   * @param baseName the base name to search for
+   * @return the highest numbered index, or -1 if none exist
+   */
+  public int getHighestPointNumber(String baseName) {
+    int highestNumber = -1;
+    while (namedPoints.containsKey(baseName + (highestNumber + 1))) {
+      highestNumber++;
+    }
+    return highestNumber;
+  }
+
+  /**
+   * Returns a list of all points with their corresponding numeric indices for the given base name.
+   *
+   * @param baseName the base name to search for
+   * @return a list of point-index tuples
+   */
+  public List<Tuple<Point, Integer>> listPointsIndexed(String baseName) {
+    ArrayList<Tuple<Point, Integer>> toRet = new ArrayList<>();
+    int i = 0;
+    while (namedPoints.containsKey(baseName + i)) {
+      toRet.add(new Tuple(getPoint(baseName + i), i));
+      i++;
+    }
+    return toRet;
+  }
+
+  /**
+   * Returns a list of all points associated with the given base name.
+   *
+   * @param baseName the base name to search for
+   * @return a list of matching points
+   */
+  public List<Point> listPoints(String baseName) {
+    return listPointsIndexed(baseName).stream().map(Tuple::a).collect(Collectors.toList());
+  }
+
+  /**
+   * Adds a named point to the level.
+   *
+   * @param name the name of the point
+   * @param position the position of the point
+   * @return the previous point associated with the name, or null if none existed
+   */
+  public Point addNamedPoint(String name, Point position) {
+    return namedPoints.put(name, position);
+  }
+
+  /**
+   * Removes a named point from the level.
+   *
+   * @param name the name of the point to remove
+   * @return the removed point, or null if none existed
+   */
+  public Point removeNamedPoint(String name) {
+    return namedPoints.remove(name);
   }
 }

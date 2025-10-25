@@ -10,10 +10,10 @@ import core.Game;
 import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import java.util.List;
+import core.utils.Point;
+import java.util.Map;
 
 /**
  * The second level of the Coop Dungeon.
@@ -33,10 +33,10 @@ public class Level02 extends DungeonLevel {
    *
    * @param layout The layout of the level.
    * @param designLabel The design label of the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level02(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Coop 2");
+  public Level02(LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Coop 2");
   }
 
   @Override
@@ -45,8 +45,8 @@ public class Level02 extends DungeonLevel {
     setupCrateRiddle();
     setupExitLevers();
 
-    door1 = (DoorTile) Game.tileAt(customPoints.get(12)).orElse(null);
-    door2 = (DoorTile) Game.tileAt(customPoints.get(13)).orElse(null);
+    door1 = (DoorTile) Game.tileAt(getPoint(12)).orElse(null);
+    door2 = (DoorTile) Game.tileAt(getPoint(13)).orElse(null);
     door1.close();
     door2.close();
     exit = (ExitTile) Game.randomTile(LevelElement.EXIT).get();
@@ -54,41 +54,33 @@ public class Level02 extends DungeonLevel {
   }
 
   private void spawnCatapults() {
-    Game.add(
-        MiscFactory.catapult(
-            customPoints().get(0).toPoint(), customPoints().get(1).toPoint(), 10f));
-    Game.add(MiscFactory.marker(customPoints.get(1).toPoint()));
-    Game.add(
-        MiscFactory.catapult(
-            customPoints().get(4).toPoint(), customPoints().get(5).toPoint(), 10f));
-    Game.add(MiscFactory.marker(customPoints.get(5).toPoint()));
+    Game.add(MiscFactory.catapult(getPoint(0), getPoint(1), 10f));
+    Game.add(MiscFactory.marker(getPoint(1)));
+    Game.add(MiscFactory.catapult(getPoint(4), getPoint(5), 10f));
+    Game.add(MiscFactory.marker(getPoint(5)));
 
-    Game.add(
-        MiscFactory.catapult(
-            customPoints().get(2).toPoint(), customPoints().get(3).toPoint(), 10f));
-    Game.add(MiscFactory.marker(customPoints.get(3).toPoint()));
+    Game.add(MiscFactory.catapult(getPoint(2), getPoint(3), 10f));
+    Game.add(MiscFactory.marker(getPoint(3)));
 
-    Game.add(
-        MiscFactory.catapult(
-            customPoints().get(8).toPoint(), customPoints().get(9).toPoint(), 10f));
-    Game.add(MiscFactory.marker(customPoints.get(9).toPoint()));
+    Game.add(MiscFactory.catapult(getPoint(8), getPoint(9), 10f));
+    Game.add(MiscFactory.marker(getPoint(9)));
   }
 
   private void setupCrateRiddle() {
-    Entity plate = LeverFactory.pressurePlate(customPoints.get(7).toPoint(), CRATE_MASS);
+    Entity plate = LeverFactory.pressurePlate(getPoint(7), CRATE_MASS);
     p = plate.fetch(LeverComponent.class).get();
     Game.add(plate);
-    Entity plate2 = LeverFactory.pressurePlate(customPoints.get(14).toPoint());
+    Entity plate2 = LeverFactory.pressurePlate(getPoint(14));
     p2 = plate2.fetch(LeverComponent.class).get();
     Game.add(plate2);
-    Entity crate = MiscFactory.crate(customPoints.get(6).toPoint(), CRATE_MASS);
+    Entity crate = MiscFactory.crate(getPoint(6), CRATE_MASS);
     crate.add(new CatapultableComponent(entity -> {}, entity -> {}));
     Game.add(crate);
   }
 
   private void setupExitLevers() {
-    Entity lever1 = LeverFactory.createTimedLever(customPoints.get(10).toPoint(), DELAY_MILLIS);
-    Entity lever2 = LeverFactory.createTimedLever(customPoints.get(11).toPoint(), DELAY_MILLIS);
+    Entity lever1 = LeverFactory.createTimedLever(getPoint(10), DELAY_MILLIS);
+    Entity lever2 = LeverFactory.createTimedLever(getPoint(11), DELAY_MILLIS);
     Game.add(lever1);
     Game.add(lever2);
     l1 = lever1.fetch(LeverComponent.class).get();

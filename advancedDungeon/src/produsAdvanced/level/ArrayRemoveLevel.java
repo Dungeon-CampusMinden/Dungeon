@@ -50,11 +50,11 @@ public class ArrayRemoveLevel extends AdvancedLevel {
    *
    * @param layout Das Layout des Levels, bestehend aus LevelElementen.
    * @param designLabel Das Design-Label für das Level.
-   * @param customPoints Eine Liste von benutzerdefinierten Punkten für das Level.
+   * @param namedPoints Eine Liste von benutzerdefinierten Punkten für das Level.
    */
   public ArrayRemoveLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Array-Entfernen");
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Array-Entfernen");
   }
 
   @Override

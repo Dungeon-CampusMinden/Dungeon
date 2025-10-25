@@ -5,10 +5,10 @@ import contrib.hud.DialogUtils;
 import core.Game;
 import core.System;
 import core.level.DungeonLevel;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.IVoidFunction;
+import core.utils.Point;
 import java.util.*;
 import systems.BlocklyCommandExecuteSystem;
 
@@ -40,15 +40,15 @@ public abstract class BlocklyLevel extends DungeonLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    * @param name The name of the level.
    */
   public BlocklyLevel(
       LevelElement[][] layout,
       DesignLabel designLabel,
-      List<Coordinate> customPoints,
+      Map<String, Point> namedPoints,
       String name) {
-    super(layout, designLabel, customPoints, name);
+    super(layout, designLabel, namedPoints, name);
     this.designLabel = designLabel;
   }
 

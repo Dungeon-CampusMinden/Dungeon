@@ -2,13 +2,13 @@ package level.produs;
 
 import contrib.hud.DialogUtils;
 import core.Game;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.Point;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-import java.util.List;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -22,10 +22,11 @@ public class Level010 extends BlocklyLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level010(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 10");
+  public Level010(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 10");
     this.blockBlocklyElement(
         // Schleifen
         "while_loop",
@@ -55,14 +56,14 @@ public class Level010 extends BlocklyLevel {
           "Kapitel 1: Ausbruch");
       showText = false;
     }
-    Game.add(MiscFactory.fireballScroll(customPoints().get(0).toPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(1).toPoint()));
+    Game.add(MiscFactory.fireballScroll(getPoint(0)));
+    Game.add(MiscFactory.fireballScroll(getPoint(1)));
 
     BlocklyMonster.Builder hedgehogBuilder =
         BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
-    hedgehogBuilder.build(customPoints().get(2).toPoint());
-    hedgehogBuilder.build(customPoints().get(3).toPoint());
-    hedgehogBuilder.build(customPoints().get(4).toPoint());
+    hedgehogBuilder.build(getPoint(2));
+    hedgehogBuilder.build(getPoint(3));
+    hedgehogBuilder.build(getPoint(4));
   }
 
   @Override
