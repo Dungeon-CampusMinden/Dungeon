@@ -220,23 +220,22 @@ public class AdvancedFactory {
 
     sphere.add(new DrawComponent(sm));
     sphere.add(new PositionComponent(position));
-    sphere.add(new VelocityComponent(sphere_maxSpeed, sphere_mass, entity -> {
-    }, false));
+    sphere.add(new VelocityComponent(sphere_maxSpeed, sphere_mass, entity -> {}, false));
     sphere.add(
-      new CollideComponent(
-        CollideComponent.DEFAULT_OFFSET,
-        CollideComponent.DEFAULT_SIZE,
-        ((self, other, direction) -> {
-          other
-            .fetch(PlayerComponent.class)
-            .ifPresent(
-              player -> {
-                VelocityComponent vc = self.fetch(VelocityComponent.class).get();
-                VelocityComponent otherVc = other.fetch(VelocityComponent.class).get();
-                vc.currentVelocity(otherVc.currentVelocity());
-              });
-        }),
-        CollideComponent.DEFAULT_COLLIDER));
+        new CollideComponent(
+            CollideComponent.DEFAULT_OFFSET,
+            CollideComponent.DEFAULT_SIZE,
+            ((self, other, direction) -> {
+              other
+                  .fetch(PlayerComponent.class)
+                  .ifPresent(
+                      player -> {
+                        VelocityComponent vc = self.fetch(VelocityComponent.class).get();
+                        VelocityComponent otherVc = other.fetch(VelocityComponent.class).get();
+                        vc.currentVelocity(otherVc.currentVelocity());
+                      });
+            }),
+            CollideComponent.DEFAULT_COLLIDER));
 
     return sphere;
   }
