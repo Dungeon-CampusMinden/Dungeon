@@ -115,9 +115,6 @@ public class AttachmentSystem extends System {
               .originpc
               .position()
               .translate(asData.originpc.viewDirection().scale(asData.ac.getScale())));
-      // this is here because the player doesnt rotate when so the viewdirection has to be used for
-      // melee.
-      //      asData.copypc.rotation(asData.originpc.rotation());
       switch (asData.originpc.viewDirection()) {
         case UP -> {
           asData.copypc.rotation(90);
@@ -138,6 +135,7 @@ public class AttachmentSystem extends System {
       asData.copypc.position(
           asData.originpc.position().translate(asData.ac.getOffset().scale(asData.ac.getScale())));
     }
+    // This because the ColliderComponents position wouldn't get updated by itself(?)
     asData
         .e
         .fetch(CollideComponent.class)

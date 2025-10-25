@@ -15,7 +15,7 @@ public class AttachmentComponent implements Component {
   /**
    * Creates a new AttachmentComponent.
    *
-   * <p>If the offset is Vector2.ZERO the copied position will be placed in  front of the origin
+   * <p>If the offset is Vector2.ZERO the copied position will be placed in front of the origin
    * position which can be scaled with the scale parameter. It automatically registers to the {@link
    * AttachmentSystem}.
    *
