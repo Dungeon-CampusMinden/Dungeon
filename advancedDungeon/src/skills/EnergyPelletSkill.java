@@ -3,8 +3,15 @@ package skills;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.projectileSkill.DamageProjectileSkill;
+import core.Entity;
+import core.Game;
+import core.components.PositionComponent;
+import core.components.VelocityComponent;
+import core.level.Tile;
+import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
@@ -28,7 +35,10 @@ public class EnergyPelletSkill extends DamageProjectileSkill {
   private static final float SPEED = 13f;
   private static final int DAMAGE = 2;
   private static final float RANGE = 7f;
+
+  /** Cooldown of the Skill. */
   public static final long COOLDOWN = 500;
+
   private static final boolean IS_PIERCING = false;
   private static final boolean IGNORE_FIRST_WALL = false;
 
@@ -117,6 +127,25 @@ public class EnergyPelletSkill extends DamageProjectileSkill {
   /**
    * Creates an energy pellet skill with default values and custom cooldown.
    *
+   * @param name Name of the skill.
+   * @param targetSelection Function providing the target point where the fireball should fly.
+   * @param cooldown Cooldown time (in ms) before the skill can be used again.
+   * @param range Maximum travel range.
+   * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
+   */
+  @SafeVarargs
+  public EnergyPelletSkill(
+      String name,
+      Supplier<Point> targetSelection,
+      long cooldown,
+      float range,
+      Tuple<Resource, Integer>... resourceCost) {
+    this(name, targetSelection, cooldown, SPEED, range, DAMAGE, IGNORE_FIRST_WALL, resourceCost);
+  }
+
+  /**
+   * Creates an energy pellet skill with default values and custom cooldown.
+   *
    * @param targetSelection Function providing the target point where the fireball should fly.
    * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
    */
@@ -124,5 +153,36 @@ public class EnergyPelletSkill extends DamageProjectileSkill {
   public EnergyPelletSkill(
       Supplier<Point> targetSelection, Tuple<Resource, Integer>... resourceCost) {
     this(targetSelection, COOLDOWN, RANGE, resourceCost);
+  }
+
+  @Override
+  protected void onWallHit(Entity caster, Entity projectile) {
+    VelocityComponent vc = projectile.fetch(VelocityComponent.class).orElse(null);
+    if (vc == null) return;
+
+    PositionComponent pc = projectile.fetch(PositionComponent.class).orElse(null);
+    if (pc == null) return;
+
+    Point projPos = pc.position();
+    Vector2 velocity = vc.currentVelocity();
+
+    float nextX = projPos.x() + velocity.x() * 0.1f;
+    float nextY = projPos.y() + velocity.y() * 0.1f;
+
+    Tile tileX = Game.tileAt(new Point(nextX, projPos.y())).orElse(null);
+    Tile tileY = Game.tileAt(new Point(projPos.x(), nextY)).orElse(null);
+
+    if (tileX != null
+        && (tileX.levelElement() == LevelElement.WALL
+            || tileX.levelElement() == LevelElement.PORTAL)) {
+      velocity = Vector2.of(-velocity.x(), velocity.y()); // vertical reflection
+    }
+    if (tileY != null
+        && (tileY.levelElement() == LevelElement.WALL
+            || tileY.levelElement() == LevelElement.PORTAL)) {
+      velocity = Vector2.of(velocity.x(), -velocity.y()); // horizontal reflection
+    }
+
+    vc.currentVelocity(velocity);
   }
 }
