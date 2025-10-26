@@ -1401,37 +1401,29 @@ public class TileTextureFactory {
     Coordinate orthoY = new Coordinate(p.x(), p.y() + sy);
 
     boolean diagIsFD = isFloorOrDoor(get(layout, diag.x(), diag.y()));
-    boolean orthoXNotF = isNotFloor(get(layout, orthoX.x(), orthoX.y()));
-    boolean orthoYNotF = isNotFloor(get(layout, orthoY.x(), orthoY.y()));
+    boolean orthoXBarrier = isBarrier(get(layout, orthoX.x(), orthoX.y()));
+    boolean orthoYBarrier = isBarrier(get(layout, orthoY.x(), orthoY.y()));
     boolean diagANotF = isNotFloor(get(layout, diagA.x(), diagA.y()));
     boolean diagBNotF = isNotFloor(get(layout, diagB.x(), diagB.y()));
     boolean diagCNotF = isNotFloor(get(layout, diagC.x(), diagC.y()));
 
-    return diagIsFD && orthoXNotF && orthoYNotF && diagANotF && diagBNotF && diagCNotF;
+    return diagIsFD && orthoXBarrier && orthoYBarrier && diagANotF && diagBNotF && diagCNotF;
   }
 
   private static boolean isBottomRightInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
-    return isInnerEmptyCorner(p, layout, 1, -1)
-        && !rightIsHole(p, layout)
-        && !belowIsHole(p, layout);
+    return isInnerEmptyCorner(p, layout, 1, -1);
   }
 
   private static boolean isBottomLeftInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
-    return isInnerEmptyCorner(p, layout, -1, -1)
-        && !leftIsHole(p, layout)
-        && !belowIsHole(p, layout);
+    return isInnerEmptyCorner(p, layout, -1, -1);
   }
 
   private static boolean isUpperLeftInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
-    return isInnerEmptyCorner(p, layout, -1, 1)
-        && !leftIsHole(p, layout)
-        && !aboveIsHole(p, layout);
+    return isInnerEmptyCorner(p, layout, -1, 1);
   }
 
   private static boolean isUpperRightInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
-    return isInnerEmptyCorner(p, layout, 1, 1)
-        && !rightIsHole(p, layout)
-        && !aboveIsHole(p, layout);
+    return isInnerEmptyCorner(p, layout, 1, 1);
   }
 
   private static boolean forceDoubleCorner(
