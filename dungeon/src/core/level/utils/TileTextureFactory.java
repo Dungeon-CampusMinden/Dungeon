@@ -336,14 +336,14 @@ public class TileTextureFactory {
             && isFloorOrDoor(n.getDownE())
             && isNotFloor(n.getRightE())
             && isNotFloor(n.getUpE())
-            && isNotFloor(n.getUpRightE());
+            && !isInside(n.getUpRightE());
 
     boolean brDouble =
         isFloorOrDoor(n.getRightE())
             && isFloorOrDoor(n.getDownE())
             && isNotFloor(n.getLeftE())
             && isNotFloor(n.getUpE())
-            && isNotFloor(n.getUpLeftE());
+            && !isInside(n.getUpLeftE());
 
     boolean urDouble =
         isFloorOrDoor(n.getUpE())
