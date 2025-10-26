@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+// Neue Import für die Ignore-Logik von Projektilen
+import contrib.components.ProjectileComponent;
+
 public class LightBridgeFactory {
 
   private static final SimpleIPath SEGMENT_SPRITESHEET_PATH =
@@ -60,6 +63,9 @@ public class LightBridgeFactory {
       DrawComponent dc = new DrawComponent(EMITTER_TEXTURE_INACTIVE);
       dc.depth(DepthLayer.Normal.depth());
       emitter.add(dc);
+
+      // Markiere den Emitter als "Projectile", damit echte Projektile ihn ignorieren
+      emitter.add(new ProjectileComponent(new Point(0, 0), new Point(0, 0), Vector2.ZERO, e -> {}));
 
       return emitter;
     }
