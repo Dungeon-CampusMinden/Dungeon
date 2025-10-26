@@ -350,14 +350,14 @@ public class TileTextureFactory {
             && isFloorOrDoor(n.getRightE())
             && isNotFloor(n.getDownE())
             && isNotFloor(n.getLeftE())
-            && isNotFloor(n.getDownLeftE());
+            && !isInside(n.getDownLeftE());
 
     boolean ulDouble =
         isFloorOrDoor(n.getUpE())
             && isFloorOrDoor(n.getLeftE())
             && isNotFloor(n.getDownE())
             && isNotFloor(n.getRightE())
-            && isNotFloor(n.getDownRightE());
+            && !isInside(n.getDownRightE());
 
     if (blDouble) return new SimpleIPath("wall/wall_inner_corner_bottom_left_double");
     if (brDouble) return new SimpleIPath("wall/wall_inner_corner_bottom_right_double");
@@ -575,7 +575,6 @@ public class TileTextureFactory {
       return "wall/t_inner_top_empty";
     }
     return result;
-
   }
 
   private static String selectBottomTJunctionTexture(Coordinate p, LevelElement[][] layout) {
@@ -635,7 +634,6 @@ public class TileTextureFactory {
       return "wall/t_inner_bottom_empty";
     }
     return base;
-
   }
 
   private static String selectLeftTJunctionTexture(Coordinate p, LevelElement[][] layout) {
@@ -1587,49 +1585,39 @@ public class TileTextureFactory {
   }
 
   private static boolean disallowTInnerRight(Coordinate p, LevelElement[][] layout) {
-    return (
-      get(layout, p.x() + 1, p.y()) == LevelElement.WALL
-        && get(layout, p.x() + 1, p.y() - 1) == LevelElement.WALL
-        && get(layout, p.x() + 2, p.y() - 1) == LevelElement.FLOOR)
-      || (
-      get(layout, p.x() + 1, p.y()) == LevelElement.WALL
-        && get(layout, p.x() + 1, p.y() + 1) == LevelElement.WALL
-        && get(layout, p.x() + 2, p.y() + 1) == LevelElement.FLOOR);
+    return (get(layout, p.x() + 1, p.y()) == LevelElement.WALL
+            && get(layout, p.x() + 1, p.y() - 1) == LevelElement.WALL
+            && get(layout, p.x() + 2, p.y() - 1) == LevelElement.FLOOR)
+        || (get(layout, p.x() + 1, p.y()) == LevelElement.WALL
+            && get(layout, p.x() + 1, p.y() + 1) == LevelElement.WALL
+            && get(layout, p.x() + 2, p.y() + 1) == LevelElement.FLOOR);
   }
 
   private static boolean disallowTInnerLeft(Coordinate p, LevelElement[][] layout) {
-    return (
-      get(layout, p.x() - 1, p.y()) == LevelElement.WALL
-        && get(layout, p.x() - 1, p.y() - 1) == LevelElement.WALL
-        && get(layout, p.x() - 2, p.y() - 1) == LevelElement.FLOOR)
-      || (
-      get(layout, p.x() - 1, p.y()) == LevelElement.WALL
-        && get(layout, p.x() - 1, p.y() + 1) == LevelElement.WALL
-        && get(layout, p.x() - 2, p.y() + 1) == LevelElement.FLOOR);
+    return (get(layout, p.x() - 1, p.y()) == LevelElement.WALL
+            && get(layout, p.x() - 1, p.y() - 1) == LevelElement.WALL
+            && get(layout, p.x() - 2, p.y() - 1) == LevelElement.FLOOR)
+        || (get(layout, p.x() - 1, p.y()) == LevelElement.WALL
+            && get(layout, p.x() - 1, p.y() + 1) == LevelElement.WALL
+            && get(layout, p.x() - 2, p.y() + 1) == LevelElement.FLOOR);
   }
 
   private static boolean disallowTInnerTop(Coordinate p, LevelElement[][] layout) {
-    return (
-      get(layout, p.x(),     p.y() + 1) == LevelElement.WALL &&
-        get(layout, p.x() + 1, p.y() + 1) == LevelElement.WALL &&
-        get(layout, p.x() + 1, p.y() + 2) == LevelElement.FLOOR
-    ) || (
-      get(layout, p.x(),     p.y() + 1) == LevelElement.WALL &&
-        get(layout, p.x() - 1, p.y() + 1) == LevelElement.WALL &&
-        get(layout, p.x() - 1, p.y() + 2) == LevelElement.FLOOR
-    );
+    return (get(layout, p.x(), p.y() + 1) == LevelElement.WALL
+            && get(layout, p.x() + 1, p.y() + 1) == LevelElement.WALL
+            && get(layout, p.x() + 1, p.y() + 2) == LevelElement.FLOOR)
+        || (get(layout, p.x(), p.y() + 1) == LevelElement.WALL
+            && get(layout, p.x() - 1, p.y() + 1) == LevelElement.WALL
+            && get(layout, p.x() - 1, p.y() + 2) == LevelElement.FLOOR);
   }
 
   private static boolean disallowTInnerBottom(Coordinate p, LevelElement[][] layout) {
-    return (
-      get(layout, p.x(),     p.y() - 1) == LevelElement.WALL &&
-        get(layout, p.x() + 1, p.y() - 1) == LevelElement.WALL &&
-        get(layout, p.x() + 1, p.y() - 2) == LevelElement.FLOOR
-    ) || (
-      get(layout, p.x(),     p.y() - 1) == LevelElement.WALL &&
-        get(layout, p.x() - 1, p.y() - 1) == LevelElement.WALL &&
-        get(layout, p.x() - 1, p.y() - 2) == LevelElement.FLOOR
-    );
+    return (get(layout, p.x(), p.y() - 1) == LevelElement.WALL
+            && get(layout, p.x() + 1, p.y() - 1) == LevelElement.WALL
+            && get(layout, p.x() + 1, p.y() - 2) == LevelElement.FLOOR)
+        || (get(layout, p.x(), p.y() - 1) == LevelElement.WALL
+            && get(layout, p.x() - 1, p.y() - 1) == LevelElement.WALL
+            && get(layout, p.x() - 1, p.y() - 2) == LevelElement.FLOOR);
   }
 
   private static boolean isFloorOrDoor(LevelElement e) {
@@ -1644,7 +1632,7 @@ public class TileTextureFactory {
   }
 
   private static boolean isInsideNonDoor(LevelElement e) {
-    return e != LevelElement.DOOR && isInside(e);
+    return e != LevelElement.DOOR && e != LevelElement.EXIT && isInside(e);
   }
 
   private static boolean isInnerTopWall(Coordinate p, LevelElement[][] layout) {
