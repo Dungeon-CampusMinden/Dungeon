@@ -28,6 +28,7 @@ public class PelletLauncherBehaviour implements Consumer<Entity>, ISkillUser {
   /**
    * Creates a new {@code PelletLauncherBehaviour}.
    *
+   * @param uniqueSkillName the name of the skill used by the entity.
    * @param spawnPoint the spawn position of the entity.
    * @param attackRange maximum shooting (projectile travel) range.
    * @param shootDirection the fixed direction in which the energyPelletLauncher will launch the
