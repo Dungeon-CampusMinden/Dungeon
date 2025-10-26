@@ -1400,14 +1400,19 @@ public class TileTextureFactory {
     Coordinate orthoX = new Coordinate(p.x() + sx, p.y());
     Coordinate orthoY = new Coordinate(p.x(), p.y() + sy);
 
+    LevelElement orthoXE = get(layout, orthoX.x(), orthoX.y());
+    LevelElement orthoYE = get(layout, orthoY.x(), orthoY.y());
+
+    if (orthoXE == LevelElement.DOOR || orthoYE == LevelElement.DOOR) return false;
+
     boolean diagIsFD = isFloorOrDoor(get(layout, diag.x(), diag.y()));
-    boolean orthoXBarrier = isBarrier(get(layout, orthoX.x(), orthoX.y()));
-    boolean orthoYBarrier = isBarrier(get(layout, orthoY.x(), orthoY.y()));
+    boolean orthoXStrictWall = orthoXE == LevelElement.WALL;
+    boolean orthoYStrictWall = orthoYE == LevelElement.WALL;
     boolean diagANotF = isNotFloor(get(layout, diagA.x(), diagA.y()));
     boolean diagBNotF = isNotFloor(get(layout, diagB.x(), diagB.y()));
     boolean diagCNotF = isNotFloor(get(layout, diagC.x(), diagC.y()));
 
-    return diagIsFD && orthoXBarrier && orthoYBarrier && diagANotF && diagBNotF && diagCNotF;
+    return diagIsFD && orthoXStrictWall && orthoYStrictWall && diagANotF && diagBNotF && diagCNotF;
   }
 
   private static boolean isBottomRightInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
@@ -1484,8 +1489,8 @@ public class TileTextureFactory {
         && isFloorOrDoor(n.getUpLeftE())
         && isFloorOrDoor(n.getUpRightE())
         && isNotFloor(n.getDownE())
-        && isNotFloor(n.getLeftE())
-        && isNotFloor(n.getRightE())
+        && n.getLeftE() == LevelElement.WALL
+        && n.getRightE() == LevelElement.WALL
         && isNotFloor(n.getDownLeftE())
         && isNotFloor(n.getDownRightE());
   }
@@ -1496,8 +1501,8 @@ public class TileTextureFactory {
         && isFloorOrDoor(n.getDownLeftE())
         && isFloorOrDoor(n.getDownRightE())
         && isNotFloor(n.getUpE())
-        && isNotFloor(n.getLeftE())
-        && isNotFloor(n.getRightE())
+        && n.getLeftE() == LevelElement.WALL
+        && n.getRightE() == LevelElement.WALL
         && isNotFloor(n.getUpLeftE())
         && isNotFloor(n.getUpRightE());
   }
@@ -1510,8 +1515,8 @@ public class TileTextureFactory {
         && isNotFloor(n.getRightE())
         && isNotFloor(n.getUpRightE())
         && isNotFloor(n.getDownRightE())
-        && isNotFloor(n.getUpE())
-        && isNotFloor(n.getDownE());
+        && n.getUpE() == LevelElement.WALL
+        && n.getDownE() == LevelElement.WALL;
   }
 
   private static boolean isRightTEmptyTopBottomCase(Coordinate p, LevelElement[][] layout) {
@@ -1522,8 +1527,8 @@ public class TileTextureFactory {
         && isNotFloor(n.getRightE())
         && isNotFloor(n.getUpLeftE())
         && isNotFloor(n.getDownLeftE())
-        && isNotFloor(n.getUpE())
-        && isNotFloor(n.getDownE());
+        && n.getUpE() == LevelElement.WALL
+        && n.getDownE() == LevelElement.WALL;
   }
 
   private static boolean rendersEmptyLikeWallAt(Coordinate c, LevelElement[][] layout) {
