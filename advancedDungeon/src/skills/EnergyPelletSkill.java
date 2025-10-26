@@ -4,11 +4,9 @@ import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.projectileSkill.DamageProjectileSkill;
 import core.Entity;
-import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.level.Tile;
-import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -163,24 +161,13 @@ public class EnergyPelletSkill extends DamageProjectileSkill {
     PositionComponent pc = projectile.fetch(PositionComponent.class).orElse(null);
     if (pc == null) return;
 
-    Point projPos = pc.position();
-    Vector2 velocity = vc.currentVelocity();
+    Vector2 velocity = Vector2.ZERO;
 
-    float nextX = projPos.x() + velocity.x() * 0.1f;
-    float nextY = projPos.y() + velocity.y() * 0.1f;
-
-    Tile tileX = Game.tileAt(new Point(nextX, projPos.y())).orElse(null);
-    Tile tileY = Game.tileAt(new Point(projPos.x(), nextY)).orElse(null);
-
-    if (tileX != null
-        && (tileX.levelElement() == LevelElement.WALL
-            || tileX.levelElement() == LevelElement.PORTAL)) {
-      velocity = Vector2.of(-velocity.x(), velocity.y()); // vertical reflection
-    }
-    if (tileY != null
-        && (tileY.levelElement() == LevelElement.WALL
-            || tileY.levelElement() == LevelElement.PORTAL)) {
-      velocity = Vector2.of(velocity.x(), -velocity.y()); // horizontal reflection
+    if (pc.viewDirection().equals(Direction.DOWN) || pc.viewDirection().equals(Direction.UP)) {
+      velocity = Vector2.of(vc.currentVelocity().x(), -vc.currentVelocity().y());
+    } else if (pc.viewDirection().equals(Direction.RIGHT)
+        || pc.viewDirection().equals(Direction.LEFT)) {
+      velocity = Vector2.of(-vc.currentVelocity().x(), vc.currentVelocity().y());
     }
 
     vc.currentVelocity(velocity);
