@@ -44,6 +44,9 @@ public class LightWallFactory {
   private static final SimpleIPath EMITTER_TEXTURE_INACTIVE =
     new SimpleIPath("portal/light_wall_emitter/light_wall_emitter_inactive.png");
 
+  // Konfigurierbarer Spawn-Offset für Teleport-/Extend-Startpunkte vor dem Portal
+  public static int spawnOffset = 1;
+
   /**
    * Komponente, die den Zustand und die Segmente einer einzelnen Lichtwand verwaltet.
    *
@@ -58,6 +61,10 @@ public class LightWallFactory {
     private final List<Entity> segments = new ArrayList<>();
     private final List<Entity> extendedSegments = new ArrayList<>();
     private final Map<PitTile, Object[]> coveredPits = new ConcurrentHashMap<>();
+
+    // Merker für Collider-Längen: Basis und Extend
+    private Point baseEnd = null;
+    private Point extendEnd = null;
 
     /**
      * Erstellt eine neue LightWallComponent.
@@ -127,6 +134,9 @@ public class LightWallFactory {
         System.out.println("DEBUG [LWC.extend]: Created segment " + (i+1) + "/" + totalPoints + " at " + segment.fetch(PositionComponent.class).map(pc -> pc.position()).orElse(null));
       }
 
+      // Merke Extend-Ende für Collider-Berechnung
+      extendEnd = end;
+
       System.out.println("DEBUG [LWC.extend]: Extended segments created: " + extendedSegments.size());
 
       if (active) {
@@ -137,6 +147,13 @@ public class LightWallFactory {
         });
         segments.addAll(extendedSegments);
         System.out.println("DEBUG [LWC.extend]: Total segments after extend: " + segments.size());
+
+        // Collider auf neue Gesamtlänge anpassen (Basis bis zum fernsten Ende in Blickrichtung)
+        owner.fetch(PositionComponent.class).ifPresent(pc -> {
+          Point start = pc.position();
+          Point finalEnd = pickFurtherEnd(start);
+          createColliderForBeam(start, finalEnd, this.direction);
+        });
       } else {
         System.out.println("DEBUG [LWC.extend]: Wall is INACTIVE, segments will be added on next activation.");
       }
@@ -150,8 +167,16 @@ public class LightWallFactory {
         System.out.println("DEBUG: Wall is active, removing extended segments from game.");
         extendedSegments.forEach(Game::remove);
         segments.removeAll(extendedSegments);
+
+        // Collider wieder auf Basis zurücksetzen
+        owner.fetch(PositionComponent.class).ifPresent(pc -> {
+          if (baseEnd != null) {
+            createColliderForBeam(pc.position(), baseEnd, this.direction);
+          }
+        });
       }
       extendedSegments.clear();
+      extendEnd = null;
       System.out.println("DEBUG: Extended beam definition cleared.");
     }
 
@@ -177,20 +202,12 @@ public class LightWallFactory {
             }
             System.out.println("DEBUG: Base beam has " + this.segments.size() + " segments.");
 
-            Point wallEmitterPos = new Point(8, 7);
-            Point endPoint = calculateEndPoint(wallEmitterPos, direction);
-            float width = 1;
-            float height = Math.abs(endPoint.y() - wallEmitterPos.y());
-            Point offset = new Point(0f, -height + 0f);
+            // Basis-Ende für Collider speichern
+            baseEnd = end;
 
-            CollideComponent cc = new CollideComponent(
-              Vector2.of(offset.x(), offset.y()),
-              Vector2.of(width, height),
-              CollideComponent.DEFAULT_COLLIDER,
-              (a, b, c) -> {});
-            //cc.isSolid(false);
-            owner.add(cc);
-
+            // Collider für Basis/Extend erstellen (nimmt fernstes Ende, falls Extend vorhanden)
+            Point finalEnd = pickFurtherEnd(start);
+            createColliderForBeam(start, finalEnd, this.direction);
           });
 
       // Erweiterung zur Hauptliste hinzufügen
@@ -224,7 +241,7 @@ public class LightWallFactory {
       // extendedSegments bleiben als Definition für die nächste Aktivierung erhalten
       updateEmitterVisual(false);
 
-      // Angenommen, 'emitter' ist Ihre Entitäts-Variable
+      // Collider am Emitter entfernen
       owner.remove(CollideComponent.class);
 
     }
@@ -301,6 +318,82 @@ public class LightWallFactory {
         default -> 0f;
       };
     }
+
+    /**
+     * Erstellt/aktualisiert eine CollideComponent für den gesamten Strahl (Basis + ggf. Extend)
+     * basierend auf Start- und Endpunkt in Blickrichtung.
+     *
+     * @param start Startpunkt (Emitter-Position)
+     * @param end Endpunkt (letztes Segment in Blickrichtung)
+     * @param direction Die Richtung des Strahls
+     */
+    private void createColliderForBeam(Point start, Point end, Direction direction) {
+      // Dimensionen und Offsets relativ zur Emitter-Position berechnen
+      float width, height;
+      float offsetX, offsetY;
+
+      switch (direction) {
+        case UP -> {
+          float len = (float) (end.y() - start.y() + 1f);
+          width = 1f; height = Math.max(1f, len);
+          offsetX = 0f; offsetY = 0f;
+        }
+        case DOWN -> {
+          float len = (float) (start.y() - end.y() + 1f);
+          width = 1f; height = Math.max(1f, len);
+          offsetX = 0f; offsetY = -height + 1f;
+        }
+        case RIGHT -> {
+          float len = (float) (end.x() - start.x() + 1f);
+          width = Math.max(1f, len); height = 1f;
+          offsetX = 0f; offsetY = 0f;
+        }
+        case LEFT -> {
+          float len = (float) (start.x() - end.x() + 1f);
+          width = Math.max(1f, len); height = 1f;
+          offsetX = -width + 1f; offsetY = 0f;
+        }
+        default -> {
+          width = 1f; height = 1f; offsetX = 0f; offsetY = 0f;
+        }
+      }
+
+      CollideComponent cc = new CollideComponent(
+        Vector2.of(offsetX, offsetY),
+        Vector2.of(width, height),
+        CollideComponent.DEFAULT_COLLIDER,
+        (a, b, c) -> {}
+      );
+
+      owner.remove(CollideComponent.class); // Alten Collider entfernen
+      owner.add(cc);
+
+      System.out.println("DEBUG: Collider created/updated - width=" + width + ", height=" + height +
+        ", offset=(" + offsetX + "," + offsetY + ") from=" + start + " to=" + end + ", dir=" + direction);
+    }
+
+    // Wählt das fernere Ende (Basis oder Extend) entlang der Blickrichtung
+    private Point pickFurtherEnd(Point start) {
+      Point candidateBase = (baseEnd != null) ? baseEnd : start;
+      Point candidateExt = (extendEnd != null) ? extendEnd : candidateBase;
+      switch (direction) {
+        case RIGHT -> {
+          return (candidateExt.x() > candidateBase.x()) ? candidateExt : candidateBase;
+        }
+        case LEFT -> {
+          return (candidateExt.x() < candidateBase.x()) ? candidateExt : candidateBase;
+        }
+        case UP -> {
+          return (candidateExt.y() > candidateBase.y()) ? candidateExt : candidateBase;
+        }
+        case DOWN -> {
+          return (candidateExt.y() < candidateBase.y()) ? candidateExt : candidateBase;
+        }
+        default -> {
+          return candidateBase;
+        }
+      }
+    }
   }
 
   /**
@@ -320,9 +413,13 @@ public class LightWallFactory {
 
     PortalExtendComponent pec = new PortalExtendComponent();
     pec.onExtend = (d,e,portalExtendComponent) -> {
-      //System.out.println("DEBUG: PortalExtendComponent Direction: " + d + ", From: " + e);
-      Point testPoint = new Point(e.x(), e.y() + 1);
-      extendWall(emitter, testPoint, d, portalExtendComponent);
+      // Startpunkt am Exit-Portal prüfen und ggf. um spawnOffset in Blickrichtung verschieben
+      Point startPoint = e;
+      Tile tileAtExit = Game.tileAt(startPoint).orElse(null);
+      if (tileAtExit instanceof WallTile) {
+        startPoint = startPoint.translate(d.scale(spawnOffset));
+      }
+      extendWall(emitter, startPoint, d, portalExtendComponent);
     };
     pec.onTrim = (emitterEntity) -> {
       System.out.println("DEBUG [onTrim]: Called for entity " + emitterEntity.name());

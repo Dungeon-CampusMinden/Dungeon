@@ -11,11 +11,13 @@ import core.level.elements.tile.PitTile;
 import core.level.elements.tile.WallTile;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
+import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +45,9 @@ public class LightBridgeFactory {
   private static final SimpleIPath EMITTER_TEXTURE_INACTIVE =
     new SimpleIPath("portal/light_bridge_emitter/light_bridge_emitter_inactive.png");
 
+  // Konfigurierbarer Spawn-Offset für Portal-Extend Start, falls Exit auf Wand liegt
+  public static int spawnOffset = 1;
+
   /**
    * Komponente, die den Zustand und die Segmente einer einzelnen Lichtbrücke verwaltet.
    *
@@ -55,7 +60,11 @@ public class LightBridgeFactory {
     private final Direction direction;
     private boolean active = false;
     private final List<Entity> segments = new ArrayList<>();
+    private final List<Entity> extendedSegments = new ArrayList<>();
     private final Map<PitTile, Object[]> coveredPits = new ConcurrentHashMap<>();
+
+    private Point baseEnd = null;
+    private Point extendEnd = null;
 
     /**
      * Erstellt eine neue LightBridgeComponent.
@@ -81,7 +90,6 @@ public class LightBridgeFactory {
       pc.rotation(rotationFor(direction));
       emitter.add(pc);
 
-      emitter.add(new CollideComponent());
       DrawComponent dc = new DrawComponent(EMITTER_TEXTURE_INACTIVE);
       dc.depth(DepthLayer.Normal.depth());
       emitter.add(dc);
@@ -115,15 +123,39 @@ public class LightBridgeFactory {
             for (int i = 0; i < totalPoints; i++) {
               Entity segment = createNextSegment(start, end, totalPoints, i);
               this.segments.add(segment);
-              Game.add(segment);
             }
+
+            baseEnd = end;
+            // Collider für Basis (und ggf. Extend) setzen
+            Point finalEnd = pickFurtherEnd(start);
+            createColliderForBridge(start, finalEnd, this.direction);
+
+            // Alle Segmente ins Spiel + Pit schließen
+            segments.forEach(segment -> {
+              Game.add(segment);
+              segment.fetch(PositionComponent.class).ifPresent(spc ->
+                Game.tileAt(spc.position()).ifPresent(tile -> { if (tile instanceof PitTile pit) coverPit(pit); })
+              );
+            });
           });
+
+      // Extend-Definition ins Spiel übernehmen, falls vorhanden
+      if (!extendedSegments.isEmpty()) {
+        extendedSegments.forEach(segment -> {
+          Game.add(segment);
+          segment.fetch(PositionComponent.class).ifPresent(spc ->
+            Game.tileAt(spc.position()).ifPresent(tile -> { if (tile instanceof PitTile pit) coverPit(pit); })
+          );
+        });
+        segments.addAll(extendedSegments);
+      }
+
       updateEmitterVisual(true);
     }
 
     /**
      * Deaktiviert die Lichtbrücke, entfernt ihre Segmente und stellt den ursprünglichen Zustand der
-     * Abgründe wieder her.
+     * Abgründe wieder her. Collider wird entfernt.
      */
     private void deactivate() {
       if (!active) return;
@@ -134,25 +166,73 @@ public class LightBridgeFactory {
           segment
             .fetch(PositionComponent.class)
             .ifPresent(
-              pc ->
-                Game.tileAt(pc.position())
-                  .ifPresent(
-                    tile -> {
-                      if (tile instanceof PitTile pit) {
-                        this.uncoverPit(pit);
-                      }
-                    }));
+              pc -> Game.tileAt(pc.position()).ifPresent(tile -> { if (tile instanceof PitTile pit) this.uncoverPit(pit); })
+            );
           Game.remove(segment);
         });
       segments.clear();
       updateEmitterVisual(false);
+
+      // Collider am Emitter entfernen
+      owner.remove(CollideComponent.class);
+    }
+
+    /**
+     * Erzeugt/aktualisiert Extend-Segmente. Bei aktiver Brücke werden sie sofort ins Spiel
+     * übernommen und Pits geschlossen. Collider wird auf fernstes Ende gesetzt.
+     */
+    public void extend(Direction direction, Point from, PortalExtendComponent ignored) {
+      trim();
+
+      Point end = calculateEndPoint(from, direction);
+      int totalPoints = calculateNumberOfPoints(from, end);
+      for (int i = 0; i < totalPoints; i++) {
+        Entity segment = createNextSegment(from, end, totalPoints, i);
+        this.extendedSegments.add(segment);
+      }
+      extendEnd = end;
+
+      if (active) {
+        extendedSegments.forEach(segment -> {
+          Game.add(segment);
+          segment.fetch(PositionComponent.class).ifPresent(spc ->
+            Game.tileAt(spc.position()).ifPresent(tile -> { if (tile instanceof PitTile pit) coverPit(pit); })
+          );
+        });
+        segments.addAll(extendedSegments);
+
+        owner.fetch(PositionComponent.class).ifPresent(pc -> {
+          Point start = pc.position();
+          Point finalEnd = pickFurtherEnd(start);
+          createColliderForBridge(start, finalEnd, this.direction);
+        });
+      }
+    }
+
+    /** Entfernt Extend-Segmente. Stellt Pit-Zustände wieder her und setzt Collider auf Basis. */
+    public void trim() {
+      if (extendedSegments.isEmpty()) return;
+
+      if (active) {
+        extendedSegments.forEach(segment -> {
+          segment.fetch(PositionComponent.class).ifPresent(spc ->
+            Game.tileAt(spc.position()).ifPresent(tile -> { if (tile instanceof PitTile pit) uncoverPit(pit); })
+          );
+          Game.remove(segment);
+        });
+        segments.removeAll(extendedSegments);
+
+        owner.fetch(PositionComponent.class).ifPresent(pc -> {
+          if (baseEnd != null) createColliderForBridge(pc.position(), baseEnd, this.direction);
+        });
+      }
+      extendedSegments.clear();
+      extendEnd = null;
     }
 
     /**
      * Aktualisiert die visuelle Darstellung des Emitters, um seinen aktiven oder inaktiven Zustand
      * widerzuspiegeln.
-     *
-     * @param on {@code true}, um die aktive Textur zu verwenden, {@code false} für die inaktive.
      */
     private void updateEmitterVisual(boolean on) {
       DrawComponent dc = new DrawComponent(on ? EMITTER_TEXTURE_ACTIVE : EMITTER_TEXTURE_INACTIVE);
@@ -164,25 +244,14 @@ public class LightBridgeFactory {
     }
 
     /**
-     * Erstellt ein einzelnes Segment der Lichtbrücke und covert ggf. eine {@link PitTile}.
-     *
-     * @param from Der Startpunkt der gesamten Brücke.
-     * @param to Der Endpunkt der gesamten Brücke.
-     * @param totalPoints Die Gesamtzahl der Segmente.
-     * @param currentIndex Der Index des zu erstellenden Segments.
-     * @return Die erstellte Segment-Entität.
+     * Erstellt ein einzelnes Segment der Lichtbrücke. Pit-Schließen passiert beim Hinzufügen ins
+     * Spiel, nicht hier.
      */
     private Entity createNextSegment(Point from, Point to, int totalPoints, int currentIndex) {
       float x = from.x() + currentIndex * (to.x() - from.x()) / (totalPoints - 1);
       float y = from.y() + currentIndex * (to.y() - from.y()) / (totalPoints - 1);
       Point currentPoint = new Point(x, y);
       PositionComponent pc = new PositionComponent(currentPoint);
-
-      Game.tileAt(currentPoint)
-        .ifPresent(
-          tile -> {
-            if (tile instanceof PitTile pit) coverPit(pit);
-          });
 
       Entity segment = new Entity("lightBridgeSegment");
       segment.add(pc);
@@ -201,47 +270,7 @@ public class LightBridgeFactory {
       return segment;
     }
 
-    /**
-     * Schließt eine {@link PitTile} vorübergehend und speichert ihren ursprünglichen Zustand.
-     *
-     * @param pit Die zu schließende Grube.
-     */
-    private void coverPit(PitTile pit) {
-      coveredPits.computeIfAbsent(
-        pit,
-        k -> {
-          boolean wasOpen = pit.isOpen();
-          long originalTime = pit.timeToOpen();
-          if (wasOpen) {
-            if (originalTime == 0) pit.timeToOpen(3_600_000L);
-            pit.close();
-          }
-          return new Object[] {wasOpen, originalTime};
-        });
-    }
-
-    /**
-     * Öffnet eine zuvor geschlossene {@link PitTile} wieder und stellt ihren Zustand wieder her.
-     *
-     * @param pit Die zu öffnende Grube.
-     */
-    private void uncoverPit(PitTile pit) {
-      Object[] originalState = coveredPits.remove(pit);
-      if (originalState != null) {
-        boolean wasOpen = (boolean) originalState[0];
-        long originalTimeToOpen = (long) originalState[1];
-        pit.timeToOpen(originalTimeToOpen);
-        if (wasOpen) pit.open();
-        else pit.close();
-      }
-    }
-
-    /**
-     * Berechnet die Rotation für die Grafik basierend auf der Richtung.
-     *
-     * @param d Die Richtung.
-     * @return Der Rotationswinkel in Grad.
-     */
+    /** Berechnet die Rotation für die Grafik basierend auf der Richtung. */
     private static float rotationFor(Direction d) {
       return switch (d) {
         case UP -> 0f;
@@ -251,15 +280,104 @@ public class LightBridgeFactory {
         default -> 0f;
       };
     }
+
+    /**
+     * Erstellt/aktualisiert die CollideComponent für die Brücke am Emitter. Nicht solide.
+     * Breite/Höhe und Offset hängen von Blickrichtung und Länge ab.
+     */
+    private void createColliderForBridge(Point start, Point end, Direction direction) {
+      float width, height;
+      float offsetX, offsetY;
+      switch (direction) {
+        case UP -> {
+          float len = (float) (end.y() - start.y() + 1f);
+          width = 1f; height = Math.max(1f, len);
+          offsetX = 0f; offsetY = 0f;
+        }
+        case DOWN -> {
+          float len = (float) (start.y() - end.y() + 1f);
+          width = 1f; height = Math.max(1f, len);
+          offsetX = 0f; offsetY = -height + 1f;
+        }
+        case RIGHT -> {
+          float len = (float) (end.x() - start.x() + 1f);
+          width = Math.max(1f, len); height = 1f;
+          offsetX = 0f; offsetY = 0f;
+        }
+        case LEFT -> {
+          float len = (float) (start.x() - end.x() + 1f);
+          width = Math.max(1f, len); height = 1f;
+          offsetX = -width + 1f; offsetY = 0f;
+        }
+        default -> { width = 1f; height = 1f; offsetX = 0f; offsetY = 0f; }
+      }
+
+      CollideComponent cc = new CollideComponent(
+        Vector2.of(offsetX, offsetY),
+        Vector2.of(width, height),
+        CollideComponent.DEFAULT_COLLIDER,
+        CollideComponent.DEFAULT_COLLIDER
+      );
+      cc.isSolid(false);
+      owner.remove(CollideComponent.class);
+      owner.add(cc);
+    }
+
+    /**
+     * Schließt einen PitTile stabil (mit Referenzzählung pro Tile).
+     * Speichert den vorherigen Zustand, um ihn beim letzten Entfernen wiederherzustellen.
+     */
+    private void coverPit(PitTile pit) {
+      Object[] state = coveredPits.get(pit);
+      if (state == null) {
+        boolean wasOpen = pit.isOpen();
+        long prevT = pit.timeToOpen();
+        // stabil schließen: Zeit auf groß setzen, damit close() nicht sofort wieder öffnet
+        pit.timeToOpen(60 * 60 * 1000L); // >= 60s, damit Stable-Textur greift
+        pit.close();
+        coveredPits.put(pit, new Object[] {1, wasOpen, prevT});
+      } else {
+        int count = (Integer) state[0];
+        state[0] = count + 1;
+      }
+    }
+
+    /**
+     * Öffnet (oder stellt) einen PitTile wieder her, wenn keine Segmente mehr darüber liegen.
+     */
+    private void uncoverPit(PitTile pit) {
+      Object[] state = coveredPits.get(pit);
+      if (state == null) {
+        return; // nichts zu tun
+      }
+      int count = (Integer) state[0];
+      if (count > 1) {
+        state[0] = count - 1;
+        return;
+      }
+      boolean wasOpen = (Boolean) state[1];
+      long prevT = (Long) state[2];
+      pit.timeToOpen(prevT);
+      if (wasOpen) pit.open(); else pit.close();
+      coveredPits.remove(pit);
+    }
+
+    // Wählt das fernere Ende (Basis oder Extend) entlang der Blickrichtung
+    private Point pickFurtherEnd(Point start) {
+      Point candidateBase = (baseEnd != null) ? baseEnd : start;
+      Point candidateExt = (extendEnd != null) ? extendEnd : candidateBase;
+      return switch (direction) {
+        case RIGHT -> (candidateExt.x() > candidateBase.x()) ? candidateExt : candidateBase;
+        case LEFT -> (candidateExt.x() < candidateBase.x()) ? candidateExt : candidateBase;
+        case UP -> (candidateExt.y() > candidateBase.y()) ? candidateExt : candidateBase;
+        case DOWN -> (candidateExt.y() < candidateBase.y()) ? candidateExt : candidateBase;
+        default -> candidateBase;
+      };
+    }
   }
 
   /**
    * Erstellt eine vollständige, steuerbare Lichtbrücke und gibt die Emitter-Entität zurück.
-   *
-   * @param from Der Startpunkt, an dem der Emitter platziert wird.
-   * @param direction Die Richtung, in die sich die Brücke erstrecken soll.
-   * @param active Gibt an, ob die Brücke initial aktiviert sein soll.
-   * @return Die Emitter-Entität, die die Lichtbrücke steuert.
    */
   public static Entity createLightBridge(Point from, Direction direction, boolean active) {
 
@@ -267,6 +385,19 @@ public class LightBridgeFactory {
 
     LightBridgeComponent bridgeComponent = new LightBridgeComponent(emitter, direction);
     emitter.add(bridgeComponent);
+
+    // Portal-Extend-Unterstützung wie bei LightWall
+    PortalExtendComponent pec = new PortalExtendComponent();
+    pec.onExtend = (d, e, portalExtendComponent) -> {
+      Point startPoint = e;
+      Tile tileAtExit = Game.tileAt(startPoint).orElse(null);
+      if (tileAtExit instanceof WallTile) {
+        startPoint = startPoint.translate(d.scale(spawnOffset));
+      }
+      extendBridge(emitter, startPoint, d, portalExtendComponent);
+    };
+    pec.onTrim = (emitterEntity) -> trimBridge(emitter);
+    emitter.add(pec);
 
     if (active) {
       emitter.fetch(LightBridgeComponent.class).ifPresent(LightBridgeComponent::activate);
@@ -276,30 +407,28 @@ public class LightBridgeFactory {
     return emitter;
   }
 
-  /**
-   * Aktiviert eine gegebene Lichtbrücke.
-   *
-   * @param bridgeEmitter Die Emitter-Entität der zu aktivierenden Brücke.
-   */
+  /** Aktiviert eine gegebene Lichtbrücke. */
   public static void activateBridge(Entity bridgeEmitter) {
     bridgeEmitter.fetch(LightBridgeComponent.class).ifPresent(LightBridgeComponent::activate);
   }
 
-  /**
-   * Deaktiviert eine gegebene Lichtbrücke.
-   *
-   * @param bridgeEmitter Die Emitter-Entität der zu deaktivierenden Brücke.
-   */
+  /** Deaktiviert eine gegebene Lichtbrücke. */
   public static void deactivateBridge(Entity bridgeEmitter) {
     bridgeEmitter.fetch(LightBridgeComponent.class).ifPresent(LightBridgeComponent::deactivate);
   }
 
+  /** Erweitert eine bestehende Lichtbrücke. */
+  public static void extendBridge(Entity bridgeEmitter, Point from, Direction direction, PortalExtendComponent pec) {
+    bridgeEmitter.fetch(LightBridgeComponent.class).ifPresent(c -> c.extend(direction, from, pec));
+  }
+
+  /** Entfernt die Extend-Segmente der Lichtbrücke. */
+  public static void trimBridge(Entity bridgeEmitter) {
+    bridgeEmitter.fetch(LightBridgeComponent.class).ifPresent(LightBridgeComponent::trim);
+  }
+
   /**
    * Gibt eine schreibgeschützte Liste der Segment-Entitäten für eine gegebene Brücke zurück.
-   *
-   * @param bridgeEmitter Die Emitter-Entität der Brücke.
-   * @return Eine Liste der Segment-Entitäten oder eine leere Liste, wenn die Brücke nicht gefunden
-   *     wurde.
    */
   public static List<Entity> getBridgeSegments(Entity bridgeEmitter) {
     return bridgeEmitter
@@ -308,26 +437,14 @@ public class LightBridgeFactory {
       .orElse(Collections.emptyList());
   }
 
-  /**
-   * Berechnet die Anzahl der Segmente, die benötigt werden, um die Distanz zu überbrücken.
-   *
-   * @param from Der Startpunkt.
-   * @param to Der Endpunkt.
-   * @return Die Anzahl der benötigten Segmente.
-   */
+  /** Berechnet die Anzahl der Segmente, die benötigt werden, um die Distanz zu überbrücken. */
   private static int calculateNumberOfPoints(Point from, Point to) {
     float dx = Math.abs(to.x() - from.x());
     float dy = Math.abs(to.y() - from.y());
     return (int) Math.max(dx, dy) + 1;
   }
 
-  /**
-   * Berechnet den Endpunkt einer Brücke, bis eine {@link WallTile} erreicht wird.
-   *
-   * @param from Der Startpunkt.
-   * @param beamDirection Die Richtung der Brücke.
-   * @return Der letzte Punkt vor der Wand.
-   */
+  /** Berechnet den Endpunkt einer Brücke, bis eine {@link WallTile} erreicht wird. */
   private static Point calculateEndPoint(Point from, Direction beamDirection) {
     Point lastPoint = from;
     Point currentPoint = from;
