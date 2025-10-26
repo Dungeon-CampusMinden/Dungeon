@@ -74,7 +74,7 @@ public class LightWallFactory {
       Point end = calculateEndPoint(from, direction);
       int total = calculateNumberOfPoints(from, end);
       for (int i = 0; i < total; i++) {
-        Entity segment = createNextSegment(from, end, total, i);
+        Entity segment = createNextSegment(from, end, total, i, direction);
         extendedSegments.add(segment);
       }
       extendEnd = end;
@@ -112,7 +112,7 @@ public class LightWallFactory {
                 Point start = pc.position();
                 Point end = calculateEndPoint(start, this.direction);
                 int total = calculateNumberOfPoints(start, end);
-                for (int i = 0; i < total; i++) segments.add(createNextSegment(start, end, total, i));
+                for (int i = 0; i < total; i++) segments.add(createNextSegment(start, end, total, i, this.direction));
                 baseEnd = end;
                 createColliderForBeam(start, pickFurtherEnd(start), this.direction);
               });
@@ -140,12 +140,12 @@ public class LightWallFactory {
       owner.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(direction)));
     }
 
-    private Entity createNextSegment(Point from, Point to, int totalPoints, int currentIndex) {
+    private Entity createNextSegment(Point from, Point to, int totalPoints, int currentIndex, Direction rotDir) {
       float x = from.x() + currentIndex * (to.x() - from.x()) / (totalPoints - 1);
       float y = from.y() + currentIndex * (to.y() - from.y()) / (totalPoints - 1);
       Entity segment = new Entity("lightWallSegment");
       segment.add(new PositionComponent(new Point(x, y)));
-      segment.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(direction)));
+      segment.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(rotDir)));
 
       Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(SEGMENT_SPRITESHEET_PATH);
       State idle = State.fromMap(animationMap, "idle");
@@ -211,9 +211,7 @@ public class LightWallFactory {
     PortalExtendComponent pec = new PortalExtendComponent();
     pec.onExtend =
         (d, e, portalExtendComponent) -> {
-          Point startPoint = e;
-          Tile tileAtExit = Game.tileAt(startPoint).orElse(null);
-          if (tileAtExit instanceof WallTile) startPoint = startPoint.translate(d.scale(spawnOffset));
+          Point startPoint = e.translate(d.scale(spawnOffset));
           extendWall(emitter, startPoint, d);
         };
     pec.onTrim = (emitterEntity) -> trimWall(emitter);

@@ -66,54 +66,39 @@ public class LightBridgeFactory {
 
     private void activate() {
       if (active) return;
-      this.active = true;
+      active = true;
 
       owner
-        .fetch(PositionComponent.class)
-        .ifPresent(
-          pc -> {
-            Point start = pc.position();
-            Point end = calculateEndPoint(start, this.direction);
-            int totalPoints = calculateNumberOfPoints(start, end);
+          .fetch(PositionComponent.class)
+          .ifPresent(
+              pc -> {
+                Point start = pc.position();
+                Point end = calculateEndPoint(start, this.direction);
+                int total = calculateNumberOfPoints(start, end);
+                for (int i = 0; i < total; i++) segments.add(createNextSegment(start, end, total, i, this.direction));
+                baseEnd = end;
+                createColliderForBeam(start, pickFurtherEnd(start), this.direction);
+              });
 
-            for (int i = 0; i < totalPoints; i++) {
-              Entity segment = createNextSegment(start, end, totalPoints, i);
-              this.segments.add(segment);
-            }
-
-            baseEnd = end;
-            Point finalEnd = pickFurtherEnd(start);
-            createColliderForBeam(start, finalEnd, this.direction);
-          });
-
-      // exakt gleicher Ablauf wie LightWall: erst extend übernehmen, dann alle hinzufügen
       segments.addAll(extendedSegments);
       segments.forEach(segment -> {
         Game.add(segment);
-        segment.fetch(PositionComponent.class).ifPresent(spc ->
-          Game.tileAt(spc.position()).ifPresent(tile -> { if (tile instanceof PitTile pit) coverPit(pit); })
-        );
+        segment.fetch(PositionComponent.class)
+            .ifPresent(spc -> Game.tileAt(spc.position()).ifPresent(tile -> { if (tile instanceof PitTile pit) coverPit(pit); }));
       });
-
       updateEmitterVisual(true);
     }
 
     private void deactivate() {
       if (!active) return;
-      this.active = false;
-
-      segments.forEach(
-        segment -> {
-          segment
-            .fetch(PositionComponent.class)
-            .ifPresent(
-              pc -> Game.tileAt(pc.position()).ifPresent(tile -> { if (tile instanceof PitTile pit) this.uncoverPit(pit); })
-            );
-          Game.remove(segment);
-        });
+      active = false;
+      segments.forEach(segment -> {
+        segment.fetch(PositionComponent.class)
+            .ifPresent(pc -> Game.tileAt(pc.position()).ifPresent(tile -> { if (tile instanceof PitTile pit) this.uncoverPit(pit); }));
+        Game.remove(segment);
+      });
       segments.clear();
       updateEmitterVisual(false);
-
       owner.remove(CollideComponent.class);
     }
 
@@ -121,45 +106,38 @@ public class LightBridgeFactory {
       trim();
 
       Point end = calculateEndPoint(from, direction);
-      int totalPoints = calculateNumberOfPoints(from, end);
-      for (int i = 0; i < totalPoints; i++) {
-        Entity segment = createNextSegment(from, end, totalPoints, i);
-        this.extendedSegments.add(segment);
+      int total = calculateNumberOfPoints(from, end);
+      for (int i = 0; i < total; i++) {
+        Entity segment = createNextSegment(from, end, total, i, direction);
+        extendedSegments.add(segment);
       }
       extendEnd = end;
 
       if (active) {
         extendedSegments.forEach(segment -> {
           Game.add(segment);
-          segment.fetch(PositionComponent.class).ifPresent(spc ->
-            Game.tileAt(spc.position()).ifPresent(tile -> { if (tile instanceof PitTile pit) coverPit(pit); })
-          );
+          segment.fetch(PositionComponent.class)
+              .ifPresent(spc -> Game.tileAt(spc.position()).ifPresent(tile -> { if (tile instanceof PitTile pit) coverPit(pit); }));
         });
         segments.addAll(extendedSegments);
-
-        owner.fetch(PositionComponent.class).ifPresent(pc -> {
-          Point start = pc.position();
-          Point finalEnd = pickFurtherEnd(start);
-          createColliderForBeam(start, finalEnd, this.direction);
-        });
+        owner.fetch(PositionComponent.class)
+            .ifPresent(pc -> createColliderForBeam(pc.position(), pickFurtherEnd(pc.position()), this.direction));
       }
     }
 
     public void trim() {
       if (extendedSegments.isEmpty()) return;
-
       if (active) {
         extendedSegments.forEach(segment -> {
-          segment.fetch(PositionComponent.class).ifPresent(spc ->
-            Game.tileAt(spc.position()).ifPresent(tile -> { if (tile instanceof PitTile pit) uncoverPit(pit); })
-          );
+          segment.fetch(PositionComponent.class)
+              .ifPresent(spc -> Game.tileAt(spc.position()).ifPresent(tile -> { if (tile instanceof PitTile pit) uncoverPit(pit); }));
           Game.remove(segment);
         });
         segments.removeAll(extendedSegments);
-
-        owner.fetch(PositionComponent.class).ifPresent(pc -> {
-          if (baseEnd != null) createColliderForBeam(pc.position(), baseEnd, this.direction);
-        });
+        owner.fetch(PositionComponent.class)
+            .ifPresent(pc -> {
+              if (baseEnd != null) createColliderForBeam(pc.position(), baseEnd, this.direction);
+            });
       }
       extendedSegments.clear();
       extendEnd = null;
@@ -170,29 +148,21 @@ public class LightBridgeFactory {
       dc.depth(DepthLayer.Normal.depth());
       owner.add(dc);
       owner.name(on ? "lightBridgeEmitter" : "lightBridgeEmitterInactive");
-
       owner.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(direction)));
     }
 
-    private Entity createNextSegment(Point from, Point to, int totalPoints, int currentIndex) {
+    private Entity createNextSegment(Point from, Point to, int totalPoints, int currentIndex, Direction rotDir) {
       float x = from.x() + currentIndex * (to.x() - from.x()) / (totalPoints - 1);
       float y = from.y() + currentIndex * (to.y() - from.y()) / (totalPoints - 1);
-      Point currentPoint = new Point(x, y);
-      PositionComponent pc = new PositionComponent(currentPoint);
-
       Entity segment = new Entity("lightBridgeSegment");
-      segment.add(pc);
+      segment.add(new PositionComponent(new Point(x, y)));
+      segment.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(rotDir)));
 
-      pc.rotation(rotationFor(direction));
-
-      Map<String, Animation> animationMap =
-        Animation.loadAnimationSpritesheet(SEGMENT_SPRITESHEET_PATH);
+      Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(SEGMENT_SPRITESHEET_PATH);
       State idle = State.fromMap(animationMap, "idle");
       StateMachine sm = new StateMachine(List.of(idle));
-
       DrawComponent dc = new DrawComponent(sm);
       dc.depth(DepthLayer.Ground.depth());
-
       segment.add(dc);
       return segment;
     }
@@ -207,39 +177,26 @@ public class LightBridgeFactory {
       };
     }
 
-    private void createColliderForBeam(Point start, Point end, Direction direction) {
-      float width, height;
-      float offsetX, offsetY;
-      switch (direction) {
-        case UP -> {
-          float len = (float) (end.y() - start.y() + 1f);
-          width = 1f; height = Math.max(1f, len);
-          offsetX = 0f; offsetY = 0f;
-        }
-        case DOWN -> {
-          float len = (float) (start.y() - end.y() + 1f);
-          width = 1f; height = Math.max(1f, len);
-          offsetX = 0f; offsetY = -height + 1f;
-        }
-        case RIGHT -> {
-          float len = (float) (end.x() - start.x() + 1f);
-          width = Math.max(1f, len); height = 1f;
-          offsetX = 0f; offsetY = 0f;
-        }
-        case LEFT -> {
-          float len = (float) (start.x() - end.x() + 1f);
-          width = Math.max(1f, len); height = 1f;
-          offsetX = -width + 1f; offsetY = 0f;
-        }
-        default -> { width = 1f; height = 1f; offsetX = 0f; offsetY = 0f; }
+    private void createColliderForBeam(Point start, Point end, Direction dir) {
+      float width = 1f, height = 1f, offsetX = 0f, offsetY = 0f;
+      if (dir == Direction.LEFT || dir == Direction.RIGHT) {
+        float len = Math.abs(end.x() - start.x()) + 1f;
+        width = Math.max(1f, len);
+        // height bleibt 1f
+        offsetX = (dir == Direction.LEFT) ? -(width - 1f) : 0f;
+      } else if (dir == Direction.UP || dir == Direction.DOWN) {
+        float len = Math.abs(end.y() - start.y()) + 1f;
+        // width bleibt 1f
+        height = Math.max(1f, len);
+        offsetY = (dir == Direction.DOWN) ? -(height - 1f) : 0f;
       }
 
-      CollideComponent cc = new CollideComponent(
-        Vector2.of(offsetX, offsetY),
-        Vector2.of(width, height),
-        CollideComponent.DEFAULT_COLLIDER,
-        CollideComponent.DEFAULT_COLLIDER
-      );
+      CollideComponent cc =
+          new CollideComponent(
+              Vector2.of(offsetX, offsetY),
+              Vector2.of(width, height),
+              CollideComponent.DEFAULT_COLLIDER,
+              (a, b, c) -> {});
       cc.isSolid(false);
       owner.remove(CollideComponent.class);
       owner.add(cc);
@@ -272,32 +229,26 @@ public class LightBridgeFactory {
     }
 
     private Point pickFurtherEnd(Point start) {
-      Point candidateBase = (baseEnd != null) ? baseEnd : start;
-      Point candidateExt = (extendEnd != null) ? extendEnd : candidateBase;
+      Point b = (baseEnd != null) ? baseEnd : start;
+      Point e = (extendEnd != null) ? extendEnd : b;
       return switch (direction) {
-        case RIGHT -> (candidateExt.x() > candidateBase.x()) ? candidateExt : candidateBase;
-        case LEFT -> (candidateExt.x() < candidateBase.x()) ? candidateExt : candidateBase;
-        case UP -> (candidateExt.y() > candidateBase.y()) ? candidateExt : candidateBase;
-        case DOWN -> (candidateExt.y() < candidateBase.y()) ? candidateExt : candidateBase;
-        default -> candidateBase;
+        case RIGHT -> (e.x() > b.x()) ? e : b;
+        case LEFT -> (e.x() < b.x()) ? e : b;
+        case UP -> (e.y() > b.y()) ? e : b;
+        case DOWN -> (e.y() < b.y()) ? e : b;
+        default -> b;
       };
     }
   }
 
   public static Entity createLightBridge(Point from, Direction direction, boolean active) {
-
     Entity emitter = LightBridgeComponent.createEmitterForWall(from, direction);
-
     LightBridgeComponent bridgeComponent = new LightBridgeComponent(emitter, direction);
     emitter.add(bridgeComponent);
 
     PortalExtendComponent pec = new PortalExtendComponent();
     pec.onExtend = (d, e, portalExtendComponent) -> {
-      Point startPoint = e;
-      Tile tileAtExit = Game.tileAt(startPoint).orElse(null);
-      if (tileAtExit instanceof WallTile) {
-        startPoint = startPoint.translate(d.scale(spawnOffset));
-      }
+      Point startPoint = e.translate(d.scale(spawnOffset));
       extendWall(emitter, startPoint, d);
     };
     pec.onTrim = (emitterEntity) -> trimWall(emitter);
@@ -311,20 +262,20 @@ public class LightBridgeFactory {
     return emitter;
   }
 
-  public static void activate(Entity bridgeEmitter) {
-    bridgeEmitter.fetch(LightBridgeComponent.class).ifPresent(LightBridgeComponent::activate);
+  public static void activate(Entity wallEmitter) {
+    wallEmitter.fetch(LightBridgeComponent.class).ifPresent(LightBridgeComponent::activate);
   }
 
-  public static void deactivate(Entity bridgeEmitter) {
-    bridgeEmitter.fetch(LightBridgeComponent.class).ifPresent(LightBridgeComponent::deactivate);
+  public static void deactivate(Entity wallEmitter) {
+    wallEmitter.fetch(LightBridgeComponent.class).ifPresent(LightBridgeComponent::deactivate);
   }
 
-  private static void extendWall(Entity bridgeEmitter, Point from, Direction direction) {
-    bridgeEmitter.fetch(LightBridgeComponent.class).ifPresent(c -> c.extend(direction, from));
+  private static void extendWall(Entity wallEmitter, Point from, Direction direction) {
+    wallEmitter.fetch(LightBridgeComponent.class).ifPresent(c -> c.extend(direction, from));
   }
 
-  private static void trimWall(Entity bridgeEmitter) {
-    bridgeEmitter.fetch(LightBridgeComponent.class).ifPresent(LightBridgeComponent::trim);
+  private static void trimWall(Entity wallEmitter) {
+    wallEmitter.fetch(LightBridgeComponent.class).ifPresent(LightBridgeComponent::trim);
   }
 
   private static int calculateNumberOfPoints(Point from, Point to) {
@@ -336,11 +287,13 @@ public class LightBridgeFactory {
   private static Point calculateEndPoint(Point from, Direction beamDirection) {
     Point lastPoint = from;
     Point currentPoint = from;
-    Tile currentTile = Game.tileAt(from).orElse(null);
-    while (currentTile != null && !(currentTile instanceof WallTile)) {
+    while (true) {
+      Tile currentTile = Game.tileAt(currentPoint).orElse(null);
+      if (currentTile == null) break;
+      boolean isWall = currentTile instanceof WallTile;
+      if (isWall) break;
       lastPoint = currentPoint;
       currentPoint = currentPoint.translate(beamDirection);
-      currentTile = Game.tileAt(currentPoint).orElse(null);
     }
     return lastPoint;
   }
