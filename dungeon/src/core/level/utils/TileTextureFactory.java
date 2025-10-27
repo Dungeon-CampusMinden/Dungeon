@@ -736,20 +736,6 @@ public class TileTextureFactory {
     return "wall/t_inner_right";
   }
 
-  /**
-   * Checks if tile with coordinate p is surrounded by walls.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if surrounded by walls
-   */
-  private static boolean isInSpaceWall(Coordinate p, LevelElement[][] layout) {
-    return belowIsWall(p, layout)
-        && aboveIsWall(p, layout)
-        && leftIsWall(p, layout)
-        && rightIsWall(p, layout);
-  }
-
   private static boolean isDiagonalFloorCross(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     return isNotFloor(n.getUpE())
@@ -903,14 +889,6 @@ public class TileTextureFactory {
               && (vertical ? hasBarrierUD(layout, x, y) : hasBarrierLR(layout, x, y));
       if (!stemHere) return isInside(get(layout, x, y));
     }
-  }
-
-  private static boolean endsWithInside(Coordinate p, LevelElement[][] layout, int horizontalStep) {
-    return endsWithInsideDir(p, layout, horizontalStep, 0, true);
-  }
-
-  private static boolean endsWithInsideUD(Coordinate p, LevelElement[][] layout, int verticalStep) {
-    return endsWithInsideDir(p, layout, 0, verticalStep, false);
   }
 
   private static boolean xorEnds(Coordinate stem, LevelElement[][] layout, boolean vertical) {
