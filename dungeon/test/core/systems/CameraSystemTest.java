@@ -2,7 +2,6 @@ package core.systems;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.badlogic.gdx.utils.GdxNativesLoader;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
@@ -12,7 +11,6 @@ import core.level.elements.ILevel;
 import core.utils.Point;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,12 +23,6 @@ public class CameraSystemTest {
   private final Tile startTile = Mockito.mock(Tile.class);
   private CameraSystem cameraSystem;
   private Point expectedFocusPoint;
-
-  /** WTF? . */
-  @BeforeAll
-  public static void initGDX() {
-    GdxNativesLoader.load(); // load natives for headless testing
-  }
 
   /** WTF? . */
   @BeforeEach
@@ -49,6 +41,10 @@ public class CameraSystemTest {
     Game.removeAllEntities();
     Game.currentLevel(null);
     Game.removeAllSystems();
+    // reset Camera
+    CameraSystem.camera().viewportWidth = CameraSystem.viewportWidth();
+    CameraSystem.camera().viewportHeight = CameraSystem.viewportHeight();
+    CameraSystem.camera().position.set(0, 0, 0);
   }
 
   /** WTF? . */
