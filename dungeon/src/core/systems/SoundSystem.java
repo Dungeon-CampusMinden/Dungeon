@@ -34,14 +34,24 @@ public class SoundSystem extends System {
   private static final float PAN_ATTENUATION_FACTOR = 0.1f;
 
   private final Map<Entity, IPlayHandle> playingSounds = new HashMap<>();
-  private final ISoundPlayer soundPlayer = Game.soundPlayer();
+  private final ISoundPlayer soundPlayer;
 
   /**
    * Creates a new SoundSystem that filters entities with PositionComponent and SoundComponent. Uses
    * the global sound player from Game.soundPlayer().
    */
   public SoundSystem() {
+    this(Game.soundPlayer());
+  }
+
+  /**
+   * Creates a new SoundSystem with a custom sound player. For testing purposes.
+   *
+   * @param soundPlayer the sound player to use
+   */
+  SoundSystem(ISoundPlayer soundPlayer) {
     super(PositionComponent.class, SoundComponent.class);
+    this.soundPlayer = soundPlayer;
     this.onEntityAdd = this::onEntityAdded;
     this.onEntityRemove = this::onEntityRemoved;
   }

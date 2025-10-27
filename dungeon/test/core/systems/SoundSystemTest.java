@@ -3,13 +3,11 @@ package core.systems;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.badlogic.gdx.assets.AssetManager;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.SoundComponent;
-import core.sound.player.GdxSoundPlayer;
 import core.sound.player.IPlayHandle;
 import core.sound.player.ISoundPlayer;
 import core.utils.Point;
@@ -27,13 +25,11 @@ public class SoundSystemTest {
 
   @BeforeEach
   void setup() {
-    AssetManager assetManager = new AssetManager();
-    mockPlayer = spy(new GdxSoundPlayer(assetManager));
+    mockPlayer = mock(ISoundPlayer.class);
     mockHandle = mock(IPlayHandle.class);
     when(mockPlayer.play(anyString(), anyFloat(), anyBoolean()))
         .thenReturn(Optional.of(mockHandle));
-    when(Game.soundPlayer()).thenReturn(mockPlayer);
-    soundSystem = new SoundSystem();
+    soundSystem = new SoundSystem(mockPlayer);
     Game.add(soundSystem);
   }
 
