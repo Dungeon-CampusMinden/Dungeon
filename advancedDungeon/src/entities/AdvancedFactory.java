@@ -364,10 +364,11 @@ public class AdvancedFactory {
    * @param position the position of the pellet launcher
    * @param direction the direction the pellet launcher is facing.
    * @param attackRange Maximum travel range of the energy pellet.
+   * @param projectileLifetime Time in ms before the projectile is removed.
    * @return a new energyPelletLauncher entity.
    */
   public static Entity energyPelletLauncher(
-      Point position, Direction direction, float attackRange) {
+      Point position, Direction direction, float attackRange, long projectileLifetime) {
     launcherNumber++;
     String uniqueName = "energyPelletLauncher_" + launcherNumber;
     Entity launcher = new Entity(uniqueName);
@@ -381,7 +382,8 @@ public class AdvancedFactory {
             uniqueSkillName,
             SkillTools::heroPositionAsPoint,
             EnergyPelletSkill.COOLDOWN,
-            attackRange);
+            attackRange,
+            projectileLifetime);
     launcher.add(
         new AIComponent(
             entity -> {},

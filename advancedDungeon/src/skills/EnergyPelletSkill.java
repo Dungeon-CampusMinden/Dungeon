@@ -1,9 +1,11 @@
 package skills;
 
+import contrib.systems.EventScheduler;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.projectileSkill.DamageProjectileSkill;
 import core.Entity;
+import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Direction;
@@ -41,6 +43,9 @@ public class EnergyPelletSkill extends DamageProjectileSkill {
   private static final boolean IGNORE_FIRST_WALL = false;
 
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
+
+  private long PROJECTILE_LIFETIME = 2000;
+  private EventScheduler.ScheduledAction scheduledRemoveAction;
 
   /**
    * Creates a fully customized energy pellet skill with a custom name.
@@ -129,6 +134,7 @@ public class EnergyPelletSkill extends DamageProjectileSkill {
    * @param targetSelection Function providing the target point where the fireball should fly.
    * @param cooldown Cooldown time (in ms) before the skill can be used again.
    * @param range Maximum travel range.
+   * @param projectileLifetime Time in ms before the projectile is removed.
    * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
    */
   @SafeVarargs
@@ -137,8 +143,10 @@ public class EnergyPelletSkill extends DamageProjectileSkill {
       Supplier<Point> targetSelection,
       long cooldown,
       float range,
+      long projectileLifetime,
       Tuple<Resource, Integer>... resourceCost) {
     this(name, targetSelection, cooldown, SPEED, range, DAMAGE, IGNORE_FIRST_WALL, resourceCost);
+    this.PROJECTILE_LIFETIME = projectileLifetime;
   }
 
   /**
@@ -171,5 +179,19 @@ public class EnergyPelletSkill extends DamageProjectileSkill {
     }
 
     vc.currentVelocity(velocity);
+  }
+
+  @Override
+  protected void onSpawn(Entity caster, Entity projectile) {
+    if (scheduledRemoveAction != null && EventScheduler.isScheduled(scheduledRemoveAction)) {
+      EventScheduler.cancelAction(scheduledRemoveAction);
+    }
+
+    scheduledRemoveAction =
+        EventScheduler.scheduleAction(
+            () -> {
+              Game.remove(projectile);
+            },
+            PROJECTILE_LIFETIME);
   }
 }
