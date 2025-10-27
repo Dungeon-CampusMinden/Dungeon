@@ -11,9 +11,9 @@ import contrib.components.CollideComponent;
 import contrib.components.SpikyComponent;
 import contrib.utils.ICommand;
 import contrib.utils.components.health.DamageType;
-import core.Component;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
+import core.Component;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -351,11 +351,11 @@ public class AdvancedFactory {
    */
   public static Entity spherePressurePlate(Point position, float massTrigger) {
     return createPressurePlate(
-      "sphere-pressureplate",
-      SPHERE_PRESSURE_PLATE,
-      massTrigger,
-      PortalSphereComponent.class,
-      position);
+        "sphere-pressureplate",
+        SPHERE_PRESSURE_PLATE,
+        massTrigger,
+        PortalSphereComponent.class,
+        position);
   }
 
   /**
