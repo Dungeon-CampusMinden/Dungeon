@@ -1,10 +1,9 @@
 package core.level.loader.parsers;
 
 import contrib.entities.deco.Deco;
-import core.Game;
-import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
+import core.level.loader.LevelParser;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
@@ -26,29 +25,22 @@ public class V2FormatParser extends LevelFormatParser {
   @Override
   public DungeonLevel parseLevel(BufferedReader reader, String levelName) throws IOException {
     DesignLabel designLabel = parseDesignLabel(readLine(reader));
-    Point heroPos = parseHeroPosition(readLine(reader));
+    List<Point> startTiles = parseStartTiles(readLine(reader));
     Map<String, Point> namedPoints = parseNamedPoints(readLine(reader));
     List<Tuple<Deco, Point>> decorations = parseDecorationList(readLine(reader));
 
     // Rest of the file is the layout
     List<String> layoutLines = new ArrayList<>();
     String line;
-    while (!(line = readLine(reader)).isEmpty()) {
-      layoutLines.add(line);
+    while (!(line = readLine(reader)).trim().isEmpty()) {
+      layoutLines.add(line.trim());
     }
     LevelElement[][] layout = loadLevelLayout(layoutLines);
 
     DungeonLevel newLevel = getLevel(levelName, layout, designLabel, namedPoints, decorations);
 
-    // Set Hero Position
-    newLevel
-        .tileAt(heroPos)
-        .ifPresentOrElse(
-            newLevel::startTile,
-            () -> {
-              throw new RuntimeException("Invalid Hero Position: " + heroPos);
-            });
-
+    startTiles.forEach(
+        pos -> newLevel.tileAt(pos).ifPresent(tile -> newLevel.startTiles().add(tile)));
     return newLevel;
   }
 
@@ -62,19 +54,15 @@ public class V2FormatParser extends LevelFormatParser {
     String designLabel =
         level.designLabel().map(DesignLabel::name).orElse(DesignLabel.DEFAULT.name());
 
-    Point heroPos =
-        Game.hero()
-            .flatMap(hero -> hero.fetch(PositionComponent.class).map(PositionComponent::position))
-            .orElse(new Point(0, 0));
-    String heroPosString = heroPos.x() + "," + heroPos.y();
-
+    String startingPositions = V2FormatParser.serializeStartingPositions(level.startTiles());
     String customPointsString = V2FormatParser.serializeNamedPoints(level.namedPoints());
     String decorations = V2FormatParser.serializeDecorationList(level.decorations());
     String dunLayout = V2FormatParser.serializeLevelLayout(level.layout());
 
     StringBuilder result = new StringBuilder();
+    result.append(LevelParser.getVersion(2)).append("\n");
     result.append(designLabel).append("\n");
-    result.append(heroPosString).append("\n");
+    result.append(startingPositions).append("\n");
     result.append(customPointsString).append("\n");
     result.append(decorations).append("\n");
     result.append(dunLayout);
@@ -165,6 +153,37 @@ public class V2FormatParser extends LevelFormatParser {
         .collect(Collectors.joining(";"));
   }
 
+  private static List<Point> parseStartTiles(String input) {
+    List<Point> startTiles = new ArrayList<>();
+
+    String[] entries = input.split(";");
+    for (String entry : entries) {
+      String[] coordinates = entry.split(",");
+      if (coordinates.length == 2) {
+        try {
+          float x = Float.parseFloat(coordinates[0].trim());
+          float y = Float.parseFloat(coordinates[1].trim());
+          startTiles.add(new Point(x, y));
+        } catch (NumberFormatException e) {
+          System.err.println("Invalid number format in entry: " + entry);
+        }
+      }
+    }
+    return startTiles;
+  }
+
+  /**
+   * Serialize starting positions to a string in version 2 format.
+   *
+   * @param startTiles The list of starting tiles.
+   * @return The serialized starting positions as a string.
+   */
+  public static String serializeStartingPositions(List<Tile> startTiles) {
+    return startTiles.stream()
+        .map(tile -> tile.position().x() + "," + tile.position().y())
+        .collect(Collectors.joining(";"));
+  }
+
   /**
    * Load level layout from a list of strings in version 2 format. In version 2, the layout flipped,
    * since in the game +y is up and the layout in the file should be more intuitive to read from top
@@ -174,11 +193,14 @@ public class V2FormatParser extends LevelFormatParser {
    * @return A 2D array of LevelElement representing the level layout.
    */
   private static LevelElement[][] loadLevelLayout(List<String> lines) {
-    LevelElement[][] layout = new LevelElement[lines.size()][lines.getFirst().length()];
-    for (int y = lines.size() - 1; y >= 0; y--) {
-      for (int x = 0; x < lines.getFirst().length(); x++) {
+    int height = lines.size();
+    int width = lines.getFirst().length();
+    LevelElement[][] layout = new LevelElement[height][width];
+
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
         char c = lines.get(y).charAt(x);
-        layout[y][x] = getLevelElementFromChar(c);
+        layout[(height - 1) - y][x] = getLevelElementFromChar(c);
       }
     }
     return layout;

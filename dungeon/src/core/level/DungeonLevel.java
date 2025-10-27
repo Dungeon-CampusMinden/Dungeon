@@ -39,7 +39,7 @@ public class DungeonLevel implements ILevel, ITickable {
     Vector2.of(0, 1), Vector2.of(0, -1), Vector2.of(1, 0), Vector2.of(-1, 0),
   };
   protected final TileHeuristic tileHeuristic = new TileHeuristic();
-  protected Tile startTile;
+  protected final ArrayList<Tile> startTiles = new ArrayList<>();
   protected int nodeCount = 0;
   protected Tile[][] layout;
   protected ArrayList<FloorTile> floorTiles = new ArrayList<>();
@@ -297,12 +297,24 @@ public class DungeonLevel implements ILevel, ITickable {
 
   @Override
   public Optional<Tile> startTile() {
-    return Optional.ofNullable(startTile);
+    if (startTiles.isEmpty()) return Optional.empty();
+    return Optional.ofNullable(startTiles.getFirst());
+  }
+
+  @Override
+  public void startTile(Tile start) {
+    if (startTiles.isEmpty()) startTiles.add(start);
+    else startTiles.set(0, start);
+  }
+
+  public List<Tile> startTiles() {
+    return startTiles;
   }
 
   @Override
   public void setLayout(LevelElement[][] layout) {
-    this.layout = convertLevelElementToTile(layout, startTile.designLabel);
+    DesignLabel design = designLabel().orElseThrow();
+    this.layout = convertLevelElementToTile(layout, design);
     floorTiles.clear();
     wallTiles.clear();
     holeTiles.clear();
@@ -314,13 +326,8 @@ public class DungeonLevel implements ILevel, ITickable {
   }
 
   @Override
-  public void startTile(Tile start) {
-    startTile = start;
-  }
-
-  @Override
   public Optional<Tile> endTile() {
-    return Optional.ofNullable(exitTiles.size() > 0 ? exitTiles.get(0) : null);
+    return Optional.ofNullable(!exitTiles.isEmpty() ? exitTiles.getFirst() : null);
   }
 
   @Override

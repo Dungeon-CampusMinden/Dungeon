@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 public class LevelParser {
 
   private static final Logger LOGGER = Logger.getLogger(LevelParser.class.getName());
+  private static final String VERSION_PREFIX = "Version: ";
 
   /**
    * Parse level data from a string.
@@ -52,7 +53,7 @@ public class LevelParser {
     // Actual version numbers start at 2. If the first line doesnt match this format, it is version
     // 1.
     int version = 1;
-    if (versionLine.startsWith("Version: ")) {
+    if (versionLine.startsWith(VERSION_PREFIX)) {
       try {
         version = Integer.parseInt(versionLine.substring(9).trim());
       } catch (NumberFormatException ignored) {
@@ -85,5 +86,9 @@ public class LevelParser {
    */
   public static String serializeLevel(DungeonLevel level) {
     return new V2FormatParser().serializeLevel(level);
+  }
+
+  public static String getVersion(int version) {
+    return VERSION_PREFIX + version;
   }
 }
