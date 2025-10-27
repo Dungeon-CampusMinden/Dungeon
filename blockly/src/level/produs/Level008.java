@@ -5,7 +5,6 @@ import contrib.entities.LeverFactory;
 import core.Entity;
 import core.Game;
 import core.level.elements.tile.DoorTile;
-import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -24,8 +23,7 @@ import level.LevelManagementUtils;
 public class Level008 extends BlocklyLevel {
 
   private LeverComponent switch1, switch2;
-  private DoorTile door1, door2, door3;
-  private ExitTile exit;
+  private DoorTile door1, door2, door3, door4;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -59,7 +57,7 @@ public class Level008 extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    LevelManagementUtils.cameraFocusOn(new Coordinate(8, 6));
+    LevelManagementUtils.cameraFocusOn(new Coordinate(8, 8));
     LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
@@ -77,15 +75,14 @@ public class Level008 extends BlocklyLevel {
     Game.add(s1);
     Game.add(s2);
 
-    door1 = (DoorTile) Game.tileAt(new Coordinate(7, 6)).orElse(null);
+    door1 = (DoorTile) Game.tileAt(new Coordinate(7, 8)).orElse(null);
     door1.close();
-
-    door2 = (DoorTile) Game.tileAt(new Coordinate(12, 8)).orElse(null);
+    door2 = (DoorTile) Game.tileAt(new Coordinate(12, 10)).orElse(null);
     door2.close();
-    door3 = (DoorTile) Game.tileAt(new Coordinate(12, 3)).orElse(null);
+    door3 = (DoorTile) Game.tileAt(new Coordinate(12, 5)).orElse(null);
     door3.close();
-    exit = (ExitTile) Game.endTile().orElseThrow();
-    exit.close();
+    door4 = (DoorTile) Game.tileAt(new Coordinate(10, 2)).orElse(null);
+    door4.close();
 
     Game.add(MiscFactory.stone(getPoint(0)));
   }
@@ -98,7 +95,7 @@ public class Level008 extends BlocklyLevel {
     else door2.close();
     if (!switch2.isOn()) door3.open();
     else door3.close();
-    if (switch2.isOn() && switch1.isOn()) exit.open();
-    else exit.close();
+    if (switch2.isOn() && switch1.isOn()) door4.open();
+    else door4.close();
   }
 }

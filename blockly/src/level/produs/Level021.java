@@ -26,7 +26,7 @@ import level.LevelManagementUtils;
  */
 public class Level021 extends BlocklyLevel {
   private static boolean showText = true;
-  private static final int ESCAPE_DISTANCE = 2;
+  private static final int ESCAPE_DISTANCE = 1;
 
   private PositionComponent heroPC;
 
