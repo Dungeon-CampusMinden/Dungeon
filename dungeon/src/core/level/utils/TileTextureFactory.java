@@ -272,18 +272,18 @@ public class TileTextureFactory {
 
     if (!leftStem && !rightStem) {
       boolean innerRightT =
-          isNotFloor(n.getUpE())
+          !isInside(n.getRightE())
+              && isNotFloor(n.getUpE())
               && isNotFloor(n.getDownE())
               && isFloorOrDoor(n.getLeftE())
-              && isNotFloor(n.getRightE())
               && isFloorOrDoor(n.getUpRightE())
               && isFloorOrDoor(n.getDownRightE());
 
       boolean innerLeftT =
-          isNotFloor(n.getUpE())
+          !isInside(n.getLeftE())
+              && isNotFloor(n.getUpE())
               && isNotFloor(n.getDownE())
               && isFloorOrDoor(n.getRightE())
-              && isNotFloor(n.getLeftE())
               && isFloorOrDoor(n.getUpLeftE())
               && isFloorOrDoor(n.getDownLeftE());
 
@@ -1543,11 +1543,10 @@ public class TileTextureFactory {
   private static boolean isInnerTopWall(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     return (leftIsWall(p, layout) || leftIsDoor(p, layout))
-      && (rightIsWall(p, layout) || rightIsDoor(p, layout))
-      && isInsideNonDoor(n.getUpE())
-      && isInside(n.getDownE());
+        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+        && isInsideNonDoor(n.getUpE())
+        && isInside(n.getDownE());
   }
-
 
   /**
    * Checks if tile above the coordinate p is a wall.
