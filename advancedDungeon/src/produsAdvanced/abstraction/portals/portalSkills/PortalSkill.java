@@ -120,7 +120,7 @@ public abstract class PortalSkill extends ProjectileSkill {
 
     CollideComponent cc =
         new CollideComponent(
-            Vector2.of(0.25, 0 - 25),
+            Vector2.of(0.25, 0.25),
             Vector2.of(0.5, 0.5),
             onCollideEnter(caster),
             onCollideLeave(caster));
