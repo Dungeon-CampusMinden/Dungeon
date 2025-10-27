@@ -390,6 +390,7 @@ public class AdvancedFactory {
             new PelletLauncherBehaviour(
                 uniqueSkillName, position, attackRange, direction, energyPelletSkill),
             entity -> false));
+    launcher.add(new SkillComponent(energyPelletSkill));
 
     return launcher;
   }
