@@ -1,0 +1,128 @@
+package contrib.utils.systems;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import contrib.systems.DebugDrawSystem;
+import core.level.utils.LevelElement;
+import core.utils.Point;
+import core.utils.Vector2;
+import java.util.Optional;
+
+public class TilesMode extends LevelEditorMode {
+
+  private static int selectedTileIndexL = 1;
+  private static int selectedTileIndexR = 0;
+  private static int brushSize = 1;
+  private static final int MAX_BRUSH_SIZE = 7;
+
+  public TilesMode() {
+    super("Tiles Mode");
+  }
+
+  @Override
+  public void execute() {
+    if (Gdx.input.isKeyJustPressed(PRIMARY_DOWN)) {
+      if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+        selectedTileIndexR -= 1;
+      } else {
+        selectedTileIndexL -= 1;
+      }
+    } else if (Gdx.input.isKeyJustPressed(PRIMARY_UP)) {
+      if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+        selectedTileIndexR += 1;
+      } else {
+        selectedTileIndexL += 1;
+      }
+    }
+    if (Gdx.input.isKeyJustPressed(SECONDARY_UP)) {
+      brushSize = Math.max(1, brushSize - 1);
+    } else if (Gdx.input.isKeyJustPressed(SECONDARY_DOWN)) {
+      brushSize = Math.min(MAX_BRUSH_SIZE, brushSize + 1);
+    }
+
+    /* Mouse interactions:
+     * - LMB place tile on cursor
+     * - RMB place SKIP tile on cursor
+     */
+    Optional<LevelElement> levelElement = Optional.empty();
+    int targetBrushSize;
+    if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+      levelElement =
+          Optional.of(
+              LevelElement.values()[
+                  Math.floorMod(selectedTileIndexL, LevelElement.values().length)]);
+      targetBrushSize = brushSize;
+    } else {
+      targetBrushSize = 1;
+      if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+        levelElement =
+            Optional.of(
+                LevelElement.values()[
+                    Math.floorMod(selectedTileIndexR, LevelElement.values().length)]);
+      }
+    }
+    levelElement.ifPresent(
+        element -> {
+          // Set tiles in a distance brush area. 1 = 1 tile, 2 = 1 tile + surrounding tiles in x and
+          // y independently (not a square), etc.
+          Point cursorPos = getCursorPosition();
+          for (int dx = -targetBrushSize + 1; dx < targetBrushSize; dx++) {
+            for (int dy = -targetBrushSize + 1; dy < targetBrushSize; dy++) {
+              // Ignore corners
+              if (Math.abs(dx) + Math.abs(dy) >= targetBrushSize) {
+                continue;
+              }
+              Point targetPos = cursorPos.translate(Vector2.of(dx, dy));
+              setTile(targetPos, element);
+            }
+          }
+        });
+
+    // Draw squares on all affected tiles via the DebugDrawSystem
+    Point cursorPos = getCursorPosition();
+    cursorPos = new Point((float) Math.floor(cursorPos.x()), (float) Math.floor(cursorPos.y()));
+    for (int dx = -brushSize + 1; dx < brushSize; dx++) {
+      for (int dy = -brushSize + 1; dy < brushSize; dy++) {
+        // Ignore corners
+        if (Math.abs(dx) + Math.abs(dy) >= brushSize) {
+          continue;
+        }
+        Point targetPos = cursorPos.translate(Vector2.of(dx, dy));
+        DebugDrawSystem.drawRectangleOutline(
+            targetPos.x(), targetPos.y(), 1.0f, 1.0f, new Color(1, 1, 1, 0.2f));
+      }
+    }
+  }
+
+  @Override
+  public void onEnter() {}
+
+  @Override
+  public void onExit() {}
+
+  @Override
+  public String getStatusText() {
+    StringBuilder status = new StringBuilder("--- Edit Tiles Mode ---");
+    status.append("\nControls:");
+    status.append("\n- E/Q to change tile");
+    status.append("\n- Left/Right to change brush size");
+
+    status.append("\n\nSettings:");
+    status.append("\n[L] Brush Size: ").append(brushSize);
+    for (int i = 0; i < LevelElement.values().length; i++) {
+      LevelElement element = LevelElement.values()[i];
+      boolean hasL = (i == Math.floorMod(selectedTileIndexL, LevelElement.values().length));
+      boolean hasR = (i == Math.floorMod(selectedTileIndexR, LevelElement.values().length));
+      status.append("\n").append(element.name());
+      if (hasL) {
+        status.append(" [L]");
+      }
+      if (hasR) {
+        status.append(" [R]");
+      }
+    }
+
+    return status.toString();
+  }
+}
