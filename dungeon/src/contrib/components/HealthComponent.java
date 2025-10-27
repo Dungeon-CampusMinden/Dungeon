@@ -7,13 +7,12 @@ import contrib.utils.components.health.DamageType;
 import core.Component;
 import core.Entity;
 import core.Game;
-import core.utils.logging.CustomLogLevel;
+import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 
 /**
  * Allow an associated entity to take damage and to die.
@@ -32,11 +31,12 @@ import java.util.logging.Logger;
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
 public final class HealthComponent implements Component {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(HealthComponent.class);
+
   private static final Consumer<Entity> REMOVE_DEAD_ENTITY = Game::remove;
   private final List<Damage> damageToGet;
   private BiConsumer<Entity, Damage> onHit = (entity, damage) -> {};
   private Consumer<Entity> onDeath;
-  private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
   private int maximalHealthpoints;
   private int currentHealthpoints;
   private @Null Entity lastCause = null;
@@ -133,8 +133,7 @@ public final class HealthComponent implements Component {
     int damageSum =
         damageToGet.stream().filter(d -> d.damageType() == dt).mapToInt(Damage::damageAmount).sum();
 
-    LOGGER.log(
-        CustomLogLevel.DEBUG, this.getClass().getSimpleName() + " processed damage: '" + damageSum);
+    LOGGER.debug("Calculated damage of type {} is {}", dt.name(), damageSum);
 
     return damageSum;
   }

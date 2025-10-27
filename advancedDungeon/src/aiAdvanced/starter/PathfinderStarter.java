@@ -19,9 +19,8 @@ import core.level.utils.Coordinate;
 import core.systems.LevelSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.DungeonLogger;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class starts the dungeon Ai level to visualize the DFS and BFS.
@@ -29,7 +28,7 @@ import java.util.logging.Logger;
  * <p>Usage: run with the Gradle task {@code runPathfinder}.
  */
 public class PathfinderStarter {
-  private static final Logger LOGGER = Logger.getLogger(PathfinderStarter.class.getName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(PathfinderStarter.class);
   private static final boolean DRAW_CHECKER_PATTERN = true;
   private static Tuple<PathfindingLogic, PathfindingLogic> pathfindings = Tuple.of(null, null);
   private static final PathfindingSystem pathfindingSystem = new PathfindingSystem();
@@ -43,8 +42,6 @@ public class PathfinderStarter {
    * @throws IOException If an error occurs while loading.
    */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.WARNING);
-
     // start the game
     configGame();
     // Set up components and level

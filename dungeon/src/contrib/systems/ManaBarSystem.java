@@ -6,9 +6,9 @@ import contrib.utils.AttributeBarUtil;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.utils.logging.DungeonLogger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * A system responsible for displaying mana bars above entities that have a {@link ManaComponent},
@@ -23,8 +23,8 @@ import java.util.logging.Logger;
  * #execute()}.
  */
 public final class ManaBarSystem extends System {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ManaBarSystem.class);
 
-  private static final Logger LOGGER = Logger.getLogger(ManaBarSystem.class.getSimpleName());
   private static final float VERTICAL_OFFSET = 20f;
 
   /** Mapping from entity IDs to their corresponding mana bars. */
@@ -42,7 +42,7 @@ public final class ManaBarSystem extends System {
 
     this.onEntityAdd =
         entity -> {
-          LOGGER.fine("Adding mana bar for entity " + entity.id());
+          LOGGER.debug("Adding mana bar for entity {}", entity.id());
           AttributeBarUtil.addBarToEntity(
               entity,
               e ->

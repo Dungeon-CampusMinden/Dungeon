@@ -1,8 +1,7 @@
 package core.utils.components;
 
 import core.Entity;
-import core.utils.logging.CustomLogLevel;
-import java.util.logging.Logger;
+import core.utils.logging.DungeonLogger;
 
 /**
  * Exception stating that a component is missing.
@@ -11,6 +10,8 @@ import java.util.logging.Logger;
  * missing on an entity that is being processed.
  */
 public final class MissingComponentException extends NullPointerException {
+  private static final DungeonLogger LOGGER =
+      DungeonLogger.getLogger(MissingComponentException.class);
 
   /**
    * Constructs a new MissingComponentException with the specified detail message.
@@ -19,8 +20,7 @@ public final class MissingComponentException extends NullPointerException {
    */
   public MissingComponentException(final String message) {
     super("Missing Component:" + message);
-    Logger exceptionLogger = Logger.getLogger(this.getClass().getName());
-    exceptionLogger.log(CustomLogLevel.FATAL, "Missing Component: " + message);
+    LOGGER.error("Missing Component: {}", message);
   }
 
   /**

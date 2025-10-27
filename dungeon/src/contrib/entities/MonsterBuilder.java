@@ -27,14 +27,13 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.CharacterStateFactory;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.DungeonLogger;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Shared monster builder to reduce duplication between different monster enums across projects.
@@ -51,7 +50,7 @@ import java.util.logging.Logger;
  * @param <T> concrete builder type
  */
 public class MonsterBuilder<T extends MonsterBuilder<T>> {
-  private static final Logger LOGGER = Logger.getLogger(MonsterBuilder.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(MonsterBuilder.class);
 
   /** Maximum distance from hero within which to play the death sound when the monster dies. */
   private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
@@ -690,17 +689,14 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
   protected void playMonsterDieSound(IPath soundPath, long disposeDelay) {
     // TODO: Replace with a more robust sound management system
     if (Gdx.audio == null || Gdx.files == null) {
-      LOGGER.warning("Audio system not initialized, cannot play sound. (path=" + soundPath + ")");
+      LOGGER.warn("Audio system not initialized, cannot play sound. (path=" + soundPath + ")");
       return;
     }
     Sound sound;
     try {
       sound = Gdx.audio.newSound(Gdx.files.internal(soundPath.pathString()));
     } catch (GdxRuntimeException e) {
-      LOGGER.log(
-          Level.SEVERE,
-          "Failed to load sound at path: " + soundPath.pathString() + " (" + e + ")",
-          e);
+      LOGGER.error("Failed to load sound for entity {} at path: {}", e, soundPath.pathString());
       return;
     }
     long id = sound.play();
