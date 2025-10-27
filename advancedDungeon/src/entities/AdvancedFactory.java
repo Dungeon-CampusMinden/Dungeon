@@ -42,6 +42,7 @@ public class AdvancedFactory {
   private static final SimpleIPath PORTAL_SPHERE = new SimpleIPath("portal/kubus");
   private static final float sphere_mass = 3f;
   private static final float sphere_maxSpeed = 10f;
+  private static final SimpleIPath LASER_CUBE = new SimpleIPath("portal/laser/laser_cube.png");
 
   /**
    * Creates a laser grid entity at the given position.
@@ -181,6 +182,32 @@ public class AdvancedFactory {
             }));
 
     return portalCube;
+  }
+
+  /**
+   * Creates a laser cube entity at the given position.
+   *
+   * @param position The initial position of the laser cube.
+   * @param direction The direction the laser cube is facing.
+   * @return A new portal cube entity.
+   */
+  public static Entity laserCube(Point position, Direction direction) {
+    Entity laserCube = new Entity("laserCube");
+
+    PositionComponent pc = new PositionComponent(position);
+    float rotation;
+    switch (direction) {
+      case DOWN -> rotation = 180f;
+      case LEFT -> rotation = 90f;
+      case RIGHT -> rotation = -90f;
+      default -> rotation = 0f;
+    }
+    pc.rotation(rotation);
+    laserCube.add(pc);
+    laserCube.add(new DrawComponent(new Animation(LASER_CUBE)));
+    laserCube.add(new CollideComponent());
+
+    return laserCube;
   }
 
   /**
