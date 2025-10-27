@@ -26,6 +26,7 @@ import java.util.Map;
 /**
  * Factory und Verwaltung für „Lichtwände“ (Light Walls).
  *
+ * <p>
  * Diese Klasse erzeugt Emitter-Entities für Lichtwände und stellt die öffentliche API bereit,
  * um Wände zu aktivieren/deaktivieren und deren Länge über Portal-Events zu erweitern oder zu kürzen.
  * Die eigentliche Laufzeitlogik (Segmenterzeugung, Collider, Ausrichtung/Visuals) liegt in der
@@ -52,6 +53,7 @@ public class LightWallFactory {
   /**
    * Liefert die gecachten Segment-Animationen. Beim ersten Zugriff werden die Spritesheet-Animationen
    * geladen und für weitere Aufrufe zwischengespeichert.
+   *
    * @return Map der Animationen (Key entspricht dem State-Namen der Animation)
    */
   private static Map<String, Animation> segmentAnimations() {
@@ -64,6 +66,7 @@ public class LightWallFactory {
   /**
    * Komponente, die den Zustand und die Segmente einer einzelnen Lichtwand verwaltet.
    *
+   * <p>
    * Aufgaben:
    * - erzeugt/entfernt Segmente beim Aktivieren/Deaktivieren,
    * - erweitert/kürzt Segmente dynamisch (Extend/Trim),
@@ -83,6 +86,7 @@ public class LightWallFactory {
 
     /**
      * Erstellt die Verwaltungs-Komponente für eine Lichtwand.
+     *
      * @param owner Emitter-Entity, an die sich die Wand bindet
      * @param direction Ausrichtung der Wand (Richtung der Segment-Erzeugung)
      */
@@ -199,6 +203,7 @@ public class LightWallFactory {
     /**
      * Aktualisiert die Darstellung und Metadaten des Emitters abhängig vom Aktivitätszustand
      * (Texture, Depth-Layer, Name, Rotation).
+     *
      * @param on true, wenn aktiv; false, wenn inaktiv
      */
     private void updateEmitterVisual(boolean on) {
@@ -239,6 +244,7 @@ public class LightWallFactory {
     /**
      * Liefert die Rotation in Grad für eine Richtung. 0° entspricht UP, 180° DOWN,
      * 90° LEFT und -90° RIGHT.
+     *
      * @param d Richtung
      * @return Rotation in Grad für die Darstellung
      */
@@ -286,10 +292,12 @@ public class LightWallFactory {
     /**
      * Wählt den aktuell am weitesten entfernten Endpunkt der Wand relativ zum Emitter aus.
      *
+     * <p>
      * Es werden zwei Kandidaten betrachtet:
      * - baseEnd: das Ende der Basiswand (vom Emitter bis zur nächsten Wandkachel), und
      * - extendEnd: das Ende einer temporären Erweiterung (falls vorhanden).
      *
+     * <p>
      * Nullwerte werden gegen den übergebenen Startpunkt ersetzt. Abhängig von der Wandrichtung
      * wird der weiter „in Richtung des Strahls“ liegende Punkt gewählt:
      * - RIGHT: größeres x gewinnt,
@@ -316,6 +324,7 @@ public class LightWallFactory {
     /**
      * Berechnet die Anzahl von diskreten Kachelpunkten zwischen zwei Koordinaten inklusive
      * beider Endpunkte. Basis für die gleichmäßige Segmentverteilung.
+     *
      * @param from Startpunkt
      * @param to Endpunkt
      * @return Anzahl der Punkte (mindestens 1)
@@ -330,6 +339,7 @@ public class LightWallFactory {
      * Ermittelt den letzten freien Kachelpunkt in beamDirection, beginnend bei from, bevor eine
      * Wandkachel (WallTile) erreicht wird. Trifft die nächste Kachel bereits auf eine Wand, wird
      * der aktuelle Punkt zurückgegeben.
+     *
      * @param from Startpunkt
      * @param beamDirection Richtung des Strahls
      * @return letzter freier Punkt vor einer Wand (niemals null, solange from im Level liegt)
@@ -380,6 +390,7 @@ public class LightWallFactory {
 
   /**
    * Aktiviert die Lichtwand eines gegebenen Emitters, falls vorhanden.
+   *
    * @param wallEmitter Emitter-Entity
    */
   public static void activate(Entity wallEmitter) {
@@ -397,6 +408,7 @@ public class LightWallFactory {
 
   /**
    * Interne Helper-Methode: erweitert die Wand eines Emitters ab einem Startpunkt in gegebener Richtung.
+   *
    * @param wallEmitter Emitter
    * @param from Startpunkt der Erweiterung
    * @param direction Richtung der Erweiterung
@@ -407,6 +419,7 @@ public class LightWallFactory {
 
   /**
    * Interne Helper-Methode: nimmt eine zuvor ausgeführte Erweiterung wieder zurück.
+   *
    * @param wallEmitter Emitter
    */
   private static void trimWall(Entity wallEmitter) {

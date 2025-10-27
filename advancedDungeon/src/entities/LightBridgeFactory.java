@@ -30,6 +30,7 @@ import contrib.components.ProjectileComponent;
 /**
  * Factory und Verwaltung für „Lichtbrücken“ (Light Bridges).
  *
+ * <p>
  * Diese Klasse erzeugt Emitter-Entities für Lichtbrücken und stellt die öffentliche API bereit,
  * um Brücken zu aktivieren/deaktivieren und deren Länge über Portal-Events zu erweitern oder zu kürzen.
  * Die eigentliche Laufzeitlogik (Segmenterzeugung, Collider, Pit-Abdeckung) liegt in der
@@ -57,6 +58,7 @@ public class LightBridgeFactory {
   /**
    * Liefert die gecachten Segment-Animationen. Beim ersten Zugriff werden die Spritesheet-Animationen
    * geladen und für weitere Aufrufe zwischengespeichert.
+   *
    * @return Map der Animationen (Key entspricht dem State-Namen der Animation)
    */
   private static Map<String, Animation> segmentAnimations() {
@@ -69,6 +71,7 @@ public class LightBridgeFactory {
   /**
    * Komponente, die den Zustand und die Segmente einer einzelnen Lichtbrücke verwaltet.
    *
+   * <p>
    * Aufgaben:
    * - erzeugt/entfernt Segmente beim Aktivieren/Deaktivieren,
    * - erweitert/kürzt Segmente dynamisch (Extend/Trim),
@@ -90,6 +93,7 @@ public class LightBridgeFactory {
 
     /**
      * Erstellt die Verwaltungs-Komponente für eine Lichtbrücke.
+     *
      * @param owner Emitter-Entity, an die sich die Brücke bindet
      * @param direction Ausrichtung der Brücke (Richtung der Segment-Erzeugung)
      */
@@ -102,6 +106,7 @@ public class LightBridgeFactory {
      * Deckt eine Grube (PitTile) ab, sofern das übergebene Segment auf einer solchen Kachel liegt.
      * Dabei wird die Öffnungszeit extrem verlängert und der aktuelle Zustand gesichert, um ihn
      * bei Entfernung wiederherstellen zu können.
+     *
      * @param segment Segment-Entity, dessen Kachel geprüft wird
      */
     private void coverPitIfNeeded(Entity segment) {
@@ -116,6 +121,7 @@ public class LightBridgeFactory {
     /**
      * Gibt eine zuvor abgedeckte Grube wieder frei, sofern das übergebene Segment auf einer
      * PitTile lag. Der ursprüngliche Zustand der Grube wird gemäß Zähler wiederhergestellt.
+     *
      * @param segment Segment-Entity, dessen Kachel geprüft wird
      */
     private void uncoverPitIfNeeded(Entity segment) {
@@ -244,6 +250,7 @@ public class LightBridgeFactory {
     /**
      * Aktualisiert die Darstellung und Metadaten des Emitters abhängig vom Aktivitätszustand
      * (Texture, Depth-Layer, Name, Rotation).
+     *
      * @param on true, wenn aktiv; false, wenn inaktiv
      */
     private void updateEmitterVisual(boolean on) {
@@ -284,6 +291,7 @@ public class LightBridgeFactory {
     /**
      * Liefert die Rotation in Grad für eine Richtung. 0° entspricht UP, 180° DOWN,
      * 90° LEFT und -90° RIGHT.
+     *
      * @param d Richtung
      * @return Rotation in Grad für die Darstellung
      */
@@ -333,6 +341,7 @@ public class LightBridgeFactory {
      * Erhöht die Abdeckungszählung für eine Grube und konserviert deren ursprünglichen Zustand
      * (offen/geschlossen, Zeit bis zum Öffnen). Beim ersten Abdecken wird die Grube geschlossen
      * und die Öffnungszeit weit in die Zukunft gesetzt.
+     *
      * @param pit Grubenkachel
      */
     private void coverPit(PitTile pit) {
@@ -353,6 +362,7 @@ public class LightBridgeFactory {
      * Verringert die Abdeckungszählung einer Grube. Erreicht der Zähler 0, wird der zuvor
      * gespeicherte Zustand (Zeit bis zum Öffnen, offen/geschlossen) wiederhergestellt und die
      * Grube aus der Verwaltung entfernt.
+     *
      * @param pit Grubenkachel
      */
     private void uncoverPit(PitTile pit) {
@@ -370,10 +380,12 @@ public class LightBridgeFactory {
     /**
      * Wählt den aktuell am weitesten entfernten Endpunkt der Brücke relativ zum Emitter aus.
      *
+     * <p>
      * Es werden zwei Kandidaten betrachtet:
      * - baseEnd: das Ende der Basisbrücke (vom Emitter bis zur nächsten Wand),
      * - extendEnd: das Ende einer temporären Erweiterung (falls vorhanden).
      *
+     * <p>
      * Nullwerte werden gegen den übergebenen Startpunkt ersetzt. Abhängig von der Brückenrichtung
      * wird der weiter „in Richtung des Strahls“ liegende Punkt gewählt:
      * - RIGHT: größeres x gewinnt,
@@ -400,6 +412,7 @@ public class LightBridgeFactory {
     /**
      * Berechnet die Anzahl von diskreten Kachelpunkten zwischen zwei Koordinaten inklusive
      * beider Endpunkte. Basis für die gleichmäßige Segmentverteilung.
+     *
      * @param from Startpunkt
      * @param to Endpunkt
      * @return Anzahl der Punkte (mindestens 1)
@@ -414,6 +427,7 @@ public class LightBridgeFactory {
      * Ermittelt den letzten freien Kachelpunkt in beamDirection, beginnend bei from, bevor eine
      * Wandkachel (WallTile) erreicht wird. Trifft die nächste Kachel bereits auf eine Wand, wird
      * der aktuelle Punkt zurückgegeben.
+     *
      * @param from Startpunkt
      * @param beamDirection Richtung des Strahls
      * @return letzter freier Punkt vor einer Wand (niemals null, solange from im Level liegt)
@@ -466,6 +480,7 @@ public class LightBridgeFactory {
 
   /**
    * Aktiviert die Lichtbrücke eines gegebenen Emitters, falls vorhanden.
+   *
    * @param wallEmitter Emitter-Entity
    */
   public static void activate(Entity wallEmitter) {
@@ -474,6 +489,7 @@ public class LightBridgeFactory {
 
   /**
    * Deaktiviert die Lichtbrücke eines gegebenen Emitters, falls vorhanden.
+   *
    * @param wallEmitter Emitter-Entity
    */
   public static void deactivate(Entity wallEmitter) {
@@ -482,6 +498,7 @@ public class LightBridgeFactory {
 
   /**
    * Interne Helper-Methode: erweitert die Brücke eines Emitters ab einem Startpunkt in gegebener Richtung.
+   *
    * @param wallEmitter Emitter
    * @param from Startpunkt der Erweiterung
    * @param direction Richtung der Erweiterung
@@ -492,6 +509,7 @@ public class LightBridgeFactory {
 
   /**
    * Interne Helper-Methode: nimmt eine zuvor ausgeführte Erweiterung wieder zurück.
+   *
    * @param wallEmitter Emitter
    */
   private static void trimWall(Entity wallEmitter) {
