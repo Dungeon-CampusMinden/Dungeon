@@ -129,7 +129,7 @@ public class LaserFactory {
     int denom = Math.max(totalPoints - 1, 1);
     float x = from.x() + index * (to.x() - from.x()) / denom;
     float y = from.y() + index * (to.y() - from.y()) / denom;
-    Point p = new Point(x + 0.5f, y + 0.5f);
+    Point p = new Point(x, y);
 
     Entity segment = new Entity("laserSegment");
     PositionComponent pc = new PositionComponent(p);
@@ -137,7 +137,13 @@ public class LaserFactory {
     segment.add(pc);
 
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(LASER);
-    State idle = State.fromMap(animationMap, "vertical");
+    State idle;
+    if (dir == Direction.LEFT || dir == Direction.RIGHT) {
+      idle = State.fromMap(animationMap, "horizontal");
+    } else {
+      idle = State.fromMap(animationMap, "vertical");
+    }
+
     StateMachine sm = new StateMachine(List.of(idle));
     DrawComponent dc = new DrawComponent(sm);
     segment.add(dc);

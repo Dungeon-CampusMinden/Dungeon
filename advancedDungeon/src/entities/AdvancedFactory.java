@@ -15,10 +15,14 @@ import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
+import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
+import produsAdvanced.abstraction.portals.components.LaserComponent;
+import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
+
 import java.util.Arrays;
 import java.util.Map;
 
@@ -43,6 +47,8 @@ public class AdvancedFactory {
   private static final float sphere_mass = 3f;
   private static final float sphere_maxSpeed = 10f;
   private static final SimpleIPath LASER_CUBE = new SimpleIPath("portal/laser/laser_cube.png");
+  private static final SimpleIPath LASER_RECEIVER = new SimpleIPath("portal/laser_receiver");
+
 
   /**
    * Creates a laser grid entity at the given position.
@@ -205,9 +211,83 @@ public class AdvancedFactory {
     pc.rotation(rotation);
     laserCube.add(pc);
     laserCube.add(new DrawComponent(new Animation(LASER_CUBE)));
-    laserCube.add(new CollideComponent());
+
+    TriConsumer<Entity, Entity, Direction> action =
+      (you, other, collisionDir) -> {
+        other
+          .fetch(LaserComponent.class)
+          .ifPresent(
+            lc -> {
+              LaserFactory.extendLaser(direction, position, lc.getSegments(), other.fetch(PortalExtendComponent.class).get(), lc);
+            });
+      };
+
+    TriConsumer<Entity, Entity, Direction> actionLeave =
+      (you, other, collisionDir) -> {
+
+      };
+
+    laserCube.add(
+      new CollideComponent(
+        Vector2.of(0f, 0f),
+        Vector2.of(1f, 1f),
+        CollideComponent.DEFAULT_COLLIDER,
+        actionLeave));
+    laserCube
+      .fetch(CollideComponent.class)
+      .ifPresent(
+        cc -> {
+          cc.onHold(action);
+        });
 
     return laserCube;
+  }
+
+  public static Entity laserReceiver(Point position) {
+    Entity receiver = new Entity("laserReceiver");
+
+    PositionComponent pc = new PositionComponent(position);
+    receiver.add(pc);
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(LASER_RECEIVER);
+
+    State inactive = new State("inactive", animationMap.get("inactive"));
+    State active = new State("active", animationMap.get("active"));
+    StateMachine sm = new StateMachine(Arrays.asList(active, inactive));
+
+    //sm.addTransition(inactive, "activate", active);
+
+    receiver.add(new DrawComponent(sm));
+
+
+    TriConsumer<Entity, Entity, Direction> action =
+      (you, other, collisionDir) -> {
+        other
+          .fetch(LaserComponent.class)
+          .ifPresent(
+            lc -> {
+
+            });
+      };
+
+    TriConsumer<Entity, Entity, Direction> actionLeave =
+      (you, other, collisionDir) -> {
+
+      };
+
+    receiver.add(
+      new CollideComponent(
+        Vector2.of(0f, 0f),
+        Vector2.of(1f, 1f),
+        CollideComponent.DEFAULT_COLLIDER,
+        actionLeave));
+    receiver
+      .fetch(CollideComponent.class)
+      .ifPresent(
+        cc -> {
+          cc.onHold(action);
+        });
+
+    return receiver;
   }
 
   /**
