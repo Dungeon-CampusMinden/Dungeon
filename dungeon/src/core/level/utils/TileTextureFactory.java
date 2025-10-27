@@ -1378,55 +1378,23 @@ public class TileTextureFactory {
   }
 
   private static boolean isBottomRightInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
+    if (isFloorOrDoor(get(layout, p.x() - 1, p.y()))) return false;
     return isInnerEmptyCorner(p, layout, 1, -1);
   }
 
   private static boolean isBottomLeftInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
+    if (isFloorOrDoor(get(layout, p.x() + 1, p.y()))) return false;
     return isInnerEmptyCorner(p, layout, -1, -1);
   }
 
-  private static boolean isUpperLeftInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
-    return isInnerEmptyCorner(p, layout, -1, 1);
-  }
-
   private static boolean isUpperRightInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
+    if (isFloorOrDoor(get(layout, p.x() - 1, p.y()))) return false;
     return isInnerEmptyCorner(p, layout, 1, 1);
   }
 
-  private static boolean forceDoubleCorner(
-      Coordinate p,
-      LevelElement[][] layout,
-      int ox1,
-      int oy1,
-      int ox2,
-      int oy2,
-      int ix1,
-      int iy1,
-      int ix2,
-      int iy2) {
-    boolean outerFD =
-        isFloorOrDoor(get(layout, p.x() + ox1, p.y() + oy1))
-            && isFloorOrDoor(get(layout, p.x() + ox2, p.y() + oy2));
-    boolean innerAny =
-        isInSpaceWall(new Coordinate(p.x() + ix1, p.y() + iy1), layout)
-            || isInSpaceWall(new Coordinate(p.x() + ix2, p.y() + iy2), layout);
-    return outerFD && innerAny;
-  }
-
-  private static boolean forceDoubleUpperLeft(Coordinate p, LevelElement[][] layout) {
-    return forceDoubleCorner(p, layout, 0, 1, -1, 0, 0, -1, 1, 0);
-  }
-
-  private static boolean forceDoubleUpperRight(Coordinate p, LevelElement[][] layout) {
-    return forceDoubleCorner(p, layout, 0, 1, 1, 0, 0, -1, -1, 0);
-  }
-
-  private static boolean forceDoubleBottomLeft(Coordinate p, LevelElement[][] layout) {
-    return forceDoubleCorner(p, layout, 0, -1, -1, 0, 0, 1, 1, 0);
-  }
-
-  private static boolean forceDoubleBottomRight(Coordinate p, LevelElement[][] layout) {
-    return forceDoubleCorner(p, layout, 0, -1, 1, 0, 0, 1, -1, 0);
+  private static boolean isUpperLeftInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
+    if (isFloorOrDoor(get(layout, p.x() + 1, p.y()))) return false;
+    return isInnerEmptyCorner(p, layout, -1, 1);
   }
 
   private static boolean isAtBorder(Coordinate p, LevelElement[][] layout) {
