@@ -26,7 +26,7 @@ public class GdxSoundPlayerTest {
     mockSound = mock(Sound.class);
     when(mockAssetManager.isLoaded(anyString())).thenReturn(true);
     when(mockAssetManager.get(anyString(), eq(Sound.class))).thenReturn(mockSound);
-    when(mockSound.play(anyFloat())).thenReturn(1L); // Mock sound ID
+    when(mockSound.play(anyFloat(), anyFloat(), anyFloat())).thenReturn(1L); // Mock sound ID
     player = spy(new GdxSoundPlayer(mockAssetManager));
 
     // Manually add test assets using reflection since scanning doesn't find files in test
@@ -49,7 +49,7 @@ public class GdxSoundPlayerTest {
   void testPlayValidSound() {
     Optional<IPlayHandle> handle = player.play("test", 0.8f, false);
     assertTrue(handle.isPresent());
-    verify(mockSound).play(0.8f);
+    verify(mockSound).play(eq(0.8f), anyFloat(), anyFloat());
     verify(player).play("test", 0.8f, false);
   }
 
@@ -64,7 +64,7 @@ public class GdxSoundPlayerTest {
   void testPlayLoopingSound() {
     Optional<IPlayHandle> handle = player.play("loop", 0.8f, true);
     assertTrue(handle.isPresent());
-    verify(mockSound).play(0.8f);
+    verify(mockSound).play(eq(0.8f), anyFloat(), anyFloat());
     verify(mockSound).setLooping(1L, true);
     verify(player).play("loop", 0.8f, true);
   }
