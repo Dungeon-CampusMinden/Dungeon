@@ -27,7 +27,7 @@ public class GdxSoundPlayerTest {
     when(mockAssetManager.isLoaded(anyString())).thenReturn(true);
     when(mockAssetManager.get(anyString(), eq(Sound.class))).thenReturn(mockSound);
     when(mockSound.play(anyFloat())).thenReturn(1L); // Mock sound ID
-    player = new GdxSoundPlayer(mockAssetManager);
+    player = spy(new GdxSoundPlayer(mockAssetManager));
 
     // Manually add test assets using reflection since scanning doesn't find files in test
     Field assetsField = GdxSoundPlayer.class.getDeclaredField("assets");
@@ -50,12 +50,14 @@ public class GdxSoundPlayerTest {
     Optional<IPlayHandle> handle = player.play("test", 0.8f, false);
     assertTrue(handle.isPresent());
     verify(mockSound).play(0.8f);
+    verify(player).play("test", 0.8f, false);
   }
 
   @Test
-  void testPlayInvalidSound() {
+  void testPlayNonExistentSound() {
     Optional<IPlayHandle> handle = player.play("nonexistent", 0.8f, false);
     assertFalse(handle.isPresent());
+    verify(player).play("nonexistent", 0.8f, false);
   }
 
   @Test
@@ -64,12 +66,37 @@ public class GdxSoundPlayerTest {
     assertTrue(handle.isPresent());
     verify(mockSound).play(0.8f);
     verify(mockSound).setLooping(1L, true);
+    verify(player).play("loop", 0.8f, true);
   }
 
   @Test
-  void testUpdate() {
-    player.update(0.016f);
-    // No assertions needed, just ensure no exceptions
+  void testUpdateFinishesSound() {
+    Optional<IPlayHandle> handle = player.play("test", 0.8f, false);
+    assertTrue(handle.isPresent());
+    IPlayHandle playHandle = handle.get();
+
+    Runnable callback = mock(Runnable.class);
+    playHandle.onFinished(callback);
+
+    assertTrue(playHandle.isPlaying());
+    playHandle.stop();
+
+    assertDoesNotThrow(() -> player.update(0.016f));
+
+    verify(callback).run();
+  }
+
+  @Test
+  void testUpdatePreservesLoopingSounds() {
+    Optional<IPlayHandle> handle = player.play("loop", 0.8f, true);
+    assertTrue(handle.isPresent());
+    IPlayHandle loopHandle = handle.get();
+
+    assertTrue(loopHandle.isPlaying());
+
+    assertDoesNotThrow(() -> player.update(0.016f));
+
+    assertTrue(loopHandle.isPlaying());
   }
 
   @Test

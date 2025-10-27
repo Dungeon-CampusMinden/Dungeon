@@ -40,6 +40,7 @@ public interface IPlayHandle {
    *
    * @param pan the pan position (-1.0 left, 0.0 center, 1.0 right)
    * @param volume the volume level (0.0 to 1.0)
+   * @throws IllegalArgumentException if pan is out of range
    */
   void pan(float pan, float volume);
 

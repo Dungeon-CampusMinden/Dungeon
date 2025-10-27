@@ -23,18 +23,16 @@ import java.util.Optional;
 public class NoSoundPlayer implements ISoundPlayer {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(NoSoundPlayer.class);
 
-  /**
-   * Ignores the play request and logs it. Always returns empty, as no sound is played.
-   *
-   * @param id the sound ID (ignored)
-   * @param volume the volume (ignored)
-   * @param looping the looping flag (ignored)
-   * @return always empty
-   */
   @Override
-  public Optional<IPlayHandle> play(String id, float volume, boolean looping) {
+  public Optional<IPlayHandle> play(
+      String id, float volume, boolean looping, float pitch, float pan) {
     LOGGER.debug(
-        "NoSoundPlayer: Ignoring play request for {} at volume {} looping {}", id, volume, looping);
+        "NoSoundPlayer: Ignoring play request for {} at volume {} looping {} pitch {} pan {}",
+        id,
+        volume,
+        looping,
+        pitch,
+        pan);
     return Optional.empty();
   }
 
@@ -46,6 +44,11 @@ public class NoSoundPlayer implements ISoundPlayer {
   @Override
   public void update(float delta) {
     // No-op
+  }
+
+  @Override
+  public void stopAll() {
+    LOGGER.debug("NoSoundPlayer: Ignoring stopAll request");
   }
 
   /** Logs disposal and performs no cleanup. */

@@ -1,6 +1,7 @@
 package core.components;
 
 import core.Component;
+import core.sound.player.ISoundPlayer;
 
 /**
  * Component for entities that emit sounds. The sound is positional, with volume and pan adjusted
@@ -24,7 +25,7 @@ public record SoundComponent(
     Runnable onFinish)
     implements Component {
 
-  private static final float DEFAULT_BASE_VOLUME = 0.5f;
+  private static final float DEFAULT_BASE_VOLUME = ISoundPlayer.DEFAULT_VOLUME;
   private static final boolean DEFAULT_LOOPING = false;
   private static final float DEFAULT_MAX_DISTANCE = -1f; // Infinite distance
   private static final float DEFAULT_ATTENUATION_FACTOR = 1.0f;
