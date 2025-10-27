@@ -1,8 +1,6 @@
 package entities;
 
 import contrib.components.CollideComponent;
-import core.utils.Vector2;
-import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -12,23 +10,23 @@ import core.level.Tile;
 import core.level.elements.tile.WallTile;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
 
 /**
  * Factory und Verwaltung für „Lichtwände“ (Light Walls).
  *
- * <p>
- * Diese Klasse erzeugt Emitter-Entities für Lichtwände und stellt die öffentliche API bereit,
- * um Wände zu aktivieren/deaktivieren und deren Länge über Portal-Events zu erweitern oder zu kürzen.
+ * <p>Diese Klasse erzeugt Emitter-Entities für Lichtwände und stellt die öffentliche API bereit, um
+ * Wände zu aktivieren/deaktivieren und deren Länge über Portal-Events zu erweitern oder zu kürzen.
  * Die eigentliche Laufzeitlogik (Segmenterzeugung, Collider, Ausrichtung/Visuals) liegt in der
  * inneren Komponente LightWallComponent, die an den Emitter angehängt wird.
  */
@@ -40,19 +38,15 @@ public class LightWallFactory {
   private static final SimpleIPath EMITTER_TEXTURE_INACTIVE =
       new SimpleIPath("portal/light_wall_emitter/light_wall_emitter_inactive.png");
 
-  /**
-   * Anzahl Kacheln, um die der Extend-/Spawn-Startpunkt vor dem Emitter versetzt wird.
-   */
+  /** Anzahl Kacheln, um die der Extend-/Spawn-Startpunkt vor dem Emitter versetzt wird. */
   public static int spawnOffset = 1;
 
-  /**
-   * Cache für Segment-Animationen, um Mehrfachladen zu vermeiden.
-   */
+  /** Cache für Segment-Animationen, um Mehrfachladen zu vermeiden. */
   private static Map<String, Animation> SEGMENT_ANIMATION_CACHE;
 
   /**
-   * Liefert die gecachten Segment-Animationen. Beim ersten Zugriff werden die Spritesheet-Animationen
-   * geladen und für weitere Aufrufe zwischengespeichert.
+   * Liefert die gecachten Segment-Animationen. Beim ersten Zugriff werden die
+   * Spritesheet-Animationen geladen und für weitere Aufrufe zwischengespeichert.
    *
    * @return Map der Animationen (Key entspricht dem State-Namen der Animation)
    */
@@ -66,13 +60,10 @@ public class LightWallFactory {
   /**
    * Komponente, die den Zustand und die Segmente einer einzelnen Lichtwand verwaltet.
    *
-   * <p>
-   * Aufgaben:
-   * - erzeugt/entfernt Segmente beim Aktivieren/Deaktivieren,
-   * - erweitert/kürzt Segmente dynamisch (Extend/Trim),
-   * - passt den Collider an die aktuelle Wandlänge an,
-   * - sorgt für korrekte Ausrichtung und Darstellung des Emitters.
-   * Die Interaktion nach außen erfolgt über die Factory-Methoden in LightWallFactory.
+   * <p>Aufgaben: - erzeugt/entfernt Segmente beim Aktivieren/Deaktivieren, - erweitert/kürzt
+   * Segmente dynamisch (Extend/Trim), - passt den Collider an die aktuelle Wandlänge an, - sorgt
+   * für korrekte Ausrichtung und Darstellung des Emitters. Die Interaktion nach außen erfolgt über
+   * die Factory-Methoden in LightWallFactory.
    */
   public static class LightWallComponent implements Component {
     private final Entity owner;
@@ -96,8 +87,8 @@ public class LightWallFactory {
     }
 
     /**
-     * Erstellt einen Emitter an der angegebenen Position, richtet ihn gemäß Richtung aus und
-     * setzt die inaktive Darstellung.
+     * Erstellt einen Emitter an der angegebenen Position, richtet ihn gemäß Richtung aus und setzt
+     * die inaktive Darstellung.
      *
      * @param from Startposition (Tile-Koordinaten)
      * @param direction Ausrichtung des Emitters und der späteren Wand
@@ -117,8 +108,8 @@ public class LightWallFactory {
     }
 
     /**
-     * Aktiviert die Wand: erzeugt Basissegmente vom Emitter bis zur nächsten Wand
-     * und legt den Collider über die gesamte Länge. Doppelte Aktivierungen werden ignoriert.
+     * Aktiviert die Wand: erzeugt Basissegmente vom Emitter bis zur nächsten Wand und legt den
+     * Collider über die gesamte Länge. Doppelte Aktivierungen werden ignoriert.
      */
     private void activate() {
       if (active) return;
@@ -131,7 +122,8 @@ public class LightWallFactory {
                 Point start = pc.position();
                 Point end = calculateEndPoint(start, this.direction);
                 int total = calculateNumberOfPoints(start, end);
-                for (int i = 0; i < total; i++) segments.add(createNextSegment(start, end, total, i, this.direction));
+                for (int i = 0; i < total; i++)
+                  segments.add(createNextSegment(start, end, total, i, this.direction));
                 baseEnd = end;
                 createColliderForBeam(start, pickFurtherEnd(start), this.direction);
               });
@@ -142,8 +134,8 @@ public class LightWallFactory {
     }
 
     /**
-     * Deaktiviert die Wand: entfernt alle Segmente, setzt die inaktive Darstellung
-     * und entfernt den Collider. Mehrfache Aufrufe sind idempotent.
+     * Deaktiviert die Wand: entfernt alle Segmente, setzt die inaktive Darstellung und entfernt den
+     * Collider. Mehrfache Aufrufe sind idempotent.
      */
     private void deactivate() {
       if (!active) return;
@@ -155,10 +147,10 @@ public class LightWallFactory {
     }
 
     /**
-     * Erzeugt zusätzliche Segmente in angegebener Richtung ab Position "from" und
-     * erweitert die Wand temporär über die Basislänge hinaus. Falls bereits eine Erweiterung
-     * existiert, wird zuvor getrimmt. Bei aktiver Wand werden Segmente und Collider sofort
-     * in die Spielwelt übernommen.
+     * Erzeugt zusätzliche Segmente in angegebener Richtung ab Position "from" und erweitert die
+     * Wand temporär über die Basislänge hinaus. Falls bereits eine Erweiterung existiert, wird
+     * zuvor getrimmt. Bei aktiver Wand werden Segmente und Collider sofort in die Spielwelt
+     * übernommen.
      *
      * @param direction Richtung der Erweiterung
      * @param from Startpunkt der Erweiterung (Tile-Koordinaten)
@@ -177,24 +169,31 @@ public class LightWallFactory {
       if (active) {
         extendedSegments.forEach(Game::add);
         segments.addAll(extendedSegments);
-        owner.fetch(PositionComponent.class)
-            .ifPresent(pc -> createColliderForBeam(pc.position(), pickFurtherEnd(pc.position()), this.direction));
+        owner
+            .fetch(PositionComponent.class)
+            .ifPresent(
+                pc ->
+                    createColliderForBeam(
+                        pc.position(), pickFurtherEnd(pc.position()), this.direction));
       }
     }
 
     /**
-     * Entfernt zuvor erzeugte Erweiterungssegmente und stellt die Collider-Länge auf die Basis zurück.
-     * Bei inaktiver Wand wird lediglich der interne Zustand bereinigt.
+     * Entfernt zuvor erzeugte Erweiterungssegmente und stellt die Collider-Länge auf die Basis
+     * zurück. Bei inaktiver Wand wird lediglich der interne Zustand bereinigt.
      */
     public void trim() {
       if (extendedSegments.isEmpty()) return;
       if (active) {
         extendedSegments.forEach(Game::remove);
         segments.removeAll(extendedSegments);
-        owner.fetch(PositionComponent.class)
-            .ifPresent(pc -> {
-              if (baseEnd != null) createColliderForBeam(pc.position(), baseEnd, this.direction);
-            });
+        owner
+            .fetch(PositionComponent.class)
+            .ifPresent(
+                pc -> {
+                  if (baseEnd != null)
+                    createColliderForBeam(pc.position(), baseEnd, this.direction);
+                });
       }
       extendedSegments.clear();
       extendEnd = null;
@@ -216,7 +215,8 @@ public class LightWallFactory {
 
     /**
      * Erzeugt ein einzelnes Segment-Entity auf der Strecke von "from" nach "to" und richtet es aus.
-     * Die Position wird anhand der Anzahl totalPoints und des Index currentIndex gleichmäßig verteilt.
+     * Die Position wird anhand der Anzahl totalPoints und des Index currentIndex gleichmäßig
+     * verteilt.
      *
      * @param from Startposition der Strecke
      * @param to Endposition der Strecke
@@ -225,7 +225,8 @@ public class LightWallFactory {
      * @param rotDir Ausrichtung des Segments für die Rotation
      * @return das erzeugte Segment-Entity
      */
-    private Entity createNextSegment(Point from, Point to, int totalPoints, int currentIndex, Direction rotDir) {
+    private Entity createNextSegment(
+        Point from, Point to, int totalPoints, int currentIndex, Direction rotDir) {
       float x = from.x() + currentIndex * (to.x() - from.x()) / (totalPoints - 1);
       float y = from.y() + currentIndex * (to.y() - from.y()) / (totalPoints - 1);
       Entity segment = new Entity("lightWallSegment");
@@ -242,8 +243,8 @@ public class LightWallFactory {
     }
 
     /**
-     * Liefert die Rotation in Grad für eine Richtung. 0° entspricht UP, 180° DOWN,
-     * 90° LEFT und -90° RIGHT.
+     * Liefert die Rotation in Grad für eine Richtung. 0° entspricht UP, 180° DOWN, 90° LEFT und
+     * -90° RIGHT.
      *
      * @param d Richtung
      * @return Rotation in Grad für die Darstellung
@@ -260,8 +261,8 @@ public class LightWallFactory {
 
     /**
      * Erstellt oder aktualisiert den Collider der Wand so, dass er die aktuelle Länge abdeckt.
-     * Breite/Höhe und Offsets werden abhängig von der Ausrichtung berechnet und schließen immer
-     * die Position des Emitters mit ein.
+     * Breite/Höhe und Offsets werden abhängig von der Ausrichtung berechnet und schließen immer die
+     * Position des Emitters mit ein.
      *
      * @param start Startpunkt (Emitterposition)
      * @param end Endpunkt der aktuellen Wand
@@ -292,21 +293,17 @@ public class LightWallFactory {
     /**
      * Wählt den aktuell am weitesten entfernten Endpunkt der Wand relativ zum Emitter aus.
      *
-     * <p>
-     * Es werden zwei Kandidaten betrachtet:
-     * - baseEnd: das Ende der Basiswand (vom Emitter bis zur nächsten Wandkachel), und
-     * - extendEnd: das Ende einer temporären Erweiterung (falls vorhanden).
+     * <p>Es werden zwei Kandidaten betrachtet: - baseEnd: das Ende der Basiswand (vom Emitter bis
+     * zur nächsten Wandkachel), und - extendEnd: das Ende einer temporären Erweiterung (falls
+     * vorhanden).
      *
-     * <p>
-     * Nullwerte werden gegen den übergebenen Startpunkt ersetzt. Abhängig von der Wandrichtung
-     * wird der weiter „in Richtung des Strahls“ liegende Punkt gewählt:
-     * - RIGHT: größeres x gewinnt,
-     * - LEFT: kleineres x gewinnt,
-     * - UP: größeres y gewinnt,
-     * - DOWN: kleineres y gewinnt.
+     * <p>Nullwerte werden gegen den übergebenen Startpunkt ersetzt. Abhängig von der Wandrichtung
+     * wird der weiter „in Richtung des Strahls“ liegende Punkt gewählt: - RIGHT: größeres x
+     * gewinnt, - LEFT: kleineres x gewinnt, - UP: größeres y gewinnt, - DOWN: kleineres y gewinnt.
      * Bei Gleichstand oder unbekannter Richtung wird baseEnd bevorzugt.
      *
-     * @param start Ausgangspunkt (typisch: Emitterposition), Fallback falls kein Endpunkt bekannt ist
+     * @param start Ausgangspunkt (typisch: Emitterposition), Fallback falls kein Endpunkt bekannt
+     *     ist
      * @return der weiter entfernte Endpunkt in Strahlrichtung; niemals null
      */
     private Point pickFurtherEnd(Point start) {
@@ -322,8 +319,8 @@ public class LightWallFactory {
     }
 
     /**
-     * Berechnet die Anzahl von diskreten Kachelpunkten zwischen zwei Koordinaten inklusive
-     * beider Endpunkte. Basis für die gleichmäßige Segmentverteilung.
+     * Berechnet die Anzahl von diskreten Kachelpunkten zwischen zwei Koordinaten inklusive beider
+     * Endpunkte. Basis für die gleichmäßige Segmentverteilung.
      *
      * @param from Startpunkt
      * @param to Endpunkt
@@ -361,8 +358,8 @@ public class LightWallFactory {
 
   /**
    * Erzeugt eine neue Lichtwand samt Emitter. Optional kann die Wand direkt aktiviert werden,
-   * wodurch Segmente und Collider sofort erstellt werden. Außerdem wird ein
-   * PortalExtendComponent registriert, der Extend/Trim-Ereignisse verarbeitet.
+   * wodurch Segmente und Collider sofort erstellt werden. Außerdem wird ein PortalExtendComponent
+   * registriert, der Extend/Trim-Ereignisse verarbeitet.
    *
    * @param from Startposition des Emitters (Tile-Koordinaten)
    * @param direction Ausrichtung der Lichtwand
@@ -407,7 +404,8 @@ public class LightWallFactory {
   }
 
   /**
-   * Interne Helper-Methode: erweitert die Wand eines Emitters ab einem Startpunkt in gegebener Richtung.
+   * Interne Helper-Methode: erweitert die Wand eines Emitters ab einem Startpunkt in gegebener
+   * Richtung.
    *
    * @param wallEmitter Emitter
    * @param from Startpunkt der Erweiterung

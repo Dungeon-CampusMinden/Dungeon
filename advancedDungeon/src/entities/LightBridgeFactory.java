@@ -1,63 +1,56 @@
 package entities;
 
 import contrib.components.CollideComponent;
-import core.utils.Vector2;
-import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
+import contrib.components.ProjectileComponent;
 import core.Component;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.elements.tile.PitTile;
 import core.level.elements.tile.WallTile;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import core.level.elements.tile.PitTile;
-import contrib.components.ProjectileComponent;
+import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
 
 /**
  * Factory und Verwaltung für „Lichtbrücken“ (Light Bridges).
  *
- * <p>
- * Diese Klasse erzeugt Emitter-Entities für Lichtbrücken und stellt die öffentliche API bereit,
- * um Brücken zu aktivieren/deaktivieren und deren Länge über Portal-Events zu erweitern oder zu kürzen.
- * Die eigentliche Laufzeitlogik (Segmenterzeugung, Collider, Pit-Abdeckung) liegt in der
+ * <p>Diese Klasse erzeugt Emitter-Entities für Lichtbrücken und stellt die öffentliche API bereit,
+ * um Brücken zu aktivieren/deaktivieren und deren Länge über Portal-Events zu erweitern oder zu
+ * kürzen. Die eigentliche Laufzeitlogik (Segmenterzeugung, Collider, Pit-Abdeckung) liegt in der
  * inneren Komponente LightBridgeComponent, die an den Emitter angehängt wird.
  */
 public class LightBridgeFactory {
 
   private static final SimpleIPath SEGMENT_SPRITESHEET_PATH =
-    new SimpleIPath("portal/light_bridge");
+      new SimpleIPath("portal/light_bridge");
   private static final SimpleIPath EMITTER_TEXTURE_ACTIVE =
-    new SimpleIPath("portal/light_bridge_emitter/light_bridge_emitter_active.png");
+      new SimpleIPath("portal/light_bridge_emitter/light_bridge_emitter_active.png");
   private static final SimpleIPath EMITTER_TEXTURE_INACTIVE =
-    new SimpleIPath("portal/light_bridge_emitter/light_bridge_emitter_inactive.png");
+      new SimpleIPath("portal/light_bridge_emitter/light_bridge_emitter_inactive.png");
 
-  /**
-   * Anzahl Kacheln, um die der Extend-/Spawn-Startpunkt vor dem Emitter versetzt wird.
-   */
+  /** Anzahl Kacheln, um die der Extend-/Spawn-Startpunkt vor dem Emitter versetzt wird. */
   public static int spawnOffset = 1;
 
-  /**
-   * Cache für Segment-Animationen, um Mehrfachladen zu vermeiden.
-   */
+  /** Cache für Segment-Animationen, um Mehrfachladen zu vermeiden. */
   private static Map<String, Animation> SEGMENT_ANIMATION_CACHE;
 
   /**
-   * Liefert die gecachten Segment-Animationen. Beim ersten Zugriff werden die Spritesheet-Animationen
-   * geladen und für weitere Aufrufe zwischengespeichert.
+   * Liefert die gecachten Segment-Animationen. Beim ersten Zugriff werden die
+   * Spritesheet-Animationen geladen und für weitere Aufrufe zwischengespeichert.
    *
    * @return Map der Animationen (Key entspricht dem State-Namen der Animation)
    */
@@ -71,14 +64,11 @@ public class LightBridgeFactory {
   /**
    * Komponente, die den Zustand und die Segmente einer einzelnen Lichtbrücke verwaltet.
    *
-   * <p>
-   * Aufgaben:
-   * - erzeugt/entfernt Segmente beim Aktivieren/Deaktivieren,
-   * - erweitert/kürzt Segmente dynamisch (Extend/Trim),
-   * - passt einen nicht-soliden Collider an die aktuelle Brückenlänge an,
-   * - deckt PitTiles ab und stellt deren Zustand bei Entfernung wieder her,
-   * - sorgt für korrekte Ausrichtung und Darstellung des Emitters.
-   * Die Interaktion nach außen erfolgt über die Factory-Methoden in LightBridgeFactory.
+   * <p>Aufgaben: - erzeugt/entfernt Segmente beim Aktivieren/Deaktivieren, - erweitert/kürzt
+   * Segmente dynamisch (Extend/Trim), - passt einen nicht-soliden Collider an die aktuelle
+   * Brückenlänge an, - deckt PitTiles ab und stellt deren Zustand bei Entfernung wieder her, -
+   * sorgt für korrekte Ausrichtung und Darstellung des Emitters. Die Interaktion nach außen erfolgt
+   * über die Factory-Methoden in LightBridgeFactory.
    */
   public static class LightBridgeComponent implements Component {
     private final Entity owner;
@@ -104,8 +94,8 @@ public class LightBridgeFactory {
 
     /**
      * Deckt eine Grube (PitTile) ab, sofern das übergebene Segment auf einer solchen Kachel liegt.
-     * Dabei wird die Öffnungszeit extrem verlängert und der aktuelle Zustand gesichert, um ihn
-     * bei Entfernung wiederherstellen zu können.
+     * Dabei wird die Öffnungszeit extrem verlängert und der aktuelle Zustand gesichert, um ihn bei
+     * Entfernung wiederherstellen zu können.
      *
      * @param segment Segment-Entity, dessen Kachel geprüft wird
      */
@@ -119,8 +109,8 @@ public class LightBridgeFactory {
     }
 
     /**
-     * Gibt eine zuvor abgedeckte Grube wieder frei, sofern das übergebene Segment auf einer
-     * PitTile lag. Der ursprüngliche Zustand der Grube wird gemäß Zähler wiederhergestellt.
+     * Gibt eine zuvor abgedeckte Grube wieder frei, sofern das übergebene Segment auf einer PitTile
+     * lag. Der ursprüngliche Zustand der Grube wird gemäß Zähler wiederhergestellt.
      *
      * @param segment Segment-Entity, dessen Kachel geprüft wird
      */
@@ -134,9 +124,9 @@ public class LightBridgeFactory {
     }
 
     /**
-     * Erstellt einen Emitter an der angegebenen Position, richtet ihn gemäß Richtung aus und
-     * setzt die inaktive Darstellung. Zusätzlich wird ein harmloser ProjectileComponent
-     * hinzugefügt, damit externe Systeme den Emitter als Projektil-Ziel ignorieren.
+     * Erstellt einen Emitter an der angegebenen Position, richtet ihn gemäß Richtung aus und setzt
+     * die inaktive Darstellung. Zusätzlich wird ein harmloser ProjectileComponent hinzugefügt,
+     * damit externe Systeme den Emitter als Projektil-Ziel ignorieren.
      *
      * @param from Startposition (Tile-Koordinaten)
      * @param direction Ausrichtung des Emitters und der späteren Brücke
@@ -158,9 +148,9 @@ public class LightBridgeFactory {
     }
 
     /**
-     * Aktiviert die Brücke: erzeugt Basissegmente vom Emitter bis zur nächsten Wand,
-     * deckt betroffene PitTiles ab und legt einen nicht-soliden Collider über die gesamte Länge.
-     * Doppelte Aktivierungen werden ignoriert.
+     * Aktiviert die Brücke: erzeugt Basissegmente vom Emitter bis zur nächsten Wand, deckt
+     * betroffene PitTiles ab und legt einen nicht-soliden Collider über die gesamte Länge. Doppelte
+     * Aktivierungen werden ignoriert.
      */
     private void activate() {
       if (active) return;
@@ -173,7 +163,8 @@ public class LightBridgeFactory {
                 Point start = pc.position();
                 Point end = calculateEndPoint(start, this.direction);
                 int total = calculateNumberOfPoints(start, end);
-                for (int i = 0; i < total; i++) segments.add(createNextSegment(start, end, total, i, this.direction));
+                for (int i = 0; i < total; i++)
+                  segments.add(createNextSegment(start, end, total, i, this.direction));
                 baseEnd = end;
                 createColliderForBeam(start, pickFurtherEnd(start), this.direction);
               });
@@ -185,9 +176,8 @@ public class LightBridgeFactory {
     }
 
     /**
-     * Deaktiviert die Brücke: entfernt alle Segmente, gibt ggf. PitTiles frei,
-     * setzt die inaktive Darstellung und entfernt den Collider.
-     * Mehrfache Aufrufe sind idempotent.
+     * Deaktiviert die Brücke: entfernt alle Segmente, gibt ggf. PitTiles frei, setzt die inaktive
+     * Darstellung und entfernt den Collider. Mehrfache Aufrufe sind idempotent.
      */
     private void deactivate() {
       if (!active) return;
@@ -200,10 +190,10 @@ public class LightBridgeFactory {
     }
 
     /**
-     * Erzeugt zusätzliche Segmente in angegebener Richtung ab Position "from" und
-     * erweitert die Brücke temporär über die Basislänge hinaus. Falls bereits eine Erweiterung
-     * existiert, wird zuvor getrimmt. Bei aktiver Brücke werden Segmente und Collider sofort
-     * in die Spielwelt übernommen.
+     * Erzeugt zusätzliche Segmente in angegebener Richtung ab Position "from" und erweitert die
+     * Brücke temporär über die Basislänge hinaus. Falls bereits eine Erweiterung existiert, wird
+     * zuvor getrimmt. Bei aktiver Brücke werden Segmente und Collider sofort in die Spielwelt
+     * übernommen.
      *
      * @param direction Richtung der Erweiterung
      * @param from Startpunkt der Erweiterung (Tile-Koordinaten)
@@ -223,14 +213,18 @@ public class LightBridgeFactory {
         extendedSegments.forEach(Game::add);
         extendedSegments.forEach(this::coverPitIfNeeded);
         segments.addAll(extendedSegments);
-        owner.fetch(PositionComponent.class)
-            .ifPresent(pc -> createColliderForBeam(pc.position(), pickFurtherEnd(pc.position()), this.direction));
+        owner
+            .fetch(PositionComponent.class)
+            .ifPresent(
+                pc ->
+                    createColliderForBeam(
+                        pc.position(), pickFurtherEnd(pc.position()), this.direction));
       }
     }
 
     /**
-     * Entfernt zuvor erzeugte Erweiterungssegmente und stellt die Collider-Länge auf die Basis zurück.
-     * Bei inaktiver Brücke wird lediglich der interne Zustand bereinigt.
+     * Entfernt zuvor erzeugte Erweiterungssegmente und stellt die Collider-Länge auf die Basis
+     * zurück. Bei inaktiver Brücke wird lediglich der interne Zustand bereinigt.
      */
     public void trim() {
       if (extendedSegments.isEmpty()) return;
@@ -238,10 +232,13 @@ public class LightBridgeFactory {
         extendedSegments.forEach(this::uncoverPitIfNeeded);
         extendedSegments.forEach(Game::remove);
         segments.removeAll(extendedSegments);
-        owner.fetch(PositionComponent.class)
-            .ifPresent(pc -> {
-              if (baseEnd != null) createColliderForBeam(pc.position(), baseEnd, this.direction);
-            });
+        owner
+            .fetch(PositionComponent.class)
+            .ifPresent(
+                pc -> {
+                  if (baseEnd != null)
+                    createColliderForBeam(pc.position(), baseEnd, this.direction);
+                });
       }
       extendedSegments.clear();
       extendEnd = null;
@@ -263,7 +260,8 @@ public class LightBridgeFactory {
 
     /**
      * Erzeugt ein einzelnes Segment-Entity auf der Strecke von "from" nach "to" und richtet es aus.
-     * Die Position wird anhand der Anzahl totalPoints und des Index currentIndex gleichmäßig verteilt.
+     * Die Position wird anhand der Anzahl totalPoints und des Index currentIndex gleichmäßig
+     * verteilt.
      *
      * @param from Startposition der Strecke
      * @param to Endposition der Strecke
@@ -272,7 +270,8 @@ public class LightBridgeFactory {
      * @param rotDir Ausrichtung des Segments für die Rotation
      * @return das erzeugte Segment-Entity
      */
-    private Entity createNextSegment(Point from, Point to, int totalPoints, int currentIndex, Direction rotDir) {
+    private Entity createNextSegment(
+        Point from, Point to, int totalPoints, int currentIndex, Direction rotDir) {
       float x = from.x() + currentIndex * (to.x() - from.x()) / (totalPoints - 1);
       float y = from.y() + currentIndex * (to.y() - from.y()) / (totalPoints - 1);
       Entity segment = new Entity("lightBridgeSegment");
@@ -289,8 +288,8 @@ public class LightBridgeFactory {
     }
 
     /**
-     * Liefert die Rotation in Grad für eine Richtung. 0° entspricht UP, 180° DOWN,
-     * 90° LEFT und -90° RIGHT.
+     * Liefert die Rotation in Grad für eine Richtung. 0° entspricht UP, 180° DOWN, 90° LEFT und
+     * -90° RIGHT.
      *
      * @param d Richtung
      * @return Rotation in Grad für die Darstellung
@@ -306,9 +305,9 @@ public class LightBridgeFactory {
     }
 
     /**
-     * Erstellt oder aktualisiert den nicht-soliden Collider des Emitters so, dass er die
-     * aktuelle Brückenlänge abdeckt. Breite/Höhe und Offsets werden abhängig von der Ausrichtung
-     * berechnet und schließen immer die Position des Emitters mit ein.
+     * Erstellt oder aktualisiert den nicht-soliden Collider des Emitters so, dass er die aktuelle
+     * Brückenlänge abdeckt. Breite/Höhe und Offsets werden abhängig von der Ausrichtung berechnet
+     * und schließen immer die Position des Emitters mit ein.
      *
      * @param start Startpunkt (Emitterposition)
      * @param end Endpunkt der aktuellen Brücke
@@ -339,8 +338,8 @@ public class LightBridgeFactory {
 
     /**
      * Erhöht die Abdeckungszählung für eine Grube und konserviert deren ursprünglichen Zustand
-     * (offen/geschlossen, Zeit bis zum Öffnen). Beim ersten Abdecken wird die Grube geschlossen
-     * und die Öffnungszeit weit in die Zukunft gesetzt.
+     * (offen/geschlossen, Zeit bis zum Öffnen). Beim ersten Abdecken wird die Grube geschlossen und
+     * die Öffnungszeit weit in die Zukunft gesetzt.
      *
      * @param pit Grubenkachel
      */
@@ -360,8 +359,8 @@ public class LightBridgeFactory {
 
     /**
      * Verringert die Abdeckungszählung einer Grube. Erreicht der Zähler 0, wird der zuvor
-     * gespeicherte Zustand (Zeit bis zum Öffnen, offen/geschlossen) wiederhergestellt und die
-     * Grube aus der Verwaltung entfernt.
+     * gespeicherte Zustand (Zeit bis zum Öffnen, offen/geschlossen) wiederhergestellt und die Grube
+     * aus der Verwaltung entfernt.
      *
      * @param pit Grubenkachel
      */
@@ -369,32 +368,31 @@ public class LightBridgeFactory {
       Object[] state = coveredPits.get(pit);
       if (state == null) return;
       int count = (Integer) state[0];
-      if (count > 1) { state[0] = count - 1; return; }
+      if (count > 1) {
+        state[0] = count - 1;
+        return;
+      }
       boolean wasOpen = (Boolean) state[1];
       long prevT = (Long) state[2];
       pit.timeToOpen(prevT);
-      if (wasOpen) pit.open(); else pit.close();
+      if (wasOpen) pit.open();
+      else pit.close();
       coveredPits.remove(pit);
     }
 
     /**
      * Wählt den aktuell am weitesten entfernten Endpunkt der Brücke relativ zum Emitter aus.
      *
-     * <p>
-     * Es werden zwei Kandidaten betrachtet:
-     * - baseEnd: das Ende der Basisbrücke (vom Emitter bis zur nächsten Wand),
-     * - extendEnd: das Ende einer temporären Erweiterung (falls vorhanden).
+     * <p>Es werden zwei Kandidaten betrachtet: - baseEnd: das Ende der Basisbrücke (vom Emitter bis
+     * zur nächsten Wand), - extendEnd: das Ende einer temporären Erweiterung (falls vorhanden).
      *
-     * <p>
-     * Nullwerte werden gegen den übergebenen Startpunkt ersetzt. Abhängig von der Brückenrichtung
-     * wird der weiter „in Richtung des Strahls“ liegende Punkt gewählt:
-     * - RIGHT: größeres x gewinnt,
-     * - LEFT: kleineres x gewinnt,
-     * - UP: größeres y gewinnt,
-     * - DOWN: kleineres y gewinnt.
-     * Bei Gleichstand oder unbekannter Richtung wird baseEnd bevorzugt.
+     * <p>Nullwerte werden gegen den übergebenen Startpunkt ersetzt. Abhängig von der
+     * Brückenrichtung wird der weiter „in Richtung des Strahls“ liegende Punkt gewählt: - RIGHT:
+     * größeres x gewinnt, - LEFT: kleineres x gewinnt, - UP: größeres y gewinnt, - DOWN: kleineres
+     * y gewinnt. Bei Gleichstand oder unbekannter Richtung wird baseEnd bevorzugt.
      *
-     * @param start Ausgangspunkt (typisch: Emitterposition), Fallback falls kein Endpunkt bekannt ist
+     * @param start Ausgangspunkt (typisch: Emitterposition), Fallback falls kein Endpunkt bekannt
+     *     ist
      * @return der weiter entfernte Endpunkt in Strahlrichtung; niemals null
      */
     private Point pickFurtherEnd(Point start) {
@@ -410,8 +408,8 @@ public class LightBridgeFactory {
     }
 
     /**
-     * Berechnet die Anzahl von diskreten Kachelpunkten zwischen zwei Koordinaten inklusive
-     * beider Endpunkte. Basis für die gleichmäßige Segmentverteilung.
+     * Berechnet die Anzahl von diskreten Kachelpunkten zwischen zwei Koordinaten inklusive beider
+     * Endpunkte. Basis für die gleichmäßige Segmentverteilung.
      *
      * @param from Startpunkt
      * @param to Endpunkt
@@ -463,10 +461,11 @@ public class LightBridgeFactory {
     emitter.add(bridgeComponent);
 
     PortalExtendComponent pec = new PortalExtendComponent();
-    pec.onExtend = (d, e, portalExtendComponent) -> {
-      Point startPoint = e.translate(d.scale(spawnOffset));
-      extendWall(emitter, startPoint, d);
-    };
+    pec.onExtend =
+        (d, e, portalExtendComponent) -> {
+          Point startPoint = e.translate(d.scale(spawnOffset));
+          extendWall(emitter, startPoint, d);
+        };
     pec.onTrim = (emitterEntity) -> trimWall(emitter);
     emitter.add(pec);
 
@@ -497,7 +496,8 @@ public class LightBridgeFactory {
   }
 
   /**
-   * Interne Helper-Methode: erweitert die Brücke eines Emitters ab einem Startpunkt in gegebener Richtung.
+   * Interne Helper-Methode: erweitert die Brücke eines Emitters ab einem Startpunkt in gegebener
+   * Richtung.
    *
    * @param wallEmitter Emitter
    * @param from Startpunkt der Erweiterung
