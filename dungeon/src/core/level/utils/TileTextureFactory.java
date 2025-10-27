@@ -388,56 +388,18 @@ public class TileTextureFactory {
   private static IPath selectInnerCornerTexture(
       Coordinate p, LevelElement[][] layout, int sx, int sy, String name) {
     Neighbors n = Neighbors.of(p, layout);
-
-    boolean forceDouble = false;
-    if (sx == 1 && sy == -1 && forceDoubleUpperLeft(p, layout)) forceDouble = true;
-    else if (sx == -1 && sy == -1 && forceDoubleUpperRight(p, layout)) forceDouble = true;
-    else if (sx == 1 && sy == 1 && forceDoubleBottomLeft(p, layout)) forceDouble = true;
-    else if (sx == -1 && sy == 1 && forceDoubleBottomRight(p, layout)) forceDouble = true;
-
-    Coordinate v;
-    if (sy == 1) v = n.getUp();
-    else v = n.getDown();
-
-    Coordinate h;
-    if (sx == 1) h = n.getRight();
-    else h = n.getLeft();
-
-    boolean doubleDueToVertical;
-    if (sy == 1) {
-      doubleDueToVertical =
-          isVerticalStem(v, layout)
-              && endsWithInside(v, layout, -sx)
-              && !endsWithInside(v, layout, sx);
-    } else {
-      doubleDueToVertical = xorEndsVertical(v, layout);
-    }
-
-    boolean doubleDueToHorizontal;
-    if (sy == 1) {
-      doubleDueToHorizontal =
-          isHorizontalStem(h, layout)
-              && endsWithInsideUD(h, layout, -sy)
-              && !endsWithInsideUD(h, layout, sy);
-    } else {
-      doubleDueToHorizontal = xorEndsHorizontal(h, layout);
-    }
-
-    boolean rendersDoubleAround =
-        rendersLeftDoubleAt(v, layout)
-            || rendersRightDoubleAt(v, layout)
-            || rendersTopDoubleAt(h, layout)
-            || rendersBottomDoubleAt(h, layout);
-
-    boolean shouldDouble =
-        forceDouble || doubleDueToVertical || doubleDueToHorizontal || rendersDoubleAround;
-
     String base = "wall/wall_inner_corner_" + name;
-    if (shouldDouble) {
-      return new SimpleIPath(base + "_double");
-    } else {
-      return new SimpleIPath(base);
-    }
+
+    if (sx == 1 && sy == -1)
+      return new SimpleIPath(isInside(n.getDownRightE()) ? base : base + "_double");
+    if (sx == -1 && sy == -1)
+      return new SimpleIPath(isInside(n.getDownLeftE()) ? base : base + "_double");
+    if (sx == 1 && sy == 1)
+      return new SimpleIPath(isInside(n.getUpRightE()) ? base : base + "_double");
+    if (sx == -1 && sy == 1)
+      return new SimpleIPath(isInside(n.getUpLeftE()) ? base : base + "_double");
+
+    return new SimpleIPath(base);
   }
 
   private static IPath findTexturePathTJunction(LevelPart lp) {
