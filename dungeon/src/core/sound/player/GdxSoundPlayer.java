@@ -53,7 +53,7 @@ public class GdxSoundPlayer implements ISoundPlayer {
     loadAssets();
   }
 
-  private void scanAssets() { //TODO: fix path trickery
+  private void scanAssets() { // TODO: fix path trickery
     FileHandle assetsHandle = Gdx.files.internal("dungeon/assets/sounds");
     LOGGER.info("Scanning sound assets from: {}", assetsHandle.path());
     scanDirectory(assetsHandle);

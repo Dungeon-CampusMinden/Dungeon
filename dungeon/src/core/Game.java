@@ -14,6 +14,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
 import core.sound.player.ISoundPlayer;
+import core.sound.player.NoSoundPlayer;
 import core.systems.LevelSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
@@ -54,7 +55,6 @@ import java.util.stream.Stream;
 public final class Game {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Game.class);
-  private static ISoundPlayer soundPlayer;
 
   /** Starts the dungeon and requires a {@link Game}. */
   public static void run() {
@@ -773,22 +773,11 @@ public final class Game {
    * <p>This player is responsible for playing sound effects and music within the game.
    *
    * <p>If no audio context is available (Gdx.audio is null), this method may return a {@link
-   * core.sound.player.NoSoundPlayer NoSoundPlayer} instance.
+   * NoSoundPlayer} instance.
    *
    * @return the current {@link ISoundPlayer} instance
    */
   public static ISoundPlayer soundPlayer() {
-    return soundPlayer;
-  }
-
-  /**
-   * Sets the {@link ISoundPlayer} to be used by the game.
-   *
-   * <p>This player will be responsible for playing sound effects and music within the game.
-   *
-   * @param soundPlayer the {@link ISoundPlayer} instance to set
-   */
-  public static void soundPlayer(ISoundPlayer soundPlayer) {
-    Game.soundPlayer = soundPlayer;
+    return GameLoop.soundPlayer();
   }
 }

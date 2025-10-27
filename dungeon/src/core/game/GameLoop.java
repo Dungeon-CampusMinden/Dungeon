@@ -20,6 +20,7 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.sound.player.GdxSoundPlayer;
+import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
 import core.systems.*;
 import core.utils.Direction;
@@ -41,6 +42,7 @@ import java.util.*;
  */
 public final class GameLoop extends ScreenAdapter {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(GameLoop.class);
+  private static ISoundPlayer soundPlayer = new NoSoundPlayer();
   private static Stage stage;
   private boolean doSetup = true;
   private boolean newLevelWasLoadedInThisLoop = false;
@@ -193,10 +195,7 @@ public final class GameLoop extends ScreenAdapter {
     doSetup = false;
     if (Gdx.audio != null && !PreRunConfiguration.disableAudio()) {
       AssetManager assetManager = new AssetManager();
-      GdxSoundPlayer gdxPlayer = new GdxSoundPlayer(assetManager);
-      Game.soundPlayer(gdxPlayer);
-    } else {
-      Game.soundPlayer(new NoSoundPlayer());
+      soundPlayer = new GdxSoundPlayer(assetManager);
     }
     createSystems();
     setupStage();
@@ -271,6 +270,15 @@ public final class GameLoop extends ScreenAdapter {
               x.getViewport().setWorldSize(width, height);
               x.getViewport().update(width, height, true);
             });
+  }
+
+  /**
+   * Get the sound player used by the game.
+   *
+   * @return The sound player.
+   */
+  public static ISoundPlayer soundPlayer() {
+    return soundPlayer;
   }
 
   /** Create the systems. */

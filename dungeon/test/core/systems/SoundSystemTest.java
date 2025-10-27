@@ -32,7 +32,7 @@ public class SoundSystemTest {
     mockHandle = mock(IPlayHandle.class);
     when(mockPlayer.play(anyString(), anyFloat(), anyBoolean()))
         .thenReturn(Optional.of(mockHandle));
-    Game.soundPlayer(mockPlayer);
+    when(Game.soundPlayer()).thenReturn(mockPlayer);
     soundSystem = new SoundSystem();
     Game.add(soundSystem);
   }

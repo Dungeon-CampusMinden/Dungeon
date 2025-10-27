@@ -35,7 +35,7 @@ public interface ISoundPlayer {
    * Updates the sound player state, typically called each frame. Handles sound lifecycle, such as
    * finishing non-looping sounds.
    *
-   * @param delta time elapsed since last update (in seconds)
+   * @param delta time elapsed since last update
    */
   void update(float delta);
 
