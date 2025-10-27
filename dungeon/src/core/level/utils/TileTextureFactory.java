@@ -1543,10 +1543,11 @@ public class TileTextureFactory {
   private static boolean isInnerTopWall(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     return (leftIsWall(p, layout) || leftIsDoor(p, layout))
-        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
-        && n.getUpE() == LevelElement.FLOOR
-        && n.getDownE() == LevelElement.FLOOR;
+      && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+      && isInsideNonDoor(n.getUpE())
+      && isInside(n.getDownE());
   }
+
 
   /**
    * Checks if tile above the coordinate p is a wall.
