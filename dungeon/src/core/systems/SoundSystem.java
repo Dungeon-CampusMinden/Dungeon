@@ -115,7 +115,7 @@ public class SoundSystem extends System {
       float attenuation = (distance / comp.maxDistance()) * comp.attenuationFactor();
       // Reduce volume proportionally (closer = louder)
       volume *= (1 - attenuation);
-      volume = Math.max(0, Math.min(1, volume));
+      volume = Math.clamp(volume, 0, 1);
     }
 
     // Calculate horizontal offset for stereo panning
