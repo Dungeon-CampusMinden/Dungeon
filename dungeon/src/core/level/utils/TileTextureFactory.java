@@ -378,9 +378,9 @@ public class TileTextureFactory {
     if (isUpperRightEmptyCross(p, layout))
       return new SimpleIPath("wall/corner_upper_right_empty_cross");
     if (isBottomRightEmptyCross(p, layout))
-      return new SimpleIPath("wall/corner_bottom_left_empty_cross");
-    if (isBottomLeftEmptyCross(p, layout))
       return new SimpleIPath("wall/corner_bottom_right_empty_cross");
+    if (isBottomLeftEmptyCross(p, layout))
+      return new SimpleIPath("wall/corner_bottom_left_empty_cross");
 
     if (isBottomLeftInnerCorner(p, layout))
       return selectInnerCornerTexture(p, layout, 1, 1, "bottom_left");
@@ -1051,7 +1051,7 @@ public class TileTextureFactory {
     return defaultCase || altCase;
   }
 
-  private static boolean isBottomRightEmptyCross(Coordinate p, LevelElement[][] layout) {
+  private static boolean isBottomLeftEmptyCross(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
 
     boolean defaultCase =
@@ -1072,7 +1072,7 @@ public class TileTextureFactory {
     return defaultCase || altCase;
   }
 
-  private static boolean isBottomLeftEmptyCross(Coordinate p, LevelElement[][] layout) {
+  private static boolean isBottomRightEmptyCross(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
 
     boolean defaultCase =
