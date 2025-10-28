@@ -83,14 +83,14 @@ public class SoundSystem extends System {
     if (getListenerPosition().isEmpty()) return; // No listener, skip playing sound
     Optional<SoundComponent> soundComp = entity.fetch(SoundComponent.class);
     if (soundComp.isEmpty()) return;
-      SoundComponent comp = soundComp.get();
-      Optional<IPlayHandle> handleOpt =
-          soundPlayer.play(comp.soundId(), comp.baseVolume(), comp.looping());
-      handleOpt.ifPresent(
-          handle -> {
-            playingSounds.put(entity, handle);
-          });
-    }
+
+    SoundComponent comp = soundComp.get();
+    Optional<IPlayHandle> handleOpt =
+        soundPlayer.play(comp.soundId(), comp.baseVolume(), comp.looping());
+    handleOpt.ifPresent(
+        handle -> {
+          playingSounds.put(entity, handle);
+        });
   }
 
   private void onEntityRemoved(Entity entity) {
@@ -121,7 +121,7 @@ public class SoundSystem extends System {
     // Calculate horizontal offset for stereo panning
     float dx = entityPos.x() - listenerPos.x();
     // Normalize pan value: positive dx (right) -> positive pan, clamped to [-1, 1]
-    float pan = Math.max(-1, Math.min(1, dx / PAN_NORMALIZATION_DISTANCE));
+    float pan = Math.clamp(dx / PAN_NORMALIZATION_DISTANCE, -1f, 1f);
 
     // Attenuate pan with distance to avoid extreme panning at far distances
     float panAttenuation =
