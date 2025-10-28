@@ -252,7 +252,7 @@ public class DungeonLoader {
               .ifPresent(pc -> pc.position(tile.position()));
         },
         () -> {
-          LOGGER.warning("No start tile found for the current level");
+          LOGGER.warn("No start tile found for the current level");
         });
   }
 

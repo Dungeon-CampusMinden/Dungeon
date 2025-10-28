@@ -14,6 +14,8 @@ import core.components.InputComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.utils.*;
+import core.utils.logging.DungeonLogger;
+
 import java.util.Map;
 
 /**
@@ -23,6 +25,8 @@ import java.util.Map;
  * floor tiles and save the current dungeon.
  */
 public class LevelEditorSystem extends System {
+
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LevelEditorSystem.class);
 
   public static final BitmapFont FONT = FontHelper.getDefaultFont(24);
   public static final BitmapFont FONT_SMALL = FontHelper.getDefaultFont(16);
@@ -178,9 +182,9 @@ public class LevelEditorSystem extends System {
     feedbackMessageColor = color;
     feedbackMessageTimer = FEEDBACK_MESSAGE_DURATION;
     if (color == Color.RED) {
-      LOGGER.severe(message);
+      LOGGER.error(message);
     } else if (color == Color.YELLOW) {
-      LOGGER.warning(message);
+      LOGGER.warn(message);
     } else {
       LOGGER.info(message);
     }
