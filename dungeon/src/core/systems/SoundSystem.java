@@ -82,7 +82,7 @@ public class SoundSystem extends System {
   private void onEntityAdded(Entity entity) {
     if (getListenerPosition().isEmpty()) return; // No listener, skip playing sound
     Optional<SoundComponent> soundComp = entity.fetch(SoundComponent.class);
-    if (soundComp.isPresent()) {
+    if (soundComp.isEmpty()) return;
       SoundComponent comp = soundComp.get();
       Optional<IPlayHandle> handleOpt =
           soundPlayer.play(comp.soundId(), comp.baseVolume(), comp.looping());
