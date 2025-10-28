@@ -48,9 +48,18 @@ public final class SkillTools {
   /**
    * Gets the current cursor position as Point. The cursor is used to aim.
    *
+   * <p>Note: This method uses the Gdx.graphics to unproject the cursor position from screen
+   * coordinates to world coordinates. If Gdx.graphics is null, it returns a default Point (0, 0).
+   *
    * @return The mouse cursor position as Point.
    */
   public static Point cursorPositionAsPoint() {
+    if (Gdx.graphics == null) {
+      LOGGER.error("Gdx.graphics is null, returning default Point(0, 0) for cursor position.");
+      // return new Point(0, 0);
+      throw new IllegalStateException("Gdx.graphics is null, cannot get cursor position.");
+    }
+
     Vector3 mousePosition =
         CameraSystem.camera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
     return new Point(mousePosition.x, mousePosition.y);

@@ -1,5 +1,6 @@
 package core.systems;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import contrib.utils.EntityUtils;
@@ -20,6 +21,7 @@ import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * This system draws the entities on the screen.
@@ -48,20 +50,19 @@ public final class DrawSystem extends System {
    * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
    * batch.
    */
-  private static final SpriteBatch BATCH = new SpriteBatch();
+  private static final SpriteBatch BATCH = Gdx.gl == null ? null : new SpriteBatch();
 
   /** Draws objects. */
   private static final Painter PAINTER = new Painter(BATCH);
 
-  private final TreeMap<Integer, List<Entity>> sortedEntities = new TreeMap<>();
-  private final Map<IPath, PainterConfig> configs;
+  private final TreeMap<Integer, List<DSData>> sortedEntities = new TreeMap<>();
 
   /** Create a new DrawSystem. */
   public DrawSystem() {
-    super(DrawComponent.class, PositionComponent.class);
+    // both side because we render and update states here
+    super(AuthoritativeSide.BOTH, DrawComponent.class, PositionComponent.class);
     onEntityAdd = (e) -> onEntityChanged(e, true);
     onEntityRemove = (e) -> onEntityChanged(e, false);
-    configs = new HashMap<>();
   }
 
   /**
@@ -85,18 +86,18 @@ public final class DrawSystem extends System {
   private void onEntityChanged(Entity changed, boolean added) {
     DSData data = buildDataObject(changed);
     int depth = data.dc.depth();
-    List<Entity> entitiesAtDepth = sortedEntities.get(depth);
+    List<DSData> entitiesAtDepth = sortedEntities.get(depth);
 
     if (entitiesAtDepth == null) {
       if (added) {
         entitiesAtDepth = new ArrayList<>();
-        entitiesAtDepth.add(changed);
+        entitiesAtDepth.add(data);
         sortedEntities.put(depth, entitiesAtDepth);
       }
-    } else if (!entitiesAtDepth.contains(changed) && added) {
-      entitiesAtDepth.add(changed);
+    } else if (!entitiesAtDepth.contains(data) && added) {
+      entitiesAtDepth.add(data);
     } else if (!added) {
-      entitiesAtDepth.remove(changed);
+      entitiesAtDepth.remove(data);
       if (entitiesAtDepth.isEmpty()) {
         sortedEntities.remove(depth);
       }
@@ -117,11 +118,11 @@ public final class DrawSystem extends System {
     data.dc.depth(depth);
 
     // Remove old entry
-    sortedEntities.get(oldDepth).remove(entity);
+    sortedEntities.get(oldDepth).remove(data);
 
     // Add at new depth
-    List<Entity> entitiesAtDepth = sortedEntities.computeIfAbsent(depth, k -> new ArrayList<>());
-    entitiesAtDepth.add(entity);
+    List<DSData> entitiesAtDepth = sortedEntities.computeIfAbsent(depth, k -> new ArrayList<>());
+    entitiesAtDepth.add(data);
   }
 
   /**
@@ -133,17 +134,26 @@ public final class DrawSystem extends System {
    */
   @Override
   public void execute() {
+    Stream<DSData> dataStream =
+        sortedEntities.values().stream()
+            .flatMap(
+                list ->
+                    list.stream()
+                        .sorted(
+                            Comparator.comparingDouble(
+                                (DSData d) -> -EntityUtils.getPosition(d.e).y()))
+                        .filter(this::shouldDraw)
+                        .peek(data -> data.dc.update()));
+
+    if (Gdx.gl == null) {
+      return;
+    }
+
     BATCH.begin();
 
     Game.currentLevel().ifPresent(this::drawLevel);
 
-    for (List<Entity> group : sortedEntities.values()) {
-      group.stream()
-          .map(this::buildDataObject)
-          .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
-          .filter(this::shouldDraw)
-          .forEach(this::draw);
-    }
+    dataStream.forEach(this::draw);
 
     BATCH.end();
   }
@@ -191,7 +201,6 @@ public final class DrawSystem extends System {
   }
 
   private void draw(final DSData dsd) {
-    dsd.dc.update();
     Sprite sprite = dsd.dc.getSprite();
     PainterConfig conf =
         new PainterConfig(0, 0, dsd.dc.getWidth(), dsd.dc.getHeight(), dsd.dc.tintColor());

@@ -4,7 +4,6 @@ import client.Client;
 import coderunner.BlocklyCodeRunner;
 import coderunner.BlocklyCommands;
 import coderunner.Direction;
-import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import core.Entity;
 import core.Game;
@@ -40,7 +39,7 @@ public class HeroTankControlledFactory {
    * @throws IOException if there is an error creating the hero
    */
   public static Entity blocklyHero(boolean tankControlls) throws IOException {
-    Entity hero = EntityFactory.newHero();
+    Entity hero = HeroFactory.newHero();
     InputComponent ic = hero.fetch(InputComponent.class).orElse(new InputComponent());
 
     // Remove any original movement controls

@@ -7,6 +7,7 @@ import core.Game;
 import core.System;
 import core.level.DungeonLevel;
 import core.level.Tile;
+import core.level.elements.ILevel;
 import core.level.loader.DungeonSaver;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
@@ -83,10 +84,15 @@ public class LevelEditorSystem extends System {
       setCustomPoint();
     }
     if (Gdx.input.isKeyJustPressed(SAVE_BUTTON)) {
-      if (Game.currentLevel().orElse(null) instanceof DungeonLevel) {
-        DungeonSaver.saveCurrentDungeon();
+      if (Game.currentLevel().orElse(null) instanceof DungeonLevel level) {
+        // Start-Tile is:
+        // - tile at hero position if hero is present
+        // - Current start tile stays the same if no hero is present (can be null as well)
+        level.startTile(Game.hero().flatMap(Game::tileAtEntity).or(level::startTile).orElse(null));
+        java.lang.System.out.println(DungeonSaver.saveCurrentDungeon());
       } else {
-        java.lang.System.out.println("Not a dungeon level.");
+        java.lang.System.out.println(
+            Game.currentLevel().map(ILevel::printLevel).orElse("No level loaded"));
       }
     }
     if (Gdx.input.isKeyJustPressed(FILL_WITH_FLOOR)) {

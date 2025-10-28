@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import server.Server;
 
 /** Test the server class. */
-public class TestServer {
+public class TestDevServer {
   private Server server;
 
   /** Reset all global values before each test. */

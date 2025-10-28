@@ -39,7 +39,11 @@ public final class HealthBarSystem extends System {
    * corresponding health bar is removed.
    */
   public HealthBarSystem() {
-    super(DrawComponent.class, HealthComponent.class, PositionComponent.class);
+    super(
+        AuthoritativeSide.CLIENT,
+        DrawComponent.class,
+        HealthComponent.class,
+        PositionComponent.class);
 
     this.onEntityAdd =
         entity -> {

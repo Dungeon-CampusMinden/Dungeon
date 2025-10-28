@@ -3,6 +3,8 @@ package core.components;
 import com.badlogic.gdx.Input;
 import core.Component;
 import core.systems.InputSystem;
+import java.io.Serial;
+import java.io.Serializable;
 
 /**
  * Marks an entity as playable by the player.
@@ -11,12 +13,49 @@ import core.systems.InputSystem;
  * increment and decrement the dialog counter, as well as a method to check if any dialogs are
  * currently open.
  *
+ * <p>This component is used to identify the player entity in the game. It contains information
+ * about whether the player is the local hero and manages the count of open dialogs.
+ *
  * @see Input.Keys
  * @see InputSystem
  */
-public final class PlayerComponent implements Component {
+public final class PlayerComponent implements Component, Serializable {
+  @Serial private static final long serialVersionUID = 1L;
 
   private int openDialogs = 0;
+  private final boolean isLocalHero;
+  private final String playerName;
+
+  /**
+   * Create a new PlayerComponent.
+   *
+   * <p>The player name defaults to "Player".
+   *
+   * @param isLocalHero whether this player is the local hero
+   */
+  public PlayerComponent(boolean isLocalHero) {
+    this(isLocalHero, "Player");
+  }
+
+  /**
+   * Create a new PlayerComponent.
+   *
+   * @param isLocalHero whether this player is the local hero
+   * @param playerName the name of the player
+   */
+  public PlayerComponent(boolean isLocalHero, String playerName) {
+    this.isLocalHero = isLocalHero;
+    this.playerName = playerName;
+  }
+
+  /**
+   * Gets whether this player is the local hero.
+   *
+   * @return true if this player is the local hero, otherwise false
+   */
+  public boolean isLocalHero() {
+    return isLocalHero;
+  }
 
   /** Increases the dialogue counter by 1. */
   public void incrementOpenDialogs() {
@@ -35,5 +74,14 @@ public final class PlayerComponent implements Component {
    */
   public boolean openDialogs() {
     return openDialogs > 0;
+  }
+
+  /**
+   * Gets the name of the player.
+   *
+   * @return the name of the player
+   */
+  public String playerName() {
+    return playerName;
   }
 }
