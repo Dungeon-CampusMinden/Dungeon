@@ -49,6 +49,12 @@ public class Level015 extends BlocklyLevel {
         "get_number",
         // Kategorien
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level015/Variable.png"));
+    addWebPopup(new ImagePopup("popups/level015/Variable2.png"));
+    addWebPopup(new ImagePopup("popups/level015/Variable3.png"));
+    addWebPopup(new ImagePopup("popups/level015/Variable4.png"));
+    addWebPopup(new ImagePopup("popups/level015/Variable5.png"));
   }
 
   @Override
@@ -58,6 +64,7 @@ public class Level015 extends BlocklyLevel {
       DialogUtils.showTextPopup(
           "Hier musst du mitzählen. Die Anzahl der Monster verrät dir welche Tür du nehmen musst. Ich geb dir noch ein paar Feuerballspruchrollen. Viel Erfolg!",
           "Kapitel 2: Flucht");
+      showPopups();
       showText = false;
     }
     LevelManagementUtils.centerHero();

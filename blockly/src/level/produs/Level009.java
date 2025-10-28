@@ -39,6 +39,10 @@ public class Level009 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level009/Feuerball.png"));
+    addWebPopup(new ImagePopup("popups/level009/Feuerball2.png"));
+
   }
 
   @Override
@@ -52,6 +56,7 @@ public class Level009 extends BlocklyLevel {
       DialogUtils.showTextPopup(
           "Mit diesen Spruchrollen kannst du einen mächtigen Feuerball beschwören.",
           "Kapitel 1: Ausbruch");
+      showPopups();
       showText = false;
     }
     Game.add(MiscFactory.fireballScroll(customPoints().get(0).toPoint()));

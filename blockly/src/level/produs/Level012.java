@@ -61,6 +61,13 @@ public class Level012 extends BlocklyLevel {
         // Kategorien
         "Variablen",
         "Sonstige");
+
+
+    addWebPopup(new ImagePopup("popups/level012/Abfrage.png"));
+    addWebPopup(new ImagePopup("popups/level012/Abfrage2.png"));
+    addWebPopup(new ImagePopup("popups/level012/Abfrage3.png"));
+    addWebPopup(new ImagePopup("popups/level012/Abfrage4.png"));
+
   }
 
   @Override
@@ -73,6 +80,9 @@ public class Level012 extends BlocklyLevel {
     if (showText) {
       DialogUtils.showTextPopup(
           "Endlich raus da, aber wie geht es jetzt weiter?", "Kapitel 2: Flucht");
+
+      showPopups();
+
       showText = false;
     }
 
