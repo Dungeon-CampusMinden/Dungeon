@@ -35,17 +35,8 @@ public class AttachmentSystem extends System {
               .fetch(PositionComponent.class)
               .ifPresent(
                   pc -> {
-                    if (attachmentMap.containsKey(pc)) {
                       attachmentMap.remove(pc);
-                    } else if (attachmentMap.containsValue(pc)) {
-                      attachmentMap.remove(
-                          attachmentMap.keySet().stream()
-                              .filter(
-                                  positionComponent ->
-                                      attachmentMap.get(positionComponent).equals(pc))
-                              .findFirst()
-                              .get());
-                    }
+                      attachmentMap.entrySet().removeIf(entry -> entry.getValue().equals(pc));
                   });
         });
   }
