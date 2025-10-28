@@ -1,8 +1,9 @@
-package contrib.utils.systems;
+package contrib.utils.systems.levelEditor;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
@@ -21,10 +22,14 @@ import java.util.Optional;
 
 public class DecoMode extends LevelEditorMode {
 
+  private static final float HOVER_DISTANCE = 0.75f;
+  private static final float PREVIEW_ALPHA = 0.3f;
+
   private static int selectedDecoIndex = 0;
   private static SnapMode decoSnapMode = SnapMode.OnGrid;
   private static DecoEntityData decoPreviewEntity = null;
   private static DecoEntityData decoHeldEntity = null;
+  private static DecoEntityData decoHoveredEntity = null;
 
   public DecoMode() {
     super("Deco Mode");
@@ -61,21 +66,26 @@ public class DecoMode extends LevelEditorMode {
         decoHeldEntity = null;
         setupPreviewEntity(snapPos);
       } else {
-        // Check if clicking on existing deco to pick up
-        Optional<DecoEntityData> clickedDeco = getDecoOnPosition(cursorPos);
-        if (clickedDeco.isPresent()) {
-          decoHeldEntity = clickedDeco.get();
-          removePreviewEntity();
-        } else {
-          // Place new deco instance
-          Deco decoType = Deco.values()[selectedDecoIndex];
-          Entity newDeco = DecoFactory.createDeco(snapPos, decoType);
-          Game.add(newDeco);
-        }
+        // Place new deco instance
+        Deco decoType = Deco.values()[selectedDecoIndex];
+        Vector2 offset = getEntityOffset(decoPreviewEntity.entity);
+        Entity newDeco = DecoFactory.createDeco(snapPos.translate(offset.scale(-1)), decoType);
+        Game.add(newDeco);
       }
-    } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+    } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT) && decoHeldEntity == null) {
+      // Pickup deco on cursor
+      Optional<DecoEntityData> clickedDeco = getDecoOnPosition(cursorPos);
+      if (clickedDeco.isPresent()) {
+        decoHeldEntity = clickedDeco.get();
+        removePreviewEntity();
+      }
+    } else if (Gdx.input.isKeyJustPressed(SECONDARY_DOWN)) {
+      // Delete deco on cursor
       getDecoOnPosition(cursorPos).map(DecoEntityData::entity).ifPresent(Game::remove);
     }
+
+    // Update hovered entity
+    updateHoveredEntity(cursorPos);
 
     // Update preview entity position
     if (decoHeldEntity != null) {
@@ -104,6 +114,9 @@ public class DecoMode extends LevelEditorMode {
     controls.put(PRIMARY_UP, "Next Deco");
     controls.put(PRIMARY_DOWN, "Prev Deco");
     controls.put(SECONDARY_UP, "Change Grid Snap");
+    controls.put(SECONDARY_DOWN, "Delete on Cursor");
+    controls.put(Input.Buttons.LEFT, "Place Deco");
+    controls.put(Input.Buttons.RIGHT, "Pickup Deco");
     addControlsToStatus(status, controls);
     status.append("\n\nSettings:");
     int decoCount = Deco.values().length;
@@ -120,12 +133,37 @@ public class DecoMode extends LevelEditorMode {
     return status.toString();
   }
 
+  private void updateHoveredEntity(Point cursorPos){
+    Optional<DecoEntityData> hoveredDeco = getDecoOnPosition(cursorPos);
+
+    boolean isHovering = hoveredDeco.isPresent();
+    boolean sameEntity = decoHoveredEntity != null && hoveredDeco.isPresent() &&
+        decoHoveredEntity.entity.equals(hoveredDeco.get().entity);
+    boolean wasHovering = decoHoveredEntity != null;
+
+    // Not hovering, clear hovered
+    if((!isHovering && wasHovering) || (isHovering && wasHovering && !sameEntity)){
+      setEntityColor(decoHoveredEntity.entity, Color.WHITE);
+      decoHoveredEntity = null;
+    }
+    if(isHovering && !wasHovering || (isHovering && !sameEntity)){
+      decoHoveredEntity = hoveredDeco.get();
+      setEntityColor(decoHoveredEntity.entity, Color.YELLOW);
+    }
+  }
+
+  private void setEntityColor(Entity entity, Color color){
+    entity.fetch(DrawComponent.class).ifPresent(dc -> {
+      dc.tintColor(Color.rgba8888(color));
+    });
+  }
+
   private void setupPreviewEntity(Point pos) {
     Entity deco = DecoFactory.createDeco(pos, Deco.values()[selectedDecoIndex]);
     deco.fetch(DrawComponent.class)
         .ifPresent(
             dc -> {
-              dc.tintColor(Color.rgba8888(1, 1, 1, 0.3f));
+              dc.tintColor(Color.rgba8888(1, 1, 1, PREVIEW_ALPHA));
             });
     Game.add(deco);
     decoPreviewEntity = DecoEntityData.of(deco);
@@ -149,12 +187,29 @@ public class DecoMode extends LevelEditorMode {
         .fetch(PositionComponent.class)
         .ifPresent(
             pc -> {
-              Point basePos = pc.position();
-              Point entityPos = EntityUtils.getPosition(entity);
-              Vector2 offset = basePos.vectorTo(entityPos);
+              Vector2 offset = getEntityOffset(entity);
               pc.position(position.translate(offset.scale(-1)));
               PositionSync.syncPosition(entity);
             });
+  }
+
+  /**
+   * Get the offset of the entity based on its CollideComponent size. If smaller than 1.0f in any
+   * dimension, center it within the tile. Otherwise, the bottom-left corner of the collider is used.
+   * @param entity The entity to get the offset for
+   * @return The offset vector
+   */
+  private Vector2 getEntityOffset(Entity entity){
+    return entity.fetch(CollideComponent.class).map(cc -> {
+      float x = 0, y = 0;
+      if(cc.collider().size().x() < 1.0f){
+        x = -0.5f + cc.collider().size().x() / 2.0f;
+      }
+      if(cc.collider().size().y() < 1.0f){
+        y = -0.5f + cc.collider().size().y() / 2.0f;
+      }
+      return cc.collider().offset().add(Vector2.of(x, y));
+    }).orElse(Vector2.ZERO);
   }
 
   private Optional<DecoEntityData> getDecoOnPosition(Point position) {
@@ -164,7 +219,7 @@ public class DecoMode extends LevelEditorMode {
         .filter(
             ded ->
                 !ded.equals(decoPreviewEntity)
-                    && EntityUtils.getPosition(ded.entity).distance(position) < 1.0f)
+                    && EntityUtils.getPosition(ded.entity).distance(position) < HOVER_DISTANCE)
         .findFirst();
   }
 

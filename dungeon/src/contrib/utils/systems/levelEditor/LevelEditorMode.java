@@ -1,4 +1,4 @@
-package contrib.utils.systems;
+package contrib.utils.systems.levelEditor;
 
 import com.badlogic.gdx.Input;
 import contrib.systems.LevelEditorSystem;
@@ -83,6 +83,15 @@ public abstract class LevelEditorMode {
   protected void addControlsToStatus(StringBuilder status, Map<Integer, String> controls) {
     status.append("\nControls:");
     for (Map.Entry<Integer, String> entry : controls.entrySet()) {
+      // Special handling for mouse buttons
+      if (entry.getKey() == Input.Buttons.LEFT || entry.getKey() == Input.Buttons.RIGHT) {
+        status
+            .append("\n- ")
+            .append(entry.getKey() == Input.Buttons.LEFT ? "LMB" : "RMB")
+            .append(": ")
+            .append(entry.getValue());
+        continue;
+      }
       status
           .append("\n- ")
           .append(Input.Keys.toString(entry.getKey()))

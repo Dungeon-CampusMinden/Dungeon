@@ -5,7 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import contrib.utils.systems.*;
+import contrib.utils.systems.levelEditor.*;
 import core.Game;
 import core.System;
 import core.level.DungeonLevel;

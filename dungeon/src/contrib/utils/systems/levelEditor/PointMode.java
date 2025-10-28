@@ -1,4 +1,4 @@
-package contrib.utils.systems;
+package contrib.utils.systems.levelEditor;
 
 public class PointMode extends LevelEditorMode {
 

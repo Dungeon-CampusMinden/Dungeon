@@ -1,4 +1,4 @@
-package contrib.utils.systems;
+package contrib.utils.systems.levelEditor;
 
 import com.badlogic.gdx.Gdx;
 import core.level.loader.DungeonSaver;
