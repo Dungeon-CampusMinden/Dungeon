@@ -13,6 +13,8 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
+import core.sound.player.ISoundPlayer;
+import core.sound.player.NoSoundPlayer;
 import core.systems.LevelSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
@@ -763,5 +765,19 @@ public final class Game {
    */
   public static Stream<Entity> entityAtPoint(Point point) {
     return Game.tileAt(point).map(Game::entityAtTile).orElseGet(Stream::empty);
+  }
+
+  /**
+   * Returns the {@link ISoundPlayer} used by the game.
+   *
+   * <p>This player is responsible for playing sound effects and music within the game.
+   *
+   * <p>If no audio context is available (Gdx.audio is null), this method may return a {@link
+   * NoSoundPlayer} instance.
+   *
+   * @return the current {@link ISoundPlayer} instance
+   */
+  public static ISoundPlayer soundPlayer() {
+    return GameLoop.soundPlayer();
   }
 }

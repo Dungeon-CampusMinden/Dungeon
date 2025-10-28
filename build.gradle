@@ -48,6 +48,71 @@ allprojects {
         ignoreFailures = false
         maxWarnings = 0
     }
+
+    // Generate an internal assets list for LibGDX (see https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/)
+    tasks.register('generateInternalAssetsList') {
+        group = 'assets'
+        description = 'Generate a newline-separated list of internal asset files under assets/ (relative paths)'
+
+        doLast {
+            def outDir = file("$buildDir/generated-resources/assets")
+            outDir.mkdirs()
+            def outFile = new File(outDir, 'internal_assets.txt')
+
+            def assetDirs = [] as Set
+            def visitedProjects = [] as Set
+
+            // Recursive function to collect assets from a project and its dependencies
+            def collectAssets
+            collectAssets = { proj ->
+                if (proj in visitedProjects) return
+                visitedProjects << proj
+
+                // Add current project's assets dir
+                def projAssetsDir = new File(proj.projectDir, 'assets')
+                if (projAssetsDir.exists()) {
+                    assetDirs << projAssetsDir
+                }
+
+                // Recursively collect from project dependencies
+                proj.configurations.each { config ->
+                    config.dependencies
+                        .findAll { it instanceof ProjectDependency }
+                        .each { collectAssets(it.dependencyProject) }
+                }
+            }
+
+            // Start collection from this project
+            collectAssets(project)
+
+            def paths = []
+            assetDirs.each { dir ->
+                dir.eachFileRecurse { f ->
+                    if (f.isFile()) {
+                        def rel = dir.toPath().relativize(f.toPath()).toString().replace('\\', '/')
+                        paths << rel
+                    }
+                }
+            }
+
+            paths = paths.unique().sort()
+            outFile.text = paths.join(System.lineSeparator())
+            println "Generated internal assets list with ${paths.size()} entries at: ${outFile}"
+        }
+    }
+
+    // Ensure resource processing includes the generated list and that generation runs beforehand
+    tasks.matching { it.name == 'processResources' }.configureEach {
+        from("$buildDir/generated-resources/assets") {
+            into('')
+        }
+        dependsOn tasks.named('generateInternalAssetsList')
+    }
+
+    // Make sure the list is generated before compilation as well (some builds expect resources ready early)
+    tasks.withType(JavaCompile).configureEach {
+        dependsOn tasks.named('generateInternalAssetsList')
+    }
 }
 
 
