@@ -6,6 +6,8 @@ import contrib.systems.LevelEditorSystem;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class LevelBoundsMode extends LevelEditorMode {
 
@@ -36,13 +38,17 @@ public class LevelBoundsMode extends LevelEditorMode {
 
   @Override
   public String getStatusText() {
-    StringBuilder status = new StringBuilder("--- Edit Level Bounds Mode ---");
-    status.append("\nControls:");
-    status.append("\n- E: increase height");
-    status.append("\n- Q: decrease height");
-    status.append("\n- Right: increase width");
-    status.append("\n- Left: decrease width");
-    return status.toString();
+    return "";
+  }
+
+  @Override
+  public Map<Integer, String> getControls() {
+    Map<Integer, String> controls = new LinkedHashMap<>();
+    controls.put(PRIMARY_UP, "+1 Height");
+    controls.put(PRIMARY_DOWN, "-1 Height");
+    controls.put(SECONDARY_UP, "+1 Width");
+    controls.put(SECONDARY_DOWN, "-1 Width");
+    return controls;
   }
 
   private void addSize(int addX, int addY) {

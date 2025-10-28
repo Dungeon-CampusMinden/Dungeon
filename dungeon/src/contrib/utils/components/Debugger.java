@@ -8,6 +8,7 @@ import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.dialogs.TextDialog;
 import contrib.systems.DebugDrawSystem;
+import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
@@ -212,8 +213,8 @@ public class Debugger extends System {
       Debugger.TELEPORT_TO_START();
     if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.value()))
       Debugger.LOAD_NEXT_LEVEL();
-    if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value()))
-      Debugger.SPAWN_MONSTER_ON_CURSOR();
+    if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value())
+        && !LevelEditorSystem.active()) Debugger.SPAWN_MONSTER_ON_CURSOR();
     if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value())) Debugger.OPEN_DOORS();
     if (Gdx.input.isKeyJustPressed(core.configuration.KeyboardConfig.PAUSE.value()))
       Debugger.PAUSE_GAME();

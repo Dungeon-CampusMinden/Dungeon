@@ -11,21 +11,27 @@ import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.Vector2;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public abstract class LevelEditorMode {
 
   private static DungeonLevel level = null;
-  protected static final int SECONDARY_UP = Input.Keys.C;
-  protected static final int SECONDARY_DOWN = Input.Keys.Z;
-  protected static final int PRIMARY_UP = Input.Keys.E;
-  protected static final int PRIMARY_DOWN = Input.Keys.Q;
-  protected static final int TERTIARY = Input.Keys.V;
+  public static final int SECONDARY_UP = Input.Keys.C;
+  public static final int SECONDARY_DOWN = Input.Keys.Z;
+  public static final int PRIMARY_UP = Input.Keys.E;
+  public static final int PRIMARY_DOWN = Input.Keys.Q;
+  public static final int TERTIARY = Input.Keys.X;
 
   private final String name;
+  private final Map<Integer, String> controls = new LinkedHashMap<>();
 
   public LevelEditorMode(String name) {
     this.name = name;
+    Map<Integer, String> controls = getControls();
+    if (controls != null) {
+      this.controls.putAll(controls);
+    }
   }
 
   public String getName() {
@@ -43,7 +49,16 @@ public abstract class LevelEditorMode {
 
   public abstract void onExit();
 
+  public String getFullStatusText() {
+    StringBuilder status = new StringBuilder("--- " + getName() + " ---");
+    addControlsToStatus(status, controls);
+    status.append("\n\nSettings:\n").append(getStatusText());
+    return status.toString();
+  }
+
   public abstract String getStatusText();
+
+  public abstract Map<Integer, String> getControls();
 
   protected DungeonLevel getLevel() {
     return level;
@@ -103,13 +118,14 @@ public abstract class LevelEditorMode {
 
   /**
    * Quick and dirty fix for the german keyboard layout where Y and Z are swapped.
+   *
    * @param key the key code
    * @return the key as string, with Y and Z swapped for german layout
    */
-  private String keyToString(int key){
-    if (key == Input.Keys.Y){
+  private String keyToString(int key) {
+    if (key == Input.Keys.Y) {
       return "Z";
-    } else if (key == Input.Keys.Z){
+    } else if (key == Input.Keys.Z) {
       return "Y";
     }
     return Input.Keys.toString(key);

@@ -15,7 +15,6 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Vector2;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -122,21 +121,11 @@ public class DecoMode extends LevelEditorMode {
 
   @Override
   public String getStatusText() {
-    StringBuilder status = new StringBuilder("--- Edit Decos Mode ---");
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(PRIMARY_UP, "Next Deco");
-    controls.put(PRIMARY_DOWN, "Prev Deco");
-    controls.put(SECONDARY_UP, "Change Grid Snap");
-    controls.put(SECONDARY_DOWN, "Delete on Cursor");
-    controls.put(Input.Buttons.LEFT, "Place Deco");
-    controls.put(Input.Buttons.RIGHT, "Pickup Deco");
-    controls.put(TERTIARY, "Pick Deco on Cursor");
-    addControlsToStatus(status, controls);
-    status.append("\n\nSettings:");
+    StringBuilder status = new StringBuilder();
     int decoCount = Deco.values().length;
     Deco currentDeco = Deco.values()[selectedDecoIndex];
     status
-        .append("\nCurrent Deco: ")
+        .append("Current Deco: ")
         .append(selectedDecoIndex + 1)
         .append("/")
         .append(decoCount)
@@ -147,29 +136,47 @@ public class DecoMode extends LevelEditorMode {
     return status.toString();
   }
 
-  private void updateHoveredEntity(Point cursorPos){
+  @Override
+  public Map<Integer, String> getControls() {
+    Map<Integer, String> controls = new LinkedHashMap<>();
+    controls.put(PRIMARY_UP, "Next Deco");
+    controls.put(PRIMARY_DOWN, "Prev Deco");
+    controls.put(SECONDARY_UP, "Change Grid Snap");
+    controls.put(SECONDARY_DOWN, "Delete on Cursor");
+    controls.put(Input.Buttons.LEFT, "Place Deco");
+    controls.put(Input.Buttons.RIGHT, "Pickup Deco");
+    controls.put(TERTIARY, "Pick Deco on Cursor");
+    return controls;
+  }
+
+  private void updateHoveredEntity(Point cursorPos) {
     Optional<DecoEntityData> hoveredDeco = getDecoOnPosition(cursorPos);
 
     boolean isHovering = hoveredDeco.isPresent();
-    boolean sameEntity = decoHoveredEntity != null && hoveredDeco.isPresent() &&
-        decoHoveredEntity.entity.equals(hoveredDeco.get().entity);
+    boolean sameEntity =
+        decoHoveredEntity != null
+            && hoveredDeco.isPresent()
+            && decoHoveredEntity.entity.equals(hoveredDeco.get().entity);
     boolean wasHovering = decoHoveredEntity != null;
 
     // Not hovering, clear hovered
-    if((!isHovering && wasHovering) || (isHovering && wasHovering && !sameEntity)){
+    if ((!isHovering && wasHovering) || (isHovering && wasHovering && !sameEntity)) {
       setEntityColor(decoHoveredEntity.entity, Color.WHITE);
       decoHoveredEntity = null;
     }
-    if(isHovering && !wasHovering || (isHovering && !sameEntity)){
+    if (isHovering && !wasHovering || (isHovering && !sameEntity)) {
       decoHoveredEntity = hoveredDeco.get();
       setEntityColor(decoHoveredEntity.entity, Color.YELLOW);
     }
   }
 
-  private void setEntityColor(Entity entity, Color color){
-    entity.fetch(DrawComponent.class).ifPresent(dc -> {
-      dc.tintColor(Color.rgba8888(color));
-    });
+  private void setEntityColor(Entity entity, Color color) {
+    entity
+        .fetch(DrawComponent.class)
+        .ifPresent(
+            dc -> {
+              dc.tintColor(Color.rgba8888(color));
+            });
   }
 
   private void setupPreviewEntity(Point pos) {
@@ -209,21 +216,27 @@ public class DecoMode extends LevelEditorMode {
 
   /**
    * Get the offset of the entity based on its CollideComponent size. If smaller than 1.0f in any
-   * dimension, center it within the tile. Otherwise, the bottom-left corner of the collider is used.
+   * dimension, center it within the tile. Otherwise, the bottom-left corner of the collider is
+   * used.
+   *
    * @param entity The entity to get the offset for
    * @return The offset vector
    */
-  private Vector2 getEntityOffset(Entity entity){
-    return entity.fetch(CollideComponent.class).map(cc -> {
-      float x = 0, y = 0;
-      if(cc.collider().size().x() < 1.0f){
-        x = -0.5f + cc.collider().size().x() / 2.0f;
-      }
-      if(cc.collider().size().y() < 1.0f){
-        y = -0.5f + cc.collider().size().y() / 2.0f;
-      }
-      return cc.collider().offset().add(Vector2.of(x, y));
-    }).orElse(Vector2.ZERO);
+  private Vector2 getEntityOffset(Entity entity) {
+    return entity
+        .fetch(CollideComponent.class)
+        .map(
+            cc -> {
+              float x = 0, y = 0;
+              if (cc.collider().size().x() < 1.0f) {
+                x = -0.5f + cc.collider().size().x() / 2.0f;
+              }
+              if (cc.collider().size().y() < 1.0f) {
+                y = -0.5f + cc.collider().size().y() / 2.0f;
+              }
+              return cc.collider().offset().add(Vector2.of(x, y));
+            })
+        .orElse(Vector2.ZERO);
   }
 
   private Optional<DecoEntityData> getDecoOnPosition(Point position) {

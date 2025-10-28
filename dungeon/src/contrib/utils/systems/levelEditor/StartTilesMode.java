@@ -12,6 +12,8 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
 import core.utils.Point;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class StartTilesMode extends LevelEditorMode {
 
@@ -37,8 +39,7 @@ public class StartTilesMode extends LevelEditorMode {
   @Override
   public void execute() {
     // Primary Up/Down to change selected start tile index. The index can be between 0 and the lists
-    // size. if its equal
-    // to the lists size, it adds a new point to the list.
+    // size. if its equal to the lists size, it adds a new point to the list.
     int maxIndex = getLevel().startTiles().size();
     if (Gdx.input.isKeyJustPressed(PRIMARY_UP)) {
       currentStartTileIndex = (currentStartTileIndex + 1) % (maxIndex + 1);
@@ -66,10 +67,7 @@ public class StartTilesMode extends LevelEditorMode {
   @Override
   public String getStatusText() {
     DungeonLevel level = getLevel();
-    StringBuilder status = new StringBuilder("--- Start Tiles Mode ---");
-    status.append("\nControls:");
-    status.append("\n- E/Q: Change start tile index");
-    status.append("\n\nSettings:");
+    StringBuilder status = new StringBuilder();
     // List all start tiles with index + position. Add an entry for "New" at the end.
     for (int i = 0; i < level.startTiles().size(); i++) {
       Tile tile = level.startTiles().get(i);
@@ -104,6 +102,16 @@ public class StartTilesMode extends LevelEditorMode {
       status.append(" <");
     }
     return status.toString();
+  }
+
+  @Override
+  public Map<Integer, String> getControls() {
+    Map<Integer, String> controls = new LinkedHashMap<>();
+    controls.put(PRIMARY_UP, "Next Start Tile Index");
+    controls.put(PRIMARY_DOWN, "Prev Start Tile Index");
+    controls.put(Input.Buttons.LEFT, "Place Start Tile");
+    controls.put(Input.Buttons.RIGHT, "Delete Start Tile on Cursor");
+    return controls;
   }
 
   private void setStartTile() {

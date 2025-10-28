@@ -5,12 +5,16 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import contrib.components.HealthComponent;
 import contrib.utils.systems.levelEditor.*;
+import core.Entity;
 import core.Game;
 import core.System;
+import core.components.InputComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.utils.*;
+import java.util.Map;
 
 /**
  * The LevelEditorSystem is responsible for handling the level editor. It allows the user to change
@@ -42,6 +46,8 @@ public class LevelEditorSystem extends System {
   private static float feedbackMessageTimer = 0.0f;
   private static final float FEEDBACK_MESSAGE_DURATION = 3.0f; // seconds
 
+  private static Map<Integer, InputComponent.InputData> heroCallbacks = null;
+
   /**
    * Gets the active status of the LevelEditorSystem.
    *
@@ -58,12 +64,47 @@ public class LevelEditorSystem extends System {
    */
   public static void active(boolean active) {
     LevelEditorSystem.active = active;
+    Entity hero = Game.hero().orElseThrow();
+    if (active) {
+      hero.fetch(InputComponent.class)
+          .ifPresent(
+              pc -> {
+                heroCallbacks = pc.callbacks();
+                pc.removeCallback(LevelEditorMode.PRIMARY_UP);
+                pc.removeCallback(LevelEditorMode.PRIMARY_DOWN);
+                pc.removeCallback(LevelEditorMode.SECONDARY_UP);
+                pc.removeCallback(LevelEditorMode.SECONDARY_DOWN);
+                pc.removeCallback(LevelEditorMode.TERTIARY);
+                pc.removeCallback(Input.Buttons.LEFT);
+                pc.removeCallback(Input.Buttons.RIGHT);
+              });
+      hero.fetch(HealthComponent.class)
+          .ifPresent(
+              hc -> {
+                hc.godMode(true);
+              });
+    } else {
+      if (heroCallbacks != null) {
+        hero.fetch(InputComponent.class)
+            .ifPresent(
+                pc -> {
+                  heroCallbacks.forEach(
+                      ((key, value) -> pc.registerCallback(key, value.callback())));
+                });
+        heroCallbacks = null;
+        hero.fetch(HealthComponent.class)
+            .ifPresent(
+                hc -> {
+                  hc.godMode(false);
+                });
+      }
+    }
   }
 
   @Override
   public void execute() {
     if (Gdx.input.isKeyJustPressed(TOGGLE_ACTIVE)) {
-      active = !active;
+      active(!active);
     }
 
     if (!active) {
@@ -93,10 +134,10 @@ public class LevelEditorSystem extends System {
         currentModeInstance = currentMode.getModeInstance();
         currentModeInstance.onEnter();
       }
-      currentModeInstance.execute();
+      currentModeInstance.doExecute();
     }
 
-    String status = currentModeInstance.getStatusText();
+    String status = currentModeInstance.getFullStatusText();
     // Prepend to status: mode selection info. a horizontal list of all mode numbers, separated by
     // |. active mode is in [brackets]
     StringBuilder modeSelection = new StringBuilder("Level Editor v2 | Modes: ");
@@ -137,7 +178,7 @@ public class LevelEditorSystem extends System {
     feedbackMessageColor = color;
     feedbackMessageTimer = FEEDBACK_MESSAGE_DURATION;
     if (color == Color.RED) {
-      LOGGER.warning(message);
+      LOGGER.severe(message);
     } else if (color == Color.YELLOW) {
       LOGGER.warning(message);
     } else {

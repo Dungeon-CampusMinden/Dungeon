@@ -8,6 +8,7 @@ import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ShiftLevelMode extends LevelEditorMode {
@@ -39,13 +40,17 @@ public class ShiftLevelMode extends LevelEditorMode {
 
   @Override
   public String getStatusText() {
-    StringBuilder status = new StringBuilder("--- Edit Level Shift Mode ---");
-    status.append("\nControls:");
-    status.append("\n- E: shift level up");
-    status.append("\n- Q: shift level down");
-    status.append("\n- Right: shift level right");
-    status.append("\n- Left: shift level left");
-    return status.toString();
+    return "";
+  }
+
+  @Override
+  public Map<Integer, String> getControls() {
+    Map<Integer, String> controls = new LinkedHashMap<>();
+    controls.put(PRIMARY_UP, "Shift Level Up");
+    controls.put(PRIMARY_DOWN, "Shift Level Down");
+    controls.put(SECONDARY_UP, "Shift Level Right");
+    controls.put(SECONDARY_DOWN, "Shift Level Left");
+    return controls;
   }
 
   private void shiftLevel(int x, int y) {

@@ -96,7 +96,7 @@ public class DebugDrawSystem extends System {
     }
 
     // Dont do this for deco entities
-    if(decoComponent.isEmpty()){
+    if (decoComponent.isEmpty()) {
       // --- arrow for view direction ---
       float arrowLength = 0.5f; // tune this to your tile size
       float endX = position.x() + view.x() * arrowLength;
@@ -116,7 +116,7 @@ public class DebugDrawSystem extends System {
     if (entity.isPresent(DrawComponent.class)) drawTextureSize(entity, pc, alpha);
     if (entity.isPresent(CollideComponent.class)) drawCollideHitbox(entity, alpha);
     if (entity.isPresent(InteractionComponent.class)) drawInteractionRange(entity, pc, alpha);
-    if (CameraSystem.isEntityHovered(entity)) drawEntityInfo(entity, pc);
+    if (CameraSystem.isEntityHovered(entity) && decoComponent.isEmpty()) drawEntityInfo(entity, pc);
   }
 
   /**

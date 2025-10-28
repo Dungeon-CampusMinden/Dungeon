@@ -2,6 +2,8 @@ package contrib.utils.systems.levelEditor;
 
 import com.badlogic.gdx.Gdx;
 import core.level.loader.DungeonSaver;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class SaveMode extends LevelEditorMode {
 
@@ -24,9 +26,13 @@ public class SaveMode extends LevelEditorMode {
 
   @Override
   public String getStatusText() {
-    StringBuilder status = new StringBuilder("--- Save Level Mode ---");
-    status.append("\nControls:");
-    status.append("\n- E: Save level to clipboard");
-    return status.toString();
+    return "";
+  }
+
+  @Override
+  public Map<Integer, String> getControls() {
+    Map<Integer, String> controls = new LinkedHashMap<>();
+    controls.put(PRIMARY_UP, "Save level to clipboard");
+    return controls;
   }
 }
