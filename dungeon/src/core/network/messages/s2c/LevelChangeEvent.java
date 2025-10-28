@@ -1,7 +1,11 @@
 package core.network.messages.s2c;
 
+import core.Game;
+import core.level.DungeonLevel;
+import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
 import core.level.loader.DungeonSaver;
+import core.level.loader.LevelParser;
 import core.network.messages.NetworkMessage;
 
 /**
@@ -19,8 +23,22 @@ public record LevelChangeEvent(String levelName, String levelData) implements Ne
    * Creates a LevelChangeEvent for the current level in the game.
    *
    * @return A LevelChangeEvent containing the current level's name and data.
+   * @throws IllegalStateException if there is no current level or if the current level is not a
+   *     DungeonLevel.
    */
   public static LevelChangeEvent currentLevel() {
-    return new LevelChangeEvent(DungeonLoader.currentLevel(), DungeonSaver.saveCurrentDungeon());
+    return new LevelChangeEvent(DungeonLoader.currentLevel(), getCurrentLevelData());
+  }
+
+  private static String getCurrentLevelData() {
+    ILevel currentLevel =
+        Game.currentLevel()
+            .orElseThrow(() -> new IllegalStateException("No current level to serialize."));
+
+    if (currentLevel instanceof DungeonLevel dungeonLevel) {
+      return LevelParser.serializeLevel(dungeonLevel);
+    }
+
+    throw new IllegalStateException("Current level is not a DungeonLevel.");
   }
 }

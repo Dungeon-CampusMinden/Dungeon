@@ -16,6 +16,8 @@ import java.util.logging.Logger;
 public class LevelParser {
 
   private static final Logger LOGGER = Logger.getLogger(LevelParser.class.getName());
+  private static final LevelFormatParser DEFAULT_PARSER = new V2FormatParser();
+  private static final LevelFormatParser LEGACY_PARSER = new V1FormatParser();
 
   /**
    * Parse level data from a string.
@@ -34,11 +36,11 @@ public class LevelParser {
    *
    * @param reader The BufferedReader to read level data from
    * @param levelHandlerName The name of the level handler to use
-   * @return The parsed DungeonLevel
+   * @return The parsed DungeonLevel or null if an error occurs
    */
   public static DungeonLevel parseLevel(BufferedReader reader, String levelHandlerName) {
     // Make a buffered reader for easier parsing:
-    String versionLine = "";
+    String versionLine;
 
     try {
       reader.mark(8192); // Mark the current position, since we need to reset for v1
@@ -63,9 +65,9 @@ public class LevelParser {
       return switch (version) {
         case 1 -> {
           reader.reset();
-          yield new V1FormatParser().parseLevel(reader, levelHandlerName);
+          yield LEGACY_PARSER.parseLevel(reader, levelHandlerName);
         }
-        case 2 -> new V2FormatParser().parseLevel(reader, levelHandlerName);
+        case 2 -> DEFAULT_PARSER.parseLevel(reader, levelHandlerName);
         default -> {
           LOGGER.severe("Unsupported level version: " + version);
           throw new IllegalArgumentException("Unsupported level version: " + version);

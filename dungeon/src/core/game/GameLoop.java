@@ -23,7 +23,7 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.level.loader.DungeonLoader;
+import core.level.loader.LevelParser;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.client.ClientNetwork;
@@ -341,10 +341,10 @@ public final class GameLoop extends ScreenAdapter {
         (ctx, event) -> {
           LOGGER.info("Received LevelChangeEvent event: {}", event.levelName());
           try {
-            Game.currentLevel(DungeonLoader.loadFromString(event.levelData(), event.levelName()));
+            Game.currentLevel(LevelParser.parseLevel(event.levelData(), event.levelName()));
             Game.hero().ifPresent(GameLoop::placeOnLevelStart);
           } catch (Exception e) {
-            LOGGER.warn("Failed to handle LevelChangeEvent: " + e.getMessage());
+            LOGGER.error("Failed to handle LevelChangeEvent: {}", e.getMessage(), e);
           }
         });
     dispatcher.registerHandler(

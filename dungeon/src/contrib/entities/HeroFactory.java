@@ -38,9 +38,6 @@ import java.util.function.Consumer;
 /** A utility class for building the hero entity in the game world. */
 public final class HeroFactory {
 
-  private static final int[] colors = {0xFF7777FF, 0x77FF77FF, 0x7777FFFF, 0xFFFF77FF, 0xFF77FFFF};
-  private static int i = 0;
-
   /** The default Hero class, used if no other class is specified. */
   public static final CharacterClass DEFAULT_HERO_CLASS = CharacterClass.WIZARD;
 
@@ -248,8 +245,6 @@ public final class HeroFactory {
             characterClass.stamina(), characterClass.stamina(), characterClass.staminaRestore()));
     hero.add(new SkillComponent(characterClass.startSkills().toArray(new Skill[0])));
 
-    int color = colors[i++ % colors.length];
-    dc.tintColor(color);
     HealthComponent hc =
         new HealthComponent(
             characterClass.hp(),

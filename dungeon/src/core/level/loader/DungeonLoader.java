@@ -78,9 +78,10 @@ public class DungeonLoader {
 
   private static void getAllLevelFilePathsFromJar() throws IOException, URISyntaxException {
     URI uri = Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX)).toURI();
-    FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
-    Path path = fileSystem.getPath(LEVEL_PATH_PREFIX);
-    parseLevelFiles(path, true);
+    try (FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
+      Path path = fileSystem.getPath(LEVEL_PATH_PREFIX);
+      parseLevelFiles(path, true);
+    }
   }
 
   private static void parseLevelFiles(Path path, boolean isJar) throws IOException {
@@ -122,17 +123,6 @@ public class DungeonLoader {
   }
 
   /**
-   * Clears all levels from the level order and resets the current level index.
-   *
-   * @see #addLevel(Tuple[])
-   */
-  public static void clearLevels() {
-    levelOrder.clear();
-    currentLevel = -1;
-    currentVariant = 0;
-  }
-
-  /**
    * Returns the current level order.
    *
    * @return The current level order.
@@ -155,7 +145,7 @@ public class DungeonLoader {
    * Returns the level handler for the given level name.
    *
    * @param levelName The name of the level.
-   * @return The level handler for the given level name.
+   * @return The level handler for the given level name. (null if not found)
    * @see DungeonLevel
    */
   public static Optional<Class<? extends DungeonLevel>> levelHandler(String levelName) {
@@ -302,12 +292,17 @@ public class DungeonLoader {
    *
    * @param path The path to the level file.
    * @return The loaded DevDungeonLevel.
+   * @throws MissingLevelException If the level file is not found.
+   * @throws RuntimeException If an I/O error occurs while reading the level file.
    */
-  public static DungeonLevel loadFromPath(IPath path) {
+  private static DungeonLevel loadFromPath(IPath path) {
     try {
       BufferedReader reader;
       if (path.pathString().startsWith("jar:")) {
         InputStream is = DungeonLevel.class.getResourceAsStream(path.pathString().substring(4));
+        if (is == null) {
+          throw new MissingLevelException(path.toString());
+        }
         reader = new BufferedReader(new InputStreamReader(is));
       } else {
         File file = new File(path.pathString());
@@ -317,181 +312,10 @@ public class DungeonLoader {
         reader = new BufferedReader(new FileReader(file));
       }
 
-      return parseReaderToLevel(reader, DungeonLoader.currentLevel());
+      return LevelParser.parseLevel(reader, currentLevel());
+
     } catch (IOException e) {
       throw new RuntimeException("Error reading level file", e);
-    }
-  }
-
-  /**
-   * Loads a DungeonLevel from the string content.
-   *
-   * @param content The string content of the level file.
-   * @param levelName The name of the level.
-   * @return The loaded DungeonLevel.
-   */
-  public static DungeonLevel loadFromString(String content, String levelName) {
-    return parseReaderToLevel(new BufferedReader(new StringReader(content)), levelName);
-  }
-
-  private static DungeonLevel parseReaderToLevel(BufferedReader reader, String levelName) {
-    try {
-      // Parse DesignLabel
-      String designLabelLine = readLine(reader);
-      DesignLabel designLabel = parseDesignLabel(designLabelLine);
-
-      // Parse Hero Position
-      String heroPosLine = readLine(reader);
-      Point heroPos = parseHeroPosition(heroPosLine);
-
-      // Custom Points
-      String customPointsLine = readLine(reader);
-      List<Coordinate> customPoints = parseCustomPoints(customPointsLine);
-
-      // Parse LAYOUT
-      List<String> layoutLines = new ArrayList<>();
-      String line;
-      while (!(line = readLine(reader)).isEmpty()) {
-        layoutLines.add(line);
-      }
-      LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
-
-      DungeonLevel newLevel;
-      try {
-        newLevel = createLevelHandler(levelName, layout, designLabel, customPoints);
-      } catch (RuntimeException e) {
-        newLevel = new DungeonLevel(layout, designLabel, customPoints, levelName);
-      }
-
-      // Set Hero Position
-      Tile heroTile = newLevel.tileAt(heroPos).orElse(null);
-      if (heroTile == null) {
-        throw new RuntimeException("Invalid Hero Position: " + heroPos);
-      }
-      newLevel.startTile(heroTile);
-
-      return newLevel;
-    } catch (IOException e) {
-      throw new RuntimeException("Error reading level content", e);
-    }
-  }
-
-  /**
-   * Read a line from the reader, ignoring comments. It skips lines that start with a '#' (comments)
-   * and returns the next non-empty line.
-   *
-   * @param reader The reader to read from
-   * @return The next non-empty, non-comment line without any comments
-   * @throws IOException If an error occurs while reading from the reader
-   */
-  private static String readLine(BufferedReader reader) throws IOException {
-    String line = reader.readLine();
-    if (line == null) return "";
-    while (line.trim().startsWith("#")) {
-      line = reader.readLine();
-    }
-    line = line.trim().split("#")[0].trim();
-
-    return line;
-  }
-
-  private static Point parseHeroPosition(String heroPositionLine) {
-    if (heroPositionLine.isEmpty()) throw new RuntimeException("Missing Hero Position");
-    String[] parts = heroPositionLine.split(",");
-    if (parts.length != 2) throw new RuntimeException("Invalid Hero Position: " + heroPositionLine);
-    try {
-      float x = Float.parseFloat(parts[0]);
-      float y = Float.parseFloat(parts[1]);
-      return new Point(x, y);
-    } catch (NumberFormatException e) {
-      throw new RuntimeException("Invalid Hero Position: " + heroPositionLine);
-    }
-  }
-
-  private static List<Coordinate> parseCustomPoints(String customPointsLine) {
-    List<Coordinate> customPoints = new ArrayList<>();
-    if (customPointsLine.isEmpty()) return customPoints;
-    String[] points = customPointsLine.split(";");
-    for (String point : points) {
-      if (point.isEmpty()) continue;
-      String[] parts = point.split(",");
-      if (parts.length != 2) throw new RuntimeException("Invalid Custom Point: " + point);
-      try {
-        int x = Integer.parseInt(parts[0]);
-        int y = Integer.parseInt(parts[1]);
-        customPoints.add(new Coordinate(x, y));
-      } catch (NumberFormatException e) {
-        throw new RuntimeException("Invalid Custom Point: " + point);
-      }
-    }
-    return customPoints;
-  }
-
-  private static DesignLabel parseDesignLabel(String line) {
-    if (line.isEmpty()) return DesignLabel.DEFAULT;
-    try {
-      return DesignLabel.valueOf(line);
-    } catch (IllegalArgumentException e) {
-      throw new RuntimeException("Invalid DesignLabel: " + line);
-    }
-  }
-
-  private static LevelElement[][] loadLevelLayoutFromString(List<String> lines) {
-    LevelElement[][] layout = new LevelElement[lines.size()][lines.getFirst().length()];
-
-    for (int y = 0; y < lines.size(); y++) {
-      for (int x = 0; x < lines.getFirst().length(); x++) {
-        char c = lines.get(y).charAt(x);
-        switch (c) {
-          case 'F' -> layout[y][x] = LevelElement.FLOOR;
-          case 'W' -> layout[y][x] = LevelElement.WALL;
-          case 'E' -> layout[y][x] = LevelElement.EXIT;
-          case 'S' -> layout[y][x] = LevelElement.SKIP;
-          case 'P' -> layout[y][x] = LevelElement.PIT;
-          case 'H' -> layout[y][x] = LevelElement.HOLE;
-          case 'D' -> layout[y][x] = LevelElement.DOOR;
-          default -> throw new IllegalArgumentException("Invalid character in level layout: " + c);
-        }
-      }
-    }
-
-    return layout;
-  }
-
-  private static DungeonLevel createLevelHandler(
-      String levelName,
-      LevelElement[][] layout,
-      DesignLabel designLabel,
-      List<Coordinate> customPoints) {
-    Class<? extends DungeonLevel> levelHandler =
-        DungeonLoader.levelHandler(levelName).orElse(DungeonLevel.class);
-
-    try {
-      return levelHandler
-          .getConstructor(LevelElement[][].class, DesignLabel.class, List.class)
-          .newInstance(layout, designLabel, customPoints);
-    } catch (NoSuchMethodException e) {
-      return createLevelHandlerFallback(levelHandler, layout, designLabel, customPoints, levelName);
-    } catch (ReflectiveOperationException e) {
-      throw new RuntimeException("Error creating level handler", e);
-    }
-  }
-
-  // Fallback method to create level handler with levelName parameter
-  // this should happen if multiplayer sends a level (client should not have a specific level
-  // handler)
-  private static DungeonLevel createLevelHandlerFallback(
-      Class<? extends DungeonLevel> levelHandler,
-      LevelElement[][] layout,
-      DesignLabel designLabel,
-      List<Coordinate> customPoints,
-      String levelName) {
-    try {
-      return levelHandler
-          .getConstructor(LevelElement[][].class, DesignLabel.class, List.class, String.class)
-          .newInstance(layout, designLabel, customPoints, levelName);
-    } catch (ReflectiveOperationException e) {
-      throw new RuntimeException("Error creating level handler", e);
     }
   }
 }

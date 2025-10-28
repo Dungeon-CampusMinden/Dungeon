@@ -1,8 +1,6 @@
 package core.level.loader.parsers;
 
 import contrib.entities.deco.Deco;
-import core.Game;
-import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.DesignLabel;
@@ -55,32 +53,35 @@ public class V2FormatParser extends LevelFormatParser {
   @Override
   public String serializeLevel(DungeonLevel level) {
     if (level == null) {
-      LOGGER.warning("Trying to serialize a null level!");
+      LOGGER.error("Trying to serialize a null level!");
       throw new IllegalArgumentException("Level to serialize cannot be null");
     }
 
     String designLabel =
         level.designLabel().map(DesignLabel::name).orElse(DesignLabel.DEFAULT.name());
 
-    Point heroPos =
-        Game.hero()
-            .flatMap(hero -> hero.fetch(PositionComponent.class).map(PositionComponent::position))
-            .orElse(new Point(0, 0));
-    String heroPosString = heroPos.x() + "," + heroPos.y();
+    // Spawn Position of the Hero:
+    // - startTile position if present
+    // - randomTile position if startTile is not present
+    // - (0,0) if no tiles are present
+    Point spawnPos =
+        level.startTile().map(Tile::position).or(level::randomTilePoint).orElse(new Point(0, 0));
+
+    String spawnPosString = spawnPos.x() + "," + spawnPos.y();
 
     String customPointsString = V2FormatParser.serializeNamedPoints(level.namedPoints());
     String decorations = V2FormatParser.serializeDecorationList(level.decorations());
     String dunLayout = V2FormatParser.serializeLevelLayout(level.layout());
 
     StringBuilder result = new StringBuilder();
+    result.append("Version: 2").append("\n");
     result.append(designLabel).append("\n");
-    result.append(heroPosString).append("\n");
+    result.append(spawnPosString).append("\n");
     result.append(customPointsString).append("\n");
     result.append(decorations).append("\n");
     result.append(dunLayout);
-    String output = result.toString();
 
-    return output;
+    return result.toString();
   }
 
   /**
@@ -174,11 +175,14 @@ public class V2FormatParser extends LevelFormatParser {
    * @return A 2D array of LevelElement representing the level layout.
    */
   private static LevelElement[][] loadLevelLayout(List<String> lines) {
-    LevelElement[][] layout = new LevelElement[lines.size()][lines.getFirst().length()];
-    for (int y = lines.size() - 1; y >= 0; y--) {
-      for (int x = 0; x < lines.getFirst().length(); x++) {
+    int height = lines.size();
+    int width = lines.getFirst().length();
+    LevelElement[][] layout = new LevelElement[height][width];
+
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
         char c = lines.get(y).charAt(x);
-        layout[y][x] = getLevelElementFromChar(c);
+        layout[(height - 1) - y][x] = getLevelElementFromChar(c);
       }
     }
     return layout;
