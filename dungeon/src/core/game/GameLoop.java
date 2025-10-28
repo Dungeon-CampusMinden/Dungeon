@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import contrib.entities.deco.DecoFactory;
 import contrib.systems.DebugDrawSystem;
 import contrib.utils.CheckPatternPainter;
 import core.Entity;
@@ -85,6 +86,11 @@ public final class GameLoop extends ScreenAdapter {
             .filter(Entity::isPersistent)
             .map(ECSManagment::remove)
             .forEach(ECSManagment::add);
+
+        Game.currentLevel().ifPresent(level -> {
+          level.decorations().forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a())));
+        });
+
         if (firstLoad && Game.isCheckPatternEnabled())
           CheckPatternPainter.paintCheckerPattern(Game.currentLevel().orElse(null).layout());
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);

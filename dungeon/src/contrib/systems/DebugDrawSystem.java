@@ -14,10 +14,13 @@ import com.badlogic.gdx.math.Vector3;
 import contrib.components.*;
 import contrib.utils.EntityUtils;
 import core.Entity;
+import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.DungeonLevel;
+import core.level.elements.ILevel;
 import core.systems.CameraSystem;
 import core.utils.FontHelper;
 import core.utils.Point;
@@ -66,6 +69,10 @@ public class DebugDrawSystem extends System {
 
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
     filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
+
+    if(!LevelEditorSystem.active()) {
+      drawNamedPoints();
+    }
   }
 
   private void drawPosition(Entity entity) {
@@ -117,6 +124,21 @@ public class DebugDrawSystem extends System {
     if (entity.isPresent(CollideComponent.class)) drawCollideHitbox(entity, alpha);
     if (entity.isPresent(InteractionComponent.class)) drawInteractionRange(entity, pc, alpha);
     if (CameraSystem.isEntityHovered(entity) && decoComponent.isEmpty()) drawEntityInfo(entity, pc);
+  }
+
+  public static void drawNamedPoints(){
+    ILevel l = Game.currentLevel().orElse(null);
+    if(l == null) return;
+    DungeonLevel level = (DungeonLevel) l;
+    Color color = withAlpha(Color.GREEN, 0.3f);
+    level.namedPoints().forEach(
+        (name, point) -> {
+          // Draw a small purple square at the point location
+          drawRectangleOutline(point.x(), point.y(), 1.0f, 1.0f, color);
+
+          // Draw the name of the point above it
+          drawTextInWorldCoordsCentered(FONT, name, point.translate(0.5f, 0.5f), color);
+        });
   }
 
   /**
@@ -479,5 +501,21 @@ public class DebugDrawSystem extends System {
    */
   public static void drawTextInWorldCoords(String text, Point world) {
     drawTextInWorldCoords(FONT, text, world, Color.WHITE);
+  }
+
+  /**
+   * Draws text in world coordinates using the specified font and color.
+   *
+   * @param font the {@link BitmapFont} to use for rendering the text
+   * @param text the text string to draw
+   * @param world the world coordinates where the text should be drawn
+   * @param color the color of the text
+   */
+  public static void drawTextInWorldCoordsCentered(BitmapFont font, String text, Point world, Color color) {
+    Vector3 screen = CameraSystem.camera().project(new Vector3(world.x(), world.y(), 0));
+    GlyphLayout layout = new GlyphLayout(font, text);
+    float textX = screen.x - layout.width / 2f;
+    float textY = screen.y + layout.height / 2f;
+    drawText(font, text, new Point(textX, textY), color);
   }
 }

@@ -307,6 +307,7 @@ public class DungeonLevel implements ILevel, ITickable {
     else startTiles.set(0, start);
   }
 
+  @Override
   public List<Tile> startTiles() {
     return startTiles;
   }
@@ -372,8 +373,19 @@ public class DungeonLevel implements ILevel, ITickable {
    *
    * @return a list of decoration tuples
    */
+  @Override
   public List<Tuple<Deco, Point>> decorations() {
     return decorations;
+  }
+
+  /**
+   * Adds a decoration to the level at the specified position.
+   *
+   * @param deco the decoration to add
+   * @param position the position to place the decoration
+   */
+  public void addDecoration(Deco deco, Point position) {
+    decorations.add(new Tuple<>(deco, position));
   }
 
   /**

@@ -87,6 +87,9 @@ public class LevelEditorSystem extends System {
               hc -> {
                 hc.godMode(true);
               });
+      if(currentModeInstance != null){
+        currentModeInstance.onEnter();
+      }
     } else {
       if (heroCallbacks != null) {
         hero.fetch(InputComponent.class)
@@ -102,6 +105,7 @@ public class LevelEditorSystem extends System {
                   hc.godMode(false);
                 });
       }
+      currentModeInstance.onExit();
     }
   }
 

@@ -13,11 +13,11 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.level.DungeonLevel;
 import core.utils.Point;
 import core.utils.Vector2;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
 
 public class DecoMode extends LevelEditorMode {
 
@@ -70,6 +70,7 @@ public class DecoMode extends LevelEditorMode {
         Vector2 offset = getEntityOffset(decoPreviewEntity.entity);
         Entity newDeco = DecoFactory.createDeco(snapPos.translate(offset.scale(-1)), decoType);
         Game.add(newDeco);
+        syncPlacedDecos();
       }
     } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT) && decoHeldEntity == null) {
       // Pickup deco on cursor
@@ -81,6 +82,7 @@ public class DecoMode extends LevelEditorMode {
     } else if (Gdx.input.isKeyPressed(SECONDARY_DOWN)) {
       // Delete deco on cursor
       getDecoOnPosition(cursorPos).map(DecoEntityData::entity).ifPresent(Game::remove);
+      syncPlacedDecos();
     } else if (Gdx.input.isKeyJustPressed(TERTIARY)) {
       // Pipette tool to pick deco type on cursor
       Optional<DecoEntityData> clickedDeco = getDecoOnPosition(cursorPos);
@@ -248,6 +250,23 @@ public class DecoMode extends LevelEditorMode {
                 !ded.equals(decoPreviewEntity)
                     && EntityUtils.getPosition(ded.entity).distance(position) < HOVER_DISTANCE)
         .findFirst();
+  }
+
+  /**
+   * Puts all placed decos into the level handler object for serialization.
+   */
+  private void syncPlacedDecos(){
+    DungeonLevel level = getLevel();
+    level.decorations().clear();
+    Game.levelEntities(Set.of(DecoComponent.class)).map(DecoEntityData::of).forEach(ded -> {
+      // Filter out preview and held entities
+      if (Objects.equals(ded, decoPreviewEntity) || Objects.equals(ded, decoHeldEntity)) {
+        return;
+      }
+      Point pos = ded.pc.position();
+      Deco decoType = ded.dc.type();
+      level.addDecoration(decoType, pos);
+    });
   }
 
   private record DecoEntityData(Entity entity, DecoComponent dc, PositionComponent pc) {

@@ -74,9 +74,11 @@ public abstract class LevelFormatParser {
 
       // Legacy support: Try old constructor without decorations
       try {
-        return levelHandler
-            .getConstructor(LevelElement[][].class, DesignLabel.class, Map.class)
-            .newInstance(layout, designLabel, namedPoints);
+        DungeonLevel level = levelHandler
+          .getConstructor(LevelElement[][].class, DesignLabel.class, Map.class)
+          .newInstance(layout, designLabel, namedPoints);
+        level.decorations().addAll(decorations);
+        return level;
       } catch (Exception e) {
         throw new RuntimeException("Error creating level handler", e);
       }

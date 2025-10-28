@@ -6,6 +6,7 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
+import contrib.entities.deco.Deco;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.DungeonLevel;
@@ -301,6 +302,13 @@ public interface ILevel extends IndexedGraph<Tile> {
   Optional<Tile> startTile();
 
   /**
+   * Retrieves a list of all start tiles in the level.
+   *
+   * @return List of start tiles.
+   */
+  List<Tile> startTiles();
+
+  /**
    * Retrieves the tile on which the given entity is standing.
    *
    * <p>The method fetches the position component of the entity using {@link Entity#fetch(Class)}
@@ -391,4 +399,6 @@ public interface ILevel extends IndexedGraph<Tile> {
    * @return A list of named points.
    */
   Map<String, Point> namedPoints();
+
+  List<Tuple<Deco, Point>> decorations();
 }
