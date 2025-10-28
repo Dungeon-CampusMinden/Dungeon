@@ -191,7 +191,16 @@ public class TileTextureFactory {
     Coordinate p = levelPart.position();
     LevelElement[][] layout = levelPart.layout();
 
-    if (isDiagonalFloorCross(p, layout)) return new SimpleIPath("wall/cross");
+    if (isDiagonalFloorCross(p, layout)) {
+      return new SimpleIPath("wall/cross");
+    }
+
+    int holeCount = trueHolesAround(p, layout);
+    if (holeCount >= 1
+        && orthoOnlyWallDoorExitOrTrueHole(p, layout)
+        && !hasPitOrthogonally(p, layout)) {
+      return new SimpleIPath("wall/cross");
+    }
 
     if (isBottomRightInnerEmptyCorner(p, layout)) {
       return new SimpleIPath("wall/corner_bottom_right_inner_empty");
@@ -738,14 +747,51 @@ public class TileTextureFactory {
 
   private static boolean isDiagonalFloorCross(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
-    return isNotFloor(n.getUpE())
-        && isNotFloor(n.getDownE())
-        && isNotFloor(n.getLeftE())
-        && isNotFloor(n.getRightE())
-        && !isNotFloor(n.getUpLeftE())
-        && !isNotFloor(n.getUpRightE())
-        && !isNotFloor(n.getDownLeftE())
-        && !isNotFloor(n.getDownRightE());
+    boolean orthoNotFloor =
+        isNotFloor(n.getUpE())
+            && isNotFloor(n.getDownE())
+            && isNotFloor(n.getLeftE())
+            && isNotFloor(n.getRightE());
+    boolean noPit = !hasPitOrthogonally(p, layout);
+    boolean diagsInside =
+        isInside(n.getUpLeftE())
+            && isInside(n.getUpRightE())
+            && isInside(n.getDownLeftE())
+            && isInside(n.getDownRightE());
+    return orthoNotFloor && noPit && diagsInside;
+  }
+
+  private static boolean isWallDoorExitOrTrueHole(LevelElement e) {
+    return e == LevelElement.WALL
+        || e == LevelElement.HOLE
+        || e == LevelElement.DOOR
+        || e == LevelElement.EXIT;
+  }
+
+  private static boolean orthoOnlyWallDoorExitOrTrueHole(Coordinate p, LevelElement[][] layout) {
+    Neighbors n = Neighbors.of(p, layout);
+    return isWallDoorExitOrTrueHole(n.getUpE())
+        && isWallDoorExitOrTrueHole(n.getDownE())
+        && isWallDoorExitOrTrueHole(n.getLeftE())
+        && isWallDoorExitOrTrueHole(n.getRightE());
+  }
+
+  private static int trueHolesAround(Coordinate p, LevelElement[][] layout) {
+    Neighbors n = Neighbors.of(p, layout);
+    int h = 0;
+    if (n.getUpE() == LevelElement.HOLE) h++;
+    if (n.getDownE() == LevelElement.HOLE) h++;
+    if (n.getLeftE() == LevelElement.HOLE) h++;
+    if (n.getRightE() == LevelElement.HOLE) h++;
+    return h;
+  }
+
+  private static boolean hasPitOrthogonally(Coordinate p, LevelElement[][] layout) {
+    Neighbors n = Neighbors.of(p, layout);
+    return n.getUpE() == LevelElement.PIT
+        || n.getDownE() == LevelElement.PIT
+        || n.getLeftE() == LevelElement.PIT
+        || n.getRightE() == LevelElement.PIT;
   }
 
   /**
