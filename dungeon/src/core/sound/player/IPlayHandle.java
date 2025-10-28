@@ -45,6 +45,13 @@ public interface IPlayHandle {
   void pan(float pan, float volume);
 
   /**
+   * Sets the pitch of the sound.
+   *
+   * @param pitch the pitch level (1.0 is normal)
+   */
+  void pitch(float pitch);
+
+  /**
    * Checks if the sound is currently playing.
    *
    * @return true if playing, false otherwise

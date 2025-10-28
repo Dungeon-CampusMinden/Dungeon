@@ -208,6 +208,9 @@ public class GdxSoundPlayer implements ISoundPlayer {
     /**
      * Creates a SoundPlayHandle for controlling playback of a libGDX Sound.
      *
+     * <p>Note: On non-desktop platforms, pitch must be between 0.5 and 2.0, otherwise the given
+     * value will be clamped to this range.
+     *
      * @param sound The libGDX Sound instance
      * @param durationMs Duration of the sound in milliseconds, or -1 if unknown
      * @param volume Volume level (0.0 to 1.0)
@@ -219,8 +222,9 @@ public class GdxSoundPlayer implements ISoundPlayer {
       if (volume < 0f || volume > 1f) {
         throw new IllegalArgumentException("Volume must be between 0.0 and 1.0");
       }
-      if (pitch < 0.5f || pitch > 2.0f) {
-        throw new IllegalArgumentException("Pitch must be between 0.5 and 2.0");
+      if (Gdx.app != null && Gdx.app.getType() != Application.ApplicationType.Desktop) {
+        LOGGER.info("Clamping pitch to [0.5, 2.0] on non-desktop platform (value: {})", pitch);
+        pitch = Math.clamp(pitch, 0.5f, 2.0f);
       }
       if (pan < -1f || pan > 1f) {
         throw new IllegalArgumentException("Pan must be between -1.0 and 1.0");
@@ -277,6 +281,24 @@ public class GdxSoundPlayer implements ISoundPlayer {
         }
       }
       sound.setPan(soundId, pan, volume);
+    }
+
+    /**
+     * Sets the pitch of the sound.
+     *
+     * <p>Note: On non-desktop platforms, pitch must be between 0.5 and 2.0, otherwise the given
+     * value will be clamped to this range.
+     *
+     * @param pitch the pitch level (1.0 is normal)
+     */
+    @Override
+    public void pitch(float pitch) {
+      if (Gdx.app != null && Gdx.app.getType() != Application.ApplicationType.Desktop) {
+        LOGGER.info("Clamping pitch to [0.5, 2.0] on non-desktop platform (value: {})", pitch);
+        pitch = Math.clamp(pitch, 0.5f, 2.0f);
+      }
+
+      sound.setPitch(soundId, pitch);
     }
 
     @Override
