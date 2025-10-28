@@ -1015,117 +1015,106 @@ public class TileTextureFactory {
     Neighbors n = Neighbors.of(p, layout);
 
     boolean defaultCase =
-      isVerticalStem(n.getUp(), layout)
-        && isHorizontalStem(n.getRight(), layout)
-        && rendersEmptyAt(n.getDownLeft(), layout);
+        isVerticalStem(n.getUp(), layout)
+            && isHorizontalStem(n.getRight(), layout)
+            && rendersEmptyAt(n.getDownLeft(), layout);
 
     boolean altCase =
-      rightIsDoor(p, layout)
-        && isFloorOrDoor(n.getUpLeftE())
-        && isFloorOrDoor(n.getUpRightE())
-        && isFloorOrDoor(n.getDownRightE())
-        && isNotFloor(n.getUpE())
-        && isNotFloor(n.getDownE())
-        && isNotFloor(n.getLeftE())
-        && isNotFloor(n.getDownLeftE());
+        rightIsDoor(p, layout)
+            && isFloorOrDoor(n.getUpLeftE())
+            && isFloorOrDoor(n.getUpRightE())
+            && isFloorOrDoor(n.getDownRightE())
+            && isNotFloor(n.getUpE())
+            && isNotFloor(n.getDownE())
+            && isNotFloor(n.getLeftE())
+            && isNotFloor(n.getDownLeftE());
 
     boolean orthoWalls =
-      leftIsWall(p, layout)
-        && rightIsWall(p, layout)
-        && aboveIsWall(p, layout)
-        && belowIsWall(p, layout);
+        leftIsWall(p, layout)
+            && rightIsWall(p, layout)
+            && aboveIsWall(p, layout)
+            && belowIsWall(p, layout);
 
     boolean diagPattern =
-      n.getDownLeftE() == LevelElement.WALL
-        && isFloorOrDoor(n.getUpLeftE())
-        && isFloorOrDoor(n.getUpRightE())
-        && isFloorOrDoor(n.getDownRightE());
+        n.getDownLeftE() == LevelElement.WALL
+            && isFloorOrDoor(n.getUpLeftE())
+            && isFloorOrDoor(n.getUpRightE())
+            && isFloorOrDoor(n.getDownRightE());
 
     boolean quadCase = orthoWalls && diagPattern;
 
     return defaultCase || altCase || quadCase;
   }
-
-
-
-
-
 
   private static boolean isUpperRightEmptyCross(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
 
     boolean defaultCase =
-      isVerticalStem(n.getUp(), layout)
-        && isHorizontalStem(n.getLeft(), layout)
-        && rendersEmptyAt(n.getDownRight(), layout);
+        isVerticalStem(n.getUp(), layout)
+            && isHorizontalStem(n.getLeft(), layout)
+            && rendersEmptyAt(n.getDownRight(), layout);
 
     boolean altCase =
-      leftIsDoor(p, layout)
-        && isFloorOrDoor(n.getUpRightE())
-        && isFloorOrDoor(n.getUpLeftE())
-        && isFloorOrDoor(n.getDownLeftE())
-        && isNotFloor(n.getUpE())
-        && isNotFloor(n.getDownE())
-        && isNotFloor(n.getRightE())
-        && isNotFloor(n.getDownRightE());
+        leftIsDoor(p, layout)
+            && isFloorOrDoor(n.getUpRightE())
+            && isFloorOrDoor(n.getUpLeftE())
+            && isFloorOrDoor(n.getDownLeftE())
+            && isNotFloor(n.getUpE())
+            && isNotFloor(n.getDownE())
+            && isNotFloor(n.getRightE())
+            && isNotFloor(n.getDownRightE());
 
     boolean orthoWalls =
-      leftIsWall(p, layout)
-        && rightIsWall(p, layout)
-        && aboveIsWall(p, layout)
-        && belowIsWall(p, layout);
+        leftIsWall(p, layout)
+            && rightIsWall(p, layout)
+            && aboveIsWall(p, layout)
+            && belowIsWall(p, layout);
 
     boolean diagPattern =
-      n.getDownRightE() == LevelElement.WALL
-        && isFloorOrDoor(n.getUpLeftE())
-        && isFloorOrDoor(n.getUpRightE())
-        && isFloorOrDoor(n.getDownLeftE());
+        n.getDownRightE() == LevelElement.WALL
+            && isFloorOrDoor(n.getUpLeftE())
+            && isFloorOrDoor(n.getUpRightE())
+            && isFloorOrDoor(n.getDownLeftE());
 
     boolean quadCase = orthoWalls && diagPattern;
 
     return defaultCase || altCase || quadCase;
   }
-
-
-
-
 
   private static boolean isBottomLeftEmptyCross(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
 
     boolean defaultCase =
-      isVerticalStem(n.getDown(), layout)
-        && isHorizontalStem(n.getLeft(), layout)
-        && rendersEmptyAt(n.getUpRight(), layout);
+        isVerticalStem(n.getDown(), layout)
+            && isHorizontalStem(n.getLeft(), layout)
+            && rendersEmptyAt(n.getUpRight(), layout);
 
     boolean altCase =
-      leftIsDoor(p, layout)
-        && isFloorOrDoor(n.getDownRightE())
-        && isFloorOrDoor(n.getDownLeftE())
-        && isFloorOrDoor(n.getUpLeftE())
-        && isNotFloor(n.getDownE())
-        && isNotFloor(n.getUpE())
-        && isNotFloor(n.getRightE())
-        && isNotFloor(n.getUpRightE());
+        leftIsDoor(p, layout)
+            && isFloorOrDoor(n.getDownRightE())
+            && isFloorOrDoor(n.getDownLeftE())
+            && isFloorOrDoor(n.getUpLeftE())
+            && isNotFloor(n.getDownE())
+            && isNotFloor(n.getUpE())
+            && isNotFloor(n.getRightE())
+            && isNotFloor(n.getUpRightE());
 
     boolean orthoWalls =
-      leftIsWall(p, layout)
-        && rightIsWall(p, layout)
-        && aboveIsWall(p, layout)
-        && belowIsWall(p, layout);
+        leftIsWall(p, layout)
+            && rightIsWall(p, layout)
+            && aboveIsWall(p, layout)
+            && belowIsWall(p, layout);
 
     boolean diagPattern =
-      n.getUpRightE() == LevelElement.WALL
-        && isFloorOrDoor(n.getUpLeftE())
-        && isFloorOrDoor(n.getDownLeftE())
-        && isFloorOrDoor(n.getDownRightE());
+        n.getUpRightE() == LevelElement.WALL
+            && isFloorOrDoor(n.getUpLeftE())
+            && isFloorOrDoor(n.getDownLeftE())
+            && isFloorOrDoor(n.getDownRightE());
 
     boolean quadCase = orthoWalls && diagPattern;
 
     return defaultCase || altCase || quadCase;
   }
-
-
 
   private static boolean isBottomRightEmptyCross(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
