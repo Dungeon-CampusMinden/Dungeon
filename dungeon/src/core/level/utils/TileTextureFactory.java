@@ -1459,23 +1459,30 @@ public class TileTextureFactory {
     return diagIsFD && orthoXStrictWall && orthoYStrictWall && diagANotF && diagBNotF && diagCNotF;
   }
 
+  private static boolean hasAdjacentFloorOrDoor(Coordinate p, LevelElement[][] layout) {
+    return isFloorOrDoor(get(layout, p.x() + 1, p.y()))
+        || isFloorOrDoor(get(layout, p.x() - 1, p.y()))
+        || isFloorOrDoor(get(layout, p.x(), p.y() + 1))
+        || isFloorOrDoor(get(layout, p.x(), p.y() - 1));
+  }
+
   private static boolean isBottomRightInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
-    if (isFloorOrDoor(get(layout, p.x() - 1, p.y()))) return false;
+    if (hasAdjacentFloorOrDoor(p, layout)) return false;
     return isInnerEmptyCorner(p, layout, 1, -1);
   }
 
   private static boolean isBottomLeftInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
-    if (isFloorOrDoor(get(layout, p.x() + 1, p.y()))) return false;
+    if (hasAdjacentFloorOrDoor(p, layout)) return false;
     return isInnerEmptyCorner(p, layout, -1, -1);
   }
 
   private static boolean isUpperRightInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
-    if (isFloorOrDoor(get(layout, p.x() - 1, p.y()))) return false;
+    if (hasAdjacentFloorOrDoor(p, layout)) return false;
     return isInnerEmptyCorner(p, layout, 1, 1);
   }
 
   private static boolean isUpperLeftInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
-    if (isFloorOrDoor(get(layout, p.x() + 1, p.y()))) return false;
+    if (hasAdjacentFloorOrDoor(p, layout)) return false;
     return isInnerEmptyCorner(p, layout, -1, 1);
   }
 
