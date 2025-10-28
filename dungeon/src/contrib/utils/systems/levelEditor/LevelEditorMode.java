@@ -17,9 +17,10 @@ public abstract class LevelEditorMode {
 
   private static DungeonLevel level = null;
   protected static final int SECONDARY_UP = Input.Keys.C;
-  protected static final int SECONDARY_DOWN = Input.Keys.Y;
+  protected static final int SECONDARY_DOWN = Input.Keys.Z;
   protected static final int PRIMARY_UP = Input.Keys.E;
   protected static final int PRIMARY_DOWN = Input.Keys.Q;
+  protected static final int TERTIARY = Input.Keys.V;
 
   private final String name;
 
@@ -94,10 +95,24 @@ public abstract class LevelEditorMode {
       }
       status
           .append("\n- ")
-          .append(Input.Keys.toString(entry.getKey()))
+          .append(keyToString(entry.getKey()))
           .append(": ")
           .append(entry.getValue());
     }
+  }
+
+  /**
+   * Quick and dirty fix for the german keyboard layout where Y and Z are swapped.
+   * @param key the key code
+   * @return the key as string, with Y and Z swapped for german layout
+   */
+  private String keyToString(int key){
+    if (key == Input.Keys.Y){
+      return "Z";
+    } else if (key == Input.Keys.Z){
+      return "Y";
+    }
+    return Input.Keys.toString(key);
   }
 
   protected enum SnapMode {

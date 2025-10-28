@@ -79,9 +79,22 @@ public class DecoMode extends LevelEditorMode {
         decoHeldEntity = clickedDeco.get();
         removePreviewEntity();
       }
-    } else if (Gdx.input.isKeyJustPressed(SECONDARY_DOWN)) {
+    } else if (Gdx.input.isKeyPressed(SECONDARY_DOWN)) {
       // Delete deco on cursor
       getDecoOnPosition(cursorPos).map(DecoEntityData::entity).ifPresent(Game::remove);
+    } else if (Gdx.input.isKeyJustPressed(TERTIARY)) {
+      // Pipette tool to pick deco type on cursor
+      Optional<DecoEntityData> clickedDeco = getDecoOnPosition(cursorPos);
+      if (clickedDeco.isPresent()) {
+        DecoComponent dc = clickedDeco.get().dc;
+        for (int i = 0; i < Deco.values().length; i++) {
+          if (Deco.values()[i] == dc.type()) {
+            selectedDecoIndex = i;
+            previewEntityChanged();
+            break;
+          }
+        }
+      }
     }
 
     // Update hovered entity
@@ -117,6 +130,7 @@ public class DecoMode extends LevelEditorMode {
     controls.put(SECONDARY_DOWN, "Delete on Cursor");
     controls.put(Input.Buttons.LEFT, "Place Deco");
     controls.put(Input.Buttons.RIGHT, "Pickup Deco");
+    controls.put(TERTIARY, "Pick Deco on Cursor");
     addControlsToStatus(status, controls);
     status.append("\n\nSettings:");
     int decoCount = Deco.values().length;
