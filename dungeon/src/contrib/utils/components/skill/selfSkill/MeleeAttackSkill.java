@@ -24,6 +24,9 @@ public class MeleeAttackSkill extends Skill {
 
   /** Name of the skill. */
   public static final String NAME = "Meele";
+  private static final long COOLDOWN = 500;
+  private final long TIME_ALIVE = 230;
+  private final float SCALE = 0.75f;
 
   private static final IPath TEXTURE = new SimpleIPath("skills/melee");
   private int damage;
@@ -61,13 +64,13 @@ public class MeleeAttackSkill extends Skill {
    * @param damage The damage the melee attack deals.
    */
   public MeleeAttackSkill(int damage) {
-    this(damage, DamageType.PHYSICAL, 500, Vector2.ZERO, Vector2.ONE);
+    this(damage, DamageType.PHYSICAL, COOLDOWN, Vector2.ZERO, Vector2.ONE);
   }
 
   /**
    * Creates a short livid entity in the direction which the caster is looking at. The damage is
    * dealt via the collide component which uses the onCollideEnter to deal the damage. The damage
-   * takes the damagetype into account. Removes itself after {@link #cooldown} milliseconds from the
+   * takes the damagetype into account. Removes itself after {@link #TIME_ALIVE} milliseconds from the
    * game.
    *
    * @param caster The entity using the skill.
@@ -110,7 +113,7 @@ public class MeleeAttackSkill extends Skill {
               AttachmentComponent ac =
                   new AttachmentComponent(
                       Vector2.ZERO, attackPositionComponent, casterPositionComponent);
-              ac.setScale(0.75f);
+              ac.setScale(SCALE);
               attack.add(ac);
 
               CollideComponent collideComponent =
@@ -138,7 +141,7 @@ public class MeleeAttackSkill extends Skill {
                   () -> {
                     Game.remove(attack);
                   },
-                  230);
+                  TIME_ALIVE);
             });
   }
 }
