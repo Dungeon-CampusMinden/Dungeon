@@ -11,7 +11,6 @@ import core.level.loader.DungeonLoader;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
-import java.util.logging.Level;
 import spriteTestDungeon.level.Level01;
 
 /**
@@ -31,7 +30,6 @@ public class SpriteTestRoom {
    * @throws IOException If an I/O error occurs.
    */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.WARNING);
     configGame();
     onSetup();
 

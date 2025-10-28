@@ -30,8 +30,7 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
-import core.utils.logging.CustomLogLevel;
-import java.util.logging.Logger;
+import core.utils.logging.DungeonLogger;
 
 /**
  * Auxiliary class to accelerate the creation and testing of specific game scenarios.
@@ -46,7 +45,7 @@ import java.util.logging.Logger;
  */
 public class Debugger extends System {
 
-  private static final Logger LOGGER = Logger.getLogger(Debugger.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Debugger.class);
   private static Entity pauseMenu;
 
   /**
@@ -55,14 +54,14 @@ public class Debugger extends System {
    * @param amount the length of the zoom change
    */
   public static void ZOOM_CAMERA(float amount) {
-    LOGGER.log(CustomLogLevel.DEBUG, "Change Camera Zoom " + amount);
+    LOGGER.debug("Change Camera Zoom {}", amount);
     CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom + amount);
-    LOGGER.log(CustomLogLevel.DEBUG, "Camera Zoom is now " + CameraSystem.camera().zoom);
+    LOGGER.debug("New Camera Zoom {}", CameraSystem.camera().zoom);
   }
 
   /** Teleports the Hero to the current position of the cursor. */
   public static void TELEPORT_TO_CURSOR() {
-    LOGGER.log(CustomLogLevel.DEBUG, "TELEPORT TO CURSOR");
+    LOGGER.info("TELEPORT TO CURSOR");
     TELEPORT(SkillTools.cursorPositionAsPoint());
   }
 
@@ -123,7 +122,7 @@ public class Debugger extends System {
                           () -> MissingComponentException.build(hero, PositionComponent.class));
 
               // Attempt to teleport to targetLocation
-              LOGGER.log(CustomLogLevel.DEBUG, "Trying to teleport to " + targetLocation);
+              LOGGER.info("Attempting to teleport to {}", targetLocation);
               Tile t = Game.tileAt(targetLocation).orElse(null);
               if (t == null || !t.isAccessible()) {
                 LOGGER.info("Cannot teleport to non-existing or non-accessible tile");

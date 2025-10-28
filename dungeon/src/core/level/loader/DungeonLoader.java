@@ -9,12 +9,12 @@ import core.utils.IVoidFunction;
 import core.utils.Tuple;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.DungeonLogger;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  */
 public class DungeonLoader {
 
-  private static final Logger LOGGER = Logger.getLogger(DungeonLoader.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DungeonLoader.class);
   private static final Random RANDOM = new Random();
   private static final String LEVEL_PATH_PREFIX = "/levels";
   private static final Map<String, List<String>> LEVELS = new HashMap<>();
@@ -54,13 +54,13 @@ public class DungeonLoader {
       try {
         getAllLevelFilePathsFromJar();
       } catch (IOException | URISyntaxException e) {
-        LOGGER.warning("Failed to load level files from jar: " + e.getMessage());
+        LOGGER.warn("Failed to load level files from jar: {}", e.getMessage());
       }
     } else {
       try {
         getAllLevelFilePathsFromFileSystem();
       } catch (IOException | URISyntaxException e) {
-        LOGGER.warning("Failed to load level files from file system: " + e.getMessage());
+        LOGGER.warn("Failed to load level files from file system: {}", e.getMessage());
       }
     }
   }
@@ -100,7 +100,7 @@ public class DungeonLoader {
                         .computeIfAbsent(levelName, k -> new ArrayList<>())
                         .add(isJar ? "jar:" + levelFilePath : levelFilePath);
                   } else {
-                    LOGGER.warning("Invalid level file name: " + fileName);
+                    LOGGER.warn("Invalid level file name: {}", fileName);
                   }
                 }
               });

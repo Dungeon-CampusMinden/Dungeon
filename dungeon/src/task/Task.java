@@ -6,6 +6,7 @@ import core.Entity;
 import core.Game;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.DungeonLogger;
 import graph.petrinet.Place;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,7 +16,6 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.logging.FileHandler;
-import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.stream.Stream;
 import task.game.components.TaskComponent;
@@ -42,8 +42,8 @@ import task.game.content.QuestItem;
  */
 public abstract class Task {
 
-  private static final Logger LOGGER = Logger.getLogger(Task.class.getName());
-  private static final Logger SOL_LOGGER = Logger.getLogger("TaskSolutionLogger");
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Task.class);
+  private static final DungeonLogger SOL_LOGGER = DungeonLogger.getLogger("TaskSolutionLogger");
   private static final Set<Task> ALL_TASKS = new HashSet<>();
   private static final List<Task> SOLVED_TASK_IN_ORDER = new ArrayList<>();
   private static final String DEFAULT_TASK_TEXT = "No task description provided";

@@ -3,9 +3,8 @@ package contrib.components;
 import com.badlogic.gdx.utils.Null;
 import contrib.item.Item;
 import core.Component;
-import core.utils.logging.CustomLogLevel;
+import core.utils.logging.DungeonLogger;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -24,10 +23,10 @@ import java.util.stream.Collectors;
  * <p>The number of items in the inventory can be retrieved using {@link #count()}.
  */
 public final class InventoryComponent implements Component {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InventoryComponent.class);
 
   private static final int DEFAULT_MAX_SIZE = 24;
   private final Item[] inventory;
-  private final Logger LOGGER = Logger.getLogger(InventoryComponent.class.getSimpleName());
 
   /**
    * The default {@link InventoryComponent} constructor. Creates an empty inventory with {@link
@@ -70,12 +69,10 @@ public final class InventoryComponent implements Component {
       }
     }
     if (firstEmpty == -1) return false;
-    LOGGER.log(
-        CustomLogLevel.DEBUG,
-        "Item '"
-            + this.getClass().getSimpleName()
-            + "' was added to the inventory of entity '"
-            + "'.");
+    LOGGER.debug(
+        "Item '{}' was added to the inventory of entity '{}'.",
+        item.getClass().getSimpleName(),
+        this.getClass().getSimpleName());
     inventory[firstEmpty] = item;
     return true;
   }
@@ -114,9 +111,7 @@ public final class InventoryComponent implements Component {
    * @return True if the item was removed, false otherwise.
    */
   public boolean remove(final Item item) {
-    LOGGER.log(
-        CustomLogLevel.DEBUG,
-        "Removing item '" + this.getClass().getSimpleName() + "' from inventory.");
+    LOGGER.debug("Removing item '{}' from inventory.", this.getClass().getSimpleName());
     for (int i = 0; i < inventory.length; i++) {
       if (inventory[i] != null && inventory[i].equals(item)) {
         inventory[i] = null;
