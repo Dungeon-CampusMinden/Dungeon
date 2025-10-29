@@ -56,6 +56,10 @@ public class DebugDrawSystem extends System {
   private static final ShapeRenderer SHAPE_RENDERER = new ShapeRenderer();
   private static final Color BACKGROUND_COLOR =
       new Color(0f, 0f, 0f, 0.75f); // semi-transparent black
+  private static final Color NAMED_POINT_COLOR =
+      withAlpha(Color.GREEN, 0.4f); // semi-transparent purple for named points
+  private static final Color NAMED_POINT_HIGHLIGHT_COLOR =
+      withAlpha(Color.YELLOW, 0.7f); // more opaque yellow for highlighted named points
 
   private static final int CIRCLE_SEGMENTS = 60; // resolution of circles (higher = smoother)
   private static final BitmapFont FONT = FontHelper.getDefaultFont();
@@ -127,12 +131,15 @@ public class DebugDrawSystem extends System {
   }
 
   public static void drawNamedPoints(){
+    drawNamedPoints(null);
+  }
+  public static void drawNamedPoints(String highlightPoint){
     ILevel l = Game.currentLevel().orElse(null);
     if(l == null) return;
     DungeonLevel level = (DungeonLevel) l;
-    Color color = withAlpha(Color.GREEN, 0.3f);
     level.namedPoints().forEach(
         (name, point) -> {
+          Color color = name.equals(highlightPoint) ? NAMED_POINT_HIGHLIGHT_COLOR : NAMED_POINT_COLOR;
           // Draw a small purple square at the point location
           drawRectangleOutline(point.x(), point.y(), 1.0f, 1.0f, color);
 

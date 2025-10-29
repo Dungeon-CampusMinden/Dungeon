@@ -36,7 +36,7 @@ public class PointMode extends LevelEditorMode {
 
   @Override
   public void execute() {
-    DebugDrawSystem.drawNamedPoints();
+    DebugDrawSystem.drawNamedPoints(heldPointName);
 
     if (Gdx.input.isKeyJustPressed(SECONDARY_UP)) {
       snapMode = snapMode.nextMode();

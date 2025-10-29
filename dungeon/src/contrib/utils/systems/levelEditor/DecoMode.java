@@ -79,11 +79,11 @@ public class DecoMode extends LevelEditorMode {
         decoHeldEntity = clickedDeco.get();
         removePreviewEntity();
       }
-    } else if (Gdx.input.isKeyPressed(SECONDARY_DOWN)) {
+    } else if (Gdx.input.isKeyPressed(TERTIARY)) {
       // Delete deco on cursor
       getDecoOnPosition(cursorPos).map(DecoEntityData::entity).ifPresent(Game::remove);
       syncPlacedDecos();
-    } else if (Gdx.input.isKeyJustPressed(TERTIARY)) {
+    } else if (Gdx.input.isKeyJustPressed(SECONDARY_DOWN)) {
       // Pipette tool to pick deco type on cursor
       Optional<DecoEntityData> clickedDeco = getDecoOnPosition(cursorPos);
       if (clickedDeco.isPresent()) {
