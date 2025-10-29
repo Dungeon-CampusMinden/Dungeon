@@ -35,8 +35,8 @@ public class AttachmentSystem extends System {
               .fetch(PositionComponent.class)
               .ifPresent(
                   pc -> {
-                      attachmentMap.remove(pc);
-                      attachmentMap.entrySet().removeIf(entry -> entry.getValue().equals(pc));
+                    attachmentMap.remove(pc);
+                    attachmentMap.entrySet().removeIf(entry -> entry.getValue().equals(pc));
                   });
         });
   }

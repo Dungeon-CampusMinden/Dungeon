@@ -24,6 +24,7 @@ public class MeleeAttackSkill extends Skill {
 
   /** Name of the skill. */
   public static final String NAME = "Meele";
+
   private static final long COOLDOWN = 500;
   private final long TIME_ALIVE = 230;
   private final float SCALE = 0.75f;
@@ -70,8 +71,8 @@ public class MeleeAttackSkill extends Skill {
   /**
    * Creates a short livid entity in the direction which the caster is looking at. The damage is
    * dealt via the collide component which uses the onCollideEnter to deal the damage. The damage
-   * takes the damagetype into account. Removes itself after {@link #TIME_ALIVE} milliseconds from the
-   * game.
+   * takes the damagetype into account. Removes itself after {@link #TIME_ALIVE} milliseconds from
+   * the game.
    *
    * @param caster The entity using the skill.
    */
