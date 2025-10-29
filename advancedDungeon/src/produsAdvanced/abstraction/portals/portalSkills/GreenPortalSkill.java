@@ -1,6 +1,7 @@
 package produsAdvanced.abstraction.portals.portalSkills;
 
 import contrib.utils.components.skill.Resource;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.path.IPath;
@@ -36,6 +37,7 @@ public class GreenPortalSkill extends PortalSkill {
    */
   @Override
   protected void createPortal(Point portalPosition, Point originalProjectilePosition) {
-    PortalFactory.createPortal(portalPosition, originalProjectilePosition, PortalColor.GREEN);
+    Direction direction = setPortalDirection(portalPosition, originalProjectilePosition);
+    PortalFactory.createPortal(portalPosition, direction, PortalColor.GREEN);
   }
 }

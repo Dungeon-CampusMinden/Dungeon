@@ -11,9 +11,13 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.*;
 import core.utils.components.path.IPath;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import produsAdvanced.abstraction.portals.components.PortalComponent;
 
 /**
@@ -130,6 +134,52 @@ public abstract class PortalSkill extends ProjectileSkill {
 
     Game.add(projectile);
     onSpawn(caster, projectile);
+  }
+
+  /**
+   * Determines the direction a portal should face, based on nearby floor tiles.
+   *
+   * <p>The closest floor tile to the portal is used to decide its orientation. The calculated
+   * direction is also stored for teleportation logic.
+   *
+   * @param wallPos the position of the portal
+   * @param projectilePos original position of the projectile, needed for direction
+   * @return the direction the portal should face
+   */
+  protected Direction setPortalDirection(Point wallPos, Point projectilePos) {
+    HashSet<Tile> neighbours = new HashSet<>(Game.neighbours(Game.tileAt(wallPos).get()));
+    ArrayList<Tuple<Point, Double>> list = new ArrayList<>();
+    for (Tile tile : neighbours) {
+      double distance = projectilePos.distance(tile.position());
+      list.add(new Tuple<>(tile.position(), distance));
+    }
+
+    /* Sorts the list so the nearestTile is at the first slot */
+    list.sort(Comparator.comparingDouble(Tuple::b));
+
+    Point nearestTile = list.removeFirst().a();
+    /* If nearest is a wall, happens if the angle of the impact at the wall is too steep, take the next best option which is the desired direction. */
+    if (Game.tileAt(nearestTile).get().levelElement() == LevelElement.WALL
+        || Game.tileAt(nearestTile).get().levelElement() == LevelElement.PORTAL) {
+      nearestTile = list.removeFirst().a();
+    }
+    Point pointDirection = new Point(wallPos.x() - nearestTile.x(), wallPos.y() - nearestTile.y());
+    Direction direction = toDirection(pointDirection).opposite();
+
+    return direction;
+  }
+
+  /**
+   * Converts a point into a direction constant.
+   *
+   * @param p the point offset
+   * @return the corresponding direction
+   */
+  private Direction toDirection(Point p) {
+    if (p.equals(new Point(0, 1))) return Direction.UP;
+    if (p.equals(new Point(0, -1))) return Direction.DOWN;
+    if (p.equals(new Point(1, 0))) return Direction.RIGHT;
+    return Direction.LEFT; // default / fallback
   }
 
   /**
