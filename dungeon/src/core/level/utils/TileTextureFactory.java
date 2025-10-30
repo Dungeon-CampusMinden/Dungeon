@@ -393,13 +393,13 @@ public class TileTextureFactory {
     if (isEmptyCross(p, layout, Corner.BL))
       return new SimpleIPath("wall/corner_bottom_left_empty_cross");
 
-    if (isBottomLeftInnerCorner(p, layout))
+    if (isInnerCorner(p, layout, Corner.BL))
       return selectInnerCornerTexture(p, layout, 1, 1, "bottom_left");
-    if (isBottomRightInnerCorner(p, layout))
+    if (isInnerCorner(p, layout, Corner.BR))
       return selectInnerCornerTexture(p, layout, -1, 1, "bottom_right");
-    if (isUpperRightInnerCorner(p, layout))
+    if (isInnerCorner(p, layout, Corner.UR))
       return selectInnerCornerTexture(p, layout, -1, -1, "upper_right");
-    if (isUpperLeftInnerCorner(p, layout))
+    if (isInnerCorner(p, layout, Corner.UL))
       return selectInnerCornerTexture(p, layout, 1, -1, "upper_left");
 
     return null;
@@ -809,72 +809,39 @@ public class TileTextureFactory {
         || n.getRightE() == LevelElement.PIT;
   }
 
-  /**
-   * Checks if tile with coordinate p should be a bottomLeftInnerCorner wall. Tile has to have walls
-   * above and to the right and inside tiles (accessible or hole) either to the left and bottom
-   * right, below and to the upper left or below and to the left.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if all conditions are met
-   */
-  private static boolean isBottomLeftInnerCorner(Coordinate p, LevelElement[][] layout) {
-    return ((aboveIsWall(p, layout) || aboveIsDoor(p, layout))
-        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
-        && (leftIsInside(p, layout) && bottomRightIsInside(p, layout)
-            || belowIsInside(p, layout) && upperLeftIsInside(p, layout)
-            || belowIsInside(p, layout) && leftIsInside(p, layout)));
-  }
+  private static boolean isInnerCorner(Coordinate p, LevelElement[][] layout, Corner corner) {
+    boolean vertBarrier =
+        switch (corner) {
+          case BL, BR -> aboveIsWall(p, layout) || aboveIsDoor(p, layout);
+          case UL, UR -> belowIsWall(p, layout) || belowIsDoor(p, layout);
+        };
 
-  /**
-   * Checks if tile with coordinate p should be a bottomRightInnerCorner wall. Tile has to have
-   * walls above and to the left and inside tiles (accessible or hole) either to the right and
-   * bottom left, below and to the upper right or below and to the right.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if all conditions are met
-   */
-  private static boolean isBottomRightInnerCorner(Coordinate p, LevelElement[][] layout) {
-    return ((aboveIsWall(p, layout) || aboveIsDoor(p, layout))
-        && (leftIsWall(p, layout) || leftIsDoor(p, layout))
-        && (rightIsInside(p, layout) && bottomLeftIsInside(p, layout)
-            || belowIsInside(p, layout) && upperRightIsInside(p, layout)
-            || belowIsInside(p, layout) && rightIsInside(p, layout)));
-  }
+    boolean horizBarrier =
+        switch (corner) {
+          case BL, UL -> rightIsWall(p, layout) || rightIsDoor(p, layout);
+          case BR, UR -> leftIsWall(p, layout) || leftIsDoor(p, layout);
+        };
 
-  /**
-   * Checks if tile with coordinate p should be a upperRightInnerCorner wall. Tile has to have walls
-   * below and to the left and inside tiles (accessible or hole) either to the right and upper left,
-   * above and to the bottom right or above and to the right.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if all conditions are met
-   */
-  private static boolean isUpperRightInnerCorner(Coordinate p, LevelElement[][] layout) {
-    return ((belowIsWall(p, layout) || belowIsDoor(p, layout))
-        && (leftIsWall(p, layout) || leftIsDoor(p, layout))
-        && (rightIsInside(p, layout) && upperLeftIsInside(p, layout)
-            || aboveIsInside(p, layout) && bottomRightIsInside(p, layout)
-            || aboveIsInside(p, layout) && rightIsInside(p, layout)));
-  }
+    if (!vertBarrier || !horizBarrier) return false;
 
-  /**
-   * Checks if tile with coordinate p should be a upperLeftInnerCorner wall. Tile has to have walls
-   * below and to the right and inside tiles (accessible or hole) either to the left and upper
-   * right, above and to the bottom left or above and to the left.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if all conditions are met
-   */
-  private static boolean isUpperLeftInnerCorner(Coordinate p, LevelElement[][] layout) {
-    return ((belowIsWall(p, layout) || belowIsDoor(p, layout))
-        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
-        && (leftIsInside(p, layout) && upperRightIsInside(p, layout)
-            || aboveIsInside(p, layout) && bottomLeftIsInside(p, layout)
-            || aboveIsInside(p, layout) && leftIsInside(p, layout)));
+    return switch (corner) {
+      case BL ->
+          (leftIsInside(p, layout) && isDiagonalInside(p, layout, Corner.BR))
+              || (belowIsInside(p, layout) && isDiagonalInside(p, layout, Corner.UL))
+              || (belowIsInside(p, layout) && leftIsInside(p, layout));
+      case BR ->
+          (rightIsInside(p, layout) && isDiagonalInside(p, layout, Corner.BL))
+              || (belowIsInside(p, layout) && isDiagonalInside(p, layout, Corner.UR))
+              || (belowIsInside(p, layout) && rightIsInside(p, layout));
+      case UR ->
+          (rightIsInside(p, layout) && isDiagonalInside(p, layout, Corner.UL))
+              || (aboveIsInside(p, layout) && isDiagonalInside(p, layout, Corner.BR))
+              || (aboveIsInside(p, layout) && rightIsInside(p, layout));
+      case UL ->
+          (leftIsInside(p, layout) && isDiagonalInside(p, layout, Corner.UR))
+              || (aboveIsInside(p, layout) && isDiagonalInside(p, layout, Corner.BL))
+              || (aboveIsInside(p, layout) && leftIsInside(p, layout));
+    };
   }
 
   private static boolean isInsideLayout(int x, int y, LevelElement[][] layout) {
@@ -1337,10 +1304,10 @@ public class TileTextureFactory {
 
     boolean isThatInnerCorner =
         switch (corner) {
-          case UL -> isUpperLeftInnerCorner(c, layout);
-          case UR -> isUpperRightInnerCorner(c, layout);
-          case BL -> isBottomLeftInnerCorner(c, layout);
-          case BR -> isBottomRightInnerCorner(c, layout);
+          case UL -> isInnerCorner(c, layout, Corner.UL);
+          case UR -> isInnerCorner(c, layout, Corner.UR);
+          case BL -> isInnerCorner(c, layout, Corner.BL);
+          case BR -> isInnerCorner(c, layout, Corner.BR);
         };
 
     return isThatInnerCorner && (v || h || rendersDouble);
@@ -1812,69 +1779,33 @@ public class TileTextureFactory {
     }
   }
 
-  /**
-   * Checks if tile to the upper right of the coordinate p is accessible.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if upper right is accessible
-   */
-  private static boolean upperRightIsAccessible(Coordinate p, LevelElement[][] layout) {
-    try {
-      return layout[p.y() + 1][p.x() + 1].value()
-          || layout[p.y() + 1][p.x() + 1] == LevelElement.PIT;
-
-    } catch (ArrayIndexOutOfBoundsException e) {
-      return false;
+  private static boolean isDiagonalAccessible(
+      Coordinate p, LevelElement[][] layout, Corner corner) {
+    int dx, dy;
+    switch (corner) {
+      case UR -> {
+        dx = 1;
+        dy = 1;
+      }
+      case BR -> {
+        dx = 1;
+        dy = -1;
+      }
+      case BL -> {
+        dx = -1;
+        dy = -1;
+      }
+      case UL -> {
+        dx = -1;
+        dy = 1;
+      }
+      default -> {
+        return false;
+      }
     }
-  }
-
-  /**
-   * Checks if tile to the bottom right of the coordinate p is accessible.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if bottom right is accessible
-   */
-  private static boolean bottomRightIsAccessible(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y() - 1][p.x() + 1].value()
-          || layout[p.y() - 1][p.x() + 1] == LevelElement.PIT;
-
-    } catch (ArrayIndexOutOfBoundsException e) {
-      return false;
-    }
-  }
-
-  /**
-   * Checks if tile to the bottom left of the coordinate p is accessible.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if bottom left is accessible
-   */
-  private static boolean bottomLeftIsAccessible(Coordinate p, LevelElement[][] layout) {
-    try {
-      return layout[p.y() - 1][p.x() - 1].value()
-          || layout[p.y() - 1][p.x() - 1] == LevelElement.PIT;
-
-    } catch (ArrayIndexOutOfBoundsException e) {
-      return false;
-    }
-  }
-
-  /**
-   * Checks if tile to the upper left of the coordinate p is accessible.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if upper left is accessible
-   */
-  private static boolean upperLeftIsAccessible(Coordinate p, LevelElement[][] layout) {
-    try {
-      return layout[p.y() + 1][p.x() - 1].value()
-          || layout[p.y() + 1][p.x() - 1] == LevelElement.PIT;
-
+      return layout[p.y() + dy][p.x() + dx].value()
+          || layout[p.y() + dy][p.x() + dx] == LevelElement.PIT;
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
     }
@@ -2080,68 +2011,39 @@ public class TileTextureFactory {
     }
   }
 
-  /**
-   * Checks if tile to the upper right of the coordinate p is either accessible or a hole.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if conditions are met
-   */
-  private static boolean upperRightIsInside(Coordinate p, LevelElement[][] layout) {
+  private static boolean isDiagonalHole(Coordinate p, LevelElement[][] layout, Corner corner) {
+    int dx, dy;
+    switch (corner) {
+      case UR -> {
+        dx = 1;
+        dy = 1;
+      }
+      case BR -> {
+        dx = 1;
+        dy = -1;
+      }
+      case BL -> {
+        dx = -1;
+        dy = -1;
+      }
+      case UL -> {
+        dx = -1;
+        dy = 1;
+      }
+      default -> {
+        return false;
+      }
+    }
     try {
-      return (upperRightIsAccessible(p, layout) || upperRightIsHole(p, layout));
-
+      return layout[p.y() + dy][p.x() + dx] == LevelElement.HOLE
+          || layout[p.y() + dy][p.x() + dx] == LevelElement.PIT;
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
     }
   }
 
-  /**
-   * Checks if tile to the bottom right of the coordinate p is either accessible or a hole.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if conditions are met
-   */
-  private static boolean bottomRightIsInside(Coordinate p, LevelElement[][] layout) {
-    try {
-      return (bottomRightIsAccessible(p, layout) || bottomRightIsHole(p, layout));
-
-    } catch (ArrayIndexOutOfBoundsException e) {
-      return false;
-    }
-  }
-
-  /**
-   * Checks if tile to the bottom left of the coordinate p is either accessible or a hole.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if conditions are met
-   */
-  private static boolean bottomLeftIsInside(Coordinate p, LevelElement[][] layout) {
-    try {
-      return (bottomLeftIsAccessible(p, layout) || bottomLeftIsHole(p, layout));
-
-    } catch (ArrayIndexOutOfBoundsException e) {
-      return false;
-    }
-  }
-
-  /**
-   * Checks if tile to the upper left of the coordinate p is either accessible or a hole.
-   *
-   * @param p coordinate to check
-   * @param layout The level
-   * @return true if conditions are met
-   */
-  private static boolean upperLeftIsInside(Coordinate p, LevelElement[][] layout) {
-    try {
-      return (upperLeftIsAccessible(p, layout) || upperLeftIsHole(p, layout));
-
-    } catch (ArrayIndexOutOfBoundsException e) {
-      return false;
-    }
+  private static boolean isDiagonalInside(Coordinate p, LevelElement[][] layout, Corner corner) {
+    return isDiagonalAccessible(p, layout, corner) || isDiagonalHole(p, layout, corner);
   }
 
   /**
