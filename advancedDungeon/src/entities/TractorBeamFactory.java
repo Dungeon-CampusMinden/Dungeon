@@ -13,6 +13,7 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
+import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
@@ -175,14 +176,14 @@ public class TractorBeamFactory {
       StateMachine sm = new StateMachine(Arrays.asList(stNormalHorizontal, stReversedHorizontal));
       sm.addTransition(stNormalHorizontal, "reverse_horizontal", stReversedHorizontal);
       sm.addTransition(stReversedHorizontal, "normal_horizontal", stNormalHorizontal);
-      dc = new DrawComponent(sm);
+      dc = new DrawComponent(sm, DepthLayer.Ground);
     } else if (beamDirection.equals(Direction.UP) || beamDirection.equals(Direction.DOWN)) {
       State stNormalVertical = State.fromMap(animationMap, "blue_vertical");
       State stReversedVertical = State.fromMap(animationMap, "red_vertical");
       StateMachine sm = new StateMachine(Arrays.asList(stNormalVertical, stReversedVertical));
       sm.addTransition(stNormalVertical, "reverse_vertical", stReversedVertical);
       sm.addTransition(stReversedVertical, "normal_vertical", stNormalVertical);
-      dc = new DrawComponent(sm);
+      dc = new DrawComponent(sm, DepthLayer.Ground);
     }
     if (dc == null) {
       throw new IllegalArgumentException("Tractor Beam has no draw components");
@@ -203,27 +204,6 @@ public class TractorBeamFactory {
   }
 
   /**
-   * Creates a complete tractor beam between two points by generating all entities.
-   *
-   * @param from the starting point of the beam
-   * @param to the end point of the beam
-   * @return a list of all tractor beam entities
-   */
-  public static List<Entity> createTractorBeam(Point from, Point to) {
-    TractorBeamFactory factory = new TractorBeamFactory(from, to);
-    List<Entity> tractorBeamEntities = new ArrayList<>();
-
-    while (factory.hasNext()) {
-      tractorBeamEntities.add(factory.createNextEntity());
-    }
-
-    Direction direction = factory.calculateDirection(from, to);
-    tractorBeamEntities.add(factory.createBeamEmitter(from, direction));
-
-    return tractorBeamEntities;
-  }
-
-  /**
    * Creates a tractor beam. It only needs a spawn point and an emitted direction. The beam is
    * stopped by the next wall.
    *
@@ -238,11 +218,11 @@ public class TractorBeamFactory {
     while (factory.hasNext()) {
       tractorBeamEntities.add(factory.createNextEntity());
     }
-    Entity entity = factory.createBeamEmitter(from, direction);
+    Entity beamEmitter = factory.createBeamEmitter(from, direction);
 
-    tractorBeamEntities.add(entity);
+    tractorBeamEntities.add(beamEmitter);
     TractorBeamComponent tbc = new TractorBeamComponent(direction, from, tractorBeamEntities);
-    entity.add(tbc);
+    beamEmitter.add(tbc);
     PortalExtendComponent pec = new PortalExtendComponent();
     pec.onExtend =
         (d, e, portalExtendComponent) -> {
@@ -252,9 +232,9 @@ public class TractorBeamFactory {
         (e) -> {
           tbc.trim();
         };
-    entity.add(pec);
+    beamEmitter.add(pec);
 
-    return entity;
+    return beamEmitter;
   }
 
   /**
