@@ -82,38 +82,25 @@ public class TileTextureFactory {
     return new SimpleIPath(prefixPath + "floor/empty.png");
   }
 
-  private static IPath applyIsolatedWallFallback(LevelPart levelPart, IPath resolvedFullPath) {
-    if (resolvedFullPath == null) return resolvedFullPath;
-    String s = resolvedFullPath.pathString();
+  private static IPath applyIsolatedWallFallback(LevelPart lp, IPath resolved) {
+    if (resolved == null) return null;
+    String s = resolved.pathString();
     if (s != null
         && (s.endsWith("/wall/cross.png") || s.matches(".*/wall/corner_.*_empty_cross\\.png$")))
-      return resolvedFullPath;
+      return resolved;
+    if (!isVisibleWallPath(resolved)) return resolved;
 
-    if (!isVisibleWallPath(resolvedFullPath)) return resolvedFullPath;
+    LevelElement[][] layout = lp.layout();
+    Coordinate p = lp.position();
 
-    LevelElement[][] layout = levelPart.layout();
-    Coordinate p = levelPart.position();
-    int[][] dirs = new int[][] {{0, 1}, {0, -1}, {-1, 0}, {1, 0}};
-
-    boolean hasVisibleWallNeighbor = false;
-    for (int[] d : dirs) {
-      int nx = p.x() + d[0];
-      int ny = p.y() + d[1];
+    for (Dir d : Dir.values()) {
+      int nx = p.x() + d.dx, ny = p.y() + d.dy;
       if (!isInsideLayout(nx, ny, layout)) continue;
-      LevelElement ne = get(layout, nx, ny);
-      if (ne == null) continue;
-      LevelPart neighbor = new LevelPart(ne, levelPart.design(), layout, new Coordinate(nx, ny));
-      IPath neighborPath = resolvePrimaryPath(neighbor);
-      if (isVisibleWallPath(neighborPath)) {
-        hasVisibleWallNeighbor = true;
-        break;
-      }
+      LevelPart n = new LevelPart(get(layout, nx, ny), lp.design(), layout, new Coordinate(nx, ny));
+      if (isVisibleWallPath(resolvePrimaryPath(n))) return resolved;
     }
-
-    if (hasVisibleWallNeighbor) return resolvedFullPath;
-
-    String basePrefix = "dungeon/" + levelPart.design().name().toLowerCase() + "/";
-    return new SimpleIPath(basePrefix + "floor/empty.png");
+    String base = "dungeon/" + lp.design().name().toLowerCase() + "/";
+    return new SimpleIPath(base + "floor/empty.png");
   }
 
   private static boolean isVisibleWallPath(IPath fullPath) {
@@ -164,47 +151,36 @@ public class TileTextureFactory {
    * @return The path to the texture
    */
   public static IPath findTexturePath(LevelElement levelElement, DesignLabel designLabel) {
-    String prefixPath = "dungeon/" + designLabel.name().toLowerCase() + "/";
-
-    String elementPath;
-    if (levelElement == LevelElement.SKIP) {
-      elementPath = "floor/empty";
-    } else if (levelElement == LevelElement.FLOOR) {
-      elementPath = "floor/floor_1";
-    } else if (levelElement == LevelElement.EXIT) {
-      elementPath = "floor/floor_ladder";
-    } else if (levelElement == LevelElement.HOLE) {
-      elementPath = "floor/floor_hole";
-    } else if (levelElement == LevelElement.PIT) {
-      elementPath = "floor/floor_damaged";
-    } else if (levelElement == LevelElement.DOOR) {
-      elementPath = "door/top";
-    } else if (levelElement == LevelElement.WALL) {
-      elementPath = "wall/wall_right";
-    } else {
-      elementPath = "floor/empty";
-    }
-
-    return new SimpleIPath(prefixPath + elementPath + ".png");
+    String prefix = "dungeon/" + designLabel.name().toLowerCase() + "/";
+    String ep =
+        switch (levelElement) {
+          case SKIP -> "floor/empty";
+          case FLOOR -> "floor/floor_1";
+          case EXIT -> "floor/floor_ladder";
+          case HOLE -> "floor/floor_hole";
+          case PIT -> "floor/floor_damaged";
+          case DOOR -> "door/top";
+          case WALL -> "wall/wall_right";
+          default -> "floor/empty";
+        };
+    return new SimpleIPath(prefix + ep + ".png");
   }
 
   private static IPath findTexturePathFloor(LevelPart levelPart) {
-    if (levelPart.element() == LevelElement.SKIP) {
-      return new SimpleIPath("floor/empty");
-    } else if (levelPart.element() == LevelElement.FLOOR) {
-      return new SimpleIPath("floor/floor_1");
-    } else if (levelPart.element() == LevelElement.EXIT) {
-      return new SimpleIPath("floor/floor_ladder");
-    } else if (levelPart.element() == LevelElement.HOLE) {
-      if (isHoleDir(levelPart.position, levelPart.layout, Dir.UP)) {
-        return new SimpleIPath("floor/floor_hole1");
-      } else {
-        return new SimpleIPath("floor/floor_hole");
-      }
-    } else if (levelPart.element() == LevelElement.PIT) {
-      return new SimpleIPath("floor/floor_damaged");
+    LevelElement e = levelPart.element();
+    if (e == LevelElement.HOLE) {
+      return new SimpleIPath(
+          isHoleDir(levelPart.position(), levelPart.layout(), Dir.UP)
+              ? "floor/floor_hole1"
+              : "floor/floor_hole");
     }
-    return null;
+    return switch (e) {
+      case SKIP -> new SimpleIPath("floor/empty");
+      case FLOOR -> new SimpleIPath("floor/floor_1");
+      case EXIT -> new SimpleIPath("floor/floor_ladder");
+      case PIT -> new SimpleIPath("floor/floor_damaged");
+      default -> null;
+    };
   }
 
   private static IPath findTexturePathDoor(LevelPart levelPart) {
@@ -229,80 +205,63 @@ public class TileTextureFactory {
     Coordinate p = levelPart.position();
     LevelElement[][] layout = levelPart.layout();
 
-    if (isDiagonalFloorCross(p, layout)) {
-      return new SimpleIPath("wall/cross");
-    }
+    if (isDiagonalFloorCross(p, layout)) return new SimpleIPath("wall/cross");
 
     int holeCount = trueHolesAround(p, layout);
     if (holeCount >= 1
         && orthoOnlyWallDoorExitOrTrueHole(p, layout)
-        && !hasPitOrthogonally(p, layout)) {
-      return new SimpleIPath("wall/cross");
-    }
+        && !hasPitOrthogonally(p, layout)) return new SimpleIPath("wall/cross");
 
-    if (isInnerEmptyCorner(p, layout, Corner.BR)) {
+    if (isInnerEmptyCorner(p, layout, Corner.BR))
       return new SimpleIPath("wall/corner_bottom_right_inner_empty");
-    }
-    if (isInnerEmptyCorner(p, layout, Corner.BL)) {
+    if (isInnerEmptyCorner(p, layout, Corner.BL))
       return new SimpleIPath("wall/corner_bottom_left_inner_empty");
-    }
-    if (isInnerEmptyCorner(p, layout, Corner.UL)) {
+    if (isInnerEmptyCorner(p, layout, Corner.UL))
       return new SimpleIPath("wall/corner_upper_left_inner_empty");
-    }
-    if (isInnerEmptyCorner(p, layout, Corner.UR)) {
+    if (isInnerEmptyCorner(p, layout, Corner.UR))
       return new SimpleIPath("wall/corner_upper_right_inner_empty");
-    }
 
-    if (isTopOutsideAndBelowNotFloor(p, layout))
+    if (outsideAndOppositeNotFloor(p, layout, Dir.UP))
       return new SimpleIPath("wall/t_inner_bottom_empty_left_right");
-
-    if (isBottomOutsideAndAboveNotFloor(p, layout))
+    if (outsideAndOppositeNotFloor(p, layout, Dir.DOWN))
       return new SimpleIPath("wall/t_inner_top_empty_left_right");
-
-    if (isRightOutsideAndLeftNotFloor(p, layout))
+    if (outsideAndOppositeNotFloor(p, layout, Dir.RIGHT))
       return new SimpleIPath("wall/t_inner_left_empty_top_bottom");
-
-    if (isLeftOutsideAndRightNotFloor(p, layout))
+    if (outsideAndOppositeNotFloor(p, layout, Dir.LEFT))
       return new SimpleIPath("wall/t_inner_right_empty_top_bottom");
 
-    if (isAtBorder(p, layout) && !hasAdjacentFloor(p, layout)) {
-      return new SimpleIPath("wall/empty");
-    }
+    if (isAtBorder(p, layout) && !hasAdjacentFloor(p, layout)) return new SimpleIPath("wall/empty");
 
     if (hasNoEmptyWallsAround(p, layout)
-        && topEmptyLeftRightCase(p, layout)
-        && (isDiagonalHole(p, layout, Corner.BL) || isDiagonalHole(p, layout, Corner.BR))) {
+        && emptyLeftRightCase(p, layout, Dir.UP)
+        && (isDiagonalHole(p, layout, Corner.BL) || isDiagonalHole(p, layout, Corner.BR)))
       return new SimpleIPath("wall/corner_upper_left_empty_cross");
-    }
 
     if (hasNoEmptyWallsAround(p, layout)
-        && isBottomEmptyLeftRightCase(p, layout)
-        && (isDiagonalHole(p, layout, Corner.UL) || isDiagonalHole(p, layout, Corner.UR))) {
+        && emptyLeftRightCase(p, layout, Dir.DOWN)
+        && (isDiagonalHole(p, layout, Corner.UL) || isDiagonalHole(p, layout, Corner.UR)))
       return new SimpleIPath("wall/corner_upper_right_empty_cross");
-    }
 
     if (hasNoEmptyWallsAround(p, layout)
-        && isLeftTEmptyTopBottomCase(p, layout)
-        && (isDiagonalHole(p, layout, Corner.UR) || isDiagonalHole(p, layout, Corner.BR))) {
+        && tEmptyTopBottomCase(p, layout, Dir.LEFT)
+        && (isDiagonalHole(p, layout, Corner.UR) || isDiagonalHole(p, layout, Corner.BR)))
       return new SimpleIPath("wall/corner_bottom_left_empty_cross");
-    }
 
     if (hasNoEmptyWallsAround(p, layout)
-        && isRightTEmptyTopBottomCase(p, layout)
-        && (isDiagonalHole(p, layout, Corner.UL) || isDiagonalHole(p, layout, Corner.BL))) {
+        && tEmptyTopBottomCase(p, layout, Dir.RIGHT)
+        && (isDiagonalHole(p, layout, Corner.UL) || isDiagonalHole(p, layout, Corner.BL)))
       return new SimpleIPath("wall/corner_bottom_right_empty_cross");
-    }
 
-    if (topEmptyLeftRightCase(p, layout))
+    if (emptyLeftRightCase(p, layout, Dir.UP))
       return new SimpleIPath("wall/t_inner_top_empty_left_right");
 
-    if (isBottomEmptyLeftRightCase(p, layout))
+    if (emptyLeftRightCase(p, layout, Dir.DOWN))
       return new SimpleIPath("wall/t_inner_bottom_empty_left_right");
 
-    if (isLeftTEmptyTopBottomCase(p, layout))
+    if (tEmptyTopBottomCase(p, layout, Dir.LEFT))
       return new SimpleIPath("wall/t_inner_left_empty_top_bottom");
 
-    if (isRightTEmptyTopBottomCase(p, layout))
+    if (tEmptyTopBottomCase(p, layout, Dir.RIGHT))
       return new SimpleIPath("wall/t_inner_right_empty_top_bottom");
 
     IPath inner = selectInnerWallTexture(p, layout, Axis.VERTICAL);
@@ -314,9 +273,8 @@ public class TileTextureFactory {
     IPath crossEmpty = selectCrossEmptyOfStems(p, layout);
     if (crossEmpty != null) return crossEmpty;
 
-    if (isInnerTopWall(p, layout)) {
-      return new SimpleIPath("wall/wall_inner_top");
-    }
+    if (isInnerTopWall(p, layout)) return new SimpleIPath("wall/wall_inner_top");
+
     return null;
   }
 
@@ -1275,54 +1233,6 @@ public class TileTextureFactory {
         || isFloorOrDoor(n.getRightE());
   }
 
-  private static boolean topEmptyLeftRightCase(Coordinate p, LevelElement[][] layout) {
-    Neighbors n = Neighbors.of(p, layout);
-    return isNotFloor(n.getUpE())
-        && isFloorOrDoor(n.getUpLeftE())
-        && isFloorOrDoor(n.getUpRightE())
-        && isNotFloor(n.getDownE())
-        && n.getLeftE() == LevelElement.WALL
-        && n.getRightE() == LevelElement.WALL
-        && isNotFloor(n.getDownLeftE())
-        && isNotFloor(n.getDownRightE());
-  }
-
-  private static boolean isBottomEmptyLeftRightCase(Coordinate p, LevelElement[][] layout) {
-    Neighbors n = Neighbors.of(p, layout);
-    return isNotFloor(n.getDownE())
-        && isFloorOrDoor(n.getDownLeftE())
-        && isFloorOrDoor(n.getDownRightE())
-        && isNotFloor(n.getUpE())
-        && n.getLeftE() == LevelElement.WALL
-        && n.getRightE() == LevelElement.WALL
-        && isNotFloor(n.getUpLeftE())
-        && isNotFloor(n.getUpRightE());
-  }
-
-  private static boolean isLeftTEmptyTopBottomCase(Coordinate p, LevelElement[][] layout) {
-    Neighbors n = Neighbors.of(p, layout);
-    return isFloorOrDoor(n.getUpLeftE())
-        && isFloorOrDoor(n.getDownLeftE())
-        && isNotFloor(n.getLeftE())
-        && isNotFloor(n.getRightE())
-        && isNotFloor(n.getUpRightE())
-        && isNotFloor(n.getDownRightE())
-        && n.getUpE() == LevelElement.WALL
-        && n.getDownE() == LevelElement.WALL;
-  }
-
-  private static boolean isRightTEmptyTopBottomCase(Coordinate p, LevelElement[][] layout) {
-    Neighbors n = Neighbors.of(p, layout);
-    return isFloorOrDoor(n.getUpRightE())
-        && isFloorOrDoor(n.getDownRightE())
-        && isNotFloor(n.getLeftE())
-        && isNotFloor(n.getRightE())
-        && isNotFloor(n.getUpLeftE())
-        && isNotFloor(n.getDownLeftE())
-        && n.getUpE() == LevelElement.WALL
-        && n.getDownE() == LevelElement.WALL;
-  }
-
   private static boolean rendersEmptyLikeWallAt(Coordinate c, LevelElement[][] layout) {
     LevelElement e = get(layout, c.x(), c.y());
     if (e == LevelElement.PIT || e == LevelElement.SKIP || e == LevelElement.HOLE) return true;
@@ -1335,44 +1245,81 @@ public class TileTextureFactory {
     return isAtBorder(c, layout) && !hasAdjacentFloor(c, layout);
   }
 
-  private static boolean isTopOutsideAndBelowNotFloor(Coordinate p, LevelElement[][] layout) {
+  private static boolean emptyLeftRightCase(Coordinate p, LevelElement[][] layout, Dir vertical) {
     Neighbors n = Neighbors.of(p, layout);
-    Coordinate inner = n.getDown();
-    return n.getUpE() == null
-        && isNotFloor(n.getDownE())
-        && !rendersEmptyLikeWallAt(inner, layout)
-        && n.getDownLeftE() == LevelElement.FLOOR
-        && n.getDownRightE() == LevelElement.FLOOR;
+    boolean top = vertical == Dir.UP;
+    LevelElement eA = top ? n.getUpE() : n.getDownE();
+    LevelElement eB = top ? n.getDownE() : n.getUpE();
+    LevelElement eAL = top ? n.getUpLeftE() : n.getDownLeftE();
+    LevelElement eAR = top ? n.getUpRightE() : n.getDownRightE();
+    LevelElement oppAL = top ? n.getDownLeftE() : n.getUpLeftE();
+    LevelElement oppAR = top ? n.getDownRightE() : n.getUpRightE();
+    return isNotFloor(eA)
+        && isFloorOrDoor(eAL)
+        && isFloorOrDoor(eAR)
+        && isNotFloor(eB)
+        && n.getLeftE() == LevelElement.WALL
+        && n.getRightE() == LevelElement.WALL
+        && isNotFloor(oppAL)
+        && isNotFloor(oppAR);
   }
 
-  private static boolean isBottomOutsideAndAboveNotFloor(Coordinate p, LevelElement[][] layout) {
+  private static boolean tEmptyTopBottomCase(Coordinate p, LevelElement[][] layout, Dir side) {
     Neighbors n = Neighbors.of(p, layout);
-    Coordinate inner = n.getUp();
-    return n.getDownE() == null
-        && isNotFloor(n.getUpE())
-        && !rendersEmptyLikeWallAt(inner, layout)
-        && n.getUpLeftE() == LevelElement.FLOOR
-        && n.getUpRightE() == LevelElement.FLOOR;
+    boolean right = side == Dir.RIGHT;
+    LevelElement upSide = right ? n.getUpRightE() : n.getUpLeftE();
+    LevelElement downSide = right ? n.getDownRightE() : n.getDownLeftE();
+    LevelElement leftE = n.getLeftE();
+    LevelElement rightE = n.getRightE();
+    LevelElement upE = n.getUpE();
+    LevelElement downE = n.getDownE();
+    return isFloorOrDoor(upSide)
+        && isFloorOrDoor(downSide)
+        && isNotFloor(right ? rightE : leftE)
+        && isNotFloor(right ? leftE : rightE)
+        && isNotFloor(right ? n.getUpLeftE() : n.getUpRightE())
+        && isNotFloor(right ? n.getDownLeftE() : n.getDownRightE())
+        && upE == LevelElement.WALL
+        && downE == LevelElement.WALL;
   }
 
-  private static boolean isRightOutsideAndLeftNotFloor(Coordinate p, LevelElement[][] layout) {
+  private static boolean outsideAndOppositeNotFloor(
+      Coordinate p, LevelElement[][] layout, Dir outward) {
     Neighbors n = Neighbors.of(p, layout);
-    Coordinate inner = n.getLeft();
-    return n.getRightE() == null
-        && isNotFloor(n.getLeftE())
-        && !rendersEmptyLikeWallAt(inner, layout)
-        && n.getUpLeftE() == LevelElement.FLOOR
-        && n.getDownLeftE() == LevelElement.FLOOR;
-  }
-
-  private static boolean isLeftOutsideAndRightNotFloor(Coordinate p, LevelElement[][] layout) {
-    Neighbors n = Neighbors.of(p, layout);
-    Coordinate inner = n.getRight();
-    return n.getLeftE() == null
-        && isNotFloor(n.getRightE())
-        && !rendersEmptyLikeWallAt(inner, layout)
-        && n.getUpRightE() == LevelElement.FLOOR
-        && n.getDownRightE() == LevelElement.FLOOR;
+    Coordinate inner =
+        switch (outward) {
+          case UP -> n.getDown();
+          case DOWN -> n.getUp();
+          case LEFT -> n.getRight();
+          case RIGHT -> n.getLeft();
+        };
+    boolean outside =
+        switch (outward) {
+          case UP -> n.getUpE() == null;
+          case DOWN -> n.getDownE() == null;
+          case LEFT -> n.getLeftE() == null;
+          case RIGHT -> n.getRightE() == null;
+        };
+    boolean oppositeNotFloor =
+        switch (outward) {
+          case UP -> isNotFloor(n.getDownE());
+          case DOWN -> isNotFloor(n.getUpE());
+          case LEFT -> isNotFloor(n.getRightE());
+          case RIGHT -> isNotFloor(n.getLeftE());
+        };
+    boolean innerNotEmpty = !rendersEmptyLikeWallAt(inner, layout);
+    boolean floorsOk =
+        switch (outward) {
+          case UP ->
+              n.getDownLeftE() == LevelElement.FLOOR && n.getDownRightE() == LevelElement.FLOOR;
+          case DOWN ->
+              n.getUpLeftE() == LevelElement.FLOOR && n.getUpRightE() == LevelElement.FLOOR;
+          case LEFT ->
+              n.getUpRightE() == LevelElement.FLOOR && n.getDownRightE() == LevelElement.FLOOR;
+          case RIGHT ->
+              n.getUpLeftE() == LevelElement.FLOOR && n.getDownLeftE() == LevelElement.FLOOR;
+        };
+    return outside && oppositeNotFloor && innerNotEmpty && floorsOk;
   }
 
   private static boolean disallowTInner(Coordinate p, LevelElement[][] layout, Dir dir) {
@@ -1418,31 +1365,6 @@ public class TileTextureFactory {
         && isInside(n.getDownE());
   }
 
-  private static boolean isWallDir(Coordinate p, LevelElement[][] layout, Dir dir) {
-    try {
-      return layout[p.y() + dir.dy][p.x() + dir.dx] == LevelElement.WALL;
-    } catch (ArrayIndexOutOfBoundsException ex) {
-      return false;
-    }
-  }
-
-  private static boolean isDoorDir(Coordinate p, LevelElement[][] layout, Dir dir) {
-    try {
-      return layout[p.y() + dir.dy][p.x() + dir.dx] == LevelElement.DOOR;
-    } catch (ArrayIndexOutOfBoundsException ex) {
-      return false;
-    }
-  }
-
-  private static boolean isAccessibleDir(Coordinate p, LevelElement[][] layout, Dir dir) {
-    try {
-      LevelElement e = layout[p.y() + dir.dy][p.x() + dir.dx];
-      return e.value() || e == LevelElement.PIT;
-    } catch (ArrayIndexOutOfBoundsException ex) {
-      return false;
-    }
-  }
-
   private static boolean isDiagonalAccessible(
       Coordinate p, LevelElement[][] layout, Corner corner) {
     Neighbors n = Neighbors.of(p, layout);
@@ -1454,24 +1376,6 @@ public class TileTextureFactory {
           case UL -> n.getUpLeftE();
         };
     return e != null && (e.value() || e == LevelElement.PIT);
-  }
-
-  private static boolean isHoleDir(Coordinate p, LevelElement[][] layout, Dir dir) {
-    try {
-      LevelElement e = layout[p.y() + dir.dy][p.x() + dir.dx];
-      return e == LevelElement.HOLE || e == LevelElement.PIT;
-    } catch (ArrayIndexOutOfBoundsException ex) {
-      return false;
-    }
-  }
-
-  private static boolean isInsideDir(Coordinate p, LevelElement[][] layout, Dir dir) {
-    try {
-      LevelElement e = layout[p.y() + dir.dy][p.x() + dir.dx];
-      return (e != null && (e.value() || isHoleDir(p, layout, dir)));
-    } catch (ArrayIndexOutOfBoundsException ex) {
-      return false;
-    }
   }
 
   private static boolean isDiagonalHole(Coordinate p, LevelElement[][] layout, Corner corner) {
@@ -1488,6 +1392,41 @@ public class TileTextureFactory {
 
   private static boolean isDiagonalInside(Coordinate p, LevelElement[][] layout, Corner corner) {
     return isDiagonalAccessible(p, layout, corner) || isDiagonalHole(p, layout, corner);
+  }
+
+  private static LevelElement at(LevelElement[][] layout, Coordinate p, Dir d) {
+    int x = p.x() + d.dx, y = p.y() + d.dy;
+    return isInsideLayout(x, y, layout) ? layout[y][x] : null;
+  }
+
+  private static boolean neighborMatches(
+      Coordinate p,
+      LevelElement[][] layout,
+      Dir d,
+      java.util.function.Predicate<LevelElement> pred) {
+    LevelElement e = at(layout, p, d);
+    return e != null && pred.test(e);
+  }
+
+  private static boolean isWallDir(Coordinate p, LevelElement[][] layout, Dir d) {
+    return neighborMatches(p, layout, d, e -> e == LevelElement.WALL);
+  }
+
+  private static boolean isDoorDir(Coordinate p, LevelElement[][] layout, Dir d) {
+    return neighborMatches(p, layout, d, e -> e == LevelElement.DOOR);
+  }
+
+  private static boolean isAccessibleDir(Coordinate p, LevelElement[][] layout, Dir d) {
+    return neighborMatches(p, layout, d, e -> e.value() || e == LevelElement.PIT);
+  }
+
+  private static boolean isHoleDir(Coordinate p, LevelElement[][] layout, Dir d) {
+    return neighborMatches(p, layout, d, e -> e == LevelElement.HOLE || e == LevelElement.PIT);
+  }
+
+  private static boolean isInsideDir(Coordinate p, LevelElement[][] layout, Dir d) {
+    return neighborMatches(
+        p, layout, d, e -> e.value() || e == LevelElement.PIT || e == LevelElement.HOLE);
   }
 
   private static boolean hasNoEmptyWallsAround(Coordinate p, LevelElement[][] layout) {
