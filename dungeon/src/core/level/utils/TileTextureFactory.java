@@ -269,6 +269,30 @@ public class TileTextureFactory {
       return new SimpleIPath("wall/empty");
     }
 
+    if (hasNoEmptyWallsAround(p, layout)
+        && topEmptyLeftRightCase(p, layout)
+        && (isDiagonalHole(p, layout, Corner.BL) || isDiagonalHole(p, layout, Corner.BR))) {
+      return new SimpleIPath("wall/corner_upper_left_empty_cross");
+    }
+
+    if (hasNoEmptyWallsAround(p, layout)
+        && isBottomEmptyLeftRightCase(p, layout)
+        && (isDiagonalHole(p, layout, Corner.UL) || isDiagonalHole(p, layout, Corner.UR))) {
+      return new SimpleIPath("wall/corner_upper_right_empty_cross");
+    }
+
+    if (hasNoEmptyWallsAround(p, layout)
+        && isLeftTEmptyTopBottomCase(p, layout)
+        && (isDiagonalHole(p, layout, Corner.UR) || isDiagonalHole(p, layout, Corner.BR))) {
+      return new SimpleIPath("wall/corner_bottom_left_empty_cross");
+    }
+
+    if (hasNoEmptyWallsAround(p, layout)
+        && isRightTEmptyTopBottomCase(p, layout)
+        && (isDiagonalHole(p, layout, Corner.UL) || isDiagonalHole(p, layout, Corner.BL))) {
+      return new SimpleIPath("wall/corner_bottom_right_empty_cross");
+    }
+
     if (topEmptyLeftRightCase(p, layout))
       return new SimpleIPath("wall/t_inner_top_empty_left_right");
 
@@ -1464,6 +1488,21 @@ public class TileTextureFactory {
 
   private static boolean isDiagonalInside(Coordinate p, LevelElement[][] layout, Corner corner) {
     return isDiagonalAccessible(p, layout, corner) || isDiagonalHole(p, layout, corner);
+  }
+
+  private static boolean hasNoEmptyWallsAround(Coordinate p, LevelElement[][] layout) {
+    Neighbors n = Neighbors.of(p, layout);
+    if (n.getUpE() != LevelElement.WALL) return false;
+    if (n.getDownE() != LevelElement.WALL) return false;
+    if (n.getLeftE() != LevelElement.WALL) return false;
+    if (n.getRightE() != LevelElement.WALL) return false;
+
+    if (rendersEmptyLikeWallAt(n.getUp(), layout)) return false;
+    if (rendersEmptyLikeWallAt(n.getDown(), layout)) return false;
+    if (rendersEmptyLikeWallAt(n.getLeft(), layout)) return false;
+    if (rendersEmptyLikeWallAt(n.getRight(), layout)) return false;
+
+    return true;
   }
 
   /**
