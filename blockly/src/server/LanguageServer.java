@@ -36,7 +36,7 @@ public class LanguageServer {
   private static final JavaParser javaParser = new JavaParser();
   private static final Map<String, Class<?>> classMap =
       Map.of(
-          "player",
+          "hero",
           BlocklyCommands.class,
           "Direction",
           Direction.class,

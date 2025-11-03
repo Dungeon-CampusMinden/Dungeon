@@ -34,8 +34,8 @@ import java.util.function.Supplier;
  *
  * <p>This system is part of the game loop and processes commands submitted by the Blockly-based
  * programming interface. It maintains an internal queue of commands and executes them in order,
- * translating high-level commands (e.g., "move player" or "drop item") into game actions such as
- * moving entities, rotating the player, interacting with objects, or shooting fireballs.
+ * translating high-level commands (e.g., "move hero" or "drop item") into game actions such as
+ * moving entities, rotating the hero, interacting with objects, or shooting fireballs.
  *
  * <p>The execution is step-based: each update either consumes a command from the queue or advances
  * an ongoing movement until completion. Some commands (e.g., {@code HERO_MOVE}) may span multiple

@@ -20,7 +20,7 @@ import java.util.*;
  * <p>The fog of war is a game mechanic where areas of the game world that are not in the player's
  * line of sight are obscured. This class maintains a set of tiles that are currently darkened (not
  * visible to the player) and a list of entities that are hidden. It also keeps track of the last
- * known position of the player (player character) and whether the fog of war system is currently
+ * known position of the hero (player character) and whether the fog of war system is currently
  * active.
  */
 public class FogOfWarSystem extends System {
