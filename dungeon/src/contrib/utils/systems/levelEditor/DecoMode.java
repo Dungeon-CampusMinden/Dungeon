@@ -188,6 +188,9 @@ public class DecoMode extends LevelEditorMode {
             dc -> {
               dc.tintColor(Color.rgba8888(1, 1, 1, PREVIEW_ALPHA));
             });
+    deco.fetch(CollideComponent.class).ifPresent(dc -> {
+      dc.isSolid(false);
+    });
     Game.add(deco);
     decoPreviewEntity = DecoEntityData.of(deco);
   }

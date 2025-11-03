@@ -23,9 +23,9 @@ public class LevelBoundsMode extends LevelEditorMode {
       addSize(0, -1);
     }
 
-    if (Gdx.input.isKeyJustPressed(SECONDARY_DOWN)) {
+    if (Gdx.input.isKeyJustPressed(SECONDARY_UP)) {
       addSize(1, 0);
-    } else if (Gdx.input.isKeyJustPressed(SECONDARY_UP)) {
+    } else if (Gdx.input.isKeyJustPressed(SECONDARY_DOWN)) {
       addSize(-1, 0);
     }
   }
@@ -52,13 +52,16 @@ public class LevelBoundsMode extends LevelEditorMode {
   }
 
   private void addSize(int addX, int addY) {
-    LevelEditorSystem.showFeedback("Resizing level by: x + " + addX + ", y + " + addY, Color.WHITE);
+    String feedback = "Resized level by: (" + addX + ", " + addY + ")";
 
     DungeonLevel level = getLevel();
     Tile[][] layout = level.layout();
 
     int rows = layout.length;
     int cols = layout[0].length;
+
+    feedback += "\nNew size: (" + (cols + addX) + ", " + (rows + addY) + ")";
+    LevelEditorSystem.showFeedback(feedback, Color.WHITE);
 
     int newRows = rows + addY;
     int newCols = cols + addX;

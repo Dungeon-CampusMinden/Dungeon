@@ -2,11 +2,13 @@ package contrib.utils.systems.levelEditor;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import contrib.components.DecoComponent;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.hud.dialogs.FreeInputDialog;
 import contrib.systems.DebugDrawSystem;
+import contrib.systems.LevelEditorSystem;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
@@ -58,8 +60,10 @@ public class PointMode extends LevelEditorMode {
     } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT) && heldPointName == null) {
       // Pickup deco on cursor
       Optional<String> clickedPoint = getOnPosition(cursorPos);
-      clickedPoint.ifPresent(point -> {
+      clickedPoint.ifPresentOrElse(point -> {
         heldPointName = point;
+      }, () -> {
+        LevelEditorSystem.showFeedback("No point to pickup on coordinate!", Color.YELLOW);
       });
     } else if (Gdx.input.isKeyPressed(TERTIARY)) {
       // Delete deco on cursor

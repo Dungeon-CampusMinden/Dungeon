@@ -3,13 +3,18 @@ package contrib.utils.systems.levelEditor;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import contrib.systems.LevelEditorSystem;
+import contrib.systems.PositionSync;
 import core.Game;
+import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.Point;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 public class ShiftLevelMode extends LevelEditorMode {
 
@@ -25,9 +30,9 @@ public class ShiftLevelMode extends LevelEditorMode {
       shiftLevel(0, -1);
     }
 
-    if (Gdx.input.isKeyJustPressed(SECONDARY_DOWN)) {
+    if (Gdx.input.isKeyJustPressed(SECONDARY_UP)) {
       shiftLevel(1, 0);
-    } else if (Gdx.input.isKeyJustPressed(SECONDARY_UP)) {
+    } else if (Gdx.input.isKeyJustPressed(SECONDARY_DOWN)) {
       shiftLevel(-1, 0);
     }
   }
@@ -56,10 +61,16 @@ public class ShiftLevelMode extends LevelEditorMode {
   private void shiftLevel(int x, int y) {
     if (x == 0 && y == 0) return;
 
-    LevelEditorSystem.showFeedback("Shifting level by: x=" + x + ", y=" + y, Color.WHITE);
+    String directionName = x == 1 ? "RIGHT" : x == -1 ? "LEFT" : y == 1 ? "UP" : "DOWN";
+    LevelEditorSystem.showFeedback("Shifting level "+directionName, Color.WHITE);
 
     DungeonLevel level = getLevel();
     Tile[][] layout = level.layout();
+
+    if(!canShift(layout, x, y)){
+      LevelEditorSystem.showFeedback("Cannot shift level: overwriting non-SKIP tiles!", Color.RED);
+      return;
+    }
 
     // ALGORITHM: shift all tiles in the layout by x and y, which are either 1, 0 or -1
     int rows = layout.length;
@@ -99,5 +110,55 @@ public class ShiftLevelMode extends LevelEditorMode {
     // Shift all named points
     Map<String, Point> namedPoints = Game.currentLevel().orElseThrow().namedPoints();
     namedPoints.replaceAll((s, p) -> new Point(p.x() + x, p.y() + y));
+
+    // Shift all entities
+    Game.levelEntities(Set.of(PositionComponent.class)).forEach(e -> {
+      PositionComponent pc = e.fetch(PositionComponent.class).orElseThrow();
+      Point old = pc.position();
+      pc.position(new Point(old.x() + x, old.y() + y));
+      PositionSync.syncPosition(e);
+    });
+  }
+
+  /**
+   * Check if all tiles that would be deleted by the shift are empty (SKIP).
+   * @param layout the current layout
+   * @param x the shift in x direction
+   * @param y the shift in y direction
+   * @return true if the shift is possible, false otherwise
+   */
+  private boolean canShift(Tile[][] layout, int x, int y){
+    int rows = layout.length;
+    int cols = layout[0].length;
+
+    if (x == 1) { // Shift right
+      for (int i = 0; i < rows; i++) {
+        if (layout[i][cols - 1].levelElement() != LevelElement.SKIP) {
+          return false;
+        }
+      }
+    } else if (x == -1) { // Shift left
+      for (int i = 0; i < rows; i++) {
+        if (layout[i][0].levelElement() != LevelElement.SKIP) {
+          return false;
+        }
+      }
+    }
+
+    if (y == 1) { // Shift up
+      for (int j = 0; j < cols; j++) {
+        if (layout[rows - 1][j].levelElement() != LevelElement.SKIP) {
+          return false;
+        }
+      }
+    } else if (y == -1) { // Shift down
+      for (int j = 0; j < cols; j++) {
+        if (layout[0][j].levelElement() != LevelElement.SKIP) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 }

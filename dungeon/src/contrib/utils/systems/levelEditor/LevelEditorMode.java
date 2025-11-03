@@ -133,7 +133,7 @@ public abstract class LevelEditorMode {
 
   protected enum SnapMode {
     OnGrid,
-    OneTenthGrid,
+    QuarterGrid,
     OffGrid,
     ;
 
@@ -149,10 +149,10 @@ public abstract class LevelEditorMode {
       return switch (this) {
         case OnGrid ->
             new Point((float) Math.floor(position.x()), (float) Math.floor(position.y()));
-        case OneTenthGrid ->
+        case QuarterGrid ->
             new Point(
-                (float) Math.floor(position.x() * 10) / 10.0f,
-                (float) Math.floor(position.y() * 10) / 10.0f);
+                (float) Math.floor(position.x() * 4) / 4.0f,
+                (float) Math.floor(position.y() * 4) / 4.0f);
         default -> position;
       };
     }
