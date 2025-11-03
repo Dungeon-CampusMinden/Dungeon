@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import contrib.systems.DebugDrawSystem;
 import contrib.utils.CheckPatternPainter;
+import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -44,6 +45,15 @@ public class TilesMode extends LevelEditorMode {
       brushSize = Math.min(MAX_BRUSH_SIZE, brushSize + 1);
     } else if (Gdx.input.isKeyJustPressed(SECONDARY_DOWN)) {
       brushSize = Math.max(1, brushSize - 1);
+    }
+
+    if (Gdx.input.isKeyJustPressed(QUARTERNARY)) {
+      // Pick tile under cursor to LMB
+      Point cursorPos = getCursorPosition();
+      getLevel().tileAt(cursorPos).ifPresent(t -> {
+        LevelElement element = t.levelElement();
+        selectedTileIndexL = element.ordinal();
+      });
     }
 
     /* Mouse interactions:
@@ -140,6 +150,7 @@ public class TilesMode extends LevelEditorMode {
     controls.put(Input.Buttons.LEFT, "Place Tile [L]");
     controls.put(Input.Buttons.RIGHT, "Place Tile [R]");
     controls.put(TERTIARY, "Place SKIP Tile");
+    controls.put(QUARTERNARY, "Pick Tile under cursor to [L]");
     return controls;
   }
 }

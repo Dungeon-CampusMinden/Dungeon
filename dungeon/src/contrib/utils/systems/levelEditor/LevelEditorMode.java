@@ -34,6 +34,9 @@ public abstract class LevelEditorMode {
   /** Tertiary action button. */
   public static final int TERTIARY = Input.Keys.X;
 
+  /** Quaternary action button. */
+  public static final int QUARTERNARY = Input.Keys.V;
+
   private final String name;
   private final Map<Integer, String> controls = new LinkedHashMap<>();
 
