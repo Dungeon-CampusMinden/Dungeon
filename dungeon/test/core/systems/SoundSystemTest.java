@@ -1,6 +1,6 @@
 package core.systems;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.*;
 
 import core.Entity;
@@ -27,7 +27,7 @@ public class SoundSystemTest {
   void setup() {
     mockPlayer = mock(ISoundPlayer.class);
     mockHandle = mock(IPlayHandle.class);
-    when(mockPlayer.play(anyString(), anyFloat(), anyBoolean()))
+    when(mockPlayer.play(anyString(), anyFloat(), anyBoolean(), anyFloat(), anyFloat()))
         .thenReturn(Optional.of(mockHandle));
     soundSystem = new SoundSystem(mockPlayer);
     Game.add(soundSystem);
@@ -51,12 +51,12 @@ public class SoundSystemTest {
 
     Entity entity = new Entity();
     entity.add(new PositionComponent(new Point(0, 0)));
-    entity.add(new SoundComponent("test", 0.8f, false, 10f, 0.1f, () -> {}));
+    entity.add(new SoundComponent("test", 0.8f, false, 1f, 10f, 0.1f, () -> {}));
     Game.add(entity);
 
     soundSystem.execute();
 
-    verify(mockPlayer).play("test", 0.8f, false);
+    verify(mockPlayer).play("test", 0.8f, false, 1f, 0f);
   }
 
   @Test
@@ -69,12 +69,12 @@ public class SoundSystemTest {
     Entity soundEntity = new Entity();
     soundEntity.add(new PositionComponent(new Point(0, 0)));
     Runnable onFinish = mock(Runnable.class);
-    soundEntity.add(new SoundComponent("test", 0.8f, false, 10f, 0.1f, onFinish));
+    soundEntity.add(new SoundComponent("test", 0.8f, false, 1, 10f, 0.1f, onFinish));
     Game.add(soundEntity);
 
     soundSystem.execute();
 
-    verify(mockPlayer).play("test", 0.8f, false);
+    verify(mockPlayer).play("test", 0.8f, false, 1f, 0f);
     verify(mockHandle).onFinished(onFinish);
   }
 
@@ -87,19 +87,19 @@ public class SoundSystemTest {
 
     Entity entity = new Entity();
     entity.add(new PositionComponent(new Point(0, 0)));
-    entity.add(new SoundComponent("loop", 0.5f, true, 20f, 0.05f, () -> {}));
+    entity.add(new SoundComponent("loop", 0.5f, true, 1, 20f, 0.05f, () -> {}));
     Game.add(entity);
 
     soundSystem.execute();
 
-    verify(mockPlayer).play("loop", 0.5f, true);
+    verify(mockPlayer).play("loop", 0.5f, true, 1f, 0f);
   }
 
   @Test
   void testSoundSystemNoHero() {
     Entity soundEntity = new Entity();
     soundEntity.add(new PositionComponent(new Point(0, 0)));
-    soundEntity.add(new SoundComponent("fireball", 0.8f, false, 10f, 0.1f, () -> {}));
+    soundEntity.add(new SoundComponent("fireball", 0.8f, false, 1, 10f, 0.1f, () -> {}));
     Game.add(soundEntity);
 
     soundSystem.execute();
@@ -116,13 +116,14 @@ public class SoundSystemTest {
 
     Entity entity = new Entity();
     entity.add(new PositionComponent(new Point(0, 0)));
-    entity.add(new SoundComponent("test", 0.8f, false, 10f, 0.1f, () -> {}));
+    entity.add(new SoundComponent("test", 0.8f, true, 1, 10f, 0.1f, () -> {}));
     Game.add(entity);
 
     soundSystem.execute(); // Adds handle
 
     Game.remove(entity);
 
-    verify(mockHandle).stop();
+    soundSystem.execute();
+    assertFalse(mockHandle.isPlaying());
   }
 }

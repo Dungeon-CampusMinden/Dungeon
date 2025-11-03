@@ -1,8 +1,5 @@
 package contrib.entities;
 
-import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
-
 /**
  * An enumeration of the different sounds that a monster can make when it dies.
  *
@@ -10,28 +7,28 @@ import core.utils.components.path.SimpleIPath;
  */
 public enum MonsterDeathSound {
   /** A basic death sound. */
-  BASIC("sounds/die_01.wav"),
+  BASIC("die_01"),
   /** A more low-pitched death sound. */
-  LOW_PITCH("sounds/die_02.wav"),
+  LOW_PITCH("die_02"),
   /** A even more low-pitched death sound. */
-  LOWER_PITCH("sounds/die_03.wav"),
+  LOWER_PITCH("die_03"),
   /** A high-pitched death sound. */
-  HIGH_PITCH("sounds/die_04.wav"),
+  HIGH_PITCH("die_04"),
   /** No sound. */
   NONE("");
 
-  private final IPath path;
+  private final String soundId;
 
-  MonsterDeathSound(String path) {
-    this.path = new SimpleIPath(path);
+  MonsterDeathSound(String soundId) {
+    this.soundId = soundId;
   }
 
   /**
-   * Returns the sound of the monster's death.
+   * Returns the monster's death sound unique identifier.
    *
-   * @return The sound of the monster's death. If the monster has no sound, returns null.
+   * @return The sound effect unique identifier.
    */
-  public IPath path() {
-    return path;
+  public String soundId() {
+    return soundId;
   }
 }

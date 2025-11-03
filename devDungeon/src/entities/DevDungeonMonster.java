@@ -510,11 +510,7 @@ public enum DevDungeonMonster {
     private HealthComponent buildHealthComponent() {
       Consumer<Entity> constructedOnDeath =
           entity -> {
-            deathSound()
-                .ifPresent(
-                    deathSound ->
-                        playDeathSoundIfNearby(
-                            deathSound.path(), DEATH_SOUND_DISPOSE_DELAY, entity));
+            deathSound().ifPresent(deathSound -> playDeathSoundIfNearby(entity, deathSound));
 
             entity
                 .fetch(InventoryComponent.class)
