@@ -267,8 +267,7 @@ public final class HeroFactory {
           KeyboardConfig.MOUSE_MOVE.value(),
           innerHero -> {
             // Small adjustment to get the correct tile
-            Point mousePos =
-                SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
+            Point mousePos = SkillTools.cursorPositionAsPoint();
 
             Point heroPos =
                 innerHero
@@ -488,8 +487,6 @@ public final class HeroFactory {
 
   private static Optional<Entity> checkIfClickOnInteractable(Point pos)
       throws MissingComponentException {
-    pos = pos.translate(Vector2.of(-0.5f, -0.25f));
-
     Tile mouseTile = Game.tileAt(pos).orElse(null);
     if (mouseTile == null) return Optional.empty();
 

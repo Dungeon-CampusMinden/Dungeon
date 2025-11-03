@@ -1,0 +1,123 @@
+{
+  "idle_down": {
+    "config": {
+      "spriteWidth": 42,
+      "spriteHeight": 64,
+      "x": 0,
+      "y": 0,
+      "rows": 1,
+      "columns": 5
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "idle_left": {
+    "config": {
+      "spriteWidth": 42,
+      "spriteHeight": 64,
+      "x": 0,
+      "y": 64,
+      "rows": 1,
+      "columns": 5
+    },
+    "framesPerSprite": 10,
+    "scaleX": 5,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+    "idle_right": {
+    "config": {
+      "spriteWidth": 42,
+      "spriteHeight": 64,
+      "x": 0,
+      "y": 64,
+      "rows": 1,
+      "columns": 5
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false,
+      "mirrored": true
+  },
+  "idle_up": {
+    "config": {
+      "spriteWidth": 56,
+      "spriteHeight": 66,
+      "x": 0,
+      "y": 128,
+      "rows": 1,
+      "columns": 5
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "run_down": {
+    "config": {
+      "spriteWidth": 60,
+      "spriteHeight": 80,
+      "x": 0,
+      "y": 194,
+      "rows": 1,
+      "columns": 8
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "run_left": {
+    "config": {
+      "spriteWidth": 60,
+      "spriteHeight": 80,
+      "x": 0,
+      "y": 274,
+      "rows": 1,
+      "columns": 8
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+    "run_right": {
+    "config": {
+      "spriteWidth": 60,
+      "spriteHeight": 80,
+      "x": -1,
+      "y": 274,
+      "rows": 1,
+      "columns": 8
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "run_up": {
+    "config": {
+      "spriteWidth": 50,
+      "spriteHeight": 64,
+      "x": 0,
+      "y": 354,
+      "rows": 1,
+      "columns": 8
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  }
+}

@@ -99,7 +99,7 @@ public class LevelEditorSystem extends System {
    * skip tiles. It uses a queue to flood the area.
    */
   private void fillWithFloor() {
-    Point mosPos = SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
+    Point mosPos = SkillTools.cursorPositionAsPoint();
 
     Tile startTile = LevelSystem.level().orElse(null).tileAt(mosPos).orElse(null);
     if (startTile == null) {
@@ -134,7 +134,7 @@ public class LevelEditorSystem extends System {
   }
 
   private void setTile(LevelElement element) {
-    Point mosPos = SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
+    Point mosPos = SkillTools.cursorPositionAsPoint();
     Tile mouseTile = LevelSystem.level().orElse(null).tileAt(mosPos).orElse(null);
     if (mouseTile == null) {
       return;
