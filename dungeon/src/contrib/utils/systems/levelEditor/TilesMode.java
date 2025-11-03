@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import contrib.systems.DebugDrawSystem;
 import contrib.utils.CheckPatternPainter;
-import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -50,10 +49,13 @@ public class TilesMode extends LevelEditorMode {
     if (Gdx.input.isKeyJustPressed(QUARTERNARY)) {
       // Pick tile under cursor to LMB
       Point cursorPos = getCursorPosition();
-      getLevel().tileAt(cursorPos).ifPresent(t -> {
-        LevelElement element = t.levelElement();
-        selectedTileIndexL = element.ordinal();
-      });
+      getLevel()
+          .tileAt(cursorPos)
+          .ifPresent(
+              t -> {
+                LevelElement element = t.levelElement();
+                selectedTileIndexL = element.ordinal();
+              });
     }
 
     /* Mouse interactions:
