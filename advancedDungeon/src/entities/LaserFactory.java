@@ -1,6 +1,9 @@
 package entities;
 
 import contrib.components.CollideComponent;
+import contrib.systems.EventScheduler;
+import contrib.systems.PositionSync;
+import contrib.utils.components.collide.Hitbox;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -96,7 +99,14 @@ public class LaserFactory {
             comp -> {
               if (!comp.isActive()) return;
 
-              comp.getSegments().forEach(Game::remove);
+              comp.getSegments().forEach(seg -> {
+                if(seg.name().startsWith("laserEmitter")) {
+                  removeEmitterHitbox(seg);
+                  EventScheduler.scheduleAction( () -> {Game.remove(seg);},1000);
+                } else {
+                  Game.remove(seg);
+                }
+              });
               comp.getSegments().clear();
 
               removeEmitterHitbox(emitter);
@@ -189,18 +199,27 @@ public class LaserFactory {
       default -> {}
     }
 
-    CollideComponent cc =
+    Hitbox newCollider = new Hitbox(Vector2.of(hitboxX*1.001f, hitboxY*1.001f),Vector2.of(offsetX, offsetY));
+
+    emitter.fetch(CollideComponent.class).ifPresentOrElse(cc -> {
+      cc.collider(newCollider);
+      PositionSync.syncPosition(emitter);
+    },() -> {
+      CollideComponent cc =
         new CollideComponent(
-            Vector2.of(offsetX, offsetY),
-            Vector2.of(hitboxX, hitboxY),
-            CollideComponent.DEFAULT_COLLIDER,
-            (you, other, collisionDir) -> {});
-    emitter.add(cc);
+          CollideComponent.DEFAULT_COLLIDER,
+          (you, other, collisionDir) -> {});
+      cc.collider(newCollider);
+      emitter.add(cc);
+    });
+
     emitter.fetch(CollideComponent.class).ifPresent(c -> c.isSolid(true));
   }
 
   static void removeEmitterHitbox(Entity emitter) {
-    emitter.remove(CollideComponent.class);
+    emitter.fetch(CollideComponent.class).ifPresent(cc -> {
+      cc.collider(new Hitbox(Vector2.ZERO, Vector2.ZERO));
+    });
   }
 
   static float rotationFor(Direction d) {
@@ -223,7 +242,7 @@ public class LaserFactory {
     Point lastPoint = from;
     Point currentPoint = from;
     Tile currentTile = Game.tileAt(from).orElse(null);
-    while (currentTile != null && !(currentTile instanceof WallTile)) {
+    while (currentTile != null && !(currentTile instanceof WallTile) && !Game.entityAtTile(currentTile).anyMatch(entity -> entity.name().startsWith("laserCube"))) {
       lastPoint = currentPoint;
       currentPoint = currentPoint.translate(beamDirection);
       currentTile = Game.tileAt(currentPoint).orElse(null);

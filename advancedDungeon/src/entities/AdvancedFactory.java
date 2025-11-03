@@ -16,6 +16,7 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
+import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
@@ -218,27 +219,18 @@ public class AdvancedFactory {
           .fetch(LaserComponent.class)
           .ifPresent(
             lc -> {
-              LaserFactory.extendLaser(direction, position, lc.getSegments(), other.fetch(PortalExtendComponent.class).get(), lc);
+              Point newPos = new Point(position.x()+direction.x(), position.y()+direction.y());
+              LaserFactory.extendLaser(direction, newPos, lc.getSegments(), other.fetch(PortalExtendComponent.class).get(), lc);
             });
       };
 
-    TriConsumer<Entity, Entity, Direction> actionLeave =
-      (you, other, collisionDir) -> {
-
-      };
 
     laserCube.add(
       new CollideComponent(
         Vector2.of(0f, 0f),
         Vector2.of(1f, 1f),
-        CollideComponent.DEFAULT_COLLIDER,
-        actionLeave));
-    laserCube
-      .fetch(CollideComponent.class)
-      .ifPresent(
-        cc -> {
-          cc.onHold(action);
-        });
+        action,
+        CollideComponent.DEFAULT_COLLIDER));
 
     return laserCube;
   }
@@ -254,38 +246,41 @@ public class AdvancedFactory {
     State active = new State("active", animationMap.get("active"));
     StateMachine sm = new StateMachine(Arrays.asList(active, inactive));
 
-    //sm.addTransition(inactive, "activate", active);
+    sm.addTransition(inactive, "active", active);
+    sm.addTransition(active, "inactive", inactive);
 
-    receiver.add(new DrawComponent(sm));
+    DrawComponent dc = new DrawComponent(sm);
+    dc.depth(DepthLayer.ForegroundDeco.depth());
+    dc.sendSignal("inactive");
+    receiver.add(dc);
 
 
-    TriConsumer<Entity, Entity, Direction> action =
+    TriConsumer<Entity, Entity, Direction> actionEnter =
       (you, other, collisionDir) -> {
         other
           .fetch(LaserComponent.class)
           .ifPresent(
             lc -> {
-
+              dc.sendSignal("active");
             });
       };
 
     TriConsumer<Entity, Entity, Direction> actionLeave =
       (you, other, collisionDir) -> {
-
+        other
+          .fetch(LaserComponent.class)
+          .ifPresent(
+            lc -> {
+              dc.sendSignal("inactive");
+            });
       };
 
     receiver.add(
       new CollideComponent(
         Vector2.of(0f, 0f),
         Vector2.of(1f, 1f),
-        CollideComponent.DEFAULT_COLLIDER,
+        actionEnter,
         actionLeave));
-    receiver
-      .fetch(CollideComponent.class)
-      .ifPresent(
-        cc -> {
-          cc.onHold(action);
-        });
 
     return receiver;
   }
