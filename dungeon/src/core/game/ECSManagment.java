@@ -234,8 +234,8 @@ public final class ECSManagment {
   /**
    * Searches the current level for the first player character.
    *
-   * @return an {@link Optional} containing the first player character from the current level, or an empty
-   *     {@code Optional} if none is present
+   * @return an {@link Optional} containing the first player character from the current level, or an
+   *     empty {@code Optional} if none is present
    */
   public static Optional<Entity> player() {
     return levelEntities().filter(e -> e.isPresent(PlayerComponent.class)).findFirst();

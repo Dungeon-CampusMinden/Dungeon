@@ -6,8 +6,8 @@ import core.utils.components.path.IPath;
  * Default paths to the animations, and their priority, used by the systems inside the core package.
  *
  * <p>The enums represent a path (as a string) where animations can be found. The path starts at a
- * specific subfolder (e.g., "character/player"), so the enums have the value of the directory inside
- * this directory (e.g., "character/player/idle_left").
+ * specific subfolder (e.g., "character/player"), so the enums have the value of the directory
+ * inside this directory (e.g., "character/player/idle_left").
  *
  * <p>You can use this values for {@link core.components.DrawComponent#queueAnimation(IPath...)}.
  */

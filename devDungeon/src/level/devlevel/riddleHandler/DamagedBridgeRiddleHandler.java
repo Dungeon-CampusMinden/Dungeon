@@ -127,9 +127,10 @@ public class DamagedBridgeRiddleHandler {
    * Checks if the player is in the riddle room.
    *
    * <p>This method is used to determine if the player is currently located in the riddle room. The
-   * method checks if the player is on the entrance or exit tile of the riddle room or if the player's
-   * tile is within the bounds of the riddle room. If the player is null (which can happen if the player
-   * died in a pit), the method returns true so the player can still see the riddle room.
+   * method checks if the player is on the entrance or exit tile of the riddle room or if the
+   * player's tile is within the bounds of the riddle room. If the player is null (which can happen
+   * if the player died in a pit), the method returns true so the player can still see the riddle
+   * room.
    *
    * @return true if the player is in the riddle room, false otherwise.
    */

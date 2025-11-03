@@ -26,8 +26,8 @@ import utils.ArrayUtils;
 
 /**
  * The TorchRiddleRiddleHandler class is used to handle the riddle of the torches. The riddle
- * consists of a series of torches that the player has to light up. The player can light up a certain
- * torches to receive a reward.
+ * consists of a series of torches that the player has to light up. The player can light up a
+ * certain torches to receive a reward.
  */
 public class TorchRiddleRiddleHandler {
 

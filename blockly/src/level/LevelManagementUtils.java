@@ -12,8 +12,8 @@ import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 
 /**
- * Utility class for managing level-related features such as camera control, player positioning, zoom
- * level, and fog of war.
+ * Utility class for managing level-related features such as camera control, player positioning,
+ * zoom level, and fog of war.
  */
 public class LevelManagementUtils {
 

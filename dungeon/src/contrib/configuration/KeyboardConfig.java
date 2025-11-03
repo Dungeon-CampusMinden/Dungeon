@@ -132,8 +132,8 @@ public class KeyboardConfig {
       new ConfigKey<>(new String[] {"debug", "teleport_end"}, new ConfigIntValue(Input.Keys.H));
 
   /**
-   * Keybinding to teleport the player on the {@link core.level.elements.tile.ExitTile}, if the {@link
-   * contrib.utils.components.Debugger} is active.
+   * Keybinding to teleport the player on the {@link core.level.elements.tile.ExitTile}, if the
+   * {@link contrib.utils.components.Debugger} is active.
    */
   public static final ConfigKey<Integer> DEBUG_TELEPORT_ON_END =
       new ConfigKey<>(new String[] {"debug", "teleport_onEnd"}, new ConfigIntValue(Input.Keys.G));

@@ -33,7 +33,8 @@ public class HeroTankControlledFactory {
   }
 
   /**
-   * Creates a new player with tank controls. The player can only move in the direction it is facing.
+   * Creates a new player with tank controls. The player can only move in the direction it is
+   * facing.
    *
    * @param tankControlls True if the Tanke Controlls should be maped to the default movement keys
    * @return the player entity

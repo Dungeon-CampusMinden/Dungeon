@@ -21,8 +21,8 @@ import core.Component;
  * {@link CollideComponent} and {@link HealthComponent}. Now implement the damage calculation. In
  * the player's collision method, check whether the other entity (the monster) implements the {@link
  * SpikyComponent} and whether the cooldown has expired ({@link #isActive()}). If so, use {@link
- * HealthComponent#receiveHit(Damage)} to deal damage to the player. Remember to activate the cooldown
- * of this component using {@link #activateCoolDown()}.
+ * HealthComponent#receiveHit(Damage)} to deal damage to the player. Remember to activate the
+ * cooldown of this component using {@link #activateCoolDown()}.
  *
  * <p>Use {@link #damageAmount} and {@link #damageType} to get the damage information.
  *

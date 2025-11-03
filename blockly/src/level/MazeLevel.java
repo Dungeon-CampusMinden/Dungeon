@@ -8,8 +8,8 @@ import java.util.Map;
 
 /**
  * This class is used for the Maze Level. The first level of the blockly dungeon. This class will
- * only set the start position of the player and show a popup at the beginning of the level to explain
- * the target of the Maze level.
+ * only set the start position of the player and show a popup at the beginning of the level to
+ * explain the target of the Maze level.
  */
 public class MazeLevel extends BlocklyLevel {
 

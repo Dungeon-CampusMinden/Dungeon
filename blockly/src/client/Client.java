@@ -155,7 +155,8 @@ public class Client {
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
               .map(AmmunitionComponent::resetCurrentAmmunition);
         });
-    // this makes sure a outsynced command will not replace the player and the player will always be on
+    // this makes sure a outsynced command will not replace the player and the player will always be
+    // on
     // the starttile of the level
     Game.player()
         .flatMap(e -> e.fetch(PositionComponent.class))
@@ -224,8 +225,8 @@ public class Client {
   /**
    * Creates and adds a new player entity to the game.
    *
-   * <p>Any existing entities with a {@link PlayerComponent} will first be removed. The new player is
-   * generated using the {@link HeroTankControlledFactory} and is equipped with an {@link
+   * <p>Any existing entities with a {@link PlayerComponent} will first be removed. The new player
+   * is generated using the {@link HeroTankControlledFactory} and is equipped with an {@link
    * AmmunitionComponent}.
    *
    * @throws RuntimeException if an {@link IOException} occurs during player creation
@@ -250,8 +251,8 @@ public class Client {
    * to occur on the next game tick. This is to ensure thread safety and prevent race conditions.
    *
    * <p>During the restart, the {@link PositionSystem} is stopped and then run again to ensure that
-   * the player is placed correctly in the level. This prevents a race condition where the player might
-   * be placed before the level is fully loaded.
+   * the player is placed correctly in the level. This prevents a race condition where the player
+   * might be placed before the level is fully loaded.
    */
   public static void restart() {
     // if not the main thread, schedule restart

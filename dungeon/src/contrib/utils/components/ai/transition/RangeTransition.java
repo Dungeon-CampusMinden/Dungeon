@@ -5,8 +5,8 @@ import core.level.utils.LevelUtils;
 import java.util.function.Function;
 
 /**
- * Implementation of a transition between idle and fight mode. Activates fight mode when the player is
- * within a specified range of the entity.
+ * Implementation of a transition between idle and fight mode. Activates fight mode when the player
+ * is within a specified range of the entity.
  */
 public final class RangeTransition implements Function<Entity, Boolean> {
 

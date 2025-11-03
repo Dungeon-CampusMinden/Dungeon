@@ -57,17 +57,20 @@ public class BlocklyCommands {
     HERO_USE_UP,
 
     /**
-     * Use the object located behind the player (relative to the player's current viewing direction).
+     * Use the object located behind the player (relative to the player's current viewing
+     * direction).
      */
     HERO_USE_DOWN,
 
     /**
-     * If there is a stone in front of the player, push it forward and move the player one tile ahead.
+     * If there is a stone in front of the player, push it forward and move the player one tile
+     * ahead.
      */
     HERO_PUSH,
 
     /**
-     * If there is a stone in front of the player, pull it backward and move the player one tile back.
+     * If there is a stone in front of the player, pull it backward and move the player one tile
+     * back.
      */
     HERO_PULL,
 
@@ -367,8 +370,8 @@ public class BlocklyCommands {
    *
    * <p>This ensures that all queued commands affecting entity movement or state have been processed
    * before continuing. Without this wait, checks that depend on the current position of entities
-   * (e.g. verifying whether the player is near a wall) may use false positions and produce incorrect
-   * results.
+   * (e.g. verifying whether the player is near a wall) may use false positions and produce
+   * incorrect results.
    *
    * <p>Call this method before performing spatial checks that rely on up-to-date entity positions.
    */

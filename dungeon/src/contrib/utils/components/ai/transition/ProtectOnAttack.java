@@ -11,8 +11,8 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Implements an AI that protects a specific entity with a {@link HealthComponent} if the player dealt
- * damage to it.
+ * Implements an AI that protects a specific entity with a {@link HealthComponent} if the player
+ * dealt damage to it.
  *
  * <p>Entity will stay in fight mode once entered.
  */

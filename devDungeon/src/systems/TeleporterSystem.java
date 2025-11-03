@@ -15,7 +15,8 @@ import level.utils.Teleporter;
 
 /**
  * This class represents a system that handles teleportation in the game. It keeps track of all
- * teleporters in the game, the last position of the player, and whether the player has just teleported.
+ * teleporters in the game, the last position of the player, and whether the player has just
+ * teleported.
  */
 public class TeleporterSystem extends System {
 

@@ -182,9 +182,9 @@ public class BlocklyCommandExecuteSystem extends System {
   /**
    * Attempts to pull or push entities in front of the player.
    *
-   * <p>If there is a pushable entity in the tile in front of the player, it checks if the tile behind
-   * the player (for pull) or in front of the entities (for push) is accessible. If accessible, the
-   * player and the entity are moved simultaneously in the corresponding direction.
+   * <p>If there is a pushable entity in the tile in front of the player, it checks if the tile
+   * behind the player (for pull) or in front of the entities (for push) is accessible. If
+   * accessible, the player and the entity are moved simultaneously in the corresponding direction.
    *
    * <p>The pulled/pushed entity temporarily loses its blocking component while moving and regains
    * it after.

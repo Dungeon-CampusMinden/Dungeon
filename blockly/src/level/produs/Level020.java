@@ -176,8 +176,8 @@ public class Level020 extends BlocklyLevel {
   /**
    * Checks whether the player has reached the escape threshold distance to the boss.
    *
-   * <p>If the threshold is reached, the boss will taunt the player, be removed from the game, and all
-   * scheduled actions will be cleared.
+   * <p>If the threshold is reached, the boss will taunt the player, be removed from the game, and
+   * all scheduled actions will be cleared.
    */
   private void checkEscapeDistance() {
     float heroX = heropc.position().x();

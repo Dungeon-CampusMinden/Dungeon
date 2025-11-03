@@ -81,9 +81,9 @@ public class EntityUtils {
   /**
    * Teleports the player to a specified point in the game.
    *
-   * <p>This method retrieves the player entity from the game and calls the teleportEntityTo method to
-   * change the player's position. If the player entity is not present (which can happen if the player has
-   * fallen into a pit), the method does nothing.
+   * <p>This method retrieves the player entity from the game and calls the teleportEntityTo method
+   * to change the player's position. If the player entity is not present (which can happen if the
+   * player has fallen into a pit), the method does nothing.
    *
    * @param point The point to which the player should be teleported.
    */

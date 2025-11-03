@@ -66,8 +66,8 @@ public class FogSystem extends System {
    * Resets the FogSystem to its initial state.
    *
    * <p>This method clears the sets of darkened tiles and hidden entities, and resets the last known
-   * player position. The last known player position is set to the current player's position if a player
-   * exists, otherwise it is set to (0,0). This method also reverts the FogSystem to its
+   * player position. The last known player position is set to the current player's position if a
+   * player exists, otherwise it is set to (0,0). This method also reverts the FogSystem to its
    *
    * @see #revealAll()
    */

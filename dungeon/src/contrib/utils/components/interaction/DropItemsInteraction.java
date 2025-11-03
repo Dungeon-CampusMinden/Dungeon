@@ -91,8 +91,8 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
   }
 
   /**
-   * Drop the item at the player position. If the player is not present, the item will be dropped at (0,
-   * 0).
+   * Drop the item at the player position. If the player is not present, the item will be dropped at
+   * (0, 0).
    *
    * @param item The item to drop
    */

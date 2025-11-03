@@ -224,8 +224,9 @@ public class ComparePathfindingStarter {
   /**
    * Creates and adds a new player entity to the game.
    *
-   * <p>Any existing entities with a {@link PlayerComponent} will first be removed. The new player is
-   * generated using the {@link HeroFactory} and the {@link CameraComponent} of the player is removed.
+   * <p>Any existing entities with a {@link PlayerComponent} will first be removed. The new player
+   * is generated using the {@link HeroFactory} and the {@link CameraComponent} of the player is
+   * removed.
    *
    * @return The newly created player entity
    * @throws RuntimeException if an {@link IOException} occurs during player creation

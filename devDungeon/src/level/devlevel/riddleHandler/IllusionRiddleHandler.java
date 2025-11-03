@@ -155,8 +155,8 @@ public class IllusionRiddleHandler {
   }
 
   /**
-   * This method is called when the player moves. It updates the lap progress and counter based on the
-   * player's movement through checkpoints.
+   * This method is called when the player moves. It updates the lap progress and counter based on
+   * the player's movement through checkpoints.
    *
    * @param heroPos The current position of the player.
    */
@@ -200,8 +200,8 @@ public class IllusionRiddleHandler {
    * Needed for Lap Room.
    *
    * @param heroPos The current position of the player.
-   * @return The index of the checkpoint the player is currently on. Returns -1 if the player is not on
-   *     a checkpoint.
+   * @return The index of the checkpoint the player is currently on. Returns -1 if the player is not
+   *     on a checkpoint.
    */
   private int getCurrentCheckpoint(Point heroPos) {
     for (int i = 0; i < lapCheckpoints.length; i++) {
