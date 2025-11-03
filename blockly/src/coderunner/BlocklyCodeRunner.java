@@ -41,20 +41,20 @@ public class BlocklyCodeRunner {
   /** List of whitelisted Blockly command method names without the trailing (); or parameters. */
   private static final List<String> WHITELIST =
       List.of(
-          "player.move",
-          "player.rotate",
-          "player.interact",
-          "player.pull",
-          "player.push",
-          "player.pickup",
-          "player.shootFireball",
-          "player.active",
-          "player.isNearTile",
-          "player.isNearComponent",
-          "player.dropItem",
-          "player.rest",
-          "player.checkBossViewDirection",
-          "player.moveToExit",
+          "hero.move",
+          "hero.rotate",
+          "hero.interact",
+          "hero.pull",
+          "hero.push",
+          "hero.pickup",
+          "hero.shootFireball",
+          "hero.active",
+          "hero.isNearTile",
+          "hero.isNearComponent",
+          "hero.dropItem",
+          "hero.rest",
+          "hero.checkBossViewDirection",
+          "hero.moveToExit",
           "loadLevel",
           "loadNextLevel");
 
@@ -75,7 +75,7 @@ public class BlocklyCodeRunner {
       import components.*;
       import core.components.*;
       public class UserScript {
-          public static void execute(BlocklyCommands player) {
+          public static void execute(BlocklyCommands hero) {
             %s
           }
 
