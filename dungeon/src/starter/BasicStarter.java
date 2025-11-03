@@ -1,8 +1,6 @@
 package starter;
 
 import contrib.entities.HeroFactory;
-import contrib.systems.*;
-import contrib.utils.components.Debugger;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.level.DungeonLevel;
@@ -34,33 +32,15 @@ public class BasicStarter {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    Game.add(new Debugger());
-    Game.add(new ProjectileSystem()); // handles shooting or thrown objects
-    Game.add(new HudSystem()); // displays score, health, and other info on screen
-    Game.add(new HealthSystem()); // manages character health
-    Game.add(new HealthBarSystem()); // shows health bar on HUD
-    Game.add(new IdleSoundSystem()); // plays sounds when characters are idle
-    Game.add(new PressurePlateSystem()); // handles pressure plates in the level
-    Game.add(new LeverSystem()); // handles levers for puzzles
-    Game.add(new CollisionSystem()); // detects collisions between objects
-    Game.add(new FallingSystem()); // handles falling objects or traps
-    Game.add(new PitSystem()); // handles pits that characters can fall into
-    Game.add(new EventScheduler()); // schedules timed events
-    Game.add(new SpikeSystem()); // handles spikes damaging the hero
-    Game.add(new LevelTickSystem()); // executes recurring level events
-    Game.add(new AISystem()); // handles enemy AI behavior
-    Game.add(new PathSystem()); // handles pathfinding for AI
-    Game.add(new ManaBarSystem());
-    Game.add(new ManaRestoreSystem());
     Game.disableAudio(true);
     Game.userOnSetup(
-        () -> {
-          try {
-            Game.add(HeroFactory.newHero());
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        });
+      () -> {
+        try {
+          Game.add(HeroFactory.newHero());
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      });
     Game.frameRate(30);
     Game.windowTitle("Basic Dungeon");
     Game.run();
