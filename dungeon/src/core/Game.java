@@ -353,7 +353,7 @@ public final class Game {
   }
 
   /**
-   * Searches the current level for the player character.
+   * Searches the current level for the first player character.
    *
    * @return an {@link Optional} containing the player character from the current level, or an empty
    *     {@code Optional} if none is present
