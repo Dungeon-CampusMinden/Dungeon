@@ -96,7 +96,7 @@ public class TutorialLevel extends DevDungeonLevel {
   @Override
   protected void onTick() {
     if (lastHeroCoords != null && !lastHeroCoords.equals(EntityUtils.getHeroCoordinate())) {
-      // Only handle text popups if the hero has moved
+      // Only handle text popups if the player has moved
       handleTextPopups();
     }
     handleDoors();
@@ -165,7 +165,7 @@ public class TutorialLevel extends DevDungeonLevel {
       frontDoor.open();
     }
 
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    Entity hero = Game.player().orElseThrow(MissingHeroException::new);
     InventoryComponent ic =
         hero.fetch(InventoryComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, InventoryComponent.class));

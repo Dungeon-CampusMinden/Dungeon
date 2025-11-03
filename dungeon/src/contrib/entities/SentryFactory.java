@@ -129,7 +129,7 @@ public class SentryFactory {
    * <ul>
    *   <li>Patrols between two points {@code a} and {@code b}.
    *   <li>Uses {@link SentryFightBehaviour} to fire projectiles in the given {@link Direction}.
-   *   <li>Attacks with a {@link DamageProjectileSkill} when the hero is within range.
+   *   <li>Attacks with a {@link DamageProjectileSkill} when the player is within range.
    * </ul>
    *
    * @param a the first patrol point and spawn position.
@@ -169,7 +169,7 @@ public class SentryFactory {
    * <ul>
    *   <li>stands on a fixed Point.
    *   <li>Uses {@link StationarySentryAttack} to fire projectiles in the given {@link Direction}.
-   *   <li>Attacks with a {@link DamageProjectileSkill} when the hero is within range.
+   *   <li>Attacks with a {@link DamageProjectileSkill} when the player is within range.
    * </ul>
    *
    * @param spawnPoint the spawn position of the entity.

@@ -29,10 +29,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
-/** A utility class for building the hero entity in the game world. */
+/** A utility class for building the player entity in the game world. */
 public final class HeroFactory {
 
-  /** If true, the hero can be moved with the mouse. */
+  /** If true, the player can be moved with the mouse. */
   public static final boolean ENABLE_MOUSE_MOVEMENT = true;
 
   /** The default Hero class, used if no other class is specified. */
@@ -88,9 +88,9 @@ public final class HeroFactory {
               });
 
   /**
-   * Sets the callback to execute when the hero dies.
+   * Sets the callback to execute when the player dies.
    *
-   * @param deathCallback Callback that will be executed on the hero's death.
+   * @param deathCallback Callback that will be executed on the player's death.
    */
   public static void heroDeath(Consumer<Entity> deathCallback) {
     DEFAULT_DEATH = deathCallback;
@@ -121,14 +121,14 @@ public final class HeroFactory {
    * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
    * CollideComponent} and {@link HealthComponent}.
    *
-   * @param characterClass Class of the hero.
-   * @param deathCallback function that will be executed if the hero dies
+   * @param characterClass Class of the player.
+   * @param deathCallback function that will be executed if the player dies
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity newHero(CharacterClass characterClass, Consumer<Entity> deathCallback)
       throws IOException {
-    Entity hero = new Entity("hero");
+    Entity hero = new Entity("player");
     hero.persistent(true);
     PlayerComponent pc = new PlayerComponent();
     hero.add(pc);
@@ -220,7 +220,7 @@ public final class HeroFactory {
     characterClass.startItems().forEach(item -> invComp.add(item));
     hero.add(invComp);
 
-    // hero movement
+    // player movement
     registerMovement(
         inputComp,
         core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
@@ -337,7 +337,7 @@ public final class HeroFactory {
    *
    * <p>This will close the topmost UI dialog that has the close key configured to close it.
    *
-   * @param ic The {@link InputComponent} of the hero.
+   * @param ic The {@link InputComponent} of the player.
    */
   public static void registerCloseUI(InputComponent ic) {
     ic.registerCallback(
@@ -520,7 +520,7 @@ public final class HeroFactory {
   /**
    * Create a new Hero based on the given class with the default death callback (restart level).
    *
-   * @param characterClass The class of the hero.
+   * @param characterClass The class of the player.
    * @return The Hero Entity-
    * @throws IOException if animations could not be created.
    */

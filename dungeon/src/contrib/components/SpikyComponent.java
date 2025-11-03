@@ -8,7 +8,7 @@ import core.Component;
  * Marks an Entity as "spiky".
  *
  * <p>In combination with the {@link HealthComponent} and {@link CollideComponent}, the {@link
- * SpikyComponent} can be used to apply damage to an entity (like the hero) on collision.
+ * SpikyComponent} can be used to apply damage to an entity (like the player) on collision.
  *
  * <p>This component stores information about the {@link DamageType}, the damage amount, so you can
  * create a new {@link contrib.utils.components.health.Damage} object.
@@ -17,11 +17,11 @@ import core.Component;
  * cooldown will be reduced by the {@link contrib.systems.SpikeSystem}.
  *
  * <p>To apply damage on collision, first create an entity (like a monster) with a {@link
- * CollideComponent} and {@link SpikyComponent}. Also create an entity (like the hero) that has a
+ * CollideComponent} and {@link SpikyComponent}. Also create an entity (like the player) that has a
  * {@link CollideComponent} and {@link HealthComponent}. Now implement the damage calculation. In
- * the hero's collision method, check whether the other entity (the monster) implements the {@link
+ * the player's collision method, check whether the other entity (the monster) implements the {@link
  * SpikyComponent} and whether the cooldown has expired ({@link #isActive()}). If so, use {@link
- * HealthComponent#receiveHit(Damage)} to deal damage to the hero. Remember to activate the cooldown
+ * HealthComponent#receiveHit(Damage)} to deal damage to the player. Remember to activate the cooldown
  * of this component using {@link #activateCoolDown()}.
  *
  * <p>Use {@link #damageAmount} and {@link #damageType} to get the damage information.

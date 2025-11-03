@@ -225,7 +225,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
     DialogUtils.showTextPopup(
         "You will receive a magic shield that can absorb damage as a reward for solving this puzzle!",
         "Riddle solved");
-    Entity hero = Game.hero().orElse(null);
+    Entity hero = Game.player().orElse(null);
     if (hero == null) return;
     hero.add(new MagicShieldComponent());
     this.rewardGiven = true;

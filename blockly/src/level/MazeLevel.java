@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * This class is used for the Maze Level. The first level of the blockly dungeon. This class will
- * only set the start position of the hero and show a popup at the beginning of the level to explain
+ * only set the start position of the player and show a popup at the beginning of the level to explain
  * the target of the Maze level.
  */
 public class MazeLevel extends BlocklyLevel {
@@ -17,7 +17,7 @@ public class MazeLevel extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.

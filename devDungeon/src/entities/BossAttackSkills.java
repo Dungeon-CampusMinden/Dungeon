@@ -53,7 +53,7 @@ public class BossAttackSkills {
   }
 
   /**
-   * Shoots a fire wall (made of fireballs) towards the hero.
+   * Shoots a fire wall (made of fireballs) towards the player.
    *
    * @param wallWidth The width of the wall. The wall will be centered on the boss.
    * @return The skill that shoots the fire wall.
@@ -79,12 +79,12 @@ public class BossAttackSkills {
   }
 
   /**
-   * Shoots a fire cone towards the hero. The fire cone consists of six fireballs.
+   * Shoots a fire cone towards the player. The fire cone consists of six fireballs.
    *
    * <ul>
-   *   <li>One fireball directly at the hero.
-   *   <li>Two fireballs to the left and right of the hero. (X degrees)
-   *   <li>One delayed fireball directly at the hero. With updated hero position.
+   *   <li>One fireball directly at the player.
+   *   <li>Two fireballs to the left and right of the player. (X degrees)
+   *   <li>One delayed fireball directly at the player. With updated player position.
    *   <li>Two delayed fireballs left and right offset to that previous fireball. (X-5 degrees)
    * </ul>
    *
@@ -203,8 +203,8 @@ public class BossAttackSkills {
   }
 
   /**
-   * An enchantment version of a normal attack. Shoots two fireballs at the hero. One directly at
-   * the hero and one is trying to predict the hero's movement.
+   * An enchantment version of a normal attack. Shoots two fireballs at the player. One directly at
+   * the player and one is trying to predict the player's movement.
    *
    * @param coolDown The cool down of the skill.
    * @return The skill that shoots the fireballs.

@@ -60,7 +60,7 @@ public final class UIUtils {
    */
   public static void show(final Supplier<Dialog> provider, final Entity entity) {
     // displays this dialog, caches the dialog callback, and increments and decrements the dialog
-    Game.hero()
+    Game.player()
         .flatMap(hero -> hero.fetch(PlayerComponent.class))
         .ifPresent(
             heroPC -> {

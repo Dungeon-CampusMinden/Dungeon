@@ -57,12 +57,12 @@ public final class GameLoop extends ScreenAdapter {
    * using {@link ECSManagment#add(System)}, triggering {@link System#onEntityAdd} for the new
    * level.
    *
-   * <p>Will re-add the hero if they exist.
+   * <p>Will re-add the player if they exist.
    */
   private final IVoidFunction onLevelLoad =
       () -> {
         newLevelWasLoadedInThisLoop = true;
-        Optional<Entity> hero = ECSManagment.hero();
+        Optional<Entity> hero = ECSManagment.player();
         boolean firstLoad =
             !ECSManagment.levelStorageMap().containsKey(Game.currentLevel().orElseThrow());
         hero.ifPresent(ECSManagment::remove);
@@ -243,7 +243,7 @@ public final class GameLoop extends ScreenAdapter {
    *
    * <p>A {@link PositionComponent} is needed.
    *
-   * @param entity entity to set on the start of the level, normally this is the hero.
+   * @param entity entity to set on the start of the level, normally this is the player.
    */
   private void placeOnLevelStart(final Entity entity) {
     ECSManagment.add(entity);

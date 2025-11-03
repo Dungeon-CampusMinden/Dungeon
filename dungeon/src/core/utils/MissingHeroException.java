@@ -2,7 +2,7 @@ package core.utils;
 
 import core.utils.logging.DungeonLogger;
 
-/** Exception stating that there is no hero in the game. */
+/** Exception stating that there is no player in the game. */
 public final class MissingHeroException extends NullPointerException {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(MissingHeroException.class);
 
@@ -12,13 +12,13 @@ public final class MissingHeroException extends NullPointerException {
    * @param message Detail message.
    */
   public MissingHeroException(final String message) {
-    super("There is no hero: " + message);
-    LOGGER.error("There is no hero: {}", message);
+    super("There is no player: " + message);
+    LOGGER.error("There is no player: {}", message);
   }
 
   /** Constructs a new MissingHeroException with default message. */
   public MissingHeroException() {
-    super("There is no hero!");
-    LOGGER.error("There is no hero!");
+    super("There is no player!");
+    LOGGER.error("There is no player!");
   }
 }

@@ -30,7 +30,7 @@ public class Level016 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
@@ -70,7 +70,7 @@ public class Level016 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
     LevelManagementUtils.heroViewDirection(Direction.UP);
     LevelManagementUtils.zoomDefault();
-    Game.hero()
+    Game.player()
         .orElseThrow(MissingHeroException::new)
         .fetch(AmmunitionComponent.class)
         .orElseThrow()
@@ -105,8 +105,8 @@ public class Level016 extends BlocklyLevel {
 
   @Override
   protected void onTick() {
-    if (Game.hero().isPresent()) {
-      float x = Game.hero().get().fetch(PositionComponent.class).orElseThrow().position().x();
+    if (Game.player().isPresent()) {
+      float x = Game.player().get().fetch(PositionComponent.class).orElseThrow().position().x();
       if (x >= 11) LevelManagementUtils.cameraFocusHero();
     }
 

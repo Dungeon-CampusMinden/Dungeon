@@ -307,7 +307,7 @@ public class Item implements CraftingIngredient, CraftingResult {
    * Called when an item should be collected.
    *
    * @param itemEntity The entity that represents the item in the world.
-   * @param collector The entity who collects the item. (Most likely the hero)
+   * @param collector The entity who collects the item. (Most likely the player)
    * @return Whether the item was collected successfully.
    */
   public boolean collect(final Entity itemEntity, final Entity collector) {

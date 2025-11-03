@@ -51,7 +51,7 @@ public class ItemWoodenBow extends Item {
 
   @Override
   public Optional<Entity> drop(final Point position) {
-    Game.hero()
+    Game.player()
         .flatMap(hero -> hero.fetch(SkillComponent.class))
         .ifPresent(sc -> sc.removeSkill(BowSkill.class));
 

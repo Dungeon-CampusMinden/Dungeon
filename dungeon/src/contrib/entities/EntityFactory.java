@@ -51,7 +51,7 @@ public final class EntityFactory {
    * PositionComponent}, {@link VelocityComponent} {@link core.components.DrawComponent}, {@link
    * contrib.components.CollideComponent} and {@link HealthComponent}.
    *
-   * @param deathCallback function that will be executed if the hero dies
+   * @param deathCallback function that will be executed if the player dies
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
    */

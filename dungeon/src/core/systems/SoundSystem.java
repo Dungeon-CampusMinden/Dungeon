@@ -14,7 +14,7 @@ import java.util.Optional;
 
 /**
  * System for handling positional sounds in the game world. Manages sound playback, volume
- * attenuation, and stereo panning based on entity positions relative to the hero (listener). Sounds
+ * attenuation, and stereo panning based on entity positions relative to the player (listener). Sounds
  * are played when entities with SoundComponent are added, updated each frame for positional
  * effects, and stopped when entities are removed.
  */
@@ -148,7 +148,7 @@ public class SoundSystem extends System {
   }
 
   private Optional<Point> getListenerPosition() {
-    return Game.hero()
+    return Game.player()
         .flatMap(hero -> hero.fetch(PositionComponent.class))
         .map(PositionComponent::position);
   }

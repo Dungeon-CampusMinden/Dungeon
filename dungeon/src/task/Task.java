@@ -467,7 +467,7 @@ public abstract class Task {
   }
 
   private void removeQuestItems() {
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    Entity hero = Game.player().orElseThrow(MissingHeroException::new);
     Task t = this;
     // remove all quest items in invetorys
     Game.allEntities()

@@ -15,7 +15,7 @@ import level.utils.Teleporter;
 
 /**
  * This class represents a system that handles teleportation in the game. It keeps track of all
- * teleporters in the game, the last position of the hero, and whether the hero has just teleported.
+ * teleporters in the game, the last position of the player, and whether the player has just teleported.
  */
 public class TeleporterSystem extends System {
 
@@ -24,12 +24,12 @@ public class TeleporterSystem extends System {
 
   private Point lastHeroPos = new Point(0, 0);
 
-  // A flag indicating whether the hero has just teleported.
+  // A flag indicating whether the player has just teleported.
   private boolean justTeleported = false;
 
   /**
-   * Executes the teleportation logic. If the hero has moved and is on a teleporter, they are
-   * teleported to the teleporter's destination. The hero cannot be teleported immediately after a
+   * Executes the teleportation logic. If the player has moved and is on a teleporter, they are
+   * teleported to the teleporter's destination. The player cannot be teleported immediately after a
    * teleportation to prevent back-and-forth teleportation.
    */
   @Override
@@ -38,7 +38,7 @@ public class TeleporterSystem extends System {
       return;
     }
 
-    if (!heroMoved()) return; // Only consider teleporting if the hero has moved
+    if (!heroMoved()) return; // Only consider teleporting if the player has moved
     this.lastHeroPos = EntityUtils.getHeroPosition();
     if (lastHeroPos == null) {
       return;
@@ -61,22 +61,22 @@ public class TeleporterSystem extends System {
   }
 
   /**
-   * Checks if the hero has moved since the last execution of the system.
+   * Checks if the player has moved since the last execution of the system.
    *
-   * @return True if the hero has moved, false otherwise.
+   * @return True if the player has moved, false otherwise.
    */
   private boolean heroMoved() {
     return lastHeroPos != null && !lastHeroPos.equals(EntityUtils.getHeroPosition());
   }
 
   /**
-   * Teleports the hero to the specified destination. The hero's position is updated and the
+   * Teleports the player to the specified destination. The player's position is updated and the
    * justTeleported flag is set to true.
    *
-   * @param destination The destination to teleport the hero to.
+   * @param destination The destination to teleport the player to.
    */
   private void teleportHero(Point destination) {
-    Entity hero = Game.hero().orElse(null);
+    Entity hero = Game.player().orElse(null);
     if (hero == null) {
       return;
     }

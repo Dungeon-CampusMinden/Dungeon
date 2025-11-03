@@ -48,7 +48,7 @@ import java.util.function.Supplier;
 public class MonsterBuilder<T extends MonsterBuilder<T>> {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(MonsterBuilder.class);
 
-  /** Maximum distance from hero within which to play the death sound when the monster dies. */
+  /** Maximum distance from player within which to play the death sound when the monster dies. */
   private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
 
   private static final float DEATH_SOUND_VOLUME = 0.35f;
@@ -173,7 +173,7 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
   }
 
   /**
-   * Set a death sound to be played (if hero is nearby) when this monster dies.
+   * Set a death sound to be played (if player is nearby) when this monster dies.
    *
    * @param sound death sound
    * @return this builder
@@ -690,15 +690,15 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
   }
 
   /**
-   * Play the death sound if the hero is within a certain distance.
+   * Play the death sound if the player is within a certain distance.
    *
    * @param diedMonster The entity that died.
    * @param deathSound The death sound to be played.
    */
   protected void playDeathSoundIfNearby(Entity diedMonster, MonsterDeathSound deathSound) {
-    if (Game.hero().isEmpty()) return;
+    if (Game.player().isEmpty()) return;
 
-    Entity hero = Game.hero().get();
+    Entity hero = Game.player().get();
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));

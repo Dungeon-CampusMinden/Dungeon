@@ -39,8 +39,8 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    * Attacks the player if he is within the given range between minAttackRange and maxAttackRange.
    * Otherwise, it will move into that range.
    *
-   * @param maxAttackRange Maximal distance to hero in which the fightSkill should be executed.
-   * @param minAttackRange Minimal distance to hero in which the fightSkill should be executed.
+   * @param maxAttackRange Maximal distance to player in which the fightSkill should be executed.
+   * @param minAttackRange Minimal distance to player in which the fightSkill should be executed.
    * @param fightSkill Skill to be used when an attack is performed.
    * @throws IllegalArgumentException if maxAttackRange is not greater than minAttackRange or if
    *     minAttackRange is less than 0.
@@ -66,10 +66,10 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
   }
 
   /**
-   * Determines the proximity of the entity to the hero.
+   * Determines the proximity of the entity to the player.
    *
    * @param entity The entity to check.
-   * @return The proximity status of the entity relative to the hero.
+   * @return The proximity status of the entity relative to the player.
    */
   private Proximity proximity(final Entity entity) {
     if (inRange(entity, minAttackRange)) return Proximity.TOO_CLOSE;
@@ -78,7 +78,7 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
   }
 
   /**
-   * Checks if the entity is in range of the hero.
+   * Checks if the entity is in range of the player.
    *
    * @param entity The entity to check.
    * @param radius The radius within which the entity should be considered in range.
@@ -89,13 +89,13 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
   }
 
   /**
-   * Moves the entity away from the hero if he is too close.
+   * Moves the entity away from the player if he is too close.
    *
    * @param entity The entity to move.
    */
   private void moveAwayFromHero(Entity entity) {
-    // Get hero position
-    Game.hero()
+    // Get player position
+    Game.player()
         .flatMap(Game::positionOf)
         // Get entity position and determine escape path
         .flatMap(
@@ -112,7 +112,7 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    *
    * @param entity The entity to escape.
    * @param positionEntity The position of the entity.
-   * @param positionHero The position of the hero.
+   * @param positionHero The position of the player.
    * @return A path to safety, either to a reachable tile outside the minimum attack range or a
    *     random tile within the search radius.
    */
@@ -126,10 +126,10 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
 
   /**
    * Finds a path to a reachable tile within the search range that is outside the minimum attack
-   * range from the hero.
+   * range from the player.
    *
    * @param positionEntity The position of the entity.
-   * @param positionHero The position of the hero.
+   * @param positionHero The position of the player.
    * @return An optional containing the path to safety, or empty if no such path exists.
    */
   private Optional<GraphPath<Tile>> findPathToSafety(Point positionEntity, Point positionHero) {
@@ -144,7 +144,7 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
   }
 
   /**
-   * Moves the entity towards the hero if he is too far away.
+   * Moves the entity towards the player if he is too far away.
    *
    * @param entity The entity to move.
    */

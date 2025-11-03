@@ -621,7 +621,7 @@ public class AnswerPickingFunctionsTest {
     sc.scoringFunction(GradingFunctions.singleChoiceGrading());
     sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
 
-    // setup hero
+    // setup player
     Entity hero = EntityFactory.newHero();
     InventoryComponent ic = new InventoryComponent(3);
     hero.add(ic);
@@ -656,7 +656,7 @@ public class AnswerPickingFunctionsTest {
     sc.scoringFunction(GradingFunctions.singleChoiceGrading());
     sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
 
-    // setup hero
+    // setup player
     Entity hero = EntityFactory.newHero();
     Game.add(hero);
     InventoryComponent ic = new InventoryComponent(3);
@@ -693,7 +693,7 @@ public class AnswerPickingFunctionsTest {
     sc.scoringFunction(GradingFunctions.singleChoiceGrading());
     sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
 
-    // setup hero
+    // setup player
     Entity hero = EntityFactory.newHero();
     InventoryComponent ic = new InventoryComponent(3);
     hero.add(ic);
@@ -726,7 +726,7 @@ public class AnswerPickingFunctionsTest {
     sc.scoringFunction(GradingFunctions.singleChoiceGrading());
     sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
 
-    // setup hero
+    // setup player
     Entity hero = EntityFactory.newHero();
     InventoryComponent ic = new InventoryComponent(3);
     hero.add(ic);
@@ -760,7 +760,7 @@ public class AnswerPickingFunctionsTest {
     sc.scoringFunction(GradingFunctions.singleChoiceGrading());
     sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
 
-    // setup hero
+    // setup player
     Entity hero = EntityFactory.newHero();
     InventoryComponent ic = new InventoryComponent(3);
     hero.add(ic);
@@ -792,7 +792,7 @@ public class AnswerPickingFunctionsTest {
     sc.scoringFunction(GradingFunctions.singleChoiceGrading());
     sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
 
-    // setup hero
+    // setup player
     Entity hero = EntityFactory.newHero();
     InventoryComponent ic = new InventoryComponent(3);
     hero.add(ic);

@@ -61,7 +61,7 @@ public class AttackSpeedEffect {
   }
 
   private Skill heroFireballSkill() {
-    return Game.hero()
+    return Game.player()
         .flatMap(hero -> hero.fetch(SkillComponent.class))
         .flatMap(sc -> sc.getSkill(FireballSkill.class))
         .orElse(null);

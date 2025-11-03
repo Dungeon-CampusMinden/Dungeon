@@ -14,7 +14,7 @@ import systems.BlocklyCommandExecuteSystem;
 
 /**
  * This class is used to store the values from a parsed level file. It contains the layout (the
- * tiles), the design label, the hero start position and the custom points. This class is used in
+ * tiles), the design label, the player start position and the custom points. This class is used in
  * the LevelParser.
  */
 public abstract class BlocklyLevel extends DungeonLevel {
@@ -36,7 +36,7 @@ public abstract class BlocklyLevel extends DungeonLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.

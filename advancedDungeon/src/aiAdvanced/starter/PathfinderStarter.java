@@ -84,7 +84,7 @@ public class PathfinderStarter {
           Coordinate startCoords = Game.startTile().orElseThrow().coordinate();
           Coordinate endTileCoords = Game.endTile().orElseThrow().coordinate();
 
-          Game.hero()
+          Game.player()
               .ifPresent(
                   hero -> {
                     hero.fetch(InputComponent.class)
@@ -154,12 +154,12 @@ public class PathfinderStarter {
   }
 
   /**
-   * Creates and adds a new hero entity to the game.
+   * Creates and adds a new player entity to the game.
    *
-   * <p>The new hero is generated using the {@link HeroFactory} and the {@link CameraComponent} of
-   * the hero is removed. And movement callbacks are removed.
+   * <p>The new player is generated using the {@link HeroFactory} and the {@link CameraComponent} of
+   * the player is removed. And movement callbacks are removed.
    *
-   * @throws RuntimeException if an {@link IOException} occurs during hero creation
+   * @throws RuntimeException if an {@link IOException} occurs during player creation
    */
   public static void createHero() throws IOException {
     Entity hero;

@@ -27,7 +27,7 @@ import org.mockito.Mockito;
 /**
  * Unit tests for the {@link LevelSystem} class.
  *
- * <p>This class tests loading levels, executing the level system, handling hero movement on end
+ * <p>This class tests loading levels, executing the level system, handling player movement on end
  * tiles, and ensuring proper callbacks are triggered.
  */
 public class LevelSystemTest {
@@ -96,7 +96,7 @@ public class LevelSystemTest {
   }
 
   /**
-   * Tests executing the LevelSystem when the hero is on the end tile.
+   * Tests executing the LevelSystem when the player is on the end tile.
    *
    * <p>Verifies that the onEndTile callback triggers reloading the level.
    *

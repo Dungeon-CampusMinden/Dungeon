@@ -20,7 +20,7 @@ import java.util.*;
  * <p>The fog of war is a game mechanic where areas of the game world that are not in the player's
  * line of sight are obscured. This class maintains a set of tiles that are currently darkened (not
  * visible to the player) and a list of entities that are hidden. It also keeps track of the last
- * known position of the hero (player character) and whether the fog of war system is currently
+ * known position of the player (player character) and whether the fog of war system is currently
  * active.
  */
 public class FogOfWarSystem extends System {
@@ -66,7 +66,7 @@ public class FogOfWarSystem extends System {
    * Resets the FogOfWarSystem to its initial state.
    *
    * <p>This method clears the sets of darkened tiles and hidden entities, and resets the last known
-   * hero position. The last known hero position is set to the current hero's position if a hero
+   * player position. The last known player position is set to the current player's position if a player
    * exists, otherwise it is set to (0,0). This method also reverts the FogOfWarSystem to its
    *
    * @see #revert()
@@ -204,17 +204,17 @@ public class FogOfWarSystem extends System {
   }
 
   /**
-   * Calculates the tint color for a tile based on its distance from the hero's position. The tint
+   * Calculates the tint color for a tile based on its distance from the player's position. The tint
    * color is represented as an ARGB integer, where the alpha component is adjusted based on the
-   * distance. The closer the tile is to the hero, the more transparent (closer to white) it
+   * distance. The closer the tile is to the player, the more transparent (closer to white) it
    * becomes. If the tile is beyond the view distance, it is fully opaque.
    *
    * @param tilePos The position of the tile for which to calculate the tint color.
-   * @param maxDistance The maximum distance from the hero's position at which the tile is fully
+   * @param maxDistance The maximum distance from the player's position at which the tile is fully
    *     opaque.
    * @param scale The scale factor for the distance. The larger the scale, the more transparent the
    *     tiles will be.
-   * @param heroPos The position of the hero.
+   * @param heroPos The position of the player.
    * @return The calculated tint color as an ARGB integer.
    */
   private int getTintColor(Point tilePos, int maxDistance, float scale, Point heroPos) {
@@ -291,7 +291,7 @@ public class FogOfWarSystem extends System {
     if (!active) return;
 
     Point heroPos = EntityUtils.getHeroPosition();
-    if (heroPos == null) return; // no hero, no fog of war
+    if (heroPos == null) return; // no player, no fog of war
 
     List<Tile> allTilesInView = LevelUtils.tilesInRange(heroPos, MAX_VIEW_DISTANCE);
     // Revert all darkened tiles back to light that are not in view

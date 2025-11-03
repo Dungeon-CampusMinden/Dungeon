@@ -9,12 +9,12 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Shoots a fire cone towards the hero. The fire cone consists of six fireballs.
+ * Shoots a fire cone towards the player. The fire cone consists of six fireballs.
  *
  * <ul>
- *   <li>One fireball directly at the hero.
- *   <li>Two fireballs to the left and right of the hero. (X degrees)
- *   <li>One delayed fireball directly at the hero. With updated hero position.
+ *   <li>One fireball directly at the player.
+ *   <li>Two fireballs to the left and right of the player. (X degrees)
+ *   <li>One delayed fireball directly at the player. With updated player position.
  *   <li>Two delayed fireballs left and right offset to that previous fireball. (X-5 degrees)
  * </ul>
  */

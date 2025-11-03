@@ -135,7 +135,7 @@ public class AnswerPickingFunctions {
    */
   public static Function<Task, Set<TaskContent>> heroInventoryPicker() {
     return task -> {
-      Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
+      Entity hero = Game.player().orElseThrow(() -> new MissingHeroException());
       InventoryComponent ic =
           hero.fetch(InventoryComponent.class)
               .orElseThrow(() -> MissingComponentException.build(hero, InventoryComponent.class));

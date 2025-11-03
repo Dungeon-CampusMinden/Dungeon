@@ -26,64 +26,64 @@ public class BlocklyCommands {
    */
   public enum Commands {
 
-    /** Move the hero one tile in the current viewing direction. */
+    /** Move the player one tile in the current viewing direction. */
     HERO_MOVE,
 
-    /** Turn the hero 90 degrees to the right (clockwise). */
+    /** Turn the player 90 degrees to the right (clockwise). */
     HERO_TURN_RIGHT,
 
-    /** Turn the hero 90 degrees to the left (counterclockwise). */
+    /** Turn the player 90 degrees to the left (counterclockwise). */
     HERO_TURN_LEFT,
 
-    /** Use the object located on the hero's current position. */
+    /** Use the object located on the player's current position. */
     HERO_USE_HERE,
 
     /**
-     * Use the object located to the left of the hero (relative to the hero's current viewing
+     * Use the object located to the left of the player (relative to the player's current viewing
      * direction).
      */
     HERO_USE_LEFT,
 
     /**
-     * Use the object located to the right of the hero (relative to the hero's current viewing
+     * Use the object located to the right of the player (relative to the player's current viewing
      * direction).
      */
     HERO_USE_RIGHT,
 
     /**
-     * Use the object located infront of the hero (relative to the hero's current viewing
+     * Use the object located infront of the player (relative to the player's current viewing
      * direction).
      */
     HERO_USE_UP,
 
     /**
-     * Use the object located behind the hero (relative to the hero's current viewing direction).
+     * Use the object located behind the player (relative to the player's current viewing direction).
      */
     HERO_USE_DOWN,
 
     /**
-     * If there is a stone in front of the hero, push it forward and move the hero one tile ahead.
+     * If there is a stone in front of the player, push it forward and move the player one tile ahead.
      */
     HERO_PUSH,
 
     /**
-     * If there is a stone in front of the hero, pull it backward and move the hero one tile back.
+     * If there is a stone in front of the player, pull it backward and move the player one tile back.
      */
     HERO_PULL,
 
-    /** Drop a clover on the hero's current position. */
+    /** Drop a clover on the player's current position. */
     HERO_DROP_CLOVER,
 
-    /** Drop breadcrumbs on the hero's current position. */
+    /** Drop breadcrumbs on the player's current position. */
     HERO_DROP_BREADCRUMBS,
 
-    /** Pick up an item from the hero's current position. */
+    /** Pick up an item from the player's current position. */
     HERO_PICKUP,
 
-    /** Shoot a fireball in the hero's current viewing direction. */
+    /** Shoot a fireball in the player's current viewing direction. */
     HERO_FIREBALL,
 
-    /** Do nothing for a short amount of time (hero rests). */
+    /** Do nothing for a short amount of time (player rests). */
     REST
   }
 
@@ -96,14 +96,14 @@ public class BlocklyCommands {
   public static final Vector2 MAGIC_OFFSET = Vector2.of(0.3, 0.3);
 
   /**
-   * If this is et to true, the Guard-Monster will not shoot on the hero.
+   * If this is et to true, the Guard-Monster will not shoot on the player.
    *
    * <p>Workaround for #1952
    */
   public static boolean DISABLE_SHOOT_ON_HERO = false;
 
   /**
-   * Moves the hero in it's viewing direction.
+   * Moves the player in it's viewing direction.
    *
    * <p>One move equals one tile.
    */
@@ -112,9 +112,9 @@ public class BlocklyCommands {
   }
 
   /**
-   * Rotate the hero in a specific direction.
+   * Rotate the player in a specific direction.
    *
-   * @param direction Direction in which the hero will be rotated.
+   * @param direction Direction in which the player will be rotated.
    */
   public static void rotate(final Direction direction) {
     core.utils.Direction realDirection = direction.toDirection();
@@ -126,18 +126,18 @@ public class BlocklyCommands {
   }
 
   /**
-   * Shoots a fireball in direction the hero is facing.
+   * Shoots a fireball in direction the player is facing.
    *
-   * <p>The hero needs at least one unit of ammunition to successfully shoot a fireball.
+   * <p>The player needs at least one unit of ammunition to successfully shoot a fireball.
    */
   public static void shootFireball() {
     Game.system(BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_FIREBALL));
   }
 
   /**
-   * Triggers an interactable in a direction related to the hero.
+   * Triggers an interactable in a direction related to the player.
    *
-   * @param direction Direction in which the hero will search for an interactable.
+   * @param direction Direction in which the player will search for an interactable.
    */
   public static void interact(Direction direction) {
     switch (direction.toDirection()) {
@@ -161,9 +161,9 @@ public class BlocklyCommands {
 
   /**
    * Triggers the interaction (normally a pickup action) for each Entity with an {@link
-   * ItemComponent} at the same tile as the hero.
+   * ItemComponent} at the same tile as the player.
    *
-   * <p>If the hero is not on the map, nothing will happen.
+   * <p>If the player is not on the map, nothing will happen.
    */
   public static void pickup() {
     Game.system(BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_PICKUP));
@@ -172,7 +172,7 @@ public class BlocklyCommands {
   /**
    * Drop a Blockly-Item at the heros position.
    *
-   * <p>If the hero is not on the map, nothing will happen.
+   * <p>If the player is not on the map, nothing will happen.
    *
    * @param item Name of the item to drop
    */
@@ -190,17 +190,17 @@ public class BlocklyCommands {
     }
   }
 
-  /** Attempts to push entities in front of the hero. */
+  /** Attempts to push entities in front of the player. */
   public static void push() {
     Game.system(BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_PUSH));
   }
 
-  /** Attempts to pull entities in front of the hero. */
+  /** Attempts to pull entities in front of the player. */
   public static void pull() {
     Game.system(BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_PULL));
   }
 
-  /** Let the hero do nothing for a short moment. */
+  /** Let the player do nothing for a short moment. */
   public static void rest() {
     Game.system(BlocklyCommandExecuteSystem.class, system -> system.add(Commands.REST));
   }
@@ -210,16 +210,16 @@ public class BlocklyCommands {
    *
    * @param tileElement Tile Type to check for.
    * @param direction Direction to check
-   * @return Returns true if the hero is null or a tile of the given type was detected. Otherwise,
+   * @return Returns true if the player is null or a tile of the given type was detected. Otherwise,
    *     returns false.
    */
   public static boolean isNearTile(LevelElement tileElement, final Direction direction) {
     waitForEmptyQueue();
     core.utils.Direction realDirection = direction.toDirection();
-    // Check the tile the hero is standing on
+    // Check the tile the player is standing on
     if (realDirection == core.utils.Direction.NONE) {
       Tile checkTile =
-          Game.hero()
+          Game.player()
               .flatMap(hero -> hero.fetch(PositionComponent.class))
               .map(PositionComponent::position)
               .map(pos -> pos.translate(MAGIC_OFFSET))
@@ -246,17 +246,17 @@ public class BlocklyCommands {
    *
    * @param componentClass Component-Class to check for.
    * @param direction Direction to check
-   * @return Returns true if the hero is null or an entity with the given component was detected.
+   * @return Returns true if the player is null or an entity with the given component was detected.
    *     Otherwise, returns false.
    */
   public static boolean isNearComponent(
       Class<? extends Component> componentClass, final Direction direction) {
-    // Check if there is a component on the tile the hero is standing on
+    // Check if there is a component on the tile the player is standing on
     waitForEmptyQueue();
     core.utils.Direction realDirection = direction.toDirection();
     if (realDirection == core.utils.Direction.NONE) {
       Tile checkTile =
-          Game.hero()
+          Game.player()
               .flatMap(hero -> hero.fetch(PositionComponent.class))
               .map(PositionComponent::position)
               .map(pos -> pos.translate(MAGIC_OFFSET))
@@ -281,7 +281,7 @@ public class BlocklyCommands {
    *       state.
    * </ul>
    *
-   * @param direction the direction to check relative to the hero's position.
+   * @param direction the direction to check relative to the player's position.
    * @return {@code true} if the tile in the given direction is active, {@code false} otherwise.
    */
   public static boolean active(final Direction direction) {
@@ -320,23 +320,23 @@ public class BlocklyCommands {
   }
 
   /**
-   * Gets the target tile in the given direction relative to the hero.
+   * Gets the target tile in the given direction relative to the player.
    *
-   * @param direction Direction to check relative to hero's view direction
-   * @return The target tile, or empty if hero is not found or target tile doesn't exist
+   * @param direction Direction to check relative to player's view direction
+   * @return The target tile, or empty if player is not found or target tile doesn't exist
    */
   private static Optional<Tile> targetTile(final core.utils.Direction direction) {
     // find tile in a direction or empty
     Function<core.utils.Direction, Optional<Tile>> dirToCheck =
         dir ->
-            Game.hero()
+            Game.player()
                 .flatMap(hero -> hero.fetch(PositionComponent.class))
                 .map(PositionComponent::position)
                 .map(pos -> pos.translate(MAGIC_OFFSET))
                 .map(pos -> pos.translate(dir))
                 .flatMap(Game::tileAt);
 
-    // calculate direction to check relative to hero's view direction
+    // calculate direction to check relative to player's view direction
     return Optional.ofNullable(EntityUtils.getHeroViewDirection())
         .map(d -> d.applyRelative(direction))
         .flatMap(dirToCheck);
@@ -367,7 +367,7 @@ public class BlocklyCommands {
    *
    * <p>This ensures that all queued commands affecting entity movement or state have been processed
    * before continuing. Without this wait, checks that depend on the current position of entities
-   * (e.g. verifying whether the hero is near a wall) may use false positions and produce incorrect
+   * (e.g. verifying whether the player is near a wall) may use false positions and produce incorrect
    * results.
    *
    * <p>Call this method before performing spatial checks that rely on up-to-date entity positions.

@@ -29,8 +29,8 @@ import produsAdvanced.level.*;
  * Entry point for the "Advanced Dungeon" game setup.
  *
  * <p>This class is responsible for initializing and launching the game. It configures the game
- * environment, sets up levels, adds systems, creates the player hero, and integrates dynamic
- * recompilation of user control code for live testing of custom hero controllers.
+ * environment, sets up levels, adds systems, creates the player player, and integrates dynamic
+ * recompilation of user control code for live testing of custom player controllers.
  *
  * <p>Usage: run with the Gradle task {@code runAdvancedDungeon}.
  */
@@ -74,7 +74,7 @@ public class AdvancedDungeon {
   /**
    * Attempts to dynamically recompile and load the custom player controller class.
    *
-   * <p>If compilation is successful, the hero's controller is updated at runtime. Otherwise, a
+   * <p>If compilation is successful, the player's controller is updated at runtime. Otherwise, a
    * dialog is shown to indicate an error.
    */
   private static void recompileHeroControl() {
@@ -180,11 +180,11 @@ public class AdvancedDungeon {
   }
 
   /**
-   * Creates the player hero entity and adds it to the game.
+   * Creates the player player entity and adds it to the game.
    *
-   * <p>If a previous hero entity exists, it is removed.
+   * <p>If a previous player entity exists, it is removed.
    *
-   * @throws IOException If hero creation fails.
+   * @throws IOException If player creation fails.
    */
   private static void createHero() throws IOException {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
@@ -196,7 +196,7 @@ public class AdvancedDungeon {
   }
 
   /**
-   * Restarts the game by removing all entities, recreating the hero, and reloading the current
+   * Restarts the game by removing all entities, recreating the player, and reloading the current
    * level.
    *
    * <p>This effectively resets the game state to its initial configuration.

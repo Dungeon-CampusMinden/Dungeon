@@ -58,7 +58,7 @@ public class InteractionToolTest {
     MissingComponentException e =
         assertThrows(
             MissingComponentException.class,
-            () -> InteractionTool.interactWithClosestInteractable(Game.hero().get()));
+            () -> InteractionTool.interactWithClosestInteractable(Game.player().get()));
     assertTrue(e.getMessage().contains(PositionComponent.class.getName()));
     cleanup();
   }
@@ -69,7 +69,7 @@ public class InteractionToolTest {
     cleanup();
     Game.add(testHero(true));
     Game.currentLevel(prepareLevel());
-    InteractionTool.interactWithClosestInteractable(Game.hero().get());
+    InteractionTool.interactWithClosestInteractable(Game.player().get());
     cleanup();
   }
 
@@ -81,8 +81,8 @@ public class InteractionToolTest {
     cleanup();
     Game.add(testHero(true));
     Game.currentLevel(prepareLevel());
-    Game.add(Game.hero().get());
-    InteractionTool.interactWithClosestInteractable(Game.hero().get());
+    Game.add(Game.player().get());
+    InteractionTool.interactWithClosestInteractable(Game.player().get());
     cleanup();
   }
 
@@ -102,7 +102,7 @@ public class InteractionToolTest {
     SimpleCounter sc_e = new SimpleCounter();
     e.add(new InteractionComponent(5f, false, (x, who) -> sc_e.inc()));
 
-    InteractionTool.interactWithClosestInteractable(Game.hero().get());
+    InteractionTool.interactWithClosestInteractable(Game.player().get());
     assertEquals(0, sc_e.getCount());
 
     cleanup();

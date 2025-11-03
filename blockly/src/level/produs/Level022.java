@@ -17,7 +17,7 @@ import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
 /**
- * In this final level, the boss mirrors the hero's movements. The player must cleverly lure the
+ * In this final level, the boss mirrors the player's movements. The player must cleverly lure the
  * boss into the abyss to win.
  */
 public class Level022 extends BlocklyLevel {
@@ -25,7 +25,7 @@ public class Level022 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.

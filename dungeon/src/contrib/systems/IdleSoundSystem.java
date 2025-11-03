@@ -43,7 +43,7 @@ public final class IdleSoundSystem extends System {
   @Override
   public void execute() {
     Point heroPos =
-        Game.hero()
+        Game.player()
             .flatMap(e -> e.fetch(PositionComponent.class).map(PositionComponent::position))
             .orElse(null);
     filteredEntityStream(IdleSoundComponent.class)

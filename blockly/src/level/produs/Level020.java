@@ -24,7 +24,7 @@ import level.LevelManagementUtils;
 
 /**
  * This is the first level of the 3-stage boss fight. It features a Red-Light Green-Light mechanic:
- * the player may only move when the boss is not looking in the direction of the hero, using the
+ * the player may only move when the boss is not looking in the direction of the player, using the
  * wait block to time movements.
  */
 public class Level020 extends BlocklyLevel {
@@ -43,7 +43,7 @@ public class Level020 extends BlocklyLevel {
   /** Focus point for the camera in this level. */
   private static final Coordinate CAMERA_POINT = new Coordinate(15, 8);
 
-  /** Minimum distance (in tiles) between hero and boss at which the boss escapes. */
+  /** Minimum distance (in tiles) between player and boss at which the boss escapes. */
   private static final int ESCAPE_DISTANCE = 2;
 
   private static boolean showText = true;
@@ -74,7 +74,7 @@ public class Level020 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
@@ -103,7 +103,7 @@ public class Level020 extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.heroViewDirection(Direction.RIGHT);
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    Entity hero = Game.player().orElseThrow(MissingHeroException::new);
     heropc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
@@ -174,16 +174,16 @@ public class Level020 extends BlocklyLevel {
   }
 
   /**
-   * Checks whether the hero has reached the escape threshold distance to the boss.
+   * Checks whether the player has reached the escape threshold distance to the boss.
    *
-   * <p>If the threshold is reached, the boss will taunt the hero, be removed from the game, and all
+   * <p>If the threshold is reached, the boss will taunt the player, be removed from the game, and all
    * scheduled actions will be cleared.
    */
   private void checkEscapeDistance() {
     float heroX = heropc.position().x();
     float bossX = bosspc.position().x();
 
-    // If the hero gets close enough to the boss, the boss escapes
+    // If the player gets close enough to the boss, the boss escapes
     if (heroX >= bossX - ESCAPE_DISTANCE) {
       Game.remove(boss);
       boss = null;

@@ -35,7 +35,7 @@ public class Level021 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
@@ -108,7 +108,7 @@ public class Level021 extends BlocklyLevel {
         boss.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(boss, PositionComponent.class));
 
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    Entity hero = Game.player().orElseThrow(MissingHeroException::new);
     heroPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));

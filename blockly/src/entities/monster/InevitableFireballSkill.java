@@ -21,7 +21,7 @@ public class InevitableFireballSkill extends FireballSkill {
 
   private static final Supplier<Point> TARGET_HERO =
       () ->
-          Game.hero()
+          Game.player()
               .flatMap(hero -> hero.fetch(PositionComponent.class))
               .map(PositionComponent::position)
               // offset for error with fireball path calculation (#2230)

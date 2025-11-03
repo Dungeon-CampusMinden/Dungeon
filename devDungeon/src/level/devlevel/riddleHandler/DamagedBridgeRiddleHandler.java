@@ -23,9 +23,9 @@ import java.util.Map;
 
 /**
  * The DamagedBridgeRiddleHandler class is used to handle the riddle of the damaged bridge. The
- * riddle consists of a damaged bridge that the hero has to cross. The hero can only cross the
+ * riddle consists of a damaged bridge that the player has to cross. The player can only cross the
  * bridge if they are fast enough. The riddle room contains a chest with a speed potion that the
- * hero can use to cross the bridge. If the hero crosses the bridge, they will receive a reward.
+ * player can use to cross the bridge. If the player crosses the bridge, they will receive a reward.
  */
 public class DamagedBridgeRiddleHandler {
 
@@ -90,7 +90,7 @@ public class DamagedBridgeRiddleHandler {
           riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), true);
       riddleExit.open();
 
-      Entity hero = Game.hero().orElse(null);
+      Entity hero = Game.player().orElse(null);
       if (hero == null) return;
       PositionComponent pc =
           hero.fetch(PositionComponent.class)
@@ -112,7 +112,7 @@ public class DamagedBridgeRiddleHandler {
             + RIDDLE_REWARD
             + " additional maximum health points \nas a reward for solving this puzzle!",
         "Riddle solved");
-    Game.hero()
+    Game.player()
         .flatMap(hero -> hero.fetch(HealthComponent.class))
         .ifPresent(
             hc -> {
@@ -124,19 +124,19 @@ public class DamagedBridgeRiddleHandler {
   }
 
   /**
-   * Checks if the hero is in the riddle room.
+   * Checks if the player is in the riddle room.
    *
-   * <p>This method is used to determine if the hero is currently located in the riddle room. The
-   * method checks if the hero is on the entrance or exit tile of the riddle room or if the hero's
-   * tile is within the bounds of the riddle room. If the hero is null (which can happen if the hero
-   * died in a pit), the method returns true so the hero can still see the riddle room.
+   * <p>This method is used to determine if the player is currently located in the riddle room. The
+   * method checks if the player is on the entrance or exit tile of the riddle room or if the player's
+   * tile is within the bounds of the riddle room. If the player is null (which can happen if the player
+   * died in a pit), the method returns true so the player can still see the riddle room.
    *
-   * @return true if the hero is in the riddle room, false otherwise.
+   * @return true if the player is in the riddle room, false otherwise.
    */
   private boolean isHeroInRiddleRoom() {
     Point heroPos = EntityUtils.getHeroPosition();
     if (heroPos == null) {
-      return true; // if hero dies due to pit, still show riddle room
+      return true; // if player dies due to pit, still show riddle room
     }
     return LevelUtils.isHeroInArea(
             riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate())
@@ -150,7 +150,7 @@ public class DamagedBridgeRiddleHandler {
    * sequence.
    *
    * <p>Also, the time to open is decreasing from 500 to 50. After 5 pits, the time to open is
-   * forced to be 50. (After testing a hero can still cross at about (65ms))
+   * forced to be 50. (After testing a player can still cross at about (65ms))
    */
   private void preparePits() {
     Coordinate topLeft = riddlePitBounds[0].toCoordinate();

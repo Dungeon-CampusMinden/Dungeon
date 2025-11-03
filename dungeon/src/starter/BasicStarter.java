@@ -13,7 +13,7 @@ import java.io.IOException;
  * Entry point for running a minimal dungeon game instance.
  *
  * <p>This starter initializes the game framework, loads the dungeon configuration, spawns a basic
- * hero, and starts the game loop. It is mainly used to verify that the engine runs correctly with a
+ * player, and starts the game loop. It is mainly used to verify that the engine runs correctly with a
  * simple setup.
  *
  * <p>Usage: run with the Gradle task {@code runBasicStarter}.

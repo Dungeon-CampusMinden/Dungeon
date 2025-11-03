@@ -53,7 +53,7 @@ public class Hero {
       // Entfernt alle bisherigen Tastenzuweisungen
       heroInstance.fetch(InputComponent.class).ifPresent(InputComponent::removeCallbacks);
     }
-    // uncap max hero speed
+    // uncap max player speed
     hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(Vector2.MAX.x()));
   }
 

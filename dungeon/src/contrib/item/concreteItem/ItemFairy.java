@@ -39,7 +39,7 @@ public class ItemFairy extends Item {
    * A fairy cannot be collected into the inventory.
    *
    * @param itemEntity The entity that represents the item in the world.
-   * @param collector The entity who collects the item. (Most likely the hero)
+   * @param collector The entity who collects the item. (Most likely the player)
    * @return false, because it cant be collected.
    */
   @Override
@@ -53,7 +53,7 @@ public class ItemFairy extends Item {
     if (tile instanceof FloorTile) {
       TriConsumer<Entity, Entity, Direction> onCollide =
           (self, other, dir) -> {
-            Game.hero()
+            Game.player()
                 .ifPresent(
                     hero -> {
                       if (other.equals(hero)) {

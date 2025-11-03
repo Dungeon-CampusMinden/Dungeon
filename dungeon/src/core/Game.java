@@ -358,8 +358,17 @@ public final class Game {
    * @return an {@link Optional} containing the player character from the current level, or an empty
    *     {@code Optional} if none is present
    */
-  public static Optional<Entity> hero() {
-    return ECSManagment.hero();
+  public static Optional<Entity> player() {
+    return ECSManagment.player();
+  }
+
+  /**
+   * Searches the current level for all player characters.
+   *
+   * @return a stream of all player characters in the current level
+   */
+  public static Stream<Entity> allPlayers() {
+    return ECSManagment.allPlayers();
   }
 
   /**

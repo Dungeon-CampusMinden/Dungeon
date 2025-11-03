@@ -92,14 +92,14 @@ public class Debugger extends System {
     Game.endTiles().stream().findFirst().ifPresent(Debugger::TELEPORT);
   }
 
-  /** Teleports the hero to the start of the level. */
+  /** Teleports the player to the start of the level. */
   public static void TELEPORT_TO_START() {
     LOGGER.info("TELEPORT TO START");
     Game.startTile().ifPresent(Debugger::TELEPORT);
   }
 
   /**
-   * Teleports the hero to the given tile.
+   * Teleports the player to the given tile.
    *
    * @param targetLocation the tile to teleport to
    */
@@ -108,12 +108,12 @@ public class Debugger extends System {
   }
 
   /**
-   * Teleports the hero to the given location.
+   * Teleports the player to the given location.
    *
    * @param targetLocation the location to teleport to
    */
   public static void TELEPORT(Point targetLocation) {
-    Game.hero()
+    Game.player()
         .ifPresent(
             hero -> {
               PositionComponent pc =

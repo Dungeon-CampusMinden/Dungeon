@@ -11,7 +11,7 @@ import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 
 /**
- * Utilty class that allows the hero in Blockly to shoot a fireball.
+ * Utilty class that allows the player in Blockly to shoot a fireball.
  *
  * <p>Since Blockly code is executed in a separate thread, the libGDX context does not exist in that
  * thread, and no textures can be loaded there.
@@ -28,7 +28,7 @@ public class FireballScheduler {
   private static final FireballSkill fireballSkill =
       new FireballSkill(
           () -> {
-            Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+            Entity hero = Game.player().orElseThrow(MissingHeroException::new);
             return hero.fetch(CollideComponent.class)
                 .map(cc -> cc.collider().absoluteCenter())
                 .map(p -> p.translate(EntityUtils.getViewDirection(hero)))
@@ -43,14 +43,14 @@ public class FireballScheduler {
   private boolean shoot = false;
 
   /**
-   * Shoot a fireball in the viewdirection of the hero.
+   * Shoot a fireball in the viewdirection of the player.
    *
    * <p>This uses the {@link EventScheduler}
    */
   public static void shoot() {
     EventScheduler.scheduleAction(
         () -> {
-          Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+          Entity hero = Game.player().orElseThrow(MissingHeroException::new);
           hero.fetch(AmmunitionComponent.class)
               .filter(AmmunitionComponent::checkAmmunition)
               .ifPresent(ac -> aimAndShoot(ac, hero));
@@ -59,10 +59,10 @@ public class FireballScheduler {
   }
 
   /**
-   * Shoots a fireball in direction the hero is facing.
+   * Shoots a fireball in direction the player is facing.
    *
-   * @param ac AmmunitionComponent of the hero, ammunition amount will be reduced by 1
-   * @param hero Entity to be used as hero for positioning
+   * @param ac AmmunitionComponent of the player, ammunition amount will be reduced by 1
+   * @param hero Entity to be used as player for positioning
    */
   private static void aimAndShoot(AmmunitionComponent ac, Entity hero) {
     fireballSkill.execute(hero);

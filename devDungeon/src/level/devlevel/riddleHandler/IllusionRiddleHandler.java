@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  * The IllusionRiddleHandler class is used to handle the riddle of the illusion. The riddle consists
- * a series of rooms that the hero has to navigate through. The hero can run a certain amount of
+ * a series of rooms that the player has to navigate through. The player can run a certain amount of
  * laps inside a special room to receive a reward.
  */
 public class IllusionRiddleHandler {
@@ -97,7 +97,7 @@ public class IllusionRiddleHandler {
     CameraSystem.camera().zoom += 0.1f;
     BurningFireballSkill burningFireballSkill =
         (BurningFireballSkill)
-            (Game.hero()
+            (Game.player()
                 .orElseThrow()
                 .fetch(SkillComponent.class)
                 .orElseThrow()
@@ -109,12 +109,12 @@ public class IllusionRiddleHandler {
   }
 
   /**
-   * Offsets (Teleports relative to the current position) the hero by the given offset.
+   * Offsets (Teleports relative to the current position) the player by the given offset.
    *
-   * @param offset The offset to teleport the hero by.
+   * @param offset The offset to teleport the player by.
    */
   private void offsetHero(Vector2 offset) {
-    Entity hero = Game.hero().orElse(null);
+    Entity hero = Game.player().orElse(null);
     if (hero == null) {
       return;
     }
@@ -131,7 +131,7 @@ public class IllusionRiddleHandler {
 
   private void handleLapRoomLogic() {
     Point heroPos = EntityUtils.getHeroPosition();
-    // Check if the hero has moved
+    // Check if the player has moved
     if (lastHeroPos == null || heroPos == null || lastHeroPos.equals(heroPos)) return;
     this.lastHeroPos = heroPos;
 
@@ -155,14 +155,14 @@ public class IllusionRiddleHandler {
   }
 
   /**
-   * This method is called when the hero moves. It updates the lap progress and counter based on the
-   * hero's movement through checkpoints.
+   * This method is called when the player moves. It updates the lap progress and counter based on the
+   * player's movement through checkpoints.
    *
-   * @param heroPos The current position of the hero.
+   * @param heroPos The current position of the player.
    */
   private void handleLapProgressLogic(Point heroPos) {
     int currentCheckpoint = getCurrentCheckpoint(heroPos);
-    // Check if the hero is not on a checkpoint or is on the same checkpoint as the last update
+    // Check if the player is not on a checkpoint or is on the same checkpoint as the last update
     if (currentCheckpoint == -1 || currentCheckpoint == lastCheckpoint) {
       return; // No update required
     }
@@ -173,7 +173,7 @@ public class IllusionRiddleHandler {
     // Update lastCheckpoint for the next call
     this.lastCheckpoint = currentCheckpoint;
 
-    // If this is the first checkpoint the hero reaches, just return
+    // If this is the first checkpoint the player reaches, just return
     if (lastCheckpoint == -2) {
       return;
     }
@@ -199,8 +199,8 @@ public class IllusionRiddleHandler {
   /**
    * Needed for Lap Room.
    *
-   * @param heroPos The current position of the hero.
-   * @return The index of the checkpoint the hero is currently on. Returns -1 if the hero is not on
+   * @param heroPos The current position of the player.
+   * @return The index of the checkpoint the player is currently on. Returns -1 if the player is not on
    *     a checkpoint.
    */
   private int getCurrentCheckpoint(Point heroPos) {
@@ -218,7 +218,7 @@ public class IllusionRiddleHandler {
   /**
    * Handles the hidden teleporter inside the lap room.
    *
-   * @param heroPos The current position of the hero.
+   * @param heroPos The current position of the player.
    */
   private void handleHiddenTeleporter(Point heroPos) {
     for (Point initTeleporterPoint : initTeleporterSpawns[0]) { // start teleporter -> in

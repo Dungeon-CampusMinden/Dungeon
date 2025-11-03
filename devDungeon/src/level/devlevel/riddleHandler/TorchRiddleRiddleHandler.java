@@ -26,7 +26,7 @@ import utils.ArrayUtils;
 
 /**
  * The TorchRiddleRiddleHandler class is used to handle the riddle of the torches. The riddle
- * consists of a series of torches that the hero has to light up. The hero can light up a certain
+ * consists of a series of torches that the player has to light up. The player can light up a certain
  * torches to receive a reward.
  */
 public class TorchRiddleRiddleHandler {
@@ -132,20 +132,20 @@ public class TorchRiddleRiddleHandler {
   }
 
   /**
-   * Gives the reward to the hero if the riddle is solved. A popup message is displayed to inform
-   * the hero about the reward. The reward is only given once, controlled by the rewardGiven flag.
+   * Gives the reward to the player if the riddle is solved. A popup message is displayed to inform
+   * the player about the reward. The reward is only given once, controlled by the rewardGiven flag.
    */
   private void giveReward() {
     DialogUtils.showTextPopup(
         "You will receive the new burning fireball skill\nas a reward for solving this puzzle!"
             + "Your fireballs will now deal extra burning damage.",
         "Riddle solved");
-    Game.hero()
+    Game.player()
         .orElseThrow()
         .fetch(SkillComponent.class)
         .orElseThrow()
         .removeSkill(FireballSkill.class);
-    Game.hero()
+    Game.player()
         .orElseThrow()
         .fetch(SkillComponent.class)
         .orElseThrow()
@@ -165,12 +165,12 @@ public class TorchRiddleRiddleHandler {
   }
 
   /**
-   * Checks if the hero is in the center of the riddle room.
+   * Checks if the player is in the center of the riddle room.
    *
-   * @return true if the hero is in the center of the riddle room, false otherwise.
+   * @return true if the player is in the center of the riddle room, false otherwise.
    */
   private boolean checkIfHeroIsInCenter() {
-    Optional<Entity> hero = Game.hero();
+    Optional<Entity> hero = Game.player();
     return hero.isPresent()
         && level
             .tileAtEntity(hero.get())

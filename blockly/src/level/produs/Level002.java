@@ -11,7 +11,7 @@ import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
 /**
- * In this level, monsters are scattered across the map. The hero must avoid them by navigating
+ * In this level, monsters are scattered across the map. The player must avoid them by navigating
  * carefully. Stepping on red tiles or touching a monster will result in failure.
  */
 public class Level002 extends BlocklyLevel {
@@ -19,7 +19,7 @@ public class Level002 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.

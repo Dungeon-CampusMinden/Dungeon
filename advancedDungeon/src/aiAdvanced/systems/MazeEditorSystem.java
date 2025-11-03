@@ -47,13 +47,13 @@ public class MazeEditorSystem extends System {
 
   /**
    * Check if the tile is important. The important tiles are the exit tile and the tile where the
-   * hero is located.
+   * player is located.
    *
    * @param tile the tile to check
    * @return true if the tile is important, false otherwise
    */
   private boolean isImportantTile(Tile tile) {
-    Entity hero = Game.hero().orElse(null);
+    Entity hero = Game.player().orElse(null);
     if (hero == null) {
       return false;
     }
