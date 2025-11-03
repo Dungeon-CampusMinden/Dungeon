@@ -85,9 +85,9 @@ public class PointMode extends LevelEditorMode {
   public Map<Integer, String> getControls() {
     Map<Integer, String> controls = new LinkedHashMap<>();
     controls.put(SECONDARY_UP, "Change Snap Mode");
+    controls.put(TERTIARY, "Delete Point");
     controls.put(Input.Buttons.LEFT, "Place Point");
     controls.put(Input.Buttons.RIGHT, "Pickup Point");
-    controls.put(TERTIARY, "Delete Point");
     return controls;
   }
 

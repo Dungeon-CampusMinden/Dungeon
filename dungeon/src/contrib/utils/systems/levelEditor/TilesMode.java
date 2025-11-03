@@ -149,10 +149,10 @@ public class TilesMode extends LevelEditorMode {
     controls.put(PRIMARY_DOWN, "Prev Tile");
     controls.put(SECONDARY_UP, "Brush Size [L] +1");
     controls.put(SECONDARY_DOWN, "Brush Size [L] -1");
+    controls.put(TERTIARY, "Place SKIP Tile");
+    controls.put(QUARTERNARY, "Pick from cursor");
     controls.put(Input.Buttons.LEFT, "Place Tile [L]");
     controls.put(Input.Buttons.RIGHT, "Place Tile [R]");
-    controls.put(TERTIARY, "Place SKIP Tile");
-    controls.put(QUARTERNARY, "Pick Tile under cursor to [L]");
     return controls;
   }
 }
