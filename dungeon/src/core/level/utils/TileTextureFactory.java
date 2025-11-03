@@ -4,14 +4,27 @@ import core.level.Tile;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
-/** WTF? . */
+/**
+ * Resolves texture paths for dungeon tiles based on local neighborhood patterns. Provides
+ * prioritized resolvers (floor, door, wall, T-junction, inner corner), plus helper predicates for
+ * wall grouping, stems, corners, and emptiness. All returned paths are relative to a design root
+ * (e.g., {@code dungeon/<design>/}).
+ */
 public class TileTextureFactory {
 
+  /**
+   * Logical axis used by wall grouping and stem detection. VERTICAL checks up/down neighbors;
+   * HORIZONTAL checks left/right neighbors.
+   */
   public enum Axis {
     VERTICAL,
     HORIZONTAL
   }
 
+  /**
+   * Corner quadrants relative to a cell, used for inner-corner and diagonal checks: UL
+   * (upper-left), UR (upper-right), BL (bottom-left), BR (bottom-right).
+   */
   public enum Corner {
     UR,
     UL,
@@ -19,6 +32,12 @@ public class TileTextureFactory {
     BL
   }
 
+  /**
+   * Cardinal directions with integer step deltas used for neighborhood traversal and
+   * orientation-sensitive wall logic.
+   *
+   * <p>Each constant defines ({@code dx}, {@code dy}) offsets.
+   */
   public enum Dir {
     UP(0, 1),
     DOWN(0, -1),
@@ -53,6 +72,15 @@ public class TileTextureFactory {
     return applyIsolatedWallFallback(levelPart, resolved);
   }
 
+  /**
+   * Resolves the texture path for the given level part by consulting specialized resolvers in
+   * priority order: floor → door → wall → T-junction → inner corner. The returned path is prefixed
+   * with the active design directory (`dungeon/<design>/`) and suffixed with `.png`. If no resolver
+   * matches, falls back to `floor/empty.png`.
+   *
+   * @param levelPart the level part (element, design, layout, position) to resolve
+   * @return a path pointing to the chosen texture within the design root, never {@code null}
+   */
   private static IPath resolvePrimaryPath(LevelPart levelPart) {
     String prefixPath = "dungeon/" + levelPart.design().name().toLowerCase() + "/";
 
@@ -82,6 +110,18 @@ public class TileTextureFactory {
     return new SimpleIPath(prefixPath + "floor/empty.png");
   }
 
+  /**
+   * Applies a fallback for isolated wall tiles. If the resolved path represents a visible wall but
+   * no adjacent cell would also render as a visible wall, this method replaces the texture with the
+   * design's `floor/empty.png`. Cross-shaped walls and empty-cross corner walls are exempt from
+   * this fallback.
+   *
+   * @param lp the current level part
+   * @param resolved the texture path previously resolved for {@code lp}
+   * @return the original {@code resolved} if the wall is not isolated (or is a cross variant);
+   *     otherwise a path to {@code floor/empty.png}; returns {@code null} if {@code resolved} is
+   *     {@code null}
+   */
   private static IPath applyIsolatedWallFallback(LevelPart lp, IPath resolved) {
     if (resolved == null) return null;
     String s = resolved.pathString();
@@ -103,6 +143,13 @@ public class TileTextureFactory {
     return new SimpleIPath(base + "floor/empty.png");
   }
 
+  /**
+   * Determines whether the given path points to a wall texture that would be rendered (i.e., it is
+   * under a {@code /wall/} directory and is not the explicit {@code wall/empty.png}).
+   *
+   * @param fullPath a fully constructed path (including design prefix)
+   * @return {@code true} if the path denotes a non-empty wall texture; {@code false} otherwise
+   */
   private static boolean isVisibleWallPath(IPath fullPath) {
     if (fullPath == null) return false;
     String s = fullPath.pathString();
@@ -110,17 +157,6 @@ public class TileTextureFactory {
     boolean isWall = s.contains("/wall/");
     boolean isEmptyWall = s.endsWith("/wall/empty.png");
     return isWall && !isEmptyWall;
-  }
-
-  /**
-   * Checks which texture must be used for the passed tile based on the surrounding tiles.
-   *
-   * @param element Tile to check for
-   * @param layout The level
-   * @return Path to texture
-   */
-  public static IPath findTexturePath(Tile element, Tile[][] layout) {
-    return findTexturePath(element, layout, element.levelElement());
   }
 
   /**
@@ -166,6 +202,15 @@ public class TileTextureFactory {
     return new SimpleIPath(prefix + ep + ".png");
   }
 
+  /**
+   * Selects a floor-related texture for the given level part when its element is floor-like.
+   * Handles special variants for holes (chooses {@code floor_hole1} if there is a hole above), and
+   * maps common floor elements to their canonical textures.
+   *
+   * @param levelPart the level part to evaluate
+   * @return a floor texture path (without design prefix) or {@code null} if the element is not
+   *     floor-like
+   */
   private static IPath findTexturePathFloor(LevelPart levelPart) {
     LevelElement e = levelPart.element();
     if (e == LevelElement.HOLE) {
@@ -183,6 +228,14 @@ public class TileTextureFactory {
     };
   }
 
+  /**
+   * Infers a door texture orientation based on adjacent accessible tiles (walkable or pit). If no
+   * side matches, defaults to {@code door/top}.
+   *
+   * @param levelPart the level part expected to be a door
+   * @return a door texture path (without design prefix), or {@code null} if the element is not a
+   *     door
+   */
   private static IPath findTexturePathDoor(LevelPart levelPart) {
     if (levelPart.element() != LevelElement.DOOR) return null;
 
@@ -199,6 +252,16 @@ public class TileTextureFactory {
     return new SimpleIPath("door/top");
   }
 
+  /**
+   * Resolves the wall texture for the given level part by evaluating a series of structural
+   * patterns (crosses, inner-empty corners, border cases, T-variants, inner groups, stems) against
+   * surrounding tiles. Returns the first matching wall variant; if none match, returns {@code
+   * null}.
+   *
+   * @param levelPart the level part to evaluate (must be a WALL element)
+   * @return a relative wall texture path (without design prefix), or {@code null} if no wall rule
+   *     applies
+   */
   private static IPath findTexturePathWall(LevelPart levelPart) {
     if (levelPart.element() != LevelElement.WALL) return null;
 
@@ -278,6 +341,14 @@ public class TileTextureFactory {
     return null;
   }
 
+  /**
+   * Chooses an empty wall texture when a vertical stem cell is the center of a stem cross (i.e., it
+   * has vertical and horizontal stem neighbors on both sides).
+   *
+   * @param p the coordinate to test (expected to be a WALL)
+   * @param layout the level grid
+   * @return {@code "wall/empty"} if the cell forms a full cross of stems; otherwise {@code null}
+   */
   private static IPath selectCrossEmptyOfStems(Coordinate p, LevelElement[][] layout) {
     if (!isStem(p, layout, Axis.VERTICAL)) return null;
 
@@ -294,6 +365,18 @@ public class TileTextureFactory {
     }
   }
 
+  /**
+   * Resolves inner-group wall textures for continuous stem segments along the given axis. For
+   * vertical groups, prefers double/empty/side variants based on adjacent vertical stems and
+   * early-exits on conflicting inner-T conditions. For horizontal groups, maps to
+   * empty/top-empty/bottom-empty depending on adjacent horizontal stems.
+   *
+   * @param p the wall coordinate at which to resolve
+   * @param layout the level grid
+   * @param axis the grouping axis (VERTICAL or HORIZONTAL)
+   * @return a relative wall texture path for the inner-group case, or {@code null} if not
+   *     applicable
+   */
   private static IPath selectInnerWallTexture(Coordinate p, LevelElement[][] layout, Axis axis) {
     if (!isInnerGroup(p, layout, axis)) return null;
 
@@ -351,6 +434,15 @@ public class TileTextureFactory {
     }
   }
 
+  /**
+   * Resolves inner-corner wall textures by inspecting the four corner configurations around the
+   * current cell. Prefers double-corner variants when both adjacent sides are inside/floor and the
+   * opposite sides are not; otherwise maps to empty-cross or standard inner-corner variants as
+   * applicable.
+   *
+   * @param levelPart the level part to evaluate
+   * @return a relative inner-corner wall texture path, or {@code null} if no rule applies
+   */
   private static IPath findTexturePathInnerCorner(LevelPart levelPart) {
     Coordinate p = levelPart.position();
     LevelElement[][] layout = levelPart.layout();
@@ -410,6 +502,17 @@ public class TileTextureFactory {
     return null;
   }
 
+  /**
+   * Picks a specific inner-corner texture (single vs. double) for the named corner, based on
+   * whether the diagonal outward from the corner is inside or not.
+   *
+   * @param p the wall coordinate at the corner center
+   * @param layout the level grid
+   * @param sx corner x-sign (+1 right, -1 left)
+   * @param sy corner y-sign (+1 down, -1 up)
+   * @param name corner name suffix used in the texture path
+   * @return a relative texture path for the chosen inner-corner variant
+   */
   private static IPath selectInnerCornerTexture(
       Coordinate p, LevelElement[][] layout, int sx, int sy, String name) {
     Neighbors n = Neighbors.of(p, layout);
@@ -427,6 +530,14 @@ public class TileTextureFactory {
     return new SimpleIPath(base);
   }
 
+  /**
+   * Resolves T-junction wall textures. First handles simple inner T cases for each orientation,
+   * then defers to {@code selectTJunctionTexture} for nuanced variants, and finally checks for the
+   * open outer T case. Returns the first match.
+   *
+   * @param lp the level part to evaluate
+   * @return a relative T-junction texture path, or {@code null} if no rule matches
+   */
   private static IPath findTexturePathTJunction(LevelPart lp) {
     Coordinate p = lp.position();
     LevelElement[][] layout = lp.layout();
@@ -503,6 +614,16 @@ public class TileTextureFactory {
     return null;
   }
 
+  /**
+   * Determines the precise T-junction variant for the given facing direction by analyzing
+   * forward/back, side, and diagonal neighbors, as well as adjacent inner-T, double-stem, and
+   * open-space conditions.
+   *
+   * @param p the T-junction cell
+   * @param layout the level grid
+   * @param facing the open direction of the T (UP, DOWN, LEFT, RIGHT)
+   * @return a relative texture path string for the selected T-junction variant
+   */
   private static String selectTJunctionTexture(Coordinate p, LevelElement[][] layout, Dir facing) {
     Neighbors n = Neighbors.of(p, layout);
 
@@ -680,6 +801,15 @@ public class TileTextureFactory {
     }
   }
 
+  /**
+   * Checks whether the cell forms a diagonal “inside” cross: all four orthogonal neighbors are not
+   * floor, there is no orthogonal PIT, and all four diagonal neighbors are inside
+   * (walkable/hole/pit).
+   *
+   * @param p the coordinate to test
+   * @param layout the level grid
+   * @return {@code true} if the diagonal cross condition holds; otherwise {@code false}
+   */
   private static boolean isDiagonalFloorCross(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     boolean orthoNotFloor =
@@ -696,6 +826,13 @@ public class TileTextureFactory {
     return orthoNotFloor && noPit && diagsInside;
   }
 
+  /**
+   * Tests whether the element is a solid barrier or a true hole candidate used by wall-cross rules:
+   * WALL, HOLE, DOOR, or EXIT.
+   *
+   * @param e the element to test
+   * @return {@code true} if {@code e} is WALL, HOLE, DOOR, or EXIT; otherwise {@code false}
+   */
   private static boolean isWallDoorExitOrTrueHole(LevelElement e) {
     return e == LevelElement.WALL
         || e == LevelElement.HOLE
@@ -703,6 +840,15 @@ public class TileTextureFactory {
         || e == LevelElement.EXIT;
   }
 
+  /**
+   * Verifies that all four orthogonal neighbors of {@code p} are in the set {WALL, HOLE, DOOR,
+   * EXIT}.
+   *
+   * @param p the coordinate to inspect
+   * @param layout the level grid
+   * @return {@code true} if up/down/left/right all satisfy {@link #isWallDoorExitOrTrueHole};
+   *     otherwise {@code false}
+   */
   private static boolean orthoOnlyWallDoorExitOrTrueHole(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     return isWallDoorExitOrTrueHole(n.getUpE())
@@ -711,6 +857,13 @@ public class TileTextureFactory {
         && isWallDoorExitOrTrueHole(n.getRightE());
   }
 
+  /**
+   * Counts orthogonal neighbors of {@code p} that are HOLE elements.
+   *
+   * @param p the coordinate to inspect
+   * @param layout the level grid
+   * @return the number of HOLE tiles among up, down, left, and right (0–4)
+   */
   private static int trueHolesAround(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     int h = 0;
@@ -721,6 +874,13 @@ public class TileTextureFactory {
     return h;
   }
 
+  /**
+   * Checks for the presence of a PIT on any orthogonal neighbor of {@code p}.
+   *
+   * @param p the coordinate to inspect
+   * @param layout the level grid
+   * @return {@code true} if a PIT exists up, down, left, or right; otherwise {@code false}
+   */
   private static boolean hasPitOrthogonally(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     return n.getUpE() == LevelElement.PIT
@@ -729,6 +889,16 @@ public class TileTextureFactory {
         || n.getRightE() == LevelElement.PIT;
   }
 
+  /**
+   * Determines whether the given wall cell forms an inner corner for the specified corner
+   * orientation. Requires a wall/door barrier on both adjacent axes and sufficient interior
+   * (inside/diagonal-inside) space in the corner quadrant.
+   *
+   * @param p the wall coordinate to test
+   * @param layout the level grid
+   * @param corner the corner orientation (UL, UR, BL, BR)
+   * @return {@code true} if the cell constitutes an inner corner of the given orientation
+   */
   private static boolean isInnerCorner(Coordinate p, LevelElement[][] layout, Corner corner) {
     boolean vertBarrier =
         switch (corner) {
@@ -764,24 +934,64 @@ public class TileTextureFactory {
     };
   }
 
+  /**
+   * Checks whether the given coordinates lie within the bounds of the layout array.
+   *
+   * @param x the x-index (column)
+   * @param y the y-index (row)
+   * @param layout the level grid
+   * @return {@code true} if (x, y) is within bounds; otherwise {@code false}
+   */
   private static boolean isInsideLayout(int x, int y, LevelElement[][] layout) {
     int h = layout.length;
     int w = layout[0].length;
     return y >= 0 && y < h && x >= 0 && x < w;
   }
 
+  /**
+   * Safely retrieves the element at (x, y) or {@code null} if the coordinates are out of bounds.
+   *
+   * @param layout the level grid
+   * @param x the x-index (column)
+   * @param y the y-index (row)
+   * @return the element at (x, y), or {@code null} if outside the layout
+   */
   public static LevelElement get(LevelElement[][] layout, int x, int y) {
     return isInsideLayout(x, y, layout) ? layout[y][x] : null;
   }
 
+  /**
+   * Indicates whether the element is a blocking barrier for wall logic.
+   *
+   * @param e the element to test
+   * @return {@code true} if {@code e} is WALL or DOOR; otherwise {@code false}
+   */
   private static boolean isBarrier(LevelElement e) {
     return e == LevelElement.WALL || e == LevelElement.DOOR;
   }
 
+  /**
+   * Determines if the element counts as interior/accessible space for wall rules. Treats walkable
+   * tiles and cavities as inside.
+   *
+   * @param e the element to test (may be {@code null})
+   * @return {@code true} if {@code e} is walkable or a PIT/HOLE; otherwise {@code false}
+   */
   private static boolean isInside(LevelElement e) {
     return e != null && (e.value() || e == LevelElement.PIT || e == LevelElement.HOLE);
   }
 
+  /**
+   * Tests whether the cell at (x, y) is bordered by barriers on both sides along the given axis.
+   * For VERTICAL, checks up/down; for HORIZONTAL, checks left/right.
+   *
+   * @param layout the level grid
+   * @param x the x-index (column)
+   * @param y the y-index (row)
+   * @param axis the axis to check (VERTICAL or HORIZONTAL)
+   * @return {@code true} if both opposite neighbors along the axis are barriers; otherwise {@code
+   *     false}
+   */
   private static boolean hasBarrier(LevelElement[][] layout, int x, int y, Axis axis) {
     Neighbors n = Neighbors.of(new Coordinate(x, y), layout);
     return axis == Axis.VERTICAL
@@ -789,6 +999,15 @@ public class TileTextureFactory {
         : isBarrier(n.getLeftE()) && isBarrier(n.getRightE());
   }
 
+  /**
+   * Checks whether the wall at {@code p} is a stem along the given axis, i.e., the tile itself is a
+   * WALL and has barriers on both opposite sides along that axis.
+   *
+   * @param p the coordinate to test
+   * @param layout the level grid
+   * @param axis the axis to evaluate (VERTICAL or HORIZONTAL)
+   * @return {@code true} if {@code p} is a wall stem on {@code axis}; otherwise {@code false}
+   */
   private static boolean isStem(Coordinate p, LevelElement[][] layout, Axis axis) {
     LevelElement self = get(layout, p.x(), p.y());
     if (self != LevelElement.WALL) return false;
@@ -797,6 +1016,15 @@ public class TileTextureFactory {
         : hasBarrier(layout, p.x(), p.y(), Axis.HORIZONTAL);
   }
 
+  /**
+   * Determines whether the wall stem at {@code p} belongs to an inner group: a continuous stem
+   * segment whose ends (both directions along the axis) terminate into inside space.
+   *
+   * @param p the coordinate to test
+   * @param layout the level grid
+   * @param axis the grouping axis (VERTICAL or HORIZONTAL)
+   * @return {@code true} if {@code p} is part of such an inner group; otherwise {@code false}
+   */
   private static boolean isInnerGroup(Coordinate p, LevelElement[][] layout, Axis axis) {
     if (!isStem(p, layout, axis)) return false;
     int sx = (axis == Axis.VERTICAL) ? 1 : 0;
@@ -805,6 +1033,18 @@ public class TileTextureFactory {
         && endsWithInsideDir(p, layout, sx, sy, axis);
   }
 
+  /**
+   * Walks from {@code p} in the given step direction, continuing while cells are wall stems on
+   * {@code axis}, and returns whether the first non-stem encountered is inside.
+   *
+   * @param p start coordinate
+   * @param layout the level grid
+   * @param stepX step on x per iteration
+   * @param stepY step on y per iteration
+   * @param axis the axis used to classify stems
+   * @return {@code true} if the segment ends at an inside cell; {@code false} if out of bounds or
+   *     not inside
+   */
   private static boolean endsWithInsideDir(
       Coordinate p, LevelElement[][] layout, int stepX, int stepY, Axis axis) {
     int x = p.x();
@@ -822,6 +1062,15 @@ public class TileTextureFactory {
     }
   }
 
+  /**
+   * Tests whether a stem’s two axial ends differ in “inside” termination (exclusive-or): exactly
+   * one end terminates into inside space.
+   *
+   * @param stem the stem coordinate to test
+   * @param layout the level grid
+   * @param axis the axis along which to check the ends
+   * @return {@code true} if exactly one end is inside; otherwise {@code false}
+   */
   private static boolean xorEnds(Coordinate stem, LevelElement[][] layout, Axis axis) {
     int sx = (axis == Axis.VERTICAL) ? 1 : 0;
     int sy = (axis == Axis.VERTICAL) ? 0 : 1;
@@ -830,6 +1079,16 @@ public class TileTextureFactory {
             ^ endsWithInsideDir(stem, layout, -sx, -sy, axis));
   }
 
+  /**
+   * Indicates whether an inner-group stem at {@code p} renders as empty for the given axis. For
+   * vertical groups, both left and right neighbors must be vertical stems; for horizontal groups,
+   * both up and down neighbors must be horizontal stems.
+   *
+   * @param p the coordinate to test
+   * @param layout the level grid
+   * @param axis the axis context for emptiness
+   * @return {@code true} if the inner-group configuration renders empty; otherwise {@code false}
+   */
   private static boolean rendersEmptyAxis(Coordinate p, LevelElement[][] layout, Axis axis) {
     if (!isInnerGroup(p, layout, axis)) return false;
     Neighbors n = Neighbors.of(p, layout);
@@ -844,6 +1103,15 @@ public class TileTextureFactory {
     }
   }
 
+  /**
+   * Returns whether the cell at {@code p} should render as empty either because the tile type is
+   * intrinsically empty (PIT, SKIP, HOLE) or due to axis-based inner-group rules.
+   *
+   * @param p the coordinate to test
+   * @param layout the level grid
+   * @param axis axis context for inner-group emptiness
+   * @return {@code true} if the tile renders as empty; otherwise {@code false}
+   */
   private static boolean rendersEmptyAt(Coordinate p, LevelElement[][] layout, Axis axis) {
     LevelElement here = get(layout, p.x(), p.y());
     if (here == LevelElement.PIT || here == LevelElement.SKIP || here == LevelElement.HOLE)
@@ -851,6 +1119,16 @@ public class TileTextureFactory {
     return rendersEmptyAxis(p, layout, axis);
   }
 
+  /**
+   * Indicates whether an inner-group stem at {@code p} should render the "double" variant when
+   * looking toward {@code dir}. A double render occurs if the forward neighbor is a stem on the
+   * computed axis and the opposite neighbor is not.
+   *
+   * @param p the coordinate to test
+   * @param layout the level grid
+   * @param dir the direction to evaluate (sets the axis implicitly)
+   * @return {@code true} if the double variant should be used; otherwise {@code false}
+   */
   private static boolean rendersDoubleAt(Coordinate p, LevelElement[][] layout, Dir dir) {
     Axis axis = (dir.dx == 0) ? Axis.HORIZONTAL : Axis.VERTICAL;
     if (!isInnerGroup(p, layout, axis)) return false;
@@ -861,6 +1139,16 @@ public class TileTextureFactory {
     return posStem && !negStem;
   }
 
+  /**
+   * Detects an "empty cross" configuration for the given corner around {@code p}. Combines stem
+   * checks on the orthogonal arms with emptiness at the opposite diagonal, and accepts
+   * alternative/quad cases involving doors, walls, and floor triples.
+   *
+   * @param p the pivot coordinate
+   * @param layout the level grid
+   * @param corner which corner (UL, UR, BL, BR) to evaluate
+   * @return {@code true} if the empty-cross condition holds; otherwise {@code false}
+   */
   private static boolean isEmptyCross(Coordinate p, LevelElement[][] layout, Corner corner) {
     Neighbors n = Neighbors.of(p, layout);
 
@@ -940,6 +1228,14 @@ public class TileTextureFactory {
     return defaultCase || altCase || quadCase;
   }
 
+  /**
+   * Determines whether {@code p} is the center of a cross made entirely of stems: a vertical stem
+   * at {@code p} with vertical stems to the left/right and horizontal stems up/down.
+   *
+   * @param p the coordinate to test
+   * @param layout the level grid
+   * @return {@code true} if {@code p} is a full stem cross center; otherwise {@code false}
+   */
   private static boolean isStemCrossCenter(Coordinate p, LevelElement[][] layout) {
     if (!isStem(p, layout, Axis.VERTICAL)) return false;
     Neighbors n = Neighbors.of(p, layout);
@@ -950,6 +1246,16 @@ public class TileTextureFactory {
     return hasLR && hasUD;
   }
 
+  /**
+   * Indicates whether {@code p} should be treated as empty space for open T-junction logic. Counts
+   * null/outside, non-inside/non-barrier cells as empty, and also treats axis-empty cells and
+   * stem-cross centers as empty.
+   *
+   * @param p the coordinate to test
+   * @param layout the level grid
+   * @return {@code true} if {@code p} is considered empty for open T-junction checks; otherwise
+   *     {@code false}
+   */
   private static boolean isEmptyForTJunctionOpen(Coordinate p, LevelElement[][] layout) {
     LevelElement e = get(layout, p.x(), p.y());
     if (e == null || (!isInside(e) && !isBarrier(e))) return true;
@@ -958,6 +1264,16 @@ public class TileTextureFactory {
         || isStemCrossCenter(p, layout);
   }
 
+  /**
+   * Determines whether the cell at {@code p} forms an inner T-junction whose opening faces {@code
+   * openDir}. Requires a floor/door in the opening direction (or an equivalent open condition) and
+   * the other three sides to be closed (non-inside non-door).
+   *
+   * @param p the candidate T-junction cell
+   * @param layout the level grid
+   * @param openDir the intended opening direction (UP, DOWN, LEFT, RIGHT)
+   * @return {@code true} if {@code p} is an inner T-junction opening toward {@code openDir}
+   */
   private static boolean isInnerTJunction(Coordinate p, LevelElement[][] layout, Dir openDir) {
     Neighbors n = Neighbors.of(p, layout);
 
@@ -1006,6 +1322,16 @@ public class TileTextureFactory {
     return closed == 3;
   }
 
+  /**
+   * Detects an open outer T-junction facing up or down. Requires barriers on both horizontal sides,
+   * a barrier on the stem opposite to the opening, a non-barrier at the opening, and inside space
+   * flanking the next tile in the opening direction.
+   *
+   * @param p the candidate junction cell
+   * @param layout the level grid
+   * @param openDir the vertical opening direction (UP or DOWN)
+   * @return {@code true} if an open outer T-junction is present; otherwise {@code false}
+   */
   private static boolean isOuterTJunctionOpen(Coordinate p, LevelElement[][] layout, Dir openDir) {
     if (openDir != Dir.UP && openDir != Dir.DOWN) return false;
 
@@ -1023,6 +1349,16 @@ public class TileTextureFactory {
     return sides && stem && open && insideSides;
   }
 
+  /**
+   * For vertical directions, checks a horizontal wall segment at {@code p} and returns whether the
+   * segment is "empty on the opposite side": there is a wall toward {@code dir}, a vertical stem
+   * beyond it, and the opposite side renders empty vertically.
+   *
+   * @param p the position on the horizontal segment
+   * @param layout the level grid
+   * @param dir vertical check direction (UP or DOWN)
+   * @return {@code true} if the opposite side qualifies as empty under these rules
+   */
   private static boolean isEmptyBothAt(Coordinate p, LevelElement[][] layout, Dir dir) {
     if (!hasBarrier(layout, p.x(), p.y(), Axis.HORIZONTAL)) return false;
     if (isInnerGroup(p, layout, Axis.VERTICAL)) return false;
@@ -1049,6 +1385,15 @@ public class TileTextureFactory {
         && rendersEmptyAt(opposite, layout, Axis.VERTICAL);
   }
 
+  /**
+   * Checks whether {@code p} is an inner T-junction opening toward {@code dir} and that the
+   * immediate tile in that direction renders empty on the vertical axis.
+   *
+   * @param p the candidate T-junction cell
+   * @param layout the level grid
+   * @param dir opening direction to test (UP or DOWN)
+   * @return {@code true} if the T-junction exists and the forward cell renders empty
+   */
   private static boolean isTEmptyAt(Coordinate p, LevelElement[][] layout, Dir dir) {
     if (!isInsideLayout(p.x(), p.y(), layout)) return false;
     if (dir != Dir.UP && dir != Dir.DOWN) return false;
@@ -1064,6 +1409,16 @@ public class TileTextureFactory {
     return rendersEmptyAt(c, layout, Axis.VERTICAL);
   }
 
+  /**
+   * For a downward-opening inner T at {@code p}, evaluates whether emptiness is triggered from the
+   * given horizontal side by nearby T-emptiness, corner-double, or both-empty conditions, and
+   * whether the downward neighbor renders a matching double variant.
+   *
+   * @param p the T-junction cell (must be an inner T opening DOWN)
+   * @param layout the level grid
+   * @param side the side to evaluate (LEFT or RIGHT)
+   * @return {@code true} if the side triggers an empty-bottom condition
+   */
   private static boolean isTBottomEmptySideAt(Coordinate p, LevelElement[][] layout, Dir side) {
     if (!isInsideLayout(p.x(), p.y(), layout)) return false;
     if (!isInnerTJunction(p, layout, Dir.DOWN)) return false;
@@ -1087,17 +1442,43 @@ public class TileTextureFactory {
         : sideTriggers && rendersDoubleAt(down, layout, Dir.RIGHT);
   }
 
+  /**
+   * Returns whether the cell directly above {@code p} (positive Y) is floor-like
+   * (floor/door/exit/hole).
+   *
+   * @param p the reference coordinate
+   * @param layout the level grid
+   * @return {@code true} if the cell above is treated as floor/door; otherwise {@code false}
+   */
   private static boolean isFloorAbove(Coordinate p, LevelElement[][] layout) {
     LevelElement a = get(layout, p.x(), p.y() + 1);
     return isFloorOrDoor(a);
   }
 
+  /**
+   * Aggregates bottom-emptiness checks for a downward-opening T at {@code c}: true if the bottom is
+   * empty directly or via either horizontal side’s empty-bottom side rule.
+   *
+   * @param c the T-junction cell
+   * @param layout the level grid
+   * @return {@code true} if any bottom-empty condition applies; otherwise {@code false}
+   */
   private static boolean isAnyTBottomEmptyAt(Coordinate c, LevelElement[][] layout) {
     return isTEmptyAt(c, layout, Dir.DOWN)
         || isTBottomEmptySideAt(c, layout, Dir.LEFT)
         || isTBottomEmptySideAt(c, layout, Dir.RIGHT);
   }
 
+  /**
+   * Determines whether the specified inner corner at {@code c} should render as a "double" corner.
+   * True when the location is an inner corner of the given type and at least one adjacent axial
+   * stem end XORs to inside or a matching double-stem condition is detected around it.
+   *
+   * @param c the corner cell to evaluate
+   * @param layout the level grid
+   * @param corner the corner orientation (UL, UR, BL, BR)
+   * @return {@code true} if the corner qualifies for a double variant; otherwise {@code false}
+   */
   private static boolean isCornerDoubleAt(Coordinate c, LevelElement[][] layout, Corner corner) {
     Neighbors n = Neighbors.of(c, layout);
 
@@ -1126,6 +1507,15 @@ public class TileTextureFactory {
     return isThatInnerCorner && (v || h || rendersDouble);
   }
 
+  /**
+   * Checks if there is an inner T-junction adjacent to {@code p} that opens in the same {@code
+   * openDir}. Looks at the two neighbors perpendicular to the opening.
+   *
+   * @param p the reference coordinate
+   * @param layout the level grid
+   * @param openDir opening direction to match (UP, DOWN, LEFT, RIGHT)
+   * @return {@code true} if a matching adjacent inner T-junction exists; otherwise {@code false}
+   */
   private static boolean hasAdjacentInnerTJunction(
       Coordinate p, LevelElement[][] layout, Dir openDir) {
     Neighbors n = Neighbors.of(p, layout);
@@ -1145,6 +1535,14 @@ public class TileTextureFactory {
     };
   }
 
+  /**
+   * Returns whether any orthogonal neighbor of {@code p} is considered floor-like
+   * (floor/door/exit/hole).
+   *
+   * @param p the coordinate to test
+   * @param layout the level grid
+   * @return {@code true} if at least one orthogonal neighbor is floor-like; otherwise {@code false}
+   */
   private static boolean hasAdjacentFloorOrDoor(Coordinate p, LevelElement[][] layout) {
     return isFloorOrDoor(get(layout, p.x() + 1, p.y()))
         || isFloorOrDoor(get(layout, p.x() - 1, p.y()))
@@ -1152,6 +1550,18 @@ public class TileTextureFactory {
         || isFloorOrDoor(get(layout, p.x(), p.y() - 1));
   }
 
+  /**
+   * Base predicate for detecting an inner-empty-corner configuration at {@code p} in the signed
+   * corner direction ({@code sx}, {@code sy}). Requires a WALL at {@code p}, strict WALLs on both
+   * orthogonal sides, a floor-like diagonal in the corner, no doors on those orthogonal sides, and
+   * non-floor at the three opposite diagonals.
+   *
+   * @param p the corner candidate
+   * @param layout the level grid
+   * @param sx corner x-sign (+1 right, -1 left)
+   * @param sy corner y-sign (+1 down, -1 up)
+   * @return {@code true} if the base inner-empty-corner conditions hold; otherwise {@code false}
+   */
   private static boolean isInnerEmptyCornerBase(
       Coordinate p, LevelElement[][] layout, int sx, int sy) {
     if (get(layout, p.x(), p.y()) != LevelElement.WALL) return false;
@@ -1178,6 +1588,17 @@ public class TileTextureFactory {
     return diagIsFD && orthoXStrictWall && orthoYStrictWall && diagANotF && diagBNotF && diagCNotF;
   }
 
+  /**
+   * Determines whether {@code p} forms an inner empty corner of the given orientation. Rejects
+   * cases with adjacent floor/door, validates the base pattern for the corner, and ensures neither
+   * orthogonal neighbor also forms the same base corner.
+   *
+   * @param p the corner candidate
+   * @param layout the level grid
+   * @param corner the corner orientation (UL, UR, BL, BR)
+   * @return {@code true} if {@code p} is an inner empty corner of the given type; otherwise {@code
+   *     false}
+   */
   private static boolean isInnerEmptyCorner(Coordinate p, LevelElement[][] layout, Corner corner) {
     if (hasAdjacentFloorOrDoor(p, layout)) return false;
 
@@ -1217,6 +1638,14 @@ public class TileTextureFactory {
     return true;
   }
 
+  /**
+   * Checks whether any orthogonal neighbor of {@code p} is out of bounds, i.e., the cell lies at
+   * the border of the layout.
+   *
+   * @param p the coordinate to test
+   * @param layout the level grid
+   * @return {@code true} if {@code p} touches the layout boundary; otherwise {@code false}
+   */
   private static boolean isAtBorder(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     return n.getUpE() == null
@@ -1225,6 +1654,13 @@ public class TileTextureFactory {
         || n.getRightE() == null;
   }
 
+  /**
+   * Checks whether any orthogonal neighbor of {@code p} is floor-like (floor/door/exit/hole).
+   *
+   * @param p the coordinate to inspect
+   * @param layout the level grid
+   * @return {@code true} if at least one orthogonal neighbor is floor-like; otherwise {@code false}
+   */
   private static boolean hasAdjacentFloor(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     return isFloorOrDoor(n.getUpE())
@@ -1233,6 +1669,15 @@ public class TileTextureFactory {
         || isFloorOrDoor(n.getRightE());
   }
 
+  /**
+   * Determines if the tile at {@code c} should render as empty in wall context. Returns true for
+   * PIT/SKIP/HOLE, inner-group empty cases (either axis), stem-cross center, or a border wall with
+   * no adjacent floor.
+   *
+   * @param c the coordinate to test
+   * @param layout the level grid
+   * @return {@code true} if the tile renders empty like a wall; otherwise {@code false}
+   */
   private static boolean rendersEmptyLikeWallAt(Coordinate c, LevelElement[][] layout) {
     LevelElement e = get(layout, c.x(), c.y());
     if (e == LevelElement.PIT || e == LevelElement.SKIP || e == LevelElement.HOLE) return true;
@@ -1245,6 +1690,15 @@ public class TileTextureFactory {
     return isAtBorder(c, layout) && !hasAdjacentFloor(c, layout);
   }
 
+  /**
+   * Detects a pattern where the cells above/below form a non-floor barrier pair while the upper (or
+   * lower) diagonals are floor-like, and both left/right neighbors are WALL.
+   *
+   * @param p the pivot coordinate
+   * @param layout the level grid
+   * @param vertical choose {@code UP} for the upper-case check or {@code DOWN} for the lower-case
+   * @return {@code true} if the empty-left-right case is satisfied
+   */
   private static boolean emptyLeftRightCase(Coordinate p, LevelElement[][] layout, Dir vertical) {
     Neighbors n = Neighbors.of(p, layout);
     boolean top = vertical == Dir.UP;
@@ -1264,6 +1718,15 @@ public class TileTextureFactory {
         && isNotFloor(oppAR);
   }
 
+  /**
+   * Detects a T-shaped pattern where the top and bottom are WALLs, the two side-diagonals on the
+   * given {@code side} are floor-like, and the opposite side cells are not floor.
+   *
+   * @param p the pivot coordinate
+   * @param layout the level grid
+   * @param side the side to evaluate (LEFT or RIGHT)
+   * @return {@code true} if the T top/bottom empty-side case holds; otherwise {@code false}
+   */
   private static boolean tEmptyTopBottomCase(Coordinate p, LevelElement[][] layout, Dir side) {
     Neighbors n = Neighbors.of(p, layout);
     boolean right = side == Dir.RIGHT;
@@ -1283,6 +1746,16 @@ public class TileTextureFactory {
         && downE == LevelElement.WALL;
   }
 
+  /**
+   * Checks an outward-facing border condition: the outward neighbor is outside the layout, the
+   * opposite neighbor is not floor, the inner neighbor is not empty-like, and the two diagonals on
+   * the opposite side are floors.
+   *
+   * @param p the coordinate to test
+   * @param layout the level grid
+   * @param outward the outward direction to evaluate
+   * @return {@code true} if the border-and-opposite-not-floor condition holds
+   */
   private static boolean outsideAndOppositeNotFloor(
       Coordinate p, LevelElement[][] layout, Dir outward) {
     Neighbors n = Neighbors.of(p, layout);
@@ -1322,6 +1795,15 @@ public class TileTextureFactory {
     return outside && oppositeNotFloor && innerNotEmpty && floorsOk;
   }
 
+  /**
+   * Signals that an inner T facing {@code dir} should be suppressed when the forward cell is a WALL
+   * and one of the perpendicular arms forms a WALL followed by a FLOOR two tiles away.
+   *
+   * @param p the candidate T center
+   * @param layout the level grid
+   * @param dir the facing direction of the T
+   * @return {@code true} if the inner T should be disallowed; otherwise {@code false}
+   */
   private static boolean disallowTInner(Coordinate p, LevelElement[][] layout, Dir dir) {
     int dx = dir.dx, dy = dir.dy;
     if (get(layout, p.x() + dx, p.y() + dy) != LevelElement.WALL) return false;
@@ -1342,6 +1824,12 @@ public class TileTextureFactory {
     return arm1 || arm2;
   }
 
+  /**
+   * Returns whether the element is treated as floor-like for connectivity rules.
+   *
+   * @param e the element to test
+   * @return {@code true} if {@code e} is FLOOR, DOOR, EXIT, or HOLE; otherwise {@code false}
+   */
   private static boolean isFloorOrDoor(LevelElement e) {
     return e == LevelElement.FLOOR
         || e == LevelElement.DOOR
@@ -1349,14 +1837,34 @@ public class TileTextureFactory {
         || e == LevelElement.HOLE;
   }
 
+  /**
+   * Convenience predicate indicating the element is not FLOOR.
+   *
+   * @param e the element to test
+   * @return {@code true} if {@code e} is not FLOOR; otherwise {@code false}
+   */
   private static boolean isNotFloor(LevelElement e) {
     return e != LevelElement.FLOOR;
   }
 
+  /**
+   * Indicates interior space that is not a door/exit, for wall-closure checks.
+   *
+   * @param e the element to test
+   * @return {@code true} if {@code e} is inside but neither DOOR nor EXIT; otherwise {@code false}
+   */
   private static boolean isInsideNonDoor(LevelElement e) {
     return e != LevelElement.DOOR && e != LevelElement.EXIT && isInside(e);
   }
 
+  /**
+   * Detects an inner top wall: barriers (wall/door) to left and right, inside-non-door above, and
+   * inside below.
+   *
+   * @param p the wall coordinate to evaluate
+   * @param layout the level grid
+   * @return {@code true} if the inner-top-wall pattern is present; otherwise {@code false}
+   */
   private static boolean isInnerTopWall(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     return (isWallDir(p, layout, Dir.LEFT) || isDoorDir(p, layout, Dir.LEFT))
@@ -1365,6 +1873,14 @@ public class TileTextureFactory {
         && isInside(n.getDownE());
   }
 
+  /**
+   * Checks whether the diagonal neighbor in the given corner is accessible (walkable) or a PIT.
+   *
+   * @param p the reference coordinate
+   * @param layout the level grid
+   * @param corner which diagonal (UL, UR, BL, BR)
+   * @return {@code true} if the diagonal is accessible; otherwise {@code false}
+   */
   private static boolean isDiagonalAccessible(
       Coordinate p, LevelElement[][] layout, Corner corner) {
     Neighbors n = Neighbors.of(p, layout);
@@ -1378,6 +1894,14 @@ public class TileTextureFactory {
     return e != null && (e.value() || e == LevelElement.PIT);
   }
 
+  /**
+   * Checks whether the diagonal neighbor in the given corner is a HOLE or a PIT.
+   *
+   * @param p the reference coordinate
+   * @param layout the level grid
+   * @param corner which diagonal (UL, UR, BL, BR)
+   * @return {@code true} if the diagonal is HOLE or PIT; otherwise {@code false}
+   */
   private static boolean isDiagonalHole(Coordinate p, LevelElement[][] layout, Corner corner) {
     Neighbors n = Neighbors.of(p, layout);
     LevelElement e =
@@ -1390,15 +1914,41 @@ public class TileTextureFactory {
     return e == LevelElement.HOLE || e == LevelElement.PIT;
   }
 
+  /**
+   * Treats the diagonal as inside if it is accessible or a hole.
+   *
+   * @param p the reference coordinate
+   * @param layout the level grid
+   * @param corner which diagonal (UL, UR, BL, BR)
+   * @return {@code true} if the diagonal is accessible or a hole; otherwise {@code false}
+   */
   private static boolean isDiagonalInside(Coordinate p, LevelElement[][] layout, Corner corner) {
     return isDiagonalAccessible(p, layout, corner) || isDiagonalHole(p, layout, corner);
   }
 
+  /**
+   * Retrieves the element adjacent to {@code p} in direction {@code d}, or {@code null} if out of
+   * bounds.
+   *
+   * @param layout the level grid
+   * @param p the origin coordinate
+   * @param d the direction offset
+   * @return the neighboring element, or {@code null} if outside the layout
+   */
   private static LevelElement at(LevelElement[][] layout, Coordinate p, Dir d) {
     int x = p.x() + d.dx, y = p.y() + d.dy;
     return isInsideLayout(x, y, layout) ? layout[y][x] : null;
   }
 
+  /**
+   * Tests the neighbor at {@code p + d} against the given predicate, guarding bounds.
+   *
+   * @param p the origin coordinate
+   * @param layout the level grid
+   * @param d the neighbor direction
+   * @param pred element predicate to evaluate
+   * @return {@code true} if the neighbor exists and satisfies {@code pred}; otherwise {@code false}
+   */
   private static boolean neighborMatches(
       Coordinate p,
       LevelElement[][] layout,
@@ -1408,27 +1958,76 @@ public class TileTextureFactory {
     return e != null && pred.test(e);
   }
 
+  /**
+   * Returns whether the neighbor at {@code p + d} is a WALL.
+   *
+   * @param p the origin coordinate
+   * @param layout the level grid
+   * @param d the neighbor direction
+   * @return {@code true} if the neighbor is WALL; otherwise {@code false}
+   */
   private static boolean isWallDir(Coordinate p, LevelElement[][] layout, Dir d) {
     return neighborMatches(p, layout, d, e -> e == LevelElement.WALL);
   }
 
+  /**
+   * Returns whether the neighbor at {@code p + d} is a DOOR.
+   *
+   * @param p the origin coordinate
+   * @param layout the level grid
+   * @param d the neighbor direction
+   * @return {@code true} if the neighbor is DOOR; otherwise {@code false}
+   */
   private static boolean isDoorDir(Coordinate p, LevelElement[][] layout, Dir d) {
     return neighborMatches(p, layout, d, e -> e == LevelElement.DOOR);
   }
 
+  /**
+   * Returns whether the neighbor at {@code p + d} is walkable or a PIT.
+   *
+   * @param p the origin coordinate
+   * @param layout the level grid
+   * @param d the neighbor direction
+   * @return {@code true} if accessible; otherwise {@code false}
+   */
   private static boolean isAccessibleDir(Coordinate p, LevelElement[][] layout, Dir d) {
     return neighborMatches(p, layout, d, e -> e.value() || e == LevelElement.PIT);
   }
 
+  /**
+   * Returns whether the neighbor at {@code p + d} is a HOLE or a PIT.
+   *
+   * @param p the origin coordinate
+   * @param layout the level grid
+   * @param d the neighbor direction
+   * @return {@code true} if the neighbor is HOLE or PIT; otherwise {@code false}
+   */
   private static boolean isHoleDir(Coordinate p, LevelElement[][] layout, Dir d) {
     return neighborMatches(p, layout, d, e -> e == LevelElement.HOLE || e == LevelElement.PIT);
   }
 
+  /**
+   * Returns whether the neighbor at {@code p + d} counts as inside (walkable or hole/pit).
+   *
+   * @param p the origin coordinate
+   * @param layout the level grid
+   * @param d the neighbor direction
+   * @return {@code true} if the neighbor is inside; otherwise {@code false}
+   */
   private static boolean isInsideDir(Coordinate p, LevelElement[][] layout, Dir d) {
     return neighborMatches(
         p, layout, d, e -> e.value() || e == LevelElement.PIT || e == LevelElement.HOLE);
   }
 
+  /**
+   * Verifies that all four orthogonal neighbors are WALL and none of them render as empty-like
+   * walls under current rules.
+   *
+   * @param p the center coordinate
+   * @param layout the level grid
+   * @return {@code true} if all orthogonal neighbors are solid, non-empty walls; otherwise {@code
+   *     false}
+   */
   private static boolean hasNoEmptyWallsAround(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     if (n.getUpE() != LevelElement.WALL) return false;
