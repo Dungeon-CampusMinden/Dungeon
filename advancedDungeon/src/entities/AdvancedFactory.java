@@ -4,11 +4,15 @@ import components.AntiMaterialBarrierComponent;
 import components.LasergridComponent;
 import components.PortalCubeComponent;
 import components.PortalSphereComponent;
+import components.ToggleableComponent;
+import components.ai.PelletLauncherBehaviour;
 import contrib.components.*;
 import contrib.components.CollideComponent;
 import contrib.components.SpikyComponent;
 import contrib.utils.ICommand;
 import contrib.utils.components.health.DamageType;
+import contrib.utils.components.skill.Skill;
+import contrib.utils.components.skill.SkillTools;
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -26,7 +30,9 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import skills.EnergyPelletSkill;
 
 /**
  * A utility class for building different miscellaneous entities in the game world of the advanced
@@ -50,6 +56,10 @@ public class AdvancedFactory {
   private static final float sphere_maxSpeed = 10f;
   private static final SimpleIPath CUBE_PRESSURE_PLATE = new SimpleIPath("objects/pressureplate");
   private static final SimpleIPath SPHERE_PRESSURE_PLATE = new SimpleIPath("objects/pressureplate");
+
+  private static final SimpleIPath PELLET_LAUNCHER = new SimpleIPath("portal/pellet_launcher");
+  private static final SimpleIPath PELLET_CATCHER = new SimpleIPath("portal/pellet_catcher");
+  private static int launcherNumber = 0;
 
   /**
    * Creates a laser grid entity at the given position.
@@ -346,5 +356,102 @@ public class AdvancedFactory {
         massTrigger,
         PortalSphereComponent.class,
         position);
+  }
+
+  /**
+   * Creates a new entity that can shoot energy pellets.
+   *
+   * @param position the position of the pellet launcher
+   * @param direction the direction the pellet launcher is facing.
+   * @param attackRange Maximum travel range of the energy pellet.
+   * @param projectileLifetime Time in ms before the projectile is removed.
+   * @return a new energyPelletLauncher entity.
+   */
+  public static Entity energyPelletLauncher(
+      Point position, Direction direction, float attackRange, long projectileLifetime) {
+    launcherNumber++;
+    String uniqueName = "energyPelletLauncher_" + launcherNumber;
+    Entity launcher = new Entity(uniqueName);
+    launcher.add(new PositionComponent(position));
+    DrawComponent dc = chooseTexture(direction, PELLET_LAUNCHER);
+    launcher.add(dc);
+    launcher.add(new CollideComponent());
+    String uniqueSkillName = uniqueName + "_skill";
+    Skill energyPelletSkill =
+        new EnergyPelletSkill(
+            uniqueSkillName,
+            SkillTools::heroPositionAsPoint,
+            EnergyPelletSkill.COOLDOWN,
+            attackRange,
+            projectileLifetime);
+    launcher.add(
+        new AIComponent(
+            entity -> {},
+            new PelletLauncherBehaviour(
+                uniqueSkillName, position, attackRange, direction, energyPelletSkill),
+            entity -> false));
+    launcher.add(new SkillComponent(energyPelletSkill));
+
+    return launcher;
+  }
+
+  /**
+   * Creates a new entity that can catch energy pellets.
+   *
+   * @param position the position of the pellet catcher.
+   * @param catchDirection the direction the pellet catcher is facing.
+   * @return a new energyPelletCatcher entity.
+   */
+  public static Entity energyPelletCatcher(Point position, Direction catchDirection) {
+    Entity catcher = new Entity("energyPelletCatcher");
+    catcher.add(new PositionComponent(position));
+    DrawComponent dc = chooseTexture(catchDirection, PELLET_CATCHER);
+    catcher.add(dc);
+    catcher.add(new ToggleableComponent(false));
+
+    TriConsumer<Entity, Entity, Direction> action =
+        (self, other, direction) -> {
+          if (other.name().matches("energyPelletLauncher_\\d+_skill_projectile")) {
+            self.fetch(ToggleableComponent.class).ifPresent(ToggleableComponent::toggle);
+            Game.remove(other);
+          }
+        };
+
+    CollideComponent colComp = new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER);
+    catcher.add(colComp);
+
+    return catcher;
+  }
+
+  /**
+   * This method help to choose the correct single texture from an animationMap.
+   *
+   * @param direction the direction the entity is facing.
+   * @param path the path of the texture.
+   * @return a new DrawComponent including the correct StateMachine for the texture.
+   */
+  private static DrawComponent chooseTexture(Direction direction, SimpleIPath path) {
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(path);
+    StateMachine sm;
+
+    switch (direction) {
+      case Direction.DOWN:
+        State top = State.fromMap(animationMap, "top");
+        sm = new StateMachine(List.of(top));
+        break;
+      case Direction.LEFT:
+        State right = State.fromMap(animationMap, "right");
+        sm = new StateMachine(List.of(right));
+        break;
+      case Direction.RIGHT:
+        State left = State.fromMap(animationMap, "left");
+        sm = new StateMachine(List.of(left));
+        break;
+      default: // Direction.Up
+        State bottom = State.fromMap(animationMap, "bottom");
+        sm = new StateMachine(List.of(bottom));
+        break;
+    }
+    return new DrawComponent(sm);
   }
 }
