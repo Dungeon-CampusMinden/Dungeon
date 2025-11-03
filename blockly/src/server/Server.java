@@ -12,12 +12,12 @@ import core.Game;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
 import core.utils.Point;
+import core.utils.logging.DungeonLogger;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 import level.BlocklyLevel;
 
 /**
@@ -28,7 +28,7 @@ import level.BlocklyLevel;
  */
 public class Server {
 
-  private static final Logger LOGGER = Logger.getLogger(Server.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Server.class);
 
   // Singleton
   private static Server instance;
@@ -221,7 +221,7 @@ public class Server {
           try {
             sleepAfterEachLine = Math.max(Integer.parseInt(param.split("=")[1]), 0);
           } catch (NumberFormatException e) {
-            LOGGER.warning("Invalid sleep parameter: " + param);
+            LOGGER.warn("Invalid sleep parameter: " + param);
           }
         }
       }
@@ -285,7 +285,7 @@ public class Server {
       os.write(response.getBytes());
       os.close();
     } catch (Exception e) {
-      LOGGER.severe("Error executing code: " + e);
+      LOGGER.error("Error executing code: " + e);
       setError(e.getMessage());
       String response = errorMsg;
       exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");

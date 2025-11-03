@@ -45,12 +45,12 @@ public final class CameraSystem extends System {
     super(CameraComponent.class, PositionComponent.class);
   }
 
-  private static float viewportWidth() {
+  static float viewportWidth() {
     return PreRunConfiguration.windowWidth()
         / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL; // Using PreRun to keep the same zoom
   }
 
-  private static float viewportHeight() {
+  static float viewportHeight() {
     return PreRunConfiguration.windowHeight()
         / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL; // Using PreRun to keep the same zoom
   }
@@ -134,13 +134,6 @@ public final class CameraSystem extends System {
         .findAny()
         .ifPresentOrElse(this::focus, this::focus);
 
-    // Check if Gdx.graphics is null which happens when the game is run in headless mode (e.g.
-    // in tests)
-    if (Gdx.graphics != null) {
-      float aspectRatio = Gdx.graphics.getWidth() / (float) Gdx.graphics.getHeight();
-      CAMERA.viewportWidth = viewportWidth();
-      CAMERA.viewportHeight = viewportWidth() / aspectRatio;
-    }
     CAMERA.update();
   }
 

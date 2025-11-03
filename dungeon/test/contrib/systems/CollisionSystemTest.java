@@ -11,6 +11,7 @@ import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import testingUtils.SimpleCounter;
 
@@ -25,6 +26,8 @@ public class CollisionSystemTest {
   private static final String MISSING_POSITION_COMPONENT =
       "PositionComponent did get removed Test no longer valid";
 
+  private CollisionSystem cs;
+
   /**
    * Helper to clean up used Class Attributes to avoid interfering with other tests.
    *
@@ -34,12 +37,15 @@ public class CollisionSystemTest {
    */
   private static void cleanUpEnvironment() {
     Game.removeAllEntities();
+    Game.currentLevel(null);
     Game.removeAllSystems();
   }
 
   /** Creating a clean Systemcontroller to avoid interferences. */
-  private static void prepareEnvironment() {
-    cleanUpEnvironment();
+  @BeforeEach
+  public void prepareEnvironment() {
+    cs = new CollisionSystem();
+    Game.add(cs);
   }
 
   /**
@@ -51,16 +57,13 @@ public class CollisionSystemTest {
   private static Entity prepareEntityWithPosition(Point point1) {
     Entity e1 = new Entity();
     e1.add(new PositionComponent(point1));
-
     return e1;
   }
 
   /** WTF? . */
   @AfterEach
   public void cleanup() {
-    Game.removeAllEntities();
-    Game.currentLevel(null);
-    Game.removeAllSystems();
+    cleanUpEnvironment();
   }
 
   /**
@@ -70,9 +73,6 @@ public class CollisionSystemTest {
    */
   @Test
   public void checkForCollisionRight() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -89,8 +89,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.RIGHT, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertTrue(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.RIGHT, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -103,9 +106,6 @@ public class CollisionSystemTest {
    */
   @Test
   public void checkForCollisionRightNoIntersection() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -123,8 +123,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.RIGHT, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertFalse(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.RIGHT, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -136,9 +139,6 @@ public class CollisionSystemTest {
    */
   @Test
   public void checkForCollisionLeft() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -154,8 +154,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.LEFT, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertTrue(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.LEFT, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -168,9 +171,6 @@ public class CollisionSystemTest {
    */
   @Test
   public void checkForCollisionLeftNoIntersection() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
 
     Vector2 offset = Vector2.of(0, 0);
@@ -188,8 +188,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.LEFT, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertFalse(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.LEFT, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -200,9 +203,6 @@ public class CollisionSystemTest {
    */
   @Test
   public void checkForCollisionTopWithIntersection() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -218,8 +218,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.UP, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertTrue(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.UP, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -231,9 +234,6 @@ public class CollisionSystemTest {
    */
   @Test
   public void checkForCollisionTopWithNoIntersection() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -249,8 +249,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.UP, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertFalse(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.UP, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -261,9 +264,6 @@ public class CollisionSystemTest {
    */
   @Test
   public void checkForCollisionBottomWithIntersection() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -279,8 +279,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertTrue(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -292,9 +295,6 @@ public class CollisionSystemTest {
    */
   @Test
   public void checkForCollisionBottomNoIntersection() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
@@ -310,8 +310,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertFalse(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -321,9 +324,6 @@ public class CollisionSystemTest {
    */
   @Test
   public void checkForCollisionBoxAAroundB() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     Entity e1 = prepareEntityWithPosition(new Point(-.1f, -.1f));
     TriConsumer<Entity, Entity, Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
@@ -339,7 +339,7 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
+    assertTrue(cs.checkForCollision(hb1, hb2));
     cleanUpEnvironment();
   }
 
@@ -349,9 +349,6 @@ public class CollisionSystemTest {
    */
   @Test
   public void checkForCollisionBoxBAroundA() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
     TriConsumer<Entity, Entity, Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
@@ -367,16 +364,13 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
+    assertTrue(cs.checkForCollision(hb1, hb2));
     cleanUpEnvironment();
   }
 
   /** Checks if the System is still Working even if there is no Entity. */
   @Test
   public void checkUpdateNoEntities() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     cs.execute();
     cleanUpEnvironment();
   }
@@ -384,9 +378,6 @@ public class CollisionSystemTest {
   /** Checks that the System is still working when there is no Entity with A hit box component. */
   @Test
   public void checkUpdateNoEntitiesWithHitboxComponent() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     prepareEntityWithPosition(new Point(0, 0));
     cs.execute();
     cleanUpEnvironment();
@@ -397,9 +388,6 @@ public class CollisionSystemTest {
    */
   @Test
   public void checkUpdateOneEntityWithHitboxComponent() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
     SimpleCounter sc1OnEnter = new SimpleCounter();
     SimpleCounter sc1OnLeave = new SimpleCounter();
@@ -418,9 +406,6 @@ public class CollisionSystemTest {
   /** Checks that there is no call off the collider Methods when there is no Collision. */
   @Test
   public void checkUpdateTwoEntitiesWithHitboxComponentNonColliding() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
     SimpleCounter sc1OnEnter = new SimpleCounter();
     SimpleCounter sc1OnLeave = new SimpleCounter();
@@ -448,400 +433,40 @@ public class CollisionSystemTest {
     cleanUpEnvironment();
   }
 
-  /*
-   * Checks the call of the onEnterCollider when the Collision started happening.
-   *
-   * <p>The collision between A and B was happening in between CollisionSystem#update calls.
-   *
-   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
-   * cant be tested.
-   */
-  /* @Test
-  public void checkUpdateTwoEntitiesWithHitboxComponentColliding() {
-      prepareEnvironment();
-      CollisionSystem cs = new CollisionSystem();
-      Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-      SimpleCounter sc1OnEnter = new SimpleCounter();
-      SimpleCounter sc1OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e1,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc1OnEnter.inc(),
-              (a, b, c) -> sc1OnLeave.inc());
-      Entity e2 = prepareEntityWithPosition(new Point(0, 0));
-      SimpleCounter sc2OnEnter = new SimpleCounter();
-      SimpleCounter sc2OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e2,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc2OnEnter.inc(),
-              (a, b, c) -> sc2OnLeave.inc());
-      Entity e3 = prepareEntityWithPosition(new Point(1, 2));
-      SimpleCounter sc3OnEnter = new SimpleCounter();
-      SimpleCounter sc3OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e3,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc3OnEnter.inc(),
-              (a, b, c) -> sc3OnLeave.inc());
-
-      cs.showEntity(e1);
-      cs.showEntity(e2);
-      cs.showEntity(e3);
-
-      cs.execute();
-      assertEquals("Only one interaction begins for e1", 1, sc1OnEnter.getCount());
-      assertEquals("No interaction ends for e1", 0, sc1OnLeave.getCount());
-      assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());
-      assertEquals("No interaction ends for e2", 0, sc2OnLeave.getCount());
-      assertEquals("No interaction begins for e3", 0, sc3OnEnter.getCount());
-      assertEquals("No interaction ends for e3", 0, sc3OnLeave.getCount());
-      cleanUpEnvironment();
-  }*/
-
-  /*
-   * Checks the call of the onEnterCollider when the Collision started happening only being called
-   * once.
-   *
-   * <p>The collision between A and B was happening in between CollisionSystem#update calls.
-   *
-   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
-   * cant be tested.
-   */
-
-  /*
-  @Test
-  public void checkUpdateTwoEntitiesWithHitboxComponentCollidingOnlyOnce() {
-      prepareEnvironment();
-      CollisionSystem cs = new CollisionSystem();
-      Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-      SimpleCounter sc1OnEnter = new SimpleCounter();
-      SimpleCounter sc1OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e1,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc1OnEnter.inc(),
-              (a, b, c) -> sc1OnLeave.inc());
-      Entity e2 = prepareEntityWithPosition(new Point(0, 0));
-      SimpleCounter sc2OnEnter = new SimpleCounter();
-      SimpleCounter sc2OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e2,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc2OnEnter.inc(),
-              (a, b, c) -> sc2OnLeave.inc());
-      Entity e3 = prepareEntityWithPosition(new Point(1, 2));
-      SimpleCounter sc3OnEnter = new SimpleCounter();
-      SimpleCounter sc3OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e3,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc3OnEnter.inc(),
-              (a, b, c) -> sc3OnLeave.inc());
-
-      cs.execute();
-      cs.execute();
-      assertEquals("Only one interaction begins for e1", 1, sc1OnEnter.getCount());
-      assertEquals("No interaction ends for e1", 0, sc1OnLeave.getCount());
-      assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());
-      assertEquals("No interaction ends for e2", 0, sc2OnLeave.getCount());
-      assertEquals("No interaction begins for e3", 0, sc3OnEnter.getCount());
-      assertEquals("No interaction ends for e3", 0, sc3OnLeave.getCount());
-      cleanUpEnvironment();
-  }*/
-
-  /*
-   * Checks the call of the onLeaveCollider when the Collision is no longer happening.
-   *
-   * <p>The collision between A and B was brocken up in between CollisionSystem#update calls.
-   *
-   * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
-   * cant be tested.
-   */
-  /*
-  @Test
-  public void checkUpdateTwoEntitiesWithHitboxComponentNoLongerColliding() {
-      prepareEnvironment();
-      CollisionSystem cs = new CollisionSystem();
-      Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-      SimpleCounter sc1OnEnter = new SimpleCounter();
-      SimpleCounter sc1OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e1,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc1OnEnter.inc(),
-              (a, b, c) -> sc1OnLeave.inc());
-      Entity e2 = prepareEntityWithPosition(new Point(0, 0));
-      SimpleCounter sc2OnEnter = new SimpleCounter();
-      SimpleCounter sc2OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e2,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc2OnEnter.inc(),
-              (a, b, c) -> sc2OnLeave.inc());
-      Entity e3 = prepareEntityWithPosition(new Point(1, 2));
-      SimpleCounter sc3OnEnter = new SimpleCounter();
-      SimpleCounter sc3OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e3,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc3OnEnter.inc(),
-              (a, b, c) -> sc3OnLeave.inc());
-      cs.showEntity(e1);
-      cs.showEntity(e2);
-      cs.showEntity(e3);
-
-      cs.execute();
-      e1.getComponent(PositionComponent.class)
-              .map(PositionComponent.class::cast)
-              .ifPresent(x -> x.getPosition().x += 2);
-      cs.execute();
-      assertEquals("Only one interaction begins for e1", 1, sc1OnEnter.getCount());
-      assertEquals("One interaction ends for e1", 1, sc1OnLeave.getCount());
-      assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());
-      assertEquals("One interaction ends for e2", 1, sc2OnLeave.getCount());
-      assertEquals("No interaction begins for e3", 0, sc3OnEnter.getCount());
-      assertEquals("No interaction ends for e3", 0, sc3OnLeave.getCount());
-      cleanUpEnvironment();
-  }*/
-
-  /*
-   * Checks the call of the onLeaveCollider when the Collision is no longer happening only .
-   *
-   * <p>The collision between A and B was brocken up in between CollisionSystem#update calls.
-   *
-   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
-   * cant be tested.
-   */
-  /*@Test
-  public void checkUpdateTwoEntitiesWithHitboxComponentNoLongerCollidingOnlyOnce() {
-      prepareEnvironment();
-      CollisionSystem cs = new CollisionSystem();
-      Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-      SimpleCounter sc1OnEnter = new SimpleCounter();
-      SimpleCounter sc1OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e1,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc1OnEnter.inc(),
-              (a, b, c) -> sc1OnLeave.inc());
-      Entity e2 = prepareEntityWithPosition(new Point(0, 0));
-      SimpleCounter sc2OnEnter = new SimpleCounter();
-      SimpleCounter sc2OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e2,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc2OnEnter.inc(),
-              (a, b, c) -> sc2OnLeave.inc());
-      Entity e3 = prepareEntityWithPosition(new Point(1, 2));
-      SimpleCounter sc3OnEnter = new SimpleCounter();
-      SimpleCounter sc3OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e3,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc3OnEnter.inc(),
-              (a, b, c) -> sc3OnLeave.inc());
-
-      cs.showEntity(e1);
-      cs.showEntity(e2);
-      cs.showEntity(e3);
-      cs.execute();
-      e1.getComponent(PositionComponent.class)
-              .map(PositionComponent.class::cast)
-              .ifPresentOrElse(
-                      x -> x.getPosition().x += 2,
-                      () -> fail("PositionComponent not available and test not valid "));
-      cs.execute();
-      cs.execute();
-      assertEquals("Only one interaction begins for e1", 1, sc1OnEnter.getCount());
-      assertEquals("Only one interaction ends for e1", 1, sc1OnLeave.getCount());
-      assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());
-      assertEquals("Only one interaction ends for e2", 1, sc2OnLeave.getCount());
-      assertEquals("No interaction begins for  e3", 0, sc3OnEnter.getCount());
-      assertEquals("No interaction ends for e3", 0, sc3OnLeave.getCount());
-      cleanUpEnvironment();
-  }*/
-
-  /*
-   * Checks if an Entity can collide Multiple Times.
-   *
-   * <p>E1 collides with e1 and e3 while e2 and e3 do not.
-   *
-   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
-   * cant be tested.
-   */
-  /*@Test
-  public void checkUpdateCollisionNotBlockingOtherCollisions() {
-      prepareEnvironment();
-      CollisionSystem cs = new CollisionSystem();
-      Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-      SimpleCounter sc1OnEnter = new SimpleCounter();
-      SimpleCounter sc1OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e1,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc1OnEnter.inc(),
-              (a, b, c) -> sc1OnLeave.inc());
-      Entity e2 = prepareEntityWithPosition(new Point(.7f, 0));
-      SimpleCounter sc2OnEnter = new SimpleCounter();
-      SimpleCounter sc2OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e2,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc2OnEnter.inc(),
-              (a, b, c) -> sc2OnLeave.inc());
-      Entity e3 = prepareEntityWithPosition(new Point(-.7f, 0));
-      SimpleCounter sc3OnEnter = new SimpleCounter();
-      SimpleCounter sc3OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e3,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc3OnEnter.inc(),
-              (a, b, c) -> sc3OnLeave.inc());
-
-      cs.showEntity(e1);
-      cs.showEntity(e2);
-      cs.showEntity(e3);
-      cs.execute();
-      cs.execute();
-      assertEquals("Two interactions begin for e1", 2, sc1OnEnter.getCount());
-      assertEquals("No interaction ends for e1", 0, sc1OnLeave.getCount());
-      assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());
-      assertEquals("No interaction ends for e2", 0, sc2OnLeave.getCount());
-      assertEquals("Only one interaction begins for e3", 1, sc3OnEnter.getCount());
-      assertEquals("No interaction ends for e3", 0, sc3OnLeave.getCount());
-      cleanUpEnvironment();
-  }
-
-  /*
-   * Checks if an Entity can stop colliding with one Entity.
-   *
-   * <p>On first update e1 collides with e1 and e3 while e2 and e3 do not on the second update e1
-   * stops colliding with e3.
-
-       // <p> Since we cant update the {@link Game#entities} from outside the game loop, this is testcase cant be tested.</p>
-
-   */
-
-  /*@Test
-  public void checkUpdateCollisionNotCallingEveryOnLeaveCollider() {
-      prepareEnvironment();
-      CollisionSystem cs = new CollisionSystem();
-      Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-      SimpleCounter sc1OnEnter = new SimpleCounter();
-      SimpleCounter sc1OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e1,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc1OnEnter.inc(),
-              (a, b, c) -> sc1OnLeave.inc());
-      Entity e2 = prepareEntityWithPosition(new Point(.7f, 0));
-      SimpleCounter sc2OnEnter = new SimpleCounter();
-      SimpleCounter sc2OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e2,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc2OnEnter.inc(),
-              (a, b, c) -> sc2OnLeave.inc());
-      Entity e3 = prepareEntityWithPosition(new Point(-.7f, 0));
-      SimpleCounter sc3OnEnter = new SimpleCounter();
-      SimpleCounter sc3OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e3,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc3OnEnter.inc(),
-              (a, b, c) -> sc3OnLeave.inc());
-
-      cs.showEntity(e1);
-      cs.showEntity(e2);
-      cs.showEntity(e3);
-      cs.execute();
-      e1.getComponent(PositionComponent.class)
-              .map(PositionComponent.class::cast)
-              .ifPresentOrElse(
-                      x -> x.getPosition().x += 1, () -> fail(MISSING_POSITION_COMPONENT));
-      cs.execute();
-      assertEquals("Two interactions begin for e1", 2, sc1OnEnter.getCount());
-      assertEquals("No interaction ends for e1", 1, sc1OnLeave.getCount());
-      assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());
-      assertEquals("No interaction ends for e2", 0, sc2OnLeave.getCount());
-      assertEquals("Only one interaction begins for e3", 1, sc3OnEnter.getCount());
-      assertEquals("One interaction ends for e3", 1, sc3OnLeave.getCount());
-      cleanUpEnvironment();
-  }*/
-
-  /*
-   * Checks if all Entity can stop colliding with each other.
-   *
-   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
-   * cant be tested.
-   */
-  /*@Test
-  public void checkUpdateCollisionCallingEveryOnLeaveCollider() {
-      prepareEnvironment();
-      CollisionSystem cs = new CollisionSystem();
-      Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-      SimpleCounter sc1OnEnter = new SimpleCounter();
-      SimpleCounter sc1OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e1,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc1OnEnter.inc(),
-              (a, b, c) -> sc1OnLeave.inc());
-      Entity e2 = prepareEntityWithPosition(new Point(.7f, 0));
-      SimpleCounter sc2OnEnter = new SimpleCounter();
-      SimpleCounter sc2OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e2,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc2OnEnter.inc(),
-              (a, b, c) -> sc2OnLeave.inc());
-      Entity e3 = prepareEntityWithPosition(new Point(-.7f, 0));
-      SimpleCounter sc3OnEnter = new SimpleCounter();
-      SimpleCounter sc3OnLeave = new SimpleCounter();
-      new CollideComponent(
-              e3,
-              new Point(0, 0),
-              new Point(1, 1),
-              (a, b, c) -> sc3OnEnter.inc(),
-              (a, b, c) -> sc3OnLeave.inc());
-
-      cs.showEntity(e1);
-      cs.showEntity(e2);
-      cs.showEntity(e3);
-      cs.execute();
-      e1.getComponent(PositionComponent.class)
-              .map(PositionComponent.class::cast)
-              .ifPresentOrElse(
-                      x -> x.getPosition().y += 2, () -> fail(MISSING_POSITION_COMPONENT));
-
-      cs.execute();
-      assertEquals("Two interactions begin for e1", 2, sc1OnEnter.getCount());
-      assertEquals("Two interactions end for e1", 2, sc1OnLeave.getCount());
-      assertEquals("Only one interaction begins for e2", 1, sc2OnEnter.getCount());
-      assertEquals("One interaction ends for e2", 1, sc2OnLeave.getCount());
-      assertEquals("Only one interaction begins for e3", 1, sc3OnEnter.getCount());
-      assertEquals("One interaction ends for e3", 1, sc3OnLeave.getCount());
-      cleanUpEnvironment();
-  }*/
+  //  /**
+  //   * Checks if two solid entities collide then the collision will be resolved by moving one of
+  // them out.
+  //   * This case currently always fails, because we dont instantiate a level, so any
+  // CollisionUtils.isCollidingWithLevel will always return true.
+  //   */
+  //  @Test
+  //  public void checkSolidCollideWithMass(){
+  //    Entity e1 = prepareEntityWithPosition(new Point(0, 0));
+  //    e1.add(new CollideComponent(Vector2.ZERO, Vector2.ONE).isSolid(true));
+  //    VelocityComponent vc1 = new VelocityComponent(5f);
+  //    vc1.mass(5f);
+  //    e1.add(vc1);
+  //    Game.add(e1);
+  //
+  //    Entity e2 = prepareEntityWithPosition(new Point(0.9f, 0.0f));
+  //    e2.add(new CollideComponent(Vector2.ZERO, Vector2.ONE).isSolid(true));
+  //    VelocityComponent vc2 = new VelocityComponent(5f);
+  //    e2.add(vc2);
+  //    vc2.mass(1f);
+  //    Game.add(e2);
+  //
+  //    cs.execute();
+  //
+  //    // e2 should be moved to the right
+  //    PositionComponent pc1 = e1.fetch(PositionComponent.class).orElseThrow();
+  //    PositionComponent pc2 = e2.fetch(PositionComponent.class).orElseThrow();
+  //
+  //    assertEquals(new Point(0, 0), pc1.position());
+  //
+  //    // e2 should be at exactly 1.0 + CollisionSystem.COLLIDE_SET_DISTANCE. beware floating point
+  // inaccuracies
+  //    assertTrue(Math.abs(pc2.position().x() - (1.0f + CollisionSystem.COLLIDE_SET_DISTANCE)) <
+  // 0.0001f, "Actual x pos: "+pc2.position().x());
+  //    assertEquals(0.0f, pc2.position().y());
+  //  }
 }

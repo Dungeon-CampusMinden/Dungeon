@@ -11,8 +11,10 @@ import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Point;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /** Represents a level in the DevDungeon game. This class extends the */
@@ -26,17 +28,17 @@ public abstract class DevDungeonLevel extends DungeonLevel {
    *
    * @param layout The layout of the level, represented as a 2D array of LevelElements.
    * @param designLabel The design label of the level.
-   * @param customPoints A list of custom points to be added to the level.
+   * @param namedPoints A list of custom points to be added to the level.
    * @param levelName The name of the level. (can be empty)
    * @param description The description of the level. (only set if levelName is not empty)
    */
   public DevDungeonLevel(
       LevelElement[][] layout,
       DesignLabel designLabel,
-      List<Coordinate> customPoints,
+      Map<String, Point> namedPoints,
       String levelName,
       String description) {
-    super(layout, designLabel, customPoints, levelName);
+    super(layout, designLabel, namedPoints, levelName);
     this.description = description;
   }
 

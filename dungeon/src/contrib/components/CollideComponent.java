@@ -1,15 +1,14 @@
 package contrib.components;
 
+import contrib.utils.components.collide.Collider;
+import contrib.utils.components.collide.Hitbox;
 import core.Component;
 import core.Entity;
-import core.components.PositionComponent;
 import core.utils.Direction;
-import core.utils.Point;
+import core.utils.Rectangle;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
-import core.utils.logging.CustomLogLevel;
-import java.util.logging.Logger;
+import core.utils.logging.DungeonLogger;
 
 /**
  * Allow an entity to collide with other entities that have a {@link CollideComponent}.
@@ -41,6 +40,8 @@ import java.util.logging.Logger;
  * @see contrib.systems.CollisionSystem
  */
 public final class CollideComponent implements Component {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CollideComponent.class);
+
   /** The default offset of the hit box. */
   public static final Vector2 DEFAULT_OFFSET = Vector2.of(0.1f, 0.1f);
 
@@ -63,10 +64,7 @@ public final class CollideComponent implements Component {
    */
   public static final TriConsumer<Entity, Entity, Direction> DEFAULT_COLLIDER = (a, b, c) -> {};
 
-  private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
-
-  private final Vector2 offset;
-  private final Vector2 size;
+  private Collider collider;
   private boolean isSolid = true;
 
   /**
@@ -122,13 +120,35 @@ public final class CollideComponent implements Component {
    *   <li>the third parameter: the collision direction, relative to the first entity
    * </ul>
    *
+   * @param rectangle the rectangle defining the size and offset of the hitbox
+   */
+  public CollideComponent(Rectangle rectangle) {
+    this.collider = new Hitbox(rectangle.size(), rectangle.offset());
+    this.collideEnter = DEFAULT_COLLIDER;
+    this.collideLeave = DEFAULT_COLLIDER;
+    this.collideHold = DEFAULT_COLLIDER;
+  }
+
+  /**
+   * Creates a new {@code CollideComponent}.
+   *
+   * <p>This component handles collisions for an entity using a hitbox defined by {@code offset} and
+   * {@code size}, and custom behavior for collision events.
+   *
+   * <p>The collision handlers use a {@link TriConsumer} with three parameters:
+   *
+   * <ul>
+   *   <li>the first entity: the entity that holds this {@code CollideComponent}
+   *   <li>the second entity: the entity it collides with
+   *   <li>the third parameter: the collision direction, relative to the first entity
+   * </ul>
+   *
    * @param offset the offset of the hitbox relative to the entity's position; use {@link
    *     #DEFAULT_OFFSET} for the default offset
    * @param size the size of the hitbox; use {@link #DEFAULT_SIZE} for the default size handler
    */
   public CollideComponent(final Vector2 offset, final Vector2 size) {
-    this.offset = offset;
-    this.size = size;
+    this.collider = new Hitbox(size, offset);
     this.collideEnter = DEFAULT_COLLIDER;
     this.collideLeave = DEFAULT_COLLIDER;
     this.collideHold = DEFAULT_COLLIDER;
@@ -161,8 +181,7 @@ public final class CollideComponent implements Component {
       final Vector2 size,
       final TriConsumer<Entity, Entity, Direction> collideEnter,
       final TriConsumer<Entity, Entity, Direction> collideLeave) {
-    this.offset = offset;
-    this.size = size;
+    this.collider = new Hitbox(size, offset);
     this.collideEnter = collideEnter;
     this.collideLeave = collideLeave;
     this.collideHold = DEFAULT_COLLIDER;
@@ -219,14 +238,11 @@ public final class CollideComponent implements Component {
    */
   public void onLeave(final Entity entity, final Entity other, final Direction direction) {
     if (collideLeave != null) {
-      LOGGER.log(
-          CustomLogLevel.DEBUG,
-          this.getClass().getSimpleName()
-              + " is processing collision between entities '"
-              + entity.getClass().getSimpleName()
-              + "' and '"
-              + other.getClass().getSimpleName()
-              + "'.");
+      LOGGER.debug(
+          "{} is processing collision leave between entities '{}' and '{}'.",
+          this.getClass().getSimpleName(),
+          entity.getClass().getSimpleName(),
+          other.getClass().getSimpleName());
       collideLeave.accept(entity, other, direction);
     }
   }
@@ -240,14 +256,11 @@ public final class CollideComponent implements Component {
    */
   public void onHold(final Entity entity, final Entity other, final Direction direction) {
     if (collideHold != null) {
-      LOGGER.log(
-          CustomLogLevel.DEBUG,
-          this.getClass().getSimpleName()
-              + " is processing collision hold between entities '"
-              + entity.getClass().getSimpleName()
-              + "' and '"
-              + other.getClass().getSimpleName()
-              + "'.");
+      LOGGER.debug(
+          "{} is processing collision hold between entities '{}' and '{}'.",
+          this.getClass().getSimpleName(),
+          entity.getClass().getSimpleName(),
+          other.getClass().getSimpleName());
       collideHold.accept(entity, other, direction);
     }
   }
@@ -267,48 +280,6 @@ public final class CollideComponent implements Component {
    */
   public void onHold(TriConsumer<Entity, Entity, Direction> collideHold) {
     this.collideHold = collideHold;
-  }
-
-  /**
-   * Get the bottom-left point of the hitbox.
-   *
-   * @param entity associated entity of this component.
-   * @return Bottom-left point of the entity's hitbox
-   */
-  public Point bottomLeft(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return pc.position().translate(offset);
-  }
-
-  /**
-   * Get the top-right point of the hitbox.
-   *
-   * @param entity associated entity of this component.
-   * @return Top-right point of the entity's hitbox
-   */
-  public Point topRight(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return pc.position().translate(offset).translate(size);
-  }
-
-  /**
-   * Get the center point of the hitbox.
-   *
-   * @param entity associated entity of this component.
-   * @return Center point of the entity's hitbox
-   */
-  public Point center(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return pc.position().translate(offset).translate(size.scale(0.5f));
   }
 
   /**
@@ -346,24 +317,6 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Get the size of the hitbox.
-   *
-   * @return the size of the component
-   */
-  public Vector2 size() {
-    return Vector2.of(size);
-  }
-
-  /**
-   * Get the offset of the hitbox.
-   *
-   * @return the offset of the component
-   */
-  public Vector2 offset() {
-    return Vector2.of(offset);
-  }
-
-  /**
    * Get the solid state of the hitbox. Solid entities will not be able to pass through each other.
    *
    * @return true if the hitbox is solid, false otherwise
@@ -381,5 +334,23 @@ public final class CollideComponent implements Component {
   public CollideComponent isSolid(boolean isSolid) {
     this.isSolid = isSolid;
     return this;
+  }
+
+  /**
+   * Get the collider used for collision detection.
+   *
+   * @return the collider
+   */
+  public Collider collider() {
+    return collider;
+  }
+
+  /**
+   * Sets the collider used for collision detection.
+   *
+   * @param collider the new collider
+   */
+  public void collider(Collider collider) {
+    this.collider = collider;
   }
 }

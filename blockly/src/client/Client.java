@@ -22,7 +22,6 @@ import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.Set;
-import java.util.logging.Level;
 import level.produs.*;
 import server.Server;
 import systems.BlocklyCommandExecuteSystem;
@@ -64,8 +63,6 @@ public class Client {
    * @throws IOException if textures can not be loaded.
    */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.WARNING);
-
     for (String arg : args) {
       if (arg.equalsIgnoreCase("web=true")) {
         runInWeb = true;
@@ -104,22 +101,21 @@ public class Client {
           DungeonLoader.addLevel(Tuple.of("level006", Level006.class));
           DungeonLoader.addLevel(Tuple.of("level007", Level007.class));
           DungeonLoader.addLevel(Tuple.of("level008", Level008.class));
-          DungeonLoader.addLevel(Tuple.of("level0082", Level0082.class));
           DungeonLoader.addLevel(Tuple.of("level009", Level009.class));
           DungeonLoader.addLevel(Tuple.of("level010", Level010.class));
           DungeonLoader.addLevel(Tuple.of("level011", Level011.class));
+          DungeonLoader.addLevel(Tuple.of("level012", Level012.class));
 
           // chapter 2
-          DungeonLoader.addLevel(Tuple.of("level012", Level012.class));
           DungeonLoader.addLevel(Tuple.of("level013", Level013.class));
           DungeonLoader.addLevel(Tuple.of("level014", Level014.class));
           DungeonLoader.addLevel(Tuple.of("level015", Level015.class));
           DungeonLoader.addLevel(Tuple.of("level016", Level016.class));
+          DungeonLoader.addLevel(Tuple.of("level017", Level017.class));
 
           // chapter 3
-          DungeonLoader.addLevel(Tuple.of("level017", Level017.class));
           DungeonLoader.addLevel(Tuple.of("level018", Level018.class));
-          // DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
+          DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
           DungeonLoader.addLevel(Tuple.of("level020", Level020.class));
           DungeonLoader.addLevel(Tuple.of("level021", Level021.class));
           DungeonLoader.addLevel(Tuple.of("level022", Level022.class));
@@ -145,7 +141,7 @@ public class Client {
               s -> {
                 // stopping the system will also avoid adding new commands to the queue. The System
                 // will be reactivated in BlocklyLevel#onTick
-                s.stop();
+                s.fullStop();
                 s.clear();
               });
           Game.hero()

@@ -1,0 +1,4 @@
+- Source: https://elvgames.itch.io/free-fantasy-dreamland-dungeon
+- Author: ElvGames
+- License: https://elvgames.itch.io/terms
+- Note: Author has explicitly allowed redistribution of free assets in open-source projects

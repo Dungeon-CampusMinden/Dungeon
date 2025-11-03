@@ -18,7 +18,7 @@ dependencies {
     testImplementation supportDependencies.junitLauncher
     testRuntimeOnly supportDependencies.junitLauncher
     testImplementation supportDependencies.mockito_core
-    testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:1.13.5"
+    testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:1.14.0"
     testImplementation("com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion")
     testImplementation("com.badlogicgames.gdx:gdx:$gdxVersion")
 }

@@ -117,10 +117,11 @@ public class BlocklyCommands {
    * @param direction Direction in which the hero will be rotated.
    */
   public static void rotate(final Direction direction) {
-    if (direction == Direction.RIGHT)
+    core.utils.Direction realDirection = direction.toDirection();
+    if (realDirection == core.utils.Direction.RIGHT)
       Game.system(
           BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_TURN_RIGHT));
-    else
+    else if (realDirection == core.utils.Direction.LEFT)
       Game.system(BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_TURN_LEFT));
   }
 
@@ -139,7 +140,7 @@ public class BlocklyCommands {
    * @param direction Direction in which the hero will search for an interactable.
    */
   public static void interact(Direction direction) {
-    switch (direction) {
+    switch (direction.toDirection()) {
       case UP ->
           Game.system(
               BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_USE_UP));
@@ -214,8 +215,9 @@ public class BlocklyCommands {
    */
   public static boolean isNearTile(LevelElement tileElement, final Direction direction) {
     waitForEmptyQueue();
+    core.utils.Direction realDirection = direction.toDirection();
     // Check the tile the hero is standing on
-    if (direction == Direction.NONE) {
+    if (realDirection == core.utils.Direction.NONE) {
       Tile checkTile =
           Game.hero()
               .flatMap(hero -> hero.fetch(PositionComponent.class))
@@ -225,7 +227,7 @@ public class BlocklyCommands {
               .orElse(null);
       return checkTile != null && matchesTile(tileElement, checkTile.levelElement());
     }
-    return targetTile(direction)
+    return targetTile(realDirection)
         .map(tile -> matchesTile(tileElement, tile.levelElement()))
         .orElse(false);
   }
@@ -251,7 +253,8 @@ public class BlocklyCommands {
       Class<? extends Component> componentClass, final Direction direction) {
     // Check if there is a component on the tile the hero is standing on
     waitForEmptyQueue();
-    if (direction == Direction.NONE) {
+    core.utils.Direction realDirection = direction.toDirection();
+    if (realDirection == core.utils.Direction.NONE) {
       Tile checkTile =
           Game.hero()
               .flatMap(hero -> hero.fetch(PositionComponent.class))
@@ -262,7 +265,7 @@ public class BlocklyCommands {
 
       return Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(componentClass));
     }
-    return targetTile(direction)
+    return targetTile(realDirection)
         .map(tile -> Game.entityAtTile(tile).anyMatch(e -> e.isPresent(componentClass)))
         .orElse(false);
   }
@@ -283,7 +286,9 @@ public class BlocklyCommands {
    */
   public static boolean active(final Direction direction) {
     waitForEmptyQueue();
-    return targetTile(direction).map(BlocklyCommands::checkTileForDoorOrLevers).orElse(false);
+    return targetTile(direction.toDirection())
+        .map(BlocklyCommands::checkTileForDoorOrLevers)
+        .orElse(false);
   }
 
   /**
@@ -320,9 +325,9 @@ public class BlocklyCommands {
    * @param direction Direction to check relative to hero's view direction
    * @return The target tile, or empty if hero is not found or target tile doesn't exist
    */
-  private static Optional<Tile> targetTile(final Direction direction) {
+  private static Optional<Tile> targetTile(final core.utils.Direction direction) {
     // find tile in a direction or empty
-    Function<Direction, Optional<Tile>> dirToCheck =
+    Function<core.utils.Direction, Optional<Tile>> dirToCheck =
         dir ->
             Game.hero()
                 .flatMap(hero -> hero.fetch(PositionComponent.class))
@@ -353,7 +358,7 @@ public class BlocklyCommands {
         .findFirst()
         .flatMap(boss -> boss.fetch(PositionComponent.class))
         .map(PositionComponent::viewDirection)
-        .map(bossDir -> bossDir.equals(direction))
+        .map(bossDir -> bossDir.equals(direction.toDirection()))
         .orElse(false);
   }
 

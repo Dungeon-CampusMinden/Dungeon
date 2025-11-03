@@ -1,18 +1,21 @@
 package level.produs;
 
+import contrib.hud.DialogUtils;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
-import java.util.List;
+import core.utils.Point;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
 /**
- * This level focuses on pattern recognition in the paths. The route to the goal consists of
- * repeating segments.
+ * In this level, the player faces a simple maze. The "Left Hand" maze-solving rule can be applied
+ * using while loops.
  */
 public class Level014 extends BlocklyLevel {
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -20,14 +23,16 @@ public class Level014 extends BlocklyLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level014(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 14");
+  public Level014(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 14");
     this.blockBlocklyElement(
         // Inventar und Charakter
         "drop_item",
         "Items",
+        "wait",
         // Bedingung
         "logic_monster_direction",
         "logic_breadcrumbs_direction",
@@ -45,9 +50,15 @@ public class Level014 extends BlocklyLevel {
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.cameraFocusOn(new Coordinate(10, 8));
-    LevelManagementUtils.heroViewDirection(Direction.DOWN);
+    LevelManagementUtils.cameraFocusOn(new Coordinate(5, 8));
+    LevelManagementUtils.heroViewDirection(Direction.UP);
     LevelManagementUtils.zoomDefault();
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Ganz schön verwirrend hier. Du brauchst eine gute Strategie um den Ausgang zu finden.",
+          "Kapitel 2: Flucht");
+      showText = false;
+    }
   }
 
   @Override

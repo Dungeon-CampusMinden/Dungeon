@@ -15,8 +15,11 @@ import core.utils.components.path.IPath;
 public final class PainterConfig {
 
   private final Vector2 offset;
-  private final Vector2 scaling;
+  private final Vector2 size;
+  private Vector2 scale = Vector2.ONE;
   private int tintColor = -1; // -1 means no tint color
+  private boolean mirrored = false;
+  private float rotation = 0f;
 
   /**
    * Create a new PainterConfig with the given offset.
@@ -45,27 +48,26 @@ public final class PainterConfig {
   }
 
   /**
-   * Creates a painter config with the given offset, scaling and tint.
+   * Creates a painter config with the given offset, size and tint.
    *
    * @param xOffset The x offset
    * @param yOffset The y offset
-   * @param xScaling The x scaling
-   * @param yScaling The y scaling
+   * @param xSize The x scaling
+   * @param ySize The y scaling
    * @param tintColor The tint color as used by the {@link DrawComponent}
    */
-  public PainterConfig(
-      float xOffset, float yOffset, float xScaling, float yScaling, int tintColor) {
+  public PainterConfig(float xOffset, float yOffset, float xSize, float ySize, int tintColor) {
     this.offset = Vector2.of(xOffset, yOffset);
-    this.scaling = Vector2.of(xScaling, yScaling);
+    this.size = Vector2.of(xSize, ySize);
     this.tintColor = tintColor;
   }
 
   private PainterConfig(
-      float xOffset, float yOffset, float xScaling, final Texture texture, int tintColor) {
+      float xOffset, float yOffset, float xSize, final Texture texture, int tintColor) {
     this(
         xOffset,
         yOffset,
-        xScaling,
+        xSize,
         ((float) texture.getHeight() / (float) texture.getWidth()),
         tintColor);
   }
@@ -88,8 +90,26 @@ public final class PainterConfig {
    *
    * @return scaling as a {@link Vector2}
    */
-  public Vector2 scaling() {
-    return scaling;
+  public Vector2 size() {
+    return size;
+  }
+
+  /**
+   * Get the scale in this configuration.
+   *
+   * @return scale as a {@link Vector2}
+   */
+  public Vector2 scale() {
+    return scale;
+  }
+
+  /**
+   * Set the scale in this configuration.
+   *
+   * @param scale The scale as a {@link Vector2}
+   */
+  public void scale(Vector2 scale) {
+    this.scale = scale;
   }
 
   /**
@@ -108,5 +128,41 @@ public final class PainterConfig {
    */
   public void tintColor(int tintcolor) {
     this.tintColor = tintcolor;
+  }
+
+  /**
+   * Get whether the texture should be mirrored.
+   *
+   * @return true if the texture should be mirrored, false otherwise.
+   */
+  public boolean mirrored() {
+    return mirrored;
+  }
+
+  /**
+   * Set whether the texture should be mirrored.
+   *
+   * @param mirrored true if the texture should be mirrored, false otherwise.
+   */
+  public void mirrored(boolean mirrored) {
+    this.mirrored = mirrored;
+  }
+
+  /**
+   * Get the rotation of the texture in degrees.
+   *
+   * @return rotation in degrees.
+   */
+  public float rotation() {
+    return rotation;
+  }
+
+  /**
+   * Set the rotation of the texture in degrees.
+   *
+   * @param rotation rotation in degrees.
+   */
+  public void rotation(float rotation) {
+    this.rotation = rotation;
   }
 }

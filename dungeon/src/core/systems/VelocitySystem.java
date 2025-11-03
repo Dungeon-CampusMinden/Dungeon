@@ -8,7 +8,7 @@ import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import java.util.logging.Logger;
+import core.utils.logging.DungeonLogger;
 
 /**
  * The VelocitySystem manages the movement and animation state of entities based on their velocity.
@@ -32,10 +32,19 @@ public final class VelocitySystem extends System {
   ;
   private static final double THRESHOLD_VELOCITY = 0.2;
 
-  private static final Logger LOGGER = Logger.getLogger(VelocitySystem.class.getName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(VelocitySystem.class);
 
   // Default time (frames) an animation should be enqueued for
   private static final int DEFAULT_FRAME_TIME = 1;
+
+  /** Signal to trigger movement animation. */
+  public static final String MOVE_SIGNAL = "move";
+
+  /** Signal to trigger idle animation. */
+  public static final String IDLE_SIGNAL = "idle";
+
+  /** Name of the run state used in animations. */
+  public static final String STATE_NAME = "run";
 
   /** Constructs a new VelocitySystem. */
   public VelocitySystem() {
@@ -105,13 +114,13 @@ public final class VelocitySystem extends System {
         newDirection = Direction.DOWN;
       }
 
-      vsd.dc.sendSignal("move", newDirection);
+      vsd.dc.sendSignal(MOVE_SIGNAL, newDirection);
       vsd.pc.viewDirection(newDirection);
     }
     // Entity is idle
     else {
       // each entity that is moving should have an idle animation
-      vsd.dc.sendSignal("idle", vsd.pc.viewDirection());
+      vsd.dc.sendSignal(IDLE_SIGNAL, vsd.pc.viewDirection());
     }
   }
 

@@ -1,5 +1,6 @@
 package contrib.systems;
 
+import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
 import contrib.components.HealthComponent;
 import contrib.utils.EntityUtils;
@@ -16,8 +17,8 @@ import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.DungeonLogger;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -34,6 +35,7 @@ import java.util.Optional;
  * @see Damage
  */
 public class FallingSystem extends System {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(FallingSystem.class);
 
   /** Flag to prevent the player from dying when falling into a pit tile. */
   public static boolean DEBUG_DONT_KILL = false;
@@ -49,20 +51,12 @@ public class FallingSystem extends System {
   }
 
   private boolean filterFalling(Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Point pos = pc.position();
-
     if (entity.isPresent(FlyComponent.class)) return false;
-    VelocityComponent vc =
+    CollideComponent cc =
         entity
-            .fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
-    Vector2 offset = vc.moveboxOffset();
-    Vector2 size = vc.moveboxSize();
-    Point center = pos.translate(offset).translate(size.scale(0.5f));
+            .fetch(CollideComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, CollideComponent.class));
+    Point center = cc.collider().absoluteCenter();
     Tile tile = Game.tileAt(center).orElse(null);
     if (tile instanceof PitTile pitTile) {
       return pitTile.isOpen();
@@ -71,7 +65,7 @@ public class FallingSystem extends System {
   }
 
   private void handleFalling(Entity entity) {
-    LOGGER.info("Entity " + entity + " has fallen to its death");
+    LOGGER.info("Entity {} has fallen to its death", entity);
     entity
         .fetch(HealthComponent.class)
         .ifPresent(
@@ -88,7 +82,7 @@ public class FallingSystem extends System {
     Point heroCoords = EntityUtils.getHeroPosition();
     if (heroCoords != null) {
       getSafeTile(heroCoords)
-          .ifPresentOrElse(Debugger::TELEPORT, () -> LOGGER.warning("No safe place to port."));
+          .ifPresentOrElse(Debugger::TELEPORT, () -> LOGGER.warn("No safe place to teleport."));
     }
   }
 

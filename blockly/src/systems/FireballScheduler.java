@@ -4,11 +4,11 @@ import components.AmmunitionComponent;
 import contrib.components.CollideComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.EntityUtils;
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
-import entities.BlocklyFireball;
 
 /**
  * Utilty class that allows the hero in Blockly to shoot a fireball.
@@ -25,12 +25,12 @@ public class FireballScheduler {
   private static final float FIREBALL_SPEED = 15;
   private static final int FIREBALL_DMG = 1;
   private static final boolean IGNORE_FIRST_WALL = false;
-  private static final BlocklyFireball fireballSkill =
-      new BlocklyFireball(
+  private static final FireballSkill fireballSkill =
+      new FireballSkill(
           () -> {
             Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
             return hero.fetch(CollideComponent.class)
-                .map(cc -> cc.center(hero))
+                .map(cc -> cc.collider().absoluteCenter())
                 .map(p -> p.translate(EntityUtils.getViewDirection(hero)))
                 .orElseThrow(() -> MissingComponentException.build(hero, CollideComponent.class));
           },

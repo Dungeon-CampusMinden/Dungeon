@@ -25,9 +25,17 @@ import java.util.stream.Stream;
 public class HealthSystem extends System {
   protected final List<IHealthObserver> observers = new ArrayList<>();
 
-  private static final String DEATH_STATE = "dead";
-  private static final String DEATH_SIGNAL = "die";
-  private static final String DAMAGE_SIGNAL = "hit";
+  /** Name to be used for the death state in a DrawComponent. */
+  public static final String DEATH_STATE = "dead";
+
+  /** Signal to be used to trigger the death animation in a DrawComponent. */
+  public static final String DEATH_SIGNAL = "die";
+
+  /** Name to be used for the damage state in a DrawComponent. */
+  public static final String DAMAGE_STATE = "hit";
+
+  /** Signal to be used to trigger the damage animation in a DrawComponent. */
+  public static final String DAMAGE_SIGNAL = "hit";
 
   /** Create a new HealthSystem. */
   public HealthSystem() {

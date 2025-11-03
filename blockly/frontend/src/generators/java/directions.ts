@@ -5,14 +5,14 @@ export function direction_up(
   _block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  return ["Direction.UP", Order.ATOMIC];
+  return ["Direction.INFRONT", Order.ATOMIC];
 }
 
 export function direction_down(
   _block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  return ["Direction.DOWN", Order.ATOMIC];
+  return ["Direction.BEHIND", Order.ATOMIC];
 }
 
 export function direction_left(
@@ -33,6 +33,6 @@ export function direction_here(
   _block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  return ["Direction.NONE", Order.ATOMIC];
+  return ["Direction.HERE", Order.ATOMIC];
 }
 

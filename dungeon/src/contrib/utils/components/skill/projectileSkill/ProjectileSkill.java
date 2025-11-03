@@ -146,7 +146,7 @@ public abstract class ProjectileSkill extends Skill {
     // Target point calculation
     Point targetPoint = SkillTools.calculateLastPositionInRange(start, aimedOn, range);
 
-    Point position = start.translate(hitBoxSize.scale(-0.5)); // +offset
+    Point position = start.translate(hitBoxSize.scale(-0.5)).translate(hitBoxOffset.scale(-1));
     PositionComponent pc = new PositionComponent(position);
     projectile.add(pc);
     // calculate rotation
@@ -157,8 +157,6 @@ public abstract class ProjectileSkill extends Skill {
 
     // Add components
     VelocityComponent vc = new VelocityComponent(speed, handleProjectileWallHit(caster), true);
-    vc.moveboxSize(hitBoxSize);
-    vc.moveboxOffset(hitBoxOffset);
     projectile.add(vc);
     projectile.add(new ProjectileComponent(start, targetPoint, forceToApply, onEndReached(caster)));
 
@@ -256,7 +254,7 @@ public abstract class ProjectileSkill extends Skill {
   protected Point start(Entity caster) {
     return caster
         .fetch(CollideComponent.class)
-        .map(collideComponent -> collideComponent.center(caster))
+        .map(collideComponent -> collideComponent.collider().absoluteCenter())
         .or(() -> caster.fetch(PositionComponent.class).map(PositionComponent::position))
         .orElseThrow(() -> MissingComponentException.build(caster, PositionComponent.class));
   }

@@ -14,8 +14,6 @@
 | `hero.active(direction);`                          | Prüft, ob das Objekt in der gegebenen Richtung aktiv ist (z. B. Tür ist offen, Schalter ist aktiviert).            |
 | `hero.isNearTile(tileType, direction);`            | Prüft, ob ein bestimmtes Levelelement-Objekt in der angegebenen Richtung in der Nähe (ein Feld vor dem Helden) ist.|
 | `hero.isNearComponent(componentClass, direction);` | Prüft, ob ein bestimmtes Komponenten-Objekt in der angegebenen Richtung in der Nähe (ein Feld vor dem Helden) ist. |
-| `hero.dropItem("Brotkrumen");`                     | Lässt ein Item („Brotkrumen“) fallen.                                                                              |
-| `hero.dropItem("Kleeblatt");`                      | Lässt ein Item („Kleeblatt“) fallen.                                                                               |
 | `hero.rest();`                                     | Macht einen kurzen moment nichts.                                                                                  |
 | `hero.checkBossViewDirection(direction)`           | **Nur für Level 20:** Prüfe in welche Richtung der Boss guckt.                                                     |
 
@@ -26,11 +24,11 @@
 Alle Positionen werden realtiv aus der Blickrichtung des Helden betrachtet. 
 
 ```java
-Direction.DOWN //Position hinter den Helden
-Direction.NONE //Position des Heldens
+Direction.BEHIND //Position hinter den Helden
+Direction.HERE //Position des Heldens
 Direction.LEFT //Position links des Helden
 Direction.RIGHT //Position rechts des Helden
-Direction.UP  //Position vor dem Helden
+Direction.INFRONT  //Position vor dem Helden
 ```
 
 ## Mögliche Level-Elemente (LevelElement)
@@ -40,7 +38,6 @@ LevelElement.FLOOR
 LevelElement.EXIT
 LevelElement.WALL
 LevelElement.PIT
-LevelElement.SKIP
 LevelElement.HOLE
 ```
 
@@ -48,8 +45,6 @@ LevelElement.HOLE
 
 ```java
 AIComponent.class
-BreadcrumbComponent.class
-CloverComponent.class
 PushableComponent.class
 LeverComponent.class
 ```

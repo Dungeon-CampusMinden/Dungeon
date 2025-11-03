@@ -15,8 +15,8 @@ import core.level.loader.DungeonLoader;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.DungeonLogger;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * Manages the dungeon game world.
@@ -39,11 +39,12 @@ import java.util.logging.Logger;
  * trigger a level load manually. These methods will also trigger the onLevelLoad callback.
  */
 public final class LevelSystem extends System {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LevelSystem.class);
+
   private static final String SOUND_EFFECT = "sounds/enterDoor.wav";
 
   private static ILevel currentLevel;
   private final IVoidFunction onLevelLoad;
-  private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getSimpleName());
   private IVoidFunction onEndTile;
 
   /**
@@ -80,7 +81,7 @@ public final class LevelSystem extends System {
   public void loadLevel(final ILevel level) {
     currentLevel = level;
     onLevelLoad.execute();
-    levelAPI_logger.info("A new level was loaded.");
+    LOGGER.info("A new level was loaded.");
   }
 
   /**
@@ -143,8 +144,7 @@ public final class LevelSystem extends System {
         DungeonLoader.loadLevel(0);
         execute();
       } catch (IndexOutOfBoundsException e) {
-        levelAPI_logger.warning(
-            "Can´t load level 0, because no level is added to the DungeonLoader.");
+        LOGGER.warn("Can´t load level 0, because no level is added to the DungeonLoader.");
       }
     } else {
       if (filteredEntityStream(PlayerComponent.class, PositionComponent.class)

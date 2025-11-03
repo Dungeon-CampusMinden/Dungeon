@@ -9,14 +9,10 @@ import core.Entity;
 import core.Game;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import level.AdvancedLevel;
 
@@ -49,21 +45,21 @@ public class AdvancedControlLevel4 extends AdvancedLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
   public AdvancedControlLevel4(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Control");
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Control");
   }
 
   @Override
   protected void onFirstTick() {
     if (showMsg) DialogUtils.showTextPopup(msg, title, () -> showMsg = false);
     leverComponentSet = new HashSet<>();
-    customPoints()
+    namedPoints()
         .forEach(
-            coordinate -> {
-              Entity lever = LeverFactory.createLever(coordinate.toPoint());
+            (name, point) -> {
+              Entity lever = LeverFactory.createLever(point);
               leverComponentSet.add(lever.fetch(LeverComponent.class).get());
               Game.add(lever);
             });

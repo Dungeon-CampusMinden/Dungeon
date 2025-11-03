@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import contrib.systems.HudSystem;
 import core.Game;
 import java.util.Random;
-import java.util.logging.Level;
 import task.game.hud.QuizUI;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.FreeText;
@@ -31,7 +30,6 @@ public class QuizQuestionUITest {
    * @param args the command line arguments
    */
   public static void main(String[] args) {
-    Game.initBaseLogger(Level.ALL);
     Game.add(new HudSystem());
     Game.userOnFrame(
         () -> {

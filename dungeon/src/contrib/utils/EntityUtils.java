@@ -1,14 +1,17 @@
 package contrib.utils;
 
+import contrib.components.CollideComponent;
 import contrib.entities.LeverFactory;
 import contrib.entities.SignFactory;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 /**
@@ -170,5 +173,28 @@ public class EntityUtils {
         .fetch(PositionComponent.class)
         .map(PositionComponent::viewDirection)
         .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+  }
+
+  /**
+   * Gets the position of an entity. If the entity has a CollideComponent, gets the center position
+   * of the collider. If not, but the entity has a DrawComponent, gets the center position of the
+   * drawn sprite. If neither component is present, returns the position from the PositionComponent.
+   *
+   * @param entity The entity to get the position of.
+   * @return The position of the entity.
+   */
+  public static Point getPosition(Entity entity) {
+    PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
+    Optional<CollideComponent> cco = entity.fetch(CollideComponent.class);
+    Optional<DrawComponent> dco = entity.fetch(DrawComponent.class);
+
+    if (cco.isPresent()) {
+      return cco.get().collider().absoluteCenter();
+    } else if (dco.isPresent()) {
+      DrawComponent dc = dco.get();
+      return pc.position().translate(dc.getWidth() / 2, dc.getHeight() / 2);
+    } else {
+      return pc.position();
+    }
   }
 }

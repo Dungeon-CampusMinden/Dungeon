@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.DungeonLogger;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -27,12 +29,14 @@ import java.util.*;
  * <p>Animation frames are stored internally as {@link Sprite} objects and can be updated
  * frame-by-frame with {@link #update()}.
  */
-public class Animation {
+public class Animation implements Cloneable {
+
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Animation.class);
 
   /** Path to the missing texture fallback image. */
   public static final IPath MISSING_TEXTURE_PATH = new SimpleIPath("animation/missing_texture.png");
 
-  private final AnimationConfig config;
+  private AnimationConfig config;
   private float width = 1;
   private float height = 1;
   private float spriteScale;
@@ -329,6 +333,26 @@ public class Animation {
     return config;
   }
 
+  /**
+   * Sets whether the animation is mirrored horizontally.
+   *
+   * @param mirrored whether to mirror the animation
+   * @return this animation instance
+   */
+  public Animation mirrored(boolean mirrored) {
+    config.mirrored(mirrored);
+    return this;
+  }
+
+  /**
+   * Get whether the animation is mirrored horizontally.
+   *
+   * @return whether the animation is mirrored
+   */
+  public boolean mirrored() {
+    return config.mirrored();
+  }
+
   @Override
   public String toString() {
     return "Animation{"
@@ -388,5 +412,29 @@ public class Animation {
     }
 
     return animations;
+  }
+
+  @Override
+  public Animation clone() {
+    try {
+      Animation cloned = (Animation) super.clone();
+
+      // Copy fields manually
+      if (this.config != null) {
+        cloned.config = config.clone();
+      }
+
+      // Clone sprite array
+      if (this.sprites != null) {
+        cloned.sprites = new Sprite[this.sprites.length];
+        for (int i = 0; i < this.sprites.length; i++) {
+          cloned.sprites[i] = this.sprites[i] != null ? new Sprite(this.sprites[i]) : null;
+        }
+      }
+
+      return cloned;
+    } catch (CloneNotSupportedException e) {
+      throw new RuntimeException("Failed to clone", e);
+    }
   }
 }

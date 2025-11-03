@@ -12,10 +12,11 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.MissingHeroException;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-import java.util.List;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -25,7 +26,7 @@ import level.LevelManagementUtils;
  */
 public class Level021 extends BlocklyLevel {
   private static boolean showText = true;
-  private static final int ESCAPE_DISTANCE = 2;
+  private static final int ESCAPE_DISTANCE = 1;
 
   private PositionComponent heroPC;
 
@@ -38,13 +39,20 @@ public class Level021 extends BlocklyLevel {
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level021(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 21");
+  public Level021(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 21");
     this.blockBlocklyElement(
+        // Inventar und Charakter
+        "drop_item",
+        "Items",
         // Variable
         "get_number",
+        "switch_case",
+        "case_block",
+        "default_block",
         // Bedingung
         "logic_bossView_direction",
         // Kategorien
@@ -68,10 +76,10 @@ public class Level021 extends BlocklyLevel {
               ((PitTile) tile).close();
             });
 
-    customPoints()
+    namedPoints()
         .forEach(
-            coordinate -> {
-              Tile t = Game.tileAt(coordinate).orElse(null);
+            (name, point) -> {
+              Tile t = Game.tileAt(point).orElse(null);
               if (t instanceof PitTile pt) {
                 pt.timeToOpen(22000);
                 pt.close();

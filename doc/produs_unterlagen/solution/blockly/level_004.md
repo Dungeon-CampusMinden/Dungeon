@@ -11,7 +11,7 @@ title: "Blockly Lösung: Level 4"
 for(int i = 1; i < 7; i++){
     hero.move();
 }
-hero.interact(Direction.NONE);
+hero.interact(Direction.HERE);
 hero.rotate(Direction.LEFT);
 for(int i = 1; i < 3; i++){
     hero.move();
