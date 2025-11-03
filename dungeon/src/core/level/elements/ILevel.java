@@ -400,5 +400,10 @@ public interface ILevel extends IndexedGraph<Tile> {
    */
   Map<String, Point> namedPoints();
 
+  /**
+   * Returns the list of decorations in the level along with their positions.
+   *
+   * @return A list of tuples containing decorations and their positions.
+   */
   List<Tuple<Deco, Point>> decorations();
 }

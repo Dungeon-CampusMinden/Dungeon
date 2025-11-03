@@ -14,18 +14,34 @@ import core.utils.Vector2;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/** Abstract base class for different modes in the Level Editor. */
 public abstract class LevelEditorMode {
 
   private static DungeonLevel level = null;
-  public static final int SECONDARY_UP = Input.Keys.C;
-  public static final int SECONDARY_DOWN = Input.Keys.Z;
+
+  /** Primary action button. Direction UP */
   public static final int PRIMARY_UP = Input.Keys.E;
+
+  /** Primary action button. Direction DOWN */
   public static final int PRIMARY_DOWN = Input.Keys.Q;
+
+  /** Secondary action button. Direction UP */
+  public static final int SECONDARY_UP = Input.Keys.C;
+
+  /** Secondary action button. Direction DOWN. */
+  public static final int SECONDARY_DOWN = Input.Keys.Z;
+
+  /** Tertiary action button. */
   public static final int TERTIARY = Input.Keys.X;
 
   private final String name;
   private final Map<Integer, String> controls = new LinkedHashMap<>();
 
+  /**
+   * Constructs a new LevelEditorMode with the given name.
+   *
+   * @param name The name of this mode.
+   */
   public LevelEditorMode(String name) {
     this.name = name;
     Map<Integer, String> controls = getControls();
@@ -34,21 +50,35 @@ public abstract class LevelEditorMode {
     }
   }
 
+  /**
+   * Gets the name of this mode.
+   *
+   * @return The name of this mode.
+   */
   public String getName() {
     return name;
   }
 
+  /** Decorator method to assign the level reference before executing the mode logic. */
   public void doExecute() {
     LevelSystem.level().ifPresent(level -> LevelEditorMode.level = (DungeonLevel) level);
     execute();
   }
 
+  /** Executes the logic for this mode. Called every frame. */
   public abstract void execute();
 
+  /** Called when entering this mode. */
   public abstract void onEnter();
 
+  /** Called when exiting this mode. */
   public abstract void onExit();
 
+  /**
+   * Decorator method to get the full status text including the mode name and controls.
+   *
+   * @return The full status text.
+   */
   public String getFullStatusText() {
     StringBuilder status = new StringBuilder("--- " + getName() + " ---");
     addControlsToStatus(status, controls);
@@ -56,8 +86,18 @@ public abstract class LevelEditorMode {
     return status.toString();
   }
 
+  /**
+   * Gets the status text for this mode.
+   *
+   * @return The status text.
+   */
   public abstract String getStatusText();
 
+  /**
+   * Gets the controls for this mode.
+   *
+   * @return A map of key codes to their action descriptions.
+   */
   public abstract Map<Integer, String> getControls();
 
   protected DungeonLevel getLevel() {

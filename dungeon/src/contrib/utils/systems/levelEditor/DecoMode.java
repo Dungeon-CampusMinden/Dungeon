@@ -16,9 +16,9 @@ import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.utils.Point;
 import core.utils.Vector2;
-
 import java.util.*;
 
+/** Deco Mode for the Level Editor. Allows placing, removing, and moving decorative entities. */
 public class DecoMode extends LevelEditorMode {
 
   private static final float HOVER_DISTANCE = 0.75f;
@@ -30,6 +30,7 @@ public class DecoMode extends LevelEditorMode {
   private static DecoEntityData decoHeldEntity = null;
   private static DecoEntityData decoHoveredEntity = null;
 
+  /** Constructs the Deco Mode. */
   public DecoMode() {
     super("Deco Mode");
   }
@@ -188,9 +189,11 @@ public class DecoMode extends LevelEditorMode {
             dc -> {
               dc.tintColor(Color.rgba8888(1, 1, 1, PREVIEW_ALPHA));
             });
-    deco.fetch(CollideComponent.class).ifPresent(dc -> {
-      dc.isSolid(false);
-    });
+    deco.fetch(CollideComponent.class)
+        .ifPresent(
+            dc -> {
+              dc.isSolid(false);
+            });
     Game.add(deco);
     decoPreviewEntity = DecoEntityData.of(deco);
   }
@@ -255,21 +258,22 @@ public class DecoMode extends LevelEditorMode {
         .findFirst();
   }
 
-  /**
-   * Puts all placed decos into the level handler object for serialization.
-   */
-  private void syncPlacedDecos(){
+  /** Puts all placed decos into the level handler object for serialization. */
+  private void syncPlacedDecos() {
     DungeonLevel level = getLevel();
     level.decorations().clear();
-    Game.levelEntities(Set.of(DecoComponent.class)).map(DecoEntityData::of).forEach(ded -> {
-      // Filter out preview and held entities
-      if (Objects.equals(ded, decoPreviewEntity) || Objects.equals(ded, decoHeldEntity)) {
-        return;
-      }
-      Point pos = ded.pc.position();
-      Deco decoType = ded.dc.type();
-      level.addDecoration(decoType, pos);
-    });
+    Game.levelEntities(Set.of(DecoComponent.class))
+        .map(DecoEntityData::of)
+        .forEach(
+            ded -> {
+              // Filter out preview and held entities
+              if (Objects.equals(ded, decoPreviewEntity) || Objects.equals(ded, decoHeldEntity)) {
+                return;
+              }
+              Point pos = ded.pc.position();
+              Deco decoType = ded.dc.type();
+              level.addDecoration(decoType, pos);
+            });
   }
 
   private record DecoEntityData(Entity entity, DecoComponent dc, PositionComponent pc) {

@@ -15,7 +15,6 @@ import core.level.DungeonLevel;
 import core.level.Tile;
 import core.utils.*;
 import core.utils.logging.DungeonLogger;
-
 import java.util.Map;
 
 /**
@@ -28,8 +27,8 @@ public class LevelEditorSystem extends System {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LevelEditorSystem.class);
 
+  /** The font used for rendering the level editor text. */
   public static final BitmapFont FONT = FontHelper.getDefaultFont(24);
-  public static final BitmapFont FONT_SMALL = FontHelper.getDefaultFont(16);
 
   private static boolean internalStopped = false;
   private static boolean active = false;
@@ -87,7 +86,7 @@ public class LevelEditorSystem extends System {
               hc -> {
                 hc.godMode(true);
               });
-      if(currentModeInstance != null){
+      if (currentModeInstance != null) {
         currentModeInstance.onEnter();
       }
     } else {
@@ -181,6 +180,13 @@ public class LevelEditorSystem extends System {
         0, 0, layout[0].length, layout.length, new Color(0, 1, 0, 0.3f));
   }
 
+  /**
+   * Shows a feedback message on the screen for a short duration. Also logs the message as INFO,
+   * WARN or ERROR depending on the color (red = error, yellow = warn, else = info).
+   *
+   * @param message the message to show
+   * @param color the color of the message.
+   */
   public static void showFeedback(String message, Color color) {
     feedbackMessage = message;
     feedbackMessageColor = color;

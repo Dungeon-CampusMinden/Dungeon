@@ -87,9 +87,13 @@ public final class GameLoop extends ScreenAdapter {
             .map(ECSManagment::remove)
             .forEach(ECSManagment::add);
 
-        Game.currentLevel().ifPresent(level -> {
-          level.decorations().forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a())));
-        });
+        Game.currentLevel()
+            .ifPresent(
+                level -> {
+                  level
+                      .decorations()
+                      .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a())));
+                });
 
         if (firstLoad && Game.isCheckPatternEnabled())
           CheckPatternPainter.paintCheckerPattern(Game.currentLevel().orElse(null).layout());

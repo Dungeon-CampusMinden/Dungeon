@@ -74,7 +74,7 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
     filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
 
-    if(!LevelEditorSystem.active()) {
+    if (!LevelEditorSystem.active()) {
       drawNamedPoints();
     }
   }
@@ -130,28 +130,39 @@ public class DebugDrawSystem extends System {
     if (CameraSystem.isEntityHovered(entity) && decoComponent.isEmpty()) drawEntityInfo(entity, pc);
   }
 
-  public static void drawNamedPoints(){
+  /** Draws named points from the current level. */
+  public static void drawNamedPoints() {
     drawNamedPoints(null);
   }
-  public static void drawNamedPoints(String highlightPoint){
-    ILevel l = Game.currentLevel().orElse(null);
-    if(l == null) return;
-    DungeonLevel level = (DungeonLevel) l;
-    level.namedPoints().forEach(
-        (name, point) -> {
-          Color color = name.equals(highlightPoint) ? NAMED_POINT_HIGHLIGHT_COLOR : NAMED_POINT_COLOR;
-          // Draw a small purple square at the point location
-          drawRectangleOutline(point.x(), point.y(), 1.0f, 1.0f, color);
 
-          // Draw the name of the point above it
-          drawTextInWorldCoordsCentered(FONT, name, point.translate(0.5f, 0.5f), color);
-        });
+  /**
+   * Draws named points from the current level.
+   *
+   * @param highlightPoint The name of the point to highlight, or null for none.
+   */
+  public static void drawNamedPoints(String highlightPoint) {
+    ILevel l = Game.currentLevel().orElse(null);
+    if (l == null) return;
+    DungeonLevel level = (DungeonLevel) l;
+    level
+        .namedPoints()
+        .forEach(
+            (name, point) -> {
+              Color color =
+                  name.equals(highlightPoint) ? NAMED_POINT_HIGHLIGHT_COLOR : NAMED_POINT_COLOR;
+              // Draw a small purple square at the point location
+              drawRectangleOutline(point.x(), point.y(), 1.0f, 1.0f, color);
+
+              // Draw the name of the point above it
+              drawTextInWorldCoordsCentered(FONT, name, point.translate(0.5f, 0.5f), color);
+            });
   }
 
   /**
    * Draw a red rectangle around the hitbox of the entity.
    *
    * @param entity Entity to draw the rectangle for.
+   * @param alpha Alpha transparency value.
    */
   private void drawCollideHitbox(Entity entity, float alpha) {
     CollideComponent cc =
@@ -176,6 +187,7 @@ public class DebugDrawSystem extends System {
    *
    * @param entity Entity to draw the interaction range for.
    * @param pc PositionComponent of the entity.
+   * @param alpha Alpha transparency value.
    */
   private void drawInteractionRange(Entity entity, PositionComponent pc, float alpha) {
     InteractionComponent ic =
@@ -196,6 +208,7 @@ public class DebugDrawSystem extends System {
    *
    * @param entity Entity to draw the rectangle for.
    * @param pc PositionComponent of the entity.
+   * @param alpha Alpha transparency value.
    */
   private void drawTextureSize(Entity entity, PositionComponent pc, float alpha) {
     DrawComponent dc =
@@ -518,7 +531,8 @@ public class DebugDrawSystem extends System {
    * @param world the world coordinates where the text should be drawn
    * @param color the color of the text
    */
-  public static void drawTextInWorldCoordsCentered(BitmapFont font, String text, Point world, Color color) {
+  public static void drawTextInWorldCoordsCentered(
+      BitmapFont font, String text, Point world, Color color) {
     Vector3 screen = CameraSystem.camera().project(new Vector3(world.x(), world.y(), 0));
     GlyphLayout layout = new GlyphLayout(font, text);
     float textX = screen.x - layout.width / 2f;

@@ -7,8 +7,10 @@ import core.level.loader.DungeonSaver;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/** The SaveMode allows the user to save the current dungeon layout to the clipboard. */
 public class SaveMode extends LevelEditorMode {
 
+  /** Constructs a new SaveMode. */
   public SaveMode() {
     super("Save Mode");
   }

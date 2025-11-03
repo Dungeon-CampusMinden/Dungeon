@@ -3,6 +3,7 @@ package contrib.utils.systems.levelEditor;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Vector3;
 import contrib.systems.DebugDrawSystem;
@@ -11,10 +12,12 @@ import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
+import core.utils.FontHelper;
 import core.utils.Point;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/** The StartTilesMode allows the user to place and manage start tiles in the level editor. */
 public class StartTilesMode extends LevelEditorMode {
 
   private static final Color[] START_TILE_COLORS = {
@@ -30,8 +33,11 @@ public class StartTilesMode extends LevelEditorMode {
     Color.SALMON
   };
 
+  private static final BitmapFont FONT = FontHelper.getDefaultFont(16);
+
   private static int currentStartTileIndex = 0;
 
+  /** Constructs a new StartTilesMode. */
   public StartTilesMode() {
     super("Start Tiles Mode");
   }
@@ -89,9 +95,9 @@ public class StartTilesMode extends LevelEditorMode {
       Point textPosition = position.translate(0.5f, 0.5f);
       Vector3 screen =
           CameraSystem.camera().project(new Vector3(textPosition.x(), textPosition.y(), 0));
-      GlyphLayout textSize = new GlyphLayout(LevelEditorSystem.FONT_SMALL, label);
+      GlyphLayout textSize = new GlyphLayout(FONT, label);
       DebugDrawSystem.drawText(
-          LevelEditorSystem.FONT_SMALL,
+          FONT,
           label,
           new Point(screen.x - textSize.width / 2f, screen.y + textSize.height / 2f),
           color);

@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/** The TilesMode allows the user to place different types of tiles in the level editor. */
 public class TilesMode extends LevelEditorMode {
 
   private static int selectedTileIndexL = 1;
@@ -19,6 +20,7 @@ public class TilesMode extends LevelEditorMode {
   private static int brushSize = 1;
   private static final int MAX_BRUSH_SIZE = 7;
 
+  /** Constructs a new TilesMode. */
   public TilesMode() {
     super("Tiles Mode");
   }

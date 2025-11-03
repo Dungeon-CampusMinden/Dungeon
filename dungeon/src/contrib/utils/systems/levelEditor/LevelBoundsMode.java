@@ -9,8 +9,10 @@ import core.level.utils.LevelElement;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/** LevelBoundsMode allows resizing the level by adding or removing rows and columns. */
 public class LevelBoundsMode extends LevelEditorMode {
 
+  /** Constructor for LevelBoundsMode. */
   public LevelBoundsMode() {
     super("Level Bounds Mode");
   }

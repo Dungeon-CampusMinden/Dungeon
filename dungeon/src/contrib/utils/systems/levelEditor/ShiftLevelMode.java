@@ -9,15 +9,19 @@ import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;
-import core.utils.Direction;
 import core.utils.Point;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
+/**
+ * The ShiftLevelMode allows the user to shift the entire level layout in one of four directions
+ * (up, down, left, right) by one tile, provided that the shift does not overwrite any non-SKIP
+ * tiles.
+ */
 public class ShiftLevelMode extends LevelEditorMode {
 
+  /** Constructs a new ShiftLevelMode. */
   public ShiftLevelMode() {
     super("Level Bounds Mode");
   }
@@ -62,12 +66,12 @@ public class ShiftLevelMode extends LevelEditorMode {
     if (x == 0 && y == 0) return;
 
     String directionName = x == 1 ? "RIGHT" : x == -1 ? "LEFT" : y == 1 ? "UP" : "DOWN";
-    LevelEditorSystem.showFeedback("Shifting level "+directionName, Color.WHITE);
+    LevelEditorSystem.showFeedback("Shifting level " + directionName, Color.WHITE);
 
     DungeonLevel level = getLevel();
     Tile[][] layout = level.layout();
 
-    if(!canShift(layout, x, y)){
+    if (!canShift(layout, x, y)) {
       LevelEditorSystem.showFeedback("Cannot shift level: overwriting non-SKIP tiles!", Color.RED);
       return;
     }
@@ -112,22 +116,25 @@ public class ShiftLevelMode extends LevelEditorMode {
     namedPoints.replaceAll((s, p) -> new Point(p.x() + x, p.y() + y));
 
     // Shift all entities
-    Game.levelEntities(Set.of(PositionComponent.class)).forEach(e -> {
-      PositionComponent pc = e.fetch(PositionComponent.class).orElseThrow();
-      Point old = pc.position();
-      pc.position(new Point(old.x() + x, old.y() + y));
-      PositionSync.syncPosition(e);
-    });
+    Game.levelEntities(Set.of(PositionComponent.class))
+        .forEach(
+            e -> {
+              PositionComponent pc = e.fetch(PositionComponent.class).orElseThrow();
+              Point old = pc.position();
+              pc.position(new Point(old.x() + x, old.y() + y));
+              PositionSync.syncPosition(e);
+            });
   }
 
   /**
    * Check if all tiles that would be deleted by the shift are empty (SKIP).
+   *
    * @param layout the current layout
    * @param x the shift in x direction
    * @param y the shift in y direction
    * @return true if the shift is possible, false otherwise
    */
-  private boolean canShift(Tile[][] layout, int x, int y){
+  private boolean canShift(Tile[][] layout, int x, int y) {
     int rows = layout.length;
     int cols = layout[0].length;
 

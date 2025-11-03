@@ -2,7 +2,6 @@ package core.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
-import contrib.entities.deco.DecoFactory;
 import core.Entity;
 import core.Game;
 import core.System;

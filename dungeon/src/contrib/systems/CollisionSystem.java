@@ -154,8 +154,8 @@ public final class CollisionSystem extends System {
     boolean bStationary = vcb == null || vcb.maxSpeed() == 0f;
 
     if (aStationary && bStationary) {
-      // This is actually a more common case than I expected, so don't spam the logs.
-      //LOGGER.warn("Two stationary solid entities are colliding: {} and {}", cdata.ea, cdata.eb);
+      // No-op. Previously this logged a warning, but stationary solid collisions on decorations
+      // aren't uncommon.
     } else if (aStationary) {
       solidCollide(cdata.ea, cdata.a.collider(), cdata.eb, cdata.b.collider(), d);
     } else if (bStationary) {

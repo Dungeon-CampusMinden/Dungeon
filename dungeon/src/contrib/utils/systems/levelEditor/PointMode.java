@@ -3,29 +3,23 @@ package contrib.utils.systems.levelEditor;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import contrib.components.DecoComponent;
-import contrib.entities.deco.Deco;
-import contrib.entities.deco.DecoFactory;
 import contrib.hud.dialogs.FreeInputDialog;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
-import contrib.utils.EntityUtils;
-import core.Entity;
-import core.Game;
 import core.level.utils.Coordinate;
 import core.utils.Point;
-import core.utils.Vector2;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+/** The PointMode allows the user to place, pick up, and delete named points in the level editor. */
 public class PointMode extends LevelEditorMode {
 
   private static SnapMode snapMode = SnapMode.OnGrid;
   private static String heldPointName = null;
 
+  /** Constructs a new PointMode. */
   public PointMode() {
     super("Point Mode");
   }
@@ -53,18 +47,23 @@ public class PointMode extends LevelEditorMode {
         heldPointName = null;
       } else {
         // Place new point instance
-        FreeInputDialog.showTextInputDialog("Add Named Point", "Name of new point", (string) -> {
-          getLevel().addNamedPoint(string, snapPos);
-        });
+        FreeInputDialog.showTextInputDialog(
+            "Add Named Point",
+            "Name of new point",
+            (string) -> {
+              getLevel().addNamedPoint(string, snapPos);
+            });
       }
     } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT) && heldPointName == null) {
       // Pickup deco on cursor
       Optional<String> clickedPoint = getOnPosition(cursorPos);
-      clickedPoint.ifPresentOrElse(point -> {
-        heldPointName = point;
-      }, () -> {
-        LevelEditorSystem.showFeedback("No point to pickup on coordinate!", Color.YELLOW);
-      });
+      clickedPoint.ifPresentOrElse(
+          point -> {
+            heldPointName = point;
+          },
+          () -> {
+            LevelEditorSystem.showFeedback("No point to pickup on coordinate!", Color.YELLOW);
+          });
     } else if (Gdx.input.isKeyPressed(TERTIARY)) {
       // Delete deco on cursor
       getOnPosition(cursorPos).ifPresent(getLevel()::removeNamedPoint);

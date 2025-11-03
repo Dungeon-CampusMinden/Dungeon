@@ -88,6 +88,12 @@ public class LevelParser {
     return new V2FormatParser().serializeLevel(level);
   }
 
+  /**
+   * Get the version string for a given version number.
+   *
+   * @param version The version number
+   * @return The version string
+   */
   public static String getVersion(int version) {
     return VERSION_PREFIX + version;
   }
