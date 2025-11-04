@@ -9,8 +9,6 @@ import java.util.HashMap;
  *
  * <p>Use {@link #instance()} to get the only instance of the {@link TextureMap}, and use {@link
  * #textureAt(IPath)} to get the texture that is stored at the given path.
- *
- * @see Painter
  */
 public final class TextureMap extends HashMap<String, Texture> {
   private static final TextureMap INSTANCE = new TextureMap();

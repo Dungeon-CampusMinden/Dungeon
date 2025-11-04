@@ -1,7 +1,9 @@
 package core.systems;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Affine2;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
@@ -14,9 +16,10 @@ import core.level.elements.ILevel;
 import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Painter;
-import core.utils.components.draw.PainterConfig;
+import core.utils.components.draw.DrawConfig;
+import core.utils.components.draw.TextureMap;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import java.util.*;
@@ -40,7 +43,6 @@ import java.util.*;
  *
  * @see DrawComponent
  * @see Animation
- * @see Painter
  */
 public final class DrawSystem extends System {
 
@@ -50,27 +52,13 @@ public final class DrawSystem extends System {
    */
   private static final SpriteBatch BATCH = new SpriteBatch();
 
-  /** Draws objects. */
-  private static final Painter PAINTER = new Painter(BATCH);
-
   private final TreeMap<Integer, List<Entity>> sortedEntities = new TreeMap<>();
-  private final Map<IPath, PainterConfig> configs;
 
   /** Create a new DrawSystem. */
   public DrawSystem() {
     super(DrawComponent.class, PositionComponent.class);
     onEntityAdd = (e) -> onEntityChanged(e, true);
     onEntityRemove = (e) -> onEntityChanged(e, false);
-    configs = new HashMap<>();
-  }
-
-  /**
-   * Get the {@link Painter} that is used by this system.
-   *
-   * @return the {@link #PAINTER} of the DrawSystem
-   */
-  public static Painter painter() {
-    return PAINTER;
   }
 
   /**
@@ -193,23 +181,16 @@ public final class DrawSystem extends System {
   private void draw(final DSData dsd) {
     dsd.dc.update();
     Sprite sprite = dsd.dc.getSprite();
-    PainterConfig conf =
-        new PainterConfig(0, 0, dsd.dc.getWidth(), dsd.dc.getHeight(), dsd.dc.tintColor());
+    DrawConfig conf = new DrawConfig(
+        Vector2.ZERO,
+        Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()),
+        dsd.pc.scale(),
+        dsd.dc.tintColor(),
+        dsd.dc.currentAnimation().getConfig().mirrored(),
+        dsd.pc.rotation()
+    );
 
-    conf.scale(dsd.pc.scale());
-    conf.rotation(dsd.pc.rotation());
-    conf.mirrored(dsd.dc.currentAnimation().mirrored());
-
-    if (dsd.dc.currentAnimation().getConfig().centered()) {
-      conf =
-          new PainterConfig(
-              -dsd.dc.getWidth() / 2,
-              -dsd.dc.getHeight() / 2,
-              dsd.dc.getWidth(),
-              dsd.dc.getHeight(),
-              dsd.dc.tintColor());
-    }
-    PAINTER.draw(dsd.pc.position(), sprite, conf);
+    draw(dsd.pc.position(), sprite, conf);
   }
 
   /** DrawSystem can't be paused. */
@@ -238,7 +219,6 @@ public final class DrawSystem extends System {
 
   private void drawLevel(ILevel currentLevel) {
     if (currentLevel == null) throw new IllegalArgumentException("Level to draw can´t be null.");
-    Map<IPath, PainterConfig> mapping = new HashMap<>();
 
     Tile[][] layout = currentLevel.layout();
     for (Tile[] tiles : layout) {
@@ -246,14 +226,58 @@ public final class DrawSystem extends System {
         Tile t = tiles[x];
         if (t.levelElement() != LevelElement.SKIP && !isTilePitAndOpen(t) && t.visible()) {
           IPath texturePath = t.texturePath();
-          if (!mapping.containsKey(texturePath)
-              || (mapping.get(texturePath).tintColor() != t.tintColor())) {
-            mapping.put(texturePath, new PainterConfig(texturePath, 0, 0, t.tintColor()));
-          }
-          PAINTER.draw(t.position(), texturePath, mapping.get(texturePath));
+          draw(t.position(), texturePath, new DrawConfig());
         }
       }
     }
+  }
+
+  /**
+   * Draws a sprite at a given position with the specified configuration and rotation.
+   *
+   * <p>The sprite will only be drawn if its position is within the camera's frustum.
+   *
+   * @param position the world position where the sprite should be drawn
+   * @param sprite the {@link Sprite} to draw
+   * @param config the {@link DrawConfig} controlling scaling, tint, and offset
+   */
+  public void draw(final Point position, final Sprite sprite, final DrawConfig config) {
+    sprite.setFlip(config.mirrored(), false);
+
+    // Calculate transformations
+    Affine2 transform = new Affine2();
+
+    transform.setToTranslation(position.x(), position.y());
+
+    // Scale first while origin is in the bottom-left
+    transform.scale(config.scale().x(), config.scale().y());
+
+    // Then rotate around the middle
+    transform.translate(config.size().x() / 2f, config.size().y() / 2f);
+    transform.rotate(config.rotation());
+    transform.translate(-config.size().x() / 2f, -config.size().y() / 2f);
+
+    // Apply tint color if specified
+    if (config.tintColor() != -1) {
+      BATCH.setColor(new Color(config.tintColor()));
+    } else {
+      BATCH.setColor(Color.WHITE);
+    }
+    BATCH.draw(sprite, config.size().x(), config.size().y(), transform);
+  }
+
+  /**
+   * Draws a texture from a path at a given position using the specified configuration.
+   *
+   * <p>This method automatically wraps the texture in a {@link Sprite} using {@link TextureMap} and
+   * delegates to {@link #draw(Point, Sprite, DrawConfig)}.
+   *
+   * @param position the world position where the texture should be drawn
+   * @param path the {@link IPath} identifying the texture to draw
+   * @param config the {@link DrawConfig} controlling scaling, tint, and offset
+   */
+  public void draw(final Point position, final IPath path, final DrawConfig config) {
+    draw(position, new Sprite(TextureMap.instance().textureAt(path)), config);
   }
 
   /**
