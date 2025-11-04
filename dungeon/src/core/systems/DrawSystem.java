@@ -8,10 +8,12 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Matrix4; // <-- ADDED: Needed for setting FBO projection
 import com.badlogic.gdx.utils.Disposable;
 import contrib.utils.EntityUtils;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -67,9 +69,6 @@ public final class DrawSystem extends System implements Disposable {
   // Assuming 16x16 pixel sprites are 1x1 world units. Adjust if your game uses a different value.
   private static final float PIXELS_PER_WORLD_UNIT = 16.0f;
 
-  // Temporary flag to enable drawing the raw FBO for debugging Pass 1.
-  private static final boolean DEBUG_FBO_OUTPUT = false;
-
   private final TreeMap<Integer, List<Entity>> sortedEntities = new TreeMap<>();
 
   // NEW: Dependency on the FBO Pool
@@ -83,6 +82,8 @@ public final class DrawSystem extends System implements Disposable {
 
   // Reusable Matrix4 for setting the FBO batch projection
   private final Matrix4 fboProjectionMatrix = new Matrix4();
+
+  private float secondsElapsed = 0f;
 
   /** Create a new DrawSystem. */
   public DrawSystem() {
@@ -169,6 +170,8 @@ public final class DrawSystem extends System implements Disposable {
 
     // Update the FBO Pool to cull unused FBOs
     FBO_POOL.update();
+
+    secondsElapsed += deltaTime;
   }
 
   /**
@@ -254,20 +257,20 @@ public final class DrawSystem extends System implements Disposable {
       fboBatch.begin(); // Use dedicated FBO batch
 
       // Bind the custom shader and uniforms
-      pass.bind(fboBatch, deltaTime); // Bind to FBO batch
+      pass.bind(fboBatch, deltaTime);
+      setCommonUniforms(fboBatch.getShader(), fboRegion);
 
       // Draw the current source texture to the target FBO
       // Note: FBO textures are typically rendered upside down. We use TextureRegion
       // to correct the flip before drawing to the next FBO.
       fboRegion.setRegion(currentSourceTexture);
-      fboRegion.flip(false, true); // Flip vertically
+      fboRegion.flip(false, true);
 
-      fboBatch.draw(
-          fboRegion, 0, 0, fboWidth, fboHeight); // Use dedicated FBO batch. All in PIXELS.
+      fboBatch.draw(fboRegion, 0, 0, fboWidth, fboHeight);
 
       // Unbind the shader
-      pass.unbind(fboBatch); // Unbind from FBO batch
-      fboBatch.end(); // Use dedicated FBO batch
+      pass.unbind(fboBatch);
+      fboBatch.end();
 
       currentTarget.end();
 
@@ -277,11 +280,32 @@ public final class DrawSystem extends System implements Disposable {
     }
 
     // --- 4. Store Final Result and Free the other FBO ---
-    dsd.dc.frameBuffer(currentTarget); // Store the final FBO reference (A or B)
+    dsd.dc.frameBuffer(currentTarget);
 
     // The one that was NOT the final target is returned to the pool
     FrameBuffer unusedFbo = currentTarget == fboA ? fboB : fboA;
     FBO_POOL.free(unusedFbo);
+  }
+
+  /** Sets any common uniforms needed by all shaders. */
+  private void setCommonUniforms(ShaderProgram shader, TextureRegion texture) {
+    // Common uniforms:
+    // u_time: Total time elapsed in seconds
+    // u_resolution: Resolution of the texture to draw in pixels
+    // u_mouse: Mouse position
+    // u_texelSize: Size of the texture in pixels
+    // u_aspect: Aspect ratio of the texture
+    shader.setUniformf("u_time", secondsElapsed);
+    shader.setUniformf("u_resolution", texture.getRegionWidth(), texture.getRegionHeight());
+    Point mousePos = SkillTools.cursorPositionAsPoint();
+    shader.setUniformf("u_mouse", mousePos.x(), mousePos.y());
+    shader.setUniformf(
+        "u_texelSize",
+        PIXELS_PER_WORLD_UNIT / texture.getRegionWidth(),
+        PIXELS_PER_WORLD_UNIT / texture.getRegionHeight());
+    shader.setUniformf(
+        "u_aspect",
+        (float) texture.getRegionWidth() / (float) texture.getRegionHeight());
   }
 
   /**
@@ -306,22 +330,6 @@ public final class DrawSystem extends System implements Disposable {
     FrameBuffer finalFbo = dsd.dc.frameBuffer();
 
     if (finalFbo != null) {
-
-      // --- DEBUGGING BLOCK: To inspect the raw FBO output ---
-      if (DEBUG_FBO_OUTPUT) {
-        Texture fboTexture = finalFbo.getColorBufferTexture();
-        fboRegion.setRegion(fboTexture);
-        fboRegion.flip(false, true); // Still needs the flip for screen draw
-
-        // Draw the raw FBO output at screen (0,0) without any world transform.
-        BATCH.draw(fboRegion, 0, 0, finalFbo.getWidth(), finalFbo.getHeight());
-
-        // We still need to free the FBO if we don't draw the entity
-        FBO_POOL.free(finalFbo);
-        dsd.dc.frameBuffer(null);
-        return; // Skip normal rendering if debugging
-      }
-      // --- END DEBUGGING BLOCK ---
 
       // --- Draw FBO Texture (Shader Result) ---
       Texture fboTexture = finalFbo.getColorBufferTexture();

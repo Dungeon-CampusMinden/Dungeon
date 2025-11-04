@@ -1,6 +1,7 @@
 package core.utils.components.draw.shader;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -214,6 +215,26 @@ public abstract class AbstractShader implements Disposable {
       texture.bind(unit);
       // 2. Set the shader uniform to the corresponding texture unit index
       program.setUniformi(name, unit);
+    }
+  }
+
+  protected static class ColorUniform implements UniformBinding {
+    private final String name;
+    private final Color value;
+
+    public ColorUniform(String name, Color value) {
+      this.name = name;
+      this.value = value;
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public void bind(ShaderProgram program) {
+      program.setUniformf(name, value);
     }
   }
 }
