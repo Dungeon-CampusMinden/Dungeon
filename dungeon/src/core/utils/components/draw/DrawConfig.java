@@ -13,12 +13,7 @@ import core.utils.Vector2;
  * @param rotation The rotation of the texture in degrees.
  */
 public record DrawConfig(
-  Vector2 offset,
-  Vector2 size,
-  Vector2 scale,
-  int tintColor,
-  boolean mirrored,
-  float rotation) {
+    Vector2 offset, Vector2 size, Vector2 scale, int tintColor, boolean mirrored, float rotation) {
 
   // --- Primary Canonical Constructor ---
   // The canonical constructor is implicitly generated for all fields.
@@ -33,9 +28,7 @@ public record DrawConfig(
 
   // --- Unified Helper Constructors ---
 
-  /**
-   * Creates a minimal DrawConfig.
-   */
+  /** Creates a minimal DrawConfig. */
   public DrawConfig() {
     this(Vector2.ZERO, Vector2.ONE, Vector2.ONE, -1, false, 0f);
   }
@@ -48,13 +41,7 @@ public record DrawConfig(
    * @param tintColor The color to tint the texture with.
    */
   public DrawConfig(float xOffset, float yOffset, int tintColor) {
-    this(
-      Vector2.of(xOffset, yOffset),
-      Vector2.ONE,
-      Vector2.ONE,
-      tintColor,
-      false,
-      0f);
+    this(Vector2.of(xOffset, yOffset), Vector2.ONE, Vector2.ONE, tintColor, false, 0f);
   }
 
   /**
@@ -67,13 +54,7 @@ public record DrawConfig(
    * @param tintColor The tint color.
    */
   public DrawConfig(float xOffset, float yOffset, float xSize, float ySize, int tintColor) {
-    this(
-      Vector2.of(xOffset, yOffset),
-      Vector2.of(xSize, ySize),
-      Vector2.ONE,
-      tintColor,
-      false,
-      0f);
+    this(Vector2.of(xOffset, yOffset), Vector2.of(xSize, ySize), Vector2.ONE, tintColor, false, 0f);
   }
 
   // --- Fluent Setter-like Methods (for creating new, modified instances) ---
