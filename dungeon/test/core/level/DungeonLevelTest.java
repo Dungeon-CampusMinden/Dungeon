@@ -138,7 +138,7 @@ public class DungeonLevelTest {
     layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
     layout[0][2] = new ExitTile(new SimpleIPath(""), new Coordinate(2, 0), DesignLabel.DEFAULT);
     DungeonLevel tileLevel = new DungeonLevel(layout);
-    tileLevel.startTile(layout[0][0]);
+    tileLevel.startTiles().add(layout[0][0]);
 
     /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit) SWE FWF FFF */
     GraphPath<Tile> path =
@@ -166,7 +166,7 @@ public class DungeonLevelTest {
     layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
     layout[0][2] = new ExitTile(new SimpleIPath(""), new Coordinate(2, 0), DesignLabel.DEFAULT);
     DungeonLevel tileLevel = new DungeonLevel(layout);
-    tileLevel.startTile(layout[0][0]);
+    tileLevel.startTiles().add(layout[0][0]);
 
     /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit)
     SWE

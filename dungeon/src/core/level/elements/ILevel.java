@@ -6,6 +6,7 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
+import contrib.entities.deco.Deco;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.DungeonLevel;
@@ -36,13 +37,6 @@ public interface ILevel extends IndexedGraph<Tile> {
 
   /** Default random number generator (seeded with current time). */
   Random RANDOM = new Random();
-
-  /**
-   * Sets the start tile for the level.
-   *
-   * @param start The start tile.
-   */
-  void startTile(final Tile start);
 
   /**
    * Adds an unspecified tile to the level.
@@ -202,6 +196,13 @@ public interface ILevel extends IndexedGraph<Tile> {
   Tile[][] layout();
 
   /**
+   * Sets the layout of the level.
+   *
+   * @param layout The new layout of the level as a 2D array of LevelElements.
+   */
+  void setLayout(LevelElement[][] layout);
+
+  /**
    * Get the size (row x col) of the level as a Tuple.
    *
    * <p>{@link Tuple#a()} contains the row size (starting at 1).
@@ -287,11 +288,18 @@ public interface ILevel extends IndexedGraph<Tile> {
   Set<ExitTile> endTiles();
 
   /**
-   * Retrieves the start tile of the level.
+   * Retrieves the first start tile of the level.
    *
-   * @return The start tile of the level.
+   * @return The first start tile of the level.
    */
   Optional<Tile> startTile();
+
+  /**
+   * Retrieves a list of all start tiles in the level.
+   *
+   * @return List of start tiles.
+   */
+  List<Tile> startTiles();
 
   /**
    * Retrieves the tile on which the given entity is standing.
@@ -384,4 +392,11 @@ public interface ILevel extends IndexedGraph<Tile> {
    * @return A list of named points.
    */
   Map<String, Point> namedPoints();
+
+  /**
+   * Returns the list of decorations in the level along with their positions.
+   *
+   * @return A list of tuples containing decorations and their positions.
+   */
+  List<Tuple<Deco, Point>> decorations();
 }

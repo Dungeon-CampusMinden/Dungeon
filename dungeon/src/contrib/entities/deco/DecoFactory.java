@@ -1,6 +1,7 @@
 package contrib.entities.deco;
 
 import contrib.components.CollideComponent;
+import contrib.components.DecoComponent;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -35,6 +36,7 @@ public class DecoFactory {
     DrawComponent dc = new DrawComponent(deco.path(), config);
     dc.depth(depth);
     entity.add(dc);
+    entity.add(new DecoComponent(deco));
 
     if (solidCollider != null) {
       CollideComponent cc = new CollideComponent(solidCollider);

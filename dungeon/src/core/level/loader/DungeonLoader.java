@@ -3,6 +3,7 @@ package core.level.loader;
 import contrib.utils.level.MissingLevelException;
 import core.Game;
 import core.level.DungeonLevel;
+import core.level.Tile;
 import core.level.elements.ILevel;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
@@ -240,6 +241,19 @@ public class DungeonLoader {
     currentVariant = variant;
     IPath levelPath = new SimpleIPath(levelVariants.get(variant));
     Game.currentLevel(DungeonLoader.loadFromPath(levelPath));
+
+    // Set hero on start tile
+    Optional<Tile> startTile = Game.currentLevel().orElseThrow().startTile();
+    startTile.ifPresentOrElse(
+        tile -> {
+          Game.hero()
+              .orElseThrow()
+              .fetch(core.components.PositionComponent.class)
+              .ifPresent(pc -> pc.position(tile.position()));
+        },
+        () -> {
+          LOGGER.warn("No start tile found for the current level");
+        });
   }
 
   private static void setCurrentLevelByLevelName(String levelName) {

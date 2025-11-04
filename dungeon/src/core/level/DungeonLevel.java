@@ -39,7 +39,7 @@ public class DungeonLevel implements ILevel, ITickable {
     Vector2.of(0, 1), Vector2.of(0, -1), Vector2.of(1, 0), Vector2.of(-1, 0),
   };
   protected final TileHeuristic tileHeuristic = new TileHeuristic();
-  protected Tile startTile;
+  protected final ArrayList<Tile> startTiles = new ArrayList<>();
   protected int nodeCount = 0;
   protected Tile[][] layout;
   protected ArrayList<FloorTile> floorTiles = new ArrayList<>();
@@ -297,17 +297,32 @@ public class DungeonLevel implements ILevel, ITickable {
 
   @Override
   public Optional<Tile> startTile() {
-    return Optional.ofNullable(startTile);
+    if (startTiles.isEmpty()) return Optional.empty();
+    return Optional.ofNullable(startTiles.getFirst());
   }
 
   @Override
-  public void startTile(Tile start) {
-    startTile = start;
+  public List<Tile> startTiles() {
+    return startTiles;
+  }
+
+  @Override
+  public void setLayout(LevelElement[][] layout) {
+    DesignLabel design = designLabel().orElseThrow();
+    this.layout = convertLevelElementToTile(layout, design);
+    floorTiles.clear();
+    wallTiles.clear();
+    holeTiles.clear();
+    doorTiles.clear();
+    exitTiles.clear();
+    skipTiles.clear();
+    pitTiles.clear();
+    putTilesInLists();
   }
 
   @Override
   public Optional<Tile> endTile() {
-    return Optional.ofNullable(exitTiles.size() > 0 ? exitTiles.get(0) : null);
+    return Optional.ofNullable(!exitTiles.isEmpty() ? exitTiles.getFirst() : null);
   }
 
   @Override
@@ -352,8 +367,19 @@ public class DungeonLevel implements ILevel, ITickable {
    *
    * @return a list of decoration tuples
    */
+  @Override
   public List<Tuple<Deco, Point>> decorations() {
     return decorations;
+  }
+
+  /**
+   * Adds a decoration to the level at the specified position.
+   *
+   * @param deco the decoration to add
+   * @param position the position to place the decoration
+   */
+  public void addDecoration(Deco deco, Point position) {
+    decorations.add(new Tuple<>(deco, position));
   }
 
   /**

@@ -117,7 +117,11 @@ public final class LevelSystem extends System {
       return Optional.empty();
     }
 
-    doorTile.otherDoor().level().startTile(doorTile.otherDoor().doorstep());
+    List<Tile> startTiles = doorTile.otherDoor().level().startTiles();
+    Tile doorstep = doorTile.otherDoor().doorstep();
+    if (startTiles.isEmpty()) startTiles.add(doorstep);
+    startTiles.set(0, doorstep);
+
     return Optional.ofNullable(doorTile.otherDoor().level());
   }
 

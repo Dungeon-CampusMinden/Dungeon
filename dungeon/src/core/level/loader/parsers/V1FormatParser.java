@@ -39,7 +39,7 @@ public class V1FormatParser extends LevelFormatParser {
     if (heroTile == null) {
       throw new RuntimeException("Invalid Hero Position: " + heroPos);
     }
-    newLevel.startTile(heroTile);
+    newLevel.startTiles().add(heroTile);
 
     return newLevel;
   }
