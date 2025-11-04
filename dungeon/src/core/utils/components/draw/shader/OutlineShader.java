@@ -1,7 +1,6 @@
 package core.utils.components.draw.shader;
 
 import com.badlogic.gdx.graphics.Color;
-
 import java.util.List;
 
 public class OutlineShader extends AbstractShader {
@@ -28,19 +27,15 @@ public class OutlineShader extends AbstractShader {
 
   @Override
   protected List<UniformBinding> getUniforms(float deltaTime) {
-        return List.of(
-                new FloatUniform("u_width", width),
-                new ColorUniform("u_color", color),
-                new FloatUniform("u_beatSpeed", beatSpeed),
-                new FloatUniform("u_beatIntensity", beatIntensity));
+    return List.of(
+        new FloatUniform("u_width", width),
+        new ColorUniform("u_color", color),
+        new FloatUniform("u_beatSpeed", beatSpeed),
+        new FloatUniform("u_beatIntensity", beatIntensity));
   }
 
   @Override
   public float getPadding() {
     return width;
   }
-
-//  public void setTargetHue(float targetHue) {
-//    this.targetHue = targetHue;
-//  }
 }

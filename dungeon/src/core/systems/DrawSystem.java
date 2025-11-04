@@ -69,6 +69,10 @@ public final class DrawSystem extends System implements Disposable {
   // Assuming 16x16 pixel sprites are 1x1 world units. Adjust if your game uses a different value.
   private static final float PIXELS_PER_WORLD_UNIT = 16.0f;
 
+  // NEW: Define the scale factor for the internal shader rendering resolution.
+  // Shaders will run on a buffer that is this many times larger than required.
+  private static final float SHADER_UPSCALING_FACTOR = 2.0f;
+
   private final TreeMap<Integer, List<Entity>> sortedEntities = new TreeMap<>();
 
   // NEW: Dependency on the FBO Pool
@@ -201,8 +205,14 @@ public final class DrawSystem extends System implements Disposable {
     // Required size is sprite size * scale + 2*padding. All in PIXELS.
     float scaledWidth = dc.getSpriteWidth() * pc.scale().x();
     float scaledHeight = dc.getSpriteHeight() * pc.scale().y();
-    int fboWidth = (int) (scaledWidth + 2 * padding);
-    int fboHeight = (int) (scaledHeight + 2 * padding);
+
+    // Calculate the base pixel size (before upscaling)
+    int baseFboWidth = (int) (scaledWidth + 2 * padding);
+    int baseFboHeight = (int) (scaledHeight + 2 * padding);
+
+    // Apply Upscale Factor to the FBO dimensions
+    int fboWidth = (int) (baseFboWidth * SHADER_UPSCALING_FACTOR);
+    int fboHeight = (int) (baseFboHeight * SHADER_UPSCALING_FACTOR);
 
     // Obtain two FBOs for ping-ponging
     FrameBuffer fboA = FBO_POOL.obtain(fboWidth, fboHeight);
@@ -234,8 +244,13 @@ public final class DrawSystem extends System implements Disposable {
 
     fboBatch.begin(); // Use dedicated FBO batch
     // LOCAL TRANSFORM: Draw the original texture region at the padded offset (position)
-    // using its scaled size. All dimensions and padding are in PIXELS.
-    fboBatch.draw(initialRegion, padding, padding, scaledWidth, scaledHeight);
+    // using its scaled size, **both multiplied by the upscaling factor**.
+    fboBatch.draw(
+        initialRegion,
+        padding * SHADER_UPSCALING_FACTOR,
+        padding * SHADER_UPSCALING_FACTOR,
+        scaledWidth * SHADER_UPSCALING_FACTOR,
+        scaledHeight * SHADER_UPSCALING_FACTOR);
     fboBatch.end(); // Use dedicated FBO batch
 
     currentTarget.end();
@@ -289,23 +304,14 @@ public final class DrawSystem extends System implements Disposable {
 
   /** Sets any common uniforms needed by all shaders. */
   private void setCommonUniforms(ShaderProgram shader, TextureRegion texture) {
-    // Common uniforms:
-    // u_time: Total time elapsed in seconds
-    // u_resolution: Resolution of the texture to draw in pixels
-    // u_mouse: Mouse position
-    // u_texelSize: Size of the texture in pixels
-    // u_aspect: Aspect ratio of the texture
     shader.setUniformf("u_time", secondsElapsed);
     shader.setUniformf("u_resolution", texture.getRegionWidth(), texture.getRegionHeight());
     Point mousePos = SkillTools.cursorPositionAsPoint();
     shader.setUniformf("u_mouse", mousePos.x(), mousePos.y());
     shader.setUniformf(
-        "u_texelSize",
-        PIXELS_PER_WORLD_UNIT / texture.getRegionWidth(),
-        PIXELS_PER_WORLD_UNIT / texture.getRegionHeight());
+        "u_texelSize", 1f / texture.getRegionWidth(), 1f / texture.getRegionHeight());
     shader.setUniformf(
-        "u_aspect",
-        (float) texture.getRegionWidth() / (float) texture.getRegionHeight());
+        "u_aspect", (float) texture.getRegionWidth() / (float) texture.getRegionHeight());
   }
 
   /**
@@ -335,10 +341,12 @@ public final class DrawSystem extends System implements Disposable {
       Texture fboTexture = finalFbo.getColorBufferTexture();
 
       // FIX 1: Convert FBO dimensions (pixels) to World Units
-      // The dimensions of the FBO texture are in pixels. We must convert them
-      // back to world units for the main BATCH to draw them at the correct size.
-      float fboWidthWorldUnits = finalFbo.getWidth() / PIXELS_PER_WORLD_UNIT;
-      float fboHeightWorldUnits = finalFbo.getHeight() / PIXELS_PER_WORLD_UNIT;
+      // Divide the FBO size by the upscaling factor to get the base pixel size (sprite + padding),
+      // then convert that base pixel size to world units.
+      float fboWidthWorldUnits =
+          finalFbo.getWidth() / SHADER_UPSCALING_FACTOR / PIXELS_PER_WORLD_UNIT;
+      float fboHeightWorldUnits =
+          finalFbo.getHeight() / SHADER_UPSCALING_FACTOR / PIXELS_PER_WORLD_UNIT;
 
       Vector2 fboSize = Vector2.of(fboWidthWorldUnits, fboHeightWorldUnits);
       float padding = dsd.getMaxPadding(); // Padding is in PIXELS
