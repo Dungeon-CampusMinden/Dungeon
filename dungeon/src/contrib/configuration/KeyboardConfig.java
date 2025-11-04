@@ -48,7 +48,7 @@ public class KeyboardConfig {
    * inventory.
    *
    * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
-   * @see contrib.hud.inventory.InventoryGUI#inHeroInventory
+   * @see contrib.hud.inventory.InventoryGUI#inPlayerInventory
    */
   public static final ConfigKey<Integer> MOUSE_USE_ITEM =
       new ConfigKey<>(new String[] {"item", "mouse"}, new ConfigIntValue(Input.Buttons.RIGHT));

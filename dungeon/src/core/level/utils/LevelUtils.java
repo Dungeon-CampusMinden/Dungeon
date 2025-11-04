@@ -180,9 +180,9 @@ public final class LevelUtils {
    * @return Path from the entity to the player, if there is no player, the path from the entity to
    *     itself.
    */
-  public static GraphPath<Tile> calculatePathToHero(final Entity entity) {
-    Optional<Entity> hero = Game.player();
-    if (hero.isPresent()) return calculatePath(entity, hero.get());
+  public static GraphPath<Tile> calculatePathToPlayer(final Entity entity) {
+    Optional<Entity> player = Game.player();
+    if (player.isPresent()) return calculatePath(entity, player.get());
     else return calculatePath(entity, entity);
   }
 
@@ -476,14 +476,15 @@ public final class LevelUtils {
    * @return true if the player is in the area, false if not.
    * @see #isTileWithinArea(Tile, Coordinate, Coordinate)
    */
-  public static boolean isHeroInArea(Coordinate topLeft, Coordinate bottomRight) {
-    Entity hero = Game.player().orElse(null);
-    if (hero == null) {
+  public static boolean isPlayerInArea(Coordinate topLeft, Coordinate bottomRight) {
+    Entity player = Game.player().orElse(null);
+    if (player == null) {
       return false;
     }
     PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+        player
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(player, PositionComponent.class));
     return Game.tileAt(pc.position())
         .map(tile -> LevelUtils.isTileWithinArea(tile, topLeft, bottomRight))
         .orElse(false);

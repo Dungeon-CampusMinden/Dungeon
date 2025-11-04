@@ -23,7 +23,7 @@ public class TeleporterSystem extends System {
   // A set of all teleporters in the game.
   private final Set<Teleporter> teleporters = new HashSet<>();
 
-  private Point lastHeroPos = new Point(0, 0);
+  private Point lastPlayerPos = new Point(0, 0);
 
   // A flag indicating whether the player has just teleported.
   private boolean justTeleported = false;
@@ -39,14 +39,14 @@ public class TeleporterSystem extends System {
       return;
     }
 
-    if (!heroMoved()) return; // Only consider teleporting if the player has moved
-    this.lastHeroPos = EntityUtils.getHeroPosition();
-    if (lastHeroPos == null) {
+    if (!playerMoved()) return; // Only consider teleporting if the player has moved
+    this.lastPlayerPos = EntityUtils.getPlayerPosition();
+    if (lastPlayerPos == null) {
       return;
     }
     Point destination = null;
     for (Teleporter teleporter : teleporters) {
-      destination = teleporter.getCurrentDestination(lastHeroPos);
+      destination = teleporter.getCurrentDestination(lastPlayerPos);
       if (destination != null) {
         break;
       }
@@ -57,7 +57,7 @@ public class TeleporterSystem extends System {
     }
 
     if (!justTeleported) { // Prevent teleporting back and forth
-      teleportHero(destination);
+      teleportPlayer(destination);
     }
   }
 
@@ -66,8 +66,8 @@ public class TeleporterSystem extends System {
    *
    * @return True if the player has moved, false otherwise.
    */
-  private boolean heroMoved() {
-    return lastHeroPos != null && !lastHeroPos.equals(EntityUtils.getHeroPosition());
+  private boolean playerMoved() {
+    return lastPlayerPos != null && !lastPlayerPos.equals(EntityUtils.getPlayerPosition());
   }
 
   /**
@@ -76,15 +76,16 @@ public class TeleporterSystem extends System {
    *
    * @param destination The destination to teleport the player to.
    */
-  private void teleportHero(Point destination) {
-    Entity hero = Game.player().orElse(null);
-    if (hero == null) {
+  private void teleportPlayer(Point destination) {
+    Entity player = Game.player().orElse(null);
+    if (player == null) {
       return;
     }
-    PositionComponent heroPosition =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    heroPosition.position(destination);
+    PositionComponent playerPosition =
+        player
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(player, PositionComponent.class));
+    playerPosition.position(destination);
     this.justTeleported = true;
   }
 

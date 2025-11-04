@@ -59,7 +59,7 @@ public class Level009 extends BlocklyLevel {
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(12, 4));
-    LevelManagementUtils.heroViewDirection(Direction.DOWN);
+    LevelManagementUtils.playerViewDirection(Direction.DOWN);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
 

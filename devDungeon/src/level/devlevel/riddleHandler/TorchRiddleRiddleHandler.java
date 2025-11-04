@@ -68,7 +68,7 @@ public class TorchRiddleRiddleHandler {
             "",
             "Riddle: The Torch Riddle",
             new Point(riddleDoor.x() - 1 + 0.5f, riddleDoor.y() - 1 + 0.5f),
-            (sign, hero) -> {
+            (sign, player) -> {
               try {
                 // Updates content based on random riddle values
                 updateRiddleSign(getSumOfLitTorches());
@@ -111,7 +111,7 @@ public class TorchRiddleRiddleHandler {
 
     if (sum == riddleSearchedSum) {
       solveRiddle();
-      if (!rewardGiven && checkIfHeroIsInCenter()) {
+      if (!rewardGiven && checkIfPlayerIsInCenter()) {
         giveReward();
       }
     }
@@ -169,12 +169,12 @@ public class TorchRiddleRiddleHandler {
    *
    * @return true if the player is in the center of the riddle room, false otherwise.
    */
-  private boolean checkIfHeroIsInCenter() {
-    Optional<Entity> hero = Game.player();
-    return hero.isPresent()
+  private boolean checkIfPlayerIsInCenter() {
+    Optional<Entity> player = Game.player();
+    return player.isPresent()
         && level
-            .tileAtEntity(hero.get())
-            .map(heroTile -> heroTile.equals(level.tileAt(riddleCenter).orElse(null)))
+            .tileAtEntity(player.get())
+            .map(playerTile -> playerTile.equals(level.tileAt(riddleCenter).orElse(null)))
             .orElse(false);
   }
 

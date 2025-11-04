@@ -85,16 +85,17 @@ public class DamagedBridgeRiddleHandler {
 
   /** Handles the tick of the riddle room. */
   public void onTick() {
-    if (isHeroInRiddleRoom()) {
+    if (isPlayerInRiddleRoom()) {
       LevelUtils.changeVisibilityForArea(
           riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), true);
       riddleExit.open();
 
-      Entity hero = Game.player().orElse(null);
-      if (hero == null) return;
+      Entity player = Game.player().orElse(null);
+      if (player == null) return;
       PositionComponent pc =
-          hero.fetch(PositionComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+          player
+              .fetch(PositionComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(player, PositionComponent.class));
 
       if (!rewardGiven && riddleRewardSpawn.equals(pc.coordinate())) {
         giveReward();
@@ -113,7 +114,7 @@ public class DamagedBridgeRiddleHandler {
             + " additional maximum health points \nas a reward for solving this puzzle!",
         "Riddle solved");
     Game.player()
-        .flatMap(hero -> hero.fetch(HealthComponent.class))
+        .flatMap(player -> player.fetch(HealthComponent.class))
         .ifPresent(
             hc -> {
               hc.maximalHealthpoints(hc.maximalHealthpoints() + RIDDLE_REWARD);
@@ -134,15 +135,15 @@ public class DamagedBridgeRiddleHandler {
    *
    * @return true if the player is in the riddle room, false otherwise.
    */
-  private boolean isHeroInRiddleRoom() {
-    Point heroPos = EntityUtils.getHeroPosition();
-    if (heroPos == null) {
+  private boolean isPlayerInRiddleRoom() {
+    Point playerPos = EntityUtils.getPlayerPosition();
+    if (playerPos == null) {
       return true; // if player dies due to pit, still show riddle room
     }
-    return LevelUtils.isHeroInArea(
+    return LevelUtils.isPlayerInArea(
             riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate())
-        || level.tileAt(heroPos).map(t -> t == riddleEntrance).orElse(false)
-        || level.tileAt(heroPos).map(t -> t == riddleExit).orElse(false);
+        || level.tileAt(playerPos).map(t -> t == riddleEntrance).orElse(false)
+        || level.tileAt(playerPos).map(t -> t == riddleExit).orElse(false);
   }
 
   /**

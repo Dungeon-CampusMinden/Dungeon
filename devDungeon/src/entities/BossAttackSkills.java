@@ -21,7 +21,7 @@ import java.util.function.Supplier;
  */
 public class BossAttackSkills {
 
-  private static final Supplier<Point> HERO_POSITION = EntityUtils::getHeroPosition;
+  private static final Supplier<Point> PLAYER_POSITION = EntityUtils::getPlayerPosition;
 
   /** Damage for the fire shock wave skill that the boss uses. (default: 1) */
   private static final int SHOCKWAVE_DAMAGE = 1;
@@ -60,7 +60,7 @@ public class BossAttackSkills {
    */
   public static Skill fireWall(int wallWidth) {
     return new FireballWallSkill(
-        HERO_POSITION,
+        PLAYER_POSITION,
         FIREBALL_COOLDOWN,
         FIREBALL_SPEED,
         FIREBALL_RANGE,
@@ -97,7 +97,7 @@ public class BossAttackSkills {
   public static Skill fireCone(
       int degree, int delayMillis, float fireballSpeed, int fireballDamage) {
     return new FireballConeSkill(
-        HERO_POSITION,
+        PLAYER_POSITION,
         FIREBALL_COOLDOWN,
         fireballSpeed,
         FIREBALL_RANGE,
@@ -211,6 +211,6 @@ public class BossAttackSkills {
    */
   public static Skill normalAttack(int coolDown) {
     return new DoubleFireballSkill(
-        HERO_POSITION, coolDown, FIREBALL_SPEED, FIREBALL_RANGE, FIREBALL_DAMAGE);
+        PLAYER_POSITION, coolDown, FIREBALL_SPEED, FIREBALL_RANGE, FIREBALL_DAMAGE);
   }
 }

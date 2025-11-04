@@ -51,7 +51,7 @@ public class Level014 extends BlocklyLevel {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusOn(new Coordinate(5, 8));
-    LevelManagementUtils.heroViewDirection(Direction.UP);
+    LevelManagementUtils.playerViewDirection(Direction.UP);
     LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(

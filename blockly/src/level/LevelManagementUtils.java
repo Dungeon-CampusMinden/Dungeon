@@ -8,7 +8,7 @@ import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.systems.CameraSystem;
 import core.utils.Direction;
-import core.utils.MissingHeroException;
+import core.utils.MissingPlayerException;
 import core.utils.components.MissingComponentException;
 
 /**
@@ -38,23 +38,23 @@ public class LevelManagementUtils {
    * Focuses the camera on the player entity. Removes existing camera components and adds a camera
    * component to the player.
    *
-   * @throws MissingHeroException if the player entity is not present.
+   * @throws MissingPlayerException if the player entity is not present.
    */
   public static void cameraFocusHero() {
     Game.levelEntities()
         .filter(e -> e.isPresent(CameraComponent.class))
         .forEach(entity -> entity.remove(CameraComponent.class));
-    Game.player().orElseThrow(() -> new MissingHeroException()).add(new CameraComponent());
+    Game.player().orElseThrow(MissingPlayerException::new).add(new CameraComponent());
   }
 
   /**
    * Repositions the player entity to the center of its current tile.
    *
-   * @throws MissingHeroException if the player entity is not present.
+   * @throws MissingPlayerException if the player entity is not present.
    * @throws MissingComponentException if the player does not have a PositionComponent.
    */
   public static void centerHero() {
-    Entity hero = Game.player().orElseThrow(() -> new MissingHeroException());
+    Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
@@ -65,10 +65,10 @@ public class LevelManagementUtils {
    * Sets the viewing direction of the player.
    *
    * @param viewDirection The new viewing direction to be set for the player.
-   * @throws MissingHeroException if the player entity is not present.
+   * @throws MissingPlayerException if the player entity is not present.
    */
-  public static void heroViewDirection(Direction viewDirection) {
-    Entity hero = Game.player().orElseThrow(() -> new MissingHeroException());
+  public static void playerViewDirection(Direction viewDirection) {
+    Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
     hero.fetch(PositionComponent.class).ifPresent(pc -> pc.viewDirection(viewDirection));
   }
 

@@ -68,7 +68,7 @@ public class Level004 extends BlocklyLevel {
     }
     cameraFocusOn(new Coordinate(12, 5));
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
+    LevelManagementUtils.playerViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
     door1 = (DoorTile) Game.tileAt(new Coordinate(8, 3)).orElse(null);
     door1.close();

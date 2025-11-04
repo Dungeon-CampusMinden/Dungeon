@@ -619,7 +619,7 @@ public class AnswerPickingFunctionsTest {
     sc.addAnswer(answerB);
     sc.addCorrectAnswerIndex(1);
     sc.scoringFunction(GradingFunctions.singleChoiceGrading());
-    sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
+    sc.answerPickingFunction(AnswerPickingFunctions.playerInventoryPicker());
 
     // setup player
     Entity hero = EntityFactory.newHero();
@@ -636,7 +636,7 @@ public class AnswerPickingFunctionsTest {
     QuestItem answerAItem = new QuestItem(null, answerAComponent);
     QuestItem answerBItem = new QuestItem(null, answerBComponent);
 
-    Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.heroInventoryPicker();
+    Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.playerInventoryPicker();
     // add answer to chest
     ic.add(answerAItem);
     ic.add(answerBItem);
@@ -654,7 +654,7 @@ public class AnswerPickingFunctionsTest {
     sc.addAnswer(answerB);
     sc.addCorrectAnswerIndex(1);
     sc.scoringFunction(GradingFunctions.singleChoiceGrading());
-    sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
+    sc.answerPickingFunction(AnswerPickingFunctions.playerInventoryPicker());
 
     // setup player
     Entity hero = EntityFactory.newHero();
@@ -672,7 +672,7 @@ public class AnswerPickingFunctionsTest {
     QuestItem answerAItem = new QuestItem(null, answerAComponent);
     QuestItem answerBItem = new QuestItem(null, answerBComponent);
 
-    Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.heroInventoryPicker();
+    Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.playerInventoryPicker();
     // add answer to chest
     ic.add(answerAItem);
     ic.add(answerBItem);
@@ -691,7 +691,7 @@ public class AnswerPickingFunctionsTest {
     sc.addAnswer(answerB);
     sc.addCorrectAnswerIndex(1);
     sc.scoringFunction(GradingFunctions.singleChoiceGrading());
-    sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
+    sc.answerPickingFunction(AnswerPickingFunctions.playerInventoryPicker());
 
     // setup player
     Entity hero = EntityFactory.newHero();
@@ -708,7 +708,7 @@ public class AnswerPickingFunctionsTest {
     QuestItem answerAItem = new QuestItem(null, answerAComponent);
     QuestItem answerBItem = new QuestItem(null, answerBComponent);
 
-    Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.heroInventoryPicker();
+    Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.playerInventoryPicker();
 
     assertEquals(0, callback.apply(sc).size());
   }
@@ -724,7 +724,7 @@ public class AnswerPickingFunctionsTest {
     sc.addAnswer(answerB);
     sc.addCorrectAnswerIndex(1);
     sc.scoringFunction(GradingFunctions.singleChoiceGrading());
-    sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
+    sc.answerPickingFunction(AnswerPickingFunctions.playerInventoryPicker());
 
     // setup player
     Entity hero = EntityFactory.newHero();
@@ -741,7 +741,7 @@ public class AnswerPickingFunctionsTest {
     QuestItem answerAItem = new QuestItem(null, answerAComponent);
     QuestItem answerBItem = new QuestItem(null, answerBComponent);
 
-    Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.heroInventoryPicker();
+    Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.playerInventoryPicker();
     ic.add(Mockito.mock(Item.class));
     ic.add(Mockito.mock(Item.class));
     assertEquals(0, callback.apply(sc).size());
@@ -758,7 +758,7 @@ public class AnswerPickingFunctionsTest {
     sc.addAnswer(answerB);
     sc.addCorrectAnswerIndex(1);
     sc.scoringFunction(GradingFunctions.singleChoiceGrading());
-    sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
+    sc.answerPickingFunction(AnswerPickingFunctions.playerInventoryPicker());
 
     // setup player
     Entity hero = EntityFactory.newHero();
@@ -775,7 +775,7 @@ public class AnswerPickingFunctionsTest {
     QuestItem answerAItem = new QuestItem(null, answerAComponent);
     QuestItem answerBItem = new QuestItem(null, answerBComponent);
 
-    Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.heroInventoryPicker();
+    Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.playerInventoryPicker();
     assertEquals(0, callback.apply(sc).size());
   }
 
@@ -790,7 +790,7 @@ public class AnswerPickingFunctionsTest {
     sc.addAnswer(answerB);
     sc.addCorrectAnswerIndex(1);
     sc.scoringFunction(GradingFunctions.singleChoiceGrading());
-    sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
+    sc.answerPickingFunction(AnswerPickingFunctions.playerInventoryPicker());
 
     // setup player
     Entity hero = EntityFactory.newHero();
@@ -818,7 +818,7 @@ public class AnswerPickingFunctionsTest {
     TaskContentComponent answerB2Component = new TaskContentComponent(answerB2);
     QuestItem answerA2Item = new QuestItem(null, answerA2Component);
     QuestItem answerB2Item = new QuestItem(null, answerB2Component);
-    Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.heroInventoryPicker();
+    Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.playerInventoryPicker();
     // add answer to chest
     ic.add(answerAItem);
     ic.add(answerBItem);

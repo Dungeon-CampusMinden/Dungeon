@@ -50,7 +50,7 @@ public class AttackSpeedEffect {
           "Attack speed can only be applied to player entities.");
     }
 
-    Skill fireball = heroFireballSkill();
+    Skill fireball = playerFireballSkill();
     if (fireball != null) {
       this.originalFireballCoolDown = fireball.cooldown();
       fireball.cooldown((long) (originalFireballCoolDown / speedMultiplier));
@@ -60,9 +60,9 @@ public class AttackSpeedEffect {
     }
   }
 
-  private Skill heroFireballSkill() {
+  private Skill playerFireballSkill() {
     return Game.player()
-        .flatMap(hero -> hero.fetch(SkillComponent.class))
+        .flatMap(player -> player.fetch(SkillComponent.class))
         .flatMap(sc -> sc.getSkill(FireballSkill.class))
         .orElse(null);
   }

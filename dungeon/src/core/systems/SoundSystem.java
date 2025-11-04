@@ -149,7 +149,7 @@ public class SoundSystem extends System {
 
   private Optional<Point> getListenerPosition() {
     return Game.player()
-        .flatMap(hero -> hero.fetch(PositionComponent.class))
+        .flatMap(player -> player.fetch(PositionComponent.class))
         .map(PositionComponent::position);
   }
 }

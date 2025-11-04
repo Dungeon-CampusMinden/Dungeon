@@ -14,7 +14,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
-import core.utils.MissingHeroException;
+import core.utils.MissingPlayerException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.monster.BlocklyMonster;
@@ -54,8 +54,8 @@ public class Level020 extends BlocklyLevel {
    */
   private boolean executeCheck = true;
 
-  private PositionComponent heropc;
-  private VelocityComponent herovc;
+  private PositionComponent playerPc;
+  private VelocityComponent playerVc;
 
   private Entity boss;
   private PositionComponent bosspc;
@@ -102,12 +102,12 @@ public class Level020 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusOn(CAMERA_POINT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
-    Entity hero = Game.player().orElseThrow(MissingHeroException::new);
-    heropc =
+    LevelManagementUtils.playerViewDirection(Direction.RIGHT);
+    Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
+    playerPc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    herovc =
+    playerVc =
         hero.fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
 
@@ -159,14 +159,14 @@ public class Level020 extends BlocklyLevel {
    * beginning is considered a safe zone and is excluded from the check.
    */
   private void redLightGreenLight() {
-    float x = heropc.position().x();
-    float y = heropc.position().y();
+    float x = playerPc.position().x();
+    float y = playerPc.position().y();
 
     // The small area at the beginning is a safe zone
     boolean inSafeZone = x <= 6 || (x <= 3 && y >= 6 && y <= 8);
     if (!inSafeZone) {
       if (bosspc.viewDirection() == Direction.LEFT) {
-        if (herovc.currentVelocity().length() > 0) {
+        if (playerVc.currentVelocity().length() > 0) {
           DialogUtils.showTextPopup("HAB ICH DICH!", "GAME OVER!", Client::restart);
         }
       }
@@ -180,7 +180,7 @@ public class Level020 extends BlocklyLevel {
    * all scheduled actions will be cleared.
    */
   private void checkEscapeDistance() {
-    float heroX = heropc.position().x();
+    float heroX = playerPc.position().x();
     float bossX = bosspc.position().x();
 
     // If the player gets close enough to the boss, the boss escapes

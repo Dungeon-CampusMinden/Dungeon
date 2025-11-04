@@ -59,13 +59,13 @@ public class Debugger extends System {
     LOGGER.debug("New Camera Zoom {}", CameraSystem.camera().zoom);
   }
 
-  /** Teleports the Hero to the current position of the cursor. */
+  /** Teleports the Player to the current position of the cursor. */
   public static void TELEPORT_TO_CURSOR() {
     LOGGER.info("TELEPORT TO CURSOR");
     TELEPORT(SkillTools.cursorPositionAsPoint());
   }
 
-  /** Teleports the Hero to the end of the level, on a neighboring accessible tile if possible. */
+  /** Teleports the Player to the end of the level, on a neighboring accessible tile if possible. */
   public static void TELEPORT_TO_END() {
     LOGGER.info("TELEPORT TO END");
 
@@ -86,7 +86,7 @@ public class Debugger extends System {
             });
   }
 
-  /** Will teleport the Hero on the EndTile so the next level gets loaded. */
+  /** Will teleport the Player on the EndTile so the next level gets loaded. */
   public static void LOAD_NEXT_LEVEL() {
     LOGGER.info("TELEPORT ON END");
     Game.endTiles().stream().findFirst().ifPresent(Debugger::TELEPORT);
@@ -115,11 +115,12 @@ public class Debugger extends System {
   public static void TELEPORT(Point targetLocation) {
     Game.player()
         .ifPresent(
-            hero -> {
+            player -> {
               PositionComponent pc =
-                  hero.fetch(PositionComponent.class)
+                  player
+                      .fetch(PositionComponent.class)
                       .orElseThrow(
-                          () -> MissingComponentException.build(hero, PositionComponent.class));
+                          () -> MissingComponentException.build(player, PositionComponent.class));
 
               // Attempt to teleport to targetLocation
               LOGGER.info("Attempting to teleport to {}", targetLocation);

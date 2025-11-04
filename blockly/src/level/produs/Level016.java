@@ -10,7 +10,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
-import core.utils.MissingHeroException;
+import core.utils.MissingPlayerException;
 import core.utils.Point;
 import entities.monster.BlocklyMonster;
 import java.util.Map;
@@ -68,10 +68,10 @@ public class Level016 extends BlocklyLevel {
     }
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
-    LevelManagementUtils.heroViewDirection(Direction.UP);
+    LevelManagementUtils.playerViewDirection(Direction.UP);
     LevelManagementUtils.zoomDefault();
     Game.player()
-        .orElseThrow(MissingHeroException::new)
+        .orElseThrow(MissingPlayerException::new)
         .fetch(AmmunitionComponent.class)
         .orElseThrow()
         .currentAmmunition(4);

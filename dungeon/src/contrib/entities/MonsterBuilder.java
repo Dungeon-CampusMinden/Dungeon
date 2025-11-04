@@ -698,10 +698,11 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
   protected void playDeathSoundIfNearby(Entity diedMonster, MonsterDeathSound deathSound) {
     if (Game.player().isEmpty()) return;
 
-    Entity hero = Game.player().get();
+    Entity player = Game.player().get();
     PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+        player
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(player, PositionComponent.class));
     PositionComponent monsterPc =
         diedMonster
             .fetch(PositionComponent.class)

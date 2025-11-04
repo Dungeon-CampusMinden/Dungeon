@@ -7,7 +7,7 @@ import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
-import core.utils.MissingHeroException;
+import core.utils.MissingPlayerException;
 import core.utils.components.MissingComponentException;
 
 /**
@@ -28,11 +28,12 @@ public class FireballScheduler {
   private static final FireballSkill fireballSkill =
       new FireballSkill(
           () -> {
-            Entity hero = Game.player().orElseThrow(MissingHeroException::new);
-            return hero.fetch(CollideComponent.class)
+            Entity player = Game.player().orElseThrow(MissingPlayerException::new);
+            return player
+                .fetch(CollideComponent.class)
                 .map(cc -> cc.collider().absoluteCenter())
-                .map(p -> p.translate(EntityUtils.getViewDirection(hero)))
-                .orElseThrow(() -> MissingComponentException.build(hero, CollideComponent.class));
+                .map(p -> p.translate(EntityUtils.getViewDirection(player)))
+                .orElseThrow(() -> MissingComponentException.build(player, CollideComponent.class));
           },
           1,
           FIREBALL_SPEED,
@@ -50,7 +51,7 @@ public class FireballScheduler {
   public static void shoot() {
     EventScheduler.scheduleAction(
         () -> {
-          Entity hero = Game.player().orElseThrow(MissingHeroException::new);
+          Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
           hero.fetch(AmmunitionComponent.class)
               .filter(AmmunitionComponent::checkAmmunition)
               .ifPresent(ac -> aimAndShoot(ac, hero));

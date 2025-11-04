@@ -146,7 +146,7 @@ public class BlocklyCommandExecuteSystem extends System {
     if (direction == Direction.UP || direction == Direction.DOWN) {
       return; // no rotation
     }
-    Entity hero = Game.player().orElseThrow(MissingHeroException::new);
+    Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
     Direction newDirection = viewDirection.applyRelative(direction);
     turnEntity(hero, newDirection);
@@ -165,7 +165,7 @@ public class BlocklyCommandExecuteSystem extends System {
    * <p>Also moves the "Blockly Black Knight" entity if present.
    */
   private void move() {
-    Entity hero = Game.player().orElseThrow(MissingHeroException::new);
+    Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
     move(viewDirection, () -> {}, hero);
     Game.levelEntities()
@@ -192,7 +192,7 @@ public class BlocklyCommandExecuteSystem extends System {
    * @param push True if you want to push, false if you want to pull.
    */
   private void movePushable(boolean push) {
-    Entity hero = Game.player().orElseThrow(MissingHeroException::new);
+    Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
     // do not push or pull if the player is frozen
     if (hero.fetch(VelocityComponent.class)
         .map(VelocityComponent::maxSpeed)
@@ -361,7 +361,7 @@ public class BlocklyCommandExecuteSystem extends System {
    * @param direction Direction in which the player will search for an interactable.
    */
   private void interact(Direction direction) {
-    Entity hero = Game.player().orElseThrow(MissingHeroException::new);
+    Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));

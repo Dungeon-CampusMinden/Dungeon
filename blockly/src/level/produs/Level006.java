@@ -64,7 +64,7 @@ public class Level006 extends BlocklyLevel {
     }
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
+    LevelManagementUtils.playerViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
     Coordinate stone1C = getPoint(0).toCoordinate();
     Coordinate stone2C = getPoint(1).toCoordinate();

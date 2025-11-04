@@ -337,7 +337,7 @@ public class BlocklyCommands {
                 .flatMap(Game::tileAt);
 
     // calculate direction to check relative to player's view direction
-    return Optional.ofNullable(EntityUtils.getHeroViewDirection())
+    return Optional.ofNullable(EntityUtils.getPlayerViewDirection())
         .map(d -> d.applyRelative(direction))
         .flatMap(dirToCheck);
   }

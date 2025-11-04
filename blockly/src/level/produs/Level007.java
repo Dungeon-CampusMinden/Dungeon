@@ -65,7 +65,7 @@ public class Level007 extends BlocklyLevel {
 
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
-    LevelManagementUtils.heroViewDirection(Direction.LEFT);
+    LevelManagementUtils.playerViewDirection(Direction.LEFT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     Entity s1 = LeverFactory.createLever(getPoint(0));

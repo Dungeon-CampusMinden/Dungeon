@@ -49,7 +49,7 @@ public class Level011 extends BlocklyLevel {
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(8, 6));
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
+    LevelManagementUtils.playerViewDirection(Direction.RIGHT);
     Game.add(MiscFactory.fireballScroll(getPoint(0)));
     Game.add(MiscFactory.fireballScroll(getPoint(1)));
     Game.add(MiscFactory.fireballScroll(getPoint(2)));

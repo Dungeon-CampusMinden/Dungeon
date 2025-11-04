@@ -46,7 +46,7 @@ public class Level018 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
+    LevelManagementUtils.playerViewDirection(Direction.RIGHT);
     ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
   }
 

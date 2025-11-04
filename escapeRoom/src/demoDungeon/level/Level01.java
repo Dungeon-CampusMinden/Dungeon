@@ -102,14 +102,16 @@ public class Level01 extends DungeonLevel {
     // register hint log
     Game.player()
         .ifPresent(
-            hero ->
-                hero.fetch(InputComponent.class)
+            player ->
+                player
+                    .fetch(InputComponent.class)
                     .ifPresent(
                         inputComponent ->
                             inputComponent.registerCallback(
                                 Input.Keys.T,
                                 entity ->
-                                    hero.fetch(HintLogComponent.class)
+                                    player
+                                        .fetch(HintLogComponent.class)
                                         .ifPresent(HintLogDialog::showHintLog),
                                 false,
                                 true)));

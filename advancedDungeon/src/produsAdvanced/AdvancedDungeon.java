@@ -60,7 +60,7 @@ public class AdvancedDungeon {
       "Da scheint etwas mit meinem Steuerrungscode nicht zu stimmen.";
 
   /** Path to the Java source file of the custom player controller. */
-  private static final SimpleIPath HERO_CONTROLLER_PATH =
+  private static final SimpleIPath PLAYER_CONTROLLER_PATH =
       new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyPlayerController.java");
 
   private static final SimpleIPath FIREBALL_PATH =
@@ -77,7 +77,7 @@ public class AdvancedDungeon {
    * <p>If compilation is successful, the player's controller is updated at runtime. Otherwise, a
    * dialog is shown to indicate an error.
    */
-  private static void recompileHeroControl() {
+  private static void recompilePlayerControl() {
     if (recompilePaused) return;
     try {
 
@@ -85,7 +85,7 @@ public class AdvancedDungeon {
       hero.addSkill((Skill) o);
       o =
           DynamicCompiler.loadUserInstance(
-              HERO_CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
+              PLAYER_CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
       hero.setController((PlayerController) o);
     } catch (Exception e) {
       recompilePaused = true;
@@ -136,7 +136,7 @@ public class AdvancedDungeon {
 
           WindowEventManager.registerFocusChangeListener(
               isInFocus -> {
-                if (isInFocus) recompileHeroControl();
+                if (isInFocus) recompilePlayerControl();
               });
 
           HeroFactory.heroDeath(entity -> restart());
@@ -192,7 +192,7 @@ public class AdvancedDungeon {
     Game.add(heroEntity);
     hero = new Hero(heroEntity);
 
-    if (!DEBUG_MODE) recompileHeroControl();
+    if (!DEBUG_MODE) recompilePlayerControl();
   }
 
   /**

@@ -33,20 +33,20 @@ public final class InteractionTool {
    */
   public static void interactWithClosestInteractable(
       final Entity who, final Function<InteractionData, Boolean> iReachable) {
-    PositionComponent heroPosition =
+    PositionComponent playerPosition =
         who.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(who, PositionComponent.class));
     Optional<InteractionData> data =
         Game.levelEntities()
             .filter(x -> x.isPresent(InteractionComponent.class))
-            .map(x -> convertToData(x, heroPosition))
+            .map(x -> convertToData(x, playerPosition))
             .filter(iReachable::apply)
             .min((x, y) -> Float.compare(x.dist(), y.dist()));
     data.ifPresent(x -> x.ic().triggerInteraction(x.e(), who));
   }
 
   private static InteractionData convertToData(
-      final Entity entity, final PositionComponent heroPosition) {
+      final Entity entity, final PositionComponent playerPosition) {
 
     InteractionComponent ic =
         entity
@@ -60,8 +60,8 @@ public final class InteractionTool {
         entity,
         pc,
         ic,
-        Point.calculateDistance(heroPosition.position(), pc.position()),
-        pc.position().vectorTo(heroPosition.position()).normalize());
+        Point.calculateDistance(playerPosition.position(), pc.position()),
+        pc.position().vectorTo(playerPosition.position()).normalize());
   }
 
   private record InteractionData(

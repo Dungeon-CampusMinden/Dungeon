@@ -87,12 +87,12 @@ public class EntityUtils {
    *
    * @param point The point to which the player should be teleported.
    */
-  public static void teleportHeroTo(Point point) {
-    Entity hero = Game.player().orElse(null);
-    if (hero == null) {
+  public static void teleportPlayerTo(Point point) {
+    Entity player = Game.player().orElse(null);
+    if (player == null) {
       return;
     }
-    teleportEntityTo(hero, point);
+    teleportEntityTo(player, point);
   }
 
   /**
@@ -122,7 +122,7 @@ public class EntityUtils {
    *
    * @return The current position of the player, or a null value if the player is not present.
    */
-  public static Point getHeroPosition() {
+  public static Point getPlayerPosition() {
     // TODO: SMELL!
     // we really shouldn't return `null` if no player was found, but `Optional.empty()` instead!
     return Game.player()
@@ -142,11 +142,11 @@ public class EntityUtils {
    *
    * @return The current coordinates of the player, or null if the player is not present.
    */
-  public static Coordinate getHeroCoordinate() {
-    Point heroPos = getHeroPosition();
+  public static Coordinate getPlayerCoordinate() {
+    Point playerPos = getPlayerPosition();
     // TODO: SMELL!
     // we really shouldn't return `null` if no player was found, but `Optional.empty()` instead!
-    return heroPos == null ? null : heroPos.toCoordinate();
+    return playerPos == null ? null : playerPos.toCoordinate();
   }
 
   /**
@@ -154,7 +154,7 @@ public class EntityUtils {
    *
    * @return the direction the player is facing, or null if there is no player.
    */
-  public static Direction getHeroViewDirection() {
+  public static Direction getPlayerViewDirection() {
     // TODO: SMELL!
     // we really shouldn't return `null` if no player was found, but `Optional.empty()` instead!
     // this approach has been chosen solely to ensure a symmetric modelling to the existing methods.

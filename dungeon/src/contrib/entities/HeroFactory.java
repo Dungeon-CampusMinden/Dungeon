@@ -317,7 +317,7 @@ public final class HeroFactory {
           UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
           if (uiComponent != null
               && uiComponent.dialog() instanceof GUICombination
-              && !InventoryGUI.inHeroInventory) {
+              && !InventoryGUI.inPlayerInventory) {
             // if chest or cauldron
             entity.remove(UIComponent.class);
           } else {
@@ -366,7 +366,7 @@ public final class HeroFactory {
                   // z-Index
                   .orElse(null);
           if (firstUI != null) {
-            InventoryGUI.inHeroInventory = false;
+            InventoryGUI.inPlayerInventory = false;
             firstUI.a().remove(UIComponent.class);
             if (firstUI.a().componentStream().findAny().isEmpty()) {
               Game.remove(firstUI.a()); // delete unused Entity
@@ -385,11 +385,11 @@ public final class HeroFactory {
     UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
     if (uiComponent != null) {
       if (uiComponent.dialog() instanceof GUICombination) {
-        InventoryGUI.inHeroInventory = false;
+        InventoryGUI.inPlayerInventory = false;
         entity.remove(UIComponent.class);
       }
     } else {
-      InventoryGUI.inHeroInventory = true;
+      InventoryGUI.inPlayerInventory = true;
       entity.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
     }
   }

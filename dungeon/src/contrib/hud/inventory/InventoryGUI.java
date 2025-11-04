@@ -52,7 +52,7 @@ public class InventoryGUI extends CombinableGUI {
    *
    * <p>Will be set to true if the player inventory is opened and set to false if it's closed.
    */
-  public static boolean inHeroInventory = false;
+  public static boolean inPlayerInventory = false;
 
   static {
     // Prepare background texture
@@ -300,7 +300,7 @@ public class InventoryGUI extends CombinableGUI {
                   .item()
                   .drop(
                       Game.player()
-                          .orElseThrow(MissingHeroException::new)
+                          .orElseThrow(MissingPlayerException::new)
                           .fetch(PositionComponent.class)
                           .orElseThrow(
                               () ->
@@ -355,7 +355,7 @@ public class InventoryGUI extends CombinableGUI {
             new InputListener() {
               @Override
               public boolean keyDown(InputEvent event, int keycode) {
-                if (inHeroInventory) {
+                if (inPlayerInventory) {
                   if (KeyboardConfig.USE_ITEM.value() == keycode) {
                     InventoryGUI.this.useItem(
                         InventoryGUI.this.inventoryComponent.get(
@@ -369,7 +369,7 @@ public class InventoryGUI extends CombinableGUI {
               @Override
               public boolean touchDown(
                   InputEvent event, float x, float y, int pointer, int button) {
-                if (inHeroInventory) {
+                if (inPlayerInventory) {
                   if (KeyboardConfig.MOUSE_USE_ITEM.value() == button) {
                     // if in player inventory, allow using items if key is pressed
                     InventoryGUI.this.useItem(

@@ -298,9 +298,10 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
    */
   private DevDungeonRoom getCurrentRoom() {
     return Game.player()
-        .flatMap(hero -> hero.fetch(PositionComponent.class))
+        .flatMap(player -> player.fetch(PositionComponent.class))
         .flatMap(
-            heroPc -> rooms.stream().filter(room -> room.contains(heroPc.position())).findFirst())
+            playerPc ->
+                rooms.stream().filter(room -> room.contains(playerPc.position())).findFirst())
         .orElse(null);
   }
 

@@ -60,8 +60,8 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
   public void accept(final Entity entity) {
     switch (proximity(entity)) {
       case IN_RANGE -> useSkill(fightSkill, entity);
-      case TOO_CLOSE -> moveAwayFromHero(entity);
-      case TOO_FAR -> moveToHero(entity);
+      case TOO_CLOSE -> moveAwayFromPlayer(entity);
+      case TOO_FAR -> moveToPlayer(entity);
     }
   }
 
@@ -93,15 +93,15 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    *
    * @param entity The entity to move.
    */
-  private void moveAwayFromHero(Entity entity) {
+  private void moveAwayFromPlayer(Entity entity) {
     // Get player position
     Game.player()
         .flatMap(Game::positionOf)
         // Get entity position and determine escape path
         .flatMap(
-            positionHero ->
+            positionPlayer ->
                 Game.positionOf(entity)
-                    .map(positionEntity -> escapePath(entity, positionEntity, positionHero)))
+                    .map(positionEntity -> escapePath(entity, positionEntity, positionPlayer)))
         // Move entity if a path is found
         .ifPresent(path -> AIUtils.followPath(entity, path));
   }
@@ -112,12 +112,12 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    *
    * @param entity The entity to escape.
    * @param positionEntity The position of the entity.
-   * @param positionHero The position of the player.
+   * @param positionPlayer The position of the player.
    * @return A path to safety, either to a reachable tile outside the minimum attack range or a
    *     random tile within the search radius.
    */
-  private GraphPath<Tile> escapePath(Entity entity, Point positionEntity, Point positionHero) {
-    return findPathToSafety(positionEntity, positionHero)
+  private GraphPath<Tile> escapePath(Entity entity, Point positionEntity, Point positionPlayer) {
+    return findPathToSafety(positionEntity, positionPlayer)
         .orElseGet(
             () ->
                 LevelUtils.calculatePathToRandomTileInRange(
@@ -129,14 +129,14 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    * range from the player.
    *
    * @param positionEntity The position of the entity.
-   * @param positionHero The position of the player.
+   * @param positionPlayer The position of the player.
    * @return An optional containing the path to safety, or empty if no such path exists.
    */
-  private Optional<GraphPath<Tile>> findPathToSafety(Point positionEntity, Point positionHero) {
+  private Optional<GraphPath<Tile>> findPathToSafety(Point positionEntity, Point positionPlayer) {
     List<Tile> tiles = accessibleTilesInRange(positionEntity, maxAttackRange - minAttackRange);
     for (Tile t : tiles) {
       Point p = t.position();
-      if (!Point.inRange(p, positionHero, minAttackRange)) {
+      if (!Point.inRange(p, positionPlayer, minAttackRange)) {
         return Optional.of(LevelUtils.calculatePath(positionEntity, p));
       }
     }
@@ -148,8 +148,8 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    *
    * @param entity The entity to move.
    */
-  private void moveToHero(Entity entity) {
-    GraphPath<Tile> path = LevelUtils.calculatePathToHero(entity);
+  private void moveToPlayer(Entity entity) {
+    GraphPath<Tile> path = LevelUtils.calculatePathToPlayer(entity);
     AIUtils.followPath(entity, path);
   }
 

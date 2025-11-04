@@ -4,7 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 import core.Entity;
 import core.Game;
-import core.utils.MissingHeroException;
+import core.utils.MissingPlayerException;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
 import graph.petrinet.Place;
@@ -467,7 +467,7 @@ public abstract class Task {
   }
 
   private void removeQuestItems() {
-    Entity hero = Game.player().orElseThrow(MissingHeroException::new);
+    Entity player = Game.player().orElseThrow(MissingPlayerException::new);
     Task t = this;
     // remove all quest items in invetorys
     Game.allEntities()
@@ -490,10 +490,11 @@ public abstract class Task {
             });
   }
 
-  private void removeQuestItemFromInventory(Entity hero) {
+  private void removeQuestItemFromInventory(Entity player) {
     InventoryComponent ic =
-        hero.fetch(InventoryComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, InventoryComponent.class));
+        player
+            .fetch(InventoryComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(player, InventoryComponent.class));
     Task t = this;
     ic.items(QuestItem.class)
         .forEach(

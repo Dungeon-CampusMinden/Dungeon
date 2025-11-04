@@ -61,10 +61,10 @@ public final class SkillTools {
    *
    * @return The current player position as Point.
    */
-  public static Point heroPositionAsPoint() {
+  public static Point playerPositionAsPoint() {
     PositionComponent pc =
         Game.player()
-            .orElseThrow(() -> new MissingHeroException("There is no player in the game."))
+            .orElseThrow(() -> new MissingPlayerException("There is no player in the game."))
             .fetch(PositionComponent.class)
             .orElseThrow(
                 () ->

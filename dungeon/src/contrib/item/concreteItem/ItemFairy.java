@@ -55,8 +55,8 @@ public class ItemFairy extends Item {
           (self, other, dir) -> {
             Game.player()
                 .ifPresent(
-                    hero -> {
-                      if (other.equals(hero)) {
+                    player -> {
+                      if (other.equals(player)) {
                         other
                             .fetch(HealthComponent.class)
                             .ifPresent(

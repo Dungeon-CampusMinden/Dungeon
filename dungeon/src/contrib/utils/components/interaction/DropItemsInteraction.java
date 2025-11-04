@@ -63,7 +63,7 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
 
     for (Item item : inventoryComponent.items()) {
       if (item != null && !this.tryDropItem(item, positionComponent)) {
-        this.dropItemAtHeroPosition(item);
+        this.dropItemAtPlayerPosition(item);
       }
     }
   }
@@ -96,12 +96,12 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
    *
    * @param item The item to drop
    */
-  private void dropItemAtHeroPosition(Item item) {
-    Point heroPosition =
+  private void dropItemAtPlayerPosition(Item item) {
+    Point playerPosition =
         Game.player()
-            .flatMap(hero -> hero.fetch(PositionComponent.class))
+            .flatMap(player -> player.fetch(PositionComponent.class))
             .map(PositionComponent::position)
             .orElseGet(() -> new Point(0, 0));
-    item.drop(heroPosition);
+    item.drop(playerPosition);
   }
 }

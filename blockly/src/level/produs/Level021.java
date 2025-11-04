@@ -11,7 +11,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
-import core.utils.MissingHeroException;
+import core.utils.MissingPlayerException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
@@ -28,7 +28,7 @@ public class Level021 extends BlocklyLevel {
   private static boolean showText = true;
   private static final int ESCAPE_DISTANCE = 1;
 
-  private PositionComponent heroPC;
+  private PositionComponent playerPC;
 
   private Entity boss;
   private PositionComponent bossPC;
@@ -66,7 +66,7 @@ public class Level021 extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.zoomOut();
-    LevelManagementUtils.heroViewDirection(Direction.DOWN);
+    LevelManagementUtils.playerViewDirection(Direction.DOWN);
     Game.randomTile(LevelElement.DOOR).ifPresent(d -> ((DoorTile) d).close());
 
     Game.allTiles(LevelElement.PIT)
@@ -108,8 +108,8 @@ public class Level021 extends BlocklyLevel {
         boss.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(boss, PositionComponent.class));
 
-    Entity hero = Game.player().orElseThrow(MissingHeroException::new);
-    heroPC =
+    Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
+    playerPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
 
@@ -123,7 +123,7 @@ public class Level021 extends BlocklyLevel {
   @Override
   protected void onTick() {
     if (boss == null) return;
-    float x = heroPC.position().x();
+    float x = playerPC.position().x();
     if (x >= bossPC.position().x() - ESCAPE_DISTANCE) {
       DialogUtils.showTextPopup(
           "Wie hast du das geschafft? Nur die besten Programmierer hätten dieses Rätsel lösen können.",
