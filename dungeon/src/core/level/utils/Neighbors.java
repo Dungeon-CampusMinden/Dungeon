@@ -91,74 +91,172 @@ public final class Neighbors {
     return TileTextureFactory.get(layout, c.x(), c.y());
   }
 
+  /**
+   * Returns the center coordinate for which this neighborhood snapshot was created.
+   *
+   * @return the center coordinate
+   */
   public Coordinate getP() {
     return p;
   }
 
+  /**
+   * Returns the coordinate to the left (west) of the center point.
+   *
+   * @return the left (west) coordinate
+   */
   public Coordinate getLeft() {
     return left;
   }
 
+  /**
+   * Returns the coordinate to the right (east) of the center point.
+   *
+   * @return the right (east) coordinate
+   */
   public Coordinate getRight() {
     return right;
   }
 
+  /**
+   * Returns the coordinate above (north of) the center point.
+   *
+   * @return the up (north) coordinate
+   */
   public Coordinate getUp() {
     return up;
   }
 
+  /**
+   * Returns the coordinate below (south of) the center point.
+   *
+   * @return the down (south) coordinate
+   */
   public Coordinate getDown() {
     return down;
   }
 
+  /**
+   * Returns the coordinate diagonally up-left (northwest) of the center point.
+   *
+   * @return the up-left (northwest) coordinate
+   */
   public Coordinate getUpLeft() {
     return upLeft;
   }
 
+  /**
+   * Returns the coordinate diagonally up-right (northeast) of the center point.
+   *
+   * @return the up-right (northeast) coordinate
+   */
   public Coordinate getUpRight() {
     return upRight;
   }
 
+  /**
+   * Returns the coordinate diagonally down-left (southwest) of the center point.
+   *
+   * @return the down-left (southwest) coordinate
+   */
   public Coordinate getDownLeft() {
     return downLeft;
   }
 
+  /**
+   * Returns the coordinate diagonally down-right (southeast) of the center point.
+   *
+   * @return the down-right (southeast) coordinate
+   */
   public Coordinate getDownRight() {
     return downRight;
   }
 
+  /**
+   * Returns the {@link LevelElement} located to the left (west) of the center, or {@code null} if
+   * the coordinate is out of bounds.
+   *
+   * @return the left (west) element, or {@code null} if outside the layout
+   */
   public LevelElement getLeftE() {
     return leftE;
   }
 
+  /**
+   * Returns the {@link LevelElement} located to the right (east) of the center, or {@code null} if
+   * the coordinate is out of bounds.
+   *
+   * @return the right (east) element, or {@code null} if outside the layout
+   */
   public LevelElement getRightE() {
     return rightE;
   }
 
+  /**
+   * Returns the {@link LevelElement} located above (north of) the center, or {@code null} if the
+   * coordinate is out of bounds.
+   *
+   * @return the up (north) element, or {@code null} if outside the layout
+   */
   public LevelElement getUpE() {
     return upE;
   }
 
+  /**
+   * Returns the {@link LevelElement} located below (south of) the center, or {@code null} if the
+   * coordinate is out of bounds.
+   *
+   * @return the down (south) element, or {@code null} if outside the layout
+   */
   public LevelElement getDownE() {
     return downE;
   }
 
+  /**
+   * Returns the {@link LevelElement} located diagonally up-left (northwest) of the center, or
+   * {@code null} if the coordinate is out of bounds.
+   *
+   * @return the up-left (northwest) element, or {@code null} if outside the layout
+   */
   public LevelElement getUpLeftE() {
     return upLeftE;
   }
 
+  /**
+   * Returns the {@link LevelElement} located diagonally up-right (northeast) of the center, or
+   * {@code null} if the coordinate is out of bounds.
+   *
+   * @return the up-right (northeast) element, or {@code null} if outside the layout
+   */
   public LevelElement getUpRightE() {
     return upRightE;
   }
 
+  /**
+   * Returns the {@link LevelElement} located diagonally down-left (southwest) of the center, or
+   * {@code null} if the coordinate is out of bounds.
+   *
+   * @return the down-left (southwest) element, or {@code null} if outside the layout
+   */
   public LevelElement getDownLeftE() {
     return downLeftE;
   }
 
+  /**
+   * Returns the {@link LevelElement} located diagonally down-right (southeast) of the center, or
+   * {@code null} if the coordinate is out of bounds.
+   *
+   * @return the down-right (southeast) element, or {@code null} if outside the layout
+   */
   public LevelElement getDownRightE() {
     return downRightE;
   }
 
+  /**
+   * Returns the {@link LevelElement} at the center coordinate used to construct this snapshot.
+   *
+   * @return the center element, or {@code null} if the center was outside the layout
+   */
   public LevelElement getCenterE() {
     return centerE;
   }

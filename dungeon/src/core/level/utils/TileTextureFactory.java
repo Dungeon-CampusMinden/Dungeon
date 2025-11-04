@@ -16,16 +16,26 @@ public class TileTextureFactory {
    * Logical axis used by wall grouping and stem detection. VERTICAL checks up/down neighbors;
    * HORIZONTAL checks left/right neighbors.
    */
-  public enum Axis {
+  private enum Axis {
+    /** Checks vertical alignment by comparing the up and down neighbors. */
     VERTICAL,
+
+    /** Checks horizontal alignment by comparing the left and right neighbors. */
     HORIZONTAL
   }
 
   /**
-   * Corner quadrants relative to a cell, used for inner-corner and diagonal checks: UL
-   * (upper-left), UR (upper-right), BL (bottom-left), BR (bottom-right).
+   * Represents the four corner quadrants relative to a cell. Used for inner-corner and diagonal
+   * texture checks:
+   *
+   * <ul>
+   *   <li>{@code UL} – upper-left
+   *   <li>{@code UR} – upper-right
+   *   <li>{@code BL} – bottom-left
+   *   <li>{@code BR} – bottom-right
+   * </ul>
    */
-  public enum Corner {
+  private enum Corner {
     UR,
     UL,
     BR,
@@ -36,26 +46,54 @@ public class TileTextureFactory {
    * Cardinal directions with integer step deltas used for neighborhood traversal and
    * orientation-sensitive wall logic.
    *
-   * <p>Each constant defines ({@code dx}, {@code dy}) offsets.
+   * <p>Each direction defines ({@code dx}, {@code dy}) offsets indicating how a coordinate changes
+   * when moving one step in that direction.
    */
-  public enum Dir {
+  private enum Dir {
+
+    /** Moves one step upward (positive Y). */
     UP(0, 1),
+
+    /** Moves one step downward (negative Y). */
     DOWN(0, -1),
+
+    /** Moves one step to the left (negative X). */
     LEFT(-1, 0),
+
+    /** Moves one step to the right (positive X). */
     RIGHT(1, 0);
 
-    public final int dx;
-    public final int dy;
+    /** The x-axis delta applied when stepping in this direction. */
+    private final int dx;
 
+    /** The y-axis delta applied when stepping in this direction. */
+    private final int dy;
+
+    /**
+     * Creates a direction with the given coordinate deltas.
+     *
+     * @param dx the x-axis delta
+     * @param dy the y-axis delta
+     */
     Dir(int dx, int dy) {
       this.dx = dx;
       this.dy = dy;
     }
 
+    /**
+     * Returns {@code true} if this direction is vertical ({@link #UP} or {@link #DOWN}).
+     *
+     * @return whether the direction is vertical
+     */
     public boolean isVertical() {
       return this == UP || this == DOWN;
     }
 
+    /**
+     * Returns {@code true} if this direction is horizontal ({@link #LEFT} or {@link #RIGHT}).
+     *
+     * @return whether the direction is horizontal
+     */
     public boolean isHorizontal() {
       return this == LEFT || this == RIGHT;
     }
@@ -75,8 +113,8 @@ public class TileTextureFactory {
   /**
    * Resolves the texture path for the given level part by consulting specialized resolvers in
    * priority order: floor → door → wall → T-junction → inner corner. The returned path is prefixed
-   * with the active design directory (`dungeon/<design>/`) and suffixed with `.png`. If no resolver
-   * matches, falls back to `floor/empty.png`.
+   * with the active design directory {@code dungeon/<design>/} and suffixed with {@code .png}. If
+   * no resolver matches, this method falls back to {@code floor/empty.png}.
    *
    * @param levelPart the level part (element, design, layout, position) to resolve
    * @return a path pointing to the chosen texture within the design root, never {@code null}
