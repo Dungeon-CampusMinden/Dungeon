@@ -1,17 +1,12 @@
 package entities.levercommands;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import contrib.components.LeverComponent;
-import contrib.systems.EventScheduler;
 import contrib.systems.LeverSystem;
 import contrib.utils.ICommand;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
-import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
 import systems.FogOfWarSystem;
 
 /**
@@ -27,8 +22,7 @@ import systems.FogOfWarSystem;
  * @see LeverComponent LeverComponent
  */
 public class OpenPassageCommand implements ICommand {
-  private static final IPath OPEN_PASSAGE =
-      new SimpleIPath("sounds/dragging_a_cinderblock_across_concrete.wav");
+  private static final String OPEN_PASSAGE = "dragging_a_cinderblock_across_concrete";
   private final Coordinate topLeft;
   private final Coordinate bottomRight;
   private boolean isOpen = false;
@@ -93,15 +87,6 @@ public class OpenPassageCommand implements ICommand {
   }
 
   private void playSound() {
-    Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(OPEN_PASSAGE.pathString()));
-
-    // Play the sound with the adjusted pitch
-    long soundId = soundEffect.play();
-    soundEffect.setPitch(soundId, 0.57f);
-
-    // Set the volume
-    soundEffect.setVolume(soundId, 0.1f);
-
-    EventScheduler.scheduleAction(soundEffect::dispose, 10000L);
+    Game.soundPlayer().play(OPEN_PASSAGE, 0.1f, false, 0.57f, 0);
   }
 }

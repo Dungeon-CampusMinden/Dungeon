@@ -1,8 +1,5 @@
 package contrib.entities;
 
-import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
-
 /**
  * Enum for the different sounds that a monster can make when idling.
  *
@@ -11,29 +8,28 @@ import core.utils.components.path.SimpleIPath;
  */
 public enum MonsterIdleSound {
   /** A basic idle sound. */
-  BASIC("sounds/monster2.wav"),
+  BASIC("monster2"),
   /** A burp-like idle sound. */
-  BURP("sounds/monster3.wav"),
+  BURP("monster3"),
   /** A low-pitched idle sound. */
-  LOWER_PITCH("sounds/monster4.wav"),
+  LOWER_PITCH("monster4"),
   /** A high-pitched idle sound. */
-  HIGH_PITCH("sounds/monster1.wav"),
+  HIGH_PITCH("monster1"),
   /** No sound. */
   NONE("");
 
-  private final IPath path;
+  private final String soundId;
 
-  MonsterIdleSound(String path) {
-    this.path = new SimpleIPath(path);
+  MonsterIdleSound(String soundId) {
+    this.soundId = soundId;
   }
 
   /**
-   * Returns the monster's idle path.
+   * Returns the monster's idle sound unique identifier.
    *
-   * @return The path of the monster's while idling sound. If the monster has no sound, returns an
-   *     empty path.
+   * @return The sound effect unique identifier.
    */
-  public IPath path() {
-    return path;
+  public String soundId() {
+    return soundId;
   }
 }

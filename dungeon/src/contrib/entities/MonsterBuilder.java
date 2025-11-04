@@ -1,8 +1,5 @@
 package contrib.entities;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
@@ -10,7 +7,6 @@ import contrib.components.IdleSoundComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.SpikyComponent;
 import contrib.item.Item;
-import contrib.systems.EventScheduler;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import core.Entity;
@@ -56,13 +52,6 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
   private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
 
   private static final float DEATH_SOUND_VOLUME = 0.35f;
-
-  /**
-   * The delay in seconds, for when the death sound should be disposed.
-   *
-   * <p>This value practically defines the maximum length of a death sound.
-   */
-  protected static final int DEATH_SOUND_DISPOSE_DELAY = 10;
 
   // Basic config
   private String name = "";
@@ -453,7 +442,7 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
    * @return optional death sound
    */
   public Optional<MonsterDeathSound> deathSound() {
-    if (deathSound == null || deathSound.path().pathString().isEmpty()) {
+    if (deathSound == null || deathSound.soundId().isEmpty()) {
       return Optional.empty();
     }
     return Optional.of(deathSound);
@@ -465,7 +454,7 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
    * @return optional idle sound IPath
    */
   public Optional<MonsterIdleSound> idleSoundPath() {
-    if (idleSound == null || idleSound.path().pathString().isEmpty()) {
+    if (idleSound == null || idleSound.soundId().isEmpty()) {
       return Optional.empty();
     }
     return Optional.of(idleSound);
@@ -642,15 +631,15 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
         entity -> {
           onDeath().accept(entity);
           deathSound()
-              .ifPresent(
-                  deathSound ->
-                      playDeathSoundIfNearby(deathSound.path(), DEATH_SOUND_DISPOSE_DELAY, entity));
+              .ifPresentOrElse(
+                  deathSound -> playDeathSoundIfNearby(entity, deathSound),
+                  () -> {
+                    if (removeOnDeath()) Game.remove(entity);
+                  });
 
           entity
               .fetch(InventoryComponent.class)
               .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
-
-          if (removeOnDeath()) Game.remove(entity);
         };
 
     return new HealthComponent(health, constructedOnDeath);
@@ -677,43 +666,36 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
   }
 
   private Optional<IdleSoundComponent> buildIdleSoundComponent() {
-    return idleSoundPath().flatMap(p -> Optional.of(new IdleSoundComponent(p.path())));
+    return idleSoundPath().flatMap(p -> Optional.of(new IdleSoundComponent(p)));
   }
 
   /**
-   * Play the monster death sound with predefined volume and dispose delay.
+   * Play the monster death sound with predefined volume.
    *
-   * @param soundPath The sound path to be played.
-   * @param disposeDelay The delay in seconds after which the sound should be disposed.
+   * <p>If removeOnDeath is true, the monster entity is removed from the game after the sound
+   * finishes playing.
+   *
+   * @param diedMonster The entity that died.
+   * @param deathSound The death sound to be played.
    */
-  protected void playMonsterDieSound(IPath soundPath, long disposeDelay) {
-    // TODO: Replace with a more robust sound management system
-    if (Gdx.audio == null || Gdx.files == null) {
-      LOGGER.warn("Audio system not initialized, cannot play sound. (path=" + soundPath + ")");
-      return;
-    }
-    Sound sound;
-    try {
-      sound = Gdx.audio.newSound(Gdx.files.internal(soundPath.pathString()));
-    } catch (GdxRuntimeException e) {
-      LOGGER.error("Failed to load sound for entity {} at path: {}", e, soundPath.pathString());
-      return;
-    }
-    long id = sound.play();
-    sound.setLooping(id, false);
-    sound.setVolume(id, DEATH_SOUND_VOLUME);
-
-    EventScheduler.scheduleAction(sound::dispose, disposeDelay * 1000L);
+  private void playMonsterDeathSound(Entity diedMonster, MonsterDeathSound deathSound) {
+    Game.soundPlayer()
+        .play(deathSound.soundId(), DEATH_SOUND_VOLUME)
+        .ifPresent(
+            handle ->
+                handle.onFinished(
+                    () -> {
+                      if (removeOnDeath()) Game.remove(diedMonster);
+                    }));
   }
 
   /**
    * Play the death sound if the hero is within a certain distance.
    *
-   * @param entity The entity that died.
-   * @param soundPath The sound path to be played.
-   * @param disposeDelay The delay in seconds after which the sound should be disposed.
+   * @param diedMonster The entity that died.
+   * @param deathSound The death sound to be played.
    */
-  protected void playDeathSoundIfNearby(IPath soundPath, long disposeDelay, Entity entity) {
+  protected void playDeathSoundIfNearby(Entity diedMonster, MonsterDeathSound deathSound) {
     if (Game.hero().isEmpty()) return;
 
     Entity hero = Game.hero().get();
@@ -721,12 +703,13 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     PositionComponent monsterPc =
-        entity
+        diedMonster
             .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+            .orElseThrow(
+                () -> MissingComponentException.build(diedMonster, PositionComponent.class));
 
     if (pc.position().distance(monsterPc.position()) < MAX_DISTANCE_FOR_DEATH_SOUND) {
-      playMonsterDieSound(soundPath, disposeDelay);
+      playMonsterDeathSound(diedMonster, deathSound);
     }
   }
 

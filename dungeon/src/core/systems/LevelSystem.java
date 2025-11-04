@@ -1,7 +1,5 @@
 package core.systems;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -41,7 +39,7 @@ import java.util.*;
 public final class LevelSystem extends System {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LevelSystem.class);
 
-  private static final String SOUND_EFFECT = "sounds/enterDoor.wav";
+  private static final String SOUND_EFFECT = "enterDoor";
 
   private static ILevel currentLevel;
   private final IVoidFunction onLevelLoad;
@@ -124,10 +122,7 @@ public final class LevelSystem extends System {
   }
 
   private void playSound() {
-    Sound doorSound = Gdx.audio.newSound(Gdx.files.internal(SOUND_EFFECT));
-    long soundId = doorSound.play();
-    doorSound.setLooping(soundId, false);
-    doorSound.setVolume(soundId, 0.3f);
+    Game.soundPlayer().play(SOUND_EFFECT, 0.3f);
   }
 
   /**

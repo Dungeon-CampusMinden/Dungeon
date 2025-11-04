@@ -74,6 +74,11 @@ public class SoundSystem extends System {
                 IPlayHandle handle = playingSounds.get(entity);
                 if (handle != null) {
                   updateSound(handle, posComp.get().position(), listenerPos.get(), soundComp.get());
+                  if (!handle.isPlaying()) {
+                    // Sound finished playing, clean up
+                    playingSounds.remove(entity);
+                    entity.remove(SoundComponent.class);
+                  }
                 }
               }
             });
@@ -85,18 +90,27 @@ public class SoundSystem extends System {
     if (soundComp.isEmpty()) return;
 
     SoundComponent comp = soundComp.get();
+    // mute at start if out of range
+    float initialVolume = comp.baseVolume();
+    if (comp.maxDistance() > 0) {
+      Optional<PositionComponent> posComp = entity.fetch(PositionComponent.class);
+      Point listenerPos = getListenerPosition().get();
+      if (posComp.isPresent()) {
+        float distance = Point.calculateDistance(posComp.get().position(), listenerPos);
+        if (distance > comp.maxDistance()) {
+          initialVolume = 0;
+        }
+      }
+    }
     Optional<IPlayHandle> handleOpt =
-        soundPlayer.play(comp.soundId(), comp.baseVolume(), comp.looping());
-    handleOpt.ifPresent(
-        handle -> {
-          playingSounds.put(entity, handle);
-        });
+        soundPlayer.play(comp.soundId(), initialVolume, comp.looping(), comp.pitch(), 0);
+    handleOpt.ifPresent(handle -> playingSounds.put(entity, handle));
   }
 
   private void onEntityRemoved(Entity entity) {
-    IPlayHandle handle = playingSounds.remove(entity);
+    IPlayHandle handle = playingSounds.get(entity);
     if (handle != null) {
-      handle.stop();
+      handle.setLooping(false); // stop looping, will be removed when finished
     }
   }
 

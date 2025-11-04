@@ -1,8 +1,6 @@
 package contrib.entities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
-import com.badlogic.gdx.audio.Sound;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
@@ -41,6 +39,7 @@ public final class HeroFactory {
   public static final CharacterClass DEFAULT_HERO_CLASS = CharacterClass.WIZARD;
 
   private static final String MOVEMENT_ID = "Movement";
+  private static final String DEATH_SOUND_ID = "death";
   private static final Consumer<Entity> EXECUTE_ACTIVE_HERO_SKILL =
       entity ->
           entity
@@ -182,13 +181,7 @@ public final class HeroFactory {
             characterClass.hp(),
             entity -> {
               // play sound
-              Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));
-              long soundId = sound.play();
-              sound.setLooping(soundId, false);
-              sound.setVolume(soundId, 0.3f);
-              sound.setLooping(soundId, false);
-              sound.play();
-              sound.setVolume(soundId, 0.9f);
+              Game.soundPlayer().play(DEATH_SOUND_ID, 0.9f);
 
               // relink components for camera
               Entity cameraDummy = new Entity("heroCamera");
