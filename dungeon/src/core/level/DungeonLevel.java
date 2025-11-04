@@ -302,12 +302,6 @@ public class DungeonLevel implements ILevel, ITickable {
   }
 
   @Override
-  public void startTile(Tile start) {
-    if (startTiles.isEmpty()) startTiles.add(start);
-    else startTiles.set(0, start);
-  }
-
-  @Override
   public List<Tile> startTiles() {
     return startTiles;
   }

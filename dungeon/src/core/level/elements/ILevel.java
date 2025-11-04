@@ -39,13 +39,6 @@ public interface ILevel extends IndexedGraph<Tile> {
   Random RANDOM = new Random();
 
   /**
-   * Sets the start tile for the level.
-   *
-   * @param start The start tile.
-   */
-  void startTile(final Tile start);
-
-  /**
    * Adds an unspecified tile to the level.
    *
    * @param tile The tile to be added.
@@ -295,9 +288,9 @@ public interface ILevel extends IndexedGraph<Tile> {
   Set<ExitTile> endTiles();
 
   /**
-   * Retrieves the start tile of the level.
+   * Retrieves the first start tile of the level.
    *
-   * @return The start tile of the level.
+   * @return The first start tile of the level.
    */
   Optional<Tile> startTile();
 
