@@ -63,6 +63,11 @@ public class Level013 extends BlocklyLevel {
         // Kategorien
         "Variablen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level013/wand.png"));
+    addWebPopup(new ImagePopup("popups/level013/Schleife.png"));
+
+
   }
 
   @Override
@@ -72,11 +77,7 @@ public class Level013 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.playerViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
-    if (showText) {
-      DialogUtils.showTextPopup(
-          "Endlich raus da, aber wie geht es jetzt weiter?", "Kapitel 2: Flucht");
-      showText = false;
-    }
+    showPopups();
 
     // create torches and light every second one
     final boolean[] coin = {new Random().nextBoolean()};

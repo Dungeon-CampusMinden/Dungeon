@@ -45,68 +45,10 @@ public class Level001 extends BlocklyLevel {
         "Bedingungen",
         "Sonstige");
 
-    addPopup(
-        new TextPopup(
-            "Willkommen im Blockly Dungeon! Heute wirst du mir helfen, aus den Fängen des Bösen zu entkommen."
-                + " Drücke "
-                + Input.Keys.toString(KeyboardConfig.PAUSE.value())
-                + " wenn ich mich wiederholen soll.",
-            "Blockly Dungeon"));
-
-    addWebPopup(
-        new TextPopup(
-            "Ich bin "
-                + Client.WIZARD_NAME
-                + ", der Codemagier! Mit deiner Hilfe kann ich Zauber wirken – aber nur, wenn du die richtigen Codeblöcke im Browser benutzt. Komm, ich zeige dir, wie das geht!",
-            "Blockly Dungeon"));
-
-    addCodePopup(
-        new TextPopup(
-            "Ich bin "
-                + Client.WIZARD_NAME
-                + ", der Codemagier! Mit deiner Hilfe kann ich Zauber wirken – aber nur, wenn du den richtigen Code im Editor benutzt. Komm, ich zeige dir, wie das geht!",
-            "Blockly Dungeon"));
-
-    addWebPopup(
-        new TextPopup(
-            "Das hier ist der Code. Der Start-Block markiert den Anfang deines Algorithmus – also dort, wo dein Zauber beginnt."
-                + "Tipp: Nutze die Escape-Tate (ESC) oben Links auf deiner Tatatur um Bilder zu schließen.",
-            "Blockly Dungeon"));
     addWebPopup(new ImagePopup("popups/level001/start_block.png"));
-
-    addWebPopup(
-        new TextPopup(
-            "In der Seitenleiste findest du verschiedene Kategorien. Je weiter wir kommen, desto mehr magische Fähigkeiten werden freigeschaltet! Behalte diese Liste also gut im Auge. "
-                + "Klicke mit der linken Maustaste, um dir die Zauber einer Kategorie anzusehen.",
-            "Blockly Dungeon"));
     addWebPopup(new ImagePopup("popups/level001/skills.png"));
-
-    addWebPopup(
-        new TextPopup(
-            "Hier siehst du meine Zauber – oder wie du sie nennen würdest: Code-Blöcke. Mit ihnen sagst du mir, was ich tun soll. "
-                + "Ziehe einfach einen Block mit gedrückter linker Maustaste unter den Start-Block, um deinen ersten Zauber zu wirken!",
-            "Blockly Dungeon"));
-    addWebPopup(new ImagePopup("popups/level001/first_move.png"));
-    addWebPopup(
-        new TextPopup(
-            "Einige Zauber wirken nur in Kombination mit anderen. Das erkennst du an den kleinen Puzzle-Ausschnitten an der Seite.",
-            "Blockly Dungeon"));
-    addWebPopup(new ImagePopup("popups/level001/turn.png"));
-
-    addWebPopup(
-        new TextPopup(
-            "Kombiniere meine Zauber geschickt, um mich bis zum Ausgang zu führen. Gemeinsam können wir das Böse besiegen!",
-            "Blockly Dungeon"));
-    addWebPopup(new ImagePopup("popups/level001/turn_example.png"));
-
-    addWebPopup(
-        new TextPopup(
-            "Mit dem Start-Knopf kannst du mich auf meine Reise schicken. Hab keine Angst, Fehler zu machen – ich bin ein mächtiger Magier und lasse mich so leicht nicht unterkriegen! "
-                + "Wenn etwas schiefgeht, starten wir das Level einfach noch einmal. "
-                + "Und noch ein letzter Tipp: Mit der Taste 'P' kannst du dir das Tutorial jederzeit wieder anschauen.",
-            "Blockly Dungeon"));
-    addWebPopup(new ImagePopup("popups/level001/start.png"));
-    addWebPopup(new ImagePopup("popups/level001/reset.png"));
+    addWebPopup(new ImagePopup("popups/level001/start_game.png"));
+    addWebPopup(new ImagePopup("popups/level001/commands.png"));
   }
 
   @Override

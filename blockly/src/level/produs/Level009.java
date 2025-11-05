@@ -53,6 +53,10 @@ public class Level009 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level009/Feuerball.png"));
+    addWebPopup(new ImagePopup("popups/level009/Feuerball2.png"));
+
   }
 
   @Override
@@ -62,6 +66,10 @@ public class Level009 extends BlocklyLevel {
     LevelManagementUtils.playerViewDirection(Direction.DOWN);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
+
+    showPopups();
+    Game.add(MiscFactory.fireballScroll(getPoint(0)));
+    Game.add(MiscFactory.fireballScroll(getPoint(1)));
 
     BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().addToGame();
     guardBuilder.attackRange(5);
