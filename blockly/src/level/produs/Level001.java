@@ -47,14 +47,9 @@ public class Level001 extends BlocklyLevel {
 
     addWebPopup(new ImagePopup("popups/level001/start_block.png"));
     addWebPopup(new ImagePopup("popups/level001/skills.png"));
-    addWebPopup(new ImagePopup("popups/level001/start_game.png"));
     addWebPopup(new ImagePopup("popups/level001/commands.png"));
-    addWebPopup(new ImagePopup("popups/level001/skills.png"));
-    addWebPopup(new ImagePopup("popups/level001/first_move.png"));
-    addWebPopup(new ImagePopup("popups/level001/turn.png"));
-    addWebPopup(new ImagePopup("popups/level001/turn_example.png"));
-    addWebPopup(new ImagePopup("popups/level001/start.png"));
-    addWebPopup(new ImagePopup("popups/level001/reset.png"));
+    addWebPopup(new ImagePopup("popups/level001/start_game.png"));
+
   }
 
   @Override

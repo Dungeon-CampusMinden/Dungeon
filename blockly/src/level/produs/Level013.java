@@ -79,6 +79,7 @@ public class Level013 extends BlocklyLevel {
     LevelManagementUtils.zoomDefault();
     showPopups();
 
+
     // create torches and light every second one
     final boolean[] coin = {new Random().nextBoolean()};
     namedPoints()

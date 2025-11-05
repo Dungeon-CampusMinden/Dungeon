@@ -66,7 +66,6 @@ public class Level009 extends BlocklyLevel {
     LevelManagementUtils.playerViewDirection(Direction.DOWN);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-
     showPopups();
     Game.add(MiscFactory.fireballScroll(getPoint(0)));
     Game.add(MiscFactory.fireballScroll(getPoint(1)));
