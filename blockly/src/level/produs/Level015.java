@@ -42,11 +42,18 @@ public class Level015 extends BlocklyLevel {
         // Kategorien
         "Variablen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level015/Variable.png"));
+    addWebPopup(new ImagePopup("popups/level015/Variable2.png"));
+    addWebPopup(new ImagePopup("popups/level015/Variable3.png"));
+    addWebPopup(new ImagePopup("popups/level015/Variable4.png"));
+    addWebPopup(new ImagePopup("popups/level015/Variable5.png"));
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
+    showPopups();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusOn(new Coordinate(10, 8));
     LevelManagementUtils.playerViewDirection(Direction.DOWN);

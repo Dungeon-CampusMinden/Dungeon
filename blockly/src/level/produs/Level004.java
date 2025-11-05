@@ -57,15 +57,25 @@ public class Level004 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level004/inventory_character.png"));
+    addWebPopup(new ImagePopup("popups/level004/inventory_character2.png"));
   }
+
+
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     if (showText) {
+
       DialogUtils.showTextPopup("Versuch mal die Schalter zu benutzen.", "Kapitel 1: Ausbruch");
+      showPopups();
       showText = false;
     }
+
+
+
     cameraFocusOn(new Coordinate(12, 5));
     LevelManagementUtils.centerHero();
     LevelManagementUtils.playerViewDirection(Direction.RIGHT);
