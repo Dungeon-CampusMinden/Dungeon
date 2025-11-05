@@ -56,10 +56,6 @@ public class Level003 extends BlocklyLevel {
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     if (showText) {
-      DialogUtils.showTextPopup(
-          "Oh nein, die Abkürzung ist versperrt. Jetzt muss ich den langen Weg nehmen. Wenn es doch nur eine Möglichkeit gäbe, die Strecke schnell zu schaffen.",
-          "Kapitel 1: Ausbruch");
-
       showPopups();
       showText = false;
     }
