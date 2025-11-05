@@ -46,6 +46,10 @@ public class Level003 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+
+
+    addWebPopup(new ImagePopup("popups/level003/loop.png"));
+    addWebPopup(new ImagePopup("popups/level003/loop2.png"));
   }
 
   @Override
@@ -55,6 +59,8 @@ public class Level003 extends BlocklyLevel {
       DialogUtils.showTextPopup(
           "Oh nein, die Abkürzung ist versperrt. Jetzt muss ich den langen Weg nehmen. Wenn es doch nur eine Möglichkeit gäbe, die Strecke schnell zu schaffen.",
           "Kapitel 1: Ausbruch");
+
+      showPopups();
       showText = false;
     }
     LevelManagementUtils.cameraFocusOn(new Coordinate(13, 5));
