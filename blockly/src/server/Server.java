@@ -180,7 +180,6 @@ public class Server {
       for (int i = 0; i < 5; i++) {
         waitDelta(); // waiting for all systems to update once
       }
-
     }
 
     response.append(DungeonLoader.currentLevel()).append(" ");
