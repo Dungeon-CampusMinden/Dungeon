@@ -6,7 +6,6 @@ public class HueRemapShader extends AbstractShader {
 
   private static final String VERT_PATH = "shaders/passthrough.vert";
   private static final String FRAG_PATH = "shaders/hue_remap.frag";
-  //  private static final String FRAG_PATH = "shaders/hue_remap.frag";
 
   private float startingHue;
   private float targetHue;
@@ -24,7 +23,7 @@ public class HueRemapShader extends AbstractShader {
   }
 
   @Override
-  protected List<UniformBinding> getUniforms(float deltaTime) {
+  protected List<UniformBinding> getUniforms() {
     return List.of(
         new FloatUniform("u_startingHue", startingHue),
         new FloatUniform("u_targetHue", targetHue),
@@ -32,11 +31,36 @@ public class HueRemapShader extends AbstractShader {
   }
 
   @Override
-  public float getPadding() {
+  public int getPadding() {
     return 0;
   }
 
-  public void setTargetHue(float targetHue) {
+  // Getters and Setters
+
+  public float startingHue() {
+    return startingHue;
+  }
+
+  public HueRemapShader setStartingHue(float startingHue) {
+    this.startingHue = startingHue;
+    return this;
+  }
+
+  public float targetHue() {
+    return targetHue;
+  }
+
+  public HueRemapShader setTargetHue(float targetHue) {
     this.targetHue = targetHue;
+    return this;
+  }
+
+  public float tolerance() {
+    return tolerance;
+  }
+
+  public HueRemapShader setTolerance(float tolerance) {
+    this.tolerance = tolerance;
+    return this;
   }
 }

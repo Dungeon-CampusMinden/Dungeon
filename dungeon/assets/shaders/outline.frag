@@ -6,8 +6,8 @@ precision mediump float;
 #define TWO_PI 6.2831852
 
 varying vec2 uv;
-uniform sampler2D u_texture;
 
+uniform sampler2D u_texture;
 uniform vec2 u_resolution;
 uniform float u_time;
 uniform vec2 u_mouse;
@@ -16,13 +16,50 @@ uniform vec2 u_aspect;
 
 uniform float u_width;
 uniform vec4 u_color;
-bool u_useTexels = false;
+uniform bool u_isRainbow;
 uniform float u_beatSpeed;
 uniform float u_beatIntensity;
 
-float easeSineSharp(float t) {
-  float s = 0.5 - 0.5 * cos(TWO_PI * t);
-  return pow(s, 1.5);
+// --- Robust RGB → HSV ---
+vec3 rgb2hsv(vec3 c) {
+    float maxC = max(max(c.r, c.g), c.b);
+    float minC = min(min(c.r, c.g), c.b);
+    float delta = maxC - minC;
+    float h = 0.0;
+
+    if (delta > 1e-5) {
+        if (maxC == c.r)
+            h = mod((c.g - c.b) / delta, 6.0);
+        else if (maxC == c.g)
+            h = (c.b - c.r) / delta + 2.0;
+        else
+            h = (c.r - c.g) / delta + 4.0;
+        h /= 6.0;
+    }
+
+    float s = (maxC <= 1e-5) ? 0.0 : delta / maxC;
+    float v = maxC;
+    return vec3(h, s, v);
+}
+
+// --- HSV → RGB ---
+vec3 hsv2rgb(vec3 c) {
+    float h = c.x * 6.0;
+    float s = c.y;
+    float v = c.z;
+
+    float i = floor(h);
+    float f = h - i;
+    float p = v * (1.0 - s);
+    float q = v * (1.0 - f * s);
+    float t = v * (1.0 - (1.0 - f) * s);
+
+    if (i == 0.0) return vec3(v, t, p);
+    else if (i == 1.0) return vec3(q, v, p);
+    else if (i == 2.0) return vec3(p, v, t);
+    else if (i == 3.0) return vec3(p, q, v);
+    else if (i == 4.0) return vec3(t, p, v);
+    else return vec3(v, p, q);
 }
 
 float smoothPulse(float t) {
@@ -30,37 +67,46 @@ float smoothPulse(float t) {
   return smoothstep(0.0, 1.0, 1.0 - tri);
 }
 
+bool isInOutline(vec2 uv, vec2 stepSize, int width) {
+  for(int ix = -10; ix <= 10; ix++){
+    if(abs(float(ix)) > float(width)) continue;
+    for(int iy = -10; iy <= 10; iy++){
+      if(abs(float(iy)) > float(width)) continue;
+      float sampleX = uv.x + float(ix) * stepSize.x;
+      float sampleY = uv.y + float(iy) * stepSize.y;
+      vec4 neighbor = texture2D(u_texture, vec2(sampleX, sampleY));
+      if(neighbor.a >= 0.01){
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 void main(){
   vec4 color = texture2D(u_texture, vec2(uv.x, uv.y));
 
-  // This is how far we move in a given sample step
-  vec2 sampleDistanceNormalized = u_useTexels ? u_texelSize : vec2(1.0);
-  vec2 stepSize = sampleDistanceNormalized / u_resolution;
+  vec2 stepSize = vec2(1.0) / u_resolution;
 
-  int width = int(u_width + (smoothPulse(u_time * u_beatSpeed) * 2.0 - 1.0) * u_beatIntensity);
+  float beat_time = smoothPulse(u_time * u_beatSpeed) * 2.0 - 1.0;
+  float beat = beat_time * u_beatIntensity;
+  int width = int(u_width + beat);
 
-  // Outline sampling:
-  //only apply to fully transparent pixels
-  //sample in 8 directions around the pixel, scanning for a fragment with alpha >= 0.01
-  //if any pixel is found, set this pixel to the outline color
   if(color.a == 0.0 && width > 0){
-    bool foundOutline = false;
-    for(int ix = -10; ix <= 10; ix++){
-      if(abs(float(ix)) > float(width)) continue;
-      for(int iy = -10; iy <= 10; iy++){
-        if(abs(float(iy)) > float(width)) continue;
-        float sampleX = uv.x + float(ix) * stepSize.x;
-        float sampleY = uv.y + float(iy) * stepSize.y;
-        vec4 neighbor = texture2D(u_texture, vec2(sampleX, sampleY));
-        if(neighbor.a >= 0.01){
-          foundOutline = true;
-          break;
-        }
-      }
-      if(foundOutline) break;
-    }
+    bool foundOutline = isInOutline(uv, stepSize, width);
     if(foundOutline){
-      color = u_color;
+      if(u_isRainbow){
+        vec2 center = vec2(0.5, 0.5);
+        vec2 fromCenter = uv - center;
+        float angle = atan(fromCenter.y, fromCenter.x);
+        float hue = (angle / TWO_PI) + 0.5;
+        hue += u_time * 0.2 * u_beatSpeed;
+        hue = mod(hue, 1.0);
+        vec3 rgb = hsv2rgb(vec3(hue, 1.0, 1.0));
+        color = vec4(rgb, 1.0);
+      } else {
+        color = u_color;
+      }
     }
   }
 

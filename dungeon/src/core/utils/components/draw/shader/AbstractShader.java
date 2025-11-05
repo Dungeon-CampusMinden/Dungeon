@@ -19,15 +19,11 @@ public abstract class AbstractShader implements Disposable {
   // Key: Combined path (vertPath + "|" + fragPath)
   private static final Map<String, ShaderProgram> programCache = new HashMap<>();
 
-  // --- Instance Members ---
   protected final String vertPath;
   protected final String fragPath;
-  protected float timeElapsed = 0f;
-
-  // The compiled program instance for this specific pair of files
   protected ShaderProgram program;
 
-  // --- Core Logic ---
+  private int upscaling = 1;
 
   public AbstractShader(String vertPath, String fragPath) {
     this.vertPath = vertPath;
@@ -47,13 +43,9 @@ public abstract class AbstractShader implements Disposable {
     program = programCache.get(cacheKey);
 
     if (program == null) {
-      // System.out.println("Compiling shader: " + vertPath + " & " + fragPath);
-
-      // Read shader source from files
       String vertexShader = Gdx.files.internal(vertPath).readString();
       String fragmentShader = Gdx.files.internal(fragPath).readString();
 
-      // Compile the program, setting pedantic = false
       ShaderProgram.pedantic = false;
       ShaderProgram newProgram = new ShaderProgram(vertexShader, fragmentShader);
 
@@ -75,38 +67,61 @@ public abstract class AbstractShader implements Disposable {
   /**
    * Abstract method for subclasses to define their unique uniform bindings.
    *
-   * @param deltaTime The time elapsed since the last frame.
    * @return A list of UniformBinding objects to apply.
    */
-  protected abstract List<UniformBinding> getUniforms(float deltaTime);
+  protected abstract List<UniformBinding> getUniforms();
 
   /**
    * Gets the padding required for this shader effect.
    *
    * @return The padding in pixels.
    */
-  public abstract float getPadding();
+  public abstract int getPadding();
+
+  /**
+   * Gets the minimum upscaling required for this shader effect.
+   *
+   * <p>When effects need to draw "in between" pixels (e.g. a smaller outline than 1 pixel),
+   * upscaling the render target is necessary.
+   *
+   * @return The upscaling factor (1 = no upscaling, 2 = 2x upscaling, etc.)
+   */
+  public int upscaling() {
+    return upscaling;
+  }
+
+  /**
+   * Gets the minimum upscaling required for this shader effect.
+   *
+   * <p>When effects need to draw "in between" pixels (e.g. a smaller outline than 1 pixel),
+   * upscaling the render target is necessary.
+   *
+   * @param upscaling The upscaling factor (1 = no upscaling, 2 = 2x upscaling, etc.)
+   * @return The shader instance for chaining.
+   */
+  public AbstractShader upscaling(int upscaling) {
+    if (upscaling < 1) {
+      throw new IllegalArgumentException("Upscaling must be at least 1");
+    }
+    this.upscaling = upscaling;
+    return this;
+  }
 
   /**
    * Instructs SpriteBatch to use this shader program and binds all custom uniforms.
    *
    * @param batch The SpriteBatch instance.
-   * @param deltaTime The time elapsed since the last frame.
    */
-  public void bind(SpriteBatch batch, float deltaTime) {
+  public void bind(SpriteBatch batch) {
     ensureCompiled();
     batch.setShader(program);
 
-    List<UniformBinding> bindings = getUniforms(deltaTime);
+    List<UniformBinding> bindings = getUniforms();
     if (bindings != null) {
       for (UniformBinding binding : bindings) {
         binding.bind(program);
       }
     }
-
-    // Bind u_time uniform for all shaders
-    program.setUniformf("u_time", timeElapsed);
-    timeElapsed += deltaTime;
   }
 
   /**
@@ -140,98 +155,55 @@ public abstract class AbstractShader implements Disposable {
    * logic from the value storage.
    */
   protected interface UniformBinding {
-    String getName();
+    String name();
 
     void bind(ShaderProgram program);
   }
 
   /** Binds a float uniform. */
-  protected static class FloatUniform implements UniformBinding {
-    private final String name;
-    private final float value;
-
-    public FloatUniform(String name, float value) {
-      this.name = name;
-      this.value = value;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
+  protected record FloatUniform(String name, float value) implements UniformBinding {
     @Override
     public void bind(ShaderProgram program) {
       program.setUniformf(name, value);
+    }
+  }
+
+  /** Binds a boolean uniform as an integer (1 for true, 0 for false). */
+  protected record BoolUniform(String name, boolean value) implements UniformBinding {
+    @Override
+    public void bind(ShaderProgram program) {
+      program.setUniformi(name, value ? 1 : 0);
     }
   }
 
   /** Binds a Vector2 uniform. */
-  protected static class Vector2Uniform implements UniformBinding {
-    private final String name;
-    private final Vector2 value;
-
-    public Vector2Uniform(String name, Vector2 value) {
-      this.name = name;
-      this.value = value;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
+  protected record Vector2Uniform(String name, Vector2 value) implements UniformBinding {
     @Override
     public void bind(ShaderProgram program) {
       program.setUniformf(name, value);
     }
   }
 
-  /** Binds a texture uniform to a specified texture unit. */
-  protected static class TextureUniform implements UniformBinding {
-    private final String name;
-    private final Texture texture;
-    private final int unit; // OpenGL texture unit (must be >= 1, 0 is reserved for SpriteBatch)
-
-    /**
-     * @param name The uniform name in the shader.
-     * @param texture The texture to bind.
-     * @param unit The texture unit index (e.g., 1, 2, 3...).
-     */
-    public TextureUniform(String name, Texture texture, int unit) {
-      this.name = name;
-      this.texture = texture;
-      this.unit = unit;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
+  /**
+   * Binds a texture uniform to a specified texture unit.
+   *
+   * @param unit OpenGL texture unit (must be >= 1, 0 is reserved for SpriteBatch)
+   */
+  protected record TextureUniform(String name, Texture texture, int unit)
+      implements UniformBinding {
     @Override
     public void bind(ShaderProgram program) {
-      // 1. Activate and bind the texture to the specified unit
+      // Activate this texture in OpenGL
+      Gdx.gl.glActiveTexture(unit);
       texture.bind(unit);
-      // 2. Set the shader uniform to the corresponding texture unit index
       program.setUniformi(name, unit);
+
+      // Set back to original texture for SpriteBatch
+      Gdx.gl.glActiveTexture(0);
     }
   }
 
-  protected static class ColorUniform implements UniformBinding {
-    private final String name;
-    private final Color value;
-
-    public ColorUniform(String name, Color value) {
-      this.name = name;
-      this.value = value;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
+  protected record ColorUniform(String name, Color value) implements UniformBinding {
     @Override
     public void bind(ShaderProgram program) {
       program.setUniformf(name, value);

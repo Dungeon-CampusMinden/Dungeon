@@ -2,12 +2,16 @@
 precision mediump float;
 #endif
 
+// From vertex shader
 varying vec2 uv;
+
+// From LibGDX
 uniform sampler2D u_texture;
 
-uniform float u_startingHue;   // [0..1]
-uniform float u_targetHue;      // [0..1]
-uniform float u_tolerance;   // [0..1]
+// Custom uniforms
+uniform float u_startingHue;
+uniform float u_targetHue;
+uniform float u_tolerance;
 
 // --- Robust RGB → HSV ---
 vec3 rgb2hsv(vec3 c) {
