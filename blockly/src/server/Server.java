@@ -177,8 +177,9 @@ public class Server {
       // if given and the level is not the current one, load it
       // use the eventschedular to load the level in the game thread
       EventScheduler.scheduleAction(() -> DungeonLoader.loadLevel(levelName), 0);
-
-      waitDelta(); // waiting for all systems to update once
+      for (int i = 0; i < 5; i++) {
+        waitDelta(); // waiting for all systems to update once
+      }
     }
 
     response.append(DungeonLoader.currentLevel()).append(" ");
