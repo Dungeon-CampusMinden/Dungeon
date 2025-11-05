@@ -241,21 +241,21 @@ public class TileTextureFactory {
   }
 
   /**
-   * Selects a floor-related texture for the given level part when its element is floor-like.
-   * Handles special variants for holes (chooses {@code floor_hole1} if there is a hole above), and
-   * maps common floor elements to their canonical textures.
+   * Selects a floor-related texture for the given level part when its element is floor-related
+   * (floor-like or {@code EXIT}). Handles special variants for holes (chooses {@code floor_hole1}
+   * if there is a hole above), and maps common floor elements to their canonical textures.
    *
    * @param levelPart the level part to evaluate
    * @return a floor texture path (without design prefix) or {@code null} if the element is not
-   *     floor-like
+   *     floor-related
    */
   private static IPath findTexturePathFloor(LevelPart levelPart) {
     LevelElement e = levelPart.element();
     if (e == LevelElement.HOLE) {
-      return new SimpleIPath(
-          isHoleDir(levelPart.position(), levelPart.layout(), Dir.UP)
-              ? "floor/floor_hole1"
-              : "floor/floor_hole");
+      boolean holeAbove =
+          neighborMatches(
+              levelPart.position(), levelPart.layout(), Dir.UP, x -> x == LevelElement.HOLE);
+      return new SimpleIPath(holeAbove ? "floor/floor_hole1" : "floor/floor_hole");
     }
     return switch (e) {
       case SKIP -> new SimpleIPath("floor/empty");
@@ -267,8 +267,8 @@ public class TileTextureFactory {
   }
 
   /**
-   * Infers a door texture orientation based on adjacent accessible tiles (walkable or pit). If no
-   * side matches, defaults to {@code door/top}.
+   * Infers a door texture orientation based on adjacent accessible tiles (walkable or floor-like).
+   * If no side matches, defaults to {@code door/top}.
    *
    * @param levelPart the level part expected to be a door
    * @return a door texture path (without design prefix), or {@code null} if the element is not a
@@ -277,13 +277,13 @@ public class TileTextureFactory {
   private static IPath findTexturePathDoor(LevelPart levelPart) {
     if (levelPart.element() != LevelElement.DOOR) return null;
 
-    if (isAccessibleDir(levelPart.position, levelPart.layout, Dir.DOWN)) {
+    if (isInsideDir(levelPart.position, levelPart.layout, Dir.DOWN)) {
       return new SimpleIPath("door/top");
-    } else if (isAccessibleDir(levelPart.position, levelPart.layout, Dir.LEFT)) {
+    } else if (isInsideDir(levelPart.position, levelPart.layout, Dir.LEFT)) {
       return new SimpleIPath("door/right");
-    } else if (isAccessibleDir(levelPart.position, levelPart.layout, Dir.RIGHT)) {
+    } else if (isInsideDir(levelPart.position, levelPart.layout, Dir.RIGHT)) {
       return new SimpleIPath("door/left");
-    } else if (isAccessibleDir(levelPart.position, levelPart.layout, Dir.UP)) {
+    } else if (isInsideDir(levelPart.position, levelPart.layout, Dir.UP)) {
       return new SimpleIPath("door/bottom");
     }
 
@@ -308,10 +308,10 @@ public class TileTextureFactory {
 
     if (isDiagonalFloorCross(p, layout)) return new SimpleIPath("wall/cross");
 
-    int holeCount = trueHolesAround(p, layout);
-    if (holeCount >= 1
-        && orthoOnlyWallDoorExitOrTrueHole(p, layout)
-        && !hasPitOrthogonally(p, layout)) return new SimpleIPath("wall/cross");
+    int floorCount = likeFloorAround(p, layout);
+    if (floorCount >= 1
+        && orthoOnlyWallDoorExitOrLikeFloor(p, layout)
+        && !hasFloorLikeOrthogonally(p, layout)) return new SimpleIPath("wall/cross");
 
     if (outsideAndOppositeNotFloor(p, layout, Dir.UP))
       return new SimpleIPath("wall/t_inner_bottom_empty_left_right");
@@ -331,26 +331,27 @@ public class TileTextureFactory {
     if (isInnerEmptyCorner(p, layout, Corner.UR))
       return new SimpleIPath("wall/corner_upper_right_inner_empty");
 
-    if (isAtBorder(p, layout) && !hasAdjacentFloor(p, layout)) return new SimpleIPath("wall/empty");
+    if (isAtBorder(p, layout) && !hasAdjacentFloorOrDoor(p, layout))
+      return new SimpleIPath("wall/empty");
 
     if (hasNoEmptyWallsAround(p, layout)
         && emptyLeftRightCase(p, layout, Dir.UP)
-        && (isDiagonalHole(p, layout, Corner.BL) || isDiagonalHole(p, layout, Corner.BR)))
+        && (isDiagonalFloorLike(p, layout, Corner.BL) || isDiagonalFloorLike(p, layout, Corner.BR)))
       return new SimpleIPath("wall/corner_upper_left_empty_cross");
 
     if (hasNoEmptyWallsAround(p, layout)
         && emptyLeftRightCase(p, layout, Dir.DOWN)
-        && (isDiagonalHole(p, layout, Corner.UL) || isDiagonalHole(p, layout, Corner.UR)))
+        && (isDiagonalFloorLike(p, layout, Corner.UL) || isDiagonalFloorLike(p, layout, Corner.UR)))
       return new SimpleIPath("wall/corner_upper_right_empty_cross");
 
     if (hasNoEmptyWallsAround(p, layout)
         && tEmptyTopBottomCase(p, layout, Dir.LEFT)
-        && (isDiagonalHole(p, layout, Corner.UR) || isDiagonalHole(p, layout, Corner.BR)))
+        && (isDiagonalFloorLike(p, layout, Corner.UR) || isDiagonalFloorLike(p, layout, Corner.BR)))
       return new SimpleIPath("wall/corner_bottom_left_empty_cross");
 
     if (hasNoEmptyWallsAround(p, layout)
         && tEmptyTopBottomCase(p, layout, Dir.RIGHT)
-        && (isDiagonalHole(p, layout, Corner.UL) || isDiagonalHole(p, layout, Corner.BL)))
+        && (isDiagonalFloorLike(p, layout, Corner.UL) || isDiagonalFloorLike(p, layout, Corner.BL)))
       return new SimpleIPath("wall/corner_bottom_right_empty_cross");
 
     if (emptyLeftRightCase(p, layout, Dir.UP))
@@ -863,7 +864,7 @@ public class TileTextureFactory {
             && isNotFloor(n.getDownE())
             && isNotFloor(n.getLeftE())
             && isNotFloor(n.getRightE());
-    boolean noPit = !hasPitOrthogonally(p, layout);
+    boolean noPit = !hasFloorLikeOrthogonally(p, layout);
     boolean diagsInside =
         isInside(n.getUpLeftE())
             && isInside(n.getUpRightE())
@@ -873,66 +874,51 @@ public class TileTextureFactory {
   }
 
   /**
-   * Tests whether the element is a solid barrier or a true hole candidate used by wall-cross rules:
-   * WALL, HOLE, DOOR, or EXIT.
-   *
-   * @param e the element to test
-   * @return {@code true} if {@code e} is WALL, HOLE, DOOR, or EXIT; otherwise {@code false}
-   */
-  private static boolean isWallDoorExitOrTrueHole(LevelElement e) {
-    return e == LevelElement.WALL
-        || e == LevelElement.HOLE
-        || e == LevelElement.DOOR
-        || e == LevelElement.EXIT;
-  }
-
-  /**
-   * Verifies that all four orthogonal neighbors of {@code p} are in the set {WALL, HOLE, DOOR,
-   * EXIT}.
+   * Verifies that all four orthogonal neighbors of {@code p} are either {@code WALL} or
+   * floor-related (i.e. floor, door, exit, or hole).
    *
    * @param p the coordinate to inspect
    * @param layout the level grid
-   * @return {@code true} if up/down/left/right all satisfy {@link #isWallDoorExitOrTrueHole};
+   * @return {@code true} if all four orthogonal neighbors are {@code WALL} or floor-related;
    *     otherwise {@code false}
    */
-  private static boolean orthoOnlyWallDoorExitOrTrueHole(Coordinate p, LevelElement[][] layout) {
+  private static boolean orthoOnlyWallDoorExitOrLikeFloor(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
-    return isWallDoorExitOrTrueHole(n.getUpE())
-        && isWallDoorExitOrTrueHole(n.getDownE())
-        && isWallDoorExitOrTrueHole(n.getLeftE())
-        && isWallDoorExitOrTrueHole(n.getRightE());
+    return ((n.getUpE() == LevelElement.WALL) || isFloorOrDoor(n.getUpE()))
+        && ((n.getDownE() == LevelElement.WALL) || isFloorOrDoor(n.getDownE()))
+        && ((n.getLeftE() == LevelElement.WALL) || isFloorOrDoor(n.getLeftE()))
+        && ((n.getRightE() == LevelElement.WALL) || isFloorOrDoor(n.getRightE()));
   }
 
   /**
-   * Counts orthogonal neighbors of {@code p} that are HOLE elements.
+   * Counts orthogonal neighbors of {@code p} that are floor-like elements ({@code FLOOR}, {@code
+   * PIT}, or {@code HOLE}).
    *
    * @param p the coordinate to inspect
    * @param layout the level grid
-   * @return the number of HOLE tiles among up, down, left, and right (0–4)
+   * @return the number of floor-like tiles among up, down, left, and right (0–4)
    */
-  private static int trueHolesAround(Coordinate p, LevelElement[][] layout) {
+  private static int likeFloorAround(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     int h = 0;
-    if (n.getUpE() == LevelElement.HOLE) h++;
-    if (n.getDownE() == LevelElement.HOLE) h++;
-    if (n.getLeftE() == LevelElement.HOLE) h++;
-    if (n.getRightE() == LevelElement.HOLE) h++;
+    if (isFloorLike(n.getUpE())) h++;
+    if (isFloorLike(n.getDownE())) h++;
+    if (isFloorLike(n.getLeftE())) h++;
+    if (isFloorLike(n.getRightE())) h++;
     return h;
   }
 
   /**
-   * Checks for the presence of a PIT on any orthogonal neighbor of {@code p}.
+   * Checks whether any orthogonal neighbor of {@code p} is floor-like ({@code FLOOR}, {@code PIT},
+   * or {@code HOLE}).
    *
    * @param p the coordinate to inspect
    * @param layout the level grid
-   * @return {@code true} if a PIT exists up, down, left, or right; otherwise {@code false}
+   * @return {@code true} if at least one of up, down, left, or right is floor-like; otherwise
+   *     {@code false}
    */
-  private static boolean hasPitOrthogonally(Coordinate p, LevelElement[][] layout) {
-    Neighbors n = Neighbors.of(p, layout);
-    return n.getUpE() == LevelElement.PIT
-        || n.getDownE() == LevelElement.PIT
-        || n.getLeftE() == LevelElement.PIT
-        || n.getRightE() == LevelElement.PIT;
+  private static boolean hasFloorLikeOrthogonally(Coordinate p, LevelElement[][] layout) {
+    return likeFloorAround(p, layout) > 0;
   }
 
   /**
@@ -1024,7 +1010,7 @@ public class TileTextureFactory {
    * @return {@code true} if {@code e} is walkable or a PIT/HOLE; otherwise {@code false}
    */
   private static boolean isInside(LevelElement e) {
-    return e != null && (e.value() || e == LevelElement.PIT || e == LevelElement.HOLE);
+    return e != null && (e.value() || isFloorLike(e));
   }
 
   /**
@@ -1151,17 +1137,16 @@ public class TileTextureFactory {
 
   /**
    * Returns whether the cell at {@code p} should render as empty either because the tile type is
-   * intrinsically empty (PIT, SKIP, HOLE) or due to axis-based inner-group rules.
+   * intrinsically empty ({@code SKIP}) or due to axis-based inner-group rules.
    *
    * @param p the coordinate to test
    * @param layout the level grid
    * @param axis axis context for inner-group emptiness
    * @return {@code true} if the tile renders as empty; otherwise {@code false}
    */
-  private static boolean rendersEmptyAt(Coordinate p, LevelElement[][] layout, Axis axis) {
+  private static boolean rendersSkipAt(Coordinate p, LevelElement[][] layout, Axis axis) {
     LevelElement here = get(layout, p.x(), p.y());
-    if (here == LevelElement.PIT || here == LevelElement.SKIP || here == LevelElement.HOLE)
-      return true;
+    if (here == LevelElement.SKIP) return true;
     return rendersEmptyAxis(p, layout, axis);
   }
 
@@ -1211,7 +1196,7 @@ public class TileTextureFactory {
     boolean defaultCase =
         isStem(vStem, layout, Axis.VERTICAL)
             && isStem(hStem, layout, Axis.HORIZONTAL)
-            && rendersEmptyAt(diagEmpty, layout, Axis.VERTICAL);
+            && rendersSkipAt(diagEmpty, layout, Axis.VERTICAL);
 
     boolean doorOk =
         (corner == Corner.UL || corner == Corner.BR)
@@ -1294,8 +1279,8 @@ public class TileTextureFactory {
 
   /**
    * Indicates whether {@code p} should be treated as empty space for open T-junction logic. Counts
-   * null/outside, non-inside/non-barrier cells as empty, and also treats axis-empty cells and
-   * stem-cross centers as empty.
+   * null/outside, non-inside/non-barrier cells as empty, and also treats axis-empty cells (via
+   * {@link #rendersSkipAt(Coordinate, LevelElement[][], Axis)}) and stem-cross centers as empty.
    *
    * @param p the coordinate to test
    * @param layout the level grid
@@ -1305,8 +1290,8 @@ public class TileTextureFactory {
   private static boolean isEmptyForTJunctionOpen(Coordinate p, LevelElement[][] layout) {
     LevelElement e = get(layout, p.x(), p.y());
     if (e == null || (!isInside(e) && !isBarrier(e))) return true;
-    return rendersEmptyAt(p, layout, Axis.VERTICAL)
-        || rendersEmptyAt(p, layout, Axis.HORIZONTAL)
+    return rendersSkipAt(p, layout, Axis.VERTICAL)
+        || rendersSkipAt(p, layout, Axis.HORIZONTAL)
         || isStemCrossCenter(p, layout);
   }
 
@@ -1428,7 +1413,7 @@ public class TileTextureFactory {
 
     return wallInSignDir
         && isStem(toward, layout, Axis.VERTICAL)
-        && rendersEmptyAt(opposite, layout, Axis.VERTICAL);
+        && rendersSkipAt(opposite, layout, Axis.VERTICAL);
   }
 
   /**
@@ -1452,7 +1437,7 @@ public class TileTextureFactory {
 
     Neighbors n = Neighbors.of(p, layout);
     Coordinate c = (dir == Dir.UP) ? n.getUp() : n.getDown();
-    return rendersEmptyAt(c, layout, Axis.VERTICAL);
+    return rendersSkipAt(c, layout, Axis.VERTICAL);
   }
 
   /**
@@ -1590,10 +1575,11 @@ public class TileTextureFactory {
    * @return {@code true} if at least one orthogonal neighbor is floor-like; otherwise {@code false}
    */
   private static boolean hasAdjacentFloorOrDoor(Coordinate p, LevelElement[][] layout) {
-    return isFloorOrDoor(get(layout, p.x() + 1, p.y()))
-        || isFloorOrDoor(get(layout, p.x() - 1, p.y()))
-        || isFloorOrDoor(get(layout, p.x(), p.y() + 1))
-        || isFloorOrDoor(get(layout, p.x(), p.y() - 1));
+    Neighbors n = Neighbors.of(p, layout);
+    return isFloorOrDoor(n.getUpE())
+        || isFloorOrDoor(n.getDownE())
+        || isFloorOrDoor(n.getLeftE())
+        || isFloorOrDoor(n.getRightE());
   }
 
   /**
@@ -1701,39 +1687,25 @@ public class TileTextureFactory {
   }
 
   /**
-   * Checks whether any orthogonal neighbor of {@code p} is floor-like (floor/door/exit/hole).
-   *
-   * @param p the coordinate to inspect
-   * @param layout the level grid
-   * @return {@code true} if at least one orthogonal neighbor is floor-like; otherwise {@code false}
-   */
-  private static boolean hasAdjacentFloor(Coordinate p, LevelElement[][] layout) {
-    Neighbors n = Neighbors.of(p, layout);
-    return isFloorOrDoor(n.getUpE())
-        || isFloorOrDoor(n.getDownE())
-        || isFloorOrDoor(n.getLeftE())
-        || isFloorOrDoor(n.getRightE());
-  }
-
-  /**
-   * Determines if the tile at {@code c} should render as empty in wall context. Returns true for
-   * PIT/SKIP/HOLE, inner-group empty cases (either axis), stem-cross center, or a border wall with
-   * no adjacent floor.
+   * Determines if the tile at {@code c} should render as empty in wall context. Returns {@code
+   * true} immediately for {@code SKIP}. For {@code WALL} tiles, returns {@code true} for
+   * inner-group empty cases (either axis), stem-cross centers, or border walls without adjacent
+   * floor. Other elements return {@code false}.
    *
    * @param c the coordinate to test
    * @param layout the level grid
    * @return {@code true} if the tile renders empty like a wall; otherwise {@code false}
    */
-  private static boolean rendersEmptyLikeWallAt(Coordinate c, LevelElement[][] layout) {
+  private static boolean rendersSkipLikeWallAt(Coordinate c, LevelElement[][] layout) {
     LevelElement e = get(layout, c.x(), c.y());
-    if (e == LevelElement.PIT || e == LevelElement.SKIP || e == LevelElement.HOLE) return true;
+    if (e == LevelElement.SKIP) return true;
     if (e != LevelElement.WALL) return false;
-    if (rendersEmptyAt(c, layout, Axis.VERTICAL)
-        || rendersEmptyAt(c, layout, Axis.HORIZONTAL)
+    if (rendersSkipAt(c, layout, Axis.VERTICAL)
+        || rendersSkipAt(c, layout, Axis.HORIZONTAL)
         || isStemCrossCenter(c, layout)) {
       return true;
     }
-    return isAtBorder(c, layout) && !hasAdjacentFloor(c, layout);
+    return isAtBorder(c, layout) && !hasAdjacentFloorOrDoor(c, layout);
   }
 
   /**
@@ -1844,7 +1816,7 @@ public class TileTextureFactory {
           case LEFT -> isNotFloor(n.getRightE());
           case RIGHT -> isNotFloor(n.getLeftE());
         };
-    boolean innerNotEmpty = !rendersEmptyLikeWallAt(inner, layout);
+    boolean innerNotEmpty = !rendersSkipLikeWallAt(inner, layout);
     boolean floorsOk =
         switch (outward) {
           case UP -> isFloorOrDoor(n.getDownLeftE()) && isFloorOrDoor(n.getDownRightE());
@@ -1873,13 +1845,11 @@ public class TileTextureFactory {
 
     boolean arm1 =
         get(layout, p.x() + dx + perp1.dx, p.y() + dy + perp1.dy) == LevelElement.WALL
-            && get(layout, p.x() + 2 * dx + perp1.dx, p.y() + 2 * dy + perp1.dy)
-                == LevelElement.FLOOR;
+            && isFloorLike(get(layout, p.x() + 2 * dx + perp1.dx, p.y() + 2 * dy + perp1.dy));
 
     boolean arm2 =
         get(layout, p.x() + dx + perp2.dx, p.y() + dy + perp2.dy) == LevelElement.WALL
-            && get(layout, p.x() + 2 * dx + perp2.dx, p.y() + 2 * dy + perp2.dy)
-                == LevelElement.FLOOR;
+            && isFloorLike(get(layout, p.x() + 2 * dx + perp2.dx, p.y() + 2 * dy + perp2.dy));
 
     return arm1 || arm2;
   }
@@ -1888,23 +1858,20 @@ public class TileTextureFactory {
    * Returns whether the element is treated as floor-like for connectivity rules.
    *
    * @param e the element to test
-   * @return {@code true} if {@code e} is FLOOR, DOOR, EXIT, or HOLE; otherwise {@code false}
+   * @return {@code true} if {@code e} is FLOOR, PIT, HOLE, DOOR, or EXIT; otherwise {@code false}
    */
   private static boolean isFloorOrDoor(LevelElement e) {
-    return e == LevelElement.FLOOR
-        || e == LevelElement.DOOR
-        || e == LevelElement.EXIT
-        || e == LevelElement.HOLE;
+    return isFloorLike(e) || e == LevelElement.DOOR || e == LevelElement.EXIT;
   }
 
   /**
-   * Convenience predicate indicating the element is not FLOOR.
+   * Convenience predicate indicating the element is not floor-like.
    *
    * @param e the element to test
-   * @return {@code true} if {@code e} is not FLOOR; otherwise {@code false}
+   * @return {@code true} if {@code e} is not floor-like; otherwise {@code false}
    */
   private static boolean isNotFloor(LevelElement e) {
-    return e != LevelElement.FLOOR;
+    return !isFloorLike(e);
   }
 
   /**
@@ -1934,47 +1901,6 @@ public class TileTextureFactory {
   }
 
   /**
-   * Checks whether the diagonal neighbor in the given corner is accessible (walkable) or a PIT.
-   *
-   * @param p the reference coordinate
-   * @param layout the level grid
-   * @param corner which diagonal (UL, UR, BL, BR)
-   * @return {@code true} if the diagonal is accessible; otherwise {@code false}
-   */
-  private static boolean isDiagonalAccessible(
-      Coordinate p, LevelElement[][] layout, Corner corner) {
-    Neighbors n = Neighbors.of(p, layout);
-    LevelElement e =
-        switch (corner) {
-          case UR -> n.getUpRightE();
-          case BR -> n.getDownRightE();
-          case BL -> n.getDownLeftE();
-          case UL -> n.getUpLeftE();
-        };
-    return e != null && (e.value() || e == LevelElement.PIT);
-  }
-
-  /**
-   * Checks whether the diagonal neighbor in the given corner is a HOLE or a PIT.
-   *
-   * @param p the reference coordinate
-   * @param layout the level grid
-   * @param corner which diagonal (UL, UR, BL, BR)
-   * @return {@code true} if the diagonal is HOLE or PIT; otherwise {@code false}
-   */
-  private static boolean isDiagonalHole(Coordinate p, LevelElement[][] layout, Corner corner) {
-    Neighbors n = Neighbors.of(p, layout);
-    LevelElement e =
-        switch (corner) {
-          case UR -> n.getUpRightE();
-          case BR -> n.getDownRightE();
-          case BL -> n.getDownLeftE();
-          case UL -> n.getUpLeftE();
-        };
-    return e == LevelElement.HOLE || e == LevelElement.PIT;
-  }
-
-  /**
    * Treats the diagonal as inside if it is accessible or a hole.
    *
    * @param p the reference coordinate
@@ -1983,7 +1909,15 @@ public class TileTextureFactory {
    * @return {@code true} if the diagonal is accessible or a hole; otherwise {@code false}
    */
   private static boolean isDiagonalInside(Coordinate p, LevelElement[][] layout, Corner corner) {
-    return isDiagonalAccessible(p, layout, corner) || isDiagonalHole(p, layout, corner);
+    Neighbors n = Neighbors.of(p, layout);
+    LevelElement e =
+        switch (corner) {
+          case UR -> n.getUpRightE();
+          case BR -> n.getDownRightE();
+          case BL -> n.getDownLeftE();
+          case UL -> n.getUpLeftE();
+        };
+    return isInside(e);
   }
 
   /**
@@ -2043,30 +1977,6 @@ public class TileTextureFactory {
   }
 
   /**
-   * Returns whether the neighbor at {@code p + d} is walkable or a PIT.
-   *
-   * @param p the origin coordinate
-   * @param layout the level grid
-   * @param d the neighbor direction
-   * @return {@code true} if accessible; otherwise {@code false}
-   */
-  private static boolean isAccessibleDir(Coordinate p, LevelElement[][] layout, Dir d) {
-    return neighborMatches(p, layout, d, e -> e.value() || e == LevelElement.PIT);
-  }
-
-  /**
-   * Returns whether the neighbor at {@code p + d} is a HOLE or a PIT.
-   *
-   * @param p the origin coordinate
-   * @param layout the level grid
-   * @param d the neighbor direction
-   * @return {@code true} if the neighbor is HOLE or PIT; otherwise {@code false}
-   */
-  private static boolean isHoleDir(Coordinate p, LevelElement[][] layout, Dir d) {
-    return neighborMatches(p, layout, d, e -> e == LevelElement.HOLE || e == LevelElement.PIT);
-  }
-
-  /**
    * Returns whether the neighbor at {@code p + d} counts as inside (walkable or hole/pit).
    *
    * @param p the origin coordinate
@@ -2075,8 +1985,7 @@ public class TileTextureFactory {
    * @return {@code true} if the neighbor is inside; otherwise {@code false}
    */
   private static boolean isInsideDir(Coordinate p, LevelElement[][] layout, Dir d) {
-    return neighborMatches(
-        p, layout, d, e -> e.value() || e == LevelElement.PIT || e == LevelElement.HOLE);
+    return neighborMatches(p, layout, d, e -> e.value() || isFloorLike(e));
   }
 
   /**
@@ -2095,12 +2004,45 @@ public class TileTextureFactory {
     if (n.getLeftE() != LevelElement.WALL) return false;
     if (n.getRightE() != LevelElement.WALL) return false;
 
-    if (rendersEmptyLikeWallAt(n.getUp(), layout)) return false;
-    if (rendersEmptyLikeWallAt(n.getDown(), layout)) return false;
-    if (rendersEmptyLikeWallAt(n.getLeft(), layout)) return false;
-    if (rendersEmptyLikeWallAt(n.getRight(), layout)) return false;
+    if (rendersSkipLikeWallAt(n.getUp(), layout)) return false;
+    if (rendersSkipLikeWallAt(n.getDown(), layout)) return false;
+    if (rendersSkipLikeWallAt(n.getLeft(), layout)) return false;
+    if (rendersSkipLikeWallAt(n.getRight(), layout)) return false;
 
     return true;
+  }
+
+  /**
+   * Returns whether the element is considered floor-like for connectivity/neighborhood rules.
+   *
+   * @param e the element to test (may be {@code null})
+   * @return {@code true} if {@code e} is {@code FLOOR}, {@code HOLE}, or {@code PIT}; otherwise
+   *     {@code false}
+   */
+  private static boolean isFloorLike(LevelElement e) {
+    return e == LevelElement.FLOOR || e == LevelElement.HOLE || e == LevelElement.PIT;
+  }
+
+  /**
+   * Indicates whether the diagonal neighbor of {@code p} in the specified {@code corner} is
+   * floor-like.
+   *
+   * @param p the reference coordinate
+   * @param layout the level grid
+   * @param corner which diagonal (UL, UR, BL, BR) to inspect
+   * @return {@code true} if the diagonal element is {@code FLOOR}, {@code HOLE}, or {@code PIT};
+   *     otherwise {@code false}
+   */
+  private static boolean isDiagonalFloorLike(Coordinate p, LevelElement[][] layout, Corner corner) {
+    Neighbors n = Neighbors.of(p, layout);
+    LevelElement e =
+        switch (corner) {
+          case UR -> n.getUpRightE();
+          case BR -> n.getDownRightE();
+          case BL -> n.getDownLeftE();
+          case UL -> n.getUpLeftE();
+        };
+    return isFloorLike(e);
   }
 
   /**
