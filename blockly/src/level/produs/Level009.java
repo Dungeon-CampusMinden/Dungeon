@@ -69,10 +69,6 @@ public class Level009 extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(getPoint(0)));
     Game.add(MiscFactory.fireballScroll(getPoint(1)));
 
-    showPopups();
-    Game.add(MiscFactory.fireballScroll(getPoint(0)));
-    Game.add(MiscFactory.fireballScroll(getPoint(1)));
-
     BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().addToGame();
     guardBuilder.attackRange(5);
     guardBuilder.viewDirection(Direction.UP);
