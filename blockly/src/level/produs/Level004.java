@@ -68,8 +68,6 @@ public class Level004 extends BlocklyLevel {
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     if (showText) {
-
-      DialogUtils.showTextPopup("Versuch mal die Schalter zu benutzen.", "Kapitel 1: Ausbruch");
       showPopups();
       showText = false;
     }
