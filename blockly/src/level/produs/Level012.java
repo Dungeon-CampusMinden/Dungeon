@@ -53,6 +53,13 @@ public class Level012 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+
+
+    addWebPopup(new ImagePopup("popups/level012/Abfrage.png"));
+    addWebPopup(new ImagePopup("popups/level012/Abfrage2.png"));
+    addWebPopup(new ImagePopup("popups/level012/Abfrage3.png"));
+    addWebPopup(new ImagePopup("popups/level012/Abfrage4.png"));
+
   }
 
   @Override
@@ -60,12 +67,8 @@ public class Level012 extends BlocklyLevel {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(10, 7));
     LevelManagementUtils.centerHero();
+    LevelManagementUtils.zoomDefault();
     LevelManagementUtils.heroViewDirection(Direction.DOWN);
-    if (showText) {
-      DialogUtils.showTextPopup(
-          "Hahahaha! An MIR kommst du NIE vorbei. GIB AUF!", "BOSS: Der Wärter");
-      showText = false;
-    }
 
     Game.add(MiscFactory.stone(getPoint(1)));
 
@@ -74,6 +77,10 @@ public class Level012 extends BlocklyLevel {
         s1.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s1);
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
 
     Game.add(MiscFactory.fireballScroll(getPoint(3)));
     Entity s2 = LeverFactory.pressurePlate(getPoint(4));
