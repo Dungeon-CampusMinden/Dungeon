@@ -6,7 +6,7 @@ import com.badlogic.gdx.audio.Music;
 import contrib.components.InventoryComponent;
 import contrib.components.SkillComponent;
 import contrib.crafting.Crafting;
-import contrib.entities.HeroFactory;
+import contrib.entities.EntityFactory;
 import contrib.entities.MiscFactory;
 import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
@@ -84,19 +84,15 @@ public class DevDungeon {
           createSystems();
           FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
           fogOfWarSystem.active(false); // Default: Fog of War is disabled
-          try {
-            createHero();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
+          createHero();
           setupMusic();
           Crafting.loadRecipes();
           DungeonLoader.loadLevel(START_LEVEL); // Tutorial
         });
   }
 
-  private static void createHero() throws IOException {
-    Entity hero = HeroFactory.newHero();
+  private static void createHero() {
+    Entity hero = EntityFactory.newHero();
     hero.fetch(SkillComponent.class)
         .ifPresent(
             sc -> {

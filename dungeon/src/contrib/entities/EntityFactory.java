@@ -36,10 +36,9 @@ public final class EntityFactory {
    * contrib.components.CollideComponent} and {@link HealthComponent}.
    *
    * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
    */
-  public static Entity newHero() throws IOException {
-    return HeroFactory.newHero();
+  public static Entity newHero() {
+    return HeroFactory.builder().build();
   }
 
   /**
@@ -53,10 +52,24 @@ public final class EntityFactory {
    *
    * @param deathCallback function that will be executed if the player dies
    * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
    */
-  public static Entity newHero(Consumer<Entity> deathCallback) throws IOException {
-    return HeroFactory.newHero(HeroFactory.DEFAULT_HERO_CLASS, deathCallback);
+  public static Entity newHero(Consumer<Entity> deathCallback) {
+    return HeroFactory.builder().deathCallback(deathCallback).build();
+  }
+
+  /**
+   * Get an Entity that can be used as a playable character. The Entity is not added to the game
+   * yet.
+   *
+   * <p>It will have a {@link CameraComponent}, {@link core.components.PlayerComponent}. {@link
+   * PositionComponent}, {@link VelocityComponent} {@link core.components.DrawComponent}, {@link
+   * contrib.components.CollideComponent} and {@link HealthComponent}.
+   *
+   * @param characterClass The character class of the hero.
+   * @return A new Entity.
+   */
+  public static Entity newHero(CharacterClass characterClass) {
+    return HeroFactory.builder().characterClass(characterClass).build();
   }
 
   /**

@@ -114,7 +114,7 @@ public class TutorialLevel extends DevDungeonLevel {
     if (frontDoor.coordinate().equals(playerTile.coordinate())) {
       DialogUtils.showTextPopup(
           "Mit "
-              + Input.Keys.toString(KeyboardConfig.FIRST_SKILL.value())
+              + Input.Keys.toString(KeyboardConfig.USE_SKILL.value())
               + " (oder LMB) kannst du angreifen.",
           "Kampf");
     } else if (mobDoor.coordinate().equals(playerTile.coordinate())) {

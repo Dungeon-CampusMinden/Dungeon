@@ -2,7 +2,7 @@ package produsAdvanced.abstraction;
 
 import com.badlogic.gdx.Input;
 import contrib.components.*;
-import contrib.entities.HeroFactory;
+import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
@@ -19,6 +19,7 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.Vector2;
+import java.util.Objects;
 import produsAdvanced.AdvancedDungeon;
 
 /**
@@ -50,8 +51,13 @@ public class Hero {
     heroInstance.remove(SkillComponent.class);
     heroInstance.add(new SkillComponent());
     if (!AdvancedDungeon.DEBUG_MODE) {
-      // Entfernt alle bisherigen Tastenzuweisungen
-      heroInstance.fetch(InputComponent.class).ifPresent(InputComponent::removeCallbacks);
+      // Entfernt alle bisherigen Tastenzuweisungen (außer der zum Schließen der UI)
+      heroInstance
+          .fetch(InputComponent.class)
+          .ifPresent(
+              inputComponent ->
+                  inputComponent.removeCallbacksIf(
+                      (entry -> !Objects.equals(entry.getKey(), KeyboardConfig.CLOSE_UI.value()))));
     }
     // uncap max player speed
     hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(Vector2.MAX.x()));
@@ -87,8 +93,6 @@ public class Hero {
                       }
                     });
               }
-              // Callback zum Schließen von UI-Dialogen
-              HeroFactory.registerCloseUI(ic);
             });
   }
 
@@ -149,7 +153,7 @@ public class Hero {
         .ifPresentOrElse(
             uiComponent -> {
               if (uiComponent.dialog() instanceof GUICombination
-                  && !InventoryGUI.inPlayerInventory) {
+                  && !InventoryGUI.inPlayerInventory()) {
                 hero.remove(UIComponent.class);
               }
             },
@@ -188,7 +192,6 @@ public class Hero {
     hero.fetch(PlayerComponent.class)
         .ifPresent(
             pc -> {
-              InventoryGUI.inPlayerInventory = true;
               hero.add(
                   new UIComponent(
                       new GUICombination(

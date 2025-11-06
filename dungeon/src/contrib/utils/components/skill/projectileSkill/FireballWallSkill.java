@@ -36,7 +36,7 @@ public class FireballWallSkill extends FireballSkill {
 
   @Override
   protected void executeSkill(Entity caster) {
-    Point targetPos = end(caster);
+    Point targetPos = endPoint();
     Point startPos = start(caster);
     Vector2 direction = targetPos.vectorTo(startPos).normalize();
     Vector2 right = direction.rotateDeg(90);

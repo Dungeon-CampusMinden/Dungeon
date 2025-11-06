@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
 import contrib.entities.CharacterClass;
-import contrib.entities.HeroFactory;
+import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
@@ -46,18 +46,14 @@ public class DemoRoom {
           setupMusic();
           DungeonLoader.addLevel(Tuple.of("demo", Level01.class));
           createSystems();
-          try {
-            createHero();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
+          createHero();
           Crafting.loadRecipes();
           DungeonLoader.loadLevel(START_LEVEL);
         });
   }
 
-  private static void createHero() throws IOException {
-    Entity hero = HeroFactory.newHero(CharacterClass.HUNTER);
+  private static void createHero() {
+    Entity hero = EntityFactory.newHero(CharacterClass.HUNTER);
     hero.add(new HintLogComponent());
     Game.add(hero);
   }

@@ -19,15 +19,22 @@ import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * A base class for projectile-based skills. Handles creation, movement, collision, and lifecycle of
  * projectile entities. Subclasses define the projectile's target endpoint.
  */
 public abstract class ProjectileSkill extends Skill {
+
+  /**
+   * If set to true, players can hit other players with projectiles. If false, players cannot hit
+   * other players with projectiles.
+   */
+  public static final boolean ALLOW_PLAYER_VS_PLAYER = false;
 
   /** Default action to remove a projectile from the game world. */
   public static final Consumer<Entity> REMOVE_CONSUMER = Game::remove;
@@ -42,6 +49,9 @@ public abstract class ProjectileSkill extends Skill {
   /** Default hitbox offset for projectiles. */
   public static final Vector2 DEFAULT_HITBOX_OFFSET = Vector2.of(0.15f, 0.15f);
 
+  /** A supplier that provides the target endpoint of the projectile. */
+  private Supplier<Point> endPointSupplier;
+
   protected boolean ignoreOtherProjectiles = true;
 
   private static final float pushOffset = 1f;
@@ -52,7 +62,7 @@ public abstract class ProjectileSkill extends Skill {
   protected Vector2 hitBoxSize;
   protected Vector2 hitBoxOffset;
   protected int tintColor = -1;
-  protected List<Entity> ignoreEntities;
+  private final Set<Entity> ignoreEntities;
   private boolean ignoreFirstWall;
 
   /**
@@ -66,6 +76,7 @@ public abstract class ProjectileSkill extends Skill {
    * @param hitBoxSize Hitbox size for collisions.
    * @param hitBoxOffset Hitbox offset for collisions.
    * @param ignoreFirstWall whether the projectile ignores the first wall.
+   * @param end Supplier for the target endpoint of the projectile.
    * @param resourceCost Resource costs for casting.
    */
   @SafeVarargs
@@ -78,6 +89,7 @@ public abstract class ProjectileSkill extends Skill {
       Vector2 hitBoxSize,
       Vector2 hitBoxOffset,
       boolean ignoreFirstWall,
+      Supplier<Point> end,
       Tuple<Resource, Integer>... resourceCost) {
     super(name, cooldown, resourceCost);
     this.texture = texture;
@@ -85,8 +97,9 @@ public abstract class ProjectileSkill extends Skill {
     this.range = range;
     this.hitBoxSize = hitBoxSize;
     this.hitBoxOffset = hitBoxOffset;
-    this.ignoreEntities = new ArrayList<>();
+    this.ignoreEntities = new HashSet<>();
     this.ignoreFirstWall = ignoreFirstWall;
+    this.endPointSupplier = end;
   }
 
   /**
@@ -98,6 +111,7 @@ public abstract class ProjectileSkill extends Skill {
    * @param speed Movement speed of the projectile.
    * @param range Maximum travel distance of the projectile.
    * @param ignoreFirstWall whether the projectile ignores the first wall.
+   * @param end Supplier for the target endpoint of the projectile.
    * @param resourceCost Resource costs for casting.
    */
   @SafeVarargs
@@ -108,6 +122,7 @@ public abstract class ProjectileSkill extends Skill {
       float speed,
       float range,
       boolean ignoreFirstWall,
+      Supplier<Point> end,
       Tuple<Resource, Integer>... resourceCost) {
     this(
         name,
@@ -118,6 +133,7 @@ public abstract class ProjectileSkill extends Skill {
         DEFAULT_HITBOX_SIZE,
         DEFAULT_HITBOX_OFFSET,
         ignoreFirstWall,
+        end,
         resourceCost);
   }
 
@@ -129,10 +145,22 @@ public abstract class ProjectileSkill extends Skill {
    */
   @Override
   protected void executeSkill(Entity caster) {
-    shootProjectile(caster, start(caster), end(caster));
+    shootProjectile(caster, start(caster), endPoint());
   }
 
-  protected void shootProjectile(Entity caster, Point start, Point aimedOn) {
+  /**
+   * Spawns and configures a projectile entity.
+   *
+   * <p>The projectile is created at the specified starting point, aimed towards the target point.
+   * It is given movement velocity, collision handling, and lifecycle management.
+   *
+   * <p>The projectile will be added to the game upon creation.
+   *
+   * @param caster the entity that casts the projectile
+   * @param start the starting point of the projectile
+   * @param aimedOn the target point the projectile is aimed at
+   */
+  public void shootProjectile(Entity caster, Point start, Point aimedOn) {
     Entity projectile = new Entity(name() + "_projectile");
     ignoreEntities.add(caster);
     ignoreEntities.add(projectile);
@@ -169,6 +197,21 @@ public abstract class ProjectileSkill extends Skill {
 
     Game.add(projectile);
     onSpawn(caster, projectile);
+  }
+
+  /**
+   * Returns a set of entities that the projectile should ignore for collision detection.
+   *
+   * <p>This includes the caster and, if player-vs-player is disabled, all player characters.
+   *
+   * @return A set of entities to ignore for collision.
+   */
+  protected Set<Entity> ignoreEntities() {
+    Set<Entity> copy = new HashSet<>(this.ignoreEntities);
+    if (!ALLOW_PLAYER_VS_PLAYER) {
+      Game.allPlayers().forEach(copy::add);
+    }
+    return copy;
   }
 
   /**
@@ -258,14 +301,6 @@ public abstract class ProjectileSkill extends Skill {
         .or(() -> caster.fetch(PositionComponent.class).map(PositionComponent::position))
         .orElseThrow(() -> MissingComponentException.build(caster, PositionComponent.class));
   }
-
-  /**
-   * Calculates the end position (target point) of the projectile.
-   *
-   * @param caster The entity that cast the projectile.
-   * @return The endpoint of the projectile.
-   */
-  protected abstract Point end(Entity caster);
 
   /**
    * Adds an entity to the list of ignored entities for collision.
@@ -452,5 +487,28 @@ public abstract class ProjectileSkill extends Skill {
                 pos.position(pos.position().translate(push));
               }
             });
+  }
+
+  /**
+   * @return The end point for this projectile skill.
+   */
+  public Point endPoint() {
+    return endPointSupplier.get();
+  }
+
+  /**
+   * @return The supplier that provides the end point for this projectile skill.
+   */
+  public Supplier<Point> endPointSupplier() {
+    return endPointSupplier;
+  }
+
+  /**
+   * Set the supplier that provides the end point for this projectile skill.
+   *
+   * @param endPointSupplier The new supplier for the end point.
+   */
+  public void endPointSupplier(Supplier<Point> endPointSupplier) {
+    this.endPointSupplier = endPointSupplier;
   }
 }

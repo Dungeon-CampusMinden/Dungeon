@@ -46,14 +46,6 @@ public class InventoryGUI extends CombinableGUI {
   private static final Texture texture;
   private static final TextureRegion background, hoverBackground;
 
-  /**
-   * Boolean to check if the opened inventory belongs to the player. Items that are in an inventory
-   * which does not belong to the player, e.g. a treasure chest, are not usable.
-   *
-   * <p>Will be set to true if the player inventory is opened and set to false if it's closed.
-   */
-  public static boolean inPlayerInventory = false;
-
   static {
     // Prepare background texture
     Pixmap pixmap = new Pixmap(2, 1, Pixmap.Format.RGBA8888);
@@ -117,6 +109,34 @@ public class InventoryGUI extends CombinableGUI {
             .split("_(?=\\d+)")[0]
             .toUpperCase(),
         inventoryComponent);
+  }
+
+  /**
+   * Checks if the player inventory is currently open.
+   *
+   * @return true if the player inventory is open, false otherwise
+   */
+  public static boolean inPlayerInventory() {
+    return Game.player()
+        .flatMap(player -> player.fetch(UIComponent.class))
+        .map(InventoryGUI::containsPlayerInventory)
+        .orElse(false);
+  }
+
+  private static boolean containsPlayerInventory(UIComponent uiComponent) {
+    if (!(uiComponent.dialog() instanceof GUICombination guiCombination)) {
+      return false;
+    }
+
+    return guiCombination.combinableGuis().stream()
+        .allMatch(
+            gui -> {
+              if (gui instanceof InventoryGUI inventoryGUI) {
+                return inventoryGUI.inventoryComponent
+                    == Game.player().flatMap(p -> p.fetch(InventoryComponent.class)).orElse(null);
+              }
+              return false;
+            });
   }
 
   @Override
@@ -355,7 +375,7 @@ public class InventoryGUI extends CombinableGUI {
             new InputListener() {
               @Override
               public boolean keyDown(InputEvent event, int keycode) {
-                if (inPlayerInventory) {
+                if (inPlayerInventory()) {
                   if (KeyboardConfig.USE_ITEM.value() == keycode) {
                     InventoryGUI.this.useItem(
                         InventoryGUI.this.inventoryComponent.get(
@@ -369,7 +389,7 @@ public class InventoryGUI extends CombinableGUI {
               @Override
               public boolean touchDown(
                   InputEvent event, float x, float y, int pointer, int button) {
-                if (inPlayerInventory) {
+                if (inPlayerInventory()) {
                   if (KeyboardConfig.MOUSE_USE_ITEM.value() == button) {
                     // if in player inventory, allow using items if key is pressed
                     InventoryGUI.this.useItem(

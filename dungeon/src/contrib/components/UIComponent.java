@@ -13,7 +13,7 @@ import core.utils.IVoidFunction;
 public final class UIComponent implements Component {
   private final Group dialog;
   private final boolean willPauseGame;
-  private final boolean closeOnUICloseKey;
+  private final boolean canBeClosed;
   private IVoidFunction onClose = () -> {};
 
   /**
@@ -21,12 +21,12 @@ public final class UIComponent implements Component {
    *
    * @param dialog a Group of Elements which should be shown
    * @param willPauseGame if the UI should pause the Game or not
-   * @param closeOnUICloseKey if the UI should close when the UI Close Key was pressed
+   * @param canBeClosed if the UI can be closed (e.g. with the close key)
    */
-  public UIComponent(final Group dialog, boolean willPauseGame, boolean closeOnUICloseKey) {
+  public UIComponent(final Group dialog, boolean willPauseGame, boolean canBeClosed) {
     this.dialog = dialog;
     this.willPauseGame = willPauseGame;
-    this.closeOnUICloseKey = closeOnUICloseKey;
+    this.canBeClosed = canBeClosed;
   }
 
   /**
@@ -77,12 +77,14 @@ public final class UIComponent implements Component {
   }
 
   /**
-   * Check if the Dialog will close on a press on the close key.
+   * Check if the Dialog can be closed.
    *
-   * @return true when the UI should be closed with a press of the close key otherwise false
+   * <p>Dialogs which can be closed will be closed when the close key is pressed.
+   *
+   * @return true when the dialog can be closed
    */
-  public boolean closeOnUICloseKey() {
-    return closeOnUICloseKey;
+  public boolean canBeClosed() {
+    return canBeClosed;
   }
 
   /**

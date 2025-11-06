@@ -5,7 +5,6 @@ import coderunner.BlocklyCodeRunner;
 import coderunner.BlocklyCommands;
 import coderunner.Direction;
 import contrib.entities.EntityFactory;
-import contrib.entities.HeroFactory;
 import core.Entity;
 import core.Game;
 import core.components.InputComponent;
@@ -15,6 +14,7 @@ import core.configuration.KeyboardConfig;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.function.Consumer;
 import level.BlocklyLevel;
 
@@ -25,13 +25,6 @@ import level.BlocklyLevel;
  */
 public class HeroTankControlledFactory {
 
-  static {
-    HeroFactory.heroDeath(
-        entity -> {
-          Client.restart();
-        });
-  }
-
   /**
    * Creates a new player with tank controls. The player can only move in the direction it is
    * facing.
@@ -40,13 +33,15 @@ public class HeroTankControlledFactory {
    * @return the player entity
    * @throws IOException if there is an error creating the player
    */
-  public static Entity blocklyHero(boolean tankControlls) throws IOException {
-    Entity hero = EntityFactory.newHero();
+  public static Entity blocklyHero(boolean tankControlls) {
+    Entity hero = EntityFactory.newHero(innerHero -> Client.restart());
     InputComponent ic = hero.fetch(InputComponent.class).orElse(new InputComponent());
 
-    // Remove any original movement controls
-    ic.removeCallbacks();
-    HeroFactory.registerCloseUI(ic);
+    // Remove any original movement controls except CLOSE_UI
+    ic.removeCallbacksIf(
+        (entry ->
+            !Objects.equals(
+                entry.getKey(), contrib.configuration.KeyboardConfig.CLOSE_UI.value())));
 
     if (tankControlls) {
       // Add tank controls

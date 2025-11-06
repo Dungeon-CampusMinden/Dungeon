@@ -233,12 +233,8 @@ public class ComparePathfindingStarter {
    */
   public static Entity createHero() {
     Entity hero;
-    try {
-      hero = HeroFactory.newHero();
-      hero.remove(CameraComponent.class);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    hero = EntityFactory.newHero();
+    hero.remove(CameraComponent.class);
     Game.add(hero);
     return hero;
   }
@@ -251,10 +247,15 @@ public class ComparePathfindingStarter {
    * @return The newly created runnerMob
    */
   private static Entity createRunnerMob(Point startPoint) {
+    Float heroSpeed =
+        Game.player()
+            .flatMap(p -> p.fetch(VelocityComponent.class))
+            .map(VelocityComponent::maxSpeed)
+            .orElseThrow();
     return new MonsterBuilder<>()
         .name("KI Runner")
         .texture(new SimpleIPath("character/wizard"))
-        .speed(HeroFactory.DEFAULT_HERO_CLASS.speed().x()) // same speed as player
+        .speed(heroSpeed) // same speed as player
         .addToGame()
         .build(startPoint);
   }

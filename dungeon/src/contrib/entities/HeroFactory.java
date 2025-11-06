@@ -1,62 +1,34 @@
 package contrib.entities;
 
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
-import contrib.hud.elements.GUICombination;
-import contrib.hud.inventory.InventoryGUI;
 import contrib.systems.HealthSystem;
+import contrib.systems.HudSystem;
 import contrib.utils.components.health.Damage;
-import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.*;
-import core.level.Tile;
 import core.level.loader.DungeonLoader;
-import core.level.utils.LevelUtils;
 import core.systems.VelocitySystem;
 import core.utils.*;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.*;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
 /** A utility class for building the player entity in the game world. */
 public final class HeroFactory {
 
-  /** If true, the player can be moved with the mouse. */
-  public static final boolean ENABLE_MOUSE_MOVEMENT = true;
-
-  /** The default Hero class, used if no other class is specified. */
-  public static final CharacterClass DEFAULT_HERO_CLASS = CharacterClass.WIZARD;
-
-  private static final String MOVEMENT_ID = "Movement";
   private static final String DEATH_SOUND_ID = "death";
-  private static final Consumer<Entity> EXECUTE_ACTIVE_HERO_SKILL =
-      entity ->
-          entity
-              .fetch(SkillComponent.class)
-              .ifPresent(
-                  skillComponent ->
-                      skillComponent
-                          .activeSkill()
-                          .ifPresent(
-                              new Consumer<Skill>() {
-                                @Override
-                                public void accept(Skill skill) {
-                                  skill.execute(entity);
-                                }
-                              }));
 
-  private static Consumer<Entity> DEFAULT_DEATH =
+  private static final CharacterClass DEFAULT_HERO_CLASS = CharacterClass.WIZARD;
+  private static final Consumer<Entity> DEFAULT_DEATH =
       (hero) ->
           DialogUtils.showTextPopup(
               "You died!",
@@ -78,7 +50,7 @@ public final class HeroFactory {
                           characterClassComponent
                               .characterClass()
                               .startItems()
-                              .forEach(item -> invComp.add(item));
+                              .forEach(invComp::add);
                           hero.add(invComp);
                         });
 
@@ -88,48 +60,77 @@ public final class HeroFactory {
               });
 
   /**
-   * Sets the callback to execute when the player dies.
+   * Creates a new HeroBuilder with default settings.
    *
-   * @param deathCallback Callback that will be executed on the player's death.
+   * @return A new HeroBuilder instance.
    */
-  public static void heroDeath(Consumer<Entity> deathCallback) {
-    DEFAULT_DEATH = deathCallback;
+  public static HeroBuilder builder() {
+    return new HeroBuilder();
+  }
+
+  /** Builder class for creating Hero entities with custom configurations. */
+  public static class HeroBuilder {
+    private CharacterClass characterClass = DEFAULT_HERO_CLASS;
+    private Consumer<Entity> deathCallback = DEFAULT_DEATH;
+    private boolean persistent = true;
+
+    private HeroBuilder() {}
+
+    /**
+     * Sets the character class for the hero.
+     *
+     * @param characterClass The character class to use.
+     * @return This builder instance.
+     */
+    public HeroBuilder characterClass(CharacterClass characterClass) {
+      this.characterClass = characterClass;
+      return this;
+    }
+
+    /**
+     * Sets the death callback for the hero.
+     *
+     * @param deathCallback The callback to execute when the hero dies.
+     * @return This builder instance.
+     */
+    public HeroBuilder deathCallback(Consumer<Entity> deathCallback) {
+      this.deathCallback = deathCallback;
+      return this;
+    }
+
+    /**
+     * Sets whether the hero entity is persistent.
+     *
+     * @param persistent True to make the hero persistent, false otherwise.
+     * @return This builder instance.
+     */
+    public HeroBuilder persistent(boolean persistent) {
+      this.persistent = persistent;
+      return this;
+    }
+
+    /**
+     * Builds and returns the Hero entity with the configured settings.
+     *
+     * @return A new Hero Entity.
+     */
+    public Entity build() {
+      return buildHero(characterClass, deathCallback, persistent);
+    }
   }
 
   /**
-   * Get an Entity that can be used as a playable character.
+   * Internal method to build a hero entity with all components configured.
    *
-   * <p>The Entity is not added to the game yet.
-   *
-   * <p>It will have a {@link CameraComponent}, {@link PlayerComponent}{, {@link PlayerComponent},
-   * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
-   * CollideComponent} and {@link HealthComponent}.
-   *
-   * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
+   * @param characterClass The character class.
+   * @param deathCallback The death callback.
+   * @param persistent Whether the entity is persistent.
+   * @return The configured hero entity.
    */
-  public static Entity newHero() throws IOException {
-    return newHero(DEFAULT_HERO_CLASS, DEFAULT_DEATH);
-  }
-
-  /**
-   * Get an Entity that can be used as a playable character.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * <p>It will have a {@link CameraComponent}, {@link PlayerComponent}, {@link InputComponent}
-   * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
-   * CollideComponent} and {@link HealthComponent}.
-   *
-   * @param characterClass Class of the player.
-   * @param deathCallback function that will be executed if the player dies
-   * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
-   */
-  public static Entity newHero(CharacterClass characterClass, Consumer<Entity> deathCallback)
-      throws IOException {
-    Entity hero = new Entity("player");
-    hero.persistent(true);
+  private static Entity buildHero(
+      CharacterClass characterClass, Consumer<Entity> deathCallback, boolean persistent) {
+    Entity hero = new Entity("hero");
+    hero.persistent(persistent);
     PlayerComponent pc = new PlayerComponent();
     hero.add(pc);
     CameraComponent cc = new CameraComponent();
@@ -217,314 +218,69 @@ public final class HeroFactory {
     hero.add(inputComp);
 
     InventoryComponent invComp = new InventoryComponent(characterClass.inventorySize());
-    characterClass.startItems().forEach(item -> invComp.add(item));
+    characterClass.startItems().forEach(invComp::add);
     hero.add(invComp);
 
-    // player movement
-    registerMovement(
-        inputComp,
-        core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-        characterClass.speed(),
-        Direction.UP);
-    registerMovement(
-        inputComp,
-        core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
-        characterClass.speed(),
-        Direction.DOWN);
-    registerMovement(
-        inputComp,
-        core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
-        characterClass.speed(),
-        Direction.RIGHT);
-    registerMovement(
-        inputComp,
-        core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
-        characterClass.speed(),
-        Direction.LEFT);
-
-    inputComp.registerCallback(
-        KeyboardConfig.NEXT_SKILL.value(),
-        entity -> entity.fetch(SkillComponent.class).ifPresent(sk -> sk.nextSkill()),
-        false);
-    inputComp.registerCallback(
-        KeyboardConfig.PREV_SKILL.value(),
-        entity -> entity.fetch(SkillComponent.class).ifPresent(sk -> sk.nextSkill()),
-        false);
-
-    if (ENABLE_MOUSE_MOVEMENT) {
-      // Mouse Left Click
-      registerMouseLeftClick(inputComp);
-
-      // Mouse Movement (Right Click)
-      inputComp.registerCallback(
-          KeyboardConfig.MOUSE_MOVE.value(),
-          innerHero -> {
-            // Small adjustment to get the correct tile
-            Point mousePos = SkillTools.cursorPositionAsPoint();
-
-            Point heroPos =
-                innerHero
-                    .fetch(PositionComponent.class)
-                    .map(PositionComponent::position)
-                    .orElse(null);
-            if (heroPos == null) return;
-
-            GraphPath<Tile> path = LevelUtils.calculatePath(heroPos, mousePos);
-            // If the path is null or empty, try to find a nearby tile that is accessible and
-            // calculate a path to it
-            if (path == null || path.getCount() == 0) {
-              Tile nearTile =
-                  LevelUtils.tilesInRange(mousePos, 1f).stream()
-                      .filter(tile -> LevelUtils.calculatePath(heroPos, tile.position()) != null)
-                      .findFirst()
-                      .orElse(null);
-              // If no accessible tile is found, abort
-              if (nearTile == null) return;
-              path = LevelUtils.calculatePath(heroPos, nearTile.position());
-            }
-
-            // Stores the path in Hero's PathComponent
-            GraphPath<Tile> finalPath = path;
-            innerHero
-                .fetch(PathComponent.class)
-                .ifPresentOrElse(
-                    pathComponent -> pathComponent.path(finalPath),
-                    () -> innerHero.add(new PathComponent(finalPath)));
-          },
-          false);
-    }
-
-    // UI controls
-    inputComp.registerCallback(
-        KeyboardConfig.INVENTORY_OPEN.value(),
-        (entity) -> toggleInventory(entity, pc, invComp),
-        false,
-        true);
-
-    if (ENABLE_MOUSE_MOVEMENT) {
-      inputComp.registerCallback(
-          KeyboardConfig.MOUSE_INVENTORY_TOGGLE.value(),
-          (entity) -> toggleInventory(entity, pc, invComp),
-          false,
-          true);
-    }
-
-    registerCloseUI(inputComp);
-
-    inputComp.registerCallback(
-        KeyboardConfig.INTERACT_WORLD.value(),
-        entity -> {
-          UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
-          if (uiComponent != null
-              && uiComponent.dialog() instanceof GUICombination
-              && !InventoryGUI.inPlayerInventory) {
-            // if chest or cauldron
-            entity.remove(UIComponent.class);
-          } else {
-            InteractionTool.interactWithClosestInteractable(entity);
-          }
-        },
-        false);
-
-    // skills
-    inputComp.registerCallback(KeyboardConfig.FIRST_SKILL.value(), EXECUTE_ACTIVE_HERO_SKILL);
+    setupControls(inputComp, characterClass);
 
     return hero;
   }
 
-  /**
-   * Registers a callback for closing the UI when the CLOSE_UI key is pressed.
-   *
-   * <p>This will close the topmost UI dialog that has the close key configured to close it.
-   *
-   * @param ic The {@link InputComponent} of the player.
-   */
-  public static void registerCloseUI(InputComponent ic) {
-    ic.registerCallback(
+  // region Bind Controls
+  private static void setupControls(InputComponent inputComp, CharacterClass characterClass) {
+    // WASD
+    inputComp.registerCallback(
+        core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
+        (caller) -> HeroController.moveHero(caller, Direction.UP, characterClass.speed()));
+    inputComp.registerCallback(
+        core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
+        (caller) -> HeroController.moveHero(caller, Direction.DOWN, characterClass.speed()));
+    inputComp.registerCallback(
+        core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
+        (caller) -> HeroController.moveHero(caller, Direction.RIGHT, characterClass.speed()));
+    inputComp.registerCallback(
+        core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
+        (caller) -> HeroController.moveHero(caller, Direction.LEFT, characterClass.speed()));
+
+    // Skills
+    inputComp.registerCallback(
+        KeyboardConfig.USE_SKILL.value(),
+        (caller) -> HeroController.useSkill(caller, SkillTools.cursorPositionAsPoint()));
+    inputComp.registerCallback(
+        KeyboardConfig.MOUSE_USE_SKILL.value(),
+        (caller) -> HeroController.useSkill(caller, SkillTools.cursorPositionAsPoint()));
+    inputComp.registerCallback(
+        KeyboardConfig.NEXT_SKILL.value(),
+        caller -> caller.fetch(SkillComponent.class).ifPresent(SkillComponent::nextSkill),
+        false);
+    inputComp.registerCallback(
+        KeyboardConfig.PREV_SKILL.value(),
+        caller -> caller.fetch(SkillComponent.class).ifPresent(SkillComponent::prevSkill),
+        false);
+
+    // Interact
+    inputComp.registerCallback(
+        KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
+        (caller) -> HeroController.interact(caller, SkillTools.cursorPositionAsPoint()));
+    inputComp.registerCallback(
+        KeyboardConfig.INTERACT_WORLD.value(),
+        (caller) -> HeroController.interact(caller, SkillTools.cursorPositionAsPoint()),
+        false);
+
+    // UI controls
+    inputComp.registerCallback(
+        KeyboardConfig.INVENTORY_OPEN.value(), HeroController::toggleInventory, false, true);
+    inputComp.registerCallback(
         KeyboardConfig.CLOSE_UI.value(),
-        (e) -> {
-          var firstUI =
-              Game.levelEntities() // would be nice to directly access HudSystems
-                  // stream (no access to the System object)
-                  .filter(x -> x.isPresent(UIComponent.class)) // find all Entities
-                  // that have a
-                  // UIComponent
-                  .map(
-                      x ->
-                          new Tuple<>(
-                              x,
-                              x.fetch(UIComponent.class)
-                                  .orElseThrow(
-                                      () ->
-                                          MissingComponentException.build(
-                                              x, UIComponent.class)))) // create a tuple to
-                  // still have access to
-                  // the UI Entity
-                  .filter(x -> x.b().closeOnUICloseKey())
-                  .max(Comparator.comparingInt(x -> x.b().dialog().getZIndex())) // find dialog
-                  // with highest
-                  // z-Index
-                  .orElse(null);
-          if (firstUI != null) {
-            InventoryGUI.inPlayerInventory = false;
-            firstUI.a().remove(UIComponent.class);
-            if (firstUI.a().componentStream().findAny().isEmpty()) {
-              Game.remove(firstUI.a()); // delete unused Entity
-            }
-          }
-        },
+        (caller) ->
+            Game.system(
+                HudSystem.class,
+                (hudSystem ->
+                    hudSystem
+                        .topmostCloseableUI()
+                        .ifPresent(firstUI -> firstUI.a().remove(UIComponent.class)))),
         false,
         true);
   }
-
-  private static void toggleInventory(Entity entity, PlayerComponent pc, InventoryComponent ic) {
-    if (pc.openDialogs()) {
-      return;
-    }
-
-    UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
-    if (uiComponent != null) {
-      if (uiComponent.dialog() instanceof GUICombination) {
-        InventoryGUI.inPlayerInventory = false;
-        entity.remove(UIComponent.class);
-      }
-    } else {
-      InventoryGUI.inPlayerInventory = true;
-      entity.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
-    }
-  }
-
-  private static void registerMovement(
-      InputComponent ic, int key, Vector2 speed, Vector2 direction) {
-    ic.registerCallback(
-        key,
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
-
-          Optional<Vector2> existingForceOpt = vc.force(MOVEMENT_ID);
-          Vector2 newForce = speed.scale(direction);
-
-          Vector2 updatedForce =
-              existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
-
-          if (updatedForce.lengthSquared() > 0) {
-            updatedForce = updatedForce.normalize().scale(speed.length());
-            vc.applyForce(MOVEMENT_ID, updatedForce);
-          }
-
-          if (ENABLE_MOUSE_MOVEMENT) {
-            entity.fetch(PathComponent.class).ifPresent(PathComponent::clear);
-          }
-        });
-  }
-
-  private static void registerMouseLeftClick(InputComponent ic) {
-    if (!Objects.equals(
-        KeyboardConfig.MOUSE_FIRST_SKILL.value(), KeyboardConfig.MOUSE_INTERACT_WORLD.value())) {
-      ic.registerCallback(
-          KeyboardConfig.MOUSE_FIRST_SKILL.value(), EXECUTE_ACTIVE_HERO_SKILL, true, false);
-      ic.registerCallback(
-          KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
-          HeroFactory::handleInteractWithClosestInteractable,
-          false,
-          false);
-    } else {
-      // If interact and skill are the same, only one callback can be used, so we only interact if
-      // interaction is possible
-      ic.registerCallback(
-          KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
-          (hero) -> {
-            Point mousePosition = SkillTools.cursorPositionAsPoint();
-            Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
-            if (interactable == null || !interactable.isPresent(InteractionComponent.class)) {
-              EXECUTE_ACTIVE_HERO_SKILL.accept(hero);
-            } else {
-              handleInteractWithClosestInteractable(hero);
-            }
-          },
-          false,
-          false);
-    }
-  }
-
-  private static void handleInteractWithClosestInteractable(Entity hero) {
-    UIComponent uiComponent = hero.fetch(UIComponent.class).orElse(null);
-    if (uiComponent != null && uiComponent.dialog() instanceof GUICombination) {
-      // close the dialog if already open
-      hero.remove(UIComponent.class);
-      return;
-    }
-    Point mousePosition = SkillTools.cursorPositionAsPoint();
-    Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
-    if (interactable == null) return;
-    InteractionComponent ic =
-        interactable
-            .fetch(InteractionComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(interactable, InteractionComponent.class));
-    PositionComponent pc =
-        interactable
-            .fetch(PositionComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(interactable, PositionComponent.class));
-    PositionComponent heroPC =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    if (Point.calculateDistance(pc.position(), heroPC.position()) < ic.radius())
-      ic.triggerInteraction(interactable, hero);
-  }
-
-  private static Optional<Entity> checkIfClickOnInteractable(Point pos)
-      throws MissingComponentException {
-    Tile mouseTile = Game.tileAt(pos).orElse(null);
-    if (mouseTile == null) return Optional.empty();
-
-    return Game.entityAtTile(mouseTile)
-        .filter(e -> e.isPresent(InteractionComponent.class))
-        .findFirst();
-  }
-
-  private static void resolveCollisionWithMomentum(Entity hero, Entity other) {
-    Optional<VelocityComponent> optVc1 = hero.fetch(VelocityComponent.class);
-    Optional<VelocityComponent> optVc2 = other.fetch(VelocityComponent.class);
-
-    if (optVc1.isEmpty() || optVc2.isEmpty()) return;
-
-    VelocityComponent vc1 = optVc1.get();
-    VelocityComponent vc2 = optVc2.get();
-
-    Vector2 v1 = vc1.currentVelocity();
-    Vector2 v2 = vc2.currentVelocity();
-    float m1 = vc1.mass();
-    float m2 = vc2.mass();
-
-    Vector2 p1 = v1.scale(m1); // Impuls Entity 1
-    Vector2 p2 = v2.scale(m2); // Impuls Entity 2
-
-    Vector2 p = p1.add(p2); // Total Impuls
-    Vector2 v = p.scale(1f / (m1 + m2)); // New velocity after collision
-
-    double length = v.length(); // Länge des Vektors behalten (neue Geschwindigkeit)
-
-    Direction d = v.direction(); // Richtung des Vektors nach Quadranten bestimmen
-
-    Vector2 newVelocity = d.scale(length); // Neue Geschwindigkeit in Richtung des Vektors
-    vc1.applyForce("Collision", newVelocity.scale(-1));
-    vc2.applyForce("Collision", newVelocity);
-  }
-
-  /**
-   * Create a new Hero based on the given class with the default death callback (restart level).
-   *
-   * @param characterClass The class of the player.
-   * @return The Hero Entity-
-   * @throws IOException if animations could not be created.
-   */
-  public static Entity newHero(CharacterClass characterClass) throws IOException {
-    return newHero(characterClass, DEFAULT_DEATH);
-  }
+  // endregion
 }

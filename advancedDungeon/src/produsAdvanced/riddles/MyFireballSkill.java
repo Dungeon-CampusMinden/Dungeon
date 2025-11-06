@@ -59,7 +59,7 @@ public class MyFireballSkill extends DamageProjectileSkill {
         SKILL_NAME,
         cooldown,
         TEXTURE,
-        null,
+        () -> AdvancedDungeon.hero.getMousePosition(),
         speed,
         range,
         IS_PIERCING,
@@ -67,17 +67,6 @@ public class MyFireballSkill extends DamageProjectileSkill {
         DAMAGE_TYPE,
         IGNORE_FIRST_WALL,
         resourceCost);
-  }
-
-  /**
-   * Berechnet das Ziel, wohin der Feuerball fliegen soll.
-   *
-   * @param caster Die Figur (Entity), die den Feuerball schießt.
-   * @return Das Ziel, wo der Feuerball endet.
-   */
-  @Override
-  protected Point end(Entity caster) {
-    return AdvancedDungeon.hero.getMousePosition();
   }
 
   /**

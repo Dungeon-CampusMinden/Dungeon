@@ -102,7 +102,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
     Coordinate playerPos = EntityUtils.getPlayerCoordinate();
     if (playerPos == null) return;
 
-    if (!rewardGiven && riddleRewardSpawn.equals(playerPos)) {
+    if (!rewardGiven && riddleRewardSpawn.toCoordinate().equals(playerPos)) {
       giveReward();
     }
   }
