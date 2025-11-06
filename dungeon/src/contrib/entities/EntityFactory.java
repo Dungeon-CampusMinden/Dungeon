@@ -22,7 +22,7 @@ import java.util.function.Consumer;
  * A utility class for building entities in the game world. The {@link EntityFactory} class provides
  * static methods to construct various types of entities with different components.
  *
- * <p>This class only references Methods of the {@link HeroFactory} and {@link MiscFactory}
+ * <p>This class only references Methods of the {@link HeroBuilder} and {@link MiscFactory}
  */
 public final class EntityFactory {
 
@@ -38,7 +38,7 @@ public final class EntityFactory {
    * @return A new Entity.
    */
   public static Entity newHero() {
-    return HeroFactory.builder().build();
+    return HeroBuilder.builder().build();
   }
 
   /**
@@ -54,7 +54,7 @@ public final class EntityFactory {
    * @return A new Entity.
    */
   public static Entity newHero(Consumer<Entity> deathCallback) {
-    return HeroFactory.builder().deathCallback(deathCallback).build();
+    return HeroBuilder.builder().deathCallback(deathCallback).build();
   }
 
   /**
@@ -69,7 +69,7 @@ public final class EntityFactory {
    * @return A new Entity.
    */
   public static Entity newHero(CharacterClass characterClass) {
-    return HeroFactory.builder().characterClass(characterClass).build();
+    return HeroBuilder.builder().characterClass(characterClass).build();
   }
 
   /**

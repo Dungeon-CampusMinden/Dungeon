@@ -22,8 +22,12 @@ import core.utils.components.draw.state.StateMachine;
 import java.util.*;
 import java.util.function.Consumer;
 
-/** A utility class for building the player entity in the game world. */
-public final class HeroFactory {
+/**
+ * A utility class for building the player entity in the game world.
+ *
+ * @see EntityFactory EnityFactory for creating a hero via a factory method.
+ */
+public final class HeroBuilder {
 
   private static final String DEATH_SOUND_ID = "death";
 
@@ -59,6 +63,10 @@ public final class HeroFactory {
                 DungeonLoader.reloadCurrentLevel();
               });
 
+  private CharacterClass characterClass = DEFAULT_HERO_CLASS;
+  private Consumer<Entity> deathCallback = DEFAULT_DEATH;
+  private boolean persistent = true;
+
   /**
    * Creates a new HeroBuilder with default settings.
    *
@@ -68,55 +76,48 @@ public final class HeroFactory {
     return new HeroBuilder();
   }
 
-  /** Builder class for creating Hero entities with custom configurations. */
-  public static class HeroBuilder {
-    private CharacterClass characterClass = DEFAULT_HERO_CLASS;
-    private Consumer<Entity> deathCallback = DEFAULT_DEATH;
-    private boolean persistent = true;
+  private HeroBuilder() {}
 
-    private HeroBuilder() {}
+  /**
+   * Sets the character class for the hero.
+   *
+   * @param characterClass The character class to use.
+   * @return This builder instance.
+   */
+  public HeroBuilder characterClass(CharacterClass characterClass) {
+    this.characterClass = characterClass;
+    return this;
+  }
 
-    /**
-     * Sets the character class for the hero.
-     *
-     * @param characterClass The character class to use.
-     * @return This builder instance.
-     */
-    public HeroBuilder characterClass(CharacterClass characterClass) {
-      this.characterClass = characterClass;
-      return this;
-    }
+  /**
+   * Sets the death callback for the hero.
+   *
+   * @param deathCallback The callback to execute when the hero dies.
+   * @return This builder instance.
+   */
+  public HeroBuilder deathCallback(Consumer<Entity> deathCallback) {
+    this.deathCallback = deathCallback;
+    return this;
+  }
 
-    /**
-     * Sets the death callback for the hero.
-     *
-     * @param deathCallback The callback to execute when the hero dies.
-     * @return This builder instance.
-     */
-    public HeroBuilder deathCallback(Consumer<Entity> deathCallback) {
-      this.deathCallback = deathCallback;
-      return this;
-    }
+  /**
+   * Sets whether the hero entity is persistent.
+   *
+   * @param persistent True to make the hero persistent, false otherwise.
+   * @return This builder instance.
+   */
+  public HeroBuilder persistent(boolean persistent) {
+    this.persistent = persistent;
+    return this;
+  }
 
-    /**
-     * Sets whether the hero entity is persistent.
-     *
-     * @param persistent True to make the hero persistent, false otherwise.
-     * @return This builder instance.
-     */
-    public HeroBuilder persistent(boolean persistent) {
-      this.persistent = persistent;
-      return this;
-    }
-
-    /**
-     * Builds and returns the Hero entity with the configured settings.
-     *
-     * @return A new Hero Entity.
-     */
-    public Entity build() {
-      return buildHero(characterClass, deathCallback, persistent);
-    }
+  /**
+   * Builds and returns the Hero entity with the configured settings.
+   *
+   * @return A new Hero Entity.
+   */
+  public Entity build() {
+    return buildHero(characterClass, deathCallback, persistent);
   }
 
   /**

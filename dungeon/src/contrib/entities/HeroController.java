@@ -32,7 +32,7 @@ import java.util.stream.Stream;
  *
  * <p>Also manages an input queue for processing client inputs in a server-authoritative manner.
  *
- * @see HeroFactory HeroFactory for creating hero entities
+ * @see HeroBuilder HeroFactory for creating hero entities
  */
 public class HeroController {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(HeroController.class);
