@@ -110,6 +110,33 @@ public enum Deco {
   /** A decoration. */
   Bush4("objects/nature/bushes_sheet.png", new SpritesheetConfig(16, 16)),
 
+  BOSS("objects/office/boss.png", new AnimationConfig().scaleX(3), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  JULIA("objects/office/img.png", new AnimationConfig().scaleX(1.5f)),
+  CAT("objects/office/cat.png", new AnimationConfig().scaleX(1.5f)),
+  MUG("objects/office/mug.png", new AnimationConfig().scaleX(1.5f)),
+  CLOCK("objects/office/clock.png", new AnimationConfig()),
+  AUTOMATE("objects/office/automate.png", new AnimationConfig().scaleX(1.5f)),
+  CABNINET("objects/office/cabinet.png", new AnimationConfig().scaleX(2), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  CHAIR("objects/office/chair.png", new AnimationConfig(), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  COFFEEMAKER("objects/office/coffee-maker.png", new AnimationConfig().scaleX(2), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  DESK("objects/office/desk.png", new AnimationConfig().scaleX(2), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  PCDESK("objects/office/desk-with-pc.png", new AnimationConfig().scaleX(3), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  OFFICEPARTITIONS1("objects/office/office-partitions-1.png", new AnimationConfig().scaleX(2), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  OFFICEPARTITIONS2("objects/office/office-partitions-2.png", new AnimationConfig().scaleX(2), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  PC1("objects/office/PC1.png", new AnimationConfig().scaleX(2), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  PC2("objects/office/PC2.png", new AnimationConfig().scaleX(2), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  OFFICEPLANT("objects/office/plant.png", new AnimationConfig().scaleX(2), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  SINK("objects/office/sink.png", new AnimationConfig().scaleX(2), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  STAMPINGTABLE("objects/office/stamping-table.png", new AnimationConfig().scaleX(2), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  WRITINGTABLE("objects/office/writing-table.png", new AnimationConfig().scaleX(3), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  TRASH("objects/office/trash.png", new AnimationConfig(), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  WATERCOOLER("objects/office/water-cooler.png", new AnimationConfig(), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  WORKER1("objects/office/worker1.png", new AnimationConfig().scaleX(3), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  WORKER2("objects/office/worker2.png", new AnimationConfig().scaleX(3), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+  WORKER4("objects/office/worker4.png", new AnimationConfig().scaleX(3), new Rectangle(1.65f, 1.20f, 0.20f, 0.20f)),
+
+
+
   /** A decoration. */
   LogBig(
       "objects/nature/big_log.png",
