@@ -67,9 +67,10 @@ public abstract class AbstractShader implements Disposable {
   /**
    * Abstract method for subclasses to define their unique uniform bindings.
    *
+   * @param actualUpscale The actual upscaling factor being used.
    * @return A list of UniformBinding objects to apply.
    */
-  protected abstract List<UniformBinding> getUniforms();
+  protected abstract List<UniformBinding> getUniforms(int actualUpscale);
 
   /**
    * Gets the padding required for this shader effect.
@@ -96,6 +97,8 @@ public abstract class AbstractShader implements Disposable {
    * <p>When effects need to draw "in between" pixels (e.g. a smaller outline than 1 pixel),
    * upscaling the render target is necessary.
    *
+   * <p>When chaining, set this field last, since it chains an AbstractShader, not the specific subclass.
+   *
    * @param upscaling The upscaling factor (1 = no upscaling, 2 = 2x upscaling, etc.)
    * @return The shader instance for chaining.
    */
@@ -112,11 +115,11 @@ public abstract class AbstractShader implements Disposable {
    *
    * @param batch The SpriteBatch instance.
    */
-  public void bind(SpriteBatch batch) {
+  public void bind(SpriteBatch batch, int actualUpscale) {
     ensureCompiled();
     batch.setShader(program);
 
-    List<UniformBinding> bindings = getUniforms();
+    List<UniformBinding> bindings = getUniforms(actualUpscale);
     if (bindings != null) {
       for (UniformBinding binding : bindings) {
         binding.bind(program);

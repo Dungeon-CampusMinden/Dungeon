@@ -23,7 +23,7 @@ public class HueRemapShader extends AbstractShader {
   }
 
   @Override
-  protected List<UniformBinding> getUniforms() {
+  protected List<UniformBinding> getUniforms(int actualUpscale) {
     return List.of(
         new FloatUniform("u_startingHue", startingHue),
         new FloatUniform("u_targetHue", targetHue),

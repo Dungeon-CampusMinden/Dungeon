@@ -32,9 +32,9 @@ public class OutlineShader extends AbstractShader {
   }
 
   @Override
-  protected List<UniformBinding> getUniforms() {
+  protected List<UniformBinding> getUniforms(int actualUpscale) {
     return List.of(
-        new FloatUniform("u_width", width),
+        new FloatUniform("u_width", width * ((float)actualUpscale / upscaling())),
         new ColorUniform("u_color", color),
         new FloatUniform("u_beatSpeed", beatSpeed),
         new FloatUniform("u_beatIntensity", beatIntensity),

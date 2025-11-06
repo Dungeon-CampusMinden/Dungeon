@@ -36,24 +36,22 @@ import core.utils.components.path.IPath;
 import java.util.*;
 
 /**
- * This system draws the entities on the screen using a two-pass rendering pipeline: 1. FBO Pass:
- * Entities with shader passes are rendered to expanded FrameBuffers (FBOs) using ping-ponging and
- * local transforms (scale/padding). 2. Screen Pass: Level and final entity textures (either FBO
- * output or original sprite) are drawn to the screen using full world transforms.
+ * This system draws the entities on the screen using a multi-pass rendering pipeline:
+ *
+ * <p>1. **Entity FBO Pass:** Entities with specific shaders are rendered to expanded FrameBuffers
+ * (FBOs) using ping-ponging and local transforms (scale/padding).
+ *
+ * <p>2. **Scene Pass:** The level and all final entity textures (FBO output or original sprite) are
+ * drawn into a screen-sized FBO if post-processing is enabled, or directly to the screen otherwise.
+ *
+ * <p>3. **Post-Processing Pass (Optional):** If scene shaders are configured, the scene FBO is
+ * ping-ponged through the post-processing shaders.
+ *
+ * <p>4. **Screen Final Draw:** The final output (either the processed scene FBO or the direct scene
+ * render) is presented on the screen.
  *
  * <p>Each entity with a {@link DrawComponent} and a {@link PositionComponent} will be drawn on the
  * screen.
- *
- * <p>This System will also draw the level.
- *
- * <p>The system will get the current animation from the {@link DrawComponent} and will get the next
- * animation frame from the {@link Animation}, and then draw it on the current position stored in
- * the {@link PositionComponent}.
- *
- * <p>This system will not queue animations. This must be done by other systems. The system
- * evaluates the queue and draws the animation with the highest priority in the queue.
- *
- * <p>The DrawSystem can't be paused.
  *
  * @see DrawComponent
  * @see Animation
@@ -69,10 +67,13 @@ public final class DrawSystem extends System implements Disposable {
   private final TreeMap<Integer, List<Entity>> sortedEntities = new TreeMap<>();
 
   private final FrameBufferPool FBO_POOL = FrameBufferPool.getInstance();
-  // Dedicated SpriteBatch for rendering locally to FBOs (Pass 1)
+  // Dedicated SpriteBatch for rendering locally to FBOs (Pass 1 & Post-Processing Ping-Pong)
   private final SpriteBatch fboBatch = new SpriteBatch();
   private final Matrix4 fboProjectionMatrix = new Matrix4();
   private final TextureRegion fboRegion = new TextureRegion();
+
+  // Post-processing shaders applied to the entire scene
+  private List<AbstractShader> shaders = new ArrayList<>();
 
   private float secondsElapsed = 0f;
 
@@ -90,6 +91,19 @@ public final class DrawSystem extends System implements Disposable {
    */
   public static SpriteBatch batch() {
     return BATCH;
+  }
+
+  /**
+   * Sets the list of shaders to be applied to the entire scene as post-processing effects.
+   *
+   * @param shaders The list of shaders to apply (or null/empty list to disable).
+   */
+  public void shaders(List<AbstractShader> shaders) {
+    this.shaders = Objects.requireNonNullElseGet(shaders, ArrayList::new);
+  }
+
+  public List<AbstractShader> shaders() {
+    return shaders;
   }
 
   private void onEntityChanged(Entity changed, boolean added) {
@@ -132,26 +146,136 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   /**
-   * Will draw entities in a two-pass render process.
+   * Will draw entities using a multi-pass render process.
    *
-   * <p>Pass 1: Render shader effects into FBOs (Ping-Pong).
+   * <p>1. Entity FBO Pass: Render local shader effects into FBOs (Ping-Pong).
    *
-   * <p>Pass 2: Draw level and final entity textures (either FBO output or original sprite) are
-   * drawn to the screen using full world transforms.
+   * <p>2. Scene Pass: Draw level and final entity textures into a Scene FBO (if post-processing is
+   * enabled) or directly to the screen (if disabled).
+   *
+   * <p>3. Post-Processing Pass: If enabled, ping-pong the Scene FBO through the scene shaders.
+   *
+   * <p>4. Screen Final Draw: Present the final texture.
    */
   @Override
   public void execute() {
-    // Pass 1: Render shaders to FBOs
+    // Pass 1: Render shaders to FBOs (Entity-local shaders)
     renderEntitiesPass1();
 
-    // Pass 2: Render to screen
-    BATCH.begin();
-    Game.currentLevel().ifPresent(this::drawLevel);
-    renderEntitiesPass2();
-    BATCH.end();
+    if (shaders.isEmpty()) {
+      // Option A: No post-processing, render directly to screen (Original Pass 2)
+      BATCH.begin();
+      // Set projection matrix to the main camera's combined matrix (World Space)
+      BATCH.setProjectionMatrix(CameraSystem.camera().combined);
+      drawSceneContent();
+      BATCH.end();
+
+    } else {
+      // Option B: Post-processing required
+      int sceneWidth = Gdx.graphics.getWidth();
+      int sceneHeight = Gdx.graphics.getHeight();
+
+      // Obtain two FBOs from the pool for ping-ponging
+      FrameBuffer fboA = FBO_POOL.obtain(sceneWidth, sceneHeight);
+      FrameBuffer fboB = FBO_POOL.obtain(sceneWidth, sceneHeight);
+
+      // Set NEAREST filtering on the FBO textures to preserve pixel crispness.
+      fboA.getColorBufferTexture()
+          .setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+      fboB.getColorBufferTexture()
+          .setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+      // 1. Draw entire scene (level + entities) into the first FBO (fboA)
+      FrameBuffer sourceFbo = fboA;
+      FrameBuffer targetFbo;
+
+      sourceFbo.begin();
+      Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
+      Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+      BATCH.begin();
+      // The scene content (level/entities) must be drawn using the WORLD projection matrix
+      BATCH.setProjectionMatrix(CameraSystem.camera().combined);
+      drawSceneContent(); // Draw world content into FBO A
+      BATCH.end();
+
+      sourceFbo.end();
+
+      // 2. Ping-Pong through scene shaders (Uses fboBatch for screen-space rendering)
+      TextureRegion currentSourceRegion = fboRegion; // Reuse member fboRegion
+
+      // Set projection for the fboBatch to screen space (origin 0,0)
+      fboBatch.setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, sceneWidth, sceneHeight));
+
+      for (int i = 0; i < shaders.size(); i++) {
+        AbstractShader pass = shaders.get(i);
+
+        // Swap source and target
+        targetFbo = (sourceFbo == fboA) ? fboB : fboA;
+
+        targetFbo.begin();
+        Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        fboBatch.begin();
+
+        currentSourceRegion.setRegion(sourceFbo.getColorBufferTexture());
+        currentSourceRegion.flip(false, true);
+
+        pass.bind(fboBatch, 1);
+        setCommonUniforms(fboBatch.getShader(), sceneWidth, sceneHeight);
+
+        fboBatch.draw(currentSourceRegion, 0, 0, sceneWidth, sceneHeight);
+
+        pass.unbind(fboBatch);
+        fboBatch.end();
+        targetFbo.end();
+
+        sourceFbo = targetFbo;
+      }
+
+      // 3. Draw final FBO result to screen (The last sourceFbo holds the final result)
+      Gdx.gl.glDisable(GL20.GL_DEPTH_TEST); // Ensure 2D drawing works correctly
+
+      BATCH.begin();
+
+      // Draw the final texture using a screen-space projection matrix to fill the viewport
+      BATCH.setProjectionMatrix(
+          fboProjectionMatrix.setToOrtho2D(
+              0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+
+      Texture finalTexture = sourceFbo.getColorBufferTexture();
+      currentSourceRegion.setRegion(finalTexture);
+      currentSourceRegion.flip(false, true);
+
+      BATCH.draw(currentSourceRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+      BATCH.end();
+
+      // 4. Return both FBOs to the pool now that rendering is complete
+      FBO_POOL.free(fboA);
+      FBO_POOL.free(fboB);
+    }
 
     FBO_POOL.update();
     secondsElapsed += Gdx.graphics.getDeltaTime();
+  }
+
+  /**
+   * Helper method to draw the entire scene content (Level + Entities). This is called regardless of
+   * whether the target is the screen or a post-processing FBO.
+   */
+  private void drawSceneContent() {
+    Game.currentLevel().ifPresent(this::drawLevel);
+
+    // This loop replaces the original renderEntitiesPass2 logic
+    for (List<Entity> group : sortedEntities.values()) {
+      group.stream()
+          .map(this::buildDataObject)
+          .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
+          .filter(this::shouldDraw)
+          .forEach(this::drawFinal); // drawFinal uses BATCH
+    }
   }
 
   /**
@@ -193,8 +317,8 @@ public final class DrawSystem extends System implements Disposable {
 
     // Apply Upscale Factor to the FBO dimensions
     int shaderUpscaling = dsd.getMaxUpscale();
-    int fboWidth = (int) (baseFboWidth * shaderUpscaling);
-    int fboHeight = (int) (baseFboHeight * shaderUpscaling);
+    int fboWidth = baseFboWidth * shaderUpscaling;
+    int fboHeight = baseFboHeight * shaderUpscaling;
 
     // Obtain two FBOs for ping-ponging
     FrameBuffer fboA = FBO_POOL.obtain(fboWidth, fboHeight);
@@ -262,8 +386,9 @@ public final class DrawSystem extends System implements Disposable {
       fboRegion.flip(false, true); // Correct flip
 
       // Bind the custom shader and uniforms
-      pass.bind(fboBatch);
-      setCommonUniforms(fboBatch.getShader(), fboRegion);
+      pass.bind(fboBatch, shaderUpscaling);
+      setCommonUniforms(
+          fboBatch.getShader(), fboRegion.getRegionWidth(), fboRegion.getRegionHeight());
 
       // Draw the current source texture to the target FBO
       fboBatch.draw(fboRegion, 0, 0, fboWidth, fboHeight);
@@ -287,16 +412,14 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   /**
-   * Sets any common uniforms needed by all shaders.
+   * Sets any common uniforms needed by all shaders (for entity FBOs).
    *
    * @param shader The shader program to set uniforms for
-   * @param texture The texture region being processed
+   * @param textureWidth The width of the texture being processed
+   * @param textureHeight The height of the texture being processed
    */
-  private void setCommonUniforms(ShaderProgram shader, TextureRegion texture) {
+  private void setCommonUniforms(ShaderProgram shader, int textureWidth, int textureHeight) {
     shader.setUniformf("u_time", secondsElapsed);
-
-    int textureWidth = texture.getRegionWidth();
-    int textureHeight = texture.getRegionHeight();
     shader.setUniformf("u_resolution", textureWidth, textureHeight);
     shader.setUniformf("u_texelSize", 1.0f / textureWidth, 1.0f / textureHeight);
     shader.setUniformf("u_aspect", 1.0f, (float) textureWidth / (float) textureHeight);
@@ -305,20 +428,6 @@ public final class DrawSystem extends System implements Disposable {
     Point mousePos = SkillTools.cursorPositionAsPoint();
     Vector3 unprojected = CameraSystem.camera().project(new Vector3(mousePos.x(), mousePos.y(), 0));
     shader.setUniformf("u_mouse", unprojected.x, unprojected.y);
-  }
-
-  /**
-   * Pass 2: Draws all entities to the screen. If an entity has an outputFbo, draw the FBO texture;
-   * otherwise, draw the original sprite.
-   */
-  private void renderEntitiesPass2() {
-    for (List<Entity> group : sortedEntities.values()) {
-      group.stream()
-          .map(this::buildDataObject)
-          .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
-          .filter(this::shouldDraw)
-          .forEach(this::drawFinal);
-    }
   }
 
   /**
@@ -368,6 +477,7 @@ public final class DrawSystem extends System implements Disposable {
 
       drawFboTexture(offsetPosition, fboTexture, conf);
 
+      // Free FBO for next frame
       FBO_POOL.free(finalFbo);
       dsd.dc.frameBuffer(null);
 
