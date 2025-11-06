@@ -81,7 +81,7 @@ public class Level01 extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.hero().flatMap(h -> h.fetch(HintLogComponent.class)).ifPresent(HintLogComponent::clear);
+    Game.player().flatMap(h -> h.fetch(HintLogComponent.class)).ifPresent(HintLogComponent::clear);
     DialogUtils.showTextPopup("HALLO? IST DA WER? ICH BRAUCHE HILFE?", "HILFE!");
     setupHints();
     npc();
@@ -100,16 +100,18 @@ public class Level01 extends DungeonLevel {
     PetriNetSystem petriNetSystem = new PetriNetSystem();
     Game.add(petriNetSystem);
     // register hint log
-    Game.hero()
+    Game.player()
         .ifPresent(
-            hero ->
-                hero.fetch(InputComponent.class)
+            player ->
+                player
+                    .fetch(InputComponent.class)
                     .ifPresent(
                         inputComponent ->
                             inputComponent.registerCallback(
                                 Input.Keys.T,
                                 entity ->
-                                    hero.fetch(HintLogComponent.class)
+                                    player
+                                        .fetch(HintLogComponent.class)
                                         .ifPresent(HintLogDialog::showHintLog),
                                 false,
                                 true)));
@@ -255,7 +257,7 @@ public class Level01 extends DungeonLevel {
             "Gifte und Gegengifte",
             () -> {
               riddle2Place.produce();
-              removeFindRecipeRiddle(Game.hero().orElseThrow());
+              removeFindRecipeRiddle(Game.player().orElseThrow());
             }));
   }
 

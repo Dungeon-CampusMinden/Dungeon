@@ -242,11 +242,11 @@ public class DungeonLoader {
     IPath levelPath = new SimpleIPath(levelVariants.get(variant));
     Game.currentLevel(DungeonLoader.loadFromPath(levelPath));
 
-    // Set hero on start tile
+    // Set player on start tile
     Optional<Tile> startTile = Game.currentLevel().orElseThrow().startTile();
     startTile.ifPresentOrElse(
         tile -> {
-          Game.hero()
+          Game.player()
               .orElseThrow()
               .fetch(core.components.PositionComponent.class)
               .ifPresent(pc -> pc.position(tile.position()));

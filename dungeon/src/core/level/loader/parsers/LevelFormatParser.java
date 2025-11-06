@@ -87,16 +87,16 @@ public abstract class LevelFormatParser {
     throw new RuntimeException("No level handler found for level: " + levelName);
   }
 
-  protected static Point parseHeroPosition(String line) {
-    if (line.isEmpty()) throw new RuntimeException("Missing Hero Position");
+  protected static Point parsePlayerPosition(String line) {
+    if (line.isEmpty()) throw new RuntimeException("Missing Player Position");
     String[] parts = line.split(",");
-    if (parts.length != 2) throw new RuntimeException("Invalid Hero Position: " + line);
+    if (parts.length != 2) throw new RuntimeException("Invalid Player Position: " + line);
     try {
       float x = Float.parseFloat(parts[0]);
       float y = Float.parseFloat(parts[1]);
       return new Point(x, y);
     } catch (NumberFormatException e) {
-      throw new RuntimeException("Invalid Hero Position: " + line);
+      throw new RuntimeException("Invalid Player Position: " + line);
     }
   }
 

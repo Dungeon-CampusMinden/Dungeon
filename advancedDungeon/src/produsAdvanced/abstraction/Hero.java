@@ -53,7 +53,7 @@ public class Hero {
       // Entfernt alle bisherigen Tastenzuweisungen
       heroInstance.fetch(InputComponent.class).ifPresent(InputComponent::removeCallbacks);
     }
-    // uncap max hero speed
+    // uncap max player speed
     hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(Vector2.MAX.x()));
   }
 
@@ -148,7 +148,8 @@ public class Hero {
     hero.fetch(UIComponent.class)
         .ifPresentOrElse(
             uiComponent -> {
-              if (uiComponent.dialog() instanceof GUICombination && !InventoryGUI.inHeroInventory) {
+              if (uiComponent.dialog() instanceof GUICombination
+                  && !InventoryGUI.inPlayerInventory) {
                 hero.remove(UIComponent.class);
               }
             },
@@ -187,7 +188,7 @@ public class Hero {
     hero.fetch(PlayerComponent.class)
         .ifPresent(
             pc -> {
-              InventoryGUI.inHeroInventory = true;
+              InventoryGUI.inPlayerInventory = true;
               hero.add(
                   new UIComponent(
                       new GUICombination(

@@ -139,7 +139,7 @@ public enum BlocklyMonster {
       Entity monster = name().isEmpty() ? new Entity() : new Entity(name());
 
       // hotfix for https://github.com/Dungeon-CampusMinden/Dungeon/issues/2413
-      // the boss uses hero textures so we can copy the hero statemachine
+      // the boss uses player textures so we can copy the player statemachine
       if (name().equals("Blockly Black Knight")) {
         Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(texture());
         State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);

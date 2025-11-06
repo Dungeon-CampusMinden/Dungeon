@@ -164,7 +164,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
       torch
           .fetch(InteractionComponent.class)
           .orElseThrow(() -> MissingComponentException.build(torch, InteractionComponent.class))
-          .triggerInteraction(torch, Game.hero().orElse(null));
+          .triggerInteraction(torch, Game.player().orElse(null));
     }
 
     // Draw teleporter connections
@@ -288,19 +288,20 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
         .fetch(InteractionComponent.class)
         .orElseThrow(
             () -> MissingComponentException.build(r.torches()[i], InteractionComponent.class))
-        .triggerInteraction(r.torches()[i], Game.hero().orElse(null));
+        .triggerInteraction(r.torches()[i], Game.player().orElse(null));
   }
 
   /**
-   * Returns the current room the hero is in.
+   * Returns the current room the player is in.
    *
-   * @return The current room if the hero is present and in a room, null otherwise.
+   * @return The current room if the player is present and in a room, null otherwise.
    */
   private DevDungeonRoom getCurrentRoom() {
-    return Game.hero()
-        .flatMap(hero -> hero.fetch(PositionComponent.class))
+    return Game.player()
+        .flatMap(player -> player.fetch(PositionComponent.class))
         .flatMap(
-            heroPc -> rooms.stream().filter(room -> room.contains(heroPc.position())).findFirst())
+            playerPc ->
+                rooms.stream().filter(room -> room.contains(playerPc.position())).findFirst())
         .orElse(null);
   }
 

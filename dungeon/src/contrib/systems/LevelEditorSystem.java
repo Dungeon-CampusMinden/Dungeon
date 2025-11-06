@@ -49,7 +49,7 @@ public class LevelEditorSystem extends System {
   private static float feedbackMessageTimer = 0.0f;
   private static final float FEEDBACK_MESSAGE_DURATION = 3.0f; // seconds
 
-  private static Map<Integer, InputComponent.InputData> heroCallbacks = null;
+  private static Map<Integer, InputComponent.InputData> playerClallbacks = null;
 
   /**
    * Gets the active status of the LevelEditorSystem.
@@ -67,12 +67,13 @@ public class LevelEditorSystem extends System {
    */
   public static void active(boolean active) {
     LevelEditorSystem.active = active;
-    Entity hero = Game.hero().orElseThrow();
+    Entity player = Game.player().orElseThrow();
     if (active) {
-      hero.fetch(InputComponent.class)
+      player
+          .fetch(InputComponent.class)
           .ifPresent(
               pc -> {
-                heroCallbacks = pc.callbacks();
+                playerClallbacks = pc.callbacks();
                 pc.removeCallback(LevelEditorMode.PRIMARY_UP);
                 pc.removeCallback(LevelEditorMode.PRIMARY_DOWN);
                 pc.removeCallback(LevelEditorMode.SECONDARY_UP);
@@ -81,7 +82,8 @@ public class LevelEditorSystem extends System {
                 pc.removeCallback(Input.Buttons.LEFT);
                 pc.removeCallback(Input.Buttons.RIGHT);
               });
-      hero.fetch(HealthComponent.class)
+      player
+          .fetch(HealthComponent.class)
           .ifPresent(
               hc -> {
                 hc.godMode(true);
@@ -90,15 +92,17 @@ public class LevelEditorSystem extends System {
         currentModeInstance.onEnter();
       }
     } else {
-      if (heroCallbacks != null) {
-        hero.fetch(InputComponent.class)
+      if (playerClallbacks != null) {
+        player
+            .fetch(InputComponent.class)
             .ifPresent(
                 pc -> {
-                  heroCallbacks.forEach(
+                  playerClallbacks.forEach(
                       ((key, value) -> pc.registerCallback(key, value.callback())));
                 });
-        heroCallbacks = null;
-        hero.fetch(HealthComponent.class)
+        playerClallbacks = null;
+        player
+            .fetch(HealthComponent.class)
             .ifPresent(
                 hc -> {
                   hc.godMode(false);

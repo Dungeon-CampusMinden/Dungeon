@@ -99,10 +99,10 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
 
   /** Handles the ticks of the riddle handler. */
   public void onTick() {
-    Coordinate heroPos = EntityUtils.getHeroCoordinate();
-    if (heroPos == null) return;
+    Coordinate playerPos = EntityUtils.getPlayerCoordinate();
+    if (playerPos == null) return;
 
-    if (!rewardGiven && riddleRewardSpawn.equals(heroPos)) {
+    if (!rewardGiven && riddleRewardSpawn.equals(playerPos)) {
       giveReward();
     }
   }
@@ -225,9 +225,9 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
     DialogUtils.showTextPopup(
         "You will receive a magic shield that can absorb damage as a reward for solving this puzzle!",
         "Riddle solved");
-    Entity hero = Game.hero().orElse(null);
-    if (hero == null) return;
-    hero.add(new MagicShieldComponent());
+    Entity player = Game.player().orElse(null);
+    if (player == null) return;
+    player.add(new MagicShieldComponent());
     this.rewardGiven = true;
     level.tileAt(riddleRewardSpawn).ifPresent(tile -> tile.tintColor(-1));
   }

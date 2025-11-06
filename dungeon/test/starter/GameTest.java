@@ -120,9 +120,9 @@ public class GameTest {
   /** WTF? . */
   @Test
   public void setHero() {
-    /* Entity hero = new Entity();
-    Game.setHero(hero);
-    assertEquals(hero, Game.getHero().get());
+    /* Entity player = new Entity();
+    Game.setHero(player);
+    assertEquals(player, Game.getHero().get());
     Entity hero2 = new Entity();
     Game.setHero(hero2);
     assertEquals(hero2, Game.getHero().get());*/

@@ -98,7 +98,7 @@ public enum DevDungeonMonster {
                           7f,
                           0f,
                           new FireballSkill(
-                              SkillTools::heroPositionAsPoint, AIFactory.FIREBALL_COOL_DOWN)))
+                              SkillTools::playerPositionAsPoint, AIFactory.FIREBALL_COOL_DOWN)))
               .idleAI(() -> new RadiusWalk(5f, 2))
               .transitionAI(() -> new RangeTransition(8))
               .collideDamage(0)
@@ -178,7 +178,7 @@ public enum DevDungeonMonster {
                           3f,
                           0f,
                           new FireballSkill(
-                              SkillTools::heroPositionAsPoint, AIFactory.FIREBALL_COOL_DOWN)))
+                              SkillTools::playerPositionAsPoint, AIFactory.FIREBALL_COOL_DOWN)))
               .idleAI(() -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH))
               .transitionAI(() -> new RangeTransition(5, true))
               .collideDamage(2)
@@ -305,7 +305,7 @@ public enum DevDungeonMonster {
                           9f,
                           0f,
                           new TPBallSkill(
-                              SkillTools::heroPositionAsPoint,
+                              SkillTools::playerPositionAsPoint,
                               LevelUtils::getRandomTPTargetForCurrentLevel,
                               AIFactory.FIREBALL_COOL_DOWN * 4)))
               .idleAI(() -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH))

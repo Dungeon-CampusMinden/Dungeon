@@ -79,16 +79,16 @@ public class FallingSystem extends System {
   }
 
   private void teleportPlayerIfPossible() {
-    Point heroCoords = EntityUtils.getHeroPosition();
-    if (heroCoords != null) {
-      getSafeTile(heroCoords)
+    Point playerCoords = EntityUtils.getPlayerPosition();
+    if (playerCoords != null) {
+      getSafeTile(playerCoords)
           .ifPresentOrElse(Debugger::TELEPORT, () -> LOGGER.warn("No safe place to teleport."));
     }
   }
 
-  private Optional<Tile> getSafeTile(Point heroCoords) throws NoSuchElementException {
+  private Optional<Tile> getSafeTile(Point playerCoords) throws NoSuchElementException {
     try {
-      return Optional.of(Game.accessibleTilesInRange(heroCoords, 5).getFirst());
+      return Optional.of(Game.accessibleTilesInRange(playerCoords, 5).getFirst());
     } catch (NoSuchElementException e) {
       return Game.randomTile(LevelElement.FLOOR);
     }

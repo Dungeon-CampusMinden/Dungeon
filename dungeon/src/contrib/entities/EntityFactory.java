@@ -51,7 +51,7 @@ public final class EntityFactory {
    * PositionComponent}, {@link VelocityComponent} {@link core.components.DrawComponent}, {@link
    * contrib.components.CollideComponent} and {@link HealthComponent}.
    *
-   * @param deathCallback function that will be executed if the hero dies
+   * @param deathCallback function that will be executed if the player dies
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
    */
@@ -237,7 +237,7 @@ public final class EntityFactory {
         a,
         b,
         shootDirection,
-        new FireballSkill(SkillTools::heroPositionAsPoint, cooldown, range, false),
+        new FireballSkill(SkillTools::playerPositionAsPoint, cooldown, range, false),
         range,
         false);
   }
@@ -258,7 +258,7 @@ public final class EntityFactory {
         a,
         b,
         shootDirection,
-        new BowSkill(SkillTools::heroPositionAsPoint, cooldown, range, false),
+        new BowSkill(SkillTools::playerPositionAsPoint, cooldown, range, false),
         range,
         false);
   }
@@ -281,7 +281,7 @@ public final class EntityFactory {
         a,
         b,
         shootDirection,
-        new FireballSkill(SkillTools::heroPositionAsPoint, cooldown, range, true),
+        new FireballSkill(SkillTools::playerPositionAsPoint, cooldown, range, true),
         range,
         true);
   }
@@ -304,7 +304,7 @@ public final class EntityFactory {
         a,
         b,
         shootDirection,
-        new BowSkill(SkillTools::heroPositionAsPoint, cooldown, range, true),
+        new BowSkill(SkillTools::playerPositionAsPoint, cooldown, range, true),
         range,
         true);
   }
@@ -323,7 +323,7 @@ public final class EntityFactory {
     return SentryFactory.stationarySentry(
         spawnPoint,
         shootDirection,
-        new FireballSkill(SkillTools::heroPositionAsPoint, cooldown, range, false),
+        new FireballSkill(SkillTools::playerPositionAsPoint, cooldown, range, false),
         range,
         false);
   }
@@ -342,7 +342,7 @@ public final class EntityFactory {
     return SentryFactory.stationarySentry(
         spawnPoint,
         shootDirection,
-        new BowSkill(SkillTools::heroPositionAsPoint, cooldown, range, false),
+        new BowSkill(SkillTools::playerPositionAsPoint, cooldown, range, false),
         range,
         false);
   }
@@ -363,7 +363,7 @@ public final class EntityFactory {
     return SentryFactory.stationarySentry(
         spawnPoint,
         shootDirection,
-        new FireballSkill(SkillTools::heroPositionAsPoint, cooldown, range, true),
+        new FireballSkill(SkillTools::playerPositionAsPoint, cooldown, range, true),
         range,
         true);
   }
@@ -384,7 +384,7 @@ public final class EntityFactory {
     return SentryFactory.stationarySentry(
         spawnPoint,
         shootDirection,
-        new BowSkill(SkillTools::heroPositionAsPoint, cooldown, range, true),
+        new BowSkill(SkillTools::playerPositionAsPoint, cooldown, range, true),
         range,
         true);
   }

@@ -47,12 +47,12 @@ public class InventoryGUI extends CombinableGUI {
   private static final TextureRegion background, hoverBackground;
 
   /**
-   * Boolean to check if the opened inventory belongs to the hero. Items that are in an inventory
-   * which does not belong to the hero, e.g. a treasure chest, are not usable.
+   * Boolean to check if the opened inventory belongs to the player. Items that are in an inventory
+   * which does not belong to the player, e.g. a treasure chest, are not usable.
    *
-   * <p>Will be set to true if the hero inventory is opened and set to false if it's closed.
+   * <p>Will be set to true if the player inventory is opened and set to false if it's closed.
    */
-  public static boolean inHeroInventory = false;
+  public static boolean inPlayerInventory = false;
 
   static {
     // Prepare background texture
@@ -299,13 +299,13 @@ public class InventoryGUI extends CombinableGUI {
               itemDragPayload
                   .item()
                   .drop(
-                      Game.hero()
-                          .orElseThrow(MissingHeroException::new)
+                      Game.player()
+                          .orElseThrow(MissingPlayerException::new)
                           .fetch(PositionComponent.class)
                           .orElseThrow(
                               () ->
                                   MissingComponentException.build(
-                                      Game.hero().get(), PositionComponent.class))
+                                      Game.player().get(), PositionComponent.class))
                           .position());
             }
           }
@@ -355,7 +355,7 @@ public class InventoryGUI extends CombinableGUI {
             new InputListener() {
               @Override
               public boolean keyDown(InputEvent event, int keycode) {
-                if (inHeroInventory) {
+                if (inPlayerInventory) {
                   if (KeyboardConfig.USE_ITEM.value() == keycode) {
                     InventoryGUI.this.useItem(
                         InventoryGUI.this.inventoryComponent.get(
@@ -369,9 +369,9 @@ public class InventoryGUI extends CombinableGUI {
               @Override
               public boolean touchDown(
                   InputEvent event, float x, float y, int pointer, int button) {
-                if (inHeroInventory) {
+                if (inPlayerInventory) {
                   if (KeyboardConfig.MOUSE_USE_ITEM.value() == button) {
-                    // if in hero inventory, allow using items if key is pressed
+                    // if in player inventory, allow using items if key is pressed
                     InventoryGUI.this.useItem(
                         InventoryGUI.this.inventoryComponent.get(
                             InventoryGUI.this.getSlotByMousePosition()));
@@ -381,7 +381,7 @@ public class InventoryGUI extends CombinableGUI {
                 }
 
                 UIComponent uiComponent =
-                    Game.hero().flatMap(e -> e.fetch(UIComponent.class)).orElse(null);
+                    Game.player().flatMap(e -> e.fetch(UIComponent.class)).orElse(null);
                 if (uiComponent != null
                     && uiComponent.dialog() instanceof GUICombination guiCombination) {
                   // if two inventories are open, transfer items between them if key is pressed
@@ -414,7 +414,7 @@ public class InventoryGUI extends CombinableGUI {
 
   private void useItem(Item item) {
     if (item != null)
-      item.use(Game.hero().orElseThrow(() -> new NullPointerException("There is no hero")));
+      item.use(Game.player().orElseThrow(() -> new NullPointerException("There is no player")));
   }
 
   @Override

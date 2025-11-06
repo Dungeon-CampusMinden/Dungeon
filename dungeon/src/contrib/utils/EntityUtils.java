@@ -17,7 +17,7 @@ import java.util.function.BiConsumer;
 /**
  * EntityUtils is a utility class that provides methods for spawning entities in the game. It
  * contains methods for spawning signs, levers, and other entities. It also contains methods for
- * teleporting entities to specific positions and retrieving the position of the hero in the game.
+ * teleporting entities to specific positions and retrieving the position of the player in the game.
  */
 public class EntityUtils {
 
@@ -79,20 +79,20 @@ public class EntityUtils {
   }
 
   /**
-   * Teleports the hero to a specified point in the game.
+   * Teleports the player to a specified point in the game.
    *
-   * <p>This method retrieves the hero entity from the game and calls the teleportEntityTo method to
-   * change the hero's position. If the hero entity is not present (which can happen if the hero has
-   * fallen into a pit), the method does nothing.
+   * <p>This method retrieves the player entity from the game and calls the teleportEntityTo method
+   * to change the player's position. If the player entity is not present (which can happen if the
+   * player has fallen into a pit), the method does nothing.
    *
-   * @param point The point to which the hero should be teleported.
+   * @param point The point to which the player should be teleported.
    */
-  public static void teleportHeroTo(Point point) {
-    Entity hero = Game.hero().orElse(null);
-    if (hero == null) {
+  public static void teleportPlayerTo(Point point) {
+    Entity player = Game.player().orElse(null);
+    if (player == null) {
       return;
     }
-    teleportEntityTo(hero, point);
+    teleportEntityTo(player, point);
   }
 
   /**
@@ -115,17 +115,17 @@ public class EntityUtils {
   }
 
   /**
-   * Retrieves the current position of the hero in the game.
+   * Retrieves the current position of the player in the game.
    *
-   * <p>This method retrieves the hero entity from the game. If the hero entity is not present
-   * (which can happen if the hero has fallen into a pit), the method returns null.
+   * <p>This method retrieves the player entity from the game. If the player entity is not present
+   * (which can happen if the player has fallen into a pit), the method returns null.
    *
-   * @return The current position of the hero, or a null value if the hero is not present.
+   * @return The current position of the player, or a null value if the player is not present.
    */
-  public static Point getHeroPosition() {
+  public static Point getPlayerPosition() {
     // TODO: SMELL!
-    // we really shouldn't return `null` if no hero was found, but `Optional.empty()` instead!
-    return Game.hero()
+    // we really shouldn't return `null` if no player was found, but `Optional.empty()` instead!
+    return Game.player()
         .map(
             e ->
                 e.fetch(PositionComponent.class)
@@ -135,31 +135,31 @@ public class EntityUtils {
   }
 
   /**
-   * Retrieves the current coordinates of the hero in the game.
+   * Retrieves the current coordinates of the player in the game.
    *
-   * <p>This method retrieves the hero entity from the game. If the hero entity is not present
-   * (which can happen if the hero has fallen into a pit), the method returns null.
+   * <p>This method retrieves the player entity from the game. If the player entity is not present
+   * (which can happen if the player has fallen into a pit), the method returns null.
    *
-   * @return The current coordinates of the hero, or null if the hero is not present.
+   * @return The current coordinates of the player, or null if the player is not present.
    */
-  public static Coordinate getHeroCoordinate() {
-    Point heroPos = getHeroPosition();
+  public static Coordinate getPlayerCoordinate() {
+    Point playerPos = getPlayerPosition();
     // TODO: SMELL!
-    // we really shouldn't return `null` if no hero was found, but `Optional.empty()` instead!
-    return heroPos == null ? null : heroPos.toCoordinate();
+    // we really shouldn't return `null` if no player was found, but `Optional.empty()` instead!
+    return playerPos == null ? null : playerPos.toCoordinate();
   }
 
   /**
-   * Retrieves the direction the hero is facing.
+   * Retrieves the direction the player is facing.
    *
-   * @return the direction the hero is facing, or null if there is no hero.
+   * @return the direction the player is facing, or null if there is no player.
    */
-  public static Direction getHeroViewDirection() {
+  public static Direction getPlayerViewDirection() {
     // TODO: SMELL!
-    // we really shouldn't return `null` if no hero was found, but `Optional.empty()` instead!
+    // we really shouldn't return `null` if no player was found, but `Optional.empty()` instead!
     // this approach has been chosen solely to ensure a symmetric modelling to the existing methods.
     // when refactoring, *all* these methods here should be changed to return `Optional<>`.
-    return Game.hero().map(EntityUtils::getViewDirection).orElse(null);
+    return Game.player().map(EntityUtils::getViewDirection).orElse(null);
   }
 
   /**

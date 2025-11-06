@@ -167,7 +167,7 @@ public class DevDungeon {
           @Override
           public void execute() {
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1)) {
-              Game.hero()
+              Game.player()
                   .orElseThrow()
                   .fetch(InventoryComponent.class)
                   .orElseThrow()
@@ -175,7 +175,7 @@ public class DevDungeon {
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)) {
               DamageProjectileSkill skill =
                   (DamageProjectileSkill)
-                      Game.hero()
+                      Game.player()
                           .orElseThrow()
                           .fetch(SkillComponent.class)
                           .orElseThrow()
@@ -201,7 +201,7 @@ public class DevDungeon {
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5)) {
               Debugger.TELEPORT_TO_CURSOR();
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_6)) {
-              Game.hero()
+              Game.player()
                   .orElseThrow()
                   .fetch(SkillComponent.class)
                   .orElseThrow()

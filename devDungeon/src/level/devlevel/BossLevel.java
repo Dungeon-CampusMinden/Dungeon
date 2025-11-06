@@ -85,9 +85,9 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
 
   @Override
   protected void onTick() {
-    Coordinate heroCoord = EntityUtils.getHeroCoordinate();
-    if (heroCoord == null) return;
-    if (heroCoord.y() > entrance.y()) {
+    Coordinate playerCoords = EntityUtils.getPlayerCoordinate();
+    if (playerCoords == null) return;
+    if (playerCoords.y() > entrance.y()) {
       tileAt(entrance).ifPresent(t -> changeTileElementType(t, LevelElement.WALL));
     } else {
       tileAt(entrance).ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));

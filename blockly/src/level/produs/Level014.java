@@ -19,7 +19,7 @@ public class Level014 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
@@ -51,7 +51,7 @@ public class Level014 extends BlocklyLevel {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusOn(new Coordinate(5, 8));
-    LevelManagementUtils.heroViewDirection(Direction.UP);
+    LevelManagementUtils.playerViewDirection(Direction.UP);
     LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(

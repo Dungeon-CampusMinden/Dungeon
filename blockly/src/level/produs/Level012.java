@@ -30,7 +30,7 @@ public class Level012 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
@@ -60,7 +60,7 @@ public class Level012 extends BlocklyLevel {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(10, 7));
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(Direction.DOWN);
+    LevelManagementUtils.playerViewDirection(Direction.DOWN);
     if (showText) {
       DialogUtils.showTextPopup(
           "Hahahaha! An MIR kommst du NIE vorbei. GIB AUF!", "BOSS: Der Wärter");

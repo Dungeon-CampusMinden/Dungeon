@@ -57,15 +57,15 @@ public final class GameLoop extends ScreenAdapter {
    * using {@link ECSManagment#add(System)}, triggering {@link System#onEntityAdd} for the new
    * level.
    *
-   * <p>Will re-add the hero if they exist.
+   * <p>Will re-add the player if they exist.
    */
   private final IVoidFunction onLevelLoad =
       () -> {
         newLevelWasLoadedInThisLoop = true;
-        Optional<Entity> hero = ECSManagment.hero();
+        Optional<Entity> player = ECSManagment.player();
         boolean firstLoad =
             !ECSManagment.levelStorageMap().containsKey(Game.currentLevel().orElseThrow());
-        hero.ifPresent(ECSManagment::remove);
+        player.ifPresent(ECSManagment::remove);
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
         // cleanup).
         Map<Class<? extends System>, System> s = ECSManagment.systems();
@@ -78,7 +78,7 @@ public final class GameLoop extends ScreenAdapter {
         s.values().forEach(ECSManagment::add);
 
         try {
-          hero.ifPresent(this::placeOnLevelStart);
+          player.ifPresent(this::placeOnLevelStart);
         } catch (MissingComponentException e) {
           LOGGER.warn(e.getMessage());
         }
@@ -243,7 +243,7 @@ public final class GameLoop extends ScreenAdapter {
    *
    * <p>A {@link PositionComponent} is needed.
    *
-   * @param entity entity to set on the start of the level, normally this is the hero.
+   * @param entity entity to set on the start of the level, normally this is the player.
    */
   private void placeOnLevelStart(final Entity entity) {
     ECSManagment.add(entity);

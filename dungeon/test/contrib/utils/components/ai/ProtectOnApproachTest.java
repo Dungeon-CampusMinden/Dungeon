@@ -49,6 +49,6 @@ public class ProtectOnApproachTest {
     entity.add(new PositionComponent(new Point(0f, 0f)));
 
     // Hero
-    hero = Game.hero().orElse(new Entity());
+    hero = Game.player().orElse(new Entity());
   }
 }

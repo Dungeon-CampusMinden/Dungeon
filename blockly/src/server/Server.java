@@ -125,11 +125,11 @@ public class Server {
   }
 
   private void sendHeroPosition(HttpExchange exchange) throws IOException {
-    Point heroPos = EntityUtils.getHeroPosition();
-    if (heroPos == null) {
-      heroPos = new Point(0, 0);
+    Point playerPos = EntityUtils.getPlayerPosition();
+    if (playerPos == null) {
+      playerPos = new Point(0, 0);
     }
-    String response = heroPos.toString();
+    String response = playerPos.toString();
     exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     exchange.sendResponseHeaders(200, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();

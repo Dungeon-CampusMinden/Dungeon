@@ -17,14 +17,14 @@ import level.LevelManagementUtils;
 
 /**
  * In this level, stones must be strategically pushed to block the monsters' line of sight. Only
- * when the hero is not seen by a monster is it safe to step on the red tiles.
+ * when the player is not seen by a monster is it safe to step on the red tiles.
  */
 public class Level005 extends BlocklyLevel {
   private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
@@ -62,7 +62,7 @@ public class Level005 extends BlocklyLevel {
       showText = false;
     }
     cameraFocusOn(new Coordinate(7, 6));
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
+    LevelManagementUtils.playerViewDirection(Direction.RIGHT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     Coordinate stone1C = getPoint(1).toCoordinate();

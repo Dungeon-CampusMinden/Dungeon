@@ -13,7 +13,7 @@ import level.LevelManagementUtils;
 
 /**
  * This is the start of the game. It is designed to help players get comfortable with the Blockly
- * controls. In this level, the hero can only move and turn; no monsters are present.
+ * controls. In this level, the player can only move and turn; no monsters are present.
  */
 public class Level001 extends BlocklyLevel {
 
@@ -21,7 +21,7 @@ public class Level001 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
@@ -114,7 +114,7 @@ public class Level001 extends BlocklyLevel {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(Direction.DOWN);
+    LevelManagementUtils.playerViewDirection(Direction.DOWN);
     LevelManagementUtils.zoomDefault();
     if (showText) {
       showPopups();

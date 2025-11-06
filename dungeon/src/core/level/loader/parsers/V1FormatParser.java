@@ -19,7 +19,7 @@ public class V1FormatParser extends LevelFormatParser {
   @Override
   public DungeonLevel parseLevel(BufferedReader reader, String levelName) throws IOException {
     DesignLabel designLabel = parseDesignLabel(readLine(reader));
-    Point heroPos = parseHeroPosition(readLine(reader));
+    Point playerPos = parsePlayerPosition(readLine(reader));
     List<Coordinate> customPoints = parseCustomPoints(readLine(reader));
     Map<String, Point> namedPoints = migrateCustomPointsToNamedPoints(customPoints);
 
@@ -34,12 +34,12 @@ public class V1FormatParser extends LevelFormatParser {
     DungeonLevel newLevel =
         getLevel(levelName, layout, designLabel, namedPoints, new ArrayList<>());
 
-    // Set Hero Position
-    Tile heroTile = newLevel.tileAt(heroPos).orElse(null);
-    if (heroTile == null) {
-      throw new RuntimeException("Invalid Hero Position: " + heroPos);
+    // Set Player Position
+    Tile playerTile = newLevel.tileAt(playerPos).orElse(null);
+    if (playerTile == null) {
+      throw new RuntimeException("Invalid Player Position: " + playerPos);
     }
-    newLevel.startTiles().add(heroTile);
+    newLevel.startTiles().add(playerTile);
 
     return newLevel;
   }

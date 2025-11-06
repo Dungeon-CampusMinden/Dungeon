@@ -43,7 +43,7 @@ public class ItemHeart extends Item {
    * A heart cannot be collected into the inventory.
    *
    * @param itemEntity The entity that represents the item in the world.
-   * @param collector The entity who collects the item. (Most likely the hero)
+   * @param collector The entity who collects the item. (Most likely the player)
    * @return false, because it cant be collected.
    */
   @Override
@@ -57,10 +57,10 @@ public class ItemHeart extends Item {
     if (tile instanceof FloorTile) {
       TriConsumer<Entity, Entity, Direction> onCollide =
           (self, other, dir) -> {
-            Game.hero()
+            Game.player()
                 .ifPresent(
-                    hero -> {
-                      if (other.equals(hero)) {
+                    player -> {
+                      if (other.equals(player)) {
                         other
                             .fetch(HealthComponent.class)
                             .ifPresent(health -> health.restoreHealthpoints(healAmount));

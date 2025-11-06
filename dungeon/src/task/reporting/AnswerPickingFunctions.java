@@ -4,7 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
-import core.utils.MissingHeroException;
+import core.utils.MissingPlayerException;
 import core.utils.components.MissingComponentException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -121,7 +121,7 @@ public class AnswerPickingFunctions {
   }
 
   /**
-   * This Callback will check the heroes inventory and will return a Collection that contains each
+   * This Callback will check the playerss inventory and will return a Collection that contains each
    * TaskContent if the given task in the container.
    *
    * <p>This function assumes that the given answers are {@link QuestItem}s
@@ -133,12 +133,13 @@ public class AnswerPickingFunctions {
    * @return Function that can be used as a callback for {@link
    *     Task#answerPickingFunction(Function)}
    */
-  public static Function<Task, Set<TaskContent>> heroInventoryPicker() {
+  public static Function<Task, Set<TaskContent>> playerInventoryPicker() {
     return task -> {
-      Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
+      Entity player = Game.player().orElseThrow(MissingPlayerException::new);
       InventoryComponent ic =
-          hero.fetch(InventoryComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(hero, InventoryComponent.class));
+          player
+              .fetch(InventoryComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(player, InventoryComponent.class));
       Set<Item> answerItems = ic.items(QuestItem.class);
       Set<TaskContent> res = new HashSet<>();
       for (Item i : answerItems) {

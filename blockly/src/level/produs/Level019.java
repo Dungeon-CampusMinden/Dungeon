@@ -6,7 +6,7 @@ import core.Game;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
-import core.utils.MissingHeroException;
+import core.utils.MissingPlayerException;
 import core.utils.Point;
 import entities.monster.BlocklyMonster;
 import java.util.Map;
@@ -22,7 +22,7 @@ public class Level019 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
@@ -58,11 +58,11 @@ public class Level019 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.heroViewDirection(Direction.LEFT);
+    LevelManagementUtils.playerViewDirection(Direction.LEFT);
     BlocklyMonster.Builder hedgehogBuilder =
         BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
-    Game.hero()
-        .orElseThrow(MissingHeroException::new)
+    Game.player()
+        .orElseThrow(MissingPlayerException::new)
         .fetch(AmmunitionComponent.class)
         .orElseThrow()
         .currentAmmunition(20);
