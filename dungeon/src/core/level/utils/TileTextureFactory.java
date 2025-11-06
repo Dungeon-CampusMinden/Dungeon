@@ -145,6 +145,8 @@ public class TileTextureFactory {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");
     }
 
+    path = findTexturePathSingleAdjacentWall(levelPart);
+    if (path != null) return new SimpleIPath(prefixPath + path.pathString() + ".png");
     return new SimpleIPath(prefixPath + "floor/empty.png");
   }
 
@@ -228,7 +230,7 @@ public class TileTextureFactory {
     String prefix = "dungeon/" + designLabel.name().toLowerCase() + "/";
     String ep =
         switch (levelElement) {
-          case SKIP -> "floor/empty";
+          case SKIP -> "wall/empty";
           case FLOOR -> "floor/floor_1";
           case EXIT -> "floor/floor_ladder";
           case HOLE -> "floor/floor_hole";
@@ -258,7 +260,7 @@ public class TileTextureFactory {
       return new SimpleIPath(holeAbove ? "floor/floor_hole1" : "floor/floor_hole");
     }
     return switch (e) {
-      case SKIP -> new SimpleIPath("floor/empty");
+      case SKIP -> new SimpleIPath("wall/empty");
       case FLOOR -> new SimpleIPath("floor/floor_1");
       case EXIT -> new SimpleIPath("floor/floor_ladder");
       case PIT -> new SimpleIPath("floor/floor_damaged");
@@ -378,6 +380,39 @@ public class TileTextureFactory {
     if (isInnerTopWall(p, layout)) return new SimpleIPath("wall/wall_inner_top");
 
     return null;
+  }
+
+  /**
+   * Selects a wall-end texture for the given level part when exactly one orthogonal neighbor is a
+   * {@code WALL} and the other three orthogonal neighbors are not {@code WALL}. The chosen variant
+   * corresponds to the side on which the single wall is found:
+   *
+   * <p>The returned path is relative (without design prefix and file suffix). If the single-adjacent
+   * wall condition is not satisfied, this method returns {@code null}.
+   *
+   * @param lp the level part to evaluate
+   * @return a relative wall-end texture path, or {@code null} if no single-adjacent-wall case applies
+   */
+  private static IPath findTexturePathSingleAdjacentWall(LevelPart lp) {
+    Coordinate p = lp.position();
+    LevelElement[][] layout = lp.layout();
+
+    boolean up = isWallDir(p, layout, Dir.UP);
+    boolean down = isWallDir(p, layout, Dir.DOWN);
+    boolean left = isWallDir(p, layout, Dir.LEFT);
+    boolean right = isWallDir(p, layout, Dir.RIGHT);
+
+    if (up && !down && !left && !right) {
+      return new SimpleIPath("wall/wall_end_bottom");
+    } else if (down && !up && !left && !right) {
+      return new SimpleIPath("wall/wall_end_top");
+    } else if (right && !up && !down && !left) {
+      return new SimpleIPath("wall/wall_end_left");
+    } else if (left && !up && !down && !right) {
+      return new SimpleIPath("wall/wall_end_right");
+    } else {
+      return null;
+    }
   }
 
   /**
