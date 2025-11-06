@@ -11,7 +11,7 @@ public class KeyboardConfig {
           new String[] {"pathfinding", "step_pathfinding"},
           new core.configuration.values.ConfigIntValue(Input.Keys.B));
 
-  /** Start moving the hero along the path while inside the pathfinding level. */
+  /** Start moving the player along the path while inside the pathfinding level. */
   public static final core.configuration.ConfigKey<Integer> START_MOVING_PATHFINDING =
       new core.configuration.ConfigKey<>(
           new String[] {"pathfinding", "start_moving_pathfinding"},

@@ -22,7 +22,6 @@ import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.Set;
-import java.util.logging.Level;
 import level.produs.*;
 import server.Server;
 import systems.BlocklyCommandExecuteSystem;
@@ -38,7 +37,7 @@ import systems.TintTilesSystem;
  */
 public class Client {
 
-  /** The name of the blockly hero. */
+  /** The name of the blockly player. */
   public static final String WIZARD_NAME = "Algorim";
 
   /** Force to apply for movement of all entities. */
@@ -64,8 +63,6 @@ public class Client {
    * @throws IOException if textures can not be loaded.
    */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.WARNING);
-
     for (String arg : args) {
       if (arg.equalsIgnoreCase("web=true")) {
         runInWeb = true;
@@ -104,22 +101,21 @@ public class Client {
           DungeonLoader.addLevel(Tuple.of("level006", Level006.class));
           DungeonLoader.addLevel(Tuple.of("level007", Level007.class));
           DungeonLoader.addLevel(Tuple.of("level008", Level008.class));
-          DungeonLoader.addLevel(Tuple.of("level0082", Level0082.class));
           DungeonLoader.addLevel(Tuple.of("level009", Level009.class));
           DungeonLoader.addLevel(Tuple.of("level010", Level010.class));
           DungeonLoader.addLevel(Tuple.of("level011", Level011.class));
+          DungeonLoader.addLevel(Tuple.of("level012", Level012.class));
 
           // chapter 2
-          DungeonLoader.addLevel(Tuple.of("level012", Level012.class));
           DungeonLoader.addLevel(Tuple.of("level013", Level013.class));
           DungeonLoader.addLevel(Tuple.of("level014", Level014.class));
           DungeonLoader.addLevel(Tuple.of("level015", Level015.class));
           DungeonLoader.addLevel(Tuple.of("level016", Level016.class));
+          DungeonLoader.addLevel(Tuple.of("level017", Level017.class));
 
           // chapter 3
-          DungeonLoader.addLevel(Tuple.of("level017", Level017.class));
           DungeonLoader.addLevel(Tuple.of("level018", Level018.class));
-          // DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
+          DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
           DungeonLoader.addLevel(Tuple.of("level020", Level020.class));
           DungeonLoader.addLevel(Tuple.of("level021", Level021.class));
           DungeonLoader.addLevel(Tuple.of("level022", Level022.class));
@@ -145,23 +141,24 @@ public class Client {
               s -> {
                 // stopping the system will also avoid adding new commands to the queue. The System
                 // will be reactivated in BlocklyLevel#onTick
-                s.stop();
+                s.fullStop();
                 s.clear();
               });
-          Game.hero()
+          Game.player()
               .flatMap(e -> e.fetch(VelocityComponent.class))
               .ifPresent(
                   vc -> {
                     vc.clearForces();
                     vc.currentVelocity(Vector2.ZERO);
                   });
-          Game.hero()
+          Game.player()
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
               .map(AmmunitionComponent::resetCurrentAmmunition);
         });
-    // this makes sure a outsynced command will not replace the hero and the hero will always be on
+    // this makes sure a outsynced command will not replace the player and the player will always be
+    // on
     // the starttile of the level
-    Game.hero()
+    Game.player()
         .flatMap(e -> e.fetch(PositionComponent.class))
         .ifPresent(
             positionComponent ->
@@ -226,13 +223,13 @@ public class Client {
   }
 
   /**
-   * Creates and adds a new hero entity to the game.
+   * Creates and adds a new player entity to the game.
    *
-   * <p>Any existing entities with a {@link PlayerComponent} will first be removed. The new hero is
-   * generated using the {@link HeroTankControlledFactory} and is equipped with an {@link
+   * <p>Any existing entities with a {@link PlayerComponent} will first be removed. The new player
+   * is generated using the {@link HeroTankControlledFactory} and is equipped with an {@link
    * AmmunitionComponent}.
    *
-   * @throws RuntimeException if an {@link IOException} occurs during hero creation
+   * @throws RuntimeException if an {@link IOException} occurs during player creation
    */
   public static void createHero() {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
@@ -247,15 +244,15 @@ public class Client {
   }
 
   /**
-   * Restarts the game by removing all entities, recreating the hero, and reloading the current
+   * Restarts the game by removing all entities, recreating the player, and reloading the current
    * level.
    *
    * <p>If this method is called from a thread other than the main thread, the restart is scheduled
    * to occur on the next game tick. This is to ensure thread safety and prevent race conditions.
    *
    * <p>During the restart, the {@link PositionSystem} is stopped and then run again to ensure that
-   * the hero is placed correctly in the level. This prevents a race condition where the hero might
-   * be placed before the level is fully loaded.
+   * the player is placed correctly in the level. This prevents a race condition where the player
+   * might be placed before the level is fully loaded.
    */
   public static void restart() {
     // if not the main thread, schedule restart

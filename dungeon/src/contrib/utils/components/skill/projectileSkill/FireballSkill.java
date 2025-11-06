@@ -1,11 +1,10 @@
 package contrib.utils.components.skill.projectileSkill;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import core.Entity;
+import core.components.SoundComponent;
 import core.utils.*;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -24,7 +23,7 @@ public class FireballSkill extends DamageProjectileSkill {
   public static final String SKILL_NAME = "FIREBALL";
 
   private static final IPath TEXTURE = new SimpleIPath("skills/fireball");
-  private static final IPath SOUND = new SimpleIPath("sounds/fireball.wav");
+  private static final String PROJECTILE_SOUND = "fireball";
   private static final float SPEED = 13f;
   private static final int DAMAGE = 2;
   private static final float RANGE = 7f;
@@ -146,19 +145,23 @@ public class FireballSkill extends DamageProjectileSkill {
    *
    * @param caster The entity casting the fireball.
    * @param projectile The projectile entity spawned.
+   * @see core.systems.SoundSystem
    */
   @Override
   protected void onSpawn(Entity caster, Entity projectile) {
-    Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(SOUND.pathString()));
-
-    // Generate a random pitch between minPitch and maxPitch
+    float volume = 0.15f;
+    float maxDistance = 20f;
+    float attenuationFactor = 0.1f;
     float minPitch = 2f;
     float maxPitch = 3f;
-    float randomPitch = MathUtils.random(minPitch, maxPitch);
-
-    // Play the sound with adjusted pitch and low volume
-    long soundId = soundEffect.play();
-    soundEffect.setPitch(soundId, randomPitch);
-    soundEffect.setVolume(soundId, 0.05f);
+    projectile.add(
+        new SoundComponent(
+            PROJECTILE_SOUND,
+            volume,
+            false,
+            MathUtils.random(minPitch, maxPitch),
+            maxDistance,
+            attenuationFactor,
+            () -> {}));
   }
 }

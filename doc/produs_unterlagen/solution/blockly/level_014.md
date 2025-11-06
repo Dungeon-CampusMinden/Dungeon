@@ -10,12 +10,7 @@ title: "Blockly Lösung: Level 14"
 ```java
 while(hero.isNearTile(LevelElement.FLOOR, Direction.HERE)){
     if(hero.isNearTile(LevelElement.WALL, Direction.INFRONT)){
-        if(hero.isNearTile(LevelElement.WALL, Direction.RIGHT)){
-            hero.rotate(Direction.LEFT);
-        }
-        if(hero.isNearTile(LevelElement.WALL, Direction.LEFT)){
-            hero.rotate(Direction.RIGHT);
-        }
+        hero.rotate(Direction.RIGHT);
     }else{
         hero.move();
     }
@@ -24,5 +19,5 @@ while(hero.isNearTile(LevelElement.FLOOR, Direction.HERE)){
 
 ## Blockly String
 ```json
-{"blocks":{"languageVersion":0,"blocks":[{"type":"start","id":"={9Mof5xE4x:02,pxjC]","x":-102,"y":-353,"deletable":false,"next":{"block":{"type":"while_loop","id":"#1S)cjV7fWTgeN0X8NVr","inputs":{"CONDITION":{"block":{"type":"logic_boolean","id":"M6C95!HxD;1o{qocw^Gt","fields":{"BOOL":"TRUE"}}},"DO":{"block":{"type":"controls_if","id":"D-}=}gmapPmoT-t*~f7r","inputs":{"IF0":{"block":{"type":"logic_wall_direction","id":"#;-HTAk(Ble1~5$g#~vy","inputs":{"DIRECTION":{"block":{"type":"direction_up","id":"RfWWK])NL_^1j$E~KK%d"}}}}},"DO0":{"block":{"type":"controls_ifelse","id":"Ah#gwCN!i:+E`sE{u8`O","inputs":{"IF0":{"block":{"type":"logic_wall_direction","id":"0ob5(XEJ{2ke3a,1I]C!","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":";ez{kwCG~}rTG#YT4cTj"}}}}},"DO0":{"block":{"type":"rotate","id":"jyuFf*#i:_~oT5?E$M[l","inputs":{"DIRECTION":{"block":{"type":"direction_left","id":"Bi2JK../hn/fnck%LZ0S"}}}}},"ELSE":{"block":{"type":"rotate","id":"QX%ec!rB-F@bUJH6WUy{","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"n,3m=@/T;dmk@i}`f#PJ"}}}}}}}}},"next":{"block":{"type":"move","id":"fyZe+!IJ6zYE8q@RvBcN"}}}}}}}}]}}
+{"blocks":{"languageVersion":0,"blocks":[{"type":"start","id":"={9Mof5xE4x:02,pxjC]","x":-233,"y":-247,"deletable":false,"next":{"block":{"type":"while_loop","id":"x{oW{NYfz??h_mbj+#:R","inputs":{"CONDITION":{"block":{"type":"logic_boolean","id":"oobLWzpzg7A1(G6Ku^Yv","fields":{"BOOL":"TRUE"}}},"DO":{"block":{"type":"while_loop","id":"u`/6UkHrh-zC]5-nB=Vv","inputs":{"CONDITION":{"block":{"type":"logic_wall_direction","id":"@bQ58MQrZ`pqt_WceQK*","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"n^D.@(H(Us[R_;m{CL5Q"}}}}},"DO":{"block":{"type":"move","id":"*baMKL,`%6Fw!a$[,kkx"}}},"next":{"block":{"type":"rotate","id":"e+fVJEPu5X4XjV/~?`jr","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"~cfXnMO:JB{4ZjXmw|,v"}}},"next":{"block":{"type":"move","id":"N*$X3S,Q31o#D9Zw!w[@"}}}}}}}}}}]}}
 ```

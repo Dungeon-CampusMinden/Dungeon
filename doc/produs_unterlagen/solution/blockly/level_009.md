@@ -3,25 +3,29 @@ title: "Blockly Lösung: Level 9"
 ---
 
 ## Blöcke
-![solution](./img/loesung_level_009.png)
+![solution](./img/loesung_level_008_1.png)
+![solution](./img/loesung_level_008_2.png)
+![solution](./img/loesung_level_008_3.png)
+![solution](./img/loesung_level_008_4.png)
 
 ## Code
 
 ```java
-hero.rotate(Direction.LEFT);
+for(int i = 1; i <= 8; i++){
+    hero.move();
+}
+hero.rotate(Direction.RIGHT);
+for(int i = 1; i <= 4; i++){
+    hero.move();
+    hero.interact(Direction.INFRONT);
+}
+for(int i = 1; i <= 2; i++){
+    hero.rotate(Direction.RIGHT);
+}
 for(int i = 1; i <= 3; i++){
     hero.move();
 }
-hero.pickup();
-hero.rotate(Direction.RIGHT);
-hero.move();
-hero.pickup();
-hero.rotate(Direction.RIGHT);
-for(int i = 1; i <= 3; i++){
-    hero.move();
-}
 hero.rotate(Direction.LEFT);
-hero.shootFireball();
 for(int i = 1; i <= 4; i++){
     hero.move();
 }
@@ -29,16 +33,54 @@ hero.rotate(Direction.LEFT);
 for(int i = 1; i <= 3; i++){
     hero.move();
 }
+for(int i = 1; i <= 5; i++){
+    hero.pull();
+}
 hero.rotate(Direction.RIGHT);
-hero.shootFireball();
+for(int i = 1; i <= 2; i++){
+    hero.move();
+    hero.rotate(Direction.LEFT);
+}
+hero.push();
+hero.rotate(Direction.RIGHT);
+for(int i = 1; i <= 2; i++){
+    hero.move();
+    hero.rotate(Direction.LEFT);
+}
+for(int i = 1; i <= 2; i++){
+    hero.push();
+}
+hero.rotate(Direction.LEFT);
+hero.move();
+hero.rotate(Direction.RIGHT);
+hero.move();
+for(int i = 1; i <= 2; i++){
+    hero.move();
+    hero.rotate(Direction.RIGHT);
+}
+for(int i = 1; i <= 7; i++){
+    hero.pull();
+}
+hero.rotate(Direction.RIGHT);
+for(int i = 1; i <= 2; i++){
+    hero.move();
+    hero.rotate(Direction.LEFT);
+}
+hero.push();
+hero.rotate(Direction.RIGHT);
+hero.move();
+hero.rotate(Direction.LEFT);
 for(int i = 1; i <= 5; i++){
     hero.move();
 }
 hero.rotate(Direction.LEFT);
 hero.move();
+hero.rotate(Direction.RIGHT);
+hero.move();
 ```
 
 ## Blockly String
+
 ```json
-{"blocks":{"languageVersion":0,"blocks":[{"type":"start","id":"={9Mof5xE4x:02,pxjC]","x":-189,"y":-11,"deletable":false,"next":{"block":{"type":"rotate","id":"G~4|3$/3BfrHcI(zl^`_","inputs":{"DIRECTION":{"block":{"type":"direction_left","id":"(FqvexqV#m.%SbM-oy$P"}}},"next":{"block":{"type":"repeat","id":"#Vd;+C]7_:jrF_tjcR~+","inputs":{"TIMES":{"block":{"type":"repeat_number","id":";#7-i(+z=}6me1;-I}V}","fields":{"REPEAT_NUMBER":3}}},"DO":{"block":{"type":"move","id":"3l7p=xeTl-_UHpw)Qw%8"}}},"next":{"block":{"type":"pickup","id":"VNFi:TuBn`$Zz#i}FMU+","next":{"block":{"type":"rotate","id":"R]%SG~aCBk=+pxJ-za=c","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"F)6rVLR=+C!^nD%H_h[4"}}},"next":{"block":{"type":"move","id":"SJV#g-MVP;Vs:n`A@hsn","next":{"block":{"type":"pickup","id":"Do6jr%.I=wU[`J_^e7U.","next":{"block":{"type":"rotate","id":"g?uf|-Z%owr#*Sl!-}x9","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"|X$39SD|ky0#R45.0Rj`"}}},"next":{"block":{"type":"repeat","id":",@u!d)5Ew(CHufai6)AT","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"RJ}1#`e[JJH.a#l8=r!3","fields":{"REPEAT_NUMBER":3}}},"DO":{"block":{"type":"move","id":"O*|-bcL}LWaPcM,=Xmj_"}}},"next":{"block":{"type":"rotate","id":"?0ivQY8czzd+zkt4I*oP","inputs":{"DIRECTION":{"block":{"type":"direction_left","id":"}Di%hdRe4_PJYJ)3n#B5"}}},"next":{"block":{"type":"fireball","id":"/%FJ^xk/+9kFX;s`mC|0","next":{"block":{"type":"repeat","id":"^o~XkY.cEEo4`R^^T:$x","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"rw}(~?zHM7NCZkHJktDw","fields":{"REPEAT_NUMBER":4}}},"DO":{"block":{"type":"move","id":"n^/;xbhoulX*3gmnF4_u"}}},"next":{"block":{"type":"rotate","id":"tM-,aD:G5)cwIT9VSX7`","inputs":{"DIRECTION":{"block":{"type":"direction_left","id":"fR9E,b~@Cc+XYH+527Uv"}}},"next":{"block":{"type":"repeat","id":"#oldplv#]Ix-nT,,b[Wa","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"492z!]K`SOO^{h]O^#`=","fields":{"REPEAT_NUMBER":3}}},"DO":{"block":{"type":"move","id":"|Kj/0)%R-g$4J*c0L`[N"}}},"next":{"block":{"type":"rotate","id":"=MnPmlv7bM[zzPsq-$~?","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"]CE},woyV_U[_Ox9R+Ff"}}},"next":{"block":{"type":"fireball","id":"Wd}95w;IVogNAb`d!(OB","next":{"block":{"type":"repeat","id":"E4`$S}^QC]W[k2csw)zT","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"v7pVNKxC!7J^yj+A]PtF","fields":{"REPEAT_NUMBER":5}}},"DO":{"block":{"type":"move","id":"L9$z$^boVCz-1mYGaDib"}}},"next":{"block":{"type":"rotate","id":"CQ={sUSoizPqeSdc5R!F","inputs":{"DIRECTION":{"block":{"type":"direction_left","id":"`_5(Lw?{7^)#z{Lwb$)["}}},"next":{"block":{"type":"move","id":"!uVl1(ZTO9=^{r,9;T1L"}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}]}}
+{"blocks":{"languageVersion":0,"blocks":[{"type":"start","id":"eSBL^x#hKBMT[y1d/6mk","x":0,"y":0,"deletable":false,"next":{"block":{"type":"repeat","id":"/0-htIpeeX%OXj+d3@-c","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"dBNL_0-Jcx9wg~.s:jP5","fields":{"REPEAT_NUMBER":6}}},"DO":{"block":{"type":"move","id":"Y+`(f%#iqKHke5-H8S3)"}}},"next":{"block":{"type":"rotate","id":"{JmvOZX(dQ[KSi/{eW^P","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"a3{;yK|85jjP2;mvLW2O"}}},"next":{"block":{"type":"repeat","id":"ZmWTjvaB}fyJFomNBkls","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"+7^+x[A7.7la7Ca,*#DC","fields":{"REPEAT_NUMBER":4}}},"DO":{"block":{"type":"move","id":"*M[/q9?^/XYG-?Q+BnWF","next":{"block":{"type":"use","id":"]2P^Mif.eFJXbh,S]o]x","inputs":{"DIRECTION":{"block":{"type":"direction_up","id":"WLdEUhD)El]+TT8zls*-"}}}}}}}},"next":{"block":{"type":"rotate","id":"r+acRO{aUl-iXSr`4]BS","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"Ph6swd@G{p~OdF;!0^Eq"}}},"next":{"block":{"type":"rotate","id":"m$dtYmtsa643EVL`{WAA","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"=(buj:$m2.l8=7rI2Gy7"}}},"next":{"block":{"type":"repeat","id":"Plb+`w_K/RfHj:~1^ins","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"Meos~8=;`YO^I|Ct}ITP","fields":{"REPEAT_NUMBER":3}}},"DO":{"block":{"type":"move","id":"n`PLy$G?TTtZgZ@=/xX;"}}},"next":{"block":{"type":"rotate","id":"tBI1W=H3N`8+4Bp~/_yI","inputs":{"DIRECTION":{"block":{"type":"direction_left","id":"LsBp0sDN+Qb3[)i-+`9a"}}},"next":{"block":{"type":"repeat","id":"fAQE#s3L6`nq}z*{pGX2","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"frvONqD(FnMtFzhA.f+7","fields":{"REPEAT_NUMBER":4}}},"DO":{"block":{"type":"move","id":"d,oIHC=X9H$|u4|xJQla"}}},"next":{"block":{"type":"rotate","id":"D_Ie~Yy?X~/31|C9RQVb","inputs":{"DIRECTION":{"block":{"type":"direction_left","id":"?Y)pK4C8v?Oquke1@sMO"}}},"next":{"block":{"type":"repeat","id":"QmetJ-;jM|[N2Hs,3K).","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"jeSrErVeG,94+3I#2%=l","fields":{"REPEAT_NUMBER":3}}},"DO":{"block":{"type":"move","id":"f4!(b9l{=3S5:;F6DiP{"}}},"next":{"block":{"type":"repeat","id":"Ta!V16hhnL735Y.;nms3","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"^|2Mq``~J9%qaWrIz}vA","fields":{"REPEAT_NUMBER":5}}},"DO":{"block":{"type":"pull","id":"pW3[$j0._dBlp$2x7emO"}}},"next":{"block":{"type":"rotate","id":"BmS!?`(7ReGtQIO.CqXQ","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"vWDr~Oc@cWRAW,:Gxt*x"}}},"next":{"block":{"type":"repeat","id":"#h.:72fxOM6#Qel]6!p%","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"3[`Mjri1K!z`j^%*-h|K","fields":{"REPEAT_NUMBER":2}}},"DO":{"block":{"type":"move","id":"cw1M-#:*k.c3%G7Us:Wf","next":{"block":{"type":"rotate","id":"asX)V]6]EjN;z^H,$b9$","inputs":{"DIRECTION":{"block":{"type":"direction_left","id":"!4J4Z(N9Z:kUVET..W*U"}}}}}}}},"next":{"block":{"type":"push","id":"l(CCtbpTLXmkc84L,%)%","next":{"block":{"type":"rotate","id":"F.1q1X!A4o6y!v=PFN6?","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"|}u-GMK}6k^)wWdL:.:@"}}},"next":{"block":{"type":"repeat","id":"`Ewke]f(5fpT+k_5vtDT","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"(w8nHY1nD0?`)UWdsShr","fields":{"REPEAT_NUMBER":2}}},"DO":{"block":{"type":"move","id":"_K+E{xHcNSZbGN]3#1Zx","next":{"block":{"type":"rotate","id":"r~.;0L*[a($~vY,-Tx[;","inputs":{"DIRECTION":{"block":{"type":"direction_left","id":"2G=a!8.AC$-SI4srzY0."}}}}}}}},"next":{"block":{"type":"push","id":"@/*3S*E`*_t=9ge0^5,A","next":{"block":{"type":"push","id":"Cjg{T*bPUl,*:)BhUlNn","next":{"block":{"type":"rotate","id":"}JjUBX/AkrPmT8Zg`#T4","inputs":{"DIRECTION":{"block":{"type":"direction_left","id":"t~,4}vKV7$#mIR;A-AT?"}}},"next":{"block":{"type":"move","id":"%-[qLh4Fp.S2sHHXvHre","next":{"block":{"type":"rotate","id":",aL;L$QCDx[(I)#MPuZc","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"RbGP~A+#lOta$7$nZsU["}}},"next":{"block":{"type":"move","id":"K0NDU04[m@0.{`FNj$:v","next":{"block":{"type":"repeat","id":"u+Vsk:sDy3eK;KCl;TcH","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"Zb;)PwjH=;?W2=8{8f*Y","fields":{"REPEAT_NUMBER":2}}},"DO":{"block":{"type":"move","id":"bDSKGgoZRMWn2#P,!D4B","next":{"block":{"type":"rotate","id":"WefTd*N#_ZsN,cmcBj.s","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"Q$K:rNlmXHIhR8I389k`"}}}}}}}},"next":{"block":{"type":"repeat","id":"uPQ-YG`fhV9Ne^,kir#{","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"{Qd*kNcox}m:W6S0YJ5?","fields":{"REPEAT_NUMBER":7}}},"DO":{"block":{"type":"pull","id":"MHHdlvC1mgae^B)TRC)0"}}},"next":{"block":{"type":"rotate","id":"yec8%`[$C+Aui=rY6SW|","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":".QJqw(*su/AT8(Hzs*)H"}}},"next":{"block":{"type":"repeat","id":"]BI6@uw#|B?Su(,!`9Ce","inputs":{"TIMES":{"block":{"type":"repeat_number","id":":XqInKxo`;}`]/H7~kN~","fields":{"REPEAT_NUMBER":2}}},"DO":{"block":{"type":"move","id":"U40m%U$+CPo#xmX?FYbS","next":{"block":{"type":"rotate","id":"D39Oou~Ku[H3_VGR749x","inputs":{"DIRECTION":{"block":{"type":"direction_left","id":"^JtAum-htsm%u[Vv9[)F"}}}}}}}},"next":{"block":{"type":"push","id":"5nC7inTP80c7c8BJJx]r","next":{"block":{"type":"rotate","id":"2Qc6Ay0EAeW8_MDEKr$O","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"Vbj!g~9][cfh.N)_0/,T"}}},"next":{"block":{"type":"move","id":"EG4A|_@)c{stNhzxPfF)","next":{"block":{"type":"rotate","id":"f5Q+z^kk;Z=iJ;{W^xGz","inputs":{"DIRECTION":{"block":{"type":"direction_left","id":"gERu{2Ts#~SowztQiu?v"}}},"next":{"block":{"type":"repeat","id":"QOu.FRQxlu6nJ[U?4{(G","inputs":{"TIMES":{"block":{"type":"repeat_number","id":"*k4!92Z*4GPf5w`29T|!","fields":{"REPEAT_NUMBER":5}}},"DO":{"block":{"type":"move","id":"u8*{hq#TuRhi%:+l@[VL"}}},"next":{"block":{"type":"rotate","id":":QB6H;~=uRbKOS3AI~1T","inputs":{"DIRECTION":{"block":{"type":"direction_left","id":"=$XG([ETmaS2*X8sTpIN"}}},"next":{"block":{"type":"move","id":";;.C/]7jCh7RHVaKeJ}M","next":{"block":{"type":"rotate","id":"5vK|v..vUv#f5R)CzXx6","inputs":{"DIRECTION":{"block":{"type":"direction_right","id":"nqBTpp,vFW**IYNI/lJ1"}}},"next":{"block":{"type":"move","id":"a{M7UOq1Q;$;P_*pGV{N"}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}]}}
 ```

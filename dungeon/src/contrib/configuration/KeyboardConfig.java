@@ -48,7 +48,7 @@ public class KeyboardConfig {
    * inventory.
    *
    * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
-   * @see contrib.hud.inventory.InventoryGUI#inHeroInventory
+   * @see contrib.hud.inventory.InventoryGUI#inPlayerInventory
    */
   public static final ConfigKey<Integer> MOUSE_USE_ITEM =
       new ConfigKey<>(new String[] {"item", "mouse"}, new ConfigIntValue(Input.Buttons.RIGHT));
@@ -82,7 +82,7 @@ public class KeyboardConfig {
   /**
    * If Mouse Movement is enabled. This key is used shoot the first skill.
    *
-   * <p>If {@link #MOUSE_INTERACT_WORLD} is set to the same value as this key, the hero will only
+   * <p>If {@link #MOUSE_INTERACT_WORLD} is set to the same value as this key, the player will only
    * shoot if nothing interactable is under the cursor.
    *
    * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
@@ -94,7 +94,7 @@ public class KeyboardConfig {
           new String[] {"skill", "mouse_fireball"}, new ConfigIntValue(Input.Buttons.LEFT));
 
   /**
-   * If Mouse Movement is enabled. This key is used to move the hero.
+   * If Mouse Movement is enabled. This key is used to move the player.
    *
    * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
    */
@@ -118,28 +118,28 @@ public class KeyboardConfig {
       new ConfigKey<>(new String[] {"debug", "spawn_monster"}, new ConfigIntValue(Input.Keys.X));
 
   /**
-   * Keybinding to teleport the hero on the Start-Tile, if the {@link
+   * Keybinding to teleport the player on the Start-Tile, if the {@link
    * contrib.utils.components.Debugger} is active.
    */
   public static final ConfigKey<Integer> DEBUG_TELEPORT_TO_START =
       new ConfigKey<>(new String[] {"debug", "teleport_Start"}, new ConfigIntValue(Input.Keys.J));
 
   /**
-   * Keybinding to teleport the hero next to the {@link core.level.elements.tile.ExitTile}, if the
+   * Keybinding to teleport the player next to the {@link core.level.elements.tile.ExitTile}, if the
    * {@link contrib.utils.components.Debugger} is active.
    */
   public static final ConfigKey<Integer> DEBUG_TELEPORT_TO_END =
       new ConfigKey<>(new String[] {"debug", "teleport_end"}, new ConfigIntValue(Input.Keys.H));
 
   /**
-   * Keybinding to teleport the hero on the {@link core.level.elements.tile.ExitTile}, if the {@link
-   * contrib.utils.components.Debugger} is active.
+   * Keybinding to teleport the player on the {@link core.level.elements.tile.ExitTile}, if the
+   * {@link contrib.utils.components.Debugger} is active.
    */
   public static final ConfigKey<Integer> DEBUG_TELEPORT_ON_END =
       new ConfigKey<>(new String[] {"debug", "teleport_onEnd"}, new ConfigIntValue(Input.Keys.G));
 
   /**
-   * Keybinding to teleport the hero to the cursor mouse location, if the {@link
+   * Keybinding to teleport the player to the cursor mouse location, if the {@link
    * contrib.utils.components.Debugger} is active.
    */
   public static final ConfigKey<Integer> DEBUG_TELEPORT_TO_CURSOR =

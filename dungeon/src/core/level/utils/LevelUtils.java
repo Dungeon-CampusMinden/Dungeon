@@ -169,20 +169,20 @@ public final class LevelUtils {
   }
 
   /**
-   * Finds the path from the position of one entity to the position of the hero.
+   * Finds the path from the position of one entity to the position of the player.
    *
-   * <p>If no hero exists in the game, the path will be calculated from the given entity to the
+   * <p>If no player exists in the game, the path will be calculated from the given entity to the
    * given entity.
    *
    * <p>Throws an IllegalArgumentException if one of the entities position is non-accessible.
    *
-   * @param entity Entity from which the path to the hero is calculated.
-   * @return Path from the entity to the hero, if there is no hero, the path from the entity to
+   * @param entity Entity from which the path to the player is calculated.
+   * @return Path from the entity to the player, if there is no player, the path from the entity to
    *     itself.
    */
-  public static GraphPath<Tile> calculatePathToHero(final Entity entity) {
-    Optional<Entity> hero = Game.hero();
-    if (hero.isPresent()) return calculatePath(entity, hero.get());
+  public static GraphPath<Tile> calculatePathToPlayer(final Entity entity) {
+    Optional<Entity> player = Game.player();
+    if (player.isPresent()) return calculatePath(entity, player.get());
     else return calculatePath(entity, entity);
   }
 
@@ -356,10 +356,10 @@ public final class LevelUtils {
    * @param entity Entity whose position specifies the center point.
    * @param range The range within which the player should be located.
    * @return True if the position of the player is within the given radius of the position of the
-   *     given entity. If there is no hero, return false.
+   *     given entity. If there is no player, return false.
    */
   public static boolean playerInRange(final Entity entity, float range) {
-    return Game.hero().filter(value -> entityInRange(entity, value, range)).isPresent();
+    return Game.player().filter(value -> entityInRange(entity, value, range)).isPresent();
   }
 
   /**
@@ -469,21 +469,22 @@ public final class LevelUtils {
   }
 
   /**
-   * Checks if the hero is in a given area.
+   * Checks if the player is in a given area.
    *
    * @param topLeft The top left coordinate of the area.
    * @param bottomRight The bottom right coordinate of the area.
-   * @return true if the hero is in the area, false if not.
+   * @return true if the player is in the area, false if not.
    * @see #isTileWithinArea(Tile, Coordinate, Coordinate)
    */
-  public static boolean isHeroInArea(Coordinate topLeft, Coordinate bottomRight) {
-    Entity hero = Game.hero().orElse(null);
-    if (hero == null) {
+  public static boolean isPlayerInArea(Coordinate topLeft, Coordinate bottomRight) {
+    Entity player = Game.player().orElse(null);
+    if (player == null) {
       return false;
     }
     PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+        player
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(player, PositionComponent.class));
     return Game.tileAt(pc.position())
         .map(tile -> LevelUtils.isTileWithinArea(tile, topLeft, bottomRight))
         .orElse(false);

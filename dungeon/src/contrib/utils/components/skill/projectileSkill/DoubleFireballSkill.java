@@ -7,8 +7,8 @@ import core.utils.Vector2;
 import java.util.function.Supplier;
 
 /**
- * An enchantment version of a normal attack. Shoots two fireballs at the hero. One directly at the
- * hero and one is trying to predict the hero's movement.
+ * An enchantment version of a normal attack. Shoots two fireballs at the player. One directly at
+ * the player and one is trying to predict the player's movement.
  */
 public class DoubleFireballSkill extends FireballSkill {
 

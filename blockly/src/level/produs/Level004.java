@@ -12,9 +12,10 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
-import java.util.List;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -30,14 +31,15 @@ public class Level004 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level004(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 4");
+  public Level004(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 4");
     this.blockBlocklyElement(
         // Richtungen
         // Schleifen
@@ -66,22 +68,22 @@ public class Level004 extends BlocklyLevel {
     }
     cameraFocusOn(new Coordinate(12, 5));
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
+    LevelManagementUtils.playerViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
     door1 = (DoorTile) Game.tileAt(new Coordinate(8, 3)).orElse(null);
     door1.close();
     door2 = (DoorTile) Game.tileAt(new Coordinate(16, 3)).orElse(null);
     door1.close();
     door2.close();
-    Entity s1 = LeverFactory.createLever(customPoints().get(0).toPoint());
-    Entity s2 = LeverFactory.pressurePlate(customPoints().get(1).toPoint());
+    Entity s1 = LeverFactory.createLever(getPoint(0));
+    Entity s2 = LeverFactory.pressurePlate(getPoint(1));
     switch1 =
         s1.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     switch2 =
         s2.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s2, LeverComponent.class));
-    Game.add(MiscFactory.stone(customPoints().get(2).toPoint()));
+    Game.add(MiscFactory.stone(getPoint(2)));
     Game.add(s1);
     Game.add(s2);
   }

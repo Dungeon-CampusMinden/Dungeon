@@ -20,43 +20,43 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.MissingHeroException;
+import core.utils.MissingPlayerException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.DevDungeonMonster;
 import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceMushroomRed;
-import java.util.List;
+import java.util.Map;
 import level.DevDungeonLevel;
 
 /** The Tutorial Level. */
 public class TutorialLevel extends DevDungeonLevel {
 
   // Entity spawn points
-  private final Coordinate mobSpawn;
+  private final Point mobSpawn;
   private final Point chestSpawn;
   private final Point cauldronSpawn;
-  private Coordinate lastHeroCoords = new Coordinate(0, 0);
+  private Coordinate lastPlayerCoords = new Coordinate(0, 0);
 
   /**
    * Constructs the Tutorial Level.
    *
    * @param layout The layout of the level.
    * @param designLabel The design label of the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
   public TutorialLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(
         layout,
         designLabel,
-        customPoints,
+        namedPoints,
         "Tutorial",
         "Willkommen im Tutorial! Hier lernst Du die Grundlagen des Spiels kennen.");
-    this.mobSpawn = customPoints.get(0);
+    this.mobSpawn = getPoint(0);
 
-    this.chestSpawn = customPoints.get(1).toPoint();
-    this.cauldronSpawn = customPoints.get(2).toPoint();
+    this.chestSpawn = getPoint(1);
+    this.cauldronSpawn = getPoint(2);
   }
 
   @Override
@@ -77,7 +77,7 @@ public class TutorialLevel extends DevDungeonLevel {
     if (mob == null) {
       throw new RuntimeException("Failed to create tutorial monster");
     }
-    DoorTile mobDoor = (DoorTile) tileAt(customPoints().get(5)).orElse(null);
+    DoorTile mobDoor = (DoorTile) tileAt(getPoint(5)).orElse(null);
     mob.fetch(HealthComponent.class)
         .ifPresent(
             hc ->
@@ -95,29 +95,29 @@ public class TutorialLevel extends DevDungeonLevel {
 
   @Override
   protected void onTick() {
-    if (lastHeroCoords != null && !lastHeroCoords.equals(EntityUtils.getHeroCoordinate())) {
-      // Only handle text popups if the hero has moved
+    if (lastPlayerCoords != null && !lastPlayerCoords.equals(EntityUtils.getPlayerCoordinate())) {
+      // Only handle text popups if the player has moved
       handleTextPopups();
     }
     handleDoors();
-    this.lastHeroCoords = EntityUtils.getHeroCoordinate();
+    this.lastPlayerCoords = EntityUtils.getPlayerCoordinate();
   }
 
   private void handleTextPopups() {
-    DoorTile frontDoor = (DoorTile) tileAt(customPoints().get(4)).orElse(null);
-    DoorTile mobDoor = (DoorTile) tileAt(customPoints().get(5)).orElse(null);
-    DoorTile CraftingDoor = (DoorTile) tileAt(customPoints().get(6)).orElse(null);
-    if (EntityUtils.getHeroCoordinate() == null) return;
-    Tile heroTile = tileAt(EntityUtils.getHeroCoordinate()).orElse(null);
-    if (heroTile == null) return;
+    DoorTile frontDoor = (DoorTile) tileAt(getPoint(4)).orElse(null);
+    DoorTile mobDoor = (DoorTile) tileAt(getPoint(5)).orElse(null);
+    DoorTile CraftingDoor = (DoorTile) tileAt(getPoint(6)).orElse(null);
+    if (EntityUtils.getPlayerCoordinate() == null) return;
+    Tile playerTile = tileAt(EntityUtils.getPlayerCoordinate()).orElse(null);
+    if (playerTile == null) return;
 
-    if (frontDoor.coordinate().equals(heroTile.coordinate())) {
+    if (frontDoor.coordinate().equals(playerTile.coordinate())) {
       DialogUtils.showTextPopup(
           "Mit "
               + Input.Keys.toString(KeyboardConfig.FIRST_SKILL.value())
               + " (oder LMB) kannst du angreifen.",
           "Kampf");
-    } else if (mobDoor.coordinate().equals(heroTile.coordinate())) {
+    } else if (mobDoor.coordinate().equals(playerTile.coordinate())) {
       DialogUtils.showTextPopup(
           "Kommen wir zum Craften. Du findest im Verlauf des Spiels verschiedene Ressourcen,"
               + " die du in Tränke und andere nützliche Gegenstände verwandeln kannst.",
@@ -140,7 +140,7 @@ public class TutorialLevel extends DevDungeonLevel {
                       "Looting & Crafting");
                 });
           });
-    } else if (CraftingDoor.coordinate().equals(heroTile.coordinate())) {
+    } else if (CraftingDoor.coordinate().equals(playerTile.coordinate())) {
       DialogUtils.showTextPopup(
           "Im Dungeon findest immer wieder Hindernisse, Fallen und Rätsel."
               + "Versuche sie zu umgehen oder zu lösen. Löcher kannst du anhand rissiger Bodenplatten erkennen oder anhand von schwarzen Löchern.",
@@ -153,22 +153,23 @@ public class TutorialLevel extends DevDungeonLevel {
    * mob.
    */
   private void handleDoors() {
-    DoorTile frontDoor = (DoorTile) tileAt(customPoints().get(4)).orElse(null);
-    DoorTile CraftingDoor = (DoorTile) tileAt(customPoints().get(6)).orElse(null);
-    Point heroPos;
+    DoorTile frontDoor = (DoorTile) tileAt(getPoint(4)).orElse(null);
+    DoorTile CraftingDoor = (DoorTile) tileAt(getPoint(6)).orElse(null);
+    Point playerPos;
     try {
-      heroPos = SkillTools.heroPositionAsPoint();
-    } catch (MissingHeroException e) {
+      playerPos = SkillTools.playerPositionAsPoint();
+    } catch (MissingPlayerException e) {
       return;
     }
-    if (!frontDoor.isOpen() && frontDoor.position().distance(heroPos) < 2) {
+    if (!frontDoor.isOpen() && frontDoor.position().distance(playerPos) < 2) {
       frontDoor.open();
     }
 
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    Entity player = Game.player().orElseThrow(MissingPlayerException::new);
     InventoryComponent ic =
-        hero.fetch(InventoryComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, InventoryComponent.class));
+        player
+            .fetch(InventoryComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(player, InventoryComponent.class));
     if (!CraftingDoor.isOpen() && ic.hasItem(ItemPotionHealth.class)) {
       CraftingDoor.open();
     }
@@ -220,7 +221,7 @@ public class TutorialLevel extends DevDungeonLevel {
     ic =
         b.fetch(InventoryComponent.class)
             .orElseThrow(() -> MissingComponentException.build(b, InventoryComponent.class));
-    pc.position(customPoints().get(3).toPoint());
+    pc.position(getPoint(3));
     ic.add(new ItemPotionHealth(HealthPotionType.NORMAL));
     Game.add(b);
   }

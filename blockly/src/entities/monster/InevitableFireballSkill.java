@@ -19,9 +19,9 @@ import systems.BlocklyCommandExecuteSystem;
  */
 public class InevitableFireballSkill extends FireballSkill {
 
-  private static final Supplier<Point> TARGET_HERO =
+  private static final Supplier<Point> TARGET_PLAYER =
       () ->
-          Game.hero()
+          Game.player()
               .flatMap(hero -> hero.fetch(PositionComponent.class))
               .map(PositionComponent::position)
               // offset for error with fireball path calculation (#2230)
@@ -30,7 +30,7 @@ public class InevitableFireballSkill extends FireballSkill {
 
   /** Create a Fireball that will freez and kill the player. */
   public InevitableFireballSkill() {
-    super(TARGET_HERO, 500);
+    super(TARGET_PLAYER, 500);
     this.damageAmount = 9999;
     this.range = 9999;
   }

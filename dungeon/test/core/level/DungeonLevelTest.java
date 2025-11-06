@@ -8,13 +8,16 @@ import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.FloorTile;
 import core.level.elements.tile.TileFactory;
 import core.level.elements.tile.WallTile;
+import core.level.loader.parsers.V2FormatParser;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
@@ -135,7 +138,7 @@ public class DungeonLevelTest {
     layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
     layout[0][2] = new ExitTile(new SimpleIPath(""), new Coordinate(2, 0), DesignLabel.DEFAULT);
     DungeonLevel tileLevel = new DungeonLevel(layout);
-    tileLevel.startTile(layout[0][0]);
+    tileLevel.startTiles().add(layout[0][0]);
 
     /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit) SWE FWF FFF */
     GraphPath<Tile> path =
@@ -163,7 +166,7 @@ public class DungeonLevelTest {
     layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
     layout[0][2] = new ExitTile(new SimpleIPath(""), new Coordinate(2, 0), DesignLabel.DEFAULT);
     DungeonLevel tileLevel = new DungeonLevel(layout);
-    tileLevel.startTile(layout[0][0]);
+    tileLevel.startTiles().add(layout[0][0]);
 
     /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit)
     SWE
@@ -367,20 +370,24 @@ public class DungeonLevelTest {
           }
         };
     var level = new DungeonLevel(tileLayout, DesignLabel.DEFAULT);
-    StringBuilder compareString = new StringBuilder();
+    List<String> lines = new ArrayList<>();
     for (LevelElement[] tiles : tileLayout) {
+      String row = "";
       for (LevelElement tile : tiles) {
         if (tile == LevelElement.FLOOR) {
-          compareString.append("F");
+          row += "F";
         } else if (tile == LevelElement.WALL) {
-          compareString.append("W");
+          row += "W";
         } else {
-          compareString.append("E");
+          row += "E";
         }
       }
-      compareString.append("\n");
+      lines.add(row);
     }
-    assertEquals(compareString.toString(), level.printLevel());
+    // Reverse
+    lines = lines.reversed();
+    String compareString = String.join(System.lineSeparator(), lines);
+    assertEquals(compareString, V2FormatParser.serializeLevelLayout(level.layout));
   }
 
   /** WTF? . */

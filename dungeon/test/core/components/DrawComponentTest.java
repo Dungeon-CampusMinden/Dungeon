@@ -28,7 +28,7 @@ public class DrawComponentTest {
   private final IPath simplePath = new SimpleIPath("test_assets/textures/mailbox.png");
   private DrawComponent animationComponent;
 
-  /** Creates a {@link DrawComponent} to be used in testing, similar to a basic hero. */
+  /** Creates a {@link DrawComponent} to be used in testing, similar to a basic player. */
   @BeforeEach
   public void setup() {
     // Create file system handle. WARNING: This will assume all future paths to be relative to the

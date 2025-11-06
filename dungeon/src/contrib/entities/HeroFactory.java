@@ -1,8 +1,6 @@
 package contrib.entities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
-import com.badlogic.gdx.audio.Sound;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
@@ -31,16 +29,17 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
-/** A utility class for building the hero entity in the game world. */
+/** A utility class for building the player entity in the game world. */
 public final class HeroFactory {
 
-  /** If true, the hero can be moved with the mouse. */
+  /** If true, the player can be moved with the mouse. */
   public static final boolean ENABLE_MOUSE_MOVEMENT = true;
 
   /** The default Hero class, used if no other class is specified. */
   public static final CharacterClass DEFAULT_HERO_CLASS = CharacterClass.WIZARD;
 
   private static final String MOVEMENT_ID = "Movement";
+  private static final String DEATH_SOUND_ID = "death";
   private static final Consumer<Entity> EXECUTE_ACTIVE_HERO_SKILL =
       entity ->
           entity
@@ -89,9 +88,9 @@ public final class HeroFactory {
               });
 
   /**
-   * Sets the callback to execute when the hero dies.
+   * Sets the callback to execute when the player dies.
    *
-   * @param deathCallback Callback that will be executed on the hero's death.
+   * @param deathCallback Callback that will be executed on the player's death.
    */
   public static void heroDeath(Consumer<Entity> deathCallback) {
     DEFAULT_DEATH = deathCallback;
@@ -122,14 +121,14 @@ public final class HeroFactory {
    * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
    * CollideComponent} and {@link HealthComponent}.
    *
-   * @param characterClass Class of the hero.
-   * @param deathCallback function that will be executed if the hero dies
+   * @param characterClass Class of the player.
+   * @param deathCallback function that will be executed if the player dies
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity newHero(CharacterClass characterClass, Consumer<Entity> deathCallback)
       throws IOException {
-    Entity hero = new Entity("hero");
+    Entity hero = new Entity("player");
     hero.persistent(true);
     PlayerComponent pc = new PlayerComponent();
     hero.add(pc);
@@ -182,13 +181,7 @@ public final class HeroFactory {
             characterClass.hp(),
             entity -> {
               // play sound
-              Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));
-              long soundId = sound.play();
-              sound.setLooping(soundId, false);
-              sound.setVolume(soundId, 0.3f);
-              sound.setLooping(soundId, false);
-              sound.play();
-              sound.setVolume(soundId, 0.9f);
+              Game.soundPlayer().play(DEATH_SOUND_ID, 0.9f);
 
               // relink components for camera
               Entity cameraDummy = new Entity("heroCamera");
@@ -227,7 +220,7 @@ public final class HeroFactory {
     characterClass.startItems().forEach(item -> invComp.add(item));
     hero.add(invComp);
 
-    // hero movement
+    // player movement
     registerMovement(
         inputComp,
         core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
@@ -267,8 +260,7 @@ public final class HeroFactory {
           KeyboardConfig.MOUSE_MOVE.value(),
           innerHero -> {
             // Small adjustment to get the correct tile
-            Point mousePos =
-                SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
+            Point mousePos = SkillTools.cursorPositionAsPoint();
 
             Point heroPos =
                 innerHero
@@ -325,7 +317,7 @@ public final class HeroFactory {
           UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
           if (uiComponent != null
               && uiComponent.dialog() instanceof GUICombination
-              && !InventoryGUI.inHeroInventory) {
+              && !InventoryGUI.inPlayerInventory) {
             // if chest or cauldron
             entity.remove(UIComponent.class);
           } else {
@@ -345,7 +337,7 @@ public final class HeroFactory {
    *
    * <p>This will close the topmost UI dialog that has the close key configured to close it.
    *
-   * @param ic The {@link InputComponent} of the hero.
+   * @param ic The {@link InputComponent} of the player.
    */
   public static void registerCloseUI(InputComponent ic) {
     ic.registerCallback(
@@ -374,7 +366,7 @@ public final class HeroFactory {
                   // z-Index
                   .orElse(null);
           if (firstUI != null) {
-            InventoryGUI.inHeroInventory = false;
+            InventoryGUI.inPlayerInventory = false;
             firstUI.a().remove(UIComponent.class);
             if (firstUI.a().componentStream().findAny().isEmpty()) {
               Game.remove(firstUI.a()); // delete unused Entity
@@ -393,11 +385,11 @@ public final class HeroFactory {
     UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
     if (uiComponent != null) {
       if (uiComponent.dialog() instanceof GUICombination) {
-        InventoryGUI.inHeroInventory = false;
+        InventoryGUI.inPlayerInventory = false;
         entity.remove(UIComponent.class);
       }
     } else {
-      InventoryGUI.inHeroInventory = true;
+      InventoryGUI.inPlayerInventory = true;
       entity.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
     }
   }
@@ -488,8 +480,6 @@ public final class HeroFactory {
 
   private static Optional<Entity> checkIfClickOnInteractable(Point pos)
       throws MissingComponentException {
-    pos = pos.translate(Vector2.of(-0.5f, -0.25f));
-
     Tile mouseTile = Game.tileAt(pos).orElse(null);
     if (mouseTile == null) return Optional.empty();
 
@@ -530,7 +520,7 @@ public final class HeroFactory {
   /**
    * Create a new Hero based on the given class with the default death callback (restart level).
    *
-   * @param characterClass The class of the hero.
+   * @param characterClass The class of the player.
    * @return The Hero Entity-
    * @throws IOException if animations could not be created.
    */

@@ -19,59 +19,57 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import item.concreteItem.ItemPotionRegeneration;
 import item.concreteItem.ItemPotionSpeed;
-import java.util.List;
+import java.util.Map;
 
 /**
  * The DamagedBridgeRiddleHandler class is used to handle the riddle of the damaged bridge. The
- * riddle consists of a damaged bridge that the hero has to cross. The hero can only cross the
+ * riddle consists of a damaged bridge that the player has to cross. The player can only cross the
  * bridge if they are fast enough. The riddle room contains a chest with a speed potion that the
- * hero can use to cross the bridge. If the hero crosses the bridge, they will receive a reward.
+ * player can use to cross the bridge. If the player crosses the bridge, they will receive a reward.
  */
 public class DamagedBridgeRiddleHandler {
 
   // The reward for solving the riddle (max health points)
   private static final int RIDDLE_REWARD = 5;
   private final DungeonLevel level;
-  private final Coordinate[] riddleRoomBounds; // TopLeft, BottomRight
+  private final Point[] riddleRoomBounds; // TopLeft, BottomRight
   private final DoorTile riddleEntrance; // The entrance to the riddle room
-  private final Coordinate riddleEntranceSign; // The sign next to the riddle entrance
-  private final Coordinate[] riddlePitBounds; // TopLeft, BottomRight
-  private final Coordinate
+  private final Point riddleEntranceSign; // The sign next to the riddle entrance
+  private final Point[] riddlePitBounds; // TopLeft, BottomRight
+  private final Point
       riddleChestSpawn; // The spawn point of the reward chest for solving the riddle
-  private final Coordinate
-      riddleRewardSpawn; // The spawn point of the reward for solving the riddle
+  private final Point riddleRewardSpawn; // The spawn point of the reward for solving the riddle
   private final DoorTile riddleExit; // The exit of the riddle room
-  private final Coordinate speedPotionChest; // The spawn point of the speed potion chest
-  private final Coordinate
-      speedPotionChestHint; // The sign that hints towards the speed potion chest
+  private final Point speedPotionChest; // The spawn point of the speed potion chest
+  private final Point speedPotionChestHint; // The sign that hints towards the speed potion chest
   private boolean rewardGiven = false;
 
   /**
    * Constructs a new DamagedBridgeRiddleHandler with the given custom points and level.
    *
-   * @param customPoints The custom points of the riddle room.
+   * @param namedPoints The custom points of the riddle room.
    * @param level The level of the riddle room.
    */
-  public DamagedBridgeRiddleHandler(List<Coordinate> customPoints, DungeonLevel level) {
-    this.riddleRoomBounds = new Coordinate[] {customPoints.get(0), customPoints.get(1)};
+  public DamagedBridgeRiddleHandler(Map<String, Point> namedPoints, DungeonLevel level) {
+    this.riddleRoomBounds = new Point[] {level.getPoint(0), level.getPoint(1)};
     this.riddleEntrance =
         level
-            .tileAt(customPoints.get(2))
+            .tileAt(level.getPoint(2))
             .filter(DoorTile.class::isInstance)
             .map(DoorTile.class::cast)
             .orElse(null);
-    this.riddleEntranceSign = customPoints.get(3);
-    this.riddlePitBounds = new Coordinate[] {customPoints.get(4), customPoints.get(5)};
-    this.riddleChestSpawn = customPoints.get(6);
-    this.riddleRewardSpawn = new Coordinate(customPoints.get(6).x(), customPoints.get(6).y() - 1);
+    this.riddleEntranceSign = level.getPoint(3);
+    this.riddlePitBounds = new Point[] {level.getPoint(4), level.getPoint(5)};
+    this.riddleChestSpawn = level.getPoint(6);
+    this.riddleRewardSpawn = new Point(level.getPoint(6).x(), level.getPoint(6).y() - 1);
     this.riddleExit =
         level
-            .tileAt(customPoints.get(7))
+            .tileAt(level.getPoint(7))
             .filter(DoorTile.class::isInstance)
             .map(DoorTile.class::cast)
             .orElse(null);
-    this.speedPotionChest = customPoints.get(9);
-    this.speedPotionChestHint = customPoints.get(10);
+    this.speedPotionChest = level.getPoint(9);
+    this.speedPotionChestHint = level.getPoint(10);
 
     this.level = level;
   }
@@ -87,21 +85,24 @@ public class DamagedBridgeRiddleHandler {
 
   /** Handles the tick of the riddle room. */
   public void onTick() {
-    if (isHeroInRiddleRoom()) {
-      LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], true);
+    if (isPlayerInRiddleRoom()) {
+      LevelUtils.changeVisibilityForArea(
+          riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), true);
       riddleExit.open();
 
-      Entity hero = Game.hero().orElse(null);
-      if (hero == null) return;
+      Entity player = Game.player().orElse(null);
+      if (player == null) return;
       PositionComponent pc =
-          hero.fetch(PositionComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+          player
+              .fetch(PositionComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(player, PositionComponent.class));
 
       if (!rewardGiven && riddleRewardSpawn.equals(pc.coordinate())) {
         giveReward();
       }
     } else {
-      LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], false);
+      LevelUtils.changeVisibilityForArea(
+          riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), false);
       riddleExit.close();
     }
   }
@@ -112,8 +113,8 @@ public class DamagedBridgeRiddleHandler {
             + RIDDLE_REWARD
             + " additional maximum health points \nas a reward for solving this puzzle!",
         "Riddle solved");
-    Game.hero()
-        .flatMap(hero -> hero.fetch(HealthComponent.class))
+    Game.player()
+        .flatMap(player -> player.fetch(HealthComponent.class))
         .ifPresent(
             hc -> {
               hc.maximalHealthpoints(hc.maximalHealthpoints() + RIDDLE_REWARD);
@@ -124,23 +125,25 @@ public class DamagedBridgeRiddleHandler {
   }
 
   /**
-   * Checks if the hero is in the riddle room.
+   * Checks if the player is in the riddle room.
    *
-   * <p>This method is used to determine if the hero is currently located in the riddle room. The
-   * method checks if the hero is on the entrance or exit tile of the riddle room or if the hero's
-   * tile is within the bounds of the riddle room. If the hero is null (which can happen if the hero
-   * died in a pit), the method returns true so the hero can still see the riddle room.
+   * <p>This method is used to determine if the player is currently located in the riddle room. The
+   * method checks if the player is on the entrance or exit tile of the riddle room or if the
+   * player's tile is within the bounds of the riddle room. If the player is null (which can happen
+   * if the player died in a pit), the method returns true so the player can still see the riddle
+   * room.
    *
-   * @return true if the hero is in the riddle room, false otherwise.
+   * @return true if the player is in the riddle room, false otherwise.
    */
-  private boolean isHeroInRiddleRoom() {
-    Point heroPos = EntityUtils.getHeroPosition();
-    if (heroPos == null) {
-      return true; // if hero dies due to pit, still show riddle room
+  private boolean isPlayerInRiddleRoom() {
+    Point playerPos = EntityUtils.getPlayerPosition();
+    if (playerPos == null) {
+      return true; // if player dies due to pit, still show riddle room
     }
-    return LevelUtils.isHeroInArea(riddleRoomBounds[0], riddleRoomBounds[1])
-        || level.tileAt(heroPos).map(t -> t == riddleEntrance).orElse(false)
-        || level.tileAt(heroPos).map(t -> t == riddleExit).orElse(false);
+    return LevelUtils.isPlayerInArea(
+            riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate())
+        || level.tileAt(playerPos).map(t -> t == riddleEntrance).orElse(false)
+        || level.tileAt(playerPos).map(t -> t == riddleExit).orElse(false);
   }
 
   /**
@@ -149,11 +152,11 @@ public class DamagedBridgeRiddleHandler {
    * sequence.
    *
    * <p>Also, the time to open is decreasing from 500 to 50. After 5 pits, the time to open is
-   * forced to be 50. (After testing a hero can still cross at about (65ms))
+   * forced to be 50. (After testing a player can still cross at about (65ms))
    */
   private void preparePits() {
-    Coordinate topLeft = riddlePitBounds[0];
-    Coordinate bottomRight = riddlePitBounds[1];
+    Coordinate topLeft = riddlePitBounds[0].toCoordinate();
+    Coordinate bottomRight = riddlePitBounds[1].toCoordinate();
     int timeToOpen = 500;
 
     for (int x = bottomRight.x(); x >= topLeft.x(); x--) {
@@ -188,13 +191,13 @@ public class DamagedBridgeRiddleHandler {
                     If you were faster, you could cross it.
                     Maybe theres a Speed Potion somewhere nearby?""",
         "Riddle: The damaged Bridge",
-        riddleEntranceSign.toPoint());
+        riddleEntranceSign);
     EntityUtils.spawnSign(
         """
                     This looks interesting. Maybe there is
                     something hidden behind those sculptures?""",
         "Riddle: The damaged Bridge",
-        speedPotionChestHint.toPoint());
+        speedPotionChestHint);
   }
 
   private void spawnChest() {
@@ -210,7 +213,7 @@ public class DamagedBridgeRiddleHandler {
             .orElseThrow(
                 () -> MissingComponentException.build(speedPotionChest, PositionComponent.class));
 
-    pc.position(this.speedPotionChest.toPoint());
+    pc.position(this.speedPotionChest);
 
     InventoryComponent ic =
         speedPotionChest
@@ -232,7 +235,7 @@ public class DamagedBridgeRiddleHandler {
             .orElseThrow(
                 () -> MissingComponentException.build(riddleChest, PositionComponent.class));
 
-    pc.position(riddleChestSpawn.toPoint());
+    pc.position(riddleChestSpawn);
 
     ic =
         riddleChest

@@ -13,17 +13,19 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
+import core.sound.player.ISoundPlayer;
+import core.sound.player.NoSoundPlayer;
 import core.systems.LevelSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.path.IPath;
+import core.utils.logging.DungeonLogger;
+import core.utils.logging.DungeonLoggerConfig;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,10 +54,13 @@ import java.util.stream.Stream;
  */
 public final class Game {
 
-  private static final Logger LOGGER = Logger.getLogger(Game.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Game.class);
 
   /** Starts the dungeon and requires a {@link Game}. */
   public static void run() {
+    if (!DungeonLoggerConfig.isInitialized()) {
+      DungeonLoggerConfig.initDefault();
+    }
     GameLoop.run();
   }
 
@@ -223,28 +228,6 @@ public final class Game {
   }
 
   /**
-   * Initialize the base logger.
-   *
-   * <p>Set a logging level, and remove the console handler, and write all log messages into the log
-   * files.
-   *
-   * @param level Set logging level to {@code level}
-   */
-  public static void initBaseLogger(Level level) {
-    PreRunConfiguration.initBaseLogger(level);
-  }
-
-  /**
-   * Initialize the base logger.
-   *
-   * <p>Set the logging level to {@code Level.ALL}, and remove the console handler, and write all
-   * log messages into the log files. This is a convenience method.
-   */
-  public static void initBaseLogger() {
-    Game.initBaseLogger(Level.ALL);
-  }
-
-  /**
    * Loads the configuration from the given path. If the configuration has already been loaded, the
    * cached version will be used.
    *
@@ -370,13 +353,22 @@ public final class Game {
   }
 
   /**
-   * Searches the current level for the player character.
+   * Searches the current level for the first player character.
    *
    * @return an {@link Optional} containing the player character from the current level, or an empty
    *     {@code Optional} if none is present
    */
-  public static Optional<Entity> hero() {
-    return ECSManagment.hero();
+  public static Optional<Entity> player() {
+    return ECSManagment.player();
+  }
+
+  /**
+   * Searches the current level for all player characters.
+   *
+   * @return a stream of all player characters in the current level
+   */
+  public static Stream<Entity> allPlayers() {
+    return ECSManagment.allPlayers();
   }
 
   /**
@@ -764,11 +756,12 @@ public final class Game {
   public static void currentLevel(final ILevel level) {
     LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
     if (levelSystem != null) levelSystem.loadLevel(level);
-    else LOGGER.warning("Can not set Level because levelSystem is null.");
+    else LOGGER.warn("Can not set Level because levelSystem is null.");
   }
 
   /** Exits the GDX application. */
   public static void exit() {
+    DungeonLoggerConfig.shutdown();
     Gdx.app.exit();
   }
 
@@ -781,5 +774,19 @@ public final class Game {
    */
   public static Stream<Entity> entityAtPoint(Point point) {
     return Game.tileAt(point).map(Game::entityAtTile).orElseGet(Stream::empty);
+  }
+
+  /**
+   * Returns the {@link ISoundPlayer} used by the game.
+   *
+   * <p>This player is responsible for playing sound effects and music within the game.
+   *
+   * <p>If no audio context is available (Gdx.audio is null), this method may return a {@link
+   * NoSoundPlayer} instance.
+   *
+   * @return the current {@link ISoundPlayer} instance
+   */
+  public static ISoundPlayer soundPlayer() {
+    return GameLoop.soundPlayer();
   }
 }

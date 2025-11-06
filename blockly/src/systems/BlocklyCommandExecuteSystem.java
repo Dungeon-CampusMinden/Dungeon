@@ -61,6 +61,7 @@ public class BlocklyCommandExecuteSystem extends System {
 
   private boolean rest = false;
   private final List<Supplier<Boolean>> makeStep = new LinkedList<>();
+  private boolean disableQueue;
 
   /**
    * Main execution method of the system.
@@ -106,7 +107,7 @@ public class BlocklyCommandExecuteSystem extends System {
    * @param command The command to add.
    */
   public void add(BlocklyCommands.Commands command) {
-    if (run) queue.add(command);
+    if (!disableQueue) queue.add(command);
   }
 
   /**
@@ -130,12 +131,14 @@ public class BlocklyCommandExecuteSystem extends System {
 
   /** Clears the command queue and cancels all currently scheduled steps. */
   public void clear() {
+    fullStop();
     makeStep.clear();
     queue.clear();
+    run();
   }
 
   /**
-   * Rotates the hero into a given direction.
+   * Rotates the player into a given direction.
    *
    * @param direction The rotation direction (left or right). Vertical directions are ignored.
    */
@@ -143,7 +146,7 @@ public class BlocklyCommandExecuteSystem extends System {
     if (direction == Direction.UP || direction == Direction.DOWN) {
       return; // no rotation
     }
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
     Direction newDirection = viewDirection.applyRelative(direction);
     turnEntity(hero, newDirection);
@@ -157,12 +160,12 @@ public class BlocklyCommandExecuteSystem extends System {
   }
 
   /**
-   * Moves the hero one tile forward in its current viewing direction.
+   * Moves the player one tile forward in its current viewing direction.
    *
    * <p>Also moves the "Blockly Black Knight" entity if present.
    */
   private void move() {
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
     move(viewDirection, () -> {}, hero);
     Game.levelEntities()
@@ -177,11 +180,11 @@ public class BlocklyCommandExecuteSystem extends System {
   }
 
   /**
-   * Attempts to pull or push entities in front of the hero.
+   * Attempts to pull or push entities in front of the player.
    *
-   * <p>If there is a pushable entity in the tile in front of the hero, it checks if the tile behind
-   * the player (for pull) or in front of the entities (for push) is accessible. If accessible, the
-   * hero and the entity are moved simultaneously in the corresponding direction.
+   * <p>If there is a pushable entity in the tile in front of the player, it checks if the tile
+   * behind the player (for pull) or in front of the entities (for push) is accessible. If
+   * accessible, the player and the entity are moved simultaneously in the corresponding direction.
    *
    * <p>The pulled/pushed entity temporarily loses its blocking component while moving and regains
    * it after.
@@ -189,8 +192,8 @@ public class BlocklyCommandExecuteSystem extends System {
    * @param push True if you want to push, false if you want to pull.
    */
   private void movePushable(boolean push) {
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-    // do not push or pull if the hero is frozen
+    Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
+    // do not push or pull if the player is frozen
     if (hero.fetch(VelocityComponent.class)
         .map(VelocityComponent::maxSpeed)
         .filter(s -> s == 0)
@@ -234,7 +237,7 @@ public class BlocklyCommandExecuteSystem extends System {
             Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList());
     if (toMove.isEmpty()) return;
 
-    // remove the BlockComponent to avoid blocking the hero while moving simultaneously
+    // remove the BlockComponent to avoid blocking the player while moving simultaneously
     toMove.forEach(entity -> entity.remove(BlockComponent.class));
     toMove.add(hero);
     move(
@@ -343,9 +346,9 @@ public class BlocklyCommandExecuteSystem extends System {
   }
 
   /**
-   * Shoots a fireball in the hero's viewing direction.
+   * Shoots a fireball in the player's viewing direction.
    *
-   * <p>Requires the hero to have ammunition. After shooting, the hero briefly rests.
+   * <p>Requires the player to have ammunition. After shooting, the player briefly rests.
    */
   private void shootFireball() {
     FireballScheduler.shoot();
@@ -353,12 +356,12 @@ public class BlocklyCommandExecuteSystem extends System {
   }
 
   /**
-   * Triggers an interactable in a direction related to the hero.
+   * Triggers an interactable in a direction related to the player.
    *
-   * @param direction Direction in which the hero will search for an interactable.
+   * @param direction Direction in which the player will search for an interactable.
    */
   private void interact(Direction direction) {
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
@@ -387,12 +390,12 @@ public class BlocklyCommandExecuteSystem extends System {
 
   /**
    * Triggers the interaction (normally a pickup action) for each Entity with an {@link
-   * ItemComponent} at the same tile as the hero.
+   * ItemComponent} at the same tile as the player.
    *
-   * <p>If the hero is not on the map, nothing will happen.
+   * <p>If the player is not on the map, nothing will happen.
    */
   private void pickup() {
-    Game.hero()
+    Game.player()
         .ifPresent(
             hero ->
                 hero.fetch(PositionComponent.class)
@@ -413,13 +416,13 @@ public class BlocklyCommandExecuteSystem extends System {
   /**
    * Drop a Blockly-Item at the heros position.
    *
-   * <p>If the hero is not on the map, nothing will happen.
+   * <p>If the player is not on the map, nothing will happen.
    *
    * @param item Name of the item to drop
    */
   private void dropItem(String item) {
     Point heroPos =
-        Game.hero()
+        Game.player()
             .flatMap(hero -> hero.fetch(PositionComponent.class))
             .map(PositionComponent::position)
             .map(pos -> pos.translate(MAGIC_OFFSET))
@@ -433,14 +436,14 @@ public class BlocklyCommandExecuteSystem extends System {
     }
   }
 
-  /** Let the hero do nothing for a short moment. */
+  /** Let the player do nothing for a short moment. */
   private void rest() {
     rest = true;
     EventScheduler.scheduleAction(() -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000));
   }
 
   /**
-   * Lets the hero do nothing for a period of time scaled by a multiplier.
+   * Lets the player do nothing for a period of time scaled by a multiplier.
    *
    * @param mul Time multiplier applied to the rest duration.
    */
@@ -448,6 +451,19 @@ public class BlocklyCommandExecuteSystem extends System {
     rest = true;
     EventScheduler.scheduleAction(
         () -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000 * mul));
+  }
+
+  /** Stop the system and lock the queue, so no new commands can be added. */
+  public void fullStop() {
+    super.stop();
+    this.disableQueue = true;
+  }
+
+  /** Reactivate the system and unlock the queue. */
+  @Override
+  public void run() {
+    super.run();
+    this.disableQueue = false;
   }
 
   /**

@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
 import produsAdvanced.level.*;
@@ -30,8 +29,8 @@ import produsAdvanced.level.*;
  * Entry point for the "Advanced Dungeon" game setup.
  *
  * <p>This class is responsible for initializing and launching the game. It configures the game
- * environment, sets up levels, adds systems, creates the player hero, and integrates dynamic
- * recompilation of user control code for live testing of custom hero controllers.
+ * environment, sets up levels, adds systems, creates the player player, and integrates dynamic
+ * recompilation of user control code for live testing of custom player controllers.
  *
  * <p>Usage: run with the Gradle task {@code runAdvancedDungeon}.
  */
@@ -61,7 +60,7 @@ public class AdvancedDungeon {
       "Da scheint etwas mit meinem Steuerrungscode nicht zu stimmen.";
 
   /** Path to the Java source file of the custom player controller. */
-  private static final SimpleIPath HERO_CONTROLLER_PATH =
+  private static final SimpleIPath PLAYER_CONTROLLER_PATH =
       new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyPlayerController.java");
 
   private static final SimpleIPath FIREBALL_PATH =
@@ -75,10 +74,10 @@ public class AdvancedDungeon {
   /**
    * Attempts to dynamically recompile and load the custom player controller class.
    *
-   * <p>If compilation is successful, the hero's controller is updated at runtime. Otherwise, a
+   * <p>If compilation is successful, the player's controller is updated at runtime. Otherwise, a
    * dialog is shown to indicate an error.
    */
-  private static void recompileHeroControl() {
+  private static void recompilePlayerControl() {
     if (recompilePaused) return;
     try {
 
@@ -86,7 +85,7 @@ public class AdvancedDungeon {
       hero.addSkill((Skill) o);
       o =
           DynamicCompiler.loadUserInstance(
-              HERO_CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
+              PLAYER_CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
       hero.setController((PlayerController) o);
     } catch (Exception e) {
       recompilePaused = true;
@@ -101,7 +100,6 @@ public class AdvancedDungeon {
    * @param args Command-line arguments (not used).
    */
   public static void main(String[] args) {
-    Game.initBaseLogger(Level.WARNING);
     configGame();
     onSetup();
     Game.run();
@@ -138,7 +136,7 @@ public class AdvancedDungeon {
 
           WindowEventManager.registerFocusChangeListener(
               isInFocus -> {
-                if (isInFocus) recompileHeroControl();
+                if (isInFocus) recompilePlayerControl();
               });
 
           HeroFactory.heroDeath(entity -> restart());
@@ -182,11 +180,11 @@ public class AdvancedDungeon {
   }
 
   /**
-   * Creates the player hero entity and adds it to the game.
+   * Creates the player player entity and adds it to the game.
    *
-   * <p>If a previous hero entity exists, it is removed.
+   * <p>If a previous player entity exists, it is removed.
    *
-   * @throws IOException If hero creation fails.
+   * @throws IOException If player creation fails.
    */
   private static void createHero() throws IOException {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
@@ -194,11 +192,11 @@ public class AdvancedDungeon {
     Game.add(heroEntity);
     hero = new Hero(heroEntity);
 
-    if (!DEBUG_MODE) recompileHeroControl();
+    if (!DEBUG_MODE) recompilePlayerControl();
   }
 
   /**
-   * Restarts the game by removing all entities, recreating the hero, and reloading the current
+   * Restarts the game by removing all entities, recreating the player, and reloading the current
    * level.
    *
    * <p>This effectively resets the game state to its initial configuration.

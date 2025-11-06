@@ -12,12 +12,11 @@ import core.level.Tile;
 import core.level.elements.tile.FloorTile;
 import core.utils.Point;
 import core.utils.components.draw.animation.Animation;
-import core.utils.logging.CustomLogLevel;
+import core.utils.logging.DungeonLogger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.logging.Logger;
 
 /**
  * Abstract class that represents every item in the game.
@@ -35,7 +34,7 @@ import java.util.logging.Logger;
  * #stackSize()} and {@link #maxStackSize()} methods.
  */
 public class Item implements CraftingIngredient, CraftingResult {
-  private static final Logger LOGGER = Logger.getLogger(Item.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Item.class);
 
   /** Random object used to generate random numbers for item related things. */
   public static final Random RANDOM = new Random();
@@ -93,9 +92,8 @@ public class Item implements CraftingIngredient, CraftingResult {
 
     // Stupidity check
     if (!Item.isRegistered(this.getClass())) {
-      LOGGER.log(
-          CustomLogLevel.WARNING,
-          "Item {0} is not registered but instanced! Register class in Items!",
+      LOGGER.warn(
+          "Item {} is not registered but instanced! Register class in Items!",
           this.getClass().getName());
     }
   }
@@ -309,7 +307,7 @@ public class Item implements CraftingIngredient, CraftingResult {
    * Called when an item should be collected.
    *
    * @param itemEntity The entity that represents the item in the world.
-   * @param collector The entity who collects the item. (Most likely the hero)
+   * @param collector The entity who collects the item. (Most likely the player)
    * @return Whether the item was collected successfully.
    */
   public boolean collect(final Entity itemEntity, final Entity collector) {

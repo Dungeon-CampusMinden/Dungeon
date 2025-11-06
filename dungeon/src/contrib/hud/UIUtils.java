@@ -60,19 +60,19 @@ public final class UIUtils {
    */
   public static void show(final Supplier<Dialog> provider, final Entity entity) {
     // displays this dialog, caches the dialog callback, and increments and decrements the dialog
-    Game.hero()
-        .flatMap(hero -> hero.fetch(PlayerComponent.class))
+    Game.player()
+        .flatMap(player -> player.fetch(PlayerComponent.class))
         .ifPresent(
-            heroPC -> {
+            playerPC -> {
               // counter so that the inventory is not opened while the dialog is displayed
-              heroPC.incrementOpenDialogs();
+              playerPC.incrementOpenDialogs();
 
               UIComponent ui = new UIComponent(provider.get(), true);
               IVoidFunction oldOnClose = ui.onClose();
 
               ui.onClose(
                   () -> {
-                    heroPC.decrementOpenDialogs();
+                    playerPC.decrementOpenDialogs();
                     oldOnClose.execute();
                   });
 

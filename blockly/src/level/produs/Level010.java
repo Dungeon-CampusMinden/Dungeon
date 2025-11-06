@@ -1,38 +1,39 @@
 package level.produs;
 
+import contrib.hud.DialogUtils;
 import core.Game;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.Point;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-import java.util.List;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/**
- * This level builds on the previous one: fireball scrolls must be collected to defeat monsters.
- * Now, clever positioning is essential to succeed.
- */
+/** In this level, the fireball scrolls must be collected to defeat two of the three monsters. */
 public class Level010 extends BlocklyLevel {
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level010(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 10");
+  public Level010(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 10");
     this.blockBlocklyElement(
         // Schleifen
         "while_loop",
         // Inventar und Charakter
         "drop_item",
         "Items",
+        "wait",
         // Kategorien
         "Abfragen",
         "Bedingung",
@@ -45,22 +46,24 @@ public class Level010 extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    LevelManagementUtils.cameraFocusOn(new Coordinate(8, 6));
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
-    Game.add(MiscFactory.fireballScroll(customPoints().get(0).toPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(1).toPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(2).toPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(3).toPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(4).toPoint()));
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.playerViewDirection(Direction.LEFT);
+    LevelManagementUtils.zoomDefault();
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Mit diesen Spruchrollen kannst du einen mächtigen Feuerball beschwören.",
+          "Kapitel 1: Ausbruch");
+      showText = false;
+    }
+    Game.add(MiscFactory.fireballScroll(getPoint(0)));
+    Game.add(MiscFactory.fireballScroll(getPoint(1)));
 
-    BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().attackRange(5).addToGame();
-    guardBuilder.viewDirection(Direction.DOWN);
-    guardBuilder.build(customPoints().get(5).toPoint());
-    guardBuilder.build(customPoints().get(8).toPoint());
-    guardBuilder.build(customPoints().get(9).toPoint());
-    guardBuilder.viewDirection(Direction.RIGHT);
-    guardBuilder.build(customPoints().get(6).toPoint());
-    guardBuilder.build(customPoints().get(7).toPoint());
+    BlocklyMonster.Builder hedgehogBuilder =
+        BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
+    hedgehogBuilder.build(getPoint(2));
+    hedgehogBuilder.build(getPoint(3));
+    hedgehogBuilder.build(getPoint(4));
   }
 
   @Override

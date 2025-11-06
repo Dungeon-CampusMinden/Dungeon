@@ -10,8 +10,9 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import java.util.List;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -26,14 +27,15 @@ public class Level007 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level007(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 7");
+  public Level007(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 7");
     this.blockBlocklyElement(
         // Schleifen
         "while_loop",
@@ -63,13 +65,13 @@ public class Level007 extends BlocklyLevel {
 
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
-    LevelManagementUtils.heroViewDirection(Direction.LEFT);
+    LevelManagementUtils.playerViewDirection(Direction.LEFT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    Entity s1 = LeverFactory.createLever(customPoints().get(0).toPoint());
-    Entity s2 = LeverFactory.createLever(customPoints().get(1).toPoint());
-    Entity s3 = LeverFactory.createLever(customPoints().get(2).toPoint());
-    Entity s4 = LeverFactory.createLever(customPoints().get(3).toPoint());
+    Entity s1 = LeverFactory.createLever(getPoint(0));
+    Entity s2 = LeverFactory.createLever(getPoint(1));
+    Entity s3 = LeverFactory.createLever(getPoint(2));
+    Entity s4 = LeverFactory.createLever(getPoint(3));
     switch1 =
         s1.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));

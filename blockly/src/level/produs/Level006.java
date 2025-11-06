@@ -10,9 +10,10 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
-import java.util.List;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -27,14 +28,15 @@ public class Level006 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level006(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 6");
+  public Level006(
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Level 6");
     this.blockBlocklyElement(
         // Schleifen
         "while_loop",
@@ -62,12 +64,12 @@ public class Level006 extends BlocklyLevel {
     }
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
+    LevelManagementUtils.playerViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
-    Coordinate stone1C = customPoints().get(0);
-    Coordinate stone2C = customPoints().get(1);
-    Coordinate switch1C = customPoints().get(2);
-    Coordinate switch2C = customPoints().get(3);
+    Coordinate stone1C = getPoint(0).toCoordinate();
+    Coordinate stone2C = getPoint(1).toCoordinate();
+    Coordinate switch1C = getPoint(2).toCoordinate();
+    Coordinate switch2C = getPoint(3).toCoordinate();
     Entity s1 = LeverFactory.pressurePlate(switch1C.toPoint());
     Entity s2 = LeverFactory.pressurePlate(switch2C.toPoint());
     Game.add(MiscFactory.stone(stone1C.toPoint()));

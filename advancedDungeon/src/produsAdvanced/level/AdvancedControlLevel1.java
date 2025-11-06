@@ -1,10 +1,10 @@
 package produsAdvanced.level;
 
 import contrib.hud.DialogUtils;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import java.util.List;
+import core.utils.Point;
+import java.util.Map;
 import level.AdvancedLevel;
 
 /**
@@ -25,15 +25,15 @@ public class AdvancedControlLevel1 extends AdvancedLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
   public AdvancedControlLevel1(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Control");
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Control");
   }
 
   @Override

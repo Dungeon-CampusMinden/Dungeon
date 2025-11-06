@@ -1,7 +1,5 @@
 package core.systems;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -15,8 +13,8 @@ import core.level.loader.DungeonLoader;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.DungeonLogger;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * Manages the dungeon game world.
@@ -39,11 +37,12 @@ import java.util.logging.Logger;
  * trigger a level load manually. These methods will also trigger the onLevelLoad callback.
  */
 public final class LevelSystem extends System {
-  private static final String SOUND_EFFECT = "sounds/enterDoor.wav";
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LevelSystem.class);
+
+  private static final String SOUND_EFFECT = "enterDoor";
 
   private static ILevel currentLevel;
   private final IVoidFunction onLevelLoad;
-  private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getSimpleName());
   private IVoidFunction onEndTile;
 
   /**
@@ -80,7 +79,7 @@ public final class LevelSystem extends System {
   public void loadLevel(final ILevel level) {
     currentLevel = level;
     onLevelLoad.execute();
-    levelAPI_logger.info("A new level was loaded.");
+    LOGGER.info("A new level was loaded.");
   }
 
   /**
@@ -118,15 +117,16 @@ public final class LevelSystem extends System {
       return Optional.empty();
     }
 
-    doorTile.otherDoor().level().startTile(doorTile.otherDoor().doorstep());
+    List<Tile> startTiles = doorTile.otherDoor().level().startTiles();
+    Tile doorstep = doorTile.otherDoor().doorstep();
+    if (startTiles.isEmpty()) startTiles.add(doorstep);
+    startTiles.set(0, doorstep);
+
     return Optional.ofNullable(doorTile.otherDoor().level());
   }
 
   private void playSound() {
-    Sound doorSound = Gdx.audio.newSound(Gdx.files.internal(SOUND_EFFECT));
-    long soundId = doorSound.play();
-    doorSound.setLooping(soundId, false);
-    doorSound.setVolume(soundId, 0.3f);
+    Game.soundPlayer().play(SOUND_EFFECT, 0.3f);
   }
 
   /**
@@ -143,8 +143,7 @@ public final class LevelSystem extends System {
         DungeonLoader.loadLevel(0);
         execute();
       } catch (IndexOutOfBoundsException e) {
-        levelAPI_logger.warning(
-            "Can´t load level 0, because no level is added to the DungeonLoader.");
+        LOGGER.warn("Can´t load level 0, because no level is added to the DungeonLoader.");
       }
     } else {
       if (filteredEntityStream(PlayerComponent.class, PositionComponent.class)

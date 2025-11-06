@@ -12,12 +12,12 @@ import core.Game;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
 import core.utils.Point;
+import core.utils.logging.DungeonLogger;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 import level.BlocklyLevel;
 
 /**
@@ -28,7 +28,7 @@ import level.BlocklyLevel;
  */
 public class Server {
 
-  private static final Logger LOGGER = Logger.getLogger(Server.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Server.class);
 
   // Singleton
   private static Server instance;
@@ -125,11 +125,11 @@ public class Server {
   }
 
   private void sendHeroPosition(HttpExchange exchange) throws IOException {
-    Point heroPos = EntityUtils.getHeroPosition();
-    if (heroPos == null) {
-      heroPos = new Point(0, 0);
+    Point playerPos = EntityUtils.getPlayerPosition();
+    if (playerPos == null) {
+      playerPos = new Point(0, 0);
     }
-    String response = heroPos.toString();
+    String response = playerPos.toString();
     exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     exchange.sendResponseHeaders(200, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();
@@ -177,8 +177,9 @@ public class Server {
       // if given and the level is not the current one, load it
       // use the eventschedular to load the level in the game thread
       EventScheduler.scheduleAction(() -> DungeonLoader.loadLevel(levelName), 0);
-
-      waitDelta(); // waiting for all systems to update once
+      for (int i = 0; i < 5; i++) {
+        waitDelta(); // waiting for all systems to update once
+      }
     }
 
     response.append(DungeonLoader.currentLevel()).append(" ");
@@ -221,7 +222,7 @@ public class Server {
           try {
             sleepAfterEachLine = Math.max(Integer.parseInt(param.split("=")[1]), 0);
           } catch (NumberFormatException e) {
-            LOGGER.warning("Invalid sleep parameter: " + param);
+            LOGGER.warn("Invalid sleep parameter: " + param);
           }
         }
       }
@@ -285,7 +286,7 @@ public class Server {
       os.write(response.getBytes());
       os.close();
     } catch (Exception e) {
-      LOGGER.severe("Error executing code: " + e);
+      LOGGER.error("Error executing code: " + e);
       setError(e.getMessage());
       String response = errorMsg;
       exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");

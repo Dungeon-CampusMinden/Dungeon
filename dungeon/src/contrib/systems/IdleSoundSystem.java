@@ -1,7 +1,5 @@
 package contrib.systems;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import contrib.components.IdleSoundComponent;
 import core.Entity;
 import core.Game;
@@ -29,27 +27,27 @@ public final class IdleSoundSystem extends System {
     super(IdleSoundComponent.class);
   }
 
-  private static boolean isEntityNearby(Point heroPos, Entity entity) {
+  private static boolean isEntityNearby(Point playerPos, Entity entity) {
     Point entityPosition =
         entity.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
 
-    if (heroPos == null || entityPosition == null) {
+    if (playerPos == null || entityPosition == null) {
       return false;
     }
 
-    double distance = heroPos.distance(entityPosition);
+    double distance = playerPos.distance(entityPosition);
 
     return distance < DISTANCE_THRESHOLD;
   }
 
   @Override
   public void execute() {
-    Point heroPos =
-        Game.hero()
+    Point playerPos =
+        Game.player()
             .flatMap(e -> e.fetch(PositionComponent.class).map(PositionComponent::position))
             .orElse(null);
     filteredEntityStream(IdleSoundComponent.class)
-        .filter(e -> isEntityNearby(heroPos, e))
+        .filter(e -> isEntityNearby(playerPos, e))
         .forEach(
             e ->
                 playSound(
@@ -61,11 +59,7 @@ public final class IdleSoundSystem extends System {
   private void playSound(final IdleSoundComponent component) {
     float chanceToPlaySound = 0.001f;
     if (RANDOM.nextFloat(0f, 1f) < chanceToPlaySound) {
-      Sound soundEffect =
-          Gdx.audio.newSound(Gdx.files.internal(component.soundEffect().pathString()));
-      long soundID = soundEffect.play();
-      soundEffect.setLooping(soundID, false);
-      soundEffect.setVolume(soundID, 0.35f);
+      Game.soundPlayer().play(component.soundEffectId(), 0.35f);
     }
   }
 }

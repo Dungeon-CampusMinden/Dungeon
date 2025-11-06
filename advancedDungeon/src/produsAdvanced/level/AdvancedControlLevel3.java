@@ -12,13 +12,13 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import level.AdvancedLevel;
@@ -50,15 +50,15 @@ public class AdvancedControlLevel3 extends AdvancedLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
   public AdvancedControlLevel3(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Control");
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Control");
   }
 
   @Override
@@ -75,31 +75,32 @@ public class AdvancedControlLevel3 extends AdvancedLevel {
 
     exit = (ExitTile) Game.endTile().orElseThrow();
     exit.close();
-    Entity lever1 = LeverFactory.createLever(customPoints().get(0).toPoint());
-    Entity lever2 = LeverFactory.createLever(customPoints().get(1).toPoint());
-    Entity lever3 = LeverFactory.createLever(customPoints().get(2).toPoint());
+    Entity lever1 = LeverFactory.createLever(getPoint(0));
+    Entity lever2 = LeverFactory.createLever(getPoint(1));
+    Entity lever3 = LeverFactory.createLever(getPoint(2));
     l1 = lever1.fetch(LeverComponent.class).get();
     l2 = lever2.fetch(LeverComponent.class).get();
     l3 = lever3.fetch(LeverComponent.class).get();
     Game.add(lever1);
     Game.add(lever2);
     Game.add(lever3);
-    door1 = (DoorTile) Game.tileAt(customPoints().get(3)).orElse(null);
-    door2 = (DoorTile) Game.tileAt(customPoints().get(4)).orElse(null);
+    door1 = (DoorTile) Game.tileAt(getPoint(3)).orElse(null);
+    door2 = (DoorTile) Game.tileAt(getPoint(4)).orElse(null);
     door1.close();
     door2.close();
-    customPoints().remove(0);
-    customPoints().remove(0);
-    customPoints().remove(0);
-    customPoints().remove(0);
-    customPoints().remove(0);
 
-    customPoints()
+    removeNamedPoint("Point0");
+    removeNamedPoint("Point1");
+    removeNamedPoint("Point2");
+    removeNamedPoint("Point3");
+    removeNamedPoint("Point4");
+
+    namedPoints()
         .forEach(
-            coordinate -> {
+            (name, point) -> {
               try {
                 Entity m = EntityFactory.randomMonster();
-                m.fetch(PositionComponent.class).get().position(coordinate.toPoint());
+                m.fetch(PositionComponent.class).get().position(point);
                 Game.add(m);
 
               } catch (IOException e) {

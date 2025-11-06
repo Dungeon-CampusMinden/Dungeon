@@ -30,9 +30,8 @@ import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Map;
 
 /**
  * This class starts a comparator for the pathfinding algorithms.
@@ -53,8 +52,6 @@ public class ComparePathfindingStarter {
    * @throws IOException If an error occurs while loading.
    */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.WARNING);
-
     // start the game
     configGame();
     // Set up components and level
@@ -124,7 +121,7 @@ public class ComparePathfindingStarter {
         new AiMazeLevel(
             newLevel,
             Game.currentLevel().flatMap(ILevel::designLabel).orElse(DesignLabel.DEFAULT),
-            Game.currentLevel().map(ILevel::customPoints).orElse(Collections.emptyList())));
+            Game.currentLevel().map(ILevel::namedPoints).orElse(Map.of())));
 
     // Position the runners
     Debugger.TELEPORT(orgStart.toPoint());
@@ -225,13 +222,14 @@ public class ComparePathfindingStarter {
   }
 
   /**
-   * Creates and adds a new hero entity to the game.
+   * Creates and adds a new player entity to the game.
    *
-   * <p>Any existing entities with a {@link PlayerComponent} will first be removed. The new hero is
-   * generated using the {@link HeroFactory} and the {@link CameraComponent} of the hero is removed.
+   * <p>Any existing entities with a {@link PlayerComponent} will first be removed. The new player
+   * is generated using the {@link HeroFactory} and the {@link CameraComponent} of the player is
+   * removed.
    *
-   * @return The newly created hero entity
-   * @throws RuntimeException if an {@link IOException} occurs during hero creation
+   * @return The newly created player entity
+   * @throws RuntimeException if an {@link IOException} occurs during player creation
    */
   public static Entity createHero() {
     Entity hero;
@@ -247,7 +245,7 @@ public class ComparePathfindingStarter {
 
   /**
    * Creates and adds a new runnerMob entity to the game. This monster looks and moves like the
-   * hero.
+   * player.
    *
    * @param startPoint Spawn Point of the runner,
    * @return The newly created runnerMob
@@ -256,7 +254,7 @@ public class ComparePathfindingStarter {
     return new MonsterBuilder<>()
         .name("KI Runner")
         .texture(new SimpleIPath("character/wizard"))
-        .speed(HeroFactory.DEFAULT_HERO_CLASS.speed().x()) // same speed as hero
+        .speed(HeroFactory.DEFAULT_HERO_CLASS.speed().x()) // same speed as player
         .addToGame()
         .build(startPoint);
   }

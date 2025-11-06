@@ -15,7 +15,7 @@ import java.util.List;
  * which uses the {@link contrib.utils.components.ai.AIUtils} class to calculate the path.
  *
  * <p>If {@link contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT} is set to true, this handles the
- * mouse movement of the hero, by using pathfinding to calculate the path to the mouse click.
+ * mouse movement of the player, by using pathfinding to calculate the path to the mouse click.
  *
  * @see AIComponent
  * @see contrib.systems.AISystem

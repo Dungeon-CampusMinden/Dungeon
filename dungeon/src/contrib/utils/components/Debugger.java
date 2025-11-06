@@ -8,6 +8,7 @@ import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.dialogs.TextDialog;
 import contrib.systems.DebugDrawSystem;
+import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
@@ -29,8 +30,7 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
-import core.utils.logging.CustomLogLevel;
-import java.util.logging.Logger;
+import core.utils.logging.DungeonLogger;
 
 /**
  * Auxiliary class to accelerate the creation and testing of specific game scenarios.
@@ -45,7 +45,7 @@ import java.util.logging.Logger;
  */
 public class Debugger extends System {
 
-  private static final Logger LOGGER = Logger.getLogger(Debugger.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Debugger.class);
   private static Entity pauseMenu;
 
   /**
@@ -54,18 +54,18 @@ public class Debugger extends System {
    * @param amount the length of the zoom change
    */
   public static void ZOOM_CAMERA(float amount) {
-    LOGGER.log(CustomLogLevel.DEBUG, "Change Camera Zoom " + amount);
+    LOGGER.debug("Change Camera Zoom {}", amount);
     CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom + amount);
-    LOGGER.log(CustomLogLevel.DEBUG, "Camera Zoom is now " + CameraSystem.camera().zoom);
+    LOGGER.debug("New Camera Zoom {}", CameraSystem.camera().zoom);
   }
 
-  /** Teleports the Hero to the current position of the cursor. */
+  /** Teleports the Player to the current position of the cursor. */
   public static void TELEPORT_TO_CURSOR() {
-    LOGGER.log(CustomLogLevel.DEBUG, "TELEPORT TO CURSOR");
+    LOGGER.info("TELEPORT TO CURSOR");
     TELEPORT(SkillTools.cursorPositionAsPoint());
   }
 
-  /** Teleports the Hero to the end of the level, on a neighboring accessible tile if possible. */
+  /** Teleports the Player to the end of the level, on a neighboring accessible tile if possible. */
   public static void TELEPORT_TO_END() {
     LOGGER.info("TELEPORT TO END");
 
@@ -86,20 +86,20 @@ public class Debugger extends System {
             });
   }
 
-  /** Will teleport the Hero on the EndTile so the next level gets loaded. */
+  /** Will teleport the Player on the EndTile so the next level gets loaded. */
   public static void LOAD_NEXT_LEVEL() {
     LOGGER.info("TELEPORT ON END");
     Game.endTiles().stream().findFirst().ifPresent(Debugger::TELEPORT);
   }
 
-  /** Teleports the hero to the start of the level. */
+  /** Teleports the player to the start of the level. */
   public static void TELEPORT_TO_START() {
     LOGGER.info("TELEPORT TO START");
     Game.startTile().ifPresent(Debugger::TELEPORT);
   }
 
   /**
-   * Teleports the hero to the given tile.
+   * Teleports the player to the given tile.
    *
    * @param targetLocation the tile to teleport to
    */
@@ -108,21 +108,22 @@ public class Debugger extends System {
   }
 
   /**
-   * Teleports the hero to the given location.
+   * Teleports the player to the given location.
    *
    * @param targetLocation the location to teleport to
    */
   public static void TELEPORT(Point targetLocation) {
-    Game.hero()
+    Game.player()
         .ifPresent(
-            hero -> {
+            player -> {
               PositionComponent pc =
-                  hero.fetch(PositionComponent.class)
+                  player
+                      .fetch(PositionComponent.class)
                       .orElseThrow(
-                          () -> MissingComponentException.build(hero, PositionComponent.class));
+                          () -> MissingComponentException.build(player, PositionComponent.class));
 
               // Attempt to teleport to targetLocation
-              LOGGER.log(CustomLogLevel.DEBUG, "Trying to teleport to " + targetLocation);
+              LOGGER.info("Attempting to teleport to {}", targetLocation);
               Tile t = Game.tileAt(targetLocation).orElse(null);
               if (t == null || !t.isAccessible()) {
                 LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
@@ -212,8 +213,8 @@ public class Debugger extends System {
       Debugger.TELEPORT_TO_START();
     if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.value()))
       Debugger.LOAD_NEXT_LEVEL();
-    if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value()))
-      Debugger.SPAWN_MONSTER_ON_CURSOR();
+    if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value())
+        && !LevelEditorSystem.active()) Debugger.SPAWN_MONSTER_ON_CURSOR();
     if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value())) Debugger.OPEN_DOORS();
     if (Gdx.input.isKeyJustPressed(core.configuration.KeyboardConfig.PAUSE.value()))
       Debugger.PAUSE_GAME();

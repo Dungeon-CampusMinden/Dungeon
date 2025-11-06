@@ -28,7 +28,6 @@ import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemResourceMushroomRed;
 import java.io.IOException;
-import java.util.logging.Level;
 import level.devlevel.*;
 import systems.*;
 
@@ -49,7 +48,6 @@ public class DevDungeon {
    * @throws IOException If an I/O error occurs.
    */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.WARNING);
     configGame();
     onSetup();
 
@@ -169,7 +167,7 @@ public class DevDungeon {
           @Override
           public void execute() {
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1)) {
-              Game.hero()
+              Game.player()
                   .orElseThrow()
                   .fetch(InventoryComponent.class)
                   .orElseThrow()
@@ -177,7 +175,7 @@ public class DevDungeon {
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)) {
               DamageProjectileSkill skill =
                   (DamageProjectileSkill)
-                      Game.hero()
+                      Game.player()
                           .orElseThrow()
                           .fetch(SkillComponent.class)
                           .orElseThrow()
@@ -203,7 +201,7 @@ public class DevDungeon {
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5)) {
               Debugger.TELEPORT_TO_CURSOR();
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_6)) {
-              Game.hero()
+              Game.player()
                   .orElseThrow()
                   .fetch(SkillComponent.class)
                   .orElseThrow()

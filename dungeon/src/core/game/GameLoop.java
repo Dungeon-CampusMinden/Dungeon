@@ -4,6 +4,7 @@ import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import contrib.entities.deco.DecoFactory;
 import contrib.systems.DebugDrawSystem;
 import contrib.utils.CheckPatternPainter;
 import core.Entity;
@@ -18,14 +20,15 @@ import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.sound.player.GdxSoundPlayer;
+import core.sound.player.ISoundPlayer;
+import core.sound.player.NoSoundPlayer;
 import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.logging.Logger;
+import core.utils.logging.DungeonLogger;
+import java.util.*;
 
 /**
  * The Dungeon-GameLoop.
@@ -39,7 +42,8 @@ import java.util.logging.Logger;
  * <p>All API methods can also be accessed via the {@link core.Game} class.
  */
 public final class GameLoop extends ScreenAdapter {
-  private static final Logger LOGGER = Logger.getLogger(GameLoop.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(GameLoop.class);
+  private static ISoundPlayer soundPlayer = new NoSoundPlayer();
   private static Stage stage;
   private boolean doSetup = true;
   private boolean newLevelWasLoadedInThisLoop = false;
@@ -53,15 +57,15 @@ public final class GameLoop extends ScreenAdapter {
    * using {@link ECSManagment#add(System)}, triggering {@link System#onEntityAdd} for the new
    * level.
    *
-   * <p>Will re-add the hero if they exist.
+   * <p>Will re-add the player if they exist.
    */
   private final IVoidFunction onLevelLoad =
       () -> {
         newLevelWasLoadedInThisLoop = true;
-        Optional<Entity> hero = ECSManagment.hero();
+        Optional<Entity> player = ECSManagment.player();
         boolean firstLoad =
             !ECSManagment.levelStorageMap().containsKey(Game.currentLevel().orElseThrow());
-        hero.ifPresent(ECSManagment::remove);
+        player.ifPresent(ECSManagment::remove);
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
         // cleanup).
         Map<Class<? extends System>, System> s = ECSManagment.systems();
@@ -74,14 +78,23 @@ public final class GameLoop extends ScreenAdapter {
         s.values().forEach(ECSManagment::add);
 
         try {
-          hero.ifPresent(this::placeOnLevelStart);
+          player.ifPresent(this::placeOnLevelStart);
         } catch (MissingComponentException e) {
-          LOGGER.warning(e.getMessage());
+          LOGGER.warn(e.getMessage());
         }
         ECSManagment.allEntities()
             .filter(Entity::isPersistent)
             .map(ECSManagment::remove)
             .forEach(ECSManagment::add);
+
+        Game.currentLevel()
+            .ifPresent(
+                level -> {
+                  level
+                      .decorations()
+                      .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a())));
+                });
+
         if (firstLoad && Game.isCheckPatternEnabled())
           CheckPatternPainter.paintCheckerPattern(Game.currentLevel().orElse(null).layout());
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
@@ -161,7 +174,7 @@ public final class GameLoop extends ScreenAdapter {
   public void render(float delta) {
     if (doSetup) setup();
     DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
-    frame();
+    frame(delta);
     clearScreen();
 
     for (System system : ECSManagment.systems().values()) {
@@ -184,12 +197,16 @@ public final class GameLoop extends ScreenAdapter {
    *
    * <p>Will execute {@link LevelSystem#execute()} once to load the first level before the actual
    * game loop starts. This ensures the first level is set at the start of the game loop, even if
-   * the {@link LevelSystem} is not executed as the first system in the game loop..
+   * the {@link LevelSystem} is not executed as the first system in the game loop.
    *
    * <p>Will perform some setup.
    */
   private void setup() {
     doSetup = false;
+    if (Gdx.audio != null && !PreRunConfiguration.disableAudio()) {
+      AssetManager assetManager = new AssetManager();
+      soundPlayer = new GdxSoundPlayer(assetManager);
+    }
     createSystems();
     setupStage();
     PreRunConfiguration.userOnSetup().execute();
@@ -201,9 +218,12 @@ public final class GameLoop extends ScreenAdapter {
    * executed.
    *
    * <p>This is the place to add basic logic that isn't part of any system.
+   *
+   * @param delta The time since the last loop.
    */
-  private void frame() {
+  private void frame(float delta) {
     fullscreenKey();
+    Game.soundPlayer().update(delta);
     PreRunConfiguration.userOnFrame().execute();
   }
 
@@ -223,7 +243,7 @@ public final class GameLoop extends ScreenAdapter {
    *
    * <p>A {@link PositionComponent} is needed.
    *
-   * @param entity entity to set on the start of the level, normally this is the hero.
+   * @param entity entity to set on the start of the level, normally this is the player.
    */
   private void placeOnLevelStart(final Entity entity) {
     ECSManagment.add(entity);
@@ -233,8 +253,7 @@ public final class GameLoop extends ScreenAdapter {
             pc -> {
               Game.startTile()
                   .ifPresentOrElse(
-                      pc::position,
-                      () -> LOGGER.warning("No start tile found for the current level"));
+                      pc::position, () -> LOGGER.warn("No start tile found for the current level"));
               pc.viewDirection(Direction.DOWN); // look down by default
             });
 
@@ -263,6 +282,15 @@ public final class GameLoop extends ScreenAdapter {
             });
   }
 
+  /**
+   * Get the sound player used by the game.
+   *
+   * @return The sound player.
+   */
+  public static ISoundPlayer soundPlayer() {
+    return soundPlayer;
+  }
+
   /** Create the systems. */
   private void createSystems() {
     ECSManagment.add(new PositionSystem());
@@ -274,5 +302,6 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagment.add(new MoveSystem());
     ECSManagment.add(new InputSystem());
     ECSManagment.add(new DebugDrawSystem());
+    ECSManagment.add(new SoundSystem());
   }
 }

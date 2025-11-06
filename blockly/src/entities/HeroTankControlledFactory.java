@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 import level.BlocklyLevel;
 
 /**
- * This class is used to create a hero entity with tank controls. The hero can only move in the
+ * This class is used to create a player entity with tank controls. The player can only move in the
  * direction it is facing. The tank controls are implemented by removing the original movement
  * controls and adding new controls for moving forward and turning left or right.
  */
@@ -33,11 +33,12 @@ public class HeroTankControlledFactory {
   }
 
   /**
-   * Creates a new hero with tank controls. The hero can only move in the direction it is facing.
+   * Creates a new player with tank controls. The player can only move in the direction it is
+   * facing.
    *
    * @param tankControlls True if the Tanke Controlls should be maped to the default movement keys
-   * @return the hero entity
-   * @throws IOException if there is an error creating the hero
+   * @return the player entity
+   * @throws IOException if there is an error creating the player
    */
   public static Entity blocklyHero(boolean tankControlls) throws IOException {
     Entity hero = EntityFactory.newHero();

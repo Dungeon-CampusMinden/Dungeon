@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.DungeonLogger;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -28,6 +30,8 @@ import java.util.*;
  * frame-by-frame with {@link #update()}.
  */
 public class Animation implements Cloneable {
+
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Animation.class);
 
   /** Path to the missing texture fallback image. */
   public static final IPath MISSING_TEXTURE_PATH = new SimpleIPath("animation/missing_texture.png");

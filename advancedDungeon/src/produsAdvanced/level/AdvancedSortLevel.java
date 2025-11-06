@@ -13,7 +13,6 @@ import contrib.utils.ICommand;
 import core.Entity;
 import core.Game;
 import core.level.elements.tile.DoorTile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
@@ -111,15 +110,15 @@ public class AdvancedSortLevel extends AdvancedLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * start tile of the player to the given heroPos.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
   public AdvancedSortLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "SortArray");
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "SortArray");
   }
 
   @Override
@@ -144,14 +143,13 @@ public class AdvancedSortLevel extends AdvancedLevel {
           }
         };
 
-    Entity lever =
-        LeverFactory.createLever(new Point(customPoints().get(0).toPoint()), leverAction);
-    customPoints().remove(0);
+    Entity lever = LeverFactory.createLever(new Point(getPoint(0)), leverAction);
+    removeNamedPoint("Point0");
 
-    customPoints()
+    namedPoints()
         .forEach(
-            coordinate -> {
-              Entity mob = DungeonMonster.randomMonster().builder().build(coordinate.toPoint());
+            (name, point) -> {
+              Entity mob = DungeonMonster.randomMonster().builder().build(point);
               mob.remove(AIComponent.class);
               mobs.add(new Monster(mob));
               mob.fetch(HealthComponent.class).orElseThrow().maximalHealthpoints(10);

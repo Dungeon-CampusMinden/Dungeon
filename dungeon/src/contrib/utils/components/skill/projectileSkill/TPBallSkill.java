@@ -1,12 +1,11 @@
 package contrib.utils.components.skill.projectileSkill;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import core.Entity;
+import core.components.SoundComponent;
 import core.utils.*;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -21,7 +20,7 @@ import java.util.function.Supplier;
  */
 public class TPBallSkill extends DamageProjectileSkill {
   private static final IPath TEXTURE = new SimpleIPath("skills/fireball");
-  private static final IPath PROJECTILE_SOUND = new SimpleIPath("sounds/fireball.wav");
+  private static final String PROJECTILE_SOUND = "fireball";
   private static final float PROJECTILE_SPEED = 6.0f;
   private static final int DAMAGE_AMOUNT = 1;
   private static final DamageType DAMAGE_TYPE = DamageType.MAGIC;
@@ -153,17 +152,23 @@ public class TPBallSkill extends DamageProjectileSkill {
    *
    * @param caster The entity casting the projectile.
    * @param projectile The projectile entity spawned.
+   * @see core.systems.SoundSystem
    */
   @Override
   protected void onSpawn(Entity caster, Entity projectile) {
-    Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(PROJECTILE_SOUND.pathString()));
-
+    float volume = 0.15f;
+    float maxDistance = 20f;
+    float attenuationFactor = 0.1f;
     float minPitch = 2f;
     float maxPitch = 3f;
-    float randomPitch = MathUtils.random(minPitch, maxPitch);
-
-    long soundId = soundEffect.play();
-    soundEffect.setPitch(soundId, randomPitch);
-    soundEffect.setVolume(soundId, 0.05f);
+    projectile.add(
+        new SoundComponent(
+            PROJECTILE_SOUND,
+            volume,
+            false,
+            MathUtils.random(minPitch, maxPitch),
+            maxDistance,
+            attenuationFactor,
+            () -> {}));
   }
 }

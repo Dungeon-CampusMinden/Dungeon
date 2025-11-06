@@ -31,7 +31,7 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
 
   /**
    * Maximum radius to drop an item from the entity position. If the item cannot be dropped within
-   * this radius, it will be dropped at the hero's position.
+   * this radius, it will be dropped at the player's position.
    *
    * @see #tryDropItem(Item, PositionComponent)
    */
@@ -40,7 +40,7 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
   /**
    * Will drop all the items inside the {@link InventoryComponent} of the associated entity on the
    * floor. If an item cannot be dropped within a certain radius of the entity, it will be dropped
-   * at the hero's position. If the hero is not present, the item will be dropped at (0, 0).
+   * at the player's position. If the player is not present, the item will be dropped at (0, 0).
    *
    * <p>Note: The entity that will use this function needs an {@link InventoryComponent} and a
    * {@link PositionComponent}. A {@link DrawComponent} is optional.
@@ -63,7 +63,7 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
 
     for (Item item : inventoryComponent.items()) {
       if (item != null && !this.tryDropItem(item, positionComponent)) {
-        this.dropItemAtHeroPosition(item);
+        this.dropItemAtPlayerPosition(item);
       }
     }
   }
@@ -91,17 +91,17 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
   }
 
   /**
-   * Drop the item at the hero position. If the hero is not present, the item will be dropped at (0,
-   * 0).
+   * Drop the item at the player position. If the player is not present, the item will be dropped at
+   * (0, 0).
    *
    * @param item The item to drop
    */
-  private void dropItemAtHeroPosition(Item item) {
-    Point heroPosition =
-        Game.hero()
-            .flatMap(hero -> hero.fetch(PositionComponent.class))
+  private void dropItemAtPlayerPosition(Item item) {
+    Point playerPosition =
+        Game.player()
+            .flatMap(player -> player.fetch(PositionComponent.class))
             .map(PositionComponent::position)
             .orElseGet(() -> new Point(0, 0));
-    item.drop(heroPosition);
+    item.drop(playerPosition);
   }
 }

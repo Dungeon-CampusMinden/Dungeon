@@ -5,7 +5,6 @@ import contrib.components.AIComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.AIFactory;
 import contrib.entities.MiscFactory;
-import contrib.entities.MonsterBuilder;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.systems.HealthSystem;
@@ -22,12 +21,13 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.BossAttackSkills;
 import entities.DevDungeonMonster;
 import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemReward;
-import java.util.List;
+import java.util.Map;
 import level.DevDungeonLevel;
 import systems.DevHealthSystem;
 
@@ -41,11 +41,11 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
       new DevDungeonMonster[] {DevDungeonMonster.IMP};
 
   // Spawn Points / Locations
-  private final Coordinate levelBossSpawn;
-  private final Coordinate[] pillars;
-  private final Coordinate entrance;
-  private final Coordinate chestSpawn;
-  private final Coordinate cauldronSpawn;
+  private final Point levelBossSpawn;
+  private final Point[] pillars;
+  private final Point entrance;
+  private final Point chestSpawn;
+  private final Point cauldronSpawn;
   private Entity boss;
   private long lastAttackChange = 0;
   private boolean isBossNormalAttacking = false;
@@ -56,36 +56,38 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
    *
    * @param layout The layout of the level.
    * @param designLabel The design label of the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
   public BossLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(
         layout,
         designLabel,
-        customPoints,
+        namedPoints,
         "The Final Boss",
         "Woah! What is this place? This place is scorching, and I'm getting uneasy. We should prepare ourselves just in case.");
 
-    this.levelBossSpawn = customPoints().getFirst();
-    this.pillars = getCoordinates(1, 4); // Top left corner (each 2x2)
-    this.entrance = customPoints().get(5); // Entrance into the arena
-    this.chestSpawn = customPoints().get(6);
-    this.cauldronSpawn = customPoints().get(7);
+    this.levelBossSpawn = getPoint(0);
+    this.pillars = getPoints(1, 4); // Top left corner (each 2x2)
+    this.entrance = getPoint(5);
+    this.chestSpawn = getPoint(6);
+    this.cauldronSpawn = getPoint(7);
   }
 
   @Override
   protected void onFirstTick() {
-    this.boss = utils.EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn, this::handleBossDeath);
+    this.boss =
+        utils.EntityUtils.spawnBoss(
+            BOSS_TYPE, levelBossSpawn.toCoordinate(), this::handleBossDeath);
     ((DevHealthSystem) Game.systems().get(DevHealthSystem.class)).registerObserver(this);
     spawnChestsAndCauldrons();
   }
 
   @Override
   protected void onTick() {
-    Coordinate heroCoord = EntityUtils.getHeroCoordinate();
-    if (heroCoord == null) return;
-    if (heroCoord.y() > entrance.y()) {
+    Coordinate playerCoords = EntityUtils.getPlayerCoordinate();
+    if (playerCoords == null) return;
+    if (playerCoords.y() > entrance.y()) {
       tileAt(entrance).ifPresent(t -> changeTileElementType(t, LevelElement.WALL));
     } else {
       tileAt(entrance).ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
@@ -109,7 +111,7 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
         chest
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
-    pc.position(chestSpawn.toPoint());
+    pc.position(chestSpawn);
     InventoryComponent ic =
         chest
             .fetch(InventoryComponent.class)
@@ -130,7 +132,7 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
         cauldon
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(cauldon, PositionComponent.class));
-    pc.position(cauldronSpawn.toPoint());
+    pc.position(cauldronSpawn);
     Game.add(cauldon);
   }
 
@@ -178,7 +180,6 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
    *
    * @param boss The boss entity.
    * @see #onFirstTick()
-   * @see utils.EntityUtils#spawnBoss(MonsterBuilder, Coordinate)
    */
   private void handleBossDeath(Entity boss) {
     InventoryComponent invComp = new InventoryComponent();
@@ -203,21 +204,21 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
     boss.add(new MagicShieldComponent(Integer.MAX_VALUE, 0));
 
     Coordinate[] tilesAroundBoss =
-        LevelUtils.accessibleTilesInRange(levelBossSpawn.toPoint(), 6).stream()
+        LevelUtils.accessibleTilesInRange(levelBossSpawn, 6).stream()
             .map(Tile::coordinate)
-            .filter(c -> c.distance(levelBossSpawn) > 3)
+            .filter(c -> c.distance(levelBossSpawn.toCoordinate()) > 3)
             .toArray(Coordinate[]::new);
     utils.EntityUtils.spawnMobs(
         ILevel.RANDOM.nextInt(MIN_MOB_COUNT, MAX_MOB_COUNT), MOB_TYPES, tilesAroundBoss);
 
     // Destroy pillars
-    for (Coordinate pillarTopLeftCoord : pillars) {
+    for (Point pillarTopLeftCoord : pillars) {
       tileAt(pillarTopLeftCoord).ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
-      tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y()))
+      tileAt(new Point(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y()))
           .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
-      tileAt(new Coordinate(pillarTopLeftCoord.x(), pillarTopLeftCoord.y() - 1))
+      tileAt(new Point(pillarTopLeftCoord.x(), pillarTopLeftCoord.y() - 1))
           .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
-      tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y() - 1))
+      tileAt(new Point(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y() - 1))
           .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
     }
   }

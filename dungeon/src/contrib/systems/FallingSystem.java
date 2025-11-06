@@ -18,6 +18,7 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.DungeonLogger;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -34,6 +35,7 @@ import java.util.Optional;
  * @see Damage
  */
 public class FallingSystem extends System {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(FallingSystem.class);
 
   /** Flag to prevent the player from dying when falling into a pit tile. */
   public static boolean DEBUG_DONT_KILL = false;
@@ -63,7 +65,7 @@ public class FallingSystem extends System {
   }
 
   private void handleFalling(Entity entity) {
-    LOGGER.info("Entity " + entity + " has fallen to its death");
+    LOGGER.info("Entity {} has fallen to its death", entity);
     entity
         .fetch(HealthComponent.class)
         .ifPresent(
@@ -77,16 +79,16 @@ public class FallingSystem extends System {
   }
 
   private void teleportPlayerIfPossible() {
-    Point heroCoords = EntityUtils.getHeroPosition();
-    if (heroCoords != null) {
-      getSafeTile(heroCoords)
-          .ifPresentOrElse(Debugger::TELEPORT, () -> LOGGER.warning("No safe place to port."));
+    Point playerCoords = EntityUtils.getPlayerPosition();
+    if (playerCoords != null) {
+      getSafeTile(playerCoords)
+          .ifPresentOrElse(Debugger::TELEPORT, () -> LOGGER.warn("No safe place to teleport."));
     }
   }
 
-  private Optional<Tile> getSafeTile(Point heroCoords) throws NoSuchElementException {
+  private Optional<Tile> getSafeTile(Point playerCoords) throws NoSuchElementException {
     try {
-      return Optional.of(Game.accessibleTilesInRange(heroCoords, 5).getFirst());
+      return Optional.of(Game.accessibleTilesInRange(playerCoords, 5).getFirst());
     } catch (NoSuchElementException e) {
       return Game.randomTile(LevelElement.FLOOR);
     }

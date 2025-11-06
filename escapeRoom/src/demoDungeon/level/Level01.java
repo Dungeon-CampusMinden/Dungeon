@@ -20,17 +20,13 @@ import core.components.VelocityComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.elements.tile.ExitTile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import hint.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import petriNet.PetriNetSystem;
 import petriNet.PlaceComponent;
 import petriNet.TransitionComponent;
@@ -77,15 +73,15 @@ public class Level01 extends DungeonLevel {
    *
    * @param layout The layout of the level.
    * @param designLabel The design label of the level.
-   * @param customPoints The custom points of the level.
+   * @param namedPoints The custom points of the level.
    */
-  public Level01(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Demo");
+  public Level01(LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+    super(layout, designLabel, namedPoints, "Demo");
   }
 
   @Override
   protected void onFirstTick() {
-    Game.hero().flatMap(h -> h.fetch(HintLogComponent.class)).ifPresent(HintLogComponent::clear);
+    Game.player().flatMap(h -> h.fetch(HintLogComponent.class)).ifPresent(HintLogComponent::clear);
     DialogUtils.showTextPopup("HALLO? IST DA WER? ICH BRAUCHE HILFE?", "HILFE!");
     setupHints();
     npc();
@@ -104,16 +100,18 @@ public class Level01 extends DungeonLevel {
     PetriNetSystem petriNetSystem = new PetriNetSystem();
     Game.add(petriNetSystem);
     // register hint log
-    Game.hero()
+    Game.player()
         .ifPresent(
-            hero ->
-                hero.fetch(InputComponent.class)
+            player ->
+                player
+                    .fetch(InputComponent.class)
                     .ifPresent(
                         inputComponent ->
                             inputComponent.registerCallback(
                                 Input.Keys.T,
                                 entity ->
-                                    hero.fetch(HintLogComponent.class)
+                                    player
+                                        .fetch(HintLogComponent.class)
                                         .ifPresent(HintLogDialog::showHintLog),
                                 false,
                                 true)));
@@ -150,13 +148,13 @@ public class Level01 extends DungeonLevel {
   }
 
   private void npc() {
-    Entity plate = LeverFactory.pressurePlate(customPoints.get(6).toPoint());
+    Entity plate = LeverFactory.pressurePlate(getPoint(6));
     preasurePlate = plate.fetch(LeverComponent.class).get();
     Game.add(plate);
     Entity npc = new Entity();
     npc.add(new VelocityComponent(5));
     npc.add(new CollideComponent());
-    npc.add(new PositionComponent(customPoints.get(0).toPoint()));
+    npc.add(new PositionComponent(getPoint(0)));
     npc.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
     npc.add(
         new InteractionComponent(
@@ -221,7 +219,7 @@ public class Level01 extends DungeonLevel {
   }
 
   private void moveNpc(Entity npc) {
-    Point goal = customPoints.get(6).toPoint();
+    Point goal = getPoint(6);
     npc.add(
         new AIComponent(
             entity -> {},
@@ -242,11 +240,11 @@ public class Level01 extends DungeonLevel {
   }
 
   private void crafting() {
-    Game.add(MiscFactory.newCraftingCauldron(customPoints.get(1).toPoint()));
+    Game.add(MiscFactory.newCraftingCauldron(getPoint(1)));
   }
 
   private void books() {
-    List<Tile> points = LevelUtils.accessibleTilesInRange(customPoints.get(2).toPoint(), 5f);
+    List<Tile> points = LevelUtils.accessibleTilesInRange(getPoint(2), 5f);
     Point p1 = points.get(RANDOM.nextInt(points.size())).position();
     Point p2 = points.get(RANDOM.nextInt(points.size())).position();
     while (p1.equals(p2)) p2 = points.get(RANDOM.nextInt(points.size())).position();
@@ -259,13 +257,13 @@ public class Level01 extends DungeonLevel {
             "Gifte und Gegengifte",
             () -> {
               riddle2Place.produce();
-              removeFindRecipeRiddle(Game.hero().orElseThrow());
+              removeFindRecipeRiddle(Game.player().orElseThrow());
             }));
   }
 
   private void monster() {
     monster = new HashSet<>();
-    List<Tile> points = LevelUtils.accessibleTilesInRange(customPoints.get(7).toPoint(), 5f);
+    List<Tile> points = LevelUtils.accessibleTilesInRange(getPoint(7), 5f);
     for (int i = 0; i < 5; i++) {
       Entity m =
           DungeonMonster.randomMonster()
@@ -285,16 +283,13 @@ public class Level01 extends DungeonLevel {
   }
 
   private void chest() {
-    Game.add(
-        MiscFactory.catapult(customPoints.get(9).toPoint(), customPoints.get(10).toPoint(), 10f));
-    Game.add(
-        MiscFactory.catapult(customPoints.get(11).toPoint(), customPoints.get(12).toPoint(), 10f));
-    Game.add(
-        MiscFactory.catapult(customPoints.get(13).toPoint(), customPoints.get(14).toPoint(), 10f));
-    Game.add(MiscFactory.marker(customPoints.get(10).toPoint()));
-    Game.add(MiscFactory.marker(customPoints.get(12).toPoint()));
-    Game.add(MiscFactory.marker(customPoints.get(14).toPoint()));
-    Game.add(MiscFactory.newChest(Set.of(new ItemPotionWater()), customPoints.get(8).toPoint()));
+    Game.add(MiscFactory.catapult(getPoint(9), getPoint(10), 10f));
+    Game.add(MiscFactory.catapult(getPoint(11), getPoint(12), 10f));
+    Game.add(MiscFactory.catapult(getPoint(13), getPoint(14), 10f));
+    Game.add(MiscFactory.marker(getPoint(10)));
+    Game.add(MiscFactory.marker(getPoint(12)));
+    Game.add(MiscFactory.marker(getPoint(14)));
+    Game.add(MiscFactory.newChest(Set.of(new ItemPotionWater()), getPoint(8)));
   }
 
   @Override
@@ -303,7 +298,7 @@ public class Level01 extends DungeonLevel {
     if (spawnMushroom && monster.isEmpty()) {
       spawnMushroom = false;
       ItemResourceMushroomRed mushroom = new ItemResourceMushroomRed();
-      mushroom.drop(customPoints.get(7).toPoint());
+      mushroom.drop(getPoint(7));
     }
   }
 }

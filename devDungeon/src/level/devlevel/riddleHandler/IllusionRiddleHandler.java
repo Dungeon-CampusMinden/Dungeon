@@ -13,23 +13,22 @@ import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import java.util.List;
+import java.util.Map;
 
 /**
  * The IllusionRiddleHandler class is used to handle the riddle of the illusion. The riddle consists
- * a series of rooms that the hero has to navigate through. The hero can run a certain amount of
+ * a series of rooms that the player has to navigate through. The player can run a certain amount of
  * laps inside a special room to receive a reward.
  */
 public class IllusionRiddleHandler {
 
   private static final int LAP_REWARD = 3;
   private final DungeonLevel level;
-  private final Coordinate[][] initTeleporterSpawns;
-  private final Coordinate[][] lastTeleporterSpawns;
-  private final Coordinate[][] lapCheckpoints; // [location][3 tiles wide]
-  private final Coordinate
-      riddleRewardSpawn; // The spawn point of the reward for solving the riddle
-  private Coordinate lastHeroPos = new Coordinate(0, 0);
+  private final Point[][] initTeleporterSpawns;
+  private final Point[][] lastTeleporterSpawns;
+  private final Point[][] lapCheckpoints; // [location][3 tiles wide]
+  private final Point riddleRewardSpawn; // The spawn point of the reward for solving the riddle
+  private Point lastPlayerPos = new Point(0, 0);
   private boolean rewardGiven = false;
   private int lapCounter = 0;
   private int lapProgress = 0;
@@ -40,28 +39,28 @@ public class IllusionRiddleHandler {
   /**
    * Constructs a new IllusionRiddleHandler with the given custom points and level.
    *
-   * @param customPoints The custom points of the riddle room.
+   * @param namedPoints The custom points of the riddle room.
    * @param level The level of the riddle room.
    */
-  public IllusionRiddleHandler(List<Coordinate> customPoints, DungeonLevel level) {
+  public IllusionRiddleHandler(Map<String, Point> namedPoints, DungeonLevel level) {
     this.initTeleporterSpawns =
-        new Coordinate[][] {
-          {customPoints.get(136), customPoints.get(137), customPoints.get(138)},
-          {customPoints.get(139), customPoints.get(140), customPoints.get(141)}
+        new Point[][] {
+          {level.getPoint(136), level.getPoint(137), level.getPoint(138)},
+          {level.getPoint(139), level.getPoint(140), level.getPoint(141)}
         };
     this.lastTeleporterSpawns =
-        new Coordinate[][] {
-          {customPoints.get(142), customPoints.get(143), customPoints.get(144)},
-          {customPoints.get(145), customPoints.get(146), customPoints.get(147)}
+        new Point[][] {
+          {level.getPoint(142), level.getPoint(143), level.getPoint(144)},
+          {level.getPoint(145), level.getPoint(146), level.getPoint(147)}
         };
     this.lapCheckpoints =
-        new Coordinate[][] {
-          {customPoints.get(148), customPoints.get(149), customPoints.get(150)}, // Right
-          {customPoints.get(151), customPoints.get(152), customPoints.get(153)}, // Top
-          {customPoints.get(154), customPoints.get(155), customPoints.get(156)}, // Left
-          {customPoints.get(157), customPoints.get(158), customPoints.get(159)} // Bottom
+        new Point[][] {
+          {level.getPoint(148), level.getPoint(149), level.getPoint(150)}, // Right
+          {level.getPoint(151), level.getPoint(152), level.getPoint(153)}, // Top
+          {level.getPoint(154), level.getPoint(155), level.getPoint(156)}, // Left
+          {level.getPoint(157), level.getPoint(158), level.getPoint(159)} // Bottom
         };
-    this.riddleRewardSpawn = customPoints.get(160);
+    this.riddleRewardSpawn = level.getPoint(160);
 
     this.level = level;
   }
@@ -82,8 +81,8 @@ public class IllusionRiddleHandler {
       return;
     }
 
-    Coordinate heroPos = EntityUtils.getHeroCoordinate();
-    if (riddleRewardSpawn.equals(heroPos)) {
+    Coordinate playerPos = EntityUtils.getPlayerCoordinate();
+    if (riddleRewardSpawn.toCoordinate().equals(playerPos)) {
       giveReward();
     }
   }
@@ -98,7 +97,7 @@ public class IllusionRiddleHandler {
     CameraSystem.camera().zoom += 0.1f;
     BurningFireballSkill burningFireballSkill =
         (BurningFireballSkill)
-            (Game.hero()
+            (Game.player()
                 .orElseThrow()
                 .fetch(SkillComponent.class)
                 .orElseThrow()
@@ -110,60 +109,61 @@ public class IllusionRiddleHandler {
   }
 
   /**
-   * Offsets (Teleports relative to the current position) the hero by the given offset.
+   * Offsets (Teleports relative to the current position) the player by the given offset.
    *
-   * @param offset The offset to teleport the hero by.
+   * @param offset The offset to teleport the player by.
    */
-  private void offsetHero(Vector2 offset) {
-    Entity hero = Game.hero().orElse(null);
-    if (hero == null) {
+  private void offsetPlayer(Vector2 offset) {
+    Entity player = Game.player().orElse(null);
+    if (player == null) {
       return;
     }
-    PositionComponent heroPc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    PositionComponent playerPc =
+        player
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(player, PositionComponent.class));
 
-    Point newPoint = heroPc.position().translate(offset);
+    Point newPoint = playerPc.position().translate(offset);
 
-    EntityUtils.teleportHeroTo(newPoint);
+    EntityUtils.teleportPlayerTo(newPoint);
   }
 
   // Methods for Lap Room
 
   private void handleLapRoomLogic() {
-    Coordinate heroPos = EntityUtils.getHeroCoordinate();
-    // Check if the hero has moved
-    if (lastHeroPos == null || heroPos == null || lastHeroPos.equals(heroPos)) return;
-    this.lastHeroPos = heroPos;
+    Point playerPos = EntityUtils.getPlayerPosition();
+    // Check if the player has moved
+    if (lastPlayerPos == null || playerPos == null || lastPlayerPos.equals(playerPos)) return;
+    this.lastPlayerPos = playerPos;
 
-    handleLapProgressLogic(heroPos);
+    handleLapProgressLogic(playerPos);
 
     if (thirdRoom && lapProgress == 0) {
       this.thirdRoom = false;
     }
 
     if (lapCounter == -1 && lapProgress == 3) {
-      offsetHero(Vector2.of(-27, 0));
+      offsetPlayer(Vector2.of(-27, 0));
       this.lapCounter = 0;
       this.lapProgress = 0;
       this.lastCheckpoint = -2;
     } else if (!thirdRoom && lapCounter == LAP_REWARD && lapProgress == 1) {
-      offsetHero(Vector2.of(24, 0));
+      offsetPlayer(Vector2.of(24, 0));
       this.thirdRoom = true;
     } else {
-      handleHiddenTeleporter(heroPos);
+      handleHiddenTeleporter(playerPos);
     }
   }
 
   /**
-   * This method is called when the hero moves. It updates the lap progress and counter based on the
-   * hero's movement through checkpoints.
+   * This method is called when the player moves. It updates the lap progress and counter based on
+   * the player's movement through checkpoints.
    *
-   * @param heroPos The current position of the hero.
+   * @param playerPos The current position of the player.
    */
-  private void handleLapProgressLogic(Coordinate heroPos) {
-    int currentCheckpoint = getCurrentCheckpoint(heroPos);
-    // Check if the hero is not on a checkpoint or is on the same checkpoint as the last update
+  private void handleLapProgressLogic(Point playerPos) {
+    int currentCheckpoint = getCurrentCheckpoint(playerPos);
+    // Check if the player is not on a checkpoint or is on the same checkpoint as the last update
     if (currentCheckpoint == -1 || currentCheckpoint == lastCheckpoint) {
       return; // No update required
     }
@@ -174,7 +174,7 @@ public class IllusionRiddleHandler {
     // Update lastCheckpoint for the next call
     this.lastCheckpoint = currentCheckpoint;
 
-    // If this is the first checkpoint the hero reaches, just return
+    // If this is the first checkpoint the player reaches, just return
     if (lastCheckpoint == -2) {
       return;
     }
@@ -200,15 +200,15 @@ public class IllusionRiddleHandler {
   /**
    * Needed for Lap Room.
    *
-   * @param heroPos The current position of the hero.
-   * @return The index of the checkpoint the hero is currently on. Returns -1 if the hero is not on
-   *     a checkpoint.
+   * @param playerPos The current position of the player.
+   * @return The index of the checkpoint the player is currently on. Returns -1 if the player is not
+   *     on a checkpoint.
    */
-  private int getCurrentCheckpoint(Coordinate heroPos) {
+  private int getCurrentCheckpoint(Point playerPos) {
     for (int i = 0; i < lapCheckpoints.length; i++) {
-      Coordinate[] lapCheckpoint = lapCheckpoints[i];
-      for (Coordinate coordinate : lapCheckpoint) {
-        if (heroPos.equals(coordinate)) {
+      Point[] lapCheckpoint = lapCheckpoints[i];
+      for (Point point : lapCheckpoint) {
+        if (playerPos.toCoordinate().equals(point.toCoordinate())) {
           return i;
         }
       }
@@ -219,18 +219,18 @@ public class IllusionRiddleHandler {
   /**
    * Handles the hidden teleporter inside the lap room.
    *
-   * @param heroPos The current position of the hero.
+   * @param playerPos The current position of the player.
    */
-  private void handleHiddenTeleporter(Coordinate heroPos) {
-    for (Coordinate initTeleporterCoords : initTeleporterSpawns[0]) { // start teleporter -> in
-      if (heroPos.equals(initTeleporterCoords)) {
-        offsetHero(Vector2.of(27, 0));
+  private void handleHiddenTeleporter(Point playerPos) {
+    for (Point initTeleporterPoint : initTeleporterSpawns[0]) { // start teleporter -> in
+      if (playerPos.toCoordinate().equals(initTeleporterPoint.toCoordinate())) {
+        offsetPlayer(Vector2.of(27, 0));
         return;
       }
     }
-    for (Coordinate lastTeleporterCoords : lastTeleporterSpawns[1]) { // end teleporter -> out
-      if (heroPos.equals(lastTeleporterCoords)) {
-        offsetHero(Vector2.of(-24, 0));
+    for (Point lastTeleporterPoint : lastTeleporterSpawns[1]) { // end teleporter -> out
+      if (playerPos.toCoordinate().equals(lastTeleporterPoint.toCoordinate())) {
+        offsetPlayer(Vector2.of(-24, 0));
         this.lastCheckpoint = 0;
         this.lapProgress = 0;
         this.thirdRoom = false;

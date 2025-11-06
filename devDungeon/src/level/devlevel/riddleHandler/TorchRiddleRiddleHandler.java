@@ -19,14 +19,15 @@ import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import utils.ArrayUtils;
 
 /**
  * The TorchRiddleRiddleHandler class is used to handle the riddle of the torches. The riddle
- * consists of a series of torches that the hero has to light up. The hero can light up a certain
- * torches to receive a reward.
+ * consists of a series of torches that the player has to light up. The player can light up a
+ * certain torches to receive a reward.
  */
 public class TorchRiddleRiddleHandler {
 
@@ -40,9 +41,9 @@ public class TorchRiddleRiddleHandler {
   private final Entity riddleSign;
 
   private final DungeonLevel level;
-  private final Coordinate riddleDoor;
-  private final Coordinate[] riddleRoomBounds;
-  private final Coordinate riddleCenter;
+  private final Point riddleDoor;
+  private final Point[] riddleRoomBounds;
+  private final Point riddleCenter;
   private int riddleSearchedSum;
   private boolean rewardGiven = false;
   private boolean broken = false;
@@ -50,24 +51,24 @@ public class TorchRiddleRiddleHandler {
   /**
    * Constructs a new TorchRiddleRiddleHandler with the given custom points and level.
    *
-   * @param customPoints The custom points of the riddle room.
+   * @param namedPoints The custom points of the riddle room.
    * @param level The level of the riddle room.
    */
-  public TorchRiddleRiddleHandler(List<Coordinate> customPoints, DungeonLevel level) {
+  public TorchRiddleRiddleHandler(Map<String, Point> namedPoints, DungeonLevel level) {
     this.level = level;
     // First point is the riddle door
-    this.riddleDoor = customPoints.getFirst();
+    this.riddleDoor = level.getPoint(0);
     this.riddleRoomBounds =
-        new Coordinate[] {customPoints.get(1), customPoints.get(2)}; // TopLeft, BottomRight
+        new Point[] {level.getPoint(1), level.getPoint(2)}; // TopLeft, BottomRight
     // Next one is the center of the torch circle
-    this.riddleCenter = customPoints.get(17);
+    this.riddleCenter = level.getPoint(17);
 
     this.riddleSign =
         SignFactory.createSign(
             "",
             "Riddle: The Torch Riddle",
             new Point(riddleDoor.x() - 1 + 0.5f, riddleDoor.y() - 1 + 0.5f),
-            (sign, hero) -> {
+            (sign, player) -> {
               try {
                 // Updates content based on random riddle values
                 updateRiddleSign(getSumOfLitTorches());
@@ -110,7 +111,7 @@ public class TorchRiddleRiddleHandler {
 
     if (sum == riddleSearchedSum) {
       solveRiddle();
-      if (!rewardGiven && checkIfHeroIsInCenter()) {
+      if (!rewardGiven && checkIfPlayerIsInCenter()) {
         giveReward();
       }
     }
@@ -131,20 +132,20 @@ public class TorchRiddleRiddleHandler {
   }
 
   /**
-   * Gives the reward to the hero if the riddle is solved. A popup message is displayed to inform
-   * the hero about the reward. The reward is only given once, controlled by the rewardGiven flag.
+   * Gives the reward to the player if the riddle is solved. A popup message is displayed to inform
+   * the player about the reward. The reward is only given once, controlled by the rewardGiven flag.
    */
   private void giveReward() {
     DialogUtils.showTextPopup(
         "You will receive the new burning fireball skill\nas a reward for solving this puzzle!"
             + "Your fireballs will now deal extra burning damage.",
         "Riddle solved");
-    Game.hero()
+    Game.player()
         .orElseThrow()
         .fetch(SkillComponent.class)
         .orElseThrow()
         .removeSkill(FireballSkill.class);
-    Game.hero()
+    Game.player()
         .orElseThrow()
         .fetch(SkillComponent.class)
         .orElseThrow()
@@ -164,16 +165,16 @@ public class TorchRiddleRiddleHandler {
   }
 
   /**
-   * Checks if the hero is in the center of the riddle room.
+   * Checks if the player is in the center of the riddle room.
    *
-   * @return true if the hero is in the center of the riddle room, false otherwise.
+   * @return true if the player is in the center of the riddle room, false otherwise.
    */
-  private boolean checkIfHeroIsInCenter() {
-    Optional<Entity> hero = Game.hero();
-    return hero.isPresent()
+  private boolean checkIfPlayerIsInCenter() {
+    Optional<Entity> player = Game.player();
+    return player.isPresent()
         && level
-            .tileAtEntity(hero.get())
-            .map(heroTile -> heroTile.equals(level.tileAt(riddleCenter).orElse(null)))
+            .tileAtEntity(player.get())
+            .map(playerTile -> playerTile.equals(level.tileAt(riddleCenter).orElse(null)))
             .orElse(false);
   }
 
@@ -188,7 +189,8 @@ public class TorchRiddleRiddleHandler {
         .filter(tile -> tile instanceof DoorTile)
         .map(tile -> (DoorTile) tile)
         .ifPresent(DoorTile::open);
-    LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], true);
+    LevelUtils.changeVisibilityForArea(
+        riddleRoomBounds[0].toCoordinate(), riddleRoomBounds[1].toCoordinate(), true);
   }
 
   /**

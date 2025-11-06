@@ -66,8 +66,8 @@ public class FogOfWarSystem extends System {
    * Resets the FogOfWarSystem to its initial state.
    *
    * <p>This method clears the sets of darkened tiles and hidden entities, and resets the last known
-   * hero position. The last known hero position is set to the current hero's position if a hero
-   * exists, otherwise it is set to (0,0). This method also reverts the FogOfWarSystem to its
+   * player position. The last known player position is set to the current player's position if a
+   * player exists, otherwise it is set to (0,0). This method also reverts the FogOfWarSystem to its
    *
    * @see #revert()
    */
@@ -137,7 +137,15 @@ public class FogOfWarSystem extends System {
   }
 
   private List<Tile> castLight(
-      int row, float start, float end, int radius, int xx, int xy, int yx, int yy, Point heroPos) {
+      int row,
+      float start,
+      float end,
+      int radius,
+      int xx,
+      int xy,
+      int yx,
+      int yy,
+      Point playerPos) {
     List<Tile> visibleTiles = new ArrayList<>();
     if (start < end) {
       return visibleTiles;
@@ -150,8 +158,8 @@ public class FogOfWarSystem extends System {
       while (dx <= 0) {
         dx += 1;
         // Translate the dx, dy coordinates into map coordinates
-        int X = (int) (heroPos.x() + (dx * xx + dy * xy));
-        int Y = (int) (heroPos.y() + (dx * yx + dy * yy));
+        int X = (int) (playerPos.x() + (dx * xx + dy * xy));
+        int Y = (int) (playerPos.y() + (dx * yx + dy * yy));
         // l_slope and r_slope store the slopes of the left and right extremities of the square
         // we're considering
         float lSlope = (dx - 0.5f) / (dy + 0.5f);
@@ -182,7 +190,8 @@ public class FogOfWarSystem extends System {
           } else {
             if (!tile.canSeeThrough() && i < radius) { // this step is a blocking square
               blocked = true;
-              visibleTiles.addAll(castLight(i + 1, start, lSlope, radius, xx, xy, yx, yy, heroPos));
+              visibleTiles.addAll(
+                  castLight(i + 1, start, lSlope, radius, xx, xy, yx, yy, playerPos));
               newStart = rSlope;
             }
           }
@@ -193,8 +202,8 @@ public class FogOfWarSystem extends System {
     return visibleTiles;
   }
 
-  private void darkenTile(Tile tile, int maxDistance, float scale, Point heroPos) {
-    int newTint = getTintColor(tile.position(), maxDistance, scale, heroPos);
+  private void darkenTile(Tile tile, int maxDistance, float scale, Point playerPos) {
+    int newTint = getTintColor(tile.position(), maxDistance, scale, playerPos);
     int orgTint = tile.tintColor();
     int mixedTint = orgTint == -1 ? newTint : (orgTint & 0xFFFFFF00) | (newTint & 0x000000FF);
     if (!darkenedTiles.containsKey(tile)) {
@@ -204,22 +213,22 @@ public class FogOfWarSystem extends System {
   }
 
   /**
-   * Calculates the tint color for a tile based on its distance from the hero's position. The tint
+   * Calculates the tint color for a tile based on its distance from the player's position. The tint
    * color is represented as an ARGB integer, where the alpha component is adjusted based on the
-   * distance. The closer the tile is to the hero, the more transparent (closer to white) it
+   * distance. The closer the tile is to the player, the more transparent (closer to white) it
    * becomes. If the tile is beyond the view distance, it is fully opaque.
    *
    * @param tilePos The position of the tile for which to calculate the tint color.
-   * @param maxDistance The maximum distance from the hero's position at which the tile is fully
+   * @param maxDistance The maximum distance from the player's position at which the tile is fully
    *     opaque.
    * @param scale The scale factor for the distance. The larger the scale, the more transparent the
    *     tiles will be.
-   * @param heroPos The position of the hero.
+   * @param playerPos The position of the player.
    * @return The calculated tint color as an ARGB integer.
    */
-  private int getTintColor(Point tilePos, int maxDistance, float scale, Point heroPos) {
+  private int getTintColor(Point tilePos, int maxDistance, float scale, Point playerPos) {
     double distance =
-        heroPos.floor().distance(tilePos); // point -> coordinate -> point to floor the value
+        playerPos.floor().distance(tilePos); // point -> coordinate -> point to floor the value
     if (distance > maxDistance) {
       return 0xFFFFFF00;
     }
@@ -290,17 +299,17 @@ public class FogOfWarSystem extends System {
   public void execute() {
     if (!active) return;
 
-    Point heroPos = EntityUtils.getHeroPosition();
-    if (heroPos == null) return; // no hero, no fog of war
+    Point playerPos = EntityUtils.getPlayerPosition();
+    if (playerPos == null) return; // no player, no fog of war
 
-    List<Tile> allTilesInView = LevelUtils.tilesInRange(heroPos, MAX_VIEW_DISTANCE);
+    List<Tile> allTilesInView = LevelUtils.tilesInRange(playerPos, MAX_VIEW_DISTANCE);
     // Revert all darkened tiles back to light that are not in view
     List<Tile> tilesOutsideView = new ArrayList<>(darkenedTiles.keySet());
     tilesOutsideView.removeAll(allTilesInView);
     revertTilesBackToLight(tilesOutsideView);
 
     List<Tile> visibleTiles = new ArrayList<>();
-    visibleTiles.add(Game.tileAt(heroPos).orElse(null));
+    visibleTiles.add(Game.tileAt(playerPos).orElse(null));
     // Cast light into the surrounding tiles
     for (int octant = 0; octant < 8; octant++) {
       visibleTiles.addAll(
@@ -313,19 +322,19 @@ public class FogOfWarSystem extends System {
               mult[octant][1],
               mult[octant][2],
               mult[octant][3],
-              heroPos));
+              playerPos));
     }
     List<Tile> distancedTiles = new ArrayList<>(visibleTiles.stream().toList()); // copy
 
     // Handle tiles that are beyond the view distance
-    distancedTiles.removeAll(LevelUtils.tilesInRange(heroPos, currentViewDistance));
+    distancedTiles.removeAll(LevelUtils.tilesInRange(playerPos, currentViewDistance));
     distancedTiles.forEach(
         (tile) ->
             darkenTile(
                 tile,
                 currentViewDistance + DISTANCE_TRANSITION_SIZE,
                 TINT_COLOR_DISTANCE_SCALE,
-                heroPos));
+                playerPos));
     visibleTiles.removeAll(distancedTiles); // remove distanced tiles from visible tiles
     allTilesInView.removeAll(distancedTiles); // and from tile behind walls
 
@@ -333,7 +342,7 @@ public class FogOfWarSystem extends System {
 
     // Darken tiles that are behind walls
     allTilesInView.forEach(
-        (tile) -> darkenTile(tile, currentViewDistance, TINT_COLOR_WALL_DISTANCE_SCALE, heroPos));
+        (tile) -> darkenTile(tile, currentViewDistance, TINT_COLOR_WALL_DISTANCE_SCALE, playerPos));
 
     // Revert all visible tiles back to light
     revertTilesBackToLight(visibleTiles);
