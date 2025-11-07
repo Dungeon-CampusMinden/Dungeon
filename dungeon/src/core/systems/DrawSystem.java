@@ -22,7 +22,6 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -30,6 +29,7 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.DrawConfig;
 import core.utils.components.draw.FrameBufferPool;
 import core.utils.components.draw.TextureMap;
+import core.utils.components.draw.TileUtil;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.shader.AbstractShader;
 import core.utils.components.path.IPath;
@@ -84,30 +84,8 @@ public final class DrawSystem extends System implements Disposable {
     onEntityRemove = (e) -> onEntityChanged(e, false);
   }
 
-  /**
-   * Get the {@link SpriteBatch} that is used by this system.
-   *
-   * @return the {@link #BATCH} of the DrawSystem
-   */
-  public static SpriteBatch batch() {
-    return BATCH;
-  }
-
-  /**
-   * Sets the list of shaders to be applied to the entire scene as post-processing effects.
-   *
-   * @param shaders The list of shaders to apply (or null/empty list to disable).
-   */
-  public void shaders(List<AbstractShader> shaders) {
-    this.shaders = Objects.requireNonNullElseGet(shaders, ArrayList::new);
-  }
-
-  public List<AbstractShader> shaders() {
-    return shaders;
-  }
-
   private void onEntityChanged(Entity changed, boolean added) {
-    DSData data = buildDataObject(changed);
+    DSData data = DSData.build(changed);
     int depth = data.dc.depth();
     List<Entity> entitiesAtDepth = sortedEntities.get(depth);
 
@@ -135,7 +113,7 @@ public final class DrawSystem extends System implements Disposable {
    * @param depth The new depth of the entity
    */
   public void changeEntityDepth(Entity entity, int depth) {
-    DSData data = buildDataObject(entity);
+    DSData data = DSData.build(entity);
 
     int oldDepth = data.dc.depth();
     data.dc.depth(depth);
@@ -143,6 +121,41 @@ public final class DrawSystem extends System implements Disposable {
     sortedEntities.get(oldDepth).remove(entity);
     List<Entity> entitiesAtDepth = sortedEntities.computeIfAbsent(depth, k -> new ArrayList<>());
     entitiesAtDepth.add(entity);
+  }
+
+  /** DrawSystem can't be paused. */
+  @Override
+  public void stop() {
+    run = true;
+  }
+
+  /** Disposes the internal resources, specifically the dedicated FBO SpriteBatch. */
+  @Override
+  public void dispose() {
+    fboBatch.dispose();
+    // The static BATCH is expected to be disposed externally (e.g., in the main game class)
+  }
+
+  /**
+   * Get the {@link SpriteBatch} that is used by this system.
+   *
+   * @return the {@link #BATCH} of the DrawSystem
+   */
+  public static SpriteBatch batch() {
+    return BATCH;
+  }
+
+  /**
+   * Sets the list of shaders to be applied to the entire scene as post-processing effects.
+   *
+   * @param shaders The list of shaders to apply (or null/empty list to disable).
+   */
+  public void shaders(List<AbstractShader> shaders) {
+    this.shaders = Objects.requireNonNullElseGet(shaders, ArrayList::new);
+  }
+
+  public List<AbstractShader> shaders() {
+    return shaders;
   }
 
   /**
@@ -164,9 +177,8 @@ public final class DrawSystem extends System implements Disposable {
 
     if (shaders.isEmpty()) {
       // Option A: No post-processing, render directly to screen (Original Pass 2)
-      BATCH.begin();
-      // Set projection matrix to the main camera's combined matrix (World Space)
       BATCH.setProjectionMatrix(CameraSystem.camera().combined);
+      BATCH.begin();
       drawSceneContent();
       BATCH.end();
 
@@ -180,10 +192,8 @@ public final class DrawSystem extends System implements Disposable {
       FrameBuffer fboB = FBO_POOL.obtain(sceneWidth, sceneHeight);
 
       // Set NEAREST filtering on the FBO textures to preserve pixel crispness.
-      fboA.getColorBufferTexture()
-          .setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-      fboB.getColorBufferTexture()
-          .setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+      setTextureFiltering(fboA.getColorBufferTexture());
+      setTextureFiltering(fboB.getColorBufferTexture());
 
       // 1. Draw entire scene (level + entities) into the first FBO (fboA)
       FrameBuffer sourceFbo = fboA;
@@ -193,40 +203,31 @@ public final class DrawSystem extends System implements Disposable {
       Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
       Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-      BATCH.begin();
-      // The scene content (level/entities) must be drawn using the WORLD projection matrix
       BATCH.setProjectionMatrix(CameraSystem.camera().combined);
-      drawSceneContent(); // Draw world content into FBO A
+      BATCH.begin();
+      drawSceneContent();
       BATCH.end();
 
       sourceFbo.end();
 
       // 2. Ping-Pong through scene shaders (Uses fboBatch for screen-space rendering)
-      TextureRegion currentSourceRegion = fboRegion; // Reuse member fboRegion
-
-      // Set projection for the fboBatch to screen space (origin 0,0)
+      TextureRegion currentSourceRegion = fboRegion;
       fboBatch.setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, sceneWidth, sceneHeight));
 
-      for (int i = 0; i < shaders.size(); i++) {
-        AbstractShader pass = shaders.get(i);
-
-        // Swap source and target
+      for (AbstractShader pass : shaders) {
         targetFbo = (sourceFbo == fboA) ? fboB : fboA;
 
         targetFbo.begin();
         Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        fboBatch.begin();
-
         currentSourceRegion.setRegion(sourceFbo.getColorBufferTexture());
         currentSourceRegion.flip(false, true);
 
+        fboBatch.begin();
         pass.bind(fboBatch, 1);
         setCommonUniforms(fboBatch.getShader(), sceneWidth, sceneHeight);
-
         fboBatch.draw(currentSourceRegion, 0, 0, sceneWidth, sceneHeight);
-
         pass.unbind(fboBatch);
         fboBatch.end();
         targetFbo.end();
@@ -235,24 +236,19 @@ public final class DrawSystem extends System implements Disposable {
       }
 
       // 3. Draw final FBO result to screen (The last sourceFbo holds the final result)
-      Gdx.gl.glDisable(GL20.GL_DEPTH_TEST); // Ensure 2D drawing works correctly
-
-      BATCH.begin();
-
-      // Draw the final texture using a screen-space projection matrix to fill the viewport
-      BATCH.setProjectionMatrix(
-          fboProjectionMatrix.setToOrtho2D(
-              0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+      Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
 
       Texture finalTexture = sourceFbo.getColorBufferTexture();
       currentSourceRegion.setRegion(finalTexture);
       currentSourceRegion.flip(false, true);
 
+      BATCH.setProjectionMatrix(
+        fboProjectionMatrix.setToOrtho2D(
+          0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+      BATCH.begin();
       BATCH.draw(currentSourceRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
       BATCH.end();
 
-      // 4. Return both FBOs to the pool now that rendering is complete
       FBO_POOL.free(fboA);
       FBO_POOL.free(fboB);
     }
@@ -262,35 +258,16 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   /**
-   * Helper method to draw the entire scene content (Level + Entities). This is called regardless of
-   * whether the target is the screen or a post-processing FBO.
-   */
-  private void drawSceneContent() {
-    Game.currentLevel().ifPresent(this::drawLevel);
-
-    // This loop replaces the original renderEntitiesPass2 logic
-    for (List<Entity> group : sortedEntities.values()) {
-      group.stream()
-          .map(this::buildDataObject)
-          .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
-          .filter(this::shouldDraw)
-          .forEach(this::drawFinal); // drawFinal uses BATCH
-    }
-  }
-
-  /**
    * Pass 1: Renders entities that require shader processing into pooled FBOs using ping-ponging.
    * These FBOs use LOCAL transformations (padding, scale) and ignore world position/rotation.
    */
   private void renderEntitiesPass1() {
-    // Only process entities that have shader passes configured
     for (List<Entity> group : sortedEntities.values()) {
       group.stream()
-          .map(this::buildDataObject)
-          .filter(this::shouldDraw)
-          // Filter for entities with shaders configured
-          .filter(dsd -> !dsd.dc.shaders().isEmpty())
-          .forEach(this::processShaderPasses);
+        .map(DSData::build)
+        .filter(this::shouldDraw)
+        .filter(dsd -> !dsd.dc.shaders().isEmpty())
+        .forEach(this::processShaderPassesSingleEntity);
     }
   }
 
@@ -299,12 +276,11 @@ public final class DrawSystem extends System implements Disposable {
    *
    * @param dsd the data record of the entity to process
    */
-  private void processShaderPasses(final DSData dsd) {
+  private void processShaderPassesSingleEntity(final DSData dsd) {
     DrawComponent dc = dsd.dc;
     PositionComponent pc = dsd.pc;
 
     // --- 1. Calculate FBO Size and Obtain Buffers ---
-    // the padding is the maximum padding from all shaders.
     float padding = dsd.getTotalPadding();
 
     // Required size is sprite size * scale + 2*padding. All in PIXELS.
@@ -325,10 +301,8 @@ public final class DrawSystem extends System implements Disposable {
     FrameBuffer fboB = FBO_POOL.obtain(fboWidth, fboHeight);
 
     // Set NEAREST filtering on the FBO textures to preserve pixel crispness.
-    fboA.getColorBufferTexture()
-        .setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-    fboB.getColorBufferTexture()
-        .setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+    setTextureFiltering(fboA.getColorBufferTexture());
+    setTextureFiltering(fboB.getColorBufferTexture());
 
     // Calculate the projection matrix using the UPscaled FBO dimensions.
     fboProjectionMatrix.setToOrtho2D(0, 0, fboWidth, fboHeight);
@@ -336,29 +310,24 @@ public final class DrawSystem extends System implements Disposable {
     // Initial state
     FrameBuffer currentTarget = fboA;
     Texture currentSourceTexture;
-    boolean useFboAAsSource = false; // Flag to track which FBO is the source
+    boolean useFboAAsSource = false;
 
-    // Sprite is fine to take as TextureRegion, its internal state is unmodified.
     TextureRegion initialRegion = dc.getSprite();
 
     // --- 2. Initial Draw: Sprite -> FBO A ---
-    // This sets up the initial texture within the expanded buffer using the default batch shader.
     currentTarget.begin();
     Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-    // Set the projection matrix immediately before starting the batch.
     fboBatch.setProjectionMatrix(fboProjectionMatrix);
-    fboBatch.begin(); // Use dedicated FBO batch
-    // LOCAL TRANSFORM: Draw the original texture region at the padded offset (position)
-    // using its scaled size, **both multiplied by the upscaling factor**.
+    fboBatch.begin();
     fboBatch.draw(
         initialRegion,
         padding * shaderUpscaling,
         padding * shaderUpscaling,
         scaledWidth * shaderUpscaling,
         scaledHeight * shaderUpscaling);
-    fboBatch.end(); // Use dedicated FBO batch
+    fboBatch.end();
 
     currentTarget.end();
     useFboAAsSource = true;
@@ -368,38 +337,26 @@ public final class DrawSystem extends System implements Disposable {
     for (int i = 0; i < dsd.dc.shaders().size(); i++) {
       AbstractShader pass = dsd.dc.shaders().get(i);
 
-      // Determine the next target FBO
       currentTarget = useFboAAsSource ? fboB : fboA;
 
-      // Start rendering to the target FBO
       currentTarget.begin();
       Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
       Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-      // Re-set the projection matrix to enforce local-space rendering
-      fboBatch.setProjectionMatrix(fboProjectionMatrix);
-
-      fboBatch.begin(); // Use dedicated FBO batch
-
-      // Set TextureRegion to source, and flip it for FBO drawing.
       fboRegion.setRegion(currentSourceTexture);
-      fboRegion.flip(false, true); // Correct flip
+      fboRegion.flip(false, true);
 
-      // Bind the custom shader and uniforms
+      fboBatch.setProjectionMatrix(fboProjectionMatrix);
+      fboBatch.begin();
       pass.bind(fboBatch, shaderUpscaling);
       setCommonUniforms(
           fboBatch.getShader(), fboRegion.getRegionWidth(), fboRegion.getRegionHeight());
-
-      // Draw the current source texture to the target FBO
       fboBatch.draw(fboRegion, 0, 0, fboWidth, fboHeight);
-
-      // Unbind the shader
       pass.unbind(fboBatch);
       fboBatch.end();
 
       currentTarget.end();
 
-      // Prepare for the next pass
       currentSourceTexture = currentTarget.getColorBufferTexture();
       useFboAAsSource = !useFboAAsSource; // Swap the source flag
     }
@@ -410,6 +367,123 @@ public final class DrawSystem extends System implements Disposable {
     FrameBuffer unusedFbo = currentTarget == fboA ? fboB : fboA;
     FBO_POOL.free(unusedFbo);
   }
+
+  /**
+   * Helper method to draw the entire scene content (Level + Entities). This is called regardless of
+   * whether the target is the screen or a post-processing FBO.
+   */
+  private void drawSceneContent() {
+    Game.currentLevel().ifPresent(this::drawLevel);
+    for (List<Entity> group : sortedEntities.values()) {
+      group.stream()
+        .map(DSData::build)
+        .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
+        .filter(this::shouldDraw)
+        .forEach(this::drawFinal);
+    }
+  }
+
+  //#region Draw Methods
+
+  /**
+   * Draws the final output for an entity, either from its FBO (if shaders were applied) or the
+   * original sprite.
+   *
+   * @param dsd the data record of the entity to draw
+   */
+  private void drawFinal(final DSData dsd) {
+    dsd.dc.update();
+
+    FrameBuffer finalFbo = dsd.dc.frameBuffer();
+
+    if (finalFbo != null) {
+
+      // --- Draw FBO Texture (Shader Result) ---
+      Texture fboTexture = finalFbo.getColorBufferTexture();
+
+      int shaderUpscaling = dsd.getMaxUpscale();
+      float fboWidthWorldUnits =
+          (float) finalFbo.getWidth() / shaderUpscaling / dsd.getUnitSizeInPixels();
+      float fboHeightWorldUnits =
+          (float) finalFbo.getHeight() / shaderUpscaling / dsd.getUnitSizeInPixels();
+
+      Vector2 fboSize = Vector2.of(fboWidthWorldUnits, fboHeightWorldUnits);
+      float padding = dsd.getTotalPadding();
+
+      // Convert padding (pixels) to World Units
+      float paddingWorldUnits = padding / dsd.getUnitSizeInPixels();
+
+      // Translate the world position back by the padding amount (in world units)
+      Point offsetPosition = dsd.pc.position().translate(-paddingWorldUnits, -paddingWorldUnits);
+
+      DrawConfig conf = makeConfig(dsd, fboSize, Vector2.ONE);
+      draw(offsetPosition, fboTexture, conf);
+
+      FBO_POOL.free(finalFbo);
+      dsd.dc.frameBuffer(null);
+
+    } else {
+      draw(dsd);
+    }
+  }
+
+  /**
+   * Draws the FBO texture at the world position. This method handles the vertical flip required for
+   * FBO textures and applies the world transform using the standard Affine2 transformation.
+   *
+   * @param position the world position where the texture should be drawn
+   * @param texture the region to draw
+   * @param config the {@link DrawConfig} controlling the drawing parameters
+   */
+  public void draw(final Point position, final Texture texture, final DrawConfig config) {
+    fboRegion.setRegion(texture);
+    fboRegion.flip(config.mirrored(), true);
+    Affine2 transform = makeTransform(position, config);
+    BATCH.setColor(config.tintColor() != -1 ? new Color(config.tintColor()) : Color.WHITE);
+    BATCH.draw(fboRegion, config.size().x(), config.size().y(), transform);
+    BATCH.setColor(Color.WHITE);
+  }
+
+  private void draw(final DSData dsd) {
+    dsd.dc.update();
+    Sprite sprite = dsd.dc.getSprite();
+    DrawConfig conf = makeConfig(dsd, Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()), dsd.pc.scale());
+    draw(dsd.pc.position(), sprite, conf);
+  }
+
+  /**
+   * Draws a sprite at a given position with the specified configuration and rotation.
+   *
+   * <p>The sprite will only be drawn if its position is within the camera's frustum.
+   *
+   * @param position the world position where the sprite should be drawn
+   * @param sprite the {@link Sprite} to draw
+   * @param config the {@link DrawConfig} controlling scaling, tint, and offset
+   */
+  public void draw(final Point position, final Sprite sprite, final DrawConfig config) {
+    Affine2 transform = makeTransform(position, config);
+    BATCH.setColor(config.tintColor() != -1 ? new Color(config.tintColor()) : Color.WHITE);
+    BATCH.draw(sprite, config.size().x(), config.size().y(), transform);
+    BATCH.setColor(Color.WHITE);
+  }
+
+  /**
+   * Draws a texture from a path at a given position using the specified configuration.
+   *
+   * <p>This method automatically wraps the texture in a {@link Sprite} using {@link TextureMap} and
+   * delegates to {@link #draw(Point, Sprite, DrawConfig)}.
+   *
+   * @param position the world position where the texture should be drawn
+   * @param path the {@link IPath} identifying the texture to draw
+   * @param config the {@link DrawConfig} controlling scaling, tint, and offset
+   */
+  public void draw(final Point position, final IPath path, final DrawConfig config) {
+    draw(position, new Sprite(TextureMap.instance().textureAt(path)), config);
+  }
+
+  //#endregion
+
+  //#region Helpers
 
   /**
    * Sets any common uniforms needed by all shaders (for entity FBOs).
@@ -430,100 +504,45 @@ public final class DrawSystem extends System implements Disposable {
     shader.setUniformf("u_mouse", unprojected.x, unprojected.y);
   }
 
-  /**
-   * Draws the final output for an entity, either from its FBO (if shaders were applied) or the
-   * original sprite.
-   *
-   * @param dsd the data record of the entity to draw
-   */
-  private void drawFinal(final DSData dsd) {
-    dsd.dc.update();
-
-    FrameBuffer finalFbo = dsd.dc.frameBuffer();
-
-    if (finalFbo != null) {
-
-      // --- Draw FBO Texture (Shader Result) ---
-      Texture fboTexture = finalFbo.getColorBufferTexture();
-
-      // Convert FBO dimensions (pixels) to World Units
-      // Divide the FBO size by the upscaling factor to get the base pixel size (sprite + padding),
-      // then convert that base pixel size to world units.
-      int shaderUpscaling = dsd.getMaxUpscale();
-      float fboWidthWorldUnits =
-          (float) finalFbo.getWidth() / shaderUpscaling / dsd.getUnitSizeInPixels();
-      float fboHeightWorldUnits =
-          (float) finalFbo.getHeight() / shaderUpscaling / dsd.getUnitSizeInPixels();
-
-      Vector2 fboSize = Vector2.of(fboWidthWorldUnits, fboHeightWorldUnits);
-      float padding = dsd.getTotalPadding(); // Padding is in PIXELS
-
-      // Convert padding (pixels) to World Units
-      float paddingWorldUnits = padding / dsd.getUnitSizeInPixels();
-
-      // Translate the world position back by the padding amount (in world units)
-      Point offsetPosition = dsd.pc.position().translate(-paddingWorldUnits, -paddingWorldUnits);
-
-      // IMPORTANT: scale is (1, 1) because the texture is already scaled in Pass 1
-      // and we are drawing it using its final, converted world size.
-      DrawConfig conf =
-          new DrawConfig(
-              Vector2.ZERO,
-              fboSize,
-              Vector2.ONE,
-              dsd.dc.tintColor(),
-              dsd.dc.currentAnimation().getConfig().mirrored(),
-              dsd.pc.rotation());
-
-      drawFboTexture(offsetPosition, fboTexture, conf);
-
-      // Free FBO for next frame
-      FBO_POOL.free(finalFbo);
-      dsd.dc.frameBuffer(null);
-
-    } else {
-      draw(dsd);
-    }
+  private DrawConfig makeConfig(DSData dsd, Vector2 size, Vector2 scale) {
+    return new DrawConfig(
+        Vector2.ZERO,
+        size,
+        scale,
+        dsd.dc.tintColor(),
+        dsd.dc.currentAnimation().getConfig().mirrored(),
+        dsd.pc.rotation());
   }
 
-  /**
-   * Draws the FBO texture at the world position. This method handles the vertical flip required for
-   * FBO textures and applies the world transform using the standard Affine2 transformation.
-   *
-   * @param position the world position where the texture should be drawn
-   * @param texture the FBO texture to draw
-   * @param config the {@link DrawConfig} controlling the drawing parameters
-   */
-  public void drawFboTexture(final Point position, final Texture texture, final DrawConfig config) {
-    if (config.tintColor() != -1) {
-      BATCH.setColor(new Color(config.tintColor()));
-    } else {
-      BATCH.setColor(Color.WHITE);
+  private Affine2 makeTransform(Point pos, DrawConfig cfg) {
+    float scaleX = cfg.scale().x() * (cfg.mirrored() ? -1f : 1f);
+    float scaleY = cfg.scale().y();
+    return new Affine2()
+      .setToTranslation(pos.x(), pos.y())
+      .scale(scaleX, scaleY)
+      .translate(cfg.mirrored() ? cfg.size().x() * -1 : 0f, 0f) //adjust for mirroring offset
+      .translate(cfg.size().x() / 2f, cfg.size().y() / 2f)
+      .rotate(cfg.rotation())
+      .translate(-cfg.size().x() / 2f, -cfg.size().y() / 2f);
+  }
+
+  private void setTextureFiltering(Texture t){
+    t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+  }
+
+  private void drawLevel(ILevel currentLevel) {
+    if (currentLevel == null) throw new IllegalArgumentException("Level to draw can´t be null.");
+
+    Tile[][] layout = currentLevel.layout();
+    for (Tile[] tiles : layout) {
+      for (int x = 0; x < layout[0].length; x++) {
+        Tile t = tiles[x];
+        if (t.levelElement() != LevelElement.SKIP && !TileUtil.isTilePitAndOpen(t) && t.visible()) {
+          IPath texturePath = t.texturePath();
+          draw(t.position(), texturePath, new DrawConfig());
+        }
+      }
     }
-
-    // Use the reusable TextureRegion
-    fboRegion.setRegion(texture);
-
-    // FBO is upside down (vertical flip is mandatory).
-    fboRegion.flip(config.mirrored(), true);
-
-    // Calculate rotation origin (center of the FBO texture, which is the expanded sprite)
-    float originX = config.size().x() / 2f;
-    float originY = config.size().y() / 2f;
-
-    // --- Standard Affine2 Transformation ---
-    Affine2 transform = new Affine2();
-    transform.setToTranslation(position.x(), position.y());
-
-    // Scale first while origin is in the bottom-left
-    transform.scale(config.scale().x(), config.scale().y());
-
-    // Then rotate around the middle
-    transform.translate(originX, originY);
-    transform.rotate(config.rotation());
-    transform.translate(-originX, -originY);
-
-    BATCH.draw(fboRegion, config.size().x(), config.size().y(), transform);
   }
 
   /**
@@ -547,147 +566,45 @@ public final class DrawSystem extends System implements Disposable {
     float width = data.dc.getWidth() * data.pc.scale().x();
     float height = data.dc.getHeight() * data.pc.scale().y();
     List<Point> corners =
-        List.of(
-            pos.translate(0, 0),
-            pos.translate(width, 0),
-            pos.translate(0, height),
-            pos.translate(width, height));
+      List.of(
+        pos.translate(0, 0),
+        pos.translate(width, 0),
+        pos.translate(0, height),
+        pos.translate(width, height));
 
     return Game.currentLevel()
-        .map(
-            level ->
-                corners.stream()
-                    .anyMatch(
-                        c -> {
-                          Tile t = level.tileAt(c).orElse(null);
-                          return t != null && t.visible() && !isTilePitAndOpen(t);
-                        }))
-        .orElse(false);
+      .map(
+        level ->
+          corners.stream()
+            .anyMatch(
+              c -> {
+                Tile t = level.tileAt(c).orElse(null);
+                return t != null && t.visible() && !TileUtil.isTilePitAndOpen(t);
+              }))
+      .orElse(false);
   }
 
-  private void draw(final DSData dsd) {
-    dsd.dc.update();
-    Sprite sprite = dsd.dc.getSprite();
-    DrawConfig conf =
-        new DrawConfig(
-            Vector2.ZERO,
-            Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()),
-            dsd.pc.scale(),
-            dsd.dc.tintColor(),
-            dsd.dc.currentAnimation().getConfig().mirrored(),
-            dsd.pc.rotation());
-
-    draw(dsd.pc.position(), sprite, conf);
-  }
-
-  /** DrawSystem can't be paused. */
-  @Override
-  public void stop() {
-    run = true;
-  }
-
-  /** Disposes the internal resources, specifically the dedicated FBO SpriteBatch. */
-  @Override
-  public void dispose() {
-    fboBatch.dispose();
-    // The static BATCH is expected to be disposed externally (e.g., in the main game class)
-  }
-
-  /**
-   * Builds the data record used by this system.
-   *
-   * @param entity The entity with a DrawComponent and a PositionComponent
-   * @return The data record
-   */
-  private DSData buildDataObject(final Entity entity) {
-    DrawComponent dc =
-        entity
-            .fetch(DrawComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return new DSData(entity, dc, pc);
-  }
-
-  private void drawLevel(ILevel currentLevel) {
-    if (currentLevel == null) throw new IllegalArgumentException("Level to draw can´t be null.");
-
-    Tile[][] layout = currentLevel.layout();
-    for (Tile[] tiles : layout) {
-      for (int x = 0; x < layout[0].length; x++) {
-        Tile t = tiles[x];
-        if (t.levelElement() != LevelElement.SKIP && !isTilePitAndOpen(t) && t.visible()) {
-          IPath texturePath = t.texturePath();
-          draw(t.position(), texturePath, new DrawConfig());
-        }
-      }
-    }
-  }
-
-  /**
-   * Draws a sprite at a given position with the specified configuration and rotation.
-   *
-   * <p>The sprite will only be drawn if its position is within the camera's frustum.
-   *
-   * @param position the world position where the sprite should be drawn
-   * @param sprite the {@link Sprite} to draw
-   * @param config the {@link DrawConfig} controlling scaling, tint, and offset
-   */
-  public void draw(final Point position, final Sprite sprite, final DrawConfig config) {
-    sprite.setFlip(config.mirrored(), false);
-
-    // Calculate transformations
-    Affine2 transform = new Affine2();
-
-    transform.setToTranslation(position.x(), position.y());
-
-    // Scale first while origin is in the bottom-left
-    transform.scale(config.scale().x(), config.scale().y());
-
-    // Then rotate around the middle
-    transform.translate(config.size().x() / 2f, config.size().y() / 2f);
-    transform.rotate(config.rotation());
-    transform.translate(-config.size().x() / 2f, -config.size().y() / 2f);
-
-    if (config.tintColor() != -1) {
-      BATCH.setColor(new Color(config.tintColor()));
-    } else {
-      BATCH.setColor(Color.WHITE);
-    }
-    BATCH.draw(sprite, config.size().x(), config.size().y(), transform);
-  }
-
-  /**
-   * Draws a texture from a path at a given position using the specified configuration.
-   *
-   * <p>This method automatically wraps the texture in a {@link Sprite} using {@link TextureMap} and
-   * delegates to {@link #draw(Point, Sprite, DrawConfig)}.
-   *
-   * @param position the world position where the texture should be drawn
-   * @param path the {@link IPath} identifying the texture to draw
-   * @param config the {@link DrawConfig} controlling scaling, tint, and offset
-   */
-  public void draw(final Point position, final IPath path, final DrawConfig config) {
-    draw(position, new Sprite(TextureMap.instance().textureAt(path)), config);
-  }
-
-  /**
-   * Checks if the provided tile is an instance of PitTile and if it's open.
-   *
-   * @param tile The tile to check.
-   * @return true if the tile is an instance of PitTile, and it's open, false otherwise.
-   */
-  private boolean isTilePitAndOpen(final Tile tile) {
-    if (tile instanceof PitTile) {
-      return ((PitTile) tile).isOpen();
-    } else {
-      return false;
-    }
-  }
+  //#endregion
 
   private record DSData(Entity e, DrawComponent dc, PositionComponent pc) {
+    /**
+     * Builds the data record used by this system.
+     *
+     * @param entity The entity with a DrawComponent and a PositionComponent
+     * @return The data record
+     */
+    static DSData build(final Entity entity){
+      DrawComponent dc =
+        entity
+          .fetch(DrawComponent.class)
+          .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+      PositionComponent pc =
+        entity
+          .fetch(PositionComponent.class)
+          .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+      return new DSData(entity, dc, pc);
+    }
+
     /**
      * Returns the total padding required by all shaders in the DrawComponent.
      *
@@ -716,13 +633,7 @@ public final class DrawSystem extends System implements Disposable {
      * @return the size of one world unit in pixels
      */
     float getUnitSizeInPixels() {
-      float spriteWidth = dc.getSpriteWidth();
-      float spriteHeight = dc.getSpriteHeight();
-      if (spriteWidth < spriteHeight) {
-        return spriteWidth * pc.scale().x();
-      } else {
-        return spriteHeight * pc.scale().y();
-      }
+      return Math.min(dc.getSpriteWidth(), dc.getSpriteHeight());
     }
   }
 }
