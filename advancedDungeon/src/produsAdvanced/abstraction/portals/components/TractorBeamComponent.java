@@ -18,6 +18,7 @@ public class TractorBeamComponent implements Component {
   private List<Entity> tractorBeamEntities;
   private boolean active = false;
   private List<CollideComponent> collideComponents = new ArrayList<>();
+  private boolean reversed = false;
 
   /**
    * Constructs a TractorBeamComponent so it can be extended and trimmed.
@@ -81,6 +82,11 @@ public class TractorBeamComponent implements Component {
     else activate();
   }
 
+  /** Toggles the reversed status of the TractorBeam. */
+  public void toggleReversed() {
+    reversed = !reversed;
+  }
+
   /**
    * Shows the current status of the "active" status.
    *
@@ -88,6 +94,15 @@ public class TractorBeamComponent implements Component {
    */
   public boolean isActive() {
     return active;
+  }
+
+  /**
+   * Shows the current status of the "reversed" status.
+   *
+   * @return whether the beam is currently reversed or not.
+   */
+  public boolean isReversed() {
+    return reversed;
   }
 
   /**
