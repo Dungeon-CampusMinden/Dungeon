@@ -123,15 +123,24 @@ public class TileTextureFactory {
     String prefixPath = "dungeon/" + levelPart.design().name().toLowerCase() + "/";
 
     if (levelPart.element == LevelElement.GITTER) {
-      return new SimpleIPath(prefixPath + "portal/gitter.png");
+      IPath path = findGitterElement(levelPart);
+      if (path != null) {
+        return new SimpleIPath(prefixPath + path.pathString() + ".png");
+      }
     }
 
     if (levelPart.element == LevelElement.GLASSWALL) {
-      return new SimpleIPath(prefixPath + "portal/glasswall.png");
+      IPath path = findGlasswallElement(levelPart);
+      if (path != null) {
+        return new SimpleIPath(prefixPath + path.pathString() + ".png");
+      }
     }
 
     if (levelPart.element == LevelElement.PORTAL) {
-      return new SimpleIPath(prefixPath + "portal/portal_top.png");
+      IPath path = findPortalElement(levelPart);
+      if (path != null) {
+        return new SimpleIPath(prefixPath + path.pathString() + ".png");
+      }
     }
 
     IPath path = findTexturePathFloor(levelPart);
@@ -158,6 +167,110 @@ public class TileTextureFactory {
     }
 
     return new SimpleIPath(prefixPath + "floor/empty.png");
+  }
+
+  /**
+   * Resolves the levelpart to the correct gitter asset.
+   *
+   * @param levelPart the levelpart to be checked
+   * @return SimpleIPath with the corresponding asset path
+   */
+  private static IPath findGitterElement(LevelPart levelPart) {
+    Neighbors n = new Neighbors(levelPart.position, levelPart.layout);
+    if (isWallLike(n.getLeftE()) && isWallLike(n.getRightE()) && isFloorLike(n.getDownE())) {
+      return new SimpleIPath("portal/gutter/gutter_top");
+    }
+    if (isWallLike(n.getLeftE()) && isWallLike(n.getRightE()) && isFloorLike(n.getUpE())) {
+      return new SimpleIPath("portal/gutter/gutter_bottom");
+    }
+
+    if (isWallLike(n.getUpE()) && isWallLike(n.getDownE()) && isFloorLike(n.getLeftE())) {
+      return new SimpleIPath("portal/gutter/gutter_right");
+    }
+
+    if (isWallLike(n.getUpE()) && isWallLike(n.getDownE()) && isFloorLike(n.getRightE())) {
+      return new SimpleIPath("portal/gutter/gutter_left");
+    }
+    return null;
+  }
+
+  /**
+   * Resolves the levelpart to the correct glasswall asset.
+   *
+   * @param levelPart the levelpart to be checked
+   * @return SimpleIPath with the corresponding asset path
+   */
+  private static IPath findGlasswallElement(LevelPart levelPart) {
+    Neighbors n = new Neighbors(levelPart.position, levelPart.layout);
+    if (isWallLike(n.getLeftE()) && isWallLike(n.getRightE()) && isFloorOrDoor(n.getDownE())
+        || isFloorOrDoor(n.getUpE())) {
+      return new SimpleIPath("portal/glasswall/glasswall_horizontal");
+    } else if (isWallLike(n.getUpE())
+        && isWallLike(n.getDownE())
+        && (isFloorOrDoor(n.getLeftE()) || isFloorOrDoor(n.getRightE()))) {
+      return new SimpleIPath("portal/glasswall/glasswall_vertical");
+    }
+    return null;
+  }
+
+  /**
+   * Resolves the levelpart to the correct portal wall asset.
+   *
+   * @param levelPart the levelpart to be checked
+   * @return SimpleIPath with the corresponding asset path
+   */
+  private static IPath findPortalElement(LevelPart levelPart) {
+    Neighbors n = new Neighbors(levelPart.position, levelPart.layout);
+    if (isWallLike(n.getLeftE())
+        && isWallLike(n.getRightE())
+        && isInside(n.getDownE())
+        && !isInside(n.getUpE())) {
+      return new SimpleIPath("portal/portal_wall_top");
+    }
+    if (isWallLike(n.getLeftE())
+        && isWallLike(n.getRightE())
+        && !isInside(n.getDownE())
+        && isInside(n.getUpE())) {
+      return new SimpleIPath("portal/portal_wall_bottom");
+    }
+
+    if (isWallLike(n.getUpE())
+        && isWallLike(n.getDownE())
+        && !isInside(n.getLeftE())
+        && isInside(n.getRightE())) {
+      return new SimpleIPath("portal/portal_wall_right");
+    }
+
+    if (isWallLike(n.getUpE())
+        && isWallLike(n.getDownE())
+        && isInside(n.getLeftE())
+        && !isInside(n.getRightE())) {
+      return new SimpleIPath("portal/portal_wall_left");
+    }
+
+    if (isWallLike(n.getLeftE()) && isWallLike(n.getRightE()) && isFloorOrDoor(n.getDownE())
+        || isFloorOrDoor(n.getUpE())) {
+      return new SimpleIPath("portal/portal_wall_horizontal");
+    } else if (isWallLike(n.getUpE())
+        && isWallLike(n.getDownE())
+        && (isFloorOrDoor(n.getLeftE()) || isFloorOrDoor(n.getRightE()))) {
+      return new SimpleIPath("portal/portal_wall_vertical");
+    }
+    // Fallback
+    return new SimpleIPath("portal/portal_block");
+  }
+
+  /**
+   * Checks whether an element resembles a wall.
+   *
+   * @param e the element to be checked
+   * @return true if the element is a wall, portal, glasswall or gitter, otherwise false.
+   */
+  private static boolean isWallLike(LevelElement e) {
+    return e == LevelElement.WALL
+        || e == LevelElement.PORTAL
+        || e == LevelElement.GLASSWALL
+        || e == LevelElement.GITTER;
   }
 
   /**
@@ -896,10 +1009,10 @@ public class TileTextureFactory {
    */
   private static boolean orthoOnlyWallDoorExitOrLikeFloor(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
-    return ((n.getUpE() == LevelElement.WALL) || isFloorOrDoor(n.getUpE()))
-        && ((n.getDownE() == LevelElement.WALL) || isFloorOrDoor(n.getDownE()))
-        && ((n.getLeftE() == LevelElement.WALL) || isFloorOrDoor(n.getLeftE()))
-        && ((n.getRightE() == LevelElement.WALL) || isFloorOrDoor(n.getRightE()));
+    return (isWallLike(n.getUpE()) || isFloorOrDoor(n.getUpE()))
+        && (isWallLike(n.getDownE()) || isFloorOrDoor(n.getDownE()))
+        && (isWallLike(n.getLeftE()) || isFloorOrDoor(n.getLeftE()))
+        && (isWallLike(n.getRightE()) || isFloorOrDoor(n.getRightE()));
   }
 
   /**
@@ -1011,7 +1124,11 @@ public class TileTextureFactory {
    * @return {@code true} if {@code e} is WALL or DOOR; otherwise {@code false}
    */
   private static boolean isBarrier(LevelElement e) {
-    return e == LevelElement.WALL || e == LevelElement.DOOR;
+    return e == LevelElement.WALL
+        || e == LevelElement.DOOR
+        || e == LevelElement.PORTAL
+        || e == LevelElement.GLASSWALL
+        || e == LevelElement.GITTER;
   }
 
   /**
@@ -1054,7 +1171,10 @@ public class TileTextureFactory {
    */
   private static boolean isStem(Coordinate p, LevelElement[][] layout, Axis axis) {
     LevelElement self = get(layout, p.x(), p.y());
-    if (self != LevelElement.WALL) return false;
+    if (self != LevelElement.WALL
+        && self != LevelElement.PORTAL
+        && self != LevelElement.GITTER
+        && self != LevelElement.GLASSWALL) return false;
     return axis == Axis.VERTICAL
         ? hasBarrier(layout, p.x(), p.y(), Axis.VERTICAL)
         : hasBarrier(layout, p.x(), p.y(), Axis.HORIZONTAL);
@@ -1098,7 +1218,10 @@ public class TileTextureFactory {
       y += stepY;
       if (!isInsideLayout(x, y, layout)) return false;
       boolean stemHere =
-          get(layout, x, y) == LevelElement.WALL
+          (get(layout, x, y) == LevelElement.WALL
+                  || get(layout, x, y) == LevelElement.PORTAL
+                  || get(layout, x, y) == LevelElement.GITTER
+                  || get(layout, x, y) == LevelElement.GLASSWALL)
               && (axis == Axis.VERTICAL
                   ? hasBarrier(layout, x, y, Axis.VERTICAL)
                   : hasBarrier(layout, x, y, Axis.HORIZONTAL));
@@ -1260,10 +1383,10 @@ public class TileTextureFactory {
 
     boolean diagWallIsCorrect =
         switch (corner) {
-          case UL -> n.getDownLeftE() == LevelElement.WALL;
-          case UR -> n.getDownRightE() == LevelElement.WALL;
-          case BL -> n.getUpRightE() == LevelElement.WALL;
-          case BR -> n.getUpLeftE() == LevelElement.WALL;
+          case UL -> isWallLike(n.getDownLeftE());
+          case UR -> isWallLike(n.getDownRightE());
+          case BL -> isWallLike(n.getUpRightE());
+          case BR -> isWallLike(n.getUpLeftE());
         };
 
     boolean quadCase = orthoWalls && diagWallIsCorrect && diagFloorsTriple;
@@ -1365,7 +1488,6 @@ public class TileTextureFactory {
     return closed == 3;
   }
 
-
   /**
    * Detects an open outer T-junction facing up or down. Requires barriers on both horizontal sides,
    * a barrier on the stem opposite to the opening, a non-barrier at the opening, and inside space
@@ -1438,7 +1560,6 @@ public class TileTextureFactory {
    * @param dir opening direction to test (UP or DOWN)
    * @return {@code true} if the T-junction exists and the forward cell renders empty
    */
-
   private static boolean isTEmptyAt(Coordinate p, LevelElement[][] layout, Dir dir) {
     if (!isInsideLayout(p.x(), p.y(), layout)) return false;
     if (dir != Dir.UP && dir != Dir.DOWN) return false;
@@ -1464,7 +1585,6 @@ public class TileTextureFactory {
    * @param side the side to evaluate (LEFT or RIGHT)
    * @return {@code true} if the side triggers an empty-bottom condition
    */
-
   private static boolean isTBottomEmptySideAt(Coordinate p, LevelElement[][] layout, Dir side) {
     if (!isInsideLayout(p.x(), p.y(), layout)) return false;
     if (!isInnerTJunction(p, layout, Dir.DOWN)) return false;
@@ -1496,7 +1616,6 @@ public class TileTextureFactory {
    * @param layout the level grid
    * @return {@code true} if the cell above is treated as floor/door; otherwise {@code false}
    */
-
   private static boolean isFloorAbove(Coordinate p, LevelElement[][] layout) {
     LevelElement a = get(layout, p.x(), p.y() + 1);
     return isFloorOrDoor(a);
@@ -1612,7 +1731,10 @@ public class TileTextureFactory {
    */
   private static boolean isInnerEmptyCornerBase(
       Coordinate p, LevelElement[][] layout, int sx, int sy) {
-    if (get(layout, p.x(), p.y()) != LevelElement.WALL) return false;
+    if (get(layout, p.x(), p.y()) != LevelElement.WALL
+        && get(layout, p.x(), p.y()) != LevelElement.PORTAL
+        && get(layout, p.x(), p.y()) != LevelElement.GITTER
+        && get(layout, p.x(), p.y()) != LevelElement.GLASSWALL) return false;
 
     Coordinate diag = new Coordinate(p.x() + sx, p.y() + sy);
     Coordinate diagA = new Coordinate(p.x() - sx, p.y() + sy);
@@ -1715,7 +1837,10 @@ public class TileTextureFactory {
   private static boolean rendersSkipLikeWallAt(Coordinate c, LevelElement[][] layout) {
     LevelElement e = get(layout, c.x(), c.y());
     if (e == LevelElement.SKIP) return true;
-    if (e != LevelElement.WALL) return false;
+    if (e != LevelElement.WALL
+        && e != LevelElement.PORTAL
+        && e != LevelElement.GITTER
+        && e != LevelElement.GLASSWALL) return false;
     if (rendersSkipAt(c, layout, Axis.VERTICAL)
         || rendersSkipAt(c, layout, Axis.HORIZONTAL)
         || isStemCrossCenter(c, layout)) {
@@ -1764,8 +1889,8 @@ public class TileTextureFactory {
         && isFloorOrDoor(eAL)
         && isFloorOrDoor(eAR)
         && isNotFloor(eB)
-        && n.getLeftE() == LevelElement.WALL
-        && n.getRightE() == LevelElement.WALL
+        && isWallLike(n.getLeftE())
+        && isWallLike(n.getRightE())
         && isNotFloor(oppAL)
         && isNotFloor(oppAR);
   }
@@ -1794,8 +1919,8 @@ public class TileTextureFactory {
         && isNotFloor(right ? leftE : rightE)
         && isNotFloor(right ? n.getUpLeftE() : n.getUpRightE())
         && isNotFloor(right ? n.getDownLeftE() : n.getDownRightE())
-        && upE == LevelElement.WALL
-        && downE == LevelElement.WALL;
+        && isWallLike(upE)
+        && isWallLike(downE);
   }
 
   /**
@@ -1854,17 +1979,28 @@ public class TileTextureFactory {
    */
   private static boolean disallowTInner(Coordinate p, LevelElement[][] layout, Dir dir) {
     int dx = dir.dx, dy = dir.dy;
-    if (get(layout, p.x() + dx, p.y() + dy) != LevelElement.WALL) return false;
+    if (get(layout, p.x() + dx, p.y() + dy) != LevelElement.WALL
+        && get(layout, p.x() + dx, p.y() + dy) != LevelElement.PORTAL
+        && get(layout, p.x() + dx, p.y() + dy) != LevelElement.GITTER
+        && get(layout, p.x() + dx, p.y() + dy) != LevelElement.GLASSWALL) return false;
 
     Dir perp1 = (dir == Dir.LEFT || dir == Dir.RIGHT) ? Dir.UP : Dir.LEFT;
     Dir perp2 = (dir == Dir.LEFT || dir == Dir.RIGHT) ? Dir.DOWN : Dir.RIGHT;
 
     boolean arm1 =
-        get(layout, p.x() + dx + perp1.dx, p.y() + dy + perp1.dy) == LevelElement.WALL
+        (get(layout, p.x() + dx + perp1.dx, p.y() + dy + perp1.dy) == LevelElement.WALL
+                || get(layout, p.x() + dx + perp1.dx, p.y() + dy + perp1.dy) == LevelElement.PORTAL
+                || get(layout, p.x() + dx + perp1.dx, p.y() + dy + perp1.dy) == LevelElement.GITTER
+                || get(layout, p.x() + dx + perp1.dx, p.y() + dy + perp1.dy)
+                    == LevelElement.GLASSWALL)
             && isFloorLike(get(layout, p.x() + 2 * dx + perp1.dx, p.y() + 2 * dy + perp1.dy));
 
     boolean arm2 =
-        get(layout, p.x() + dx + perp2.dx, p.y() + dy + perp2.dy) == LevelElement.WALL
+        (get(layout, p.x() + dx + perp2.dx, p.y() + dy + perp2.dy) == LevelElement.WALL
+                || get(layout, p.x() + dx + perp2.dx, p.y() + dy + perp2.dy) == LevelElement.PORTAL
+                || get(layout, p.x() + dx + perp2.dx, p.y() + dy + perp2.dy) == LevelElement.GITTER
+                || get(layout, p.x() + dx + perp2.dx, p.y() + dy + perp2.dy)
+                    == LevelElement.GLASSWALL)
             && isFloorLike(get(layout, p.x() + 2 * dx + perp2.dx, p.y() + 2 * dy + perp2.dy));
 
     return arm1 || arm2;
@@ -1977,7 +2113,7 @@ public class TileTextureFactory {
    * @return {@code true} if the neighbor is WALL; otherwise {@code false}
    */
   private static boolean isWallDir(Coordinate p, LevelElement[][] layout, Dir d) {
-    return neighborMatches(p, layout, d, e -> e == LevelElement.WALL);
+    return neighborMatches(p, layout, d, e -> isWallLike(e));
   }
 
   /**
@@ -2015,10 +2151,22 @@ public class TileTextureFactory {
    */
   private static boolean hasNoEmptyWallsAround(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
-    if (n.getUpE() != LevelElement.WALL) return false;
-    if (n.getDownE() != LevelElement.WALL) return false;
-    if (n.getLeftE() != LevelElement.WALL) return false;
-    if (n.getRightE() != LevelElement.WALL) return false;
+    if (n.getUpE() != LevelElement.WALL
+        && n.getUpE() != LevelElement.PORTAL
+        && n.getUpE() != LevelElement.GITTER
+        && n.getUpE() != LevelElement.GLASSWALL) return false;
+    if (n.getDownE() != LevelElement.WALL
+        && n.getDownE() != LevelElement.PORTAL
+        && n.getDownE() != LevelElement.GITTER
+        && n.getDownE() != LevelElement.GLASSWALL) return false;
+    if (n.getLeftE() != LevelElement.WALL
+        && n.getLeftE() != LevelElement.PORTAL
+        && n.getLeftE() != LevelElement.GITTER
+        && n.getLeftE() != LevelElement.GLASSWALL) return false;
+    if (n.getRightE() != LevelElement.WALL
+        && n.getRightE() != LevelElement.PORTAL
+        && n.getRightE() != LevelElement.GITTER
+        && n.getRightE() != LevelElement.GLASSWALL) return false;
 
     if (rendersSkipLikeWallAt(n.getUp(), layout)) return false;
     if (rendersSkipLikeWallAt(n.getDown(), layout)) return false;
