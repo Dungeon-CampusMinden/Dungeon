@@ -1,7 +1,14 @@
 package core.utils.components.draw;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.MathUtils;
 import core.utils.components.path.IPath;
+import core.utils.logging.DungeonLogger;
+
 import java.util.HashMap;
 
 /**
@@ -12,6 +19,7 @@ import java.util.HashMap;
  */
 public final class TextureMap extends HashMap<String, Texture> {
   private static final TextureMap INSTANCE = new TextureMap();
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(TextureMap.class);
 
   /**
    * Get the instance of the TextureMap.
@@ -36,9 +44,42 @@ public final class TextureMap extends HashMap<String, Texture> {
       // would add it twice in the map.
       // IPath cannot override the equals method because it's an interface, and it can't be
       // called. If it could be called, then the enums could not implement it.
-      put(path.pathString(), new Texture(path.pathString()));
+//      put(path.pathString(), new Texture(path.pathString()));
+      put(path.pathString(), loadPMA(path.pathString()));
     }
 
     return get(path.pathString());
+  }
+
+  public static Texture loadPMA(String internalPath) {
+    FileHandle file = Gdx.files.internal(internalPath);
+    if (!file.exists()) {
+      LOGGER.error("File not found: " + internalPath);
+      return null;
+    }
+
+    Pixmap pixmap = new Pixmap(file);
+    Color c = new Color();
+
+    try {
+      for (int y = 0; y < pixmap.getHeight(); y++) {
+        for (int x = 0; x < pixmap.getWidth(); x++) {
+          int colorInt = pixmap.getPixel(x, y);
+
+          Color.rgba8888ToColor(c, colorInt);
+
+          c.r *= c.a;
+          c.g *= c.a;
+          c.b *= c.a;
+          int rgba = Color.rgba8888(c);
+
+          pixmap.drawPixel(x, y, rgba);
+        }
+      }
+
+      return new Texture(pixmap);
+    } finally {
+      pixmap.dispose();
+    }
   }
 }

@@ -22,7 +22,7 @@ import java.util.*;
 public class DecoMode extends LevelEditorMode {
 
   private static final float HOVER_DISTANCE = 0.75f;
-  private static final float PREVIEW_ALPHA = 0.3f;
+  private static final float PREVIEW_ALPHA = 0.5f;
 
   private static int selectedDecoIndex = 0;
   private static SnapMode decoSnapMode = SnapMode.OnGrid;

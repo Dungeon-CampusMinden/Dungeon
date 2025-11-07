@@ -26,10 +26,7 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.DrawConfig;
-import core.utils.components.draw.FrameBufferPool;
-import core.utils.components.draw.TextureMap;
-import core.utils.components.draw.TileUtil;
+import core.utils.components.draw.*;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.shader.AbstractShader;
 import core.utils.components.path.IPath;
@@ -237,6 +234,8 @@ public final class DrawSystem extends System implements Disposable {
 
       // 3. Draw final FBO result to screen (The last sourceFbo holds the final result)
       Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+      Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
+      Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
       Texture finalTexture = sourceFbo.getColorBufferTexture();
       currentSourceRegion.setRegion(finalTexture);
@@ -428,19 +427,13 @@ public final class DrawSystem extends System implements Disposable {
    * @param config the {@link DrawConfig} controlling the drawing parameters
    */
   public void draw(final Point position, final Texture texture, final DrawConfig config) {
+    setBlendFunction(BATCH);
     fboRegion.setRegion(texture);
     fboRegion.flip(config.mirrored(), true);
     Affine2 transform = makeTransform(position, config);
-    BATCH.setColor(config.tintColor() != -1 ? new Color(config.tintColor()) : Color.WHITE);
+    BATCH.setColor(config.tintColor() != -1 ? ColorUtil.pmaColor(config.tintColor()) : Color.WHITE);
     BATCH.draw(fboRegion, config.size().x(), config.size().y(), transform);
     BATCH.setColor(Color.WHITE);
-  }
-
-  private void draw(final DSData dsd) {
-    dsd.dc.update();
-    Sprite sprite = dsd.dc.getSprite();
-    DrawConfig conf = makeConfig(dsd, Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()), dsd.pc.scale());
-    draw(dsd.pc.position(), sprite, conf);
   }
 
   /**
@@ -453,10 +446,18 @@ public final class DrawSystem extends System implements Disposable {
    * @param config the {@link DrawConfig} controlling scaling, tint, and offset
    */
   public void draw(final Point position, final Sprite sprite, final DrawConfig config) {
+    setBlendFunction(BATCH);
     Affine2 transform = makeTransform(position, config);
-    BATCH.setColor(config.tintColor() != -1 ? new Color(config.tintColor()) : Color.WHITE);
+    BATCH.setColor(config.tintColor() != -1 ? ColorUtil.pmaColor(config.tintColor()) : Color.WHITE);
     BATCH.draw(sprite, config.size().x(), config.size().y(), transform);
     BATCH.setColor(Color.WHITE);
+  }
+
+  private void draw(final DSData dsd) {
+    dsd.dc.update();
+    Sprite sprite = dsd.dc.getSprite();
+    DrawConfig conf = makeConfig(dsd, Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()), dsd.pc.scale());
+    draw(dsd.pc.position(), sprite, conf);
   }
 
   /**
@@ -471,6 +472,21 @@ public final class DrawSystem extends System implements Disposable {
    */
   public void draw(final Point position, final IPath path, final DrawConfig config) {
     draw(position, new Sprite(TextureMap.instance().textureAt(path)), config);
+  }
+
+  private void setBlendFunction(SpriteBatch batch){
+    int srcFunc = GL20.GL_ONE;
+    int dstFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
+    int srcAlphaFunc = GL20.GL_ONE;
+    int dstAlphaFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
+//    int srcFunc = GL20.GL_SRC_ALPHA;
+//    int dstFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
+//    int srcAlphaFunc = GL20.GL_ONE;
+//    int dstAlphaFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
+
+    batch.enableBlending();
+    batch.setBlendFunction(srcFunc, dstFunc);
+//    batch.setBlendFunctionSeparate(srcFunc, dstFunc, srcAlphaFunc, dstAlphaFunc);
   }
 
   //#endregion
