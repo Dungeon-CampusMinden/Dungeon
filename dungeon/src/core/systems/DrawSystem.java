@@ -401,13 +401,20 @@ public final class DrawSystem extends System implements Disposable {
       Texture fboTexture = finalFbo.getColorBufferTexture();
 
       float padding = dsd.getTotalPadding();
-      float paddingWorldUnits = padding / dsd.getUnitSizeInPixels();
+      float unitSize = dsd.getUnitSizeInPixels();
+      float paddingWorldUnits = padding / unitSize;
 
-      // Translate the world position back by the padding amount (in world units)
-      Point offsetPosition = dsd.pc.position().translate(-paddingWorldUnits, -paddingWorldUnits);
+      // Scale is being factored into the transformation everywhere except the position, since it is
+      // passed directly to the draw method. Thus, we need to factor it in here to offset the padding.
+      Point offsetPosition = dsd.pc.position().translate(-paddingWorldUnits * dsd.pc.scale().x(), -paddingWorldUnits * dsd.pc.scale().y());
 
-      Vector2 baseSpriteSize = Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight());
-      DrawConfig conf = makeConfig(dsd, baseSpriteSize, dsd.pc.scale());
+      // Final world size includes padding on all sides
+      float worldWidth = dsd.dc.getWidth();
+      float worldHeight = dsd.dc.getHeight();
+      Vector2 finalWorldSize =
+        Vector2.of(worldWidth + 2 * paddingWorldUnits, worldHeight + 2 * paddingWorldUnits);
+
+      DrawConfig conf = makeConfig(dsd, finalWorldSize, dsd.pc.scale());
       draw(offsetPosition, fboTexture, conf);
 
       FBO_POOL.free(finalFbo);
