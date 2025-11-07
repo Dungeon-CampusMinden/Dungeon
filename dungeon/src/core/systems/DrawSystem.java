@@ -283,13 +283,13 @@ public final class DrawSystem extends System implements Disposable {
     // --- 1. Calculate FBO Size and Obtain Buffers ---
     float padding = dsd.getTotalPadding();
 
-    // Required size is sprite size * scale + 2*padding. All in PIXELS.
-    float scaledWidth = dc.getSpriteWidth() * pc.scale().x();
-    float scaledHeight = dc.getSpriteHeight() * pc.scale().y();
+    // Required size is sprite size + 2*padding. All in PIXELS.
+    float unscaledWidth = dc.getSpriteWidth();
+    float unscaledHeight = dc.getSpriteHeight();
 
     // Calculate the base pixel size (before upscaling)
-    int baseFboWidth = (int) (scaledWidth + 2 * padding);
-    int baseFboHeight = (int) (scaledHeight + 2 * padding);
+    int baseFboWidth = (int) (unscaledWidth + 2 * padding);
+    int baseFboHeight = (int) (unscaledHeight + 2 * padding);
 
     // Apply Upscale Factor to the FBO dimensions
     int shaderUpscaling = dsd.getMaxUpscale();
@@ -325,8 +325,8 @@ public final class DrawSystem extends System implements Disposable {
         initialRegion,
         padding * shaderUpscaling,
         padding * shaderUpscaling,
-        scaledWidth * shaderUpscaling,
-        scaledHeight * shaderUpscaling);
+        unscaledWidth * shaderUpscaling,
+        unscaledHeight * shaderUpscaling);
     fboBatch.end();
 
     currentTarget.end();
@@ -401,22 +401,14 @@ public final class DrawSystem extends System implements Disposable {
       // --- Draw FBO Texture (Shader Result) ---
       Texture fboTexture = finalFbo.getColorBufferTexture();
 
-      int shaderUpscaling = dsd.getMaxUpscale();
-      float fboWidthWorldUnits =
-          (float) finalFbo.getWidth() / shaderUpscaling / dsd.getUnitSizeInPixels();
-      float fboHeightWorldUnits =
-          (float) finalFbo.getHeight() / shaderUpscaling / dsd.getUnitSizeInPixels();
-
-      Vector2 fboSize = Vector2.of(fboWidthWorldUnits, fboHeightWorldUnits);
       float padding = dsd.getTotalPadding();
-
-      // Convert padding (pixels) to World Units
       float paddingWorldUnits = padding / dsd.getUnitSizeInPixels();
 
       // Translate the world position back by the padding amount (in world units)
       Point offsetPosition = dsd.pc.position().translate(-paddingWorldUnits, -paddingWorldUnits);
 
-      DrawConfig conf = makeConfig(dsd, fboSize, Vector2.ONE);
+      Vector2 baseSpriteSize = Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight());
+      DrawConfig conf = makeConfig(dsd, baseSpriteSize, dsd.pc.scale());
       draw(offsetPosition, fboTexture, conf);
 
       FBO_POOL.free(finalFbo);
