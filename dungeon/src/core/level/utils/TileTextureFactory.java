@@ -387,11 +387,12 @@ public class TileTextureFactory {
    * {@code WALL} and the other three orthogonal neighbors are not {@code WALL}. The chosen variant
    * corresponds to the side on which the single wall is found:
    *
-   * <p>The returned path is relative (without design prefix and file suffix). If the single-adjacent
-   * wall condition is not satisfied, this method returns {@code null}.
+   * <p>The returned path is relative (without design prefix and file suffix). If the
+   * single-adjacent wall condition is not satisfied, this method returns {@code null}.
    *
    * @param lp the level part to evaluate
-   * @return a relative wall-end texture path, or {@code null} if no single-adjacent-wall case applies
+   * @return a relative wall-end texture path, or {@code null} if no single-adjacent-wall case
+   *     applies
    */
   private static IPath findTexturePathSingleAdjacentWall(LevelPart lp) {
     Coordinate p = lp.position();
