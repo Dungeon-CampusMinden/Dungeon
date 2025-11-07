@@ -26,6 +26,7 @@ import core.utils.FontHelper;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.BlendUtil;
 import core.utils.components.draw.ColorUtil;
 import core.utils.components.draw.animation.Animation;
 import java.util.List;
@@ -93,8 +94,7 @@ public class DebugDrawSystem extends System {
     float alpha = decoComponent.isEmpty() ? 1.0f : 0.4f;
 
     // --- filled dot for position ---
-    Gdx.gl.glEnable(GL20.GL_BLEND);
-    Gdx.gl.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
+    BlendUtil.setBlending();
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
     SHAPE_RENDERER.setColor(withAlpha(Color.ORANGE, alpha));
     SHAPE_RENDERER.circle(position.x(), position.y(), 0.05f, CIRCLE_SEGMENTS);
@@ -389,8 +389,7 @@ public class DebugDrawSystem extends System {
     float bgH = layout.height + 2f * padding;
 
     // semi-transparent black box
-    Gdx.gl.glEnable(GL20.GL_BLEND);
-    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+    BlendUtil.setBlending();
     SHAPE_RENDERER.setProjectionMatrix(UI_CAM.combined);
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
     SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
@@ -433,8 +432,7 @@ public class DebugDrawSystem extends System {
   public static void drawRectangleOutline(
       float x, float y, float width, float height, Color color) {
     // Enable blending for transparency
-    Gdx.gl.glEnable(GL20.GL_BLEND);
-    Gdx.gl.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
+    BlendUtil.setBlending();
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
     SHAPE_RENDERER.setColor(ColorUtil.pmaColor(color));

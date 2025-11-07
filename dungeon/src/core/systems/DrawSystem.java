@@ -427,7 +427,7 @@ public final class DrawSystem extends System implements Disposable {
    * @param config the {@link DrawConfig} controlling the drawing parameters
    */
   public void draw(final Point position, final Texture texture, final DrawConfig config) {
-    setBlendFunction(BATCH);
+    BlendUtil.setBlending(BATCH);
     fboRegion.setRegion(texture);
     fboRegion.flip(config.mirrored(), true);
     Affine2 transform = makeTransform(position, config);
@@ -446,7 +446,7 @@ public final class DrawSystem extends System implements Disposable {
    * @param config the {@link DrawConfig} controlling scaling, tint, and offset
    */
   public void draw(final Point position, final Sprite sprite, final DrawConfig config) {
-    setBlendFunction(BATCH);
+    BlendUtil.setBlending(BATCH);
     Affine2 transform = makeTransform(position, config);
     BATCH.setColor(config.tintColor() != -1 ? ColorUtil.pmaColor(config.tintColor()) : Color.WHITE);
     BATCH.draw(sprite, config.size().x(), config.size().y(), transform);
@@ -472,21 +472,6 @@ public final class DrawSystem extends System implements Disposable {
    */
   public void draw(final Point position, final IPath path, final DrawConfig config) {
     draw(position, new Sprite(TextureMap.instance().textureAt(path)), config);
-  }
-
-  private void setBlendFunction(SpriteBatch batch){
-    int srcFunc = GL20.GL_ONE;
-    int dstFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
-    int srcAlphaFunc = GL20.GL_ONE;
-    int dstAlphaFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
-//    int srcFunc = GL20.GL_SRC_ALPHA;
-//    int dstFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
-//    int srcAlphaFunc = GL20.GL_ONE;
-//    int dstAlphaFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
-
-    batch.enableBlending();
-    batch.setBlendFunction(srcFunc, dstFunc);
-//    batch.setBlendFunctionSeparate(srcFunc, dstFunc, srcAlphaFunc, dstAlphaFunc);
   }
 
   //#endregion

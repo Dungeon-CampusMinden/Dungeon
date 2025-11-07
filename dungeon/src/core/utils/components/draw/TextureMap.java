@@ -44,7 +44,6 @@ public final class TextureMap extends HashMap<String, Texture> {
       // would add it twice in the map.
       // IPath cannot override the equals method because it's an interface, and it can't be
       // called. If it could be called, then the enums could not implement it.
-//      put(path.pathString(), new Texture(path.pathString()));
       put(path.pathString(), loadPMA(path.pathString()));
     }
 
