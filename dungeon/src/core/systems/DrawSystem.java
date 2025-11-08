@@ -1,9 +1,7 @@
 package core.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -30,6 +28,8 @@ import core.utils.components.draw.*;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.shader.AbstractShader;
 import core.utils.components.path.IPath;
+import core.utils.logging.DungeonLogger;
+
 import java.util.*;
 
 /**
@@ -54,6 +54,8 @@ import java.util.*;
  * @see Animation
  */
 public final class DrawSystem extends System implements Disposable {
+
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DrawSystem.class);
 
   /**
    * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
@@ -201,6 +203,7 @@ public final class DrawSystem extends System implements Disposable {
       Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
       BATCH.setProjectionMatrix(CameraSystem.camera().combined);
+      BlendUtil.setBlending(BATCH);
       BATCH.begin();
       drawSceneContent();
       BATCH.end();
@@ -221,6 +224,7 @@ public final class DrawSystem extends System implements Disposable {
         currentSourceRegion.setRegion(sourceFbo.getColorBufferTexture());
         currentSourceRegion.flip(false, true);
 
+        BlendUtil.setBlending(fboBatch);
         fboBatch.begin();
         pass.bind(fboBatch, 1);
         setCommonUniforms(fboBatch.getShader(), sceneWidth, sceneHeight);
@@ -234,8 +238,6 @@ public final class DrawSystem extends System implements Disposable {
 
       // 3. Draw final FBO result to screen (The last sourceFbo holds the final result)
       Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
-      Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
-      Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
       Texture finalTexture = sourceFbo.getColorBufferTexture();
       currentSourceRegion.setRegion(finalTexture);
@@ -244,7 +246,9 @@ public final class DrawSystem extends System implements Disposable {
       BATCH.setProjectionMatrix(
         fboProjectionMatrix.setToOrtho2D(
           0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+      BlendUtil.setBlending(BATCH);
       BATCH.begin();
+      BATCH.setColor(Color.WHITE);
       BATCH.draw(currentSourceRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
       BATCH.end();
 
@@ -440,7 +444,6 @@ public final class DrawSystem extends System implements Disposable {
     Affine2 transform = makeTransform(position, config);
     BATCH.setColor(config.tintColor() != -1 ? ColorUtil.pmaColor(config.tintColor()) : Color.WHITE);
     BATCH.draw(fboRegion, config.size().x(), config.size().y(), transform);
-    BATCH.setColor(Color.WHITE);
   }
 
   /**
@@ -457,7 +460,6 @@ public final class DrawSystem extends System implements Disposable {
     Affine2 transform = makeTransform(position, config);
     BATCH.setColor(config.tintColor() != -1 ? ColorUtil.pmaColor(config.tintColor()) : Color.WHITE);
     BATCH.draw(sprite, config.size().x(), config.size().y(), transform);
-    BATCH.setColor(Color.WHITE);
   }
 
   private void draw(final DSData dsd) {
@@ -537,6 +539,7 @@ public final class DrawSystem extends System implements Disposable {
     for (Tile[] tiles : layout) {
       for (int x = 0; x < layout[0].length; x++) {
         Tile t = tiles[x];
+//        if (!TileUtil.isTilePitAndOpen(t) && t.visible()) {
         if (t.levelElement() != LevelElement.SKIP && !TileUtil.isTilePitAndOpen(t) && t.visible()) {
           IPath texturePath = t.texturePath();
           draw(t.position(), texturePath, new DrawConfig());

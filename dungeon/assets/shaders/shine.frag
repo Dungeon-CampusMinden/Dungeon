@@ -2,32 +2,46 @@
 precision mediump float;
 #endif
 
+// ----- Defines -----
 #define PI 3.1415926
-#define TWO_PI 6.2831852
+#define TAU 6.2831852
 
-const float maxSliceCount = 8.0;
-
-// From vertex shader
+// ----- From vertex shader -----
 varying vec2 uv;
 
-// From LibGDX
+// ----- From LibGDX -----
 uniform sampler2D u_texture;
 
-// DungeonEngine common uniforms set by DrawSystem
+// ----- Common uniforms set by DrawSystem -----
 uniform vec2 u_resolution;
 uniform float u_time;
 uniform vec2 u_mouse;
 uniform vec2 u_texelSize;
 uniform vec2 u_aspect;
 
-// Custom uniforms
+// ----- Custom uniforms -----
 uniform float u_sliceCount;
 uniform float u_gapSize;
 uniform float u_rotationSpeed;
 uniform vec4 u_shineColor;
 
+const float maxSliceCount = 8.0;
 const vec2 u_centerPos = vec2(0.5);
 
+// ----- Helper functions for PMA conversion -----
+// All shaders outputting transparency or calculating colors should unPma from texture, and pma before outputting
+vec4 unPma(vec4 color) {
+    if (color.a < 1e-5) {
+        return vec4(0.0);
+    }
+    return vec4(color.rgb / color.a, color.a);
+}
+
+vec4 pma(vec4 color) {
+    return vec4(color.rgb * color.a, color.a);
+}
+
+// Custom functions
 float shineDistanceDropoff(float d) {
   float t = d * 2.0;
   float clamped_t = min(1.0, t);
@@ -39,10 +53,7 @@ float shineDropoff(float d) {
   return max(0.0, -1.0 * (pow(d, 3.0)) + 1.0);
 }
 
-// Shine effect:
-// - Create X slices of a circle, centered on u_centerPos
-// - Low opacity, light yellow for a "shine" effect
-// - Rotate over time
+// Main
 void main() {
   vec4 texColor = texture2D(u_texture, uv);
   // Skip fully opaque pixels
@@ -62,17 +73,17 @@ void main() {
   float radius = length(dir * u_aspect);
 
   float timeAdjustedAngle = angle - (u_time * u_rotationSpeed);
-  float modAngle = mod(timeAdjustedAngle + PI, TWO_PI);
+  float modAngle = mod(timeAdjustedAngle + PI, TAU);
 
   float shineIntensity = 0.0;
   for (float i = 0.0; i < maxSliceCount; i += 1.0) {
       if (i >= u_sliceCount) {
         break;
       }
-      float targetAngle = i * (TWO_PI / u_sliceCount);
+      float targetAngle = i * (TAU / u_sliceCount);
       float angleDiff = abs(modAngle - targetAngle);
       if (angleDiff > PI) {
-          angleDiff = TWO_PI - angleDiff; // Wrap around
+          angleDiff = TAU - angleDiff; // Wrap around
       }
       if (angleDiff < shineWidthRads) {
           float normalizedDiff = angleDiff / shineWidthRads;

@@ -1,26 +1,46 @@
-#version 100
-
+#ifdef GL_ES
 precision mediump float;
+#endif
 
+// ----- Defines -----
 #define PI 3.1415926
-#define TWO_PI 6.2831852
+#define TAU 6.2831852
 
+// ----- From vertex shader -----
 varying vec2 uv;
 
+// ----- From LibGDX -----
 uniform sampler2D u_texture;
+
+// ----- Common uniforms set by DrawSystem -----
 uniform vec2 u_resolution;
 uniform float u_time;
 uniform vec2 u_mouse;
 uniform vec2 u_texelSize;
 uniform vec2 u_aspect;
 
+// ----- Custom uniforms -----
 uniform float u_width;
 uniform vec4 u_color;
 uniform bool u_isRainbow;
 uniform float u_beatSpeed;
 uniform float u_beatIntensity;
 
-// --- Robust RGB → HSV ---
+// ----- Helper functions for PMA conversion -----
+// All shaders outputting transparency or calculating colors should unPma from texture, and pma before outputting
+vec4 unPma(vec4 color) {
+    if (color.a < 1e-5) {
+        return vec4(0.0);
+    }
+    return vec4(color.rgb / color.a, color.a);
+}
+
+vec4 pma(vec4 color) {
+    return vec4(color.rgb * color.a, color.a);
+}
+
+// Custom functions
+
 vec3 rgb2hsv(vec3 c) {
     float maxC = max(max(c.r, c.g), c.b);
     float minC = min(min(c.r, c.g), c.b);
@@ -42,7 +62,6 @@ vec3 rgb2hsv(vec3 c) {
     return vec3(h, s, v);
 }
 
-// --- HSV → RGB ---
 vec3 hsv2rgb(vec3 c) {
     float h = c.x * 6.0;
     float s = c.y;
@@ -83,8 +102,9 @@ bool isInOutline(vec2 uv, vec2 stepSize, int width) {
   return false;
 }
 
+// Main
 void main(){
-  vec4 color = texture2D(u_texture, vec2(uv.x, uv.y));
+  vec4 color = unPma(texture2D(u_texture, vec2(uv.x, uv.y)));
 
   vec2 stepSize = vec2(1.0) / u_resolution;
 
@@ -99,7 +119,7 @@ void main(){
         vec2 center = vec2(0.5, 0.5);
         vec2 fromCenter = uv - center;
         float angle = atan(fromCenter.y, fromCenter.x);
-        float hue = (angle / TWO_PI) + 0.5;
+        float hue = (angle / TAU) + 0.5;
         hue += u_time * 0.2 * u_beatSpeed;
         hue = mod(hue, 1.0);
         vec3 rgb = hsv2rgb(vec3(hue, 1.0, 1.0));
@@ -110,5 +130,5 @@ void main(){
     }
   }
 
-  gl_FragColor = color;
+  gl_FragColor = pma(color);
 }
