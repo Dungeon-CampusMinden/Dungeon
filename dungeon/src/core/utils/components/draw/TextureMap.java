@@ -5,7 +5,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.MathUtils;
 import core.utils.components.path.IPath;
 import core.utils.logging.DungeonLogger;
 
@@ -39,11 +38,6 @@ public final class TextureMap extends HashMap<String, Texture> {
    */
   public Texture textureAt(final IPath path) {
     if (!containsKey(path.pathString())) {
-      // We still store the string in the map to make sure we only store each Texture once.
-      // SimplePath("file.png").equals(SimplePath("file.png")) would return false, and so we
-      // would add it twice in the map.
-      // IPath cannot override the equals method because it's an interface, and it can't be
-      // called. If it could be called, then the enums could not implement it.
       put(path.pathString(), loadPMA(path.pathString()));
     }
 
@@ -58,6 +52,7 @@ public final class TextureMap extends HashMap<String, Texture> {
     }
 
     Pixmap pixmap = new Pixmap(file);
+    Pixmap corrected = new Pixmap(pixmap.getWidth(), pixmap.getHeight(), pixmap.getFormat());
     Color c = new Color();
 
     try {
@@ -72,13 +67,14 @@ public final class TextureMap extends HashMap<String, Texture> {
           c.b *= c.a;
           int rgba = Color.rgba8888(c);
 
-          pixmap.drawPixel(x, y, rgba);
+          corrected.drawPixel(x, y, rgba);
         }
       }
 
-      return new Texture(pixmap);
+      return new Texture(corrected);
     } finally {
       pixmap.dispose();
+      corrected.dispose();
     }
   }
 }
