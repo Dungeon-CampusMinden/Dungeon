@@ -54,7 +54,6 @@ public final class DrawComponent implements Component {
   private boolean isVisible = true;
 
   private final List<AbstractShader> shaders = new ArrayList<>();
-  private FrameBuffer frameBuffer = null;
 
   /**
    * Create a new DrawComponent.
@@ -408,23 +407,5 @@ public final class DrawComponent implements Component {
    */
   public void addShader(AbstractShader shader) {
     shaders.add(shader);
-  }
-
-  /**
-   * Get the FrameBuffer used by this DrawComponent.
-   *
-   * @return The FrameBuffer.
-   */
-  public FrameBuffer frameBuffer() {
-    return frameBuffer;
-  }
-
-  /**
-   * Set the FrameBuffer used by this DrawComponent.
-   *
-   * @param frameBuffer The FrameBuffer to set.
-   */
-  public void frameBuffer(FrameBuffer frameBuffer) {
-    this.frameBuffer = frameBuffer;
   }
 }

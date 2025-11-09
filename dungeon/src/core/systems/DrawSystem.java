@@ -70,6 +70,7 @@ public final class DrawSystem extends System implements Disposable {
   private final SpriteBatch fboBatch = new SpriteBatch();
   private final Matrix4 fboProjectionMatrix = new Matrix4();
   private final TextureRegion fboRegion = new TextureRegion();
+  private final Map<Entity, FrameBuffer> entityFboCache = new HashMap<>();
 
   // Post-processing shaders applied to the entire scene
   private List<AbstractShader> shaders = new ArrayList<>();
@@ -98,6 +99,12 @@ public final class DrawSystem extends System implements Disposable {
       entitiesAtDepth.add(changed);
     } else if (!added) {
       entitiesAtDepth.remove(changed);
+
+      // Clean up cached FBO if the entity is removed
+      if (entityFboCache.containsKey(changed)) {
+        FBO_POOL.free(entityFboCache.remove(changed));
+      }
+
       if (entitiesAtDepth.isEmpty()) {
         sortedEntities.remove(depth);
       }
@@ -132,6 +139,8 @@ public final class DrawSystem extends System implements Disposable {
   @Override
   public void dispose() {
     fboBatch.dispose();
+    entityFboCache.values().forEach(FBO_POOL::free);
+    entityFboCache.clear();
     // The static BATCH is expected to be disposed externally (e.g., in the main game class)
   }
 
@@ -364,7 +373,11 @@ public final class DrawSystem extends System implements Disposable {
     }
 
     // --- 4. Store Final Result and Free the other FBO ---
-    dsd.dc.frameBuffer(currentTarget);
+    FrameBuffer oldFbo = entityFboCache.put(dsd.e, currentTarget);
+    if (oldFbo != null) {
+      LOGGER.warn("Entity FBO cache overwrite for entity: " + dsd.e);
+      FBO_POOL.free(oldFbo);
+    }
 
     FrameBuffer unusedFbo = currentTarget == fboA ? fboB : fboA;
     FBO_POOL.free(unusedFbo);
@@ -396,10 +409,9 @@ public final class DrawSystem extends System implements Disposable {
   private void drawFinal(final DSData dsd) {
     dsd.dc.update();
 
-    FrameBuffer finalFbo = dsd.dc.frameBuffer();
+    FrameBuffer finalFbo = entityFboCache.get(dsd.e);
 
     if (finalFbo != null) {
-
       // --- Draw FBO Texture (Shader Result) ---
       Texture fboTexture = finalFbo.getColorBufferTexture();
 
@@ -426,8 +438,7 @@ public final class DrawSystem extends System implements Disposable {
       draw(offsetPosition, fboTexture, conf);
 
       FBO_POOL.free(finalFbo);
-      dsd.dc.frameBuffer(null);
-
+      entityFboCache.remove(dsd.e);
     } else {
       draw(dsd);
     }
@@ -567,7 +578,6 @@ public final class DrawSystem extends System implements Disposable {
     for (Tile[] tiles : layout) {
       for (int x = 0; x < layout[0].length; x++) {
         Tile t = tiles[x];
-        //        if (!TileUtil.isTilePitAndOpen(t) && t.visible()) {
         if (t.levelElement() != LevelElement.SKIP && !TileUtil.isTilePitAndOpen(t) && t.visible()) {
           IPath texturePath = t.texturePath();
           draw(t.position(), texturePath, new DrawConfig());
