@@ -8,6 +8,7 @@ precision mediump float;
 
 // ----- From vertex shader -----
 varying vec2 uv;
+//varying vec2 worldPos; //Comment out if not needed for performance
 
 // ----- From LibGDX -----
 uniform sampler2D u_texture;

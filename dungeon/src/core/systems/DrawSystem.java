@@ -282,7 +282,6 @@ public final class DrawSystem extends System implements Disposable {
    */
   private void processShaderPassesSingleEntity(final DSData dsd) {
     DrawComponent dc = dsd.dc;
-    PositionComponent pc = dsd.pc;
 
     // --- 1. Calculate FBO Size and Obtain Buffers ---
     float padding = dsd.getTotalPadding();
