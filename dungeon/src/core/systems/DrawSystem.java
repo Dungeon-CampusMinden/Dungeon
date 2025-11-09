@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Affine2;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
@@ -227,7 +228,7 @@ public final class DrawSystem extends System implements Disposable {
         BlendUtil.setBlending(fboBatch);
         fboBatch.begin();
         pass.bind(fboBatch, 1);
-        setCommonUniforms(fboBatch.getShader(), sceneWidth, sceneHeight);
+        setCommonUniforms(fboBatch.getShader(), sceneWidth, sceneHeight, null);
         fboBatch.draw(currentSourceRegion, 0, 0, sceneWidth, sceneHeight);
         pass.unbind(fboBatch);
         fboBatch.end();
@@ -353,7 +354,7 @@ public final class DrawSystem extends System implements Disposable {
       fboBatch.begin();
       pass.bind(fboBatch, shaderUpscaling);
       setCommonUniforms(
-          fboBatch.getShader(), fboRegion.getRegionWidth(), fboRegion.getRegionHeight());
+          fboBatch.getShader(), fboRegion.getRegionWidth(), fboRegion.getRegionHeight(), dsd);
       fboBatch.draw(fboRegion, 0, 0, fboWidth, fboHeight);
       pass.unbind(fboBatch);
       fboBatch.end();
@@ -493,8 +494,9 @@ public final class DrawSystem extends System implements Disposable {
    * @param shader The shader program to set uniforms for
    * @param textureWidth The width of the texture being processed
    * @param textureHeight The height of the texture being processed
+   * @param dsd The DSData of the entity being processed (or null for global effects)
    */
-  private void setCommonUniforms(ShaderProgram shader, int textureWidth, int textureHeight) {
+  private void setCommonUniforms(ShaderProgram shader, int textureWidth, int textureHeight, DSData dsd) {
     shader.setUniformf("u_time", secondsElapsed);
     shader.setUniformf("u_resolution", textureWidth, textureHeight);
     shader.setUniformf("u_texelSize", 1.0f / textureWidth, 1.0f / textureHeight);
@@ -504,6 +506,27 @@ public final class DrawSystem extends System implements Disposable {
     Point mousePos = SkillTools.cursorPositionAsPoint();
     Vector3 unprojected = CameraSystem.camera().project(new Vector3(mousePos.x(), mousePos.y(), 0));
     shader.setUniformf("u_mouse", unprojected.x, unprojected.y);
+
+    if(dsd == null) {
+      // Use camera pos and viewport for global effects
+      OrthographicCamera camera = CameraSystem.camera();
+      float worldWidth = camera.viewportWidth * camera.zoom;
+      float worldHeight = camera.viewportHeight * camera.zoom;
+      float camX = camera.position.x;
+      float camY = camera.position.y;
+      float posX = camX - (worldWidth / 2f);
+      float posY = camY - (worldHeight / 2f);
+      shader.setUniformf("u_entityBounds", posX, posY, worldWidth, worldHeight);
+      shader.setUniformf("u_rotation", 0f);
+    }  else {
+      // Use entity position and size for local effects
+      float posX = dsd.pc.position().x();
+      float posY = dsd.pc.position().y();
+      float worldWidth = dsd.pc.scale().x() * dsd.dc.getWidth();
+      float worldHeight = dsd.pc.scale().y() * dsd.dc.getHeight();
+      shader.setUniformf("u_entityBounds", posX, posY, worldWidth, worldHeight);
+      shader.setUniformf("u_rotation", dsd.pc.rotation() * MathUtils.degreesToRadians);
+    }
   }
 
   private DrawConfig makeConfig(DSData dsd, Vector2 size, Vector2 scale) {
