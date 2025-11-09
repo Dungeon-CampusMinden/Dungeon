@@ -20,7 +20,6 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -38,14 +37,16 @@ import java.util.*;
  * <p>1. **Entity FBO Pass:** Entities with specific shaders are rendered to expanded FrameBuffers
  * (FBOs) using ping-ponging and local transforms (scale/padding).
  *
- * <p>2. **Scene Pass:** The level and all final entity textures (FBO output or original sprite) are
- * drawn into a screen-sized FBO if post-processing is enabled, or directly to the screen otherwise.
+ * <p>2. **Intermediate Layer Passes:** The level and each entity depth layer are rendered into
+ * individual FBOs, applying layer-specific shaders (Level Pass, Depth Pass).
  *
- * <p>3. **Post-Processing Pass (Optional):** If scene shaders are configured, the scene FBO is
+ * <p>3. **Scene Composition Pass:** All intermediate FBOs (Level and Depth layers) are composited
+ * into a single screen-sized FBO.
+ *
+ * <p>4. **Post-Processing Pass (Optional):** If scene shaders are configured, the scene FBO is
  * ping-ponged through the post-processing shaders.
  *
- * <p>4. **Screen Final Draw:** The final output (either the processed scene FBO or the direct scene
- * render) is presented on the screen.
+ * <p>5. **Screen Final Draw:** The final output is presented on the screen.
  *
  * <p>Each entity with a {@link DrawComponent} and a {@link PositionComponent} will be drawn on the
  * screen.
@@ -73,7 +74,11 @@ public final class DrawSystem extends System implements Disposable {
   private final Map<Entity, FrameBuffer> entityFboCache = new HashMap<>();
 
   // Post-processing shaders applied to the entire scene
-  private List<AbstractShader> shaders = new ArrayList<>();
+  private List<AbstractShader> sceneShaders = new ArrayList<>();
+  // Shaders applied to the level layer
+  private List<AbstractShader> levelShaders = new ArrayList<>();
+  // Shaders applied to each entity depth layer (depth = key)
+  private final Map<Integer, List<AbstractShader>> entityDepthShaders = new HashMap<>();
 
   private float secondsElapsed = 0f;
 
@@ -124,7 +129,14 @@ public final class DrawSystem extends System implements Disposable {
     int oldDepth = data.dc.depth();
     data.dc.depth(depth);
 
-    sortedEntities.get(oldDepth).remove(entity);
+    List<Entity> oldGroup = sortedEntities.get(oldDepth);
+    if (oldGroup != null) {
+      oldGroup.remove(entity);
+      if (oldGroup.isEmpty()) {
+        sortedEntities.remove(oldDepth);
+      }
+    }
+
     List<Entity> entitiesAtDepth = sortedEntities.computeIfAbsent(depth, k -> new ArrayList<>());
     entitiesAtDepth.add(entity);
   }
@@ -158,12 +170,43 @@ public final class DrawSystem extends System implements Disposable {
    *
    * @param shaders The list of shaders to apply (or null/empty list to disable).
    */
-  public void shaders(List<AbstractShader> shaders) {
-    this.shaders = Objects.requireNonNullElseGet(shaders, ArrayList::new);
+  public void sceneShaders(List<AbstractShader> shaders) {
+    this.sceneShaders = Objects.requireNonNullElseGet(shaders, ArrayList::new);
   }
 
-  public List<AbstractShader> shaders() {
-    return shaders;
+  public List<AbstractShader> sceneShaders() {
+    return sceneShaders;
+  }
+
+  /**
+   * Sets the list of shaders to be applied to the level layer.
+   *
+   * @param shaders The list of shaders to apply (or null/empty list to disable).
+   */
+  public void levelShaders(List<AbstractShader> shaders) {
+    this.levelShaders = Objects.requireNonNullElseGet(shaders, ArrayList::new);
+  }
+
+  public List<AbstractShader> levelShaders() {
+    return levelShaders;
+  }
+
+  /**
+   * Sets the list of shaders to be applied to an entity depth layer.
+   *
+   * @param depth The entity depth layer.
+   * @param shaders The list of shaders to apply (or null/empty list to disable).
+   */
+  public void entityDepthShaders(int depth, List<AbstractShader> shaders) {
+    if (shaders == null || shaders.isEmpty()) {
+      entityDepthShaders.remove(depth);
+    } else {
+      entityDepthShaders.put(depth, shaders);
+    }
+  }
+
+  public Optional<List<AbstractShader>> entityDepthShaders(int depth) {
+    return Optional.ofNullable(entityDepthShaders.get(depth));
   }
 
   /**
@@ -171,102 +214,191 @@ public final class DrawSystem extends System implements Disposable {
    *
    * <p>1. Entity FBO Pass: Render local shader effects into FBOs (Ping-Pong).
    *
-   * <p>2. Scene Pass: Draw level and final entity textures into a Scene FBO (if post-processing is
-   * enabled) or directly to the screen (if disabled).
+   * <p>2. Intermediate Layer Passes: Draw level and depth groups into their own FBOs, applying
+   * layer-specific shaders.
    *
-   * <p>3. Post-Processing Pass: If enabled, ping-pong the Scene FBO through the scene shaders.
+   * <p>3. Scene Composition Pass: Composite all intermediate FBOs into a Scene FBO (or directly to
+   * the screen if no scene shaders are applied).
    *
-   * <p>4. Screen Final Draw: Present the final texture.
+   * <p>4. Post-Processing Pass: If enabled, ping-pong the Scene FBO through the scene shaders.
+   *
+   * <p>5. Screen Final Draw: Present the final texture.
    */
   @Override
   public void execute() {
     // Pass 1: Render shaders to FBOs (Entity-local shaders)
     renderEntitiesPass1();
 
-    if (shaders.isEmpty()) {
-      // Option A: No post-processing, render directly to screen (Original Pass 2)
-      BATCH.setProjectionMatrix(CameraSystem.camera().combined);
-      BATCH.begin();
-      drawSceneContent();
-      BATCH.end();
+    int sceneWidth = Gdx.graphics.getWidth();
+    int sceneHeight = Gdx.graphics.getHeight();
 
-    } else {
-      // Option B: Post-processing required
-      int sceneWidth = Gdx.graphics.getWidth();
-      int sceneHeight = Gdx.graphics.getHeight();
+    // Get FBOs for scene composition/post-processing
+    FrameBuffer fboA = FBO_POOL.obtain(sceneWidth, sceneHeight);
+    FrameBuffer fboB = FBO_POOL.obtain(sceneWidth, sceneHeight);
+    setTextureFiltering(fboA.getColorBufferTexture());
+    setTextureFiltering(fboB.getColorBufferTexture());
 
-      // Obtain two FBOs from the pool for ping-ponging
-      FrameBuffer fboA = FBO_POOL.obtain(sceneWidth, sceneHeight);
-      FrameBuffer fboB = FBO_POOL.obtain(sceneWidth, sceneHeight);
+    // 1. Render Level to its FBO and apply level shaders
+    FrameBuffer levelFbo =
+        drawToIntermediateFbo(this::drawLevel, levelShaders, sceneWidth, sceneHeight);
 
-      // Set NEAREST filtering on the FBO textures to preserve pixel crispness.
-      setTextureFiltering(fboA.getColorBufferTexture());
-      setTextureFiltering(fboB.getColorBufferTexture());
+    // 2. Render each Entity Depth Group to its FBO and apply depth shaders
+    Map<Integer, FrameBuffer> depthFbos = new HashMap<>();
+    for (Integer depth : sortedEntities.keySet()) {
+      List<AbstractShader> shaders =
+          entityDepthShaders.getOrDefault(depth, Collections.emptyList());
+      // Sort entities by Y-position (for top-down overlap)
+      List<DSData> sortedGroup =
+          sortedEntities.get(depth).stream()
+              .map(DSData::build)
+              .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
+              .filter(this::shouldDraw)
+              .toList();
 
-      // 1. Draw entire scene (level + entities) into the first FBO (fboA)
-      FrameBuffer sourceFbo = fboA;
-      FrameBuffer targetFbo;
-
-      sourceFbo.begin();
-      Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-      Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-      BATCH.setProjectionMatrix(CameraSystem.camera().combined);
-      BlendUtil.setBlending(BATCH);
-      BATCH.begin();
-      drawSceneContent();
-      BATCH.end();
-
-      sourceFbo.end();
-
-      // 2. Ping-Pong through scene shaders (Uses fboBatch for screen-space rendering)
-      TextureRegion currentSourceRegion = fboRegion;
-      fboBatch.setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, sceneWidth, sceneHeight));
-
-      for (AbstractShader pass : shaders) {
-        targetFbo = (sourceFbo == fboA) ? fboB : fboA;
-
-        targetFbo.begin();
-        Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        currentSourceRegion.setRegion(sourceFbo.getColorBufferTexture());
-        currentSourceRegion.flip(false, true);
-
-        BlendUtil.setBlending(fboBatch);
-        fboBatch.begin();
-        pass.bind(fboBatch, 1);
-        setCommonUniforms(fboBatch.getShader(), sceneWidth, sceneHeight, null);
-        fboBatch.draw(currentSourceRegion, 0, 0, sceneWidth, sceneHeight);
-        pass.unbind(fboBatch);
-        fboBatch.end();
-        targetFbo.end();
-
-        sourceFbo = targetFbo;
+      if (!sortedGroup.isEmpty()) {
+        FrameBuffer depthFbo =
+            drawToIntermediateFbo(
+                () -> sortedGroup.forEach(this::drawFinal), shaders, sceneWidth, sceneHeight);
+        depthFbos.put(depth, depthFbo);
       }
-
-      // 3. Draw final FBO result to screen (The last sourceFbo holds the final result)
-      Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
-
-      Texture finalTexture = sourceFbo.getColorBufferTexture();
-      currentSourceRegion.setRegion(finalTexture);
-      currentSourceRegion.flip(false, true);
-
-      BATCH.setProjectionMatrix(
-          fboProjectionMatrix.setToOrtho2D(
-              0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
-      BlendUtil.setBlending(BATCH);
-      BATCH.begin();
-      BATCH.setColor(Color.WHITE);
-      BATCH.draw(currentSourceRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-      BATCH.end();
-
-      FBO_POOL.free(fboA);
-      FBO_POOL.free(fboB);
     }
+
+    // 3. Scene Composition Pass: Draw all intermediate FBOs into fboA in sorted order
+    fboA.begin();
+    Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+    BATCH.setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, sceneWidth, sceneHeight));
+    BATCH.begin();
+    BATCH.setColor(Color.WHITE);
+
+    // Draw Level FBO first
+    drawFboToBatch(levelFbo, sceneWidth, sceneHeight);
+
+    // Draw Depth FBOs in ascending order
+    sortedEntities.keySet().stream()
+        .forEach(
+            depth ->
+                Optional.ofNullable(depthFbos.get(depth))
+                    .ifPresent(fbo -> drawFboToBatch(fbo, sceneWidth, sceneHeight)));
+
+    BATCH.end();
+    fboA.end();
+
+    FBO_POOL.free(levelFbo);
+    depthFbos.values().forEach(FBO_POOL::free);
+
+    // 4. Post-Processing Pass (Scene Shaders) & 5. Screen Final Draw
+    FrameBuffer finalSourceFbo =
+        applyShadersAndCompose(fboA, fboB, sceneShaders, sceneWidth, sceneHeight);
+
+    // Draw final result to screen
+    Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+    Texture finalTexture = finalSourceFbo.getColorBufferTexture();
+    fboRegion.setRegion(finalTexture);
+    fboRegion.flip(false, true);
+
+    BATCH.setProjectionMatrix(
+        fboProjectionMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+    BATCH.begin();
+    BlendUtil.setBlending(BATCH);
+    BATCH.setColor(Color.WHITE);
+    BATCH.draw(fboRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    BATCH.end();
+
+    FBO_POOL.free(fboA);
+    FBO_POOL.free(fboB);
 
     FBO_POOL.update();
     secondsElapsed += Gdx.graphics.getDeltaTime();
+  }
+
+  /**
+   * Renders content to an intermediate FBO, applies a list of shaders, and returns the final FBO.
+   *
+   * @param renderAction The action to draw the content (level or entity group)
+   * @param shaders The list of shaders to apply (can be empty)
+   * @param width The width of the scene/FBO
+   * @param height The height of the scene/FBO
+   * @return The FBO containing the final, processed layer content
+   */
+  private FrameBuffer drawToIntermediateFbo(
+      Runnable renderAction, List<AbstractShader> shaders, int width, int height) {
+    // Obtain two FBOs for ping-ponging
+    FrameBuffer fboA = FBO_POOL.obtain(width, height);
+    FrameBuffer fboB = FBO_POOL.obtain(width, height);
+    setTextureFiltering(fboA.getColorBufferTexture());
+    setTextureFiltering(fboB.getColorBufferTexture());
+
+    // 1. Draw content into the first FBO (fboA)
+    fboA.begin();
+    Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+    BATCH.setProjectionMatrix(CameraSystem.camera().combined);
+    BATCH.begin();
+    BlendUtil.setBlending(BATCH);
+    renderAction.run();
+    BATCH.end();
+
+    fboA.end();
+
+    // 2. Ping-Pong through shaders
+    FrameBuffer finalFbo = applyShadersAndCompose(fboA, fboB, shaders, width, height);
+
+    // Free the unused FBO
+    FrameBuffer unusedFbo = finalFbo == fboA ? fboB : fboA;
+    FBO_POOL.free(unusedFbo);
+
+    return finalFbo;
+  }
+
+  /**
+   * Applies a list of shaders to a source FBO using ping-pong and returns the FBO with the final
+   * result. If the shader list is empty, the original source FBO is returned.
+   *
+   * @param fboA FBO A containing the initial source texture
+   * @param fboB FBO B used for ping-ponging
+   * @param shaders The shaders to apply
+   * @param width The width of the FBO
+   * @param height The height of the FBO
+   * @return The FBO containing the final processed result
+   */
+  private FrameBuffer applyShadersAndCompose(
+      FrameBuffer fboA, FrameBuffer fboB, List<AbstractShader> shaders, int width, int height) {
+    if (shaders.isEmpty()) {
+      return fboA;
+    }
+
+    FrameBuffer sourceFbo = fboA;
+    FrameBuffer targetFbo;
+    TextureRegion currentSourceRegion = fboRegion;
+    fboBatch.setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, width, height));
+
+    for (AbstractShader pass : shaders) {
+      targetFbo = (sourceFbo == fboA) ? fboB : fboA;
+
+      targetFbo.begin();
+      Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
+      Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+      currentSourceRegion.setRegion(sourceFbo.getColorBufferTexture());
+      currentSourceRegion.flip(false, true);
+
+      fboBatch.begin();
+      BlendUtil.setBlending(fboBatch);
+      pass.bind(fboBatch, 1);
+      setCommonUniforms(fboBatch.getShader(), width, height, null);
+      fboBatch.setColor(Color.WHITE);
+      fboBatch.draw(currentSourceRegion, 0, 0, width, height);
+      pass.unbind(fboBatch);
+      fboBatch.end();
+      targetFbo.end();
+
+      sourceFbo = targetFbo;
+    }
+
+    return sourceFbo;
   }
 
   /**
@@ -332,6 +464,7 @@ public final class DrawSystem extends System implements Disposable {
 
     fboBatch.setProjectionMatrix(fboProjectionMatrix);
     fboBatch.begin();
+    BlendUtil.setBlending(fboBatch);
     fboBatch.draw(
         initialRegion,
         padding * shaderUpscaling,
@@ -359,6 +492,7 @@ public final class DrawSystem extends System implements Disposable {
 
       fboBatch.setProjectionMatrix(fboProjectionMatrix);
       fboBatch.begin();
+      BlendUtil.setBlending(fboBatch);
       pass.bind(fboBatch, shaderUpscaling);
       setCommonUniforms(
           fboBatch.getShader(), fboRegion.getRegionWidth(), fboRegion.getRegionHeight(), dsd);
@@ -383,22 +517,22 @@ public final class DrawSystem extends System implements Disposable {
     FBO_POOL.free(unusedFbo);
   }
 
-  /**
-   * Helper method to draw the entire scene content (Level + Entities). This is called regardless of
-   * whether the target is the screen or a post-processing FBO.
-   */
-  private void drawSceneContent() {
-    Game.currentLevel().ifPresent(this::drawLevel);
-    for (List<Entity> group : sortedEntities.values()) {
-      group.stream()
-          .map(DSData::build)
-          .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
-          .filter(this::shouldDraw)
-          .forEach(this::drawFinal);
-    }
-  }
-
   // #region Draw Methods
+
+  /**
+   * Draws the content of an FBO (which is expected to be vertically flipped) to the current batch,
+   * applying the required vertical flip.
+   *
+   * @param fbo The FBO to draw
+   * @param width The width of the FBO
+   * @param height The height of the FBO
+   */
+  private void drawFboToBatch(FrameBuffer fbo, int width, int height) {
+    BlendUtil.setBlending(BATCH);
+    fboRegion.setRegion(fbo.getColorBufferTexture());
+    fboRegion.flip(false, true); // Flip back to draw correctly
+    BATCH.draw(fboRegion, 0, 0, width, height);
+  }
 
   /**
    * Draws the final output for an entity, either from its FBO (if shaders were applied) or the
@@ -571,19 +705,23 @@ public final class DrawSystem extends System implements Disposable {
     t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
   }
 
-  private void drawLevel(ILevel currentLevel) {
-    if (currentLevel == null) throw new IllegalArgumentException("Level to draw can´t be null.");
-
-    Tile[][] layout = currentLevel.layout();
-    for (Tile[] tiles : layout) {
-      for (int x = 0; x < layout[0].length; x++) {
-        Tile t = tiles[x];
-        if (t.levelElement() != LevelElement.SKIP && !TileUtil.isTilePitAndOpen(t) && t.visible()) {
-          IPath texturePath = t.texturePath();
-          draw(t.position(), texturePath, new DrawConfig());
-        }
-      }
-    }
+  private void drawLevel() {
+    Game.currentLevel()
+        .ifPresent(
+            currentLevel -> {
+              Tile[][] layout = currentLevel.layout();
+              for (Tile[] tiles : layout) {
+                for (int x = 0; x < layout[0].length; x++) {
+                  Tile t = tiles[x];
+                  if (t.levelElement() != LevelElement.SKIP
+                      && !TileUtil.isTilePitAndOpen(t)
+                      && t.visible()) {
+                    IPath texturePath = t.texturePath();
+                    draw(t.position(), texturePath, new DrawConfig());
+                  }
+                }
+              }
+            });
   }
 
   /**
