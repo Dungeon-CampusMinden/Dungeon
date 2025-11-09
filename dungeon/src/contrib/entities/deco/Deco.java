@@ -110,6 +110,232 @@ public enum Deco {
   /** A decoration. */
   Bush4("objects/nature/bushes_sheet.png", new SpritesheetConfig(16, 16)),
 
+
+  /** PixelOfficeAssets */
+  ChairRed(
+      "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(6, 41, 1, 1, 11, 22)),
+      new Rectangle(1.15f, 1.15f, -0.15f, 0.00f)),
+  ChairYellow(
+      "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(19, 41, 1, 1, 11, 22)),
+      new Rectangle(1.15f, 1.15f, -0.15f, 0.00f)),
+  ChairGreen(
+      "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(32, 41, 1, 1, 11, 22)),
+      new Rectangle(1.15f, 1.15f, -0.15f, 0.00f)),
+  ChairBlue(
+      "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(45, 41, 1, 1, 11, 22)),
+      new Rectangle(1.15f, 1.15f, -0.15f, 0.00f)),
+  ChairWhite(
+      "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(58, 41, 1, 1, 11, 22)),
+      new Rectangle(1.15f, 1.15f, -0.15f, 0.00f)),
+  ChairGrey(
+      "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(71, 41, 1, 1, 11, 22)),
+      new Rectangle(1.15f, 1.15f, -0.15f, 0.00f)),
+  TableShort(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(85, 47, 1, 1, 26, 16)),
+    new Rectangle(1.90f, 1.30f, -0.10f, 0.00f)),
+  TableLong(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(115, 47, 1, 1, 40, 16)),
+    new Rectangle(4.25f, 1.30f, -0.10f, 0.00f)),
+  CouchWhite(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(119, 65, 1, 1, 33, 16)),
+    new Rectangle(3.05f, 1.10f, -0.15f, 0.00f)),
+  CouchBlue(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(120, 83, 1, 1, 33, 16)),
+    new Rectangle(3.05f, 1.10f, -0.15f, 0.00f)),
+  CouchGreen(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(120, 102, 1, 1, 33, 16)),
+    new Rectangle(3.05f, 1.10f, -0.15f, 0.00f)),
+  CouchOrange(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(120, 121, 1, 1, 33, 16)),
+    new Rectangle(3.05f, 1.10f, -0.15f, 0.00f)),
+  PottedTree(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(170, 65, 1, 1, 14, 19)),
+    new Rectangle(1.10f, 0.85f, 0.00f, 0.00f)),
+  TrashCanGreen(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(116, 143, 1, 1, 9, 14)),
+    new Rectangle(1.00f, 1.00f, -0.15f, 0.00f)),
+  TrashCanRed(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(126, 143, 1, 1, 9, 14)),
+    new Rectangle(1.00f, 1.00f, -0.15f, 0.00f)),
+  TrashCanBlue(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(136, 143, 1, 1, 9, 14)),
+    new Rectangle(1.00f, 1.00f, -0.15f, 0.00f)),
+  WaterDispenser(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(147, 140, 1, 1, 9, 17)),
+    new Rectangle(1.00f, 1.00f, -0.15f, 0.00f)),
+  SnackDispenser(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(159, 123, 1, 1, 24, 34)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  BookShelf(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(184, 126, 1, 1, 24, 31)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  FolderRed(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(211, 119, 1, 1, 11, 8)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  FolderBlue(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(211, 129, 1, 1, 11, 8)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  FolderGreen(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(211, 140, 1, 1, 11, 8)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  SheetBlank(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(211, 151, 1, 1, 10, 6)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Clock(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(159, 108, 1, 1, 19, 6)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  SheetWritten1(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(183, 107, 1, 1, 6, 8)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  SheetWritten2(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(192, 107, 1, 1, 6, 9)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Printer(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(200, 107, 1, 1, 9, 9)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  PCThick("spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(233, 106, 1, 1, 15, 19)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  PCFlat(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(233, 128, 1, 1, 13, 23)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  CoffeeMachine(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(159, 91, 1, 1, 7, 11)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Cup(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(169, 95, 1, 1, 8, 7)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  FlagIndia(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(179, 94, 1, 1, 12, 9)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  FlagUK(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(193, 94, 1, 1, 12, 9)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  FlagUSA(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(207, 94, 1, 1, 12, 9)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Painting1(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(222, 94, 1, 1, 6, 8)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Painting2(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(230, 94, 1, 1, 6, 8)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Painting3(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(239, 94, 1, 1, 11, 8)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Board(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(234, 81, 1, 1, 17, 11)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Stickies(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(217, 107, 1, 1, 6, 8)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  ThinWallHorizontal(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(171, 44, 1, 1, 79, 17)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  ThinWallVertical(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(207, 63, 1, 1, 4, 27)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Furniture(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(3, 68, 1, 1, 73, 24)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  WallWhite(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(84, 70, 1, 1, 26, 20)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Desk1(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(188, 63, 1, 1, 17, 19)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Desk2(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(213, 63, 1, 1, 17, 19)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Window1(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(59, 96, 1, 1, 26, 21)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Window2(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(88, 96, 1, 1, 26, 21)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Elevator(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(98, 120, 1, 1, 16, 31)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Cat(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(65, 129, 1, 1, 16, 14)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Dog(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(59, 147, 1, 1, 24, 11)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Sky(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(0, 0, 1, 1, 256, 38)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Tom(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(2, 105, 1, 1, 15, 23)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Joe(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(19, 104, 1, 1, 19, 24)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Bill(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(40, 107, 1, 1, 13, 21)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Julia(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(3, 132, 1, 1, 17, 23)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+  Laura(
+    "spritesheets/PixelOfficeAssets.png",
+    normScale(new SpritesheetConfig(22, 132, 1, 1, 17, 23)),
+    new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+
   /** A decoration. */
   LogBig(
       "objects/nature/big_log.png",
@@ -218,4 +444,24 @@ public enum Deco {
   public int defaultDepth() {
     return defaultDepth;
   }
+
+
+
+  // Warum ist in AnimationConfig scaleX = 1 aber scaleY = 0? Das sorgt für eine asymmetrische Skalierung bzw. Verzerrung.
+  private static AnimationConfig normScale(SpritesheetConfig sc) {
+    float TILE_SIZE = 16f;
+    float REZISE_FACTOR = 1.3f;
+
+    AnimationConfig cfg = new AnimationConfig(sc);
+    if (sc.spriteHeight() > sc.spriteWidth()) {
+      cfg.scaleX(sc.spriteWidth() * REZISE_FACTOR / TILE_SIZE);
+    } else if (sc.spriteWidth() > sc.spriteHeight()) {
+      cfg.scaleY(sc.spriteHeight() * REZISE_FACTOR / TILE_SIZE);
+    } else {
+      cfg.scaleX(sc.spriteWidth() * REZISE_FACTOR / TILE_SIZE);
+    }
+    return cfg;
+  }
+
+
 }
