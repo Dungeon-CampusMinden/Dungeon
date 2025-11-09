@@ -1,7 +1,6 @@
 package core.utils.components.draw.shader;
 
 import com.badlogic.gdx.graphics.Color;
-
 import java.util.List;
 
 public class ShineShader extends AbstractShader {
@@ -26,12 +25,11 @@ public class ShineShader extends AbstractShader {
 
   @Override
   protected List<UniformBinding> getUniforms(int actualUpscale) {
-        return List.of(
-          new FloatUniform("u_sliceCount", sliceCount),
-          new FloatUniform("u_gapSize", gapSize),
-          new FloatUniform("u_rotationSpeed", rotationSpeed),
-          new ColorUniform("u_shineColor", shineColor)
-        );
+    return List.of(
+        new FloatUniform("u_sliceCount", sliceCount),
+        new FloatUniform("u_gapSize", gapSize),
+        new FloatUniform("u_rotationSpeed", rotationSpeed),
+        new ColorUniform("u_shineColor", shineColor));
   }
 
   @Override

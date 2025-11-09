@@ -142,20 +142,25 @@ public class TilesMode extends LevelEditorMode {
 
     // Get tile under cursor
     Point cursorPos = getCursorPosition();
-    getLevel().tileAt(cursorPos).ifPresent(tile -> {
-      Coordinate c = cursorPos.toCoordinate();
-      status.append("\n\nCursor Tile:");
-      status.append("\n- (").append(c.x()).append(", ").append(c.y()).append(")");
-      status.append("\n- LevelElement: ").append(tile.levelElement().name());
-      status.append("\n- Texture: ").append(tile.texturePath().pathString());
-      if(tile.tintColor() == -1){
-        status.append("\n- TintColor RGBA: (---)");
-      } else {
-        Color tintColor = new Color(tile.tintColor() == -1 ? 0xFFFFFFFF : tile.tintColor());
-        status.append(String.format("\n- TintColor RGBA: (%.2f, %.2f, %.2f, %.2f)",
-          tintColor.r, tintColor.g, tintColor.b, tintColor.a));
-      }
-    });
+    getLevel()
+        .tileAt(cursorPos)
+        .ifPresent(
+            tile -> {
+              Coordinate c = cursorPos.toCoordinate();
+              status.append("\n\nCursor Tile:");
+              status.append("\n- (").append(c.x()).append(", ").append(c.y()).append(")");
+              status.append("\n- LevelElement: ").append(tile.levelElement().name());
+              status.append("\n- Texture: ").append(tile.texturePath().pathString());
+              if (tile.tintColor() == -1) {
+                status.append("\n- TintColor RGBA: (---)");
+              } else {
+                Color tintColor = new Color(tile.tintColor() == -1 ? 0xFFFFFFFF : tile.tintColor());
+                status.append(
+                    String.format(
+                        "\n- TintColor RGBA: (%.2f, %.2f, %.2f, %.2f)",
+                        tintColor.r, tintColor.g, tintColor.b, tintColor.a));
+              }
+            });
 
     return status.toString();
   }

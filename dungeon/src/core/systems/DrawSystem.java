@@ -30,7 +30,6 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.shader.AbstractShader;
 import core.utils.components.path.IPath;
 import core.utils.logging.DungeonLogger;
-
 import java.util.*;
 
 /**
@@ -245,8 +244,8 @@ public final class DrawSystem extends System implements Disposable {
       currentSourceRegion.flip(false, true);
 
       BATCH.setProjectionMatrix(
-        fboProjectionMatrix.setToOrtho2D(
-          0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+          fboProjectionMatrix.setToOrtho2D(
+              0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
       BlendUtil.setBlending(BATCH);
       BATCH.begin();
       BATCH.setColor(Color.WHITE);
@@ -268,10 +267,10 @@ public final class DrawSystem extends System implements Disposable {
   private void renderEntitiesPass1() {
     for (List<Entity> group : sortedEntities.values()) {
       group.stream()
-        .map(DSData::build)
-        .filter(this::shouldDraw)
-        .filter(dsd -> !dsd.dc.shaders().isEmpty())
-        .forEach(this::processShaderPassesSingleEntity);
+          .map(DSData::build)
+          .filter(this::shouldDraw)
+          .filter(dsd -> !dsd.dc.shaders().isEmpty())
+          .forEach(this::processShaderPassesSingleEntity);
     }
   }
 
@@ -379,14 +378,14 @@ public final class DrawSystem extends System implements Disposable {
     Game.currentLevel().ifPresent(this::drawLevel);
     for (List<Entity> group : sortedEntities.values()) {
       group.stream()
-        .map(DSData::build)
-        .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
-        .filter(this::shouldDraw)
-        .forEach(this::drawFinal);
+          .map(DSData::build)
+          .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
+          .filter(this::shouldDraw)
+          .forEach(this::drawFinal);
     }
   }
 
-  //#region Draw Methods
+  // #region Draw Methods
 
   /**
    * Draws the final output for an entity, either from its FBO (if shaders were applied) or the
@@ -409,14 +408,19 @@ public final class DrawSystem extends System implements Disposable {
       float paddingWorldUnits = padding / unitSize;
 
       // Scale is being factored into the transformation everywhere except the position, since it is
-      // passed directly to the draw method. Thus, we need to factor it in here to offset the padding.
-      Point offsetPosition = dsd.pc.position().translate(-paddingWorldUnits * dsd.pc.scale().x(), -paddingWorldUnits * dsd.pc.scale().y());
+      // passed directly to the draw method. Thus, we need to factor it in here to offset the
+      // padding.
+      Point offsetPosition =
+          dsd.pc
+              .position()
+              .translate(
+                  -paddingWorldUnits * dsd.pc.scale().x(), -paddingWorldUnits * dsd.pc.scale().y());
 
       // Final world size includes padding on all sides
       float worldWidth = dsd.dc.getWidth();
       float worldHeight = dsd.dc.getHeight();
       Vector2 finalWorldSize =
-        Vector2.of(worldWidth + 2 * paddingWorldUnits, worldHeight + 2 * paddingWorldUnits);
+          Vector2.of(worldWidth + 2 * paddingWorldUnits, worldHeight + 2 * paddingWorldUnits);
 
       DrawConfig conf = makeConfig(dsd, finalWorldSize, dsd.pc.scale());
       draw(offsetPosition, fboTexture, conf);
@@ -465,7 +469,8 @@ public final class DrawSystem extends System implements Disposable {
   private void draw(final DSData dsd) {
     dsd.dc.update();
     Sprite sprite = dsd.dc.getSprite();
-    DrawConfig conf = makeConfig(dsd, Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()), dsd.pc.scale());
+    DrawConfig conf =
+        makeConfig(dsd, Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()), dsd.pc.scale());
     draw(dsd.pc.position(), sprite, conf);
   }
 
@@ -483,9 +488,9 @@ public final class DrawSystem extends System implements Disposable {
     draw(position, new Sprite(TextureMap.instance().textureAt(path)), config);
   }
 
-  //#endregion
+  // #endregion
 
-  //#region Helpers
+  // #region Helpers
 
   /**
    * Sets any common uniforms needed by all shaders (for entity FBOs).
@@ -495,7 +500,8 @@ public final class DrawSystem extends System implements Disposable {
    * @param textureHeight The height of the texture being processed
    * @param dsd The DSData of the entity being processed (or null for global effects)
    */
-  private void setCommonUniforms(ShaderProgram shader, int textureWidth, int textureHeight, DSData dsd) {
+  private void setCommonUniforms(
+      ShaderProgram shader, int textureWidth, int textureHeight, DSData dsd) {
     shader.setUniformf("u_time", secondsElapsed);
     shader.setUniformf("u_resolution", textureWidth, textureHeight);
     shader.setUniformf("u_texelSize", 1.0f / textureWidth, 1.0f / textureHeight);
@@ -506,7 +512,7 @@ public final class DrawSystem extends System implements Disposable {
     Vector3 unprojected = CameraSystem.camera().project(new Vector3(mousePos.x(), mousePos.y(), 0));
     shader.setUniformf("u_mouse", unprojected.x, unprojected.y);
 
-    if(dsd == null) {
+    if (dsd == null) {
       // Use camera pos and viewport for global effects
       OrthographicCamera camera = CameraSystem.camera();
       float worldWidth = camera.viewportWidth * camera.zoom;
@@ -517,7 +523,7 @@ public final class DrawSystem extends System implements Disposable {
       float posY = camY - (worldHeight / 2f);
       shader.setUniformf("u_entityBounds", posX, posY, worldWidth, worldHeight);
       shader.setUniformf("u_rotation", 0f);
-    }  else {
+    } else {
       // Use entity position and size for local effects
       float posX = dsd.pc.position().x();
       float posY = dsd.pc.position().y();
@@ -542,15 +548,15 @@ public final class DrawSystem extends System implements Disposable {
     float scaleX = cfg.scale().x() * (cfg.mirrored() ? -1f : 1f);
     float scaleY = cfg.scale().y();
     return new Affine2()
-      .setToTranslation(pos.x(), pos.y())
-      .scale(scaleX, scaleY)
-      .translate(cfg.mirrored() ? cfg.size().x() * -1 : 0f, 0f) //adjust for mirroring offset
-      .translate(cfg.size().x() / 2f, cfg.size().y() / 2f)
-      .rotate(cfg.rotation())
-      .translate(-cfg.size().x() / 2f, -cfg.size().y() / 2f);
+        .setToTranslation(pos.x(), pos.y())
+        .scale(scaleX, scaleY)
+        .translate(cfg.mirrored() ? cfg.size().x() * -1 : 0f, 0f) // adjust for mirroring offset
+        .translate(cfg.size().x() / 2f, cfg.size().y() / 2f)
+        .rotate(cfg.rotation())
+        .translate(-cfg.size().x() / 2f, -cfg.size().y() / 2f);
   }
 
-  private void setTextureFiltering(Texture t){
+  private void setTextureFiltering(Texture t) {
     t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
   }
 
@@ -561,7 +567,7 @@ public final class DrawSystem extends System implements Disposable {
     for (Tile[] tiles : layout) {
       for (int x = 0; x < layout[0].length; x++) {
         Tile t = tiles[x];
-//        if (!TileUtil.isTilePitAndOpen(t) && t.visible()) {
+        //        if (!TileUtil.isTilePitAndOpen(t) && t.visible()) {
         if (t.levelElement() != LevelElement.SKIP && !TileUtil.isTilePitAndOpen(t) && t.visible()) {
           IPath texturePath = t.texturePath();
           draw(t.position(), texturePath, new DrawConfig());
@@ -591,25 +597,25 @@ public final class DrawSystem extends System implements Disposable {
     float width = data.dc.getWidth() * data.pc.scale().x();
     float height = data.dc.getHeight() * data.pc.scale().y();
     List<Point> corners =
-      List.of(
-        pos.translate(0, 0),
-        pos.translate(width, 0),
-        pos.translate(0, height),
-        pos.translate(width, height));
+        List.of(
+            pos.translate(0, 0),
+            pos.translate(width, 0),
+            pos.translate(0, height),
+            pos.translate(width, height));
 
     return Game.currentLevel()
-      .map(
-        level ->
-          corners.stream()
-            .anyMatch(
-              c -> {
-                Tile t = level.tileAt(c).orElse(null);
-                return t != null && t.visible() && !TileUtil.isTilePitAndOpen(t);
-              }))
-      .orElse(false);
+        .map(
+            level ->
+                corners.stream()
+                    .anyMatch(
+                        c -> {
+                          Tile t = level.tileAt(c).orElse(null);
+                          return t != null && t.visible() && !TileUtil.isTilePitAndOpen(t);
+                        }))
+        .orElse(false);
   }
 
-  //#endregion
+  // #endregion
 
   private record DSData(Entity e, DrawComponent dc, PositionComponent pc) {
     /**
@@ -618,15 +624,15 @@ public final class DrawSystem extends System implements Disposable {
      * @param entity The entity with a DrawComponent and a PositionComponent
      * @return The data record
      */
-    static DSData build(final Entity entity){
+    static DSData build(final Entity entity) {
       DrawComponent dc =
-        entity
-          .fetch(DrawComponent.class)
-          .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+          entity
+              .fetch(DrawComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
       PositionComponent pc =
-        entity
-          .fetch(PositionComponent.class)
-          .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+          entity
+              .fetch(PositionComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
       return new DSData(entity, dc, pc);
     }
 

@@ -97,7 +97,8 @@ public abstract class AbstractShader implements Disposable {
    * <p>When effects need to draw "in between" pixels (e.g. a smaller outline than 1 pixel),
    * upscaling the render target is necessary.
    *
-   * <p>When chaining, set this field last, since it chains an AbstractShader, not the specific subclass.
+   * <p>When chaining, set this field last, since it chains an AbstractShader, not the specific
+   * subclass.
    *
    * @param upscaling The upscaling factor (1 = no upscaling, 2 = 2x upscaling, etc.)
    * @return The shader instance for chaining.

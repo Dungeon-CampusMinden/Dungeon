@@ -17,9 +17,7 @@ public class PassthroughShader extends AbstractShader {
   @Override
   protected List<UniformBinding> getUniforms(int actualUpscale) {
     return List.of(
-      new BoolUniform("u_debugPMA", debugPMA),
-      new BoolUniform("u_debugWorldPos", debugWorldPos)
-    );
+        new BoolUniform("u_debugPMA", debugPMA), new BoolUniform("u_debugWorldPos", debugWorldPos));
   }
 
   @Override

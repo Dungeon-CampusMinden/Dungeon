@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import core.utils.components.path.IPath;
 import core.utils.logging.DungeonLogger;
-
 import java.util.HashMap;
 
 /**

@@ -11,5 +11,4 @@ public class ColorUtil {
   public static Color pmaColor(int rgba8888) {
     return pmaColor(new Color(rgba8888));
   }
-
 }
