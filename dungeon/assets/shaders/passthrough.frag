@@ -8,6 +8,7 @@ precision mediump float;
 
 // ----- From vertex shader -----
 varying vec2 uv;
+varying vec2 worldPos; //Comment out if not needed for performance
 
 // ----- From LibGDX -----
 uniform sampler2D u_texture;
@@ -20,7 +21,8 @@ uniform vec2 u_texelSize;
 uniform vec2 u_aspect;
 
 // ----- Custom uniforms -----
-// uniform float u_customUniform1;
+uniform bool u_debugPMA;
+uniform bool u_debugWorldPos;
 
 // ----- Helper functions for PMA conversion -----
 // All shaders outputting transparency or calculating colors should unPma from texture, and pma before outputting
@@ -40,8 +42,24 @@ vec4 pma(vec4 color) {
 
 // Main
 void main() {
-    vec4 tex = unPma(texture2D(u_texture, uv));
-    gl_FragColor = pma(tex);
-    //vec4 tex = texture2D(u_texture, uv);
-    //gl_FragColor = tex.rgaa;
+    vec4 color = texture2D(u_texture, uv); // PMA texture
+    if(u_debugPMA) {
+        if (color.r > color.a || color.g > color.a || color.b > color.a) {
+            vec2 pos = worldPos * 16.0;
+            float checker = mod(floor(pos.x) + floor(pos.y), 2.0);
+            if (checker < 0.5) {
+                color.rgba = vec4(0.0, 0.0, 0.0, 1.0);
+            } else {
+                color.rgba = vec4(1.0, 0.0, 1.0, 1.0);
+            }
+        }
+    } else if (u_debugWorldPos) {
+        color = vec4(fract(worldPos), 0.0, 1.0);
+    }
+    gl_FragColor = color;
+
+    // Your shader would look something like this (respecting PMA conversion):
+    // vec4 color = unPma(texture2D(u_texture, uv));
+    // color = <your shader code here>
+    // gl_FragColor = pma(color);
 }
