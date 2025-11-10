@@ -54,7 +54,7 @@ public class PelletLauncherBehaviour implements Consumer<Entity>, ISkillUser {
     }
 
     Point targetEndPoint = this.spawnPoint.translate(this.shootDirection.scale(this.attackRange));
-    this.projectileSkill.targetSelection(() -> targetEndPoint.toCenteredPoint());
+    this.projectileSkill.endPointSupplier(() -> targetEndPoint.toCenteredPoint());
   }
 
   @Override
