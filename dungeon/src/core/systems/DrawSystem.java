@@ -27,6 +27,7 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.*;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.shader.AbstractShader;
+import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.IPath;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
@@ -74,11 +75,11 @@ public final class DrawSystem extends System implements Disposable {
   private final Map<Entity, FrameBuffer> entityFboCache = new HashMap<>();
 
   // Shaders applied to the level layer
-  private List<AbstractShader> levelShaders = new ArrayList<>();
+  private ShaderList levelShaders = new ShaderList();
   // Shaders applied to each entity depth layer (depth = key)
-  private final Map<Integer, List<AbstractShader>> entityDepthShaders = new HashMap<>();
+  private final Map<Integer, ShaderList> entityDepthShaders = new HashMap<>();
   // Post-processing shaders applied to the entire scene
-  private List<AbstractShader> sceneShaders = new ArrayList<>();
+  private ShaderList sceneShaders = new ShaderList();
 
   private float secondsElapsed = 0f;
 
@@ -165,56 +166,24 @@ public final class DrawSystem extends System implements Disposable {
     return BATCH;
   }
 
-  /**
-   * Sets the list of shaders to be applied to the entire scene as post-processing effects.
-   *
-   * @param shaders The list of shaders to apply (or null/empty list to disable).
-   */
-  public void sceneShaders(List<AbstractShader> shaders) {
-    this.sceneShaders = Objects.requireNonNullElseGet(shaders, ArrayList::new);
-  }
-
-  public List<AbstractShader> sceneShaders() {
+  public ShaderList sceneShaders() {
     return sceneShaders;
   }
 
-  /**
-   * Sets the list of shaders to be applied to the level layer.
-   *
-   * @param shaders The list of shaders to apply (or null/empty list to disable).
-   */
-  public void levelShaders(List<AbstractShader> shaders) {
-    this.levelShaders = Objects.requireNonNullElseGet(shaders, ArrayList::new);
-  }
-
-  public List<AbstractShader> levelShaders() {
+  public ShaderList levelShaders() {
     return levelShaders;
   }
 
   /**
-   * Sets the list of shaders to be applied to an entity depth layer.
-   *
-   * @param depth The entity depth layer.
-   * @param shaders The list of shaders to apply (or null/empty list to disable).
+   * Gets the ShaderList for a specific entity depth. Creates one if it does not exist.
+   * @param depth The entity depth
+   * @return The ShaderList for the specified depth
    */
-  public void entityDepthShaders(int depth, List<AbstractShader> shaders) {
-    if (shaders == null || shaders.isEmpty()) {
-      entityDepthShaders.remove(depth);
-    } else {
-      entityDepthShaders.put(depth, shaders);
+  public ShaderList entityDepthShaders(int depth) {
+    if (!entityDepthShaders.containsKey(depth)) {
+      entityDepthShaders.put(depth, new ShaderList());
     }
-  }
-
-  public Optional<List<AbstractShader>> entityDepthShaders(int depth) {
-    return Optional.ofNullable(entityDepthShaders.get(depth));
-  }
-
-  public void setAllShadersEnabled(boolean enabled) {
-    levelShaders.forEach(shader -> shader.enabled(enabled));
-    entityDepthShaders.values().forEach(
-        shaderList -> shaderList.forEach(shader -> shader.enabled(enabled))
-    );
-    sceneShaders.forEach(shader -> shader.enabled(enabled));
+    return entityDepthShaders.get(depth);
   }
 
   /**
@@ -253,9 +222,6 @@ public final class DrawSystem extends System implements Disposable {
     // 2. Render each Entity Depth Group to its FBO and apply depth shaders
     Map<Integer, FrameBuffer> depthFbos = new HashMap<>();
     for (Integer depth : sortedEntities.keySet()) {
-      List<AbstractShader> shaders =
-          entityDepthShaders.getOrDefault(depth, Collections.emptyList());
-      // Sort entities by Y-position (for top-down overlap)
       List<DSData> sortedGroup =
           sortedEntities.get(depth).stream()
               .map(DSData::build)
@@ -264,6 +230,7 @@ public final class DrawSystem extends System implements Disposable {
               .toList();
 
       if (!sortedGroup.isEmpty()) {
+        ShaderList shaders = entityDepthShaders.get(depth);
         FrameBuffer depthFbo =
             drawToIntermediateFbo(
                 () -> sortedGroup.forEach(this::drawFinal), shaders, sceneWidth, sceneHeight);
@@ -325,13 +292,13 @@ public final class DrawSystem extends System implements Disposable {
    * Renders content to an intermediate FBO, applies a list of shaders, and returns the final FBO.
    *
    * @param renderAction The action to draw the content (level or entity group)
-   * @param shaders The list of shaders to apply (can be empty)
+   * @param shaders The list of shaders to apply (can be null)
    * @param width The width of the scene/FBO
    * @param height The height of the scene/FBO
    * @return The FBO containing the final, processed layer content
    */
   private FrameBuffer drawToIntermediateFbo(
-      Runnable renderAction, List<AbstractShader> shaders, int width, int height) {
+      Runnable renderAction, ShaderList shaders, int width, int height) {
     // Obtain two FBOs for ping-ponging
     FrameBuffer fboA = FBO_POOL.obtain(width, height);
     FrameBuffer fboB = FBO_POOL.obtain(width, height);
@@ -367,15 +334,14 @@ public final class DrawSystem extends System implements Disposable {
    *
    * @param fboA FBO A containing the initial source texture
    * @param fboB FBO B used for ping-ponging
-   * @param shaders The shaders to apply
+   * @param shaders The shaders to apply (can be null)
    * @param width The width of the FBO
    * @param height The height of the FBO
    * @return The FBO containing the final processed result
    */
   private FrameBuffer applyShadersAndCompose(
-      FrameBuffer fboA, FrameBuffer fboB, List<AbstractShader> shaders, int width, int height) {
-    List<AbstractShader> enabledShaders = shaders.stream().filter(AbstractShader::enabled).toList();
-    if (enabledShaders.isEmpty()) {
+      FrameBuffer fboA, FrameBuffer fboB, ShaderList shaders, int width, int height) {
+    if (shaders == null || !shaders.hasEnabledShaders()) {
       return fboA;
     }
 
@@ -384,7 +350,7 @@ public final class DrawSystem extends System implements Disposable {
     TextureRegion currentSourceRegion = fboRegion;
     fboBatch.setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, width, height));
 
-    for (AbstractShader pass : enabledShaders) {
+    for (AbstractShader pass : shaders.getEnabledSorted()) {
       targetFbo = (sourceFbo == fboA) ? fboB : fboA;
 
       targetFbo.begin();
