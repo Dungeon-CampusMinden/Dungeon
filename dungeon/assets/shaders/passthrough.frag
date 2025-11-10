@@ -44,13 +44,13 @@ vec4 pma(vec4 color) {
 void main() {
     vec4 color = texture2D(u_texture, uv); // PMA texture
     if(u_debugPMA) {
-        if (color.r > color.a || color.g > color.a || color.b > color.a) {
+        float maxA = color.a + 1.0 / 255.0; // Account for rounding errors
+        if (color.r > maxA || color.g > maxA || color.b > maxA) {
             vec2 pos = worldPos * 16.0;
             float checker = mod(floor(pos.x) + floor(pos.y), 2.0);
+            color = vec4(color.r > maxA, color.g > maxA, color.b > maxA, 1.0);
             if (checker < 0.5) {
-                color.rgba = vec4(0.0, 0.0, 0.0, 1.0);
-            } else {
-                color.rgba = vec4(1.0, 0.0, 1.0, 1.0);
+                color.rgb = 0.0;
             }
         }
     } else if (u_debugWorldPos) {
