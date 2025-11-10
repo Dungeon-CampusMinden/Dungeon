@@ -13,6 +13,7 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
+import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
@@ -175,14 +176,14 @@ public class TractorBeamFactory {
       StateMachine sm = new StateMachine(Arrays.asList(stNormalHorizontal, stReversedHorizontal));
       sm.addTransition(stNormalHorizontal, "reverse_horizontal", stReversedHorizontal);
       sm.addTransition(stReversedHorizontal, "normal_horizontal", stNormalHorizontal);
-      dc = new DrawComponent(sm);
+      dc = new DrawComponent(sm, DepthLayer.Ground);
     } else if (beamDirection.equals(Direction.UP) || beamDirection.equals(Direction.DOWN)) {
       State stNormalVertical = State.fromMap(animationMap, "blue_vertical");
       State stReversedVertical = State.fromMap(animationMap, "red_vertical");
       StateMachine sm = new StateMachine(Arrays.asList(stNormalVertical, stReversedVertical));
       sm.addTransition(stNormalVertical, "reverse_vertical", stReversedVertical);
       sm.addTransition(stReversedVertical, "normal_vertical", stNormalVertical);
-      dc = new DrawComponent(sm);
+      dc = new DrawComponent(sm, DepthLayer.Ground);
     }
     if (dc == null) {
       throw new IllegalArgumentException("Tractor Beam has no draw components");
@@ -203,27 +204,6 @@ public class TractorBeamFactory {
   }
 
   /**
-   * Creates a complete tractor beam between two points by generating all entities.
-   *
-   * @param from the starting point of the beam
-   * @param to the end point of the beam
-   * @return a list of all tractor beam entities
-   */
-  public static List<Entity> createTractorBeam(Point from, Point to) {
-    TractorBeamFactory factory = new TractorBeamFactory(from, to);
-    List<Entity> tractorBeamEntities = new ArrayList<>();
-
-    while (factory.hasNext()) {
-      tractorBeamEntities.add(factory.createNextEntity());
-    }
-
-    Direction direction = factory.calculateDirection(from, to);
-    tractorBeamEntities.add(factory.createBeamEmitter(from, direction));
-
-    return tractorBeamEntities;
-  }
-
-  /**
    * Creates a tractor beam. It only needs a spawn point and an emitted direction. The beam is
    * stopped by the next wall.
    *
@@ -238,11 +218,11 @@ public class TractorBeamFactory {
     while (factory.hasNext()) {
       tractorBeamEntities.add(factory.createNextEntity());
     }
-    Entity entity = factory.createBeamEmitter(from, direction);
+    Entity beamEmitter = factory.createBeamEmitter(from, direction);
 
-    tractorBeamEntities.add(entity);
+    tractorBeamEntities.add(beamEmitter);
     TractorBeamComponent tbc = new TractorBeamComponent(direction, from, tractorBeamEntities);
-    entity.add(tbc);
+    beamEmitter.add(tbc);
     PortalExtendComponent pec = new PortalExtendComponent();
     pec.onExtend =
         (d, e, portalExtendComponent) -> {
@@ -252,9 +232,9 @@ public class TractorBeamFactory {
         (e) -> {
           tbc.trim();
         };
-    entity.add(pec);
+    beamEmitter.add(pec);
 
-    return entity;
+    return beamEmitter;
   }
 
   /**
@@ -351,6 +331,11 @@ public class TractorBeamFactory {
    * @param tractorBeamEntities The list of all entities building the tractor beam
    */
   public static void reverseTractorBeam(List<Entity> tractorBeamEntities) {
+    // don't reverse the beam if it is deactivated
+    if (!checkActiveState(tractorBeamEntities)) {
+      return;
+    }
+
     final Direction[] directionHolder = {Direction.NONE};
     for (Entity tractorBeamEntity : tractorBeamEntities) {
       if (tractorBeamEntity.name().equals("tractorBeam")) {
@@ -402,6 +387,103 @@ public class TractorBeamFactory {
                                 });
                       });
                 });
+        tractorBeamEntity
+            .fetch(TractorBeamComponent.class)
+            .ifPresent(TractorBeamComponent::toggleReversed);
+      }
+    }
+  }
+
+  /**
+   * Reverses all tractor beam segments after the first beamEmitter. This ensures that the extended
+   * beam has the correct texture orientation and applies force in the correct direction.
+   *
+   * @param extensionBeamEntities the list of all entities that form the extended tractor beam
+   */
+  public static void reverseExtensionBeam(List<Entity> extensionBeamEntities) {
+    // find index of first beamEmitter
+    int firstEmitterIndex = -1;
+    for (int i = 0; i < extensionBeamEntities.size(); i++) {
+      if (extensionBeamEntities.get(i).name().equals("beamEmitter")) {
+        firstEmitterIndex = i;
+        break;
+      }
+    }
+
+    if (firstEmitterIndex == -1) return;
+
+    // reverse all entities after the first beamEmitter
+    int i = firstEmitterIndex + 1;
+
+    while (i < extensionBeamEntities.size()) {
+
+      final Direction[] directionHolder = {Direction.NONE};
+
+      while (i < extensionBeamEntities.size()
+          && extensionBeamEntities.get(i).name().equals("tractorBeam")) {
+
+        Entity tractorBeamEntity = extensionBeamEntities.get(i);
+
+        tractorBeamEntity
+            .fetch(DrawComponent.class)
+            .ifPresent(
+                dc -> {
+                  String currentState = dc.currentStateName();
+
+                  if (currentState.contains("horizontal")) {
+                    if (currentState.startsWith("blue")) {
+                      dc.sendSignal("reverse_horizontal");
+                      directionHolder[0] = Direction.RIGHT;
+                    } else {
+                      dc.sendSignal("normal_horizontal");
+                      directionHolder[0] = Direction.LEFT;
+                    }
+                  }
+
+                  if (currentState.contains("vertical")) {
+                    if (currentState.startsWith("blue")) {
+                      dc.sendSignal("reverse_vertical");
+                      directionHolder[0] = Direction.DOWN;
+                    } else {
+                      dc.sendSignal("normal_vertical");
+                      directionHolder[0] = Direction.UP;
+                    }
+                  }
+                });
+
+        i++;
+      }
+
+      if (i < extensionBeamEntities.size()
+          && extensionBeamEntities.get(i).name().equals("beamEmitter")) {
+
+        Entity emitter = extensionBeamEntities.get(i);
+        final Direction dir = directionHolder[0];
+
+        emitter
+            .fetch(CollideComponent.class)
+            .ifPresent(
+                cc -> {
+                  cc.onHold(
+                      (you, other, collisionDir) -> {
+                        other
+                            .fetch(VelocityComponent.class)
+                            .ifPresent(
+                                vc -> {
+                                  if (!other.isPresent(FlyComponent.class)) {
+                                    other.add(new FlyComponent());
+                                  }
+                                  Vector2 forceVector =
+                                      Vector2.of(
+                                          -dir.x() * forceMagnitude, -dir.y() * forceMagnitude);
+                                  vc.applyForce("beamEmitter", forceVector);
+                                });
+                      });
+                });
+
+        i++;
+      } else {
+        break;
       }
     }
   }
@@ -439,6 +521,10 @@ public class TractorBeamFactory {
     emitter.remove(DrawComponent.class);
     tractorBeamEntities.add(emitter);
     Game.add(emitter);
+
+    if (tbc.isReversed()) {
+      reverseExtensionBeam(tractorBeamEntities);
+    }
   }
 
   /**
@@ -467,5 +553,23 @@ public class TractorBeamFactory {
       }
       entities.subList(firstEmitterIndex + 1, entities.size()).clear();
     }
+  }
+
+  /**
+   * Checks the active status of a tractor beam by fetching it from the TractorBeamComponent.
+   *
+   * @param tractorBeamEntities The list of all entities building the tractor beam
+   * @return the current status of the "active" status
+   */
+  public static boolean checkActiveState(List<Entity> tractorBeamEntities) {
+    for (Entity entity : tractorBeamEntities) {
+      if (entity.name().equals("beamEmitter")) {
+        TractorBeamComponent tbc = entity.fetch(TractorBeamComponent.class).orElse(null);
+        if (tbc != null) {
+          return tbc.isActive();
+        }
+      }
+    }
+    return false;
   }
 }
