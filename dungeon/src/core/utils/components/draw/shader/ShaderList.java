@@ -21,10 +21,9 @@ public class ShaderList {
   // Value: TreeSet of ShaderEntry, which performs the secondary sort by insertionIndex
   private final TreeMap<Integer, Set<ShaderEntry>> sortedByPriority = new TreeMap<>();
 
-
-
   /**
    * Adds a new shader with an assigned priority and identifier.
+   *
    * @param identifier The unique name given by the system
    * @param shader The AbstractShader object
    * @param priority The priority level (e.g., lower number is higher priority)
@@ -42,15 +41,14 @@ public class ShaderList {
     priorityMap.put(identifier, priority);
     insertionIndexMap.put(identifier, newIndex);
 
-    sortedByPriority
-      .computeIfAbsent(priority, k -> new TreeSet<>())
-      .add(entry);
+    sortedByPriority.computeIfAbsent(priority, k -> new TreeSet<>()).add(entry);
 
     return true;
   }
 
   /**
    * Adds a new shader with default priority (0).
+   *
    * @param identifier The unique name given by the system
    * @param shader The AbstractShader object
    * @return true if the shader was added, false if the identifier already exists
@@ -61,6 +59,7 @@ public class ShaderList {
 
   /**
    * Removes a shader by its unique identifier.
+   *
    * @param identifier The unique name/identifier assigned by the creating system
    * @return true if the shader was found and removed, false otherwise
    */
@@ -111,9 +110,7 @@ public class ShaderList {
     removeFromSortedMap(entry, oldPriority);
     priorityMap.put(identifier, newPriority);
 
-    sortedByPriority
-      .computeIfAbsent(newPriority, k -> new TreeSet<>())
-      .add(entry);
+    sortedByPriority.computeIfAbsent(newPriority, k -> new TreeSet<>()).add(entry);
 
     return true;
   }
@@ -134,6 +131,7 @@ public class ShaderList {
 
   /**
    * Calls shader.enabled(enabled) on ALL shaders in the list.
+   *
    * @param enabled The enabled state to set for all shaders
    */
   public void enableAll(boolean enabled) {
@@ -142,22 +140,19 @@ public class ShaderList {
     }
   }
 
-  /**
-   * Calls shader.enabled(true) on ALL shaders in the list.
-   */
+  /** Calls shader.enabled(true) on ALL shaders in the list. */
   public void enableAll() {
     enableAll(true);
   }
 
-  /**
-   * Calls shader.enabled(false) on ALL shaders in the list.
-   */
+  /** Calls shader.enabled(false) on ALL shaders in the list. */
   public void disableAll() {
     enableAll(false);
   }
 
   /**
    * Helper method to remove a shader entry from the sorted map based on its priority.
+   *
    * @param entry The ShaderEntry to remove
    * @param priority The priority level of the shader
    */
@@ -172,67 +167,65 @@ public class ShaderList {
   }
 
   /**
-   * Returns an iterable collection of all shaders, sorted first by priority, then by insertion time.
+   * Returns an iterable collection of all shaders, sorted first by priority, then by insertion
+   * time.
    *
    * @param onlyEnabled If true, only enabled shaders will be included
    */
   public Iterable<AbstractShader> getSorted(boolean onlyEnabled) {
-    return () -> new Iterator<>() {
-      private final Iterator<Set<ShaderEntry>> mapIterator =
-        sortedByPriority.values().iterator();
-      private Iterator<ShaderEntry> currentSetIterator =
-        Collections.emptyIterator();
-      private AbstractShader nextShader = null;
+    return () ->
+        new Iterator<>() {
+          private final Iterator<Set<ShaderEntry>> mapIterator =
+              sortedByPriority.values().iterator();
+          private Iterator<ShaderEntry> currentSetIterator = Collections.emptyIterator();
+          private AbstractShader nextShader = null;
 
-      @Override
-      public boolean hasNext() {
-        if (nextShader != null) {
-          return true;
-        }
-
-        while (true) {
-          if (currentSetIterator.hasNext()) {
-            ShaderEntry candidateEntry = currentSetIterator.next();
-            AbstractShader candidate = candidateEntry.shader;
-
-            if (!onlyEnabled || candidate.enabled()) {
-              nextShader = candidate;
+          @Override
+          public boolean hasNext() {
+            if (nextShader != null) {
               return true;
             }
-          }
-          else if (mapIterator.hasNext()) {
-            currentSetIterator = mapIterator.next().iterator();
-          }
-          else {
-            return false;
-          }
-        }
-      }
 
-      @Override
-      public AbstractShader next() {
-        if (!hasNext()) {
-          throw new NoSuchElementException();
-        }
-        AbstractShader result = nextShader;
-        nextShader = null;
-        return result;
-      }
-    };
+            while (true) {
+              if (currentSetIterator.hasNext()) {
+                ShaderEntry candidateEntry = currentSetIterator.next();
+                AbstractShader candidate = candidateEntry.shader;
+
+                if (!onlyEnabled || candidate.enabled()) {
+                  nextShader = candidate;
+                  return true;
+                }
+              } else if (mapIterator.hasNext()) {
+                currentSetIterator = mapIterator.next().iterator();
+              } else {
+                return false;
+              }
+            }
+          }
+
+          @Override
+          public AbstractShader next() {
+            if (!hasNext()) {
+              throw new NoSuchElementException();
+            }
+            AbstractShader result = nextShader;
+            nextShader = null;
+            return result;
+          }
+        };
   }
 
   /**
-   * Returns an iterable collection of all enabled shaders, sorted first by priority, then by insertion time.
+   * Returns an iterable collection of all enabled shaders, sorted first by priority, then by
+   * insertion time.
    */
   public Iterable<AbstractShader> getEnabledSorted() {
     return getSorted(true);
   }
 
-
-  /**
-   * Helper class to define the secondary sort order by insertion time.
-   */
-  private record ShaderEntry(AbstractShader shader, long insertionIndex) implements Comparable<ShaderEntry> {
+  /** Helper class to define the secondary sort order by insertion time. */
+  private record ShaderEntry(AbstractShader shader, long insertionIndex)
+      implements Comparable<ShaderEntry> {
     @Override
     public int compareTo(ShaderEntry other) {
       // Secondary sort: Insertion time (Lower index = earlier insertion)

@@ -16,7 +16,6 @@ import core.level.Tile;
 import core.systems.DrawSystem;
 import core.utils.*;
 import core.utils.components.draw.DepthLayer;
-import core.utils.components.draw.shader.HueRemapShader;
 import core.utils.components.draw.shader.OutlineShader;
 import core.utils.components.draw.shader.PassthroughShader;
 import core.utils.logging.DungeonLogger;
@@ -199,7 +198,7 @@ public class LevelEditorSystem extends System {
 
   private void toggleDebugShader() {
     DrawSystem ds = (DrawSystem) Game.systems().get(DrawSystem.class);
-    if(debugShaderActive){
+    if (debugShaderActive) {
       ds.levelShaders().remove(DEBUG_SHADER_KEY);
       ds.entityDepthShaders(DepthLayer.Player.depth()).remove(DEBUG_SHADER_KEY);
       ds.entityDepthShaders(DepthLayer.BackgroundDeco.depth()).remove(DEBUG_SHADER_KEY);
@@ -207,9 +206,12 @@ public class LevelEditorSystem extends System {
       ds.sceneShaders().remove(DEBUG_SHADER_KEY);
     } else {
       ds.levelShaders().add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.BLUE));
-      ds.entityDepthShaders(DepthLayer.Player.depth()).add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.RED));
-      ds.entityDepthShaders(DepthLayer.BackgroundDeco.depth()).add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.GREEN));
-      ds.entityDepthShaders(DepthLayer.Normal.depth()).add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.WHITE));
+      ds.entityDepthShaders(DepthLayer.Player.depth())
+          .add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.RED));
+      ds.entityDepthShaders(DepthLayer.BackgroundDeco.depth())
+          .add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.GREEN));
+      ds.entityDepthShaders(DepthLayer.Normal.depth())
+          .add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.WHITE));
       ds.sceneShaders().add(DEBUG_SHADER_KEY, new PassthroughShader().debugPMA(true));
     }
     debugShaderActive = !debugShaderActive;

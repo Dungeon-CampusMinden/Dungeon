@@ -1,7 +1,6 @@
 package core.components;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import core.Component;
 import core.utils.components.draw.*;
 import core.utils.components.draw.animation.Animation;

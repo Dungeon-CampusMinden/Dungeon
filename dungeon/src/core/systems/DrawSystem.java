@@ -176,6 +176,7 @@ public final class DrawSystem extends System implements Disposable {
 
   /**
    * Gets the ShaderList for a specific entity depth. Creates one if it does not exist.
+   *
    * @param depth The entity depth
    * @return The ShaderList for the specified depth
    */
@@ -692,7 +693,8 @@ public final class DrawSystem extends System implements Disposable {
                       && !TileUtil.isTilePitAndOpen(t)
                       && t.visible()) {
                     IPath texturePath = t.texturePath();
-                    int tintColor = t.tintColor() == -1 ? Color.rgba8888(Color.WHITE) : t.tintColor();
+                    int tintColor =
+                        t.tintColor() == -1 ? Color.rgba8888(Color.WHITE) : t.tintColor();
                     draw(t.position(), texturePath, new DrawConfig().withTintColor(tintColor));
                   }
                 }

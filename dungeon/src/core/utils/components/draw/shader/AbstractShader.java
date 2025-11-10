@@ -141,6 +141,7 @@ public abstract class AbstractShader implements Disposable {
 
   /**
    * Checks if the shader is enabled.
+   *
    * @return True if enabled, false otherwise.
    */
   public boolean enabled() {
@@ -149,6 +150,7 @@ public abstract class AbstractShader implements Disposable {
 
   /**
    * Sets whether the shader is enabled.
+   *
    * @param enabled True to enable, false to disable.
    * @return The shader instance for chaining.
    */

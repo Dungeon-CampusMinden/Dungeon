@@ -43,7 +43,13 @@ public final class TextureMap extends HashMap<String, Texture> {
     return get(path.pathString());
   }
 
-  public static Texture loadPMA(String internalPath) {
+  /**
+   * Loads a premultiplied alpha texture from the given internal path.
+   *
+   * @param internalPath The internal path to the texture file.
+   * @return The loaded Texture with premultiplied alpha, or null if the file was not found.
+   */
+  private static Texture loadPMA(String internalPath) {
     FileHandle file = Gdx.files.internal(internalPath);
     if (!file.exists()) {
       LOGGER.error("File not found: " + internalPath);

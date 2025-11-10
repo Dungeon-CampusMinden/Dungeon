@@ -15,7 +15,6 @@ import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
 
 /**
  * The CameraSystem sets the focus point of the game. It is responsible for what is visible on
