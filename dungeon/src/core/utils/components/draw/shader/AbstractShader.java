@@ -2,6 +2,7 @@ package core.utils.components.draw.shader;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -24,6 +25,7 @@ public abstract class AbstractShader implements Disposable {
   protected ShaderProgram program;
 
   private int upscaling = 1;
+  private boolean enabled = true;
 
   public AbstractShader(String vertPath, String fragPath) {
     this.vertPath = vertPath;
@@ -138,6 +140,24 @@ public abstract class AbstractShader implements Disposable {
   }
 
   /**
+   * Checks if the shader is enabled.
+   * @return True if enabled, false otherwise.
+   */
+  public boolean enabled() {
+    return enabled;
+  }
+
+  /**
+   * Sets whether the shader is enabled.
+   * @param enabled True to enable, false to disable.
+   * @return The shader instance for chaining.
+   */
+  public AbstractShader enabled(boolean enabled) {
+    this.enabled = enabled;
+    return this;
+  }
+
+  /**
    * Clears the instance reference. Note: Actual GPU resource disposal is complex due to static
    * caching and should be handled by a dedicated cleanup routine at application shutdown.
    */
@@ -203,7 +223,7 @@ public abstract class AbstractShader implements Disposable {
       program.setUniformi(name, unit);
 
       // Set back to original texture for SpriteBatch
-      Gdx.gl.glActiveTexture(0);
+      Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
     }
   }
 

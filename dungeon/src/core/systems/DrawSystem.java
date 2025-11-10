@@ -73,12 +73,12 @@ public final class DrawSystem extends System implements Disposable {
   private final TextureRegion fboRegion = new TextureRegion();
   private final Map<Entity, FrameBuffer> entityFboCache = new HashMap<>();
 
-  // Post-processing shaders applied to the entire scene
-  private List<AbstractShader> sceneShaders = new ArrayList<>();
   // Shaders applied to the level layer
   private List<AbstractShader> levelShaders = new ArrayList<>();
   // Shaders applied to each entity depth layer (depth = key)
   private final Map<Integer, List<AbstractShader>> entityDepthShaders = new HashMap<>();
+  // Post-processing shaders applied to the entire scene
+  private List<AbstractShader> sceneShaders = new ArrayList<>();
 
   private float secondsElapsed = 0f;
 
@@ -207,6 +207,14 @@ public final class DrawSystem extends System implements Disposable {
 
   public Optional<List<AbstractShader>> entityDepthShaders(int depth) {
     return Optional.ofNullable(entityDepthShaders.get(depth));
+  }
+
+  public void setAllShadersEnabled(boolean enabled) {
+    levelShaders.forEach(shader -> shader.enabled(enabled));
+    entityDepthShaders.values().forEach(
+        shaderList -> shaderList.forEach(shader -> shader.enabled(enabled))
+    );
+    sceneShaders.forEach(shader -> shader.enabled(enabled));
   }
 
   /**
@@ -366,7 +374,8 @@ public final class DrawSystem extends System implements Disposable {
    */
   private FrameBuffer applyShadersAndCompose(
       FrameBuffer fboA, FrameBuffer fboB, List<AbstractShader> shaders, int width, int height) {
-    if (shaders.isEmpty()) {
+    List<AbstractShader> enabledShaders = shaders.stream().filter(AbstractShader::enabled).toList();
+    if (enabledShaders.isEmpty()) {
       return fboA;
     }
 
@@ -375,7 +384,7 @@ public final class DrawSystem extends System implements Disposable {
     TextureRegion currentSourceRegion = fboRegion;
     fboBatch.setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, width, height));
 
-    for (AbstractShader pass : shaders) {
+    for (AbstractShader pass : enabledShaders) {
       targetFbo = (sourceFbo == fboA) ? fboB : fboA;
 
       targetFbo.begin();
@@ -478,9 +487,9 @@ public final class DrawSystem extends System implements Disposable {
     currentSourceTexture = currentTarget.getColorBufferTexture();
 
     // --- 3. Ping-Pong Loop for Shader Passes ---
-    for (int i = 0; i < dsd.dc.shaders().size(); i++) {
-      AbstractShader pass = dsd.dc.shaders().get(i);
-
+    List<AbstractShader> enabledShaders =
+        dc.shaders().stream().filter(AbstractShader::enabled).toList();
+    for (AbstractShader pass : enabledShaders) {
       currentTarget = useFboAAsSource ? fboB : fboA;
 
       currentTarget.begin();
@@ -717,7 +726,8 @@ public final class DrawSystem extends System implements Disposable {
                       && !TileUtil.isTilePitAndOpen(t)
                       && t.visible()) {
                     IPath texturePath = t.texturePath();
-                    draw(t.position(), texturePath, new DrawConfig());
+                    int tintColor = t.tintColor() == -1 ? Color.rgba8888(Color.WHITE) : t.tintColor();
+                    draw(t.position(), texturePath, new DrawConfig().withTintColor(tintColor));
                   }
                 }
               }
