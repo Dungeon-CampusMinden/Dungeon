@@ -2,6 +2,11 @@ package core.utils.components.draw.shader;
 
 import java.util.*;
 
+/**
+ * A collection class for managing multiple AbstractShader instances with unique identifiers and
+ * assigned priorities. Supports adding, removing, retrieving, and iterating over shaders sorted
+ * first by priority and then by insertion order.
+ */
 public class ShaderList {
 
   // Unique counter to track insertion order
@@ -171,6 +176,7 @@ public class ShaderList {
    * time.
    *
    * @param onlyEnabled If true, only enabled shaders will be included
+   * @return An iterable of AbstractShader objects
    */
   public Iterable<AbstractShader> getSorted(boolean onlyEnabled) {
     return () ->
@@ -218,12 +224,19 @@ public class ShaderList {
   /**
    * Returns an iterable collection of all enabled shaders, sorted first by priority, then by
    * insertion time.
+   *
+   * @return An iterable of enabled AbstractShader objects
    */
   public Iterable<AbstractShader> getEnabledSorted() {
     return getSorted(true);
   }
 
-  /** Helper class to define the secondary sort order by insertion time. */
+  /**
+   * Internal record to hold shader and its insertion index for sorting.
+   *
+   * @param shader The AbstractShader instance
+   * @param insertionIndex The unique insertion index
+   */
   private record ShaderEntry(AbstractShader shader, long insertionIndex)
       implements Comparable<ShaderEntry> {
     @Override

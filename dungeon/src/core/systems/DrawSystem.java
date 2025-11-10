@@ -166,10 +166,20 @@ public final class DrawSystem extends System implements Disposable {
     return BATCH;
   }
 
+  /**
+   * Gets the ShaderList applied to the entire scene (post-processing).
+   *
+   * @return The scene ShaderList
+   */
   public ShaderList sceneShaders() {
     return sceneShaders;
   }
 
+  /**
+   * Gets the ShaderList applied to the level layer.
+   *
+   * @return The level ShaderList
+   */
   public ShaderList levelShaders() {
     return levelShaders;
   }

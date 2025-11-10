@@ -15,9 +15,7 @@ import core.utils.Vector2;
 public record DrawConfig(
     Vector2 offset, Vector2 size, Vector2 scale, int tintColor, boolean mirrored, float rotation) {
 
-  // --- Primary Canonical Constructor ---
-  // The canonical constructor is implicitly generated for all fields.
-  // We add a custom one to provide robust defaults and cleaning.
+  /** Primary constructor with default handling. */
   public DrawConfig {
     // Ensure non-null defaults for complex types
     scale = (scale != null) ? scale : Vector2.ONE;

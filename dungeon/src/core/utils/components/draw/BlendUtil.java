@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+/** Utility class for setting different blending modes. */
 public class BlendUtil {
 
   /** Sets the blending mode to the default blending used in this project (PMA Blending). */

@@ -27,10 +27,18 @@ public abstract class AbstractShader implements Disposable {
   private int upscaling = 1;
   private boolean enabled = true;
 
+  /**
+   * Constructs an AbstractShader using the paths to the vertex and fragment shader files.
+   *
+   * @param vertPath The file path to the vertex shader.
+   * @param fragPath The file path to the fragment shader.
+   */
   public AbstractShader(String vertPath, String fragPath) {
     this.vertPath = vertPath;
     this.fragPath = fragPath;
   }
+
+  // --- Protected Methods ---
 
   /**
    * Compiles the shader program lazily if it hasn't been compiled yet. Must be called before
@@ -75,6 +83,115 @@ public abstract class AbstractShader implements Disposable {
   protected abstract List<UniformBinding> getUniforms(int actualUpscale);
 
   /**
+   * Interface to represent a uniform value and its binding logic. This decouples the shader binding
+   * logic from the value storage.
+   */
+  protected interface UniformBinding {
+    /**
+     * Gets the name of the uniform.
+     *
+     * @return The name of the uniform in the shader.
+     */
+    String name();
+
+    /**
+     * Binds the uniform value to the shader program.
+     *
+     * @param program The ShaderProgram to bind to.
+     */
+    void bind(ShaderProgram program);
+  }
+
+  /**
+   * Binds a float uniform.
+   *
+   * @param name The uniform name in the shader.
+   * @param value The float value to bind.
+   */
+  protected record FloatUniform(String name, float value) implements UniformBinding {
+    @Override
+    public void bind(ShaderProgram program) {
+      program.setUniformf(name, value);
+    }
+  }
+
+  /**
+   * Binds a boolean uniform.
+   *
+   * @param name The uniform name in the shader.
+   * @param value The boolean value to bind.
+   */
+  protected record BoolUniform(String name, boolean value) implements UniformBinding {
+    @Override
+    public void bind(ShaderProgram program) {
+      program.setUniformi(name, value ? 1 : 0);
+    }
+  }
+
+  /**
+   * Binds a Vector2 uniform.
+   *
+   * @param name The uniform name in the shader.
+   * @param value The Vector2 value to bind.
+   */
+  protected record Vector2Uniform(String name, Vector2 value) implements UniformBinding {
+    @Override
+    public void bind(ShaderProgram program) {
+      program.setUniformf(name, value);
+    }
+  }
+
+  /**
+   * Binds a texture uniform.
+   *
+   * @param name The uniform name in the shader.
+   * @param texture The Texture object to bind.
+   * @param unit OpenGL texture unit (must be >= 1, 0 is reserved for SpriteBatch).
+   */
+  protected record TextureUniform(String name, Texture texture, int unit)
+      implements UniformBinding {
+    /**
+     * Binds a texture uniform to a specified texture unit.
+     *
+     * @param name The uniform name in the shader.
+     * @param texture The Texture object to bind.
+     * @param unit OpenGL texture unit (must be >= 1, 0 is reserved for SpriteBatch).
+     */
+    public TextureUniform {
+      if (unit < 1) {
+        throw new IllegalArgumentException(
+            "Texture unit for custom uniforms must be 1 or greater.");
+      }
+    }
+
+    @Override
+    public void bind(ShaderProgram program) {
+      // Activate this texture in OpenGL
+      Gdx.gl.glActiveTexture(unit);
+      texture.bind(unit);
+      program.setUniformi(name, unit);
+
+      // Set back to original texture for SpriteBatch
+      Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
+    }
+  }
+
+  /**
+   * Binds a Color uniform.
+   *
+   * @param name The uniform name in the shader.
+   * @param value The Color value to bind.
+   */
+  protected record ColorUniform(String name, Color value) implements UniformBinding {
+    @Override
+    public void bind(ShaderProgram program) {
+      program.setUniformf(name, value);
+    }
+  }
+
+  // --- Public Methods ---
+
+  /**
    * Gets the padding required for this shader effect.
    *
    * @return The padding in pixels.
@@ -84,26 +201,21 @@ public abstract class AbstractShader implements Disposable {
   /**
    * Gets the minimum upscaling required for this shader effect.
    *
-   * <p>When effects need to draw "in between" pixels (e.g. a smaller outline than 1 pixel),
-   * upscaling the render target is necessary.
-   *
-   * @return The upscaling factor (1 = no upscaling, 2 = 2x upscaling, etc.)
+   * @return The upscaling factor (1 = no upscaling, 2 = 2x upscaling, etc.).
    */
   public int upscaling() {
     return upscaling;
   }
 
   /**
-   * Gets the minimum upscaling required for this shader effect.
-   *
-   * <p>When effects need to draw "in between" pixels (e.g. a smaller outline than 1 pixel),
-   * upscaling the render target is necessary.
+   * Sets the minimum upscaling required for this shader effect.
    *
    * <p>When chaining, set this field last, since it chains an AbstractShader, not the specific
    * subclass.
    *
-   * @param upscaling The upscaling factor (1 = no upscaling, 2 = 2x upscaling, etc.)
+   * @param upscaling The upscaling factor (1 = no upscaling, 2 = 2x upscaling, etc.).
    * @return The shader instance for chaining.
+   * @throws IllegalArgumentException if the upscaling factor is less than 1.
    */
   public AbstractShader upscaling(int upscaling) {
     if (upscaling < 1) {
@@ -117,6 +229,7 @@ public abstract class AbstractShader implements Disposable {
    * Instructs SpriteBatch to use this shader program and binds all custom uniforms.
    *
    * @param batch The SpriteBatch instance.
+   * @param actualUpscale The actual upscaling factor currently applied to the render target.
    */
   public void bind(SpriteBatch batch, int actualUpscale) {
     ensureCompiled();
@@ -160,8 +273,10 @@ public abstract class AbstractShader implements Disposable {
   }
 
   /**
-   * Clears the instance reference. Note: Actual GPU resource disposal is complex due to static
-   * caching and should be handled by a dedicated cleanup routine at application shutdown.
+   * Clears the instance reference to the ShaderProgram.
+   *
+   * <p>Note: Actual GPU resource disposal is complex due to static caching and should be handled by
+   * a dedicated cleanup routine at application shutdown.
    */
   @Override
   public void dispose() {
@@ -174,65 +289,5 @@ public abstract class AbstractShader implements Disposable {
       p.dispose();
     }
     programCache.clear();
-  }
-
-  /**
-   * Interface to represent a uniform value and its binding logic. This decouples the shader binding
-   * logic from the value storage.
-   */
-  protected interface UniformBinding {
-    String name();
-
-    void bind(ShaderProgram program);
-  }
-
-  /** Binds a float uniform. */
-  protected record FloatUniform(String name, float value) implements UniformBinding {
-    @Override
-    public void bind(ShaderProgram program) {
-      program.setUniformf(name, value);
-    }
-  }
-
-  /** Binds a boolean uniform as an integer (1 for true, 0 for false). */
-  protected record BoolUniform(String name, boolean value) implements UniformBinding {
-    @Override
-    public void bind(ShaderProgram program) {
-      program.setUniformi(name, value ? 1 : 0);
-    }
-  }
-
-  /** Binds a Vector2 uniform. */
-  protected record Vector2Uniform(String name, Vector2 value) implements UniformBinding {
-    @Override
-    public void bind(ShaderProgram program) {
-      program.setUniformf(name, value);
-    }
-  }
-
-  /**
-   * Binds a texture uniform to a specified texture unit.
-   *
-   * @param unit OpenGL texture unit (must be >= 1, 0 is reserved for SpriteBatch)
-   */
-  protected record TextureUniform(String name, Texture texture, int unit)
-      implements UniformBinding {
-    @Override
-    public void bind(ShaderProgram program) {
-      // Activate this texture in OpenGL
-      Gdx.gl.glActiveTexture(unit);
-      texture.bind(unit);
-      program.setUniformi(name, unit);
-
-      // Set back to original texture for SpriteBatch
-      Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
-    }
-  }
-
-  protected record ColorUniform(String name, Color value) implements UniformBinding {
-    @Override
-    public void bind(ShaderProgram program) {
-      program.setUniformf(name, value);
-    }
   }
 }

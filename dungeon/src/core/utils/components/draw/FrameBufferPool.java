@@ -6,13 +6,18 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.TimeUtils;
 import java.util.*;
 
+/**
+ * A pool manager for FrameBuffer objects (FBOs) to optimize VRAM usage by reusing FBOs of exact
+ * sizes. This pool maintains a soft and hard limit on the number of FBOs, culling unused ones over
+ * time.
+ */
 public class FrameBufferPool implements Disposable {
 
   // --- Singleton Instance ---
   private static FrameBufferPool instance;
 
   // --- Configuration ---
-  private static final int SOFT_LIMIT = 20;
+  private static final int SOFT_LIMIT = 50;
   private static final int HARD_LIMIT = 100;
   private static final long CULL_TIMEOUT_MS = 5000;
 
@@ -39,8 +44,16 @@ public class FrameBufferPool implements Disposable {
     }
   }
 
+  // Key class for FBO sizes.
+  private record SizeKey(int width, int height) {}
+
   // --- Creation ---
 
+  /**
+   * Retrieves the singleton instance of the FrameBufferPool.
+   *
+   * @return The single instance of FrameBufferPool.
+   */
   public static FrameBufferPool getInstance() {
     if (instance == null) {
       instance = new FrameBufferPool();
@@ -48,6 +61,7 @@ public class FrameBufferPool implements Disposable {
     return instance;
   }
 
+  /** Constructs a new FrameBufferPool, initializing internal maps. */
   public FrameBufferPool() {
     availablePool = new HashMap<>();
     inUseFbos = new HashSet<>();
@@ -56,8 +70,12 @@ public class FrameBufferPool implements Disposable {
   // --- Public Methods ---
 
   /**
-   * Retrieves an FBO of the exact specified size. Creates a new one if none are available and the
-   * HARD_LIMIT has not been reached.
+   * Retrieves an FBO of the exact specified size from the pool or creates a new one.
+   *
+   * @param width The required width of the FrameBuffer.
+   * @param height The required height of the FrameBuffer.
+   * @return An available or newly created FrameBuffer.
+   * @throws IllegalStateException if the HARD_LIMIT has been reached and a new FBO is needed.
    */
   public FrameBuffer obtain(int width, int height) {
     SizeKey key = new SizeKey(width, height);
@@ -85,7 +103,11 @@ public class FrameBufferPool implements Disposable {
     return newFbo;
   }
 
-  /** Returns an FBO to the available pool, updating its last used time. */
+  /**
+   * Returns an FBO to the available pool, updating its last used time.
+   *
+   * @param fbo The FrameBuffer to return to the pool.
+   */
   public void free(FrameBuffer fbo) {
     if (fbo == null) return;
 
@@ -155,12 +177,4 @@ public class FrameBufferPool implements Disposable {
     inUseFbos.clear();
     currentFboCount = 0;
   }
-
-  /**
-   * Key class for FBO sizes.
-   *
-   * @param width the width
-   * @param height the height
-   */
-  private record SizeKey(int width, int height) {}
 }
