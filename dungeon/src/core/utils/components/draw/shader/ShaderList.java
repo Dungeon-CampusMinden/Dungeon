@@ -171,6 +171,11 @@ public class ShaderList {
     }
   }
 
+  /**
+   * Calculates the total padding required by all enabled shaders.
+   *
+   * @return The total padding as an integer
+   */
   public int getTotalPadding() {
     int totalPadding = 0;
     for (AbstractShader shader : shaderMap.values()) {
@@ -180,6 +185,11 @@ public class ShaderList {
     return totalPadding;
   }
 
+  /**
+   * Calculates the maximum upscaling factor required by any enabled shader.
+   *
+   * @return The maximum upscaling factor as an integer
+   */
   public int getMaxUpscaling() {
     int maxUpscaling = 1;
     for (AbstractShader shader : shaderMap.values()) {
