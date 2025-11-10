@@ -51,18 +51,8 @@ public abstract class PortalSkill extends ProjectileSkill {
         HIT_BOX_SIZE,
         HIT_BOX_OFFSET,
         false,
+        () -> SkillTools.cursorPositionAsPoint(),
         resourceCost);
-  }
-
-  /**
-   * Calculates the end position (target point) of the projectile.
-   *
-   * @param caster The entity that cast the projectile.
-   * @return The endpoint of the projectile.
-   */
-  @Override
-  protected Point end(Entity caster) {
-    return SkillTools.cursorPositionAsPoint();
   }
 
   /**
