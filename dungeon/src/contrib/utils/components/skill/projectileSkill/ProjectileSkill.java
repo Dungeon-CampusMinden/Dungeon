@@ -63,7 +63,7 @@ public abstract class ProjectileSkill extends Skill {
   protected Vector2 hitBoxSize;
   protected Vector2 hitBoxOffset;
   protected int tintColor = -1;
-  private final Set<Entity> ignoreEntities;
+  protected final Set<Entity> ignoreEntities;
   private boolean ignoreFirstWall;
 
   /**
