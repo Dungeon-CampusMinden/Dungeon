@@ -9,6 +9,7 @@ import com.sun.net.httpserver.HttpServer;
 import contrib.systems.EventScheduler;
 import contrib.utils.EntityUtils;
 import core.Game;
+import core.components.PositionComponent;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
 import core.utils.Point;
@@ -89,6 +90,8 @@ public class Server {
     languageContext.setHandler(this::handleLanguageRequest);
     HttpContext statusContext = server.createContext("/status");
     statusContext.setHandler(this::handleStatusRequest);
+    HttpContext gameContext = server.createContext("/game");
+    gameContext.setHandler(this::handleGamestateRequest);
     server.start();
     return server;
   }
@@ -358,6 +361,18 @@ public class Server {
     } else {
       response = "completed";
     }
+
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    exchange.sendResponseHeaders(200, response.getBytes().length);
+    OutputStream os = exchange.getResponseBody();
+    os.write(response.getBytes());
+    os.close();
+  }
+
+  private void handleGamestateRequest(HttpExchange exchange) throws IOException {
+    String response = "LevelLayout:" + Game.currentLevel().get().printLevel()+System.lineSeparator()
+            +"HeroPosition: "+Game.hero().get().fetch(PositionComponent.class).get().position().toString()+System.lineSeparator()
+            +"View Direction: "+Game.hero().get().fetch(PositionComponent.class).get().viewDirection().toString();
 
     exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     exchange.sendResponseHeaders(200, response.getBytes().length);
