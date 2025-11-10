@@ -1,11 +1,9 @@
 package contrib.configuration;
 
 import com.badlogic.gdx.Input;
-import core.components.PlayerComponent;
 import core.configuration.ConfigKey;
 import core.configuration.ConfigMap;
 import core.configuration.values.ConfigIntValue;
-import core.utils.Point;
 
 /** WTF? . */
 @ConfigMap(path = {"keyboard"})
@@ -13,15 +11,6 @@ public class KeyboardConfig {
   /** WTF? . */
   public static final ConfigKey<Integer> INVENTORY_OPEN =
       new ConfigKey<>(new String[] {"inventory", "open"}, new ConfigIntValue(Input.Keys.I));
-
-  /**
-   * If Mouse Movement is enabled. This key is used to open and close the inventory.
-   *
-   * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
-   */
-  public static final ConfigKey<Integer> MOUSE_INVENTORY_TOGGLE =
-      new ConfigKey<>(
-          new String[] {"inventory", "mouse"}, new ConfigIntValue(Input.Buttons.MIDDLE));
 
   /** WTF? . */
   public static final ConfigKey<Integer> CLOSE_UI =
@@ -31,23 +20,17 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> INTERACT_WORLD =
       new ConfigKey<>(new String[] {"interact", "world"}, new ConfigIntValue(Input.Keys.E));
 
-  /**
-   * If Mouse Movement is enabled. This key is used to interact with the world.
-   *
-   * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
-   */
+  /** This key is used to interact with the world. */
   public static final ConfigKey<Integer> MOUSE_INTERACT_WORLD =
-      new ConfigKey<>(new String[] {"interact", "mouse"}, new ConfigIntValue(Input.Buttons.LEFT));
+      new ConfigKey<>(new String[] {"interact", "mouse"}, new ConfigIntValue(Input.Buttons.RIGHT));
 
   /** WTF? . */
   public static final ConfigKey<Integer> USE_ITEM =
       new ConfigKey<>(new String[] {"item", "use"}, new ConfigIntValue(Input.Keys.E));
 
   /**
-   * If Mouse Movement is enabled. This key is used to use an item. Only works if in Hero's
-   * inventory.
+   * This key is used to use an item. Only works if in Hero's inventory.
    *
-   * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
    * @see contrib.hud.inventory.InventoryGUI#inPlayerInventory
    */
   public static final ConfigKey<Integer> MOUSE_USE_ITEM =
@@ -61,13 +44,9 @@ public class KeyboardConfig {
       new ConfigKey<>(
           new String[] {"inventory", "transfer"}, new ConfigIntValue(Input.Buttons.RIGHT));
 
-  /** WTF? . */
-  public static final ConfigKey<Integer> FIRST_SKILL =
+  /** This key is used to use the active skill. */
+  public static final ConfigKey<Integer> USE_SKILL =
       new ConfigKey<>(new String[] {"skill", "fireball"}, new ConfigIntValue(Input.Keys.Q));
-
-  /** The second skill of the Hero. Currently, a bow to shoot arrows. */
-  public static final ConfigKey<Integer> SECOND_SKILL =
-      new ConfigKey<>(new String[] {"skill", "wooden_bow"}, new ConfigIntValue(Input.Keys.T));
 
   /** Select the next skill as active Skill in the {@link contrib.components.SkillComponent}. */
   public static final ConfigKey<Integer> NEXT_SKILL =
@@ -79,28 +58,10 @@ public class KeyboardConfig {
       new ConfigKey<>(
           new String[] {"skill", "select prev skill"}, new ConfigIntValue(Input.Keys.COMMA));
 
-  /**
-   * If Mouse Movement is enabled. This key is used shoot the first skill.
-   *
-   * <p>If {@link #MOUSE_INTERACT_WORLD} is set to the same value as this key, the player will only
-   * shoot if nothing interactable is under the cursor.
-   *
-   * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
-   * @see contrib.entities.HeroFactory#checkIfClickOnInteractable(Point)
-   * @see contrib.entities.HeroFactory#registerMouseLeftClick(PlayerComponent)
-   */
-  public static final ConfigKey<Integer> MOUSE_FIRST_SKILL =
+  /** This key is used shoot the active skill. */
+  public static final ConfigKey<Integer> MOUSE_USE_SKILL =
       new ConfigKey<>(
           new String[] {"skill", "mouse_fireball"}, new ConfigIntValue(Input.Buttons.LEFT));
-
-  /**
-   * If Mouse Movement is enabled. This key is used to move the player.
-   *
-   * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
-   */
-  public static final ConfigKey<Integer> MOUSE_MOVE =
-      new ConfigKey<>(
-          new String[] {"movement", "mouse_move"}, new ConfigIntValue(Input.Buttons.RIGHT));
 
   /** Keybinding to zoom in ,if the {@link contrib.utils.components.Debugger} is active. */
   public static final ConfigKey<Integer> DEBUG_ZOOM_IN =

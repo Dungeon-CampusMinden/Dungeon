@@ -6,7 +6,9 @@ import contrib.components.UIComponent;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,6 +38,18 @@ public final class HudSystem extends System {
   }
 
   /**
+   * Returns the topmost closeable UI.
+   *
+   * @return a Tuple of the Entity and its UIComponent
+   */
+  public Optional<Tuple<Entity, UIComponent>> topmostCloseableUI() {
+    return entityUIComponentMap.entrySet().stream()
+        .filter(entry -> entry.getValue().isVisible() && entry.getValue().canBeClosed())
+        .max(Comparator.comparingInt(entry -> entry.getValue().dialog().getZIndex()))
+        .map(entry -> Tuple.of(entry.getKey(), entry.getValue()));
+  }
+
+  /**
    * Once a UIComponent is removed, its Dialog has to be removed from the Stage.
    *
    * @param entity Entity which no longer has a UIComponent.
@@ -58,7 +72,6 @@ public final class HudSystem extends System {
    * @param entity Entity which now has a UIComponent.
    */
   private void addListener(final Entity entity) {
-
     UIComponent component =
         entity
             .fetch(UIComponent.class)
@@ -94,6 +107,9 @@ public final class HudSystem extends System {
   public void execute() {
     if (filteredEntityStream(UIComponent.class).anyMatch(this::pausesGame)) pauseGame();
     else unpauseGame();
+
+    // clean up any entities that no longer have a UIComponent
+    entityUIComponentMap.keySet().removeIf(entity -> !entity.isPresent(UIComponent.class));
   }
 
   private boolean pausesGame(final Entity entity) {

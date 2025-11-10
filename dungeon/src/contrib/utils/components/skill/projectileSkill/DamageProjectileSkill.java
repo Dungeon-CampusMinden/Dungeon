@@ -30,9 +30,6 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   /** Whether the projectile pierces through multiple targets or is removed after hitting one. */
   protected boolean piercing;
 
-  /** A supplier that provides the target endpoint of the projectile. */
-  private Supplier<Point> endPointSupplier;
-
   /**
    * Create a new {@link DamageProjectileSkill}.
    *
@@ -75,11 +72,11 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
         hitBoxSize,
         hitBoxOffset,
         ignoreFirstWall,
+        end,
         resourceCost);
     this.damageAmount = damageAmount;
     this.damageType = damageType;
     this.piercing = piercing;
-    this.endPointSupplier = end;
   }
 
   /**
@@ -111,11 +108,10 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
       DamageType damageType,
       boolean ignoreFirstWall,
       Tuple<Resource, Integer>... resourceCost) {
-    super(name, cooldown, texture, speed, range, ignoreFirstWall, resourceCost);
+    super(name, cooldown, texture, speed, range, ignoreFirstWall, end, resourceCost);
     this.damageAmount = damageAmount;
     this.damageType = damageType;
     this.piercing = piercing;
-    this.endPointSupplier = end;
   }
 
   /**
@@ -138,30 +134,19 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   protected TriConsumer<Entity, Entity, Direction> onCollideEnter(Entity caster) {
     return (projectile, target, direction) -> {
       if (ignoreOtherProjectiles && target.isPresent(ProjectileComponent.class)) return;
-      if (!ignoreEntities.contains(target)) {
+      if (!ignoreEntities().contains(target)) {
         target
             .fetch(HealthComponent.class)
             .ifPresent(hc -> hc.receiveHit(calculateDamage(caster, target, direction)));
         additionalEffectAfterDamage(caster, projectile, target, direction);
 
         if (piercing) {
-          ignoreEntities.add(target);
+          ignoreEntity(target);
         } else {
           Game.remove(projectile);
         }
       }
     };
-  }
-
-  /**
-   * Provides the endpoint (target position) for the projectile.
-   *
-   * @param caster The entity casting the projectile.
-   * @return The end point of the projectile.
-   */
-  @Override
-  protected Point end(Entity caster) {
-    return endPointSupplier.get();
   }
 
   /**
@@ -245,7 +230,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
    * @param amount amount to add on top of the current speed.
    */
   public void increaseSpeed(float amount) {
-    this.speed += speed;
+    this.speed += amount;
   }
 
   /**
@@ -254,15 +239,6 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
    * @param amount amount to add on top of the current range.
    */
   public void increaseRange(float amount) {
-    this.range += range;
-  }
-
-  /**
-   * Sets a new endpoint to aim for.
-   *
-   * @param endPointSupplier a new supplier that provides the point to aim for.
-   */
-  public void targetSelection(Supplier<Point> endPointSupplier) {
-    this.endPointSupplier = endPointSupplier;
+    this.range += amount;
   }
 }

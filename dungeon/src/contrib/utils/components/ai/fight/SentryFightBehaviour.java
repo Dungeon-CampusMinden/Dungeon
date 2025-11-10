@@ -85,7 +85,7 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
 
     // set a new targetEndPoint based on the current Position of the entity and the given direction
     Point targetEndPoint = entityPosComp.position().translate(shootDirection.scale(attackRange));
-    fightSkill.targetSelection(() -> targetEndPoint);
+    fightSkill.endPointSupplier(() -> targetEndPoint);
 
     // attack if player is in range
     tryAttack(entity);

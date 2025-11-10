@@ -7,7 +7,8 @@ import aiAdvanced.pathfinding.PathfindingLogic;
 import aiAdvanced.pathfinding.SusPathFinding;
 import aiAdvanced.systems.MazeEditorSystem;
 import aiAdvanced.systems.PathfindingSystem;
-import contrib.entities.HeroFactory;
+import contrib.entities.EntityFactory;
+import contrib.entities.HeroBuilder;
 import contrib.systems.*;
 import contrib.utils.CheckPatternPainter;
 import core.Entity;
@@ -156,14 +157,13 @@ public class PathfinderStarter {
   /**
    * Creates and adds a new player entity to the game.
    *
-   * <p>The new player is generated using the {@link HeroFactory} and the {@link CameraComponent} of
+   * <p>The new player is generated using the {@link HeroBuilder} and the {@link CameraComponent} of
    * the player is removed. And movement callbacks are removed.
    *
    * @throws RuntimeException if an {@link IOException} occurs during player creation
    */
   public static void createHero() throws IOException {
-    Entity hero;
-    hero = HeroFactory.newHero();
+    Entity hero = EntityFactory.newHero();
     hero.remove(CameraComponent.class);
     Game.add(hero);
 

@@ -126,7 +126,8 @@ public class DebugDrawSystem extends System {
 
     if (entity.isPresent(DrawComponent.class)) drawTextureSize(entity, pc, alpha);
     if (entity.isPresent(CollideComponent.class)) drawCollideHitbox(entity, alpha);
-    if (entity.isPresent(InteractionComponent.class)) drawInteractionRange(entity, pc, alpha);
+    if (entity.isPresent(InteractionComponent.class))
+      drawInteractionRange(entity, EntityUtils.getPosition(entity), alpha);
     if (CameraSystem.isEntityHovered(entity) && decoComponent.isEmpty()) drawEntityInfo(entity, pc);
   }
 
@@ -186,10 +187,10 @@ public class DebugDrawSystem extends System {
    * Draw a blue circle around the interaction range of the entity.
    *
    * @param entity Entity to draw the interaction range for.
-   * @param pc PositionComponent of the entity.
+   * @param pos the position of the entity.
    * @param alpha Alpha transparency value.
    */
-  private void drawInteractionRange(Entity entity, PositionComponent pc, float alpha) {
+  private void drawInteractionRange(Entity entity, Point pos, float alpha) {
     InteractionComponent ic =
         entity
             .fetch(InteractionComponent.class)
@@ -199,7 +200,7 @@ public class DebugDrawSystem extends System {
 
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
     SHAPE_RENDERER.setColor(withAlpha(Color.CYAN, alpha));
-    SHAPE_RENDERER.circle(pc.position().x(), pc.position().y(), radius, CIRCLE_SEGMENTS);
+    SHAPE_RENDERER.circle(pos.x(), pos.y(), radius, CIRCLE_SEGMENTS);
     SHAPE_RENDERER.end();
   }
 

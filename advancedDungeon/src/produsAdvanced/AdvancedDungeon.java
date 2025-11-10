@@ -2,7 +2,6 @@ package produsAdvanced;
 
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
-import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
 import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
@@ -139,12 +138,7 @@ public class AdvancedDungeon {
                 if (isInFocus) recompilePlayerControl();
               });
 
-          HeroFactory.heroDeath(entity -> restart());
-          try {
-            createHero();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
+          createHero();
           Crafting.loadRecipes();
           DungeonLoader.loadLevel(loadLevelIndex());
         });
@@ -186,9 +180,9 @@ public class AdvancedDungeon {
    *
    * @throws IOException If player creation fails.
    */
-  private static void createHero() throws IOException {
+  private static void createHero() {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
-    Entity heroEntity = EntityFactory.newHero();
+    Entity heroEntity = EntityFactory.newHero(hero -> restart());
     Game.add(heroEntity);
     hero = new Hero(heroEntity);
 
@@ -203,11 +197,7 @@ public class AdvancedDungeon {
    */
   public static void restart() {
     Game.removeAllEntities();
-    try {
-      createHero();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    createHero();
     DungeonLoader.reloadCurrentLevel();
   }
 

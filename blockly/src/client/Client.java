@@ -4,7 +4,6 @@ import coderunner.BlocklyCodeRunner;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
 import contrib.crafting.Crafting;
-import contrib.entities.HeroFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
@@ -119,7 +118,7 @@ public class Client {
           DungeonLoader.addLevel(Tuple.of("level020", Level020.class));
           DungeonLoader.addLevel(Tuple.of("level021", Level021.class));
           DungeonLoader.addLevel(Tuple.of("level022", Level022.class));
-          HeroFactory.heroDeath(entity -> restart());
+
           createHero();
           createSystems();
           Crafting.loadRecipes();
@@ -233,13 +232,8 @@ public class Client {
    */
   public static void createHero() {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
-    Entity hero;
-    try {
-      hero = HeroTankControlledFactory.blocklyHero(ACTIVATE_TANKE_CONTROLLS);
-      hero.add(new AmmunitionComponent());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    Entity hero = HeroTankControlledFactory.blocklyHero(ACTIVATE_TANKE_CONTROLLS);
+    hero.add(new AmmunitionComponent());
     Game.add(hero);
   }
 

@@ -97,7 +97,7 @@ public class DamagedBridgeRiddleHandler {
               .fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(player, PositionComponent.class));
 
-      if (!rewardGiven && riddleRewardSpawn.equals(pc.coordinate())) {
+      if (!rewardGiven && riddleRewardSpawn.toCoordinate().equals(pc.coordinate())) {
         giveReward();
       }
     } else {

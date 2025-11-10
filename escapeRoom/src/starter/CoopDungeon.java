@@ -3,11 +3,10 @@ package starter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
-import contrib.entities.HeroFactory;
+import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import coopDungeon.level.*;
-import core.Entity;
 import core.Game;
 import core.level.loader.DungeonLoader;
 import core.utils.Tuple;
@@ -51,19 +50,10 @@ public class CoopDungeon {
           DungeonLoader.addLevel(Tuple.of("coop1", Level01.class));
           DungeonLoader.addLevel(Tuple.of("coop2", Level02.class));
           createSystems();
-          try {
-            createHero();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
+          Game.add(EntityFactory.newHero());
           Crafting.loadRecipes();
           DungeonLoader.loadLevel(START_LEVEL);
         });
-  }
-
-  private static void createHero() throws IOException {
-    Entity hero = HeroFactory.newHero();
-    Game.add(hero);
   }
 
   private static void configGame() throws IOException {

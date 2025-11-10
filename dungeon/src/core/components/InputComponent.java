@@ -3,10 +3,12 @@ package core.components;
 import core.Component;
 import core.Entity;
 import core.systems.InputSystem;
+import core.utils.logging.DungeonLogger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * This component stores pairs of keystroke codes with an associated callback function. The mappings
@@ -18,6 +20,8 @@ import java.util.function.Consumer;
  */
 public class InputComponent implements Component {
 
+  private static final DungeonLogger LOGGER =
+      DungeonLogger.getLogger(InputComponent.class.getName());
   private final Map<Integer, InputData> callbacks;
   private boolean deactivate = false;
 
@@ -62,6 +66,7 @@ public class InputComponent implements Component {
     Consumer<Entity> oldCallback = null;
     if (callbacks.containsKey(key)) {
       oldCallback = callbacks.get(key).callback();
+      LOGGER.info("Replacing existing callback for key: " + key);
     }
     callbacks.put(key, new InputComponent.InputData(true, callback));
     return Optional.ofNullable(oldCallback);
@@ -84,6 +89,7 @@ public class InputComponent implements Component {
     Consumer<Entity> oldCallback = null;
     if (callbacks.containsKey(key)) {
       oldCallback = callbacks.get(key).callback();
+      LOGGER.info("Replacing existing callback for key: " + key);
     }
     callbacks.put(key, new InputComponent.InputData(repeat, callback, pauseable));
     return Optional.ofNullable(oldCallback);
@@ -121,6 +127,15 @@ public class InputComponent implements Component {
   /** Removes all registered callbacks. */
   public void removeCallbacks() {
     callbacks.clear();
+  }
+
+  /**
+   * Removes all registered callbacks based on a given predicate.
+   *
+   * @param predicate The predicate to test each callback against.
+   */
+  public void removeCallbacksIf(Predicate<Map.Entry<Integer, InputData>> predicate) {
+    callbacks.entrySet().removeIf(predicate);
   }
 
   /**
