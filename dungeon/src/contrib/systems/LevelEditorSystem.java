@@ -125,12 +125,11 @@ public class LevelEditorSystem extends System {
     if (Gdx.input.isKeyJustPressed(TOGGLE_ACTIVE)) {
       active(!active);
     }
+
+    if (!active) return;
+
     if (Gdx.input.isKeyJustPressed(TOGGLE_DEBUG_SHADER)) {
       toggleDebugShader();
-    }
-
-    if (!active) {
-      return;
     }
 
     Mode previousMode = currentMode;

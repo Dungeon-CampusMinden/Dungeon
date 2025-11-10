@@ -56,7 +56,7 @@ float shineDropoff(float d) {
 
 // Main
 void main() {
-  vec4 texColor = texture2D(u_texture, uv);
+  vec4 texColor = unPma(texture2D(u_texture, uv));
   // Skip fully opaque pixels
   if (texColor.a > 0.99) {
     gl_FragColor = texColor;
@@ -103,5 +103,5 @@ void main() {
   color.a *= distDropoff * 0.5;
 
   color = mix(color, texColor, texColor.a);
-  gl_FragColor = color;
+  gl_FragColor = pma(color);
 }

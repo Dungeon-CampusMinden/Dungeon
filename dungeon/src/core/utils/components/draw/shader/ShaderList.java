@@ -171,6 +171,24 @@ public class ShaderList {
     }
   }
 
+  public int getTotalPadding() {
+    int totalPadding = 0;
+    for (AbstractShader shader : shaderMap.values()) {
+      if (!shader.enabled()) continue;
+      totalPadding += shader.getPadding();
+    }
+    return totalPadding;
+  }
+
+  public int getMaxUpscaling() {
+    int maxUpscaling = 1;
+    for (AbstractShader shader : shaderMap.values()) {
+      if (!shader.enabled()) continue;
+      maxUpscaling = Math.max(maxUpscaling, shader.upscaling());
+    }
+    return maxUpscaling;
+  }
+
   /**
    * Returns an iterable collection of all shaders, sorted first by priority, then by insertion
    * time.

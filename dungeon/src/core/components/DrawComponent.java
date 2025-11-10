@@ -6,7 +6,7 @@ import core.utils.components.draw.*;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
-import core.utils.components.draw.shader.AbstractShader;
+import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.draw.state.Signal;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
@@ -52,7 +52,7 @@ public final class DrawComponent implements Component {
   private int tintColor = -1; // -1 means no tinting
   private boolean isVisible = true;
 
-  private final List<AbstractShader> shaders = new ArrayList<>();
+  private final ShaderList shaders = new ShaderList();
 
   /**
    * Create a new DrawComponent.
@@ -391,20 +391,11 @@ public final class DrawComponent implements Component {
   }
 
   /**
-   * Get the list of shaders applied to this DrawComponent.
+   * Get the list of shaders applied to this component.
    *
-   * @return The list of shaders.
+   * @return The shader list.
    */
-  public List<AbstractShader> shaders() {
+  public ShaderList shaders() {
     return shaders;
-  }
-
-  /**
-   * Add a shader to this DrawComponent.
-   *
-   * @param shader The shader to add.
-   */
-  public void addShader(AbstractShader shader) {
-    shaders.add(shader);
   }
 }

@@ -396,7 +396,7 @@ public final class DrawSystem extends System implements Disposable {
       group.stream()
           .map(DSData::build)
           .filter(this::shouldDraw)
-          .filter(dsd -> !dsd.dc.shaders().isEmpty())
+          .filter(dsd -> dsd.dc.shaders().hasEnabledShaders())
           .forEach(this::processShaderPassesSingleEntity);
     }
   }
@@ -410,7 +410,7 @@ public final class DrawSystem extends System implements Disposable {
     DrawComponent dc = dsd.dc;
 
     // --- 1. Calculate FBO Size and Obtain Buffers ---
-    float padding = dsd.getTotalPadding();
+    float padding = dsd.dc.shaders().getTotalPadding();
 
     // Required size is sprite size + 2*padding. All in PIXELS.
     float unscaledWidth = dc.getSpriteWidth();
@@ -421,7 +421,7 @@ public final class DrawSystem extends System implements Disposable {
     int baseFboHeight = (int) (unscaledHeight + 2 * padding);
 
     // Apply Upscale Factor to the FBO dimensions
-    int shaderUpscaling = dsd.getMaxUpscale();
+    int shaderUpscaling = dsd.dc.shaders().getMaxUpscaling();
     int fboWidth = baseFboWidth * shaderUpscaling;
     int fboHeight = baseFboHeight * shaderUpscaling;
 
@@ -464,9 +464,7 @@ public final class DrawSystem extends System implements Disposable {
     currentSourceTexture = currentTarget.getColorBufferTexture();
 
     // --- 3. Ping-Pong Loop for Shader Passes ---
-    List<AbstractShader> enabledShaders =
-        dc.shaders().stream().filter(AbstractShader::enabled).toList();
-    for (AbstractShader pass : enabledShaders) {
+    for (AbstractShader pass : dc.shaders().getEnabledSorted()) {
       currentTarget = useFboAAsSource ? fboB : fboA;
 
       currentTarget.begin();
@@ -535,7 +533,7 @@ public final class DrawSystem extends System implements Disposable {
       // --- Draw FBO Texture (Shader Result) ---
       Texture fboTexture = finalFbo.getColorBufferTexture();
 
-      float padding = dsd.getTotalPadding();
+      float padding = dsd.dc.shaders().getTotalPadding();
       float unitSize = dsd.getUnitSizeInPixels();
       float paddingWorldUnits = padding / unitSize;
 
@@ -770,27 +768,6 @@ public final class DrawSystem extends System implements Disposable {
               .fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
       return new DSData(entity, dc, pc);
-    }
-
-    /**
-     * Returns the total padding required by all shaders in the DrawComponent.
-     *
-     * @return the total padding in pixels
-     */
-    int getTotalPadding() {
-      return (int) dc.shaders().stream().mapToDouble(AbstractShader::getPadding).sum();
-    }
-
-    /**
-     * Returns the highest upscaling factor required by any shader in the DrawComponent.
-     *
-     * @return the maximum upscaling factor
-     */
-    int getMaxUpscale() {
-      Optional<AbstractShader> max =
-          dc.shaders().stream().max(Comparator.comparingInt(AbstractShader::upscaling));
-      int upscale = max.map(AbstractShader::upscaling).orElse(1);
-      return Math.max(1, upscale);
     }
 
     /**
