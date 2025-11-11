@@ -47,8 +47,7 @@ import java.util.*;
  * @see Animation
  * @see IPath
  */
-public final class DrawComponent implements Component, Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+public final class DrawComponent implements Component {
 
   private final StateMachine stateMachine;
   private int depth = DepthLayer.Normal.depth();
@@ -401,14 +400,5 @@ public final class DrawComponent implements Component, Serializable {
    */
   public ShaderList shaders() {
     return shaders;
-  }
-
-  /**
-   * Get the size of the component as a Vector2.
-   *
-   * @return The size of the component.
-   */
-  public Vector2 size() {
-    return Vector2.of(getWidth(), getHeight());
   }
 }

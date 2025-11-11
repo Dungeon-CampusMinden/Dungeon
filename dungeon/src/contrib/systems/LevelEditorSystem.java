@@ -176,9 +176,8 @@ public class LevelEditorSystem extends System {
 
     if (!active) return;
 
-    Optional<PlayerComponent> pc = Game.player().flatMap(e -> e.fetch(PlayerComponent.class));
-    if (pc.isPresent() && pc.get().openDialogs()) {
-      return;
+    if (Gdx.input.isKeyJustPressed(TOGGLE_DEBUG_SHADER)) {
+      toggleDebugShader();
     }
 
     if (Gdx.input.isKeyJustPressed(TOGGLE_DEBUG_SHADER)) {
@@ -210,6 +209,47 @@ public class LevelEditorSystem extends System {
       }
       currentModeInstance.doExecute();
     }
+  }
+
+  private void toggleDebugShader() {
+    DrawSystem ds = (DrawSystem) Game.systems().get(DrawSystem.class);
+    if (debugShaderActive) {
+      ds.levelShaders().remove(DEBUG_SHADER_KEY);
+      ds.entityDepthShaders(DepthLayer.Player.depth()).remove(DEBUG_SHADER_KEY);
+      ds.entityDepthShaders(DepthLayer.BackgroundDeco.depth()).remove(DEBUG_SHADER_KEY);
+      ds.entityDepthShaders(DepthLayer.Normal.depth()).remove(DEBUG_SHADER_KEY);
+      ds.sceneShaders().remove(DEBUG_SHADER_KEY);
+    } else {
+      ds.levelShaders().add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.BLUE));
+      ds.entityDepthShaders(DepthLayer.Player.depth())
+          .add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.RED));
+      ds.entityDepthShaders(DepthLayer.BackgroundDeco.depth())
+          .add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.GREEN));
+      ds.entityDepthShaders(DepthLayer.Normal.depth())
+          .add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.WHITE));
+      ds.sceneShaders().add(DEBUG_SHADER_KEY, new PassthroughShader().debugPMA(true));
+    }
+    modeSelection.append("\n ( SPACE to toggle layer debug shader )");
+    modeSelection.append("\n\n");
+    status = modeSelection + status;
+    DebugDrawSystem.drawText(FONT, status, new Point(10.0f, Game.windowHeight() - 10.0f));
+
+    // Draw feedback message if timer > 0
+    if (feedbackMessageTimer > 0.0f && !feedbackMessage.isEmpty()) {
+      GlyphLayout layout = new GlyphLayout(FONT, feedbackMessage);
+      float x = 10;
+      float y = 10 + layout.height;
+      DebugDrawSystem.drawText(FONT, feedbackMessage, new Point(x, y), feedbackMessageColor);
+      feedbackMessageTimer -= Gdx.graphics.getDeltaTime();
+      if (feedbackMessageTimer <= 0.0f) {
+        feedbackMessage = "";
+      }
+    }
+
+    // Draw level boundaries in green with alpha 0.3f
+    Tile[][] layout = Game.currentLevel().orElseThrow().layout();
+    DebugDrawSystem.drawRectangleOutline(
+        0, 0, layout[0].length, layout.length, new Color(0, 1, 0, 0.3f));
   }
 
   private void toggleDebugShader() {

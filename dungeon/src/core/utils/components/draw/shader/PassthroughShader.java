@@ -1,6 +1,5 @@
 package core.utils.components.draw.shader;
 
-import core.utils.Rectangle;
 import java.util.List;
 
 /**
@@ -27,13 +26,8 @@ public class PassthroughShader extends AbstractShader {
   }
 
   @Override
-  public int padding() {
+  public int getPadding() {
     return 0;
-  }
-
-  @Override
-  public Rectangle worldBounds() {
-    return null;
   }
 
   /**

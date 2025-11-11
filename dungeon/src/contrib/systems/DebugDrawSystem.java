@@ -28,8 +28,8 @@ import core.utils.FontHelper;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.BlendUtils;
-import core.utils.components.draw.ColorUtils;
+import core.utils.components.draw.BlendUtil;
+import core.utils.components.draw.ColorUtil;
 import core.utils.components.draw.animation.Animation;
 import java.util.List;
 import java.util.Optional;
@@ -107,7 +107,7 @@ public class DebugDrawSystem extends System {
     float alpha = decoComponent.isEmpty() ? 1.0f : 0.4f;
 
     // --- filled dot for position ---
-    BlendUtils.setBlending();
+    BlendUtil.setBlending();
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
     SHAPE_RENDERER.setColor(withAlpha(Color.ORANGE, alpha));
     SHAPE_RENDERER.circle(position.x(), position.y(), 0.05f, CIRCLE_SEGMENTS);
@@ -416,8 +416,8 @@ public class DebugDrawSystem extends System {
     float bgH = layout.height + 2f * padding;
 
     // semi-transparent black box
-    BlendUtils.setBlending();
-    SHAPE_RENDERER.setProjectionMatrix(DEBUG_CAM.combined);
+    BlendUtil.setBlending();
+    SHAPE_RENDERER.setProjectionMatrix(UI_CAM.combined);
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
     SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
     SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);
@@ -443,7 +443,7 @@ public class DebugDrawSystem extends System {
   }
 
   private static Color withAlpha(Color color, float alpha) {
-    return ColorUtils.pmaColor(new Color(color.r, color.g, color.b, alpha));
+    return ColorUtil.pmaColor(new Color(color.r, color.g, color.b, alpha));
   }
 
   /**
@@ -459,10 +459,10 @@ public class DebugDrawSystem extends System {
   public static void drawRectangleOutline(
       float x, float y, float width, float height, Color color) {
     // Enable blending for transparency
-    BlendUtils.setBlending();
+    BlendUtil.setBlending();
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
-    SHAPE_RENDERER.setColor(ColorUtils.pmaColor(color));
+    SHAPE_RENDERER.setColor(ColorUtil.pmaColor(color));
     SHAPE_RENDERER.rect(x, y, width, height);
     SHAPE_RENDERER.end();
   }

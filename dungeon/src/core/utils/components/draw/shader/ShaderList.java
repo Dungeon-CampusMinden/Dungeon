@@ -1,7 +1,5 @@
 package core.utils.components.draw.shader;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -9,28 +7,23 @@ import java.util.*;
  * assigned priorities. Supports adding, removing, retrieving, and iterating over shaders sorted
  * first by priority and then by insertion order.
  */
-public class ShaderList implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+public class ShaderList {
 
-  /** Unique counter to track insertion order of shaders. */
+  // Unique counter to track insertion order
   private long insertionCounter = 0;
 
-  /** Map for quick lookup and management by identifier. */
+  // Map for quick lookup and management by identifier
   private final Map<String, AbstractShader> shaderMap = new HashMap<>();
 
-  /** Map for storing shader priorities by identifier. */
+  // Map to store the priority for each shader identifier
   private final Map<String, Integer> priorityMap = new HashMap<>();
 
-  /** Map for storing insertion indices by identifier. */
+  // Map to store the insertion index for fast removal from the TreeSet
   private final Map<String, Long> insertionIndexMap = new HashMap<>();
 
-  /**
-   * TreeMap to maintain shaders sorted by priority and insertion order.
-   *
-   * <p>Key: Priority (Integer)
-   *
-   * <p>Value: Set of ShaderEntry, which performs secondary sorting by insertionIndex
-   */
+  // TreeMap for automatic primary sorting by priority
+  // Key: Priority (Integer)
+  // Value: TreeSet of ShaderEntry, which performs the secondary sort by insertionIndex
   private final TreeMap<Integer, Set<ShaderEntry>> sortedByPriority = new TreeMap<>();
 
   /**
@@ -187,7 +180,7 @@ public class ShaderList implements Serializable {
     int totalPadding = 0;
     for (AbstractShader shader : shaderMap.values()) {
       if (!shader.enabled()) continue;
-      totalPadding += shader.padding();
+      totalPadding += shader.getPadding();
     }
     return totalPadding;
   }
@@ -285,6 +278,7 @@ public class ShaderList implements Serializable {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       ShaderEntry that = (ShaderEntry) o;
+      // Equality based on the unique insertion index
       return insertionIndex == that.insertionIndex;
     }
 

@@ -2,8 +2,9 @@
 precision mediump float;
 #endif
 
-// The next line is a special string that indicates to the AbstractShader to include the util.glsl file here.
-// *****IMPORT: util.glsl*****
+// ----- Defines -----
+#define PI 3.1415926
+#define TAU 6.2831852
 
 // ----- From vertex shader -----
 varying vec2 uv;
@@ -23,10 +24,23 @@ uniform vec2 u_aspect;
 uniform bool u_debugPMA;
 uniform bool u_debugWorldPos;
 
-// ----- Custom functions -----
+// ----- Helper functions for PMA conversion -----
+// All shaders outputting transparency or calculating colors should unPma from texture, and pma before outputting
+vec4 unPma(vec4 color) {
+    if (color.a < 1e-5) {
+        return vec4(0.0);
+    }
+    return vec4(color.rgb / color.a, color.a);
+}
+
+vec4 pma(vec4 color) {
+    return vec4(color.rgb * color.a, color.a);
+}
+
+// Custom functions
 
 
-// ----- Main -----
+// Main
 void main() {
     vec4 color = texture2D(u_texture, uv); // PMA texture
     if(u_debugPMA) {
@@ -36,7 +50,7 @@ void main() {
             float checker = mod(floor(pos.x) + floor(pos.y), 2.0);
             color = vec4(color.r > maxA, color.g > maxA, color.b > maxA, 1.0);
             if (checker < 0.5) {
-                color.rgb *= 0.0;
+                color.rgb = 0.0;
             }
         }
     } else if (u_debugWorldPos) {

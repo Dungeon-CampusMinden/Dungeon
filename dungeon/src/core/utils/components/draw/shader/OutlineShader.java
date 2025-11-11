@@ -1,7 +1,6 @@
 package core.utils.components.draw.shader;
 
 import com.badlogic.gdx.graphics.Color;
-import core.utils.Rectangle;
 import java.util.List;
 
 /**
@@ -66,13 +65,8 @@ public class OutlineShader extends AbstractShader {
   }
 
   @Override
-  public int padding() {
+  public int getPadding() {
     return width;
-  }
-
-  @Override
-  public Rectangle worldBounds() {
-    return null;
   }
 
   // Getters and Setters

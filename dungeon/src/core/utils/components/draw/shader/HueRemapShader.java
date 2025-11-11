@@ -1,6 +1,5 @@
 package core.utils.components.draw.shader;
 
-import core.utils.Rectangle;
 import java.util.List;
 
 /** Shader for remapping hues within a specified tolerance. */
@@ -47,14 +46,11 @@ public class HueRemapShader extends AbstractShader {
   }
 
   @Override
-  public int padding() {
+  public int getPadding() {
     return 0;
   }
 
-  @Override
-  public Rectangle worldBounds() {
-    return null;
-  }
+  // Getters and Setters
 
   /**
    * Gets the starting hue.
@@ -71,7 +67,7 @@ public class HueRemapShader extends AbstractShader {
    * @param startingHue The starting hue to set
    * @return The HueRemapShader instance for chaining
    */
-  public HueRemapShader startingHue(float startingHue) {
+  public HueRemapShader setStartingHue(float startingHue) {
     this.startingHue = startingHue;
     return this;
   }
@@ -91,7 +87,7 @@ public class HueRemapShader extends AbstractShader {
    * @param targetHue The target hue to set
    * @return The HueRemapShader instance for chaining
    */
-  public HueRemapShader targetHue(float targetHue) {
+  public HueRemapShader setTargetHue(float targetHue) {
     this.targetHue = targetHue;
     return this;
   }
@@ -111,7 +107,7 @@ public class HueRemapShader extends AbstractShader {
    * @param tolerance The tolerance to set
    * @return The HueRemapShader instance for chaining
    */
-  public HueRemapShader tolerance(float tolerance) {
+  public HueRemapShader setTolerance(float tolerance) {
     this.tolerance = tolerance;
     return this;
   }
