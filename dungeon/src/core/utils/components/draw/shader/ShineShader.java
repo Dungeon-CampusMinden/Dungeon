@@ -38,7 +38,7 @@ public class ShineShader extends AbstractShader {
   }
 
   @Override
-  public int getPadding() {
+  public int padding() {
     return padding;
   }
 
