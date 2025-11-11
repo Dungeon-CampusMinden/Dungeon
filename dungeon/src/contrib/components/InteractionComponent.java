@@ -73,21 +73,26 @@ public final class InteractionComponent implements Component {
    * @param who The entity that triggered the interaction.
    */
   public void triggerInteraction(final Entity entity, final Entity who) {
-    // Use an iterator so we can stop the loop
-    Iterator<Interaction> iterator = interactions.iterator();
+    if (this.interactions.isEmpty()) return;
+    if (this.interactions.size() == 1) {
+      interactions.get(0).accept(entity, who);
+    } else {
+      // Use an iterator so we can stop the loop
+      Iterator<Interaction> iterator = interactions.iterator();
 
-    while (iterator.hasNext()) {
-      var interaction = iterator.next();
+      while (iterator.hasNext()) {
+        Interaction interaction = iterator.next();
 
-      YesNoDialog.showYesNoDialog(
-          interaction.name(),
-          "Interaktion",
-          () -> {
-            interaction.accept(entity, who);
-            // Stop further dialogs once one interaction is triggered
-            iterator.forEachRemaining(i -> {}); // No-Op to consume remaining
-          },
-          () -> {});
+        YesNoDialog.showYesNoDialog(
+            interaction.name(),
+            "Interaktion",
+            () -> {
+              interaction.accept(entity, who);
+              // Stop further dialogs once one interaction is triggered
+              iterator.forEachRemaining(i -> {}); // No-Op to consume remaining
+            },
+            () -> {});
+      }
     }
 
     if (!repeatable) {
