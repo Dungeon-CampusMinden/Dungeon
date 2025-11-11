@@ -598,7 +598,6 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   private void draw(final DSData dsd) {
-    dsd.dc.update();
     Sprite sprite = dsd.dc.getSprite();
     DrawConfig conf =
         makeConfig(dsd, Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()), dsd.pc.scale());
@@ -663,6 +662,15 @@ public final class DrawSystem extends System implements Disposable {
       shader.setUniformf("u_entityBounds", posX, posY, worldWidth, worldHeight);
       shader.setUniformf("u_rotation", dsd.pc.rotation() * MathUtils.degreesToRadians);
     }
+  }
+
+  /**
+   * Gets the total seconds elapsed since the DrawSystem started.
+   *
+   * @return The total seconds elapsed
+   */
+  public float secondsElapsed() {
+    return secondsElapsed;
   }
 
   private DrawConfig makeConfig(DSData dsd, Vector2 size, Vector2 scale) {
