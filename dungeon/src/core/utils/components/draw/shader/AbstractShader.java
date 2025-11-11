@@ -38,7 +38,86 @@ public abstract class AbstractShader implements Disposable {
     this.fragPath = fragPath;
   }
 
-  // --- Protected Methods ---
+  /**
+   * Gets the padding required for this shader effect.
+   *
+   * @return The padding in pixels.
+   */
+  public abstract int getPadding();
+
+  /**
+   * Gets the minimum upscaling required for this shader effect.
+   *
+   * @return The upscaling factor (1 = no upscaling, 2 = 2x upscaling, etc.).
+   */
+  public int upscaling() {
+    return upscaling;
+  }
+
+  /**
+   * Sets the minimum upscaling required for this shader effect.
+   *
+   * <p>When chaining, set this field last, since it chains an AbstractShader, not the specific
+   * subclass.
+   *
+   * @param upscaling The upscaling factor (1 = no upscaling, 2 = 2x upscaling, etc.).
+   * @return The shader instance for chaining.
+   * @throws IllegalArgumentException if the upscaling factor is less than 1.
+   */
+  public AbstractShader upscaling(int upscaling) {
+    if (upscaling < 1) {
+      throw new IllegalArgumentException("Upscaling must be at least 1");
+    }
+    this.upscaling = upscaling;
+    return this;
+  }
+
+  /**
+   * Instructs SpriteBatch to use this shader program and binds all custom uniforms.
+   *
+   * @param batch The SpriteBatch instance.
+   * @param actualUpscale The actual upscaling factor currently applied to the render target.
+   */
+  public void bind(SpriteBatch batch, int actualUpscale) {
+    ensureCompiled();
+    batch.setShader(program);
+
+    List<UniformBinding> bindings = getUniforms(actualUpscale);
+    if (bindings != null) {
+      for (UniformBinding binding : bindings) {
+        binding.bind(program);
+      }
+    }
+  }
+
+  /**
+   * Resets the batch shader to null after the pass is complete.
+   *
+   * @param batch The SpriteBatch instance.
+   */
+  public void unbind(SpriteBatch batch) {
+    batch.setShader(null);
+  }
+
+  /**
+   * Checks if the shader is enabled.
+   *
+   * @return True if enabled, false otherwise.
+   */
+  public boolean enabled() {
+    return enabled;
+  }
+
+  /**
+   * Sets whether the shader is enabled.
+   *
+   * @param enabled True to enable, false to disable.
+   * @return The shader instance for chaining.
+   */
+  public AbstractShader enabled(boolean enabled) {
+    this.enabled = enabled;
+    return this;
+  }
 
   /**
    * Compiles the shader program lazily if it hasn't been compiled yet. Must be called before
@@ -81,6 +160,25 @@ public abstract class AbstractShader implements Disposable {
    * @return A list of UniformBinding objects to apply.
    */
   protected abstract List<UniformBinding> getUniforms(int actualUpscale);
+
+  /**
+   * Clears the instance reference to the ShaderProgram.
+   *
+   * <p>Note: Actual GPU resource disposal is complex due to static caching and should be handled by
+   * a dedicated cleanup routine at application shutdown.
+   */
+  @Override
+  public void dispose() {
+    this.program = null;
+  }
+
+  /** Static method for application-wide cleanup of all cached ShaderPrograms. */
+  public static void disposeAllStaticPrograms() {
+    for (ShaderProgram p : programCache.values()) {
+      p.dispose();
+    }
+    programCache.clear();
+  }
 
   /**
    * Interface to represent a uniform value and its binding logic. This decouples the shader binding
@@ -187,107 +285,5 @@ public abstract class AbstractShader implements Disposable {
     public void bind(ShaderProgram program) {
       program.setUniformf(name, value);
     }
-  }
-
-  // --- Public Methods ---
-
-  /**
-   * Gets the padding required for this shader effect.
-   *
-   * @return The padding in pixels.
-   */
-  public abstract int getPadding();
-
-  /**
-   * Gets the minimum upscaling required for this shader effect.
-   *
-   * @return The upscaling factor (1 = no upscaling, 2 = 2x upscaling, etc.).
-   */
-  public int upscaling() {
-    return upscaling;
-  }
-
-  /**
-   * Sets the minimum upscaling required for this shader effect.
-   *
-   * <p>When chaining, set this field last, since it chains an AbstractShader, not the specific
-   * subclass.
-   *
-   * @param upscaling The upscaling factor (1 = no upscaling, 2 = 2x upscaling, etc.).
-   * @return The shader instance for chaining.
-   * @throws IllegalArgumentException if the upscaling factor is less than 1.
-   */
-  public AbstractShader upscaling(int upscaling) {
-    if (upscaling < 1) {
-      throw new IllegalArgumentException("Upscaling must be at least 1");
-    }
-    this.upscaling = upscaling;
-    return this;
-  }
-
-  /**
-   * Instructs SpriteBatch to use this shader program and binds all custom uniforms.
-   *
-   * @param batch The SpriteBatch instance.
-   * @param actualUpscale The actual upscaling factor currently applied to the render target.
-   */
-  public void bind(SpriteBatch batch, int actualUpscale) {
-    ensureCompiled();
-    batch.setShader(program);
-
-    List<UniformBinding> bindings = getUniforms(actualUpscale);
-    if (bindings != null) {
-      for (UniformBinding binding : bindings) {
-        binding.bind(program);
-      }
-    }
-  }
-
-  /**
-   * Resets the batch shader to null after the pass is complete.
-   *
-   * @param batch The SpriteBatch instance.
-   */
-  public void unbind(SpriteBatch batch) {
-    batch.setShader(null);
-  }
-
-  /**
-   * Checks if the shader is enabled.
-   *
-   * @return True if enabled, false otherwise.
-   */
-  public boolean enabled() {
-    return enabled;
-  }
-
-  /**
-   * Sets whether the shader is enabled.
-   *
-   * @param enabled True to enable, false to disable.
-   * @return The shader instance for chaining.
-   */
-  public AbstractShader enabled(boolean enabled) {
-    this.enabled = enabled;
-    return this;
-  }
-
-  /**
-   * Clears the instance reference to the ShaderProgram.
-   *
-   * <p>Note: Actual GPU resource disposal is complex due to static caching and should be handled by
-   * a dedicated cleanup routine at application shutdown.
-   */
-  @Override
-  public void dispose() {
-    this.program = null;
-  }
-
-  /** Static method for application-wide cleanup of all cached ShaderPrograms. */
-  public static void disposeAllStaticPrograms() {
-    for (ShaderProgram p : programCache.values()) {
-      p.dispose();
-    }
-    programCache.clear();
   }
 }
