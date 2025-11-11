@@ -501,7 +501,7 @@ public final class DrawSystem extends System implements Disposable {
     FBO_POOL.free(unusedFbo);
   }
 
-  // #region Draw Methods
+  // region Draw Methods
 
   /**
    * Draws the content of an FBO (which is expected to be vertically flipped) to the current batch,
@@ -575,7 +575,8 @@ public final class DrawSystem extends System implements Disposable {
     fboRegion.setRegion(texture);
     fboRegion.flip(config.mirrored(), true);
     Affine2 transform = makeTransform(position, config);
-    BATCH.setColor(config.tintColor() != -1 ? ColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
+    BATCH.setColor(
+        config.tintColor() != -1 ? ColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
     BATCH.draw(fboRegion, config.size().x(), config.size().y(), transform);
   }
 
@@ -591,7 +592,8 @@ public final class DrawSystem extends System implements Disposable {
   public void draw(final Point position, final Sprite sprite, final DrawConfig config) {
     BlendUtils.setBlending(BATCH);
     Affine2 transform = makeTransform(position, config);
-    BATCH.setColor(config.tintColor() != -1 ? ColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
+    BATCH.setColor(
+        config.tintColor() != -1 ? ColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
     BATCH.draw(sprite, config.size().x(), config.size().y(), transform);
   }
 
@@ -617,9 +619,9 @@ public final class DrawSystem extends System implements Disposable {
     draw(position, new Sprite(TextureMap.instance().textureAt(path)), config);
   }
 
-  // #endregion
+  // endregion
 
-  // #region Helpers
+  // region Helpers
 
   /**
    * Sets any common uniforms needed by all shaders (for entity FBOs).
@@ -749,7 +751,7 @@ public final class DrawSystem extends System implements Disposable {
         .orElse(false);
   }
 
-  // #endregion
+  // endregion
 
   private record DSData(Entity e, DrawComponent dc, PositionComponent pc) {
     /**

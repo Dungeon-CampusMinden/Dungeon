@@ -21,19 +21,13 @@ public class FrameBufferPool implements Disposable {
 
   private int currentFboCount = 0;
 
-  /**
-   * Key = Exact size (W x H), Value = List of available FBOs (with last used time)
-   */
+  /** Key = Exact size (W x H), Value = List of available FBOs (with last used time). */
   private final Map<SizeKey, LinkedList<PooledFbo>> availablePool;
 
-  /**
-   * Set of FBOs currently checked out and in use.
-   */
+  /** Set of FBOs currently checked out and in use. */
   private final Set<FrameBuffer> inUseFbos;
 
-  /**
-   * The last time culling was performed, in milliseconds.
-   */
+  /** The last time culling was performed, in milliseconds. */
   private long lastCullTime = 0;
 
   /**
@@ -158,9 +152,7 @@ public class FrameBufferPool implements Disposable {
 
   private record SizeKey(int width, int height) {}
 
-  /**
-   * Wrapper class for FrameBuffer objects in the pool, tracking their last used time.
-   */
+  /** Wrapper class for FrameBuffer objects in the pool, tracking their last used time. */
   private static class PooledFbo {
     final FrameBuffer fbo;
     long lastUsedTime;

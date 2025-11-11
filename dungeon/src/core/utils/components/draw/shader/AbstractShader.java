@@ -161,9 +161,7 @@ public abstract class AbstractShader implements Disposable {
    */
   protected abstract List<UniformBinding> getUniforms(int actualUpscale);
 
-  /**
-   * Clears the instance reference to the ShaderProgram.
-   */
+  /** Clears the instance reference to the ShaderProgram. */
   @Override
   public void dispose() {
     this.program = null;
