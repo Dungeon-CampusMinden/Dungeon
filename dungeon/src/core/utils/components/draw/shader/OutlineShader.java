@@ -65,7 +65,7 @@ public class OutlineShader extends AbstractShader {
   }
 
   @Override
-  public int getPadding() {
+  public int padding() {
     return width;
   }
 

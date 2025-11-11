@@ -9,21 +9,32 @@ import java.util.*;
  */
 public class ShaderList {
 
-  // Unique counter to track insertion order
+  /**
+   * Unique counter to track insertion order of shaders.
+   */
   private long insertionCounter = 0;
 
-  // Map for quick lookup and management by identifier
+  /**
+   * Map for quick lookup and management by identifier.
+   */
   private final Map<String, AbstractShader> shaderMap = new HashMap<>();
 
-  // Map to store the priority for each shader identifier
-  private final Map<String, Integer> priorityMap = new HashMap<>();
+  /**
+   * Map for storing shader priorities by identifier.
+   */
+  private final Map<String, Integer> priorityMap = new HashMap<>(); //TODO LinkedHashMap?
 
-  // Map to store the insertion index for fast removal from the TreeSet
+  /**
+   * Map for storing insertion indices by identifier.
+   */
   private final Map<String, Long> insertionIndexMap = new HashMap<>();
 
-  // TreeMap for automatic primary sorting by priority
-  // Key: Priority (Integer)
-  // Value: TreeSet of ShaderEntry, which performs the secondary sort by insertionIndex
+  /**
+   * TreeMap to maintain shaders sorted by priority and insertion order.
+   *
+   * <p>Key: Priority (Integer)</p>
+   * <p>Value: Set of ShaderEntry, which performs secondary sorting by insertionIndex</p>
+   */
   private final TreeMap<Integer, Set<ShaderEntry>> sortedByPriority = new TreeMap<>();
 
   /**
@@ -180,7 +191,7 @@ public class ShaderList {
     int totalPadding = 0;
     for (AbstractShader shader : shaderMap.values()) {
       if (!shader.enabled()) continue;
-      totalPadding += shader.getPadding();
+      totalPadding += shader.padding();
     }
     return totalPadding;
   }

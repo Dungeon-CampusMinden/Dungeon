@@ -75,11 +75,11 @@ public final class DrawSystem extends System implements Disposable {
   private final Map<Entity, FrameBuffer> entityFboCache = new HashMap<>();
 
   // Shaders applied to the level layer
-  private ShaderList levelShaders = new ShaderList();
+  private final ShaderList levelShaders = new ShaderList();
   // Shaders applied to each entity depth layer (depth = key)
   private final Map<Integer, ShaderList> entityDepthShaders = new HashMap<>();
   // Post-processing shaders applied to the entire scene
-  private ShaderList sceneShaders = new ShaderList();
+  private final ShaderList sceneShaders = new ShaderList();
 
   private float secondsElapsed = 0f;
 
@@ -287,7 +287,7 @@ public final class DrawSystem extends System implements Disposable {
     BATCH.setProjectionMatrix(
         fboProjectionMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
     BATCH.begin();
-    BlendUtil.setBlending(BATCH);
+    BlendUtils.setBlending(BATCH);
     BATCH.setColor(Color.WHITE);
     BATCH.draw(fboRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     BATCH.end();
@@ -323,7 +323,7 @@ public final class DrawSystem extends System implements Disposable {
 
     BATCH.setProjectionMatrix(CameraSystem.camera().combined);
     BATCH.begin();
-    BlendUtil.setBlending(BATCH);
+    BlendUtils.setBlending(BATCH);
     renderAction.run();
     BATCH.end();
 
@@ -372,7 +372,7 @@ public final class DrawSystem extends System implements Disposable {
       currentSourceRegion.flip(false, true);
 
       fboBatch.begin();
-      BlendUtil.setBlending(fboBatch);
+      BlendUtils.setBlending(fboBatch);
       pass.bind(fboBatch, 1);
       setCommonUniforms(fboBatch.getShader(), width, height, null);
       fboBatch.setColor(Color.WHITE);
@@ -450,7 +450,7 @@ public final class DrawSystem extends System implements Disposable {
 
     fboBatch.setProjectionMatrix(fboProjectionMatrix);
     fboBatch.begin();
-    BlendUtil.setBlending(fboBatch);
+    BlendUtils.setBlending(fboBatch);
     fboBatch.draw(
         initialRegion,
         padding * shaderUpscaling,
@@ -476,7 +476,7 @@ public final class DrawSystem extends System implements Disposable {
 
       fboBatch.setProjectionMatrix(fboProjectionMatrix);
       fboBatch.begin();
-      BlendUtil.setBlending(fboBatch);
+      BlendUtils.setBlending(fboBatch);
       pass.bind(fboBatch, shaderUpscaling);
       setCommonUniforms(
           fboBatch.getShader(), fboRegion.getRegionWidth(), fboRegion.getRegionHeight(), dsd);
@@ -512,7 +512,7 @@ public final class DrawSystem extends System implements Disposable {
    * @param height The height of the FBO
    */
   private void drawFboToBatch(FrameBuffer fbo, int width, int height) {
-    BlendUtil.setBlending(BATCH);
+    BlendUtils.setBlending(BATCH);
     fboRegion.setRegion(fbo.getColorBufferTexture());
     fboRegion.flip(false, true); // Flip back to draw correctly
     BATCH.draw(fboRegion, 0, 0, width, height);
@@ -571,11 +571,11 @@ public final class DrawSystem extends System implements Disposable {
    * @param config the {@link DrawConfig} controlling the drawing parameters
    */
   public void draw(final Point position, final Texture texture, final DrawConfig config) {
-    BlendUtil.setBlending(BATCH);
+    BlendUtils.setBlending(BATCH);
     fboRegion.setRegion(texture);
     fboRegion.flip(config.mirrored(), true);
     Affine2 transform = makeTransform(position, config);
-    BATCH.setColor(config.tintColor() != -1 ? ColorUtil.pmaColor(config.tintColor()) : Color.WHITE);
+    BATCH.setColor(config.tintColor() != -1 ? ColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
     BATCH.draw(fboRegion, config.size().x(), config.size().y(), transform);
   }
 
@@ -589,9 +589,9 @@ public final class DrawSystem extends System implements Disposable {
    * @param config the {@link DrawConfig} controlling scaling, tint, and offset
    */
   public void draw(final Point position, final Sprite sprite, final DrawConfig config) {
-    BlendUtil.setBlending(BATCH);
+    BlendUtils.setBlending(BATCH);
     Affine2 transform = makeTransform(position, config);
-    BATCH.setColor(config.tintColor() != -1 ? ColorUtil.pmaColor(config.tintColor()) : Color.WHITE);
+    BATCH.setColor(config.tintColor() != -1 ? ColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
     BATCH.draw(sprite, config.size().x(), config.size().y(), transform);
   }
 
@@ -698,7 +698,7 @@ public final class DrawSystem extends System implements Disposable {
                 for (int x = 0; x < layout[0].length; x++) {
                   Tile t = tiles[x];
                   if (t.levelElement() != LevelElement.SKIP
-                      && !TileUtil.isTilePitAndOpen(t)
+                      && !TileUtils.isTilePitAndOpen(t)
                       && t.visible()) {
                     IPath texturePath = t.texturePath();
                     int tintColor =
@@ -744,7 +744,7 @@ public final class DrawSystem extends System implements Disposable {
                     .anyMatch(
                         c -> {
                           Tile t = level.tileAt(c).orElse(null);
-                          return t != null && t.visible() && !TileUtil.isTilePitAndOpen(t);
+                          return t != null && t.visible() && !TileUtils.isTilePitAndOpen(t);
                         }))
         .orElse(false);
   }

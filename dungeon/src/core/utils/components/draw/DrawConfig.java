@@ -17,14 +17,10 @@ public record DrawConfig(
 
   /** Primary constructor with default handling. */
   public DrawConfig {
-    // Ensure non-null defaults for complex types
     scale = (scale != null) ? scale : Vector2.ONE;
     offset = (offset != null) ? offset : Vector2.ZERO;
     size = (size != null) ? size : Vector2.ONE;
-    // tintColor, mirrored, and rotation have good default values from the constructor signature
   }
-
-  // --- Unified Helper Constructors ---
 
   /** Creates a minimal DrawConfig. */
   public DrawConfig() {
@@ -54,8 +50,6 @@ public record DrawConfig(
   public DrawConfig(float xOffset, float yOffset, float xSize, float ySize, int tintColor) {
     this(Vector2.of(xOffset, yOffset), Vector2.of(xSize, ySize), Vector2.ONE, tintColor, false, 0f);
   }
-
-  // --- Fluent Setter-like Methods (for creating new, modified instances) ---
 
   /**
    * Creates a new DrawConfig instance with the specified scale.

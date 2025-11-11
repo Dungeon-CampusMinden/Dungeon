@@ -46,11 +46,9 @@ public class HueRemapShader extends AbstractShader {
   }
 
   @Override
-  public int getPadding() {
+  public int padding() {
     return 0;
   }
-
-  // Getters and Setters
 
   /**
    * Gets the starting hue.
@@ -67,7 +65,7 @@ public class HueRemapShader extends AbstractShader {
    * @param startingHue The starting hue to set
    * @return The HueRemapShader instance for chaining
    */
-  public HueRemapShader setStartingHue(float startingHue) {
+  public HueRemapShader startingHue(float startingHue) {
     this.startingHue = startingHue;
     return this;
   }
@@ -87,7 +85,7 @@ public class HueRemapShader extends AbstractShader {
    * @param targetHue The target hue to set
    * @return The HueRemapShader instance for chaining
    */
-  public HueRemapShader setTargetHue(float targetHue) {
+  public HueRemapShader targetHue(float targetHue) {
     this.targetHue = targetHue;
     return this;
   }
@@ -107,7 +105,7 @@ public class HueRemapShader extends AbstractShader {
    * @param tolerance The tolerance to set
    * @return The HueRemapShader instance for chaining
    */
-  public HueRemapShader setTolerance(float tolerance) {
+  public HueRemapShader tolerance(float tolerance) {
     this.tolerance = tolerance;
     return this;
   }

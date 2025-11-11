@@ -43,7 +43,7 @@ public abstract class AbstractShader implements Disposable {
    *
    * @return The padding in pixels.
    */
-  public abstract int getPadding();
+  public abstract int padding();
 
   /**
    * Gets the minimum upscaling required for this shader effect.
@@ -163,21 +163,10 @@ public abstract class AbstractShader implements Disposable {
 
   /**
    * Clears the instance reference to the ShaderProgram.
-   *
-   * <p>Note: Actual GPU resource disposal is complex due to static caching and should be handled by
-   * a dedicated cleanup routine at application shutdown.
    */
   @Override
   public void dispose() {
     this.program = null;
-  }
-
-  /** Static method for application-wide cleanup of all cached ShaderPrograms. */
-  public static void disposeAllStaticPrograms() {
-    for (ShaderProgram p : programCache.values()) {
-      p.dispose();
-    }
-    programCache.clear();
   }
 
   /**

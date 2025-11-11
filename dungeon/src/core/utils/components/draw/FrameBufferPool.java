@@ -13,41 +13,28 @@ import java.util.*;
  */
 public class FrameBufferPool implements Disposable {
 
-  // --- Singleton Instance ---
   private static FrameBufferPool instance;
 
-  // --- Configuration ---
   private static final int SOFT_LIMIT = 50;
   private static final int HARD_LIMIT = 100;
   private static final long CULL_TIMEOUT_MS = 5000;
 
-  // --- Internal State ---
   private int currentFboCount = 0;
 
-  // Map: Key = Exact size (W x H), Value = List of available FBOs (with last used time)
+  /**
+   * Key = Exact size (W x H), Value = List of available FBOs (with last used time)
+   */
   private final Map<SizeKey, LinkedList<PooledFbo>> availablePool;
 
-  // Set to track FBOs currently in use by entities (to prevent double-freeing)
+  /**
+   * Set of FBOs currently checked out and in use.
+   */
   private final Set<FrameBuffer> inUseFbos;
 
-  // Timer to control how often culling runs (for performance)
+  /**
+   * The last time culling was performed, in milliseconds.
+   */
   private long lastCullTime = 0;
-
-  // Wrapper for FBOs in the pool to track metadata
-  private static class PooledFbo {
-    final FrameBuffer fbo;
-    long lastUsedTime;
-
-    PooledFbo(FrameBuffer fbo) {
-      this.fbo = fbo;
-      this.lastUsedTime = TimeUtils.millis();
-    }
-  }
-
-  // Key class for FBO sizes.
-  private record SizeKey(int width, int height) {}
-
-  // --- Creation ---
 
   /**
    * Retrieves the singleton instance of the FrameBufferPool.
@@ -67,8 +54,6 @@ public class FrameBufferPool implements Disposable {
     inUseFbos = new HashSet<>();
   }
 
-  // --- Public Methods ---
-
   /**
    * Retrieves an FBO of the exact specified size from the pool or creates a new one.
    *
@@ -81,25 +66,20 @@ public class FrameBufferPool implements Disposable {
     SizeKey key = new SizeKey(width, height);
     LinkedList<PooledFbo> fbos = availablePool.get(key);
 
-    // 1. Check for available FBOs of the EXACT size
     if (fbos != null && !fbos.isEmpty()) {
       PooledFbo pooledFbo = fbos.removeFirst();
       inUseFbos.add(pooledFbo.fbo);
       return pooledFbo.fbo;
     }
 
-    // 2. Check HARD_LIMIT before creating new FBO
     if (currentFboCount >= HARD_LIMIT) {
       throw new IllegalStateException(
           "FBO Pool HARD_LIMIT (" + HARD_LIMIT + ") reached. Cannot allocate new FBOs.");
     }
 
-    // 3. Create a new FBO
     FrameBuffer newFbo = new FrameBuffer(Format.RGBA8888, width, height, false);
     currentFboCount++;
     inUseFbos.add(newFbo);
-    // System.out.println("New FBO created: " + width + "x" + height + ". Total: " +
-    // currentFboCount);
     return newFbo;
   }
 
@@ -148,8 +128,6 @@ public class FrameBufferPool implements Disposable {
         // Check two conditions: Time limit passed AND we are over the soft limit
         if (TimeUtils.timeSinceMillis(pooledFbo.lastUsedTime) > CULL_TIMEOUT_MS
             && currentFboCount > SOFT_LIMIT) {
-
-          // Dispose and clean up the VRAM resource
           pooledFbo.fbo.dispose();
           fboIt.remove();
           currentFboCount--;
@@ -176,5 +154,20 @@ public class FrameBufferPool implements Disposable {
     availablePool.clear();
     inUseFbos.clear();
     currentFboCount = 0;
+  }
+
+  private record SizeKey(int width, int height) {}
+
+  /**
+   * Wrapper class for FrameBuffer objects in the pool, tracking their last used time.
+   */
+  private static class PooledFbo {
+    final FrameBuffer fbo;
+    long lastUsedTime;
+
+    PooledFbo(FrameBuffer fbo) {
+      this.fbo = fbo;
+      this.lastUsedTime = TimeUtils.millis();
+    }
   }
 }
