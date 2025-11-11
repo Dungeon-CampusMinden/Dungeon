@@ -1,8 +1,14 @@
 package contrib.components;
 
+import contrib.hud.dialogs.YesNoDialog;
+import contrib.utils.components.interaction.Interaction;
 import core.Component;
 import core.Entity;
 import core.systems.InputSystem;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
@@ -28,10 +34,9 @@ public final class InteractionComponent implements Component {
   /** If it is repeatable by default. */
   public static final boolean DEFAULT_REPEATABLE = true;
 
-  private static final BiConsumer<Entity, Entity> DEFAULT_INTERACTION = (entity, who) -> {};
   private final float radius;
   private final boolean repeatable;
-  private final BiConsumer<Entity, Entity> onInteraction;
+  private final List<Interaction> interactions;
 
   /**
    * Create a new {@link InteractionComponent}.
@@ -40,11 +45,11 @@ public final class InteractionComponent implements Component {
    * @param repeatable True if the interaction is repeatable, otherwise false.
    * @param onInteraction The behavior that should happen on an interaction.
    */
-  public InteractionComponent(
-      float radius, boolean repeatable, final BiConsumer<Entity, Entity> onInteraction) {
+  public InteractionComponent(float radius, boolean repeatable, Interaction... onInteraction) {
     this.radius = radius;
     this.repeatable = repeatable;
-    this.onInteraction = onInteraction;
+    if (onInteraction != null) this.interactions = Arrays.stream(onInteraction).toList();
+    else this.interactions = new ArrayList<>();
   }
 
   /**
@@ -55,7 +60,7 @@ public final class InteractionComponent implements Component {
    * <p>The interaction callback is empty.
    */
   public InteractionComponent() {
-    this(DEFAULT_INTERACTION_RADIUS, DEFAULT_REPEATABLE, DEFAULT_INTERACTION);
+    this(DEFAULT_INTERACTION_RADIUS, DEFAULT_REPEATABLE);
   }
 
   /**
@@ -68,8 +73,26 @@ public final class InteractionComponent implements Component {
    * @param who The entity that triggered the interaction.
    */
   public void triggerInteraction(final Entity entity, final Entity who) {
-    onInteraction.accept(entity, who);
-    if (!repeatable) entity.remove(InteractionComponent.class);
+    // Use an iterator so we can stop the loop
+    Iterator<Interaction> iterator = interactions.iterator();
+
+    while (iterator.hasNext()) {
+      var interaction = iterator.next();
+
+      YesNoDialog.showYesNoDialog(
+          interaction.name(),
+          "Interaktion",
+          () -> {
+            interaction.accept(entity, who);
+            // Stop further dialogs once one interaction is triggered
+            iterator.forEachRemaining(i -> {}); // No-Op to consume remaining
+          },
+          () -> {});
+    }
+
+    if (!repeatable) {
+      entity.remove(InteractionComponent.class);
+    }
   }
 
   /**

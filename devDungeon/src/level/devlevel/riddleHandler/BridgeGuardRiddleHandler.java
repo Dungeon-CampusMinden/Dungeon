@@ -14,6 +14,7 @@ import contrib.utils.EntityUtils;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IHealthObserver;
+import contrib.utils.components.interaction.Interaction;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -192,12 +193,14 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
                               new InteractionComponent(
                                   2.5f,
                                   true,
-                                  (me, who) -> {
-                                    OkDialog.showOkDialog(
-                                        "Haha, you failed the riddle! You shall not pass!",
-                                        "Riddle: Bridge Guard",
-                                        () -> {});
-                                  }));
+                                  new Interaction(
+                                      "Talk",
+                                      (me, who) -> {
+                                        OkDialog.showOkDialog(
+                                            "Haha, you failed the riddle! You shall not pass!",
+                                            "Riddle: Bridge Guard",
+                                            () -> {});
+                                      })));
                         });
                   }));
     };

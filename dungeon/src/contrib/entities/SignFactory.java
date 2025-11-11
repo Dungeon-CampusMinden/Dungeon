@@ -3,6 +3,7 @@ package contrib.entities;
 import contrib.components.InteractionComponent;
 import contrib.components.SignComponent;
 import contrib.hud.DialogUtils;
+import contrib.utils.components.interaction.Interaction;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -58,15 +59,17 @@ public class SignFactory {
         new InteractionComponent(
             DEFAULT_INTERACTION_RADIUS,
             true,
-            (entity, who) -> {
-              SignComponent sc =
-                  entity
-                      .fetch(SignComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(entity, SignComponent.class));
-              onInteract.accept(entity, who);
-              sc.showDialog();
-            }));
+            new Interaction(
+                "Read",
+                (entity, who) -> {
+                  SignComponent sc =
+                      entity
+                          .fetch(SignComponent.class)
+                          .orElseThrow(
+                              () -> MissingComponentException.build(entity, SignComponent.class));
+                  onInteract.accept(entity, who);
+                  sc.showDialog();
+                })));
 
     return sign;
   }

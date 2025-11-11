@@ -4,6 +4,7 @@ import contrib.components.*;
 import contrib.systems.EventScheduler;
 import contrib.utils.ICommand;
 import contrib.utils.IEntityCommand;
+import contrib.utils.components.interaction.Interaction;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -60,17 +61,20 @@ public class LeverFactory {
         new InteractionComponent(
             DEFAULT_INTERACTION_RADIUS,
             true,
-            (entity, who) -> {
-              LeverComponent lc =
+            new Interaction(
+                "Ziehen",
+                (entity, who) -> {
+                  LeverComponent lc =
+                      entity
+                          .fetch(LeverComponent.class)
+                          .orElseThrow(
+                              () -> MissingComponentException.build(entity, LeverComponent.class));
+                  lc.toggle();
                   entity
-                      .fetch(LeverComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(entity, LeverComponent.class));
-              lc.toggle();
-              entity
-                  .fetch(DrawComponent.class)
-                  .ifPresent(drawComponent -> drawComponent.sendSignal(lc.isOn() ? "on" : "off"));
-            }));
+                      .fetch(DrawComponent.class)
+                      .ifPresent(
+                          drawComponent -> drawComponent.sendSignal(lc.isOn() ? "on" : "off"));
+                })));
     return lever;
   }
 

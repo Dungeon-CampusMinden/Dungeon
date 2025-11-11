@@ -8,6 +8,7 @@ import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.YesNoDialog;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
+import contrib.utils.components.interaction.Interaction;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -199,52 +200,60 @@ public class AdvancedBerryLevel extends AdvancedLevel {
         new InteractionComponent(
             1,
             true,
-            (entity, hero) -> {
-              // Markiere, dass der Spieler mit dem Ork interagiert hat
-              hasSpokenToOrc = true;
-              DialogUtils.showTextPopup(
-                  String.format(DIALOG_MESSAGE_START, BERRY_GOAL),
-                  DIALOG_TITLE_HUNGER,
-                  () -> {
-                    DialogUtils.showTextPopup(task, titel);
-                    entity.remove(InteractionComponent.class);
-                    entity.add(
-                        new InteractionComponent(
-                            1,
-                            true,
-                            (entity1, entity2) ->
-                                YesNoDialog.showYesNoDialog(
-                                    DIALOG_LOGIN,
-                                    DIALOG_TITLE_HUNGER,
-                                    () -> {
-                                      int count = checkBerryCount();
-                                      if (count < BERRY_GOAL) {
-                                        DialogUtils.showTextPopup(
-                                            String.format(DIALOG_MESSAGE_NOT_ENOUGH, BERRY_GOAL),
-                                            DIALOG_TITLE_HUNGER);
-                                      } else if (checkBerries()) {
-                                        DialogUtils.showTextPopup(
-                                            DIALOG_MESSAGE_SUCCESS, DIALOG_TITLE_SATISFIED);
-                                        door.open();
-                                        npc.remove(InteractionComponent.class);
-                                        chest.remove(InteractionComponent.class);
-                                        chest.add(
-                                            new InteractionComponent(
-                                                1,
-                                                true,
-                                                (e1, e2) ->
-                                                    DialogUtils.showTextPopup(
-                                                        DIALOG_MESSAGE_CHEST, DIALOG_TITLE_MINE)));
-                                      } else {
-                                        DialogUtils.showTextPopup(
-                                            DIALOG_MESSAGE_TOXIC, DIALOG_TITLE_HUNGER);
-                                      }
-                                    },
-                                    () ->
-                                        DialogUtils.showTextPopup(
-                                            DIALOG_MESSAGE_LATER, DIALOG_TITLE_HUNGER))));
-                  });
-            }));
+            new Interaction(
+                "Talk",
+                (entity, hero) -> {
+                  // Markiere, dass der Spieler mit dem Ork interagiert hat
+                  hasSpokenToOrc = true;
+                  DialogUtils.showTextPopup(
+                      String.format(DIALOG_MESSAGE_START, BERRY_GOAL),
+                      DIALOG_TITLE_HUNGER,
+                      () -> {
+                        DialogUtils.showTextPopup(task, titel);
+                        entity.remove(InteractionComponent.class);
+                        entity.add(
+                            new InteractionComponent(
+                                1,
+                                true,
+                                new Interaction(
+                                    "Talk",
+                                    (entity1, entity2) ->
+                                        YesNoDialog.showYesNoDialog(
+                                            DIALOG_LOGIN,
+                                            DIALOG_TITLE_HUNGER,
+                                            () -> {
+                                              int count = checkBerryCount();
+                                              if (count < BERRY_GOAL) {
+                                                DialogUtils.showTextPopup(
+                                                    String.format(
+                                                        DIALOG_MESSAGE_NOT_ENOUGH, BERRY_GOAL),
+                                                    DIALOG_TITLE_HUNGER);
+                                              } else if (checkBerries()) {
+                                                DialogUtils.showTextPopup(
+                                                    DIALOG_MESSAGE_SUCCESS, DIALOG_TITLE_SATISFIED);
+                                                door.open();
+                                                npc.remove(InteractionComponent.class);
+                                                chest.remove(InteractionComponent.class);
+                                                chest.add(
+                                                    new InteractionComponent(
+                                                        1,
+                                                        true,
+                                                        new Interaction(
+                                                            "Open",
+                                                            (e1, e2) ->
+                                                                DialogUtils.showTextPopup(
+                                                                    DIALOG_MESSAGE_CHEST,
+                                                                    DIALOG_TITLE_MINE))));
+                                              } else {
+                                                DialogUtils.showTextPopup(
+                                                    DIALOG_MESSAGE_TOXIC, DIALOG_TITLE_HUNGER);
+                                              }
+                                            },
+                                            () ->
+                                                DialogUtils.showTextPopup(
+                                                    DIALOG_MESSAGE_LATER, DIALOG_TITLE_HUNGER)))));
+                      });
+                })));
     Game.add(npc);
   }
 

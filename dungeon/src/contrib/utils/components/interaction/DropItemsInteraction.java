@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  * <p>If a {@link DrawComponent} is present, after the interaction, the {@link
  * CoreAnimations#IDLE_RIGHT} animation will be set as the current animation.
  */
-public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
+public final class DropItemsInteraction extends Interaction {
 
   /**
    * Maximum radius to drop an item from the entity position. If the item cannot be dropped within
@@ -51,21 +51,28 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
    * @param entity Entity that holds the items to drop.
    * @param who The entity that triggered the interaction (could be null).
    */
-  public void accept(final Entity entity, final Entity who) {
-    InventoryComponent inventoryComponent =
-        entity
-            .fetch(InventoryComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, InventoryComponent.class));
-    PositionComponent positionComponent =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+  private static final BiConsumer<Entity, Entity> ON_INTERACTION =
+      (entity1, who1) -> {
+        InventoryComponent inventoryComponent =
+            entity1
+                .fetch(InventoryComponent.class)
+                .orElseThrow(
+                    () -> MissingComponentException.build(entity1, InventoryComponent.class));
+        PositionComponent positionComponent =
+            entity1
+                .fetch(PositionComponent.class)
+                .orElseThrow(
+                    () -> MissingComponentException.build(entity1, PositionComponent.class));
 
-    for (Item item : inventoryComponent.items()) {
-      if (item != null && !this.tryDropItem(item, positionComponent)) {
-        this.dropItemAtPlayerPosition(item);
-      }
-    }
+        for (Item item : inventoryComponent.items()) {
+          if (item != null && !tryDropItem(item, positionComponent)) {
+            dropItemAtPlayerPosition(item);
+          }
+        }
+      };
+
+  public DropItemsInteraction() {
+    super("DropItemsInteraction", ON_INTERACTION);
   }
 
   /**
@@ -77,7 +84,7 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
    * @return true if the item was dropped, false otherwise
    * @see LevelUtils#randomAccessibleTileInRangeAsPoint(Point, float)
    */
-  private boolean tryDropItem(Item item, PositionComponent positionComponent) {
+  private static boolean tryDropItem(Item item, PositionComponent positionComponent) {
     for (int i = 1; i <= MAX_ITEM_DROP_RADIUS; i++) {
       Point randomTile =
           LevelUtils.randomAccessibleTileInRangeAsPoint(positionComponent.position(), i)
@@ -96,7 +103,7 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
    *
    * @param item The item to drop
    */
-  private void dropItemAtPlayerPosition(Item item) {
+  private static void dropItemAtPlayerPosition(Item item) {
     Point playerPosition =
         Game.player()
             .flatMap(player -> player.fetch(PositionComponent.class))

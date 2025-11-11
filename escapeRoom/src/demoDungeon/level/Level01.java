@@ -11,6 +11,7 @@ import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceMushroomRed;
 import contrib.utils.components.ai.AIUtils;
+import contrib.utils.components.interaction.Interaction;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -160,39 +161,46 @@ public class Level01 extends DungeonLevel {
         new InteractionComponent(
             3,
             true,
-            (entity, hero) ->
-                DialogUtils.showTextPopup(
-                    "Ich brauche dringend ein Heilmittel gegen meine Vergiftung.",
-                    "Muschel esser.",
-                    () -> {
-                      riddle1Place.produce();
-                      removeTalkToMonsterRiddle(hero);
+            new Interaction(
+                "Talk",
+                (entity, hero) ->
+                    DialogUtils.showTextPopup(
+                        "Ich brauche dringend ein Heilmittel gegen meine Vergiftung.",
+                        "Muschel esser.",
+                        () -> {
+                          riddle1Place.produce();
+                          removeTalkToMonsterRiddle(hero);
 
-                      entity.remove(InteractionComponent.class);
-                      entity.add(
-                          new InteractionComponent(
-                              3,
-                              true,
-                              (entity1, entity2) ->
-                                  YesNoDialog.showYesNoDialog(
-                                      "Hast du das Gegenmittel bei dir?",
-                                      "Hilfe",
-                                      () -> {
-                                        boolean check = checkForHealItem(entity2);
-                                        if (!check) {
-                                          DialogUtils.showTextPopup(
-                                              "Das ist nicht das richitge Mittel.", "Falsch.");
-                                        } else {
-                                          DialogUtils.showTextPopup("Danke", "Richtig");
-                                          riddle3Place.produce();
-                                          removeCraftPotionRiddle(hero);
-                                          removeFindRecipeRiddle(hero);
-                                          moveNpc(entity);
-                                          npc.remove(InteractionComponent.class);
-                                        }
-                                      },
-                                      () -> DialogUtils.showTextPopup("Beeile dich.", "Hilfe."))));
-                    })));
+                          entity.remove(InteractionComponent.class);
+                          entity.add(
+                              new InteractionComponent(
+                                  3,
+                                  true,
+                                  new Interaction(
+                                      "Talk",
+                                      (entity1, entity2) ->
+                                          YesNoDialog.showYesNoDialog(
+                                              "Hast du das Gegenmittel bei dir?",
+                                              "Hilfe",
+                                              () -> {
+                                                boolean check = checkForHealItem(entity2);
+                                                if (!check) {
+                                                  DialogUtils.showTextPopup(
+                                                      "Das ist nicht das richitge Mittel.",
+                                                      "Falsch.");
+                                                } else {
+                                                  DialogUtils.showTextPopup("Danke", "Richtig");
+                                                  riddle3Place.produce();
+                                                  removeCraftPotionRiddle(hero);
+                                                  removeFindRecipeRiddle(hero);
+                                                  moveNpc(entity);
+                                                  npc.remove(InteractionComponent.class);
+                                                }
+                                              },
+                                              () ->
+                                                  DialogUtils.showTextPopup(
+                                                      "Beeile dich.", "Hilfe.")))));
+                        }))));
     Game.add(npc);
   }
 

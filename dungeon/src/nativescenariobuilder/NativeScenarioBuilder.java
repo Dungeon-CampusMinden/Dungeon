@@ -9,6 +9,7 @@ import contrib.hud.dialogs.OkDialog;
 import contrib.hud.dialogs.TextDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.utils.components.interaction.Interaction;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -106,7 +107,12 @@ public class NativeScenarioBuilder {
           chest.add(new InventoryComponent());
 
           chest.remove(InteractionComponent.class);
-          chest.add(new InteractionComponent(1.5f, true, QuestChestInventoryInteraction()));
+          chest.add(
+              new InteractionComponent(
+                  1.5f,
+                  true,
+                  new Interaction(
+                      "QuestChestInventoryInteraction", QuestChestInventoryInteraction())));
 
           // mark as task container
           var tcc = new TaskContentComponent();
@@ -130,14 +136,16 @@ public class NativeScenarioBuilder {
     return new InteractionComponent(
         1,
         true,
-        (thisEntity, otherEntity) -> {
-          if (quiz.state().equals(Task.TaskState.ACTIVE)
-              || quiz.state().equals(Task.TaskState.PROCESSING_ACTIVE)) {
-            QuizUI.askQuizOnHud(quiz);
-          } else {
-            OkDialog.showOkDialog("Du hast die Aufgabe schon bearbeitet.", "Info", () -> {});
-          }
-        });
+        new Interaction(
+            "Ask",
+            (thisEntity, otherEntity) -> {
+              if (quiz.state().equals(Task.TaskState.ACTIVE)
+                  || quiz.state().equals(Task.TaskState.PROCESSING_ACTIVE)) {
+                QuizUI.askQuizOnHud(quiz);
+              } else {
+                OkDialog.showOkDialog("Du hast die Aufgabe schon bearbeitet.", "Info", () -> {});
+              }
+            }));
   }
 
   private static BiConsumer<Entity, Entity> QuestChestInventoryInteraction() {
@@ -175,14 +183,16 @@ public class NativeScenarioBuilder {
     return new InteractionComponent(
         1,
         true,
-        (thisEntity, otherEntity) -> {
-          if (task.state().equals(Task.TaskState.ACTIVE)
-              || task.state().equals(Task.TaskState.PROCESSING_ACTIVE)) {
-            YesNoDialog.showYesNoDialog(task);
-          } else {
-            OkDialog.showOkDialog("Du hast die Aufgabe schon bearbeitet.", "Info", () -> {});
-          }
-        });
+        new Interaction(
+            "Ask",
+            (thisEntity, otherEntity) -> {
+              if (task.state().equals(Task.TaskState.ACTIVE)
+                  || task.state().equals(Task.TaskState.PROCESSING_ACTIVE)) {
+                YesNoDialog.showYesNoDialog(task);
+              } else {
+                OkDialog.showOkDialog("Du hast die Aufgabe schon bearbeitet.", "Info", () -> {});
+              }
+            }));
   }
 
   private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {

@@ -11,6 +11,7 @@ import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.interaction.DropItemsInteraction;
+import contrib.utils.components.interaction.Interaction;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.skill.projectileSkill.TPBallSkill;
@@ -461,10 +462,12 @@ public enum DevDungeonMonster {
         new InteractionComponent(
             InteractionComponent.DEFAULT_INTERACTION_RADIUS,
             true,
-            (me, who) -> {
-              Iterator<Quiz> quizIterator = quizzes.iterator();
-              DialogUtils.presentQuiz(quizIterator, onFinished);
-            }));
+            new Interaction(
+                "Talk",
+                (me, who) -> {
+                  Iterator<Quiz> quizIterator = quizzes.iterator();
+                  DialogUtils.presentQuiz(quizIterator, onFinished);
+                })));
 
     return bridgeGuard;
   }

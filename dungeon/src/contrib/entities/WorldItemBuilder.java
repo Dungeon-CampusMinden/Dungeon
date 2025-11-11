@@ -3,6 +3,7 @@ package contrib.entities;
 import contrib.components.InteractionComponent;
 import contrib.components.ItemComponent;
 import contrib.item.Item;
+import contrib.utils.components.interaction.Interaction;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -24,7 +25,9 @@ public final class WorldItemBuilder {
     droppedItem.add(new DrawComponent(item.worldAnimation()));
     droppedItem.add(new ItemComponent(item));
 
-    droppedItem.add(new InteractionComponent(DEFAULT_ITEM_PICKUP_RADIUS, true, item::collect));
+    droppedItem.add(
+        new InteractionComponent(
+            DEFAULT_ITEM_PICKUP_RADIUS, true, new Interaction("Collect", item::collect)));
 
     return droppedItem;
   }

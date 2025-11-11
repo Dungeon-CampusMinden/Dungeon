@@ -5,6 +5,7 @@ import components.*;
 import contrib.components.*;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
+import contrib.utils.components.interaction.Interaction;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -91,10 +92,12 @@ public class MiscFactory {
         new InteractionComponent(
             0,
             false,
-            (entity, entity2) -> {
-              DialogUtils.showTextPopup(pickupText, title);
-              Game.remove(pickup);
-            }));
+            new Interaction(
+                "Pickup",
+                (entity, entity2) -> {
+                  DialogUtils.showTextPopup(pickupText, title);
+                  Game.remove(pickup);
+                })));
     return pickup;
   }
 
@@ -119,9 +122,11 @@ public class MiscFactory {
         new InteractionComponent(
             0,
             false,
-            (entity, entity2) -> {
-              Game.remove(breadcrumb);
-            }));
+            new Interaction(
+                "Pickup",
+                (entity, entity2) -> {
+                  Game.remove(breadcrumb);
+                })));
     return breadcrumb;
   }
 
@@ -146,9 +151,11 @@ public class MiscFactory {
         new InteractionComponent(
             0,
             false,
-            (entity, entity2) -> {
-              Game.remove(clover);
-            }));
+            new Interaction(
+                "Pickup",
+                (entity, entity2) -> {
+                  Game.remove(clover);
+                })));
     return clover;
   }
 
@@ -170,10 +177,12 @@ public class MiscFactory {
         new InteractionComponent(
             0,
             false,
-            (entity, hero) -> {
-              hero.fetch(AmmunitionComponent.class).map(AmmunitionComponent::collectAmmo);
-              Game.remove(fireballScroll);
-            }));
+            new Interaction(
+                "Pickup",
+                (entity, hero) -> {
+                  hero.fetch(AmmunitionComponent.class).map(AmmunitionComponent::collectAmmo);
+                  Game.remove(fireballScroll);
+                })));
     return fireballScroll;
   }
 }
