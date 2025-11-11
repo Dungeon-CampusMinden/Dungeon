@@ -23,6 +23,7 @@ public class ColorGradeShader extends AbstractShader {
 
   /**
    * Constructs a ColorGradeShader with specified parameters.
+   *
    * @param hue The target hue to remap to
    * @param saturationMultiplier The multiplier for saturation
    * @param valueMultiplier The multiplier for value (brightness)
@@ -52,6 +53,7 @@ public class ColorGradeShader extends AbstractShader {
 
   /**
    * Gets the region of the shader effect.
+   *
    * @return The region as a Rectangle
    */
   public Rectangle region() {
@@ -60,6 +62,7 @@ public class ColorGradeShader extends AbstractShader {
 
   /**
    * Sets the region of the shader effect.
+   *
    * @param region The region as a Rectangle
    * @return The ColorGradeShader instance for chaining
    */
@@ -70,6 +73,7 @@ public class ColorGradeShader extends AbstractShader {
 
   /**
    * Gets the target hue for remapping.
+   *
    * @return The target hue
    */
   public float hue() {
@@ -78,6 +82,7 @@ public class ColorGradeShader extends AbstractShader {
 
   /**
    * Sets the target hue for remapping.
+   *
    * @param hue The target hue
    * @return The ColorGradeShader instance for chaining
    */
@@ -88,6 +93,7 @@ public class ColorGradeShader extends AbstractShader {
 
   /**
    * Gets the saturation multiplier.
+   *
    * @return The saturation multiplier
    */
   public float saturationMultiplier() {
@@ -96,6 +102,7 @@ public class ColorGradeShader extends AbstractShader {
 
   /**
    * Sets the saturation multiplier.
+   *
    * @param saturationMultiplier The saturation multiplier
    * @return The ColorGradeShader instance for chaining
    */
@@ -106,6 +113,7 @@ public class ColorGradeShader extends AbstractShader {
 
   /**
    * Gets the value (brightness) multiplier.
+   *
    * @return The value multiplier
    */
   public float valueMultiplier() {
@@ -114,6 +122,7 @@ public class ColorGradeShader extends AbstractShader {
 
   /**
    * Sets the value (brightness) multiplier.
+   *
    * @param valueMultiplier The value multiplier
    * @return The ColorGradeShader instance for chaining
    */
@@ -124,6 +133,7 @@ public class ColorGradeShader extends AbstractShader {
 
   /**
    * Gets the transition size for hue remapping.
+   *
    * @return The transition size
    */
   public float transitionSize() {
@@ -132,6 +142,7 @@ public class ColorGradeShader extends AbstractShader {
 
   /**
    * Sets the transition size for hue remapping.
+   *
    * @param transitionSize The transition size
    * @return The ColorGradeShader instance for chaining
    */
