@@ -56,7 +56,7 @@ public class PortalSkill extends ProjectileSkill {
         HIT_BOX_SIZE,
         HIT_BOX_OFFSET,
         false,
-        () -> SkillTools.cursorPositionAsPoint(),
+        SkillTools::cursorPositionAsPoint,
         resourceCost);
     this.portalColor = portalColor;
   }
