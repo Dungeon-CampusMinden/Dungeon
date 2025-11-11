@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import contrib.systems.DebugDrawSystem;
 import contrib.utils.CheckPatternPainter;
+import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -138,6 +139,28 @@ public class TilesMode extends LevelEditorMode {
         status.append(" [R]");
       }
     }
+
+    // Get tile under cursor
+    Point cursorPos = getCursorPosition();
+    getLevel()
+        .tileAt(cursorPos)
+        .ifPresent(
+            tile -> {
+              Coordinate c = cursorPos.toCoordinate();
+              status.append("\n\nCursor Tile:");
+              status.append("\n- (").append(c.x()).append(", ").append(c.y()).append(")");
+              status.append("\n- LevelElement: ").append(tile.levelElement().name());
+              status.append("\n- Texture: ").append(tile.texturePath().pathString());
+              if (tile.tintColor() == -1) {
+                status.append("\n- TintColor RGBA: (---)");
+              } else {
+                Color tintColor = new Color(tile.tintColor() == -1 ? 0xFFFFFFFF : tile.tintColor());
+                status.append(
+                    String.format(
+                        "\n- TintColor RGBA: (%.2f, %.2f, %.2f, %.2f)",
+                        tintColor.r, tintColor.g, tintColor.b, tintColor.a));
+              }
+            });
 
     return status.toString();
   }

@@ -6,13 +6,13 @@ import core.utils.components.draw.*;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
+import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.draw.state.Signal;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.draw.state.Transition;
 import core.utils.components.path.IPath;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * Store all {@link Animation}s for an entity.
@@ -45,13 +45,14 @@ import java.util.logging.Logger;
  * @see IPath
  */
 public final class DrawComponent implements Component {
-  private final Logger LOGGER = Logger.getLogger(this.getClass().getSimpleName());
 
   private final StateMachine stateMachine;
   private int depth = DepthLayer.Normal.depth();
 
   private int tintColor = -1; // -1 means no tinting
   private boolean isVisible = true;
+
+  private final ShaderList shaders = new ShaderList();
 
   /**
    * Create a new DrawComponent.
@@ -387,5 +388,14 @@ public final class DrawComponent implements Component {
    */
   public void depth(int depth) {
     this.depth = depth;
+  }
+
+  /**
+   * Get the list of shaders applied to this component.
+   *
+   * @return The shader list.
+   */
+  public ShaderList shaders() {
+    return shaders;
   }
 }
