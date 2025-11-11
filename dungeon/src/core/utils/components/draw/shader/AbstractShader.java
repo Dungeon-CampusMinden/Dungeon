@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Vector4;
 import com.badlogic.gdx.utils.Disposable;
 import java.util.*;
 
@@ -15,6 +17,9 @@ import java.util.*;
  * lazy, static compilation of the ShaderProgram and binding of uniforms.
  */
 public abstract class AbstractShader implements Disposable {
+
+  private static final String INCLUDE_DIRECTIVE = "// *****IMPORT: util.glsl*****";
+  private static String utilGlslCache = null;
 
   // Map to cache compiled ShaderPrograms (static, shared across all instances)
   // Key: Combined path (vertPath + "|" + fragPath)
@@ -134,6 +139,7 @@ public abstract class AbstractShader implements Disposable {
     if (program == null) {
       String vertexShader = Gdx.files.internal(vertPath).readString();
       String fragmentShader = Gdx.files.internal(fragPath).readString();
+      fragmentShader = insertIncludes(fragmentShader);
 
       ShaderProgram.pedantic = false;
       ShaderProgram newProgram = new ShaderProgram(vertexShader, fragmentShader);
@@ -151,6 +157,23 @@ public abstract class AbstractShader implements Disposable {
       program = newProgram;
       programCache.put(cacheKey, program);
     }
+  }
+
+  /**
+   * Searches for the include directive in the shader program and replaces it with the contents of
+   * the file 'shaders/util.glsl'.
+   *
+   * @param program The shader program string.
+   * @return The shader program with the includes inserted.
+   */
+  private String insertIncludes(String program) {
+    if (program.contains(INCLUDE_DIRECTIVE)) {
+      if (utilGlslCache == null) {
+        utilGlslCache = Gdx.files.internal("shaders/util.glsl").readString();
+      }
+      program = program.replace(INCLUDE_DIRECTIVE, utilGlslCache);
+    }
+    return program;
   }
 
   /**
@@ -220,6 +243,32 @@ public abstract class AbstractShader implements Disposable {
    * @param value The Vector2 value to bind.
    */
   protected record Vector2Uniform(String name, Vector2 value) implements UniformBinding {
+    @Override
+    public void bind(ShaderProgram program) {
+      program.setUniformf(name, value);
+    }
+  }
+
+  /**
+   * Binds a Vector3 uniform.
+   *
+   * @param name The uniform name in the shader.
+   * @param value The Vector3 value to bind.
+   */
+  protected record Vector3Uniform(String name, Vector3 value) implements UniformBinding {
+    @Override
+    public void bind(ShaderProgram program) {
+      program.setUniformf(name, value);
+    }
+  }
+
+  /**
+   * Binds a Vector4 uniform.
+   *
+   * @param name The uniform name in the shader.
+   * @param value The Vector4 value to bind.
+   */
+  protected record Vector4Uniform(String name, Vector4 value) implements UniformBinding {
     @Override
     public void bind(ShaderProgram program) {
       program.setUniformf(name, value);
