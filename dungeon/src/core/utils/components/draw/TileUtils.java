@@ -4,7 +4,7 @@ import core.level.Tile;
 import core.level.elements.tile.PitTile;
 
 /** Utility class for Tile-related operations. */
-public class TileUtil {
+public class TileUtils {
 
   /**
    * Checks if the provided tile is an instance of PitTile and if it's open.

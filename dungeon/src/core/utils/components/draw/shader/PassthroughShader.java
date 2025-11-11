@@ -26,7 +26,7 @@ public class PassthroughShader extends AbstractShader {
   }
 
   @Override
-  public int getPadding() {
+  public int padding() {
     return 0;
   }
 
