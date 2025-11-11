@@ -1,5 +1,10 @@
 package contrib.entities.deco;
 
+import contrib.components.InventoryComponent;
+import contrib.hud.DialogUtils;
+import contrib.hud.dialogs.OkDialog;
+import contrib.item.concreteItem.ItemResourceEgg;
+import contrib.utils.components.interaction.Interaction;
 import core.utils.Rectangle;
 import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
@@ -33,7 +38,28 @@ public enum Deco {
   BookshelfLarge(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(0, 16 * 16, 1, 1, 32, 32)).scaleX(2),
-      Vector2.of(2, 1)),
+      Vector2.of(2, 1),
+      new Interaction(
+          "Untersuchen",
+          (entity, entity2) ->
+              OkDialog.showOkDialog(
+                  "Ein einfaches Bücherregal. Es sind viele verschiedene Bücher enthalten.",
+                  "Untersuchen",
+                  () -> {})),
+      new Interaction(
+          "Schieben",
+          (entity, entity2) ->
+              OkDialog.showOkDialog("Dafür bin ich zu schwach.", "Schieben", () -> {})),
+      new Interaction(
+          "Lesen",
+          (entity, entity2) ->
+              DialogUtils.showImagePopUp(
+                  "items/book/spell_book.png",
+                  () ->
+                      entity2
+                          .fetch(InventoryComponent.class)
+                          .ifPresent(ic -> ic.add(new ItemResourceEgg()))))),
+
   /** A decoration. */
   Chains0("spritesheets/FD_Dungeon_Free.png", new SpritesheetConfig(17 * 16, 5 * 16)),
   /** A decoration. */
@@ -122,56 +148,87 @@ public enum Deco {
   private Rectangle defaultCollider = null;
   private int defaultDepth;
 
-  Deco(String path, AnimationConfig config) {
+  private Interaction[] interactions;
+
+  Deco(String path, AnimationConfig config, Interaction... interactions) {
     this.path = new SimpleIPath(path);
     this.config = config;
+    this.interactions = interactions;
   }
 
-  Deco(String path, SpritesheetConfig config) {
-    this(path, config, (Rectangle) null);
+  Deco(String path, SpritesheetConfig config, Interaction... interactions) {
+    this(path, config, (Rectangle) null, interactions);
   }
 
-  Deco(String path, SpritesheetConfig config, int defaultDepth) {
-    this(path, config, (Rectangle) null, defaultDepth);
+  Deco(String path, SpritesheetConfig config, int defaultDepth, Interaction... interactions) {
+    this(path, config, (Rectangle) null, defaultDepth, interactions);
   }
 
-  Deco(String path, SpritesheetConfig config, Vector2 defaultCollider) {
-    this(path, config, new Rectangle(defaultCollider), DepthLayer.Player.depth());
+  Deco(
+      String path, SpritesheetConfig config, Vector2 defaultCollider, Interaction... interactions) {
+    this(path, config, new Rectangle(defaultCollider), DepthLayer.Player.depth(), interactions);
   }
 
-  Deco(String path, SpritesheetConfig config, Vector2 defaultCollider, int defaultDepth) {
-    this(path, config, new Rectangle(defaultCollider), defaultDepth);
+  Deco(
+      String path,
+      SpritesheetConfig config,
+      Vector2 defaultCollider,
+      int defaultDepth,
+      Interaction... interactions) {
+    this(path, config, new Rectangle(defaultCollider), defaultDepth, interactions);
   }
 
-  Deco(String path, SpritesheetConfig config, Rectangle defaultCollider) {
+  Deco(
+      String path,
+      SpritesheetConfig config,
+      Rectangle defaultCollider,
+      Interaction... interactions) {
     this(
         path,
         config,
         defaultCollider,
-        defaultCollider == null ? DepthLayer.BackgroundDeco.depth() : DepthLayer.Player.depth());
+        defaultCollider == null ? DepthLayer.BackgroundDeco.depth() : DepthLayer.Player.depth(),
+        interactions);
   }
 
-  Deco(String path, SpritesheetConfig config, Rectangle defaultCollider, int defaultDepth) {
-    this(path, new AnimationConfig(config), defaultCollider, defaultDepth);
+  Deco(
+      String path,
+      SpritesheetConfig config,
+      Rectangle defaultCollider,
+      int defaultDepth,
+      Interaction... interactions) {
+    this(path, new AnimationConfig(config), defaultCollider, defaultDepth, interactions);
   }
 
-  Deco(String path, AnimationConfig config, Vector2 defaultColliderSize) {
-    this(path, config, new Rectangle(defaultColliderSize));
+  Deco(
+      String path,
+      AnimationConfig config,
+      Vector2 defaultColliderSize,
+      Interaction... interactions) {
+    this(path, config, new Rectangle(defaultColliderSize), interactions);
   }
 
-  Deco(String path, AnimationConfig config, Rectangle defaultCollider) {
+  Deco(
+      String path, AnimationConfig config, Rectangle defaultCollider, Interaction... interactions) {
     this(
         path,
         config,
         defaultCollider,
-        defaultCollider == null ? DepthLayer.BackgroundDeco.depth() : DepthLayer.Player.depth());
+        defaultCollider == null ? DepthLayer.BackgroundDeco.depth() : DepthLayer.Player.depth(),
+        interactions);
   }
 
-  Deco(String path, AnimationConfig config, Rectangle defaultCollider, int defaultDepth) {
+  Deco(
+      String path,
+      AnimationConfig config,
+      Rectangle defaultCollider,
+      int defaultDepth,
+      Interaction... interactions) {
     this.path = new SimpleIPath(path);
     this.config = config;
     this.defaultCollider = defaultCollider;
     this.defaultDepth = defaultDepth;
+    this.interactions = interactions;
   }
 
   /**
@@ -217,5 +274,9 @@ public enum Deco {
    */
   public int defaultDepth() {
     return defaultDepth;
+  }
+
+  public Interaction[] interactions() {
+    return this.interactions;
   }
 }

@@ -2,6 +2,7 @@ package contrib.entities.deco;
 
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
+import contrib.components.InteractionComponent;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -43,6 +44,7 @@ public class DecoFactory {
       entity.add(cc);
     }
 
+    if (deco.interactions() != null) entity.add(new InteractionComponent(deco.interactions()));
     return entity;
   }
 

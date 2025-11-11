@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 /**
@@ -63,6 +64,10 @@ public final class InteractionComponent implements Component {
     this(DEFAULT_INTERACTION_RADIUS, DEFAULT_REPEATABLE);
   }
 
+  public InteractionComponent(Interaction... interactions) {
+    this(DEFAULT_INTERACTION_RADIUS, DEFAULT_REPEATABLE, interactions);
+  }
+
   /**
    * Triggers the interaction callback.
    *
@@ -73,14 +78,15 @@ public final class InteractionComponent implements Component {
    * @param who The entity that triggered the interaction.
    */
   public void triggerInteraction(final Entity entity, final Entity who) {
+    // THIS SHOULD BE REPLACED WITH AN INTERACTIVE HUD
+
     if (this.interactions.isEmpty()) return;
     if (this.interactions.size() == 1) {
       interactions.get(0).accept(entity, who);
     } else {
       // Use an iterator so we can stop the loop
       Iterator<Interaction> iterator = interactions.iterator();
-
-      while (iterator.hasNext()) {
+      while (iterator.hasNext()){
         Interaction interaction = iterator.next();
 
         YesNoDialog.showYesNoDialog(
@@ -88,15 +94,12 @@ public final class InteractionComponent implements Component {
             "Interaktion",
             () -> {
               interaction.accept(entity, who);
-              // Stop further dialogs once one interaction is triggered
-              iterator.forEachRemaining(i -> {}); // No-Op to consume remaining
+              if (!repeatable) {
+                entity.remove(InteractionComponent.class);
+              }
             },
             () -> {});
       }
-    }
-
-    if (!repeatable) {
-      entity.remove(InteractionComponent.class);
     }
   }
 
