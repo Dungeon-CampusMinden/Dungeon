@@ -17,7 +17,7 @@ public record Rectangle(float width, float height, float x, float y) {
    * @param offset offset position of the rectangle
    */
   public Rectangle(Vector2 size, Vector2 offset) {
-    this(offset.x(), offset.y(), size.x(), size.y());
+    this(size.x(), size.y(), offset.x(), offset.y());
   }
 
   /**
@@ -79,5 +79,15 @@ public record Rectangle(float width, float height, float x, float y) {
         && x + width > worldBounds.x
         && y < worldBounds.y + worldBounds.height
         && y + height > worldBounds.y;
+  }
+
+  /**
+   * Checks if the rectangle contains the given point.
+   *
+   * @param point the point to check
+   * @return true if the rectangle contains the point, false otherwise
+   */
+  public boolean contains(Point point) {
+    return point.x() >= x && point.x() <= x + width && point.y() >= y && point.y() <= y + height;
   }
 }

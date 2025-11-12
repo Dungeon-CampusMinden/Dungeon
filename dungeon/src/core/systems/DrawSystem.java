@@ -803,6 +803,7 @@ public final class DrawSystem extends System implements Disposable {
   /**
    * Gets the number of active shaders in the last frame. If the DrawSystem is not found in the Game
    * systems, returns 0.
+   *
    * @return the number of active shaders in the last frame
    */
   public static float shadersActiveLastFrame() {
