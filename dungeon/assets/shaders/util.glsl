@@ -1,6 +1,15 @@
 // ----- Defines -----
 #define PI 3.1415926
 #define TAU 6.2831852
+#define BLANK vec4(0.0, 0.0, 0.0, 0.0)
+#define BLACK vec4(0.0, 0.0, 0.0, 1.0)
+#define WHITE vec4(1.0, 1.0, 1.0, 1.0)
+#define RED vec4(1.0, 0.0, 0.0, 1.0)
+#define GREEN vec4(0.0, 1.0, 0.0, 1.0)
+#define BLUE vec4(0.0, 0.0, 1.0, 1.0)
+#define YELLOW vec4(1.0, 1.0, 0.0, 1.0)
+#define CYAN vec4(0.0, 1.0, 1.0, 1.0)
+#define MAGENTA vec4(1.0, 0.0, 1.0, 1.0)
 
 // ----- Helper functions for PMA conversion -----
 // All shaders outputting transparency or calculating colors should unPma from texture, and pma before outputting
