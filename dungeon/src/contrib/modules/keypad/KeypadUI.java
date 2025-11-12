@@ -10,7 +10,6 @@ import contrib.hud.UIUtils;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
-import core.sound.SoundSpec;
 import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,7 +119,7 @@ public class KeypadUI extends Group {
 
     if (!action.equals("Submit")) {
       float pitch = 1 + (number - 5) * 0.05f;
-      Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").pitch(pitch));
+      Game.soundPlayer().play("retro_beep_01", 1, false, pitch, 0);
     }
   }
 
@@ -130,9 +129,9 @@ public class KeypadUI extends Group {
     kc.checkUnlock();
     if (kc.isUnlocked()) {
       keypad.fetch(DrawComponent.class).orElseThrow().sendSignal("open");
-      Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
+      Game.soundPlayer().play("retro_event_correct");
     } else {
-      Game.audio().playGlobal(SoundSpec.builder("retro_event_wrong"));
+      Game.soundPlayer().play("retro_event_wrong");
     }
   }
 
