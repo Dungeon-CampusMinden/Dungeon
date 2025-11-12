@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.Vector4;
 import com.badlogic.gdx.utils.Disposable;
+import core.utils.Rectangle;
 import java.util.*;
 
 /**
@@ -49,6 +50,13 @@ public abstract class AbstractShader implements Disposable {
    * @return The padding in pixels.
    */
   public abstract int padding();
+
+  /**
+   * Gets the world bounds affected by this shader. Used for culling offscreen effects.
+   *
+   * @return The world bounds as a Rectangle.
+   */
+  public abstract Rectangle worldBounds();
 
   /**
    * Gets the minimum upscaling required for this shader effect.

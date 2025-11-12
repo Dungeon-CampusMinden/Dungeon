@@ -56,4 +56,28 @@ public record Rectangle(float width, float height, float x, float y) {
   public Vector2 offset() {
     return Vector2.of(x, y);
   }
+
+  /**
+   * Expands the rectangle by the specified amount in all directions.
+   *
+   * @param amount the amount to expand the rectangle
+   * @return a new expanded Rectangle
+   */
+  public Rectangle expand(float amount) {
+    return new Rectangle(width + amount * 2, height + amount * 2, x - amount, y - amount);
+  }
+
+  /**
+   * Checks if this rectangle intersects with another rectangle.
+   *
+   * @param worldBounds the other rectangle to check intersection with
+   * @return true if the rectangles intersect, false otherwise
+   */
+  public boolean intersects(Rectangle worldBounds) {
+    if (worldBounds == null) return false;
+    return x < worldBounds.x + worldBounds.width
+        && x + width > worldBounds.x
+        && y < worldBounds.y + worldBounds.height
+        && y + height > worldBounds.y;
+  }
 }

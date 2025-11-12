@@ -1,5 +1,6 @@
 package core.utils.components.draw.shader;
 
+import core.utils.Rectangle;
 import java.util.List;
 
 /** Shader for remapping hues within a specified tolerance. */
@@ -48,6 +49,11 @@ public class HueRemapShader extends AbstractShader {
   @Override
   public int padding() {
     return 0;
+  }
+
+  @Override
+  public Rectangle worldBounds() {
+    return null;
   }
 
   /**

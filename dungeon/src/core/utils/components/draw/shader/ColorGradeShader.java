@@ -51,6 +51,12 @@ public class ColorGradeShader extends AbstractShader {
     return 0;
   }
 
+  @Override
+  public Rectangle worldBounds() {
+    if (region == null) return null;
+    return region.expand(transitionSize);
+  }
+
   /**
    * Gets the region of the shader effect.
    *
