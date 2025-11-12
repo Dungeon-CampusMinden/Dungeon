@@ -315,10 +315,10 @@ public class TileTextureFactory {
     if (s == null) return false;
 
     boolean isWallish =
-      s.contains("/wall/")
-        || s.contains("/portal/portal_wall")
-        || s.contains("/portal/glasswall")
-        || s.contains("/portal/gutter");
+        s.contains("/wall/")
+            || s.contains("/portal/portal_wall")
+            || s.contains("/portal/glasswall")
+            || s.contains("/portal/gutter");
 
     boolean isEmptyWall = s.endsWith("/wall/empty.png");
     return isWallish && !isEmptyWall;
