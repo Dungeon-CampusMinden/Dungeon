@@ -84,10 +84,21 @@ public class LevelHideShader extends AbstractShader {
     return this;
   }
 
+  /**
+   * Checks if the shader is currently hiding.
+   *
+   * @return true if hiding, false otherwise
+   */
   public boolean hiding() {
     return hiding;
   }
 
+  /**
+   * Sets whether the shader is hiding or not.
+   *
+   * @param hiding true to hide, false to show
+   * @return The LevelHideShader instance for chaining
+   */
   public LevelHideShader hiding(boolean hiding) {
     this.hiding = hiding;
     this.startTime = DrawSystem.secondsElapsed();

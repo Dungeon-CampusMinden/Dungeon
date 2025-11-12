@@ -14,12 +14,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * The LevelHideSystem manages all hidden Regions in the world. If the player steps into a region,
+ * it is revealed. If the player leaves the region again, it's hidden.
+ */
 public class LevelHideSystem extends System {
 
   private Point lastPlayerPosition = null;
   private static int entityIdCounter = 0;
   private final Map<Data, Integer> trackedEntities = new HashMap<>();
 
+  /** Constructs new LevelHideSystem. */
   public LevelHideSystem() {
     super(LevelHideComponent.class, PositionComponent.class);
     onEntityAdd = this::onEntityAdd;
@@ -36,7 +41,10 @@ public class LevelHideSystem extends System {
               Vector2 regionPos =
                   Vector2.of(data.pc.position().translate(data.lhc.region().offset()));
               Rectangle region = new Rectangle(data.lhc.region().size(), regionPos);
-              ds.sceneShaders().add(shaderIdentifier, new LevelHideShader(true, region).transitionSize(data.lhc.transitionSize()));
+              ds.sceneShaders()
+                  .add(
+                      shaderIdentifier,
+                      new LevelHideShader(true, region).transitionSize(data.lhc.transitionSize()));
             });
   }
 
