@@ -16,7 +16,12 @@ public class LevelHideShader extends AbstractShader {
   private Rectangle region;
   private float transitionSize = 0.0f;
 
-  /** Constructs a ColorGradeShader. */
+  /**
+   * Constructs a LevelHideShader.
+   *
+   * @param hiding whether the shader is hiding or showing
+   * @param region the region of the shader effect
+   */
   public LevelHideShader(boolean hiding, Rectangle region) {
     super(VERT_PATH, FRAG_PATH);
     this.hiding = hiding;
