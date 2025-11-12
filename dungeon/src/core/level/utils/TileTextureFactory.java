@@ -313,9 +313,15 @@ public class TileTextureFactory {
     if (fullPath == null) return false;
     String s = fullPath.pathString();
     if (s == null) return false;
-    boolean isWall = s.contains("/wall/");
+
+    boolean isWallish =
+      s.contains("/wall/")
+        || s.contains("/portal/portal_wall")
+        || s.contains("/portal/glasswall")
+        || s.contains("/portal/gutter");
+
     boolean isEmptyWall = s.endsWith("/wall/empty.png");
-    return isWall && !isEmptyWall;
+    return isWallish && !isEmptyWall;
   }
 
   /**
