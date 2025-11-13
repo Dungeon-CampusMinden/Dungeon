@@ -168,7 +168,7 @@ public abstract class ProjectileSkill extends Skill {
    * @param start the starting point of the projectile
    * @param aimedOn the target point the projectile is aimed at
    */
-  public final void shootProjectile(Entity caster, Point start, Point aimedOn) {
+  public void shootProjectile(Entity caster, Point start, Point aimedOn) {
     Entity projectile = new Entity(name() + "_projectile");
     ignoreEntities.add(caster);
     ignoreEntities.add(projectile);
