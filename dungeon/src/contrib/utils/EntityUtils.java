@@ -198,6 +198,16 @@ public class EntityUtils {
     }
   }
 
+  /**
+   * Returns the distance between two entities based on their positions.
+   *
+   * <p>The distance is computed using the Euclidean distance between the positions returned by
+   * {@link EntityUtils#getPosition(Entity)}.
+   *
+   * @param entity the first entity
+   * @param who the second entity
+   * @return the Euclidean distance between the two entities
+   */
   public static double getDistance(Entity entity, Entity who) {
     return EntityUtils.getPosition(entity).distance(EntityUtils.getPosition(who));
   }
