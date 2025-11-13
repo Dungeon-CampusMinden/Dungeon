@@ -18,6 +18,7 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.game.WindowEventManager;
 import core.level.DungeonLevel;
 import core.level.elements.ILevel;
 import core.systems.CameraSystem;
@@ -53,7 +54,7 @@ import java.util.Optional;
 public class DebugDrawSystem extends System {
 
   private static final Batch UI_BATCH = new SpriteBatch();
-  private static final OrthographicCamera UI_CAM = new OrthographicCamera();
+  private static final OrthographicCamera DEBUG_CAM = new OrthographicCamera();
   private static final ShapeRenderer SHAPE_RENDERER = new ShapeRenderer();
   private static final Color BACKGROUND_COLOR =
       new Color(0f, 0f, 0f, 0.75f); // semi-transparent black
@@ -66,10 +67,19 @@ public class DebugDrawSystem extends System {
   private static final BitmapFont FONT = FontHelper.getDefaultFont();
   private boolean render = false;
 
-  @Override
-  public void execute() {
-    UI_CAM.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+  /** Creates a new DebugDrawSystem. */
+  public DebugDrawSystem() {
+    super(PositionComponent.class);
 
+    WindowEventManager.registerWindowRefreshListener(
+        () -> DEBUG_CAM.setToOrtho(false, Game.windowWidth(), Game.windowHeight()));
+  }
+
+  @Override
+  public void execute() {}
+
+  @Override
+  public void render() {
     if (!render) return;
 
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
@@ -389,7 +399,7 @@ public class DebugDrawSystem extends System {
 
     // semi-transparent black box
     BlendUtils.setBlending();
-    SHAPE_RENDERER.setProjectionMatrix(UI_CAM.combined);
+    SHAPE_RENDERER.setProjectionMatrix(DEBUG_CAM.combined);
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
     SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
     SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);
@@ -448,7 +458,7 @@ public class DebugDrawSystem extends System {
    * @param color the color of the text
    */
   public static void drawText(BitmapFont font, String text, Point screen, Color color) {
-    UI_BATCH.setProjectionMatrix(UI_CAM.combined);
+    UI_BATCH.setProjectionMatrix(DEBUG_CAM.combined);
     UI_BATCH.begin();
     font.setColor(color);
     font.draw(UI_BATCH, text, screen.x(), screen.y());

@@ -177,6 +177,13 @@ public final class GameLoop extends ScreenAdapter {
     frame(delta);
     clearScreen();
 
+    // Render logic
+    for (System system : ECSManagment.systems().values()) {
+      system.render();
+    }
+    stage().ifPresent(GameLoop::updateStage);
+
+    // ECS logic
     for (System system : ECSManagment.systems().values()) {
       // if a new level was loaded, stop this loop-run
       if (newLevelWasLoadedInThisLoop) break;
@@ -187,9 +194,6 @@ public final class GameLoop extends ScreenAdapter {
       }
     }
     newLevelWasLoadedInThisLoop = false;
-    CameraSystem.camera().update();
-    // stage logic
-    stage().ifPresent(GameLoop::updateStage);
   }
 
   /**
