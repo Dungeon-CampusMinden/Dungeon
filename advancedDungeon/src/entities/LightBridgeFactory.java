@@ -376,6 +376,10 @@ public class LightBridgeFactory {
     /**
      * Creates the non-solid collider over the bridge. Width/height depend on the span along the
      * direction.
+     *
+     * @param start Start point
+     * @param end End point
+     * @param direction The Direction in which the collider extends
      */
     private void createCollider(Point start, Point end, Direction direction) {
       float width = 1f, height = 1f, offsetX = 0f, offsetY = 0f;
@@ -405,6 +409,10 @@ public class LightBridgeFactory {
     /**
      * Calculates the end point by stepping from the start in the beam's direction until a WallTile
      * is reached or no tile exists. Returns the last traversable point.
+     *
+     * @return Returns the calculated end point of the beam.
+     * @param from Starting point
+     * @param beamDirection Direction of the beam
      */
     private Point calculateEndPoint(Point from, Direction beamDirection) {
       Point lastPoint = from;
