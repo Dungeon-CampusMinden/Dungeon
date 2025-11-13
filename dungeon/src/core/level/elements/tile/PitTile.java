@@ -46,7 +46,7 @@ public class PitTile extends Tile {
    */
   public void open() {
     this.open = true;
-
+    this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
     ((DungeonLevel) Game.currentLevel().orElse(null)).removeFromPathfinding(this);
   }
 
@@ -61,7 +61,7 @@ public class PitTile extends Tile {
     }
 
     this.open = false;
-
+    this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
     ((DungeonLevel) Game.currentLevel().orElse(null)).addToPathfinding(this);
   }
 

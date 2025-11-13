@@ -1,6 +1,7 @@
 package core.level.utils;
 
 import core.level.Tile;
+import core.level.elements.tile.PitTile;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -215,6 +216,14 @@ public class TileTextureFactory {
       }
     }
     elementLayout[element.coordinate().y()][element.coordinate().x()] = elementType;
+
+    if (element instanceof PitTile pit) {
+      if (pit.isOpen()) {
+        // TODO find and return correct open pit texture
+        return new SimpleIPath("items/book/letter.png");
+      }
+    }
+
     return findTexturePath(
         new LevelPart(elementType, element.designLabel(), elementLayout, element.coordinate()));
   }
