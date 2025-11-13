@@ -1,6 +1,7 @@
 package core.utils.components.draw.shader;
 
 import com.badlogic.gdx.graphics.Color;
+import core.utils.Rectangle;
 import java.util.List;
 
 /**
@@ -40,6 +41,11 @@ public class ShineShader extends AbstractShader {
   @Override
   public int padding() {
     return padding;
+  }
+
+  @Override
+  public Rectangle worldBounds() {
+    return null;
   }
 
   /**
