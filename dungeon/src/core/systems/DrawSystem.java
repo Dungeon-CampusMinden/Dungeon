@@ -216,6 +216,11 @@ public final class DrawSystem extends System implements Disposable {
    */
   @Override
   public void execute() {
+    filteredEntityStream().map(DSData::build).forEach(dsd -> dsd.dc.update());
+  }
+
+  @Override
+  public void render() {
     shadersActiveLastFrame = 0;
 
     // Pass 1: Render shaders to FBOs (Entity-local shaders)
@@ -550,8 +555,6 @@ public final class DrawSystem extends System implements Disposable {
    * @param dsd the data record of the entity to draw
    */
   private void drawFinal(final DSData dsd) {
-    dsd.dc.update();
-
     FrameBuffer finalFbo = entityFboCache.get(dsd.e);
 
     if (finalFbo != null) {

@@ -73,8 +73,8 @@ public class DebugDrawSystem extends System {
 
   /** Creates a new DebugDrawSystem. */
   public DebugDrawSystem() {
-    super(AuthoritativeSide.CLIENT, PositionComponent.class);
-    DEBUG_CAM.setToOrtho(false, Game.windowWidth(), Game.windowHeight());
+    super(PositionComponent.class);
+
     WindowEventManager.registerWindowRefreshListener(
         () -> DEBUG_CAM.setToOrtho(false, Game.windowWidth(), Game.windowHeight()));
   }
@@ -83,7 +83,7 @@ public class DebugDrawSystem extends System {
   public void execute() {}
 
   @Override
-  public void render(float delta) {
+  public void render() {
     if (!render) return;
 
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
@@ -417,7 +417,7 @@ public class DebugDrawSystem extends System {
 
     // semi-transparent black box
     BlendUtils.setBlending();
-    SHAPE_RENDERER.setProjectionMatrix(UI_CAM.combined);
+    SHAPE_RENDERER.setProjectionMatrix(DEBUG_CAM.combined);
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
     SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
     SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);

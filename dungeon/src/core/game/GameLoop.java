@@ -218,14 +218,22 @@ public final class GameLoop extends ScreenAdapter {
     frame(delta);
     clearScreen();
 
-    // Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
-    final boolean isMultiplayerClient =
-        PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
-    ECSManagement.executeOneTick(
-        isMultiplayerClient ? System.AuthoritativeSide.CLIENT : System.AuthoritativeSide.BOTH);
+    // ECS logic
+    for (System system : ECSManagment.systems().values()) {
+      // if a new level was loaded, stop this loop-run
+      if (newLevelWasLoadedInThisLoop) break;
+      system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
+      if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
+        system.execute();
+        system.lastExecuteInFrames(0);
+      }
+    }
+    newLevelWasLoadedInThisLoop = false;
 
-    CameraSystem.camera().update();
-    // stage logic
+    // Render logic
+    for (System system : ECSManagment.systems().values()) {
+      system.render();
+    }
     stage().ifPresent(GameLoop::updateStage);
   }
 
