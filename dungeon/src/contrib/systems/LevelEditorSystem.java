@@ -172,7 +172,10 @@ public class LevelEditorSystem extends System {
         modeSelection.append(i + 1);
       }
     }
-    modeSelection.append("\n ( SPACE to toggle layer debug shader )");
+    modeSelection
+        .append("\n ( SPACE to toggle layer debug shader [")
+        .append(DrawSystem.shadersActiveLastFrame())
+        .append("] )");
     modeSelection.append("\n\n");
     status = modeSelection + status;
     DebugDrawSystem.drawText(FONT, status, new Point(10.0f, Game.windowHeight() - 10.0f));

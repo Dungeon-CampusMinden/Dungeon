@@ -2,6 +2,7 @@ package core.components;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import core.Component;
+import core.utils.Vector2;
 import core.utils.components.draw.*;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
@@ -397,5 +398,9 @@ public final class DrawComponent implements Component {
    */
   public ShaderList shaders() {
     return shaders;
+  }
+
+  public Vector2 size() {
+    return Vector2.of(getWidth(), getHeight());
   }
 }

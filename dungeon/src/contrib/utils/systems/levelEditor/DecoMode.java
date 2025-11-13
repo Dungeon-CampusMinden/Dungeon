@@ -15,6 +15,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.utils.Point;
+import core.utils.Rectangle;
 import core.utils.Vector2;
 import java.util.*;
 
@@ -29,6 +30,8 @@ public class DecoMode extends LevelEditorMode {
   private static DecoEntityData decoPreviewEntity = null;
   private static DecoEntityData decoHeldEntity = null;
   private static DecoEntityData decoHoveredEntity = null;
+
+  private boolean rapidFireActive = false;
 
   /** Constructs the Deco Mode. */
   public DecoMode() {
@@ -60,20 +63,17 @@ public class DecoMode extends LevelEditorMode {
     Point cursorPos = getCursorPosition();
     Point snapPos = decoSnapMode.getPosition(cursorPos);
     if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+      rapidFireActive = true;
+
       if (decoHeldEntity != null) {
         // Place held deco
         setPosition(decoHeldEntity.entity, snapPos);
         decoHeldEntity = null;
         setupPreviewEntity(snapPos);
-      } else {
-        // Place new deco instance
-        Deco decoType = Deco.values()[selectedDecoIndex];
-        Vector2 offset = getEntityOffset(decoPreviewEntity.entity);
-        Entity newDeco = DecoFactory.createDeco(snapPos.translate(offset.scale(-1)), decoType);
-        Game.add(newDeco);
-        syncPlacedDecos();
+        rapidFireActive = false;
       }
     } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT) && decoHeldEntity == null) {
+      rapidFireActive = false;
       // Pickup deco on cursor
       Optional<DecoEntityData> clickedDeco = getDecoOnPosition(cursorPos);
       if (clickedDeco.isPresent()) {
@@ -81,10 +81,12 @@ public class DecoMode extends LevelEditorMode {
         removePreviewEntity();
       }
     } else if (Gdx.input.isKeyPressed(TERTIARY)) {
+      rapidFireActive = false;
       // Delete deco on cursor
       getDecoOnPosition(cursorPos).map(DecoEntityData::entity).ifPresent(Game::remove);
       syncPlacedDecos();
     } else if (Gdx.input.isKeyJustPressed(QUARTERNARY)) {
+      rapidFireActive = false;
       // Pipette tool to pick deco type on cursor
       Optional<DecoEntityData> clickedDeco = getDecoOnPosition(cursorPos);
       if (clickedDeco.isPresent()) {
@@ -96,6 +98,14 @@ public class DecoMode extends LevelEditorMode {
             break;
           }
         }
+      }
+    }
+
+    if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && rapidFireActive) {
+      boolean checkBlocked = decoSnapMode.checkBlocked();
+      placeDeco(snapPos, checkBlocked);
+      if (!checkBlocked) {
+        rapidFireActive = false;
       }
     }
 
@@ -112,6 +122,26 @@ public class DecoMode extends LevelEditorMode {
     setPosition(decoPreviewEntity.entity, snapPos);
   }
 
+  /**
+   * Place a new deco at the given position. If there is already a deco at that position, do
+   * nothing.
+   *
+   * @param snapPos the snapped position for placement
+   */
+  private void placeDeco(Point snapPos, boolean checkBlocked) {
+    if (checkBlocked && decoOverlapsAny(decoPreviewEntity).isPresent()) {
+      return;
+    }
+
+    Deco decoType = Deco.values()[selectedDecoIndex];
+    Vector2 offset = getEntityOffset(decoPreviewEntity.entity);
+    Point actualPos = snapPos.translate(offset.scale(-1));
+
+    Entity newDeco = DecoFactory.createDeco(actualPos, decoType);
+    Game.add(newDeco);
+    syncPlacedDecos();
+  }
+
   @Override
   public void onEnter() {
     setupPreviewEntity(new Point(0, 0));
@@ -125,10 +155,12 @@ public class DecoMode extends LevelEditorMode {
   @Override
   public String getStatusText() {
     StringBuilder status = new StringBuilder();
+    int entityCount = (int) Game.levelEntities(Set.of(DecoComponent.class)).count();
+    status.append("Entities: ").append(entityCount);
     int decoCount = Deco.values().length;
     Deco currentDeco = Deco.values()[selectedDecoIndex];
     status
-        .append("Current Deco: ")
+        .append("\nCurrent Deco: ")
         .append(selectedDecoIndex + 1)
         .append("/")
         .append(decoCount)
@@ -199,13 +231,13 @@ public class DecoMode extends LevelEditorMode {
   }
 
   private void removePreviewEntity() {
-    if (decoPreviewEntity != null) {
-      Game.remove(decoPreviewEntity.entity);
-      decoPreviewEntity = null;
-    }
+    if (decoPreviewEntity == null) return;
+    Game.remove(decoPreviewEntity.entity);
+    decoPreviewEntity = null;
   }
 
   private void previewEntityChanged() {
+    if (decoPreviewEntity == null) return;
     Point currentPos = decoPreviewEntity.pc.position();
     removePreviewEntity();
     setupPreviewEntity(currentPos);
@@ -258,6 +290,32 @@ public class DecoMode extends LevelEditorMode {
         .findFirst();
   }
 
+  /**
+   * Get the first deco entity found on the exact given position.
+   *
+   * @return an optional containing the found deco entity data, or empty if none found
+   */
+  private Optional<DecoEntityData> decoOverlapsAny(DecoEntityData data) {
+    return getSystem()
+        .filteredEntityStream(DecoComponent.class)
+        .map(DecoEntityData::of)
+        .filter(ded -> !ded.equals(decoPreviewEntity) && entitiesCollide(data, ded))
+        .findFirst();
+  }
+
+  private boolean entitiesCollide(DecoEntityData ded1, DecoEntityData ded2) {
+    return getEntityBounds(ded1).intersects(getEntityBounds(ded2));
+  }
+
+  private Rectangle getEntityBounds(DecoEntityData ded) {
+    if (ded.cc != null) {
+      return ded.cc.collider().absoluteBounds();
+    }
+    Point entityPos = ded.pc.position();
+    Vector2 size = ded.drawComp.size();
+    return new Rectangle(size, Vector2.of(entityPos));
+  }
+
   /** Puts all placed decos into the level handler object for serialization. */
   private void syncPlacedDecos() {
     DungeonLevel level = getLevel();
@@ -276,12 +334,19 @@ public class DecoMode extends LevelEditorMode {
             });
   }
 
-  private record DecoEntityData(Entity entity, DecoComponent dc, PositionComponent pc) {
+  private record DecoEntityData(
+      Entity entity,
+      DecoComponent dc,
+      PositionComponent pc,
+      DrawComponent drawComp,
+      CollideComponent cc) {
     public static DecoEntityData of(Entity entity) {
       return new DecoEntityData(
           entity,
           entity.fetch(DecoComponent.class).orElseThrow(),
-          entity.fetch(PositionComponent.class).orElseThrow());
+          entity.fetch(PositionComponent.class).orElseThrow(),
+          entity.fetch(DrawComponent.class).orElseThrow(),
+          entity.fetch(CollideComponent.class).orElse(null));
     }
   }
 }

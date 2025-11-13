@@ -3,6 +3,7 @@ package contrib.utils.components.collide;
 import contrib.components.CollideComponent;
 import core.Entity;
 import core.utils.Point;
+import core.utils.Rectangle;
 import core.utils.Vector2;
 import java.security.InvalidParameterException;
 import java.util.List;
@@ -317,6 +318,15 @@ public abstract class Collider {
    */
   public Vector2 size() {
     return Vector2.of(this.width(), this.height());
+  }
+
+  /**
+   * Gets the absolute size of the collider, accounting for scale.
+   *
+   * @return a vector containing the absolute width and height
+   */
+  public Vector2 absoluteSize() {
+    return Vector2.of(this.width() * this.scale().x(), this.height() * this.scale().y());
   }
 
   /**
@@ -636,5 +646,15 @@ public abstract class Collider {
    */
   public void scale(Vector2 scale) {
     this.scale = scale;
+  }
+
+  /**
+   * Gets the absolute bounds of the collider as a Rectangle.
+   *
+   * @return the absolute bounds
+   */
+  public Rectangle absoluteBounds() {
+    return new Rectangle(
+        this.absoluteSize(), Vector2.of(this.absoluteLeft(), this.absoluteBottom()));
   }
 }
