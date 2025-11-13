@@ -14,6 +14,24 @@ import contrib.hud.DialogUtils;
  */
 public interface IInteractable {
 
+  /** The label used for the "look" interaction option. */
+  String LOOK_LABEL = "Untersuchen";
+
+  /** The label used for the general "interact" interaction option. */
+  String INTERACT_LABEL = "Interagieren";
+
+  /** The label used for the "talk" interaction option. */
+  String TALK_LABEL = "Reden";
+
+  /** The label used for the "take" or "pick up" interaction option. */
+  String TAKE_LABEL = "Nehmen";
+
+  /** The label used for the "use with item" interaction option. */
+  String USE_WITH_LABEL = "Verwenden mit Item";
+
+  /** The label used for the "attack" interaction option. */
+  String ATTACK_LABEL = "Attack";
+
   /**
    * Default "look" interaction.
    *
@@ -23,9 +41,9 @@ public interface IInteractable {
       new Interaction(
           (entity, who) -> {
             DialogUtils.showTextPopup(
-                "Wow. Ein echtes Wunder der Durchschnittlichkeit.", "Untersuchen");
+                "Wow. Ein echtes Wunder der Durchschnittlichkeit.", LOOK_LABEL);
           },
-          "Untersuchen");
+          LOOK_LABEL);
 
   /**
    * Default "interact" action.
@@ -38,9 +56,9 @@ public interface IInteractable {
           (entity, who) -> {
             DialogUtils.showTextPopup(
                 "Ich drücke, ziehe und tippe… aber es passiert absolut gar nichts.",
-                "Interagieren");
+                INTERACT_LABEL);
           },
-          "Interagieren");
+          INTERACT_LABEL);
 
   /**
    * Default "take" interaction.
@@ -52,9 +70,9 @@ public interface IInteractable {
           (entity, who) -> {
             DialogUtils.showTextPopup(
                 "Ich würde es mitnehmen… aber ich verliere solche Sachen sowieso ständig.",
-                "Aufheben");
+                TAKE_LABEL);
           },
-          "Nehmen");
+          TAKE_LABEL);
 
   /**
    * Default "talk" interaction.
@@ -67,9 +85,9 @@ public interface IInteractable {
             DialogUtils.showTextPopup(
                 "Er antwortet nicht. Vielleicht will er nicht. Vielleicht kann er nicht. "
                     + "Vielleicht hat er mich einfach nicht gern.",
-                "Sprechen");
+                TALK_LABEL);
           },
-          "Reden");
+          TALK_LABEL);
 
   /**
    * Default "use with item" interaction.
@@ -80,9 +98,10 @@ public interface IInteractable {
       new Interaction(
           (entity, who) -> {
             DialogUtils.showTextPopup(
-                "Diese Dinge passen ungefähr so gut zusammen wie Socken und Sandalen.", "Benutzen");
+                "Diese Dinge passen ungefähr so gut zusammen wie Socken und Sandalen.",
+                USE_WITH_LABEL);
           },
-          "Verwenden mit Item");
+          USE_WITH_LABEL);
 
   /**
    * Default "attack" interaction.
@@ -93,9 +112,9 @@ public interface IInteractable {
       new Interaction(
           (entity, who) -> {
             DialogUtils.showTextPopup(
-                "Ich könnte es angreifen… aber dann hätte ich wieder Papierkram.", "Angreifen");
+                "Ich könnte es angreifen… aber dann hätte ich wieder Papierkram.", ATTACK_LABEL);
           },
-          "Angreifen");
+          ATTACK_LABEL);
 
   /**
    * Returns the default look interaction.
