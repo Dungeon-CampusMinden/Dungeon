@@ -24,6 +24,26 @@ public class Interaction {
   private final boolean repeatable;
   private boolean active = true;
 
+  private String displayName = "Interaction";
+
+  /**
+   * Creates a new {@code Interaction} with a custom callback, range, and repeatability.
+   *
+   * @param onInteract the action to execute when the interaction is triggered; receives the target
+   *     entity and the interacting entity. The first entity is the one being interacted with, and
+   *     the second entity is the one performing the interaction.
+   * @param range the maximum distance (in game units) at which the interaction can occur
+   * @param repeatable whether this interaction can be triggered more than once
+   * @param displayName DisplayName to show
+   */
+  public Interaction(
+      BiConsumer<Entity, Entity> onInteract, float range, boolean repeatable, String displayName) {
+    this.onInteract = onInteract;
+    this.range = range;
+    this.repeatable = repeatable;
+    this.displayName = displayName;
+  }
+
   /**
    * Creates a new {@code Interaction} with a custom callback, range, and repeatability.
    *
@@ -44,6 +64,17 @@ public class Interaction {
    *
    * @param onInteract the action to execute when the interaction is triggered. The first entity is
    *     the one being interacted with, and the second entity is the one performing the interaction.
+   * @param displayName DisplayName to show
+   */
+  public Interaction(BiConsumer<Entity, Entity> onInteract, String displayName) {
+    this(onInteract, DEFAULT_INTERACTION_RADIUS, DEFAULT_REPEATABLE, displayName);
+  }
+
+  /**
+   * Creates a new {@code Interaction} with a custom callback and default range and repeatability.
+   *
+   * @param onInteract the action to execute when the interaction is triggered. The first entity is
+   *     the one being interacted with, and the second entity is the one performing the interaction.
    */
   public Interaction(BiConsumer<Entity, Entity> onInteract) {
     this(onInteract, DEFAULT_INTERACTION_RADIUS, DEFAULT_REPEATABLE);
@@ -56,9 +87,36 @@ public class Interaction {
    * @param onInteract the action to execute when the interaction is triggered. The first entity is
    *     the one being interacted with, and the second entity is the one performing the interaction.
    * @param range the maximum interaction distance
+   * @param displayName DisplayName to show
+   */
+  public Interaction(BiConsumer<Entity, Entity> onInteract, float range, String displayName) {
+    this(onInteract, range, DEFAULT_REPEATABLE, displayName);
+  }
+
+  /**
+   * Creates a new {@code Interaction} with a custom callback and range, using default
+   * repeatability.
+   *
+   * @param onInteract the action to execute when the interaction is triggered. The first entity is
+   *     the one being interacted with, and the second entity is the one performing the interaction.
+   * @param range the maximum interaction distance
    */
   public Interaction(BiConsumer<Entity, Entity> onInteract, float range) {
     this(onInteract, range, DEFAULT_REPEATABLE);
+  }
+
+  /**
+   * Creates a new {@code Interaction} with a custom callback and repeatability, using the default
+   * interaction range.
+   *
+   * @param onInteract the action to execute when the interaction is triggered. The first entity is
+   *     the one being interacted with, and the second entity is the one performing the interaction.
+   * @param repeatable whether this interaction can be triggered more than once
+   * @param displayName DisplayName to show
+   */
+  public Interaction(
+      BiConsumer<Entity, Entity> onInteract, boolean repeatable, String displayName) {
+    this(onInteract, DEFAULT_INTERACTION_RADIUS, repeatable, displayName);
   }
 
   /**
@@ -105,5 +163,14 @@ public class Interaction {
    */
   public float range() {
     return this.range;
+  }
+
+  /**
+   * Get the display name of this interaction.
+   *
+   * @return the display name.
+   */
+  public String displayName() {
+    return this.displayName;
   }
 }

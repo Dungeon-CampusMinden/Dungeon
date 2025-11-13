@@ -3,7 +3,6 @@ package contrib.modules.interaction;
 import core.Component;
 import core.Entity;
 import core.systems.InputSystem;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 
 /**
@@ -60,8 +59,14 @@ public final class InteractionComponent implements Component {
   public void triggerInteraction(final Entity entity, final Entity who) {
     if (interactions instanceof ISimpleIInteractable) interactions.interact().interact(entity, who);
     else {
-      Optional<Interaction> interaction = RingMenue.showInteractionMenue(interactions);
-      interaction.ifPresent(i -> i.interact(entity, who));
+      RingMenu.show(
+          interactions,
+          interaction -> {
+            if (interaction != null) {
+              interaction.interact(entity, who);
+            }
+            // else: cancelled
+          });
     }
   }
 

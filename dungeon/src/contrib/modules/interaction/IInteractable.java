@@ -24,7 +24,8 @@ public interface IInteractable {
           (entity, who) -> {
             DialogUtils.showTextPopup(
                 "Wow. Ein echtes Wunder der Durchschnittlichkeit.", "Untersuchen");
-          });
+          },
+          "Untersuchen");
 
   /**
    * Default "interact" action.
@@ -38,7 +39,8 @@ public interface IInteractable {
             DialogUtils.showTextPopup(
                 "Ich drücke, ziehe und tippe… aber es passiert absolut gar nichts.",
                 "Interagieren");
-          });
+          },
+          "Interagieren");
 
   /**
    * Default "take" interaction.
@@ -51,7 +53,8 @@ public interface IInteractable {
             DialogUtils.showTextPopup(
                 "Ich würde es mitnehmen… aber ich verliere solche Sachen sowieso ständig.",
                 "Aufheben");
-          });
+          },
+          "Nehmen");
 
   /**
    * Default "talk" interaction.
@@ -65,7 +68,8 @@ public interface IInteractable {
                 "Er antwortet nicht. Vielleicht will er nicht. Vielleicht kann er nicht. "
                     + "Vielleicht hat er mich einfach nicht gern.",
                 "Sprechen");
-          });
+          },
+          "Reden");
 
   /**
    * Default "use with item" interaction.
@@ -77,7 +81,8 @@ public interface IInteractable {
           (entity, who) -> {
             DialogUtils.showTextPopup(
                 "Diese Dinge passen ungefähr so gut zusammen wie Socken und Sandalen.", "Benutzen");
-          });
+          },
+          "Verwenden mit Item");
 
   /**
    * Default "attack" interaction.
@@ -89,7 +94,8 @@ public interface IInteractable {
           (entity, who) -> {
             DialogUtils.showTextPopup(
                 "Ich könnte es angreifen… aber dann hätte ich wieder Papierkram.", "Angreifen");
-          });
+          },
+          "Angreifen");
 
   /**
    * Returns the default look interaction.
