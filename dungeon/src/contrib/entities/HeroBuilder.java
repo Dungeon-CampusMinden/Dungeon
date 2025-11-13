@@ -134,6 +134,7 @@ public final class HeroBuilder {
     hero.persistent(persistent);
     PlayerComponent pc = new PlayerComponent();
     hero.add(pc);
+    hero.add(new CharacterClassComponent(characterClass));
     CameraComponent cc = new CameraComponent();
     hero.add(cc);
     PositionComponent poc = new PositionComponent();
