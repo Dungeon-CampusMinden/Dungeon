@@ -88,7 +88,8 @@ allprojects {
             def paths = []
             assetDirs.each { dir ->
                 dir.eachFileRecurse { f ->
-                    if (f.isFile()) {
+                    // ignore markdown license files
+                    if (f.isFile() && !f.name.endsWith('.md')) {
                         def rel = dir.toPath().relativize(f.toPath()).toString().replace('\\', '/')
                         paths << rel
                     }
