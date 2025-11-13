@@ -34,6 +34,9 @@ public class PortalFactory {
   /** Name of the green portal. */
   private static String GREEN_PORTAL_NAME = "GREEN_PORTAL";
 
+  private static SimpleIPath BLUE_PORTAL_TEXTURE = new SimpleIPath("portal/blue_portal");
+  private static SimpleIPath GREEN_PORTAL_TEXTURE = new SimpleIPath("portal/green_portal");
+
   /**
    * Creates a portal of the given color at the specified position.
    *
@@ -45,50 +48,84 @@ public class PortalFactory {
    * @param color the portal color, see {@link PortalColor}
    */
   public static void createPortal(Point point, Direction direction, PortalColor color) {
-    if (color == PortalColor.GREEN) {
-      if (getGreenPortal().isPresent()) {
-        removeIfOverlap(getBluePortal(), point, PortalFactory::clearBluePortal);
-        getGreenPortal()
-            .ifPresent(
-                greenPortal -> {
-                  moveExistingPortal(greenPortal, direction, point, color);
-                });
-        return;
-      }
-    }
     if (color == PortalColor.BLUE) {
-      if (getBluePortal().isPresent()) {
-        removeIfOverlap(getGreenPortal(), point, PortalFactory::clearGreenPortal);
-        getBluePortal()
-            .ifPresent(
-                bluePortal -> {
-                  moveExistingPortal(bluePortal, direction, point, color);
-                });
-        return;
-      }
+      createBluePortal(point, direction);
+    } else {
+      createGreenPortal(point, direction);
     }
+  }
 
-    Entity portal = preparePortal(point, color);
+  private static void createBluePortal(Point point, Direction direction) {
+    clearBluePortal();
+    getGreenPortal()
+        .ifPresent(
+            greenPortal -> {
+              if (greenPortal.fetch(PositionComponent.class).get().position().equals(point)) {
+                PortalFactory.clearGreenPortal();
+              }
+            });
+    getBluePortal()
+        .ifPresentOrElse(
+            bluePortal -> {
+              moveExistingPortal(bluePortal, direction, point, PortalColor.BLUE);
+            },
+            () -> {
+              ;
+              Entity portal = new Entity(BLUE_PORTAL_NAME);
+              portal.add(new DrawComponent(BLUE_PORTAL_TEXTURE));
 
-    portal.add(new DrawComponent(new SimpleIPath(getPortalPath(color))));
+              PositionComponent pc = new PositionComponent(point);
+              pc.viewDirection(direction);
+              portal.add(pc);
 
-    PositionComponent pc = new PositionComponent(point);
-    pc.viewDirection(direction);
-    portal.add(new PortalComponent());
+              CollideComponent cc =
+                  setCollideComponent(direction, PortalFactory::onBlueCollideEnter);
+              cc.isSolid(false);
+              portal.add(cc);
 
-    CollideComponent cc = setCollideComponent(direction, getCollideHandler(color));
-    cc.isSolid(false);
+              portal.add(new PortalComponent());
 
-    portal.add(pc);
-    portal.add(cc);
+              Game.add(portal);
+              ignorePortalInProjectiles(portal);
+            });
+  }
 
-    Game.add(portal);
-    ignorePortalInProjectiles(portal);
+  private static void createGreenPortal(Point point, Direction direction) {
+    clearGreenPortal();
+    getBluePortal()
+        .ifPresent(
+            bluePortal -> {
+              if (bluePortal.fetch(PositionComponent.class).get().position().equals(point)) {
+                PortalFactory.clearBluePortal();
+              }
+            });
+    getGreenPortal()
+        .ifPresentOrElse(
+            greenPortal -> {
+              moveExistingPortal(greenPortal, direction, point, PortalColor.GREEN);
+            },
+            () -> {
+              Entity portal = new Entity(GREEN_PORTAL_NAME);
+              portal.add(new DrawComponent(GREEN_PORTAL_TEXTURE));
+
+              PositionComponent pc = new PositionComponent(point);
+              pc.viewDirection(direction);
+              portal.add(new PortalComponent());
+
+              CollideComponent cc =
+                  setCollideComponent(direction, PortalFactory::onGreenCollideEnter);
+              cc.isSolid(false);
+
+              portal.add(pc);
+              portal.add(cc);
+
+              Game.add(portal);
+              ignorePortalInProjectiles(portal);
+            });
   }
 
   /**
-   * Moves a portal to a new position and updates the direction and collision component. Also
-   * removes the old portal from the game.
+   * Moves a portal to a new position and updates the direction and collision component.
    *
    * @param portal The portal that gets moved and updated.
    * @param direction The output direction of the portal.
@@ -100,76 +137,15 @@ public class PortalFactory {
     portal.fetch(PositionComponent.class).get().position(point);
     portal.fetch(PositionComponent.class).get().viewDirection(direction);
 
-    CollideComponent cc = setCollideComponent(direction, getCollideHandler(color));
+    CollideComponent cc =
+        setCollideComponent(
+            direction,
+            color == PortalColor.BLUE
+                ? PortalFactory::onBlueCollideEnter
+                : PortalFactory::onGreenCollideEnter);
     cc.isSolid(false);
     portal.remove(CollideComponent.class);
     portal.add(cc);
-  }
-
-  /**
-   * Prepares a new portal entity of the given color at the specified position.
-   *
-   * <p>If a portal of the same color already exists, it will be removed. If the new portal would
-   * overlap with the other portal, that portal will also be cleared before creation.
-   *
-   * @param point the position where the portal will be placed
-   * @param color the color of the portal to create (blue or green)
-   * @return a new portal entity with the given color
-   * @throws IllegalArgumentException if the color is not recognized
-   */
-  private static Entity preparePortal(Point point, PortalColor color) {
-    switch (color) {
-      case BLUE -> {
-        clearBluePortal();
-        removeIfOverlap(getGreenPortal(), point, PortalFactory::clearGreenPortal);
-        return new Entity(BLUE_PORTAL_NAME);
-      }
-      case GREEN -> {
-        clearGreenPortal();
-        removeIfOverlap(getBluePortal(), point, PortalFactory::clearBluePortal);
-        return new Entity(GREEN_PORTAL_NAME);
-      }
-      default -> throw new IllegalArgumentException("Unknown portal color: " + color);
-    }
-  }
-
-  /**
-   * Removes the given portal if it exists at the specified position.
-   *
-   * @param portal the portal entity to check
-   * @param point the position to check against
-   * @param clearAction the action to execute if overlap is detected
-   */
-  private static void removeIfOverlap(Optional<Entity> portal, Point point, Runnable clearAction) {
-    if (portal.isPresent()
-        && portal.get().fetch(PositionComponent.class).get().position().equals(point)) {
-      clearAction.run();
-    }
-  }
-
-  /**
-   * Returns the corresponding sprite path.
-   *
-   * @param color the portal color
-   * @return the path to the portal sprite
-   */
-  private static String getPortalPath(PortalColor color) {
-    return switch (color) {
-      case BLUE -> "portal/blue_portal";
-      case GREEN -> "portal/green_portal";
-    };
-  }
-
-  /**
-   * Returns the corresponding collide handler.
-   *
-   * @param color the portal color
-   * @return a handler that defines what happens when an entity collides with the portal
-   */
-  private static TriConsumer<Entity, Entity, Direction> getCollideHandler(PortalColor color) {
-    return (color == PortalColor.BLUE)
-        ? PortalFactory::onBlueCollideEnter
-        : PortalFactory::onGreenCollideEnter;
   }
 
   /**
@@ -335,16 +311,6 @@ public class PortalFactory {
     Vector2 out = nB.scale(-compNormal).add(tB.scale(compTangent));
 
     return out;
-  }
-
-  /**
-   * Converts an angle from degrees to radians.
-   *
-   * @param degrees the angle in degrees
-   * @return the angle converted to radians
-   */
-  private static double toRadians(double degrees) {
-    return degrees * Math.PI / 180.0;
   }
 
   /**
