@@ -8,6 +8,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
+import core.level.elements.tile.PortalTile;
 import core.level.elements.tile.WallTile;
 import core.utils.Direction;
 import core.utils.Point;
@@ -123,16 +124,30 @@ public class TractorBeamFactory {
    * Determines the last available point for a tractor beam. The beam is stopped by a wallTile, so
    * the EndPoint has to be last point in front of a wall tile.
    *
+   * <p>Allow PortalTile on the first and second iteration (start or immediate portal exit).
+   *
    * @param from the starting point
    * @param beamDirection the emitted direction of the tractor beam
    * @return the last available point
    */
   private Point calculateEndPoint(Point from, Direction beamDirection) {
     Point lastPoint = from;
+    Tile lastTile = Game.tileAt(lastPoint).orElse(null);
     Point currentPoint = from;
     Tile currentTile = Game.tileAt(from).orElse(null);
-    while (currentTile != null && !currentTile.getClass().equals(WallTile.class)) {
+    boolean firstStep = true;
+    boolean secondStep = false;
+
+    while (currentTile != null
+        && !currentTile.getClass().equals(WallTile.class)
+        && (firstStep || secondStep || !lastTile.getClass().equals(PortalTile.class))) {
+      secondStep = false;
+      if (firstStep) {
+        secondStep = true;
+      }
+      firstStep = false;
       lastPoint = currentPoint;
+      lastTile = Game.tileAt(lastPoint).orElse(null);
       currentPoint = currentPoint.translate(beamDirection);
       currentTile = Game.tileAt(currentPoint).orElse(null);
     }
