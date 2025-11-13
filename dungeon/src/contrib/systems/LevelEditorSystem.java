@@ -229,7 +229,10 @@ public class LevelEditorSystem extends System {
           .add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.WHITE));
       ds.sceneShaders().add(DEBUG_SHADER_KEY, new PassthroughShader().debugPMA(true));
     }
-    modeSelection.append("\n ( SPACE to toggle layer debug shader )");
+    modeSelection
+        .append("\n ( SPACE to toggle layer debug shader [")
+        .append(DrawSystem.shadersActiveLastFrame())
+        .append("] )");
     modeSelection.append("\n\n");
     status = modeSelection + status;
     DebugDrawSystem.drawText(FONT, status, new Point(10.0f, Game.windowHeight() - 10.0f));

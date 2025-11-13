@@ -401,4 +401,13 @@ public final class DrawComponent implements Component {
   public ShaderList shaders() {
     return shaders;
   }
+
+  /**
+   * Get the size of the component as a Vector2.
+   *
+   * @return The size of the component.
+   */
+  public Vector2 size() {
+    return Vector2.of(getWidth(), getHeight());
+  }
 }
