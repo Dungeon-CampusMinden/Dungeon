@@ -177,7 +177,10 @@ public abstract class LevelEditorMode {
   protected enum SnapMode {
     OnGrid,
     QuarterGrid,
+    PixelGrid,
     OffGrid,
+    CheckerGridEven,
+    CheckerGridOdd,
     ;
 
     SnapMode previousMode() {
@@ -196,8 +199,52 @@ public abstract class LevelEditorMode {
             new Point(
                 (float) Math.floor(position.x() * 4) / 4.0f,
                 (float) Math.floor(position.y() * 4) / 4.0f);
+        case PixelGrid ->
+            new Point(
+                (float) Math.floor(position.x() * 16) / 16.0f,
+                (float) Math.floor(position.y() * 16) / 16.0f);
+        case CheckerGridEven, CheckerGridOdd -> {
+          int parity = (this == CheckerGridEven) ? 0 : 1;
+
+          // Input represents tile center → shift down-left by 0.5 to get corner-based position
+          float px = position.x() - 0.5f;
+          float py = position.y() - 0.5f;
+
+          float gx = (float) Math.floor(px);
+          float gy = (float) Math.floor(py);
+
+          float bestX = gx;
+          float bestY = gy;
+          float bestDist = Float.MAX_VALUE;
+
+          // Evaluate 4 nearest grid corners and choose the closest valid checker cell
+          for (int dx = 0; dx <= 1; dx++) {
+            for (int dy = 0; dy <= 1; dy++) {
+              float cx = gx + dx;
+              float cy = gy + dy;
+              if (((int) (cx + cy)) % 2 == parity) {
+                float dist = (px - cx) * (px - cx) + (py - cy) * (py - cy);
+                if (dist < bestDist) {
+                  bestDist = dist;
+                  bestX = cx;
+                  bestY = cy;
+                }
+              }
+            }
+          }
+
+          // Output should be the bottom-left *corner* of the snapped tile
+          yield new Point(bestX, bestY);
+        }
         default -> position;
       };
+    }
+
+    boolean checkBlocked() {
+      return this == OnGrid
+          || this == QuarterGrid
+          || this == CheckerGridEven
+          || this == CheckerGridOdd;
     }
   }
 }

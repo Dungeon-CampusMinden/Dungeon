@@ -197,7 +197,7 @@ public class Hitbox extends Collider {
   @Override
   public boolean collide(Point point) {
     return CollisionUtils.rectCollidesPoint(
-        this.absoluteLeft(), this.absoluteTop(), this.width, this.height, point);
+        this.absoluteLeft(), this.absoluteBottom(), this.width, this.height, point);
   }
 
   /**
@@ -210,7 +210,7 @@ public class Hitbox extends Collider {
   @Override
   public boolean collide(Point from, Point to) {
     return CollisionUtils.rectCollidesLine(
-        this.absoluteLeft(), this.absoluteTop(), this.width, this.height, from, to);
+        this.absoluteLeft(), this.absoluteBottom(), this.width, this.height, from, to);
   }
 
   /**
@@ -234,7 +234,7 @@ public class Hitbox extends Collider {
   public boolean collide(Hitcircle hitcircle) {
     return CollisionUtils.rectCollidesCircle(
         this.absoluteLeft(),
-        this.absoluteTop(),
+        this.absoluteBottom(),
         this.width,
         this.height,
         hitcircle.absolutePosition(),

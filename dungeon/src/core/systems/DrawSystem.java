@@ -687,14 +687,7 @@ public final class DrawSystem extends System implements Disposable {
 
   private Rectangle getFboWorldBounds(DSData dsd) {
     if (dsd == null) {
-      OrthographicCamera camera = CameraSystem.camera();
-      float worldWidth = camera.viewportWidth * camera.zoom;
-      float worldHeight = camera.viewportHeight * camera.zoom;
-      float camX = camera.position.x;
-      float camY = camera.position.y;
-      float posX = camX - (worldWidth / 2f);
-      float posY = camY - (worldHeight / 2f);
-      return new Rectangle(worldWidth, worldHeight, posX, posY);
+      return CameraSystem.getCameraWorldBounds();
     }
     float posX = dsd.pc.position().x();
     float posY = dsd.pc.position().y();
@@ -767,6 +760,8 @@ public final class DrawSystem extends System implements Disposable {
       return false;
     }
 
+    Rectangle cameraBounds = CameraSystem.getCameraWorldBounds();
+
     Point pos = data.pc.position();
     float width = data.dc.getWidth() * data.pc.scale().x();
     float height = data.dc.getHeight() * data.pc.scale().y();
@@ -782,8 +777,11 @@ public final class DrawSystem extends System implements Disposable {
             level ->
                 corners.stream()
                     .anyMatch(
-                        c -> {
-                          Tile t = level.tileAt(c).orElse(null);
+                        corner -> {
+                          if (!cameraBounds.contains(corner)) {
+                            return false;
+                          }
+                          Tile t = level.tileAt(corner).orElse(null);
                           return t != null && t.visible() && !TileUtils.isTilePitAndOpen(t);
                         }))
         .orElse(false);
@@ -809,7 +807,7 @@ public final class DrawSystem extends System implements Disposable {
    *
    * @return the number of active shaders in the last frame
    */
-  public static float shadersActiveLastFrame() {
+  public static int shadersActiveLastFrame() {
     System s = Game.systems().get(DrawSystem.class);
     if (!(s instanceof DrawSystem ds)) return 0;
     return ds.shadersActiveLastFrame;
