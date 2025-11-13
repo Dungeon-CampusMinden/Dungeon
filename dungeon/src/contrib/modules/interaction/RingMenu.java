@@ -107,7 +107,6 @@ public class RingMenu extends Group {
     }
   }
 
-  /** Called when a selection is made or cancel is pressed. */
   private void close(Interaction interaction) {
     onSelected.accept(interaction);
     remove(); // remove this menu from stage
