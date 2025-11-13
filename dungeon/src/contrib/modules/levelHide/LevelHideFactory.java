@@ -38,7 +38,7 @@ public class LevelHideFactory {
   }
 
   /**
-   * Creates a level hide entity defined by bottom left and top right points with a default
+   * Creates a level hide entity defined by bottom left and top right points with a default.
    *
    * @param bottomLeft the bottom left point of the hide region
    * @param topRight the top right point of the hide region

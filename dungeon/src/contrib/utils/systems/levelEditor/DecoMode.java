@@ -127,6 +127,7 @@ public class DecoMode extends LevelEditorMode {
    * nothing.
    *
    * @param snapPos the snapped position for placement
+   * @param checkBlocked whether to check for existing decos at the position
    */
   private void placeDeco(Point snapPos, boolean checkBlocked) {
     if (checkBlocked && decoOverlapsAny(decoPreviewEntity).isPresent()) {
@@ -293,6 +294,7 @@ public class DecoMode extends LevelEditorMode {
   /**
    * Get the first deco entity found on the exact given position.
    *
+   * @param data the deco entity data to check against
    * @return an optional containing the found deco entity data, or empty if none found
    */
   private Optional<DecoEntityData> decoOverlapsAny(DecoEntityData data) {
