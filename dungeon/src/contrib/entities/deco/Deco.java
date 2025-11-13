@@ -114,227 +114,225 @@ public enum Deco {
   ChairRed(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(6, 41, 1, 1, 11, 22)).scaleX(0.8f),
-      new Rectangle(1.15f, 1.15f, -0.15f, 0.00f)),
+      new Rectangle(1.00f, 1.05f, -0.1f, 0.00f)),
   ChairYellow(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(19, 41, 1, 1, 11, 22)).scaleX(0.8f),
-      new Rectangle(1.15f, 1.15f, -0.15f, 0.00f)),
+      new Rectangle(1.00f, 1.05f, -0.1f, 0.00f)),
   ChairGreen(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(32, 41, 1, 1, 11, 22)).scaleX(0.8f),
-      new Rectangle(1.15f, 1.15f, -0.15f, 0.00f)),
+      new Rectangle(1.00f, 1.05f, -0.1f, 0.00f)),
   ChairBlue(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(45, 41, 1, 1, 11, 22)).scaleX(0.8f),
-      new Rectangle(1.15f, 1.15f, -0.15f, 0.00f)),
+      new Rectangle(1.00f, 1.05f, -0.1f, 0.00f)),
   ChairWhite(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(58, 41, 1, 1, 11, 22)).scaleX(0.8f),
-      new Rectangle(1.15f, 1.15f, -0.15f, 0.00f)),
+      new Rectangle(1.00f, 1.05f, -0.1f, 0.00f)),
   ChairGrey(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(71, 41, 1, 1, 11, 22)).scaleX(0.8f),
-      new Rectangle(1.15f, 1.15f, -0.15f, 0.00f)),
+      new Rectangle(1.00f, 1.05f, -0.1f, 0.00f)),
   TableShort(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(85, 47, 1, 1, 26, 16)).scaleX(1.3f),
-      new Rectangle(1.90f, 1.30f, -0.10f, 0.00f)),
+      new Rectangle(2.30f, 1.30f, -0.10f, 0.00f)),
   TableLong(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(115, 47, 1, 1, 40, 16)).scaleX(1.3f),
-      new Rectangle(4.25f, 1.30f, -0.10f, 0.00f)),
+      new Rectangle(3.45f, 1.30f, -0.10f, 0.00f)),
   CouchWhite(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(119, 65, 1, 1, 33, 16)).scaleX(1.2f),
-      new Rectangle(3.05f, 1.10f, -0.15f, 0.00f)),
+      new Rectangle(2.60f, 1.10f, -0.05f, 0.00f)),
   CouchBlue(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(120, 83, 1, 1, 33, 16)).scaleX(1.2f),
-      new Rectangle(3.05f, 1.10f, -0.15f, 0.00f)),
+      new Rectangle(2.60f, 1.10f, -0.05f, 0.00f)),
   CouchGreen(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(120, 102, 1, 1, 33, 16)).scaleX(1.2f),
-      new Rectangle(3.05f, 1.10f, -0.15f, 0.00f)),
+      new Rectangle(2.60f, 1.10f, -0.05f, 0.00f)),
   CouchOrange(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(120, 121, 1, 1, 33, 16)).scaleX(1.2f),
-      new Rectangle(3.05f, 1.10f, -0.15f, 0.00f)),
+      new Rectangle(2.60f, 1.10f, -0.05f, 0.00f)),
   PottedTree(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(170, 65, 1, 1, 14, 19)).scaleX(1.2f),
-      new Rectangle(1.10f, 0.85f, 0.00f, 0.00f)),
+      new Rectangle(1.20f, 0.85f, 0.00f, 0.00f)),
   TrashCanGreen(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(116, 143, 1, 1, 9, 14)).scaleX(0.7f),
-      new Rectangle(1.00f, 1.00f, -0.15f, 0.00f)),
+      new Rectangle(0.90f, 0.85f, -0.10f, 0.00f)),
   TrashCanRed(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(126, 143, 1, 1, 9, 14)).scaleX(0.7f),
-      new Rectangle(1.00f, 1.00f, -0.15f, 0.00f)),
+      new Rectangle(0.90f, 0.85f, -0.10f, 0.00f)),
   TrashCanBlue(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(136, 143, 1, 1, 9, 14)).scaleX(0.7f),
-      new Rectangle(1.00f, 1.00f, -0.15f, 0.00f)),
+      new Rectangle(0.90f, 0.85f, -0.10f, 0.00f)),
   WaterDispenser(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(147, 140, 1, 1, 9, 17)).scaleX(0.7f),
-      new Rectangle(1.00f, 1.00f, -0.15f, 0.00f)),
+      new Rectangle(0.90f, 0.85f, -0.10f, 0.00f)),
   SnackDispenser(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(159, 123, 1, 1, 24, 34)).scaleX(1.7f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.90f, 1.40f, -0.10f, 0.00f)),
   BookShelf(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(184, 126, 1, 1, 24, 31)).scaleX(1.7f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.90f, 1.40f, -0.10f, 0.00f)),
   FolderRed(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(211, 119, 1, 1, 11, 8)).scaleX(0.6f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.85f, 0.70f, 0.00f, 0.00f)),
   FolderBlue(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(211, 129, 1, 1, 11, 8)).scaleX(0.6f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.85f, 0.70f, 0.00f, 0.00f)),
   FolderGreen(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(211, 140, 1, 1, 11, 8)).scaleX(0.6f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.85f, 0.70f, 0.00f, 0.00f)),
   SheetBlank(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(211, 151, 1, 1, 10, 6)).scaleX(0.5f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.95f, 0.50f, -0.05f, 0.00f)),
   Clock(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(159, 108, 1, 1, 19, 6)).scaleX(0.5f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.60f, 0.50f, 0.00f, 0.00f)),
   SheetWritten1(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(183, 107, 1, 1, 6, 8)).scaleX(0.5f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.50f, 0.70f, 0.00f, 0.00f)),
   SheetWritten2(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(192, 107, 1, 1, 6, 9)).scaleX(0.5f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.50f, 0.75f, 0.00f, 0.00f)),
   Printer(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(200, 107, 1, 1, 9, 9)).scaleX(0.65f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.65f, 0.65f, 0.00f, 0.00f)),
   PCThick(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(233, 106, 1, 1, 15, 19)).scaleX(1.0f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.00f, 1.05f, 0.00f, 0.00f)),
   PCFlat(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(233, 128, 1, 1, 13, 23)).scaleX(1.0f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.00f, 1.45f, 0.00f, 0.00f)),
   CoffeeMachine(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(159, 91, 1, 1, 7, 11)).scaleX(0.55f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.55f, 0.65f, 0.00f, 0.00f)),
   Cup(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(169, 95, 1, 1, 8, 7)).scaleX(0.55f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.65f, 0.55f, 0.00f, 0.00f)),
   FlagIndia(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(179, 94, 1, 1, 12, 9)).scaleX(0.75f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.00f, 0.75f, 0.00f, 0.00f)),
   FlagUK(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(193, 94, 1, 1, 12, 9)).scaleX(0.75f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.00f, 0.75f, 0.00f, 0.00f)),
   FlagUSA(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(207, 94, 1, 1, 12, 9)).scaleX(0.75f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.00f, 0.75f, 0.00f, 0.00f)),
   Painting1(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(222, 94, 1, 1, 6, 8)).scaleX(0.5f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.50f, 0.65f, 0.00f, 0.00f)),
   Painting2(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(230, 94, 1, 1, 6, 8)).scaleX(0.5f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.50f, 0.65f, 0.00f, 0.00f)),
   Painting3(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(239, 94, 1, 1, 11, 8)).scaleX(0.5f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.70f, 0.50f, 0.00f, 0.00f)),
   Board(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(234, 81, 1, 1, 17, 11)).scaleX(0.9f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.40f, 0.90f, 0.00f, 0.00f)),
   Stickies(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(217, 107, 1, 1, 6, 8)).scaleX(0.5f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.50f, 0.65f, 0.00f, 0.00f)),
   ThinWallHorizontal(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(171, 44, 1, 1, 79, 17)).scaleX(1.3f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(6.05f, 0.50f, 0.00f, 0.00f)),
   ThinWallVertical(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(207, 63, 1, 1, 4, 27)).scaleX(0.37f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.40f, 1.45f, 0.00f, 0.00f)),
   Furniture(
       "spritesheets/PixelOfficeAssets.png",
-      new AnimationConfig(new SpritesheetConfig(3, 68, 1, 1, 73, 24)).scaleX(2.15f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new AnimationConfig(new SpritesheetConfig(3, 68, 1, 1, 73, 24)).scaleX(2.15f)),
   WallWhite(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(84, 70, 1, 1, 26, 20)).scaleX(1.55f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(2.05f, 1.55f, 0.00f, 0.00f)),
   Desk1(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(188, 63, 1, 1, 17, 19)).scaleX(1.4f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.40f, 1.40f, 0.00f, 0.00f)),
   Desk2(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(213, 63, 1, 1, 17, 19)).scaleX(1.4f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.40f, 1.40f, 0.00f, 0.00f)),
   Window1(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(59, 96, 1, 1, 26, 21)).scaleX(1.55f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.95f, 1.55f, 0.00f, 0.00f)),
   Window2(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(88, 96, 1, 1, 26, 21)).scaleX(1.55f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.95f, 1.55f, 0.00f, 0.00f)),
   Elevator(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(98, 120, 1, 1, 16, 31)).scaleX(1.25f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.25f, 2.40f, 0.00f, 0.00f)),
   Cat(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(65, 129, 1, 1, 16, 14)).scaleX(1.1f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.95f, 0.65f, 0.15f, 0.00f)),
   Dog(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(59, 147, 1, 1, 24, 11)).scaleX(0.9f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(1.55f, 0.70f, 0.20f, 0.00f)),
   Sky(
       "spritesheets/PixelOfficeAssets.png",
-      new AnimationConfig(new SpritesheetConfig(0, 0, 1, 1, 256, 38)).scaleX(2.7f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new AnimationConfig(new SpritesheetConfig(0, 0, 1, 1, 256, 38)).scaleX(2.7f)),
   Tom(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(2, 105, 1, 1, 15, 23)).scaleX(1.15f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.95f, 0.95f, 0.10f, 0.00f)),
   Joe(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(19, 104, 1, 1, 19, 24)).scaleX(1.15f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.95f, 0.95f, 0.10f, 0.00f)),
   Bill(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(40, 107, 1, 1, 13, 21)).scaleX(1.15f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.95f, 0.95f, 0.10f, 0.00f)),
   Julia(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(3, 132, 1, 1, 17, 23)).scaleX(1.15f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.95f, 0.95f, 0.10f, 0.00f)),
   Laura(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(22, 132, 1, 1, 17, 23)).scaleX(1.15f),
-      new Rectangle(2.20f, 2.00f, -0.15f, 0.00f)),
+      new Rectangle(0.95f, 0.95f, 0.10f, 0.00f)),
 
   /** A decoration. */
   LogBig(
