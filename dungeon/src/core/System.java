@@ -99,6 +99,15 @@ public abstract class System {
   public abstract void execute();
 
   /**
+   * Implements the render functionality of the system.
+   *
+   * <p>This method can be overridden by systems that require rendering capabilities.
+   */
+  public void render() {
+    // Default implementation does nothing
+  }
+
+  /**
    * Triggers the action associated with adding an Entity to this System's corresponding {@link
    * EntitySystemMapper}. This method calls the {@code onEntityAdd} Consumer, executing the logic
    * defined for when an Entity is added.
