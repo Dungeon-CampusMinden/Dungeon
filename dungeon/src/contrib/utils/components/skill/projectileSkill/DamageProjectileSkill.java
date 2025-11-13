@@ -1,7 +1,6 @@
 package contrib.utils.components.skill.projectileSkill;
 
 import contrib.components.HealthComponent;
-import contrib.components.ProjectileComponent;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
@@ -133,18 +132,15 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   @Override
   protected TriConsumer<Entity, Entity, Direction> onCollideEnter(Entity caster) {
     return (projectile, target, direction) -> {
-      if (ignoreOtherProjectiles && target.isPresent(ProjectileComponent.class)) return;
-      if (!ignoreEntities().contains(target)) {
-        target
-            .fetch(HealthComponent.class)
-            .ifPresent(hc -> hc.receiveHit(calculateDamage(caster, target, direction)));
-        additionalEffectAfterDamage(caster, projectile, target, direction);
+      target
+          .fetch(HealthComponent.class)
+          .ifPresent(hc -> hc.receiveHit(calculateDamage(caster, target, direction)));
+      additionalEffectAfterDamage(caster, projectile, target, direction);
 
-        if (piercing) {
-          ignoreEntity(target);
-        } else {
-          Game.remove(projectile);
-        }
+      if (piercing) {
+        ignoreEntity(target);
+      } else {
+        Game.remove(projectile);
       }
     };
   }

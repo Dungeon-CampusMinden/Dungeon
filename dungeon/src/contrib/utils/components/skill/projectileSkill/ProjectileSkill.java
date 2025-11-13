@@ -10,6 +10,7 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Direction;
@@ -156,11 +157,18 @@ public abstract class ProjectileSkill extends Skill {
    *
    * <p>The projectile will be added to the game upon creation.
    *
+   * <p>The caster and the projectile itself are added to the ignore list to prevent
+   * self-collisions. Further entities can be added to the ignore list using {@link
+   * #ignoreEntity(Entity)}.
+   *
+   * <p>If player-vs-player collisions are disabled, player entities will also be ignored for
+   * collision detection.
+   *
    * @param caster the entity that casts the projectile
    * @param start the starting point of the projectile
    * @param aimedOn the target point the projectile is aimed at
    */
-  public void shootProjectile(Entity caster, Point start, Point aimedOn) {
+  public final void shootProjectile(Entity caster, Point start, Point aimedOn) {
     Entity projectile = new Entity(name() + "_projectile");
     ignoreEntities.add(caster);
     ignoreEntities.add(projectile);
@@ -188,15 +196,34 @@ public abstract class ProjectileSkill extends Skill {
     projectile.add(vc);
     projectile.add(new ProjectileComponent(start, targetPoint, forceToApply, onEndReached(caster)));
 
+    TriConsumer<Entity, Entity, Direction> onCollide =
+        (projEntity, other, direction) -> {
+          if (shouldIgnoreCollision(caster, other)) {
+            return;
+          }
+          onCollideEnter(caster).accept(projEntity, other, direction);
+        };
+
     CollideComponent cc =
-        new CollideComponent(
-            hitBoxOffset, hitBoxSize, onCollideEnter(caster), onCollideLeave(caster));
+        new CollideComponent(hitBoxOffset, hitBoxSize, onCollide, onCollideLeave(caster));
     cc.onHold(onCollideHold(caster));
     cc.isSolid(false);
     projectile.add(cc);
 
     Game.add(projectile);
     onSpawn(caster, projectile);
+  }
+
+  private boolean shouldIgnoreCollision(Entity caster, Entity other) {
+    return (ignoreOtherProjectiles && other.isPresent(ProjectileComponent.class))
+        || ignoreEntities().contains(other)
+        || isPlayerVsPlayerCollision(caster, other);
+  }
+
+  private boolean isPlayerVsPlayerCollision(Entity caster, Entity other) {
+    return !ALLOW_PLAYER_VS_PLAYER
+        && caster.isPresent(PlayerComponent.class)
+        && other.isPresent(PlayerComponent.class);
   }
 
   /**
@@ -207,11 +234,7 @@ public abstract class ProjectileSkill extends Skill {
    * @return A set of entities to ignore for collision.
    */
   protected Set<Entity> ignoreEntities() {
-    Set<Entity> copy = new HashSet<>(this.ignoreEntities);
-    if (!ALLOW_PLAYER_VS_PLAYER) {
-      Game.allPlayers().forEach(copy::add);
-    }
-    return copy;
+    return new HashSet<>(this.ignoreEntities);
   }
 
   /**
