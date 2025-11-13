@@ -154,6 +154,11 @@ public final class CameraSystem extends System {
     CAMERA.position.set(point.x(), point.y(), 0);
   }
 
+  /**
+   * Gets the world bounds of the camera.
+   *
+   * @return The world bounds of the camera as a Rectangle.
+   */
   public static Rectangle getCameraWorldBounds() {
     float worldWidth = camera().viewportWidth * camera().zoom;
     float worldHeight = camera().viewportHeight * camera().zoom;
