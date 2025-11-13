@@ -90,14 +90,4 @@ public record Rectangle(float width, float height, float x, float y) {
   public boolean contains(Point point) {
     return point.x() >= x && point.x() <= x + width && point.y() >= y && point.y() <= y + height;
   }
-
-  /**
-   * Translates the rectangle by the given vector.
-   *
-   * @param translation the vector to translate by
-   * @return a new translated Rectangle
-   */
-  public Rectangle translate(Vector2 translation) {
-    return new Rectangle(width, height, x + translation.x(), y + translation.y());
-  }
 }

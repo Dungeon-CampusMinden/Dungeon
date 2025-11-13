@@ -22,6 +22,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import core.utils.Rectangle;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.*;
@@ -82,6 +83,7 @@ public final class DrawSystem extends System implements Disposable {
   private final ShaderList sceneShaders = new ShaderList();
 
   private float secondsElapsed = 0f;
+  private int shadersActiveLastFrame = 0;
 
   /** Create a new DrawSystem. */
   private DrawSystem() {
@@ -214,6 +216,8 @@ public final class DrawSystem extends System implements Disposable {
    */
   @Override
   public void execute() {
+    shadersActiveLastFrame = 0;
+
     // Pass 1: Render shaders to FBOs (Entity-local shaders)
     renderEntitiesPass1();
 
@@ -362,6 +366,13 @@ public final class DrawSystem extends System implements Disposable {
     fboBatch.setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, width, height));
 
     for (AbstractShader pass : shaders.getEnabledSorted()) {
+      Rectangle worldBounds = getFboWorldBounds(null);
+      Rectangle shaderBounds = pass.worldBounds();
+      if (shaderBounds != null && !worldBounds.intersects(shaderBounds)) {
+        continue;
+      }
+      shadersActiveLastFrame++;
+
       targetFbo = (sourceFbo == fboA) ? fboB : fboA;
 
       targetFbo.begin();
@@ -374,7 +385,7 @@ public final class DrawSystem extends System implements Disposable {
       fboBatch.begin();
       BlendUtils.setBlending(fboBatch);
       pass.bind(fboBatch, 1);
-      setCommonUniforms(fboBatch.getShader(), width, height, null);
+      setCommonUniforms(fboBatch.getShader(), width, height, worldBounds, 0);
       fboBatch.setColor(Color.WHITE);
       fboBatch.draw(currentSourceRegion, 0, 0, width, height);
       pass.unbind(fboBatch);
@@ -465,6 +476,13 @@ public final class DrawSystem extends System implements Disposable {
 
     // --- 3. Ping-Pong Loop for Shader Passes ---
     for (AbstractShader pass : dc.shaders().getEnabledSorted()) {
+      Rectangle worldBounds = getFboWorldBounds(dsd);
+      Rectangle shaderBounds = pass.worldBounds();
+      if (shaderBounds != null && !worldBounds.intersects(shaderBounds)) {
+        continue;
+      }
+      shadersActiveLastFrame++;
+
       currentTarget = useFboAAsSource ? fboB : fboA;
 
       currentTarget.begin();
@@ -478,8 +496,15 @@ public final class DrawSystem extends System implements Disposable {
       fboBatch.begin();
       BlendUtils.setBlending(fboBatch);
       pass.bind(fboBatch, shaderUpscaling);
+
+      float rotation = dsd.pc.rotation() * MathUtils.degreesToRadians;
       setCommonUniforms(
-          fboBatch.getShader(), fboRegion.getRegionWidth(), fboRegion.getRegionHeight(), dsd);
+          fboBatch.getShader(),
+          fboRegion.getRegionWidth(),
+          fboRegion.getRegionHeight(),
+          worldBounds,
+          rotation);
+
       fboBatch.draw(fboRegion, 0, 0, fboWidth, fboHeight);
       pass.unbind(fboBatch);
       fboBatch.end();
@@ -598,7 +623,6 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   private void draw(final DSData dsd) {
-    dsd.dc.update();
     Sprite sprite = dsd.dc.getSprite();
     DrawConfig conf =
         makeConfig(dsd, Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()), dsd.pc.scale());
@@ -629,10 +653,15 @@ public final class DrawSystem extends System implements Disposable {
    * @param shader The shader program to set uniforms for
    * @param textureWidth The width of the texture being processed
    * @param textureHeight The height of the texture being processed
-   * @param dsd The DSData of the entity being processed (or null for global effects)
+   * @param worldBounds The world bounds of the entity
+   * @param rotation The rotation of the entity in radians
    */
   private void setCommonUniforms(
-      ShaderProgram shader, int textureWidth, int textureHeight, DSData dsd) {
+      ShaderProgram shader,
+      int textureWidth,
+      int textureHeight,
+      Rectangle worldBounds,
+      float rotation) {
     shader.setUniformf("u_time", secondsElapsed);
     shader.setUniformf("u_resolution", textureWidth, textureHeight);
     shader.setUniformf("u_texelSize", 1.0f / textureWidth, 1.0f / textureHeight);
@@ -641,10 +670,20 @@ public final class DrawSystem extends System implements Disposable {
     // Mouse position in screen space
     Point mousePos = SkillTools.cursorPositionAsPoint();
     Vector3 unprojected = CameraSystem.camera().project(new Vector3(mousePos.x(), mousePos.y(), 0));
-    shader.setUniformf("u_mouse", unprojected.x, unprojected.y);
+    shader.setUniformf(
+        "u_mouse", unprojected.x / Game.windowWidth(), unprojected.y / Game.windowHeight());
 
+    shader.setUniformf(
+        "u_entityBounds",
+        worldBounds.x(),
+        worldBounds.y(),
+        worldBounds.width(),
+        worldBounds.height());
+    shader.setUniformf("u_rotation", rotation);
+  }
+
+  private Rectangle getFboWorldBounds(DSData dsd) {
     if (dsd == null) {
-      // Use camera pos and viewport for global effects
       OrthographicCamera camera = CameraSystem.camera();
       float worldWidth = camera.viewportWidth * camera.zoom;
       float worldHeight = camera.viewportHeight * camera.zoom;
@@ -652,17 +691,13 @@ public final class DrawSystem extends System implements Disposable {
       float camY = camera.position.y;
       float posX = camX - (worldWidth / 2f);
       float posY = camY - (worldHeight / 2f);
-      shader.setUniformf("u_entityBounds", posX, posY, worldWidth, worldHeight);
-      shader.setUniformf("u_rotation", 0f);
-    } else {
-      // Use entity position and size for local effects
-      float posX = dsd.pc.position().x();
-      float posY = dsd.pc.position().y();
-      float worldWidth = dsd.pc.scale().x() * dsd.dc.getWidth();
-      float worldHeight = dsd.pc.scale().y() * dsd.dc.getHeight();
-      shader.setUniformf("u_entityBounds", posX, posY, worldWidth, worldHeight);
-      shader.setUniformf("u_rotation", dsd.pc.rotation() * MathUtils.degreesToRadians);
+      return new Rectangle(worldWidth, worldHeight, posX, posY);
     }
+    float posX = dsd.pc.position().x();
+    float posY = dsd.pc.position().y();
+    float worldWidth = dsd.pc.scale().x() * dsd.dc.getWidth();
+    float worldHeight = dsd.pc.scale().y() * dsd.dc.getHeight();
+    return new Rectangle(worldWidth, worldHeight, posX, posY);
   }
 
   private DrawConfig makeConfig(DSData dsd, Vector2 size, Vector2 scale) {
@@ -1334,6 +1369,30 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   // endregion
+
+  /**
+   * Gets the total seconds elapsed since the DrawSystem started. If the DrawSystem is not found in
+   * the Game systems, returns 0.
+   *
+   * @return the total seconds elapsed
+   */
+  public static float secondsElapsed() {
+    System s = Game.systems().get(DrawSystem.class);
+    if (!(s instanceof DrawSystem ds)) return 0;
+    return ds.secondsElapsed;
+  }
+
+  /**
+   * Gets the number of active shaders in the last frame. If the DrawSystem is not found in the Game
+   * systems, returns 0.
+   *
+   * @return the number of active shaders in the last frame
+   */
+  public static float shadersActiveLastFrame() {
+    System s = Game.systems().get(DrawSystem.class);
+    if (!(s instanceof DrawSystem ds)) return 0;
+    return ds.shadersActiveLastFrame;
+  }
 
   private record DSData(Entity e, DrawComponent dc, PositionComponent pc) {
     /**

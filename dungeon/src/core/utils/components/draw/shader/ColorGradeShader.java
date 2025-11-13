@@ -14,7 +14,7 @@ public class ColorGradeShader extends AbstractShader {
   private float hue = -1.0f;
   private float saturationMultiplier = 1.0f;
   private float valueMultiplier = 1.0f;
-  private float transitionSize = 2.0f;
+  private float transitionSize = 0.0f;
 
   /** Constructs a ColorGradeShader. */
   public ColorGradeShader() {

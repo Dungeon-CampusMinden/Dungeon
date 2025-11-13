@@ -80,8 +80,7 @@ public class LevelHideSystem extends System {
     if (!(ds.sceneShaders().get(shaderIdentifier) instanceof LevelHideShader lhs)) return;
 
     LevelHideComponent lhc = d.lhc;
-    Rectangle region =
-        lhc.region().expand(lhc.transitionSize() / 2f).translate(Vector2.of(d.pc.position()));
+    Rectangle region = lhc.region().expand(lhc.transitionSize() / 2f);
     boolean wasInside = lastPos != null && region.contains(lastPos);
     boolean isInside = region.contains(currentPos);
 

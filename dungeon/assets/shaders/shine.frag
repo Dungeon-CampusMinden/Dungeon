@@ -2,9 +2,7 @@
 precision mediump float;
 #endif
 
-// ----- Defines -----
-#define PI 3.1415926
-#define TAU 6.2831852
+// *****IMPORT: util.glsl*****
 
 // ----- From vertex shader -----
 varying vec2 uv;
@@ -29,20 +27,7 @@ uniform vec4 u_shineColor;
 const float maxSliceCount = 8.0;
 const vec2 u_centerPos = vec2(0.5);
 
-// ----- Helper functions for PMA conversion -----
-// All shaders outputting transparency or calculating colors should unPma from texture, and pma before outputting
-vec4 unPma(vec4 color) {
-    if (color.a < 1e-5) {
-        return vec4(0.0);
-    }
-    return vec4(color.rgb / color.a, color.a);
-}
-
-vec4 pma(vec4 color) {
-    return vec4(color.rgb * color.a, color.a);
-}
-
-// Custom functions
+// ----- Custom functions -----
 float shineDistanceDropoff(float d) {
   float t = d * 2.0;
   float clamped_t = min(1.0, t);
@@ -54,7 +39,7 @@ float shineDropoff(float d) {
   return max(0.0, -1.0 * (pow(d, 3.0)) + 1.0);
 }
 
-// Main
+// ----- Main -----
 void main() {
   vec4 texColor = unPma(texture2D(u_texture, uv));
   // Skip fully opaque pixels
