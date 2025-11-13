@@ -177,20 +177,16 @@ public class TileTextureFactory {
    */
   private static IPath findGitterElement(LevelPart levelPart) {
     Neighbors n = new Neighbors(levelPart.position, levelPart.layout);
-    if (isWallLike(n.getLeftE()) && isWallLike(n.getRightE()) && isFloorLike(n.getDownE())) {
-      return new SimpleIPath("portal/gutter/gutter_top");
-    }
-    if (isWallLike(n.getLeftE()) && isWallLike(n.getRightE()) && isFloorLike(n.getUpE())) {
-      return new SimpleIPath("portal/gutter/gutter_bottom");
+    if (isWallLike(n.getLeftE()) && isWallLike(n.getRightE()) && isFloorLike(n.getDownE())
+        || isFloorLike(n.getUpE())) {
+      return new SimpleIPath("portal/gutter/gutter_horizontal");
     }
 
-    if (isWallLike(n.getUpE()) && isWallLike(n.getDownE()) && isFloorLike(n.getLeftE())) {
-      return new SimpleIPath("portal/gutter/gutter_right");
+    if (isWallLike(n.getUpE()) && isWallLike(n.getDownE()) && isFloorLike(n.getLeftE())
+        || isFloorLike(n.getRightE())) {
+      return new SimpleIPath("portal/gutter/gutter_vertical");
     }
 
-    if (isWallLike(n.getUpE()) && isWallLike(n.getDownE()) && isFloorLike(n.getRightE())) {
-      return new SimpleIPath("portal/gutter/gutter_left");
-    }
     return null;
   }
 
@@ -317,9 +313,15 @@ public class TileTextureFactory {
     if (fullPath == null) return false;
     String s = fullPath.pathString();
     if (s == null) return false;
-    boolean isWall = s.contains("/wall/");
+
+    boolean isWallish =
+        s.contains("/wall/")
+            || s.contains("/portal/portal_wall")
+            || s.contains("/portal/glasswall")
+            || s.contains("/portal/gutter");
+
     boolean isEmptyWall = s.endsWith("/wall/empty.png");
-    return isWall && !isEmptyWall;
+    return isWallish && !isEmptyWall;
   }
 
   /**
@@ -1749,8 +1751,8 @@ public class TileTextureFactory {
     if (orthoXE == LevelElement.DOOR || orthoYE == LevelElement.DOOR) return false;
 
     boolean diagIsFD = isFloorOrDoor(get(layout, diag.x(), diag.y()));
-    boolean orthoXStrictWall = orthoXE == LevelElement.WALL;
-    boolean orthoYStrictWall = orthoYE == LevelElement.WALL;
+    boolean orthoXStrictWall = isWallLike(orthoXE);
+    boolean orthoYStrictWall = isWallLike(orthoYE);
     boolean diagANotF = isNotFloor(get(layout, diagA.x(), diagA.y()));
     boolean diagBNotF = isNotFloor(get(layout, diagB.x(), diagB.y()));
     boolean diagCNotF = isNotFloor(get(layout, diagC.x(), diagC.y()));
