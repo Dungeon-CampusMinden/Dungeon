@@ -14,6 +14,7 @@ import core.components.PositionComponent;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.utils.Point;
+import core.utils.Rectangle;
 import core.utils.Vector2;
 
 /**
@@ -151,5 +152,15 @@ public final class CameraSystem extends System {
 
   private void focus(Point point) {
     CAMERA.position.set(point.x(), point.y(), 0);
+  }
+
+  public static Rectangle getCameraWorldBounds() {
+    float worldWidth = camera().viewportWidth * camera().zoom;
+    float worldHeight = camera().viewportHeight * camera().zoom;
+    float camX = camera().position.x;
+    float camY = camera().position.y;
+    float posX = camX - (worldWidth / 2f);
+    float posY = camY - (worldHeight / 2f);
+    return new Rectangle(worldWidth, worldHeight, posX, posY);
   }
 }
