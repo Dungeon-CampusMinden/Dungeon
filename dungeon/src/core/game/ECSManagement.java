@@ -49,7 +49,7 @@ public final class ECSManagement {
    * Set to true if a new level was loaded during the current tick. This flag is used to interrupt
    * system execution when a level change occurs.
    */
-  public static boolean newLevelLoadedThisTick = false;
+  private static boolean newLevelLoadedThisTick = false;
 
   static {
     LEVEL_STORAGE_MAP.put(null, activeEntityStorage);
