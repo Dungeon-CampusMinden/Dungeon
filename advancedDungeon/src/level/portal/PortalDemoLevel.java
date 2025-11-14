@@ -16,6 +16,10 @@ import entities.AdvancedFactory;
 import entities.LightBridgeFactory;
 import entities.LightWallFactory;
 import entities.TractorBeamFactory;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import level.AdvancedLevel;
 import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
