@@ -43,7 +43,7 @@ public final class LevelSystem extends System {
   private static final String SOUND_EFFECT = "enterDoor";
 
   private static ILevel currentLevel;
-  private final IVoidFunction onLevelLoad;
+  private IVoidFunction onLevelLoad = () -> {};
   private IVoidFunction onEndTile;
 
   /**
@@ -52,13 +52,10 @@ public final class LevelSystem extends System {
    * <p>The system will not load a new level at creation. Use {@link #loadLevel(ILevel)} if you want
    * to trigger the load of a level manually; otherwise, the first level will be loaded if this
    * system's {@link #execute()} is executed.
-   *
-   * @param onLevelLoad Callback function that is called if a new level was loaded.
    */
-  public LevelSystem(IVoidFunction onLevelLoad) {
+  public LevelSystem() {
     super(PlayerComponent.class, PositionComponent.class);
-    this.onLevelLoad = onLevelLoad;
-    this.onEndTile = () -> DungeonLoader.loadNextLevel();
+    this.onEndTile = DungeonLoader::loadNextLevel;
   }
 
   /**
@@ -84,6 +81,15 @@ public final class LevelSystem extends System {
   }
 
   /**
+   * Set the function to be executed when a new level is loaded.
+   *
+   * @param onLevelLoad The function to be executed when a new level is loaded.
+   */
+  public void onLevelLoad(final IVoidFunction onLevelLoad) {
+    this.onLevelLoad = onLevelLoad;
+  }
+
+  /**
    * Check if the given entity is on the end tile.
    *
    * @param entity The entity for which the position is checked.
@@ -95,9 +101,7 @@ public final class LevelSystem extends System {
       return false;
     }
 
-    if (currentTile instanceof ExitTile endTile && endTile.isOpen()) return true;
-
-    return false;
+    return currentTile instanceof ExitTile endTile && endTile.isOpen();
   }
 
   private Optional<ILevel> isOnDoor(final Entity entity) {
@@ -143,19 +147,22 @@ public final class LevelSystem extends System {
         LOGGER.warn("Can´t load level 0, because no level is added to the DungeonLoader.");
       }
     } else {
-      if (filteredEntityStream(PlayerComponent.class, PositionComponent.class)
-          .anyMatch(this::isOnOpenEndTile)) onEndTile.execute();
-      else
-        filteredEntityStream()
-            .forEach(
-                e -> {
-                  isOnDoor(e)
-                      .ifPresent(
-                          iLevel -> {
-                            loadLevel(iLevel);
-                            playSound();
-                          });
-                });
+      if (Game.allPlayers().findAny().isEmpty()) return;
+
+      // Load next level if all heroes are on the end tile
+      if (Game.allPlayers().allMatch(this::isOnOpenEndTile)) {
+        onEndTile.execute();
+        return;
+      }
+
+      // Check if all heroes are on the same open door and load that level
+      List<ILevel> doorLevels =
+          Game.allPlayers().map(this::isOnDoor).flatMap(Optional::stream).distinct().toList();
+
+      if (doorLevels.size() == 1) {
+        loadLevel(doorLevels.get(0));
+        playSound();
+      }
     }
   }
 
