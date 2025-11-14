@@ -1,6 +1,7 @@
 package entities;
 
 import contrib.components.CollideComponent;
+import contrib.utils.components.collide.Hitbox;
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -23,12 +24,8 @@ import java.util.Map;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
 
 /**
- * Factory und Verwaltung für „Lichtwände“ (Light Walls).
- *
- * <p>Diese Klasse erzeugt Emitter-Entities für Lichtwände und stellt die öffentliche API bereit, um
- * Wände zu aktivieren/deaktivieren und deren Länge über Portal-Events zu erweitern oder zu kürzen.
- * Die eigentliche Laufzeitlogik (Segmenterzeugung, Collider, Ausrichtung/Visuals) liegt in der
- * inneren Komponente LightWallComponent, die an den Emitter angehängt wird.
+ * Factory class for creating and managing light walls and their emitters. Provides methods to
+ * create, activate, and deactivate light wall emitters.
  */
 public class LightWallFactory {
 
@@ -38,308 +35,287 @@ public class LightWallFactory {
   private static final SimpleIPath EMITTER_TEXTURE_INACTIVE =
       new SimpleIPath("portal/light_wall_emitter/light_wall_emitter_inactive.png");
 
-  /** Anzahl Kacheln, um die der Extend-/Spawn-Startpunkt vor dem Emitter versetzt wird. */
+  /** Number of tiles by which the extended start point is offset in front of the emitter. */
   public static int spawnOffset = 1;
 
-  /** Cache für Segment-Animationen, um Mehrfachladen zu vermeiden. */
-  private static Map<String, Animation> SEGMENT_ANIMATION_CACHE;
-
   /**
-   * Liefert die gecachten Segment-Animationen. Beim ersten Zugriff werden die
-   * Spritesheet-Animationen geladen und für weitere Aufrufe zwischengespeichert.
+   * Creates a new light wall emitter at the given position and direction. Can be spawned active or
+   * inactive.
    *
-   * @return Map der Animationen (Key entspricht dem State-Namen der Animation)
+   * @param position Position of the emitter
+   * @param direction Direction of the light wall
+   * @param active true if the emitter should be initially active
+   * @return The created emitter entity
    */
-  private static Map<String, Animation> segmentAnimations() {
-    if (SEGMENT_ANIMATION_CACHE == null) {
-      SEGMENT_ANIMATION_CACHE = Animation.loadAnimationSpritesheet(SEGMENT_SPRITESHEET_PATH);
-    }
-    return SEGMENT_ANIMATION_CACHE;
+  public static Entity createEmitter(Point position, Direction direction, boolean active) {
+    EmitterComponent emitterComponent = new EmitterComponent(position, direction, active);
+    return emitterComponent.getEmitter();
   }
 
   /**
-   * Komponente, die den Zustand und die Segmente einer einzelnen Lichtwand verwaltet.
+   * Activates a light wall emitter.
    *
-   * <p>Aufgaben: - erzeugt/entfernt Segmente beim Aktivieren/Deaktivieren, - erweitert/kürzt
-   * Segmente dynamisch (Extend/Trim), - passt den Collider an die aktuelle Wandlänge an, - sorgt
-   * für korrekte Ausrichtung und Darstellung des Emitters. Die Interaktion nach außen erfolgt über
-   * die Factory-Methoden in LightWallFactory.
+   * @param emitterEntity The emitter entity
    */
-  public static class LightWallComponent implements Component {
-    private final Entity owner;
-    private final Direction direction;
-    private boolean active = false;
-    private final List<Entity> segments = new ArrayList<>();
-    private final List<Entity> extendedSegments = new ArrayList<>();
+  public static void activate(Entity emitterEntity) {
+    emitterEntity.fetch(EmitterComponent.class).ifPresent(EmitterComponent::activate);
+  }
 
-    private Point baseEnd = null;
-    private Point extendEnd = null;
+  /**
+   * Deactivates a light wall emitter.
+   *
+   * @param emitterEntity The emitter entity
+   */
+  public static void deactivate(Entity emitterEntity) {
+    emitterEntity.fetch(EmitterComponent.class).ifPresent(EmitterComponent::deactivate);
+  }
+
+  /**
+   * Returns the rotation angle for the given direction.
+   *
+   * @param d Direction
+   * @return Rotation angle in degrees
+   */
+  private static float rotationFor(Direction d) {
+    return switch (d) {
+      case UP -> 0f;
+      case DOWN -> 180f;
+      case LEFT -> 90f;
+      case RIGHT -> -90f;
+      default -> 0f;
+    };
+  }
+
+  /* --------------------- Components --------------------- */
+
+  /** Component representing a light wall emitter and managing its beams. */
+  public static class EmitterComponent implements Component {
+
+    private final Entity emitter;
+    private final List<Component> beams = new ArrayList<>();
 
     /**
-     * Erstellt die Verwaltungs-Komponente für eine Lichtwand.
+     * Creates a new emitter for light walls.
      *
-     * @param owner Emitter-Entity, an die sich die Wand bindet
-     * @param direction Ausrichtung der Wand (Richtung der Segment-Erzeugung)
+     * @param start Start position of the emitter
+     * @param direction The Direction in which the light wall is generated
+     * @param active Whether the emitter is initially active
      */
-    public LightWallComponent(Entity owner, Direction direction) {
-      this.owner = owner;
-      this.direction = direction;
+    public EmitterComponent(Point start, Direction direction, boolean active) {
+      this.emitter = new Entity("wallEmitter");
+      emitter.add(this);
+      PositionComponent pc = new PositionComponent(start);
+      pc.rotation(rotationFor(direction));
+      emitter.add(pc);
+      updateEmitterVisual(false);
+      emitter.add(
+          new CollideComponent(
+              Vector2.of(0f, 0f),
+              Vector2.of(1f, 1f),
+              CollideComponent.DEFAULT_COLLIDER,
+              (a, b, c) -> {}));
+      beams.add(new BeamComponent(emitter, start, direction, true));
+      if (active) activate();
     }
 
     /**
-     * Erstellt einen Emitter an der angegebenen Position, richtet ihn gemäß Richtung aus und setzt
-     * die inaktive Darstellung.
+     * Returns the emitter entity.
      *
-     * @param from Startposition (Tile-Koordinaten)
-     * @param direction Ausrichtung des Emitters und der späteren Wand
-     * @return der erstellte Emitter-Entity
+     * @return Emitter entity
      */
-    public static Entity createEmitter(Point from, Direction direction) {
-      Entity emitter = new Entity("lightWallEmitter");
-      PositionComponent pc = new PositionComponent(from);
-      pc.rotation(rotationFor(direction));
-      emitter.add(pc);
-
-      DrawComponent dc = new DrawComponent(EMITTER_TEXTURE_INACTIVE);
-      dc.depth(DepthLayer.Normal.depth());
-      emitter.add(dc);
-
+    public Entity getEmitter() {
       return emitter;
     }
 
     /**
-     * Aktiviert die Wand: erzeugt Basissegmente vom Emitter bis zur nächsten Wand und legt den
-     * Collider über die gesamte Länge. Doppelte Aktivierungen werden ignoriert.
-     */
-    private void activate() {
-      if (active) return;
-      active = true;
-
-      owner
-          .fetch(PositionComponent.class)
-          .ifPresent(
-              pc -> {
-                Point start = pc.position();
-                Point end = calculateEndPoint(start, this.direction);
-                int total = calculateNumberOfPoints(start, end);
-                for (int i = 0; i < total; i++)
-                  segments.add(createNextSegment(start, end, total, i, this.direction));
-                baseEnd = end;
-                createColliderForBeam(start, pickFurtherEnd(start), this.direction);
-              });
-
-      segments.addAll(extendedSegments);
-      segments.forEach(Game::add);
-      updateEmitterVisual(true);
-    }
-
-    /**
-     * Deaktiviert die Wand: entfernt alle Segmente, setzt die inaktive Darstellung und entfernt den
-     * Collider. Mehrfache Aufrufe sind idempotent.
-     */
-    private void deactivate() {
-      if (!active) return;
-      active = false;
-      segments.forEach(Game::remove);
-      segments.clear();
-      updateEmitterVisual(false);
-      owner.remove(CollideComponent.class);
-    }
-
-    /**
-     * Erzeugt zusätzliche Segmente in angegebener Richtung ab Position "from" und erweitert die
-     * Wand temporär über die Basislänge hinaus. Falls bereits eine Erweiterung existiert, wird
-     * zuvor getrimmt. Bei aktiver Wand werden Segmente und Collider sofort in die Spielwelt
-     * übernommen.
+     * Updates the visual representation of the emitter.
      *
-     * @param direction Richtung der Erweiterung
-     * @param from Startpunkt der Erweiterung (Tile-Koordinaten)
-     */
-    public void extend(Direction direction, Point from) {
-      trim();
-
-      Point end = calculateEndPoint(from, direction);
-      int total = calculateNumberOfPoints(from, end);
-      for (int i = 0; i < total; i++) {
-        Entity segment = createNextSegment(from, end, total, i, direction);
-        extendedSegments.add(segment);
-      }
-      extendEnd = end;
-
-      if (active) {
-        extendedSegments.forEach(Game::add);
-        segments.addAll(extendedSegments);
-        owner
-            .fetch(PositionComponent.class)
-            .ifPresent(
-                pc ->
-                    createColliderForBeam(
-                        pc.position(), pickFurtherEnd(pc.position()), this.direction));
-      }
-    }
-
-    /**
-     * Entfernt zuvor erzeugte Erweiterungssegmente und stellt die Collider-Länge auf die Basis
-     * zurück. Bei inaktiver Wand wird lediglich der interne Zustand bereinigt.
-     */
-    public void trim() {
-      if (extendedSegments.isEmpty()) return;
-      if (active) {
-        extendedSegments.forEach(Game::remove);
-        segments.removeAll(extendedSegments);
-        owner
-            .fetch(PositionComponent.class)
-            .ifPresent(
-                pc -> {
-                  if (baseEnd != null)
-                    createColliderForBeam(pc.position(), baseEnd, this.direction);
-                });
-      }
-      extendedSegments.clear();
-      extendEnd = null;
-    }
-
-    /**
-     * Aktualisiert die Darstellung und Metadaten des Emitters abhängig vom Aktivitätszustand
-     * (Texture, Depth-Layer, Name, Rotation).
-     *
-     * @param on true, wenn aktiv; false, wenn inaktiv
+     * @param on true if active; false if inactive
      */
     private void updateEmitterVisual(boolean on) {
       DrawComponent dc = new DrawComponent(on ? EMITTER_TEXTURE_ACTIVE : EMITTER_TEXTURE_INACTIVE);
       dc.depth(DepthLayer.Normal.depth());
-      owner.add(dc);
-      owner.name(on ? "lightWallEmitter" : "lightWallEmitterInactive");
-      owner.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(direction)));
+      emitter.add(dc);
+      emitter.name(on ? "lightWallEmitter" : "lightWallEmitterInactive");
+    }
+
+    /** Activates the emitter and all associated beams. */
+    public void activate() {
+      trim();
+      beams.forEach(
+          beam -> {
+            if (beam instanceof BeamComponent b) {
+              b.activate();
+            }
+          });
+      updateEmitterVisual(true);
+    }
+
+    /** Deactivates the emitter and all associated beams. */
+    public void deactivate() {
+      beams.forEach(
+          beam -> {
+            if (beam instanceof BeamComponent b) {
+              b.deactivate();
+            }
+          });
+      updateEmitterVisual(false);
     }
 
     /**
-     * Erzeugt ein einzelnes Segment-Entity auf der Strecke von "from" nach "to" und richtet es aus.
-     * Die Position wird anhand der Anzahl totalPoints und des Index currentIndex gleichmäßig
-     * verteilt.
+     * Adds a new beam and activates it.
      *
-     * @param from Startposition der Strecke
-     * @param to Endposition der Strecke
-     * @param totalPoints Gesamtanzahl der zu verteilenden Punkte (inklusive Endpunkte)
-     * @param currentIndex Index des aktuell zu erzeugenden Segments [0..totalPoints-1]
-     * @param rotDir Ausrichtung des Segments für die Rotation
-     * @return das erzeugte Segment-Entity
+     * @param beam Beam component to add
      */
-    private Entity createNextSegment(
-        Point from, Point to, int totalPoints, int currentIndex, Direction rotDir) {
-      float x = from.x() + currentIndex * (to.x() - from.x()) / (totalPoints - 1);
-      float y = from.y() + currentIndex * (to.y() - from.y()) / (totalPoints - 1);
-      Entity segment = new Entity("lightWallSegment");
-      segment.add(new PositionComponent(new Point(x, y)));
-      segment.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(rotDir)));
+    public void extend(BeamComponent beam) {
+      beams.add(beam);
+      beam.activate();
+    }
 
-      AnimationConfig cfg = segmentAnimations().get("idle").getConfig();
-      State idle = new State("idle", SEGMENT_SPRITESHEET_PATH, cfg);
-      StateMachine sm = new StateMachine(List.of(idle));
-      DrawComponent dc = new DrawComponent(sm);
-      dc.depth(DepthLayer.Ground.depth());
-      segment.add(dc);
-      return segment;
+    /** Removes non-extendable beams. */
+    public void trim() {
+      beams.removeIf(
+          beam -> {
+            if (beam instanceof BeamComponent b && !b.extendable) {
+              b.deactivate();
+              return true;
+            }
+            return false;
+          });
+    }
+  }
+
+  /** Component representing a light beam between the emitter and a wall. */
+  public static class BeamComponent implements Component {
+
+    private static Map<String, Animation> SEGMENT_ANIMATION_CACHE;
+
+    private static Map<String, Animation> segmentAnimations() {
+      if (SEGMENT_ANIMATION_CACHE == null) {
+        SEGMENT_ANIMATION_CACHE = Animation.loadAnimationSpritesheet(SEGMENT_SPRITESHEET_PATH);
+      }
+      return SEGMENT_ANIMATION_CACHE;
+    }
+
+    private final Entity emitter;
+    private final Direction direction;
+    private final Point start;
+    private final Boolean extendable;
+    private final List<Entity> segments = new ArrayList<>();
+    private final Entity collider = new Entity("lightWallCollider");
+    private boolean active = false;
+
+    /**
+     * Creates a new BeamComponent.
+     *
+     * @param owner Emitter entity
+     * @param start Start point of the beam
+     * @param direction Direction of the beam
+     * @param extendable true if extendable
+     */
+    public BeamComponent(Entity owner, Point start, Direction direction, Boolean extendable) {
+      this.emitter = owner;
+      this.direction = direction;
+      this.start = start;
+      this.extendable = extendable;
+      Game.add(collider);
+      if (extendable) {
+        PortalExtendComponent pec = new PortalExtendComponent();
+        pec.onExtend =
+            (d, e, portalExtendComponent) -> {
+              Point startPoint = e.translate(d.scale(spawnOffset));
+              emitter
+                  .fetch(EmitterComponent.class)
+                  .ifPresent(ec -> ec.extend(new BeamComponent(emitter, startPoint, d, false)));
+            };
+        pec.onTrim = (e) -> emitter.fetch(EmitterComponent.class).ifPresent(EmitterComponent::trim);
+        collider.add(pec);
+      }
+    }
+
+    /** Activates the beam and creates segments and collider. */
+    public void activate() {
+      if (active) return; // mehrfaches Aktivieren verhindern
+      active = true;
+      Point end = calculateEndPoint(start, direction);
+      createSegments(start, end, direction);
+      createCollider(start, end, direction);
+    }
+
+    /** Deactivates the beam and removes segments and collider. */
+    public void deactivate() {
+      if (!active) return; // mehrfaches Deaktivieren verhindern
+      active = false;
+      segments.forEach(Game::remove);
+      collider.fetch(CollideComponent.class).ifPresent(cc -> cc.collider(new Hitbox(0, 0)));
     }
 
     /**
-     * Liefert die Rotation in Grad für eine Richtung. 0° entspricht UP, 180° DOWN, 90° LEFT und
-     * -90° RIGHT.
+     * Creates the segments of the light wall between two points.
      *
-     * @param d Richtung
-     * @return Rotation in Grad für die Darstellung
+     * @param from Start point
+     * @param to End point
+     * @param direction Direction
      */
-    private static float rotationFor(Direction d) {
-      return switch (d) {
-        case UP -> 0f;
-        case DOWN -> 180f;
-        case LEFT -> 90f;
-        case RIGHT -> -90f;
-        default -> 0f;
-      };
+    private void createSegments(Point from, Point to, Direction direction) {
+      int totalPoints =
+          (int) Math.max(Math.abs(to.x() - from.x()), Math.abs(to.y() - from.y())) + 1;
+      float x;
+      float y;
+      for (int i = 0; i < totalPoints; i++) {
+        x = from.x() + i * (to.x() - from.x()) / (totalPoints - 1);
+        y = from.y() + i * (to.y() - from.y()) / (totalPoints - 1);
+        Entity segment = new Entity("lightWallSegment");
+        segment.add(new PositionComponent(new Point(x, y)));
+        segment.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(direction)));
+        AnimationConfig cfg = segmentAnimations().get("idle").getConfig();
+        State idle = new State("idle", SEGMENT_SPRITESHEET_PATH, cfg);
+        StateMachine sm = new StateMachine(List.of(idle));
+        DrawComponent dc = new DrawComponent(sm);
+        dc.depth(DepthLayer.Ground.depth());
+        segment.add(dc);
+        segments.add(segment);
+      }
+      segments.forEach(Game::add);
     }
 
     /**
-     * Erstellt oder aktualisiert den Collider der Wand so, dass er die aktuelle Länge abdeckt.
-     * Breite/Höhe und Offsets werden abhängig von der Ausrichtung berechnet und schließen immer die
-     * Position des Emitters mit ein.
+     * Creates the collider for the light wall.
      *
-     * @param start Startpunkt (Emitterposition)
-     * @param end Endpunkt der aktuellen Wand
-     * @param dir Ausrichtung der Wand
+     * @param start Start point
+     * @param end End point
+     * @param direction Direction
      */
-    private void createColliderForBeam(Point start, Point end, Direction dir) {
+    private void createCollider(Point start, Point end, Direction direction) {
       float width = 1f, height = 1f, offsetX = 0f, offsetY = 0f;
-      if (dir == Direction.LEFT || dir == Direction.RIGHT) {
+      if (direction == Direction.LEFT || direction == Direction.RIGHT) {
         float len = Math.abs(end.x() - start.x()) + 1f;
         width = Math.max(1f, len);
-        offsetX = (dir == Direction.LEFT) ? -(width - 1f) : 0f;
-      } else if (dir == Direction.UP || dir == Direction.DOWN) {
+        offsetX = (direction == Direction.LEFT) ? -(width - 1f) : 0f;
+      } else if (direction == Direction.UP || direction == Direction.DOWN) {
         float len = Math.abs(end.y() - start.y()) + 1f;
         height = Math.max(1f, len);
-        offsetY = (dir == Direction.DOWN) ? -(height - 1f) : 0f;
+        offsetY = (direction == Direction.DOWN) ? -(height - 1f) : 0f;
       }
-
+      PositionComponent pc = new PositionComponent(start);
+      pc.rotation(rotationFor(direction));
+      collider.add(pc);
+      collider.remove(CollideComponent.class);
       CollideComponent cc =
           new CollideComponent(
               Vector2.of(offsetX, offsetY),
               Vector2.of(width, height),
               CollideComponent.DEFAULT_COLLIDER,
               (a, b, c) -> {});
-      owner.remove(CollideComponent.class);
-      owner.add(cc);
+      collider.add(cc);
     }
 
     /**
-     * Wählt den aktuell am weitesten entfernten Endpunkt der Wand relativ zum Emitter aus.
+     * Calculates the end point of the beam based on the direction and obstacles.
      *
-     * <p>Es werden zwei Kandidaten betrachtet: - baseEnd: das Ende der Basiswand (vom Emitter bis
-     * zur nächsten Wandkachel), und - extendEnd: das Ende einer temporären Erweiterung (falls
-     * vorhanden).
-     *
-     * <p>Nullwerte werden gegen den übergebenen Startpunkt ersetzt. Abhängig von der Wandrichtung
-     * wird der weiter „in Richtung des Strahls“ liegende Punkt gewählt: - RIGHT: größeres x
-     * gewinnt, - LEFT: kleineres x gewinnt, - UP: größeres y gewinnt, - DOWN: kleineres y gewinnt.
-     * Bei Gleichstand oder unbekannter Richtung wird baseEnd bevorzugt.
-     *
-     * @param start Ausgangspunkt (typisch: Emitterposition), Fallback falls kein Endpunkt bekannt
-     *     ist
-     * @return der weiter entfernte Endpunkt in Strahlrichtung; niemals null
-     */
-    private Point pickFurtherEnd(Point start) {
-      Point b = (baseEnd != null) ? baseEnd : start;
-      Point e = (extendEnd != null) ? extendEnd : b;
-      return switch (direction) {
-        case RIGHT -> (e.x() > b.x()) ? e : b;
-        case LEFT -> (e.x() < b.x()) ? e : b;
-        case UP -> (e.y() > b.y()) ? e : b;
-        case DOWN -> (e.y() < b.y()) ? e : b;
-        default -> b;
-      };
-    }
-
-    /**
-     * Berechnet die Anzahl von diskreten Kachelpunkten zwischen zwei Koordinaten inklusive beider
-     * Endpunkte. Basis für die gleichmäßige Segmentverteilung.
-     *
-     * @param from Startpunkt
-     * @param to Endpunkt
-     * @return Anzahl der Punkte (mindestens 1)
-     */
-    private int calculateNumberOfPoints(Point from, Point to) {
-      float dx = Math.abs(to.x() - from.x());
-      float dy = Math.abs(to.y() - from.y());
-      return (int) Math.max(dx, dy) + 1;
-    }
-
-    /**
-     * Ermittelt den letzten freien Kachelpunkt in beamDirection, beginnend bei from, bevor eine
-     * Wandkachel (WallTile) erreicht wird. Trifft die nächste Kachel bereits auf eine Wand, wird
-     * der aktuelle Punkt zurückgegeben.
-     *
-     * @param from Startpunkt
-     * @param beamDirection Richtung des Strahls
-     * @return letzter freier Punkt vor einer Wand (niemals null, solange from im Level liegt)
+     * @param from Start point
+     * @param beamDirection Direction
+     * @return End point of the beam
      */
     private Point calculateEndPoint(Point from, Direction beamDirection) {
       Point lastPoint = from;
@@ -354,73 +330,5 @@ public class LightWallFactory {
       }
       return lastPoint;
     }
-  }
-
-  /**
-   * Erzeugt eine neue Lichtwand samt Emitter. Optional kann die Wand direkt aktiviert werden,
-   * wodurch Segmente und Collider sofort erstellt werden. Außerdem wird ein PortalExtendComponent
-   * registriert, der Extend/Trim-Ereignisse verarbeitet.
-   *
-   * @param from Startposition des Emitters (Tile-Koordinaten)
-   * @param direction Ausrichtung der Lichtwand
-   * @param active true, wenn die Wand sofort aktiv sein soll
-   * @return der Emitter-Entity der Lichtwand
-   */
-  public static Entity createLightWall(Point from, Direction direction, boolean active) {
-    Entity emitter = LightWallComponent.createEmitter(from, direction);
-    LightWallComponent wallComponent = new LightWallComponent(emitter, direction);
-    emitter.add(wallComponent);
-
-    PortalExtendComponent pec = new PortalExtendComponent();
-    pec.onExtend =
-        (d, e, portalExtendComponent) -> {
-          Point startPoint = e.translate(d.scale(spawnOffset));
-          extendWall(emitter, startPoint, d);
-        };
-    pec.onTrim = (emitterEntity) -> trimWall(emitter);
-    emitter.add(pec);
-
-    if (active) emitter.fetch(LightWallComponent.class).ifPresent(LightWallComponent::activate);
-    Game.add(emitter);
-    return emitter;
-  }
-
-  /**
-   * Aktiviert die Lichtwand eines gegebenen Emitters, falls vorhanden.
-   *
-   * @param wallEmitter Emitter-Entity
-   */
-  public static void activate(Entity wallEmitter) {
-    wallEmitter.fetch(LightWallComponent.class).ifPresent(LightWallComponent::activate);
-  }
-
-  /**
-   * Deaktiviert die Lichtwand eines gegebenen Emitters, falls vorhanden.
-   *
-   * @param wallEmitter Emitter-Entity
-   */
-  public static void deactivate(Entity wallEmitter) {
-    wallEmitter.fetch(LightWallComponent.class).ifPresent(LightWallComponent::deactivate);
-  }
-
-  /**
-   * Interne Helper-Methode: erweitert die Wand eines Emitters ab einem Startpunkt in gegebener
-   * Richtung.
-   *
-   * @param wallEmitter Emitter
-   * @param from Startpunkt der Erweiterung
-   * @param direction Richtung der Erweiterung
-   */
-  private static void extendWall(Entity wallEmitter, Point from, Direction direction) {
-    wallEmitter.fetch(LightWallComponent.class).ifPresent(c -> c.extend(direction, from));
-  }
-
-  /**
-   * Interne Helper-Methode: nimmt eine zuvor ausgeführte Erweiterung wieder zurück.
-   *
-   * @param wallEmitter Emitter
-   */
-  private static void trimWall(Entity wallEmitter) {
-    wallEmitter.fetch(LightWallComponent.class).ifPresent(LightWallComponent::trim);
   }
 }
