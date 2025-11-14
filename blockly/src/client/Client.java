@@ -69,7 +69,6 @@ public class Client {
     }
 
     StateMachine.setResetFrame(false);
-    Debugger debugger = new Debugger();
     // start the game
     configGame();
     // Set up components and level
