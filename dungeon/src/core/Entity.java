@@ -1,6 +1,6 @@
 package core;
 
-import core.game.ECSManagment;
+import core.game.ECSManagement;
 import core.utils.EntityIdProvider;
 import core.utils.logging.DungeonLogger;
 import java.util.HashMap;
@@ -98,7 +98,7 @@ public final class Entity implements Comparable<Entity> {
    * Add a new component to this entity.
    *
    * <p>Changes in the component map of the entity will trigger a call to {@link
-   * ECSManagment#informAboutChanges}.
+   * ECSManagement#informAboutChanges}.
    *
    * <p>Remember that an entity can only store one component of each component class.
    *
@@ -106,7 +106,7 @@ public final class Entity implements Comparable<Entity> {
    */
   public void add(final Component component) {
     components.put(component.getClass(), component);
-    ECSManagment.informAboutChanges(this);
+    ECSManagement.informAboutChanges(this);
     LOGGER.info(component.getClass().getName() + " Components from " + this + " was added.");
   }
 
@@ -114,7 +114,7 @@ public final class Entity implements Comparable<Entity> {
    * Removes a component of the specified class from this entity.
    *
    * <p>Changes to the entity's component map will trigger a call to {@link
-   * ECSManagment#informAboutChanges}.
+   * ECSManagement#informAboutChanges}.
    *
    * @param klass the class of the component to remove
    * @return true if a component of the given class was removed; false otherwise (typically means
@@ -122,7 +122,7 @@ public final class Entity implements Comparable<Entity> {
    */
   public boolean remove(final Class<? extends Component> klass) {
     if (components.remove(klass) != null) {
-      ECSManagment.informAboutChanges(this);
+      ECSManagement.informAboutChanges(this);
       LOGGER.info(klass.getName() + " from " + name + " was removed.");
       return true;
     }

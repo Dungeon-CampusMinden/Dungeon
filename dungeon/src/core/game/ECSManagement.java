@@ -27,8 +27,8 @@ import java.util.stream.Stream;
  *
  * <p>All API methods can also be accessed via the {@link core.Game} class.
  */
-public final class ECSManagment {
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ECSManagment.class);
+public final class ECSManagement {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ECSManagement.class);
   private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
   private static final Map<ILevel, Set<EntitySystemMapper>> LEVEL_STORAGE_MAP = new HashMap<>();
   private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
@@ -188,7 +188,7 @@ public final class ECSManagment {
 
   /** Remove all registered systems from the game. */
   public static void removeAllSystems() {
-    new HashSet<>(SYSTEMS.keySet()).forEach(ECSManagment::remove);
+    new HashSet<>(SYSTEMS.keySet()).forEach(ECSManagement::remove);
   }
 
   /**
@@ -268,7 +268,7 @@ public final class ECSManagment {
    * <p>This will also remove all entities from each system.
    */
   public static void removeAllEntities() {
-    allEntities().forEach(ECSManagment::remove);
+    allEntities().forEach(ECSManagement::remove);
     LOGGER.info("All entities will be removed from the game.");
   }
 
