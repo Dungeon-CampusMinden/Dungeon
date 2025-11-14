@@ -17,8 +17,8 @@ import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import level.portal.PortalDemoLevel;
-import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
-import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
+import produsAdvanced.abstraction.portals.PortalColor;
+import produsAdvanced.abstraction.portals.portalSkills.PortalSkill;
 import produsAdvanced.abstraction.portals.systems.PortalExtendSystem;
 import systems.AntiMaterialBarrierSystem;
 import systems.LasergridSystem;
@@ -64,8 +64,8 @@ public class PortalStarter {
         .fetch(SkillComponent.class)
         .ifPresent(
             skillComponent -> {
-              skillComponent.addSkill(new BluePortalSkill(new Tuple<>(Resource.MANA, 0)));
-              skillComponent.addSkill(new GreenPortalSkill(new Tuple<>(Resource.MANA, 0)));
+              skillComponent.addSkill(new PortalSkill(PortalColor.BLUE, new Tuple<>(Resource.MANA, 0)));
+              skillComponent.addSkill(new PortalSkill(PortalColor.GREEN, new Tuple<>(Resource.MANA, 0)));
               skillComponent.removeSkill(FireballSkill.class);
               skillComponent.removeSkill(SelfHealSkill.class);
             });
