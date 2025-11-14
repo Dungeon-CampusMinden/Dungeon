@@ -57,6 +57,14 @@ public class Item implements CraftingIngredient, CraftingResult {
     registerItem(ItemResourceBerry.class);
     registerItem(ItemResourceEgg.class);
     registerItem(ItemResourceMushroomRed.class);
+    registerItem(ItemWoodenArrow.class);
+    registerItem(ItemWoodenBow.class);
+    registerItem(ItemBigKey.class);
+    registerItem(ItemFairy.class);
+    registerItem(ItemHammer.class);
+    registerItem(ItemHeart.class);
+    registerItem(ItemKey.class);
+    registerItem(ItemDefault.class);
   }
 
   private String displayName;
