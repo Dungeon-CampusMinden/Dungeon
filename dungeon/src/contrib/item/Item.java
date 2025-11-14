@@ -64,7 +64,6 @@ public class Item implements CraftingIngredient, CraftingResult {
     registerItem(ItemHammer.class);
     registerItem(ItemHeart.class);
     registerItem(ItemKey.class);
-    registerItem(ItemDefault.class);
   }
 
   private String displayName;
