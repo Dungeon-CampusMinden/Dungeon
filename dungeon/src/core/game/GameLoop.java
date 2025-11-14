@@ -177,22 +177,9 @@ public final class GameLoop extends ScreenAdapter {
     frame(delta);
     clearScreen();
 
-    // ECS logic
-    for (System system : ECSManagement.systems().values()) {
-      // if a new level was loaded, stop this loop-run
-      if (newLevelWasLoadedInThisLoop) break;
-      system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
-      if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
-        system.execute();
-        system.lastExecuteInFrames(0);
-      }
-    }
-    newLevelWasLoadedInThisLoop = false;
+    // system and render logic
+    ECSManagement.executeOneTick();
 
-    // Render logic
-    for (System system : ECSManagement.systems().values()) {
-      system.render();
-    }
     stage().ifPresent(GameLoop::updateStage);
   }
 
@@ -298,15 +285,12 @@ public final class GameLoop extends ScreenAdapter {
   /** Create the systems. */
   private void createSystems() {
     ECSManagement.add(new PositionSystem());
-    ECSManagement.add(new CameraSystem());
-    ECSManagement.add(new LevelSystem());
     ECSManagement.system(LevelSystem.class, ls -> ls.onLevelLoad(onLevelLoad));
-    ECSManagement.add(new DrawSystem());
+    ECSManagement.add(new CameraSystem());
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
     ECSManagement.add(new InputSystem());
     ECSManagement.add(new DebugDrawSystem());
-    ECSManagement.add(new SoundSystem());
   }
 }

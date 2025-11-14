@@ -64,13 +64,13 @@ public final class DrawSystem extends System implements Disposable {
    * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
    * batch.
    */
-  private static final SpriteBatch BATCH = new SpriteBatch();
+  private static final SpriteBatch BATCH = Gdx.gl == null ? null : new SpriteBatch();
 
   private final TreeMap<Integer, List<Entity>> sortedEntities = new TreeMap<>();
 
   private final FrameBufferPool FBO_POOL = FrameBufferPool.getInstance();
   // Dedicated SpriteBatch for rendering locally to FBOs (Pass 1 & Post-Processing Ping-Pong)
-  private final SpriteBatch fboBatch = new SpriteBatch();
+  private final SpriteBatch fboBatch = Gdx.gl == null ? null : new SpriteBatch();
   private final Matrix4 fboProjectionMatrix = new Matrix4();
   private final TextureRegion fboRegion = new TextureRegion();
   private final Map<Entity, FrameBuffer> entityFboCache = new HashMap<>();
@@ -271,7 +271,8 @@ public final class DrawSystem extends System implements Disposable {
     drawFboToBatch(levelFbo, sceneWidth, sceneHeight);
 
     // Draw Depth FBOs in ascending order
-    sortedEntities.keySet().stream()
+    sortedEntities
+        .keySet()
         .forEach(
             depth ->
                 Optional.ofNullable(depthFbos.get(depth))
@@ -449,13 +450,13 @@ public final class DrawSystem extends System implements Disposable {
     setTextureFiltering(fboA.getColorBufferTexture());
     setTextureFiltering(fboB.getColorBufferTexture());
 
-    // Calculate the projection matrix using the UPscaled FBO dimensions.
+    // Calculate the projection matrix using the Upscaled FBO dimensions.
     fboProjectionMatrix.setToOrtho2D(0, 0, fboWidth, fboHeight);
 
     // Initial state
     FrameBuffer currentTarget = fboA;
     Texture currentSourceTexture;
-    boolean useFboAAsSource = false;
+    boolean useFboAAsSource;
 
     TextureRegion initialRegion = dc.getSprite();
 

@@ -1,10 +1,13 @@
 package core.game;
 
+import com.badlogic.gdx.Gdx;
+import contrib.systems.EventScheduler;
 import core.Component;
 import core.Entity;
 import core.System;
 import core.components.PlayerComponent;
 import core.level.elements.ILevel;
+import core.systems.*;
 import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
 import core.utils.logging.DungeonLogger;
@@ -33,9 +36,27 @@ public final class ECSManagement {
   private static final Map<ILevel, Set<EntitySystemMapper>> LEVEL_STORAGE_MAP = new HashMap<>();
   private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
 
+  /**
+   * Essential systems that are always added to the game.
+   *
+   * <p>Essential systems are systems that are required for the game to function properly.
+   */
+  private static final System[] ESSENTIAL_SYSTEMS = {
+    new LevelSystem(), new SoundSystem(), new DrawSystem(), new EventScheduler()
+  };
+
+  /**
+   * Set to true if a new level was loaded during the current tick. This flag is used to interrupt
+   * system execution when a level change occurs.
+   */
+  public static boolean newLevelLoadedThisTick = false;
+
   static {
     LEVEL_STORAGE_MAP.put(null, activeEntityStorage);
     activeEntityStorage.add(new EntitySystemMapper());
+    for (System system : ESSENTIAL_SYSTEMS) {
+      ECSManagement.add(system);
+    }
   }
 
   /**
@@ -144,7 +165,7 @@ public final class ECSManagement {
         activeEntityStorage.stream().filter(f -> f.equals(system.filterRules())).findFirst();
     filter.ifPresentOrElse(
         f -> f.add(system), () -> createNewEntitySystemMapper(system.filterRules()).add(system));
-    LOGGER.info("A new " + system.getClass().getName() + " was added to the game");
+    LOGGER.info("A new {} was added to the game", system.getClass().getName());
     return Optional.ofNullable(currentSystem);
   }
 
@@ -182,8 +203,13 @@ public final class ECSManagement {
    * @param s the class object of the desired system type
    * @param c the {@link Consumer} to execute with the system instance if present
    */
+  @SuppressWarnings("unchecked")
   public static <T extends System> void system(Class<T> s, Consumer<T> c) {
-    if (SYSTEMS.containsKey(s)) c.accept((T) SYSTEMS.get(s));
+    if (SYSTEMS.containsKey(s)) {
+      c.accept((T) SYSTEMS.get(s));
+    } else {
+      LOGGER.warn("Tried to access system of type {}, but it is not registered.", s.getName());
+    }
   }
 
   /** Remove all registered systems from the game. */
@@ -244,7 +270,12 @@ public final class ECSManagement {
   /**
    * Searches the current level for all player characters.
    *
+   * <p>A player entity is defined as an entity that has a {@link PlayerComponent}.
+   *
+   * <p>This includes both local and remote player characters.
+   *
    * @return a stream of all player characters in the current level
+   * @see PlayerComponent
    */
   public static Stream<Entity> allPlayers() {
     return levelEntities().filter(e -> e.isPresent(PlayerComponent.class));
@@ -345,5 +376,39 @@ public final class ECSManagement {
    */
   public static boolean existInLevel(Entity entity) {
     return levelEntities().anyMatch(entity1 -> entity1.equals(entity));
+  }
+
+  /**
+   * Execute one tick of the ECS.
+   *
+   * <p>This will call the {@link System#execute()} method of each registered {@link System} in the
+   * game, if the system is running and the required number of frames has passed since its last
+   * execution.
+   *
+   * <p>After executing all systems, if an OpenGL context is available, it will call the {@link
+   * System#render()} method of each registered {@link System}.
+   *
+   * <p>If a new level was loaded during this tick, the execution will be interrupted to prevent
+   * inconsistencies.
+   */
+  public static void executeOneTick() {
+    // Execute logic for each system.
+    for (System system : systems().values()) {
+      if (newLevelLoadedThisTick) return; // Early exit if a new level was loaded this tick.
+
+      system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
+
+      if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
+        system.execute();
+        system.lastExecuteInFrames(0);
+      }
+    }
+
+    if (Gdx.gl != null) {
+      // Render logic: Call the render method for each system if OpenGL context is available.
+      systems().values().forEach(System::render);
+    }
+
+    newLevelLoadedThisTick = false;
   }
 }

@@ -192,7 +192,6 @@ public class Client {
     Game.add(new PitSystem());
     Game.add(new TintTilesSystem());
     EventScheduler.setPausable(false);
-    Game.add(new EventScheduler());
     Game.add(new FogSystem());
     Game.add(new PressurePlateSystem());
     Game.add(new BlocklyCommandExecuteSystem());

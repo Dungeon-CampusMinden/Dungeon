@@ -217,7 +217,6 @@ public class ComparePathfindingStarter {
   private static void createSystems() {
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
-    Game.add(new EventScheduler());
     Game.add(new PathfindingSystem());
   }
 
