@@ -16,10 +16,6 @@ import entities.AdvancedFactory;
 import entities.LightBridgeFactory;
 import entities.LightWallFactory;
 import entities.TractorBeamFactory;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import level.AdvancedLevel;
 import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
@@ -95,14 +91,14 @@ public class PortalDemoLevel extends AdvancedLevel {
     tractorBeam1 =
         TractorBeamFactory.createTractorBeam(namedPoints.get("Traktor1"), Direction.DOWN);
     lightBridge1 =
-        LightBridgeFactory.createLightBridge(namedPoints.get("Brücke1"), Direction.DOWN, false);
-    lightWall1 = LightWallFactory.createLightWall(namedPoints.get("Wand1"), Direction.DOWN, false);
+        LightBridgeFactory.createEmitter(namedPoints.get("Brücke1"), Direction.DOWN, false);
+    lightWall1 = LightWallFactory.createEmitter(namedPoints.get("Wand1"), Direction.DOWN, false);
     tractorBeam2 =
         TractorBeamFactory.createTractorBeam(namedPoints.get("Traktor2"), Direction.DOWN);
     lightBridge2 =
-        LightBridgeFactory.createLightBridge(namedPoints.get("Brücke2"), Direction.DOWN, false);
-    lightWall2 = LightWallFactory.createLightWall(namedPoints.get("Wand2"), Direction.DOWN, false);
-    lightWall3 = LightWallFactory.createLightWall(namedPoints.get("Wand3"), Direction.LEFT, false);
+        LightBridgeFactory.createEmitter(namedPoints.get("Brücke2"), Direction.DOWN, false);
+    lightWall2 = LightWallFactory.createEmitter(namedPoints.get("Wand2"), Direction.DOWN, false);
+    lightWall3 = LightWallFactory.createEmitter(namedPoints.get("Wand3"), Direction.LEFT, false);
     Game.add(AdvancedFactory.laserGrid(namedPoints.get("Grid1"), true));
     Game.add(AdvancedFactory.laserGrid(namedPoints.get("Grid2"), true));
     Game.add(AdvancedFactory.laserGrid(namedPoints.get("Grid3"), true));
@@ -139,6 +135,11 @@ public class PortalDemoLevel extends AdvancedLevel {
     Game.add(catcher1);
     Game.add(sphere1);
     Game.add(cube1);
+    Game.add(lightBridge1);
+    Game.add(lightBridge2);
+    Game.add(lightWall1);
+    Game.add(lightWall2);
+    Game.add(lightWall3);
     Game.add(s1);
     Game.add(s2);
     Game.add(s3);
