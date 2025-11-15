@@ -372,6 +372,7 @@ public class PortalFactory {
    * @param direction Direction where it extends to.
    */
   public static void onCollideLeave(Entity portal, Entity other, Direction direction) {
+    System.out.println("ONCOLLIDE LEAVE CALLED BY " +portal.name());
     clearExtendedEntity(portal, other);
   }
 
@@ -394,22 +395,22 @@ public class PortalFactory {
               getGreenPortal()
                   .ifPresent(
                       greenPortal -> {
-                        if (greenPortal == portal) {
+
                           pec.setThroughGreen(false);
                           greenPortal.fetch(PortalComponent.class).ifPresent(pc ->{
                             pc.setExtendedEntityThrough(null);
                           });
-                        }
+
                       });
               getBluePortal()
                   .ifPresent(
                       bluePortal -> {
-                        if (bluePortal == portal) {
+
                           pec.setThroughBlue(false);
                           bluePortal.fetch(PortalComponent.class).ifPresent(pc ->{
                             pc.setExtendedEntityThrough(null);
                           });
-                        }
+
                       });
             });
   }
