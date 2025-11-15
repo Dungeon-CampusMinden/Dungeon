@@ -325,7 +325,7 @@ public enum Deco {
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(40, 107, 1, 1, 13, 21)).scaleX(1.15f),
       new Rectangle(0.95f, 0.95f, 0.10f, 0.00f)),
-  Julia(
+  Sarah(
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(3, 132, 1, 1, 17, 23)).scaleX(1.15f),
       new Rectangle(0.95f, 0.95f, 0.10f, 0.00f)),
@@ -333,6 +333,205 @@ public enum Deco {
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(22, 132, 1, 1, 17, 23)).scaleX(1.15f),
       new Rectangle(0.95f, 0.95f, 0.10f, 0.00f)),
+
+  /** Free Pixel Office Assets */
+  BossAtDesk(
+    "office/boss.png",
+    new AnimationConfig(new SpritesheetConfig(13, 13, 1, 1, 51, 48)).scaleX(2.30f),
+    new Rectangle(2.45f, 1.87f, 0.00f, 0.00f)),
+  Worker1(
+    "office/worker1.png",
+    new AnimationConfig(new SpritesheetConfig(13, 13, 1, 1, 51, 48)).scaleX(2.30f),
+    new Rectangle(1.80f, 1.70f, 0.00f, 0.00f)),
+  Worker2(
+    "office/worker2.png",
+    new AnimationConfig(new SpritesheetConfig(13, 13, 1, 1, 51, 48)).scaleX(2.30f),
+    new Rectangle(1.80f, 1.70f, 0.00f, 0.00f)),
+  Worker3(
+    "office/worker4.png",
+    new AnimationConfig(new SpritesheetConfig(13, 13, 1, 1, 51, 48)).scaleX(2.30f),
+    new Rectangle(1.80f, 1.70f, 0.00f, 0.00f)),
+  Cabinet(
+    "office/cabinet.png",
+    new AnimationConfig(new SpritesheetConfig(18, 6, 1, 1, 25, 43)).scaleX(1.40f),
+    new Rectangle(1.40f, 1.35f, 0.00f, 0.00f)),
+  Chair(
+    "office/chair.png",
+    new AnimationConfig(new SpritesheetConfig(2, 0, 1, 1, 12, 16)).scaleX(0.55f),
+    new Rectangle(0.55f, 0.45f, 0.00f, 0.00f)),
+  CoffeeMaker(
+    "office/coffee-maker.png",
+    new AnimationConfig(new SpritesheetConfig(1, 8, 1, 1, 62, 43)).scaleX(2.35f),
+    new Rectangle(3.35f, 1.20f, 0.00f, 0.00f)),
+  Desk(
+    "office/desk.png",
+    new AnimationConfig(new SpritesheetConfig(13, 3, 1, 1, 38, 26)).scaleX(1.40f),
+    new Rectangle(2.05f, 1.20f, 0.00f, 0.00f)),
+  DeskWithPC1(
+    "office/desk-with-pc.png",
+    new AnimationConfig(new SpritesheetConfig(13, 13, 1, 1, 38, 35)).scaleX(1.95f),
+    new Rectangle(2.15f, 1.30f, 0.00f, 0.00f)),
+  DeskWithPC2(
+    "office/Julia_PC.png",
+    new AnimationConfig(new SpritesheetConfig(13, 13, 1, 1, 38, 41)).scaleX(2.05f),
+    new Rectangle(2.05f, 1.55f, 0.00f, 0.00f)),
+  WallCorner(
+    "office/office-partitions-1.png",
+    new AnimationConfig(new SpritesheetConfig(0, 4, 1, 1, 64, 60)).scaleX(3.20f),
+    new Rectangle(3.40f, 2.20f, 0.00f, 0.00f)),
+  WallVertical(
+    "office/office-partitions-2.png",
+    new AnimationConfig(new SpritesheetConfig(30, 4, 1, 1, 3, 60)).scaleX(0.16f),
+    new Rectangle(0.15f, 2.15f, 0.00f, 0.00f)),
+  PCOn(
+    "office/PC1.png",
+    new AnimationConfig(new SpritesheetConfig(4, 4, 1, 1, 25, 22)).scaleX(1.20f),
+    new Rectangle(1.40f, 0.90f, 0.00f, 0.00f)),
+  PCOff(
+    "office/PC2.png",
+    new AnimationConfig(new SpritesheetConfig(4, 4, 1, 1, 25, 22)).scaleX(1.20f),
+    new Rectangle(1.40f, 0.90f, 0.00f, 0.00f)),
+  Plant(
+    "office/plant.png",
+    new AnimationConfig(new SpritesheetConfig(9, 9, 1, 1, 11, 23)).scaleX(0.50f),
+    new Rectangle(0.50f, 0.50f, 0.00f, 0.00f)),
+  Printer1(
+    "office/printer.png",
+    new AnimationConfig(new SpritesheetConfig(2, 2, 1, 1, 29, 30)).scaleX(1.40f),
+    new Rectangle(1.40f, 1.00f, 0.00f, 0.00f)),
+  Printer2(
+    "office/printer.png",
+    new AnimationConfig(new SpritesheetConfig(34, 2, 1, 1, 29, 30)).scaleX(1.40f),
+    new Rectangle(1.40f, 1.00f, 0.00f, 0.00f)),
+  StampingTable(
+    "office/stamping-table.png",
+    new AnimationConfig(new SpritesheetConfig(5, 3, 1, 1, 46, 26)).scaleX(1.50f),
+    new Rectangle(2.65f, 1.20f, 0.00f, 0.00f)),
+  WritingTable(
+    "office/writing-table.png",
+    new AnimationConfig(new SpritesheetConfig(13, 13, 1, 1, 38, 36)).scaleX(2.10f),
+    new Rectangle(2.25f, 1.80f, 0.00f, 0.00f)),
+  TrashBin(
+    "office/trash.png",
+    new AnimationConfig(new SpritesheetConfig(3, 3, 1, 1, 9, 10)).scaleX(0.60f),
+    new Rectangle(0.60f, 0.50f, 0.00f, 0.00f)),
+  WaterCooler(
+    "office/water-cooler.png",
+    new AnimationConfig(new SpritesheetConfig(0, 4, 1, 1, 14, 27)).scaleX(0.70f),
+    new Rectangle(0.70f, 0.70f, 0.00f, 0.00f)),
+  Sink(
+    "office/sink.png",
+    new AnimationConfig(new SpritesheetConfig(15, 22, 1, 1, 34, 26)).scaleX(1.50f),
+    new Rectangle(2.00f, 1.10f, 0.00f, 0.00f)),
+  JuliaFront(
+    "office/Julia.png",
+    new AnimationConfig(new SpritesheetConfig(4, 0, 1, 1, 24, 32)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaRight(
+    "office/Julia.png",
+    new AnimationConfig(new SpritesheetConfig(33, 0, 1, 1, 24, 32)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaBack(
+    "office/Julia.png",
+    new AnimationConfig(new SpritesheetConfig(68, 0, 1, 1, 24, 32)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaLeft(
+    "office/Julia.png",
+    new AnimationConfig(new SpritesheetConfig(103, 0, 1, 1, 24, 32)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaDrinkingCoffee1(
+    "office/Julia_Drinking_Coffee.png",
+    new AnimationConfig(new SpritesheetConfig(4, 0, 1, 1, 24, 32)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaDrinkingCoffee2(
+    "office/Julia_Drinking_Coffee.png",
+    new AnimationConfig(new SpritesheetConfig(36, 0, 1, 1, 24, 32)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaDrinkingCoffee3(
+    "office/Julia_Drinking_Coffee.png",
+    new AnimationConfig(new SpritesheetConfig(68, 0, 1, 1, 24, 32)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaIdle1(
+    "office/Julia-Idle.png",
+    new AnimationConfig(new SpritesheetConfig(4, 0, 1, 1, 24, 32)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaIdle2(
+    "office/Julia-Idle.png",
+    new AnimationConfig(new SpritesheetConfig(36, 0, 1, 1, 24, 32)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaIdle3(
+    "office/Julia-Idle.png",
+    new AnimationConfig(new SpritesheetConfig(68, 0, 1, 1, 24, 32)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaIdle4(
+    "office/Julia-Idle.png",
+    new AnimationConfig(new SpritesheetConfig(100, 0, 1, 1, 24, 32)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkForward1(
+    "office/Julia_walk_Foward.png",
+    new AnimationConfig(new SpritesheetConfig(20, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkForward2(
+    "office/Julia_walk_Foward.png",
+    new AnimationConfig(new SpritesheetConfig(84, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkForward3(
+    "office/Julia_walk_Foward.png",
+    new AnimationConfig(new SpritesheetConfig(148, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkForward4(
+    "office/Julia_walk_Foward.png",
+    new AnimationConfig(new SpritesheetConfig(212, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkLeft1(
+    "office/Julia_walk_Left.png",
+    new AnimationConfig(new SpritesheetConfig(18, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkLeft2(
+    "office/Julia_walk_Left.png",
+    new AnimationConfig(new SpritesheetConfig(82, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkLeft3(
+    "office/Julia_walk_Left.png",
+    new AnimationConfig(new SpritesheetConfig(146, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkLeft4(
+    "office/Julia_walk_Left.png",
+    new AnimationConfig(new SpritesheetConfig(210, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkRight1(
+    "office/Julia_walk_Rigth.png",
+    new AnimationConfig(new SpritesheetConfig(17, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkRight2(
+    "office/Julia_walk_Rigth.png",
+    new AnimationConfig(new SpritesheetConfig(81, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkRight3(
+    "office/Julia_walk_Rigth.png",
+    new AnimationConfig(new SpritesheetConfig(145, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkRight4(
+    "office/Julia_walk_Rigth.png",
+    new AnimationConfig(new SpritesheetConfig(209, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkUp1(
+    "office/Julia_walk_Up.png",
+    new AnimationConfig(new SpritesheetConfig(20, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkUp2(
+    "office/Julia_walk_Up.png",
+    new AnimationConfig(new SpritesheetConfig(84, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkUp3(
+    "office/Julia_walk_Up.png",
+    new AnimationConfig(new SpritesheetConfig(148, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+  JuliaWalkUp4(
+    "office/Julia_walk_Up.png",
+    new AnimationConfig(new SpritesheetConfig(212, 15, 1, 1, 24, 33)).scaleX(1.20f),
+    new Rectangle(1.00f, 1.00f, 0.10f, 0.00f)),
+
 
   /** A decoration. */
   LogBig(
