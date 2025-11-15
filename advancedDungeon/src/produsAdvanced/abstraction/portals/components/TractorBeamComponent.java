@@ -63,7 +63,7 @@ public class TractorBeamComponent implements Component {
       if (!isEmitter) {
         Game.remove(e);
       } else {
-        System.out.println(e);
+//        System.out.println(e);
         e.fetch(CollideComponent.class)
             .ifPresent(
                 collideComponent -> {

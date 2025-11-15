@@ -177,6 +177,7 @@ public class PortalFactory {
    */
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
     if (other.fetch(PortalExtendComponent.class).isPresent()) {
+      System.out.println("ENTERED A PEC ON GREEN");
       PortalExtendComponent pec = other.fetch(PortalExtendComponent.class).get();
       if (pec.isThroughBlue()) {
         return;
@@ -217,6 +218,7 @@ public class PortalFactory {
    */
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
     if (other.fetch(PortalExtendComponent.class).isPresent()) {
+      System.out.println("ENTERED A PEC ON BLUE");
       PortalExtendComponent pec = other.fetch(PortalExtendComponent.class).get();
       if (pec.isThroughGreen()) {
         return;
@@ -380,6 +382,7 @@ public class PortalFactory {
    * @param other The entity that is being extended.
    */
   public static void clearExtendedEntity(Entity portal, Entity other) {
+    System.out.println(portal.name() + " trimmed");
     other
         .fetch(PortalExtendComponent.class)
         .ifPresent(
@@ -393,6 +396,9 @@ public class PortalFactory {
                       greenPortal -> {
                         if (greenPortal == portal) {
                           pec.setThroughGreen(false);
+                          greenPortal.fetch(PortalComponent.class).ifPresent(pc ->{
+                            pc.setExtendedEntityThrough(null);
+                          });
                         }
                       });
               getBluePortal()
@@ -400,6 +406,9 @@ public class PortalFactory {
                       bluePortal -> {
                         if (bluePortal == portal) {
                           pec.setThroughBlue(false);
+                          bluePortal.fetch(PortalComponent.class).ifPresent(pc ->{
+                            pc.setExtendedEntityThrough(null);
+                          });
                         }
                       });
             });
