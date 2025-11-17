@@ -251,7 +251,7 @@ public class TileTextureFactory {
     int y = pos.y();
 
     if (y + 1 >= layout.length || x < 0 || x >= layout[0].length) {
-      return new SimpleIPath(pitOpenPath);
+      return new SimpleIPath(wallEmptyPath);
     }
 
     Tile aboveTile = layout[y + 1][x];
