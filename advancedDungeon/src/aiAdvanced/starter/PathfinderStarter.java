@@ -150,7 +150,6 @@ public class PathfinderStarter {
     Game.add(new MazeEditorSystem());
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
-    Game.add(new EventScheduler());
     Game.add(pathfindingSystem);
   }
 

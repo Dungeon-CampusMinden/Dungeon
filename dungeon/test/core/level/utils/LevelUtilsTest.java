@@ -6,12 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import core.Game;
 import core.level.DungeonLevel;
 import core.systems.LevelSystem;
-import core.utils.IVoidFunction;
 import core.utils.Point;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 /** Tests for the {@link LevelUtils} class. */
 public class LevelUtilsTest {
@@ -27,7 +25,7 @@ public class LevelUtilsTest {
   /** WTF? . */
   @BeforeEach
   public void setup() {
-    Game.add(new LevelSystem(Mockito.mock(IVoidFunction.class)));
+    Game.add(new LevelSystem());
 
     Game.currentLevel(
         new DungeonLevel(

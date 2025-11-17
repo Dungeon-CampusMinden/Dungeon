@@ -28,7 +28,7 @@ public class FrictionSystemTest {
   @BeforeEach
   void setup() {
     system = new FrictionSystem();
-    Game.add(new LevelSystem(() -> {}));
+    Game.add(new LevelSystem());
 
     entity = new Entity();
     vc = spy(new VelocityComponent(10f));

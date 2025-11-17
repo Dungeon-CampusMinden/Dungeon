@@ -59,7 +59,7 @@ public class VelocitySystemTest {
     instance.put(assetKey, dummyTexture);
 
     // Remaining test logic
-    Game.add(new LevelSystem(() -> {}));
+    Game.add(new LevelSystem());
     //    Game.currentLevel(level);
     //    Mockito.when(tile.friction()).thenReturn(0.75f);
     //    Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);

@@ -52,9 +52,9 @@ public final class GameLoop extends ScreenAdapter {
    * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
    * storage.
    *
-   * <p>Will remove all Systems using {@link ECSManagment#removeAllSystems()} from the Game. This
+   * <p>Will remove all Systems using {@link ECSManagement#removeAllSystems()} from the Game. This
    * will trigger {@link System#onEntityRemove} for the old level. Then, it will readd all Systems
-   * using {@link ECSManagment#add(System)}, triggering {@link System#onEntityAdd} for the new
+   * using {@link ECSManagement#add(System)}, triggering {@link System#onEntityAdd} for the new
    * level.
    *
    * <p>Will re-add the player if they exist.
@@ -62,30 +62,30 @@ public final class GameLoop extends ScreenAdapter {
   private final IVoidFunction onLevelLoad =
       () -> {
         newLevelWasLoadedInThisLoop = true;
-        Optional<Entity> player = ECSManagment.player();
+        Optional<Entity> player = ECSManagement.player();
         boolean firstLoad =
-            !ECSManagment.levelStorageMap().containsKey(Game.currentLevel().orElseThrow());
-        player.ifPresent(ECSManagment::remove);
+            !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().orElseThrow());
+        player.ifPresent(ECSManagement::remove);
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
         // cleanup).
-        Map<Class<? extends System>, System> s = ECSManagment.systems();
-        ECSManagment.removeAllSystems();
-        ECSManagment.activeEntityStorage(
-            ECSManagment.levelStorageMap()
+        Map<Class<? extends System>, System> s = ECSManagement.systems();
+        ECSManagement.removeAllSystems();
+        ECSManagement.activeEntityStorage(
+            ECSManagement.levelStorageMap()
                 .computeIfAbsent(Game.currentLevel().orElse(null), k -> new HashSet<>()));
         // readd the systems so that each triggerOnAdd(entity) will be called (basically
         // setup). This will also create new EntitySystemMapper if needed.
-        s.values().forEach(ECSManagment::add);
+        s.values().forEach(ECSManagement::add);
 
         try {
           player.ifPresent(this::placeOnLevelStart);
         } catch (MissingComponentException e) {
           LOGGER.warn(e.getMessage());
         }
-        ECSManagment.allEntities()
+        ECSManagement.allEntities()
             .filter(Entity::isPersistent)
-            .map(ECSManagment::remove)
-            .forEach(ECSManagment::add);
+            .map(ECSManagement::remove)
+            .forEach(ECSManagement::add);
 
         Game.currentLevel()
             .ifPresent(
@@ -177,22 +177,9 @@ public final class GameLoop extends ScreenAdapter {
     frame(delta);
     clearScreen();
 
-    // ECS logic
-    for (System system : ECSManagment.systems().values()) {
-      // if a new level was loaded, stop this loop-run
-      if (newLevelWasLoadedInThisLoop) break;
-      system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
-      if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
-        system.execute();
-        system.lastExecuteInFrames(0);
-      }
-    }
-    newLevelWasLoadedInThisLoop = false;
+    // system and render logic
+    ECSManagement.executeOneTick();
 
-    // Render logic
-    for (System system : ECSManagment.systems().values()) {
-      system.render();
-    }
     stage().ifPresent(GameLoop::updateStage);
   }
 
@@ -250,7 +237,7 @@ public final class GameLoop extends ScreenAdapter {
    * @param entity entity to set on the start of the level, normally this is the player.
    */
   private void placeOnLevelStart(final Entity entity) {
-    ECSManagment.add(entity);
+    ECSManagement.add(entity);
     entity
         .fetch(PositionComponent.class)
         .ifPresent(
@@ -297,15 +284,13 @@ public final class GameLoop extends ScreenAdapter {
 
   /** Create the systems. */
   private void createSystems() {
-    ECSManagment.add(new PositionSystem());
-    ECSManagment.add(new CameraSystem());
-    ECSManagment.add(new LevelSystem(onLevelLoad));
-    ECSManagment.add(new DrawSystem());
-    ECSManagment.add(new VelocitySystem());
-    ECSManagment.add(new FrictionSystem());
-    ECSManagment.add(new MoveSystem());
-    ECSManagment.add(new InputSystem());
-    ECSManagment.add(new DebugDrawSystem());
-    ECSManagment.add(new SoundSystem());
+    ECSManagement.add(new PositionSystem());
+    ECSManagement.system(LevelSystem.class, ls -> ls.onLevelLoad(onLevelLoad));
+    ECSManagement.add(new CameraSystem());
+    ECSManagement.add(new VelocitySystem());
+    ECSManagement.add(new FrictionSystem());
+    ECSManagement.add(new MoveSystem());
+    ECSManagement.add(new InputSystem());
+    ECSManagement.add(new DebugDrawSystem());
   }
 }

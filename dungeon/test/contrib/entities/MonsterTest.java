@@ -24,7 +24,7 @@ public class MonsterTest {
   /** Setup a LevelSystem before each test. */
   @BeforeEach
   public void setup() {
-    Game.add(new LevelSystem(() -> {}));
+    Game.add(new LevelSystem());
   }
 
   /** Cleanup after each test. */

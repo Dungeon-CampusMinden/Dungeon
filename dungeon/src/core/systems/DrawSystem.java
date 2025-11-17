@@ -64,13 +64,14 @@ public final class DrawSystem extends System implements Disposable {
    * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
    * batch.
    */
-  private static final SpriteBatch BATCH = new SpriteBatch();
+  private static SpriteBatch BATCH; // lazy initialized
+
+  private static SpriteBatch FBO_BATCH; // lazy initialized
 
   private final TreeMap<Integer, List<Entity>> sortedEntities = new TreeMap<>();
 
   private final FrameBufferPool FBO_POOL = FrameBufferPool.getInstance();
   // Dedicated SpriteBatch for rendering locally to FBOs (Pass 1 & Post-Processing Ping-Pong)
-  private final SpriteBatch fboBatch = new SpriteBatch();
   private final Matrix4 fboProjectionMatrix = new Matrix4();
   private final TextureRegion fboRegion = new TextureRegion();
   private final Map<Entity, FrameBuffer> entityFboCache = new HashMap<>();
@@ -153,19 +154,41 @@ public final class DrawSystem extends System implements Disposable {
   /** Disposes the internal resources, specifically the dedicated FBO SpriteBatch. */
   @Override
   public void dispose() {
-    fboBatch.dispose();
+    fboBatch().dispose();
     entityFboCache.values().forEach(FBO_POOL::free);
     entityFboCache.clear();
-    // The static BATCH is expected to be disposed externally (e.g., in the main game class)
+    // The static batch() is expected to be disposed externally (e.g., in the main game class)
   }
 
   /**
    * Get the {@link SpriteBatch} that is used by this system.
    *
+   * <p>The batch is lazily initialized to ensure that the LibGDX environment is fully set up before
+   * its creation.
+   *
    * @return the {@link #BATCH} of the DrawSystem
    */
   public static SpriteBatch batch() {
+    if (BATCH == null) {
+      BATCH = new SpriteBatch();
+    }
+
     return BATCH;
+  }
+
+  /**
+   * Gets the dedicated SpriteBatch used for rendering to FBOs.
+   *
+   * <p>This batch is lazily initialized to ensure that the LibGDX environment is fully set up
+   * before its creation.
+   *
+   * @return The {@link #FBO_BATCH} used for FBO rendering
+   */
+  private SpriteBatch fboBatch() {
+    if (FBO_BATCH == null) {
+      FBO_BATCH = new SpriteBatch();
+    }
+    return FBO_BATCH;
   }
 
   /**
@@ -220,7 +243,7 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   @Override
-  public void render() {
+  public void render(float delta) {
     shadersActiveLastFrame = 0;
 
     // Pass 1: Render shaders to FBOs (Entity-local shaders)
@@ -263,21 +286,22 @@ public final class DrawSystem extends System implements Disposable {
     Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-    BATCH.setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, sceneWidth, sceneHeight));
-    BATCH.begin();
-    BATCH.setColor(Color.WHITE);
+    batch().setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, sceneWidth, sceneHeight));
+    batch().begin();
+    batch().setColor(Color.WHITE);
 
     // Draw Level FBO first
     drawFboToBatch(levelFbo, sceneWidth, sceneHeight);
 
     // Draw Depth FBOs in ascending order
-    sortedEntities.keySet().stream()
+    sortedEntities
+        .keySet()
         .forEach(
             depth ->
                 Optional.ofNullable(depthFbos.get(depth))
                     .ifPresent(fbo -> drawFboToBatch(fbo, sceneWidth, sceneHeight)));
 
-    BATCH.end();
+    batch().end();
     fboA.end();
 
     FBO_POOL.free(levelFbo);
@@ -293,19 +317,21 @@ public final class DrawSystem extends System implements Disposable {
     fboRegion.setRegion(finalTexture);
     fboRegion.flip(false, true);
 
-    BATCH.setProjectionMatrix(
-        fboProjectionMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
-    BATCH.begin();
-    BlendUtils.setBlending(BATCH);
-    BATCH.setColor(Color.WHITE);
-    BATCH.draw(fboRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-    BATCH.end();
+    batch()
+        .setProjectionMatrix(
+            fboProjectionMatrix.setToOrtho2D(
+                0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+    batch().begin();
+    BlendUtils.setBlending(batch());
+    batch().setColor(Color.WHITE);
+    batch().draw(fboRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    batch().end();
 
     FBO_POOL.free(fboA);
     FBO_POOL.free(fboB);
 
     FBO_POOL.update();
-    secondsElapsed += Gdx.graphics.getDeltaTime();
+    secondsElapsed += delta;
   }
 
   /**
@@ -330,11 +356,11 @@ public final class DrawSystem extends System implements Disposable {
     Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-    BATCH.setProjectionMatrix(CameraSystem.camera().combined);
-    BATCH.begin();
-    BlendUtils.setBlending(BATCH);
+    batch().setProjectionMatrix(CameraSystem.camera().combined);
+    batch().begin();
+    BlendUtils.setBlending(batch());
     renderAction.run();
-    BATCH.end();
+    batch().end();
 
     fboA.end();
 
@@ -368,7 +394,7 @@ public final class DrawSystem extends System implements Disposable {
     FrameBuffer sourceFbo = fboA;
     FrameBuffer targetFbo;
     TextureRegion currentSourceRegion = fboRegion;
-    fboBatch.setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, width, height));
+    fboBatch().setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, width, height));
 
     for (AbstractShader pass : shaders.getEnabledSorted()) {
       Rectangle worldBounds = getFboWorldBounds(null);
@@ -387,14 +413,14 @@ public final class DrawSystem extends System implements Disposable {
       currentSourceRegion.setRegion(sourceFbo.getColorBufferTexture());
       currentSourceRegion.flip(false, true);
 
-      fboBatch.begin();
-      BlendUtils.setBlending(fboBatch);
-      pass.bind(fboBatch, 1);
-      setCommonUniforms(fboBatch.getShader(), width, height, worldBounds, 0);
-      fboBatch.setColor(Color.WHITE);
-      fboBatch.draw(currentSourceRegion, 0, 0, width, height);
-      pass.unbind(fboBatch);
-      fboBatch.end();
+      fboBatch().begin();
+      BlendUtils.setBlending(fboBatch());
+      pass.bind(fboBatch(), 1);
+      setCommonUniforms(fboBatch().getShader(), width, height, worldBounds, 0);
+      fboBatch().setColor(Color.WHITE);
+      fboBatch().draw(currentSourceRegion, 0, 0, width, height);
+      pass.unbind(fboBatch());
+      fboBatch().end();
       targetFbo.end();
 
       sourceFbo = targetFbo;
@@ -449,13 +475,13 @@ public final class DrawSystem extends System implements Disposable {
     setTextureFiltering(fboA.getColorBufferTexture());
     setTextureFiltering(fboB.getColorBufferTexture());
 
-    // Calculate the projection matrix using the UPscaled FBO dimensions.
+    // Calculate the projection matrix using the Upscaled FBO dimensions.
     fboProjectionMatrix.setToOrtho2D(0, 0, fboWidth, fboHeight);
 
     // Initial state
     FrameBuffer currentTarget = fboA;
     Texture currentSourceTexture;
-    boolean useFboAAsSource = false;
+    boolean useFboAAsSource;
 
     TextureRegion initialRegion = dc.getSprite();
 
@@ -464,16 +490,17 @@ public final class DrawSystem extends System implements Disposable {
     Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-    fboBatch.setProjectionMatrix(fboProjectionMatrix);
-    fboBatch.begin();
-    BlendUtils.setBlending(fboBatch);
-    fboBatch.draw(
-        initialRegion,
-        padding * shaderUpscaling,
-        padding * shaderUpscaling,
-        unscaledWidth * shaderUpscaling,
-        unscaledHeight * shaderUpscaling);
-    fboBatch.end();
+    fboBatch().setProjectionMatrix(fboProjectionMatrix);
+    fboBatch().begin();
+    BlendUtils.setBlending(fboBatch());
+    fboBatch()
+        .draw(
+            initialRegion,
+            padding * shaderUpscaling,
+            padding * shaderUpscaling,
+            unscaledWidth * shaderUpscaling,
+            unscaledHeight * shaderUpscaling);
+    fboBatch().end();
 
     currentTarget.end();
     useFboAAsSource = true;
@@ -497,22 +524,22 @@ public final class DrawSystem extends System implements Disposable {
       fboRegion.setRegion(currentSourceTexture);
       fboRegion.flip(false, true);
 
-      fboBatch.setProjectionMatrix(fboProjectionMatrix);
-      fboBatch.begin();
-      BlendUtils.setBlending(fboBatch);
-      pass.bind(fboBatch, shaderUpscaling);
+      fboBatch().setProjectionMatrix(fboProjectionMatrix);
+      fboBatch().begin();
+      BlendUtils.setBlending(fboBatch());
+      pass.bind(fboBatch(), shaderUpscaling);
 
       float rotation = dsd.pc.rotation() * MathUtils.degreesToRadians;
       setCommonUniforms(
-          fboBatch.getShader(),
+          fboBatch().getShader(),
           fboRegion.getRegionWidth(),
           fboRegion.getRegionHeight(),
           worldBounds,
           rotation);
 
-      fboBatch.draw(fboRegion, 0, 0, fboWidth, fboHeight);
-      pass.unbind(fboBatch);
-      fboBatch.end();
+      fboBatch().draw(fboRegion, 0, 0, fboWidth, fboHeight);
+      pass.unbind(fboBatch());
+      fboBatch().end();
 
       currentTarget.end();
 
@@ -542,10 +569,10 @@ public final class DrawSystem extends System implements Disposable {
    * @param height The height of the FBO
    */
   private void drawFboToBatch(FrameBuffer fbo, int width, int height) {
-    BlendUtils.setBlending(BATCH);
+    BlendUtils.setBlending(batch());
     fboRegion.setRegion(fbo.getColorBufferTexture());
     fboRegion.flip(false, true); // Flip back to draw correctly
-    BATCH.draw(fboRegion, 0, 0, width, height);
+    batch().draw(fboRegion, 0, 0, width, height);
   }
 
   /**
@@ -599,13 +626,13 @@ public final class DrawSystem extends System implements Disposable {
    * @param config the {@link DrawConfig} controlling the drawing parameters
    */
   public void draw(final Point position, final Texture texture, final DrawConfig config) {
-    BlendUtils.setBlending(BATCH);
+    BlendUtils.setBlending(batch());
     fboRegion.setRegion(texture);
     fboRegion.flip(config.mirrored(), true);
     Affine2 transform = makeTransform(position, config);
-    BATCH.setColor(
-        config.tintColor() != -1 ? ColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
-    BATCH.draw(fboRegion, config.size().x(), config.size().y(), transform);
+    batch()
+        .setColor(config.tintColor() != -1 ? ColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
+    batch().draw(fboRegion, config.size().x(), config.size().y(), transform);
   }
 
   /**
@@ -618,11 +645,11 @@ public final class DrawSystem extends System implements Disposable {
    * @param config the {@link DrawConfig} controlling scaling, tint, and offset
    */
   public void draw(final Point position, final Sprite sprite, final DrawConfig config) {
-    BlendUtils.setBlending(BATCH);
+    BlendUtils.setBlending(batch());
     Affine2 transform = makeTransform(position, config);
-    BATCH.setColor(
-        config.tintColor() != -1 ? ColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
-    BATCH.draw(sprite, config.size().x(), config.size().y(), transform);
+    batch()
+        .setColor(config.tintColor() != -1 ? ColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
+    batch().draw(sprite, config.size().x(), config.size().y(), transform);
   }
 
   private void draw(final DSData dsd) {
