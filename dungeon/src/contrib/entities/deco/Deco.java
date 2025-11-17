@@ -109,8 +109,6 @@ public enum Deco {
   Bush3("objects/nature/bushes_sheet.png", new SpritesheetConfig(0, 16)),
   /** A decoration. */
   Bush4("objects/nature/bushes_sheet.png", new SpritesheetConfig(16, 16)),
-
-  /** PixelOfficeAssets */
   /** A decoration. */
   ChairRed(
       "spritesheets/PixelOfficeAssets.png",
@@ -389,8 +387,6 @@ public enum Deco {
       "spritesheets/PixelOfficeAssets.png",
       new AnimationConfig(new SpritesheetConfig(22, 132, 1, 1, 17, 23)).scaleX(1.15f),
       new Rectangle(0.95f, 0.95f, 0.10f, 0.00f)),
-
-  /** Free Pixel Office Assets */
   /** A decoration. */
   BossAtDesk(
       "office/boss.png",
