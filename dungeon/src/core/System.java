@@ -128,8 +128,10 @@ public abstract class System {
    * Implements the render functionality of the system.
    *
    * <p>This method can be overridden by systems that require rendering capabilities.
+   *
+   * @param delta the time since the last frame
    */
-  public void render() {
+  public void render(final float delta) {
     // Default implementation does nothing
   }
 

@@ -71,11 +71,11 @@ public final class GameLoop extends ScreenAdapter {
    */
   public static final IVoidFunction onLevelLoad =
       () -> {
-        if (!PreRunConfiguration.isNetworkServer()) return; // no authority
-
-        List<Entity> allPlayers = ECSManagement.allPlayers().toList();
-        boolean firstLoad = !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().get());
-        allPlayers.forEach(ECSManagement::remove);
+        newLevelWasLoadedInThisLoop = true;
+        Optional<Entity> player = ECSManagement.player();
+        boolean firstLoad =
+            !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().orElseThrow());
+        player.ifPresent(ECSManagement::remove);
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
         // cleanup).
         Map<Class<? extends System>, System> s = ECSManagement.systems();
@@ -218,22 +218,9 @@ public final class GameLoop extends ScreenAdapter {
     frame(delta);
     clearScreen();
 
-    // ECS logic
-    for (System system : ECSManagment.systems().values()) {
-      // if a new level was loaded, stop this loop-run
-      if (newLevelWasLoadedInThisLoop) break;
-      system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
-      if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
-        system.execute();
-        system.lastExecuteInFrames(0);
-      }
-    }
-    newLevelWasLoadedInThisLoop = false;
+    // system and render logic
+    ECSManagement.executeOneTick();
 
-    // Render logic
-    for (System system : ECSManagment.systems().values()) {
-      system.render();
-    }
     stage().ifPresent(GameLoop::updateStage);
   }
 
@@ -438,7 +425,7 @@ public final class GameLoop extends ScreenAdapter {
    *
    * @param entity entity to set on the start of the level, normally this is the player.
    */
-  private static void placeOnLevelStart(final Entity entity) {
+  private void placeOnLevelStart(final Entity entity) {
     ECSManagement.add(entity);
     entity
         .fetch(PositionComponent.class)
@@ -494,6 +481,5 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new MoveSystem());
     ECSManagement.add(new InputSystem());
     ECSManagement.add(new DebugDrawSystem());
-    ECSManagement.add(new HudSystem());
   }
 }

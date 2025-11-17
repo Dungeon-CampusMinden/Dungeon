@@ -10,8 +10,6 @@ import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.elements.ILevel;
-import core.network.messages.s2c.EntityDespawnEvent;
-import core.network.messages.s2c.EntitySpawnEvent;
 import core.systems.*;
 import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
@@ -41,15 +39,13 @@ public final class ECSManagement {
   private static final Map<ILevel, Set<EntitySystemMapper>> LEVEL_STORAGE_MAP = new HashMap<>();
   private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
 
-  private static int currentTick = 0;
-
   /**
    * Essential systems that are always added to the game.
    *
    * <p>Essential systems are systems that are required for the game to function properly.
    */
   private static final System[] ESSENTIAL_SYSTEMS = {
-    new LevelSystem(), new SoundSystem(), DrawSystem.getInstance(), new EventScheduler()
+    new LevelSystem(), new SoundSystem(), new DrawSystem(), new EventScheduler()
   };
 
   /**
@@ -414,23 +410,6 @@ public final class ECSManagement {
     return levelEntities().anyMatch(entity1 -> entity1.equals(entity));
   }
 
-  private static boolean isAuthoritative(System.AuthoritativeSide side, System system) {
-    System.AuthoritativeSide systemSide = system.authoritativeSide();
-    return side == System.AuthoritativeSide.BOTH
-        || systemSide == System.AuthoritativeSide.BOTH
-        || systemSide == side;
-  }
-
-  /**
-   * Returns the current tick number, incremented each time {@link
-   * #executeOneTick(System.AuthoritativeSide)} is called.
-   *
-   * @return the current tick number
-   */
-  public static int currentTick() {
-    return currentTick;
-  }
-
   /**
    * Execute one tick of the ECS.
    *
@@ -439,26 +418,15 @@ public final class ECSManagement {
    * execution.
    *
    * <p>After executing all systems, if an OpenGL context is available, it will call the {@link
-   * System#render(float)} method of each registered {@link System}.
+   * System#render()} method of each registered {@link System}.
    *
    * <p>If a new level was loaded during this tick, the execution will be interrupted to prevent
    * inconsistencies.
-   *
-   * @param side the authoritative side for which to execute systems ({@link
-   *     System.AuthoritativeSide#BOTH for all systems})
    */
-  public static void executeOneTick(System.AuthoritativeSide side) {
-    List<System> authoritativeSystems =
-        ECSManagement.systems().values().stream()
-            .filter(sys -> isAuthoritative(side, sys))
-            .toList();
-
+  public static void executeOneTick() {
     // Execute logic for each system.
-    for (System system : authoritativeSystems) {
-      if (newLevelLoadedThisTick) {
-        currentTick++;
-        return; // Early exit if a new level was loaded this tick.
-      }
+    for (System system : systems().values()) {
+      if (newLevelLoadedThisTick) return; // Early exit if a new level was loaded this tick.
 
       system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
 
@@ -474,18 +442,6 @@ public final class ECSManagement {
       systems().values().forEach(system -> system.render(delta));
     }
 
-    currentTick++;
     newLevelLoadedThisTick = false;
-  }
-
-  /**
-   * Finds an entity by its unique ID.
-   *
-   * @param entityId The unique ID of the entity to find.
-   * @return An {@link Optional} containing the found entity, or an empty {@code Optional} if no
-   *     entity with the given ID exists.
-   */
-  public static Optional<Entity> findEntityById(int entityId) {
-    return ECSManagement.allEntities().filter(e -> e.id() == entityId).findFirst();
   }
 }

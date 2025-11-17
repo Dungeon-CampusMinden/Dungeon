@@ -83,7 +83,7 @@ public class DebugDrawSystem extends System {
   public void execute() {}
 
   @Override
-  public void render() {
+  public void render(float delta) {
     if (!render) return;
 
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
