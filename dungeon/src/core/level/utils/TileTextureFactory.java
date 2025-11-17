@@ -721,7 +721,16 @@ public class TileTextureFactory {
           floorForward && forwardNotFloor && sidesNotFloor && diagLeftFloor && !diagRightFloor;
 
       Coordinate fwdCoord = up ? n.getUp() : n.getDown();
-      boolean fwdEmptyByTexture = rendersWallEmptyAt(lp, fwdCoord);
+
+
+      // HIER IST DER FEHLER -> Ergibt rekursion. Generell muss besser zwischen SKIP und FLOOR unterschieden werden.
+      //boolean fwdEmptyByTexture = rendersWallEmptyAt(lp, fwdCoord);
+
+      // Mögliche Lösung ohne rendersWallEmptyAt:
+
+      LevelElement fwdElement = get(layout, fwdCoord.x(), fwdCoord.y());
+      boolean fwdEmptyByTexture = fwdElement == LevelElement.WALL && rendersSkipLikeWallAt(fwdCoord, layout);
+
       Corner leftCorner = up ? Corner.UR : Corner.BR;
       Corner rightCorner = up ? Corner.UL : Corner.BL;
 
@@ -2058,6 +2067,16 @@ public class TileTextureFactory {
   private static boolean isFloorLike(LevelElement e) {
     return e == LevelElement.FLOOR || e == LevelElement.HOLE || e == LevelElement.PIT;
   }
+
+  // Hier neue Versison mit von isFloorLike mit prüfung auf SKIP einfügen.
+  // Die neue Methode muss Koordinaten-basiert sein. Am besten die alte komplett entfernen.
+  // Die genauen Cases in denen ein SKIP wie ein Floor und in denen SKIP wie eine Wall behandelt wird müssen noch
+  // Ermittelt werden.
+  // In diesem Fall gilt dass ein SKIP wie ein Floor behandelt wird wenn es nicht wie eine Wall behandelt wird.
+  // Es muss also nur eine Methode implementiert werden die prüft ob ein skip wie eine wall behandelt wird.
+  // Momentan wird ein SKIP immer wie eine Wall behandelt. Vor allem im Bezug auf Tjunctions und das cross ist das
+  // aber nicht korrekt.
+
 
   /**
    * Indicates whether the diagonal neighbor of {@code p} in the specified {@code corner} is
