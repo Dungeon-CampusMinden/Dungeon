@@ -20,7 +20,7 @@ public class CheckPatternPainter {
    *
    * @see #LEVEL_ELEMENTS_TO_PAINT
    */
-  private static final int CHECKER_PATTERN_COLOR = 0xffffffcc; // slightly darker
+  private static final int CHECKER_PATTERN_COLOR = 0xB3B3B3FF; // slightly darker
 
   /** The level elements that will be painted with the checker pattern. */
   private static final LevelElement[] LEVEL_ELEMENTS_TO_PAINT = {
