@@ -320,7 +320,7 @@ public class GdxSoundPlayer implements ISoundPlayer {
 
       if (sound instanceof Wav.Sound wavSound) {
         if (wavSound.getChannels() == 2) {
-          LOGGER.warn("Pan not supported for stereo sounds");
+          LOGGER.info("Pan not supported for stereo sounds");
           return;
         }
       }
