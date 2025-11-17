@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import contrib.systems.EventScheduler;
 import core.Component;
 import core.Entity;
+import core.Game;
 import core.System;
 import core.components.PlayerComponent;
 import core.level.elements.ILevel;
@@ -404,7 +405,7 @@ public final class ECSManagement {
       }
     }
 
-    if (Gdx.gl != null) {
+    if (Gdx.gl != null && Game.windowHeight() > 0 && Game.windowWidth() > 0) {
       // Render logic: Call the render method for each system if OpenGL context is available.
       float delta = Gdx.graphics.getDeltaTime();
       systems().values().forEach(system -> system.render(delta));
