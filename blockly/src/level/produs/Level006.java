@@ -53,13 +53,15 @@ public class Level006 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level006/intro.png"));
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     if (showText) {
-      DialogUtils.showTextPopup("Versuch mal die Schalter zu benutzen.", "Kapitel 1: Ausbruch");
+      showPopups();
       showText = false;
     }
     LevelManagementUtils.cameraFocusHero();

@@ -45,14 +45,15 @@ public class Level019 extends BlocklyLevel {
         "logic_bossView_direction",
         // Kategorien
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level019/intro.png"));
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     if (showText) {
-      DialogUtils.showTextPopup(
-          "Ich geb dir ein paar Feuerballspruchrollen. Viel Erfolg!", "Kapitel 3: Rache");
+      showPopups();
       showText = false;
     }
     LevelManagementUtils.cameraFocusHero();
