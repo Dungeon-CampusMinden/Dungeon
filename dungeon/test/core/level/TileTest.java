@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.FloorTile;
-import core.level.elements.tile.SkipTile;
 import core.level.elements.tile.WallTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -22,12 +21,10 @@ public class TileTest {
     Tile floor = new FloorTile(new SimpleIPath(""), dummyCoordinate, DesignLabel.DEFAULT);
     Tile exit = new ExitTile(new SimpleIPath(""), dummyCoordinate, DesignLabel.DEFAULT);
     Tile start = new FloorTile(new SimpleIPath(""), dummyCoordinate, DesignLabel.DEFAULT);
-    Tile skip = new SkipTile(new SimpleIPath(""), dummyCoordinate, DesignLabel.DEFAULT);
     assertTrue(floor.isAccessible());
     assertTrue(exit.isAccessible());
     assertTrue(start.isAccessible());
     assertFalse(wall.isAccessible());
-    assertFalse(skip.isAccessible());
   }
 
   /** WTF? . */
