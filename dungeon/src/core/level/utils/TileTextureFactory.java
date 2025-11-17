@@ -389,17 +389,9 @@ public class TileTextureFactory {
     }
 
     LevelElement aboveElement = aboveTile.levelElement();
-
-    boolean isAboveFloorLike =
-        aboveElement == LevelElement.FLOOR
-            || aboveElement == LevelElement.HOLE
-            || aboveElement == LevelElement.PIT;
-
+    boolean isAboveFloorLike = isFloorLike(aboveElement);
     boolean isAboveWallLike =
-        aboveElement == LevelElement.WALL
-            || aboveElement == LevelElement.SKIP
-            || aboveElement == LevelElement.DOOR;
-
+        aboveElement == LevelElement.WALL || aboveElement == LevelElement.DOOR;
     boolean isAboveClosedPit =
         aboveTile instanceof PitTile abovePitClosed && !abovePitClosed.isOpen();
 

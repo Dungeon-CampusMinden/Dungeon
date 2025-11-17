@@ -117,7 +117,6 @@ public class PitTile extends Tile {
   }
 
   /** Refreshes the texture of this pit and the pit below (if there is one). */
-  @Override
   public void refreshTexture() {
     this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
     if (coordinate().y() == 0) return;

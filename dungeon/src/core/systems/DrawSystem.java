@@ -757,9 +757,7 @@ public final class DrawSystem extends System implements Disposable {
               for (Tile[] tiles : layout) {
                 for (int x = 0; x < layout[0].length; x++) {
                   Tile t = tiles[x];
-                  if (t.levelElement() != LevelElement.SKIP
-                      && !TileUtils.isTilePitAndOpen(t)
-                      && t.visible()) {
+                  if (t.levelElement() != LevelElement.SKIP && t.visible()) {
                     IPath texturePath = t.texturePath();
                     int tintColor =
                         t.tintColor() == -1 ? Color.rgba8888(Color.WHITE) : t.tintColor();
