@@ -107,13 +107,14 @@ public class PitTile extends Tile {
    * <p>Call this method for each pit after any pit in the level changes its state (open or closed)
    * to ensure that textures are updated correctly.
    */
-  public void refreshTexture() {
+  private void refreshTexture() {
     this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
   }
 
   @Override
   public IPath texturePath() {
     if (!this.isOpen() && this.timeToOpen > 60 * 1000) return this.stillStableTexturePath;
+    refreshTexture();
     return super.texturePath();
   }
 

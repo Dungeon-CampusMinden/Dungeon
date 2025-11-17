@@ -39,19 +39,6 @@ public class PitSystem extends System {
   public void execute() {
     processEntities();
     openPits();
-    Game.currentLevel()
-        .ifPresent(
-            level -> {
-              level
-                  .pitTiles()
-                  .forEach(
-                      pitTile -> {
-                        if (pitTile.timeToOpen() <= 0 && !pitTile.isOpen()) {
-                          pitTile.open();
-                        }
-                      });
-              level.pitTiles().forEach(PitTile::refreshTexture);
-            });
   }
 
   /** Process each entity and add it to the pitTimes map if it's on a PitTile. */
