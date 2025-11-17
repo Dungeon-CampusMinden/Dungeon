@@ -4,7 +4,6 @@ import static level.LevelManagementUtils.cameraFocusOn;
 
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
-import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
 import core.level.elements.tile.DoorTile;
@@ -62,8 +61,6 @@ public class Level004 extends BlocklyLevel {
     addWebPopup(new ImagePopup("popups/level004/inventory_character2.png"));
   }
 
-
-
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
@@ -71,8 +68,6 @@ public class Level004 extends BlocklyLevel {
       showPopups();
       showText = false;
     }
-
-
 
     cameraFocusOn(new Coordinate(12, 5));
     LevelManagementUtils.centerHero();

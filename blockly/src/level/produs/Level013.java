@@ -3,7 +3,6 @@ package level.produs;
 import contrib.components.BlockComponent;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
-import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -64,13 +63,10 @@ public class Level013 extends BlocklyLevel {
         "Variablen",
         "Sonstige");
 
-
-
     addWebPopup(new ImagePopup("popups/level012/Abfrage.png"));
     addWebPopup(new ImagePopup("popups/level012/Abfrage2.png"));
     addWebPopup(new ImagePopup("popups/level012/Abfrage3.png"));
     addWebPopup(new ImagePopup("popups/level012/Abfrage4.png"));
-
   }
 
   @Override
@@ -81,7 +77,6 @@ public class Level013 extends BlocklyLevel {
     LevelManagementUtils.playerViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
     showPopups();
-
 
     // create torches and light every second one
     final boolean[] coin = {new Random().nextBoolean()};

@@ -1,6 +1,5 @@
 package level.produs;
 
-import contrib.hud.DialogUtils;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;

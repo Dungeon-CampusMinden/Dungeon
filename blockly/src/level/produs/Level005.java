@@ -2,7 +2,6 @@ package level.produs;
 
 import static level.LevelManagementUtils.cameraFocusOn;
 
-import contrib.hud.DialogUtils;
 import core.Game;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;

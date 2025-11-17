@@ -96,7 +96,6 @@ public class Level020 extends BlocklyLevel {
         "Sonstige");
 
     addWebPopup(new ImagePopup("popups/level020/intro.png"));
-
   }
 
   @Override
