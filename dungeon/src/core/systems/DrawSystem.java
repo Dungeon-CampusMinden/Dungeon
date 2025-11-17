@@ -356,10 +356,7 @@ public final class DrawSystem extends System implements Disposable {
     fboRegion.setRegion(finalTexture);
     fboRegion.flip(false, true);
 
-    batch()
-        .setProjectionMatrix(
-            fboProjectionMatrix.setToOrtho2D(
-                0, 0, stableWidth, stableHeight));
+    batch().setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, stableWidth, stableHeight));
     batch().begin();
     BlendUtils.setBlending(batch());
     batch().setColor(Color.WHITE);

@@ -121,7 +121,7 @@ public class LevelEditorSystem extends System {
   }
 
   @Override
-  public void render() {
+  public void render(float delta) {
     if (!active) return;
 
     String status = currentModeInstance.getFullStatusText();
