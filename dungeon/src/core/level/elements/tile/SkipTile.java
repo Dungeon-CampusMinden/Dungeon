@@ -6,7 +6,13 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.path.IPath;
 
-/** Represents an empty void in the dungeon. */
+/**
+ * Represents an empty void in the dungeon.
+ *
+ * @deprecated This tile type is no longer supported. Use {@link PitTile} instead for representing
+ *     empty or falling-space areas.
+ */
+@Deprecated
 public class SkipTile extends Tile {
 
   /**
