@@ -1,6 +1,5 @@
 package level.produs;
 
-import contrib.hud.DialogUtils;
 import core.Game;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
@@ -46,7 +45,6 @@ public class Level003 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
-
 
     addWebPopup(new ImagePopup("popups/level003/loop.png"));
     addWebPopup(new ImagePopup("popups/level003/loop2.png"));
