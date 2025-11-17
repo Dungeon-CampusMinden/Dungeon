@@ -101,6 +101,16 @@ public class PitTile extends Tile {
     return this.timeToOpen;
   }
 
+  /**
+   * Refreshes the texture of this pit.
+   *
+   * <p>Call this method for each pit after any pit in the level changes its state (open or closed)
+   * to ensure that textures are updated correctly.
+   */
+  public void refreshTexture() {
+    this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
+  }
+
   @Override
   public IPath texturePath() {
     if (!this.isOpen() && this.timeToOpen > 60 * 1000) return this.stillStableTexturePath;
@@ -112,9 +122,5 @@ public class PitTile extends Tile {
     String tileStr = super.toString();
     tileStr = tileStr.replace("Tile", "PitTile").replace("}", "");
     return tileStr + ", open: " + this.open + ", timeToOpen: " + this.timeToOpen + "}";
-  }
-
-  public void refreshTexture() {
-    this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
   }
 }
