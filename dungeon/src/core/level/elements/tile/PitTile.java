@@ -29,7 +29,7 @@ public class PitTile extends Tile {
       final IPath texturePath, final Coordinate globalPosition, final DesignLabel designLabel) {
     super(texturePath, globalPosition, designLabel);
     this.levelElement = LevelElement.PIT;
-    this.open = true;
+    this.open = false;
     this.timeToOpen = 0;
     this.stillStableTexturePath =
         TileTextureFactory.findTexturePath(LevelElement.FLOOR, this.designLabel());
@@ -47,6 +47,7 @@ public class PitTile extends Tile {
   public void open() {
     if (!open) {
       this.open = true;
+      refreshTexture();
       ((DungeonLevel) Game.currentLevel().orElse(null)).removeFromPathfinding(this);
     }
   }
@@ -63,6 +64,7 @@ public class PitTile extends Tile {
       }
 
       this.open = false;
+      refreshTexture();
       ((DungeonLevel) Game.currentLevel().orElse(null)).addToPathfinding(this);
     }
   }
@@ -104,7 +106,6 @@ public class PitTile extends Tile {
   @Override
   public IPath texturePath() {
     if (!this.isOpen() && this.timeToOpen > 60 * 1000) return this.stillStableTexturePath;
-    refreshTexture();
     return super.texturePath();
   }
 
@@ -115,13 +116,12 @@ public class PitTile extends Tile {
     return tileStr + ", open: " + this.open + ", timeToOpen: " + this.timeToOpen + "}";
   }
 
-  /**
-   * Refreshes the texture of this pit.
-   *
-   * <p>Call this method for each pit after any pit in the level changes its state (open or closed)
-   * to ensure that textures are updated correctly.
-   */
-  private void refreshTexture() {
+  /** Refreshes the texture of this pit and the pit below (if there is one). */
+  public void refreshTexture() {
     this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
+    if (coordinate().y() == 0) return;
+    if (level.layout()[coordinate().y() - 1][coordinate().x()] instanceof PitTile pitTile) {
+      pitTile.refreshTexture();
+    }
   }
 }
