@@ -406,7 +406,8 @@ public final class ECSManagement {
 
     if (Gdx.gl != null) {
       // Render logic: Call the render method for each system if OpenGL context is available.
-      systems().values().forEach(System::render);
+      float delta = Gdx.graphics.getDeltaTime();
+      systems().values().forEach(system -> system.render(delta));
     }
 
     newLevelLoadedThisTick = false;

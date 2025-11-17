@@ -243,7 +243,7 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   @Override
-  public void render() {
+  public void render(float delta) {
     shadersActiveLastFrame = 0;
 
     // Pass 1: Render shaders to FBOs (Entity-local shaders)
@@ -331,7 +331,7 @@ public final class DrawSystem extends System implements Disposable {
     FBO_POOL.free(fboB);
 
     FBO_POOL.update();
-    secondsElapsed += Gdx.graphics.getDeltaTime();
+    secondsElapsed += delta;
   }
 
   /**
