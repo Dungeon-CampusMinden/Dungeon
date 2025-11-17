@@ -256,7 +256,7 @@ public class TileTextureFactory {
 
     Tile aboveTile = layout[y + 1][x];
     if (aboveTile == null) {
-      return new SimpleIPath(pitOpenPath);
+      return new SimpleIPath(wallEmptyPath);
     }
 
     IPath abovePath = findTexturePath(aboveTile, layout, aboveTile.levelElement());
