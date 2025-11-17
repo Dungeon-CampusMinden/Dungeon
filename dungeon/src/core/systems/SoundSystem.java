@@ -3,7 +3,6 @@ package core.systems;
 import core.Entity;
 import core.Game;
 import core.System;
-import core.components.PositionComponent;
 import core.components.SoundComponent;
 import core.sound.SoundSpec;
 import core.sound.player.IPlayHandle;
@@ -46,7 +45,7 @@ public class SoundSystem extends System {
   }
 
   SoundSystem(ISoundPlayer soundPlayer) {
-    super(PositionComponent.class, SoundComponent.class);
+    super(SoundComponent.class);
     this.soundPlayer = soundPlayer;
     this.onEntityRemove = this::onEntityRemoved;
   }
@@ -71,7 +70,6 @@ public class SoundSystem extends System {
    */
   private void processEntitySounds(Entity entity, Point listenerPosition) {
     SoundComponent soundComponent = entity.fetch(SoundComponent.class).orElseThrow();
-    PositionComponent positionComponent = entity.fetch(PositionComponent.class).orElseThrow();
 
     // Get or create the map of active sounds for this entity
     // Key: soundInstanceId, Value: playback handle
@@ -79,8 +77,7 @@ public class SoundSystem extends System {
         activePlaybackHandlesByEntity.computeIfAbsent(entity.id(), k -> new HashMap<>());
 
     // Step 1: Start new sounds and update existing ones
-    startAndUpdateSounds(
-        entity, soundComponent, positionComponent, entityActiveSounds, listenerPosition);
+    startAndUpdateSounds(entity, soundComponent, entityActiveSounds, listenerPosition);
 
     // Step 2: Clean up finished sounds from both the tracking map and the component
     cleanupFinishedSounds(soundComponent, entityActiveSounds);
@@ -91,14 +88,12 @@ public class SoundSystem extends System {
    *
    * @param entity the entity emitting sounds
    * @param soundComponent the component containing sound specifications
-   * @param positionComponent the entity's position component
    * @param entityActiveSounds map of currently active sound instances for this entity
    * @param listenerPosition the audio listener's position
    */
   private void startAndUpdateSounds(
       Entity entity,
       SoundComponent soundComponent,
-      PositionComponent positionComponent,
       Map<Long, IPlayHandle> entityActiveSounds,
       Point listenerPosition) {
 
@@ -113,7 +108,11 @@ public class SoundSystem extends System {
 
       // Update the sound's spatial properties (pan, volume based on distance)
       if (playbackHandle != null) {
-        updateSound(playbackHandle, positionComponent.position(), listenerPosition, soundSpec);
+        updateSound(
+            playbackHandle,
+            Game.positionOf(entity).orElse(new Point(0, 0)),
+            listenerPosition,
+            soundSpec);
       }
     }
   }
@@ -198,49 +197,67 @@ public class SoundSystem extends System {
   }
 
   /**
-   * Updates a sound's volume and pan based on 3D position.
+   * Update volume and stereo pan for a playing sound instance based on positions and the spec.
    *
-   * <p>Calculates volume attenuation based on distance and max distance, and pan based on
-   * horizontal offset from listener.
+   * <p>Behavior:
    *
-   * @param playbackHandle the handle to the playing sound
-   * @param entityPosition the position of the entity emitting the sound
-   * @param listenerPosition the position of the audio listener
-   * @param soundSpec the sound specification containing volume and distance settings
+   * <ul>
+   *   <li>Calculate distance between entity and listener.
+   *   <li>If distance > maxDistance -> mute sound.
+   *   <li>If maxDistance < 0 -> global sound, no attenuation.
+   *   <li>Otherwise apply distance attenuation and pan (pan reduced for distant sounds).
+   * </ul>
+   *
+   * @param playbackHandle handle for the playing sound instance
+   * @param entityPosition position of the entity emitting the sound
+   * @param listenerPosition position of the audio listener
+   * @param soundSpec sound specification containing baseVolume, maxDistance, attenuationFactor,
+   *     etc.
    */
   private void updateSound(
       IPlayHandle playbackHandle,
       Point entityPosition,
       Point listenerPosition,
       SoundSpec soundSpec) {
+
     float distance = Point.calculateDistance(entityPosition, listenerPosition);
 
-    // Calculate volume based on distance
-    float volume = soundSpec.baseVolume;
-    if (soundSpec.maxDistance >= 0) {
-      // If beyond max distance, mute the sound
-      if (distance > soundSpec.maxDistance) {
-        soundPlayer.updateSound(
-            playbackHandle.instanceId(), ISoundPlayer.SoundUpdate.builder().volume(0f).build());
-        return;
-      }
-      // Apply distance attenuation
-      float attenuation = (distance / soundSpec.maxDistance) * soundSpec.attenuationFactor;
-      volume *= (1 - attenuation);
-      volume = Math.clamp(volume, 0f, 1f);
+    var soundUpdate =
+        ISoundPlayer.SoundUpdate.builder()
+            .volume(soundSpec.baseVolume)
+            .pitch(soundSpec.pitch)
+            .pan(soundSpec.pan, soundSpec.baseVolume)
+            .looping(soundSpec.looping)
+            .paused(false);
+
+    // If beyond max distance -> mute
+    if (soundSpec.maxDistance > 0f && distance > soundSpec.maxDistance) {
+      soundUpdate.volume(0f);
+      soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate.build());
+      return;
     }
 
-    // Calculate pan (left/right) based on horizontal position difference
-    float horizontalOffset = entityPosition.x() - listenerPosition.x();
-    float pan = Math.clamp(horizontalOffset / PAN_NORMALIZATION_DISTANCE, -1f, 1f);
+    // Global sounds (no distance attenuation)
+    if (soundSpec.maxDistance <= 0f) {
+      soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate.build());
+      return;
+    }
 
-    // Reduce pan effect with distance (sounds far away are more centered)
-    float panAttenuation =
-        1 - Math.min(1, distance / PAN_NORMALIZATION_DISTANCE) * PAN_ATTENUATION_FACTOR;
+    // Distance attenuation
+    float attenuationRatio = (distance / soundSpec.maxDistance) * soundSpec.attenuationFactor;
+    float newVolume =
+        Math.clamp(soundSpec.maxDistance * (1 - attenuationRatio), 0f, soundSpec.baseVolume);
+    // Pan based on horizontal offset, normalized and clamped to [-1, 1]
+    float offsetX = entityPosition.x() - listenerPosition.x();
+    float pan = Math.clamp(offsetX / PAN_NORMALIZATION_DISTANCE, -1f, 1f);
+
+    // Reduce pan effect for distant sounds (far sounds are more centered)
+    float panDistanceFactor = Math.min(1f, distance / PAN_NORMALIZATION_DISTANCE);
+    float panAttenuation = 1f - panDistanceFactor * PAN_ATTENUATION_FACTOR;
     pan *= panAttenuation;
 
-    soundPlayer.updateSound(
-        playbackHandle.instanceId(), ISoundPlayer.SoundUpdate.builder().pan(pan, volume).build());
+    soundUpdate.pan(pan, newVolume);
+    soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate.build());
   }
 
   /**
