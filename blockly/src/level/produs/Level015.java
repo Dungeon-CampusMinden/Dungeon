@@ -42,8 +42,6 @@ public class Level015 extends BlocklyLevel {
         // Kategorien
         "Variablen",
         "Sonstige");
-
-
   }
 
   @Override

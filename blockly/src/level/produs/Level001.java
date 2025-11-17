@@ -1,8 +1,5 @@
 package level.produs;
 
-import client.Client;
-import com.badlogic.gdx.Input;
-import core.configuration.KeyboardConfig;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
@@ -49,7 +46,6 @@ public class Level001 extends BlocklyLevel {
     addWebPopup(new ImagePopup("popups/level001/skills.png"));
     addWebPopup(new ImagePopup("popups/level001/commands.png"));
     addWebPopup(new ImagePopup("popups/level001/start_game.png"));
-
   }
 
   @Override

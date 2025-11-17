@@ -53,10 +53,6 @@ public class Level012 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
-
-
-
-
   }
 
   @Override
