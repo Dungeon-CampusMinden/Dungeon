@@ -6,7 +6,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.backends.lwjgl3.audio.Wav;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.TimeUtils;
 import core.sound.*;
 import core.sound.parser.IAudioParser;
 import core.sound.parser.WavAudioParser;
@@ -104,49 +103,114 @@ public class GdxSoundPlayer implements ISoundPlayer {
         .findFirst()
         .ifPresentOrElse(
             parser -> {
+              Optional<Long> durationMs = parser.parseDuration(file.readBytes());
               String id = file.nameWithoutExtension();
-              Optional<Long> durationMs = parser.parseDuration(file.file().toPath());
               LOGGER.debug(
                   "Found sound asset: {} at {} with duration {}",
                   id,
                   file.path(),
                   durationMs.orElse(-1L));
+              if (durationMs.isEmpty()) {
+                LOGGER.warn("Duration unknown for sound asset: {}", id);
+              }
               assets.add(new SoundAsset(id, file.path(), durationMs));
             },
             () -> LOGGER.warn("No parser found for sound file: {}", file.path()));
   }
 
+  /**
+   * Plays a sound with a unique instance ID for tracking and updates.
+   *
+   * <p>Lazy-loads the sound asset if not already loaded, then creates a play handle registered in
+   * the instance map. The handle allows later updates via {@link #update(long, SoundUpdate)}.
+   *
+   * @param instanceId unique identifier for this sound instance
+   * @param soundName sound asset name (filename without extension)
+   * @param volume initial volume (0.0=silent, 1.0=full; default: 0.5)
+   * @param looping if true, sound loops indefinitely; if false, plays once (default: false)
+   * @param pitch playback speed multiplier (1.0=normal; clamped to [0.5, 2.0] on non-desktop)
+   * @param pan stereo position (-1.0=left, 0.0=center, 1.0=right; default: 0.0)
+   * @param onFinished optional callback to run when playback finishes
+   * @return handle for controlling the sound, or empty if asset not found
+   * @throws IllegalArgumentException if volume not in [0.0, 1.0]
+   */
   @Override
-  public Optional<IPlayHandle> play(
-      String id, float volume, boolean looping, float pitch, float pan) {
+  public Optional<IPlayHandle> playWithInstance(
+      long instanceId,
+      String soundName,
+      float volume,
+      boolean looping,
+      float pitch,
+      float pan,
+      Runnable onFinished) {
     if (volume < 0f || volume > 1f) {
       throw new IllegalArgumentException("Volume must be between 0.0 and 1.0");
     }
-    SoundAsset asset = assets.stream().filter(a -> a.id().equals(id)).findFirst().orElse(null);
+    SoundAsset asset =
+        assets.stream().filter(a -> a.id().equals(soundName)).findFirst().orElse(null);
     if (asset == null) {
-      LOGGER.warn("Sound asset not found: {}", id);
+      LOGGER.warn("Sound asset not found: {}", soundName);
       return Optional.empty();
     }
 
     // Lazy load the sound if not already loaded
-    if (!sounds.containsKey(id)) {
-      LOGGER.debug("Lazy loading sound: {}", id);
+    if (!sounds.containsKey(soundName)) {
+      LOGGER.debug("Lazy loading sound: {}", soundName);
       assetManager.load(asset.path(), Sound.class);
       assetManager.finishLoading();
-      sounds.put(id, assetManager.get(asset.path(), Sound.class));
+      sounds.put(soundName, assetManager.get(asset.path(), Sound.class));
     }
 
-    Sound sound = sounds.get(id);
+    Sound sound = sounds.get(soundName);
     if (sound != null) {
-      LOGGER.debug("Playing sound: {} at volume {} looping {}", id, volume, looping);
+      LOGGER.debug(
+          "Playing sound: {} (instance={}) at volume {} looping {}",
+          soundName,
+          instanceId,
+          volume,
+          looping);
       SoundPlayHandle handle =
           new SoundPlayHandle(sound, asset.durationMs().orElse(-1L), volume, pitch, pan);
-      handle.setLooping(looping);
+      handle.looping(looping);
+      handle.onFinished(onFinished);
       activeHandles.add(handle);
       return Optional.of(handle);
     }
-    LOGGER.error("Failed to play sound: {}", id);
+    LOGGER.error("Failed to play sound: {}", soundName);
     return Optional.empty();
+  }
+
+  @Override
+  public boolean updateSound(long instanceId, SoundUpdate update) {
+    return activeHandles.stream()
+        .filter(handle -> handle.instanceId() == instanceId)
+        .findFirst()
+        .map(
+            handle -> {
+              update.applyTo(handle);
+              return true;
+            })
+        .orElse(false);
+  }
+
+  @Override
+  public Optional<IPlayHandle> get(long instanceId) {
+    return activeHandles.stream()
+        .filter(handle -> handle.instanceId() == instanceId)
+        .findFirst()
+        .map(handle -> handle);
+  }
+
+  @Override
+  public boolean stopByInstance(long instanceId) {
+    return activeHandles.removeIf(
+        handle -> {
+          if (handle.instanceId() == instanceId) {
+            handle.stop();
+            return true;
+          }
+          return false;
+        });
   }
 
   @Override
@@ -178,30 +242,11 @@ public class GdxSoundPlayer implements ISoundPlayer {
     sounds.clear();
   }
 
-  private abstract static class AbstractPlayHandle implements IPlayHandle {
-    protected boolean finished = false;
-    protected Runnable onFinishedCallback;
-
-    @Override
-    public void onFinished(Runnable callback) {
-      this.onFinishedCallback = callback;
-    }
-
-    protected void callFinished() {
-      if (onFinishedCallback != null) {
-        onFinishedCallback.run();
-      }
-      finished = true;
-    }
-
-    abstract void update(float delta);
-  }
-
   private static class SoundPlayHandle extends AbstractPlayHandle {
     private final long soundId;
     private final Sound sound;
     private final long durationMs;
-    private final long startTime;
+    private long elapsedTime = 0;
     private boolean stopped = false;
     private boolean looping = false;
 
@@ -233,7 +278,6 @@ public class GdxSoundPlayer implements ISoundPlayer {
       this.sound = sound;
       this.durationMs = durationMs;
       this.soundId = sound.play(volume, pitch, pan);
-      this.startTime = TimeUtils.nanoTime();
     }
 
     @Override
@@ -306,21 +350,21 @@ public class GdxSoundPlayer implements ISoundPlayer {
       if (stopped) return false;
       if (looping) return true;
       if (durationMs != -1) {
-        long elapsed = TimeUtils.nanoTime() - startTime;
-        return elapsed < durationMs * 1_000_000L;
+        return elapsedTime < durationMs;
       }
       return true; // assume playing until stopped
     }
 
     @Override
     void update(float delta) {
+      elapsedTime += (long) (delta * 1000);
       if (!stopped && !looping && !isPlaying()) {
         callFinished();
       }
     }
 
     @Override
-    public void setLooping(boolean looping) {
+    public void looping(boolean looping) {
       this.looping = looping;
       sound.setLooping(soundId, looping);
     }

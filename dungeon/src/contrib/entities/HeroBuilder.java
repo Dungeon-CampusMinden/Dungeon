@@ -12,6 +12,7 @@ import core.Entity;
 import core.Game;
 import core.components.*;
 import core.level.loader.DungeonLoader;
+import core.sound.SoundSpec;
 import core.systems.VelocitySystem;
 import core.utils.*;
 import core.utils.components.draw.*;
@@ -39,7 +40,11 @@ public final class HeroBuilder {
               "Game Over",
               () -> {
                 hero.fetch(HealthComponent.class)
-                    .ifPresent(hc -> hc.currentHealthpoints(hc.maximalHealthpoints()));
+                    .ifPresent(
+                        hc -> {
+                          hc.currentHealthpoints(hc.maximalHealthpoints());
+                          hc.alreadyDead(false);
+                        });
                 hero.fetch(ManaComponent.class).ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
                 hero.fetch(StaminaComponent.class)
                     .ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
@@ -183,8 +188,10 @@ public final class HeroBuilder {
         new HealthComponent(
             characterClass.hp(),
             entity -> {
-              // play sound
-              Game.soundPlayer().play(DEATH_SOUND_ID, 0.9f);
+              // play death sound on entity before removal
+              Game.audio()
+                  .playOnEntity(
+                      entity, SoundSpec.builder(DEATH_SOUND_ID).volume(0.9f).maxDistance(20f));
 
               // relink components for camera
               Entity cameraDummy = new Entity("heroCamera");

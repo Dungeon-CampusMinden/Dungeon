@@ -1,74 +1,105 @@
 package core.sound.player;
 
 /**
- * Interface for controlling a playing sound instance. Provides methods to manipulate playback,
- * volume, panning, and looping. Returned by {@link ISoundPlayer#play(String, float, boolean)} for
- * real-time sound control.
+ * Interface for controlling a playing sound instance.
  *
- * <p>Example usage:
+ * <p>Provides real-time control over volume, panning, pitch, and playback state. Each handle is
+ * associated with a unique instance ID for tracking purposes.
  *
- * <pre>{@code
- * Optional<IPlayHandle> handle = soundPlayer.play("fireball", 0.8f, false);
- * handle.ifPresent(h -> {
- *     h.volume(0.5f);
- *     h.pan(-0.5f, 0.5f); // Pan left, half volume
- *     h.onFinished(() -> System.out.println("Fireball finished"));
- * });
- * }</pre>
+ * <p>Handles are returned by {@link ISoundPlayer#playWithInstance} and can be used to modify
+ * playback parameters or register completion callbacks.
  *
- * @see ISoundPlayer#play(String, float, boolean)
+ * @see ISoundPlayer#playWithInstance(long, String, float, boolean, float, float, Runnable)
  */
 public interface IPlayHandle {
-  /** Stops the sound playback immediately. */
+
+  /**
+   * Returns the globally unique instance identifier for this sound.
+   *
+   * <p>Used for tracking and managing individual sound instances throughout their lifecycle.
+   *
+   * @return unique instance ID, or -1 if not assigned
+   */
+  default long instanceId() {
+    return -1L;
+  }
+
+  /**
+   * Immediately stops sound playback and triggers the onFinished callback.
+   *
+   * <p><b>Side effects:</b> Stops audio, marks as finished, runs callback if registered.
+   */
   void stop();
 
-  /** Pauses the sound playback. */
+  /**
+   * Pauses sound playback without losing position.
+   *
+   * <p>Call {@link #resume()} to continue from the paused position.
+   */
   void pause();
 
-  /** Resumes paused sound playback. */
+  /**
+   * Resumes playback from a paused state.
+   *
+   * <p>Has no effect if the sound is not paused.
+   */
   void resume();
 
   /**
    * Sets the volume of the sound.
    *
-   * @param volume the volume level (0.0 to 1.0)
+   * @param volume the volume level (0.0=silent, 1.0=full; default: 0.5)
+   * @throws IllegalArgumentException if volume not in [0.0, 1.0]
    */
   void volume(float volume);
 
   /**
-   * Sets the stereo pan and volume.
+   * Sets the stereo pan and volume simultaneously.
    *
-   * @param pan the pan position (-1.0 left, 0.0 center, 1.0 right)
-   * @param volume the volume level (0.0 to 1.0)
-   * @throws IllegalArgumentException if pan is out of range
+   * <p><b>Note:</b> Pan is not supported for stereo audio files; attempting to pan stereo audio may
+   * log a warning and have no effect.
+   *
+   * @param pan the pan position (-1.0=left, 0.0=center, 1.0=right; default: 0.0)
+   * @param volume the volume level (0.0=silent, 1.0=full)
+   * @throws IllegalArgumentException if pan not in [-1.0, 1.0]
    */
   void pan(float pan, float volume);
 
   /**
-   * Sets the pitch of the sound.
+   * Sets the playback pitch (speed).
    *
-   * @param pitch the pitch level (1.0 is normal)
+   * @param pitch the pitch multiplier (0.5=half speed, 1.0=normal, 2.0=double speed; default: 1.0)
    */
   void pitch(float pitch);
 
   /**
    * Checks if the sound is currently playing.
    *
-   * @return true if playing, false otherwise
+   * <p>Returns false if stopped or finished. Looping audio always return true until explicitly
+   * stopped.
+   *
+   * @return true if actively playing, false if stopped/finished
    */
   boolean isPlaying();
 
   /**
-   * Sets a callback to run when the sound finishes playing.
+   * Registers a callback to execute when the sound finishes playing.
    *
-   * @param callback the runnable to execute on finish
+   * <p>Called when a non-looping sound completes naturally or when any sound is stopped via {@link
+   * #stop()}.
+   *
+   * <p><b>Execution:</b> Callback runs immediately if sound already finished, otherwise queued.
+   *
+   * @param callback the runnable to execute on finish (null is ignored)
    */
   void onFinished(Runnable callback);
 
   /**
    * Enables or disables looping for the sound.
    *
-   * @param looping true to loop, false for one-shot
+   * <p>Looping audio continue playing indefinitely until explicitly stopped.
+   *
+   * @param looping true to loop indefinitely, false for one-shot playback (default: false)
    */
-  void setLooping(boolean looping);
+  void looping(boolean looping);
 }

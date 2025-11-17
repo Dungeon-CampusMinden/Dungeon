@@ -1,110 +1,251 @@
 package core.sound.player;
 
+import core.Entity;
+import core.sound.AudioApi;
+import core.sound.SoundSpec;
+import core.utils.Point;
 import java.util.Optional;
 
 /**
- * Interface for sound player implementations, enabling pluggable audio backends. Supports
- * client-side playback via libGDX and server-side simulation (e.g., sending network messages).
- * Manages sound assets, playback, and lifecycle; integrates with {@link IPlayHandle} for control.
+ * Interface for sound player implementations, enabling pluggable audio backends.
  *
- * <p>Example usage:
+ * <p>Supports client-side playback via libGDX and server-side no-op. All audio are tracked by
+ * unique instance IDs for updates and lifecycle management. Use {@link AudioApi} for high-level
+ * sound operations.
  *
- * <pre>{@code
- * ISoundPlayer player = new GdxSoundPlayer(assetManager);
- * Optional<IPlayHandle> handle = player.play("fireball", 0.9f, false);
- * player.update(deltaTime);
- * player.dispose();
- * }</pre>
+ * <p><b>Implementations:</b> {@link GdxSoundPlayer} for clients, {@link NoSoundPlayer} for servers.
  *
  * @see GdxSoundPlayer
  * @see NoSoundPlayer
  * @see IPlayHandle
+ * @see AudioApi
  */
 public interface ISoundPlayer {
 
-  /** Default volume level for sound playback (0.0 to 1.0). */
-  float DEFAULT_VOLUME = 0.5f;
+  /**
+   * Null-safe update container for modifying playing audio.
+   *
+   * <p>Any field set to null will not be changed when applying the update. This allows partial
+   * updates without needing to know all current values.
+   */
+  final class SoundUpdate {
+    /** The new volume to set, or null to leave unchanged. Range: [0.0, 1.0]. */
+    public final Float volume;
 
-  /** Default pitch for sound playback (1.0 is normal). */
-  float DEFAULT_PITCH = 1.0f;
+    /** The new stereo pan to set, or null to leave unchanged. Range: [-1.0, 1.0]. */
+    public final Float pan;
 
-  /** Default pan for sound playback (0.0 is center). */
-  float DEFAULT_PAN = 0.0f;
+    /** The new pitch to set, or null to leave unchanged. 1.0 is normal speed. */
+    public final Float pitch;
+
+    /** The new paused state to set, or null to leave unchanged. */
+    public final Boolean paused;
+
+    /** The new looping state to set, or null to leave unchanged. */
+    public final Boolean looping;
+
+    private SoundUpdate(Builder b) {
+      this.volume = b.volume;
+      this.pan = b.pan;
+      this.pitch = b.pitch;
+      this.paused = b.paused;
+      this.looping = b.looping;
+    }
+
+    /**
+     * Creates a new builder for constructing a SoundUpdate.
+     *
+     * @return a new builder instance
+     */
+    public static Builder builder() {
+      return new Builder();
+    }
+
+    /**
+     * Applies this update to the given play handle.
+     *
+     * @param handle the play handle to update
+     */
+    public void applyTo(IPlayHandle handle) {
+      if (this.volume != null) {
+        handle.volume(this.volume);
+      }
+      if (this.pan != null && this.volume != null) {
+        handle.pan(this.pan, this.volume);
+      }
+      if (this.pitch != null) {
+        handle.pitch(this.pitch);
+      }
+      if (this.paused != null) {
+        if (this.paused) {
+          handle.pause();
+        } else {
+          handle.resume();
+        }
+      }
+      if (this.looping != null) {
+        handle.looping(this.looping);
+      }
+    }
+
+    /** Builder for creating {@link SoundUpdate} instances. */
+    public static final class Builder {
+      private Float volume;
+      private Float pan;
+      private Float pitch;
+      private Boolean paused;
+      private Boolean looping;
+
+      /**
+       * Sets the volume to update.
+       *
+       * @param newValue the new volume (0.0 to 1.0), or null to leave unchanged
+       * @return this builder for method chaining
+       */
+      public Builder volume(Float newValue) {
+        this.volume = newValue;
+        return this;
+      }
+
+      /**
+       * Sets the stereo pan to update.
+       *
+       * @param newPan the new pan (-1.0 left to 1.0 right), or null to leave unchanged
+       * @param newVolume the new volume (0.0 to 1.0), required if pan is set
+       * @return this builder for method chaining
+       */
+      public Builder pan(Float newPan, Float newVolume) {
+        this.pan = newPan;
+        this.volume = newVolume;
+        return this;
+      }
+
+      /**
+       * Sets the pitch to update.
+       *
+       * @param newValue the new pitch (1.0 is normal), or null to leave unchanged
+       * @return this builder for method chaining
+       */
+      public Builder pitch(Float newValue) {
+        this.pitch = newValue;
+        return this;
+      }
+
+      /**
+       * Sets the paused state to update.
+       *
+       * @param newValue the new paused state (true to pause, false to unpause), or null to leave
+       *     unchanged
+       * @return this builder for method chaining
+       */
+      public Builder paused(Boolean newValue) {
+        this.paused = newValue;
+        return this;
+      }
+
+      /**
+       * Sets the looping state to update.
+       *
+       * @param newValue the new looping state (true to loop, false for one-shot), or null to leave
+       *     unchanged
+       * @return this builder for method chaining
+       */
+      public Builder looping(Boolean newValue) {
+        this.looping = newValue;
+        return this;
+      }
+
+      /**
+       * Builds the SoundUpdate instance.
+       *
+       * @return a new SoundUpdate with the configured values
+       */
+      public SoundUpdate build() {
+        return new SoundUpdate(this);
+      }
+    }
+  }
 
   /**
-   * Plays a sound by ID with specified volume, looping behavior, pitch, and pan.
+   * Plays a sound by ID with specified volume, looping behavior, pitch, and pan, tracking it by the
+   * given instance ID.
    *
-   * @param id the unique sound identifier
+   * <p>This is the primary method for playing audio. All audio should be requested via {@link
+   * AudioApi} which manages instance IDs and entity attachment.
+   *
+   * @param instanceId globally unique sound instance identifier (obtained from AudioApi)
+   * @param soundName the unique sound asset name (file name without extension)
    * @param volume the initial volume (0.0 to 1.0)
    * @param looping true for looping playback, false for one-shot
    * @param pitch the playback pitch (1.0 is normal)
    * @param pan the stereo pan (-1.0 left, 0.0 center, 1.0 right)
+   * @param onFinished optional callback to run when playback finishes
    * @return an {@link IPlayHandle} for control, or empty if playback fails
    * @throws IllegalArgumentException if volume is out of range
+   * @see AudioApi#playOnEntity(Entity, SoundSpec.Builder)
+   * @see AudioApi#playAtPosition(Point, SoundSpec.Builder)
+   * @see AudioApi#playGlobal(SoundSpec.Builder)
    */
-  Optional<IPlayHandle> play(String id, float volume, boolean looping, float pitch, float pan);
+  Optional<IPlayHandle> playWithInstance(
+      long instanceId,
+      String soundName,
+      float volume,
+      boolean looping,
+      float pitch,
+      float pan,
+      Runnable onFinished);
 
   /**
-   * Plays a sound by ID with specified volume and looping behavior, using default pitch and pan.
+   * Updates a specific sound instance with new parameters.
    *
-   * <p>Defaults to {@link #DEFAULT_PITCH} and {@link #DEFAULT_PAN}.
+   * <p>Only non-null fields in the update are applied. Unknown instance IDs are silently ignored.
    *
-   * @param id the unique sound identifier
-   * @param volume the initial volume (0.0 to 1.0)
-   * @param looping true for looping playback, false for one-shot
-   * @return an {@link IPlayHandle} for control, or empty if playback fails
-   * @throws IllegalArgumentException if volume is out of range
+   * @param instanceId the unique sound instance identifier
+   * @param update container with nullable fields; only non-null fields are applied
+   * @return true if instance exists and was updated, false otherwise
    */
-  default Optional<IPlayHandle> play(String id, float volume, boolean looping) {
-    return play(id, volume, looping, DEFAULT_PITCH, DEFAULT_PAN);
-  }
+  boolean updateSound(long instanceId, SoundUpdate update);
 
   /**
-   * Plays a sound by ID with specified volume with default non-looping behavior.
+   * Retrieves the play handle for a specific sound instance.
    *
-   * <p>Defaults to non-looping playback and uses {@link #DEFAULT_PITCH}, {@link #DEFAULT_PAN}.
-   *
-   * @param id the unique sound identifier
-   * @param volume the initial volume (0.0 to 1.0)
-   * @return an {@link IPlayHandle} for control, or empty if playback fails
-   * @throws IllegalArgumentException if volume is out of range
+   * @param instanceId the unique sound instance identifier
+   * @return the play handle if found, empty otherwise
    */
-  default Optional<IPlayHandle> play(String id, float volume) {
-    return play(id, volume, false);
-  }
+  Optional<IPlayHandle> get(long instanceId);
 
   /**
-   * Plays a sound by ID with default volume and non-looping behavior.
+   * Stops and removes a specific sound instance.
    *
-   * <p>Defaults to {@link #DEFAULT_VOLUME}, non-looping playback, and uses {@link #DEFAULT_PITCH},
-   * {@link #DEFAULT_PAN}.
-   *
-   * @param id the unique sound identifier
-   * @return an {@link IPlayHandle} for control, or empty if playback fails
-   * @see #DEFAULT_VOLUME
+   * @param instanceId the unique sound instance identifier to stop
+   * @return true if instance was found and stopped, false otherwise
    */
-  default Optional<IPlayHandle> play(String id) {
-    return play(id, DEFAULT_VOLUME, false);
-  }
+  boolean stopByInstance(long instanceId);
 
   /**
-   * Updates the sound player state, typically called each frame. Handles sound lifecycle, such as
-   * finishing non-looping sounds.
+   * Updates the sound player state, typically called each frame.
    *
-   * @param delta time elapsed since last update
+   * <p>Manages sound lifecycle, such as removing finished non-looping audio and triggering
+   * onFinished callbacks.
+   *
+   * @param delta time elapsed since last update in seconds
    */
   void update(float delta);
 
   /**
-   * Stops all currently playing sounds immediately.
+   * Immediately stops all currently playing audio.
+   *
+   * <p>Triggers onFinished callbacks for all stopped audio.
    *
    * @see IPlayHandle#stop()
    */
   void stopAll();
 
   /**
-   * Disposes of the sound player and releases resources. Should be called on shutdown to clean up
-   * audio assets.
+   * Disposes of the sound player and releases all resources.
+   *
+   * <p>Stops all active audio, unloads all audio assets, and clears internal state. Call on
+   * application shutdown. The player is unusable after disposal.
    */
   void dispose();
 }

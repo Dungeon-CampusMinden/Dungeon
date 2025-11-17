@@ -27,15 +27,20 @@ public class GdxSoundPlayerTest {
     when(mockAssetManager.isLoaded(anyString())).thenReturn(true);
     when(mockAssetManager.get(anyString(), eq(Sound.class))).thenReturn(mockSound);
     when(mockSound.play(anyFloat(), anyFloat(), anyFloat())).thenReturn(1L); // Mock sound ID
+
     player = spy(new GdxSoundPlayer(mockAssetManager));
 
     // Manually add test assets using reflection since scanning doesn't find files in test
+    setupAssets();
+  }
+
+  private void setupAssets() throws NoSuchFieldException, IllegalAccessException {
     Field assetsField = GdxSoundPlayer.class.getDeclaredField("assets");
     assetsField.setAccessible(true);
     @SuppressWarnings("unchecked")
     List<SoundAsset> assets = (List<SoundAsset>) assetsField.get(player);
     assets.add(new SoundAsset("test", "sounds/test.wav", 1962L));
-    assets.add(new SoundAsset("loop", "sounds/test.wav", 1962L));
+    assets.add(new SoundAsset("loop", "sounds/loop.wav", 3000L));
 
     Field soundsField = GdxSoundPlayer.class.getDeclaredField("sounds");
     soundsField.setAccessible(true);
@@ -47,56 +52,101 @@ public class GdxSoundPlayerTest {
 
   @Test
   void testPlayValidSound() {
-    Optional<IPlayHandle> handle = player.play("test", 0.8f, false);
+    // Play a sound with valid parameters
+    Optional<IPlayHandle> handle =
+        player.playWithInstance(1L, "test", 0.7f, false, 1.0f, 0.0f, null);
+
+    // Verify the handle is present and the sound was played
     assertTrue(handle.isPresent());
-    verify(mockSound).play(eq(0.8f), anyFloat(), anyFloat());
-    verify(player).play("test", 0.8f, false);
+    assertTrue(handle.get().isPlaying());
+    verify(mockSound).play(0.7f, 1.0f, 0.0f);
   }
 
   @Test
   void testPlayNonExistentSound() {
-    Optional<IPlayHandle> handle = player.play("nonexistent", 0.8f, false);
+    // Try to play a sound that doesn't exist
+    Optional<IPlayHandle> handle =
+        player.playWithInstance(2L, "nonexistent", 0.5f, false, 1.0f, 0.0f, null);
+
+    // Verify no handle is returned
     assertFalse(handle.isPresent());
-    verify(player).play("nonexistent", 0.8f, false);
+    // Verify sound.play() was never called
+    verify(mockSound, never()).play(anyFloat(), anyFloat(), anyFloat());
   }
 
   @Test
   void testPlayLoopingSound() {
-    Optional<IPlayHandle> handle = player.play("loop", 0.8f, true);
+    // Play a sound with looping enabled
+    Optional<IPlayHandle> handle =
+        player.playWithInstance(3L, "loop", 0.8f, true, 1.0f, 0.0f, null);
+
+    // Verify the handle is present and playing
     assertTrue(handle.isPresent());
-    verify(mockSound).play(eq(0.8f), anyFloat(), anyFloat());
+    assertTrue(handle.get().isPlaying());
+
+    // Verify sound.play() was called
+    verify(mockSound).play(0.8f, 1.0f, 0.0f);
+    // Verify looping was set to true
     verify(mockSound).setLooping(1L, true);
-    verify(player).play("loop", 0.8f, true);
   }
 
   @Test
-  void testUpdateFinishesSound() {
-    Optional<IPlayHandle> handle = player.play("test", 0.8f, false);
-    assertTrue(handle.isPresent());
-    IPlayHandle playHandle = handle.get();
-
+  void testUpdateFinishesSound() throws Exception {
+    // Create a callback to verify it gets called
     Runnable callback = mock(Runnable.class);
-    playHandle.onFinished(callback);
 
-    assertTrue(playHandle.isPlaying());
-    playHandle.stop();
+    // Play a non-looping sound with known duration (1962ms for "test" sound)
+    Optional<IPlayHandle> handle =
+        player.playWithInstance(4L, "test", 0.5f, false, 1.0f, 0.0f, callback);
 
-    assertDoesNotThrow(() -> player.update(0.016f));
+    assertTrue(handle.isPresent());
+    assertTrue(handle.get().isPlaying());
 
+    // Access activeHandles to verify cleanup
+    Field activeHandlesField = GdxSoundPlayer.class.getDeclaredField("activeHandles");
+    activeHandlesField.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    List<AbstractPlayHandle> activeHandles =
+        (List<AbstractPlayHandle>) activeHandlesField.get(player);
+
+    assertEquals(1, activeHandles.size());
+
+    // Simulate time passing beyond the sound duration (1962ms + 100ms buffer = 2.1 seconds)
+    player.update(2.1f);
+
+    // Verify the callback was called
     verify(callback).run();
+
+    // Verify the handle was removed from active handles
+    assertEquals(0, activeHandles.size());
   }
 
   @Test
-  void testUpdatePreservesLoopingSounds() {
-    Optional<IPlayHandle> handle = player.play("loop", 0.8f, true);
+  void testUpdatePreservesLoopingSounds() throws Exception {
+    // Play a looping sound
+    Optional<IPlayHandle> handle =
+        player.playWithInstance(5L, "loop", 0.6f, true, 1.0f, 0.0f, null);
+
     assertTrue(handle.isPresent());
-    IPlayHandle loopHandle = handle.get();
+    assertTrue(handle.get().isPlaying());
 
-    assertTrue(loopHandle.isPlaying());
+    // Access activeHandles to verify it stays active
+    Field activeHandlesField = GdxSoundPlayer.class.getDeclaredField("activeHandles");
+    activeHandlesField.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    List<AbstractPlayHandle> activeHandles =
+        (List<AbstractPlayHandle>) activeHandlesField.get(player);
 
-    assertDoesNotThrow(() -> player.update(0.016f));
+    assertEquals(1, activeHandles.size());
 
-    assertTrue(loopHandle.isPlaying());
+    // Update multiple times with significant time passage
+    player.update(5.0f);
+    player.update(5.0f);
+    player.update(5.0f);
+
+    // Verify the looping sound is still active
+    assertEquals(1, activeHandles.size());
+    assertTrue(handle.get().isPlaying());
   }
 
   @Test

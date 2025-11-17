@@ -11,6 +11,7 @@ import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.loader.DungeonLoader;
+import core.sound.SoundSpec;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
@@ -127,7 +128,7 @@ public final class LevelSystem extends System {
   }
 
   private void playSound() {
-    Game.soundPlayer().play(SOUND_EFFECT, 0.3f);
+    Game.audio().playGlobal(SoundSpec.builder(SOUND_EFFECT).volume(0.3f));
   }
 
   /**

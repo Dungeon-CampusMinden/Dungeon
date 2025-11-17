@@ -4,7 +4,6 @@ import components.TintDirectionComponent;
 import contrib.components.*;
 import contrib.entities.*;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.interaction.DropItemsInteraction;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -18,7 +17,6 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -175,22 +173,6 @@ public enum BlocklyMonster {
         Game.add(monster);
       }
       return monster;
-    }
-
-    private HealthComponent buildHealthComponent() {
-      Consumer<Entity> constructedOnDeath =
-          entity -> {
-            onDeath().accept(entity);
-            deathSound().ifPresent(deathSound -> playDeathSoundIfNearby(entity, deathSound));
-
-            entity
-                .fetch(InventoryComponent.class)
-                .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
-
-            if (removeOnDeath()) Game.remove(entity);
-          };
-
-      return new HealthComponent(health(), constructedOnDeath);
     }
   }
 }

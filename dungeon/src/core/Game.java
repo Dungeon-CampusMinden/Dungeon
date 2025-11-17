@@ -13,8 +13,8 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
+import core.sound.AudioApi;
 import core.sound.player.ISoundPlayer;
-import core.sound.player.NoSoundPlayer;
 import core.systems.LevelSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
@@ -55,6 +55,7 @@ import java.util.stream.Stream;
 public final class Game {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Game.class);
+  private static final AudioApi AudioAPI = new AudioApi();
 
   /** Starts the dungeon and requires a {@link Game}. */
   public static void run() {
@@ -777,12 +778,44 @@ public final class Game {
   }
 
   /**
-   * Returns the {@link ISoundPlayer} used by the game.
+   * Finds an entity by its unique ID.
+   *
+   * @param entityId The unique ID of the entity to find.
+   * @return An {@link Optional} containing the found entity, or an empty {@code Optional} if no
+   *     entity with the given ID exists.
+   */
+  public static Optional<Entity> findEntityById(int entityId) {
+    return ECSManagement.findEntityById(entityId);
+  }
+
+  /**
+   * Returns the centralized sound API for managing entity-backed audio.
+   *
+   * <p>Use this API to play audio on entities or globally. All audio are entity-backed and synced
+   * via snapshots in multiplayer.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * Game.audio().playOnEntity(entity,
+   *     SoundSpec.builder("explosion").volume(0.8f).build());
+   * }</pre>
+   *
+   * @return the SoundApi instance
+   */
+  public static AudioApi audio() {
+    return AudioAPI;
+  }
+
+  /**
+   * Returns the {@link core.sound.player.ISoundPlayer} used by the game.
    *
    * <p>This player is responsible for playing sound effects and music within the game.
    *
    * <p>If no audio context is available (Gdx.audio is null), this method may return a {@link
-   * NoSoundPlayer} instance.
+   * core.sound.player.NoSoundPlayer} instance.
+   *
+   * <p>To play sounds, use {@link AudioApi} instead.
    *
    * @return the current {@link ISoundPlayer} instance
    */
