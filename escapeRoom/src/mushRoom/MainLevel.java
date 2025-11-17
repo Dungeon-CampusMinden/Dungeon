@@ -1,18 +1,37 @@
 package mushRoom;
 
+import contrib.components.CollideComponent;
+import contrib.components.InteractionComponent;
+import contrib.components.InventoryComponent;
+import contrib.entities.NPCFactory;
+import contrib.hud.DialogUtils;
 import contrib.modules.levelHide.LevelHideFactory;
+import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.DrawSystem;
 import core.utils.Point;
 import core.utils.Rectangle;
+import core.utils.Tuple;
+import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.shader.ColorGradeShader;
 import java.util.*;
 
+import core.utils.components.draw.shader.HueRemapShader;
+import mushRoom.mushroomModule.MushroomFactory;
+import mushRoom.mushroomModule.MushroomItem;
+import mushRoom.mushroomModule.Mushrooms;
+
 /** The MushRoom. */
 public class MainLevel extends DungeonLevel {
+
+  private NpcState npcState = NpcState.FIRST_TALK;
+  private int maxMushrooms;
+  private Entity npc;
 
   /**
    * Creates a new Demo Level.
@@ -48,8 +67,105 @@ public class MainLevel extends DungeonLevel {
                 .region(new Rectangle(width, height, width + 8, height + 8)));
 
     Game.add(LevelHideFactory.createLevelHide(getPoint("cave-1-start"), getPoint("cave-1-end")));
+
+    listPointsIndexed("mushroom")
+        .forEach(
+            tuple -> {
+              Point p = tuple.a();
+              int index = tuple.b();
+              Mushrooms type = Mushrooms.values()[index % Mushrooms.values().length];
+              if (!type.poisonous) {
+                maxMushrooms++;
+              }
+              Game.add(
+                  MushroomFactory.createMushroom(
+                      p, Mushrooms.values()[index % Mushrooms.values().length], type.poisonous));
+            });
+
+    npc = NPCFactory.createNPC(getPoint("npc-start"), "character/char03");
+    npc.add(
+        new InteractionComponent(
+            1.5f,
+            true,
+            (e, who) -> {
+              talkToNpc();
+            }));
+    Game.add(npc);
   }
 
   @Override
   protected void onTick() {}
+
+  private Tuple<Integer, Integer> getCollectionState(){
+    return Game.player().flatMap(p -> p.fetch(InventoryComponent.class)).map(inventory -> {
+      long collected = Arrays.stream(inventory.items()).filter(item -> item instanceof MushroomItem.BaseMushroom).count();
+      long collectedPoisonous = Arrays.stream(inventory.items()).filter(item -> {
+        if (!(item instanceof MushroomItem.BaseMushroom bm)) {
+          return false;
+        }
+        return bm.type().poisonous;
+      }).count();
+      if (collected - collectedPoisonous >= maxMushrooms && npcState == NpcState.DURING_COLLECTING) {
+        npcState = NpcState.ALL_COLLECTED;
+      }
+      return Tuple.of((int)collected, (int)collectedPoisonous);
+    }).orElse(Tuple.of(0, 0));
+  }
+
+  private void talkToNpc() {
+    Tuple<Integer, Integer> collectionState = getCollectionState();
+    if (collectionState.a() >= maxMushrooms && npcState == NpcState.DURING_COLLECTING) {
+      npcState = NpcState.ALL_COLLECTED;
+      if (collectionState.b() > 0) {
+        npcState = NpcState.ALL_COLLECTED_POISONOUS;
+      }
+    }
+
+    switch (npcState) {
+      case FIRST_TALK:
+        DialogUtils.showTextPopup(
+            "Oh man, der Sturz vorhin hat mich doch etwas mehr mitgenommen, als ich gedacht hätte. Ich glaube nicht, dass ich weiterlaufen kann. Zum Glück gibt es in diesem Wald einige Pilze, mit denen ich einen Heiltrank brauen kann. Bitte beeile dich, sonst klappe ich hier noch zusammen!",
+            "Yoooohooo");
+        npcState = NpcState.DURING_COLLECTING;
+        break;
+      case DURING_COLLECTING:
+        DialogUtils.showTextPopup(
+            "Hast du schon alle Pilze gesammelt? Ich brauche sie dringend, um einen Heiltrank zu brauen!",
+            "Yoooohooo");
+        break;
+      case ALL_COLLECTED:
+        DialogUtils.showTextPopup(
+            "Danke, dass du die Pilze gesammelt hast! Mit diesem Heiltrank fühle ich mich schon viel besser. Du bist ein wahrer Freund!",
+            "Yoooohooo");
+        break;
+      case ALL_COLLECTED_POISONOUS:
+        DialogUtils.showTextPopup(
+            "Oh nein! Du hast einige giftige Pilze mitgebracht! Jetzt muss ich wohl draufgehen...",
+            "Yoooohooo");
+        npcDie();
+        break;
+    }
+  }
+
+  private void npcDie(){
+    npc.fetch(DrawComponent.class).ifPresent(dc -> {
+      dc.shaders().add("poisoned", new HueRemapShader(0.05f, 0.333f, 0.05f));
+      dc.currentAnimation().getConfig().framesPerSprite(999999);
+      DrawSystem.getInstance().changeEntityDepth(npc, DepthLayer.BackgroundDeco.depth());
+    });
+    npc.fetch(PositionComponent.class).ifPresent(pc -> {
+      pc.rotation(90);
+      pc.position(pc.position().translate(-0.5f, -0.5f));
+    });
+    npc.fetch(CollideComponent.class).ifPresent(cc -> {
+      cc.isSolid(false);
+    });
+  }
+
+  private enum NpcState {
+    FIRST_TALK,
+    DURING_COLLECTING,
+    ALL_COLLECTED,
+    ALL_COLLECTED_POISONOUS,
+  }
 }
