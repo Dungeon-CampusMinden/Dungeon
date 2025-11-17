@@ -2,7 +2,6 @@ package level.produs;
 
 import components.AmmunitionComponent;
 import contrib.components.AIComponent;
-import contrib.hud.DialogUtils;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
@@ -55,15 +54,22 @@ public class Level016 extends BlocklyLevel {
         "default_block",
         // Kategorien
         "Sonstige");
+
+
+    addWebPopup(new ImagePopup("popups/level015/Variable1.png"));
+    addWebPopup(new ImagePopup("popups/level015/Variable2.png"));
+    addWebPopup(new ImagePopup("popups/level015/Variable3.png"));
+    addWebPopup(new ImagePopup("popups/level015/Variable4.png"));
+    addWebPopup(new ImagePopup("popups/level015/Variable5.png"));
+    addWebPopup(new ImagePopup("popups/level015/monster1.png"));
+
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     if (showText) {
-      DialogUtils.showTextPopup(
-          "Hier musst du mitzählen. Die Anzahl der Monster verrät dir welche Tür du nehmen musst. Ich geb dir noch ein paar Feuerballspruchrollen. Viel Erfolg!",
-          "Kapitel 2: Flucht");
+      showPopups();
       showText = false;
     }
     LevelManagementUtils.centerHero();

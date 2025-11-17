@@ -42,6 +42,8 @@ public class Level002 extends BlocklyLevel {
         "Schleife",
         "Bedingungen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level002/intro.png"));
   }
 
   @Override
@@ -52,10 +54,7 @@ public class Level002 extends BlocklyLevel {
     LevelManagementUtils.playerViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
     if (showText) {
-      DialogUtils.showTextPopup(
-          "Pass auf, die Monster sind angekettet und können sich nicht bewegen, aber wenn du ihnen zu nahe kommst, wird es eng für dich.",
-          "Kapitel 1: Ausbruch");
-      showText = false;
+      showPopups();
     }
 
     BlocklyMonster.GUARD

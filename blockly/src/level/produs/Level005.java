@@ -50,15 +50,15 @@ public class Level005 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level005/intro.png"));
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     if (showText) {
-      DialogUtils.showTextPopup(
-          "Die Monster sehen böse aus, du solltest ihnen nicht zu nahe kommen.",
-          "Kapitel 1: Ausbruch");
+      showPopups();
       showText = false;
     }
     cameraFocusOn(new Coordinate(7, 6));

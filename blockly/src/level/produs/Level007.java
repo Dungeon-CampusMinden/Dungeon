@@ -52,14 +52,14 @@ public class Level007 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level007/intro.png"));
   }
 
   @Override
   protected void onFirstTick() {
     if (showText) {
-      DialogUtils.showTextPopup(
-          "Ganz schön viele Schalter, hätten wir doch nur einen Schaltplan.",
-          "Kapitel 1: Ausbruch");
+      showPopups();
       showText = false;
     }
 
