@@ -29,7 +29,7 @@ public class PitTile extends Tile {
       final IPath texturePath, final Coordinate globalPosition, final DesignLabel designLabel) {
     super(texturePath, globalPosition, designLabel);
     this.levelElement = LevelElement.PIT;
-    this.open = true;
+    this.open = false;
     this.timeToOpen = 0;
     this.stillStableTexturePath =
         TileTextureFactory.findTexturePath(LevelElement.FLOOR, this.designLabel());
@@ -45,9 +45,10 @@ public class PitTile extends Tile {
    * pathfinding.
    */
   public void open() {
-    this.open = true;
-    this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
-    ((DungeonLevel) Game.currentLevel().orElse(null)).removeFromPathfinding(this);
+    if (!open) {
+      this.open = true;
+      ((DungeonLevel) Game.currentLevel().orElse(null)).removeFromPathfinding(this);
+    }
   }
 
   /**
@@ -55,14 +56,15 @@ public class PitTile extends Tile {
    * connections to its neighbour tiles for pathfinding.
    */
   public void close() {
-    if (this.timeToOpen == 0) {
-      this.open();
-      return;
-    }
+    if (open) {
+      if (this.timeToOpen == 0) {
+        this.open();
+        return;
+      }
 
-    this.open = false;
-    this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
-    ((DungeonLevel) Game.currentLevel().orElse(null)).addToPathfinding(this);
+      this.open = false;
+      ((DungeonLevel) Game.currentLevel().orElse(null)).addToPathfinding(this);
+    }
   }
 
   /**
@@ -110,5 +112,9 @@ public class PitTile extends Tile {
     String tileStr = super.toString();
     tileStr = tileStr.replace("Tile", "PitTile").replace("}", "");
     return tileStr + ", open: " + this.open + ", timeToOpen: " + this.timeToOpen + "}";
+  }
+
+  public void refreshTexture() {
+    this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
   }
 }
