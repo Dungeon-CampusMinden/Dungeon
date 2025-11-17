@@ -29,7 +29,7 @@ public class PitTile extends Tile {
       final IPath texturePath, final Coordinate globalPosition, final DesignLabel designLabel) {
     super(texturePath, globalPosition, designLabel);
     this.levelElement = LevelElement.PIT;
-    this.open = false;
+    this.open = true;
     this.timeToOpen = 0;
     this.stillStableTexturePath =
         TileTextureFactory.findTexturePath(LevelElement.FLOOR, this.designLabel());
