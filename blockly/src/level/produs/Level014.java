@@ -44,6 +44,9 @@ public class Level014 extends BlocklyLevel {
         // Kategorien
         "Variablen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level013/wand.png"));
+    addWebPopup(new ImagePopup("popups/level013/Schleife.png"));
   }
 
   @Override
@@ -54,10 +57,8 @@ public class Level014 extends BlocklyLevel {
     LevelManagementUtils.playerViewDirection(Direction.UP);
     LevelManagementUtils.zoomDefault();
     if (showText) {
-      DialogUtils.showTextPopup(
-          "Ganz schön verwirrend hier. Du brauchst eine gute Strategie um den Ausgang zu finden.",
-          "Kapitel 2: Flucht");
       showText = false;
+      showPopups();
     }
   }
 
