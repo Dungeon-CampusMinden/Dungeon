@@ -10,12 +10,14 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
+import core.level.elements.tile.PitTile;
 import core.level.loader.DungeonLoader;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Manages the dungeon game world.
@@ -164,6 +166,23 @@ public final class LevelSystem extends System {
         playSound();
       }
     }
+
+    openPits();
+  }
+
+  private void openPits() {
+    level()
+        .ifPresent(
+            level -> {
+              Tile[][] layout = level.layout();
+              for (int y = layout.length - 1; y >= 0; y--) {
+                for (int x = 0; x < layout[0].length; x++) {
+                  if (layout[y][x] instanceof PitTile pit) {
+                    if (pit.timeToOpen() <= 0) pit.open();
+                  }
+                }
+              }
+            });
   }
 
   /** LevelSystem can't be paused. If it is paused, the level will not be shown anymore. */
