@@ -1,6 +1,8 @@
 package produsAdvanced.abstraction.portals.components;
 
 import contrib.components.CollideComponent;
+import contrib.systems.PositionSync;
+import contrib.utils.components.collide.Hitbox;
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -17,8 +19,8 @@ public class TractorBeamComponent implements Component {
   private Point from;
   private List<Entity> tractorBeamEntities;
   private boolean active = false;
-  private List<CollideComponent> collideComponents = new ArrayList<>();
   private boolean reversed = false;
+  private List<Hitbox> oldhitbox = new ArrayList<>();
 
   /**
    * Constructs a TractorBeamComponent so it can be extended and trimmed.
@@ -43,13 +45,12 @@ public class TractorBeamComponent implements Component {
         Game.add(e);
       }
 
-      if ("beamEmitter".equals(e.name())) {
+      if ("beamEmitter".equals(e.name()) && !oldhitbox.isEmpty()) {
         CollideComponent emitterCC = e.fetch(CollideComponent.class).orElse(null);
 
-        if (emitterCC == null) {
-          e.add(collideComponents.getFirst());
-          collideComponents.removeFirst();
-        }
+        emitterCC.collider(oldhitbox.removeFirst());
+        oldhitbox.clear();
+        PositionSync.syncPosition(e);
       }
     }
     active = true;
@@ -63,13 +64,16 @@ public class TractorBeamComponent implements Component {
       if (!isEmitter) {
         Game.remove(e);
       } else {
-//        System.out.println(e);
         e.fetch(CollideComponent.class)
             .ifPresent(
                 collideComponent -> {
-                  collideComponents.add(collideComponent);
+                  oldhitbox.add(
+                      new Hitbox(
+                          collideComponent.collider().size(),
+                          collideComponent.collider().offset()));
+                  collideComponent.collider(new Hitbox(0, 0));
+                  PositionSync.syncPosition(e);
                 });
-        e.remove(CollideComponent.class);
       }
     }
 
