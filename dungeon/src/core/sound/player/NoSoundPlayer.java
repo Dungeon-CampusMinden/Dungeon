@@ -101,13 +101,18 @@ public class NoSoundPlayer implements ISoundPlayer {
   }
 
   /**
-   * Does nothing, as there are no sounds to update.
+   * Updates the sound player state, invoking updates on all active mock play handles and deleting
+   * them immediately since they do not actually play sound.
    *
    * @param delta time delta (ignored)
    */
   @Override
   public void update(float delta) {
-    // No-op
+    activeHandles.removeIf(
+        handle -> {
+          handle.update(delta);
+          return true;
+        });
   }
 
   @Override
@@ -126,11 +131,12 @@ public class NoSoundPlayer implements ISoundPlayer {
     public MockPlayHandle(long instanceId, Runnable onFinished) {
       super(instanceId);
       this.onFinished(onFinished);
-      callFinished(); // Immediately trigger finished callback
     }
 
     @Override
-    void update(float delta) {}
+    public void update(float delta) {
+      callFinished(); // Immediately trigger finished callback upon first update
+    }
 
     @Override
     public void stop() {}

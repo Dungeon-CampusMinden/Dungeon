@@ -222,24 +222,17 @@ public class SoundSystem extends System {
 
     float distance = Point.calculateDistance(entityPosition, listenerPosition);
 
-    var soundUpdate =
-        ISoundPlayer.SoundUpdate.builder()
-            .volume(soundSpec.baseVolume())
-            .pitch(soundSpec.pitch())
-            .pan(soundSpec.pan(), soundSpec.baseVolume())
-            .looping(soundSpec.looping())
-            .paused(false);
-
     // If beyond max distance -> mute
     if (soundSpec.maxDistance() > 0f && distance > soundSpec.maxDistance()) {
-      soundUpdate.volume(0f);
+      var soundUpdate = ISoundPlayer.SoundUpdate.builder().volume(0f);
       soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate.build());
       return;
     }
 
     // Global sounds (no distance attenuation)
     if (soundSpec.maxDistance() <= 0f) {
-      soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate.build());
+      var soundUpdate = ISoundPlayer.SoundUpdate.builder().build();
+      soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate);
       return;
     }
 
@@ -256,7 +249,7 @@ public class SoundSystem extends System {
     float panAttenuation = 1f - panDistanceFactor * PAN_ATTENUATION_FACTOR;
     pan *= panAttenuation;
 
-    soundUpdate.pan(pan, newVolume);
+    var soundUpdate = ISoundPlayer.SoundUpdate.builder().pan(pan, newVolume);
     soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate.build());
   }
 
