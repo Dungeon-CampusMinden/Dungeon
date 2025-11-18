@@ -3,6 +3,7 @@ package produsAdvanced.abstraction.portals;
 import contrib.components.CollideComponent;
 import contrib.components.ProjectileComponent;
 import contrib.components.SkillComponent;
+import contrib.systems.EventScheduler;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
@@ -37,6 +38,9 @@ public class PortalFactory {
   private static SimpleIPath BLUE_PORTAL_TEXTURE = new SimpleIPath("portal/blue_portal");
   private static SimpleIPath GREEN_PORTAL_TEXTURE = new SimpleIPath("portal/green_portal");
 
+  private static float DISTANCE_AFTER_TELEPORT = 1.65f;
+
+  private static Map<Direction, Integer> viewDirectionToRotationDegree = Map.of(Direction.DOWN, 0, Direction.UP, 180, Direction.LEFT, 270, Direction.RIGHT, 90);
   /**
    * Creates a portal of the given color at the specified position.
    *
@@ -81,6 +85,27 @@ public class PortalFactory {
               CollideComponent cc =
                   setCollideComponent(direction, PortalFactory::onBlueCollideEnter);
               cc.isSolid(false);
+              cc.onHold((p,o,d)-> {
+                PositionComponent otherPositionComponent = o.fetch(PositionComponent.class).get();
+                PositionComponent portalPositionComponent = p.fetch(PositionComponent.class).get();
+
+                if (getGreenPortal().isPresent() && !isEntityPortal(o)) {
+                  if (Game.player().isPresent() && Game.player().get().name().equals(o.name()) && otherPositionComponent.viewDirection() != portalPositionComponent.viewDirection().opposite()) {
+                    return;
+                  }
+                  Direction greenPortalDirection =
+                    getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
+                  otherPositionComponent.position(
+                    getGreenPortal()
+                      .get()
+                      .fetch(PositionComponent.class)
+                      .get()
+                      .position()
+                      .translate(greenPortalDirection.scale(DISTANCE_AFTER_TELEPORT)));
+                  handleRotation(o, PortalColor.BLUE);
+
+                }
+              });
               portal.add(cc);
 
               portal.add(new PortalComponent());
@@ -115,6 +140,27 @@ public class PortalFactory {
               CollideComponent cc =
                   setCollideComponent(direction, PortalFactory::onGreenCollideEnter);
               cc.isSolid(false);
+              cc.onHold((p,o,d)-> {
+                PositionComponent otherPositionComponent = o.fetch(PositionComponent.class).get();
+                PositionComponent portalPositionComponent = p.fetch(PositionComponent.class).get();
+
+                if (getBluePortal().isPresent() && !isEntityPortal(o)) {
+                  if (Game.player().isPresent() && Game.player().get().name().equals(o.name()) && otherPositionComponent.viewDirection() != portalPositionComponent.viewDirection().opposite()) {
+                    return;
+                  }
+                  Direction bluePortalDirection =
+                    getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
+                  otherPositionComponent.position(
+                    getBluePortal()
+                      .get()
+                      .fetch(PositionComponent.class)
+                      .get()
+                      .position()
+                      .translate(bluePortalDirection.scale(DISTANCE_AFTER_TELEPORT)));
+                  handleRotation(o, PortalColor.GREEN);
+
+                }
+              });
 
               portal.add(pc);
               portal.add(cc);
@@ -176,6 +222,9 @@ public class PortalFactory {
    * @param dir the direction of collision
    */
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
+    PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
+    PositionComponent portalPositionComponent = portal.fetch(PositionComponent.class).get();
+
     if (other.fetch(PortalExtendComponent.class).isPresent()) {
       PortalExtendComponent pec = other.fetch(PortalExtendComponent.class).get();
       if (pec.isThroughBlue()) {
@@ -192,17 +241,22 @@ public class PortalFactory {
     }
 
     if (getBluePortal().isPresent() && !isEntityPortal(other)) {
-      PositionComponent projectilePositionComponent = other.fetch(PositionComponent.class).get();
+      if (Game.player().isPresent() && Game.player().get().name().equals(other.name()) && otherPositionComponent.viewDirection() != portalPositionComponent.viewDirection().opposite()) {
+        return;
+      }
       Direction greenPortalDirection = portal.fetch(PositionComponent.class).get().viewDirection();
       Direction bluePortalDirection =
           getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
-      projectilePositionComponent.position(
+      otherPositionComponent.position(
           getBluePortal()
               .get()
               .fetch(PositionComponent.class)
               .get()
               .position()
-              .translate(bluePortalDirection.scale(1.3)));
+              .translate(bluePortalDirection.scale(DISTANCE_AFTER_TELEPORT)));
+      handleRotation(other, PortalColor.GREEN);
+
+
       handleProjectiles(other, greenPortalDirection, bluePortalDirection);
     }
     ;
@@ -216,6 +270,10 @@ public class PortalFactory {
    * @param dir the direction of collision
    */
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
+    PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
+    PositionComponent portalPositionComponent = portal.fetch(PositionComponent.class).get();
+
+
     if (other.fetch(PortalExtendComponent.class).isPresent()) {
       PortalExtendComponent pec = other.fetch(PortalExtendComponent.class).get();
       if (pec.isThroughGreen()) {
@@ -232,19 +290,42 @@ public class PortalFactory {
     }
 
     if (getGreenPortal().isPresent() && !isEntityPortal(other)) {
-      PositionComponent projectilePositionComponent = other.fetch(PositionComponent.class).get();
+      if (Game.player().isPresent() && Game.player().get().name().equals(other.name()) && otherPositionComponent.viewDirection() != portalPositionComponent.viewDirection().opposite()) {
+        return;
+      }
       Direction bluePortalDirection = portal.fetch(PositionComponent.class).get().viewDirection();
       Direction greenPortalDirection =
           getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
-      projectilePositionComponent.position(
+      otherPositionComponent.position(
           getGreenPortal()
               .get()
               .fetch(PositionComponent.class)
               .get()
               .position()
-              .translate(greenPortalDirection.scale(1.3)));
+              .translate(greenPortalDirection.scale(DISTANCE_AFTER_TELEPORT)));
+      handleRotation(other, PortalColor.BLUE);
+
       handleProjectiles(other, bluePortalDirection, greenPortalDirection);
     }
+  }
+
+  private static void handleRotation(Entity other, PortalColor color) {
+    PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
+    Direction blueDirection = getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
+    Direction greenDirection = getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
+    System.out.println("direction of green : " + greenDirection);
+    System.out.println("direction of blue : " + blueDirection);
+
+    other.fetch(VelocityComponent.class).ifPresent(vc-> {
+      vc.currentVelocity(Vector2.ZERO);
+    });
+    if (color == PortalColor.BLUE) {
+      otherPositionComponent.viewDirection(greenDirection);
+    } else {
+      otherPositionComponent.viewDirection(blueDirection);
+    }
+    System.out.println(other.name() + " " + otherPositionComponent.viewDirection());
+    EventScheduler.scheduleAction(()->{ System.out.println(other.name() + " " + otherPositionComponent.viewDirection());},100);
   }
 
   /**
