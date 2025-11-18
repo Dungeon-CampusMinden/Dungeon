@@ -63,6 +63,25 @@ public class KeyboardConfig {
       new ConfigKey<>(
           new String[] {"skill", "mouse_fireball"}, new ConfigIntValue(Input.Buttons.LEFT));
 
+  /** This key is used to use the active skill. */
+  public static final ConfigKey<Integer> USE_SKILL_2 =
+      new ConfigKey<>(new String[] {"skill", "fireball"}, new ConfigIntValue(Input.Keys.R));
+
+  /** Select the next skill as active Skill in the {@link contrib.components.SkillComponent}. */
+  public static final ConfigKey<Integer> NEXT_SKILL_2 =
+      new ConfigKey<>(
+          new String[] {"skill", "select next skill"}, new ConfigIntValue(Input.Keys.Y));
+
+  /** Select the previous skill as active Skill in the {@link contrib.components.SkillComponent}. */
+  public static final ConfigKey<Integer> PREV_SKILL_2 =
+      new ConfigKey<>(
+          new String[] {"skill", "select prev skill"}, new ConfigIntValue(Input.Keys.G));
+
+  /** This key is used shoot the active skill. */
+  public static final ConfigKey<Integer> MOUSE_USE_SKILL_2 =
+      new ConfigKey<>(
+          new String[] {"skill", "mouse_fireball"}, new ConfigIntValue(Input.Buttons.RIGHT));
+
   /** Keybinding to zoom in ,if the {@link contrib.utils.components.Debugger} is active. */
   public static final ConfigKey<Integer> DEBUG_ZOOM_IN =
       new ConfigKey<>(new String[] {"debug", "zoom_in"}, new ConfigIntValue(Input.Keys.K));
@@ -97,7 +116,7 @@ public class KeyboardConfig {
    * {@link contrib.utils.components.Debugger} is active.
    */
   public static final ConfigKey<Integer> DEBUG_TELEPORT_ON_END =
-      new ConfigKey<>(new String[] {"debug", "teleport_onEnd"}, new ConfigIntValue(Input.Keys.G));
+      new ConfigKey<>(new String[] {"debug", "teleport_onEnd"}, new ConfigIntValue(Input.Keys.B));
 
   /**
    * Keybinding to teleport the player to the cursor mouse location, if the {@link

@@ -243,20 +243,35 @@ public final class HeroBuilder {
         core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
         (caller) -> HeroController.moveHero(caller, Direction.LEFT, characterClass.speed()));
 
-    // Skills
+    // Skill 1
     inputComp.registerCallback(
         KeyboardConfig.USE_SKILL.value(),
-        (caller) -> HeroController.useSkill(caller, SkillTools.cursorPositionAsPoint()));
+        (caller) -> HeroController.useSkill(0, caller, SkillTools.cursorPositionAsPoint()));
     inputComp.registerCallback(
         KeyboardConfig.MOUSE_USE_SKILL.value(),
-        (caller) -> HeroController.useSkill(caller, SkillTools.cursorPositionAsPoint()));
+        (caller) -> HeroController.useSkill(0, caller, SkillTools.cursorPositionAsPoint()));
     inputComp.registerCallback(
         KeyboardConfig.NEXT_SKILL.value(),
-        caller -> caller.fetch(SkillComponent.class).ifPresent(SkillComponent::nextSkill),
+        caller -> caller.fetch(SkillComponent.class).ifPresent(SkillComponent::nextFirstSkill),
         false);
     inputComp.registerCallback(
         KeyboardConfig.PREV_SKILL.value(),
-        caller -> caller.fetch(SkillComponent.class).ifPresent(SkillComponent::prevSkill),
+        caller -> caller.fetch(SkillComponent.class).ifPresent(SkillComponent::prevFirstSkill),
+        false);
+    // Skill 2
+    inputComp.registerCallback(
+        KeyboardConfig.USE_SKILL_2.value(),
+        (caller) -> HeroController.useSkill(1, caller, SkillTools.cursorPositionAsPoint()));
+    inputComp.registerCallback(
+        KeyboardConfig.MOUSE_USE_SKILL_2.value(),
+        (caller) -> HeroController.useSkill(1, caller, SkillTools.cursorPositionAsPoint()));
+    inputComp.registerCallback(
+        KeyboardConfig.NEXT_SKILL_2.value(),
+        caller -> caller.fetch(SkillComponent.class).ifPresent(SkillComponent::nextSecondSkill),
+        false);
+    inputComp.registerCallback(
+        KeyboardConfig.PREV_SKILL_2.value(),
+        caller -> caller.fetch(SkillComponent.class).ifPresent(SkillComponent::prevSecondSkill),
         false);
 
     // Interact

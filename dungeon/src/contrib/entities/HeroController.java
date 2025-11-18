@@ -73,13 +73,21 @@ public class HeroController {
    * CursorSkill or ProjectileSkill, sets the target position accordingly before executing the
    * skill.
    *
+   * @param index 0 to use the skill on slot one, 1 to use the skill on slot two
    * @param hero the hero entity using the skill
    * @param target the target point for the skill (can be null if not applicable)
    */
-  public static void useSkill(Entity hero, Point target) {
+  public static void useSkill(int index, Entity hero, Point target) {
     LOGGER.debug("Hero {} using skill at point {}", hero.id(), target);
     hero.fetch(SkillComponent.class)
-        .flatMap(SkillComponent::activeSkill)
+        .flatMap(
+            skillComponent -> {
+              if (index == 0) {
+                return skillComponent.activeSkillOne();
+              } else {
+                return skillComponent.activeSkillTwo();
+              }
+            })
         .ifPresent(
             skill -> {
               if (skill instanceof CursorSkill cursorSkill) {
@@ -172,8 +180,8 @@ public class HeroController {
     hero.fetch(SkillComponent.class)
         .ifPresent(
             skillComponent -> {
-              if (nextSkill) skillComponent.nextSkill();
-              else skillComponent.prevSkill();
+              if (nextSkill) skillComponent.nextFirstSkill();
+              else skillComponent.prevFirstSkill();
             });
   }
 
