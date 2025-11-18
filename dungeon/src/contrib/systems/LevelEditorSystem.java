@@ -106,7 +106,9 @@ public class LevelEditorSystem extends System {
             .ifPresent(
                 pc -> {
                   playerClallbacks.forEach(
-                      ((key, value) -> pc.registerCallback(key, value.callback())));
+                      ((key, value) ->
+                          pc.registerCallback(
+                              key, value.callback(), value.repeat(), value.pauseable())));
                 });
         playerClallbacks = null;
         player
