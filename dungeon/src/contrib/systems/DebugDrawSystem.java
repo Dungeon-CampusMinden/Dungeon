@@ -62,6 +62,8 @@ public class DebugDrawSystem extends System {
       new Color(0f, 0f, 0f, 0.75f); // semi-transparent black
   private static final Color NAMED_POINT_COLOR =
       withAlpha(Color.GREEN, 0.4f); // semi-transparent purple for named points
+  private static final Color POINT_MODE_COLOR =
+      withAlpha(Color.GREEN, 0.7f); // semi-transparent purple for named points
   private static final Color NAMED_POINT_HIGHLIGHT_COLOR =
       withAlpha(Color.YELLOW, 0.7f); // more opaque yellow for highlighted named points
 
@@ -146,7 +148,7 @@ public class DebugDrawSystem extends System {
 
   /** Draws named points from the current level. */
   public static void drawNamedPoints() {
-    drawNamedPoints(null);
+    drawNamedPoints(null, false);
   }
 
   /**
@@ -154,16 +156,16 @@ public class DebugDrawSystem extends System {
    *
    * @param highlightPoint The name of the point to highlight, or null for none.
    */
-  public static void drawNamedPoints(String highlightPoint) {
+  public static void drawNamedPoints(String highlightPoint, boolean pointModeActive) {
     ILevel l = Game.currentLevel().orElse(null);
     if (l == null) return;
+    Color normalColor = pointModeActive ? POINT_MODE_COLOR : NAMED_POINT_COLOR;
     DungeonLevel level = (DungeonLevel) l;
     level
         .namedPoints()
         .forEach(
             (name, point) -> {
-              Color color =
-                  name.equals(highlightPoint) ? NAMED_POINT_HIGHLIGHT_COLOR : NAMED_POINT_COLOR;
+              Color color = name.equals(highlightPoint) ? NAMED_POINT_HIGHLIGHT_COLOR : normalColor;
               // Draw a small purple square at the point location
               drawRectangleOutline(point.x(), point.y(), 1.0f, 1.0f, color);
 
