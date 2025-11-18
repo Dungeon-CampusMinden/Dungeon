@@ -39,7 +39,7 @@ public class TilesMode extends LevelEditorMode {
         }
         Point targetPos = cursorPos.translate(Vector2.of(dx, dy));
         DebugDrawSystem.drawRectangleOutline(
-            targetPos.x(), targetPos.y(), 1.0f, 1.0f, new Color(1, 1, 1, 0.2f));
+          targetPos.x(), targetPos.y(), 1.0f, 1.0f, new Color(1, 1, 1, 0.2f));
       }
     }
   }

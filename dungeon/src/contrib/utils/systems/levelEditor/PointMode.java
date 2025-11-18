@@ -55,13 +55,20 @@ public class PointMode extends LevelEditorMode {
             });
       }
     } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
-      Optional<String> clickedPoint = getOnPosition(cursorPos);
-      clickedPoint.ifPresent(point -> heldPointName = point);
-
-      if (heldPointName == null) {
-        LevelEditorSystem.showFeedback("No point to pickup on coordinate!", Color.YELLOW);
-      } else if (clickedPoint.isEmpty()) {
+      if (heldPointName == null){
+        // Pickup point on cursor
+        Optional<String> clickedPoint = getOnPosition(cursorPos);
+        clickedPoint.ifPresentOrElse(
+          point -> {
+            heldPointName = point;
+          },
+          () -> {
+            LevelEditorSystem.showFeedback("No point to pickup on coordinate!", Color.YELLOW);
+          });
+      } else {
         // Clone and increment held point to cursor
+        // heldPointName is something like "point3". to get the highest current point number, we must strip
+        // trailing numbers first
         String baseName = heldPointName.replaceAll("\\d+$", "");
         String newPointName = baseName + (getLevel().getHighestPointNumber(baseName) + 1);
         getLevel().addNamedPoint(newPointName, snapPos);
