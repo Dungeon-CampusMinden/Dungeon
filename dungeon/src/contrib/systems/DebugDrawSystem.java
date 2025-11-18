@@ -74,7 +74,7 @@ public class DebugDrawSystem extends System {
   /** Creates a new DebugDrawSystem. */
   public DebugDrawSystem() {
     super(PositionComponent.class);
-
+    DEBUG_CAM.setToOrtho(false, Game.windowWidth(), Game.windowHeight());
     WindowEventManager.registerWindowRefreshListener(
         () -> DEBUG_CAM.setToOrtho(false, Game.windowWidth(), Game.windowHeight()));
   }
