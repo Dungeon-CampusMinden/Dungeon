@@ -40,8 +40,8 @@ public class SoundComponentTest {
     component.add(loopingSpec);
 
     assertEquals(1, component.sounds().size());
-    assertTrue(component.sounds().get(0).looping);
-    assertEquals("ambient_sound", component.sounds().get(0).soundName);
+    assertTrue(component.sounds().get(0).looping());
+    assertEquals("ambient_sound", component.sounds().get(0).soundName());
   }
 
   @Test
@@ -174,13 +174,13 @@ public class SoundComponentTest {
     component.add(spec);
 
     SoundSpec retrieved = component.sounds().get(0);
-    assertEquals(18L, retrieved.instanceId);
-    assertEquals("complex_sound", retrieved.soundName);
-    assertEquals(0.8f, retrieved.baseVolume, 0.001f);
-    assertEquals(1.2f, retrieved.pitch, 0.001f);
-    assertEquals(-0.5f, retrieved.pan, 0.001f);
-    assertTrue(retrieved.looping);
-    assertEquals(50f, retrieved.maxDistance, 0.001f);
-    assertEquals(0.8f, retrieved.attenuationFactor, 0.001f);
+    assertEquals(18L, retrieved.instanceId());
+    assertEquals("complex_sound", retrieved.soundName());
+    assertEquals(0.8f, retrieved.baseVolume(), 0.001f);
+    assertEquals(1.2f, retrieved.pitch(), 0.001f);
+    assertEquals(-0.5f, retrieved.pan(), 0.001f);
+    assertTrue(retrieved.looping());
+    assertEquals(50f, retrieved.maxDistance(), 0.001f);
+    assertEquals(0.8f, retrieved.attenuationFactor(), 0.001f);
   }
 }

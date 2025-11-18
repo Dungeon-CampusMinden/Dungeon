@@ -98,7 +98,7 @@ public class SoundSystem extends System {
       Point listenerPosition) {
 
     for (SoundSpec soundSpec : soundComponent.sounds()) {
-      long soundInstanceId = soundSpec.instanceId;
+      long soundInstanceId = soundSpec.instanceId();
       IPlayHandle playbackHandle = entityActiveSounds.get(soundInstanceId);
 
       // If this sound isn't playing yet, start it
@@ -127,15 +127,15 @@ public class SoundSystem extends System {
    */
   private IPlayHandle startNewSound(
       Entity entity, SoundSpec soundSpec, Map<Long, IPlayHandle> entityActiveSounds) {
-    long soundInstanceId = soundSpec.instanceId;
+    long soundInstanceId = soundSpec.instanceId();
 
     Optional<IPlayHandle> handleOpt =
         soundPlayer.playWithInstance(
             soundInstanceId,
-            soundSpec.soundName,
-            soundSpec.baseVolume,
-            soundSpec.looping,
-            soundSpec.pitch,
+            soundSpec.soundName(),
+            soundSpec.baseVolume(),
+            soundSpec.looping(),
+            soundSpec.pitch(),
             0,
             () -> Game.audio().notifySoundFinished(soundInstanceId));
 
@@ -143,7 +143,7 @@ public class SoundSystem extends System {
         handle -> entityActiveSounds.put(soundInstanceId, handle),
         () ->
             LOGGER.warn(
-                "Failed to play sound '{}' for entity {}", soundSpec.soundName, entity.id()));
+                "Failed to play sound '{}' for entity {}", soundSpec.soundName(), entity.id()));
 
     return entityActiveSounds.get(soundInstanceId);
   }
@@ -224,29 +224,29 @@ public class SoundSystem extends System {
 
     var soundUpdate =
         ISoundPlayer.SoundUpdate.builder()
-            .volume(soundSpec.baseVolume)
-            .pitch(soundSpec.pitch)
-            .pan(soundSpec.pan, soundSpec.baseVolume)
-            .looping(soundSpec.looping)
+            .volume(soundSpec.baseVolume())
+            .pitch(soundSpec.pitch())
+            .pan(soundSpec.pan(), soundSpec.baseVolume())
+            .looping(soundSpec.looping())
             .paused(false);
 
     // If beyond max distance -> mute
-    if (soundSpec.maxDistance > 0f && distance > soundSpec.maxDistance) {
+    if (soundSpec.maxDistance() > 0f && distance > soundSpec.maxDistance()) {
       soundUpdate.volume(0f);
       soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate.build());
       return;
     }
 
     // Global sounds (no distance attenuation)
-    if (soundSpec.maxDistance <= 0f) {
+    if (soundSpec.maxDistance() <= 0f) {
       soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate.build());
       return;
     }
 
     // Distance attenuation
-    float attenuationRatio = (distance / soundSpec.maxDistance) * soundSpec.attenuationFactor;
+    float attenuationRatio = (distance / soundSpec.maxDistance()) * soundSpec.attenuationFactor();
     float newVolume =
-        Math.clamp(soundSpec.maxDistance * (1 - attenuationRatio), 0f, soundSpec.baseVolume);
+        Math.clamp(soundSpec.maxDistance() * (1 - attenuationRatio), 0f, soundSpec.baseVolume());
     // Pan based on horizontal offset, normalized and clamped to [-1, 1]
     float offsetX = entityPosition.x() - listenerPosition.x();
     float pan = Math.clamp(offsetX / PAN_NORMALIZATION_DISTANCE, -1f, 1f);

@@ -72,7 +72,7 @@ public class SoundComponent implements Component {
    * @param instanceId the unique instance identifier of the sound to remove
    */
   public void removeByInstance(long instanceId) {
-    sounds.removeIf(s -> s.instanceId == instanceId);
+    sounds.removeIf(s -> s.instanceId() == instanceId);
   }
 
   /**

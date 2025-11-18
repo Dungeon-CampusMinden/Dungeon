@@ -96,10 +96,10 @@ public final class AudioApi {
     sc.add(spec);
     LOGGER.debug(
         "Added sound '{}' (instance={}) to entity {}",
-        spec.soundName,
-        spec.instanceId,
+        spec.soundName(),
+        spec.instanceId(),
         entity.id());
-    return spec.instanceId;
+    return spec.instanceId();
   }
 
   /**
@@ -186,7 +186,7 @@ public final class AudioApi {
         .fetch(SoundComponent.class)
         .ifPresent(
             sc -> {
-              sc.sounds().forEach(spec -> onFinishedCallbacks.remove(spec.instanceId));
+              sc.sounds().forEach(spec -> onFinishedCallbacks.remove(spec.instanceId()));
               sc.clear();
               LOGGER.debug("Stopped all audio on entity {}", entity.id());
             });

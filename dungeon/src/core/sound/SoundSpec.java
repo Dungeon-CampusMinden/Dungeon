@@ -19,10 +19,31 @@ import java.io.Serializable;
  *     .build();
  * }</pre>
  *
+ * @param instanceId Globally unique instance identifier (server generated). Used for tracking
+ *     across network.
+ * @param soundName The name of the sound asset to play (file name without extension).
+ * @param baseVolume The base volume level before distance attenuation. Range: [0.0, 1.0].
+ * @param looping Whether the sound should loop indefinitely until explicitly stopped.
+ * @param pitch The playback pitch multiplier. 1.0 is normal speed, 2.0 is double speed, 0.5 is half
+ *     speed.
+ * @param pan The stereo pan position. -1.0 is left, 0.0 is center, 1.0 is right.
+ * @param maxDistance Maximum distance for sound audibility. -1 means infinite range (no distance
+ *     attenuation).
+ * @param attenuationFactor Factor for distance-based volume attenuation. 1.0 is default linear
+ *     attenuation, higher values increase attenuation rate.
  * @see core.components.SoundComponent
  * @see core.sound.AudioApi
  */
-public final class SoundSpec implements Serializable {
+public record SoundSpec(
+    long instanceId,
+    String soundName,
+    float baseVolume,
+    boolean looping,
+    float pitch,
+    float pan,
+    float maxDistance,
+    float attenuationFactor)
+    implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
   /** Default volume level for sound playback. Range: [0.0, 1.0]. Default: 0.5 */
@@ -36,44 +57,6 @@ public final class SoundSpec implements Serializable {
 
   /** Default attenuation factor for distance-based volume reduction. Default: 1.0 */
   public static final float DEFAULT_ATTENUATION = 1.0f;
-
-  /** Globally unique instance identifier (server generated). Used for tracking across network. */
-  public final long instanceId;
-
-  /** The name of the sound asset to play (file name without extension). */
-  public final String soundName;
-
-  /** The base volume level before distance attenuation. Range: [0.0, 1.0]. */
-  public final float baseVolume;
-
-  /** Whether the sound should loop indefinitely until explicitly stopped. */
-  public final boolean looping;
-
-  /** The playback pitch multiplier. 1.0 is normal speed, 2.0 is double speed, 0.5 is half speed. */
-  public final float pitch;
-
-  /** The stereo pan position. -1.0 is left, 0.0 is center, 1.0 is right. */
-  public final float pan;
-
-  /** Maximum distance for sound audibility. -1 means infinite range (no distance attenuation). */
-  public final float maxDistance;
-
-  /**
-   * Factor for distance-based volume attenuation. 1.0 is default linear attenuation, higher values
-   * increase attenuation rate.
-   */
-  public final float attenuationFactor;
-
-  private SoundSpec(Builder b) {
-    this.instanceId = b.instanceId;
-    this.soundName = b.soundName;
-    this.baseVolume = b.baseVolume;
-    this.looping = b.looping;
-    this.pitch = b.pitch;
-    this.pan = b.pan;
-    this.maxDistance = b.maxDistance;
-    this.attenuationFactor = b.attenuationFactor;
-  }
 
   /**
    * Creates a new builder for constructing a SoundSpec.
@@ -210,7 +193,15 @@ public final class SoundSpec implements Serializable {
      * @return a new SoundSpec with the configured values
      */
     public SoundSpec build() {
-      return new SoundSpec(this);
+      return new SoundSpec(
+          this.instanceId,
+          this.soundName,
+          this.baseVolume,
+          this.looping,
+          this.pitch,
+          this.pan,
+          this.maxDistance,
+          this.attenuationFactor);
     }
   }
 }
