@@ -51,7 +51,7 @@ public class MushRoom {
   }
 
   private static void createHero() {
-    Entity hero = EntityFactory.newHero(CharacterClass.WIZARD);
+    Entity hero = EntityFactory.newHero(CharacterClass.MUSHROOM_WIZARD);
     Game.add(hero);
   }
 
