@@ -57,7 +57,7 @@ public class SkillComponent implements Component {
   }
 
   /**
-   * Removes a given skill instance from this component. * *
+   * Removes a given skill instance from this component.
    *
    * <p>If the active skill is removed, the active index will be adjusted. If no skills remain, the
    * active index is set to {@code -1}.
