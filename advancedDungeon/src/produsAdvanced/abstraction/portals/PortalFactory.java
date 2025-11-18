@@ -315,6 +315,7 @@ public class PortalFactory {
     Direction greenDirection = getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
 
     other.fetch(VelocityComponent.class).ifPresent(vc-> {
+      vc.clearForces();
       vc.currentVelocity(Vector2.ZERO);
     });
     if (color == PortalColor.BLUE) {
