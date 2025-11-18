@@ -143,7 +143,7 @@ public final class AudioApi {
     Game.add(tempEntity);
     long instanceId = playOnEntity(tempEntity, builder);
     registerOnFinished(instanceId, () -> Game.remove(tempEntity));
-    return playOnEntity(tempEntity, builder);
+    return instanceId;
   }
 
   /**
