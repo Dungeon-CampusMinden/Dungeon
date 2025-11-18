@@ -40,7 +40,7 @@ public class GdxSoundPlayer implements ISoundPlayer {
   private final AssetManager assetManager;
   private final List<SoundAsset> assets = new ArrayList<>();
   private final Map<String, Sound> sounds = new HashMap<>();
-  private final List<AbstractPlayHandle> activeHandles = new ArrayList<>();
+  private final List<PlayHandle> activeHandles = new ArrayList<>();
   private final List<IAudioParser> parsers = List.of(new WavAudioParser());
 
   /**
@@ -122,7 +122,7 @@ public class GdxSoundPlayer implements ISoundPlayer {
    * Plays a sound with a unique instance ID for tracking and updates.
    *
    * <p>Lazy-loads the sound asset if not already loaded, then creates a play handle registered in
-   * the instance map. The handle allows later updates via {@link #update(long, SoundUpdate)}.
+   * the instance map. The handle allows later updates via {@link #updateSound(long, SoundUpdate)}.
    *
    * @param instanceId unique identifier for this sound instance
    * @param soundName sound asset name (filename without extension)
@@ -135,7 +135,7 @@ public class GdxSoundPlayer implements ISoundPlayer {
    * @throws IllegalArgumentException if volume not in [0.0, 1.0]
    */
   @Override
-  public Optional<IPlayHandle> playWithInstance(
+  public Optional<PlayHandle> playWithInstance(
       long instanceId,
       String soundName,
       float volume,
@@ -195,7 +195,7 @@ public class GdxSoundPlayer implements ISoundPlayer {
   }
 
   @Override
-  public Optional<IPlayHandle> get(long instanceId) {
+  public Optional<PlayHandle> get(long instanceId) {
     return activeHandles.stream()
         .filter(handle -> handle.instanceId() == instanceId)
         .findFirst()
@@ -226,7 +226,7 @@ public class GdxSoundPlayer implements ISoundPlayer {
   @Override
   public void stopAll() {
     LOGGER.info("Stopping all {} active sounds", activeHandles.size());
-    for (AbstractPlayHandle handle : activeHandles) {
+    for (PlayHandle handle : activeHandles) {
       handle.stop();
     }
     activeHandles.clear();
@@ -235,7 +235,7 @@ public class GdxSoundPlayer implements ISoundPlayer {
   @Override
   public void dispose() {
     LOGGER.info("Disposing sound player with {} active handles", activeHandles.size());
-    for (AbstractPlayHandle handle : activeHandles) {
+    for (PlayHandle handle : activeHandles) {
       handle.stop();
     }
     activeHandles.clear();
@@ -243,7 +243,7 @@ public class GdxSoundPlayer implements ISoundPlayer {
     sounds.clear();
   }
 
-  private static class SoundPlayHandle extends AbstractPlayHandle {
+  private static class SoundPlayHandle extends PlayHandle {
     private final long soundId;
     private final Sound sound;
     private final long durationMs;

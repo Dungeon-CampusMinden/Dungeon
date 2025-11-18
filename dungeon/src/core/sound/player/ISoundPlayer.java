@@ -17,7 +17,7 @@ import java.util.Optional;
  *
  * @see GdxSoundPlayer
  * @see NoSoundPlayer
- * @see IPlayHandle
+ * @see PlayHandle
  * @see AudioApi
  */
 public interface ISoundPlayer {
@@ -66,7 +66,7 @@ public interface ISoundPlayer {
      *
      * @param handle the play handle to update
      */
-    public void applyTo(IPlayHandle handle) {
+    public void applyTo(PlayHandle handle) {
       if (this.volume != null) {
         handle.volume(this.volume);
       }
@@ -180,13 +180,13 @@ public interface ISoundPlayer {
    * @param pitch the playback pitch (1.0 is normal)
    * @param pan the stereo pan (-1.0 left, 0.0 center, 1.0 right)
    * @param onFinished optional callback to run when playback finishes
-   * @return an {@link IPlayHandle} for control, or empty if playback fails
+   * @return a {@link PlayHandle} for control, or empty if playback fails
    * @throws IllegalArgumentException if volume is out of range
    * @see AudioApi#playOnEntity(Entity, SoundSpec.Builder)
    * @see AudioApi#playAtPosition(Point, SoundSpec.Builder)
    * @see AudioApi#playGlobal(SoundSpec.Builder)
    */
-  Optional<IPlayHandle> playWithInstance(
+  Optional<PlayHandle> playWithInstance(
       long instanceId,
       String soundName,
       float volume,
@@ -212,7 +212,7 @@ public interface ISoundPlayer {
    * @param instanceId the unique sound instance identifier
    * @return the play handle if found, empty otherwise
    */
-  Optional<IPlayHandle> get(long instanceId);
+  Optional<PlayHandle> get(long instanceId);
 
   /**
    * Stops and removes a specific sound instance.

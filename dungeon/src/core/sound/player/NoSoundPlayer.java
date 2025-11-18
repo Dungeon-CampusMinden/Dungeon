@@ -18,7 +18,7 @@ import java.util.*;
 public class NoSoundPlayer implements ISoundPlayer {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(NoSoundPlayer.class);
 
-  private final List<AbstractPlayHandle> activeHandles = new ArrayList<>();
+  private final List<PlayHandle> activeHandles = new ArrayList<>();
 
   /**
    * No-op play implementation used in headless or test environments.
@@ -27,7 +27,7 @@ public class NoSoundPlayer implements ISoundPlayer {
    *
    * <ul>
    *   <li>Logs the play request at TRACE level.
-   *   <li>Returns a mock {@code IPlayHandle} that performs no audio work.
+   *   <li>Returns a mock {@code PlayHandle} that performs no audio work.
    *   <li>If an on-finished callback was registered via {@link
    *       core.sound.AudioApi#registerOnFinished(long, Runnable)}, that callback will be invoked
    *       immediately.
@@ -42,10 +42,10 @@ public class NoSoundPlayer implements ISoundPlayer {
    * @param looping whether playback should loop (ignored)
    * @param pitch playback pitch (ignored)
    * @param pan stereo pan (ignored)
-   * @return an {@code Optional} containing a mock {@code IPlayHandle} that does nothing
+   * @return an {@code Optional} containing a mock {@code PlayHandle} that does nothing
    */
   @Override
-  public Optional<IPlayHandle> playWithInstance(
+  public Optional<PlayHandle> playWithInstance(
       long instanceId,
       String soundName,
       float volume,
@@ -81,7 +81,7 @@ public class NoSoundPlayer implements ISoundPlayer {
   }
 
   @Override
-  public Optional<IPlayHandle> get(long instanceId) {
+  public Optional<PlayHandle> get(long instanceId) {
     return activeHandles.stream()
         .filter(handle -> handle.instanceId() == instanceId)
         .findFirst()
@@ -126,7 +126,7 @@ public class NoSoundPlayer implements ISoundPlayer {
     LOGGER.info("NoSoundPlayer: Disposing (no-op)");
   }
 
-  private static class MockPlayHandle extends AbstractPlayHandle {
+  private static class MockPlayHandle extends PlayHandle {
 
     public MockPlayHandle(long instanceId, Runnable onFinished) {
       super(instanceId);

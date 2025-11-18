@@ -10,8 +10,8 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.SoundComponent;
 import core.sound.SoundSpec;
-import core.sound.player.IPlayHandle;
 import core.sound.player.ISoundPlayer;
+import core.sound.player.PlayHandle;
 import core.utils.Point;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -23,12 +23,12 @@ public class SoundSystemTest {
 
   private SoundSystem soundSystem;
   private ISoundPlayer mockPlayer;
-  private IPlayHandle mockHandle;
+  private PlayHandle mockHandle;
 
   @BeforeEach
   void setup() {
     mockPlayer = mock(ISoundPlayer.class);
-    mockHandle = mock(IPlayHandle.class);
+    mockHandle = mock(PlayHandle.class);
     when(mockPlayer.playWithInstance(
             anyLong(), anyString(), anyFloat(), anyBoolean(), anyFloat(), anyFloat(), any()))
         .thenReturn(Optional.of(mockHandle));

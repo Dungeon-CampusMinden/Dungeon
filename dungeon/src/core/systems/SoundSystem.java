@@ -5,8 +5,8 @@ import core.Game;
 import core.System;
 import core.components.SoundComponent;
 import core.sound.SoundSpec;
-import core.sound.player.IPlayHandle;
 import core.sound.player.ISoundPlayer;
+import core.sound.player.PlayHandle;
 import core.utils.Point;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
@@ -33,8 +33,7 @@ public class SoundSystem extends System {
    * <p>This tracks all active audio instances for each entity. When a sound finishes or is removed,
    * it's deleted from this map. When an entity is removed, its entire inner map is removed.
    */
-  private final Map<Integer, Map<Long, IPlayHandle>> activePlaybackHandlesByEntity =
-      new HashMap<>();
+  private final Map<Integer, Map<Long, PlayHandle>> activePlaybackHandlesByEntity = new HashMap<>();
 
   /** The sound player used to play and update audio instances. */
   private final ISoundPlayer soundPlayer;
@@ -73,7 +72,7 @@ public class SoundSystem extends System {
 
     // Get or create the map of active sounds for this entity
     // Key: soundInstanceId, Value: playback handle
-    Map<Long, IPlayHandle> entityActiveSounds =
+    Map<Long, PlayHandle> entityActiveSounds =
         activePlaybackHandlesByEntity.computeIfAbsent(entity.id(), k -> new HashMap<>());
 
     // Step 1: Start new sounds and update existing ones
@@ -94,12 +93,12 @@ public class SoundSystem extends System {
   private void startAndUpdateSounds(
       Entity entity,
       SoundComponent soundComponent,
-      Map<Long, IPlayHandle> entityActiveSounds,
+      Map<Long, PlayHandle> entityActiveSounds,
       Point listenerPosition) {
 
     for (SoundSpec soundSpec : soundComponent.sounds()) {
       long soundInstanceId = soundSpec.instanceId();
-      IPlayHandle playbackHandle = entityActiveSounds.get(soundInstanceId);
+      PlayHandle playbackHandle = entityActiveSounds.get(soundInstanceId);
 
       // If this sound isn't playing yet, start it
       if (playbackHandle == null) {
@@ -125,11 +124,11 @@ public class SoundSystem extends System {
    * @param entityActiveSounds map to store the playback handle in
    * @return the playback handle if successful, null otherwise
    */
-  private IPlayHandle startNewSound(
-      Entity entity, SoundSpec soundSpec, Map<Long, IPlayHandle> entityActiveSounds) {
+  private PlayHandle startNewSound(
+      Entity entity, SoundSpec soundSpec, Map<Long, PlayHandle> entityActiveSounds) {
     long soundInstanceId = soundSpec.instanceId();
 
-    Optional<IPlayHandle> handleOpt =
+    Optional<PlayHandle> handleOpt =
         soundPlayer.playWithInstance(
             soundInstanceId,
             soundSpec.soundName(),
@@ -157,13 +156,13 @@ public class SoundSystem extends System {
    * @param entityActiveSounds the map of active sounds to clean up
    */
   private void cleanupFinishedSounds(
-      SoundComponent soundComponent, Map<Long, IPlayHandle> entityActiveSounds) {
+      SoundComponent soundComponent, Map<Long, PlayHandle> entityActiveSounds) {
 
     // Find all sound instances that have finished playing
     List<Long> finishedSoundIds = new ArrayList<>();
-    for (Map.Entry<Long, IPlayHandle> entry : entityActiveSounds.entrySet()) {
+    for (Map.Entry<Long, PlayHandle> entry : entityActiveSounds.entrySet()) {
       long soundInstanceId = entry.getKey();
-      IPlayHandle playbackHandle = entry.getValue();
+      PlayHandle playbackHandle = entry.getValue();
 
       if (!playbackHandle.isPlaying()) {
         finishedSoundIds.add(soundInstanceId);
@@ -186,7 +185,7 @@ public class SoundSystem extends System {
    * @param entity the entity being removed
    */
   private void onEntityRemoved(Entity entity) {
-    Map<Long, IPlayHandle> entityActiveSounds = activePlaybackHandlesByEntity.remove(entity.id());
+    Map<Long, PlayHandle> entityActiveSounds = activePlaybackHandlesByEntity.remove(entity.id());
 
     if (entityActiveSounds != null) {
       // Turn off looping so sounds finish naturally rather than looping forever
@@ -215,7 +214,7 @@ public class SoundSystem extends System {
    *     etc.
    */
   private void updateSound(
-      IPlayHandle playbackHandle,
+      PlayHandle playbackHandle,
       Point entityPosition,
       Point listenerPosition,
       SoundSpec soundSpec) {

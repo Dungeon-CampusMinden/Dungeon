@@ -33,13 +33,13 @@ public class NoSoundPlayerTest {
   void testPlayReturnsMock() {
     Runnable mockRunnable = Mockito.mock(Runnable.class);
     Game.audio().registerOnFinished(1, mockRunnable);
-    Optional<IPlayHandle> handle =
+    Optional<PlayHandle> handle =
         Game.soundPlayer().playWithInstance(1, "test", 0.8f, false, 1f, 0f, mockRunnable);
 
     assertTrue(handle.isPresent());
     Game.soundPlayer().update(0.01f);
     verify(mockRunnable).run();
-    IPlayHandle playHandle = handle.get();
+    PlayHandle playHandle = handle.get();
     assertDoesNotThrow(playHandle::stop);
     assertDoesNotThrow(() -> playHandle.volume(0.5f));
   }

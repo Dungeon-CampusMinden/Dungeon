@@ -53,7 +53,7 @@ public class GdxSoundPlayerTest {
   @Test
   void testPlayValidSound() {
     // Play a sound with valid parameters
-    Optional<IPlayHandle> handle =
+    Optional<PlayHandle> handle =
         player.playWithInstance(1L, "test", 0.7f, false, 1.0f, 0.0f, null);
 
     // Verify the handle is present and the sound was played
@@ -65,7 +65,7 @@ public class GdxSoundPlayerTest {
   @Test
   void testPlayNonExistentSound() {
     // Try to play a sound that doesn't exist
-    Optional<IPlayHandle> handle =
+    Optional<PlayHandle> handle =
         player.playWithInstance(2L, "nonexistent", 0.5f, false, 1.0f, 0.0f, null);
 
     // Verify no handle is returned
@@ -77,8 +77,7 @@ public class GdxSoundPlayerTest {
   @Test
   void testPlayLoopingSound() {
     // Play a sound with looping enabled
-    Optional<IPlayHandle> handle =
-        player.playWithInstance(3L, "loop", 0.8f, true, 1.0f, 0.0f, null);
+    Optional<PlayHandle> handle = player.playWithInstance(3L, "loop", 0.8f, true, 1.0f, 0.0f, null);
 
     // Verify the handle is present and playing
     assertTrue(handle.isPresent());
@@ -96,7 +95,7 @@ public class GdxSoundPlayerTest {
     Runnable callback = mock(Runnable.class);
 
     // Play a non-looping sound with known duration (1962ms for "test" sound)
-    Optional<IPlayHandle> handle =
+    Optional<PlayHandle> handle =
         player.playWithInstance(4L, "test", 0.5f, false, 1.0f, 0.0f, callback);
 
     assertTrue(handle.isPresent());
@@ -106,8 +105,7 @@ public class GdxSoundPlayerTest {
     Field activeHandlesField = GdxSoundPlayer.class.getDeclaredField("activeHandles");
     activeHandlesField.setAccessible(true);
     @SuppressWarnings("unchecked")
-    List<AbstractPlayHandle> activeHandles =
-        (List<AbstractPlayHandle>) activeHandlesField.get(player);
+    List<PlayHandle> activeHandles = (List<PlayHandle>) activeHandlesField.get(player);
 
     assertEquals(1, activeHandles.size());
 
@@ -124,8 +122,7 @@ public class GdxSoundPlayerTest {
   @Test
   void testUpdatePreservesLoopingSounds() throws Exception {
     // Play a looping sound
-    Optional<IPlayHandle> handle =
-        player.playWithInstance(5L, "loop", 0.6f, true, 1.0f, 0.0f, null);
+    Optional<PlayHandle> handle = player.playWithInstance(5L, "loop", 0.6f, true, 1.0f, 0.0f, null);
 
     assertTrue(handle.isPresent());
     assertTrue(handle.get().isPlaying());
@@ -134,8 +131,7 @@ public class GdxSoundPlayerTest {
     Field activeHandlesField = GdxSoundPlayer.class.getDeclaredField("activeHandles");
     activeHandlesField.setAccessible(true);
     @SuppressWarnings("unchecked")
-    List<AbstractPlayHandle> activeHandles =
-        (List<AbstractPlayHandle>) activeHandlesField.get(player);
+    List<PlayHandle> activeHandles = (List<PlayHandle>) activeHandlesField.get(player);
 
     assertEquals(1, activeHandles.size());
 
