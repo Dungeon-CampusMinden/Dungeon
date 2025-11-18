@@ -49,7 +49,7 @@ public final class ECSManagement {
    * <p>Essential systems are systems that are required for the game to function properly.
    */
   private static final System[] ESSENTIAL_SYSTEMS = {
-    new LevelSystem(), new SoundSystem(), new DrawSystem(), new EventScheduler()
+    new LevelSystem(), new SoundSystem(), DrawSystem.getInstance(), new EventScheduler()
   };
 
   /**
