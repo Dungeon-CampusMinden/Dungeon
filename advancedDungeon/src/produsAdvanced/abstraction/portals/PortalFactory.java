@@ -3,6 +3,7 @@ package produsAdvanced.abstraction.portals;
 import contrib.components.CollideComponent;
 import contrib.components.ProjectileComponent;
 import contrib.components.SkillComponent;
+import contrib.utils.components.collide.Hitbox;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
@@ -67,6 +68,7 @@ public class PortalFactory {
     getBluePortal()
         .ifPresentOrElse(
             bluePortal -> {
+              System.out.println("test");
               moveExistingPortal(bluePortal, direction, point, PortalColor.BLUE);
             },
             () -> {
@@ -183,6 +185,11 @@ public class PortalFactory {
       }
       pec.setThroughGreen(true);
       portal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
+      getBluePortal()
+        .ifPresent(
+          bluePortal -> {
+            bluePortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
+          });
       return;
     }
 
@@ -218,6 +225,11 @@ public class PortalFactory {
       }
       pec.setThroughBlue(true);
       portal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
+      getGreenPortal()
+        .ifPresent(
+          greenPortal -> {
+            greenPortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
+          });
       return;
     }
 
@@ -383,6 +395,9 @@ public class PortalFactory {
                       greenPortal -> {
                         if (portal == greenPortal) {
                           pec.setThroughGreen(false);
+                        greenPortal.fetch(PortalComponent.class).ifPresent(pc ->{
+                          pc.setExtendedEntityThrough(null);
+                        });
                         }
                       });
               getBluePortal()
@@ -390,6 +405,9 @@ public class PortalFactory {
                       bluePortal -> {
                         if (portal == bluePortal) {
                           pec.setThroughBlue(false);
+                        bluePortal.fetch(PortalComponent.class).ifPresent(pc ->{
+                          pc.setExtendedEntityThrough(null);
+                        });
                         }
                       });
             });
@@ -410,7 +428,9 @@ public class PortalFactory {
               if (other != null) {
                 clearExtendedEntity(portal, other);
               }
-              Game.remove(portal);
+              portal.fetch(CollideComponent.class).ifPresent(cc-> {
+                cc.collider(new Hitbox(0,0));
+              });
             });
   }
 
@@ -423,7 +443,9 @@ public class PortalFactory {
               if (other != null) {
                 clearExtendedEntity(portal, other);
               }
-              Game.remove(portal);
+              portal.fetch(CollideComponent.class).ifPresent(cc-> {
+                cc.collider(new Hitbox(0,0));
+              });
             });
   }
 
