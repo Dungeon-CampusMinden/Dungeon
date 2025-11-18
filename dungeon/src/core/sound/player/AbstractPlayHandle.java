@@ -24,6 +24,8 @@ public abstract class AbstractPlayHandle implements IPlayHandle {
    * Creates a new AbstractPlayHandle instance.
    *
    * <p>It automatically assigns a unique instance ID.
+   *
+   * @param instanceId the unique instance identifier for this sound
    */
   protected AbstractPlayHandle(long instanceId) {
     this.instanceId = instanceId;
