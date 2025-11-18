@@ -86,6 +86,12 @@ public final class DrawSystem extends System implements Disposable {
   private float secondsElapsed = 0f;
   private int shadersActiveLastFrame = 0;
 
+  private int stableWidth = -1;
+  private int stableHeight = -1;
+  private int unstableWidth = -1;
+  private int unstableHeight = -1;
+  private int stableResizeFrames = -1;
+
   /** Create a new DrawSystem. */
   private DrawSystem() {
     super(AuthoritativeSide.BOTH, DrawComponent.class, PositionComponent.class);
@@ -240,17 +246,50 @@ public final class DrawSystem extends System implements Disposable {
   @Override
   public void execute() {
     filteredEntityStream().map(DSData::build).forEach(dsd -> dsd.dc.update());
+
+    if (stableWidth == -1) {
+      stableWidth = Game.windowWidth();
+      stableHeight = Game.windowHeight();
+      stableResizeFrames = 0;
+    }
+
+    checkStableResize();
+  }
+
+  /** Tracks the most recent stable window size, to not flood the FBO creation while resizing. */
+  private void checkStableResize() {
+    int currentWidth = Game.windowWidth();
+    int currentHeight = Game.windowHeight();
+
+    if (currentWidth != unstableWidth || currentHeight != unstableHeight) {
+      if (currentWidth == 0 || currentHeight == 0) return; // Ignore minimized window
+      unstableWidth = currentWidth;
+      unstableHeight = currentHeight;
+      stableResizeFrames = 5;
+    } else {
+      if (stableResizeFrames == 0) {
+        if (stableWidth != unstableWidth || stableHeight != unstableHeight) {
+          stableWidth = unstableWidth;
+          stableHeight = unstableHeight;
+          LOGGER.info("Stable window resize detected: " + stableWidth + "x" + stableHeight);
+        }
+      } else {
+        stableResizeFrames--;
+      }
+    }
   }
 
   @Override
   public void render(float delta) {
+    if (stableWidth == -1) return;
+
     shadersActiveLastFrame = 0;
 
     // Pass 1: Render shaders to FBOs (Entity-local shaders)
     renderEntitiesPass1();
 
-    int sceneWidth = Gdx.graphics.getWidth();
-    int sceneHeight = Gdx.graphics.getHeight();
+    int sceneWidth = stableWidth;
+    int sceneHeight = stableHeight;
 
     // Get FBOs for scene composition/post-processing
     FrameBuffer fboA = FBO_POOL.obtain(sceneWidth, sceneHeight);
@@ -317,14 +356,11 @@ public final class DrawSystem extends System implements Disposable {
     fboRegion.setRegion(finalTexture);
     fboRegion.flip(false, true);
 
-    batch()
-        .setProjectionMatrix(
-            fboProjectionMatrix.setToOrtho2D(
-                0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+    batch().setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, stableWidth, stableHeight));
     batch().begin();
     BlendUtils.setBlending(batch());
     batch().setColor(Color.WHITE);
-    batch().draw(fboRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    batch().draw(fboRegion, 0, 0, stableWidth, stableHeight);
     batch().end();
 
     FBO_POOL.free(fboA);
