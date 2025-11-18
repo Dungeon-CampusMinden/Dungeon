@@ -153,7 +153,15 @@ public class MainLevel extends DungeonLevel {
         npcDie();
       }
     }
-    DebugDrawSystem.setEntityQuickInfo(npc, "Collection State:\n - " + collectionState.a() + " / " + maxMushrooms + " mushrooms\n - " + collectionState.b() + " poisonous");
+    DebugDrawSystem.setEntityQuickInfo(
+        npc,
+        "Collection State:\n - "
+            + collectionState.a()
+            + " / "
+            + maxMushrooms
+            + " mushrooms\n - "
+            + collectionState.b()
+            + " poisonous");
 
     switch (npcState) {
       case FIRST_TALK:
@@ -164,19 +172,25 @@ public class MainLevel extends DungeonLevel {
         break;
       case SECOND_TALK:
         DialogUtils.showTextPopup(
-          "Sammle von jeder Sorte "+TO_GENERATE_PER_TYPE+" Stück. Nicht alle Pilze sind ungefährlich, einige sind giftig! Nimm dieses Notizbuch, um die Pilze zu identifizieren. Öffne es mit <B>",
-          "Yoooohooo");
+            "Sammle von jeder Sorte "
+                + TO_GENERATE_PER_TYPE
+                + " Stück. Nicht alle Pilze sind ungefährlich, einige sind giftig! Nimm dieses Notizbuch, um die Pilze zu identifizieren. Öffne es mit <B>",
+            "Yoooohooo");
         npcState = NpcState.THIRD_TALK;
         break;
       case THIRD_TALK:
         DialogUtils.showTextPopup(
-          "Einige Seiten in dem Notizbuch fehlen, aber vielleicht findest du in der Umgebung mehr Informationen über die Pilze. Bitte beeile dich, sonst klappe ich hier noch zusammen!",
-          "Yoooohooo");
+            "Einige Seiten in dem Notizbuch fehlen, aber vielleicht findest du in der Umgebung mehr Informationen über die Pilze. Bitte beeile dich, sonst klappe ich hier noch zusammen!",
+            "Yoooohooo");
         npcState = NpcState.DURING_COLLECTING;
         break;
       case DURING_COLLECTING:
         DialogUtils.showTextPopup(
-            "Hast du schon alle Pilze gesammelt? Ich brauche sie dringend, um den Heiltrank zu brauen! "+TO_GENERATE_PER_TYPE+" Stück von jedem nicht giftigen Pilz sollten reichen, also "+maxMushrooms+" insgesamt!",
+            "Hast du schon alle Pilze gesammelt? Ich brauche sie dringend, um den Heiltrank zu brauen! "
+                + TO_GENERATE_PER_TYPE
+                + " Stück von jedem nicht giftigen Pilz sollten reichen, also "
+                + maxMushrooms
+                + " insgesamt!",
             "Yoooohooo");
         break;
       case ALL_COLLECTED:
