@@ -313,10 +313,9 @@ public class PortalFactory {
     PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
     Direction blueDirection = getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
     Direction greenDirection = getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
-    System.out.println("direction of green : " + greenDirection);
-    System.out.println("direction of blue : " + blueDirection);
 
     other.fetch(VelocityComponent.class).ifPresent(vc-> {
+      vc.clearForces();
       vc.currentVelocity(Vector2.ZERO);
     });
     if (color == PortalColor.BLUE) {
@@ -324,8 +323,6 @@ public class PortalFactory {
     } else {
       otherPositionComponent.viewDirection(blueDirection);
     }
-    System.out.println(other.name() + " " + otherPositionComponent.viewDirection());
-    EventScheduler.scheduleAction(()->{ System.out.println(other.name() + " " + otherPositionComponent.viewDirection());},100);
   }
 
   /**
