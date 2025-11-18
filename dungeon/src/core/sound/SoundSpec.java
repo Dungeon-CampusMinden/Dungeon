@@ -6,8 +6,8 @@ import java.io.Serializable;
 /**
  * Describes a single sound instance to be played for an entity.
  *
- * <p>Used inside {@link core.components.SoundComponent} and synchronized via snapshots. Instances
- * are immutable and created using the {@link Builder} pattern.
+ * <p>Used inside {@link core.components.SoundComponent}. Instances are immutable and created using
+ * the {@link Builder} pattern.
  *
  * <p>Example usage:
  *
@@ -19,8 +19,7 @@ import java.io.Serializable;
  *     .build();
  * }</pre>
  *
- * @param instanceId Globally unique instance identifier (server generated). Used for tracking
- *     across network.
+ * @param instanceId Globally unique instance identifier.
  * @param soundName The name of the sound asset to play (file name without extension).
  * @param baseVolume The base volume level before distance attenuation. Range: [0.0, 1.0].
  * @param looping Whether the sound should loop indefinitely until explicitly stopped.

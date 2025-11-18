@@ -18,11 +18,9 @@ public interface IPlayHandle {
    *
    * <p>Used for tracking and managing individual sound instances throughout their lifecycle.
    *
-   * @return unique instance ID, or -1 if not assigned
+   * @return the unique instance ID
    */
-  default long instanceId() {
-    return -1L;
-  }
+  long instanceId();
 
   /**
    * Immediately stops sound playback and triggers the onFinished callback.

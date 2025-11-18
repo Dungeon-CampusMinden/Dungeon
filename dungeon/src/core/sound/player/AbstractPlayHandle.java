@@ -12,15 +12,12 @@ package core.sound.player;
  */
 public abstract class AbstractPlayHandle implements IPlayHandle {
 
-  private static long nextInstanceId = 1L;
-
   /** Indicates whether this sound has finished playing. */
   protected boolean finished = false;
 
   /** Optional callback to execute when the sound finishes. */
   protected Runnable onFinishedCallback;
 
-  /** Globally unique instance identifier for this sound. */
   private final long instanceId;
 
   /**
@@ -28,8 +25,8 @@ public abstract class AbstractPlayHandle implements IPlayHandle {
    *
    * <p>It automatically assigns a unique instance ID.
    */
-  protected AbstractPlayHandle() {
-    this.instanceId = nextInstanceId++;
+  protected AbstractPlayHandle(long instanceId) {
+    this.instanceId = instanceId;
   }
 
   /**

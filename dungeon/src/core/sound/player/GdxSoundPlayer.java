@@ -170,7 +170,8 @@ public class GdxSoundPlayer implements ISoundPlayer {
           volume,
           looping);
       SoundPlayHandle handle =
-          new SoundPlayHandle(sound, asset.durationMs().orElse(-1L), volume, pitch, pan);
+          new SoundPlayHandle(
+              instanceId, sound, asset.durationMs().orElse(-1L), volume, pitch, pan);
       handle.looping(looping);
       handle.onFinished(onFinished);
       activeHandles.add(handle);
@@ -256,6 +257,7 @@ public class GdxSoundPlayer implements ISoundPlayer {
      * <p>Note: On non-desktop platforms, pitch must be between 0.5 and 2.0, otherwise the given
      * value will be clamped to this range.
      *
+     * @param instanceId Unique identifier for this sound instance
      * @param sound The libGDX Sound instance
      * @param durationMs Duration of the sound in milliseconds, or -1 if unknown
      * @param volume Volume level (0.0 to 1.0)
@@ -263,7 +265,9 @@ public class GdxSoundPlayer implements ISoundPlayer {
      * @param pan Pan position (-1.0 left, 0.0 center, 1.0 right)
      * @throws IllegalArgumentException if any parameter is out of range
      */
-    public SoundPlayHandle(Sound sound, long durationMs, float volume, float pitch, float pan) {
+    public SoundPlayHandle(
+        long instanceId, Sound sound, long durationMs, float volume, float pitch, float pan) {
+      super(instanceId);
       if (volume < 0f || volume > 1f) {
         throw new IllegalArgumentException("Volume must be between 0.0 and 1.0");
       }

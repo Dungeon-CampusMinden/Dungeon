@@ -124,6 +124,7 @@ public class NoSoundPlayer implements ISoundPlayer {
   private static class MockPlayHandle extends AbstractPlayHandle {
 
     public MockPlayHandle(long instanceId, Runnable onFinished) {
+      super(instanceId);
       this.onFinished(onFinished);
       callFinished(); // Immediately trigger finished callback
     }
