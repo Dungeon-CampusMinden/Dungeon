@@ -8,6 +8,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
+import core.level.elements.tile.PortalTile;
 import core.level.elements.tile.WallTile;
 import core.utils.Direction;
 import core.utils.Point;
@@ -36,15 +37,7 @@ import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
  * <p>Alternatively, a tractor beam can also be created by specifying only a start point and a
  * direction. In this case, the beam will extend from the start point until it hits the next wall.
  *
- * <p>The following transport directions use the following beam colors:
- *
- * <p>horizontal to the right --> blue
- *
- * <p>horizontal to the left --> red
- *
- * <p>vertical down --> blue
- *
- * <p>vertical up --> red
+ * <p>Reversing the beam changes its color from blue to red.
  */
 public class TractorBeamFactory {
 
@@ -123,16 +116,30 @@ public class TractorBeamFactory {
    * Determines the last available point for a tractor beam. The beam is stopped by a wallTile, so
    * the EndPoint has to be last point in front of a wall tile.
    *
+   * <p>Allow PortalTile on the first and second iteration (start or immediate portal exit).
+   *
    * @param from the starting point
    * @param beamDirection the emitted direction of the tractor beam
    * @return the last available point
    */
   private Point calculateEndPoint(Point from, Direction beamDirection) {
     Point lastPoint = from;
+    Tile lastTile = Game.tileAt(lastPoint).orElse(null);
     Point currentPoint = from;
     Tile currentTile = Game.tileAt(from).orElse(null);
-    while (currentTile != null && !currentTile.getClass().equals(WallTile.class)) {
+    boolean firstStep = true;
+    boolean secondStep = false;
+
+    while (currentTile != null
+        && !currentTile.getClass().equals(WallTile.class)
+        && (firstStep || secondStep || !lastTile.getClass().equals(PortalTile.class))) {
+      secondStep = false;
+      if (firstStep) {
+        secondStep = true;
+      }
+      firstStep = false;
       lastPoint = currentPoint;
+      lastTile = Game.tileAt(lastPoint).orElse(null);
       currentPoint = currentPoint.translate(beamDirection);
       currentTile = Game.tileAt(currentPoint).orElse(null);
     }
@@ -166,38 +173,18 @@ public class TractorBeamFactory {
 
     Entity tractorBeam = new Entity("tractorBeam");
     tractorBeam.add(new PositionComponent(new Point(x, y)));
+    tractorBeam
+        .fetch(PositionComponent.class)
+        .ifPresent(pc -> pc.rotation(rotationFor(beamDirection)));
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(TRACTOR_BEAM);
 
-    DrawComponent dc = null;
-
-    if (beamDirection.equals(Direction.RIGHT) || beamDirection.equals(Direction.LEFT)) {
-      State stNormalHorizontal = State.fromMap(animationMap, "blue_horizontal");
-      State stReversedHorizontal = State.fromMap(animationMap, "red_horizontal");
-      StateMachine sm = new StateMachine(Arrays.asList(stNormalHorizontal, stReversedHorizontal));
-      sm.addTransition(stNormalHorizontal, "reverse_horizontal", stReversedHorizontal);
-      sm.addTransition(stReversedHorizontal, "normal_horizontal", stNormalHorizontal);
-      dc = new DrawComponent(sm, DepthLayer.Ground);
-    } else if (beamDirection.equals(Direction.UP) || beamDirection.equals(Direction.DOWN)) {
-      State stNormalVertical = State.fromMap(animationMap, "blue_vertical");
-      State stReversedVertical = State.fromMap(animationMap, "red_vertical");
-      StateMachine sm = new StateMachine(Arrays.asList(stNormalVertical, stReversedVertical));
-      sm.addTransition(stNormalVertical, "reverse_vertical", stReversedVertical);
-      sm.addTransition(stReversedVertical, "normal_vertical", stNormalVertical);
-      dc = new DrawComponent(sm, DepthLayer.Ground);
-    }
-    if (dc == null) {
-      throw new IllegalArgumentException("Tractor Beam has no draw components");
-    }
+    State blue = State.fromMap(animationMap, "blue");
+    State red = State.fromMap(animationMap, "red");
+    StateMachine sm = new StateMachine(Arrays.asList(blue, red));
+    sm.addTransition(blue, "reverse_color", red);
+    sm.addTransition(red, "normalize_color", blue);
+    DrawComponent dc = new DrawComponent(sm, DepthLayer.Ground);
     tractorBeam.add(dc);
-
-    switch (beamDirection) {
-      case Direction.LEFT:
-        dc.sendSignal("reverse_horizontal");
-        break;
-      case Direction.UP:
-        dc.sendSignal("reverse_vertical");
-        break;
-    }
 
     currentIndex++;
     return tractorBeam;
@@ -251,6 +238,8 @@ public class TractorBeamFactory {
   public Entity createBeamEmitter(Point spawnPoint, Direction direction) {
     Entity beamEmitter = new Entity("beamEmitter");
     beamEmitter.add(new PositionComponent(spawnPoint));
+    beamEmitter.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(direction)));
+    beamEmitter.fetch(PositionComponent.class).ifPresent(pc -> pc.viewDirection(direction));
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(BEAM_EMITTER);
     StateMachine sm;
     float hitboxX = 1f;
@@ -258,30 +247,22 @@ public class TractorBeamFactory {
     float offsetX = 0f;
     float offsetY = 0f;
 
+    State idle = State.fromMap(animationMap, "idle");
+    sm = new StateMachine(List.of(idle));
+    beamEmitter.add(new DrawComponent(sm));
+
     switch (direction) {
       case Direction.LEFT:
-        State right = State.fromMap(animationMap, "right");
-        sm = new StateMachine(List.of(right));
-        beamEmitter.add(new DrawComponent(sm));
         hitboxX = currentIndex;
         offsetX = (-currentIndex) + 1;
         break;
       case Direction.UP:
-        State bottom = State.fromMap(animationMap, "bottom");
-        sm = new StateMachine(List.of(bottom));
-        beamEmitter.add(new DrawComponent(sm));
         hitboxY = currentIndex;
         break;
       case Direction.RIGHT:
-        State left = State.fromMap(animationMap, "left");
-        sm = new StateMachine(List.of(left));
-        beamEmitter.add(new DrawComponent(sm));
         hitboxX = currentIndex;
         break;
       case Direction.DOWN:
-        State top = State.fromMap(animationMap, "top");
-        sm = new StateMachine(List.of(top));
-        beamEmitter.add(new DrawComponent(sm));
         hitboxY = currentIndex;
         offsetY = (-currentIndex) + 1;
         break;
@@ -336,8 +317,9 @@ public class TractorBeamFactory {
       return;
     }
 
-    final Direction[] directionHolder = {Direction.NONE};
+    Entity lastEntity = null;
     for (Entity tractorBeamEntity : tractorBeamEntities) {
+      lastEntity = tractorBeamEntity;
       if (tractorBeamEntity.name().equals("tractorBeam")) {
         tractorBeamEntity
             .fetch(DrawComponent.class)
@@ -345,28 +327,28 @@ public class TractorBeamFactory {
                 dc -> {
                   String currentState = dc.currentStateName();
 
-                  if (currentState.contains("horizontal")) {
-                    if (currentState.startsWith("blue")) {
-                      dc.sendSignal("reverse_horizontal");
-                      directionHolder[0] = Direction.RIGHT;
-                    } else {
-                      dc.sendSignal("normal_horizontal");
-                      directionHolder[0] = Direction.LEFT;
-                    }
-                  }
-
-                  if (currentState.contains("vertical")) {
-                    if (currentState.startsWith("blue")) {
-                      dc.sendSignal("reverse_vertical");
-                      directionHolder[0] = Direction.DOWN;
-                    } else {
-                      dc.sendSignal("normal_vertical");
-                      directionHolder[0] = Direction.UP;
-                    }
+                  if (currentState.contains("blue")) {
+                    dc.sendSignal("reverse_color");
+                  } else if (currentState.contains("red")) {
+                    dc.sendSignal("normalize_color");
                   }
                 });
+
       } else if (tractorBeamEntity.name().equals("beamEmitter")) {
-        final Direction dir = directionHolder[0];
+        if (!tractorBeamEntity.fetch(PositionComponent.class).isPresent()) {
+          return;
+        }
+        if (!tractorBeamEntity.fetch(TractorBeamComponent.class).isPresent()) {
+          return;
+        }
+        Direction viewDir = tractorBeamEntity.fetch(PositionComponent.class).get().viewDirection();
+        boolean isReversed = tractorBeamEntity.fetch(TractorBeamComponent.class).get().isReversed();
+
+        if (isReversed) {
+          viewDir = viewDir.opposite();
+        }
+        final Direction dir = viewDir;
+
         tractorBeamEntity
             .fetch(CollideComponent.class)
             .ifPresent(
@@ -387,10 +369,10 @@ public class TractorBeamFactory {
                                 });
                       });
                 });
-        tractorBeamEntity
-            .fetch(TractorBeamComponent.class)
-            .ifPresent(TractorBeamComponent::toggleReversed);
       }
+    }
+    if (lastEntity != null) {
+      lastEntity.fetch(TractorBeamComponent.class).ifPresent(TractorBeamComponent::toggleReversed);
     }
   }
 
@@ -417,8 +399,6 @@ public class TractorBeamFactory {
 
     while (i < extensionBeamEntities.size()) {
 
-      final Direction[] directionHolder = {Direction.NONE};
-
       while (i < extensionBeamEntities.size()
           && extensionBeamEntities.get(i).name().equals("tractorBeam")) {
 
@@ -430,24 +410,10 @@ public class TractorBeamFactory {
                 dc -> {
                   String currentState = dc.currentStateName();
 
-                  if (currentState.contains("horizontal")) {
-                    if (currentState.startsWith("blue")) {
-                      dc.sendSignal("reverse_horizontal");
-                      directionHolder[0] = Direction.RIGHT;
-                    } else {
-                      dc.sendSignal("normal_horizontal");
-                      directionHolder[0] = Direction.LEFT;
-                    }
-                  }
-
-                  if (currentState.contains("vertical")) {
-                    if (currentState.startsWith("blue")) {
-                      dc.sendSignal("reverse_vertical");
-                      directionHolder[0] = Direction.DOWN;
-                    } else {
-                      dc.sendSignal("normal_vertical");
-                      directionHolder[0] = Direction.UP;
-                    }
+                  if (currentState.contains("blue")) {
+                    dc.sendSignal("reverse_color");
+                  } else if (currentState.contains("red")) {
+                    dc.sendSignal("normalize_color");
                   }
                 });
 
@@ -458,7 +424,10 @@ public class TractorBeamFactory {
           && extensionBeamEntities.get(i).name().equals("beamEmitter")) {
 
         Entity emitter = extensionBeamEntities.get(i);
-        final Direction dir = directionHolder[0];
+        if (!emitter.fetch(PositionComponent.class).isPresent()) {
+          return;
+        }
+        final Direction dir = emitter.fetch(PositionComponent.class).get().viewDirection();
 
         emitter
             .fetch(CollideComponent.class)
@@ -571,5 +540,22 @@ public class TractorBeamFactory {
       }
     }
     return false;
+  }
+
+  /**
+   * Returns the rotation in degrees for a given direction. 0° corresponds to RIGHT, 180° to LEFT,
+   * 90° to UP, and -90° to DOWN.
+   *
+   * @param d the direction
+   * @return the rotation in degrees for rendering
+   */
+  private static float rotationFor(Direction d) {
+    return switch (d) {
+      case UP -> 90f;
+      case DOWN -> -90f;
+      case LEFT -> 180f;
+      case RIGHT -> 0f;
+      default -> 0f;
+    };
   }
 }
