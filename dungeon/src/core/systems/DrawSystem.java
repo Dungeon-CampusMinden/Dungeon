@@ -865,19 +865,16 @@ public final class DrawSystem extends System implements Disposable {
             pos.translate(width, 0),
             pos.translate(0, height),
             pos.translate(width, height));
+    Point entityCenter = EntityUtils.getPosition(data.e);
 
     return Game.currentLevel()
         .map(
             level ->
-                corners.stream()
-                    .anyMatch(
-                        corner -> {
-                          if (!cameraBounds.contains(corner)) {
-                            return false;
-                          }
-                          Tile t = level.tileAt(corner).orElse(null);
-                          return t != null && t.visible() && !TileUtils.isTilePitAndOpen(t);
-                        }))
+                corners.stream().anyMatch(cameraBounds::contains)
+                    || level
+                        .tileAt(entityCenter)
+                        .filter(tile -> tile.visible() && !TileUtils.isTilePitAndOpen(tile))
+                        .isPresent())
         .orElse(false);
   }
 
