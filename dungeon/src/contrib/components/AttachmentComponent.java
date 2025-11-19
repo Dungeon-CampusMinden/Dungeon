@@ -42,9 +42,11 @@ public class AttachmentComponent implements Component {
    * @param offset offset from the origins position.
    * @param copy the PositionComponent that gets updated.
    * @param origin the PositionComponent that provides the position for the copy.
-   * @param isTextureRotating if true the texture will be rotating with the viewDirection of the origin, otherwise it won't rotate.
+   * @param isTextureRotating if true the texture will be rotating with the viewDirection of the
+   *     origin, otherwise it won't rotate.
    */
-  public AttachmentComponent(Vector2 offset, PositionComponent copy, PositionComponent origin, boolean isTextureRotating) {
+  public AttachmentComponent(
+      Vector2 offset, PositionComponent copy, PositionComponent origin, boolean isTextureRotating) {
     this(offset, copy, origin);
     this.isTextureRotating = isTextureRotating;
   }

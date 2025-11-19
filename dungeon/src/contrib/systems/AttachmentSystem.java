@@ -1,7 +1,6 @@
 package contrib.systems;
 
 import contrib.components.AttachmentComponent;
-import contrib.components.CollideComponent;
 import core.Entity;
 import core.System;
 import core.components.PositionComponent;
