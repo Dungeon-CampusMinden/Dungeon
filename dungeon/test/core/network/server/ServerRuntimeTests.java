@@ -8,6 +8,9 @@ import core.level.loader.DungeonLoader;
 import core.network.messages.NetworkMessage;
 import core.systems.LevelSystem;
 import core.utils.Tuple;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -32,12 +35,30 @@ public class ServerRuntimeTests {
 
   /**
    * Generates a unique port starting from the base TEST_PORT. Each call increments the port number
-   * to ensure no conflicts between concurrent or sequential tests.
+   * and probes the loopback interface to ensure the port is actually available before returning it.
    *
-   * @return a unique port number for testing
+   * @return a unique, available port number for testing
    */
   private static synchronized int uniquePort() {
-    return TEST_PORT + (portCounter++);
+    final int maxAttempts = 1000;
+    int attempts = 0;
+    while (attempts++ < maxAttempts) {
+      int candidate = TEST_PORT + (portCounter++);
+      if (isPortAvailableOnLoopback(candidate)) {
+        return candidate;
+      }
+    }
+    throw new IllegalStateException(
+        "Unable to find an available port after " + maxAttempts + " attempts");
+  }
+
+  private static boolean isPortAvailableOnLoopback(int port) {
+    try (ServerSocket ss = new ServerSocket(port, 0, InetAddress.getByName("127.0.0.1"))) {
+      ss.setReuseAddress(true);
+      return true;
+    } catch (IOException e) {
+      return false;
+    }
   }
 
   /**
