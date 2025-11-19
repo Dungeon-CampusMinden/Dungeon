@@ -44,6 +44,43 @@ public final class TextureMap extends HashMap<String, Texture> {
   }
 
   /**
+   * Puts the given texture into the map at the given path. If there is already a texture at that
+   * path, it is disposed of first.
+   *
+   * @param path Path to store the texture at.
+   * @param texture The texture to store. NOTE: Must be a premultiplied alpha texture.
+   */
+  public void putTexture(final IPath path, final Texture texture) {
+    if (containsKey(path.pathString())) {
+      Texture oldTexture = get(path.pathString());
+      oldTexture.dispose();
+    }
+    put(path.pathString(), texture);
+  }
+
+  /**
+   * Puts the given pixmap as a premultiplied alpha texture into the map at the given path. If
+   * there is already a texture at that path, it is disposed of first.
+   * @param path Path to store the texture at.
+   * @param pixmap The pixmap to convert and store.
+   * @param flipY Whether to flip the pixmap vertically when creating the texture.
+   */
+  public void putPixmap(final IPath path, final Pixmap pixmap, boolean flipY) {
+    Pixmap toUse = pixmap;
+    if (flipY) {
+      toUse = new Pixmap(pixmap.getWidth(), pixmap.getHeight(), pixmap.getFormat());
+      for (int y = 0; y < pixmap.getHeight(); y++) {
+        for (int x = 0; x < pixmap.getWidth(); x++) {
+          int pixel = pixmap.getPixel(x, y);
+          toUse.drawPixel(x, pixmap.getHeight() - y - 1, pixel);
+        }
+      }
+    }
+    Texture texture = loadPMA(toUse);
+    putTexture(path, texture);
+  }
+
+  /**
    * Loads a premultiplied alpha texture from the given internal path.
    *
    * @param internalPath The internal path to the texture file.
@@ -57,9 +94,22 @@ public final class TextureMap extends HashMap<String, Texture> {
     }
 
     Pixmap pixmap = new Pixmap(file);
+    try {
+      return loadPMA(pixmap);
+    } finally {
+      pixmap.dispose();
+    }
+  }
+
+  /**
+   * Converts the given pixmap to premultiplied alpha and returns it as a texture.
+   *
+   * @param pixmap The pixmap to convert.
+   * @return The converted texture.
+   */
+  private static Texture loadPMA(Pixmap pixmap) {
     Pixmap corrected = new Pixmap(pixmap.getWidth(), pixmap.getHeight(), pixmap.getFormat());
     Color c = new Color();
-
     try {
       for (int y = 0; y < pixmap.getHeight(); y++) {
         for (int x = 0; x < pixmap.getWidth(); x++) {
@@ -78,7 +128,6 @@ public final class TextureMap extends HashMap<String, Texture> {
 
       return new Texture(corrected);
     } finally {
-      pixmap.dispose();
       corrected.dispose();
     }
   }
