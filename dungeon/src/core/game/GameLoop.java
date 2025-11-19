@@ -12,14 +12,25 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import contrib.entities.CharacterClass;
+import contrib.entities.HeroBuilder;
 import contrib.entities.deco.DecoFactory;
 import contrib.systems.DebugDrawSystem;
+import contrib.systems.HudSystem;
 import contrib.utils.CheckPatternPainter;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.level.loader.DungeonLoader;
+import core.level.loader.LevelParser;
+import core.network.ConnectionListener;
+import core.network.MessageDispatcher;
+import core.network.client.ClientNetwork;
+import core.network.messages.c2s.InputMessage;
+import core.network.messages.s2c.*;
 import core.sound.player.GdxSoundPlayer;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
@@ -46,7 +57,6 @@ public final class GameLoop extends ScreenAdapter {
   private static ISoundPlayer soundPlayer = new NoSoundPlayer();
   private static Stage stage;
   private boolean doSetup = true;
-  private boolean newLevelWasLoadedInThisLoop = false;
 
   /**
    * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
@@ -59,13 +69,13 @@ public final class GameLoop extends ScreenAdapter {
    *
    * <p>Will re-add the player if they exist.
    */
-  private final IVoidFunction onLevelLoad =
+  public static final IVoidFunction onLevelLoad =
       () -> {
-        newLevelWasLoadedInThisLoop = true;
-        Optional<Entity> player = ECSManagement.player();
-        boolean firstLoad =
-            !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().orElseThrow());
-        player.ifPresent(ECSManagement::remove);
+        if (!PreRunConfiguration.isNetworkServer()) return; // no authority
+
+        List<Entity> allPlayers = ECSManagement.allPlayers().toList();
+        boolean firstLoad = !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().get());
+        allPlayers.forEach(ECSManagement::remove);
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
         // cleanup).
         Map<Class<? extends System>, System> s = ECSManagement.systems();
@@ -78,7 +88,7 @@ public final class GameLoop extends ScreenAdapter {
         s.values().forEach(ECSManagement::add);
 
         try {
-          player.ifPresent(this::placeOnLevelStart);
+          allPlayers.forEach(GameLoop::placeOnLevelStart);
         } catch (MissingComponentException e) {
           LOGGER.warn(e.getMessage());
         }
@@ -89,21 +99,28 @@ public final class GameLoop extends ScreenAdapter {
 
         Game.currentLevel()
             .ifPresent(
-                level -> {
-                  level
-                      .decorations()
-                      .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a())));
-                });
+                level ->
+                    level
+                        .decorations()
+                        .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a()))));
 
         if (firstLoad && Game.isCheckPatternEnabled())
-          CheckPatternPainter.paintCheckerPattern(Game.currentLevel().orElse(null).layout());
+          Game.currentLevel()
+              .ifPresent(level -> CheckPatternPainter.paintCheckerPattern(level.layout()));
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
       };
 
   // for singleton
   private GameLoop() {}
 
-  /** Starts the dungeon. */
+  /**
+   * Starts the dungeon.
+   *
+   * <p>If multiplayer is enabled and this is a network server, no window will be created, instead
+   * the server will run headless.
+   *
+   * @see PreRunConfiguration
+   */
   public static void run() {
     Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
     config.setWindowSizeLimits(
@@ -123,14 +140,19 @@ public final class GameLoop extends ScreenAdapter {
       config.setWindowedMode(PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
     }
 
-    new Lwjgl3Application(
-        new com.badlogic.gdx.Game() {
-          @Override
-          public void create() {
-            setScreen(new GameLoop());
-          }
-        },
-        config);
+    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
+      new Lwjgl3Application(
+          new com.badlogic.gdx.Game() {
+            @Override
+            public void create() {
+              setScreen(new GameLoop());
+            }
+          },
+          config);
+    } else {
+      // Server mode does not create a window.
+      new GameLoop().setup();
+    }
   }
 
   /**
@@ -159,6 +181,17 @@ public final class GameLoop extends ScreenAdapter {
   }
 
   /**
+   * Get the current tick of the game.
+   *
+   * <p>The tick is incremented every frame, starting from 0 at the beginning of the game.
+   *
+   * @return the current tick
+   */
+  public static int currentTick() {
+    return ECSManagement.currentTick();
+  }
+
+  /**
    * Main game loop.
    *
    * <p>Triggers the execution of the systems and the event callbacks.
@@ -173,35 +206,196 @@ public final class GameLoop extends ScreenAdapter {
   @Override
   public void render(float delta) {
     if (doSetup) setup();
-    DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
+    ECSManagement.system(
+        DrawSystem.class,
+        drawSystem -> DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
+    // Drain any inbound network messages on the game thread before running systems
+    try {
+      Game.network().pollAndDispatch();
+    } catch (Exception e) {
+      LOGGER.warn("Error while polling network messages: {}", e.getMessage(), e);
+    }
     frame(delta);
     clearScreen();
 
-    // system and render logic
-    ECSManagement.executeOneTick();
+    // Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
+    final boolean isMultiplayerClient =
+        PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
+    ECSManagement.executeOneTick(
+        isMultiplayerClient ? System.AuthoritativeSide.CLIENT : System.AuthoritativeSide.BOTH);
 
+    CameraSystem.camera().update();
+    // stage logic
     stage().ifPresent(GameLoop::updateStage);
   }
 
   /**
-   * Called once at the beginning of the game.
+   * Set up the client side of the game.
+   *
+   * <p>This method should be called only if in single player mode or multiplayer client mode.
    *
    * <p>Will execute {@link LevelSystem#execute()} once to load the first level before the actual
    * game loop starts. This ensures the first level is set at the start of the game loop, even if
    * the {@link LevelSystem} is not executed as the first system in the game loop.
    *
+   * <p>It will:
+   *
+   * <ul>
+   *   <li>Create all client relevant systems.
+   *   <li>Set up the message handlers for network messages. (If multiplayer is enabled)
+   *   <li>Set up connection listeners to reset input sequence on disconnect. (If multiplayer is
+   *       enabled)
+   *   <li>Set up the stage for HUD rendering.
+   * </ul>
+   *
    * <p>Will perform some setup.
    */
-  private void setup() {
+  private void setupClient() {
+    LOGGER.info("Setting up client...");
     doSetup = false;
     if (Gdx.audio != null && !PreRunConfiguration.disableAudio()) {
       AssetManager assetManager = new AssetManager();
       soundPlayer = new GdxSoundPlayer(assetManager);
     }
     createSystems();
+
+    if (PreRunConfiguration.multiplayerEnabled()) {
+      DungeonLoader.afterAllLevels(() -> {}); // server controls this
+      setupMessageHandlers();
+      Game.network()
+          .addConnectionListener(
+              new ConnectionListener() {
+                @Override
+                public void onConnected() {}
+
+                @Override
+                public void onDisconnected(String reason) {
+                  InputMessage.resetSequence();
+                }
+              });
+    }
     setupStage();
+  }
+
+  /**
+   * Called once at the beginning of the game.
+   *
+   * <p>It will:
+   *
+   * <ul>
+   *   <li>Set up the client if not in server mode.
+   *   <li>Execute the user-defined setup callback.
+   *   <li>Execute the LevelSystem to load the initial level.
+   *   <li>Start the network handler.
+   * </ul>
+   *
+   * @see PreRunConfiguration#userOnSetup()
+   */
+  private void setup() {
+    LOGGER.info("Setting up game...");
+    doSetup = false;
+    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
+      setupClient();
+    }
+
     PreRunConfiguration.userOnSetup().execute();
-    Game.systems().get(LevelSystem.class).execute();
+    Game.network().start();
+
+    Game.system(LevelSystem.class, LevelSystem::execute); // load initial level
+  }
+
+  private void setupMessageHandlers() {
+    MessageDispatcher dispatcher = Game.network().messageDispatcher();
+
+    dispatcher.registerHandler(
+        EntitySpawnEvent.class,
+        (ctx, event) -> {
+          LOGGER.info("Received EntitySpawnEvent event: " + event.entityId());
+
+          // check if the entity already exists
+          if (Game.allEntities().anyMatch(e -> e.id() == event.entityId())) {
+            LOGGER.warn(
+                "Received spawn event for already existing entity with ID: " + event.entityId());
+            return;
+          }
+
+          // is hero?
+          if (event.playerComponent() != null) {
+            PlayerComponent pc = event.playerComponent();
+            boolean alreadyGotAHero = Game.player().isPresent();
+            boolean isLocal = Objects.equals(pc.playerName(), PreRunConfiguration.username());
+
+            if (alreadyGotAHero) {
+              LOGGER.info("Already got a hero, checking if local player...");
+              if (isLocal) {
+                LOGGER.warn(
+                    "Received spawn event for local player, but we already have a local player! ID: {} ",
+                    event.entityId());
+                return;
+              }
+            }
+
+            Game.add(
+                HeroBuilder.builder()
+                    .id(event.entityId())
+                    .characterClass(CharacterClass.fromByteId(event.characterClassId()))
+                    .isLocalPlayer(isLocal)
+                    .username(pc.playerName())
+                    .build());
+            return;
+          }
+
+          Entity newEntity = new Entity(event.entityId());
+          newEntity.add(event.positionComponent());
+          newEntity.add(event.drawComponent());
+          newEntity.persistent(event.isPersistent());
+          Game.add(newEntity);
+        });
+
+    dispatcher.registerHandler(
+        EntityDespawnEvent.class,
+        (ctx, event) -> {
+          LOGGER.info(
+              "Received EntityDespawnEvent event: "
+                  + event.entityId()
+                  + ", reason: "
+                  + event.reason());
+          Entity entity =
+              Game.allEntities().filter(e -> e.id() == event.entityId()).findFirst().orElse(null);
+          if (entity == null) {
+            LOGGER.warn("Received despawn event for unknown entity with ID: " + event.entityId());
+            return;
+          }
+          Game.remove(entity);
+        });
+
+    dispatcher.registerHandler(
+        LevelChangeEvent.class,
+        (ctx, event) -> {
+          LOGGER.info("Received LevelChangeEvent event: {}", event.levelName());
+          try {
+            Game.currentLevel(LevelParser.parseLevel(event.levelData(), event.levelName()));
+            Game.player().ifPresent(GameLoop::placeOnLevelStart);
+          } catch (Exception e) {
+            LOGGER.error("Failed to handle LevelChangeEvent: {}", e.getMessage(), e);
+          }
+        });
+    dispatcher.registerHandler(
+        GameOverEvent.class,
+        (ctx, event) -> {
+          LOGGER.info("Received GameOverEvent event (reason: {})", event.reason());
+          ClientNetwork.invalidateLastSessionFile();
+          Game.exit(event.reason());
+        });
+    dispatcher.registerHandler(
+        SnapshotMessage.class,
+        (ctx, event) -> {
+          try {
+            Game.network().snapshotTranslator().applySnapshot(event, dispatcher);
+          } catch (Exception ignored) {
+            LOGGER.warn("Error while applying snapshot message: {}", ignored.getMessage(), ignored);
+          }
+        });
   }
 
   /**
@@ -236,7 +430,7 @@ public final class GameLoop extends ScreenAdapter {
    *
    * @param entity entity to set on the start of the level, normally this is the player.
    */
-  private void placeOnLevelStart(final Entity entity) {
+  private static void placeOnLevelStart(final Entity entity) {
     ECSManagement.add(entity);
     entity
         .fetch(PositionComponent.class)
@@ -292,5 +486,6 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new MoveSystem());
     ECSManagement.add(new InputSystem());
     ECSManagement.add(new DebugDrawSystem());
+    ECSManagement.add(new HudSystem());
   }
 }

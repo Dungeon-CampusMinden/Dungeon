@@ -47,7 +47,7 @@ public class V2FormatParser extends LevelFormatParser {
   @Override
   public String serializeLevel(DungeonLevel level) {
     if (level == null) {
-      LOGGER.warning("Trying to serialize a null level!");
+      LOGGER.error("Trying to serialize a null level!");
       throw new IllegalArgumentException("Level to serialize cannot be null");
     }
 
@@ -66,9 +66,8 @@ public class V2FormatParser extends LevelFormatParser {
     result.append(customPointsString).append("\n");
     result.append(decorations).append("\n");
     result.append(dunLayout);
-    String output = result.toString();
 
-    return output;
+    return result.toString();
   }
 
   /**

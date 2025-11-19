@@ -1,9 +1,6 @@
 package contrib.entities;
 
-import contrib.components.InteractionComponent;
-import contrib.components.InventoryComponent;
-import contrib.components.SkillComponent;
-import contrib.components.UIComponent;
+import contrib.components.*;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.EntityUtils;
@@ -15,12 +12,17 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.utils.LevelUtils;
+import core.network.messages.c2s.InputMessage;
+import core.network.server.ClientState;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
 import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Stream;
 
 /**
@@ -36,6 +38,8 @@ import java.util.stream.Stream;
  */
 public class HeroController {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(HeroController.class);
+  private static final Queue<Tuple<ClientState, InputMessage>> inputQueue =
+      new ConcurrentLinkedQueue<>();
 
   /** The ID for the movement force. */
   public static final String MOVEMENT_ID = "Movement";
@@ -206,6 +210,60 @@ public class HeroController {
       }
     } else {
       hero.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
+    }
+  }
+
+  /**
+   * Adds an input message from a client to the input queue for processing.
+   *
+   * @param clientState The state of the client sending the input.
+   * @param msg The input message to enqueue.
+   */
+  public static void enqueueInput(ClientState clientState, InputMessage msg) {
+    inputQueue.add(Tuple.of(clientState, msg));
+  }
+
+  /**
+   * Drains the input queue and applies valid inputs to the corresponding hero entities. Processes
+   * messages in arrival order (FIFO), but discards stale/duplicate inputs based on sequence
+   * numbers. Intended to be called per server tick in the AuthoritativeServerLoop or equivalent.
+   */
+  public static void drainAndApplyInputs() {
+    Tuple<ClientState, InputMessage> tuple;
+    while ((tuple = inputQueue.poll()) != null) {
+      ClientState clientState = tuple.a();
+      InputMessage msg = tuple.b();
+
+      // TODO: Reconcile inputs based on clientTick vs serverTick and RTT
+
+      // Get hero entity
+      Entity entity = clientState.playerEntity().orElse(null);
+      if (entity == null) {
+        LOGGER.warn("No hero entity for client {}", clientState);
+        continue;
+      }
+
+      // Apply input
+      try {
+        switch (msg.action()) {
+          case MOVE -> {
+            CharacterClass heroClass =
+                entity.fetch(CharacterClassComponent.class).orElseThrow().characterClass();
+            HeroController.moveHero(entity, Vector2.of(msg.point()).direction(), heroClass.speed());
+          }
+          case CAST_SKILL -> HeroController.useSkill(entity, msg.point());
+          case NEXT_SKILL -> HeroController.changeSkill(entity, true);
+          case PREV_SKILL -> HeroController.changeSkill(entity, false);
+          case INTERACT -> HeroController.interact(entity, msg.point());
+          default -> LOGGER.warn("Unknown action {} for client {}", msg.action(), clientState);
+        }
+        // On success: Update processed seq and activity
+        clientState.updateProcessedSeq(msg.sequence());
+        clientState.updateLastActivity();
+        LOGGER.trace("Applied input for client {} (action: {})", clientState, msg.action());
+      } catch (Exception e) {
+        LOGGER.error("Failed to apply input for client {}: {}", clientState, e.getMessage(), e);
+      }
     }
   }
 }

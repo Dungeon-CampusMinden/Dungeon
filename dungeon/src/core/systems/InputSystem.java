@@ -22,7 +22,7 @@ public final class InputSystem extends System {
 
   /** Creates a new InputSystem. */
   public InputSystem() {
-    super(InputComponent.class);
+    super(AuthoritativeSide.CLIENT, InputComponent.class);
   }
 
   @Override

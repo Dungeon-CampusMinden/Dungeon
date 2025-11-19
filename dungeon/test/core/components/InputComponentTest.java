@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** Tests for the {@link PlayerComponent} class. */
-public class PlayerComponentTest {
+/** Tests for the {@link InputComponent} class. */
+public class InputComponentTest {
 
   private static final int counter = 0;
   private InputComponent inputComponent;

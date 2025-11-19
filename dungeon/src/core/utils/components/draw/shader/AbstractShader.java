@@ -11,13 +11,16 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.Vector4;
 import com.badlogic.gdx.utils.Disposable;
 import core.utils.Rectangle;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * Base abstract class for defining custom shader passes in the ECS rendering pipeline. Handles
  * lazy, static compilation of the ShaderProgram and binding of uniforms.
  */
-public abstract class AbstractShader implements Disposable {
+public abstract class AbstractShader implements Disposable, Serializable {
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final String INCLUDE_DIRECTIVE = "// *****IMPORT: util.glsl*****";
   private static String utilGlslCache = null;
@@ -28,7 +31,7 @@ public abstract class AbstractShader implements Disposable {
 
   protected final String vertPath;
   protected final String fragPath;
-  protected ShaderProgram program;
+  protected transient ShaderProgram program;
 
   private int upscaling = 1;
   private boolean enabled = true;

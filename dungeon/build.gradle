@@ -12,6 +12,10 @@ dependencies {
     api supportDependencies.gdx_ai
     api supportDependencies.gdx_freetype
     api supportDependencies.gdx_freetype_platform
+    api supportDependencies.gdx_backend_headless
+
+    // Netty for server-client communication
+    implementation supportDependencies.netty_all
 
     // JUnit and Mockito for testing
     testImplementation supportDependencies.junit
@@ -41,6 +45,18 @@ tasks.register('debugBasicStarter', JavaExec) {
     mainClass = 'starter.BasicStarter'
     classpath = sourceSets.main.runtimeClasspath
     debug = true
+}
+
+tasks.register('runMPServer', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.MultiplayerServer'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runMPClient', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.MultiplayerClient'
+    classpath = sourceSets.main.runtimeClasspath
 }
 
 tasks.named('test', Test) {

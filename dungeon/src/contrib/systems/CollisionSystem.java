@@ -5,6 +5,7 @@ import contrib.utils.components.collide.Collider;
 import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
 import core.System;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Direction;
@@ -32,6 +33,11 @@ import java.util.stream.Stream;
 public final class CollisionSystem extends System {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CollisionSystem.class);
+
+  /**
+   * If true, players will collide with each other. If false, players will pass through each other.
+   */
+  public static final boolean ALLOW_PLAYER_COLLISIONS = false;
 
   /** Solid entities will be kept at this distance after colliding. */
   public static final float COLLIDE_SET_DISTANCE = 0.01f;
@@ -135,6 +141,13 @@ public final class CollisionSystem extends System {
 
       // Check if both entities are solids, and if so, separate them
       if (cdata.a.isSolid() && cdata.b.isSolid()) {
+        if (!ALLOW_PLAYER_COLLISIONS) {
+          boolean aIsPlayer = cdata.ea.isPresent(PlayerComponent.class);
+          boolean bIsPlayer = cdata.eb.isPresent(PlayerComponent.class);
+          if (aIsPlayer && bIsPlayer) { // player on player collision
+            return;
+          }
+        }
         checkSolidCollision(cdata, d);
       }
 

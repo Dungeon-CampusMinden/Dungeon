@@ -43,7 +43,7 @@ public final class CameraSystem extends System {
 
   /** Create a new {@link CameraSystem}. */
   public CameraSystem() {
-    super(CameraComponent.class, PositionComponent.class);
+    super(AuthoritativeSide.CLIENT, CameraComponent.class, PositionComponent.class);
   }
 
   static float viewportWidth() {

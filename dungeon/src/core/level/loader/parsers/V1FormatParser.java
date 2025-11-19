@@ -44,9 +44,18 @@ public class V1FormatParser extends LevelFormatParser {
     return newLevel;
   }
 
+  /**
+   * Unsupported method, V1 is deprecated.
+   *
+   * @param level the level to serialize
+   * @return nothing, always throws UnsupportedOperationException
+   * @throws UnsupportedOperationException always
+   * @deprecated Use {@link V2FormatParser} for serialization.
+   */
   @Override
+  @Deprecated
   public String serializeLevel(DungeonLevel level) {
-    throw new RuntimeException("Do not use this method. V1 is deprecated.");
+    throw new UnsupportedOperationException("Do not use this method. V1 is deprecated.");
   }
 
   private static LevelElement[][] loadLevelLayout(List<String> lines) {
