@@ -3,15 +3,18 @@ package mushRoom;
 import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
+import contrib.entities.LeverFactory;
 import contrib.entities.NPCFactory;
 import contrib.hud.DialogUtils;
 import contrib.modules.levelHide.LevelHideFactory;
 import contrib.systems.DebugDrawSystem;
+import contrib.utils.ICommand;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.DungeonLevel;
+import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.DrawSystem;
@@ -39,6 +42,9 @@ public class MainLevel extends DungeonLevel {
 
   private int maxMushrooms;
   private Entity npc;
+
+  private DoorTile puzzlePushDoor;
+  private DoorTile puzzlePushExit;
 
   /**
    * Creates a new Demo Level.
@@ -80,6 +86,8 @@ public class MainLevel extends DungeonLevel {
       Game.add(JournalPageFactory.createJournalPage(p));
     });
 
+    createPushPuzzle();
+
     npc = NPCFactory.createNPC(getPoint("npc-start"), "character/char03");
     npc.add(
         new InteractionComponent(
@@ -89,6 +97,24 @@ public class MainLevel extends DungeonLevel {
               talkToNpc();
             }));
     Game.add(npc);
+  }
+
+  private void createPushPuzzle() {
+    puzzlePushDoor = (DoorTile) tileAt(getPoint("puzzle-push-door")).orElseThrow();
+//    puzzlePushDoor.close();
+    puzzlePushExit = (DoorTile) tileAt(getPoint("puzzle-push-exit")).orElseThrow();
+    puzzlePushExit.close();
+
+    Game.add(LeverFactory.createLever(getPoint("puzzle-push-exit-lever"), new ICommand() {
+      public void execute() {
+        puzzlePushExit.open();
+      }
+      public void undo() {
+        puzzlePushExit.close();
+      }
+    }));
+
+    Game.add(LevelHideFactory.createLevelHide(getPoint("push-hidden-start"), getPoint("push-hidden-end")));
   }
 
   @Override
