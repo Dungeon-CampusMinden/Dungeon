@@ -9,6 +9,7 @@ import components.ai.PelletLauncherBehaviour;
 import contrib.components.*;
 import contrib.components.CollideComponent;
 import contrib.components.SpikyComponent;
+import contrib.systems.AttachmentSystem;
 import contrib.utils.ICommand;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Skill;
@@ -23,6 +24,7 @@ import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
+import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
@@ -180,20 +182,14 @@ public class AdvancedFactory {
             2.0f,
             true,
             (interacted, interactor) -> {
+              PositionComponent interactorPositioncomponent = interactor.fetch(PositionComponent.class).get();
+              PositionComponent interactedPositioncomponent = interacted.fetch(PositionComponent.class).get();
               if (!attached[0]) {
-
-                interactor
-                    .fetch(VelocityComponent.class)
-                    .ifPresent(
-                        vc -> {
-                          interacted.remove(VelocityComponent.class);
-                          interacted.add(vc);
-                          attached[0] = true;
-                        });
+                AttachmentComponent attachmentComponent = new AttachmentComponent(Vector2.ZERO,interactedPositioncomponent, interactorPositioncomponent);
+                portalCube.add(attachmentComponent);
+                attached[0] = true;
               } else {
-                interacted.remove(VelocityComponent.class);
-                interacted.add(
-                    new VelocityComponent(cube_maxSpeed, cube_mass, entity -> {}, false));
+                portalCube.remove(AttachmentComponent.class);
                 attached[0] = false;
               }
             }));
