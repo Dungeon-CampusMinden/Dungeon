@@ -188,9 +188,12 @@ public class MainLevel extends DungeonLevel {
         DialogUtils.showTextPopup(
             "Hast du schon alle Pilze gesammelt? Ich brauche sie dringend, um den Heiltrank zu brauen! "
                 + TO_GENERATE_PER_TYPE
-                + " Stück von jedem nicht giftigen Pilz sollten reichen, also "
+                + " Stück von jeder nicht giftigen Sorte sollten reichen."
+                + " Du hast gerade schon "
+                + collectionState.a()
+                + " Pilze gesammelt, insgesamt brauche ich "
                 + maxMushrooms
-                + " insgesamt!",
+                + " Stück!",
             "Yoooohooo");
         break;
       case ALL_COLLECTED:
