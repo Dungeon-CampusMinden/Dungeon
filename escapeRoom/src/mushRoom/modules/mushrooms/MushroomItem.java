@@ -1,4 +1,4 @@
-package mushRoom.mushroomModule;
+package mushRoom.modules.mushrooms;
 
 import contrib.item.Item;
 import core.Entity;

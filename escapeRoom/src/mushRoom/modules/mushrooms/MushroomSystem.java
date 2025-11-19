@@ -1,4 +1,4 @@
-package mushRoom.mushroomModule;
+package mushRoom.modules.mushrooms;
 
 import core.System;
 

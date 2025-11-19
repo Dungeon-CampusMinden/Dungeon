@@ -1,4 +1,4 @@
-package mushRoom.mushroomModule;
+package mushRoom.modules.mushrooms;
 
 import com.badlogic.gdx.graphics.Color;
 import core.utils.components.draw.shader.AbstractShader;

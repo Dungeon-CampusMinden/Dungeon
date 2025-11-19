@@ -23,9 +23,12 @@ import core.utils.components.draw.shader.ColorGradeShader;
 import core.utils.components.draw.shader.HueRemapShader;
 import java.util.*;
 import java.util.stream.IntStream;
-import mushRoom.mushroomModule.MushroomFactory;
-import mushRoom.mushroomModule.MushroomItem;
-import mushRoom.mushroomModule.Mushrooms;
+
+import mushRoom.modules.journal.JournalItem;
+import mushRoom.modules.journal.JournalPageFactory;
+import mushRoom.modules.mushrooms.MushroomFactory;
+import mushRoom.modules.mushrooms.MushroomItem;
+import mushRoom.modules.mushrooms.Mushrooms;
 
 /** The MushRoom. */
 public class MainLevel extends DungeonLevel {
@@ -73,6 +76,9 @@ public class MainLevel extends DungeonLevel {
     Game.add(LevelHideFactory.createLevelHide(getPoint("cave-1-start"), getPoint("cave-1-end")));
 
     generateMushrooms();
+    listPoints("page").forEach(p -> {
+      Game.add(JournalPageFactory.createJournalPage(p));
+    });
 
     npc = NPCFactory.createNPC(getPoint("npc-start"), "character/char03");
     npc.add(
@@ -177,6 +183,7 @@ public class MainLevel extends DungeonLevel {
                 + " Stück. Nicht alle Pilze sind ungefährlich, einige sind giftig! Nimm dieses Notizbuch, um die Pilze zu identifizieren. Öffne es mit <B>",
             "Yoooohooo");
         npcState = NpcState.THIRD_TALK;
+        giveJournal();
         break;
       case THIRD_TALK:
         DialogUtils.showTextPopup(
@@ -211,6 +218,12 @@ public class MainLevel extends DungeonLevel {
         DialogUtils.showTextPopup("......", "...");
         break;
     }
+  }
+
+  private void giveJournal(){
+    Game.player().flatMap(e -> e.fetch(InventoryComponent.class)).ifPresent(inventory -> {
+      inventory.add(new JournalItem());
+    });
   }
 
   private void npcDie() {

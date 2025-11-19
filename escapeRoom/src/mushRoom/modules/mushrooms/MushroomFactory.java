@@ -1,4 +1,4 @@
-package mushRoom.mushroomModule;
+package mushRoom.modules.mushrooms;
 
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;

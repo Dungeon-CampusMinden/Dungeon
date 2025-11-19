@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.utils.ScreenUtils;
 import contrib.entities.CharacterClass;
 import contrib.entities.EntityFactory;
 import contrib.modules.levelHide.LevelHideSystem;
@@ -25,7 +24,7 @@ import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import mushRoom.MainLevel;
-import mushRoom.mushroomModule.Mushrooms;
+import mushRoom.modules.mushrooms.Mushrooms;
 
 /**
  * Starter for the Demo Escaperoom Dungeon.
