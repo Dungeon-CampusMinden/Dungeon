@@ -12,9 +12,7 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.*;
-import core.game.PreRunConfiguration;
-import core.level.elements.ILevel;
-import core.network.messages.c2s.InputMessage;
+import core.level.loader.DungeonLoader;
 import core.sound.SoundSpec;
 import core.systems.VelocitySystem;
 import core.utils.*;
@@ -63,10 +61,8 @@ public final class HeroBuilder {
                     .ifPresent(
                         hc -> {
                           hc.currentHealthpoints(hc.maximalHealthpoints());
-                          hc.clearDamage();
                           hc.alreadyDead(false);
                         });
-
                 hero.fetch(ManaComponent.class).ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
                 hero.fetch(StaminaComponent.class)
                     .ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
@@ -258,8 +254,6 @@ public final class HeroBuilder {
         new HealthComponent(
             characterClass.hp(),
             entity -> {
-              if (!Game.network().isServer()) return;
-
               // play death sound on entity before removal
               Game.audio()
                   .playOnEntity(

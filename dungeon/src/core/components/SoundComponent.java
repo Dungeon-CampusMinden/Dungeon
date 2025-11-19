@@ -45,16 +45,10 @@ public class SoundComponent implements Component {
    * component.
    *
    * @param specs the new list of sound specifications, or null to clear all sounds
-   * @return a list of sound specifications that were removed; never null
    */
-  public List<SoundSpec> replaceAll(List<SoundSpec> specs) {
-    List<SoundSpec> removed = new ArrayList<>(sounds);
+  public void replaceAll(List<SoundSpec> specs) {
     sounds.clear();
-    if (specs != null) {
-      removed.removeAll(specs);
-      sounds.addAll(specs);
-    }
-    return removed;
+    if (specs != null) sounds.addAll(specs);
   }
 
   /**
