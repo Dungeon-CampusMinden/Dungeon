@@ -103,6 +103,7 @@ public class ServerTransportTests {
   public void test_transportChannelsActive() {
     ServerTransport transport = currentTransport.get();
     int port = uniquePort();
+
     transport.start(port);
     assertTrue(transport.tcpServerChannel().isActive());
     assertTrue(transport.udpChannel().isActive());

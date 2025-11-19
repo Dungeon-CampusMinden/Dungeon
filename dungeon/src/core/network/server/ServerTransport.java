@@ -24,7 +24,8 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
@@ -83,8 +84,8 @@ public final class ServerTransport {
       LOGGER.warn("Server already started");
       return;
     }
-    bossGroup = new NioEventLoopGroup(1);
-    workerGroup = new NioEventLoopGroup();
+    bossGroup = new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory());
+    workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
     setupDispatchers();
     startTcp(port);
     startUdp(port);
