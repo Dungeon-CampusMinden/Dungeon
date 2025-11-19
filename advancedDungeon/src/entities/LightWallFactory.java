@@ -325,7 +325,10 @@ public class LightWallFactory {
       while (true) {
         Tile currentTile = Game.tileAt(currentPoint).orElse(null);
         if (currentTile == null) break;
-        boolean isWall = currentTile instanceof WallTile || currentTile instanceof PortalTile || currentTile instanceof GlasswandTile;
+        boolean isWall =
+            currentTile instanceof WallTile
+                || currentTile instanceof PortalTile
+                || currentTile instanceof GlasswandTile;
         if (isWall) break;
         lastPoint = currentPoint;
         currentPoint = currentPoint.translate(beamDirection);
