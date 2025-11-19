@@ -2,6 +2,12 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.utils.ScreenUtils;
 import contrib.entities.CharacterClass;
 import contrib.entities.EntityFactory;
 import contrib.modules.levelHide.LevelHideSystem;
@@ -10,10 +16,16 @@ import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.level.loader.DungeonLoader;
+import core.systems.DrawSystem;
 import core.utils.Tuple;
+import core.utils.components.draw.TextureMap;
+import core.utils.components.draw.shader.HueRemapShader;
+import core.utils.components.draw.shader.OutlineShader;
+import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import mushRoom.MainLevel;
+import mushRoom.mushroomModule.Mushrooms;
 
 /**
  * Starter for the Demo Escaperoom Dungeon.
@@ -44,10 +56,38 @@ public class MushRoom {
         () -> {
           setupMusic();
           DungeonLoader.addLevel(Tuple.of("mushroom", MainLevel.class));
+          createTextures();
           createSystems();
           createHero();
           DungeonLoader.loadLevel(START_LEVEL);
         });
+  }
+
+  private static void createTextures() {
+    Texture baseShroom = TextureMap.instance().textureAt(new SimpleIPath("objects/mushroom.png"));
+    TextureRegion region = new TextureRegion(baseShroom);
+    float baseHue = 0.0f;
+
+    for (Mushrooms mushroomType : Mushrooms.values()) {
+      Color color = mushroomType.getColor();
+      float[] hsv = new float[3];
+
+      ShaderList shaderList = new ShaderList();
+      shaderList.add("hueRemap", new HueRemapShader(baseHue, color.toHsv(hsv)[0] / 360f));
+      shaderList.add("outline", new OutlineShader(1, new Color(0, 0, 0, 0.2f)));
+      FrameBuffer fbo = DrawSystem.getInstance().processShaders(region, shaderList);
+      fbo.begin();
+      Pixmap pm = Pixmap.createFromFrameBuffer(
+        0, 0,
+        fbo.getWidth(),
+        fbo.getHeight()
+      );
+      fbo.end();
+
+      TextureMap.instance()
+        .putPixmap(
+          new SimpleIPath(mushroomType.getTexturePath()), pm, true);
+    }
   }
 
   private static void createHero() {

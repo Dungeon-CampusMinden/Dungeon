@@ -17,8 +17,7 @@ public class MushroomFactory {
     mushroom.add(new PositionComponent(p));
     mushroom.add(new MushroomComponent(poisonous));
 
-    DrawComponent dc = new DrawComponent(new SimpleIPath("red-16x16.png"));
-    dc.shaders().add("color", type.getShader());
+    DrawComponent dc = new DrawComponent(new SimpleIPath(type.getTexturePath()));
     mushroom.add(dc);
 
     mushroom.add(

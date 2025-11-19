@@ -1,6 +1,7 @@
 package mushRoom.mushroomModule;
 
 import contrib.item.Item;
+import core.Entity;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 
@@ -30,11 +31,16 @@ public class MushroomItem {
       super(
           type.name() + " Mushroom",
           "A " + type.name() + " mushroom",
-          new Animation(new SimpleIPath("red-16x16.png")),
-          new Animation(new SimpleIPath("red-16x16.png")),
+          new Animation(new SimpleIPath(type.getTexturePath())),
+          new Animation(new SimpleIPath(type.getTexturePath())),
           1,
           maxStackSize);
       this.type = type;
+    }
+
+    @Override
+    public void use(final Entity user) {
+      // Nothing
     }
 
     public Mushrooms type() {
