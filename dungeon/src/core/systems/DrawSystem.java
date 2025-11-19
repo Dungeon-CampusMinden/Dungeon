@@ -26,6 +26,7 @@ import core.utils.Rectangle;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.*;
+import core.utils.components.draw.TextureMap;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.shader.AbstractShader;
 import core.utils.components.draw.shader.ShaderList;
@@ -59,6 +60,7 @@ import java.util.*;
 public final class DrawSystem extends System implements Disposable {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DrawSystem.class);
+  private static final float LEVEL_TILE_CULL_PADDING = 0f;
 
   /**
    * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
@@ -790,10 +792,20 @@ public final class DrawSystem extends System implements Disposable {
         .ifPresent(
             currentLevel -> {
               Tile[][] layout = currentLevel.layout();
-              for (Tile[] tiles : layout) {
-                for (int x = 0; x < layout[0].length; x++) {
-                  Tile t = tiles[x];
-                  if (t.levelElement() != LevelElement.SKIP && t.visible()) {
+              if (layout.length == 0 || layout[0].length == 0) {
+                return;
+              }
+
+              TileBounds bounds = getCameraTileBounds(layout);
+              if (bounds.minX() > bounds.maxX() || bounds.minY() > bounds.maxY()) {
+                return;
+              }
+
+              for (int y = bounds.minY(); y <= bounds.maxY(); y++) {
+                Tile[] row = layout[y];
+                for (int x = bounds.minX(); x <= bounds.maxX(); x++) {
+                  Tile t = row[x];
+                  if (shouldDrawTile(t)) {
                     IPath texturePath = t.texturePath();
                     int tintColor =
                         t.tintColor() == -1 ? Color.rgba8888(Color.WHITE) : t.tintColor();
@@ -803,6 +815,27 @@ public final class DrawSystem extends System implements Disposable {
               }
             });
   }
+
+  private boolean shouldDrawTile(Tile tile) {
+    return tile != null && tile.levelElement() != LevelElement.SKIP && tile.visible();
+  }
+
+  private TileBounds getCameraTileBounds(Tile[][] layout) {
+    Rectangle cameraBounds = CameraSystem.getCameraWorldBounds();
+    float minWorldX = cameraBounds.x() - LEVEL_TILE_CULL_PADDING;
+    float maxWorldX = cameraBounds.x() + cameraBounds.width() + LEVEL_TILE_CULL_PADDING;
+    float minWorldY = cameraBounds.y() - LEVEL_TILE_CULL_PADDING;
+    float maxWorldY = cameraBounds.y() + cameraBounds.height() + LEVEL_TILE_CULL_PADDING;
+
+    int minX = Math.max(0, (int) Math.floor(minWorldX));
+    int maxX = Math.min(layout[0].length - 1, (int) Math.ceil(maxWorldX));
+    int minY = Math.max(0, (int) Math.floor(minWorldY));
+    int maxY = Math.min(layout.length - 1, (int) Math.ceil(maxWorldY));
+
+    return new TileBounds(minX, maxX, minY, maxY);
+  }
+
+  private record TileBounds(int minX, int maxX, int minY, int maxY) {}
 
   /**
    * Checks if an entity should be drawn. By checking:
