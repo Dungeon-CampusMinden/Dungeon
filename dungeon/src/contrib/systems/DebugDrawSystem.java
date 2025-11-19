@@ -17,6 +17,7 @@ import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.SoundComponent;
 import core.components.VelocityComponent;
 import core.game.WindowEventManager;
 import core.level.DungeonLevel;
@@ -333,6 +334,10 @@ public class DebugDrawSystem extends System {
                     .append(" (")
                     .append(dc.currentState().getData())
                     .append(")\n"));
+
+    entity
+        .fetch(SoundComponent.class)
+        .ifPresent(sc -> info.append("Sound Instances: ").append(sc.sounds().size()).append("\n"));
 
     // We should try to render the path for the current ai; this probably needs a PathAI to check
     // the instance here

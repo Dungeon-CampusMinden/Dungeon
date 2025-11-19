@@ -3,153 +3,267 @@ package core.systems;
 import core.Entity;
 import core.Game;
 import core.System;
-import core.components.PositionComponent;
 import core.components.SoundComponent;
-import core.sound.player.IPlayHandle;
+import core.sound.SoundSpec;
 import core.sound.player.ISoundPlayer;
+import core.sound.player.PlayHandle;
 import core.utils.Point;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import core.utils.logging.DungeonLogger;
+import java.util.*;
 
 /**
- * System for handling positional sounds in the game world. Manages sound playback, volume
- * attenuation, and stereo panning based on entity positions relative to the player (listener).
- * Sounds are played when entities with SoundComponent are added, updated each frame for positional
- * effects, and stopped when entities are removed.
+ * Client-side system for handling positional audio. For each entity with a SoundComponent, plays
+ * new instances and updates existing ones with locally computed pan/volume.
+ *
+ * <p>This system maintains the invariant that SoundComponent only contains sounds that are
+ * currently playing. When sounds finish playing naturally, they are removed from both the internal
+ * tracking map and the SoundComponent. When an entity is removed, all its sounds are stopped
+ * (looping disabled) and the component is cleared.
  */
 public class SoundSystem extends System {
-  /**
-   * The distance over which pan is fully effective before attenuation begins. At this distance,
-   * entities directly left/right produce full pan (-1 or 1). For example, an entity 10 units to the
-   * right of the listener pans fully to the right.
-   */
-  private static final float PAN_NORMALIZATION_DISTANCE = 10;
-
-  /**
-   * Controls how quickly pan attenuates with distance. Higher values (e.g., 1.0) make pan fade to
-   * center faster as distance increases. At 1.0, pan reaches center at PAN_NORMALIZATION_DISTANCE;
-   * at 0.0, pan never fades.
-   */
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(SoundSystem.class);
+  private static final float PAN_NORMALIZATION_DISTANCE = 10f;
   private static final float PAN_ATTENUATION_FACTOR = 0.1f;
 
-  private final Map<Entity, IPlayHandle> playingSounds = new HashMap<>();
+  /**
+   * Maps each entity ID to its currently playing sounds.
+   *
+   * <p>Structure: entityId -> (soundInstanceId -> playbackHandle)
+   *
+   * <p>This tracks all active audio instances for each entity. When a sound finishes or is removed,
+   * it's deleted from this map. When an entity is removed, its entire inner map is removed.
+   */
+  private final Map<Integer, Map<Long, PlayHandle>> activePlaybackHandlesByEntity = new HashMap<>();
+
+  /** The sound player used to play and update audio instances. */
   private final ISoundPlayer soundPlayer;
 
-  /**
-   * Creates a new SoundSystem that filters entities with PositionComponent and SoundComponent. Uses
-   * the global sound player from Game.soundPlayer().
-   */
+  /** Create a new SoundSystem using the default sound player. */
   public SoundSystem() {
     this(Game.soundPlayer());
   }
 
-  /**
-   * Creates a new SoundSystem with a custom sound player. For testing purposes.
-   *
-   * @param soundPlayer the sound player to use
-   */
   SoundSystem(ISoundPlayer soundPlayer) {
-    super(PositionComponent.class, SoundComponent.class);
+    super(SoundComponent.class);
     this.soundPlayer = soundPlayer;
-    this.onEntityAdd = this::onEntityAdded;
     this.onEntityRemove = this::onEntityRemoved;
   }
 
-  /**
-   * Updates sound positions and effects each frame. Calculates volume and pan for active sounds
-   * based on current entity and listener positions.
-   */
   @Override
   public void execute() {
     Optional<Point> listenerPos = getListenerPosition();
-    if (listenerPos.isEmpty()) return;
-
-    filteredEntityStream()
-        .forEach(
-            entity -> {
-              Optional<PositionComponent> posComp = entity.fetch(PositionComponent.class);
-              Optional<SoundComponent> soundComp = entity.fetch(SoundComponent.class);
-              if (posComp.isPresent() && soundComp.isPresent()) {
-                IPlayHandle handle = playingSounds.get(entity);
-                if (handle != null) {
-                  updateSound(handle, posComp.get().position(), listenerPos.get(), soundComp.get());
-                  if (!handle.isPlaying()) {
-                    // Sound finished playing, clean up
-                    playingSounds.remove(entity);
-                    entity.remove(SoundComponent.class);
-                  }
-                }
-              }
-            });
-  }
-
-  private void onEntityAdded(Entity entity) {
-    if (getListenerPosition().isEmpty()) return; // No listener, skip playing sound
-    Optional<SoundComponent> soundComp = entity.fetch(SoundComponent.class);
-    if (soundComp.isEmpty()) return;
-
-    SoundComponent comp = soundComp.get();
-    // mute at start if out of range
-    float initialVolume = comp.baseVolume();
-    if (comp.maxDistance() > 0) {
-      Optional<PositionComponent> posComp = entity.fetch(PositionComponent.class);
-      Point listenerPos = getListenerPosition().get();
-      if (posComp.isPresent()) {
-        float distance = Point.calculateDistance(posComp.get().position(), listenerPos);
-        if (distance > comp.maxDistance()) {
-          initialVolume = 0;
-        }
-      }
-    }
-    Optional<IPlayHandle> handleOpt =
-        soundPlayer.play(comp.soundId(), initialVolume, comp.looping(), comp.pitch(), 0);
-    handleOpt.ifPresent(handle -> playingSounds.put(entity, handle));
-  }
-
-  private void onEntityRemoved(Entity entity) {
-    IPlayHandle handle = playingSounds.get(entity);
-    if (handle != null) {
-      handle.setLooping(false); // stop looping, will be removed when finished
-    }
-  }
-
-  private void updateSound(
-      IPlayHandle handle, Point entityPos, Point listenerPos, SoundComponent comp) {
-    float distance = Point.calculateDistance(entityPos, listenerPos);
-    // mute if out of range
-    if (comp.maxDistance() > 0 && distance > comp.maxDistance()) {
-      handle.volume(0);
+    if (listenerPos.isEmpty()) {
+      LOGGER.trace("No listener position available, skipping sound update");
       return;
     }
 
-    float volume = comp.baseVolume();
-    // If maxDistance is set, apply distance-based attenuation
-    if (comp.maxDistance() > 0) {
-      float attenuation = (distance / comp.maxDistance()) * comp.attenuationFactor();
-      // Reduce volume proportionally (closer = louder)
-      volume *= (1 - attenuation);
-      volume = Math.clamp(volume, 0, 1);
-    }
-
-    // Calculate horizontal offset for stereo panning
-    float dx = entityPos.x() - listenerPos.x();
-    // Normalize pan value: positive dx (right) -> positive pan, clamped to [-1, 1]
-    float pan = Math.clamp(dx / PAN_NORMALIZATION_DISTANCE, -1f, 1f);
-
-    // Attenuate pan with distance to avoid extreme panning at far distances
-    float panAttenuation =
-        1 - Math.min(1, distance / PAN_NORMALIZATION_DISTANCE) * PAN_ATTENUATION_FACTOR;
-    pan *= panAttenuation;
-
-    handle.volume(volume);
-    handle.pan(pan, volume);
-    handle.onFinished(comp.onFinish());
+    filteredEntityStream().forEach(entity -> processEntitySounds(entity, listenerPos.get()));
   }
 
+  /**
+   * Processes all sounds for a single entity: starts new sounds, updates active ones, and cleans up
+   * finished sounds.
+   *
+   * @param entity the entity with sounds to process
+   * @param listenerPosition the position of the audio listener (usually the player)
+   */
+  private void processEntitySounds(Entity entity, Point listenerPosition) {
+    SoundComponent soundComponent = entity.fetch(SoundComponent.class).orElseThrow();
+
+    // Get or create the map of active sounds for this entity
+    // Key: soundInstanceId, Value: playback handle
+    Map<Long, PlayHandle> entityActiveSounds =
+        activePlaybackHandlesByEntity.computeIfAbsent(entity.id(), k -> new HashMap<>());
+
+    // Step 1: Start new sounds and update existing ones
+    startAndUpdateSounds(entity, soundComponent, entityActiveSounds, listenerPosition);
+
+    // Step 2: Clean up finished sounds from both the tracking map and the component
+    cleanupFinishedSounds(soundComponent, entityActiveSounds);
+  }
+
+  /**
+   * Starts new sounds and updates the position/volume of existing sounds.
+   *
+   * @param entity the entity emitting sounds
+   * @param soundComponent the component containing sound specifications
+   * @param entityActiveSounds map of currently active sound instances for this entity
+   * @param listenerPosition the audio listener's position
+   */
+  private void startAndUpdateSounds(
+      Entity entity,
+      SoundComponent soundComponent,
+      Map<Long, PlayHandle> entityActiveSounds,
+      Point listenerPosition) {
+
+    for (SoundSpec soundSpec : soundComponent.sounds()) {
+      long soundInstanceId = soundSpec.instanceId();
+      PlayHandle playbackHandle = entityActiveSounds.get(soundInstanceId);
+
+      // If this sound isn't playing yet, start it
+      if (playbackHandle == null) {
+        playbackHandle = startNewSound(entity, soundSpec, entityActiveSounds);
+      }
+
+      // Update the sound's spatial properties (pan, volume based on distance)
+      if (playbackHandle != null) {
+        updateSound(
+            playbackHandle,
+            Game.positionOf(entity).orElse(new Point(0, 0)),
+            listenerPosition,
+            soundSpec);
+      }
+    }
+  }
+
+  /**
+   * Starts a new sound instance and adds it to the active sounds map.
+   *
+   * @param entity the entity emitting the sound
+   * @param soundSpec the specification of the sound to play
+   * @param entityActiveSounds map to store the playback handle in
+   * @return the playback handle if successful, null otherwise
+   */
+  private PlayHandle startNewSound(
+      Entity entity, SoundSpec soundSpec, Map<Long, PlayHandle> entityActiveSounds) {
+    long soundInstanceId = soundSpec.instanceId();
+
+    Optional<PlayHandle> handleOpt =
+        soundPlayer.playWithInstance(
+            soundInstanceId,
+            soundSpec.soundName(),
+            soundSpec.baseVolume(),
+            soundSpec.looping(),
+            soundSpec.pitch(),
+            0,
+            () -> Game.audio().notifySoundFinished(soundInstanceId));
+
+    handleOpt.ifPresentOrElse(
+        handle -> entityActiveSounds.put(soundInstanceId, handle),
+        () ->
+            LOGGER.warn(
+                "Failed to play sound '{}' for entity {}", soundSpec.soundName(), entity.id()));
+
+    return entityActiveSounds.get(soundInstanceId);
+  }
+
+  /**
+   * Removes finished sounds from both the tracking map and the SoundComponent.
+   *
+   * <p>This ensures that SoundComponent only contains sounds that are currently playing.
+   *
+   * @param soundComponent the component to clean up
+   * @param entityActiveSounds the map of active sounds to clean up
+   */
+  private void cleanupFinishedSounds(
+      SoundComponent soundComponent, Map<Long, PlayHandle> entityActiveSounds) {
+
+    // Find all sound instances that have finished playing
+    List<Long> finishedSoundIds = new ArrayList<>();
+    for (Map.Entry<Long, PlayHandle> entry : entityActiveSounds.entrySet()) {
+      long soundInstanceId = entry.getKey();
+      PlayHandle playbackHandle = entry.getValue();
+
+      if (!playbackHandle.isPlaying()) {
+        finishedSoundIds.add(soundInstanceId);
+      }
+    }
+
+    // Remove finished sounds from both the map and the component
+    for (long finishedSoundId : finishedSoundIds) {
+      entityActiveSounds.remove(finishedSoundId);
+      soundComponent.removeByInstance(finishedSoundId);
+    }
+  }
+
+  /**
+   * Called when an entity is removed from the game.
+   *
+   * <p>Stops all looping sounds for this entity (allows non-looping sounds to finish naturally) and
+   * clears the SoundComponent.
+   *
+   * @param entity the entity being removed
+   */
+  private void onEntityRemoved(Entity entity) {
+    Map<Long, PlayHandle> entityActiveSounds = activePlaybackHandlesByEntity.remove(entity.id());
+
+    if (entityActiveSounds != null) {
+      // Turn off looping so sounds finish naturally rather than looping forever
+      entityActiveSounds.values().forEach(playbackHandle -> playbackHandle.looping(false));
+    }
+
+    entity.fetch(SoundComponent.class).ifPresent(SoundComponent::clear);
+  }
+
+  /**
+   * Update volume and stereo pan for a playing sound instance based on positions and the spec.
+   *
+   * <p>Behavior:
+   *
+   * <ul>
+   *   <li>Calculate distance between entity and listener.
+   *   <li>If distance > maxDistance -> mute sound.
+   *   <li>If maxDistance < 0 -> global sound, no attenuation.
+   *   <li>Otherwise apply distance attenuation and pan (pan reduced for distant sounds).
+   * </ul>
+   *
+   * @param playbackHandle handle for the playing sound instance
+   * @param entityPosition position of the entity emitting the sound
+   * @param listenerPosition position of the audio listener
+   * @param soundSpec sound specification containing baseVolume, maxDistance, attenuationFactor,
+   *     etc.
+   */
+  private void updateSound(
+      PlayHandle playbackHandle,
+      Point entityPosition,
+      Point listenerPosition,
+      SoundSpec soundSpec) {
+
+    float distance = Point.calculateDistance(entityPosition, listenerPosition);
+
+    // If beyond max distance -> mute
+    if (soundSpec.maxDistance() > 0f && distance > soundSpec.maxDistance()) {
+      var soundUpdate = ISoundPlayer.SoundUpdate.builder().volume(0f);
+      soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate.build());
+      return;
+    }
+
+    // Global sounds (no distance attenuation)
+    if (soundSpec.maxDistance() <= 0f) {
+      var soundUpdate = ISoundPlayer.SoundUpdate.builder().build();
+      soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate);
+      return;
+    }
+
+    // Distance attenuation
+    float attenuationRatio = (distance / soundSpec.maxDistance()) * soundSpec.attenuationFactor();
+    float newVolume =
+        Math.clamp(soundSpec.maxDistance() * (1 - attenuationRatio), 0f, soundSpec.baseVolume());
+    // Pan based on horizontal offset, normalized and clamped to [-1, 1]
+    float offsetX = entityPosition.x() - listenerPosition.x();
+    float pan = Math.clamp(offsetX / PAN_NORMALIZATION_DISTANCE, -1f, 1f);
+
+    // Reduce pan effect for distant sounds (far sounds are more centered)
+    float panDistanceFactor = Math.min(1f, distance / PAN_NORMALIZATION_DISTANCE);
+    float panAttenuation = 1f - panDistanceFactor * PAN_ATTENUATION_FACTOR;
+    pan *= panAttenuation;
+
+    var soundUpdate = ISoundPlayer.SoundUpdate.builder().pan(pan, newVolume);
+    soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate.build());
+  }
+
+  /**
+   * Gets the current position of the audio listener (the player).
+   *
+   * @return the player's position if available, empty otherwise
+   */
   private Optional<Point> getListenerPosition() {
-    return Game.player()
-        .flatMap(player -> player.fetch(PositionComponent.class))
-        .map(PositionComponent::position);
+    return Game.player().flatMap(Game::positionOf);
+  }
+
+  /** {@link SoundSystem} can't be paused. */
+  @Override
+  public void stop() {
+    run = true;
   }
 }

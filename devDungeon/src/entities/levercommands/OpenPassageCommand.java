@@ -7,6 +7,7 @@ import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
+import core.sound.SoundSpec;
 import systems.FogOfWarSystem;
 
 /**
@@ -87,6 +88,6 @@ public class OpenPassageCommand implements ICommand {
   }
 
   private void playSound() {
-    Game.soundPlayer().play(OPEN_PASSAGE, 0.1f, false, 0.57f, 0);
+    Game.audio().playGlobal(SoundSpec.builder(OPEN_PASSAGE).volume(0.1f).pitch(0.57f));
   }
 }

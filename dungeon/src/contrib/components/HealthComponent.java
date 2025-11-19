@@ -41,6 +41,7 @@ public final class HealthComponent implements Component {
   private int currentHealthpoints;
   private @Null Entity lastCause = null;
   private boolean godMode = false;
+  private boolean dead = false;
 
   /**
    * Create a new HealthComponent.
@@ -240,5 +241,25 @@ public final class HealthComponent implements Component {
    */
   public boolean godMode() {
     return this.godMode;
+  }
+
+  /**
+   * Check if the entity has already died.
+   *
+   * <p>This is used to prevent multiple death triggers.
+   *
+   * @return true if the entity has died, false otherwise.
+   */
+  public boolean alreadyDead() {
+    return this.dead;
+  }
+
+  /**
+   * Set the already dead status of the entity.
+   *
+   * @param status true if the entity has died, false otherwise.
+   */
+  public void alreadyDead(boolean status) {
+    this.dead = status;
   }
 }
