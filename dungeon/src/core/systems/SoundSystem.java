@@ -44,7 +44,7 @@ public class SoundSystem extends System {
   }
 
   SoundSystem(ISoundPlayer soundPlayer) {
-    super(SoundComponent.class);
+    super(AuthoritativeSide.CLIENT, SoundComponent.class);
     this.soundPlayer = soundPlayer;
     this.onEntityRemove = this::onEntityRemoved;
   }
