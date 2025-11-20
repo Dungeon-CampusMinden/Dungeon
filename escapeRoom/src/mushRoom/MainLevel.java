@@ -1,10 +1,14 @@
 package mushRoom;
 
 import contrib.components.CollideComponent;
+import contrib.components.DecoComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.LeverFactory;
 import contrib.entities.NPCFactory;
+import contrib.entities.WorldItemBuilder;
+import contrib.entities.deco.Deco;
+import contrib.entities.deco.DecoFactory;
 import contrib.hud.DialogUtils;
 import contrib.modules.levelHide.LevelHideFactory;
 import contrib.systems.DebugDrawSystem;
@@ -21,17 +25,21 @@ import core.systems.DrawSystem;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.shader.ColorGradeShader;
 import core.utils.components.draw.shader.HueRemapShader;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import mushRoom.modules.items.AxeItem;
+import mushRoom.modules.items.LanternItem;
 import mushRoom.modules.journal.JournalItem;
 import mushRoom.modules.journal.JournalPageFactory;
 import mushRoom.modules.mushrooms.MushroomFactory;
 import mushRoom.modules.mushrooms.MushroomItem;
 import mushRoom.modules.mushrooms.Mushrooms;
+import mushRoom.shaders.MushroomPostProcessing;
 
 /** The MushRoom. */
 public class MainLevel extends DungeonLevel {
@@ -79,6 +87,12 @@ public class MainLevel extends DungeonLevel {
             new ColorGradeShader(0.5f, 0.1f, 0.6f)
                 .region(new Rectangle(width, height, width + 8 + 5, height + 8)).transitionSize(5));
 
+    Point homeStart = getPoint("home-start");
+    Point homeEnd = getPoint("home-end");
+    Rectangle homeRect = new Rectangle(homeEnd.x() - homeStart.x() + 1, homeEnd.y() - homeStart.y() + 1, homeStart.x(), homeStart.y());
+    homeRect = homeRect.expand(-1);
+    ds.sceneShaders().add("pp", new MushroomPostProcessing(homeRect).viewDistance(0.2f));
+
     Game.add(LevelHideFactory.createLevelHide(getPoint("cave-1-start"), getPoint("cave-1-end")));
     Game.add(LevelHideFactory.createLevelHide(getPoint("hidden-1-start"), getPoint("hidden-1-end"), 1));
 
@@ -88,6 +102,9 @@ public class MainLevel extends DungeonLevel {
     });
 
     createPushPuzzle();
+    createCutTrees();
+
+    Game.add(WorldItemBuilder.buildWorldItem(new LanternItem(), getPoint("lantern")));
 
     npc = NPCFactory.createNPC(getPoint("npc-start"), "character/char03");
     npc.add(
@@ -98,6 +115,35 @@ public class MainLevel extends DungeonLevel {
               talkToNpc();
             }));
     Game.add(npc);
+  }
+
+  private void createCutTrees() {
+    Deco deco = Deco.TreeMedium;
+    Vector2 offset = Vector2.of(-deco.defaultCollider().x(), -deco.defaultCollider().y());
+    listPoints("cut-tree").forEach(p -> {
+      Entity tree = DecoFactory.createDeco(p, deco);
+      tree.remove(DecoComponent.class);
+      tree.add(new InteractionComponent(1.5f, true, (e, who) -> {
+        who.fetch(InventoryComponent.class).ifPresent(inv -> {
+          if(inv.hasItem(AxeItem.class)){
+            DialogUtils.showTextPopup("Rumms. Der Baum fällt mit einem lauten Krachen zu Boden.", "Holz hacken");
+            Game.remove(e);
+          } else {
+            DialogUtils.showTextPopup("Dieser Baum sieht etwas morsch aus, man kann ihn bestimmt fällen.", "Hmm");
+          }
+        });
+      }));
+      tree.fetch(DrawComponent.class).ifPresent(dc -> {
+        dc.shaders().add("cuttable", new HueRemapShader(0.33f, 0.1f, 0.1f));
+        dc.shaders().add("cuttable-color", new ColorGradeShader(-1, 0.5f, 0.5f));
+      });
+      tree.fetch(PositionComponent.class).ifPresent(pc -> {
+        pc.position(pc.position().translate(offset));
+      });
+      Game.add(tree);
+    });
+
+    Game.add(WorldItemBuilder.buildWorldItem(new AxeItem(), getPoint("axe")));
   }
 
   private void createPushPuzzle() {
@@ -119,7 +165,17 @@ public class MainLevel extends DungeonLevel {
   }
 
   @Override
-  protected void onTick() {}
+  protected void onTick() {
+    DrawSystem ds = DrawSystem.getInstance();
+
+    // Check if lantern item is available, to set the viewDistance of the mushroom shader
+    boolean hasLantern = Game.player().flatMap(p -> p.fetch(InventoryComponent.class))
+        .map(inv -> inv.hasItem(LanternItem.class))
+        .orElse(false);
+    if(ds.sceneShaders().get("pp") instanceof MushroomPostProcessing mpp){
+      mpp.viewDistance(hasLantern ? 0.5f : 0.2f);
+    }
+  }
 
   private void generateMushrooms() {
     List<Point> allPoints = listPoints("mushroom");
