@@ -60,7 +60,6 @@ import java.util.*;
 public final class DrawSystem extends System implements Disposable {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DrawSystem.class);
-  private static final float LEVEL_TILE_CULL_PADDING = 0f;
 
   /**
    * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
@@ -822,10 +821,10 @@ public final class DrawSystem extends System implements Disposable {
 
   private TileBounds getCameraTileBounds(Tile[][] layout) {
     Rectangle cameraBounds = CameraSystem.getCameraWorldBounds();
-    float minWorldX = cameraBounds.x() - LEVEL_TILE_CULL_PADDING;
-    float maxWorldX = cameraBounds.x() + cameraBounds.width() + LEVEL_TILE_CULL_PADDING;
-    float minWorldY = cameraBounds.y() - LEVEL_TILE_CULL_PADDING;
-    float maxWorldY = cameraBounds.y() + cameraBounds.height() + LEVEL_TILE_CULL_PADDING;
+    float minWorldX = cameraBounds.x();
+    float maxWorldX = cameraBounds.x() + cameraBounds.width();
+    float minWorldY = cameraBounds.y();
+    float maxWorldY = cameraBounds.y() + cameraBounds.height();
 
     int minX = Math.max(0, (int) Math.floor(minWorldX));
     int maxX = Math.min(layout[0].length - 1, (int) Math.ceil(maxWorldX));
