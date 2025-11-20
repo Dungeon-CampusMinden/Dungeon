@@ -17,6 +17,8 @@ import core.Game;
 import core.level.loader.DungeonLoader;
 import core.systems.DrawSystem;
 import core.utils.Tuple;
+import core.utils.components.draw.ColorUtils;
+import core.utils.components.draw.TextureGenerator;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.draw.shader.HueRemapShader;
 import core.utils.components.draw.shader.OutlineShader;
@@ -63,29 +65,19 @@ public class MushRoom {
   }
 
   private static void createTextures() {
-    Texture baseShroom = TextureMap.instance().textureAt(new SimpleIPath("objects/mushroom.png"));
-    TextureRegion region = new TextureRegion(baseShroom);
+    String basePath = "objects/mushroom.png";
     float baseHue = 0.0f;
 
     for (Mushrooms mushroomType : Mushrooms.values()) {
-      Color color = mushroomType.getColor();
-      float[] hsv = new float[3];
-
       ShaderList shaderList = new ShaderList();
-      shaderList.add("hueRemap", new HueRemapShader(baseHue, color.toHsv(hsv)[0] / 360f));
-      shaderList.add("outline", new OutlineShader(1, new Color(0, 0, 0, 0.2f)));
-      FrameBuffer fbo = DrawSystem.getInstance().processShaders(region, shaderList);
-      fbo.begin();
-      Pixmap pm = Pixmap.createFromFrameBuffer(
-        0, 0,
-        fbo.getWidth(),
-        fbo.getHeight()
-      );
-      fbo.end();
 
-      TextureMap.instance()
-        .putPixmap(
-          new SimpleIPath(mushroomType.getTexturePath()), pm, true);
+      Color color = mushroomType.getColor();
+      Color outline = mushroomType.getOutlineColor();
+      float[] hsv = new float[3];
+      shaderList.add("hueRemap", new HueRemapShader(baseHue, color.toHsv(hsv)[0] / 360f));
+      shaderList.add("outline", new OutlineShader(1, ColorUtils.withAlpha(outline, 0.8f)));
+
+      TextureGenerator.registerRenderShaderTexture(basePath, mushroomType.getTexturePath(), shaderList);
     }
   }
 
