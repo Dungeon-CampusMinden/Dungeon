@@ -294,16 +294,15 @@ public class TileTextureFactory {
   public static IPath findTexturePath(LevelElement levelElement, DesignLabel designLabel) {
     String prefix = "dungeon/" + designLabel.name().toLowerCase() + "/";
     String ep =
-        switch (levelElement) {
-          case SKIP -> "wall/empty";
-          case FLOOR -> "floor/floor_1";
-          case EXIT -> "floor/floor_ladder";
-          case HOLE -> "floor/floor_hole";
-          case PIT -> "floor/floor_damaged";
-          case DOOR -> "door/top";
-          case WALL -> "wall/wall_right";
-          default -> "floor/empty";
-        };
+      switch (levelElement) {
+        case FLOOR -> "floor/floor_1";
+        case EXIT -> "floor/floor_ladder";
+        case HOLE -> "floor/floor_hole";
+        case PIT, SKIP -> "floor/floor_damaged";
+        case DOOR -> "door/top";
+        case WALL -> "wall/wall_right";
+        default -> "floor/empty";
+      };
     return new SimpleIPath(prefix + ep + ".png");
   }
 
@@ -325,10 +324,9 @@ public class TileTextureFactory {
       return new SimpleIPath(holeAbove ? "floor/floor_hole1" : "floor/floor_hole");
     }
     return switch (e) {
-      case SKIP -> new SimpleIPath("wall/empty");
       case FLOOR -> new SimpleIPath("floor/floor_1");
       case EXIT -> new SimpleIPath("floor/floor_ladder");
-      case PIT -> new SimpleIPath("floor/floor_damaged");
+      case PIT, SKIP -> new SimpleIPath("floor/floor_damaged");
       default -> null;
     };
   }
@@ -786,12 +784,6 @@ public class TileTextureFactory {
           floorForward && forwardNotFloor && sidesNotFloor && diagLeftFloor && !diagRightFloor;
 
       Coordinate fwdCoord = up ? n.getUp() : n.getDown();
-
-
-      // HIER IST DER FEHLER -> Ergibt rekursion. Generell muss besser zwischen SKIP und FLOOR unterschieden werden.
-      //boolean fwdEmptyByTexture = rendersWallEmptyAt(lp, fwdCoord);
-
-      // Mögliche Lösung ohne rendersWallEmptyAt:
 
       LevelElement fwdElement = get(layout, fwdCoord.x(), fwdCoord.y());
       boolean fwdEmptyByTexture = fwdElement == LevelElement.WALL && rendersSkipLikeWallAt(fwdCoord, layout);
@@ -1255,8 +1247,6 @@ public class TileTextureFactory {
    * @return {@code true} if the tile renders as empty; otherwise {@code false}
    */
   private static boolean rendersSkipAt(Coordinate p, LevelElement[][] layout, Axis axis) {
-    LevelElement here = get(layout, p.x(), p.y());
-    if (here == LevelElement.SKIP) return true;
     return rendersEmptyAxis(p, layout, axis);
   }
 
@@ -1401,8 +1391,9 @@ public class TileTextureFactory {
     LevelElement e = get(layout, p.x(), p.y());
     if (e == null || (!isInside(e) && !isBarrier(e))) return true;
     return rendersSkipAt(p, layout, Axis.VERTICAL)
-        || rendersSkipAt(p, layout, Axis.HORIZONTAL)
-        || isStemCrossCenter(p, layout);
+      || rendersSkipAt(p, layout, Axis.HORIZONTAL)
+      || isStemCrossCenter(p, layout)
+      || rendersSkipLikeWallAt(p, layout);
   }
 
   /**
@@ -1808,32 +1799,13 @@ public class TileTextureFactory {
    */
   private static boolean rendersSkipLikeWallAt(Coordinate c, LevelElement[][] layout) {
     LevelElement e = get(layout, c.x(), c.y());
-    if (e == LevelElement.SKIP) return true;
     if (e != LevelElement.WALL) return false;
     if (rendersSkipAt(c, layout, Axis.VERTICAL)
-        || rendersSkipAt(c, layout, Axis.HORIZONTAL)
-        || isStemCrossCenter(c, layout)) {
+      || rendersSkipAt(c, layout, Axis.HORIZONTAL)
+      || isStemCrossCenter(c, layout)) {
       return true;
     }
     return isAtBorder(c, layout) && !hasAdjacentFloorOrDoor(c, layout);
-  }
-
-  /**
-   * Returns whether the neighbor at {@code c} resolves to {@code /wall/empty.png} using the same
-   * design and layout as {@code lp}.
-   *
-   * @param lp the context level part (design, layout)
-   * @param c the neighbor coordinate
-   * @return {@code true} if the resolved path ends with {@code /wall/empty.png}; otherwise {@code
-   *     false}
-   */
-  private static boolean rendersWallEmptyAt(LevelPart lp, Coordinate c) {
-    LevelElement e = get(lp.layout(), c.x(), c.y());
-    if (e == null) return false;
-    LevelPart neighbor = new LevelPart(e, lp.design(), lp.layout(), c);
-    IPath path = resolvePrimaryPath(neighbor);
-    String s = path != null ? path.pathString() : null;
-    return s != null && s.endsWith("/wall/empty.png");
   }
 
   /**
@@ -1903,38 +1875,41 @@ public class TileTextureFactory {
    * @return {@code true} if the border-and-opposite-not-floor condition holds
    */
   private static boolean outsideAndOppositeNotFloor(
-      Coordinate p, LevelElement[][] layout, Dir outward) {
+    Coordinate p, LevelElement[][] layout, Dir outward) {
     Neighbors n = Neighbors.of(p, layout);
     Coordinate inner =
-        switch (outward) {
-          case UP -> n.getDown();
-          case DOWN -> n.getUp();
-          case LEFT -> n.getRight();
-          case RIGHT -> n.getLeft();
-        };
+      switch (outward) {
+        case UP -> n.getDown();
+        case DOWN -> n.getUp();
+        case LEFT -> n.getRight();
+        case RIGHT -> n.getLeft();
+      };
     boolean outside =
-        switch (outward) {
-          case UP -> n.getUpE() == null;
-          case DOWN -> n.getDownE() == null;
-          case LEFT -> n.getLeftE() == null;
-          case RIGHT -> n.getRightE() == null;
-        };
+      switch (outward) {
+        case UP -> n.getUpE() == null;
+        case DOWN -> n.getDownE() == null;
+        case LEFT -> n.getLeftE() == null;
+        case RIGHT -> n.getRightE() == null;
+      };
     boolean oppositeNotFloor =
-        switch (outward) {
-          case UP -> isNotFloor(n.getDownE());
-          case DOWN -> isNotFloor(n.getUpE());
-          case LEFT -> isNotFloor(n.getRightE());
-          case RIGHT -> isNotFloor(n.getLeftE());
-        };
+      switch (outward) {
+        case UP -> isNotFloor(n.getDownE());
+        case DOWN -> isNotFloor(n.getUpE());
+        case LEFT -> isNotFloor(n.getRightE());
+        case RIGHT -> isNotFloor(n.getLeftE());
+      };
     boolean innerNotEmpty = !rendersSkipLikeWallAt(inner, layout);
     boolean floorsOk =
-        switch (outward) {
-          case UP -> isFloorOrDoor(n.getDownLeftE()) && isFloorOrDoor(n.getDownRightE());
-          case DOWN -> isFloorOrDoor(n.getUpLeftE()) && isFloorOrDoor(n.getUpRightE());
-          case LEFT -> isFloorOrDoor(n.getUpRightE()) && isFloorOrDoor(n.getDownRightE());
-          case RIGHT -> isFloorOrDoor(n.getUpLeftE()) && isFloorOrDoor(n.getDownLeftE());
-        };
-    return outside && oppositeNotFloor && innerNotEmpty && floorsOk;
+      switch (outward) {
+        case UP -> isFloorOrDoor(n.getDownLeftE()) && isFloorOrDoor(n.getDownRightE());
+        case DOWN -> isFloorOrDoor(n.getUpLeftE()) && isFloorOrDoor(n.getUpRightE());
+        case LEFT -> isFloorOrDoor(n.getUpRightE()) && isFloorOrDoor(n.getDownRightE());
+        case RIGHT -> isFloorOrDoor(n.getUpLeftE()) && isFloorOrDoor(n.getDownLeftE());
+      };
+
+    boolean noFloorLikeOrthogonally = !hasFloorLikeOrthogonally(p, layout);
+
+    return outside && oppositeNotFloor && innerNotEmpty && floorsOk && noFloorLikeOrthogonally;
   }
 
   /**
@@ -2130,18 +2105,11 @@ public class TileTextureFactory {
    *     {@code false}
    */
   private static boolean isFloorLike(LevelElement e) {
-    return e == LevelElement.FLOOR || e == LevelElement.HOLE || e == LevelElement.PIT;
+    return e == LevelElement.FLOOR
+      || e == LevelElement.HOLE
+      || e == LevelElement.PIT
+      || e == LevelElement.SKIP;
   }
-
-  // Hier neue Versison mit von isFloorLike mit prüfung auf SKIP einfügen.
-  // Die neue Methode muss Koordinaten-basiert sein. Am besten die alte komplett entfernen.
-  // Die genauen Cases in denen ein SKIP wie ein Floor und in denen SKIP wie eine Wall behandelt wird müssen noch
-  // Ermittelt werden.
-  // In diesem Fall gilt dass ein SKIP wie ein Floor behandelt wird wenn es nicht wie eine Wall behandelt wird.
-  // Es muss also nur eine Methode implementiert werden die prüft ob ein skip wie eine wall behandelt wird.
-  // Momentan wird ein SKIP immer wie eine Wall behandelt. Vor allem im Bezug auf Tjunctions und das cross ist das
-  // aber nicht korrekt.
-
 
   /**
    * Indicates whether the diagonal neighbor of {@code p} in the specified {@code corner} is
