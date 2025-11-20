@@ -4,6 +4,7 @@ import contrib.item.Item;
 import core.Entity;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
+// Assuming 'Color' is defined or imported, though it is not needed in MushroomItem itself.
 
 public class MushroomItem {
 
@@ -11,12 +12,18 @@ public class MushroomItem {
 
   public static Object createMushroomItem(Mushrooms type) {
     return switch (type) {
-      case Green -> new GreenMushroom();
-      case Blue -> new BlueMushroom();
-      case Cyan -> new CyanMushroom();
-      case Magenta -> new MagentaMushroom();
-      case Yellow -> new YellowMushroom();
-      default -> new RedMushroom();
+      case RedYellow -> new RedYellowMushroom();
+      case GreenGreen -> new GreenGreenMushroom();
+      case GreenBrown -> new GreenBrownMushroom();
+      case BlueRed -> new BlueRedMushroom();
+      case BlueCyan -> new BlueCyanMushroom();
+      case CyanOrange -> new CyanOrangeMushroom();
+      case CyanRed -> new CyanRedMushroom();
+      case MagentaWhite -> new MagentaWhiteMushroom();
+      case MagentaBlack -> new MagentaBlackMushroom();
+      case YellowGreen -> new YellowGreenMushroom();
+      case YellowMagenta -> new YellowMagentaMushroom();
+      default -> new RedBlueMushroom();
     };
   }
 
@@ -29,12 +36,12 @@ public class MushroomItem {
 
     protected BaseMushroom(Mushrooms type) {
       super(
-          type.name() + " Mushroom",
-          "A " + type.name() + " mushroom",
-          new Animation(new SimpleIPath(type.getTexturePath())),
-          new Animation(new SimpleIPath(type.getTexturePath())),
-          1,
-          maxStackSize);
+        type.getBaseName() + " Mushroom",
+        "A " + type.getBaseName() + " mushroom",
+        new Animation(new SimpleIPath(type.getTexturePath())), // Assumes getTexturePath() exists on Mushrooms enum
+        new Animation(new SimpleIPath(type.getTexturePath())),
+        1,
+        maxStackSize);
       this.type = type;
     }
 
@@ -51,39 +58,75 @@ public class MushroomItem {
   // =========================================================
   // SUBCLASSES
   // =========================================================
-  public static class RedMushroom extends BaseMushroom {
-    public RedMushroom() {
-      super(Mushrooms.Red);
+  public static class RedBlueMushroom extends BaseMushroom {
+    public RedBlueMushroom() {
+      super(Mushrooms.RedBlue);
     }
   }
 
-  public static class GreenMushroom extends BaseMushroom {
-    public GreenMushroom() {
-      super(Mushrooms.Green);
+  public static class RedYellowMushroom extends BaseMushroom {
+    public RedYellowMushroom() {
+      super(Mushrooms.RedYellow);
     }
   }
 
-  public static class BlueMushroom extends BaseMushroom {
-    public BlueMushroom() {
-      super(Mushrooms.Blue);
+  public static class GreenGreenMushroom extends BaseMushroom {
+    public GreenGreenMushroom() {
+      super(Mushrooms.GreenGreen);
     }
   }
 
-  public static class CyanMushroom extends BaseMushroom {
-    public CyanMushroom() {
-      super(Mushrooms.Cyan);
+  public static class GreenBrownMushroom extends BaseMushroom {
+    public GreenBrownMushroom() {
+      super(Mushrooms.GreenBrown);
     }
   }
 
-  public static class MagentaMushroom extends BaseMushroom {
-    public MagentaMushroom() {
-      super(Mushrooms.Magenta);
+  public static class BlueRedMushroom extends BaseMushroom {
+    public BlueRedMushroom() {
+      super(Mushrooms.BlueRed);
     }
   }
 
-  public static class YellowMushroom extends BaseMushroom {
-    public YellowMushroom() {
-      super(Mushrooms.Yellow);
+  public static class BlueCyanMushroom extends BaseMushroom {
+    public BlueCyanMushroom() {
+      super(Mushrooms.BlueCyan);
+    }
+  }
+
+  public static class CyanOrangeMushroom extends BaseMushroom {
+    public CyanOrangeMushroom() {
+      super(Mushrooms.CyanOrange);
+    }
+  }
+
+  public static class CyanRedMushroom extends BaseMushroom {
+    public CyanRedMushroom() {
+      super(Mushrooms.CyanRed);
+    }
+  }
+
+  public static class MagentaWhiteMushroom extends BaseMushroom {
+    public MagentaWhiteMushroom() {
+      super(Mushrooms.MagentaWhite);
+    }
+  }
+
+  public static class MagentaBlackMushroom extends BaseMushroom {
+    public MagentaBlackMushroom() {
+      super(Mushrooms.MagentaBlack);
+    }
+  }
+
+  public static class YellowGreenMushroom extends BaseMushroom {
+    public YellowGreenMushroom() {
+      super(Mushrooms.YellowGreen);
+    }
+  }
+
+  public static class YellowMagentaMushroom extends BaseMushroom {
+    public YellowMagentaMushroom() {
+      super(Mushrooms.YellowMagenta);
     }
   }
 }

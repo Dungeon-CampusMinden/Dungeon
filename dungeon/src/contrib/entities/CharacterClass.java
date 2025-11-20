@@ -70,7 +70,7 @@ public enum CharacterClass {
 
   /** Wizard character class, specifically made for the MushRoom game. */
   MUSHROOM_WIZARD(
-      "character/wizard", Vector2.of(5, 5), 1.3f, 15, Set.of(), Set.of(), 8, 100, 10, 50, 5),
+      "character/wizard", Vector2.of(5, 5), 1.3f, 15, Set.of(), Set.of(), 16, 100, 10, 50, 5),
   ;
 
   private final IPath textures;
