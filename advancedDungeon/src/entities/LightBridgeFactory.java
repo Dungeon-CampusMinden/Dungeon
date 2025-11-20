@@ -412,9 +412,9 @@ public class LightBridgeFactory {
      * Calculates the end point by stepping from the start in the beam's direction until a WallTile
      * is reached or no tile exists. Returns the last traversable point.
      *
-     * @return Returns the calculated end point of the beam.
-     * @param from Starting point
      * @param beamDirection Direction of the beam
+     * @param from Starting point
+     * @return Returns the calculated end point of the beam.
      */
     private Point calculateEndPoint(Point from, Direction beamDirection) {
       Point lastPoint = from;
