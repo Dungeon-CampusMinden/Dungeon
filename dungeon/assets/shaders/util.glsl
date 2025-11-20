@@ -65,6 +65,10 @@ vec3 hsv2rgb(vec3 c) {
     else return vec3(v, p, q);
 }
 
+void test(float value){
+    gl_FragColor = vec4(vec3(value), 1.0);
+}
+
 // ----- SDFs -----
 float sdCircle(vec2 p, float r) {
     return length(p) - r;
