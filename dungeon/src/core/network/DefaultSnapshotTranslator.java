@@ -70,7 +70,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
   @Override
   public Optional<SnapshotMessage> translateToSnapshot(int serverTick) {
     if (!isServerTickValid(serverTick)) {
-      LOGGER.trace("No new server tick, skipping snapshot for server tick: {}", serverTick);
+      LOGGER.warn("No new server tick, skipping snapshot for server tick: {}", serverTick);
       return Optional.empty(); // Skip snapshot if server tick is invalid
     }
     latestServerTick = serverTick;
@@ -249,11 +249,14 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                                         entity.add(newSc);
                                         return newSc;
                                       });
-                          sc.replaceAll(soundSpecs);
+                          // replace all sounds and stop removed ones
+                          var removedSounds = sc.replaceAll(soundSpecs);
+                          removedSounds.forEach(
+                              spec -> Game.audio().stopInstance(spec.instanceId()));
                         },
                         () -> {
                           // No audio in snapshot, clear if present
-                          entity.fetch(SoundComponent.class).ifPresent(SoundComponent::clear);
+                          Game.audio().stopAllOnEntity(entity);
                         });
               } catch (Exception ignored) {
               }
