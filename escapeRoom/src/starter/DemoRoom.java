@@ -84,7 +84,6 @@ public class DemoRoom {
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
     Game.add(new PitSystem());
-    Game.add(new EventScheduler());
     Game.add(new LeverSystem());
     Game.add(new PressurePlateSystem());
     Game.add(new IdleSoundSystem());

@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import core.components.PositionComponent;
-import core.game.ECSManagment;
+import core.game.ECSManagement;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
@@ -13,8 +13,8 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
+import core.sound.AudioApi;
 import core.sound.player.ISoundPlayer;
-import core.sound.player.NoSoundPlayer;
 import core.systems.LevelSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
@@ -49,12 +49,13 @@ import java.util.stream.Stream;
  * <p>Get access via: {@link #levelEntities()}, {@link #systems()}
  *
  * @see PreRunConfiguration
- * @see ECSManagment
+ * @see ECSManagement
  * @see GameLoop
  */
 public final class Game {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Game.class);
+  private static final AudioApi AudioAPI = new AudioApi();
 
   /** Starts the dungeon and requires a {@link Game}. */
   public static void run() {
@@ -259,7 +260,7 @@ public final class Game {
    * @param entity the entity to add.
    */
   public static void add(final Entity entity) {
-    ECSManagment.add(entity);
+    ECSManagement.add(entity);
   }
 
   /**
@@ -270,7 +271,7 @@ public final class Game {
    * @param entity the entity to remove
    */
   public static void remove(final Entity entity) {
-    ECSManagment.remove(entity);
+    ECSManagement.remove(entity);
   }
 
   /**
@@ -289,7 +290,7 @@ public final class Game {
    * @see System
    */
   public static Optional<System> add(final System system) {
-    return ECSManagment.add(system);
+    return ECSManagement.add(system);
   }
 
   /**
@@ -298,7 +299,7 @@ public final class Game {
    * @return a copy of the map that stores all registered {@link System} in the game.
    */
   public static Map<Class<? extends System>, System> systems() {
-    return ECSManagment.systems();
+    return ECSManagement.systems();
   }
 
   /**
@@ -309,7 +310,7 @@ public final class Game {
    * @param c the {@link Consumer} to execute with the system instance if present
    */
   public static <T extends System> void system(Class<T> s, Consumer<T> c) {
-    ECSManagment.system(s, c);
+    ECSManagement.system(s, c);
   }
 
   /**
@@ -318,7 +319,7 @@ public final class Game {
    * <p>Will trigger {@link System#onEntityRemove} for each entity in each system.
    */
   public static void removeAllSystems() {
-    ECSManagment.removeAllSystems();
+    ECSManagement.removeAllSystems();
   }
 
   /**
@@ -327,7 +328,7 @@ public final class Game {
    * @return a stream of all entities currently in the level
    */
   public static Stream<Entity> levelEntities() {
-    return ECSManagment.levelEntities();
+    return ECSManagement.levelEntities();
   }
 
   /**
@@ -339,7 +340,7 @@ public final class Game {
    *     system.
    */
   public static Stream<Entity> levelEntities(final System system) {
-    return ECSManagment.levelEntities(system);
+    return ECSManagement.levelEntities(system);
   }
 
   /**
@@ -349,7 +350,7 @@ public final class Game {
    * @return a stream of all entities currently in the game that contains the given components.
    */
   public static Stream<Entity> levelEntities(final Set<Class<? extends Component>> filter) {
-    return ECSManagment.levelEntities(filter);
+    return ECSManagement.levelEntities(filter);
   }
 
   /**
@@ -359,7 +360,7 @@ public final class Game {
    *     {@code Optional} if none is present
    */
   public static Optional<Entity> player() {
-    return ECSManagment.player();
+    return ECSManagement.player();
   }
 
   /**
@@ -368,7 +369,7 @@ public final class Game {
    * @return a stream of all player characters in the current level
    */
   public static Stream<Entity> allPlayers() {
-    return ECSManagment.allPlayers();
+    return ECSManagement.allPlayers();
   }
 
   /**
@@ -379,7 +380,7 @@ public final class Game {
    * @param system the class of the system to remove
    */
   public static void remove(final Class<? extends System> system) {
-    ECSManagment.remove(system);
+    ECSManagement.remove(system);
   }
 
   /**
@@ -388,7 +389,7 @@ public final class Game {
    * <p>This will also remove all entities from each system.
    */
   public static void removeAllEntities() {
-    ECSManagment.removeAllEntities();
+    ECSManagement.removeAllEntities();
   }
 
   /**
@@ -399,7 +400,7 @@ public final class Game {
    * @return a stream of all entities currently in the game
    */
   public static Stream<Entity> allEntities() {
-    return ECSManagment.allEntities();
+    return ECSManagement.allEntities();
   }
 
   /**
@@ -412,7 +413,7 @@ public final class Game {
    *     is found
    */
   public static Optional<Entity> findInAll(final Component component) {
-    return ECSManagment.findInAll(component);
+    return ECSManagement.findInAll(component);
   }
 
   /**
@@ -425,7 +426,7 @@ public final class Game {
    *     is found
    */
   public static Optional<Entity> findInLevel(final Component component) {
-    return ECSManagment.findInLevel(component);
+    return ECSManagement.findInLevel(component);
   }
 
   /**
@@ -437,7 +438,7 @@ public final class Game {
    * @return {@code true} if the entity is found, {@code false} otherwise
    */
   public static boolean existInLevel(Entity entity) {
-    return ECSManagment.existInLevel(entity);
+    return ECSManagement.existInLevel(entity);
   }
 
   /**
@@ -449,7 +450,7 @@ public final class Game {
    * @return {@code true} if the entity is found, {@code false} otherwise
    */
   public static boolean existInAll(final Entity entity) {
-    return ECSManagment.existInAll(entity);
+    return ECSManagement.existInAll(entity);
   }
 
   /**
@@ -584,7 +585,7 @@ public final class Game {
               Set<Class<? extends Component>> filter = new HashSet<>();
               filter.add(PositionComponent.class);
 
-              return ECSManagment.levelEntities(filter)
+              return ECSManagement.levelEntities(filter)
                   .filter(
                       e ->
                           e.fetch(PositionComponent.class)
@@ -754,7 +755,7 @@ public final class Game {
    * @param level New level
    */
   public static void currentLevel(final ILevel level) {
-    LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
+    LevelSystem levelSystem = (LevelSystem) ECSManagement.systems().get(LevelSystem.class);
     if (levelSystem != null) levelSystem.loadLevel(level);
     else LOGGER.warn("Can not set Level because levelSystem is null.");
   }
@@ -777,12 +778,44 @@ public final class Game {
   }
 
   /**
-   * Returns the {@link ISoundPlayer} used by the game.
+   * Finds an entity by its unique ID.
+   *
+   * @param entityId The unique ID of the entity to find.
+   * @return An {@link Optional} containing the found entity, or an empty {@code Optional} if no
+   *     entity with the given ID exists.
+   */
+  public static Optional<Entity> findEntityById(int entityId) {
+    return ECSManagement.findEntityById(entityId);
+  }
+
+  /**
+   * Returns the centralized sound API for managing entity-backed audio.
+   *
+   * <p>Use this API to play audio on entities or globally. All audio are entity-backed and synced
+   * via snapshots in multiplayer.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * Game.audio().playOnEntity(entity,
+   *     SoundSpec.builder("explosion").volume(0.8f).build());
+   * }</pre>
+   *
+   * @return the SoundApi instance
+   */
+  public static AudioApi audio() {
+    return AudioAPI;
+  }
+
+  /**
+   * Returns the {@link core.sound.player.ISoundPlayer} used by the game.
    *
    * <p>This player is responsible for playing sound effects and music within the game.
    *
    * <p>If no audio context is available (Gdx.audio is null), this method may return a {@link
-   * NoSoundPlayer} instance.
+   * core.sound.player.NoSoundPlayer} instance.
+   *
+   * <p>To play sounds, use {@link AudioApi} instead.
    *
    * @return the current {@link ISoundPlayer} instance
    */

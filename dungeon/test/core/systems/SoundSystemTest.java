@@ -1,6 +1,7 @@
 package core.systems;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import core.Entity;
@@ -8,8 +9,9 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.SoundComponent;
-import core.sound.player.IPlayHandle;
+import core.sound.SoundSpec;
 import core.sound.player.ISoundPlayer;
+import core.sound.player.PlayHandle;
 import core.utils.Point;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -21,13 +23,14 @@ public class SoundSystemTest {
 
   private SoundSystem soundSystem;
   private ISoundPlayer mockPlayer;
-  private IPlayHandle mockHandle;
+  private PlayHandle mockHandle;
 
   @BeforeEach
   void setup() {
     mockPlayer = mock(ISoundPlayer.class);
-    mockHandle = mock(IPlayHandle.class);
-    when(mockPlayer.play(anyString(), anyFloat(), anyBoolean(), anyFloat(), anyFloat()))
+    mockHandle = mock(PlayHandle.class);
+    when(mockPlayer.playWithInstance(
+            anyLong(), anyString(), anyFloat(), anyBoolean(), anyFloat(), anyFloat(), any()))
         .thenReturn(Optional.of(mockHandle));
     soundSystem = new SoundSystem(mockPlayer);
     Game.add(soundSystem);
@@ -51,12 +54,15 @@ public class SoundSystemTest {
 
     Entity entity = new Entity();
     entity.add(new PositionComponent(new Point(0, 0)));
-    entity.add(new SoundComponent("test", 0.8f, false, 1f, 10f, 0.1f, () -> {}));
+    entity.add(
+        new SoundComponent(
+            SoundSpec.builder("test").volume(0.8f).maxDistance(10f).attenuation(0.1f).build()));
     Game.add(entity);
 
     soundSystem.execute();
 
-    verify(mockPlayer).play("test", 0.8f, false, 1f, 0f);
+    verify(mockPlayer)
+        .playWithInstance(anyLong(), eq("test"), eq(0.8f), eq(false), eq(1f), eq(0f), any());
   }
 
   @Test
@@ -68,14 +74,15 @@ public class SoundSystemTest {
 
     Entity soundEntity = new Entity();
     soundEntity.add(new PositionComponent(new Point(0, 0)));
-    Runnable onFinish = mock(Runnable.class);
-    soundEntity.add(new SoundComponent("test", 0.8f, false, 1, 10f, 0.1f, onFinish));
+    soundEntity.add(
+        new SoundComponent(
+            SoundSpec.builder("test").volume(0.8f).maxDistance(10f).attenuation(0.1f).build()));
     Game.add(soundEntity);
 
     soundSystem.execute();
 
-    verify(mockPlayer).play("test", 0.8f, false, 1f, 0f);
-    verify(mockHandle).onFinished(onFinish);
+    verify(mockPlayer)
+        .playWithInstance(eq(0L), eq("test"), eq(0.8f), eq(false), eq(1f), eq(0f), any());
   }
 
   @Test
@@ -87,24 +94,36 @@ public class SoundSystemTest {
 
     Entity entity = new Entity();
     entity.add(new PositionComponent(new Point(0, 0)));
-    entity.add(new SoundComponent("loop", 0.5f, true, 1, 20f, 0.05f, () -> {}));
+    entity.add(
+        new SoundComponent(
+            SoundSpec.builder("loop")
+                .volume(0.5f)
+                .looping(true)
+                .maxDistance(20f)
+                .attenuation(0.05f)
+                .build()));
     Game.add(entity);
 
     soundSystem.execute();
 
-    verify(mockPlayer).play("loop", 0.5f, true, 1f, 0f);
+    verify(mockPlayer)
+        .playWithInstance(eq(0L), eq("loop"), eq(0.5f), eq(true), eq(1f), eq(0f), any());
   }
 
   @Test
   void testSoundSystemNoHero() {
     Entity soundEntity = new Entity();
     soundEntity.add(new PositionComponent(new Point(0, 0)));
-    soundEntity.add(new SoundComponent("fireball", 0.8f, false, 1, 10f, 0.1f, () -> {}));
+    soundEntity.add(
+        new SoundComponent(
+            SoundSpec.builder("test").volume(0.8f).maxDistance(10f).attenuation(0.1f).build()));
     Game.add(soundEntity);
 
     soundSystem.execute();
 
-    verify(mockPlayer, never()).play(anyString(), anyFloat(), anyBoolean());
+    verify(mockPlayer, never())
+        .playWithInstance(
+            anyLong(), anyString(), anyFloat(), anyBoolean(), anyFloat(), anyFloat(), any());
   }
 
   @Test
@@ -116,7 +135,14 @@ public class SoundSystemTest {
 
     Entity entity = new Entity();
     entity.add(new PositionComponent(new Point(0, 0)));
-    entity.add(new SoundComponent("test", 0.8f, true, 1, 10f, 0.1f, () -> {}));
+    entity.add(
+        new SoundComponent(
+            SoundSpec.builder("test")
+                .volume(0.8f)
+                .looping(true)
+                .maxDistance(10f)
+                .attenuation(0.1f)
+                .build()));
     Game.add(entity);
 
     soundSystem.execute(); // Adds handle

@@ -106,7 +106,9 @@ public class LevelEditorSystem extends System {
             .ifPresent(
                 pc -> {
                   playerClallbacks.forEach(
-                      ((key, value) -> pc.registerCallback(key, value.callback())));
+                      ((key, value) ->
+                          pc.registerCallback(
+                              key, value.callback(), value.repeat(), value.pauseable())));
                 });
         playerClallbacks = null;
         player
@@ -118,6 +120,48 @@ public class LevelEditorSystem extends System {
       }
       currentModeInstance.onExit();
     }
+  }
+
+  @Override
+  public void render(float delta) {
+    if (!active) return;
+
+    String status = currentModeInstance.getFullStatusText();
+    StringBuilder modeSelection = new StringBuilder("Level Editor v2 | Modes: ");
+    for (int i = 0; i < Mode.values().length; i++) {
+      if (i > 0) {
+        modeSelection.append(" | ");
+      }
+      if (i == currentMode.ordinal()) {
+        modeSelection.append("[").append(i + 1).append("]");
+      } else {
+        modeSelection.append(i + 1);
+      }
+    }
+    modeSelection
+        .append("\n ( SPACE to toggle layer debug shader [")
+        .append(DrawSystem.shadersActiveLastFrame())
+        .append("] )");
+    modeSelection.append("\n\n");
+    status = modeSelection + status;
+    DebugDrawSystem.drawText(FONT, status, new Point(10.0f, Game.windowHeight() - 10.0f));
+
+    // Draw feedback message if timer > 0
+    if (feedbackMessageTimer > 0.0f && !feedbackMessage.isEmpty()) {
+      GlyphLayout layout = new GlyphLayout(FONT, feedbackMessage);
+      float x = 10;
+      float y = 10 + layout.height;
+      DebugDrawSystem.drawText(FONT, feedbackMessage, new Point(x, y), feedbackMessageColor);
+      feedbackMessageTimer -= Gdx.graphics.getDeltaTime();
+      if (feedbackMessageTimer <= 0.0f) {
+        feedbackMessage = "";
+      }
+    }
+
+    // Draw level boundaries in green with alpha 0.3f
+    Tile[][] layout = Game.currentLevel().orElseThrow().layout();
+    DebugDrawSystem.drawRectangleOutline(
+        0, 0, layout[0].length, layout.length, new Color(0, 1, 0, 0.3f));
   }
 
   @Override
@@ -157,45 +201,6 @@ public class LevelEditorSystem extends System {
       }
       currentModeInstance.doExecute();
     }
-
-    String status = currentModeInstance.getFullStatusText();
-    // Prepend to status: mode selection info. a horizontal list of all mode numbers, separated by
-    // |. active mode is in [brackets]
-    StringBuilder modeSelection = new StringBuilder("Level Editor v2 | Modes: ");
-    for (int i = 0; i < Mode.values().length; i++) {
-      if (i > 0) {
-        modeSelection.append(" | ");
-      }
-      if (i == currentMode.ordinal()) {
-        modeSelection.append("[").append(i + 1).append("]");
-      } else {
-        modeSelection.append(i + 1);
-      }
-    }
-    modeSelection
-        .append("\n ( SPACE to toggle layer debug shader [")
-        .append(DrawSystem.shadersActiveLastFrame())
-        .append("] )");
-    modeSelection.append("\n\n");
-    status = modeSelection + status;
-    DebugDrawSystem.drawText(FONT, status, new Point(10.0f, Game.windowHeight() - 10.0f));
-
-    // Draw feedback message if timer > 0
-    if (feedbackMessageTimer > 0.0f && !feedbackMessage.isEmpty()) {
-      GlyphLayout layout = new GlyphLayout(FONT, feedbackMessage);
-      float x = 10;
-      float y = 10 + layout.height;
-      DebugDrawSystem.drawText(FONT, feedbackMessage, new Point(x, y), feedbackMessageColor);
-      feedbackMessageTimer -= Gdx.graphics.getDeltaTime();
-      if (feedbackMessageTimer <= 0.0f) {
-        feedbackMessage = "";
-      }
-    }
-
-    // Draw level boundaries in green with alpha 0.3f
-    Tile[][] layout = Game.currentLevel().orElseThrow().layout();
-    DebugDrawSystem.drawRectangleOutline(
-        0, 0, layout[0].length, layout.length, new Color(0, 1, 0, 0.3f));
   }
 
   private void toggleDebugShader() {

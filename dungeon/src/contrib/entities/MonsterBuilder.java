@@ -7,6 +7,7 @@ import contrib.components.IdleSoundComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.SpikyComponent;
 import contrib.item.Item;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import core.Entity;
@@ -16,15 +17,16 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
+import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.CharacterStateFactory;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -49,7 +51,7 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(MonsterBuilder.class);
 
   /** Maximum distance from player within which to play the death sound when the monster dies. */
-  private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
+  private static final int DISTANCE_DEATH_SOUND = 15;
 
   private static final float DEATH_SOUND_VOLUME = 0.35f;
 
@@ -626,20 +628,27 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
     return build(spawnTile.coordinate());
   }
 
-  private HealthComponent buildHealthComponent() {
+  /**
+   * Build the HealthComponent for this monster.
+   *
+   * <p>The on-death consumer handles playing the death sound (if any) and dropping items.
+   *
+   * <p>The entity is only removed from the game after the death sound finishes playing, or if there
+   * is no death sound. Removal on death can be disabled via removeOnDeath.
+   *
+   * @return constructed HealthComponent
+   */
+  protected HealthComponent buildHealthComponent() {
     Consumer<Entity> constructedOnDeath =
         entity -> {
           onDeath().accept(entity);
-          deathSound()
-              .ifPresentOrElse(
-                  deathSound -> playDeathSoundIfNearby(entity, deathSound),
-                  () -> {
-                    if (removeOnDeath()) Game.remove(entity);
-                  });
+          deathSound().ifPresent(deathSound -> playMonsterDeathSound(entity, deathSound));
 
           entity
               .fetch(InventoryComponent.class)
               .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
+
+          if (removeOnDeath()) Game.remove(entity);
         };
 
     return new HealthComponent(health, constructedOnDeath);
@@ -672,46 +681,23 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
   /**
    * Play the monster death sound with predefined volume.
    *
-   * <p>If removeOnDeath is true, the monster entity is removed from the game after the sound
-   * finishes playing.
-   *
    * @param diedMonster The entity that died.
    * @param deathSound The death sound to be played.
    */
-  private void playMonsterDeathSound(Entity diedMonster, MonsterDeathSound deathSound) {
-    Game.soundPlayer()
-        .play(deathSound.soundId(), DEATH_SOUND_VOLUME)
-        .ifPresent(
-            handle ->
-                handle.onFinished(
-                    () -> {
-                      if (removeOnDeath()) Game.remove(diedMonster);
-                    }));
-  }
-
-  /**
-   * Play the death sound if the player is within a certain distance.
-   *
-   * @param diedMonster The entity that died.
-   * @param deathSound The death sound to be played.
-   */
-  protected void playDeathSoundIfNearby(Entity diedMonster, MonsterDeathSound deathSound) {
-    if (Game.player().isEmpty()) return;
-
-    Entity player = Game.player().get();
-    PositionComponent pc =
-        player
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(player, PositionComponent.class));
-    PositionComponent monsterPc =
-        diedMonster
-            .fetch(PositionComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(diedMonster, PositionComponent.class));
-
-    if (pc.position().distance(monsterPc.position()) < MAX_DISTANCE_FOR_DEATH_SOUND) {
-      playMonsterDeathSound(diedMonster, deathSound);
+  protected void playMonsterDeathSound(Entity diedMonster, MonsterDeathSound deathSound) {
+    Point monsterPos;
+    try {
+      monsterPos = EntityUtils.getPosition(diedMonster);
+    } catch (NoSuchElementException e) {
+      LOGGER.warn(
+          "Could not play death sound for monster {}, as it has no PositionComponent.",
+          diedMonster.id());
+      return;
     }
+
+    Game.audio()
+        .playAtPosition(
+            monsterPos, SoundSpec.builder(deathSound.soundId()).volume(DEATH_SOUND_VOLUME));
   }
 
   /**

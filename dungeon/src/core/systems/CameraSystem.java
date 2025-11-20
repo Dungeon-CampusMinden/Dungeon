@@ -138,9 +138,20 @@ public final class CameraSystem extends System {
     CAMERA.update();
   }
 
+  @Override
+  public void render(final float delta) {
+    // Check if Gdx.graphics is null which happens when the game is run in headless mode (e.g.
+    // in tests)
+    if (Gdx.graphics != null) {
+      float aspectRatio = Game.windowWidth() / (float) Game.windowHeight();
+      CAMERA.viewportWidth = viewportWidth();
+      CAMERA.viewportHeight = viewportWidth() / aspectRatio;
+    }
+  }
+
   private void focus() {
     Point focusPoint;
-    if (Game.currentLevel() == null) focusPoint = new Point(0, 0);
+    if (Game.currentLevel().isEmpty()) focusPoint = new Point(0, 0);
     else focusPoint = Game.startTile().map(Tile::position).orElse(new Point(0, 0));
 
     focus(focusPoint);

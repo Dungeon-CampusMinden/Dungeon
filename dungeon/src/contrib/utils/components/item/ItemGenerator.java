@@ -4,7 +4,9 @@ import contrib.item.HealthPotionType;
 import contrib.item.Item;
 import contrib.item.concreteItem.ItemDefault;
 import contrib.item.concreteItem.ItemPotionHealth;
+import core.utils.logging.DungeonLogger;
 import java.lang.reflect.InvocationTargetException;
+import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -18,6 +20,7 @@ import java.util.function.Supplier;
  * @see contrib.entities.MiscFactory#generateRandomItems(int, int) generateRandomItems
  */
 public class ItemGenerator {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ItemGenerator.class);
   private final Random random;
   private final Map<Supplier<Item>, Double> weightedItems;
   private double totalWeight;
@@ -68,7 +71,11 @@ public class ItemGenerator {
     addItem(() -> new ItemPotionHealth(HealthPotionType.randomType()), 1.0);
 
     for (Class<? extends Item> itemClass : itemClasses) {
-      addItem(createItemSupplier(itemClass), 1.0);
+      try {
+        addItem(createItemSupplier(itemClass), 1.0);
+      } catch (InvalidParameterException e) {
+        LOGGER.error("Failed to create item instance for {}", itemClass.getSimpleName(), e);
+      }
     }
   }
 
@@ -86,7 +93,7 @@ public class ItemGenerator {
           | IllegalAccessException
           | NoSuchMethodException
           | InvocationTargetException e) {
-        throw new IllegalStateException(
+        throw new InvalidParameterException(
             "Could not create an instance of " + itemClass.getSimpleName(), e);
       }
     };

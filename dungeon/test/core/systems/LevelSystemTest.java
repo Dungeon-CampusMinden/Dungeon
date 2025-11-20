@@ -57,7 +57,8 @@ public class LevelSystemTest {
 
     onLevelLoader = Mockito.mock(IVoidFunction.class);
     level = Mockito.mock(DungeonLevel.class);
-    api = new LevelSystem(onLevelLoader);
+    api = new LevelSystem();
+    api.onLevelLoad(onLevelLoader);
     Game.add(api);
   }
 

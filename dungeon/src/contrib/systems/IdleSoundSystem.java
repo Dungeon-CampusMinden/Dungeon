@@ -5,8 +5,10 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
+import core.sound.SoundSpec;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.DungeonLogger;
 import java.util.Random;
 
 /**
@@ -18,9 +20,11 @@ import java.util.Random;
  * <p>Note: The chance that the sound is played is very low, so it shouldn't be too much noise.
  */
 public final class IdleSoundSystem extends System {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(IdleSoundSystem.class);
 
   private static final Random RANDOM = new Random();
   private static final float DISTANCE_THRESHOLD = 10.0f;
+  private static final float CHANCE_TO_PLAY_SOUND = 0.001f;
 
   /** Create a new {@link IdleSoundSystem}. */
   public IdleSoundSystem() {
@@ -42,24 +46,26 @@ public final class IdleSoundSystem extends System {
 
   @Override
   public void execute() {
-    Point playerPos =
-        Game.player()
-            .flatMap(e -> e.fetch(PositionComponent.class).map(PositionComponent::position))
-            .orElse(null);
+    Point playerPos = Game.player().flatMap(Game::positionOf).orElse(null);
+    if (playerPos == null) {
+      LOGGER.debug("No player position found, skipping IdleSoundSystem execution.");
+      return;
+    }
+
     filteredEntityStream(IdleSoundComponent.class)
         .filter(e -> isEntityNearby(playerPos, e))
         .forEach(
             e ->
                 playSound(
+                    e,
                     e.fetch(IdleSoundComponent.class)
                         .orElseThrow(
                             () -> MissingComponentException.build(e, IdleSoundComponent.class))));
   }
 
-  private void playSound(final IdleSoundComponent component) {
-    float chanceToPlaySound = 0.001f;
-    if (RANDOM.nextFloat(0f, 1f) < chanceToPlaySound) {
-      Game.soundPlayer().play(component.soundEffectId(), 0.35f);
+  private void playSound(final Entity idlingEntity, final IdleSoundComponent component) {
+    if (RANDOM.nextFloat(0f, 1f) < CHANCE_TO_PLAY_SOUND) {
+      Game.audio().playOnEntity(idlingEntity, SoundSpec.builder(component.soundEffectId()));
     }
   }
 }

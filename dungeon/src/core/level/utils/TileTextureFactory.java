@@ -1,6 +1,7 @@
 package core.level.utils;
 
 import core.level.Tile;
+import core.level.elements.tile.PitTile;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -215,8 +216,72 @@ public class TileTextureFactory {
       }
     }
     elementLayout[element.coordinate().y()][element.coordinate().x()] = elementType;
+
+    IPath pitPath = findTexturePathPit(element, layout);
+    if (pitPath != null) {
+      return pitPath;
+    }
+
     return findTexturePath(
         new LevelPart(elementType, element.designLabel(), elementLayout, element.coordinate()));
+  }
+
+  /**
+   * Resolves the texture path for open {@link PitTile} instances by inspecting the tile directly
+   * above. If the pit is closed or the element is not a pit, this method returns {@code null} so
+   * that generic resolution can proceed. Open pits inherit {@code wall/empty.png} when the above
+   * tile would render as empty wall or is itself an open pit; otherwise they use {@code
+   * floor/pit_open.png}.
+   *
+   * @param element Tile to check for
+   * @param layout The level
+   * @return a texture path for open pits, or {@code null} if no pit-specific rule applies
+   */
+  private static IPath findTexturePathPit(Tile element, Tile[][] layout) {
+    if (!(element instanceof PitTile pit) || !pit.isOpen()) {
+      return null;
+    }
+
+    String base = "dungeon/" + element.designLabel().name().toLowerCase() + "/";
+    String pitOpenPath = base + "floor/pit_open.png";
+    String wallEmptyPath = base + "wall/empty.png";
+
+    Coordinate pos = element.coordinate();
+    int x = pos.x();
+    int y = pos.y();
+
+    if (y + 1 >= layout.length || x < 0 || x >= layout[0].length) {
+      return new SimpleIPath(wallEmptyPath);
+    }
+
+    Tile aboveTile = layout[y + 1][x];
+    if (aboveTile == null) {
+      return new SimpleIPath(wallEmptyPath);
+    }
+
+    IPath abovePath = findTexturePath(aboveTile, layout, aboveTile.levelElement());
+    String abovePathString = abovePath != null ? abovePath.pathString() : null;
+
+    if (abovePathString != null && abovePathString.endsWith("/wall/empty.png")) {
+      return new SimpleIPath(wallEmptyPath);
+    }
+
+    if (aboveTile instanceof PitTile abovePit && abovePit.isOpen()) {
+      return new SimpleIPath(wallEmptyPath);
+    }
+
+    LevelElement aboveElement = aboveTile.levelElement();
+    boolean isAboveFloorLike = isFloorLike(aboveElement);
+    boolean isAboveWallLike =
+        aboveElement == LevelElement.WALL || aboveElement == LevelElement.DOOR;
+    boolean isAboveClosedPit =
+        aboveTile instanceof PitTile abovePitClosed && !abovePitClosed.isOpen();
+
+    if (isAboveFloorLike || isAboveWallLike || isAboveClosedPit) {
+      return new SimpleIPath(pitOpenPath);
+    }
+
+    return new SimpleIPath(wallEmptyPath);
   }
 
   /**

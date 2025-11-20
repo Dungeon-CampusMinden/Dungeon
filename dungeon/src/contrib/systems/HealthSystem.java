@@ -62,6 +62,7 @@ public class HealthSystem extends System {
     deadOrAlive.get(true).stream()
         .map(this::activateDeathAnimation)
         .filter(this::isDeathAnimationFinished)
+        .filter(hsd -> !hsd.hc.alreadyDead())
         .forEach(this::triggerOnDeath);
   }
 
@@ -147,6 +148,7 @@ public class HealthSystem extends System {
   }
 
   protected void triggerOnDeath(final HSData hsd) {
+    hsd.hc.alreadyDead(true); // mark as already dead to prevent multiple triggers
     observers.forEach(observer -> observer.onHealthEvent(hsd, IHealthObserver.HealthEvent.DEATH));
     hsd.hc.triggerOnDeath(hsd.e);
   }
