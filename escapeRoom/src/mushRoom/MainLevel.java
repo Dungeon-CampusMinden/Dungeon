@@ -36,7 +36,7 @@ import mushRoom.modules.mushrooms.Mushrooms;
 /** The MushRoom. */
 public class MainLevel extends DungeonLevel {
 
-  private static final int TO_GENERATE_PER_TYPE = 5;
+  private static final int TO_GENERATE_PER_TYPE = 3;
 
   private NpcState npcState = NpcState.FIRST_TALK;
 
@@ -64,22 +64,23 @@ public class MainLevel extends DungeonLevel {
 
     float width = 46, height = 33;
     ds.levelShaders()
-        .add("a1", new ColorGradeShader(0.2f, 1, 1).region(new Rectangle(width, height, 0, 0)));
+        .add("yellow", new ColorGradeShader(0.2f, 1, 1).region(new Rectangle(width, height, -7, 0)).transitionSize(5));
     ds.levelShaders()
         .add(
-            "a2",
-            new ColorGradeShader(0.1f, 1, 1).region(new Rectangle(width, height, width + 8, 0)));
+            "orange",
+            new ColorGradeShader(0.1f, 1, 1).region(new Rectangle(width, height, width + 8 + 5, 0)).transitionSize(5));
     ds.levelShaders()
         .add(
-            "a3",
-            new ColorGradeShader(0.3f, 1, 1).region(new Rectangle(width, height, 0, height + 8)));
+            "green",
+            new ColorGradeShader(0.3f, 1, 1).region(new Rectangle(width, height, -7, height + 8)).transitionSize(5));
     ds.levelShaders()
         .add(
-            "a4",
+            "grave",
             new ColorGradeShader(0.5f, 0.1f, 0.6f)
-                .region(new Rectangle(width, height, width + 8, height + 8)));
+                .region(new Rectangle(width, height, width + 8 + 5, height + 8)).transitionSize(5));
 
     Game.add(LevelHideFactory.createLevelHide(getPoint("cave-1-start"), getPoint("cave-1-end")));
+    Game.add(LevelHideFactory.createLevelHide(getPoint("hidden-1-start"), getPoint("hidden-1-end"), 1));
 
     generateMushrooms();
     listPoints("page").forEach(p -> {
