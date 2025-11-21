@@ -13,6 +13,20 @@ import org.junit.jupiter.api.Test;
 /** Tests for {@link TileFactory} class. */
 public class TileFactoryTest {
 
+  /** Checks if Tile of type SKIP can be generated. */
+  @Test
+  public void createSKIPTile() {
+    Tile t =
+        TileFactory.createTile(
+            new SimpleIPath(""), new Coordinate(0, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
+    assertEquals(SkipTile.class, t.getClass());
+    assertEquals(0, t.coordinate().x());
+    assertEquals(0, t.coordinate().y());
+    assertEquals(LevelElement.SKIP, t.levelElement());
+    assertEquals(DesignLabel.DEFAULT, t.designLabel());
+    assertNull(t.level());
+  }
+
   /** Checks if Tile of type FLOOR can be generated. */
   @Test
   public void createFLOORTile() {
