@@ -536,16 +536,16 @@ public class TileTextureFactory {
       if (!leftStem && !rightStem) {
         boolean innerRightT =
           !isInside(n.getRight(), layout)
-            && isNotFloor(n.getUpE())
-            && isNotFloor(n.getDownE())
+            && isNotFloor(n.getUp(), layout)
+            && isNotFloor(n.getDown(), layout)
             && isFloorOrDoor(n.getLeftE())
             && isFloorOrDoor(n.getUpRightE())
             && isFloorOrDoor(n.getDownRightE());
 
         boolean innerLeftT =
           !isInside(n.getLeft(), layout)
-            && isNotFloor(n.getUpE())
-            && isNotFloor(n.getDownE())
+            && isNotFloor(n.getUp(), layout)
+            && isNotFloor(n.getDown(), layout)
             && isFloorOrDoor(n.getRightE())
             && isFloorOrDoor(n.getUpLeftE())
             && isFloorOrDoor(n.getDownLeftE());
@@ -690,54 +690,54 @@ public class TileTextureFactory {
     LevelElement[][] layout = lp.layout();
 
     if (isEmptyCross(p, layout, Corner.UL)
-        || isEmptyCross(p, layout, Corner.UR)
-        || isEmptyCross(p, layout, Corner.BR)
-        || isEmptyCross(p, layout, Corner.BL)) {
+      || isEmptyCross(p, layout, Corner.UR)
+      || isEmptyCross(p, layout, Corner.BR)
+      || isEmptyCross(p, layout, Corner.BL)) {
       return null;
     }
 
     Neighbors n = Neighbors.of(p, layout);
 
     boolean useTopInner =
-        isNotFloor(n.getUpE())
-            && isFloorOrDoor(n.getUpLeftE())
-            && isFloorOrDoor(n.getUpRightE())
-            && isNotFloor(n.getLeftE())
-            && isNotFloor(n.getRightE())
-            && isFloorOrDoor(n.getDownE());
+      isNotFloor(n.getUp(), layout)
+        && isFloorOrDoor(n.getUpLeftE())
+        && isFloorOrDoor(n.getUpRightE())
+        && isNotFloor(n.getLeft(), layout)
+        && isNotFloor(n.getRight(), layout)
+        && isFloorOrDoor(n.getDownE());
     if (useTopInner) {
       return new SimpleIPath("wall/t_inner_top");
     }
 
     boolean useBottomInner =
-        isNotFloor(n.getDownE())
-            && isFloorOrDoor(n.getDownLeftE())
-            && isFloorOrDoor(n.getDownRightE())
-            && isNotFloor(n.getLeftE())
-            && isNotFloor(n.getRightE())
-            && isFloorOrDoor(n.getUpE());
+      isNotFloor(n.getDown(), layout)
+        && isFloorOrDoor(n.getDownLeftE())
+        && isFloorOrDoor(n.getDownRightE())
+        && isNotFloor(n.getLeft(), layout)
+        && isNotFloor(n.getRight(), layout)
+        && isFloorOrDoor(n.getUpE());
     if (useBottomInner) {
       return new SimpleIPath("wall/t_inner_bottom");
     }
 
     boolean useLeftInner =
-        isNotFloor(n.getUpE())
-            && isNotFloor(n.getDownE())
-            && isNotFloor(n.getLeftE())
-            && isFloorOrDoor(n.getRightE())
-            && isFloorOrDoor(n.getUpLeftE())
-            && isFloorOrDoor(n.getDownLeftE());
+      isNotFloor(n.getUp(), layout)
+        && isNotFloor(n.getDown(), layout)
+        && isNotFloor(n.getLeft(), layout)
+        && isFloorOrDoor(n.getRightE())
+        && isFloorOrDoor(n.getUpLeftE())
+        && isFloorOrDoor(n.getDownLeftE());
     if (useLeftInner) {
       return new SimpleIPath("wall/t_inner_left");
     }
 
     boolean useRightInner =
-        isNotFloor(n.getUpE())
-            && isNotFloor(n.getDownE())
-            && isFloorOrDoor(n.getLeftE())
-            && isNotFloor(n.getRightE())
-            && isFloorOrDoor(n.getUpRightE())
-            && isFloorOrDoor(n.getDownRightE());
+      isNotFloor(n.getUp(), layout)
+        && isNotFloor(n.getDown(), layout)
+        && isFloorOrDoor(n.getLeftE())
+        && isNotFloor(n.getRight(), layout)
+        && isFloorOrDoor(n.getUpRightE())
+        && isFloorOrDoor(n.getDownRightE());
     if (useRightInner) {
       return new SimpleIPath("wall/t_inner_right");
     }
@@ -780,86 +780,91 @@ public class TileTextureFactory {
       LevelElement diagR = up ? n.getUpRightE() : n.getDownRightE();
 
       boolean floorForward = isFloorOrDoor(fwdE);
-      boolean forwardNotFloor = isNotFloor(backE);
-      boolean sidesNotFloor = isNotFloor(n.getLeftE()) && isNotFloor(n.getRightE());
+
+      Coordinate backCoord = up ? n.getUp() : n.getDown();
+      boolean forwardNotFloor = isNotFloor(backCoord, layout);
+
+      boolean sidesNotFloor =
+        isNotFloor(n.getLeft(), layout) && isNotFloor(n.getRight(), layout);
       boolean diagLeftFloor = isFloorOrDoor(diagL);
       boolean diagRightFloor = isFloorOrDoor(diagR);
 
       boolean bothDiagFloors =
-          floorForward && forwardNotFloor && sidesNotFloor && diagLeftFloor && diagRightFloor;
+        floorForward && forwardNotFloor && sidesNotFloor && diagLeftFloor && diagRightFloor;
       boolean leftDiagonalCase =
-          floorForward && forwardNotFloor && sidesNotFloor && diagRightFloor && !diagLeftFloor;
+        floorForward && forwardNotFloor && sidesNotFloor && diagRightFloor && !diagLeftFloor;
       boolean rightDiagonalCase =
-          floorForward && forwardNotFloor && sidesNotFloor && diagLeftFloor && !diagRightFloor;
+        floorForward && forwardNotFloor && sidesNotFloor && diagLeftFloor && !diagRightFloor;
 
       Coordinate fwdCoord = up ? n.getUp() : n.getDown();
-      boolean fwdEmptyByTexture = isWallLike(fwdCoord, layout) && rendersSkipLikeWallAt(fwdCoord, layout);
+      boolean fwdEmptyByTexture =
+        isWallLike(fwdCoord, layout) && rendersSkipLikeWallAt(fwdCoord, layout);
 
       Corner leftCorner = up ? Corner.UR : Corner.BR;
       Corner rightCorner = up ? Corner.UL : Corner.BL;
 
       boolean leftCornerDoubleCase =
-          floorForward && sidesNotFloor && isCornerDoubleAt(fwdCoord, layout, leftCorner);
+        floorForward && sidesNotFloor && isCornerDoubleAt(fwdCoord, layout, leftCorner);
       boolean rightCornerDoubleCase =
-          floorForward && sidesNotFloor && isCornerDoubleAt(fwdCoord, layout, rightCorner);
+        floorForward && sidesNotFloor && isCornerDoubleAt(fwdCoord, layout, rightCorner);
 
       boolean leftTriggersTop =
-          isTEmptyAt(n.getLeft(), layout, Dir.UP)
-              || isCornerDoubleAt(n.getLeft(), layout, Corner.BL)
-              || isEmptyBothAt(n.getLeft(), layout, Dir.UP);
+        isTEmptyAt(n.getLeft(), layout, Dir.UP)
+          || isCornerDoubleAt(n.getLeft(), layout, Corner.BL)
+          || isEmptyBothAt(n.getLeft(), layout, Dir.UP);
       boolean rightTriggersTop =
-          isTEmptyAt(n.getRight(), layout, Dir.UP)
-              || isCornerDoubleAt(n.getRight(), layout, Corner.BR)
-              || isEmptyBothAt(n.getRight(), layout, Dir.UP);
+        isTEmptyAt(n.getRight(), layout, Dir.UP)
+          || isCornerDoubleAt(n.getRight(), layout, Corner.BR)
+          || isEmptyBothAt(n.getRight(), layout, Dir.UP);
 
       boolean leftTriggersBottom =
-          isAnyTBottomEmptyAt(n.getLeft(), layout)
-              || isCornerDoubleAt(n.getLeft(), layout, Corner.UL)
-              || isEmptyBothAt(n.getLeft(), layout, Dir.UP);
+        isAnyTBottomEmptyAt(n.getLeft(), layout)
+          || isCornerDoubleAt(n.getLeft(), layout, Corner.UL)
+          || isEmptyBothAt(n.getLeft(), layout, Dir.UP);
       boolean rightTriggersBottom =
-          isAnyTBottomEmptyAt(n.getRight(), layout)
-              || isCornerDoubleAt(n.getRight(), layout, Corner.UR)
-              || isEmptyBothAt(n.getRight(), layout, Dir.UP);
+        isAnyTBottomEmptyAt(n.getRight(), layout)
+          || isCornerDoubleAt(n.getRight(), layout, Corner.UR)
+          || isEmptyBothAt(n.getRight(), layout, Dir.UP);
 
       boolean leftTriggerCase =
-          up
-              ? leftTriggersTop && rendersDoubleAt(n.getUp(), layout, Dir.RIGHT)
-              : leftTriggersBottom && rendersDoubleAt(n.getDown(), layout, Dir.LEFT);
+        up
+          ? leftTriggersTop && rendersDoubleAt(n.getUp(), layout, Dir.RIGHT)
+          : leftTriggersBottom && rendersDoubleAt(n.getDown(), layout, Dir.LEFT);
 
       boolean rightTriggerCase =
-          up
-              ? rightTriggersTop && rendersDoubleAt(n.getUp(), layout, Dir.LEFT)
-              : rightTriggersBottom && rendersDoubleAt(n.getDown(), layout, Dir.RIGHT);
+        up
+          ? rightTriggersTop && rendersDoubleAt(n.getUp(), layout, Dir.LEFT)
+          : rightTriggersBottom && rendersDoubleAt(n.getDown(), layout, Dir.RIGHT);
 
       Coordinate diagFwdLeft = up ? n.getUpLeft() : n.getDownLeft();
       Coordinate diagFwdRight = up ? n.getUpRight() : n.getDownRight();
       boolean diagFwdLeftEmpty = isEmptyForTJunctionOpen(diagFwdLeft, layout);
       boolean diagFwdRightEmpty = isEmptyForTJunctionOpen(diagFwdRight, layout);
       boolean newStrictEmpty =
-          floorForward && forwardNotFloor && sidesNotFloor && diagFwdLeftEmpty && diagFwdRightEmpty;
+        floorForward && forwardNotFloor && sidesNotFloor && diagFwdLeftEmpty && diagFwdRightEmpty;
 
       boolean adjEmpty =
-          up
-              ? hasAdjacentInnerTJunction(p, layout, Dir.UP)
-              : (hasAdjacentInnerTJunction(p, layout, Dir.DOWN)
-                  || (isFloorAbove(p, layout)
-                      && (isCornerDoubleAt(n.getLeft(), layout, Corner.UL)
-                          || isCornerDoubleAt(n.getRight(), layout, Corner.UR))));
+        up
+          ? hasAdjacentInnerTJunction(p, layout, Dir.UP)
+          : (hasAdjacentInnerTJunction(p, layout, Dir.DOWN)
+          || (isFloorAbove(p, layout)
+          && (isCornerDoubleAt(n.getLeft(), layout, Corner.UL)
+          || isCornerDoubleAt(n.getRight(), layout, Corner.UR))));
 
       boolean openEmpty =
-          up
-              ? isEmptyForTJunctionOpen(n.getUp(), layout)
-              : isEmptyForTJunctionOpen(n.getDown(), layout);
+        up
+          ? isEmptyForTJunctionOpen(n.getUp(), layout)
+          : isEmptyForTJunctionOpen(n.getDown(), layout);
 
       boolean upDoubleDueToVertical = up && xorEnds(n.getUp(), layout, Axis.VERTICAL);
 
       boolean anyEmptyTop =
-          up
-              && (newStrictEmpty
-                  || adjEmpty
-                  || openEmpty
-                  || upDoubleDueToVertical
-                  || fwdEmptyByTexture);
+        up
+          && (newStrictEmpty
+          || adjEmpty
+          || openEmpty
+          || upDoubleDueToVertical
+          || fwdEmptyByTexture);
 
       boolean anyEmptyBottom = !up && (adjEmpty || openEmpty || fwdEmptyByTexture);
 
@@ -888,27 +893,38 @@ public class TileTextureFactory {
 
       boolean innerGroupSide = isInnerGroup(side, layout, Axis.HORIZONTAL);
       boolean hasRowBelow =
-          innerGroupSide && isStem(new Coordinate(side.x(), side.y() - 1), layout, Axis.HORIZONTAL);
+        innerGroupSide && isStem(new Coordinate(side.x(), side.y() - 1), layout, Axis.HORIZONTAL);
       boolean hasRowAbove =
-          innerGroupSide && isStem(new Coordinate(side.x(), side.y() + 1), layout, Axis.HORIZONTAL);
+        innerGroupSide && isStem(new Coordinate(side.x(), side.y() + 1), layout, Axis.HORIZONTAL);
       boolean topByInnerGroup = hasRowBelow && !hasRowAbove;
       boolean bottomByInnerGroup = hasRowAbove && !hasRowBelow;
 
       boolean sidesNotFloor =
-          isNotFloor(sideE) && isNotFloor(n.getUpE()) && isNotFloor(n.getDownE());
+        isNotFloor(side, layout)
+          && isNotFloor(n.getUp(), layout)
+          && isNotFloor(n.getDown(), layout);
+
+      Coordinate upRightCoord = right ? n.getUpRight() : n.getUpLeft();
+      Coordinate downRightCoord = right ? n.getDownRight() : n.getDownLeft();
 
       boolean topDiagonalCase =
-          isFloorOrDoor(oppE) && isFloorOrDoor(upRightE) && sidesNotFloor && isNotFloor(downRightE);
+        isFloorOrDoor(oppE)
+          && isFloorOrDoor(upRightE)
+          && sidesNotFloor
+          && isNotFloor(downRightCoord, layout);
       boolean bottomDiagonalCase =
-          isFloorOrDoor(oppE) && isFloorOrDoor(downRightE) && sidesNotFloor && isNotFloor(upRightE);
+        isFloorOrDoor(oppE)
+          && isFloorOrDoor(downRightE)
+          && sidesNotFloor
+          && isNotFloor(upRightCoord, layout);
 
       Corner topCorner = right ? Corner.UR : Corner.UL;
       Corner bottomCorner = right ? Corner.BR : Corner.BL;
 
       boolean topCornerDoubleCase =
-          isFloorOrDoor(oppE) && sidesNotFloor && isCornerDoubleAt(side, layout, topCorner);
+        isFloorOrDoor(oppE) && sidesNotFloor && isCornerDoubleAt(side, layout, topCorner);
       boolean bottomCornerDoubleCase =
-          isFloorOrDoor(oppE) && sidesNotFloor && isCornerDoubleAt(side, layout, bottomCorner);
+        isFloorOrDoor(oppE) && sidesNotFloor && isCornerDoubleAt(side, layout, bottomCorner);
 
       boolean belowOppDouble = rendersDoubleAt(n.getDown(), layout, right ? Dir.LEFT : Dir.RIGHT);
       boolean sideTopDoubleH = rendersDoubleAt(side, layout, Dir.UP);
@@ -916,30 +932,30 @@ public class TileTextureFactory {
       boolean sideBottomDoubleH = rendersDoubleAt(side, layout, Dir.DOWN);
 
       boolean sideMatches =
-          right
-              ? isCornerDoubleAt(side, layout, Corner.UR)
-                  || isTBottomEmptySideAt(side, layout, Dir.LEFT)
-                  || isTEmptyAt(side, layout, Dir.DOWN)
-              : isCornerDoubleAt(side, layout, Corner.UL)
-                  || isTBottomEmptySideAt(side, layout, Dir.RIGHT)
-                  || isTEmptyAt(side, layout, Dir.DOWN);
+        right
+          ? isCornerDoubleAt(side, layout, Corner.UR)
+          || isTBottomEmptySideAt(side, layout, Dir.LEFT)
+          || isTEmptyAt(side, layout, Dir.DOWN)
+          : isCornerDoubleAt(side, layout, Corner.UL)
+          || isTBottomEmptySideAt(side, layout, Dir.RIGHT)
+          || isTEmptyAt(side, layout, Dir.DOWN);
 
       boolean sideMatchesTop =
-          right
-              ? isCornerDoubleAt(side, layout, Corner.BR)
-                  || isTEmptyAt(side, layout, Dir.UP)
-                  || isEmptyBothAt(side, layout, Dir.UP)
-              : isCornerDoubleAt(side, layout, Corner.BL)
-                  || isTEmptyAt(side, layout, Dir.UP)
-                  || isEmptyBothAt(side, layout, Dir.UP);
+        right
+          ? isCornerDoubleAt(side, layout, Corner.BR)
+          || isTEmptyAt(side, layout, Dir.UP)
+          || isEmptyBothAt(side, layout, Dir.UP)
+          : isCornerDoubleAt(side, layout, Corner.BL)
+          || isTEmptyAt(side, layout, Dir.UP)
+          || isEmptyBothAt(side, layout, Dir.UP);
 
       boolean topTriggerCase = (belowOppDouble || sideTopDoubleH) && sideMatches;
       boolean bottomTriggerCase = (aboveOppDouble || sideBottomDoubleH) && sideMatchesTop;
 
       boolean adjEmpty =
-          right
-              ? hasAdjacentInnerTJunction(p, layout, Dir.RIGHT)
-              : hasAdjacentInnerTJunction(p, layout, Dir.LEFT);
+        right
+          ? hasAdjacentInnerTJunction(p, layout, Dir.RIGHT)
+          : hasAdjacentInnerTJunction(p, layout, Dir.LEFT);
       boolean openEmpty = isEmptyForTJunctionOpen(side, layout);
 
       if (topDiagonalCase || topCornerDoubleCase || topByInnerGroup || topTriggerCase)
@@ -949,7 +965,7 @@ public class TileTextureFactory {
         return right ? "wall/t_inner_right_empty_bottom" : "wall/t_inner_left_empty_bottom";
 
       boolean disallow =
-          right ? disallowTInner(p, layout, Dir.RIGHT) : disallowTInner(p, layout, Dir.LEFT);
+        right ? disallowTInner(p, layout, Dir.RIGHT) : disallowTInner(p, layout, Dir.LEFT);
 
       if (adjEmpty || openEmpty || disallow)
         return right ? "wall/left_double" : "wall/right_double";
@@ -969,10 +985,10 @@ public class TileTextureFactory {
   private static boolean isDiagonalFloorCross(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     boolean orthoNotFloor =
-      isNotFloor(n.getUpE())
-        && isNotFloor(n.getDownE())
-        && isNotFloor(n.getLeftE())
-        && isNotFloor(n.getRightE());
+      isNotFloor(n.getUp(), layout)
+        && isNotFloor(n.getDown(), layout)
+        && isNotFloor(n.getLeft(), layout)
+        && isNotFloor(n.getRight(), layout);
     boolean noPit = !hasFloorLikeOrthogonally(p, layout);
     boolean diagsInside =
       isInside(n.getUpLeft(), layout)
@@ -1312,19 +1328,20 @@ public class TileTextureFactory {
         ? isDoorDir(p, layout, Dir.RIGHT)
         : isDoorDir(p, layout, Dir.LEFT);
 
-    boolean notFloorUD = isNotFloor(n.getUpE()) && isNotFloor(n.getDownE());
+    boolean notFloorUD = isNotFloor(n.getUp(), layout) && isNotFloor(n.getDown(), layout);
     boolean notFloorHorizOpp =
       (corner == Corner.UL || corner == Corner.BR)
-        ? isNotFloor(n.getLeftE())
-        : isNotFloor(n.getRightE());
-    LevelElement diagOppE =
+        ? isNotFloor(n.getLeft(), layout)
+        : isNotFloor(n.getRight(), layout);
+
+    Coordinate diagOpp =
       switch (corner) {
-        case UL -> n.getDownLeftE();
-        case UR -> n.getDownRightE();
-        case BL -> n.getUpRightE();
-        case BR -> n.getUpLeftE();
+        case UL -> n.getDownLeft();
+        case UR -> n.getDownRight();
+        case BL -> n.getUpRight();
+        case BR -> n.getUpLeft();
       };
-    boolean notFloorDiagOpp = isNotFloor(diagOppE);
+    boolean notFloorDiagOpp = isNotFloor(diagOpp, layout);
 
     boolean diagFloorsTriple =
       switch (corner) {
@@ -1724,9 +1741,9 @@ public class TileTextureFactory {
     boolean diagIsFD = isFloorOrDoor(get(layout, diag.x(), diag.y()));
     boolean orthoXStrictWall = isWallLike(orthoX, layout);
     boolean orthoYStrictWall = isWallLike(orthoY, layout);
-    boolean diagANotF = isNotFloor(get(layout, diagA.x(), diagA.y()));
-    boolean diagBNotF = isNotFloor(get(layout, diagB.x(), diagB.y()));
-    boolean diagCNotF = isNotFloor(get(layout, diagC.x(), diagC.y()));
+    boolean diagANotF = isNotFloor(diagA, layout);
+    boolean diagBNotF = isNotFloor(diagB, layout);
+    boolean diagCNotF = isNotFloor(diagC, layout);
 
     return diagIsFD && orthoXStrictWall && orthoYStrictWall && diagANotF && diagBNotF && diagCNotF;
   }
@@ -1829,20 +1846,22 @@ public class TileTextureFactory {
   private static boolean emptyLeftRightCase(Coordinate p, LevelElement[][] layout, Dir vertical) {
     Neighbors n = Neighbors.of(p, layout);
     boolean top = vertical == Dir.UP;
-    LevelElement eA = top ? n.getUpE() : n.getDownE();
-    LevelElement eB = top ? n.getDownE() : n.getUpE();
+
+    Coordinate cA = top ? n.getUp() : n.getDown();
+    Coordinate cB = top ? n.getDown() : n.getUp();
     LevelElement eAL = top ? n.getUpLeftE() : n.getDownLeftE();
     LevelElement eAR = top ? n.getUpRightE() : n.getDownRightE();
-    LevelElement oppAL = top ? n.getDownLeftE() : n.getUpLeftE();
-    LevelElement oppAR = top ? n.getDownRightE() : n.getUpRightE();
-    return isNotFloor(eA)
+    Coordinate oppAL = top ? n.getDownLeft() : n.getUpLeft();
+    Coordinate oppAR = top ? n.getDownRight() : n.getUpRight();
+
+    return isNotFloor(cA, layout)
       && isFloorOrDoor(eAL)
       && isFloorOrDoor(eAR)
-      && isNotFloor(eB)
+      && isNotFloor(cB, layout)
       && isWallLike(n.getLeft(), layout)
       && isWallLike(n.getRight(), layout)
-      && isNotFloor(oppAL)
-      && isNotFloor(oppAR);
+      && isNotFloor(oppAL, layout)
+      && isNotFloor(oppAR, layout);
   }
 
   /**
@@ -1859,14 +1878,13 @@ public class TileTextureFactory {
     boolean right = side == Dir.RIGHT;
     LevelElement upSide = right ? n.getUpRightE() : n.getUpLeftE();
     LevelElement downSide = right ? n.getDownRightE() : n.getDownLeftE();
-    LevelElement leftE = n.getLeftE();
-    LevelElement rightE = n.getRightE();
+
     return isFloorOrDoor(upSide)
       && isFloorOrDoor(downSide)
-      && isNotFloor(right ? rightE : leftE)
-      && isNotFloor(right ? leftE : rightE)
-      && isNotFloor(right ? n.getUpLeftE() : n.getUpRightE())
-      && isNotFloor(right ? n.getDownLeftE() : n.getDownRightE())
+      && (right ? isNotFloor(n.getRight(), layout) : isNotFloor(n.getLeft(), layout))
+      && (right ? isNotFloor(n.getLeft(), layout) : isNotFloor(n.getRight(), layout))
+      && (right ? isNotFloor(n.getUpLeft(), layout) : isNotFloor(n.getUpRight(), layout))
+      && (right ? isNotFloor(n.getDownLeft(), layout) : isNotFloor(n.getDownRight(), layout))
       && isWallLike(n.getUp(), layout)
       && isWallLike(n.getDown(), layout);
   }
@@ -1900,10 +1918,10 @@ public class TileTextureFactory {
       };
     boolean oppositeNotFloor =
       switch (outward) {
-        case UP -> isNotFloor(n.getDownE());
-        case DOWN -> isNotFloor(n.getUpE());
-        case LEFT -> isNotFloor(n.getRightE());
-        case RIGHT -> isNotFloor(n.getLeftE());
+        case UP -> isNotFloor(n.getDown(), layout);
+        case DOWN -> isNotFloor(n.getUp(), layout);
+        case LEFT -> isNotFloor(n.getRight(), layout);
+        case RIGHT -> isNotFloor(n.getLeft(), layout);
       };
     boolean innerNotEmpty = !rendersSkipLikeWallAt(inner, layout);
     boolean floorsOk =
@@ -1960,13 +1978,14 @@ public class TileTextureFactory {
   }
 
   /**
-   * Convenience predicate indicating the element is not floor-like.
+   * Convenience predicate indicating the tile at the given coordinate is not floor-like.
    *
-   * @param e the element to test
-   * @return {@code true} if {@code e} is not floor-like; otherwise {@code false}
+   * @param p the coordinate to test
+   * @param layout the level grid
+   * @return {@code true} if the tile at {@code p} is not floor-like; otherwise {@code false}
    */
-  private static boolean isNotFloor(LevelElement e) {
-    return !isFloorLike(e);
+  private static boolean isNotFloor(Coordinate p, LevelElement[][] layout) {
+    return !isFloorLike(p, layout);
   }
 
   /**
