@@ -793,9 +793,7 @@ public class TileTextureFactory {
           floorForward && forwardNotFloor && sidesNotFloor && diagLeftFloor && !diagRightFloor;
 
       Coordinate fwdCoord = up ? n.getUp() : n.getDown();
-
-      LevelElement fwdElement = get(layout, fwdCoord.x(), fwdCoord.y());
-      boolean fwdEmptyByTexture = isWallLike(fwdElement) && rendersSkipLikeWallAt(fwdCoord, layout);
+      boolean fwdEmptyByTexture = isWallLike(fwdCoord, layout) && rendersSkipLikeWallAt(fwdCoord, layout);
 
       Corner leftCorner = up ? Corner.UR : Corner.BR;
       Corner rightCorner = up ? Corner.UL : Corner.BL;
