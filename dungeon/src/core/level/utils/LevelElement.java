@@ -2,13 +2,7 @@ package core.level.utils;
 
 /** Each type of field in a level can be represented by an integer value. */
 public enum LevelElement {
-  /**
-   * This field is a blank.
-   *
-   * @deprecated This tile type is no longer supported. Use PIT instead for representing empty or
-   *     falling-space areas.
-   */
-  @Deprecated
+  /** This field is a blank. */
   SKIP(false, false),
   /** This field is a floor-field. */
   FLOOR(true, true),
