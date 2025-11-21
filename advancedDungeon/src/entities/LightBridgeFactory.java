@@ -8,7 +8,9 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.elements.tile.GlasswandTile;
 import core.level.elements.tile.PitTile;
+import core.level.elements.tile.PortalTile;
 import core.level.elements.tile.WallTile;
 import core.utils.Direction;
 import core.utils.Point;
@@ -410,9 +412,9 @@ public class LightBridgeFactory {
      * Calculates the end point by stepping from the start in the beam's direction until a WallTile
      * is reached or no tile exists. Returns the last traversable point.
      *
-     * @return Returns the calculated end point of the beam.
-     * @param from Starting point
      * @param beamDirection Direction of the beam
+     * @param from Starting point
+     * @return Returns the calculated end point of the beam.
      */
     private Point calculateEndPoint(Point from, Direction beamDirection) {
       Point lastPoint = from;
@@ -420,7 +422,10 @@ public class LightBridgeFactory {
       while (true) {
         Tile currentTile = Game.tileAt(currentPoint).orElse(null);
         if (currentTile == null) break;
-        boolean isWall = currentTile instanceof WallTile;
+        boolean isWall =
+            currentTile instanceof WallTile
+                || currentTile instanceof PortalTile
+                || currentTile instanceof GlasswandTile;
         if (isWall) break;
         lastPoint = currentPoint;
         currentPoint = currentPoint.translate(beamDirection);
