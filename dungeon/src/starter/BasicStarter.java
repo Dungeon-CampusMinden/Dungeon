@@ -34,10 +34,11 @@ public class BasicStarter {
       throw new RuntimeException(e);
     }
     Game.disableAudio(true);
-    Game.userOnSetup(() -> {
-      Game.add(EntityFactory.newHero());
-      Game.add(new LevelEditorSystem());
-    });
+    Game.userOnSetup(
+        () -> {
+          Game.add(EntityFactory.newHero());
+          Game.add(new LevelEditorSystem());
+        });
     Game.frameRate(30);
     Game.windowTitle("Basic Dungeon");
     Game.run();
