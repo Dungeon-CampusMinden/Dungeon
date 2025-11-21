@@ -8,6 +8,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
+import core.level.elements.tile.GlasswandTile;
 import core.level.elements.tile.PortalTile;
 import core.level.elements.tile.WallTile;
 import core.utils.Direction;
@@ -132,6 +133,8 @@ public class TractorBeamFactory {
 
     while (currentTile != null
         && !currentTile.getClass().equals(WallTile.class)
+        && !currentTile.getClass().equals(GlasswandTile.class)
+        && !currentTile.getClass().equals(PortalTile.class)
         && (firstStep || secondStep || !lastTile.getClass().equals(PortalTile.class))) {
       secondStep = false;
       if (firstStep) {
