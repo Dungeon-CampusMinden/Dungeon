@@ -10,6 +10,7 @@ public class AttachmentComponent implements Component {
 
   private Vector2 offset;
   private boolean isRotatingWithOrigin = false;
+  private boolean isTextureRotating = false;
   private float scale = 1f;
 
   /**
@@ -29,6 +30,25 @@ public class AttachmentComponent implements Component {
       this.isRotatingWithOrigin = true;
     }
     AttachmentSystem.registerAttachment(copy, origin);
+  }
+
+  /**
+   * Creates a new AttachmentComponent.
+   *
+   * <p>If the offset is Vector2.ZERO the copied position will be placed in front of the origin
+   * position which can be scaled with the scale parameter. It automatically registers to the {@link
+   * AttachmentSystem}.
+   *
+   * @param offset offset from the origins position.
+   * @param copy the PositionComponent that gets updated.
+   * @param origin the PositionComponent that provides the position for the copy.
+   * @param isTextureRotating if true the texture will be rotating with the viewDirection of the
+   *     origin, otherwise it won't rotate.
+   */
+  public AttachmentComponent(
+      Vector2 offset, PositionComponent copy, PositionComponent origin, boolean isTextureRotating) {
+    this(offset, copy, origin);
+    this.isTextureRotating = isTextureRotating;
   }
 
   /**
@@ -65,6 +85,24 @@ public class AttachmentComponent implements Component {
    */
   public void setRotatingWithOrigin(boolean isRotatingWithOrigin) {
     this.isRotatingWithOrigin = isRotatingWithOrigin;
+  }
+
+  /**
+   * Returns if the texture of the copy will be rotating or not.
+   *
+   * @return true if the texture of the copy is rotating with the origin, otherwise false.
+   */
+  public boolean isTextureRotating() {
+    return isTextureRotating;
+  }
+
+  /**
+   * Sets if the texture of the copy should rotate when the origin changes viewDirection.
+   *
+   * @param textureRotating true if the texture of the copy should rotate, otherwise false.
+   */
+  public void setTextureRotating(boolean textureRotating) {
+    isTextureRotating = textureRotating;
   }
 
   /**

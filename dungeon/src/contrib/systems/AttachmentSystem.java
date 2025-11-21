@@ -1,7 +1,6 @@
 package contrib.systems;
 
 import contrib.components.AttachmentComponent;
-import contrib.components.CollideComponent;
 import core.Entity;
 import core.System;
 import core.components.PositionComponent;
@@ -106,20 +105,22 @@ public class AttachmentSystem extends System {
               .originpc
               .position()
               .translate(asData.originpc.viewDirection().scale(asData.ac.getScale())));
-      switch (asData.originpc.viewDirection()) {
-        case UP -> {
-          asData.copypc.rotation(90);
+      if (asData.ac.isTextureRotating()) {
+        switch (asData.originpc.viewDirection()) {
+          case UP -> {
+            asData.copypc.rotation(90);
+          }
+          case RIGHT -> {
+            asData.copypc.rotation(0);
+          }
+          case DOWN -> {
+            asData.copypc.rotation(270);
+          }
+          case LEFT -> {
+            asData.copypc.rotation(180);
+          }
+          default -> {}
         }
-        case RIGHT -> {
-          asData.copypc.rotation(0);
-        }
-        case DOWN -> {
-          asData.copypc.rotation(270);
-        }
-        case LEFT -> {
-          asData.copypc.rotation(180);
-        }
-        default -> {}
       }
 
     } else {
@@ -127,13 +128,7 @@ public class AttachmentSystem extends System {
           asData.originpc.position().translate(asData.ac.getOffset().scale(asData.ac.getScale())));
     }
     // This because the ColliderComponents position wouldn't get updated by itself(?)
-    asData
-        .e
-        .fetch(CollideComponent.class)
-        .ifPresent(
-            cc -> {
-              cc.collider().position(asData.copypc.position());
-            });
+    PositionSync.syncPosition(asData.e);
   }
 
   private record ASData(
