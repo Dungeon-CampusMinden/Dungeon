@@ -697,7 +697,10 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
 
     Game.audio()
         .playAtPosition(
-            monsterPos, SoundSpec.builder(deathSound.soundId()).volume(DEATH_SOUND_VOLUME));
+            monsterPos,
+            SoundSpec.builder(deathSound.soundId())
+                .volume(DEATH_SOUND_VOLUME)
+                .maxDistance(DISTANCE_DEATH_SOUND));
   }
 
   /**
