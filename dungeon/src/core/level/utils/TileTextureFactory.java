@@ -1104,13 +1104,16 @@ public class TileTextureFactory {
   }
 
   /**
-   * Indicates whether the element is a blocking barrier for wall logic.
+   * Indicates whether the tile at the given coordinate is a blocking barrier for wall logic.
+   * A tile is treated as a barrier if it is wall-like at that position or explicitly a DOOR.
    *
-   * @param e the element to test
-   * @return {@code true} if {@code e} is WALL or DOOR; otherwise {@code false}
+   * @param p the coordinate of the tile to test
+   * @param layout the level grid containing the tile
+   * @return {@code true} if the tile at {@code p} is wall-like or a DOOR; otherwise {@code false}
    */
-  private static boolean isBarrier(LevelElement e) {
-    return isWallLike(e) || e == LevelElement.DOOR;
+  private static boolean isBarrier(Coordinate p, LevelElement[][] layout) {
+    LevelElement e = get(layout, p.x(), p.y());
+    return isWallLike(p, layout) || e == LevelElement.DOOR;
   }
 
   /**
@@ -1136,10 +1139,11 @@ public class TileTextureFactory {
    *     false}
    */
   private static boolean hasBarrier(LevelElement[][] layout, int x, int y, Axis axis) {
-    Neighbors n = Neighbors.of(new Coordinate(x, y), layout);
+    Coordinate p = new Coordinate(x, y);
+    Neighbors n = Neighbors.of(p, layout);
     return axis == Axis.VERTICAL
-        ? isBarrier(n.getUpE()) && isBarrier(n.getDownE())
-        : isBarrier(n.getLeftE()) && isBarrier(n.getRightE());
+      ? isBarrier(n.getUp(), layout) && isBarrier(n.getDown(), layout)
+      : isBarrier(n.getLeft(), layout) && isBarrier(n.getRight(), layout);
   }
 
   /**
@@ -1394,7 +1398,7 @@ public class TileTextureFactory {
    */
   private static boolean isEmptyForTJunctionOpen(Coordinate p, LevelElement[][] layout) {
     LevelElement e = get(layout, p.x(), p.y());
-    if (e == null || (!isInside(e) && !isBarrier(e))) return true;
+    if (e == null || (!isInside(e) && !isBarrier(p, layout))) return true;
     return rendersSkipAt(p, layout, Axis.VERTICAL)
       || rendersSkipAt(p, layout, Axis.HORIZONTAL)
       || isStemCrossCenter(p, layout)
@@ -1447,8 +1451,8 @@ public class TileTextureFactory {
     if (!isFloorOrDoor(openE)) return false;
 
     if (!(isInside(openE)
-        || (!isBarrier(openE) && !isInside(openE))
-        || isEmptyForTJunctionOpen(toward, layout))) return false;
+      || (!isBarrier(toward, layout) && !isInside(openE))
+      || isEmptyForTJunctionOpen(toward, layout))) return false;
 
     int closed = 0;
     if (openDir != Dir.DOWN && !isInsideNonDoor(upE)) closed++;
@@ -1473,14 +1477,14 @@ public class TileTextureFactory {
     if (openDir != Dir.UP && openDir != Dir.DOWN) return false;
 
     Neighbors n = Neighbors.of(p, layout);
-    boolean sides = isBarrier(n.getLeftE()) && isBarrier(n.getRightE());
+    boolean sides = isBarrier(n.getLeft(), layout) && isBarrier(n.getRight(), layout);
 
-    LevelElement stemE = (openDir == Dir.UP) ? n.getDownE() : n.getUpE();
-    LevelElement openE = (openDir == Dir.UP) ? n.getUpE() : n.getDownE();
+    Coordinate stemCoord = (openDir == Dir.UP) ? n.getDown() : n.getUp();
+    Coordinate openCoord = (openDir == Dir.UP) ? n.getUp() : n.getDown();
     Coordinate toward = (openDir == Dir.UP) ? n.getUp() : n.getDown();
 
-    boolean stem = isBarrier(stemE);
-    boolean open = !isBarrier(openE);
+    boolean stem = isBarrier(stemCoord, layout);
+    boolean open = !isBarrier(openCoord, layout);
     Neighbors tn = Neighbors.of(toward, layout);
     boolean insideSides = isInside(tn.getLeftE()) && isInside(tn.getRightE());
     return sides && stem && open && insideSides;
