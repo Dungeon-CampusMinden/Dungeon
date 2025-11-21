@@ -29,8 +29,8 @@ public class TileFactory {
       case HOLE -> new HoleTile(texturePath, coordinate, designLabel);
       case DOOR -> new DoorTile(texturePath, coordinate, designLabel);
       case EXIT -> new ExitTile(texturePath, coordinate, designLabel);
-      // SKIPS are outdated and should not be used, this case is for backwards compatibility.
-      case SKIP, PIT -> new PitTile(texturePath, coordinate, designLabel);
+      case SKIP -> new SkipTile(texturePath, coordinate, designLabel);
+      case PIT -> new PitTile(texturePath, coordinate, designLabel);
     };
   }
 }
