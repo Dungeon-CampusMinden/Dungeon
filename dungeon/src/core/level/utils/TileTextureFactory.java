@@ -273,7 +273,7 @@ public class TileTextureFactory {
     LevelElement aboveElement = aboveTile.levelElement();
     boolean isAboveFloorLike = isFloorLike(aboveElement);
     boolean isAboveWallLike =
-        aboveElement == LevelElement.WALL || aboveElement == LevelElement.DOOR;
+      isWallLike(aboveElement) || aboveElement == LevelElement.DOOR;
     boolean isAboveClosedPit =
         aboveTile instanceof PitTile abovePitClosed && !abovePitClosed.isOpen();
 
@@ -298,13 +298,14 @@ public class TileTextureFactory {
         case FLOOR -> "floor/floor_1";
         case EXIT -> "floor/floor_ladder";
         case HOLE -> "floor/floor_hole";
-        case PIT, SKIP -> "floor/floor_damaged";
+        case PIT -> "floor/floor_damaged";
         case DOOR -> "door/top";
-        case WALL -> "wall/wall_right";
+        case WALL, SKIP -> "wall/wall_right";
         default -> "floor/empty";
       };
     return new SimpleIPath(prefix + ep + ".png");
   }
+
 
   /**
    * Selects a floor-related texture for the given level part when its element is floor-related
@@ -319,14 +320,14 @@ public class TileTextureFactory {
     LevelElement e = levelPart.element();
     if (e == LevelElement.HOLE) {
       boolean holeAbove =
-          neighborMatches(
-              levelPart.position(), levelPart.layout(), Dir.UP, x -> x == LevelElement.HOLE);
+        neighborMatches(
+          levelPart.position(), levelPart.layout(), Dir.UP, x -> x == LevelElement.HOLE);
       return new SimpleIPath(holeAbove ? "floor/floor_hole1" : "floor/floor_hole");
     }
     return switch (e) {
       case FLOOR -> new SimpleIPath("floor/floor_1");
       case EXIT -> new SimpleIPath("floor/floor_ladder");
-      case PIT, SKIP -> new SimpleIPath("floor/floor_damaged");
+      case PIT -> new SimpleIPath("floor/floor_damaged");
       default -> null;
     };
   }
@@ -366,7 +367,7 @@ public class TileTextureFactory {
    *     applies
    */
   private static IPath findTexturePathWall(LevelPart levelPart) {
-    if (levelPart.element() != LevelElement.WALL) return null;
+    if (!isWallLike(levelPart.element())) return null;
 
     Coordinate p = levelPart.position();
     LevelElement[][] layout = levelPart.layout();
@@ -786,7 +787,7 @@ public class TileTextureFactory {
       Coordinate fwdCoord = up ? n.getUp() : n.getDown();
 
       LevelElement fwdElement = get(layout, fwdCoord.x(), fwdCoord.y());
-      boolean fwdEmptyByTexture = fwdElement == LevelElement.WALL && rendersSkipLikeWallAt(fwdCoord, layout);
+      boolean fwdEmptyByTexture = isWallLike(fwdElement) && rendersSkipLikeWallAt(fwdCoord, layout);
 
       Corner leftCorner = up ? Corner.UR : Corner.BR;
       Corner rightCorner = up ? Corner.UL : Corner.BL;
@@ -986,10 +987,10 @@ public class TileTextureFactory {
    */
   private static boolean orthoOnlyWallDoorExitOrLikeFloor(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
-    return ((n.getUpE() == LevelElement.WALL) || isFloorOrDoor(n.getUpE()))
-        && ((n.getDownE() == LevelElement.WALL) || isFloorOrDoor(n.getDownE()))
-        && ((n.getLeftE() == LevelElement.WALL) || isFloorOrDoor(n.getLeftE()))
-        && ((n.getRightE() == LevelElement.WALL) || isFloorOrDoor(n.getRightE()));
+    return (isWallLike(n.getUpE()) || isFloorOrDoor(n.getUpE()))
+      && (isWallLike(n.getDownE()) || isFloorOrDoor(n.getDownE()))
+      && (isWallLike(n.getLeftE()) || isFloorOrDoor(n.getLeftE()))
+      && (isWallLike(n.getRightE()) || isFloorOrDoor(n.getRightE()));
   }
 
   /**
@@ -1101,7 +1102,7 @@ public class TileTextureFactory {
    * @return {@code true} if {@code e} is WALL or DOOR; otherwise {@code false}
    */
   private static boolean isBarrier(LevelElement e) {
-    return e == LevelElement.WALL || e == LevelElement.DOOR;
+    return isWallLike(e) || e == LevelElement.DOOR;
   }
 
   /**
@@ -1144,10 +1145,10 @@ public class TileTextureFactory {
    */
   private static boolean isStem(Coordinate p, LevelElement[][] layout, Axis axis) {
     LevelElement self = get(layout, p.x(), p.y());
-    if (self != LevelElement.WALL) return false;
+    if (!isWallLike(self)) return false;
     return axis == Axis.VERTICAL
-        ? hasBarrier(layout, p.x(), p.y(), Axis.VERTICAL)
-        : hasBarrier(layout, p.x(), p.y(), Axis.HORIZONTAL);
+      ? hasBarrier(layout, p.x(), p.y(), Axis.VERTICAL)
+      : hasBarrier(layout, p.x(), p.y(), Axis.HORIZONTAL);
   }
 
   /**
@@ -1180,18 +1181,14 @@ public class TileTextureFactory {
    *     not inside
    */
   private static boolean endsWithInsideDir(
-      Coordinate p, LevelElement[][] layout, int stepX, int stepY, Axis axis) {
+    Coordinate p, LevelElement[][] layout, int stepX, int stepY, Axis axis) {
     int x = p.x();
     int y = p.y();
     while (true) {
       x += stepX;
       y += stepY;
       if (!isInsideLayout(x, y, layout)) return false;
-      boolean stemHere =
-          get(layout, x, y) == LevelElement.WALL
-              && (axis == Axis.VERTICAL
-                  ? hasBarrier(layout, x, y, Axis.VERTICAL)
-                  : hasBarrier(layout, x, y, Axis.HORIZONTAL));
+      boolean stemHere = isStem(new Coordinate(x, y), layout, axis);
       if (!stemHere) return isInside(get(layout, x, y));
     }
   }
@@ -1347,12 +1344,12 @@ public class TileTextureFactory {
             && isWallDir(p, layout, Dir.DOWN);
 
     boolean diagWallIsCorrect =
-        switch (corner) {
-          case UL -> n.getDownLeftE() == LevelElement.WALL;
-          case UR -> n.getDownRightE() == LevelElement.WALL;
-          case BL -> n.getUpRightE() == LevelElement.WALL;
-          case BR -> n.getUpLeftE() == LevelElement.WALL;
-        };
+      switch (corner) {
+        case UL -> isWallLike(n.getDownLeftE());
+        case UR -> isWallLike(n.getDownRightE());
+        case BL -> isWallLike(n.getUpRightE());
+        case BR -> isWallLike(n.getUpLeftE());
+      };
 
     boolean quadCase = orthoWalls && diagWallIsCorrect && diagFloorsTriple;
 
@@ -1696,8 +1693,8 @@ public class TileTextureFactory {
    * @return {@code true} if the base inner-empty-corner conditions hold; otherwise {@code false}
    */
   private static boolean isInnerEmptyCornerBase(
-      Coordinate p, LevelElement[][] layout, int sx, int sy) {
-    if (get(layout, p.x(), p.y()) != LevelElement.WALL) return false;
+    Coordinate p, LevelElement[][] layout, int sx, int sy) {
+    if (!isWallLike(get(layout, p.x(), p.y()))) return false;
 
     Coordinate diag = new Coordinate(p.x() + sx, p.y() + sy);
     Coordinate diagA = new Coordinate(p.x() - sx, p.y() + sy);
@@ -1712,8 +1709,8 @@ public class TileTextureFactory {
     if (orthoXE == LevelElement.DOOR || orthoYE == LevelElement.DOOR) return false;
 
     boolean diagIsFD = isFloorOrDoor(get(layout, diag.x(), diag.y()));
-    boolean orthoXStrictWall = orthoXE == LevelElement.WALL;
-    boolean orthoYStrictWall = orthoYE == LevelElement.WALL;
+    boolean orthoXStrictWall = isWallLike(orthoXE);
+    boolean orthoYStrictWall = isWallLike(orthoYE);
     boolean diagANotF = isNotFloor(get(layout, diagA.x(), diagA.y()));
     boolean diagBNotF = isNotFloor(get(layout, diagB.x(), diagB.y()));
     boolean diagCNotF = isNotFloor(get(layout, diagC.x(), diagC.y()));
@@ -1799,7 +1796,7 @@ public class TileTextureFactory {
    */
   private static boolean rendersSkipLikeWallAt(Coordinate c, LevelElement[][] layout) {
     LevelElement e = get(layout, c.x(), c.y());
-    if (e != LevelElement.WALL) return false;
+    if (!isWallLike(e)) return false;
     if (rendersSkipAt(c, layout, Axis.VERTICAL)
       || rendersSkipAt(c, layout, Axis.HORIZONTAL)
       || isStemCrossCenter(c, layout)) {
@@ -1827,13 +1824,13 @@ public class TileTextureFactory {
     LevelElement oppAL = top ? n.getDownLeftE() : n.getUpLeftE();
     LevelElement oppAR = top ? n.getDownRightE() : n.getUpRightE();
     return isNotFloor(eA)
-        && isFloorOrDoor(eAL)
-        && isFloorOrDoor(eAR)
-        && isNotFloor(eB)
-        && n.getLeftE() == LevelElement.WALL
-        && n.getRightE() == LevelElement.WALL
-        && isNotFloor(oppAL)
-        && isNotFloor(oppAR);
+      && isFloorOrDoor(eAL)
+      && isFloorOrDoor(eAR)
+      && isNotFloor(eB)
+      && isWallLike(n.getLeftE())
+      && isWallLike(n.getRightE())
+      && isNotFloor(oppAL)
+      && isNotFloor(oppAR);
   }
 
   /**
@@ -1855,13 +1852,13 @@ public class TileTextureFactory {
     LevelElement upE = n.getUpE();
     LevelElement downE = n.getDownE();
     return isFloorOrDoor(upSide)
-        && isFloorOrDoor(downSide)
-        && isNotFloor(right ? rightE : leftE)
-        && isNotFloor(right ? leftE : rightE)
-        && isNotFloor(right ? n.getUpLeftE() : n.getUpRightE())
-        && isNotFloor(right ? n.getDownLeftE() : n.getDownRightE())
-        && upE == LevelElement.WALL
-        && downE == LevelElement.WALL;
+      && isFloorOrDoor(downSide)
+      && isNotFloor(right ? rightE : leftE)
+      && isNotFloor(right ? leftE : rightE)
+      && isNotFloor(right ? n.getUpLeftE() : n.getUpRightE())
+      && isNotFloor(right ? n.getDownLeftE() : n.getDownRightE())
+      && isWallLike(upE)
+      && isWallLike(downE);
   }
 
   /**
@@ -1923,18 +1920,18 @@ public class TileTextureFactory {
    */
   private static boolean disallowTInner(Coordinate p, LevelElement[][] layout, Dir dir) {
     int dx = dir.dx, dy = dir.dy;
-    if (get(layout, p.x() + dx, p.y() + dy) != LevelElement.WALL) return false;
+    if (!isWallLike(get(layout, p.x() + dx, p.y() + dy))) return false;
 
     Dir perp1 = (dir == Dir.LEFT || dir == Dir.RIGHT) ? Dir.UP : Dir.LEFT;
     Dir perp2 = (dir == Dir.LEFT || dir == Dir.RIGHT) ? Dir.DOWN : Dir.RIGHT;
 
     boolean arm1 =
-        get(layout, p.x() + dx + perp1.dx, p.y() + dy + perp1.dy) == LevelElement.WALL
-            && isFloorLike(get(layout, p.x() + 2 * dx + perp1.dx, p.y() + 2 * dy + perp1.dy));
+      isWallLike(get(layout, p.x() + dx + perp1.dx, p.y() + dy + perp1.dy))
+        && isFloorLike(get(layout, p.x() + 2 * dx + perp1.dx, p.y() + 2 * dy + perp1.dy));
 
     boolean arm2 =
-        get(layout, p.x() + dx + perp2.dx, p.y() + dy + perp2.dy) == LevelElement.WALL
-            && isFloorLike(get(layout, p.x() + 2 * dx + perp2.dx, p.y() + 2 * dy + perp2.dy));
+      isWallLike(get(layout, p.x() + dx + perp2.dx, p.y() + dy + perp2.dy))
+        && isFloorLike(get(layout, p.x() + 2 * dx + perp2.dx, p.y() + 2 * dy + perp2.dy));
 
     return arm1 || arm2;
   }
@@ -1980,9 +1977,9 @@ public class TileTextureFactory {
   private static boolean isInnerTopWall(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
     return (isWallDir(p, layout, Dir.LEFT) || isDoorDir(p, layout, Dir.LEFT))
-        && (isWallDir(p, layout, Dir.RIGHT) || isDoorDir(p, layout, Dir.RIGHT))
-        && isInsideNonDoor(n.getUpE())
-        && isInside(n.getDownE());
+      && (isWallDir(p, layout, Dir.RIGHT) || isDoorDir(p, layout, Dir.RIGHT))
+      && isInsideNonDoor(n.getUpE())
+      && isInside(n.getDownE());
   }
 
   /**
@@ -2046,7 +2043,7 @@ public class TileTextureFactory {
    * @return {@code true} if the neighbor is WALL; otherwise {@code false}
    */
   private static boolean isWallDir(Coordinate p, LevelElement[][] layout, Dir d) {
-    return neighborMatches(p, layout, d, e -> e == LevelElement.WALL);
+    return neighborMatches(p, layout, d, TileTextureFactory::isWallLike);
   }
 
   /**
@@ -2084,10 +2081,10 @@ public class TileTextureFactory {
    */
   private static boolean hasNoEmptyWallsAround(Coordinate p, LevelElement[][] layout) {
     Neighbors n = Neighbors.of(p, layout);
-    if (n.getUpE() != LevelElement.WALL) return false;
-    if (n.getDownE() != LevelElement.WALL) return false;
-    if (n.getLeftE() != LevelElement.WALL) return false;
-    if (n.getRightE() != LevelElement.WALL) return false;
+    if (!isWallLike(n.getUpE())) return false;
+    if (!isWallLike(n.getDownE())) return false;
+    if (!isWallLike(n.getLeftE())) return false;
+    if (!isWallLike(n.getRightE())) return false;
 
     if (rendersSkipLikeWallAt(n.getUp(), layout)) return false;
     if (rendersSkipLikeWallAt(n.getDown(), layout)) return false;
@@ -2096,6 +2093,7 @@ public class TileTextureFactory {
 
     return true;
   }
+
 
   /**
    * Returns whether the element is considered floor-like for connectivity/neighborhood rules.
@@ -2107,8 +2105,11 @@ public class TileTextureFactory {
   private static boolean isFloorLike(LevelElement e) {
     return e == LevelElement.FLOOR
       || e == LevelElement.HOLE
-      || e == LevelElement.PIT
-      || e == LevelElement.SKIP;
+      || e == LevelElement.PIT;
+  }
+
+  private static boolean isWallLike(LevelElement e) {
+    return e == LevelElement.WALL || e == LevelElement.SKIP;
   }
 
   /**
