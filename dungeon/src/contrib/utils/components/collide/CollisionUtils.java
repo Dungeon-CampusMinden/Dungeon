@@ -88,7 +88,8 @@ public class CollisionUtils {
       Point pos,
       boolean canEnterPits,
       boolean canEnterWalls,
-      boolean canEnterGitter) {
+      boolean canEnterGitter,
+      boolean canEnterGlassWalls) {
     List<Vector2> corners = collider.cornersScaled();
     return corners.stream()
         .anyMatch(
@@ -97,7 +98,8 @@ public class CollisionUtils {
                     pos.translate(v),
                     canEnterPits,
                     canEnterWalls,
-                    canEnterGitter));
+                    canEnterGitter,
+                    canEnterGlassWalls));
   }
 
   /**
@@ -136,11 +138,16 @@ public class CollisionUtils {
    * @return true if tile is accessible or a pit tile that can be entered, false otherwise
    */
   public static boolean tileIsAccessible(
-      Tile tile, boolean canEnterPitTiles, boolean canEnterWalls, boolean canEnterGitter) {
+      Tile tile,
+      boolean canEnterPitTiles,
+      boolean canEnterWalls,
+      boolean canEnterGitter,
+      boolean canEnterGlassWalls) {
     return tile != null
         && (tile.isAccessible()
             || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT))
             || (canEnterGitter && tile.levelElement().equals(LevelElement.GITTER))
+            || (canEnterGlassWalls && tile.levelElement().equals(LevelElement.GLASSWALL))
             || (canEnterWalls && tile.levelElement().equals(LevelElement.WALL)));
   }
 
@@ -167,7 +174,8 @@ public class CollisionUtils {
       Point to,
       boolean canEnterPitTiles,
       boolean canEnterWalls,
-      boolean canEnterGitter) {
+      boolean canEnterGitter,
+      boolean canEnterGlassWall) {
     Vector2 direction = from.vectorTo(to);
     double distance = direction.length();
 
@@ -180,7 +188,8 @@ public class CollisionUtils {
     // Step from start to end and check each tile along the way
     for (float traveled = 0; traveled <= distance; traveled += step.length()) {
       Tile tile = Game.tileAt(current).orElse(null);
-      if (!tileIsAccessible(tile, canEnterPitTiles, canEnterWalls, canEnterGitter)) {
+      if (!tileIsAccessible(
+          tile, canEnterPitTiles, canEnterWalls, canEnterGitter, canEnterGlassWall)) {
         return false;
       }
       current = current.translate(step);
@@ -188,7 +197,11 @@ public class CollisionUtils {
 
     // Ensure that the final destination tile is also checked
     return tileIsAccessible(
-        Game.tileAt(to).orElse(null), canEnterPitTiles, canEnterWalls, canEnterGitter);
+        Game.tileAt(to).orElse(null),
+        canEnterPitTiles,
+        canEnterWalls,
+        canEnterGitter,
+        canEnterGlassWall);
   }
 
   // ========== Collision Math ==========
