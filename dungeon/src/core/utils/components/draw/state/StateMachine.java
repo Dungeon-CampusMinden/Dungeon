@@ -5,6 +5,8 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
 import core.utils.components.path.IPath;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -15,7 +17,8 @@ import java.util.function.Supplier;
  * <p>Supports named states, regular transitions triggered by signals, and epsilon transitions that
  * are evaluated each update cycle.
  */
-public class StateMachine {
+public class StateMachine implements Serializable {
+  @Serial private static final long serialVersionUID = 1L;
 
   /**
    * Defines globally whether the frame counter should be reset when the animation state changes.
@@ -473,5 +476,21 @@ public class StateMachine {
    */
   public static void setResetFrame(boolean value) {
     resetFrame = value;
+  }
+
+  /**
+   * Changes the current state by its name, passing optional data to the new state.
+   *
+   * @param stateName the name of the target state
+   * @param data optional data to pass to the new state
+   * @throws IllegalArgumentException if the state with the given name doesn't exist
+   */
+  public void setState(String stateName, Object data) {
+    State state = getState(stateName);
+    if (state != null) {
+      changeState(state, data);
+    } else {
+      throw new IllegalArgumentException("State '" + stateName + "' doesn't exist");
+    }
   }
 }

@@ -16,6 +16,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.SoundComponent;
 import core.components.VelocityComponent;
@@ -70,7 +71,7 @@ public class DebugDrawSystem extends System {
 
   /** Creates a new DebugDrawSystem. */
   public DebugDrawSystem() {
-    super(PositionComponent.class);
+    super(AuthoritativeSide.CLIENT, PositionComponent.class);
     DEBUG_CAM.setToOrtho(false, Game.windowWidth(), Game.windowHeight());
     WindowEventManager.registerWindowRefreshListener(
         () -> DEBUG_CAM.setToOrtho(false, Game.windowWidth(), Game.windowHeight()));
@@ -346,6 +347,15 @@ public class DebugDrawSystem extends System {
         .ifPresent(
             ai ->
                 info.append("AI State: ").append(ai.active() ? "Active" : "Inactive").append("\n"));
+
+    entity
+        .fetch(PlayerComponent.class)
+        .ifPresent(
+            pcComp ->
+                info.append("Player: ")
+                    .append(pcComp.playerName())
+                    .append(pcComp.isLocal() ? " (LOCAL)" : " (REMOTE)")
+                    .append("\n"));
 
     List<String> componentNames =
         entity

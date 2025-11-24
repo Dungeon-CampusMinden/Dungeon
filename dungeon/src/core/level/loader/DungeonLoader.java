@@ -79,9 +79,10 @@ public class DungeonLoader {
 
   private static void getAllLevelFilePathsFromJar() throws IOException, URISyntaxException {
     URI uri = Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX)).toURI();
-    FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
-    Path path = fileSystem.getPath(LEVEL_PATH_PREFIX);
-    parseLevelFiles(path, true);
+    try (FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
+      Path path = fileSystem.getPath(LEVEL_PATH_PREFIX);
+      parseLevelFiles(path, true);
+    }
   }
 
   private static void parseLevelFiles(Path path, boolean isJar) throws IOException {
@@ -148,13 +149,13 @@ public class DungeonLoader {
    * @return The level handler for the given level name. (null if not found)
    * @see DungeonLevel
    */
-  public static Class<? extends DungeonLevel> levelHandler(String levelName) {
+  public static Optional<Class<? extends DungeonLevel>> levelHandler(String levelName) {
     for (Tuple<String, Class<? extends DungeonLevel>> level : levelOrder) {
       if (level.a().equalsIgnoreCase(levelName)) {
-        return level.b();
+        return Optional.of(level.b());
       }
     }
-    return null;
+    return Optional.empty();
   }
 
   private static ILevel getRandomVariant(String levelName) {
@@ -305,25 +306,43 @@ public class DungeonLoader {
    *
    * @param path The path to the level file.
    * @return The loaded DevDungeonLevel.
+   * @throws MissingLevelException If the level file is not found.
+   * @throws RuntimeException If an I/O error occurs while reading the level file.
    */
-  public static DungeonLevel loadFromPath(IPath path) {
+  private static DungeonLevel loadFromPath(IPath path) {
     try {
       BufferedReader reader;
       if (path.pathString().startsWith("jar:")) {
         InputStream is = DungeonLevel.class.getResourceAsStream(path.pathString().substring(4));
+        if (is == null) {
+          LOGGER.error("Level file not found in jar: {}", path.pathString());
+          throw new MissingLevelException(path.toString());
+        }
         reader = new BufferedReader(new InputStreamReader(is));
       } else {
         File file = new File(path.pathString());
         if (!file.exists()) {
+          LOGGER.error("Level file not found: {}", path.pathString());
           throw new MissingLevelException(path.toString());
         }
         reader = new BufferedReader(new FileReader(file));
       }
 
       return LevelParser.parseLevel(reader, currentLevel());
-
     } catch (IOException e) {
       throw new RuntimeException("Error reading level file", e);
     }
+  }
+
+  /**
+   * Clears all levels from the DungeonLoader.
+   *
+   * <p>This method resets the level order, current level index, and current variant index.
+   */
+  public static void clearLevels() {
+    LEVELS.clear();
+    levelOrder.clear();
+    currentLevel = -1;
+    currentVariant = 0;
   }
 }

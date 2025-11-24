@@ -21,6 +21,13 @@ import java.util.function.Consumer;
  */
 public final class PreRunConfiguration {
 
+  // Multiplayer
+  private static boolean MULTIPLAYER_ENABLED = false;
+  private static boolean NETWORK_IS_SERVER = true;
+  private static String NETWORK_SERVER_ADDRESS = "127.0.0.1";
+  private static int NETWORK_PORT = 7777;
+  private static String USERNAME = "Player";
+
   private static int WINDOW_WIDTH = 1280;
   private static int WINDOW_HEIGHT = 720;
   private static int FRAME_RATE = 30;
@@ -262,5 +269,102 @@ public final class PreRunConfiguration {
    */
   public static void loadConfig(final IPath path, Class<?>... klass) throws IOException {
     Configuration.loadAndGetConfiguration(path, klass);
+  }
+
+  /**
+   * Checks if this instance is the server in a multiplayer game.
+   *
+   * @return True if this instance is the server, false otherwise.
+   */
+  public static boolean isNetworkServer() {
+    return NETWORK_IS_SERVER;
+  }
+
+  /**
+   * Sets whether this instance is the server in a multiplayer game.
+   *
+   * @param isServer True if this instance is the server, false otherwise.
+   */
+  public static void isNetworkServer(boolean isServer) {
+    NETWORK_IS_SERVER = isServer;
+  }
+
+  /**
+   * Gets the server address for multiplayer.
+   *
+   * @return The server address.
+   */
+  public static String networkServerAddress() {
+    return NETWORK_SERVER_ADDRESS;
+  }
+
+  /**
+   * Sets the server address for multiplayer.
+   *
+   * @param serverAddress The server address.
+   */
+  public static void networkServerAddress(String serverAddress) {
+    NETWORK_SERVER_ADDRESS = serverAddress;
+  }
+
+  /**
+   * Gets the network port for multiplayer.
+   *
+   * @return The network port.
+   */
+  public static int networkPort() {
+    return NETWORK_PORT;
+  }
+
+  /**
+   * Sets the network port for multiplayer.
+   *
+   * @param port The network port.
+   */
+  public static void networkPort(int port) {
+    NETWORK_PORT = port;
+  }
+
+  /**
+   * Checks if multiplayer is enabled.
+   *
+   * @return True if multiplayer is enabled, false otherwise.
+   */
+  public static boolean multiplayerEnabled() {
+    return MULTIPLAYER_ENABLED;
+  }
+
+  /**
+   * Sets whether multiplayer is enabled.
+   *
+   * @param multiplayerEnabled True to enable multiplayer, false otherwise.
+   */
+  public static void multiplayerEnabled(boolean multiplayerEnabled) {
+    MULTIPLAYER_ENABLED = multiplayerEnabled;
+  }
+
+  /**
+   * Gets the username for the game.
+   *
+   * @return The username.
+   */
+  public static String username() {
+    return USERNAME;
+  }
+
+  /**
+   * Sets the username for the game.
+   *
+   * <p>The username must not be empty or contain underscores.
+   *
+   * @param username The username to set.
+   * @throws IllegalArgumentException if the username is empty or contains underscores.
+   */
+  public static void username(String username) {
+    if (username != null && !username.trim().isEmpty() && !username.contains("_")) {
+      USERNAME = username;
+    } else {
+      throw new IllegalArgumentException("Username must not be empty or contain underscores.");
+    }
   }
 }

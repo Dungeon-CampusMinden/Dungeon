@@ -38,7 +38,11 @@ public final class ManaBarSystem extends System {
    * corresponding mana bar is removed.
    */
   public ManaBarSystem() {
-    super(DrawComponent.class, ManaComponent.class, PositionComponent.class);
+    super(
+        AuthoritativeSide.CLIENT,
+        DrawComponent.class,
+        ManaComponent.class,
+        PositionComponent.class);
 
     this.onEntityAdd =
         entity -> {

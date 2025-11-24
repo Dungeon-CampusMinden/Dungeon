@@ -124,6 +124,25 @@ public enum CharacterClass {
   }
 
   /**
+   * Returns the CharacterClass corresponding to the given byte ordinal.
+   *
+   * @param ordinal the byte ordinal of the CharacterClass
+   * @return the CharacterClass associated with the ordinal
+   * @throws IllegalArgumentException if the ordinal is out of range
+   * @throws IllegalStateException if there are too many CharacterClasses to be represented by a
+   *     byte
+   */
+  public static CharacterClass fromByteId(byte ordinal) {
+    if (CharacterClass.values().length > Byte.MAX_VALUE) {
+      throw new IllegalStateException("Too many CharacterClasses to be represented by a byte.");
+    }
+    if (ordinal < 0 || ordinal >= CharacterClass.values().length) {
+      throw new IllegalArgumentException("Invalid ordinal for CharacterClass: " + ordinal);
+    }
+    return CharacterClass.values()[ordinal];
+  }
+
+  /**
    * Returns the texture path or sprite representation for this character class.
    *
    * @return the {@link IPath} representing the character's textures

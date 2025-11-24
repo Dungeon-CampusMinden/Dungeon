@@ -6,8 +6,12 @@ import core.Component;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.components.DrawComponent;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.level.elements.ILevel;
+import core.network.messages.s2c.EntityDespawnEvent;
+import core.network.messages.s2c.EntitySpawnEvent;
 import core.systems.*;
 import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
@@ -36,6 +40,8 @@ public final class ECSManagement {
   private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
   private static final Map<ILevel, Set<EntitySystemMapper>> LEVEL_STORAGE_MAP = new HashMap<>();
   private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
+
+  private static int currentTick = 0;
 
   /**
    * Essential systems that are always added to the game.
@@ -101,6 +107,18 @@ public final class ECSManagement {
 
     activeEntityStorage.forEach(f -> f.add(entity));
     LOGGER.info(entity + " will be added to the Game.");
+
+    try {
+      if (Game.network().isServer()) {
+        if (entity.isPresent(PositionComponent.class) && entity.isPresent(DrawComponent.class)) {
+          Game.network().broadcast(new EntitySpawnEvent(entity), true);
+        }
+      }
+    } catch (IllegalStateException e) {
+      LOGGER.error("Failed to broadcast entity spawn for {}: {}", entity, e.getMessage());
+      // Continue without broadcasting, for unit tests
+    }
+
     return entity;
   }
 
@@ -116,6 +134,17 @@ public final class ECSManagement {
     activeEntityStorage.forEach(f -> f.remove(entity));
     EntityIdProvider.unregister(entity.id());
     LOGGER.info(entity + " will be removed from the Game.");
+
+    try {
+      if (Game.network().isServer()) {
+        Game.network()
+            .broadcast(new EntityDespawnEvent(entity.id(), "Entity removed from game"), true);
+      }
+    } catch (IllegalStateException e) {
+      LOGGER.error("Failed to broadcast entity despawn for {}: {}", entity, e.getMessage());
+      // Continue without broadcasting, for unit tests
+    }
+
     return entity;
   }
 
@@ -259,13 +288,19 @@ public final class ECSManagement {
   }
 
   /**
-   * Searches the current level for the first player character.
+   * Searches the current level for the first local player character.
    *
-   * @return an {@link Optional} containing the first player character from the current level, or an
-   *     empty {@code Optional} if none is present
+   * <p>A player entity is defined as an entity that has a {@link PlayerComponent} with {@link
+   * PlayerComponent#isLocal()} returning true.
+   *
+   * @return the local player character, can be empty if no local player is present.
+   * @see PlayerComponent
+   * @see #allPlayers()
    */
   public static Optional<Entity> player() {
-    return levelEntities().filter(e -> e.isPresent(PlayerComponent.class)).findFirst();
+    return allPlayers()
+        .filter(e -> e.fetch(PlayerComponent.class).map(PlayerComponent::isLocal).orElse(false))
+        .findFirst();
   }
 
   /**
@@ -379,6 +414,23 @@ public final class ECSManagement {
     return levelEntities().anyMatch(entity1 -> entity1.equals(entity));
   }
 
+  private static boolean isAuthoritative(System.AuthoritativeSide side, System system) {
+    System.AuthoritativeSide systemSide = system.authoritativeSide();
+    return side == System.AuthoritativeSide.BOTH
+        || systemSide == System.AuthoritativeSide.BOTH
+        || systemSide == side;
+  }
+
+  /**
+   * Returns the current tick number, incremented each time {@link
+   * #executeOneTick(System.AuthoritativeSide)} is called.
+   *
+   * @return the current tick number
+   */
+  public static int currentTick() {
+    return currentTick;
+  }
+
   /**
    * Execute one tick of the ECS.
    *
@@ -387,15 +439,26 @@ public final class ECSManagement {
    * execution.
    *
    * <p>After executing all systems, if an OpenGL context is available, it will call the {@link
-   * System#render()} method of each registered {@link System}.
+   * System#render(float)} method of each registered {@link System}.
    *
    * <p>If a new level was loaded during this tick, the execution will be interrupted to prevent
    * inconsistencies.
+   *
+   * @param side the authoritative side for which to execute systems ({@link
+   *     System.AuthoritativeSide#BOTH for all systems})
    */
-  public static void executeOneTick() {
+  public static void executeOneTick(System.AuthoritativeSide side) {
+    List<System> authoritativeSystems =
+        ECSManagement.systems().values().stream()
+            .filter(sys -> isAuthoritative(side, sys))
+            .toList();
+
     // Execute logic for each system.
-    for (System system : systems().values()) {
-      if (newLevelLoadedThisTick) return; // Early exit if a new level was loaded this tick.
+    for (System system : authoritativeSystems) {
+      if (newLevelLoadedThisTick) {
+        currentTick++;
+        return; // Early exit if a new level was loaded this tick.
+      }
 
       system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
 
@@ -411,6 +474,7 @@ public final class ECSManagement {
       systems().values().forEach(system -> system.render(delta));
     }
 
+    currentTick++;
     newLevelLoadedThisTick = false;
   }
 

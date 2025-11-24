@@ -134,7 +134,7 @@ public final class HealthComponent implements Component {
     int damageSum =
         damageToGet.stream().filter(d -> d.damageType() == dt).mapToInt(Damage::damageAmount).sum();
 
-    LOGGER.debug("Calculated damage of type {} is {}", dt.name(), damageSum);
+    LOGGER.trace("Calculated damage of type {} is {}", dt.name(), damageSum);
 
     return damageSum;
   }

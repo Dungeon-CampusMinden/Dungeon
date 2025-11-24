@@ -19,6 +19,10 @@ import java.util.function.Function;
 /** Utility class for managing attribute bars (health, mana, energy) for entities. */
 public final class AttributeBarUtil {
 
+  // TODO: Change this logic, to allow for more than 1mil entities
+  private static int NEXT_ID =
+      1_000_000_000; // Start IDs for bars at a high number to avoid conflicts
+
   private static final float MIN = 0f;
   private static final float MAX = 1f;
   private static final float STEP_SIZE = 0.01f;
@@ -47,7 +51,7 @@ public final class AttributeBarUtil {
     PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
     ProgressBar bar = createBar(pc, styleName, verticalOffset);
 
-    Entity barEntity = new Entity(styleName + "_" + entity.id());
+    Entity barEntity = new Entity(NEXT_ID++, styleName + "_" + entity.id());
     Container<ProgressBar> container = new Container<>(bar);
     container.setLayoutEnabled(false);
     barEntity.add(new UIComponent(container, false, false));

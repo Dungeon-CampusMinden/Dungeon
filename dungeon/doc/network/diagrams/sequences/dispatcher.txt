@@ -1,0 +1,20 @@
+@startuml
+title MessageDispatcher -> ConnectionListeners (Dispatch)
+participant "NettyNetworkHandler" as Netty
+participant "MessageDispatcher" as Dispatcher
+participant "ConnectionListener[*]" as Listeners
+
+Netty -> Dispatcher : deliver NetworkMessage(msg)
+activate Dispatcher
+Dispatcher -> Dispatcher : determine target listeners (by session/type)
+opt multiple listeners
+    Dispatcher -> Listeners : onMessage(msg)
+else single listener
+    Dispatcher -> Listeners : onMessage(msg)
+end
+activate Listeners
+Listeners --> Dispatcher : (optional) response message(s)
+deactivate Listeners
+Dispatcher -> Netty : dispatch outbound(s) or ack
+deactivate Dispatcher
+@enduml

@@ -1,0 +1,32 @@
+@startuml
+title Snapshot Generation & Delivery (mit RequestEntitySpawn-Flow)
+participant "AuthoritativeServerLoop" as Loop
+participant "SnapshotTranslator" as Translator
+participant "ServerTransport" as Transport
+actor Client
+
+Loop -> Translator : translate(states, clientContext, lastAckedTick)
+activate Translator
+Translator --> Loop : SnapshotMessage (may contain new entity ids)
+deactivate Translator
+
+Loop -> Transport : sendSnapshot(clientId, SnapshotMessage)
+activate Transport
+Transport -> Client : SnapshotMessage (unreliable)
+deactivate Transport
+
+alt client already knows all entities
+    Client -> Client : applySnapshot / update local state
+else client finds unknown entity (entityId X)
+    Client -> Transport : RequestEntitySpawn(entityId = X)
+    activate Transport
+    Transport -> Loop : forward RequestEntitySpawn(entityId = X)
+    activate Loop
+    Loop -> Loop : authorize & assemble full spawn data
+    Loop --> Transport : EntitySpawnEvent(entityId = X, fullState)
+    deactivate Loop
+    Transport -> Client : EntitySpawnEvent(entityId = X, fullState) (reliable)
+    deactivate Transport
+    Client -> Client : create local entity using fullState
+end
+@enduml

@@ -1,7 +1,6 @@
 package core.systems;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import core.Entity;
 import core.Game;
@@ -31,7 +30,7 @@ public class PositionSystemTest {
   private Entity entity;
   private PositionComponent pc;
 
-  /** WTF? . */
+  /** Setup before each test. */
   @BeforeEach
   public void setup() {
     pc = new PositionComponent();
@@ -49,7 +48,7 @@ public class PositionSystemTest {
     Mockito.when(mock.coordinate()).thenReturn(new Coordinate(3, 3));
   }
 
-  /** WTF? . */
+  /** Cleanup after each test. */
   @AfterEach
   public void cleanup() {
     Game.currentLevel(null);
@@ -57,7 +56,7 @@ public class PositionSystemTest {
     Game.removeAllEntities();
   }
 
-  /** WTF? . */
+  /** Test that the position is set to a random free tile if the position is illegal. */
   @Test
   public void test_illegalPosition() {
     LevelElement[][] elementsLayout =
@@ -74,17 +73,16 @@ public class PositionSystemTest {
               return Optional.of(layout[c.y()][c.x()]);
             });
     pc.position(PositionComponent.ILLEGAL_POSITION);
-    // entities will be placed in the center of a tile, so add the offset for check
-    Point offsetPoint = new Point(point.x() + 0.5f, point.y() + 0.5f);
+
     system.execute();
-    assertTrue(pc.position().equals(offsetPoint));
+    assertEquals(point, pc.position());
   }
 
-  /** WTF? . */
+  /** Test that the position is not changed if the position is legal. */
   @Test
   public void test_legalPosition() {
     pc.position(new Point(2, 2));
     system.execute();
-    assertFalse(pc.position().equals(point));
+    assertNotEquals(pc.position(), point);
   }
 }

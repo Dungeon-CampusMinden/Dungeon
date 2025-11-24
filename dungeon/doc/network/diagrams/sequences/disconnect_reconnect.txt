@@ -1,0 +1,37 @@
+@startuml
+title Disconnect and Reconnect Flow
+actor Client
+participant "NettyNetworkHandler" as Netty
+participant "ServerTransport" as Transport
+participant "ServerRuntime" as Runtime
+
+== Disconnect detected ==
+Netty -> Transport : (connection lost / heartbeat timeout)
+activate Transport
+Transport -> Runtime : markDisconnected(clientId)
+activate Runtime
+Runtime -> Runtime : cleanup or preserve session (reconnect window)
+Runtime --> Transport : cleanupDone
+deactivate Runtime
+Transport --> Netty : confirmation
+deactivate Transport
+
+== Reconnect ==
+Client -> Netty : ConnectRequest(session, token)
+activate Netty
+Netty -> Transport : forward ConnectRequest
+activate Transport
+Transport -> Transport : validate / session restore
+alt restore ok
+    Transport -> Runtime : rebind client session
+    activate Runtime
+    Runtime --> Transport : restored state
+    deactivate Runtime
+    Transport --> Netty : ConnectAck(restored=true)
+else new session / reject
+    Transport --> Netty : ConnectAck(newSession) / ConnectReject
+end
+deactivate Transport
+Netty --> Client : (ConnectAck / ConnectReject)
+deactivate Netty
+@enduml
