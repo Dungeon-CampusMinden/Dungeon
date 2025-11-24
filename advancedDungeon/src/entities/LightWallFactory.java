@@ -9,7 +9,6 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.GlasswandTile;
-import core.level.elements.tile.PortalTile;
 import core.level.elements.tile.WallTile;
 import core.utils.Direction;
 import core.utils.Point;
@@ -325,10 +324,7 @@ public class LightWallFactory {
       while (true) {
         Tile currentTile = Game.tileAt(currentPoint).orElse(null);
         if (currentTile == null) break;
-        boolean isWall =
-            currentTile instanceof WallTile
-                || currentTile instanceof PortalTile
-                || currentTile instanceof GlasswandTile;
+        boolean isWall = currentTile instanceof WallTile || currentTile instanceof GlasswandTile;
         if (isWall) break;
         lastPoint = currentPoint;
         currentPoint = currentPoint.translate(beamDirection);
