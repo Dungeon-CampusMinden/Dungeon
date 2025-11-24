@@ -380,7 +380,7 @@ public class AdvancedFactory {
     Skill energyPelletSkill =
         new EnergyPelletSkill(
             uniqueSkillName,
-            SkillTools::heroPositionAsPoint,
+            SkillTools::playerPositionAsPoint,
             EnergyPelletSkill.COOLDOWN,
             attackRange,
             projectileLifetime);
@@ -435,15 +435,15 @@ public class AdvancedFactory {
     StateMachine sm;
 
     switch (direction) {
-      case Direction.DOWN:
+      case DOWN:
         State top = State.fromMap(animationMap, "top");
         sm = new StateMachine(List.of(top));
         break;
-      case Direction.LEFT:
+      case LEFT:
         State right = State.fromMap(animationMap, "right");
         sm = new StateMachine(List.of(right));
         break;
-      case Direction.RIGHT:
+      case RIGHT:
         State left = State.fromMap(animationMap, "left");
         sm = new StateMachine(List.of(left));
         break;
