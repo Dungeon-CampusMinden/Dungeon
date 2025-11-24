@@ -80,6 +80,8 @@ public class CollisionUtils {
    * @param pos the position to check for collision
    * @param canEnterPits whether the collider can enter pit tiles
    * @param canEnterWalls whether the collider can enter wall tiles
+   * @param canEnterGitter whether the entity can enter gitter tiles
+   * @param canEnterGlassWalls whether the entity can enter glasswall tile
    * @return true if any corner of the collider is colliding with a non-accessible tile, false
    *     otherwise
    */
@@ -135,6 +137,8 @@ public class CollisionUtils {
    * @param tile the tile to check for accessibility
    * @param canEnterPitTiles whether the entity can enter pit tiles
    * @param canEnterWalls whether the entity can enter wall tiles
+   * @param canEnterGitter whether the entity can enter gitter tiles
+   * @param canEnterGlassWalls whether the entity can enter glasswall tile
    * @return true if tile is accessible or a pit tile that can be entered, false otherwise
    */
   public static boolean tileIsAccessible(
@@ -166,6 +170,8 @@ public class CollisionUtils {
    * @param to the target point
    * @param canEnterPitTiles whether the entity is allowed to walk into pit tiles
    * @param canEnterWalls whether the entity is allowed to walk into wall tiles
+   * @param canEnterGitter whether the entity can enter gitter tiles
+   * @param canEnterGlassWall whether the entity can enter glasswall tile
    * @return true if the entire path from start to target is clear; false if a tile in between is
    *     blocked
    */
