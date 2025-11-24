@@ -16,6 +16,12 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
+import core.network.NetworkException;
+import core.network.config.NetworkConfig;
+import core.network.handler.INetworkHandler;
+import core.network.handler.LocalNetworkHandler;
+import core.network.handler.NettyNetworkHandler;
+import core.network.handler.SlowNettyNetworkHandler;
 import core.sound.AudioApi;
 import core.sound.player.ISoundPlayer;
 import core.systems.LevelSystem;
@@ -58,6 +64,7 @@ import java.util.stream.Stream;
 public final class Game {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Game.class);
+  private static INetworkHandler networkHandler;
   private static final AudioApi AudioAPI = new AudioApi();
 
   private static final boolean SLOW_NETWORK = false;
@@ -852,6 +859,31 @@ public final class Game {
   /** Exits the GDX application and shuts down the network handler. */
   public static void exit() {
     exit("No reason specified");
+  }
+
+  /**
+   * Gets the network handler instance. This allows other parts of the game (like HeroFactory) to
+   * send messages.
+   *
+   * @return The NetworkHandler instance.
+   * @throws IllegalStateException if the network handler is not initialized.
+   */
+  public static INetworkHandler network() {
+    if (networkHandler == null) {
+      throw new IllegalStateException("Network handler is not initialized. Call Game.run() first.");
+    }
+    return networkHandler;
+  }
+
+  /**
+   * Get the current game tick.
+   *
+   * <p>The game tick is incremented every frame in the game loop.
+   *
+   * @return The current game tick.
+   */
+  public static int currentTick() {
+    return GameLoop.currentTick();
   }
 
   /**

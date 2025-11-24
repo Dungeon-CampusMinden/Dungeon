@@ -94,7 +94,7 @@ public final class DrawSystem extends System implements Disposable {
   private int stableResizeFrames = -1;
 
   /** Create a new DrawSystem. */
-  private DrawSystem() {
+  public DrawSystem() {
     super(AuthoritativeSide.BOTH, DrawComponent.class, PositionComponent.class);
     onEntityAdd = (e) -> onEntityChanged(e, true);
     onEntityRemove = (e) -> onEntityChanged(e, false);

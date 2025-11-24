@@ -47,7 +47,8 @@ import java.util.*;
  * @see Animation
  * @see IPath
  */
-public final class DrawComponent implements Component {
+public final class DrawComponent implements Component, Serializable {
+  @Serial private static final long serialVersionUID = 1L;
 
   private final StateMachine stateMachine;
   private int depth = DepthLayer.Normal.depth();

@@ -71,11 +71,11 @@ public final class GameLoop extends ScreenAdapter {
    */
   public static final IVoidFunction onLevelLoad =
       () -> {
-        newLevelWasLoadedInThisLoop = true;
-        Optional<Entity> player = ECSManagement.player();
-        boolean firstLoad =
-            !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().orElseThrow());
-        player.ifPresent(ECSManagement::remove);
+        if (!PreRunConfiguration.isNetworkServer()) return; // no authority
+
+        List<Entity> allPlayers = ECSManagement.allPlayers().toList();
+        boolean firstLoad = !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().get());
+        allPlayers.forEach(ECSManagement::remove);
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
         // cleanup).
         Map<Class<? extends System>, System> s = ECSManagement.systems();
@@ -218,9 +218,14 @@ public final class GameLoop extends ScreenAdapter {
     frame(delta);
     clearScreen();
 
-    // system and render logic
-    ECSManagement.executeOneTick();
+    // Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
+    final boolean isMultiplayerClient =
+        PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
+    ECSManagement.executeOneTick(
+        isMultiplayerClient ? System.AuthoritativeSide.CLIENT : System.AuthoritativeSide.BOTH);
 
+    CameraSystem.camera().update();
+    // stage logic
     stage().ifPresent(GameLoop::updateStage);
   }
 
@@ -425,7 +430,7 @@ public final class GameLoop extends ScreenAdapter {
    *
    * @param entity entity to set on the start of the level, normally this is the player.
    */
-  private void placeOnLevelStart(final Entity entity) {
+  private static void placeOnLevelStart(final Entity entity) {
     ECSManagement.add(entity);
     entity
         .fetch(PositionComponent.class)
@@ -481,5 +486,6 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new MoveSystem());
     ECSManagement.add(new InputSystem());
     ECSManagement.add(new DebugDrawSystem());
+    ECSManagement.add(new HudSystem());
   }
 }

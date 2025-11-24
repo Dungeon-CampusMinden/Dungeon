@@ -57,7 +57,7 @@ public final class LevelSystem extends System {
    * system's {@link #execute()} is executed.
    */
   public LevelSystem() {
-    super(PlayerComponent.class, PositionComponent.class);
+    super(AuthoritativeSide.BOTH, PlayerComponent.class, PositionComponent.class);
     this.onEndTile = DungeonLoader::loadNextLevel;
   }
 

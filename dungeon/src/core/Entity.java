@@ -107,7 +107,7 @@ public final class Entity implements Comparable<Entity> {
   public void add(final Component component) {
     components.put(component.getClass(), component);
     ECSManagement.informAboutChanges(this);
-    LOGGER.info(component.getClass().getName() + " Components from " + this + " was added.");
+    LOGGER.debug(component.getClass().getName() + " Components from " + this + " was added.");
   }
 
   /**
@@ -123,7 +123,7 @@ public final class Entity implements Comparable<Entity> {
   public boolean remove(final Class<? extends Component> klass) {
     if (components.remove(klass) != null) {
       ECSManagement.informAboutChanges(this);
-      LOGGER.info(klass.getName() + " from " + name + " was removed.");
+      LOGGER.debug(klass.getName() + " from " + name + " was removed.");
       return true;
     }
     return false;
