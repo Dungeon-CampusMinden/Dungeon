@@ -2149,6 +2149,15 @@ public class TileTextureFactory {
     return true;
   }
 
+  /**
+   * Returns whether a {@code SKIP} tile at {@code p} should count as floor-like based on its
+   * orthogonal neighbors.
+   *
+   * @param p the coordinate of the tile to test
+   * @param layout the level grid
+   * @return {@code true} if {@code p} is {@code SKIP} and at least one orthogonal neighbor is a
+   *     base floor; otherwise {@code false}
+   */
   private static boolean skipIsFloorLike(Coordinate p, LevelElement[][] layout) {
     LevelElement self = get(layout, p.x(), p.y());
     if (self != LevelElement.SKIP) return false;
@@ -2166,6 +2175,14 @@ public class TileTextureFactory {
     return false;
   }
 
+  /**
+   * Indicates whether the tile at {@code p} is treated as floor-like for neighborhood rules.
+   *
+   * @param p the coordinate of the tile to test
+   * @param layout the level grid
+   * @return {@code true} if the tile at {@code p} is base floor or a floor-like {@code SKIP};
+   *     otherwise {@code false}
+   */
   private static boolean isFloorLike(Coordinate p, LevelElement[][] layout) {
     LevelElement e = get(layout, p.x(), p.y());
     if (e == null) return false;
@@ -2177,10 +2194,25 @@ public class TileTextureFactory {
     return isBaseFloor(e);
   }
 
+  /**
+   * Indicates whether the given element is one of the base floor types.
+   *
+   * @param e the element to test
+   * @return {@code true} if {@code e} is {@code FLOOR}, {@code HOLE}, or {@code PIT}; otherwise
+   *     {@code false}
+   */
   private static boolean isBaseFloor(LevelElement e) {
     return e == LevelElement.FLOOR || e == LevelElement.HOLE || e == LevelElement.PIT;
   }
 
+  /**
+   * Indicates whether the tile at {@code p} is treated as wall-like for wall rules.
+   *
+   * @param p the coordinate of the tile to test
+   * @param layout the level grid
+   * @return {@code true} if the tile at {@code p} is {@code WALL} or a wall-like {@code SKIP};
+   *     otherwise {@code false}
+   */
   private static boolean isWallLike(Coordinate p, LevelElement[][] layout) {
     LevelElement e = get(layout, p.x(), p.y());
     if (e == null) return false;
