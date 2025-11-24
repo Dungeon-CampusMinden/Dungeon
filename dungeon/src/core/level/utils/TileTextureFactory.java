@@ -2150,10 +2150,19 @@ public class TileTextureFactory {
   }
 
   private static boolean skipIsFloorLike(Coordinate p, LevelElement[][] layout) {
-    LevelElement e = get(layout, p.x(), p.y());
-    if (e != LevelElement.SKIP) return false;
+    LevelElement self = get(layout, p.x(), p.y());
+    if (self != LevelElement.SKIP) return false;
 
-    // TODO: hier später die Regeln für SKIP
+    LevelElement up = get(layout, p.x(), p.y() + 1);
+    LevelElement down = get(layout, p.x(), p.y() - 1);
+    LevelElement left = get(layout, p.x() - 1, p.y());
+    LevelElement right = get(layout, p.x() + 1, p.y());
+
+    if (isBaseFloor(up)) return true;
+    if (isBaseFloor(down)) return true;
+    if (isBaseFloor(left)) return true;
+    if (isBaseFloor(right)) return true;
+
     return false;
   }
 
@@ -2165,6 +2174,10 @@ public class TileTextureFactory {
       return skipIsFloorLike(p, layout);
     }
 
+    return isBaseFloor(e);
+  }
+
+  private static boolean isBaseFloor(LevelElement e) {
     return e == LevelElement.FLOOR || e == LevelElement.HOLE || e == LevelElement.PIT;
   }
 
