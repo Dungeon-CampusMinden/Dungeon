@@ -175,7 +175,7 @@ public class DevDungeon {
                           .orElseThrow()
                           .fetch(SkillComponent.class)
                           .orElseThrow()
-                          .activeSkill()
+                          .activeSkillOne()
                           .orElseThrow();
 
               if (skill.damageAmount() <= 2) {

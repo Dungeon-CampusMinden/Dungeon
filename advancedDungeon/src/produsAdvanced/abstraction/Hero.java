@@ -138,7 +138,7 @@ public class Hero {
   /** Feuert den Feuerball ab. */
   public void shootFireball() {
     hero.fetch(SkillComponent.class)
-        .ifPresent(sc -> sc.activeSkill().ifPresent(fs -> fs.execute(hero)));
+        .ifPresent(sc -> sc.activeSkillOne().ifPresent(fs -> fs.execute(hero)));
   }
 
   /**
