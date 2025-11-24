@@ -49,6 +49,7 @@ public class DungeonLevel implements ILevel, ITickable {
   protected ArrayList<ExitTile> exitTiles = new ArrayList<>();
   protected ArrayList<SkipTile> skipTiles = new ArrayList<>();
   protected ArrayList<PitTile> pitTiles = new ArrayList<>();
+  protected ArrayList<PortalTile> portalTiles = new ArrayList<>();
 
   /**
    * Create a new level.
@@ -228,6 +229,7 @@ public class DungeonLevel implements ILevel, ITickable {
       case DOOR -> doorTiles.remove((DoorTile) tile);
       case EXIT -> exitTiles.remove((ExitTile) tile);
       case PIT -> pitTiles.remove((PitTile) tile);
+      case PORTAL -> portalTiles.remove((PortalTile) tile);
     }
     this.removeFromPathfinding(tile);
     layout[tile.coordinate().y()][tile.coordinate().x()] = null;
@@ -286,6 +288,7 @@ public class DungeonLevel implements ILevel, ITickable {
       case EXIT -> exitTiles.add((ExitTile) tile);
       case DOOR -> doorTiles.add((DoorTile) tile);
       case PIT -> pitTiles.add((PitTile) tile);
+      case PORTAL -> portalTiles.add((PortalTile) tile);
     }
     this.addToPathfinding(tile);
     layout[tile.coordinate().y()][tile.coordinate().x()] = tile;
