@@ -2155,6 +2155,7 @@ public class TileTextureFactory {
    *
    * @param p the coordinate of the tile to test
    * @param layout the level grid
+   * @param visited layout of already visited tiles
    * @return {@code true} if {@code p} is {@code SKIP} and at least one orthogonal neighbor is a
    *     base floor; otherwise {@code false}
    */
