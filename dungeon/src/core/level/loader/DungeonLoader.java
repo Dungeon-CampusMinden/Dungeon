@@ -36,15 +36,15 @@ public class DungeonLoader {
   }
 
   private static final List<Tuple<String, Class<? extends DungeonLevel>>> levelOrder =
-      new ArrayList<>();
+          new ArrayList<>();
   private static int currentLevel = -1;
   private static int currentVariant = 0;
   private static IVoidFunction afterAllLevels =
-      () -> {
-        System.out.println("Game Over!");
-        System.out.println("You have passed all " + currentLevel + " levels!");
-        Game.exit();
-      };
+          () -> {
+            System.out.println("Game Over!");
+            System.out.println("You have passed all " + currentLevel + " levels!");
+            Game.exit();
+          };
 
   // Private constructor to prevent instantiation, as this class is a static utility class.
   private DungeonLoader() {}
@@ -67,8 +67,8 @@ public class DungeonLoader {
 
   private static boolean isRunningFromJar() {
     return Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX))
-        .toString()
-        .startsWith("jar:");
+            .toString()
+            .startsWith("jar:");
   }
 
   private static void getAllLevelFilePathsFromFileSystem() throws IOException, URISyntaxException {
@@ -88,23 +88,23 @@ public class DungeonLoader {
   private static void parseLevelFiles(Path path, boolean isJar) throws IOException {
     try (Stream<Path> paths = Files.walk(path)) {
       paths
-          .filter(Files::isRegularFile)
-          .forEach(
-              file -> {
-                String fileName = file.getFileName().toString();
-                if (fileName.endsWith(".level")) {
-                  String[] parts = fileName.split("_");
-                  if (parts.length == 2) {
-                    String levelName = parts[0];
-                    String levelFilePath = file.toString();
-                    LEVELS
-                        .computeIfAbsent(levelName, k -> new ArrayList<>())
-                        .add(isJar ? "jar:" + levelFilePath : levelFilePath);
-                  } else {
-                    LOGGER.warn("Invalid level file name: {}", fileName);
-                  }
-                }
-              });
+              .filter(Files::isRegularFile)
+              .forEach(
+                      file -> {
+                        String fileName = file.getFileName().toString();
+                        if (fileName.endsWith(".level")) {
+                          String[] parts = fileName.split("_");
+                          if (parts.length == 2) {
+                            String levelName = parts[0];
+                            String levelFilePath = file.toString();
+                            LEVELS
+                                    .computeIfAbsent(levelName, k -> new ArrayList<>())
+                                    .add(isJar ? "jar:" + levelFilePath : levelFilePath);
+                          } else {
+                            LOGGER.warn("Invalid level file name: {}", fileName);
+                          }
+                        }
+                      });
     }
   }
 
@@ -246,15 +246,15 @@ public class DungeonLoader {
     // Set player on start tile
     Optional<Tile> startTile = Game.currentLevel().orElseThrow().startTile();
     startTile.ifPresentOrElse(
-        tile -> {
-          Game.player()
-              .orElseThrow()
-              .fetch(core.components.PositionComponent.class)
-              .ifPresent(pc -> pc.position(tile.position()));
-        },
-        () -> {
-          LOGGER.warn("No start tile found for the current level");
-        });
+            tile -> {
+              Game.player()
+                      .orElseThrow()
+                      .fetch(core.components.PositionComponent.class)
+                      .ifPresent(pc -> pc.position(tile.position()));
+            },
+            () -> {
+              LOGGER.warn("No start tile found for the current level");
+            });
   }
 
   private static void setCurrentLevelByLevelName(String levelName) {
