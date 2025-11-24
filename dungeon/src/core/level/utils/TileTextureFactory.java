@@ -2158,9 +2158,21 @@ public class TileTextureFactory {
    * @return {@code true} if {@code p} is {@code SKIP} and at least one orthogonal neighbor is a
    *     base floor; otherwise {@code false}
    */
-  private static boolean skipIsFloorLike(Coordinate p, LevelElement[][] layout) {
+  private static boolean skipIsFloorLike(
+      Coordinate p, LevelElement[][] layout, boolean[][] visited) {
+    if (!isInsideLayout(p.x(), p.y(), layout)) {
+      return false;
+    }
+
+    if (visited[p.y()][p.x()]) {
+      return false;
+    }
+    visited[p.y()][p.x()] = true;
+
     LevelElement self = get(layout, p.x(), p.y());
-    if (self != LevelElement.SKIP) return false;
+    if (self != LevelElement.SKIP) {
+      return false;
+    }
 
     LevelElement up = get(layout, p.x(), p.y() + 1);
     LevelElement down = get(layout, p.x(), p.y() - 1);
@@ -2172,7 +2184,34 @@ public class TileTextureFactory {
     if (isBaseFloor(left)) return true;
     if (isBaseFloor(right)) return true;
 
+    Coordinate upC = new Coordinate(p.x(), p.y() + 1);
+    Coordinate downC = new Coordinate(p.x(), p.y() - 1);
+    Coordinate leftC = new Coordinate(p.x() - 1, p.y());
+    Coordinate rightC = new Coordinate(p.x() + 1, p.y());
+
+    if (skipIsFloorLike(upC, layout, visited)) return true;
+    if (skipIsFloorLike(downC, layout, visited)) return true;
+    if (skipIsFloorLike(leftC, layout, visited)) return true;
+    if (skipIsFloorLike(rightC, layout, visited)) return true;
+
     return false;
+  }
+
+  /**
+   * Convenience overload that allocates the {@code visited} grid and delegates to {@link
+   * #skipIsFloorLike(Coordinate, LevelElement[][], boolean[][])}.
+   *
+   * @param p the coordinate of the {@code SKIP} tile to test
+   * @param layout the level grid
+   * @return {@code true} if the {@code SKIP} at {@code p} is floor-like according to the recursive
+   *     skip rules; otherwise {@code false}
+   */
+  private static boolean skipIsFloorLike(Coordinate p, LevelElement[][] layout) {
+    if (p == null || layout == null) {
+      return false;
+    }
+    boolean[][] visited = new boolean[layout.length][layout[0].length];
+    return skipIsFloorLike(p, layout, visited);
   }
 
   /**
