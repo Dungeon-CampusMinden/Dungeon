@@ -3,7 +3,6 @@ package contrib.systems;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -17,8 +16,11 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.components.SoundComponent;
 import core.components.VelocityComponent;
+import core.game.WindowEventManager;
 import core.level.DungeonLevel;
 import core.level.elements.ILevel;
 import core.systems.CameraSystem;
@@ -26,6 +28,8 @@ import core.utils.FontHelper;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.BlendUtils;
+import core.utils.components.draw.ColorUtils;
 import core.utils.components.draw.animation.Animation;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +56,7 @@ import java.util.Optional;
 public class DebugDrawSystem extends System {
 
   private static final Batch UI_BATCH = new SpriteBatch();
-  private static final OrthographicCamera UI_CAM = new OrthographicCamera();
+  private static final OrthographicCamera DEBUG_CAM = new OrthographicCamera();
   private static final ShapeRenderer SHAPE_RENDERER = new ShapeRenderer();
   private static final Color BACKGROUND_COLOR =
       new Color(0f, 0f, 0f, 0.75f); // semi-transparent black
@@ -65,10 +69,19 @@ public class DebugDrawSystem extends System {
   private static final BitmapFont FONT = FontHelper.getDefaultFont();
   private boolean render = false;
 
-  @Override
-  public void execute() {
-    UI_CAM.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+  /** Creates a new DebugDrawSystem. */
+  public DebugDrawSystem() {
+    super(AuthoritativeSide.CLIENT, PositionComponent.class);
+    DEBUG_CAM.setToOrtho(false, Game.windowWidth(), Game.windowHeight());
+    WindowEventManager.registerWindowRefreshListener(
+        () -> DEBUG_CAM.setToOrtho(false, Game.windowWidth(), Game.windowHeight()));
+  }
 
+  @Override
+  public void execute() {}
+
+  @Override
+  public void render(float delta) {
     if (!render) return;
 
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
@@ -92,7 +105,7 @@ public class DebugDrawSystem extends System {
     float alpha = decoComponent.isEmpty() ? 1.0f : 0.4f;
 
     // --- filled dot for position ---
-    Gdx.gl.glEnable(GL20.GL_BLEND);
+    BlendUtils.setBlending();
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
     SHAPE_RENDERER.setColor(withAlpha(Color.ORANGE, alpha));
     SHAPE_RENDERER.circle(position.x(), position.y(), 0.05f, CIRCLE_SEGMENTS);
@@ -323,6 +336,10 @@ public class DebugDrawSystem extends System {
                     .append(dc.currentState().getData())
                     .append(")\n"));
 
+    entity
+        .fetch(SoundComponent.class)
+        .ifPresent(sc -> info.append("Sound Instances: ").append(sc.sounds().size()).append("\n"));
+
     // We should try to render the path for the current ai; this probably needs a PathAI to check
     // the instance here
     entity
@@ -330,6 +347,15 @@ public class DebugDrawSystem extends System {
         .ifPresent(
             ai ->
                 info.append("AI State: ").append(ai.active() ? "Active" : "Inactive").append("\n"));
+
+    entity
+        .fetch(PlayerComponent.class)
+        .ifPresent(
+            pcComp ->
+                info.append("Player: ")
+                    .append(pcComp.playerName())
+                    .append(pcComp.isLocal() ? " (LOCAL)" : " (REMOTE)")
+                    .append("\n"));
 
     List<String> componentNames =
         entity
@@ -387,9 +413,8 @@ public class DebugDrawSystem extends System {
     float bgH = layout.height + 2f * padding;
 
     // semi-transparent black box
-    Gdx.gl.glEnable(GL20.GL_BLEND);
-    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    SHAPE_RENDERER.setProjectionMatrix(UI_CAM.combined);
+    BlendUtils.setBlending();
+    SHAPE_RENDERER.setProjectionMatrix(DEBUG_CAM.combined);
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
     SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
     SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);
@@ -415,7 +440,7 @@ public class DebugDrawSystem extends System {
   }
 
   private static Color withAlpha(Color color, float alpha) {
-    return new Color(color.r, color.g, color.b, alpha);
+    return ColorUtils.pmaColor(new Color(color.r, color.g, color.b, alpha));
   }
 
   /**
@@ -431,10 +456,10 @@ public class DebugDrawSystem extends System {
   public static void drawRectangleOutline(
       float x, float y, float width, float height, Color color) {
     // Enable blending for transparency
-    Gdx.gl.glEnable(GL20.GL_BLEND);
+    BlendUtils.setBlending();
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
-    SHAPE_RENDERER.setColor(color);
+    SHAPE_RENDERER.setColor(ColorUtils.pmaColor(color));
     SHAPE_RENDERER.rect(x, y, width, height);
     SHAPE_RENDERER.end();
   }
@@ -448,7 +473,7 @@ public class DebugDrawSystem extends System {
    * @param color the color of the text
    */
   public static void drawText(BitmapFont font, String text, Point screen, Color color) {
-    UI_BATCH.setProjectionMatrix(UI_CAM.combined);
+    UI_BATCH.setProjectionMatrix(DEBUG_CAM.combined);
     UI_BATCH.begin();
     font.setColor(color);
     font.draw(UI_BATCH, text, screen.x(), screen.y());

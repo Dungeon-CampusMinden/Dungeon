@@ -17,12 +17,13 @@ import core.Component;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
-import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
+import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
@@ -122,10 +123,23 @@ public class AdvancedFactory {
     barrier.add(new PositionComponent(spawnPoint));
     barrier.add(new AntiMaterialBarrierComponent(true));
 
+    // this action needs to be the same as the one applied in applyBarrierLogic() in the
+    // antiMaterialBarrierSystem
     TriConsumer<Entity, Entity, Direction> action =
         (self, other, direction) -> {
-          if (!other.name().equals("hero")) {
-            Game.remove(other);
+          String name = other.name();
+
+          switch (name) {
+            case "hero":
+              // TODO: clearAllPortals() aufrufen, sobald es wieder funktioniert
+              // PortalFactory.clearAllPortals();
+              break;
+            case "lightWallCollider", "beamEmitter":
+              // do nothing
+              break;
+            default:
+              Game.remove(other);
+              break;
           }
         };
 
@@ -171,33 +185,49 @@ public class AdvancedFactory {
     portalCube.add(new PositionComponent(position));
     portalCube.add(new VelocityComponent(cube_maxSpeed, cube_mass, entity -> {}, false));
     portalCube.add(new DrawComponent(new Animation(PORTAL_CUBE)));
-    portalCube.add(new CollideComponent());
 
     final boolean[] attached = {false};
+    CollideComponent cc = new CollideComponent();
+    cc.collideLeave(
+        (self, other, dir) -> {
+          if (!cc.isSolid() && !attached[0]) {
+            cc.isSolid(true);
+          }
+        });
+    portalCube.add(cc);
 
     portalCube.add(
         new InteractionComponent(
             2.0f,
             true,
             (interacted, interactor) -> {
+              PositionComponent interactorPositioncomponent =
+                  interactor.fetch(PositionComponent.class).get();
+              PositionComponent interactedPositioncomponent =
+                  interacted.fetch(PositionComponent.class).get();
               if (!attached[0]) {
-
-                interactor
-                    .fetch(VelocityComponent.class)
-                    .ifPresent(
-                        vc -> {
-                          interacted.remove(VelocityComponent.class);
-                          interacted.add(vc);
-                          attached[0] = true;
-                        });
+                AttachmentComponent attachmentComponent =
+                    new AttachmentComponent(
+                        Vector2.ZERO, interactedPositioncomponent, interactorPositioncomponent);
+                portalCube.add(attachmentComponent);
+                cc.isSolid(false);
+                attached[0] = true;
               } else {
-                interacted.remove(VelocityComponent.class);
-                interacted.add(
-                    new VelocityComponent(cube_maxSpeed, cube_mass, entity -> {}, false));
+                portalCube.remove(AttachmentComponent.class);
+                Game.tileAt(interactedPositioncomponent.coordinate())
+                    .ifPresent(
+                        tile -> {
+                          if (tile.levelElement() == LevelElement.WALL
+                              || tile.levelElement() == LevelElement.GITTER
+                              || tile.levelElement() == LevelElement.GLASSWALL
+                              || tile.levelElement() == LevelElement.PORTAL) {
+                            interactedPositioncomponent.position(
+                                interactorPositioncomponent.position());
+                          }
+                        });
                 attached[0] = false;
               }
             }));
-
     return portalCube;
   }
 
@@ -220,24 +250,53 @@ public class AdvancedFactory {
     sm.addTransition(stMove, "move", stMove);
     sm.addTransition(stMove, "idle", stIdle);
 
-    sphere.add(new DrawComponent(sm));
+    DrawComponent dc = new DrawComponent(sm);
+    sphere.add(dc);
     sphere.add(new PositionComponent(position));
     sphere.add(new VelocityComponent(sphere_maxSpeed, sphere_mass, entity -> {}, false));
+
+    final boolean[] attached = {false};
+    CollideComponent cc = new CollideComponent();
+    cc.collideLeave(
+        (self, other, dir) -> {
+          if (!cc.isSolid() && !attached[0]) {
+            cc.isSolid(true);
+          }
+        });
+    sphere.add(cc);
+
     sphere.add(
-        new CollideComponent(
-            CollideComponent.DEFAULT_OFFSET,
-            CollideComponent.DEFAULT_SIZE,
-            ((self, other, direction) -> {
-              other
-                  .fetch(PlayerComponent.class)
-                  .ifPresent(
-                      player -> {
-                        VelocityComponent vc = self.fetch(VelocityComponent.class).get();
-                        VelocityComponent otherVc = other.fetch(VelocityComponent.class).get();
-                        vc.currentVelocity(otherVc.currentVelocity());
-                      });
-            }),
-            CollideComponent.DEFAULT_COLLIDER));
+        new InteractionComponent(
+            2.0f,
+            true,
+            (interacted, interactor) -> {
+              PositionComponent interactorPositioncomponent =
+                  interactor.fetch(PositionComponent.class).get();
+              PositionComponent interactedPositioncomponent =
+                  interacted.fetch(PositionComponent.class).get();
+              if (!attached[0]) {
+                AttachmentComponent attachmentComponent =
+                    new AttachmentComponent(
+                        Vector2.ZERO, interactedPositioncomponent, interactorPositioncomponent);
+                sphere.add(attachmentComponent);
+                cc.isSolid(false);
+                attached[0] = true;
+              } else {
+                sphere.remove(AttachmentComponent.class);
+                Game.tileAt(interactedPositioncomponent.coordinate())
+                    .ifPresent(
+                        tile -> {
+                          if (tile.levelElement() == LevelElement.WALL
+                              || tile.levelElement() == LevelElement.GITTER
+                              || tile.levelElement() == LevelElement.GLASSWALL
+                              || tile.levelElement() == LevelElement.PORTAL) {
+                            interactedPositioncomponent.position(
+                                interactorPositioncomponent.position());
+                          }
+                        });
+                attached[0] = false;
+              }
+            }));
 
     return sphere;
   }

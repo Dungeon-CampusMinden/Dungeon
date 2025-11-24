@@ -6,6 +6,18 @@ com.badlogic.gdx.graphics.g2d.BitmapFont: {
 		markupEnabled: true
 		flip: false
 	}
+	roboto-semibold-32: {
+		file: roboto-semibold-32.fnt
+		scaledSize: -1
+		markupEnabled: false
+		flip: false
+	}
+	roboto-semibold-64: {
+		file: roboto-semibold-64.fnt
+		scaledSize: -1
+		markupEnabled: false
+		flip: false
+	}
 }
 com.badlogic.gdx.graphics.Color: {
 	black: {
@@ -31,13 +43,13 @@ com.badlogic.gdx.graphics.Color: {
 		g: 0
 		b: 0
 		a: 1
-	},
+	}
 	mana_blue: {
 		r: 0
 		g: 0
 		b: 1
 		a: 1
-	},
+	}
 	orange: {
 		r: 0.94509804
 		g: 0.6745098
@@ -126,16 +138,16 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 		color: health_red
 		minWidth: 1
 		minHeight: 10
-	},
+	}
 	progress-bar-fill-mana: {
 		name: progress-bar-fill
 		color: mana_blue
 		minWidth: 1
 		minHeight: 10
-	},
+	}
 	progress-bar-fill-stamina: {
-		name: progress-bar-fill,
-		color: orange,
+		name: progress-bar-fill
+		color: orange
 		minWidth: 1
 		minHeight: 10
 	}
@@ -201,6 +213,9 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		font: myFont
 		background: white
 	}
+	keypad: {
+		font: roboto-semibold-64
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 	default: {
@@ -223,11 +238,11 @@ com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
 	healthbar: {
 		background: progress-bar-smaller
 		knobBefore: progress-bar-fill-health
-	},
+	}
 	manabar: {
 		background: progress-bar-smaller
 		knobBefore: progress-bar-fill-mana
-	},
+	}
 	staminabar: {
 		background: progress-bar-smaller
 		knobBefore: progress-bar-fill-stamina
@@ -278,6 +293,12 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 		up: TB_op
 		down: TB_down
 		over: TB_over
+	}
+	keypad: {
+		font: myFont
+		up: round-white
+		down: round-gray
+		over: round-light-gray
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {

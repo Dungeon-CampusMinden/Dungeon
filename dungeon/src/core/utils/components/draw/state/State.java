@@ -5,6 +5,8 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
 import core.utils.components.path.IPath;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -18,7 +20,8 @@ import java.util.function.Consumer;
  * <p>This class serves as a base for directional or multi-animation states, such as {@link
  * DirectionalState}.
  */
-public class State {
+public class State implements Serializable {
+  @Serial private static final long serialVersionUID = 1L;
 
   /** The name of this state. */
   public final String name;

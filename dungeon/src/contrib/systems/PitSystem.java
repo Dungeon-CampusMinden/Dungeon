@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Manages the pit system. A pit is a open or closed hole in the ground. If it is open, the player
+ * Manages the pit system. A pit is an open or closed hole in the ground. If it is open, the player
  * dies (see {@link FallingSystem}). If it is closed, the player can walk over it, but the pit gets
  * opened up after a certain amount of time. The pit system will manage the opening of the pits.
  */
@@ -62,6 +62,7 @@ public class PitSystem extends System {
 
   /** Open pits that have been stepped on for more than their timeToOpen. */
   private void openPits() {
+
     Iterator<Map.Entry<PitTile, Long>> pitIterator = pitTimes.entrySet().iterator();
 
     while (pitIterator.hasNext()) {
@@ -74,19 +75,6 @@ public class PitSystem extends System {
         pitIterator.remove();
       }
     }
-  }
-
-  /**
-   * Get the PositionComponent of an entity.
-   *
-   * @param entity The entity to get the PositionComponent from.
-   * @return The PositionComponent of the entity.
-   * @throws MissingComponentException If the entity does not have a PositionComponent.
-   */
-  private PositionComponent getPositionComponent(Entity entity) {
-    return entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
   }
 
   /**

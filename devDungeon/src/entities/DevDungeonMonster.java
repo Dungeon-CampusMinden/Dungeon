@@ -10,7 +10,6 @@ import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.skill.projectileSkill.TPBallSkill;
@@ -21,7 +20,6 @@ import core.utils.Point;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import level.utils.LevelUtils;
 import task.tasktype.Quiz;
@@ -484,9 +482,6 @@ public enum DevDungeonMonster {
       entity.remove(InventoryComponent.class);
       entity.add(buildInventoryComponent());
 
-      entity.remove(HealthComponent.class);
-      entity.add(buildHealthComponent());
-
       return entity;
     }
 
@@ -505,20 +500,6 @@ public enum DevDungeonMonster {
         ic.add(MiscFactory.randomItemGenerator().generateItemData());
       }
       return ic;
-    }
-
-    private HealthComponent buildHealthComponent() {
-      Consumer<Entity> constructedOnDeath =
-          entity -> {
-            deathSound().ifPresent(deathSound -> playDeathSoundIfNearby(entity, deathSound));
-
-            entity
-                .fetch(InventoryComponent.class)
-                .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
-            Game.remove(entity);
-          };
-
-      return new HealthComponent(health(), constructedOnDeath);
     }
   }
 }

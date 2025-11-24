@@ -164,7 +164,6 @@ public class AdvancedDungeon {
     Game.add(new BlockSystem());
     Game.add(new FallingSystem());
     Game.add(new PitSystem());
-    Game.add(new EventScheduler());
     Game.add(new ManaRestoreSystem());
     Game.add(new StaminaRestoreSystem());
     Game.add(new ManaBarSystem());

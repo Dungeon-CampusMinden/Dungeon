@@ -32,7 +32,7 @@ public final class HudSystem extends System {
 
   /** Create a new HudSystem. */
   public HudSystem() {
-    super(UIComponent.class);
+    super(AuthoritativeSide.CLIENT, UIComponent.class);
     onEntityAdd = this::addListener;
     onEntityRemove = this::removeListener;
   }

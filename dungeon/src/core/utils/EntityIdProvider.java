@@ -55,8 +55,6 @@ public final class EntityIdProvider {
     if (USED.putIfAbsent(id, Boolean.TRUE) != null) {
       throw new IllegalArgumentException("Entity id already in use: " + id);
     }
-    // Bump NEXT forward to avoid long collision loops when many explicit ids are high
-    bumpNextIfNeeded(id + 1);
   }
 
   /**
@@ -70,9 +68,7 @@ public final class EntityIdProvider {
     if (id < 0) {
       throw new IllegalArgumentException("Entity id must be non-negative");
     }
-    boolean registered = USED.putIfAbsent(id, Boolean.TRUE) == null;
-    bumpNextIfNeeded(id + 1);
-    return registered;
+    return USED.putIfAbsent(id, Boolean.TRUE) == null;
   }
 
   /**
@@ -82,17 +78,5 @@ public final class EntityIdProvider {
    */
   public static void unregister(int id) {
     USED.remove(id);
-  }
-
-  private static void bumpNextIfNeeded(int minNext) {
-    // Clamp to valid range and avoid overflow (id == Integer.MAX_VALUE -> minNext becomes negative)
-    if (minNext < 0) {
-      minNext = Integer.MAX_VALUE;
-    }
-    int prev;
-    do {
-      prev = NEXT.get();
-      if (prev >= minNext) return;
-    } while (!NEXT.compareAndSet(prev, minNext));
   }
 }

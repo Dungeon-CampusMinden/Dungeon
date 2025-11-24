@@ -1,6 +1,5 @@
 package core.sound.parser;
 
-import java.nio.file.Path;
 import java.util.Optional;
 
 /**
@@ -22,10 +21,10 @@ public interface IAudioParser {
   /**
    * Parses the duration of the audio file in milliseconds.
    *
-   * @param file the audio file path
+   * @param fileBytes the audio file bytes
    * @return the duration in milliseconds, or empty if parsing fails or is unsupported
    */
-  Optional<Long> parseDuration(Path file);
+  Optional<Long> parseDuration(byte[] fileBytes);
 
   /**
    * Returns the supported file extensions for this parser.

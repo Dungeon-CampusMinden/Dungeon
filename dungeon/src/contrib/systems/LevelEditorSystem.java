@@ -13,7 +13,11 @@ import core.System;
 import core.components.InputComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
+import core.systems.DrawSystem;
 import core.utils.*;
+import core.utils.components.draw.DepthLayer;
+import core.utils.components.draw.shader.OutlineShader;
+import core.utils.components.draw.shader.PassthroughShader;
 import core.utils.logging.DungeonLogger;
 import java.util.Map;
 
@@ -33,6 +37,10 @@ public class LevelEditorSystem extends System {
   private static boolean internalStopped = false;
   private static boolean active = false;
   private static final int TOGGLE_ACTIVE = Input.Keys.F4;
+
+  private static final int TOGGLE_DEBUG_SHADER = Input.Keys.SPACE;
+  private boolean debugShaderActive = false;
+  private static final String DEBUG_SHADER_KEY = "LevelEditorSystem_debug";
 
   private static Mode currentMode = Mode.Tiles;
   private static LevelEditorMode currentModeInstance = currentMode.getModeInstance();
@@ -98,7 +106,9 @@ public class LevelEditorSystem extends System {
             .ifPresent(
                 pc -> {
                   playerClallbacks.forEach(
-                      ((key, value) -> pc.registerCallback(key, value.callback())));
+                      ((key, value) ->
+                          pc.registerCallback(
+                              key, value.callback(), value.repeat(), value.pauseable())));
                 });
         playerClallbacks = null;
         player
@@ -113,13 +123,57 @@ public class LevelEditorSystem extends System {
   }
 
   @Override
+  public void render(float delta) {
+    if (!active) return;
+
+    String status = currentModeInstance.getFullStatusText();
+    StringBuilder modeSelection = new StringBuilder("Level Editor v2 | Modes: ");
+    for (int i = 0; i < Mode.values().length; i++) {
+      if (i > 0) {
+        modeSelection.append(" | ");
+      }
+      if (i == currentMode.ordinal()) {
+        modeSelection.append("[").append(i + 1).append("]");
+      } else {
+        modeSelection.append(i + 1);
+      }
+    }
+    modeSelection
+        .append("\n ( SPACE to toggle layer debug shader [")
+        .append(DrawSystem.shadersActiveLastFrame())
+        .append("] )");
+    modeSelection.append("\n\n");
+    status = modeSelection + status;
+    DebugDrawSystem.drawText(FONT, status, new Point(10.0f, Game.windowHeight() - 10.0f));
+
+    // Draw feedback message if timer > 0
+    if (feedbackMessageTimer > 0.0f && !feedbackMessage.isEmpty()) {
+      GlyphLayout layout = new GlyphLayout(FONT, feedbackMessage);
+      float x = 10;
+      float y = 10 + layout.height;
+      DebugDrawSystem.drawText(FONT, feedbackMessage, new Point(x, y), feedbackMessageColor);
+      feedbackMessageTimer -= Gdx.graphics.getDeltaTime();
+      if (feedbackMessageTimer <= 0.0f) {
+        feedbackMessage = "";
+      }
+    }
+
+    // Draw level boundaries in green with alpha 0.3f
+    Tile[][] layout = Game.currentLevel().orElseThrow().layout();
+    DebugDrawSystem.drawRectangleOutline(
+        0, 0, layout[0].length, layout.length, new Color(0, 1, 0, 0.3f));
+  }
+
+  @Override
   public void execute() {
     if (Gdx.input.isKeyJustPressed(TOGGLE_ACTIVE)) {
       active(!active);
     }
 
-    if (!active) {
-      return;
+    if (!active) return;
+
+    if (Gdx.input.isKeyJustPressed(TOGGLE_DEBUG_SHADER)) {
+      toggleDebugShader();
     }
 
     Mode previousMode = currentMode;
@@ -147,41 +201,27 @@ public class LevelEditorSystem extends System {
       }
       currentModeInstance.doExecute();
     }
+  }
 
-    String status = currentModeInstance.getFullStatusText();
-    // Prepend to status: mode selection info. a horizontal list of all mode numbers, separated by
-    // |. active mode is in [brackets]
-    StringBuilder modeSelection = new StringBuilder("Level Editor v2 | Modes: ");
-    for (int i = 0; i < Mode.values().length; i++) {
-      if (i > 0) {
-        modeSelection.append(" | ");
-      }
-      if (i == currentMode.ordinal()) {
-        modeSelection.append("[").append(i + 1).append("]");
-      } else {
-        modeSelection.append(i + 1);
-      }
+  private void toggleDebugShader() {
+    DrawSystem ds = (DrawSystem) Game.systems().get(DrawSystem.class);
+    if (debugShaderActive) {
+      ds.levelShaders().remove(DEBUG_SHADER_KEY);
+      ds.entityDepthShaders(DepthLayer.Player.depth()).remove(DEBUG_SHADER_KEY);
+      ds.entityDepthShaders(DepthLayer.BackgroundDeco.depth()).remove(DEBUG_SHADER_KEY);
+      ds.entityDepthShaders(DepthLayer.Normal.depth()).remove(DEBUG_SHADER_KEY);
+      ds.sceneShaders().remove(DEBUG_SHADER_KEY);
+    } else {
+      ds.levelShaders().add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.BLUE));
+      ds.entityDepthShaders(DepthLayer.Player.depth())
+          .add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.RED));
+      ds.entityDepthShaders(DepthLayer.BackgroundDeco.depth())
+          .add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.GREEN));
+      ds.entityDepthShaders(DepthLayer.Normal.depth())
+          .add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.WHITE));
+      ds.sceneShaders().add(DEBUG_SHADER_KEY, new PassthroughShader().debugPMA(true));
     }
-    modeSelection.append("\n");
-    status = modeSelection + status;
-    DebugDrawSystem.drawText(FONT, status, new Point(10.0f, Game.windowHeight() - 10.0f));
-
-    // Draw feedback message if timer > 0
-    if (feedbackMessageTimer > 0.0f && !feedbackMessage.isEmpty()) {
-      GlyphLayout layout = new GlyphLayout(FONT, feedbackMessage);
-      float x = 10;
-      float y = 10 + layout.height;
-      DebugDrawSystem.drawText(FONT, feedbackMessage, new Point(x, y), feedbackMessageColor);
-      feedbackMessageTimer -= Gdx.graphics.getDeltaTime();
-      if (feedbackMessageTimer <= 0.0f) {
-        feedbackMessage = "";
-      }
-    }
-
-    // Draw level boundaries in green with alpha 0.3f
-    Tile[][] layout = Game.currentLevel().orElseThrow().layout();
-    DebugDrawSystem.drawRectangleOutline(
-        0, 0, layout[0].length, layout.length, new Color(0, 1, 0, 0.3f));
+    debugShaderActive = !debugShaderActive;
   }
 
   /**

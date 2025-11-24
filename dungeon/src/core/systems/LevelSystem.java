@@ -1,5 +1,6 @@
 package core.systems;
 
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -9,12 +10,15 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
+import core.level.elements.tile.PitTile;
 import core.level.loader.DungeonLoader;
+import core.sound.SoundSpec;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Manages the dungeon game world.
@@ -42,7 +46,7 @@ public final class LevelSystem extends System {
   private static final String SOUND_EFFECT = "enterDoor";
 
   private static ILevel currentLevel;
-  private final IVoidFunction onLevelLoad;
+  private IVoidFunction onLevelLoad = () -> {};
   private IVoidFunction onEndTile;
 
   /**
@@ -51,13 +55,10 @@ public final class LevelSystem extends System {
    * <p>The system will not load a new level at creation. Use {@link #loadLevel(ILevel)} if you want
    * to trigger the load of a level manually; otherwise, the first level will be loaded if this
    * system's {@link #execute()} is executed.
-   *
-   * @param onLevelLoad Callback function that is called if a new level was loaded.
    */
-  public LevelSystem(IVoidFunction onLevelLoad) {
-    super(PlayerComponent.class, PositionComponent.class);
-    this.onLevelLoad = onLevelLoad;
-    this.onEndTile = () -> DungeonLoader.loadNextLevel();
+  public LevelSystem() {
+    super(AuthoritativeSide.BOTH, PlayerComponent.class, PositionComponent.class);
+    this.onEndTile = DungeonLoader::loadNextLevel;
   }
 
   /**
@@ -83,24 +84,27 @@ public final class LevelSystem extends System {
   }
 
   /**
+   * Set the function to be executed when a new level is loaded.
+   *
+   * @param onLevelLoad The function to be executed when a new level is loaded.
+   */
+  public void onLevelLoad(final IVoidFunction onLevelLoad) {
+    this.onLevelLoad = onLevelLoad;
+  }
+
+  /**
    * Check if the given entity is on the end tile.
    *
    * @param entity The entity for which the position is checked.
    * @return True if the entity is on the end tile, else false.
    */
   private boolean isOnOpenEndTile(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Tile currentTile = Game.tileAt(pc.position()).orElse(null);
+    Tile currentTile = Game.tileAt(EntityUtils.getPosition(entity)).orElse(null);
     if (currentTile == null) {
       return false;
     }
 
-    if (currentTile instanceof ExitTile endTile && endTile.isOpen()) return true;
-
-    return false;
+    return currentTile instanceof ExitTile endTile && endTile.isOpen();
   }
 
   private Optional<ILevel> isOnDoor(final Entity entity) {
@@ -126,7 +130,7 @@ public final class LevelSystem extends System {
   }
 
   private void playSound() {
-    Game.soundPlayer().play(SOUND_EFFECT, 0.3f);
+    Game.audio().playGlobal(SoundSpec.builder(SOUND_EFFECT).volume(0.3f));
   }
 
   /**
@@ -146,20 +150,40 @@ public final class LevelSystem extends System {
         LOGGER.warn("Can´t load level 0, because no level is added to the DungeonLoader.");
       }
     } else {
-      if (filteredEntityStream(PlayerComponent.class, PositionComponent.class)
-          .anyMatch(this::isOnOpenEndTile)) onEndTile.execute();
-      else
-        filteredEntityStream()
-            .forEach(
-                e -> {
-                  isOnDoor(e)
-                      .ifPresent(
-                          iLevel -> {
-                            loadLevel(iLevel);
-                            playSound();
-                          });
-                });
+      if (Game.allPlayers().findAny().isEmpty()) return;
+
+      // Load next level if all heroes are on the end tile
+      if (Game.allPlayers().allMatch(this::isOnOpenEndTile)) {
+        onEndTile.execute();
+        return;
+      }
+
+      // Check if all heroes are on the same open door and load that level
+      List<ILevel> doorLevels =
+          Game.allPlayers().map(this::isOnDoor).flatMap(Optional::stream).distinct().toList();
+
+      if (doorLevels.size() == 1) {
+        loadLevel(doorLevels.get(0));
+        playSound();
+      }
     }
+
+    openPits();
+  }
+
+  private void openPits() {
+    level()
+        .ifPresent(
+            level -> {
+              Tile[][] layout = level.layout();
+              for (int y = layout.length - 1; y >= 0; y--) {
+                for (int x = 0; x < layout[0].length; x++) {
+                  if (layout[y][x] instanceof PitTile pit) {
+                    if (pit.timeToOpen() <= 0) pit.open();
+                  }
+                }
+              }
+            });
   }
 
   /** LevelSystem can't be paused. If it is paused, the level will not be shown anymore. */

@@ -124,11 +124,12 @@ public class StartTilesMode extends LevelEditorMode {
     Point cursorPos = getCursorPosition();
     DungeonLevel level = getLevel();
     Tile tile = level.tileAt(cursorPos).orElse(null);
+    if (tile == null || tile.levelElement() != LevelElement.FLOOR) {
+      LevelEditorSystem.showFeedback(
+          "Start tile must be within the level bounds and on a FLOOR tile!", Color.RED);
+      return;
+    }
     if (currentStartTileIndex == level.startTiles().size()) {
-      if (tile == null || tile.levelElement() != LevelElement.FLOOR) {
-        LevelEditorSystem.showFeedback("Start tile must be within bounds and on FLOOR!", Color.RED);
-        return;
-      }
       level.startTiles().add(tile);
     } else {
       level.startTiles().set(currentStartTileIndex, tile);

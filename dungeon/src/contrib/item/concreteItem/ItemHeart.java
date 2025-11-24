@@ -40,6 +40,15 @@ public class ItemHeart extends Item {
   }
 
   /**
+   * Creates a new heart pickup item that heals 1 health points.
+   *
+   * <p>The item heals the collector on collision and cannot be stored in the inventory.
+   */
+  public ItemHeart() {
+    this(1);
+  }
+
+  /**
    * A heart cannot be collected into the inventory.
    *
    * @param itemEntity The entity that represents the item in the world.

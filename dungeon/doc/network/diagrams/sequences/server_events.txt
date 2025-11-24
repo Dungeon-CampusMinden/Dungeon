@@ -1,0 +1,18 @@
+@startuml
+title Despawn / GameOver / LevelChange Events
+participant "AuthoritativeServerLoop" as Loop
+participant "ServerTransport" as Transport
+actor Client
+
+Loop -> Loop : create Event (Despawn/GameOver/LevelChange)
+Loop -> Transport : broadcastEvent(event)
+activate Transport
+alt reliable
+    Transport -> Client : EventMessage (reliable)
+else best-effort
+    Transport -> Client : EventMessage (unreliable)
+end
+deactivate Transport
+
+Client -> Client : update UI / local state
+@enduml

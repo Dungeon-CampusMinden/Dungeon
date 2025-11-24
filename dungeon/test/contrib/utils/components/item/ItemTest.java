@@ -14,7 +14,6 @@ import core.level.Tile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
-import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
@@ -23,7 +22,6 @@ import java.util.Arrays;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 /** WTF? . */
 public class ItemTest {
@@ -35,7 +33,7 @@ public class ItemTest {
   /** WTF? . */
   @BeforeEach
   public void before() {
-    Game.add(new LevelSystem(Mockito.mock(IVoidFunction.class)));
+    Game.add(new LevelSystem());
 
     DungeonLevel level =
         new DungeonLevel(

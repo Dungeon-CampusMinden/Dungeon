@@ -144,7 +144,6 @@ public class DevDungeon {
     Game.add(new LevelTickSystem());
     Game.add(new PitSystem());
     Game.add(new TeleporterSystem());
-    Game.add(new EventScheduler());
     Game.add(new FogOfWarSystem());
     Game.add(new LeverSystem());
     Game.add(new MobSpawnerSystem());

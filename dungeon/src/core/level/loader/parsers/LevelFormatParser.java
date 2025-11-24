@@ -7,16 +7,18 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Tuple;
+import core.utils.logging.DungeonLogger;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+import java.util.Optional;
 
 /** Abstract base class for level format parsers. */
 public abstract class LevelFormatParser {
 
-  protected static Logger LOGGER = Logger.getLogger(LevelFormatParser.class.getName());
+  protected static DungeonLogger LOGGER =
+      DungeonLogger.getLogger(LevelFormatParser.class.getName());
 
   /**
    * Parse a level from the given BufferedReader.
@@ -39,7 +41,7 @@ public abstract class LevelFormatParser {
 
   /**
    * Read a line from the reader, ignoring comments. It skips lines that start with a '#' (comments)
-   * and returns the next non-empty line.
+   * and returns the next non-comment line, stripping any inline comments as well.
    *
    * @param reader The reader to read from
    * @return The next non-empty, non-comment line without any comments
@@ -62,17 +64,23 @@ public abstract class LevelFormatParser {
       DesignLabel designLabel,
       Map<String, Point> namedPoints,
       List<Tuple<Deco, Point>> decorations) {
-    Class<? extends DungeonLevel> levelHandler = DungeonLoader.levelHandler(levelName);
-    if (levelHandler != null) {
-      // Try normal constructor first
-      try {
-        return levelHandler
-            .getConstructor(LevelElement[][].class, DesignLabel.class, Map.class, List.class)
-            .newInstance(layout, designLabel, namedPoints, decorations);
-      } catch (Exception ignored) {
-      }
 
-      // Legacy support: Try old constructor without decorations
+    Optional<Class<? extends DungeonLevel>> levelHandlerOptional =
+        DungeonLoader.levelHandler(levelName);
+
+    if (levelHandlerOptional.isEmpty()) {
+      LOGGER.info("No level handler found for level '{}', using default DungeonLevel.", levelName);
+      return new DungeonLevel(layout, designLabel, namedPoints, decorations);
+    }
+
+    Class<? extends DungeonLevel> levelHandler = levelHandlerOptional.get();
+
+    try {
+      return levelHandler
+          .getConstructor(LevelElement[][].class, DesignLabel.class, Map.class, List.class)
+          .newInstance(layout, designLabel, namedPoints, decorations);
+    } catch (ReflectiveOperationException ignored) {
+      // Try legacy constructor without decorations
       try {
         DungeonLevel level =
             levelHandler
@@ -80,11 +88,12 @@ public abstract class LevelFormatParser {
                 .newInstance(layout, designLabel, namedPoints);
         level.decorations().addAll(decorations);
         return level;
-      } catch (Exception e) {
+      } catch (ReflectiveOperationException e) {
+        LOGGER.fatal(
+            "Error creating level handler for level '{}': {}", levelName, e.getMessage(), e);
         throw new RuntimeException("Error creating level handler", e);
       }
     }
-    throw new RuntimeException("No level handler found for level: " + levelName);
   }
 
   protected static Point parsePlayerPosition(String line) {

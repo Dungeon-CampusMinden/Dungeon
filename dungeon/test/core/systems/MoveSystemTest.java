@@ -41,7 +41,7 @@ public class MoveSystemTest {
     cc = new CollideComponent();
     entity.add(cc);
     Game.add(entity);
-    Game.add(new LevelSystem(() -> {}));
+    Game.add(new LevelSystem());
 
     // Setup initial position and velocity default
     vc.currentVelocity(Vector2.ZERO);

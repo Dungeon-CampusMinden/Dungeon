@@ -369,7 +369,10 @@ public final class LevelUtils {
    * @return An Optional containing a random free tile if available, otherwise an empty Optional.
    */
   public static Optional<Tile> freeTile() {
-    Tuple<Integer, Integer> levelSize = Game.currentLevel().orElse(null).size();
+    if (Game.currentLevel().isEmpty()) {
+      return Optional.empty();
+    }
+    Tuple<Integer, Integer> levelSize = Game.currentLevel().get().size();
     int startX = RANDOM.nextInt(0, levelSize.a());
     int startY = RANDOM.nextInt(0, levelSize.b());
     boolean[][] queued = new boolean[levelSize.b()][levelSize.a()];

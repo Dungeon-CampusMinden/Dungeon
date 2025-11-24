@@ -48,6 +48,11 @@ public class Debugger extends System {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Debugger.class);
   private static Entity pauseMenu;
 
+  /** Creates a new Debugger system. */
+  public Debugger() {
+    super(AuthoritativeSide.CLIENT);
+  }
+
   /**
    * Zooms the camera in or out by the given amount.
    *

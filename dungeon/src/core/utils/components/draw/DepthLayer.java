@@ -38,6 +38,9 @@ public enum DepthLayer {
    */
   AbovePlayer(1000),
 
+  /** Post-processing effects applied to the entire level. */
+  LevelPostProcessing(2000),
+
   /** User interface elements, always drawn on top. */
   UI(9999);
 

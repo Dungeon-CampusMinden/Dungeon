@@ -1,0 +1,20 @@
+@startuml
+title Server-Initiated Entity Spawn
+participant "AuthoritativeServerLoop" as Loop
+participant "SnapshotTranslator" as Translator
+participant "ServerTransport" as Transport
+actor Client
+
+Loop -> Loop : decide spawn(entity, props)
+Loop -> Loop : create EntitySpawnEvent(entityId, props)
+Loop -> Translator : translateSpawHint(entity)
+activate Translator
+Translator --> Loop : EntitySpawnMessage
+deactivate Translator
+
+Loop -> Transport : sendEntitySpawn(clientList, EntitySpawnMessage)
+Transport -> Client : EntitySpawnMessage (reliable)
+deactivate Transport
+
+Client -> Client : instantiate entity locally
+@enduml

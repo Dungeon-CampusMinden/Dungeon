@@ -8,6 +8,7 @@ import contrib.hud.UIUtils;
 import core.Entity;
 import core.Game;
 import core.utils.IVoidFunction;
+import core.utils.logging.DungeonLogger;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
@@ -17,6 +18,7 @@ import java.util.function.BiFunction;
  * <p>Use {@link #showOkDialog(String, String, IVoidFunction)} to create a simple dialog.
  */
 public final class OkDialog {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(OkDialog.class);
 
   /** WTF? . */
   public static final String DEFAULT_OK_BUTTON = "Ok";
@@ -26,6 +28,9 @@ public final class OkDialog {
    *
    * <p>Entity will already be added to the game.
    *
+   * <p>If no UI is available (e.g. in headless mode), the onOk function will be executed
+   * immediately and a dummy entity will be returned (will not be added to the game).
+   *
    * @param text text to show in the dialog
    * @param title title of the dialog window
    * @param onOk function to execute if "ok" is pressed
@@ -33,9 +38,17 @@ public final class OkDialog {
    */
   public static Entity showOkDialog(
       final String text, final String title, final IVoidFunction onOk) {
-
-    Entity entity = showOkDialog(defaultSkin(), text, title, onOk);
-    Game.add(entity);
+    Entity entity;
+    try {
+      entity = showOkDialog(defaultSkin(), text, title, onOk);
+      Game.add(entity);
+    } catch (IllegalStateException e) {
+      // in headless just run onOkn
+      // TODO: share dialogs if server
+      LOGGER.warn("No UI available, executing Ok-Dialog action without UI.");
+      onOk.execute();
+      entity = new Entity("okDialog_noUI");
+    }
     return entity;
   }
 

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -13,8 +14,8 @@ import core.components.PositionComponent;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.utils.Point;
+import core.utils.Rectangle;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
 
 /**
  * The CameraSystem sets the focus point of the game. It is responsible for what is visible on
@@ -42,7 +43,7 @@ public final class CameraSystem extends System {
 
   /** Create a new {@link CameraSystem}. */
   public CameraSystem() {
-    super(CameraComponent.class, PositionComponent.class);
+    super(AuthoritativeSide.CLIENT, CameraComponent.class, PositionComponent.class);
   }
 
   static float viewportWidth() {
@@ -137,23 +138,45 @@ public final class CameraSystem extends System {
     CAMERA.update();
   }
 
+  @Override
+  public void render(final float delta) {
+    // Check if Gdx.graphics is null which happens when the game is run in headless mode (e.g.
+    // in tests)
+    if (Gdx.graphics != null) {
+      float aspectRatio = Game.windowWidth() / (float) Game.windowHeight();
+      CAMERA.viewportWidth = viewportWidth();
+      CAMERA.viewportHeight = viewportWidth() / aspectRatio;
+    }
+  }
+
   private void focus() {
     Point focusPoint;
-    if (Game.currentLevel() == null) focusPoint = new Point(0, 0);
+    if (Game.currentLevel().isEmpty()) focusPoint = new Point(0, 0);
     else focusPoint = Game.startTile().map(Tile::position).orElse(new Point(0, 0));
 
     focus(focusPoint);
   }
 
   private void focus(Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    focus(pc.position());
+    focus(EntityUtils.getPosition(entity));
   }
 
   private void focus(Point point) {
     CAMERA.position.set(point.x(), point.y(), 0);
+  }
+
+  /**
+   * Gets the world bounds of the camera.
+   *
+   * @return The world bounds of the camera as a Rectangle.
+   */
+  public static Rectangle getCameraWorldBounds() {
+    float worldWidth = camera().viewportWidth * camera().zoom;
+    float worldHeight = camera().viewportHeight * camera().zoom;
+    float camX = camera().position.x;
+    float camY = camera().position.y;
+    float posX = camX - (worldWidth / 2f);
+    float posY = camY - (worldHeight / 2f);
+    return new Rectangle(worldWidth, worldHeight, posX, posY);
   }
 }

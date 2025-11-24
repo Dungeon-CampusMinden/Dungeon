@@ -1,107 +1,93 @@
 package core.components;
 
 import core.Component;
-import core.sound.player.ISoundPlayer;
+import core.sound.SoundSpec;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * Component for entities that emit sounds. The sound is positional, with volume and pan adjusted
- * based on distance and direction from the listener.
- *
- * @param soundId The identifier of the sound to play.
- * @param baseVolume The base volume of the sound (0.0 to 1.0). (default 0.5)
- * @param looping Whether the sound should loop continuously. (default false)
- * @param pitch The pitch adjustment for the sound (1.0 is normal pitch). (default 1.0)
- * @param maxDistance The maximum distance at which the sound can be heard. (-1 for infinite)
- *     (default -1)
- * @param attenuationFactor The factor controlling how quickly the sound attenuates with distance.
- *     (default 1.0)
- * @param onFinish A callback to execute when the sound finishes playing. (default no-op)
+ * Component for entities that emit audio. Contains a list of {@link SoundSpec} instances. Clients
+ * compute spatialization locally based on entity position.
  */
-public record SoundComponent(
-    String soundId,
-    float baseVolume,
-    boolean looping,
-    float pitch,
-    float maxDistance,
-    float attenuationFactor,
-    Runnable onFinish)
-    implements Component {
+public class SoundComponent implements Component {
+  private final List<SoundSpec> sounds = new ArrayList<>();
 
-  private static final float DEFAULT_BASE_VOLUME = ISoundPlayer.DEFAULT_VOLUME;
-  private static final boolean DEFAULT_LOOPING = false;
-  private static final float DEFAULT_PITCH = 1.0f;
-  private static final float DEFAULT_MAX_DISTANCE = -1f; // Infinite distance
-  private static final float DEFAULT_ATTENUATION_FACTOR = 1.0f;
-  private static final Runnable DEFAULT_ON_FINISH = () -> {};
+  /** Creates an empty SoundComponent with no initial sounds. */
+  public SoundComponent() {}
 
   /**
-   * Creates a SoundComponent with default parameters.
+   * Creates a SoundComponent with an initial sound specification.
    *
-   * @param soundId The identifier of the sound to play.
+   * @param initial the initial sound spec to add, or null to create an empty component
    */
-  public SoundComponent(String soundId) {
-    this(
-        soundId,
-        DEFAULT_BASE_VOLUME,
-        DEFAULT_LOOPING,
-        DEFAULT_PITCH,
-        DEFAULT_MAX_DISTANCE,
-        DEFAULT_ATTENUATION_FACTOR,
-        DEFAULT_ON_FINISH);
+  public SoundComponent(SoundSpec initial) {
+    if (initial != null) sounds.add(initial);
   }
 
   /**
-   * Creates a SoundComponent with specified soundId and baseVolume, other parameters default.
+   * Returns an immutable view of all audio specifications in this component.
    *
-   * @param soundId The identifier of the sound to play.
-   * @param baseVolume The base volume of the sound (0.0 to 1.0).
+   * <p>The returned list cannot be modified directly. Use {@link #add(SoundSpec)}, {@link
+   * #removeByInstance(long)}, {@link #clear()}, or {@link #replaceAll(List)} to modify the sounds.
+   *
+   * @return an unmodifiable list of sound specifications; never null
    */
-  public SoundComponent(String soundId, float baseVolume) {
-    this(
-        soundId,
-        baseVolume,
-        DEFAULT_LOOPING,
-        DEFAULT_PITCH,
-        DEFAULT_MAX_DISTANCE,
-        DEFAULT_ATTENUATION_FACTOR,
-        DEFAULT_ON_FINISH);
+  public List<SoundSpec> sounds() {
+    return Collections.unmodifiableList(sounds);
   }
 
   /**
-   * Creates a SoundComponent with specified soundId, baseVolume, onFinish, other parameters
-   * default.
+   * Replaces all audio specifications with the provided list.
    *
-   * @param soundId The identifier of the sound to play.
-   * @param baseVolume The base volume of the sound (0.0 to 1
-   * @param onFinish A callback to execute when the sound finishes playing.
+   * <p>This method clears all existing sounds and adds all sounds from the provided list. A
+   * defensive copy is made, so subsequent modifications to the input list do not affect this
+   * component.
+   *
+   * @param specs the new list of sound specifications, or null to clear all sounds
+   * @return a list of sound specifications that were removed; never null
    */
-  public SoundComponent(String soundId, float baseVolume, Runnable onFinish) {
-    this(
-        soundId,
-        baseVolume,
-        DEFAULT_LOOPING,
-        DEFAULT_PITCH,
-        DEFAULT_MAX_DISTANCE,
-        DEFAULT_ATTENUATION_FACTOR,
-        onFinish);
+  public List<SoundSpec> replaceAll(List<SoundSpec> specs) {
+    List<SoundSpec> removed = new ArrayList<>(sounds);
+    sounds.clear();
+    if (specs != null) {
+      removed.removeAll(specs);
+      sounds.addAll(specs);
+    }
+    return removed;
   }
 
   /**
-   * Creates a SoundComponent with specified soundId, baseVolume and pitch, other parameters
-   * default.
+   * Appends a sound specification to this component.
    *
-   * @param soundId The identifier of the sound to play.
-   * @param baseVolume The base volume of the sound (0.0 to 1.0).
-   * @param pitch The pitch adjustment for the sound (1.0 is normal pitch).
+   * <p>The sound will be added to the end of the internal list. Null values are silently ignored.
+   *
+   * @param spec the sound specification to add, or null (which is ignored)
    */
-  public SoundComponent(String soundId, float baseVolume, float pitch) {
-    this(
-        soundId,
-        baseVolume,
-        DEFAULT_LOOPING,
-        pitch,
-        DEFAULT_MAX_DISTANCE,
-        DEFAULT_ATTENUATION_FACTOR,
-        DEFAULT_ON_FINISH);
+  public void add(SoundSpec spec) {
+    if (spec != null) sounds.add(spec);
+  }
+
+  /**
+   * Removes a sound specification by its unique instance ID.
+   *
+   * <p>If multiple sounds have the same instance ID (which should not occur in practice), all
+   * matching sounds will be removed. If no sound with the given ID exists, this method has no
+   * effect.
+   *
+   * @param instanceId the unique instance identifier of the sound to remove
+   */
+  public void removeByInstance(long instanceId) {
+    sounds.removeIf(s -> s.instanceId() == instanceId);
+  }
+
+  /**
+   * Removes all audio specifications from this component.
+   *
+   * <p>After calling this method, {@link #sounds()} will return an empty list. This does not stop
+   * any currently playing sounds; use {@link core.sound.AudioApi} to stop active audio instances.
+   */
+  public void clear() {
+    sounds.clear();
   }
 }

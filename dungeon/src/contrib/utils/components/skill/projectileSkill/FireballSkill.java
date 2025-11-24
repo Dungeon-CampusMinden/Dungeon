@@ -4,7 +4,8 @@ import com.badlogic.gdx.math.MathUtils;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import core.Entity;
-import core.components.SoundComponent;
+import core.Game;
+import core.sound.SoundSpec;
 import core.utils.*;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -154,14 +155,13 @@ public class FireballSkill extends DamageProjectileSkill {
     float attenuationFactor = 0.1f;
     float minPitch = 2f;
     float maxPitch = 3f;
-    projectile.add(
-        new SoundComponent(
-            PROJECTILE_SOUND,
-            volume,
-            false,
-            MathUtils.random(minPitch, maxPitch),
-            maxDistance,
-            attenuationFactor,
-            () -> {}));
+    Game.audio()
+        .playOnEntity(
+            projectile,
+            SoundSpec.builder(PROJECTILE_SOUND)
+                .volume(volume)
+                .pitch(MathUtils.random(minPitch, maxPitch))
+                .maxDistance(maxDistance)
+                .attenuation(attenuationFactor));
   }
 }

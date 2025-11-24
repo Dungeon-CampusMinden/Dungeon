@@ -10,7 +10,6 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PlayerComponent;
-import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.loader.DungeonLoader;
 import core.systems.PositionSystem;
@@ -69,7 +68,6 @@ public class Client {
     }
 
     StateMachine.setResetFrame(false);
-    Debugger debugger = new Debugger();
     // start the game
     configGame();
     // Set up components and level
@@ -154,14 +152,6 @@ public class Client {
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
               .map(AmmunitionComponent::resetCurrentAmmunition);
         });
-    // this makes sure a outsynced command will not replace the player and the player will always be
-    // on
-    // the starttile of the level
-    Game.player()
-        .flatMap(e -> e.fetch(PositionComponent.class))
-        .ifPresent(
-            positionComponent ->
-                Game.startTile().ifPresent(tile -> positionComponent.position(tile.position())));
   }
 
   private static void configGame() throws IOException {
@@ -192,7 +182,6 @@ public class Client {
     Game.add(new PitSystem());
     Game.add(new TintTilesSystem());
     EventScheduler.setPausable(false);
-    Game.add(new EventScheduler());
     Game.add(new FogSystem());
     Game.add(new PressurePlateSystem());
     Game.add(new BlocklyCommandExecuteSystem());
