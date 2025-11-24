@@ -1,0 +1,30 @@
+@startuml
+title Input Pipeline (Client Input -> Server Loop)
+actor Client
+participant "NettyNetworkHandler" as Netty
+participant "ServerTransport" as Transport
+participant "AuthoritativeServerLoop" as Loop
+
+Client -> Netty : InputMessage(seq, tick, input)
+activate Netty
+Netty -> Transport : enqueue(InputMessage)
+activate Transport
+Transport -> Transport : push to inputQueue
+Transport --> Netty : ack (optional)
+deactivate Transport
+deactivate Netty
+
+loop each server tick
+    Loop -> Transport : pollInputs(for tick)
+    activate Transport
+    Transport --> Loop : [batch] InputMessage(s)
+    deactivate Transport
+    activate Loop
+    Loop -> Loop : apply inputs -> update EntityState
+    alt spawn/despawn/event
+        Loop -> Loop : create EntitySpawnEvent / Despawn / GameOver
+    end
+    Loop --> Transport : (optionally) emit outgoing messages
+    deactivate Loop
+end
+@enduml

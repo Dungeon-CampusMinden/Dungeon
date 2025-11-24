@@ -1,0 +1,21 @@
+@startuml
+title UDP Registration (RegisterUdp)
+actor Client
+participant "NettyNetworkHandler" as Netty
+participant "ServerTransport" as Transport
+
+Client -> Netty : RegisterUdp(session, udpEndpoint)
+activate Netty
+Netty -> Transport : RegisterUdp(session, udpEndpoint)
+activate Transport
+Transport -> Transport : validate session
+alt ok
+    Transport -> Transport : storeMapping(session -> udpEndpoint)
+    Transport --> Netty : RegisterAck
+else fail
+    Transport --> Netty : RegisterNack(reason)
+end
+deactivate Transport
+Netty --> Client : (RegisterAck / RegisterNack)
+deactivate Netty
+@enduml

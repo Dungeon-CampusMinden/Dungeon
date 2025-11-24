@@ -1,0 +1,25 @@
+@startuml
+title Client-Server Handshake (ConnectRequest -> ConnectAck/Reject)
+actor Client
+participant "NettyNetworkHandler" as Netty
+participant "ServerTransport" as Transport
+participant "ServerRuntime" as Runtime
+
+Client -> Netty : ConnectRequest(session, auth)
+activate Netty
+Netty -> Transport : forward ConnectRequest
+activate Transport
+Transport -> Transport : validate(session, auth)
+alt valid
+    Transport -> Runtime : registerClient(session)
+    activate Runtime
+    Runtime --> Transport : registered
+    deactivate Runtime
+    Transport --> Netty : ConnectAck(sessionInfo)
+else invalid
+    Transport --> Netty : ConnectReject(reason)
+end
+deactivate Transport
+Netty --> Client : (ConnectAck / ConnectReject)
+deactivate Netty
+@enduml
