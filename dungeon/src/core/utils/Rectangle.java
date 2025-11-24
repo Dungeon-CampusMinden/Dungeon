@@ -21,6 +21,16 @@ public record Rectangle(float width, float height, float x, float y) {
   }
 
   /**
+   * Creates a Rectangle from the specified points.
+   *
+   * @param from first point
+   * @param to second point
+   */
+  public Rectangle(Point from, Point to) {
+    this(Math.abs(to.x() - from.x()), Math.abs(to.y() - from.y()), Math.min(from.x(), to.x()), Math.min(from.y(), to.y()));
+  }
+
+  /**
    * Creates a Rectangle with specified size and zero offset.
    *
    * @param width width of the rectangle

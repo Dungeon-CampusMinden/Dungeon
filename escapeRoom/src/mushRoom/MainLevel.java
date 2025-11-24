@@ -4,14 +4,17 @@ import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
+import contrib.entities.EntityFactory;
 import contrib.entities.LeverFactory;
 import contrib.entities.NPCFactory;
 import contrib.entities.WorldItemBuilder;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.hud.DialogUtils;
+import contrib.item.concreteItem.ItemHammer;
 import contrib.modules.levelHide.LevelHideFactory;
 import contrib.systems.DebugDrawSystem;
+import contrib.systems.LevelEditorSystem;
 import contrib.utils.ICommand;
 import core.Entity;
 import core.Game;
@@ -29,6 +32,8 @@ import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.shader.ColorGradeShader;
 import core.utils.components.draw.shader.HueRemapShader;
+
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -44,7 +49,7 @@ import mushRoom.shaders.MushroomPostProcessing;
 /** The MushRoom. */
 public class MainLevel extends DungeonLevel {
 
-  private static final int TO_GENERATE_PER_TYPE = 3;
+  private static final int TO_GENERATE_PER_TYPE = 4;
 
   private NpcState npcState = NpcState.FIRST_TALK;
 
@@ -53,6 +58,9 @@ public class MainLevel extends DungeonLevel {
 
   private DoorTile puzzlePushDoor;
   private DoorTile puzzlePushExit;
+
+  private DoorTile buttonsDoor;
+  private DoorTile buttonsExit;
 
   /**
    * Creates a new Demo Level.
@@ -69,23 +77,21 @@ public class MainLevel extends DungeonLevel {
   @Override
   protected void onFirstTick() {
     DrawSystem ds = (DrawSystem) Game.systems().get(DrawSystem.class);
-
-    float width = 46, height = 33;
     ds.levelShaders()
-        .add("yellow", new ColorGradeShader(0.2f, 1, 1).region(new Rectangle(width, height, -7, 0)).transitionSize(5));
+        .add("yellow", new ColorGradeShader(0.2f, 1, 1).region(new Rectangle(getPoint("yellow-start"), getPoint("yellow-end"))).transitionSize(5));
     ds.levelShaders()
         .add(
             "orange",
-            new ColorGradeShader(0.1f, 1, 1).region(new Rectangle(width, height, width + 8 + 5, 0)).transitionSize(5));
+            new ColorGradeShader(0.1f, 1, 1).region(new Rectangle(getPoint("orange-start"), getPoint("orange-end"))).transitionSize(5));
     ds.levelShaders()
         .add(
             "green",
-            new ColorGradeShader(0.3f, 1, 1).region(new Rectangle(width, height, -7, height + 8)).transitionSize(5));
+            new ColorGradeShader(0.3f, 1, 1).region(new Rectangle(getPoint("green-start"), getPoint("green-end"))).transitionSize(5));
     ds.levelShaders()
         .add(
-            "grave",
+            "gray",
             new ColorGradeShader(0.5f, 0.1f, 0.6f)
-                .region(new Rectangle(width, height, width + 8 + 5, height + 8)).transitionSize(5));
+                .region(new Rectangle(getPoint("gray-start"), getPoint("gray-end"))).transitionSize(5));
 
     Point homeStart = getPoint("home-start");
     Point homeEnd = getPoint("home-end");
@@ -102,8 +108,16 @@ public class MainLevel extends DungeonLevel {
     });
 
     createPushPuzzle();
+    createButtonsPuzzle();
     createCutTrees();
 
+    listPoints("stone").forEach(p -> {
+      try {
+        Game.add(EntityFactory.newStone(p, 0));
+      } catch (IOException e) {}
+    });
+
+    Game.add(WorldItemBuilder.buildWorldItem(new ItemHammer(), getPoint("hammer")));
     Game.add(WorldItemBuilder.buildWorldItem(new LanternItem(), getPoint("lantern")));
 
     npc = NPCFactory.createNPC(getPoint("npc-start"), "character/char03");
@@ -115,6 +129,42 @@ public class MainLevel extends DungeonLevel {
               talkToNpc();
             }));
     Game.add(npc);
+  }
+
+  private void createButtonsPuzzle() {
+    Game.add(LevelHideFactory.createLevelHide(getPoint("buttons-hide-start"), getPoint("buttons-hide-end"), 1));
+    buttonsDoor = (DoorTile) tileAt(getPoint("buttons-door")).orElseThrow();
+    buttonsDoor.close();
+    buttonsExit = (DoorTile) tileAt(getPoint("buttons-exit")).orElseThrow();
+    buttonsExit.close();
+    Game.add(LeverFactory.createLever(getPoint("buttons-exit-lever"), new ICommand() {
+      public void execute() {
+        buttonsExit.open();
+      }
+      public void undo() {
+        buttonsExit.close();
+      }
+    }));
+    listPoints("buttons-plate").forEach(p -> {
+      Game.add(LeverFactory.pressurePlate(p));
+    });
+
+    DrawSystem ds = (DrawSystem) Game.systems().get(DrawSystem.class);
+    ds.levelShaders()
+      .add("buttons-yellow", new ColorGradeShader(0.2f, 1, 1).region(new Rectangle(getPoint("buttons-yellow-start"), getPoint("buttons-yellow-end"))).transitionSize(1), 2);
+    ds.levelShaders()
+      .add(
+        "buttons-orange",
+        new ColorGradeShader(0.1f, 1, 1).region(new Rectangle(getPoint("buttons-orange-start"), getPoint("buttons-orange-end"))).transitionSize(1), 2);
+    ds.levelShaders()
+      .add(
+        "buttons-green",
+        new ColorGradeShader(0.3f, 1, 1).region(new Rectangle(getPoint("buttons-green-start"), getPoint("buttons-green-end"))).transitionSize(1), 2);
+    ds.levelShaders()
+      .add(
+        "buttons-gray",
+        new ColorGradeShader(0.5f, 0.1f, 0.6f)
+          .region(new Rectangle(getPoint("buttons-gray-start"), getPoint("buttons-gray-end"))).transitionSize(1), 2);
   }
 
   private void createCutTrees() {
@@ -172,8 +222,10 @@ public class MainLevel extends DungeonLevel {
     boolean hasLantern = Game.player().flatMap(p -> p.fetch(InventoryComponent.class))
         .map(inv -> inv.hasItem(LanternItem.class))
         .orElse(false);
+    boolean inLevelEditor = LevelEditorSystem.active();
+    float viewDistance = inLevelEditor ? 1.0f : (hasLantern ? 0.5f : 0.2f);
     if(ds.sceneShaders().get("pp") instanceof MushroomPostProcessing mpp){
-      mpp.viewDistance(hasLantern ? 0.5f : 0.2f);
+      mpp.viewDistance(viewDistance);
     }
   }
 

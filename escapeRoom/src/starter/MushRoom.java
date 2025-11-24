@@ -14,6 +14,8 @@ import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
+import core.components.PositionComponent;
+import core.game.PreRunConfiguration;
 import core.level.loader.DungeonLoader;
 import core.systems.DrawSystem;
 import core.utils.Tuple;
@@ -53,6 +55,7 @@ public class MushRoom {
   }
 
   private static void onSetup() {
+    PreRunConfiguration.enableCheckPattern(false);
     Game.userOnSetup(
         () -> {
           setupMusic();
