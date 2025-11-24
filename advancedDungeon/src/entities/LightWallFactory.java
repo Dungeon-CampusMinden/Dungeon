@@ -212,7 +212,7 @@ public class LightWallFactory {
     private final List<Entity> segments = new ArrayList<>();
     private final Entity collider = new Entity("lightWallCollider");
     private boolean active = false;
-
+    private int trimCounter = 0;
     /**
      * Creates a new BeamComponent.
      *
@@ -235,8 +235,12 @@ public class LightWallFactory {
               emitter
                   .fetch(EmitterComponent.class)
                   .ifPresent(ec -> ec.extend(new BeamComponent(emitter, startPoint, d, false)));
-            };
-        pec.onTrim = (e) -> emitter.fetch(EmitterComponent.class).ifPresent(EmitterComponent::trim);
+        };
+        pec.onTrim = (e) -> {
+          emitter.fetch(EmitterComponent.class).ifPresent(EmitterComponent::trim);
+          trimCounter++;
+          System.out.println("Trim called from pec" + " " + trimCounter);
+        };
         collider.add(pec);
       }
     }
