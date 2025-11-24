@@ -123,10 +123,23 @@ public class AdvancedFactory {
     barrier.add(new PositionComponent(spawnPoint));
     barrier.add(new AntiMaterialBarrierComponent(true));
 
+    // this action needs to be the same as the one applied in applyBarrierLogic() in the
+    // antiMaterialBarrierSystem
     TriConsumer<Entity, Entity, Direction> action =
         (self, other, direction) -> {
-          if (!other.name().equals("hero")) {
-            Game.remove(other);
+          String name = other.name();
+
+          switch (name) {
+            case "hero":
+              // TODO: clearAllPortals() aufrufen, sobald es wieder funktioniert
+              // PortalFactory.clearAllPortals();
+              break;
+            case "lightWallCollider", "beamEmitter":
+              // do nothing
+              break;
+            default:
+              Game.remove(other);
+              break;
           }
         };
 

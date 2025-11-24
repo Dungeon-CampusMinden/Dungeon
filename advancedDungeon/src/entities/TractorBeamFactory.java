@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import produsAdvanced.abstraction.portals.components.PortalComponent;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
 import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 
@@ -276,6 +277,9 @@ public class TractorBeamFactory {
               .fetch(VelocityComponent.class)
               .ifPresent(
                   vc -> {
+                    if (other.isPresent(PortalComponent.class)) {
+                      return;
+                    }
                     if (!other.isPresent(FlyComponent.class)) {
                       other.add(new FlyComponent());
                     }
