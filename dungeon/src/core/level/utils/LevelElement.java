@@ -18,6 +18,8 @@ public enum LevelElement {
   DOOR(true, true),
   /** This field is a portal-field. */
   PORTAL(false, false),
+  /** This field is a glasswall-field. */
+  GLASSWALL(false, true),
   /** This field is a gitter-field. */
   GITTER(false, true);
 

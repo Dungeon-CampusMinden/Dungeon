@@ -76,8 +76,10 @@ public class MoveSystem extends System {
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
     boolean canEnterWalls = data.vc.canEnterWalls();
     boolean canEnterGitter = data.vc.canEnterGitter();
+    boolean canEnterGlasswalls = data.vc.canEnterGlasswalls();
 
-    if (!isCollidingWithLevel(data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter)) {
+    if (!isCollidingWithLevel(
+        data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
       data.pc.position(newPos);
     } else {
       // Try moving only along x or y axis for wall sliding
@@ -85,10 +87,11 @@ public class MoveSystem extends System {
       Point yMove = new Point(oldPos.x(), newPos.y());
 
       boolean xAccessible =
-          !isCollidingWithLevel(data.cc, xMove, canEnterOpenPits, canEnterWalls, canEnterGitter);
+          !isCollidingWithLevel(
+              data.cc, xMove, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls);
       boolean yAccessible =
-          !isCollidingWithLevel(data.cc, yMove, canEnterOpenPits, canEnterWalls, canEnterGitter);
-
+          !isCollidingWithLevel(
+              data.cc, yMove, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls);
       if (xAccessible) {
         data.pc.position(xMove);
       } else if (yAccessible) {
@@ -105,13 +108,24 @@ public class MoveSystem extends System {
       Point position,
       boolean canEnterOpenPits,
       boolean canEnterWalls,
-      boolean canEnterGitter) {
+      boolean canEnterGitter,
+      boolean canEnterGlassWall) {
     if (cc == null) {
       return CollisionUtils.isCollidingWithLevel(
-          cc.collider(), position, canEnterOpenPits, canEnterWalls, canEnterGitter);
+          cc.collider(),
+          position,
+          canEnterOpenPits,
+          canEnterWalls,
+          canEnterGitter,
+          canEnterGlassWall);
     }
     return CollisionUtils.isCollidingWithLevel(
-        cc.collider(), position, canEnterOpenPits, canEnterWalls, canEnterGitter);
+        cc.collider(),
+        position,
+        canEnterOpenPits,
+        canEnterWalls,
+        canEnterGitter,
+        canEnterGlassWall);
   }
 
   /**
