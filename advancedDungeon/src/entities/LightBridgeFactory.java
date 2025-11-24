@@ -424,7 +424,6 @@ public class LightBridgeFactory {
         if (currentTile == null) break;
         boolean isWall =
             currentTile instanceof WallTile
-                || currentTile instanceof PortalTile
                 || currentTile instanceof GlasswandTile;
         if (isWall) break;
         lastPoint = currentPoint;
