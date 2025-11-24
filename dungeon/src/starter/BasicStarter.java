@@ -1,7 +1,6 @@
 package starter;
 
 import contrib.entities.EntityFactory;
-import contrib.systems.LevelEditorSystem;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.level.DungeonLevel;
@@ -34,11 +33,7 @@ public class BasicStarter {
       throw new RuntimeException(e);
     }
     Game.disableAudio(true);
-    Game.userOnSetup(
-        () -> {
-          Game.add(EntityFactory.newHero());
-          Game.add(new LevelEditorSystem());
-        });
+    Game.userOnSetup(() -> Game.add(EntityFactory.newHero()));
     Game.frameRate(30);
     Game.windowTitle("Basic Dungeon");
     Game.run();
