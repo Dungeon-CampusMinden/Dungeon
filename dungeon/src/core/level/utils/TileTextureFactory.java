@@ -389,9 +389,17 @@ public class TileTextureFactory {
     }
 
     LevelElement aboveElement = aboveTile.levelElement();
-    boolean isAboveFloorLike = isFloorLike(aboveElement);
+
+    boolean isAboveFloorLike =
+        aboveElement == LevelElement.FLOOR
+            || aboveElement == LevelElement.HOLE
+            || aboveElement == LevelElement.PIT;
+
     boolean isAboveWallLike =
-        aboveElement == LevelElement.WALL || aboveElement == LevelElement.DOOR;
+        aboveElement == LevelElement.WALL
+            || aboveElement == LevelElement.SKIP
+            || aboveElement == LevelElement.DOOR;
+
     boolean isAboveClosedPit =
         aboveTile instanceof PitTile abovePitClosed && !abovePitClosed.isOpen();
 
@@ -2371,10 +2379,7 @@ public class TileTextureFactory {
       return !skipIsFloorLike(p, layout);
     }
 
-    return e == LevelElement.WALL
-        || e == LevelElement.PORTAL
-        || e == LevelElement.GLASSWALL
-        || e == LevelElement.GITTER;
+    return e == LevelElement.WALL;
   }
 
   /**
