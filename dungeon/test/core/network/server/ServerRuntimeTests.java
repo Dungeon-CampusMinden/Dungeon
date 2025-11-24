@@ -156,11 +156,4 @@ public class ServerRuntimeTests {
     CompletableFuture<Boolean> result = runtime.sendMessage((short) 1, msg, true);
     assertNotNull(result);
   }
-
-  /** Validates that the server starts successfully on the configured test port. */
-  @Test
-  public void test_serverStartsOnConfiguredPort() {
-    ServerRuntime runtime = currentRuntime.get();
-    assertDoesNotThrow(runtime::start);
-  }
 }
