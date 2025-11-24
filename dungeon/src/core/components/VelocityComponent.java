@@ -71,7 +71,6 @@ public final class VelocityComponent implements Component {
   private boolean canEnterOpenPits;
   private boolean canEnterWalls;
   private boolean canEnterGitter;
-  private boolean canEnterGlasswalls;
 
   /**
    * Create a new VelocityComponent with the given configuration.
@@ -88,7 +87,6 @@ public final class VelocityComponent implements Component {
     this.canEnterOpenPits = canEnterOpenPits;
     this.canEnterWalls = false;
     this.canEnterGitter = false;
-    this.canEnterGlasswalls = false;
     this.maxSpeed = maxSpeed;
   }
 
@@ -217,24 +215,6 @@ public final class VelocityComponent implements Component {
    */
   public boolean canEnterGitter() {
     return canEnterGitter;
-  }
-
-  /**
-   * Set whether the entity can enter glasswall tiles.
-   *
-   * @param canEnterGlasswalls true if entity can enter glasswalls, false otherwise.
-   */
-  public void canEnterGlasswalls(boolean canEnterGlasswalls) {
-    this.canEnterGlasswalls = canEnterGlasswalls;
-  }
-
-  /**
-   * Check if the entity can enter glasswall tiles.
-   *
-   * @return true if it can enter glasswall tiles, false otherwise.
-   */
-  public boolean canEnterGlasswalls() {
-    return canEnterGlasswalls;
   }
 
   /**
