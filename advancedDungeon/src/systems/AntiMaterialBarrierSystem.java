@@ -89,10 +89,23 @@ public class AntiMaterialBarrierSystem extends System {
       if (currentState.equals("horizontal_off") || currentState.equals("vertical_off")) {
         data.draw().sendSignal("activate_anti_barrier");
 
+        // this action needs to be the same as the one applied in antiMaterialBarrier() in the
+        // AdvancedFactory
         TriConsumer<Entity, Entity, Direction> action =
             (self, other, direction) -> {
-              if (!other.name().equals("hero")) {
-                Game.remove(other);
+              String name = other.name();
+
+              switch (name) {
+                case "hero":
+                  // TODO: clearAllPortals() aufrufen, sobald es wieder funktioniert
+                  // PortalFactory.clearAllPortals();
+                  break;
+                case "lightWallCollider", "beamEmitter":
+                  // do nothing
+                  break;
+                default:
+                  Game.remove(other);
+                  break;
               }
             };
 
