@@ -15,6 +15,10 @@ public class TileTextureFactory {
   public static IPath findTexturePath(LevelPart levelPart) {
     String prefixPath = "dungeon/" + levelPart.design().name().toLowerCase() + "/";
 
+    if (levelPart.element == LevelElement.GITTER) {
+      return new SimpleIPath(prefixPath + "portal/gitter.png");
+    }
+
     IPath path = findTexturePathFloor(levelPart);
     if (path != null) {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");

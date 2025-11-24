@@ -32,6 +32,7 @@ public class TileFactory {
       case SKIP -> new SkipTile(texturePath, coordinate, designLabel);
       case PIT -> new PitTile(texturePath, coordinate, designLabel);
       case PORTAL -> new PortalTile(texturePath, coordinate, designLabel);
+      case GITTER -> new GitterTile(texturePath, coordinate, designLabel);
     };
   }
 }
