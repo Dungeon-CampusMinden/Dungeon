@@ -10,6 +10,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.level.elements.tile.WallTile;
+import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -19,10 +20,8 @@ import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
 
@@ -45,6 +44,12 @@ public class LightBridgeFactory {
 
   /** Number of tiles by which the extended start point is offset in front of the emitter. */
   public static int spawnOffset = 1;
+
+  final private static LevelElement[] stoppingTiles = {
+    LevelElement.WALL,
+    LevelElement.PORTAL,
+    LevelElement.GLASSWALL
+  };
 
   /**
    * Creates a new light bridge emitter at the given position and direction. Can be spawned active
@@ -407,8 +412,8 @@ public class LightBridgeFactory {
     }
 
     /**
-     * Calculates the end point by stepping from the start in the beam's direction until a WallTile
-     * is reached or no tile exists. Returns the last traversable point.
+     * Calculates the end point by stepping from the start in the beam's direction until a WallTile,
+     * PortalTile, or GlasswandTile is reached or no tile exists. Returns the last traversable point.
      *
      * @return Returns the calculated end point of the beam.
      * @param from Starting point
@@ -417,11 +422,13 @@ public class LightBridgeFactory {
     private Point calculateEndPoint(Point from, Direction beamDirection) {
       Point lastPoint = from;
       Point currentPoint = from;
+
       while (true) {
         Tile currentTile = Game.tileAt(currentPoint).orElse(null);
         if (currentTile == null) break;
-        boolean isWall = currentTile instanceof WallTile;
-        if (isWall) break;
+
+        if (Arrays.asList(stoppingTiles).contains(currentTile.levelElement())) break;
+
         lastPoint = currentPoint;
         currentPoint = currentPoint.translate(beamDirection);
       }

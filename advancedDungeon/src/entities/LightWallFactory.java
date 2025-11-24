@@ -9,6 +9,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.WallTile;
+import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -19,6 +20,7 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
@@ -37,6 +39,12 @@ public class LightWallFactory {
 
   /** Number of tiles by which the extended start point is offset in front of the emitter. */
   public static int spawnOffset = 1;
+
+  final private static LevelElement[] stoppingTiles = {
+    LevelElement.WALL,
+    LevelElement.PORTAL,
+    LevelElement.GLASSWALL
+  };
 
   /**
    * Creates a new light wall emitter at the given position and direction. Can be spawned active or
@@ -312,6 +320,7 @@ public class LightWallFactory {
 
     /**
      * Calculates the end point of the beam based on the direction and obstacles.
+     * Stops at walls, portal walls, and glass walls.
      *
      * @param from Start point
      * @param beamDirection Direction
@@ -320,11 +329,13 @@ public class LightWallFactory {
     private Point calculateEndPoint(Point from, Direction beamDirection) {
       Point lastPoint = from;
       Point currentPoint = from;
+
       while (true) {
         Tile currentTile = Game.tileAt(currentPoint).orElse(null);
         if (currentTile == null) break;
-        boolean isWall = currentTile instanceof WallTile;
-        if (isWall) break;
+
+        if (Arrays.asList(stoppingTiles).contains(currentTile.levelElement())) break;
+
         lastPoint = currentPoint;
         currentPoint = currentPoint.translate(beamDirection);
       }
