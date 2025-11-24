@@ -134,7 +134,6 @@ public class TractorBeamFactory {
     while (currentTile != null
         && !currentTile.getClass().equals(WallTile.class)
         && !currentTile.getClass().equals(GlasswandTile.class)
-        && !currentTile.getClass().equals(PortalTile.class)
         && (firstStep || secondStep || !lastTile.getClass().equals(PortalTile.class))) {
       secondStep = false;
       if (firstStep) {
