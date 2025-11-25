@@ -313,6 +313,7 @@ public class MoveSystemTest {
 
     entity.add(vc);
     entity.add(pc);
+    entity.add(new CollideComponent());
     Game.add(entity);
 
     // Mock level and tile to allow movement
