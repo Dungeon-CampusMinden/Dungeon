@@ -28,7 +28,7 @@ import testingUtils.MockNetworkHandler;
  */
 public class ServerRuntimeTests {
 
-  private static final int TEST_PORT = 17777;
+  private static final int TEST_PORT = 50000;
   private static int portCounter = 0;
   private static final List<ServerRuntime> runtimes = new ArrayList<>();
   private static final ThreadLocal<ServerRuntime> currentRuntime = new ThreadLocal<>();
