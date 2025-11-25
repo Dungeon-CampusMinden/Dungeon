@@ -16,9 +16,9 @@ import core.level.elements.tile.*;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.level.utils.TileTextureFactory;
 import core.utils.Point;
 import core.utils.Tuple;
+import core.utils.Vector2;
 import java.util.*;
 import java.util.Optional;
 import java.util.function.Function;
@@ -364,17 +364,26 @@ public interface ILevel extends IndexedGraph<Tile> {
       return;
     }
     level.removeTile(tile);
-    Tile newTile =
-        TileFactory.createTile(
-            TileTextureFactory.findTexturePath(tile, layout(), changeInto),
-            tile.coordinate(),
-            changeInto,
-            tile.designLabel());
+    Tile newTile = TileFactory.createTile(null, tile.coordinate(), changeInto, tile.designLabel());
     level.layout()[tile.coordinate().y()][tile.coordinate().x()] = newTile;
     newTile.index(tile.index());
     newTile.tintColor(tile.tintColor());
     newTile.visible(tile.visible());
     level.addTile(newTile);
+    newTile.refreshTexture();
+    refreshNeighbourTexture(newTile.coordinate());
+  }
+
+  private void refreshNeighbourTexture(Coordinate coordinate) {
+
+    int[][] offsets = {
+      {0, -1}, {0, 1}, {-1, 0}, {1, 0},
+      {1, 1}, {-1, 1}, {-1, -1}, {1, -1}
+    };
+
+    for (int[] o : offsets) {
+      tileAt(coordinate.translate(Vector2.of(o[0], o[1]))).ifPresent(Tile::refreshTexture);
+    }
   }
 
   /**
