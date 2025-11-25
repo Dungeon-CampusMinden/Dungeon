@@ -6,6 +6,8 @@ import contrib.entities.SignFactory;
 import contrib.entities.WorldItemBuilder;
 import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.YesNoDialog;
+import contrib.modules.interaction.Interaction;
+import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
@@ -37,12 +39,10 @@ import produsAdvanced.abstraction.Berry;
  */
 public class AdvancedBerryLevel extends AdvancedLevel {
   private static boolean showMsg = true;
-  private static String msg =
-      "Der Ork dort sieht verzweifelt aus. Mal schauen, ob ich ihm helfen kann.";
 
-  private static String task =
+  private static final String task =
       "Finde einen Weg die giftigen Beeren durch deinen Code zu erkennen. Vielleicht steht ja etwas Hilfreiches auf dem Schild?";
-  private static String titel = "Level 5";
+  private static final String titel = "Level 5";
   private static final int BERRY_GOAL = 5;
   private static final String NPC_TEXTURE_PATH = "character/monster/orc_shaman";
   private static final String DIALOG_TITLE_HUNGER = "HUNGER!";
@@ -81,28 +81,18 @@ public class AdvancedBerryLevel extends AdvancedLevel {
   }
 
   private String numberToGerman(int n) {
-    switch (n) {
-      case 2:
-        return "zwei";
-      case 3:
-        return "drei";
-      case 4:
-        return "vier";
-      case 5:
-        return "fünf";
-      case 6:
-        return "sechs";
-      case 7:
-        return "sieben";
-      case 8:
-        return "acht";
-      case 9:
-        return "neun";
-      case 10:
-        return "zehn";
-      default:
-        return String.valueOf(n);
-    }
+    return switch (n) {
+      case 2 -> "zwei";
+      case 3 -> "drei";
+      case 4 -> "vier";
+      case 5 -> "fünf";
+      case 6 -> "sechs";
+      case 7 -> "sieben";
+      case 8 -> "acht";
+      case 9 -> "neun";
+      case 10 -> "zehn";
+      default -> String.valueOf(n);
+    };
   }
 
   AtomicInteger currentIndex = new AtomicInteger(-1);
@@ -127,6 +117,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
 
   @Override
   protected void onFirstTick() {
+    String msg = "Der Ork dort sieht verzweifelt aus. Mal schauen, ob ich ihm helfen kann.";
     if (showMsg) DialogUtils.showTextPopup(msg, titel, () -> showMsg = false);
     createNPC();
     createChest();
@@ -146,15 +137,10 @@ public class AdvancedBerryLevel extends AdvancedLevel {
 
   private void spawnBerry(boolean isToxic) {
     Entity berry =
-        WorldItemBuilder.buildWorldItem(
+        WorldItemBuilder.buildWorldItemSimpleInteraction(
             new Berry(isToxic), Game.randomTile(LevelElement.FLOOR).get().coordinate().toPoint());
     berry.name(Berry.NAME);
-    HealthComponent health =
-        new HealthComponent(
-            999,
-            (entity -> {
-              Game.remove(entity);
-            }));
+    HealthComponent health = new HealthComponent(999, (Game::remove));
     berry.add(health);
     makeInvincible(berry);
     berry.add(new CollideComponent());
@@ -165,15 +151,14 @@ public class AdvancedBerryLevel extends AdvancedLevel {
     entity
         .fetch(HealthComponent.class)
         .ifPresent(
-            hc -> {
-              hc.onHit(
-                  (cause, damage) -> {
-                    if (damage.damageType() != DamageType.HEAL
-                        && damage.damageType() != DamageType.FALL) {
-                      hc.receiveHit(new Damage(-damage.damageAmount(), DamageType.HEAL, entity));
-                    }
-                  });
-            });
+            hc ->
+                hc.onHit(
+                    (cause, damage) -> {
+                      if (damage.damageType() != DamageType.HEAL
+                          && damage.damageType() != DamageType.FALL) {
+                        hc.receiveHit(new Damage(-damage.damageAmount(), DamageType.HEAL, entity));
+                      }
+                    }));
   }
 
   /** Creates a chest at the second custom point. */
@@ -197,55 +182,58 @@ public class AdvancedBerryLevel extends AdvancedLevel {
     makeInvincible(npc);
     npc.add(
         new InteractionComponent(
-            1,
-            true,
-            (entity, hero) -> {
-              // Markiere, dass der Spieler mit dem Ork interagiert hat
-              hasSpokenToOrc = true;
-              DialogUtils.showTextPopup(
-                  String.format(DIALOG_MESSAGE_START, BERRY_GOAL),
-                  DIALOG_TITLE_HUNGER,
-                  () -> {
-                    DialogUtils.showTextPopup(task, titel);
-                    entity.remove(InteractionComponent.class);
-                    entity.add(
-                        new InteractionComponent(
-                            1,
-                            true,
-                            (entity1, entity2) ->
-                                YesNoDialog.showYesNoDialog(
-                                    DIALOG_LOGIN,
-                                    DIALOG_TITLE_HUNGER,
-                                    () -> {
-                                      int count = checkBerryCount();
-                                      if (count < BERRY_GOAL) {
-                                        DialogUtils.showTextPopup(
-                                            String.format(DIALOG_MESSAGE_NOT_ENOUGH, BERRY_GOAL),
-                                            DIALOG_TITLE_HUNGER);
-                                      } else if (checkBerries()) {
-                                        DialogUtils.showTextPopup(
-                                            DIALOG_MESSAGE_SUCCESS, DIALOG_TITLE_SATISFIED);
-                                        door.open();
-                                        npc.remove(InteractionComponent.class);
-                                        chest.remove(InteractionComponent.class);
-                                        chest.add(
-                                            new InteractionComponent(
-                                                1,
-                                                true,
-                                                (e1, e2) ->
-                                                    DialogUtils.showTextPopup(
-                                                        DIALOG_MESSAGE_CHEST, DIALOG_TITLE_MINE)));
-                                      } else {
-                                        DialogUtils.showTextPopup(
-                                            DIALOG_MESSAGE_TOXIC, DIALOG_TITLE_HUNGER);
-                                      }
-                                    },
-                                    () ->
-                                        DialogUtils.showTextPopup(
-                                            DIALOG_MESSAGE_LATER, DIALOG_TITLE_HUNGER))));
-                  });
-            }));
+            () ->
+                new Interaction(
+                    (entity, hero) -> {
+                      // Markiere, dass der Spieler mit dem Ork interagiert hat
+                      hasSpokenToOrc = true;
+                      DialogUtils.showTextPopup(
+                          String.format(DIALOG_MESSAGE_START, BERRY_GOAL),
+                          DIALOG_TITLE_HUNGER,
+                          () -> {
+                            DialogUtils.showTextPopup(task, titel);
+                            entity.remove(InteractionComponent.class);
+                            entity.add(middleNPCInteraction(npc));
+                          });
+                    },
+                    1)));
     Game.add(npc);
+  }
+
+  private InteractionComponent middleNPCInteraction(Entity npc) {
+    return new InteractionComponent(
+        () ->
+            new Interaction(
+                (entity1, entity2) ->
+                    YesNoDialog.showYesNoDialog(
+                        DIALOG_LOGIN,
+                        DIALOG_TITLE_HUNGER,
+                        () -> {
+                          int count = checkBerryCount();
+                          if (count < BERRY_GOAL) {
+                            DialogUtils.showTextPopup(
+                                String.format(DIALOG_MESSAGE_NOT_ENOUGH, BERRY_GOAL),
+                                DIALOG_TITLE_HUNGER);
+                          } else if (checkBerries()) {
+                            DialogUtils.showTextPopup(
+                                DIALOG_MESSAGE_SUCCESS, DIALOG_TITLE_SATISFIED);
+                            door.open();
+                            npc.remove(InteractionComponent.class);
+                            chest.remove(InteractionComponent.class);
+                            chest.add(innerNPCInteraction());
+                          } else {
+                            DialogUtils.showTextPopup(DIALOG_MESSAGE_TOXIC, DIALOG_TITLE_HUNGER);
+                          }
+                        },
+                        () -> DialogUtils.showTextPopup(DIALOG_MESSAGE_LATER, DIALOG_TITLE_HUNGER)),
+                1));
+  }
+
+  private InteractionComponent innerNPCInteraction() {
+    return new InteractionComponent(
+        () ->
+            new Interaction(
+                (e1, e2) -> DialogUtils.showTextPopup(DIALOG_MESSAGE_CHEST, DIALOG_TITLE_MINE), 1));
   }
 
   /**
@@ -267,7 +255,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
    */
   private int checkBerryCount() {
     InventoryComponent ic = chest.fetch(InventoryComponent.class).get();
-    return (int) ic.items(Berry.class).stream().count();
+    return ic.items(Berry.class).size();
   }
 
   private void addSign() {

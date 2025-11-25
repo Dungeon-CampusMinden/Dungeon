@@ -3,12 +3,12 @@ package produsAdvanced.abstraction;
 import com.badlogic.gdx.Input;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
+import contrib.entities.HeroController;
 import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.systems.EventScheduler;
 import contrib.utils.IAction;
-import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -142,12 +142,14 @@ public class Hero {
   }
 
   /**
-   * Führt eine Interaktion mit einem Objekt in der Nähe des Helden aus.
+   * Führt eine Interaktion mit dem Objekt am angegebene Punkt in der Nähe des Helden aus.
    *
    * <p>Falls eine UI geöffnet ist, wird sie geschlossen. Andernfalls wird mit dem nächsten
    * interagierbaren Objekt interagiert.
+   *
+   * @param point Position an der eine Interaktion ausgeführt werden soll (z.B Mausposition).
    */
-  public void interact() {
+  public void interact(Point point) {
     if (cooldownEvent != null && EventScheduler.isScheduled(cooldownEvent)) return;
     hero.fetch(UIComponent.class)
         .ifPresentOrElse(
@@ -158,7 +160,7 @@ public class Hero {
               }
             },
             () -> {
-              InteractionTool.interactWithClosestInteractable(hero);
+              HeroController.interact(hero, point);
               cooldownEvent = EventScheduler.scheduleAction(INTERACTION_COOLDOWN, 250);
             });
   }

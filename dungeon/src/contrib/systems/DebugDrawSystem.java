@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import contrib.components.*;
+import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
@@ -212,7 +213,8 @@ public class DebugDrawSystem extends System {
             .fetch(InteractionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, InteractionComponent.class));
 
-    float radius = ic.radius();
+    // Since interactions can have different ranges we use the interact-interaction range.
+    float radius = ic.interactions().interact().range();
 
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
     SHAPE_RENDERER.setColor(withAlpha(Color.CYAN, alpha));

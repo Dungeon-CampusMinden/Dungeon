@@ -74,6 +74,14 @@ public class Item implements CraftingIngredient, CraftingResult {
   private int maxStackSize;
 
   /**
+   * Determines whether the item uses simple interaction.
+   *
+   * <p>If set to {@code true}, interacting with the item will immediately pick it up. If set to
+   * {@code false}, a more detailed interaction menu will be shown instead.
+   */
+  protected boolean simpleInteraction = true;
+
+  /**
    * Create a new Item.
    *
    * @param displayName The display name of the item.
@@ -296,6 +304,9 @@ public class Item implements CraftingIngredient, CraftingResult {
   /**
    * Drops an item at the specified position and adds the created entity to the game.
    *
+   * <p>If the {@link #simpleInteraction} flag is true, the item will be picked up on interaction.
+   * If the flag is false, the more complex Interaction Menu will be shown.
+   *
    * @param position the position where the item should be dropped
    * @return an {@code Optional} containing the dropped item entity if the drop was successful, or
    *     an empty {@code Optional} otherwise
@@ -303,7 +314,11 @@ public class Item implements CraftingIngredient, CraftingResult {
   public Optional<Entity> drop(final Point position) {
     Tile tile = Game.tileAt(position).orElse(null);
     if (tile instanceof FloorTile) {
-      Entity item = (WorldItemBuilder.buildWorldItem(this, position));
+      Entity item;
+      if (simpleInteraction)
+        item = (WorldItemBuilder.buildWorldItemSimpleInteraction(this, position));
+      else item = WorldItemBuilder.buildWorldItem(this, position);
+
       Game.add(item);
       return Optional.of(item);
     }
