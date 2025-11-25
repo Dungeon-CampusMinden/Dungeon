@@ -4,7 +4,6 @@ import components.ReviveComponent;
 import contrib.components.*;
 import contrib.entities.*;
 import contrib.hud.DialogUtils;
-import contrib.modules.interaction.DropItemsInteraction;
 import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;

@@ -92,7 +92,7 @@ public class NativeScenarioBuilder {
           Animation animation = new Animation(new SimpleIPath("items/book/wisdom_scroll.png"));
           TaskContentComponent tcc = new TaskContentComponent(element);
           QuestItem questItem = new QuestItem(animation, tcc);
-          Entity worldItem = WorldItemBuilder.buildWorldItem(questItem);
+          Entity worldItem = WorldItemBuilder.buildWorldItemSimpleInteraction(questItem);
           roomSet.add(worldItem);
         }
       }

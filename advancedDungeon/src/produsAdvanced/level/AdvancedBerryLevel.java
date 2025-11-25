@@ -138,7 +138,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
 
   private void spawnBerry(boolean isToxic) {
     Entity berry =
-        WorldItemBuilder.buildWorldItem(
+        WorldItemBuilder.buildWorldItemSimpleInteraction(
             new Berry(isToxic), Game.randomTile(LevelElement.FLOOR).get().coordinate().toPoint());
     berry.name(Berry.NAME);
     HealthComponent health = new HealthComponent(999, (Game::remove));

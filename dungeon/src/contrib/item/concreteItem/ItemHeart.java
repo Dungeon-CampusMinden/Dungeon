@@ -77,7 +77,7 @@ public class ItemHeart extends Item {
                       }
                     });
           };
-      Entity pickUpItem = WorldItemBuilder.buildWorldItem(this, position);
+      Entity pickUpItem = WorldItemBuilder.buildWorldItemSimpleInteraction(this, position);
       pickUpItem.add(new CollideComponent(onCollide, CollideComponent.DEFAULT_COLLIDER));
       Game.add(pickUpItem);
       return Optional.of(pickUpItem);

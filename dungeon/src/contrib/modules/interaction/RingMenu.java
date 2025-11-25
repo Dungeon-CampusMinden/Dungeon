@@ -19,7 +19,7 @@ import java.util.function.Consumer;
  */
 public class RingMenu extends Group {
 
-  private static final float RADIUS = 150f;
+  private static final float RADIUS = 120f;
 
   private final Skin skin = UIUtils.defaultSkin();
   private final Consumer<Interaction> onSelected;
