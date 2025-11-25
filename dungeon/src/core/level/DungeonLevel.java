@@ -230,6 +230,7 @@ public class DungeonLevel implements ILevel, ITickable {
       case PIT -> pitTiles.remove((PitTile) tile);
     }
     this.removeFromPathfinding(tile);
+    layout[tile.coordinate().y()][tile.coordinate().x()] = null;
   }
 
   /**
@@ -287,6 +288,7 @@ public class DungeonLevel implements ILevel, ITickable {
       case PIT -> pitTiles.add((PitTile) tile);
     }
     this.addToPathfinding(tile);
+    layout[tile.coordinate().y()][tile.coordinate().x()] = tile;
     tile.level(this);
   }
 

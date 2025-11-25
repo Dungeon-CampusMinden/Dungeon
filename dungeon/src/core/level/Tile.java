@@ -7,6 +7,7 @@ import core.level.elements.astar.TileConnection;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.level.utils.TileTextureFactory;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.path.IPath;
@@ -275,6 +276,11 @@ public abstract class Tile {
    */
   public int tintColor() {
     return this.tintColor;
+  }
+
+  /** Refreshes the texture of this tile. */
+  public void refreshTexture() {
+    this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
   }
 
   @Override
