@@ -1,9 +1,6 @@
 package mushRoom;
 
-import contrib.components.CollideComponent;
-import contrib.components.DecoComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.InventoryComponent;
+import contrib.components.*;
 import contrib.entities.EntityFactory;
 import contrib.entities.LeverFactory;
 import contrib.entities.NPCFactory;
@@ -20,6 +17,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
@@ -32,11 +30,10 @@ import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.shader.ColorGradeShader;
 import core.utils.components.draw.shader.HueRemapShader;
-
+import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.IntStream;
-
 import mushRoom.modules.items.AxeItem;
 import mushRoom.modules.items.LanternItem;
 import mushRoom.modules.journal.JournalItem;
@@ -62,6 +59,8 @@ public class MainLevel extends DungeonLevel {
   private DoorTile buttonsDoor;
   private DoorTile buttonsExit;
 
+  private List<Entity> pushPuzzleEntities = new ArrayList<>();
+
   /**
    * Creates a new Demo Level.
    *
@@ -78,44 +77,64 @@ public class MainLevel extends DungeonLevel {
   protected void onFirstTick() {
     DrawSystem ds = (DrawSystem) Game.systems().get(DrawSystem.class);
     ds.levelShaders()
-        .add("yellow", new ColorGradeShader(0.2f, 1, 1).region(new Rectangle(getPoint("yellow-start"), getPoint("yellow-end"))).transitionSize(5));
+        .add(
+            "yellow",
+            new ColorGradeShader(0.2f, 1, 1)
+                .region(new Rectangle(getPoint("yellow-start"), getPoint("yellow-end")))
+                .transitionSize(5));
     ds.levelShaders()
         .add(
             "orange",
-            new ColorGradeShader(0.1f, 1, 1).region(new Rectangle(getPoint("orange-start"), getPoint("orange-end"))).transitionSize(5));
+            new ColorGradeShader(0.1f, 1, 1)
+                .region(new Rectangle(getPoint("orange-start"), getPoint("orange-end")))
+                .transitionSize(5));
     ds.levelShaders()
         .add(
             "green",
-            new ColorGradeShader(0.3f, 1, 1).region(new Rectangle(getPoint("green-start"), getPoint("green-end"))).transitionSize(5));
+            new ColorGradeShader(0.3f, 1, 1)
+                .region(new Rectangle(getPoint("green-start"), getPoint("green-end")))
+                .transitionSize(5));
     ds.levelShaders()
         .add(
             "gray",
             new ColorGradeShader(0.5f, 0.1f, 0.6f)
-                .region(new Rectangle(getPoint("gray-start"), getPoint("gray-end"))).transitionSize(5));
+                .region(new Rectangle(getPoint("gray-start"), getPoint("gray-end")))
+                .transitionSize(5));
 
     Point homeStart = getPoint("home-start");
     Point homeEnd = getPoint("home-end");
-    Rectangle homeRect = new Rectangle(homeEnd.x() - homeStart.x() + 1, homeEnd.y() - homeStart.y() + 1, homeStart.x(), homeStart.y());
+    Rectangle homeRect =
+        new Rectangle(
+            homeEnd.x() - homeStart.x() + 1,
+            homeEnd.y() - homeStart.y() + 1,
+            homeStart.x(),
+            homeStart.y());
     homeRect = homeRect.expand(-1);
     ds.sceneShaders().add("pp", new MushroomPostProcessing(homeRect).viewDistance(0.2f));
 
     Game.add(LevelHideFactory.createLevelHide(getPoint("cave-1-start"), getPoint("cave-1-end")));
-    Game.add(LevelHideFactory.createLevelHide(getPoint("hidden-1-start"), getPoint("hidden-1-end"), 1));
+    Game.add(
+        LevelHideFactory.createLevelHide(getPoint("hidden-1-start"), getPoint("hidden-1-end"), 1));
 
     generateMushrooms();
-    listPoints("page").forEach(p -> {
-      Game.add(JournalPageFactory.createJournalPage(p));
-    });
+    listPoints("page")
+        .forEach(
+            p -> {
+              Game.add(JournalPageFactory.createJournalPage(p));
+            });
 
     createPushPuzzle();
     createButtonsPuzzle();
     createCutTrees();
 
-    listPoints("stone").forEach(p -> {
-      try {
-        Game.add(EntityFactory.newStone(p, 0));
-      } catch (IOException e) {}
-    });
+    listPoints("stone")
+        .forEach(
+            p -> {
+              try {
+                Game.add(EntityFactory.newStone(p, 0));
+              } catch (IOException e) {
+              }
+            });
 
     Game.add(WorldItemBuilder.buildWorldItem(new ItemHammer(), getPoint("hammer")));
     Game.add(WorldItemBuilder.buildWorldItem(new LanternItem(), getPoint("lantern")));
@@ -132,86 +151,188 @@ public class MainLevel extends DungeonLevel {
   }
 
   private void createButtonsPuzzle() {
-    Game.add(LevelHideFactory.createLevelHide(getPoint("buttons-hide-start"), getPoint("buttons-hide-end"), 1));
+    Game.add(
+        LevelHideFactory.createLevelHide(
+            getPoint("buttons-hide-start"), getPoint("buttons-hide-end"), 1));
     buttonsDoor = (DoorTile) tileAt(getPoint("buttons-door")).orElseThrow();
     buttonsDoor.close();
     buttonsExit = (DoorTile) tileAt(getPoint("buttons-exit")).orElseThrow();
     buttonsExit.close();
-    Game.add(LeverFactory.createLever(getPoint("buttons-exit-lever"), new ICommand() {
-      public void execute() {
-        buttonsExit.open();
-      }
-      public void undo() {
-        buttonsExit.close();
-      }
-    }));
-    listPoints("buttons-plate").forEach(p -> {
-      Game.add(LeverFactory.pressurePlate(p));
-    });
+    Game.add(
+        LeverFactory.createLever(
+            getPoint("buttons-exit-lever"),
+            new ICommand() {
+              public void execute() {
+                buttonsExit.open();
+              }
+
+              public void undo() {
+                buttonsExit.close();
+              }
+            }));
+    listPoints("buttons-plate")
+        .forEach(
+            p -> {
+              Game.add(LeverFactory.pressurePlate(p));
+            });
 
     DrawSystem ds = (DrawSystem) Game.systems().get(DrawSystem.class);
     ds.levelShaders()
-      .add("buttons-yellow", new ColorGradeShader(0.2f, 1, 1).region(new Rectangle(getPoint("buttons-yellow-start"), getPoint("buttons-yellow-end"))).transitionSize(1), 2);
+        .add(
+            "buttons-yellow",
+            new ColorGradeShader(0.2f, 1, 1)
+                .region(
+                    new Rectangle(getPoint("buttons-yellow-start"), getPoint("buttons-yellow-end")))
+                .transitionSize(1),
+            2);
     ds.levelShaders()
-      .add(
-        "buttons-orange",
-        new ColorGradeShader(0.1f, 1, 1).region(new Rectangle(getPoint("buttons-orange-start"), getPoint("buttons-orange-end"))).transitionSize(1), 2);
+        .add(
+            "buttons-orange",
+            new ColorGradeShader(0.1f, 1, 1)
+                .region(
+                    new Rectangle(getPoint("buttons-orange-start"), getPoint("buttons-orange-end")))
+                .transitionSize(1),
+            2);
     ds.levelShaders()
-      .add(
-        "buttons-green",
-        new ColorGradeShader(0.3f, 1, 1).region(new Rectangle(getPoint("buttons-green-start"), getPoint("buttons-green-end"))).transitionSize(1), 2);
+        .add(
+            "buttons-green",
+            new ColorGradeShader(0.3f, 1, 1)
+                .region(
+                    new Rectangle(getPoint("buttons-green-start"), getPoint("buttons-green-end")))
+                .transitionSize(1),
+            2);
     ds.levelShaders()
-      .add(
-        "buttons-gray",
-        new ColorGradeShader(0.5f, 0.1f, 0.6f)
-          .region(new Rectangle(getPoint("buttons-gray-start"), getPoint("buttons-gray-end"))).transitionSize(1), 2);
+        .add(
+            "buttons-gray",
+            new ColorGradeShader(0.5f, 0.1f, 0.6f)
+                .region(new Rectangle(getPoint("buttons-gray-start"), getPoint("buttons-gray-end")))
+                .transitionSize(1),
+            2);
   }
 
   private void createCutTrees() {
     Deco deco = Deco.TreeMedium;
     Vector2 offset = Vector2.of(-deco.defaultCollider().x(), -deco.defaultCollider().y());
-    listPoints("cut-tree").forEach(p -> {
-      Entity tree = DecoFactory.createDeco(p, deco);
-      tree.remove(DecoComponent.class);
-      tree.add(new InteractionComponent(1.5f, true, (e, who) -> {
-        who.fetch(InventoryComponent.class).ifPresent(inv -> {
-          if(inv.hasItem(AxeItem.class)){
-            DialogUtils.showTextPopup("Rumms. Der Baum fällt mit einem lauten Krachen zu Boden.", "Holz hacken");
-            Game.remove(e);
-          } else {
-            DialogUtils.showTextPopup("Dieser Baum sieht etwas morsch aus, man kann ihn bestimmt fällen.", "Hmm");
-          }
-        });
-      }));
-      tree.fetch(DrawComponent.class).ifPresent(dc -> {
-        dc.shaders().add("cuttable", new HueRemapShader(0.33f, 0.1f, 0.1f));
-        dc.shaders().add("cuttable-color", new ColorGradeShader(-1, 0.5f, 0.5f));
-      });
-      tree.fetch(PositionComponent.class).ifPresent(pc -> {
-        pc.position(pc.position().translate(offset));
-      });
-      Game.add(tree);
-    });
+    listPoints("cut-tree")
+        .forEach(
+            p -> {
+              Entity tree = DecoFactory.createDeco(p, deco);
+              tree.remove(DecoComponent.class);
+              tree.add(
+                  new InteractionComponent(
+                      1.5f,
+                      true,
+                      (e, who) -> {
+                        who.fetch(InventoryComponent.class)
+                            .ifPresent(
+                                inv -> {
+                                  if (inv.hasItem(AxeItem.class)) {
+                                    DialogUtils.showTextPopup(
+                                        "Rumms. Der Baum fällt mit einem lauten Krachen zu Boden.",
+                                        "Holz hacken");
+                                    Game.remove(e);
+                                  } else {
+                                    DialogUtils.showTextPopup(
+                                        "Dieser Baum sieht etwas morsch aus, man kann ihn bestimmt fällen.",
+                                        "Hmm");
+                                  }
+                                });
+                      }));
+              tree.fetch(DrawComponent.class)
+                  .ifPresent(
+                      dc -> {
+                        dc.shaders().add("cuttable", new HueRemapShader(0.33f, 0.1f, 0.1f));
+                        dc.shaders().add("cuttable-color", new ColorGradeShader(-1, 0.5f, 0.5f));
+                      });
+              tree.fetch(PositionComponent.class)
+                  .ifPresent(
+                      pc -> {
+                        pc.position(pc.position().translate(offset));
+                      });
+              Game.add(tree);
+            });
 
     Game.add(WorldItemBuilder.buildWorldItem(new AxeItem(), getPoint("axe")));
   }
 
   private void createPushPuzzle() {
-    puzzlePushDoor = (DoorTile) tileAt(getPoint("puzzle-push-door")).orElseThrow();
-//    puzzlePushDoor.close();
     puzzlePushExit = (DoorTile) tileAt(getPoint("puzzle-push-exit")).orElseThrow();
     puzzlePushExit.close();
+    Game.add(
+        LeverFactory.createLever(
+            getPoint("puzzle-push-exit-lever"),
+            new ICommand() {
+              public void execute() {
+                puzzlePushExit.open();
+              }
 
-    Game.add(LeverFactory.createLever(getPoint("puzzle-push-exit-lever"), new ICommand() {
-      public void execute() {
-        puzzlePushExit.open();
-      }
-      public void undo() {
-        puzzlePushExit.close();
-      }
-    }));
+              public void undo() {
+                puzzlePushExit.close();
+              }
+            }));
 
-    Game.add(LevelHideFactory.createLevelHide(getPoint("push-hidden-start"), getPoint("push-hidden-end")));
+    Game.add(
+        LevelHideFactory.createLevelHide(
+            getPoint("push-hidden-start"), getPoint("push-hidden-end")));
+
+    createPushPuzzleEntities();
+
+    Game.add(
+        LeverFactory.createLever(
+            getPoint("push-reset"),
+            new ICommand() {
+              public void execute() {
+                resetPushStones();
+              }
+
+              public void undo() {}
+            }));
+  }
+
+  private void createPushPuzzleEntities() {
+    listPoints("push-stone")
+        .forEach(
+            p -> {
+              Entity pushStone = new Entity("push_stone");
+              pushStone.add(new PositionComponent(p));
+              pushStone.add(new DrawComponent(new SimpleIPath("objects/push-stone.png")));
+              pushStone.add(new CollideComponent(Vector2.of(0.05f, 0.05f), Vector2.of(0.9f, 0.9f)));
+              pushStone.add(new VelocityComponent(5.0f));
+              Game.add(pushStone);
+              pushPuzzleEntities.add(pushStone);
+            });
+
+    listPointsIndexed("push-plate")
+        .forEach(
+            tuple -> {
+              Point platePos = tuple.a();
+              int index = tuple.b();
+              Point doorPos = getPoint("push-door" + index);
+              DoorTile doorTile = (DoorTile) tileAt(doorPos).orElseThrow();
+              doorTile.close();
+
+              Entity pp = LeverFactory.pressurePlate(platePos);
+              pp.remove(LeverComponent.class);
+              pp.add(
+                  new LeverComponent(
+                      new ICommand() {
+                        public void execute() {
+                          doorTile.open();
+                        }
+
+                        public void undo() {
+                          doorTile.close();
+                        }
+                      }));
+              Game.add(pp);
+              pushPuzzleEntities.add(pp);
+            });
+  }
+
+  private void resetPushStones() {
+    pushPuzzleEntities.forEach(Game::remove);
+    pushPuzzleEntities.clear();
+    createPushPuzzleEntities();
   }
 
   @Override
@@ -219,12 +340,14 @@ public class MainLevel extends DungeonLevel {
     DrawSystem ds = DrawSystem.getInstance();
 
     // Check if lantern item is available, to set the viewDistance of the mushroom shader
-    boolean hasLantern = Game.player().flatMap(p -> p.fetch(InventoryComponent.class))
-        .map(inv -> inv.hasItem(LanternItem.class))
-        .orElse(false);
+    boolean hasLantern =
+        Game.player()
+            .flatMap(p -> p.fetch(InventoryComponent.class))
+            .map(inv -> inv.hasItem(LanternItem.class))
+            .orElse(false);
     boolean inLevelEditor = LevelEditorSystem.active();
     float viewDistance = inLevelEditor ? 1.0f : (hasLantern ? 0.5f : 0.2f);
-    if(ds.sceneShaders().get("pp") instanceof MushroomPostProcessing mpp){
+    if (ds.sceneShaders().get("pp") instanceof MushroomPostProcessing mpp) {
       mpp.viewDistance(viewDistance);
     }
   }
@@ -355,10 +478,13 @@ public class MainLevel extends DungeonLevel {
     }
   }
 
-  private void giveJournal(){
-    Game.player().flatMap(e -> e.fetch(InventoryComponent.class)).ifPresent(inventory -> {
-      inventory.add(new JournalItem());
-    });
+  private void giveJournal() {
+    Game.player()
+        .flatMap(e -> e.fetch(InventoryComponent.class))
+        .ifPresent(
+            inventory -> {
+              inventory.add(new JournalItem());
+            });
   }
 
   private void npcDie() {
