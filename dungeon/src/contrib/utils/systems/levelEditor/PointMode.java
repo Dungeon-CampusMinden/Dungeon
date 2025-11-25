@@ -60,7 +60,7 @@ public class PointMode extends LevelEditorMode {
 
       if (heldPointName == null) {
         LevelEditorSystem.showFeedback("No point to pickup on coordinate!", Color.YELLOW);
-      } else if(clickedPoint.isEmpty()) {
+      } else if (clickedPoint.isEmpty()) {
         // Clone and increment held point to cursor
         String baseName = heldPointName.replaceAll("\\d+$", "");
         String newPointName = baseName + (getLevel().getHighestPointNumber(baseName) + 1);

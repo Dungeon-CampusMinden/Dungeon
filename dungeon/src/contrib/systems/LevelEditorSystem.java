@@ -177,10 +177,9 @@ public class LevelEditorSystem extends System {
     if (!active) return;
 
     Optional<PlayerComponent> pc = Game.player().flatMap(e -> e.fetch(PlayerComponent.class));
-    if(pc.isPresent() && pc.get().openDialogs()){
+    if (pc.isPresent() && pc.get().openDialogs()) {
       return;
     }
-
 
     if (Gdx.input.isKeyJustPressed(TOGGLE_DEBUG_SHADER)) {
       toggleDebugShader();
