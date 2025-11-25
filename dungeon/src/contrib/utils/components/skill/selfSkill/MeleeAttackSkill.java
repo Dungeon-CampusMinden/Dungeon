@@ -115,6 +115,7 @@ public class MeleeAttackSkill extends Skill {
                   new AttachmentComponent(
                       Vector2.ZERO, attackPositionComponent, casterPositionComponent);
               ac.setScale(SCALE);
+              ac.setTextureRotating(true);
               attack.add(ac);
 
               CollideComponent collideComponent =

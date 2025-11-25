@@ -152,7 +152,6 @@ public class DevDungeon {
     /* Cheats */
     if (ENABLE_CHEATS) {
       Game.add(new Debugger());
-      Game.add(new LevelEditorSystem());
       enableCheats();
     }
   }

@@ -1,7 +1,6 @@
 package contrib.modules.keypad;
 
-import contrib.modules.interaction.Interaction;
-import contrib.modules.interaction.InteractionComponent;
+import contrib.components.InteractionComponent;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -51,13 +50,12 @@ public class KeypadFactory {
 
     entity.add(
         new InteractionComponent(
-            () ->
-                new Interaction(
-                    (e, who) -> {
-                      kc.isUIOpen(true);
-                      LOGGER.info("Interacted with keypad sprite");
-                    },
-                    DEFAULT_INTERACTION_RADIUS)));
+            DEFAULT_INTERACTION_RADIUS,
+            true,
+            (e, who) -> {
+              kc.isUIOpen(true);
+              LOGGER.info("Interacted with keypad sprite");
+            }));
     return entity;
   }
 }

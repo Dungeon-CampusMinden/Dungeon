@@ -1,7 +1,6 @@
 package contrib.components;
 
 import contrib.item.Item;
-import contrib.modules.interaction.InteractionComponent;
 import core.Component;
 import core.Entity;
 
@@ -16,9 +15,8 @@ import core.Entity;
  * that exists in the game world.
  *
  * <p>The {@link contrib.entities.WorldItemBuilder WorldItemBuilder} demonstrates how to create an
- * item entity. You can use the {@link
- * contrib.entities.WorldItemBuilder#buildWorldItemSimpleInteraction(Item)} method to create a new
- * item-entity from an {@link Item}.
+ * item entity. You can use the {@link contrib.entities.WorldItemBuilder#buildWorldItem(Item)}
+ * method to create a new item-entity from an {@link Item}.
  *
  * <p>The {@link contrib.entities.WorldItemBuilder} will create an entity with a {@link
  * ItemComponent}, {@link core.components.PositionComponent}, {@link core.components.DrawComponent},

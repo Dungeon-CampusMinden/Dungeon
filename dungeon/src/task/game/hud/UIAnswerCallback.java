@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.utils.SnapshotArray;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.TextDialog;
-import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.Game;
 import java.util.HashSet;
@@ -26,7 +25,7 @@ import task.tasktype.quizquestion.FreeText;
 
 /**
  * Contains functions to build an easy-to-use Consumer as a callback for the {@link
- * InteractionComponent}.
+ * contrib.components.InteractionComponent}.
  *
  * <p>The Consumer will show the given {@link Quiz} on the HUD and will call the (as parameter)
  * given Callback with the given answers as a {@link Quiz.Content}-Set.
@@ -36,8 +35,8 @@ import task.tasktype.quizquestion.FreeText;
 public final class UIAnswerCallback {
 
   /**
-   * Get a Consumer that can be used as a callback for the {@link InteractionComponent} and will
-   * show the given {@link Quiz} on the UI.
+   * Get a Consumer that can be used as a callback for the {@link
+   * contrib.components.InteractionComponent} and will show the given {@link Quiz} on the UI.
    *
    * @param quiz The {@link Quiz} to show on the HUD on interaction.
    * @param dslCallback Callback function that will be called after the player confirms their

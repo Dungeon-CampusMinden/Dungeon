@@ -1,5 +1,6 @@
-package contrib.modules.interaction;
+package contrib.utils.components.interaction;
 
+import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import core.Entity;

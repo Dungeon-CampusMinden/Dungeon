@@ -2,9 +2,9 @@ package contrib.utils.components.item;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
-import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
