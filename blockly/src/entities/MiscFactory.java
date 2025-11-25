@@ -5,8 +5,6 @@ import components.*;
 import contrib.components.*;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
-import contrib.modules.interaction.Interaction;
-import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -91,14 +89,12 @@ public class MiscFactory {
     pickup.add(new DrawComponent(new Animation(PICKUP_BOCK_PATH)));
     pickup.add(
         new InteractionComponent(
-            () ->
-                new Interaction(
-                    (entity, entity2) -> {
-                      DialogUtils.showTextPopup(pickupText, title);
-                      Game.remove(pickup);
-                    },
-                    0,
-                    false)));
+            0,
+            false,
+            (entity, entity2) -> {
+              DialogUtils.showTextPopup(pickupText, title);
+              Game.remove(pickup);
+            }));
     return pickup;
   }
 
@@ -121,8 +117,11 @@ public class MiscFactory {
     breadcrumb.add(new BreadcrumbComponent());
     breadcrumb.add(
         new InteractionComponent(
-            () -> new Interaction((entity, entity2) -> Game.remove(breadcrumb), 0, false)));
-
+            0,
+            false,
+            (entity, entity2) -> {
+              Game.remove(breadcrumb);
+            }));
     return breadcrumb;
   }
 
@@ -145,8 +144,11 @@ public class MiscFactory {
     clover.add(new CloverComponent());
     clover.add(
         new InteractionComponent(
-            () -> new Interaction((entity, entity2) -> Game.remove(clover), 0, false)));
-
+            0,
+            false,
+            (entity, entity2) -> {
+              Game.remove(clover);
+            }));
     return clover;
   }
 
@@ -166,14 +168,12 @@ public class MiscFactory {
     fireballScroll.add(new BlocklyItemComponent());
     fireballScroll.add(
         new InteractionComponent(
-            () ->
-                new Interaction(
-                    (entity, hero) -> {
-                      hero.fetch(AmmunitionComponent.class).map(AmmunitionComponent::collectAmmo);
-                      Game.remove(fireballScroll);
-                    },
-                    0,
-                    false)));
+            0,
+            false,
+            (entity, hero) -> {
+              hero.fetch(AmmunitionComponent.class).map(AmmunitionComponent::collectAmmo);
+              Game.remove(fireballScroll);
+            }));
     return fireballScroll;
   }
 }

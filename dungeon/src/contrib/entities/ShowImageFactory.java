@@ -1,8 +1,7 @@
 package contrib.entities;
 
+import contrib.components.InteractionComponent;
 import contrib.components.ShowImageComponent;
-import contrib.modules.interaction.Interaction;
-import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.components.showImage.ShowImageText;
 import core.Entity;
 import core.components.DrawComponent;
@@ -52,8 +51,7 @@ public class ShowImageFactory {
     sic.textConfig(text);
     entity.add(sic);
 
-    entity.add(
-        new InteractionComponent(() -> new Interaction((e, who) -> sic.isUIOpen(true), radius)));
+    entity.add(new InteractionComponent(radius, true, (e, who) -> sic.isUIOpen(true)));
     return entity;
   }
 

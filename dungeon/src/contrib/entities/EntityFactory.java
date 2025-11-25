@@ -2,8 +2,7 @@ package contrib.entities;
 
 import contrib.components.*;
 import contrib.item.Item;
-import contrib.modules.interaction.DropItemsInteraction;
-import contrib.modules.interaction.InteractionComponent;
+import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.BowSkill;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
@@ -102,8 +101,8 @@ public final class EntityFactory {
    *
    * <p>It will have a {@link InteractionComponent}. {@link PositionComponent}, {@link
    * core.components.DrawComponent}, {@link contrib.components.CollideComponent} and {@link
-   * contrib.components.InventoryComponent}. It will use the {@link DropItemsInteraction} on
-   * interaction.
+   * contrib.components.InventoryComponent}. It will use the {@link
+   * contrib.utils.components.interaction.DropItemsInteraction} on interaction.
    *
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
@@ -121,8 +120,8 @@ public final class EntityFactory {
    *
    * <p>It will have a {@link InteractionComponent}. {@link PositionComponent}, {@link
    * core.components.DrawComponent}, {@link contrib.components.CollideComponent} and {@link
-   * contrib.components.InventoryComponent}. It will use the {@link DropItemsInteraction} on
-   * interaction.
+   * contrib.components.InventoryComponent}. It will use the {@link
+   * contrib.utils.components.interaction.DropItemsInteraction} on interaction.
    *
    * @param item Items that should be in the chest.
    * @param position Where should the chest be placed?

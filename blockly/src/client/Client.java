@@ -83,7 +83,6 @@ public class Client {
       if (httpServer != null) {
         httpServer.stop(0);
       }
-      BlocklyCodeRunner.instance().stopCode();
     }
   }
 

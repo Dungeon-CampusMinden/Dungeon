@@ -123,6 +123,27 @@ public class TileTextureFactory {
   private static IPath resolvePrimaryPath(LevelPart levelPart) {
     String prefixPath = "dungeon/" + levelPart.design().name().toLowerCase() + "/";
 
+    if (levelPart.element == LevelElement.GITTER) {
+      IPath path = findGitterElement(levelPart);
+      if (path != null) {
+        return new SimpleIPath(prefixPath + path.pathString() + ".png");
+      }
+    }
+
+    if (levelPart.element == LevelElement.GLASSWALL) {
+      IPath path = findGlasswallElement(levelPart);
+      if (path != null) {
+        return new SimpleIPath(prefixPath + path.pathString() + ".png");
+      }
+    }
+
+    if (levelPart.element == LevelElement.PORTAL) {
+      IPath path = findPortalElement(levelPart);
+      if (path != null) {
+        return new SimpleIPath(prefixPath + path.pathString() + ".png");
+      }
+    }
+
     IPath path = findTexturePathFloor(levelPart);
     if (path != null) {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");
@@ -149,6 +170,103 @@ public class TileTextureFactory {
     path = findTexturePathSingleAdjacentWall(levelPart);
     if (path != null) return new SimpleIPath(prefixPath + path.pathString() + ".png");
     return new SimpleIPath(prefixPath + "floor/empty.png");
+  }
+
+  /**
+   * Resolves the levelpart to the correct gitter asset.
+   *
+   * @param levelPart the levelpart to be checked
+   * @return SimpleIPath with the corresponding asset path
+   */
+  private static IPath findGitterElement(LevelPart levelPart) {
+    Neighbors n = new Neighbors(levelPart.position, levelPart.layout);
+    if (isWallLike(n.getLeft(), levelPart.layout)
+            && isWallLike(n.getRight(), levelPart.layout)
+            && isFloorLike(n.getDown(), levelPart.layout)
+        || isFloorLike(n.getUp(), levelPart.layout)) {
+      return new SimpleIPath("portal/gutter/gutter_horizontal");
+    }
+
+    if (isWallLike(n.getUp(), levelPart.layout)
+            && isWallLike(n.getDown(), levelPart.layout)
+            && isFloorLike(n.getLeft(), levelPart.layout)
+        || isFloorLike(n.getRight(), levelPart.layout)) {
+      return new SimpleIPath("portal/gutter/gutter_vertical");
+    }
+
+    return null;
+  }
+
+  /**
+   * Resolves the levelpart to the correct glasswall asset.
+   *
+   * @param levelPart the levelpart to be checked
+   * @return SimpleIPath with the corresponding asset path
+   */
+  private static IPath findGlasswallElement(LevelPart levelPart) {
+    Neighbors n = new Neighbors(levelPart.position, levelPart.layout);
+    if (isWallLike(n.getLeft(), levelPart.layout)
+            && isWallLike(n.getRight(), levelPart.layout)
+            && isFloorOrDoor(n.getDown(), levelPart.layout)
+        || isFloorOrDoor(n.getUp(), levelPart.layout)) {
+      return new SimpleIPath("portal/glasswall/glasswall_horizontal");
+    } else if (isWallLike(n.getUp(), levelPart.layout)
+        && isWallLike(n.getDown(), levelPart.layout)
+        && (isFloorOrDoor(n.getLeft(), levelPart.layout)
+            || isFloorOrDoor(n.getRight(), levelPart.layout))) {
+      return new SimpleIPath("portal/glasswall/glasswall_vertical");
+    }
+    return null;
+  }
+
+  /**
+   * Resolves the levelpart to the correct portal wall asset.
+   *
+   * @param levelPart the levelpart to be checked
+   * @return SimpleIPath with the corresponding asset path
+   */
+  private static IPath findPortalElement(LevelPart levelPart) {
+    Neighbors n = new Neighbors(levelPart.position, levelPart.layout);
+    if (isWallLike(n.getLeft(), levelPart.layout)
+        && isWallLike(n.getRight(), levelPart.layout)
+        && isInside(n.getDown(), levelPart.layout)
+        && !isInside(n.getUp(), levelPart.layout)) {
+      return new SimpleIPath("portal/portal_wall_top");
+    }
+    if (isWallLike(n.getLeft(), levelPart.layout)
+        && isWallLike(n.getRight(), levelPart.layout)
+        && !isInside(n.getDown(), levelPart.layout)
+        && isInside(n.getUp(), levelPart.layout)) {
+      return new SimpleIPath("portal/portal_wall_bottom");
+    }
+
+    if (isWallLike(n.getUp(), levelPart.layout)
+        && isWallLike(n.getDown(), levelPart.layout)
+        && !isInside(n.getLeft(), levelPart.layout)
+        && isInside(n.getRight(), levelPart.layout)) {
+      return new SimpleIPath("portal/portal_wall_right");
+    }
+
+    if (isWallLike(n.getUp(), levelPart.layout)
+        && isWallLike(n.getDown(), levelPart.layout)
+        && isInside(n.getLeft(), levelPart.layout)
+        && !isInside(n.getRight(), levelPart.layout)) {
+      return new SimpleIPath("portal/portal_wall_left");
+    }
+
+    if (isWallLike(n.getLeft(), levelPart.layout)
+            && isWallLike(n.getRight(), levelPart.layout)
+            && isFloorOrDoor(n.getDown(), levelPart.layout)
+        || isFloorOrDoor(n.getUp(), levelPart.layout)) {
+      return new SimpleIPath("portal/portal_wall_horizontal");
+    } else if (isWallLike(n.getUp(), levelPart.layout)
+        && isWallLike(n.getDown(), levelPart.layout)
+        && (isFloorOrDoor(n.getLeft(), levelPart.layout)
+            || isFloorOrDoor(n.getRight(), levelPart.layout))) {
+      return new SimpleIPath("portal/portal_wall_vertical");
+    }
+    // Fallback
+    return new SimpleIPath("portal/portal_block");
   }
 
   /**
@@ -2261,7 +2379,10 @@ public class TileTextureFactory {
       return !skipIsFloorLike(p, layout);
     }
 
-    return e == LevelElement.WALL;
+    return e == LevelElement.WALL
+        || e == LevelElement.PORTAL
+        || e == LevelElement.GLASSWALL
+        || e == LevelElement.GITTER;
   }
 
   /**

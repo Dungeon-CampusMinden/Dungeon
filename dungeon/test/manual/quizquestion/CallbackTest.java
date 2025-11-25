@@ -2,10 +2,9 @@ package manual.quizquestion;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
 import contrib.hud.dialogs.TextDialog;
-import contrib.modules.interaction.Interaction;
-import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.*;
 import core.Entity;
 import core.Game;
@@ -96,12 +95,11 @@ public class CallbackTest {
     wizard.add(new TaskComponent(question, wizard));
     wizard.add(
         new InteractionComponent(
-            () ->
-                new Interaction(
-                    (entity, who) ->
-                        UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
-                            .accept(entity, who),
-                    1)));
+            1,
+            false,
+            (entity, who) ->
+                UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
+                    .accept(entity, who)));
     return wizard;
   }
 

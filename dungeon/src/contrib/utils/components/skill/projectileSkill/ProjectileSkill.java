@@ -63,7 +63,7 @@ public abstract class ProjectileSkill extends Skill {
   protected Vector2 hitBoxSize;
   protected Vector2 hitBoxOffset;
   protected int tintColor = -1;
-  private final Set<Entity> ignoreEntities;
+  protected final Set<Entity> ignoreEntities;
   private boolean ignoreFirstWall;
 
   /**
@@ -168,7 +168,7 @@ public abstract class ProjectileSkill extends Skill {
    * @param start the starting point of the projectile
    * @param aimedOn the target point the projectile is aimed at
    */
-  public void shootProjectile(Entity caster, Point start, Point aimedOn) {
+  protected void shootProjectile(Entity caster, Point start, Point aimedOn) {
     Entity projectile = new Entity(name() + "_projectile");
     ignoreEntities.add(caster);
     ignoreEntities.add(projectile);

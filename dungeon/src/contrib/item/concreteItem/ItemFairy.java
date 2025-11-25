@@ -65,7 +65,7 @@ public class ItemFairy extends Item {
                       }
                     });
           };
-      Entity pickUpItem = WorldItemBuilder.buildWorldItemSimpleInteraction(this, position);
+      Entity pickUpItem = WorldItemBuilder.buildWorldItem(this, position);
       pickUpItem.add(new CollideComponent(onCollide, CollideComponent.DEFAULT_COLLIDER));
       Game.add(pickUpItem);
       return Optional.of(pickUpItem);
