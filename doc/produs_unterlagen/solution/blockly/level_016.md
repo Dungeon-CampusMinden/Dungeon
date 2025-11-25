@@ -19,11 +19,11 @@ while(anzahl_Wand_Vorne < 7){
         }
     }
     if(hero.isNearTile(LevelElement.WALL, Direction.INFRONT)){
-        if(hero.isNearTile(LevelElement.WALL, Direction.UP) && hero.isNearTile(LevelElement.WALL, Direction.LEFT)){
+        if(hero.isNearTile(LevelElement.WALL, Direction.INFRONT) && hero.isNearTile(LevelElement.WALL, Direction.LEFT)){
             hero.rotate(Direction.RIGHT);
             anzahl_Wand_Vorne++;
         }
-        if(hero.isNearTile(LevelElement.WALL, Direction.UP) && hero.isNearTile(LevelElement.WALL, Direction.RIGHT)){
+        if(hero.isNearTile(LevelElement.WALL, Direction.INFRONT) && hero.isNearTile(LevelElement.WALL, Direction.RIGHT)){
             hero.rotate(Direction.LEFT);
             anzahl_Wand_Vorne++;
         }

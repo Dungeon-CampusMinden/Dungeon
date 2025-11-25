@@ -20,7 +20,7 @@ while(true){
     }else if(hero.isNearTile(LevelElement.FLOOR, Direction.LEFT)){
         hero.rotate(Direction.LEFT);
         hero.move();
-    }else if(hero.isNearTile(LevelElement.EXIT, Direction.UP)){
+    }else if(hero.isNearTile(LevelElement.EXIT, Direction.INFRONT)){
         hero.move();
     }else{
         hero.rotate(Direction.LEFT);
