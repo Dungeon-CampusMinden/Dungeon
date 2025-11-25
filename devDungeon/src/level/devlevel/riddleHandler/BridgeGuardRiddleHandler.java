@@ -8,7 +8,6 @@ import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.OkDialog;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.HealthSystem;
@@ -189,15 +188,14 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
                             bridgeGuard.remove(InteractionComponent.class);
                             bridgeGuard.add(
                                 new InteractionComponent(
-                                    (ISimpleIInteractable)
-                                        () ->
-                                            new Interaction(
-                                                (me, who) ->
-                                                    OkDialog.showOkDialog(
-                                                        "Haha, you failed the riddle! You shall not pass!",
-                                                        "Riddle: Bridge Guard",
-                                                        () -> {}),
-                                                2.5f)));
+                                    () ->
+                                        new Interaction(
+                                            (me, who) ->
+                                                OkDialog.showOkDialog(
+                                                    "Haha, you failed the riddle! You shall not pass!",
+                                                    "Riddle: Bridge Guard",
+                                                    () -> {}),
+                                            2.5f)));
                           });
                     }));
   }

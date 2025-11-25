@@ -12,7 +12,6 @@ import contrib.item.concreteItem.*;
 import contrib.item.concreteItem.ItemBigKey;
 import contrib.item.concreteItem.ItemKey;
 import contrib.modules.interaction.DropItemsInteraction;
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.components.item.ItemGenerator;
@@ -190,46 +189,45 @@ public final class MiscFactory {
 
     chest.add(
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () ->
-                    new Interaction(
-                        (interacted, interactor) ->
-                            interactor
-                                .fetch(InventoryComponent.class)
-                                .ifPresent(
-                                    whoIc -> {
-                                      UIComponent uiComponent =
-                                          new UIComponent(
-                                              new GUICombination(
-                                                  new InventoryGUI(whoIc),
-                                                  new InventoryGUI(
-                                                      "Chest", ic, INVENTORY_UI_MAX_ITEMS_PER_ROW)),
-                                              true);
-                                      uiComponent.onClose(
-                                          () ->
-                                              interacted
-                                                  .fetch(DrawComponent.class)
-                                                  .ifPresent(
-                                                      interactedDC -> {
-                                                        // only add opening animation when it is not
-                                                        // finished.
-                                                        // If
-                                                        // we close the GUI before the opening
-                                                        // animation finishes, the epsilon
-                                                        // transition
-                                                        // will
-                                                        // handle
-                                                        // setting the data correctly
-                                                        if (!interactedDC
-                                                            .stateMachine()
-                                                            .getCurrentStateName()
-                                                            .equals("opening")) {
-                                                          interactedDC.sendSignal(
-                                                              "open", ic.count() == 0);
-                                                        }
-                                                      }));
-                                      interactor.add(uiComponent);
-                                    }))));
+            () ->
+                new Interaction(
+                    (interacted, interactor) ->
+                        interactor
+                            .fetch(InventoryComponent.class)
+                            .ifPresent(
+                                whoIc -> {
+                                  UIComponent uiComponent =
+                                      new UIComponent(
+                                          new GUICombination(
+                                              new InventoryGUI(whoIc),
+                                              new InventoryGUI(
+                                                  "Chest", ic, INVENTORY_UI_MAX_ITEMS_PER_ROW)),
+                                          true);
+                                  uiComponent.onClose(
+                                      () ->
+                                          interacted
+                                              .fetch(DrawComponent.class)
+                                              .ifPresent(
+                                                  interactedDC -> {
+                                                    // only add opening animation when it is not
+                                                    // finished.
+                                                    // If
+                                                    // we close the GUI before the opening
+                                                    // animation finishes, the epsilon
+                                                    // transition
+                                                    // will
+                                                    // handle
+                                                    // setting the data correctly
+                                                    if (!interactedDC
+                                                        .stateMachine()
+                                                        .getCurrentStateName()
+                                                        .equals("opening")) {
+                                                      interactedDC.sendSignal(
+                                                          "open", ic.count() == 0);
+                                                    }
+                                                  }));
+                                  interactor.add(uiComponent);
+                                }))));
 
     return chest;
   }
@@ -261,42 +259,41 @@ public final class MiscFactory {
             oldIC -> {
               InteractionComponent wrapperIC =
                   new InteractionComponent(
-                      (ISimpleIInteractable)
-                          () ->
-                              new Interaction(
-                                  (interacted, interactor) -> {
-                                    InventoryComponent invComp =
-                                        interactor.fetch(InventoryComponent.class).orElse(null);
-                                    if (invComp == null) {
-                                      return;
-                                    }
+                      () ->
+                          new Interaction(
+                              (interacted, interactor) -> {
+                                InventoryComponent invComp =
+                                    interactor.fetch(InventoryComponent.class).orElse(null);
+                                if (invComp == null) {
+                                  return;
+                                }
 
-                                    if (!invComp.hasItem(requiredKeyType)) {
-                                      DialogUtils.showTextPopup(
-                                          "Du brauchst einen "
-                                              + reqKeyName
-                                              + " um diese Schatzkiste zu öffnen!",
-                                          "Fehlender Schlüssel.");
-                                      return;
-                                    }
+                                if (!invComp.hasItem(requiredKeyType)) {
+                                  DialogUtils.showTextPopup(
+                                      "Du brauchst einen "
+                                          + reqKeyName
+                                          + " um diese Schatzkiste zu öffnen!",
+                                      "Fehlender Schlüssel.");
+                                  return;
+                                }
 
-                                    YesNoDialog.showYesNoDialog(
-                                        "Willst du deinen "
-                                            + reqKeyName
-                                            + " verwenden, um die Schatzkiste zu öffnen?",
-                                        "Verschlossene Schatzkiste.",
-                                        () -> {
-                                          invComp
-                                              .itemOfClass(requiredKeyType)
-                                              .ifPresent(invComp::remove);
-                                          oldIC.triggerInteraction(interacted, interactor);
-                                          interacted.remove(InteractionComponent.class);
-                                          interacted.add(oldIC);
-                                        },
-                                        () -> {
-                                          // "No" - do nothing
-                                        });
-                                  }));
+                                YesNoDialog.showYesNoDialog(
+                                    "Willst du deinen "
+                                        + reqKeyName
+                                        + " verwenden, um die Schatzkiste zu öffnen?",
+                                    "Verschlossene Schatzkiste.",
+                                    () -> {
+                                      invComp
+                                          .itemOfClass(requiredKeyType)
+                                          .ifPresent(invComp::remove);
+                                      oldIC.triggerInteraction(interacted, interactor);
+                                      interacted.remove(InteractionComponent.class);
+                                      interacted.add(oldIC);
+                                    },
+                                    () -> {
+                                      // "No" - do nothing
+                                    });
+                              }));
 
               lockedChest.remove(InteractionComponent.class);
               lockedChest.add(wrapperIC);
@@ -321,21 +318,20 @@ public final class MiscFactory {
     cauldron.add(dc);
     cauldron.add(
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () ->
-                    new Interaction(
-                        (entity, who) ->
-                            who.fetch(InventoryComponent.class)
-                                .ifPresent(
-                                    ic -> {
-                                      CraftingGUI craftingGUI = new CraftingGUI(ic);
-                                      UIComponent component =
-                                          new UIComponent(
-                                              new GUICombination(new InventoryGUI(ic), craftingGUI),
-                                              true);
-                                      component.onClose(craftingGUI::cancel);
-                                      who.add(component);
-                                    }))));
+            () ->
+                new Interaction(
+                    (entity, who) ->
+                        who.fetch(InventoryComponent.class)
+                            .ifPresent(
+                                ic -> {
+                                  CraftingGUI craftingGUI = new CraftingGUI(ic);
+                                  UIComponent component =
+                                      new UIComponent(
+                                          new GUICombination(new InventoryGUI(ic), craftingGUI),
+                                          true);
+                                  component.onClose(craftingGUI::cancel);
+                                  who.add(component);
+                                }))));
     cauldron.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
     return cauldron;
   }
@@ -444,25 +440,24 @@ public final class MiscFactory {
     cookingPot.add(ic);
     cookingPot.add(
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () ->
-                    new Interaction(
-                        (interacted, interactor) ->
-                            interactor
-                                .fetch(InventoryComponent.class)
-                                .ifPresent(
-                                    whoIc -> {
-                                      UIComponent uiComponent =
-                                          new UIComponent(
-                                              new GUICombination(
-                                                  new InventoryGUI(whoIc),
-                                                  new InventoryGUI(
-                                                      "Cookingpot",
-                                                      ic,
-                                                      INVENTORY_UI_MAX_ITEMS_PER_ROW)),
-                                              true);
-                                      interactor.add(uiComponent);
-                                    }))));
+            () ->
+                new Interaction(
+                    (interacted, interactor) ->
+                        interactor
+                            .fetch(InventoryComponent.class)
+                            .ifPresent(
+                                whoIc -> {
+                                  UIComponent uiComponent =
+                                      new UIComponent(
+                                          new GUICombination(
+                                              new InventoryGUI(whoIc),
+                                              new InventoryGUI(
+                                                  "Cookingpot",
+                                                  ic,
+                                                  INVENTORY_UI_MAX_ITEMS_PER_ROW)),
+                                          true);
+                                  interactor.add(uiComponent);
+                                }))));
 
     return cookingPot;
   }
@@ -598,10 +593,9 @@ public final class MiscFactory {
     book.add(new PositionComponent(position));
     book.add(
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () ->
-                    new Interaction(
-                        (entity, entity2) -> OkDialog.showOkDialog(text, title, onClose), 1f)));
+            () ->
+                new Interaction(
+                    (entity, entity2) -> OkDialog.showOkDialog(text, title, onClose), 1f)));
     book.add(
         new DrawComponent(new Animation(Math.random() < 0.5 ? BOOK_TEXTURE : SPELL_BOOK_TEXTURE)));
     return book;
@@ -631,38 +625,35 @@ public final class MiscFactory {
 
     doorBlocker.add(
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () ->
-                    new Interaction(
-                        (interacted, interactor) -> {
-                          InventoryComponent invComp =
-                              interactor.fetch(InventoryComponent.class).orElse(null);
-                          if (invComp == null) {
-                            return;
-                          }
+            () ->
+                new Interaction(
+                    (interacted, interactor) -> {
+                      InventoryComponent invComp =
+                          interactor.fetch(InventoryComponent.class).orElse(null);
+                      if (invComp == null) {
+                        return;
+                      }
 
-                          if (!invComp.hasItem(requiredKeyType)) {
-                            DialogUtils.showTextPopup(
-                                "Du brauchst einen " + reqKeyName + " um diese Tür zu öffnen!",
-                                "Fehlender Schlüssel.");
-                            return;
-                          }
+                      if (!invComp.hasItem(requiredKeyType)) {
+                        DialogUtils.showTextPopup(
+                            "Du brauchst einen " + reqKeyName + " um diese Tür zu öffnen!",
+                            "Fehlender Schlüssel.");
+                        return;
+                      }
 
-                          YesNoDialog.showYesNoDialog(
-                              "Willst du deinen "
-                                  + reqKeyName
-                                  + " verwenden, um die Tür zu öffnen?",
-                              "Verschlossene Tür.",
-                              () -> {
-                                invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
-                                Game.remove(interacted);
-                                door.open();
-                              },
-                              () -> {
-                                // "No" - do nothing
-                              });
-                        },
-                        2f)));
+                      YesNoDialog.showYesNoDialog(
+                          "Willst du deinen " + reqKeyName + " verwenden, um die Tür zu öffnen?",
+                          "Verschlossene Tür.",
+                          () -> {
+                            invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
+                            Game.remove(interacted);
+                            door.open();
+                          },
+                          () -> {
+                            // "No" - do nothing
+                          });
+                    },
+                    2f)));
     door.close();
     doorBlocker.add(new DrawComponent(new Animation(DOOR_BLOCKER_TEXTURE)));
     return doorBlocker;
@@ -697,13 +688,12 @@ public final class MiscFactory {
     // Initial InteractionComponent
     InteractionComponent baseIC =
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () ->
-                    new Interaction(
-                        (interacted, interactor) -> {
-                          // Original behavior will be wrapped below
-                        },
-                        2f));
+            () ->
+                new Interaction(
+                    (interacted, interactor) -> {
+                      // Original behavior will be wrapped below
+                    },
+                    2f));
     destroyableObj.add(baseIC);
 
     CollideComponent cc = new CollideComponent(Vector2.ZERO, Vector2.ONE);
@@ -735,39 +725,38 @@ public final class MiscFactory {
             oldIC -> {
               InteractionComponent wrapperIC =
                   new InteractionComponent(
-                      (ISimpleIInteractable)
-                          () ->
-                              new Interaction(
-                                  (interacted, interactor) -> {
-                                    // check if a specific item is required for destruction
-                                    if (requiredItemClass != null) {
-                                      boolean hasRequiredItem =
-                                          interactor
-                                              .fetch(InventoryComponent.class)
-                                              .map(inv -> inv.hasItem(requiredItemClass))
-                                              .orElse(false);
+                      () ->
+                          new Interaction(
+                              (interacted, interactor) -> {
+                                // check if a specific item is required for destruction
+                                if (requiredItemClass != null) {
+                                  boolean hasRequiredItem =
+                                      interactor
+                                          .fetch(InventoryComponent.class)
+                                          .map(inv -> inv.hasItem(requiredItemClass))
+                                          .orElse(false);
 
-                                      if (!hasRequiredItem) {
-                                        return;
-                                      }
-                                    }
+                                  if (!hasRequiredItem) {
+                                    return;
+                                  }
+                                }
 
-                                    // start breaking Animation
-                                    dc.sendSignal("break");
+                                // start breaking Animation
+                                dc.sendSignal("break");
 
-                                    // Drop all items from DestroyableObject inventory
-                                    Arrays.stream(objInvComp.items())
-                                        .filter(Objects::nonNull)
-                                        .forEach(
-                                            itemInInv -> {
-                                              itemInInv.drop(spawnPoint);
-                                              objInvComp.remove(itemInInv);
-                                            });
+                                // Drop all items from DestroyableObject inventory
+                                Arrays.stream(objInvComp.items())
+                                    .filter(Objects::nonNull)
+                                    .forEach(
+                                        itemInInv -> {
+                                          itemInInv.drop(spawnPoint);
+                                          objInvComp.remove(itemInInv);
+                                        });
 
-                                    // remove interaction after successfully destroying the object
-                                    interacted.remove(InteractionComponent.class);
-                                  },
-                                  2f));
+                                // remove interaction after successfully destroying the object
+                                interacted.remove(InteractionComponent.class);
+                              },
+                              2f));
 
               destroyableObj.remove(InteractionComponent.class);
               destroyableObj.add(wrapperIC);

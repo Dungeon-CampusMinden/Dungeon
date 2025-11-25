@@ -1,7 +1,6 @@
 package entities;
 
 import components.TorchComponent;
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -66,15 +65,14 @@ public class TorchFactory {
     if (isInteractable)
       torch.add(
           new InteractionComponent(
-              (ISimpleIInteractable)
-                  () ->
-                      new Interaction(
-                          (entity, who) -> {
-                            tc.toggle();
-                            dc.sendSignal(tc.lit() ? "on" : "off");
-                            onInteract.accept(entity, who);
-                          },
-                          DEFAULT_INTERACTION_RADIUS)));
+              () ->
+                  new Interaction(
+                      (entity, who) -> {
+                        tc.toggle();
+                        dc.sendSignal(tc.lit() ? "on" : "off");
+                        onInteract.accept(entity, who);
+                      },
+                      DEFAULT_INTERACTION_RADIUS)));
 
     return torch;
   }

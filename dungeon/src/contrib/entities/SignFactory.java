@@ -2,7 +2,6 @@ package contrib.entities;
 
 import contrib.components.SignComponent;
 import contrib.hud.DialogUtils;
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -58,20 +57,18 @@ public class SignFactory {
     sign.add(new SignComponent(text, title));
     sign.add(
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () ->
-                    new Interaction(
-                        (entity, who) -> {
-                          SignComponent sc =
-                              entity
-                                  .fetch(SignComponent.class)
-                                  .orElseThrow(
-                                      () ->
-                                          MissingComponentException.build(
-                                              entity, SignComponent.class));
-                          onInteract.accept(entity, who);
-                          sc.showDialog();
-                        })));
+            () ->
+                new Interaction(
+                    (entity, who) -> {
+                      SignComponent sc =
+                          entity
+                              .fetch(SignComponent.class)
+                              .orElseThrow(
+                                  () ->
+                                      MissingComponentException.build(entity, SignComponent.class));
+                      onInteract.accept(entity, who);
+                      sc.showDialog();
+                    })));
 
     return sign;
   }

@@ -8,7 +8,6 @@ import contrib.hud.dialogs.OkDialog;
 import contrib.hud.dialogs.TextDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -110,8 +109,7 @@ public class NativeScenarioBuilder {
           chest.remove(InteractionComponent.class);
           chest.add(
               new InteractionComponent(
-                  (ISimpleIInteractable)
-                      () -> new Interaction(QuestChestInventoryInteraction(), 1.5f)));
+                  () -> new Interaction(QuestChestInventoryInteraction(), 1.5f)));
 
           // mark as task container
           var tcc = new TaskContentComponent();
@@ -133,19 +131,18 @@ public class NativeScenarioBuilder {
 
   private static InteractionComponent askOnInteractionQuiz(Quiz quiz) {
     return new InteractionComponent(
-        (ISimpleIInteractable)
-            () ->
-                new Interaction(
-                    (thisEntity, otherEntity) -> {
-                      if (quiz.state().equals(Task.TaskState.ACTIVE)
-                          || quiz.state().equals(Task.TaskState.PROCESSING_ACTIVE)) {
-                        QuizUI.askQuizOnHud(quiz);
-                      } else {
-                        OkDialog.showOkDialog(
-                            "Du hast die Aufgabe schon bearbeitet.", "Info", () -> {});
-                      }
-                    },
-                    1));
+        () ->
+            new Interaction(
+                (thisEntity, otherEntity) -> {
+                  if (quiz.state().equals(Task.TaskState.ACTIVE)
+                      || quiz.state().equals(Task.TaskState.PROCESSING_ACTIVE)) {
+                    QuizUI.askQuizOnHud(quiz);
+                  } else {
+                    OkDialog.showOkDialog(
+                        "Du hast die Aufgabe schon bearbeitet.", "Info", () -> {});
+                  }
+                },
+                1));
   }
 
   private static BiConsumer<Entity, Entity> QuestChestInventoryInteraction() {
@@ -181,19 +178,18 @@ public class NativeScenarioBuilder {
 
   private static InteractionComponent askOnInteractionYesNo(Task task) {
     return new InteractionComponent(
-        (ISimpleIInteractable)
-            () ->
-                new Interaction(
-                    (thisEntity, otherEntity) -> {
-                      if (task.state().equals(Task.TaskState.ACTIVE)
-                          || task.state().equals(Task.TaskState.PROCESSING_ACTIVE)) {
-                        YesNoDialog.showYesNoDialog(task);
-                      } else {
-                        OkDialog.showOkDialog(
-                            "Du hast die Aufgabe schon bearbeitet.", "Info", () -> {});
-                      }
-                    },
-                    1f));
+        () ->
+            new Interaction(
+                (thisEntity, otherEntity) -> {
+                  if (task.state().equals(Task.TaskState.ACTIVE)
+                      || task.state().equals(Task.TaskState.PROCESSING_ACTIVE)) {
+                    YesNoDialog.showYesNoDialog(task);
+                  } else {
+                    OkDialog.showOkDialog(
+                        "Du hast die Aufgabe schon bearbeitet.", "Info", () -> {});
+                  }
+                },
+                1f));
   }
 
   private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {

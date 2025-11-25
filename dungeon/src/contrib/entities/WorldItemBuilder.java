@@ -4,7 +4,6 @@ import contrib.components.ItemComponent;
 import contrib.hud.DialogUtils;
 import contrib.item.Item;
 import contrib.modules.interaction.IInteractable;
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -29,9 +28,7 @@ public final class WorldItemBuilder {
     droppedItem.add(new ItemComponent(item));
 
     droppedItem.add(
-        new InteractionComponent(
-            (ISimpleIInteractable)
-                () -> new Interaction(item::collect, DEFAULT_ITEM_PICKUP_RADIUS)));
+        new InteractionComponent(() -> new Interaction(item::collect, DEFAULT_ITEM_PICKUP_RADIUS)));
     return droppedItem;
   }
 

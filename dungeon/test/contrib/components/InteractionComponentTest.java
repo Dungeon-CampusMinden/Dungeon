@@ -2,7 +2,6 @@ package contrib.components;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -34,8 +33,7 @@ public class InteractionComponentTest {
     BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);
 
     InteractionComponent component =
-        new InteractionComponent(
-            (ISimpleIInteractable) () -> new Interaction(iInteraction, radius, repeat));
+        new InteractionComponent(() -> new Interaction(iInteraction, radius, repeat));
     e.add(component);
 
     assertEquals(radius, component.interactions().interact().range(), 0.0001);

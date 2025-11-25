@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import contrib.entities.EntityFactory;
 import contrib.hud.dialogs.TextDialog;
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.*;
@@ -97,13 +96,12 @@ public class CallbackTest {
     wizard.add(new TaskComponent(question, wizard));
     wizard.add(
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () ->
-                    new Interaction(
-                        (entity, who) ->
-                            UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
-                                .accept(entity, who),
-                        1)));
+            () ->
+                new Interaction(
+                    (entity, who) ->
+                        UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
+                            .accept(entity, who),
+                    1)));
     return wizard;
   }
 

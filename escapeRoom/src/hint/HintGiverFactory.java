@@ -2,7 +2,6 @@ package hint;
 
 import contrib.hud.dialogs.OkDialog;
 import contrib.hud.dialogs.YesNoDialog;
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -33,9 +32,7 @@ public class HintGiverFactory {
     Entity mailbox = new Entity("Hint Mailbox");
     mailbox.add(new PositionComponent(point));
     mailbox.add(new DrawComponent(new Animation(MAILBOX_TEXTURE)));
-    mailbox.add(
-        new InteractionComponent(
-            (ISimpleIInteractable) () -> new Interaction(wantHintInteraction(), 1)));
+    mailbox.add(new InteractionComponent(() -> new Interaction(wantHintInteraction(), 1)));
     return mailbox;
   }
 

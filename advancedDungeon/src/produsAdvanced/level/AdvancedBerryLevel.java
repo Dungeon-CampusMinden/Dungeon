@@ -6,7 +6,6 @@ import contrib.entities.SignFactory;
 import contrib.entities.WorldItemBuilder;
 import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.YesNoDialog;
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.components.health.Damage;
@@ -183,65 +182,58 @@ public class AdvancedBerryLevel extends AdvancedLevel {
     makeInvincible(npc);
     npc.add(
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () ->
-                    new Interaction(
-                        (entity, hero) -> {
-                          // Markiere, dass der Spieler mit dem Ork interagiert hat
-                          hasSpokenToOrc = true;
-                          DialogUtils.showTextPopup(
-                              String.format(DIALOG_MESSAGE_START, BERRY_GOAL),
-                              DIALOG_TITLE_HUNGER,
-                              () -> {
-                                DialogUtils.showTextPopup(task, titel);
-                                entity.remove(InteractionComponent.class);
-                                entity.add(middleNPCInteraction(npc));
-                              });
-                        },
-                        1)));
+            () ->
+                new Interaction(
+                    (entity, hero) -> {
+                      // Markiere, dass der Spieler mit dem Ork interagiert hat
+                      hasSpokenToOrc = true;
+                      DialogUtils.showTextPopup(
+                          String.format(DIALOG_MESSAGE_START, BERRY_GOAL),
+                          DIALOG_TITLE_HUNGER,
+                          () -> {
+                            DialogUtils.showTextPopup(task, titel);
+                            entity.remove(InteractionComponent.class);
+                            entity.add(middleNPCInteraction(npc));
+                          });
+                    },
+                    1)));
     Game.add(npc);
   }
 
   private InteractionComponent middleNPCInteraction(Entity npc) {
     return new InteractionComponent(
-        (ISimpleIInteractable)
-            () ->
-                new Interaction(
-                    (entity1, entity2) ->
-                        YesNoDialog.showYesNoDialog(
-                            DIALOG_LOGIN,
-                            DIALOG_TITLE_HUNGER,
-                            () -> {
-                              int count = checkBerryCount();
-                              if (count < BERRY_GOAL) {
-                                DialogUtils.showTextPopup(
-                                    String.format(DIALOG_MESSAGE_NOT_ENOUGH, BERRY_GOAL),
-                                    DIALOG_TITLE_HUNGER);
-                              } else if (checkBerries()) {
-                                DialogUtils.showTextPopup(
-                                    DIALOG_MESSAGE_SUCCESS, DIALOG_TITLE_SATISFIED);
-                                door.open();
-                                npc.remove(InteractionComponent.class);
-                                chest.remove(InteractionComponent.class);
-                                chest.add(innerNPCInteraction());
-                              } else {
-                                DialogUtils.showTextPopup(
-                                    DIALOG_MESSAGE_TOXIC, DIALOG_TITLE_HUNGER);
-                              }
-                            },
-                            () ->
-                                DialogUtils.showTextPopup(
-                                    DIALOG_MESSAGE_LATER, DIALOG_TITLE_HUNGER)),
-                    1));
+        () ->
+            new Interaction(
+                (entity1, entity2) ->
+                    YesNoDialog.showYesNoDialog(
+                        DIALOG_LOGIN,
+                        DIALOG_TITLE_HUNGER,
+                        () -> {
+                          int count = checkBerryCount();
+                          if (count < BERRY_GOAL) {
+                            DialogUtils.showTextPopup(
+                                String.format(DIALOG_MESSAGE_NOT_ENOUGH, BERRY_GOAL),
+                                DIALOG_TITLE_HUNGER);
+                          } else if (checkBerries()) {
+                            DialogUtils.showTextPopup(
+                                DIALOG_MESSAGE_SUCCESS, DIALOG_TITLE_SATISFIED);
+                            door.open();
+                            npc.remove(InteractionComponent.class);
+                            chest.remove(InteractionComponent.class);
+                            chest.add(innerNPCInteraction());
+                          } else {
+                            DialogUtils.showTextPopup(DIALOG_MESSAGE_TOXIC, DIALOG_TITLE_HUNGER);
+                          }
+                        },
+                        () -> DialogUtils.showTextPopup(DIALOG_MESSAGE_LATER, DIALOG_TITLE_HUNGER)),
+                1));
   }
 
   private InteractionComponent innerNPCInteraction() {
     return new InteractionComponent(
-        (ISimpleIInteractable)
-            () ->
-                new Interaction(
-                    (e1, e2) -> DialogUtils.showTextPopup(DIALOG_MESSAGE_CHEST, DIALOG_TITLE_MINE),
-                    1));
+        () ->
+            new Interaction(
+                (e1, e2) -> DialogUtils.showTextPopup(DIALOG_MESSAGE_CHEST, DIALOG_TITLE_MINE), 1));
   }
 
   /**

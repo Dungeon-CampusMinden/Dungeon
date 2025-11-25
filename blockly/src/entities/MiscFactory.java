@@ -5,7 +5,6 @@ import components.*;
 import contrib.components.*;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -92,15 +91,14 @@ public class MiscFactory {
     pickup.add(new DrawComponent(new Animation(PICKUP_BOCK_PATH)));
     pickup.add(
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () ->
-                    new Interaction(
-                        (entity, entity2) -> {
-                          DialogUtils.showTextPopup(pickupText, title);
-                          Game.remove(pickup);
-                        },
-                        0,
-                        false)));
+            () ->
+                new Interaction(
+                    (entity, entity2) -> {
+                      DialogUtils.showTextPopup(pickupText, title);
+                      Game.remove(pickup);
+                    },
+                    0,
+                    false)));
     return pickup;
   }
 
@@ -123,8 +121,7 @@ public class MiscFactory {
     breadcrumb.add(new BreadcrumbComponent());
     breadcrumb.add(
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () -> new Interaction((entity, entity2) -> Game.remove(breadcrumb), 0, false)));
+            () -> new Interaction((entity, entity2) -> Game.remove(breadcrumb), 0, false)));
 
     return breadcrumb;
   }
@@ -148,8 +145,7 @@ public class MiscFactory {
     clover.add(new CloverComponent());
     clover.add(
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () -> new Interaction((entity, entity2) -> Game.remove(clover), 0, false)));
+            () -> new Interaction((entity, entity2) -> Game.remove(clover), 0, false)));
 
     return clover;
   }
@@ -170,16 +166,14 @@ public class MiscFactory {
     fireballScroll.add(new BlocklyItemComponent());
     fireballScroll.add(
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () ->
-                    new Interaction(
-                        (entity, hero) -> {
-                          hero.fetch(AmmunitionComponent.class)
-                              .map(AmmunitionComponent::collectAmmo);
-                          Game.remove(fireballScroll);
-                        },
-                        0,
-                        false)));
+            () ->
+                new Interaction(
+                    (entity, hero) -> {
+                      hero.fetch(AmmunitionComponent.class).map(AmmunitionComponent::collectAmmo);
+                      Game.remove(fireballScroll);
+                    },
+                    0,
+                    false)));
     return fireballScroll;
   }
 }

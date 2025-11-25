@@ -36,6 +36,15 @@ public final class InteractionComponent implements Component {
   }
 
   /**
+   * Creates a new {@link InteractionComponent} with a custom interaction provider.
+   *
+   * @param interactions the simple interaction behavior to execute when an interaction is triggered
+   */
+  public InteractionComponent(ISimpleIInteractable interactions) {
+    this.interactions = interactions;
+  }
+
+  /**
    * Creates a new {@link InteractionComponent} using the default interaction configuration.
    *
    * <p>The default {@link IInteractable} provides no custom behavior beyond the predefined

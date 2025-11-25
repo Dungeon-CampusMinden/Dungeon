@@ -1,6 +1,5 @@
 package contrib.modules.keypad;
 
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -52,14 +51,13 @@ public class KeypadFactory {
 
     entity.add(
         new InteractionComponent(
-            (ISimpleIInteractable)
-                () ->
-                    new Interaction(
-                        (e, who) -> {
-                          kc.isUIOpen(true);
-                          LOGGER.info("Interacted with keypad sprite");
-                        },
-                        DEFAULT_INTERACTION_RADIUS)));
+            () ->
+                new Interaction(
+                    (e, who) -> {
+                      kc.isUIOpen(true);
+                      LOGGER.info("Interacted with keypad sprite");
+                    },
+                    DEFAULT_INTERACTION_RADIUS)));
     return entity;
   }
 }
