@@ -71,6 +71,11 @@ public abstract class LevelEditorMode {
   /** Executes the logic for this mode. Called every frame. */
   public abstract void execute();
 
+  /** Render call for this mode. */
+  public void render() {
+    // Default: do nothing
+  }
+
   /** Called when entering this mode. */
   public abstract void onEnter();
 

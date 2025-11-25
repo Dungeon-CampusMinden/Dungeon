@@ -11,6 +11,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.InputComponent;
+import core.components.PlayerComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.systems.DrawSystem;
@@ -20,6 +21,7 @@ import core.utils.components.draw.shader.OutlineShader;
 import core.utils.components.draw.shader.PassthroughShader;
 import core.utils.logging.DungeonLogger;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The LevelEditorSystem is responsible for handling the level editor. It allows the user to change
@@ -162,6 +164,8 @@ public class LevelEditorSystem extends System {
     Tile[][] layout = Game.currentLevel().orElseThrow().layout();
     DebugDrawSystem.drawRectangleOutline(
         0, 0, layout[0].length, layout.length, new Color(0, 1, 0, 0.3f));
+
+    currentModeInstance.render();
   }
 
   @Override
@@ -171,6 +175,11 @@ public class LevelEditorSystem extends System {
     }
 
     if (!active) return;
+
+    Optional<PlayerComponent> pc = Game.player().flatMap(e -> e.fetch(PlayerComponent.class));
+    if (pc.isPresent() && pc.get().openDialogs()) {
+      return;
+    }
 
     if (Gdx.input.isKeyJustPressed(TOGGLE_DEBUG_SHADER)) {
       toggleDebugShader();

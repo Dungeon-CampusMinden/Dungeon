@@ -32,7 +32,6 @@ public class PointMode extends LevelEditorMode {
 
   @Override
   public void execute() {
-    DebugDrawSystem.drawNamedPoints(heldPointName);
 
     if (Gdx.input.isKeyJustPressed(SECONDARY_UP)) {
       snapMode = snapMode.nextMode();
@@ -51,23 +50,31 @@ public class PointMode extends LevelEditorMode {
             "Add Named Point",
             "Name of new point",
             (string) -> {
+              if (string.isBlank()) return;
               getLevel().addNamedPoint(string, snapPos);
             });
       }
-    } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT) && heldPointName == null) {
-      // Pickup deco on cursor
+    } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
       Optional<String> clickedPoint = getOnPosition(cursorPos);
-      clickedPoint.ifPresentOrElse(
-          point -> {
-            heldPointName = point;
-          },
-          () -> {
-            LevelEditorSystem.showFeedback("No point to pickup on coordinate!", Color.YELLOW);
-          });
+      clickedPoint.ifPresent(point -> heldPointName = point);
+
+      if (heldPointName == null) {
+        LevelEditorSystem.showFeedback("No point to pickup on coordinate!", Color.YELLOW);
+      } else if (clickedPoint.isEmpty()) {
+        // Clone and increment held point to cursor
+        String baseName = heldPointName.replaceAll("\\d+$", "");
+        String newPointName = baseName + (getLevel().getHighestPointNumber(baseName) + 1);
+        getLevel().addNamedPoint(newPointName, snapPos);
+      }
     } else if (Gdx.input.isKeyPressed(TERTIARY)) {
       // Delete deco on cursor
       getOnPosition(cursorPos).ifPresent(getLevel()::removeNamedPoint);
     }
+  }
+
+  @Override
+  public void render() {
+    DebugDrawSystem.drawNamedPoints(heldPointName, true);
   }
 
   @Override
@@ -87,7 +94,7 @@ public class PointMode extends LevelEditorMode {
     controls.put(SECONDARY_UP, "Change Snap Mode");
     controls.put(TERTIARY, "Delete Point");
     controls.put(Input.Buttons.LEFT, "Place Point");
-    controls.put(Input.Buttons.RIGHT, "Pickup Point");
+    controls.put(Input.Buttons.RIGHT, "Pickup Point / Clone Held Point");
     return controls;
   }
 

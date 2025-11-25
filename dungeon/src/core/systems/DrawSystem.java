@@ -60,6 +60,7 @@ import java.util.*;
 public final class DrawSystem extends System implements Disposable {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DrawSystem.class);
+  private static DrawSystem INSTANCE = null;
 
   /**
    * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
@@ -93,11 +94,24 @@ public final class DrawSystem extends System implements Disposable {
   private int unstableHeight = -1;
   private int stableResizeFrames = -1;
 
+  /**
+   * Gets the singleton instance of the DrawSystem.
+   *
+   * @return The DrawSystem instance
+   */
+  public static DrawSystem getInstance() {
+    if (INSTANCE == null) {
+      INSTANCE = new DrawSystem();
+    }
+    return INSTANCE;
+  }
+
   /** Create a new DrawSystem. */
-  public DrawSystem() {
+  private DrawSystem() {
     super(AuthoritativeSide.BOTH, DrawComponent.class, PositionComponent.class);
     onEntityAdd = (e) -> onEntityChanged(e, true);
     onEntityRemove = (e) -> onEntityChanged(e, false);
+    INSTANCE = this;
   }
 
   private void onEntityChanged(Entity changed, boolean added) {
@@ -886,9 +900,7 @@ public final class DrawSystem extends System implements Disposable {
    * @return the total seconds elapsed
    */
   public static float secondsElapsed() {
-    System s = Game.systems().get(DrawSystem.class);
-    if (!(s instanceof DrawSystem ds)) return 0;
-    return ds.secondsElapsed;
+    return getInstance().secondsElapsed;
   }
 
   /**
@@ -898,9 +910,7 @@ public final class DrawSystem extends System implements Disposable {
    * @return the number of active shaders in the last frame
    */
   public static int shadersActiveLastFrame() {
-    System s = Game.systems().get(DrawSystem.class);
-    if (!(s instanceof DrawSystem ds)) return 0;
-    return ds.shadersActiveLastFrame;
+    return getInstance().shadersActiveLastFrame;
   }
 
   private record DSData(Entity e, DrawComponent dc, PositionComponent pc) {

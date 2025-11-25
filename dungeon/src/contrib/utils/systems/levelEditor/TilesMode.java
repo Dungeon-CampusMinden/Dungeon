@@ -27,6 +27,24 @@ public class TilesMode extends LevelEditorMode {
   }
 
   @Override
+  public void render() {
+    // Draw squares on all affected tiles via the DebugDrawSystem
+    Point cursorPos = getCursorPosition();
+    cursorPos = new Point((float) Math.floor(cursorPos.x()), (float) Math.floor(cursorPos.y()));
+    for (int dx = -brushSize + 1; dx < brushSize; dx++) {
+      for (int dy = -brushSize + 1; dy < brushSize; dy++) {
+        // Ignore corners
+        if (Math.abs(dx) + Math.abs(dy) >= brushSize) {
+          continue;
+        }
+        Point targetPos = cursorPos.translate(Vector2.of(dx, dy));
+        DebugDrawSystem.drawRectangleOutline(
+            targetPos.x(), targetPos.y(), 1.0f, 1.0f, new Color(1, 1, 1, 0.2f));
+      }
+    }
+  }
+
+  @Override
   public void execute() {
     if (Gdx.input.isKeyJustPressed(PRIMARY_DOWN)) {
       if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
@@ -100,21 +118,6 @@ public class TilesMode extends LevelEditorMode {
           }
           CheckPatternPainter.paintCheckerPattern(getLevel().layout());
         });
-
-    // Draw squares on all affected tiles via the DebugDrawSystem
-    Point cursorPos = getCursorPosition();
-    cursorPos = new Point((float) Math.floor(cursorPos.x()), (float) Math.floor(cursorPos.y()));
-    for (int dx = -brushSize + 1; dx < brushSize; dx++) {
-      for (int dy = -brushSize + 1; dy < brushSize; dy++) {
-        // Ignore corners
-        if (Math.abs(dx) + Math.abs(dy) >= brushSize) {
-          continue;
-        }
-        Point targetPos = cursorPos.translate(Vector2.of(dx, dy));
-        DebugDrawSystem.drawRectangleOutline(
-            targetPos.x(), targetPos.y(), 1.0f, 1.0f, new Color(1, 1, 1, 0.2f));
-      }
-    }
   }
 
   @Override
