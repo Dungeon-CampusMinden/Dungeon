@@ -1,6 +1,6 @@
 ext {
     // -- PLUGINS
-    spotlessVersion = '8.0.0'
+    spotlessVersion = '8.1.0'
 
     // -- DEPENDENCIES
     gdxVersion = '1.12.1'
