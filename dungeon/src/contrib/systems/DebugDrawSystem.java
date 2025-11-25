@@ -155,6 +155,7 @@ public class DebugDrawSystem extends System {
    * Draws named points from the current level.
    *
    * @param highlightPoint The name of the point to highlight, or null for none.
+   * @param pointModeActive Whether point mode is active, affecting the color used.
    */
   public static void drawNamedPoints(String highlightPoint, boolean pointModeActive) {
     ILevel l = Game.currentLevel().orElse(null);

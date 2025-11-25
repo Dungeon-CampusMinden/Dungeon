@@ -94,6 +94,11 @@ public final class DrawSystem extends System implements Disposable {
   private int unstableHeight = -1;
   private int stableResizeFrames = -1;
 
+  /**
+   * Gets the singleton instance of the DrawSystem.
+   *
+   * @return The DrawSystem instance
+   */
   public static DrawSystem getInstance() {
     if (INSTANCE == null) {
       INSTANCE = new DrawSystem();
