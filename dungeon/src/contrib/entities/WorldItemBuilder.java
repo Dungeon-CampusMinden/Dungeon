@@ -103,28 +103,8 @@ public final class WorldItemBuilder {
       }
 
       @Override
-      public Interaction interact() {
-        return IInteractable.super.interact();
-      }
-
-      @Override
       public Interaction take() {
         return new Interaction(item::collect, DEFAULT_ITEM_PICKUP_RADIUS, TAKE_LABEL);
-      }
-
-      @Override
-      public Interaction usewithitem() {
-        return IInteractable.super.usewithitem();
-      }
-
-      @Override
-      public Interaction talk() {
-        return IInteractable.super.talk();
-      }
-
-      @Override
-      public Interaction attack() {
-        return IInteractable.super.attack();
       }
     };
   }
