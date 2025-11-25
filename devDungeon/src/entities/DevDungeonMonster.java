@@ -4,6 +4,9 @@ import components.ReviveComponent;
 import contrib.components.*;
 import contrib.entities.*;
 import contrib.hud.DialogUtils;
+import contrib.modules.interaction.DropItemsInteraction;
+import contrib.modules.interaction.ISimpleIInteractable;
+import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.fight.AIRangeBehaviour;
@@ -458,12 +461,13 @@ public enum DevDungeonMonster {
 
     bridgeGuard.add(
         new InteractionComponent(
-            InteractionComponent.DEFAULT_INTERACTION_RADIUS,
-            true,
-            (me, who) -> {
-              Iterator<Quiz> quizIterator = quizzes.iterator();
-              DialogUtils.presentQuiz(quizIterator, onFinished);
-            }));
+            (ISimpleIInteractable)
+                () ->
+                    new Interaction(
+                        (me, who) -> {
+                          Iterator<Quiz> quizIterator = quizzes.iterator();
+                          DialogUtils.presentQuiz(quizIterator, onFinished);
+                        })));
 
     return bridgeGuard;
   }

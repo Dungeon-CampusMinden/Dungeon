@@ -13,7 +13,6 @@ import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
-import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.utils.LevelUtils;
 import core.network.messages.c2s.InputMessage;
@@ -120,11 +119,8 @@ public class HeroController {
             .filter(e -> e.fetch(InteractionComponent.class).isPresent())
             .findFirst();
 
-    // Check if target at point is in range
-    boolean targetInRange = target.map(entity -> canInteract(entity, hero)).orElse(false);
-
-    // If nothing found at point OR found but out of range, search in 1-tile radius around hero
-    if (target.isEmpty() || !targetInRange) {
+    // If nothing found at point, search in 1-tile radius around hero
+    if (target.isEmpty()) {
       LOGGER.trace(
           "No interactable found at point {}, searching in radius around hero {}",
           point,
@@ -136,36 +132,14 @@ public class HeroController {
               .findFirst();
     }
 
-    // Trigger interaction if entity found and within interaction radius
+    // Trigger interaction if entity found
     target.ifPresentOrElse(
         entity -> {
           InteractionComponent ic = entity.fetch(InteractionComponent.class).orElseThrow();
-          if (EntityUtils.getPosition(hero).distance(EntityUtils.getPosition(entity))
-              <= ic.radius()) {
-            LOGGER.trace("Hero {} interacting with entity {}", hero.id(), entity.id());
-            ic.triggerInteraction(entity, hero);
-          } else {
-            LOGGER.trace("Entity {} out of interaction range for hero {}", entity.id(), hero.id());
-          }
+          LOGGER.trace("Hero {} interacting with entity {}", hero.id(), entity.id());
+          ic.triggerInteraction(entity, hero);
         },
         () -> LOGGER.trace("No interactable entity found for hero {} to interact with", hero.id()));
-  }
-
-  /**
-   * Checks if the hero can interact with the given entity. Returns true if the entity has both
-   * position and interaction components, and the hero is within the interaction radius.
-   *
-   * @param targetEntity the entity to be interacted with
-   * @param hero the hero that wants to interact
-   * @return true if interaction is possible, false otherwise
-   */
-  private static boolean canInteract(Entity targetEntity, Entity hero) {
-    PositionComponent targetPc = targetEntity.fetch(PositionComponent.class).orElse(null);
-    InteractionComponent ic = targetEntity.fetch(InteractionComponent.class).orElse(null);
-    return targetPc != null
-        && ic != null
-        && EntityUtils.getPosition(hero).distance(EntityUtils.getPosition(targetEntity))
-            <= ic.radius();
   }
 
   /**

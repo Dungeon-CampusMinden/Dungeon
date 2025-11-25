@@ -8,6 +8,8 @@ import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.OkDialog;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.modules.interaction.ISimpleIInteractable;
+import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.HealthSystem;
 import contrib.utils.EntityUtils;
@@ -120,10 +122,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
         .stream()
         .filter(tile -> tile instanceof WallTile)
         .peek(wallTile -> level.changeTileElementType(wallTile, LevelElement.FLOOR))
-        .forEach(
-            tile -> {
-              utils.EntityUtils.spawnTorch(tile.coordinate().toPoint(), true, false, 0);
-            });
+        .forEach(tile -> utils.EntityUtils.spawnTorch(tile.coordinate().toPoint(), true, false, 0));
 
     LevelUtils.tilesInArea(bridgeBounds[0].toCoordinate(), bridgeBounds[1].toCoordinate()).stream()
         .map(tile -> (PitTile) tile)
@@ -172,35 +171,35 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
     }
     lastRiddle.addCorrectAnswerIndex(0);
 
-    return () -> {
-      QuizUI.showQuizDialog(
-          lastRiddle,
-          (Entity hudEntity) ->
-              UIAnswerCallback.uiCallback(
-                  lastRiddle,
-                  hudEntity,
-                  (task, taskContents) -> {
-                    task.gradeTask(taskContents);
-                    String output = "You have incorrectly solved the task";
+    return () ->
+        QuizUI.showQuizDialog(
+            lastRiddle,
+            (Entity hudEntity) ->
+                UIAnswerCallback.uiCallback(
+                    lastRiddle,
+                    hudEntity,
+                    (task, taskContents) -> {
+                      task.gradeTask(taskContents);
+                      String output = "You have incorrectly solved the task";
 
-                    OkDialog.showOkDialog(
-                        output,
-                        "Result",
-                        () -> {
-                          bridgeGuard.remove(InteractionComponent.class);
-                          bridgeGuard.add(
-                              new InteractionComponent(
-                                  2.5f,
-                                  true,
-                                  (me, who) -> {
-                                    OkDialog.showOkDialog(
-                                        "Haha, you failed the riddle! You shall not pass!",
-                                        "Riddle: Bridge Guard",
-                                        () -> {});
-                                  }));
-                        });
-                  }));
-    };
+                      OkDialog.showOkDialog(
+                          output,
+                          "Result",
+                          () -> {
+                            bridgeGuard.remove(InteractionComponent.class);
+                            bridgeGuard.add(
+                                new InteractionComponent(
+                                    (ISimpleIInteractable)
+                                        () ->
+                                            new Interaction(
+                                                (me, who) ->
+                                                    OkDialog.showOkDialog(
+                                                        "Haha, you failed the riddle! You shall not pass!",
+                                                        "Riddle: Bridge Guard",
+                                                        () -> {}),
+                                                2.5f)));
+                          });
+                    }));
   }
 
   @Override

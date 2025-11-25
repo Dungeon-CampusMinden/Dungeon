@@ -53,7 +53,15 @@ public final class InteractionComponent implements Component {
    * @param who The entity that triggered the interaction.
    */
   public void triggerInteraction(final Entity entity, final Entity who) {
-    Optional<Interaction> interaction = RingMenue.showInteractionMenue(onInteraction);
-    interaction.ifPresent(i -> i.interact(entity, who));
+    if (onInteraction instanceof ISimpleIInteractable)
+      onInteraction.interact().interact(entity, who);
+    else {
+      Optional<Interaction> interaction = RingMenue.showInteractionMenue(onInteraction);
+      interaction.ifPresent(i -> i.interact(entity, who));
+    }
+  }
+
+  public IInteractable interactions() {
+    return this.onInteraction;
   }
 }

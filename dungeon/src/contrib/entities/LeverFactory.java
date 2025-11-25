@@ -1,6 +1,8 @@
 package contrib.entities;
 
 import contrib.components.*;
+import contrib.modules.interaction.ISimpleIInteractable;
+import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.ICommand;
@@ -59,19 +61,25 @@ public class LeverFactory {
     lever.add(new LeverComponent(false, onInteract));
     lever.add(
         new InteractionComponent(
-            DEFAULT_INTERACTION_RADIUS,
-            true,
-            (entity, who) -> {
-              LeverComponent lc =
-                  entity
-                      .fetch(LeverComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(entity, LeverComponent.class));
-              lc.toggle();
-              entity
-                  .fetch(DrawComponent.class)
-                  .ifPresent(drawComponent -> drawComponent.sendSignal(lc.isOn() ? "on" : "off"));
-            }));
+            (ISimpleIInteractable)
+                () ->
+                    new Interaction(
+                        (entity, who) -> {
+                          LeverComponent lc =
+                              entity
+                                  .fetch(LeverComponent.class)
+                                  .orElseThrow(
+                                      () ->
+                                          MissingComponentException.build(
+                                              entity, LeverComponent.class));
+                          lc.toggle();
+                          entity
+                              .fetch(DrawComponent.class)
+                              .ifPresent(
+                                  drawComponent ->
+                                      drawComponent.sendSignal(lc.isOn() ? "on" : "off"));
+                        },
+                        DEFAULT_INTERACTION_RADIUS)));
     return lever;
   }
 

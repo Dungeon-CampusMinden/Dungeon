@@ -3,6 +3,7 @@ package entities.monster;
 import components.TintDirectionComponent;
 import contrib.components.*;
 import contrib.entities.*;
+import contrib.modules.interaction.DropItemsInteraction;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;

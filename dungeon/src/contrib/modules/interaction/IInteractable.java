@@ -3,8 +3,7 @@ package contrib.modules.interaction;
 import contrib.hud.DialogUtils;
 
 public interface IInteractable {
-
-  public default Interaction look() {
+  default Interaction look() {
     return new Interaction(
         (entity, who) -> {
           DialogUtils.showTextPopup(
@@ -12,7 +11,7 @@ public interface IInteractable {
         });
   }
 
-  public default Interaction interact() {
+  default Interaction interact() {
     return new Interaction(
         (entity, who) -> {
           DialogUtils.showTextPopup(
@@ -20,7 +19,7 @@ public interface IInteractable {
         });
   }
 
-  public default Interaction push() {
+  default Interaction push() {
     return new Interaction(
         (entity, who) -> {
           DialogUtils.showTextPopup(
@@ -28,7 +27,7 @@ public interface IInteractable {
         });
   }
 
-  public default Interaction talk() {
+  default Interaction talk() {
     return new Interaction(
         (entity, who) -> {
           DialogUtils.showTextPopup(
@@ -37,7 +36,8 @@ public interface IInteractable {
         });
   }
 
-  public default Interaction usewithitem() {
+  default Interaction usewithitem() {
+    // TOOD check Item if we have something like quipped Item
     return new Interaction(
         (entity, who) -> {
           DialogUtils.showTextPopup(
@@ -45,7 +45,7 @@ public interface IInteractable {
         });
   }
 
-  public default Interaction attack() {
+  default Interaction attack() {
     return new Interaction(
         (entity, who) -> {
           DialogUtils.showTextPopup(

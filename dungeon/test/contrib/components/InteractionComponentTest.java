@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import java.util.function.BiConsumer;
@@ -19,7 +20,7 @@ public class InteractionComponentTest {
     Entity e = new Entity();
     InteractionComponent component = new InteractionComponent();
     e.add(component);
-    assertEquals(InteractionComponent.DEFAULT_INTERACTION_RADIUS, component.radius(), 0.0001);
+    assertEquals(Interaction.DEFAULT_INTERACTION_RADIUS, component.radius(), 0.0001);
   }
 
   /** Tests if the complex Constructor sets the attributes to the parameter. */
