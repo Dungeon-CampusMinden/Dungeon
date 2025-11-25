@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import java.util.function.BiConsumer;
 import org.junit.jupiter.api.Test;

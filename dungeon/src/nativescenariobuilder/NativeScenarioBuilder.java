@@ -1,6 +1,5 @@
 package nativescenariobuilder;
 
-import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.entities.EntityFactory;
@@ -9,6 +8,7 @@ import contrib.hud.dialogs.OkDialog;
 import contrib.hud.dialogs.TextDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;

@@ -1,6 +1,7 @@
 package contrib.entities;
 
 import contrib.components.*;
+import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.ICommand;
 import contrib.utils.IEntityCommand;

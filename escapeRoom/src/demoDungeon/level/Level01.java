@@ -10,6 +10,7 @@ import contrib.hud.dialogs.YesNoDialog;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceMushroomRed;
+import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
 import core.Game;

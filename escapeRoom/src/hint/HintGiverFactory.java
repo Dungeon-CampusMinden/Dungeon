@@ -1,8 +1,8 @@
 package hint;
 
-import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
 import contrib.hud.dialogs.YesNoDialog;
+import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;

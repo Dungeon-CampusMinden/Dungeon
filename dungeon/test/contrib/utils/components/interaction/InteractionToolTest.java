@@ -2,7 +2,7 @@ package contrib.utils.components.interaction;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import contrib.components.InteractionComponent;
+import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;

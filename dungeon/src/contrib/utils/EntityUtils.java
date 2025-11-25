@@ -197,4 +197,9 @@ public class EntityUtils {
       return pc.position();
     }
   }
+
+  public static float getDistance(Entity entity, Entity who) {
+    // TODO
+    return 0;
+  }
 }

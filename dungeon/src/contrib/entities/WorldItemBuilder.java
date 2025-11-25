@@ -1,8 +1,8 @@
 package contrib.entities;
 
-import contrib.components.InteractionComponent;
 import contrib.components.ItemComponent;
 import contrib.item.Item;
+import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;

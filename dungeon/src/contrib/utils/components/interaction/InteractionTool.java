@@ -1,6 +1,6 @@
 package contrib.utils.components.interaction;
 
-import contrib.components.InteractionComponent;
+import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;

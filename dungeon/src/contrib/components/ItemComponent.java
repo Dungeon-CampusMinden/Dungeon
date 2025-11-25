@@ -1,6 +1,7 @@
 package contrib.components;
 
 import contrib.item.Item;
+import contrib.modules.interaction.InteractionComponent;
 import core.Component;
 import core.Entity;
 

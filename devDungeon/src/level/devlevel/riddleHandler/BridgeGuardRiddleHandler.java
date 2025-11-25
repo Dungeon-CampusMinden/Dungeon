@@ -2,13 +2,13 @@ package level.devlevel.riddleHandler;
 
 import components.MagicShieldComponent;
 import contrib.components.HealthComponent;
-import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
 import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.OkDialog;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.HealthSystem;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.health.Damage;

@@ -2,9 +2,9 @@ package manual.quizquestion;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
 import contrib.hud.dialogs.TextDialog;
+import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.*;
 import core.Entity;
 import core.Game;

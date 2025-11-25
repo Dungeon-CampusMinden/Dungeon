@@ -11,6 +11,7 @@ import contrib.item.Item;
 import contrib.item.concreteItem.*;
 import contrib.item.concreteItem.ItemBigKey;
 import contrib.item.concreteItem.ItemKey;
+import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;

@@ -2,6 +2,7 @@ package contrib.entities;
 
 import contrib.components.*;
 import contrib.item.Item;
+import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.BowSkill;

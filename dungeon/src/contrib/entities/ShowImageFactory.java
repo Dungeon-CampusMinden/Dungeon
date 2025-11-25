@@ -1,7 +1,7 @@
 package contrib.entities;
 
-import contrib.components.InteractionComponent;
 import contrib.components.ShowImageComponent;
+import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.components.showImage.ShowImageText;
 import core.Entity;
 import core.components.DrawComponent;

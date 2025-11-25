@@ -1,8 +1,12 @@
 package contrib.entities;
 
 import contrib.components.*;
+import contrib.components.InventoryComponent;
+import contrib.components.SkillComponent;
+import contrib.components.UIComponent;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.cursorSkill.CursorSkill;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;

@@ -1,6 +1,6 @@
 package contrib.modules.keypad;
 
-import contrib.components.InteractionComponent;
+import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
