@@ -1,11 +1,13 @@
 package contrib.utils.components.collide;
 
+import contrib.components.CollideComponent;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
 import java.util.List;
+import java.util.Set;
 
 /** Utility class for handling various collision detection things. */
 public class CollisionUtils {
@@ -15,6 +17,28 @@ public class CollisionUtils {
    * corner of an entity.
    */
   public static final float TOP_OFFSET = 0.0001f;
+
+  public static boolean isCollidingWithOtherSolids(Collider collider, Point newPos) {
+    Point oldPos = collider.position();
+    collider.position(newPos);
+
+    boolean colliding =
+        Game.levelEntities(Set.of(CollideComponent.class))
+            .anyMatch(
+                other -> {
+                  CollideComponent ccOther = other.fetch(CollideComponent.class).orElseThrow();
+                  if (!ccOther.isSolid()) return false;
+
+                  Collider colliderOther = ccOther.collider();
+                  if (collider == colliderOther) return false; // Don't check against itself
+
+                  boolean isColliding = collider.collide(colliderOther);
+                  return isColliding;
+                });
+
+    collider.position(oldPos);
+    return colliding;
+  }
 
   /**
    * Checks if a collider, when set on a specific position, is colliding with any level tiles that
