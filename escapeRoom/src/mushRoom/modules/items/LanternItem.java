@@ -9,7 +9,10 @@ public class LanternItem extends Item {
   public static final String PATH = "items/gloves/fire_gloves.png";
 
   public LanternItem() {
-    super("Leuchtende Handschuhe", "Bringen etwas Licht in diese Angelegenheit", new Animation(new SimpleIPath(PATH)), new Animation(new SimpleIPath(PATH)));
+    super(
+        "Leuchtende Handschuhe",
+        "Bringen etwas Licht in diese Angelegenheit",
+        new Animation(new SimpleIPath(PATH)),
+        new Animation(new SimpleIPath(PATH)));
   }
-
 }

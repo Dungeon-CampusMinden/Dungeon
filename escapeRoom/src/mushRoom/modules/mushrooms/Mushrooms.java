@@ -1,8 +1,6 @@
 package mushRoom.modules.mushrooms;
 
 import com.badlogic.gdx.graphics.Color;
-import core.utils.components.draw.shader.AbstractShader;
-import core.utils.components.draw.shader.HueRemapShader;
 
 public enum Mushrooms {
   RedBlue(true, Color.RED, Color.BLUE),

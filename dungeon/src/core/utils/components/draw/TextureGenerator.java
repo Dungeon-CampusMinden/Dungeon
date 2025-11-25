@@ -9,9 +9,7 @@ import core.systems.DrawSystem;
 import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
 
-/**
- * Utility class for generating and registering textures.
- */
+/** Utility class for generating and registering textures. */
 public class TextureGenerator {
 
   /**
@@ -53,8 +51,9 @@ public class TextureGenerator {
    * @param path The base to register the rendered texture at.
    * @param shaders The shaders to apply.
    */
-  public static void registerRenderShaderTexture(String base, String path, ShaderList shaders){
-    TextureMap.instance().putPixmap(new SimpleIPath(path), staticRenderShaderTexture(base, shaders), true);
+  public static void registerRenderShaderTexture(String base, String path, ShaderList shaders) {
+    TextureMap.instance()
+        .putPixmap(new SimpleIPath(path), staticRenderShaderTexture(base, shaders), true);
   }
 
   /**
@@ -64,18 +63,13 @@ public class TextureGenerator {
    * @param shaders The shaders to apply.
    * @return The resulting pixmap.
    */
-  public static Pixmap staticRenderShaderTexture(String path, ShaderList shaders){
+  public static Pixmap staticRenderShaderTexture(String path, ShaderList shaders) {
     Texture base = TextureMap.instance().textureAt(new SimpleIPath(path));
     TextureRegion region = new TextureRegion(base);
     FrameBuffer fbo = DrawSystem.getInstance().processShaders(region, shaders);
     fbo.begin();
-    Pixmap pm = Pixmap.createFromFrameBuffer(
-      0, 0,
-      fbo.getWidth(),
-      fbo.getHeight()
-    );
+    Pixmap pm = Pixmap.createFromFrameBuffer(0, 0, fbo.getWidth(), fbo.getHeight());
     fbo.end();
     return pm;
   }
-
 }

@@ -9,10 +9,8 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.draw.TextureGenerator;
-import core.utils.components.draw.shader.HueRemapShader;
 import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
-
 
 public class JournalPageFactory {
 
@@ -20,7 +18,7 @@ public class JournalPageFactory {
 
   static {
     ShaderList shaders = new ShaderList();
-//    shaders.add("hueRemap", new HueRemapShader(0.0f, 0.33f, 0.05f));
+    //    shaders.add("hueRemap", new HueRemapShader(0.0f, 0.33f, 0.05f));
     TextureGenerator.registerRenderShaderTexture("items/book/red_book.png", TEXTURE_PATH, shaders);
   }
 
@@ -28,19 +26,32 @@ public class JournalPageFactory {
     Entity entity = new Entity();
     entity.add(new PositionComponent(position));
     entity.add(new DrawComponent(new SimpleIPath(TEXTURE_PATH)));
-    entity.add(new InteractionComponent(1.5f, true, (e, who) -> {
-      who.fetch(InventoryComponent.class).ifPresent(inventory -> {
-        inventory.items(JournalItem.class).stream().findFirst().ifPresentOrElse(item -> {
-          JournalItem journalItem = (JournalItem) item;
-          journalItem.unlockPage();
-          Game.remove(e);
-          DialogUtils.showTextPopup("Auf dieser Seite ist die Beschreibung von zwei Pilzen! Ich schreibe das mal in mein Notizbuch...", "Yay");
-        }, () -> {
-          DialogUtils.showTextPopup("Ohh, hilfreiche Informationen zu Pilzen. Nur kann ich sie mir nicht merken, und etwas zum Aufschreiben habe ich leider auch nicht...", ":pensive:");
-        });
-      });
-    }));
+    entity.add(
+        new InteractionComponent(
+            1.5f,
+            true,
+            (e, who) -> {
+              who.fetch(InventoryComponent.class)
+                  .ifPresent(
+                      inventory -> {
+                        inventory.items(JournalItem.class).stream()
+                            .findFirst()
+                            .ifPresentOrElse(
+                                item -> {
+                                  JournalItem journalItem = (JournalItem) item;
+                                  journalItem.unlockPage();
+                                  Game.remove(e);
+                                  DialogUtils.showTextPopup(
+                                      "Auf dieser Seite ist die Beschreibung von zwei Pilzen! Ich schreibe das mal in mein Notizbuch...",
+                                      "Yay");
+                                },
+                                () -> {
+                                  DialogUtils.showTextPopup(
+                                      "Ohh, hilfreiche Informationen zu Pilzen. Nur kann ich sie mir nicht merken, und etwas zum Aufschreiben habe ich leider auch nicht...",
+                                      ":pensive:");
+                                });
+                      });
+            }));
     return entity;
   }
-
 }

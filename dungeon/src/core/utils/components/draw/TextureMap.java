@@ -59,8 +59,9 @@ public final class TextureMap extends HashMap<String, Texture> {
   }
 
   /**
-   * Puts the given pixmap as a premultiplied alpha texture into the map at the given path. If
-   * there is already a texture at that path, it is disposed of first.
+   * Puts the given pixmap as a premultiplied alpha texture into the map at the given path. If there
+   * is already a texture at that path, it is disposed of first.
+   *
    * @param path Path to store the texture at.
    * @param pixmap The pixmap to convert and store.
    * @param flipY Whether to flip the pixmap vertically when creating the texture.

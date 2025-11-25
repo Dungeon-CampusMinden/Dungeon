@@ -1,14 +1,10 @@
 package mushRoom.shaders;
 
-import com.badlogic.gdx.math.Vector4;
 import core.utils.Rectangle;
 import core.utils.components.draw.shader.AbstractShader;
-
 import java.util.List;
 
-/**
- * MushroomPostProcessing shader that applies a visual effect based on the player's distance
- */
+/** MushroomPostProcessing shader that applies a visual effect based on the player's distance */
 public class MushroomPostProcessing extends AbstractShader {
 
   private static final String VERT_PATH = "shaders/passthrough.vert";
@@ -26,8 +22,7 @@ public class MushroomPostProcessing extends AbstractShader {
   @Override
   protected List<UniformBinding> getUniforms(int actualUpscale) {
     return List.of(
-        new Vector4Uniform("u_homeBounds", home),
-        new FloatUniform("u_viewDistance", viewDistance));
+        new Vector4Uniform("u_homeBounds", home), new FloatUniform("u_viewDistance", viewDistance));
   }
 
   @Override

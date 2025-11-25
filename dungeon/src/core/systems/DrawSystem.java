@@ -511,7 +511,9 @@ public final class DrawSystem extends System implements Disposable {
   public FrameBuffer processShaders(TextureRegion region, ShaderList shaders) {
     return processShaders(region, shaders, null);
   }
-  public FrameBuffer processShaders(TextureRegion region, ShaderList shaders, PositionComponent pc) {
+
+  public FrameBuffer processShaders(
+      TextureRegion region, ShaderList shaders, PositionComponent pc) {
     // --- 1. Calculate FBO Size and Obtain Buffers ---
     float padding = shaders.getTotalPadding();
 
@@ -553,12 +555,12 @@ public final class DrawSystem extends System implements Disposable {
     fboBatch().begin();
     BlendUtils.setBlending(fboBatch());
     fboBatch()
-      .draw(
-        region,
-        padding * shaderUpscaling,
-        padding * shaderUpscaling,
-        unscaledWidth * shaderUpscaling,
-        unscaledHeight * shaderUpscaling);
+        .draw(
+            region,
+            padding * shaderUpscaling,
+            padding * shaderUpscaling,
+            unscaledWidth * shaderUpscaling,
+            unscaledHeight * shaderUpscaling);
     fboBatch().end();
 
     currentTarget.end();
@@ -568,8 +570,9 @@ public final class DrawSystem extends System implements Disposable {
     // --- 3. Ping-Pong Loop for Shader Passes ---
     for (AbstractShader pass : shaders.getEnabledSorted()) {
       Rectangle worldBounds = new Rectangle(1, 1, 0, 0);
-      if(pc != null){
-        worldBounds = getFboWorldBounds(pc.position(), pc.scale(), Vector2.of(unscaledWidth, unscaledHeight));
+      if (pc != null) {
+        worldBounds =
+            getFboWorldBounds(pc.position(), pc.scale(), Vector2.of(unscaledWidth, unscaledHeight));
       }
       Rectangle shaderBounds = pass.worldBounds();
       if (shaderBounds != null && !worldBounds.intersects(shaderBounds)) {
@@ -592,15 +595,15 @@ public final class DrawSystem extends System implements Disposable {
       pass.bind(fboBatch(), shaderUpscaling);
 
       float rotation = 0;
-      if(pc != null){
+      if (pc != null) {
         rotation = pc.rotation() * MathUtils.degreesToRadians;
       }
       setCommonUniforms(
-        fboBatch().getShader(),
-        fboRegion.getRegionWidth(),
-        fboRegion.getRegionHeight(),
-        worldBounds,
-        rotation);
+          fboBatch().getShader(),
+          fboRegion.getRegionWidth(),
+          fboRegion.getRegionHeight(),
+          worldBounds,
+          rotation);
 
       fboBatch().draw(fboRegion, 0, 0, fboWidth, fboHeight);
       pass.unbind(fboBatch());
@@ -777,7 +780,8 @@ public final class DrawSystem extends System implements Disposable {
     if (dsd == null) {
       return CameraSystem.getCameraWorldBounds();
     }
-    return getFboWorldBounds(dsd.pc.position(), dsd.pc.scale(), Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()));
+    return getFboWorldBounds(
+        dsd.pc.position(), dsd.pc.scale(), Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()));
   }
 
   private Rectangle getFboWorldBounds(Point pos, Vector2 scale, Vector2 size) {

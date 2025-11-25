@@ -9,7 +9,10 @@ public class AxeItem extends Item {
   public static final String PATH = "items/weapon/snake_sword.png";
 
   public AxeItem() {
-    super("Axt", "Damit können bestimmte Bäume gefällt werden.", new Animation(new SimpleIPath(PATH)), new Animation(new SimpleIPath(PATH)));
+    super(
+        "Axt",
+        "Damit können bestimmte Bäume gefällt werden.",
+        new Animation(new SimpleIPath(PATH)),
+        new Animation(new SimpleIPath(PATH)));
   }
-
 }

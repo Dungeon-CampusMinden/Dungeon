@@ -52,6 +52,5 @@ public class LevelHideFactory {
     float width = topRight.x() - bottomLeft.x();
     float height = topRight.y() - bottomLeft.y();
     return createLevelHide(bottomLeft, width, height, transitionSize);
-
   }
 }

@@ -16,18 +16,24 @@ public class JournalItem extends Item {
   private int unlockedPages = BASE_PAGES_UNLOCKED;
 
   public JournalItem() {
-    super("Notizbuch", BASE_PAGES_UNLOCKED + " / 6 Seiten beschrieben", new Animation(inventoryPath), new Animation(worldPath), 1, 1);
+    super(
+        "Notizbuch",
+        BASE_PAGES_UNLOCKED + " / 6 Seiten beschrieben",
+        new Animation(inventoryPath),
+        new Animation(worldPath),
+        1,
+        1);
   }
 
   @Override
   public void use(final Entity user) {
-    DialogUtils.showTextPopup("Dis da journal. Unlocked pages: "+unlockedPages, "Notizbuch");
+    DialogUtils.showTextPopup("Dis da journal. Unlocked pages: " + unlockedPages, "Notizbuch");
   }
 
-//  public void setUnlockedPages(int unlockedPages) {
-//    this.unlockedPages = unlockedPages;
-//    this.description(unlockedPages + " / 6 Seiten beschrieben");
-//  }
+  //  public void setUnlockedPages(int unlockedPages) {
+  //    this.unlockedPages = unlockedPages;
+  //    this.description(unlockedPages + " / 6 Seiten beschrieben");
+  //  }
 
   public void unlockPage() {
     this.unlockedPages++;

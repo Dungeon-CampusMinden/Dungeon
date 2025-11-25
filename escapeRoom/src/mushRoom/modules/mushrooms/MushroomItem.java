@@ -4,6 +4,7 @@ import contrib.item.Item;
 import core.Entity;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
+
 // Assuming 'Color' is defined or imported, though it is not needed in MushroomItem itself.
 
 public class MushroomItem {
@@ -36,12 +37,14 @@ public class MushroomItem {
 
     protected BaseMushroom(Mushrooms type) {
       super(
-        type.getBaseName() + " Mushroom",
-        "A " + type.getBaseName() + " mushroom",
-        new Animation(new SimpleIPath(type.getTexturePath())), // Assumes getTexturePath() exists on Mushrooms enum
-        new Animation(new SimpleIPath(type.getTexturePath())),
-        1,
-        maxStackSize);
+          type.getBaseName() + " Mushroom",
+          "A " + type.getBaseName() + " mushroom",
+          new Animation(
+              new SimpleIPath(
+                  type.getTexturePath())), // Assumes getTexturePath() exists on Mushrooms enum
+          new Animation(new SimpleIPath(type.getTexturePath())),
+          1,
+          maxStackSize);
       this.type = type;
     }
 

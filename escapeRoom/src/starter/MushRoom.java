@@ -3,10 +3,6 @@ package starter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import contrib.entities.CharacterClass;
 import contrib.entities.EntityFactory;
 import contrib.modules.levelHide.LevelHideSystem;
@@ -14,14 +10,11 @@ import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.game.PreRunConfiguration;
 import core.level.loader.DungeonLoader;
-import core.systems.DrawSystem;
 import core.utils.Tuple;
 import core.utils.components.draw.ColorUtils;
 import core.utils.components.draw.TextureGenerator;
-import core.utils.components.draw.TextureMap;
 import core.utils.components.draw.shader.HueRemapShader;
 import core.utils.components.draw.shader.OutlineShader;
 import core.utils.components.draw.shader.ShaderList;
@@ -80,7 +73,8 @@ public class MushRoom {
       shaderList.add("hueRemap", new HueRemapShader(baseHue, color.toHsv(hsv)[0] / 360f));
       shaderList.add("outline", new OutlineShader(1, ColorUtils.withAlpha(outline, 0.8f)));
 
-      TextureGenerator.registerRenderShaderTexture(basePath, mushroomType.getTexturePath(), shaderList);
+      TextureGenerator.registerRenderShaderTexture(
+          basePath, mushroomType.getTexturePath(), shaderList);
     }
   }
 

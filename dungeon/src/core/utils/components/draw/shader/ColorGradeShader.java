@@ -10,7 +10,7 @@ public class ColorGradeShader extends AbstractShader {
   private static final String VERT_PATH = "shaders/passthrough.vert";
   private static final String FRAG_PATH = "shaders/color_grade.frag";
 
-  private Rectangle region = new Rectangle(0,0,0,0);
+  private Rectangle region = new Rectangle(0, 0, 0, 0);
   private float hue = -1.0f;
   private float saturationMultiplier = 1.0f;
   private float valueMultiplier = 1.0f;
