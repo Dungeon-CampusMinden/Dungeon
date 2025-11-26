@@ -1,5 +1,5 @@
 - Quelle: https://github.com/RaspberryPiFoundation/blockly/blob/master
-- Author: Google
+- Author: Google / Raspberry Pi Foundation
 - License: Apache License 2.0
 
 <details>
