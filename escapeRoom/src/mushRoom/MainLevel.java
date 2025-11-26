@@ -55,6 +55,7 @@ public class MainLevel extends DungeonLevel {
 
   private int maxMushrooms;
   private Entity npc;
+  private List<Entity> dialogTriggers = new ArrayList<>();
 
   private DoorTile puzzlePushDoor;
   private DoorTile puzzlePushExit;
@@ -157,6 +158,20 @@ public class MainLevel extends DungeonLevel {
               talkToNpc();
             }));
     Game.add(npc);
+
+    listPoints("dialog-trigger").forEach(p -> {
+      Entity trigger = new Entity("dialog");
+      trigger.add(new PositionComponent(p));
+      CollideComponent cc = new CollideComponent(Vector2.ZERO, Vector2.ONE);
+      cc.collideEnter((e, who, d) -> {
+        DialogUtils.showTextPopup("Hey warte! Ich hab dir noch was zu sagen...", "Kumpel");
+        Game.remove(e);
+      });
+      cc.isSolid(false);
+      trigger.add(cc);
+      Game.add(trigger);
+      dialogTriggers.add(trigger);
+    });
   }
 
   private void createButtonsPuzzle() {
@@ -506,7 +521,7 @@ public class MainLevel extends DungeonLevel {
       case FIRST_TALK:
         DialogUtils.showTextPopup(
             "Oh man, der Sturz vorhin hat mich doch etwas mehr mitgenommen, als ich gedacht hätte. Ich glaube nicht, dass ich weiterlaufen kann. Zum Glück gibt es in diesem Wald einige Pilze, mit denen ich einen Heiltrank brauen kann.",
-            "Yoooohooo");
+            "Kumpel");
         npcState = NpcState.SECOND_TALK;
         break;
       case SECOND_TALK:
@@ -514,15 +529,16 @@ public class MainLevel extends DungeonLevel {
             "Sammle von jeder Sorte "
                 + TO_GENERATE_PER_TYPE
                 + " Stück. Nicht alle Pilze sind ungefährlich, einige sind giftig! Nimm dieses Notizbuch, um die Pilze zu identifizieren. Öffne es mit <B>",
-            "Yoooohooo");
+            "Kumpel");
         npcState = NpcState.THIRD_TALK;
         giveJournal();
         break;
       case THIRD_TALK:
         DialogUtils.showTextPopup(
             "Einige Seiten in dem Notizbuch fehlen, aber vielleicht findest du in der Umgebung mehr Informationen über die Pilze. Bitte beeile dich, sonst klappe ich hier noch zusammen!",
-            "Yoooohooo");
+            "Kumpel");
         npcState = NpcState.DURING_COLLECTING;
+        dialogTriggers.forEach(Game::remove);
         break;
       case DURING_COLLECTING:
         DialogUtils.showTextPopup(
@@ -534,17 +550,17 @@ public class MainLevel extends DungeonLevel {
                 + " Pilze gesammelt, insgesamt brauche ich "
                 + maxMushrooms
                 + " Stück!",
-            "Yoooohooo");
+            "Kumpel");
         break;
       case ALL_COLLECTED:
         DialogUtils.showTextPopup(
             "Danke, dass du die Pilze gesammelt hast! Mit diesem Heiltrank fühle ich mich schon viel besser. Du bist ein wahrer Freund!",
-            "Yoooohooo");
+            "Kumpel");
         break;
       case ALL_COLLECTED_POISONOUS:
         DialogUtils.showTextPopup(
             "Oh nein! Du hast einige giftige Pilze mitgebracht! Jetzt muss ich wohl draufgehen...",
-            "Yoooohooo");
+            "Kumpel");
         npcState = NpcState.DEAD;
         break;
       case DEAD:
