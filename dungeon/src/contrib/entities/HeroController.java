@@ -92,7 +92,11 @@ public class HeroController {
               if (skill instanceof CursorSkill cursorSkill) {
                 cursorSkill.cursorPositionSupplier(() -> target);
               } else if (skill instanceof ProjectileSkill projSkill) {
-                projSkill.endPointSupplier(() -> target);
+                try {
+                  projSkill.endPointSupplier().get(); // test if supplier wants cursor position
+                } catch (IllegalStateException ignored) {
+                  projSkill.endPointSupplier(() -> target);
+                }
               }
               skill.execute(hero);
             });
