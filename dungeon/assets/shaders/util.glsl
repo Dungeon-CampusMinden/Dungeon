@@ -78,3 +78,27 @@ float sdBox(vec2 p, vec2 b) {
     vec2 d = abs(p) - b;
     return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
 }
+
+// ----- MacOS compatibility -----
+#ifndef saturate
+#define saturate(x) clamp(x, 0.0, 1.0)
+#endif
+
+#ifndef lerp
+#define lerp(a, b, t) mix(a, b, t)
+#endif
+
+#ifndef frac
+#define frac(x) fract(x)
+#endif
+
+// radians/degrees sometimes differ by overload resolution
+#ifdef radians
+#undef radians
+#endif
+#define radians(x) ((x) * 0.017453292519943295)
+
+#ifdef degrees
+#undef degrees
+#endif
+#define degrees(x) ((x) * 57.29577951308232)
