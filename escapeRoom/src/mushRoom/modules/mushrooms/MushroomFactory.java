@@ -22,7 +22,7 @@ public class MushroomFactory {
 
     mushroom.add(
         new InteractionComponent(
-            1.5f,
+            2.0f,
             true,
             (e, who) -> {
               who.fetch(InventoryComponent.class)
