@@ -1,6 +1,7 @@
 package mushRoom.modules.items;
 
 import contrib.item.Item;
+import core.Entity;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 
@@ -14,5 +15,10 @@ public class LanternItem extends Item {
         "Bringen etwas Licht in diese Angelegenheit",
         new Animation(new SimpleIPath(PATH)),
         new Animation(new SimpleIPath(PATH)));
+  }
+
+  @Override
+  public void use(Entity user) {
+    // Nothing
   }
 }
