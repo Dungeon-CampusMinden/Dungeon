@@ -28,8 +28,11 @@ import core.utils.Rectangle;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
+import core.utils.components.draw.animation.AnimationConfig;
+import core.utils.components.draw.animation.SpritesheetConfig;
 import core.utils.components.draw.shader.ColorGradeShader;
 import core.utils.components.draw.shader.HueRemapShader;
+import core.utils.components.draw.shader.OutlineShader;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.*;
@@ -55,11 +58,13 @@ public class MainLevel extends DungeonLevel {
 
   private DoorTile puzzlePushDoor;
   private DoorTile puzzlePushExit;
+  private DoorTile puzzlePushEscapeExit;
 
   private DoorTile buttonsDoor;
   private DoorTile buttonsExit;
+  private Queue<Integer> buttonsPressed = new LinkedList<>();
 
-  private List<Entity> pushPuzzleEntities = new ArrayList<>();
+  private final List<Entity> puzzlePushEntities = new ArrayList<>();
 
   /**
    * Creates a new Demo Level.
@@ -132,11 +137,15 @@ public class MainLevel extends DungeonLevel {
             p -> {
               try {
                 Game.add(EntityFactory.newStone(p, 0));
-              } catch (IOException e) {
+              } catch (IOException ignored) {
               }
             });
 
-    Game.add(WorldItemBuilder.buildWorldItem(new ItemHammer(), getPoint("hammer")));
+    Entity hammer = WorldItemBuilder.buildWorldItem(new ItemHammer(), getPoint("hammer"));
+    hammer.fetch(DrawComponent.class).ifPresent(dc -> {
+      dc.shaders().add("outline", new OutlineShader(1));
+    });
+    Game.add(hammer);
     Game.add(WorldItemBuilder.buildWorldItem(new LanternItem(), getPoint("lantern")));
 
     npc = NPCFactory.createNPC(getPoint("npc-start"), "character/char03");
@@ -170,11 +179,36 @@ public class MainLevel extends DungeonLevel {
                 buttonsExit.close();
               }
             }));
-    listPoints("buttons-plate")
+    listPointsIndexed("buttons-plate")
         .forEach(
-            p -> {
-              Game.add(LeverFactory.pressurePlate(p));
+            tuple -> {
+              Point p = tuple.a();
+              int i = tuple.b();
+              Entity pp = LeverFactory.pressurePlate(p, 1, new ICommand() {
+                public void execute() {
+                  checkButtonsPuzzle(i);
+                }
+                public void undo() {}
+              });
+              Game.add(pp);
             });
+
+    int glyphCount = 6;
+    Point glyphDisplayPos = getPoint("buttons-glyphs-display");
+    for (int i = 0; i < glyphCount; i++) {
+      Entity glyphDisplay = new Entity("glyph_display_" + i);
+      glyphDisplay.add(new PositionComponent(glyphDisplayPos.translate(i, 0)));
+      glyphDisplay.add(createRune(i));
+      Game.add(glyphDisplay);
+    }
+    listPointsIndexed("glyph").forEach(tuple -> {
+      Point p = tuple.a();
+      int i = tuple.b();
+      Entity glyphDisplay = new Entity("glyph_" + i);
+      glyphDisplay.add(new PositionComponent(p));
+      glyphDisplay.add(createRune(i));
+      Game.add(glyphDisplay);
+    });
 
     DrawSystem ds = (DrawSystem) Game.systems().get(DrawSystem.class);
     ds.levelShaders()
@@ -210,6 +244,29 @@ public class MainLevel extends DungeonLevel {
             2);
   }
 
+  private void checkButtonsPuzzle(int i){
+    buttonsPressed.add(i);
+    if (buttonsPressed.size() > 6) {
+      buttonsPressed.poll();
+    }
+
+    Integer[] correctSequence = {0, 1, 2, 3, 4, 5};
+    if (buttonsPressed.size() == 6){
+      boolean correct = true;
+      int index = 0;
+      for (Integer pressed : buttonsPressed) {
+        if (!pressed.equals(correctSequence[index])) {
+          correct = false;
+          break;
+        }
+        index++;
+      }
+      if (correct) {
+        buttonsDoor.open();
+      }
+    }
+  }
+
   private void createCutTrees() {
     Deco deco = Deco.TreeMedium;
     Vector2 offset = Vector2.of(-deco.defaultCollider().x(), -deco.defaultCollider().y());
@@ -220,7 +277,7 @@ public class MainLevel extends DungeonLevel {
               tree.remove(DecoComponent.class);
               tree.add(
                   new InteractionComponent(
-                      1.5f,
+                      2.0f,
                       true,
                       (e, who) -> {
                         who.fetch(InventoryComponent.class)
@@ -287,6 +344,21 @@ public class MainLevel extends DungeonLevel {
 
               public void undo() {}
             }));
+
+    puzzlePushEscapeExit = (DoorTile) tileAt(getPoint("push-escape-door")).orElseThrow();
+    puzzlePushEscapeExit.close();
+    Game.add(
+      LeverFactory.createLever(
+        getPoint("push-escape-lever"),
+        new ICommand() {
+          public void execute() {
+            puzzlePushEscapeExit.open();
+          }
+
+          public void undo() {
+            puzzlePushEscapeExit.close();
+          }
+        }));
   }
 
   private void createPushPuzzleEntities() {
@@ -299,7 +371,7 @@ public class MainLevel extends DungeonLevel {
               pushStone.add(new CollideComponent(Vector2.of(0.05f, 0.05f), Vector2.of(0.9f, 0.9f)));
               pushStone.add(new VelocityComponent(5.0f));
               Game.add(pushStone);
-              pushPuzzleEntities.add(pushStone);
+              puzzlePushEntities.add(pushStone);
             });
 
     listPointsIndexed("push-plate")
@@ -325,13 +397,16 @@ public class MainLevel extends DungeonLevel {
                         }
                       }));
               Game.add(pp);
-              pushPuzzleEntities.add(pp);
+              puzzlePushEntities.add(pp);
             });
+
+
   }
 
   private void resetPushStones() {
-    pushPuzzleEntities.forEach(Game::remove);
-    pushPuzzleEntities.clear();
+    puzzlePushEntities.forEach(Game::remove);
+    puzzlePushEntities.clear();
+    puzzlePushEscapeExit.close();
     createPushPuzzleEntities();
   }
 
@@ -516,5 +591,22 @@ public class MainLevel extends DungeonLevel {
     ALL_COLLECTED,
     ALL_COLLECTED_POISONOUS,
     DEAD,
+  }
+
+
+  private DrawComponent createRune(int runeIndex){
+    // spritesheet: 8 columns x 3 rows, each is 16x16
+    int rows = 3;
+    int cols = 8;
+
+    if(runeIndex < 0){
+      throw new IllegalArgumentException("Invalid rune index: " + runeIndex);
+    }
+    runeIndex = runeIndex % (rows * cols);
+
+    int x = runeIndex % cols;
+    int y = runeIndex / cols;
+
+    return new DrawComponent(new SimpleIPath("spritesheets/runes.png"), new SpritesheetConfig(x * 16, y * 16, 1, 1));
   }
 }
