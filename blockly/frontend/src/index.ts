@@ -28,6 +28,7 @@ const workspace =
   Blockly.inject(blocklyDiv, {
     toolbox: toolbox,
     trashcan: true,
+    media: "assets/media/",
     zoom: {
       controls: true,
       wheel: true,
