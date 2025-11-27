@@ -5,8 +5,8 @@ import com.badlogic.gdx.graphics.Color;
 public enum Mushrooms {
   RedBlue(true, Color.RED, Color.BLUE),
   RedYellow(false, Color.RED, Color.YELLOW),
-  GreenGreen(true, Color.GREEN, Color.GREEN),
-  GreenBrown(false, Color.GREEN, new Color(0.36f, 0.26f, 0.2f, 1f)),
+  GreenGreen(false, Color.GREEN, Color.GREEN),
+  GreenBrown(true, Color.GREEN, new Color(0.36f, 0.26f, 0.2f, 1f)),
   BlueRed(false, Color.BLUE, Color.RED),
   BlueCyan(true, Color.BLUE, Color.CYAN),
   CyanOrange(true, Color.CYAN, Color.ORANGE),
@@ -47,5 +47,14 @@ public enum Mushrooms {
       }
     }
     return name;
+  }
+
+  public String getDescription() {
+    String base = "Ein \"" + getBaseName() + "\" Pilz.";
+    if (poisonous) {
+      return base + " Vorsicht, dieser Pilz ist giftig!";
+    } else {
+      return base + " Dieser Pilz ist essbar.";
+    }
   }
 }
