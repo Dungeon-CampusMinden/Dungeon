@@ -4,6 +4,7 @@ import contrib.item.Item;
 import core.Entity;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
+import mushRoom.Sounds;
 
 // Assuming 'Color' is defined or imported, though it is not needed in MushroomItem itself.
 
@@ -11,7 +12,7 @@ public class MushroomItem {
 
   private static final int maxStackSize = 10;
 
-  public static Object createMushroomItem(Mushrooms type) {
+  public static Item createMushroomItem(Mushrooms type) {
     return switch (type) {
       case RedYellow -> new RedYellowMushroom();
       case GreenGreen -> new GreenGreenMushroom();
@@ -51,6 +52,12 @@ public class MushroomItem {
     @Override
     public void use(final Entity user) {
       // Nothing
+    }
+
+    @Override
+    public boolean collect(Entity itemEntity, Entity collector) {
+      Sounds.MUSHROOM_PICKUP_SOUND.play();
+      return super.collect(itemEntity, collector);
     }
 
     public Mushrooms type() {

@@ -8,9 +8,9 @@ import contrib.entities.WorldItemBuilder;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.hud.DialogUtils;
-import contrib.item.concreteItem.ItemHammer;
 import contrib.modules.levelHide.LevelHideFactory;
 import contrib.systems.DebugDrawSystem;
+import contrib.systems.EventScheduler;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.ICommand;
 import core.Entity;
@@ -28,7 +28,6 @@ import core.utils.Rectangle;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
-import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
 import core.utils.components.draw.shader.ColorGradeShader;
 import core.utils.components.draw.shader.HueRemapShader;
@@ -38,10 +37,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.IntStream;
 import mushRoom.modules.items.AxeItem;
+import mushRoom.modules.items.CustomHammerItem;
 import mushRoom.modules.items.LanternItem;
 import mushRoom.modules.journal.JournalItem;
 import mushRoom.modules.journal.JournalPageFactory;
-import mushRoom.modules.mushrooms.MushroomFactory;
 import mushRoom.modules.mushrooms.MushroomItem;
 import mushRoom.modules.mushrooms.Mushrooms;
 import mushRoom.shaders.MushroomPostProcessing;
@@ -142,9 +141,9 @@ public class MainLevel extends DungeonLevel {
               }
             });
 
-    Entity hammer = WorldItemBuilder.buildWorldItem(new ItemHammer(), getPoint("hammer"));
+    Entity hammer = WorldItemBuilder.buildWorldItem(new CustomHammerItem(), getPoint("hammer"));
     hammer.fetch(DrawComponent.class).ifPresent(dc -> {
-      dc.shaders().add("outline", new OutlineShader(1));
+      dc.shaders().add("outline", new OutlineShader(1).upscaling(2));
     });
     Game.add(hammer);
     Game.add(WorldItemBuilder.buildWorldItem(new LanternItem(), getPoint("lantern")));
@@ -166,12 +165,15 @@ public class MainLevel extends DungeonLevel {
       cc.collideEnter((e, who, d) -> {
         DialogUtils.showTextPopup("Hey warte! Ich hab dir noch was zu sagen...", "Kumpel");
         Game.remove(e);
+        Sounds.DIALOG_SOUND.play();
       });
       cc.isSolid(false);
       trigger.add(cc);
       Game.add(trigger);
       dialogTriggers.add(trigger);
     });
+
+    EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
 
   private void createButtonsPuzzle() {
@@ -187,10 +189,12 @@ public class MainLevel extends DungeonLevel {
             getPoint("buttons-exit-lever"),
             new ICommand() {
               public void execute() {
+                Sounds.DOOR_OPEN_SOUND.play();
                 buttonsExit.open();
               }
 
               public void undo() {
+                Sounds.DOOR_CLOSE_SOUND.play();
                 buttonsExit.close();
               }
             }));
@@ -201,9 +205,12 @@ public class MainLevel extends DungeonLevel {
               int i = tuple.b();
               Entity pp = LeverFactory.pressurePlate(p, 1, new ICommand() {
                 public void execute() {
+                  Sounds.PRESSURE_PLATE_ACTIVATE_SOUND.play();
                   checkButtonsPuzzle(i);
                 }
-                public void undo() {}
+                public void undo() {
+                  Sounds.PRESSURE_PLATE_DEACTIVATE_SOUND.play();
+                }
               });
               Game.add(pp);
             });
@@ -277,6 +284,7 @@ public class MainLevel extends DungeonLevel {
         index++;
       }
       if (correct) {
+        Sounds.DOOR_OPEN_SOUND.play();
         buttonsDoor.open();
       }
     }
@@ -299,6 +307,7 @@ public class MainLevel extends DungeonLevel {
                             .ifPresent(
                                 inv -> {
                                   if (inv.hasItem(AxeItem.class)) {
+                                    Sounds.BREAK_TREE_SOUND.play();
                                     DialogUtils.showTextPopup(
                                         "Rumms. Der Baum fällt mit einem lauten Krachen zu Boden.",
                                         "Holz hacken");
@@ -324,7 +333,11 @@ public class MainLevel extends DungeonLevel {
               Game.add(tree);
             });
 
-    Game.add(WorldItemBuilder.buildWorldItem(new AxeItem(), getPoint("axe")));
+    Entity axe = WorldItemBuilder.buildWorldItem(new AxeItem(), getPoint("axe"));
+    axe.fetch(DrawComponent.class).ifPresent(dc -> {
+      dc.shaders().add("outline", new OutlineShader(1).upscaling(2));
+    });
+    Game.add(axe);
   }
 
   private void createPushPuzzle() {
@@ -335,10 +348,12 @@ public class MainLevel extends DungeonLevel {
             getPoint("puzzle-push-exit-lever"),
             new ICommand() {
               public void execute() {
+                Sounds.DOOR_OPEN_SOUND.play();
                 puzzlePushExit.open();
               }
 
               public void undo() {
+                Sounds.DOOR_CLOSE_SOUND.play();
                 puzzlePushExit.close();
               }
             }));
@@ -367,10 +382,12 @@ public class MainLevel extends DungeonLevel {
         getPoint("push-escape-lever"),
         new ICommand() {
           public void execute() {
+            Sounds.DOOR_OPEN_SOUND.play();
             puzzlePushEscapeExit.open();
           }
 
           public void undo() {
+            Sounds.DOOR_CLOSE_SOUND.play();
             puzzlePushEscapeExit.close();
           }
         }));
@@ -398,24 +415,19 @@ public class MainLevel extends DungeonLevel {
               DoorTile doorTile = (DoorTile) tileAt(doorPos).orElseThrow();
               doorTile.close();
 
-              Entity pp = LeverFactory.pressurePlate(platePos);
-              pp.remove(LeverComponent.class);
-              pp.add(
-                  new LeverComponent(
-                      new ICommand() {
-                        public void execute() {
-                          doorTile.open();
-                        }
-
-                        public void undo() {
-                          doorTile.close();
-                        }
-                      }));
+              Entity pp = LeverFactory.pressurePlate(platePos, 1.0f, new ICommand() {
+                public void execute() {
+                  Sounds.DOOR_OPEN_SOUND.play();
+                  doorTile.open();
+                }
+                public void undo() {
+                  Sounds.DOOR_CLOSE_SOUND.play();
+                  doorTile.close();
+                }
+              });
               Game.add(pp);
               puzzlePushEntities.add(pp);
             });
-
-
   }
 
   private void resetPushStones() {
@@ -464,9 +476,7 @@ public class MainLevel extends DungeonLevel {
               if (!type.poisonous) {
                 maxMushrooms++;
               }
-              Game.add(
-                  MushroomFactory.createMushroom(
-                      p, Mushrooms.values()[index % Mushrooms.values().length], type.poisonous));
+              Game.add(WorldItemBuilder.buildWorldItem(MushroomItem.createMushroomItem(type), p));
             });
   }
 
@@ -556,16 +566,22 @@ public class MainLevel extends DungeonLevel {
         DialogUtils.showTextPopup(
             "Danke, dass du die Pilze gesammelt hast! Mit diesem Heiltrank fühle ich mich schon viel besser. Du bist ein wahrer Freund!",
             "Kumpel");
+        Sounds.NPC_SUCCESS.play();
         break;
       case ALL_COLLECTED_POISONOUS:
         DialogUtils.showTextPopup(
             "Oh nein! Du hast einige giftige Pilze mitgebracht! Jetzt muss ich wohl draufgehen...",
             "Kumpel");
         npcState = NpcState.DEAD;
+        Sounds.NPC_DIE.play();
         break;
       case DEAD:
         DialogUtils.showTextPopup("......", "...");
         break;
+    }
+
+    if(npcState != NpcState.DEAD){
+      Sounds.DIALOG_SOUND.play();
     }
   }
 
@@ -624,5 +640,25 @@ public class MainLevel extends DungeonLevel {
     int y = runeIndex / cols;
 
     return new DrawComponent(new SimpleIPath("spritesheets/runes.png"), new SpritesheetConfig(x * 16, y * 16, 1, 1));
+  }
+
+  private void playAmbientSound() {
+    double r = Math.random();
+    if (r < 0.20) {
+      Sounds.TREE_AMBIENT_CREAK.play();
+    } else if (r < 0.40) {
+      Sounds.ANIMAL_AMBIENT.play();
+    } else if (r < 0.60) {
+      double rWind = Math.random();
+      if (rWind < 0.33) {
+        Sounds.WIND_AMBIENT_1.play();
+      } else if (rWind < 0.66) {
+        Sounds.WIND_AMBIENT_2.play();
+      } else {
+        Sounds.WIND_AMBIENT_3.play();
+      }
+    }
+
+    EventScheduler.scheduleAction(this::playAmbientSound, (long) (Math.random() * 10000 + 10000));
   }
 }

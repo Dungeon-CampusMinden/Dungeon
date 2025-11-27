@@ -30,7 +30,8 @@ import mushRoom.modules.mushrooms.Mushrooms;
  */
 public class MushRoom {
   private static final boolean DEBUG_MODE = true;
-  private static final String BACKGROUND_MUSIC = "sounds/background.wav";
+  private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
+  private static final String AMBIENT_MUSIC = "sounds/forest_ambient.wav";
   private static final int START_LEVEL = 0;
 
   /**
@@ -113,6 +114,11 @@ public class MushRoom {
     Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
     backgroundMusic.setLooping(true);
     backgroundMusic.play();
-    backgroundMusic.setVolume(.05f);
+    backgroundMusic.setVolume(.075f);
+
+    backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(AMBIENT_MUSIC));
+    backgroundMusic.setLooping(true);
+    backgroundMusic.play();
+    backgroundMusic.setVolume(.15f);
   }
 }

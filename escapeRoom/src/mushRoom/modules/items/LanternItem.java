@@ -4,6 +4,7 @@ import contrib.item.Item;
 import core.Entity;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
+import mushRoom.Sounds;
 
 public class LanternItem extends Item {
 
@@ -20,5 +21,11 @@ public class LanternItem extends Item {
   @Override
   public void use(Entity user) {
     // Nothing
+  }
+
+  @Override
+  public boolean collect(Entity itemEntity, Entity collector) {
+    Sounds.KEY_ITEM_PICKUP_SOUND.play();
+    return super.collect(itemEntity, collector);
   }
 }

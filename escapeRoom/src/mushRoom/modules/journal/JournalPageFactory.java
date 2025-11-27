@@ -11,6 +11,7 @@ import core.utils.Point;
 import core.utils.components.draw.TextureGenerator;
 import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
+import mushRoom.Sounds;
 
 public class JournalPageFactory {
 
@@ -44,6 +45,7 @@ public class JournalPageFactory {
                                   DialogUtils.showTextPopup(
                                       "Auf dieser Seite ist die Beschreibung von zwei Pilzen! Ich schreibe das mal in mein Notizbuch...",
                                       "Yay");
+                                  Sounds.KEY_ITEM_PICKUP_SOUND.play();
                                 },
                                 () -> {
                                   DialogUtils.showTextPopup(
