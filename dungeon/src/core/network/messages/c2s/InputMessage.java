@@ -110,7 +110,32 @@ public record InputMessage(
     /** Switch to the next skill in the player's skill set. */
     NEXT_SKILL(3),
     /** Switch to the previous skill in the player's skill set. */
-    PREV_SKILL(4);
+    PREV_SKILL(4),
+    /**
+     * Drop a specified item from the inventory.
+     *
+     * <p>The point x coordinate represents the inventory slot index of the item to be dropped.
+     */
+    INV_DROP(5),
+    /**
+     * Move an item within the inventory.
+     *
+     * <p>The point x coordinate represents the source inventory slot index, and the point y
+     * coordinate represents the destination inventory slot index.
+     */
+    INV_MOVE(6),
+    /**
+     * Transfer an item from the inventory to currently open container.
+     *
+     * <p>The point x coordinate represents the inventory slot index of the item to be transferred.
+     */
+    INV_TRANSFER(7),
+    /**
+     * Uses the item in the specified inventory slot.
+     *
+     * <p>The point x coordinate represents the inventory slot index of the item to be used.
+     */
+    INV_USE(8);
 
     private final byte value;
 

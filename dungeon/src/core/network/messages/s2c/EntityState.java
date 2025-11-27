@@ -1,5 +1,6 @@
 package core.network.messages.s2c;
 
+import contrib.item.Item;
 import core.network.messages.NetworkMessage;
 import core.sound.SoundSpec;
 import core.utils.Direction;
@@ -32,6 +33,7 @@ public class EntityState implements NetworkMessage {
   private final String stateName;
   private final Integer tintColor;
   private final List<SoundSpec> sounds;
+  private final Item[] inventory;
 
   /**
    * Constructs an EntityState object using the provided Builder.
@@ -51,6 +53,7 @@ public class EntityState implements NetworkMessage {
     this.stateName = builder.stateName;
     this.tintColor = builder.tintColor;
     this.sounds = builder.sounds;
+    this.inventory = builder.inventory;
   }
 
   /**
@@ -170,6 +173,15 @@ public class EntityState implements NetworkMessage {
     return new Builder();
   }
 
+  /**
+   * Gets the optional inventory of the entity.
+   *
+   * @return an Optional containing the inventory if present, otherwise an empty Optional
+   */
+  public Optional<Item[]> inventory() {
+    return Optional.ofNullable(inventory);
+  }
+
   /** Builder class for constructing EntityState objects. */
   public static class Builder {
     private int entityId;
@@ -184,6 +196,7 @@ public class EntityState implements NetworkMessage {
     private String stateName;
     private Integer tintColor;
     private List<SoundSpec> sounds;
+    private Item[] inventory;
 
     /**
      * Sets the unique identifier for the entity.
@@ -325,6 +338,17 @@ public class EntityState implements NetworkMessage {
      */
     public Builder sounds(List<SoundSpec> sounds) {
       this.sounds = sounds;
+      return this;
+    }
+
+    /**
+     * Sets the inventory items for the entity.
+     *
+     * @param inventory the array of Item instances
+     * @return the Builder instance
+     */
+    public Builder inventory(Item[] inventory) {
+      this.inventory = inventory;
       return this;
     }
 

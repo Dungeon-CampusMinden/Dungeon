@@ -468,7 +468,7 @@ public final class ECSManagement {
       }
     }
 
-    if (Gdx.gl != null && Game.windowHeight() > 0 && Game.windowWidth() > 0) {
+    if (!Game.isHeadless() && Game.windowHeight() > 0 && Game.windowWidth() > 0) {
       // Render logic: Call the render method for each system if OpenGL context is available.
       float delta = Gdx.graphics.getDeltaTime();
       systems().values().forEach(system -> system.render(delta));

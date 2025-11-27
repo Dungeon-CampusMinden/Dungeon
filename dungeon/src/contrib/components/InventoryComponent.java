@@ -1,6 +1,5 @@
 package contrib.components;
 
-import com.badlogic.gdx.utils.Null;
 import contrib.item.Item;
 import core.Component;
 import core.utils.logging.DungeonLogger;
@@ -125,13 +124,13 @@ public final class InventoryComponent implements Component {
    * Remove item from specific index in inventory.
    *
    * @param index Index of item to remove.
-   * @return Item removed. May be null.
+   * @return An {@link Optional} containing the removed item, or {@link Optional#empty()} if no item
+   *     was present at the given index.
    */
-  @Null
-  public Item remove(int index) {
+  public Optional<Item> remove(int index) {
     Item itemData = inventory[index];
     inventory[index] = null;
-    return itemData;
+    return Optional.ofNullable(itemData);
   }
 
   /**
@@ -198,6 +197,11 @@ public final class InventoryComponent implements Component {
    * @return true if the transfer was successful, false if not.
    */
   public boolean transfer(final Item item, final InventoryComponent other) {
+    LOGGER.debug(
+        "Transferring item '{}' from inventory '{}' to inventory '{}'.",
+        item.getClass().getSimpleName(),
+        this.getClass().getSimpleName(),
+        other.getClass().getSimpleName());
     if (!other.equals(this) && this.hasItem(item) && other.add(item)) return this.remove(item);
     return false;
   }
@@ -252,7 +256,10 @@ public final class InventoryComponent implements Component {
    * @param item Item to set at index.
    */
   public void set(int index, final Item item) {
-    if (index >= this.inventory.length || index < 0) return;
+    if (index >= this.inventory.length || index < 0) {
+      LOGGER.warn("Tried to set item at invalid inventory index: {}", index);
+      return;
+    }
     this.inventory[index % this.inventory.length] = item;
   }
 
@@ -260,12 +267,15 @@ public final class InventoryComponent implements Component {
    * Get the item at the given index.
    *
    * @param index Index of item to get.
-   * @return Item at index. May be null.
+   * @return An {@link Optional} containing the item at the given index, or {@link Optional#empty()}
+   *     if the index is out of bounds.
    */
-  @Null
-  public Item get(int index) {
-    if (index >= this.inventory.length || index < 0) return null;
-    return this.inventory[index];
+  public Optional<Item> get(int index) {
+    if (index >= this.inventory.length || index < 0) {
+      LOGGER.warn("Tried to get item at invalid inventory index: {}", index);
+      return Optional.empty();
+    }
+    return Optional.ofNullable(this.inventory[index]);
   }
 
   /**
@@ -334,5 +344,14 @@ public final class InventoryComponent implements Component {
         amount = 0;
       }
     }
+  }
+
+  /**
+   * Removes all items from the inventory.
+   *
+   * <p>This method clears the inventory by setting all item slots to null.
+   */
+  public void clear() {
+    Arrays.fill(this.inventory, null);
   }
 }

@@ -4,7 +4,9 @@ import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.*;
 
+import contrib.components.UIComponent;
 import contrib.entities.HeroController;
+import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -12,11 +14,7 @@ import core.components.PositionComponent;
 import core.network.MessageDispatcher;
 import core.network.config.NetworkConfig;
 import core.network.messages.NetworkMessage;
-import core.network.messages.c2s.ConnectRequest;
-import core.network.messages.c2s.InputMessage;
-import core.network.messages.c2s.RegisterUdp;
-import core.network.messages.c2s.RequestEntitySpawn;
-import core.network.messages.c2s.SoundFinishedMessage;
+import core.network.messages.c2s.*;
 import core.network.messages.s2c.*;
 import core.utils.Tuple;
 import core.utils.logging.DungeonLogger;
@@ -431,6 +429,26 @@ public final class ServerTransport {
     dispatcher.registerHandler(RequestEntitySpawn.class, this::onRequestEntitySpawn);
     dispatcher.registerHandler(InputMessage.class, this::onInputMessage);
     dispatcher.registerHandler(SoundFinishedMessage.class, this::onSoundFinished);
+    dispatcher.registerHandler(InventoryUIMessage.class, this::onInventoryUIMessage);
+  }
+
+  private void onInventoryUIMessage(Session session, InventoryUIMessage msg) {
+    LOGGER.debug(
+        "Received InventoryUIMessage (open={}) from client {}", msg.open(), session.clientId());
+
+    Optional<Entity> sessionEntity = session.clientState().flatMap(ClientState::playerEntity);
+    if (sessionEntity.isEmpty()) {
+      LOGGER.warn("Ignoring InventoryUIMessage from session with no player entity: {}", session);
+      return;
+    }
+
+    Entity player = sessionEntity.get();
+    InventoryGUI.setInventoryOpen(player, msg.open());
+    if (msg.open()) {
+      player.add(new UIComponent()); // mock ui component to indicate ui is open
+    } else {
+      player.remove(UIComponent.class);
+    }
   }
 
   private void onSoundFinished(Session session, SoundFinishedMessage msg) {

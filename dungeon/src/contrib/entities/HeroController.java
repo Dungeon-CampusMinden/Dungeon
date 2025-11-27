@@ -4,8 +4,10 @@ import contrib.components.*;
 import contrib.components.InventoryComponent;
 import contrib.components.SkillComponent;
 import contrib.components.UIComponent;
+import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.item.Item;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.cursorSkill.CursorSkill;
@@ -16,6 +18,7 @@ import core.components.PlayerComponent;
 import core.components.VelocityComponent;
 import core.level.utils.LevelUtils;
 import core.network.messages.c2s.InputMessage;
+import core.network.messages.c2s.InventoryUIMessage;
 import core.network.server.ClientState;
 import core.utils.Direction;
 import core.utils.Point;
@@ -185,6 +188,7 @@ public class HeroController {
       return;
     }
 
+    boolean isUIOpen = false;
     UIComponent uiComponent = hero.fetch(UIComponent.class).orElse(null);
     if (uiComponent != null) {
       if (uiComponent.dialog() instanceof GUICombination) {
@@ -192,7 +196,13 @@ public class HeroController {
       }
     } else {
       hero.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
+      isUIOpen = true;
     }
+
+    if (!Game.network().isServer()) {
+      Game.network().send((short) 0, new InventoryUIMessage(isUIOpen), true);
+    }
+    InventoryGUI.setInventoryOpen(hero, isUIOpen);
   }
 
   /**
@@ -203,6 +213,142 @@ public class HeroController {
    */
   public static void enqueueInput(ClientState clientState, InputMessage msg) {
     inputQueue.add(Tuple.of(clientState, msg));
+  }
+
+  /**
+   * Drops the item at the specified inventory slot from the hero entity's inventory.
+   *
+   * @param entity the hero entity dropping the item
+   * @param itemSlot the inventory slot index of the item to drop
+   */
+  public static void dropItem(Entity entity, int itemSlot) {
+    LOGGER.debug("Entity {} dropping item from slot {}", entity.id(), itemSlot);
+
+    InventoryComponent inventory =
+        entity
+            .fetch(InventoryComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, InventoryComponent.class));
+    Item item =
+        inventory
+            .remove(itemSlot)
+            .orElseThrow(() -> new IllegalArgumentException("No item in slot " + itemSlot));
+
+    Point dropPosition = Game.positionOf(entity).orElseThrow();
+    boolean success = item.drop(dropPosition).isPresent();
+    if (!success) {
+      LOGGER.warn("Failed to drop item {} from slot {} for entity {}", item, itemSlot, entity.id());
+      returnItemToInventory(inventory, item, itemSlot, entity);
+    }
+  }
+
+  public static void moveItem(Entity entity, int fromSlot, int toSlot) {
+    LOGGER.debug("Entity {} moving item from slot {} to slot {}", entity.id(), fromSlot, toSlot);
+
+    InventoryComponent inventory =
+        entity
+            .fetch(InventoryComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, InventoryComponent.class));
+    Item item =
+        inventory
+            .remove(fromSlot)
+            .orElseThrow(() -> new IllegalArgumentException("No item in slot " + fromSlot));
+
+    inventory
+        .get(toSlot)
+        .ifPresentOrElse(
+            existingItem -> {
+              // Slot occupied, swap items
+              inventory.set(fromSlot, existingItem);
+              inventory.set(toSlot, item);
+              LOGGER.debug(
+                  "Swapped items in slots {} and {} for entity {}", fromSlot, toSlot, entity.id());
+            },
+            () -> {
+              // Slot empty, move item
+              inventory.set(toSlot, item);
+              LOGGER.debug("Moved item to slot {} for entity {}", toSlot, entity.id());
+            });
+  }
+
+  public static boolean useItem(Entity entity, int itemSlot) {
+    LOGGER.debug("Entity {} using item from slot {}", entity.id(), itemSlot);
+
+    InventoryComponent inventory =
+        entity
+            .fetch(InventoryComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, InventoryComponent.class));
+    Item item = inventory.get(itemSlot).orElse(null);
+    if (item == null) {
+      LOGGER.debug("No item in slot {} for entity {}", itemSlot, entity.id());
+      return false;
+    }
+
+    item.use(entity);
+    return true;
+  }
+
+  public static boolean transferItem(Entity entity, int itemSlot) {
+    LOGGER.debug("Entity {} transferring item from slot {}", entity.id(), itemSlot);
+
+    UIComponent uiComponent =
+        entity
+            .fetch(UIComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, UIComponent.class));
+    InventoryComponent inventory =
+        entity
+            .fetch(InventoryComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, InventoryComponent.class));
+    Item itemToTransfer =
+        inventory
+            .remove(itemSlot)
+            .orElseThrow(() -> new IllegalArgumentException("No item in slot " + itemSlot));
+
+    if (uiComponent.dialog() instanceof GUICombination guiCombination) {
+      guiCombination
+          .combinableGuis()
+          .forEach(
+              gui -> {
+                if (gui instanceof InventoryGUI inventoryGui) {
+                  if (inventory != inventoryGui.inventoryComponent()) {
+                    inventory.transfer(itemToTransfer, inventoryGui.inventoryComponent());
+                  }
+                } else if (gui instanceof CraftingGUI craftingGui) {
+                  craftingGui.addItem(itemToTransfer);
+                }
+              });
+      return true;
+    }
+    returnItemToInventory(inventory, itemToTransfer, itemSlot, entity);
+    return false;
+  }
+
+  /**
+   * Attempts to return the item to the inventory, preferring the original slot if empty.
+   *
+   * <p>If the original slot is occupied, tries to add the item to any available slot. If both
+   * attempts fail, logs an error.
+   *
+   * @param inventory the inventory component
+   * @param item the item to return
+   * @param itemSlot the original slot index
+   * @param entity the entity for logging
+   */
+  private static void returnItemToInventory(
+      InventoryComponent inventory, Item item, int itemSlot, Entity entity) {
+    try {
+      if (inventory.get(itemSlot).isEmpty()) {
+        inventory.set(itemSlot, item);
+      } else if (!inventory.add(item)) {
+        throw new RuntimeException("No space to return item to inventory");
+      }
+    } catch (RuntimeException e) {
+      LOGGER.error(
+          "Failed to return item {} to inventory for entity {}: {}",
+          item,
+          entity.id(),
+          e.getMessage(),
+          e);
+    }
   }
 
   /**
@@ -237,6 +383,23 @@ public class HeroController {
           case NEXT_SKILL -> HeroController.changeSkill(entity, true);
           case PREV_SKILL -> HeroController.changeSkill(entity, false);
           case INTERACT -> HeroController.interact(entity, msg.point());
+          case INV_DROP -> {
+            int itemIndex = (int) msg.point().x();
+            HeroController.dropItem(entity, itemIndex);
+          }
+          case INV_MOVE -> {
+            int fromIndex = (int) msg.point().x();
+            int toIndex = (int) msg.point().y();
+            HeroController.moveItem(entity, fromIndex, toIndex);
+          }
+          case INV_TRANSFER -> {
+            int itemIndex = (int) msg.point().x();
+            HeroController.transferItem(entity, itemIndex);
+          }
+          case INV_USE -> {
+            int itemIndex = (int) msg.point().x();
+            HeroController.useItem(entity, itemIndex);
+          }
           default -> LOGGER.warn("Unknown action {} for client {}", msg.action(), clientState);
         }
         // On success: Update processed seq and activity

@@ -24,8 +24,8 @@ import core.utils.Vector2;
  * <p>The camera will follow an entity with a {@link CameraComponent}. If there is no entity with a
  * {@link CameraComponent}, the start tile of the current level will be in focus.
  *
- * <p>In {@link #isPointInFrustum(float, float)} also checks if points are visible on screen and
- * should be rendered.
+ * <p>In {@link #isPointInFrustum(Point)} also checks if points are visible on screen and should be
+ * rendered.
  *
  * @see CameraComponent
  */
@@ -98,7 +98,7 @@ public final class CameraSystem extends System {
   public static boolean isEntityHovered(Entity entity) {
     final float HOVER_RADIUS = 0.5f;
 
-    if (Gdx.input == null || Gdx.gl == null) {
+    if (Gdx.input == null || Game.isHeadless()) {
       return false;
     }
 
@@ -140,13 +140,9 @@ public final class CameraSystem extends System {
 
   @Override
   public void render(final float delta) {
-    // Check if Gdx.graphics is null which happens when the game is run in headless mode (e.g.
-    // in tests)
-    if (Gdx.graphics != null) {
-      float aspectRatio = Game.windowWidth() / (float) Game.windowHeight();
-      CAMERA.viewportWidth = viewportWidth();
-      CAMERA.viewportHeight = viewportWidth() / aspectRatio;
-    }
+    float aspectRatio = Game.windowWidth() / (float) Game.windowHeight();
+    CAMERA.viewportWidth = viewportWidth();
+    CAMERA.viewportHeight = viewportWidth() / aspectRatio;
   }
 
   private void focus() {
