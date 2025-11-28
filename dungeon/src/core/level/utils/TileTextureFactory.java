@@ -2268,69 +2268,73 @@ public class TileTextureFactory {
   }
 
   /**
-   * Returns whether a {@code SKIP} tile at {@code p} should count as floor-like based on its
-   * orthogonal neighbors.
+   * Returns whether a {@code SKIP} tile at {@code p} should count as floor-like. A SKIP is
+   * floor-like if it is directly adjacent to a base floor or to a SKIP that is directly adjacent to
+   * a base floor.
    *
    * @param p the coordinate of the tile to test
    * @param layout the level grid
-   * @param visited layout of already visited tiles
-   * @return {@code true} if {@code p} is {@code SKIP} and at least one orthogonal neighbor is a
-   *     base floor; otherwise {@code false}
+   * @return {@code true} if {@code p} is {@code SKIP} and the local neighborhood touches a base
+   *     floor; otherwise {@code false}
    */
-  private static boolean skipIsFloorLike(
-      Coordinate p, LevelElement[][] layout, boolean[][] visited) {
-    if (!isInsideLayout(p.x(), p.y(), layout)) {
-      return false;
-    }
-
-    if (visited[p.y()][p.x()]) {
-      return false;
-    }
-    visited[p.y()][p.x()] = true;
-
+  private static boolean skipIsFloorLike(Coordinate p, LevelElement[][] layout) {
     LevelElement self = get(layout, p.x(), p.y());
-    if (self != LevelElement.SKIP) {
-      return false;
-    }
+    if (self != LevelElement.SKIP) return false;
 
-    LevelElement up = get(layout, p.x(), p.y() + 1);
-    LevelElement down = get(layout, p.x(), p.y() - 1);
-    LevelElement left = get(layout, p.x() - 1, p.y());
-    LevelElement right = get(layout, p.x() + 1, p.y());
-
-    if (isBaseFloor(up)) return true;
-    if (isBaseFloor(down)) return true;
-    if (isBaseFloor(left)) return true;
-    if (isBaseFloor(right)) return true;
+    if (hasBaseFloorAround(p, layout)) return true;
 
     Coordinate upC = new Coordinate(p.x(), p.y() + 1);
     Coordinate downC = new Coordinate(p.x(), p.y() - 1);
     Coordinate leftC = new Coordinate(p.x() - 1, p.y());
     Coordinate rightC = new Coordinate(p.x() + 1, p.y());
 
-    if (skipIsFloorLike(upC, layout, visited)) return true;
-    if (skipIsFloorLike(downC, layout, visited)) return true;
-    if (skipIsFloorLike(leftC, layout, visited)) return true;
-    if (skipIsFloorLike(rightC, layout, visited)) return true;
+    if (isSkipAndHasBaseFloor(upC, layout)) return true;
+    if (isSkipAndHasBaseFloor(downC, layout)) return true;
+    if (isSkipAndHasBaseFloor(leftC, layout)) return true;
+    if (isSkipAndHasBaseFloor(rightC, layout)) return true;
 
     return false;
   }
 
   /**
-   * Convenience overload that allocates the {@code visited} grid and delegates to {@link
-   * #skipIsFloorLike(Coordinate, LevelElement[][], boolean[][])}.
+   * Returns whether the tile at {@code c} is {@code SKIP} and directly adjacent to a base floor.
    *
-   * @param p the coordinate of the {@code SKIP} tile to test
+   * @param c the coordinate to test
    * @param layout the level grid
-   * @return {@code true} if the {@code SKIP} at {@code p} is floor-like according to the recursive
-   *     skip rules; otherwise {@code false}
+   * @return {@code true} if {@code c} is {@code SKIP} and touches a base floor; otherwise {@code
+   *     false}
    */
-  private static boolean skipIsFloorLike(Coordinate p, LevelElement[][] layout) {
-    if (p == null || layout == null) {
-      return false;
-    }
-    boolean[][] visited = new boolean[layout.length][layout[0].length];
-    return skipIsFloorLike(p, layout, visited);
+  private static boolean isSkipAndHasBaseFloor(Coordinate c, LevelElement[][] layout) {
+    if (!isInsideLayout(c.x(), c.y(), layout)) return false;
+    LevelElement e = get(layout, c.x(), c.y());
+    if (e != LevelElement.SKIP) return false;
+    return hasBaseFloorAround(c, layout);
+  }
+
+  /**
+   * Returns whether any of the four orthogonal neighbors of {@code c} is a base floor ({@code
+   * FLOOR}, {@code HOLE}, or {@code PIT}).
+   *
+   * @param c the reference coordinate
+   * @param layout the level grid
+   * @return {@code true} if at least one orthogonal neighbor is a base floor; otherwise {@code
+   *     false}
+   */
+  private static boolean hasBaseFloorAround(Coordinate c, LevelElement[][] layout) {
+    int x = c.x();
+    int y = c.y();
+
+    LevelElement up = get(layout, x, y + 1);
+    LevelElement down = get(layout, x, y - 1);
+    LevelElement left = get(layout, x - 1, y);
+    LevelElement right = get(layout, x + 1, y);
+
+    if (isBaseFloor(up)) return true;
+    if (isBaseFloor(down)) return true;
+    if (isBaseFloor(left)) return true;
+    if (isBaseFloor(right)) return true;
+
+    return false;
   }
 
   /**
