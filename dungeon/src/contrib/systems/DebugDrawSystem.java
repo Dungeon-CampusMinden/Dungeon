@@ -32,7 +32,9 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.BlendUtils;
 import core.utils.components.draw.ColorUtils;
 import core.utils.components.draw.animation.Animation;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -270,9 +272,6 @@ public class DebugDrawSystem extends System {
    * @param pc The PositionComponent of the entity.
    */
   private void drawEntityInfo(Entity entity, PositionComponent pc) {
-    // In headless mode (e.g., tests) Gdx.gl may be null
-    if (Gdx.gl == null) return;
-
     // Compute layout and render a semi-transparent background + white text near the entity
     drawInfoOverlay(buildInfoText(entity, pc), pc.position());
   }
@@ -344,6 +343,16 @@ public class DebugDrawSystem extends System {
     entity
         .fetch(SoundComponent.class)
         .ifPresent(sc -> info.append("Sound Instances: ").append(sc.sounds().size()).append("\n"));
+
+    entity
+        .fetch(InventoryComponent.class)
+        .ifPresent(
+            ic ->
+                info.append("Inventory: ")
+                    .append(Arrays.stream(ic.items()).filter(Objects::nonNull).count())
+                    .append("/")
+                    .append(ic.items().length)
+                    .append(" items\n"));
 
     // We should try to render the path for the current ai; this probably needs a PathAI to check
     // the instance here

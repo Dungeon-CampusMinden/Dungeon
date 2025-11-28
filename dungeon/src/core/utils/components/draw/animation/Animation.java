@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import core.Game;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -385,7 +386,7 @@ public class Animation implements Serializable, Cloneable {
   }
 
   private static boolean canUseTextures() {
-    return Gdx.gl != null;
+    return !Game.isHeadless();
   }
 
   private void ensureLoaded() {
