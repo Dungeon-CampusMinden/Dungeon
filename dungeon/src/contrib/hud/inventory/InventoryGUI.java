@@ -93,11 +93,17 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   public InventoryGUI(String title, InventoryComponent inventoryComponent, int maxItemsPerRow) {
     super();
     this.inventoryComponent = inventoryComponent;
-    this.dropAndDropSource = this.buildDragAndDropSource();
-    this.dropAndDropTarget = this.buildDragAndDropTarget();
     this.title = title;
     this.slotsPerRow =
         Math.max(Math.min(maxItemsPerRow, this.inventoryComponent.items().length), 1);
+
+    if (Game.isHeadless()) {
+      this.dropAndDropSource = null;
+      this.dropAndDropTarget = null;
+      return;
+    }
+    this.dropAndDropSource = this.buildDragAndDropSource();
+    this.dropAndDropTarget = this.buildDragAndDropTarget();
     this.addInputListener();
   }
 
@@ -150,6 +156,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
    * @return an Optional containing the InventoryGUI if found, or empty if not found
    */
   public static Optional<InventoryGUI> getPlayerInventoryGUI(Entity player) {
+    LOGGER.debug("Fetching InventoryGUI for player " + player.id() + ".");
     return player
         .fetch(UIComponent.class)
         .flatMap(
@@ -371,13 +378,6 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
         if (target == null
             && payload != null
             && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-          // check if over slot
-          int slot = InventoryGUI.this.getSlotByCoordinates(x, y);
-          if (slot != -1) {
-            // to fast for libGdx, still over inventory
-            return; // don't drop
-          }
-
           if (Game.network().isServer()) {
             HeroController.dropItem(
                 Game.player().orElseThrow(),

@@ -199,6 +199,7 @@ public class HeroController {
       hero.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
       isUIOpen = true;
     }
+    LOGGER.trace("Inventory UI for hero {} is now {}", hero.id(), isUIOpen ? "open" : "closed");
 
     if (!Game.network().isServer()) {
       Game.network().send((short) 0, new InventoryUIMessage(isUIOpen), true);

@@ -141,10 +141,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
       // Normal Entity
       return true;
     }
-    if (entity.isPresent(UIComponent.class)) {
-      // UI Entity
-      return true;
-    }
     // Sound Entity
     if (entity.isPresent(SoundComponent.class)) {
       return true;

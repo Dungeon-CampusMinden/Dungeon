@@ -38,10 +38,16 @@ public final class GUICombination extends Group {
    */
   public GUICombination(int guisPerRow, final CombinableGUI... combinableGuis) {
     this.guisPerRow = guisPerRow;
-    this.dragAndDrop = new DragAndDrop();
-    this.setSize(Game.stage().orElseThrow().getWidth(), Game.stage().orElseThrow().getHeight());
     this.setPosition(0, 0);
     this.combinableGuis = new ArrayList<>(Arrays.asList(combinableGuis));
+
+    if (Game.isHeadless()) {
+      this.dragAndDrop = null;
+      return;
+    }
+    this.dragAndDrop = new DragAndDrop();
+    this.setSize(Game.stage().orElseThrow().getWidth(), Game.stage().orElseThrow().getHeight());
+
     this.combinableGuis.forEach(
         combinableGUI -> {
           combinableGUI.dragAndDrop(this.dragAndDrop);

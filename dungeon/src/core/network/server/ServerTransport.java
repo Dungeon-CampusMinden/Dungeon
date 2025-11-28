@@ -4,7 +4,6 @@ import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.*;
 
-import contrib.components.UIComponent;
 import contrib.entities.HeroController;
 import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
@@ -443,12 +442,14 @@ public final class ServerTransport {
     }
 
     Entity player = sessionEntity.get();
-    InventoryGUI.setInventoryOpen(player, msg.open());
-    if (msg.open()) {
-      player.add(new UIComponent()); // mock ui component to indicate ui is open
-    } else {
-      player.remove(UIComponent.class);
+    if (msg.open() == InventoryGUI.inPlayerInventory(player)) { // already correct state
+      LOGGER.debug(
+          "Ignoring redundant InventoryUIMessage (open={}) from client {}",
+          msg.open(),
+          session.clientId());
+      return;
     }
+    HeroController.toggleInventory(player);
   }
 
   private void onSoundFinished(Session session, SoundFinishedMessage msg) {
