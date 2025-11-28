@@ -77,7 +77,7 @@ public final class MessageDispatcher {
         @SuppressWarnings("unchecked")
         BiConsumer<Session, Object> c = (BiConsumer<Session, Object>) handler;
         c.accept(session, message);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         LOGGER.error(
             "Error in message handler for message {}: {}",
             message.getClass().getSimpleName(),

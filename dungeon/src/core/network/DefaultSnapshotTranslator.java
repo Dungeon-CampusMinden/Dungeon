@@ -1,6 +1,7 @@
 package core.network;
 
 import contrib.components.HealthComponent;
+import contrib.components.InventoryComponent;
 import contrib.components.ManaComponent;
 import contrib.components.UIComponent;
 import contrib.systems.PositionSync;
@@ -123,9 +124,12 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                   .ifPresent(
                       sc -> {
                         if (!sc.sounds().isEmpty()) {
-                          builder.sounds(new ArrayList<>(sc.sounds()));
+                          builder.sounds(sc.sounds());
                         }
                       });
+
+              // Inventory
+              e.fetch(InventoryComponent.class).ifPresent(ic -> builder.inventory(ic.items()));
 
               list.add(builder.build());
             });
@@ -135,10 +139,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
   private boolean isClientRelevant(Entity entity) {
     if (entity.isPresent(PositionComponent.class) && entity.isPresent(DrawComponent.class)) {
       // Normal Entity
-      return true;
-    }
-    if (entity.isPresent(UIComponent.class)) {
-      // UI Entity
       return true;
     }
     // Sound Entity
@@ -258,7 +258,38 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                           // No audio in snapshot, clear if present
                           Game.audio().stopAllOnEntity(entity);
                         });
-              } catch (Exception ignored) {
+
+                // Inventory
+                snap.inventory()
+                    .ifPresentOrElse(
+                        items -> {
+                          InventoryComponent ic =
+                              entity
+                                  .fetch(InventoryComponent.class)
+                                  .orElseGet(
+                                      () -> {
+                                        InventoryComponent newIc =
+                                            new InventoryComponent(items.length);
+                                        entity.add(newIc);
+                                        return newIc;
+                                      });
+                          ic.clear();
+                          for (int i = 0; i < items.length; i++) {
+                            ic.set(i, items[i]);
+                          }
+                        },
+                        () -> {
+                          entity
+                              .fetch(InventoryComponent.class)
+                              .ifPresent(InventoryComponent::clear);
+                          entity.remove(InventoryComponent.class);
+                        });
+              } catch (Exception e) {
+                LOGGER.error(
+                    "Error applying snapshot for entity id: {}: {}",
+                    snap.entityId(),
+                    e.getMessage(),
+                    e);
               }
             });
   }

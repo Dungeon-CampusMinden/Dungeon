@@ -152,8 +152,12 @@ public abstract class CombinableGUI {
    * Set the width of the element.
    *
    * @param width the width.
+   * @throws IllegalArgumentException if the width is negative.
    */
   public void width(int width) {
+    if (width < 0) {
+      throw new IllegalArgumentException("Width cannot be negative");
+    }
     this.actor.setSize(width, this.height);
     this.width = width;
   }
@@ -171,8 +175,12 @@ public abstract class CombinableGUI {
    * Set the height of the element.
    *
    * @param height the height.
+   * @throws IllegalArgumentException if the height is negative.
    */
   public void height(int height) {
+    if (height < 0) {
+      throw new IllegalArgumentException("Height cannot be negative");
+    }
     this.actor.setSize(this.width, height);
     this.height = height;
   }

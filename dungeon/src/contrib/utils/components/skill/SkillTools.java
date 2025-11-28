@@ -55,7 +55,7 @@ public final class SkillTools {
    * @throws IllegalStateException if Gdx.graphics is not available
    */
   public static Point cursorPositionAsPoint() {
-    if (Gdx.graphics == null) {
+    if (Game.isHeadless()) {
       throw new IllegalStateException("Gdx.graphics is null, cannot get cursor position.");
     }
 

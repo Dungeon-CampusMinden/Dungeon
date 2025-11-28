@@ -316,6 +316,8 @@ public final class MiscFactory {
     DrawComponent dc = new DrawComponent(new SimpleIPath("objects/cauldron"));
     dc.depth(DepthLayer.Player.depth());
     cauldron.add(dc);
+    InventoryComponent invComp = new InventoryComponent();
+    cauldron.add(invComp);
     cauldron.add(
         new InteractionComponent(
             () ->
@@ -324,7 +326,7 @@ public final class MiscFactory {
                         who.fetch(InventoryComponent.class)
                             .ifPresent(
                                 ic -> {
-                                  CraftingGUI craftingGUI = new CraftingGUI(ic);
+                                  CraftingGUI craftingGUI = new CraftingGUI(invComp, ic);
                                   UIComponent component =
                                       new UIComponent(
                                           new GUICombination(new InventoryGUI(ic), craftingGUI),
