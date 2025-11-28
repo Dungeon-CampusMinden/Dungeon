@@ -122,7 +122,6 @@ tasks.named('clean') {
     )
 }
 
-
 spotless {
     java {
         targetExclude('build/generated-src/**')
