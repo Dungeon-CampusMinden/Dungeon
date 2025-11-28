@@ -75,6 +75,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
     }
   }
 
+  private final DragAndDrop.Source dropAndDropSource;
+  private final DragAndDrop.Target dropAndDropTarget;
   private final InventoryComponent inventoryComponent;
   private Texture textureSlots;
   private String title;
@@ -91,6 +93,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   public InventoryGUI(String title, InventoryComponent inventoryComponent, int maxItemsPerRow) {
     super();
     this.inventoryComponent = inventoryComponent;
+    this.dropAndDropSource = this.buildDragAndDropSource();
+    this.dropAndDropTarget = this.buildDragAndDropTarget();
     this.title = title;
     this.slotsPerRow =
         Math.max(Math.min(maxItemsPerRow, this.inventoryComponent.items().length), 1);
@@ -212,6 +216,17 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
               + this.slotSize * (float) Math.floor((i / (float) this.slotsPerRow))
               + (2 * BORDER_PADDING);
 
+      // Don't draw item being dragged
+      if (this.dragAndDrop().isDragging()) {
+        DragAndDrop.Payload payload = this.dragAndDrop().getDragPayload();
+        if (payload != null
+            && payload.getObject() instanceof ItemDragPayload itemDragPayload
+            && itemDragPayload.inventoryComponent() == this.inventoryComponent
+            && itemDragPayload.slot() == i) {
+          continue;
+        }
+      }
+
       batch.draw(
           this.inventoryComponent.items()[i].inventoryAnimation().update(),
           x,
@@ -316,109 +331,108 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
 
   @Override
   protected void initDragAndDrop(DragAndDrop dragAndDrop) {
-    dragAndDrop.addSource(
-        new DragAndDrop.Source(this.actor()) {
-          @Override
-          public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
-            int draggedSlot = InventoryGUI.this.getSlotByCoordinates(x, y);
-            Optional<Item> item = InventoryGUI.this.inventoryComponent.get(draggedSlot);
-            if (item.isEmpty()) return null;
-            Item itemToTransfer = item.get();
-            boolean isHeroInv =
-                isPlayersInventory(
-                    Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent);
+    dragAndDrop.addSource(dropAndDropSource);
+    dragAndDrop.addTarget(dropAndDropTarget);
+  }
 
-            DragAndDrop.Payload payload = new DragAndDrop.Payload();
-            payload.setObject(
-                new ItemDragPayload(
-                    InventoryGUI.this.inventoryComponent, isHeroInv, draggedSlot, itemToTransfer));
+  private DragAndDrop.Source buildDragAndDropSource() {
+    return new DragAndDrop.Source(this.actor()) {
+      @Override
+      public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
+        int draggedSlot = InventoryGUI.this.getSlotByCoordinates(x, y);
+        Optional<Item> item = InventoryGUI.this.inventoryComponent.get(draggedSlot);
+        if (item.isEmpty()) return null;
+        Item itemToTransfer = item.get();
+        boolean isHeroInv =
+            isPlayersInventory(Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent);
 
-            // TODO: Test if SpriteDrawable is equivalent to creating a texture on the fly
-            Image image =
-                new Image(new SpriteDrawable(itemToTransfer.inventoryAnimation().update()));
-            image.setSize(InventoryGUI.this.slotSize, InventoryGUI.this.slotSize);
-            payload.setDragActor(image);
-            dragAndDrop.setDragActorPosition(image.getWidth() / 2, -image.getHeight() / 2);
+        DragAndDrop.Payload payload = new DragAndDrop.Payload();
+        payload.setObject(
+            new ItemDragPayload(
+                InventoryGUI.this.inventoryComponent, isHeroInv, draggedSlot, itemToTransfer));
 
-            return payload;
+        // TODO: Test if SpriteDrawable is equivalent to creating a texture on the fly
+        Image image = new Image(new SpriteDrawable(itemToTransfer.inventoryAnimation().update()));
+        image.setSize(InventoryGUI.this.slotSize, InventoryGUI.this.slotSize);
+        payload.setDragActor(image);
+        dragAndDrop().setDragActorPosition(image.getWidth() / 2, -image.getHeight() / 2);
+
+        return payload;
+      }
+
+      @Override
+      public void dragStop(
+          InputEvent event,
+          float x,
+          float y,
+          int pointer,
+          DragAndDrop.Payload payload,
+          DragAndDrop.Target target) {
+        if (target == null
+            && payload != null
+            && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
+          // check if over slot
+          int slot = InventoryGUI.this.getSlotByCoordinates(x, y);
+          if (slot != -1) {
+            // to fast for libGdx, still over inventory
+            return; // don't drop
           }
 
-          @Override
-          public void dragStop(
-              InputEvent event,
-              float x,
-              float y,
-              int pointer,
-              DragAndDrop.Payload payload,
-              DragAndDrop.Target target) {
-            if (target == null
-                && payload != null
-                && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-              InventoryComponent targetInv =
-                  Game.findInAll(itemDragPayload.inventoryComponent())
-                      .flatMap(e -> e.fetch(InventoryComponent.class))
-                      .orElseThrow();
-              if (Game.network().isServer()) {
-                HeroController.dropItem(
-                    Game.player().orElseThrow(), targetInv, itemDragPayload.slot());
-              } else {
-                Game.network()
-                    .send(
-                        (short) 0,
-                        new InputMessage(
-                            InputMessage.Action.INV_DROP, Vector2.of(itemDragPayload.slot(), 0)),
-                        true);
-              }
-            }
+          if (Game.network().isServer()) {
+            HeroController.dropItem(
+                Game.player().orElseThrow(),
+                itemDragPayload.inventoryComponent(),
+                itemDragPayload.slot());
+          } else {
+            Game.network()
+                .send(
+                    (short) 0,
+                    new InputMessage(
+                        InputMessage.Action.INV_DROP, Vector2.of(itemDragPayload.slot(), 0)),
+                    true);
           }
-        });
+        }
+      }
+    };
+  }
 
-    dragAndDrop.addTarget(
-        new DragAndDrop.Target(this.actor()) {
-          @Override
-          public boolean drag(
-              DragAndDrop.Source source,
-              DragAndDrop.Payload payload,
-              float x,
-              float y,
-              int pointer) {
-            // Valid if item in hand (cursor)
-            return payload.getObject() != null && payload.getObject() instanceof ItemDragPayload;
-          }
+  private DragAndDrop.Target buildDragAndDropTarget() {
+    return new DragAndDrop.Target(this.actor()) {
+      @Override
+      public boolean drag(
+          DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+        // Valid if item in hand (cursor)
+        return payload.getObject() != null && payload.getObject() instanceof ItemDragPayload;
+      }
 
-          @Override
-          public void drop(
-              DragAndDrop.Source source,
-              DragAndDrop.Payload payload,
-              float x,
-              float y,
-              int pointer) {
-            int slot = InventoryGUI.this.getSlotByCoordinates(x, y);
-            if (payload.getObject() != null
-                && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-              int sourceSlot = itemDragPayload.slot();
-              if (itemDragPayload.wasHeroInv()) {
-                sourceSlot =
-                    (-sourceSlot) - 1; // negative slots for hero inventory (to distinguish)
-              }
-              int targetSlot = slot;
-              if (isPlayersInventory(
-                  Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent)) {
-                targetSlot = (-slot) - 1; // negative slots for hero inventory (to distinguish)
-              }
-              if (Game.network().isServer()) {
-                HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
-              } else {
-                Game.network()
-                    .send(
-                        (short) 0,
-                        new InputMessage(
-                            InputMessage.Action.INV_MOVE, Vector2.of(sourceSlot, targetSlot)),
-                        true);
-              }
-            }
+      @Override
+      public void drop(
+          DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+        int slot = InventoryGUI.this.getSlotByCoordinates(x, y);
+        if (payload.getObject() != null
+            && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
+          int sourceSlot = itemDragPayload.slot();
+          if (itemDragPayload.wasHeroInv()) {
+            sourceSlot = (-sourceSlot) - 1; // negative slots for hero inventory (to distinguish)
           }
-        });
+          int targetSlot = slot;
+          if (isPlayersInventory(
+              Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent)) {
+            targetSlot = (-slot) - 1; // negative slots for hero inventory (to distinguish)
+          }
+          if (Game.network().isServer()) {
+            HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
+          } else {
+            Game.network()
+                .send(
+                    (short) 0,
+                    new InputMessage(
+                        InputMessage.Action.INV_MOVE, Vector2.of(sourceSlot, targetSlot)),
+                    true);
+          }
+        }
+      }
+    };
   }
 
   private void addInputListener() {

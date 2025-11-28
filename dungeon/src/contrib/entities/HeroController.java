@@ -220,14 +220,15 @@ public class HeroController {
    * Drops the item at the specified inventory slot from the hero entity's inventory.
    *
    * @param entity the hero entity dropping the item
-   * @param targetInv the target inventory component from which to drop the item
+   * @param sourceInv the target inventory component from which to drop the item
    * @param itemSlot the inventory slot index of the item to drop
+   * @throws IllegalArgumentException if there is no item in the specified slot
    */
-  public static void dropItem(Entity entity, InventoryComponent targetInv, int itemSlot) {
+  public static void dropItem(Entity entity, InventoryComponent sourceInv, int itemSlot) {
     LOGGER.debug("Entity {} dropping item from slot {}", entity.id(), itemSlot);
 
     Item item =
-        targetInv
+        sourceInv
             .remove(itemSlot)
             .orElseThrow(() -> new IllegalArgumentException("No item in slot " + itemSlot));
 
@@ -235,7 +236,7 @@ public class HeroController {
     boolean success = item.drop(dropPosition).isPresent();
     if (!success) {
       LOGGER.warn("Failed to drop item {} from slot {} for entity {}", item, itemSlot, entity.id());
-      returnItemToInventory(targetInv, item, itemSlot, entity);
+      returnItemToInventory(sourceInv, item, itemSlot, entity);
     }
   }
 
