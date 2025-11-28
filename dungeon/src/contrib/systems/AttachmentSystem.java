@@ -127,7 +127,6 @@ public class AttachmentSystem extends System {
       asData.copypc.position(
           asData.originpc.position().translate(asData.ac.getOffset().scale(asData.ac.getScale())));
     }
-    // This because the ColliderComponents position wouldn't get updated by itself(?)
     PositionSync.syncPosition(asData.e);
   }
 
