@@ -31,3 +31,9 @@ tasks.register('runPathFindingComparison', JavaExec) {
     mainClass = 'aiAdvanced.starter.ComparePathfindingStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
+
+tasks.named('clean') {
+    delete(
+            file("$rootDir/currentAdvancedLevel.json"),
+    )
+}
