@@ -9,6 +9,8 @@ import components.ai.PelletLauncherBehaviour;
 import contrib.components.*;
 import contrib.components.CollideComponent;
 import contrib.components.SpikyComponent;
+import contrib.modules.interaction.Interaction;
+import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.ICommand;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Skill;
@@ -125,27 +127,7 @@ public class AdvancedFactory {
 
     // this action needs to be the same as the one applied in applyBarrierLogic() in the
     // antiMaterialBarrierSystem
-    TriConsumer<Entity, Entity, Direction> action =
-        (self, other, direction) -> {
-          String name = other.name();
-
-          switch (name) {
-            case "hero":
-              // TODO: clearAllPortals() aufrufen, sobald es wieder funktioniert
-              // PortalFactory.clearAllPortals();
-              break;
-            case "lightWallCollider", "beamEmitter":
-              // do nothing
-              break;
-            default:
-              Game.remove(other);
-              break;
-          }
-        };
-
-    // the barrier can't be solid to let the Hero pass
-    CollideComponent colComp = new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER);
-    colComp.isSolid(false);
+    CollideComponent colComp = getCollideComponent();
     barrier.add(colComp);
 
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(ANTI_MATERIAL_BARRIER);
@@ -173,6 +155,31 @@ public class AdvancedFactory {
     return barrier;
   }
 
+  private static CollideComponent getCollideComponent() {
+    TriConsumer<Entity, Entity, Direction> action =
+        (self, other, direction) -> {
+          String name = other.name();
+
+          switch (name) {
+            case "hero":
+              // TODO: clearAllPortals() aufrufen, sobald es wieder funktioniert
+              // PortalFactory.clearAllPortals();
+              break;
+            case "lightWallCollider", "beamEmitter":
+              // do nothing
+              break;
+            default:
+              Game.remove(other);
+              break;
+          }
+        };
+
+    // the barrier can't be solid to let the Hero pass
+    CollideComponent colComp = new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER);
+    colComp.isSolid(false);
+    return colComp;
+  }
+
   /**
    * Creates a portal cube entity at the given position.
    *
@@ -198,41 +205,45 @@ public class AdvancedFactory {
 
     portalCube.add(
         new InteractionComponent(
-            2.0f,
-            true,
-            (interacted, interactor) -> {
-              PositionComponent interactorPositioncomponent =
-                  interactor.fetch(PositionComponent.class).get();
-              PositionComponent interactedPositioncomponent =
-                  interacted.fetch(PositionComponent.class).get();
-              if (!attached[0]) {
-                AttachmentComponent attachmentComponent =
-                    new AttachmentComponent(
-                        Vector2.ZERO, interactedPositioncomponent, interactorPositioncomponent);
-                portalCube.add(attachmentComponent);
-                cc.isSolid(false);
-                attached[0] = true;
-              } else {
-                portalCube.remove(AttachmentComponent.class);
-                Game.tileAt(interactedPositioncomponent.coordinate())
-                    .ifPresent(
-                        tile -> {
-                          if (tile.levelElement() == LevelElement.WALL
-                              || tile.levelElement() == LevelElement.GITTER
-                              || tile.levelElement() == LevelElement.GLASSWALL
-                              || tile.levelElement() == LevelElement.PORTAL) {
-                            interactedPositioncomponent.position(
-                                interactorPositioncomponent.position());
-                          }
-                        });
-                attached[0] = false;
-              }
-            }));
+            () ->
+                new Interaction(
+                    (interacted, interactor) -> {
+                      PositionComponent interactorPositioncomponent =
+                          interactor.fetch(PositionComponent.class).orElseThrow();
+                      PositionComponent interactedPositioncomponent =
+                          interacted.fetch(PositionComponent.class).orElseThrow();
+                      if (!attached[0]) {
+                        AttachmentComponent attachmentComponent =
+                            new AttachmentComponent(
+                                Vector2.ZERO,
+                                interactedPositioncomponent,
+                                interactorPositioncomponent);
+                        portalCube.add(attachmentComponent);
+                        cc.isSolid(false);
+                        attached[0] = true;
+                      } else {
+                        portalCube.remove(AttachmentComponent.class);
+                        Game.tileAt(interactedPositioncomponent.coordinate())
+                            .ifPresent(
+                                tile -> {
+                                  if (tile.levelElement() == LevelElement.WALL
+                                      || tile.levelElement() == LevelElement.GITTER
+                                      || tile.levelElement() == LevelElement.GLASSWALL
+                                      || tile.levelElement() == LevelElement.PORTAL) {
+                                    interactedPositioncomponent.position(
+                                        interactorPositioncomponent.position());
+                                  }
+                                });
+                        attached[0] = false;
+                      }
+                    },
+                    2f)));
+
     return portalCube;
   }
 
   /**
-   * Creats a sphere which can be moved by walking into it.
+   * Creates a sphere which can be moved by walking into it.
    *
    * @param position the position where the sphere will spawn.
    * @return the sphere entity
@@ -267,36 +278,39 @@ public class AdvancedFactory {
 
     sphere.add(
         new InteractionComponent(
-            2.0f,
-            true,
-            (interacted, interactor) -> {
-              PositionComponent interactorPositioncomponent =
-                  interactor.fetch(PositionComponent.class).get();
-              PositionComponent interactedPositioncomponent =
-                  interacted.fetch(PositionComponent.class).get();
-              if (!attached[0]) {
-                AttachmentComponent attachmentComponent =
-                    new AttachmentComponent(
-                        Vector2.ZERO, interactedPositioncomponent, interactorPositioncomponent);
-                sphere.add(attachmentComponent);
-                cc.isSolid(false);
-                attached[0] = true;
-              } else {
-                sphere.remove(AttachmentComponent.class);
-                Game.tileAt(interactedPositioncomponent.coordinate())
-                    .ifPresent(
-                        tile -> {
-                          if (tile.levelElement() == LevelElement.WALL
-                              || tile.levelElement() == LevelElement.GITTER
-                              || tile.levelElement() == LevelElement.GLASSWALL
-                              || tile.levelElement() == LevelElement.PORTAL) {
-                            interactedPositioncomponent.position(
-                                interactorPositioncomponent.position());
-                          }
-                        });
-                attached[0] = false;
-              }
-            }));
+            () ->
+                new Interaction(
+                    (interacted, interactor) -> {
+                      PositionComponent interactorPositioncomponent =
+                          interactor.fetch(PositionComponent.class).orElseThrow();
+                      PositionComponent interactedPositioncomponent =
+                          interacted.fetch(PositionComponent.class).orElseThrow();
+                      if (!attached[0]) {
+                        AttachmentComponent attachmentComponent =
+                            new AttachmentComponent(
+                                Vector2.ZERO,
+                                interactedPositioncomponent,
+                                interactorPositioncomponent);
+                        sphere.add(attachmentComponent);
+                        cc.isSolid(false);
+                        attached[0] = true;
+                      } else {
+                        sphere.remove(AttachmentComponent.class);
+                        Game.tileAt(interactedPositioncomponent.coordinate())
+                            .ifPresent(
+                                tile -> {
+                                  if (tile.levelElement() == LevelElement.WALL
+                                      || tile.levelElement() == LevelElement.GITTER
+                                      || tile.levelElement() == LevelElement.GLASSWALL
+                                      || tile.levelElement() == LevelElement.PORTAL) {
+                                    interactedPositioncomponent.position(
+                                        interactorPositioncomponent.position());
+                                  }
+                                });
+                        attached[0] = false;
+                      }
+                    },
+                    2f)));
 
     return sphere;
   }
@@ -491,26 +505,26 @@ public class AdvancedFactory {
    */
   private static DrawComponent chooseTexture(Direction direction, SimpleIPath path) {
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(path);
-    StateMachine sm;
+    StateMachine sm =
+        switch (direction) {
+          case DOWN -> {
+            State top = State.fromMap(animationMap, "top");
+            yield new StateMachine(List.of(top));
+          }
+          case LEFT -> {
+            State right = State.fromMap(animationMap, "right");
+            yield new StateMachine(List.of(right));
+          }
+          case RIGHT -> {
+            State left = State.fromMap(animationMap, "left");
+            yield new StateMachine(List.of(left));
+          }
+          default -> {
+            State bottom = State.fromMap(animationMap, "bottom");
+            yield new StateMachine(List.of(bottom));
+          }
+        };
 
-    switch (direction) {
-      case DOWN:
-        State top = State.fromMap(animationMap, "top");
-        sm = new StateMachine(List.of(top));
-        break;
-      case LEFT:
-        State right = State.fromMap(animationMap, "right");
-        sm = new StateMachine(List.of(right));
-        break;
-      case RIGHT:
-        State left = State.fromMap(animationMap, "left");
-        sm = new StateMachine(List.of(left));
-        break;
-      default: // Direction.Up
-        State bottom = State.fromMap(animationMap, "bottom");
-        sm = new StateMachine(List.of(bottom));
-        break;
-    }
     return new DrawComponent(sm);
   }
 }

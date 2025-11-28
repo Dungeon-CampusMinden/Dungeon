@@ -95,8 +95,8 @@ public class PortalSkill extends ProjectileSkill {
   @Override
   protected void shootProjectile(Entity caster, Point start, Point aimedOn) {
     Entity projectile = new Entity(name() + "_projectile");
-    ignoreEntities.add(caster);
-    ignoreEntities.add(projectile);
+    this.ignoreEntity(caster);
+    this.ignoreEntity(projectile);
 
     projectile.add(new FlyComponent());
     DrawComponent dc = new DrawComponent(texture);
