@@ -23,6 +23,7 @@ import contrib.hud.elements.GUICombination;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.utils.*;
 import core.utils.Vector2;
@@ -47,18 +48,25 @@ public class InventoryGUI extends CombinableGUI {
   private static final TextureRegion background, hoverBackground;
 
   static {
-    // Prepare background texture
-    Pixmap pixmap = new Pixmap(2, 1, Pixmap.Format.RGBA8888);
-    pixmap.drawPixel(0, 0, BACKGROUND_COLOR); // Background
-    pixmap.drawPixel(1, 0, HOVER_BACKGROUND_COLOR); // Hover
-    texture = new Texture(pixmap);
-    background = new TextureRegion(texture, 0, 0, 1, 1);
-    hoverBackground = new TextureRegion(texture, 1, 0, 1, 1);
-    bitmapFont =
-        new BitmapFont(
-            Gdx.files.internal(FONT_FNT.pathString()),
-            Gdx.files.internal(FONT_PNG.pathString()),
-            false);
+    if (Game.isHeadless()) {
+      bitmapFont = null;
+      texture = null;
+      background = null;
+      hoverBackground = null;
+    } else {
+      // Prepare background texture
+      Pixmap pixmap = new Pixmap(2, 1, Pixmap.Format.RGBA8888);
+      pixmap.drawPixel(0, 0, BACKGROUND_COLOR); // Background
+      pixmap.drawPixel(1, 0, HOVER_BACKGROUND_COLOR); // Hover
+      texture = new Texture(pixmap);
+      background = new TextureRegion(texture, 0, 0, 1, 1);
+      hoverBackground = new TextureRegion(texture, 1, 0, 1, 1);
+      bitmapFont =
+          new BitmapFont(
+              Gdx.files.internal(FONT_FNT.pathString()),
+              Gdx.files.internal(FONT_PNG.pathString()),
+              false);
+    }
   }
 
   private final InventoryComponent inventoryComponent;
@@ -66,7 +74,6 @@ public class InventoryGUI extends CombinableGUI {
   private String title;
   private int slotSize = 0;
   private int slotsPerRow = 0;
-  private int maxItemsPerRow;
 
   /**
    * Create a new inventory GUI.
@@ -79,7 +86,6 @@ public class InventoryGUI extends CombinableGUI {
     super();
     this.inventoryComponent = inventoryComponent;
     this.title = title;
-    this.maxItemsPerRow = maxItemsPerRow;
     this.slotsPerRow =
         Math.max(Math.min(maxItemsPerRow, this.inventoryComponent.items().length), 1);
     this.addInputListener();
@@ -104,11 +110,17 @@ public class InventoryGUI extends CombinableGUI {
   public InventoryGUI(InventoryComponent inventoryComponent) {
     this(
         Game.findInAll(inventoryComponent)
-            .map(Entity::name)
-            .orElse("Inventory")
-            .split("_(?=\\d+)")[0]
-            .toUpperCase(),
+            .map(InventoryGUI::generateTitleFromEntity)
+            .orElse("INVENTORY"),
         inventoryComponent);
+  }
+
+  private static String generateTitleFromEntity(Entity entity) {
+    if (entity.isPresent(PlayerComponent.class)) {
+      return entity.fetch(PlayerComponent.class).orElseThrow().playerName();
+    }
+
+    return entity.name().split("_(?=\\d+)")[0].toLowerCase();
   }
 
   /**
