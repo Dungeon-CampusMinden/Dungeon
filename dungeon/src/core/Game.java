@@ -935,12 +935,11 @@ public final class Game {
   /**
    * Returns whether the game is currently running in headless mode.
    *
-   * <p>Headless mode means that no graphical context is available (i.e., {@code Gdx.graphics} is
-   * null).
+   * <p>Headless mode means that no graphical context is available (i.e., {@code Gdx.gl} is null).
    *
    * @return true if the game is running in headless mode, false otherwise
    */
   public static boolean isHeadless() {
-    return Gdx.graphics == null;
+    return Gdx.gl == null || Gdx.graphics == null;
   }
 }
