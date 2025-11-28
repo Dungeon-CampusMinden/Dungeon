@@ -508,8 +508,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
                               (short) 0,
                               new InputMessage(
                                   InputMessage.Action.INV_MOVE,
-                                  Vector2.of(
-                                      sourceSlot, nextBestTargetSlot)), // TODO: fix target slot
+                                  Vector2.of(sourceSlot, nextBestTargetSlot)),
                               true);
                       return true;
                     }

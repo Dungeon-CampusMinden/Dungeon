@@ -239,6 +239,36 @@ public class HeroController {
     }
   }
 
+  /**
+   * Moves or swaps an item between two inventory slots. Supports moving items within the player's
+   * own inventory or between the player's inventory and another open inventory (e.g., a chest or
+   * NPC shop).
+   *
+   * <p><b>Parameter encoding:</b>
+   *
+   * <ul>
+   *   <li>Positive slot indices refer to the other inventory (e.g., chest, shop)
+   *   <li>Negative slot indices refer to the player's own inventory, where -1 maps to slot 0, -2 to
+   *       slot 1, etc. (formula: actual slot = -(index + 1))
+   * </ul>
+   *
+   * <p><b>Step-by-step process:</b>
+   *
+   * <ol>
+   *   <li>Validates that the player has a UI component and an accessible inventory
+   *   <li>Retrieves the player's inventory and the other open inventory (if any)
+   *   <li>Decodes the slot indices based on the encoding scheme to determine source and target
+   *       inventories
+   *   <li>Removes the item from the source inventory
+   *   <li>If the target slot is occupied, swaps the items; otherwise, places the item in the target
+   *       slot
+   * </ol>
+   *
+   * @param player the player entity performing the item movement
+   * @param fromSlot the source slot index (negative for player inventory, positive for other)
+   * @param toSlot the target slot index (negative for player inventory, positive for other)
+   * @return true if the move/swap was successful, false otherwise
+   */
   public static boolean moveItem(Entity player, int fromSlot, int toSlot) {
     LOGGER.debug("Entity {} moving item from slot {} to slot {}", player.id(), fromSlot, toSlot);
 
@@ -247,40 +277,41 @@ public class HeroController {
       LOGGER.debug("No UI component found for entity {}", player.id());
       return false;
     }
+
     Optional<InventoryComponent> playerInv =
         InventoryGUI.getPlayerInventoryGUI(player).map(IInventoryHolder::inventoryComponent);
     if (playerInv.isEmpty()) {
       LOGGER.debug("No inventory GUI found for entity {}", player.id());
       return false;
     }
+
     Optional<InventoryComponent> otherInv =
         UIUtils.getInventoriesFromUI(uiComp.get())
-            .filter(inv -> inv != playerInv.get()) // exclude player's own inventory
-            .findFirst(); // get other inventory (we expect only one)
+            .filter(inv -> inv != playerInv.get())
+            .findFirst();
 
     // negative source, mean the player's own inventory
     // e.g. -1 means slot 0 in player's inventory
     InventoryComponent source = fromSlot < 0 ? playerInv.get() : otherInv.orElse(playerInv.get());
     InventoryComponent target = toSlot < 0 ? playerInv.get() : otherInv.orElse(playerInv.get());
 
-    // adjust source if they refer to other inventory
     int adjustedFromSlot = fromSlot < 0 ? -(fromSlot + 1) : fromSlot;
     int adjustedToSlot = toSlot < 0 ? -(toSlot + 1) : toSlot;
 
-    Optional<Item> itemToMoveOpt = source.remove(adjustedFromSlot);
-    if (itemToMoveOpt.isEmpty()) {
+    Optional<Item> itemToMove = source.remove(adjustedFromSlot);
+    if (itemToMove.isEmpty()) {
       LOGGER.debug(
           "No item in slot {} of source inventory for entity {}", adjustedFromSlot, player.id());
       return false;
     }
-    Item itemToMove = itemToMoveOpt.get();
+
     target
         .get(adjustedToSlot)
         .ifPresentOrElse(
             existingItem -> {
               // Slot occupied, swap items
               source.set(adjustedFromSlot, existingItem);
-              target.set(adjustedToSlot, itemToMove);
+              target.set(adjustedToSlot, itemToMove.get());
               LOGGER.debug(
                   "Swapped items between inventories in slots {} and {} for entity {}",
                   adjustedFromSlot,
@@ -288,13 +319,13 @@ public class HeroController {
                   player.id());
             },
             () -> {
-              // Slot empty, move item
-              target.set(adjustedToSlot, itemToMove);
+              target.set(adjustedToSlot, itemToMove.get());
               LOGGER.debug(
                   "Moved item to slot {} of target inventory for entity {}",
                   adjustedToSlot,
                   player.id());
             });
+
     return true;
   }
 
