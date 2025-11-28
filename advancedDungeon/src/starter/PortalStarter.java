@@ -64,8 +64,10 @@ public class PortalStarter {
         .fetch(SkillComponent.class)
         .ifPresent(
             skillComponent -> {
-              skillComponent.addSkill(new PortalSkill(PortalColor.BLUE, new Tuple<>(Resource.MANA, 0)));
-              skillComponent.addSkill(new PortalSkill(PortalColor.GREEN, new Tuple<>(Resource.MANA, 0)));
+              skillComponent.addSkill(
+                  new PortalSkill(PortalColor.BLUE, new Tuple<>(Resource.MANA, 0)));
+              skillComponent.addSkill(
+                  new PortalSkill(PortalColor.GREEN, new Tuple<>(Resource.MANA, 0)));
               skillComponent.removeSkill(FireballSkill.class);
               skillComponent.removeSkill(SelfHealSkill.class);
             });
@@ -105,6 +107,7 @@ public class PortalStarter {
     Game.add(new PortalExtendSystem());
     Game.add(new AntiMaterialBarrierSystem());
     Game.add(new LasergridSystem());
+    Game.add(new AttachmentSystem());
     if (DEBUG_MODE) Game.add(new Debugger());
   }
 
