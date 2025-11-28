@@ -366,4 +366,12 @@ public class Item implements CraftingIngredient, CraftingResult {
   public CraftingType resultType() {
     return CraftingType.ITEM;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    return obj.getClass() == this.getClass();
+  }
 }

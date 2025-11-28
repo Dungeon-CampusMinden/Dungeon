@@ -86,4 +86,17 @@ public class ItemPotionHealth extends Item {
     }
     return other.heal_amount == this.heal_amount;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+
+    if (obj.getClass() != this.getClass()) {
+      return false;
+    }
+    ItemPotionHealth other = (ItemPotionHealth) obj;
+    return ((ItemPotionHealth) obj).heal_amount==heal_amount;
+  }
 }

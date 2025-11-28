@@ -97,7 +97,7 @@ public final class InventoryComponent implements Component {
   private List<Item> itemsOfSameClass(Item toGet) {
     List<Item> result = new ArrayList<>(this.inventory.length);
     for (Item invItem : inventory) {
-      if (invItem != null && invItem.getClass().equals(toGet.getClass())) {
+      if (invItem != null && invItem.equals(toGet)) {
         result.add(invItem);
       }
     }
@@ -170,16 +170,16 @@ public final class InventoryComponent implements Component {
   }
 
   /**
-   * Gets the item with the smallest stack size out of all items of a given class.
+   * Gets the item with the smallest stack size that equals the given item.
    *
-   * @param klass The class of the item to search for.
+   * @param target The item to search for.
    * @return an {@link Optional} containing the item with the smallest stack size, or {@link
    *     Optional#empty()} if no such item is found.
    */
-  public Optional<Item> smallestStackOfItemClass(final Class<? extends Item> klass) {
+  public Optional<Item> smallestStackOfItem(Item target) {
     return Arrays.stream(this.inventory)
         .filter(Objects::nonNull)
-        .filter(klass::isInstance)
+        .filter(target::equals)
         .min(Comparator.comparingInt(Item::stackSize));
   }
 
@@ -285,10 +285,10 @@ public final class InventoryComponent implements Component {
     Item itemToRemoveOne =
         Arrays.stream(inventory)
                     .filter(Objects::nonNull)
-                    .filter(it -> it.getClass().equals(item.getClass()))
+                    .filter(it -> it.equals(item))
                     .count()
                 > 1
-            ? smallestStackOfItemClass(item.getClass()).orElse(null)
+            ? smallestStackOfItem(item).orElse(null)
             : item;
 
     if (itemToRemoveOne == null) {
