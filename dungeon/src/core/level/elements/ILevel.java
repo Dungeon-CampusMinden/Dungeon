@@ -109,51 +109,6 @@ public interface ILevel extends IndexedGraph<Tile> {
   void addConnectionsToNeighbours(final Tile checkTile);
 
   /**
-   * Generates a String representation of the level layout using specific symbols for different tile
-   * types.
-   *
-   * <p>The symbols used are: - 'F' for Floor tiles, - 'W' for Wall tiles, - 'E' for Exit tiles, -
-   * 'S' for Skip/Blank tiles.
-   *
-   * <p>The layout is formatted with each row represented on a new line in the resulting String.
-   *
-   * @return A String representation of the level layout.
-   */
-  default String printLevel() {
-    StringBuilder output = new StringBuilder();
-    for (int y = 0; y < layout().length; y++) {
-      for (int x = 0; x < layout()[0].length; x++) {
-        if (layout()[y][x].levelElement() == LevelElement.FLOOR) {
-          output.append("F");
-        } else if (layout()[y][x].levelElement() == LevelElement.WALL) {
-          output.append("W");
-        } else if (layout()[y][x].levelElement() == LevelElement.EXIT) {
-          output.append("E");
-        } else if (layout()[y][x].levelElement() == LevelElement.SKIP) {
-          output.append("S");
-        } else if (layout()[y][x].levelElement() == LevelElement.HOLE) {
-          output.append("H");
-        } else if (layout()[y][x].levelElement() == LevelElement.DOOR) {
-          output.append("D");
-        } else if (layout()[y][x].levelElement() == LevelElement.PIT) {
-          output.append("P");
-        } else if (layout()[y][x].levelElement() == LevelElement.PORTAL) {
-          output.append("T");
-        } else if (layout()[y][x].levelElement() == LevelElement.GITTER) {
-          output.append("G");
-        } else if (layout()[y][x].levelElement() == LevelElement.GLASSWALL) {
-          output.append("L");
-        } else {
-          throw new RuntimeException(
-              "Invalid LevelElement in level layout: " + layout()[y][x].levelElement());
-        }
-      }
-      output.append("\n");
-    }
-    return output.toString();
-  }
-
-  /**
    * Retrieves a random tile of the specified type from the level.
    *
    * <p>The method uses a switch statement to determine the type of tile requested and retrieves a
