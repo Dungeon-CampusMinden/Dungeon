@@ -17,6 +17,7 @@ import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.HeroController;
+import contrib.hud.IInventoryHolder;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
@@ -35,7 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /** WTF? . */
-public class InventoryGUI extends CombinableGUI {
+public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InventoryGUI.class);
   private static final Map<Integer, Boolean> inventoryOpenMap = new HashMap<>();
 
@@ -139,6 +140,23 @@ public class InventoryGUI extends CombinableGUI {
   }
 
   /**
+   * Retrieves the InventoryGUI associated with the given player's inventory, if it exists.
+   *
+   * @param player the player entity
+   * @return an Optional containing the InventoryGUI if found, or empty if not found
+   */
+  public static Optional<InventoryGUI> getPlayerInventoryGUI(Entity player) {
+    return player
+        .fetch(UIComponent.class)
+        .flatMap(
+            uiComp ->
+                UIUtils.getInventoriesFromUI(uiComp)
+                    .filter(invComp -> isPlayersInventory(player, invComp))
+                    .map(InventoryGUI::new)
+                    .findFirst());
+  }
+
+  /**
    * Sets whether the inventory is open for the given player.
    *
    * @param player the player entity
@@ -177,6 +195,7 @@ public class InventoryGUI extends CombinableGUI {
   }
 
   private int getSlotByCoordinates(int x, int y) {
+    if (this.slotSize == 0) return -1; // Prevent division by zero
     return (x / this.slotSize) + (y / this.slotSize) * this.slotsPerRow;
   }
 
@@ -290,6 +309,11 @@ public class InventoryGUI extends CombinableGUI {
     bitmapFont.draw(batch, description, textPos.x(), textPos.y());
   }
 
+  private static boolean isPlayersInventory(Entity player, InventoryComponent inventoryComponent) {
+    Optional<Entity> owner = Game.findInAll(inventoryComponent);
+    return owner.isPresent() && owner.get().id() == player.id();
+  }
+
   @Override
   protected void initDragAndDrop(DragAndDrop dragAndDrop) {
     dragAndDrop.addSource(
@@ -300,11 +324,14 @@ public class InventoryGUI extends CombinableGUI {
             Optional<Item> item = InventoryGUI.this.inventoryComponent.get(draggedSlot);
             if (item.isEmpty()) return null;
             Item itemToTransfer = item.get();
+            boolean isHeroInv =
+                isPlayersInventory(
+                    Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent);
 
             DragAndDrop.Payload payload = new DragAndDrop.Payload();
             payload.setObject(
                 new ItemDragPayload(
-                    InventoryGUI.this.inventoryComponent, draggedSlot, itemToTransfer));
+                    InventoryGUI.this.inventoryComponent, isHeroInv, draggedSlot, itemToTransfer));
 
             // TODO: Test if SpriteDrawable is equivalent to creating a texture on the fly
             Image image =
@@ -327,8 +354,13 @@ public class InventoryGUI extends CombinableGUI {
             if (target == null
                 && payload != null
                 && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
+              InventoryComponent targetInv =
+                  Game.findInAll(itemDragPayload.inventoryComponent())
+                      .flatMap(e -> e.fetch(InventoryComponent.class))
+                      .orElseThrow();
               if (Game.network().isServer()) {
-                HeroController.dropItem(Game.player().orElseThrow(), itemDragPayload.slot());
+                HeroController.dropItem(
+                    Game.player().orElseThrow(), targetInv, itemDragPayload.slot());
               } else {
                 Game.network()
                     .send(
@@ -350,13 +382,8 @@ public class InventoryGUI extends CombinableGUI {
               float x,
               float y,
               int pointer) {
-            if (payload.getObject() != null && payload.getObject() instanceof ItemDragPayload) {
-              int slot = InventoryGUI.this.getSlotByCoordinates(x, y);
-              return InventoryGUI.this.inventoryComponent.get(slot).isEmpty()
-                  && slot < InventoryGUI.this.inventoryComponent.items().length
-                  && slot >= 0;
-            }
-            return false;
+            // Valid if item in hand (cursor)
+            return payload.getObject() != null && payload.getObject() instanceof ItemDragPayload;
           }
 
           @Override
@@ -369,14 +396,24 @@ public class InventoryGUI extends CombinableGUI {
             int slot = InventoryGUI.this.getSlotByCoordinates(x, y);
             if (payload.getObject() != null
                 && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
+              int sourceSlot = itemDragPayload.slot();
+              if (itemDragPayload.wasHeroInv()) {
+                sourceSlot =
+                    (-sourceSlot) - 1; // negative slots for hero inventory (to distinguish)
+              }
+              int targetSlot = slot;
+              if (isPlayersInventory(
+                  Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent)) {
+                targetSlot = (-slot) - 1; // negative slots for hero inventory (to distinguish)
+              }
               if (Game.network().isServer()) {
-                HeroController.moveItem(Game.player().orElseThrow(), itemDragPayload.slot(), slot);
+                HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
               } else {
                 Game.network()
                     .send(
                         (short) 0,
                         new InputMessage(
-                            InputMessage.Action.INV_MOVE, Vector2.of(itemDragPayload.slot(), slot)),
+                            InputMessage.Action.INV_MOVE, Vector2.of(sourceSlot, targetSlot)),
                         true);
               }
             }
@@ -441,17 +478,38 @@ public class InventoryGUI extends CombinableGUI {
                 if (uiComponent != null && uiComponent.dialog() instanceof GUICombination) {
                   // if two inventories are open, transfer items between them if key is pressed
                   if (KeyboardConfig.TRANSFER_ITEM.value() == button) {
-                    Entity source = Game.player().orElseThrow();
                     int sourceSlot = getSlotByMousePosition();
+                    if (isPlayersInventory(
+                        Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent)) {
+                      sourceSlot = (-sourceSlot) - 1; // negative slots for hero inventory
+                    }
+                    Optional<InventoryComponent> targetInventory =
+                        UIUtils.getInventoriesFromUI(uiComponent)
+                            .filter(invComp -> invComp != InventoryGUI.this.inventoryComponent)
+                            .findFirst();
+
+                    if (targetInventory.isEmpty()) return false;
+
+                    int nextBestTargetSlot = targetInventory.get().findNextAvailableSlot();
+                    if (nextBestTargetSlot == -1) {
+                      LOGGER.debug("No available slot in target inventory for transfer.");
+                      return false;
+                    }
+                    if (isPlayersInventory(Game.player().orElseThrow(), targetInventory.get())) {
+                      nextBestTargetSlot = (-nextBestTargetSlot) - 1; // negative slots for hero
+                    }
 
                     if (Game.network().isServer()) {
-                      return HeroController.transferItem(source, getSlotByMousePosition());
+                      return HeroController.moveItem(
+                          Game.player().orElseThrow(), sourceSlot, nextBestTargetSlot);
                     } else {
                       Game.network()
                           .send(
                               (short) 0,
                               new InputMessage(
-                                  InputMessage.Action.INV_TRANSFER, Vector2.of(sourceSlot, 0)),
+                                  InputMessage.Action.INV_MOVE,
+                                  Vector2.of(
+                                      sourceSlot, nextBestTargetSlot)), // TODO: fix target slot
                               true);
                       return true;
                     }

@@ -4,7 +4,8 @@ import contrib.components.*;
 import contrib.components.InventoryComponent;
 import contrib.components.SkillComponent;
 import contrib.components.UIComponent;
-import contrib.hud.crafting.CraftingGUI;
+import contrib.hud.IInventoryHolder;
+import contrib.hud.UIUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
@@ -219,17 +220,14 @@ public class HeroController {
    * Drops the item at the specified inventory slot from the hero entity's inventory.
    *
    * @param entity the hero entity dropping the item
+   * @param targetInv the target inventory component from which to drop the item
    * @param itemSlot the inventory slot index of the item to drop
    */
-  public static void dropItem(Entity entity, int itemSlot) {
+  public static void dropItem(Entity entity, InventoryComponent targetInv, int itemSlot) {
     LOGGER.debug("Entity {} dropping item from slot {}", entity.id(), itemSlot);
 
-    InventoryComponent inventory =
-        entity
-            .fetch(InventoryComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, InventoryComponent.class));
     Item item =
-        inventory
+        targetInv
             .remove(itemSlot)
             .orElseThrow(() -> new IllegalArgumentException("No item in slot " + itemSlot));
 
@@ -237,37 +235,67 @@ public class HeroController {
     boolean success = item.drop(dropPosition).isPresent();
     if (!success) {
       LOGGER.warn("Failed to drop item {} from slot {} for entity {}", item, itemSlot, entity.id());
-      returnItemToInventory(inventory, item, itemSlot, entity);
+      returnItemToInventory(targetInv, item, itemSlot, entity);
     }
   }
 
-  public static void moveItem(Entity entity, int fromSlot, int toSlot) {
-    LOGGER.debug("Entity {} moving item from slot {} to slot {}", entity.id(), fromSlot, toSlot);
+  public static boolean moveItem(Entity player, int fromSlot, int toSlot) {
+    LOGGER.debug("Entity {} moving item from slot {} to slot {}", player.id(), fromSlot, toSlot);
 
-    InventoryComponent inventory =
-        entity
-            .fetch(InventoryComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, InventoryComponent.class));
-    Item item =
-        inventory
-            .remove(fromSlot)
-            .orElseThrow(() -> new IllegalArgumentException("No item in slot " + fromSlot));
+    Optional<UIComponent> uiComp = player.fetch(UIComponent.class);
+    if (uiComp.isEmpty()) {
+      LOGGER.debug("No UI component found for entity {}", player.id());
+      return false;
+    }
+    Optional<InventoryComponent> playerInv =
+        InventoryGUI.getPlayerInventoryGUI(player).map(IInventoryHolder::inventoryComponent);
+    if (playerInv.isEmpty()) {
+      LOGGER.debug("No inventory GUI found for entity {}", player.id());
+      return false;
+    }
+    Optional<InventoryComponent> otherInv =
+        UIUtils.getInventoriesFromUI(uiComp.get())
+            .filter(inv -> inv != playerInv.get()) // exclude player's own inventory
+            .findFirst(); // get other inventory (we expect only one)
 
-    inventory
-        .get(toSlot)
+    // negative source, mean the player's own inventory
+    // e.g. -1 means slot 0 in player's inventory
+    InventoryComponent source = fromSlot < 0 ? playerInv.get() : otherInv.orElse(playerInv.get());
+    InventoryComponent target = toSlot < 0 ? playerInv.get() : otherInv.orElse(playerInv.get());
+
+    // adjust source if they refer to other inventory
+    int adjustedFromSlot = fromSlot < 0 ? -(fromSlot + 1) : fromSlot;
+    int adjustedToSlot = toSlot < 0 ? -(toSlot + 1) : toSlot;
+
+    Optional<Item> itemToMoveOpt = source.remove(adjustedFromSlot);
+    if (itemToMoveOpt.isEmpty()) {
+      LOGGER.debug(
+          "No item in slot {} of source inventory for entity {}", adjustedFromSlot, player.id());
+      return false;
+    }
+    Item itemToMove = itemToMoveOpt.get();
+    target
+        .get(adjustedToSlot)
         .ifPresentOrElse(
             existingItem -> {
               // Slot occupied, swap items
-              inventory.set(fromSlot, existingItem);
-              inventory.set(toSlot, item);
+              source.set(adjustedFromSlot, existingItem);
+              target.set(adjustedToSlot, itemToMove);
               LOGGER.debug(
-                  "Swapped items in slots {} and {} for entity {}", fromSlot, toSlot, entity.id());
+                  "Swapped items between inventories in slots {} and {} for entity {}",
+                  adjustedFromSlot,
+                  adjustedToSlot,
+                  player.id());
             },
             () -> {
               // Slot empty, move item
-              inventory.set(toSlot, item);
-              LOGGER.debug("Moved item to slot {} for entity {}", toSlot, entity.id());
+              target.set(adjustedToSlot, itemToMove);
+              LOGGER.debug(
+                  "Moved item to slot {} of target inventory for entity {}",
+                  adjustedToSlot,
+                  player.id());
             });
+    return true;
   }
 
   public static boolean useItem(Entity entity, int itemSlot) {
@@ -285,41 +313,6 @@ public class HeroController {
 
     item.use(entity);
     return true;
-  }
-
-  public static boolean transferItem(Entity entity, int itemSlot) {
-    LOGGER.debug("Entity {} transferring item from slot {}", entity.id(), itemSlot);
-
-    UIComponent uiComponent =
-        entity
-            .fetch(UIComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, UIComponent.class));
-    InventoryComponent inventory =
-        entity
-            .fetch(InventoryComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, InventoryComponent.class));
-    Item itemToTransfer =
-        inventory
-            .remove(itemSlot)
-            .orElseThrow(() -> new IllegalArgumentException("No item in slot " + itemSlot));
-
-    if (uiComponent.dialog() instanceof GUICombination guiCombination) {
-      guiCombination
-          .combinableGuis()
-          .forEach(
-              gui -> {
-                if (gui instanceof InventoryGUI inventoryGui) {
-                  if (inventory != inventoryGui.inventoryComponent()) {
-                    inventory.transfer(itemToTransfer, inventoryGui.inventoryComponent());
-                  }
-                } else if (gui instanceof CraftingGUI craftingGui) {
-                  craftingGui.addItem(itemToTransfer);
-                }
-              });
-      return true;
-    }
-    returnItemToInventory(inventory, itemToTransfer, itemSlot, entity);
-    return false;
   }
 
   /**
@@ -365,8 +358,8 @@ public class HeroController {
       // TODO: Reconcile inputs based on clientTick vs serverTick and RTT
 
       // Get hero entity
-      Entity entity = clientState.playerEntity().orElse(null);
-      if (entity == null) {
+      Entity playerEntity = clientState.playerEntity().orElse(null);
+      if (playerEntity == null) {
         LOGGER.warn("No hero entity for client {}", clientState);
         continue;
       }
@@ -376,29 +369,36 @@ public class HeroController {
         switch (msg.action()) {
           case MOVE -> {
             CharacterClass heroClass =
-                entity.fetch(CharacterClassComponent.class).orElseThrow().characterClass();
-            HeroController.moveHero(entity, Vector2.of(msg.point()).direction(), heroClass.speed());
+                playerEntity.fetch(CharacterClassComponent.class).orElseThrow().characterClass();
+            HeroController.moveHero(
+                playerEntity, Vector2.of(msg.point()).direction(), heroClass.speed());
           }
-          case CAST_SKILL -> HeroController.useSkill(entity, msg.point());
-          case NEXT_SKILL -> HeroController.changeSkill(entity, true);
-          case PREV_SKILL -> HeroController.changeSkill(entity, false);
-          case INTERACT -> HeroController.interact(entity, msg.point());
+          case CAST_SKILL -> HeroController.useSkill(playerEntity, msg.point());
+          case NEXT_SKILL -> HeroController.changeSkill(playerEntity, true);
+          case PREV_SKILL -> HeroController.changeSkill(playerEntity, false);
+          case INTERACT -> HeroController.interact(playerEntity, msg.point());
           case INV_DROP -> {
+            Optional<InventoryComponent> invComp =
+                clientState
+                    .playerEntity()
+                    .flatMap(InventoryGUI::getPlayerInventoryGUI)
+                    .map(InventoryGUI::inventoryComponent);
+            if (invComp.isEmpty()) {
+              LOGGER.warn(
+                  "No inventory component found for entity {} to drop item", playerEntity.id());
+              break;
+            }
             int itemIndex = (int) msg.point().x();
-            HeroController.dropItem(entity, itemIndex);
+            HeroController.dropItem(playerEntity, invComp.get(), itemIndex);
           }
           case INV_MOVE -> {
             int fromIndex = (int) msg.point().x();
             int toIndex = (int) msg.point().y();
-            HeroController.moveItem(entity, fromIndex, toIndex);
-          }
-          case INV_TRANSFER -> {
-            int itemIndex = (int) msg.point().x();
-            HeroController.transferItem(entity, itemIndex);
+            HeroController.moveItem(playerEntity, fromIndex, toIndex);
           }
           case INV_USE -> {
             int itemIndex = (int) msg.point().x();
-            HeroController.useItem(entity, itemIndex);
+            HeroController.useItem(playerEntity, itemIndex);
           }
           default -> LOGGER.warn("Unknown action {} for client {}", msg.action(), clientState);
         }

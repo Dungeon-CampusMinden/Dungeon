@@ -125,17 +125,11 @@ public record InputMessage(
      */
     INV_MOVE(6),
     /**
-     * Transfer an item from the inventory to currently open container.
-     *
-     * <p>The point x coordinate represents the inventory slot index of the item to be transferred.
-     */
-    INV_TRANSFER(7),
-    /**
      * Uses the item in the specified inventory slot.
      *
      * <p>The point x coordinate represents the inventory slot index of the item to be used.
      */
-    INV_USE(8);
+    INV_USE(7);
 
     private final byte value;
 
