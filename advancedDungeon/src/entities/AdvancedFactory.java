@@ -19,6 +19,7 @@ import core.Component;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.utils.LevelElement;
@@ -35,6 +36,8 @@ import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
+import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 import skills.EnergyPelletSkill;
 
 /**
@@ -125,8 +128,6 @@ public class AdvancedFactory {
     barrier.add(new PositionComponent(spawnPoint));
     barrier.add(new AntiMaterialBarrierComponent(true));
 
-    // this action needs to be the same as the one applied in applyBarrierLogic() in the
-    // antiMaterialBarrierSystem
     CollideComponent colComp = getCollideComponent();
     barrier.add(colComp);
 
@@ -155,22 +156,22 @@ public class AdvancedFactory {
     return barrier;
   }
 
-  private static CollideComponent getCollideComponent() {
+  /**
+   * Creates the CollideComponent for the AntiMaterialBarrier.
+   *
+   * @return the new CollideComponent.
+   */
+  public static CollideComponent getCollideComponent() {
     TriConsumer<Entity, Entity, Direction> action =
         (self, other, direction) -> {
-          String name = other.name();
-
-          switch (name) {
-            case "hero":
-              // TODO: clearAllPortals() aufrufen, sobald es wieder funktioniert
-              // PortalFactory.clearAllPortals();
-              break;
-            case "lightWallCollider", "beamEmitter":
-              // do nothing
-              break;
-            default:
-              Game.remove(other);
-              break;
+          if (other.isPresent(PlayerComponent.class)) {
+            // TODO: clearAllPortals() aufrufen, sobald es wieder funktioniert
+            // PortalFactory.clearAllPortals();
+          } else if (other.isPresent(TractorBeamComponent.class)
+              || other.isPresent(PortalExtendComponent.class)) {
+            // do nothing
+          } else {
+            Game.remove(other);
           }
         };
 

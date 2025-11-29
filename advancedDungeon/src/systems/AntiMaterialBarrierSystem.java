@@ -3,12 +3,10 @@ package systems;
 import components.AntiMaterialBarrierComponent;
 import contrib.components.CollideComponent;
 import core.Entity;
-import core.Game;
 import core.System;
 import core.components.DrawComponent;
-import core.utils.Direction;
-import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
+import entities.AdvancedFactory;
 
 /**
  * The AntiMaterialBarrierSystem manages the activation and deactivation of anti-material barriers.
@@ -89,28 +87,7 @@ public class AntiMaterialBarrierSystem extends System {
       if (currentState.equals("horizontal_off") || currentState.equals("vertical_off")) {
         data.draw().sendSignal("activate_anti_barrier");
 
-        // this action needs to be the same as the one applied in antiMaterialBarrier() in the
-        // AdvancedFactory
-        TriConsumer<Entity, Entity, Direction> action =
-            (self, other, direction) -> {
-              String name = other.name();
-
-              switch (name) {
-                case "hero":
-                  // TODO: clearAllPortals() aufrufen, sobald es wieder funktioniert
-                  // PortalFactory.clearAllPortals();
-                  break;
-                case "lightWallCollider", "beamEmitter":
-                  // do nothing
-                  break;
-                default:
-                  Game.remove(other);
-                  break;
-              }
-            };
-
-        CollideComponent colComp = new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER);
-        colComp.isSolid(false);
+        CollideComponent colComp = AdvancedFactory.getCollideComponent();
         data.entity().add(colComp);
       }
     } else {
