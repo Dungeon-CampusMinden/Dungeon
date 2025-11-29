@@ -9,7 +9,6 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
-import core.level.elements.tile.WallTile;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
@@ -20,7 +19,6 @@ import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
@@ -46,10 +44,8 @@ public class LightBridgeFactory {
   /** Number of tiles by which the extended start point is offset in front of the emitter. */
   public static int spawnOffset = 1;
 
-  final private static LevelElement[] stoppingTiles = {
-    LevelElement.WALL,
-    LevelElement.PORTAL,
-    LevelElement.GLASSWALL
+  private static final LevelElement[] stoppingTiles = {
+    LevelElement.WALL, LevelElement.PORTAL, LevelElement.GLASSWALL
   };
 
   /**
@@ -415,11 +411,12 @@ public class LightBridgeFactory {
 
     /**
      * Calculates the end point by stepping from the start in the beam's direction until a WallTile,
-     * PortalTile, or GlasswandTile is reached or no tile exists. Returns the last traversable point.
+     * PortalTile, or Glass Wand Tile is reached or no tile exists. Returns the last traversable
+     * point.
      *
-     * @return Returns the calculated end point of the beam.
      * @param from Starting point
      * @param beamDirection Direction of the beam
+     * @return Returns the calculated end point of the beam.
      */
     private Point calculateEndPoint(Point from, Direction beamDirection) {
       Point lastPoint = from;

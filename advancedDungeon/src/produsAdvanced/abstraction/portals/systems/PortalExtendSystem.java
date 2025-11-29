@@ -61,12 +61,20 @@ public class PortalExtendSystem extends System {
       PortalFactory.getGreenPortal()
           .ifPresent(
               portal -> {
-                portal.fetch(PortalComponent.class).ifPresent(pc-> {
-                  Entity other = PortalFactory.getBluePortal().get().fetch(PortalComponent.class).get().getExtendedEntityThrough();
-                  if (pc.getExtendedEntityThrough() == null) {
-                    pc.setExtendedEntityThrough(other);
-                  }
-                });
+                portal
+                    .fetch(PortalComponent.class)
+                    .ifPresent(
+                        pc -> {
+                          Entity other =
+                              PortalFactory.getBluePortal()
+                                  .get()
+                                  .fetch(PortalComponent.class)
+                                  .get()
+                                  .getExtendedEntityThrough();
+                          if (pc.getExtendedEntityThrough() == null) {
+                            pc.setExtendedEntityThrough(other);
+                          }
+                        });
                 PositionComponent greenPortalPosition = portal.fetch(PositionComponent.class).get();
                 pec.onExtend.accept(
                     greenPortalPosition.viewDirection(), greenPortalPosition.position(), pec);
@@ -76,12 +84,20 @@ public class PortalExtendSystem extends System {
       PortalFactory.getBluePortal()
           .ifPresent(
               portal -> {
-                portal.fetch(PortalComponent.class).ifPresent(pc-> {
-                  Entity other = PortalFactory.getGreenPortal().get().fetch(PortalComponent.class).get().getExtendedEntityThrough();
-                  if (pc.getExtendedEntityThrough() == null) {
-                    pc.setExtendedEntityThrough(other);
-                  }
-                });
+                portal
+                    .fetch(PortalComponent.class)
+                    .ifPresent(
+                        pc -> {
+                          Entity other =
+                              PortalFactory.getGreenPortal()
+                                  .get()
+                                  .fetch(PortalComponent.class)
+                                  .get()
+                                  .getExtendedEntityThrough();
+                          if (pc.getExtendedEntityThrough() == null) {
+                            pc.setExtendedEntityThrough(other);
+                          }
+                        });
                 PositionComponent bluePortalPosition = portal.fetch(PositionComponent.class).get();
                 pec.onExtend.accept(
                     bluePortalPosition.viewDirection(), bluePortalPosition.position(), pec);

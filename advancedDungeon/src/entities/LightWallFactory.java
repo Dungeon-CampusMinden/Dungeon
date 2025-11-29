@@ -8,7 +8,6 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.level.elements.tile.WallTile;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
@@ -41,10 +40,8 @@ public class LightWallFactory {
   /** Number of tiles by which the extended start point is offset in front of the emitter. */
   public static int spawnOffset = 1;
 
-  final private static LevelElement[] stoppingTiles = {
-    LevelElement.WALL,
-    LevelElement.PORTAL,
-    LevelElement.GLASSWALL
+  private static final LevelElement[] stoppingTiles = {
+    LevelElement.WALL, LevelElement.PORTAL, LevelElement.GLASSWALL
   };
 
   /**
@@ -215,6 +212,7 @@ public class LightWallFactory {
     private final Entity collider = new Entity("lightWallCollider");
     private boolean active = false;
     private int trimCounter = 0;
+
     /**
      * Creates a new BeamComponent.
      *
@@ -237,12 +235,13 @@ public class LightWallFactory {
               emitter
                   .fetch(EmitterComponent.class)
                   .ifPresent(ec -> ec.extend(new BeamComponent(emitter, startPoint, d, false)));
-        };
-        pec.onTrim = (e) -> {
-          emitter.fetch(EmitterComponent.class).ifPresent(EmitterComponent::trim);
-          trimCounter++;
-          System.out.println("Trim called from pec" + " " + trimCounter);
-        };
+            };
+        pec.onTrim =
+            (e) -> {
+              emitter.fetch(EmitterComponent.class).ifPresent(EmitterComponent::trim);
+              trimCounter++;
+              System.out.println("Trim called from pec" + " " + trimCounter);
+            };
         collider.add(pec);
       }
     }
@@ -325,8 +324,8 @@ public class LightWallFactory {
     }
 
     /**
-     * Calculates the end point of the beam based on the direction and obstacles.
-     * Stops at walls, portal walls, and glass walls.
+     * Calculates the end point of the beam based on the direction and obstacles. Stops at walls,
+     * portal walls, and glass walls.
      *
      * @param from Start point
      * @param beamDirection Direction
