@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
+import produsAdvanced.abstraction.portals.components.PortalIgnoreComponent;
 
 /**
  * Factory class for creating and managing light walls and their emitters. Provides methods to
@@ -123,6 +124,7 @@ public class LightWallFactory {
               CollideComponent.DEFAULT_COLLIDER,
               (a, b, c) -> {}));
       beams.add(new BeamComponent(emitter, start, direction, true));
+      emitter.add(new PortalIgnoreComponent());
       if (active) activate();
     }
 

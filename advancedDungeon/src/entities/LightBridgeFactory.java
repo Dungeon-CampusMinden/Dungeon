@@ -24,6 +24,7 @@ import core.utils.components.path.SimpleIPath;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
+import produsAdvanced.abstraction.portals.components.PortalIgnoreComponent;
 
 /**
  * Factory for creating and managing light bridges and their emitters. A light bridge consists of
@@ -128,6 +129,7 @@ public class LightBridgeFactory {
               CollideComponent.DEFAULT_COLLIDER,
               (a, b, c) -> {}));
       beams.add(new BeamComponent(emitter, start, direction, true));
+      emitter.add(new PortalIgnoreComponent());
       if (active) activate();
     }
 
