@@ -27,8 +27,8 @@ Before you start, you need to install a few things:
 
 Important: For Blockly and Java Dungeon, follow the installation guides:
 
-* [Installation](../blockly/doc/installation.md)
-* [Install Extension](../blockly/doc/install-extension.md)
+* [Installation](../../blockly/doc/installation.md)
+* [Install Extension](../../blockly/doc/install-extension.md)
 ---
 
 ## Step 2: Test the Basic Game
@@ -64,10 +64,7 @@ or
 
 This will open the Blockly web interface.
 
-**Helpful files**
-
-* Tutorials: `./materials/blockly_workshop.md`
-* Solutions: `./solution/blockly`
+* [Solutions](./solution/blockly)
 
 **How to add solutions**
 
@@ -95,4 +92,5 @@ This will open the Blockly web interface.
    ```
 2. Edit files in `advancedDungeon/produsAdvanced/riddles` to change puzzles and logic.
 
-**Solutions:** `./produs_materials/solution/advancedDungeon`
+* [Solutions](./solution/advancedDungeon)
+* 
