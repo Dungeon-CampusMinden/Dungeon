@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
+import contrib.hud.UIUtils;
 
 /** Some basic layout for Dialogs. */
 public class DialogDesign extends VerticalGroup {
@@ -46,7 +47,8 @@ public class DialogDesign extends VerticalGroup {
    * @param outputMsg Content displayed in the scrollable label
    * @return WTF? .
    */
-  public static Group createTextDialog(final Skin skin, final String outputMsg) {
+  public static Group createTextDialog(final Skin skin, String outputMsg) {
+    outputMsg = UIUtils.formatString(outputMsg);
     return createScrollPane(skin, new Container<>(new Label(outputMsg, skin)).align(Align.center));
   }
 }

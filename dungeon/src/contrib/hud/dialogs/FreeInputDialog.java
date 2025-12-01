@@ -17,10 +17,12 @@ import java.util.function.Consumer;
  * <p>Use {@link #showTextInputDialog(String, String, Consumer)} to create and add a HUD-Entity to
  * the game that shows a modal dialog with a question, a text field, and OK/Cancel buttons.
  */
-public final class FreeInputDialog {
+final class FreeInputDialog {
 
   private static final String OK_BUTTON = "OK";
   private static final String CANCEL_BUTTON = "Abbrechen";
+
+  private FreeInputDialog() {}
 
   /**
    * Creates and shows a text input dialog with the given title and question. The dialog is added as
@@ -30,11 +32,15 @@ public final class FreeInputDialog {
    * @param question The prompt text displayed above the input field.
    * @param callback A consumer that receives the player's answer (trimmed) or null.
    */
-  public static void showTextInputDialog(String title, String question, Consumer<String> callback) {
-    final Entity uiEntity = new Entity();
-
-    UIUtils.show(() -> buildDialog(title, question, callback, uiEntity), uiEntity);
-    Game.add(uiEntity);
+  static Dialog build(DialogContext context) {
+    String title = context.titleOrDefault("Frage");
+    String question = context.require(DialogContextKeys.QUESTION, String.class);
+    Consumer<String> callback = context.require(DialogContextKeys.INPUT_CALLBACK, Consumer.class);
+    Entity uiEntity = context.requireEntity();
+    Skin skin = context.skin();
+    Dialog dialog = buildDialog(title, question, callback, uiEntity, skin, context);
+    dialog.setSize(700, 350);
+    return dialog;
   }
 
   /**
@@ -44,14 +50,22 @@ public final class FreeInputDialog {
    * @param question The text shown as the question/prompt.
    * @param callback A consumer that receives the players trimmed answer; "" if canceled or empty.
    * @param uiEntity The UI-Entity that hosts this dialog; will be removed on close.
+   * @param skin The skin to be used for the dialog.
+   * @param context The dialog context containing additional settings and preferences.
    * @return The configured, centered Dialog ready to be displayed.
    */
   private static Dialog buildDialog(
-      String title, String question, Consumer<String> callback, Entity uiEntity) {
+      String title,
+      String question,
+      Consumer<String> callback,
+      Entity uiEntity,
+      Skin skin,
+      DialogContext context) {
 
-    Skin skin = UIUtils.defaultSkin();
-    TextField input = new TextField("", skin);
-    input.setMessageText("Deine Antwort…");
+    TextField input =
+        new TextField(context.find(DialogContextKeys.INPUT_PREFILL, String.class).orElse(""), skin);
+    input.setMessageText(
+        context.find(DialogContextKeys.INPUT_PLACEHOLDER, String.class).orElse("Deine Antwort…"));
 
     Dialog dialog =
         new Dialog(title, skin) {
@@ -59,7 +73,10 @@ public final class FreeInputDialog {
           @Override
           protected void result(Object obj) {
             String value = "";
-            if (OK_BUTTON.equals(obj)) {
+            if (context
+                .find(DialogContextKeys.CONFIRM_LABEL, String.class)
+                .orElse(OK_BUTTON)
+                .equals(obj)) {
               value = input.getText().trim();
             }
 
@@ -78,9 +95,11 @@ public final class FreeInputDialog {
     content.add(new Label(question, skin)).align(Align.center).padBottom(10).row();
     content.add(input).width(200).padBottom(10).row();
 
-    dialog.button(OK_BUTTON, OK_BUTTON);
-    dialog.button(CANCEL_BUTTON, CANCEL_BUTTON);
-    dialog.setSize(700, 350);
+    String okLabel = context.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(OK_BUTTON);
+    String cancelLabel =
+        context.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(CANCEL_BUTTON);
+    dialog.button(okLabel, okLabel);
+    dialog.button(cancelLabel, cancelLabel);
     UIUtils.center(dialog);
 
     return dialog;

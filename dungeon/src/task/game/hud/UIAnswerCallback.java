@@ -5,12 +5,12 @@ import static task.game.hud.QuizUI.DEFAULT_DIALOG_CONFIRM;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.utils.SnapshotArray;
 import contrib.hud.UIUtils;
-import contrib.hud.dialogs.TextDialog;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.Game;
@@ -59,11 +59,11 @@ public final class UIAnswerCallback {
    * @return foo
    * @see UIUtils
    */
-  public static BiFunction<TextDialog, String, Boolean> uiCallback(
+  public static BiFunction<Dialog, String, Boolean> uiCallback(
       Quiz quest, Entity hudEntity, BiConsumer<Task, Set<TaskContent>> dslCallback) {
-    return (textDialog, id) -> {
+    return (dialog, id) -> {
       if (Objects.equals(id, DEFAULT_DIALOG_CONFIRM)) {
-        dslCallback.accept(quest, getAnswer(quest, answerSection(textDialog)));
+        dslCallback.accept(quest, getAnswer(quest, answerSection(dialog)));
         Game.remove(hudEntity);
         return true;
       } else if (Objects.equals(id, DEFAULT_DIALOG_ABORT)) {
@@ -74,9 +74,9 @@ public final class UIAnswerCallback {
     };
   }
 
-  private static VerticalGroup answerSection(TextDialog textDialog) {
+  private static VerticalGroup answerSection(Dialog dialog) {
     SnapshotArray<Actor> children =
-        ((VerticalGroup) textDialog.getContentTable().getChildren().get(0)).getChildren();
+        ((VerticalGroup) dialog.getContentTable().getChildren().get(0)).getChildren();
     // find the answer section
     return (VerticalGroup)
         children

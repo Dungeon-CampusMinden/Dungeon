@@ -2,7 +2,9 @@ package contrib.hud;
 
 import contrib.components.ShowImageComponent;
 import contrib.components.UIComponent;
-import contrib.hud.dialogs.OkDialog;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogFactory;
 import contrib.utils.components.showImage.ShowImageUI;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.Entity;
@@ -18,7 +20,7 @@ import task.tasktype.Quiz;
 /**
  * The DialogUtils class is responsible for displaying text popups and quizzes to the player.
  *
- * @see OkDialog
+ * @see DialogFactory
  * @see QuizUI
  * @see Quiz
  */
@@ -30,7 +32,7 @@ public class DialogUtils {
    * @param text The text of the popup.
    * @param title The title of the popup.
    * @return The popup entity.
-   * @see OkDialog#showOkDialog(String, String, IVoidFunction) showOkDialog
+   * @see DialogFactory#showOkDialog(String, String, IVoidFunction) showOkDialog
    */
   public static Entity showTextPopup(String text, String title) {
     return showTextPopup(text, title, () -> {});
@@ -43,13 +45,20 @@ public class DialogUtils {
    * @param title The title of the popup.
    * @param onFinished The function to execute when the popup is closed.
    * @return The popup entity.
-   * @see OkDialog#showOkDialog(String, String, IVoidFunction) showOkDialog
+   * @see DialogFactory#showOkDialog(String, String, IVoidFunction) showOkDialog
    */
   public static Entity showTextPopup(String text, String title, IVoidFunction onFinished) {
     // removes newlines and empty spaces and multiple spaces from the title and text
     title = title.replaceAll("\\s+", " ").trim();
     text = text.replaceAll("\\s+", " ").trim();
-    return OkDialog.showOkDialog(text, title, onFinished);
+    return DialogFactory.show(
+            DialogFactory.TYPE_OK,
+            DialogContext.builder()
+                .title(title)
+                .put(DialogContextKeys.MESSAGE, text)
+                .put(DialogContextKeys.ON_CONFIRM, onFinished)
+                .build())
+        .a();
   }
 
   /**
@@ -86,7 +95,7 @@ public class DialogUtils {
                   }
                   output += "solved the quiz";
 
-                  OkDialog.showOkDialog(
+                  DialogFactory.showOkDialog(
                       output,
                       "Result",
                       () -> {

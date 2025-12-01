@@ -5,7 +5,7 @@ import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
 import contrib.hud.DialogUtils;
-import contrib.hud.dialogs.OkDialog;
+import contrib.hud.dialogs.DialogFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.modules.interaction.Interaction;
@@ -152,7 +152,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
                       hc.receiveHit(
                           new Damage(-damage.damageAmount(), DamageType.HEAL, bridgeGuard));
                       if (entity.isPresent(PlayerComponent.class)) {
-                        OkDialog.showOkDialog(
+                        DialogFactory.showOkDialog(
                             "Haha, you cannot harm me! I am invincible!",
                             "Riddle: Bridge Guard",
                             () -> {});
@@ -181,7 +181,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
                       task.gradeTask(taskContents);
                       String output = "You have incorrectly solved the task";
 
-                      OkDialog.showOkDialog(
+                      DialogFactory.showOkDialog(
                           output,
                           "Result",
                           () -> {
@@ -191,7 +191,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
                                     () ->
                                         new Interaction(
                                             (me, who) ->
-                                                OkDialog.showOkDialog(
+                                                DialogFactory.showOkDialog(
                                                     "Haha, you failed the riddle! You shall not pass!",
                                                     "Riddle: Bridge Guard",
                                                     () -> {}),

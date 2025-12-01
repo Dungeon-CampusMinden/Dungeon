@@ -5,7 +5,7 @@ import contrib.entities.EntityFactory;
 import contrib.entities.SignFactory;
 import contrib.entities.WorldItemBuilder;
 import contrib.hud.DialogUtils;
-import contrib.hud.dialogs.YesNoDialog;
+import contrib.hud.dialogs.DialogFactory;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.components.health.Damage;
@@ -205,7 +205,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
         () ->
             new Interaction(
                 (entity1, entity2) ->
-                    YesNoDialog.showYesNoDialog(
+                    DialogFactory.showYesNoDialog(
                         DIALOG_LOGIN,
                         DIALOG_TITLE_HUNGER,
                         () -> {

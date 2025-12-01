@@ -17,10 +17,10 @@ import java.util.function.BiFunction;
  * <p>Use {@link #textDialog(String, String, String)} to create and add a HUD-Entity to the game,
  * that will show the given text.
  */
-public final class TextDialog extends Dialog {
+final class TextDialog extends Dialog {
 
   /** Handler for Button presses. */
-  private final BiFunction<TextDialog, String, Boolean> resultHandler;
+  private final BiFunction<Dialog, String, Boolean> resultHandler;
 
   /**
    * creates a Textdialog with the given title and skin and stores the functional interface for
@@ -30,10 +30,10 @@ public final class TextDialog extends Dialog {
    * @param title Title of the dialog
    * @param resultHandler controls the button presses
    */
-  public TextDialog(
+  TextDialog(
       final String title,
       final Skin skin,
-      final BiFunction<TextDialog, String, Boolean> resultHandler) {
+      final BiFunction<Dialog, String, Boolean> resultHandler) {
     super(title, skin);
     this.resultHandler = resultHandler;
   }
@@ -47,11 +47,11 @@ public final class TextDialog extends Dialog {
    * @param windowStyleName the name of the style which should be used
    * @param resultHandler controls the button presses
    */
-  public TextDialog(
+  TextDialog(
       final String title,
       final Skin skin,
       final String windowStyleName,
-      final BiFunction<TextDialog, String, Boolean> resultHandler) {
+      final BiFunction<Dialog, String, Boolean> resultHandler) {
     super(title, skin, windowStyleName);
     this.resultHandler = resultHandler;
   }
@@ -67,8 +67,7 @@ public final class TextDialog extends Dialog {
    * @return Entity that contains the {@link UIComponent}. The entity will already be added to the
    *     game by this method.
    */
-  public static Entity textDialog(
-      final String content, final String buttonText, final String windowText) {
+  static Entity textDialog(final String content, final String buttonText, final String windowText) {
     Entity entity = new Entity("textDialog_" + windowText);
     UIUtils.show(
         () -> {
@@ -90,8 +89,8 @@ public final class TextDialog extends Dialog {
   /**
    * A simple Text Dialog that shows only the provided string.
    *
-   * <p>This dialog is only created here, it is not added to the stage or game. Use
-   * {@link #textDialog(String, String, String)} to create and add the dialog to the game.
+   * <p>This dialog is only created here, it is not added to the stage or game. Use {@link
+   * #textDialog(String, String, String)} to create and add the dialog to the game.
    *
    * @param skin The style in which the whole dialog should be shown.
    * @param outputMsg The text which should be shown in the middle of the dialog.
@@ -100,18 +99,18 @@ public final class TextDialog extends Dialog {
    * @param resultHandler A callback method that is called when the confirm button is pressed.
    * @return The fully configured Dialog, which can then be added where it is needed.
    */
-  public static Dialog createTextDialog(
-    final Skin skin,
-    final String outputMsg,
-    final String confirmButton,
-    final String title,
-    final BiFunction<TextDialog, String, Boolean> resultHandler) {
+  static Dialog createTextDialog(
+      final Skin skin,
+      final String outputMsg,
+      final String confirmButton,
+      final String title,
+      final BiFunction<Dialog, String, Boolean> resultHandler) {
     Dialog textDialog = new TextDialog(title, skin, resultHandler);
     textDialog
-      .getContentTable()
-      .add(DialogDesign.createTextDialog(skin, outputMsg))
-      .center()
-      .grow();
+        .getContentTable()
+        .add(DialogDesign.createTextDialog(skin, outputMsg))
+        .center()
+        .grow();
     textDialog.button(confirmButton, confirmButton);
     return textDialog;
   }
@@ -126,7 +125,7 @@ public final class TextDialog extends Dialog {
    * @return The configured BiFunction that closes the window and removes the entity from the game
    *     if the close button was pressed.
    */
-  private static BiFunction<TextDialog, String, Boolean> createResultHandler(
+  private static BiFunction<Dialog, String, Boolean> createResultHandler(
       final Entity entity, final String closeButtonID) {
     return (d, id) -> {
       if (Objects.equals(id, closeButtonID)) {

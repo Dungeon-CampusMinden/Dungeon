@@ -1,7 +1,5 @@
 package contrib.hud.dialogs;
 
-import static contrib.hud.UIUtils.defaultSkin;
-
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import contrib.hud.UIUtils;
@@ -12,71 +10,41 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
- * A dialog with "yes" and "no" buttons at the bottom.
+ * Package-private builder for Yes/No dialogs.
  *
- * <p>Use {@link #showYesNoDialog(String, String, IVoidFunction, IVoidFunction)} to create a simple
- * dialog.
+ * <p>Creates confirmation dialogs with Yes and No buttons. Use {@link
+ * DialogFactory#showYesNoDialog} instead of accessing this class directly.
  */
-public final class YesNoDialog {
+final class YesNoDialog {
   private static final String DEFAULT_DIALOG_YES = "Ja";
   private static final String DEFAULT_DIALOG_NO = "Nein";
 
-  /**
-   * Show a Yes or No Dialog.
-   *
-   * <p>The entity will already be added to the game.
-   *
-   * @param text Text to show in the dialog.
-   * @param title Title of the dialog window.
-   * @param onYes Function to execute if "yes" is pressed.
-   * @param onNo Function to execute if "no" is pressed.
-   * @return Entity that stores the HUD components.
-   */
-  public static Entity showYesNoDialog(
-      final String text, final String title, final IVoidFunction onYes, final IVoidFunction onNo) {
-
-    Entity entity = showYesNoDialog(defaultSkin(), text, title, onYes, onNo);
-    Game.add(entity);
-    return entity;
-  }
+  private YesNoDialog() {}
 
   /**
-   * Show a Yes or No Dialog.
+   * Builds a Yes/No dialog from the given context.
    *
-   * <p>The entity will already be added to the game.
-   *
-   * @param skin UI skin to use.
-   * @param text Text to show in the dialog.
-   * @param title Title of the dialog window.
-   * @param onYes Function to execute if "yes" is pressed.
-   * @param onNo Function to execute if "no" is pressed.
-   * @return Entity that stores the HUD components.
+   * @param context The dialog context containing the message, title, and yes/no callbacks
+   * @return A fully configured Yes/No dialog
    */
-  public static Entity showYesNoDialog(
-      final Skin skin,
-      final String text,
-      final String title,
-      final IVoidFunction onYes,
-      final IVoidFunction onNo) {
-    Entity entity = new Entity("yesNoDialog_" + title);
-
-    UIUtils.show(
-        () -> {
-          Dialog dialog =
-              createYesNoDialog(skin, text, title, createResultHandlerYesNo(entity, onYes, onNo));
-          UIUtils.center(dialog);
-          return dialog;
-        },
-        entity);
-    Game.add(entity);
-    return entity;
+  static Dialog build(DialogContext context) {
+    String text = context.require(DialogContextKeys.MESSAGE, String.class);
+    String title = context.title().orElse("Dialog");
+    IVoidFunction onYes = context.require(DialogContextKeys.ON_YES, IVoidFunction.class);
+    IVoidFunction onNo = context.require(DialogContextKeys.ON_NO, IVoidFunction.class);
+    Entity entity = context.requireEntity();
+    Dialog dialog =
+        createYesNoDialog(
+            context.skin(), text, title, createResultHandlerYesNo(entity, onYes, onNo));
+    dialog.pack();
+    return dialog;
   }
 
   private static Dialog createYesNoDialog(
       final Skin skin,
       final String text,
       final String title,
-      final BiFunction<TextDialog, String, Boolean> resultHandler) {
+      final BiFunction<Dialog, String, Boolean> resultHandler) {
     Dialog textDialog = new TextDialog(title, skin, "Letter", resultHandler);
     textDialog
         .getContentTable()
@@ -85,11 +53,10 @@ public final class YesNoDialog {
         .grow();
     textDialog.button(DEFAULT_DIALOG_NO, DEFAULT_DIALOG_NO);
     textDialog.button(DEFAULT_DIALOG_YES, DEFAULT_DIALOG_YES);
-    textDialog.pack(); // resizes to size
     return textDialog;
   }
 
-  private static BiFunction<TextDialog, String, Boolean> createResultHandlerYesNo(
+  private static BiFunction<Dialog, String, Boolean> createResultHandlerYesNo(
       final Entity entity, final IVoidFunction onYes, final IVoidFunction onNo) {
     return (d, id) -> {
       if (Objects.equals(id, DEFAULT_DIALOG_YES)) {

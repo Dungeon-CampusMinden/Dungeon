@@ -6,6 +6,7 @@ import contrib.components.UIComponent;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.game.PreRunConfiguration;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import java.util.Comparator;
@@ -32,7 +33,7 @@ public final class HudSystem extends System {
 
   /** Create a new HudSystem. */
   public HudSystem() {
-    super(AuthoritativeSide.CLIENT, UIComponent.class);
+    super(AuthoritativeSide.BOTH, UIComponent.class);
     onEntityAdd = this::addListener;
     onEntityRemove = this::removeListener;
   }
@@ -79,11 +80,24 @@ public final class HudSystem extends System {
     Group dialog = component.dialog();
 
     Game.stage()
-        .ifPresent(
+        .ifPresentOrElse(
             stage -> {
               addDialogToStage(dialog, stage);
               addMapping(entity, dialog, component);
+            },
+            () -> {
+              // Headless mode,
+              if (PreRunConfiguration.multiplayerEnabled()
+                  && PreRunConfiguration.isNetworkServer()) {
+                sendDialogToClients(entity, component);
+                addMapping(entity, dialog, component);
+              }
             });
+  }
+
+  private void sendDialogToClients(final Entity entity, final UIComponent component) {
+    // TODO
+    java.lang.System.out.println("Sending dialog of entity " + entity.id() + " to clients.");
   }
 
   private void addMapping(final Entity entity, final Group dialog, final UIComponent component) {
