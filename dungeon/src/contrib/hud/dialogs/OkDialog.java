@@ -39,16 +39,8 @@ public final class OkDialog {
   public static Entity showOkDialog(
       final String text, final String title, final IVoidFunction onOk) {
     Entity entity;
-    try {
-      entity = showOkDialog(defaultSkin(), text, title, onOk);
-      Game.add(entity);
-    } catch (IllegalStateException e) {
-      // in headless just run onOkn
-      // TODO: share dialogs if server
-      LOGGER.warn("No UI available, executing Ok-Dialog action without UI.");
-      onOk.execute();
-      entity = new Entity("okDialog_noUI");
-    }
+    entity = showOkDialog(defaultSkin(), text, title, onOk);
+    Game.add(entity);
     return entity;
   }
 
@@ -78,7 +70,19 @@ public final class OkDialog {
     return entity;
   }
 
-  private static Dialog createOkDialog(
+  /**
+   * A simple Ok Dialog that shows only the provided string.
+   *
+   * <p>This dialog is only created here, it is not added to the stage or game. Use
+   * {@link #showOkDialog(String, String, IVoidFunction)} to create and add the dialog to the game.
+   *
+   * @param skin The style in which the whole dialog should be shown.
+   * @param text The text which should be shown in the middle of the dialog.
+   * @param title Title for the dialog.
+   * @param resultHandler A callback method that is called when the ok button is pressed.
+   * @return The fully configured Dialog, which can then be added where it is needed.
+   */
+  public static Dialog createOkDialog(
       final Skin skin,
       final String text,
       final String title,

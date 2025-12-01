@@ -73,7 +73,7 @@ public final class TextDialog extends Dialog {
     UIUtils.show(
         () -> {
           Dialog textDialog =
-              DialogFactory.createTextDialog(
+              createTextDialog(
                   defaultSkin(),
                   content,
                   buttonText,
@@ -85,6 +85,35 @@ public final class TextDialog extends Dialog {
         entity);
     Game.add(entity);
     return entity;
+  }
+
+  /**
+   * A simple Text Dialog that shows only the provided string.
+   *
+   * <p>This dialog is only created here, it is not added to the stage or game. Use
+   * {@link #textDialog(String, String, String)} to create and add the dialog to the game.
+   *
+   * @param skin The style in which the whole dialog should be shown.
+   * @param outputMsg The text which should be shown in the middle of the dialog.
+   * @param confirmButton Text that the button should have; also the ID for the result handler.
+   * @param title Title for the dialog.
+   * @param resultHandler A callback method that is called when the confirm button is pressed.
+   * @return The fully configured Dialog, which can then be added where it is needed.
+   */
+  public static Dialog createTextDialog(
+    final Skin skin,
+    final String outputMsg,
+    final String confirmButton,
+    final String title,
+    final BiFunction<TextDialog, String, Boolean> resultHandler) {
+    Dialog textDialog = new TextDialog(title, skin, resultHandler);
+    textDialog
+      .getContentTable()
+      .add(DialogDesign.createTextDialog(skin, outputMsg))
+      .center()
+      .grow();
+    textDialog.button(confirmButton, confirmButton);
+    return textDialog;
   }
 
   /**
