@@ -15,6 +15,7 @@ import core.utils.components.path.SimpleIPath;
 import java.util.*;
 import produsAdvanced.abstraction.portals.components.PortalComponent;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
+import produsAdvanced.abstraction.portals.components.PortalIgnoreComponent;
 
 /**
  * A factory class for creating and managing portals in the game.
@@ -291,7 +292,11 @@ public class PortalFactory {
    * @param other the entity entering the portal
    * @param dir the direction of collision
    */
-  private static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
+  public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
+    if (other.fetch(PortalIgnoreComponent.class).isPresent()) {
+      return;
+    }
+
     PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
     PositionComponent portalPositionComponent = portal.fetch(PositionComponent.class).get();
 
@@ -345,7 +350,11 @@ public class PortalFactory {
    * @param other the entity entering the portal
    * @param dir the direction of collision
    */
-  private static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
+  public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
+    if (other.fetch(PortalIgnoreComponent.class).isPresent()) {
+      return;
+    }
+
     PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
     PositionComponent portalPositionComponent = portal.fetch(PositionComponent.class).get();
 
