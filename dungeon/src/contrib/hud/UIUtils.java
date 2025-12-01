@@ -30,10 +30,8 @@ public final class UIUtils {
    * <p>Load the skin on demand (singleton with lazy initialisation). This allows to write JUnit
    * tests for this class w/o mocking libGDX.
    *
-   * <p>Throws a {@link IllegalStateException} if the skin cannot be loaded, e.g. when running in a
-   * headless environment.
-   *
    * @return the default skin.
+   * @throws IllegalStateException if the skin cannot be loaded (e.g. in headless mode).
    */
   public static Skin defaultSkin() {
     if (DEFAULT_SKIN == null) {

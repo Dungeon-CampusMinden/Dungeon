@@ -4,8 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.entities.EntityFactory;
 import contrib.entities.WorldItemBuilder;
-import contrib.hud.dialogs.OkDialog;
-import contrib.hud.dialogs.TextDialog;
+import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.modules.interaction.Interaction;
@@ -25,7 +24,6 @@ import task.game.components.TaskComponent;
 import task.game.components.TaskContentComponent;
 import task.game.content.QuestItem;
 import task.game.hud.QuizUI;
-import task.game.hud.YesNoDialog;
 import task.reporting.AnswerPickingFunctions;
 import task.tasktype.AssignTask;
 import task.tasktype.Element;
@@ -138,7 +136,7 @@ public class NativeScenarioBuilder {
                       || quiz.state().equals(Task.TaskState.PROCESSING_ACTIVE)) {
                     QuizUI.askQuizOnHud(quiz);
                   } else {
-                    OkDialog.showOkDialog(
+                    DialogFactory.showOkDialog(
                         "Du hast die Aufgabe schon bearbeitet.", "Info", () -> {});
                   }
                 },
@@ -183,9 +181,10 @@ public class NativeScenarioBuilder {
                 (thisEntity, otherEntity) -> {
                   if (task.state().equals(Task.TaskState.ACTIVE)
                       || task.state().equals(Task.TaskState.PROCESSING_ACTIVE)) {
-                    YesNoDialog.showYesNoDialog(task);
+                    DialogFactory.showYesNoDialog(
+                        "Bist du bereit?", "Tägliche Aufgabe", () -> {}, () -> {});
                   } else {
-                    OkDialog.showOkDialog(
+                    DialogFactory.showOkDialog(
                         "Du hast die Aufgabe schon bearbeitet.", "Info", () -> {});
                   }
                 },
@@ -196,7 +195,8 @@ public class NativeScenarioBuilder {
     return (task, taskContents) -> {
       float score = task.gradeTask(taskContents);
       task.managerEntity().get().remove(InteractionComponent.class);
-      TextDialog.textDialog("Your score: " + score, "Ok", "Given answer");
+      DialogFactory.showTextDialog(
+          "Your score: " + score, "Given answer", () -> {}, "Ok", null, null, null);
     };
   }
 

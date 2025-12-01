@@ -2,14 +2,12 @@ package manual;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import contrib.hud.dialogs.TextDialog;
-import contrib.hud.dialogs.YesNoDialog;
+import contrib.hud.dialogs.DialogFactory;
 import contrib.systems.HudSystem;
 import core.Game;
-import core.utils.IVoidFunction;
 
 /**
- * This is a manual test for the YesNODialog.
+ * This is a manual test for the YesNoDialog via DialogFactory.
  *
  * <p>It sets up a basic game and will show a Yes-No if "F" is pressed.
  *
@@ -29,20 +27,16 @@ public class YesNoDialogTest {
     Game.userOnFrame(
         () -> {
           if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            YesNoDialog.showYesNoDialog(
+            DialogFactory.showYesNoDialog(
                 "Test",
                 "Test",
-                new IVoidFunction() {
-                  @Override
-                  public void execute() {
-                    TextDialog.textDialog("Yes", "Ok", "Callback for yes.");
-                  }
+                () -> {
+                  DialogFactory.showTextDialog(
+                      "Yes", "Callback for yes.", () -> {}, "Ok", null, null, null);
                 },
-                new IVoidFunction() {
-                  @Override
-                  public void execute() {
-                    TextDialog.textDialog("No", "Ok", "Callback for no.");
-                  }
+                () -> {
+                  DialogFactory.showTextDialog(
+                      "No", "Callback for no.", () -> {}, "Ok", null, null, null);
                 });
           }
         });

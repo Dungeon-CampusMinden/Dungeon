@@ -3,8 +3,9 @@ package contrib.entities;
 import contrib.components.*;
 import contrib.hud.DialogUtils;
 import contrib.hud.crafting.CraftingGUI;
-import contrib.hud.dialogs.OkDialog;
-import contrib.hud.dialogs.YesNoDialog;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
@@ -25,8 +26,8 @@ import core.level.elements.tile.DoorTile;
 import core.systems.DrawSystem;
 import core.utils.*;
 import core.utils.Direction;
+import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
@@ -183,7 +184,9 @@ public final class MiscFactory {
     StateMachine sm = new StateMachine(Arrays.asList(stClosed, stOpening, stOpen), stClosed);
     sm.addTransition(stClosed, "open", stOpening);
     // Automatically transition to open state when opening animation is finished playing
-    sm.addEpsilonTransition(stOpening, State::isAnimationFinished, stOpen, () -> ic.count() == 0);
+    // TODO: Add support for conditional epsilon transitions in multiplayer
+    // sm.addEpsilonTransition(stOpening, State::isAnimationFinished, stOpen, () -> ic.count() ==
+    // 0);
     DrawComponent dc = new DrawComponent(sm);
     chest.add(dc);
 
@@ -216,8 +219,7 @@ public final class MiscFactory {
                                                     // animation finishes, the epsilon
                                                     // transition
                                                     // will
-                                                    // handle
-                                                    // setting the data correctly
+                                                    // set the data correctly
                                                     if (!interactedDC
                                                         .stateMachine()
                                                         .getCurrentStateName()
@@ -277,22 +279,28 @@ public final class MiscFactory {
                                   return;
                                 }
 
-                                YesNoDialog.showYesNoDialog(
-                                    "Willst du deinen "
-                                        + reqKeyName
-                                        + " verwenden, um die Schatzkiste zu öffnen?",
-                                    "Verschlossene Schatzkiste.",
-                                    () -> {
-                                      invComp
-                                          .itemOfClass(requiredKeyType)
-                                          .ifPresent(invComp::remove);
-                                      oldIC.triggerInteraction(interacted, interactor);
-                                      interacted.remove(InteractionComponent.class);
-                                      interacted.add(oldIC);
-                                    },
-                                    () -> {
-                                      // "No" - do nothing
-                                    });
+                                DialogFactory.show(
+                                    DialogFactory.TYPE_YES_NO,
+                                    DialogContext.builder()
+                                        .title("Verschlossene Schatzkiste.")
+                                        .put(
+                                            DialogContextKeys.MESSAGE,
+                                            "Willst du deinen "
+                                                + reqKeyName
+                                                + " verwenden, um die Schatzkiste zu öffnen?")
+                                        .put(
+                                            DialogContextKeys.ON_YES,
+                                            (IVoidFunction)
+                                                () -> {
+                                                  invComp
+                                                      .itemOfClass(requiredKeyType)
+                                                      .ifPresent(invComp::remove);
+                                                  oldIC.triggerInteraction(interacted, interactor);
+                                                  interacted.remove(InteractionComponent.class);
+                                                  interacted.add(oldIC);
+                                                })
+                                        .put(DialogContextKeys.ON_NO, (IVoidFunction) () -> {})
+                                        .build());
                               }));
 
               lockedChest.remove(InteractionComponent.class);
@@ -591,13 +599,23 @@ public final class MiscFactory {
    * @return The book Entity.
    */
   public static Entity book(Point position, String text, String title, IVoidFunction onClose) {
+    IVoidFunction safeOnClose = onClose != null ? onClose : () -> {};
     Entity book = new Entity("book");
     book.add(new PositionComponent(position));
     book.add(
         new InteractionComponent(
             () ->
                 new Interaction(
-                    (entity, entity2) -> OkDialog.showOkDialog(text, title, onClose), 1f)));
+                    (entity, entity2) -> {
+                      DialogFactory.show(
+                          DialogFactory.TYPE_OK,
+                          DialogContext.builder()
+                              .title(title)
+                              .put(DialogContextKeys.MESSAGE, text)
+                              .put(DialogContextKeys.ON_CONFIRM, safeOnClose)
+                              .build());
+                    },
+                    1f)));
     book.add(
         new DrawComponent(new Animation(Math.random() < 0.5 ? BOOK_TEXTURE : SPELL_BOOK_TEXTURE)));
     return book;
@@ -643,17 +661,27 @@ public final class MiscFactory {
                         return;
                       }
 
-                      YesNoDialog.showYesNoDialog(
-                          "Willst du deinen " + reqKeyName + " verwenden, um die Tür zu öffnen?",
-                          "Verschlossene Tür.",
-                          () -> {
-                            invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
-                            Game.remove(interacted);
-                            door.open();
-                          },
-                          () -> {
-                            // "No" - do nothing
-                          });
+                      DialogFactory.show(
+                          DialogFactory.TYPE_YES_NO,
+                          DialogContext.builder()
+                              .title("Verschlossene Tür.")
+                              .put(
+                                  DialogContextKeys.MESSAGE,
+                                  "Willst du deinen "
+                                      + reqKeyName
+                                      + " verwenden, um die Tür zu öffnen?")
+                              .put(
+                                  DialogContextKeys.ON_YES,
+                                  (IVoidFunction)
+                                      () -> {
+                                        invComp
+                                            .itemOfClass(requiredKeyType)
+                                            .ifPresent(invComp::remove);
+                                        Game.remove(interacted);
+                                        door.open();
+                                      })
+                              .put(DialogContextKeys.ON_NO, (IVoidFunction) () -> {})
+                              .build());
                     },
                     2f)));
     door.close();

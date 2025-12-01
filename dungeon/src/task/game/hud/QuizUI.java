@@ -1,13 +1,7 @@
 package task.game.hud;
 
-import static contrib.hud.UIUtils.defaultSkin;
-
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import contrib.components.UIComponent;
-import contrib.hud.UIUtils;
-import contrib.hud.dialogs.OkDialog;
-import contrib.hud.dialogs.TextDialog;
+import contrib.hud.dialogs.DialogFactory;
 import core.Entity;
 import core.Game;
 import core.utils.IVoidFunction;
@@ -33,7 +27,7 @@ public class QuizUI {
    * @return the entity that stores the hud elements for the dialog window.
    */
   public static Entity askQuizOnHud(final Quiz quiz) {
-    return QuizUI.showQuizDialog(
+    return showQuizDialog(
         quiz,
         (Entity hudEntity) ->
             UIAnswerCallback.uiCallback(
@@ -56,10 +50,10 @@ public class QuizUI {
 
                   IVoidFunction showCorrectAnswer =
                       () ->
-                          OkDialog.showOkDialog(
+                          DialogFactory.showOkDialog(
                               task.correctAnswersAsString(), "Korrekte Antwort", () -> {});
 
-                  OkDialog.showOkDialog(
+                  DialogFactory.showOkDialog(
                       output.toString(),
                       "Ergebnis",
                       () -> {
@@ -67,7 +61,7 @@ public class QuizUI {
                         if (score < task.points()) {
                           if (!task.explanation().isBlank()
                               && !task.explanation().equals(Task.DEFAULT_EXPLANATION)) {
-                            OkDialog.showOkDialog(
+                            DialogFactory.showOkDialog(
                                 task.explanation(), "Erklärung", showCorrectAnswer);
                           } else {
                             showCorrectAnswer.execute();
@@ -87,19 +81,8 @@ public class QuizUI {
    *     already be added to the game by this method.
    */
   public static Entity showQuizDialog(
-      Quiz question,
-      Function<Entity, BiFunction<TextDialog, String, Boolean>> resulthandlerLinker) {
-
-    String title = question.taskName();
-    Entity entity =
-        showQuizDialog(
-            question,
-            UIUtils.formatString(question.taskText()),
-            DEFAULT_DIALOG_CONFIRM,
-            title,
-            resulthandlerLinker);
-    Game.add(entity);
-    return entity;
+      Quiz question, Function<Entity, BiFunction<Dialog, String, Boolean>> resulthandlerLinker) {
+    return DialogFactory.showQuizDialog(question, resulthandlerLinker).a();
   }
 
   /**
@@ -119,77 +102,6 @@ public class QuizUI {
   }
 
   /**
-   * If no Quiz-Dialogue is created, a new dialogue is created according to the event key. Pause all
-   * systems except DrawSystem
-   *
-   * <p>display the Question-Content (Question and answer options (no pictures) as text, picture,
-   * text and picture, single or multiple choice ) in the Dialog
-   *
-   * @param question Various question configurations
-   * @param questionMsg foo
-   * @param buttonMsg foo
-   * @param dialogTitle foo
-   * @param resulthandlerLinker foo
-   * @return the Entity that stores the {@link UIComponent} with the UI-Elements The entity will
-   *     already be added to the game by this method.
-   */
-  private static Entity showQuizDialog(
-      Quiz question,
-      String questionMsg,
-      String buttonMsg,
-      String dialogTitle,
-      Function<Entity, BiFunction<TextDialog, String, Boolean>> resulthandlerLinker) {
-    Entity entity = new Entity("quizDialogEntity_" + dialogTitle);
-
-    UIUtils.show(
-        () -> {
-          Dialog quizDialog =
-              createQuizDialog(
-                  defaultSkin(),
-                  question,
-                  questionMsg,
-                  buttonMsg,
-                  dialogTitle,
-                  resulthandlerLinker.apply(entity));
-          UIUtils.center(quizDialog);
-          return quizDialog;
-        },
-        entity);
-    Game.add(entity);
-    return entity;
-  }
-
-  /**
-   * Factory for a generic Quizquestion.
-   *
-   * @param skin Skin for the dialogue (resources that can be used by UI widgets)
-   * @param quizQuestion Various question configurations
-   * @param outputMsg Content displayed in the scrollable label
-   * @param buttonMsg text for the button
-   * @param title Title of the dialogue
-   * @param resultHandler a callback method which is called when the confirm button is pressed
-   * @return the fully configured Dialog which then can be added where it is needed
-   */
-  private static Dialog createQuizDialog(
-      Skin skin,
-      Quiz quizQuestion,
-      String outputMsg,
-      String buttonMsg,
-      String title,
-      BiFunction<TextDialog, String, Boolean> resultHandler) {
-    Dialog textDialog = new TextDialog(title, skin, "Letter", resultHandler);
-    textDialog
-        .getContentTable()
-        .add(QuizDialogDesign.createQuizQuestion(quizQuestion, skin, outputMsg))
-        .grow()
-        .fill(); // changes size based on childrens;
-    textDialog.button(DEFAULT_DIALOG_ABORT, DEFAULT_DIALOG_ABORT);
-    textDialog.button(buttonMsg, buttonMsg);
-    textDialog.pack(); // resizes to size
-    return textDialog;
-  }
-
-  /**
    * Create a default callback-function that will delete the entity that stores the hud-component.
    *
    * @param abortButtonID foo
@@ -197,7 +109,7 @@ public class QuizUI {
    * @param entity foo
    * @return foo
    */
-  public static BiFunction<TextDialog, String, Boolean> createResultHandlerQuiz(
+  public static BiFunction<Dialog, String, Boolean> createResultHandlerQuiz(
       final Entity entity, final String confirmButtonID, String abortButtonID) {
     return (d, id) -> {
       if (Objects.equals(id, confirmButtonID)) {

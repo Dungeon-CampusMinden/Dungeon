@@ -102,20 +102,27 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private static final BitmapFont bitmapFont;
 
   static {
-    backgroundAnimation = new Animation(new SimpleIPath(BACKGROUND_TEXTURE_PATH));
+    if (Game.isHeadless()) {
+      backgroundAnimation = null;
+      texture = null;
+      numberBackground = null;
+      bitmapFont = null;
+    } else {
+      backgroundAnimation = new Animation(new SimpleIPath(BACKGROUND_TEXTURE_PATH));
 
-    Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-    pixmap.drawPixel(0, 0, NUMBER_BACKGROUND_COLOR);
+      Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+      pixmap.drawPixel(0, 0, NUMBER_BACKGROUND_COLOR);
 
-    texture = new Texture(pixmap);
-    numberBackground = new TextureRegion(texture, 0, 0, 1, 1);
+      texture = new Texture(pixmap);
+      numberBackground = new TextureRegion(texture, 0, 0, 1, 1);
 
-    // Init Font
-    bitmapFont =
-        new BitmapFont(
-            Gdx.files.internal(FONT_FNT.pathString()),
-            Gdx.files.internal(FONT_PNG.pathString()),
-            false);
+      // Init Font
+      bitmapFont =
+          new BitmapFont(
+              Gdx.files.internal(FONT_FNT.pathString()),
+              Gdx.files.internal(FONT_PNG.pathString()),
+              false);
+    }
   }
 
   private final InventoryComponent inventory;
@@ -139,6 +146,13 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
         });
     this.inventory = sourceInventory;
     this.targetInventory = targetInventory;
+
+    if (Game.isHeadless()) {
+      this.buttonOk = null;
+      this.buttonCancel = null;
+      return;
+    }
+
     this.buttonOk =
         new ImageButton(this, new Animation(new SimpleIPath(BUTTON_OK_TEXTURE_PATH)), 0, 0, 1, 1);
     this.buttonCancel =
