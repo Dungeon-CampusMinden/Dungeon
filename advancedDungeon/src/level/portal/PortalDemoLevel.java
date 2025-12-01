@@ -20,6 +20,7 @@ import java.util.Map;
 import level.AdvancedLevel;
 import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 
+/** demo level. */
 public class PortalDemoLevel extends AdvancedLevel {
 
   private Entity cube1,
