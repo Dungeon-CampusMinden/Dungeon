@@ -11,6 +11,7 @@ import contrib.crafting.Crafting;
 import contrib.crafting.CraftingResult;
 import contrib.crafting.CraftingType;
 import contrib.crafting.Recipe;
+import contrib.hud.IInventoryHolder;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.elements.ImageButton;
@@ -21,8 +22,8 @@ import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * This class represents the GUI for the crafting system. If this gui is open, the player can craft
@@ -45,7 +46,7 @@ import java.util.Arrays;
  * to position the items and buttons in the GUI. The GUI is always square and the size is based on a
  * percentage of the height of the crafting GUI.
  */
-public class CraftingGUI extends CombinableGUI {
+public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
 
   private static final IPath FONT_FNT = new SimpleIPath("skin/myFont.fnt");
   private static final IPath FONT_PNG = new SimpleIPath("skin/myFont.png");
@@ -117,7 +118,7 @@ public class CraftingGUI extends CombinableGUI {
             false);
   }
 
-  private final ArrayList<Item> items = new ArrayList<>();
+  private final InventoryComponent inventory;
   private final ImageButton buttonOk, buttonCancel;
   private final InventoryComponent targetInventory;
   private Recipe currentRecipe = null;
@@ -126,9 +127,17 @@ public class CraftingGUI extends CombinableGUI {
    * Create a CraftingGUI that has the given InventoryComponent as target inventory for successfully
    * crafted items.
    *
+   * @param sourceInventory The source inventory where items to be crafted are stored.
    * @param targetInventory The target inventory.
    */
-  public CraftingGUI(InventoryComponent targetInventory) {
+  public CraftingGUI(InventoryComponent sourceInventory, InventoryComponent targetInventory) {
+    var oldCallback = sourceInventory.onItemAdded();
+    sourceInventory.onItemAdded(
+        item -> {
+          oldCallback.accept(item);
+          this.updateRecipe();
+        });
+    this.inventory = sourceInventory;
     this.targetInventory = targetInventory;
     this.buttonOk =
         new ImageButton(this, new Animation(new SimpleIPath(BUTTON_OK_TEXTURE_PATH)), 0, 0, 1, 1);
@@ -167,7 +176,7 @@ public class CraftingGUI extends CombinableGUI {
               float y,
               int pointer) {
             if (payload != null && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-              CraftingGUI.this.items.add(itemDragPayload.item());
+              CraftingGUI.this.inventory.add(itemDragPayload.item());
               CraftingGUI.this.updateRecipe();
             }
           }
@@ -215,7 +224,7 @@ public class CraftingGUI extends CombinableGUI {
    * @param batch The batch to draw to.
    */
   private void drawItems(Batch batch) {
-    if (this.items.isEmpty()) {
+    if (this.inventory.isEmpty()) {
       return;
     }
 
@@ -224,13 +233,13 @@ public class CraftingGUI extends CombinableGUI {
       int size =
           Math.min(
               Math.round(this.height() * INPUT_ITEMS_MAX_SIZE),
-              (this.width() - this.items.size() * ITEM_GAP) / this.items.size());
-      int rowWidth = size * this.items.size() + ITEM_GAP * (this.items.size() + 1);
+              (this.width() - this.inventory.count() * ITEM_GAP) / this.inventory.count());
+      int rowWidth = size * this.inventory.count() + ITEM_GAP * (this.inventory.count() + 1);
       int startX = this.x() + Math.round(this.width() * INPUT_ITEMS_X) - rowWidth / 2;
       int startY = this.y() + Math.round(this.height() * INPUT_ITEMS_Y);
 
-      for (int i = 0; i < this.items.size(); i++) {
-        Sprite sprite = this.items.get(i).inventoryAnimation().update();
+      for (int i = 0; i < this.inventory.count(); i++) {
+        Sprite sprite = this.inventory.get(i).orElseThrow().inventoryAnimation().update();
         int textureX = startX + ITEM_GAP * (i + 1) + size * i;
         batch.draw(sprite, textureX, startY, size, size);
 
@@ -317,7 +326,8 @@ public class CraftingGUI extends CombinableGUI {
   }
 
   private void updateRecipe() {
-    Item[] itemData = this.items.toArray(new Item[0]);
+    Item[] itemData =
+        Arrays.stream(this.inventory.items()).filter(Objects::nonNull).toArray(Item[]::new);
     this.currentRecipe = Crafting.recipeByIngredients(itemData).orElse(null);
   }
 
@@ -331,24 +341,18 @@ public class CraftingGUI extends CombinableGUI {
               Item item = (Item) result;
               this.targetInventory.add(item);
             });
-    this.items.clear();
+    this.inventory.clear();
     this.updateRecipe();
   }
 
   /** Allows to reset the CraftingGUI moving all Items back to the Inventory they came from. */
   public void cancel() {
-    this.items.forEach(this.targetInventory::add);
-    this.items.clear();
+    this.inventory.transferAll(targetInventory);
     this.updateRecipe();
   }
 
-  /**
-   * Add an item to the cauldron.
-   *
-   * @param item The item to add.
-   */
-  public void addItem(Item item) {
-    this.items.add(item);
-    this.updateRecipe();
+  @Override
+  public InventoryComponent inventoryComponent() {
+    return this.inventory;
   }
 }

@@ -4,7 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
+import contrib.hud.elements.GUICombination;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -12,6 +14,7 @@ import core.utils.IVoidFunction;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /** UI utility functions, such as a formatter for the window or dialog. */
 public final class UIUtils {
@@ -184,5 +187,21 @@ public final class UIUtils {
     }
 
     return sb.toString();
+  }
+
+  /**
+   * Retrieves all {@link InventoryComponent}s from the given {@link UIComponent}'s dialog, if it is
+   * a {@link GUICombination}.
+   *
+   * @param ui the UIComponent whose dialog to check for inventories
+   * @return a stream of InventoryComponents found in the dialog's combinable GUIs
+   */
+  public static Stream<InventoryComponent> getInventoriesFromUI(UIComponent ui) {
+    return (ui.dialog() instanceof GUICombination guiCombination)
+        ? guiCombination.combinableGuis().stream()
+            .filter(IInventoryHolder.class::isInstance)
+            .map(IInventoryHolder.class::cast)
+            .map(IInventoryHolder::inventoryComponent)
+        : Stream.empty();
   }
 }

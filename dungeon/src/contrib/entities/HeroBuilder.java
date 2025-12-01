@@ -377,7 +377,6 @@ public final class HeroBuilder {
         false);
 
     // UI controls
-    // TODO: make UI controls work for multiplayer (currently only local)
     inputComp.registerCallback(
         KeyboardConfig.INVENTORY_OPEN.value(), HeroController::toggleInventory, false, true);
     inputComp.registerCallback(
