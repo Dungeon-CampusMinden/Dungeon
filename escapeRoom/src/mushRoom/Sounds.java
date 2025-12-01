@@ -1,6 +1,9 @@
 package mushRoom;
 
 import core.Game;
+import core.sound.player.IPlayHandle;
+
+import java.util.Optional;
 
 public enum Sounds {
 
@@ -13,9 +16,12 @@ public enum Sounds {
   PRESSURE_PLATE_DEACTIVATE_SOUND("uisp_WoodBlock2", 0.6f),
   DOOR_OPEN_SOUND("qubodup_DoorOpen", 0.5f),
   DOOR_CLOSE_SOUND("qubodup_DoorClose", 0.5f),
-  DIALOG_SOUND("uisp_Coffee1", 0.5f),
-  NPC_DIE("uisp_Coffee1", 0.5f),
-  NPC_SUCCESS("uisp_Coffee1", 0.5f),
+  NPC_TALK("ad_giant1", 0.2f),
+  NPC_TALK_ALT("ad_giant2", 0.2f),
+  NPC_DIE("ad_giant3", 0.5f),
+  NPC_SUCCESS("ad_giant1", 0.5f),
+
+  FLIP_BOOK_PAGE("flipping_through_book", 1.0f),
 
   TREE_AMBIENT_CREAK("tree_creak", 0.2f),
   ANIMAL_AMBIENT("animal_noise", 0.2f),
@@ -32,8 +38,13 @@ public enum Sounds {
     this.volume = volume;
   }
 
-  public void play() {
-    Game.soundPlayer().play(soundName, volume);
+  public static void random(Sounds... sounds) {
+    int index = (int) (Math.random() * sounds.length);
+    sounds[index].play();
+  }
+
+  public Optional<IPlayHandle> play() {
+    return Game.soundPlayer().play(soundName, volume);
   }
 
 }

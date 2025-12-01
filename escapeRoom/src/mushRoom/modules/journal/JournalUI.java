@@ -9,6 +9,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import core.Game;
+import core.sound.player.IPlayHandle;
+import mushRoom.Sounds;
+
+import java.util.Optional;
 
 public class JournalUI extends Group {
 
@@ -32,6 +36,7 @@ public class JournalUI extends Group {
   private final Array<BookEntry> entries = new Array<>();
   private int currentPageIndex = 0;
   private final Skin skin;
+  private IPlayHandle soundHandle;
 
   public JournalUI(Skin skin, Drawable bookBackground) {
     this.skin = skin;
@@ -136,6 +141,7 @@ public class JournalUI extends Group {
       currentPageIndex += 2;
       refreshPage();
     }
+    playPageFlipSound();
   }
 
   private void prevPage() {
@@ -143,6 +149,15 @@ public class JournalUI extends Group {
       currentPageIndex -= 2;
       refreshPage();
     }
+    playPageFlipSound();
+  }
+
+  private void playPageFlipSound(){
+    if(soundHandle != null && soundHandle.isPlaying()){
+      soundHandle.stop();
+    }
+    Optional<IPlayHandle> handle = Sounds.FLIP_BOOK_PAGE.play();
+    handle.ifPresent(h -> soundHandle = h);
   }
 
   private void refreshPage() {
@@ -188,6 +203,7 @@ public class JournalUI extends Group {
     rightPageContent.row();
 
     Label text = new Label(entry.text, skin, "blank-black");
+    text.setFontScale(0.5f);
     text.setWrap(true);
     text.setAlignment(Align.center);
     rightPageContent.add(text).width(450f).padBottom(30);

@@ -165,7 +165,7 @@ public class MainLevel extends DungeonLevel {
       cc.collideEnter((e, who, d) -> {
         DialogUtils.showTextPopup("Hey warte! Ich hab dir noch was zu sagen...", "Kumpel");
         Game.remove(e);
-        Sounds.DIALOG_SOUND.play();
+        Sounds.random(Sounds.NPC_TALK, Sounds.NPC_TALK_ALT);
       });
       cc.isSolid(false);
       trigger.add(cc);
@@ -581,7 +581,7 @@ public class MainLevel extends DungeonLevel {
     }
 
     if(npcState != NpcState.DEAD){
-      Sounds.DIALOG_SOUND.play();
+      Sounds.random(Sounds.NPC_TALK, Sounds.NPC_TALK_ALT);
     }
   }
 
@@ -649,14 +649,7 @@ public class MainLevel extends DungeonLevel {
     } else if (r < 0.40) {
       Sounds.ANIMAL_AMBIENT.play();
     } else if (r < 0.60) {
-      double rWind = Math.random();
-      if (rWind < 0.33) {
-        Sounds.WIND_AMBIENT_1.play();
-      } else if (rWind < 0.66) {
-        Sounds.WIND_AMBIENT_2.play();
-      } else {
-        Sounds.WIND_AMBIENT_3.play();
-      }
+      Sounds.random(Sounds.WIND_AMBIENT_1, Sounds.WIND_AMBIENT_2, Sounds.WIND_AMBIENT_3);
     }
 
     EventScheduler.scheduleAction(this::playAmbientSound, (long) (Math.random() * 10000 + 10000));

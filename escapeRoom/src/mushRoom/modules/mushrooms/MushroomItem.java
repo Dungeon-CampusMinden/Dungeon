@@ -6,8 +6,6 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 import mushRoom.Sounds;
 
-// Assuming 'Color' is defined or imported, though it is not needed in MushroomItem itself.
-
 public class MushroomItem {
 
   private static final int maxStackSize = 10;
@@ -29,20 +27,17 @@ public class MushroomItem {
     };
   }
 
-  // =========================================================
-  // BASE CLASS
-  // =========================================================
   public abstract static class BaseMushroom extends Item {
 
     private final Mushrooms type;
 
     protected BaseMushroom(Mushrooms type) {
       super(
-          type.getBaseName() + " Mushroom",
-          "A " + type.getBaseName() + " mushroom",
+          type.getName(),
+          type.getDescriptionShort(),
           new Animation(
               new SimpleIPath(
-                  type.getTexturePath())), // Assumes getTexturePath() exists on Mushrooms enum
+                  type.getTexturePath())),
           new Animation(new SimpleIPath(type.getTexturePath())),
           1,
           maxStackSize);
@@ -65,9 +60,7 @@ public class MushroomItem {
     }
   }
 
-  // =========================================================
-  // SUBCLASSES
-  // =========================================================
+  // Specific Mushroom Item Classes
   public static class RedBlueMushroom extends BaseMushroom {
     public RedBlueMushroom() {
       super(Mushrooms.RedBlue);

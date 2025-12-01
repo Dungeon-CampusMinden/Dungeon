@@ -1,6 +1,7 @@
 package starter;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import contrib.entities.CharacterClass;
@@ -10,6 +11,7 @@ import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
+import core.components.InputComponent;
 import core.game.PreRunConfiguration;
 import core.level.loader.DungeonLoader;
 import core.utils.Tuple;
@@ -21,6 +23,7 @@ import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import mushRoom.MainLevel;
+import mushRoom.modules.journal.JournalItem;
 import mushRoom.modules.mushrooms.Mushrooms;
 
 /**
@@ -81,6 +84,9 @@ public class MushRoom {
 
   private static void createHero() {
     Entity hero = EntityFactory.newHero(CharacterClass.MUSHROOM_WIZARD);
+    hero.fetch(InputComponent.class).ifPresent(ic -> {
+      ic.registerCallback(Input.Keys.B, JournalItem::openJournal);
+    });
     Game.add(hero);
   }
 

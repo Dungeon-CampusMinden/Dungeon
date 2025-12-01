@@ -15,13 +15,7 @@ import mushRoom.Sounds;
 
 public class JournalPageFactory {
 
-  private static final String TEXTURE_PATH = "@gen/journal_page.png";
-
-  static {
-    ShaderList shaders = new ShaderList();
-    //    shaders.add("hueRemap", new HueRemapShader(0.0f, 0.33f, 0.05f));
-    TextureGenerator.registerRenderShaderTexture("items/book/red_book.png", TEXTURE_PATH, shaders);
-  }
+  private static final String TEXTURE_PATH = "items/rpg/item_paper.png";
 
   public static Entity createJournalPage(Point position) {
     Entity entity = new Entity();

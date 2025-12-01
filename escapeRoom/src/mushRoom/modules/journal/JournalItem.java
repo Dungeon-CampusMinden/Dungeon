@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
@@ -20,8 +21,7 @@ public class JournalItem extends Item {
 
   private static final int BASE_PAGES_UNLOCKED = 2;
 
-  private static final SimpleIPath inventoryPath = new SimpleIPath("objects/mailbox/mailbox_2.png");
-  private static final SimpleIPath worldPath = new SimpleIPath("objects/mailbox/mailbox_2.png");
+  private static final SimpleIPath inventoryPath = new SimpleIPath("items/rpg/item_book_blue_lines.png");
 
   private int unlockedPages = BASE_PAGES_UNLOCKED;
 
@@ -30,18 +30,28 @@ public class JournalItem extends Item {
         "Notizbuch",
         BASE_PAGES_UNLOCKED + " / 6 Seiten beschrieben",
         new Animation(inventoryPath),
-        new Animation(worldPath),
+        new Animation(inventoryPath),
         1,
         1);
   }
 
   @Override
   public void use(final Entity user) {
-//    DialogUtils.showTextPopup("Dis da journal. Unlocked pages: " + unlockedPages, "Notizbuch");
-    Game.player().ifPresent(this::openJournalUI);
+    Game.player().ifPresent(JournalItem::openJournal);
   }
 
-  private void openJournalUI(Entity p) {
+  public static void openJournal(Entity p) {
+    p.fetch(InventoryComponent.class).ifPresent(ic -> {
+      if (!ic.hasItem(JournalItem.class)) return;
+      ic.itemOfClass(JournalItem.class).ifPresent(i -> {
+        JournalItem journalItem = (JournalItem) i;
+        openJournalUI(p, journalItem.unlockedPages);
+        Sounds.OPEN_INVENTORY_SOUND.play();
+      });
+    });
+  }
+
+  private static void openJournalUI(Entity p, int unlockedPages) {
     Skin skin = UIUtils.defaultSkin();
     Texture bookTex = TextureMap.instance().textureAt(new SimpleIPath("images/open-book.png"));
 
