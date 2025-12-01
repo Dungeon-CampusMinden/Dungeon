@@ -931,4 +931,15 @@ public final class Game {
   public static ISoundPlayer soundPlayer() {
     return GameLoop.soundPlayer();
   }
+
+  /**
+   * Returns whether the game is currently running in headless mode.
+   *
+   * <p>Headless mode means that no graphical context is available (i.e., {@code Gdx.gl} is null).
+   *
+   * @return true if the game is running in headless mode, false otherwise
+   */
+  public static boolean isHeadless() {
+    return Gdx.gl == null || Gdx.graphics == null;
+  }
 }
