@@ -41,14 +41,14 @@ public class Client {
   /** Force to apply for movement of all entities. */
   public static final Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
 
-  private static final boolean DEBUG_MODE = false;
+  private static final boolean DEBUG_MODE = true;
   private static final boolean ACTIVATE_TANKE_CONTROLLS = DEBUG_MODE;
   private static volatile boolean scheduleRestart = false;
 
   private static HttpServer httpServer;
 
   /**
-   * If true, the Web interface Blockly is used for interaction with the Dunogen. Otherwise, the
+   * If true, the Web interface Blockly is used for interaction with the Dungeon. Otherwise, the
    * Code API is used.
    */
   public static boolean runInWeb = false;
