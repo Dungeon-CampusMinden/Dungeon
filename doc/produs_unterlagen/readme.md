@@ -93,4 +93,3 @@ This will open the Blockly web interface.
 2. Edit files in `advancedDungeon/produsAdvanced/riddles` to change puzzles and logic.
 
 * [Solutions](./solution/advancedDungeon)
-* 
