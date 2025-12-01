@@ -80,7 +80,7 @@ public class InventoryComponentTest {
     e.add(ic);
     Item itemData = new Item("Test item", "Test description", new Animation(MISSING_TEXTURE));
     ic.add(itemData);
-    assertTrue(ic.remove(itemData));
+    assertTrue(ic.remove(itemData).isPresent());
 
     assertEquals(0, ic.count());
   }
@@ -94,7 +94,7 @@ public class InventoryComponentTest {
     Item itemData = new Item("Test item", "Test description", new Animation(MISSING_TEXTURE));
     ic.add(itemData);
     ic.remove(itemData);
-    assertFalse(ic.remove(itemData));
+    assertTrue(ic.remove(itemData).isEmpty());
 
     assertEquals(0, ic.count());
   }
@@ -107,7 +107,7 @@ public class InventoryComponentTest {
     e.add(ic);
     Item itemData = new Item("Test item", "Test description", new Animation(MISSING_TEXTURE));
     ic.add(itemData);
-    assertFalse(ic.remove(null));
+    assertTrue(ic.remove(null).isEmpty());
 
     assertEquals(1, ic.count());
   }

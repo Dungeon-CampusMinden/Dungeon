@@ -4,8 +4,11 @@ import contrib.components.*;
 import contrib.components.InventoryComponent;
 import contrib.components.SkillComponent;
 import contrib.components.UIComponent;
+import contrib.hud.IInventoryHolder;
+import contrib.hud.UIUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.item.Item;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.cursorSkill.CursorSkill;
@@ -16,6 +19,7 @@ import core.components.PlayerComponent;
 import core.components.VelocityComponent;
 import core.level.utils.LevelUtils;
 import core.network.messages.c2s.InputMessage;
+import core.network.messages.c2s.InventoryUIMessage;
 import core.network.server.ClientState;
 import core.utils.Direction;
 import core.utils.Point;
@@ -185,6 +189,7 @@ public class HeroController {
       return;
     }
 
+    boolean isUIOpen = false;
     UIComponent uiComponent = hero.fetch(UIComponent.class).orElse(null);
     if (uiComponent != null) {
       if (uiComponent.dialog() instanceof GUICombination) {
@@ -192,7 +197,14 @@ public class HeroController {
       }
     } else {
       hero.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
+      isUIOpen = true;
     }
+    LOGGER.trace("Inventory UI for hero {} is now {}", hero.id(), isUIOpen ? "open" : "closed");
+
+    if (!Game.network().isServer()) {
+      Game.network().send((short) 0, new InventoryUIMessage(isUIOpen), true);
+    }
+    InventoryGUI.setInventoryOpen(hero, isUIOpen);
   }
 
   /**
@@ -203,6 +215,173 @@ public class HeroController {
    */
   public static void enqueueInput(ClientState clientState, InputMessage msg) {
     inputQueue.add(Tuple.of(clientState, msg));
+  }
+
+  /**
+   * Drops the item at the specified inventory slot from the hero entity's inventory.
+   *
+   * @param entity the hero entity dropping the item
+   * @param sourceInv the target inventory component from which to drop the item
+   * @param itemSlot the inventory slot index of the item to drop
+   * @throws IllegalArgumentException if there is no item in the specified slot
+   */
+  public static void dropItem(Entity entity, InventoryComponent sourceInv, int itemSlot) {
+    LOGGER.debug("Entity {} dropping item from slot {}", entity.id(), itemSlot);
+
+    Item item =
+        sourceInv
+            .remove(itemSlot)
+            .orElseThrow(() -> new IllegalArgumentException("No item in slot " + itemSlot));
+
+    Point dropPosition = Game.positionOf(entity).orElseThrow();
+    boolean success = item.drop(dropPosition).isPresent();
+    if (!success) {
+      LOGGER.warn("Failed to drop item {} from slot {} for entity {}", item, itemSlot, entity.id());
+      returnItemToInventory(sourceInv, item, itemSlot, entity);
+    }
+  }
+
+  /**
+   * Moves or swaps an item between two inventory slots. Supports moving items within the player's
+   * own inventory or between the player's inventory and another open inventory (e.g., a chest or
+   * NPC shop).
+   *
+   * <p><b>Parameter encoding:</b>
+   *
+   * <ul>
+   *   <li>Positive slot indices refer to the other inventory (e.g., chest, shop)
+   *   <li>Negative slot indices refer to the player's own inventory, where -1 maps to slot 0, -2 to
+   *       slot 1, etc. (formula: actual slot = -(index + 1))
+   * </ul>
+   *
+   * <p><b>Step-by-step process:</b>
+   *
+   * <ol>
+   *   <li>Validates that the player has a UI component and an accessible inventory
+   *   <li>Retrieves the player's inventory and the other open inventory (if any)
+   *   <li>Decodes the slot indices based on the encoding scheme to determine source and target
+   *       inventories
+   *   <li>Removes the item from the source inventory
+   *   <li>If the target slot is occupied, swaps the items; otherwise, places the item in the target
+   *       slot
+   * </ol>
+   *
+   * @param player the player entity performing the item movement
+   * @param fromSlot the source slot index (negative for player inventory, positive for other)
+   * @param toSlot the target slot index (negative for player inventory, positive for other)
+   * @return true if the move/swap was successful, false otherwise
+   */
+  public static boolean moveItem(Entity player, int fromSlot, int toSlot) {
+    LOGGER.debug("Entity {} moving item from slot {} to slot {}", player.id(), fromSlot, toSlot);
+
+    Optional<UIComponent> uiComp = player.fetch(UIComponent.class);
+    if (uiComp.isEmpty()) {
+      LOGGER.debug("No UI component found for entity {}", player.id());
+      return false;
+    }
+
+    Optional<InventoryComponent> playerInv =
+        InventoryGUI.getPlayerInventoryGUI(player).map(IInventoryHolder::inventoryComponent);
+    if (playerInv.isEmpty()) {
+      LOGGER.debug("No inventory GUI found for entity {}", player.id());
+      return false;
+    }
+
+    Optional<InventoryComponent> otherInv =
+        UIUtils.getInventoriesFromUI(uiComp.get())
+            .filter(inv -> inv != playerInv.get())
+            .findFirst();
+
+    // negative source, mean the player's own inventory
+    // e.g. -1 means slot 0 in player's inventory
+    InventoryComponent source = fromSlot < 0 ? playerInv.get() : otherInv.orElse(playerInv.get());
+    InventoryComponent target = toSlot < 0 ? playerInv.get() : otherInv.orElse(playerInv.get());
+
+    int adjustedFromSlot = fromSlot < 0 ? -(fromSlot + 1) : fromSlot;
+    int adjustedToSlot = toSlot < 0 ? -(toSlot + 1) : toSlot;
+
+    Optional<Item> itemToMove = source.remove(adjustedFromSlot);
+    if (itemToMove.isEmpty()) {
+      LOGGER.debug(
+          "No item in slot {} of source inventory for entity {}", adjustedFromSlot, player.id());
+      return false;
+    }
+
+    target
+        .get(adjustedToSlot)
+        .ifPresentOrElse(
+            existingItem -> {
+              // Slot occupied, swap items
+              source.set(adjustedFromSlot, existingItem);
+              target.set(adjustedToSlot, itemToMove.get());
+              LOGGER.debug(
+                  "Swapped items between inventories in slots {} and {} for entity {}",
+                  adjustedFromSlot,
+                  adjustedToSlot,
+                  player.id());
+            },
+            () -> {
+              target.set(adjustedToSlot, itemToMove.get());
+              LOGGER.debug(
+                  "Moved item to slot {} of target inventory for entity {}",
+                  adjustedToSlot,
+                  player.id());
+            });
+
+    return true;
+  }
+
+  /**
+   * Uses the item at the specified inventory slot for the given entity.
+   *
+   * @param entity the entity using the item
+   * @param itemSlot the inventory slot index of the item to use
+   * @return true if the item was used successfully, false if no item was found in the slot
+   */
+  public static boolean useItem(Entity entity, int itemSlot) {
+    LOGGER.debug("Entity {} using item from slot {}", entity.id(), itemSlot);
+
+    InventoryComponent inventory =
+        entity
+            .fetch(InventoryComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, InventoryComponent.class));
+    Item item = inventory.get(itemSlot).orElse(null);
+    if (item == null) {
+      LOGGER.debug("No item in slot {} for entity {}", itemSlot, entity.id());
+      return false;
+    }
+
+    item.use(entity);
+    return true;
+  }
+
+  /**
+   * Attempts to return the item to the inventory, preferring the original slot if empty.
+   *
+   * <p>If the original slot is occupied, tries to add the item to any available slot. If both
+   * attempts fail, logs an error.
+   *
+   * @param inventory the inventory component
+   * @param item the item to return
+   * @param itemSlot the original slot index
+   * @param entity the entity for logging
+   */
+  private static void returnItemToInventory(
+      InventoryComponent inventory, Item item, int itemSlot, Entity entity) {
+    try {
+      if (inventory.get(itemSlot).isEmpty()) {
+        inventory.set(itemSlot, item);
+      } else if (!inventory.add(item)) {
+        throw new RuntimeException("No space to return item to inventory");
+      }
+    } catch (RuntimeException e) {
+      LOGGER.error(
+          "Failed to return item {} to inventory for entity {}: {}",
+          item,
+          entity.id(),
+          e.getMessage(),
+          e);
+    }
   }
 
   /**
@@ -219,8 +398,8 @@ public class HeroController {
       // TODO: Reconcile inputs based on clientTick vs serverTick and RTT
 
       // Get hero entity
-      Entity entity = clientState.playerEntity().orElse(null);
-      if (entity == null) {
+      Entity playerEntity = clientState.playerEntity().orElse(null);
+      if (playerEntity == null) {
         LOGGER.warn("No hero entity for client {}", clientState);
         continue;
       }
@@ -230,13 +409,37 @@ public class HeroController {
         switch (msg.action()) {
           case MOVE -> {
             CharacterClass heroClass =
-                entity.fetch(CharacterClassComponent.class).orElseThrow().characterClass();
-            HeroController.moveHero(entity, Vector2.of(msg.point()).direction(), heroClass.speed());
+                playerEntity.fetch(CharacterClassComponent.class).orElseThrow().characterClass();
+            HeroController.moveHero(
+                playerEntity, Vector2.of(msg.point()).direction(), heroClass.speed());
           }
-          case CAST_SKILL -> HeroController.useSkill(entity, msg.point());
-          case NEXT_SKILL -> HeroController.changeSkill(entity, true);
-          case PREV_SKILL -> HeroController.changeSkill(entity, false);
-          case INTERACT -> HeroController.interact(entity, msg.point());
+          case CAST_SKILL -> HeroController.useSkill(playerEntity, msg.point());
+          case NEXT_SKILL -> HeroController.changeSkill(playerEntity, true);
+          case PREV_SKILL -> HeroController.changeSkill(playerEntity, false);
+          case INTERACT -> HeroController.interact(playerEntity, msg.point());
+          case INV_DROP -> {
+            Optional<InventoryComponent> invComp =
+                clientState
+                    .playerEntity()
+                    .flatMap(InventoryGUI::getPlayerInventoryGUI)
+                    .map(InventoryGUI::inventoryComponent);
+            if (invComp.isEmpty()) {
+              LOGGER.warn(
+                  "No inventory component found for entity {} to drop item", playerEntity.id());
+              break;
+            }
+            int itemIndex = (int) msg.point().x();
+            HeroController.dropItem(playerEntity, invComp.get(), itemIndex);
+          }
+          case INV_MOVE -> {
+            int fromIndex = (int) msg.point().x();
+            int toIndex = (int) msg.point().y();
+            HeroController.moveItem(playerEntity, fromIndex, toIndex);
+          }
+          case INV_USE -> {
+            int itemIndex = (int) msg.point().x();
+            HeroController.useItem(playerEntity, itemIndex);
+          }
           default -> LOGGER.warn("Unknown action {} for client {}", msg.action(), clientState);
         }
         // On success: Update processed seq and activity

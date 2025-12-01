@@ -13,6 +13,8 @@ import core.level.elements.tile.FloorTile;
 import core.utils.Point;
 import core.utils.components.draw.animation.Animation;
 import core.utils.logging.DungeonLogger;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -33,7 +35,8 @@ import java.util.Random;
  * max stack size is 1 and the default stack size is 1. The values can be changed via the {@link
  * #stackSize()} and {@link #maxStackSize()} methods.
  */
-public class Item implements CraftingIngredient, CraftingResult {
+public class Item implements CraftingIngredient, CraftingResult, Serializable {
+  @Serial private static final long serialVersionUID = 1L;
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Item.class);
 
   /** Random object used to generate random numbers for item related things. */
