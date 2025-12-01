@@ -1,43 +1,25 @@
 package level.portal;
 
-import components.AntiMaterialBarrierComponent;
-import components.LasergridComponent;
-import contrib.components.CollideComponent;
 import contrib.components.LeverComponent;
-import contrib.components.PressurePlateComponent;
-import contrib.components.SkillComponent;
 import contrib.entities.LeverFactory;
 import contrib.entities.MiscFactory;
-import contrib.utils.EntityUtils;
 import contrib.utils.ICommand;
-import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
-import core.utils.components.path.SimpleIPath;
 import entities.AdvancedFactory;
 import entities.LightBridgeFactory;
-import entities.LightWallFactory;
 import entities.TractorBeamFactory;
+import java.util.Map;
 import level.AdvancedLevel;
 import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Level Idee: Spieler, müssen zwei Arten von Platten aktivieren um den Ausgang zu öffnen.
- */
-
+/** Level Idee: Spieler, müssen zwei Arten von Platten aktivieren um den Ausgang zu öffnen. */
 public class PortalLevel_5 extends AdvancedLevel {
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -47,54 +29,58 @@ public class PortalLevel_5 extends AdvancedLevel {
    * @param designLabel The design label for the level.
    * @param namedPoints The custom points of the level.
    */
-
   public PortalLevel_5(
-    LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, "Portal Demo Level");
   }
 
   @Override
   protected void onFirstTick() {
 
-    Game.add(MiscFactory.catapult(namedPoints.get("catapult"), namedPoints.get("catapultMark"), 10));
-    Entity tractorBeam = TractorBeamFactory.createTractorBeam(namedPoints.get("tractorbeam"), Direction.DOWN);
+    Game.add(
+        MiscFactory.catapult(namedPoints.get("catapult"), namedPoints.get("catapultMark"), 10));
+    Entity tractorBeam =
+        TractorBeamFactory.createTractorBeam(namedPoints.get("tractorbeam"), Direction.DOWN);
     Game.add(tractorBeam);
 
     Entity tractorbeamLever1 =
-      LeverFactory.createLever(
-        namedPoints.get("tractorbeamLever1"),
-        new ICommand() {
-          @Override
-          public void execute() {
-            TractorBeamFactory.reverseTractorBeam(tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
-          }
+        LeverFactory.createLever(
+            namedPoints.get("tractorbeamLever1"),
+            new ICommand() {
+              @Override
+              public void execute() {
+                TractorBeamFactory.reverseTractorBeam(
+                    tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+              }
 
-          @Override
-          public void undo() {
-            TractorBeamFactory.reverseTractorBeam(tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
-          }
-        });
+              @Override
+              public void undo() {
+                TractorBeamFactory.reverseTractorBeam(
+                    tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+              }
+            });
     Game.add(tractorbeamLever1);
 
     Entity tractorbeamLever2 =
-      LeverFactory.createLever(
-        namedPoints.get("tractorbeamLever2"),
-        new ICommand() {
-          @Override
-          public void execute() {
-            TractorBeamFactory.reverseTractorBeam(tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
-          }
+        LeverFactory.createLever(
+            namedPoints.get("tractorbeamLever2"),
+            new ICommand() {
+              @Override
+              public void execute() {
+                TractorBeamFactory.reverseTractorBeam(
+                    tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+              }
 
-          @Override
-          public void undo() {
-            TractorBeamFactory.reverseTractorBeam(tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
-          }
-        });
+              @Override
+              public void undo() {
+                TractorBeamFactory.reverseTractorBeam(
+                    tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+              }
+            });
     Game.add(tractorbeamLever2);
 
     Entity exitPlate = AdvancedFactory.cubePressurePlate(namedPoints.get("exitPlate"), 1);
     Game.add(exitPlate);
-
 
     LeverComponent exitPlateLever = exitPlate.fetch(LeverComponent.class).orElse(null);
     if (exitPlateLever != null && exitPlateLever.isOn()) {
@@ -104,7 +90,6 @@ public class PortalLevel_5 extends AdvancedLevel {
       closeDoor(namedPoints.get("door1"));
       closeDoor(namedPoints.get("door2"));
     }
-
 
     Entity catapultPlate = AdvancedFactory.spherePressurePlate(namedPoints.get("catapultPlate"), 1);
     Game.add(catapultPlate);
@@ -119,9 +104,10 @@ public class PortalLevel_5 extends AdvancedLevel {
     Entity cube = AdvancedFactory.attachablePortalCube(namedPoints.get("cube"));
     Game.add(cube);
 
-    //Game.add(AdvancedFactory.antiMaterialBarrier(namedPoints.get("anti6"), true));
+    // Game.add(AdvancedFactory.antiMaterialBarrier(namedPoints.get("anti6"), true));
 
-    Entity emitter = LightBridgeFactory.createEmitter(namedPoints.get("bridge"), Direction.LEFT, true);
+    Entity emitter =
+        LightBridgeFactory.createEmitter(namedPoints.get("bridge"), Direction.LEFT, true);
     Game.add(emitter);
 
     Entity sphere = AdvancedFactory.moveableSphere(namedPoints.get("sphere"));
@@ -129,9 +115,7 @@ public class PortalLevel_5 extends AdvancedLevel {
   }
 
   @Override
-  protected void onTick() {
-
-  }
+  protected void onTick() {}
 
   private void closeDoor(Point position) {
     Tile tile = Game.tileAt(position).orElse(null);
