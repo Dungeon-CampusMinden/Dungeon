@@ -6,6 +6,9 @@ import contrib.components.SkillComponent;
 import contrib.components.UIComponent;
 import contrib.hud.IInventoryHolder;
 import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogType;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
@@ -196,7 +199,12 @@ public class HeroController {
         hero.remove(UIComponent.class);
       }
     } else {
-      hero.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
+      DialogContext context =
+          DialogContext.builder()
+              .type(DialogType.DefaultTypes.INVENTORY)
+              .put(DialogContextKeys.ENTITY, hero)
+              .build();
+      hero.add(new UIComponent(context, true));
       isUIOpen = true;
     }
     LOGGER.trace("Inventory UI for hero {} is now {}", hero.id(), isUIOpen ? "open" : "closed");

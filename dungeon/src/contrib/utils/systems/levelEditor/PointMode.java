@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogType;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import core.level.utils.Coordinate;
@@ -57,9 +58,9 @@ public class PointMode extends LevelEditorMode {
               getLevel().addNamedPoint(string, snapPos);
             };
         DialogFactory.show(
-            DialogFactory.TYPE_FREE_INPUT,
             DialogContext.builder()
-                .title("Add Named Point")
+                .type(DialogType.DefaultTypes.FREE_INPUT)
+                .put(DialogContextKeys.TITLE, "Add Named Point")
                 .put(DialogContextKeys.QUESTION, "Name of new point")
                 .put(DialogContextKeys.INPUT_CALLBACK, handleName)
                 .build());

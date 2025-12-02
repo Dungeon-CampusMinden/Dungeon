@@ -9,10 +9,7 @@ import core.System;
 import core.game.PreRunConfiguration;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * The basic handling of any UIComponent. Adds them to the Stage, updates the Stage each Frame to
@@ -79,6 +76,18 @@ public final class HudSystem extends System {
             .orElseThrow(() -> MissingComponentException.build(entity, UIComponent.class));
     Group dialog = component.dialog();
 
+    // check if we should draw it
+    int[] myIds = Game.allPlayers().mapToInt(Entity::id).toArray();
+    int[] targetIds = component.targetEntityIds();
+
+    // if empty or if our ids are inside targetIds
+    boolean shouldDraw = targetIds.length == 0;
+    if (!shouldDraw)
+      shouldDraw =
+        Arrays.stream(targetIds)
+            .anyMatch(targetId -> Arrays.stream(myIds).anyMatch(myId -> myId == targetId));
+    if (!shouldDraw) return;
+
     Game.stage()
         .ifPresentOrElse(
             stage -> {
@@ -95,9 +104,20 @@ public final class HudSystem extends System {
             });
   }
 
+  /**
+   * Sends the dialog to all connected and relevant clients.
+   *
+   * <p>A dialog is relevant for a client, if the targetEntityIds of the UIComponent contains the id
+   * of an entity controlled by the client or if targetEntityIds is empty (meaning all clients).
+   *
+   * @param entity the entity which owns the UIComponent
+   * @param component the UIComponent to send
+   */
   private void sendDialogToClients(final Entity entity, final UIComponent component) {
-    // TODO
-    java.lang.System.out.println("Sending dialog of entity " + entity.id() + " to clients.");
+    int[] targetIds = component.targetEntityIds();
+    short[] clientIds = new short[] {(short) 0}; // TODO
+
+    for (short clientId : clientIds) {}
   }
 
   private void addMapping(final Entity entity, final Group dialog, final UIComponent component) {
@@ -114,6 +134,8 @@ public final class HudSystem extends System {
   private void addDialogToStage(final Group group, final Stage stage) {
     if (!stage.getActors().contains(group, true)) {
       stage.addActor(group);
+    } else {
+      group.toFront(); // ensure it's on top
     }
   }
 

@@ -29,10 +29,10 @@ final class YesNoDialog {
    */
   static Dialog build(DialogContext context) {
     String text = context.require(DialogContextKeys.MESSAGE, String.class);
-    String title = context.title().orElse("Dialog");
+    String title = context.find(DialogContextKeys.TITLE, String.class).orElse("Dialog");
     IVoidFunction onYes = context.require(DialogContextKeys.ON_YES, IVoidFunction.class);
     IVoidFunction onNo = context.require(DialogContextKeys.ON_NO, IVoidFunction.class);
-    Entity entity = context.requireEntity();
+    Entity entity = context.require(DialogContextKeys.ENTITY, Entity.class);
     Dialog dialog =
         createYesNoDialog(
             context.skin(), text, title, createResultHandlerYesNo(entity, onYes, onNo));

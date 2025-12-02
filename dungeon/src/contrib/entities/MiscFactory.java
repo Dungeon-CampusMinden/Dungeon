@@ -2,12 +2,10 @@ package contrib.entities;
 
 import contrib.components.*;
 import contrib.hud.DialogUtils;
-import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
-import contrib.hud.elements.GUICombination;
-import contrib.hud.inventory.InventoryGUI;
+import contrib.hud.dialogs.DialogType;
 import contrib.item.Item;
 import contrib.item.concreteItem.*;
 import contrib.item.concreteItem.ItemBigKey;
@@ -199,13 +197,13 @@ public final class MiscFactory {
                             .fetch(InventoryComponent.class)
                             .ifPresent(
                                 whoIc -> {
-                                  UIComponent uiComponent =
-                                      new UIComponent(
-                                          new GUICombination(
-                                              new InventoryGUI(whoIc),
-                                              new InventoryGUI(
-                                                  "Chest", ic, INVENTORY_UI_MAX_ITEMS_PER_ROW)),
-                                          true);
+                                  DialogContext context =
+                                      DialogContext.builder()
+                                          .type(DialogType.DefaultTypes.DUAL_INVENTORY)
+                                          .put(DialogContextKeys.ENTITY, interacted)
+                                          .put(DialogContextKeys.SECONDARY_ENTITY, interactor)
+                                          .build();
+                                  UIComponent uiComponent = new UIComponent(context, true);
                                   uiComponent.onClose(
                                       () ->
                                           interacted
@@ -280,9 +278,9 @@ public final class MiscFactory {
                                 }
 
                                 DialogFactory.show(
-                                    DialogFactory.TYPE_YES_NO,
                                     DialogContext.builder()
-                                        .title("Verschlossene Schatzkiste.")
+                                        .type(DialogType.DefaultTypes.YES_NO)
+                                        .put(DialogContextKeys.TITLE, "Verschlossene Schatzkiste.")
                                         .put(
                                             DialogContextKeys.MESSAGE,
                                             "Willst du deinen "
@@ -334,13 +332,15 @@ public final class MiscFactory {
                         who.fetch(InventoryComponent.class)
                             .ifPresent(
                                 ic -> {
-                                  CraftingGUI craftingGUI = new CraftingGUI(invComp, ic);
-                                  UIComponent component =
-                                      new UIComponent(
-                                          new GUICombination(new InventoryGUI(ic), craftingGUI),
-                                          true);
-                                  component.onClose(craftingGUI::cancel);
-                                  who.add(component);
+                                  var context =
+                                      DialogContext.builder()
+                                          .type(DialogType.DefaultTypes.CRAFTING_GUI)
+                                          .put(DialogContextKeys.ENTITY, entity)
+                                          .put(DialogContextKeys.SECONDARY_ENTITY, who)
+                                          .build();
+                                  UIComponent ui = new UIComponent(context, true);
+                                  // ui.onClose(craftingGUI::cancel); // TODO
+                                  who.add(ui);
                                 }))));
     cauldron.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
     return cauldron;
@@ -457,15 +457,13 @@ public final class MiscFactory {
                             .fetch(InventoryComponent.class)
                             .ifPresent(
                                 whoIc -> {
-                                  UIComponent uiComponent =
-                                      new UIComponent(
-                                          new GUICombination(
-                                              new InventoryGUI(whoIc),
-                                              new InventoryGUI(
-                                                  "Cookingpot",
-                                                  ic,
-                                                  INVENTORY_UI_MAX_ITEMS_PER_ROW)),
-                                          true);
+                                  DialogContext context =
+                                      DialogContext.builder()
+                                          .type(DialogType.DefaultTypes.DUAL_INVENTORY)
+                                          .put(DialogContextKeys.ENTITY, interacted)
+                                          .put(DialogContextKeys.SECONDARY_ENTITY, interactor)
+                                          .build();
+                                  UIComponent uiComponent = new UIComponent(context, true);
                                   interactor.add(uiComponent);
                                 }))));
 
@@ -608,9 +606,9 @@ public final class MiscFactory {
                 new Interaction(
                     (entity, entity2) -> {
                       DialogFactory.show(
-                          DialogFactory.TYPE_OK,
                           DialogContext.builder()
-                              .title(title)
+                              .type(DialogType.DefaultTypes.OK)
+                              .put(DialogContextKeys.TITLE, title)
                               .put(DialogContextKeys.MESSAGE, text)
                               .put(DialogContextKeys.ON_CONFIRM, safeOnClose)
                               .build());
@@ -662,9 +660,9 @@ public final class MiscFactory {
                       }
 
                       DialogFactory.show(
-                          DialogFactory.TYPE_YES_NO,
                           DialogContext.builder()
-                              .title("Verschlossene Tür.")
+                              .type(DialogType.DefaultTypes.YES_NO)
+                              .put(DialogContextKeys.TITLE, "Verschlossene Tür.")
                               .put(
                                   DialogContextKeys.MESSAGE,
                                   "Willst du deinen "

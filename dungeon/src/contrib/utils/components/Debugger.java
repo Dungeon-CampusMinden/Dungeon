@@ -1,7 +1,6 @@
 package contrib.utils.components;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
@@ -10,6 +9,7 @@ import contrib.configuration.KeyboardConfig;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogType;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
@@ -31,7 +31,6 @@ import core.systems.CameraSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
@@ -195,15 +194,14 @@ public class Debugger extends System {
   }
 
   private static Entity newPauseMenu() {
-    Tuple<Entity, Dialog> created =
+    Entity entity =
         DialogFactory.show(
-            DialogFactory.TYPE_TEXT,
             DialogContext.builder()
-                .title("Pausemenue")
+                .type(DialogType.DefaultTypes.TEXT)
+                .put(DialogContextKeys.TITLE, "Spiel pausiert")
                 .put(DialogContextKeys.MESSAGE, "Pause")
                 .put(DialogContextKeys.CONFIRM_LABEL, "Weiter")
                 .build());
-    Entity entity = created.a();
     entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
     return entity;
   }

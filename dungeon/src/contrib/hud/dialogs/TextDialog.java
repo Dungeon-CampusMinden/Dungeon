@@ -1,11 +1,7 @@
 package contrib.hud.dialogs;
 
-import static contrib.hud.UIUtils.defaultSkin;
-
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import contrib.components.UIComponent;
-import contrib.hud.UIUtils;
 import core.Entity;
 import core.Game;
 import java.util.Objects;
@@ -57,40 +53,7 @@ final class TextDialog extends Dialog {
   }
 
   /**
-   * Creates a dialog for displaying the text message.
-   *
-   * <p>The entity will already be added to the game.
-   *
-   * @param content Text which should be shown in the body of the dialog.
-   * @param buttonText Text which should be shown in the button for closing the TextDialog.
-   * @param windowText Text which should be shown as the name for the TextDialog.
-   * @return Entity that contains the {@link UIComponent}. The entity will already be added to the
-   *     game by this method.
-   */
-  static Entity textDialog(final String content, final String buttonText, final String windowText) {
-    Entity entity = new Entity("textDialog_" + windowText);
-    UIUtils.show(
-        () -> {
-          Dialog textDialog =
-              createTextDialog(
-                  defaultSkin(),
-                  content,
-                  buttonText,
-                  windowText,
-                  createResultHandler(entity, buttonText));
-          UIUtils.center(textDialog);
-          return textDialog;
-        },
-        entity);
-    Game.add(entity);
-    return entity;
-  }
-
-  /**
    * A simple Text Dialog that shows only the provided string.
-   *
-   * <p>This dialog is only created here, it is not added to the stage or game. Use {@link
-   * #textDialog(String, String, String)} to create and add the dialog to the game.
    *
    * @param skin The style in which the whole dialog should be shown.
    * @param outputMsg The text which should be shown in the middle of the dialog.

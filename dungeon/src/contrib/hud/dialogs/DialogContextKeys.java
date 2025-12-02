@@ -8,10 +8,22 @@ package contrib.hud.dialogs;
  *
  * @see DialogContext
  */
-public final class DialogContextKeys {
+public class DialogContextKeys {
+
+  /** The key for the dialog title content. */
+  public static final String TITLE = "title";
+
+  /** The key for the secondary title content. */
+  public static final String SECONDARY_TITLE = "secondaryTitle";
 
   /** The key for the dialog message content. */
   public static final String MESSAGE = "message";
+
+  /** The key for the associated entity in the dialog context. */
+  public static final String ENTITY = "entity";
+
+  /** The key for a secondary entity in the dialog context. */
+  public static final String SECONDARY_ENTITY = "secondaryEntity";
 
   /** The key for the dialog question content. */
   public static final String QUESTION = "question";
@@ -57,6 +69,12 @@ public final class DialogContextKeys {
 
   /** The key for the result handler callback function. */
   public static final String RESULT_HANDLER = "resultHandler";
+
+  /** The key for the image content in the dialog. */
+  public static final String IMAGE = "image";
+
+  /** The key for the progress bar component in the dialog. */
+  public static final String PROGRESS_BAR = "progressBar";
 
   private DialogContextKeys() {}
 }

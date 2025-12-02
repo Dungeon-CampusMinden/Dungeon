@@ -77,12 +77,12 @@ public class QuizUI {
    *
    * @param question Question to show on the HUD
    * @param resulthandlerLinker callback function
-   * @return the Entity that stores the {@link UIComponent} with the UI-Elements The entity will
-   *     already be added to the game by this method.
+   * @return the Entity that stores the {@link contrib.components.UIComponent} with the UI-Elements
+   *     The entity will already be added to the game by this method.
    */
   public static Entity showQuizDialog(
       Quiz question, Function<Entity, BiFunction<Dialog, String, Boolean>> resulthandlerLinker) {
-    return DialogFactory.showQuizDialog(question, resulthandlerLinker).a();
+    return DialogFactory.showQuizDialog(question, resulthandlerLinker);
   }
 
   /**
@@ -92,8 +92,8 @@ public class QuizUI {
    * <p>Use default callback method, that will delete the hud-entity from the game.
    *
    * @param question Question to show on the HUD
-   * @return the Entity that stores the {@link UIComponent} with the UI-Elements The entity will
-   *     already be added to the game by this method.
+   * @return the Entity that stores the {@link contrib.components.UIComponent} with the UI-Elements
+   *     The entity will already be added to the game by this method.
    */
   public static Entity showQuizDialog(Quiz question) {
     return showQuizDialog(

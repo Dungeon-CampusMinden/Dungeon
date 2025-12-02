@@ -11,16 +11,12 @@ import core.Entity;
 import core.Game;
 import java.util.function.Consumer;
 
-/**
- * A dialog helper for collecting free-form text input from the player.
- *
- * <p>Use {@link #showTextInputDialog(String, String, Consumer)} to create and add a HUD-Entity to
- * the game that shows a modal dialog with a question, a text field, and OK/Cancel buttons.
- */
 final class FreeInputDialog {
 
+  private static final String TITLE_DEFAULT = "Frage";
   private static final String OK_BUTTON = "OK";
   private static final String CANCEL_BUTTON = "Abbrechen";
+  private static final String INPUT_PLACEHOLDER_DEFAULT = "Deine Antwort…";
 
   private FreeInputDialog() {}
 
@@ -28,15 +24,14 @@ final class FreeInputDialog {
    * Creates and shows a text input dialog with the given title and question. The dialog is added as
    * a HUD-Entity to the game and is displayed on the screen.
    *
-   * @param title The window title shown at the top of the dialog.
-   * @param question The prompt text displayed above the input field.
-   * @param callback A consumer that receives the player's answer (trimmed) or null.
+   * @param context The dialog context containing the title, question, callback, and other settings.
+   * @return The created Dialog instance.
    */
   static Dialog build(DialogContext context) {
-    String title = context.titleOrDefault("Frage");
+    String title = context.find(DialogContextKeys.TITLE, String.class).orElse(TITLE_DEFAULT);
     String question = context.require(DialogContextKeys.QUESTION, String.class);
     Consumer<String> callback = context.require(DialogContextKeys.INPUT_CALLBACK, Consumer.class);
-    Entity uiEntity = context.requireEntity();
+    Entity uiEntity = context.require(DialogContextKeys.ENTITY, Entity.class);
     Skin skin = context.skin();
     Dialog dialog = buildDialog(title, question, callback, uiEntity, skin, context);
     dialog.setSize(700, 350);
@@ -65,7 +60,9 @@ final class FreeInputDialog {
     TextField input =
         new TextField(context.find(DialogContextKeys.INPUT_PREFILL, String.class).orElse(""), skin);
     input.setMessageText(
-        context.find(DialogContextKeys.INPUT_PLACEHOLDER, String.class).orElse("Deine Antwort…"));
+        context
+            .find(DialogContextKeys.INPUT_PLACEHOLDER, String.class)
+            .orElse(INPUT_PLACEHOLDER_DEFAULT));
 
     Dialog dialog =
         new Dialog(title, skin) {

@@ -1,6 +1,8 @@
 package contrib.components;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogFactory;
 import core.Component;
 import core.utils.IVoidFunction;
 
@@ -11,42 +13,55 @@ import core.utils.IVoidFunction;
  * <p>Also allows to define whether the Elements are pausing the Game or not.
  */
 public final class UIComponent implements Component {
-  private final Group dialog;
   private final boolean willPauseGame;
   private final boolean canBeClosed;
+  private final int[] targetEntityIds;
+  private final DialogContext dialogContext;
+  private Group dialog = null;
   private IVoidFunction onClose = () -> {};
 
   /**
    * Create a new UIComponent.
    *
-   * @param dialog a Group of Elements which should be shown
+   * @param dialogContext the context that defines the dialog to be shown
    * @param willPauseGame if the UI should pause the Game or not
    * @param canBeClosed if the UI can be closed (e.g. with the close key)
+   * @param targetEntityIds the target entity ids this UI should be shown for (e.g. for inventory
+   *     UIs). Empty array for all entities.
    */
-  public UIComponent(final Group dialog, boolean willPauseGame, boolean canBeClosed) {
-    this.dialog = dialog;
+  public UIComponent(
+      DialogContext dialogContext,
+      boolean willPauseGame,
+      boolean canBeClosed,
+      int[] targetEntityIds) {
+    this.dialogContext = dialogContext;
     this.willPauseGame = willPauseGame;
     this.canBeClosed = canBeClosed;
+    this.targetEntityIds = targetEntityIds;
   }
 
   /**
    * Create a new UIComponent.
    *
-   * @param dialog a Group of Elements which should be shown
+   * @param dialogContext the context that defines the dialog to be shown
+   * @param willPauseGame if the UI should pause the Game or not
+   * @param targetEntityIds the target entity ids this UI should be shown for (e.g. for inventory
+   *     UIs). Empty array for all entities.
+   */
+  public UIComponent(DialogContext dialogContext, boolean willPauseGame, int[] targetEntityIds) {
+    this(dialogContext, willPauseGame, true, targetEntityIds);
+  }
+
+  /**
+   * Create a new UIComponent.
+   *
+   * <p>By default no target entity ids are set, meaning the UI will be shown for all entities.
+   *
+   * @param dialogContext the context that defines the dialog to be shown
    * @param willPauseGame if the UI should pause the Game or not
    */
-  public UIComponent(final Group dialog, boolean willPauseGame) {
-    this(dialog, willPauseGame, true);
-  }
-
-  /**
-   * Create a new UIComponent.
-   *
-   * <p>Creates an Empty Group which can be populated with Elements and pauses the Game when
-   * visible.
-   */
-  public UIComponent() {
-    this(new Group(), true);
+  public UIComponent(DialogContext dialogContext, boolean willPauseGame) {
+    this(dialogContext, willPauseGame, new int[] {});
   }
 
   /**
@@ -65,15 +80,6 @@ public final class UIComponent implements Component {
    */
   public boolean willPauseGame() {
     return willPauseGame;
-  }
-
-  /**
-   * Get the dialog to show on the screen.
-   *
-   * @return the UI Elements which should be shown
-   */
-  public Group dialog() {
-    return dialog;
   }
 
   /**
@@ -103,5 +109,37 @@ public final class UIComponent implements Component {
    */
   public void onClose(IVoidFunction onClose) {
     this.onClose = onClose;
+  }
+
+  /**
+   * Get the target entity ids this UI should be shown for.
+   *
+   * @return the target entity ids
+   */
+  public int[] targetEntityIds() {
+    return targetEntityIds;
+  }
+
+  /**
+   * Get the dialog context, which defines the dialog to be shown.
+   *
+   * @return the dialog context
+   */
+  public DialogContext dialogContext() {
+    return dialogContext;
+  }
+
+  /**
+   * Get the dialog Group.
+   *
+   * <p>Creates the dialog if it does not exist yet.
+   *
+   * @return the dialog Group
+   */
+  public Group dialog() {
+    if (dialog == null) {
+      dialog = DialogFactory.create(dialogContext);
+    }
+    return dialog;
   }
 }

@@ -5,6 +5,7 @@ import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogType;
 import contrib.utils.components.showImage.ShowImageUI;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.Entity;
@@ -52,13 +53,12 @@ public class DialogUtils {
     title = title.replaceAll("\\s+", " ").trim();
     text = text.replaceAll("\\s+", " ").trim();
     return DialogFactory.show(
-            DialogFactory.TYPE_OK,
-            DialogContext.builder()
-                .title(title)
-                .put(DialogContextKeys.MESSAGE, text)
-                .put(DialogContextKeys.ON_CONFIRM, onFinished)
-                .build())
-        .a();
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.OK)
+            .put(DialogContextKeys.TITLE, title)
+            .put(DialogContextKeys.MESSAGE, text)
+            .put(DialogContextKeys.ON_CONFIRM, onFinished)
+            .build());
   }
 
   /**
@@ -120,7 +120,12 @@ public class DialogUtils {
     Entity e = new Entity();
     ShowImageComponent sic = new ShowImageComponent(imagePath);
     sic.transitionSpeed(speed);
-    UIComponent ui = new UIComponent(new ShowImageUI(sic), true, true);
+    DialogContext context =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.IMAGE)
+            .put(DialogContextKeys.IMAGE, sic)
+            .build();
+    UIComponent ui = new UIComponent(context, true, true, new int[] {});
     ui.onClose(onClose);
     e.add(ui);
     Game.add(e);

@@ -4,9 +4,11 @@ import static contrib.hud.UIUtils.defaultSkin;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import contrib.components.UIComponent;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogType;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -52,9 +54,13 @@ public final class AttributeBarUtil {
     ProgressBar bar = createBar(pc, styleName, verticalOffset);
 
     Entity barEntity = new Entity(NEXT_ID++, styleName + "_" + entity.id());
-    Container<ProgressBar> container = new Container<>(bar);
-    container.setLayoutEnabled(false);
-    barEntity.add(new UIComponent(container, false, false));
+
+    DialogContext context =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.PROGRESS_BAR)
+            .put(DialogContextKeys.PROGRESS_BAR, bar)
+            .build();
+    barEntity.add(new UIComponent(context, false, false, new int[] {}));
     Game.add(barEntity);
 
     barMapping.put(entity.id(), bar);

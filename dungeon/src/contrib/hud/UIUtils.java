@@ -2,22 +2,19 @@ package contrib.hud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.elements.GUICombination;
-import core.Entity;
 import core.Game;
-import core.components.PlayerComponent;
-import core.utils.IVoidFunction;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.function.Supplier;
+import core.utils.logging.DungeonLogger;
 import java.util.stream.Stream;
 
 /** UI utility functions, such as a formatter for the window or dialog. */
 public final class UIUtils {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(UIUtils.class.getName());
 
   /** The default UI-Skin. */
   private static final IPath SKIN_FOR_DIALOG = new SimpleIPath("skin/uiskin.json");
@@ -60,34 +57,6 @@ public final class UIUtils {
    * <p>No need for {@code System.lineSeparator()} as libGDX wants {@code '\n'}
    */
   private static final char LS = '\n';
-
-  /**
-   * Show the given dialog on the screen.
-   *
-   * @param provider Returns the dialog.
-   * @param entity Entity that stores the {@link UIComponent} with the UI elements.
-   */
-  public static void show(final Supplier<Dialog> provider, final Entity entity) {
-    // displays this dialog, caches the dialog callback, and increments and decrements the dialog
-    Game.player()
-        .flatMap(player -> player.fetch(PlayerComponent.class))
-        .ifPresent(
-            playerPC -> {
-              // counter so that the inventory is not opened while the dialog is displayed
-              playerPC.incrementOpenDialogs();
-
-              UIComponent ui = new UIComponent(provider.get(), true);
-              IVoidFunction oldOnClose = ui.onClose();
-
-              ui.onClose(
-                  () -> {
-                    playerPC.decrementOpenDialogs();
-                    oldOnClose.execute();
-                  });
-
-              entity.add(ui);
-            });
-  }
 
   /**
    * Centers the actor based on the current window width and height.

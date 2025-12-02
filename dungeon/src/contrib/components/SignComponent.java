@@ -3,6 +3,7 @@ package contrib.components;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogType;
 import core.Component;
 import core.Entity;
 import core.utils.Point;
@@ -87,12 +88,11 @@ public class SignComponent implements Component {
    */
   public Entity showDialog() {
     return DialogFactory.show(
-            DialogFactory.TYPE_OK,
-            DialogContext.builder()
-                .title(this.title)
-                .put(DialogContextKeys.MESSAGE, this.text)
-                .build())
-        .a();
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.OK)
+            .put(DialogContextKeys.TITLE, this.title)
+            .put(DialogContextKeys.MESSAGE, this.text)
+            .build());
   }
 
   @Override

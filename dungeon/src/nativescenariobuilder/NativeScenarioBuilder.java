@@ -4,8 +4,10 @@ import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.entities.EntityFactory;
 import contrib.entities.WorldItemBuilder;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
-import contrib.hud.elements.GUICombination;
+import contrib.hud.dialogs.DialogType;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
@@ -158,8 +160,14 @@ public class NativeScenarioBuilder {
         inventory = new InventoryGUI(content + " (Quest: '" + task.taskName() + "')", chestIc);
       }
 
-      UIComponent uiComponent =
-          new UIComponent(new GUICombination(new InventoryGUI(otherIc), inventory), true);
+      DialogContext context =
+          DialogContext.builder()
+              .type(DialogType.DefaultTypes.DUAL_INVENTORY)
+              .put(DialogContextKeys.ENTITY, chestIc)
+              .put(DialogContextKeys.SECONDARY_ENTITY, otherIc)
+              .put(DialogContextKeys.TITLE, inventory.title())
+              .build();
+      UIComponent uiComponent = new UIComponent(context, true);
       other.add(uiComponent);
 
       chest
