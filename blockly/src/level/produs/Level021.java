@@ -58,11 +58,16 @@ public class Level021 extends BlocklyLevel {
         // Kategorien
         "Sonstige");
 
-    addWebPopup(new ImagePopup("popups/level021/intro.png"));
+    addWebPopup(new ImagePopup("popups/level021/01_intro.png"));
   }
 
   @Override
   protected void onFirstTick() {
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
+
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(15, 11));
     LevelManagementUtils.centerHero();
@@ -114,11 +119,6 @@ public class Level021 extends BlocklyLevel {
     playerPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-
-    if (showText) {
-      showPopups();
-      showText = false;
-    }
   }
 
   @Override
