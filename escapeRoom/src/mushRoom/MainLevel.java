@@ -39,10 +39,13 @@ import java.util.stream.IntStream;
 import mushRoom.modules.items.AxeItem;
 import mushRoom.modules.items.CustomHammerItem;
 import mushRoom.modules.items.LanternItem;
+import mushRoom.modules.items.MagicLensItem;
 import mushRoom.modules.journal.JournalItem;
 import mushRoom.modules.journal.JournalPageFactory;
 import mushRoom.modules.mushrooms.MushroomItem;
 import mushRoom.modules.mushrooms.Mushrooms;
+import mushRoom.shaders.MagicLensLayerShader;
+import mushRoom.shaders.MagicLensPpShader;
 import mushRoom.shaders.MushroomPostProcessing;
 
 /** The MushRoom. */
@@ -105,6 +108,9 @@ public class MainLevel extends DungeonLevel {
             new ColorGradeShader(0.5f, 0.1f, 0.6f)
                 .region(new Rectangle(getPoint("gray-start"), getPoint("gray-end")))
                 .transitionSize(5));
+
+    MagicLensItem.addMagicLensShaders();
+    Game.add(WorldItemBuilder.buildWorldItem(new MagicLensItem(), getPoint("magic-lens")));
 
     Point homeStart = getPoint("home-start");
     Point homeEnd = getPoint("home-end");
@@ -639,7 +645,9 @@ public class MainLevel extends DungeonLevel {
     int x = runeIndex % cols;
     int y = runeIndex / cols;
 
-    return new DrawComponent(new SimpleIPath("spritesheets/runes.png"), new SpritesheetConfig(x * 16, y * 16, 1, 1));
+    DrawComponent dc = new DrawComponent(new SimpleIPath("spritesheets/runes.png"), new SpritesheetConfig(x * 16, y * 16, 1, 1));
+    dc.depth(DepthLayer.Player.depth() - 10);
+    return dc;
   }
 
   private void playAmbientSound() {
@@ -654,4 +662,5 @@ public class MainLevel extends DungeonLevel {
 
     EventScheduler.scheduleAction(this::playAmbientSound, (long) (Math.random() * 10000 + 10000));
   }
+
 }

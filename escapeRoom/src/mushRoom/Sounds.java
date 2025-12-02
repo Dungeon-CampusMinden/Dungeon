@@ -8,7 +8,7 @@ import java.util.Optional;
 public enum Sounds {
 
   KEY_ITEM_PICKUP_SOUND("uisp_African4", 1.0f),
-  MUSHROOM_PICKUP_SOUND("uisp_Abstract1", 0.5f),
+  MUSHROOM_PICKUP_SOUND("uisp_Abstract1", 0.8f),
   BREAK_STONE_SOUND("uisp_African2", 0.7f),
   BREAK_TREE_SOUND("multiple_cracks_2", 0.8f),
   OPEN_INVENTORY_SOUND("uisp_African2", 0.5f),
@@ -22,6 +22,7 @@ public enum Sounds {
   NPC_SUCCESS("ad_giant1", 0.5f),
 
   FLIP_BOOK_PAGE("flipping_through_book", 1.0f),
+  MAGIC_LENS_ACTIVATED("ad_spell", 0.2f),
 
   TREE_AMBIENT_CREAK("tree_creak", 0.2f),
   ANIMAL_AMBIENT("animal_noise", 0.2f),

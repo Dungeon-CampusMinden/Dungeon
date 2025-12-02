@@ -23,6 +23,7 @@ import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import mushRoom.MainLevel;
+import mushRoom.modules.items.MagicLensItem;
 import mushRoom.modules.journal.JournalItem;
 import mushRoom.modules.mushrooms.Mushrooms;
 
@@ -85,7 +86,8 @@ public class MushRoom {
   private static void createHero() {
     Entity hero = EntityFactory.newHero(CharacterClass.MUSHROOM_WIZARD);
     hero.fetch(InputComponent.class).ifPresent(ic -> {
-      ic.registerCallback(Input.Keys.B, JournalItem::openJournal);
+      ic.registerCallback(Input.Keys.B, JournalItem::openJournal, false, false);
+      ic.registerCallback(Input.Keys.V, MagicLensItem::toggleMagicLens, false, false);
     });
     Game.add(hero);
   }
