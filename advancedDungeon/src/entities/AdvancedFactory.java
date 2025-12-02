@@ -36,6 +36,7 @@ import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import produsAdvanced.abstraction.portals.PortalFactory;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
 import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 import skills.EnergyPelletSkill;
@@ -164,11 +165,13 @@ public class AdvancedFactory {
   public static CollideComponent getCollideComponent() {
     TriConsumer<Entity, Entity, Direction> action =
         (self, other, direction) -> {
+          String otherEntityName = other.name();
           if (other.isPresent(PlayerComponent.class)) {
-            // TODO: clearAllPortals() aufrufen, sobald es wieder funktioniert
-            // PortalFactory.clearAllPortals();
+            PortalFactory.clearAllPortals();
           } else if (other.isPresent(TractorBeamComponent.class)
-              || other.isPresent(PortalExtendComponent.class)) {
+              || other.isPresent(PortalExtendComponent.class)
+              || (otherEntityName.contains("energyPelletLauncher")
+                  && otherEntityName.contains("skill_projectile"))) {
             // do nothing
           } else {
             Game.remove(other);
