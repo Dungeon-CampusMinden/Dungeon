@@ -95,11 +95,17 @@ public class Level020 extends BlocklyLevel {
         // Kategorien
         "Sonstige");
 
-    addWebPopup(new ImagePopup("popups/level020/intro.png"));
+    addWebPopup(new ImagePopup("popups/level020/01_intro.png"));
   }
 
   @Override
   protected void onFirstTick() {
+
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
+
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(CAMERA_POINT);
     LevelManagementUtils.centerHero();
@@ -135,11 +141,6 @@ public class Level020 extends BlocklyLevel {
               ((PitTile) tile).timeToOpen(PIT_TIME_TO_OPEN_IN_MS);
               ((PitTile) tile).close();
             });
-
-    if (showText) {
-      showPopups();
-      showText = false;
-    }
   }
 
   @Override

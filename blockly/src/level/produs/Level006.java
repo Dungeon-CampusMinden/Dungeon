@@ -21,7 +21,6 @@ import level.LevelManagementUtils;
  * player must push two stones onto pressure plates to unlock the exit.
  */
 public class Level006 extends BlocklyLevel {
-  private static boolean showText = true;
   private DoorTile door;
   private LeverComponent switch1, switch2;
 
@@ -52,17 +51,11 @@ public class Level006 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
-
-    addWebPopup(new ImagePopup("popups/level006/intro.png"));
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    if (showText) {
-      showPopups();
-      showText = false;
-    }
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.playerViewDirection(Direction.RIGHT);

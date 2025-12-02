@@ -42,7 +42,7 @@ public class Level002 extends BlocklyLevel {
         "Bedingungen",
         "Sonstige");
 
-    addWebPopup(new ImagePopup("popups/level002/intro.png"));
+    addWebPopup(new ImagePopup("popups/level002/01_intro.png"));
   }
 
   @Override
@@ -54,6 +54,7 @@ public class Level002 extends BlocklyLevel {
     LevelManagementUtils.zoomDefault();
     if (showText) {
       showPopups();
+      showText = false;
     }
 
     BlocklyMonster.GUARD

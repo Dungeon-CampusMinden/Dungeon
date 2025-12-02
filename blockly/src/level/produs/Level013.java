@@ -63,20 +63,25 @@ public class Level013 extends BlocklyLevel {
         "Variablen",
         "Sonstige");
 
-    addWebPopup(new ImagePopup("popups/level012/Abfrage.png"));
-    addWebPopup(new ImagePopup("popups/level012/Abfrage2.png"));
-    addWebPopup(new ImagePopup("popups/level012/Abfrage3.png"));
-    addWebPopup(new ImagePopup("popups/level012/Abfrage4.png"));
+    addWebPopup(new ImagePopup("popups/level013/01_Abfrage.png"));
+    addWebPopup(new ImagePopup("popups/level013/02_Abfrage.png"));
+    addWebPopup(new ImagePopup("popups/level013/03_Abfrage.png"));
+    addWebPopup(new ImagePopup("popups/level013/04_Abfrage.png"));
   }
 
   @Override
   protected void onFirstTick() {
+
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
+
     LevelManagementUtils.fog(false);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.playerViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
-    showPopups();
 
     // create torches and light every second one
     final boolean[] coin = {new Random().nextBoolean()};
