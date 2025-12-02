@@ -32,7 +32,7 @@ public class PortalSkill extends ProjectileSkill {
 
   /* Projectile characteristics */
   private static final float SPEED = 13f;
-  private static final float RANGE = 10f;
+  private static final float RANGE = Integer.MAX_VALUE;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(0.5, 0.5);
   private static final Vector2 HIT_BOX_OFFSET = Vector2.of(0.25, 0.25);
   private static final long COOLDOWN = 500;
