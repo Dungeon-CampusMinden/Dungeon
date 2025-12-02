@@ -40,7 +40,7 @@ After installing everything:
 3. Run the basic starter game with:
 
    ```bash
-   gradlew.bat runBasicStarter
+   .\gradlew.bat runBasicStarter
    ```
 or 
    ```bash
