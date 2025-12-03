@@ -20,6 +20,9 @@ import java.util.Optional;
  */
 public class LevelHideSystem extends System {
 
+  private static final String SOUND_HIDE = "virix_MENU_B_Select";
+  private static final String SOUND_SHOW = "virix_MENU_B_Back";
+
   private Point lastPlayerPosition = null;
   private static int entityIdCounter = 0;
   private final Map<Data, Integer> trackedEntities = new HashMap<>();
@@ -86,8 +89,10 @@ public class LevelHideSystem extends System {
     boolean isInside = region.contains(currentPos);
 
     if (!wasInside && isInside) {
+      Game.soundPlayer().play(SOUND_SHOW, 0.05f);
       lhs.hiding(false);
     } else if (wasInside && !isInside) {
+      Game.soundPlayer().play(SOUND_HIDE, 0.05f);
       lhs.hiding(true);
     }
   }
