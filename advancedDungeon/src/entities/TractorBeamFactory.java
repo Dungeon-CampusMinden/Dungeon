@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import produsAdvanced.abstraction.portals.components.PortalComponent;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
+import produsAdvanced.abstraction.portals.components.PortalIgnoreComponent;
 import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 
 /**
@@ -239,7 +240,9 @@ public class TractorBeamFactory {
    * @return the beam emitter entity
    */
   public Entity createBeamEmitter(Point spawnPoint, Direction direction) {
+
     Entity beamEmitter = new Entity("beamEmitter");
+    beamEmitter.add(new PortalIgnoreComponent());
     beamEmitter.add(new PositionComponent(spawnPoint));
     beamEmitter.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(direction)));
     beamEmitter.fetch(PositionComponent.class).ifPresent(pc -> pc.viewDirection(direction));

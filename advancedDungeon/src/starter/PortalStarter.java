@@ -53,9 +53,10 @@ public class PortalStarter {
     Game.userOnSetup(
         () -> {
           // setupMusic();
+          DungeonLoader.addLevel(Tuple.of("PortalDemo", PortalDemoLevel.class));
           DungeonLoader.addLevel(Tuple.of("portallevel4", PortalLevel_4.class));
           DungeonLoader.addLevel(Tuple.of("portallevel5", PortalLevel_5.class));
-          DungeonLoader.addLevel(Tuple.of("PortalDemo", PortalDemoLevel.class));
+
           createSystems();
           createHero();
           DungeonLoader.loadLevel(START_LEVEL);

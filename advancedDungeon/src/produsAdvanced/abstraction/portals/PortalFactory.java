@@ -3,6 +3,7 @@ package produsAdvanced.abstraction.portals;
 import contrib.components.CollideComponent;
 import contrib.components.ProjectileComponent;
 import contrib.components.SkillComponent;
+import contrib.systems.EventScheduler;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
@@ -41,7 +42,8 @@ public class PortalFactory {
   private static SimpleIPath BLUE_PORTAL_TEXTURE = new SimpleIPath("portal/blue_portal");
   private static SimpleIPath GREEN_PORTAL_TEXTURE = new SimpleIPath("portal/green_portal");
 
-  private static float DISTANCE_AFTER_TELEPORT = 1.65f;
+  private static int portalDelay = 2000;
+
 
   /**
    * Creates a portal of the given color at the specified position.
@@ -179,6 +181,10 @@ public class PortalFactory {
    * @param direction the direction the collision is currently having.
    */
   private static void onHoldGreen(Entity portal, Entity other, Direction direction) {
+    if (other.fetch(PortalIgnoreComponent.class).isPresent()) {
+      return;
+    }
+
     PositionComponent portalPositionComponent = portal.fetch(PositionComponent.class).get();
     PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
 
@@ -197,7 +203,20 @@ public class PortalFactory {
               .fetch(PositionComponent.class)
               .get()
               .position()
-              .translate(bluePortalDirection.scale(DISTANCE_AFTER_TELEPORT)));
+              .translate(bluePortalDirection));
+          other.add(new PortalIgnoreComponent());
+          EventScheduler.scheduleAction(() -> {
+            other.remove(PortalIgnoreComponent.class);
+          },portalDelay);
+
+      other
+        .fetch(VelocityComponent.class)
+        .ifPresent(
+          vc -> {
+            vc.clearForces();
+            vc.currentVelocity(Vector2.ZERO);
+          });
+
       if (Game.player().get().name().equals(other.name())) {
         handleRotation(other, PortalColor.GREEN);
       }
@@ -213,6 +232,9 @@ public class PortalFactory {
    * @param direction the direction the collision is currently having.
    */
   private static void onHoldBlue(Entity portal, Entity other, Direction direction) {
+    if (other.fetch(PortalIgnoreComponent.class).isPresent()) {
+      return;
+    }
     PositionComponent portalPositionComponent = portal.fetch(PositionComponent.class).get();
     PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
 
@@ -231,7 +253,20 @@ public class PortalFactory {
               .fetch(PositionComponent.class)
               .get()
               .position()
-              .translate(greenPortalDirection.scale(DISTANCE_AFTER_TELEPORT)));
+              .translate(greenPortalDirection));
+
+          other.add(new PortalIgnoreComponent());
+          EventScheduler.scheduleAction(() -> {
+            other.remove(PortalIgnoreComponent.class);
+          },portalDelay);
+
+      other
+        .fetch(VelocityComponent.class)
+        .ifPresent(
+          vc -> {
+            vc.clearForces();
+            vc.currentVelocity(Vector2.ZERO);
+          });
       if (Game.player().get().name().equals(other.name())) {
         handleRotation(other, PortalColor.BLUE);
       }
@@ -293,9 +328,7 @@ public class PortalFactory {
    * @param dir the direction of collision
    */
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
-    if (other.fetch(PortalIgnoreComponent.class).isPresent()) {
-      return;
-    }
+
 
     PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
     PositionComponent portalPositionComponent = portal.fetch(PositionComponent.class).get();
@@ -315,6 +348,10 @@ public class PortalFactory {
       return;
     }
 
+    if (other.fetch(PortalIgnoreComponent.class).isPresent()) {
+      return;
+    }
+
     if (getBluePortal().isPresent() && !isEntityPortal(other)) {
       if (Game.player().isPresent()
           && Game.player().get().name().equals(other.name())
@@ -331,8 +368,23 @@ public class PortalFactory {
               .fetch(PositionComponent.class)
               .get()
               .position()
-              .translate(bluePortalDirection.scale(DISTANCE_AFTER_TELEPORT)));
+              .translate(bluePortalDirection));
+
+          other.add(new PortalIgnoreComponent());
+          EventScheduler.scheduleAction(() -> {
+            other.remove(PortalIgnoreComponent.class);
+          },portalDelay);
+
+
+      other
+        .fetch(VelocityComponent.class)
+        .ifPresent(
+          vc -> {
+            vc.clearForces();
+            vc.currentVelocity(Vector2.ZERO);
+          });
       if (Game.player().get().name().equals(other.name())) {
+
         handleRotation(other, PortalColor.GREEN);
       }
 
@@ -351,9 +403,7 @@ public class PortalFactory {
    * @param dir the direction of collision
    */
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
-    if (other.fetch(PortalIgnoreComponent.class).isPresent()) {
-      return;
-    }
+
 
     PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
     PositionComponent portalPositionComponent = portal.fetch(PositionComponent.class).get();
@@ -373,6 +423,12 @@ public class PortalFactory {
       return;
     }
 
+    if (other.fetch(PortalIgnoreComponent.class).isPresent()) {
+      return;
+    }
+
+
+
     if (getGreenPortal().isPresent() && !isEntityPortal(other)) {
       if (Game.player().isPresent()
           && Game.player().get().name().equals(other.name())
@@ -389,7 +445,20 @@ public class PortalFactory {
               .fetch(PositionComponent.class)
               .get()
               .position()
-              .translate(greenPortalDirection.scale(DISTANCE_AFTER_TELEPORT)));
+              .translate(greenPortalDirection));
+          other.add(new PortalIgnoreComponent());
+          EventScheduler.scheduleAction(() -> {
+            other.remove(PortalIgnoreComponent.class);
+          },portalDelay);
+
+            other
+              .fetch(VelocityComponent.class)
+              .ifPresent(
+                vc -> {
+                  vc.clearForces();
+                  vc.currentVelocity(Vector2.ZERO);
+                });
+
       if (Game.player().get().name().equals(other.name())) {
         handleRotation(other, PortalColor.BLUE);
       }
@@ -406,6 +475,7 @@ public class PortalFactory {
    * @param color the output portal.
    */
   private static void handleRotation(Entity other, PortalColor color) {
+
     PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
     Direction blueDirection =
         getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
@@ -496,9 +566,9 @@ public class PortalFactory {
    */
   private static CollideComponent setCollideComponent(
       Direction dir, TriConsumer<Entity, Entity, Direction> onCollideEnter) {
-    double offsetX = -0.2;
+    double offsetX = 0;
     double offsetY = 0.7;
-    double hitboxX = 1.4;
+    double hitboxX = 1;
     double hitboxY = 0.7;
 
     Vector2 offset;
