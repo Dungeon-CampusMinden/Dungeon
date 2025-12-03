@@ -277,6 +277,9 @@ public class TractorBeamFactory {
               .fetch(VelocityComponent.class)
               .ifPresent(
                   vc -> {
+                    if(!you.fetch(TractorBeamComponent.class).get().isActive()) {
+                      return;
+                    }
                     if (other.isPresent(PortalComponent.class)) {
                       return;
                     }
