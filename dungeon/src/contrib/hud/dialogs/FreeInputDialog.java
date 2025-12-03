@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.Align;
-import contrib.hud.UIUtils;
 import core.Entity;
 import core.Game;
 import java.util.function.Consumer;
@@ -97,7 +96,6 @@ final class FreeInputDialog {
         context.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(CANCEL_BUTTON);
     dialog.button(okLabel, okLabel);
     dialog.button(cancelLabel, cancelLabel);
-    UIUtils.center(dialog);
 
     return dialog;
   }

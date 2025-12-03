@@ -101,7 +101,11 @@ public class DialogFactory {
       throw new DialogCreationException(
           "Unknown dialog dialogType: " + context.dialogType().type());
     }
-    return creator.apply(context);
+    var dialog = creator.apply(context);
+    if (context.center()) {
+      UIUtils.center(dialog);
+    }
+    return dialog;
   }
 
   /**

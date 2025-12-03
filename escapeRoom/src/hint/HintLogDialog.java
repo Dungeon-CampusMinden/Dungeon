@@ -70,7 +70,6 @@ public final class HintLogDialog {
           Dialog dialog =
               createHintDialog(
                   skin, finalHint, createResultHandlerNextPrev(skin, entity, log, index));
-          UIUtils.center(dialog);
           return dialog;
         },
         entity);

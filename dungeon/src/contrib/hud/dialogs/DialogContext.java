@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-public record DialogContext(DialogType dialogType, Skin skin, Map<String, Object> attributes)
+public record DialogContext(
+    DialogType dialogType, Skin skin, boolean center, Map<String, Object> attributes)
     implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
 
@@ -58,6 +59,7 @@ public record DialogContext(DialogType dialogType, Skin skin, Map<String, Object
   public static final class Builder {
     private Skin skin;
     private DialogType type;
+    private boolean center = true;
     private final Map<String, Object> attributes = new HashMap<>();
 
     private Builder() {}
@@ -78,6 +80,10 @@ public record DialogContext(DialogType dialogType, Skin skin, Map<String, Object
       return this;
     }
 
+    public boolean center() {
+      return center;
+    }
+
     public Builder put(String key, Object value) {
       Objects.requireNonNull(key, "key");
       if (value == null) {
@@ -92,7 +98,7 @@ public record DialogContext(DialogType dialogType, Skin skin, Map<String, Object
       if (type == null) {
         throw new DialogCreationException("Dialog dialogType must be set");
       }
-      return new DialogContext(type, skin, attributes);
+      return new DialogContext(type, skin, center, attributes);
     }
   }
 }

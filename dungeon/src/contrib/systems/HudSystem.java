@@ -84,8 +84,8 @@ public final class HudSystem extends System {
     boolean shouldDraw = targetIds.length == 0;
     if (!shouldDraw)
       shouldDraw =
-        Arrays.stream(targetIds)
-            .anyMatch(targetId -> Arrays.stream(myIds).anyMatch(myId -> myId == targetId));
+          Arrays.stream(targetIds)
+              .anyMatch(targetId -> Arrays.stream(myIds).anyMatch(myId -> myId == targetId));
     if (!shouldDraw) return;
 
     Game.stage()
