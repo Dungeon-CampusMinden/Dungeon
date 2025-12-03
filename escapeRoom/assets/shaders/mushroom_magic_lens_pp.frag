@@ -49,7 +49,7 @@ void main() {
     distortedUv.x += sin(distortedUv.x * TAU * (phase + PI) + u_time * speed) * intensity;
     distortedUv.y += sin(distortedUv.y * TAU * phase + u_time * speed) * intensity;
     // Wavy distortion on the lens
-    vec3 hsv = rgb2hsv(unPma(texture2D(u_texture, distortedUv)));
+    vec3 hsv = rgb2hsv(unPma(texture2D(u_texture, distortedUv)).rgb);
 //    hsv.x = 1.0 - hsv.x;
     hsv.x = mod(hsv.x + 0.5, 1.0);
     vec3 distortedColor = hsv2rgb(hsv);
