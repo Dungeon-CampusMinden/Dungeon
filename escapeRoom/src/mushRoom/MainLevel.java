@@ -171,7 +171,7 @@ public class MainLevel extends DungeonLevel {
       cc.collideEnter((e, who, d) -> {
         DialogUtils.showTextPopup("Hey warte! Ich hab dir noch was zu sagen...", "Kumpel");
         Game.remove(e);
-        Sounds.random(Sounds.NPC_TALK, Sounds.NPC_TALK_ALT);
+        playNpcSound();
       });
       cc.isSolid(false);
       trigger.add(cc);
@@ -587,8 +587,12 @@ public class MainLevel extends DungeonLevel {
     }
 
     if(npcState != NpcState.DEAD){
-      Sounds.random(Sounds.NPC_TALK, Sounds.NPC_TALK_ALT);
+      playNpcSound();
     }
+  }
+
+  private void playNpcSound(){
+    Sounds.random((float)(1 + (Math.random() - 0.5f) * 0.5f), Sounds.NPC_TALK, Sounds.NPC_TALK_ALT);
   }
 
   private void giveJournal() {

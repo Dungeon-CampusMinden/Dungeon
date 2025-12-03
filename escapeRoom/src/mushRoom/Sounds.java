@@ -44,8 +44,17 @@ public enum Sounds {
     sounds[index].play();
   }
 
+  public static void random(float pitch, Sounds... sounds) {
+    int index = (int) (Math.random() * sounds.length);
+    sounds[index].play(pitch);
+  }
+
   public Optional<IPlayHandle> play() {
     return Game.soundPlayer().play(soundName, volume);
+  }
+
+  public Optional<IPlayHandle> play(float pitch) {
+    return Game.soundPlayer().play(soundName, volume, false, pitch, 0.0f);
   }
 
 }
