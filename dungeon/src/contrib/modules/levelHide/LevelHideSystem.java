@@ -20,8 +20,8 @@ import java.util.Optional;
  */
 public class LevelHideSystem extends System {
 
-  private static final String SOUND_HIDE = "virix_MENU_B_Select";
-  private static final String SOUND_SHOW = "virix_MENU_B_Back";
+  private static final String SOUND_HIDE = "virix_MENU_B_Back";
+  private static final String SOUND_SHOW = "virix_MENU_B_Select";
 
   private Point lastPlayerPosition = null;
   private static int entityIdCounter = 0;
