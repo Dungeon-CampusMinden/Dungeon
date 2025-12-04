@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
-import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
 import contrib.item.Item;
 import core.Entity;
@@ -21,7 +20,8 @@ public class JournalItem extends Item {
 
   private static final int BASE_PAGES_UNLOCKED = 2;
 
-  private static final SimpleIPath inventoryPath = new SimpleIPath("items/rpg/item_book_blue_lines.png");
+  private static final SimpleIPath inventoryPath =
+      new SimpleIPath("items/rpg/item_book_blue_lines.png");
 
   private int unlockedPages = BASE_PAGES_UNLOCKED;
 
@@ -41,14 +41,18 @@ public class JournalItem extends Item {
   }
 
   public static void openJournal(Entity p) {
-    p.fetch(InventoryComponent.class).ifPresent(ic -> {
-      if (!ic.hasItem(JournalItem.class)) return;
-      ic.itemOfClass(JournalItem.class).ifPresent(i -> {
-        JournalItem journalItem = (JournalItem) i;
-        openJournalUI(p, journalItem.unlockedPages);
-        Sounds.OPEN_INVENTORY_SOUND.play();
-      });
-    });
+    p.fetch(InventoryComponent.class)
+        .ifPresent(
+            ic -> {
+              if (!ic.hasItem(JournalItem.class)) return;
+              ic.itemOfClass(JournalItem.class)
+                  .ifPresent(
+                      i -> {
+                        JournalItem journalItem = (JournalItem) i;
+                        openJournalUI(p, journalItem.unlockedPages);
+                        Sounds.OPEN_INVENTORY_SOUND.play();
+                      });
+            });
   }
 
   private static void openJournalUI(Entity p, int unlockedPages) {
@@ -70,7 +74,6 @@ public class JournalItem extends Item {
     p.remove(UIComponent.class);
     p.add(new UIComponent(bookUI, true, true));
   }
-
 
   @Override
   public boolean collect(Entity itemEntity, Entity collector) {

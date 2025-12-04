@@ -85,10 +85,12 @@ public class MushRoom {
 
   private static void createHero() {
     Entity hero = EntityFactory.newHero(CharacterClass.MUSHROOM_WIZARD);
-    hero.fetch(InputComponent.class).ifPresent(ic -> {
-      ic.registerCallback(Input.Keys.B, JournalItem::openJournal, false, false);
-      ic.registerCallback(Input.Keys.V, MagicLensItem::toggleMagicLens, false, false);
-    });
+    hero.fetch(InputComponent.class)
+        .ifPresent(
+            ic -> {
+              ic.registerCallback(Input.Keys.B, JournalItem::openJournal, false, false);
+              ic.registerCallback(Input.Keys.V, MagicLensItem::toggleMagicLens, false, false);
+            });
     Game.add(hero);
   }
 

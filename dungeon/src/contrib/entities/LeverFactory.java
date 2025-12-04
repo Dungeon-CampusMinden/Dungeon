@@ -167,6 +167,7 @@ public class LeverFactory {
   public static Entity createTorch(Point pos) {
     return createTorch(pos, ICommand.NOOP);
   }
+
   /**
    * Creates a pressure plate entity at the specified position.
    *

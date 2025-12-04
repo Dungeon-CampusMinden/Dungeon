@@ -44,8 +44,6 @@ import mushRoom.modules.journal.JournalItem;
 import mushRoom.modules.journal.JournalPageFactory;
 import mushRoom.modules.mushrooms.MushroomItem;
 import mushRoom.modules.mushrooms.Mushrooms;
-import mushRoom.shaders.MagicLensLayerShader;
-import mushRoom.shaders.MagicLensPpShader;
 import mushRoom.shaders.MushroomPostProcessing;
 
 /** The MushRoom. */
@@ -148,9 +146,12 @@ public class MainLevel extends DungeonLevel {
             });
 
     Entity hammer = WorldItemBuilder.buildWorldItem(new CustomHammerItem(), getPoint("hammer"));
-    hammer.fetch(DrawComponent.class).ifPresent(dc -> {
-      dc.shaders().add("outline", new OutlineShader(1).upscaling(2));
-    });
+    hammer
+        .fetch(DrawComponent.class)
+        .ifPresent(
+            dc -> {
+              dc.shaders().add("outline", new OutlineShader(1).upscaling(2));
+            });
     Game.add(hammer);
     Game.add(WorldItemBuilder.buildWorldItem(new LanternItem(), getPoint("lantern")));
 
@@ -164,20 +165,24 @@ public class MainLevel extends DungeonLevel {
             }));
     Game.add(npc);
 
-    listPoints("dialog-trigger").forEach(p -> {
-      Entity trigger = new Entity("dialog");
-      trigger.add(new PositionComponent(p));
-      CollideComponent cc = new CollideComponent(Vector2.ZERO, Vector2.ONE);
-      cc.collideEnter((e, who, d) -> {
-        DialogUtils.showTextPopup("Hey warte! Ich hab dir noch was zu sagen...", "Kumpel");
-        Game.remove(e);
-        playNpcSound();
-      });
-      cc.isSolid(false);
-      trigger.add(cc);
-      Game.add(trigger);
-      dialogTriggers.add(trigger);
-    });
+    listPoints("dialog-trigger")
+        .forEach(
+            p -> {
+              Entity trigger = new Entity("dialog");
+              trigger.add(new PositionComponent(p));
+              CollideComponent cc = new CollideComponent(Vector2.ZERO, Vector2.ONE);
+              cc.collideEnter(
+                  (e, who, d) -> {
+                    DialogUtils.showTextPopup(
+                        "Hey warte! Ich hab dir noch was zu sagen...", "Kumpel");
+                    Game.remove(e);
+                    playNpcSound();
+                  });
+              cc.isSolid(false);
+              trigger.add(cc);
+              Game.add(trigger);
+              dialogTriggers.add(trigger);
+            });
 
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
@@ -209,15 +214,20 @@ public class MainLevel extends DungeonLevel {
             tuple -> {
               Point p = tuple.a();
               int i = tuple.b();
-              Entity pp = LeverFactory.pressurePlate(p, 1, new ICommand() {
-                public void execute() {
-                  Sounds.PRESSURE_PLATE_ACTIVATE_SOUND.play();
-                  checkButtonsPuzzle(i);
-                }
-                public void undo() {
-                  Sounds.PRESSURE_PLATE_DEACTIVATE_SOUND.play();
-                }
-              });
+              Entity pp =
+                  LeverFactory.pressurePlate(
+                      p,
+                      1,
+                      new ICommand() {
+                        public void execute() {
+                          Sounds.PRESSURE_PLATE_ACTIVATE_SOUND.play();
+                          checkButtonsPuzzle(i);
+                        }
+
+                        public void undo() {
+                          Sounds.PRESSURE_PLATE_DEACTIVATE_SOUND.play();
+                        }
+                      });
               Game.add(pp);
             });
 
@@ -229,14 +239,16 @@ public class MainLevel extends DungeonLevel {
       glyphDisplay.add(createRune(i));
       Game.add(glyphDisplay);
     }
-    listPointsIndexed("glyph").forEach(tuple -> {
-      Point p = tuple.a();
-      int i = tuple.b();
-      Entity glyphDisplay = new Entity("glyph_" + i);
-      glyphDisplay.add(new PositionComponent(p));
-      glyphDisplay.add(createRune(i));
-      Game.add(glyphDisplay);
-    });
+    listPointsIndexed("glyph")
+        .forEach(
+            tuple -> {
+              Point p = tuple.a();
+              int i = tuple.b();
+              Entity glyphDisplay = new Entity("glyph_" + i);
+              glyphDisplay.add(new PositionComponent(p));
+              glyphDisplay.add(createRune(i));
+              Game.add(glyphDisplay);
+            });
 
     DrawSystem ds = (DrawSystem) Game.systems().get(DrawSystem.class);
     ds.levelShaders()
@@ -272,14 +284,14 @@ public class MainLevel extends DungeonLevel {
             2);
   }
 
-  private void checkButtonsPuzzle(int i){
+  private void checkButtonsPuzzle(int i) {
     buttonsPressed.add(i);
     if (buttonsPressed.size() > 6) {
       buttonsPressed.poll();
     }
 
     Integer[] correctSequence = {0, 1, 2, 3, 4, 5};
-    if (buttonsPressed.size() == 6){
+    if (buttonsPressed.size() == 6) {
       boolean correct = true;
       int index = 0;
       for (Integer pressed : buttonsPressed) {
@@ -340,9 +352,11 @@ public class MainLevel extends DungeonLevel {
             });
 
     Entity axe = WorldItemBuilder.buildWorldItem(new AxeItem(), getPoint("axe"));
-    axe.fetch(DrawComponent.class).ifPresent(dc -> {
-      dc.shaders().add("outline", new OutlineShader(1).upscaling(2));
-    });
+    axe.fetch(DrawComponent.class)
+        .ifPresent(
+            dc -> {
+              dc.shaders().add("outline", new OutlineShader(1).upscaling(2));
+            });
     Game.add(axe);
   }
 
@@ -384,19 +398,19 @@ public class MainLevel extends DungeonLevel {
     puzzlePushEscapeExit = (DoorTile) tileAt(getPoint("push-escape-door")).orElseThrow();
     puzzlePushEscapeExit.close();
     Game.add(
-      LeverFactory.createLever(
-        getPoint("push-escape-lever"),
-        new ICommand() {
-          public void execute() {
-            Sounds.DOOR_OPEN_SOUND.play();
-            puzzlePushEscapeExit.open();
-          }
+        LeverFactory.createLever(
+            getPoint("push-escape-lever"),
+            new ICommand() {
+              public void execute() {
+                Sounds.DOOR_OPEN_SOUND.play();
+                puzzlePushEscapeExit.open();
+              }
 
-          public void undo() {
-            Sounds.DOOR_CLOSE_SOUND.play();
-            puzzlePushEscapeExit.close();
-          }
-        }));
+              public void undo() {
+                Sounds.DOOR_CLOSE_SOUND.play();
+                puzzlePushEscapeExit.close();
+              }
+            }));
   }
 
   private void createPushPuzzleEntities() {
@@ -421,16 +435,21 @@ public class MainLevel extends DungeonLevel {
               DoorTile doorTile = (DoorTile) tileAt(doorPos).orElseThrow();
               doorTile.close();
 
-              Entity pp = LeverFactory.pressurePlate(platePos, 1.0f, new ICommand() {
-                public void execute() {
-                  Sounds.DOOR_OPEN_SOUND.play();
-                  doorTile.open();
-                }
-                public void undo() {
-                  Sounds.DOOR_CLOSE_SOUND.play();
-                  doorTile.close();
-                }
-              });
+              Entity pp =
+                  LeverFactory.pressurePlate(
+                      platePos,
+                      1.0f,
+                      new ICommand() {
+                        public void execute() {
+                          Sounds.DOOR_OPEN_SOUND.play();
+                          doorTile.open();
+                        }
+
+                        public void undo() {
+                          Sounds.DOOR_CLOSE_SOUND.play();
+                          doorTile.close();
+                        }
+                      });
               Game.add(pp);
               puzzlePushEntities.add(pp);
             });
@@ -586,13 +605,14 @@ public class MainLevel extends DungeonLevel {
         break;
     }
 
-    if(npcState != NpcState.DEAD){
+    if (npcState != NpcState.DEAD) {
       playNpcSound();
     }
   }
 
-  private void playNpcSound(){
-    Sounds.random((float)(1 + (Math.random() - 0.5f) * 0.5f), Sounds.NPC_TALK, Sounds.NPC_TALK_ALT);
+  private void playNpcSound() {
+    Sounds.random(
+        (float) (1 + (Math.random() - 0.5f) * 0.5f), Sounds.NPC_TALK, Sounds.NPC_TALK_ALT);
   }
 
   private void giveJournal() {
@@ -635,13 +655,12 @@ public class MainLevel extends DungeonLevel {
     DEAD,
   }
 
-
-  private DrawComponent createRune(int runeIndex){
+  private DrawComponent createRune(int runeIndex) {
     // spritesheet: 8 columns x 3 rows, each is 16x16
     int rows = 3;
     int cols = 8;
 
-    if(runeIndex < 0){
+    if (runeIndex < 0) {
       throw new IllegalArgumentException("Invalid rune index: " + runeIndex);
     }
     runeIndex = runeIndex % (rows * cols);
@@ -649,7 +668,9 @@ public class MainLevel extends DungeonLevel {
     int x = runeIndex % cols;
     int y = runeIndex / cols;
 
-    DrawComponent dc = new DrawComponent(new SimpleIPath("spritesheets/runes.png"), new SpritesheetConfig(x * 16, y * 16, 1, 1));
+    DrawComponent dc =
+        new DrawComponent(
+            new SimpleIPath("spritesheets/runes.png"), new SpritesheetConfig(x * 16, y * 16, 1, 1));
     dc.depth(DepthLayer.Player.depth() - 10);
     return dc;
   }
@@ -666,5 +687,4 @@ public class MainLevel extends DungeonLevel {
 
     EventScheduler.scheduleAction(this::playAmbientSound, (long) (Math.random() * 10000 + 10000));
   }
-
 }

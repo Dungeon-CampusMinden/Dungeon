@@ -8,8 +8,6 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
-import core.utils.components.draw.TextureGenerator;
-import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
 import mushRoom.Sounds;
 

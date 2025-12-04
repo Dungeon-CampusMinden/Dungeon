@@ -5,7 +5,6 @@ import core.utils.Rectangle;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.draw.shader.AbstractShader;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.List;
 
 /** MushroomPostProcessing shader that applies a visual effect based on the player's distance */
@@ -25,10 +24,9 @@ public class MagicLensPpShader extends AbstractShader {
   protected List<UniformBinding> getUniforms(int actualUpscale) {
     Texture mag = TextureMap.instance().textureAt(new SimpleIPath("images/magnifying_glass.png"));
     return List.of(
-      new FloatUniform("u_lensRadius", lensRadius),
-      new TextureUniform("u_magnifyingGlassTex", mag, 1),
-      new Vector2Uniform("u_magnifyingGlassTexSize", mag.getWidth(), mag.getHeight())
-    );
+        new FloatUniform("u_lensRadius", lensRadius),
+        new TextureUniform("u_magnifyingGlassTex", mag, 1),
+        new Vector2Uniform("u_magnifyingGlassTexSize", mag.getWidth(), mag.getHeight()));
   }
 
   @Override

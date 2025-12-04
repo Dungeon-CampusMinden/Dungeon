@@ -35,9 +35,7 @@ public class MushroomItem {
       super(
           type.getName(),
           type.getDescriptionShort(),
-          new Animation(
-              new SimpleIPath(
-                  type.getTexturePath())),
+          new Animation(new SimpleIPath(type.getTexturePath())),
           new Animation(new SimpleIPath(type.getTexturePath())),
           1,
           maxStackSize);

@@ -1,18 +1,17 @@
 package mushRoom.modules.journal;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import core.Game;
 import core.sound.player.IPlayHandle;
-import mushRoom.Sounds;
-
 import java.util.Optional;
+import mushRoom.Sounds;
 
 public class JournalUI extends Group {
 
@@ -50,19 +49,21 @@ public class JournalUI extends Group {
     btnLeft = new TextButton("<", skin);
     btnRight = new TextButton(">", skin);
 
-    btnLeft.addListener(new ClickListener() {
-      @Override
-      public void clicked(InputEvent event, float x, float y) {
-        prevPage();
-      }
-    });
+    btnLeft.addListener(
+        new ClickListener() {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+            prevPage();
+          }
+        });
 
-    btnRight.addListener(new ClickListener() {
-      @Override
-      public void clicked(InputEvent event, float x, float y) {
-        nextPage();
-      }
-    });
+    btnRight.addListener(
+        new ClickListener() {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+            nextPage();
+          }
+        });
 
     addActor(btnLeft);
     addActor(btnRight);
@@ -80,9 +81,8 @@ public class JournalUI extends Group {
   }
 
   /**
-   * Because Group does not implement Layout, we override setSize.
-   * This ensures that whenever you resize this element (e.g. on screen resize),
-   * the internal contents re-center themselves.
+   * Because Group does not implement Layout, we override setSize. This ensures that whenever you
+   * resize this element (e.g. on screen resize), the internal contents re-center themselves.
    */
   @Override
   public void setSize(float width, float height) {
@@ -90,9 +90,7 @@ public class JournalUI extends Group {
     repositionElements();
   }
 
-  /**
-   * Calculates positions based on the current width/height of this Group.
-   */
+  /** Calculates positions based on the current width/height of this Group. */
   private void repositionElements() {
     float screenW = getWidth();
     float screenH = getHeight();
@@ -107,10 +105,11 @@ public class JournalUI extends Group {
 
     // We need to validate buttons have a size. If using TextButton, they usually auto-size.
     // If they are 0, pack() ensures they have dimensions.
-    if(btnLeft.getWidth() == 0) btnLeft.pack();
-    if(btnRight.getWidth() == 0) btnRight.pack();
+    if (btnLeft.getWidth() == 0) btnLeft.pack();
+    if (btnRight.getWidth() == 0) btnRight.pack();
 
-    btnLeft.setPosition(bookX - btnLeft.getWidth() - btnMargin, screenH / 2f - btnLeft.getHeight() / 2f);
+    btnLeft.setPosition(
+        bookX - btnLeft.getWidth() - btnMargin, screenH / 2f - btnLeft.getHeight() / 2f);
     btnRight.setPosition(bookX + BOOK_WIDTH + btnMargin, screenH / 2f - btnRight.getHeight() / 2f);
 
     // Position the Content Table strictly over the RIGHT page
@@ -152,8 +151,8 @@ public class JournalUI extends Group {
     playPageFlipSound();
   }
 
-  private void playPageFlipSound(){
-    if(soundHandle != null && soundHandle.isPlaying()){
+  private void playPageFlipSound() {
+    if (soundHandle != null && soundHandle.isPlaying()) {
       soundHandle.stop();
     }
     Optional<IPlayHandle> handle = Sounds.FLIP_BOOK_PAGE.play();

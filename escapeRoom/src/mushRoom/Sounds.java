@@ -2,11 +2,9 @@ package mushRoom;
 
 import core.Game;
 import core.sound.player.IPlayHandle;
-
 import java.util.Optional;
 
 public enum Sounds {
-
   KEY_ITEM_PICKUP_SOUND("uisp_African4", 1.0f),
   MUSHROOM_PICKUP_SOUND("uisp_Abstract1", 0.8f),
   BREAK_STONE_SOUND("uisp_African2", 0.7f),
@@ -56,5 +54,4 @@ public enum Sounds {
   public Optional<IPlayHandle> play(float pitch) {
     return Game.soundPlayer().play(soundName, volume, false, pitch, 0.0f);
   }
-
 }

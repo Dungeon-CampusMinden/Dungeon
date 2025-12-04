@@ -2,7 +2,6 @@ package mushRoom.modules.items;
 
 import contrib.item.concreteItem.ItemHammer;
 import core.Entity;
-import core.Game;
 import mushRoom.Sounds;
 
 public class CustomHammerItem extends ItemHammer {
