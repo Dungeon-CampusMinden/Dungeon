@@ -18,6 +18,14 @@ public class CollisionUtils {
    */
   public static final float TOP_OFFSET = 0.0001f;
 
+  /**
+   * Checks if a collider, when set on a specific position, is colliding with any other solid
+   * colliders in the game.
+   *
+   * @param collider the collider to check
+   * @param newPos the position to set the collider to for the check
+   * @return true if colliding with any other solid colliders, false otherwise
+   */
   public static boolean isCollidingWithOtherSolids(Collider collider, Point newPos) {
     Point oldPos = collider.position();
     collider.position(newPos);

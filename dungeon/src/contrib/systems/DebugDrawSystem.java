@@ -448,6 +448,12 @@ public class DebugDrawSystem extends System {
     drawText(text, new Point(textX, textY));
   }
 
+  /**
+   * Sets quick info text for the given entity to be displayed in the debug overlay.
+   *
+   * @param entity The entity to set quick info for.
+   * @param info The quick info text.
+   */
   public static void setEntityQuickInfo(Entity entity, String info) {
     quickInfoCache.put(entity, info);
   }

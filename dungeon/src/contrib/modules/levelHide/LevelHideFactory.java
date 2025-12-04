@@ -48,6 +48,14 @@ public class LevelHideFactory {
     return createLevelHide(bottomLeft, topRight, 2);
   }
 
+  /**
+   * Creates a level hide entity defined by bottom left and top right points.
+   *
+   * @param bottomLeft the bottom left point of the hide region
+   * @param topRight the top right point of the hide region
+   * @param transitionSize the size of the transition area
+   * @return the created level hide entity
+   */
   public static Entity createLevelHide(Point bottomLeft, Point topRight, float transitionSize) {
     float width = topRight.x() - bottomLeft.x();
     float height = topRight.y() - bottomLeft.y();
