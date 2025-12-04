@@ -11,10 +11,17 @@ import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import mushRoom.Sounds;
 
+/** Factory class for creating journal page entities. */
 public class JournalPageFactory {
 
   private static final String TEXTURE_PATH = "items/rpg/item_paper.png";
 
+  /**
+   * Creates a journal page entity at the specified position.
+   *
+   * @param position the position to place the journal page
+   * @return the created journal page entity
+   */
   public static Entity createJournalPage(Point position) {
     Entity entity = new Entity();
     entity.add(new PositionComponent(position));

@@ -6,10 +6,12 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 import mushRoom.Sounds;
 
+/** An AxeItem can be used to chop down certain trees. */
 public class AxeItem extends Item {
 
-  public static final String PATH = "items/weapon/snake_sword.png";
+  private static final String PATH = "items/weapon/snake_sword.png";
 
+  /** Constructs a new AxeItem. */
   public AxeItem() {
     super(
         "Axt",

@@ -498,7 +498,7 @@ public class MainLevel extends DungeonLevel {
               }
 
               Mushrooms type = Mushrooms.values()[index % Mushrooms.values().length];
-              if (!type.poisonous) {
+              if (!type.poisonous()) {
                 maxMushrooms++;
               }
               Game.add(WorldItemBuilder.buildWorldItem(MushroomItem.createMushroomItem(type), p));
@@ -521,7 +521,7 @@ public class MainLevel extends DungeonLevel {
                             if (!(item instanceof MushroomItem.BaseMushroom bm)) {
                               return false;
                             }
-                            return bm.type().poisonous;
+                            return bm.type().poisonous();
                           })
                       .reduce(0, (a, b) -> a + b.stackSize(), Integer::sum);
               if (collected - collectedPoisonous >= maxMushrooms

@@ -16,6 +16,7 @@ import core.utils.components.path.SimpleIPath;
 import mushRoom.Sounds;
 import mushRoom.modules.mushrooms.Mushrooms;
 
+/** Item representing a journal that can be used to document discovered mushrooms. */
 public class JournalItem extends Item {
 
   private static final int BASE_PAGES_UNLOCKED = 2;
@@ -25,6 +26,7 @@ public class JournalItem extends Item {
 
   private int unlockedPages = BASE_PAGES_UNLOCKED;
 
+  /** Constructs a new JournalItem. */
   public JournalItem() {
     super(
         "Notizbuch",
@@ -40,8 +42,14 @@ public class JournalItem extends Item {
     Game.player().ifPresent(JournalItem::openJournal);
   }
 
-  public static void openJournal(Entity p) {
-    p.fetch(InventoryComponent.class)
+  /**
+   * Opens the journal UI if the given entity has a {@link JournalItem} in its inventory.
+   *
+   * @param player the entity to open the journal for
+   */
+  public static void openJournal(Entity player) {
+    player
+        .fetch(InventoryComponent.class)
         .ifPresent(
             ic -> {
               if (!ic.hasItem(JournalItem.class)) return;
@@ -49,13 +57,13 @@ public class JournalItem extends Item {
                   .ifPresent(
                       i -> {
                         JournalItem journalItem = (JournalItem) i;
-                        openJournalUI(p, journalItem.unlockedPages);
+                        openJournalUI(player, journalItem.unlockedPages);
                         Sounds.OPEN_INVENTORY_SOUND.play();
                       });
             });
   }
 
-  private static void openJournalUI(Entity p, int unlockedPages) {
+  private static void openJournalUI(Entity player, int unlockedPages) {
     Skin skin = UIUtils.defaultSkin();
     Texture bookTex = TextureMap.instance().textureAt(new SimpleIPath("images/open-book.png"));
 
@@ -66,13 +74,13 @@ public class JournalItem extends Item {
       Texture t = TextureMap.instance().textureAt(new SimpleIPath(mushroomType.getTexturePath()));
       String text = "Ich kenne diesen Pilz noch nicht...";
       if (mushroomType.ordinal() < unlockedPages * 2) { // Each page has 2 mushrooms
-        text = mushroomType.getDescription();
+        text = mushroomType.descriptionLong();
       }
       bookUI.addEntry(t, text);
     }
 
-    p.remove(UIComponent.class);
-    p.add(new UIComponent(bookUI, true, true));
+    player.remove(UIComponent.class);
+    player.add(new UIComponent(bookUI, true, true));
   }
 
   @Override
@@ -80,6 +88,7 @@ public class JournalItem extends Item {
     return super.collect(itemEntity, collector);
   }
 
+  /** Unlocks a new page in the journal and updates the description. */
   public void unlockPage() {
     this.unlockedPages++;
     this.description(unlockedPages + " / 6 Seiten beschrieben");

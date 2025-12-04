@@ -72,8 +72,8 @@ public class MushRoom {
     for (Mushrooms mushroomType : Mushrooms.values()) {
       ShaderList shaderList = new ShaderList();
 
-      Color color = mushroomType.getColor();
-      Color outline = mushroomType.getOutlineColor();
+      Color color = mushroomType.baseColor();
+      Color outline = mushroomType.outlineColor();
       float[] hsv = new float[3];
       shaderList.add("hueRemap", new HueRemapShader(baseHue, color.toHsv(hsv)[0] / 360f));
       shaderList.add("outline", new OutlineShader(1, ColorUtils.withAlpha(outline, 0.8f)));

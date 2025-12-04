@@ -7,7 +7,7 @@ import core.utils.components.draw.shader.AbstractShader;
 import core.utils.components.path.SimpleIPath;
 import java.util.List;
 
-/** MushroomPostProcessing shader that applies a visual effect based on the player's distance */
+/** MushroomPostProcessing shader that applies a visual effect based on the player's distance. */
 public class MagicLensPpShader extends AbstractShader {
 
   private static final String VERT_PATH = "shaders/passthrough.vert";

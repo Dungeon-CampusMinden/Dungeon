@@ -13,13 +13,15 @@ import core.sound.player.IPlayHandle;
 import java.util.Optional;
 import mushRoom.Sounds;
 
+/**
+ * UI component representing a journal book with multiple entries, allowing navigation between
+ * pages.
+ */
 public class JournalUI extends Group {
 
-  // Constants
   private static final float BOOK_WIDTH = 1260f;
   private static final float BOOK_HEIGHT = 900f;
 
-  // Internal padding
   private static final float PAGE_PAD_TOP = 80f;
   private static final float PAGE_PAD_BOTTOM = 60f;
   private static final float PAGE_PAD_SIDE = 50f;
@@ -37,15 +39,20 @@ public class JournalUI extends Group {
   private final Skin skin;
   private IPlayHandle soundHandle;
 
+  /**
+   * Constructs a new JournalUI with the specified skin and book background.
+   *
+   * @param skin The UI skin to use
+   * @param bookBackground The drawable for the book background
+   */
   public JournalUI(Skin skin, Drawable bookBackground) {
     this.skin = skin;
 
-    // 2. The Book Background
     bookImage = new Image(bookBackground);
     bookImage.setSize(BOOK_WIDTH, BOOK_HEIGHT);
     addActor(bookImage);
 
-    // 3. Navigation Buttons
+    // Navigation Buttons
     btnLeft = new TextButton("<", skin);
     btnRight = new TextButton(">", skin);
 
@@ -68,7 +75,7 @@ public class JournalUI extends Group {
     addActor(btnLeft);
     addActor(btnRight);
 
-    // 4. Right Page Container
+    // Right Page Container
     rightPageContent = new Table();
     rightPageContent.top();
     addActor(rightPageContent);
@@ -95,43 +102,35 @@ public class JournalUI extends Group {
     float screenW = getWidth();
     float screenH = getHeight();
 
-    // Center the book
     float bookX = (screenW - BOOK_WIDTH) / 2f;
     float bookY = (screenH - BOOK_HEIGHT) / 2f;
     bookImage.setPosition(bookX, bookY);
 
     // Position Buttons (Left and Right of the book)
     float btnMargin = 20f;
-
-    // We need to validate buttons have a size. If using TextButton, they usually auto-size.
-    // If they are 0, pack() ensures they have dimensions.
     if (btnLeft.getWidth() == 0) btnLeft.pack();
     if (btnRight.getWidth() == 0) btnRight.pack();
-
     btnLeft.setPosition(
         bookX - btnLeft.getWidth() - btnMargin, screenH / 2f - btnLeft.getHeight() / 2f);
     btnRight.setPosition(bookX + BOOK_WIDTH + btnMargin, screenH / 2f - btnRight.getHeight() / 2f);
 
     // Position the Content Table strictly over the RIGHT page
     float rightPageX = bookX + (BOOK_WIDTH / 2f);
-
     rightPageContent.setPosition(rightPageX, bookY);
     rightPageContent.setSize(BOOK_WIDTH / 2f, BOOK_HEIGHT);
     rightPageContent.pad(PAGE_PAD_TOP, PAGE_PAD_SIDE, PAGE_PAD_BOTTOM, PAGE_PAD_SIDE);
 
-    // Force the table to re-calculate its internal layout
     rightPageContent.invalidate();
   }
 
+  /**
+   * Adds a new entry to the journal book.
+   *
+   * @param image The texture representing the entry
+   * @param explanation The descriptive text for the entry
+   */
   public void addEntry(Texture image, String explanation) {
     entries.add(new BookEntry(image, explanation));
-    refreshPage();
-  }
-
-  public void setEntries(Array<BookEntry> newEntries) {
-    entries.clear();
-    entries.addAll(newEntries);
-    currentPageIndex = 0;
     refreshPage();
   }
 
@@ -209,13 +208,11 @@ public class JournalUI extends Group {
     rightPageContent.row();
   }
 
-  public static class BookEntry {
-    Texture texture;
-    String text;
-
-    public BookEntry(Texture texture, String text) {
-      this.texture = texture;
-      this.text = text;
-    }
-  }
+  /**
+   * A single entry in the journal book, consisting of a texture and descriptive text.
+   *
+   * @param texture The texture representing the entry
+   * @param text The descriptive text for the entry
+   */
+  public record BookEntry(Texture texture, String text) {}
 }

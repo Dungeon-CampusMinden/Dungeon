@@ -17,10 +17,11 @@ import mushRoom.Sounds;
 import mushRoom.shaders.MagicLensLayerShader;
 import mushRoom.shaders.MagicLensPpShader;
 
+/** Item representing a magic lens that reveals hidden runes when used. */
 public class MagicLensItem extends Item {
 
-  public static final String BASE_PATH = "items/rpg/item_magnifying_glass.png";
-  public static final String PATH = "items/rpg/item_magnifying_glass.png";
+  private static final String BASE_PATH = "items/rpg/item_magnifying_glass.png";
+  private static final String PATH = "items/rpg/item_magnifying_glass.png";
 
   static {
     ShaderList shaders = new ShaderList();
@@ -28,6 +29,7 @@ public class MagicLensItem extends Item {
     TextureGenerator.registerRenderShaderTexture(BASE_PATH, PATH, shaders);
   }
 
+  /** Constructs a new MagicLensItem. */
   public MagicLensItem() {
     super(
         "Eine Magische Lupe",
@@ -47,6 +49,7 @@ public class MagicLensItem extends Item {
     return super.collect(itemEntity, collector);
   }
 
+  /** Adds the magic lens shaders to the draw system. */
   public static void addMagicLensShaders() {
     DrawSystem ds = DrawSystem.getInstance();
     float lensRadius = 0.075f;
@@ -58,8 +61,14 @@ public class MagicLensItem extends Item {
         .add("outline", new OutlineShader(4).isRainbow(true));
   }
 
-  public static void toggleMagicLens(Entity hero) {
-    hero.fetch(InventoryComponent.class)
+  /**
+   * Toggles the magic lens effect if the provided entity has the {@link MagicLensItem}.
+   *
+   * @param player the entity to toggle the magic lens for
+   */
+  public static void toggleMagicLens(Entity player) {
+    player
+        .fetch(InventoryComponent.class)
         .ifPresent(
             ic -> {
               if (!ic.hasItem(MagicLensItem.class)) {
@@ -79,7 +88,7 @@ public class MagicLensItem extends Item {
               }
 
               if (InventoryGUI.inPlayerInventory()) {
-                hero.remove(UIComponent.class);
+                player.remove(UIComponent.class);
               }
             });
   }

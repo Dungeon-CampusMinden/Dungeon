@@ -4,7 +4,7 @@ import core.utils.Rectangle;
 import core.utils.components.draw.shader.AbstractShader;
 import java.util.List;
 
-/** MushroomPostProcessing shader that applies a visual effect based on the player's distance */
+/** MushroomPostProcessing shader that applies a visual effect based on the player's distance. */
 public class MushroomPostProcessing extends AbstractShader {
 
   private static final String VERT_PATH = "shaders/passthrough.vert";
@@ -13,7 +13,11 @@ public class MushroomPostProcessing extends AbstractShader {
   private Rectangle home;
   private float viewDistance = 0.2f;
 
-  /** Constructs a MushroomPostProcessing shader with the specified home region. */
+  /**
+   * Constructs a MushroomPostProcessing shader with the specified home region.
+   *
+   * @param home The home region for the shader effect.
+   */
   public MushroomPostProcessing(Rectangle home) {
     super(VERT_PATH, FRAG_PATH);
     this.home = home;

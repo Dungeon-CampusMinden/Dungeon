@@ -6,10 +6,12 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 import mushRoom.Sounds;
 
+/** Item representing glowing gloves that provide light. */
 public class LanternItem extends Item {
 
-  public static final String PATH = "items/gloves/fire_gloves.png";
+  private static final String PATH = "items/gloves/fire_gloves.png";
 
+  /** Constructs a new LanternItem. */
   public LanternItem() {
     super(
         "Leuchtende Handschuhe",
