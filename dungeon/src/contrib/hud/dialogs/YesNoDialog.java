@@ -30,9 +30,9 @@ final class YesNoDialog {
   static Dialog build(DialogContext context) {
     String text = context.require(DialogContextKeys.MESSAGE, String.class);
     String title = context.find(DialogContextKeys.TITLE, String.class).orElse("Dialog");
-    IVoidFunction onYes = context.require(DialogContextKeys.ON_YES, IVoidFunction.class);
-    IVoidFunction onNo = context.require(DialogContextKeys.ON_NO, IVoidFunction.class);
-    Entity entity = context.require(DialogContextKeys.ENTITY, Entity.class);
+    Entity entity = context.requireEntity(DialogContextKeys.ENTITY);
+    IVoidFunction onYes = context.requireCallback(DialogContextKeys.ON_YES, IVoidFunction.class);
+    IVoidFunction onNo = context.requireCallback(DialogContextKeys.ON_NO, IVoidFunction.class);
     Dialog dialog =
         createYesNoDialog(
             context.skin(), text, title, createResultHandlerYesNo(entity, onYes, onNo));

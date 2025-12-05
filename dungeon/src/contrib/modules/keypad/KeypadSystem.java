@@ -36,7 +36,7 @@ public class KeypadSystem extends System {
       DialogContext context =
           DialogContext.builder()
               .type(DialogType.DefaultTypes.KEYPAD)
-              .put(DialogContextKeys.ENTITY, d.e)
+              .put(DialogContextKeys.ENTITY, d.e.id())
               .build();
       UIComponent uic = new UIComponent(context, true);
       uic.onClose(() -> d.kc.isUIOpen(false));

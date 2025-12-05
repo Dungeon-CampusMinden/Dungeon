@@ -1,19 +1,21 @@
 package contrib.hud.dialogs;
 
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import core.Entity;
 import core.Game;
+import core.utils.IVoidFunction;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
  * A TextDialog that allows the result handler to be defined per functional interface.
  *
- * <p>Use {@link #textDialog(String, String, String)} to create and add a HUD-Entity to the game,
- * that will show the given text.
+ * <p>Use {@link DialogFactory#showTextDialog(String, String, IVoidFunction, String, String,
+ * String[], BiFunction)} to create and show a TextDialog.
  */
-final class TextDialog extends Dialog {
+public final class TextDialog extends Dialog {
 
   /** Handler for Button presses. */
   private final BiFunction<Dialog, String, Boolean> resultHandler;
@@ -26,7 +28,7 @@ final class TextDialog extends Dialog {
    * @param title Title of the dialog
    * @param resultHandler controls the button presses
    */
-  TextDialog(
+  public TextDialog(
       final String title,
       final Skin skin,
       final BiFunction<Dialog, String, Boolean> resultHandler) {
@@ -43,7 +45,7 @@ final class TextDialog extends Dialog {
    * @param windowStyleName the name of the style which should be used
    * @param resultHandler controls the button presses
    */
-  TextDialog(
+  public TextDialog(
       final String title,
       final Skin skin,
       final String windowStyleName,
@@ -62,7 +64,7 @@ final class TextDialog extends Dialog {
    * @param resultHandler A callback method that is called when the confirm button is pressed.
    * @return The fully configured Dialog, which can then be added where it is needed.
    */
-  static Dialog createTextDialog(
+  private static Dialog createTextDialog(
       final Skin skin,
       final String outputMsg,
       final String confirmButton,
@@ -79,24 +81,63 @@ final class TextDialog extends Dialog {
   }
 
   /**
-   * Create a {@link BiFunction} that removes the UI-Entity from the game and closes the dialog if
-   * the close button was pressed.
+   * Builds a text dialog from the given context.
    *
-   * @param entity UI-Entity
-   * @param closeButtonID ID of the close button. The handler will use the ID to execute the correct
-   *     close logic.
-   * @return The configured BiFunction that closes the window and removes the entity from the game
-   *     if the close button was pressed.
+   * @param context The dialog context containing message, buttons, and handlers
+   * @return A fully configured text dialog
    */
-  private static BiFunction<Dialog, String, Boolean> createResultHandler(
-      final Entity entity, final String closeButtonID) {
-    return (d, id) -> {
-      if (Objects.equals(id, closeButtonID)) {
-        Game.remove(entity);
-        return true;
-      }
-      return false;
-    };
+  static Group build(DialogContext context) {
+    String title = context.require(DialogContextKeys.TITLE, String.class);
+    String text = context.require(DialogContextKeys.MESSAGE, String.class);
+    String button =
+        context
+            .find(DialogContextKeys.CONFIRM_LABEL, String.class)
+            .orElse(OkDialog.DEFAULT_OK_BUTTON);
+    String cancelButton = context.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(null);
+    String[] extraButtons =
+        context.find(DialogContextKeys.ADDITIONAL_BUTTONS, String[].class).orElse(new String[] {});
+    Entity entity = context.requireEntity(DialogContextKeys.ENTITY);
+    Skin skin = context.skin();
+    Dialog dialog =
+        TextDialog.createTextDialog(
+            skin,
+            text,
+            button,
+            title,
+            (d, id) -> {
+              @SuppressWarnings("unchecked")
+              BiFunction<Dialog, String, Boolean> customHandler =
+                  context
+                      .findCallback(DialogContextKeys.RESULT_HANDLER, BiFunction.class)
+                      .orElse(null);
+              if (customHandler != null && customHandler.apply(d, id)) {
+                return true;
+              }
+              if (Objects.equals(id, button)) {
+                context
+                    .findCallback(DialogContextKeys.ON_CONFIRM, IVoidFunction.class)
+                    .ifPresent(IVoidFunction::execute);
+                Game.remove(entity);
+                return true;
+              }
+              if (cancelButton != null && Objects.equals(id, cancelButton)) {
+                context
+                    .findCallback(DialogContextKeys.ON_CANCEL, IVoidFunction.class)
+                    .ifPresent(IVoidFunction::execute);
+                Game.remove(entity);
+                return true;
+              }
+              return false;
+            });
+    dialog.button(button, button);
+    if (cancelButton != null) {
+      dialog.button(cancelButton, cancelButton);
+    }
+    for (String extraButton : extraButtons) {
+      dialog.button(extraButton, extraButton);
+    }
+    dialog.pack();
+    return dialog;
   }
 
   /**

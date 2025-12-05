@@ -3,23 +3,29 @@ package contrib.utils;
 import static contrib.hud.UIUtils.defaultSkin;
 
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import contrib.components.UIComponent;
+import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;
 import core.utils.Point;
+import core.utils.logging.DungeonLogger;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Function;
 
 /** Utility class for managing attribute bars (health, mana, energy) for entities. */
 public final class AttributeBarUtil {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AttributeBarUtil.class);
 
   // TODO: Change this logic, to allow for more than 1mil entities
   private static int NEXT_ID =
@@ -42,32 +48,55 @@ public final class AttributeBarUtil {
    * @param barMapping map from entity ID to progress bar
    * @param styleName name of the progress bar style (e.g., "healthbar", "manabar")
    * @param verticalOffset vertical offset above the entity
-   * @param <T> type of the attribute component
    */
-  public static <T> void addBarToEntity(
+  public static void addBarToEntity(
       Entity entity,
-      Function<Entity, T> componentFetcher,
+      Function<Entity, AttributeProvider> componentFetcher,
       Map<Integer, ProgressBar> barMapping,
       String styleName,
       float verticalOffset) {
-    PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
-    ProgressBar bar = createBar(pc, styleName, verticalOffset);
-
     Entity barEntity = new Entity(NEXT_ID++, styleName + "_" + entity.id());
 
     DialogContext context =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.PROGRESS_BAR)
-            .put(DialogContextKeys.PROGRESS_BAR, bar)
+            .put(
+                DialogContextKeys.PROGRESS_BAR,
+                new ProgressBarContext(
+                    entity.fetch(PositionComponent.class).orElseThrow(), styleName, verticalOffset))
             .build();
-    barEntity.add(new UIComponent(context, false, false, new int[] {}));
+    UIComponent uiComp = new UIComponent(context, false, false, new int[] {});
+    barEntity.add(uiComp);
     Game.add(barEntity);
 
-    barMapping.put(entity.id(), bar);
+    UIUtils.findTypeInGroup(uiComp.dialog(), ProgressBar.class)
+        .ifPresentOrElse(
+            bar -> {
+              barMapping.put(entity.id(), bar);
+              //updateBar(entity, componentFetcher, barMapping, verticalOffset);
+            },
+            () -> LOGGER.error("Failed to create progress bar for entity {}", entity));
   }
 
-  private static ProgressBar createBar(
-      PositionComponent pc, String styleName, float verticalOffset) {
+  /**
+   * Builds a progress bar group from the given DialogContext.
+   *
+   * @param context the DialogContext containing the progress bar
+   * @return a Group containing the progress bar
+   */
+  public static Group buildProgressBar(DialogContext context) {
+    ProgressBarContext barContext =
+        context.require(DialogContextKeys.PROGRESS_BAR, ProgressBarContext.class);
+    ProgressBar bar = createBar(barContext);
+    Container<ProgressBar> container = new Container<>(bar);
+    container.setLayoutEnabled(false);
+    return container;
+  }
+
+  private static ProgressBar createBar(ProgressBarContext barContext) {
+    PositionComponent pc = barContext.pc();
+    String styleName = barContext.styleName();
+    float verticalOffset = barContext.verticalOffset();
     ProgressBar bar = new ProgressBar(MIN, MAX, STEP_SIZE, false, defaultSkin(), styleName);
     bar.setAnimateDuration(UPDATE_DURATION);
     bar.setSize(DEFAULT_BAR_WIDTH, DEFAULT_BAR_HEIGHT);
@@ -93,6 +122,14 @@ public final class AttributeBarUtil {
     screenCoords.y = screenCoords.y / stage.getViewport().getScreenHeight() * stage.getHeight();
 
     bar.setPosition(screenCoords.x, screenCoords.y - verticalOffset);
+
+    // debug prints
+    System.out.println("Entity Position: (" + pos.x() + ", " + pos.y() + ")");
+    System.out.println("Screen Coordinates: (" + screenCoords.x + ", " + screenCoords.y + ")");
+    System.out.println("Bar Position Set To: (" + bar.getX() + ", " + bar.getY() + ")");
+    System.out.println("Camera Viewport: Width=" + stage.getViewport().getScreenWidth() + ", Height=" + stage.getViewport().getScreenHeight());
+    System.out.println("Stage Size: Width=" + stage.getWidth() + ", Height=" + stage.getHeight());
+    System.out.println("-----------------------------");
   }
 
   /**
@@ -113,9 +150,10 @@ public final class AttributeBarUtil {
     ProgressBar bar = barMapping.get(entity.id());
     if (bar == null) return;
 
-    bar.setVisible(
-        entity.fetch(DrawComponent.class).map(DrawComponent::isVisible).orElse(false)
-            && comp.current() != comp.max());
+    /*bar.setVisible(
+    entity.fetch(DrawComponent.class).map(DrawComponent::isVisible).orElse(false)
+        && comp.current() != comp.max());*/
+    // TODO
     updatePosition(bar, entity.fetch(PositionComponent.class).orElseThrow(), verticalOffset);
     bar.setValue(comp.current() / comp.max());
   }
@@ -136,5 +174,10 @@ public final class AttributeBarUtil {
      * @return the maximum value
      */
     float max();
+  }
+
+  private record ProgressBarContext(PositionComponent pc, String styleName, float verticalOffset)
+      implements Serializable {
+    @Serial private static final long serialVersionUID = 1L;
   }
 }

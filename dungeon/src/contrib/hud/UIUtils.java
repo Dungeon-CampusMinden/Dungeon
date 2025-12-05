@@ -2,6 +2,7 @@ package contrib.hud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
@@ -10,6 +11,7 @@ import core.Game;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /** UI utility functions, such as a formatter for the window or dialog. */
@@ -170,5 +172,28 @@ public final class UIUtils {
             .map(IInventoryHolder.class::cast)
             .map(IInventoryHolder::inventoryComponent)
         : Stream.empty();
+  }
+
+  /**
+   * Recursively searches for an Actor of the specified type within the given Group and its
+   * subgroups.
+   *
+   * @param dialog the Group to search within
+   * @param type the Class type of the Actor to find
+   * @param <T> the type of the Actor
+   * @return an Optional containing the found Actor, or an empty Optional if not found
+   */
+  public static <T> Optional<T> findTypeInGroup(Group dialog, Class<T> type) {
+    for (Actor actor : dialog.getChildren()) {
+      if (type.isInstance(actor)) {
+        return Optional.of(type.cast(actor));
+      } else if (actor instanceof Group group) {
+        Optional<T> result = findTypeInGroup(group, type);
+        if (result.isPresent()) {
+          return result;
+        }
+      }
+    }
+    return Optional.empty();
   }
 }

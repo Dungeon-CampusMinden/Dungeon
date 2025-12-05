@@ -27,8 +27,8 @@ final class OkDialog {
   static Dialog build(DialogContext context) {
     String text = context.require(DialogContextKeys.MESSAGE, String.class);
     String title = context.find(DialogContextKeys.TITLE, String.class).orElse("OK");
-    IVoidFunction onOk = context.require(DialogContextKeys.ON_CONFIRM, IVoidFunction.class);
-    Entity entity = context.require(DialogContextKeys.ENTITY, Entity.class);
+    Entity entity = context.requireEntity(DialogContextKeys.ENTITY);
+    IVoidFunction onOk = context.requireCallback(DialogContextKeys.ON_CONFIRM, IVoidFunction.class);
     return create(context.skin(), title, text, entity, onOk);
   }
 

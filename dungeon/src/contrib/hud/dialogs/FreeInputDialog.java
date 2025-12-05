@@ -29,8 +29,10 @@ final class FreeInputDialog {
   static Dialog build(DialogContext context) {
     String title = context.find(DialogContextKeys.TITLE, String.class).orElse(TITLE_DEFAULT);
     String question = context.require(DialogContextKeys.QUESTION, String.class);
-    Consumer<String> callback = context.require(DialogContextKeys.INPUT_CALLBACK, Consumer.class);
-    Entity uiEntity = context.require(DialogContextKeys.ENTITY, Entity.class);
+    @SuppressWarnings("unchecked")
+    Consumer<String> callback =
+        context.requireCallback(DialogContextKeys.INPUT_CALLBACK, Consumer.class);
+    Entity uiEntity = context.requireEntity(DialogContextKeys.ENTITY);
     Skin skin = context.skin();
     Dialog dialog = buildDialog(title, question, callback, uiEntity, skin, context);
     dialog.setSize(700, 350);

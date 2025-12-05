@@ -41,7 +41,20 @@ public final class StaminaBarSystem extends System {
         entity ->
             AttributeBarUtil.addBarToEntity(
                 entity,
-                e -> e.fetch(StaminaComponent.class).orElseThrow(),
+                e ->
+                    new AttributeBarUtil.AttributeProvider() {
+                      final StaminaComponent sc = e.fetch(StaminaComponent.class).orElseThrow();
+
+                      @Override
+                      public float current() {
+                        return sc.currentAmount();
+                      }
+
+                      @Override
+                      public float max() {
+                        return sc.maxAmount();
+                      }
+                    },
                 barMapping,
                 "staminabar",
                 OFFSET);

@@ -2,6 +2,7 @@ package hint;
 
 import static contrib.hud.UIUtils.defaultSkin;
 
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import contrib.hud.UIUtils;
@@ -10,6 +11,7 @@ import core.Entity;
 import core.Game;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Utility class for displaying and navigating through a list of {@link Hint} objects as interactive
@@ -32,6 +34,10 @@ public final class HintLogDialog {
   /** Default style name for the hint dialog window. */
   private static final String DEFAULT_WINDOW_STYLE_NAME = "Letter";
 
+  static {
+    DialogFactory.register(HintDialogTypes.SIMPLE_HINT, HintLogDialog::createHintDialog);
+  }
+
   /**
    * Opens a dialog showing the latest hint in the given storage.
    *
@@ -41,8 +47,7 @@ public final class HintLogDialog {
    * @return the {@link Entity} that holds the dialog
    */
   public static Entity showHintLog(HintLogComponent log) {
-    Entity entity = showHintLog(defaultSkin(), log, log.hints.size() - 1);
-    return entity;
+    return showHintLog(defaultSkin(), log, log.hints.size() - 1);
   }
 
   /**
@@ -62,19 +67,16 @@ public final class HintLogDialog {
     else hint = log.hints().get(index);
     if (hint == null) hint = NO_HINT;
 
-    Entity entity = new Entity("hintDialog_" + hint.titel());
+    DialogContext context =
+        DialogContext.builder()
+            .type(HintDialogTypes.SIMPLE_HINT)
+            .skin(skin)
+            .put("hint", hint)
+            .putCallback(
+                "resultHandler", (entity) -> createResultHandlerNextPrev(skin, entity, log, index))
+            .build();
 
-    Hint finalHint = hint;
-    UIUtils.show(
-        () -> {
-          Dialog dialog =
-              createHintDialog(
-                  skin, finalHint, createResultHandlerNextPrev(skin, entity, log, index));
-          return dialog;
-        },
-        entity);
-    Game.add(entity);
-    return entity;
+    return DialogFactory.show(context);
   }
 
   /**
@@ -83,17 +85,22 @@ public final class HintLogDialog {
    * <p>The dialog includes the hint title and text, as well as navigation buttons for switching to
    * the previous or next hint.
    *
-   * @param skin the UI {@link Skin} to use for styling
-   * @param hint the {@link Hint} to display
-   * @param resultHandler the callback to handle button clicks
+   * @param context the {@link DialogContext} containing the hint and result handler
    * @return a configured {@link Dialog} instance
    */
-  private static Dialog createHintDialog(
-      final Skin skin,
-      final Hint hint,
-      final BiFunction<TextDialog, String, Boolean> resultHandler) {
+  private static Group createHintDialog(DialogContext context) {
+    Skin skin = context.skin();
+    Hint hint = context.require("hint", Hint.class);
+    @SuppressWarnings("unchecked")
+    Function<Entity, BiFunction<Dialog, String, Boolean>> resultHandler =
+        context.requireCallback("resultHandler", Function.class);
+
     Dialog textDialog =
-        new TextDialog(hint.titel(), skin, DEFAULT_WINDOW_STYLE_NAME, resultHandler);
+        new TextDialog(
+            hint.title(),
+            skin,
+            DEFAULT_WINDOW_STYLE_NAME,
+            resultHandler.apply(context.requireEntity("entity")));
     textDialog
         .getContentTable()
         .add(DialogDesign.createTextDialog(skin, UIUtils.formatString(hint.text())))
@@ -122,7 +129,7 @@ public final class HintLogDialog {
       final Skin skin, final Entity entity, final HintLogComponent log, final int index) {
     return (d, id) -> {
       if (Objects.equals(id, DEFAULT_DIALOG_NEXT)) {
-        if (log.hints().size() != 0) {
+        if (!log.hints().isEmpty()) {
           int i = (index + 1) % log.hints().size();
           showHintLog(skin, log, i);
         } else showHintLog(log);
@@ -130,7 +137,7 @@ public final class HintLogDialog {
         return true;
       }
       if (Objects.equals(id, DEFAULT_DIALOG_PREVIOUS)) {
-        if (log.hints().size() != 0) {
+        if (!log.hints().isEmpty()) {
           int i = (index - 1 + log.hints().size()) % log.hints().size();
           showHintLog(skin, log, i);
         } else showHintLog(log);
@@ -139,5 +146,20 @@ public final class HintLogDialog {
       }
       return false;
     };
+  }
+
+  private enum HintDialogTypes implements DialogType {
+    SIMPLE_HINT("simple_hint");
+
+    private final String typeName;
+
+    HintDialogTypes(String typeName) {
+      this.typeName = typeName;
+    }
+
+    @Override
+    public String type() {
+      return typeName;
+    }
   }
 }

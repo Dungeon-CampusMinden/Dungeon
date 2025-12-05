@@ -58,12 +58,6 @@ public class DialogContextKeys {
   /** The key for the pre-filled text in an input field. */
   public static final String INPUT_PREFILL = "inputPrefill";
 
-  /** The key for the quiz data associated with the dialog. */
-  public static final String QUIZ = "quiz";
-
-  /** The key for linking a result handler to the dialog. */
-  public static final String RESULT_HANDLER_LINKER = "resultHandlerLinker";
-
   /** The key for specifying additional buttons in the dialog. */
   public static final String ADDITIONAL_BUTTONS = "additionalButtons";
 
@@ -72,6 +66,9 @@ public class DialogContextKeys {
 
   /** The key for the image content in the dialog. */
   public static final String IMAGE = "image";
+
+  /** The key for the image transition speed in the dialog. */
+  public static final String IMAGE_TRANSITION_SPEED = "imageTransitionSpeed";
 
   /** The key for the progress bar component in the dialog. */
   public static final String PROGRESS_BAR = "progressBar";

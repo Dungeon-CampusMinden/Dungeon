@@ -1,18 +1,13 @@
 package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import contrib.components.InventoryComponent;
-import contrib.components.ShowImageComponent;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.crafting.CraftingGUI;
-import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.modules.keypad.KeypadUI;
+import contrib.utils.AttributeBarUtil;
 import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
 import core.Game;
@@ -20,14 +15,10 @@ import core.components.PlayerComponent;
 import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import task.Task;
-import task.game.hud.QuizDialogDesign;
-import task.tasktype.Quiz;
 
 /**
  * Central factory for creating and displaying dialogs in a unified manner.
@@ -60,16 +51,14 @@ public class DialogFactory {
   static {
     register(DialogType.DefaultTypes.OK, OkDialog::build);
     register(DialogType.DefaultTypes.YES_NO, YesNoDialog::build);
-    register(DialogType.DefaultTypes.TEXT, TextDialogBuilders::buildTextDialog);
-    register(DialogType.DefaultTypes.IMAGE, ImageDialog::buildSingleImage);
+    register(DialogType.DefaultTypes.TEXT, TextDialog::build);
+    register(DialogType.DefaultTypes.IMAGE, ShowImageUI::build);
     register(DialogType.DefaultTypes.FREE_INPUT, FreeInputDialog::build);
-    register(DialogType.DefaultTypes.QUIZ, QuizDialogBuilders::buildQuizDialog);
-    register(DialogType.DefaultTypes.INVENTORY, InventoryDialogBuilders::buildInventoryDialog);
-    register(
-        DialogType.DefaultTypes.DUAL_INVENTORY, InventoryDialogBuilders::buildDualInventoryDialog);
-    register(DialogType.DefaultTypes.CRAFTING_GUI, InventoryDialogBuilders::buildCraftingGuiDialog);
-    register(DialogType.DefaultTypes.KEYPAD, KeypadDialog::build);
-    register(DialogType.DefaultTypes.PROGRESS_BAR, ProgressBarDialog::build);
+    register(DialogType.DefaultTypes.INVENTORY, InventoryGUI::buildSimple);
+    register(DialogType.DefaultTypes.DUAL_INVENTORY, InventoryGUI::buildDual);
+    register(DialogType.DefaultTypes.CRAFTING_GUI, CraftingGUI::build);
+    register(DialogType.DefaultTypes.KEYPAD, KeypadUI::build);
+    register(DialogType.DefaultTypes.PROGRESS_BAR, AttributeBarUtil::buildProgressBar);
     LOGGER.debug("Registered built-in dialog types");
   }
 
@@ -94,6 +83,16 @@ public class DialogFactory {
     registry.put(type, creator);
   }
 
+  /**
+   * Creates a dialog of the specified dialogType without displaying it.
+   *
+   * <p>This method only creates the dialog instance based on the provided context. It does not add
+   * it to any UI or manage its lifecycle.
+   *
+   * @param context The context containing all necessary data for dialog creation
+   * @return The created dialog instance
+   * @throws DialogCreationException if the dialog dialogType is not registered
+   */
   public static Group create(DialogContext context) {
     Objects.requireNonNull(context, "context");
     Function<DialogContext, Group> creator = registry.get(context.dialogType());
@@ -101,7 +100,7 @@ public class DialogFactory {
       throw new DialogCreationException(
           "Unknown dialog dialogType: " + context.dialogType().type());
     }
-    var dialog = creator.apply(context);
+    Group dialog = creator.apply(context);
     if (context.center()) {
       UIUtils.center(dialog);
     }
@@ -116,17 +115,22 @@ public class DialogFactory {
    *
    * @param context The context containing all necessary data for dialog creation
    * @return The entity containing the dialog UI component
-   * @throws DialogCreationException if the dialog dialogType is not registered
+   * @throws DialogCreationException if the dialog dialogType is not registered or the entity cannot
+   *     be found after creation
    */
   public static Entity show(final DialogContext context) {
     Objects.requireNonNull(context, "context");
 
+    Entity newEntity = new Entity("dialog-" + context.dialogType());
+    Game.add(newEntity);
+
     Entity entity =
-        context
-            .find(DialogContextKeys.ENTITY, Entity.class)
-            .orElseGet(() -> new Entity("dialog-" + context.dialogType()));
+        Game.findEntityById(newEntity.id())
+            .orElseThrow(
+                () -> new DialogCreationException("Cannot find newly created dialog entity"));
+
     DialogContext effectiveContext =
-        context.toBuilder().put(DialogContextKeys.ENTITY, entity).build();
+        context.toBuilder().put(DialogContextKeys.ENTITY, entity.id()).build();
     showDialog(effectiveContext, entity, true, new int[0]);
     Game.add(entity);
     return entity;
@@ -179,7 +183,7 @@ public class DialogFactory {
             .type(DialogType.DefaultTypes.OK)
             .put(DialogContextKeys.TITLE, title)
             .put(DialogContextKeys.MESSAGE, text)
-            .put(DialogContextKeys.ON_CONFIRM, onConfirm)
+            .putCallback(DialogContextKeys.ON_CONFIRM, onConfirm)
             .build());
   }
 
@@ -199,30 +203,8 @@ public class DialogFactory {
             .type(DialogType.DefaultTypes.YES_NO)
             .put(DialogContextKeys.TITLE, title)
             .put(DialogContextKeys.MESSAGE, text)
-            .put(DialogContextKeys.ON_YES, onYes)
-            .put(DialogContextKeys.ON_NO, onNo)
-            .build());
-  }
-
-  /**
-   * Shows a quiz dialog with custom result handling.
-   *
-   * <p>The result handler linker receives the dialog entity and returns a handler that processes
-   * button clicks and quiz answer validation.
-   *
-   * @param quiz The quiz to display
-   * @param handlerLinker Function that creates a result handler given the dialog entity
-   * @return A tuple containing the entity (with lifecycle management) and the dialog instance
-   */
-  public static Entity showQuizDialog(
-      Quiz quiz, Function<Entity, BiFunction<Dialog, String, Boolean>> handlerLinker) {
-    return show(
-        DialogContext.builder()
-            .type(DialogType.DefaultTypes.QUIZ)
-            .put(DialogContextKeys.TITLE, quiz.taskName())
-            .put(DialogContextKeys.MESSAGE, UIUtils.formatString(quiz.taskText()))
-            .put(DialogContextKeys.QUIZ, quiz)
-            .put(DialogContextKeys.RESULT_HANDLER_LINKER, handlerLinker)
+            .putCallback(DialogContextKeys.ON_YES, onYes)
+            .putCallback(DialogContextKeys.ON_NO, onNo)
             .build());
   }
 
@@ -244,279 +226,19 @@ public class DialogFactory {
       IVoidFunction onConfirm,
       String confirmLabel,
       String cancelLabel,
-      List<String> additionalButtons,
+      String[] additionalButtons,
       BiFunction<Dialog, String, Boolean> customHandler) {
     DialogContext.Builder builder =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.TEXT)
             .put(DialogContextKeys.TITLE, title)
             .put(DialogContextKeys.MESSAGE, text);
-    if (onConfirm != null) builder.put(DialogContextKeys.ON_CONFIRM, onConfirm);
+    if (onConfirm != null) builder.putCallback(DialogContextKeys.ON_CONFIRM, onConfirm);
     if (confirmLabel != null) builder.put(DialogContextKeys.CONFIRM_LABEL, confirmLabel);
     if (cancelLabel != null) builder.put(DialogContextKeys.CANCEL_LABEL, cancelLabel);
     if (additionalButtons != null)
       builder.put(DialogContextKeys.ADDITIONAL_BUTTONS, additionalButtons);
-    if (customHandler != null) builder.put(DialogContextKeys.RESULT_HANDLER, customHandler);
+    if (customHandler != null) builder.putCallback(DialogContextKeys.RESULT_HANDLER, customHandler);
     return show(builder.build());
-  }
-
-  /**
-   * Shows a Yes/No dialog for a task with automatic grading and result display.
-   *
-   * <p>When the user confirms ("Yes"), the task is graded and a series of result dialogs are shown
-   * displaying the score, correctness, and optionally the correct answers and explanation.
-   *
-   * @param task The task to present and grade
-   * @return The entity containing the dialog UI component
-   */
-  public static Entity showTaskYesNoDialog(Task task) {
-    String text =
-        task.taskText()
-            + System.lineSeparator()
-            + System.lineSeparator()
-            + task.scenarioText()
-            + System.lineSeparator()
-            + System.lineSeparator()
-            + "Bist du fertig?";
-    String title = task.taskName();
-    return showYesNoDialog(text, title, gradeOn(task), () -> {});
-  }
-
-  /**
-   * Creates a callback that grades a task and displays the results in a sequence of dialogs.
-   *
-   * <p>Shows: 1) Score and correctness 2) Explanation (if task was wrong and explanation exists) 3)
-   * Correct answers (if task was wrong)
-   *
-   * @param t The task to grade
-   * @return A callback that performs grading and displays results
-   */
-  private static IVoidFunction gradeOn(final Task t) {
-    return () -> {
-      float score = t.gradeTask();
-      StringBuilder output = new StringBuilder();
-      output
-          .append("Du hast ")
-          .append(score)
-          .append("/")
-          .append(t.points())
-          .append(" Punkte erreicht")
-          .append(System.lineSeparator())
-          .append("Die Aufgabe ist damit ");
-      if (t.state() == Task.TaskState.FINISHED_CORRECT) output.append("korrekt ");
-      else output.append("falsch ");
-      output.append("gelöst");
-
-      IVoidFunction showCorrectAnswer =
-          () -> showOkDialog(t.correctAnswersAsString(), "Korrekte Antwort", () -> {});
-
-      showOkDialog(
-          output.toString(),
-          "Ergebnis",
-          () -> {
-            if (score < t.points()) {
-              if (!t.explanation().isBlank() && !t.explanation().equals(Task.DEFAULT_EXPLANATION)) {
-                showOkDialog(t.explanation(), "Erklärung", showCorrectAnswer);
-              } else {
-                showCorrectAnswer.execute();
-              }
-            }
-          });
-    };
-  }
-}
-
-/**
- * Internal builder for text dialogs with support for multiple buttons and custom handlers.
- *
- * <p>This builder is used by the factory to create flexible text dialogs that can have confirm,
- * cancel, and additional custom buttons.
- */
-final class TextDialogBuilders {
-  private TextDialogBuilders() {}
-
-  /**
-   * Builds a text dialog from the given context.
-   *
-   * @param context The dialog context containing message, buttons, and handlers
-   * @return A fully configured text dialog
-   */
-  static Group buildTextDialog(DialogContext context) {
-    String title = context.require(DialogContextKeys.TITLE, String.class);
-    String text = context.require(DialogContextKeys.MESSAGE, String.class);
-    String button =
-        context
-            .find(DialogContextKeys.CONFIRM_LABEL, String.class)
-            .orElse(OkDialog.DEFAULT_OK_BUTTON);
-    String cancelButton = context.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(null);
-    @SuppressWarnings("unchecked")
-    List<String> extraButtons =
-        context.find(DialogContextKeys.ADDITIONAL_BUTTONS, List.class).orElse(List.of());
-    Entity entity = context.require(DialogContextKeys.ENTITY, Entity.class);
-    Skin skin = context.skin();
-    Dialog dialog =
-        TextDialog.createTextDialog(
-            skin,
-            text,
-            button,
-            title,
-            (d, id) -> {
-              @SuppressWarnings("unchecked")
-              BiFunction<Dialog, String, Boolean> customHandler =
-                  context.find(DialogContextKeys.RESULT_HANDLER, BiFunction.class).orElse(null);
-              if (customHandler != null && customHandler.apply(d, id)) {
-                return true;
-              }
-              if (Objects.equals(id, button)) {
-                context
-                    .find(DialogContextKeys.ON_CONFIRM, IVoidFunction.class)
-                    .ifPresent(IVoidFunction::execute);
-                Game.remove(entity);
-                return true;
-              }
-              if (cancelButton != null && Objects.equals(id, cancelButton)) {
-                context
-                    .find(DialogContextKeys.ON_CANCEL, IVoidFunction.class)
-                    .ifPresent(IVoidFunction::execute);
-                Game.remove(entity);
-                return true;
-              }
-              return false;
-            });
-    dialog.button(button, button);
-    if (cancelButton != null) {
-      dialog.button(cancelButton, cancelButton);
-    }
-    extraButtons.forEach(additional -> dialog.button(additional, additional));
-    dialog.pack();
-    return dialog;
-  }
-}
-
-/**
- * Internal builder for quiz dialogs.
- *
- * <p>This builder creates dialogs that display quiz questions with answer options and handle answer
- * validation through a custom result handler.
- */
-final class QuizDialogBuilders {
-  private QuizDialogBuilders() {}
-
-  /**
-   * Builds a quiz dialog from the given context.
-   *
-   * @param context The dialog context containing the quiz and result handler linker
-   * @return A fully configured quiz dialog
-   */
-  static Group buildQuizDialog(DialogContext context) {
-    String title = context.require(DialogContextKeys.TITLE, String.class);
-    Quiz quiz = context.require(DialogContextKeys.QUIZ, Quiz.class);
-    @SuppressWarnings("unchecked")
-    Function<Entity, BiFunction<Dialog, String, Boolean>> resultHandlerLinker =
-        (Function<Entity, BiFunction<Dialog, String, Boolean>>)
-            context.require(DialogContextKeys.RESULT_HANDLER_LINKER, Function.class);
-    String message =
-        context
-            .find(DialogContextKeys.MESSAGE, String.class)
-            .orElse(UIUtils.formatString(quiz.taskText()));
-    String confirmLabel =
-        context.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse("Bestätigen");
-    String cancelLabel =
-        context.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse("Abbrechen");
-    String windowStyle =
-        context.find(DialogContextKeys.WINDOW_STYLE, String.class).orElse("Letter");
-    Entity entity = context.require(DialogContextKeys.ENTITY, Entity.class);
-    BiFunction<Dialog, String, Boolean> handler = resultHandlerLinker.apply(entity);
-    Dialog dialog = new TextDialog(title, context.skin(), windowStyle, handler);
-    dialog
-        .getContentTable()
-        .add(QuizDialogDesign.createQuizQuestion(quiz, context.skin(), message))
-        .grow()
-        .fill();
-    dialog.button(cancelLabel, cancelLabel);
-    dialog.button(confirmLabel, confirmLabel);
-    dialog.pack();
-
-    return dialog;
-  }
-}
-
-final class InventoryDialogBuilders {
-  private static final DungeonLogger LOGGER =
-      DungeonLogger.getLogger(InventoryDialogBuilders.class);
-
-  private InventoryDialogBuilders() {}
-
-  static Group buildInventoryDialog(DialogContext context) {
-    Entity entity = context.require(DialogContextKeys.ENTITY, Entity.class);
-    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
-    if (inventory == null) {
-      LOGGER.warn("Entity {} has no InventoryComponent for InventoryDialog", entity);
-      throw new DialogCreationException("Missing InventoryComponent for InventoryDialog");
-    }
-    InventoryGUI inventoryGUI = new InventoryGUI(inventory);
-    return new GUICombination(inventoryGUI);
-  }
-
-  static Group buildDualInventoryDialog(DialogContext context) {
-    Entity entity = context.require(DialogContextKeys.ENTITY, Entity.class);
-    Entity otherEntity = context.require(DialogContextKeys.SECONDARY_ENTITY, Entity.class);
-    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
-    InventoryComponent otherInventory = otherEntity.fetch(InventoryComponent.class).orElse(null);
-    if (inventory == null || otherInventory == null) {
-      Entity missingEntity = (inventory == null) ? entity : otherEntity;
-      LOGGER.error("Entity {} has no InventoryComponent for DualInventoryDialog", missingEntity);
-      throw new DialogCreationException("Missing InventoryComponent for DualInventoryDialog");
-    }
-    String title = context.find(DialogContextKeys.TITLE, String.class).orElse(entity.name());
-    InventoryGUI inventoryGUI = new InventoryGUI(title, inventory);
-    String otherTitle =
-        context.find(DialogContextKeys.SECONDARY_TITLE, String.class).orElse(otherEntity.name());
-    InventoryGUI otherInventoryGUI = new InventoryGUI(otherTitle, otherInventory);
-    return new GUICombination(inventoryGUI, otherInventoryGUI);
-  }
-
-  static Group buildCraftingGuiDialog(DialogContext context) {
-    Entity entity = context.require(DialogContextKeys.ENTITY, Entity.class);
-    Entity otherEntity = context.require(DialogContextKeys.SECONDARY_ENTITY, Entity.class);
-    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
-    InventoryComponent otherInventory = otherEntity.fetch(InventoryComponent.class).orElse(null);
-    if (inventory == null || otherInventory == null) {
-      Entity missingEntity = (inventory == null) ? entity : otherEntity;
-      LOGGER.error("Entity {} has no InventoryComponent for CraftingGuiDialog", missingEntity);
-      throw new DialogCreationException("Missing InventoryComponent for CraftingGuiDialog");
-    }
-    InventoryGUI inventoryGUI = new InventoryGUI(inventory);
-    CraftingGUI craftingGUI = new CraftingGUI(inventory, otherInventory);
-    return new GUICombination(inventoryGUI, craftingGUI);
-  }
-}
-
-final class ImageDialog {
-  private ImageDialog() {}
-
-  static Group buildSingleImage(DialogContext context) {
-    String img_path = context.require(DialogContextKeys.IMAGE, String.class);
-    return new ShowImageUI(new ShowImageComponent(img_path));
-  }
-}
-
-final class KeypadDialog {
-  private KeypadDialog() {}
-
-  static Group build(DialogContext context) {
-    Entity entity = context.require(DialogContextKeys.ENTITY, Entity.class);
-    return new KeypadUI(entity);
-  }
-}
-
-final class ProgressBarDialog {
-  private ProgressBarDialog() {}
-
-  static Group build(DialogContext context) {
-    ProgressBar bar = context.require(DialogContextKeys.PROGRESS_BAR, ProgressBar.class);
-    Container<ProgressBar> container = new Container<>(bar);
-    container.setLayoutEnabled(false);
-    return container;
   }
 }

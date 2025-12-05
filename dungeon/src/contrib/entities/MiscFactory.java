@@ -200,8 +200,8 @@ public final class MiscFactory {
                                   DialogContext context =
                                       DialogContext.builder()
                                           .type(DialogType.DefaultTypes.DUAL_INVENTORY)
-                                          .put(DialogContextKeys.ENTITY, interacted)
-                                          .put(DialogContextKeys.SECONDARY_ENTITY, interactor)
+                                          .put(DialogContextKeys.ENTITY, interacted.id())
+                                          .put(DialogContextKeys.SECONDARY_ENTITY, interactor.id())
                                           .build();
                                   UIComponent uiComponent = new UIComponent(context, true);
                                   uiComponent.onClose(
@@ -286,7 +286,7 @@ public final class MiscFactory {
                                             "Willst du deinen "
                                                 + reqKeyName
                                                 + " verwenden, um die Schatzkiste zu öffnen?")
-                                        .put(
+                                        .putCallback(
                                             DialogContextKeys.ON_YES,
                                             (IVoidFunction)
                                                 () -> {
@@ -297,7 +297,8 @@ public final class MiscFactory {
                                                   interacted.remove(InteractionComponent.class);
                                                   interacted.add(oldIC);
                                                 })
-                                        .put(DialogContextKeys.ON_NO, (IVoidFunction) () -> {})
+                                        .putCallback(
+                                            DialogContextKeys.ON_NO, (IVoidFunction) () -> {})
                                         .build());
                               }));
 
@@ -335,8 +336,8 @@ public final class MiscFactory {
                                   var context =
                                       DialogContext.builder()
                                           .type(DialogType.DefaultTypes.CRAFTING_GUI)
-                                          .put(DialogContextKeys.ENTITY, entity)
-                                          .put(DialogContextKeys.SECONDARY_ENTITY, who)
+                                          .put(DialogContextKeys.ENTITY, entity.id())
+                                          .put(DialogContextKeys.SECONDARY_ENTITY, who.id())
                                           .build();
                                   UIComponent ui = new UIComponent(context, true);
                                   // ui.onClose(craftingGUI::cancel); // TODO
@@ -460,8 +461,8 @@ public final class MiscFactory {
                                   DialogContext context =
                                       DialogContext.builder()
                                           .type(DialogType.DefaultTypes.DUAL_INVENTORY)
-                                          .put(DialogContextKeys.ENTITY, interacted)
-                                          .put(DialogContextKeys.SECONDARY_ENTITY, interactor)
+                                          .put(DialogContextKeys.ENTITY, interacted.id())
+                                          .put(DialogContextKeys.SECONDARY_ENTITY, interactor.id())
                                           .build();
                                   UIComponent uiComponent = new UIComponent(context, true);
                                   interactor.add(uiComponent);
@@ -610,7 +611,7 @@ public final class MiscFactory {
                               .type(DialogType.DefaultTypes.OK)
                               .put(DialogContextKeys.TITLE, title)
                               .put(DialogContextKeys.MESSAGE, text)
-                              .put(DialogContextKeys.ON_CONFIRM, safeOnClose)
+                              .putCallback(DialogContextKeys.ON_CONFIRM, safeOnClose)
                               .build());
                     },
                     1f)));
@@ -668,7 +669,7 @@ public final class MiscFactory {
                                   "Willst du deinen "
                                       + reqKeyName
                                       + " verwenden, um die Tür zu öffnen?")
-                              .put(
+                              .putCallback(
                                   DialogContextKeys.ON_YES,
                                   (IVoidFunction)
                                       () -> {
@@ -678,7 +679,7 @@ public final class MiscFactory {
                                         Game.remove(interacted);
                                         door.open();
                                       })
-                              .put(DialogContextKeys.ON_NO, (IVoidFunction) () -> {})
+                              .putCallback(DialogContextKeys.ON_NO, (IVoidFunction) () -> {})
                               .build());
                     },
                     2f)));

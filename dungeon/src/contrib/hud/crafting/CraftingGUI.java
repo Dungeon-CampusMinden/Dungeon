@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.InventoryComponent;
@@ -12,16 +13,22 @@ import contrib.crafting.CraftingResult;
 import contrib.crafting.CraftingType;
 import contrib.crafting.Recipe;
 import contrib.hud.IInventoryHolder;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogCreationException;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.elements.ImageButton;
+import contrib.hud.inventory.InventoryGUI;
 import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
+import core.Entity;
 import core.Game;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.DungeonLogger;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -47,6 +54,7 @@ import java.util.Objects;
  * percentage of the height of the crafting GUI.
  */
 public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CraftingGUI.class);
 
   private static final IPath FONT_FNT = new SimpleIPath("skin/myFont.fnt");
   private static final IPath FONT_PNG = new SimpleIPath("skin/myFont.png");
@@ -195,6 +203,27 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
             }
           }
         });
+  }
+
+  /**
+   * Builds a CraftingGUI from the given DialogContext.
+   *
+   * @param context The dialog context containing the necessary attributes.
+   * @return A new CraftingGUI instance.
+   */
+  public static Group build(DialogContext context) {
+    Entity entity = context.requireEntity(DialogContextKeys.ENTITY);
+    Entity otherEntity = context.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
+    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
+    InventoryComponent otherInventory = otherEntity.fetch(InventoryComponent.class).orElse(null);
+    if (inventory == null || otherInventory == null) {
+      Entity missingEntity = (inventory == null) ? entity : otherEntity;
+      LOGGER.error("Entity {} has no InventoryComponent for CraftingGuiDialog", missingEntity);
+      throw new DialogCreationException("Missing InventoryComponent for CraftingGuiDialog");
+    }
+    InventoryGUI inventoryGUI = new InventoryGUI(otherInventory);
+    CraftingGUI craftingGUI = new CraftingGUI(inventory, inventory);
+    return new GUICombination(inventoryGUI, craftingGUI);
   }
 
   @Override

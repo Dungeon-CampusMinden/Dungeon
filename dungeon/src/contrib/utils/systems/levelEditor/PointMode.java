@@ -62,7 +62,7 @@ public class PointMode extends LevelEditorMode {
                 .type(DialogType.DefaultTypes.FREE_INPUT)
                 .put(DialogContextKeys.TITLE, "Add Named Point")
                 .put(DialogContextKeys.QUESTION, "Name of new point")
-                .put(DialogContextKeys.INPUT_CALLBACK, handleName)
+                .putCallback(DialogContextKeys.INPUT_CALLBACK, handleName)
                 .build());
       }
     } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {

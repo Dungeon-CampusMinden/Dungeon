@@ -1,6 +1,5 @@
 package contrib.hud;
 
-import contrib.components.ShowImageComponent;
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
@@ -11,19 +10,11 @@ import contrib.utils.components.showImage.TransitionSpeed;
 import core.Entity;
 import core.Game;
 import core.utils.IVoidFunction;
-import java.util.Iterator;
-import java.util.function.Function;
-import task.Task;
-import task.game.hud.QuizUI;
-import task.game.hud.UIAnswerCallback;
-import task.tasktype.Quiz;
 
 /**
  * The DialogUtils class is responsible for displaying text popups and quizzes to the player.
  *
  * @see DialogFactory
- * @see QuizUI
- * @see Quiz
  */
 public class DialogUtils {
 
@@ -57,54 +48,8 @@ public class DialogUtils {
             .type(DialogType.DefaultTypes.OK)
             .put(DialogContextKeys.TITLE, title)
             .put(DialogContextKeys.MESSAGE, text)
-            .put(DialogContextKeys.ON_CONFIRM, onFinished)
+            .putCallback(DialogContextKeys.ON_CONFIRM, onFinished)
             .build());
-  }
-
-  /**
-   * Presents a quiz to the player. If the player answers correctly, the next quiz is presented.
-   * Otherwise, the player is shown the correct answer. When all quizzes have been solved, the
-   * onFinished function is executed.
-   *
-   * @param quizIterator The iterator of quizzes to present.
-   * @param onFinished The function to execute when all quizzes have been solved.
-   * @see QuizUI#showQuizDialog(Quiz, Function) showQuizDialog
-   */
-  public static void presentQuiz(Iterator<Quiz> quizIterator, IVoidFunction onFinished) {
-    if (!quizIterator.hasNext()) {
-      // All quizzes have been correctly solved
-      onFinished.execute();
-      return;
-    }
-
-    Quiz quiz = quizIterator.next();
-    QuizUI.showQuizDialog(
-        quiz,
-        (Entity hudEntity) ->
-            UIAnswerCallback.uiCallback(
-                quiz,
-                hudEntity,
-                (task, taskContents) -> {
-                  task.gradeTask(taskContents);
-                  boolean correctAnswered = task.state() == Task.TaskState.FINISHED_CORRECT;
-                  String output = "You have ";
-                  if (correctAnswered) {
-                    output += "correctly ";
-                  } else {
-                    output += "incorrectly ";
-                  }
-                  output += "solved the quiz";
-
-                  DialogFactory.showOkDialog(
-                      output,
-                      "Result",
-                      () -> {
-                        if (correctAnswered) {
-                          // If the answer is correct, present the next quiz
-                          presentQuiz(quizIterator, onFinished);
-                        }
-                      });
-                }));
   }
 
   /**
@@ -118,12 +63,11 @@ public class DialogUtils {
   public static void showImagePopUp(
       String imagePath, TransitionSpeed speed, IVoidFunction onClose) {
     Entity e = new Entity();
-    ShowImageComponent sic = new ShowImageComponent(imagePath);
-    sic.transitionSpeed(speed);
     DialogContext context =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.IMAGE)
-            .put(DialogContextKeys.IMAGE, sic)
+            .put(DialogContextKeys.IMAGE, imagePath)
+            .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, speed)
             .build();
     UIComponent ui = new UIComponent(context, true, true, new int[] {});
     ui.onClose(onClose);

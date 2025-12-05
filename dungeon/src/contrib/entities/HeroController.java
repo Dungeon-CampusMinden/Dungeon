@@ -202,7 +202,7 @@ public class HeroController {
       DialogContext context =
           DialogContext.builder()
               .type(DialogType.DefaultTypes.INVENTORY)
-              .put(DialogContextKeys.ENTITY, hero)
+              .put(DialogContextKeys.ENTITY, hero.id())
               .build();
       hero.add(new UIComponent(context, true));
       isUIOpen = true;

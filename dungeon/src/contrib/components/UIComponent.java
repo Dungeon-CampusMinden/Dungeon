@@ -70,7 +70,7 @@ public final class UIComponent implements Component {
    * @return true when the dialog is shown
    */
   public boolean isVisible() {
-    return dialog.isVisible();
+    return dialog().isVisible();
   }
 
   /**
