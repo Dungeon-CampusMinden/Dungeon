@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.entities.deco.DecoFactory;
+import contrib.systems.AttributeBarSystem;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.HudSystem;
 import contrib.utils.CheckPatternPainter;
@@ -487,5 +488,6 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new InputSystem());
     ECSManagement.add(new DebugDrawSystem());
     ECSManagement.add(new HudSystem());
+    ECSManagement.add(new AttributeBarSystem());
   }
 }

@@ -9,7 +9,7 @@ import core.Component;
  * and the mana restoration rate per second. It provides methods for consuming, restoring, and
  * modifying mana.
  */
-public class ManaComponent implements Component {
+public class ManaComponent implements Component, BarDisplayable {
 
   /** The maximum amount of mana the entity can have. */
   private float maxAmount;
@@ -139,5 +139,25 @@ public class ManaComponent implements Component {
    */
   public void restorePerSecond(float restorePerSecond) {
     this.restorePerSecond = restorePerSecond;
+  }
+
+  @Override
+  public float current() {
+    return currentAmount();
+  }
+
+  @Override
+  public float max() {
+    return maxAmount();
+  }
+
+  @Override
+  public String barStyleName() {
+    return "manabar";
+  }
+
+  @Override
+  public int barPriority() {
+    return 1;
   }
 }

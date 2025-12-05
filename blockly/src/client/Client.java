@@ -171,7 +171,6 @@ public class Client {
     Game.add(new AISystem());
     Game.add(new HealthSystem());
     Game.add(new ProjectileSystem());
-    Game.add(new HealthBarSystem());
     Game.add(new HudSystem());
     Game.add(new SpikeSystem());
     Game.add(new IdleSoundSystem());

@@ -70,7 +70,6 @@ public class CoopDungeon {
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());
-    Game.add(new HealthBarSystem());
     Game.add(new HealthSystem());
     Game.add(new HudSystem());
     Game.add(new SpikeSystem());
@@ -83,8 +82,6 @@ public class CoopDungeon {
     Game.add(new IdleSoundSystem());
     Game.add(new ManaRestoreSystem());
     Game.add(new StaminaRestoreSystem());
-    Game.add(new ManaBarSystem());
-    Game.add(new StaminaBarSystem());
     if (DEBUG_MODE) Game.add(new Debugger());
   }
 

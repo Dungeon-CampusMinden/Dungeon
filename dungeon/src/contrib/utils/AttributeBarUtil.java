@@ -14,6 +14,7 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;
 import core.utils.Point;
@@ -21,7 +22,6 @@ import core.utils.logging.DungeonLogger;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
-import java.util.function.Function;
 
 /** Utility class for managing attribute bars (health, mana, energy) for entities. */
 public final class AttributeBarUtil {
@@ -37,6 +37,7 @@ public final class AttributeBarUtil {
   private static final float UPDATE_DURATION = 0.1f;
   private static final int DEFAULT_BAR_WIDTH = 50;
   private static final int DEFAULT_BAR_HEIGHT = 10;
+  public static final float BAR_GAP = 15f;
 
   private AttributeBarUtil() {} // Utility class, no instances
 
@@ -44,26 +45,27 @@ public final class AttributeBarUtil {
    * Creates a progress bar for the given entity and maps it in the provided map.
    *
    * @param entity the entity to attach the bar to
-   * @param componentFetcher function to get the attribute component
-   * @param barMapping map from entity ID to progress bar
-   * @param styleName name of the progress bar style (e.g., "healthbar", "manabar")
+   * @param barDisplayable the component providing bar data
+   * @param barMapping map from component class to progress bar
    * @param verticalOffset vertical offset above the entity
    */
   public static void addBarToEntity(
       Entity entity,
-      Function<Entity, AttributeProvider> componentFetcher,
-      Map<Integer, ProgressBar> barMapping,
-      String styleName,
+      contrib.components.BarDisplayable barDisplayable,
+      Map<Class<? extends contrib.components.BarDisplayable>, ProgressBar> barMapping,
       float verticalOffset) {
-    Entity barEntity = new Entity(NEXT_ID++, styleName + "_" + entity.id());
+    Entity barEntity = new Entity(NEXT_ID++, barDisplayable.barStyleName() + "_" + entity.id());
 
     DialogContext context =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.PROGRESS_BAR)
+            .center(false) // we will position it ourselves
             .put(
                 DialogContextKeys.PROGRESS_BAR,
                 new ProgressBarContext(
-                    entity.fetch(PositionComponent.class).orElseThrow(), styleName, verticalOffset))
+                    entity.fetch(PositionComponent.class).orElseThrow(),
+                    barDisplayable.barStyleName(),
+                    verticalOffset))
             .build();
     UIComponent uiComp = new UIComponent(context, false, false, new int[] {});
     barEntity.add(uiComp);
@@ -71,10 +73,7 @@ public final class AttributeBarUtil {
 
     UIUtils.findTypeInGroup(uiComp.dialog(), ProgressBar.class)
         .ifPresentOrElse(
-            bar -> {
-              barMapping.put(entity.id(), bar);
-              //updateBar(entity, componentFetcher, barMapping, verticalOffset);
-            },
+            bar -> barMapping.put(barDisplayable.getClass(), bar),
             () -> LOGGER.error("Failed to create progress bar for entity {}", entity));
   }
 
@@ -90,6 +89,8 @@ public final class AttributeBarUtil {
     ProgressBar bar = createBar(barContext);
     Container<ProgressBar> container = new Container<>(bar);
     container.setLayoutEnabled(false);
+    container.pack();
+    container.setPosition(0, 0);
     return container;
   }
 
@@ -122,58 +123,29 @@ public final class AttributeBarUtil {
     screenCoords.y = screenCoords.y / stage.getViewport().getScreenHeight() * stage.getHeight();
 
     bar.setPosition(screenCoords.x, screenCoords.y - verticalOffset);
-
-    // debug prints
-    System.out.println("Entity Position: (" + pos.x() + ", " + pos.y() + ")");
-    System.out.println("Screen Coordinates: (" + screenCoords.x + ", " + screenCoords.y + ")");
-    System.out.println("Bar Position Set To: (" + bar.getX() + ", " + bar.getY() + ")");
-    System.out.println("Camera Viewport: Width=" + stage.getViewport().getScreenWidth() + ", Height=" + stage.getViewport().getScreenHeight());
-    System.out.println("Stage Size: Width=" + stage.getWidth() + ", Height=" + stage.getHeight());
-    System.out.println("-----------------------------");
   }
 
   /**
    * Updates the value and visibility of the bar for the entity.
    *
    * @param entity the entity
-   * @param componentFetcher fetches the attribute component (must provide current and max)
-   * @param barMapping map from entity ID to progress bar
+   * @param barDisplayable the component providing bar data
+   * @param barMapping map from component class to progress bar
    * @param verticalOffset vertical offset
-   * @param <T> type of the attribute component
    */
-  public static <T> void updateBar(
+  public static void updateBar(
       Entity entity,
-      Function<Entity, AttributeProvider> componentFetcher,
-      Map<Integer, ProgressBar> barMapping,
+      contrib.components.BarDisplayable barDisplayable,
+      Map<Class<? extends contrib.components.BarDisplayable>, ProgressBar> barMapping,
       float verticalOffset) {
-    AttributeProvider comp = componentFetcher.apply(entity);
-    ProgressBar bar = barMapping.get(entity.id());
+    ProgressBar bar = barMapping.get(barDisplayable.getClass());
     if (bar == null) return;
 
-    /*bar.setVisible(
-    entity.fetch(DrawComponent.class).map(DrawComponent::isVisible).orElse(false)
-        && comp.current() != comp.max());*/
-    // TODO
+    bar.setVisible(
+        entity.fetch(DrawComponent.class).map(DrawComponent::isVisible).orElse(false)
+            && barDisplayable.current() != barDisplayable.max());
     updatePosition(bar, entity.fetch(PositionComponent.class).orElseThrow(), verticalOffset);
-    bar.setValue(comp.current() / comp.max());
-  }
-
-  /** Simple interface to generalize components with current/max values. */
-  public interface AttributeProvider {
-
-    /**
-     * Returns the current value of the attribute.
-     *
-     * @return the current value
-     */
-    float current();
-
-    /**
-     * Returns the maximum possible value of the attribute.
-     *
-     * @return the maximum value
-     */
-    float max();
+    bar.setValue(barDisplayable.current() / barDisplayable.max());
   }
 
   private record ProgressBarContext(PositionComponent pc, String styleName, float verticalOffset)
