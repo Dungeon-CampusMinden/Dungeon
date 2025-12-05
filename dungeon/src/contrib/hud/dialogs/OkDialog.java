@@ -28,7 +28,7 @@ final class OkDialog {
     String text = context.require(DialogContextKeys.MESSAGE, String.class);
     String title = context.find(DialogContextKeys.TITLE, String.class).orElse("OK");
     Entity entity = context.requireEntity(DialogContextKeys.ENTITY);
-    IVoidFunction onOk = context.requireCallback(DialogContextKeys.ON_CONFIRM, IVoidFunction.class);
+    IVoidFunction onOk = context.findCallback(DialogContextKeys.ON_CONFIRM, IVoidFunction.class).orElse(() -> {});
     return create(context.skin(), title, text, entity, onOk);
   }
 

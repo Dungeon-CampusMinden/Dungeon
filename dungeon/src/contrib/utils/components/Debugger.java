@@ -197,10 +197,9 @@ public class Debugger extends System {
     Entity entity =
         DialogFactory.show(
             DialogContext.builder()
-                .type(DialogType.DefaultTypes.TEXT)
+                .type(DialogType.DefaultTypes.OK)
                 .put(DialogContextKeys.TITLE, "Spiel pausiert")
                 .put(DialogContextKeys.MESSAGE, "Pause")
-                .put(DialogContextKeys.CONFIRM_LABEL, "Weiter")
                 .build());
     entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
     return entity;
