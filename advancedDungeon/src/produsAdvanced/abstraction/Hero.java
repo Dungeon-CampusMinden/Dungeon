@@ -191,15 +191,7 @@ public class Hero {
    * geöffnet.
    */
   public void openInventory() {
-    hero.fetch(PlayerComponent.class)
-        .ifPresent(
-            pc -> {
-              hero.add(
-                  new UIComponent(
-                      new GUICombination(
-                          new InventoryGUI(hero.fetch(InventoryComponent.class).orElse(null))),
-                      true));
-            });
+    HeroController.toggleInventory(hero);
   }
 
   /**

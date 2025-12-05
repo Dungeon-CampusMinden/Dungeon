@@ -6,6 +6,7 @@ import core.Game;
 import core.game.ECSManagement;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
+import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.systems.*;
@@ -27,7 +28,7 @@ public class MultiplayerServer {
     DungeonLoggerConfig.initWithLevel(DungeonLogLevel.DEBUG);
     PreRunConfiguration.multiplayerEnabled(true);
     PreRunConfiguration.isNetworkServer(true);
-    DungeonLoader.addLevel(Tuple.of("playground", TestLevel.class));
+    DungeonLoader.addLevel(Tuple.of("playground", DungeonLevel.class));
 
     Game.userOnSetup(MultiplayerServer::onSetup);
     Game.userOnFrame(MultiplayerServer::onFrame);
