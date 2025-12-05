@@ -277,7 +277,7 @@ public final class DialogContext implements Serializable {
 
     private Builder(DialogContext from) {
       this.type = from.dialogType();
-      this.skin = from.skin(); // Use accessor to get potentially defaulted skin
+      this.skin = from.skin;
       this.attributes.putAll(from.attributes());
       this.callbacks.putAll(from.callbacks());
     }

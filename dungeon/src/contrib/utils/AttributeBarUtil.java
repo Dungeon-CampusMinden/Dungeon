@@ -37,6 +37,8 @@ public final class AttributeBarUtil {
   private static final float UPDATE_DURATION = 0.1f;
   private static final int DEFAULT_BAR_WIDTH = 50;
   private static final int DEFAULT_BAR_HEIGHT = 10;
+
+  /** Gap between stacked bars. */
   public static final float BAR_GAP = 15f;
 
   private AttributeBarUtil() {} // Utility class, no instances
