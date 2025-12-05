@@ -62,6 +62,7 @@ public class Level009 extends BlocklyLevel {
     LevelManagementUtils.playerViewDirection(Direction.DOWN);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
+    showPopups();
 
     BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().addToGame();
     guardBuilder.attackRange(5);
