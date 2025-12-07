@@ -155,7 +155,7 @@ public class Hero {
         .ifPresentOrElse(
             uiComponent -> {
               if (uiComponent.dialog() instanceof GUICombination
-                  && !InventoryGUI.inPlayerInventory()) {
+                  && !InventoryGUI.inPlayerInventory(hero)) {
                 hero.remove(UIComponent.class);
               }
             },

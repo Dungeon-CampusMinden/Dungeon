@@ -17,6 +17,8 @@ import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import level.portal.PortalDemoLevel;
+import level.portal.PortalLevel_4;
+import level.portal.PortalLevel_5;
 import produsAdvanced.abstraction.portals.PortalColor;
 import produsAdvanced.abstraction.portals.portalSkills.PortalSkill;
 import produsAdvanced.abstraction.portals.systems.PortalExtendSystem;
@@ -51,6 +53,8 @@ public class PortalStarter {
     Game.userOnSetup(
         () -> {
           // setupMusic();
+          DungeonLoader.addLevel(Tuple.of("portallevel4", PortalLevel_4.class));
+          DungeonLoader.addLevel(Tuple.of("portallevel5", PortalLevel_5.class));
           DungeonLoader.addLevel(Tuple.of("PortalDemo", PortalDemoLevel.class));
           createSystems();
           createHero();

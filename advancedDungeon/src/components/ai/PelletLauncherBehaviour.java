@@ -48,6 +48,9 @@ public class PelletLauncherBehaviour implements Consumer<Entity>, ISkillUser {
 
     if (skill instanceof DamageProjectileSkill dps) {
       this.projectileSkill = dps;
+      Game.allEntities()
+          .filter(e -> "antiMaterialBarrier".equals(e.name()))
+          .forEach(e -> projectileSkill.ignoreEntity(e));
     } else {
       throw new IllegalArgumentException(
           "Skill for PelletLauncher must be a DamageProjectileSkill");

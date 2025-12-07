@@ -116,6 +116,11 @@ allprojects {
     }
 }
 
+tasks.named('clean') {
+    delete(
+            file("$rootDir/dungeon_config.json")
+    )
+}
 
 spotless {
     java {

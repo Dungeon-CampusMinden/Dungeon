@@ -1,10 +1,10 @@
 package contrib.components;
 
-import com.badlogic.gdx.utils.Null;
 import contrib.item.Item;
 import core.Component;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -27,6 +27,8 @@ public final class InventoryComponent implements Component {
 
   private static final int DEFAULT_MAX_SIZE = 24;
   private final Item[] inventory;
+  private Consumer<Item> onItemAdded = item -> {};
+  private Consumer<Item> onItemRemoved = item -> {};
 
   /**
    * The default {@link InventoryComponent} constructor. Creates an empty inventory with {@link
@@ -59,15 +61,12 @@ public final class InventoryComponent implements Component {
    * @return True if the item was added, false if not.
    */
   public boolean add(final Item item) {
-    if (addToStack(item) == 0) return true;
-
-    int firstEmpty = -1;
-    for (int i = 0; i < this.inventory.length; i++) {
-      if (this.inventory[i] == null) {
-        firstEmpty = i;
-        break;
-      }
+    if (addToStack(item) == 0) {
+      this.onItemAdded.accept(item);
+      return true;
     }
+
+    int firstEmpty = this.findNextAvailableSlot();
     if (firstEmpty == -1) return false;
     LOGGER.debug(
         "Item '{}' was added to the inventory of entity '{}'.",
@@ -77,6 +76,12 @@ public final class InventoryComponent implements Component {
     return true;
   }
 
+  /**
+   * Try to add the given item to existing stacks of the same item class.
+   *
+   * @param item The item to be added.
+   * @return The remaining stack size of the item that could not be added.
+   */
   private int addToStack(final Item item) {
     List<Item> sameClassItems = itemsOfSameClass(item);
     for (Item stack : sameClassItems) {
@@ -108,30 +113,35 @@ public final class InventoryComponent implements Component {
    * Remove the given item from the inventory.
    *
    * @param item The item to be removed.
-   * @return True if the item was removed, false otherwise.
+   * @return An {@link Optional} containing the removed item, or {@link Optional#empty()} if the
+   *     item was not found.
    */
-  public boolean remove(final Item item) {
+  public Optional<Item> remove(final Item item) {
     LOGGER.debug("Removing item '{}' from inventory.", this.getClass().getSimpleName());
     for (int i = 0; i < inventory.length; i++) {
       if (inventory[i] != null && inventory[i].equals(item)) {
-        inventory[i] = null;
-        return true;
+        return remove(i);
       }
     }
-    return false;
+    return Optional.empty();
   }
 
   /**
    * Remove item from specific index in inventory.
    *
    * @param index Index of item to remove.
-   * @return Item removed. May be null.
+   * @return An {@link Optional} containing the removed item, or {@link Optional#empty()} if no item
+   *     was present at the given index.
    */
-  @Null
-  public Item remove(int index) {
+  public Optional<Item> remove(int index) {
+    if (index >= this.inventory.length || index < 0) {
+      LOGGER.warn("Tried to remove item at invalid inventory index: {}", index);
+      return Optional.empty();
+    }
     Item itemData = inventory[index];
     inventory[index] = null;
-    return itemData;
+    this.onItemRemoved.accept(itemData);
+    return Optional.ofNullable(itemData);
   }
 
   /**
@@ -198,8 +208,37 @@ public final class InventoryComponent implements Component {
    * @return true if the transfer was successful, false if not.
    */
   public boolean transfer(final Item item, final InventoryComponent other) {
-    if (!other.equals(this) && this.hasItem(item) && other.add(item)) return this.remove(item);
+    LOGGER.debug(
+        "Transferring item '{}' from inventory '{}' to inventory '{}'.",
+        item.getClass().getSimpleName(),
+        this.getClass().getSimpleName(),
+        other.getClass().getSimpleName());
+    if (!other.equals(this) && this.hasItem(item) && other.add(item))
+      return this.remove(item).isPresent();
     return false;
+  }
+
+  /**
+   * Transfer all items from this inventory to the given inventory.
+   *
+   * <p>Items that cannot be transferred (e.g., because the other inventory is full) will remain in
+   * this inventory.
+   *
+   * @param other {@link InventoryComponent} to transfer the items to.
+   * @return true if all items were successfully transferred, false if some items could not be
+   *     transferred.
+   */
+  public boolean transferAll(final InventoryComponent other) {
+    boolean allTransferred = true;
+    for (Item item : this.items()) {
+      if (item != null) {
+        boolean transferred = this.transfer(item, other);
+        if (!transferred) {
+          allTransferred = false;
+        }
+      }
+    }
+    return allTransferred;
   }
 
   /**
@@ -252,20 +291,27 @@ public final class InventoryComponent implements Component {
    * @param item Item to set at index.
    */
   public void set(int index, final Item item) {
-    if (index >= this.inventory.length || index < 0) return;
+    if (index >= this.inventory.length || index < 0) {
+      LOGGER.warn("Tried to set item at invalid inventory index: {}", index);
+      return;
+    }
     this.inventory[index % this.inventory.length] = item;
+    this.onItemAdded.accept(item);
   }
 
   /**
    * Get the item at the given index.
    *
    * @param index Index of item to get.
-   * @return Item at index. May be null.
+   * @return An {@link Optional} containing the item at the given index, or {@link Optional#empty()}
+   *     if the index is out of bounds.
    */
-  @Null
-  public Item get(int index) {
-    if (index >= this.inventory.length || index < 0) return null;
-    return this.inventory[index];
+  public Optional<Item> get(int index) {
+    if (index >= this.inventory.length || index < 0) {
+      LOGGER.warn("Tried to get item at invalid inventory index: {}", index);
+      return Optional.empty();
+    }
+    return Optional.ofNullable(this.inventory[index]);
   }
 
   /**
@@ -300,6 +346,7 @@ public final class InventoryComponent implements Component {
         Item it = inventory[i];
         it.stackSize(it.stackSize() - 1);
         if (it.stackSize() <= 0) inventory[i] = null;
+        this.onItemRemoved.accept(it);
         return true;
       }
     }
@@ -333,6 +380,79 @@ public final class InventoryComponent implements Component {
         item.stackSize(stack - amount);
         amount = 0;
       }
+      this.onItemRemoved.accept(item);
     }
+  }
+
+  /**
+   * Removes all items from the inventory.
+   *
+   * <p>This method clears the inventory by setting all item slots to null.
+   */
+  public void clear() {
+    for (int i = 0; i < this.inventory.length; i++) {
+      this.remove(i);
+    }
+  }
+
+  /**
+   * Finds the index of the next available (empty) slot in the inventory.
+   *
+   * @return The index of the next available slot, or -1 if the inventory is full.
+   */
+  public int findNextAvailableSlot() {
+    for (int i = 0; i < this.inventory.length; i++) {
+      if (this.inventory[i] == null) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Checks if the inventory is empty.
+   *
+   * @return true if the inventory contains no items, false otherwise.
+   */
+  public boolean isEmpty() {
+    return count() == 0;
+  }
+
+  /**
+   * Sets a callback function to be executed when an item is added to the inventory.
+   *
+   * @param onItemAdded A {@link Consumer} that defines the action to be performed when an item is
+   *     added.
+   */
+  public void onItemAdded(Consumer<Item> onItemAdded) {
+    this.onItemAdded = onItemAdded;
+  }
+
+  /**
+   * Returns the callback function that is executed when an item is added to the inventory.
+   *
+   * @return A {@link Consumer} that defines the action performed when an item is added.
+   */
+  public Consumer<Item> onItemAdded() {
+    return this.onItemAdded;
+  }
+
+  /**
+   * Sets a callback function to be executed when an item is removed from the inventory.
+   *
+   * @param onItemRemoved A {@link Consumer} that defines the action to be performed when an item is
+   *     removed.
+   */
+  public void onItemRemoved(Consumer<Item> onItemRemoved) {
+    this.onItemRemoved = onItemRemoved;
+  }
+
+  /**
+   * Returns the callback function that is executed when an item is removed from the inventory.
+   *
+   * @return A {@link Consumer} that defines the action performed when an item is removed.
+   */
+  public Consumer<Item> onItemRemoved() {
+    return this.onItemRemoved;
   }
 }
