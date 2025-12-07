@@ -68,7 +68,12 @@ com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable: {
 		region: progress-bar-fill
 		minWidth: 1
 		minHeight: 10
-	}
+	},
+    progress-bar-hud-fill: {
+        region: progress-bar-fill
+        minWidth: 1
+        minHeight: 18
+    }
 }
 com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable: {
 	progress-bar-smaller: {
@@ -79,7 +84,16 @@ com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable: {
 		rightWidth: 1
 		topHeight: 1
 		bottomHeight: 1
-	}
+	},
+    progress-bar-hud: {
+        patch: progress-bar-smaller
+        minWidth: 20
+        minHeight: 20
+        leftWidth: 1
+        rightWidth: 1
+        topHeight: 1
+        bottomHeight: 1
+    }
 }
 com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 	round-dark-gray: {
@@ -126,7 +140,16 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 			b: 0.59
 			a: 1
 		}
-	}
+	},
+    dark-gray: {
+        name: white
+        color: {
+            r: 0.22
+            g: 0.22
+            b: 0.22
+            a: 1
+        }
+    }
 	progress-bar-fill-experience: {
 		name: progress-bar-fill
 		color: experience_green
@@ -151,6 +174,30 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 		minWidth: 1
 		minHeight: 10
 	}
+    progress-bar-hud-fill-experience: {
+        name: progress-bar-hud-fill
+        color: experience_green
+        minWidth: 1
+        minHeight: 18
+    }
+    progress-bar-hud-fill-health: {
+        name: progress-bar-hud-fill
+        color: health_red
+        minWidth: 1
+        minHeight: 18
+    }
+    progress-bar-hud-fill-mana: {
+        name: progress-bar-hud-fill
+        color: mana_blue
+        minWidth: 1
+        minHeight: 18
+    }
+    progress-bar-hud-fill-stamina: {
+        name: progress-bar-hud-fill
+        color: orange
+        minWidth: 1
+        minHeight: 18
+    }
 }
 com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable: {
 	healthbar: {
@@ -251,6 +298,22 @@ com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
 		background: progress-bar-smaller
 		knobBefore: progress-bar-fill-experience
 	}
+    healthbarhud: {
+        background: progress-bar-hud
+        knobBefore: progress-bar-hud-fill-health
+    }
+    manabarhud: {
+        background: progress-bar-hud
+        knobBefore: progress-bar-hud-fill-mana
+    }
+    staminabarhud: {
+        background: progress-bar-hud
+        knobBefore: progress-bar-hud-fill-stamina
+    }
+    experiencebarhud: {
+        background: progress-bar-hud
+        knobBefore: progress-bar-hud-fill-experience
+    }
 }
 com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 	default: {
