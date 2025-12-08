@@ -707,7 +707,7 @@ public class PortalFactory {
    * @return an {@link Optional} containing the blue portal entity, or empty if none exists
    */
   public static Optional<Entity> getBluePortal() {
-    return Game.allEntities().filter(entity -> entity.name().equals(BLUE_PORTAL_NAME)).findFirst();
+    return Game.levelEntities().filter(entity -> entity.name().equals(BLUE_PORTAL_NAME)).findFirst();
   }
 
   /**
@@ -716,6 +716,6 @@ public class PortalFactory {
    * @return an {@link Optional} containing the green portal entity, or empty if none exists
    */
   public static Optional<Entity> getGreenPortal() {
-    return Game.allEntities().filter(entity -> entity.name().equals(GREEN_PORTAL_NAME)).findFirst();
+    return Game.levelEntities().filter(entity -> entity.name().equals(GREEN_PORTAL_NAME)).findFirst();
   }
 }
