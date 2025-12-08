@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import produsAdvanced.abstraction.portals.PortalFactory;
+import produsAdvanced.abstraction.portals.components.PortalComponent;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
 import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 import skills.EnergyPelletSkill;
@@ -170,8 +171,7 @@ public class AdvancedFactory {
             PortalFactory.clearAllPortals();
           } else if (other.isPresent(TractorBeamComponent.class)
               || other.isPresent(PortalExtendComponent.class)
-              || (otherEntityName.contains("energyPelletLauncher")
-                  && otherEntityName.contains("skill_projectile"))) {
+              || otherEntityName.contains("energyPelletLauncher")) {
             // do nothing
           } else {
             Game.remove(other);
