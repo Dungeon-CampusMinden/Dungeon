@@ -112,6 +112,9 @@ public class HudStarter {
     HeroIcon heroIcon = new HeroIcon(skin);
     hud.addElement(heroIcon);
 
+    QuickAccessInventory quickAccessInventory = new QuickAccessInventory(skin);
+    hud.addElement(quickAccessInventory);
+
     Game.stage().ifPresent(stage -> stage.addActor(hud.getStage().getRoot()));
   }
 }

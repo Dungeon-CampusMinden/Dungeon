@@ -25,7 +25,7 @@ public class ManaBar extends Stack implements HUDElement {
     manaLabel = new Label("100 / 100", skin, "manalabel"); // Style aus Skin
     manaLabel.setSize(80, BAR_HEIGHT);
     manaLabel.setFontScale(0.5f);
-    manaLabel.setAlignment(Align.center);
+    manaLabel.setAlignment(Align.left);
 
     add(bar);
     add(manaLabel);
@@ -33,12 +33,13 @@ public class ManaBar extends Stack implements HUDElement {
 
   @Override
   public void init() {
-    layout();
+    layoutElement();
     bar.setValue(100);
   }
 
   @Override
-  public void layout() {
+  public void layoutElement() {
+    setSize(BAR_WIDTH, BAR_HEIGHT);
     setPosition(80, Gdx.graphics.getHeight() - BAR_HEIGHT - 40);
   }
 

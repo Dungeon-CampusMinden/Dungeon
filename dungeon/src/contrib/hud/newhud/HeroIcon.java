@@ -16,7 +16,6 @@ public class HeroIcon extends Table implements HUDElement {
   private final Image heroIcon;
 
   public HeroIcon(Skin skin) {
-    super(skin);
     setSize(64, 64);
     setBackground(skin.getDrawable("gray"));
 
@@ -32,12 +31,12 @@ public class HeroIcon extends Table implements HUDElement {
 
   @Override
   public void init() {
-    layout();
+    layoutElement();
     setHeroIcon();
   }
 
   @Override
-  public void layout() {
+  public void layoutElement() {
     setPosition(16, Gdx.graphics.getHeight() - 82);
   }
 

@@ -36,7 +36,7 @@ public class HeadUpDisplaySystem extends System {
     for (HUDElement e : elements) {
       e.update();
       if (updateLayout) {
-        e.layout();
+        e.layoutElement();
         java.lang.System.out.println("yeet");
       }
     }

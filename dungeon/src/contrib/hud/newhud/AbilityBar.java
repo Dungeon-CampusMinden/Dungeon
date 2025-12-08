@@ -34,21 +34,19 @@ public class AbilityBar extends Table implements HUDElement {
       slots.add(slot);
       add(slot).size(64, 64);
     }
-
-    pack();
   }
 
   @Override
   public void init() {
-    layout();
+    layoutElement();
     setDynamicIcons();
     setAbilityCost();
   }
 
   @Override
-  public void layout() {
-    super.layout();
+  public void layoutElement() {
     setPosition((Gdx.graphics.getWidth() - getWidth()) / 2f, 35);
+    pack();
   }
 
   @Override

@@ -25,7 +25,7 @@ public class HealthBar extends Stack implements HUDElement {
     hpLabel = new Label("100 / 100", skin, "healthlabel");
     hpLabel.setSize(80, BAR_HEIGHT);
     hpLabel.setFontScale(0.5f);
-    hpLabel.setAlignment(Align.center);
+    hpLabel.setAlignment(Align.left);
 
     add(bar);
     add(hpLabel);
@@ -33,12 +33,13 @@ public class HealthBar extends Stack implements HUDElement {
 
   @Override
   public void init() {
-    layout();
+    layoutElement();
     bar.setValue(100);
   }
 
   @Override
-  public void layout() {
+  public void layoutElement() {
+    setSize(BAR_WIDTH, BAR_HEIGHT);
     setPosition(80, Gdx.graphics.getHeight() - BAR_HEIGHT - 20);
   }
 

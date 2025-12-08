@@ -25,7 +25,7 @@ public class StaminaBar extends Stack implements HUDElement {
     staminaLabel = new Label("100 / 100", skin, "staminalabel"); // Style aus Skin
     staminaLabel.setSize(80, BAR_HEIGHT);
     staminaLabel.setFontScale(0.5f);
-    staminaLabel.setAlignment(Align.center);
+    staminaLabel.setAlignment(Align.left);
 
     add(bar);
     add(staminaLabel);
@@ -33,12 +33,13 @@ public class StaminaBar extends Stack implements HUDElement {
 
   @Override
   public void init() {
-    layout();
+    layoutElement();
     bar.setValue(100);
   }
 
   @Override
-  public void layout() {
+  public void layoutElement() {
+    setSize(BAR_WIDTH, BAR_HEIGHT);
     setPosition(80, Gdx.graphics.getHeight() - BAR_HEIGHT - 60);
   }
 
