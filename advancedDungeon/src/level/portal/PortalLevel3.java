@@ -10,9 +10,8 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import entities.AdvancedFactory;
-import level.AdvancedLevel;
-
 import java.util.Map;
+import level.AdvancedLevel;
 
 public class PortalLevel3 extends AdvancedLevel {
   /**
@@ -47,9 +46,8 @@ public class PortalLevel3 extends AdvancedLevel {
         AdvancedFactory.energyPelletLauncher(
             namedPoints.get("pelletLauncher"), Direction.DOWN, 1000000000, 1000000000);
 
-    catcher = AdvancedFactory.energyPelletCatcher(namedPoints.get("pelletCatcher"),Direction.LEFT);
+    catcher = AdvancedFactory.energyPelletCatcher(namedPoints.get("pelletCatcher"), Direction.LEFT);
     catcherToggle = catcher.fetch(ToggleableComponent.class).get();
-
 
     for (int i = 0; i < 9; i++) {
       walls[i] = AdvancedFactory.antiMaterialBarrier(namedPoints.get("w" + i), true);

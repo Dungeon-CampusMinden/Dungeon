@@ -1,16 +1,10 @@
 package level.portal;
 
-import contrib.components.LeverComponent;
-import core.Entity;
-import core.Game;
-import core.level.elements.tile.ExitTile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import entities.AdvancedFactory;
-import level.AdvancedLevel;
-
 import java.util.Map;
+import level.AdvancedLevel;
 
 public class PortalLevel1 extends AdvancedLevel {
   /**

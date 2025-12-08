@@ -8,9 +8,8 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import entities.AdvancedFactory;
-import level.AdvancedLevel;
-
 import java.util.Map;
+import level.AdvancedLevel;
 
 public class PortalLevel2 extends AdvancedLevel {
 
