@@ -109,6 +109,9 @@ public class HudStarter {
     AbilityBar abilityBar = new AbilityBar(skin);
     hud.addElement(abilityBar);
 
+    HeroIcon heroIcon = new HeroIcon(skin);
+    hud.addElement(heroIcon);
+
     Game.stage().ifPresent(stage -> stage.addActor(hud.getStage().getRoot()));
   }
 }

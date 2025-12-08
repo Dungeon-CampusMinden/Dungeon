@@ -32,6 +32,12 @@ com.badlogic.gdx.graphics.Color: {
 		b: 0.7490196
 		a: 1
 	}
+    white: {
+        r: 1
+        g: 1
+        b: 1
+        a: 1
+    }
 	experience_green: {
 		r: 0.16078432
 		g: 1
@@ -296,6 +302,18 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		font: roboto-semibold-32
 		fontColor: white
 	}
+    healthlabel: {
+        font: roboto-semibold-32
+        fontColor: white
+    }
+    manalabel: {
+        font: roboto-semibold-32
+        fontColor: white
+    }
+    staminalabel: {
+        font: roboto-semibold-32
+        fontColor: black
+    }
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 	default: {

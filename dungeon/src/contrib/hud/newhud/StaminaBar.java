@@ -1,26 +1,40 @@
 package contrib.hud.newhud;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.utils.Align;
 import contrib.components.StaminaComponent;
 import core.Game;
 
-public class StaminaBar extends ProgressBar implements HUDElement {
+public class StaminaBar extends Stack implements HUDElement {
 
   private static final float BAR_WIDTH = 300;
   private static final float BAR_HEIGHT = 20;
 
+  private final ProgressBar bar;
+  private final Label staminaLabel;
+
   public StaminaBar(Skin skin) {
-    super(0f, 100f, 1f, false, skin, "staminabarhud");
-    setSize(BAR_WIDTH, BAR_HEIGHT);
-    setAnimateDuration(0.2f);
+    bar = new ProgressBar(0f, 100f, 1f, false, skin, "staminabarhud");
+    bar.setSize(BAR_WIDTH, BAR_HEIGHT);
+    bar.setAnimateDuration(0.2f);
+
+    staminaLabel = new Label("100 / 100", skin, "staminalabel"); // Style aus Skin
+    staminaLabel.setSize(80, BAR_HEIGHT);
+    staminaLabel.setFontScale(0.5f);
+    staminaLabel.setAlignment(Align.center);
+
+    add(bar);
+    add(staminaLabel);
   }
 
   @Override
   public void init() {
     layout();
-    setValue(100); // Start voll
+    bar.setValue(100);
   }
 
   @Override
@@ -32,14 +46,13 @@ public class StaminaBar extends ProgressBar implements HUDElement {
   public void update() {
     Game.player()
         .flatMap(player -> player.fetch(StaminaComponent.class))
-        .ifPresent(
-            sc -> {
-              setStamina(sc.currentAmount(), sc.maxAmount());
-            });
+        .ifPresent(sc -> setStamina(sc.currentAmount(), sc.maxAmount()));
   }
 
   public void setStamina(float current, float max) {
     float value = (current / max) * 100f;
-    setValue(value);
+    bar.setValue(value);
+
+    staminaLabel.setText((int) current + " / " + (int) max);
   }
 }
