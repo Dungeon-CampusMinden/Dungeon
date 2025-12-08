@@ -5,6 +5,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
+import core.sound.SoundSpec;
 import core.systems.DrawSystem;
 import core.utils.Point;
 import core.utils.Rectangle;
@@ -89,10 +90,10 @@ public class LevelHideSystem extends System {
     boolean isInside = region.contains(currentPos);
 
     if (!wasInside && isInside) {
-      Game.soundPlayer().play(SOUND_SHOW, 0.05f);
+      Game.audio().playGlobal(new SoundSpec.Builder(SOUND_SHOW).volume(0.05f));
       lhs.hiding(false);
     } else if (wasInside && !isInside) {
-      Game.soundPlayer().play(SOUND_HIDE, 0.05f);
+      Game.audio().playGlobal(new SoundSpec.Builder(SOUND_HIDE).volume(0.05f));
       lhs.hiding(true);
     }
   }

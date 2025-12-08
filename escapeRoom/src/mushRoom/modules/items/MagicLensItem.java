@@ -87,7 +87,7 @@ public class MagicLensItem extends Item {
                 }
               }
 
-              if (InventoryGUI.inPlayerInventory()) {
+              if (InventoryGUI.inPlayerInventory(player)) {
                 player.remove(UIComponent.class);
               }
             });

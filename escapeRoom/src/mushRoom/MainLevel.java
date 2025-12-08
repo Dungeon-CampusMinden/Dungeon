@@ -8,6 +8,10 @@ import contrib.entities.WorldItemBuilder;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.hud.DialogUtils;
+import contrib.item.Item;
+import contrib.modules.interaction.IInteractable;
+import contrib.modules.interaction.Interaction;
+import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.levelHide.LevelHideFactory;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.EventScheduler;
@@ -81,6 +85,10 @@ public class MainLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.levelEntities(Set.of(DecoComponent.class)).forEach(e -> {
+      e.remove(InteractionComponent.class);
+    });
+
     DrawSystem ds = (DrawSystem) Game.systems().get(DrawSystem.class);
     ds.levelShaders()
         .add(
@@ -156,13 +164,7 @@ public class MainLevel extends DungeonLevel {
     Game.add(WorldItemBuilder.buildWorldItem(new LanternItem(), getPoint("lantern")));
 
     npc = NPCFactory.createNPC(getPoint("npc-start"), "character/char03");
-    npc.add(
-        new InteractionComponent(
-            1.5f,
-            true,
-            (e, who) -> {
-              talkToNpc();
-            }));
+    npc.add(new InteractionComponent(() -> new Interaction((e, who) -> talkToNpc())));
     Game.add(npc);
 
     listPoints("dialog-trigger")
@@ -316,27 +318,7 @@ public class MainLevel extends DungeonLevel {
             p -> {
               Entity tree = DecoFactory.createDeco(p, deco);
               tree.remove(DecoComponent.class);
-              tree.add(
-                  new InteractionComponent(
-                      2.0f,
-                      true,
-                      (e, who) -> {
-                        who.fetch(InventoryComponent.class)
-                            .ifPresent(
-                                inv -> {
-                                  if (inv.hasItem(AxeItem.class)) {
-                                    Sounds.BREAK_TREE_SOUND.play();
-                                    DialogUtils.showTextPopup(
-                                        "Rumms. Der Baum fällt mit einem lauten Krachen zu Boden.",
-                                        "Holz hacken");
-                                    Game.remove(e);
-                                  } else {
-                                    DialogUtils.showTextPopup(
-                                        "Dieser Baum sieht etwas morsch aus, man kann ihn bestimmt fällen.",
-                                        "Hmm");
-                                  }
-                                });
-                      }));
+              tree.add(new InteractionComponent(() -> new Interaction(this::handleTreeCut)));
               tree.fetch(DrawComponent.class)
                   .ifPresent(
                       dc -> {
@@ -358,6 +340,24 @@ public class MainLevel extends DungeonLevel {
               dc.shaders().add("outline", new OutlineShader(1).upscaling(2));
             });
     Game.add(axe);
+  }
+
+  private void handleTreeCut(Entity tree, Entity player){
+    player.fetch(InventoryComponent.class)
+      .ifPresent(
+        inv -> {
+          if (inv.hasItem(AxeItem.class)) {
+            Sounds.BREAK_TREE_SOUND.play();
+            DialogUtils.showTextPopup(
+              "Rumms. Der Baum fällt mit einem lauten Krachen zu Boden.",
+              "Holz hacken");
+            Game.remove(tree);
+          } else {
+            DialogUtils.showTextPopup(
+              "Dieser Baum sieht etwas morsch aus, man kann ihn bestimmt fällen.",
+              "Hmm");
+          }
+        });
   }
 
   private void createPushPuzzle() {
@@ -501,7 +501,14 @@ public class MainLevel extends DungeonLevel {
               if (!type.poisonous()) {
                 maxMushrooms++;
               }
-              Game.add(WorldItemBuilder.buildWorldItem(MushroomItem.createMushroomItem(type), p));
+
+              Entity mushroom = WorldItemBuilder.buildWorldItem(MushroomItem.createMushroomItem(type), p);
+              mushroom.remove(InteractionComponent.class);
+              mushroom.add(new InteractionComponent(() -> new Interaction((e, player) -> {
+                Item item = MushroomItem.createMushroomItem(type);
+                item.collect(e, player);
+              })));
+              Game.add(mushroom);
             });
   }
 

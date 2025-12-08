@@ -1,8 +1,7 @@
 package mushRoom;
 
 import core.Game;
-import core.sound.player.IPlayHandle;
-import java.util.Optional;
+import core.sound.SoundSpec;
 
 /** Enum that lists available in-game sounds and convenient playback helpers. */
 public enum Sounds {
@@ -107,8 +106,8 @@ public enum Sounds {
    *
    * @return an Optional holding the play handle if playback started
    */
-  public Optional<IPlayHandle> play() {
-    return Game.soundPlayer().play(soundName, volume);
+  public long play() {
+    return Game.audio().playGlobal(new SoundSpec.Builder(soundName).volume(volume));
   }
 
   /**
@@ -117,7 +116,7 @@ public enum Sounds {
    * @param pitch the playback pitch to apply
    * @return an Optional holding the play handle if playback started
    */
-  public Optional<IPlayHandle> play(float pitch) {
-    return Game.soundPlayer().play(soundName, volume, false, pitch, 0.0f);
+  public long play(float pitch) {
+    return Game.audio().playGlobal(new SoundSpec.Builder(soundName).volume(volume).pitch(pitch));
   }
 }

@@ -9,7 +9,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import core.Game;
-import core.sound.player.IPlayHandle;
 import java.util.Optional;
 import mushRoom.Sounds;
 
@@ -37,7 +36,7 @@ public class JournalUI extends Group {
   private final Array<BookEntry> entries = new Array<>();
   private int currentPageIndex = 0;
   private final Skin skin;
-  private IPlayHandle soundHandle;
+  private long soundHandle = -1;
 
   /**
    * Constructs a new JournalUI with the specified skin and book background.
@@ -151,11 +150,8 @@ public class JournalUI extends Group {
   }
 
   private void playPageFlipSound() {
-    if (soundHandle != null && soundHandle.isPlaying()) {
-      soundHandle.stop();
-    }
-    Optional<IPlayHandle> handle = Sounds.FLIP_BOOK_PAGE.play();
-    handle.ifPresent(h -> soundHandle = h);
+    Game.audio().stopInstance(soundHandle);
+    soundHandle = Sounds.FLIP_BOOK_PAGE.play();
   }
 
   private void refreshPage() {
