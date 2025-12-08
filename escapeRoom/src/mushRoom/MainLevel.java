@@ -9,7 +9,6 @@ import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.hud.DialogUtils;
 import contrib.item.Item;
-import contrib.modules.interaction.IInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.levelHide.LevelHideFactory;
@@ -85,9 +84,11 @@ public class MainLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.levelEntities(Set.of(DecoComponent.class)).forEach(e -> {
-      e.remove(InteractionComponent.class);
-    });
+    Game.levelEntities(Set.of(DecoComponent.class))
+        .forEach(
+            e -> {
+              e.remove(InteractionComponent.class);
+            });
 
     DrawSystem ds = (DrawSystem) Game.systems().get(DrawSystem.class);
     ds.levelShaders()
@@ -342,22 +343,21 @@ public class MainLevel extends DungeonLevel {
     Game.add(axe);
   }
 
-  private void handleTreeCut(Entity tree, Entity player){
-    player.fetch(InventoryComponent.class)
-      .ifPresent(
-        inv -> {
-          if (inv.hasItem(AxeItem.class)) {
-            Sounds.BREAK_TREE_SOUND.play();
-            DialogUtils.showTextPopup(
-              "Rumms. Der Baum fällt mit einem lauten Krachen zu Boden.",
-              "Holz hacken");
-            Game.remove(tree);
-          } else {
-            DialogUtils.showTextPopup(
-              "Dieser Baum sieht etwas morsch aus, man kann ihn bestimmt fällen.",
-              "Hmm");
-          }
-        });
+  private void handleTreeCut(Entity tree, Entity player) {
+    player
+        .fetch(InventoryComponent.class)
+        .ifPresent(
+            inv -> {
+              if (inv.hasItem(AxeItem.class)) {
+                Sounds.BREAK_TREE_SOUND.play();
+                DialogUtils.showTextPopup(
+                    "Rumms. Der Baum fällt mit einem lauten Krachen zu Boden.", "Holz hacken");
+                Game.remove(tree);
+              } else {
+                DialogUtils.showTextPopup(
+                    "Dieser Baum sieht etwas morsch aus, man kann ihn bestimmt fällen.", "Hmm");
+              }
+            });
   }
 
   private void createPushPuzzle() {
@@ -502,12 +502,17 @@ public class MainLevel extends DungeonLevel {
                 maxMushrooms++;
               }
 
-              Entity mushroom = WorldItemBuilder.buildWorldItem(MushroomItem.createMushroomItem(type), p);
+              Entity mushroom =
+                  WorldItemBuilder.buildWorldItem(MushroomItem.createMushroomItem(type), p);
               mushroom.remove(InteractionComponent.class);
-              mushroom.add(new InteractionComponent(() -> new Interaction((e, player) -> {
-                Item item = MushroomItem.createMushroomItem(type);
-                item.collect(e, player);
-              })));
+              mushroom.add(
+                  new InteractionComponent(
+                      () ->
+                          new Interaction(
+                              (e, player) -> {
+                                Item item = MushroomItem.createMushroomItem(type);
+                                item.collect(e, player);
+                              })));
               Game.add(mushroom);
             });
   }

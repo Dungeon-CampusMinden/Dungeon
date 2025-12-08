@@ -31,27 +31,28 @@ public class JournalPageFactory {
     return entity;
   }
 
-  private static void handlePickup(Entity journalPage, Entity player){
-    player.fetch(InventoryComponent.class)
-      .ifPresent(
-        inventory -> {
-          inventory.items(JournalItem.class).stream()
-            .findFirst()
-            .ifPresentOrElse(
-              item -> {
-                JournalItem journalItem = (JournalItem) item;
-                journalItem.unlockPage();
-                Game.remove(journalPage);
-                DialogUtils.showTextPopup(
-                  "Auf dieser Seite ist die Beschreibung von zwei Pilzen! Ich schreibe das mal in mein Notizbuch...",
-                  "Yay");
-                Sounds.KEY_ITEM_PICKUP_SOUND.play();
-              },
-              () -> {
-                DialogUtils.showTextPopup(
-                  "Ohh, hilfreiche Informationen zu Pilzen. Nur kann ich sie mir nicht merken, und etwas zum Aufschreiben habe ich leider auch nicht...",
-                  ":pensive:");
-              });
-        });
+  private static void handlePickup(Entity journalPage, Entity player) {
+    player
+        .fetch(InventoryComponent.class)
+        .ifPresent(
+            inventory -> {
+              inventory.items(JournalItem.class).stream()
+                  .findFirst()
+                  .ifPresentOrElse(
+                      item -> {
+                        JournalItem journalItem = (JournalItem) item;
+                        journalItem.unlockPage();
+                        Game.remove(journalPage);
+                        DialogUtils.showTextPopup(
+                            "Auf dieser Seite ist die Beschreibung von zwei Pilzen! Ich schreibe das mal in mein Notizbuch...",
+                            "Yay");
+                        Sounds.KEY_ITEM_PICKUP_SOUND.play();
+                      },
+                      () -> {
+                        DialogUtils.showTextPopup(
+                            "Ohh, hilfreiche Informationen zu Pilzen. Nur kann ich sie mir nicht merken, und etwas zum Aufschreiben habe ich leider auch nicht...",
+                            ":pensive:");
+                      });
+            });
   }
 }
