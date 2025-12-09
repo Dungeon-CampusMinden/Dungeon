@@ -289,6 +289,8 @@ public class TractorBeamFactory {
                     if (!other.isPresent(FlyComponent.class)) {
                       other.add(new FlyComponent());
                     }
+
+                    System.out.println(beamDirection);
                     Vector2 forceVector =
                         Vector2.of(
                             beamDirection.x() * forceMagnitude, beamDirection.y() * forceMagnitude);
