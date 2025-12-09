@@ -85,11 +85,10 @@ public class PortalDemoLevel extends AdvancedLevel {
     plate2 = pressurePlate2.fetch(LeverComponent.class).get();
     cube1 = AdvancedFactory.attachablePortalCube(namedPoints.get("Würfel1"));
     sphere1 = AdvancedFactory.moveableSphere(namedPoints.get("Kugel1"));
-    //    launcher1 =
-    //        AdvancedFactory.energyPelletLauncher(
-    //            namedPoints.get("Energie"), Direction.RIGHT, 10000000, 10000);
-    //    catcher1 = AdvancedFactory.energyPelletCatcher(namedPoints.get("Energie2"),
-    // Direction.RIGHT);
+    launcher1 =
+        AdvancedFactory.energyPelletLauncher(
+            namedPoints.get("Energie"), Direction.RIGHT, 10000000, 10000);
+    catcher1 = AdvancedFactory.energyPelletCatcher(namedPoints.get("Energie2"), Direction.RIGHT);
     tractorBeam1 =
         TractorBeamFactory.createTractorBeam(namedPoints.get("Traktor1"), Direction.DOWN);
     lightBridge1 =
@@ -133,8 +132,8 @@ public class PortalDemoLevel extends AdvancedLevel {
     switch9 = s9.fetch(LeverComponent.class).get();
     Game.add(pressurePlate1);
     Game.add(pressurePlate2);
-    //    Game.add(launcher1);
-    //    Game.add(catcher1);
+    Game.add(launcher1);
+    Game.add(catcher1);
     Game.add(sphere1);
     Game.add(cube1);
     Game.add(lightBridge1);
@@ -155,6 +154,7 @@ public class PortalDemoLevel extends AdvancedLevel {
 
   @Override
   protected void onTick() {
+
     if (plate1.isOn()) tractorBeam1.fetch(TractorBeamComponent.class).get().activate();
     else tractorBeam1.fetch(TractorBeamComponent.class).get().deactivate();
     if (plate2.isOn()) LightBridgeFactory.activate(lightBridge1);

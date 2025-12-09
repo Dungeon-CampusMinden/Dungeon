@@ -291,14 +291,11 @@ public class TractorBeamFactory {
                       Vector2 oldForce =
                           you.fetch(TractorBeamComponent.class).get().oldForces.get(other);
                       if (oldForce.x() == 0 && forceVector.x() == 0) {
-                        System.out.println("HOCH RUNTER");
                         vc.applyForce("beamEmitter", forceVector);
                       } else if (oldForce.y() == 0 && forceVector.y() == 0) {
-                        System.out.println("LINKS RECHTS");
                         vc.applyForce("beamEmitter", forceVector);
                       }
                     } else {
-                      System.out.println("new");
                       vc.applyForce("beamEmitter", forceVector);
                       you.fetch(TractorBeamComponent.class).get().oldForces.put(other, forceVector);
                     }
@@ -307,7 +304,6 @@ public class TractorBeamFactory {
 
     TriConsumer<Entity, Entity, Direction> actionLeave =
         (you, other, collisionDir) -> {
-          System.out.println("leave " + beamDirection);
           you.fetch(TractorBeamComponent.class).get().oldForces.remove(other);
           other.remove(FlyComponent.class);
           if (other.isPresent(VelocityComponent.class)) {
@@ -320,9 +316,7 @@ public class TractorBeamFactory {
         new CollideComponent(
             Vector2.of(offsetX, offsetY),
             Vector2.of(hitboxX, hitboxY),
-            (self, other, dir) -> {
-              System.out.println("enter " + beamDirection);
-            },
+            CollideComponent.DEFAULT_COLLIDER,
             actionLeave));
     beamEmitter
         .fetch(CollideComponent.class)

@@ -23,6 +23,8 @@ public class TractorBeamComponent implements Component {
   private boolean active = false;
   private boolean reversed = false;
   private List<Hitbox> oldhitbox = new ArrayList<>();
+
+  /** Store old forces for the Entities. */
   public HashMap<Entity, Vector2> oldForces = new HashMap<>();
 
   /**
