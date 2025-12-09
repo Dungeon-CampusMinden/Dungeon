@@ -181,7 +181,9 @@ public class PortalFactory {
    * @param direction the direction the collision is currently having.
    */
   private static void onHoldGreen(Entity portal, Entity other, Direction direction) {
+    System.out.println("on hold green activated");
     if (other.fetch(PortalIgnoreComponent.class).isPresent()) {
+//      System.out.println("portal ignore compnent");
       return;
     }
 
@@ -197,24 +199,26 @@ public class PortalFactory {
       }
       Direction bluePortalDirection =
           getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
-      otherPositionComponent.position(
-          getBluePortal()
-              .get()
-              .fetch(PositionComponent.class)
-              .get()
-              .position()
-              .translate(bluePortalDirection));
-          other.add(new PortalIgnoreComponent());
-          EventScheduler.scheduleAction(() -> {
-            other.remove(PortalIgnoreComponent.class);
-          },portalDelay);
-
+//      otherPositionComponent.position(
+//          getBluePortal()
+//              .get()
+//              .fetch(PositionComponent.class)
+//              .get()
+//              .position()
+//              .translate(bluePortalDirection));
+//          other.add(new PortalIgnoreComponent());
+//          EventScheduler.scheduleAction(() -> {
+//            other.remove(PortalIgnoreComponent.class);
+//          },portalDelay);
+      System.out.println("before changing velocity component");
       other
         .fetch(VelocityComponent.class)
         .ifPresent(
           vc -> {
+            System.out.println("velocity on hold green compnent");
             vc.clearForces();
             vc.currentVelocity(Vector2.ZERO);
+
           });
 
       if (Game.player().get().name().equals(other.name())) {
@@ -232,7 +236,9 @@ public class PortalFactory {
    * @param direction the direction the collision is currently having.
    */
   private static void onHoldBlue(Entity portal, Entity other, Direction direction) {
+//    System.out.println("on hold blue activated");
     if (other.fetch(PortalIgnoreComponent.class).isPresent()) {
+//      System.out.println("portal ignore compnent");
       return;
     }
     PositionComponent portalPositionComponent = portal.fetch(PositionComponent.class).get();
@@ -245,25 +251,26 @@ public class PortalFactory {
               != portalPositionComponent.viewDirection().opposite()) {
         return;
       }
-      Direction greenPortalDirection =
-          getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
-      otherPositionComponent.position(
-          getGreenPortal()
-              .get()
-              .fetch(PositionComponent.class)
-              .get()
-              .position()
-              .translate(greenPortalDirection));
-
-          other.add(new PortalIgnoreComponent());
-          EventScheduler.scheduleAction(() -> {
-            other.remove(PortalIgnoreComponent.class);
-          },portalDelay);
+//      Direction greenPortalDirection =
+//          getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
+//      otherPositionComponent.position(
+//          getGreenPortal()
+//              .get()
+//              .fetch(PositionComponent.class)
+//              .get()
+//              .position()
+//              .translate(greenPortalDirection));
+//
+//          other.add(new PortalIgnoreComponent());
+//          EventScheduler.scheduleAction(() -> {
+//            other.remove(PortalIgnoreComponent.class);
+//          },portalDelay);
 
       other
         .fetch(VelocityComponent.class)
         .ifPresent(
           vc -> {
+            System.out.println("clearing vc on hold blue component");
             vc.clearForces();
             vc.currentVelocity(Vector2.ZERO);
           });
