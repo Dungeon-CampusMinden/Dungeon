@@ -2,6 +2,7 @@ package entities;
 
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
+import contrib.components.ProjectileComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -305,7 +306,9 @@ public class TractorBeamFactory {
     TriConsumer<Entity, Entity, Direction> actionLeave =
         (you, other, collisionDir) -> {
           you.fetch(TractorBeamComponent.class).get().oldForces.remove(other);
-          other.remove(FlyComponent.class);
+          if (!other.fetch(ProjectileComponent.class).isPresent()) {
+            other.remove(FlyComponent.class);
+          }
           if (other.isPresent(VelocityComponent.class)) {
             other.fetch(VelocityComponent.class).get().currentVelocity(Vector2.ZERO);
             other.fetch(VelocityComponent.class).get().clearForces();
