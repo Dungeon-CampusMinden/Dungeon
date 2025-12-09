@@ -21,7 +21,7 @@ import java.util.*;
  * to the player) and a list of entities that are hidden. It also keeps track of the last known
  * position of the player (player character) and whether the fog system is currently active.
  *
- * @author Flamtky (for the DevDungeon)
+ * @author Flamtky
  */
 public class FogSystem extends System {
   private static final int DISTANCE_TRANSITION_SIZE = 2; // size of distance transition (in tiles)
