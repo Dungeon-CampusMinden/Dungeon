@@ -154,6 +154,7 @@ public class PortalDemoLevel extends AdvancedLevel {
 
   @Override
   protected void onTick() {
+
     if (plate1.isOn()) tractorBeam1.fetch(TractorBeamComponent.class).get().activate();
     else tractorBeam1.fetch(TractorBeamComponent.class).get().deactivate();
     if (plate2.isOn()) LightBridgeFactory.activate(lightBridge1);

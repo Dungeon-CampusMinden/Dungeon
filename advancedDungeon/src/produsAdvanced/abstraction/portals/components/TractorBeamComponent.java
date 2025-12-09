@@ -8,8 +8,10 @@ import core.Entity;
 import core.Game;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Vector2;
 import entities.TractorBeamFactory;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /** Component represents a tractor beam that can be extended and trimmed. */
@@ -21,6 +23,9 @@ public class TractorBeamComponent implements Component {
   private boolean active = false;
   private boolean reversed = false;
   private List<Hitbox> oldhitbox = new ArrayList<>();
+
+  /** Store old forces for the Entities. */
+  public HashMap<Entity, Vector2> oldForces = new HashMap<>();
 
   /**
    * Constructs a TractorBeamComponent so it can be extended and trimmed.
