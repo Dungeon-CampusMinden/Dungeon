@@ -58,6 +58,10 @@ public class AbilitySlot extends Table {
     icon.setDrawable(new TextureRegionDrawable(new TextureRegion(texture)));
   }
 
+  public void removeTexture() {
+    icon.setDrawable(null);
+  }
+
   public void setCost(Resource resource, int cost) {
     ressource.setVisible(true);
     costLabel.setText(String.valueOf(cost));
@@ -82,6 +86,10 @@ public class AbilitySlot extends Table {
                   new Texture("dungeon/assets/hud/ressourceIcons/arrows_icon.png")));
       default -> costLabel.setColor(Color.WHITE);
     }
+  }
+
+  public void removeCost() {
+    ressource.setVisible(false);
   }
 
   public void setActive(boolean active) {

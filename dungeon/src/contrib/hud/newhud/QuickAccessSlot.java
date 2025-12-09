@@ -24,7 +24,7 @@ public class QuickAccessSlot extends Table {
     iconTable = new Table();
     iconTable.add(itemIcon).size(32, 32);
 
-    keybindLable = new Label("Q", skin);
+    keybindLable = new Label("", skin);
 
     keybindTable = new Table();
     keybindTable.bottom();
@@ -38,7 +38,15 @@ public class QuickAccessSlot extends Table {
     itemIcon.setDrawable(new TextureRegionDrawable(new TextureRegion(texture)));
   }
 
-  public void setKeybind(String key) {
+  public void setKeybindLabel(String key) {
     keybindLable.setText(key);
+  }
+
+  public void removeItemTexture() {
+    itemIcon.setDrawable(null);
+  }
+
+  public void removeKeybindLabel() {
+    keybindLable.setText("");
   }
 }

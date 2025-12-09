@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class AbilityBar extends Table implements HUDElement {
   private final List<AbilitySlot> slots = new ArrayList<>();
-  private int acitveAbiilityCount = 0;
+  private int activeAbilityCount = 0;
 
   public AbilityBar(Skin skin) {
     super(skin);
@@ -67,7 +67,7 @@ public class AbilityBar extends Table implements HUDElement {
         .ifPresent(
             sc -> {
               List<Skill> skills = sc.getSkills();
-              acitveAbiilityCount = skills.size();
+              activeAbilityCount = skills.size();
               String png;
               for (int i = 0; i < 5; i++) {
                 if (i >= skills.size()) break;
@@ -137,11 +137,19 @@ public class AbilityBar extends Table implements HUDElement {
             sc -> {
               List<Skill> skills = sc.getSkills();
 
-              if (acitveAbiilityCount != skills.size()) {
+              if (activeAbilityCount != skills.size()) {
+                clearAbilitySlots();
                 setDynamicIcons();
                 setAbilityCost();
-                acitveAbiilityCount = skills.size();
+                activeAbilityCount = skills.size();
               }
             });
+  }
+
+  public void clearAbilitySlots() {
+    for (int i = 0; i < 5; i++) {
+      slots.get(i).removeTexture();
+      slots.get(i).removeCost();
+    }
   }
 }

@@ -20,7 +20,7 @@ public class HeadUpDisplaySystem extends System {
   /** HUDElement registrieren */
   public void register(HUDElement element) {
     elements.add(element);
-    element.init(); // Initialisieren (Layout, Startwerte etc.)
+    element.init();
   }
 
   @Override
@@ -37,7 +37,6 @@ public class HeadUpDisplaySystem extends System {
       e.update();
       if (updateLayout) {
         e.layoutElement();
-        java.lang.System.out.println("yeet");
       }
     }
   }
