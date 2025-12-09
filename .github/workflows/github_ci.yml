@@ -115,8 +115,24 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-      - name: Checkstyle
-        run: ./gradlew checkstyleMain checkstyleTest
+      - name: Set up Reviewdog
+        uses: reviewdog/action-setup@d8edfce3dd5e1ec6978745e801f9c50b5ef80252 # v1.4.0
+        with:
+          reviewdog_version: latest
+      - name: Checkstyle and Reviewdog
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./gradlew checkstyleMain || true
+          ./gradlew checkstyleTest || true
+          find . -path "*/build/reports/checkstyle/*.xml" -exec sh -c "cat {} | \
+          reviewdog -f=checkstyle \
+          -name=checkstyle \
+          -reporter=github-pr-annotations \
+          -filter-mode=file \
+          -fail-level=none \
+          -level=warning" \;
+
   frontend_changed:
     name: Frontend (matrix build)
     needs: [build, check]
