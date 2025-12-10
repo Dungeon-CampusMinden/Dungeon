@@ -225,10 +225,11 @@ public class DialogFactory {
    * @param title The dialog window title
    * @param onYes Callback executed when the Yes button is pressed
    * @param onNo Callback executed when the No button is pressed
+   * @param targetIds The target entity IDs for which the dialog is displayed
    * @return The {@link UIComponent} containing the dialog
    */
   public static UIComponent showYesNoDialog(
-      String text, String title, IVoidFunction onYes, IVoidFunction onNo) {
+      String text, String title, IVoidFunction onYes, IVoidFunction onNo, int... targetEntityIds) {
     DialogContext ctx =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.YES_NO)
@@ -236,7 +237,7 @@ public class DialogFactory {
             .put(DialogContextKeys.MESSAGE, text)
             .build();
 
-    UIComponent ui = show(ctx);
+    UIComponent ui = show(ctx, targetEntityIds);
 
     // Register callbacks
     ui.registerCallback(
@@ -264,6 +265,7 @@ public class DialogFactory {
    * @param confirmLabel Label for the confirm button (uses default if null)
    * @param cancelLabel Label for the cancel button (no cancel button if null)
    * @param additionalButtons List of additional button labels (can be null)
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed
    * @return The {@link UIComponent} containing the dialog
    */
   public static UIComponent showTextDialog(
@@ -272,7 +274,8 @@ public class DialogFactory {
       IVoidFunction onConfirm,
       String confirmLabel,
       String cancelLabel,
-      String[] additionalButtons) {
+      String[] additionalButtons,
+      int... targetEntityIds) {
     DialogContext.Builder builder =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.TEXT)
@@ -283,7 +286,7 @@ public class DialogFactory {
     if (additionalButtons != null)
       builder.put(DialogContextKeys.ADDITIONAL_BUTTONS, additionalButtons);
 
-    UIComponent ui = show(builder.build());
+    UIComponent ui = show(builder.build(), targetEntityIds);
 
     // Register callbacks
     if (onConfirm != null) {

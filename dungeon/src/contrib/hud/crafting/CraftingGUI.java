@@ -428,8 +428,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     this.currentRecipe = Crafting.recipeByIngredients(itemData).orElse(null);
   }
 
-  /** Crafts the current recipe and adds the result to the target inventory. */
-  public void craft() {
+  private void craft() {
     if (this.currentRecipe == null) return;
     CraftingResult[] results = this.currentRecipe.results();
     Arrays.stream(results)
