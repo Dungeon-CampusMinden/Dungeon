@@ -2,9 +2,9 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
-import contrib.components.SkillComponent;
-import contrib.entities.CharacterClass;
+import contrib.components.*;
 import contrib.entities.EntityFactory;
+import contrib.hud.DialogUtils;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.Resource;
@@ -12,10 +12,17 @@ import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.skill.selfSkill.SelfHealSkill;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
+import core.components.VelocityComponent;
+import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
+import core.utils.Direction;
 import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.function.Consumer;
 import level.portal.PortalDemoLevel;
 import level.portal.PortalLevel_4;
 import level.portal.PortalLevel_5;
@@ -64,7 +71,7 @@ public class PortalStarter {
   }
 
   private static void createHero() {
-    Entity chell = EntityFactory.newHero(CharacterClass.WIZARD);
+    Entity chell = EntityFactory.newHero(death_callback);
     chell
         .fetch(SkillComponent.class)
         .ifPresent(
@@ -78,6 +85,60 @@ public class PortalStarter {
             });
     Game.add(chell);
   }
+
+  private static Consumer<Entity> death_callback =
+      (hero) ->
+          DialogUtils.showTextPopup(
+              "You died!",
+              "Game Over",
+              () -> {
+                // Just respawn at Start Tile instead of reloading the level
+                hero.fetch(PositionComponent.class)
+                    .ifPresent(
+                        pc -> {
+                          pc.position(Game.currentLevel().flatMap(ILevel::startTile).orElseThrow());
+                          pc.viewDirection(Direction.DOWN);
+                          PositionSync.syncPosition(hero);
+                        });
+
+                hero.fetch(VelocityComponent.class)
+                    .ifPresent(
+                        vc -> {
+                          vc.clearForces();
+                          vc.currentVelocity(Vector2.ZERO);
+                        });
+
+                hero.fetch(HealthComponent.class)
+                    .ifPresent(
+                        hc -> {
+                          hc.currentHealthpoints(hc.maximalHealthpoints());
+                          hc.clearDamage();
+                          hc.alreadyDead(false);
+                        });
+
+                hero.fetch(ManaComponent.class).ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
+                hero.fetch(StaminaComponent.class)
+                    .ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
+
+                // reset inventory
+                hero.fetch(CharacterClassComponent.class)
+                    .ifPresent(
+                        characterClassComponent -> {
+                          InventoryComponent invComp =
+                              new InventoryComponent(
+                                  characterClassComponent.characterClass().inventorySize());
+                          characterClassComponent
+                              .characterClass()
+                              .startItems()
+                              .forEach(invComp::add);
+                          hero.add(invComp);
+                        });
+
+                // reset the animation queue
+                hero.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);
+
+                DungeonLoader.reloadCurrentLevel();
+              });
 
   private static void configGame() throws IOException {
     Game.loadConfig(
