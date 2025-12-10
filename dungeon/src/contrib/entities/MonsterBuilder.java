@@ -36,8 +36,8 @@ import java.util.function.Supplier;
 /**
  * Shared monster builder to reduce duplication between different monster enums across projects.
  *
- * <p>- Provides sensible defaults for the "core framework" (Dungeon). - Allows sub-projects (e.g.,
- * DevDungeon) to override specific parts via factories/hooks.
+ * <p>Provides sensible defaults for the "core framework" (Dungeon). And allows easy overriding of
+ * specific parts via subclassing.
  *
  * <p>Overridable factories: - velocityFactory - inventoryFactory - healthFactory -
  * extraComponentsHook - onDeathExtra
