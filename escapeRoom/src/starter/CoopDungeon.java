@@ -2,7 +2,6 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
-import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
@@ -51,7 +50,6 @@ public class CoopDungeon {
           DungeonLoader.addLevel(Tuple.of("coop2", Level02.class));
           createSystems();
           Game.add(EntityFactory.newHero());
-          Crafting.loadRecipes();
           DungeonLoader.loadLevel(START_LEVEL);
         });
   }
@@ -70,9 +68,7 @@ public class CoopDungeon {
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());
-    Game.add(new HealthBarSystem());
     Game.add(new HealthSystem());
-    Game.add(new HudSystem());
     Game.add(new SpikeSystem());
     if (!DEBUG_MODE) Game.add(new FallingSystem());
     Game.add(new PathSystem());
@@ -83,8 +79,6 @@ public class CoopDungeon {
     Game.add(new IdleSoundSystem());
     Game.add(new ManaRestoreSystem());
     Game.add(new StaminaRestoreSystem());
-    Game.add(new ManaBarSystem());
-    Game.add(new StaminaBarSystem());
     if (DEBUG_MODE) Game.add(new Debugger());
   }
 

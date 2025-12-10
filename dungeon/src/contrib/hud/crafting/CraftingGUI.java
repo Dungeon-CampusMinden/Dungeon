@@ -4,24 +4,35 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.InventoryComponent;
+import contrib.components.UIComponent;
 import contrib.crafting.Crafting;
 import contrib.crafting.CraftingResult;
 import contrib.crafting.CraftingType;
 import contrib.crafting.Recipe;
 import contrib.hud.IInventoryHolder;
+import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogCallbackResolver;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogCreationException;
+import contrib.hud.elements.Button;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.elements.ImageButton;
+import contrib.hud.inventory.InventoryGUI;
 import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
+import core.Entity;
 import core.Game;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.DungeonLogger;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -47,6 +58,13 @@ import java.util.Objects;
  * percentage of the height of the crafting GUI.
  */
 public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CraftingGUI.class);
+
+  /** Callback key for the craft action. */
+  public static final String CALLBACK_CRAFT = "craft";
+
+  /** Callback key for the cancel action. */
+  public static final String CALLBACK_CANCEL = "cancel";
 
   private static final IPath FONT_FNT = new SimpleIPath("skin/myFont.fnt");
   private static final IPath FONT_PNG = new SimpleIPath("skin/myFont.png");
@@ -102,24 +120,31 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private static final BitmapFont bitmapFont;
 
   static {
-    backgroundAnimation = new Animation(new SimpleIPath(BACKGROUND_TEXTURE_PATH));
+    if (Game.isHeadless()) {
+      backgroundAnimation = null;
+      texture = null;
+      numberBackground = null;
+      bitmapFont = null;
+    } else {
+      backgroundAnimation = new Animation(new SimpleIPath(BACKGROUND_TEXTURE_PATH));
 
-    Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-    pixmap.drawPixel(0, 0, NUMBER_BACKGROUND_COLOR);
+      Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+      pixmap.drawPixel(0, 0, NUMBER_BACKGROUND_COLOR);
 
-    texture = new Texture(pixmap);
-    numberBackground = new TextureRegion(texture, 0, 0, 1, 1);
+      texture = new Texture(pixmap);
+      numberBackground = new TextureRegion(texture, 0, 0, 1, 1);
 
-    // Init Font
-    bitmapFont =
-        new BitmapFont(
-            Gdx.files.internal(FONT_FNT.pathString()),
-            Gdx.files.internal(FONT_PNG.pathString()),
-            false);
+      // Init Font
+      bitmapFont =
+          new BitmapFont(
+              Gdx.files.internal(FONT_FNT.pathString()),
+              Gdx.files.internal(FONT_PNG.pathString()),
+              false);
+    }
   }
 
   private final InventoryComponent inventory;
-  private final ImageButton buttonOk, buttonCancel;
+  private final Button buttonOk, buttonCancel;
   private final InventoryComponent targetInventory;
   private Recipe currentRecipe = null;
 
@@ -129,8 +154,10 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
    *
    * @param sourceInventory The source inventory where items to be crafted are stored.
    * @param targetInventory The target inventory.
+   * @param dialogId The dialog ID for network callbacks.
    */
-  public CraftingGUI(InventoryComponent sourceInventory, InventoryComponent targetInventory) {
+  CraftingGUI(
+      InventoryComponent sourceInventory, InventoryComponent targetInventory, String dialogId) {
     var oldCallback = sourceInventory.onItemAdded();
     sourceInventory.onItemAdded(
         item -> {
@@ -139,13 +166,25 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
         });
     this.inventory = sourceInventory;
     this.targetInventory = targetInventory;
+
+    if (Game.isHeadless()) {
+      this.buttonOk = new Button(this, 0, 0, 0, 0);
+      this.buttonCancel = new Button(this, 0, 0, 0, 0);
+      return;
+    }
+
     this.buttonOk =
         new ImageButton(this, new Animation(new SimpleIPath(BUTTON_OK_TEXTURE_PATH)), 0, 0, 1, 1);
     this.buttonCancel =
         new ImageButton(
             this, new Animation(new SimpleIPath(BUTTON_CANCEL_TEXTURE_PATH)), 0, 0, 1, 1);
-    this.buttonOk.onClick((button) -> this.craft());
-    this.buttonCancel.onClick((button) -> this.cancel());
+    this.buttonOk.onClick(
+        (button) ->
+            DialogCallbackResolver.createButtonCallback(dialogId, CALLBACK_CRAFT)
+                .accept(this.inventory.items()));
+    this.buttonCancel.onClick(
+        (button) ->
+            DialogCallbackResolver.createButtonCallback(dialogId, CALLBACK_CANCEL).accept(null));
   }
 
   // Init CraftingGUI as drag and drop target so that items can be dragged into the cauldron/ui
@@ -181,6 +220,68 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
             }
           }
         });
+  }
+
+  /**
+   * Builds a CraftingGUI from the given DialogContext.
+   *
+   * @param ctx The dialog context containing the necessary attributes.
+   * @return A new CraftingGUI instance wrapped in a GUICombination.
+   */
+  public static Group build(DialogContext ctx) {
+    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
+    Entity craftEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
+    InventoryComponent heroInventory = entity.fetch(InventoryComponent.class).orElse(null);
+    InventoryComponent craftInventory = craftEntity.fetch(InventoryComponent.class).orElse(null);
+    if (craftInventory == null || heroInventory == null) {
+      Entity missingEntity = (craftInventory == null) ? entity : craftEntity;
+      LOGGER.error("Entity {} has no InventoryComponent for CraftingGuiDialog", missingEntity);
+      throw new DialogCreationException("Missing InventoryComponent for CraftingGuiDialog");
+    }
+    InventoryGUI inventoryGUI = new InventoryGUI(heroInventory);
+    CraftingGUI craftingGUI = new CraftingGUI(craftInventory, heroInventory, ctx.dialogId());
+
+    CraftingGUI.registerCallbacks(
+        entity
+            .fetch(UIComponent.class)
+            .orElseThrow(() -> new DialogCreationException("Owner entity has no UIComponent")),
+        craftingGUI);
+
+    return new GUICombination(inventoryGUI, craftingGUI);
+  }
+
+  /**
+   * Registers the standard crafting callbacks on the given UIComponent.
+   *
+   * <p>Call this method after creating a UIComponent for CraftingGUI to enable the craft and cancel
+   * functionality on the server.
+   *
+   * @param uiComponent the UIComponent to register callbacks on
+   * @param craftingGUI the CraftingGUI instance
+   */
+  private static void registerCallbacks(UIComponent uiComponent, CraftingGUI craftingGUI) {
+    uiComponent.registerCallback(
+        CALLBACK_CRAFT,
+        data -> {
+          if (data instanceof Item[] items) {
+            craftingGUI.inventory.clear();
+            for (Item item : items) {
+              craftingGUI.inventory.add(item);
+            }
+            craftingGUI.updateRecipe();
+          } else {
+            LOGGER.warn("Invalid data for crafting callback: expected Item[], got {}", data);
+          }
+          craftingGUI.craft();
+          UIUtils.closeDialog(uiComponent);
+        });
+    uiComponent.registerCallback(
+        CALLBACK_CANCEL,
+        data -> {
+          craftingGUI.cancel();
+          UIUtils.closeDialog(uiComponent);
+        });
+    uiComponent.onClose(ui -> craftingGUI.cancel());
   }
 
   @Override
@@ -331,7 +432,8 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     this.currentRecipe = Crafting.recipeByIngredients(itemData).orElse(null);
   }
 
-  private void craft() {
+  /** Crafts the current recipe and adds the result to the target inventory. */
+  public void craft() {
     if (this.currentRecipe == null) return;
     CraftingResult[] results = this.currentRecipe.results();
     Arrays.stream(results)

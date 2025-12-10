@@ -2,7 +2,6 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
-import contrib.crafting.Crafting;
 import contrib.entities.CharacterClass;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
@@ -12,6 +11,8 @@ import core.Game;
 import core.level.loader.DungeonLoader;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.DungeonLogLevel;
+import core.utils.logging.DungeonLoggerConfig;
 import demoDungeon.level.Level01;
 import hint.HintLogComponent;
 import java.io.IOException;
@@ -22,7 +23,7 @@ import java.io.IOException;
  * <p>Usage: run with the Gradle task {@code runDemoRoom}.
  */
 public class DemoRoom {
-  private static final boolean DEBUG_MODE = false;
+  private static final boolean DEBUG_MODE = true;
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final int START_LEVEL = 0;
 
@@ -36,6 +37,7 @@ public class DemoRoom {
     configGame();
     onSetup();
 
+    DungeonLoggerConfig.initWithLevel(DungeonLogLevel.INFO);
     Game.windowTitle("Demo-Room");
     Game.run();
   }
@@ -47,7 +49,6 @@ public class DemoRoom {
           DungeonLoader.addLevel(Tuple.of("demo", Level01.class));
           createSystems();
           createHero();
-          Crafting.loadRecipes();
           DungeonLoader.loadLevel(START_LEVEL);
         });
   }
@@ -63,22 +64,18 @@ public class DemoRoom {
         new SimpleIPath("dungeon_config.json"),
         contrib.configuration.KeyboardConfig.class,
         core.configuration.KeyboardConfig.class);
-    Game.disableAudio(false);
+    Game.disableAudio(true);
     Game.frameRate(30);
   }
 
   private static void createSystems() {
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
     Game.add(new CollisionSystem());
-    Game.add(new ManaBarSystem());
     Game.add(new ManaRestoreSystem());
     Game.add(new StaminaRestoreSystem());
-    Game.add(new StaminaBarSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());
-    Game.add(new HealthBarSystem());
     Game.add(new HealthSystem());
-    Game.add(new HudSystem());
     Game.add(new SpikeSystem());
     if (!DEBUG_MODE) Game.add(new FallingSystem());
     Game.add(new PathSystem());

@@ -1,7 +1,6 @@
 package hint;
 
-import contrib.hud.dialogs.OkDialog;
-import contrib.hud.dialogs.YesNoDialog;
+import contrib.hud.dialogs.DialogFactory;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -59,13 +58,8 @@ public class HintGiverFactory {
    * @param hint the hint to show
    */
   private static void showHintConfirmation(Entity player, Hint hint) {
-    YesNoDialog.showYesNoDialog(
-        ASK_FOR_HINT,
-        AKS_FOR_HINT_TITLE,
-        () -> showHintText(player, hint),
-        () -> {
-          /* no-op on cancel */
-        });
+    DialogFactory.showYesNoDialog(
+        ASK_FOR_HINT, AKS_FOR_HINT_TITLE, () -> showHintText(player, hint), () -> {});
   }
 
   /**
@@ -75,9 +69,9 @@ public class HintGiverFactory {
    * @param hint the hint to show
    */
   private static void showHintText(Entity player, Hint hint) {
-    OkDialog.showOkDialog(
+    DialogFactory.showOkDialog(
         hint.text(),
-        hint.titel(),
+        hint.title(),
         () -> player.fetch(HintLogComponent.class).ifPresent(log -> log.addHint(hint)));
   }
 }

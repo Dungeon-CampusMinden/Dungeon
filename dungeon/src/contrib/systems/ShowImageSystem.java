@@ -2,7 +2,9 @@ package contrib.systems;
 
 import contrib.components.ShowImageComponent;
 import contrib.components.UIComponent;
-import contrib.utils.components.showImage.ShowImageUI;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogType;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -41,9 +43,17 @@ public class ShowImageSystem extends System {
     if (overlay == null && d.sic.isUIOpen()) {
       // Dialog is closed but should be open
       Entity newOverlay = new Entity("show-image-overlay");
-      UIComponent uic = new UIComponent(new ShowImageUI(d.sic), true, true);
-      uic.onClose(
-          () -> {
+      DialogContext context =
+          DialogContext.builder()
+              .type(DialogType.DefaultTypes.IMAGE)
+              .put(DialogContextKeys.IMAGE, d.sic.imagePath())
+              .put(DialogContextKeys.OWNER_ENTITY, newOverlay.id())
+              .build();
+      UIComponent uic = new UIComponent(context, true);
+      // Register close callback
+      uic.registerCallback(
+          "onClose",
+          data -> {
             d.sic.isUIOpen(false);
             d.sic.onClose(d.e, newOverlay);
           });

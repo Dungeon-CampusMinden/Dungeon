@@ -61,6 +61,7 @@ public final class InventoryComponent implements Component {
    * @return True if the item was added, false if not.
    */
   public boolean add(final Item item) {
+    if (item == null) return true; // nothing to add
     if (addToStack(item) == 0) {
       this.onItemAdded.accept(item);
       return true;

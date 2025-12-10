@@ -36,7 +36,7 @@ public class RingMenu extends Group {
    */
   public static void show(IInteractable interactable, Consumer<Interaction> onSelected) {
     Game.stage()
-        .ifPresent(
+        .ifPresentOrElse(
             stage -> {
               RingMenu menu = new RingMenu(onSelected);
 
@@ -49,11 +49,13 @@ public class RingMenu extends Group {
 
               // Now getStage() is valid
               menu.build(interactable);
+            },
+            () -> {
+              throw new IllegalStateException("No stage available to show RingMenu");
             });
   }
 
   private void build(IInteractable interactable) {
-
     List<Interaction> interactions =
         List.of(
             interactable.look(),

@@ -2,22 +2,24 @@ package contrib.hud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
+import contrib.hud.dialogs.DialogCreationException;
 import contrib.hud.elements.GUICombination;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
-import core.utils.IVoidFunction;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.function.Supplier;
+import core.utils.logging.DungeonLogger;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /** UI utility functions, such as a formatter for the window or dialog. */
 public final class UIUtils {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(UIUtils.class.getName());
 
   /** The default UI-Skin. */
   private static final IPath SKIN_FOR_DIALOG = new SimpleIPath("skin/uiskin.json");
@@ -30,10 +32,8 @@ public final class UIUtils {
    * <p>Load the skin on demand (singleton with lazy initialisation). This allows to write JUnit
    * tests for this class w/o mocking libGDX.
    *
-   * <p>Throws a {@link IllegalStateException} if the skin cannot be loaded, e.g. when running in a
-   * headless environment.
-   *
    * @return the default skin.
+   * @throws IllegalStateException if the skin cannot be loaded (e.g. in headless mode).
    */
   public static Skin defaultSkin() {
     if (DEFAULT_SKIN == null) {
@@ -62,34 +62,6 @@ public final class UIUtils {
    * <p>No need for {@code System.lineSeparator()} as libGDX wants {@code '\n'}
    */
   private static final char LS = '\n';
-
-  /**
-   * Show the given dialog on the screen.
-   *
-   * @param provider Returns the dialog.
-   * @param entity Entity that stores the {@link UIComponent} with the UI elements.
-   */
-  public static void show(final Supplier<Dialog> provider, final Entity entity) {
-    // displays this dialog, caches the dialog callback, and increments and decrements the dialog
-    Game.player()
-        .flatMap(player -> player.fetch(PlayerComponent.class))
-        .ifPresent(
-            playerPC -> {
-              // counter so that the inventory is not opened while the dialog is displayed
-              playerPC.incrementOpenDialogs();
-
-              UIComponent ui = new UIComponent(provider.get(), true);
-              IVoidFunction oldOnClose = ui.onClose();
-
-              ui.onClose(
-                  () -> {
-                    playerPC.decrementOpenDialogs();
-                    oldOnClose.execute();
-                  });
-
-              entity.add(ui);
-            });
-  }
 
   /**
    * Centers the actor based on the current window width and height.
@@ -203,5 +175,75 @@ public final class UIUtils {
             .map(IInventoryHolder.class::cast)
             .map(IInventoryHolder::inventoryComponent)
         : Stream.empty();
+  }
+
+  /**
+   * Recursively searches for an Actor of the specified type within the given Group and its
+   * subgroups.
+   *
+   * @param dialog the Group to search within
+   * @param type the Class type of the Actor to find
+   * @param <T> the type of the Actor
+   * @return an Optional containing the found Actor, or an empty Optional if not found
+   */
+  public static <T> Optional<T> findTypeInGroup(Group dialog, Class<T> type) {
+    for (Actor actor : dialog.getChildren()) {
+      if (type.isInstance(actor)) {
+        return Optional.of(type.cast(actor));
+      } else if (actor instanceof Group group) {
+        Optional<T> result = findTypeInGroup(group, type);
+        if (result.isPresent()) {
+          return result;
+        }
+      }
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Closes the dialog associated with the given UIComponent and optionally deletes its owner.
+   *
+   * <p>This method removes the UIComponent from its owner entity and optionally removes the owner
+   * entity from the game. If the owner of the UIComponent has a PlayerComponent, the number of open
+   * dialogs is decremented. All target entities are notified of the dialog closure.
+   *
+   * @param uiComponent the UIComponent whose dialog is to be closed
+   * @param deleteOwner whether to remove the owner entity from the game after closing the dialog
+   */
+  public static void closeDialog(UIComponent uiComponent, boolean deleteOwner) {
+    uiComponent.onClose().accept(uiComponent); // onClose callback
+
+    try {
+      Entity ownerEntity = uiComponent.dialogContext().ownerEntity();
+      ownerEntity.remove(UIComponent.class);
+      // decrease open dialog count for all target entities
+      for (Integer targetId : uiComponent.targetEntityIds()) {
+        Optional<Entity> target = Game.findEntityById(targetId);
+        target
+            .flatMap(t -> t.fetch(PlayerComponent.class))
+            .ifPresent(PlayerComponent::decrementOpenDialogs);
+      }
+      LOGGER.debug("Closed dialog on entity {}", ownerEntity.id());
+
+      if (deleteOwner) {
+        Game.remove(ownerEntity);
+      }
+    } catch (DialogCreationException e) {
+      LOGGER.warn("Could not close dialog: {}", e.getMessage());
+    }
+  }
+
+  /**
+   * Closes the dialog associated with the given UIComponent.
+   *
+   * <p>If the owner of the UIComponent has a PlayerComponent, the number of open dialogs is
+   * decremented.
+   *
+   * <p>By default, the owner entity is not deleted.
+   *
+   * @param uiComponent the UIComponent whose dialog is to be closed
+   */
+  public static void closeDialog(UIComponent uiComponent) {
+    closeDialog(uiComponent, false);
   }
 }

@@ -7,6 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -86,6 +88,16 @@ public class KeypadUI extends Group {
       }
       buttonCells.add(c);
     }
+  }
+
+  /**
+   * Builds a KeypadUI from the given DialogContext.
+   *
+   * @param context The dialog context containing the keypad entity.
+   * @return A new KeypadUI instance.
+   */
+  public static Group build(DialogContext context) {
+    return new KeypadUI(context.requireEntity(DialogContextKeys.ENTITY));
   }
 
   @Override
