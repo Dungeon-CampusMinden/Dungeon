@@ -1,5 +1,6 @@
 package contrib.hud.dialogs;
 
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import java.util.HashMap;
 import java.util.Map;
@@ -112,7 +113,7 @@ public class HeadlessDialogGroup extends Group {
   }
 
   @Override
-  public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float parentAlpha) {
+  public void draw(Batch batch, float parentAlpha) {
     // No-op in headless mode
   }
 }
