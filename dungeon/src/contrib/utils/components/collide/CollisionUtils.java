@@ -31,18 +31,18 @@ public class CollisionUtils {
     collider.position(newPos);
 
     boolean colliding =
-        Game.levelEntities(Set.of(CollideComponent.class))
-            .anyMatch(
-                other -> {
-                  CollideComponent ccOther = other.fetch(CollideComponent.class).orElseThrow();
-                  if (!ccOther.isSolid()) return false;
+      Game.levelEntities(Set.of(CollideComponent.class))
+        .anyMatch(
+          other -> {
+            CollideComponent ccOther = other.fetch(CollideComponent.class).orElseThrow();
+            if (!ccOther.isSolid()) return false;
 
-                  Collider colliderOther = ccOther.collider();
-                  if (collider == colliderOther) return false; // Don't check against itself
+            Collider colliderOther = ccOther.collider();
+            if (collider == colliderOther) return false; // Don't check against itself
 
-                  boolean isColliding = collider.collide(colliderOther);
-                  return isColliding;
-                });
+            boolean isColliding = collider.collide(colliderOther);
+            return isColliding;
+          });
 
     collider.position(oldPos);
     return colliding;
@@ -59,17 +59,17 @@ public class CollisionUtils {
    * @return true if the tile at the given position is not accessible, false otherwise
    */
   public static boolean isCollidingWithLevel(
-      Point pos,
-      boolean canEnterPits,
-      boolean canEnterWalls,
-      boolean canEnterGitter,
-      boolean canEnterGlassWalls) {
+    Point pos,
+    boolean canEnterPits,
+    boolean canEnterWalls,
+    boolean canEnterGitter,
+    boolean canEnterGlassWalls) {
     return !tileIsAccessible(
-        Game.tileAt(pos).orElse(null),
-        canEnterPits,
-        canEnterWalls,
-        canEnterGitter,
-        canEnterGlassWalls);
+            Game.tileAt(pos).orElse(null),
+            canEnterPits,
+            canEnterWalls,
+            canEnterGitter,
+            canEnterGlassWalls);
   }
 
   /**
@@ -96,12 +96,7 @@ public class CollisionUtils {
     return corners.stream()
         .anyMatch(
             v ->
-                isCollidingWithLevel(
-                    pos.translate(v),
-                    canEnterPits,
-                    canEnterWalls,
-                    canEnterGitter,
-                    canEnterGlassWalls));
+              isCollidingWithLevel(pos.translate(v), canEnterPits, canEnterWalls, canEnterGitter, canEnterGlassWalls));
   }
 
   /**
