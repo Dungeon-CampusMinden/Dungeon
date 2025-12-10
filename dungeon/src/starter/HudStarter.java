@@ -115,6 +115,12 @@ public class HudStarter {
     QuickAccessInventory quickAccessInventory = new QuickAccessInventory(skin);
     hud.addElement(quickAccessInventory);
 
+    EnemyCounter enemyCounter = new EnemyCounter(skin);
+    hud.addElement(enemyCounter);
+
+    NavigationBar navigationBar = new NavigationBar(skin);
+    hud.addElement(navigationBar);
+
     Game.stage().ifPresent(stage -> stage.addActor(hud.getStage().getRoot()));
   }
 }

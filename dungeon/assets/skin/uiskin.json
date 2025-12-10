@@ -38,6 +38,12 @@ com.badlogic.gdx.graphics.Color: {
         b: 1
         a: 1
     }
+    bone-white: {
+        r: 0.88
+        g: 0.84
+        b: 0.75
+        a: 1
+    }
 	experience_green: {
 		r: 0.16078432
 		g: 1
@@ -164,13 +170,31 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 			b: 0.59
 			a: 1
 		}
-	},
+	}
     dark-gray: {
         name: white
         color: {
             r: 0.22
             g: 0.22
             b: 0.22
+            a: 1
+        }
+    }
+    dark-red: {
+        name: white
+        color: {
+            r: 0.5
+            g: 0.05
+            b: 0.05
+            a: 1
+        }
+    }
+    yellow: {
+        name: white
+        color: {
+            r: 1
+            g: 1
+            b: 0
             a: 1
         }
     }
@@ -313,6 +337,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
     staminalabel: {
         font: roboto-semibold-32
         fontColor: black
+    }
+    enemycounterlabel: {
+        font: roboto-semibold-32
+        fontColor: bone-white
     }
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {

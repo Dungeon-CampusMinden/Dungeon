@@ -44,14 +44,13 @@ public class AbilitySlot extends Table {
 
     // Hintergrund der aktiven Ability
     activeAbility = new Table();
-    Drawable yellowBorder = skin.newDrawable("white", 1f, 1f, 0f, 1f);
+    Drawable yellowBorder = skin.newDrawable("yellow");
     activeAbility.setBackground(yellowBorder);
     activeAbility.setVisible(false);
 
-    // Reihenfolge im Stack:
     stack.add(iconTable);
-    stack.add(activeAbility); // ganz unten
-    stack.add(ressource); // Kosten-Label + Icon über dem ability icon
+    stack.add(activeAbility);
+    stack.add(ressource);
   }
 
   public void setTexture(Texture texture) {
@@ -66,7 +65,7 @@ public class AbilitySlot extends Table {
     ressource.setVisible(true);
     costLabel.setText(String.valueOf(cost));
 
-    // Farbe je nach Resource
+    // icon je nach Ressource
     switch (resource) {
       case MANA ->
           ressourceIcon.setDrawable(
