@@ -74,7 +74,13 @@ public class HeroController {
         existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
 
     if (updatedForce.lengthSquared() > 0) {
-      updatedForce = updatedForce.normalize().scale(speed.length());
+      // When moving diagonally, this function is called once per axis. On the first call, only the
+      // force for one axis might be present, so we need to ensure we only scale by the speed of the
+      // moving axes.
+      // TODO: Inputs should be batched and calculated together (explanation in PR #2724)
+      Vector2 unitSpeed =
+          Vector2.of(direction.x() != 0 ? speed.x() : 0, direction.y() != 0 ? speed.y() : 0);
+      updatedForce = updatedForce.normalize().scale(unitSpeed.length());
       vc.applyForce(MOVEMENT_ID, updatedForce);
     }
   }
