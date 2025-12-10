@@ -264,11 +264,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
         CALLBACK_CRAFT,
         data -> {
           if (data instanceof Item[] items) {
-            craftingGUI.inventory.clear();
-            for (Item item : items) {
-              craftingGUI.inventory.add(item);
-            }
-            craftingGUI.updateRecipe();
+            craftingGUI.inventory.setItems(items);
           } else {
             LOGGER.warn("Invalid data for crafting callback: expected Item[], got {}", data);
           }

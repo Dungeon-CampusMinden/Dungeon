@@ -27,6 +27,8 @@ public final class InventoryComponent implements Component {
 
   private static final int DEFAULT_MAX_SIZE = 24;
   private final Item[] inventory;
+  // Callbacks, Consumer takes the added/removed Item as parameter (can be null if a null item was
+  // added/removed)
   private Consumer<Item> onItemAdded = item -> {};
   private Consumer<Item> onItemRemoved = item -> {};
 
@@ -61,7 +63,6 @@ public final class InventoryComponent implements Component {
    * @return True if the item was added, false if not.
    */
   public boolean add(final Item item) {
-    if (item == null) return true; // nothing to add
     if (addToStack(item) == 0) {
       this.onItemAdded.accept(item);
       return true;
@@ -422,6 +423,9 @@ public final class InventoryComponent implements Component {
   /**
    * Sets a callback function to be executed when an item is added to the inventory.
    *
+   * <p>The consumer takes the added {@link Item} as its parameter (can be null if a null item was
+   * added).
+   *
    * @param onItemAdded A {@link Consumer} that defines the action to be performed when an item is
    *     added.
    */
@@ -432,6 +436,9 @@ public final class InventoryComponent implements Component {
   /**
    * Returns the callback function that is executed when an item is added to the inventory.
    *
+   * <p>The consumer takes the added {@link Item} as its parameter (can be null if a null item was
+   * added).
+   *
    * @return A {@link Consumer} that defines the action performed when an item is added.
    */
   public Consumer<Item> onItemAdded() {
@@ -440,6 +447,9 @@ public final class InventoryComponent implements Component {
 
   /**
    * Sets a callback function to be executed when an item is removed from the inventory.
+   *
+   * <p>The consumer takes the removed {@link Item} as its parameter (can be null if a null item was
+   * removed).
    *
    * @param onItemRemoved A {@link Consumer} that defines the action to be performed when an item is
    *     removed.
@@ -451,9 +461,35 @@ public final class InventoryComponent implements Component {
   /**
    * Returns the callback function that is executed when an item is removed from the inventory.
    *
+   * <p>The consumer takes the removed {@link Item} as its parameter (can be null if a null item was
+   * removed).
+   *
    * @return A {@link Consumer} that defines the action performed when an item is removed.
    */
   public Consumer<Item> onItemRemoved() {
     return this.onItemRemoved;
+  }
+
+  /**
+   * Sets the items in the inventory to the provided array of items.
+   *
+   * <p>If the provided array has fewer items than the inventory size, the remaining slots will be
+   * set to null. If the array has more items than the inventory size, the excess items will be
+   * ignored.
+   *
+   * @param newItems An array of items to set in the inventory.
+   */
+  public void setItems(Item[] newItems) {
+    if (newItems.length > this.inventory.length) {
+      LOGGER.warn("Provided items array exceeds inventory size. Excess items will be ignored.");
+    }
+    for (int i = 0; i < this.inventory.length; i++) {
+      if (i < newItems.length) {
+        this.inventory[i] = newItems[i];
+      } else {
+        this.inventory[i] = null;
+      }
+      this.onItemAdded.accept(this.inventory[i]);
+    }
   }
 }
