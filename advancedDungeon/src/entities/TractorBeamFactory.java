@@ -2,6 +2,7 @@ package entities;
 
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
+import contrib.components.ProjectileComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -20,13 +21,8 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import produsAdvanced.abstraction.portals.components.PortalComponent;
-import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
-import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
+import java.util.*;
+import produsAdvanced.abstraction.portals.components.*;
 
 /**
  * A factory for creating tractor beam entities between two points.
@@ -239,7 +235,9 @@ public class TractorBeamFactory {
    * @return the beam emitter entity
    */
   public Entity createBeamEmitter(Point spawnPoint, Direction direction) {
+
     Entity beamEmitter = new Entity("beamEmitter");
+    beamEmitter.add(new PortalIgnoreComponent());
     beamEmitter.add(new PositionComponent(spawnPoint));
     beamEmitter.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(direction)));
     beamEmitter.fetch(PositionComponent.class).ifPresent(pc -> pc.viewDirection(direction));
@@ -277,6 +275,9 @@ public class TractorBeamFactory {
               .fetch(VelocityComponent.class)
               .ifPresent(
                   vc -> {
+                    if (!you.fetch(TractorBeamComponent.class).get().isActive()) {
+                      return;
+                    }
                     if (other.isPresent(PortalComponent.class)) {
                       return;
                     }
@@ -286,13 +287,32 @@ public class TractorBeamFactory {
                     Vector2 forceVector =
                         Vector2.of(
                             beamDirection.x() * forceMagnitude, beamDirection.y() * forceMagnitude);
-                    vc.applyForce("beamEmitter", forceVector);
+
+                    if (you.fetch(TractorBeamComponent.class).get().oldForces.containsKey(other)) {
+                      Vector2 oldForce =
+                          you.fetch(TractorBeamComponent.class).get().oldForces.get(other);
+                      if (oldForce.x() == 0 && forceVector.x() == 0) {
+                        vc.applyForce("beamEmitter", forceVector);
+                      } else if (oldForce.y() == 0 && forceVector.y() == 0) {
+                        vc.applyForce("beamEmitter", forceVector);
+                      }
+                    } else {
+                      vc.applyForce("beamEmitter", forceVector);
+                      you.fetch(TractorBeamComponent.class).get().oldForces.put(other, forceVector);
+                    }
                   });
         };
 
     TriConsumer<Entity, Entity, Direction> actionLeave =
         (you, other, collisionDir) -> {
-          other.remove(FlyComponent.class);
+          you.fetch(TractorBeamComponent.class).get().oldForces.remove(other);
+          if (!other.fetch(ProjectileComponent.class).isPresent()) {
+            other.remove(FlyComponent.class);
+          }
+          if (other.isPresent(VelocityComponent.class)) {
+            other.fetch(VelocityComponent.class).get().currentVelocity(Vector2.ZERO);
+            other.fetch(VelocityComponent.class).get().clearForces();
+          }
         };
 
     beamEmitter.add(
