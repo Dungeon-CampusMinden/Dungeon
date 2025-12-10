@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import level.AdvancedLevel;
 
+/** Portal Level four. */
 public class PortalLevel_4 extends AdvancedLevel {
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -36,6 +37,14 @@ public class PortalLevel_4 extends AdvancedLevel {
   // Einfaches, konstantes Schussintervall in Millisekunden (nicht zur Laufzeit änderbar)
   private static final long CHORT_SHOOT_INTERVAL_MS = 200L;
 
+  /**
+   * Call the parent constructor of a tile level with the given layout and design label. Set the
+   * start tile of the player to the given heroPos.
+   *
+   * @param layout 2D array containing the tile layout.
+   * @param designLabel The design label for the level.
+   * @param namedPoints The custom points of the level.
+   */
   public PortalLevel_4(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, "Portal Demo Level");

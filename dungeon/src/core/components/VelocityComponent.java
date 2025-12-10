@@ -144,6 +144,7 @@ public final class VelocityComponent implements Component {
    * @param newCurrentVelocity The new velocity vector.
    */
   public void currentVelocity(Vector2 newCurrentVelocity) {
+
     this.currentVelocity = newCurrentVelocity;
   }
 

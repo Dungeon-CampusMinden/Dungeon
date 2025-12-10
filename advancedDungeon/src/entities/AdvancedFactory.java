@@ -170,8 +170,7 @@ public class AdvancedFactory {
             PortalFactory.clearAllPortals();
           } else if (other.isPresent(TractorBeamComponent.class)
               || other.isPresent(PortalExtendComponent.class)
-              || (otherEntityName.contains("energyPelletLauncher")
-                  && otherEntityName.contains("skill_projectile"))) {
+              || otherEntityName.contains("energyPelletLauncher")) {
             // do nothing
           } else {
             Game.remove(other);
