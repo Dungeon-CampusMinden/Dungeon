@@ -6,6 +6,7 @@ import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
@@ -22,6 +23,8 @@ import core.utils.components.MissingComponentException;
  * allowed to enter them.
  */
 public class MoveSystem extends System {
+
+  private static final float EPSILON = 0.0001f;
 
   /**
    * Constructs a MoveSystem that requires entities to have {@link VelocityComponent} and {@link
@@ -42,7 +45,7 @@ public class MoveSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream()
-        .map(this::buildDataObject)
+        .map(MSData::of)
         .peek(this::updatePosition)
         .map(MSData::e)
         .forEach(PositionSync::syncPosition);
@@ -60,6 +63,14 @@ public class MoveSystem extends System {
    * @param data a record containing the entity and its required components
    */
   private void updatePosition(MSData data) {
+    if (data.e.fetch(PlayerComponent.class).isEmpty()){
+      return;
+    }
+    boolean canEnterOpenPits = data.vc.canEnterOpenPits();
+    boolean canEnterWalls = data.vc.canEnterWalls();
+    boolean canEnterGitter = data.vc.canEnterGitter();
+    boolean canEnterGlasswalls = data.vc.canEnterGlasswalls();
+
     Vector2 velocity = data.vc.currentVelocity();
 
     // Cap velocity magnitude to maxSpeed, mainly for diagonal movement
@@ -69,37 +80,88 @@ public class MoveSystem extends System {
 
     // Calculate scaled velocity vector per frame time
     Vector2 sv = velocity.scale(1f / Game.frameRate());
-
     Point oldPos = data.pc.position();
-    Point newPos = oldPos.translate(sv);
+//    Point newPos = oldPos.translate(sv);
 
-    boolean canEnterOpenPits = data.vc.canEnterOpenPits();
-    boolean canEnterWalls = data.vc.canEnterWalls();
-    boolean canEnterGitter = data.vc.canEnterGitter();
-    boolean canEnterGlasswalls = data.vc.canEnterGlasswalls();
+    boolean hasHitWall = false;
 
-    if (!isCollidingWithLevel(
-        data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
+    // First: move only in X direction
+    Point newPos = oldPos.translate(sv.x(), 0);
+    if (isCollidingWithLevel(data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
+      float wallX = fromWall(newPos.x(), sv.x() > 0);
+      // TODO: Doesnt respect collider offset yet
+      newPos = new Point(wallX, newPos.y());
+      hasHitWall = true;
+      java.lang.System.out.println("Collision detected in X direction, adjusting position to wall at x=" + wallX);
+    }
+
+    // Then: move in Y direction
+    newPos = newPos.translate(0, sv.y());
+    if (isCollidingWithLevel(data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
+      float wallY = fromWall(newPos.y(), sv.y() > 0);
+      newPos = new Point(newPos.x(), wallY);
+      hasHitWall = true;
+    }
+
+    // Final check if newPos is accessible. If no, abort to oldPos.
+    if (isCollidingWithLevel(data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
+      newPos = oldPos;
+      hasHitWall = true;
+      java.lang.System.out.println("Final collision detected, reverting to old position.");
+    }
+    setPosition(data, newPos);
+
+    if (hasHitWall) {
+      data.vc.onWallHit().accept(data.e);
+    }
+
+
+//    if (!isCollidingWithLevel(
+//        data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
+//      data.pc.position(newPos);
+//    } else {
+//      // Try moving only along x or y axis for wall sliding
+//      Point xMove = new Point(newPos.x(), oldPos.y());
+//      Point yMove = new Point(oldPos.x(), newPos.y());
+//
+//      boolean xAccessible =
+//          !isCollidingWithLevel(
+//              data.cc, xMove, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls);
+//      boolean yAccessible =
+//          !isCollidingWithLevel(
+//              data.cc, yMove, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls);
+//      if (xAccessible) {
+//        data.pc.position(xMove);
+//      } else if (yAccessible) {
+//        data.pc.position(yMove);
+//      }
+//
+//      // Notify entity that it hit a wall
+//      data.vc.onWallHit().accept(data.e);
+//    }
+  }
+
+  private void setPosition(MSData data, Point newPos){
+    if(data.cc == null){
       data.pc.position(newPos);
     } else {
-      // Try moving only along x or y axis for wall sliding
-      Point xMove = new Point(newPos.x(), oldPos.y());
-      Point yMove = new Point(oldPos.x(), newPos.y());
+      // TODO: doesnt work
+      data.pc.position(newPos.translate(data.cc.collider().offset()));
+    }
+  }
 
-      boolean xAccessible =
-          !isCollidingWithLevel(
-              data.cc, xMove, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls);
-      boolean yAccessible =
-          !isCollidingWithLevel(
-              data.cc, yMove, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls);
-      if (xAccessible) {
-        data.pc.position(xMove);
-      } else if (yAccessible) {
-        data.pc.position(yMove);
-      }
-
-      // Notify entity that it hit a wall
-      data.vc.onWallHit().accept(data.e);
+  /**
+   * Returns either the lower or upper edge position of a wall. Adds a small epsilon to avoid floating point precision issues.
+   *
+   * @param position the current position
+   * @param lower whether to return the lower edge (true) or upper edge (false)
+   * @return the wall edge position
+   */
+  private float fromWall(float position, boolean lower){
+    if (lower) {
+      return (float) Math.floor(position) - EPSILON; // Lower edge + a bit of distance in -x direction
+    } else {
+      return (float) Math.ceil(position) + EPSILON; // Upper edge + a bit of distance in +x direction
     }
   }
 
@@ -112,7 +174,6 @@ public class MoveSystem extends System {
       boolean canEnterGlassWall) {
     if (cc == null) {
       return CollisionUtils.isCollidingWithLevel(
-          cc.collider(),
           position,
           canEnterOpenPits,
           canEnterWalls,
@@ -129,28 +190,6 @@ public class MoveSystem extends System {
   }
 
   /**
-   * Helper method to build the data object with the necessary components for processing.
-   *
-   * <p>Throws {@link MissingComponentException} if required components are missing.
-   *
-   * @param e the entity to build data from
-   * @return a record containing the entity and its velocity and position components
-   */
-  private MSData buildDataObject(Entity e) {
-    VelocityComponent vc =
-        e.fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(e, VelocityComponent.class));
-
-    PositionComponent pc =
-        e.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
-
-    CollideComponent cc = e.fetch(CollideComponent.class).orElse(null);
-
-    return new MSData(e, vc, pc, cc);
-  }
-
-  /**
    * Data record bundling entity and its components for processing in this system.
    *
    * @param e the entity
@@ -159,5 +198,26 @@ public class MoveSystem extends System {
    * @param cc the collide component (nullable)
    */
   private record MSData(
-      Entity e, VelocityComponent vc, PositionComponent pc, CollideComponent cc) {}
+      Entity e, VelocityComponent vc, PositionComponent pc, CollideComponent cc) {
+
+    /**
+     * Builds an MSData object from the given entity by fetching its required components.
+     * @param e the entity
+     * @return the constructed MSData object
+     */
+    public static MSData of(
+        Entity e) {
+      VelocityComponent vc =
+        e.fetch(VelocityComponent.class)
+          .orElseThrow(() -> MissingComponentException.build(e, VelocityComponent.class));
+
+      PositionComponent pc =
+        e.fetch(PositionComponent.class)
+          .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
+
+      CollideComponent cc = e.fetch(CollideComponent.class).orElse(null);
+
+      return new MSData(e, vc, pc, cc);
+    }
+  }
 }
