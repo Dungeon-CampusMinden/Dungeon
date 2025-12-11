@@ -1,6 +1,7 @@
 package core.systems;
 
 import contrib.components.CollideComponent;
+import contrib.systems.CollisionSystem;
 import contrib.systems.PositionSync;
 import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
@@ -23,8 +24,6 @@ import core.utils.components.MissingComponentException;
  * allowed to enter them.
  */
 public class MoveSystem extends System {
-
-  private static final float EPSILON = 0.0001f;
 
   /**
    * Constructs a MoveSystem that requires entities to have {@link VelocityComponent} and {@link
@@ -63,9 +62,6 @@ public class MoveSystem extends System {
    * @param data a record containing the entity and its required components
    */
   private void updatePosition(MSData data) {
-    if (data.e.fetch(PlayerComponent.class).isEmpty()){
-      return;
-    }
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
     boolean canEnterWalls = data.vc.canEnterWalls();
     boolean canEnterGitter = data.vc.canEnterGitter();
@@ -81,24 +77,30 @@ public class MoveSystem extends System {
     // Calculate scaled velocity vector per frame time
     Vector2 sv = velocity.scale(1f / Game.frameRate());
     Point oldPos = data.pc.position();
-//    Point newPos = oldPos.translate(sv);
 
+    boolean hasCollider = data.cc != null;
     boolean hasHitWall = false;
 
     // First: move only in X direction
     Point newPos = oldPos.translate(sv.x(), 0);
     if (isCollidingWithLevel(data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
       float wallX = fromWall(newPos.x(), sv.x() > 0);
-      // TODO: Doesnt respect collider offset yet
+      if(hasCollider){
+        float xOffset = data.cc.collider().offset().x();
+        wallX += sv.x() > 0 ? xOffset : -xOffset;
+      }
       newPos = new Point(wallX, newPos.y());
       hasHitWall = true;
-      java.lang.System.out.println("Collision detected in X direction, adjusting position to wall at x=" + wallX);
     }
 
     // Then: move in Y direction
     newPos = newPos.translate(0, sv.y());
     if (isCollidingWithLevel(data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
       float wallY = fromWall(newPos.y(), sv.y() > 0);
+      if(hasCollider){
+        float yOffset = data.cc.collider().offset().y();
+        wallY += sv.y() > 0 ? yOffset : -yOffset;
+      }
       newPos = new Point(newPos.x(), wallY);
       hasHitWall = true;
     }
@@ -107,46 +109,11 @@ public class MoveSystem extends System {
     if (isCollidingWithLevel(data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
       newPos = oldPos;
       hasHitWall = true;
-      java.lang.System.out.println("Final collision detected, reverting to old position.");
     }
-    setPosition(data, newPos);
+    data.pc.position(newPos);
 
     if (hasHitWall) {
       data.vc.onWallHit().accept(data.e);
-    }
-
-
-//    if (!isCollidingWithLevel(
-//        data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
-//      data.pc.position(newPos);
-//    } else {
-//      // Try moving only along x or y axis for wall sliding
-//      Point xMove = new Point(newPos.x(), oldPos.y());
-//      Point yMove = new Point(oldPos.x(), newPos.y());
-//
-//      boolean xAccessible =
-//          !isCollidingWithLevel(
-//              data.cc, xMove, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls);
-//      boolean yAccessible =
-//          !isCollidingWithLevel(
-//              data.cc, yMove, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls);
-//      if (xAccessible) {
-//        data.pc.position(xMove);
-//      } else if (yAccessible) {
-//        data.pc.position(yMove);
-//      }
-//
-//      // Notify entity that it hit a wall
-//      data.vc.onWallHit().accept(data.e);
-//    }
-  }
-
-  private void setPosition(MSData data, Point newPos){
-    if(data.cc == null){
-      data.pc.position(newPos);
-    } else {
-      // TODO: doesnt work
-      data.pc.position(newPos.translate(data.cc.collider().offset()));
     }
   }
 
@@ -159,9 +126,9 @@ public class MoveSystem extends System {
    */
   private float fromWall(float position, boolean lower){
     if (lower) {
-      return (float) Math.floor(position) - EPSILON; // Lower edge + a bit of distance in -x direction
+      return (float) Math.floor(position) - CollisionSystem.COLLIDE_SET_DISTANCE; // Lower edge + a bit of distance in -x direction
     } else {
-      return (float) Math.ceil(position) + EPSILON; // Upper edge + a bit of distance in +x direction
+      return (float) Math.ceil(position) + CollisionSystem.COLLIDE_SET_DISTANCE; // Upper edge + a bit of distance in +x direction
     }
   }
 
