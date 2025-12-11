@@ -1,6 +1,5 @@
 package level.produs;
 
-import contrib.hud.DialogUtils;
 import core.Game;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
@@ -46,15 +45,16 @@ public class Level003 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+    addWebPopup(new ImagePopup("popups/level003/01_steine.png"));
+    addWebPopup(new ImagePopup("popups/level003/02_loop.png"));
+    addWebPopup(new ImagePopup("popups/level003/03_loop.png"));
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     if (showText) {
-      DialogUtils.showTextPopup(
-          "Oh nein, die Abkürzung ist versperrt. Jetzt muss ich den langen Weg nehmen. Wenn es doch nur eine Möglichkeit gäbe, die Strecke schnell zu schaffen.",
-          "Kapitel 1: Ausbruch");
+      showPopups();
       showText = false;
     }
     LevelManagementUtils.cameraFocusOn(new Coordinate(13, 5));
