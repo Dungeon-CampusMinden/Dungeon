@@ -42,6 +42,9 @@ public final class CollisionSystem extends System {
   /** Solid entities will be kept at this distance after colliding. */
   public static final float COLLIDE_SET_DISTANCE = 0.0001f;
 
+  /** Distance to snap next to a wall (e.g. when trying to enter a 1-tile wide tunnel) */
+  public static final float CORNER_CORRECT_DISTANCE = 0.1f;
+
   private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
 
   /** Create a new CollisionSystem. */
