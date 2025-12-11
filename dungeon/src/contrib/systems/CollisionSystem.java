@@ -192,8 +192,9 @@ public final class CollisionSystem extends System {
   }
 
   private boolean isStationary(Entity e) {
-    VelocityComponent vc = e.fetch(VelocityComponent.class).orElse(null);
-    return vc == null || vc.maxSpeed() == 0f;
+    return e.fetch(VelocityComponent.class)
+      .map(vc -> vc.maxSpeed() == 0f)
+      .orElse(true);
   }
 
   /**

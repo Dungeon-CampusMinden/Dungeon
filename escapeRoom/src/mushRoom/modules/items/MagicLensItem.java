@@ -40,7 +40,7 @@ public class MagicLensItem extends Item {
 
   @Override
   public void use(Entity user) {
-    Game.player().ifPresent(MagicLensItem::toggleMagicLens);
+    toggleMagicLens(user);
   }
 
   @Override

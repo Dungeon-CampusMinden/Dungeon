@@ -83,11 +83,6 @@ public class JournalItem extends Item {
     player.add(new UIComponent(bookUI, true, true));
   }
 
-  @Override
-  public boolean collect(Entity itemEntity, Entity collector) {
-    return super.collect(itemEntity, collector);
-  }
-
   /** Unlocks a new page in the journal and updates the description. */
   public void unlockPage() {
     this.unlockedPages++;
