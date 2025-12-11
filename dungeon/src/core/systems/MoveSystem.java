@@ -7,7 +7,6 @@ import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
 import core.Game;
 import core.System;
-import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
@@ -83,9 +82,10 @@ public class MoveSystem extends System {
 
     // First: move only in X direction
     Point newPos = oldPos.translate(sv.x(), 0);
-    if (isCollidingWithLevel(data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
+    if (isCollidingWithLevel(
+        data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
       float wallX = fromWall(newPos.x(), sv.x() > 0);
-      if(hasCollider){
+      if (hasCollider) {
         float xOffset = data.cc.collider().offset().x();
         wallX += sv.x() > 0 ? xOffset : -xOffset;
       }
@@ -95,9 +95,10 @@ public class MoveSystem extends System {
 
     // Then: move in Y direction
     newPos = newPos.translate(0, sv.y());
-    if (isCollidingWithLevel(data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
+    if (isCollidingWithLevel(
+        data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
       float wallY = fromWall(newPos.y(), sv.y() > 0);
-      if(hasCollider){
+      if (hasCollider) {
         float yOffset = data.cc.collider().offset().y();
         wallY += sv.y() > 0 ? yOffset : -yOffset;
       }
@@ -106,7 +107,8 @@ public class MoveSystem extends System {
     }
 
     // Final check if newPos is accessible. If no, abort to oldPos.
-    if (isCollidingWithLevel(data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
+    if (isCollidingWithLevel(
+        data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
       newPos = oldPos;
       hasHitWall = true;
     }
@@ -118,17 +120,20 @@ public class MoveSystem extends System {
   }
 
   /**
-   * Returns either the lower or upper edge position of a wall. Adds a small epsilon to avoid floating point precision issues.
+   * Returns either the lower or upper edge position of a wall. Adds a small epsilon to avoid
+   * floating point precision issues.
    *
    * @param position the current position
    * @param lower whether to return the lower edge (true) or upper edge (false)
    * @return the wall edge position
    */
-  private float fromWall(float position, boolean lower){
+  private float fromWall(float position, boolean lower) {
     if (lower) {
-      return (float) Math.floor(position) - CollisionSystem.COLLIDE_SET_DISTANCE; // Lower edge + a bit of distance in -x direction
+      return (float) Math.floor(position)
+          - CollisionSystem.COLLIDE_SET_DISTANCE; // Lower edge + a bit of distance in -x direction
     } else {
-      return (float) Math.ceil(position) + CollisionSystem.COLLIDE_SET_DISTANCE; // Upper edge + a bit of distance in +x direction
+      return (float) Math.ceil(position)
+          + CollisionSystem.COLLIDE_SET_DISTANCE; // Upper edge + a bit of distance in +x direction
     }
   }
 
@@ -141,11 +146,7 @@ public class MoveSystem extends System {
       boolean canEnterGlassWall) {
     if (cc == null) {
       return CollisionUtils.isCollidingWithLevel(
-          position,
-          canEnterOpenPits,
-          canEnterWalls,
-          canEnterGitter,
-          canEnterGlassWall);
+          position, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlassWall);
     }
     return CollisionUtils.isCollidingWithLevel(
         cc.collider(),
@@ -164,23 +165,22 @@ public class MoveSystem extends System {
    * @param pc the position component
    * @param cc the collide component (nullable)
    */
-  private record MSData(
-      Entity e, VelocityComponent vc, PositionComponent pc, CollideComponent cc) {
+  private record MSData(Entity e, VelocityComponent vc, PositionComponent pc, CollideComponent cc) {
 
     /**
      * Builds an MSData object from the given entity by fetching its required components.
+     *
      * @param e the entity
      * @return the constructed MSData object
      */
-    public static MSData of(
-        Entity e) {
+    public static MSData of(Entity e) {
       VelocityComponent vc =
-        e.fetch(VelocityComponent.class)
-          .orElseThrow(() -> MissingComponentException.build(e, VelocityComponent.class));
+          e.fetch(VelocityComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(e, VelocityComponent.class));
 
       PositionComponent pc =
-        e.fetch(PositionComponent.class)
-          .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
+          e.fetch(PositionComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
 
       CollideComponent cc = e.fetch(CollideComponent.class).orElse(null);
 
