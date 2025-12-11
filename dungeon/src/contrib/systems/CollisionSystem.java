@@ -40,7 +40,7 @@ public final class CollisionSystem extends System {
   public static final boolean ALLOW_PLAYER_COLLISIONS = false;
 
   /** Solid entities will be kept at this distance after colliding. */
-  public static final float COLLIDE_SET_DISTANCE = 0.01f;
+  public static final float COLLIDE_SET_DISTANCE = 0.0001f;
 
   private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
 
