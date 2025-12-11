@@ -123,8 +123,13 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew checkstyleMain || true
-          ./gradlew checkstyleTest || true
+          retval=0
+          if ! ./gradlew checkstyleMain ; then
+            retval=1
+          fi
+          if ! ./gradlew checkstyleTest ; then
+            retval=1
+          fi
           find . -path "*/build/reports/checkstyle/*.xml" -exec sh -c "cat {} | \
           reviewdog -f=checkstyle \
           -name=checkstyle \
@@ -132,6 +137,7 @@ jobs:
           -filter-mode=file \
           -fail-level=none \
           -level=warning" \;
+          exit $retval
 
   frontend_changed:
     name: Frontend (matrix build)
