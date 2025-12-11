@@ -121,6 +121,9 @@ public class HudStarter {
     NavigationBar navigationBar = new NavigationBar(skin);
     hud.addElement(navigationBar);
 
+    StatusEffectBar statusEffectBar = new StatusEffectBar(skin);
+    hud.addElement(statusEffectBar);
+
     Game.stage().ifPresent(stage -> stage.addActor(hud.getStage().getRoot()));
   }
 }

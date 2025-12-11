@@ -39,7 +39,7 @@ public class QuickAccessInventory extends Table implements HUDElement {
 
   @Override
   public void layoutElement() {
-    setPosition((Gdx.graphics.getWidth() - getWidth()) / 2f + 300, 35);
+    setPosition((Gdx.graphics.getWidth() - getWidth()) / 2f + 300, 10);
     pack();
   }
 
