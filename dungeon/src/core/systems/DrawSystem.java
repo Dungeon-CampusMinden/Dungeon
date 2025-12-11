@@ -95,9 +95,9 @@ public final class DrawSystem extends System implements Disposable {
   private int stableResizeFrames = -1;
 
   /**
-   * Gets the singleton instance of the DrawSystem.
+   * Gets the singleton instance of the DrawSystem, creating it if it does not exist.
    *
-   * @return The DrawSystem instance
+   * @return The singleton DrawSystem instance
    */
   public static DrawSystem getInstance() {
     if (INSTANCE == null) {
@@ -500,21 +500,48 @@ public final class DrawSystem extends System implements Disposable {
    * @param dsd the data record of the entity to process
    */
   private void processShaderPassesSingleEntity(final DSData dsd) {
-    DrawComponent dc = dsd.dc;
+    FrameBuffer generated = processShaders(dsd.dc.getSprite(), dsd.dc.shaders(), dsd.pc);
+    FrameBuffer oldFbo = entityFboCache.put(dsd.e, generated);
+    if (oldFbo != null) {
+      LOGGER.warn("Entity FBO cache overwrite for entity: " + dsd.e);
+      FBO_POOL.free(oldFbo);
+    }
+  }
 
+  /**
+   * Processes a series of shaders on a given texture region using ping-pong FBO rendering.
+   *
+   * @param region The texture region to process
+   * @param shaders The list of shaders to apply
+   * @return The FBO containing the final processed result
+   */
+  public FrameBuffer processShaders(TextureRegion region, ShaderList shaders) {
+    return processShaders(region, shaders, null);
+  }
+
+  /**
+   * Processes a series of shaders on a given texture region using ping-pong FBO rendering.
+   *
+   * @param region The texture region to process
+   * @param shaders The list of shaders to apply
+   * @param pc The position component of the entity (for world bounds calculation), can be null
+   * @return The FBO containing the final processed result
+   */
+  public FrameBuffer processShaders(
+      TextureRegion region, ShaderList shaders, PositionComponent pc) {
     // --- 1. Calculate FBO Size and Obtain Buffers ---
-    float padding = dsd.dc.shaders().getTotalPadding();
+    float padding = shaders.getTotalPadding();
 
     // Required size is sprite size + 2*padding. All in PIXELS.
-    float unscaledWidth = dc.getSpriteWidth();
-    float unscaledHeight = dc.getSpriteHeight();
+    float unscaledWidth = region.getRegionWidth();
+    float unscaledHeight = region.getRegionHeight();
 
     // Calculate the base pixel size (before upscaling)
     int baseFboWidth = (int) (unscaledWidth + 2 * padding);
     int baseFboHeight = (int) (unscaledHeight + 2 * padding);
 
     // Apply Upscale Factor to the FBO dimensions
-    int shaderUpscaling = dsd.dc.shaders().getMaxUpscaling();
+    int shaderUpscaling = shaders.getMaxUpscaling();
     int fboWidth = baseFboWidth * shaderUpscaling;
     int fboHeight = baseFboHeight * shaderUpscaling;
 
@@ -534,8 +561,6 @@ public final class DrawSystem extends System implements Disposable {
     Texture currentSourceTexture;
     boolean useFboAAsSource;
 
-    TextureRegion initialRegion = dc.getSprite();
-
     // --- 2. Initial Draw: Sprite -> FBO A ---
     currentTarget.begin();
     Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
@@ -546,7 +571,7 @@ public final class DrawSystem extends System implements Disposable {
     BlendUtils.setBlending(fboBatch());
     fboBatch()
         .draw(
-            initialRegion,
+            region,
             padding * shaderUpscaling,
             padding * shaderUpscaling,
             unscaledWidth * shaderUpscaling,
@@ -558,8 +583,12 @@ public final class DrawSystem extends System implements Disposable {
     currentSourceTexture = currentTarget.getColorBufferTexture();
 
     // --- 3. Ping-Pong Loop for Shader Passes ---
-    for (AbstractShader pass : dc.shaders().getEnabledSorted()) {
-      Rectangle worldBounds = getFboWorldBounds(dsd);
+    for (AbstractShader pass : shaders.getEnabledSorted()) {
+      Rectangle worldBounds = new Rectangle(1, 1, 0, 0);
+      if (pc != null) {
+        worldBounds =
+            getFboWorldBounds(pc.position(), pc.scale(), Vector2.of(unscaledWidth, unscaledHeight));
+      }
       Rectangle shaderBounds = pass.worldBounds();
       if (shaderBounds != null && !worldBounds.intersects(shaderBounds)) {
         continue;
@@ -580,7 +609,10 @@ public final class DrawSystem extends System implements Disposable {
       BlendUtils.setBlending(fboBatch());
       pass.bind(fboBatch(), shaderUpscaling);
 
-      float rotation = dsd.pc.rotation() * MathUtils.degreesToRadians;
+      float rotation = 0;
+      if (pc != null) {
+        rotation = pc.rotation() * MathUtils.degreesToRadians;
+      }
       setCommonUniforms(
           fboBatch().getShader(),
           fboRegion.getRegionWidth(),
@@ -595,18 +627,14 @@ public final class DrawSystem extends System implements Disposable {
       currentTarget.end();
 
       currentSourceTexture = currentTarget.getColorBufferTexture();
-      useFboAAsSource = !useFboAAsSource; // Swap the source flag
+      useFboAAsSource = !useFboAAsSource;
     }
 
-    // --- 4. Store Final Result and Free the other FBO ---
-    FrameBuffer oldFbo = entityFboCache.put(dsd.e, currentTarget);
-    if (oldFbo != null) {
-      LOGGER.warn("Entity FBO cache overwrite for entity: " + dsd.e);
-      FBO_POOL.free(oldFbo);
-    }
-
+    // --- 4. Final Result and Free the other FBO ---
     FrameBuffer unusedFbo = currentTarget == fboA ? fboB : fboA;
     FBO_POOL.free(unusedFbo);
+
+    return currentTarget;
   }
 
   // region Draw Methods
@@ -767,10 +795,15 @@ public final class DrawSystem extends System implements Disposable {
     if (dsd == null) {
       return CameraSystem.getCameraWorldBounds();
     }
-    float posX = dsd.pc.position().x();
-    float posY = dsd.pc.position().y();
-    float worldWidth = dsd.pc.scale().x() * dsd.dc.getWidth();
-    float worldHeight = dsd.pc.scale().y() * dsd.dc.getHeight();
+    return getFboWorldBounds(
+        dsd.pc.position(), dsd.pc.scale(), Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()));
+  }
+
+  private Rectangle getFboWorldBounds(Point pos, Vector2 scale, Vector2 size) {
+    float posX = pos.x();
+    float posY = pos.y();
+    float worldWidth = scale.x() * size.x();
+    float worldHeight = scale.y() * size.y();
     return new Rectangle(worldWidth, worldHeight, posX, posY);
   }
 

@@ -1,0 +1,4 @@
+- Source: https://opengameart.org/content/ui-sound-effects-pack
+- Author: David McKee (ViRiX)
+- License: CC-BY 3.0
+- Attribution: `Some of the sounds in this project were created by David McKee (ViRiX) soundcloud.com/virix`

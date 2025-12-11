@@ -205,7 +205,7 @@ public abstract class AbstractShader implements Disposable, Serializable {
    * Interface to represent a uniform value and its binding logic. This decouples the shader binding
    * logic from the value storage.
    */
-  protected interface UniformBinding {
+  public interface UniformBinding {
     /**
      * Gets the name of the uniform.
      *
@@ -227,7 +227,7 @@ public abstract class AbstractShader implements Disposable, Serializable {
    * @param name The uniform name in the shader.
    * @param value The float value to bind.
    */
-  protected record FloatUniform(String name, float value) implements UniformBinding {
+  public record FloatUniform(String name, float value) implements UniformBinding {
     @Override
     public void bind(ShaderProgram program) {
       program.setUniformf(name, value);
@@ -240,7 +240,7 @@ public abstract class AbstractShader implements Disposable, Serializable {
    * @param name The uniform name in the shader.
    * @param value The boolean value to bind.
    */
-  protected record BoolUniform(String name, boolean value) implements UniformBinding {
+  public record BoolUniform(String name, boolean value) implements UniformBinding {
     @Override
     public void bind(ShaderProgram program) {
       program.setUniformi(name, value ? 1 : 0);
@@ -253,7 +253,19 @@ public abstract class AbstractShader implements Disposable, Serializable {
    * @param name The uniform name in the shader.
    * @param value The Vector2 value to bind.
    */
-  protected record Vector2Uniform(String name, Vector2 value) implements UniformBinding {
+  public record Vector2Uniform(String name, Vector2 value) implements UniformBinding {
+
+    /**
+     * Constructs from individual x and y float components.
+     *
+     * @param name The uniform name in the shader.
+     * @param x The x component of the vector.
+     * @param y The y component of the vector.
+     */
+    public Vector2Uniform(String name, float x, float y) {
+      this(name, new Vector2(x, y));
+    }
+
     @Override
     public void bind(ShaderProgram program) {
       program.setUniformf(name, value);
@@ -266,7 +278,7 @@ public abstract class AbstractShader implements Disposable, Serializable {
    * @param name The uniform name in the shader.
    * @param value The Vector3 value to bind.
    */
-  protected record Vector3Uniform(String name, Vector3 value) implements UniformBinding {
+  public record Vector3Uniform(String name, Vector3 value) implements UniformBinding {
     @Override
     public void bind(ShaderProgram program) {
       program.setUniformf(name, value);
@@ -279,7 +291,18 @@ public abstract class AbstractShader implements Disposable, Serializable {
    * @param name The uniform name in the shader.
    * @param value The Vector4 value to bind.
    */
-  protected record Vector4Uniform(String name, Vector4 value) implements UniformBinding {
+  public record Vector4Uniform(String name, Vector4 value) implements UniformBinding {
+
+    /**
+     * Constructs from a {@link Rectangle}.
+     *
+     * @param name The uniform name in the shader.
+     * @param rect The {@link Rectangle} to convert to a Vector4.
+     */
+    public Vector4Uniform(String name, Rectangle rect) {
+      this(name, new Vector4(rect.x(), rect.y(), rect.width(), rect.height()));
+    }
+
     @Override
     public void bind(ShaderProgram program) {
       program.setUniformf(name, value);
@@ -293,8 +316,7 @@ public abstract class AbstractShader implements Disposable, Serializable {
    * @param texture The Texture object to bind.
    * @param unit OpenGL texture unit (must be >= 1, 0 is reserved for SpriteBatch).
    */
-  protected record TextureUniform(String name, Texture texture, int unit)
-      implements UniformBinding {
+  public record TextureUniform(String name, Texture texture, int unit) implements UniformBinding {
     /**
      * Binds a texture uniform to a specified texture unit.
      *
@@ -327,7 +349,7 @@ public abstract class AbstractShader implements Disposable, Serializable {
    * @param name The uniform name in the shader.
    * @param value The Color value to bind.
    */
-  protected record ColorUniform(String name, Color value) implements UniformBinding {
+  public record ColorUniform(String name, Color value) implements UniformBinding {
     @Override
     public void bind(ShaderProgram program) {
       program.setUniformf(name, value);

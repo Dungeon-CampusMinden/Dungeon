@@ -5,6 +5,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
+import core.sound.SoundSpec;
 import core.systems.DrawSystem;
 import core.utils.Point;
 import core.utils.Rectangle;
@@ -19,6 +20,9 @@ import java.util.Optional;
  * it is revealed. If the player leaves the region again, it's hidden.
  */
 public class LevelHideSystem extends System {
+
+  private static final String SOUND_HIDE = "virix_MENU_B_Back";
+  private static final String SOUND_SHOW = "virix_MENU_B_Select";
 
   private Point lastPlayerPosition = null;
   private static int entityIdCounter = 0;
@@ -86,8 +90,10 @@ public class LevelHideSystem extends System {
     boolean isInside = region.contains(currentPos);
 
     if (!wasInside && isInside) {
+      Game.audio().playGlobal(new SoundSpec.Builder(SOUND_SHOW).volume(0.05f));
       lhs.hiding(false);
     } else if (wasInside && !isInside) {
+      Game.audio().playGlobal(new SoundSpec.Builder(SOUND_HIDE).volume(0.05f));
       lhs.hiding(true);
     }
   }

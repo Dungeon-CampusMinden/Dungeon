@@ -216,6 +216,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	keypad: {
 		font: roboto-semibold-64
 	}
+	blank-black: {
+		font: roboto-semibold-32
+		fontColor: black
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 	default: {

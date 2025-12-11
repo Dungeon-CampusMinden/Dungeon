@@ -182,9 +182,10 @@ public class LeverFactory {
    *
    * @param position the position where the pressure plate entity should be created
    * @param massTrigger the mass threshold at which the pressure plate becomes triggered
+   * @param command the command to execute when the pressure plate is triggered
    * @return the newly created pressure plate entity
    */
-  public static Entity pressurePlate(Point position, float massTrigger) {
+  public static Entity pressurePlate(Point position, float massTrigger, ICommand command) {
     Entity pressurePlate = new Entity("pressureplate");
     pressurePlate.add(new PositionComponent(position));
 
@@ -198,7 +199,7 @@ public class LeverFactory {
     DrawComponent dc = new DrawComponent(sm, DepthLayer.Ground);
     pressurePlate.add(dc);
 
-    LeverComponent leverComponent = new LeverComponent(false, ICommand.NOOP);
+    LeverComponent leverComponent = new LeverComponent(false, command);
     pressurePlate.add(leverComponent);
     PressurePlateComponent pressurePlateComponent = new PressurePlateComponent(massTrigger);
     pressurePlate.add(pressurePlateComponent);
@@ -222,6 +223,26 @@ public class LeverFactory {
 
     pressurePlate.add(new CollideComponent(onCollideEnter, onCollideLeave).isSolid(false));
     return pressurePlate;
+  }
+
+  /**
+   * Creates a pressure plate entity at the specified position.
+   *
+   * <p>The pressure plate acts as a switch that becomes active (i.e., {@code true}) if the total
+   * mass of entities with a {@code CollideComponent} standing on it reaches or exceeds the
+   * specified mass trigger threshold.
+   *
+   * <p>Entities that have a {@code ProjectileComponent} are excluded and do not trigger the plate.
+   *
+   * <p>This pressure plate does not emit any events on interaction; it solely toggles the {@link
+   * LeverComponent#isOn()} state based on the mass currently on the plate.
+   *
+   * @param position the position where the pressure plate entity should be created
+   * @param massTrigger the mass threshold at which the pressure plate becomes triggered
+   * @return the newly created pressure plate entity
+   */
+  public static Entity pressurePlate(Point position, float massTrigger) {
+    return pressurePlate(position, massTrigger, ICommand.NOOP);
   }
 
   /**
