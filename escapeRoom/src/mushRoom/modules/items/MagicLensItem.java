@@ -5,7 +5,6 @@ import contrib.components.UIComponent;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import core.Entity;
-import core.Game;
 import core.systems.DrawSystem;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.TextureGenerator;
