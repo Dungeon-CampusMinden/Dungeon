@@ -1,5 +1,7 @@
 package skills;
 
+import components.AntiMaterialBarrierComponent;
+import contrib.components.HealthComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
@@ -8,10 +10,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.utils.Direction;
-import core.utils.Point;
-import core.utils.Tuple;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
@@ -179,6 +178,39 @@ public class EnergyPelletSkill extends DamageProjectileSkill {
     }
 
     vc.currentVelocity(velocity);
+  }
+
+  /**
+   * Defines the behavior when the Energy Pellet projectile collides with another entity.
+   *
+   * <p>If the target entity has a {@link HealthComponent}, it receives damage. In addition, any
+   * configured bonus effect ({@link #additionalEffectAfterDamage} is applied. If {@code piercing}
+   * is set to {@code false}, the projectile is removed after the collision as long as it does not
+   * collide with an AntiMaterialBarrier entity; otherwise, it continues traveling and ignores this
+   * target in future collisions.
+   *
+   * @param caster the entity that created or cast the projectile
+   * @return a {@link TriConsumer} defining the collision behavior; the parameters are:
+   *     <ul>
+   *       <li>the projectile entity
+   *       <li>the entity the projectile collides with
+   *       <li>the collision direction, relative to the projectile
+   *     </ul>
+   */
+  @Override
+  protected TriConsumer<Entity, Entity, Direction> onCollideEnter(Entity caster) {
+    return (projectile, target, direction) -> {
+      target
+          .fetch(HealthComponent.class)
+          .ifPresent(hc -> hc.receiveHit(calculateDamage(caster, target, direction)));
+      additionalEffectAfterDamage(caster, projectile, target, direction);
+
+      if (piercing || target.isPresent(AntiMaterialBarrierComponent.class)) {
+        ignoreEntity(target);
+      } else {
+        Game.remove(projectile);
+      }
+    };
   }
 
   @Override
