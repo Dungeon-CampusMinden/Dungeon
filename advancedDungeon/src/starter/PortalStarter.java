@@ -61,6 +61,7 @@ public class PortalStarter {
           DungeonLoader.addLevel(Tuple.of("PortalDemo", PortalDemoLevel.class));
           DungeonLoader.addLevel(Tuple.of("portallevel1", PortalLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("portallevel2", PortalLevel_2.class));
+          DungeonLoader.addLevel(Tuple.of("portallevel3", PortalLevel_3.class));
           DungeonLoader.addLevel(Tuple.of("portallevel4", PortalLevel_4.class));
           DungeonLoader.addLevel(Tuple.of("portallevel5", PortalLevel_5.class));
 
