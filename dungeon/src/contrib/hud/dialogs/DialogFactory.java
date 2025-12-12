@@ -225,7 +225,7 @@ public class DialogFactory {
    * @param title The dialog window title
    * @param onYes Callback executed when the Yes button is pressed
    * @param onNo Callback executed when the No button is pressed
-   * @param targetIds The target entity IDs for which the dialog is displayed
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed
    * @return The {@link UIComponent} containing the dialog
    */
   public static UIComponent showYesNoDialog(
