@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  *
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
-public final class HealthComponent implements Component {
+public final class HealthComponent implements Component, BarDisplayable {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(HealthComponent.class);
 
   private static final Consumer<Entity> REMOVE_DEAD_ENTITY = Game::remove;
@@ -261,5 +261,25 @@ public final class HealthComponent implements Component {
    */
   public void alreadyDead(boolean status) {
     this.dead = status;
+  }
+
+  @Override
+  public float current() {
+    return currentHealthpoints;
+  }
+
+  @Override
+  public float max() {
+    return maximalHealthpoints;
+  }
+
+  @Override
+  public String barStyleName() {
+    return "healthbar";
+  }
+
+  @Override
+  public int barPriority() {
+    return 0;
   }
 }

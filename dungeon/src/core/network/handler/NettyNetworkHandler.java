@@ -8,6 +8,7 @@ import core.network.server.ServerRuntime;
 import core.network.server.Session;
 import core.utils.logging.DungeonLogger;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -158,5 +159,15 @@ public class NettyNetworkHandler implements INetworkHandler {
   public void pollAndDispatch() {
     if (!serverMode) client.pollAndDispatch();
     else server.pollAndDispatch();
+  }
+
+  /**
+   * Returns the ServerRuntime instance (server mode only).
+   *
+   * @return an {@link Optional} containing the {@link ServerRuntime} if in server mode, otherwise
+   *     an empty {@link Optional}
+   */
+  public Optional<ServerRuntime> serverRuntime() {
+    return serverMode ? Optional.ofNullable(server) : Optional.empty();
   }
 }

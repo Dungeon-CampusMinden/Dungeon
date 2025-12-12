@@ -6,7 +6,7 @@ import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
-import contrib.hud.dialogs.TextDialog;
+import contrib.hud.dialogs.DialogFactory;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
@@ -191,9 +191,10 @@ public class Debugger extends System {
   }
 
   private static Entity newPauseMenu() {
-    Entity entity = TextDialog.textDialog("Pause", "Weiter", "Pausemenue");
-    entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
-    return entity;
+    UIComponent ui = DialogFactory.showOkDialog("Pause", "Spiel pausiert", () -> {});
+
+    ui.dialog().setVisible(true);
+    return ui.dialogContext().ownerEntity();
   }
 
   private static void OPEN_DOORS() {

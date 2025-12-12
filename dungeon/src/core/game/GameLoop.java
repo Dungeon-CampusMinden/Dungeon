@@ -12,11 +12,15 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import contrib.components.UIComponent;
+import contrib.crafting.Crafting;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.entities.deco.DecoFactory;
+import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogFactory;
+import contrib.systems.AttributeBarSystem;
 import contrib.systems.DebugDrawSystem;
-import contrib.systems.HudSystem;
 import contrib.utils.CheckPatternPainter;
 import core.Entity;
 import core.Game;
@@ -301,6 +305,8 @@ public final class GameLoop extends ScreenAdapter {
     PreRunConfiguration.userOnSetup().execute();
     Game.network().start();
 
+    Crafting.loadRecipes();
+
     Game.system(LevelSystem.class, LevelSystem::execute); // load initial level
   }
 
@@ -396,6 +402,33 @@ public final class GameLoop extends ScreenAdapter {
             LOGGER.warn("Error while applying snapshot message: {}", ignored.getMessage(), ignored);
           }
         });
+
+    dispatcher.registerHandler(
+        DialogShowMessage.class,
+        (ctx, msg) -> {
+          LOGGER.debug("Received DialogShowMessage for dialog: {}", msg.context().dialogId());
+
+          DialogFactory.show(msg.context(), false, msg.canBeClosed(), new int[] {});
+        });
+
+    dispatcher.registerHandler(
+        DialogCloseMessage.class,
+        (ctx, msg) -> {
+          LOGGER.debug("Received DialogCloseMessage for dialog: {}", msg.dialogId());
+          // Find and remove the UiComponent with the given dialogId
+          Game.allEntities()
+              .filter(
+                  e ->
+                      e.fetch(UIComponent.class)
+                          .map(
+                              comp ->
+                                  comp.dialogContext() != null
+                                      && msg.dialogId().equals(comp.dialogContext().dialogId()))
+                          .orElse(false))
+              .findFirst()
+              .flatMap(e -> e.fetch(UIComponent.class))
+              .ifPresent(UIUtils::closeDialog);
+        });
   }
 
   /**
@@ -486,6 +519,6 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new MoveSystem());
     ECSManagement.add(new InputSystem());
     ECSManagement.add(new DebugDrawSystem());
-    ECSManagement.add(new HudSystem());
+    ECSManagement.add(new AttributeBarSystem());
   }
 }

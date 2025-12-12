@@ -3,7 +3,12 @@ package contrib.utils.systems.levelEditor;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import contrib.hud.dialogs.FreeInputDialog;
+import contrib.components.UIComponent;
+import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogType;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import core.level.utils.Coordinate;
@@ -46,12 +51,20 @@ public class PointMode extends LevelEditorMode {
         heldPointName = null;
       } else {
         // Place new point instance
-        FreeInputDialog.showTextInputDialog(
-            "Add Named Point",
-            "Name of new point",
-            (string) -> {
-              if (string.isBlank()) return;
-              getLevel().addNamedPoint(string, snapPos);
+        UIComponent dialogUI =
+            DialogFactory.show(
+                DialogContext.builder()
+                    .type(DialogType.DefaultTypes.FREE_INPUT)
+                    .put(DialogContextKeys.TITLE, "Add Named Point")
+                    .put(DialogContextKeys.QUESTION, "Name of new point")
+                    .build());
+        dialogUI.registerCallback(
+            DialogContextKeys.INPUT_CALLBACK,
+            data -> {
+              if (data instanceof String string && !string.isBlank()) {
+                getLevel().addNamedPoint(string, snapPos);
+              }
+              UIUtils.closeDialog(dialogUI, true);
             });
       }
     } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {

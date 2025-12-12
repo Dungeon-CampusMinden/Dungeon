@@ -34,6 +34,7 @@ import java.util.stream.Stream;
  */
 public final class Entity implements Comparable<Entity> {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Entity.class);
+
   private final int id;
   private final HashMap<Class<? extends Component>, Component> components;
   private String name;
@@ -48,10 +49,7 @@ public final class Entity implements Comparable<Entity> {
    * @param name the name of the entity, used for better logging and debugging
    */
   public Entity(final String name) {
-    this.id = EntityIdProvider.nextId();
-    this.components = new HashMap<>();
-    this.name = name;
-    LOGGER.info(this + " was created.");
+    this(EntityIdProvider.nextId(), name, false);
   }
 
   /**
@@ -61,10 +59,7 @@ public final class Entity implements Comparable<Entity> {
    * <p>Remember to register it in {@link Game} using {@link Game#add}.
    */
   public Entity() {
-    this.id = EntityIdProvider.nextId();
-    this.components = new HashMap<>();
-    this.name = "_" + this.id;
-    LOGGER.info(this + " was created.");
+    this(EntityIdProvider.nextId(), null, false);
   }
 
   /**
@@ -74,24 +69,67 @@ public final class Entity implements Comparable<Entity> {
    *
    * @param id the explicit id to use
    * @param name the name of the entity
-   * @throws IllegalArgumentException if the id is already in use or invalid
+   * @throws IllegalArgumentException if the id is already in use
    */
   public Entity(final int id, final String name) {
-    EntityIdProvider.registerOrThrow(id);
-    this.id = id;
-    this.components = new HashMap<>();
-    this.name = name;
-    LOGGER.info(this + " was created.");
+    this(id, name, true);
   }
 
   /**
    * Create a new Entity with an explicit id and default name of "_id".
    *
    * @param id the explicit id to use
-   * @throws IllegalArgumentException if the id is already in use or invalid
+   * @throws IllegalArgumentException if the id is already in use
    */
   public Entity(final int id) {
-    this(id, "_" + id);
+    this(id, null, true);
+  }
+
+  /**
+   * Create a new local-only Entity with a generated negative id.
+   *
+   * <p>Local-only entities are client-side only and should not be synced over the network. They use
+   * negative IDs to distinguish them from server entities.
+   *
+   * <p>Remember to register it in {@link Game} using {@link Game#add}.
+   *
+   * @param name the name of the entity, used for better logging and debugging
+   * @return a new Entity with a unique negative ID
+   */
+  public static Entity createLocalEntity(final String name) {
+    return new Entity(EntityIdProvider.nextLocalId(), name, false);
+  }
+
+  /**
+   * Create a new local-only Entity with a generated negative id and default name of "_id".
+   *
+   * <p>Local-only entities are client-side only and should not be synced over the network. They use
+   * negative IDs to distinguish them from server entities.
+   *
+   * <p>Remember to register it in {@link Game} using {@link Game#add}.
+   *
+   * @return a new Entity with a unique negative ID
+   */
+  public static Entity createLocalEntity() {
+    return new Entity(EntityIdProvider.nextLocalId(), null, false);
+  }
+
+  /**
+   * Base constructor for all entity creation paths.
+   *
+   * @param id the entity id
+   * @param name the name of the entity, or null to use default "_id" naming
+   * @param registerN if true, registers the ID via {@link EntityIdProvider#registerOrThrow}; if
+   *     false, assumes ID is already registered
+   */
+  private Entity(final int id, final String name, final boolean registerN) {
+    if (registerN) {
+      EntityIdProvider.registerOrThrow(id);
+    }
+    this.id = id;
+    this.components = new HashMap<>();
+    this.name = name != null ? name : "_" + id;
+    LOGGER.info(this + " was created.");
   }
 
   /**

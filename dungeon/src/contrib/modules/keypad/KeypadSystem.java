@@ -1,6 +1,9 @@
 package contrib.modules.keypad;
 
 import contrib.components.UIComponent;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogType;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -30,11 +33,15 @@ public class KeypadSystem extends System {
     if (overlay == null && d.kc.isUIOpen()) {
       // Dialog is closed but should be open
       Entity newOverlay = new Entity("keypad-overlay");
-      UIComponent uic = new UIComponent(new KeypadUI(d.e), true, true);
-      uic.onClose(
-          () -> {
-            d.kc.isUIOpen(false);
-          });
+      DialogContext context =
+          DialogContext.builder()
+              .type(DialogType.DefaultTypes.KEYPAD)
+              .put(DialogContextKeys.ENTITY, d.e.id())
+              .put(DialogContextKeys.OWNER_ENTITY, newOverlay.id())
+              .build();
+      UIComponent uic = new UIComponent(context, true);
+      // Register close callback
+      uic.registerCallback("onClose", data -> d.kc.isUIOpen(false));
       newOverlay.add(uic);
       d.kc.overlay(newOverlay);
       Game.add(newOverlay);

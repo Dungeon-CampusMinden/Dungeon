@@ -4,7 +4,9 @@ import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.*;
 
+import contrib.components.UIComponent;
 import contrib.entities.HeroController;
+import contrib.hud.UIUtils;
 import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
 import core.Game;
@@ -29,6 +31,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.*;
@@ -36,6 +39,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 /**
  * The server-side transport layer handling TCP and UDP communication with clients.
@@ -429,6 +433,7 @@ public final class ServerTransport {
     dispatcher.registerHandler(InputMessage.class, this::onInputMessage);
     dispatcher.registerHandler(SoundFinishedMessage.class, this::onSoundFinished);
     dispatcher.registerHandler(InventoryUIMessage.class, this::onInventoryUIMessage);
+    dispatcher.registerHandler(DialogResponseMessage.class, this::onDialogResponse);
   }
 
   private void onInventoryUIMessage(Session session, InventoryUIMessage msg) {
@@ -504,6 +509,10 @@ public final class ServerTransport {
     session.sendMessage(new ConnectAck(newClientId, ServerRuntime.SESSION_ID, sessionToken), true);
 
     sendInitialLevel(session.tcpCtx(), newClientId);
+
+    // Resync dialogs for the new client
+    DialogTracker.instance().resyncDialogsToClient(newClientId);
+
     LOGGER.info("Accepted client id={} name='{}' {}", newClientId, playerName, session);
   }
 
@@ -532,6 +541,15 @@ public final class ServerTransport {
         // check if the session is already active
         if (!s.isClosed()) {
           LOGGER.warn("Session restore attempt for already active clientId={}", clientId);
+          session.sendMessage(new ConnectReject(ConnectReject.Reason.INVALID_SESSION_TOKEN), true);
+          return;
+        }
+        // check if name is the same
+        if (!state.username().equals(req.playerName())) {
+          LOGGER.warn(
+              "Session restore attempt with mismatched player name: expected='{}' provided='{}'",
+              state.username(),
+              req.playerName());
           session.sendMessage(new ConnectReject(ConnectReject.Reason.INVALID_SESSION_TOKEN), true);
           return;
         }
@@ -568,6 +586,10 @@ public final class ServerTransport {
     session.sendMessage(new ConnectAck(clientId, ServerRuntime.SESSION_ID, newSessionToken), true);
 
     sendInitialLevel(session.tcpCtx(), clientId);
+
+    // Resync dialogs for the reconnecting client
+    DialogTracker.instance().resyncDialogsToClient(clientId);
+
     LOGGER.info("Restored client id={} name='{}' {}", clientId, playerName, session);
   }
 
@@ -716,6 +738,66 @@ public final class ServerTransport {
 
     // 4. Enqueue
     HeroController.enqueueInput(state, msg);
+  }
+
+  /**
+   * Handles a dialog response from a client.
+   *
+   * <p>Validates the response, executes the appropriate callback, and closes the dialog on all
+   * clients.
+   *
+   * @param session the session of the responding client
+   * @param msg the dialog response message
+   */
+  private void onDialogResponse(Session session, DialogResponseMessage msg) {
+    // 1. Validate session
+    if (!isSessionValid(session)) {
+      LOGGER.warn("Ignoring DialogResponseMessage from invalid session: {}", session);
+      return;
+    }
+
+    short clientId = session.clientState().map(ClientState::clientId).orElse((short) 0);
+    String dialogId = msg.dialogId();
+
+    // 2. Validate client authorization
+    DialogTracker tracker = DialogTracker.instance();
+    if (!tracker.canRespond(clientId, dialogId)) {
+      LOGGER.warn("Client {} attempted to respond to unauthorized dialog: {}", clientId, dialogId);
+      return;
+    }
+
+    // 3. Handle CLOSED response type (user closed dialog without selecting an option)
+    if (msg.responseType() == DialogResponseMessage.ResponseType.CLOSED) {
+      // Remove UIComponent from the dialog entity
+      int entityId = tracker.getEntityId(dialogId);
+      if (entityId >= 0) {
+        Game.findEntityById(entityId)
+            .flatMap(e -> e.fetch(UIComponent.class))
+            .ifPresent(UIUtils::closeDialog);
+      }
+      tracker.closeDialog(dialogId, false);
+      return;
+    }
+
+    // 4. Try to claim (first-responder wins)
+    if (!tracker.tryClaimDialog(dialogId, clientId)) {
+      LOGGER.debug("Dialog {} already claimed by another client, ignoring response", dialogId);
+      return;
+    }
+
+    // 5. Execute callback by key from DialogTracker
+    Optional<Consumer<Serializable>> callbackOpt =
+        DialogTracker.instance().getCallback(dialogId, msg.callbackKey());
+    if (callbackOpt.isPresent()) {
+      Consumer<Serializable> callback = callbackOpt.get();
+      try {
+        callback.accept(msg.data());
+      } catch (Exception e) {
+        LOGGER.error("Error executing callback for dialog {}", dialogId, e);
+      }
+    } else {
+      LOGGER.debug("No callback found for dialog {} with key {}", dialogId, msg.callbackKey());
+    }
   }
 
   private void sendInitialLevel(ChannelHandlerContext ctx, int clientId) {

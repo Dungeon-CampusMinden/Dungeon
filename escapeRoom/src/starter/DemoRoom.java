@@ -2,7 +2,6 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
-import contrib.crafting.Crafting;
 import contrib.entities.CharacterClass;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
@@ -47,7 +46,6 @@ public class DemoRoom {
           DungeonLoader.addLevel(Tuple.of("demo", Level01.class));
           createSystems();
           createHero();
-          Crafting.loadRecipes();
           DungeonLoader.loadLevel(START_LEVEL);
         });
   }
@@ -70,15 +68,11 @@ public class DemoRoom {
   private static void createSystems() {
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
     Game.add(new CollisionSystem());
-    Game.add(new ManaBarSystem());
     Game.add(new ManaRestoreSystem());
     Game.add(new StaminaRestoreSystem());
-    Game.add(new StaminaBarSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());
-    Game.add(new HealthBarSystem());
     Game.add(new HealthSystem());
-    Game.add(new HudSystem());
     Game.add(new SpikeSystem());
     if (!DEBUG_MODE) Game.add(new FallingSystem());
     Game.add(new PathSystem());

@@ -23,7 +23,7 @@ import java.util.Arrays;
  */
 public final class GUICombination extends Group {
 
-  /** WTF? . */
+  /** The gap between the CombinableGUIs in pixels. */
   public static final int GAP = 10;
 
   private final DragAndDrop dragAndDrop;
@@ -43,6 +43,10 @@ public final class GUICombination extends Group {
 
     if (Game.isHeadless()) {
       this.dragAndDrop = null;
+      this.combinableGuis.forEach(
+          combinableGUI -> {
+            this.addActor(combinableGUI.actor());
+          });
       return;
     }
     this.dragAndDrop = new DragAndDrop();

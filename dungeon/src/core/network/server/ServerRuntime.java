@@ -138,4 +138,13 @@ public final class ServerRuntime {
 
     transport.pollAndDispatch();
   }
+
+  /**
+   * Returns the ServerTransport instance.
+   *
+   * @return the ServerTransport, or null if not started
+   */
+  public ServerTransport transport() {
+    return transport;
+  }
 }

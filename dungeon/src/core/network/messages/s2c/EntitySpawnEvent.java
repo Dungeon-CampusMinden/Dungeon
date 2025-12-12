@@ -36,22 +36,6 @@ public record EntitySpawnEvent(
     implements NetworkMessage {
 
   /**
-   * Constructor without PlayerComponent (for non-player entities).
-   *
-   * @param entityId the entity's unique ID
-   * @param positionComponent the entity's position component
-   * @param drawComponent the entity's draw component
-   * @param isPersistent whether the entity should be saved to the map
-   */
-  public EntitySpawnEvent(
-      int entityId,
-      PositionComponent positionComponent,
-      DrawComponent drawComponent,
-      boolean isPersistent) {
-    this(entityId, positionComponent, drawComponent, isPersistent, null, (byte) 0);
-  }
-
-  /**
    * Constructor from Entity object.
    *
    * <p>This will throw {@link java.util.NoSuchElementException} if the entity does not have {@link

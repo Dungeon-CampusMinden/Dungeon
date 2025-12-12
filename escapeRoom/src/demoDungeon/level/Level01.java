@@ -6,7 +6,7 @@ import contrib.entities.DungeonMonster;
 import contrib.entities.LeverFactory;
 import contrib.entities.MiscFactory;
 import contrib.hud.DialogUtils;
-import contrib.hud.dialogs.YesNoDialog;
+import contrib.hud.dialogs.DialogFactory;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceMushroomRed;
@@ -185,7 +185,7 @@ public class Level01 extends DungeonLevel {
         () ->
             new Interaction(
                 (entity1, entity2) ->
-                    YesNoDialog.showYesNoDialog(
+                    DialogFactory.showYesNoDialog(
                         "Hast du das Gegenmittel bei dir?",
                         "Hilfe",
                         () -> {

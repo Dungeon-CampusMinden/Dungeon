@@ -1,5 +1,6 @@
 package contrib.hud.dialogs;
 
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -7,34 +8,52 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
-import core.Entity;
 import core.Game;
-import java.util.function.Consumer;
 
 /**
- * A dialog helper for collecting free-form text input from the player.
+ * Package-private builder for free text input dialogs.
  *
- * <p>Use {@link #showTextInputDialog(String, String, Consumer)} to create and add a HUD-Entity to
- * the game that shows a modal dialog with a question, a text field, and OK/Cancel buttons.
+ * <p>Creates a dialog with a text field for user input and OK/Cancel buttons.
  */
-public final class FreeInputDialog {
+final class FreeInputDialog {
 
+  /** Callback key for the input submission callback. */
+  public static final String CALLBACK_INPUT = "input";
+
+  private static final String TITLE_DEFAULT = "Frage";
   private static final String OK_BUTTON = "OK";
   private static final String CANCEL_BUTTON = "Abbrechen";
+  private static final String INPUT_PLACEHOLDER_DEFAULT = "Deine Antwort…";
+
+  private FreeInputDialog() {}
 
   /**
-   * Creates and shows a text input dialog with the given title and question. The dialog is added as
-   * a HUD-Entity to the game and is displayed on the screen.
+   * Creates and shows a text input dialog with the given title and question.
    *
-   * @param title The window title shown at the top of the dialog.
-   * @param question The prompt text displayed above the input field.
-   * @param callback A consumer that receives the player's answer (trimmed) or null.
+   * <p>On headless servers, returns a {@link HeadlessDialogGroup} placeholder.
+   *
+   * <p>Callbacks should be registered on UIComponent:
+   *
+   * <ul>
+   *   <li>{@code CALLBACK_INPUT} - receives the user's input text (String)
+   * </ul>
+   *
+   * @param ctx The dialog context containing the title, question, and other settings.
+   * @return The created Dialog instance or HeadlessDialogGroup.
    */
-  public static void showTextInputDialog(String title, String question, Consumer<String> callback) {
-    final Entity uiEntity = new Entity();
+  static Group build(DialogContext ctx) {
+    String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(TITLE_DEFAULT);
+    String question = ctx.require(DialogContextKeys.QUESTION, String.class);
 
-    UIUtils.show(() -> buildDialog(title, question, callback, uiEntity), uiEntity);
-    Game.add(uiEntity);
+    // On headless server, return placeholder
+    if (Game.isHeadless()) {
+      return new HeadlessDialogGroup(title, question, OK_BUTTON, CANCEL_BUTTON);
+    }
+
+    Skin skin = UIUtils.defaultSkin();
+    Dialog dialog = buildDialog(title, question, skin, ctx);
+    dialog.setSize(700, 350);
+    return dialog;
   }
 
   /**
@@ -42,29 +61,38 @@ public final class FreeInputDialog {
    *
    * @param title The dialog window title.
    * @param question The text shown as the question/prompt.
-   * @param callback A consumer that receives the players trimmed answer; "" if canceled or empty.
-   * @param uiEntity The UI-Entity that hosts this dialog; will be removed on close.
+   * @param skin The skin to be used for the dialog.
+   * @param context The dialog context containing additional settings and preferences.
    * @return The configured, centered Dialog ready to be displayed.
    */
   private static Dialog buildDialog(
-      String title, String question, Consumer<String> callback, Entity uiEntity) {
+      String title, String question, Skin skin, DialogContext context) {
 
-    Skin skin = UIUtils.defaultSkin();
-    TextField input = new TextField("", skin);
-    input.setMessageText("Deine Antwort…");
+    TextField input =
+        new TextField(context.find(DialogContextKeys.INPUT_PREFILL, String.class).orElse(""), skin);
+    input.setMessageText(
+        context
+            .find(DialogContextKeys.INPUT_PLACEHOLDER, String.class)
+            .orElse(INPUT_PLACEHOLDER_DEFAULT));
+
+    String okLabel = context.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(OK_BUTTON);
+    String cancelLabel =
+        context.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(CANCEL_BUTTON);
 
     Dialog dialog =
         new Dialog(title, skin) {
-          // result() is always called when a button is clicked on
           @Override
           protected void result(Object obj) {
-            String value = "";
-            if (OK_BUTTON.equals(obj)) {
-              value = input.getText().trim();
+            if (obj.equals(okLabel)) {
+              String userInput = input.getText();
+              DialogCallbackResolver.createButtonCallback(
+                      context.dialogId(), DialogContextKeys.INPUT_CALLBACK)
+                  .accept(userInput);
+            } else {
+              DialogCallbackResolver.createButtonCallback(
+                      context.dialogId(), DialogContextKeys.ON_CANCEL)
+                  .accept(null);
             }
-
-            callback.accept(value);
-            Game.remove(uiEntity);
           }
         };
 
@@ -78,10 +106,8 @@ public final class FreeInputDialog {
     content.add(new Label(question, skin)).align(Align.center).padBottom(10).row();
     content.add(input).width(200).padBottom(10).row();
 
-    dialog.button(OK_BUTTON, OK_BUTTON);
-    dialog.button(CANCEL_BUTTON, CANCEL_BUTTON);
-    dialog.setSize(700, 350);
-    UIUtils.center(dialog);
+    dialog.button(okLabel, okLabel);
+    dialog.button(cancelLabel, cancelLabel);
 
     return dialog;
   }

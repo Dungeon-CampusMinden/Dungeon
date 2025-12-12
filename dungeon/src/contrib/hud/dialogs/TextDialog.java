@@ -1,29 +1,27 @@
 package contrib.hud.dialogs;
 
-import static contrib.hud.UIUtils.defaultSkin;
-
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
-import core.Entity;
 import core.Game;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiFunction;
 
 /**
  * A TextDialog that allows the result handler to be defined per functional interface.
  *
- * <p>Use {@link #textDialog(String, String, String)} to create and add a HUD-Entity to the game,
- * that will show the given text.
+ * <p>Use {@link DialogFactory#showTextDialog} to create and show a TextDialog.
  */
 public final class TextDialog extends Dialog {
 
   /** Handler for Button presses. */
-  private final BiFunction<TextDialog, String, Boolean> resultHandler;
+  private final BiFunction<Dialog, String, Boolean> resultHandler;
 
   /**
-   * creates a Textdialog with the given title and skin and stores the functional interface for
+   * Creates a TextDialog with the given title and skin and stores the functional interface for
    * Button events.
    *
    * @param skin Skin for the dialog (resources that can be used by UI widgets)
@@ -33,13 +31,13 @@ public final class TextDialog extends Dialog {
   public TextDialog(
       final String title,
       final Skin skin,
-      final BiFunction<TextDialog, String, Boolean> resultHandler) {
+      final BiFunction<Dialog, String, Boolean> resultHandler) {
     super(title, skin);
     this.resultHandler = resultHandler;
   }
 
   /**
-   * creates a Textdialog with the given title and skin and stores the functional interface for
+   * Creates a TextDialog with the given title and skin and stores the functional interface for
    * Button events.
    *
    * @param title Title of the dialog
@@ -51,66 +49,105 @@ public final class TextDialog extends Dialog {
       final String title,
       final Skin skin,
       final String windowStyleName,
-      final BiFunction<TextDialog, String, Boolean> resultHandler) {
+      final BiFunction<Dialog, String, Boolean> resultHandler) {
     super(title, skin, windowStyleName);
     this.resultHandler = resultHandler;
   }
 
   /**
-   * Creates a dialog for displaying the text message.
+   * A simple Text Dialog that shows only the provided string.
    *
-   * <p>The entity will already be added to the game.
-   *
-   * @param content Text which should be shown in the body of the dialog.
-   * @param buttonText Text which should be shown in the button for closing the TextDialog.
-   * @param windowText Text which should be shown as the name for the TextDialog.
-   * @return Entity that contains the {@link UIComponent}. The entity will already be added to the
-   *     game by this method.
+   * @param skin The style in which the whole dialog should be shown.
+   * @param outputMsg The text which should be shown in the middle of the dialog.
+   * @param confirmButton Text that the button should have; also the ID for the result handler.
+   * @param title Title for the dialog.
+   * @param resultHandler A callback method that is called when the confirm button is pressed.
+   * @return The fully configured Dialog, which can then be added where it is needed.
    */
-  public static Entity textDialog(
-      final String content, final String buttonText, final String windowText) {
-    Entity entity = new Entity("textDialog_" + windowText);
-    UIUtils.show(
-        () -> {
-          Dialog textDialog =
-              DialogFactory.createTextDialog(
-                  defaultSkin(),
-                  content,
-                  buttonText,
-                  windowText,
-                  createResultHandler(entity, buttonText));
-          UIUtils.center(textDialog);
-          return textDialog;
-        },
-        entity);
-    Game.add(entity);
-    return entity;
+  private static Dialog createTextDialog(
+      final Skin skin,
+      final String outputMsg,
+      final String confirmButton,
+      final String title,
+      final BiFunction<Dialog, String, Boolean> resultHandler) {
+    Dialog textDialog = new TextDialog(title, skin, resultHandler);
+    textDialog
+        .getContentTable()
+        .add(DialogDesign.createTextDialog(skin, outputMsg))
+        .center()
+        .grow();
+    textDialog.button(confirmButton, confirmButton);
+    return textDialog;
   }
 
   /**
-   * Create a {@link BiFunction} that removes the UI-Entity from the game and closes the dialog if
-   * the close button was pressed.
+   * Builds a text dialog from the given context.
    *
-   * @param entity UI-Entity
-   * @param closeButtonID ID of the close button. The handler will use the ID to execute the correct
-   *     close logic.
-   * @return The configured BiFunction that closes the window and removes the entity from the game
-   *     if the close button was pressed.
+   * <p>On headless servers, returns a {@link HeadlessDialogGroup} placeholder.
+   *
+   * @param ctx The dialog context containing message, buttons, and handlers
+   * @return A fully configured text dialog or HeadlessDialogGroup
    */
-  private static BiFunction<TextDialog, String, Boolean> createResultHandler(
-      final Entity entity, final String closeButtonID) {
-    return (d, id) -> {
-      if (Objects.equals(id, closeButtonID)) {
-        Game.remove(entity);
-        return true;
+  static Group build(DialogContext ctx) {
+    String title = ctx.require(DialogContextKeys.TITLE, String.class);
+    String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
+    String button =
+        ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(OkDialog.DEFAULT_OK_BUTTON);
+    String cancelButton = ctx.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(null);
+    String[] extraButtons =
+        ctx.find(DialogContextKeys.ADDITIONAL_BUTTONS, String[].class).orElse(new String[] {});
+
+    // On headless server, return a placeholder
+    if (Game.isHeadless()) {
+      List<String> allButtons = new ArrayList<>();
+      allButtons.add(button);
+      if (cancelButton != null) {
+        allButtons.add(cancelButton);
       }
-      return false;
-    };
+      allButtons.addAll(Arrays.asList(extraButtons));
+      return new HeadlessDialogGroup(title, text, allButtons.toArray(new String[0]));
+    }
+
+    Skin skin = UIUtils.defaultSkin();
+    Dialog dialog =
+        TextDialog.createTextDialog(
+            skin,
+            text,
+            button,
+            title,
+            (d, id) -> {
+              if (id.equals(button)) {
+                DialogCallbackResolver.createButtonCallback(
+                        ctx.dialogId(), DialogContextKeys.ON_CONFIRM)
+                    .accept(null);
+              } else if (id.equals(cancelButton)) {
+                DialogCallbackResolver.createButtonCallback(
+                        ctx.dialogId(), DialogContextKeys.ON_CANCEL)
+                    .accept(null);
+              } else {
+                for (String extraButton : extraButtons) {
+                  if (id.equals(extraButton)) {
+                    DialogCallbackResolver.createButtonCallback(ctx.dialogId(), "on" + extraButton)
+                        .accept(null);
+                  }
+                }
+              }
+              return true;
+            });
+    dialog.button(button, button);
+    if (cancelButton != null) {
+      dialog.button(cancelButton, cancelButton);
+    }
+    for (String extraButton : extraButtons) {
+      dialog.button(extraButton, extraButton);
+    }
+    dialog.pack();
+    return dialog;
   }
 
   /**
-   * when a Button event happened calls the stored resultHandler and when the resultHandler returns
-   * a false stops the default hide on button press.
+   * When a Button event happens, calls the stored resultHandler. When the resultHandler returns
+   * false, stops the default hide on button press.
    *
    * @param object Object associated with the button
    */

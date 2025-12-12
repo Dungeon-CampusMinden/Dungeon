@@ -26,11 +26,18 @@ public class Button {
   private static final Texture TEXTURE_BUTTON_PRESS;
 
   static {
-    TEXTURE_BUTTON = TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_idle.png"));
-    TEXTURE_BUTTON_HOVER =
-        TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_hover.png"));
-    TEXTURE_BUTTON_PRESS =
-        TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_press.png"));
+    if (Game.isHeadless()) {
+      TEXTURE_BUTTON = null;
+      TEXTURE_BUTTON_HOVER = null;
+      TEXTURE_BUTTON_PRESS = null;
+    } else {
+      TEXTURE_BUTTON =
+          TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_idle.png"));
+      TEXTURE_BUTTON_HOVER =
+          TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_hover.png"));
+      TEXTURE_BUTTON_PRESS =
+          TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_press.png"));
+    }
   }
 
   protected final CombinableGUI parent;
@@ -53,7 +60,8 @@ public class Button {
     this.width = width;
     this.height = height;
     this.parent = parent;
-    this.init();
+
+    if (!Game.isHeadless()) this.init();
   }
 
   // Init button by registering an input listener on the parent actor for detecting clicks.

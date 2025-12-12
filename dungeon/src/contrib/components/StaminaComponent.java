@@ -9,7 +9,7 @@ import core.Component;
  * natural restoration rate per second. It provides methods for consuming, restoring, and modifying
  * energy.
  */
-public class StaminaComponent implements Component {
+public class StaminaComponent implements Component, BarDisplayable {
 
   /** The maximum amount of stamina the entity can have. */
   private float maxAmount;
@@ -139,5 +139,25 @@ public class StaminaComponent implements Component {
    */
   public void restorePerSecond(float restorePerSecond) {
     this.restorePerSecond = restorePerSecond;
+  }
+
+  @Override
+  public float current() {
+    return currentAmount();
+  }
+
+  @Override
+  public float max() {
+    return maxAmount();
+  }
+
+  @Override
+  public String barStyleName() {
+    return "staminabar";
+  }
+
+  @Override
+  public int barPriority() {
+    return 2;
   }
 }
