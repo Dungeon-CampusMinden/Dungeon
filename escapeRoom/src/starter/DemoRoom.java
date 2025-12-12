@@ -11,8 +11,6 @@ import core.Game;
 import core.level.loader.DungeonLoader;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
-import core.utils.logging.DungeonLogLevel;
-import core.utils.logging.DungeonLoggerConfig;
 import demoDungeon.level.Level01;
 import hint.HintLogComponent;
 import java.io.IOException;
@@ -23,7 +21,7 @@ import java.io.IOException;
  * <p>Usage: run with the Gradle task {@code runDemoRoom}.
  */
 public class DemoRoom {
-  private static final boolean DEBUG_MODE = true;
+  private static final boolean DEBUG_MODE = false;
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final int START_LEVEL = 0;
 
@@ -37,7 +35,6 @@ public class DemoRoom {
     configGame();
     onSetup();
 
-    DungeonLoggerConfig.initWithLevel(DungeonLogLevel.INFO);
     Game.windowTitle("Demo-Room");
     Game.run();
   }
@@ -64,7 +61,7 @@ public class DemoRoom {
         new SimpleIPath("dungeon_config.json"),
         contrib.configuration.KeyboardConfig.class,
         core.configuration.KeyboardConfig.class);
-    Game.disableAudio(true);
+    Game.disableAudio(false);
     Game.frameRate(30);
   }
 
