@@ -24,7 +24,7 @@ public class NavigationBar extends Table implements HUDElement {
     menuTable.add(menuIcon).size(32, 32);
     add(menuTable).size(48, 48);
     addTooltip(menuTable, "Menu (M)", skin);
-    row();
+    // row();
 
     // TODO: dem menuTable einen Listener zum öffnen einer Menu UI geben (sobald es existiert)
 
@@ -37,7 +37,7 @@ public class NavigationBar extends Table implements HUDElement {
     charTable.add(charIcon).size(32, 32);
     add(charTable).size(48, 48);
     addTooltip(charTable, "Character (C)", skin);
-    row();
+    // row();
 
     // TODO: dem charTable einen Listener zum öffnen einer charakter/equipment UI geben (sobald es
     // existiert)
@@ -51,7 +51,7 @@ public class NavigationBar extends Table implements HUDElement {
     inventoryTable.add(inventoryIcon).size(32, 32);
     add(inventoryTable).size(48, 48);
     addTooltip(inventoryTable, "Inventory (I)", skin);
-    row();
+    // row();
 
     inventoryTable.addListener(
         new ClickListener() {
@@ -69,8 +69,9 @@ public class NavigationBar extends Table implements HUDElement {
 
   @Override
   public void layoutElement() {
-    setPosition(
-        Gdx.graphics.getWidth() - 64f, (Gdx.graphics.getHeight() / 2f) - (getHeight() / 2f));
+    // setPosition(Gdx.graphics.getWidth() - 64f, (Gdx.graphics.getHeight() / 2f) - (getHeight() /
+    // 2f));
+    setPosition(Gdx.graphics.getWidth() - 180f, Gdx.graphics.getHeight() - 60f);
     pack();
   }
 

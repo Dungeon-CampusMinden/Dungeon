@@ -92,6 +92,30 @@ com.badlogic.gdx.graphics.Color: {
 		b: 1
 		a: 1
 	}
+    system-red: {
+        r: 0.9
+        g: 0.25
+        b: 0.25
+        a: 1
+    }
+    system-yellow: {
+        r: 0.95
+        g: 0.85
+        b: 0.35
+        a: 1
+    }
+    system-green: {
+        r: 0.3
+        g: 0.9
+        b: 0.5
+        a: 1
+    }
+    system-white: {
+        r: 0.95
+        g: 0.95
+        b: 0.92
+        a: 1
+    }
 }
 com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable: {
 	progress-bar-fill: {
@@ -341,6 +365,22 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
     enemycounterlabel: {
         font: roboto-semibold-32
         fontColor: bone-white
+    }
+    redmessage: {
+        font: roboto-semibold-32
+        fontColor: system-red
+    }
+    yellowmessage: {
+        font: roboto-semibold-32
+        fontColor: system-yellow
+    }
+    greenmessage: {
+        font: roboto-semibold-32
+        fontColor: system-green
+    }
+    whitemessage: {
+        font: roboto-semibold-32
+        fontColor: system-white
     }
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
