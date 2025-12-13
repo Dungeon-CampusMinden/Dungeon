@@ -133,7 +133,7 @@ jobs:
           find . -path "*/build/reports/checkstyle/*.xml" -exec sh -c "cat {} | \
           reviewdog -f=checkstyle \
           -name=checkstyle \
-          -reporter=github-pr-annotations \
+          -reporter=github-pr-check \
           -filter-mode=file \
           -fail-level=none \
           -level=warning" \;
