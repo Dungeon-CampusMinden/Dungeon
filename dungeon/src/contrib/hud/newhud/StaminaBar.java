@@ -1,10 +1,7 @@
 package contrib.hud.newhud;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.StaminaComponent;
 import core.Game;
@@ -26,6 +23,11 @@ public class StaminaBar extends Stack implements HUDElement {
     staminaLabel.setSize(80, BAR_HEIGHT);
     staminaLabel.setFontScale(0.5f);
     staminaLabel.setAlignment(Align.left);
+
+    Label tooltipLabel = new Label("Stamina", skin);
+    Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel);
+    tooltip.setInstant(true);
+    addListener(tooltip);
 
     add(bar);
     add(staminaLabel);

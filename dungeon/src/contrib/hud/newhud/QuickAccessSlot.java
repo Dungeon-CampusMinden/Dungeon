@@ -12,6 +12,7 @@ public class QuickAccessSlot extends Table {
   private final Table keybindTable;
 
   public QuickAccessSlot(Skin skin) {
+    super(skin);
     setSize(48, 48);
     setBackground(skin.getDrawable("gray"));
 
@@ -40,6 +41,7 @@ public class QuickAccessSlot extends Table {
 
   public void setKeybindLabel(String key) {
     keybindLable.setText(key);
+    addTooltip(this, "use Item (" + key + ")", getSkin());
   }
 
   public void removeItemTexture() {
@@ -48,5 +50,12 @@ public class QuickAccessSlot extends Table {
 
   public void removeKeybindLabel() {
     keybindLable.setText("");
+  }
+
+  private void addTooltip(Table table, String text, Skin skin) {
+    Label label = new Label(text, skin);
+    Tooltip<Label> tooltip = new Tooltip<>(label);
+    tooltip.setInstant(true);
+    table.addListener(tooltip);
   }
 }

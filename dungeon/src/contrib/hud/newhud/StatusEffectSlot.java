@@ -41,4 +41,12 @@ public class StatusEffectSlot extends Table {
   public void setCounterLabel(int count) {
     counterLabel.setText(String.valueOf(count));
   }
+
+  public void addTooltip(String text, Skin skin) {
+    Label tooltipLabel = new Label(text, skin);
+    tooltipLabel.setVisible(true);
+    Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel);
+    tooltip.setInstant(true);
+    this.addListener(tooltip);
+  }
 }

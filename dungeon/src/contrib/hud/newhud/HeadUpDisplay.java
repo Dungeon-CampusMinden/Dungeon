@@ -16,7 +16,7 @@ public class HeadUpDisplay {
   }
 
   public void addElement(HUDElement element) {
-    element.init();
+    // element.init();
     stage.addActor((com.badlogic.gdx.scenes.scene2d.Actor) element);
     headUpDisplaySystem.register(element);
   }

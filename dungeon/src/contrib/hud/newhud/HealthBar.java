@@ -1,10 +1,7 @@
 package contrib.hud.newhud;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.HealthComponent;
 import core.Game;
@@ -26,6 +23,11 @@ public class HealthBar extends Stack implements HUDElement {
     hpLabel.setSize(80, BAR_HEIGHT);
     hpLabel.setFontScale(0.5f);
     hpLabel.setAlignment(Align.left);
+
+    Label tooltipLabel = new Label("Health", skin);
+    Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel);
+    tooltip.setInstant(true);
+    addListener(tooltip);
 
     add(bar);
     add(hpLabel);

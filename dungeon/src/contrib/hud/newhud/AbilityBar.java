@@ -45,8 +45,8 @@ public class AbilityBar extends Table implements HUDElement {
 
   @Override
   public void layoutElement() {
-    setPosition((Gdx.graphics.getWidth() - getWidth()) / 2f, 10);
     pack();
+    setPosition((Gdx.graphics.getWidth() / 2f) - getWidth() / 2f, 10);
   }
 
   @Override
@@ -69,25 +69,34 @@ public class AbilityBar extends Table implements HUDElement {
               List<Skill> skills = sc.getSkills();
               activeAbilityCount = skills.size();
               String png;
+              String tooltip;
               for (int i = 0; i < 5; i++) {
                 if (i >= skills.size()) break;
                 Skill skill = skills.get(i);
                 switch (skill) {
                   case FireballSkill ignored:
                     png = "dungeon/assets/items/book/red_book.png";
+                    tooltip = "Shoot a Fireball to fight enemies.";
                     break;
                   case SelfHealSkill ignored:
                     png = "dungeon/assets/items/book/magic_scroll.png";
+                    tooltip = "Cast a healing spell to regenerate hp.";
                     break;
                   case BowSkill ignored:
                     png = "dungeon/assets/items/weapon/wooden_bow.png";
+                    tooltip = "Use the Bow to shoot Arrows.";
                     break;
                   default:
                     png = null;
+                    tooltip = "";
                     break;
                 }
+                tooltip =
+                    tooltip
+                        + "\n use ability: Left-click \n prev ability: (,) \n next ability: (.)";
                 if (png != null) {
                   setAbilityIcon(i, new Texture(png));
+                  slots.get(i).addTooltip(tooltip, getSkin());
                 }
               }
             });
@@ -150,6 +159,7 @@ public class AbilityBar extends Table implements HUDElement {
     for (int i = 0; i < 5; i++) {
       slots.get(i).removeTexture();
       slots.get(i).removeCost();
+      slots.get(i).removeTooltip();
     }
   }
 }

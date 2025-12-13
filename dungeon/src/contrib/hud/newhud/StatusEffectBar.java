@@ -69,6 +69,7 @@ public class StatusEffectBar extends Table implements HUDElement {
     StatusEffectSlot slot = new StatusEffectSlot(getSkin());
     slot.setEffectIcon(getEffectIcon(effectId));
     slot.setCounterLabel(counter);
+    slot.addTooltip(effectId, getSkin());
 
     activeSlots.put(effectId, slot);
 

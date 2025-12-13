@@ -69,8 +69,6 @@ public class NavigationBar extends Table implements HUDElement {
 
   @Override
   public void layoutElement() {
-    // setPosition(Gdx.graphics.getWidth() - 64f, (Gdx.graphics.getHeight() / 2f) - (getHeight() /
-    // 2f));
     setPosition(Gdx.graphics.getWidth() - 180f, Gdx.graphics.getHeight() - 60f);
     pack();
   }

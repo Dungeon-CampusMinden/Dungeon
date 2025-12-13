@@ -10,11 +10,15 @@ import core.Game;
 public class EnemyCounter extends Table implements HUDElement {
 
   private final Label counterLabel;
+  private final Label tooltipLabel;
   private long enemyCount = 0;
 
   public EnemyCounter(Skin skin) {
+    super(skin);
+
     setSize(64, 64);
     setBackground(skin.getDrawable("dark-red"));
+    pad(5);
 
     Image skullIcon = new Image();
     skullIcon.setDrawable(
@@ -22,6 +26,11 @@ public class EnemyCounter extends Table implements HUDElement {
     add(skullIcon).size(48, 48);
     counterLabel = new Label("", skin, "enemycounterlabel");
     add(counterLabel).size(24, 24);
+
+    tooltipLabel = new Label("", skin);
+    Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel);
+    tooltip.setInstant(true);
+    addListener(tooltip);
   }
 
   @Override
@@ -31,7 +40,8 @@ public class EnemyCounter extends Table implements HUDElement {
 
   @Override
   public void layoutElement() {
-    setPosition(0, Gdx.graphics.getHeight() / 2f);
+    pack();
+    setPosition(0, Gdx.graphics.getHeight() / 2f - getHeight() / 2f);
   }
 
   @Override
@@ -45,6 +55,7 @@ public class EnemyCounter extends Table implements HUDElement {
 
     if (currentEnemyCount != enemyCount) {
       counterLabel.setText((int) currentEnemyCount);
+      tooltipLabel.setText("There are " + currentEnemyCount + " enemies nearby!");
       enemyCount = currentEnemyCount;
     }
   }

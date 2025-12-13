@@ -2,10 +2,7 @@ package contrib.hud.newhud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import contrib.components.CharacterClassComponent;
 import contrib.entities.CharacterClass;
@@ -18,15 +15,15 @@ public class HeroIcon extends Table implements HUDElement {
   public HeroIcon(Skin skin) {
     setSize(64, 64);
     setBackground(skin.getDrawable("gray"));
-
-    Stack stack = new Stack();
-    stack.setSize(64, 64);
-    addActor(stack);
+    pad(8);
 
     heroIcon = new Image();
-    Table iconTable = new Table();
-    iconTable.add(heroIcon).size(48, 48);
-    stack.add(iconTable);
+    add(heroIcon).size(48, 48);
+
+    Label tooltipLabel = new Label("Character (C)", skin);
+    Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel);
+    tooltip.setInstant(true);
+    addListener(tooltip);
   }
 
   @Override
@@ -37,6 +34,7 @@ public class HeroIcon extends Table implements HUDElement {
 
   @Override
   public void layoutElement() {
+    pack();
     setPosition(16, Gdx.graphics.getHeight() - 82);
   }
 

@@ -15,6 +15,7 @@ public class AbilitySlot extends Table {
   private final Table ressource;
   private final Label costLabel;
   private final Image ressourceIcon;
+  private Label tooltipLabel;
 
   public AbilitySlot(Skin skin) {
     setSize(64, 64);
@@ -94,5 +95,19 @@ public class AbilitySlot extends Table {
   public void setActive(boolean active) {
     activeAbility.setVisible(active);
     activeAbility.toBack();
+  }
+
+  public void addTooltip(String text, Skin skin) {
+    tooltipLabel = new Label(text, skin);
+    tooltipLabel.setVisible(true);
+    Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel);
+    tooltip.setInstant(true);
+    this.addListener(tooltip);
+  }
+
+  public void removeTooltip() {
+    if (tooltipLabel != null) {
+      tooltipLabel.setVisible(false);
+    }
   }
 }

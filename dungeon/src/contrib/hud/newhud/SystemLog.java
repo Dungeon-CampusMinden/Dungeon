@@ -16,17 +16,17 @@ public class SystemLog extends Table implements HUDElement {
   public SystemLog(Skin skin) {
     super(skin);
 
-    // setBackground(skin.getDrawable("dark-gray"));
     pad(5);
 
     messagesTable = new Table();
     messagesTable.top().left();
 
-    scrollPane = new ScrollPane(messagesTable, skin);
-    scrollPane.setFadeScrollBars(false);
+    scrollPane = new ScrollPane(messagesTable, skin, "thin-transparent");
     scrollPane.setScrollingDisabled(true, false);
 
-    scrollPane.getStyle().background = null;
+    ScrollPane.ScrollPaneStyle style = scrollPane.getStyle();
+    style.vScroll.setMinWidth(5);
+    style.vScrollKnob.setMinWidth(5);
 
     add(scrollPane).width(400).height(120).expand().fill();
   }
@@ -34,6 +34,12 @@ public class SystemLog extends Table implements HUDElement {
   @Override
   public void init() {
     layoutElement();
+    // nur für demonstrative zwecke
+    addMessage("You enter a new room.", "whitemessage");
+    addMessage("You found a health potion.", "whitemessage");
+    addMessage(
+        "You can use Items from the first two slots of your Inventory via the quick access with 1 and 2.",
+        "yellowmessage");
     addMessage("You picked up an iron sword.", "whitemessage");
     addMessage("You hit the Goblin for 6 damage!", "redmessage");
     addMessage("You feel stronger.", "greenmessage");
@@ -42,7 +48,7 @@ public class SystemLog extends Table implements HUDElement {
 
   @Override
   public void layoutElement() {
-    setPosition(20, 20); // unten links
+    setPosition(10, 10); // unten links
     pack();
   }
 
@@ -52,6 +58,7 @@ public class SystemLog extends Table implements HUDElement {
   public void addMessage(String text, String style) {
     Label label = new Label(text, getSkin(), style);
     label.setFontScale(0.5f);
+    label.setWrap(true);
 
     messagesTable.row();
     messagesTable.add(label).left().expandX().fillX().padBottom(2);
