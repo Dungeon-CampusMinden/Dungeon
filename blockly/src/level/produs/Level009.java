@@ -22,7 +22,7 @@ import level.LevelManagementUtils;
  * connections between doors and levers.
  */
 public class Level009 extends BlocklyLevel {
-
+  private static boolean showText = true;
   private LeverComponent switch1, switch2, switch3;
   private DoorTile door1, door2;
 
@@ -53,6 +53,7 @@ public class Level009 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+    addWebPopup(new ImagePopup("popups/level009/01_schaltplan.png"));
   }
 
   @Override
@@ -62,9 +63,11 @@ public class Level009 extends BlocklyLevel {
     LevelManagementUtils.playerViewDirection(Direction.DOWN);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    showPopups();
-    Game.add(MiscFactory.fireballScroll(getPoint(0)));
-    Game.add(MiscFactory.fireballScroll(getPoint(1)));
+
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
 
     BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().addToGame();
     guardBuilder.attackRange(5);
