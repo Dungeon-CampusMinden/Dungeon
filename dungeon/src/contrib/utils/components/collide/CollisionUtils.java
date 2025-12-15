@@ -31,18 +31,18 @@ public class CollisionUtils {
     collider.position(newPos);
 
     boolean colliding =
-      Game.levelEntities(Set.of(CollideComponent.class))
-        .anyMatch(
-          other -> {
-            CollideComponent ccOther = other.fetch(CollideComponent.class).orElseThrow();
-            if (!ccOther.isSolid()) return false;
+        Game.levelEntities(Set.of(CollideComponent.class))
+            .anyMatch(
+                other -> {
+                  CollideComponent ccOther = other.fetch(CollideComponent.class).orElseThrow();
+                  if (!ccOther.isSolid()) return false;
 
-            Collider colliderOther = ccOther.collider();
-            if (collider == colliderOther) return false; // Don't check against itself
+                  Collider colliderOther = ccOther.collider();
+                  if (collider == colliderOther) return false; // Don't check against itself
 
-            boolean isColliding = collider.collide(colliderOther);
-            return isColliding;
-          });
+                  boolean isColliding = collider.collide(colliderOther);
+                  return isColliding;
+                });
 
     collider.position(oldPos);
     return colliding;
