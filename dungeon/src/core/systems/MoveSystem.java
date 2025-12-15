@@ -80,13 +80,30 @@ public class MoveSystem extends System {
     // First: move only in X direction
     Point newPos = oldPos.translate(sv.x(), 0);
     if (isCollidingWithLevel(data.cc, newPos, vc)) {
-      float wallX = fromWall(newPos.x(), sv.x() > 0);
-      if (hasCollider) {
-        float xOffset = data.cc.collider().offset().x();
-        wallX += sv.x() > 0 ? xOffset : -xOffset;
+      // 3 cases: Can corner correct up, Can corner correct down, or hit wall if outside of cc range
+
+      // Case 1 & 2: Try corner correction
+      boolean triggeredCornerCorrection = false;
+      float fromClosestWall = fromClosestWall(newPos.y());
+      float correctDistance = newPos.y() - fromClosestWall;
+      if (Math.abs(correctDistance) <= CollisionSystem.CORNER_CORRECT_DISTANCE){
+        Point correctedPos = new Point(newPos.x(), newPos.y() - correctDistance);
+        if (!isCollidingWithLevel(data.cc, correctedPos, vc)) {
+          newPos = correctedPos;
+          triggeredCornerCorrection = true;
+        }
       }
-      newPos = new Point(wallX, newPos.y());
-      hasHitWall = true;
+
+      // Case 3: Hit wall
+      if (!triggeredCornerCorrection) {
+        float wallX = fromWall(newPos.x(), sv.x() > 0);
+        if (hasCollider) {
+          float xOffset = data.cc.collider().offset().x();
+          wallX += sv.x() > 0 ? xOffset : -xOffset;
+        }
+        newPos = new Point(wallX, newPos.y());
+        hasHitWall = true;
+      }
     }
 
     // Then: move in Y direction
@@ -127,6 +144,21 @@ public class MoveSystem extends System {
     } else {
       return (float) Math.ceil(position)
           + CollisionSystem.COLLIDE_SET_DISTANCE; // Upper edge + a bit of distance in +x direction
+    }
+  }
+
+  /**
+   * Returns the closest wall position to the given position.
+   * @param position the current position
+   * @return the closest wall position
+   */
+  private float fromClosestWall(float position){
+    float lowerWall = (float) Math.floor(position);
+    float upperWall = (float) Math.ceil(position);
+    if (Math.abs(position - lowerWall) < Math.abs(position - upperWall)) {
+      return lowerWall - CollisionSystem.COLLIDE_SET_DISTANCE;
+    } else {
+      return upperWall + CollisionSystem.COLLIDE_SET_DISTANCE;
     }
   }
 
