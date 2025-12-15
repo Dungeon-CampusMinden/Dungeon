@@ -361,14 +361,6 @@ public class PortalFactory {
         return;
       }
 
-      other
-          .fetch(VelocityComponent.class)
-          .ifPresent(
-              vc -> {
-                vc.clearForces();
-                vc.currentVelocity(Vector2.ZERO);
-              });
-
       Direction greenPortalDirection = portal.fetch(PositionComponent.class).get().viewDirection();
       Direction bluePortalDirection =
           getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
@@ -435,14 +427,6 @@ public class PortalFactory {
               != portalPositionComponent.viewDirection().opposite()) {
         return;
       }
-
-      other
-          .fetch(VelocityComponent.class)
-          .ifPresent(
-              vc -> {
-                vc.clearForces();
-                vc.currentVelocity(Vector2.ZERO);
-              });
 
       Direction bluePortalDirection = portal.fetch(PositionComponent.class).get().viewDirection();
       Direction greenPortalDirection =
