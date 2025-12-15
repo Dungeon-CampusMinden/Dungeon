@@ -6,7 +6,9 @@ import contrib.components.SkillComponent;
 import contrib.components.UIComponent;
 import contrib.hud.IInventoryHolder;
 import contrib.hud.UIUtils;
-import contrib.hud.elements.GUICombination;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogType;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import contrib.modules.interaction.InteractionComponent;
@@ -21,10 +23,7 @@ import core.level.utils.LevelUtils;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.InventoryUIMessage;
 import core.network.server.ClientState;
-import core.utils.Direction;
-import core.utils.Point;
-import core.utils.Tuple;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
 import java.util.Optional;
@@ -121,6 +120,12 @@ public class HeroController {
   public static void interact(Entity hero, Point point) {
     LOGGER.debug("Hero {} interacting at point {}", hero.id(), point);
 
+    // Abort interaction if hero has Dialogs open
+    if (hero.isPresent(UIComponent.class)) {
+      LOGGER.debug("Hero {} has dialogs open, cannot interact.", hero.id());
+      return;
+    }
+
     // Try finding interactable at the exact point first
     Optional<Entity> target =
         Game.tileAt(point)
@@ -183,10 +188,9 @@ public class HeroController {
       LOGGER.error("Trying to open inventory for non-player entity or entity without inventory.");
       return;
     }
-    var ic = invComp.get();
     var pc = playerComp.get();
 
-    if (pc.openDialogs()) {
+    if (pc.openDialogs() && !InventoryGUI.inPlayerInventory(hero)) {
       LOGGER.debug("Player {} has other dialogs open, cannot toggle inventory.", hero.id());
       return;
     }
@@ -194,11 +198,16 @@ public class HeroController {
     boolean isUIOpen = false;
     UIComponent uiComponent = hero.fetch(UIComponent.class).orElse(null);
     if (uiComponent != null) {
-      if (uiComponent.dialog() instanceof GUICombination) {
-        hero.remove(UIComponent.class);
-      }
+      UIUtils.closeDialog(uiComponent);
     } else {
-      hero.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
+      DialogContext context =
+          DialogContext.builder()
+              .type(DialogType.DefaultTypes.INVENTORY)
+              .put(DialogContextKeys.ENTITY, hero.id())
+              .put(DialogContextKeys.OWNER_ENTITY, hero.id())
+              .build();
+      UIComponent ui = new UIComponent(context, true, new int[] {hero.id()});
+      hero.add(ui);
       isUIOpen = true;
     }
     LOGGER.trace("Inventory UI for hero {} is now {}", hero.id(), isUIOpen ? "open" : "closed");

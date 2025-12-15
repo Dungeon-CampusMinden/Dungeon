@@ -2,11 +2,11 @@ package contrib.entities;
 
 import contrib.components.*;
 import contrib.hud.DialogUtils;
-import contrib.hud.crafting.CraftingGUI;
-import contrib.hud.dialogs.OkDialog;
-import contrib.hud.dialogs.YesNoDialog;
-import contrib.hud.elements.GUICombination;
-import contrib.hud.inventory.InventoryGUI;
+import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogType;
 import contrib.item.Item;
 import contrib.item.concreteItem.*;
 import contrib.item.concreteItem.ItemBigKey;
@@ -25,8 +25,8 @@ import core.level.elements.tile.DoorTile;
 import core.systems.DrawSystem;
 import core.utils.*;
 import core.utils.Direction;
+import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
@@ -183,7 +183,9 @@ public final class MiscFactory {
     StateMachine sm = new StateMachine(Arrays.asList(stClosed, stOpening, stOpen), stClosed);
     sm.addTransition(stClosed, "open", stOpening);
     // Automatically transition to open state when opening animation is finished playing
-    sm.addEpsilonTransition(stOpening, State::isAnimationFinished, stOpen, () -> ic.count() == 0);
+    // TODO: Add support for conditional epsilon transitions in multiplayer
+    // sm.addEpsilonTransition(stOpening, State::isAnimationFinished, stOpen, () -> ic.count() ==
+    // 0);
     DrawComponent dc = new DrawComponent(sm);
     chest.add(dc);
 
@@ -196,40 +198,32 @@ public final class MiscFactory {
                             .fetch(InventoryComponent.class)
                             .ifPresent(
                                 whoIc -> {
-                                  UIComponent uiComponent =
-                                      new UIComponent(
-                                          new GUICombination(
-                                              new InventoryGUI(whoIc),
-                                              new InventoryGUI(
-                                                  "Chest", ic, INVENTORY_UI_MAX_ITEMS_PER_ROW)),
-                                          true);
-                                  uiComponent.onClose(
-                                      () ->
-                                          interacted
-                                              .fetch(DrawComponent.class)
-                                              .ifPresent(
-                                                  interactedDC -> {
-                                                    // only add opening animation when it is not
-                                                    // finished.
-                                                    // If
-                                                    // we close the GUI before the opening
-                                                    // animation finishes, the epsilon
-                                                    // transition
-                                                    // will
-                                                    // handle
-                                                    // setting the data correctly
-                                                    if (!interactedDC
-                                                        .stateMachine()
-                                                        .getCurrentStateName()
-                                                        .equals("opening")) {
-                                                      interactedDC.sendSignal(
-                                                          "open", ic.count() == 0);
-                                                    }
-                                                  }));
-                                  interactor.add(uiComponent);
+                                  DialogContext context =
+                                      DialogContext.builder()
+                                          .type(DialogType.DefaultTypes.DUAL_INVENTORY)
+                                          .put(DialogContextKeys.ENTITY, interactor.id())
+                                          .put(DialogContextKeys.SECONDARY_ENTITY, interacted.id())
+                                          .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
+                                          .build();
+                                  UIComponent ui = new UIComponent(context, true, interactor.id());
+                                  interactor.add(ui);
                                 }))));
 
     return chest;
+  }
+
+  private static void onChestClose(Entity interacted, InventoryComponent ic) {
+    interacted
+        .fetch(DrawComponent.class)
+        .ifPresent(
+            interactedDC -> {
+              // only add opening animation when it is not finished.
+              // If we close the GUI before the opening animation finishes,
+              // the epsilon transition will set the data correctly
+              if (!interactedDC.stateMachine().getCurrentStateName().equals("opening")) {
+                interactedDC.sendSignal("open", ic.count() == 0);
+              }
+            });
   }
 
   /**
@@ -277,22 +271,33 @@ public final class MiscFactory {
                                   return;
                                 }
 
-                                YesNoDialog.showYesNoDialog(
-                                    "Willst du deinen "
-                                        + reqKeyName
-                                        + " verwenden, um die Schatzkiste zu öffnen?",
-                                    "Verschlossene Schatzkiste.",
-                                    () -> {
+                                UIComponent dialogUI =
+                                    DialogFactory.show(
+                                        DialogContext.builder()
+                                            .type(DialogType.DefaultTypes.YES_NO)
+                                            .put(
+                                                DialogContextKeys.TITLE,
+                                                "Verschlossene Schatzkiste.")
+                                            .put(
+                                                DialogContextKeys.MESSAGE,
+                                                "Willst du deinen "
+                                                    + reqKeyName
+                                                    + " verwenden, um die Schatzkiste zu öffnen?")
+                                            .build());
+                                dialogUI.registerCallback(
+                                    DialogContextKeys.ON_YES,
+                                    data -> {
                                       invComp
                                           .itemOfClass(requiredKeyType)
                                           .ifPresent(invComp::remove);
                                       oldIC.triggerInteraction(interacted, interactor);
                                       interacted.remove(InteractionComponent.class);
                                       interacted.add(oldIC);
-                                    },
-                                    () -> {
-                                      // "No" - do nothing
+                                      UIUtils.closeDialog(dialogUI, true);
                                     });
+                                dialogUI.registerCallback(
+                                    DialogContextKeys.ON_NO,
+                                    data -> UIUtils.closeDialog(dialogUI, true));
                               }));
 
               lockedChest.remove(InteractionComponent.class);
@@ -326,13 +331,15 @@ public final class MiscFactory {
                         who.fetch(InventoryComponent.class)
                             .ifPresent(
                                 ic -> {
-                                  CraftingGUI craftingGUI = new CraftingGUI(invComp, ic);
-                                  UIComponent component =
-                                      new UIComponent(
-                                          new GUICombination(new InventoryGUI(ic), craftingGUI),
-                                          true);
-                                  component.onClose(craftingGUI::cancel);
-                                  who.add(component);
+                                  var context =
+                                      DialogContext.builder()
+                                          .type(DialogType.DefaultTypes.CRAFTING_GUI)
+                                          .put(DialogContextKeys.ENTITY, who.id())
+                                          .put(DialogContextKeys.SECONDARY_ENTITY, entity.id())
+                                          .put(DialogContextKeys.OWNER_ENTITY, who.id())
+                                          .build();
+                                  UIComponent ui = new UIComponent(context, true, who.id());
+                                  who.add(ui);
                                 }))));
     cauldron.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
     return cauldron;
@@ -449,15 +456,15 @@ public final class MiscFactory {
                             .fetch(InventoryComponent.class)
                             .ifPresent(
                                 whoIc -> {
+                                  DialogContext context =
+                                      DialogContext.builder()
+                                          .type(DialogType.DefaultTypes.DUAL_INVENTORY)
+                                          .put(DialogContextKeys.ENTITY, interacted.id())
+                                          .put(DialogContextKeys.SECONDARY_ENTITY, interactor.id())
+                                          .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
+                                          .build();
                                   UIComponent uiComponent =
-                                      new UIComponent(
-                                          new GUICombination(
-                                              new InventoryGUI(whoIc),
-                                              new InventoryGUI(
-                                                  "Cookingpot",
-                                                  ic,
-                                                  INVENTORY_UI_MAX_ITEMS_PER_ROW)),
-                                          true);
+                                      new UIComponent(context, true, interactor.id());
                                   interactor.add(uiComponent);
                                 }))));
 
@@ -597,7 +604,10 @@ public final class MiscFactory {
         new InteractionComponent(
             () ->
                 new Interaction(
-                    (entity, entity2) -> OkDialog.showOkDialog(text, title, onClose), 1f)));
+                    (entity, entity2) -> {
+                      DialogFactory.showOkDialog(text, title, onClose);
+                    },
+                    1f)));
     book.add(
         new DrawComponent(new Animation(Math.random() < 0.5 ? BOOK_TEXTURE : SPELL_BOOK_TEXTURE)));
     return book;
@@ -643,16 +653,29 @@ public final class MiscFactory {
                         return;
                       }
 
-                      YesNoDialog.showYesNoDialog(
-                          "Willst du deinen " + reqKeyName + " verwenden, um die Tür zu öffnen?",
-                          "Verschlossene Tür.",
-                          () -> {
+                      UIComponent doorUI =
+                          DialogFactory.show(
+                              DialogContext.builder()
+                                  .type(DialogType.DefaultTypes.YES_NO)
+                                  .put(DialogContextKeys.TITLE, "Verschlossene Tür.")
+                                  .put(
+                                      DialogContextKeys.MESSAGE,
+                                      "Willst du deinen "
+                                          + reqKeyName
+                                          + " verwenden, um die Tür zu öffnen?")
+                                  .build());
+                      doorUI.registerCallback(
+                          DialogContextKeys.ON_YES,
+                          data -> {
                             invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
                             Game.remove(interacted);
                             door.open();
-                          },
-                          () -> {
-                            // "No" - do nothing
+                            UIUtils.closeDialog(doorUI, true);
+                          });
+                      doorUI.registerCallback(
+                          DialogContextKeys.ON_NO,
+                          data -> {
+                            UIUtils.closeDialog(doorUI, true);
                           });
                     },
                     2f)));

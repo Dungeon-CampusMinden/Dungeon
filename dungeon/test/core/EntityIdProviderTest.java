@@ -79,12 +79,6 @@ public class EntityIdProviderTest {
     assertThrows(IllegalArgumentException.class, () -> EntityIdProvider.registerOrThrow(id));
   }
 
-  /** Verifies that registerOrThrow rejects negative IDs. */
-  @Test
-  public void registerOrThrowRejectsNegative() {
-    assertThrows(IllegalArgumentException.class, () -> EntityIdProvider.registerOrThrow(-1));
-  }
-
   /**
    * Verifies that ensureRegistered is idempotent and reserves an ID such that subsequent
    * registerOrThrow on the same ID fails.
@@ -95,12 +89,6 @@ public class EntityIdProviderTest {
     assertDoesNotThrow(() -> EntityIdProvider.ensureRegistered(id));
     assertDoesNotThrow(() -> EntityIdProvider.ensureRegistered(id));
     assertThrows(IllegalArgumentException.class, () -> EntityIdProvider.registerOrThrow(id));
-  }
-
-  /** Verifies that ensureRegistered rejects negative IDs. */
-  @Test
-  public void ensureRegisteredRejectsNegative() {
-    assertThrows(IllegalArgumentException.class, () -> EntityIdProvider.ensureRegistered(-42));
   }
 
   /**

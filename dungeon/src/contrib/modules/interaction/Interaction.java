@@ -149,10 +149,10 @@ public class Interaction {
         onInteract.accept(entity, who);
         if (!repeatable) active = false;
       } else {
-        DialogUtils.showTextPopup("Das habe ich schon erledigt", "Erledigt");
+        DialogUtils.showTextPopup("Das habe ich schon erledigt", "Erledigt", who.id());
       }
     } else {
-      DialogUtils.showTextPopup("Dafür bin ich zu weit weg.", "Zu weit weg.");
+      DialogUtils.showTextPopup("Dafür bin ich zu weit weg.", "Zu weit weg.", who.id());
     }
   }
 
