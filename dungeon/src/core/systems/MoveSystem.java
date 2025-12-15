@@ -102,9 +102,8 @@ public class MoveSystem extends System {
     }
 
     // Final check if newPos is accessible. If no, abort to oldPos.
-    if (isCollidingWithLevel(data.cc, newPos, vc)) {
+    if (hasHitWall && isCollidingWithLevel(data.cc, newPos, vc)) {
       newPos = oldPos;
-      hasHitWall = true;
     }
     data.pc.position(newPos);
 

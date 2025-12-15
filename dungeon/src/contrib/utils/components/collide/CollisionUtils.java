@@ -53,79 +53,19 @@ public class CollisionUtils {
   }
 
   /**
-   * Checks if a point is colliding with a non-accessible level tile.
-   *
-   * @param pos the position to check for collision
-   * @param canEnterPits whether the collider can enter pit tiles
-   * @param canEnterWalls whether the collider can enter wall tiles
-   * @param canEnterGitter whether the entity can enter gitter tiles
-   * @param canEnterGlassWalls whether the entity can enter glasswall tile
-   * @return true if the tile at the given position is not accessible, false otherwise
-   */
-  public static boolean isCollidingWithLevel(
-      Point pos,
-      boolean canEnterPits,
-      boolean canEnterWalls,
-      boolean canEnterGitter,
-      boolean canEnterGlassWalls) {
-    return !tileIsAccessible(
-        Game.tileAt(pos).orElse(null),
-        canEnterPits,
-        canEnterWalls,
-        canEnterGitter,
-        canEnterGlassWalls);
-  }
-
-  /**
    * Checks if a collider, when set on a specific position, is colliding with any level tiles that
    * are not accessible.
    *
    * @param collider the collider
    * @param pos the position to check for collision
-   * @param vc the velocity component containing movement capabilities. Passing null will disallow
-   *     moving through all special tiles.
+   * @param vc the velocity component containing movement capabilities
    * @return true if any corner of the collider is colliding with a non-accessible tile, false
    *     otherwise
    */
   public static boolean isCollidingWithLevel(Collider collider, Point pos, VelocityComponent vc) {
-    boolean canEnterPits = vc != null && vc.canEnterOpenPits();
-    boolean canEnterWalls = vc != null && vc.canEnterWalls();
-    boolean canEnterGitter = vc != null && vc.canEnterGitter();
-    boolean canEnterGlassWalls = vc != null && vc.canEnterGlasswalls();
-    return isCollidingWithLevel(
-        collider, pos, canEnterPits, canEnterWalls, canEnterGitter, canEnterGlassWalls);
-  }
-
-  /**
-   * Checks if a collider, when set on a specific position, is colliding with any level tiles that
-   * are not accessible.
-   *
-   * @param collider the collider
-   * @param pos the position to check for collision
-   * @param canEnterPits whether the collider can enter pit tiles
-   * @param canEnterWalls whether the collider can enter wall tiles
-   * @param canEnterGitter whether the entity can enter gitter tiles
-   * @param canEnterGlassWalls whether the entity can enter glasswall tile
-   * @return true if any corner of the collider is colliding with a non-accessible tile, false
-   *     otherwise
-   */
-  public static boolean isCollidingWithLevel(
-      Collider collider,
-      Point pos,
-      boolean canEnterPits,
-      boolean canEnterWalls,
-      boolean canEnterGitter,
-      boolean canEnterGlassWalls) {
     List<Vector2> corners = collider.cornersScaled();
     return corners.stream()
-        .anyMatch(
-            v ->
-                isCollidingWithLevel(
-                    pos.translate(v),
-                    canEnterPits,
-                    canEnterWalls,
-                    canEnterGitter,
-                    canEnterGlassWalls));
+        .anyMatch(v -> !tileIsAccessible(Game.tileAt(pos.translate(v)).orElse(null), vc));
   }
 
   /**
@@ -138,33 +78,11 @@ public class CollisionUtils {
    * @param vc the velocity component containing movement capabilities
    * @return true if tile is accessible or a pit tile that can be entered, false otherwise
    */
-  public static boolean tileIsAccessible(Tile tile, VelocityComponent vc) {
-    boolean canEnterPits = vc != null && vc.canEnterOpenPits();
-    boolean canEnterWalls = vc != null && vc.canEnterWalls();
+  private static boolean tileIsAccessible(Tile tile, VelocityComponent vc) {
+    boolean canEnterPitTiles = vc != null && vc.canEnterOpenPits();
     boolean canEnterGitter = vc != null && vc.canEnterGitter();
     boolean canEnterGlassWalls = vc != null && vc.canEnterGlasswalls();
-    return tileIsAccessible(tile, canEnterPits, canEnterWalls, canEnterGitter, canEnterGlassWalls);
-  }
-
-  /**
-   * Helper method to determine if a tile can be entered by the entity.
-   *
-   * <p>Considers both whether the tile is accessible and whether the entity is allowed to enter pit
-   * tiles.
-   *
-   * @param tile the tile to check for accessibility
-   * @param canEnterPitTiles whether the entity can enter pit tiles
-   * @param canEnterWalls whether the entity can enter wall tiles
-   * @param canEnterGitter whether the entity can enter gitter tiles
-   * @param canEnterGlassWalls whether the entity can enter glasswall tile
-   * @return true if tile is accessible or a pit tile that can be entered, false otherwise
-   */
-  public static boolean tileIsAccessible(
-      Tile tile,
-      boolean canEnterPitTiles,
-      boolean canEnterWalls,
-      boolean canEnterGitter,
-      boolean canEnterGlassWalls) {
+    boolean canEnterWalls = vc != null && vc.canEnterWalls();
     return tile != null
         && (tile.isAccessible()
             || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT))
