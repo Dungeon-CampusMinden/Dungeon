@@ -2,6 +2,7 @@ package contrib.utils.components.collide;
 
 import contrib.components.CollideComponent;
 import core.Game;
+import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
@@ -11,12 +12,6 @@ import java.util.Set;
 
 /** Utility class for handling various collision detection things. */
 public class CollisionUtils {
-
-  /**
-   * A small offset to prevent floating-point precision issues when checking collisions at the
-   * corner of an entity.
-   */
-  public static final float TOP_OFFSET = 0.0001f;
 
   /**
    * Checks if a collider, when set on a specific position, is colliding with any other solid
@@ -39,13 +34,22 @@ public class CollisionUtils {
 
                   Collider colliderOther = ccOther.collider();
                   if (collider == colliderOther) return false; // Don't check against itself
-
-                  boolean isColliding = collider.collide(colliderOther);
-                  return isColliding;
+                  return collider.collide(colliderOther);
                 });
 
     collider.position(oldPos);
     return colliding;
+  }
+
+  /**
+   * Checks if a point is colliding with a non-accessible level tile.
+   *
+   * @param pos the position to check for collision
+   * @param vc the velocity component containing movement capabilities
+   * @return true if the tile at the given position is not accessible, false otherwise
+   */
+  public static boolean isCollidingWithLevel(Point pos, VelocityComponent vc) {
+    return !tileIsAccessible(Game.tileAt(pos).orElse(null), vc);
   }
 
   /**
@@ -70,6 +74,26 @@ public class CollisionUtils {
         canEnterWalls,
         canEnterGitter,
         canEnterGlassWalls);
+  }
+
+  /**
+   * Checks if a collider, when set on a specific position, is colliding with any level tiles that
+   * are not accessible.
+   *
+   * @param collider the collider
+   * @param pos the position to check for collision
+   * @param vc the velocity component containing movement capabilities. Passing null will disallow
+   *     moving through all special tiles.
+   * @return true if any corner of the collider is colliding with a non-accessible tile, false
+   *     otherwise
+   */
+  public static boolean isCollidingWithLevel(Collider collider, Point pos, VelocityComponent vc) {
+    boolean canEnterPits = vc != null && vc.canEnterOpenPits();
+    boolean canEnterWalls = vc != null && vc.canEnterWalls();
+    boolean canEnterGitter = vc != null && vc.canEnterGitter();
+    boolean canEnterGlassWalls = vc != null && vc.canEnterGlasswalls();
+    return isCollidingWithLevel(
+        collider, pos, canEnterPits, canEnterWalls, canEnterGitter, canEnterGlassWalls);
   }
 
   /**
@@ -105,27 +129,21 @@ public class CollisionUtils {
   }
 
   /**
-   * Checks if an entity at a given position with a specified size and offset is colliding with the
-   * given {@link Point}.
+   * Helper method to determine if a tile can be entered by the entity.
    *
-   * @param pos the bottom-left position of the entity
-   * @param offset the offset of the hitbox
-   * @param size the size of the entity
-   * @param point the point to check for collision
-   * @return true if any corner of the hitbox is colliding with the point, false otherwise
+   * <p>Considers both whether the tile is accessible and whether the entity is allowed to enter pit
+   * tiles.
+   *
+   * @param tile the tile to check for accessibility
+   * @param vc the velocity component containing movement capabilities
+   * @return true if tile is accessible or a pit tile that can be entered, false otherwise
    */
-  public static boolean isCollidingWithPoint(Point pos, Vector2 offset, Vector2 size, Point point) {
-    float minX = pos.x() + offset.x();
-    float minY = pos.y() + offset.y();
-    float maxX = minX + size.x();
-    float maxY = minY + size.y();
-
-    // Use half-open interval \[min, max) with a small TOP_OFFSET to avoid floating-point/corner
-    // issues
-    return point.x() >= minX
-        && point.x() < maxX - TOP_OFFSET
-        && point.y() >= minY
-        && point.y() < maxY - TOP_OFFSET;
+  public static boolean tileIsAccessible(Tile tile, VelocityComponent vc) {
+    boolean canEnterPits = vc != null && vc.canEnterOpenPits();
+    boolean canEnterWalls = vc != null && vc.canEnterWalls();
+    boolean canEnterGitter = vc != null && vc.canEnterGitter();
+    boolean canEnterGlassWalls = vc != null && vc.canEnterGlasswalls();
+    return tileIsAccessible(tile, canEnterPits, canEnterWalls, canEnterGitter, canEnterGlassWalls);
   }
 
   /**
@@ -153,61 +171,6 @@ public class CollisionUtils {
             || (canEnterGitter && tile.levelElement().equals(LevelElement.GITTER))
             || (canEnterGlassWalls && tile.levelElement().equals(LevelElement.GLASSWALL))
             || (canEnterWalls && tile.levelElement().equals(LevelElement.WALL)));
-  }
-
-  /**
-   * Checks whether the path between two points is completely accessible by stepping along the
-   * vector between them in small increments.
-   *
-   * <p>This method simulates movement from the starting point to the target by walking small steps
-   * along the direction vector. At each step, it checks whether the tile is accessible or can be
-   * entered (e.g., if it's a pit and the entity is allowed to enter pits).
-   *
-   * <p>This ensures that no wall or inaccessible tile is skipped due to large velocity steps,
-   * especially important when moving diagonally or at high speeds.
-   *
-   * @param from the starting point
-   * @param to the target point
-   * @param canEnterPitTiles whether the entity is allowed to walk into pit tiles
-   * @param canEnterWalls whether the entity is allowed to walk into wall tiles
-   * @param canEnterGitter whether the entity can enter gitter tiles
-   * @param canEnterGlassWall whether the entity can enter glasswall tile
-   * @return true if the entire path from start to target is clear; false if a tile in between is
-   *     blocked
-   */
-  public static boolean isPathClearByStepping(
-      Point from,
-      Point to,
-      boolean canEnterPitTiles,
-      boolean canEnterWalls,
-      boolean canEnterGitter,
-      boolean canEnterGlassWall) {
-    Vector2 direction = from.vectorTo(to);
-    double distance = direction.length();
-
-    if (distance == 0f) return true;
-
-    // Choose a small step size to ensure all intermediate tiles are checked (including diagonals)
-    Vector2 step = direction.normalize().scale(0.1f);
-    Point current = from;
-
-    // Step from start to end and check each tile along the way
-    for (float traveled = 0; traveled <= distance; traveled += step.length()) {
-      Tile tile = Game.tileAt(current).orElse(null);
-      if (!tileIsAccessible(
-          tile, canEnterPitTiles, canEnterWalls, canEnterGitter, canEnterGlassWall)) {
-        return false;
-      }
-      current = current.translate(step);
-    }
-
-    // Ensure that the final destination tile is also checked
-    return tileIsAccessible(
-        Game.tileAt(to).orElse(null),
-        canEnterPitTiles,
-        canEnterWalls,
-        canEnterGitter,
-        canEnterGlassWall);
   }
 
   // ========== Collision Math ==========

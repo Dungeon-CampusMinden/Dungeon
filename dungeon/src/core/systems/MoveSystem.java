@@ -61,10 +61,7 @@ public class MoveSystem extends System {
    * @param data a record containing the entity and its required components
    */
   private void updatePosition(MSData data) {
-    boolean canEnterOpenPits = data.vc.canEnterOpenPits();
-    boolean canEnterWalls = data.vc.canEnterWalls();
-    boolean canEnterGitter = data.vc.canEnterGitter();
-    boolean canEnterGlasswalls = data.vc.canEnterGlasswalls();
+    VelocityComponent vc = data.vc;
 
     Vector2 velocity = data.vc.currentVelocity();
 
@@ -82,8 +79,7 @@ public class MoveSystem extends System {
 
     // First: move only in X direction
     Point newPos = oldPos.translate(sv.x(), 0);
-    if (isCollidingWithLevel(
-        data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
+    if (isCollidingWithLevel(data.cc, newPos, vc)) {
       float wallX = fromWall(newPos.x(), sv.x() > 0);
       if (hasCollider) {
         float xOffset = data.cc.collider().offset().x();
@@ -95,8 +91,7 @@ public class MoveSystem extends System {
 
     // Then: move in Y direction
     newPos = newPos.translate(0, sv.y());
-    if (isCollidingWithLevel(
-        data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
+    if (isCollidingWithLevel(data.cc, newPos, vc)) {
       float wallY = fromWall(newPos.y(), sv.y() > 0);
       if (hasCollider) {
         float yOffset = data.cc.collider().offset().y();
@@ -107,8 +102,7 @@ public class MoveSystem extends System {
     }
 
     // Final check if newPos is accessible. If no, abort to oldPos.
-    if (isCollidingWithLevel(
-        data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
+    if (isCollidingWithLevel(data.cc, newPos, vc)) {
       newPos = oldPos;
       hasHitWall = true;
     }
@@ -137,24 +131,11 @@ public class MoveSystem extends System {
     }
   }
 
-  private boolean isCollidingWithLevel(
-      CollideComponent cc,
-      Point position,
-      boolean canEnterOpenPits,
-      boolean canEnterWalls,
-      boolean canEnterGitter,
-      boolean canEnterGlassWall) {
+  private boolean isCollidingWithLevel(CollideComponent cc, Point position, VelocityComponent vc) {
     if (cc == null) {
-      return CollisionUtils.isCollidingWithLevel(
-          position, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlassWall);
+      return CollisionUtils.isCollidingWithLevel(position, vc);
     }
-    return CollisionUtils.isCollidingWithLevel(
-        cc.collider(),
-        position,
-        canEnterOpenPits,
-        canEnterWalls,
-        canEnterGitter,
-        canEnterGlassWall);
+    return CollisionUtils.isCollidingWithLevel(cc.collider(), position, vc);
   }
 
   /**
