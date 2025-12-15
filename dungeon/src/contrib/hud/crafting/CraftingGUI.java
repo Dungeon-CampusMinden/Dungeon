@@ -215,7 +215,8 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
               float y,
               int pointer) {
             if (payload != null && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-              CraftingGUI.this.inventory.add(itemDragPayload.item());
+              CraftingGUI.this.targetInventory.transfer(
+                  itemDragPayload.item(), CraftingGUI.this.inventory);
               CraftingGUI.this.updateRecipe();
             }
           }
