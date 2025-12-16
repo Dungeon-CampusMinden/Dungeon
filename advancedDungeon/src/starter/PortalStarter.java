@@ -23,9 +23,7 @@ import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.function.Consumer;
-import level.portal.PortalDemoLevel;
-import level.portal.PortalLevel_4;
-import level.portal.PortalLevel_5;
+import level.portal.*;
 import produsAdvanced.abstraction.portals.PortalColor;
 import produsAdvanced.abstraction.portals.portalSkills.PortalSkill;
 import produsAdvanced.abstraction.portals.systems.PortalExtendSystem;
@@ -60,9 +58,14 @@ public class PortalStarter {
     Game.userOnSetup(
         () -> {
           // setupMusic();
-          DungeonLoader.addLevel(Tuple.of("PortalDemo", PortalDemoLevel.class));
+          DungeonLoader.addLevel(Tuple.of("portallevel1", PortalLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("portallevel2", PortalLevel_2.class));
+          DungeonLoader.addLevel(Tuple.of("portallevel3", PortalLevel_3.class));
           DungeonLoader.addLevel(Tuple.of("portallevel4", PortalLevel_4.class));
           DungeonLoader.addLevel(Tuple.of("portallevel5", PortalLevel_5.class));
+          DungeonLoader.addLevel(Tuple.of("portallevel6", PortalLevel_6.class));
+          DungeonLoader.addLevel(Tuple.of("portallevel7", PortalLevel_7.class));
+          DungeonLoader.addLevel(Tuple.of("PortalDemo", PortalDemoLevel.class));
 
           createSystems();
           createHero();
