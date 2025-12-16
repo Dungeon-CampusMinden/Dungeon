@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import produsAdvanced.abstraction.portals.PortalFactory;
+import produsAdvanced.abstraction.portals.components.LaserComponent;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
 import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 import skills.EnergyPelletSkill;
@@ -67,6 +68,9 @@ public class AdvancedFactory {
   private static final SimpleIPath PELLET_LAUNCHER = new SimpleIPath("portal/pellet_launcher");
   private static final SimpleIPath PELLET_CATCHER = new SimpleIPath("portal/pellet_catcher");
   private static int launcherNumber = 0;
+
+  private static final SimpleIPath LASER_CUBE = new SimpleIPath("portal/laser/laser_cube.png");
+  private static final SimpleIPath LASER_RECEIVER = new SimpleIPath("portal/laser_receiver");
 
   /**
    * Creates a laser grid entity at the given position.
