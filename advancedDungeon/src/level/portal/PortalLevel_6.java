@@ -20,7 +20,7 @@ import java.util.Map;
 import level.AdvancedLevel;
 
 /** Portal Level four. */
-public class PortalLevel_4 extends AdvancedLevel {
+public class PortalLevel_6 extends AdvancedLevel {
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
    * start tile of the player to the given heroPos.
@@ -45,7 +45,7 @@ public class PortalLevel_4 extends AdvancedLevel {
    * @param designLabel The design label for the level.
    * @param namedPoints The custom points of the level.
    */
-  public PortalLevel_4(
+  public PortalLevel_6(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, "Portal Demo Level");
   }

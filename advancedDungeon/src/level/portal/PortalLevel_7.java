@@ -20,7 +20,7 @@ import level.AdvancedLevel;
 import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 
 /** Level Idee: Spieler, müssen zwei Arten von Platten aktivieren um den Ausgang zu öffnen. */
-public class PortalLevel_5 extends AdvancedLevel {
+public class PortalLevel_7 extends AdvancedLevel {
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
    * start tile of the player to the given heroPos.
@@ -29,7 +29,7 @@ public class PortalLevel_5 extends AdvancedLevel {
    * @param designLabel The design label for the level.
    * @param namedPoints The custom points of the level.
    */
-  public PortalLevel_5(
+  public PortalLevel_7(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, "Portal Demo Level");
   }
