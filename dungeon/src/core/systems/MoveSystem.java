@@ -3,15 +3,21 @@ package core.systems;
 import contrib.components.CollideComponent;
 import contrib.systems.CollisionSystem;
 import contrib.systems.PositionSync;
+import contrib.utils.components.collide.Collider;
 import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * System responsible for updating the position of entities based on their velocity, while
@@ -23,6 +29,13 @@ import core.utils.components.MissingComponentException;
  * allowed to enter them.
  */
 public class MoveSystem extends System {
+
+  /** Distance to snap next to a wall (e.g. when trying to enter a 1-tile wide tunnel) */
+  public static final float CORNER_CORRECT_DISTANCE = 0.1f;
+
+  private static final float CORNER_CORRECT_COOLDOWN = 0.2f;
+
+  private final Map<Entity, Float> cornerCorrectTimers = new HashMap<>();
 
   /**
    * Constructs a MoveSystem that requires entities to have {@link VelocityComponent} and {@link
@@ -73,32 +86,36 @@ public class MoveSystem extends System {
     // Calculate scaled velocity vector per frame time
     Vector2 sv = velocity.scale(1f / Game.frameRate());
     Point oldPos = data.pc.position();
+    Collider collider = data.cc != null ? data.cc.collider() : null;
 
     boolean hasCollider = data.cc != null;
     boolean hasHitWall = false;
+    boolean triggeredCornerCorrection = false;
+    boolean canCornerCorrect = cornerCorrectTimers.getOrDefault(data.e, 0f) <= 0;
 
     // First: move only in X direction
     Point newPos = oldPos.translate(sv.x(), 0);
     if (isCollidingWithLevel(data.cc, newPos, vc)) {
-      // 3 cases: Can corner correct up, Can corner correct down, or hit wall if outside of cc range
-
-      // Case 1 & 2: Try corner correction
-      boolean triggeredCornerCorrection = false;
-      float fromClosestWall = fromClosestWall(newPos.y());
-      float correctDistance = newPos.y() - fromClosestWall;
-      if (Math.abs(correctDistance) <= CollisionSystem.CORNER_CORRECT_DISTANCE){
-        Point correctedPos = new Point(newPos.x(), newPos.y() - correctDistance);
-        if (!isCollidingWithLevel(data.cc, correctedPos, vc)) {
-          newPos = correctedPos;
+      // Try corner correction first
+      if(canCornerCorrect){
+        Optional<Point> correctUp = closestAvailablePos(newPos, Direction.UP, collider, vc);
+        if (correctUp.isPresent()) {
+          newPos = correctUp.get();
           triggeredCornerCorrection = true;
+        } else {
+          Optional<Point> correctDown = closestAvailablePos(newPos, Direction.DOWN, collider, vc);
+          if (correctDown.isPresent()) {
+            newPos = correctDown.get();
+            triggeredCornerCorrection = true;
+          }
         }
       }
 
-      // Case 3: Hit wall
+      // If corner correction not possible, hit wall
       if (!triggeredCornerCorrection) {
         float wallX = fromWall(newPos.x(), sv.x() > 0);
         if (hasCollider) {
-          float xOffset = data.cc.collider().offset().x();
+          float xOffset = collider.offset().x();
           wallX += sv.x() > 0 ? xOffset : -xOffset;
         }
         newPos = new Point(wallX, newPos.y());
@@ -109,13 +126,38 @@ public class MoveSystem extends System {
     // Then: move in Y direction
     newPos = newPos.translate(0, sv.y());
     if (isCollidingWithLevel(data.cc, newPos, vc)) {
-      float wallY = fromWall(newPos.y(), sv.y() > 0);
-      if (hasCollider) {
-        float yOffset = data.cc.collider().offset().y();
-        wallY += sv.y() > 0 ? yOffset : -yOffset;
+      // Try corner correction first
+      if(canCornerCorrect && !triggeredCornerCorrection){
+        Optional<Point> correctRight = closestAvailablePos(newPos, Direction.RIGHT, collider, vc);
+        if (correctRight.isPresent()) {
+          newPos = correctRight.get();
+          triggeredCornerCorrection = true;
+        } else {
+          Optional<Point> correctLeft = closestAvailablePos(newPos, Direction.LEFT, collider, vc);
+          if (correctLeft.isPresent()) {
+            newPos = correctLeft.get();
+            triggeredCornerCorrection = true;
+          }
+        }
       }
-      newPos = new Point(newPos.x(), wallY);
-      hasHitWall = true;
+
+      // If corner correction not possible, hit wall
+      if (!triggeredCornerCorrection) {
+        float wallY = fromWall(newPos.y(), sv.y() > 0);
+        if (hasCollider) {
+          float yOffset = collider.offset().y();
+          wallY += sv.y() > 0 ? yOffset : -yOffset;
+        }
+        newPos = new Point(newPos.x(), wallY);
+        hasHitWall = true;
+      }
+    }
+
+    // Update corner correction timer
+    if (triggeredCornerCorrection) {
+      cornerCorrectTimers.put(data.e, CORNER_CORRECT_COOLDOWN);
+    } else {
+      cornerCorrectTimers.put(data.e, Math.max(0, cornerCorrectTimers.getOrDefault(data.e, 0f) - 1f / Game.frameRate()));
     }
 
     // Final check if newPos is accessible. If no, abort to oldPos.
@@ -147,19 +189,20 @@ public class MoveSystem extends System {
     }
   }
 
-  /**
-   * Returns the closest wall position to the given position.
-   * @param position the current position
-   * @return the closest wall position
-   */
-  private float fromClosestWall(float position){
-    float lowerWall = (float) Math.floor(position);
-    float upperWall = (float) Math.ceil(position);
-    if (Math.abs(position - lowerWall) < Math.abs(position - upperWall)) {
-      return lowerWall - CollisionSystem.COLLIDE_SET_DISTANCE;
-    } else {
-      return upperWall + CollisionSystem.COLLIDE_SET_DISTANCE;
+  private Optional<Point> closestAvailablePos(Point start, Vector2 dir, Collider collider, VelocityComponent vc){
+    int stepCount = 10;
+    float distance = Math.max(CORNER_CORRECT_DISTANCE, collider != null ? collider.size().x() / 2 : 0);
+    Vector2 step = dir.normalize().scale(distance / stepCount);
+    Point testPos = start;
+    for (int i = 0; i < stepCount; i++) {
+      testPos = testPos.translate(step);
+      if (collider == null && !CollisionUtils.isCollidingWithLevel(testPos, vc)) {
+        return Optional.of(testPos);
+      } else if (collider != null && !CollisionUtils.isCollidingWithLevel(collider, testPos, vc)) {
+        return Optional.of(testPos);
+      }
     }
+    return Optional.empty();
   }
 
   private boolean isCollidingWithLevel(CollideComponent cc, Point position, VelocityComponent vc) {
