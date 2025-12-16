@@ -53,19 +53,21 @@ public class Level012 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+    addWebPopup(new ImagePopup("popups/level012/01_schaltplan.png"));
   }
 
   @Override
   protected void onFirstTick() {
+
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
+
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(10, 7));
     LevelManagementUtils.centerHero();
     LevelManagementUtils.playerViewDirection(Direction.DOWN);
-    if (showText) {
-      DialogUtils.showTextPopup(
-          "Hahahaha! An MIR kommst du NIE vorbei. GIB AUF!", "BOSS: Der Wärter");
-      showText = false;
-    }
 
     Game.add(MiscFactory.stone(getPoint(1)));
 
