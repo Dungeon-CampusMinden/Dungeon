@@ -33,6 +33,8 @@ public final class CameraSystem extends System {
   /** WTF? . */
   public static final float DEFAULT_ZOOM_FACTOR = 0.35f;
 
+  private static final float CAMERA_FOCUS_LERP = 0.2f;
+
   private static final float FIELD_WIDTH_AND_HEIGHT_IN_PIXEL = 16f;
   private static final OrthographicCamera CAMERA =
       new OrthographicCamera(viewportWidth(), viewportHeight());
@@ -153,9 +155,10 @@ public final class CameraSystem extends System {
     if (actualPosition == null) {
       actualPosition = focusPoint;
     }
-    float approachFactor = 0.2f;
-    float newX = actualPosition.x() * (1 - approachFactor) + (focusPoint.x() * approachFactor);
-    float newY = actualPosition.y() * (1 - approachFactor) + (focusPoint.y() * approachFactor);
+    float newX =
+        actualPosition.x() * (1 - CAMERA_FOCUS_LERP) + (focusPoint.x() * CAMERA_FOCUS_LERP);
+    float newY =
+        actualPosition.y() * (1 - CAMERA_FOCUS_LERP) + (focusPoint.y() * CAMERA_FOCUS_LERP);
     actualPosition = new Point(newX, newY);
 
     if (actualPosition.distance(focusPoint) <= 0.01f) {
