@@ -14,7 +14,6 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -97,7 +96,7 @@ public class MoveSystem extends System {
     Point newPos = oldPos.translate(sv.x(), 0);
     if (isCollidingWithLevel(data.cc, newPos, vc)) {
       // Try corner correction first
-      if(canCornerCorrect){
+      if (canCornerCorrect) {
         Optional<Point> correctUp = closestAvailablePos(newPos, Direction.UP, collider, vc);
         if (correctUp.isPresent()) {
           newPos = correctUp.get();
@@ -127,7 +126,7 @@ public class MoveSystem extends System {
     newPos = newPos.translate(0, sv.y());
     if (isCollidingWithLevel(data.cc, newPos, vc)) {
       // Try corner correction first
-      if(canCornerCorrect && !triggeredCornerCorrection){
+      if (canCornerCorrect && !triggeredCornerCorrection) {
         Optional<Point> correctRight = closestAvailablePos(newPos, Direction.RIGHT, collider, vc);
         if (correctRight.isPresent()) {
           newPos = correctRight.get();
@@ -157,7 +156,9 @@ public class MoveSystem extends System {
     if (triggeredCornerCorrection) {
       cornerCorrectTimers.put(data.e, CORNER_CORRECT_COOLDOWN);
     } else {
-      cornerCorrectTimers.put(data.e, Math.max(0, cornerCorrectTimers.getOrDefault(data.e, 0f) - 1f / Game.frameRate()));
+      cornerCorrectTimers.put(
+          data.e,
+          Math.max(0, cornerCorrectTimers.getOrDefault(data.e, 0f) - 1f / Game.frameRate()));
     }
 
     // Final check if newPos is accessible. If no, abort to oldPos.
@@ -189,9 +190,11 @@ public class MoveSystem extends System {
     }
   }
 
-  private Optional<Point> closestAvailablePos(Point start, Vector2 dir, Collider collider, VelocityComponent vc){
+  private Optional<Point> closestAvailablePos(
+      Point start, Vector2 dir, Collider collider, VelocityComponent vc) {
     int stepCount = 10;
-    float distance = Math.max(CORNER_CORRECT_DISTANCE, collider != null ? collider.size().x() / 2 : 0);
+    float distance =
+        Math.max(CORNER_CORRECT_DISTANCE, collider != null ? collider.size().x() / 2 : 0);
     Vector2 step = dir.normalize().scale(distance / stepCount);
     Point testPos = start;
     for (int i = 0; i < stepCount; i++) {
