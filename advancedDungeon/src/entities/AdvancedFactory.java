@@ -499,6 +499,101 @@ public class AdvancedFactory {
     return catcher;
   }
 
+
+  /**
+   * Creates a laser cube entity at the given position.
+   *
+   * @param position The initial position of the laser cube.
+   * @param direction The direction the laser cube is facing.
+   * @return A new portal cube entity.
+   */
+  public static Entity laserCube(Point position, Direction direction) {
+    Entity laserCube = new Entity("laserCube");
+
+    PositionComponent pc = new PositionComponent(position);
+    float rotation;
+    switch (direction) {
+      case DOWN -> rotation = 180f;
+      case LEFT -> rotation = 90f;
+      case RIGHT -> rotation = -90f;
+      default -> rotation = 0f;
+    }
+    pc.rotation(rotation);
+    laserCube.add(pc);
+    laserCube.add(new DrawComponent(new Animation(LASER_CUBE)));
+
+    TriConsumer<Entity, Entity, Direction> action =
+      (you, other, collisionDir) -> {
+        other
+          .fetch(LaserComponent.class)
+          .ifPresent(
+            lc -> {
+              Point newPos = new Point(position.x()+direction.x(), position.y()+direction.y());
+              LaserFactory.extendLaser(direction, newPos, lc.getSegments(), other.fetch(PortalExtendComponent.class).get(), lc);
+            });
+      };
+
+
+    laserCube.add(
+      new CollideComponent(
+        Vector2.of(0f, 0f),
+        Vector2.of(1f, 1f),
+        action,
+        CollideComponent.DEFAULT_COLLIDER));
+
+    return laserCube;
+  }
+
+  public static Entity laserReceiver(Point position) {
+    Entity receiver = new Entity("laserReceiver");
+
+    PositionComponent pc = new PositionComponent(position);
+    receiver.add(pc);
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(LASER_RECEIVER);
+
+    State inactive = new State("inactive", animationMap.get("inactive"));
+    State active = new State("active", animationMap.get("active"));
+    StateMachine sm = new StateMachine(Arrays.asList(active, inactive));
+
+    sm.addTransition(inactive, "active", active);
+    sm.addTransition(active, "inactive", inactive);
+
+    DrawComponent dc = new DrawComponent(sm);
+    dc.depth(DepthLayer.ForegroundDeco.depth());
+    dc.sendSignal("inactive");
+    receiver.add(dc);
+
+
+    TriConsumer<Entity, Entity, Direction> actionEnter =
+      (you, other, collisionDir) -> {
+        other
+          .fetch(LaserComponent.class)
+          .ifPresent(
+            lc -> {
+              dc.sendSignal("active");
+            });
+      };
+
+    TriConsumer<Entity, Entity, Direction> actionLeave =
+      (you, other, collisionDir) -> {
+        other
+          .fetch(LaserComponent.class)
+          .ifPresent(
+            lc -> {
+              dc.sendSignal("inactive");
+            });
+      };
+
+    receiver.add(
+      new CollideComponent(
+        Vector2.of(0f, 0f),
+        Vector2.of(1f, 1f),
+        actionEnter,
+        actionLeave));
+
+    return receiver;
+  }
+
   /**
    * This method help to choose the correct single texture from an animationMap.
    *
