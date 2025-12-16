@@ -19,7 +19,10 @@ import java.util.List;
 import java.util.Map;
 import level.AdvancedLevel;
 
-/** Portal Level four. */
+/**
+ * Portal Level six. The player has to use the light wall to block the projectiles to reach the exit
+ * without dying.
+ */
 public class PortalLevel_6 extends AdvancedLevel {
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
