@@ -37,6 +37,9 @@ public final class CameraSystem extends System {
   private static final OrthographicCamera CAMERA =
       new OrthographicCamera(viewportWidth(), viewportHeight());
 
+  private Point actualPosition;
+  private Point focusPoint;
+
   static {
     camera().zoom = DEFAULT_ZOOM_FACTOR;
   }
@@ -135,6 +138,7 @@ public final class CameraSystem extends System {
         .findAny()
         .ifPresentOrElse(this::focus, this::focus);
 
+    approachFocusPoint();
     CAMERA.update();
   }
 
@@ -143,6 +147,22 @@ public final class CameraSystem extends System {
     float aspectRatio = Game.windowWidth() / (float) Game.windowHeight();
     CAMERA.viewportWidth = viewportWidth();
     CAMERA.viewportHeight = viewportWidth() / aspectRatio;
+  }
+
+  private void approachFocusPoint() {
+    if (actualPosition == null) {
+      actualPosition = focusPoint;
+    }
+    float approachFactor = 0.2f;
+    float newX = actualPosition.x() * (1 - approachFactor) + (focusPoint.x() * approachFactor);
+    float newY = actualPosition.y() * (1 - approachFactor) + (focusPoint.y() * approachFactor);
+    actualPosition = new Point(newX, newY);
+
+    if (actualPosition.distance(focusPoint) <= 0.01f) {
+      actualPosition = focusPoint;
+    }
+
+    CAMERA.position.set(actualPosition.x(), actualPosition.y(), 0);
   }
 
   private void focus() {
@@ -158,7 +178,7 @@ public final class CameraSystem extends System {
   }
 
   private void focus(Point point) {
-    CAMERA.position.set(point.x(), point.y(), 0);
+    focusPoint = point;
   }
 
   /**
