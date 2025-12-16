@@ -1,25 +1,24 @@
 package level.portal;
 
+import components.ToggleableComponent;
 import contrib.components.LeverComponent;
-import contrib.entities.LeverFactory;
-import contrib.entities.MiscFactory;
-import contrib.utils.ICommand;
 import core.Entity;
 import core.Game;
-import core.level.Tile;
-import core.level.elements.tile.DoorTile;
+import core.level.elements.tile.ExitTile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import entities.AdvancedFactory;
-import entities.LightBridgeFactory;
-import entities.TractorBeamFactory;
 import java.util.Map;
 import level.AdvancedLevel;
-import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 
-/** Level Idee: Spieler, müssen zwei Arten von Platten aktivieren um den Ausgang zu öffnen. */
+/**
+ * Portal level five. In this level the player has to place a cube on a pressure plate to unlock the
+ * exit. But in the middle of the room there is an anti-material-barrier which prevents the cube
+ * from passing through it. But the anti-material-barrier can be disabled by directing the energy
+ * ball in its receptor.
+ */
 public class PortalLevel_5 extends AdvancedLevel {
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -34,100 +33,56 @@ public class PortalLevel_5 extends AdvancedLevel {
     super(layout, designLabel, namedPoints, "Portal Demo Level");
   }
 
+  private ExitTile door;
+  private Entity cube;
+  private Entity[] walls = new Entity[9];
+  private LeverComponent plate;
+  private ToggleableComponent catcherToggle;
+
   @Override
   protected void onFirstTick() {
+    door = (ExitTile) Game.randomTile(LevelElement.EXIT).orElseThrow();
+    door.close();
 
-    Game.add(
-        MiscFactory.catapult(namedPoints.get("catapult"), namedPoints.get("catapultMark"), 10));
-    Entity tractorBeam =
-        TractorBeamFactory.createTractorBeam(namedPoints.get("tractorbeam"), Direction.DOWN);
-    Game.add(tractorBeam);
+    Entity pressurePlate = AdvancedFactory.cubePressurePlate(namedPoints.get("pressurePlate"), 1);
+    plate = pressurePlate.fetch(LeverComponent.class).get();
+    cube = AdvancedFactory.attachablePortalCube(namedPoints.get("cube"));
 
-    Entity tractorbeamLever1 =
-        LeverFactory.createLever(
-            namedPoints.get("tractorbeamLever1"),
-            new ICommand() {
-              @Override
-              public void execute() {
-                TractorBeamFactory.reverseTractorBeam(
-                    tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
-              }
+    Entity launcher =
+        AdvancedFactory.energyPelletLauncher(
+            namedPoints.get("pelletLauncher"), Direction.DOWN, 100000, 100000);
 
-              @Override
-              public void undo() {
-                TractorBeamFactory.reverseTractorBeam(
-                    tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
-              }
-            });
-    Game.add(tractorbeamLever1);
+    Entity catcher =
+        AdvancedFactory.energyPelletCatcher(namedPoints.get("pelletCatcher"), Direction.LEFT);
+    catcherToggle = catcher.fetch(ToggleableComponent.class).orElseThrow();
 
-    Entity tractorbeamLever2 =
-        LeverFactory.createLever(
-            namedPoints.get("tractorbeamLever2"),
-            new ICommand() {
-              @Override
-              public void execute() {
-                TractorBeamFactory.reverseTractorBeam(
-                    tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
-              }
-
-              @Override
-              public void undo() {
-                TractorBeamFactory.reverseTractorBeam(
-                    tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
-              }
-            });
-    Game.add(tractorbeamLever2);
-
-    Entity exitPlate = AdvancedFactory.cubePressurePlate(namedPoints.get("exitPlate"), 1);
-    Game.add(exitPlate);
-
-    LeverComponent exitPlateLever = exitPlate.fetch(LeverComponent.class).orElse(null);
-    if (exitPlateLever != null && exitPlateLever.isOn()) {
-      openDoor(namedPoints.get("door1"));
-      openDoor(namedPoints.get("door2"));
-    } else {
-      closeDoor(namedPoints.get("door1"));
-      closeDoor(namedPoints.get("door2"));
+    for (int i = 0; i < 9; i++) {
+      walls[i] = AdvancedFactory.antiMaterialBarrier(namedPoints.get("w" + i), true);
     }
 
-    Entity catapultPlate = AdvancedFactory.spherePressurePlate(namedPoints.get("catapultPlate"), 1);
-    Game.add(catapultPlate);
-
-    LeverComponent catapultPlateLever = exitPlate.fetch(LeverComponent.class).orElse(null);
-    if (catapultPlateLever != null && catapultPlateLever.isOn()) {
-      openDoor(namedPoints.get("door3"));
-    } else {
-      closeDoor(namedPoints.get("door3"));
-    }
-
-    Entity cube = AdvancedFactory.attachablePortalCube(namedPoints.get("cube"));
+    Game.add(pressurePlate);
     Game.add(cube);
-
-    // Game.add(AdvancedFactory.antiMaterialBarrier(namedPoints.get("anti6"), true));
-
-    Entity emitter =
-        LightBridgeFactory.createEmitter(namedPoints.get("bridge"), Direction.LEFT, true);
-    Game.add(emitter);
-
-    Entity sphere = AdvancedFactory.moveableSphere(namedPoints.get("sphere"));
-    Game.add(sphere);
+    Game.add(launcher);
+    Game.add(catcher);
+    for (Entity w : walls) {
+      Game.add(w);
+    }
   }
 
   @Override
-  protected void onTick() {}
-
-  private void closeDoor(Point position) {
-    Tile tile = Game.tileAt(position).orElse(null);
-    if (tile instanceof DoorTile) {
-      ((DoorTile) tile).close();
+  protected void onTick() {
+    if (!Game.existInLevel(cube)) {
+      cube = AdvancedFactory.attachablePortalCube(namedPoints.get("cube"));
+      Game.add(cube);
     }
-  }
 
-  private void openDoor(Point position) {
-    Tile tile = Game.tileAt(position).orElse(null);
-    if (tile instanceof DoorTile) {
-      ((DoorTile) tile).open();
+    if (catcherToggle.isActive()) {
+      for (Entity w : walls) {
+        Game.remove(w);
+      }
     }
+
+    if (plate.isOn()) door.open();
+    else door.close();
   }
 }
