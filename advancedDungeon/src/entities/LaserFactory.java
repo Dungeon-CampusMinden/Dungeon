@@ -9,6 +9,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.elements.tile.PortalTile;
 import core.level.elements.tile.WallTile;
 import core.utils.Direction;
 import core.utils.Point;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import produsAdvanced.abstraction.portals.components.LaserComponent;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
+import produsAdvanced.abstraction.portals.components.PortalIgnoreComponent;
 
 public class LaserFactory {
 
@@ -78,6 +80,7 @@ public class LaserFactory {
                         Direction dir = comp.getDirection();
                         Point end = calculateEndPoint(start, dir);
                         int totalPoints = calculateNumberOfPoints(start, end);
+                        comp.getSegments().add(emitter);
 
                         for (int i = 0; i < totalPoints; i++) {
                           Entity segment = createSegment(start, end, totalPoints, i, dir);
@@ -127,7 +130,7 @@ public class LaserFactory {
     PositionComponent pc = new PositionComponent(position);
     pc.rotation(rotationFor(direction));
     emitter.add(pc);
-
+    emitter.add(new PortalIgnoreComponent());
     DrawComponent dc = new DrawComponent(EMITTER_INACTIVE);
     dc.depth(DepthLayer.Normal.depth());
     emitter.add(dc);
@@ -143,7 +146,7 @@ public class LaserFactory {
 
     Entity segment = new Entity("laserSegment");
     PositionComponent pc = new PositionComponent(p);
-    pc.rotation(rotationFor(dir));
+//    pc.rotation(rotationFor(dir));
     segment.add(pc);
 
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(LASER);
@@ -242,7 +245,7 @@ public class LaserFactory {
     Point lastPoint = from;
     Point currentPoint = from;
     Tile currentTile = Game.tileAt(from).orElse(null);
-    while (currentTile != null && !(currentTile instanceof WallTile) && !Game.entityAtTile(currentTile).anyMatch(entity -> entity.name().startsWith("laserCube"))) {
+    while (currentTile != null && !(currentTile instanceof WallTile) && !(currentTile instanceof PortalTile ) && !Game.entityAtTile(currentTile).anyMatch(entity -> entity.name().startsWith("laserCube"))) {
       lastPoint = currentPoint;
       currentPoint = currentPoint.translate(beamDirection);
       currentTile = Game.tileAt(currentPoint).orElse(null);
@@ -256,24 +259,26 @@ public class LaserFactory {
       List<Entity> laserEntities,
       PortalExtendComponent pec,
       LaserComponent comp) {
-    Point end = calculateEndPoint(from, direction);
-    int totalPoints = calculateNumberOfPoints(from, end);
+    Point startintPoint = from.translate(direction);
+    Point end = calculateEndPoint(startintPoint, direction);
+    int totalPoints = calculateNumberOfPoints(startintPoint, end);
 
-    for (int i = 0; i < totalPoints; i++) {
-      Entity segment = createSegment(from, end, totalPoints, i, direction);
-      laserEntities.add(segment);
-      Game.add(segment);
-    }
 
     Entity newEmitter = createEmitter(from, direction);
     newEmitter.add(comp);
     newEmitter.add(pec);
     newEmitter.remove(DrawComponent.class);
+    laserEntities.add(newEmitter);
+
+    for (int i = 0; i < totalPoints; i++) {
+      Entity segment = createSegment(startintPoint, end, totalPoints, i, direction);
+      laserEntities.add(segment);
+      Game.add(segment);
+    }
 
     configureEmitterHitbox(newEmitter, totalPoints, direction);
     comp.setActive(true);
 
-    laserEntities.add(newEmitter);
     Game.add(newEmitter);
   }
 
@@ -286,7 +291,7 @@ public class LaserFactory {
       }
     }
     if (firstEmitterIndex != -1 && firstEmitterIndex + 1 < entities.size()) {
-      List<Entity> toRemove = entities.subList(firstEmitterIndex + 1, entities.size());
+      List<Entity> toRemove = entities.subList(firstEmitterIndex , entities.size());
       toRemove.forEach(Game::remove);
       toRemove.clear();
     }
