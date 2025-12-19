@@ -124,8 +124,8 @@ public class HudStarter {
     StatusEffectBar statusEffectBar = new StatusEffectBar(skin);
     hud.addElement(statusEffectBar);
 
-    SystemLog systemLog = new SystemLog(skin);
-    hud.addElement(systemLog);
+    SystemChatLog systemChatLog = new SystemChatLog(skin);
+    hud.addElement(systemChatLog);
 
     Game.stage().ifPresent(stage -> stage.addActor(hud.getStage().getRoot()));
   }

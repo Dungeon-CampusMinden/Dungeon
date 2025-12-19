@@ -6,14 +6,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
-public class SystemLog extends Table implements HUDElement {
+public class SystemChatLog extends Table implements HUDElement {
 
   private final Table messagesTable;
   private final ScrollPane scrollPane;
 
   private static final int MAX_MESSAGES = 25;
 
-  public SystemLog(Skin skin) {
+  public SystemChatLog(Skin skin) {
     super(skin);
 
     pad(5);
@@ -53,9 +53,25 @@ public class SystemLog extends Table implements HUDElement {
   }
 
   @Override
-  public void update() {}
+  public void update() {
+    /*
+    Möglicher update ablauf, sobald z.B. ein SystemChatLogComponent existiert:
 
-  public void addMessage(String text, String style) {
+    Game.player().ifPresent(player -> {
+
+      player.fetch(SystemChatLogComponent.class).ifPresent(logs -> {
+          Map<String, style> newMessages = logs.getNewMessages();
+
+          for (var message : newMessages.entrySet()) {
+            addMessage(message.getKey(), message.getValue());
+            logs.markMessagesAsOld();
+          }
+      });
+    });
+     */
+  }
+
+  private void addMessage(String text, String style) {
     Label label = new Label(text, getSkin(), style);
     label.setFontScale(0.5f);
     label.setWrap(true);

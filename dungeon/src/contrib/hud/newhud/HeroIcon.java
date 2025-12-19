@@ -41,7 +41,7 @@ public class HeroIcon extends Table implements HUDElement {
   @Override
   public void update() {}
 
-  public void setHeroIcon() {
+  private void setHeroIcon() {
     Game.player()
         .flatMap(player -> player.fetch(CharacterClassComponent.class))
         .ifPresent(

@@ -52,7 +52,7 @@ public class HealthBar extends Stack implements HUDElement {
         .ifPresent(hc -> setHealth(hc.currentHealthpoints(), hc.maximalHealthpoints()));
   }
 
-  public void setHealth(float current, float max) {
+  private void setHealth(float current, float max) {
     float value = (current / max) * 100f;
     bar.setValue(value);
 

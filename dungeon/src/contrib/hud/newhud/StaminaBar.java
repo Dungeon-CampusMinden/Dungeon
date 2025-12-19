@@ -52,7 +52,7 @@ public class StaminaBar extends Stack implements HUDElement {
         .ifPresent(sc -> setStamina(sc.currentAmount(), sc.maxAmount()));
   }
 
-  public void setStamina(float current, float max) {
+  private void setStamina(float current, float max) {
     float value = (current / max) * 100f;
     bar.setValue(value);
 

@@ -25,7 +25,7 @@ public class HeadUpDisplaySystem extends System {
 
   @Override
   public void execute() {
-    Boolean updateLayout = false;
+    boolean updateLayout = false;
     if (height != Game.windowHeight() || width != Game.windowWidth()) {
       updateLayout = true;
       height = Game.windowHeight();

@@ -18,18 +18,16 @@ import java.util.Map;
 public class AbilityBar extends Table implements HUDElement {
   private final List<AbilitySlot> slots = new ArrayList<>();
   private int activeAbilityCount = 0;
+  private final int barSize = 5;
 
   public AbilityBar(Skin skin) {
     super(skin);
 
     setBackground(skin.getDrawable("dark-gray"));
-    pad(1);
 
-    // Abstand zwischen Slots
     defaults().pad(5);
 
-    // 5 Slots erzeugen
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < barSize; i++) {
       AbilitySlot slot = new AbilitySlot(skin);
       slots.add(slot);
       add(slot).size(64, 64);
@@ -55,13 +53,13 @@ public class AbilityBar extends Table implements HUDElement {
     updateAbilitys();
   }
 
-  public void setAbilityIcon(int index, Texture texture) {
+  private void setAbilityIcon(int index, Texture texture) {
     if (index >= 0 && index < slots.size()) {
       slots.get(index).setTexture(texture);
     }
   }
 
-  public void setDynamicIcons() {
+  private void setDynamicIcons() {
     Game.player()
         .flatMap(player -> player.fetch(SkillComponent.class))
         .ifPresent(
@@ -70,7 +68,7 @@ public class AbilityBar extends Table implements HUDElement {
               activeAbilityCount = skills.size();
               String png;
               String tooltip;
-              for (int i = 0; i < 5; i++) {
+              for (int i = 0; i < barSize; i++) {
                 if (i >= skills.size()) break;
                 Skill skill = skills.get(i);
                 switch (skill) {
@@ -102,7 +100,7 @@ public class AbilityBar extends Table implements HUDElement {
             });
   }
 
-  public void markEquippedAbility() {
+  private void markEquippedAbility() {
     Game.player()
         .flatMap(player -> player.fetch(SkillComponent.class))
         .ifPresent(
@@ -121,7 +119,7 @@ public class AbilityBar extends Table implements HUDElement {
             });
   }
 
-  public void setAbilityCost() {
+  private void setAbilityCost() {
     Game.player()
         .flatMap(player -> player.fetch(SkillComponent.class))
         .ifPresent(
@@ -139,7 +137,7 @@ public class AbilityBar extends Table implements HUDElement {
             });
   }
 
-  public void updateAbilitys() {
+  private void updateAbilitys() {
     Game.player()
         .flatMap(player -> player.fetch(SkillComponent.class))
         .ifPresent(
@@ -155,8 +153,8 @@ public class AbilityBar extends Table implements HUDElement {
             });
   }
 
-  public void clearAbilitySlots() {
-    for (int i = 0; i < 5; i++) {
+  private void clearAbilitySlots() {
+    for (int i = 0; i < barSize; i++) {
       slots.get(i).removeTexture();
       slots.get(i).removeCost();
       slots.get(i).removeTooltip();

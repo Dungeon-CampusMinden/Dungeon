@@ -48,7 +48,7 @@ public class QuickAccessInventory extends Table implements HUDElement {
     setItemForQuickAccessSlot();
   }
 
-  public void setItemForQuickAccessSlot() {
+  private void setItemForQuickAccessSlot() {
     Game.player()
         .flatMap(player -> player.fetch(InventoryComponent.class))
         .ifPresent(
@@ -66,7 +66,7 @@ public class QuickAccessInventory extends Table implements HUDElement {
             });
   }
 
-  public void initKeybinds() {
+  private void initKeybinds() {
     Game.player()
         .flatMap(player -> player.fetch(InputComponent.class))
         .ifPresent(

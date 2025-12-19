@@ -52,7 +52,7 @@ public class ManaBar extends Stack implements HUDElement {
         .ifPresent(mc -> setMana(mc.currentAmount(), mc.maxAmount()));
   }
 
-  public void setMana(float current, float max) {
+  private void setMana(float current, float max) {
     float value = (current / max) * 100f;
     bar.setValue(value);
 

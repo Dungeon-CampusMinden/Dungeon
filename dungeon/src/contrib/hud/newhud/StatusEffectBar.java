@@ -58,7 +58,7 @@ public class StatusEffectBar extends Table implements HUDElement {
      */
   }
 
-  public void addStatusEffect(String effectId, int counter) {
+  private void addStatusEffect(String effectId, int counter) {
     // Wenn Effekt schon existiert -> nur Counter updaten
     if (activeSlots.containsKey(effectId)) {
       activeSlots.get(effectId).setCounterLabel(counter);
@@ -78,14 +78,14 @@ public class StatusEffectBar extends Table implements HUDElement {
     pack();
   }
 
-  public void updateEffectCounter(String effectId, int newCounter) {
+  private void updateEffectCounter(String effectId, int newCounter) {
     StatusEffectSlot slot = activeSlots.get(effectId);
     if (slot != null) {
       slot.setCounterLabel(newCounter);
     }
   }
 
-  public void removeStatusEffect(String effectId) {
+  private void removeStatusEffect(String effectId) {
     StatusEffectSlot slot = activeSlots.remove(effectId);
 
     if (slot != null) {
@@ -94,7 +94,7 @@ public class StatusEffectBar extends Table implements HUDElement {
     }
   }
 
-  public void checkForRemove(Map<String, Integer> activeEffects) {
+  private void checkForRemove(Map<String, Integer> activeEffects) {
     List<String> currentKeys = new ArrayList<>(activeSlots.keySet());
 
     for (String effectId : currentKeys) {
@@ -104,7 +104,7 @@ public class StatusEffectBar extends Table implements HUDElement {
     }
   }
 
-  public Texture getEffectIcon(String effectId) {
+  private Texture getEffectIcon(String effectId) {
     String path;
 
     switch (effectId) {
