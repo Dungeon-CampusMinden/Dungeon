@@ -6,8 +6,7 @@
 
 The Dungeon is a multifaceted project for the gamification of educational content.
 
-You can find an [interesting report] on our project in the news section of Bielefeld
-University of Applied Sciences (04 April 2024, in German).
+You can find an [interesting report](https://www.hsbi.de/presse/pressemitteilungen/informatik-studierende-am-campus-minden-entwickeln-2d-rollenspiel-zum-lehren-und-lernen) on our project in the news section of Bielefeld University of Applied Sciences (04 April 2024, in German), as well as [another press release](https://www.hsbi.de/presse/pressemitteilungen/hsbi-informatiker-entwickeln-ein-tool-mit-dem-die-erstellung-von-escape-rooms-fuer-die-lehre-auch-ohne-programmier-kenntnisse-gelingt) (19 December 2025, in German).
 
 For more information about the [PRODUS project], please visit our [project page] on the
 Bielefeld University of Applied Sciences website.
@@ -181,7 +180,6 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
 
 <p align="right"><img src="https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/logo/cat_logo_64x64.png?raw=true" alt="Banner"></p>
 
-  [interesting report]: https://www.hsbi.de/presse/pressemitteilungen/informatik-studierende-am-campus-minden-entwickeln-2d-rollenspiel-zum-lehren-und-lernen
   [PRODUS project]: #programming-dungeon-adventures-at-school-produs
   [project page]: https://www.hsbi.de/minden/produs/home
   [1]: dungeon/doc/img/monster.gif
