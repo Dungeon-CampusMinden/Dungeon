@@ -73,29 +73,28 @@ public class AbilityBar extends Table implements HUDElement {
                 Skill skill = skills.get(i);
                 switch (skill) {
                   case FireballSkill ignored:
-                    png = "dungeon/assets/items/book/red_book.png";
+                    png = "dungeon/assets/hud/fireball_skill_icon.png";
                     tooltip = "Shoot a Fireball to fight enemies.";
                     break;
                   case SelfHealSkill ignored:
-                    png = "dungeon/assets/items/book/magic_scroll.png";
+                    png = "dungeon/assets/hud/healing_skill_icon.png";
                     tooltip = "Cast a healing spell to regenerate hp.";
                     break;
                   case BowSkill ignored:
-                    png = "dungeon/assets/items/weapon/wooden_bow.png";
+                    png = "dungeon/assets/hud/bow_and_arrow_icon.png";
                     tooltip = "Use the Bow to shoot Arrows.";
                     break;
                   default:
-                    png = null;
-                    tooltip = "";
+                    png = "dungeon/assets/hud/empty_ability_icon.png";
+                    tooltip = "The ability is missing an icon and a tooltip.";
                     break;
                 }
                 tooltip =
                     tooltip
                         + "\n use ability: Left-click \n prev ability: (,) \n next ability: (.)";
-                if (png != null) {
-                  setAbilityIcon(i, new Texture(png));
-                  slots.get(i).addTooltip(tooltip, getSkin());
-                }
+
+                setAbilityIcon(i, new Texture(png));
+                slots.get(i).addTooltip(tooltip, getSkin());
               }
             });
   }

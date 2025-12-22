@@ -57,17 +57,29 @@ com.badlogic.gdx.graphics.Color: {
 		a: 1
 	}
 	health_red: {
-		r: 1
-		g: 0
-		b: 0
+		r: 0.8
+		g: 0.15
+		b: 0.15
 		a: 1
 	}
 	mana_blue: {
-		r: 0
-		g: 0
-		b: 1
+		r: 0.15
+		g: 0.25
+		b: 0.7
 		a: 1
 	}
+    stamina_green: {
+        r: 0.25
+        g: 0.65
+        b: 0.25
+        a: 1
+    }
+    exp_orange: {
+        r: 0.85
+        g: 0.6
+        b: 0.05
+        a: 1
+    }
 	orange: {
 		r: 0.94509804
 		g: 0.6745098
@@ -224,7 +236,7 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
     }
 	progress-bar-fill-experience: {
 		name: progress-bar-fill
-		color: experience_green
+		color: exp_orange
 		minWidth: 1
 		minHeight: 10
 	}
@@ -242,13 +254,13 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 	}
 	progress-bar-fill-stamina: {
 		name: progress-bar-fill
-		color: orange
+		color: stamina_green
 		minWidth: 1
 		minHeight: 10
 	}
     progress-bar-hud-fill-experience: {
         name: progress-bar-hud-fill
-        color: experience_green
+        color: exp_orange
         minWidth: 1
         minHeight: 18
     }
@@ -266,17 +278,21 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
     }
     progress-bar-hud-fill-stamina: {
         name: progress-bar-hud-fill
-        color: orange
+        color: stamina_green
         minWidth: 1
         minHeight: 18
     }
     scroll-track-thin: {
         name: white
-        color: { r: 0, g: 0, b: 0, a: 0.25 }
+        color: { r: 0, g: 0, b: 0, a: 0.45 }
     }
     scroll-thumb-thin: {
         name: white
         color: { r: 0.8, g: 0.8, b: 0.8, a: 1 }
+    }
+    transparent-background: {
+        name: white
+        color: { r: 0, g: 0, b: 0, a: 0.35 }
     }
 }
 com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable: {
@@ -450,6 +466,7 @@ com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 		vScrollKnob: scrollbar_future_grey_small
 	}
     thin-transparent: {
+        background: transparent-background
         vScroll: scroll-track-thin
         vScrollKnob: scroll-thumb-thin
         hScroll: scroll-track-thin

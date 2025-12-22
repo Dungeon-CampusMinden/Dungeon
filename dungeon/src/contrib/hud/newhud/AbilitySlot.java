@@ -2,7 +2,6 @@ package contrib.hud.newhud;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -55,7 +54,7 @@ public class AbilitySlot extends Table {
   }
 
   public void setTexture(Texture texture) {
-    icon.setDrawable(new TextureRegionDrawable(new TextureRegion(texture)));
+    icon.setDrawable(new TextureRegionDrawable(texture));
   }
 
   public void removeTexture() {
