@@ -24,7 +24,7 @@ public class EnemyCounter extends Table implements HUDElement {
     skullIcon.setDrawable(
         new TextureRegionDrawable(new Texture("dungeon/assets/hud/skull_icon.png")));
     add(skullIcon).size(48, 48);
-    counterLabel = new Label("", skin, "enemycounterlabel");
+    counterLabel = new Label("0", skin, "enemycounterlabel");
     add(counterLabel).size(24, 24);
 
     tooltipLabel = new Label("", skin);
@@ -36,6 +36,7 @@ public class EnemyCounter extends Table implements HUDElement {
   @Override
   public void init() {
     layoutElement();
+    this.setVisible(false);
   }
 
   @Override
@@ -54,9 +55,14 @@ public class EnemyCounter extends Table implements HUDElement {
         Game.allEntities().filter(entity -> entity.fetch(AIComponent.class).isPresent()).count();
 
     if (currentEnemyCount != enemyCount) {
+      this.setVisible(true);
       counterLabel.setText((int) currentEnemyCount);
       tooltipLabel.setText("There are " + currentEnemyCount + " enemies nearby!");
       enemyCount = currentEnemyCount;
+
+      if (enemyCount == 0) {
+        this.setVisible(false);
+      }
     }
   }
 }
