@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import produsAdvanced.abstraction.portals.PortalFactory;
 import produsAdvanced.abstraction.portals.components.LaserComponent;
+import produsAdvanced.abstraction.portals.components.LaserReceiverComponent;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
 import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 import skills.EnergyPelletSkill;
@@ -503,7 +504,6 @@ public class AdvancedFactory {
     return catcher;
   }
 
-
   /**
    * Creates a laser cube entity at the given position.
    *
@@ -527,23 +527,25 @@ public class AdvancedFactory {
     laserCube.add(new DrawComponent(new Animation(LASER_CUBE)));
 
     TriConsumer<Entity, Entity, Direction> action =
-      (you, other, collisionDir) -> {
-        other
-          .fetch(LaserComponent.class)
-          .ifPresent(
-            lc -> {
-              Point newPos = new Point(position.x()+direction.x(), position.y()+direction.y());
-              LaserFactory.extendLaser(direction, newPos, lc.getSegments(), other.fetch(PortalExtendComponent.class).get(), lc);
-            });
-      };
-
+        (you, other, collisionDir) -> {
+          other
+              .fetch(LaserComponent.class)
+              .ifPresent(
+                  lc -> {
+                    Point newPos =
+                        new Point(position.x() + direction.x(), position.y() + direction.y());
+                    LaserFactory.extendLaser(
+                        direction,
+                        newPos,
+                        lc.getSegments(),
+                        other.fetch(PortalExtendComponent.class).get(),
+                        lc);
+                  });
+        };
 
     laserCube.add(
-      new CollideComponent(
-        Vector2.of(0f, 0f),
-        Vector2.of(1f, 1f),
-        action,
-        CollideComponent.DEFAULT_COLLIDER));
+        new CollideComponent(
+            Vector2.of(0f, 0f), Vector2.of(1f, 1f), action, CollideComponent.DEFAULT_COLLIDER));
 
     return laserCube;
   }
@@ -567,6 +569,7 @@ public class AdvancedFactory {
     dc.sendSignal("inactive");
     receiver.add(dc);
 
+    receiver.add(new LaserReceiverComponent());
 
     TriConsumer<Entity, Entity, Direction> actionEnter =
       (you, other, collisionDir) -> {
@@ -575,6 +578,7 @@ public class AdvancedFactory {
           .ifPresent(
             lc -> {
               dc.sendSignal("active");
+              you.fetch(LaserReceiverComponent.class).get().setActive(true);
             });
       };
 
@@ -585,6 +589,7 @@ public class AdvancedFactory {
           .ifPresent(
             lc -> {
               dc.sendSignal("inactive");
+              you.fetch(LaserReceiverComponent.class).get().setActive(false);
             });
       };
 

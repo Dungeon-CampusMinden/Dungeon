@@ -593,6 +593,9 @@ public class PortalFactory {
    * @param direction Direction where it extends to.
    */
   private static void onCollideLeave(Entity portal, Entity other, Direction direction) {
+    if (other.name().equals("laserEmitter")) {
+      return;
+    }
     clearExtendedEntity(portal, other);
   }
 

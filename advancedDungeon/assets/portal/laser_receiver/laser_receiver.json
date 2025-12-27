@@ -12,7 +12,7 @@
         "scaleX": 1,
         "scaleY": 0,
         "isLooping": true,
-        "centered": true
+        "centered": false
     },
     "inactive": {
         "config": {
@@ -27,6 +27,6 @@
         "scaleX": 1,
         "scaleY": 0,
         "isLooping": true,
-        "centered": true
+        "centered": false
     }
 }

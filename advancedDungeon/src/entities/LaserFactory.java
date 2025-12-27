@@ -102,14 +102,15 @@ public class LaserFactory {
             comp -> {
               if (!comp.isActive()) return;
 
-              comp.getSegments().forEach(seg -> {
-                if(seg.name().startsWith("laserEmitter")) {
-                  removeEmitterHitbox(seg);
-                  EventScheduler.scheduleAction( () -> {Game.remove(seg);},1000);
-                } else {
-                  Game.remove(seg);
-                }
-              });
+              comp.getSegments()
+                  .forEach(
+                      seg -> {
+                        if (seg.name().startsWith("laserEmitter") && !seg.name().equals("laserEmitter")) {
+                          removeEmitterHitbox(seg);
+                        } else {
+                          Game.remove(seg);
+                        }
+                      });
               comp.getSegments().clear();
 
               removeEmitterHitbox(emitter);
@@ -146,7 +147,7 @@ public class LaserFactory {
 
     Entity segment = new Entity("laserSegment");
     PositionComponent pc = new PositionComponent(p);
-//    pc.rotation(rotationFor(dir));
+    //    pc.rotation(rotationFor(dir));
     segment.add(pc);
 
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(LASER);
@@ -202,27 +203,35 @@ public class LaserFactory {
       default -> {}
     }
 
-    Hitbox newCollider = new Hitbox(Vector2.of(hitboxX*1.001f, hitboxY*1.001f),Vector2.of(offsetX, offsetY));
+    Hitbox newCollider =
+        new Hitbox(Vector2.of(hitboxX * 1.001f, hitboxY * 1.001f), Vector2.of(offsetX, offsetY));
 
-    emitter.fetch(CollideComponent.class).ifPresentOrElse(cc -> {
-      cc.collider(newCollider);
-      PositionSync.syncPosition(emitter);
-    },() -> {
-      CollideComponent cc =
-        new CollideComponent(
-          CollideComponent.DEFAULT_COLLIDER,
-          (you, other, collisionDir) -> {});
-      cc.collider(newCollider);
-      emitter.add(cc);
-    });
+    emitter
+        .fetch(CollideComponent.class)
+        .ifPresentOrElse(
+            cc -> {
+              cc.collider(newCollider);
+              PositionSync.syncPosition(emitter);
+            },
+            () -> {
+              CollideComponent cc =
+                  new CollideComponent(
+                      CollideComponent.DEFAULT_COLLIDER, (you, other, collisionDir) -> {});
+              cc.collider(newCollider);
+              emitter.add(cc);
+            });
 
     emitter.fetch(CollideComponent.class).ifPresent(c -> c.isSolid(true));
   }
 
   static void removeEmitterHitbox(Entity emitter) {
-    emitter.fetch(CollideComponent.class).ifPresent(cc -> {
-      cc.collider(new Hitbox(Vector2.ZERO, Vector2.ZERO));
-    });
+    emitter
+        .fetch(CollideComponent.class)
+        .ifPresent(
+            cc -> {
+              cc.collider(new Hitbox(Vector2.ZERO, Vector2.ZERO));
+            });
+    PositionSync.syncPosition(emitter);
   }
 
   static float rotationFor(Direction d) {
@@ -245,7 +254,11 @@ public class LaserFactory {
     Point lastPoint = from;
     Point currentPoint = from;
     Tile currentTile = Game.tileAt(from).orElse(null);
-    while (currentTile != null && !(currentTile instanceof WallTile) && !(currentTile instanceof PortalTile ) && !Game.entityAtTile(currentTile).anyMatch(entity -> entity.name().startsWith("laserCube"))) {
+    while (currentTile != null
+        && !(currentTile instanceof WallTile)
+        && !(currentTile instanceof PortalTile)
+        && !Game.entityAtTile(currentTile)
+            .anyMatch(entity -> entity.name().startsWith("laserCube"))) {
       lastPoint = currentPoint;
       currentPoint = currentPoint.translate(beamDirection);
       currentTile = Game.tileAt(currentPoint).orElse(null);
@@ -292,7 +305,15 @@ public class LaserFactory {
     }
     if (firstEmitterIndex != -1 && firstEmitterIndex + 1 < entities.size()) {
       List<Entity> toRemove = entities.subList(firstEmitterIndex , entities.size());
-      toRemove.forEach(Game::remove);
+      toRemove.forEach(
+          seg -> {
+            if (seg.name().startsWith("laserEmitter")) {
+              removeEmitterHitbox(seg);
+              EventScheduler.scheduleAction(()-> {Game.remove(seg);},100);
+            } else {
+              Game.remove(seg);
+            }
+          });
       toRemove.clear();
     }
   }
