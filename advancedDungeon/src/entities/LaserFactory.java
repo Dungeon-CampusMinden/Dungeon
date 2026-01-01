@@ -105,8 +105,13 @@ public class LaserFactory {
               comp.getSegments()
                   .forEach(
                       seg -> {
-                        if (seg.name().startsWith("laserEmitter") && !seg.name().equals("laserEmitter")) {
-                          removeEmitterHitbox(seg);
+                        if (seg.name().startsWith("laserEmitter")) {
+                          if (seg.name().equals("laserEmitter")) {
+                            removeEmitterHitbox(seg);
+                            EventScheduler.scheduleAction(()-> {Game.remove(seg);},100);
+                          } else {
+                            removeEmitterHitbox(seg);
+                          }
                         } else {
                           Game.remove(seg);
                         }
