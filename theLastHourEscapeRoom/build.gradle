@@ -1,0 +1,65 @@
+plugins {
+    id 'java-library'
+}
+
+
+dependencies {
+    api project(':escapeRoom')
+    // JUnit and Mockito for testing
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
+    testImplementation supportDependencies.mockito_core
+}
+
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['assets/']
+sourceSets.test.java.srcDirs = ['test/']
+
+processResources {
+    from new File(project(':dungeon').projectDir, '/assets')
+    from new File(project(':escapeRoom').projectDir, '/assets')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
+
+tasks.register('runTheLastHour', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.TheLastHour'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('buildTheFinalHourJar', Jar) {
+    group = 'jar'
+    archiveBaseName.set('TheLastHour')
+    archiveFileName.set('TheLastHour.jar')
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // include compiled classes
+    from sourceSets.main.output
+    from project(':dungeon').sourceSets.main.output
+    from project(':escapeRoom').sourceSets.main.output
+    // include dependencies
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    // include assets
+    into('assets') {
+        from new File(project(':dungeon').projectDir, '/assets')
+        from new File(project(':escapeRoom').projectDir, '/assets')
+    }
+
+    // manifest
+    manifest {
+        attributes(
+                'Main-Class': 'starter.TheFinalHour'
+        )
+    }
+
+    // exclude signature files
+    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+}

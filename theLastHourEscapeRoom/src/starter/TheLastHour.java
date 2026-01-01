@@ -1,0 +1,41 @@
+package starter;
+
+import contrib.entities.EntityFactory;
+import core.Game;
+import core.configuration.KeyboardConfig;
+import core.level.DungeonLevel;
+import core.level.loader.DungeonLoader;
+import core.utils.Tuple;
+import core.utils.components.path.SimpleIPath;
+import java.io.IOException;
+
+/**
+ * Entry point for running a minimal dungeon game instance.
+ *
+ * <p>This starter initializes the game framework, loads the dungeon configuration, spawns a basic
+ * player, and starts the game loop. It is mainly used to verify that the engine runs correctly with
+ * a simple setup.
+ *
+ * <p>Usage: run with the Gradle task {@code runBasicStarter}.
+ */
+public class TheLastHour {
+
+  /**
+   * Main entry point to launch the basic dungeon game.
+   *
+   * @param args command-line arguments (not used in this starter)
+   */
+  public static void main(String[] args) {
+    DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
+    try {
+      Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    Game.disableAudio(true);
+    Game.userOnSetup(() -> Game.add(EntityFactory.newHero()));
+    Game.frameRate(60);
+    Game.windowTitle("The Last Hour");
+    Game.run();
+  }
+}
