@@ -63,3 +63,4 @@ tasks.register('buildTheFinalHourJar', Jar) {
     // exclude signature files
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
+
