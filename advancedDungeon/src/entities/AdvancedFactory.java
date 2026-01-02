@@ -529,9 +529,10 @@ public class AdvancedFactory {
               .fetch(LaserComponent.class)
               .ifPresent(
                   lc -> {
-                      if (you.fetch(LaserCubeComponent.class).get().isActive() || collisionDir == direction) {
-                        return;
-                      }
+                    if (you.fetch(LaserCubeComponent.class).get().isActive()
+                        || collisionDir == direction) {
+                      return;
+                    }
                     you.fetch(LaserCubeComponent.class).get().setActive(true);
                     Point newPos =
                         new Point(position.x() + direction.x(), position.y() + direction.y());
@@ -545,18 +546,21 @@ public class AdvancedFactory {
         };
 
     TriConsumer<Entity, Entity, Direction> collideLeave =
-      (you, other, collisionDir) -> {
-        other
-          .fetch(LaserComponent.class)
-          .ifPresent(
-            lc -> {
-              you.fetch(LaserCubeComponent.class).get().setActive(false);
-            });
-      };
+        (you, other, collisionDir) -> {
+          other
+              .fetch(LaserComponent.class)
+              .ifPresent(
+                  lc -> {
+                    you.fetch(LaserCubeComponent.class).get().setActive(false);
+                  });
+        };
 
     laserCube.add(
         new CollideComponent(
-            Vector2.of(-0.05f/2, -0.05f/2), Vector2.of(1.05f, 1.05f), collideEnter, collideLeave));
+            Vector2.of(-0.05f / 2, -0.05f / 2),
+            Vector2.of(1.05f, 1.05f),
+            collideEnter,
+            collideLeave));
 
     return laserCube;
   }
@@ -583,33 +587,29 @@ public class AdvancedFactory {
     receiver.add(new LaserReceiverComponent());
 
     TriConsumer<Entity, Entity, Direction> actionEnter =
-      (you, other, collisionDir) -> {
-        other
-          .fetch(LaserComponent.class)
-          .ifPresent(
-            lc -> {
-              dc.sendSignal("active");
-              you.fetch(LaserReceiverComponent.class).get().setActive(true);
-            });
-      };
+        (you, other, collisionDir) -> {
+          other
+              .fetch(LaserComponent.class)
+              .ifPresent(
+                  lc -> {
+                    dc.sendSignal("active");
+                    you.fetch(LaserReceiverComponent.class).get().setActive(true);
+                  });
+        };
 
     TriConsumer<Entity, Entity, Direction> actionLeave =
-      (you, other, collisionDir) -> {
-        other
-          .fetch(LaserComponent.class)
-          .ifPresent(
-            lc -> {
-              dc.sendSignal("inactive");
-              you.fetch(LaserReceiverComponent.class).get().setActive(false);
-            });
-      };
+        (you, other, collisionDir) -> {
+          other
+              .fetch(LaserComponent.class)
+              .ifPresent(
+                  lc -> {
+                    dc.sendSignal("inactive");
+                    you.fetch(LaserReceiverComponent.class).get().setActive(false);
+                  });
+        };
 
     receiver.add(
-      new CollideComponent(
-        Vector2.of(0f, 0f),
-        Vector2.of(1f, 1f),
-        actionEnter,
-        actionLeave));
+        new CollideComponent(Vector2.of(0f, 0f), Vector2.of(1f, 1f), actionEnter, actionLeave));
 
     return receiver;
   }

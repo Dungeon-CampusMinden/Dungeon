@@ -108,7 +108,11 @@ public class LaserFactory {
                         if (seg.name().startsWith("laserEmitter")) {
                           if (seg.name().equals("laserEmitter")) {
                             removeEmitterHitbox(seg);
-                            EventScheduler.scheduleAction(()-> {Game.remove(seg);},100);
+                            EventScheduler.scheduleAction(
+                                () -> {
+                                  Game.remove(seg);
+                                },
+                                100);
                           } else {
                             removeEmitterHitbox(seg);
                           }
@@ -185,30 +189,29 @@ public class LaserFactory {
 
     switch (dir) {
       case LEFT -> {
-        hitboxX = totalPoints +1;
+        hitboxX = totalPoints + 1;
         hitboxY = 0.25f;
-        offsetX = (-totalPoints) ;
+        offsetX = (-totalPoints);
       }
       case RIGHT -> {
-        hitboxX = totalPoints +1 ;
+        hitboxX = totalPoints + 1;
         hitboxY = 0.25f;
         offsetX = 0;
       }
       case UP -> {
         hitboxX = 0.25f;
-        hitboxY = totalPoints+1;
+        hitboxY = totalPoints + 1;
         offsetY = 0;
       }
       case DOWN -> {
         hitboxX = 0.25f;
-        hitboxY = totalPoints+ 1;
-        offsetY = (-totalPoints) ;
+        hitboxY = totalPoints + 1;
+        offsetY = (-totalPoints);
       }
       default -> {}
     }
 
-    Hitbox newCollider =
-        new Hitbox(Vector2.of(hitboxX, hitboxY ), Vector2.of(offsetX, offsetY));
+    Hitbox newCollider = new Hitbox(Vector2.of(hitboxX, hitboxY), Vector2.of(offsetX, offsetY));
 
     emitter
         .fetch(CollideComponent.class)
@@ -280,7 +283,6 @@ public class LaserFactory {
     Point end = calculateEndPoint(startintPoint, direction);
     int totalPoints = calculateNumberOfPoints(startintPoint, end);
 
-
     Entity newEmitter = createEmitter(from, direction);
     newEmitter.add(comp);
     newEmitter.add(pec);
@@ -308,12 +310,16 @@ public class LaserFactory {
       }
     }
     if (firstEmitterIndex != -1 && firstEmitterIndex + 1 < entities.size()) {
-      List<Entity> toRemove = entities.subList(firstEmitterIndex , entities.size());
+      List<Entity> toRemove = entities.subList(firstEmitterIndex, entities.size());
       toRemove.forEach(
           seg -> {
             if (seg.name().startsWith("laserEmitter")) {
               removeEmitterHitbox(seg);
-              EventScheduler.scheduleAction(()-> {Game.remove(seg);},100);
+              EventScheduler.scheduleAction(
+                  () -> {
+                    Game.remove(seg);
+                  },
+                  100);
             } else {
               Game.remove(seg);
             }

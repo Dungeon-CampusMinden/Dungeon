@@ -6,7 +6,6 @@ public class LaserCubeComponent implements Component {
 
   private boolean active = false;
 
-
   public boolean isActive() {
     return active;
   }
