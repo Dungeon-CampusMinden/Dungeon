@@ -19,13 +19,13 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import produsAdvanced.abstraction.portals.components.LaserComponent;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
 import produsAdvanced.abstraction.portals.components.PortalIgnoreComponent;
 
+/** This factory can create the laser that interact with the LaserCube and LaserReceiver. */
 public class LaserFactory {
 
   private static final SimpleIPath LASER = new SimpleIPath("portal/laser");
@@ -37,11 +37,23 @@ public class LaserFactory {
   private final Point from;
   private final Direction direction;
 
+  /**
+   * Provides the LaserFactory with the starting point and direction of the laser.
+   *
+   * @param from starting point of the laser.
+   * @param direction direction the laser is facing.
+   */
   public LaserFactory(Point from, Direction direction) {
     this.from = from;
     this.direction = direction;
   }
 
+  /**
+   * Creates the laser, either active or not active.
+   *
+   * @param active true if the laser should be active, otherwise false.
+   * @return the laser entity.
+   */
   public Entity create(boolean active) {
     Entity emitter = createEmitter(from, direction);
     LaserComponent comp = new LaserComponent(direction);
@@ -61,10 +73,23 @@ public class LaserFactory {
     return emitter;
   }
 
+  /**
+   * Creates the Laser with the given starting point, direction and active state.
+   *
+   * @param from starting point of the laser.
+   * @param direction direction the laser is facing.
+   * @param active true if the laser should be active, otherwise false.
+   * @return the laser entity.
+   */
   public static Entity createLaser(Point from, Direction direction, boolean active) {
     return new LaserFactory(from, direction).create(active);
   }
 
+  /**
+   * Sets the given emitter to active so that it extends a laser out of it.
+   *
+   * @param emitter emitter that should be activated.
+   */
   public static void activate(Entity emitter) {
     emitter
         .fetch(LaserComponent.class)
@@ -95,6 +120,11 @@ public class LaserFactory {
             });
   }
 
+  /**
+   * Deactivates the given emitter so that it retracts its laser.
+   *
+   * @param emitter emitter that should be deactivated.
+   */
   public static void deactivate(Entity emitter) {
     emitter
         .fetch(LaserComponent.class)
@@ -128,13 +158,13 @@ public class LaserFactory {
             });
   }
 
-  public static List<Entity> getSegments(Entity emitter) {
-    return emitter
-        .fetch(LaserComponent.class)
-        .map(LaserComponent::getSegments)
-        .orElse(Collections.emptyList());
-  }
-
+  /**
+   * Creates an emitter entity.
+   *
+   * @param position position of the emitter.
+   * @param direction direction the emitter is facing.
+   * @return the emitter entity.
+   */
   static Entity createEmitter(Point position, Direction direction) {
     Entity emitter = new Entity("laserEmitter");
     PositionComponent pc = new PositionComponent(position);
@@ -148,6 +178,16 @@ public class LaserFactory {
     return emitter;
   }
 
+  /**
+   * Creates a visual segment for the laser when extended.
+   *
+   * @param from position where the laser starts.
+   * @param to position where the laser ends.
+   * @param totalPoints how long the laser is.
+   * @param index which segment this is.
+   * @param dir in which direction the laser is extending.
+   * @return the segment entity.
+   */
   static Entity createSegment(Point from, Point to, int totalPoints, int index, Direction dir) {
     int denom = Math.max(totalPoints - 1, 1);
     float x = from.x() + index * (to.x() - from.x()) / denom;
@@ -173,6 +213,13 @@ public class LaserFactory {
     return segment;
   }
 
+  /**
+   * Updates an emitters visual and name to active or inactive.
+   *
+   * @param emitter the emitter entity that is getting updated.
+   * @param on true if the laser is active, otherwise false.
+   * @param direction direction the emitter is facing.
+   */
   static void updateEmitterVisual(Entity emitter, boolean on, Direction direction) {
     DrawComponent dc = new DrawComponent(on ? EMITTER_ACTIVE : EMITTER_INACTIVE);
     dc.depth(DepthLayer.Normal.depth());
@@ -181,6 +228,13 @@ public class LaserFactory {
     emitter.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(direction)));
   }
 
+  /**
+   * Sets the hitbox of the CollideComponent so it fits the extended laser.
+   *
+   * @param emitter the emitter entity that is getting updated.
+   * @param totalPoints how many tiles the laser is covering.
+   * @param dir direction the laser is extending to.
+   */
   static void configureEmitterHitbox(Entity emitter, int totalPoints, Direction dir) {
     float hitboxX = 1f;
     float hitboxY = 1f;
@@ -231,6 +285,12 @@ public class LaserFactory {
     emitter.fetch(CollideComponent.class).ifPresent(c -> c.isSolid(true));
   }
 
+  /**
+   * Sets the hitbox to 0,0 when the laser is deactivated. Set to 0,0 so that collideLeave is still
+   * getting triggered but nothing else can collide with it, effectively removing it.
+   *
+   * @param emitter the emitter entity which hitbox is getting removed.
+   */
   static void removeEmitterHitbox(Entity emitter) {
     emitter
         .fetch(CollideComponent.class)
@@ -241,6 +301,12 @@ public class LaserFactory {
     PositionSync.syncPosition(emitter);
   }
 
+  /**
+   * Helper method that transforms a direction to its given degree.
+   *
+   * @param d the direction that is getting converted.
+   * @return the resulting degree.
+   */
   static float rotationFor(Direction d) {
     return switch (d) {
       case UP -> 0f;
@@ -251,12 +317,26 @@ public class LaserFactory {
     };
   }
 
+  /**
+   * Helper method to figure out how long the laser is.
+   *
+   * @param from starting point of the laser.
+   * @param to end point of the laser.
+   * @return how long the laser is.
+   */
   static int calculateNumberOfPoints(Point from, Point to) {
     float dx = Math.abs(to.x() - from.x());
     float dy = Math.abs(to.y() - from.y());
     return (int) Math.max(dx, dy) + 1;
   }
 
+  /**
+   * Helper method to figure out the end position of the laser.
+   *
+   * @param from starting position of the laser.
+   * @param beamDirection direction of the laser.
+   * @return the end position of the laser.
+   */
   static Point calculateEndPoint(Point from, Direction beamDirection) {
     Point lastPoint = from;
     Point currentPoint = from;
@@ -273,6 +353,15 @@ public class LaserFactory {
     return lastPoint;
   }
 
+  /**
+   * Extends the laser on a new surface.
+   *
+   * @param direction direction of the laser.
+   * @param from starting point of the laser.
+   * @param laserEntities list of laser components, needed for deleting.
+   * @param pec needed so the new laser also retracts when the original laser retracts.
+   * @param comp needed so the new laser can also extend and retract.
+   */
   public static void extendLaser(
       Direction direction,
       Point from,
@@ -301,6 +390,11 @@ public class LaserFactory {
     Game.add(newEmitter);
   }
 
+  /**
+   * Removes all entities after the first extension, including the emitter of the extension.
+   *
+   * @param entities list of all entities of the laser.
+   */
   public static void trimAfterFirstEmitter(List<Entity> entities) {
     int firstEmitterIndex = -1;
     for (int i = 0; i < entities.size(); i++) {

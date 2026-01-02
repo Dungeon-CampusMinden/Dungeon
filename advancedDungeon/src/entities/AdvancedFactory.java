@@ -506,7 +506,7 @@ public class AdvancedFactory {
    *
    * @param position The initial position of the laser cube.
    * @param direction The direction the laser cube is facing.
-   * @return A new portal cube entity.
+   * @return A new laser cube entity.
    */
   public static Entity laserCube(Point position, Direction direction) {
     Entity laserCube = new Entity("laserCube");
@@ -565,6 +565,13 @@ public class AdvancedFactory {
     return laserCube;
   }
 
+  /**
+   * Creates a laser receiver entity at the given position. To check if its active or not access the
+   * {@link LaserReceiverComponent}.
+   *
+   * @param position The initial position of the laser receiver.
+   * @return A new laser receiver entity.
+   */
   public static Entity laserReceiver(Point position) {
     Entity receiver = new Entity("laserReceiver");
 
