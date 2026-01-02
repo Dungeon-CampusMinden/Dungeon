@@ -37,10 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import produsAdvanced.abstraction.portals.PortalFactory;
-import produsAdvanced.abstraction.portals.components.LaserComponent;
-import produsAdvanced.abstraction.portals.components.LaserReceiverComponent;
-import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
-import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
+import produsAdvanced.abstraction.portals.components.*;
 import skills.EnergyPelletSkill;
 
 /**
@@ -525,27 +522,41 @@ public class AdvancedFactory {
     pc.rotation(rotation);
     laserCube.add(pc);
     laserCube.add(new DrawComponent(new Animation(LASER_CUBE)));
-
-    TriConsumer<Entity, Entity, Direction> action =
+    laserCube.add(new LaserCubeComponent());
+    TriConsumer<Entity, Entity, Direction> collideEnter =
         (you, other, collisionDir) -> {
           other
               .fetch(LaserComponent.class)
               .ifPresent(
                   lc -> {
+                      if (you.fetch(LaserCubeComponent.class).get().isActive() || collisionDir == direction) {
+                        return;
+                      }
+                    you.fetch(LaserCubeComponent.class).get().setActive(true);
                     Point newPos =
                         new Point(position.x() + direction.x(), position.y() + direction.y());
                     LaserFactory.extendLaser(
                         direction,
-                        newPos,
+                        newPos.translate(direction.opposite()),
                         lc.getSegments(),
                         other.fetch(PortalExtendComponent.class).get(),
                         lc);
                   });
         };
 
+    TriConsumer<Entity, Entity, Direction> collideLeave =
+      (you, other, collisionDir) -> {
+        other
+          .fetch(LaserComponent.class)
+          .ifPresent(
+            lc -> {
+              you.fetch(LaserCubeComponent.class).get().setActive(false);
+            });
+      };
+
     laserCube.add(
         new CollideComponent(
-            Vector2.of(0f, 0f), Vector2.of(1f, 1f), action, CollideComponent.DEFAULT_COLLIDER));
+            Vector2.of(-0.05f/2, -0.05f/2), Vector2.of(1.05f, 1.05f), collideEnter, collideLeave));
 
     return laserCube;
   }

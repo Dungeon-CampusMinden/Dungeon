@@ -30,7 +30,7 @@ public class LaserFactory {
 
   private static final SimpleIPath LASER = new SimpleIPath("portal/laser");
   private static final SimpleIPath EMITTER_ACTIVE =
-      new SimpleIPath("portal/laser/laser_emitter_inactive.png");
+      new SimpleIPath("portal/laser/laser_emitter_active.png");
   private static final SimpleIPath EMITTER_INACTIVE =
       new SimpleIPath("portal/laser/laser_emitter_inactive.png");
 
@@ -76,8 +76,8 @@ public class LaserFactory {
                   .fetch(PositionComponent.class)
                   .ifPresent(
                       pc -> {
-                        Point start = pc.position();
                         Direction dir = comp.getDirection();
+                        Point start = pc.position().translate(dir);
                         Point end = calculateEndPoint(start, dir);
                         int totalPoints = calculateNumberOfPoints(start, end);
                         comp.getSegments().add(emitter);
@@ -152,7 +152,6 @@ public class LaserFactory {
 
     Entity segment = new Entity("laserSegment");
     PositionComponent pc = new PositionComponent(p);
-    //    pc.rotation(rotationFor(dir));
     segment.add(pc);
 
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(LASER);
@@ -186,30 +185,30 @@ public class LaserFactory {
 
     switch (dir) {
       case LEFT -> {
-        hitboxX = totalPoints;
+        hitboxX = totalPoints +1;
         hitboxY = 0.25f;
-        offsetX = (-totalPoints) + 1;
+        offsetX = (-totalPoints) ;
       }
       case RIGHT -> {
-        hitboxX = totalPoints;
+        hitboxX = totalPoints +1 ;
         hitboxY = 0.25f;
         offsetX = 0;
       }
       case UP -> {
         hitboxX = 0.25f;
-        hitboxY = totalPoints;
+        hitboxY = totalPoints+1;
         offsetY = 0;
       }
       case DOWN -> {
         hitboxX = 0.25f;
-        hitboxY = totalPoints;
-        offsetY = (-totalPoints) + 1;
+        hitboxY = totalPoints+ 1;
+        offsetY = (-totalPoints) ;
       }
       default -> {}
     }
 
     Hitbox newCollider =
-        new Hitbox(Vector2.of(hitboxX * 1.001f, hitboxY * 1.001f), Vector2.of(offsetX, offsetY));
+        new Hitbox(Vector2.of(hitboxX, hitboxY ), Vector2.of(offsetX, offsetY));
 
     emitter
         .fetch(CollideComponent.class)
