@@ -1,12 +1,12 @@
 # The Last Hour (Escape Room Demo)
 
-* Die Demo befindet sich aktuell in Entwicklung.*
+**Die Demo befindet sich aktuell in Entwicklung.**
 
-Dieses Subprojekt soll als Demo für ein DEER mit Cybersecurity Theme dienen und setzt dabei die [Beschriebenen](https://github.com/Dungeon-CampusMinden/Dungeon/discussions/2607) Rätsel um. 
+Dieses Subprojekt soll als Demo für ein DEER mit Cybersecurity Theme dienen und setzt dabei die [beschriebenen Rätsel](https://github.com/Dungeon-CampusMinden/Dungeon/discussions/2607) um. 
 
 ![Image](img/example.png)
 
-Eandelt sich um ein etwa 10-minütiges, geführtes Dungeon-Erlebnis für ein bis drei Spielende, das zeigt, wie sich Storytelling, Rätselmechaniken, Zusammenarbeit und Learning Analytics in einem DEER verbinden lassen.
+Es handelt sich um ein etwa 10-minütiges, geführtes Dungeon-Erlebnis für ein bis drei Spielende, das zeigt, wie sich Storytelling, Rätselmechaniken, Zusammenarbeit und Learning Analytics in einem DEER verbinden lassen.
 
 Die Handlung spielt in einer verlassenen unterirdischen Forschungseinrichtung, in der ein Wissenschaftler verschwunden ist. Ziel der Spielenden ist es, gestörte Systeme zu stabilisieren und vertrauliche Forschungsdaten zu sichern. Dabei werden praxisnahe Kompetenzen zur IT-Sicherheits- und Cybersecurity-Awareness trainiert, u. a.:
 * Informationen aus verschiedenen Quellen bewerten,
