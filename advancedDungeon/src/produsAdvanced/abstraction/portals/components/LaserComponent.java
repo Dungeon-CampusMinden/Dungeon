@@ -14,6 +14,7 @@ public class LaserComponent implements Component {
   private final Direction direction;
   private List<Entity> segments = new ArrayList<>();
   private boolean active = false;
+  private boolean throughCube = false;
 
   /**
    * Creates a LaserComponent with its original direction.
@@ -74,5 +75,23 @@ public class LaserComponent implements Component {
   /** Retracts the laser. */
   public void trim() {
     LaserFactory.trimAfterFirstEmitter(this.segments);
+  }
+
+  /**
+   * Returns whether the laser is going through the cube or not.
+   *
+   * @return true if laser is going through the cube, otherwise false.
+   */
+  public boolean isThroughCube() {
+    return throughCube;
+  }
+
+  /**
+   * Sets if the laser is going through the cube.
+   *
+   * @param throughCube new throughCube state.
+   */
+  public void setThroughCube(boolean throughCube) {
+    this.throughCube = throughCube;
   }
 }

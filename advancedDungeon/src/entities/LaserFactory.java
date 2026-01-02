@@ -397,8 +397,14 @@ public class LaserFactory {
    */
   public static void trimAfterFirstEmitter(List<Entity> entities) {
     int firstEmitterIndex = -1;
+    boolean skippedFirstEmitter = false;
     for (int i = 0; i < entities.size(); i++) {
       if ("laserEmitter".equals(entities.get(i).name())) {
+        if (entities.get(i).fetch(LaserComponent.class).get().isThroughCube()
+            && !skippedFirstEmitter) {
+          skippedFirstEmitter = true;
+          continue;
+        }
         firstEmitterIndex = i;
         break;
       }
