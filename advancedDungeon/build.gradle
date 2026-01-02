@@ -14,6 +14,13 @@ processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+
+tasks.register('runPortal', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.PortalStarter'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 tasks.register('runAdvancedDungeon', JavaExec) {
     group 'starter'
     mainClass = 'produsAdvanced.AdvancedDungeon'
