@@ -2,7 +2,6 @@ package level.produs;
 
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
-import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
 import core.level.elements.tile.DoorTile;
@@ -22,7 +21,6 @@ import level.LevelManagementUtils;
  * player must push two stones onto pressure plates to unlock the exit.
  */
 public class Level006 extends BlocklyLevel {
-  private static boolean showText = true;
   private DoorTile door;
   private LeverComponent switch1, switch2;
 
@@ -58,10 +56,6 @@ public class Level006 extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    if (showText) {
-      DialogUtils.showTextPopup("Versuch mal die Schalter zu benutzen.", "Kapitel 1: Ausbruch");
-      showText = false;
-    }
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.playerViewDirection(Direction.RIGHT);

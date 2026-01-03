@@ -57,10 +57,17 @@ public class Level021 extends BlocklyLevel {
         "logic_bossView_direction",
         // Kategorien
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level021/01_intro.png"));
   }
 
   @Override
   protected void onFirstTick() {
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
+
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(15, 11));
     LevelManagementUtils.centerHero();
@@ -112,12 +119,6 @@ public class Level021 extends BlocklyLevel {
     playerPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-
-    if (showText) {
-      DialogUtils.showTextPopup(
-          "Ohne eine Karte wirst du hier nie durch kommen. Gib endlich auf!", "Boss");
-      showText = false;
-    }
   }
 
   @Override
