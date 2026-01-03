@@ -188,8 +188,8 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Creates a new {@code CollideComponent} with a default offset of 0.25f x 0.25f and a default
-   * size of 0.5f x 0.5f.
+   * Creates a new {@code CollideComponent} with a default offset of 0.1f x 0.1f and a default size
+   * of 0.8f x 0.8f.
    *
    * <p>The collision handlers use a {@link TriConsumer} with three parameters:
    *
@@ -211,8 +211,8 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Create a new CollisionComponent with a default offset of 0.25f x 0.25f and a default size of
-   * 0.5f x 0.5f and empty collide functions.
+   * Create a new CollisionComponent with a default offset of 0.1f x 0.1f and a default size of 0.8f
+   * x 0.8f and empty collide functions.
    */
   public CollideComponent() {
     this(CollideComponent.DEFAULT_COLLIDER, CollideComponent.DEFAULT_COLLIDER);

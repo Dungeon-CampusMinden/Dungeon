@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import contrib.components.CollideComponent;
+import contrib.systems.CollisionSystem;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -143,6 +144,10 @@ public class MoveSystemTest {
     Point newPos = oldPos.translate(scaledVelocity);
     Point xMove = new Point(newPos.x(), oldPos.y());
     Point yMove = new Point(oldPos.x(), newPos.y());
+    Point resultingPos =
+        new Point(
+            newPos.x(),
+            oldPos.y() + cc.collider().offset().y() - CollisionSystem.COLLIDE_SET_DISTANCE);
 
     // Mock Tiles
     Tile accessibleTile = mock(Tile.class);
@@ -185,7 +190,7 @@ public class MoveSystemTest {
 
     system.execute();
 
-    assertEquals(xMove, pc.position());
+    assertEquals(resultingPos, pc.position());
     verify(onWallHit).accept(entity);
   }
 
