@@ -37,8 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import produsAdvanced.abstraction.portals.PortalFactory;
-import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
-import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
+import produsAdvanced.abstraction.portals.components.*;
 import skills.EnergyPelletSkill;
 
 /**
@@ -67,6 +66,9 @@ public class AdvancedFactory {
   private static final SimpleIPath PELLET_LAUNCHER = new SimpleIPath("portal/pellet_launcher");
   private static final SimpleIPath PELLET_CATCHER = new SimpleIPath("portal/pellet_catcher");
   private static int launcherNumber = 0;
+
+  private static final SimpleIPath LASER_CUBE = new SimpleIPath("portal/laser/laser_cube.png");
+  private static final SimpleIPath LASER_RECEIVER = new SimpleIPath("portal/laser_receiver");
 
   /**
    * Creates a laser grid entity at the given position.
@@ -497,6 +499,126 @@ public class AdvancedFactory {
     catcher.add(colComp);
 
     return catcher;
+  }
+
+  /**
+   * Creates a laser cube entity at the given position.
+   *
+   * @param position The initial position of the laser cube.
+   * @param direction The direction the laser cube is facing.
+   * @return A new laser cube entity.
+   */
+  public static Entity laserCube(Point position, Direction direction) {
+    Entity laserCube = new Entity("laserCube");
+
+    PositionComponent pc = new PositionComponent(position);
+    float rotation;
+    switch (direction) {
+      case DOWN -> rotation = 180f;
+      case LEFT -> rotation = 90f;
+      case RIGHT -> rotation = -90f;
+      default -> rotation = 0f;
+    }
+    pc.rotation(rotation);
+    laserCube.add(pc);
+    laserCube.add(new DrawComponent(new Animation(LASER_CUBE)));
+    laserCube.add(new LaserCubeComponent());
+    TriConsumer<Entity, Entity, Direction> collideEnter =
+        (you, other, collisionDir) -> {
+          other
+              .fetch(LaserComponent.class)
+              .ifPresent(
+                  lc -> {
+                    if (you.fetch(LaserCubeComponent.class).get().isActive()
+                        || collisionDir == direction) {
+                      return;
+                    }
+                    you.fetch(LaserCubeComponent.class).get().setActive(true);
+                    Point newPos =
+                        new Point(position.x() + direction.x(), position.y() + direction.y());
+                    LaserFactory.extendLaser(
+                        direction,
+                        newPos.translate(direction.opposite()),
+                        lc.getSegments(),
+                        other.fetch(PortalExtendComponent.class).get(),
+                        lc);
+                  });
+        };
+
+    TriConsumer<Entity, Entity, Direction> collideLeave =
+        (you, other, collisionDir) -> {
+          other
+              .fetch(LaserComponent.class)
+              .ifPresent(
+                  lc -> {
+                    you.fetch(LaserCubeComponent.class).get().setActive(false);
+                  });
+        };
+
+    laserCube.add(
+        new CollideComponent(
+            Vector2.of(-0.05f / 2, -0.05f / 2),
+            Vector2.of(1.05f, 1.05f),
+            collideEnter,
+            collideLeave));
+
+    return laserCube;
+  }
+
+  /**
+   * Creates a laser receiver entity at the given position. To check if its active or not access the
+   * {@link LaserReceiverComponent}.
+   *
+   * @param position The initial position of the laser receiver.
+   * @return A new laser receiver entity.
+   */
+  public static Entity laserReceiver(Point position) {
+    Entity receiver = new Entity("laserReceiver");
+
+    PositionComponent pc = new PositionComponent(position);
+    receiver.add(pc);
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(LASER_RECEIVER);
+
+    State inactive = new State("inactive", animationMap.get("inactive"));
+    State active = new State("active", animationMap.get("active"));
+    StateMachine sm = new StateMachine(Arrays.asList(active, inactive));
+
+    sm.addTransition(inactive, "active", active);
+    sm.addTransition(active, "inactive", inactive);
+
+    DrawComponent dc = new DrawComponent(sm);
+    dc.depth(DepthLayer.ForegroundDeco.depth());
+    dc.sendSignal("inactive");
+    receiver.add(dc);
+
+    receiver.add(new LaserReceiverComponent());
+
+    TriConsumer<Entity, Entity, Direction> actionEnter =
+        (you, other, collisionDir) -> {
+          other
+              .fetch(LaserComponent.class)
+              .ifPresent(
+                  lc -> {
+                    dc.sendSignal("active");
+                    you.fetch(LaserReceiverComponent.class).get().setActive(true);
+                  });
+        };
+
+    TriConsumer<Entity, Entity, Direction> actionLeave =
+        (you, other, collisionDir) -> {
+          other
+              .fetch(LaserComponent.class)
+              .ifPresent(
+                  lc -> {
+                    dc.sendSignal("inactive");
+                    you.fetch(LaserReceiverComponent.class).get().setActive(false);
+                  });
+        };
+
+    receiver.add(
+        new CollideComponent(Vector2.of(0f, 0f), Vector2.of(1f, 1f), actionEnter, actionLeave));
+
+    return receiver;
   }
 
   /**
