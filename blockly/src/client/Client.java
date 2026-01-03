@@ -48,7 +48,7 @@ public class Client {
   private static HttpServer httpServer;
 
   /**
-   * If true, the Web interface Blockly is used for interaction with the Dunogen. Otherwise, the
+   * If true, the Web interface Blockly is used for interaction with the Dungeon. Otherwise, the
    * Code API is used.
    */
   public static boolean runInWeb = false;
