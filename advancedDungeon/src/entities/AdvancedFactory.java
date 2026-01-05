@@ -62,7 +62,8 @@ public class AdvancedFactory {
   private static final float sphere_mass = 3f;
   private static final float sphere_maxSpeed = 10f;
   private static final SimpleIPath CUBE_PRESSURE_PLATE = new SimpleIPath("objects/pressureplate");
-  private static final SimpleIPath SPHERE_PRESSURE_PLATE = new SimpleIPath("portal/kubus_pressureplate");
+  private static final SimpleIPath SPHERE_PRESSURE_PLATE =
+      new SimpleIPath("portal/kubus_pressureplate");
 
   private static final SimpleIPath PELLET_LAUNCHER = new SimpleIPath("portal/pellet_launcher");
   private static final SimpleIPath PELLET_CATCHER = new SimpleIPath("portal/pellet_catcher");
