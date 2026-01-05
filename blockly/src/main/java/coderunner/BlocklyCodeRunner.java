@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
+
+import server.Server;
 import systems.BlocklyCommandExecuteSystem;
 
 /**
@@ -31,7 +33,7 @@ import systems.BlocklyCommandExecuteSystem;
  *
  * <p>This class is a singleton, meaning that there is only one instance of it in the application.
  *
- * @see server.Server Server
+ * @see Server Server
  */
 public class BlocklyCodeRunner {
 

@@ -1,106 +1,52 @@
 /* TODO This project should use plugin 'application' instead of defining its own run task */
 plugins {
-  id 'antlr'
+    id 'application'
+    id 'antlr'
 }
 
-repositories {
-  mavenCentral()
+application {
+    // Define the main class for the application
+    mainClass = 'client.Client'
 }
 
 dependencies {
-  implementation project(':dungeon'), 'com.github.javaparser:javaparser-symbol-solver-core:3.27.1'
+    implementation project(':dungeon')
+    implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.27.1'
 
-  // ANTLR version 4 for DSL Grammar
-  antlr supportDependencies.antlr
+    // ANTLR version 4 for DSL Grammar
+    antlr supportDependencies.antlr
 
-  // JUnit 4 and Mockito for testing
-  testImplementation supportDependencies.junit
-  testRuntimeOnly supportDependencies.junitLauncher
+    // JUnit 4 and Mockito for testing
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
 }
-
-/* TODO This should handled by using the standard source layout src/main/java src/main/resources src/ */
-sourceSets.main.java.srcDirs = ['src/', "$buildDir/generated-src/"]
-sourceSets.main.resources.srcDirs = ['assets/']
-
-sourceSets.test.java.srcDirs = ['test/']
-
-processResources {
-    from new File(project(':dungeon').projectDir, '/assets')
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-sourceSets.main.antlr.srcDirs = ['src']
 
 // generate ANTLR visitor and listener classes from grammar
 generateGrammarSource {
-  maxHeapSize = '64m'
-  arguments += ['-visitor', '-listener', '-long-messages']
+    maxHeapSize = '64m'
+    arguments += ['-visitor', '-listener', '-long-messages']
 }
 
-/* TODO Creating the jar should be handled by configuring the 'jar' task
-*   tasks.named('jar') {
-*       manifest {
-*          attributes 'Main-Class': 'client.Client'
-*       }
-*       archiveFileName = 'Blockly.jar'
-*       into('assets') {
-*          from new File(project(':dungeon').projectDir, '/assets')
-*       }
-*       ...
-*   }
-* */
-tasks.register('runBlockly', JavaExec) {
-    group = 'starter'
-    mainClass = 'client.Client'
-    classpath = sourceSets.main.runtimeClasspath
-    def webFlag = project.hasProperty('web') ? project.property('web') : 'false'
-    args "web=${webFlag}"
+tasks.register('runJar', JavaExec) {
+    group = 'application'
+    classpath tasks.named('jar').map { it.outputs }
+    args ["web=${project.hasProperty('web') ? project.property('web') : 'false'}"]
 }
 
-
-tasks.register('buildBlocklyJar', Jar) {
-    group 'jar'
-    archiveBaseName = 'Blockly'
-    from sourceSets.main.output
-    from project(':dungeon').sourceSets.main.output
+jar{
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes('Main-Class': 'client.Client')
+    }
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
-
-    // Include source files from Language Server
-    from(project(':dungeon').projectDir) {
-        include 'src/core/level/utils/LevelElement.java'
-        // Remove 'src/' prefix from paths
-        eachFile { file ->
-            file.path = file.path.replaceFirst('src/', '')
-        }
-        includeEmptyDirs = false
-    }
-    from(projectDir) {
-        include 'src/core/utils/Direction.java'
-        include 'src/coderunner/BlocklyCommands.java'
-        // Remove 'src/' prefix from paths
-        eachFile { file ->
-            file.path = file.path.replaceFirst('src/', '')
-        }
-        includeEmptyDirs = false
-    }
-
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes 'Main-Class': 'client.Client'
-    }
-
-    archiveFileName = 'Blockly.jar'
-
-    into('assets') {
-        from new File(project(':dungeon').projectDir, '/assets')
-    }
-
-    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
 
-tasks.named('test', Test) {
+tasks.withType(Test).configureEach {
     useJUnitPlatform()
+}
+
+repositories {
+    mavenCentral()
 }
