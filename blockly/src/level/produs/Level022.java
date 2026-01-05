@@ -53,10 +53,6 @@ public class Level022 extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    if (showText) {
-      showPopups();
-      showText = false;
-    }
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(15, 8));
     LevelManagementUtils.centerHero();

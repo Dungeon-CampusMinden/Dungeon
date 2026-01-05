@@ -69,10 +69,6 @@ public class Level012 extends BlocklyLevel {
         s1.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s1);
-    if (showText) {
-      showPopups();
-      showText = false;
-    }
 
     Game.add(MiscFactory.fireballScroll(getPoint(3)));
     Entity s2 = LeverFactory.pressurePlate(getPoint(4));
