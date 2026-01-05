@@ -2,7 +2,6 @@ package level.produs;
 
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
-import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
 import core.level.elements.tile.DoorTile;
@@ -52,14 +51,14 @@ public class Level007 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level007/01_hebel_schaltplan.png"));
   }
 
   @Override
   protected void onFirstTick() {
     if (showText) {
-      DialogUtils.showTextPopup(
-          "Ganz schön viele Schalter, hätten wir doch nur einen Schaltplan.",
-          "Kapitel 1: Ausbruch");
+      showPopups();
       showText = false;
     }
 

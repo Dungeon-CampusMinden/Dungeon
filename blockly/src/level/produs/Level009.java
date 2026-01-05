@@ -23,6 +23,7 @@ import level.LevelManagementUtils;
  */
 public class Level009 extends BlocklyLevel {
 
+  private static boolean showText = true;
   private LeverComponent switch1, switch2, switch3;
   private DoorTile door1, door2;
 
@@ -53,6 +54,8 @@ public class Level009 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level009/01_schaltplan.png"));
   }
 
   @Override
@@ -62,7 +65,6 @@ public class Level009 extends BlocklyLevel {
     LevelManagementUtils.playerViewDirection(Direction.DOWN);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-
     BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().addToGame();
     guardBuilder.attackRange(5);
     guardBuilder.viewDirection(Direction.UP);
@@ -70,7 +72,6 @@ public class Level009 extends BlocklyLevel {
     guardBuilder.attackRange(5);
     guardBuilder.viewDirection(Direction.LEFT);
     guardBuilder.build(getPoint(5));
-
     Entity s1 = LeverFactory.createLever(getPoint(1));
     Entity s2 = LeverFactory.createLever(getPoint(2));
     Entity s3 = LeverFactory.createLever(getPoint(3));
@@ -95,6 +96,11 @@ public class Level009 extends BlocklyLevel {
     door2.close();
 
     Game.add(MiscFactory.stone(getPoint(0)));
+
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
   }
 
   @Override
