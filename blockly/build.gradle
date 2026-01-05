@@ -1,3 +1,4 @@
+/* TODO This project should use plugin 'application' instead of defining its own run task */
 plugins {
   id 'antlr'
 }
@@ -17,6 +18,7 @@ dependencies {
   testRuntimeOnly supportDependencies.junitLauncher
 }
 
+/* TODO This should handled by using the standard source layout src/main/java src/main/resources src/ */
 sourceSets.main.java.srcDirs = ['src/', "$buildDir/generated-src/"]
 sourceSets.main.resources.srcDirs = ['assets/']
 
@@ -35,7 +37,18 @@ generateGrammarSource {
   arguments += ['-visitor', '-listener', '-long-messages']
 }
 
-
+/* TODO Creating the jar should be handled by configuring the 'jar' task
+*   tasks.named('jar') {
+*       manifest {
+*          attributes 'Main-Class': 'client.Client'
+*       }
+*       archiveFileName = 'Blockly.jar'
+*       into('assets') {
+*          from new File(project(':dungeon').projectDir, '/assets')
+*       }
+*       ...
+*   }
+* */
 tasks.register('runBlockly', JavaExec) {
     group = 'starter'
     mainClass = 'client.Client'
