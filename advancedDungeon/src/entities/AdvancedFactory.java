@@ -511,6 +511,8 @@ public class AdvancedFactory {
   public static Entity laserCube(Point position, Direction direction) {
     Entity laserCube = new Entity("laserCube");
 
+    final boolean[] attached = {false};
+
     PositionComponent pc = new PositionComponent(position);
     float rotation;
     switch (direction) {
@@ -561,6 +563,62 @@ public class AdvancedFactory {
             Vector2.of(1.05f, 1.05f),
             collideEnter,
             collideLeave));
+
+    laserCube.add(
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (interacted, interactor) -> {
+                      if (!attached[0]) {
+                        interacted
+                            .fetch(CollideComponent.class)
+                            .ifPresent(
+                                collide -> {
+                                  collide.isSolid(false);
+                                });
+                        interactor
+                            .fetch(VelocityComponent.class)
+                            .ifPresent(
+                                vc -> {
+                                  interacted.add(vc);
+                                  attached[0] = true;
+                                });
+
+                      } else {
+                        interacted.remove(VelocityComponent.class);
+                        interacted
+                            .fetch(PositionComponent.class)
+                            .ifPresent(
+                                pc1 -> {
+                                  pc1.position(
+                                      pc1.position()
+                                          .translate(0.5f, 0.5f)
+                                          .toCoordinate()
+                                          .toPoint());
+                                  interactor
+                                      .fetch(PositionComponent.class)
+                                      .ifPresent(
+                                          pc2 -> {
+                                            float pc2rotation;
+                                            switch (pc2.viewDirection()) {
+                                              case DOWN -> pc2rotation = 180f;
+                                              case LEFT -> pc2rotation = 90f;
+                                              case RIGHT -> pc2rotation = -90f;
+                                              default -> pc2rotation = 0f;
+                                            }
+                                            pc1.rotation(pc2rotation);
+                                            pc1.viewDirection(pc2.viewDirection());
+                                          });
+                                });
+                        interacted
+                            .fetch(CollideComponent.class)
+                            .ifPresent(
+                                collide -> {
+                                  collide.isSolid(true);
+                                });
+                        attached[0] = false;
+                      }
+                    })));
 
     return laserCube;
   }
