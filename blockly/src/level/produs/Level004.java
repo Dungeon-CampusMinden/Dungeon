@@ -64,10 +64,6 @@ public class Level004 extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    if (showText) {
-      showPopups();
-      showText = false;
-    }
     cameraFocusOn(new Coordinate(12, 5));
     LevelManagementUtils.centerHero();
     LevelManagementUtils.playerViewDirection(Direction.RIGHT);
@@ -88,6 +84,10 @@ public class Level004 extends BlocklyLevel {
     Game.add(MiscFactory.stone(getPoint(2)));
     Game.add(s1);
     Game.add(s2);
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
   }
 
   @Override

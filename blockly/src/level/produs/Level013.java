@@ -71,12 +71,6 @@ public class Level013 extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-
-    if (showText) {
-      showPopups();
-      showText = false;
-    }
-
     LevelManagementUtils.fog(false);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
@@ -110,6 +104,10 @@ public class Level013 extends BlocklyLevel {
 
     door = (DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow();
     door.close();
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
   }
 
   @Override
