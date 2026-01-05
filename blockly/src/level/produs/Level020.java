@@ -141,6 +141,10 @@ public class Level020 extends BlocklyLevel {
               ((PitTile) tile).timeToOpen(PIT_TIME_TO_OPEN_IN_MS);
               ((PitTile) tile).close();
             });
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
   }
 
   @Override

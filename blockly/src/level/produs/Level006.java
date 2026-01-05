@@ -23,6 +23,7 @@ import level.LevelManagementUtils;
 public class Level006 extends BlocklyLevel {
   private DoorTile door;
   private LeverComponent switch1, switch2;
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -51,6 +52,8 @@ public class Level006 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level006/intro.png"));
   }
 
   @Override
@@ -68,7 +71,10 @@ public class Level006 extends BlocklyLevel {
     Entity s2 = LeverFactory.pressurePlate(switch2C.toPoint());
     Game.add(MiscFactory.stone(stone1C.toPoint()));
     Game.add(MiscFactory.stone(stone2C.toPoint()));
-
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
     Game.add(s1);
     Game.add(s2);
     switch1 =

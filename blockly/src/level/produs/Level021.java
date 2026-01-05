@@ -119,6 +119,10 @@ public class Level021 extends BlocklyLevel {
     playerPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
   }
 
   @Override

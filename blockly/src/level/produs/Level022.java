@@ -84,5 +84,9 @@ public class Level022 extends BlocklyLevel {
               ((PitTile) tile).timeToOpen(60);
               ((PitTile) tile).close();
             });
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
   }
 }
