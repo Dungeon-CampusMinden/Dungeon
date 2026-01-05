@@ -12,6 +12,9 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.*;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
 import produsAdvanced.abstraction.portals.components.PortalComponent;
@@ -94,10 +97,22 @@ public class PortalFactory {
                 clearExtendedEntity(bluePortal, other);
               }
               moveExistingPortal(bluePortal, direction, point, PortalColor.BLUE);
+              updateVisual(PortalColor.BLUE, direction);
             },
             () -> {
               Entity portal = new Entity(BLUE_PORTAL_NAME);
-              portal.add(new DrawComponent(BLUE_PORTAL_TEXTURE));
+              Map<String, Animation> animationMap =
+                  Animation.loadAnimationSpritesheet(BLUE_PORTAL_TEXTURE);
+
+              State fallback = new State("NONE", animationMap.get("fallback"));
+              State top = new State("UP", animationMap.get("bottom"));
+              State bottom = new State("DOWN", animationMap.get("top"));
+              State left = new State("LEFT", animationMap.get("left"));
+              State right = new State("RIGHT", animationMap.get("right"));
+              StateMachine sm = new StateMachine(Arrays.asList(fallback, top, bottom, left, right));
+              sm.setState(direction.name(), null);
+              portal.add(new DrawComponent(sm));
+              updateVisual(PortalColor.BLUE, direction);
 
               PositionComponent pc = new PositionComponent(point);
               pc.viewDirection(direction);
@@ -149,10 +164,22 @@ public class PortalFactory {
                 clearExtendedEntity(greenPortal, other);
               }
               moveExistingPortal(greenPortal, direction, point, PortalColor.GREEN);
+              updateVisual(PortalColor.GREEN, direction);
             },
             () -> {
               Entity portal = new Entity(GREEN_PORTAL_NAME);
-              portal.add(new DrawComponent(GREEN_PORTAL_TEXTURE));
+              Map<String, Animation> animationMap =
+                  Animation.loadAnimationSpritesheet(GREEN_PORTAL_TEXTURE);
+
+              State fallback = new State("NONE", animationMap.get("fallback"));
+              State top = new State("UP", animationMap.get("bottom"));
+              State bottom = new State("DOWN", animationMap.get("top"));
+              State left = new State("LEFT", animationMap.get("left"));
+              State right = new State("RIGHT", animationMap.get("right"));
+              StateMachine sm = new StateMachine(Arrays.asList(fallback, top, bottom, left, right));
+              sm.setState(direction.name(), null);
+              portal.add(new DrawComponent(sm));
+              updateVisual(PortalColor.GREEN, direction);
 
               PositionComponent pc = new PositionComponent(point);
               pc.viewDirection(direction);
@@ -169,6 +196,30 @@ public class PortalFactory {
               Game.add(portal);
               ignorePortalInProjectiles(portal);
             });
+  }
+
+  /**
+   * Updates the visual of a portal according to its direction.
+   *
+   * @param color the color of the portal.
+   * @param direction the new direction of the portal.
+   */
+  private static void updateVisual(PortalColor color, Direction direction) {
+    if (color == PortalColor.GREEN) {
+      getGreenPortal()
+          .flatMap(portal -> portal.fetch(DrawComponent.class))
+          .ifPresent(
+              dc -> {
+                dc.stateMachine().setState(direction.name(), null);
+              });
+    } else {
+      getBluePortal()
+          .flatMap(portal -> portal.fetch(DrawComponent.class))
+          .ifPresent(
+              dc -> {
+                dc.stateMachine().setState(direction.name(), null);
+              });
+    }
   }
 
   /**
