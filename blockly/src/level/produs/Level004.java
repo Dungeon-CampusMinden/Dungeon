@@ -68,7 +68,6 @@ public class Level004 extends BlocklyLevel {
       showPopups();
       showText = false;
     }
-
     cameraFocusOn(new Coordinate(12, 5));
     LevelManagementUtils.centerHero();
     LevelManagementUtils.playerViewDirection(Direction.RIGHT);

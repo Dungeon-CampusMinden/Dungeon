@@ -58,7 +58,6 @@ public class Level012 extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-
     if (showText) {
       showPopups();
       showText = false;
@@ -68,7 +67,6 @@ public class Level012 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusOn(new Coordinate(10, 7));
     LevelManagementUtils.centerHero();
     LevelManagementUtils.playerViewDirection(Direction.DOWN);
-
     Game.add(MiscFactory.stone(getPoint(1)));
 
     Entity s1 = LeverFactory.pressurePlate(getPoint(2));

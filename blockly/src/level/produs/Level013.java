@@ -82,7 +82,6 @@ public class Level013 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.playerViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
-
     // create torches and light every second one
     final boolean[] coin = {new Random().nextBoolean()};
     namedPoints()
