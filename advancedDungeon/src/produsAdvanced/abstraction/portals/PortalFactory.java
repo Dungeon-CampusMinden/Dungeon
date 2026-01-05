@@ -106,7 +106,7 @@ public class PortalFactory {
 
               State fallback = new State("NONE", animationMap.get("fallback"));
               State top = new State("UP", animationMap.get("bottom"));
-              State bottom = new State("DOWN", animationMap.get("top"));
+              State bottom = new State("DOWN", animationMap.get("fallback"));
               State left = new State("LEFT", animationMap.get("left"));
               State right = new State("RIGHT", animationMap.get("right"));
               StateMachine sm = new StateMachine(Arrays.asList(fallback, top, bottom, left, right));
@@ -173,7 +173,7 @@ public class PortalFactory {
 
               State fallback = new State("NONE", animationMap.get("fallback"));
               State top = new State("UP", animationMap.get("bottom"));
-              State bottom = new State("DOWN", animationMap.get("top"));
+              State bottom = new State("DOWN", animationMap.get("fallback"));
               State left = new State("LEFT", animationMap.get("left"));
               State right = new State("RIGHT", animationMap.get("right"));
               StateMachine sm = new StateMachine(Arrays.asList(fallback, top, bottom, left, right));
