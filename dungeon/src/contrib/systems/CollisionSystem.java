@@ -40,10 +40,7 @@ public final class CollisionSystem extends System {
   public static final boolean ALLOW_PLAYER_COLLISIONS = false;
 
   /** Solid entities will be kept at this distance after colliding. */
-  public static final float COLLIDE_SET_DISTANCE = 0.0001f;
-
-  /** Distance to snap next to a wall (e.g. when trying to enter a 1-tile wide tunnel) */
-  public static final float CORNER_CORRECT_DISTANCE = 0.1f;
+  public static final float COLLIDE_SET_DISTANCE = 0.01f;
 
   private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
 
@@ -79,12 +76,7 @@ public final class CollisionSystem extends System {
    * @return The stream which contains every valid pair of Entities.
    */
   private Stream<CollisionData> createDataPairs(final Entity a) {
-    boolean isStationary = isStationary(a);
-    var filteredEntityStream = filteredEntityStream().filter(b -> isSmallerThen(a, b));
-    if (isStationary) {
-      filteredEntityStream = filteredEntityStream.filter(b -> !isStationary(b));
-    }
-    return filteredEntityStream.map(b -> newDataPair(a, b));
+    return filteredEntityStream().filter(b -> isSmallerThen(a, b)).map(b -> newDataPair(a, b));
   }
 
   /**
@@ -170,32 +162,26 @@ public final class CollisionSystem extends System {
 
   private void checkSolidCollision(CollisionData cdata, Direction d) {
     VelocityComponent vca = cdata.ea.fetch(VelocityComponent.class).orElse(null);
-    boolean aStationary = isStationary(cdata.ea);
+    boolean aStationary = vca == null || vca.maxSpeed() == 0f;
     VelocityComponent vcb = cdata.eb.fetch(VelocityComponent.class).orElse(null);
-    boolean bStationary = isStationary(cdata.eb);
+    boolean bStationary = vcb == null || vcb.maxSpeed() == 0f;
 
     if (aStationary && bStationary) {
       // No-op. Previously this logged a warning, but stationary solid collisions on decorations
       // aren't uncommon.
     } else if (aStationary) {
-      solidCollide(cdata.ea, cdata.a.collider(), cdata.eb, cdata.b.collider(), d, true, true);
+      solidCollide(cdata.ea, cdata.a.collider(), cdata.eb, cdata.b.collider(), d);
     } else if (bStationary) {
-      solidCollide(
-          cdata.eb, cdata.b.collider(), cdata.ea, cdata.a.collider(), d.opposite(), true, true);
+      solidCollide(cdata.eb, cdata.b.collider(), cdata.ea, cdata.a.collider(), d.opposite());
     } else {
       // Determine which entity moves based on their weight. The heavier entity
       // moves the lighter one.
       if (vca.mass() > vcb.mass()) {
-        solidCollide(cdata.ea, cdata.a.collider(), cdata.eb, cdata.b.collider(), d, true, false);
+        solidCollide(cdata.ea, cdata.a.collider(), cdata.eb, cdata.b.collider(), d);
       } else {
-        solidCollide(
-            cdata.eb, cdata.b.collider(), cdata.ea, cdata.a.collider(), d.opposite(), true, false);
+        solidCollide(cdata.eb, cdata.b.collider(), cdata.ea, cdata.a.collider(), d.opposite());
       }
     }
-  }
-
-  private boolean isStationary(Entity e) {
-    return e.fetch(VelocityComponent.class).map(vc -> vc.maxSpeed() == 0f).orElse(true);
   }
 
   /**
@@ -246,29 +232,12 @@ public final class CollisionSystem extends System {
     }
   }
 
-  /**
-   * Performs a solid collision between two entities, moving entity b out of entity a in the given
-   * direction.
-   *
-   * <p>Will try to move entity b first. If the new position for entity b collides with the level or
-   * other solids, entity a will be moved instead (unless entity a is stationary).
-   *
-   * @param ea The primary entity a.
-   * @param a Collider of the primary entity a.
-   * @param eb The secondary entity b.
-   * @param b Collider of the secondary entity b.
-   * @param direction The direction of the collision, as seen from entity a.
-   * @param firstCollision Whether this is the first attempt to resolve the collision.
-   * @param aStationary Whether entity a is stationary. If yes, ensures that entity a is not moved.
-   */
+  private void solidCollide(Entity ea, Collider a, Entity eb, Collider b, Direction direction) {
+    solidCollide(ea, a, eb, b, direction, true);
+  }
+
   private void solidCollide(
-      Entity ea,
-      Collider a,
-      Entity eb,
-      Collider b,
-      Direction direction,
-      boolean firstCollision,
-      boolean aStationary) {
+      Entity ea, Collider a, Entity eb, Collider b, Direction direction, boolean firstCollision) {
     Point c1Pos = a.absolutePosition();
     Vector2 c1Size = a.size();
     Point c2Pos = b.absolutePosition();
@@ -296,15 +265,11 @@ public final class CollisionSystem extends System {
         eb.fetch(VelocityComponent.class).map(VelocityComponent::canEnterWalls).orElse(false);
     boolean bCanEnterGitter =
         eb.fetch(VelocityComponent.class).map(VelocityComponent::canEnterGitter).orElse(false);
-    boolean bCanEnterGlasswalls =
-        eb.fetch(VelocityComponent.class).map(VelocityComponent::canEnterGlasswalls).orElse(false);
-    if (!aStationary
-        && (CollisionUtils.isCollidingWithLevel(
-                b, newPos, bCanEnterOpenPits, bCanEnterWalls, bCanEnterGitter, bCanEnterGlasswalls)
-            || CollisionUtils.isCollidingWithOtherSolids(b, newPos))) {
+    if (CollisionUtils.isCollidingWithLevel(
+        b, newPos, bCanEnterOpenPits, bCanEnterWalls, bCanEnterGitter)) {
       if (firstCollision) {
         // If the new position collides with the level, block the other entity instead.
-        solidCollide(eb, b, ea, a, direction.opposite(), false, false);
+        solidCollide(eb, b, ea, a, direction.opposite(), false);
       }
       // If we aren't in the first iteration, the other entity is also blocked, so just don't do
       // anything

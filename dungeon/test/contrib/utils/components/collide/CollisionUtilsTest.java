@@ -72,7 +72,7 @@ public class CollisionUtilsTest {
             });
     Game.currentLevel(level);
 
-    boolean result = CollisionUtils.isPathClearByStepping(start, end, false, false, false, false);
+    boolean result = CollisionUtils.isPathClearByStepping(start, end, false, false, false);
     assertTrue(result, "Path should be clear when all tiles are accessible");
   }
 
@@ -102,7 +102,7 @@ public class CollisionUtilsTest {
             });
     Game.currentLevel(level);
 
-    boolean result = CollisionUtils.isPathClearByStepping(start, end, false, false, false, false);
+    boolean result = CollisionUtils.isPathClearByStepping(start, end, false, false, false);
     assertFalse(result, "Path should be blocked when any tile in path is inaccessible");
   }
 }

@@ -80,8 +80,6 @@ public class CollisionUtils {
    * @param pos the position to check for collision
    * @param canEnterPits whether the collider can enter pit tiles
    * @param canEnterWalls whether the collider can enter wall tiles
-   * @param canEnterGitter whether the entity can enter gitter tiles
-   * @param canEnterGlassWalls whether the entity can enter glasswall tile
    * @return true if any corner of the collider is colliding with a non-accessible tile, false
    *     otherwise
    */
@@ -90,8 +88,7 @@ public class CollisionUtils {
       Point pos,
       boolean canEnterPits,
       boolean canEnterWalls,
-      boolean canEnterGitter,
-      boolean canEnterGlassWalls) {
+      boolean canEnterGitter) {
     List<Vector2> corners = collider.cornersScaled();
     return corners.stream()
         .anyMatch(
@@ -100,8 +97,7 @@ public class CollisionUtils {
                     pos.translate(v),
                     canEnterPits,
                     canEnterWalls,
-                    canEnterGitter,
-                    canEnterGlassWalls));
+                    canEnterGitter));
   }
 
   /**
@@ -137,21 +133,14 @@ public class CollisionUtils {
    * @param tile the tile to check for accessibility
    * @param canEnterPitTiles whether the entity can enter pit tiles
    * @param canEnterWalls whether the entity can enter wall tiles
-   * @param canEnterGitter whether the entity can enter gitter tiles
-   * @param canEnterGlassWalls whether the entity can enter glasswall tile
    * @return true if tile is accessible or a pit tile that can be entered, false otherwise
    */
   public static boolean tileIsAccessible(
-      Tile tile,
-      boolean canEnterPitTiles,
-      boolean canEnterWalls,
-      boolean canEnterGitter,
-      boolean canEnterGlassWalls) {
+      Tile tile, boolean canEnterPitTiles, boolean canEnterWalls, boolean canEnterGitter) {
     return tile != null
         && (tile.isAccessible()
             || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT))
             || (canEnterGitter && tile.levelElement().equals(LevelElement.GITTER))
-            || (canEnterGlassWalls && tile.levelElement().equals(LevelElement.GLASSWALL))
             || (canEnterWalls && tile.levelElement().equals(LevelElement.WALL)));
   }
 
@@ -170,8 +159,6 @@ public class CollisionUtils {
    * @param to the target point
    * @param canEnterPitTiles whether the entity is allowed to walk into pit tiles
    * @param canEnterWalls whether the entity is allowed to walk into wall tiles
-   * @param canEnterGitter whether the entity can enter gitter tiles
-   * @param canEnterGlassWall whether the entity can enter glasswall tile
    * @return true if the entire path from start to target is clear; false if a tile in between is
    *     blocked
    */
@@ -180,8 +167,7 @@ public class CollisionUtils {
       Point to,
       boolean canEnterPitTiles,
       boolean canEnterWalls,
-      boolean canEnterGitter,
-      boolean canEnterGlassWall) {
+      boolean canEnterGitter) {
     Vector2 direction = from.vectorTo(to);
     double distance = direction.length();
 
@@ -194,8 +180,7 @@ public class CollisionUtils {
     // Step from start to end and check each tile along the way
     for (float traveled = 0; traveled <= distance; traveled += step.length()) {
       Tile tile = Game.tileAt(current).orElse(null);
-      if (!tileIsAccessible(
-          tile, canEnterPitTiles, canEnterWalls, canEnterGitter, canEnterGlassWall)) {
+      if (!tileIsAccessible(tile, canEnterPitTiles, canEnterWalls, canEnterGitter)) {
         return false;
       }
       current = current.translate(step);
@@ -203,11 +188,7 @@ public class CollisionUtils {
 
     // Ensure that the final destination tile is also checked
     return tileIsAccessible(
-        Game.tileAt(to).orElse(null),
-        canEnterPitTiles,
-        canEnterWalls,
-        canEnterGitter,
-        canEnterGlassWall);
+        Game.tileAt(to).orElse(null), canEnterPitTiles, canEnterWalls, canEnterGitter);
   }
 
   // ========== Collision Math ==========
