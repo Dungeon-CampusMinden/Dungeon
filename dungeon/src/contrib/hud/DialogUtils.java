@@ -66,11 +66,10 @@ public class DialogUtils {
             .put(DialogContextKeys.OWNER_ENTITY, dialogEntity.id())
             .build();
     UIComponent ui = new UIComponent(context, true, true, new int[] {});
-    // Register close callback
-    ui.onClose(
-        (uic) -> {
-          onClose.execute();
-        });
+
+    // Default onClose behavior (e.g. when pressing ESC)
+    ui.onClose((uic) -> onClose.execute());
+
     dialogEntity.add(ui);
     Game.add(dialogEntity);
   }
