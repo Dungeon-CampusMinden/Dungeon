@@ -1,6 +1,6 @@
-package portal.components;
+package portal.antiMaterialBarrier;
 
-import portal.systems.AntiMaterialBarrierSystem;
+import portal.util.ToggleableComponent;
 
 /**
  * A component that represents the state of an anti-material barrier (active or inactive).

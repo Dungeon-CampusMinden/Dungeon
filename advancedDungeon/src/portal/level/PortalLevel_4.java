@@ -11,7 +11,7 @@ import core.utils.Direction;
 import core.utils.Point;
 import java.util.Map;
 import level.AdvancedLevel;
-import portal.entities.LightBridgeFactory;
+import portal.lightBridge.LightBridgeFactory;
 import portal.physicsobject.Cube;
 import portal.physicsobject.PressurePlates;
 

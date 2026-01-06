@@ -14,7 +14,6 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
-import portal.components.PortalCubeComponent;
 
 public class Cube {
   private static final SimpleIPath PORTAL_CUBE = new SimpleIPath("portal/portal_cube/portal_cube.png");

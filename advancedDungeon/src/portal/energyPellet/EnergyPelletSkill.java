@@ -13,7 +13,7 @@ import core.utils.*;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
-import portal.components.AntiMaterialBarrierComponent;
+import portal.antiMaterialBarrier.AntiMaterialBarrierComponent;
 
 /**
  * An energy pellet projectile skill that deals damage on impact.

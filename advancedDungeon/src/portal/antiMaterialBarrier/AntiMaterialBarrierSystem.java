@@ -1,12 +1,10 @@
-package portal.systems;
+package portal.antiMaterialBarrier;
 
 import contrib.components.CollideComponent;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
-import portal.antiMaterialBarrier.AntiMaterialBarrier;
-import portal.components.AntiMaterialBarrierComponent;
 
 /**
  * The AntiMaterialBarrierSystem manages the activation and deactivation of anti-material barriers.

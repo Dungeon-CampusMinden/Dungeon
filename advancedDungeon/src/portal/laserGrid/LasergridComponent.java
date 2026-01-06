@@ -1,6 +1,6 @@
-package portal.components;
+package portal.laserGrid;
 
-import portal.systems.LasergridSystem;
+import portal.util.ToggleableComponent;
 
 /**
  * A component that represents the state of a laser grid (active or inactive).

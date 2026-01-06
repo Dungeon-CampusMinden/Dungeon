@@ -9,7 +9,7 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.path.SimpleIPath;
-import portal.components.ToggleableComponent;
+import portal.util.ToggleableComponent;
 
 public class EnergyPelletCatcher {
   private static final SimpleIPath PELLET_CATCHER = new SimpleIPath("portal/pellet_catcher");

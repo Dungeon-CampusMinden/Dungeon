@@ -11,7 +11,7 @@ import core.utils.Point;
 import java.util.Map;
 import level.AdvancedLevel;
 import portal.antiMaterialBarrier.AntiMaterialBarrier;
-import portal.components.ToggleableComponent;
+import portal.util.ToggleableComponent;
 import portal.energyPellet.EnergyPelletLauncher;
 import portal.energyPellet.EnergyPelletCatcher;
 import portal.physicsobject.Cube;

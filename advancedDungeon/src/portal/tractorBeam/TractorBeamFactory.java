@@ -1,4 +1,4 @@
-package portal.entities;
+package portal.tractorBeam;
 
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;

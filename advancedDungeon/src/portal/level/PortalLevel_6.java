@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import level.AdvancedLevel;
-import portal.entities.LightWallFactory;
+import portal.lightWall.LightWallFactory;
 
 /**
  * Portal Level six. The player has to use the light wall to block the projectiles to reach the exit

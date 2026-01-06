@@ -13,7 +13,6 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import portal.components.AntiMaterialBarrierComponent;
 import portal.portals.PortalFactory;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.TractorBeamComponent;

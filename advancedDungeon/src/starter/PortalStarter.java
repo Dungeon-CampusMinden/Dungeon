@@ -29,8 +29,8 @@ import portal.level.*;
 import portal.portals.PortalColor;
 import portal.portals.PortalExtendSystem;
 import portal.portals.PortalSkill;
-import portal.systems.AntiMaterialBarrierSystem;
-import portal.systems.LasergridSystem;
+import portal.antiMaterialBarrier.AntiMaterialBarrierSystem;
+import portal.laserGrid.LasergridSystem;
 
 /**
  * Starter for the Demo Escaperoom Dungeon.

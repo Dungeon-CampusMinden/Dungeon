@@ -16,8 +16,6 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import portal.components.PortalCubeComponent;
-import portal.components.PortalSphereComponent;
 
 import java.util.Arrays;
 import java.util.Map;

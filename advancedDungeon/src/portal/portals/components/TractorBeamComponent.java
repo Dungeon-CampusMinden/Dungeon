@@ -12,7 +12,7 @@ import core.utils.Vector2;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import portal.entities.TractorBeamFactory;
+import portal.tractorBeam.TractorBeamFactory;
 
 /** Component represents a tractor beam that can be extended and trimmed. */
 public class TractorBeamComponent implements Component {
