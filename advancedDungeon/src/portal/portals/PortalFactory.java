@@ -17,6 +17,7 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
+import portal.portals.abstraction.PortalUtils;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
@@ -34,12 +35,6 @@ import portal.portals.components.PortalIgnoreComponent;
  * <p>Needs the {@link PortalExtendSystem PortalExtendSystem} to be used with entities that extend.
  */
 public class PortalFactory {
-
-  /** Name of the blue portal. */
-  private static final String BLUE_PORTAL_NAME = "BLUE_PORTAL";
-
-  /** Name of the green portal. */
-  private static final String GREEN_PORTAL_NAME = "GREEN_PORTAL";
 
   private static final SimpleIPath BLUE_PORTAL_TEXTURE = new SimpleIPath("portal/blue_portal");
   private static final SimpleIPath GREEN_PORTAL_TEXTURE = new SimpleIPath("portal/green_portal");
@@ -71,7 +66,7 @@ public class PortalFactory {
    * @param direction the output direction of the portal.
    */
   private static void createBluePortal(Point point, Direction direction) {
-    getGreenPortal()
+    PortalUtils.getGreenPortal()
         .ifPresent(
             greenPortal -> {
               if (greenPortal.fetch(PositionComponent.class).get().position().equals(point)) {
@@ -83,7 +78,7 @@ public class PortalFactory {
                 clearGreenPortal();
               }
             });
-    getBluePortal()
+    PortalUtils.getBluePortal()
         .ifPresentOrElse(
             bluePortal -> {
               Point oldPosition = bluePortal.fetch(PositionComponent.class).get().position();
@@ -99,7 +94,7 @@ public class PortalFactory {
               updateVisual(PortalColor.BLUE, direction);
             },
             () -> {
-              Entity portal = new Entity(BLUE_PORTAL_NAME);
+              Entity portal = new Entity(PortalUtils.BLUE_PORTAL_NAME);
               Map<String, Animation> animationMap =
                   Animation.loadAnimationSpritesheet(BLUE_PORTAL_TEXTURE);
 
@@ -137,7 +132,7 @@ public class PortalFactory {
    * @param direction the output direction of the portal.
    */
   private static void createGreenPortal(Point point, Direction direction) {
-    getBluePortal()
+    PortalUtils.getBluePortal()
         .ifPresent(
             bluePortal -> {
               if (bluePortal.fetch(PositionComponent.class).get().position().equals(point)) {
@@ -149,7 +144,7 @@ public class PortalFactory {
                 clearBluePortal();
               }
             });
-    getGreenPortal()
+    PortalUtils.getGreenPortal()
         .ifPresentOrElse(
             greenPortal -> {
               Point oldPosition = greenPortal.fetch(PositionComponent.class).get().position();
@@ -166,7 +161,7 @@ public class PortalFactory {
               updateVisual(PortalColor.GREEN, direction);
             },
             () -> {
-              Entity portal = new Entity(GREEN_PORTAL_NAME);
+              Entity portal = new Entity(PortalUtils.GREEN_PORTAL_NAME);
               Map<String, Animation> animationMap =
                   Animation.loadAnimationSpritesheet(GREEN_PORTAL_TEXTURE);
 
@@ -205,11 +200,11 @@ public class PortalFactory {
    */
   private static void updateVisual(PortalColor color, Direction direction) {
     if (color == PortalColor.GREEN) {
-      getGreenPortal()
+      PortalUtils.getGreenPortal()
           .flatMap(portal -> portal.fetch(DrawComponent.class))
           .ifPresent(dc -> dc.stateMachine().setState(direction.name(), null));
     } else {
-      getBluePortal()
+      PortalUtils.getBluePortal()
           .flatMap(portal -> portal.fetch(DrawComponent.class))
           .ifPresent(dc -> dc.stateMachine().setState(direction.name(), null));
     }
@@ -231,22 +226,14 @@ public class PortalFactory {
     PositionComponent portalPositionComponent = portal.fetch(PositionComponent.class).get();
     PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
 
-    if (getBluePortal().isPresent() && !isEntityPortal(other)) {
+    if (PortalUtils.getBluePortal().isPresent() && !isEntityPortal(other)) {
       if (Game.player().isPresent()
           && Game.player().get().name().equals(other.name())
           && otherPositionComponent.viewDirection()
               != portalPositionComponent.viewDirection().opposite()) {
         return;
       }
-      Direction bluePortalDirection =
-          getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
-      otherPositionComponent.position(
-          getBluePortal()
-              .get()
-              .fetch(PositionComponent.class)
-              .get()
-              .position()
-              .translate(bluePortalDirection));
+      otherPositionComponent.position(PortalUtils.calculatePortalExit(portal));
       other.add(new PortalIgnoreComponent());
       EventScheduler.scheduleAction(() -> other.remove(PortalIgnoreComponent.class), PORTAL_DELAY);
       other
@@ -278,7 +265,7 @@ public class PortalFactory {
     PositionComponent portalPositionComponent = portal.fetch(PositionComponent.class).get();
     PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
 
-    if (getGreenPortal().isPresent() && !isEntityPortal(other)) {
+    if (PortalUtils.getGreenPortal().isPresent() && !isEntityPortal(other)) {
       if (Game.player().isPresent()
           && Game.player().get().name().equals(other.name())
           && otherPositionComponent.viewDirection()
@@ -286,14 +273,8 @@ public class PortalFactory {
         return;
       }
       Direction greenPortalDirection =
-          getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
-      otherPositionComponent.position(
-          getGreenPortal()
-              .get()
-              .fetch(PositionComponent.class)
-              .get()
-              .position()
-              .translate(greenPortalDirection));
+          PortalUtils.getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
+      otherPositionComponent.position(PortalUtils.calculatePortalExit(portal));
 
       other.add(new PortalIgnoreComponent());
       EventScheduler.scheduleAction(() -> other.remove(PortalIgnoreComponent.class), PORTAL_DELAY);
@@ -377,7 +358,7 @@ public class PortalFactory {
       }
       pec.setThroughGreen(true);
       portal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
-      getBluePortal()
+      PortalUtils.getBluePortal()
           .ifPresent(
               bluePortal ->
                   bluePortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other));
@@ -388,7 +369,7 @@ public class PortalFactory {
       return;
     }
 
-    if (getBluePortal().isPresent() && !isEntityPortal(other)) {
+    if (PortalUtils.getBluePortal().isPresent() && !isEntityPortal(other)) {
       if (Game.player().isPresent()
           && Game.player().get().name().equals(other.name())
           && otherPositionComponent.viewDirection()
@@ -398,14 +379,8 @@ public class PortalFactory {
 
       Direction greenPortalDirection = portal.fetch(PositionComponent.class).get().viewDirection();
       Direction bluePortalDirection =
-          getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
-      otherPositionComponent.position(
-          getBluePortal()
-              .get()
-              .fetch(PositionComponent.class)
-              .get()
-              .position()
-              .translate(bluePortalDirection));
+          PortalUtils.getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
+      otherPositionComponent.position(PortalUtils.calculatePortalExit(portal));
 
       other.add(new PortalIgnoreComponent());
       EventScheduler.scheduleAction(() -> other.remove(PortalIgnoreComponent.class), PORTAL_DELAY);
@@ -439,7 +414,7 @@ public class PortalFactory {
       }
       pec.setThroughBlue(true);
       portal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
-      getGreenPortal()
+      PortalUtils.getGreenPortal()
           .ifPresent(
               greenPortal ->
                   greenPortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other));
@@ -450,7 +425,7 @@ public class PortalFactory {
       return;
     }
 
-    if (getGreenPortal().isPresent() && !isEntityPortal(other)) {
+    if (PortalUtils.getGreenPortal().isPresent() && !isEntityPortal(other)) {
       if (Game.player().isPresent()
           && Game.player().get().name().equals(other.name())
           && otherPositionComponent.viewDirection()
@@ -460,14 +435,11 @@ public class PortalFactory {
 
       Direction bluePortalDirection = portal.fetch(PositionComponent.class).get().viewDirection();
       Direction greenPortalDirection =
-          getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
-      otherPositionComponent.position(
-          getGreenPortal()
-              .get()
-              .fetch(PositionComponent.class)
-              .get()
-              .position()
-              .translate(greenPortalDirection));
+          PortalUtils.getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
+
+      // move through portal
+      otherPositionComponent.position(PortalUtils.calculatePortalExit(portal));
+
       other.add(new PortalIgnoreComponent());
       EventScheduler.scheduleAction(() -> other.remove(PortalIgnoreComponent.class), PORTAL_DELAY);
 
@@ -490,9 +462,9 @@ public class PortalFactory {
 
     PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
     Direction blueDirection =
-        getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
+        PortalUtils.getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
     Direction greenDirection =
-        getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
+        PortalUtils.getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
 
     other
         .fetch(VelocityComponent.class)
@@ -635,7 +607,7 @@ public class PortalFactory {
                 pec.onTrim.accept(other);
                 pec.setExtended(false);
               }
-              getGreenPortal()
+              PortalUtils.getGreenPortal()
                   .ifPresent(
                       greenPortal -> {
                         if (portal == greenPortal) {
@@ -645,7 +617,7 @@ public class PortalFactory {
                               .ifPresent(pc -> pc.setExtendedEntityThrough(null));
                         }
                       });
-              getBluePortal()
+              PortalUtils.getBluePortal()
                   .ifPresent(
                       bluePortal -> {
                         if (portal == bluePortal) {
@@ -672,7 +644,7 @@ public class PortalFactory {
    * exists.
    */
   public static void clearBluePortal() {
-    getBluePortal()
+    PortalUtils.getBluePortal()
         .ifPresent(
             portal -> {
               Entity other = portal.fetch(PortalComponent.class).get().getExtendedEntityThrough();
@@ -685,7 +657,7 @@ public class PortalFactory {
 
   /** Removes the green portal from the game, if present. */
   public static void clearGreenPortal() {
-    getGreenPortal()
+    PortalUtils.getGreenPortal()
         .ifPresent(
             portal -> {
               Entity other = portal.fetch(PortalComponent.class).get().getExtendedEntityThrough();
@@ -704,27 +676,5 @@ public class PortalFactory {
    */
   private static boolean isEntityPortal(Entity entity) {
     return entity.isPresent(PortalComponent.class);
-  }
-
-  /**
-   * Returns the blue portal, if it exists.
-   *
-   * @return an {@link Optional} containing the blue portal entity, or empty if none exists
-   */
-  public static Optional<Entity> getBluePortal() {
-    return Game.levelEntities()
-        .filter(entity -> entity.name().equals(BLUE_PORTAL_NAME))
-        .findFirst();
-  }
-
-  /**
-   * Returns the green portal, if it exists.
-   *
-   * @return an {@link Optional} containing the green portal entity, or empty if none exists
-   */
-  public static Optional<Entity> getGreenPortal() {
-    return Game.levelEntities()
-        .filter(entity -> entity.name().equals(GREEN_PORTAL_NAME))
-        .findFirst();
   }
 }
