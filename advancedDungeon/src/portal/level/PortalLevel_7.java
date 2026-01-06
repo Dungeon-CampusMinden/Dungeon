@@ -12,11 +12,11 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
+import java.util.Map;
+import level.AdvancedLevel;
 import portal.entities.AdvancedFactory;
 import portal.entities.LightBridgeFactory;
 import portal.entities.TractorBeamFactory;
-import java.util.Map;
-import level.AdvancedLevel;
 import portal.portals.components.TractorBeamComponent;
 
 /** Level Idee: Spieler, müssen zwei Arten von Platten aktivieren um den Ausgang zu öffnen. */

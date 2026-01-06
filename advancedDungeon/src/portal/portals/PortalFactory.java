@@ -20,7 +20,6 @@ import java.util.*;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
-import portal.portals.systems.PortalExtendSystem;
 
 /**
  * A factory class for creating and managing portals in the game.
@@ -32,21 +31,20 @@ import portal.portals.systems.PortalExtendSystem;
  * <p>Only one blue and one green portal can exist at a time. If a new portal is created at the same
  * position as the other, the old one is cleared automatically.
  *
- * <p>Needs the {@link PortalExtendSystem
- * PortalExtendSystem} to be used with entities that extend.
+ * <p>Needs the {@link PortalExtendSystem PortalExtendSystem} to be used with entities that extend.
  */
 public class PortalFactory {
 
   /** Name of the blue portal. */
-  private static String BLUE_PORTAL_NAME = "BLUE_PORTAL";
+  private static final String BLUE_PORTAL_NAME = "BLUE_PORTAL";
 
   /** Name of the green portal. */
-  private static String GREEN_PORTAL_NAME = "GREEN_PORTAL";
+  private static final String GREEN_PORTAL_NAME = "GREEN_PORTAL";
 
-  private static SimpleIPath BLUE_PORTAL_TEXTURE = new SimpleIPath("portal/blue_portal");
-  private static SimpleIPath GREEN_PORTAL_TEXTURE = new SimpleIPath("portal/green_portal");
+  private static final SimpleIPath BLUE_PORTAL_TEXTURE = new SimpleIPath("portal/blue_portal");
+  private static final SimpleIPath GREEN_PORTAL_TEXTURE = new SimpleIPath("portal/green_portal");
 
-  private static int portalDelay = 200;
+  private static final int PORTAL_DELAY = 600;
 
   /**
    * Creates a portal of the given color at the specified position.
@@ -209,17 +207,11 @@ public class PortalFactory {
     if (color == PortalColor.GREEN) {
       getGreenPortal()
           .flatMap(portal -> portal.fetch(DrawComponent.class))
-          .ifPresent(
-              dc -> {
-                dc.stateMachine().setState(direction.name(), null);
-              });
+          .ifPresent(dc -> dc.stateMachine().setState(direction.name(), null));
     } else {
       getBluePortal()
           .flatMap(portal -> portal.fetch(DrawComponent.class))
-          .ifPresent(
-              dc -> {
-                dc.stateMachine().setState(direction.name(), null);
-              });
+          .ifPresent(dc -> dc.stateMachine().setState(direction.name(), null));
     }
   }
 
@@ -256,11 +248,7 @@ public class PortalFactory {
               .position()
               .translate(bluePortalDirection));
       other.add(new PortalIgnoreComponent());
-      EventScheduler.scheduleAction(
-          () -> {
-            other.remove(PortalIgnoreComponent.class);
-          },
-          portalDelay);
+      EventScheduler.scheduleAction(() -> other.remove(PortalIgnoreComponent.class), PORTAL_DELAY);
       other
           .fetch(VelocityComponent.class)
           .ifPresent(
@@ -308,11 +296,7 @@ public class PortalFactory {
               .translate(greenPortalDirection));
 
       other.add(new PortalIgnoreComponent());
-      EventScheduler.scheduleAction(
-          () -> {
-            other.remove(PortalIgnoreComponent.class);
-          },
-          portalDelay);
+      EventScheduler.scheduleAction(() -> other.remove(PortalIgnoreComponent.class), PORTAL_DELAY);
 
       other
           .fetch(VelocityComponent.class)
@@ -395,9 +379,8 @@ public class PortalFactory {
       portal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
       getBluePortal()
           .ifPresent(
-              bluePortal -> {
-                bluePortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
-              });
+              bluePortal ->
+                  bluePortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other));
       return;
     }
 
@@ -425,11 +408,7 @@ public class PortalFactory {
               .translate(bluePortalDirection));
 
       other.add(new PortalIgnoreComponent());
-      EventScheduler.scheduleAction(
-          () -> {
-            other.remove(PortalIgnoreComponent.class);
-          },
-          portalDelay);
+      EventScheduler.scheduleAction(() -> other.remove(PortalIgnoreComponent.class), PORTAL_DELAY);
 
       if (Game.player().get().name().equals(other.name())) {
         handleRotation(other, PortalColor.GREEN);
@@ -462,9 +441,8 @@ public class PortalFactory {
       portal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
       getGreenPortal()
           .ifPresent(
-              greenPortal -> {
-                greenPortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
-              });
+              greenPortal ->
+                  greenPortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other));
       return;
     }
 
@@ -491,11 +469,7 @@ public class PortalFactory {
               .position()
               .translate(greenPortalDirection));
       other.add(new PortalIgnoreComponent());
-      EventScheduler.scheduleAction(
-          () -> {
-            other.remove(PortalIgnoreComponent.class);
-          },
-          portalDelay);
+      EventScheduler.scheduleAction(() -> other.remove(PortalIgnoreComponent.class), PORTAL_DELAY);
 
       if (Game.player().get().name().equals(other.name())) {
         handleRotation(other, PortalColor.BLUE);
@@ -590,9 +564,7 @@ public class PortalFactory {
     double compNormal = velocity.dot(nA);
     double compTangent = velocity.dot(tA);
 
-    Vector2 out = nB.scale(-compNormal).add(tB.scale(compTangent));
-
-    return out;
+    return nB.scale(-compNormal).add(tB.scale(compTangent));
   }
 
   /**
@@ -670,10 +642,7 @@ public class PortalFactory {
                           pec.setThroughGreen(false);
                           greenPortal
                               .fetch(PortalComponent.class)
-                              .ifPresent(
-                                  pc -> {
-                                    pc.setExtendedEntityThrough(null);
-                                  });
+                              .ifPresent(pc -> pc.setExtendedEntityThrough(null));
                         }
                       });
               getBluePortal()
@@ -683,10 +652,7 @@ public class PortalFactory {
                           pec.setThroughBlue(false);
                           bluePortal
                               .fetch(PortalComponent.class)
-                              .ifPresent(
-                                  pc -> {
-                                    pc.setExtendedEntityThrough(null);
-                                  });
+                              .ifPresent(pc -> pc.setExtendedEntityThrough(null));
                         }
                       });
             });

@@ -1,11 +1,11 @@
 package portal.systems;
 
-import portal.components.AntiMaterialBarrierComponent;
 import contrib.components.CollideComponent;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
+import portal.components.AntiMaterialBarrierComponent;
 import portal.entities.AdvancedFactory;
 
 /**

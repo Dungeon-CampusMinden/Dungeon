@@ -1,4 +1,4 @@
-package portal.portals.portalSkills;
+package portal.portals;
 
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
@@ -19,8 +19,6 @@ import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
-import portal.portals.PortalColor;
-import portal.portals.PortalFactory;
 import portal.portals.components.PortalComponent;
 
 /**
@@ -36,7 +34,7 @@ public class PortalSkill extends ProjectileSkill {
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(0.5, 0.5);
   private static final Vector2 HIT_BOX_OFFSET = Vector2.of(0.25, 0.25);
   private static final long COOLDOWN = 500;
-  private PortalColor portalColor;
+  private final PortalColor portalColor;
 
   /**
    * Creates a new portal skill.
@@ -44,6 +42,7 @@ public class PortalSkill extends ProjectileSkill {
    * @param portalColor Color of the portal.
    * @param resourceCost Resource costs for casting.
    */
+  @SafeVarargs
   public PortalSkill(PortalColor portalColor, Tuple<Resource, Integer>... resourceCost) {
     super(
         portalColor.equals(PortalColor.BLUE) ? "BLUE_PORTAL" : "GREEN_PORTAL",
@@ -161,9 +160,8 @@ public class PortalSkill extends ProjectileSkill {
       nearestTile = list.removeFirst().a();
     }
     Point pointDirection = new Point(wallPos.x() - nearestTile.x(), wallPos.y() - nearestTile.y());
-    Direction direction = toDirection(pointDirection).opposite();
 
-    return direction;
+    return toDirection(pointDirection).opposite();
   }
 
   /**

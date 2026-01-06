@@ -9,10 +9,10 @@ import core.Game;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
-import portal.entities.TractorBeamFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import portal.entities.TractorBeamFactory;
 
 /** Component represents a tractor beam that can be extended and trimmed. */
 public class TractorBeamComponent implements Component {

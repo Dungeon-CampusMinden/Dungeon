@@ -1,6 +1,5 @@
-package portal.skills;
+package portal.energyPellet;
 
-import portal.components.AntiMaterialBarrierComponent;
 import contrib.components.HealthComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.components.health.DamageType;
@@ -14,6 +13,7 @@ import core.utils.*;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
+import portal.components.AntiMaterialBarrierComponent;
 
 /**
  * An energy pellet projectile skill that deals damage on impact.

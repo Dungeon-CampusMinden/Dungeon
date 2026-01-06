@@ -25,11 +25,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-
 import portal.level.*;
 import portal.portals.PortalColor;
-import portal.portals.portalSkills.PortalSkill;
-import portal.portals.systems.PortalExtendSystem;
+import portal.portals.PortalExtendSystem;
+import portal.portals.PortalSkill;
 import portal.systems.AntiMaterialBarrierSystem;
 import portal.systems.LasergridSystem;
 

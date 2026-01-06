@@ -1,4 +1,4 @@
-package portal.components;
+package portal.energyPellet;
 
 import contrib.utils.components.ai.ISkillUser;
 import contrib.utils.components.skill.Skill;
@@ -10,7 +10,7 @@ import core.utils.Point;
 import java.util.function.Consumer;
 
 /**
- * An idle behaviour for the energyPelletLauncher entity created by the AdvancedFactory.
+ * An idle behaviour for the energyPelletLauncher entity created by the {@link EnergyPelletLauncher}.
  *
  * <p>uses a damageProjectileSkill to shoot a projectile.
  *
@@ -18,12 +18,9 @@ import java.util.function.Consumer;
  * behaviour.
  */
 public class PelletLauncherBehaviour implements Consumer<Entity>, ISkillUser {
-  private final Point spawnPoint;
-  private final float attackRange;
-  private final Direction shootDirection;
   private DamageProjectileSkill projectileSkill;
   private long lastAttackTime = 0;
-  private String uniqueSkillName;
+  private final String uniqueSkillName;
 
   /**
    * Creates a new {@code PelletLauncherBehaviour}.
@@ -42,9 +39,6 @@ public class PelletLauncherBehaviour implements Consumer<Entity>, ISkillUser {
       Direction shootDirection,
       Skill skill) {
     this.uniqueSkillName = uniqueSkillName;
-    this.spawnPoint = spawnPoint;
-    this.attackRange = attackRange;
-    this.shootDirection = shootDirection;
 
     if (skill instanceof DamageProjectileSkill dps) {
       this.projectileSkill = dps;
@@ -56,8 +50,8 @@ public class PelletLauncherBehaviour implements Consumer<Entity>, ISkillUser {
           "Skill for PelletLauncher must be a DamageProjectileSkill");
     }
 
-    Point targetEndPoint = this.spawnPoint.translate(this.shootDirection.scale(this.attackRange));
-    this.projectileSkill.endPointSupplier(() -> targetEndPoint.toCenteredPoint());
+    Point targetEndPoint = spawnPoint.translate(shootDirection.scale(attackRange));
+    this.projectileSkill.endPointSupplier(targetEndPoint::toCenteredPoint);
   }
 
   @Override

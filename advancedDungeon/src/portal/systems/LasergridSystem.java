@@ -1,6 +1,5 @@
 package portal.systems;
 
-import portal.components.LasergridComponent;
 import contrib.components.CollideComponent;
 import contrib.components.SpikyComponent;
 import contrib.utils.components.health.DamageType;
@@ -8,6 +7,7 @@ import core.Entity;
 import core.System;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
+import portal.components.LasergridComponent;
 
 /**
  * The LasergridSystem manages the activation and deactivation of laser grids.

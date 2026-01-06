@@ -7,8 +7,8 @@ import portal.systems.LasergridSystem;
  *
  * <p>This component stores whether the laser grid is currently active and provides methods to
  * activate, deactivate, or toggle its state. It is intended to be used in combination with systems
- * such as {@link LasergridSystem}, which synchronize the component's state with visual and
- * gameplay effects (e.g., damage and collisions).
+ * such as {@link LasergridSystem}, which synchronize the component's state with visual and gameplay
+ * effects (e.g., damage and collisions).
  *
  * @see LasergridSystem
  */

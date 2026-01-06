@@ -1,7 +1,5 @@
 package portal.level;
 
-import portal.components.AntiMaterialBarrierComponent;
-import portal.components.LasergridComponent;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.utils.EntityUtils;
@@ -12,12 +10,16 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
+import java.util.Map;
+import level.AdvancedLevel;
+import portal.components.AntiMaterialBarrierComponent;
+import portal.components.LasergridComponent;
+import portal.energyPellet.EnergyPelletLauncher;
+import portal.energyPellet.EnergyPelletCatcher;
 import portal.entities.AdvancedFactory;
 import portal.entities.LightBridgeFactory;
 import portal.entities.LightWallFactory;
 import portal.entities.TractorBeamFactory;
-import java.util.Map;
-import level.AdvancedLevel;
 import portal.portals.components.TractorBeamComponent;
 
 /** demo level. */
@@ -86,9 +88,9 @@ public class PortalDemoLevel extends AdvancedLevel {
     cube1 = AdvancedFactory.attachablePortalCube(namedPoints.get("Würfel1"));
     sphere1 = AdvancedFactory.moveableSphere(namedPoints.get("Kugel1"));
     launcher1 =
-        AdvancedFactory.energyPelletLauncher(
+        EnergyPelletLauncher.energyPelletLauncher(
             namedPoints.get("Energie"), Direction.RIGHT, 10000000, 10000);
-    catcher1 = AdvancedFactory.energyPelletCatcher(namedPoints.get("Energie2"), Direction.RIGHT);
+    catcher1 = EnergyPelletCatcher.energyPelletCatcher(namedPoints.get("Energie2"), Direction.RIGHT);
     tractorBeam1 =
         TractorBeamFactory.createTractorBeam(namedPoints.get("Traktor1"), Direction.DOWN);
     lightBridge1 =

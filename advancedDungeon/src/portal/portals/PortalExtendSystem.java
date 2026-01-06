@@ -1,10 +1,9 @@
-package portal.portals.systems;
+package portal.portals;
 
 import core.Entity;
 import core.System;
 import core.components.PositionComponent;
 import core.utils.components.MissingComponentException;
-import portal.portals.PortalFactory;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 
@@ -13,7 +12,7 @@ import portal.portals.components.PortalExtendComponent;
  * instead of being teleported.
  *
  * <p>It calls the {@link PortalExtendComponent} onExtend for all the entities that have the
- * component and where its not extended yet.
+ * component and where it's not extended yet.
  */
 public class PortalExtendSystem extends System {
 
@@ -41,19 +40,16 @@ public class PortalExtendSystem extends System {
    * @return the
    */
   private PortalExtendComponent buildDataObject(Entity entity) {
-    PortalExtendComponent pec =
-        entity
-            .fetch(PortalExtendComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(entity, PortalExtendComponent.class));
 
-    return pec;
+    return entity
+        .fetch(PortalExtendComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PortalExtendComponent.class));
   }
 
   /**
    * Calls the onExtend method which should be overwritten in the specific classes.
    *
-   * @param pec Data which holds the {@link PortalExtendComponent} from which the extend will be
+   * @param pec Data which holds the {@link PortalExtendComponent} from which the extent will be
    *     called.
    */
   private void applyPortalExtendLogic(PortalExtendComponent pec) {
@@ -67,8 +63,7 @@ public class PortalExtendSystem extends System {
                         pc -> {
                           Entity other =
                               PortalFactory.getBluePortal()
-                                  .get()
-                                  .fetch(PortalComponent.class)
+                                  .flatMap(bluePortal -> bluePortal.fetch(PortalComponent.class))
                                   .get()
                                   .getExtendedEntityThrough();
                           if (pc.getExtendedEntityThrough() == null) {
@@ -90,8 +85,7 @@ public class PortalExtendSystem extends System {
                         pc -> {
                           Entity other =
                               PortalFactory.getGreenPortal()
-                                  .get()
-                                  .fetch(PortalComponent.class)
+                                  .flatMap(greenPortal -> greenPortal.fetch(PortalComponent.class))
                                   .get()
                                   .getExtendedEntityThrough();
                           if (pc.getExtendedEntityThrough() == null) {

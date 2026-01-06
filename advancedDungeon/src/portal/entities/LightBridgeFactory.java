@@ -99,7 +99,7 @@ public class LightBridgeFactory {
   /* --------------------- Components --------------------- */
 
   /** Component representing a light bridge emitter and managing its beams. */
-  public static class EmitterComponent implements Component {
+  private static class EmitterComponent implements Component {
 
     private final Entity emitter;
     private final List<Component> beams = new ArrayList<>();
@@ -208,7 +208,7 @@ public class LightBridgeFactory {
    * Component representing a light bridge between the emitter and the first blocking tile (e.g., a
    * wall).
    */
-  public static class BeamComponent implements Component {
+  private static class BeamComponent implements Component {
 
     private static Map<String, Animation> SEGMENT_ANIMATION_CACHE;
 

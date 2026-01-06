@@ -1,6 +1,5 @@
 package portal.level;
 
-import portal.components.ToggleableComponent;
 import contrib.components.LeverComponent;
 import core.Entity;
 import core.Game;
@@ -9,9 +8,12 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
-import portal.entities.AdvancedFactory;
 import java.util.Map;
 import level.AdvancedLevel;
+import portal.components.ToggleableComponent;
+import portal.energyPellet.EnergyPelletLauncher;
+import portal.energyPellet.EnergyPelletCatcher;
+import portal.entities.AdvancedFactory;
 
 /**
  * Portal level five. In this level the player has to place a cube on a pressure plate to unlock the
@@ -49,11 +51,11 @@ public class PortalLevel_5 extends AdvancedLevel {
     cube = AdvancedFactory.attachablePortalCube(namedPoints.get("cube"));
 
     Entity launcher =
-        AdvancedFactory.energyPelletLauncher(
+        EnergyPelletLauncher.energyPelletLauncher(
             namedPoints.get("pelletLauncher"), Direction.DOWN, 100000, 100000);
 
     Entity catcher =
-        AdvancedFactory.energyPelletCatcher(namedPoints.get("pelletCatcher"), Direction.LEFT);
+        EnergyPelletCatcher.energyPelletCatcher(namedPoints.get("pelletCatcher"), Direction.LEFT);
     catcherToggle = catcher.fetch(ToggleableComponent.class).orElseThrow();
 
     for (int i = 0; i < 9; i++) {

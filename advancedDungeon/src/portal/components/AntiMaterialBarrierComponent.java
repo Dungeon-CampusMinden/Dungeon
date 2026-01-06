@@ -7,8 +7,8 @@ import portal.systems.AntiMaterialBarrierSystem;
  *
  * <p>This component stores whether the barrier is currently active and provides methods to
  * activate, deactivate, or toggle its state. It is intended to be used in combination with systems
- * such as {@link AntiMaterialBarrierSystem}, which synchronize the component's state with
- * visual and gameplay effects (e.g., blocking objects/projectiles, interactions with the player).
+ * such as {@link AntiMaterialBarrierSystem}, which synchronize the component's state with visual
+ * and gameplay effects (e.g., blocking objects/projectiles, interactions with the player).
  *
  * @see AntiMaterialBarrierSystem
  */
