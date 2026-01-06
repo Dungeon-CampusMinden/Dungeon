@@ -6,9 +6,6 @@ import contrib.hud.DialogUtils;
 import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
-import contrib.utils.components.skill.Resource;
-import contrib.utils.components.skill.projectileSkill.FireballSkill;
-import contrib.utils.components.skill.selfSkill.SelfHealSkill;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -22,6 +19,7 @@ import core.utils.Direction;
 import core.utils.JsonHandler;
 import core.utils.Tuple;
 import core.utils.Vector2;
+import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +35,7 @@ import portal.level.*;
 import portal.portals.PortalColor;
 import portal.portals.PortalExtendSystem;
 import portal.portals.PortalSkill;
+import portal.portals.abstraction.PortalConfig;
 import portal.riddles.MyPlayerController;
 
 /**
@@ -55,10 +54,14 @@ public class PortalStarter {
    *
    * <p>Also disables recompilation for player control.
    */
-  private static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = false;
 
   private static final String SAVE_LEVEL_KEY = "LEVEL";
   private static final String SAVE_FILE = "currentPortalLevel.json";
+  private static final SimpleIPath PORTAL_CONFIG_PATH =
+      new SimpleIPath("advancedDungeon/src/portal/riddles/MyPortalConfig.java");
+  private static final String CONFIG_CLASSNAME = "portal.riddles.MyPortalConfig";
+  ;
 
   /** Global reference to the {@link Hero} instance used in the game. */
   public static Hero hero;
@@ -139,10 +142,27 @@ public class PortalStarter {
   private static void recompilePlayerControl() {
     if (recompilePaused) return;
     try {
+
+      // Player Controller
       Object o =
           DynamicCompiler.loadUserInstance(
               PLAYER_CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
       hero.setController((PlayerController) o);
+
+      // Portal Config
+
+      o =
+          DynamicCompiler.loadUserInstance(
+              PORTAL_CONFIG_PATH, CONFIG_CLASSNAME, new Tuple<>(Hero.class, hero));
+      SkillComponent sc =
+          hero.hero()
+              .fetch(SkillComponent.class)
+              .orElseThrow(
+                  () -> MissingComponentException.build(hero.hero(), SkillComponent.class));
+      sc.removeAll();
+      sc.addSkill(new PortalSkill(PortalColor.BLUE, ((PortalConfig) o)));
+      sc.addSkill(new PortalSkill(PortalColor.GREEN, ((PortalConfig) o)));
+
     } catch (Exception e) {
       recompilePaused = true;
       if (DEBUG_MODE) e.printStackTrace();
@@ -192,20 +212,6 @@ public class PortalStarter {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
     Entity heroEntity = EntityFactory.newHero(DEATH_CALLBACK);
     Game.add(heroEntity);
-    // Entity chell = EntityFactory.newHero(death_callback);
-    heroEntity
-        .fetch(SkillComponent.class)
-        .ifPresent(
-            skillComponent -> {
-              skillComponent.addSkill(
-                  new PortalSkill(PortalColor.BLUE, new Tuple<>(Resource.MANA, 0)));
-              skillComponent.addSkill(
-                  new PortalSkill(PortalColor.GREEN, new Tuple<>(Resource.MANA, 0)));
-              skillComponent.removeSkill(FireballSkill.class);
-              skillComponent.removeSkill(SelfHealSkill.class);
-              java.lang.System.out.println(skillComponent);
-            });
-    java.lang.System.out.println(heroEntity);
     hero = new Hero(heroEntity);
     if (!DEBUG_MODE) recompilePlayerControl();
   }

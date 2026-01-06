@@ -21,8 +21,7 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.Vector2;
 import java.util.Objects;
-import produsAdvanced.AdvancedDungeon;
-import produsAdvanced.abstraction.Berry;
+import starter.PortalStarter;
 
 /**
  * Die Klasse {@code Hero} kapselt eine Spielfigur (Entity) und stellt Methoden zur Steuerung und
@@ -49,7 +48,7 @@ public record Hero(Entity hero) {
    */
   public Hero(Entity hero) {
     this.hero = hero;
-    if (!AdvancedDungeon.DEBUG_MODE) {
+    if (!PortalStarter.DEBUG_MODE) {
       // Entfernt alle bisherigen Tastenzuweisungen (außer der zum Schließen der UI)
       hero.fetch(InputComponent.class)
           .ifPresent(
@@ -167,25 +166,6 @@ public record Hero(Entity hero) {
               HeroController.interact(hero, point);
               cooldownEvent = EventScheduler.scheduleAction(INTERACTION_COOLDOWN, 250);
             });
-  }
-
-  /**
-   * Gibt ein {@link Berry}-Item zurück, das sich an der angegebenen Position befindet.
-   *
-   * @param point Die Position auf der Karte.
-   * @return Eine Instanz von {@link Berry}, falls vorhanden, sonst {@code null}.
-   */
-  public Berry getBerryAt(Point point) {
-    if (point == null) return null;
-    Tile t = Game.tileAt(point).orElse(null);
-    if (t == null) return null;
-    return (Berry)
-        Game.entityAtTile(t)
-            .findFirst()
-            .flatMap(e -> e.fetch(ItemComponent.class))
-            .map(ItemComponent::item)
-            .filter(item -> item instanceof Berry)
-            .orElse(null);
   }
 
   /**

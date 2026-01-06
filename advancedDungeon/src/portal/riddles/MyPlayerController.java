@@ -13,7 +13,7 @@ import portal.abstraction.PlayerController;
 public class MyPlayerController extends PlayerController {
 
   /** Referenz auf den Helden, der gesteuert werden soll. */
-  private Hero hero;
+  private final Hero hero;
 
   /**
    * Erstellt eine neue Instanz des Steuerungscontrollers.
