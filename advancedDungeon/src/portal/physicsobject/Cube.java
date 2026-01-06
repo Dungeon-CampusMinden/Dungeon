@@ -17,7 +17,7 @@ import core.utils.components.path.SimpleIPath;
 import portal.components.PortalCubeComponent;
 
 public class Cube {
-  private static final SimpleIPath PORTAL_CUBE = new SimpleIPath("portal/portal_cube.png");
+  private static final SimpleIPath PORTAL_CUBE = new SimpleIPath("portal/portal_cube/portal_cube.png");
   private static final float cube_mass = 3f;
   private static final float cube_maxSpeed = 10f;
 
