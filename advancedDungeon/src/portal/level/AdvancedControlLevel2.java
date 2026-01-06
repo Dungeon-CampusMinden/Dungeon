@@ -1,4 +1,4 @@
-package produsAdvanced.level;
+package portal.level;
 
 import contrib.hud.DialogUtils;
 import core.level.utils.DesignLabel;
@@ -15,14 +15,12 @@ import portal.util.AdvancedLevel;
  *
  * @see MyPlayerController
  */
-public class AdvancedControlLevel1 extends AdvancedLevel {
+public class AdvancedControlLevel2 extends AdvancedLevel {
 
   private static boolean showMsg = true;
-  private static String msg =
-      "Was ist los? Ich kann mich nicht bewegen! Jemand muss an meinem Steuerungscode rumgefuscht haben.";
-  private static String task =
-      "Gehe in die Datei MyPlayerController.java und implementiere die Steuerung deines Helden.\n";
-  private static String title = "Level 1";
+  private static final String msg = "Hier geht es tief runter. Jetzt ganz langsam.";
+  private static final String task = "Passe deinen Code so an, dass du dich langsamer bewegst.";
+  private static final String title = "Level 2";
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -32,7 +30,7 @@ public class AdvancedControlLevel1 extends AdvancedLevel {
    * @param designLabel The design label for the level.
    * @param namedPoints The custom points of the level.
    */
-  public AdvancedControlLevel1(
+  public AdvancedControlLevel2(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, "Control");
   }

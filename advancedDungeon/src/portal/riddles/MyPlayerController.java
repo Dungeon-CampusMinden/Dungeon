@@ -41,6 +41,6 @@ public class MyPlayerController extends PlayerController {
     if (key.equals("S")) hero.setYSpeed(-5);
     if (key.equals("D")) hero.setXSpeed(5);
     if (key.equals("A")) hero.setXSpeed(-5);
-    if (key.equals("Q")) hero.shootSkill();
+    if (key.equals("S")) hero.shootSkill();
   }
 }

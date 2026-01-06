@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.Set;
 import portal.abstraction.Hero;
 import portal.abstraction.PlayerController;
+import portal.level.AdvancedControlLevel1;
+import portal.level.AdvancedControlLevel2;
+import portal.level.AdvancedControlLevel4;
 import portal.riddles.MyPlayerController;
 import produsAdvanced.level.*;
 

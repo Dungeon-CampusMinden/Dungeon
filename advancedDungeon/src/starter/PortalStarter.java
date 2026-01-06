@@ -38,6 +38,7 @@ import portal.portals.PortalColor;
 import portal.portals.PortalExtendSystem;
 import portal.portals.PortalSkill;
 import portal.riddles.MyPlayerController;
+import produsAdvanced.level.AdvancedControlLevel3;
 
 /**
  * Starter for the Portal Dungeon.
@@ -170,6 +171,9 @@ public class PortalStarter {
                 if (isInFocus) recompilePlayerControl();
               });
 
+          DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
+          DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
+          DungeonLoader.addLevel(Tuple.of("control4", AdvancedControlLevel4.class));
           DungeonLoader.addLevel(Tuple.of("portallevel1", PortalLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("portallevel2", PortalLevel_2.class));
           DungeonLoader.addLevel(Tuple.of("portallevel3", PortalLevel_3.class));
