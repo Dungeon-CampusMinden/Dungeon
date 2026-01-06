@@ -14,9 +14,11 @@ import core.utils.Direction;
 import core.utils.Point;
 import java.util.Map;
 import level.AdvancedLevel;
-import portal.entities.AdvancedFactory;
 import portal.entities.LightBridgeFactory;
 import portal.entities.TractorBeamFactory;
+import portal.physicsobject.Cube;
+import portal.physicsobject.PressurePlates;
+import portal.physicsobject.Sphere;
 import portal.portals.components.TractorBeamComponent;
 
 /** Level Idee: Spieler, müssen zwei Arten von Platten aktivieren um den Ausgang zu öffnen. */
@@ -79,7 +81,7 @@ public class PortalLevel_7 extends AdvancedLevel {
             });
     Game.add(tractorbeamLever2);
 
-    Entity exitPlate = AdvancedFactory.cubePressurePlate(namedPoints.get("exitPlate"), 1);
+    Entity exitPlate = PressurePlates.cubePressurePlate(namedPoints.get("exitPlate"), 1);
     Game.add(exitPlate);
 
     LeverComponent exitPlateLever = exitPlate.fetch(LeverComponent.class).orElse(null);
@@ -91,7 +93,7 @@ public class PortalLevel_7 extends AdvancedLevel {
       closeDoor(namedPoints.get("door2"));
     }
 
-    Entity catapultPlate = AdvancedFactory.spherePressurePlate(namedPoints.get("catapultPlate"), 1);
+    Entity catapultPlate = PressurePlates.spherePressurePlate(namedPoints.get("catapultPlate"), 1);
     Game.add(catapultPlate);
 
     LeverComponent catapultPlateLever = exitPlate.fetch(LeverComponent.class).orElse(null);
@@ -101,7 +103,7 @@ public class PortalLevel_7 extends AdvancedLevel {
       closeDoor(namedPoints.get("door3"));
     }
 
-    Entity cube = AdvancedFactory.attachablePortalCube(namedPoints.get("cube"));
+    Entity cube = Cube.portalCube(namedPoints.get("cube"));
     Game.add(cube);
 
     // Game.add(AdvancedFactory.antiMaterialBarrier(namedPoints.get("anti6"), true));
@@ -110,7 +112,7 @@ public class PortalLevel_7 extends AdvancedLevel {
         LightBridgeFactory.createEmitter(namedPoints.get("bridge"), Direction.LEFT, true);
     Game.add(emitter);
 
-    Entity sphere = AdvancedFactory.moveableSphere(namedPoints.get("sphere"));
+    Entity sphere = Sphere.portalSphere(namedPoints.get("sphere"));
     Game.add(sphere);
   }
 

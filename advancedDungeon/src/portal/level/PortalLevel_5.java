@@ -14,6 +14,8 @@ import portal.components.ToggleableComponent;
 import portal.energyPellet.EnergyPelletLauncher;
 import portal.energyPellet.EnergyPelletCatcher;
 import portal.entities.AdvancedFactory;
+import portal.physicsobject.Cube;
+import portal.physicsobject.PressurePlates;
 
 /**
  * Portal level five. In this level the player has to place a cube on a pressure plate to unlock the
@@ -46,9 +48,9 @@ public class PortalLevel_5 extends AdvancedLevel {
     door = (ExitTile) Game.randomTile(LevelElement.EXIT).orElseThrow();
     door.close();
 
-    Entity pressurePlate = AdvancedFactory.cubePressurePlate(namedPoints.get("pressurePlate"), 1);
+    Entity pressurePlate = PressurePlates.cubePressurePlate(namedPoints.get("pressurePlate"), 1);
     plate = pressurePlate.fetch(LeverComponent.class).get();
-    cube = AdvancedFactory.attachablePortalCube(namedPoints.get("cube"));
+    cube = Cube.portalCube(namedPoints.get("cube"));
 
     Entity launcher =
         EnergyPelletLauncher.energyPelletLauncher(
@@ -74,7 +76,7 @@ public class PortalLevel_5 extends AdvancedLevel {
   @Override
   protected void onTick() {
     if (!Game.existInLevel(cube)) {
-      cube = AdvancedFactory.attachablePortalCube(namedPoints.get("cube"));
+      cube = Cube.portalCube(namedPoints.get("cube"));
       Game.add(cube);
     }
 

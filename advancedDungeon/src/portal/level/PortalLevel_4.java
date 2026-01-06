@@ -11,8 +11,9 @@ import core.utils.Direction;
 import core.utils.Point;
 import java.util.Map;
 import level.AdvancedLevel;
-import portal.entities.AdvancedFactory;
 import portal.entities.LightBridgeFactory;
+import portal.physicsobject.Cube;
+import portal.physicsobject.PressurePlates;
 
 /**
  * Portal level four. In this level there are three platforms. The player has to reach platform 2 to
@@ -41,7 +42,7 @@ public class PortalLevel_4 extends AdvancedLevel {
 
   @Override
   protected void onFirstTick() {
-    pressurePlate = AdvancedFactory.cubePressurePlate(namedPoints.get("pressurePlate"), 1);
+    pressurePlate = PressurePlates.cubePressurePlate(namedPoints.get("pressurePlate"), 1);
     plate = pressurePlate.fetch(LeverComponent.class).orElseThrow();
 
     Entity leverEntity = LeverFactory.createLever(namedPoints.get("lever"));
@@ -50,7 +51,7 @@ public class PortalLevel_4 extends AdvancedLevel {
     Entity lightBridge =
         LightBridgeFactory.createEmitter(namedPoints.get("bridge"), Direction.LEFT, true);
 
-    cube = AdvancedFactory.attachablePortalCube(namedPoints.get("cube"));
+    cube = Cube.portalCube(namedPoints.get("cube"));
 
     door = (ExitTile) Game.randomTile(LevelElement.EXIT).orElseThrow();
     door.close();

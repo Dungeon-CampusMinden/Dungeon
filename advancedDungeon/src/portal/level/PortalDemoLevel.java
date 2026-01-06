@@ -20,6 +20,9 @@ import portal.entities.AdvancedFactory;
 import portal.entities.LightBridgeFactory;
 import portal.entities.LightWallFactory;
 import portal.entities.TractorBeamFactory;
+import portal.physicsobject.Cube;
+import portal.physicsobject.PressurePlates;
+import portal.physicsobject.Sphere;
 import portal.portals.components.TractorBeamComponent;
 
 /** demo level. */
@@ -81,12 +84,12 @@ public class PortalDemoLevel extends AdvancedLevel {
 
   @Override
   protected void onFirstTick() {
-    pressurePlate1 = AdvancedFactory.cubePressurePlate(namedPoints.get("CubePlate1"), 1);
+    pressurePlate1 = PressurePlates.cubePressurePlate(namedPoints.get("CubePlate1"), 1);
     plate1 = pressurePlate1.fetch(LeverComponent.class).get();
-    pressurePlate2 = AdvancedFactory.spherePressurePlate(namedPoints.get("spherePlate1"), 1);
+    pressurePlate2 = PressurePlates.spherePressurePlate(namedPoints.get("spherePlate1"), 1);
     plate2 = pressurePlate2.fetch(LeverComponent.class).get();
-    cube1 = AdvancedFactory.attachablePortalCube(namedPoints.get("Würfel1"));
-    sphere1 = AdvancedFactory.moveableSphere(namedPoints.get("Kugel1"));
+    cube1 = Cube.portalCube(namedPoints.get("Würfel1"));
+    sphere1 = Sphere.portalSphere(namedPoints.get("Kugel1"));
     launcher1 =
         EnergyPelletLauncher.energyPelletLauncher(
             namedPoints.get("Energie"), Direction.RIGHT, 10000000, 10000);
