@@ -25,12 +25,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import level.portal.*;
-import produsAdvanced.abstraction.portals.PortalColor;
-import produsAdvanced.abstraction.portals.portalSkills.PortalSkill;
-import produsAdvanced.abstraction.portals.systems.PortalExtendSystem;
-import systems.AntiMaterialBarrierSystem;
-import systems.LasergridSystem;
+
+import portal.level.*;
+import portal.portals.PortalColor;
+import portal.portals.portalSkills.PortalSkill;
+import portal.portals.systems.PortalExtendSystem;
+import portal.systems.AntiMaterialBarrierSystem;
+import portal.systems.LasergridSystem;
 
 /**
  * Starter for the Demo Escaperoom Dungeon.
