@@ -81,7 +81,7 @@ public class Server {
     clearContext.setHandler(this::handleClearRequest);
     HttpContext levelsContext = server.createContext("/levels");
     levelsContext.setHandler(this::handleLevelsRequest);
-    HttpContext levelContext = server.createContext("/main/java/level");
+    HttpContext levelContext = server.createContext("/level");
     levelContext.setHandler(this::handleLevelRequest);
     HttpContext codeContext = server.createContext("/code");
     codeContext.setHandler(this::handleCodeRequest);
@@ -335,7 +335,7 @@ public class Server {
 
     // Query parameter 'object'
     String query = exchange.getRequestURI().getQuery();
-    String objectName = query != null && query.contains("object=") ? query.split("=")[1] : "main/java/server";
+    String objectName = query != null && query.contains("object=") ? query.split("=")[1] : "/server";
 
     String response = LanguageServer.GenerateCompletionItems(objectName);
     exchange.sendResponseHeaders(200, response.getBytes().length);
