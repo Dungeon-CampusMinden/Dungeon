@@ -20,7 +20,6 @@ import core.utils.JsonHandler;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -151,11 +150,11 @@ public class PortalStarter {
     Game.disableAudio(true);
     Game.frameRate(30);
     Game.userOnLevelLoad(
-      aBoolean -> {
-        if (aBoolean) {
-          writeLevelIndex(DungeonLoader.currentLevelIndex());
-        }
-      });
+        aBoolean -> {
+          if (aBoolean) {
+            writeLevelIndex(DungeonLoader.currentLevelIndex());
+          }
+        });
     Game.resizeable(true);
     Game.windowTitle("Portal Dungeon");
   }
@@ -174,8 +173,8 @@ public class PortalStarter {
     Game.add(new LeverSystem());
     Game.add(new PressurePlateSystem());
     if (!DEBUG_MODE) Game.add(new FallingSystem());
-    else  Game.add(new Debugger());
-    //Portal specific systems
+    else Game.add(new Debugger());
+    // Portal specific systems
     Game.add(new PortalExtendSystem());
     Game.add(new AntiMaterialBarrierSystem());
     Game.add(new LasergridSystem());
@@ -213,12 +212,10 @@ public class PortalStarter {
       File file = new File(SAVE_FILE);
       // Ensure parent directory exists
       try (OutputStreamWriter osw =
-             new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8)) {
+          new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8)) {
         osw.write(content);
       }
     } catch (Exception ignored) {
     }
   }
-
-
 }

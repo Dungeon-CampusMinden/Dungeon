@@ -2,10 +2,10 @@ package entities;
 
 import components.AntiMaterialBarrierComponent;
 import components.LasergridComponent;
+import components.PelletLauncherBehaviour;
 import components.PortalCubeComponent;
 import components.PortalSphereComponent;
 import components.ToggleableComponent;
-import components.PelletLauncherBehaviour;
 import contrib.components.*;
 import contrib.components.CollideComponent;
 import contrib.components.SpikyComponent;
