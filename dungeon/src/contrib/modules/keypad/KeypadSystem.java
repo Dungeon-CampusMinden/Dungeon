@@ -41,7 +41,9 @@ public class KeypadSystem extends System {
               .build();
       UIComponent uic = new UIComponent(context, true);
       // Register close callback
-      uic.registerCallback("onClose", data -> d.kc.isUIOpen(false));
+      uic.onClose((comp) -> {
+        d.kc.isUIOpen(false);
+      });
       newOverlay.add(uic);
       d.kc.overlay(newOverlay);
       Game.add(newOverlay);
