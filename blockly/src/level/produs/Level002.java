@@ -62,9 +62,9 @@ public class Level002 extends BlocklyLevel {
         .attackRange(3)
         .viewDirection(Direction.LEFT)
         .addToGame()
-        .build(getPoint(0));
+        .build(getPoint("guard"));
 
-    removeNamedPoint("Point0");
+    removeNamedPoint("guard");
 
     BlocklyMonster.Builder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder().attackRange(0);
     namedPoints()
