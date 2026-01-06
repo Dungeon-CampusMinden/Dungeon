@@ -64,10 +64,6 @@ public final class HudSystem extends System {
     if (remove != null) {
       remove.remove();
     }
-    UIComponent component = entityUIComponentMap.remove(entity);
-    if (component != null) {
-      UIUtils.closeDialog(component);
-    }
   }
 
   /**
