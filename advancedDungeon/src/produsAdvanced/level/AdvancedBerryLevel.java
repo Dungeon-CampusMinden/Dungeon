@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import portal.riddles.MyPlayerController;
 import portal.util.AdvancedLevel;
 import produsAdvanced.abstraction.Berry;
 
@@ -34,7 +35,7 @@ import produsAdvanced.abstraction.Berry;
  * <p>A custom level where the player must collect non-toxic berries and place them in a chest to
  * feed an NPC. Once enough safe berries are delivered, the NPC opens the exit door.
  *
- * @see produsAdvanced.riddles.MyPlayerController
+ * @see MyPlayerController
  * @see Berry
  */
 public class AdvancedBerryLevel extends AdvancedLevel {

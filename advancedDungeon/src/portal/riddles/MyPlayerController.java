@@ -1,7 +1,7 @@
-package produsAdvanced.riddles;
+package portal.riddles;
 
-import produsAdvanced.abstraction.Hero;
-import produsAdvanced.abstraction.PlayerController;
+import portal.abstraction.Hero;
+import portal.abstraction.PlayerController;
 
 /**
  * Eine konkrete Implementierung von {@link PlayerController}, die Eingaben verarbeitet und damit
@@ -16,7 +16,7 @@ public class MyPlayerController extends PlayerController {
   private Hero hero;
 
   /**
-   * Erstellt eine neue Instanz des Steuerungs-Controllers.
+   * Erstellt eine neue Instanz des Steuerungscontrollers.
    *
    * @param hero Die Spielfigur, die durch diese Steuerung beeinflusst wird.
    */
@@ -37,6 +37,10 @@ public class MyPlayerController extends PlayerController {
    * @param key Der gedrückte Knopf als Zeichenkette (z.B. "W", "A", "D").
    */
   protected void processKey(String key) {
-    throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
+    if (key.equals("W")) hero.setYSpeed(5);
+    if (key.equals("S")) hero.setYSpeed(-5);
+    if (key.equals("D")) hero.setXSpeed(5);
+    if (key.equals("A")) hero.setXSpeed(-5);
+    if (key.equals("Q")) hero.shootSkill();
   }
 }

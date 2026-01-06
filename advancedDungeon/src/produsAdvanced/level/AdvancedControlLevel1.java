@@ -5,6 +5,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import java.util.Map;
+import portal.riddles.MyPlayerController;
 import portal.util.AdvancedLevel;
 
 /**
@@ -12,7 +13,7 @@ import portal.util.AdvancedLevel;
  *
  * <p>Write your own movement controls.
  *
- * @see produsAdvanced.riddles.MyPlayerController
+ * @see MyPlayerController
  */
 public class AdvancedControlLevel1 extends AdvancedLevel {
 

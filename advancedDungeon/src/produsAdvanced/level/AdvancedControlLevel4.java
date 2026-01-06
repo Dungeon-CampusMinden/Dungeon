@@ -14,6 +14,7 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import portal.riddles.MyPlayerController;
 import portal.util.AdvancedLevel;
 
 /**
@@ -21,7 +22,7 @@ import portal.util.AdvancedLevel;
  *
  * <p>Modify your own interaction and combat controls.
  *
- * @see produsAdvanced.riddles.MyPlayerController
+ * @see MyPlayerController
  */
 public class AdvancedControlLevel4 extends AdvancedLevel {
   private static boolean showMsg = true;

@@ -1,4 +1,4 @@
-package produsAdvanced.abstraction;
+package portal.abstraction;
 
 import com.badlogic.gdx.Input;
 import contrib.components.*;
@@ -22,6 +22,7 @@ import core.utils.Point;
 import core.utils.Vector2;
 import java.util.Objects;
 import produsAdvanced.AdvancedDungeon;
+import produsAdvanced.abstraction.Berry;
 
 /**
  * Die Klasse {@code Hero} kapselt eine Spielfigur (Entity) und stellt Methoden zur Steuerung und
@@ -30,44 +31,40 @@ import produsAdvanced.AdvancedDungeon;
  * <p>Diese Klasse bietet eine Abstraktion für Spielfiguren, die vom Spieler gesteuert werden
  * können. Sie unterstützt insbesondere Bewegung, das Öffnen von Inventaren, Interaktionen mit
  * Objekten sowie das Ausführen einer Feuerball-Fähigkeit mit Abklingzeit.
+ *
+ * @param hero Die Entity, die diesen Helden repräsentiert.
  */
-public class Hero {
+public record Hero(Entity hero) {
 
   /** Erzeugt eine Pause zwischen Interaktionen. */
   private static final IAction INTERACTION_COOLDOWN = () -> {};
 
   private static EventScheduler.ScheduledAction cooldownEvent;
 
-  /** Die Entity, die diesen Helden repräsentiert. */
-  private Entity hero;
-
   /**
    * Konstruktor.
    *
-   * @param heroInstance Die Entity, die diesen Helden darstellt. Muss ein {@link PlayerComponent}
+   * @param hero Die Entity, die diesen Helden darstellt. Muss ein {@link PlayerComponent}
    *     enthalten.
    */
-  public Hero(Entity heroInstance) {
-    this.hero = heroInstance;
-    heroInstance.remove(SkillComponent.class);
-    heroInstance.add(new SkillComponent());
+  public Hero(Entity hero) {
+    this.hero = hero;
     if (!AdvancedDungeon.DEBUG_MODE) {
       // Entfernt alle bisherigen Tastenzuweisungen (außer der zum Schließen der UI)
-      heroInstance
-          .fetch(InputComponent.class)
+      hero.fetch(InputComponent.class)
           .ifPresent(
               inputComponent ->
                   inputComponent.removeCallbacksIf(
                       (entry -> !Objects.equals(entry.getKey(), KeyboardConfig.CLOSE_UI.value()))));
     }
     // uncap max player speed
-    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(Vector2.MAX.x()));
+    this.hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(Vector2.MAX.x()));
   }
 
   /**
    * Setzt den Controller für die Spielfigur.
    *
-   * <p>Registriert Tastendrücke und übergibt sie an den übergebenen {@link PlayerController}, der
+   * <p>Registriert Tasgittendrücke und übergibt sie an den übergebenen {@link PlayerController}, der
    * die Verarbeitung übernimmt.
    *
    * @param controller Ein {@link PlayerController}-Objekt, das die Eingaben verarbeitet. Wenn
@@ -136,10 +133,16 @@ public class Hero {
     return SkillTools.cursorPositionAsPoint();
   }
 
-  /** Feuert den Feuerball ab. */
-  public void shootFireball() {
+  /** Feuert den Skill ab. */
+  public void shootSkill() {
     hero.fetch(SkillComponent.class)
-        .ifPresent(sc -> sc.activeSkill().ifPresent(fs -> fs.execute(hero)));
+        .flatMap(SkillComponent::activeSkill)
+        .ifPresent(fs -> fs.execute(hero));
+  }
+
+  /** Schalte auf den nächsten Skill. */
+  public void nextSkill() {
+    hero.fetch(SkillComponent.class).ifPresent(sc -> sc.nextSkill());
   }
 
   /**

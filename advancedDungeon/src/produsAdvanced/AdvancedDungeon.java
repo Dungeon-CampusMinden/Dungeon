@@ -19,8 +19,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import produsAdvanced.abstraction.Hero;
-import produsAdvanced.abstraction.PlayerController;
+import portal.abstraction.Hero;
+import portal.abstraction.PlayerController;
+import portal.riddles.MyPlayerController;
 import produsAdvanced.level.*;
 
 /**
@@ -51,7 +52,7 @@ public class AdvancedDungeon {
   /** Global reference to the {@link Hero} instance used in the game. */
   public static Hero hero;
 
-  /** If true, the {@link produsAdvanced.riddles.MyPlayerController} will not be recompiled. */
+  /** If true, the {@link MyPlayerController} will not be recompiled. */
   private static boolean recompilePaused = false;
 
   private static final String ERROR_MSG_CONTROLLER =
@@ -59,13 +60,13 @@ public class AdvancedDungeon {
 
   /** Path to the Java source file of the custom player controller. */
   private static final SimpleIPath PLAYER_CONTROLLER_PATH =
-      new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyPlayerController.java");
+      new SimpleIPath("advancedDungeon/src/portal/riddles/MyPlayerController.java");
 
   private static final SimpleIPath FIREBALL_PATH =
       new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyFireballSkill.java");
 
   /** Fully qualified class name of the custom player controller. */
-  private static final String CONTROLLER_CLASSNAME = "produsAdvanced.riddles.MyPlayerController";
+  private static final String CONTROLLER_CLASSNAME = "portal.riddle.MyPlayerController";
 
   private static final String FIREBALL_CLASSNAME = "produsAdvanced.riddles.MyFireballSkill";
 

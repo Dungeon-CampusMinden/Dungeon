@@ -1,4 +1,4 @@
-package produsAdvanced.abstraction;
+package portal.abstraction;
 
 /**
  * Abstract base class for player control logic in the game.
