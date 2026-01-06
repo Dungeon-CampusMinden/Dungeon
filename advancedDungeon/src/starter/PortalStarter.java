@@ -38,7 +38,7 @@ import portal.portals.PortalSkill;
  * <p>Usage: run with the Gradle task {@code runDemoRoom}.
  */
 public class PortalStarter {
-  private static final boolean DEBUG_MODE = true;
+  private static final boolean DEBUG_MODE = false;
   private static final String SAVE_LEVEL_KEY = "LEVEL";
   private static final String SAVE_FILE = "currentPortalLevel.json";
 
