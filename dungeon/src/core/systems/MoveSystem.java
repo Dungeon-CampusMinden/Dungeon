@@ -14,7 +14,6 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-
 import java.util.*;
 
 /**
@@ -99,13 +98,13 @@ public class MoveSystem extends System {
       // Try corner correction first
       if (canCornerCorrect) {
         List<Direction> correctDirs = new ArrayList<>();
-        if(sv.y() <= EPSILON){
+        if (sv.y() <= EPSILON) {
           correctDirs.add(Direction.UP);
         }
-        if (sv.y() >= -EPSILON){
+        if (sv.y() >= -EPSILON) {
           correctDirs.add(Direction.DOWN);
         }
-        while(!correctDirs.isEmpty() && !triggeredCornerCorrection){
+        while (!correctDirs.isEmpty() && !triggeredCornerCorrection) {
           Direction dir = correctDirs.removeFirst();
           Optional<Point> correct = closestAvailablePos(newPos, dir, collider, vc);
           if (correct.isPresent()) {
@@ -133,14 +132,14 @@ public class MoveSystem extends System {
       // Try corner correction first
       if (canCornerCorrect) {
         List<Direction> correctDirs = new ArrayList<>();
-        if(sv.x() <= EPSILON){
+        if (sv.x() <= EPSILON) {
           correctDirs.add(Direction.RIGHT);
         }
-        if (sv.x() >= -EPSILON){
+        if (sv.x() >= -EPSILON) {
           correctDirs.add(Direction.LEFT);
         }
 
-        while(!correctDirs.isEmpty() && !triggeredCornerCorrection){
+        while (!correctDirs.isEmpty() && !triggeredCornerCorrection) {
           Direction dir = correctDirs.removeFirst();
           Optional<Point> correct = closestAvailablePos(newPos, dir, collider, vc);
           if (correct.isPresent()) {
