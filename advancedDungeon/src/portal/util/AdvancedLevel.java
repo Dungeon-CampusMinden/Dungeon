@@ -1,4 +1,4 @@
-package level;
+package portal.util;
 
 import core.level.DungeonLevel;
 import core.level.utils.DesignLabel;

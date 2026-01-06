@@ -19,7 +19,7 @@ import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import level.AdvancedLevel;
+import portal.util.AdvancedLevel;
 import produsAdvanced.abstraction.Monster;
 import produsAdvanced.abstraction.MonsterSort;
 

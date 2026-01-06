@@ -11,7 +11,6 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.Arrays;
 import java.util.Map;
 
@@ -27,7 +26,7 @@ public class LaserGrid {
    *
    * @param spawnPoint The position the laser grid will be spawned.
    * @param horizontal whether the laser grid texture ist aligned horizontal or not (will be aligned
-   *                   vertical if false).
+   *     vertical if false).
    * @return a new laser grid entity.
    */
   public static Entity laserGrid(Point spawnPoint, boolean horizontal) {

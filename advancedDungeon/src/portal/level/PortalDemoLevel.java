@@ -11,20 +11,20 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import java.util.Map;
-import level.AdvancedLevel;
 import portal.antiMaterialBarrier.AntiMaterialBarrier;
 import portal.antiMaterialBarrier.AntiMaterialBarrierComponent;
-import portal.laserGrid.LasergridComponent;
-import portal.energyPellet.EnergyPelletLauncher;
 import portal.energyPellet.EnergyPelletCatcher;
+import portal.energyPellet.EnergyPelletLauncher;
+import portal.laserGrid.LaserGrid;
+import portal.laserGrid.LasergridComponent;
 import portal.lightBridge.LightBridgeFactory;
 import portal.lightWall.LightWallFactory;
-import portal.tractorBeam.TractorBeamFactory;
-import portal.laserGrid.LaserGrid;
 import portal.physicsobject.Cube;
 import portal.physicsobject.PressurePlates;
 import portal.physicsobject.Sphere;
 import portal.portals.components.TractorBeamComponent;
+import portal.tractorBeam.TractorBeamFactory;
+import portal.util.AdvancedLevel;
 
 /** demo level. */
 public class PortalDemoLevel extends AdvancedLevel {
@@ -94,7 +94,8 @@ public class PortalDemoLevel extends AdvancedLevel {
     launcher1 =
         EnergyPelletLauncher.energyPelletLauncher(
             namedPoints.get("Energie"), Direction.RIGHT, 10000000, 10000);
-    catcher1 = EnergyPelletCatcher.energyPelletCatcher(namedPoints.get("Energie2"), Direction.RIGHT);
+    catcher1 =
+        EnergyPelletCatcher.energyPelletCatcher(namedPoints.get("Energie2"), Direction.RIGHT);
     tractorBeam1 =
         TractorBeamFactory.createTractorBeam(namedPoints.get("Traktor1"), Direction.DOWN);
     lightBridge1 =

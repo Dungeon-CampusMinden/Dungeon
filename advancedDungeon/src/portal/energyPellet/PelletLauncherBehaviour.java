@@ -10,7 +10,8 @@ import core.utils.Point;
 import java.util.function.Consumer;
 
 /**
- * An idle behaviour for the energyPelletLauncher entity created by the {@link EnergyPelletLauncher}.
+ * An idle behaviour for the energyPelletLauncher entity created by the {@link
+ * EnergyPelletLauncher}.
  *
  * <p>uses a damageProjectileSkill to shoot a projectile.
  *

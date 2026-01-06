@@ -10,9 +10,9 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import java.util.Map;
-import level.AdvancedLevel;
 import portal.portals.PortalColor;
 import portal.portals.PortalFactory;
+import portal.util.AdvancedLevel;
 
 /**
  * Portal level three. In this level there are three platforms. The player has to reach platform 3

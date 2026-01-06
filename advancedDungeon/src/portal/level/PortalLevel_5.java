@@ -9,13 +9,13 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import java.util.Map;
-import level.AdvancedLevel;
 import portal.antiMaterialBarrier.AntiMaterialBarrier;
-import portal.util.ToggleableComponent;
-import portal.energyPellet.EnergyPelletLauncher;
 import portal.energyPellet.EnergyPelletCatcher;
+import portal.energyPellet.EnergyPelletLauncher;
 import portal.physicsobject.Cube;
 import portal.physicsobject.PressurePlates;
+import portal.util.AdvancedLevel;
+import portal.util.ToggleableComponent;
 
 /**
  * Portal level five. In this level the player has to place a cube on a pressure plate to unlock the

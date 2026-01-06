@@ -16,7 +16,8 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 
 public class Cube {
-  private static final SimpleIPath PORTAL_CUBE = new SimpleIPath("portal/portal_cube/portal_cube.png");
+  private static final SimpleIPath PORTAL_CUBE =
+      new SimpleIPath("portal/portal_cube/portal_cube.png");
   private static final float cube_mass = 3f;
   private static final float cube_maxSpeed = 10f;
 
@@ -30,55 +31,54 @@ public class Cube {
     Entity portalCube = new Entity("attachablePortalCube");
     portalCube.add(new PortalCubeComponent());
     portalCube.add(new PositionComponent(position));
-    portalCube.add(new VelocityComponent(cube_maxSpeed, cube_mass, entity -> {
-    }, false));
+    portalCube.add(new VelocityComponent(cube_maxSpeed, cube_mass, entity -> {}, false));
     portalCube.add(new DrawComponent(new Animation(PORTAL_CUBE)));
 
     final boolean[] attached = {false};
     CollideComponent cc = new CollideComponent();
     cc.collideLeave(
-      (self, other, dir) -> {
-        if (!cc.isSolid() && !attached[0]) {
-          cc.isSolid(true);
-        }
-      });
+        (self, other, dir) -> {
+          if (!cc.isSolid() && !attached[0]) {
+            cc.isSolid(true);
+          }
+        });
     portalCube.add(cc);
 
     portalCube.add(
-      new InteractionComponent(
-        () ->
-          new Interaction(
-            (interacted, interactor) -> {
-              PositionComponent interactorPositioncomponent =
-                interactor.fetch(PositionComponent.class).orElseThrow();
-              PositionComponent interactedPositioncomponent =
-                interacted.fetch(PositionComponent.class).orElseThrow();
-              if (!attached[0]) {
-                AttachmentComponent attachmentComponent =
-                  new AttachmentComponent(
-                    Vector2.ZERO,
-                    interactedPositioncomponent,
-                    interactorPositioncomponent);
-                portalCube.add(attachmentComponent);
-                cc.isSolid(false);
-                attached[0] = true;
-              } else {
-                portalCube.remove(AttachmentComponent.class);
-                Game.tileAt(interactedPositioncomponent.coordinate())
-                  .ifPresent(
-                    tile -> {
-                      if (tile.levelElement() == LevelElement.WALL
-                        || tile.levelElement() == LevelElement.GITTER
-                        || tile.levelElement() == LevelElement.GLASSWALL
-                        || tile.levelElement() == LevelElement.PORTAL) {
-                        interactedPositioncomponent.position(
-                          interactorPositioncomponent.position());
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (interacted, interactor) -> {
+                      PositionComponent interactorPositioncomponent =
+                          interactor.fetch(PositionComponent.class).orElseThrow();
+                      PositionComponent interactedPositioncomponent =
+                          interacted.fetch(PositionComponent.class).orElseThrow();
+                      if (!attached[0]) {
+                        AttachmentComponent attachmentComponent =
+                            new AttachmentComponent(
+                                Vector2.ZERO,
+                                interactedPositioncomponent,
+                                interactorPositioncomponent);
+                        portalCube.add(attachmentComponent);
+                        cc.isSolid(false);
+                        attached[0] = true;
+                      } else {
+                        portalCube.remove(AttachmentComponent.class);
+                        Game.tileAt(interactedPositioncomponent.coordinate())
+                            .ifPresent(
+                                tile -> {
+                                  if (tile.levelElement() == LevelElement.WALL
+                                      || tile.levelElement() == LevelElement.GITTER
+                                      || tile.levelElement() == LevelElement.GLASSWALL
+                                      || tile.levelElement() == LevelElement.PORTAL) {
+                                    interactedPositioncomponent.position(
+                                        interactorPositioncomponent.position());
+                                  }
+                                });
+                        attached[0] = false;
                       }
-                    });
-                attached[0] = false;
-              }
-            },
-            2f)));
+                    },
+                    2f)));
 
     return portalCube;
   }

@@ -5,9 +5,9 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import java.util.Map;
-import level.AdvancedLevel;
 import portal.portals.PortalColor;
 import portal.portals.PortalFactory;
+import portal.util.AdvancedLevel;
 
 /**
  * Portal level one. In this level the player has to implement basic controls to reach the exit on

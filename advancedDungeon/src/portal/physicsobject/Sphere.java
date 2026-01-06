@@ -16,7 +16,6 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.Arrays;
 import java.util.Map;
 
@@ -47,54 +46,53 @@ public class Sphere {
     DrawComponent dc = new DrawComponent(sm);
     sphere.add(dc);
     sphere.add(new PositionComponent(position));
-    sphere.add(new VelocityComponent(sphere_maxSpeed, sphere_mass, entity -> {
-    }, false));
+    sphere.add(new VelocityComponent(sphere_maxSpeed, sphere_mass, entity -> {}, false));
 
     final boolean[] attached = {false};
     CollideComponent cc = new CollideComponent();
     cc.collideLeave(
-      (self, other, dir) -> {
-        if (!cc.isSolid() && !attached[0]) {
-          cc.isSolid(true);
-        }
-      });
+        (self, other, dir) -> {
+          if (!cc.isSolid() && !attached[0]) {
+            cc.isSolid(true);
+          }
+        });
     sphere.add(cc);
 
     sphere.add(
-      new InteractionComponent(
-        () ->
-          new Interaction(
-            (interacted, interactor) -> {
-              PositionComponent interactorPositioncomponent =
-                interactor.fetch(PositionComponent.class).orElseThrow();
-              PositionComponent interactedPositioncomponent =
-                interacted.fetch(PositionComponent.class).orElseThrow();
-              if (!attached[0]) {
-                AttachmentComponent attachmentComponent =
-                  new AttachmentComponent(
-                    Vector2.ZERO,
-                    interactedPositioncomponent,
-                    interactorPositioncomponent);
-                sphere.add(attachmentComponent);
-                cc.isSolid(false);
-                attached[0] = true;
-              } else {
-                sphere.remove(AttachmentComponent.class);
-                Game.tileAt(interactedPositioncomponent.coordinate())
-                  .ifPresent(
-                    tile -> {
-                      if (tile.levelElement() == LevelElement.WALL
-                        || tile.levelElement() == LevelElement.GITTER
-                        || tile.levelElement() == LevelElement.GLASSWALL
-                        || tile.levelElement() == LevelElement.PORTAL) {
-                        interactedPositioncomponent.position(
-                          interactorPositioncomponent.position());
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (interacted, interactor) -> {
+                      PositionComponent interactorPositioncomponent =
+                          interactor.fetch(PositionComponent.class).orElseThrow();
+                      PositionComponent interactedPositioncomponent =
+                          interacted.fetch(PositionComponent.class).orElseThrow();
+                      if (!attached[0]) {
+                        AttachmentComponent attachmentComponent =
+                            new AttachmentComponent(
+                                Vector2.ZERO,
+                                interactedPositioncomponent,
+                                interactorPositioncomponent);
+                        sphere.add(attachmentComponent);
+                        cc.isSolid(false);
+                        attached[0] = true;
+                      } else {
+                        sphere.remove(AttachmentComponent.class);
+                        Game.tileAt(interactedPositioncomponent.coordinate())
+                            .ifPresent(
+                                tile -> {
+                                  if (tile.levelElement() == LevelElement.WALL
+                                      || tile.levelElement() == LevelElement.GITTER
+                                      || tile.levelElement() == LevelElement.GLASSWALL
+                                      || tile.levelElement() == LevelElement.PORTAL) {
+                                    interactedPositioncomponent.position(
+                                        interactorPositioncomponent.position());
+                                  }
+                                });
+                        attached[0] = false;
                       }
-                    });
-                attached[0] = false;
-              }
-            },
-            2f)));
+                    },
+                    2f)));
 
     return sphere;
   }

@@ -10,10 +10,10 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import java.util.Map;
-import level.AdvancedLevel;
 import portal.lightBridge.LightBridgeFactory;
 import portal.physicsobject.Cube;
 import portal.physicsobject.PressurePlates;
+import portal.util.AdvancedLevel;
 
 /**
  * Portal level four. In this level there are three platforms. The player has to reach platform 2 to

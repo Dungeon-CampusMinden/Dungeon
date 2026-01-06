@@ -25,12 +25,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import portal.antiMaterialBarrier.AntiMaterialBarrierSystem;
+import portal.laserGrid.LasergridSystem;
 import portal.level.*;
 import portal.portals.PortalColor;
 import portal.portals.PortalExtendSystem;
 import portal.portals.PortalSkill;
-import portal.antiMaterialBarrier.AntiMaterialBarrierSystem;
-import portal.laserGrid.LasergridSystem;
 
 /**
  * Starter for the Demo Escaperoom Dungeon.
@@ -39,7 +39,6 @@ import portal.laserGrid.LasergridSystem;
  */
 public class PortalStarter {
   private static final boolean DEBUG_MODE = true;
-  private static final int START_LEVEL = 0;
   private static final String SAVE_LEVEL_KEY = "LEVEL";
   private static final String SAVE_FILE = "currentPortalLevel.json";
 

@@ -9,7 +9,7 @@ import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import java.util.Map;
-import level.AdvancedLevel;
+import portal.util.AdvancedLevel;
 
 /**
  * This class is used in the AiMaze level and adjusts the camera view to properly display the
