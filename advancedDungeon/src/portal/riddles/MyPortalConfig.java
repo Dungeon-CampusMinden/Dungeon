@@ -1,5 +1,6 @@
 package portal.riddles;
 
+import contrib.modules.interaction.Interaction;
 import core.utils.Point;
 import java.util.function.Supplier;
 import portal.abstraction.Hero;
@@ -15,21 +16,21 @@ public class MyPortalConfig extends PortalConfig {
 
   @Override
   public long cooldown() {
-    return Integer.MAX_VALUE;
+    return 10;
   }
 
   @Override
   public float speed() {
-    return 0;
+    return 10;
   }
 
   @Override
   public float range() {
-    return 0;
+    return Integer.MAX_VALUE;
   }
 
   @Override
   public Supplier<Point> target() {
-    return () -> new Point(0, 0);
+    return () -> hero.getMousePosition();
   }
 }
