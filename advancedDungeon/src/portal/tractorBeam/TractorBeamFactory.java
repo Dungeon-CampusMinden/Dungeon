@@ -25,7 +25,6 @@ import java.util.*;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
-import portal.portals.components.TractorBeamComponent;
 
 /**
  * A factory for creating tractor beam entities between two points.

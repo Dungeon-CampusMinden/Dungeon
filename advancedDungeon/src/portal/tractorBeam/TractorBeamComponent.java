@@ -1,4 +1,4 @@
-package portal.portals.components;
+package portal.tractorBeam;
 
 import contrib.components.CollideComponent;
 import contrib.systems.PositionSync;
@@ -12,7 +12,7 @@ import core.utils.Vector2;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import portal.tractorBeam.TractorBeamFactory;
+import portal.portals.components.PortalExtendComponent;
 
 /** Component represents a tractor beam that can be extended and trimmed. */
 public class TractorBeamComponent implements Component {

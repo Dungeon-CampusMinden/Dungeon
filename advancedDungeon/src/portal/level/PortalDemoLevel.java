@@ -22,7 +22,7 @@ import portal.lightWall.LightWallFactory;
 import portal.physicsobject.Cube;
 import portal.physicsobject.PressurePlates;
 import portal.physicsobject.Sphere;
-import portal.portals.components.TractorBeamComponent;
+import portal.tractorBeam.TractorBeamComponent;
 import portal.tractorBeam.TractorBeamFactory;
 import portal.util.AdvancedLevel;
 

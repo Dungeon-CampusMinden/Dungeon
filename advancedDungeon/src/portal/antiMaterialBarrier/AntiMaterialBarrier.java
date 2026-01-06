@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.Map;
 import portal.portals.PortalFactory;
 import portal.portals.components.PortalExtendComponent;
-import portal.portals.components.TractorBeamComponent;
+import portal.tractorBeam.TractorBeamComponent;
 
 /**
  * An AntiMaterialBarrier is an energy field that allows the hero to pass through while
