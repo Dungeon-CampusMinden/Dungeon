@@ -64,8 +64,8 @@ public record Hero(Entity hero) {
   /**
    * Setzt den Controller für die Spielfigur.
    *
-   * <p>Registriert Tasgittendrücke und übergibt sie an den übergebenen {@link PlayerController}, der
-   * die Verarbeitung übernimmt.
+   * <p>Registriert Tasgittendrücke und übergibt sie an den übergebenen {@link PlayerController},
+   * der die Verarbeitung übernimmt.
    *
    * @param controller Ein {@link PlayerController}-Objekt, das die Eingaben verarbeitet. Wenn
    *     {@code null}, wird keine Aktion durchgeführt.

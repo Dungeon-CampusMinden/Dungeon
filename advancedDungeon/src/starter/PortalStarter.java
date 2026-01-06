@@ -38,7 +38,6 @@ import portal.portals.PortalColor;
 import portal.portals.PortalExtendSystem;
 import portal.portals.PortalSkill;
 import portal.riddles.MyPlayerController;
-import produsAdvanced.level.AdvancedControlLevel3;
 
 /**
  * Starter for the Portal Dungeon.
