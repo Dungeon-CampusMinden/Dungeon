@@ -17,6 +17,7 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
+import portal.laser.LaserComponent;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
@@ -379,8 +380,12 @@ public class PortalFactory {
       portal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
       getBluePortal()
           .ifPresent(
-              bluePortal ->
-                  bluePortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other));
+              bluePortal -> {
+                bluePortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
+              });
+      if (other.name().equals("laserEmitter")) {
+        other.fetch(LaserComponent.class).get().setThroughCube(true);
+      }
       return;
     }
 
@@ -441,8 +446,12 @@ public class PortalFactory {
       portal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
       getGreenPortal()
           .ifPresent(
-              greenPortal ->
-                  greenPortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other));
+              greenPortal -> {
+                greenPortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
+              });
+      if (other.name().equals("laserEmitter")) {
+        other.fetch(LaserComponent.class).get().setThroughCube(true);
+      }
       return;
     }
 
@@ -617,6 +626,17 @@ public class PortalFactory {
    * @param direction Direction where it extends to.
    */
   private static void onCollideLeave(Entity portal, Entity other, Direction direction) {
+    if (other.name().equals("laserEmitter")) {
+      other
+          .fetch(LaserComponent.class)
+          .ifPresent(
+              lc -> {
+                if (lc.isThroughCube()) {
+                  clearExtendedEntity(portal, other);
+                }
+              });
+      return;
+    }
     clearExtendedEntity(portal, other);
   }
 
