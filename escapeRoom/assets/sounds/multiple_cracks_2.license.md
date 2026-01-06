@@ -1,0 +1,3 @@
+- Source: https://opengameart.org/content/cracking-sounds
+- Author: [Hansjörg Malthaner](http://opengameart.org/users/varkalandar)
+- License: CC BY 4.0

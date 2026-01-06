@@ -1,6 +1,5 @@
 package produsAdvanced;
 
-import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.hud.DialogUtils;
 import contrib.systems.*;
@@ -139,7 +138,6 @@ public class AdvancedDungeon {
               });
 
           createHero();
-          Crafting.loadRecipes();
           DungeonLoader.loadLevel(loadLevelIndex());
         });
   }
@@ -154,8 +152,6 @@ public class AdvancedDungeon {
     Game.add(new AISystem());
     Game.add(new HealthSystem());
     Game.add(new ProjectileSystem());
-    Game.add(new HealthBarSystem());
-    Game.add(new HudSystem());
     Game.add(new SpikeSystem());
     Game.add(new IdleSoundSystem());
     Game.add(new PathSystem());
@@ -166,8 +162,6 @@ public class AdvancedDungeon {
     Game.add(new PitSystem());
     Game.add(new ManaRestoreSystem());
     Game.add(new StaminaRestoreSystem());
-    Game.add(new ManaBarSystem());
-    Game.add(new StaminaBarSystem());
     if (DEBUG_MODE) Game.add(new Debugger());
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }
@@ -184,7 +178,6 @@ public class AdvancedDungeon {
     Entity heroEntity = EntityFactory.newHero(hero -> restart());
     Game.add(heroEntity);
     hero = new Hero(heroEntity);
-
     if (!DEBUG_MODE) recompilePlayerControl();
   }
 

@@ -24,4 +24,15 @@ public class ColorUtils {
   public static Color pmaColor(int rgba8888) {
     return pmaColor(new Color(rgba8888));
   }
+
+  /**
+   * Returns a new color with the specified alpha value.
+   *
+   * @param color The original color.
+   * @param alpha The new alpha value.
+   * @return A new color with the specified alpha value.
+   */
+  public static Color withAlpha(Color color, float alpha) {
+    return new Color(color.r, color.g, color.b, alpha);
+  }
 }

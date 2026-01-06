@@ -1,6 +1,6 @@
 package contrib.components;
 
-import contrib.hud.dialogs.OkDialog;
+import contrib.hud.dialogs.*;
 import core.Component;
 import core.Entity;
 import core.utils.Point;
@@ -84,7 +84,9 @@ public class SignComponent implements Component {
    * @return The dialog entity.
    */
   public Entity showDialog() {
-    return OkDialog.showOkDialog(this.text, this.title, () -> {});
+    UIComponent ui = DialogFactory.showOkDialog(this.text, this.title, () -> {});
+
+    return ui.dialogContext().ownerEntity();
   }
 
   @Override

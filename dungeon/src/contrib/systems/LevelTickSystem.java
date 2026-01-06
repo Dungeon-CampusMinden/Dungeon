@@ -11,9 +11,14 @@ import core.level.elements.ILevel;
  * interface.
  *
  * @see ITickable
- * @see level.DevDungeonLevel DevDungeonLevel
+ * @see core.level.DungeonLevel DungeonLevel
  */
 public class LevelTickSystem extends System {
+
+  /** Creates a new LevelTickSystem. */
+  public LevelTickSystem() {
+    super(AuthoritativeSide.SERVER);
+  }
 
   /** The current level of the game. */
   private ILevel currentLevel = null;

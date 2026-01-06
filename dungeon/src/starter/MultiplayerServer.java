@@ -28,7 +28,7 @@ public class MultiplayerServer {
     DungeonLoggerConfig.initWithLevel(DungeonLogLevel.DEBUG);
     PreRunConfiguration.multiplayerEnabled(true);
     PreRunConfiguration.isNetworkServer(true);
-    DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
+    DungeonLoader.addLevel(Tuple.of("playground", DungeonLevel.class));
 
     Game.userOnSetup(MultiplayerServer::onSetup);
     Game.userOnFrame(MultiplayerServer::onFrame);

@@ -1,0 +1,3 @@
+- Source: https://opengameart.org/content/magnifying-glass
+- Author: ColorOptimist
+- License: CC0

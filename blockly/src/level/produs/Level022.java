@@ -47,6 +47,8 @@ public class Level022 extends BlocklyLevel {
         "logic_bossView_direction",
         // Kategorien
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level022/01_intro.png"));
   }
 
   @Override
@@ -78,11 +80,8 @@ public class Level022 extends BlocklyLevel {
               ((PitTile) tile).timeToOpen(60);
               ((PitTile) tile).close();
             });
-
     if (showText) {
-      DialogUtils.showTextPopup(
-          "Jetzt ist Schluss mit lustig. Ich kopiere jede deiner Bewegungen, dann besiegst du mich nie.",
-          "BOSS");
+      showPopups();
       showText = false;
     }
   }

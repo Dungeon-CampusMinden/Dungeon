@@ -5,6 +5,7 @@ import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.HeroController;
 import contrib.hud.DialogUtils;
+import contrib.hud.UIUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.systems.EventScheduler;
@@ -156,7 +157,7 @@ public class Hero {
             uiComponent -> {
               if (uiComponent.dialog() instanceof GUICombination
                   && !InventoryGUI.inPlayerInventory(hero)) {
-                hero.remove(UIComponent.class);
+                UIUtils.closeDialog(uiComponent);
               }
             },
             () -> {
@@ -191,15 +192,7 @@ public class Hero {
    * geöffnet.
    */
   public void openInventory() {
-    hero.fetch(PlayerComponent.class)
-        .ifPresent(
-            pc -> {
-              hero.add(
-                  new UIComponent(
-                      new GUICombination(
-                          new InventoryGUI(hero.fetch(InventoryComponent.class).orElse(null))),
-                      true));
-            });
+    HeroController.toggleInventory(hero);
   }
 
   /**

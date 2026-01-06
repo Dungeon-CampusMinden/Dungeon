@@ -2,15 +2,17 @@ package hint;
 
 import static contrib.hud.UIUtils.defaultSkin;
 
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
-import contrib.hud.dialogs.DialogDesign;
-import contrib.hud.dialogs.TextDialog;
+import contrib.hud.dialogs.*;
 import core.Entity;
 import core.Game;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import mushRoom.modules.EscapeRoomDialogTypes;
 
 /**
  * Utility class for displaying and navigating through a list of {@link Hint} objects as interactive
@@ -33,6 +35,16 @@ public final class HintLogDialog {
   /** Default style name for the hint dialog window. */
   private static final String DEFAULT_WINDOW_STYLE_NAME = "Letter";
 
+  /** Callback key for next hint navigation. */
+  public static final String CALLBACK_NEXT = "next";
+
+  /** Callback key for previous hint navigation. */
+  public static final String CALLBACK_PREV = "prev";
+
+  static {
+    DialogFactory.register(EscapeRoomDialogTypes.SIMPLE_HINT, HintLogDialog::createHintDialog);
+  }
+
   /**
    * Opens a dialog showing the latest hint in the given storage.
    *
@@ -42,8 +54,7 @@ public final class HintLogDialog {
    * @return the {@link Entity} that holds the dialog
    */
   public static Entity showHintLog(HintLogComponent log) {
-    Entity entity = showHintLog(defaultSkin(), log, log.hints.size() - 1);
-    return entity;
+    return showHintLog(log, log.hints.size() - 1);
   }
 
   /**
@@ -52,31 +63,51 @@ public final class HintLogDialog {
    * <p>If the index is out of bounds or the hint is {@code null}, a fallback hint will be displayed
    * instead.
    *
-   * @param skin the UI {@link Skin} to use for styling
    * @param log the {@link HintLogComponent} containing all available hints
    * @param index the index of the hint to display
    * @return the {@link Entity} that holds the dialog
    */
-  private static Entity showHintLog(final Skin skin, HintLogComponent log, int index) {
+  private static Entity showHintLog(HintLogComponent log, int index) {
     Hint hint;
     if (index < 0 || index > log.hints.size() - 1) hint = NO_HINT;
     else hint = log.hints().get(index);
     if (hint == null) hint = NO_HINT;
 
-    Entity entity = new Entity("hintDialog_" + hint.titel());
+    DialogContext context =
+        DialogContext.builder()
+            .type(EscapeRoomDialogTypes.SIMPLE_HINT)
+            .put("hint", hint)
+            .put("hintIndex", index)
+            .build();
 
-    Hint finalHint = hint;
-    UIUtils.show(
-        () -> {
-          Dialog dialog =
-              createHintDialog(
-                  skin, finalHint, createResultHandlerNextPrev(skin, entity, log, index));
-          UIUtils.center(dialog);
-          return dialog;
-        },
-        entity);
-    Game.add(entity);
-    return entity;
+    UIComponent ui = DialogFactory.show(context);
+
+    // Register navigation callbacks
+    ui.registerCallback(
+        CALLBACK_NEXT,
+        data -> {
+          if (!log.hints().isEmpty()) {
+            int i = (index + 1) % log.hints().size();
+            showHintLog(log, i);
+          } else {
+            showHintLog(log);
+          }
+          UIUtils.closeDialog(ui, true);
+        });
+
+    ui.registerCallback(
+        CALLBACK_PREV,
+        data -> {
+          if (!log.hints().isEmpty()) {
+            int i = (index - 1 + log.hints().size()) % log.hints().size();
+            showHintLog(log, i);
+          } else {
+            showHintLog(log);
+          }
+          UIUtils.closeDialog(ui, true);
+        });
+
+    return ui.dialogContext().ownerEntity();
   }
 
   /**
@@ -85,17 +116,36 @@ public final class HintLogDialog {
    * <p>The dialog includes the hint title and text, as well as navigation buttons for switching to
    * the previous or next hint.
    *
-   * @param skin the UI {@link Skin} to use for styling
-   * @param hint the {@link Hint} to display
-   * @param resultHandler the callback to handle button clicks
+   * @param context the {@link DialogContext} containing the hint
    * @return a configured {@link Dialog} instance
    */
-  private static Dialog createHintDialog(
-      final Skin skin,
-      final Hint hint,
-      final BiFunction<TextDialog, String, Boolean> resultHandler) {
+  private static Group createHintDialog(DialogContext context) {
+    // On headless server, return placeholder
+    if (Game.isHeadless()) {
+      Hint hint = context.require("hint", Hint.class);
+      return new HeadlessDialogGroup(
+          hint.title(), hint.text(), DEFAULT_DIALOG_PREVIOUS, DEFAULT_DIALOG_NEXT);
+    }
+
+    Skin skin = defaultSkin();
+    Hint hint = context.require("hint", Hint.class);
+    String dialogId = context.dialogId();
+
+    BiFunction<Dialog, String, Boolean> resultHandler =
+        (d, id) -> {
+          if (Objects.equals(id, DEFAULT_DIALOG_NEXT)) {
+            DialogCallbackResolver.createButtonCallback(dialogId, CALLBACK_NEXT).accept(null);
+            return true;
+          }
+          if (Objects.equals(id, DEFAULT_DIALOG_PREVIOUS)) {
+            DialogCallbackResolver.createButtonCallback(dialogId, CALLBACK_PREV).accept(null);
+            return true;
+          }
+          return false;
+        };
+
     Dialog textDialog =
-        new TextDialog(hint.titel(), skin, DEFAULT_WINDOW_STYLE_NAME, resultHandler);
+        new TextDialog(hint.title(), skin, DEFAULT_WINDOW_STYLE_NAME, resultHandler);
     textDialog
         .getContentTable()
         .add(DialogDesign.createTextDialog(skin, UIUtils.formatString(hint.text())))
@@ -105,41 +155,5 @@ public final class HintLogDialog {
     textDialog.button(DEFAULT_DIALOG_NEXT, DEFAULT_DIALOG_NEXT);
     textDialog.pack(); // resizes to size
     return textDialog;
-  }
-
-  /**
-   * Creates a handler for processing dialog button results.
-   *
-   * <p>This handler enables navigation through the hint list by responding to the "next" and
-   * "previous" buttons. When triggered, it removes the current entity and displays the appropriate
-   * next or previous hint dialog.
-   *
-   * @param skin the UI {@link Skin} to use for styling
-   * @param entity the current dialog {@link Entity} to remove after navigation
-   * @param log the storage containing all available hints
-   * @param index the index of the currently displayed hint
-   * @return a {@link BiFunction} that processes dialog button clicks
-   */
-  private static BiFunction<TextDialog, String, Boolean> createResultHandlerNextPrev(
-      final Skin skin, final Entity entity, final HintLogComponent log, final int index) {
-    return (d, id) -> {
-      if (Objects.equals(id, DEFAULT_DIALOG_NEXT)) {
-        if (log.hints().size() != 0) {
-          int i = (index + 1) % log.hints().size();
-          showHintLog(skin, log, i);
-        } else showHintLog(log);
-        Game.remove(entity);
-        return true;
-      }
-      if (Objects.equals(id, DEFAULT_DIALOG_PREVIOUS)) {
-        if (log.hints().size() != 0) {
-          int i = (index - 1 + log.hints().size()) % log.hints().size();
-          showHintLog(skin, log, i);
-        } else showHintLog(log);
-        Game.remove(entity);
-        return true;
-      }
-      return false;
-    };
   }
 }

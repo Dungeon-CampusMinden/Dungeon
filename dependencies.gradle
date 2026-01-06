@@ -7,11 +7,11 @@ ext {
     aiVersion = '1.8.2'
     junitVersion = '6.0.1'
     junitLauncherVersion = '6.0.1'
-    mockitoVersion = '5.20.0'
+    mockitoVersion = '5.21.0'
     antlrVersion = '4.13.2'
 
     // -- NETWORK / SERVER
-    nettyVersion = '4.2.7.Final'
+    nettyVersion = '4.2.9.Final'
 
     supportDependencies = [
         // LibGDX

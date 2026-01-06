@@ -1,0 +1,3 @@
+- Source: https://zandylion.itch.io/futhark
+- Author: Does not want to be credited
+- License: CC0

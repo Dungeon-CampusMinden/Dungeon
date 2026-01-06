@@ -106,9 +106,8 @@ public final class EntityFactory {
    * interaction.
    *
    * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
    */
-  public static Entity newChest() throws IOException {
+  public static Entity newChest() {
     return MiscFactory.newChest(MiscFactory.FILL_CHEST.RANDOM);
   }
 

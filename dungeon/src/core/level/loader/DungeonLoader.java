@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
- * The DevDungeonLoader class is used to load {@link DungeonLevel} in the game. It is used to load
+ * The DungeonLoader class is used to load {@link DungeonLevel} in the game. It is used to load
  * levels in a specific order or to load a specific level. The DungeonLoader class is used to load
  * levels from the file system or from a jar file.
  *
@@ -305,7 +305,7 @@ public class DungeonLoader {
    * Loads a DungeonLevel from the given path.
    *
    * @param path The path to the level file.
-   * @return The loaded DevDungeonLevel.
+   * @return The loaded DungeonLevel.
    * @throws MissingLevelException If the level file is not found.
    * @throws RuntimeException If an I/O error occurs while reading the level file.
    */

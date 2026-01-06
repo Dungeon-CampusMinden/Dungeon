@@ -75,7 +75,7 @@ public class DungeonLevel implements ILevel, ITickable {
   }
 
   /**
-   * Constructs a new DevDungeonLevel with the given layout, design label, and custom points.
+   * Constructs a new DungeonLevel with the given layout, design label, and custom points.
    *
    * @param layout The layout of the level, represented as a 2D array of LevelElements.
    * @param designLabel The design label of the level.
@@ -94,7 +94,7 @@ public class DungeonLevel implements ILevel, ITickable {
   }
 
   /**
-   * Constructs a new DevDungeonLevel with the given layout, design label, and custom points.
+   * Constructs a new DungeonLevel with the given layout, design label, and custom points.
    *
    * @param layout The layout of the level, represented as a 2D array of LevelElements.
    * @param designLabel The design label of the level.
@@ -112,7 +112,7 @@ public class DungeonLevel implements ILevel, ITickable {
   }
 
   /**
-   * Constructs a new DevDungeonLevel with the given layout, design label, and custom points.
+   * Constructs a new DungeonLevel with the given layout, design label, and custom points.
    *
    * @param layout The layout of the level, represented as a 2D array of LevelElements.
    * @param designLabel The design label of the level.

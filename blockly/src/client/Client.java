@@ -3,7 +3,6 @@ package client;
 import coderunner.BlocklyCodeRunner;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
-import contrib.crafting.Crafting;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
@@ -12,6 +11,7 @@ import core.System;
 import core.components.PlayerComponent;
 import core.components.VelocityComponent;
 import core.level.loader.DungeonLoader;
+import core.network.server.DialogTracker;
 import core.systems.PositionSystem;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -48,7 +48,7 @@ public class Client {
   private static HttpServer httpServer;
 
   /**
-   * If true, the Web interface Blockly is used for interaction with the Dunogen. Otherwise, the
+   * If true, the Web interface Blockly is used for interaction with the Dungeon. Otherwise, the
    * Code API is used.
    */
   public static boolean runInWeb = false;
@@ -120,11 +120,8 @@ public class Client {
 
           createHero();
           createSystems();
-          Crafting.loadRecipes();
 
           startServer();
-
-          Crafting.loadRecipes();
 
           DungeonLoader.loadLevel(0);
         });
@@ -171,8 +168,6 @@ public class Client {
     Game.add(new AISystem());
     Game.add(new HealthSystem());
     Game.add(new ProjectileSystem());
-    Game.add(new HealthBarSystem());
-    Game.add(new HudSystem());
     Game.add(new SpikeSystem());
     Game.add(new IdleSoundSystem());
     Game.add(new PathSystem());
@@ -252,5 +247,6 @@ public class Client {
     createHero();
     DungeonLoader.reloadCurrentLevel();
     Game.system(PositionSystem.class, System::run);
+    DialogTracker.instance().clear();
   }
 }

@@ -6,9 +6,9 @@ Zur besseren Zusammenarbeit im Team gelten folgende Konventionen für Issues und
 
 ## Issues
 * **Sprache**: Titel können deutsch oder englisch sein; Beschreibungen sind auf deutsch.
-* **Beschreibungen** sollen präzise und so ausführlich wie nötig sein. Ziel ist eine eindeutige Nachvollziehbarkeit des Problems oder Vorschlags. 
+* **Beschreibungen** sollen präzise und so ausführlich wie nötig sein. Ziel ist eine eindeutige Nachvollziehbarkeit des Problems oder Vorschlags.
 * **Screenshots oder andere Anhänge** sind bei Bedarf ergänzend hinzuzufügen.
-* Verwende im **Titel das Subprojekt als Präfix**, z. B. `DevDungeon: wuppi`.
+* Verwende im **Titel das Subprojekt als Präfix**, z. B. `Blockly: wuppi`.
 * **Labels und Typen** sind passend zu wählen:
   * `Type: Bug` – für Fehler
   * `Type: Feature` – für neue Features
@@ -23,7 +23,7 @@ Zur besseren Zusammenarbeit im Team gelten folgende Konventionen für Issues und
 * **Sprache**: Titel sind englisch; Beschreibungen sind auf deutsch.
 * Ersteller:in **setzt sich selbst als Assignee**.
 * Der **PR-Titel** beschreibt präzise den Inhalt des PRs.
-* Verwende im Titel das **Subprojekt als Präfix**, z. B. `DevDungeon: add wuppi fluppi`.
+* Verwende im Titel das **Subprojekt als Präfix**, z. B. `Blockly: add wuppi fluppi`.
 * **Labels oder Projekte** müssen *nicht* manuell gesetzt werden.
 
 ### Drafts & Reviews

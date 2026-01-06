@@ -94,6 +94,8 @@ public class Level020 extends BlocklyLevel {
         "default_block",
         // Kategorien
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level020/01_intro.png"));
   }
 
   @Override
@@ -133,11 +135,8 @@ public class Level020 extends BlocklyLevel {
               ((PitTile) tile).timeToOpen(PIT_TIME_TO_OPEN_IN_MS);
               ((PitTile) tile).close();
             });
-
     if (showText) {
-      DialogUtils.showTextPopup(
-          "Von dir lass ich mich nicht besiegen! Meine Waffe erkennt jede Bewegung und vernichtet dich auf der Stelle!",
-          "BOSS");
+      showPopups();
       showText = false;
     }
   }

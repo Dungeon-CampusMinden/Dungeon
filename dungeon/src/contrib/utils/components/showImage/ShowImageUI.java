@@ -12,6 +12,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.ShowImageComponent;
 import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
 import core.Game;
 
 /** UI element that displays an image with optional text, used through the ShowImageSystem. */
@@ -20,7 +22,6 @@ public class ShowImageUI extends Group {
   private static final float SCALE = 1f;
   private static final int ANIMATION_OFFSET_X = -5;
   private static final int ANIMATION_OFFSET_Y = -50;
-  private static final float SHOW_TRANSITION_PROGRESS = 1 / 30f;
 
   private final ShowImageComponent component;
 
@@ -59,6 +60,21 @@ public class ShowImageUI extends Group {
       table.add(label);
       this.addActor(table);
     }
+  }
+
+  /**
+   * Builds a ShowImageUI from the given DialogContext.
+   *
+   * @param ctx the DialogContext containing the necessary attributes
+   * @return a new ShowImageUI instance
+   */
+  public static Group build(DialogContext ctx) {
+    String img_path = ctx.require(DialogContextKeys.IMAGE, String.class);
+    ShowImageUI showImageUI = new ShowImageUI(new ShowImageComponent(img_path));
+
+    ctx.find(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class)
+        .ifPresent(showImageUI.component::transitionSpeed);
+    return showImageUI;
   }
 
   @Override

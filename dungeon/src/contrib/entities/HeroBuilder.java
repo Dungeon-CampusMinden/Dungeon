@@ -3,6 +3,9 @@ package contrib.entities;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
+import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogCallbackResolver;
+import contrib.hud.inventory.InventoryGUI;
 import contrib.systems.HealthSystem;
 import contrib.systems.HudSystem;
 import contrib.systems.PositionSync;
@@ -387,7 +390,26 @@ public final class HeroBuilder {
                 (hudSystem ->
                     hudSystem
                         .topmostCloseableUI()
-                        .ifPresent(firstUI -> firstUI.a().remove(UIComponent.class)))),
+                        .ifPresent(
+                            firstUI -> {
+                              UIComponent component = firstUI.b();
+                              Entity entity = firstUI.a();
+
+                              // Check if this is the player's inventory
+                              if (InventoryGUI.inPlayerInventory(entity)) {
+                                // Use toggleInventory which properly notifies server via
+                                // InventoryUIMessage
+                                HeroController.toggleInventory(entity);
+                              } else {
+                                // For network dialogs (received from server), send close message
+                                if (component.dialogContext() != null) {
+                                  String dialogId = component.dialogContext().dialogId();
+                                  DialogCallbackResolver.sendDialogClosed(dialogId);
+                                }
+                                // Remove the UI component
+                                UIUtils.closeDialog(component);
+                              }
+                            }))),
         false,
         true);
   }

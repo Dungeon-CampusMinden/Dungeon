@@ -14,7 +14,7 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import level.AdvancedLevel;
+import portal.util.AdvancedLevel;
 
 /**
  * Manager for an advanced dungeon level.

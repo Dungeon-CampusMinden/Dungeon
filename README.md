@@ -6,8 +6,7 @@
 
 The Dungeon is a multifaceted project for the gamification of educational content.
 
-You can find an [interesting report] on our project in the news section of Bielefeld
-University of Applied Sciences (04 April 2024, in German).
+You can find an [interesting report](https://www.hsbi.de/presse/pressemitteilungen/informatik-studierende-am-campus-minden-entwickeln-2d-rollenspiel-zum-lehren-und-lernen) on our project in the news section of Bielefeld University of Applied Sciences (04 April 2024, in German), as well as [another press release](https://www.hsbi.de/presse/pressemitteilungen/hsbi-informatiker-entwickeln-ein-tool-mit-dem-die-erstellung-von-escape-rooms-fuer-die-lehre-auch-ohne-programmier-kenntnisse-gelingt) (19 December 2025, in German).
 
 For more information about the [PRODUS project], please visit our [project page] on the
 Bielefeld University of Applied Sciences website.
@@ -154,8 +153,8 @@ reinforcing the idea of autonomous, feedback-driven learning.
 
 ## Credits
 
-The assets in [`dungeon/assets/`] and [`devDungeon/assets/`] are a mix from free and self
-created resources:
+The assets in [`dungeon/assets/`] are a mix from free and self
+modified resources:
 
 -   Textures and animations:
     -   https://0x72.itch.io/16x16-dungeon-tileset (CC0 1.0)
@@ -172,8 +171,6 @@ created resources:
     -   Files in [`dungeon/assets/dungeon/*/floor`][]: each `floor_damaged.png` (originating
         from [\@dkirshner])
     -   [`dungeon/assets/dungeon/fire/floor/floor_1.png`] (originating from [\@dkirshner])
--   Self created by [\@Flamtky][]:
-    -   Files in [`devDungeon/assets/objects/spawner/`]
 
 ## Licenses
 
@@ -183,7 +180,6 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
 
 <p align="right"><img src="https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/logo/cat_logo_64x64.png?raw=true" alt="Banner"></p>
 
-  [interesting report]: https://www.hsbi.de/presse/pressemitteilungen/informatik-studierende-am-campus-minden-entwickeln-2d-rollenspiel-zum-lehren-und-lernen
   [PRODUS project]: #programming-dungeon-adventures-at-school-produs
   [project page]: https://www.hsbi.de/minden/produs/home
   [1]: dungeon/doc/img/monster.gif
@@ -195,14 +191,12 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [2]: blockly/doc/img/examples/blockly_gif.gif
   [Fellowships für Innovationen in der digitalen Hochschullehre (digi-Fellows)]: https://www.dh.nrw/kooperationen/Digi-Fellows-2
   [`dungeon/assets/`]: dungeon/assets/
-  [`devDungeon/assets/`]: devDungeon/assets/
   [\@Flamtky]: https://github.com/Flamtky
   [Health Potion]: dungeon/assets/items/potion/health_potion.png
   [`dungeon/assets/items/potion/`]: dungeon/assets/items/potion/
   [\@dkirshner]: https://github.com/dkirshner
   [`dungeon/assets/dungeon/*/floor`]: dungeon/assets/dungeon/
   [`dungeon/assets/dungeon/fire/floor/floor_1.png`]: dungeon/assets/dungeon/fire/floor/floor_1.png
-  [`devDungeon/assets/objects/spawner/`]: devDungeon/assets/objects/spawner/
   [work]: https://github.com/Dungeon-CampusMinden/Dungeon
   [contributors]: https://github.com/Dungeon-CampusMinden/Dungeon/graphs/contributors
   [MIT]: LICENSE.md

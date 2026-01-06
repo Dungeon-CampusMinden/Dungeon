@@ -21,7 +21,7 @@ import level.LevelManagementUtils;
  * connections between doors and levers.
  */
 public class Level008 extends BlocklyLevel {
-
+  private static boolean showText = true;
   private LeverComponent switch1, switch2;
   private DoorTile door1, door2, door3, door4;
 
@@ -52,11 +52,18 @@ public class Level008 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+
+    addWebPopup(new ImagePopup("popups/level008/01_schaltplan.png"));
   }
 
   @Override
   protected void onFirstTick() {
+
     LevelManagementUtils.fog(false);
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
     LevelManagementUtils.cameraFocusOn(new Coordinate(8, 8));
     LevelManagementUtils.playerViewDirection(Direction.RIGHT);
     LevelManagementUtils.centerHero();
