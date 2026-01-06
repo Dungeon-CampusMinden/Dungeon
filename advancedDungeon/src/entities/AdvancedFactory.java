@@ -5,7 +5,7 @@ import components.LasergridComponent;
 import components.PortalCubeComponent;
 import components.PortalSphereComponent;
 import components.ToggleableComponent;
-import components.ai.PelletLauncherBehaviour;
+import components.PelletLauncherBehaviour;
 import contrib.components.*;
 import contrib.components.CollideComponent;
 import contrib.components.SpikyComponent;

@@ -1,4 +1,4 @@
-package components.ai;
+package components;
 
 import contrib.utils.components.ai.ISkillUser;
 import contrib.utils.components.skill.Skill;

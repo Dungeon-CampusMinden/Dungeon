@@ -42,6 +42,7 @@ tasks.register('runPathFindingComparison', JavaExec) {
 tasks.named('clean') {
     delete(
             file("$rootDir/currentAdvancedLevel.json"),
+            file("$rootDir/currentPortalLevel.json"),
     )
 }
 
