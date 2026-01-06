@@ -19,6 +19,10 @@ import portal.portals.PortalFactory;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.TractorBeamComponent;
 
+/**
+ * An AntiMaterialBarrier is an energy field that allows the hero to pass through while
+ * disintegrating all other objects on contact.
+ */
 public class AntiMaterialBarrier {
   private static final SimpleIPath ANTI_MATERIAL_BARRIER =
       new SimpleIPath("portal/anti_material_barrier");

@@ -14,6 +14,10 @@ import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.Map;
 
+/**
+ * A LaserGrid is a hazardous energy field that kills the hero on contact while allowing other
+ * objects to pass through.
+ */
 public class LaserGrid {
   private static final SimpleIPath LASER_GRID = new SimpleIPath("portal/laser_grid");
   private static final int LASER_GRID_DMG = 9999;

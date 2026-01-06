@@ -11,6 +11,7 @@ import core.utils.TriConsumer;
 import core.utils.components.path.SimpleIPath;
 import portal.util.ToggleableComponent;
 
+/** An EnergyPelletCatcher is like a switch that activates when it is hit by an Energy Pellet. */
 public class EnergyPelletCatcher {
   private static final SimpleIPath PELLET_CATCHER = new SimpleIPath("portal/pellet_catcher");
 

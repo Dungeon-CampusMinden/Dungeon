@@ -15,6 +15,7 @@ import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 
+/** A Cube can be picked up and used to trigger {@link PressurePlates}. */
 public class Cube {
   private static final SimpleIPath PORTAL_CUBE =
       new SimpleIPath("portal/portal_cube/portal_cube.png");

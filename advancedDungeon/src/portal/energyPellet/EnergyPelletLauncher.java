@@ -17,6 +17,10 @@ import core.utils.components.path.SimpleIPath;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * An EnergyPelletLauncher spawns and launches Energy Pellets in a fixed direction. It is typically
+ * used in puzzle mechanics to interact with switches, catchers, or other pellet-reactive objects.
+ */
 public class EnergyPelletLauncher {
   private static final SimpleIPath PELLET_LAUNCHER = new SimpleIPath("portal/pellet_launcher");
   private static int launcherNumber = 0;

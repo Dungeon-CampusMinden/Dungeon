@@ -19,6 +19,15 @@ import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.Map;
 
+/**
+ * Utility class for creating configurable pressure plate entities.
+ *
+ * <p>Pressure plates act as switches that can be activated by entities standing on them. They may
+ * be configured to respond only to specific entity types (such as cubes or spheres) and activate
+ * once a defined mass threshold is reached.
+ *
+ * <p>Projectile entities are ignored and do not affect the activation state.
+ */
 public class PressurePlates {
   private static final SimpleIPath CUBE_PRESSURE_PLATE = new SimpleIPath("objects/pressureplate");
   private static final SimpleIPath SPHERE_PRESSURE_PLATE =

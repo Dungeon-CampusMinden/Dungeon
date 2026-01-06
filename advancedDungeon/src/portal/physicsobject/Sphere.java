@@ -19,6 +19,7 @@ import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.Map;
 
+/** A sphere which can be moved by walking into it. */
 public class Sphere {
   private static final SimpleIPath PORTAL_SPHERE = new SimpleIPath("portal/kubus");
   private static final float sphere_mass = 3f;
