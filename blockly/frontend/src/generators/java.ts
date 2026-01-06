@@ -27,6 +27,7 @@ class JavaGenerator extends Blockly.Generator {
     const nextBlock =
       block.nextConnection?.targetBlock() || null;
 
+    // Handle the start case separately since we dont need a newline after the start of a code section.
     if (block.type === "start") {
       return code + javaGenerator.blockToCode(nextBlock);
     }
