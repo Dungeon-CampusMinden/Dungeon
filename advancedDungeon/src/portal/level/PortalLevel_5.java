@@ -10,10 +10,10 @@ import core.utils.Direction;
 import core.utils.Point;
 import java.util.Map;
 import level.AdvancedLevel;
+import portal.antiMaterialBarrier.AntiMaterialBarrier;
 import portal.components.ToggleableComponent;
 import portal.energyPellet.EnergyPelletLauncher;
 import portal.energyPellet.EnergyPelletCatcher;
-import portal.entities.AdvancedFactory;
 import portal.physicsobject.Cube;
 import portal.physicsobject.PressurePlates;
 
@@ -61,7 +61,7 @@ public class PortalLevel_5 extends AdvancedLevel {
     catcherToggle = catcher.fetch(ToggleableComponent.class).orElseThrow();
 
     for (int i = 0; i < 9; i++) {
-      walls[i] = AdvancedFactory.antiMaterialBarrier(namedPoints.get("w" + i), true);
+      walls[i] = AntiMaterialBarrier.antiMaterialBarrier(namedPoints.get("w" + i), true);
     }
 
     Game.add(pressurePlate);

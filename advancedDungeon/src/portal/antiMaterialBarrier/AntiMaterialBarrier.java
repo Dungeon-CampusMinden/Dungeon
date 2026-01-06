@@ -1,4 +1,4 @@
-package portal.entities;
+package portal.antiMaterialBarrier;
 
 import contrib.components.CollideComponent;
 import core.Entity;
@@ -13,21 +13,17 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import java.util.Arrays;
-import java.util.Map;
 import portal.components.AntiMaterialBarrierComponent;
 import portal.portals.PortalFactory;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.TractorBeamComponent;
 
-/**
- * A utility class for building different miscellaneous entities in the game world of the advanced
- * dungeon.
- */
-public class AdvancedFactory {
+import java.util.Arrays;
+import java.util.Map;
 
+public class AntiMaterialBarrier {
   private static final SimpleIPath ANTI_MATERIAL_BARRIER =
-      new SimpleIPath("portal/anti_material_barrier");
+    new SimpleIPath("portal/anti_material_barrier");
 
   /**
    * Creates an anti-material barrier entity at the given position.
@@ -36,7 +32,7 @@ public class AdvancedFactory {
    *
    * @param spawnPoint The position the barrier will be spawned.
    * @param horizontal whether the barrier texture ist aligned horizontal or not (will be aligned
-   *     vertical if false).
+   *                   vertical if false).
    * @return a new anti-material barrier entity.
    */
   public static Entity antiMaterialBarrier(Point spawnPoint, boolean horizontal) {
@@ -79,23 +75,22 @@ public class AdvancedFactory {
    */
   public static CollideComponent getCollideComponent() {
     TriConsumer<Entity, Entity, Direction> action =
-        (self, other, direction) -> {
-          String otherEntityName = other.name();
-          if (other.isPresent(PlayerComponent.class)) {
-            PortalFactory.clearAllPortals();
-          } else if (other.isPresent(TractorBeamComponent.class)
-              || other.isPresent(PortalExtendComponent.class)
-              || otherEntityName.contains("energyPelletLauncher")) {
-            // do nothing
-          } else {
-            Game.remove(other);
-          }
-        };
+      (self, other, direction) -> {
+        String otherEntityName = other.name();
+        if (other.isPresent(PlayerComponent.class)) {
+          PortalFactory.clearAllPortals();
+        } else if (other.isPresent(TractorBeamComponent.class)
+          || other.isPresent(PortalExtendComponent.class)
+          || otherEntityName.contains("energyPelletLauncher")) {
+          // do nothing
+        } else {
+          Game.remove(other);
+        }
+      };
 
     // the barrier can't be solid to let the Hero pass
     CollideComponent colComp = new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER);
     colComp.isSolid(false);
     return colComp;
   }
-
 }

@@ -5,8 +5,8 @@ import core.Entity;
 import core.System;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
+import portal.antiMaterialBarrier.AntiMaterialBarrier;
 import portal.components.AntiMaterialBarrierComponent;
-import portal.entities.AdvancedFactory;
 
 /**
  * The AntiMaterialBarrierSystem manages the activation and deactivation of anti-material barriers.
@@ -87,7 +87,7 @@ public class AntiMaterialBarrierSystem extends System {
       if (currentState.equals("horizontal_off") || currentState.equals("vertical_off")) {
         data.draw().sendSignal("activate_anti_barrier");
 
-        CollideComponent colComp = AdvancedFactory.getCollideComponent();
+        CollideComponent colComp = AntiMaterialBarrier.getCollideComponent();
         data.entity().add(colComp);
       }
     } else {
