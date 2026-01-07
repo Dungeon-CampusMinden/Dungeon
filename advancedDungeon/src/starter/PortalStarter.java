@@ -57,6 +57,7 @@ public class PortalStarter {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
+          DungeonLoader.addLevel(Tuple.of("portallevel9", PortalLevel_9.class));
           DungeonLoader.addLevel(Tuple.of("portallevel1", PortalLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("portallevel2", PortalLevel_2.class));
           DungeonLoader.addLevel(Tuple.of("portallevel3", PortalLevel_3.class));
