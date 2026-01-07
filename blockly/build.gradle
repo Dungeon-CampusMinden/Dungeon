@@ -46,6 +46,7 @@ jar{
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+    dependsOn project(':blockly:dgir-compiler').tasks.named('jar')
 }
 
 tasks.withType(Test).configureEach {
