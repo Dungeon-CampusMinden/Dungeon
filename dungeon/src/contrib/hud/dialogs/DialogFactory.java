@@ -215,6 +215,9 @@ public class DialogFactory {
           UIUtils.closeDialog(ui, true);
         });
 
+    // Default onClose behavior (e.g. when pressing ESC)
+    ui.onClose(uic -> onConfirm.execute());
+
     return ui;
   }
 
@@ -252,6 +255,9 @@ public class DialogFactory {
           onNo.execute();
           UIUtils.closeDialog(ui, true);
         });
+
+    // Default onClose behavior (e.g. when pressing ESC)
+    ui.onClose(uic -> onNo.execute());
 
     return ui;
   }
