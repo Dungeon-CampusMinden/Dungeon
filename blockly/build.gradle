@@ -43,7 +43,7 @@ tasks.register('runJar', JavaExec) {
     println(project.properties)
 }
 
-jar{
+jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes('Main-Class': 'client.Client')
@@ -89,11 +89,9 @@ tasks.withType(Test).configureEach {
 }
 
 // Wire optional frontend startup into run/runJar
-[ tasks.named('run'), tasks.named('runJar') ].each { TaskProvider taskProvider ->
-    taskProvider.configure {
-        if (shouldStartFrontend()) {
-            dependsOn 'openFrontend'
-        }
+tasks.withType(JavaExec).forEach {
+    if (shouldStartFrontend()) {
+        it.dependsOn 'openFrontend'
     }
 }
 
