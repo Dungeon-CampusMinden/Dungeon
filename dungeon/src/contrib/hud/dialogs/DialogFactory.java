@@ -54,6 +54,7 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.CRAFTING_GUI, CraftingGUI::build);
     register(DialogType.DefaultTypes.KEYPAD, KeypadUI::build);
     register(DialogType.DefaultTypes.PROGRESS_BAR, AttributeBarUtil::buildProgressBar);
+    register(DialogType.DefaultTypes.PAUSE_MENU, PauseDialog::build);
     LOGGER.debug("Registered built-in dialog types");
   }
 
