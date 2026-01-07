@@ -42,7 +42,7 @@ jar{
     manifest {
         attributes('Main-Class': 'client.Client')
     }
-    // Bundle runtime classpath into the fat jar so compiler backends are included.
+    // Bundle runtime classpath into the fat jar so all jar dependencies are included.
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
