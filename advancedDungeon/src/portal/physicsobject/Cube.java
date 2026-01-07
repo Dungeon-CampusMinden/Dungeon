@@ -45,42 +45,42 @@ public class Cube {
         });
     portalCube.add(cc);
 
-    portalCube.add(
-        new InteractionComponent(
-            () ->
-                new Interaction(
-                    (interacted, interactor) -> {
-                      PositionComponent interactorPositioncomponent =
-                          interactor.fetch(PositionComponent.class).orElseThrow();
-                      PositionComponent interactedPositioncomponent =
-                          interacted.fetch(PositionComponent.class).orElseThrow();
-                      if (!attached[0]) {
-                        AttachmentComponent attachmentComponent =
-                            new AttachmentComponent(
-                                Vector2.ZERO,
-                                interactedPositioncomponent,
-                                interactorPositioncomponent);
-                        portalCube.add(attachmentComponent);
-                        cc.isSolid(false);
-                        attached[0] = true;
-                      } else {
-                        portalCube.remove(AttachmentComponent.class);
-                        Game.tileAt(interactedPositioncomponent.coordinate())
-                            .ifPresent(
-                                tile -> {
-                                  if (tile.levelElement() == LevelElement.WALL
-                                      || tile.levelElement() == LevelElement.GITTER
-                                      || tile.levelElement() == LevelElement.GLASSWALL
-                                      || tile.levelElement() == LevelElement.PORTAL) {
-                                    interactedPositioncomponent.position(
-                                        interactorPositioncomponent.position());
-                                  }
-                                });
-                        attached[0] = false;
-                      }
-                    },
-                    2f)));
+    portalCube.add(new InteractionComponent(() -> pickupInteraction(attached, portalCube, cc)));
 
     return portalCube;
+  }
+
+  private static Interaction pickupInteraction(
+      boolean[] attached, Entity portalCube, CollideComponent cc) {
+    return new Interaction(
+        (cube, hero) -> {
+          PositionComponent interactorPositioncomponent =
+              hero.fetch(PositionComponent.class).orElseThrow();
+          PositionComponent interactedPositioncomponent =
+              cube.fetch(PositionComponent.class).orElseThrow();
+          if (!attached[0]) {
+            AttachmentComponent attachmentComponent =
+                new AttachmentComponent(
+                    Vector2.ZERO, interactedPositioncomponent, interactorPositioncomponent);
+            portalCube.add(attachmentComponent);
+            cc.isSolid(false);
+            attached[0] = true;
+          } else {
+            portalCube.remove(AttachmentComponent.class);
+            Game.tileAt(interactedPositioncomponent.coordinate())
+                .ifPresent(
+                    tile -> {
+                      if (tile.levelElement() == LevelElement.WALL
+                          || tile.levelElement() == LevelElement.GITTER
+                          || tile.levelElement() == LevelElement.GLASSWALL
+                          || tile.levelElement() == LevelElement.PORTAL) {
+                        interactedPositioncomponent.position(
+                            interactorPositioncomponent.position());
+                      }
+                    });
+            attached[0] = false;
+          }
+        },
+        2f);
   }
 }
