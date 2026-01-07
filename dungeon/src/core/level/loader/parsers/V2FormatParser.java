@@ -191,7 +191,7 @@ public class V2FormatParser extends LevelFormatParser {
    * @param lines The list of strings representing the level layout.
    * @return A 2D array of LevelElement representing the level layout.
    */
-  private static LevelElement[][] loadLevelLayout(List<String> lines) {
+  public static LevelElement[][] loadLevelLayout(List<String> lines) {
     int height = lines.size();
     int width = lines.getFirst().length();
     LevelElement[][] layout = new LevelElement[height][width];

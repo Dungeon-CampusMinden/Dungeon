@@ -201,8 +201,10 @@ public class DebugDrawSystem extends System {
     float width = topRight.x() - bottomLeft.x();
     float height = topRight.y() - bottomLeft.y();
 
+    Color color = cc.isSolid() ? Color.RED : Color.WHITE;
+
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
-    SHAPE_RENDERER.setColor(withAlpha(Color.RED, alpha));
+    SHAPE_RENDERER.setColor(withAlpha(color, alpha));
     SHAPE_RENDERER.rect(bottomLeft.x(), bottomLeft.y(), width, height);
     SHAPE_RENDERER.end();
   }

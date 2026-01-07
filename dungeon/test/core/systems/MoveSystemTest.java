@@ -11,9 +11,12 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
+import core.level.loader.parsers.V2FormatParser;
+import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
@@ -130,60 +133,36 @@ public class MoveSystemTest {
   }
 
   /**
-   * Tests that if the tiles at the new hitbox position are inaccessible, the entity tries to move
-   * only in X or Y direction if accessible. If only X is accessible, it moves there and calls
-   * onWallHit.
+   * Tests if the entity properly moves flush into the corner of the inaccessible tile and triggers
+   * the onWallHit callback.
    */
   @Test
-  void doesNotMoveIntoInaccessibleTileAndCallsWallHit() {
+  void moveFlushIntoCornersAndCallWallHit() {
     vc.currentVelocity(Vector2.of(1, 1));
 
+    pc.position(
+        new Point(
+            2 - cc.collider().size().x() - cc.collider().offset().x(),
+            2 - cc.collider().size().y() - cc.collider().offset().y()));
     Point oldPos = pc.position();
-    float frameRate = Game.frameRate();
-    Vector2 scaledVelocity = vc.currentVelocity().scale(1f / frameRate);
-    Point newPos = oldPos.translate(scaledVelocity);
-    Point xMove = new Point(newPos.x(), oldPos.y());
-    Point yMove = new Point(oldPos.x(), newPos.y());
+    // We already started right up against the wall, with 0.0f space in between. Any amount of
+    // movement would call the wall collision, and should thus also result in the entity moving
+    // flush into the corner (meaning exactly in the corner as before minus the collide set
+    // distance).
     Point resultingPos =
         new Point(
-            newPos.x(),
-            oldPos.y() + cc.collider().offset().y() - CollisionSystem.COLLIDE_SET_DISTANCE);
+            oldPos.x() - CollisionSystem.COLLIDE_SET_DISTANCE,
+            oldPos.y() - CollisionSystem.COLLIDE_SET_DISTANCE);
 
-    // Mock Tiles
-    Tile accessibleTile = mock(Tile.class);
-    when(accessibleTile.isAccessible()).thenReturn(true);
-
-    Tile blockedTile = mock(Tile.class);
-    when(blockedTile.isAccessible()).thenReturn(false);
-
-    Tile defaultTile = mock(Tile.class);
-    when(defaultTile.isAccessible()).thenReturn(true);
-    when(defaultTile.levelElement()).thenReturn(LevelElement.FLOOR);
-
-    // Mock Level and inject into Game
-    DungeonLevel level = mock(DungeonLevel.class);
-    when(level.tileAt(any(Point.class))).thenReturn(Optional.of(defaultTile));
-
-    // make local lambda function to get the corner positions. collider().corners() returns Vector2
-    // onto which the pos
-    // needs to be added
-
-    // Block all corners of newPos
-    for (Vector2 corner : cc.collider().cornersScaled()) {
-      when(level.tileAt(eq(newPos.translate(corner)))).thenReturn(Optional.of(blockedTile));
-    }
-
-    // Make all corners of xMove accessible
-    for (Vector2 corner : cc.collider().cornersScaled()) {
-      when(level.tileAt(eq(xMove.translate(corner)))).thenReturn(Optional.of(accessibleTile));
-    }
-
-    // Make all corners of yMove blocked
-    for (Vector2 corner : cc.collider().cornersScaled()) {
-      when(level.tileAt(eq(yMove.translate(corner)))).thenReturn(Optional.of(blockedTile));
-    }
-
-    Game.currentLevel(level);
+    String layoutStr =
+        """
+      WWW
+      FFW
+      FFW""";
+    LevelElement[][] layout =
+        V2FormatParser.loadLevelLayout(Arrays.stream(layoutStr.split("\n")).toList());
+    DungeonLevel l = new DungeonLevel(layout, DesignLabel.DEFAULT);
+    Game.currentLevel(l);
 
     Consumer<Entity> onWallHit = mock(Consumer.class);
     vc.onWallHit(onWallHit);
@@ -192,6 +171,41 @@ public class MoveSystemTest {
 
     assertEquals(resultingPos, pc.position());
     verify(onWallHit).accept(entity);
+  }
+
+  /**
+   * Tests if the entity corner corrects past the wall when moving horizontally. Should not trigger
+   * the onWallHit callback.
+   */
+  @Test
+  void cornerCorrectionVertically() {
+    vc.currentVelocity(Vector2.of(1, 0));
+
+    pc.position(
+        new Point(
+            2 - cc.collider().size().x() - cc.collider().offset().x(),
+            1 - cc.collider().offset().y() - MoveSystem.CORNER_CORRECT_DISTANCE));
+    Point oldPos = pc.position();
+
+    String layoutStr =
+        """
+        FFF
+        FFF
+        FFW""";
+    LevelElement[][] layout =
+        V2FormatParser.loadLevelLayout(Arrays.stream(layoutStr.split("\n")).toList());
+    DungeonLevel l = new DungeonLevel(layout, DesignLabel.DEFAULT);
+    Game.currentLevel(l);
+
+    Consumer<Entity> onWallHit = mock(Consumer.class);
+    vc.onWallHit(onWallHit);
+
+    system.execute();
+
+    // Check that the entity actually moved past the wall (x is higher than before when we were
+    // already maximally against the wall)
+    assertTrue(oldPos.x() < pc.position().x());
+    verify(onWallHit, times(0)).accept(entity);
   }
 
   /**

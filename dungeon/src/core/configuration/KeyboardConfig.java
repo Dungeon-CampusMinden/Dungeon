@@ -29,4 +29,8 @@ public class KeyboardConfig {
   /** WTF? . */
   public static final ConfigKey<Integer> PAUSE =
       new ConfigKey<>(new String[] {"pause", "pause_game"}, new ConfigIntValue(Input.Keys.P));
+
+  /** WTF? . */
+  public static final ConfigKey<Integer> ADVANCE_FRAME =
+      new ConfigKey<>(new String[] {"pause", "advance_frame"}, new ConfigIntValue(Input.Keys.M));
 }

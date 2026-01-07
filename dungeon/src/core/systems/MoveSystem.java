@@ -3,15 +3,18 @@ package core.systems;
 import contrib.components.CollideComponent;
 import contrib.systems.CollisionSystem;
 import contrib.systems.PositionSync;
+import contrib.utils.components.collide.Collider;
 import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import java.util.*;
 
 /**
  * System responsible for updating the position of entities based on their velocity, while
@@ -23,6 +26,15 @@ import core.utils.components.MissingComponentException;
  * allowed to enter them.
  */
 public class MoveSystem extends System {
+
+  /** Distance to snap next to a wall (e.g. when trying to enter a 1-tile wide tunnel) */
+  public static final float CORNER_CORRECT_DISTANCE = 0.1f;
+
+  private static final float CORNER_CORRECT_COOLDOWN = 0.5f;
+
+  private static final float EPSILON = 0.01f;
+
+  private final Map<Entity, Float> cornerCorrectTimers = new HashMap<>();
 
   /**
    * Constructs a MoveSystem that requires entities to have {@link VelocityComponent} and {@link
@@ -61,10 +73,7 @@ public class MoveSystem extends System {
    * @param data a record containing the entity and its required components
    */
   private void updatePosition(MSData data) {
-    boolean canEnterOpenPits = data.vc.canEnterOpenPits();
-    boolean canEnterWalls = data.vc.canEnterWalls();
-    boolean canEnterGitter = data.vc.canEnterGitter();
-    boolean canEnterGlasswalls = data.vc.canEnterGlasswalls();
+    VelocityComponent vc = data.vc;
 
     Vector2 velocity = data.vc.currentVelocity();
 
@@ -76,41 +85,94 @@ public class MoveSystem extends System {
     // Calculate scaled velocity vector per frame time
     Vector2 sv = velocity.scale(1f / Game.frameRate());
     Point oldPos = data.pc.position();
+    Collider collider = data.cc != null ? data.cc.collider() : null;
 
     boolean hasCollider = data.cc != null;
     boolean hasHitWall = false;
+    boolean triggeredCornerCorrection = false;
+    boolean canCornerCorrect = cornerCorrectTimers.getOrDefault(data.e, 0f) <= 0;
 
     // First: move only in X direction
     Point newPos = oldPos.translate(sv.x(), 0);
-    if (isCollidingWithLevel(
-        data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
-      float wallX = fromWall(newPos.x(), sv.x() > 0);
-      if (hasCollider) {
-        float xOffset = data.cc.collider().offset().x();
-        wallX += sv.x() > 0 ? xOffset : -xOffset;
+    if (isCollidingWithLevel(data.cc, newPos, vc)) {
+      // Try corner correction first
+      if (canCornerCorrect) {
+        List<Direction> correctDirs = new ArrayList<>();
+        if (sv.y() <= EPSILON) {
+          correctDirs.add(Direction.UP);
+        }
+        if (sv.y() >= -EPSILON) {
+          correctDirs.add(Direction.DOWN);
+        }
+        while (!correctDirs.isEmpty() && !triggeredCornerCorrection) {
+          Direction dir = correctDirs.removeFirst();
+          Optional<Point> correct = closestAvailablePos(newPos, dir, collider, vc);
+          if (correct.isPresent()) {
+            newPos = correct.get();
+            triggeredCornerCorrection = true;
+          }
+        }
       }
-      newPos = new Point(wallX, newPos.y());
-      hasHitWall = true;
+
+      // If corner correction not possible, hit wall
+      if (!triggeredCornerCorrection) {
+        float wallX = fromWall(newPos.x(), sv.x() > 0);
+        if (hasCollider) {
+          float xOffset = collider.offset().x();
+          wallX += sv.x() > 0 ? xOffset : -xOffset;
+        }
+        newPos = new Point(wallX, newPos.y());
+        hasHitWall = true;
+      }
     }
 
     // Then: move in Y direction
     newPos = newPos.translate(0, sv.y());
-    if (isCollidingWithLevel(
-        data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
-      float wallY = fromWall(newPos.y(), sv.y() > 0);
-      if (hasCollider) {
-        float yOffset = data.cc.collider().offset().y();
-        wallY += sv.y() > 0 ? yOffset : -yOffset;
+    if (isCollidingWithLevel(data.cc, newPos, vc)) {
+      // Try corner correction first
+      if (canCornerCorrect) {
+        List<Direction> correctDirs = new ArrayList<>();
+        if (sv.x() <= EPSILON) {
+          correctDirs.add(Direction.RIGHT);
+        }
+        if (sv.x() >= -EPSILON) {
+          correctDirs.add(Direction.LEFT);
+        }
+
+        while (!correctDirs.isEmpty() && !triggeredCornerCorrection) {
+          Direction dir = correctDirs.removeFirst();
+          Optional<Point> correct = closestAvailablePos(newPos, dir, collider, vc);
+          if (correct.isPresent()) {
+            newPos = correct.get();
+            triggeredCornerCorrection = true;
+          }
+        }
       }
-      newPos = new Point(newPos.x(), wallY);
-      hasHitWall = true;
+
+      // If corner correction not possible, hit wall
+      if (!triggeredCornerCorrection) {
+        float wallY = fromWall(newPos.y(), sv.y() > 0);
+        if (hasCollider) {
+          float yOffset = collider.offset().y();
+          wallY += sv.y() > 0 ? yOffset : -yOffset;
+        }
+        newPos = new Point(newPos.x(), wallY);
+        hasHitWall = true;
+      }
+    }
+
+    // Update corner correction timer
+    if (triggeredCornerCorrection) {
+      cornerCorrectTimers.put(data.e, CORNER_CORRECT_COOLDOWN);
+    } else {
+      cornerCorrectTimers.put(
+          data.e,
+          Math.max(0, cornerCorrectTimers.getOrDefault(data.e, 0f) - 1f / Game.frameRate()));
     }
 
     // Final check if newPos is accessible. If no, abort to oldPos.
-    if (isCollidingWithLevel(
-        data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlasswalls)) {
+    if (hasHitWall && isCollidingWithLevel(data.cc, newPos, vc)) {
       newPos = oldPos;
-      hasHitWall = true;
     }
     data.pc.position(newPos);
 
@@ -137,24 +199,29 @@ public class MoveSystem extends System {
     }
   }
 
-  private boolean isCollidingWithLevel(
-      CollideComponent cc,
-      Point position,
-      boolean canEnterOpenPits,
-      boolean canEnterWalls,
-      boolean canEnterGitter,
-      boolean canEnterGlassWall) {
-    if (cc == null) {
-      return CollisionUtils.isCollidingWithLevel(
-          position, canEnterOpenPits, canEnterWalls, canEnterGitter, canEnterGlassWall);
+  private Optional<Point> closestAvailablePos(
+      Point start, Vector2 dir, Collider collider, VelocityComponent vc) {
+    int stepCount = 10;
+    float distance =
+        Math.max(CORNER_CORRECT_DISTANCE, collider != null ? collider.size().x() / 3 : 0);
+    Vector2 step = dir.normalize().scale(distance / stepCount);
+    Point testPos = start;
+    for (int i = 0; i < stepCount; i++) {
+      testPos = testPos.translate(step);
+      if (collider == null && !CollisionUtils.isCollidingWithLevel(testPos, vc)) {
+        return Optional.of(testPos);
+      } else if (collider != null && !CollisionUtils.isCollidingWithLevel(collider, testPos, vc)) {
+        return Optional.of(testPos);
+      }
     }
-    return CollisionUtils.isCollidingWithLevel(
-        cc.collider(),
-        position,
-        canEnterOpenPits,
-        canEnterWalls,
-        canEnterGitter,
-        canEnterGlassWall);
+    return Optional.empty();
+  }
+
+  private boolean isCollidingWithLevel(CollideComponent cc, Point position, VelocityComponent vc) {
+    if (cc == null) {
+      return CollisionUtils.isCollidingWithLevel(position, vc);
+    }
+    return CollisionUtils.isCollidingWithLevel(cc.collider(), position, vc);
   }
 
   /**
