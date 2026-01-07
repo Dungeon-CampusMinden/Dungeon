@@ -13,6 +13,8 @@ sourceSets.main.resources.srcDirs = ['assets/']
 
 dependencies {
     implementation project(':dungeon')
+    // Hardcoded compiler plugin dependency; bundled into the fat jar
+    implementation project(':blockly:dgir-compiler')
     implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.27.1'
 
     // ANTLR version 4 for DSL Grammar
@@ -40,6 +42,7 @@ jar{
     manifest {
         attributes('Main-Class': 'client.Client')
     }
+    // Bundle runtime classpath into the fat jar so compiler backends are included.
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
