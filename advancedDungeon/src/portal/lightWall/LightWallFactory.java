@@ -1,13 +1,14 @@
 package portal.lightWall;
 
 import contrib.components.CollideComponent;
+import contrib.hud.DialogUtils;
+import contrib.utils.DynamicCompiler;
 import contrib.utils.components.collide.Hitbox;
 import core.Component;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
@@ -19,17 +20,21 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import portal.portals.abstraction.Calculations;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
+import starter.PortalStarter;
 
 /**
  * Factory class for creating and managing light walls and their emitters. Provides methods to
  * create, activate, and deactivate light wall emitters.
  */
 public class LightWallFactory {
+  private static final SimpleIPath PATH =
+      new SimpleIPath("advancedDungeon/src/portal/riddles/MyCalculations.java");
+  private static final String CLASSNAME = "portal.riddles.MyCalculations";
 
   private static final SimpleIPath SEGMENT_SPRITESHEET_PATH = new SimpleIPath("portal/light_wall");
   private static final SimpleIPath EMITTER_TEXTURE_ACTIVE =
@@ -250,7 +255,7 @@ public class LightWallFactory {
     public void activate() {
       if (active) return; // mehrfaches Aktivieren verhindern
       active = true;
-      Point end = calculateEndPoint(start, direction);
+      Point end = calculateEndPoint(start, direction, stoppingTiles);
       createSegments(start, end, direction);
       createCollider(start, end, direction);
     }
@@ -329,22 +334,22 @@ public class LightWallFactory {
      *
      * @param from Start point
      * @param beamDirection Direction
+     * @param stoppingTiles List of tiles that should block the lightwall.
      * @return End point of the beam
      */
-    private Point calculateEndPoint(Point from, Direction beamDirection) {
-      Point lastPoint = from;
-      Point currentPoint = from;
-
-      while (true) {
-        Tile currentTile = Game.tileAt(currentPoint).orElse(null);
-        if (currentTile == null) break;
-
-        if (Arrays.asList(stoppingTiles).contains(currentTile.levelElement())) break;
-
-        lastPoint = currentPoint;
-        currentPoint = currentPoint.translate(beamDirection);
+    private Point calculateEndPoint(
+        Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
+      Object o = null;
+      try {
+        o = DynamicCompiler.loadUserInstance(PATH, CLASSNAME);
+        Point endPoint =
+            ((Calculations) (o)).calculateLightwallEnd(from, beamDirection, stoppingTiles);
+        return endPoint;
+      } catch (Exception e) {
+        if (PortalStarter.DEBUG_MODE) e.printStackTrace();
+        DialogUtils.showTextPopup("Da stimmt etwas mit meinen Berechnungen nicht,", "Code Error");
       }
-      return lastPoint;
+      return from;
     }
   }
 }

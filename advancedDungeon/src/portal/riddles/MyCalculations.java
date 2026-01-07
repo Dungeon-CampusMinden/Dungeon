@@ -1,6 +1,8 @@
 package portal.riddles;
 
 import core.Entity;
+import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.Point;
 import portal.portals.abstraction.Calculations;
 
@@ -35,6 +37,35 @@ public class MyCalculations extends Calculations {
    * @return Die berechnete Zielposition als {@link Point}
    */
   public Point calculatePortalExit(Entity portal) {
+    throw new UnsupportedOperationException("Da stimmt etwas nicht mit meinen Berechnungen.");
+  }
+
+  /**
+   * Berechnet, wie weit sich eine Lichtwand ausbreiten darf.
+   *
+   * <p>Diese Methode wird verwendet, um herauszufinden, <b>wo eine Lichtwand enden soll</b>.
+   *
+   * <p>Die Lichtwand startet an einem Punkt und breitet sich Schritt für Schritt in eine bestimmte
+   * Richtung aus. Sie stoppt, sobald sie auf ein Feld trifft, das sie nicht durchdringen darf (z.B.
+   * eine Wand).
+   *
+   * <p>Deine Aufgabe ist es, den letzten Punkt zu berechnen, den die Lichtwand noch erreichen kann.
+   *
+   * <p>Tipp:
+   *
+   * <ul>
+   *   <li>Bewege dich vom Startpunkt immer weiter in die Richtung
+   *   <li>Prüfe bei jedem Schritt, welches Feld dort liegt
+   *   <li>Stoppe, sobald ein verbotenes Feld erreicht wird
+   * </ul>
+   *
+   * @param from Der Startpunkt der Lichtwand
+   * @param beamDirection Die Richtung, in die sich die Lichtwand ausbreitet
+   * @param stoppingTiles Felder, an denen die Lichtwand stoppen muss
+   * @return Der letzte Punkt, den die Lichtwand noch erreichen darf
+   */
+  public Point calculateLightwallEnd(
+      Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
     throw new UnsupportedOperationException("Da stimmt etwas nicht mit meinen Berechnungen.");
   }
 }

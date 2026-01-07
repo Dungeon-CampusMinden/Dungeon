@@ -11,4 +11,21 @@
     return pc.position().translate(direction);
   }
 
+
+public Point calculateLightwallEnd(
+    Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
+    Point lastPoint = from;
+    Point currentPoint = from;
+
+    while (true) {
+        Tile currentTile = Tools.tileAt(currentPoint);
+        if (currentTile == null) break;
+
+        if (Arrays.asList(stoppingTiles).contains(currentTile.levelElement())) break;
+
+        lastPoint = currentPoint;
+        currentPoint = currentPoint.translate(beamDirection);
+    }
+    return lastPoint;
+}
 ```

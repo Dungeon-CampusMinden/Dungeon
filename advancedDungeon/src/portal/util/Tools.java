@@ -1,7 +1,10 @@
 package portal.util;
 
 import core.Entity;
+import core.Game;
 import core.components.PositionComponent;
+import core.level.Tile;
+import core.utils.Point;
 import portal.portals.abstraction.PortalUtils;
 
 /**
@@ -61,5 +64,23 @@ public class Tools {
     if (portalName.equals(PortalUtils.BLUE_PORTAL_NAME))
       return PortalUtils.getBluePortal().orElse(null);
     else return PortalUtils.getGreenPortal().orElse(null);
+  }
+
+  /**
+   * Gibt das Spielfeld-Feld an einer bestimmten Position zurück.
+   *
+   * <p>Das Spiel besteht aus vielen einzelnen Feldern (Tiles). Mit dieser Methode kannst du
+   * herausfinden, <b>welches Feld</b> sich an einer bestimmten Position befindet.
+   *
+   * <p>Das ist besonders nützlich, wenn du prüfen möchtest, ob sich dort zum Beispiel eine Wand,
+   * ein Portal oder ein anderes Hindernis befindet.
+   *
+   * <p>Wenn sich an der Position kein Feld befindet, wird {@code null} zurückgegeben.
+   *
+   * @param point Die Position, an der nach einem Feld gesucht wird
+   * @return Das Feld an dieser Position oder {@code null}, wenn es keines gibt
+   */
+  public static Tile tileAt(Point point) {
+    return Game.tileAt(point).orElse(null);
   }
 }
