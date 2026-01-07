@@ -15,6 +15,7 @@ import core.utils.Point;
 import core.utils.logging.DungeonLogger;
 import java.io.*;
 import java.net.InetSocketAddress;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -85,6 +86,8 @@ public class Server {
     levelContext.setHandler(this::handleLevelRequest);
     HttpContext codeContext = server.createContext("/code");
     codeContext.setHandler(this::handleCodeRequest);
+    HttpContext stepContext = server.createContext("/step");
+    stepContext.setHandler(this::handleStepRequest);
     HttpContext languageContext = server.createContext("/language");
     languageContext.setHandler(this::handleLanguageRequest);
     HttpContext statusContext = server.createContext("/status");
@@ -102,6 +105,7 @@ public class Server {
    * @throws IOException If an error occurs while sending the response
    */
   private void handleResetRequest(HttpExchange exchange) throws IOException {
+    if (!ensureMethod(exchange, "POST")) return;
     BlocklyCodeRunner.instance().stopCode();
     // Reset values
     interruptExecution = true;
@@ -119,6 +123,7 @@ public class Server {
    * @throws IOException If an error occurs while sending the response
    */
   private void handleClearRequest(HttpExchange exchange) throws IOException {
+    if (!ensureMethod(exchange, "POST")) return;
     clearGlobalValues();
 
     sendHeroPosition(exchange);
@@ -130,11 +135,74 @@ public class Server {
       playerPos = new Point(0, 0);
     }
     String response = playerPos.toString();
-    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    addCorsHeaders(exchange);
     exchange.sendResponseHeaders(200, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());
     os.close();
+  }
+
+  /**
+   * Applies permissive CORS headers so browser-based clients can call the API without being blocked
+   * by cross-origin restrictions. Also declares allowed methods/headers and caches preflight for a
+   * day.
+   */
+  private void addCorsHeaders(HttpExchange exchange) {
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    exchange.getResponseHeaders().add(
+        "Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+    exchange.getResponseHeaders().add("Access-Control-Max-Age", "86400");
+  }
+
+  /**
+   * Responds to CORS preflight requests (OPTIONS) early. Returns true when the request was handled
+   * so callers can exit without further processing.
+   */
+  private boolean handleOptions(HttpExchange exchange) throws IOException {
+    if (!"OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+      return false;
+    }
+    addCorsHeaders(exchange);
+    exchange.sendResponseHeaders(204, -1);
+    exchange.close();
+    return true;
+  }
+
+  /**
+   * Parses the raw query string from the request URI into a map of parameter names to their
+   * (possibly multiple) values. Decodes URL-encoded characters so callers can safely read user
+   * input.
+   */
+  private Map<String, List<String>> parseQueryParams(HttpExchange exchange) {
+    String rawQuery = exchange.getRequestURI().getRawQuery();
+    if (rawQuery == null || rawQuery.isEmpty()) return Collections.emptyMap();
+
+    Map<String, List<String>> params = new HashMap<>();
+    for (String pair : rawQuery.split("&")) {
+      if (pair.isEmpty()) continue;
+      String[] kv = pair.split("=", 2);
+      String key = urlDecode(kv[0]);
+      String value = kv.length > 1 ? urlDecode(kv[1]) : "";
+      params.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
+    }
+    return params;
+  }
+
+  /**
+   * Returns the first value for a named query parameter or null when the parameter is absent.
+   * Helps handlers avoid repeated null/empty checks.
+   */
+  private String firstParam(Map<String, List<String>> params, String name) {
+    List<String> values = params.get(name);
+    return values == null || values.isEmpty() ? null : values.getFirst();
+  }
+
+  /**
+   * URL-decodes a single value using UTF-8. Keeps query parsing readable in one place.
+   */
+  private String urlDecode(String value) {
+    return URLDecoder.decode(value, StandardCharsets.UTF_8);
   }
 
   /**
@@ -145,13 +213,14 @@ public class Server {
    *     frontend
    */
   private void handleLevelsRequest(HttpExchange exchange) throws IOException {
+    if (!ensureMethod(exchange, "GET")) return;
     StringBuilder response = new StringBuilder();
     for (String levelName : DungeonLoader.levelOrder()) {
       response.append(levelName).append("\n");
     }
     response.deleteCharAt(response.length() - 1); // Remove last newline
 
-    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    addCorsHeaders(exchange);
     exchange.sendResponseHeaders(200, response.toString().getBytes().length);
     OutputStream os = exchange.getResponseBody();
     os.write(response.toString().getBytes());
@@ -167,11 +236,11 @@ public class Server {
    *     frontend
    */
   private void handleLevelRequest(HttpExchange exchange) throws IOException {
+    if (!ensureMethod(exchange, "GET")) return;
+    Map<String, List<String>> queryParams = parseQueryParams(exchange);
     StringBuilder response = new StringBuilder();
 
-    // Query parameter 'level'
-    String query = exchange.getRequestURI().getQuery();
-    String levelName = query != null && query.contains("levelName=") ? query.split("=")[1] : null;
+    String levelName = firstParam(queryParams, "levelName");
 
     if (levelName != null && !levelName.equals(DungeonLoader.currentLevel())) {
       // if given and the level is not the current one, load it
@@ -188,13 +257,17 @@ public class Server {
     }
     response.deleteCharAt(response.length() - 1); // Remove last space
 
-    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    addCorsHeaders(exchange);
     exchange.sendResponseHeaders(200, response.length());
     OutputStream os = exchange.getResponseBody();
     os.write(response.toString().getBytes());
     os.close();
   }
 
+  /**
+   * Collects the set of Blockly blocks that are disabled for the given level so the frontend can
+   * hide or gray them out.
+   */
   private Set<String> blockedBlocksForLevel(ILevel level) {
     Set<String> blockedBlocks = new HashSet<>();
     if (level instanceof BlocklyLevel blocklyLevel) {
@@ -211,20 +284,17 @@ public class Server {
    * @throws IOException If an error occurs while sending the response
    */
   private void handleCodeRequest(HttpExchange exchange) throws IOException {
-    // Check if this is a stop request
-    String query = exchange.getRequestURI().getQuery();
-    boolean isStopRequest = query != null && query.contains("stop=1");
+    if (!ensureMethod(exchange, "POST")) return;
+    Map<String, List<String>> queryParams = parseQueryParams(exchange);
+
+    boolean isStopRequest = queryParams.containsKey("stop");
     int sleepAfterEachLine = -1;
-    if (query != null && query.contains("sleep=")) {
-      String[] params = query.split("&");
-      for (String param : params) {
-        if (param.startsWith("sleep=")) {
-          try {
-            sleepAfterEachLine = Math.max(Integer.parseInt(param.split("=")[1]), 0);
-          } catch (NumberFormatException e) {
-            LOGGER.warn("Invalid sleep parameter: " + param);
-          }
-        }
+    String sleepParam = firstParam(queryParams, "sleep");
+    if (sleepParam != null) {
+      try {
+        sleepAfterEachLine = Math.max(Integer.parseInt(sleepParam), 0);
+      } catch (NumberFormatException e) {
+        LOGGER.warn("Invalid sleep parameter: " + sleepParam);
       }
     }
 
@@ -236,11 +306,7 @@ public class Server {
     // Handle normal code execution request
     if (BlocklyCodeRunner.instance().isCodeRunning()) {
       String response = "Another code execution is already running. Please stop it first.";
-      exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-      exchange.sendResponseHeaders(400, response.getBytes().length);
-      OutputStream os = exchange.getResponseBody();
-      os.write(response.getBytes());
-      os.close();
+      sendError(exchange, 409, response);
       return;
     }
 
@@ -280,7 +346,7 @@ public class Server {
         statusCode = 200;
       }
 
-      exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+      addCorsHeaders(exchange);
       exchange.sendResponseHeaders(statusCode, response.getBytes().length);
       OutputStream os = exchange.getResponseBody();
       os.write(response.getBytes());
@@ -289,11 +355,7 @@ public class Server {
       LOGGER.error("Error executing code: " + e);
       setError(e.getMessage());
       String response = errorMsg;
-      exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-      exchange.sendResponseHeaders(400, response.getBytes().length);
-      OutputStream os = exchange.getResponseBody();
-      os.write(response.getBytes());
-      os.close();
+      sendError(exchange, 400, response);
       BlocklyCodeRunner.instance().stopCode();
     }
   }
@@ -305,6 +367,7 @@ public class Server {
    * @throws IOException If an error occurs while sending the response
    */
   private void handleStopCodeExecution(HttpExchange exchange) throws IOException {
+    if (!ensureMethod(exchange, "POST")) return;
     String response;
     int statusCode = 200;
 
@@ -316,11 +379,23 @@ public class Server {
       response = "No code execution running";
     }
 
-    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    addCorsHeaders(exchange);
     exchange.sendResponseHeaders(statusCode, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());
     os.close();
+  }
+
+  /**
+   * Handles the step request. This function will execute the next step of the currently running
+   * code. If no code is running, it will return an error.
+   *
+   * @param exchange Exchange object
+   * @throws IOException If an error occurs while sending the response
+   */
+  private void handleStepRequest(HttpExchange exchange) throws IOException {
+    if (!ensureMethod(exchange, "POST")) return;
+    sendError(exchange, 501, "Step execution not implemented yet");
   }
 
   /**
@@ -331,11 +406,12 @@ public class Server {
    * @throws IOException If an error occurs while sending the response
    */
   private void handleLanguageRequest(HttpExchange exchange) throws IOException {
-    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    if (!ensureMethod(exchange, "GET")) return;
+    addCorsHeaders(exchange);
 
-    // Query parameter 'object'
-    String query = exchange.getRequestURI().getQuery();
-    String objectName = query != null && query.contains("object=") ? query.split("=")[1] : "/server";
+    Map<String, List<String>> queryParams = parseQueryParams(exchange);
+    String objectName = firstParam(queryParams, "object");
+    if (objectName == null) objectName = "/server";
 
     String response = LanguageServer.GenerateCompletionItems(objectName);
     exchange.sendResponseHeaders(200, response.getBytes().length);
@@ -352,6 +428,7 @@ public class Server {
    * @throws IOException If an error occurs while sending the response
    */
   private void handleStatusRequest(HttpExchange exchange) throws IOException {
+    if (!ensureMethod(exchange, "GET")) return;
     String response;
     if (BlocklyCodeRunner.instance().isCodeRunning()) {
       response = "running";
@@ -359,7 +436,7 @@ public class Server {
       response = "completed";
     }
 
-    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    addCorsHeaders(exchange);
     exchange.sendResponseHeaders(200, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());
@@ -409,5 +486,31 @@ public class Server {
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * Normalized error responder that attaches CORS headers and writes a plain-text message with the
+   * given HTTP status code. Keeps error handling consistent across endpoints.
+   */
+  private void sendError(HttpExchange exchange, int status, String message) throws IOException {
+    addCorsHeaders(exchange);
+    byte[] payload = message.getBytes(StandardCharsets.UTF_8);
+    exchange.sendResponseHeaders(status, payload.length);
+    try (OutputStream os = exchange.getResponseBody()) {
+      os.write(payload);
+    }
+  }
+
+  /**
+   * Ensures the incoming HTTP method matches the expected one, replying with 405 when it does not
+   * and short-circuiting OPTIONS preflight. Returns false when the caller should stop processing.
+   */
+  private boolean ensureMethod(HttpExchange exchange, String expectedMethod) throws IOException {
+    if (handleOptions(exchange)) return false;
+    if (!expectedMethod.equalsIgnoreCase(exchange.getRequestMethod())) {
+      sendError(exchange, 405, "Method Not Allowed");
+      return false;
+    }
+    return true;
   }
 }

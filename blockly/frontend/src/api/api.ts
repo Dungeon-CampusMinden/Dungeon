@@ -43,7 +43,7 @@ class ApiClient {
    * @param signal Optional abort signal for callers that want to cancel a request.
    * @param query Optional query parameters appended to the request URL. Multiquery parameters are supported ({ tag: "a", page: 2, sort }
    */
-  public async postText(
+  public async post(
     endpoint: string,
     text = "",
     ignoreError = false,
@@ -153,6 +153,42 @@ class ApiClient {
       return "";
     }
   }
+
+  public async get(
+    endpoint: string,
+    ignoreError = false,
+    signal?: AbortSignal,
+    query?: Record<string, string | number | boolean | null | undefined>,
+  ): Promise<Response | null> {
+    const url = this.buildUrl(endpoint);
+    if (query) {
+      Object.entries(query).forEach(([key, value]) => {
+        if (value === undefined || value === null) return;
+        const values = Array.isArray(value) ? value : [value];
+        values.forEach((v) => url.searchParams.append(key, String(v)));
+      });
+    }
+
+    try {
+      if (DEBUG_NETWORK) {
+        console.debug("[api] ->", endpoint, query);
+        console.debug("[api] ->", url.toString());
+      }
+      return await fetch(url, {
+        method: "GET",
+        headers: DEFAULT_HEADERS,
+        signal,
+      });
+    } catch (error) {
+      if (!ignoreError) {
+        alert("Fehler beim Senden der Anfrage");
+        console.error("Fehler beim Senden der Anfrage", error);
+      } else if (DEBUG_NETWORK) {
+        console.debug("[api] network error (ignored)", error);
+      }
+      return null;
+    }
+  }
 }
 
 const apiClient = new ApiClient(config.API_URL);
@@ -179,7 +215,7 @@ const handleResponse = async (response: Response | null): Promise<ApiResult<stri
  * @returns true if the game was successfully reset, false otherwise
  */
 export const call_reset_route = async (): Promise<boolean> => {
-  const reset_response = await apiClient.postText("reset");
+  const reset_response = await apiClient.post("reset");
   const response = await handleResponse(reset_response);
   if (response.error !== "") {
     console.error("Fehler beim Zurücksetzen des Spiels", response);
@@ -196,7 +232,7 @@ export const call_reset_route = async (): Promise<boolean> => {
  * @returns true if the values were successfully cleared, false otherwise
  */
 export const call_clear_route = async () => {
-  const clear_response = await apiClient.postText("clear");
+  const clear_response = await apiClient.post("clear");
   const response = await handleResponse(clear_response);
   if (!response.ok) {
     console.error("Fehler beim Zurücksetzen der Werte", response);
@@ -212,7 +248,7 @@ export const call_clear_route = async () => {
  * @Returns A list of all levels.
  */
 export const call_levels_route = async () => {
-  const level_response = await apiClient.postText("levels", "", true);
+  const level_response = await apiClient.get("levels", true);
   const response = await handleResponse(level_response);
   if (response.error !== "") {
     console.error("Fehler beim Abrufen der Level", response);
@@ -231,7 +267,7 @@ export const call_levels_route = async () => {
  * @Returns The current level or the level list, with the block blocks
  */
 export const call_level_route = async (levelName = ""): Promise<Level> => {
-  const level_response = await apiClient.postText("level", "", true, undefined, levelName ? {levelName: levelName} : undefined);
+  const level_response = await apiClient.get("level", true, undefined, levelName ? {levelName: levelName} : undefined);
   const response = await handleResponse(level_response);
   if (response.error !== "") {
     console.error("Fehler beim Abrufen des Levels", response);
@@ -257,8 +293,8 @@ export const call_level_route = async (levelName = ""): Promise<Level> => {
  * @returns true if the program was successfully started, false otherwise
  */
 export const call_code_route = async (code: string, sessionId?: string): Promise<boolean> => {
-  console.log("Call Code route: ", code);
-  const code_response = await apiClient.postText("code", code, false, undefined, sessionId ? {sessionId: sessionId} : undefined);
+  console.log("Call Code route: \n", code);
+  const code_response = await apiClient.post("code", code, false, undefined, sessionId ? {sessionId: sessionId} : undefined);
   const response = await handleResponse(code_response);
   if (response.error !== "" && response.error !== "Programm unterbrochen!") {
     console.error("Fehler beim Ausführen des Programms", response);
@@ -277,7 +313,7 @@ export const call_code_route = async (code: string, sessionId?: string): Promise
  * @returns The normalized server reply for the step attempt.
  */
 export const call_code_step_route = async (sessionId?: string): Promise<ApiResult<string>> => {
-  const step_response = await apiClient.postText("step", "", false, undefined, sessionId ? {sessionId: sessionId} : undefined);
+  const step_response = await apiClient.post("step", "", false, undefined, sessionId ? {sessionId: sessionId} : undefined);
   const response = await handleResponse(step_response);
   if (response.error !== "" && response.error !== "Programm unterbrochen!") {
     console.error("Fehler beim schrittweisen Ausführen des Programms", response);
@@ -299,7 +335,7 @@ export const call_code_step_route = async (sessionId?: string): Promise<ApiResul
  *          `"error"` – if a server error occurred or an unexpected response was received.
  */
 export const call_code_status_route = async (sessionId?: string): Promise<ExecutionStatus> => {
-  const status_response = await apiClient.postText("status", "", false, undefined, sessionId ? {sessionId: sessionId} : undefined);
+  const status_response = await apiClient.get("status", false, undefined, sessionId ? {sessionId: sessionId} : undefined);
   const response = await handleResponse(status_response);
   if (response.error !== "" && response.error !== "Programm unterbrochen!") {
     console.error("Fehler beim Ausführen des Programms", response);
