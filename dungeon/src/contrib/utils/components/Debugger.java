@@ -189,37 +189,42 @@ public class Debugger extends System {
 
   /** Pauses the game. */
   public static void PAUSE_GAME() {
-    if(isPaused()){
+    if (isPaused()) {
       unpause();
     } else {
       pause();
     }
   }
 
-  private static void pause(){
-    UIComponent ui = DialogFactory.show(DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).center(false).build());
+  private static void pause() {
+    UIComponent ui =
+        DialogFactory.show(
+            DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).center(false).build());
     ui.dialog().setVisible(true);
     pauseMenu = ui.dialogContext().ownerEntity();
   }
-  private static void unpause(){
-    if(pauseMenu == null) return;
+
+  private static void unpause() {
+    if (pauseMenu == null) return;
     UIUtils.closeDialog(pauseMenu.fetch(UIComponent.class).orElseThrow());
   }
-  private static boolean isPaused(){
-    if(pauseMenu == null) return false;
+
+  private static boolean isPaused() {
+    if (pauseMenu == null) return false;
     return pauseMenu.fetch(UIComponent.class).map(x -> x.dialog().getStage() != null).orElse(false);
   }
 
   private static void ADVANCE_FRAME() {
-    if(!isPaused()) return;
+    if (!isPaused()) return;
     unpause();
     advanceTimer = 1;
     LOGGER.info("Advanced one frame");
   }
+
   private static void checkFrameAdvance() {
-    if(advanceTimer > 0){
+    if (advanceTimer > 0) {
       advanceTimer--;
-      if(advanceTimer == 0){
+      if (advanceTimer == 0) {
         pause();
       }
     }

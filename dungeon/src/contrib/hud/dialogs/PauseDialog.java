@@ -7,14 +7,9 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Scaling;
 import contrib.hud.UIUtils;
 import core.Game;
 import core.utils.components.draw.TextureGenerator;
-import core.utils.components.draw.TextureMap;
-import core.utils.components.path.SimpleIPath;
-
-import java.awt.font.ImageGraphicAttribute;
 
 /**
  * Package-private builder for the pause menu.
@@ -44,19 +39,22 @@ final class PauseDialog {
   }
 
   private static Group create(Skin skin, String dialogId) {
-    Group pauseMenu = new Group() {
-      @Override
-      public void act(float delta) {
-        super.act(delta);
-        if (getStage() != null && (getWidth() != getStage().getWidth() || getHeight() != getStage().getHeight())) {
-          setSize(getStage().getWidth(), getStage().getHeight());
-        }
-      }
-    };
+    Group pauseMenu =
+        new Group() {
+          @Override
+          public void act(float delta) {
+            super.act(delta);
+            if (getStage() != null
+                && (getWidth() != getStage().getWidth() || getHeight() != getStage().getHeight())) {
+              setSize(getStage().getWidth(), getStage().getHeight());
+            }
+          }
+        };
 
     pauseMenu.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-    // Very simple pause menu for now: Just a transluscent box at the top-center of the screen with a label "Game Paused\n\nPress <P> to resume"
+    // Very simple pause menu for now: Just a transluscent box at the top-center of the screen with
+    // a label "Game Paused\n\nPress <P> to resume"
 
     Table layout = new Table();
     layout.setFillParent(true);
@@ -74,7 +72,6 @@ final class PauseDialog {
     layout.add(container).expand().top().padTop(50);
 
     pauseMenu.addActor(layout);
-
 
     return pauseMenu;
   }

@@ -32,5 +32,5 @@ public class KeyboardConfig {
 
   /** WTF? . */
   public static final ConfigKey<Integer> ADVANCE_FRAME =
-    new ConfigKey<>(new String[] {"pause", "advance_frame"}, new ConfigIntValue(Input.Keys.M));
+      new ConfigKey<>(new String[] {"pause", "advance_frame"}, new ConfigIntValue(Input.Keys.M));
 }
