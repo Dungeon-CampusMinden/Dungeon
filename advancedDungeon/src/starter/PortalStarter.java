@@ -54,6 +54,7 @@ public class PortalStarter {
 
   private static final boolean LEVELEDITOR_MODE = false;
 
+
   private static final String SAVE_LEVEL_KEY = "LEVEL";
   private static final String SAVE_FILE = "currentPortalLevel.json";
   private static final SimpleIPath PORTAL_CONFIG_PATH =
@@ -206,6 +207,7 @@ public class PortalStarter {
           DungeonLoader.addLevel(Tuple.of("lightbridge1", LightBridgeLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("lightwall1", LightWallLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("tractorbeam1", TractorBeamLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("Level9", PortalLevel_9.class));
           createSystems();
           createHero();
 
