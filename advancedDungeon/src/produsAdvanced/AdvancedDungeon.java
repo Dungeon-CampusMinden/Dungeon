@@ -178,7 +178,6 @@ public class AdvancedDungeon {
     Entity heroEntity = EntityFactory.newHero(hero -> restart());
     Game.add(heroEntity);
     hero = new Hero(heroEntity);
-
     if (!DEBUG_MODE) recompilePlayerControl();
   }
 

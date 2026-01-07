@@ -5,7 +5,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import java.util.Map;
-import level.AdvancedLevel;
+import portal.util.AdvancedLevel;
 
 /**
  * Manager for an advanced dungeon level.

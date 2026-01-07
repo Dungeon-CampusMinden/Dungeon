@@ -37,6 +37,7 @@ logs/
 ########################
 dungeon_config.json
 currentAdvancedLevel.json
+currentPortalLevel.json
 last_session.dat
 
 # JAVA, Scala #

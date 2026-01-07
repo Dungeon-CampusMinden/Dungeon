@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import level.AdvancedLevel;
+import portal.util.AdvancedLevel;
 import produsAdvanced.abstraction.AdvancedDungeonMonster;
 import produsAdvanced.abstraction.ArrayCreator;
 

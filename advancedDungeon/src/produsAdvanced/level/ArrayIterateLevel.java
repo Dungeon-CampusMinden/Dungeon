@@ -15,7 +15,7 @@ import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.util.Map;
-import level.AdvancedLevel;
+import portal.util.AdvancedLevel;
 import produsAdvanced.abstraction.ArraySummarizer;
 
 /**

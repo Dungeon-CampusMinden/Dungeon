@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import level.AdvancedLevel;
+import portal.util.AdvancedLevel;
 import produsAdvanced.abstraction.Berry;
 
 /**
