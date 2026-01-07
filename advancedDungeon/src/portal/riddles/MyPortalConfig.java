@@ -1,6 +1,5 @@
 package portal.riddles;
 
-import contrib.modules.interaction.Interaction;
 import core.utils.Point;
 import java.util.function.Supplier;
 import portal.abstraction.Hero;

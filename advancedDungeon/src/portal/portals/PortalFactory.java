@@ -95,6 +95,8 @@ public class PortalFactory {
             },
             () -> {
               Entity portal = new Entity(PortalUtils.BLUE_PORTAL_NAME);
+              // To allow collision with the stationary Portal elements like lightwalls.
+              portal.add(new VelocityComponent(0.0000000001f));
               Map<String, Animation> animationMap =
                   Animation.loadAnimationSpritesheet(BLUE_PORTAL_TEXTURE);
 
@@ -164,7 +166,8 @@ public class PortalFactory {
               Entity portal = new Entity(PortalUtils.GREEN_PORTAL_NAME);
               Map<String, Animation> animationMap =
                   Animation.loadAnimationSpritesheet(GREEN_PORTAL_TEXTURE);
-
+              // To allow collision with the stationary Portal elements like lightwalls.
+              portal.add(new VelocityComponent(0.0000000001f));
               State fallback = new State("NONE", animationMap.get("fallback"));
               State top = new State("UP", animationMap.get("bottom"));
               State bottom = new State("DOWN", animationMap.get("fallback"));

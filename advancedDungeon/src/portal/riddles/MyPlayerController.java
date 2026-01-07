@@ -42,7 +42,7 @@ public class MyPlayerController extends PlayerController {
     if (key.equals("D")) hero.setXSpeed(5);
     if (key.equals("A")) hero.setXSpeed(-5);
     if (key.equals("S")) hero.shootSkill();
-    if(key.equals("F")) hero.nextSkill();
-    if(key.equals("E")) hero.interact(hero.getMousePosition());
+    if (key.equals("F")) hero.nextSkill();
+    if (key.equals("E")) hero.interact(hero.getMousePosition());
   }
 }

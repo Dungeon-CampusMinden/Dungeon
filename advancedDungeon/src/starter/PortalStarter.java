@@ -15,10 +15,7 @@ import core.components.VelocityComponent;
 import core.game.WindowEventManager;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
-import core.utils.Direction;
-import core.utils.JsonHandler;
-import core.utils.Tuple;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import java.io.*;
@@ -27,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import portal.abstraction.Hero;
 import portal.abstraction.PlayerController;
 import portal.antiMaterialBarrier.AntiMaterialBarrierSystem;
@@ -54,14 +52,13 @@ public class PortalStarter {
    *
    * <p>Also disables recompilation for player control.
    */
-  public static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = true;
 
   private static final String SAVE_LEVEL_KEY = "LEVEL";
   private static final String SAVE_FILE = "currentPortalLevel.json";
   private static final SimpleIPath PORTAL_CONFIG_PATH =
       new SimpleIPath("advancedDungeon/src/portal/riddles/MyPortalConfig.java");
   private static final String CONFIG_CLASSNAME = "portal.riddles.MyPortalConfig";
-  ;
 
   /** Global reference to the {@link Hero} instance used in the game. */
   public static Hero hero;
@@ -192,7 +189,6 @@ public class PortalStarter {
 
           DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
           DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
-          DungeonLoader.addLevel(Tuple.of("control4", AdvancedControlLevel4.class));
           DungeonLoader.addLevel(Tuple.of("portallevel1", PortalLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("portallevel2", PortalLevel_2.class));
           DungeonLoader.addLevel(Tuple.of("portallevel3", PortalLevel_3.class));
@@ -214,6 +210,41 @@ public class PortalStarter {
     Game.add(heroEntity);
     hero = new Hero(heroEntity);
     if (!DEBUG_MODE) recompilePlayerControl();
+    else {
+      debugPortalSkills(heroEntity);
+    }
+  }
+
+  private static void debugPortalSkills(Entity heroEntity) {
+    SkillComponent sc =
+        heroEntity
+            .fetch(SkillComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(heroEntity, SkillComponent.class));
+    sc.removeAll();
+    PortalConfig debugConfig =
+        new PortalConfig(hero) {
+          @Override
+          public long cooldown() {
+            return 500;
+          }
+
+          @Override
+          public float speed() {
+            return 10;
+          }
+
+          @Override
+          public float range() {
+            return Integer.MAX_VALUE;
+          }
+
+          @Override
+          public Supplier<Point> target() {
+            return () -> hero.getMousePosition();
+          }
+        };
+    sc.addSkill(new PortalSkill(PortalColor.BLUE, debugConfig));
+    sc.addSkill(new PortalSkill(PortalColor.GREEN, debugConfig));
   }
 
   private static void configGame() throws IOException {

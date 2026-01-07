@@ -56,8 +56,6 @@ public record Hero(Entity hero) {
                   inputComponent.removeCallbacksIf(
                       (entry -> !Objects.equals(entry.getKey(), KeyboardConfig.CLOSE_UI.value()))));
     }
-    // uncap max player speed
-    this.hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(Vector2.MAX.x()));
   }
 
   /**
