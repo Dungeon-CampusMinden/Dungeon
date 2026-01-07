@@ -15,21 +15,21 @@ public class MyPortalConfig extends PortalConfig {
 
   @Override
   public long cooldown() {
-    return 10;
-  }
-
-  @Override
-  public float speed() {
-    return 10;
-  }
-
-  @Override
-  public float range() {
     return Integer.MAX_VALUE;
   }
 
   @Override
+  public float speed() {
+    return 0;
+  }
+
+  @Override
+  public float range() {
+    return 0;
+  }
+
+  @Override
   public Supplier<Point> target() {
-    return () -> hero.getMousePosition();
+    return () -> new Point(0, 0);
   }
 }

@@ -37,12 +37,6 @@ public class MyPlayerController extends PlayerController {
    * @param key Der gedrückte Knopf als Zeichenkette (z.B. "W", "A", "D").
    */
   protected void processKey(String key) {
-    if (key.equals("W")) hero.setYSpeed(5);
-    if (key.equals("S")) hero.setYSpeed(-5);
-    if (key.equals("D")) hero.setXSpeed(5);
-    if (key.equals("A")) hero.setXSpeed(-5);
-    if (key.equals("S")) hero.shootSkill();
-    if (key.equals("F")) hero.nextSkill();
-    if (key.equals("E")) hero.interact(hero.getMousePosition());
+    throw new UnsupportedOperationException("Da stimmt etwas nicht mit meinem Steuerrungscode.");
   }
 }
