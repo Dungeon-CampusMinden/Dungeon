@@ -40,3 +40,14 @@ werden. Dazu kann der `Funktion definieren`-Block genutzt werden. Eine definiert
 Webbrowser, um Fehler zu finden. Laufzeitfehler werden in der Form eines Dialogs im Webbrowser angezeigt und die Ausführung
 des Programms wird gestoppt, sobald ein Laufzeitfehler auftritt. Mehr Informationen sind im Abschnitt
 [Fehlerbehebung](troubleshooting.md) zu finden.
+4. **Backend mit eigenen Argumenten starten:** Falls Sie die Java-Anwendung mit zusätzlichen Parametern starten müssen (z. B. `web=true`), können Sie dies direkt über Gradle tun:
+
+```bash
+./gradlew :blockly:run --args="web=true"
+```
+
+Entsprechend funktioniert dies auch für `:blockly:runJar`:
+
+```bash
+./gradlew :blockly:runJar --args="web=true"
+```

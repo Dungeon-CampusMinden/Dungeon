@@ -9,6 +9,13 @@ application {
     mainClass = 'client.Client'
 }
 
+// Optional switch to start the Vite frontend and open it in a browser
+ext.frontendUrl = 'http://localhost:5173/'
+ext.shouldStartFrontend = {
+    def flag = project.findProperty('startFrontend') ?: project.findProperty('frontend')
+    flag != null && flag.toString().toBoolean()
+}
+
 sourceSets.main.resources.srcDirs = ['assets/']
 
 dependencies {
@@ -33,7 +40,7 @@ generateGrammarSource {
 tasks.register('runJar', JavaExec) {
     group = 'application'
     classpath tasks.named('jar').map { it.outputs }
-    args ["web=${project.hasProperty('web') ? project.property('web') : 'false'}"]
+    println(project.properties)
 }
 
 jar{
@@ -48,8 +55,46 @@ jar{
     dependsOn project(':blockly:dgir-compiler').tasks.named('jar')
 }
 
+// Start the Vite dev server in the background when requested
+tasks.register('startFrontend') {
+    onlyIf { shouldStartFrontend() }
+    doLast {
+        logger.lifecycle('Starting Blockly frontend with `npm run dev`...')
+        def pb = new ProcessBuilder(['npm', 'run', 'dev'])
+        pb.directory(file('frontend'))
+        pb.redirectErrorStream(true)
+        pb.inheritIO()
+        pb.start()
+    }
+}
+
+tasks.register('openFrontend') {
+    onlyIf { shouldStartFrontend() }
+    dependsOn 'startFrontend'
+    doLast {
+        try {
+            exec { commandLine 'xdg-open', frontendUrl }
+        } catch (Exception ignored) {
+            try {
+                exec { commandLine 'open', frontendUrl }
+            } catch (Exception ignored2) {
+                logger.lifecycle("Open ${frontendUrl} in your browser.")
+            }
+        }
+    }
+}
+
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
+}
+
+// Wire optional frontend startup into run/runJar
+[ tasks.named('run'), tasks.named('runJar') ].each { TaskProvider taskProvider ->
+    taskProvider.configure {
+        if (shouldStartFrontend()) {
+            dependsOn 'openFrontend'
+        }
+    }
 }
 
 repositories {

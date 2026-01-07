@@ -88,6 +88,24 @@ External linkage:
 - bundles a **fat JAR** with all runtime dependencies,
 - exposes a `runJar` task which passes a `web` system property to the main class,
 - registers `assets/` as resources for the main source set.
+- exposes `run` and `runJar` tasks; both can optionally start the Vite frontend and open it in your browser (defaults to `http://localhost:5173/`).
+
+#### Running the backend (with optional frontend)
+
+- Backend only (previous default):
+  - `./gradlew :blockly:run`
+- Backend + frontend auto-start + browser open:
+  - `./gradlew :blockly:run -PstartFrontend=true`
+  - accepts `-Pfrontend=true` as equivalent flags.
+- Jar run with the same behavior:
+  - `./gradlew :blockly:runJar -PstartFrontend=true`
+- Passing CLI args to `client.Client` when using Gradle (alternative to project properties):
+  - `./gradlew :blockly:run --args="web=true"`
+  - `./gradlew :blockly:runJar --args="web=true"`
+  - combine with frontend flag if desired: `./gradlew :blockly:run -PstartFrontend=true --args="web=true"`
+- What the flags do:
+  - `startFrontend`/`frontend`/`web` project property: triggers `npm run dev` in `blockly/frontend`, waits briefly, then attempts to open the frontend URL.
+- Prereqs: ensure Node/npm deps are installed once in `blockly/frontend` (`npm install`).
 
 Relevant excerpt:
 
