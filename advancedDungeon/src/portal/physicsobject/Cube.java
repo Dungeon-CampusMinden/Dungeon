@@ -26,13 +26,14 @@ public class Cube {
    * Creates a portal cube entity at the given position.
    *
    * @param position The initial position of the portal cube.
+   * @param mass The mass of the cube
    * @return A new portal cube entity.
    */
-  public static Entity portalCube(Point position) {
+  public static Entity portalCube(Point position, float mass) {
     Entity portalCube = new Entity("attachablePortalCube");
     portalCube.add(new PortalCubeComponent());
     portalCube.add(new PositionComponent(position));
-    portalCube.add(new VelocityComponent(cube_maxSpeed, cube_mass, entity -> {}, false));
+    portalCube.add(new VelocityComponent(cube_maxSpeed, mass, entity -> {}, false));
     portalCube.add(new DrawComponent(new Animation(PORTAL_CUBE)));
 
     final boolean[] attached = {false};
@@ -48,6 +49,16 @@ public class Cube {
     portalCube.add(new InteractionComponent(() -> pickupInteraction(attached, portalCube, cc)));
 
     return portalCube;
+  }
+
+  /**
+   * Creates a portal cube entity at the given position.
+   *
+   * @param position The initial position of the portal cube.
+   * @return A new portal cube entity.
+   */
+  public static Entity portalCube(Point position) {
+    return portalCube(position, cube_mass);
   }
 
   private static Interaction pickupInteraction(

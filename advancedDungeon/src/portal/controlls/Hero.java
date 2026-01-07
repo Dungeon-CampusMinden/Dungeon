@@ -1,4 +1,4 @@
-package portal.abstraction;
+package portal.controlls;
 
 import com.badlogic.gdx.Input;
 import contrib.components.*;

@@ -1,4 +1,4 @@
-package portal.abstraction;
+package portal.controlls;
 
 /**
  * Abstract base class for player control logic in the game.

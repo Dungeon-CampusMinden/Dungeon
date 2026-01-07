@@ -25,9 +25,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import portal.abstraction.Hero;
-import portal.abstraction.PlayerController;
 import portal.antiMaterialBarrier.AntiMaterialBarrierSystem;
+import portal.controlls.Hero;
+import portal.controlls.PlayerController;
 import portal.laserGrid.LasergridSystem;
 import portal.level.*;
 import portal.portals.PortalColor;
@@ -184,9 +184,10 @@ public class PortalStarter {
         () -> {
           WindowEventManager.registerFocusChangeListener(
               isInFocus -> {
-                if (isInFocus) recompilePlayerControl();
+                if (isInFocus && !DEBUG_MODE) recompilePlayerControl();
               });
 
+          //  DungeonLoader.addLevel(Tuple.of("template", DungeonLevel.class));
           DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
           DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
           DungeonLoader.addLevel(Tuple.of("portallevel1", PortalLevel_1.class));

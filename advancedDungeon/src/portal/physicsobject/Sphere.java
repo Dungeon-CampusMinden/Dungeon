@@ -29,9 +29,10 @@ public class Sphere {
    * Creates a sphere which can be moved by walking into it.
    *
    * @param position the position where the sphere will spawn.
+   * @param mass Mass of the sphere
    * @return the sphere entity
    */
-  public static Entity portalSphere(Point position) {
+  public static Entity portalSphere(Point position, float mass) {
     Entity sphere = new Entity("moveableSphere");
     sphere.add(new PortalSphereComponent());
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(PORTAL_SPHERE);
@@ -47,7 +48,7 @@ public class Sphere {
     DrawComponent dc = new DrawComponent(sm);
     sphere.add(dc);
     sphere.add(new PositionComponent(position));
-    sphere.add(new VelocityComponent(sphere_maxSpeed, sphere_mass, entity -> {}, false));
+    sphere.add(new VelocityComponent(sphere_maxSpeed, mass, entity -> {}, false));
 
     final boolean[] attached = {false};
     CollideComponent cc = new CollideComponent();
@@ -96,5 +97,15 @@ public class Sphere {
                     2f)));
 
     return sphere;
+  }
+
+  /**
+   * Creates a sphere which can be moved by walking into it.
+   *
+   * @param position the position where the sphere will spawn.
+   * @return the sphere entity
+   */
+  public static Entity portalSphere(Point position) {
+    return portalSphere(position, sphere_mass);
   }
 }

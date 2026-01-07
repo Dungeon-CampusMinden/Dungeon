@@ -3,7 +3,7 @@ package portal.portals.abstraction;
 import core.utils.Point;
 import core.utils.Vector2;
 import java.util.function.Supplier;
-import portal.abstraction.Hero;
+import portal.controlls.Hero;
 
 /**
  * Base configuration for a portal projectile ("portal shot").

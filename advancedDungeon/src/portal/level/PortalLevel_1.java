@@ -1,10 +1,13 @@
 package portal.level;
 
+import core.Game;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Vector2;
 import java.util.Map;
+import portal.physicsobject.SpawnLever;
 import portal.portals.PortalColor;
 import portal.portals.PortalFactory;
 import portal.util.AdvancedLevel;
@@ -32,5 +35,7 @@ public class PortalLevel_1 extends AdvancedLevel {
   protected void onFirstTick() {
     PortalFactory.createPortal(namedPoints.get("portal1"), Direction.DOWN, PortalColor.GREEN);
     PortalFactory.createPortal(namedPoints.get("portal2"), Direction.DOWN, PortalColor.BLUE);
+
+    Game.add(SpawnLever.spawnLever(namedPoints.get("portal1").translate(Vector2.of(-1, -1))));
   }
 }

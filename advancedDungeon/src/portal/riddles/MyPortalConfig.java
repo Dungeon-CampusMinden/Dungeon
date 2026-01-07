@@ -2,7 +2,7 @@ package portal.riddles;
 
 import core.utils.Point;
 import java.util.function.Supplier;
-import portal.abstraction.Hero;
+import portal.controlls.Hero;
 import portal.portals.abstraction.PortalConfig;
 
 /**

@@ -1,7 +1,7 @@
 package portal.riddles;
 
-import portal.abstraction.Hero;
-import portal.abstraction.PlayerController;
+import portal.controlls.Hero;
+import portal.controlls.PlayerController;
 
 /**
  * Eine konkrete Implementierung von {@link PlayerController}, die Eingaben verarbeitet und damit
