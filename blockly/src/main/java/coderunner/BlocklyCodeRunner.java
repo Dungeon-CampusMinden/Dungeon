@@ -77,9 +77,7 @@ public class BlocklyCodeRunner {
       import components.*;
       import core.components.*;
       public class UserScript {
-          public static void execute(BlocklyCommands hero) {
-            %s
-          }
+          %s
 
           private static void sleep() {
             sleep(%d);

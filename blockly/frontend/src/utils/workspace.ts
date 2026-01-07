@@ -215,25 +215,9 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
     workspace.highlightBlock(null);
     currentBlock = getStartBlock(workspace);
 
-    // collect all code snippets
-    const codeSnippets: string[] = [];
-    while (currentBlock !== null) {
-      // Highlight current block
-      workspace.highlightBlock(currentBlock.id);
+    const code = javaGenerator.workspaceToCode(workspace);
 
-      // Skip the start block itself
-      if (currentBlock.type !== "start") {
-        const snippet = javaGenerator.blockToCode(currentBlock, true) as string;
-        codeSnippets.push(snippet.trim());
-      }
-
-      currentBlock = currentBlock.getNextBlock();
-    }
-
-    // send the full program in a single request
-    const fullProgram = codeSnippets.join("\n");
-
-    const apiResponse = await call_code_route(fullProgram);
+    const apiResponse = await call_code_route(code);
     if (!apiResponse) {
       await call_clear_route();
       workspace.highlightBlock(null);
