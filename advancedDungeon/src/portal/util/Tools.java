@@ -31,6 +31,22 @@ public class Tools {
   }
 
   /**
+   * Holt den Schalter-Zustand eines Objekts.
+   *
+   * <p>Einige Objekte im Spiel können an- oder ausgeschaltet werden, zum Beispiel Pellet-Catcher.
+   * Diese Methode versucht, die entsprechende Schalter-Komponente aus dem übergebenen Objekt zu
+   * lesen.
+   *
+   * <p>Wenn das Objekt keinen Schalter-Zustand besitzt, wird {@code null} zurückgegeben.
+   *
+   * @param entity Das Objekt, dessen Schalter-Zustand abgefragt werden soll
+   * @return Die {@link ToggleableComponent} des Objekts oder {@code null}, wenn keine vorhanden ist
+   */
+  public static ToggleableComponent getToggleComponent(Entity entity) {
+    return entity.fetch(ToggleableComponent.class).orElse(null);
+  }
+
+  /**
    * Liefert das Portal mit dem angegebenen Namen zurück.
    *
    * <p>Im Spiel gibt es verschiedene Portale (z.B. ein blaues und ein grünes Portal). Mit dieser
