@@ -8,8 +8,8 @@ import core.utils.Direction;
 import core.utils.Point;
 import java.util.Arrays;
 import portal.portals.abstraction.Calculations;
-import portal.util.PortalUtils;
-import portal.util.Tools;
+import portal.riddles.utils.PortalUtils;
+import portal.riddles.utils.Tools;
 
 /**
  * Eine konkrete Implementierung von {@link Calculations}, die grundlegende Berechnungen für das

@@ -20,7 +20,7 @@ import java.util.*;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
-import portal.util.PortalUtils;
+import portal.riddles.utils.PortalUtils;
 
 /**
  * A factory class for creating and managing portals in the game.

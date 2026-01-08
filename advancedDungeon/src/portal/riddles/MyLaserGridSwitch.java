@@ -2,7 +2,7 @@ package portal.riddles;
 
 import core.Entity;
 import portal.laserGrid.LaserGridSwitch;
-import portal.util.Tools;
+import portal.riddles.utils.Tools;
 
 public class MyLaserGridSwitch extends LaserGridSwitch {
   @Override

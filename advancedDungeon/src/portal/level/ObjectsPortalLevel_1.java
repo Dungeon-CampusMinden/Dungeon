@@ -45,7 +45,9 @@ public class ObjectsPortalLevel_1 extends AdvancedLevel {
     Game.add(laser3);
     Game.add(laser4);
     Game.add(laser5);
-    Game.add(LevelCreatorTools.laserCubePlate(getPoint("plate"), 2, laser, laser2, laser3));
+    Game.add(
+        LevelCreatorTools.laserCubePlate(
+            getPoint("plate"), 2, laser, laser2, laser3, laser4, laser5));
   }
 
   @Override

@@ -6,7 +6,7 @@ import core.components.PositionComponent;
 import core.utils.components.MissingComponentException;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
-import portal.util.PortalUtils;
+import portal.riddles.utils.PortalUtils;
 
 /**
  * The PortalExtendSystem manages the interaction with portals for entities that need to be extended

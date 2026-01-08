@@ -1,4 +1,4 @@
-package portal.util;
+package portal.riddles.utils;
 
 import contrib.hud.DialogUtils;
 import contrib.utils.DynamicCompiler;

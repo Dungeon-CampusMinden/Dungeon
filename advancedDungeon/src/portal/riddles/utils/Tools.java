@@ -1,4 +1,4 @@
-package portal.util;
+package portal.riddles.utils;
 
 import core.Entity;
 import core.Game;
@@ -6,6 +6,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
 import portal.laserGrid.LasergridComponent;
+import portal.util.ToggleableComponent;
 
 /**
  * Kleine Hilfsfunktionen für das Arbeiten mit Portalen und Spielfiguren.

@@ -1,4 +1,4 @@
-package portal.util;
+package portal.riddles.utils;
 
 import java.util.HashMap;
 import java.util.Map;

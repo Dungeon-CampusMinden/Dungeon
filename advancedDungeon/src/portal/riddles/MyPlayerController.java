@@ -5,8 +5,8 @@ import core.utils.Direction;
 import core.utils.Vector2;
 import portal.controlls.Hero;
 import portal.controlls.PlayerController;
+import portal.riddles.utils.Timer;
 import portal.tractorBeam.TractorBeamFactory;
-import portal.util.Timer;
 
 /**
  * Eine konkrete Implementierung von {@link PlayerController}, die Eingaben verarbeitet und damit
