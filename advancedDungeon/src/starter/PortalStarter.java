@@ -33,7 +33,6 @@ import portal.portals.PortalColor;
 import portal.portals.PortalExtendSystem;
 import portal.portals.PortalSkill;
 import portal.portals.abstraction.PortalConfig;
-import portal.riddles.MyPlayerController;
 
 /**
  * Starter for the Portal Dungeon.
@@ -60,7 +59,7 @@ public class PortalStarter {
   private static final SimpleIPath PORTAL_CONFIG_PATH =
       new SimpleIPath("advancedDungeon/src/portal/riddles/MyPortalConfig.java");
   private static final String CONFIG_CLASSNAME = "portal.riddles.MyPortalConfig";
-  private static final float ZOOM = -.3f;
+  private static final float ZOOM = .3f;
   private static final int FPS = 30;
   private static final int WIDTH = 640;
   private static final int HEIGHT = 480;
