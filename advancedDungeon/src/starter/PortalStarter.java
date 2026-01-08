@@ -52,7 +52,7 @@ public class PortalStarter {
    */
   public static final boolean DEBUG_MODE = true;
 
-  private static final boolean LEVELEDITOR_MODE = false;
+  private static final boolean LEVELEDITOR_MODE = true;
 
   private static final String SAVE_LEVEL_KEY = "LEVEL";
   private static final String SAVE_FILE = "currentPortalLevel.json";
@@ -193,7 +193,7 @@ public class PortalStarter {
           DungeonLoader.addLevel(Tuple.of("interaction1", InteractionLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("cube1", CubeLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("sphere1", SphereLevel_1.class));
-          DungeonLoader.addLevel(Tuple.of("portal1", PortalLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("portallevel1", PortalLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("objectsportal1", ObjectsPortalLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("portalskill1", PortalSkillLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("portalskill2", PortalSkillLevel_2.class));

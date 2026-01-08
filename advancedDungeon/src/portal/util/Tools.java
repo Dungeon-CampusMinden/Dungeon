@@ -5,6 +5,7 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
+import portal.laserGrid.LasergridComponent;
 
 /**
  * Kleine Hilfsfunktionen für das Arbeiten mit Portalen und Spielfiguren.
@@ -30,6 +31,10 @@ public class Tools {
    */
   public static PositionComponent getPositionComponent(Entity entity) {
     return entity.fetch(PositionComponent.class).orElse(null);
+  }
+
+  public static LasergridComponent getLaserGridComponent(Entity entity) {
+    return entity.fetch(LasergridComponent.class).orElse(null);
   }
 
   /**
