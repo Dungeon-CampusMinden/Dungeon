@@ -1,5 +1,6 @@
 package starter;
 
+import com.badlogic.gdx.Input;
 import contrib.components.*;
 import contrib.entities.EntityFactory;
 import contrib.hud.DialogUtils;
@@ -8,14 +9,10 @@ import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
-import core.components.PlayerComponent;
-import core.components.PositionComponent;
-import core.components.VelocityComponent;
+import core.components.*;
 import core.game.WindowEventManager;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
-import core.systems.CameraSystem;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
@@ -54,6 +51,8 @@ public class PortalStarter {
    * <p>Also disables recompilation for player control.
    */
   public static final boolean DEBUG_MODE = true;
+
+  private static final boolean LEVELEDITOR_MODE = false;
 
   private static final String SAVE_LEVEL_KEY = "LEVEL";
   private static final String SAVE_FILE = "currentPortalLevel.json";
@@ -187,14 +186,14 @@ public class PortalStarter {
               isInFocus -> {
                 if (isInFocus && !DEBUG_MODE) recompilePlayerControl();
               });
-          CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom + .3f);
+          // CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom - .3f);
 
-          DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
-          DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
+          //  DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
+          //  DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
           DungeonLoader.addLevel(Tuple.of("interaction1", InteractionLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("cube1", CubeLevel_1.class));
-          DungeonLoader.addLevel(Tuple.of("cubespawner1", CubeSpawnerLevel_1.class));
-          DungeonLoader.addLevel(Tuple.of("portal1", OldPortalLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("sphere1", SphereLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("portal1", PortalLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("objectsportal1", ObjectsPortalLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("portalskill1", PortalSkillLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("portalskill2", PortalSkillLevel_2.class));
@@ -216,9 +215,22 @@ public class PortalStarter {
     Entity heroEntity = EntityFactory.newHero(DEATH_CALLBACK);
     Game.add(heroEntity);
     hero = new Hero(heroEntity);
-    if (!DEBUG_MODE) recompilePlayerControl();
-    else {
-      debugPortalSkills(heroEntity);
+    if (LEVELEDITOR_MODE) {
+      heroEntity.fetch(InputComponent.class).get().removeCallbacks();
+      heroEntity
+          .fetch(InputComponent.class)
+          .get()
+          .registerCallback(Input.Keys.F12, entity -> DungeonLoader.loadNextLevel());
+      heroEntity
+          .fetch(InputComponent.class)
+          .get()
+          .registerCallback(
+              Input.Keys.F1,
+              entity ->
+                  DungeonLoader.loadLevel(Math.max(0, DungeonLoader.currentLevelIndex() - 1)));
+    } else {
+      if (!DEBUG_MODE) recompilePlayerControl();
+      else debugPortalSkills(heroEntity);
     }
   }
 
@@ -261,8 +273,9 @@ public class PortalStarter {
         core.configuration.KeyboardConfig.class);
     Game.disableAudio(true);
     Game.frameRate(30);
-    Game.windowHeight(800);
-    Game.windowWidth(600);
+    Game.windowWidth(1280);
+
+    Game.windowHeight(720);
     Game.userOnLevelLoad(
         aBoolean -> {
           if (aBoolean) {
@@ -274,7 +287,7 @@ public class PortalStarter {
   }
 
   private static void createSystems() {
-    if (DEBUG_MODE) Game.add(new LevelEditorSystem());
+    if (LEVELEDITOR_MODE) Game.add(new LevelEditorSystem());
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());

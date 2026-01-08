@@ -1,10 +1,11 @@
 package portal.level;
+
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import java.util.Map;
 import portal.util.AdvancedLevel;
 
-import java.util.Map;
 public class PortalSkillLevel_2 extends AdvancedLevel {
 
   private static final String NAME = "Portal Level";
@@ -18,14 +19,13 @@ public class PortalSkillLevel_2 extends AdvancedLevel {
    * @param namedPoints The custom points of the level.
    */
   public PortalSkillLevel_2(
-    LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, NAME);
   }
 
   @Override
-  protected void onFirstTick() {
-  }
+  protected void onFirstTick() {}
+
   @Override
   protected void onTick() {}
 }
-

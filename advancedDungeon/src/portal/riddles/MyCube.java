@@ -3,18 +3,15 @@ package portal.riddles;
 import core.Entity;
 import core.utils.Point;
 import portal.physicsobject.Cube;
+import portal.physicsobject.PortalCube;
 
-public class MyCube extends Cube {
+public class MyCube extends PortalCube {
 
-  private float mass = 0f;
-  private boolean isPickupable = false;
+  private float mass = 5f;
+  private boolean isPickupable = true;
   private String texture = "portal/portal_cube/portal_cube.png";
-  private Entity cube;
-  public MyCube(Point spawn) {
-   cube= Cube.portalCube(spawn, mass, isPickupable, texture);
-  }
 
-  public Entity cube(){
-    return this.cube;
+  public Entity spawn(Point spawn) {
+    return Cube.portalCube(spawn, mass, isPickupable, texture);
   }
 }

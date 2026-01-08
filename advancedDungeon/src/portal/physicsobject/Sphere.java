@@ -32,21 +32,28 @@ public class Sphere {
    * @param mass Mass of the sphere
    * @return the sphere entity
    */
-  public static Entity portalSphere(Point position, float mass) {
+  public static Entity portalSphere(
+      Point position, float mass, boolean isPickupable, String texture) {
     Entity sphere = new Entity("moveableSphere");
     sphere.add(new PortalSphereComponent());
-    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(PORTAL_SPHERE);
+    try {
+      Map<String, Animation> animationMap =
+          Animation.loadAnimationSpritesheet(new SimpleIPath(texture));
 
-    State stIdle = new State("idle", animationMap.get("idle"));
-    State stMove = new State("move", animationMap.get("move"));
-    StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove));
+      State stIdle = new State("idle", animationMap.get("idle"));
+      State stMove = new State("move", animationMap.get("move"));
+      StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove));
 
-    sm.addTransition(stIdle, "move", stMove);
-    sm.addTransition(stMove, "move", stMove);
-    sm.addTransition(stMove, "idle", stIdle);
+      sm.addTransition(stIdle, "move", stMove);
+      sm.addTransition(stMove, "move", stMove);
+      sm.addTransition(stMove, "idle", stIdle);
 
-    DrawComponent dc = new DrawComponent(sm);
-    sphere.add(dc);
+      DrawComponent dc = new DrawComponent(sm);
+      sphere.add(dc);
+    } catch (Exception e) {
+      sphere.add(new DrawComponent(new SimpleIPath(texture)));
+    }
+
     sphere.add(new PositionComponent(position));
     sphere.add(new VelocityComponent(sphere_maxSpeed, mass, entity -> {}, false));
 
@@ -60,41 +67,42 @@ public class Sphere {
         });
     sphere.add(cc);
 
-    sphere.add(
-        new InteractionComponent(
-            () ->
-                new Interaction(
-                    (interacted, interactor) -> {
-                      PositionComponent interactorPositioncomponent =
-                          interactor.fetch(PositionComponent.class).orElseThrow();
-                      PositionComponent interactedPositioncomponent =
-                          interacted.fetch(PositionComponent.class).orElseThrow();
-                      if (!attached[0]) {
-                        AttachmentComponent attachmentComponent =
-                            new AttachmentComponent(
-                                Vector2.ZERO,
-                                interactedPositioncomponent,
-                                interactorPositioncomponent);
-                        sphere.add(attachmentComponent);
-                        cc.isSolid(false);
-                        attached[0] = true;
-                      } else {
-                        sphere.remove(AttachmentComponent.class);
-                        Game.tileAt(interactedPositioncomponent.coordinate())
-                            .ifPresent(
-                                tile -> {
-                                  if (tile.levelElement() == LevelElement.WALL
-                                      || tile.levelElement() == LevelElement.GITTER
-                                      || tile.levelElement() == LevelElement.GLASSWALL
-                                      || tile.levelElement() == LevelElement.PORTAL) {
-                                    interactedPositioncomponent.position(
-                                        interactorPositioncomponent.position());
-                                  }
-                                });
-                        attached[0] = false;
-                      }
-                    },
-                    2f)));
+    if (isPickupable)
+      sphere.add(
+          new InteractionComponent(
+              () ->
+                  new Interaction(
+                      (interacted, interactor) -> {
+                        PositionComponent interactorPositioncomponent =
+                            interactor.fetch(PositionComponent.class).orElseThrow();
+                        PositionComponent interactedPositioncomponent =
+                            interacted.fetch(PositionComponent.class).orElseThrow();
+                        if (!attached[0]) {
+                          AttachmentComponent attachmentComponent =
+                              new AttachmentComponent(
+                                  Vector2.ZERO,
+                                  interactedPositioncomponent,
+                                  interactorPositioncomponent);
+                          sphere.add(attachmentComponent);
+                          cc.isSolid(false);
+                          attached[0] = true;
+                        } else {
+                          sphere.remove(AttachmentComponent.class);
+                          Game.tileAt(interactedPositioncomponent.coordinate())
+                              .ifPresent(
+                                  tile -> {
+                                    if (tile.levelElement() == LevelElement.WALL
+                                        || tile.levelElement() == LevelElement.GITTER
+                                        || tile.levelElement() == LevelElement.GLASSWALL
+                                        || tile.levelElement() == LevelElement.PORTAL) {
+                                      interactedPositioncomponent.position(
+                                          interactorPositioncomponent.position());
+                                    }
+                                  });
+                          attached[0] = false;
+                        }
+                      },
+                      2f)));
 
     return sphere;
   }
@@ -106,6 +114,6 @@ public class Sphere {
    * @return the sphere entity
    */
   public static Entity portalSphere(Point position) {
-    return portalSphere(position, sphere_mass);
+    return portalSphere(position, sphere_mass, true, PORTAL_SPHERE.pathString());
   }
 }

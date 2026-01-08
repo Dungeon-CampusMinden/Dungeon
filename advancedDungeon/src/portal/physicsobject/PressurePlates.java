@@ -57,7 +57,8 @@ public class PressurePlates {
       IPath spriteSheet,
       float massTrigger,
       Class<? extends Component> requiredComponent,
-      Point position) {
+      Point position,
+      ICommand command) {
 
     Entity pressurePlate = new Entity(name);
     pressurePlate.add(new PositionComponent(position));
@@ -70,7 +71,7 @@ public class PressurePlates {
     sm.addTransition(stOn, "off", stOff);
     pressurePlate.add(new DrawComponent(sm, DepthLayer.Ground));
 
-    LeverComponent leverComponent = new LeverComponent(false, ICommand.NOOP);
+    LeverComponent leverComponent = new LeverComponent(false, command);
     pressurePlate.add(leverComponent);
 
     PressurePlateComponent pressurePlateComponent = new PressurePlateComponent(massTrigger);
@@ -122,7 +123,18 @@ public class PressurePlates {
         CUBE_PRESSURE_PLATE,
         massTrigger,
         PortalCubeComponent.class,
-        position);
+        position,
+        ICommand.NOOP);
+  }
+
+  public static Entity cubePressurePlate(Point position, float massTrigger, ICommand command) {
+    return createPressurePlate(
+        "cube-pressureplate",
+        CUBE_PRESSURE_PLATE,
+        massTrigger,
+        PortalCubeComponent.class,
+        position,
+        command);
   }
 
   /**
@@ -146,6 +158,17 @@ public class PressurePlates {
         SPHERE_PRESSURE_PLATE,
         massTrigger,
         PortalSphereComponent.class,
-        position);
+        position,
+        ICommand.NOOP);
+  }
+
+  public static Entity spherePressurePlate(Point position, float massTrigger, ICommand command) {
+    return createPressurePlate(
+        "sphere-pressureplate",
+        SPHERE_PRESSURE_PLATE,
+        massTrigger,
+        PortalSphereComponent.class,
+        position,
+        command);
   }
 }

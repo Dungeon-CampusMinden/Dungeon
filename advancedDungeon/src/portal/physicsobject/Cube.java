@@ -29,12 +29,13 @@ public class Cube {
    * @param mass The mass of the cube
    * @return A new portal cube entity.
    */
-  public static Entity portalCube(Point position, float mass) {
+  public static Entity portalCube(
+      Point position, float mass, boolean isPickupable, String texture) {
     Entity portalCube = new Entity("attachablePortalCube");
     portalCube.add(new PortalCubeComponent());
     portalCube.add(new PositionComponent(position));
     portalCube.add(new VelocityComponent(cube_maxSpeed, mass, entity -> {}, false));
-    portalCube.add(new DrawComponent(new Animation(PORTAL_CUBE)));
+    portalCube.add(new DrawComponent(new Animation(new SimpleIPath(texture))));
 
     final boolean[] attached = {false};
     CollideComponent cc = new CollideComponent();
@@ -46,7 +47,8 @@ public class Cube {
         });
     portalCube.add(cc);
 
-    portalCube.add(new InteractionComponent(() -> pickupInteraction(attached, portalCube, cc)));
+    if (isPickupable)
+      portalCube.add(new InteractionComponent(() -> pickupInteraction(attached, portalCube, cc)));
 
     return portalCube;
   }
@@ -58,7 +60,7 @@ public class Cube {
    * @return A new portal cube entity.
    */
   public static Entity portalCube(Point position) {
-    return portalCube(position, cube_mass);
+    return portalCube(position, cube_mass, true, PORTAL_CUBE.pathString());
   }
 
   private static Interaction pickupInteraction(
@@ -93,11 +95,5 @@ public class Cube {
           }
         },
         2f);
-  }
-
-  protected static Entity portalCube(
-      Point spawn, float mass, boolean isPickupable, String texture) {
-    //TODO
-    return portalCube(spawn,mass);
   }
 }

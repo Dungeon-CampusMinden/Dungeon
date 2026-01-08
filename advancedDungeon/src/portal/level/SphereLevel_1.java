@@ -9,7 +9,7 @@ import java.util.Map;
 import portal.antiMaterialBarrier.AntiMaterialBarrier;
 import portal.util.AdvancedLevel;
 
-public class CubeLevel_1 extends AdvancedLevel {
+public class SphereLevel_1 extends AdvancedLevel {
 
   private static final String NAME = "Portal Level";
 
@@ -21,14 +21,14 @@ public class CubeLevel_1 extends AdvancedLevel {
    * @param designLabel The design label for the level.
    * @param namedPoints The custom points of the level.
    */
-  public CubeLevel_1(
+  public SphereLevel_1(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, NAME);
   }
 
   @Override
   protected void onFirstTick() {
-    Game.add(LevelCreatorTools.doorPressurePlate(getPoint("plate"), getPoint("door"), 3.5f));
+    Game.add(LevelCreatorTools.doorPressurePlateSphere(getPoint("plate"), getPoint("door"), 3.5f));
     Game.add(AntiMaterialBarrier.antiMaterialBarrier(getPoint("amg"), true));
 
     Game.add(
@@ -39,6 +39,6 @@ public class CubeLevel_1 extends AdvancedLevel {
             getPoint("amg").translate(Vector2.of(0, -2)), true));
 
     // My Cube
-    Game.add(LevelCreatorTools.cubeSpawner(getPoint("spawner"), getPoint("cube")));
+    Game.add(LevelCreatorTools.sphereSpawner(getPoint("spawner"), getPoint("cube")));
   }
 }
