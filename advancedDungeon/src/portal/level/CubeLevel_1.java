@@ -1,5 +1,6 @@
 package portal.level;
 
+import contrib.hud.DialogUtils;
 import core.Game;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -11,7 +12,10 @@ import portal.util.AdvancedLevel;
 
 /** Level in the portal dungeon. */
 public class CubeLevel_1 extends AdvancedLevel {
-
+  private static boolean showMsg = true;
+  private static final String msg = "Um die Tür zu öffnen brauchst du einen Würfel.";
+  private static final String task = "Schau dir die Datei MyCube.java an.";
+  private static final String title = "Würfel";
   private static final String NAME = "Portal Level";
 
   /**
@@ -38,8 +42,15 @@ public class CubeLevel_1 extends AdvancedLevel {
     Game.add(
         AntiMaterialBarrier.antiMaterialBarrier(
             getPoint("amg").translate(Vector2.of(0, -2)), true));
-
-    // My Cube
     Game.add(LevelCreatorTools.cubeSpawner(getPoint("spawner"), getPoint("cube")));
+
+    if (showMsg)
+      DialogUtils.showTextPopup(
+          msg,
+          title,
+          () -> {
+            showMsg = false;
+            DialogUtils.showTextPopup(task, title);
+          });
   }
 }

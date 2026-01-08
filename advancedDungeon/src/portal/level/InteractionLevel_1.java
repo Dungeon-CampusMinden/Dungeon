@@ -1,5 +1,6 @@
 package portal.level;
 
+import contrib.hud.DialogUtils;
 import core.Game;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -13,6 +14,9 @@ import portal.util.AdvancedLevel;
 public class InteractionLevel_1 extends AdvancedLevel {
 
   private static final String NAME = "Portal Level";
+  private static boolean showMsg = true;
+  private static final String msg = "Um hier weiterzukommen, musst du den Hebel ziehen.";
+  private static final String title = "Interaktion implementieren";
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -37,5 +41,7 @@ public class InteractionLevel_1 extends AdvancedLevel {
     Game.add(
         AntiMaterialBarrier.antiMaterialBarrier(
             getPoint("amg").translate(Vector2.of(0, -2)), true));
+
+    if (showMsg) DialogUtils.showTextPopup(msg, title, () -> {});
   }
 }

@@ -13,6 +13,7 @@ import core.components.*;
 import core.game.WindowEventManager;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
+import core.systems.CameraSystem;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
@@ -50,15 +51,19 @@ public class PortalStarter {
    *
    * <p>Also disables recompilation for player control.
    */
-  public static final boolean DEBUG_MODE = true;
+  public static final boolean DEBUG_MODE = false;
 
-  private static final boolean LEVELEDITOR_MODE = true;
+  private static final boolean LEVELEDITOR_MODE = false;
 
   private static final String SAVE_LEVEL_KEY = "LEVEL";
   private static final String SAVE_FILE = "currentPortalLevel.json";
   private static final SimpleIPath PORTAL_CONFIG_PATH =
       new SimpleIPath("advancedDungeon/src/portal/riddles/MyPortalConfig.java");
   private static final String CONFIG_CLASSNAME = "portal.riddles.MyPortalConfig";
+  private static final float ZOOM = -.3f;
+  private static final int FPS = 30;
+  private static final int WIDTH = 640;
+  private static final int HEIGHT = 480;
 
   /** Global reference to the {@link Hero} instance used in the game. */
   public static Hero hero;
@@ -79,7 +84,7 @@ public class PortalStarter {
   private static final Consumer<Entity> DEATH_CALLBACK =
       (hero) ->
           DialogUtils.showTextPopup(
-              "You died!",
+              "Du bist gestorben.",
               "Game Over",
               () -> {
                 // Just respawn at Start Tile instead of reloading the level
@@ -157,8 +162,8 @@ public class PortalStarter {
               .orElseThrow(
                   () -> MissingComponentException.build(hero.hero(), SkillComponent.class));
       sc.removeAll();
-      sc.addSkill(new PortalSkill(PortalColor.BLUE, ((PortalConfig) o)));
       sc.addSkill(new PortalSkill(PortalColor.GREEN, ((PortalConfig) o)));
+      sc.addSkill(new PortalSkill(PortalColor.BLUE, ((PortalConfig) o)));
 
     } catch (Exception e) {
       recompilePaused = true;
@@ -186,7 +191,7 @@ public class PortalStarter {
               isInFocus -> {
                 if (isInFocus && !DEBUG_MODE) recompilePlayerControl();
               });
-          // CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom - .3f);
+          CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom + ZOOM);
 
           DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
           DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
@@ -275,10 +280,9 @@ public class PortalStarter {
         contrib.configuration.KeyboardConfig.class,
         core.configuration.KeyboardConfig.class);
     Game.disableAudio(true);
-    Game.frameRate(30);
-    Game.windowWidth(1280);
-
-    Game.windowHeight(720);
+    Game.frameRate(FPS);
+    Game.windowWidth(WIDTH);
+    Game.windowHeight(HEIGHT);
     Game.userOnLevelLoad(
         aBoolean -> {
           if (aBoolean) {

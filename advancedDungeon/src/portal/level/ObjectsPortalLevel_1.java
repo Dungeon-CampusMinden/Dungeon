@@ -1,5 +1,6 @@
 package portal.level;
 
+import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
 import core.level.utils.DesignLabel;
@@ -15,8 +16,11 @@ import portal.util.AdvancedLevel;
 
 /** Level in the portal dungeon. */
 public class ObjectsPortalLevel_1 extends AdvancedLevel {
-
+  private static boolean showMsg = true;
   private static final String NAME = "Portal Level";
+  private static final String msg = "Pass auf, der Laser sieht gefährlich aus.";
+  private static final String task = "Finde einen Weg den Laser zu deaktivieren.";
+  private static final String title = "Laser";
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -49,8 +53,14 @@ public class ObjectsPortalLevel_1 extends AdvancedLevel {
     Game.add(
         LevelCreatorTools.laserCubePlate(
             getPoint("plate"), 2, laser, laser2, laser3, laser4, laser5));
-  }
 
-  @Override
-  protected void onTick() {}
+    if (showMsg)
+      DialogUtils.showTextPopup(
+          msg,
+          title,
+          () -> {
+            showMsg = false;
+            DialogUtils.showTextPopup(task, title);
+          });
+  }
 }

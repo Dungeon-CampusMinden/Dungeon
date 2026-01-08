@@ -1,5 +1,6 @@
 package portal.level;
 
+import contrib.hud.DialogUtils;
 import core.Game;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -16,6 +17,11 @@ import portal.util.AdvancedLevel;
 public class PortalSkillLevel_1 extends AdvancedLevel {
 
   private static final String NAME = "Portal Level";
+  private static final String msg = "Ab jetzt musst du selbst das grüne Portal schießen.";
+  private static final String task =
+      "Füge deinem Helden die Fähigkeit hinzu, das Portal zu schießen.";
+  private static final String title = "Portal Skill";
+  private static boolean showMsg = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -40,6 +46,15 @@ public class PortalSkillLevel_1 extends AdvancedLevel {
     Game.add(
         AntiMaterialBarrier.antiMaterialBarrier(
             getPoint("amg").translate(Vector2.of(2, 0)), false));
+
+    if (showMsg)
+      DialogUtils.showTextPopup(
+          msg,
+          title,
+          () -> {
+            showMsg = false;
+            DialogUtils.showTextPopup(task, title);
+          });
   }
 
   @Override
