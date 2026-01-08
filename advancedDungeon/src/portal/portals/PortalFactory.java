@@ -17,6 +17,8 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
+
+import portal.laser.LaserComponent;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
@@ -102,7 +104,8 @@ public class PortalFactory {
               Entity portal = new Entity(BLUE_PORTAL_NAME);
               Map<String, Animation> animationMap =
                   Animation.loadAnimationSpritesheet(BLUE_PORTAL_TEXTURE);
-
+              // To allow collision with the stationary Portal elements like lightwalls.
+              portal.add(new VelocityComponent(0.0000000001f));
               State fallback = new State("NONE", animationMap.get("fallback"));
               State top = new State("UP", animationMap.get("bottom"));
               State bottom = new State("DOWN", animationMap.get("fallback"));
@@ -169,7 +172,8 @@ public class PortalFactory {
               Entity portal = new Entity(GREEN_PORTAL_NAME);
               Map<String, Animation> animationMap =
                   Animation.loadAnimationSpritesheet(GREEN_PORTAL_TEXTURE);
-
+              // To allow collision with the stationary Portal elements like lightwalls.
+              portal.add(new VelocityComponent(0.0000000001f));
               State fallback = new State("NONE", animationMap.get("fallback"));
               State top = new State("UP", animationMap.get("bottom"));
               State bottom = new State("DOWN", animationMap.get("fallback"));
@@ -379,8 +383,12 @@ public class PortalFactory {
       portal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
       getBluePortal()
           .ifPresent(
-              bluePortal ->
-                  bluePortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other));
+              bluePortal -> {
+                bluePortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
+              });
+      if (other.name().equals("laserEmitter")) {
+        other.fetch(LaserComponent.class).get().setThroughCube(true);
+      }
       return;
     }
 
@@ -441,8 +449,12 @@ public class PortalFactory {
       portal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
       getGreenPortal()
           .ifPresent(
-              greenPortal ->
-                  greenPortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other));
+              greenPortal -> {
+                greenPortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
+              });
+      if (other.name().equals("laserEmitter")) {
+        other.fetch(LaserComponent.class).get().setThroughCube(true);
+      }
       return;
     }
 
@@ -617,6 +629,17 @@ public class PortalFactory {
    * @param direction Direction where it extends to.
    */
   private static void onCollideLeave(Entity portal, Entity other, Direction direction) {
+    if (other.name().equals("laserEmitter")) {
+      other
+          .fetch(LaserComponent.class)
+          .ifPresent(
+              lc -> {
+                if (lc.isThroughCube()) {
+                  clearExtendedEntity(portal, other);
+                }
+              });
+      return;
+    }
     clearExtendedEntity(portal, other);
   }
 
