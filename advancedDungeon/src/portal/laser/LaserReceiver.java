@@ -16,10 +16,17 @@ import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.Map;
 
+/** Class to create the LaserReceiver Entity. */
 public class LaserReceiver {
 
   private static final SimpleIPath LASER_RECEIVER = new SimpleIPath("portal/laser_receiver");
 
+  /**
+   * Creates a laser receiver entity at the given position.
+   *
+   * @param position The initial position of the laser receiver.
+   * @return A new laser receiver entity.
+   */
   public static Entity laserReceiver(Point position) {
     Entity receiver = new Entity("laserReceiver");
 

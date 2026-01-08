@@ -28,6 +28,7 @@ public class LaserCubeComponent implements Component {
 
   /**
    * Returns if the cube is getting moved by a player.
+   *
    * @return true if the cube is getting moved, otherwise false.
    */
   public boolean isBeingMoved() {
