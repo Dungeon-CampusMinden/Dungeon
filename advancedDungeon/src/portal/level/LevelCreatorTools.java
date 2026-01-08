@@ -272,7 +272,6 @@ public class LevelCreatorTools {
             Object o;
             try {
               o = DynamicCompiler.loadUserInstance(BEAMSWITCH_PATH, BEAMSWITCH_CLASSNAME);
-              TractorBeamLever s = ((TractorBeamLever) o);
               ((TractorBeamLever) o).reverse(tractorbeam);
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
@@ -286,7 +285,6 @@ public class LevelCreatorTools {
             Object o;
             try {
               o = DynamicCompiler.loadUserInstance(BEAMSWITCH_PATH, BEAMSWITCH_CLASSNAME);
-              TractorBeamLever s = ((TractorBeamLever) o);
               ((TractorBeamLever) o).reverse(tractorbeam);
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();

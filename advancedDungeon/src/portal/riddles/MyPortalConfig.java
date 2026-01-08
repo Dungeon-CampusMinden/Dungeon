@@ -43,7 +43,7 @@ public class MyPortalConfig extends PortalConfig {
    */
   @Override
   public long cooldown() {
-    return 500;
+    return 300;
   }
 
   /**
@@ -56,7 +56,7 @@ public class MyPortalConfig extends PortalConfig {
    */
   @Override
   public float speed() {
-    return 10;
+    return 1;
   }
 
   /**
@@ -68,7 +68,7 @@ public class MyPortalConfig extends PortalConfig {
    */
   @Override
   public float range() {
-    return 1000;
+    return 1;
   }
 
   /**
@@ -84,6 +84,6 @@ public class MyPortalConfig extends PortalConfig {
    */
   @Override
   public Supplier<Point> target() {
-    return () -> hero.getMousePosition();
+    return () -> new Point(0, 0);
   }
 }
