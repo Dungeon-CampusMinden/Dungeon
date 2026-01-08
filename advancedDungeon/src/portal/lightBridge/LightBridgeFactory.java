@@ -216,7 +216,7 @@ public class LightBridgeFactory {
    * Component representing a light bridge between the emitter and the first blocking tile (e.g., a
    * wall).
    */
-  private static class BeamComponent implements Component {
+  public static class BeamComponent implements Component {
 
     private static Map<String, Animation> SEGMENT_ANIMATION_CACHE;
 

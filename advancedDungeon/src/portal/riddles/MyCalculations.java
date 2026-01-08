@@ -85,12 +85,12 @@ public class MyCalculations extends Calculations {
     while (true) {
       Tile currentTile = Tools.tileAt(currentPoint);
       if (currentTile == null) break;
-
+      System.out.println("TEST");
       if (Arrays.asList(stoppingTiles).contains(currentTile.levelElement())) break;
-
       lastPoint = currentPoint;
       currentPoint = currentPoint.translate(beamDirection);
     }
+    System.out.println("LP" + lastPoint);
     return lastPoint;
   }
 }

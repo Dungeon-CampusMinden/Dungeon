@@ -11,6 +11,8 @@ import core.level.elements.tile.DoorTile;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import portal.laserGrid.LaserGridSwitch;
+import portal.lightBridge.BridgeSwitch;
+import portal.lightWall.LightWallSwitch;
 import portal.physicsobject.PortalCube;
 import portal.physicsobject.PortalSphere;
 import portal.physicsobject.PressurePlates;
@@ -26,6 +28,12 @@ public class LevelCreatorTools {
   private static final SimpleIPath LASER_PATH =
       new SimpleIPath("advancedDungeon/src/portal/riddles/MyLaserGridSwitch.java");
   private static final String LASER_CLASSNAME = "portal.riddles.MyLaserGridSwitch";
+  private static final SimpleIPath BRIDGESWITCH_PATH =
+      new SimpleIPath("advancedDungeon/src/portal/riddles/MyBridgeSwitch.java");
+  private static final String BRIDGESWITCH_CLASSNAME = "portal.riddles.MyBridgeSwitch";
+  private static final String WALLSWITCH_CLASSNAME = "portal.riddles.MyLightWallSwitch";
+  private static final SimpleIPath WALLSWITCH_PATH =
+      new SimpleIPath("advancedDungeon/src/portal/riddles/MyLightWallSwitch.java");
 
   public static Entity doorLever(Point leverP, Point doorP) {
     DoorTile door = (DoorTile) Game.tileAt(doorP).orElseThrow();
@@ -174,6 +182,74 @@ public class LevelCreatorTools {
               o = DynamicCompiler.loadUserInstance(LASER_PATH, LASER_CLASSNAME);
               LaserGridSwitch laser = ((LaserGridSwitch) o);
               laser.activate(lasergrid);
+            } catch (Exception e) {
+              if (PortalStarter.DEBUG_MODE) e.printStackTrace();
+              DialogUtils.showTextPopup("TBD", "Code Error");
+            }
+          }
+        });
+  }
+
+  public static Entity bridgeLever(Entity bridge, Point leverPosition) {
+    return LeverFactory.createLever(
+        leverPosition,
+        new ICommand() {
+          @Override
+          public void execute() {
+
+            Object o;
+            try {
+              o = DynamicCompiler.loadUserInstance(BRIDGESWITCH_PATH, BRIDGESWITCH_CLASSNAME);
+              BridgeSwitch s = ((BridgeSwitch) o);
+              s.activate(bridge);
+            } catch (Exception e) {
+              if (PortalStarter.DEBUG_MODE) e.printStackTrace();
+              DialogUtils.showTextPopup("TBD", "Code Error");
+            }
+          }
+
+          @Override
+          public void undo() {
+
+            Object o;
+            try {
+              o = DynamicCompiler.loadUserInstance(BRIDGESWITCH_PATH, BRIDGESWITCH_CLASSNAME);
+              BridgeSwitch s = ((BridgeSwitch) o);
+              s.deactivate(bridge);
+            } catch (Exception e) {
+              if (PortalStarter.DEBUG_MODE) e.printStackTrace();
+              DialogUtils.showTextPopup("TBD", "Code Error");
+            }
+          }
+        });
+  }
+
+  public static Entity wallLever(Entity emitter, Point aSwitch) {
+    return LeverFactory.createLever(
+        aSwitch,
+        new ICommand() {
+          @Override
+          public void execute() {
+
+            Object o;
+            try {
+              o = DynamicCompiler.loadUserInstance(WALLSWITCH_PATH, WALLSWITCH_CLASSNAME);
+              LightWallSwitch s = ((LightWallSwitch) o);
+              s.activate(emitter);
+            } catch (Exception e) {
+              if (PortalStarter.DEBUG_MODE) e.printStackTrace();
+              DialogUtils.showTextPopup("TBD", "Code Error");
+            }
+          }
+
+          @Override
+          public void undo() {
+
+            Object o;
+            try {
+              o = DynamicCompiler.loadUserInstance(WALLSWITCH_PATH, WALLSWITCH_CLASSNAME);
+              LightWallSwitch s = ((LightWallSwitch) o);
+              s.deactivate(emitter);
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
               DialogUtils.showTextPopup("TBD", "Code Error");

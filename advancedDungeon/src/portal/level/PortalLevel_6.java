@@ -70,7 +70,8 @@ public class PortalLevel_6 extends AdvancedLevel {
         namedPoints.get("monster6").x(), namedPoints.get("monster6").y(), Direction.RIGHT);
 
     Entity emitter =
-        LightWallFactory.createEmitter(namedPoints.get("emitter"), Direction.DOWN, true);
+        LightWallFactory.createEmitter(namedPoints.get("emitter"), Direction.DOWN, false);
+    Game.add(LevelCreatorTools.wallLever(emitter, getPoint("switch")));
     Game.add(emitter);
   }
 

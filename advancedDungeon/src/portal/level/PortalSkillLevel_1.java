@@ -1,9 +1,15 @@
 package portal.level;
 
+import core.Game;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Vector2;
 import java.util.Map;
+import portal.antiMaterialBarrier.AntiMaterialBarrier;
+import portal.portals.PortalColor;
+import portal.portals.PortalFactory;
 import portal.util.AdvancedLevel;
 
 public class PortalSkillLevel_1 extends AdvancedLevel {
@@ -24,7 +30,16 @@ public class PortalSkillLevel_1 extends AdvancedLevel {
   }
 
   @Override
-  protected void onFirstTick() {}
+  protected void onFirstTick() {
+    PortalFactory.createPortal(getPoint("portal"), Direction.LEFT, PortalColor.BLUE);
+    Game.add(AntiMaterialBarrier.antiMaterialBarrier(getPoint("amg"), false));
+    Game.add(
+        AntiMaterialBarrier.antiMaterialBarrier(
+            getPoint("amg").translate(Vector2.of(1, 0)), false));
+    Game.add(
+        AntiMaterialBarrier.antiMaterialBarrier(
+            getPoint("amg").translate(Vector2.of(2, 0)), false));
+  }
 
   @Override
   protected void onTick() {}

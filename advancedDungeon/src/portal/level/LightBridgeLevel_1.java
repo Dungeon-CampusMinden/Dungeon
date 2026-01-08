@@ -1,9 +1,13 @@
 package portal.level;
 
+import core.Entity;
+import core.Game;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.Point;
 import java.util.Map;
+import portal.lightBridge.LightBridgeFactory;
 import portal.util.AdvancedLevel;
 
 public class LightBridgeLevel_1 extends AdvancedLevel {
@@ -24,7 +28,11 @@ public class LightBridgeLevel_1 extends AdvancedLevel {
   }
 
   @Override
-  protected void onFirstTick() {}
+  protected void onFirstTick() {
+    Entity emitter = LightBridgeFactory.createEmitter(getPoint("bridge"), Direction.RIGHT, false);
+    Game.add(emitter);
+    Game.add(LevelCreatorTools.bridgeLever(emitter, getPoint("switch")));
+  }
 
   @Override
   protected void onTick() {}
