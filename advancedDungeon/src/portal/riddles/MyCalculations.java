@@ -1,16 +1,11 @@
 package portal.riddles;
 
 import core.Entity;
-import core.components.PositionComponent;
-import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
-import java.util.Arrays;
 import portal.portals.abstraction.Calculations;
-import portal.riddles.utils.PortalUtils;
-import portal.riddles.utils.Tools;
 
 /**
  * Eine konkrete Implementierung von {@link Calculations}, die grundlegende Berechnungen für das
@@ -22,8 +17,6 @@ import portal.riddles.utils.Tools;
  * <p>Im Laufe des Spiels oder der Aufgaben können hier weitere Berechnungsmethoden hinzukommen.
  */
 public class MyCalculations extends Calculations {
-
-  private static final float FORCE_MAGNITUDE = 20f;
 
   /**
    * Berechnet die Position, an der ein Objekt nach einer Portal-Reise wieder erscheint.
@@ -45,15 +38,7 @@ public class MyCalculations extends Calculations {
    * @return Die berechnete Zielposition als {@link Point}
    */
   public Point calculatePortalExit(Entity portal) {
-    Entity otherPortal;
-
-    if (portal.name().equals(PortalUtils.BLUE_PORTAL_NAME))
-      otherPortal = Tools.getPortal(PortalUtils.GREEN_PORTAL_NAME);
-    else otherPortal = Tools.getPortal(PortalUtils.BLUE_PORTAL_NAME);
-
-    PositionComponent pc = Tools.getPositionComponent(otherPortal);
-    Direction direction = pc.viewDirection();
-    return pc.position().translate(direction);
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   /**
@@ -82,28 +67,47 @@ public class MyCalculations extends Calculations {
    */
   public Point calculateLightWallAndBridgeEnd(
       Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
-    Point lastPoint = from;
-    Point currentPoint = from;
-
-    while (true) {
-      Tile currentTile = Tools.tileAt(currentPoint);
-      if (currentTile == null) break;
-      System.out.println("TEST");
-      if (Arrays.asList(stoppingTiles).contains(currentTile.levelElement())) break;
-      lastPoint = currentPoint;
-      currentPoint = currentPoint.translate(beamDirection);
-    }
-    System.out.println("LP" + lastPoint);
-    return lastPoint;
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
-  @Override
+  /**
+   * Bestimmt die Kraft, mit der der Traktorstrahl Objekte bewegt.
+   *
+   * <p>Diese Methode wird aufgerufen, wenn sich ein Objekt im Traktorstrahl befindet.
+   *
+   * <p>Du legst hier fest, <b>in welche Richtung</b> und <b>wie stark</b> das Objekt geschoben oder
+   * gezogen wird.
+   *
+   * <p>Die Richtung ergibt sich aus dem übergebenen {@link Direction}-Wert, die Stärke bestimmst du
+   * über die Länge des zurückgegebenen Vektors.
+   *
+   * <p>Beispiele:
+   *
+   * <ul>
+   *   <li>Eine kleine Kraft → Objekt bewegt sich langsam
+   *   <li>Eine große Kraft → Objekt bewegt sich schnell
+   * </ul>
+   *
+   * @param direction Die Richtung, in die der Traktorstrahl zeigt
+   * @return Ein {@link Vector2}, der die Kraft des Traktorstrahls beschreibt
+   */
   public Vector2 beamForce(Direction direction) {
-    return Vector2.of(direction.x() * FORCE_MAGNITUDE, direction.y() * FORCE_MAGNITUDE);
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
-  @Override
+  /**
+   * Bestimmt die entgegengesetzte Kraft des Traktorstrahls.
+   *
+   * <p>Diese Methode wird verwendet, wenn ein Objekt <b>in die andere Richtung</b> bewegt werden
+   * soll, zum Beispiel beim Zurückstoßen oder Herausziehen aus dem Strahl.
+   *
+   * <p>Meist ist diese Kraft genau das Gegenteil von {@link #beamForce(Direction)}. Du kannst sie
+   * aber auch schwächer oder stärker machen, um besondere Effekte zu erzeugen.
+   *
+   * @param direction Die ursprüngliche Richtung des Traktorstrahls
+   * @return Ein {@link Vector2}, der die entgegengesetzte Kraft beschreibt
+   */
   public Vector2 reversedBeamForce(Direction direction) {
-    return this.beamForce(direction).scale(-1);
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 }

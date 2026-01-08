@@ -51,7 +51,34 @@ public abstract class Calculations {
   public abstract Point calculateLightWallAndBridgeEnd(
       Point from, Direction beamDirection, LevelElement[] stoppingTiles);
 
+  /**
+   * Calculates the force applied by a tractor beam.
+   *
+   * <p>This method defines the directional force that is applied to entities affected by a tractor
+   * beam.
+   *
+   * <p>The returned {@link Vector2} represents both the direction and magnitude of the force. The
+   * engine applies this force to movable entities while they are inside the beam.
+   *
+   * <p>Implementations may vary the force strength depending on the given direction to achieve
+   * different gameplay effects.
+   *
+   * @param direction the direction in which the tractor beam is oriented
+   * @return a vector describing the applied force
+   */
   public abstract Vector2 beamForce(Direction direction);
 
+  /**
+   * Calculates the inverse force of a tractor beam.
+   *
+   * <p>This method defines the force applied when an entity is moved opposite to the tractor beam's
+   * primary direction.
+   *
+   * <p>In most cases, this force is the negation of {@link #beamForce(Direction)}, but
+   * implementations are free to apply different magnitudes or behaviors if required.
+   *
+   * @param direction the original direction of the tractor beam
+   * @return a vector describing the inverse applied force
+   */
   public abstract Vector2 reversedBeamForce(Direction direction);
 }
