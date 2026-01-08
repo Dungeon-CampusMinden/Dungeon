@@ -20,8 +20,7 @@ import portal.lightWall.LightWallFactory;
 import portal.util.AdvancedLevel;
 
 /**
- * Portal Level six. The player has to use the light wall to block the projectiles to reach the exit
- * without dying.
+ * The player has to use the light wall to block the projectiles to reach the exit without dying.
  */
 public class LightWallLevel_1 extends AdvancedLevel {
   /**

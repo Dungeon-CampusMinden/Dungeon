@@ -30,6 +30,8 @@ public class Sphere {
    *
    * @param position the position where the sphere will spawn.
    * @param mass Mass of the sphere
+   * @param isPickupable should this entity be pickupable.
+   * @param texture Path to the texture
    * @return the sphere entity
    */
   public static Entity portalSphere(

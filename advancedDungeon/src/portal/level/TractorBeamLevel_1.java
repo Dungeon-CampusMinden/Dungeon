@@ -17,7 +17,7 @@ import portal.physicsobject.PressurePlates;
 import portal.tractorBeam.TractorBeamFactory;
 import portal.util.AdvancedLevel;
 
-/** Level Idee: Spieler, müssen zwei Arten von Platten aktivieren um den Ausgang zu öffnen. */
+/** Level in the portal dungeon. */
 public class TractorBeamLevel_1 extends AdvancedLevel {
 
   private LeverComponent exitPlateLever, spherePlateLever;

@@ -18,10 +18,9 @@ import portal.util.AdvancedLevel;
 import portal.util.ToggleableComponent;
 
 /**
- * Portal level five. In this level the player has to place a cube on a pressure plate to unlock the
- * exit. But in the middle of the room there is an anti-material-barrier which prevents the cube
- * from passing through it. But the anti-material-barrier can be disabled by directing the energy
- * ball in its receptor.
+ * In this level the player has to place a cube on a pressure plate to unlock the exit. But in the
+ * middle of the room there is an anti-material-barrier which prevents the cube from passing through
+ * it. But the anti-material-barrier can be disabled by directing the energy ball in its receptor.
  */
 public class EnergyPelletLevel_1 extends AdvancedLevel {
   /**

@@ -13,6 +13,7 @@ import portal.portals.PortalColor;
 import portal.portals.PortalFactory;
 import portal.util.AdvancedLevel;
 
+/** Level in the portal dungeon. */
 public class ObjectsPortalLevel_1 extends AdvancedLevel {
 
   private static final String NAME = "Portal Level";

@@ -50,6 +50,7 @@ public class PressurePlates {
    * @param requiredComponent the component type that entities must have to interact with this plate
    *     (e.g., {@code PortalCubeComponent.class} or {@code PortalSphereComponent.class})
    * @param position the world position where the pressure plate should be created
+   * @param command Command to execute on trigger and release
    * @return a fully constructed {@link Entity} representing the configured pressure plate
    */
   private static Entity createPressurePlate(
@@ -127,6 +128,22 @@ public class PressurePlates {
         ICommand.NOOP);
   }
 
+  /**
+   * Creates a cube-activated pressure plate entity at the specified position.
+   *
+   * <p>This plate becomes active (i.e., {@code true}) when the total mass of entities with a {@link
+   * PortalCubeComponent} standing on it reaches or exceeds the given mass trigger threshold.
+   *
+   * <p>Entities that have a {@code ProjectileComponent} are excluded and do not trigger the plate.
+   *
+   * <p>The cube pressure plate does not emit events on interaction; it solely toggles the {@link
+   * LeverComponent#isOn()} state based on the total mass currently on the plate.
+   *
+   * @param position the world position where the pressure plate should be created
+   * @param massTrigger the total mass threshold that activates the pressure plate
+   * @param command Command to execute on trigger and release
+   * @return the newly created cube pressure plate entity
+   */
   public static Entity cubePressurePlate(Point position, float massTrigger, ICommand command) {
     return createPressurePlate(
         "cube-pressureplate",
@@ -162,6 +179,22 @@ public class PressurePlates {
         ICommand.NOOP);
   }
 
+  /**
+   * Creates a sphere-activated pressure plate entity at the specified position.
+   *
+   * <p>This plate becomes active (i.e., {@code true}) when the total mass of entities with a {@link
+   * PortalSphereComponent} standing on it reaches or exceeds the given mass trigger threshold.
+   *
+   * <p>Entities that have a {@code ProjectileComponent} are excluded and do not trigger the plate.
+   *
+   * <p>The sphere pressure plate does not emit events on interaction; it solely toggles the {@link
+   * LeverComponent#isOn()} state based on the total mass currently on the plate.
+   *
+   * @param position the world position where the pressure plate should be created
+   * @param massTrigger the total mass threshold that activates the pressure plate
+   * @param command Command to execute on trigger and release
+   * @return the newly created sphere pressure plate entity
+   */
   public static Entity spherePressurePlate(Point position, float massTrigger, ICommand command) {
     return createPressurePlate(
         "sphere-pressureplate",

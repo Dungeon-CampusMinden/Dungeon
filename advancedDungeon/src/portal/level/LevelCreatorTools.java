@@ -19,6 +19,20 @@ import portal.physicsobject.PressurePlates;
 import portal.tractorBeam.TractorBeamLever;
 import starter.PortalStarter;
 
+/**
+ * Utility class for creating interactive level elements used in the Portal dungeon.
+ *
+ * <p>This class provides factory-like helper methods for wiring common puzzle mechanics such as
+ * doors, levers, pressure plates, laser grids, bridges, light walls, and tractor beams. Most
+ * interactions are implemented via {@link ICommand} instances that encapsulate execute/undo
+ * behavior.
+ *
+ * <p>Several mechanics rely on dynamically compiled user code via {@link DynamicCompiler}. This
+ * allows students or level designers to customize behavior by providing their own implementations
+ * without modifying the core engine.
+ *
+ * <p>The class is intentionally stateless and exposes only static methods.
+ */
 public class LevelCreatorTools {
   private static final SimpleIPath CUBE_PATH =
       new SimpleIPath("advancedDungeon/src/portal/riddles/MyCube.java");
@@ -39,6 +53,17 @@ public class LevelCreatorTools {
       new SimpleIPath("advancedDungeon/src/portal/riddles/MyTractorBeamLever.java");
   private static final String BEAMSWITCH_CLASSNAME = "portal.riddles.MyTractorBeamLever";
 
+  /**
+   * Creates a lever that opens and closes a door.
+   *
+   * <p>The door is initially closed. Pulling the lever opens the door, and undoing the action
+   * closes it again.
+   *
+   * @param leverP the position of the lever entity
+   * @param doorP the position of the door tile to be controlled
+   * @return an {@link Entity} representing the lever
+   * @throws java.util.NoSuchElementException if no tile exists at {@code doorP}
+   */
   public static Entity doorLever(Point leverP, Point doorP) {
     DoorTile door = (DoorTile) Game.tileAt(doorP).orElseThrow();
     door.close();
@@ -58,6 +83,18 @@ public class LevelCreatorTools {
         });
   }
 
+  /**
+   * Creates a pressure plate that reacts to cubes and controls a door.
+   *
+   * <p>The door is initially closed. When an object with sufficient mass is placed on the plate,
+   * the door opens. Removing the object closes the door.
+   *
+   * @param plateP the position of the pressure plate
+   * @param doorP the position of the door tile to be controlled
+   * @param mass the minimum mass required to trigger the plate
+   * @return an {@link Entity} representing the pressure plate
+   * @throws java.util.NoSuchElementException if no tile exists at {@code doorP}
+   */
   public static Entity doorPressurePlate(Point plateP, Point doorP, float mass) {
     DoorTile door = (DoorTile) Game.tileAt(doorP).orElseThrow();
     door.close();
@@ -78,6 +115,18 @@ public class LevelCreatorTools {
         });
   }
 
+  /**
+   * Creates a pressure plate that reacts to spheres and controls a door.
+   *
+   * <p>The door is initially closed. When a sphere with sufficient mass is placed on the plate, the
+   * door opens. Removing the sphere closes the door.
+   *
+   * @param plateP the position of the pressure plate
+   * @param doorP the position of the door tile to be controlled
+   * @param mass the minimum mass required to trigger the plate
+   * @return an {@link Entity} representing the pressure plate
+   * @throws java.util.NoSuchElementException if no tile exists at {@code doorP}
+   */
   public static Entity doorPressurePlateSphere(Point plateP, Point doorP, float mass) {
     DoorTile door = (DoorTile) Game.tileAt(doorP).orElseThrow();
     door.close();
@@ -98,6 +147,19 @@ public class LevelCreatorTools {
         });
   }
 
+  /**
+   * Creates a lever that spawns a cube at a given position.
+   *
+   * <p>The cube implementation is loaded dynamically using {@link DynamicCompiler}. If the cube
+   * spawns at the expected position, it is added to the game world. Undoing the action removes the
+   * cube again.
+   *
+   * <p>If dynamic compilation or spawning fails, an error dialog is shown.
+   *
+   * @param position the position of the lever
+   * @param cubeSpawnPosition the position where the cube should spawn
+   * @return an {@link Entity} representing the lever
+   */
   public static Entity cubeSpawner(Point position, Point cubeSpawnPosition) {
     return LeverFactory.createLever(
         position,
@@ -129,6 +191,19 @@ public class LevelCreatorTools {
         });
   }
 
+  /**
+   * Creates a lever that spawns a sphere at a given position.
+   *
+   * <p>The sphere implementation is loaded dynamically using {@link DynamicCompiler}. If the sphere
+   * spawns at the expected position, it is added to the game world. Undoing the action removes the
+   * sphere again.
+   *
+   * <p>If dynamic compilation or spawning fails, an error dialog is shown.
+   *
+   * @param position the position of the lever
+   * @param cubeSpawnPosition the position where the sphere should spawn
+   * @return an {@link Entity} representing the lever
+   */
   public static Entity sphereSpawner(Point position, Point cubeSpawnPosition) {
     return LeverFactory.createLever(
         position,
@@ -160,6 +235,18 @@ public class LevelCreatorTools {
         });
   }
 
+  /**
+   * Creates a cube-activated pressure plate that controls one or more laser grids.
+   *
+   * <p>When activated, the laser grids are deactivated. Undoing the action reactivates them.
+   *
+   * <p>The laser grid switch logic is loaded dynamically using {@link DynamicCompiler}.
+   *
+   * @param platePosition the position of the pressure plate
+   * @param mass the minimum mass required to trigger the plate
+   * @param lasergrid one or more laser grid entities to be controlled
+   * @return an {@link Entity} representing the pressure plate
+   */
   public static Entity laserCubePlate(Point platePosition, float mass, Entity... lasergrid) {
     return PressurePlates.cubePressurePlate(
         platePosition,
@@ -194,6 +281,17 @@ public class LevelCreatorTools {
         });
   }
 
+  /**
+   * Creates a lever that activates and deactivates a light bridge.
+   *
+   * <p>Pulling the lever activates the bridge. Undoing the action deactivates it.
+   *
+   * <p>The bridge control logic is loaded dynamically using {@link DynamicCompiler}.
+   *
+   * @param bridge the bridge entity to be controlled
+   * @param leverPosition the position of the lever
+   * @return an {@link Entity} representing the lever
+   */
   public static Entity bridgeLever(Entity bridge, Point leverPosition) {
     return LeverFactory.createLever(
         leverPosition,
@@ -228,6 +326,18 @@ public class LevelCreatorTools {
         });
   }
 
+  /**
+   * Creates a lever that activates and deactivates a light wall.
+   *
+   * <p>The lever toggles the state of the light wall emitter. Undoing the action restores the
+   * previous state.
+   *
+   * <p>The wall switch logic is loaded dynamically using {@link DynamicCompiler}.
+   *
+   * @param emitter the light wall emitter entity
+   * @param aSwitch the position of the lever
+   * @return an {@link Entity} representing the lever
+   */
   public static Entity wallLever(Entity emitter, Point aSwitch) {
     return LeverFactory.createLever(
         aSwitch,
@@ -262,6 +372,18 @@ public class LevelCreatorTools {
         });
   }
 
+  /**
+   * Creates a lever that reverses the direction of a tractor beam.
+   *
+   * <p>Both execution and undo reverse the tractor beam, effectively toggling its direction each
+   * time the lever state changes.
+   *
+   * <p>The tractor beam logic is loaded dynamically using {@link DynamicCompiler}.
+   *
+   * @param tractorbeam the tractor beam entity to be controlled
+   * @param aSwitch the position of the lever
+   * @return an {@link Entity} representing the lever
+   */
   public static Entity tractorLever(Entity tractorbeam, Point aSwitch) {
     return LeverFactory.createLever(
         aSwitch,

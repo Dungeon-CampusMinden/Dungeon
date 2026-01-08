@@ -9,6 +9,7 @@ import java.util.Map;
 import portal.laserGrid.LaserGrid;
 import portal.util.AdvancedLevel;
 
+/** Level in the portal dungeon. */
 public class PortalSkillLevel_2 extends AdvancedLevel {
 
   private static final String NAME = "Portal Level";

@@ -9,10 +9,7 @@ import portal.portals.PortalColor;
 import portal.portals.PortalFactory;
 import portal.util.AdvancedLevel;
 
-/**
- * Portal level one. In this level the player has to implement basic controls to reach the exit on
- * the other side of the level.
- */
+/** Level in the portal dungeon. */
 public class PortalLevel_1 extends AdvancedLevel {
 
   /**

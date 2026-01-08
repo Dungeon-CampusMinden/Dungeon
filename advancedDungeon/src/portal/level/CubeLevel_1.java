@@ -9,6 +9,7 @@ import java.util.Map;
 import portal.antiMaterialBarrier.AntiMaterialBarrier;
 import portal.util.AdvancedLevel;
 
+/** Level in the portal dungeon. */
 public class CubeLevel_1 extends AdvancedLevel {
 
   private static final String NAME = "Portal Level";

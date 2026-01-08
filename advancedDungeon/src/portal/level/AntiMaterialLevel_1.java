@@ -10,6 +10,7 @@ import portal.antiMaterialBarrier.AntiMaterialBarrier;
 import portal.laserGrid.LaserGrid;
 import portal.util.AdvancedLevel;
 
+/** Level in the portal dungeon. */
 public class AntiMaterialLevel_1 extends AdvancedLevel {
 
   private static final String NAME = "Portal Level";

@@ -27,6 +27,8 @@ public class Cube {
    *
    * @param position The initial position of the portal cube.
    * @param mass The mass of the cube
+   * @param isPickupable should this entity be pickupable.
+   * @param texture Path to the texture
    * @return A new portal cube entity.
    */
   public static Entity portalCube(

@@ -34,6 +34,19 @@ public class Tools {
     return entity.fetch(PositionComponent.class).orElse(null);
   }
 
+  /**
+   * Holt die Laser-Gitter-Komponente eines Objekts.
+   *
+   * <p>Ein Laser-Gitter besteht aus mehreren Laserstrahlen, die gemeinsam ein Hindernis oder eine
+   * Gefahr bilden können.
+   *
+   * <p>Diese Methode versucht, die Laser-Gitter-Informationen aus dem übergebenen Objekt zu lesen.
+   *
+   * <p>Wenn das Objekt kein Laser-Gitter besitzt, wird {@code null} zurückgegeben.
+   *
+   * @param entity Das Objekt, dessen Laser-Gitter abgefragt werden soll
+   * @return Die {@link LasergridComponent} oder {@code null}, wenn keine vorhanden ist
+   */
   public static LasergridComponent getLaserGridComponent(Entity entity) {
     return entity.fetch(LasergridComponent.class).orElse(null);
   }

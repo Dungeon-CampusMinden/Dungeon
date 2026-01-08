@@ -70,6 +70,18 @@ public class TractorBeamFactory {
     this.beamDirection = beamDirection;
   }
 
+  /**
+   * Reverses the direction of the given tractor beam.
+   *
+   * <p>This method resolves the {@link TractorBeamComponent} from the provided tractor beam entity
+   * and applies a reverse operation to all underlying tractor beam entities managed by that
+   * component.
+   *
+   * <p>The caller is expected to ensure that the given entity represents a valid tractor beam and
+   * contains a {@link TractorBeamComponent}.
+   *
+   * @param tractorBeam the tractor beam entity whose direction or force should be reversed
+   */
   public static void reverse(Entity tractorBeam) {
     reverseTractorBeam(
         tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
