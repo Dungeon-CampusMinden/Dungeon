@@ -5,6 +5,7 @@ import contrib.components.CollideComponent;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.PositionSync;
+import contrib.utils.components.collide.Hitbox;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -46,14 +47,12 @@ public class LaserCube {
               .fetch(LaserComponent.class)
               .ifPresent(
                   lc -> {
-                    if (you.fetch(LaserCubeComponent.class).get().isActive()
-                        || collisionDir == direction) {
+                    if (you.fetch(LaserCubeComponent.class).get().isActive() || you.fetch(LaserCubeComponent.class).get().isBeingMoved()) {
                       return;
                     }
                     you.fetch(LaserCubeComponent.class).get().setActive(true);
-                    System.out.println(pc.viewDirection());
                     Point newPos =
-                        new Point(position.x() + pc.viewDirection().x(), position.y() + pc.viewDirection().y());
+                        new Point(pc.position().x() + pc.viewDirection().x(), pc.position().y() + pc.viewDirection().y());
                     LaserFactory.extendLaser(
                         pc.viewDirection(),
                         newPos.translate(pc.viewDirection().opposite()),
@@ -76,7 +75,6 @@ public class LaserCube {
           .fetch(LaserComponent.class)
           .ifPresent(
             lc -> {
-              System.out.println("no more active");
               self.fetch(LaserCubeComponent.class).get().setActive(false);
             });
         if (!cc.isSolid() && !attached[0]) {
@@ -107,6 +105,7 @@ public class LaserCube {
                 laserCube.add(attachmentComponent);
                 cc.isSolid(false);
                 attached[0] = true;
+                laserCube.fetch(LaserCubeComponent.class).get().setBeingMoved(true);
               } else {
                 laserCube.remove(AttachmentComponent.class);
                 Game.tileAt(interactedPositioncomponent.coordinate())
@@ -125,6 +124,7 @@ public class LaserCube {
                 interactedPositioncomponent.viewDirection(interactorPositioncomponent.viewDirection());
                 interactedPositioncomponent.rotation(directionToRotation(interactorPositioncomponent.viewDirection()));
                 attached[0] = false;
+                laserCube.fetch(LaserCubeComponent.class).get().setBeingMoved(false);
                 PositionSync.syncPosition(interacted);
               }
             },
