@@ -13,7 +13,7 @@ import portal.util.AdvancedLevel;
  * Portal level one. In this level the player has to implement basic controls to reach the exit on
  * the other side of the level.
  */
-public class PortalLevel_1 extends AdvancedLevel {
+public class OldPortalLevel_1 extends AdvancedLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -23,7 +23,7 @@ public class PortalLevel_1 extends AdvancedLevel {
    * @param designLabel The design label for the level.
    * @param namedPoints The custom points of the level.
    */
-  public PortalLevel_1(
+  public OldPortalLevel_1(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, "Portal Level 1");
   }

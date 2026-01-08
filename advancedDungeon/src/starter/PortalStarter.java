@@ -13,7 +13,6 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.game.WindowEventManager;
-import core.level.DungeonLevel;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
 import core.systems.CameraSystem;
@@ -190,17 +189,21 @@ public class PortalStarter {
               });
           CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom + .3f);
 
-          DungeonLoader.addLevel(Tuple.of("introcube", DungeonLevel.class));
           DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
           DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
-          DungeonLoader.addLevel(Tuple.of("portallevel1", PortalLevel_1.class));
-          DungeonLoader.addLevel(Tuple.of("portallevel2", PortalLevel_2.class));
-          DungeonLoader.addLevel(Tuple.of("portallevel3", PortalLevel_3.class));
-          DungeonLoader.addLevel(Tuple.of("portallevel4", PortalLevel_4.class));
-          DungeonLoader.addLevel(Tuple.of("portallevel5", PortalLevel_5.class));
-          DungeonLoader.addLevel(Tuple.of("portallevel6", PortalLevel_6.class));
-          DungeonLoader.addLevel(Tuple.of("portallevel7", PortalLevel_7.class));
-          DungeonLoader.addLevel(Tuple.of("PortalDemo", PortalDemoLevel.class));
+          DungeonLoader.addLevel(Tuple.of("interaction1", InteractionLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("cube1", CubeLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("cubespawner1", CubeSpawnerLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("portal1", OldPortalLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("objectsportal1", ObjectsPortalLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("portalskill1", PortalSkillLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("portalskill2", PortalSkillLevel_2.class));
+          DungeonLoader.addLevel(Tuple.of("antimaterial1", AntiMaterialLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("energypellet1", EnergyPelletLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("lightwall1", LightWallLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("lightbridge1", LightBridgeLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("tractorbeam1", TractorBeamLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("tractorbeam2", TractorBeamLevel_2.class));
           createSystems();
           createHero();
 
