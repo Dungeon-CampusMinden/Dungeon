@@ -6,6 +6,7 @@ import core.Component;
 public class LaserCubeComponent implements Component {
 
   private boolean active = false;
+  private boolean isBeingMoved = false;
 
   /**
    * Returns the state of the laserCube.
@@ -23,5 +24,22 @@ public class LaserCubeComponent implements Component {
    */
   public void setActive(boolean active) {
     this.active = active;
+  }
+
+  /**
+   * Returns if the cube is getting moved by a player.
+   * @return true if the cube is getting moved, otherwise false.
+   */
+  public boolean isBeingMoved() {
+    return isBeingMoved;
+  }
+
+  /**
+   * Sets if the cube is getting moved by a player.
+   *
+   * @param beingMoved true if the cube is getting moved, otherwise false.
+   */
+  public void setBeingMoved(boolean beingMoved) {
+    isBeingMoved = beingMoved;
   }
 }
