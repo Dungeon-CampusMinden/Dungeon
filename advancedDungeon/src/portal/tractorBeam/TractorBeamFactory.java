@@ -50,6 +50,8 @@ public class TractorBeamFactory {
   private static final SimpleIPath PATH =
       new SimpleIPath("advancedDungeon/src/portal/riddles/MyCalculations.java");
   private static final String CLASSNAME = "portal.riddles.MyCalculations";
+  private static final String BEAMFORE =
+      "Die Berechnung der Kraft des Traktorstrahls ist nicht richtig.";
   private final Point from;
   private final Point to;
   private final int totalPoints;
@@ -323,7 +325,7 @@ public class TractorBeamFactory {
       return ((Calculations) o).beamForce(beamDirection);
     } catch (Exception e) {
       if (PortalStarter.DEBUG_MODE) e.printStackTrace();
-      DialogUtils.showTextPopup("TBD", "Code Error");
+      DialogUtils.showTextPopup(BEAMFORE, "Code Error");
     }
     return Vector2.ZERO;
   }
@@ -401,7 +403,7 @@ public class TractorBeamFactory {
       return ((Calculations) o).reversedBeamForce(dir);
     } catch (Exception e) {
       if (PortalStarter.DEBUG_MODE) e.printStackTrace();
-      DialogUtils.showTextPopup("TBD", "Code Error");
+      DialogUtils.showTextPopup(BEAMFORE, "Code Error");
     }
     return Vector2.ZERO;
   }

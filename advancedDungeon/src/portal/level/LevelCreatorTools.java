@@ -52,6 +52,32 @@ public class LevelCreatorTools {
   private static final SimpleIPath BEAMSWITCH_PATH =
       new SimpleIPath("advancedDungeon/src/portal/riddles/MyTractorBeamLever.java");
   private static final String BEAMSWITCH_CLASSNAME = "portal.riddles.MyTractorBeamLever";
+  private static final String UNDOTRACTORLEVER =
+      "Der Traktorstrahl konnte nicht zurückgesetzt werden. Überprüfe, ob dein Traktorstrahl-Lever korrekt implementiert ist und das übergebene Objekt gültig ist.";
+
+  private static final String EXECUTETRACORLEVER =
+      "Der Traktorstrahl konnte nicht umgedreht werden. Stelle sicher, dass deine Lever-Logik korrekt geladen wird und der Traktorstrahl existiert.";
+
+  private static final String UNDOWALLEVER =
+      "Die Lichtwand konnte nicht deaktiviert werden. Prüfe, ob dein LightWallSwitch korrekt implementiert ist und ein gültiger Emitter übergeben wurde.";
+
+  private static final String EXECUTEWALLLEVER =
+      "Die Lichtwand konnte nicht aktiviert werden. Überprüfe deine Implementierung des LightWallSwitch und ob der Emitter korrekt referenziert wird.";
+
+  private static final String UNDOBRDIGELEVER =
+      "Die Lichtbrücke konnte nicht deaktiviert werden. Stelle sicher, dass dein BridgeSwitch korrekt implementiert ist und die Brücke existiert.";
+
+  private static final String EXECUTEBRIDGELEVER =
+      "Die Lichtbrücke konnte nicht aktiviert werden. Überprüfe, ob dein BridgeSwitch korrekt geladen wird und die Brücke korrekt übergeben wurde.";
+
+  private static final String UNDOLASERGRIDCUBEPLATE =
+      "Das Lasergitter konnte nicht wieder aktiviert werden. Prüfe deine Implementierung des LaserGridSwitch und ob die übergebenen Lasergitter gültig sind.";
+
+  private static final String EXECUTEUNDOLASERGRIDCUBEPLATE =
+      "Das Lasergitter konnte nicht deaktiviert werden. Stelle sicher, dass dein LaserGridSwitch korrekt implementiert ist und alle Lasergitter existieren.";
+
+  private static final String CUBESPAWNER =
+      "Der Würfel konnte nicht erzeugt werden. Überprüfe deine Cube-Klasse, den Rückgabewert der spawn-Methode und die angegebene Spawn-Position.";
 
   /**
    * Creates a lever that opens and closes a door.
@@ -104,7 +130,6 @@ public class LevelCreatorTools {
         new ICommand() {
           @Override
           public void execute() {
-            System.out.println("EXECUTE");
             door.open();
           }
 
@@ -136,7 +161,6 @@ public class LevelCreatorTools {
         new ICommand() {
           @Override
           public void execute() {
-            System.out.println("EXECUTE");
             door.open();
           }
 
@@ -180,7 +204,7 @@ public class LevelCreatorTools {
 
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
-              DialogUtils.showTextPopup("TBD", "Code Error");
+              DialogUtils.showTextPopup(CUBESPAWNER, "Code Error");
             }
           }
 
@@ -209,6 +233,7 @@ public class LevelCreatorTools {
         position,
         new ICommand() {
 
+          public static final String SPHERESPAWNER = "TBD";
           private Entity sphere;
 
           @Override
@@ -224,7 +249,7 @@ public class LevelCreatorTools {
 
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
-              DialogUtils.showTextPopup("TBD", "Code Error");
+              DialogUtils.showTextPopup(SPHERESPAWNER, "Code Error");
             }
           }
 
@@ -262,7 +287,7 @@ public class LevelCreatorTools {
               laser.deactivate(lasergrid);
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
-              DialogUtils.showTextPopup("TBD", "Code Error");
+              DialogUtils.showTextPopup(EXECUTEUNDOLASERGRIDCUBEPLATE, "Code Error");
             }
           }
 
@@ -275,7 +300,7 @@ public class LevelCreatorTools {
               laser.activate(lasergrid);
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
-              DialogUtils.showTextPopup("TBD", "Code Error");
+              DialogUtils.showTextPopup(UNDOLASERGRIDCUBEPLATE, "Code Error");
             }
           }
         });
@@ -306,7 +331,7 @@ public class LevelCreatorTools {
               s.activate(bridge);
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
-              DialogUtils.showTextPopup("TBD", "Code Error");
+              DialogUtils.showTextPopup(EXECUTEBRIDGELEVER, "Code Error");
             }
           }
 
@@ -320,7 +345,7 @@ public class LevelCreatorTools {
               s.deactivate(bridge);
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
-              DialogUtils.showTextPopup("TBD", "Code Error");
+              DialogUtils.showTextPopup(UNDOBRDIGELEVER, "Code Error");
             }
           }
         });
@@ -352,7 +377,7 @@ public class LevelCreatorTools {
               s.activate(emitter);
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
-              DialogUtils.showTextPopup("TBD", "Code Error");
+              DialogUtils.showTextPopup(EXECUTEWALLLEVER, "Code Error");
             }
           }
 
@@ -366,7 +391,7 @@ public class LevelCreatorTools {
               s.deactivate(emitter);
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
-              DialogUtils.showTextPopup("TBD", "Code Error");
+              DialogUtils.showTextPopup(UNDOWALLEVER, "Code Error");
             }
           }
         });
@@ -397,7 +422,7 @@ public class LevelCreatorTools {
               ((TractorBeamLever) o).reverse(tractorbeam);
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
-              DialogUtils.showTextPopup("TBD", "Code Error");
+              DialogUtils.showTextPopup(EXECUTETRACORLEVER, "Code Error");
             }
           }
 
@@ -410,7 +435,7 @@ public class LevelCreatorTools {
               ((TractorBeamLever) o).reverse(tractorbeam);
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
-              DialogUtils.showTextPopup("TBD", "Code Error");
+              DialogUtils.showTextPopup(UNDOTRACTORLEVER, "Code Error");
             }
           }
         });
