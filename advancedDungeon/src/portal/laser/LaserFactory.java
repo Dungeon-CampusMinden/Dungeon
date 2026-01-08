@@ -1,7 +1,6 @@
 package portal.laser;
 
 import contrib.components.CollideComponent;
-import contrib.components.HealthComponent;
 import contrib.components.SpikyComponent;
 import contrib.systems.EventScheduler;
 import contrib.systems.PositionSync;
@@ -265,7 +264,8 @@ public class LaserFactory {
       }
       default -> {}
     }
-    // To allow collision with the laser cube and receiver but it still doesnt get moved if you run into the laser
+    // To allow collision with the laser cube and receiver but it still doesnt get moved if you run
+    // into the laser
     emitter.remove(VelocityComponent.class);
     VelocityComponent velocityComponent = new VelocityComponent(0.0000000001f);
     velocityComponent.mass(9999);
@@ -282,7 +282,7 @@ public class LaserFactory {
             () -> {
               CollideComponent cc =
                   new CollideComponent(
-                    CollideComponent.DEFAULT_COLLIDER, (you, other, collisionDir) -> {});
+                      CollideComponent.DEFAULT_COLLIDER, (you, other, collisionDir) -> {});
               cc.collider(newCollider);
               emitter.add(cc);
             });
