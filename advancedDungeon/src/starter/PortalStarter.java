@@ -50,9 +50,9 @@ public class PortalStarter {
    *
    * <p>Also disables recompilation for player control.
    */
-  public static final boolean DEBUG_MODE = true;
+  public static final boolean DEBUG_MODE = false;
 
-  private static final boolean LEVELEDITOR_MODE = true;
+  private static final boolean LEVELEDITOR_MODE = false;
 
   private static final String SAVE_LEVEL_KEY = "LEVEL";
   private static final String SAVE_FILE = "currentPortalLevel.json";
@@ -188,8 +188,8 @@ public class PortalStarter {
               });
           // CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom - .3f);
 
-          //  DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
-          //  DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
+          DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
+          DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
           DungeonLoader.addLevel(Tuple.of("interaction1", InteractionLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("cube1", CubeLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("sphere1", SphereLevel_1.class));
@@ -199,7 +199,7 @@ public class PortalStarter {
           DungeonLoader.addLevel(Tuple.of("portalskill2", PortalSkillLevel_2.class));
           DungeonLoader.addLevel(Tuple.of("antimaterial1", AntiMaterialLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("energypellet1", EnergyPelletLevel_1.class));
-          DungeonLoader.addLevel(Tuple.of("lightwall1", LightWallLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("portallevel6", PortalLevel_6.class));
           DungeonLoader.addLevel(Tuple.of("lightbridge1", LightBridgeLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("tractorbeam1", TractorBeamLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("tractorbeam2", TractorBeamLevel_2.class));
@@ -220,14 +220,17 @@ public class PortalStarter {
       heroEntity
           .fetch(InputComponent.class)
           .get()
-          .registerCallback(Input.Keys.F12, entity -> DungeonLoader.loadNextLevel());
+          .registerCallback(
+              Input.Keys.F12,
+              entity -> DungeonLoader.loadLevel(DungeonLoader.currentLevelIndex() + 1),
+              false);
       heroEntity
           .fetch(InputComponent.class)
           .get()
           .registerCallback(
               Input.Keys.F1,
-              entity ->
-                  DungeonLoader.loadLevel(Math.max(0, DungeonLoader.currentLevelIndex() - 1)));
+              entity -> DungeonLoader.loadLevel(Math.max(0, DungeonLoader.currentLevelIndex() - 1)),
+              false);
     } else {
       if (!DEBUG_MODE) recompilePlayerControl();
       else debugPortalSkills(heroEntity);

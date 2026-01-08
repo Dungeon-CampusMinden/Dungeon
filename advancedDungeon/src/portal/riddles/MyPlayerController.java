@@ -6,6 +6,7 @@ import core.utils.Vector2;
 import portal.controlls.Hero;
 import portal.controlls.PlayerController;
 import portal.tractorBeam.TractorBeamFactory;
+import portal.util.Timer;
 
 /**
  * Eine konkrete Implementierung von {@link PlayerController}, die Eingaben verarbeitet und damit
@@ -46,7 +47,12 @@ public class MyPlayerController extends PlayerController {
     if (key.equals("A")) move(-5, 0);
     if (key.equals("D")) move(5, 0);
     if (key.equals("Q")) hero.shootSkill();
-    if (key.equals("F")) hero.nextSkill();
+    if (key.equals("F")) {
+      if (Timer.isTimerEnd("F")) {
+        hero.nextSkill();
+        Timer.startTimer("F", 120);
+      }
+    }
     if (key.equals("E")) hero.interact(hero.getMousePosition());
     if (key.equals("T")) spawn();
   }
