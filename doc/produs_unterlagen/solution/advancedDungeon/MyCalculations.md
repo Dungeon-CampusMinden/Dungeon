@@ -1,9 +1,9 @@
+# Lösung für MyPortalUtils
 
+## Portal-Austritt berechnen
 
+Diese Funktion bestimmt die Austrittsposition eines Portals. Abhängig davon, welches Portal betreten wird, wird das jeweils andere Portal verwendet und die Position einen Schritt in Blickrichtung verschoben.
 ```java
-private static final float FORCE_MAGNITUDE = 20f;
-
-
 public Point calculatePortalExit(Entity portal) {
     Entity otherPortal;
 
@@ -16,6 +16,12 @@ public Point calculatePortalExit(Entity portal) {
     return pc.position().translate(direction);
 }
 
+```
+
+##Endpunkt von Lichtwand oder Brücke berechnen
+
+Diese Funktion berechnet den letzten freien Punkt in einer gegebenen Richtung, bevor ein blockierendes Level-Element erreicht wird. Sie wird für Lichtwände und Lichtbrücken verwendet.
+```java
 public Point calculateLightWallAndBridgeEnd(
     Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
     Point lastPoint = from;
@@ -30,11 +36,14 @@ public Point calculateLightWallAndBridgeEnd(
     }
     return lastPoint;
 }
+```
+##Traktorstrahl-Kraft berechnen
 
+```java
+private static final float FORCE_MAGNITUDE = 20f;
 public Vector2 beamForce(Direction direction) {
     return Vector2.of(direction.x() * FORCE_MAGNITUDE, direction.y() * FORCE_MAGNITUDE);
 }
-
 public Vector2 reversedBeamForce(Direction direction) {
     return this.beamForce(direction).scale(-1);
 }

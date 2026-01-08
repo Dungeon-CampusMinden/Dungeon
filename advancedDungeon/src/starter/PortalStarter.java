@@ -219,8 +219,7 @@ public class PortalStarter {
     Game.add(heroEntity);
     hero = new Hero(heroEntity);
     if (LEVELEDITOR_MODE) {
-
-      // heroEntity.fetch(InputComponent.class).get().removeCallbacks();
+      heroEntity.fetch(InputComponent.class).get().removeCallbacks();
       heroEntity
           .fetch(InputComponent.class)
           .get()

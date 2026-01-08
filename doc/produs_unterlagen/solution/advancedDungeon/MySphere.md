@@ -1,10 +1,15 @@
+# Lösung für MySphere
+
+# Sphere anpassen
+
+Diese Funktion erzeugt eine Portal-Kugel an einer gegebenen Position. Über die Klassenattribute können Masse, Aufhebbarkeit und Textur der Kugel angepasst werden.
+
 ```java
-  private float mass = 20f;
-  private boolean isPickupable = true;
-  private String texture = "portal/kubus/kubus.png";
+private float mass = 20f;
+private boolean isPickupable = true;
+private String texture = "portal/kubus/kubus.png";
 
-  public Entity spawn(Point spawn) {
-    return Sphere.portalSphere(spawn, mass, isPickupable, texture);
-  }
-
+public Entity spawn(Point spawn) {
+  return Sphere.portalSphere(spawn, mass, isPickupable, texture);
+}
 ```
