@@ -95,8 +95,7 @@ public class MoveSystem extends System {
     boolean canCornerCorrect = cornerCorrectTimers.getOrDefault(data.e, 0f) <= 0;
 
     // Dont allow corner correction when moving too fast diagonally. This allows the hero to enter
-    // 1-tile
-    // wide tunnels when easily by walking diagonally into them.
+    // 1-tile wide tunnels when easily by walking diagonally into them.
     canCornerCorrect &= absVelocity.x() < 0.5f || absVelocity.y() < 0.5f;
 
     // First: move only in X direction
