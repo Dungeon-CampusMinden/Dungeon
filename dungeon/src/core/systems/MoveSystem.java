@@ -2,7 +2,6 @@ package core.systems;
 
 import contrib.components.CollideComponent;
 import contrib.systems.CollisionSystem;
-import contrib.systems.DebugDrawSystem;
 import contrib.systems.PositionSync;
 import contrib.utils.components.collide.Collider;
 import contrib.utils.components.collide.CollisionUtils;
@@ -95,7 +94,8 @@ public class MoveSystem extends System {
     boolean triggeredYCC = false;
     boolean canCornerCorrect = cornerCorrectTimers.getOrDefault(data.e, 0f) <= 0;
 
-    // Dont allow corner correction when moving too fast diagonally. This allows the hero to enter 1-tile
+    // Dont allow corner correction when moving too fast diagonally. This allows the hero to enter
+    // 1-tile
     // wide tunnels when easily by walking diagonally into them.
     canCornerCorrect &= absVelocity.x() < 0.5f || absVelocity.y() < 0.5f;
 
