@@ -6,6 +6,10 @@ import com.badlogic.gdx.utils.Align;
 import contrib.components.StaminaComponent;
 import core.Game;
 
+/**
+ * The StaminaBar is a HUD element visualizing the Stamina points of the hero's {@link
+ * StaminaComponent}.
+ */
 public class StaminaBar extends Stack implements HUDElement {
 
   private static final float BAR_WIDTH = 300;
@@ -14,6 +18,11 @@ public class StaminaBar extends Stack implements HUDElement {
   private final ProgressBar bar;
   private final Label staminaLabel;
 
+  /**
+   * Creates a new StaminaBar.
+   *
+   * @param skin The skin that defines the appearance of UI elements.
+   */
   public StaminaBar(Skin skin) {
     bar = new ProgressBar(0f, 100f, 1f, false, skin, "staminabarhud");
     bar.setSize(BAR_WIDTH, BAR_HEIGHT);

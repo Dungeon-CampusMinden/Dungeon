@@ -6,6 +6,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
+/**
+ * The SystemChatLog is a HUD element that displays in-game messages and system notifications to the
+ * player in a scrollable log.
+ *
+ * <p>This element is largely prepared and can be fully used as soon as a source of messages becomes
+ * available.
+ */
 public class SystemChatLog extends Table implements HUDElement {
 
   private final Table messagesTable;
@@ -13,6 +20,11 @@ public class SystemChatLog extends Table implements HUDElement {
 
   private static final int MAX_MESSAGES = 25;
 
+  /**
+   * Creates a new SystemChatLog.
+   *
+   * @param skin The skin that defines the appearance of UI elements.
+   */
   public SystemChatLog(Skin skin) {
     super(skin);
 

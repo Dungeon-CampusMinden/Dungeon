@@ -6,6 +6,10 @@ import com.badlogic.gdx.utils.Align;
 import contrib.components.HealthComponent;
 import core.Game;
 
+/**
+ * The HealthBar is a HUD element visualizing the Health points of the hero's {@link
+ * HealthComponent}.
+ */
 public class HealthBar extends Stack implements HUDElement {
 
   private static final float BAR_WIDTH = 300;
@@ -14,6 +18,11 @@ public class HealthBar extends Stack implements HUDElement {
   private final ProgressBar bar;
   private final Label hpLabel;
 
+  /**
+   * Creates a new HealthBar.
+   *
+   * @param skin The skin that defines the appearance of UI elements.
+   */
   public HealthBar(Skin skin) {
     bar = new ProgressBar(0f, 100f, 1f, false, skin, "healthbarhud");
     bar.setSize(BAR_WIDTH, BAR_HEIGHT);

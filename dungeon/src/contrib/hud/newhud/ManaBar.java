@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.Align;
 import contrib.components.ManaComponent;
 import core.Game;
 
+/** The ManaBar is a HUD element visualizing the Mana points of the hero's {@link ManaComponent}. */
 public class ManaBar extends Stack implements HUDElement {
 
   private static final float BAR_WIDTH = 300;
@@ -14,6 +15,11 @@ public class ManaBar extends Stack implements HUDElement {
   private final ProgressBar bar;
   private final Label manaLabel;
 
+  /**
+   * Creates a new ManaBar.
+   *
+   * @param skin The skin that defines the appearance of UI elements.
+   */
   public ManaBar(Skin skin) {
     bar = new ProgressBar(0f, 100f, 1f, false, skin, "manabarhud");
     bar.setSize(BAR_WIDTH, BAR_HEIGHT);

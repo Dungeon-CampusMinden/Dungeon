@@ -9,10 +9,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The StatusEffectBar is a HUD element designed to visualize all status effects currently applied
+ * to the hero.
+ *
+ * <p>This class uses one {@link StatusEffectSlot} to represent each individual effect. This HUD
+ * element is largely ready and can be fully used as soon as a data source becomes available. Every
+ * status effect requires a dedicated icon.
+ */
 public class StatusEffectBar extends Table implements HUDElement {
 
   private final Map<String, StatusEffectSlot> activeSlots = new HashMap<>();
 
+  /**
+   * Creates a new StatusEffectBar.
+   *
+   * @param skin The skin that defines the appearance of UI elements.
+   */
   public StatusEffectBar(Skin skin) {
     super(skin);
     defaults().pad(5);

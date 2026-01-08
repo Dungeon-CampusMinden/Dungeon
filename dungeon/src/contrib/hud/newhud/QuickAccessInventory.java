@@ -11,9 +11,20 @@ import core.components.InputComponent;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The QuickAccessInventory is a HUD element visualizing a couple items from the inventory and
+ * provides quick access for item usage via specified hotkeys.
+ *
+ * <p>This class uses multiple {@link QuickAccessSlot} to build the dynamic quickAccessInventory.
+ */
 public class QuickAccessInventory extends Table implements HUDElement {
   private final List<QuickAccessSlot> slots = new ArrayList<>();
 
+  /**
+   * Creates a new QuickAccessInventory.
+   *
+   * @param skin The skin that defines the appearance of UI elements.
+   */
   public QuickAccessInventory(Skin skin) {
     super(skin);
 

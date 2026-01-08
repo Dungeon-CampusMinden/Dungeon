@@ -9,8 +9,20 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import contrib.entities.HeroController;
 import core.Game;
 
+/**
+ * The NavigationBar is a HUD element containing multiple sections to provide quick access to game
+ * menus such as the main menu, character screen and inventory.
+ *
+ * <p>The main menu and character screen remain to be implemented in the future. Each section
+ * requires a dedicated icon, tooltip and clickListener.
+ */
 public class NavigationBar extends Table implements HUDElement {
 
+  /**
+   * Creates a new NavigationBar currently including three sections.
+   *
+   * @param skin The skin that defines the appearance of UI elements.
+   */
   public NavigationBar(Skin skin) {
     setBackground(skin.getDrawable("dark-gray"));
     defaults().pad(5);

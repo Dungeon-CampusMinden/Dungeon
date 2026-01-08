@@ -15,11 +15,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The AbilityBar is a HUD element that displays the hero's the abilities (skills).
+ *
+ * <p>This class uses multiple {@link AbilitySlot} to build a dynamic ability bar. Currently, every
+ * skill requires a dedicated icon and tooltip.
+ */
 public class AbilityBar extends Table implements HUDElement {
   private final List<AbilitySlot> slots = new ArrayList<>();
   private int activeAbilityCount = 0;
   private final int barSize = 5;
 
+  /**
+   * Creates a new AbilityBar.
+   *
+   * @param skin The skin that defines the appearance of UI elements.
+   */
   public AbilityBar(Skin skin) {
     super(skin);
 

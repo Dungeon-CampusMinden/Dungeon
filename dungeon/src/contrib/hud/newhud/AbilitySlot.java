@@ -7,6 +7,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import contrib.utils.components.skill.Resource;
 
+/**
+ * An AbilitySlot represents a single slot within the {@link AbilityBar}.
+ *
+ * <p>It is responsible for displaying an ability's icon and providing additional information, such
+ * as a tooltip and the ability's ressource cost.
+ */
 public class AbilitySlot extends Table {
   private final Image icon;
   private final Table activeAbility;
@@ -16,6 +22,11 @@ public class AbilitySlot extends Table {
   private final Image ressourceIcon;
   private Label tooltipLabel;
 
+  /**
+   * Creates a single AbilitySlot.
+   *
+   * @param skin The skin that defines the appearance of UI elements.
+   */
   public AbilitySlot(Skin skin) {
     setSize(64, 64);
     setBackground(skin.getDrawable("gray"));
@@ -53,14 +64,26 @@ public class AbilitySlot extends Table {
     stack.add(ressource);
   }
 
+  /**
+   * Sets the texture used as the ability icon.
+   *
+   * @param texture The texture used as the icon.
+   */
   public void setTexture(Texture texture) {
     icon.setDrawable(new TextureRegionDrawable(texture));
   }
 
+  /** Removes the currently displayed ability icon. */
   public void removeTexture() {
     icon.setDrawable(null);
   }
 
+  /**
+   * Displays the resource cost of the ability using the given resource type and amount.
+   *
+   * @param resource The ressource type of the ability.
+   * @param cost The amount of the ressource.
+   */
   public void setCost(Resource resource, int cost) {
     ressource.setVisible(true);
     costLabel.setText(String.valueOf(cost));
@@ -87,15 +110,26 @@ public class AbilitySlot extends Table {
     }
   }
 
+  /** Hides the resource cost display. */
   public void removeCost() {
     ressource.setVisible(false);
   }
 
+  /**
+   * Marks this ability slot as active or inactive. Used to mark the hero's currently equipped
+   * skill.
+   */
   public void setActive(boolean active) {
     activeAbility.setVisible(active);
     activeAbility.toBack();
   }
 
+  /**
+   * Adds a tooltip with the given text to this ability slot.
+   *
+   * @param text The text to be displayed as the tooltip.
+   * @param skin The skin that defines the appearance of UI elements.
+   */
   public void addTooltip(String text, Skin skin) {
     tooltipLabel = new Label(text, skin);
     tooltipLabel.setVisible(true);
@@ -104,6 +138,7 @@ public class AbilitySlot extends Table {
     this.addListener(tooltip);
   }
 
+  /** Removes the tooltip from this ability slot. */
   public void removeTooltip() {
     if (tooltipLabel != null) {
       tooltipLabel.setVisible(false);

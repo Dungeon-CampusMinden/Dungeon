@@ -7,12 +7,23 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import contrib.components.AIComponent;
 import core.Game;
 
+/**
+ * The EnemyCounter is a HUD element that displays the current number of entities dangerous to the
+ * hero within the current dungeon level.
+ *
+ * <p>It counts the number of currently active {@link AIComponent} instances.
+ */
 public class EnemyCounter extends Table implements HUDElement {
 
   private final Label counterLabel;
   private final Label tooltipLabel;
   private long enemyCount = 0;
 
+  /**
+   * Creates a new EnemyCounter.
+   *
+   * @param skin The skin that defines the appearance of UI elements.
+   */
   public EnemyCounter(Skin skin) {
     super(skin);
 

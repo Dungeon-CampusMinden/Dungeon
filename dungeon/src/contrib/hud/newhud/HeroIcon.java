@@ -8,10 +8,21 @@ import contrib.components.CharacterClassComponent;
 import contrib.entities.CharacterClass;
 import core.Game;
 
+/**
+ * The HeroIcon is a HUD element visualizing the currently played {@link CharacterClass} with an
+ * icon.
+ *
+ * <p>Every characterClass requires a dedicated icon.
+ */
 public class HeroIcon extends Table implements HUDElement {
 
   private final Image heroIcon;
 
+  /**
+   * Creates a new HeroIcon.
+   *
+   * @param skin The skin that defines the appearance of UI elements.
+   */
   public HeroIcon(Skin skin) {
     setSize(64, 64);
     setBackground(skin.getDrawable("gray"));
