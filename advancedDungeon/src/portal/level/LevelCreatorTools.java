@@ -16,6 +16,7 @@ import portal.lightWall.LightWallSwitch;
 import portal.physicsobject.PortalCube;
 import portal.physicsobject.PortalSphere;
 import portal.physicsobject.PressurePlates;
+import portal.tractorBeam.TractorBeamLever;
 import starter.PortalStarter;
 
 public class LevelCreatorTools {
@@ -34,6 +35,9 @@ public class LevelCreatorTools {
   private static final String WALLSWITCH_CLASSNAME = "portal.riddles.MyLightWallSwitch";
   private static final SimpleIPath WALLSWITCH_PATH =
       new SimpleIPath("advancedDungeon/src/portal/riddles/MyLightWallSwitch.java");
+  private static final SimpleIPath BEAMSWITCH_PATH =
+      new SimpleIPath("advancedDungeon/src/portal/riddles/MyTractorBeamLever.java");
+  private static final String BEAMSWITCH_CLASSNAME = "portal.riddles.MyTractorBeamLever";
 
   public static Entity doorLever(Point leverP, Point doorP) {
     DoorTile door = (DoorTile) Game.tileAt(doorP).orElseThrow();
@@ -250,6 +254,40 @@ public class LevelCreatorTools {
               o = DynamicCompiler.loadUserInstance(WALLSWITCH_PATH, WALLSWITCH_CLASSNAME);
               LightWallSwitch s = ((LightWallSwitch) o);
               s.deactivate(emitter);
+            } catch (Exception e) {
+              if (PortalStarter.DEBUG_MODE) e.printStackTrace();
+              DialogUtils.showTextPopup("TBD", "Code Error");
+            }
+          }
+        });
+  }
+
+  public static Entity tractorLever(Entity tractorbeam, Point aSwitch) {
+    return LeverFactory.createLever(
+        aSwitch,
+        new ICommand() {
+          @Override
+          public void execute() {
+
+            Object o;
+            try {
+              o = DynamicCompiler.loadUserInstance(BEAMSWITCH_PATH, BEAMSWITCH_CLASSNAME);
+              TractorBeamLever s = ((TractorBeamLever) o);
+              ((TractorBeamLever) o).reverse(tractorbeam);
+            } catch (Exception e) {
+              if (PortalStarter.DEBUG_MODE) e.printStackTrace();
+              DialogUtils.showTextPopup("TBD", "Code Error");
+            }
+          }
+
+          @Override
+          public void undo() {
+
+            Object o;
+            try {
+              o = DynamicCompiler.loadUserInstance(BEAMSWITCH_PATH, BEAMSWITCH_CLASSNAME);
+              TractorBeamLever s = ((TractorBeamLever) o);
+              ((TractorBeamLever) o).reverse(tractorbeam);
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
               DialogUtils.showTextPopup("TBD", "Code Error");

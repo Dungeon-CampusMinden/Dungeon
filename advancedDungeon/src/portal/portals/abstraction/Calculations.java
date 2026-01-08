@@ -4,6 +4,7 @@ import core.Entity;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Vector2;
 
 /**
  * Base class for portal-related calculations.
@@ -49,4 +50,8 @@ public abstract class Calculations {
    */
   public abstract Point calculateLightWallAndBridgeEnd(
       Point from, Direction beamDirection, LevelElement[] stoppingTiles);
+
+  public abstract Vector2 beamForce(Direction direction);
+
+  public abstract Vector2 reversedBeamForce(Direction direction);
 }

@@ -13,10 +13,7 @@ import core.utils.Direction;
 import core.utils.Point;
 import java.util.Map;
 import portal.lightBridge.LightBridgeFactory;
-import portal.physicsobject.Cube;
 import portal.physicsobject.PressurePlates;
-import portal.physicsobject.Sphere;
-import portal.tractorBeam.TractorBeamComponent;
 import portal.tractorBeam.TractorBeamFactory;
 import portal.util.AdvancedLevel;
 
@@ -60,40 +57,8 @@ public class TractorBeamLevel_1 extends AdvancedLevel {
             });
 
     Game.add(exitLever);
-    Entity tractorbeamLever1 =
-        LeverFactory.createLever(
-            namedPoints.get("tractorbeamLever1"),
-            new ICommand() {
-              @Override
-              public void execute() {
-                TractorBeamFactory.reverse(tractorBeam);
-              }
-
-              @Override
-              public void undo() {
-                TractorBeamFactory.reverse(tractorBeam);
-              }
-            });
-    Game.add(tractorbeamLever1);
-
-    Entity tractorbeamLever2 =
-        LeverFactory.createLever(
-            namedPoints.get("tractorbeamLever2"),
-            new ICommand() {
-              @Override
-              public void execute() {
-                TractorBeamFactory.reverseTractorBeam(
-                    tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
-              }
-
-              @Override
-              public void undo() {
-                TractorBeamFactory.reverseTractorBeam(
-                    tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
-              }
-            });
-    Game.add(tractorbeamLever2);
-
+    Game.add(LevelCreatorTools.tractorLever(tractorBeam, getPoint("tractorbeamLever1")));
+    Game.add(LevelCreatorTools.tractorLever(tractorBeam, getPoint("tractorbeamLever2")));
     Entity exitPlate = PressurePlates.cubePressurePlate(namedPoints.get("exitPlate"), 1);
     Game.add(exitPlate);
 
@@ -102,17 +67,15 @@ public class TractorBeamLevel_1 extends AdvancedLevel {
     Entity catapultPlate = PressurePlates.spherePressurePlate(namedPoints.get("catapultPlate"), 1);
     spherePlateLever = catapultPlate.fetch(LeverComponent.class).orElse(null);
     Game.add(catapultPlate);
-    Entity cube = Cube.portalCube(namedPoints.get("cube"));
-    Game.add(cube);
 
-    // Game.add(AdvancedFactory.antiMaterialBarrier(namedPoints.get("anti6"), true));
+    Game.add(LevelCreatorTools.cubeSpawner(getPoint("cubeSpawner"), getPoint("cube")));
 
     Entity emitter =
-        LightBridgeFactory.createEmitter(namedPoints.get("bridge"), Direction.LEFT, true);
+        LightBridgeFactory.createEmitter(namedPoints.get("bridge"), Direction.LEFT, false);
     Game.add(emitter);
+    Game.add(LevelCreatorTools.bridgeLever(emitter, getPoint("bridgeSwitch")));
 
-    Entity sphere = Sphere.portalSphere(namedPoints.get("sphere"));
-    Game.add(sphere);
+    Game.add(LevelCreatorTools.sphereSpawner(getPoint("sphereSpawner"), getPoint("sphere")));
   }
 
   @Override

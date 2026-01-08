@@ -6,6 +6,7 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Vector2;
 import java.util.Arrays;
 import portal.portals.abstraction.Calculations;
 import portal.riddles.utils.PortalUtils;
@@ -21,6 +22,8 @@ import portal.riddles.utils.Tools;
  * <p>Im Laufe des Spiels oder der Aufgaben können hier weitere Berechnungsmethoden hinzukommen.
  */
 public class MyCalculations extends Calculations {
+
+  private static final float FORCE_MAGNITUDE = 20f;
 
   /**
    * Berechnet die Position, an der ein Objekt nach einer Portal-Reise wieder erscheint.
@@ -92,5 +95,15 @@ public class MyCalculations extends Calculations {
     }
     System.out.println("LP" + lastPoint);
     return lastPoint;
+  }
+
+  @Override
+  public Vector2 beamForce(Direction direction) {
+    return Vector2.of(direction.x() * FORCE_MAGNITUDE, direction.y() * FORCE_MAGNITUDE);
+  }
+
+  @Override
+  public Vector2 reversedBeamForce(Direction direction) {
+    return this.beamForce(direction).scale(-1);
   }
 }
