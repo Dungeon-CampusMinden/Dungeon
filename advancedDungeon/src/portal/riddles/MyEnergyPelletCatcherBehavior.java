@@ -1,7 +1,9 @@
 package portal.riddles;
 
 import core.Entity;
+import core.Game;
 import portal.energyPellet.abstraction.EnergyPelletCatcherBehavior;
+import portal.util.Tools;
 
 /**
  * Dein eigenes Verhalten für einen Energy-Pellet-Catcher.
@@ -33,6 +35,7 @@ public class MyEnergyPelletCatcherBehavior extends EnergyPelletCatcherBehavior {
    */
   @Override
   public void catchPellet(Entity catcher, Entity pellet) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    Tools.getToggleComponent(catcher).toggle();
+    Game.remove(pellet);
   }
 }

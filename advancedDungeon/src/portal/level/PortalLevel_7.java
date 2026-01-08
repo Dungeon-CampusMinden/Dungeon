@@ -66,14 +66,12 @@ public class PortalLevel_7 extends AdvancedLevel {
             new ICommand() {
               @Override
               public void execute() {
-                TractorBeamFactory.reverseTractorBeam(
-                    tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+                TractorBeamFactory.reverse(tractorBeam);
               }
 
               @Override
               public void undo() {
-                TractorBeamFactory.reverseTractorBeam(
-                    tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+                TractorBeamFactory.reverse(tractorBeam);
               }
             });
     Game.add(tractorbeamLever1);

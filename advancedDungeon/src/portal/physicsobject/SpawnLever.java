@@ -5,6 +5,8 @@ import contrib.hud.DialogUtils;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.ICommand;
 import core.Entity;
+import core.Game;
+import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import starter.PortalStarter;
@@ -39,10 +41,11 @@ public class SpawnLever {
    * @param position the world position where the lever should be created
    * @return a fully configured lever entity
    */
-  public static Entity spawnLever(Point position) {
+  public static Entity spawnLever(Point position, Point spawnPoint) {
     return LeverFactory.createLever(
         position,
         new ICommand() {
+          private Entity cube;
 
           /**
            * Executes the user-defined spawn logic.
@@ -53,7 +56,15 @@ public class SpawnLever {
           public void execute() {
             try {
               Object o = DynamicCompiler.loadUserInstance(PATH, CLASSNAME);
-              ((CubeSpawner) o).spawn();
+              Entity cube = ((CubeSpawner) o).spawn(spawnPoint);
+              if(cube==null)throw new NullPointerException();
+              if (cube.fetch(PositionComponent.class).get().position().equals(spawnPoint)) {
+                Game.add(cube);
+                this.cube = cube;
+              } else
+                throw new IllegalStateException(
+                    "Da stimmt was nicht. Ich glaube die Spawnposition ist falsch.");
+
             } catch (Exception e) {
               if (PortalStarter.DEBUG_MODE) e.printStackTrace();
               DialogUtils.showTextPopup("Dieser Schalter funktioniert nicht richtig", "Code Error");
@@ -62,7 +73,7 @@ public class SpawnLever {
 
           @Override
           public void undo() {
-            // no-op
+            if (cube != null) Game.remove(cube);
           }
         });
   }

@@ -1,6 +1,8 @@
 package portal.lightBridge;
 
 import contrib.components.CollideComponent;
+import contrib.hud.DialogUtils;
+import contrib.utils.DynamicCompiler;
 import contrib.utils.components.collide.Hitbox;
 import core.Component;
 import core.Entity;
@@ -21,8 +23,10 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import portal.portals.abstraction.Calculations;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
+import starter.PortalStarter;
 
 /**
  * Factory for creating and managing light bridges and their emitters. A light bridge consists of
@@ -40,6 +44,10 @@ public class LightBridgeFactory {
       new SimpleIPath("portal/light_bridge_emitter/light_bridge_emitter_active.png");
   private static final SimpleIPath EMITTER_TEXTURE_INACTIVE =
       new SimpleIPath("portal/light_bridge_emitter/light_bridge_emitter_inactive.png");
+
+  private static final SimpleIPath PATH =
+      new SimpleIPath("advancedDungeon/src/portal/riddles/MyCalculations.java");
+  private static final String CLASSNAME = "portal.riddles.MyCalculations";
 
   /** Number of tiles by which the extended start point is offset in front of the emitter. */
   public static int spawnOffset = 1;
@@ -270,7 +278,7 @@ public class LightBridgeFactory {
     public void activate() {
       if (active) return;
       active = true;
-      Point end = calculateEndPoint(start, direction);
+      Point end = calculateEndPoint(start, direction, stoppingTiles);
       createSegments(start, end, direction);
       createCollider(start, end, direction);
       coverPit();
@@ -416,22 +424,22 @@ public class LightBridgeFactory {
      *
      * @param from Starting point
      * @param beamDirection Direction of the beam
+     * @param stoppingTiles List of tiles that should block the lightwall.
      * @return Returns the calculated end point of the beam.
      */
-    private Point calculateEndPoint(Point from, Direction beamDirection) {
-      Point lastPoint = from;
-      Point currentPoint = from;
-
-      while (true) {
-        Tile currentTile = Game.tileAt(currentPoint).orElse(null);
-        if (currentTile == null) break;
-
-        if (Arrays.asList(stoppingTiles).contains(currentTile.levelElement())) break;
-
-        lastPoint = currentPoint;
-        currentPoint = currentPoint.translate(beamDirection);
+    private Point calculateEndPoint(
+        Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
+      Object o = null;
+      try {
+        o = DynamicCompiler.loadUserInstance(PATH, CLASSNAME);
+        Point endPoint =
+            ((Calculations) (o)).calculateLightWallAndBridgeEnd(from, beamDirection, stoppingTiles);
+        return endPoint;
+      } catch (Exception e) {
+        if (PortalStarter.DEBUG_MODE) e.printStackTrace();
+        DialogUtils.showTextPopup("Da stimmt etwas mit meinen Berechnungen nicht,", "Code Error");
       }
-      return lastPoint;
+      return from;
     }
   }
 }

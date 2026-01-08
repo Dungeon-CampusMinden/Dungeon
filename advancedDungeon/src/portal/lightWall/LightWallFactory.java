@@ -343,7 +343,7 @@ public class LightWallFactory {
       try {
         o = DynamicCompiler.loadUserInstance(PATH, CLASSNAME);
         Point endPoint =
-            ((Calculations) (o)).calculateLightwallEnd(from, beamDirection, stoppingTiles);
+            ((Calculations) (o)).calculateLightWallAndBridgeEnd(from, beamDirection, stoppingTiles);
         return endPoint;
       } catch (Exception e) {
         if (PortalStarter.DEBUG_MODE) e.printStackTrace();

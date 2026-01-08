@@ -1,5 +1,8 @@
 package portal.physicsobject;
 
+import core.Entity;
+import core.utils.Point;
+
 /**
  * Base abstraction for user-defined cube spawning logic.
  *
@@ -21,5 +24,5 @@ public abstract class CubeSpawner {
    *
    * <p>Implementations are responsible for creating and registering any entities they spawn.
    */
-  public abstract void spawn();
+  public abstract Entity spawn(Point position);
 }

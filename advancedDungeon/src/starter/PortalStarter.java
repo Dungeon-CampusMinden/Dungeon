@@ -13,6 +13,7 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.game.WindowEventManager;
+import core.level.DungeonLevel;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
 import core.systems.CameraSystem;
@@ -187,9 +188,9 @@ public class PortalStarter {
               isInFocus -> {
                 if (isInFocus && !DEBUG_MODE) recompilePlayerControl();
               });
-          CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom + .1f);
+          CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom + .3f);
 
-          //  DungeonLoader.addLevel(Tuple.of("template", DungeonLevel.class));
+          DungeonLoader.addLevel(Tuple.of("introcube", DungeonLevel.class));
           DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
           DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
           DungeonLoader.addLevel(Tuple.of("portallevel1", PortalLevel_1.class));
@@ -257,8 +258,8 @@ public class PortalStarter {
         core.configuration.KeyboardConfig.class);
     Game.disableAudio(true);
     Game.frameRate(30);
-    Game.windowHeight(480);
-    Game.windowWidth(640);
+    Game.windowHeight(800);
+    Game.windowWidth(600);
     Game.userOnLevelLoad(
         aBoolean -> {
           if (aBoolean) {

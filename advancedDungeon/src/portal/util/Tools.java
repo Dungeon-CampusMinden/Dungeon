@@ -5,7 +5,6 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
-import portal.portals.abstraction.PortalUtils;
 
 /**
  * Kleine Hilfsfunktionen für das Arbeiten mit Portalen und Spielfiguren.

@@ -139,6 +139,7 @@ public record Hero(Entity hero) {
 
   /** Schalte auf den nächsten Skill. */
   public void nextSkill() {
+    // TODO add timer to prevent button buffering
     hero.fetch(SkillComponent.class).ifPresent(sc -> sc.nextSkill());
   }
 

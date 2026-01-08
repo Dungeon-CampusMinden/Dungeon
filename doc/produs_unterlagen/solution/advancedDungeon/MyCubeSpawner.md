@@ -3,12 +3,10 @@
 
 public class MyCubeSpawner extends CubeSpawner {
 
-  private Entity spawned;
-
   @Override
   public void spawn() {
     // Update values on level case
-    spawned = spawnCube(new Point(2, 2), 100f);
+    Entity spawned = spawnCube(new Point(2, 2), 100f);
     Game.add(spawned);
   }
 

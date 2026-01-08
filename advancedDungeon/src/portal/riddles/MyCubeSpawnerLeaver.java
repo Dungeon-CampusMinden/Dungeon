@@ -1,5 +1,7 @@
 package portal.riddles;
 
+import core.Entity;
+import core.utils.Point;
 import portal.physicsobject.CubeSpawner;
 
 /**
@@ -15,7 +17,7 @@ import portal.physicsobject.CubeSpawner;
  *   <li>Kugeln spawnen
  * </ul>
  */
-public class MyCubeSpawner extends CubeSpawner {
+public class MyCubeSpawnerLeaver extends CubeSpawner {
 
   /**
    * Wird aufgerufen, wenn der Schalter aktiviert wird.
@@ -23,7 +25,10 @@ public class MyCubeSpawner extends CubeSpawner {
    * <p>Schreibe hier deinen Code hinein, um Objekte im Spiel erscheinen zu lassen.
    */
   @Override
-  public void spawn() {
-    throw new UnsupportedOperationException("Not supported yet.");
+  public Entity spawn(Point position) {
+    return new MyCube(position).cube();
+
+
+
   }
 }

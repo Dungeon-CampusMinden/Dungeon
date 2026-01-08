@@ -47,6 +47,6 @@ public abstract class Calculations {
    * @param stoppingTiles level elements that block the light wall
    * @return the final reachable point of the light wall
    */
-  public abstract Point calculateLightwallEnd(
+  public abstract Point calculateLightWallAndBridgeEnd(
       Point from, Direction beamDirection, LevelElement[] stoppingTiles);
 }

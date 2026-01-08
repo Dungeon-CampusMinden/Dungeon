@@ -1,7 +1,11 @@
 package portal.riddles;
 
+import core.Game;
+import core.utils.Direction;
+import core.utils.Vector2;
 import portal.controlls.Hero;
 import portal.controlls.PlayerController;
+import portal.tractorBeam.TractorBeamFactory;
 
 /**
  * Eine konkrete Implementierung von {@link PlayerController}, die Eingaben verarbeitet und damit
@@ -37,6 +41,24 @@ public class MyPlayerController extends PlayerController {
    * @param key Der gedrückte Knopf als Zeichenkette (z.B. "W", "A", "D").
    */
   protected void processKey(String key) {
-    throw new UnsupportedOperationException("Da stimmt etwas nicht mit meinem Steuerrungscode.");
+    if (key.equals("W")) move(0, 5);
+    if (key.equals("S")) move(0, -5);
+    if (key.equals("A")) move(-5, 0);
+    if (key.equals("D")) move(5, 0);
+    if (key.equals("Q")) hero.shootSkill();
+    if (key.equals("F")) hero.nextSkill();
+    if (key.equals("E")) hero.interact(hero.getMousePosition());
+    if (key.equals("T")) spawn();
+  }
+
+  private void spawn() {
+    Game.add(TractorBeamFactory.createTractorBeam(hero.getMousePosition(), Direction.RIGHT));
+  }
+
+  private void move(int x, int y) {
+    hero.setSpeed(Vector2.of(x, y));
+    // or for diagonal movement
+    hero.setXSpeed(x);
+    hero.setYSpeed(y);
   }
 }

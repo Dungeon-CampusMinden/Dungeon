@@ -1,10 +1,15 @@
 package portal.riddles;
 
 import core.Entity;
+import core.components.PositionComponent;
+import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
+import java.util.Arrays;
 import portal.portals.abstraction.Calculations;
+import portal.util.PortalUtils;
+import portal.util.Tools;
 
 /**
  * Eine konkrete Implementierung von {@link Calculations}, die grundlegende Berechnungen für das
@@ -37,7 +42,15 @@ public class MyCalculations extends Calculations {
    * @return Die berechnete Zielposition als {@link Point}
    */
   public Point calculatePortalExit(Entity portal) {
-    throw new UnsupportedOperationException("Da stimmt etwas nicht mit meinen Berechnungen.");
+    Entity otherPortal;
+
+    if (portal.name().equals(PortalUtils.BLUE_PORTAL_NAME))
+      otherPortal = Tools.getPortal(PortalUtils.GREEN_PORTAL_NAME);
+    else otherPortal = Tools.getPortal(PortalUtils.BLUE_PORTAL_NAME);
+
+    PositionComponent pc = Tools.getPositionComponent(otherPortal);
+    Direction direction = pc.viewDirection();
+    return pc.position().translate(direction);
   }
 
   /**
@@ -64,8 +77,20 @@ public class MyCalculations extends Calculations {
    * @param stoppingTiles Felder, an denen die Lichtwand stoppen muss
    * @return Der letzte Punkt, den die Lichtwand noch erreichen darf
    */
-  public Point calculateLightwallEnd(
+  public Point calculateLightWallAndBridgeEnd(
       Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
-    throw new UnsupportedOperationException("Da stimmt etwas nicht mit meinen Berechnungen.");
+    Point lastPoint = from;
+    Point currentPoint = from;
+
+    while (true) {
+      Tile currentTile = Tools.tileAt(currentPoint);
+      if (currentTile == null) break;
+
+      if (Arrays.asList(stoppingTiles).contains(currentTile.levelElement())) break;
+
+      lastPoint = currentPoint;
+      currentPoint = currentPoint.translate(beamDirection);
+    }
+    return lastPoint;
   }
 }

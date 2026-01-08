@@ -12,7 +12,7 @@
   }
 
 
-public Point calculateLightwallEnd(
+public Point calculateLightWallAndBridgeEnd(
     Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
     Point lastPoint = from;
     Point currentPoint = from;

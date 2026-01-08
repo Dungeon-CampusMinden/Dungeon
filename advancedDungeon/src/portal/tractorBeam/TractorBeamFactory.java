@@ -79,6 +79,11 @@ public class TractorBeamFactory {
     this.beamDirection = beamDirection;
   }
 
+  public static void reverse(Entity tractorBeam) {
+    reverseTractorBeam(
+        tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+  }
+
   /**
    * Calculates the number of points (entities) between {@code from} and {@code to}.
    *

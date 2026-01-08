@@ -94,4 +94,10 @@ public class Cube {
         },
         2f);
   }
+
+  protected static Entity portalCube(
+      Point spawn, float mass, boolean isPickupable, String texture) {
+    //TODO
+    return portalCube(spawn,mass);
+  }
 }

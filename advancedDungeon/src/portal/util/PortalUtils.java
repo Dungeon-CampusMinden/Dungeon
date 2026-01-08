@@ -1,4 +1,4 @@
-package portal.portals.abstraction;
+package portal.util;
 
 import contrib.hud.DialogUtils;
 import contrib.utils.DynamicCompiler;
@@ -7,7 +7,7 @@ import core.Game;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import java.util.Optional;
-import portal.util.Tools;
+import portal.portals.abstraction.Calculations;
 import starter.PortalStarter;
 
 /**

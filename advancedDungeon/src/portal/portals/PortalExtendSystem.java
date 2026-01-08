@@ -4,9 +4,9 @@ import core.Entity;
 import core.System;
 import core.components.PositionComponent;
 import core.utils.components.MissingComponentException;
-import portal.portals.abstraction.PortalUtils;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
+import portal.util.PortalUtils;
 
 /**
  * The PortalExtendSystem manages the interaction with portals for entities that need to be extended
