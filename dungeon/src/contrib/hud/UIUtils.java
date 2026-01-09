@@ -209,9 +209,12 @@ public final class UIUtils {
    *
    * @param uiComponent the UIComponent whose dialog is to be closed
    * @param deleteOwner whether to remove the owner entity from the game after closing the dialog
+   * @param callDefaultClose whether to call the onClose (default close behavior) callback of the UIComponent
    */
-  public static void closeDialog(UIComponent uiComponent, boolean deleteOwner) {
-    uiComponent.onClose().accept(uiComponent); // onClose callback
+  public static void closeDialog(UIComponent uiComponent, boolean deleteOwner, boolean callDefaultClose) {
+    if(callDefaultClose){
+      uiComponent.onClose().accept(uiComponent); // onClose callback
+    }
 
     try {
       Entity ownerEntity = uiComponent.dialogContext().ownerEntity();
@@ -231,6 +234,10 @@ public final class UIUtils {
     } catch (DialogCreationException e) {
       LOGGER.warn("Could not close dialog: {}", e.getMessage());
     }
+  }
+
+  public static void closeDialog(UIComponent uiComponent, boolean deleteOwner) {
+    closeDialog(uiComponent, deleteOwner, true);
   }
 
   /**
