@@ -209,10 +209,12 @@ public final class UIUtils {
    *
    * @param uiComponent the UIComponent whose dialog is to be closed
    * @param deleteOwner whether to remove the owner entity from the game after closing the dialog
-   * @param callDefaultClose whether to call the onClose (default close behavior) callback of the UIComponent
+   * @param callDefaultClose whether to call the onClose (default close behavior) callback of the
+   *     UIComponent
    */
-  public static void closeDialog(UIComponent uiComponent, boolean deleteOwner, boolean callDefaultClose) {
-    if(callDefaultClose){
+  public static void closeDialog(
+      UIComponent uiComponent, boolean deleteOwner, boolean callDefaultClose) {
+    if (callDefaultClose) {
       uiComponent.onClose().accept(uiComponent); // onClose callback
     }
 
