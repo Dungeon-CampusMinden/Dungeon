@@ -236,6 +236,16 @@ public final class UIUtils {
     }
   }
 
+  /**
+   * Closes the dialog associated with the given UIComponent and optionally deletes its owner.
+   *
+   * <p>This method removes the UIComponent from its owner entity and optionally removes the owner
+   * entity from the game. If the owner of the UIComponent has a PlayerComponent, the number of open
+   * dialogs is decremented. All target entities are notified of the dialog closure.
+   *
+   * @param uiComponent the UIComponent whose dialog is to be closed
+   * @param deleteOwner whether to remove the owner entity from the game after closing the dialog
+   */
   public static void closeDialog(UIComponent uiComponent, boolean deleteOwner) {
     closeDialog(uiComponent, deleteOwner, true);
   }
