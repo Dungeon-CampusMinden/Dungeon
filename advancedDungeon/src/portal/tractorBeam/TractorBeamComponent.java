@@ -176,16 +176,16 @@ public class TractorBeamComponent implements Component {
    * @return the reversed force vector applied to entities in the beam
    */
   public Vector2 reversedForceToApply() {
-    return forceToApply;
+    return reversedForceToApply;
   }
 
   /**
    * Sets the force that is applied to entities inside the beam when the beam operates in reversed
    * mode.
    *
-   * @param forceToApply the force vector to apply in reversed mode
+   * @param reversedForceToApply the force vector to apply in reversed mode
    */
-  public void reversedForceToApply(Vector2 forceToApply) {
-    this.forceToApply = forceToApply;
+  public void reversedForceToApply(Vector2 reversedForceToApply) {
+    this.reversedForceToApply = reversedForceToApply;
   }
 }
