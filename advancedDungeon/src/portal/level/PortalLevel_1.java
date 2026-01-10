@@ -14,8 +14,9 @@ import portal.util.AdvancedLevel;
 public class PortalLevel_1 extends AdvancedLevel {
 
   private static final String msg = "Schau dir mal das Portal an der Wand genauer an.";
-  private static final String title =
+  private static final String task =
       "Es scheint so, also ob die Berechnungen in MyCalculations.java noch nicht vollständig sind.";
+  private static final String title = "Portal";
   private static boolean showMsg = true;
 
   /**
