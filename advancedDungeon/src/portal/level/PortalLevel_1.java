@@ -1,5 +1,6 @@
 package portal.level;
 
+import contrib.hud.DialogUtils;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
@@ -9,11 +10,14 @@ import portal.portals.PortalColor;
 import portal.portals.PortalFactory;
 import portal.util.AdvancedLevel;
 
-/**
- * Portal level one. In this level the player has to implement basic controls to reach the exit on
- * the other side of the level.
- */
+/** Level in the portal dungeon. */
 public class PortalLevel_1 extends AdvancedLevel {
+
+  private static final String msg = "Schau dir mal das Portal an der Wand genauer an.";
+  private static final String task =
+      "Es scheint so, also ob die Berechnungen in MyCalculations.java noch nicht vollständig sind.";
+  private static final String title = "Portal";
+  private static boolean showMsg = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -31,6 +35,15 @@ public class PortalLevel_1 extends AdvancedLevel {
   @Override
   protected void onFirstTick() {
     PortalFactory.createPortal(namedPoints.get("portal1"), Direction.DOWN, PortalColor.GREEN);
-    PortalFactory.createPortal(namedPoints.get("portal2"), Direction.DOWN, PortalColor.BLUE);
+    PortalFactory.createPortal(namedPoints.get("portal2"), Direction.LEFT, PortalColor.BLUE);
+
+    if (showMsg)
+      DialogUtils.showTextPopup(
+          msg,
+          title,
+          () -> {
+            showMsg = false;
+            DialogUtils.showTextPopup(task, title);
+          });
   }
 }

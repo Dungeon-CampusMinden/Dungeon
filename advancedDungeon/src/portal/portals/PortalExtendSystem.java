@@ -6,6 +6,7 @@ import core.components.PositionComponent;
 import core.utils.components.MissingComponentException;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
+import portal.riddles.utils.PortalUtils;
 
 /**
  * The PortalExtendSystem manages the interaction with portals for entities that need to be extended
@@ -54,7 +55,7 @@ public class PortalExtendSystem extends System {
    */
   private void applyPortalExtendLogic(PortalExtendComponent pec) {
     if (pec.isThroughBlue()) {
-      PortalFactory.getGreenPortal()
+      PortalUtils.getGreenPortal()
           .ifPresent(
               portal -> {
                 portal
@@ -62,7 +63,7 @@ public class PortalExtendSystem extends System {
                     .ifPresent(
                         pc -> {
                           Entity other =
-                              PortalFactory.getBluePortal()
+                              PortalUtils.getBluePortal()
                                   .flatMap(bluePortal -> bluePortal.fetch(PortalComponent.class))
                                   .get()
                                   .getExtendedEntityThrough();
@@ -76,7 +77,7 @@ public class PortalExtendSystem extends System {
                 pec.setExtended(true);
               });
     } else if (pec.isThroughGreen()) {
-      PortalFactory.getBluePortal()
+      PortalUtils.getBluePortal()
           .ifPresent(
               portal -> {
                 portal
@@ -84,7 +85,7 @@ public class PortalExtendSystem extends System {
                     .ifPresent(
                         pc -> {
                           Entity other =
-                              PortalFactory.getGreenPortal()
+                              PortalUtils.getGreenPortal()
                                   .flatMap(greenPortal -> greenPortal.fetch(PortalComponent.class))
                                   .get()
                                   .getExtendedEntityThrough();

@@ -3,7 +3,6 @@ package portal.portals;
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
 import contrib.components.ProjectileComponent;
-import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
@@ -19,6 +18,7 @@ import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import portal.portals.abstraction.PortalConfig;
 import portal.portals.components.PortalComponent;
 
 /**
@@ -28,35 +28,27 @@ import portal.portals.components.PortalComponent;
  */
 public class PortalSkill extends ProjectileSkill {
 
-  /* Projectile characteristics */
-  private static final float SPEED = 13f;
-  private static final float RANGE = Integer.MAX_VALUE;
-  private static final Vector2 HIT_BOX_SIZE = Vector2.of(0.5, 0.5);
-  private static final Vector2 HIT_BOX_OFFSET = Vector2.of(0.25, 0.25);
-  private static final long COOLDOWN = 500;
   private final PortalColor portalColor;
 
   /**
    * Creates a new portal skill.
    *
    * @param portalColor Color of the portal.
-   * @param resourceCost Resource costs for casting.
+   * @param config The Configuration for the portal
    */
-  @SafeVarargs
-  public PortalSkill(PortalColor portalColor, Tuple<Resource, Integer>... resourceCost) {
+  public PortalSkill(PortalColor portalColor, PortalConfig config) {
     super(
         portalColor.equals(PortalColor.BLUE) ? "BLUE_PORTAL" : "GREEN_PORTAL",
-        COOLDOWN,
+        config.cooldown(),
         portalColor.equals(PortalColor.BLUE)
             ? new SimpleIPath("skills/blue_projectile")
             : new SimpleIPath("skills/green_projectile"),
-        SPEED,
-        RANGE,
-        HIT_BOX_SIZE,
-        HIT_BOX_OFFSET,
+        config.speed(),
+        config.range(),
+        config.hitBoxSize(),
+        config.hitBoxOffset(),
         false,
-        SkillTools::cursorPositionAsPoint,
-        resourceCost);
+        config.target());
     this.portalColor = portalColor;
   }
 
@@ -123,7 +115,7 @@ public class PortalSkill extends ProjectileSkill {
 
     CollideComponent cc =
         new CollideComponent(
-            HIT_BOX_OFFSET, HIT_BOX_SIZE, onCollideEnter(caster), onCollideLeave(caster));
+            hitBoxOffset, hitBoxSize, onCollideEnter(caster), onCollideLeave(caster));
     cc.onHold(onCollideHold(caster));
     cc.isSolid(false);
     projectile.add(cc);

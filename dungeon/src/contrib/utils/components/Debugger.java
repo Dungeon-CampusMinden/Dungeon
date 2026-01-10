@@ -249,6 +249,7 @@ public class Debugger extends System {
       Debugger.ZOOM_CAMERA(-0.2f);
     if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.value()))
       Debugger.ZOOM_CAMERA(0.2f);
+
     if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.value()))
       Debugger.TELEPORT_TO_CURSOR();
     if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_END.value()))
@@ -260,14 +261,12 @@ public class Debugger extends System {
     if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value())
         && !LevelEditorSystem.active()) Debugger.SPAWN_MONSTER_ON_CURSOR();
     if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value())) Debugger.OPEN_DOORS();
-
-    checkFrameAdvance();
     if (Gdx.input.isKeyJustPressed(core.configuration.KeyboardConfig.PAUSE.value()))
       Debugger.PAUSE_GAME();
     if (Gdx.input.isKeyJustPressed(core.configuration.KeyboardConfig.ADVANCE_FRAME.value()))
       Debugger.ADVANCE_FRAME();
-
     if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value()))
       Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleHUD);
+    checkFrameAdvance();
   }
 }

@@ -224,6 +224,7 @@ public class DungeonLoader {
       throw new IndexOutOfBoundsException("Level index is out of bounds: " + levelIndex);
     }
     loadLevel(levelOrder.get(levelIndex).a());
+    currentLevel = levelIndex;
   }
 
   /**

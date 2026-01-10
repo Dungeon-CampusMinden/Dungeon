@@ -1,96 +1,89 @@
 package starter;
 
+import com.badlogic.gdx.Input;
 import contrib.components.*;
 import contrib.entities.EntityFactory;
 import contrib.hud.DialogUtils;
 import contrib.systems.*;
+import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
-import contrib.utils.components.skill.Resource;
-import contrib.utils.components.skill.projectileSkill.FireballSkill;
-import contrib.utils.components.skill.selfSkill.SelfHealSkill;
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
-import core.components.VelocityComponent;
+import core.components.*;
+import core.game.WindowEventManager;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
-import core.utils.Direction;
-import core.utils.JsonHandler;
-import core.utils.Tuple;
-import core.utils.Vector2;
+import core.systems.CameraSystem;
+import core.utils.*;
+import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import portal.antiMaterialBarrier.AntiMaterialBarrierSystem;
+import portal.controlls.Hero;
+import portal.controlls.PlayerController;
 import portal.laserGrid.LasergridSystem;
 import portal.level.*;
 import portal.portals.PortalColor;
 import portal.portals.PortalExtendSystem;
 import portal.portals.PortalSkill;
+import portal.portals.abstraction.PortalConfig;
 
 /**
- * Starter for the Demo Escaperoom Dungeon.
+ * Starter for the Portal Dungeon.
  *
- * <p>Usage: run with the Gradle task {@code runDemoRoom}.
+ * <p>Usage: run with the Gradle task {@code runPortal}.
  */
 public class PortalStarter {
-  private static final boolean DEBUG_MODE = false;
-  private static final String SAVE_LEVEL_KEY = "LEVEL";
-  private static final String SAVE_FILE = "currentPortalLevel.json";
 
   /**
-   * Main method to start the game.
+   * Activate this to enable Debug mode.
    *
-   * @param args The arguments passed to the game.
-   * @throws IOException If an I/O error occurs.
+   * <p>Creates a classic Hero with standard controls; no custom implementation needed.
+   *
+   * <p>Activates the {@link Debugger}.
+   *
+   * <p>Also disables recompilation for player control.
    */
-  public static void main(String[] args) throws IOException {
-    configGame();
-    onSetup();
-    Game.run();
-  }
+  public static final boolean DEBUG_MODE = false;
 
-  private static void onSetup() {
-    Game.userOnSetup(
-        () -> {
-          DungeonLoader.addLevel(Tuple.of("portallevel1", PortalLevel_1.class));
-          DungeonLoader.addLevel(Tuple.of("portallevel2", PortalLevel_2.class));
-          DungeonLoader.addLevel(Tuple.of("portallevel3", PortalLevel_3.class));
-          DungeonLoader.addLevel(Tuple.of("portallevel4", PortalLevel_4.class));
-          DungeonLoader.addLevel(Tuple.of("portallevel5", PortalLevel_5.class));
-          DungeonLoader.addLevel(Tuple.of("portallevel6", PortalLevel_6.class));
-          DungeonLoader.addLevel(Tuple.of("portallevel7", PortalLevel_7.class));
-          DungeonLoader.addLevel(Tuple.of("PortalDemo", PortalDemoLevel.class));
-          createSystems();
-          createHero();
-          DungeonLoader.loadLevel(loadLevelIndex());
-        });
-  }
+  private static final boolean LEVELEDITOR_MODE = false;
 
-  private static void createHero() {
-    Entity chell = EntityFactory.newHero(death_callback);
-    chell
-        .fetch(SkillComponent.class)
-        .ifPresent(
-            skillComponent -> {
-              skillComponent.addSkill(
-                  new PortalSkill(PortalColor.BLUE, new Tuple<>(Resource.MANA, 0)));
-              skillComponent.addSkill(
-                  new PortalSkill(PortalColor.GREEN, new Tuple<>(Resource.MANA, 0)));
-              skillComponent.removeSkill(FireballSkill.class);
-              skillComponent.removeSkill(SelfHealSkill.class);
-            });
-    Game.add(chell);
-  }
+  private static final String SAVE_LEVEL_KEY = "LEVEL";
+  private static final String SAVE_FILE = "currentPortalLevel.json";
+  private static final SimpleIPath PORTAL_CONFIG_PATH =
+      new SimpleIPath("advancedDungeon/src/portal/riddles/MyPortalConfig.java");
+  private static final String CONFIG_CLASSNAME = "portal.riddles.MyPortalConfig";
+  private static final float ZOOM = .3f;
+  private static final int FPS = 30;
+  private static final int WIDTH = 640;
+  private static final int HEIGHT = 480;
 
-  private static Consumer<Entity> death_callback =
+  /** Global reference to the {@link Hero} instance used in the game. */
+  public static Hero hero;
+
+  /** If true, the {@link MyPlayerController} will not be recompiled. */
+  private static boolean recompilePaused = false;
+
+  private static final String ERROR_MSG_CONTROLLER =
+      "Da scheint etwas mit meinem Steuerrungscode nicht zu stimmen.";
+
+  /** Path to the Java source file of the custom player controller. */
+  private static final SimpleIPath PLAYER_CONTROLLER_PATH =
+      new SimpleIPath("advancedDungeon/src/portal/riddles/MyPlayerController.java");
+
+  /** Fully qualified class name of the custom player controller. */
+  private static final String CONTROLLER_CLASSNAME = "portal.riddles.MyPlayerController";
+
+  private static final Consumer<Entity> DEATH_CALLBACK =
       (hero) ->
           DialogUtils.showTextPopup(
-              "You died!",
+              "Du bist gestorben.",
               "Game Over",
               () -> {
                 // Just respawn at Start Tile instead of reloading the level
@@ -141,13 +134,153 @@ public class PortalStarter {
                 DungeonLoader.reloadCurrentLevel();
               });
 
+  /**
+   * Attempts to dynamically recompile and load the custom player controller class.
+   *
+   * <p>If compilation is successful, the player's controller is updated at runtime. Otherwise, a
+   * dialog is shown to indicate an error.
+   */
+  private static void recompilePlayerControl() {
+    if (recompilePaused) return;
+    try {
+
+      // Player Controller
+      Object o =
+          DynamicCompiler.loadUserInstance(
+              PLAYER_CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
+      hero.setController((PlayerController) o);
+
+      // Portal Config
+
+      o =
+          DynamicCompiler.loadUserInstance(
+              PORTAL_CONFIG_PATH, CONFIG_CLASSNAME, new Tuple<>(Hero.class, hero));
+      SkillComponent sc =
+          hero.hero()
+              .fetch(SkillComponent.class)
+              .orElseThrow(
+                  () -> MissingComponentException.build(hero.hero(), SkillComponent.class));
+      sc.removeAll();
+      sc.addSkill(new PortalSkill(PortalColor.GREEN, ((PortalConfig) o)));
+      sc.addSkill(new PortalSkill(PortalColor.BLUE, ((PortalConfig) o)));
+
+    } catch (Exception e) {
+      recompilePaused = true;
+      if (DEBUG_MODE) e.printStackTrace();
+      DialogUtils.showTextPopup(ERROR_MSG_CONTROLLER, "Code Error", () -> recompilePaused = false);
+    }
+  }
+
+  /**
+   * Main method to start the game.
+   *
+   * @param args The arguments passed to the game.
+   * @throws IOException If an I/O error occurs.
+   */
+  public static void main(String[] args) throws IOException {
+    configGame();
+    onSetup();
+    Game.run();
+  }
+
+  private static void onSetup() {
+    Game.userOnSetup(
+        () -> {
+          WindowEventManager.registerFocusChangeListener(
+              isInFocus -> {
+                if (isInFocus && !DEBUG_MODE) recompilePlayerControl();
+              });
+          CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom + ZOOM);
+
+          DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
+          DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
+          DungeonLoader.addLevel(Tuple.of("interaction1", InteractionLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("cube1", CubeLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("sphere1", SphereLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("portal1", PortalLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("objectsportal1", ObjectsPortalLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("portalskill1", PortalSkillLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("portalskill2", PortalSkillLevel_2.class));
+          DungeonLoader.addLevel(Tuple.of("antimaterial1", AntiMaterialLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("energypellet1", EnergyPelletLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("lightbridge1", LightBridgeLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("lightwall1", LightWallLevel_1.class));
+          DungeonLoader.addLevel(Tuple.of("tractorbeam1", TractorBeamLevel_1.class));
+          createSystems();
+          createHero();
+
+          DungeonLoader.loadLevel(loadLevelIndex());
+        });
+  }
+
+  private static void createHero() {
+    Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
+    Entity heroEntity = EntityFactory.newHero(DEATH_CALLBACK);
+    Game.add(heroEntity);
+    hero = new Hero(heroEntity);
+    if (LEVELEDITOR_MODE) {
+      heroEntity.fetch(InputComponent.class).get().removeCallbacks();
+      heroEntity
+          .fetch(InputComponent.class)
+          .get()
+          .registerCallback(
+              Input.Keys.F12,
+              entity -> DungeonLoader.loadLevel(DungeonLoader.currentLevelIndex() + 1),
+              false);
+      heroEntity
+          .fetch(InputComponent.class)
+          .get()
+          .registerCallback(
+              Input.Keys.F1,
+              entity -> DungeonLoader.loadLevel(Math.max(0, DungeonLoader.currentLevelIndex() - 1)),
+              false);
+    } else {
+      if (!DEBUG_MODE) recompilePlayerControl();
+      else debugPortalSkills(heroEntity);
+    }
+  }
+
+  private static void debugPortalSkills(Entity heroEntity) {
+    SkillComponent sc =
+        heroEntity
+            .fetch(SkillComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(heroEntity, SkillComponent.class));
+    sc.removeAll();
+    PortalConfig debugConfig =
+        new PortalConfig(hero) {
+          @Override
+          public long cooldown() {
+            return 500;
+          }
+
+          @Override
+          public float speed() {
+            return 10;
+          }
+
+          @Override
+          public float range() {
+            return Integer.MAX_VALUE;
+          }
+
+          @Override
+          public Supplier<Point> target() {
+            return () -> hero.getMousePosition();
+          }
+        };
+    sc.addSkill(new PortalSkill(PortalColor.BLUE, debugConfig));
+    sc.addSkill(new PortalSkill(PortalColor.GREEN, debugConfig));
+  }
+
   private static void configGame() throws IOException {
     Game.loadConfig(
         new SimpleIPath("dungeon_config.json"),
         contrib.configuration.KeyboardConfig.class,
         core.configuration.KeyboardConfig.class);
     Game.disableAudio(true);
-    Game.frameRate(30);
+    Game.frameRate(FPS);
+    Game.windowWidth(WIDTH);
+    Game.windowHeight(HEIGHT);
     Game.userOnLevelLoad(
         aBoolean -> {
           if (aBoolean) {
@@ -159,7 +292,7 @@ public class PortalStarter {
   }
 
   private static void createSystems() {
-    if (DEBUG_MODE) Game.add(new LevelEditorSystem());
+    if (LEVELEDITOR_MODE) Game.add(new LevelEditorSystem());
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());
