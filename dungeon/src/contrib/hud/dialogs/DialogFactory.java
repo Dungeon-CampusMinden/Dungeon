@@ -209,12 +209,7 @@ public class DialogFactory {
     UIComponent ui = show(ctx, targetIds);
 
     // Register callback
-    ui.registerCallback(
-        DialogContextKeys.ON_CONFIRM,
-        data -> {
-          onConfirm.execute();
-          UIUtils.closeDialog(ui, true);
-        });
+    ui.registerCallback(DialogContextKeys.ON_CONFIRM, data -> UIUtils.closeDialog(ui, true, true));
 
     // Default onClose behavior (e.g. when pressing ESC)
     ui.onClose(uic -> onConfirm.execute());
@@ -248,14 +243,9 @@ public class DialogFactory {
         DialogContextKeys.ON_YES,
         data -> {
           onYes.execute();
-          UIUtils.closeDialog(ui, true);
+          UIUtils.closeDialog(ui, true, false);
         });
-    ui.registerCallback(
-        DialogContextKeys.ON_NO,
-        data -> {
-          onNo.execute();
-          UIUtils.closeDialog(ui, true);
-        });
+    ui.registerCallback(DialogContextKeys.ON_NO, data -> UIUtils.closeDialog(ui, true, true));
 
     // Default onClose behavior (e.g. when pressing ESC)
     ui.onClose(uic -> onNo.execute());
