@@ -79,6 +79,9 @@ public class LevelCreatorTools {
   private static final String CUBESPAWNER =
       "Der Würfel konnte nicht erzeugt werden. Überprüfe deine Cube-Klasse, den Rückgabewert der spawn-Methode und die angegebene Spawn-Position.";
 
+  private static final String SPHERESPAWNER =
+      "Die Kugel konnte nicht erzeugt werden. Überprüfe deine Sphere-Klasse, den Rückgabewert der spawn-Methode und die angegebene Spawn-Position.";
+
   /**
    * Creates a lever that opens and closes a door.
    *
@@ -233,7 +236,6 @@ public class LevelCreatorTools {
         position,
         new ICommand() {
 
-          public static final String SPHERESPAWNER = "TBD";
           private Entity sphere;
 
           @Override
