@@ -15,7 +15,7 @@ public class SphereLevel_1 extends AdvancedLevel {
 
   private static final String NAME = "Portal Level";
   private static boolean showMsg = true;
-  private static final String msg = "Neben Würfel gibt es auch Kugeln.";
+  private static final String msg = "Neben Würfeln gibt es auch Kugeln.";
   private static final String task = "Suche den Code für die Kugel.";
   private static final String title = "Kubus";
 
