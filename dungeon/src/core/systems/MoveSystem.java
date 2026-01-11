@@ -160,7 +160,7 @@ public class MoveSystem extends System {
         float wallY = fromWall(newPos.y(), sv.y() > 0);
         if (hasCollider) {
           float yOffset = collider.offset().y();
-          wallY += sv.y() > 0 ? yOffset : -yOffset;
+          wallY += sv.y() > 0 ? yOffset + collider.size().scale(0.5f).y() : -yOffset;
         }
         newPos = new Point(newPos.x(), wallY);
         hasHitWall = true;
