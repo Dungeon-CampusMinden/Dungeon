@@ -6,7 +6,7 @@ In diesem Dokument wird erläutert, wie das neue HUD-System aufgebaut ist.
 
 ## Kernkomponenten
 
-- `HeadUpDisplay` nimmt alle HUD-Element entgegen und fügt sie der Stage hinzu und registriert sie im `HeadUpDisplaySystem`.
+- `HeadUpDisplay` nimmt alle HUD-Elemente entgegen und fügt sie der Stage hinzu und registriert sie im `HeadUpDisplaySystem`.
 
 - `HeadUpDisplaySystem` ist verantwortlich für Initialisierungs, Updates und Layout Aufrufe aller `HUDELemente`.
 

@@ -8,7 +8,7 @@ public interface HUDElement {
    */
   void init();
 
-  /** Should contain all element-specific logic necessary for e.g. placement and size. */
+  /** Should contain all element-specific layout logic necessary for e.g. placement and size. */
   void layoutElement();
 
   /** Should contain all element-specific update logic that needs to be executed every frame. */

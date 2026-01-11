@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The AbilityBar is a HUD element that displays the hero's the abilities (skills).
+ * The AbilityBar is a HUD element that displays the hero's abilities (skills).
  *
  * <p>This class uses multiple {@link AbilitySlot} to build a dynamic ability bar. Currently, every
  * skill requires a dedicated icon and tooltip.
