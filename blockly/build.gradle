@@ -1,6 +1,5 @@
 plugins {
     id 'application'
-    id 'antlr'
 }
 
 application {
@@ -15,18 +14,9 @@ dependencies {
     implementation project(':blockly:dgir-compiler')
     implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.27.1'
 
-    // ANTLR version 4 for DSL Grammar
-    antlr supportDependencies.antlr
-
     // JUnit 4 and Mockito for testing
     testImplementation supportDependencies.junit
     testRuntimeOnly supportDependencies.junitLauncher
-}
-
-// generate ANTLR visitor and listener classes from grammar
-generateGrammarSource {
-    maxHeapSize = '64m'
-    arguments += ['-visitor', '-listener', '-long-messages']
 }
 
 tasks.register('runJar', JavaExec) {
@@ -45,6 +35,7 @@ jar {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     dependsOn project(':blockly:dgir-compiler').tasks.named('jar')
+    dependsOn project(':dungeon').tasks.named('jar')
 }
 
 tasks.withType(Test).configureEach {
