@@ -1,4 +1,3 @@
-/* TODO This project should use plugin 'application' instead of defining its own run task */
 plugins {
     id 'application'
     id 'antlr'
@@ -7,13 +6,6 @@ plugins {
 application {
     // Define the main class for the application
     mainClass = 'client.Client'
-}
-
-// Optional switch to start the Vite frontend and open it in a browser
-ext.frontendUrl = 'http://localhost:5173/'
-ext.shouldStartFrontend = {
-    def flag = project.findProperty('startFrontend') ?: project.findProperty('frontend')
-    flag != null && flag.toString().toBoolean()
 }
 
 sourceSets.main.resources.srcDirs = ['assets/']
@@ -55,43 +47,14 @@ jar {
     dependsOn project(':blockly:dgir-compiler').tasks.named('jar')
 }
 
-// Start the Vite dev server in the background when requested
-tasks.register('startFrontend') {
-    onlyIf { shouldStartFrontend() }
-    doLast {
-        logger.lifecycle('Starting Blockly frontend with `npm run dev`...')
-        def pb = new ProcessBuilder(['npm', 'run', 'dev'])
-        pb.directory(file('frontend'))
-        pb.redirectErrorStream(true)
-        pb.inheritIO()
-        pb.start()
-    }
-}
-
-tasks.register('openFrontend') {
-    onlyIf { shouldStartFrontend() }
-    dependsOn 'startFrontend'
-    doLast {
-        try {
-            exec { commandLine 'xdg-open', frontendUrl }
-        } catch (Exception ignored) {
-            try {
-                exec { commandLine 'open', frontendUrl }
-            } catch (Exception ignored2) {
-                logger.lifecycle("Open ${frontendUrl} in your browser.")
-            }
-        }
-    }
-}
-
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }
 
 // Wire optional frontend startup into run/runJar
 tasks.withType(JavaExec).forEach {
-    if (shouldStartFrontend()) {
-        it.dependsOn 'openFrontend'
+    it.doFirst {
+        println("\u001B[31mIf the frontend is not already running, start it with\n 'npm run dev'\nin the 'frontend' directory.\u001B[0m")
     }
 }
 
