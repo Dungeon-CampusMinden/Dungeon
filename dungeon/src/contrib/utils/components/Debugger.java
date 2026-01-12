@@ -217,7 +217,7 @@ public class Debugger extends System {
   private static void ADVANCE_FRAME() {
     if (!isPaused()) return;
     unpause();
-    advanceTimer = 1;
+    advanceTimer = 2; // Set to 2 to account for the current frame
     LOGGER.info("Advanced one frame");
   }
 

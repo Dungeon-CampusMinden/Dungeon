@@ -17,7 +17,7 @@ sourceSets.test.java.srcDirs = ['test/']
 
 processResources {
     from new File(project(':dungeon').projectDir, '/assets')
-    from new File(project(':escapeRoom').projectDir, '/assets')
+    from new File(project(':theLastHourEscapeRoom').projectDir, '/assets')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
@@ -41,7 +41,7 @@ tasks.register('buildTheFinalHourJar', Jar) {
     // include compiled classes
     from sourceSets.main.output
     from project(':dungeon').sourceSets.main.output
-    from project(':escapeRoom').sourceSets.main.output
+    from project(':theLastHourEscapeRoom').sourceSets.main.output
     // include dependencies
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
@@ -50,7 +50,7 @@ tasks.register('buildTheFinalHourJar', Jar) {
     // include assets
     into('assets') {
         from new File(project(':dungeon').projectDir, '/assets')
-        from new File(project(':escapeRoom').projectDir, '/assets')
+        from new File(project(':theLastHourEscapeRoom').projectDir, '/assets')
     }
 
     // manifest
