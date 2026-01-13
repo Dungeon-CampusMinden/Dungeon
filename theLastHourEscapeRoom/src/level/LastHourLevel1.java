@@ -4,12 +4,19 @@ import contrib.components.DecoComponent;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadFactory;
 import contrib.systems.EventScheduler;
+import contrib.entities.deco.Deco;
+import contrib.entities.deco.DecoFactory;
+import core.Entity;
 import core.Game;
 import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import modules.computer.ComputerFactory;
+import modules.computer.ComputerState;
+import modules.computer.ComputerStateComponent;
+
 import java.util.*;
 
 /** The MushRoom. */
@@ -51,6 +58,16 @@ public class LastHourLevel1 extends DungeonLevel {
               storageDoor.open();
             },
             true));
+
+    // Main PC
+    Entity pc = DecoFactory.createDeco(getPoint("pc-main"), Deco.DeskWithPC1);
+    pc.remove(DecoComponent.class);
+    ComputerFactory.attachComputerDialog(pc);
+    Game.add(pc);
+
+    Entity computerState = new Entity("computer-state");
+    computerState.add(new ComputerStateComponent(ComputerState.PRE_LOGIN));
+    Game.add(computerState);
 
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
