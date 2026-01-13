@@ -1,13 +1,18 @@
 package starter;
 
 import contrib.entities.EntityFactory;
+import contrib.modules.keypad.KeypadSystem;
+import contrib.systems.CollisionSystem;
+import contrib.systems.DebugDrawSystem;
+import contrib.systems.LevelEditorSystem;
+import contrib.utils.components.Debugger;
 import core.Game;
 import core.configuration.KeyboardConfig;
-import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import level.LastHourLevel1;
 
 /**
  * Entry point for running a minimal dungeon game instance.
@@ -26,16 +31,26 @@ public class TheLastHour {
    * @param args command-line arguments (not used in this starter)
    */
   public static void main(String[] args) {
-    DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
+    DungeonLoader.addLevel(Tuple.of("lasthour", LastHourLevel1.class));
     try {
       Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
     Game.disableAudio(true);
-    Game.userOnSetup(() -> Game.add(EntityFactory.newHero()));
+    Game.userOnSetup(TheLastHour::onUserSetup);
     Game.frameRate(60);
     Game.windowTitle("The Last Hour");
     Game.run();
+  }
+
+  private static void onUserSetup() {
+    Game.add(EntityFactory.newHero());
+
+    Game.add(new CollisionSystem());
+    Game.add(new KeypadSystem());
+    Game.add(new Debugger());
+    Game.add(new DebugDrawSystem());
+    Game.add(new LevelEditorSystem());
   }
 }
