@@ -44,7 +44,7 @@ public class TheLastHour {
     Game.run();
   }
 
-  public static void onUserSetup() {
+  private static void onUserSetup() {
     Game.add(EntityFactory.newHero());
 
     Game.add(new CollisionSystem());
