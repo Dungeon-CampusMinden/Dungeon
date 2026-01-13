@@ -4,19 +4,15 @@ import contrib.entities.EntityFactory;
 import contrib.modules.keypad.KeypadSystem;
 import contrib.systems.CollisionSystem;
 import contrib.systems.DebugDrawSystem;
-import contrib.systems.HudSystem;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.Debugger;
 import core.Game;
 import core.configuration.KeyboardConfig;
-import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
-import core.utils.logging.DungeonLoggerConfig;
-import level.LastHourLevel1;
-
 import java.io.IOException;
+import level.LastHourLevel1;
 
 /**
  * Entry point for running a minimal dungeon game instance.
@@ -48,7 +44,7 @@ public class TheLastHour {
     Game.run();
   }
 
-  public static void onUserSetup(){
+  public static void onUserSetup() {
     Game.add(EntityFactory.newHero());
 
     Game.add(new CollisionSystem());
