@@ -43,9 +43,14 @@ public final class InventoryComponent implements Component {
   /**
    * Create a new {@link InventoryComponent} with the given size.
    *
-   * @param maxSize The number of items that can be stored in the inventory.
+   * @param maxSize The number of items that can be stored in the inventory. (max: {@link
+   *     Item#MAX_STACK_SIZE}
+   * @throws IllegalArgumentException if maxSize exceeds {@link Item#MAX_STACK_SIZE}
    */
   public InventoryComponent(int maxSize) {
+    if (maxSize > Item.MAX_STACK_SIZE) {
+      throw new IllegalArgumentException("Inventory size cannot exceed " + Item.MAX_STACK_SIZE);
+    }
     inventory = new Item[maxSize];
   }
 
@@ -84,7 +89,7 @@ public final class InventoryComponent implements Component {
    * @param item The item to be added.
    * @return The remaining stack size of the item that could not be added.
    */
-  private int addToStack(final Item item) {
+  private byte addToStack(final Item item) {
     List<Item> sameClassItems = itemsOfSameClass(item);
     for (Item stack : sameClassItems) {
       if (item.stackSize() <= 0) {

@@ -173,7 +173,7 @@ public class ItemTest {
     assertEquals(2, item.stackSize());
   }
 
-  /** WTF? . */
+  /** Tests setting max stack size of item. */
   @Test
   public void testMaxStackSize() {
     Item item = new Item("Test item", "Test description", defaultAnimation);

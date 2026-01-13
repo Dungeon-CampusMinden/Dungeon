@@ -4,8 +4,13 @@ import core.Entity;
 import core.Game;
 import core.network.config.NetworkConfig;
 import core.network.messages.c2s.InputMessage;
+import core.network.messages.s2c.EntityState;
+import core.network.messages.s2c.LevelState;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Server-side state tracking for a connected client. Manages sequence numbering, tick correlation,
@@ -70,6 +75,33 @@ public class ClientState {
    * disconnect detection (timeout) and reconnect window eligibility.
    */
   private long lastActivityTimeMs;
+
+  // ---- Delta Snapshot Caching ----
+
+  /**
+   * Cache of the last EntityState sent to this client, keyed by entity ID. Used for entity-level
+   * delta comparison.
+   */
+  private final Map<Integer, EntityState> lastSentEntityStates = new ConcurrentHashMap<>();
+
+  /**
+   * Set of entity IDs that were visible to this client in the last snapshot. Used to detect
+   * entities that have left the client's view and should be despawned.
+   */
+  private final Set<Integer> lastVisibleEntityIds = ConcurrentHashMap.newKeySet();
+
+  /** The last LevelState sent to this client. Used for level delta comparison. */
+  private volatile LevelState lastSentLevelState;
+
+  /** The server tick when the last full snapshot was sent to this client. */
+  private volatile int lastFullSnapshotTick = -1;
+
+  /**
+   * Set of static entity IDs that have been sent to this client in a full snapshot. Static entities
+   * (no VelocityComponent or maxSpeed=0) are only sent once and don't need delta updates since they
+   * never move. They persist until level change.
+   */
+  private final Set<Integer> sentStaticEntityIds = ConcurrentHashMap.newKeySet();
 
   /**
    * Constructs a new ClientState for a fresh connection.
@@ -343,4 +375,83 @@ public class ClientState {
   public String toString() {
     return "ClientState(clientId='" + clientId + "', username='" + username + "')";
   }
+
+  // region Delta Snapshot Caching
+
+  /**
+   * Returns the cache of last sent entity states.
+   *
+   * @return map of entity ID to last sent EntityState
+   */
+  public Map<Integer, EntityState> lastSentEntityStates() {
+    return lastSentEntityStates;
+  }
+
+  /**
+   * Returns the set of entity IDs that were visible to this client in the last snapshot.
+   *
+   * @return set of visible entity IDs
+   */
+  public Set<Integer> lastVisibleEntityIds() {
+    return lastVisibleEntityIds;
+  }
+
+  /**
+   * Returns the last LevelState sent to this client.
+   *
+   * @return the last sent LevelState, or null if none
+   */
+  public LevelState lastSentLevelState() {
+    return lastSentLevelState;
+  }
+
+  /**
+   * Sets the last LevelState sent to this client.
+   *
+   * @param levelState the LevelState to cache
+   */
+  public void lastSentLevelState(LevelState levelState) {
+    this.lastSentLevelState = levelState;
+  }
+
+  /**
+   * Returns the server tick when the last full snapshot was sent.
+   *
+   * @return the last full snapshot tick, or -1 if none
+   */
+  public int lastFullSnapshotTick() {
+    return lastFullSnapshotTick;
+  }
+
+  /**
+   * Sets the server tick when the last full snapshot was sent.
+   *
+   * @param tick the server tick
+   */
+  public void lastFullSnapshotTick(int tick) {
+    this.lastFullSnapshotTick = tick;
+  }
+
+  /**
+   * Returns the set of static entity IDs that have been sent to this client.
+   *
+   * @return set of static entity IDs
+   */
+  public Set<Integer> sentStaticEntityIds() {
+    return sentStaticEntityIds;
+  }
+
+  /**
+   * Clears all snapshot caching state. Call this on reconnection or level change to force a full
+   * snapshot.
+   */
+  public void clearSnapshotCache() {
+    lastSentEntityStates.clear();
+    lastVisibleEntityIds.clear();
+    sentStaticEntityIds.clear();
+    lastSentLevelState = null;
+    lastFullSnapshotTick = -1;
+  }
+
+  // endregion
 }

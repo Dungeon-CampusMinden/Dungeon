@@ -162,14 +162,14 @@ public class InventoryComponentTest {
     assertFalse(Arrays.asList(list).contains(itemData));
   }
 
-  /** WTF? . */
+  /** Transfer an item from one inventory to another. */
   @Test
   public void tranfserItem() {
     InventoryComponent ic = new InventoryComponent(1);
     InventoryComponent other = new InventoryComponent(1);
     Item item = mock(Item.class);
-    when(item.maxStackSize()).thenReturn(1);
-    when(item.stackSize()).thenReturn(1);
+    when(item.maxStackSize()).thenReturn((byte) 1);
+    when(item.stackSize()).thenReturn((byte) 1);
     ic.add(item);
     assertTrue(Arrays.asList(ic.items()).contains(item));
     assertTrue(ic.transfer(item, other));
@@ -177,14 +177,14 @@ public class InventoryComponentTest {
     assertFalse(Arrays.asList(ic.items()).contains(item));
   }
 
-  /** WTF? . */
+  /** Transfer an item to an inventory with no space. */
   @Test
   public void tranfserItemNoSpace() {
     InventoryComponent ic = new InventoryComponent(1);
     InventoryComponent other = new InventoryComponent(0);
     Item item = mock(Item.class);
-    when(item.maxStackSize()).thenReturn(1);
-    when(item.stackSize()).thenReturn(1);
+    when(item.maxStackSize()).thenReturn((byte) 1);
+    when(item.stackSize()).thenReturn((byte) 1);
     ic.add(item);
     assertTrue(Arrays.asList(ic.items()).contains(item));
     assertFalse(ic.transfer(item, other));
@@ -192,7 +192,7 @@ public class InventoryComponentTest {
     assertTrue(Arrays.asList(ic.items()).contains(item));
   }
 
-  /** WTF? . */
+  /** Transfer an item that does not exist in the inventory. */
   @Test
   public void tranfserItemNoItem() {
     InventoryComponent ic = new InventoryComponent(1);
@@ -201,13 +201,13 @@ public class InventoryComponentTest {
     assertFalse(ic.transfer(item, other));
   }
 
-  /** WTF? . */
+  /** Transfer an item to the same inventory. */
   @Test
   public void transferItemToItself() {
     InventoryComponent ic = new InventoryComponent(1);
     Item item = mock(Item.class);
-    when(item.maxStackSize()).thenReturn(1);
-    when(item.stackSize()).thenReturn(1);
+    when(item.maxStackSize()).thenReturn((byte) 1);
+    when(item.stackSize()).thenReturn((byte) 1);
     ic.add(item);
     assertTrue(Arrays.asList(ic.items()).contains(item));
     assertFalse(ic.transfer(item, ic));
@@ -225,8 +225,8 @@ public class InventoryComponentTest {
     InventoryComponent ic = new InventoryComponent(5);
 
     Item item = mock(Item.class);
-    when(item.maxStackSize()).thenReturn(5);
-    when(item.stackSize()).thenReturn(3);
+    when(item.maxStackSize()).thenReturn((byte) 5);
+    when(item.stackSize()).thenReturn((byte) 3);
 
     boolean result = ic.add(item);
 
@@ -355,16 +355,7 @@ public class InventoryComponentTest {
   public void removeOne_DecreasesStackOrRemovesItem() {
     InventoryComponent ic = new InventoryComponent(2);
 
-    final int[] stackSize = {1};
-    Item item = mock(Item.class);
-    when(item.stackSize()).thenAnswer(invocation -> stackSize[0]);
-    doAnswer(
-            invocation -> {
-              stackSize[0] = invocation.getArgument(0);
-              return null;
-            })
-        .when(item)
-        .stackSize(anyInt());
+    Item item = new Item("dummy", "dummy", null);
 
     ic.add(item);
 
@@ -372,7 +363,7 @@ public class InventoryComponentTest {
     boolean result = ic.removeOne(item);
 
     assertTrue(result);
-    assertEquals(0, stackSize[0]);
+    assertEquals(0, item.stackSize());
     assertEquals(0, ic.count());
 
     // Try removing an item not in inventory
@@ -380,7 +371,7 @@ public class InventoryComponentTest {
     assertFalse(ic.removeOne(notInInventory));
   }
 
-  private class DummyItem extends Item {
+  private static class DummyItem extends Item {
     public DummyItem(int stackSize, int maxStackSize) {
       super(null, null, null, null, stackSize, maxStackSize);
     }

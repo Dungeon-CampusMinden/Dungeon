@@ -27,7 +27,7 @@ public final class NetworkConfig {
   public static final int MAX_UDP_OBJECT_SIZE = 1 << 15; // 32 KiB
 
   /** Safe UDP Maximum Transmission Unit (MTU) size to avoid fragmentation, in bytes. */
-  public static final int SAFE_UDP_MTU = 1400;
+  public static final int SAFE_UDP_MTU = 1500;
 
   /**
    * Number of attempts for UDP client registration.
@@ -80,8 +80,19 @@ public final class NetworkConfig {
    * Server snapshot rate, in Hertz (Hz).
    *
    * <p>This defines how many times per second the server sends game state snapshots to clients.
+   * Delta snapshots are sent at this rate via UDP, while full snapshots are sent at {@link
+   * #FULL_SNAPSHOT_INTERVAL_TICKS} via TCP.
    */
   public static final int SERVER_SNAPSHOT_HZ = 60;
+
+  /**
+   * Interval between full snapshots, in server ticks.
+   *
+   * <p>Full snapshots are sent via TCP at this interval to ensure eventual consistency. Delta
+   * snapshots are sent via UDP between full snapshots. Default is SERVER_TICK_HZ (2 second at
+   * 90Hz).
+   */
+  public static final int FULL_SNAPSHOT_INTERVAL_TICKS = SERVER_TICK_HZ * 2;
 
   /**
    * Maximum allowed sequence gap for network packets.

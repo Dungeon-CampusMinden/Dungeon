@@ -151,16 +151,33 @@ public final class Session {
   /**
    * Sends a NetworkMessage over TCP or UDP based on the reliability requirement.
    *
+   * <p>When reliable is false (UDP), the message is first attempted via UDP. If UDP fails (e.g.,
+   * payload too large or channel unavailable), the message is automatically retried via TCP as a
+   * fallback.
+   *
    * @param msg the NetworkMessage to send
-   * @param reliable true to send over TCP, false to send over UDP
-   * @return a CompletableFuture that completes with true if the request was successful acknowledged
-   *     (if reliable) or sent (if unreliable), false otherwise
+   * @param reliable true to send over TCP, false to send over UDP (with TCP fallback)
+   * @return a CompletableFuture that completes with true if the message was sent successfully,
+   *     false otherwise
    */
   public CompletableFuture<Boolean> sendMessage(NetworkMessage msg, boolean reliable) {
     if (reliable) {
       return sendTcpObject(msg);
     } else {
-      return sendUdpObject(msg);
+      // Try UDP first, fallback to TCP if UDP fails
+      return sendUdpObject(msg)
+          .thenCompose(
+              success -> {
+                if (success) {
+                  return CompletableFuture.completedFuture(true);
+                } else {
+                  // UDP failed, fallback to TCP
+                  LOGGER.debug(
+                      "UDP send failed, falling back to TCP for {}",
+                      msg.getClass().getSimpleName());
+                  return sendTcpObject(msg);
+                }
+              });
     }
   }
 
@@ -174,7 +191,7 @@ public final class Session {
 
   private CompletableFuture<Boolean> sendUdpObject(NetworkMessage msg) {
     if (udpSender == null || udpAddress == null) {
-      LOGGER.warn("UDP sender or address is null; cannot send UDP message.");
+      LOGGER.debug("UDP sender or address is null; will fallback to TCP.");
       return CompletableFuture.completedFuture(false);
     }
     return udpSender.apply(udpAddress, msg);
