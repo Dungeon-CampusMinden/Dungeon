@@ -1,6 +1,7 @@
 package starter;
 
 import contrib.entities.EntityFactory;
+import contrib.modules.keypad.KeypadSystem;
 import contrib.systems.CollisionSystem;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.HudSystem;
@@ -51,6 +52,7 @@ public class TheLastHour {
     Game.add(EntityFactory.newHero());
 
     Game.add(new CollisionSystem());
+    Game.add(new KeypadSystem());
     Game.add(new Debugger());
     Game.add(new DebugDrawSystem());
     Game.add(new LevelEditorSystem());
