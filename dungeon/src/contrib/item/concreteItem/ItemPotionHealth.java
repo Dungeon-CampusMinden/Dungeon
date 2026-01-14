@@ -86,4 +86,18 @@ public class ItemPotionHealth extends Item {
     }
     return other.heal_amount == this.heal_amount;
   }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ItemPotionHealth)) return false;
+
+    ItemPotionHealth other = (ItemPotionHealth) o;
+
+    return this.heal_amount == other.heal_amount;
+  }
+
+  @Override
+  public int hashCode() {
+    return Integer.hashCode(heal_amount);
+  }
 }
