@@ -329,28 +329,32 @@ public final class InventoryComponent implements Component {
    *     inventory.
    */
   public boolean removeOne(Item item) {
-    Item itemToRemoveOne =
-        Arrays.stream(inventory)
-                    .filter(Objects::nonNull)
-                    .filter(it -> it.getClass().equals(item.getClass()))
-                    .count()
-                > 1
-            ? smallestStackOfItemClass(item.getClass()).orElse(null)
-            : item;
-
-    if (itemToRemoveOne == null) {
-      return false;
-    }
-
+    // Exact instance match
     for (int i = 0; i < inventory.length; i++) {
-      if (inventory[i] != null && inventory[i].equals(itemToRemoveOne)) {
+      if (inventory[i] == item) {
         Item it = inventory[i];
-        it.stackSize((byte) (it.stackSize() - 1));
-        if (it.stackSize() <= 0) inventory[i] = null;
+        it.stackSize(it.stackSize() - 1);
+        if (it.stackSize() <= 0) {
+          inventory[i] = null;
+        }
         this.onItemRemoved.accept(it);
         return true;
       }
     }
+
+    // Equals-based match
+    for (int i = 0; i < inventory.length; i++) {
+      if (inventory[i] != null && inventory[i].equals(item)) {
+        Item it = inventory[i];
+        it.stackSize(it.stackSize() - 1);
+        if (it.stackSize() <= 0) {
+          inventory[i] = null;
+        }
+        this.onItemRemoved.accept(it);
+        return true;
+      }
+    }
+
     return false;
   }
 

@@ -116,4 +116,18 @@ public class ItemPotionHealth extends Item {
         DATA_KEY_POTION_TYPE, type.name(),
         DATA_KEY_HEAL_AMOUNT, Integer.toString(healAmount));
   }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ItemPotionHealth)) return false;
+
+    ItemPotionHealth other = (ItemPotionHealth) o;
+
+    return this.heal_amount == other.heal_amount;
+  }
+
+  @Override
+  public int hashCode() {
+    return Integer.hashCode(heal_amount);
+  }
 }
