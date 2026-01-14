@@ -20,12 +20,6 @@ com.badlogic.gdx.graphics.g2d.BitmapFont: {
 	}
 }
 com.badlogic.gdx.graphics.Color: {
-    white: {
-        r: 1
-        g: 1
-        b: 1
-        a: 1
-    }
 	black: {
 		r: 0.023529412
 		g: 0.023529412
@@ -226,10 +220,6 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		font: roboto-semibold-32
 		fontColor: black
 	}
-    blank-white: {
-        font: roboto-semibold-32
-        fontColor: white
-    }
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 	default: {

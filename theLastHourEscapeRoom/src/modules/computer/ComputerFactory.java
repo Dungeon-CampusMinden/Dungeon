@@ -21,7 +21,7 @@ public class ComputerFactory {
 
   public static void attachComputerDialog(Entity entity){
     entity.add(new InteractionComponent(() -> new Interaction((e, who) -> {
-      DialogFactory.show(DialogContext.builder().type(LastHourDialogTypes.COMPUTER).build());
+      DialogFactory.show(DialogContext.builder().type(LastHourDialogTypes.COMPUTER).build(), who.id());
     })));
   }
 
