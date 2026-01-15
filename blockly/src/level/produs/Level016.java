@@ -55,10 +55,10 @@ public class Level016 extends BlocklyLevel {
         // Kategorien
         "Sonstige");
 
-    addWebPopup(new ImagePopup("popups/level015/02_Variable.png"));
-    addWebPopup(new ImagePopup("popups/level015/03_Variable.png"));
-    addWebPopup(new ImagePopup("popups/level015/04_Variable.png"));
-    addWebPopup(new ImagePopup("popups/level015/05_Variable.png"));
+    addWebPopup(new ImagePopup("popups/webpopups/level015/02_Variable.png"));
+    addWebPopup(new ImagePopup("popups/webpopups/level015/03_Variable.png"));
+    addWebPopup(new ImagePopup("popups/webpopups/level015/04_Variable.png"));
+    addWebPopup(new ImagePopup("popups/webpopups/level015/05_Variable.png"));
   }
 
   @Override

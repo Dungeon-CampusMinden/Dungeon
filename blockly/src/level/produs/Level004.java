@@ -57,8 +57,8 @@ public class Level004 extends BlocklyLevel {
         "Bedingungen",
         "Sonstige");
 
-    addWebPopup(new ImagePopup("popups/level004/01_inventory_character.png"));
-    addWebPopup(new ImagePopup("popups/level004/02_inventory_character2.png"));
+    addWebPopup(new ImagePopup("popups/webpopups/level004/01_inventory_character.png"));
+    addWebPopup(new ImagePopup("popups/webpopups/level004/02_inventory_character2.png"));
   }
 
   @Override
