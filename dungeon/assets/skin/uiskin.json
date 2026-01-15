@@ -62,6 +62,12 @@ com.badlogic.gdx.graphics.Color: {
 		b: 0
 		a: 0
 	}
+	white: {
+		r: 1
+		g: 1
+		b: 1
+		a: 1
+	}
 }
 com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable: {
 	progress-bar-fill: {
@@ -219,6 +225,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	blank-black: {
 		font: roboto-semibold-32
 		fontColor: black
+	}
+	blank-white: {
+		font: roboto-semibold-32
+		fontColor: white
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
