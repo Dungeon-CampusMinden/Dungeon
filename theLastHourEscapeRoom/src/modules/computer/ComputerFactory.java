@@ -1,10 +1,10 @@
 package modules.computer;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
+import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.HeadlessDialogGroup;
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -15,13 +15,15 @@ import java.util.Set;
 
 public class ComputerFactory {
 
+  public static UIComponent computerDialogInstance;
+
   static {
     DialogFactory.register(LastHourDialogTypes.COMPUTER, ComputerFactory::build);
   }
 
   public static void attachComputerDialog(Entity entity){
     entity.add(new InteractionComponent(() -> new Interaction((e, who) -> {
-      DialogFactory.show(DialogContext.builder().type(LastHourDialogTypes.COMPUTER).build(), who.id());
+      computerDialogInstance = DialogFactory.show(DialogContext.builder().type(LastHourDialogTypes.COMPUTER).build(), who.id());
     })));
   }
 

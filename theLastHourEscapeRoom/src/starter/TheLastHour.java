@@ -76,7 +76,7 @@ public class TheLastHour {
           }));
     } else {
       Game.add(EntityFactory.newHero());
-      Game.stage().ifPresent(stage -> stage.setDebugAll(true));
+//      Game.stage().ifPresent(stage -> stage.setDebugAll(true));
     }
 
     ECSManagement.add(new CollisionSystem());

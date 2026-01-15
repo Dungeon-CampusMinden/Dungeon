@@ -50,9 +50,18 @@ tab-active
   orig: 246, 46
   offset: 0, 0
   index: -1
+tab-inactive
+  rotate: false
+  xy: 1231, 1734
+  size: 246, 46
+  split: 10, 46, 8, 3
+  pad: 10, 47, 8, 3
+  orig: 246, 46
+  offset: 0, 0
+  index: -1
 Paper
   rotate: false
-  xy: 1494, 1832
+  xy: 1697, 1977
   size: 130, 70
   split: 10, 10, 16, 11
   orig: 130, 70
@@ -60,7 +69,7 @@ Paper
   index: -1
 TB_down
   rotate: false
-  xy: 1434, 1684
+  xy: 515, 1169
   size: 44, 44
   split: 3, 4, 3, 3
   pad: 9, 11, 13, 13
@@ -69,7 +78,7 @@ TB_down
   index: -1
 TB_op
   rotate: false
-  xy: 515, 1014
+  xy: 515, 1123
   size: 44, 44
   split: 4, 3, 0, 3
   pad: 9, 9, 9, 13
@@ -78,7 +87,7 @@ TB_op
   index: -1
 TB_over
   rotate: false
-  xy: 1542, 1786
+  xy: 515, 1077
   size: 44, 44
   split: 3, 3, 0, 3
   pad: 9, 9, 8, 13
@@ -87,21 +96,21 @@ TB_over
   index: -1
 checkbox
   rotate: false
-  xy: 515, 950
+  xy: 1427, 1621
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 checkbox-on
   rotate: false
-  xy: 344, 66
+  xy: 1797, 1885
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 cursor
   rotate: false
-  xy: 1760, 1978
+  xy: 2043, 2040
   size: 4, 7
   split: 1, 1, 2, 2
   pad: 0, 0, 0, 0
@@ -110,7 +119,7 @@ cursor
   index: -1
 down_button_blue
   rotate: false
-  xy: 1434, 1730
+  xy: 1697, 1853
   size: 50, 50
   split: 0, 0, 5, 5
   pad: 7, 7, 13, 12
@@ -119,7 +128,7 @@ down_button_blue
   index: -1
 font-export
   rotate: false
-  xy: 1494, 1904
+  xy: 1231, 1589
   size: 142, 143
   orig: 142, 143
   offset: 0, 0
@@ -133,7 +142,7 @@ font-title-export
   index: -1
 horizontal-split-pane
   rotate: false
-  xy: 54, 25
+  xy: 1819, 1964
   size: 5, 11
   split: 2, 2, 2, 2
   orig: 5, 11
@@ -141,63 +150,63 @@ horizontal-split-pane
   index: -1
 inventorySlotArmour
   rotate: false
-  xy: 1760, 1987
+  xy: 1494, 1784
   size: 60, 60
   orig: 60, 60
   offset: 0, 0
   index: -1
 inventorySlotBook
   rotate: false
-  xy: 515, 1360
+  xy: 515, 1453
   size: 60, 60
   orig: 60, 60
   offset: 0, 0
   index: -1
 inventorySlotGloves
   rotate: false
-  xy: 1822, 1987
+  xy: 1895, 1987
   size: 60, 60
   orig: 60, 60
   offset: 0, 0
   index: -1
 inventorySlotHelmet
   rotate: false
-  xy: 515, 1298
+  xy: 1556, 1784
   size: 60, 60
   orig: 60, 60
   offset: 0, 0
   index: -1
 inventorySlotNecklace
   rotate: false
-  xy: 1884, 1987
+  xy: 515, 1391
   size: 60, 60
   orig: 60, 60
   offset: 0, 0
   index: -1
 inventorySlotPants
   rotate: false
-  xy: 515, 1236
+  xy: 1957, 1987
   size: 60, 60
   orig: 60, 60
   offset: 0, 0
   index: -1
 inventorySlotRing
   rotate: false
-  xy: 1946, 1987
+  xy: 1618, 1784
   size: 60, 60
   orig: 60, 60
   offset: 0, 0
   index: -1
 inventorySlotSchield
   rotate: false
-  xy: 515, 1174
+  xy: 515, 1329
   size: 60, 60
   orig: 60, 60
   offset: 0, 0
   index: -1
 inventorySlotSword
   rotate: false
-  xy: 515, 1112
+  xy: 515, 1267
   size: 60, 60
   orig: 60, 60
   offset: 0, 0
@@ -236,7 +245,7 @@ mySelection
   index: -1
 over_button_blue
   rotate: false
-  xy: 1704, 1925
+  xy: 1375, 1589
   size: 50, 50
   split: 0, 0, 5, 6
   pad: 6, 6, 11, 11
@@ -252,7 +261,7 @@ plus
   index: -1
 progress-bar
   rotate: false
-  xy: 1494, 1784
+  xy: 1749, 1857
   size: 46, 46
   split: 10, 10, 10, 10
   pad: 6, 6, 6, 6
@@ -261,21 +270,21 @@ progress-bar
   index: -1
 progress-bar-fill
   rotate: false
-  xy: 1486, 1746
+  xy: 567, 1231
   size: 1, 34
   orig: 1, 34
   offset: 0, 0
   index: -1
 progress-bar-fill-vert
   rotate: false
-  xy: 1231, 1576
+  xy: 1231, 1586
   size: 34, 1
   orig: 34, 1
   offset: 0, 0
   index: -1
 progress-bar-small
   rotate: false
-  xy: 1588, 1808
+  xy: 2019, 2025
   size: 22, 22
   split: 5, 5, 5, 5
   orig: 22, 22
@@ -283,7 +292,7 @@ progress-bar-small
   index: -1
 progress-bar-smaller
   rotate: false
-  xy: 1626, 1892
+  xy: 1680, 1834
   size: 10, 10
   split: 1, 1, 1, 1
   orig: 10, 10
@@ -291,21 +300,21 @@ progress-bar-smaller
   index: -1
 radio
   rotate: false
-  xy: 1231, 1558
+  xy: 515, 927
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 radio-on
   rotate: false
-  xy: 588, 1471
+  xy: 344, 68
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 round-gray
   rotate: false
-  xy: 1434, 1640
+  xy: 515, 1033
   size: 42, 42
   split: 13, 13, 13, 13
   pad: 9, 9, 5, 5
@@ -314,7 +323,7 @@ round-gray
   index: -1
 round-white
   rotate: false
-  xy: 515, 970
+  xy: 515, 989
   size: 42, 42
   split: 13, 13, 13, 13
   pad: 9, 9, 5, 5
@@ -323,7 +332,7 @@ round-white
   index: -1
 round-white-small
   rotate: false
-  xy: 588, 1489
+  xy: 1448, 1708
   size: 24, 24
   split: 10, 10, 10, 10
   pad: 10, 10, 2, 2
@@ -359,14 +368,14 @@ slider-horizontal
   index: -1
 slider-knob
   rotate: false
-  xy: 2008, 2023
+  xy: 577, 1489
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 slider-vertical
   rotate: false
-  xy: 577, 1400
+  xy: 1231, 1564
   size: 9, 20
   split: 4, 3, 3, 3
   pad: 3, 3, 2, 2
@@ -375,7 +384,7 @@ slider-vertical
   index: -1
 stone
   rotate: false
-  xy: 1638, 1977
+  xy: 1697, 1905
   size: 120, 70
   split: 2, 2, 2, 2
   orig: 120, 70
@@ -383,7 +392,7 @@ stone
   index: -1
 textfield
   rotate: false
-  xy: 1434, 1596
+  xy: 515, 945
   size: 42, 42
   split: 8, 8, 8, 8
   orig: 42, 42
@@ -391,21 +400,21 @@ textfield
   index: -1
 touchpad
   rotate: false
-  xy: 1231, 1579
+  xy: 1494, 1846
   size: 201, 201
   orig: 201, 201
   offset: 0, 0
   index: -1
 touchpad-knob
   rotate: false
-  xy: 1638, 1911
+  xy: 1829, 1983
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 up_button_blue
   rotate: false
-  xy: 515, 1060
+  xy: 515, 1215
   size: 50, 50
   split: 0, 0, 5, 5
   pad: 7, 7, 12, 13
@@ -414,7 +423,7 @@ up_button_blue
   index: -1
 vertical-split-pane
   rotate: false
-  xy: 1638, 1904
+  xy: 1479, 1775
   size: 11, 5
   split: 2, 2, 1, 1
   pad: 1, 1, 1, 1
@@ -423,14 +432,14 @@ vertical-split-pane
   index: -1
 white
   rotate: false
-  xy: 249, 41
+  xy: 1829, 1980
   size: 1, 1
   orig: 1, 1
   offset: 0, 0
   index: -1
 window
   rotate: false
-  xy: 515, 1422
+  xy: 1375, 1641
   size: 71, 91
   split: 15, 15, 35, 15
   pad: 9, 10, 37, 5
