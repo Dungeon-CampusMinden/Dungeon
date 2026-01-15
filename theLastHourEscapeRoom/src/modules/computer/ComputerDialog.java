@@ -15,7 +15,9 @@ import contrib.hud.UIUtils;
 import core.Game;
 import core.systems.CameraSystem;
 import core.utils.FontHelper;
+import core.utils.Rectangle;
 import core.utils.components.draw.TextureGenerator;
+import modules.computer.content.LoginMask;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -52,7 +54,7 @@ public class ComputerDialog extends Group {
 
     Table container = new Table();
     container.setFillParent(true);
-    container.setBackground(bg);
+//    container.setBackground(bg);
     this.addActor(container);
 
 //    container.defaults().expand().uniform().space(50);
@@ -91,7 +93,7 @@ public class ComputerDialog extends Group {
     container.add(contentArea).grow();
 
     // Add a tab as example
-    addTab("Login", new Image(bg));
+    addTab("Login", new LoginMask());
     addTab("Emails - Very Long", new Image(cyan));
     addTab("image.png", new Image(green));
   }
@@ -143,8 +145,12 @@ public class ComputerDialog extends Group {
     tabArea.add(tab).left();
   }
 
+  private static final Rectangle closeButtonArea = new Rectangle(35, 37, 9, 8);
   private boolean clickedClose(Actor actor, float x, float y){
-    return x >= actor.getWidth() - 43 && x <= actor.getWidth() - 9 && y >= 4 && y <= 40;
+    return x >= actor.getWidth() - closeButtonArea.width() - closeButtonArea.x()
+      && x <= actor.getWidth() - closeButtonArea.x()
+      && y >= actor.getHeight() - closeButtonArea.y() - closeButtonArea.height()
+      && y <= actor.getHeight() - closeButtonArea.y();
   }
 
   private void clickedTab(String name){
