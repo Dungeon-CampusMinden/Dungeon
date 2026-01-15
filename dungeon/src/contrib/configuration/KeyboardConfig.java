@@ -141,4 +141,10 @@ public class KeyboardConfig {
    */
   public static final ConfigKey<Integer> DEBUG_TOGGLE_HUD =
       new ConfigKey<>(new String[] {"debug", "toggle_hud"}, new ConfigIntValue(Input.Keys.F3));
+
+  /**
+   * Keybinding to toggle the {@link contrib.utils.components.Debugger}'s Scene2D debug mode.
+   */
+  public static final ConfigKey<Integer> DEBUG_TOGGLE_SCENE_HUD =
+    new ConfigKey<>(new String[] {"debug", "toggle_scene_hud"}, new ConfigIntValue(Input.Keys.F5));
 }

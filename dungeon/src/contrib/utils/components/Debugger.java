@@ -268,6 +268,8 @@ public class Debugger extends System {
       Debugger.ADVANCE_FRAME();
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value()))
       Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleHUD);
+    if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_SCENE_HUD.value()))
+      Game.stage().ifPresent(stage -> stage.setDebugAll(!stage.isDebugAll()));
     checkFrameAdvance();
   }
 }
