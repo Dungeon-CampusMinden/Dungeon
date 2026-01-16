@@ -12,6 +12,7 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.Objects;
+
 /**
  * This class represents a health potion item in the game. The health potion can be used to restore
  * health points to the entity that uses it. The amount of health restored is determined by the
@@ -86,6 +87,7 @@ public class ItemPotionHealth extends Item {
     }
     return other.heal_amount == this.heal_amount;
   }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
