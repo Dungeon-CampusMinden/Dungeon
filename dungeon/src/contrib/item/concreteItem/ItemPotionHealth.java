@@ -128,6 +128,6 @@ public class ItemPotionHealth extends Item {
 
   @Override
   public int hashCode() {
-    return Integer.hashCode(heal_amount);
+    return Objects.hash(ItemPotionHealth.class, heal_amount);
   }
 }
