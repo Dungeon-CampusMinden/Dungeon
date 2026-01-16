@@ -2,3 +2,18 @@ plugins {
     id "java-library"
 }
 
+dependencies {
+    implementation project(':dungeon')
+    implementation 'tools.jackson.core:jackson-databind:3.0.3'
+
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+
+repositories {
+    mavenCentral()
+}
