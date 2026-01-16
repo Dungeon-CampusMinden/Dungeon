@@ -1,3 +1,5 @@
 {
-    "menu.exit": "Exit"
+    "menu.exit": "Exit",
+    "text.test": "Hello, I'm the hero of the game!",
+    "text.test.title": "Welcome"
 }

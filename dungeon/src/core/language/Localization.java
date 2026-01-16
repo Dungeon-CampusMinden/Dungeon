@@ -58,7 +58,7 @@ public class Localization {
    * @return translation of the text.
    */
   public String text(String key) throws IOException {
-    String jsonPath = "assets/language/";
+    String jsonPath = "dungeon/assets/language/";
     File file = new File(jsonPath + currentLanguage().toString() + ".json");
     try {
       String JsonAsString = readFileContent(file);
