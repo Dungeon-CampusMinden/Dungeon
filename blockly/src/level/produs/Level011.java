@@ -17,7 +17,7 @@ import level.LevelManagementUtils;
  * Now, clever positioning is essential to succeed.
  */
 public class Level011 extends BlocklyLevel {
-
+  private static boolean showText = true;
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
    * start tile of the player to the given heroPos.
@@ -43,6 +43,7 @@ public class Level011 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+    addCodePopup(new ImagePopup("popups/codepopups/overview1.png"));
   }
 
   @Override
@@ -64,6 +65,12 @@ public class Level011 extends BlocklyLevel {
     guardBuilder.viewDirection(Direction.RIGHT);
     guardBuilder.build(getPoint(6));
     guardBuilder.build(getPoint(7));
+
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
+
   }
 
   @Override

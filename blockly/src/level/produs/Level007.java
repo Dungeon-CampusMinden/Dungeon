@@ -55,6 +55,7 @@ public class Level007 extends BlocklyLevel {
     addWebPopup(new ImagePopup("popups/webpopups/level007/01_hebel_schaltplan.png"));
 
     addCodePopup(new ImagePopup("popups/codepopups/level007/01_hebel_schaltplan.png"));
+    addCodePopup(new ImagePopup("popups/codepopups/overview1.png"));
 
 
   }

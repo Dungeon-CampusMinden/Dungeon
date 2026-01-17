@@ -46,6 +46,7 @@ public class Level010 extends BlocklyLevel {
 
     addCodePopup(new ImagePopup("popups/codepopups/level010/01_Feuerball.png"));
     addCodePopup(new ImagePopup("popups/codepopups/level010/02_Feuerball2.png"));
+    addCodePopup(new ImagePopup("popups/codepopups/overview1.png"));
   }
 
   @Override
