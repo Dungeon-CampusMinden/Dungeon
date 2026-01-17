@@ -15,6 +15,7 @@ import level.LevelManagementUtils;
  */
 public class Level015 extends BlocklyLevel {
   private static boolean showText = true;
+
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
    * start tile of the player to the given heroPos.

@@ -351,7 +351,7 @@ public class DungeonLevel implements ILevel, ITickable {
    * @see ITickable
    */
   protected void onFirstTick() {
-    Entity cauldrown = MiscFactory.newCraftingCauldron(new Point(5,5));
+    Entity cauldrown = MiscFactory.newCraftingCauldron(new Point(5, 5));
     Game.add(cauldrown);
   }
 

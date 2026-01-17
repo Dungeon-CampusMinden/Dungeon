@@ -376,7 +376,6 @@ public class HeroController {
    * @param item the item to return
    * @param itemSlot the original slot index
    * @param entity the entity for logging
-
    */
   private static void returnItemToInventory(
       InventoryComponent inventory, Item item, int itemSlot, Entity entity) {

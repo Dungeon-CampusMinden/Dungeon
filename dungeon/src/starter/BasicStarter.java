@@ -37,28 +37,30 @@ public class BasicStarter {
       throw new RuntimeException(e);
     }
     Game.disableAudio(true);
-    Game.userOnSetup(() -> {
-      Entity hero = EntityFactory.newHero();
-      hero.fetch(InventoryComponent.class).ifPresent(InventoryComponent -> {
-        InventoryComponent.add(new ItemResourceMushroomRed());
-        InventoryComponent.add(new ItemResourceMushroomRed());
-        InventoryComponent.add(new ItemResourceMushroomRed());
-        InventoryComponent.add(new ItemResourceMushroomRed());
-      });
-      Game.add(hero);
-      Game.add(new CollisionSystem());
-      Game.add(new AISystem());
-      Game.add(new ProjectileSystem());
-      Game.add(new HealthSystem());
-      Game.add(new HudSystem());
-      Game.add(new SpikeSystem());
-      Game.add(new LevelTickSystem());
-      Game.add(new PitSystem());
-      Game.add(new EventScheduler());
-      Game.add(new LeverSystem());
-      Game.add(new PressurePlateSystem());
-
-    });
+    Game.userOnSetup(
+        () -> {
+          Entity hero = EntityFactory.newHero();
+          hero.fetch(InventoryComponent.class)
+              .ifPresent(
+                  InventoryComponent -> {
+                    InventoryComponent.add(new ItemResourceMushroomRed());
+                    InventoryComponent.add(new ItemResourceMushroomRed());
+                    InventoryComponent.add(new ItemResourceMushroomRed());
+                    InventoryComponent.add(new ItemResourceMushroomRed());
+                  });
+          Game.add(hero);
+          Game.add(new CollisionSystem());
+          Game.add(new AISystem());
+          Game.add(new ProjectileSystem());
+          Game.add(new HealthSystem());
+          Game.add(new HudSystem());
+          Game.add(new SpikeSystem());
+          Game.add(new LevelTickSystem());
+          Game.add(new PitSystem());
+          Game.add(new EventScheduler());
+          Game.add(new LeverSystem());
+          Game.add(new PressurePlateSystem());
+        });
     Game.frameRate(30);
     Game.windowTitle("Basic Dungeon");
     Game.run();
