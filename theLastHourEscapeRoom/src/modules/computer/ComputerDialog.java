@@ -1,168 +1,212 @@
 package modules.computer;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import core.Game;
-import core.systems.CameraSystem;
 import core.utils.FontHelper;
-import core.utils.Rectangle;
 import core.utils.components.draw.TextureGenerator;
+import core.utils.logging.DungeonLogger;
+import modules.computer.content.ComputerTab;
 import modules.computer.content.LoginMask;
+import util.Scene2dElementFactory;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public class ComputerDialog extends Group {
 
-  private ComputerStateComponent state;
-  private Skin skin;
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ComputerDialog.class);
+  private static ComputerDialog INSTANCE = null;
+
+  private ComputerStateComponent sharedState;
+  private final Skin skin;
 
   private Table tabArea;
   private Table contentArea;
 
   private String activeTab = null;
-  private Map<String, Actor> tabContentMap = new LinkedHashMap<>();
+  private final Map<String, ComputerTab> tabContentMap = new LinkedHashMap<>();
 
   public ComputerDialog(ComputerStateComponent state) {
-    this.state = state;
+    INSTANCE = this;
+
+    this.sharedState = state;
     this.skin = UIUtils.defaultSkin();
     this.setSize(Game.windowWidth(), Game.windowHeight());
+
+    // Tab restore comes first
+    activeTab = ComputerStateLocal.Instance.tab();
+
+    // Then build tabs + content
     createActors();
+    if(!tabContentMap.containsKey(activeTab)){
+      activeTab = tabContentMap.keySet().stream().findFirst().orElse(null);
+    }
+    showContent(activeTab);
+  }
+
+  public static Optional<ComputerDialog> getInstance() {
+    if(INSTANCE.getStage() == null) return Optional.empty();
+    return Optional.of(INSTANCE);
   }
 
   public void updateState(ComputerStateComponent newState) {
-    this.state = newState;
+    this.sharedState = newState;
     // Additional logic to update the dialog based on the new state
   }
 
   private void createActors(){
-    Drawable bg = new TextureRegionDrawable(TextureGenerator.generateColorTexture(100, 100, new Color(1, 0, 0, 0.2f)));
-    Drawable cyan = new TextureRegionDrawable(TextureGenerator.generateColorTexture(100, 100, new Color(0, 1, 1, 1.0f)));
-    Drawable green = new TextureRegionDrawable(TextureGenerator.generateColorTexture(100, 100, new Color(0, 1, 0, 1.0f)));
-
     Table container = new Table();
+    container.setTouchable(Touchable.enabled);
+    container.addListener(new ClickListener() {
+      @Override
+      public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+        if(!(event.getTarget() instanceof TextField)){
+          container.getStage().setKeyboardFocus(null); //Unfocus text fields when clicking outside
+        }
+        return super.touchDown(event, x, y, pointer, button);
+      }
+    });
     container.setFillParent(true);
-//    container.setBackground(bg);
-    this.addActor(container);
-
-//    container.defaults().expand().uniform().space(50);
     container.pad(100);
-//    container.defaults().grow();
+    this.addActor(container);
+    addUnfocusListener(container);
+
 
     tabArea = new Table(skin);
     tabArea.left().padLeft(20);
     tabArea.defaults().spaceRight(10).left();
 
+    Table browserArea = new Table(skin);
+    browserArea.setBackground("computer-window-alt");
+    browserArea.pad(5, 5, 5, 5);
+    Button exit = Scene2dElementFactory.createExitButton();
+    exit.addListener(new ChangeListener() {
+      @Override
+      public void changed(ChangeEvent event, Actor actor) {
+        if(ComputerFactory.computerDialogInstance != null){
+          UIUtils.closeDialog(ComputerFactory.computerDialogInstance);
+        }
+      }
+    });
+    browserArea.add(exit).height(40).width(40).expandX().right().row();
+
+    Image divider = new Image(skin, "divider");
+    browserArea.add(divider).growX().padTop(1).row();
+
     contentArea = new Table(skin);
-    contentArea.setBackground("computer-window");
-    contentArea.defaults().grow();
-    contentArea.padTop(10 + contentArea.getPadTop());
+    contentArea.padTop(15);
     contentArea.padBottom(15);
     contentArea.padLeft(15);
     contentArea.padRight(15);
-    contentArea.setTouchable(Touchable.enabled);
-    contentArea.addListener(new ClickListener() {
+    browserArea.add(contentArea).grow();
+
+    container.add(tabArea).growX().left().row();
+    container.add(browserArea).grow();
+
+    // Add a tab as example
+    addTab(new LoginMask());
+//    addTab("Emails - Very Long", new Image(cyan), false);
+//    addTab("image.png", new Image(green), true);
+  }
+
+  private void addUnfocusListener(Table container) {
+    this.setTouchable(Touchable.enabled);
+    this.addCaptureListener(new InputListener() {
       @Override
       public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-//        if(clickedClose(contentArea, x, y) && ComputerFactory.computerDialogInstance != null){
-//          UIUtils.closeDialog(ComputerFactory.computerDialogInstance);
-//        }
-        Optional<UIComponent> comp = Game.player().orElseThrow().fetch(UIComponent.class);
-        comp.ifPresent(uiComponent -> {
-          if(clickedClose(contentArea, x, y)){
-            UIUtils.closeDialog(uiComponent);
-          }
-        });
+        Actor t = event.getTarget();
+        while (t != null && !(t instanceof Widget)) {
+          t = t.getParent();
+        }
+
+        if (t == null) {
+          container.getStage().setKeyboardFocus(null);
+          return true;
+        }
         return super.touchDown(event, x, y, pointer, button);
       }
     });
-
-    container.add(tabArea).growX().left().row();
-    container.add(contentArea).grow();
-
-    // Add a tab as example
-    addTab("Login", new LoginMask());
-    addTab("Emails - Very Long", new Image(cyan));
-    addTab("image.png", new Image(green));
   }
 
-  public void addTab(String name, Actor content){
-    tabContentMap.put(name, content);
-    if(tabContentMap.size() == 1) {
-      activeTab = name;
-    }
+  public void addTab(ComputerTab tab){
+    tabContentMap.put(tab.key(), tab);
     buildTabs();
   }
 
   private void buildTabs(){
     tabArea.clearChildren();
-    for (String tabName : tabContentMap.keySet()) {
-      buildTab(tabName);
+    for (String tabKey : tabContentMap.keySet()) {
+      buildTab(tabKey);
     }
   }
 
-  private void buildTab(String name){
+  private void buildTab(String tabKey){
+    ComputerTab computerTab = tabContentMap.get(tabKey);
+
     Table tab = new Table(skin);
-    boolean isActive = name.equals(activeTab);
-    tab.setBackground(isActive ? "tab-active" : "tab-inactive");
+    boolean isActive = tabKey.equals(activeTab);
+    tab.setBackground(isActive ? "tab-active-alt" : "tab-inactive-alt");
+    tab.pad(0, 15, 0, 15);
 
     Label.LabelStyle labelStyle = new Label.LabelStyle();
     labelStyle.font = FontHelper.getFont(FontHelper.DEFAULT_FONT_PATH, 32, isActive ? Color.WHITE : Color.GRAY, 2, isActive ? Color.BLACK : Color.WHITE);
-    Label label = new Label(name, labelStyle);
+    Label label = new Label(computerTab.title(), labelStyle);
     tab.add(label).grow();
     tab.setTouchable(Touchable.enabled);
     tab.addListener(new ClickListener(Input.Buttons.LEFT) {
       @Override
       public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-        if (clickedClose(tab, x, y)) {
-          // Close the tab
-          tabContentMap.remove(name);
-          if(name.equals(activeTab)){
-            activeTab = tabContentMap.keySet().stream().findFirst().orElse(null);
-            showContent(tabContentMap.get(activeTab));
-          }
-          buildTabs();
-          return true;
-        }
-
-        clickedTab(name);
+        clickedTab(tabKey);
         return super.touchDown(event, x, y, pointer, button);
       }
     });
 
-    tabArea.add(tab).left();
+    if(computerTab.closeable()){
+      Button exit = Scene2dElementFactory.createExitButton();
+      exit.addListener(new ChangeListener() {
+        @Override
+        public void changed(ChangeEvent event, Actor actor) {
+          // Close the tab
+          tabContentMap.remove(tabKey);
+          if(tabKey.equals(activeTab)){
+            activeTab = tabContentMap.keySet().stream().findFirst().orElse(null);
+            showContent(activeTab);
+          }
+          buildTabs();
+          event.handle();
+          event.stop();
+        }
+      });
+      tab.add(exit).height(40).width(40);
+    }
+
+    tabArea.add(tab).left().height(51).padBottom(-4);
   }
 
-  private static final Rectangle closeButtonArea = new Rectangle(35, 37, 9, 8);
-  private boolean clickedClose(Actor actor, float x, float y){
-    return x >= actor.getWidth() - closeButtonArea.width() - closeButtonArea.x()
-      && x <= actor.getWidth() - closeButtonArea.x()
-      && y >= actor.getHeight() - closeButtonArea.y() - closeButtonArea.height()
-      && y <= actor.getHeight() - closeButtonArea.y();
-  }
-
-  private void clickedTab(String name){
-    System.out.println("Clicked tab: " + name);
-    activeTab = name;
+  private void clickedTab(String tabKey){
+    if(tabKey.equals(activeTab)) return;
+    activeTab = tabKey;
     buildTabs();
-    showContent(tabContentMap.get(name));
+    showContent(tabKey);
   }
 
-  private void showContent(Actor actor){
+  private void showContent(String tabKey){
+    if(tabKey == null) {
+      LOGGER.error("Invalid tab name: null");
+      return;
+    }
     contentArea.clearChildren();
-    contentArea.add(actor).grow();
+    contentArea.add(tabContentMap.get(tabKey)).grow();
   }
 
   @Override
