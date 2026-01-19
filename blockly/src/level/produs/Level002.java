@@ -42,12 +42,12 @@ public class Level002 extends BlocklyLevel {
         "Bedingungen",
         "Sonstige");
 
-    addWebPopup(new ImagePopup("popups/webpopups/level002/01_intro.png"));
+    addWebPopup(new ImagePopup("popups/level002/webpopups/01_intro.png"));
 
-    addCodePopup(new ImagePopup("popups/codepopups/level002/01_datei_erstellen.png"));
-    addCodePopup(new ImagePopup("popups/codepopups/level002/02_datei_erstellen.png"));
-    addCodePopup(new ImagePopup("popups/codepopups/level002/04_intro.png"));
-    addCodePopup(new ImagePopup("popups/codepopups/overview1.png"));
+    addCodePopup(new ImagePopup("popups/level002/codepopups/01_datei_erstellen.png"));
+    addCodePopup(new ImagePopup("popups/level002/codepopups/02_datei_erstellen.png"));
+    addCodePopup(new ImagePopup("popups/level002/codepopups/04_intro.png"));
+    addCodePopup(new ImagePopup("popups/overview1.png"));
   }
 
   @Override
