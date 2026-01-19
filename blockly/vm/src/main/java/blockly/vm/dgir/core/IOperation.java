@@ -1,13 +1,20 @@
 package blockly.vm.dgir.core;
 
 import blockly.vm.api.VM;
-import tools.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.Optional;
 
+
+@JsonPropertyOrder({ "operation" })
 public abstract class IOperation implements Cloneable {
+  @JsonIgnore
   private final String namespace;
+  @JsonIgnore
   private final String name;
+
   private Block containingBlock;
 
   public IOperation(String namespace, String name) {
@@ -15,15 +22,16 @@ public abstract class IOperation implements Cloneable {
     this.name = name;
   }
 
-  String getName() {
+  public String getName() {
     return name;
   }
 
-  String getNamespace() {
+  public String getNamespace() {
     return namespace;
   }
 
-  String getFullName() {
+  @JsonProperty("operation")
+  public String getFullName() {
     return namespace + "." + name;
   }
 
@@ -34,8 +42,6 @@ public abstract class IOperation implements Cloneable {
   public Optional<Region> getContainingRegion(){
     return getContainingBlock().map(Block::getParent);
   }
-
-  public abstract boolean fromJson(JsonNode json, Block containingBlock);
 
   public abstract boolean fromString(CharSequence json, Block containingBlock);
 

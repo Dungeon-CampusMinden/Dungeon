@@ -10,10 +10,14 @@ import java.util.Optional;
 public class DialectRegistry {
   // Map namespace to operations and operation name to operation
   private static final Map<String, IOperation> OPS = new HashMap<>();
+  // Keep a flat lookup by namespace+name for resolver-friendly class lookup
+  private static final Map<String, Class<? extends IOperation>> OP_TYPES = new HashMap<>();
 
   // Add an operation to the registry
   public static void add(IOperation op) {
-    OPS.put(op.getFullName(), op);
+    String fullName = op.getFullName();
+    OPS.put(fullName, op);
+    OP_TYPES.put(fullName, op.getClass());
   }
 
   /**
@@ -47,6 +51,17 @@ public class DialectRegistry {
     }
     // Return an empty optional if the operation does not exist
     return Optional.empty();
+  }
+
+  /**
+   * Get the registered operation class for the given namespace and name.
+   */
+  public static Optional<Class<? extends IOperation>> getType(String namespace, String name) {
+    return Optional.ofNullable(OP_TYPES.get(namespace + "." + name));
+  }
+
+  public static Optional<Class<? extends IOperation>> getType(String fullName) {
+    return Optional.ofNullable(OP_TYPES.get(fullName));
   }
 
 }
