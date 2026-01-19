@@ -179,6 +179,12 @@ com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
 		checked: round-dark-gray
 		checkedOver: round-light-gray
 	}
+	exit-button: {
+		up: exit_clear
+		down: exit_clear_hovered
+		over: exit_clear_hovered
+		disabled: exit_clear
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
 	default: {
@@ -314,14 +320,23 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 		down: round-gray
 		over: round-light-gray
 	}
+	clean-green: {
+		font: roboto-semibold-32
+		fontColor: white
+		up: button_rectangle_depth_flat
+		down: button_rectangle_gloss
+		over: button_rectangle_depth_gloss
+		disabled: button_rectangle_depth_disabled
+		pressedOffsetY: -2
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 	default: {
 		font: myFont
 		fontColor: black
-		background: white
-		focusedBackground: textfield
-		disabledBackground: white
+		background: textfield
+		focusedBackground: textfield-active
+		disabledBackground: textfield-disabled
 		cursor: cursor
 		selection: selection
 		messageFont: myFont
