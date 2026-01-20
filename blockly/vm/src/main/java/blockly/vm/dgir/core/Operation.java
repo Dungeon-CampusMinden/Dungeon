@@ -1,12 +1,22 @@
 package blockly.vm.dgir.core;
 
 import blockly.vm.api.VM;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import blockly.vm.dgir.core.serialization.OperationTypeIdResolver;
+import com.fasterxml.jackson.annotation.*;
+import tools.jackson.databind.annotation.JsonTypeIdResolver;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 
 @JsonPropertyOrder({"op"})
+@JsonTypeInfo(
+  use = JsonTypeInfo.Id.CUSTOM,
+  include = JsonTypeInfo.As.EXISTING_PROPERTY,
+  property = "op"
+)
+@JsonTypeIdResolver(OperationTypeIdResolver.class)
 public abstract class Operation implements Cloneable{
   private IDialect _dialect;
 
@@ -14,6 +24,14 @@ public abstract class Operation implements Cloneable{
    * The cached name of this operation.
    */
   private String _name = null;
+
+  /**
+   * The output of this operation.
+   */
+  private Optional<DynamicValue> output = Optional.empty();
+
+  @JsonBackReference
+  public Block parent;
 
   protected Operation(Class<? extends IDialect> dialectClass) {
     var dialect = DialectRegistry.get(dialectClass);
@@ -49,6 +67,14 @@ public abstract class Operation implements Cloneable{
   @JsonIgnore
   public final IDialect getDialect() {
     return _dialect;
+  }
+
+  public final Optional<DynamicValue> getOutput() {
+    return output;
+  }
+
+  protected final void setOutput(DynamicValue output) {
+    this.output = Optional.ofNullable(output);
   }
 
   public abstract boolean fromString(CharSequence json, Block containingBlock);

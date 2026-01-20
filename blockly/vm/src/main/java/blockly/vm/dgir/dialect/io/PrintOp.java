@@ -2,25 +2,27 @@ package blockly.vm.dgir.dialect.io;
 
 import blockly.vm.api.VM;
 import blockly.vm.dgir.core.Block;
+import blockly.vm.dgir.core.IInputValue;
 import blockly.vm.dgir.core.IValue;
 import blockly.vm.dgir.core.Operation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class PrintOp extends Operation {
-  private final List<IValue> arguments = new ArrayList<>();
+  private final List<IInputValue> arguments = new ArrayList<>();
 
   public PrintOp() {
     super(IO.class);
   }
 
-  public PrintOp(List<IValue> arguments) {
-    super(IO.class);
+  public PrintOp(List<IInputValue> arguments) {
+    this();
     this.arguments.addAll(arguments);
   }
 
-  public List<IValue> getArguments() {
+  public List<IInputValue> getArguments() {
     return arguments;
   }
 

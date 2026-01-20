@@ -1,33 +1,29 @@
 package blockly.vm.dgir.core;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonIdentityInfo(
+  generator = ObjectIdGenerators.PropertyGenerator.class,
+  property = "parent")
 public final class Block {
   private final String label;
+
+  @JsonManagedReference
   private final List<Operation> operations = new ArrayList<>();
 
-  private final Region parent;
+  @JsonBackReference
+  public final Region parent;
 
   public Block(Region parent) {
     this.parent = parent;
     this.label = "blk_" + parent.getNewBlockId();
   }
 
-  @JsonIgnore
-  public Region getParent() {
-    return parent;
-  }
-
   public String getLabel() {
     return label;
-  }
-
-  public List<Operation> getOperations() {
-    return operations;
   }
 
   public void addOperation(Operation op) {

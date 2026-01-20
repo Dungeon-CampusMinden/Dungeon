@@ -2,8 +2,14 @@ package blockly.vm.dgir.dialect.arith;
 
 import blockly.vm.api.VM;
 import blockly.vm.dgir.core.Block;
+import blockly.vm.dgir.core.DynamicValue;
 import blockly.vm.dgir.core.Operation;
 import blockly.vm.dgir.core.ConstantValue;
+import blockly.vm.dgir.core.type.Int32_t;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Optional;
 
 public class ConstantOp extends Operation {
   private ConstantValue value;
@@ -28,5 +34,6 @@ public class ConstantOp extends Operation {
 
   public void setValue(ConstantValue value) {
     this.value = value;
+    setOutput(new DynamicValue("%const", value));
   }
 }

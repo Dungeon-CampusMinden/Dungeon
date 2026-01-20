@@ -20,6 +20,10 @@ public class DialectRegistry {
     try {
       IDialect instance = dialectClass.getDeclaredConstructor().newInstance();
       DIALECTS.put(dialectClass, instance);
+      for (Operation op : instance.AllOperations()) {
+        add(op);
+      }
+
     } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
       throw new RuntimeException(e);
     }
@@ -40,7 +44,13 @@ public class DialectRegistry {
    */
   public static Optional<Operation> get(String namespace, String name) {
     // Get the operation prototype
-    Operation op = OPS.get(namespace + "." + name);
+    String fullName;
+    if (namespace.isEmpty()) {
+      fullName = name;
+    }else {
+      fullName = namespace + "." + name;
+    }
+    Operation op = OPS.get(fullName);
     // If it exists, create a copy of it which can later be initialized
     if (op != null) {
       return Optional.of(op.clone());

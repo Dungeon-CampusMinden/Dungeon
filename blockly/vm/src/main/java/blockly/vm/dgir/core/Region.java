@@ -1,20 +1,26 @@
 package blockly.vm.dgir.core;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class Region {
   private int blockId = 0;
-  private final List<Block> blocks = new ArrayList<>();
 
-  private final Operation parent;
+  @JsonManagedReference
+  private List<Block> blocks = new ArrayList<>();
+
+  @JsonBackReference
+  public Operation parent;
 
   public Region(Operation parent){
     this.parent = parent;
+  }
+
+  @JsonCreator
+  public Region() {
+    this.parent = null;
   }
 
   public static Region CreateWithBlock(Operation parent) {
@@ -24,21 +30,12 @@ public final class Region {
   }
 
   @JsonIgnore
-  public Operation getParent() {
-    return parent;
-  }
-
-  @JsonIgnore
   public Block getOrCreateDefaultBlock() {
     return blocks.stream().findFirst().orElseGet(() -> {
       Block block = new Block(this);
       blocks.add(block);
       return block;
     });
-  }
-
-  public List<Block> getBlocks() {
-    return blocks;
   }
 
   @JsonIgnore

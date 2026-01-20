@@ -2,6 +2,8 @@ package dialect.builtin;
 
 import blockly.vm.dgir.core.ConstantValue;
 import blockly.vm.dgir.core.DialectRegistry;
+import blockly.vm.dgir.core.ValueRef;
+import blockly.vm.dgir.core.serialization.Utility;
 import blockly.vm.dgir.core.type.Int32_t;
 import blockly.vm.dgir.core.type.String_t;
 import blockly.vm.dgir.dialect.arith.Arith;
@@ -21,41 +23,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class BuiltinTests {
   @Test
   public void emptyProgramOp() {
-    ObjectMapper mapper = JsonMapper.builder()
-      .enable(tools.jackson.databind.SerializationFeature.INDENT_OUTPUT)
-      .build();
+    ObjectMapper mapper = Utility.getMapper(false, true);
 
-    DialectRegistry.registerDialect(Builtin.class);
     ProgramOp op = new ProgramOp();
 
     String result = mapper.writeValueAsString(op);
-    System.out.println(result);
-    assertEquals(
-      """
-          {
-            "op" : "program",
-            "region" : {
-              "blocks" : [ {
-                "label" : "blk_0",
-                "operations" : [ ]
-              } ]
-            }
-          }""", result);
+    assertEquals("{\"op\":\"program\",\"output\":null,\"region\":{\"blocks\":[{\"label\":\"blk_0\",\"operations\":[]}]}}", result);
 
     var restoredOp = mapper.readValue(result, ProgramOp.class);
-    assertEquals(restoredOp.getRegion(), restoredOp.getRegion().getOrCreateDefaultBlock().getParent());
+    assertEquals(restoredOp.getRegion(), restoredOp.getRegion().getOrCreateDefaultBlock().parent);
   }
 
   @Test
   public void simpleProgramOp() {
-    ObjectMapper mapper = JsonMapper.builder()
-      .enable(tools.jackson.databind.SerializationFeature.INDENT_OUTPUT)
-      .build();
-
-    DialectRegistry.registerDialect(Builtin.class);
-    DialectRegistry.registerDialect(Func.class);
-    DialectRegistry.registerDialect(IO.class);
-    DialectRegistry.registerDialect(Arith.class);
+    ObjectMapper mapper = Utility.getMapper(true, true);
 
     ProgramOp op = new ProgramOp();
     var programRegion = op.getRegion();
@@ -69,18 +50,20 @@ public class BuiltinTests {
 
 
     var textOp = new ConstantOp();
-    textOp.setValue(new ConstantValue("%x", Int32_t.INSTANCE, 42));
+    textOp.setValue(new ConstantValue(Int32_t.INSTANCE, 42));
     funcBlock.addOperation(textOp);
 
     var printOp = new PrintOp();
-    printOp.getArguments().add(new ConstantValue("CONSTANT", String_t.INSTANCE, "The answer is: "));
-    printOp.getArguments().add(textOp.getValue());
+    printOp.getArguments().add(new ConstantValue(String_t.INSTANCE, "The answer is: "));
+    printOp.getArguments().add(new ValueRef(textOp.getOutput().get()));
     funcBlock.addOperation(printOp);
 
     String result = mapper.writeValueAsString(op);
     System.out.println(result);
-    assertEquals("{\"operation\":\"program\",\"region\":{\"blocks\":[{}]}}", result);
 
     var restoredOp = mapper.readValue(result, ProgramOp.class);
+    assertEquals(mapper.writeValueAsString(op), mapper.writeValueAsString(restoredOp));
+
+    assertEquals(restoredOp.getRegion(), restoredOp.getRegion().getOrCreateDefaultBlock().parent);
   }
 }
