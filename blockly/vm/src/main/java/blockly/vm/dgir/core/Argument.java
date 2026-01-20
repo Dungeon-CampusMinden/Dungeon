@@ -1,5 +1,7 @@
 package blockly.vm.dgir.core;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Argument of a block. Can be used to declare a typed variable that gets defined for a block.
  * E.g.: func.func main(int32 x, int32 y) // x and y are typed arguments

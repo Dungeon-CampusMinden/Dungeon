@@ -11,6 +11,11 @@ public final class Block {
   public List<Argument> arguments = new ArrayList<>();
   public List<Operation> operations = new ArrayList<>();
 
+  @JsonIgnore
+  public void seIdentUnique(String base) {
+    ident = base + "_" + System.identityHashCode(this);
+  }
+
   public void insertOperationBefore(Operation op, Operation before) {
     int index = operations.indexOf(before);
     operations.add(index, op);

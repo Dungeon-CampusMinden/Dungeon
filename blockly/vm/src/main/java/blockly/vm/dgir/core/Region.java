@@ -6,7 +6,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Region {
-  public List<Block> blocks = new ArrayList<>();
+  public List<Block> blocks;
+
+  @JsonIgnore
+  public Operation parent;
+
+  public Region() {
+    blocks = new ArrayList<>();
+    parent = null;
+  }
+
+  @JsonCreator
+  public Region(@JsonProperty("blocks") List<Block> blocks, @JsonProperty("parent") Operation parent) {
+
+    this.blocks = blocks;
+    this.parent = parent;
+  }
 
   public static Region createWithBlock() {
     var region = new Region();

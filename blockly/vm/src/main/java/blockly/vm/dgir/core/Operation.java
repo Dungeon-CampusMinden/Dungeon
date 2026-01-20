@@ -24,6 +24,12 @@ public abstract class Operation implements Cloneable {
    */
   public DynamicValue output;
 
+  /**
+   * The parent block of this operation.
+   */
+  @JsonIgnore
+  public Block parent;
+
   public Operation(Class<? extends IDialect> dialectClass, String name) {
     var dialect = DialectRegistry.getDialect(dialectClass).get();
     if (dialect.getNamespace().isEmpty())
