@@ -127,7 +127,8 @@ public final class GameLoop extends ScreenAdapter {
    */
   public static void run() {
     Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-    config.setWindowSizeLimits(300, 300, 9999, 9999);
+    config.setWindowSizeLimits(
+        PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight(), 9999, 9999);
     config.setForegroundFPS(PreRunConfiguration.frameRate());
     config.setResizable(PreRunConfiguration.resizeable());
     config.setTitle(PreRunConfiguration.windowTitle());

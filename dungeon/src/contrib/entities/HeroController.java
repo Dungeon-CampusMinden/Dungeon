@@ -393,8 +393,6 @@ public class HeroController {
           e.getMessage(),
           e);
     }
-
-    // hier hinzufügen dass die tiems auf den boden gelegt werden sollen
   }
 
   /**
