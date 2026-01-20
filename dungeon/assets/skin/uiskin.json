@@ -329,6 +329,17 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 		disabled: button_rectangle_depth_disabled
 		pressedOffsetY: -2
 	}
+	clean-blue-outline: {
+		font: roboto-semibold-32
+		fontColor: black
+		downFontColor: white
+		overFontColor: white
+		up: blue_square_depth_border
+		down: blue_square_flat
+		over: blue_square_depth_flat
+		disabled: button_rectangle_depth_disabled
+		pressedOffsetY: -2
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 	default: {
