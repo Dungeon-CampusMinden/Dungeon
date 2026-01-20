@@ -1,39 +1,23 @@
 package blockly.vm.dgir.dialect.arith;
 
-import blockly.vm.api.VM;
-import blockly.vm.dgir.core.Block;
 import blockly.vm.dgir.core.DynamicValue;
 import blockly.vm.dgir.core.Operation;
 import blockly.vm.dgir.core.ConstantValue;
-import blockly.vm.dgir.core.type.Int32_t;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.Optional;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ConstantOp extends Operation {
-  private ConstantValue value;
+  public ConstantValue value;
 
   public ConstantOp() {
-    super(Arith.class);
+    super(Arith.class, "const");
   }
 
-  @Override
-  public boolean fromString(CharSequence json, Block containingBlock) {
-    return false;
-  }
-
-  @Override
-  public void run(VM.State state) {
-
-  }
-
-  public ConstantValue getValue() {
-    return value;
-  }
-
+  @JsonIgnore
   public void setValue(ConstantValue value) {
     this.value = value;
-    setOutput(new DynamicValue("%const", value));
+    var outputValue = new DynamicValue();
+    outputValue.setIdentUnique("%const");
+    outputValue.type = value.type;
+    output = outputValue;
   }
 }

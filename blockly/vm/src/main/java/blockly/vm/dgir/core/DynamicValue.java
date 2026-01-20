@@ -1,41 +1,25 @@
 package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.type.IType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class DynamicValue implements IValue {
-  private final String label;
-  private final IType type;
-  private Object value;
+  public String ident;
+  public Type type;
 
   private static int idCounter = 0;
 
-  public DynamicValue(String label, IType type, Object value) {
-    this.label = label + "_" + idCounter++;
-    this.type = type;
-    if (!type.validate(value))
-      throw new IllegalArgumentException("Invalid value {" + value + "} for type " + type);
-    this.value = value;
+  @JsonIgnore
+  public void setIdentUnique(String ident){
+    this.ident = ident + "_" + idCounter++;
   }
 
-  public DynamicValue(String label, ConstantValue value) {
-    this(label, value.getType(), value.getValue());
-  }
-
-  public String getLabel() {
-    return label;
-  }
-
-  public IType getType() {
+  @Override
+  public Type getType() {
     return type;
   }
 
+  @Override
   public Object getValue() {
-    return value;
-  }
-
-  public void setValue(Object value) {
-    if (!type.validate(value))
-      throw new IllegalArgumentException("Invalid value {" + value + "} for type " + type);
-    this.value = value;
+    throw new UnsupportedOperationException();
   }
 }

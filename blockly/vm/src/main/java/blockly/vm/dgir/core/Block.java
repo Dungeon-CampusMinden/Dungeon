@@ -5,38 +5,11 @@ import com.fasterxml.jackson.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonIdentityInfo(
-  generator = ObjectIdGenerators.PropertyGenerator.class,
-  property = "parent")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public final class Block {
-  private final String label;
-
-  @JsonManagedReference
-  private final List<Operation> operations = new ArrayList<>();
-
-  @JsonBackReference
-  public final Region parent;
-
-  public Block(Region parent) {
-    this.parent = parent;
-    this.label = "blk_" + parent.getNewBlockId();
-  }
-
-  public String getLabel() {
-    return label;
-  }
-
-  public void addOperation(Operation op) {
-    operations.add(op);
-  }
-
-  public void removeOperation(Operation op) {
-    operations.remove(op);
-  }
-
-  public void insertOperation(int index, Operation op) {
-    operations.add(index, op);
-  }
+  public String ident;
+  public List<Argument> arguments = new ArrayList<>();
+  public List<Operation> operations = new ArrayList<>();
 
   public void insertOperationBefore(Operation op, Operation before) {
     int index = operations.indexOf(before);

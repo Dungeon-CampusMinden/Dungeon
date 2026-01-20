@@ -1,7 +1,7 @@
 package blockly.vm.dgir.core.serialization;
 
 import blockly.vm.dgir.core.DialectRegistry;
-import blockly.vm.dgir.core.Operation;
+import blockly.vm.dgir.core.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;
@@ -13,32 +13,26 @@ import tools.jackson.databind.type.TypeFactory;
 import java.io.Serial;
 import java.util.Optional;
 
-/**
- * Resolves the concrete operation class based on namespace.name identifiers.
- */
-public class OperationTypeIdResolver
+public class TypeTypeIdResolver
   extends TypeIdResolverBase
-  implements java.io.Serializable
-{
+  implements java.io.Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public OperationTypeIdResolver() {
-    super(TypeFactory.unsafeSimpleType(Operation.class));
+  @Override
+  public String idFromValue(DatabindContext ctxt, Object value) throws JacksonException {
+    return "";
   }
 
   @Override
-  public String idFromValue(DatabindContext ctxt, Object value) {
-    return ((Operation) value).fullName;
+  public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) throws JacksonException {
+    return "";
   }
 
   @Override
-  public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) {
-    return idFromValue(ctxt, value);
+  public JsonTypeInfo.Id getMechanism() {
+    return JsonTypeInfo.Id.CUSTOM;
   }
-
-  @Override
-  public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.CUSTOM; }
 
   @Override
   public JavaType typeFromId(DatabindContext context, String id) throws JacksonException {
@@ -47,14 +41,14 @@ public class OperationTypeIdResolver
       deserializationContext = (DeserializationContext) context;
     }
 
-    Optional<Class<? extends Operation>> type = DialectRegistry.getOpType(id);
+    Optional<Class<? extends Type>> type = DialectRegistry.getType(id);
     if (type.isPresent()) {
       return TypeFactory.unsafeSimpleType(type.get());
     }
 
     if (deserializationContext != null) {
       throw deserializationContext.invalidTypeIdException(_baseType, id,
-        "Could not resolve operation type for id: " + id + "\nMake sure it is registered in the dialect registry!");
+        "Could not resolve type for id: " + id + "\nMake sure it is registered in the dialect registry!");
     }
     return null;
   }

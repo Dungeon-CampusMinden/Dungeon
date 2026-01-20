@@ -6,25 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Region {
-  private int blockId = 0;
+  public List<Block> blocks = new ArrayList<>();
 
-  @JsonManagedReference
-  private List<Block> blocks = new ArrayList<>();
-
-  @JsonBackReference
-  public Operation parent;
-
-  public Region(Operation parent){
-    this.parent = parent;
-  }
-
-  @JsonCreator
-  public Region() {
-    this.parent = null;
-  }
-
-  public static Region CreateWithBlock(Operation parent) {
-    var region = new Region(parent);
+  public static Region createWithBlock() {
+    var region = new Region();
     region.getOrCreateDefaultBlock();
     return region;
   }
@@ -32,12 +17,14 @@ public final class Region {
   @JsonIgnore
   public Block getOrCreateDefaultBlock() {
     return blocks.stream().findFirst().orElseGet(() -> {
-      Block block = new Block(this);
+      Block block = new Block();
       blocks.add(block);
       return block;
     });
   }
 
+
+  private static int blockId = 0;
   @JsonIgnore
   public int getNewBlockId() {
     return blockId++;

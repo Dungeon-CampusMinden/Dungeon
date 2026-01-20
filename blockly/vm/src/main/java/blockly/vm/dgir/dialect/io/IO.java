@@ -2,6 +2,7 @@ package blockly.vm.dgir.dialect.io;
 
 import blockly.vm.dgir.core.IDialect;
 import blockly.vm.dgir.core.Operation;
+import blockly.vm.dgir.core.Type;
 
 import java.util.List;
 
@@ -14,5 +15,10 @@ public class IO implements IDialect {
   @Override
   public List<Operation> AllOperations() {
     return List.of(new PrintOp());
+  }
+
+  @Override
+  public List<Type> AllTypes() {
+    return List.of();
   }
 }
