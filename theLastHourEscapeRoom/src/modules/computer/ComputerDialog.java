@@ -15,7 +15,9 @@ import core.utils.FontHelper;
 import core.utils.components.draw.TextureGenerator;
 import core.utils.logging.DungeonLogger;
 import modules.computer.content.ComputerTab;
+import modules.computer.content.EmailsTab;
 import modules.computer.content.LoginMask;
+import modules.computer.content.TestMask;
 import util.Scene2dElementFactory;
 
 import java.util.LinkedHashMap;
@@ -87,7 +89,7 @@ public class ComputerDialog extends Group {
     tabArea.defaults().spaceRight(10).left();
 
     Table browserArea = new Table(skin);
-    browserArea.setBackground("computer-window-alt");
+    browserArea.setBackground("generic-area-depth");
     browserArea.pad(5, 5, 5, 5);
     Button exit = Scene2dElementFactory.createExitButton();
     exit.addListener(new ChangeListener() {
@@ -113,10 +115,21 @@ public class ComputerDialog extends Group {
     container.add(tabArea).growX().left().row();
     container.add(browserArea).grow();
 
-    // Add a tab as example
-    addTab(new LoginMask());
-//    addTab("Emails - Very Long", new Image(cyan), false);
-//    addTab("image.png", new Image(green), true);
+    // only default tab is login
+    addTabsForState(ComputerState.PRE_LOGIN);
+    if(sharedState.state() == ComputerState.LOGGED_IN){
+      addTabsForState(ComputerState.LOGGED_IN);
+    }
+  }
+
+  public void addTabsForState(ComputerState state){
+    if(state == ComputerState.PRE_LOGIN){
+      addTab(new LoginMask(sharedState));
+    } else if (state == ComputerState.LOGGED_IN){
+      addTab(new EmailsTab(sharedState));
+//      addTab(new TestMask(sharedState, "emails", "E-Mail Inbox (5)", false, Color.RED));
+      addTab(new TestMask(sharedState, "browser", "Browser", false, Color.CYAN));
+    }
   }
 
   private void addUnfocusListener(Table container) {
@@ -143,7 +156,7 @@ public class ComputerDialog extends Group {
     buildTabs();
   }
 
-  private void buildTabs(){
+  public void buildTabs(){
     tabArea.clearChildren();
     for (String tabKey : tabContentMap.keySet()) {
       buildTab(tabKey);
@@ -155,18 +168,19 @@ public class ComputerDialog extends Group {
 
     Table tab = new Table(skin);
     boolean isActive = tabKey.equals(activeTab);
-    tab.setBackground(isActive ? "tab-active-alt" : "tab-inactive-alt");
-    tab.pad(0, 15, 0, 15);
+    tab.setBackground(isActive ? "blue_square_flat" : "generic-area");
 
     Label.LabelStyle labelStyle = new Label.LabelStyle();
-    labelStyle.font = FontHelper.getFont(FontHelper.DEFAULT_FONT_PATH, 32, isActive ? Color.WHITE : Color.GRAY, 2, isActive ? Color.BLACK : Color.WHITE);
+    labelStyle.font = FontHelper.getFont(Scene2dElementFactory.FONT_PATH, 24, isActive ? Color.WHITE : Color.BLACK, 0);
     Label label = new Label(computerTab.title(), labelStyle);
-    tab.add(label).grow();
+    tab.add(label).pad(0, 15, 0, 15).grow();
     tab.setTouchable(Touchable.enabled);
     tab.addListener(new ClickListener(Input.Buttons.LEFT) {
       @Override
       public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-        clickedTab(tabKey);
+        if(!(event.getTarget() instanceof Button)){
+          clickedTab(tabKey);
+        }
         return super.touchDown(event, x, y, pointer, button);
       }
     });
@@ -190,12 +204,13 @@ public class ComputerDialog extends Group {
       tab.add(exit).height(40).width(40);
     }
 
-    tabArea.add(tab).left().height(51).padBottom(-4);
+    tabArea.add(tab).left().height(51).padBottom(-5);
   }
 
   private void clickedTab(String tabKey){
     if(tabKey.equals(activeTab)) return;
     activeTab = tabKey;
+    ComputerStateLocal.Instance.tab(tabKey);
     buildTabs();
     showContent(tabKey);
   }
