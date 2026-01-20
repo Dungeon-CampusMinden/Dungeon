@@ -1,0 +1,57 @@
+{
+    "op": "program",
+    "region": {
+        "blocks": [
+            {
+                "label": "blk_0",
+                "operations": [
+                    {
+                        "op": "func.func",
+                        "label": "func",
+                        "region": {
+                            "blocks": [
+                                {
+                                    "label": "blk_0",
+                                    "operations": [
+                                        {
+                                            "op": "arith.constant",
+                                            "value": {
+                                                "label": "%x",
+                                                "type": {
+                                                    "arguments": [],
+                                                    "identifier": "int32"
+                                                },
+                                                "value": 42
+                                            }
+                                        },
+                                        {
+                                            "op": "io.print",
+                                            "arguments": [
+                                                {
+                                                    "label": "CONSTANT",
+                                                    "type": {
+                                                        "arguments": [],
+                                                        "identifier": "string"
+                                                    },
+                                                    "value": "The answer is: "
+                                                },
+                                                {
+                                                    "label": "%x",
+                                                    "type": {
+                                                        "arguments": [],
+                                                        "identifier": "int32"
+                                                    },
+                                                    "value": 42
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

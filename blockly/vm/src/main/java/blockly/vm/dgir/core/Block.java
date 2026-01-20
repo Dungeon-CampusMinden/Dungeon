@@ -10,7 +10,6 @@ public final class Block {
   private final String label;
   private final List<Operation> operations = new ArrayList<>();
 
-  @JsonBackReference
   private final Region parent;
 
   public Block(Region parent) {
@@ -18,6 +17,7 @@ public final class Block {
     this.label = "blk_" + parent.getNewBlockId();
   }
 
+  @JsonIgnore
   public Region getParent() {
     return parent;
   }

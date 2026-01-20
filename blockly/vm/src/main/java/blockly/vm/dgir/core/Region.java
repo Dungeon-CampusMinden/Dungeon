@@ -8,12 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Region {
-  @JsonIgnore
   private int blockId = 0;
-  @JsonManagedReference
   private final List<Block> blocks = new ArrayList<>();
 
-  @JsonBackReference
   private final Operation parent;
 
   public Region(Operation parent){
@@ -26,6 +23,7 @@ public final class Region {
     return region;
   }
 
+  @JsonIgnore
   public Operation getParent() {
     return parent;
   }
@@ -39,6 +37,11 @@ public final class Region {
     });
   }
 
+  public List<Block> getBlocks() {
+    return blocks;
+  }
+
+  @JsonIgnore
   public int getNewBlockId() {
     return blockId++;
   }

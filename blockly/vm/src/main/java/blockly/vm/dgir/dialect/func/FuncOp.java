@@ -7,10 +7,15 @@ import blockly.vm.dgir.core.Operation;
 import blockly.vm.dgir.core.Region;
 
 public class FuncOp extends Operation {
+  private String label;
   private final Region region = Region.CreateWithBlock(this);
 
   public FuncOp() {
     super(Func.class);
+  }
+
+  public Region getRegion() {
+    return region;
   }
 
   @Override
@@ -21,5 +26,13 @@ public class FuncOp extends Operation {
   @Override
   public void run(VM.State state) {
 
+  }
+
+  public String getLabel() {
+    return label;
+  }
+
+  public void setLabel(String name) {
+    this.label = name;
   }
 }

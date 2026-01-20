@@ -1,26 +1,18 @@
 package blockly.vm.dgir.core;
 
 import blockly.vm.api.VM;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import java.util.Optional;
 
-
-@JsonPropertyOrder({"operation"})
-public abstract class Operation implements Cloneable {
-  @JsonIgnore
-  protected IDialect _dialect;
-
-  @JsonBackReference
-  protected Block _parent;
+@JsonPropertyOrder({"op"})
+public abstract class Operation implements Cloneable{
+  private IDialect _dialect;
 
   /**
    * The cached name of this operation.
    */
-  @JsonIgnore
   private String _name = null;
 
   protected Operation(Class<? extends IDialect> dialectClass) {
@@ -46,7 +38,7 @@ public abstract class Operation implements Cloneable {
     return _dialect.getNamespace();
   }
 
-  @JsonProperty("operation")
+  @JsonProperty("op")
   public final String getFullName() {
     if (getNamespace().isEmpty()) {
       return getName();
@@ -59,28 +51,18 @@ public abstract class Operation implements Cloneable {
     return _dialect;
   }
 
-  @JsonIgnore
-  public final Optional<Block> getContainingBlock() {
-    return Optional.ofNullable(_parent);
-  }
-
-  public final void setContainingBlock(Block block) {
-    _parent = block;
-  }
-
-  @JsonIgnore
-  public Optional<Region> getContainingRegion() {
-    return getContainingBlock().map(Block::getParent);
-  }
-
   public abstract boolean fromString(CharSequence json, Block containingBlock);
 
   public abstract void run(VM.State state);
 
+  // TODO check this method and if it needs to be modified
   @Override
   public Operation clone() {
     try {
-      return (Operation) super.clone();
+      Operation clone = (Operation) super.clone();
+      clone._name = this._name;
+      clone._dialect = this._dialect;
+      return clone;
     } catch (CloneNotSupportedException e) {
       throw new AssertionError();
     }
