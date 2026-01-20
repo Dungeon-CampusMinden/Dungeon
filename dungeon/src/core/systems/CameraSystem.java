@@ -184,6 +184,11 @@ public final class CameraSystem extends System {
     focusPoint = point;
   }
 
+  @Override
+  public void stop() {
+    // Cant be stopped
+  }
+
   /**
    * Gets the world bounds of the camera.
    *
