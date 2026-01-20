@@ -1,4 +1,4 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.serialization;
 
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;

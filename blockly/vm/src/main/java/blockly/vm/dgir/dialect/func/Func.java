@@ -1,22 +1,18 @@
-package blockly.vm.dgir.dialect.builtin;
+package blockly.vm.dgir.dialect.func;
 
-import blockly.vm.dgir.core.DialectRegistry;
 import blockly.vm.dgir.core.IDialect;
 import blockly.vm.dgir.core.Operation;
 
 import java.util.List;
 
-public class Builtin implements IDialect {
+public class Func implements IDialect {
   @Override
   public String getNamespace() {
-    return "";
+    return "func";
   }
 
   @Override
   public List<Operation> AllOperations() {
-    return List.of(
-      new ProgramOp()
-    );
+    return List.of();
   }
 }
-

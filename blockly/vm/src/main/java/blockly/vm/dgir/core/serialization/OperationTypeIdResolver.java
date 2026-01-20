@@ -1,11 +1,12 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.serialization;
 
+import blockly.vm.dgir.core.DialectRegistry;
+import blockly.vm.dgir.core.Operation;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import tools.jackson.databind.type.TypeFactory;
 
@@ -21,7 +22,7 @@ public class OperationTypeIdResolver
   private static final long serialVersionUID = 1L;
 
   public OperationTypeIdResolver() {
-    super(TypeFactory.unsafeSimpleType(IOperation.class));
+    super(TypeFactory.unsafeSimpleType(Operation.class));
   }
 
   @Override
@@ -29,7 +30,7 @@ public class OperationTypeIdResolver
 
   @Override
   public String idFromValue(DatabindContext ctxt, Object value) {
-    return ((IOperation) value).getNamespace() + "." + ((IOperation) value).getName();
+    return ((Operation) value).getNamespace() + "." + ((Operation) value).getName();
   }
 
   @Override
@@ -44,7 +45,7 @@ public class OperationTypeIdResolver
       deserializationContext = (DeserializationContext) ctxt;
     }
 
-    Optional<Class<? extends IOperation>> type = DialectRegistry.getType(id);
+    Optional<Class<? extends Operation>> type = DialectRegistry.getType(id);
     if (type.isPresent()) {
       return TypeFactory.unsafeSimpleType(type.get());
     }

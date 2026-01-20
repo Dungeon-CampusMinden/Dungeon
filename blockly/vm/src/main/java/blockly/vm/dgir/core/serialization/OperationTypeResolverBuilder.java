@@ -1,14 +1,7 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.serialization;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import tools.jackson.databind.DatabindContext;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.jsontype.*;
 import tools.jackson.databind.jsontype.impl.*;
-
-import java.util.Collection;
 
 
 /**

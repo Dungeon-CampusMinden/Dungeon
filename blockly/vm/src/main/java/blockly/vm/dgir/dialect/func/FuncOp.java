@@ -1,30 +1,25 @@
-package blockly.vm.dgir.dialect.builtin;
+package blockly.vm.dgir.dialect.func;
 
+import blockly.vm.api.VM;
 import blockly.vm.dgir.core.Block;
 import blockly.vm.dgir.core.IDialect;
 import blockly.vm.dgir.core.Operation;
-import blockly.vm.api.VM;
 import blockly.vm.dgir.core.Region;
 
-public class ProgramOp extends Operation {
-
+public class FuncOp extends Operation {
   private final Region region = Region.CreateWithBlock(this);
 
-  public ProgramOp() {
-    super(Builtin.class);
+  public FuncOp() {
+    super(Func.class);
   }
 
   @Override
   public boolean fromString(CharSequence json, Block containingBlock) {
-    throw new UnsupportedOperationException();
+    return false;
   }
 
   @Override
   public void run(VM.State state) {
 
-  }
-
-  public Region getRegion() {
-    return region;
   }
 }
