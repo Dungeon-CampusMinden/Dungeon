@@ -18,8 +18,7 @@ import java.util.Optional;
  */
 public class OperationTypeIdResolver
   extends TypeIdResolverBase
-  implements java.io.Serializable
-{
+  implements java.io.Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -38,7 +37,9 @@ public class OperationTypeIdResolver
   }
 
   @Override
-  public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.CUSTOM; }
+  public JsonTypeInfo.Id getMechanism() {
+    return JsonTypeInfo.Id.CUSTOM;
+  }
 
   @Override
   public JavaType typeFromId(DatabindContext context, String id) throws JacksonException {
@@ -47,14 +48,12 @@ public class OperationTypeIdResolver
       deserializationContext = (DeserializationContext) context;
     }
 
-    Optional<Class<? extends Operation>> type = DialectRegistry.getOpType(id);
-    if (type.isPresent()) {
-      return TypeFactory.unsafeSimpleType(type.get());
-    }
-
-    if (deserializationContext != null) {
-      throw deserializationContext.invalidTypeIdException(_baseType, id,
-        "Could not resolve operation type for id: " + id + "\nMake sure it is registered in the dialect registry!");
+    try {
+      return TypeFactory.unsafeSimpleType(DialectRegistry.getOpType(id));
+    } catch (IllegalArgumentException e) {
+      if (deserializationContext != null) {
+        throw deserializationContext.invalidTypeIdException(_baseType, id, e.getMessage());
+      }
     }
     return null;
   }

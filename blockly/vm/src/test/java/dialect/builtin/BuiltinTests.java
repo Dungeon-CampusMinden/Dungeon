@@ -1,10 +1,9 @@
 package dialect.builtin;
 
-import blockly.vm.dgir.core.ConstantValue;
-import blockly.vm.dgir.core.ValueRef;
+import blockly.vm.dgir.core.NamedAttribute;
 import blockly.vm.dgir.core.serialization.Utility;
+import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
 import blockly.vm.dgir.dialect.builtin.types.IntegerT;
-import blockly.vm.dgir.dialect.builtin.types.StringT;
 import blockly.vm.dgir.dialect.arith.ConstantOp;
 import blockly.vm.dgir.dialect.builtin.ProgramOp;
 import blockly.vm.dgir.dialect.func.FuncOp;
@@ -43,12 +42,10 @@ public class BuiltinTests {
     var funcBlock = funcRegion.getOrCreateDefaultBlock();
     progBlock.operations.add(funcOp);
 
-    var textOp = new ConstantOp(new ConstantValue(IntegerT.INT32, 42));
+    var textOp = new ConstantOp(new NamedAttribute("value", new IntegerAttribute(42, IntegerT.INT32)));
     funcBlock.operations.add(textOp);
 
-    var textConst = new ConstantValue(StringT.INSTANCE, "The answer is: ");
-    var valueRef = new ValueRef(textOp.getOutput());
-    funcBlock.operations.add(new PrintOp(List.of(textConst, valueRef)));
+    funcBlock.operations.add(new PrintOp(List.of(textOp.getOutput())));
 
     String result = mapper.writeValueAsString(op);
     System.out.println(result);
@@ -56,6 +53,5 @@ public class BuiltinTests {
     var restoredOp = mapper.readValue(result, ProgramOp.class);
     System.out.println(mapper.writeValueAsString(restoredOp));
     assertEquals(mapper.writeValueAsString(op), mapper.writeValueAsString(restoredOp));
-
   }
 }

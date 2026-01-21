@@ -8,4 +8,5 @@ public interface IDialect {
   String getNamespace();
   List<Operation> AllOperations();
   List<Type> AllTypes();
+  List<Attribute> AllAttributes();
 }

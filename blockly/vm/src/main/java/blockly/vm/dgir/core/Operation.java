@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @JsonPropertyOrder({"op"})
 @JsonTypeInfo(
@@ -21,9 +23,19 @@ public abstract class Operation implements Cloneable, Serializable {
   private final String fullName;
 
   /**
+   * The input values of this operation.
+   */
+  private List<ValueOperand> operands;
+
+  /**
    * The output of this operation.
    */
-  private DynamicValue output;
+  private Value output;
+
+  /**
+   * The attributes of this operation.
+   */
+  private List<NamedAttribute> attributes;
 
   /**
    * The parent block of this operation.
@@ -31,17 +43,21 @@ public abstract class Operation implements Cloneable, Serializable {
   private Block parent;
 
   public Operation(Class<? extends IDialect> dialectClass, String name) {
-    var dialect = DialectRegistry.getDialect(dialectClass).get();
-    if (dialect.getNamespace().isEmpty())
-      this.fullName = name;
-    else
-      this.fullName = dialect.getNamespace() + "." + name;
+    fullName = Utility.getFullName(dialectClass, name);
+    operands = new ArrayList<>();
+    output = null;
+    attributes = new ArrayList<>();
   }
 
   @JsonCreator
-  public Operation(@JsonProperty("op") String fullName, @JsonProperty("output") DynamicValue output) {
+  public Operation(@JsonProperty("op") String fullName,
+                   @JsonProperty("operands") List<ValueOperand> operands,
+                   @JsonProperty("output") Value output,
+                   @JsonProperty("attributes") List<NamedAttribute>attributes) {
     this.fullName = fullName;
+    this.operands = operands;
     this.output = output;
+    this.attributes = attributes;
   }
 
   @Override
@@ -60,12 +76,24 @@ public abstract class Operation implements Cloneable, Serializable {
     return fullName;
   }
 
-  public DynamicValue getOutput() {
+  public List<ValueOperand> getOperands() {
+    return operands;
+  }
+
+  public Value getOutput() {
     return output;
   }
 
-  public void setOutput(DynamicValue output) {
+  public void setOutput(Value output) {
     this.output = output;
+  }
+
+  public List<NamedAttribute> getAttributes() {
+    return attributes;
+  }
+
+  public void setAttributes(List<NamedAttribute> attributes) {
+    this.attributes = attributes;
   }
 
   @JsonIgnore

@@ -1,5 +1,6 @@
 package blockly.vm.dgir.dialect.arith;
 
+import blockly.vm.dgir.core.Attribute;
 import blockly.vm.dgir.core.IDialect;
 import blockly.vm.dgir.core.Operation;
 import blockly.vm.dgir.core.type.Type;
@@ -21,6 +22,11 @@ public class Arith implements IDialect {
 
   @Override
   public List<Type> AllTypes() {
+    return List.of();
+  }
+
+  @Override
+  public List<Attribute> AllAttributes() {
     return List.of();
   }
 }

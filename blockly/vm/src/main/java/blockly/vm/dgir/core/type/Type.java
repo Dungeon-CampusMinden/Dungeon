@@ -21,19 +21,13 @@ public abstract class Type {
   private final String ident;
 
   public Type(Class<? extends IDialect> dialectClass, String ident) {
-    Optional<IDialect> dialectOptional = DialectRegistry.getDialect(dialectClass);
-    if (dialectOptional.isEmpty()) {
-      throw new IllegalArgumentException("Could not find dialect: " + dialectClass.getName());
-    }
-    var dialect = DialectRegistry.getDialect(dialectClass).get();
-    if (dialect.getNamespace().isEmpty())
-      this.ident = ident;
-    else
-      this.ident = dialect.getNamespace() + "." + ident;
+    var dialect = DialectRegistry.getDialect(dialectClass);
+    if (dialect.getNamespace().isEmpty()) this.ident = ident;
+    else this.ident = dialect.getNamespace() + "." + ident;
   }
 
-  public IDialect getDialect(){
-    return DialectRegistry.getTypeDialect(getIdent()).get();
+  public IDialect getDialect() {
+    return DialectRegistry.getTypeDialect(getIdent());
   }
 
   public String getIdent() {
@@ -70,10 +64,10 @@ class TypeDeserializer extends StdDeserializer<Type> {
   @Override
   public Type deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
     String typeStr = p.getString();
-    Optional<Type> type = DialectRegistry.getTypeInstance(typeStr);
-    if (type.isPresent()) {
-      return type.get();
+    try {
+      return DialectRegistry.getTypeInstance(typeStr);
+    } catch (IllegalArgumentException e) {
+      throw ctxt.invalidTypeIdException(_valueType, typeStr, e.getMessage());
     }
-    throw ctxt.invalidTypeIdException(_valueType, typeStr, "Could not find type: " + typeStr + "\nMake sure it is registered in the dialect registry!");
   }
 }

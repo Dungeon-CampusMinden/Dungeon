@@ -1,8 +1,6 @@
 package blockly.vm.dgir.core.serialization;
 
-import blockly.vm.dgir.core.ConstantValue;
-import blockly.vm.dgir.core.DynamicValue;
-import blockly.vm.dgir.core.ValueRef;
+import blockly.vm.dgir.core.Value;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;
@@ -13,12 +11,8 @@ public class ValueTypeIdResolver extends TypeIdResolverBase
   implements java.io.Serializable {
   @Override
   public String idFromValue(DatabindContext ctxt, Object value) throws JacksonException {
-    if (value instanceof DynamicValue)
-      return DynamicValue.class.getSimpleName();
-    else if (value instanceof ConstantValue)
-      return ConstantValue.class.getSimpleName();
-    else if (value instanceof ValueRef)
-      return ValueRef.class.getSimpleName();
+    if (value instanceof Value)
+      return Value.class.getSimpleName();
 
     throw new IllegalArgumentException("Unsupported value type: " + value.getClass().getName());
   }
@@ -35,12 +29,8 @@ public class ValueTypeIdResolver extends TypeIdResolverBase
 
   @Override
   public JavaType typeFromId(DatabindContext context, String id) throws JacksonException {
-    if (id.equals(DynamicValue.class.getSimpleName()))
-      return context.constructType(DynamicValue.class);
-    else if (id.equals(ConstantValue.class.getSimpleName()))
-      return context.constructType(ConstantValue.class);
-    else if (id.equals(ValueRef.class.getSimpleName()))
-      return context.constructType(ValueRef.class);
+    if (id.equals(Value.class.getSimpleName()))
+      return context.constructType(Value.class);
 
     throw new IllegalArgumentException("Unsupported value type: " + id);
   }
