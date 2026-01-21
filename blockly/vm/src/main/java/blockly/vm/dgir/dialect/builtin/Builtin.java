@@ -2,10 +2,10 @@ package blockly.vm.dgir.dialect.builtin;
 
 import blockly.vm.dgir.core.IDialect;
 import blockly.vm.dgir.core.Operation;
-import blockly.vm.dgir.core.Type;
-import blockly.vm.dgir.dialect.builtin.types.Float32_t;
-import blockly.vm.dgir.dialect.builtin.types.Int32_t;
-import blockly.vm.dgir.dialect.builtin.types.String_t;
+import blockly.vm.dgir.core.type.Type;
+import blockly.vm.dgir.dialect.builtin.types.FloatT;
+import blockly.vm.dgir.dialect.builtin.types.IntegerT;
+import blockly.vm.dgir.dialect.builtin.types.StringT;
 
 import java.util.List;
 
@@ -25,9 +25,13 @@ public class Builtin implements IDialect {
   @Override
   public List<Type> AllTypes() {
     return List.of(
-      Int32_t.INSTANCE,
-      Float32_t.INSTANCE,
-      String_t.INSTANCE
+      IntegerT.INT8,
+      IntegerT.INT16,
+      IntegerT.INT32,
+      IntegerT.INT64,
+      FloatT.FLOAT32,
+      FloatT.FLOAT64,
+      StringT.INSTANCE
     );
   }
 }

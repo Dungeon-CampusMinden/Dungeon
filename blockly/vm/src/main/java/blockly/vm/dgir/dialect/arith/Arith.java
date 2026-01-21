@@ -2,7 +2,7 @@ package blockly.vm.dgir.dialect.arith;
 
 import blockly.vm.dgir.core.IDialect;
 import blockly.vm.dgir.core.Operation;
-import blockly.vm.dgir.core.Type;
+import blockly.vm.dgir.core.type.Type;
 
 import java.util.List;
 

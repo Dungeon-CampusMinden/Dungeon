@@ -3,13 +3,12 @@ package dialect.builtin;
 import blockly.vm.dgir.core.ConstantValue;
 import blockly.vm.dgir.core.ValueRef;
 import blockly.vm.dgir.core.serialization.Utility;
-import blockly.vm.dgir.dialect.builtin.types.Int32_t;
-import blockly.vm.dgir.dialect.builtin.types.String_t;
+import blockly.vm.dgir.dialect.builtin.types.IntegerT;
+import blockly.vm.dgir.dialect.builtin.types.StringT;
 import blockly.vm.dgir.dialect.arith.ConstantOp;
 import blockly.vm.dgir.dialect.builtin.ProgramOp;
 import blockly.vm.dgir.dialect.func.FuncOp;
 import blockly.vm.dgir.dialect.io.PrintOp;
-import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
@@ -44,10 +43,10 @@ public class BuiltinTests {
     var funcBlock = funcRegion.getOrCreateDefaultBlock();
     progBlock.operations.add(funcOp);
 
-    var textOp = new ConstantOp(new ConstantValue(Int32_t.INSTANCE, 42));
+    var textOp = new ConstantOp(new ConstantValue(IntegerT.INT32, 42));
     funcBlock.operations.add(textOp);
 
-    var textConst = new ConstantValue(String_t.INSTANCE, "The answer is: ");
+    var textConst = new ConstantValue(StringT.INSTANCE, "The answer is: ");
     var valueRef = new ValueRef(textOp.getOutput());
     funcBlock.operations.add(new PrintOp(List.of(textConst, valueRef)));
 

@@ -2,7 +2,8 @@ package blockly.vm.dgir.dialect.func;
 
 import blockly.vm.dgir.core.IDialect;
 import blockly.vm.dgir.core.Operation;
-import blockly.vm.dgir.core.Type;
+import blockly.vm.dgir.core.type.Type;
+import blockly.vm.dgir.dialect.func.types.FuncType;
 
 import java.util.List;
 
@@ -21,6 +22,6 @@ public class Func implements IDialect {
 
   @Override
   public List<Type> AllTypes() {
-    return List.of();
+    return List.of(new FuncType());
   }
 }

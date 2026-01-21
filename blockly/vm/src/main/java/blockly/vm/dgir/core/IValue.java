@@ -1,6 +1,7 @@
 package blockly.vm.dgir.core;
 
 import blockly.vm.dgir.core.serialization.ValueTypeIdResolver;
+import blockly.vm.dgir.core.type.Type;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;

@@ -1,5 +1,6 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.type.Type;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
