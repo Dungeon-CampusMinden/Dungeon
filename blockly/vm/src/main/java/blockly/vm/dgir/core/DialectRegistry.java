@@ -44,8 +44,8 @@ public class DialectRegistry {
    * @param op The operation instance to add.
    */
   public static void addOp(Operation op) {
-    OPS.put(op.fullName, op);
-    OP_TYPES.put(op.fullName, op.getClass());
+    OPS.put(op.getFullName(), op);
+    OP_TYPES.put(op.getFullName(), op.getClass());
   }
 
   /**
@@ -53,7 +53,7 @@ public class DialectRegistry {
    * @param type The type instance to add.
    */
   public static void addType(Type type) {
-    TYPE_TYPES.put(type.fullName, type.getClass());
+    TYPE_TYPES.put(type.getIdent(), type.getClass());
   }
 
   /**

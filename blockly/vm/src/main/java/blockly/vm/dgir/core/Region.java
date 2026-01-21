@@ -1,15 +1,19 @@
 package blockly.vm.dgir.core;
 
 import com.fasterxml.jackson.annotation.*;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.util.StdConverter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+// JsonDeserialize is run after the full deserialization and used to update the references in the children
+@JsonDeserialize(converter = RegionConverter.class)
 public final class Region {
-  public List<Block> blocks;
+  private final List<Block> blocks;
 
   @JsonIgnore
-  public Operation parent;
+  private Operation parent;
 
   public Region() {
     blocks = new ArrayList<>();
@@ -18,7 +22,6 @@ public final class Region {
 
   @JsonCreator
   public Region(@JsonProperty("blocks") List<Block> blocks, @JsonProperty("parent") Operation parent) {
-
     this.blocks = blocks;
     this.parent = parent;
   }
@@ -38,10 +41,27 @@ public final class Region {
     });
   }
 
+  public List<Block> getBlocks() {
+    return blocks;
+  }
+
 
   private static int blockId = 0;
   @JsonIgnore
   public int getNewBlockId() {
     return blockId++;
+  }
+}
+
+/**
+ * Used to update references post deserialization.
+ */
+class RegionConverter extends StdConverter<Region, Region> {
+  @Override
+  public Region convert(Region value) {
+    for (var block : value.getBlocks()) {
+      block.parent = value;
+    }
+    return value;
   }
 }

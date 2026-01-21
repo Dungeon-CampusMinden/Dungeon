@@ -4,6 +4,8 @@ import blockly.vm.dgir.core.serialization.OperationTypeIdResolver;
 import com.fasterxml.jackson.annotation.*;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
 
+import java.io.Serializable;
+
 @JsonPropertyOrder({"op"})
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.CUSTOM,
@@ -12,23 +14,21 @@ import tools.jackson.databind.annotation.JsonTypeIdResolver;
 )
 @JsonTypeIdResolver(OperationTypeIdResolver.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public abstract class Operation implements Cloneable {
+public abstract class Operation implements Cloneable, Serializable {
   /**
    * The fully qualified name of this operation.
    */
-  @JsonProperty("op")
-  public final String fullName;
+  private final String fullName;
 
   /**
    * The output of this operation.
    */
-  public DynamicValue output;
+  private DynamicValue output;
 
   /**
    * The parent block of this operation.
    */
-  @JsonIgnore
-  public Block parent;
+  private Block parent;
 
   public Operation(Class<? extends IDialect> dialectClass, String name) {
     var dialect = DialectRegistry.getDialect(dialectClass).get();
@@ -36,6 +36,12 @@ public abstract class Operation implements Cloneable {
       this.fullName = name;
     else
       this.fullName = dialect.getNamespace() + "." + name;
+  }
+
+  @JsonCreator
+  public Operation(@JsonProperty("op") String fullName, @JsonProperty("output") DynamicValue output) {
+    this.fullName = fullName;
+    this.output = output;
   }
 
   @Override
@@ -47,5 +53,27 @@ public abstract class Operation implements Cloneable {
     } catch (CloneNotSupportedException e) {
       throw new AssertionError();
     }
+  }
+
+  @JsonProperty("op")
+  public String getFullName() {
+    return fullName;
+  }
+
+  public DynamicValue getOutput() {
+    return output;
+  }
+
+  public void setOutput(DynamicValue output) {
+    this.output = output;
+  }
+
+  @JsonIgnore
+  public Block getParent() {
+    return parent;
+  }
+
+  public void setParent(Block parent) {
+    this.parent = parent;
   }
 }

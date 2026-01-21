@@ -1,16 +1,40 @@
 package blockly.vm.dgir.core;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DynamicValue implements IValue {
-  public String ident;
-  public Type type;
+  private final String ident;
+  private final Type type;
 
   private static int idCounter = 0;
 
-  @JsonIgnore
-  public void setIdentUnique(String ident){
-    this.ident = ident + "_" + idCounter++;
+  public DynamicValue() {
+    this.ident = null;
+    this.type = null;
+  }
+
+  @JsonCreator
+  public DynamicValue(@JsonProperty("ident") String ident, @JsonProperty("type") Type type) {
+    this.ident = ident;
+    this.type = type;
+  }
+
+  /**
+   * Creates a new DynamicValue with a unique ident based on a constant values type.
+   * @param identBase The base ident for the unique ident.
+   * @param constantValue The constant value to base the ident on.
+   */
+  public DynamicValue(String identBase, ConstantValue constantValue){
+    this(getUniqueIdent(identBase), constantValue.getType());
+  }
+
+  public static DynamicValue createUnique(String identBase, Type type){
+    return new DynamicValue(getUniqueIdent(identBase), type);
+  }
+
+  public static String getUniqueIdent(String base){
+    return base + "_" + idCounter++;
   }
 
   @Override
@@ -21,5 +45,9 @@ public class DynamicValue implements IValue {
   @Override
   public Object getValue() {
     throw new UnsupportedOperationException();
+  }
+
+  public String getIdent() {
+    return ident;
   }
 }

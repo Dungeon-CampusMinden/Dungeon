@@ -4,32 +4,41 @@ import blockly.vm.dgir.core.serialization.TypeTypeIdResolver;
 import com.fasterxml.jackson.annotation.*;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonTypeInfo(
   use = JsonTypeInfo.Id.CUSTOM,
   include = JsonTypeInfo.As.EXISTING_PROPERTY,
-  property = "type"
+  property = "ident"
 )
 @JsonTypeIdResolver(TypeTypeIdResolver.class)
 public abstract class Type {
-  @JsonProperty("type")
-  public final String fullName;
-  public List<Type> arguments;
+  private final String ident;
+  private final List<Type> arguments;
 
-  public Type(Class<? extends IDialect> dialectClass, String name) {
+  public Type(Class<? extends IDialect> dialectClass, String ident) {
     var dialect = DialectRegistry.getDialect(dialectClass).get();
     if (dialect.getNamespace().isEmpty())
-      this.fullName = name;
+      this.ident = ident;
     else
-      this.fullName = dialect.getNamespace() + "." + name;
+      this.ident = dialect.getNamespace() + "." + ident;
+    this.arguments = new ArrayList<>();
   }
 
   @JsonCreator
-  public Type(@JsonProperty("type") String fullName, @JsonProperty("arguments") List<Type> arguments) {
-    this.fullName = fullName;
+  public Type(@JsonProperty("ident") String ident, @JsonProperty("arguments") List<Type> arguments) {
+    this.ident = ident;
     this.arguments = arguments;
+  }
+
+  public String getIdent() {
+    return ident;
+  }
+
+  public List<Type> getArguments() {
+    return arguments;
   }
 
   @JsonIgnore

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrintOp extends Operation {
-  public List<IInputValue> inputs;
+  private final List<IInputValue> inputs;
 
   public PrintOp() {
     super(IO.class, "print");
@@ -20,5 +20,9 @@ public class PrintOp extends Operation {
   public PrintOp(@JsonProperty("inputs") List<IInputValue> inputs) {
     super(IO.class, "print");
     this.inputs = inputs;
+  }
+
+  public List<IInputValue> getInputs() {
+    return inputs;
   }
 }

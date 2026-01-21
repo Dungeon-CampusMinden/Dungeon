@@ -13,6 +13,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BuiltinTests {
@@ -34,33 +36,20 @@ public class BuiltinTests {
     ObjectMapper mapper = Utility.getMapper(true, true);
 
     ProgramOp op = new ProgramOp();
-    var programRegion = op.region;
+    var programRegion = op.getRegion();
     var progBlock = programRegion.getOrCreateDefaultBlock();
 
-    var funcOp = new FuncOp();
-    funcOp.ident = "func";
-    var funcRegion = funcOp.region;
+    var funcOp = new FuncOp("main");
+    var funcRegion = funcOp.getRegion();
     var funcBlock = funcRegion.getOrCreateDefaultBlock();
     progBlock.operations.add(funcOp);
 
-
-    var textOp = new ConstantOp();
-    var intConst = new ConstantValue();
-    intConst.type = Int32_t.INSTANCE;
-    intConst.value = 42;
-    textOp.setValue(intConst);
+    var textOp = new ConstantOp(new ConstantValue(Int32_t.INSTANCE, 42));
     funcBlock.operations.add(textOp);
 
-    var printOp = new PrintOp();
-    var textConst = new ConstantValue();
-    textConst.type = String_t.INSTANCE;
-    textConst.value = "The answer is: ";
-    printOp.inputs.add(textConst);
-    var valueRef = new ValueRef();
-    valueRef.type = String_t.INSTANCE;
-    valueRef.valueIdent = textOp.output.ident;
-    printOp.inputs.add(valueRef);
-    funcBlock.operations.add(printOp);
+    var textConst = new ConstantValue(String_t.INSTANCE, "The answer is: ");
+    var valueRef = new ValueRef(textOp.getOutput());
+    funcBlock.operations.add(new PrintOp(List.of(textConst, valueRef)));
 
     String result = mapper.writeValueAsString(op);
     System.out.println(result);
