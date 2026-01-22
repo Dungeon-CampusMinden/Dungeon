@@ -7,15 +7,14 @@ public class ComputerStateLocal {
   public static ComputerStateLocal Instance = new ComputerStateLocal();
 
   private String tab;
-  private String username;
-  private String password;
+  private String username = "";
+  private String password = "";
   private EmailsTab.Email selectedEmail;
   private float emailListScrollY;
+  private String browserUrl = "";
 
   public ComputerStateLocal() {
     this.tab = "login";
-    this.username = "";
-    this.password = "";
   }
 
   public String tab(){
@@ -51,5 +50,12 @@ public class ComputerStateLocal {
   }
   public void emailListScrollY(float emailListScrollY) {
     this.emailListScrollY = emailListScrollY;
+  }
+
+  public String browserUrl() {
+    return browserUrl;
+  }
+  public void browserUrl(String browserUrl) {
+    this.browserUrl = browserUrl;
   }
 }

@@ -6,6 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Widget;
+import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
 
 public class CursorUtil {
 
@@ -37,6 +39,10 @@ public class CursorUtil {
 
         while (hit != null) {
           if (hit.getUserObject() instanceof Cursors c) {
+            if(hit instanceof Disableable d && d.isDisabled()){
+              target = Cursors.DISABLED;
+              break;
+            }
             target = c;
             break;
           }

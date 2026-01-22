@@ -14,10 +14,7 @@ import core.Game;
 import core.utils.FontHelper;
 import core.utils.components.draw.TextureGenerator;
 import core.utils.logging.DungeonLogger;
-import modules.computer.content.ComputerTab;
-import modules.computer.content.EmailsTab;
-import modules.computer.content.LoginMask;
-import modules.computer.content.TestMask;
+import modules.computer.content.*;
 import util.Cursors;
 import util.Scene2dElementFactory;
 
@@ -104,7 +101,7 @@ public class ComputerDialog extends Group {
     browserArea.add(exit).height(40).width(40).expandX().right().row();
 
     Image divider = new Image(skin, "divider");
-    browserArea.add(divider).growX().padTop(1).row();
+    browserArea.add(divider).growX().height(5).padTop(1).row();
 
     contentArea = new Table(skin);
     contentArea.padTop(15);
@@ -128,7 +125,7 @@ public class ComputerDialog extends Group {
       addTab(new LoginMask(sharedState));
     } else if (state == ComputerState.LOGGED_IN){
       addTab(new EmailsTab(sharedState));
-      addTab(new TestMask(sharedState, "browser", "Browser", false, Color.CYAN));
+      addTab(new BrowserTab(sharedState));
     }
   }
 
@@ -208,7 +205,7 @@ public class ComputerDialog extends Group {
     tabArea.add(tab).left().height(51).padBottom(-5);
   }
 
-  private void clickedTab(String tabKey){
+  public void clickedTab(String tabKey){
     if(tabKey.equals(activeTab)) return;
     activeTab = tabKey;
     ComputerStateLocal.Instance.tab(tabKey);

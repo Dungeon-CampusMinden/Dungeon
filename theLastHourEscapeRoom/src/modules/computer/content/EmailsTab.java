@@ -34,7 +34,7 @@ public class EmailsTab extends ComputerTab {
       "Dr. Smith",
       "dr.smith@gmail.com",
       "Highly confidential research",
-      "Hiii,\nthis is a test.\\pAnother paragraph\\p\\ahttps://google.com",
+      "Hiii,\nthis is a test.\\pAnother paragraph\\p\\aCheck out this website I made!;https://www.example.com",
       List.of("test.html", "Important.xlsx")
     ),
     new Email(
@@ -43,6 +43,13 @@ public class EmailsTab extends ComputerTab {
       "Unusual login attempt detected",
       "We detected a suspicious sign-in attempt on your account.\\pIf this was not you, verify your identity immediately.\\p\\aVisit Paypa1;https://paypa1.com/secure",
       List.of()
+    ),
+    new Email(
+      "cloud support team",
+      "notifications@cloudservice",
+      "Wir haben Ihr Konto gesperrt! Ihre Fotos und Videos werden am",
+      "\\aZur Löschung vorgesehen;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\aIhr Konto war inaktiv und hat das Speicherlimit überschritten. Gemäß unserer Aufbewahrungsrichtlinien sind Ihre Dateien zur Löschung vorgesehen;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\aDAUERTHAFTER DATENVERLUST\nWenn Sie Ihren Speicherplan nicht bis zum verlängern, werden Ihre Daten dauerhaft von unseren Servern gelöscht;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\p\\aMeine Dateien behalten;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\p\\aAbmelden;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm",
+      List.of("License_renewal.ics")
     ),
     new Email(
       "IT Support",
@@ -73,6 +80,13 @@ public class EmailsTab extends ComputerTab {
       List.of("Meeting_Notes.docx")
     ),
     new Email(
+    "Microsoft Cloud-Speicher",
+      "Microsoft_account_team@onmicrosoft.com",
+      "HEUTE: Ihre Fotos und Videos werden gelöscht - Sofort handeln",
+      "Microsoft\\pKontobenachrichtigung - Cloud-Speicher - SOFORTIGE AKTION\\pSehr geehrte Nutzerin / sehr geehrter Nutzer,\\pDies ist eine AUTOMATISCHE KRITISCHE WARNUNG des Sicherheitssystems von Microsoft.\\pIHRE FOTOS UND VIDEOS\nWERDEN DAUERHAFT GELÖSCHT\\pServicedetails:\\pProdukt: Microsoft Cloud-Speicher\\pAblaufdatum: HEUTE - LETZER TAG\\p\\aSPEICHER JETZT FREISCHALTEN\nKOSTENLOS;https://subkuzb.somelinkshortener.org/4MkOtH235ArQM4epqmbnrkgm18NVSIMYXZAXQPQZB1017602ARSS330N1",
+    List.of()
+    ),
+    new Email(
       "Online Store",
       "no-reply@shop.example",
       "Your order has shipped",
@@ -92,20 +106,6 @@ public class EmailsTab extends ComputerTab {
       "Your order has shipped 3",
       "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
       List.of("Invoice_48392.pdf")
-    ),
-    new Email(
-      "Microsoft Cloud-Speicher",
-      "Microsoft_account_team@onmicrosoft.com",
-      "HEUTE: Ihre Fotos und Videos werden gelöscht - Sofort handeln",
-      "Microsoft\\pKontobenachrichtigung - Cloud-Speicher - SOFORTIGE AKTION\\pSehr geehrte Nutzerin / sehr geehrter Nutzer,\\pDies ist eine AUTOMATISCHE KRITISCHE WARNUNG des Sicherheitssystems von Microsoft.\\pIHRE FOTOS UND VIDEOS\nWERDEN DAUERHAFT GELÖSCHT\\pServicedetails:\\pProdukt: Microsoft Cloud-Speicher\\pAblaufdatum: HEUTE - LETZER TAG\\p\\aSPEICHER JETZT FREISCHALTEN\nKOSTENLOS;https://subkuzb.somelinkshortener.org/4MkOtH235ArQM4epqmbnrkgm18NVSIMYXZAXQPQZB1017602ARSS330N1",
-      List.of()
-    ),
-    new Email(
-      "cloud support team",
-        "notifications@cloudservice",
-        "Your order has shipped 6",
-        "\\aZur Löschung vorgesehen;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\aIhr Konto war inaktiv und hat das Speicherlimit überschritten. Gemäß unserer Aufbewahrungsrichtlinien sind Ihre Dateien zur Löschung vorgesehen;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\aDAUERTHAFTER DATENVERLUST\nWenn Sie Ihren Speicherplan nicht bis zum verlängern, werden Ihre Daten dauerhaft von unseren Servern gelöscht;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\aMeine Dateien behalten;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\p\\aAbmelden;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm",
-      List.of("License_renewal.ics")
     )
   );
 
@@ -117,10 +117,11 @@ public class EmailsTab extends ComputerTab {
   private Email selectedEmail = null;
 
   public EmailsTab(ComputerStateComponent sharedState){
-    super(sharedState, "emails", "E-Mails (5)", false);
+    super(sharedState, "emails", "E-Mails", false);
   }
 
   protected void createActors(){
+    this.title("E-Mails ("+inbox.size()+")");
     this.selectedEmail = localState().selectedEmail();
     this.clearChildren();
     this.add(createEmailListContainer()).growY().top();
@@ -230,19 +231,26 @@ public class EmailsTab extends ComputerTab {
         lineLabel.addListener(new InputListener(){
           @Override
           public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-            Gdx.net.openURI(link.url);
+            BrowserTab.getInstance().ifPresent(bt -> {
+              bt.navigate(link.url);
+              ComputerDialog.getInstance().orElseThrow().clickedTab(bt.key());
+            });
             return super.touchDown(event, x, y, pointer, button);
           }
 
           @Override
           public boolean mouseMoved(InputEvent event, float x, float y) {
-            emailLinkFull.setText(String.format(LINK_SOME, link.url));
+            if(emailLinkFull != null){
+              emailLinkFull.setText(String.format(LINK_SOME, link.url));
+            }
             return super.mouseMoved(event, x, y);
           }
 
           @Override
           public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-            emailLinkFull.setText(LINK_NONE);
+            if(emailLinkFull != null) {
+              emailLinkFull.setText(LINK_NONE);
+            }
             super.exit(event, x, y, pointer, toActor);
           }
         });

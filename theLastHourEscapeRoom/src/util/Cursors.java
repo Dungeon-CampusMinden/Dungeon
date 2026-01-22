@@ -9,6 +9,7 @@ public enum Cursors {
   INTERACT("cursors/pointer_l.png", 8, 7),
   CROSS("cursors/cross_small.png", 16, 16),
   TEXT("cursors/bracket_a_vertical.png", 16, 16),
+  DISABLED("cursors/cursor_disabled.png", 1, 1),
   ;
 
   private final String path;
