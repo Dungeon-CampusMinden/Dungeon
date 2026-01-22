@@ -6,14 +6,14 @@ filter: Linear, Linear
 repeat: none
 exit_clear
   rotate: false
-  xy: 1425, 1618
+  xy: 588, 1467
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
   index: -1
 exit_clear_hovered
   rotate: false
-  xy: 515, 142
+  xy: 27, 10
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
@@ -172,21 +172,21 @@ button_rectangle_gloss
   index: -1
 checkbox
   rotate: false
-  xy: 588, 1469
+  xy: 1425, 1602
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 checkbox-on
   rotate: false
-  xy: 27, 12
+  xy: 1413, 1582
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 cursor
   rotate: false
-  xy: 567, 525
+  xy: 27, 1
   size: 4, 7
   split: 1, 1, 2, 2
   pad: 0, 0, 0, 0
@@ -204,7 +204,7 @@ divider
   index: -1
 divider_vertical
   rotate: false
-  xy: 561, 364
+  xy: 567, 468
   size: 4, 64
   split: 0, 0, 3, 3
   pad: 0, 0, 0, 0
@@ -395,7 +395,7 @@ progress-bar-fill-vert
   index: -1
 progress-bar-small
   rotate: false
-  xy: 249, 48
+  xy: 515, 140
   size: 22, 22
   split: 5, 5, 5, 5
   orig: 22, 22
@@ -411,14 +411,14 @@ progress-bar-smaller
   index: -1
 radio
   rotate: false
-  xy: 273, 54
+  xy: 275, 54
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 radio-on
   rotate: false
-  xy: 2013, 1874
+  xy: 1451, 1622
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -450,6 +450,42 @@ round-white-small
   orig: 24, 24
   offset: 0, 0
   index: -1
+scrollbar_future_grey_small
+  rotate: false
+  xy: 2013, 1866
+  size: 16, 24
+  split: 0, 0, 6, 7
+  pad: 0, 0, 0, 0
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+scrollbar_future_grey_small_horizontal
+  rotate: false
+  xy: 1425, 1622
+  size: 24, 16
+  split: 6, 6, 0, 0
+  pad: 0, 0, 0, 0
+  orig: 24, 16
+  offset: 0, 0
+  index: -1
+scrollbar_future_transparent_small
+  rotate: false
+  xy: 515, 114
+  size: 16, 24
+  split: 0, 0, 8, 6
+  pad: 6, 6, 8, 6
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+scrollbar_future_transparent_small_horizontal
+  rotate: false
+  xy: 249, 54
+  size: 24, 16
+  split: 6, 8, 0, 0
+  pad: 6, 8, 6, 6
+  orig: 24, 16
+  offset: 0, 0
+  index: -1
 selectbox
   rotate: false
   xy: 1425, 1692
@@ -461,7 +497,7 @@ selectbox
   index: -1
 selection
   rotate: false
-  xy: 27, 1
+  xy: 249, 43
   size: 9, 9
   split: 2, 1, 2, 1
   pad: 4, 3, 4, 3
@@ -486,7 +522,7 @@ slider-knob
   index: -1
 slider-vertical
   rotate: false
-  xy: 1413, 1580
+  xy: 539, 142
   size: 9, 20
   split: 4, 3, 3, 3
   pad: 3, 3, 2, 2
