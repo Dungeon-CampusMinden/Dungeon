@@ -21,7 +21,7 @@ public class BuiltinTests {
   public void emptyProgramOp() {
     ObjectMapper mapper = Utility.getMapper(true, true);
 
-    ProgramOp op = new ProgramOp();
+    ProgramOp op = new ProgramOp(true);
 
     String result = mapper.writeValueAsString(op);
     System.out.println(result);
@@ -34,7 +34,7 @@ public class BuiltinTests {
   public void simpleProgramOp() {
     ObjectMapper mapper = Utility.getMapper(true, true);
 
-    ProgramOp op = new ProgramOp();
+    ProgramOp op = new ProgramOp(true);
     var programRegion = op.getOrCreateRegions().getFirst();
     var progBlock = programRegion.getOrCreateDefaultBlock();
 

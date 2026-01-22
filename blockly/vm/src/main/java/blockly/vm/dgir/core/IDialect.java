@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface IDialect {
   String getNamespace();
-  List<Class<? extends Operation>> AllOperations();
-  List<Class<? extends Type>> AllTypes();
-  List<Class<? extends Attribute>> AllAttributes();
+  List<Operation> AllOperations();
+  List<Type> AllTypes();
+  List<Attribute> AllAttributes();
 }
