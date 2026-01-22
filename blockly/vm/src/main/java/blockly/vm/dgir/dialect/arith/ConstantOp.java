@@ -2,30 +2,29 @@ package blockly.vm.dgir.dialect.arith;
 
 import blockly.vm.dgir.core.NamedAttribute;
 import blockly.vm.dgir.core.Operation;
-import blockly.vm.dgir.core.Value;
-import com.fasterxml.jackson.annotation.JsonCreator;
+import blockly.vm.dgir.core.OperationResult;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ConstantOp extends Operation {
-  @JsonCreator
-  public ConstantOp() {
-    super(Arith.class, "const");
-  }
+  public ConstantOp(){}
 
   public ConstantOp(NamedAttribute value) {
-    this();
-    getAttributes().add(value);
+    addAttribute(value);
+    setOutput(new OperationResult(value.getAttribute().getType(), this));
   }
 
+  @JsonIgnore
   public NamedAttribute getValue() {
-    return getAttributes().getFirst();
+    return getOrCreateAttributes().getFirst();
   }
 
   @Override
-  public Value getOutput() {
-    if (super.getOutput() == null)
-    {
-      setOutput(new Value("%x", getValue().getAttribute().getType()));
-    }
-    return super.getOutput();
+  public String getIdent() {
+    return "artih.constant";
+  }
+
+  @Override
+  public String getNamespace() {
+    return "arith";
   }
 }

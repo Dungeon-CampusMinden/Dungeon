@@ -11,13 +11,22 @@ import java.util.List;
 public class PrintOp extends Operation {
   @JsonCreator
   public PrintOp() {
-    super(IO.class, "print");
   }
 
   public PrintOp(List<Value> operands) {
     this();
     for (Value operand : operands) {
-      getOperands().add(new ValueOperand(this, operand));
+      addOperand(new ValueOperand(this, operand));
     }
+  }
+
+  @Override
+  public String getIdent() {
+    return "io.print";
+  }
+
+  @Override
+  public String getNamespace() {
+    return "io";
   }
 }

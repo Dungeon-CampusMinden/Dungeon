@@ -60,7 +60,7 @@ class RegionConverter extends StdConverter<Region, Region> {
   @Override
   public Region convert(Region value) {
     for (var block : value.getBlocks()) {
-      block.parent = value;
+      block.setParent(value);
     }
     return value;
   }

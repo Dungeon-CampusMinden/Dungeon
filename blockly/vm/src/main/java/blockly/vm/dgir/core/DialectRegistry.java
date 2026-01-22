@@ -1,7 +1,5 @@
 package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.type.Type;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,9 +75,9 @@ public class DialectRegistry {
    * @param op      The operation instance.
    */
   public static void addOp(IDialect dialect, Operation op) {
-    OP_DIALECT.put(op.getFullName(), dialect);
-    OPS.put(op.getFullName(), op);
-    OP_TYPES.put(op.getFullName(), op.getClass());
+    OP_DIALECT.put(op.getIdent(), dialect);
+    OPS.put(op.getIdent(), op);
+    OP_TYPES.put(op.getIdent(), op.getClass());
   }
 
   /**
@@ -101,9 +99,9 @@ public class DialectRegistry {
    * @param attribute The attribute instance.
    */
   private static void addAttribute(IDialect dialect, Attribute attribute) {
-    ATTRIBUTES.put(attribute.getName(), attribute);
-    ATTRIBUTE_TYPES.put(attribute.getName(), attribute.getClass());
-    ATTRIBUTE_DIALECT.put(attribute.getName(), dialect);
+    ATTRIBUTES.put(attribute.getIdent(), attribute);
+    ATTRIBUTE_TYPES.put(attribute.getIdent(), attribute.getClass());
+    ATTRIBUTE_DIALECT.put(attribute.getIdent(), dialect);
   }
 
 

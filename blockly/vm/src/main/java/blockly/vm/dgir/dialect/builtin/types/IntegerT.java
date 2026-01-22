@@ -1,6 +1,6 @@
 package blockly.vm.dgir.dialect.builtin.types;
 
-import blockly.vm.dgir.core.type.ParametricType;
+import blockly.vm.dgir.core.ParametricType;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -15,16 +15,16 @@ public class IntegerT extends ParametricType {
   public static final IntegerT INT64 = new IntegerT(64);
 
   public IntegerT() {
-    super(Builtin.class, "int", 32);
+    super(32);
   }
 
   public IntegerT(int width) {
-    super(Builtin.class, "int", width);
+    super(width);
   }
 
   @JsonCreator
   public IntegerT(@JsonProperty("parameters") List<Object> parameters) {
-    super(Builtin.class, "int", parameters);
+    super(parameters);
   }
 
   @JsonIgnore
@@ -54,5 +54,15 @@ public class IntegerT extends ParametricType {
         return false;
       }
     }
+  }
+
+  @Override
+  public String getIdent() {
+    return "int" + getWidth();
+  }
+
+  @Override
+  public String getNamespace() {
+    return "";
   }
 }

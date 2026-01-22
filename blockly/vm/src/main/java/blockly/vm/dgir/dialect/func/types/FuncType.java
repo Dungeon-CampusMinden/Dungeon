@@ -1,6 +1,6 @@
 package blockly.vm.dgir.dialect.func.types;
 
-import blockly.vm.dgir.core.type.Type;
+import blockly.vm.dgir.core.Type;
 import blockly.vm.dgir.dialect.func.Func;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,14 +14,12 @@ public class FuncType extends Type {
   private final Type output;
 
   public FuncType() {
-    super(Func.class, "func");
     inputs = null;
     output = null;
   }
 
   @JsonCreator
   public FuncType(@JsonProperty("inputs") List<Type> inputs, @JsonProperty("output") Type output) {
-    super(Func.class, "func");
     this.inputs = inputs;
     this.output = output;
   }
@@ -37,5 +35,15 @@ public class FuncType extends Type {
   @Override
   public boolean validate(Object value) {
     return false;
+  }
+
+  @Override
+  public String getIdent() {
+    return "func.func";
+  }
+
+  @Override
+  public String getNamespace() {
+    return "func";
   }
 }

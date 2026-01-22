@@ -1,48 +1,41 @@
 package blockly.vm.dgir.dialect.func;
 
-import blockly.vm.dgir.core.IRegionContainingOp;
 import blockly.vm.dgir.core.Operation;
 import blockly.vm.dgir.core.Region;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.UUID;
-
-public class FuncOp extends Operation implements IRegionContainingOp {
-  private final String ident;
-  private final Region region;
+public class FuncOp extends Operation {
+  private String name;
 
   public FuncOp() {
-    super(Func.class, "func");
-    this.ident = "func_" + UUID.randomUUID();
-    region = Region.createWithBlock();
-  }
-
-  public FuncOp(String ident) {
-    super(Func.class, "func");
-    this.ident = ident;
-    region = Region.createWithBlock();
+    this.name = "";
+    addRegion(Region.createWithBlock());
   }
 
   @JsonCreator
-  public FuncOp(@JsonProperty("ident") String ident, @JsonProperty("region") Region region) {
-    super(Func.class, "func");
-    this.ident = ident;
-    this.region = region;
+  public FuncOp(@JsonProperty("name") String name) {
+    this.name = name;
+    if (!hasRegion()){
+      addRegion(Region.createWithBlock());
+    }
   }
 
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @Override
   public String getIdent() {
-    return ident;
+    return "func.func";
   }
 
   @Override
-  public Operation getOperation() {
-    return this;
+  public String getNamespace() {
+    return "func";
   }
-
-  @Override
-  public Region getRegion() {
-    return region;
-  }
-
 }

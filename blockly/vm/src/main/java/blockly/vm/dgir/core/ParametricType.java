@@ -1,11 +1,6 @@
-package blockly.vm.dgir.core.type;
+package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.IDialect;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.List;
 
 /**
  * Used for types that take parameters as a specification, such as bitwidth of an integer.
@@ -14,20 +9,13 @@ import java.util.List;
 public abstract class ParametricType extends Type {
   private final Object parameterStorage;
 
-  public ParametricType(Class<? extends IDialect> dialectClass, String ident, Object parameters) {
-    super(dialectClass, ident);
+  public ParametricType(Object parameters) {
     this.parameterStorage = parameters;
   }
 
   @JsonIgnore
   public Object getParameters() {
     return parameterStorage;
-  }
-
-  // The ident needs to encode the parameters with it
-  @Override
-  public String getIdent() {
-    return super.getIdent() + parameterStorage.toString();
   }
 
   @Override

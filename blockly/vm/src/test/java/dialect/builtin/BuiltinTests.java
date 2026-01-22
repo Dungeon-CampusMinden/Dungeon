@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class BuiltinTests {
   @Test
   public void emptyProgramOp() {
-    ObjectMapper mapper = Utility.getMapper(false, true);
+    ObjectMapper mapper = Utility.getMapper(true, true);
 
     ProgramOp op = new ProgramOp();
 
@@ -34,18 +34,18 @@ public class BuiltinTests {
     ObjectMapper mapper = Utility.getMapper(true, true);
 
     ProgramOp op = new ProgramOp();
-    var programRegion = op.getRegion();
+    var programRegion = op.getOrCreateRegions().getFirst();
     var progBlock = programRegion.getOrCreateDefaultBlock();
 
     var funcOp = new FuncOp("main");
-    var funcRegion = funcOp.getRegion();
+    var funcRegion = funcOp.getOrCreateRegions().getFirst();
     var funcBlock = funcRegion.getOrCreateDefaultBlock();
-    progBlock.operations.add(funcOp);
+    progBlock.addOperation(funcOp);
 
     var textOp = new ConstantOp(new NamedAttribute("value", new IntegerAttribute(42, IntegerT.INT32)));
-    funcBlock.operations.add(textOp);
+    funcBlock.addOperation(textOp);
 
-    funcBlock.operations.add(new PrintOp(List.of(textOp.getOutput())));
+    funcBlock.addOperation(new PrintOp(List.of(textOp.getOutput())));
 
     String result = mapper.writeValueAsString(op);
     System.out.println(result);

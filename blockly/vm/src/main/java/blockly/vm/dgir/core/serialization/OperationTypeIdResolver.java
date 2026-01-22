@@ -28,7 +28,7 @@ public class OperationTypeIdResolver
 
   @Override
   public String idFromValue(DatabindContext ctxt, Object value) {
-    return ((Operation) value).getFullName();
+    return ((Operation) value).getIdent();
   }
 
   @Override

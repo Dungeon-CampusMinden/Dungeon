@@ -1,9 +1,8 @@
 package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.type.Type;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;
@@ -14,38 +13,19 @@ import tools.jackson.databind.type.TypeFactory;
 
 import java.io.Serializable;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "name")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "ident")
 @JsonTypeIdResolver(AttributeIdResolver.class)
-public class Attribute implements Serializable {
-  /**
-   * The type name of the attribute.
-   */
-  private final String name;
+@JsonPropertyOrder({"ident", "type", "value"})
+public abstract class Attribute implements IIdentifiableType, Serializable {
   private final Type type;
 
   public Attribute() {
-    this.name = null;
     this.type = null;
   }
 
-  public Attribute(Class<? extends IDialect> dialectClass, String name, Type type) {
-    this.name = Utility.getFullName(dialectClass, name);
-    this.type = type;
-  }
-
   @JsonCreator
-  public Attribute(@JsonProperty("name") String name, @JsonProperty("type") Type type) {
-    this.name = name;
+  public Attribute(@JsonProperty("type") Type type) {
     this.type = type;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  @JsonIgnore
-  public IDialect getDialect() {
-    return DialectRegistry.getAttributeDialect(name);
   }
 
   public Type getType() {
@@ -57,7 +37,7 @@ class AttributeIdResolver extends TypeIdResolverBase implements java.io.Serializ
   @Override
   public String idFromValue(DatabindContext ctxt, Object value) throws JacksonException {
     if (value instanceof Attribute)
-      return ((Attribute) value).getName();
+      return ((Attribute) value).getIdent();
 
     throw new IllegalArgumentException("Unsupported value type: " + value.getClass().getName());
   }

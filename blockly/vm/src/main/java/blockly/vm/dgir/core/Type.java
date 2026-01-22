@@ -1,8 +1,6 @@
-package blockly.vm.dgir.core.type;
+package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.DialectRegistry;
-import blockly.vm.dgir.core.IDialect;
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
@@ -13,28 +11,15 @@ import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.util.Optional;
-
 @JsonSerialize(using = TypeSerializer.class)
 @JsonDeserialize(using = TypeDeserializer.class)
-public abstract class Type {
-  private final String ident;
-
-  public Type(Class<? extends IDialect> dialectClass, String ident) {
-    var dialect = DialectRegistry.getDialect(dialectClass);
-    if (dialect.getNamespace().isEmpty()) this.ident = ident;
-    else this.ident = dialect.getNamespace() + "." + ident;
-  }
-
-  public IDialect getDialect() {
-    return DialectRegistry.getTypeDialect(getIdent());
-  }
-
-  public String getIdent() {
-    return ident;
-  }
-
+public abstract non-sealed class Type implements IIdentifiableType, ITypeLike {
   public abstract boolean validate(Object value);
+
+  @Override
+  public Type getType(){
+    return this;
+  }
 }
 
 class TypeSerializer extends StdSerializer<Type> {

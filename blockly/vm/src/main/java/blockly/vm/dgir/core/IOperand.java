@@ -2,13 +2,18 @@ package blockly.vm.dgir.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public interface IOperand<ValueT extends Value> {
+public interface IOperand<ValueT extends Value> extends IIdentifiableType {
   /**
    * Get the operation that owns this operand.
    * @return The operation that owns this operand.
    */
   @JsonIgnore
-  public Operation getOwner();
+  Operation getOwner();
+
+  /**
+   * Set the operation that owns this operand.
+   */
+  void setOwner(Operation owner);
 
   /**
    * Get the value being used by this operand.
@@ -16,14 +21,14 @@ public interface IOperand<ValueT extends Value> {
    * @return The value being used by this operand.
    */
   @JsonIgnore
-  public ValueT getValue();
+  ValueT getValue();
 
   /**
    * Set the value being used by this operand.
    */
-  public void setValue(ValueT value);
+  void setValue(ValueT value);
 
   default int GetOperandNumber(){
-    return getOwner().getOperands().indexOf(this);
+    return getOwner().getOrCreateOperands().indexOf(this);
   }
 }

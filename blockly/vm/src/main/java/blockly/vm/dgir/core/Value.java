@@ -1,45 +1,48 @@
 package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.type.Type;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-public class Value {
-  private final String ident;
-  private final Type type;
+import java.io.Serializable;
 
-  private static int idCounter = 0;
-
-  public Value() {
-    this.ident = null;
-    this.type = null;
+@JsonPropertyOrder({"type"})
+public non-sealed abstract class Value implements ITypeLike, Serializable {
+  /**
+   * The kind of value, to draw a distinction between op results and block arguments.
+   */
+  public enum Kind {
+    /**
+     * This Value is the result of an operation.
+     */
+    OpResult,
+    /**
+     * This value is a block argument.
+     */
+    BlockArgument
   }
 
-  @JsonCreator
-  public Value(@JsonProperty("ident") String ident, @JsonProperty("type") Type type) {
-    this.ident = ident;
+  private Type type;
+  private Kind kind;
+
+  protected Value(Type type, Kind kind) {
     this.type = type;
-  }
-
-  public static Value createUnique(String identBase, Type type) {
-    return new Value(getUniqueIdent(identBase), type);
-  }
-
-  public static String getUniqueIdent(String base) {
-    return base + "_" + idCounter++;
+    this.kind = kind;
   }
 
   public Type getType() {
     return type;
   }
 
-  @JsonIgnore
-  public Object getValue() {
-    throw new UnsupportedOperationException();
+  public void setType(Type type) {
+    this.type = type;
   }
 
-  public String getIdent() {
-    return ident;
+  @JsonIgnore
+  public Kind getKind() {
+    return kind;
+  }
+
+  public void setKind(Kind kind) {
+    this.kind = kind;
   }
 }
