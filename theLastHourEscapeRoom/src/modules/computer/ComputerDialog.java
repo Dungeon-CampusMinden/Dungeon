@@ -18,6 +18,7 @@ import modules.computer.content.ComputerTab;
 import modules.computer.content.EmailsTab;
 import modules.computer.content.LoginMask;
 import modules.computer.content.TestMask;
+import util.Cursors;
 import util.Scene2dElementFactory;
 
 import java.util.LinkedHashMap;
@@ -174,6 +175,7 @@ public class ComputerDialog extends Group {
     Label label = new Label(computerTab.title(), labelStyle);
     tab.add(label).pad(0, 15, 0, 15).grow();
     tab.setTouchable(Touchable.enabled);
+    tab.setUserObject(Cursors.INTERACT);
     tab.addListener(new ClickListener(Input.Buttons.LEFT) {
       @Override
       public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {

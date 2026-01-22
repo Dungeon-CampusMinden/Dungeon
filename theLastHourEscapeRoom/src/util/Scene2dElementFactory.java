@@ -4,18 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import contrib.hud.UIUtils;
 import core.utils.FontHelper;
 import core.utils.logging.DungeonLogger;
-import modules.computer.content.EmailsTab;
 
 import java.util.function.Consumer;
 
@@ -36,10 +33,15 @@ public class Scene2dElementFactory {
     return createLabel(text, fontSize, fontColor, 0, Color.BLACK);
   }
 
+  public static Label createLabel(String text, int fontSize){
+    return createLabel(text, fontSize, Color.WHITE);
+  }
+
   public static Button createExitButton(){
     Button element = new Button(DEFAULT_SKIN, "exit-button");
     Texture tex = ((TextureRegionDrawable) element.getStyle().up).getRegion().getTexture();
     tex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+    element.setUserObject(Cursors.CROSS);
     return element;
   }
 
@@ -52,6 +54,7 @@ public class Scene2dElementFactory {
     style.messageFont = font;
 
     element.setStyle(style);
+    element.setUserObject(Cursors.TEXT);
     return element;
   }
 
@@ -73,6 +76,7 @@ public class Scene2dElementFactory {
     Label.LabelStyle style = element.getLabel().getStyle();
     style.font = FontHelper.getFont(FONT_PATH_BOLD, fontSize, Color.WHITE, 0, Color.BLACK);
     element.getLabel().setStyle(style);
+    element.setUserObject(Cursors.INTERACT);
     return element;
   }
   public static TextButton createButton(String text, String styleName) {

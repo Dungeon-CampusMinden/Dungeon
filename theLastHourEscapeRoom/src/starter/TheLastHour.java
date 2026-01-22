@@ -1,6 +1,5 @@
 package starter;
 
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroController;
 import contrib.modules.keypad.KeypadSystem;
@@ -20,6 +19,7 @@ import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import level.LastHourLevel1;
+import util.CursorUtil;
 
 /**
  * Entry point for running a minimal dungeon game instance.
@@ -76,6 +76,7 @@ public class TheLastHour {
           }));
     } else {
       Game.add(EntityFactory.newHero());
+      Game.stage().ifPresent(CursorUtil::initListener);
     }
 
     ECSManagement.add(new CollisionSystem());
@@ -91,4 +92,5 @@ public class TheLastHour {
   private static void onFrame() {
     HeroController.drainAndApplyInputs();
   }
+
 }
