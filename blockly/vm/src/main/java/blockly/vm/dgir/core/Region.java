@@ -57,7 +57,7 @@ public final class Region {
 
   public void addBlockAt(int index, Block block){
     blocks.add(index, block);
-    block.setParent(this);
+    block.owner = this;
   }
 
   public void addBlockBefore(Block block, Block before){
@@ -75,7 +75,7 @@ public final class Region {
   public void removeBlockAt(int index){
     Block block = blocks.remove(index);
     if (block != null){
-      block.setParent(null);
+      block.owner = null;
     }
   }
 }
@@ -87,7 +87,7 @@ class RegionConverter extends StdConverter<Region, Region> {
   @Override
   public Region convert(Region value) {
     for (var block : value.getBlocks()) {
-      block.setParent(value);
+      block.owner = value;
     }
     return value;
   }

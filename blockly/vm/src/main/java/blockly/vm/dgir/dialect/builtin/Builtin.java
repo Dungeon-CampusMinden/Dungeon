@@ -20,7 +20,7 @@ public class Builtin implements IDialect {
   @Override
   public List<Operation> AllOperations() {
     return List.of(
-      new ProgramOp()
+
     );
   }
 

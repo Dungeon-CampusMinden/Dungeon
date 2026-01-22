@@ -3,7 +3,6 @@ package blockly.vm.dgir.dialect.builtin.attributes;
 import blockly.vm.dgir.core.Attribute;
 import blockly.vm.dgir.dialect.builtin.types.StringT;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class StringAttribute extends Attribute {

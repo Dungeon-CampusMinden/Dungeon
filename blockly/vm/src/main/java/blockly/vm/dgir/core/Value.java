@@ -25,8 +25,8 @@ public non-sealed abstract class Value implements ITypeLike, Serializable {
     BlockArgument
   }
 
-  private Type type;
-  private Kind kind;
+  private final Type type;
+  private final Kind kind;
 
   protected Value(Type type, Kind kind) {
     this.type = type;
@@ -37,17 +37,9 @@ public non-sealed abstract class Value implements ITypeLike, Serializable {
     return type;
   }
 
-  public void setType(Type type) {
-    this.type = type;
-  }
-
   @JsonIgnore
   public Kind getKind() {
     return kind;
-  }
-
-  public void setKind(Kind kind) {
-    this.kind = kind;
   }
 }
 

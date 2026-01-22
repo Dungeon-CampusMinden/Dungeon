@@ -38,15 +38,17 @@ public class BuiltinTests {
     var programRegion = op.getOrCreateRegions().getFirst();
     var progBlock = programRegion.getOrCreateDefaultBlock();
 
-    var funcOp = new FuncOp("main");
+    var funcOp = new FuncOp("main", true);
     var funcRegion = funcOp.getOrCreateRegions().getFirst();
     var funcBlock = funcRegion.getOrCreateDefaultBlock();
     progBlock.addOperation(funcOp);
 
-    var textOp = new ConstantOp(new NamedAttribute("value", new StringAttribute("The answer is: ")));
+    var textOp = new ConstantOp();
+    textOp.setValue(new StringAttribute("Hello World!"));
     funcBlock.addOperation(textOp);
 
-    var numberTextOP = new ConstantOp(new NamedAttribute("value", new IntegerAttribute(42, IntegerT.INT32)));
+    var numberTextOP = new ConstantOp();
+    numberTextOP.setValue(new IntegerAttribute(42));
     funcBlock.addOperation(numberTextOP);
 
     funcBlock.addOperation(new PrintOp(List.of(textOp.getOutput(), numberTextOP.getOutput())));

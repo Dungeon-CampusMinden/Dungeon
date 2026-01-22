@@ -9,64 +9,43 @@ import java.util.List;
 import java.util.Optional;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public abstract class Operation implements IIdentifiableType, Cloneable, Serializable {
+public abstract class Operation implements IIdentifiableType, Serializable {
   /**
    * The input values of this operation.
    */
+  @JsonManagedReference
   private List<ValueOperand> operands;
 
   /**
    * The output of this operation.
    */
+  @JsonManagedReference
   private OperationResult output;
 
   /**
    * The attributes of this operation.
    */
+  @JsonManagedReference
   private List<NamedAttribute> attributes;
 
   /**
    * The regions of this operation.
    */
+  @JsonManagedReference
   private List<Region> regions;
 
   /**
    * The parent block of this operation.
    */
-  private Block parent;
-
-  public Operation() {
-    operands = null;
-    output = null;
-    attributes = null;
-    regions = null;
-  }
-
-  @JsonCreator
-  public Operation(@JsonProperty("operands") List<ValueOperand> operands, @JsonProperty("output") OperationResult output, @JsonProperty("attributes") List<NamedAttribute> attributes, @JsonProperty("regions") List<Region> regions) {
-    this.operands = operands;
-    this.output = output;
-    this.attributes = attributes;
-    this.regions = regions;
-  }
-
-  @Override
-  public Operation clone() {
-    try {
-      Operation clone = (Operation) super.clone();
-      clone.output = this.output;
-      return clone;
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError();
-    }
-  }
+  @JsonBackReference
+  public Block owner;
 
   /**
    * Remove the operation from its currently containing block
    */
   public void removeFromBlock() {
-    if (parent != null)
-      parent.removeOperation(this);
+    if (owner != null)
+      owner.removeOperation(this);
   }
 
 
@@ -113,6 +92,7 @@ public abstract class Operation implements IIdentifiableType, Cloneable, Seriali
   public void addOperand(ValueOperand operand) {
     var operands = getOrCreateOperands();
     operands.add(operand);
+    operand.owner = this;
   }
 
   /**
@@ -198,13 +178,59 @@ public abstract class Operation implements IIdentifiableType, Cloneable, Seriali
   }
 
   /**
+   * Get or create the attribute with the given name.
+   *
+   * @param name         The name of the attribute.
+   * @param defaultValue The default value of the attribute if it does not exist.
+   * @return The attribute.
+   */
+  public NamedAttribute getOrCreateAttribute(String name, Attribute defaultValue) {
+    return getOrCreateAttributes().stream().filter(a -> a.getName().equals(name)).findFirst().orElseGet(() -> {
+      NamedAttribute attribute = new NamedAttribute(name, defaultValue, this);
+      addAttribute(attribute);
+      return attribute;
+    });
+  }
+
+  /**
+   * Get the attribute with the given name.
+   * @param name The name of the attribute.
+   * @return The attribute.
+   */
+  public Optional<NamedAttribute> getAttribute(String name) {
+    return getOrCreateAttributes().stream().filter(a -> a.getName().equals(name)).findFirst();
+  }
+
+  /**
+   * Add an attribute to this operation.
+   *
+   * @param attribute the attribute to add
+   */
+  public void addAttribute(String name, Attribute attribute) {
+    var attributes = getOrCreateAttributes();
+    if (!attributeExists(name)) {
+      attributes.add(new NamedAttribute(name, attribute, this));
+    } else {
+      throw new IllegalArgumentException("Attribute with name " + name + " already exists.");
+    }
+  }
+
+  /**
    * Add an attribute to this operation.
    *
    * @param attribute the attribute to add
    */
   public void addAttribute(NamedAttribute attribute) {
     var attributes = getOrCreateAttributes();
-    attributes.add(attribute);
+    if (!attributeExists(attribute.getName())) {
+      attributes.add(attribute);
+    } else {
+      throw new IllegalArgumentException("Attribute with name " + attribute.getName() + " already exists.");
+    }
+  }
+
+  public boolean attributeExists(String name) {
+    return getOrCreateAttributes().stream().anyMatch(a -> a.getName().equals(name));
   }
 
   /**
@@ -299,16 +325,5 @@ public abstract class Operation implements IIdentifiableType, Cloneable, Seriali
    */
   protected void setRegions(List<Region> regions) {
     this.regions = regions;
-  }
-
-  // ---------- Regions --------------------------------------------
-
-  @JsonIgnore
-  public Block getParent() {
-    return parent;
-  }
-
-  public void setParent(Block parent) {
-    this.parent = parent;
   }
 }

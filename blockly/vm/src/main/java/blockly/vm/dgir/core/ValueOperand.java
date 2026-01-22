@@ -1,30 +1,16 @@
 package blockly.vm.dgir.core;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 /**
  * A reference to a dynamic value, which could be supplied by an operation,
  * or other source such as block arguments.
  * */
-public final class ValueOperand implements IOperand<Value>, ITypeLike {
-  private Operation owner;
+public final class ValueOperand extends Operand<Value> implements ITypeLike {
   private Value value;
 
-  public ValueOperand() {
-    this.owner = null;
-    this.value = null;
-  }
-
-  public ValueOperand(Operation owner, Value value) {
-    this.owner = owner;
+  public ValueOperand(Value value) {
     this.value = value;
-  }
-
-  @Override
-  public Operation getOwner() {
-    return owner;
-  }
-
-  public void setOwner(Operation owner) {
-    this.owner = owner;
   }
 
   @Override

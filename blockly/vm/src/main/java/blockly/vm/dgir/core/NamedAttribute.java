@@ -1,24 +1,29 @@
 package blockly.vm.dgir.core;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public final class NamedAttribute {
-  private String name;
+  private final String name;
   private Attribute attribute;
+  @JsonBackReference
+  public Operation owner;
+
+  public NamedAttribute(String name, Attribute attribute, Operation owner) {
+    this.name = name;
+    this.attribute = attribute;
+    this.owner = owner;
+  }
 
   @JsonCreator
-  public NamedAttribute(@JsonProperty("name") String name,@JsonProperty("attribute") Attribute attribute) {
+  private NamedAttribute(@JsonProperty("name") String name, @JsonProperty("attribute") Attribute attribute) {
     this.name = name;
     this.attribute = attribute;
   }
 
   public String getName() {
     return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
   }
 
   public Attribute getAttribute() {

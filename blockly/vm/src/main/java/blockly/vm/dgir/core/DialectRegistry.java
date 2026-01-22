@@ -197,7 +197,8 @@ public class DialectRegistry {
     if (op == null) {
       throwErrorCase(fullName);
     }
-    return op.clone();
+    // TODO This op needs cloning
+    return op;
   }
 
   /**

@@ -2,23 +2,17 @@ package blockly.vm.dgir.dialect.func;
 
 import blockly.vm.dgir.core.Operation;
 import blockly.vm.dgir.core.Region;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class FuncOp extends Operation {
   private String name;
 
-  public FuncOp() {
-    this.name = "";
-    addRegion(Region.createWithBlock());
+  FuncOp() {
   }
 
-  @JsonCreator
-  public FuncOp(@JsonProperty("name") String name) {
-    this.name = name;
-    if (!hasRegion()){
+  public FuncOp(String name, boolean withDefaultRegion) {
+    setName(name);
+    if (withDefaultRegion)
       addRegion(Region.createWithBlock());
-    }
   }
 
   public String getName() {

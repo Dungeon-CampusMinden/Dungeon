@@ -1,9 +1,8 @@
 package blockly.vm.dgir.core;
 
 import com.fasterxml.jackson.annotation.*;
-import tools.jackson.databind.annotation.JsonDeserialize;
-import tools.jackson.databind.util.StdConverter;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,13 +14,13 @@ import java.util.Optional;
  * Blocks are always attached to a {@link Region}.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-// JsonDeserialize is run after the full deserialization and used to update the references in the children
-@JsonDeserialize(converter = BlockConverter.class)
+@JsonIdentityInfo(generator = BlockSequenceGenerator.class, property = "@id")
 public final class Block implements Serializable {
   private List<BlockArgument> arguments;
   private final List<Operation> operations;
 
-  private Region parent;
+  @JsonBackReference
+  public Region owner;
 
   public Block() {
     this.arguments = null;
@@ -29,21 +28,12 @@ public final class Block implements Serializable {
   }
 
   @JsonCreator
-  public Block(@JsonProperty("name") String name,
-               @JsonProperty("arguments") List<BlockArgument> arguments,
+  public Block(@JsonProperty("arguments") List<BlockArgument> arguments,
                @JsonProperty("operations") List<Operation> operations) {
     this.arguments = arguments;
     this.operations = operations;
   }
 
-  @JsonIgnore
-  public Region getParent() {
-    return parent;
-  }
-
-  public void setParent(Region parent) {
-    this.parent = parent;
-  }
 
   @JsonIgnore
   public Optional<List<BlockArgument>> getArguments() {
@@ -60,20 +50,6 @@ public final class Block implements Serializable {
     return arguments;
   }
 
-  public void setOperations(List<Operation> operations) {
-    for (var op : this.operations)
-      op.setParent(null);
-    this.operations.clear();
-
-    // Make sure the operation is not attached to a block anymore
-    for (var op : operations)
-      op.removeFromBlock();
-
-    this.operations.addAll(operations);
-    for (var op : this.operations)
-      op.setParent(this);
-  }
-
   public List<Operation> getOperations() {
     return Collections.unmodifiableList(operations);
   }
@@ -85,7 +61,7 @@ public final class Block implements Serializable {
   public void insertOperationAt(Operation op, int index) {
     op.removeFromBlock();
     operations.add(index, op);
-    op.setParent(this);
+    op.owner = this;
   }
 
   public void insertOperationBefore(Operation op, Operation before) {
@@ -99,25 +75,73 @@ public final class Block implements Serializable {
   public void removeOperation(Operation op) {
     var result = operations.remove(op);
     if (result)
-      op.setParent(null);
+      op.owner = null;
   }
 
   public void removeOperationAt(int index) {
     var op = operations.remove(index);
     if (op != null)
-      op.setParent(null);
+      op.owner = null;
   }
 }
 
 /**
- * Used to update references post deserialization.
+ * Generates unique IDs for block instances. This is used by Jackson to serialize/deserialize
+ * e.g. ".blk_0" ".blk_1" ...
  */
-class BlockConverter extends StdConverter<Block, Block> {
+final class BlockSequenceGenerator extends ObjectIdGenerator<String> {
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+  private transient int _nextIndex;
+
+  private final Class<?> _scope;
+
+  public BlockSequenceGenerator() {
+    this(Object.class, -1);
+  }
+
+  private BlockSequenceGenerator(Class<?> scope, int fv) {
+    _scope = scope;
+  }
+
   @Override
-  public Block convert(Block value) {
-    for (var op : value.getOperations()) {
-      op.setParent(value);
+  public final Class<?> getScope() {
+    return _scope;
+  }
+
+  @Override
+  public boolean canUseFor(ObjectIdGenerator<?> gen) {
+    return (gen.getClass() == getClass()) && (gen.getScope() == _scope);
+  }
+
+  private int initialValue() {
+    return 1;
+  }
+
+  @Override
+  public ObjectIdGenerator<String> forScope(Class<?> scope) {
+    return (_scope == scope) ? this : new BlockSequenceGenerator(scope, _nextIndex);
+  }
+
+  @Override
+  public ObjectIdGenerator<String> newForSerialization(Object context) {
+    return new BlockSequenceGenerator(_scope, initialValue());
+  }
+
+  @Override
+  public IdKey key(Object key) {
+    if (key == null) {
+      return null;
     }
-    return value;
+    return new IdKey(getClass(), _scope, key);
+  }
+
+  @Override
+  public String generateId(Object forPojo) {
+    if (forPojo == null) {
+      return null;
+    }
+    return ".blk_" + _nextIndex++;
   }
 }

@@ -1,21 +1,17 @@
 package blockly.vm.dgir.core;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A reference to a value used as an operand to an operation.
+ *
  * @param <ValueT> The type of value being referenced. Typically, a value but could also be a block or other type (branching operations)
  */
-public interface IOperand<ValueT extends Value> extends IIdentifiableType {
-  /**
-   * Get the operation that owns this operand.
-   * @return The operation that owns this operand.
-   */
-  @JsonIgnore
-  Operation getOwner();
-
+public abstract class Operand<ValueT extends Value> implements IIdentifiableType {
+  @JsonBackReference
+  public Operation owner;
 
   /**
    * Get the value being used by this operand.
@@ -23,14 +19,16 @@ public interface IOperand<ValueT extends Value> extends IIdentifiableType {
    * @return The value being used by this operand.
    */
   @JsonIdentityReference(alwaysAsId = true)
-  ValueT getValue();
+  abstract ValueT getValue();
 
   /**
    * Set the value being used by this operand.
+   *
+   * @param value The new value.
    */
-  void setValue(ValueT value);
+  abstract void setValue(ValueT value);
 
-  default int GetOperandNumber(){
-    return getOwner().getOrCreateOperands().indexOf(this);
+  public int GetOperandNumber() {
+    return owner.getOrCreateOperands().indexOf(this);
   }
 }
