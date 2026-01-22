@@ -6,14 +6,19 @@ import tools.jackson.databind.util.StdConverter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * A block containing a list of {@link Operation}.
+ * Blocks are always attached to a {@link Region}.
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 // JsonDeserialize is run after the full deserialization and used to update the references in the children
 @JsonDeserialize(converter = BlockConverter.class)
 public final class Block implements Serializable {
-  private List<Argument> arguments;
+  private List<BlockArgument> arguments;
   private final List<Operation> operations;
 
   private Region parent;
@@ -25,7 +30,7 @@ public final class Block implements Serializable {
 
   @JsonCreator
   public Block(@JsonProperty("name") String name,
-               @JsonProperty("arguments") List<Argument> arguments,
+               @JsonProperty("arguments") List<BlockArgument> arguments,
                @JsonProperty("operations") List<Operation> operations) {
     this.arguments = arguments;
     this.operations = operations;
@@ -41,41 +46,66 @@ public final class Block implements Serializable {
   }
 
   @JsonIgnore
-  public Optional<List<Argument>> getArguments() {
+  public Optional<List<BlockArgument>> getArguments() {
     return Optional.ofNullable(arguments);
   }
 
   @JsonIgnore
-  public List<Argument> getOrCreateArguments() {
+  public List<BlockArgument> getOrCreateArguments() {
     return arguments == null ? arguments = new ArrayList<>() : arguments;
   }
 
   @JsonProperty("arguments")
-  private List<Argument> getArgumentsRaw() {
+  private List<BlockArgument> getArgumentsRaw() {
     return arguments;
   }
 
+  public void setOperations(List<Operation> operations) {
+    for (var op : this.operations)
+      op.setParent(null);
+    this.operations.clear();
+
+    // Make sure the operation is not attached to a block anymore
+    for (var op : operations)
+      op.removeFromBlock();
+
+    this.operations.addAll(operations);
+    for (var op : this.operations)
+      op.setParent(this);
+  }
+
   public List<Operation> getOperations() {
-    return operations;
+    return Collections.unmodifiableList(operations);
   }
 
   public void addOperation(Operation op) {
-    operations.add(op);
+    insertOperationAt(op, operations.size());
   }
 
-  public void setOperations(List<Operation> operations) {
-    this.operations.clear();
-    this.operations.addAll(operations);
+  public void insertOperationAt(Operation op, int index) {
+    op.removeFromBlock();
+    operations.add(index, op);
+    op.setParent(this);
   }
 
   public void insertOperationBefore(Operation op, Operation before) {
-    int index = operations.indexOf(before);
-    operations.add(index, op);
+    insertOperationAt(op, operations.indexOf(before));
   }
 
   public void insertOperationAfter(Operation op, Operation after) {
-    int index = operations.indexOf(after) + 1;
-    operations.add(index, op);
+    insertOperationAt(op, operations.indexOf(after) + 1);
+  }
+
+  public void removeOperation(Operation op) {
+    var result = operations.remove(op);
+    if (result)
+      op.setParent(null);
+  }
+
+  public void removeOperationAt(int index) {
+    var op = operations.remove(index);
+    if (op != null)
+      op.setParent(null);
   }
 }
 

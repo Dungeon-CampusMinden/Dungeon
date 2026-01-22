@@ -1,8 +1,9 @@
 package blockly.vm.dgir.core;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
+/**
+ * A reference to a dynamic value, which could be supplied by an operation,
+ * or other source such as block arguments.
+ * */
 public final class ValueOperand implements IOperand<Value>, ITypeLike {
   private Operation owner;
   private Value value;

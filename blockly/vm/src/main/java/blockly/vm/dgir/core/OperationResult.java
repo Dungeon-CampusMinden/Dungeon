@@ -1,6 +1,8 @@
 package blockly.vm.dgir.core;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 public class OperationResult extends Value {
   private Operation owner;

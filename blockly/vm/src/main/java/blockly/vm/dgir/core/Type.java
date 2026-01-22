@@ -1,6 +1,7 @@
 package blockly.vm.dgir.core;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
@@ -13,6 +14,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
 
 @JsonSerialize(using = TypeSerializer.class)
 @JsonDeserialize(using = TypeDeserializer.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
 public abstract non-sealed class Type implements IIdentifiableType, ITypeLike {
   public abstract boolean validate(Object value);
 

@@ -5,6 +5,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.util.StdConverter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 // JsonDeserialize is run after the full deserialization and used to update the references in the children
@@ -36,20 +37,46 @@ public final class Region {
   public Block getOrCreateDefaultBlock() {
     return blocks.stream().findFirst().orElseGet(() -> {
       Block block = new Block();
-      blocks.add(block);
+      addBlock(block);
       return block;
     });
   }
 
+  /**
+   * Get the blocks in this region.
+   *
+   * @return An unmodifiable list of blocks.
+   */
   public List<Block> getBlocks() {
-    return blocks;
+    return Collections.unmodifiableList(blocks);
   }
 
+  public void addBlock(Block block) {
+    addBlockAt(blocks.size(), block);
+  }
 
-  private static int blockId = 0;
-  @JsonIgnore
-  public int getNewBlockId() {
-    return blockId++;
+  public void addBlockAt(int index, Block block){
+    blocks.add(index, block);
+    block.setParent(this);
+  }
+
+  public void addBlockBefore(Block block, Block before){
+    addBlockAt(blocks.indexOf(before), block);
+  }
+
+  public void addBlockAfter(Block block, Block after){
+    addBlockAt(blocks.indexOf(after) + 1, block);
+  }
+
+  public void removeBlock(Block block){
+    removeBlockAt(blocks.indexOf(block));
+  }
+
+  public void removeBlockAt(int index){
+    Block block = blocks.remove(index);
+    if (block != null){
+      block.setParent(null);
+    }
   }
 }
 

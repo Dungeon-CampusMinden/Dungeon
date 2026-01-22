@@ -16,6 +16,9 @@ public class DialectRegistry {
   // Reference from dialect name to instance
   private static final Map<String, IDialect> DIALECT_INSTANCES = new HashMap<>();
 
+  // ------- Global --------
+  private static final Map<String, Class<?>> ALL_TYPES = new HashMap<>();
+
   // ------- OPS --------
   // Map namespace to operations and operation name to operation
   private static final Map<String, Operation> OPS = new HashMap<>();
@@ -68,6 +71,13 @@ public class DialectRegistry {
     throw new IllegalArgumentException("Could not find dialect or dialect element: " + name + "\nMake sure it is registered in the dialect registry!");
   }
 
+  public static void addToGlobalTypes(String id, Class<?> clazz) {
+    if (ALL_TYPES.containsKey(id)) {
+      throw new IllegalArgumentException("Type with id " + id + " already exists!");
+    }
+    ALL_TYPES.put(id, clazz);
+  }
+
   /**
    * Add an operation to the registry.
    *
@@ -78,6 +88,7 @@ public class DialectRegistry {
     OP_DIALECT.put(op.getIdent(), dialect);
     OPS.put(op.getIdent(), op);
     OP_TYPES.put(op.getIdent(), op.getClass());
+    ALL_TYPES.put(op.getIdent(), op.getClass());
   }
 
   /**
@@ -90,6 +101,7 @@ public class DialectRegistry {
     TYPE_DIALECT.put(type.getIdent(), dialect);
     TYPES.put(type.getIdent(), type);
     TYPE_TYPES.put(type.getIdent(), type.getClass());
+    ALL_TYPES.put(type.getIdent(), type.getClass());
   }
 
   /**
@@ -102,6 +114,7 @@ public class DialectRegistry {
     ATTRIBUTES.put(attribute.getIdent(), attribute);
     ATTRIBUTE_TYPES.put(attribute.getIdent(), attribute.getClass());
     ATTRIBUTE_DIALECT.put(attribute.getIdent(), dialect);
+    ALL_TYPES.put(attribute.getIdent(), attribute.getClass());
   }
 
 
@@ -150,6 +163,22 @@ public class DialectRegistry {
       throwErrorCase(dialectNamespace);
     }
     return dialectType;
+  }
+
+  // ------- Dialects -------------------------------------------------------------------------------
+
+  /**
+   * Searches all types for the given id.
+   * @param id The id of the type.
+   * @return The type class.
+   * @throws IllegalArgumentException If the type or dialect does not exist.
+   */
+  public static Class<?> getTypeClass(String id) throws IllegalArgumentException {
+    var typeClass = ALL_TYPES.get(id);
+    if (typeClass == null) {
+      throwErrorCase(id);
+    }
+    return typeClass;
   }
 
   // ------- Ops -------------------------------------------------------------------------------

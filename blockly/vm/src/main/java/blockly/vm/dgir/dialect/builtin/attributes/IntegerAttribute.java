@@ -33,7 +33,7 @@ public class IntegerAttribute extends Attribute {
 
   @Override
   public String getIdent() {
-    return "IntegerAttr";
+    return "integerAttr";
   }
 
   @Override

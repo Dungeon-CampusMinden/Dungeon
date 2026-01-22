@@ -3,6 +3,7 @@ package dialect.builtin;
 import blockly.vm.dgir.core.NamedAttribute;
 import blockly.vm.dgir.core.serialization.Utility;
 import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
+import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
 import blockly.vm.dgir.dialect.builtin.types.IntegerT;
 import blockly.vm.dgir.dialect.arith.ConstantOp;
 import blockly.vm.dgir.dialect.builtin.ProgramOp;
@@ -42,10 +43,13 @@ public class BuiltinTests {
     var funcBlock = funcRegion.getOrCreateDefaultBlock();
     progBlock.addOperation(funcOp);
 
-    var textOp = new ConstantOp(new NamedAttribute("value", new IntegerAttribute(42, IntegerT.INT32)));
+    var textOp = new ConstantOp(new NamedAttribute("value", new StringAttribute("The answer is: ")));
     funcBlock.addOperation(textOp);
 
-    funcBlock.addOperation(new PrintOp(List.of(textOp.getOutput())));
+    var numberTextOP = new ConstantOp(new NamedAttribute("value", new IntegerAttribute(42, IntegerT.INT32)));
+    funcBlock.addOperation(numberTextOP);
+
+    funcBlock.addOperation(new PrintOp(List.of(textOp.getOutput(), numberTextOP.getOutput())));
 
     String result = mapper.writeValueAsString(op);
     System.out.println(result);

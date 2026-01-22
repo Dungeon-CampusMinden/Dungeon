@@ -3,7 +3,7 @@ package blockly.vm.dgir.core;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class NamedAttribute {
+public final class NamedAttribute {
   private String name;
   private Attribute attribute;
 

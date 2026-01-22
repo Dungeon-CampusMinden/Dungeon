@@ -1,8 +1,6 @@
 package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.serialization.OperationTypeIdResolver;
 import com.fasterxml.jackson.annotation.*;
-import tools.jackson.databind.annotation.JsonTypeIdResolver;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -10,9 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@JsonPropertyOrder({"ident"})
-@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "ident")
-@JsonTypeIdResolver(OperationTypeIdResolver.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class Operation implements IIdentifiableType, Cloneable, Serializable {
   /**
@@ -65,6 +60,15 @@ public abstract class Operation implements IIdentifiableType, Cloneable, Seriali
       throw new AssertionError();
     }
   }
+
+  /**
+   * Remove the operation from its currently containing block
+   */
+  public void removeFromBlock() {
+    if (parent != null)
+      parent.removeOperation(this);
+  }
+
 
   // ---------- Operands --------------------------------------------
 
@@ -162,6 +166,7 @@ public abstract class Operation implements IIdentifiableType, Cloneable, Seriali
 
   /**
    * Only used for serialization.
+   *
    * @return The attributes.
    */
   @JsonProperty("attributes")
@@ -233,6 +238,7 @@ public abstract class Operation implements IIdentifiableType, Cloneable, Seriali
 
   /**
    * Only used for serialization.
+   *
    * @return The regions.
    */
   @JsonProperty("regions")

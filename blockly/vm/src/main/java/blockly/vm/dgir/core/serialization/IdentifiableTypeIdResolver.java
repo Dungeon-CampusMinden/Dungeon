@@ -1,7 +1,7 @@
 package blockly.vm.dgir.core.serialization;
 
 import blockly.vm.dgir.core.DialectRegistry;
-import blockly.vm.dgir.core.Operation;
+import blockly.vm.dgir.core.IIdentifiableType;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;
@@ -11,28 +11,21 @@ import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import tools.jackson.databind.type.TypeFactory;
 
 import java.io.Serial;
-import java.util.Optional;
 
-/**
- * Resolves the concrete operation class based on namespace.name identifiers.
- */
-public class OperationTypeIdResolver
-  extends TypeIdResolverBase
+public class IdentifiableTypeIdResolver extends TypeIdResolverBase
   implements java.io.Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public OperationTypeIdResolver() {
-    super(TypeFactory.unsafeSimpleType(Operation.class));
+  @Override
+  public String idFromValue(DatabindContext ctxt, Object value) throws JacksonException {
+    if (value instanceof IIdentifiableType)
+      return ((IIdentifiableType) value).getIdent();
+    throw new IllegalArgumentException("Unsupported value type: " + value.getClass().getName() + "\nMake sure it implements IIdentifiableType");
   }
 
   @Override
-  public String idFromValue(DatabindContext ctxt, Object value) {
-    return ((Operation) value).getIdent();
-  }
-
-  @Override
-  public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) {
+  public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) throws JacksonException {
     return idFromValue(ctxt, value);
   }
 
@@ -49,7 +42,7 @@ public class OperationTypeIdResolver
     }
 
     try {
-      return TypeFactory.unsafeSimpleType(DialectRegistry.getOpType(id));
+      return TypeFactory.unsafeSimpleType(DialectRegistry.getTypeClass(id));
     } catch (IllegalArgumentException e) {
       if (deserializationContext != null) {
         throw deserializationContext.invalidTypeIdException(_baseType, id, e.getMessage());
