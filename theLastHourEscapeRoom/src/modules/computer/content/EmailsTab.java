@@ -1,27 +1,22 @@
 package modules.computer.content;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
-import core.utils.components.draw.TextureGenerator;
 import modules.computer.ComputerDialog;
-import modules.computer.ComputerState;
 import modules.computer.ComputerStateComponent;
-import modules.computer.ComputerStateLocal;
 import util.Scene2dElementFactory;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -82,6 +77,41 @@ public class EmailsTab extends ComputerTab {
       "Your order has shipped",
       "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
       List.of("Invoice_48392.pdf")
+    ),
+    new Email(
+      "Online Store",
+      "no-reply@shop.example",
+      "Your order has shipped",
+      "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
+      List.of("Invoice_48392.pdf")
+    ),
+    new Email(
+      "Online Store",
+      "no-reply@shop.example",
+      "Your order has shipped",
+      "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
+      List.of("Invoice_48392.pdf")
+    ),
+    new Email(
+      "Online Store",
+      "no-reply@shop.example",
+      "Your order has shipped",
+      "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
+      List.of("Invoice_48392.pdf")
+    ),
+    new Email(
+      "Online Store",
+      "no-reply@shop.example",
+      "Your order has shipped",
+      "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
+      List.of("Invoice_48392.pdf")
+    ),
+    new Email(
+      "Online Store",
+        "no-reply@shop.example",
+        "Your order has shipped",
+        "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
+      List.of("Invoice_48392.pdf")
     )
   );
 
@@ -93,14 +123,16 @@ public class EmailsTab extends ComputerTab {
   }
 
   protected void createActors(){
+    this.selectedEmail = localState().selectedEmail();
     this.clearChildren();
-    this.add(createEmailListContainer()).top();
+    this.add(createEmailListContainer()).growY().top();
     this.add(Scene2dElementFactory.createVerticalDivider()).width(4).pad(0, 10, 0, 10).fillY();
     emailDetailsContainer = createEmailDetailsContainer();
     this.add(emailDetailsContainer).grow();
   }
 
   private Table createEmailListContainer(){
+    System.out.println("Rebuilding email list container");
     Table container = new Table();
 
     Label inboxLabel = Scene2dElementFactory.createLabel(MAILBOX_NAME, 64, Color.BLACK);
@@ -110,19 +142,23 @@ public class EmailsTab extends ComputerTab {
     container.add(userLabel).left().padBottom(20).row();
 
     Table subArea = new Table();
-    container.add(subArea).grow().padLeft(30).row();
+    container.add(subArea).grow().padLeft(15).row();
 
     Label emailsLabel = Scene2dElementFactory.createLabel("E-Mails: ("+inbox.size()+")", 24, Color.BLACK);
     subArea.add(emailsLabel).expandX().left().padBottom(10).row();
 
-    Table emailList = new Table(skin);
-    emailList.setBackground("generic-area");
-    emailList.top();
+    Table emailList = new Table();
+    emailList.top().left();
+
+    ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(emailList, false, true);
+    // Action to constantly save scroll position, since we want to restore it when reopening the computer UI / this tab
+    scrollPane.addAction(Actions.forever(Actions.run(() -> localState().emailListScrollY(scrollPane.getVisualScrollY()))));
     for(Email email : inbox){
       Table emailEntry = createEmailHeader(email);
-      emailList.add(emailEntry).height(50).left().padBottom(5).row();
+      emailList.add(emailEntry).height(50).left().padBottom(5).padRight(16 + 5).growX().row();
     }
-    subArea.add(emailList).left().growY();
+    subArea.add(scrollPane).left().growY();
+    Scene2dElementFactory.scrollPaneScrollTo(scrollPane, 0, localState().emailListScrollY());
 
     return container;
   }
@@ -219,6 +255,7 @@ public class EmailsTab extends ComputerTab {
   private void showEmail(Email email){
     System.out.println(email);
     selectedEmail = email;
+    localState().selectedEmail(email);
     createActors();
   }
 
@@ -233,7 +270,7 @@ public class EmailsTab extends ComputerTab {
 
   }
 
-  private record Email(String sender, String senderMail, String subject, String content, List<String> attachments){
+  public record Email(String sender, String senderMail, String subject, String content, List<String> attachments){
 
     // Split the content into its paragraphs, split by a \p.
     public List<String> parsedContentLines(){

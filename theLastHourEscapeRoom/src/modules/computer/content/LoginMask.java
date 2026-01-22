@@ -37,8 +37,8 @@ public class LoginMask extends ComputerTab {
   protected void createActors(){
     boolean completed = sharedState().state().hasReached(ComputerState.LOGGED_IN);
     if(completed){
-      ComputerStateLocal.Instance.username(USERNAME);
-      ComputerStateLocal.Instance.password(PASSWORD);
+      localState().username(USERNAME);
+      localState().password(PASSWORD);
     }
 
     Drawable company = new TextureRegionDrawable(TextureGenerator.generateColorTexture(100, 100, new Color(0, 0, 0.7f, 1)));
@@ -56,17 +56,19 @@ public class LoginMask extends ComputerTab {
     loginFeedback.setColor(WRONG_COLOR);
     loginFeedback.setAlignment(Align.center);
 
-    usernameField = Scene2dElementFactory.createTextField(ComputerStateLocal.Instance.username());
+    usernameField = Scene2dElementFactory.createTextField(localState().username());
     Scene2dElementFactory.addTextFieldChangeListener(usernameField, (text) -> {
-      ComputerStateLocal.Instance
+      localState()
           .username(usernameField.getText());
     });
 
-    passwordField = Scene2dElementFactory.createTextField(ComputerStateLocal.Instance.password());
+    passwordField = Scene2dElementFactory.createTextField(localState().password());
     passwordField.setPasswordMode(true);
     passwordField.setPasswordCharacter('*');
+    passwordField.setText(""); // Clear + set again because changing to password mode breaks the cache
+    passwordField.setText(localState().password());
     Scene2dElementFactory.addTextFieldChangeListener(passwordField, (text) -> {
-      ComputerStateLocal.Instance
+      localState()
           .password(passwordField.getText());
     });
 
@@ -74,8 +76,8 @@ public class LoginMask extends ComputerTab {
     loginButton.addListener(new ChangeListener() {
       @Override
       public void changed(ChangeEvent event, Actor actor) {
-        String username = ComputerStateLocal.Instance.username();
-        String password = ComputerStateLocal.Instance.password();
+        String username = localState().username();
+        String password = localState().password();
         if(username.equals(USERNAME) && password.equals(PASSWORD)){
           ComputerStateComponent.setState(ComputerState.LOGGED_IN);
           ComputerDialog.getInstance().ifPresent(computer -> {

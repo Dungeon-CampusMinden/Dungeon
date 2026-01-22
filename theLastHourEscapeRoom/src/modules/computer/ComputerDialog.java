@@ -127,7 +127,6 @@ public class ComputerDialog extends Group {
       addTab(new LoginMask(sharedState));
     } else if (state == ComputerState.LOGGED_IN){
       addTab(new EmailsTab(sharedState));
-//      addTab(new TestMask(sharedState, "emails", "E-Mail Inbox (5)", false, Color.RED));
       addTab(new TestMask(sharedState, "browser", "Browser", false, Color.CYAN));
     }
   }

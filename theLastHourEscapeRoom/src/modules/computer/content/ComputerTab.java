@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import contrib.hud.UIUtils;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerStateComponent;
+import modules.computer.ComputerStateLocal;
 
 public abstract class ComputerTab extends Table {
 
@@ -56,6 +57,10 @@ public abstract class ComputerTab extends Table {
   public void setSharedState(ComputerStateComponent sharedState){
     updateState(sharedState);
     this.sharedState = sharedState;
+  }
+
+  public ComputerStateLocal localState(){
+    return ComputerStateLocal.Instance;
   }
 
   /**

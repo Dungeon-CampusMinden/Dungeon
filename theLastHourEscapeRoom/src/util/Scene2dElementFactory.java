@@ -1,15 +1,21 @@
 package util;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import contrib.hud.UIUtils;
 import core.utils.FontHelper;
 import core.utils.logging.DungeonLogger;
+import modules.computer.content.EmailsTab;
 
 import java.util.function.Consumer;
 
@@ -79,5 +85,49 @@ public class Scene2dElementFactory {
 
   public static Image createVerticalDivider(){
     return new Image(DEFAULT_SKIN, "divider_vertical");
+  }
+
+  public static ScrollPane createScrollPane(Actor actor, boolean scrollX, boolean scrollY){
+    ScrollPane scrollPane = new ScrollPane(actor, DEFAULT_SKIN);
+    scrollPane.setScrollingDisabled(!scrollX, !scrollY);
+    scrollPane.setFadeScrollBars(false);
+    scrollPane.setScrollbarsOnTop(true);
+    scrollPane.addListener(new InputListener() {
+      @Override
+      public boolean mouseMoved(InputEvent event, float x, float y) {
+        event.getStage().setScrollFocus(scrollPane);
+        return false;
+      }
+
+      // Prevent scrolling when outside the scroll pane
+      @Override
+      public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+        if(toActor != null && toActor.isDescendantOf(scrollPane)) return;
+        if(event.getStage().getScrollFocus() != scrollPane) return;
+
+        event.getStage().setScrollFocus(null);
+      }
+
+      // Rebuilding the UI will cause an exit->enter, so we need to set the scroll focus back
+      @Override
+      public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+        if(event.getStage() == null) return;
+        event.getStage().setScrollFocus(scrollPane);
+      }
+    });
+    return scrollPane;
+  }
+
+  public static void scrollPaneScrollTo(ScrollPane scrollPane, float x, float y){
+    scrollPane.invalidate();
+    scrollPane.layout();
+    scrollPane.setSmoothScrolling(false);
+    scrollPane.setScrollX(x);
+    scrollPane.setScrollY(y);
+
+    if(Gdx.app == null) return;
+    Gdx.app.postRunnable(() -> {
+      scrollPane.setSmoothScrolling(true);
+    });
   }
 }

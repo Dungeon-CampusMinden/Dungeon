@@ -1,5 +1,7 @@
 package modules.computer;
 
+import modules.computer.content.EmailsTab;
+
 public class ComputerStateLocal {
 
   public static ComputerStateLocal Instance = new ComputerStateLocal();
@@ -7,6 +9,8 @@ public class ComputerStateLocal {
   private String tab;
   private String username;
   private String password;
+  private EmailsTab.Email selectedEmail;
+  private float emailListScrollY;
 
   public ComputerStateLocal() {
     this.tab = "login";
@@ -35,4 +39,17 @@ public class ComputerStateLocal {
     this.password = password;
   }
 
+  public void selectedEmail(EmailsTab.Email email) {
+    this.selectedEmail = email;
+  }
+  public EmailsTab.Email selectedEmail() {
+    return selectedEmail;
+  }
+
+  public float emailListScrollY() {
+    return emailListScrollY;
+  }
+  public void emailListScrollY(float emailListScrollY) {
+    this.emailListScrollY = emailListScrollY;
+  }
 }
