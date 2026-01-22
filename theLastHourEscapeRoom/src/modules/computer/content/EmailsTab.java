@@ -6,15 +6,16 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import core.utils.FontHelper;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerStateComponent;
+import starter.TheLastHour;
+import util.CursorUtil;
+import util.Cursors;
 import util.Scene2dElementFactory;
 
 import java.util.Arrays;
@@ -40,14 +41,14 @@ public class EmailsTab extends ComputerTab {
       "Account Security",
       "security@paypa1.com",
       "Unusual login attempt detected",
-      "We detected a suspicious sign-in attempt on your account.\\pIf this was not you, verify your identity immediately.\\p\\ahttps://paypa1.com/secure",
+      "We detected a suspicious sign-in attempt on your account.\\pIf this was not you, verify your identity immediately.\\p\\aVisit Paypa1;https://paypa1.com/secure",
       List.of()
     ),
     new Email(
       "IT Support",
       "support@company.internal",
       "Password expiration notice",
-      "Hello,\\pYour password will expire in 3 days. Please update it as soon as possible.\\p\\ahttps://intranet.company/reset",
+      "Hello,\\pYour password will expire in 3 days. Please update it as soon as possible.\\p\\aChange Password;https://intranet.company/reset",
       List.of()
     ),
     new Email(
@@ -61,7 +62,7 @@ public class EmailsTab extends ComputerTab {
       "Microsoft Billing",
       "billing@microslop.com",
       "Your subscription will be suspended",
-      "We were unable to process your last payment.\\pTo avoid service interruption, confirm your billing information now.\\p\\ahttps://microsoft-support.co/billing",
+      "We were unable to process your last payment.\\pTo avoid service interruption, confirm your billing information now.\\p\\ahttps://microsoft-support.co/billing;https://microslop-support.co/billing",
       List.of("Receipt.html")
     ),
     new Email(
@@ -81,41 +82,38 @@ public class EmailsTab extends ComputerTab {
     new Email(
       "Online Store",
       "no-reply@shop.example",
-      "Your order has shipped",
+      "Your order has shipped 2",
       "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
       List.of("Invoice_48392.pdf")
     ),
     new Email(
       "Online Store",
       "no-reply@shop.example",
-      "Your order has shipped",
+      "Your order has shipped 3",
       "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
       List.of("Invoice_48392.pdf")
     ),
     new Email(
-      "Online Store",
-      "no-reply@shop.example",
-      "Your order has shipped",
-      "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
-      List.of("Invoice_48392.pdf")
+      "Microsoft Cloud-Speicher",
+      "Microsoft_account_team@onmicrosoft.com",
+      "HEUTE: Ihre Fotos und Videos werden gelöscht - Sofort handeln",
+      "Microsoft\\pKontobenachrichtigung - Cloud-Speicher - SOFORTIGE AKTION\\pSehr geehrte Nutzerin / sehr geehrter Nutzer,\\pDies ist eine AUTOMATISCHE KRITISCHE WARNUNG des Sicherheitssystems von Microsoft.\\pIHRE FOTOS UND VIDEOS\nWERDEN DAUERHAFT GELÖSCHT\\pServicedetails:\\pProdukt: Microsoft Cloud-Speicher\\pAblaufdatum: HEUTE - LETZER TAG\\p\\aSPEICHER JETZT FREISCHALTEN\nKOSTENLOS;https://subkuzb.somelinkshortener.org/4MkOtH235ArQM4epqmbnrkgm18NVSIMYXZAXQPQZB1017602ARSS330N1",
+      List.of()
     ),
     new Email(
-      "Online Store",
-      "no-reply@shop.example",
-      "Your order has shipped",
-      "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
-      List.of("Invoice_48392.pdf")
-    ),
-    new Email(
-      "Online Store",
-        "no-reply@shop.example",
-        "Your order has shipped",
-        "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
-      List.of("Invoice_48392.pdf")
+      "cloud support team",
+        "notifications@cloudservice",
+        "Your order has shipped 6",
+        "\\aZur Löschung vorgesehen;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\aIhr Konto war inaktiv und hat das Speicherlimit überschritten. Gemäß unserer Aufbewahrungsrichtlinien sind Ihre Dateien zur Löschung vorgesehen;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\aDAUERTHAFTER DATENVERLUST\nWenn Sie Ihren Speicherplan nicht bis zum verlängern, werden Ihre Daten dauerhaft von unseren Servern gelöscht;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\aMeine Dateien behalten;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\p\\aAbmelden;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm",
+      List.of("License_renewal.ics")
     )
   );
 
+  private static final String LINK_NONE = "Full Link: <none>";
+  private static final String LINK_SOME = "Full Link: %s";
+
   private Table emailDetailsContainer = null;
+  private Label emailLinkFull = null;
   private Email selectedEmail = null;
 
   public EmailsTab(ComputerStateComponent sharedState){
@@ -155,7 +153,7 @@ public class EmailsTab extends ComputerTab {
     scrollPane.addAction(Actions.forever(Actions.run(() -> localState().emailListScrollY(scrollPane.getVisualScrollY()))));
     for(Email email : inbox){
       Table emailEntry = createEmailHeader(email);
-      emailList.add(emailEntry).height(50).left().padBottom(5).padRight(16 + 5).growX().row();
+      emailList.add(emailEntry).left().pad(5, 0, 5, 16 + 5).growX().row();
     }
     subArea.add(scrollPane).left().growY();
     Scene2dElementFactory.scrollPaneScrollTo(scrollPane, 0, localState().emailListScrollY());
@@ -168,17 +166,20 @@ public class EmailsTab extends ComputerTab {
 
     Table container = new Table(skin);
     container.setBackground(isSelected ? "blue_square_flat" : "button_rectangle_border_blue");
-    container.pad(10);
+    container.pad(10, 20, 10, 10);
 
     Label subjectLabel = Scene2dElementFactory.createLabel(email.subject(), 18, isSelected ? Color.WHITE : Color.BLACK);
-    container.add(subjectLabel).width(330).padLeft(10);
+    subjectLabel.setWrap(true);
+    container.add(subjectLabel).width(330);
 
-    container.add(Scene2dElementFactory.createVerticalDivider()).width(4).pad(0, 10, 0, 10).expandY();
+    container.add(Scene2dElementFactory.createVerticalDivider()).width(4).pad(0, 10, 0, 10).height(50);
 
     Label senderLabel = Scene2dElementFactory.createLabel(email.sender() + " <" + email.senderMail() + ">", 16, isSelected ? Color.WHITE : Color.DARK_GRAY);
+    senderLabel.setWrap(true);
     container.add(senderLabel).width(400);
 
     container.setTouchable(Touchable.enabled);
+    container.setUserObject(Cursors.INTERACT);
     container.addListener(new ClickListener(Input.Buttons.LEFT){
       @Override
       public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -210,24 +211,54 @@ public class EmailsTab extends ComputerTab {
 
     Label subjectLabel = Scene2dElementFactory.createLabel("Subject: " + selectedEmail.subject(), 22, Color.BLACK);
     container.add(subjectLabel).left().padBottom(10).row();
-    Label contentHeaderLabel = Scene2dElementFactory.createLabel("Content:", 18, Color.BLACK);
-    container.add(contentHeaderLabel).left().padBottom(10).row();
 
-    Table contentTable = new Table(skin);
-    contentTable.setBackground("generic-area");
+    VerticalGroup contentTable = new VerticalGroup();
+    ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(contentTable, false, true);
     contentTable.top().left();
-    contentTable.pad(15);
+    contentTable.columnTop().columnLeft();
+    contentTable.fill();
+    contentTable.expand();
+    contentTable.pad(5);
+    contentTable.space(10);
+    contentTable.wrap(false);
     for(String line : selectedEmail.parsedContentLines()){
-      if(selectedEmail.isLink(line)){
-        String url = line.substring(LINK_TOKEN.length());
-        Label linkLabel = Scene2dElementFactory.createLabel(url, 18, Color.BLUE);
-        contentTable.add(linkLabel).left().padBottom(15).row();
+      Label lineLabel;
+      if(Link.isLink(line)){
+        Link link = Link.parse(line);
+        lineLabel = Scene2dElementFactory.createLabel(link.text, 18, Color.BLUE);
+        lineLabel.setUserObject(Cursors.EXTERNAL);
+        lineLabel.addListener(new InputListener(){
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            Gdx.net.openURI(link.url);
+            return super.touchDown(event, x, y, pointer, button);
+          }
+
+          @Override
+          public boolean mouseMoved(InputEvent event, float x, float y) {
+            emailLinkFull.setText(String.format(LINK_SOME, link.url));
+            return super.mouseMoved(event, x, y);
+          }
+
+          @Override
+          public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+            emailLinkFull.setText(LINK_NONE);
+            super.exit(event, x, y, pointer, toActor);
+          }
+        });
       } else {
-        Label contentLineLabel = Scene2dElementFactory.createLabel(line, 18, Color.DARK_GRAY);
-        contentTable.add(contentLineLabel).left().padBottom(15).row();
+        lineLabel = Scene2dElementFactory.createLabel(line, 18, Color.DARK_GRAY);
       }
+      lineLabel.setWrap(true);
+      contentTable.addActor(lineLabel);
     }
-    container.add(contentTable).grow().row();
+    container.add(scrollPane).grow().row();
+
+    // Link Label for the hovered link always at the bottom
+    emailLinkFull = Scene2dElementFactory.createLabel(LINK_NONE, 20, Color.BLACK);
+    emailLinkFull.setAlignment(Align.left);
+    emailLinkFull.setWrap(true);
+    container.add(emailLinkFull).left().padTop(10).growX().row();
 
     if(!selectedEmail.attachments().isEmpty()){
       Label attachmentsHeaderLabel = Scene2dElementFactory.createLabel("Attachments:", 20, Color.BLACK);
@@ -276,9 +307,20 @@ public class EmailsTab extends ComputerTab {
     public List<String> parsedContentLines(){
       return Arrays.asList(content.split(PARAGRAPH_SPLIT));
     }
+  }
 
-    public boolean isLink(String line){
+  private record Link(String text, String url){
+    static boolean isLink(String line){
       return line.startsWith(LINK_TOKEN);
+    }
+
+    static Link parse(String line){
+      String[] parts = line.substring(LINK_TOKEN.length()).split(";", 2);
+      if(parts.length == 2){
+        return new Link(parts[0], parts[1]);
+      } else {
+        return new Link(parts[0], parts[0]);
+      }
     }
   }
 }
