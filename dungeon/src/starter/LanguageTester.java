@@ -50,16 +50,19 @@ public class LanguageTester {
         new System() {
           @Override
           public void execute() {
+            // Shows a text popup by pressing "M". ("text", "test", "fail") Shows the fallback case
+            // in English.
             if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
               try {
                 DialogUtils.showTextPopup(
-                    Localization.getInstance().text("text.test"),
-                    Localization.getInstance().text("text.test.title"));
+                    Localization.getInstance().text("text", "test", "message"),
+                    Localization.getInstance().text("text", "test", "title"));
               } catch (IOException e) {
                 throw new RuntimeException(e);
               }
             }
 
+            // Changes the language between English and German by pressing "N".
             if (Gdx.input.isKeyJustPressed(Input.Keys.N)
                 && Localization.currentLanguage() == Language.DE) {
               Localization.currentLanguage(Language.EN);

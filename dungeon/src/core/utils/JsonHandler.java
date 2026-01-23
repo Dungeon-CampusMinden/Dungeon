@@ -271,6 +271,30 @@ public class JsonHandler {
   }
 
   /**
+   * Parses a JSON string into a value with the JSON node path.
+   *
+   * @param jsonString The JSON as String to get the value.
+   * @param jsonNodes Nodes of the JSON up to the desired value as single params.
+   * @return The value behind the node path.
+   */
+  public static String getValueByPath(String jsonString, String... jsonNodes) {
+    Map<String, Object> jsonMap = readJson(jsonString);
+    Object section = jsonMap;
+
+    for (String node : jsonNodes) {
+      if (!(section instanceof Map)) {
+        return null;
+      }
+      section = ((Map<String, Object>) section).get(node);
+      if (section == null) {
+        return null;
+      }
+    }
+
+    return section.toString();
+  }
+
+  /**
    * Assumes {@code jsonObjectString} starts with '{' and ends with '}'.
    *
    * @param jsonObjectString The string content of a JSON object, including braces.

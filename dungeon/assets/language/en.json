@@ -1,5 +1,12 @@
 {
-    "menu.exit": "Exit",
-    "text.test": "Hello, I'm the hero of the game!",
-    "text.test.title": "Welcome"
+    "menu": {
+        "exit": "Exit"
+    },
+    "text": {
+        "test": {
+            "title": "Welcome",
+            "message": "Hello, I'm the hero of the game!"
+        }
+    }
 }
+

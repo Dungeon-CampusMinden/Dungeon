@@ -52,19 +52,47 @@ public class Localization {
   }
 
   /**
-   * Gets the translation of the text.
+   * Gets the value behind a JSON node path for the selected language.
    *
-   * @param key Key of what should be translated.
-   * @return translation of the text.
+   * @param jsonNodes Nodes of the JSON up to the desired value as single params.
+   * @return value behind a JSON node path.
    */
-  public String text(String key) throws IOException {
+  public String text(String... jsonNodes) throws IOException {
     String jsonPath = "dungeon/assets/language/";
     File file = new File(jsonPath + currentLanguage().toString() + ".json");
+    String text;
+
     try {
-      String JsonAsString = readFileContent(file);
-      return JsonHandler.readJson(JsonAsString).get(key).toString();
+      String jsonString = readFileContent(file);
+      text = JsonHandler.getValueByPath(jsonString, jsonNodes);
     } catch (IOException exception) {
       throw new IOException("Failed to read File", exception);
+    }
+
+    if (text != null) {
+      return text;
+    } else {
+      return fallbackText(jsonNodes);
+    }
+  }
+
+  /* In the case that there is no value for the selected language. */
+  private String fallbackText(String... pathParams) throws IOException {
+    String jsonPath = "dungeon/assets/language/";
+    File file = new File(jsonPath + FALLBACK_LANGUAGE.toString() + ".json");
+    String text;
+
+    try {
+      String jsonString = readFileContent(file);
+      text = JsonHandler.getValueByPath(jsonString, pathParams);
+    } catch (IOException exception) {
+      throw new IOException("Failed to read File", exception);
+    }
+
+    if (text != null) {
+      return text;
+    } else {
+      return "Text not found!";
     }
   }
 

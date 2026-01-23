@@ -1,5 +1,12 @@
 {
-    "menu.exit": "Schließen",
-    "text.test": "Hallo, ich bin der Held des Spiels!",
-    "text.test.title": "Wilkommen"
+    "menu": {
+        "exit": "Schließen"
+    },
+    "text": {
+        "test": {
+            "title": "Willkommen",
+            "message": "Hallo, ich bin der Held des Spiels!",
+            "fail": "Diesen Text gibt es nur in Deutsch"
+        }
+    }
 }
