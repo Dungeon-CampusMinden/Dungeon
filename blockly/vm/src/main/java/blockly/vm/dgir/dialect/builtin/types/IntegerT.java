@@ -1,23 +1,17 @@
 package blockly.vm.dgir.dialect.builtin.types;
 
 import blockly.vm.dgir.core.Dialect;
-import blockly.vm.dgir.core.ParametricType;
 import blockly.vm.dgir.core.Type;
 import blockly.vm.dgir.core.TypeName;
 import blockly.vm.dgir.dialect.builtin.Builtin;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.List;
-
-public class IntegerT extends ParametricType {
+public class IntegerT extends Type {
   public static final IntegerT INT8 = new IntegerT(8);
   public static final IntegerT INT16 = new IntegerT(16);
   public static final IntegerT INT32 = new IntegerT(32);
   public static final IntegerT INT64 = new IntegerT(64);
 
-  private Object width;
+  private final int width;
 
   @Override
   public TypeName.Impl createImpl() {
@@ -38,7 +32,7 @@ public class IntegerT extends ParametricType {
   }
 
   public int getWidth() {
-    return (int) getParameters();
+    return width;
   }
 
   @Override
@@ -71,10 +65,5 @@ public class IntegerT extends ParametricType {
 
   public static String getNamespace() {
     return "";
-  }
-
-  @Override
-  public Object getParameters() {
-    return width;
   }
 }

@@ -1,16 +1,14 @@
 package blockly.vm.dgir.dialect.builtin.types;
 
 import blockly.vm.dgir.core.Dialect;
-import blockly.vm.dgir.core.PrimitiveType;
 import blockly.vm.dgir.core.Type;
 import blockly.vm.dgir.core.TypeName;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 
-public class StringT extends PrimitiveType {
+public class StringT extends Type {
   public static final StringT INSTANCE = new StringT();
 
   public StringT() {
-
   }
 
   @Override

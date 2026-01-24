@@ -1,36 +1,27 @@
 package blockly.vm.dgir.core;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class BlockArgument extends Value {
-  /**
-   * The index of the argument in the block definition.
-   */
-  private int index;
   /**
    * The block that owns this argument.
    */
-  @JsonBackReference
-  public Block owner;
+  private Block parent = null;
 
-  public BlockArgument(Type type, int index, Block owner) {
+  public BlockArgument(Type type) {
     super(type, Kind.BlockArgument);
-    this.index = index;
-    this.owner = owner;
   }
 
-  @JsonCreator
-  public BlockArgument(@JsonProperty("type") Type type) {
-    super(type, Kind.BlockArgument);
+  public Block getParent() {
+    return parent;
+  }
+
+  public void setParent(Block parent) {
+    assert Utils.Caller.getCallingClass() == Block.class : "Assigning the parent of a block argument is only allowed from the Block class. Was called from " + Utils.Caller.getCallingClass().getName();
+    assert this.parent == null || parent == null : "BlockArgument already has a parent.";
+
+    this.parent = parent;
   }
 
   public int getIndex() {
-    return index;
-  }
-
-  public void setIndex(int index) {
-    this.index = index;
+    return getParent().getArgumentIndex(this);
   }
 }

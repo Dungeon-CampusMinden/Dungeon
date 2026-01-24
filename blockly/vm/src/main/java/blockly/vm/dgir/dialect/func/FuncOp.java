@@ -4,21 +4,18 @@ import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.TypeAttribute;
 import blockly.vm.dgir.dialect.func.types.FuncType;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
 public class FuncOp extends Op {
-  @JsonIgnore
   private StringAttribute name;
-  @JsonIgnore
   private TypeAttribute type;
 
   @Override
   public OperationName.Impl createImpl() {
     class FuncOpModel extends OperationName.Impl {
       FuncOpModel() {
-        super(getIdent(), FuncOp.class, DGIRContext.registeredDialects.get(Func.class), new String[]{"name", "type"});
+        super(getIdent(), FuncOp.class, DGIRContext.registeredDialects.get(Func.class), List.of("name", "type"));
       }
 
       @Override
@@ -27,11 +24,9 @@ public class FuncOp extends Op {
       }
 
       @Override
-      public void populateDefaultAttrs(NamedAttribute[] attributes) {
-        if (attributes[0].getAttribute() == null)
-          attributes[0].setAttribute(new StringAttribute("foo"));
-        if (attributes[1].getAttribute() == null)
-          attributes[1].setAttribute(new TypeAttribute(new FuncType(null, null)));
+      public void populateDefaultAttrs(List<NamedAttribute> attributes) {
+          attributes.get(0).setAttribute(new StringAttribute("foo"));
+          attributes.get(1).setAttribute(new TypeAttribute(new FuncType(null, null)));
       }
     }
     return new FuncOpModel();
@@ -41,7 +36,8 @@ public class FuncOp extends Op {
   }
 
   public FuncOp(String name) {
-    super(Operation.Create(getIdent(), null, null, null, List.of(Region.createWithBlock())));
+    super(Operation.Create(getIdent(), null, null, List.of(Region.createWithBlock())));
+    setFuncName(name);
   }
 
   public StringAttribute getFuncNameAttribute() {

@@ -2,8 +2,8 @@ package blockly.vm.dgir.core;
 
 import com.fasterxml.jackson.annotation.*;
 
-import java.io.Serial;
 import java.io.Serializable;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,41 +13,43 @@ import java.util.Optional;
  * A block containing a list of {@link Operation}.
  * Blocks are always attached to a {@link Region}.
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIdentityInfo(generator = BlockSequenceGenerator.class, property = "@id")
 public final class Block implements Serializable {
-  private List<BlockArgument> arguments;
-  private final List<Operation> operations;
+  private final List<BlockArgument> arguments = new ArrayList<>();
+  private final List<Operation> operations = new ArrayList<>();
 
-  @JsonIgnore
-  public Region owner;
+  private Region parent;
 
   public Block() {
-    this.arguments = null;
-    this.operations = new ArrayList<>();
   }
 
-  @JsonCreator
-  public Block(@JsonProperty("arguments") List<BlockArgument> arguments,
-               @JsonProperty("operations") List<Operation> operations) {
-    this.arguments = arguments;
-    this.operations = operations;
+  public Block(List<BlockArgument> arguments,
+               List<Operation> operations) {
+    for (BlockArgument argument : arguments) {
+      addArgument(argument);
+    }
+    for (Operation operation : operations) {
+      addOperation(operation);
+    }
   }
 
-
-  @JsonIgnore
-  public Optional<List<BlockArgument>> getArguments() {
-    return Optional.ofNullable(arguments);
+  public List<BlockArgument> getArguments() {
+    return Collections.unmodifiableList(arguments);
   }
 
-  @JsonIgnore
-  public List<BlockArgument> getOrCreateArguments() {
-    return arguments == null ? arguments = new ArrayList<>() : arguments;
+  public void addArgument(BlockArgument argument) {
+    assert argument != null : "Argument cannot be null.";
+    assert argument.getParent() == null : "Argument already has a parent.";
+
+    arguments.add(argument);
+    argument.setParent(this);
   }
 
-  @JsonProperty("arguments")
-  private List<BlockArgument> getArgumentsRaw() {
-    return arguments;
+  public void removeArgument(BlockArgument argument) {
+    assert argument != null : "Argument cannot be null.";
+    assert argument.getParent() == this : "Argument does not belong to this block.";
+
+    arguments.remove(argument);
+    argument.setParent(null);
   }
 
   public List<Operation> getOperations() {
@@ -55,67 +57,33 @@ public final class Block implements Serializable {
   }
 
   public void addOperation(Operation operation) {
+    assert operation != null : "Operation cannot be null.";
+    assert operation.getParent() == null : "Operation already has a parent.";
+
     operations.add(operation);
-  }
-}
-
-/**
- * Generates unique IDs for block instances. This is used by Jackson to serialize/deserialize
- * e.g. ".blk_0" ".blk_1" ...
- */
-final class BlockSequenceGenerator extends ObjectIdGenerator<String> {
-  @Serial
-  private static final long serialVersionUID = 1L;
-
-  private transient int _nextIndex;
-
-  private final Class<?> _scope;
-
-  public BlockSequenceGenerator() {
-    this(Object.class, -1);
+    operation.setParent(this);
   }
 
-  private BlockSequenceGenerator(Class<?> scope, int fv) {
-    _scope = scope;
+  public void removeOperation(Operation operation) {
+    assert operation != null : "Operation cannot be null.";
+    assert operation.getParent() == this : "Operation does not belong to this block.";
+
+    operations.remove(operation);
+    operation.setParent(null);
   }
 
-  @Override
-  public final Class<?> getScope() {
-    return _scope;
+  public int getArgumentIndex(BlockArgument blockArgument) {
+    return arguments.indexOf(blockArgument);
   }
 
-  @Override
-  public boolean canUseFor(ObjectIdGenerator<?> gen) {
-    return (gen.getClass() == getClass()) && (gen.getScope() == _scope);
+  public Region getParent() {
+    return parent;
   }
 
-  private int initialValue() {
-    return 1;
-  }
+  public void setParent(Region parent) {
+    assert Utils.Caller.getCallingClass() == Region.class : "Assigning the parent of a block is only allowed from the Region class. Was called from " + Utils.Caller.getCallingClass().getName() ;
+    assert parent == null || this.parent == null : "Block already has a parent. Unparent first before setting a new parent. (Use the region interface to unparent.)";
 
-  @Override
-  public ObjectIdGenerator<String> forScope(Class<?> scope) {
-    return (_scope == scope) ? this : new BlockSequenceGenerator(scope, _nextIndex);
-  }
-
-  @Override
-  public ObjectIdGenerator<String> newForSerialization(Object context) {
-    return new BlockSequenceGenerator(_scope, initialValue());
-  }
-
-  @Override
-  public IdKey key(Object key) {
-    if (key == null) {
-      return null;
-    }
-    return new IdKey(getClass(), _scope, key);
-  }
-
-  @Override
-  public String generateId(Object forPojo) {
-    if (forPojo == null) {
-      return null;
-    }
-    return ".blk_" + _nextIndex++;
+    this.parent = parent;
   }
 }

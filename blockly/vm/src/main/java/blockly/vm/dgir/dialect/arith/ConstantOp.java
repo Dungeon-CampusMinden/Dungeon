@@ -4,15 +4,16 @@ import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.List;
+
 public class ConstantOp extends Op {
-  @JsonIgnore
   private Attribute value;
 
   @Override
   public OperationName.Impl createImpl() {
     class ConstantOpModel extends OperationName.Impl {
       public ConstantOpModel() {
-        super(getIdent(), ConstantOp.class, Dialect.get(Arith.class), new String[]{"value"});
+        super(getIdent(), ConstantOp.class, Dialect.get(Arith.class), List.of("value"));
       }
 
       @Override
@@ -21,8 +22,7 @@ public class ConstantOp extends Op {
       }
 
       @Override
-      public void populateDefaultAttrs(NamedAttribute[] attributes) {
-
+      public void populateDefaultAttrs(List<NamedAttribute> attributes) {
       }
     }
     return new ConstantOpModel();
@@ -32,10 +32,10 @@ public class ConstantOp extends Op {
   }
 
   public ConstantOp(Attribute value) {
+    super(Operation.Create(getIdent(), null, new OperationResult(value.getType()), null));
     setValueAttribute(value);
   }
 
-  @JsonIgnore
   public Attribute getValueAttribute() {
     if (value == null) {
       value = getOperation().getAttributes().get("value").getAttribute();

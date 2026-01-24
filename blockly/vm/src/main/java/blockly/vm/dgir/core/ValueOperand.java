@@ -22,12 +22,4 @@ public final class ValueOperand extends Operand<Value> {
   public void setValue(Value value) {
     this.value = value;
   }
-
-  public static String getIdent() {
-    return "value";
-  }
-
-  public static String getNamespace() {
-    return "";
-  }
 }

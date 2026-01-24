@@ -1,5 +1,8 @@
 package blockly.vm.dgir.core;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Holds all information about a unique operation and some of its utility methods.
  */
@@ -11,13 +14,13 @@ public class OperationName {
     protected String name;
     protected Class<? extends Op> type;
     protected Dialect dialect;
-    protected String[] attributeNames;
+    protected List<String> attributeNames;
 
-    public Impl(String name, Class<? extends Op> type, Dialect dialect, String[] attributeNames) {
+    public Impl(String name, Class<? extends Op> type, Dialect dialect, List<String> attributeNames) {
       this.name = name;
       this.type = type;
       this.dialect = dialect;
-      this.attributeNames = attributeNames;
+      this.attributeNames = Collections.unmodifiableList(attributeNames);
     }
 
     public String getName() {
@@ -32,18 +35,18 @@ public class OperationName {
       return dialect;
     }
 
-    public String[] getAttributeNames() {
+    public List<String> getAttributeNames() {
       return attributeNames;
     }
 
     public abstract boolean verify(Operation operation);
 
-    public abstract void populateDefaultAttrs(NamedAttribute[] attributes);
+    public abstract void populateDefaultAttrs(List<NamedAttribute> attributes);
   }
 
   protected final static class UnregisteredOp extends Impl {
-    UnregisteredOp(String name, Class<? extends Op> clazz, Dialect dialect, String[] attributeNames) {
-      super(name, clazz, dialect, attributeNames);
+    UnregisteredOp(String name, Class<? extends Op> clazz, Dialect dialect, List<String> attributeNames) {
+      super(name, clazz, dialect, Collections.unmodifiableList(attributeNames));
     }
 
     @Override
@@ -52,7 +55,7 @@ public class OperationName {
     }
 
     @Override
-    public void populateDefaultAttrs(NamedAttribute[] attributes) {
+    public void populateDefaultAttrs(List<NamedAttribute> attributes) {
     }
   }
 
@@ -92,7 +95,7 @@ public class OperationName {
     return impl.getDialect();
   }
 
-  public String[] getAttributeNames() {
+  public List<String> getAttributeNames() {
     return impl.getAttributeNames();
   }
 
@@ -100,7 +103,7 @@ public class OperationName {
     return impl.verify(operation);
   }
 
-  public void populateDefaultAttrs(NamedAttribute[] attributes) {
+  public void populateDefaultAttrs(List<NamedAttribute> attributes) {
     impl.populateDefaultAttrs(attributes);
   }
 

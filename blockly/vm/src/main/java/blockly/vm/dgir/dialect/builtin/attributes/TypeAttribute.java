@@ -1,9 +1,6 @@
 package blockly.vm.dgir.dialect.builtin.attributes;
 
-import blockly.vm.dgir.core.Attribute;
-import blockly.vm.dgir.core.AttributeName;
-import blockly.vm.dgir.core.Dialect;
-import blockly.vm.dgir.core.Type;
+import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 
 public class TypeAttribute extends Attribute {
@@ -14,7 +11,8 @@ public class TypeAttribute extends Attribute {
   }
 
   public TypeAttribute(Type type) {
-    this.type = type;
+    super(RegisteredAttributeName.lookup(getIdent()).orElseThrow());
+    setType(type);
   }
 
   @Override
@@ -27,6 +25,7 @@ public class TypeAttribute extends Attribute {
     return new TypeAttributeModel(getIdent(), getClass(), Dialect.get(Builtin.class));
   }
 
+  @Override
   public Type getType() {
     return type;
   }

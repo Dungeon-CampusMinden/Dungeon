@@ -1,7 +1,7 @@
 package blockly.vm.dgir.dialect.builtin.attributes;
 
-import blockly.vm.dgir.core.Attribute;
-import blockly.vm.dgir.core.AttributeName;
+import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.dialect.builtin.types.StringT;
 
 public class StringAttribute extends Attribute {
   public static final StringAttribute INSTANCE = new StringAttribute();
@@ -21,7 +21,8 @@ public class StringAttribute extends Attribute {
   }
 
   public StringAttribute(String value) {
-    this.value = value;
+    super(RegisteredAttributeName.lookup(getIdent()).orElseThrow());
+    setValue(value);
   }
 
   public String getValue() {
@@ -30,6 +31,11 @@ public class StringAttribute extends Attribute {
 
   public void setValue(String value) {
     this.value = value;
+  }
+
+  @Override
+  public Type getType() {
+    return StringT.INSTANCE;
   }
 
   public static String getIdent() {

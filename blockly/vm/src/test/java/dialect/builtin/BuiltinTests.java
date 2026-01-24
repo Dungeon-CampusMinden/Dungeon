@@ -35,11 +35,11 @@ public class BuiltinTests {
     ObjectMapper mapper = Utility.getMapper(true, true);
 
     ProgramOp op = new ProgramOp(true);
-    var programRegion = op.getOperation().getRegions()[0];
+    var programRegion = op.getOperation().getRegions().getFirst();
     var progBlock = programRegion.getOrCreateDefaultBlock();
 
     var funcOp = new FuncOp("main");
-    var funcRegion = funcOp.getOperation().getRegions()[0];
+    var funcRegion = funcOp.getOperation().getRegions().getFirst();
     var funcBlock = funcRegion.getOrCreateDefaultBlock();
     progBlock.addOperation(funcOp.getOperation());
 

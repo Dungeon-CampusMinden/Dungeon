@@ -9,7 +9,7 @@ public class PrintOp extends Op {
   @Override
   public OperationName.Impl createImpl() {
     class PrintOpModel extends OperationName.Impl {
-      PrintOpModel(String name, Class<? extends Op> type, Dialect dialect, String[] attributeNames) {
+      PrintOpModel(String name, Class<? extends Op> type, Dialect dialect, List<String> attributeNames) {
         super(name, type, dialect, attributeNames);
       }
 
@@ -19,11 +19,11 @@ public class PrintOp extends Op {
       }
 
       @Override
-      public void populateDefaultAttrs(NamedAttribute[] attributes) {
+      public void populateDefaultAttrs(List<NamedAttribute> attributes) {
 
       }
     }
-    return new PrintOpModel(getIdent(), this.getClass(), Dialect.get(IO.class), new String[]{});
+    return new PrintOpModel(getIdent(), this.getClass(), Dialect.get(IO.class), List.of());
   }
 
   @Override
@@ -35,7 +35,7 @@ public class PrintOp extends Op {
   }
 
   public PrintOp(List<Value> operands) {
-    super(Operation.Create(getIdent(), operands.stream().map(ValueOperand::new).toList(), null, null, null));
+    super(Operation.Create(getIdent(), operands.stream().map(ValueOperand::new).toList(), null, null));
   }
 
   public static String getIdent() {

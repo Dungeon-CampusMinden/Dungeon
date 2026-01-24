@@ -1,30 +1,22 @@
 package blockly.vm.dgir.dialect.func.types;
 
 import blockly.vm.dgir.core.Dialect;
+import blockly.vm.dgir.core.RegisteredTypeName;
 import blockly.vm.dgir.core.Type;
 import blockly.vm.dgir.core.TypeName;
 import blockly.vm.dgir.dialect.func.Func;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class FuncType extends Type {
   public static final FuncType INSTANCE = new FuncType();
 
-  private List<Type> inputs;
-  private Type output;
-
-  public FuncType() {
-    inputs = null;
-    output = null;
-  }
-
-  @JsonCreator
-  public FuncType(@JsonProperty("inputs") List<Type> inputs, @JsonProperty("output") Type output) {
-    this.inputs = inputs;
-    this.output = output;
-  }
+  private List<Type> inputs = new ArrayList<>();
+  private Type output = null;
 
   @Override
   public TypeName.Impl createImpl() {
@@ -36,6 +28,14 @@ public class FuncType extends Type {
     return new FuncTypeModel(getIdent(), getClass(), Dialect.get(Func.class));
   }
 
+  public FuncType() {
+  }
+
+  public FuncType(List<Type> inputs, Type output) {
+    super(RegisteredTypeName.lookup(getIdent()).orElseThrow());
+    this.inputs = inputs;
+    this.output = output;
+  }
 
   public List<Type> getInputs() {
     return inputs;

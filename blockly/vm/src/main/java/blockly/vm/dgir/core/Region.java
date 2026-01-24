@@ -1,30 +1,22 @@
 package blockly.vm.dgir.core;
 
-import com.fasterxml.jackson.annotation.*;
-import tools.jackson.databind.annotation.JsonDeserialize;
-import tools.jackson.databind.util.StdConverter;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// JsonDeserialize is run after the full deserialization and used to update the references in the children
-@JsonDeserialize(converter = RegionConverter.class)
 public final class Region {
-  private final List<Block> blocks;
+  private final List<Block> blocks = new ArrayList<>();
 
-  @JsonIgnore
-  private Operation parent;
+  private Operation parent = null;
 
   public Region() {
-    blocks = new ArrayList<>();
-    parent = null;
   }
 
-  @JsonCreator
-  public Region(@JsonProperty("blocks") List<Block> blocks, @JsonProperty("parent") Operation parent) {
-    this.blocks = blocks;
-    this.parent = parent;
+  public Region(List<Block> blocks, Operation parent) {
+    for (Block block : blocks) {
+      addBlock(block);
+    };
+    setParent(parent);
   }
 
   public static Region createWithBlock() {
@@ -33,7 +25,7 @@ public final class Region {
     return region;
   }
 
-  @JsonIgnore
+
   public Block getOrCreateDefaultBlock() {
     return blocks.stream().findFirst().orElseGet(() -> {
       Block block = new Block();
@@ -51,13 +43,16 @@ public final class Region {
     return Collections.unmodifiableList(blocks);
   }
 
-  public void addBlock(Block block) {
-    addBlockAt(blocks.size(), block);
+  public void addBlockAt(int index, Block block){
+    assert block.getParent() == null : "Block is already part of a region.";
+    assert index >= 0 && index <= blocks.size() : "Index out of bounds.";
+
+    blocks.add(index, block);
+    block.setParent(this);
   }
 
-  public void addBlockAt(int index, Block block){
-    blocks.add(index, block);
-    block.owner = this;
+  public void addBlock(Block block) {
+    addBlockAt(blocks.size(), block);
   }
 
   public void addBlockBefore(Block block, Block before){
@@ -69,26 +64,27 @@ public final class Region {
   }
 
   public void removeBlock(Block block){
+    assert block.getParent() == this : "Block is not part of this region.";
     removeBlockAt(blocks.indexOf(block));
   }
 
   public void removeBlockAt(int index){
+    assert index >= 0 && index < blocks.size() : "Index out of bounds.";
+
     Block block = blocks.remove(index);
     if (block != null){
-      block.owner = null;
+      block.setParent(null);
     }
   }
-}
 
-/**
- * Used to update references post deserialization.
- */
-class RegionConverter extends StdConverter<Region, Region> {
-  @Override
-  public Region convert(Region value) {
-    for (var block : value.getBlocks()) {
-      block.owner = value;
-    }
-    return value;
+  public Operation getParent() {
+    return parent;
+  }
+
+  public void setParent(Operation operation) {
+    assert Utils.Caller.getCallingClass() == Operation.class : "Assigning the parent of a region is only allowed from the Operation class. Was called from " + Utils.Caller.getCallingClass().getName();
+    assert this.parent == null || operation == null : "Region already has a parent. Unparent first before setting a new parent. (Use the operation interface to unparent.)";
+
+    this.parent = operation;
   }
 }
