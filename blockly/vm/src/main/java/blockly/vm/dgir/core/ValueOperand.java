@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
  * A reference to a dynamic value, which could be supplied by an operation,
  * or other source such as block arguments.
  * */
-public final class ValueOperand extends Operand<Value> implements ITypeLike {
+public final class ValueOperand extends Operand<Value> {
   private Value value;
 
   public ValueOperand(Value value) {
@@ -23,18 +23,11 @@ public final class ValueOperand extends Operand<Value> implements ITypeLike {
     this.value = value;
   }
 
-  @Override
-  public String getIdent() {
+  public static String getIdent() {
     return "value";
   }
 
-  @Override
-  public String getNamespace() {
+  public static String getNamespace() {
     return "";
-  }
-
-  @Override
-  public Type getType() {
-    return value.getType();
   }
 }

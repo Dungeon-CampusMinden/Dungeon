@@ -1,6 +1,9 @@
 package blockly.vm.dgir.dialect.builtin.types;
 
+import blockly.vm.dgir.core.Dialect;
 import blockly.vm.dgir.core.ParametricType;
+import blockly.vm.dgir.core.Type;
+import blockly.vm.dgir.core.TypeName;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -8,17 +11,30 @@ public class FloatT extends ParametricType {
   public static final FloatT FLOAT32 = new FloatT(32);
   public static final FloatT FLOAT64 = new FloatT(64);
 
+  @JsonIgnore
+  private final int width;
+
   public FloatT() {
-    super(32);
+    width = 32;
   }
 
   public FloatT(int width) {
-    super(width);
+    this.width = width;
+  }
+
+  @Override
+  public TypeName.Impl createImpl() {
+    class FloatTModel extends TypeName.Impl {
+      public FloatTModel(String name) {
+        super(name, FloatT.class, Dialect.get(Builtin.class));
+      }
+    }
+    return new FloatTModel(getIdent() + getWidth());
   }
 
   @JsonIgnore
   public int getWidth() {
-    return (int) getParameters();
+    return width;
   }
 
   @Override
@@ -39,13 +55,16 @@ public class FloatT extends ParametricType {
     }
   }
 
-  @Override
-  public String getIdent() {
-    return "float" + getWidth();
+  public static String getIdent() {
+    return "float";
+  }
+
+  public static String getNamespace() {
+    return "";
   }
 
   @Override
-  public String getNamespace() {
-    return "";
+  public Object getParameters() {
+    return width;
   }
 }

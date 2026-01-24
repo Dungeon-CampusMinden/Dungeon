@@ -1,20 +1,26 @@
 package blockly.vm.dgir.dialect.builtin.attributes;
 
 import blockly.vm.dgir.core.Attribute;
-import blockly.vm.dgir.dialect.builtin.types.StringT;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import blockly.vm.dgir.core.AttributeName;
 
 public class StringAttribute extends Attribute {
+  public static final StringAttribute INSTANCE = new StringAttribute();
   private String value;
 
-  public StringAttribute() {
-    super(StringT.INSTANCE);
+  @Override
+  public AttributeName.Impl createImpl() {
+    class StringAttributeModel extends AttributeName.Impl {
+      public StringAttributeModel(String name, Class<? extends Attribute> type) {
+        super(name, type, null);
+      }
+    }
+    return new StringAttributeModel(getIdent(), getClass());
   }
 
-  @JsonCreator
-  public StringAttribute(@JsonProperty("value") String value) {
-    this();
+  public StringAttribute() {
+  }
+
+  public StringAttribute(String value) {
     this.value = value;
   }
 
@@ -26,13 +32,11 @@ public class StringAttribute extends Attribute {
     this.value = value;
   }
 
-  @Override
-  public String getIdent() {
+  public static String getIdent() {
     return "stringAttr";
   }
 
-  @Override
-  public String getNamespace() {
+  public static String getNamespace() {
     return "";
   }
 }

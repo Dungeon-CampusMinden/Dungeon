@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
  *
  * @param <ValueT> The type of value being referenced. Typically, a value but could also be a block or other type (branching operations)
  */
-public abstract class Operand<ValueT extends Value> implements IIdentifiableType {
+public abstract class Operand<ValueT extends Value> {
   @JsonBackReference
   public Operation owner;
 
@@ -29,6 +29,12 @@ public abstract class Operand<ValueT extends Value> implements IIdentifiableType
   abstract void setValue(ValueT value);
 
   public int GetOperandNumber() {
-    return owner.getOrCreateOperands().indexOf(this);
+    int index = -1;
+    assert owner.getOperands() != null;
+    for (var operand : owner.getOperands()) {
+      ++index;
+      if (operand == this) return index;
+    }
+    return -1;
   }
 }

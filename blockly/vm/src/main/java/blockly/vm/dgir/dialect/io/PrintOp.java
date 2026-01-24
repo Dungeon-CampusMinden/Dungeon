@@ -1,30 +1,48 @@
 package blockly.vm.dgir.dialect.io;
 
-import blockly.vm.dgir.core.Block;
-import blockly.vm.dgir.core.Operation;
-import blockly.vm.dgir.core.Value;
-import blockly.vm.dgir.core.ValueOperand;
-import com.fasterxml.jackson.annotation.JsonCreator;
+import blockly.vm.dgir.core.*;
 
 import java.util.List;
 
 
-public class PrintOp extends Operation {
-  public PrintOp() {}
+public class PrintOp extends Op {
+  @Override
+  public OperationName.Impl createImpl() {
+    class PrintOpModel extends OperationName.Impl {
+      PrintOpModel(String name, Class<? extends Op> type, Dialect dialect, String[] attributeNames) {
+        super(name, type, dialect, attributeNames);
+      }
 
-  public PrintOp(List<Value> operands) {
-    for (Value operand : operands) {
-      addOperand(new ValueOperand(operand));
+      @Override
+      public boolean verify(Operation operation) {
+        return false;
+      }
+
+      @Override
+      public void populateDefaultAttrs(NamedAttribute[] attributes) {
+
+      }
     }
+    return new PrintOpModel(getIdent(), this.getClass(), Dialect.get(IO.class), new String[]{});
   }
 
   @Override
-  public String getIdent() {
+  public OperationName getName() {
+    return null;
+  }
+
+  public PrintOp() {
+  }
+
+  public PrintOp(List<Value> operands) {
+    super(Operation.Create(getIdent(), operands.stream().map(ValueOperand::new).toList(), null, null, null));
+  }
+
+  public static String getIdent() {
     return "io.print";
   }
 
-  @Override
-  public String getNamespace() {
+  public static String getNamespace() {
     return "io";
   }
 }

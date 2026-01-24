@@ -7,19 +7,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * The identifier of the type takes into account the parameters, e.g. int8, int16, etc.
  */
 public abstract class ParametricType extends Type {
-  private final Object parameterStorage;
-
-  public ParametricType(Object parameters) {
-    this.parameterStorage = parameters;
-  }
-
   @JsonIgnore
-  public Object getParameters() {
-    return parameterStorage;
-  }
-
-  @Override
-  public boolean validate(Object value) {
-    return false;
-  }
+  public abstract Object getParameters();
 }

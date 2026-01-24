@@ -10,14 +10,8 @@ public final class NamedAttribute {
   @JsonBackReference
   public Operation owner;
 
-  public NamedAttribute(String name, Attribute attribute, Operation owner) {
-    this.name = name;
-    this.attribute = attribute;
-    this.owner = owner;
-  }
-
   @JsonCreator
-  private NamedAttribute(@JsonProperty("name") String name, @JsonProperty("attribute") Attribute attribute) {
+  public NamedAttribute(@JsonProperty("name") String name, @JsonProperty("attribute") Attribute attribute) {
     this.name = name;
     this.attribute = attribute;
   }

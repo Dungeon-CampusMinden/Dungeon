@@ -1,30 +1,58 @@
 package blockly.vm.dgir.dialect.arith;
 
-import blockly.vm.dgir.core.Attribute;
-import blockly.vm.dgir.core.Operation;
+import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class ConstantOp extends Operation {
+public class ConstantOp extends Op {
+  @JsonIgnore
+  private Attribute value;
+
+  @Override
+  public OperationName.Impl createImpl() {
+    class ConstantOpModel extends OperationName.Impl {
+      public ConstantOpModel() {
+        super(getIdent(), ConstantOp.class, Dialect.get(Arith.class), new String[]{"value"});
+      }
+
+      @Override
+      public boolean verify(Operation operation) {
+        return false;
+      }
+
+      @Override
+      public void populateDefaultAttrs(NamedAttribute[] attributes) {
+
+      }
+    }
+    return new ConstantOpModel();
+  }
+
   public ConstantOp() {
   }
 
+  public ConstantOp(Attribute value) {
+    setValueAttribute(value);
+  }
+
   @JsonIgnore
-  public Attribute getValue() {
-    return getOrCreateAttribute("value", new IntegerAttribute(0)).getAttribute();
+  public Attribute getValueAttribute() {
+    if (value == null) {
+      value = getOperation().getAttributes().get("value").getAttribute();
+    }
+    return value;
   }
 
-  public void setValue(Attribute attribute) {
-    getOrCreateAttribute("value", attribute).setAttribute(attribute);
+  public void setValueAttribute(Attribute attribute) {
+    getOperation().getAttributes().get("value").setAttribute(attribute);
+    this.value = attribute;
   }
 
-  @Override
-  public String getIdent() {
+  public static String getIdent() {
     return "artih.constant";
   }
 
-  @Override
-  public String getNamespace() {
+  public static String getNamespace() {
     return "arith";
   }
 }

@@ -1,6 +1,5 @@
 package blockly.vm.dgir.core;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -12,16 +11,33 @@ import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
+import java.lang.reflect.InvocationTargetException;
+
 @JsonSerialize(using = TypeSerializer.class)
 @JsonDeserialize(using = TypeDeserializer.class)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
-public abstract non-sealed class Type implements IIdentifiableType, ITypeLike {
-  public abstract boolean validate(Object value);
+public abstract class Type {
+  private TypeName impl;
 
-  @Override
-  public Type getType(){
-    return this;
+  // Every type should be default constructible.
+  public Type(){
   }
+
+  public Type(TypeName typeName){
+    this.impl = typeName;
+  }
+
+  public abstract TypeName.Impl createImpl();
+
+  public TypeName getName(){
+    return impl;
+  }
+
+  void setImpl(TypeName impl) {
+    this.impl = impl;
+  }
+
+  public abstract boolean validate(Object value);
 }
 
 class TypeSerializer extends StdSerializer<Type> {
@@ -35,7 +51,7 @@ class TypeSerializer extends StdSerializer<Type> {
 
   @Override
   public void serialize(Type value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
-    gen.writeString(value.getIdent());
+    gen.writeString(value.getName().getName());
   }
 }
 
@@ -52,9 +68,19 @@ class TypeDeserializer extends StdDeserializer<Type> {
   public Type deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
     String typeStr = p.getString();
     try {
-      return DialectRegistry.getTypeInstance(typeStr);
+      TypeName typeName = DGIRContext.registeredTypesByName.get(typeStr);
+      var constructor = typeName.getType().getConstructor(TypeName.class);
+      return constructor.newInstance(typeName);
     } catch (IllegalArgumentException e) {
       throw ctxt.invalidTypeIdException(_valueType, typeStr, e.getMessage());
+    } catch (NoSuchMethodException e) {
+      throw new RuntimeException(e);
+    } catch (InvocationTargetException e) {
+      throw new RuntimeException(e);
+    } catch (InstantiationException e) {
+      throw new RuntimeException(e);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
     }
   }
 }

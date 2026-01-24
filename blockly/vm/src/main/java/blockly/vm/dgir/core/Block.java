@@ -19,7 +19,7 @@ public final class Block implements Serializable {
   private List<BlockArgument> arguments;
   private final List<Operation> operations;
 
-  @JsonBackReference
+  @JsonIgnore
   public Region owner;
 
   public Block() {
@@ -54,34 +54,8 @@ public final class Block implements Serializable {
     return Collections.unmodifiableList(operations);
   }
 
-  public void addOperation(Operation op) {
-    insertOperationAt(op, operations.size());
-  }
-
-  public void insertOperationAt(Operation op, int index) {
-    op.removeFromBlock();
-    operations.add(index, op);
-    op.owner = this;
-  }
-
-  public void insertOperationBefore(Operation op, Operation before) {
-    insertOperationAt(op, operations.indexOf(before));
-  }
-
-  public void insertOperationAfter(Operation op, Operation after) {
-    insertOperationAt(op, operations.indexOf(after) + 1);
-  }
-
-  public void removeOperation(Operation op) {
-    var result = operations.remove(op);
-    if (result)
-      op.owner = null;
-  }
-
-  public void removeOperationAt(int index) {
-    var op = operations.remove(index);
-    if (op != null)
-      op.owner = null;
+  public void addOperation(Operation operation) {
+    operations.add(operation);
   }
 }
 

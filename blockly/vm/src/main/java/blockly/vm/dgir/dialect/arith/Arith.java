@@ -1,32 +1,29 @@
 package blockly.vm.dgir.dialect.arith;
 
-import blockly.vm.dgir.core.Attribute;
-import blockly.vm.dgir.core.IDialect;
-import blockly.vm.dgir.core.Operation;
-import blockly.vm.dgir.core.Type;
+import blockly.vm.dgir.core.*;
 
 import java.util.List;
 
-public class Arith implements IDialect {
+public class Arith extends Dialect {
   @Override
   public String getNamespace() {
     return "arith";
   }
 
   @Override
-  public List<Operation> AllOperations() {
+  public List<Op> allOps() {
     return List.of(
       new ConstantOp()
     );
   }
 
   @Override
-  public List<Type> AllTypes() {
+  public List<Type> allTypes() {
     return List.of();
   }
 
   @Override
-  public List<Attribute> AllAttributes() {
+  public List<Attribute> allAttributes() {
     return List.of();
   }
 }

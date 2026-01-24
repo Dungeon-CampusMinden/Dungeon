@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 @JsonPropertyOrder({"type"})
 @JsonIdentityInfo(scope = Value.class, generator = ValueSequenceGenerator.class, property = "@id")
-public non-sealed abstract class Value implements ITypeLike, Serializable {
+public abstract class Value implements Serializable {
   /**
    * The kind of value, to draw a distinction between op results and block arguments.
    */

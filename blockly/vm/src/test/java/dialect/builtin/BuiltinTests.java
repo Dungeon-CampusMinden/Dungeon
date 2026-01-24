@@ -35,23 +35,21 @@ public class BuiltinTests {
     ObjectMapper mapper = Utility.getMapper(true, true);
 
     ProgramOp op = new ProgramOp(true);
-    var programRegion = op.getOrCreateRegions().getFirst();
+    var programRegion = op.getOperation().getRegions()[0];
     var progBlock = programRegion.getOrCreateDefaultBlock();
 
-    var funcOp = new FuncOp("main", true);
-    var funcRegion = funcOp.getOrCreateRegions().getFirst();
+    var funcOp = new FuncOp("main");
+    var funcRegion = funcOp.getOperation().getRegions()[0];
     var funcBlock = funcRegion.getOrCreateDefaultBlock();
-    progBlock.addOperation(funcOp);
+    progBlock.addOperation(funcOp.getOperation());
 
-    var textOp = new ConstantOp();
-    textOp.setValue(new StringAttribute("Hello World!"));
-    funcBlock.addOperation(textOp);
+    var textOp = new ConstantOp(new StringAttribute("Hello World!"));
+    funcBlock.addOperation(textOp.getOperation());
 
-    var numberTextOP = new ConstantOp();
-    numberTextOP.setValue(new IntegerAttribute(42));
-    funcBlock.addOperation(numberTextOP);
+    var numberTextOP = new ConstantOp(new IntegerAttribute(42));
+    funcBlock.addOperation(numberTextOP.getOperation());
 
-    funcBlock.addOperation(new PrintOp(List.of(textOp.getOutput(), numberTextOP.getOutput())));
+    funcBlock.addOperation(new PrintOp(List.of(textOp.getOperation().getOutput(), numberTextOP.getOperation().getOutput())).getOperation());
 
     String result = mapper.writeValueAsString(op);
     System.out.println(result);

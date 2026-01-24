@@ -1,35 +1,82 @@
 package blockly.vm.dgir.dialect.func;
 
-import blockly.vm.dgir.core.Operation;
-import blockly.vm.dgir.core.Region;
+import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
+import blockly.vm.dgir.dialect.builtin.attributes.TypeAttribute;
+import blockly.vm.dgir.dialect.func.types.FuncType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class FuncOp extends Operation {
-  private String name;
+import java.util.List;
+
+public class FuncOp extends Op {
+  @JsonIgnore
+  private StringAttribute name;
+  @JsonIgnore
+  private TypeAttribute type;
+
+  @Override
+  public OperationName.Impl createImpl() {
+    class FuncOpModel extends OperationName.Impl {
+      FuncOpModel() {
+        super(getIdent(), FuncOp.class, DGIRContext.registeredDialects.get(Func.class), new String[]{"name", "type"});
+      }
+
+      @Override
+      public boolean verify(Operation operation) {
+        return true;
+      }
+
+      @Override
+      public void populateDefaultAttrs(NamedAttribute[] attributes) {
+        if (attributes[0].getAttribute() == null)
+          attributes[0].setAttribute(new StringAttribute("foo"));
+        if (attributes[1].getAttribute() == null)
+          attributes[1].setAttribute(new TypeAttribute(new FuncType(null, null)));
+      }
+    }
+    return new FuncOpModel();
+  }
 
   FuncOp() {
   }
 
-  public FuncOp(String name, boolean withDefaultRegion) {
-    setName(name);
-    if (withDefaultRegion)
-      addRegion(Region.createWithBlock());
+  public FuncOp(String name) {
+    super(Operation.Create(getIdent(), null, null, null, List.of(Region.createWithBlock())));
   }
 
-  public String getName() {
+  public StringAttribute getFuncNameAttribute() {
+    if (name == null)
+      name = (StringAttribute) (getOperation().getAttributes().get("name").getAttribute());
     return name;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public String getFuncName() {
+    return getFuncNameAttribute().getValue();
   }
 
-  @Override
-  public String getIdent() {
+  public void setFuncName(String newName) {
+    getFuncNameAttribute().setValue(newName);
+  }
+
+  public TypeAttribute getTypeAttribute() {
+    if (type == null)
+      type = (TypeAttribute) (getOperation().getAttributes().get("type").getAttribute());
+    return type;
+  }
+
+  public FuncType getType() {
+    return (FuncType) getTypeAttribute().getType();
+  }
+
+  public void setType(FuncType type) {
+    getTypeAttribute().setType(type);
+  }
+
+  public static String getIdent() {
     return "func.func";
   }
 
-  @Override
-  public String getNamespace() {
+  public static String getNamespace() {
     return "func";
   }
 }

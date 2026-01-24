@@ -1,6 +1,9 @@
 package blockly.vm.dgir.dialect.builtin.types;
 
+import blockly.vm.dgir.core.Dialect;
 import blockly.vm.dgir.core.ParametricType;
+import blockly.vm.dgir.core.Type;
+import blockly.vm.dgir.core.TypeName;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -14,20 +17,26 @@ public class IntegerT extends ParametricType {
   public static final IntegerT INT32 = new IntegerT(32);
   public static final IntegerT INT64 = new IntegerT(64);
 
+  private Object width;
+
+  @Override
+  public TypeName.Impl createImpl() {
+    class IntegerTModel extends TypeName.Impl {
+      public IntegerTModel(String name, Class<? extends Type> type, Dialect dialect) {
+        super(name, type, dialect);
+      }
+    }
+    return new IntegerTModel(getIdent() + getWidth(), getClass(), Dialect.get(Builtin.class));
+  }
+
   public IntegerT() {
-    super(32);
+    width = 32;
   }
 
   public IntegerT(int width) {
-    super(width);
+    this.width = width;
   }
 
-  @JsonCreator
-  public IntegerT(@JsonProperty("parameters") List<Object> parameters) {
-    super(parameters);
-  }
-
-  @JsonIgnore
   public int getWidth() {
     return (int) getParameters();
   }
@@ -56,13 +65,16 @@ public class IntegerT extends ParametricType {
     }
   }
 
-  @Override
-  public String getIdent() {
-    return "int" + getWidth();
+  public static String getIdent() {
+    return "int";
+  }
+
+  public static String getNamespace() {
+    return "";
   }
 
   @Override
-  public String getNamespace() {
-    return "";
+  public Object getParameters() {
+    return width;
   }
 }
