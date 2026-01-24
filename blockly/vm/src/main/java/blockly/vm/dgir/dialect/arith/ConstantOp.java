@@ -1,8 +1,6 @@
 package blockly.vm.dgir.dialect.arith;
 
 import blockly.vm.dgir.core.*;
-import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
@@ -10,10 +8,10 @@ public class ConstantOp extends Op {
   private Attribute value;
 
   @Override
-  public OperationName.Impl createImpl() {
-    class ConstantOpModel extends OperationName.Impl {
+  public OperationDetails.Impl createDetails() {
+    class ConstantOpModel extends OperationDetails.Impl {
       public ConstantOpModel() {
-        super(getIdent(), ConstantOp.class, Dialect.get(Arith.class), List.of("value"));
+        super(ConstantOp.getIdent(), ConstantOp.class, Dialect.get(Arith.class), List.of("value"));
       }
 
       @Override

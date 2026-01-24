@@ -1,10 +1,15 @@
 package blockly.vm.dgir.core;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 public class BlockArgument extends Value {
   /**
    * The block that owns this argument.
    */
+  @JsonBackReference
   private Block parent = null;
+
+  public BlockArgument() {}
 
   public BlockArgument(Type type) {
     super(type, Kind.BlockArgument);

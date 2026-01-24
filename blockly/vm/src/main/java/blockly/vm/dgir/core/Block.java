@@ -14,9 +14,12 @@ import java.util.Optional;
  * Blocks are always attached to a {@link Region}.
  */
 public final class Block implements Serializable {
+  @JsonManagedReference
   private final List<BlockArgument> arguments = new ArrayList<>();
+  @JsonManagedReference
   private final List<Operation> operations = new ArrayList<>();
 
+  @JsonBackReference
   private Region parent;
 
   public Block() {

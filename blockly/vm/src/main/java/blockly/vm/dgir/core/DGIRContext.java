@@ -5,26 +5,32 @@ import java.util.Map;
 
 public class DGIRContext {
 
-  // Mapping from operation-name to its operation info. These might or might not be registered.
-  public static final Map<String, OperationName.Impl> operationsByName = new HashMap<>();
+  // Mapping from op-ident and op class to its op details. In case the op aren't registered the class will be Op.class
+  // and the op-ident will be the full class name. These are not reliable in any way.
+  public static final Map<Class<? extends Op>, OperationDetails.Impl> operations = new HashMap<>();
+  public static final Map<String, OperationDetails.Impl> operationsByIdent = new HashMap<>();
 
   // All the registered operations.
-  public static final Map<Class<? extends Op>, RegisteredOperationName> registeredOperations = new HashMap<>();
-  public static final Map<String, RegisteredOperationName> registeredOperationsByName = new HashMap<>();
+  public static final Map<Class<? extends Op>, RegisteredOperationDetails> registeredOperations = new HashMap<>();
+  public static final Map<String, RegisteredOperationDetails> registeredOperationsByIdent = new HashMap<>();
 
-  // Mapping from attribute-name to its attribute info. These might or might not be registered.
-  public static final Map<String, AttributeName.Impl> attributesByName = new HashMap<>();
+  // Mapping from attribute-ident and attribute class to its attribute details. In case the attributes aren't registered the class will be Attribute.class
+  // and the attribute-ident will be the full class name. These are not reliable in any way.
+  public static final Map<Class<? extends Attribute>, AttributeDetails.Impl> attributes = new HashMap<>();
+  public static final Map<String, AttributeDetails.Impl> attributesByIdent = new HashMap<>();
 
   // All the registered attributes.
-  public static final Map<Class<? extends Attribute>, RegisteredAttributeName> registeredAttributes = new HashMap<>();
-  public static final Map<String, RegisteredAttributeName> registeredAttributesByName = new HashMap<>();
+  public static final Map<Class<? extends Attribute>, RegisteredAttributeDetails> registeredAttributes = new HashMap<>();
+  public static final Map<String, RegisteredAttributeDetails> registeredAttributesByIdent = new HashMap<>();
 
-  // Mapping from type-name to its type info. These might or might not be registered.
-  public static final Map<String, TypeName.Impl> typesByName = new HashMap<>();
+  // Mapping from type-ident and type class to its type details. In case the types aren't registered the class will be Type.class
+  // and the type-ident will be the full class name. These are not reliable in any way.
+  public static final Map<Class<? extends Type>, TypeDetails.Impl> types = new HashMap<>();
+  public static final Map<String, TypeDetails.Impl> typesByIdent = new HashMap<>();
 
   // All the registered types.
-  public static final Map<Class<? extends Type>, RegisteredTypeName> registeredTypes = new HashMap<>();
-  public static final Map<String, RegisteredTypeName> registeredTypesByName = new HashMap<>();
+  public static final Map<Class<? extends Type>, RegisteredTypeDetails> registeredTypes = new HashMap<>();
+  public static final Map<String, RegisteredTypeDetails> registeredTypesByIdent = new HashMap<>();
 
   // All the registered dialects.
   public static final Map<Class<? extends Dialect>, Dialect> registeredDialects = new HashMap<>();

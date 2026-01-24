@@ -1,8 +1,9 @@
 package blockly.vm.dgir.dialect.builtin.types;
 
 import blockly.vm.dgir.core.Dialect;
+import blockly.vm.dgir.core.RegisteredTypeDetails;
 import blockly.vm.dgir.core.Type;
-import blockly.vm.dgir.core.TypeName;
+import blockly.vm.dgir.core.TypeDetails;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -17,14 +18,16 @@ public class FloatT extends Type {
   }
 
   public FloatT(int width) {
+    assert width == 32 || width == 64 : "Invalid float width: " + width;
+
     this.width = width;
   }
 
   @Override
-  public TypeName.Impl createImpl() {
-    class FloatTModel extends TypeName.Impl {
+  public TypeDetails.Impl createImpl() {
+    class FloatTModel extends TypeDetails.Impl {
       public FloatTModel(int width) {
-        super(getIdent() + width, FloatT.class, Dialect.get(Builtin.class));
+        super(FloatT.getIdent() + width, FloatT.class, Dialect.get(Builtin.class));
       }
     }
     return new FloatTModel(getWidth());

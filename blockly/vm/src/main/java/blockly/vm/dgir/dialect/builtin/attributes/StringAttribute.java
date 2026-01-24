@@ -8,8 +8,8 @@ public class StringAttribute extends Attribute {
   private String value;
 
   @Override
-  public AttributeName.Impl createImpl() {
-    class StringAttributeModel extends AttributeName.Impl {
+  public AttributeDetails.Impl createImpl() {
+    class StringAttributeModel extends AttributeDetails.Impl {
       public StringAttributeModel(String name, Class<? extends Attribute> type) {
         super(name, type, null);
       }
@@ -18,10 +18,11 @@ public class StringAttribute extends Attribute {
   }
 
   public StringAttribute() {
+    super(RegisteredAttributeDetails.lookup(StringT.getIdent()).orElse(null));
   }
 
   public StringAttribute(String value) {
-    super(RegisteredAttributeName.lookup(getIdent()).orElseThrow());
+    super(RegisteredAttributeDetails.lookup(getIdent()).orElseThrow());
     setValue(value);
   }
 

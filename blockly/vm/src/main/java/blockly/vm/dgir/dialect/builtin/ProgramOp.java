@@ -6,8 +6,8 @@ import java.util.List;
 
 public class ProgramOp extends Op {
   @Override
-  public OperationName.Impl createImpl() {
-    class ProgramOpModel extends OperationName.Impl {
+  public OperationDetails.Impl createDetails() {
+    class ProgramOpModel extends OperationDetails.Impl {
       ProgramOpModel(String name, Class<? extends Op> type, Dialect dialect, List<String> attributeNames) {
         super(name, type, dialect, attributeNames);
       }
@@ -26,15 +26,11 @@ public class ProgramOp extends Op {
     return new ProgramOpModel(getIdent(), this.getClass(), DGIRContext.registeredDialects.get(Builtin.class), List.of());
   }
 
-  @Override
-  public OperationName getName() {
-    return getOperation().getName();
+  ProgramOp() {
   }
 
-  ProgramOp() {}
-
-  public ProgramOp(boolean withRegion){
-    if(withRegion) {
+  public ProgramOp(boolean withRegion) {
+    if (withRegion) {
       setOperation(Operation.Create(getIdent(), null, null, List.of(Region.createWithBlock())));
     }
   }

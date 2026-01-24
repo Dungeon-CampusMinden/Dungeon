@@ -7,8 +7,8 @@ import java.util.List;
 
 public class PrintOp extends Op {
   @Override
-  public OperationName.Impl createImpl() {
-    class PrintOpModel extends OperationName.Impl {
+  public OperationDetails.Impl createDetails() {
+    class PrintOpModel extends OperationDetails.Impl {
       PrintOpModel(String name, Class<? extends Op> type, Dialect dialect, List<String> attributeNames) {
         super(name, type, dialect, attributeNames);
       }
@@ -27,7 +27,7 @@ public class PrintOp extends Op {
   }
 
   @Override
-  public OperationName getName() {
+  public OperationDetails getDetails() {
     return null;
   }
 

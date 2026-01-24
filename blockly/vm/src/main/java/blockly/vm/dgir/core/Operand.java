@@ -1,12 +1,15 @@
 package blockly.vm.dgir.core;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 /**
  * A reference to a value used as an operand to an operation.
  *
  * @param <ValueT> The type of value being referenced. Typically, a value but could also be a block or other type (branching operations)
  */
 public abstract class Operand<ValueT extends Value> {
+  @JsonBackReference
   private Operation parent;
 
   /**

@@ -1,5 +1,8 @@
 package blockly.vm.dgir.core;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -7,6 +10,7 @@ import java.util.List;
 public final class Region {
   private final List<Block> blocks = new ArrayList<>();
 
+  @JsonBackReference
   private Operation parent = null;
 
   public Region() {
@@ -25,7 +29,7 @@ public final class Region {
     return region;
   }
 
-
+  @JsonIgnore
   public Block getOrCreateDefaultBlock() {
     return blocks.stream().findFirst().orElseGet(() -> {
       Block block = new Block();

@@ -1,34 +1,31 @@
 package blockly.vm.dgir.core;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import java.io.Serializable;
 
 public abstract class Attribute implements Serializable {
-  private AttributeName name;
+  private AttributeDetails details;
 
-  public abstract AttributeName.Impl createImpl();
+  public abstract AttributeDetails.Impl createImpl();
 
   public Attribute() {
+    setDetails(AttributeDetails.get(getClass()));
   }
 
-  public Attribute(AttributeName name) {
-    this.name = name;
+  public Attribute(AttributeDetails details) {
+    setDetails(details);
   }
 
-  public AttributeName getName() {
-    return name;
+  public AttributeDetails getDetails() {
+    return details;
   }
 
-  public void setName(AttributeName name) {
+  public void setDetails(AttributeDetails details) {
     // Make sure that only classes extending Attribute call this method.
-    assert Utils.Caller.getCallingClass().isAssignableFrom(Attribute.class) : "Only subclasses of Attribute can set the name. Was called from " + Utils.Caller.getCallingClass().getName();
-    assert this.name == null : "Attribute name already set.";
-    assert name != null : "Attribute name cannot be null.";
+    assert Utils.Caller.getCallingClass().isAssignableFrom(Attribute.class)
+      || Utils.Caller.getCallingClass().isAssignableFrom(RegisteredAttributeDetails.class)
+      : "Only subclasses of Attribute can set the details. Was called from " + Utils.Caller.getCallingClass().getName();
 
-    this.name = name;
+    this.details = details;
   }
 
   public abstract Type getType();

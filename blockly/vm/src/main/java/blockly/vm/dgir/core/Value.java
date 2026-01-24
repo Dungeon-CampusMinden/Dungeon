@@ -23,8 +23,13 @@ public abstract class Value implements Serializable {
     BlockArgument
   }
 
-  private final Type type;
-  private final Kind kind;
+  private Type type;
+  private Kind kind;
+
+  public Value() {
+    type = null;
+    kind = null;
+  }
 
   protected Value(Type type, Kind kind) {
     this.type = type;
@@ -35,8 +40,15 @@ public abstract class Value implements Serializable {
     return type;
   }
 
-  @JsonIgnore
+  protected void setType(Type type) {
+    this.type = type;
+  }
+
   public Kind getKind() {
     return kind;
+  }
+
+  protected void setKind(Kind kind) {
+    this.kind = kind;
   }
 }

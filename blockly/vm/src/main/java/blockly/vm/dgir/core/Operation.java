@@ -1,5 +1,8 @@
 package blockly.vm.dgir.core;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,46 +16,51 @@ public final class Operation implements Serializable {
   /**
    * The unique identifier of this operation.
    */
-  private OperationName name = null;
+  private OperationDetails details = null;
 
   /**
    * The input values of this operation.
    */
+  @JsonManagedReference
   private final List<ValueOperand> operands = new ArrayList<>();
 
   /**
    * The output of this operation.
    */
+  @JsonManagedReference
   private OperationResult output = null;
 
   /**
    * The attributes of this operation.
    */
+  @JsonManagedReference
   private final Map<String, NamedAttribute> attributes = new HashMap<>();
 
   /**
    * The regions of this operation.
    */
+  @JsonManagedReference
   private final List<Region> regions = new ArrayList<>();
 
   /**
    * The block containing this operation.
    */
+  @JsonBackReference
   private Block parent = null;
 
   public static Operation Create(String name,
                                  List<ValueOperand> operands,
                                  OperationResult output,
                                  List<Region> regions) {
-    return Create(RegisteredOperationName.lookup(name).orElseThrow(), operands, output, regions);
+    return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, output, regions);
   }
 
-  public static Operation Create(OperationName name,
+  public static Operation Create(OperationDetails name,
                                  List<ValueOperand> operands,
                                  OperationResult output,
                                  List<Region> regions) {
     // Ensure the most important arguments is non-null
-    if (name == null) throw new IllegalArgumentException("Operation name cannot be null");
+    if (name == null) throw new IllegalArgumentException("Operation details cannot be null");
 
     // Ensure operands is a valid arraylist
     operands = operands == null ? new ArrayList<>() : new ArrayList<>(operands);
@@ -76,12 +84,12 @@ public final class Operation implements Serializable {
 
   }
 
-  public Operation(OperationName name,
+  public Operation(OperationDetails details,
                    List<ValueOperand> operands,
                    OperationResult output,
                    Map<String, NamedAttribute> attributes,
                    List<Region> regions) {
-    setName(name);
+    setDetails(details);
     setOutput(output);
 
     for (var operand : operands)
@@ -92,15 +100,15 @@ public final class Operation implements Serializable {
       addRegion(region);
   }
 
-  public OperationName getName() {
-    return name;
+  public OperationDetails getDetails() {
+    return details;
   }
 
-  private void setName(OperationName name) {
-    assert this.name == null : "Operation name already set.";
-    assert name != null : "Operation name cannot be null.";
+  public void setDetails(OperationDetails details) {
+    assert this.details == null : "Operation details already set.";
+    assert details != null : "Operation details cannot be null.";
 
-    this.name = name;
+    this.details = details;
   }
 
   public List<ValueOperand> getOperands() {
@@ -120,14 +128,27 @@ public final class Operation implements Serializable {
   }
 
   public void setOutput(OperationResult output) {
+    assert this.output == null || output == null : "Output already set.";
+    assert output == null || output.getParent() == null : "Output already has a parent.";
+
+    if (this.output != null)
+      removeOutput();
     this.output = output;
+    if (output != null)
+      output.setParent(this);
   }
+
+  public void removeOutput() {
+    this.output.setParent(null);
+    this.output = null;
+  }
+
 
   public Map<String, NamedAttribute> getAttributes() {
     return Collections.unmodifiableMap(attributes);
   }
 
-  public void addAttribute(NamedAttribute attribute) {
+  private void addAttribute(NamedAttribute attribute) {
     assert attribute != null : "Attribute cannot be null.";
     assert attribute.getParent() == null : "Attribute already has a parent.";
 
@@ -135,7 +156,7 @@ public final class Operation implements Serializable {
     attribute.setParent(this);
   }
 
-  public void removeAttribute(NamedAttribute attribute) {
+  private void removeAttribute(NamedAttribute attribute) {
     assert attribute != null : "Attribute cannot be null.";
     assert attribute.getParent() == this : "Attribute does not belong to this operation.";
 
@@ -162,6 +183,7 @@ public final class Operation implements Serializable {
     regions.remove(region);
     region.setParent(null);
   }
+
 
   public Block getParent() {
     return parent;

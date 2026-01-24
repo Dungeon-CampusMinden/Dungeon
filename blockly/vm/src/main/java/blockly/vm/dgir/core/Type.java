@@ -1,27 +1,30 @@
 package blockly.vm.dgir.core;
 
 public abstract class Type {
-  private TypeName name;
+  private TypeDetails details;
 
   // Every type should be default constructible.
   public Type() {
+    setDetails(TypeDetails.get(getClass()));
   }
 
-  public Type(TypeName typeName) {
-    setName(typeName);
+  public Type(TypeDetails typeDetails) {
+    setDetails(typeDetails);
   }
 
-  public abstract TypeName.Impl createImpl();
+  public abstract TypeDetails.Impl createImpl();
 
-  public TypeName getName() {
-    return name;
+  public TypeDetails getDetails() {
+    return details;
   }
 
-  protected void setName(TypeName name) {
-    assert this.name == null || this.name == name : "Type name already set.";
-    assert name != null : "Type name cannot be null.";
+  protected void setDetails(TypeDetails details) {
 
-    this.name = name;
+    assert Utils.Caller.getCallingClass().isAssignableFrom(Type.class)
+      || Utils.Caller.getCallingClass().isAssignableFrom(RegisteredTypeDetails.class)
+      : "Only subclasses of Type can set the details. Was called from " + Utils.Caller.getCallingClass().getName();
+
+    this.details = details;
   }
 
   public abstract boolean validate(Object value);

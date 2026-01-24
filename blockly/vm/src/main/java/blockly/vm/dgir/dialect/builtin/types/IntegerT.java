@@ -1,8 +1,9 @@
 package blockly.vm.dgir.dialect.builtin.types;
 
 import blockly.vm.dgir.core.Dialect;
+import blockly.vm.dgir.core.RegisteredTypeDetails;
 import blockly.vm.dgir.core.Type;
-import blockly.vm.dgir.core.TypeName;
+import blockly.vm.dgir.core.TypeDetails;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 
 public class IntegerT extends Type {
@@ -14,8 +15,8 @@ public class IntegerT extends Type {
   private final int width;
 
   @Override
-  public TypeName.Impl createImpl() {
-    class IntegerTModel extends TypeName.Impl {
+  public TypeDetails.Impl createImpl() {
+    class IntegerTModel extends TypeDetails.Impl {
       public IntegerTModel(String name, Class<? extends Type> type, Dialect dialect) {
         super(name, type, dialect);
       }
@@ -24,10 +25,14 @@ public class IntegerT extends Type {
   }
 
   public IntegerT() {
+    super(RegisteredTypeDetails.lookup(StringT.getIdent()).orElse(null));
     width = 32;
   }
 
   public IntegerT(int width) {
+    super(RegisteredTypeDetails.lookup(IntegerT.getIdent()).orElse(null));
+    assert width == 8 || width == 16 || width == 32 || width == 64 : "Invalid integer width: " + width;
+
     this.width = width;
   }
 

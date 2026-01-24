@@ -1,20 +1,16 @@
 package blockly.vm.dgir.dialect.builtin.attributes;
 
-import blockly.vm.dgir.core.Attribute;
-import blockly.vm.dgir.core.AttributeName;
-import blockly.vm.dgir.core.RegisteredAttributeName;
-import blockly.vm.dgir.core.Type;
+import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.dialect.builtin.types.IntegerT;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import blockly.vm.dgir.dialect.builtin.types.StringT;
 
 public class IntegerAttribute extends Attribute {
   public static final IntegerAttribute INSTANCE = new IntegerAttribute();
   private long value;
 
   @Override
-  public AttributeName.Impl createImpl() {
-    class IntegerAttributeModel extends AttributeName.Impl {
+  public AttributeDetails.Impl createImpl() {
+    class IntegerAttributeModel extends AttributeDetails.Impl {
       public IntegerAttributeModel(String name, Class<? extends Attribute> type) {
         super(name, type, null);
       }
@@ -26,7 +22,6 @@ public class IntegerAttribute extends Attribute {
   }
 
   public IntegerAttribute(long value) {
-    super(RegisteredAttributeName.lookup(getIdent()).orElseThrow());
     setValue(value);
   }
 

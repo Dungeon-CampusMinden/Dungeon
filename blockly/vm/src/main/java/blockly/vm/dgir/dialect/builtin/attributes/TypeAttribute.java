@@ -2,22 +2,24 @@ package blockly.vm.dgir.dialect.builtin.attributes;
 
 import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.dialect.builtin.Builtin;
+import blockly.vm.dgir.dialect.builtin.types.StringT;
 
 public class TypeAttribute extends Attribute {
   public static final TypeAttribute INSTANCE = new TypeAttribute();
   private Type type;
 
   public TypeAttribute() {
+    super(RegisteredAttributeDetails.lookup(StringT.getIdent()).orElse(null));
   }
 
   public TypeAttribute(Type type) {
-    super(RegisteredAttributeName.lookup(getIdent()).orElseThrow());
+    super(RegisteredAttributeDetails.lookup(getIdent()).orElseThrow());
     setType(type);
   }
 
   @Override
-  public AttributeName.Impl createImpl() {
-    class TypeAttributeModel extends AttributeName.Impl {
+  public AttributeDetails.Impl createImpl() {
+    class TypeAttributeModel extends AttributeDetails.Impl {
       public TypeAttributeModel(String name, Class<? extends Attribute> type, Dialect dialect) {
         super(name, type, dialect);
       }

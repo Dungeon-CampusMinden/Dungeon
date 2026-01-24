@@ -12,10 +12,10 @@ public class FuncOp extends Op {
   private TypeAttribute type;
 
   @Override
-  public OperationName.Impl createImpl() {
-    class FuncOpModel extends OperationName.Impl {
+  public OperationDetails.Impl createDetails() {
+    class FuncOpModel extends OperationDetails.Impl {
       FuncOpModel() {
-        super(getIdent(), FuncOp.class, DGIRContext.registeredDialects.get(Func.class), List.of("name", "type"));
+        super(FuncOp.getIdent(), FuncOp.class, DGIRContext.registeredDialects.get(Func.class), List.of("name", "type"));
       }
 
       @Override

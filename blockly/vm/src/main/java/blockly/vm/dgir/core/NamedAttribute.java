@@ -1,9 +1,13 @@
 package blockly.vm.dgir.core;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 public final class NamedAttribute {
   private final String name;
   private Attribute attribute;
-  public Operation parent;
+
+  @JsonBackReference
+  private Operation parent;
 
   public NamedAttribute(String name, Attribute attribute) {
     this.name = name;
@@ -27,6 +31,9 @@ public final class NamedAttribute {
   }
 
   public void setParent(Operation operation) {
+    assert Utils.Caller.getCallingClass() == Operation.class : "Assigning the parent of a named attribute is only allowed from the Operation class. Was called from " + Utils.Caller.getCallingClass().getName();
+    assert this.parent == null || this.parent == operation : "Named attribute already assigned to another operation.";
+
     this.parent = operation;
   }
 }

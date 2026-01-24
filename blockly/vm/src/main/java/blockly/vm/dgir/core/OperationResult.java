@@ -1,6 +1,9 @@
 package blockly.vm.dgir.core;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 public class OperationResult extends Value {
+  @JsonBackReference
   private Operation parent;
 
   public OperationResult(Type type) {

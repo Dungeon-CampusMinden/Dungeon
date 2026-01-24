@@ -1,5 +1,7 @@
 package blockly.vm.dgir.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Abstract base class for all operations in the DGIR.
  * This class contains the actual state in form an operation object.
@@ -10,10 +12,14 @@ package blockly.vm.dgir.core;
 public abstract class Op implements Cloneable {
   private Operation operation;
 
-  public abstract OperationName.Impl createImpl();
+  public abstract OperationDetails.Impl createDetails();
 
-  public OperationName getName() {
-    return operation.getName();
+  @JsonIgnore
+  public OperationDetails getDetails() {
+    if (operation == null) {
+      return null;
+    }
+    return operation.getDetails();
   }
 
   // Every op should be default constructible.

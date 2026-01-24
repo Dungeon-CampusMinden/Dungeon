@@ -9,13 +9,13 @@ public abstract class Dialect {
 
     System.out.println("Initializing dialect: " + getNamespace());
     for (var op : allOps()) {
-      RegisteredOperationName.insert(op.createImpl());
+      RegisteredOperationDetails.insert(op);
     }
     for (var type : allTypes()) {
-      RegisteredTypeName.insert(type.createImpl());
+      RegisteredTypeDetails.insert(type);
     }
     for (var attr : allAttributes()) {
-      RegisteredAttributeName.insert(attr.createImpl());
+      RegisteredAttributeDetails.insert(attr);
     }
     System.out.println("Dialect " + getNamespace() + " initialized successfully.");
   }
