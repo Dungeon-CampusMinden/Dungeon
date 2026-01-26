@@ -21,6 +21,17 @@ public class StringAttribute extends Attribute {
     super(RegisteredAttributeDetails.lookup(StringT.getIdent()).orElse(null));
   }
 
+  @Override
+  public Object getStorage() {
+    return value;
+  }
+
+  @Override
+  public void setStorage(Object storage) {
+    getType().validate(storage);
+    setValue((String) storage);
+  }
+
   public StringAttribute(String value) {
     super(RegisteredAttributeDetails.lookup(getIdent()).orElseThrow());
     setValue(value);

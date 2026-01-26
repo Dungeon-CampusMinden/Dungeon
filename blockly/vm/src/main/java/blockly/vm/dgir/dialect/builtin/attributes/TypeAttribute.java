@@ -12,6 +12,17 @@ public class TypeAttribute extends Attribute {
     super(RegisteredAttributeDetails.lookup(StringT.getIdent()).orElse(null));
   }
 
+  @Override
+  public Object getStorage() {
+    return type;
+  }
+
+  @Override
+  public void setStorage(Object storage) {
+    getType().validate(storage);
+    setType((Type) storage);
+  }
+
   public TypeAttribute(Type type) {
     super(RegisteredAttributeDetails.lookup(getIdent()).orElseThrow());
     setType(type);

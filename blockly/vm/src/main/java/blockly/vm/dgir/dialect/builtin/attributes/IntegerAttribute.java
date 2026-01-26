@@ -21,6 +21,17 @@ public class IntegerAttribute extends Attribute {
   public IntegerAttribute(){
   }
 
+  @Override
+  public Object getStorage() {
+    return value;
+  }
+
+  @Override
+  public void setStorage(Object storage) {
+    getType().validate(storage);
+    setValue((long) storage);
+  }
+
   public IntegerAttribute(long value) {
     setValue(value);
   }

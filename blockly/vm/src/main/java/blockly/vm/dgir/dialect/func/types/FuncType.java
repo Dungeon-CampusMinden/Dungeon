@@ -3,10 +3,13 @@ package blockly.vm.dgir.dialect.func.types;
 import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.dialect.builtin.types.StringT;
 import blockly.vm.dgir.dialect.func.Func;
+import blockly.vm.dgir.dialect.func.serialization.FuncTypeSerializer;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonSerialize(using = FuncTypeSerializer.class)
 public class FuncType extends Type {
   public static final FuncType INSTANCE = new FuncType();
 
@@ -24,11 +27,9 @@ public class FuncType extends Type {
   }
 
   public FuncType() {
-    super(RegisteredTypeDetails.lookup(getIdent()).orElse(null));
   }
 
   public FuncType(List<Type> inputs, Type output) {
-    super(RegisteredTypeDetails.lookup(getIdent()).orElseThrow());
     this.inputs = inputs;
     this.output = output;
   }

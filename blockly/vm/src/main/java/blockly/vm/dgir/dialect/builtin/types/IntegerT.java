@@ -25,12 +25,10 @@ public class IntegerT extends Type {
   }
 
   public IntegerT() {
-    super(RegisteredTypeDetails.lookup(StringT.getIdent()).orElse(null));
     width = 32;
   }
 
   public IntegerT(int width) {
-    super(RegisteredTypeDetails.lookup(IntegerT.getIdent()).orElse(null));
     assert width == 8 || width == 16 || width == 32 || width == 64 : "Invalid integer width: " + width;
 
     this.width = width;

@@ -9,9 +9,11 @@ public class RegisteredOperationDetails extends OperationDetails {
 
   public static void insert(Op op) {
     RegisteredOperationDetails details;
-    if (op.getDetails() != null && op.getDetails() instanceof RegisteredOperationDetails) {
+    if (op.getOperation() != null
+      && op.getDetails() != null
+      && op.getDetails() instanceof RegisteredOperationDetails) {
       details = (RegisteredOperationDetails) op.getDetails();
-    }else {
+    } else {
       details = new RegisteredOperationDetails(op.createDetails());
     }
 

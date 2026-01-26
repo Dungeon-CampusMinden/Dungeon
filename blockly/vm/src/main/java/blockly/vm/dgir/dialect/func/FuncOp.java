@@ -8,9 +8,6 @@ import blockly.vm.dgir.dialect.func.types.FuncType;
 import java.util.List;
 
 public class FuncOp extends Op {
-  private StringAttribute name;
-  private TypeAttribute type;
-
   @Override
   public OperationDetails.Impl createDetails() {
     class FuncOpModel extends OperationDetails.Impl {
@@ -25,8 +22,8 @@ public class FuncOp extends Op {
 
       @Override
       public void populateDefaultAttrs(List<NamedAttribute> attributes) {
-          attributes.get(0).setAttribute(new StringAttribute("foo"));
-          attributes.get(1).setAttribute(new TypeAttribute(new FuncType(null, null)));
+        attributes.get(0).setAttribute(new StringAttribute("foo"));
+        attributes.get(1).setAttribute(new TypeAttribute(new FuncType()));
       }
     }
     return new FuncOpModel();
@@ -36,14 +33,17 @@ public class FuncOp extends Op {
   }
 
   public FuncOp(String name) {
-    super(Operation.Create(getIdent(), null, null, List.of(Region.createWithBlock())));
+    setOperation(Operation.Create(getIdent(), null, null, List.of(Region.createWithBlock())));
+    setFuncName(name);
+  }
+
+  public FuncOp(String name, FuncType type) {
+    setOperation(Operation.Create(getIdent(), null, null, List.of(Region.createWithBlock())));
     setFuncName(name);
   }
 
   public StringAttribute getFuncNameAttribute() {
-    if (name == null)
-      name = (StringAttribute) (getOperation().getAttributes().get("name").getAttribute());
-    return name;
+    return (StringAttribute) (getOperation().getAttributes().get("name").getAttribute());
   }
 
   public String getFuncName() {
@@ -55,9 +55,7 @@ public class FuncOp extends Op {
   }
 
   public TypeAttribute getTypeAttribute() {
-    if (type == null)
-      type = (TypeAttribute) (getOperation().getAttributes().get("type").getAttribute());
-    return type;
+    return (TypeAttribute) (getOperation().getAttributes().get("type").getAttribute());
   }
 
   public FuncType getType() {
@@ -66,6 +64,9 @@ public class FuncOp extends Op {
 
   public void setType(FuncType type) {
     getTypeAttribute().setType(type);
+    for (int i = 0; i < type.getInputs().size(); i++) {
+
+    }
   }
 
   public static String getIdent() {

@@ -10,7 +10,6 @@ public class StringT extends Type {
   public static final StringT INSTANCE = new StringT();
 
   public StringT() {
-    super(RegisteredTypeDetails.lookup(StringT.getIdent()).orElse(null));
   }
 
   @Override

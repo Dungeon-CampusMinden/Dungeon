@@ -1,7 +1,12 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.serialization.AttributeSerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import tools.jackson.databind.annotation.JsonSerialize;
+
 import java.io.Serializable;
 
+@JsonSerialize(using = AttributeSerializer.class)
 public abstract class Attribute implements Serializable {
   private AttributeDetails details;
 
@@ -14,6 +19,10 @@ public abstract class Attribute implements Serializable {
   public Attribute(AttributeDetails details) {
     setDetails(details);
   }
+
+  @JsonIgnore
+  public abstract Object getStorage();
+  public abstract void setStorage(Object storage);
 
   public AttributeDetails getDetails() {
     return details;

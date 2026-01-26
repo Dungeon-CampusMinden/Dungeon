@@ -1,10 +1,8 @@
 package dialect.builtin;
 
-import blockly.vm.dgir.core.NamedAttribute;
 import blockly.vm.dgir.core.serialization.Utility;
 import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
-import blockly.vm.dgir.dialect.builtin.types.IntegerT;
 import blockly.vm.dgir.dialect.arith.ConstantOp;
 import blockly.vm.dgir.dialect.builtin.ProgramOp;
 import blockly.vm.dgir.dialect.func.FuncOp;

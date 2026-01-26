@@ -1,7 +1,9 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.serialization.OperationSerializer;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.io.Serializable;
 import java.util.*;
@@ -12,6 +14,7 @@ import java.util.stream.Collectors;
  * operation. This structure is used so that operations can be constructed independently
  * of their behavior. This is especially useful for serialization and deserialization.
  */
+@JsonSerialize(using = OperationSerializer.class)
 public final class Operation implements Serializable {
   /**
    * The unique identifier of this operation.

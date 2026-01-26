@@ -6,6 +6,10 @@ public class OperationResult extends Value {
   @JsonBackReference
   private Operation parent;
 
+  public OperationResult() {
+    super(null, Kind.OpResult);
+  }
+
   public OperationResult(Type type) {
     super(type, Kind.OpResult);
   }

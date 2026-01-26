@@ -1,5 +1,9 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.serialization.TypeSerializer;
+import tools.jackson.databind.annotation.JsonSerialize;
+
+@JsonSerialize(using = TypeSerializer.class)
 public abstract class Type {
   private TypeDetails details;
 
@@ -19,7 +23,6 @@ public abstract class Type {
   }
 
   protected void setDetails(TypeDetails details) {
-
     assert Utils.Caller.getCallingClass().isAssignableFrom(Type.class)
       || Utils.Caller.getCallingClass().isAssignableFrom(RegisteredTypeDetails.class)
       : "Only subclasses of Type can set the details. Was called from " + Utils.Caller.getCallingClass().getName();

@@ -5,8 +5,6 @@ import blockly.vm.dgir.core.*;
 import java.util.List;
 
 public class ConstantOp extends Op {
-  private Attribute value;
-
   @Override
   public OperationDetails.Impl createDetails() {
     class ConstantOpModel extends OperationDetails.Impl {
@@ -30,20 +28,21 @@ public class ConstantOp extends Op {
   }
 
   public ConstantOp(Attribute value) {
-    super(Operation.Create(getIdent(), null, new OperationResult(value.getType()), null));
+    setOperation(Operation.Create(getIdent(), null, new OperationResult(value.getType()), null));
     setValueAttribute(value);
   }
 
   public Attribute getValueAttribute() {
-    if (value == null) {
-      value = getOperation().getAttributes().get("value").getAttribute();
-    }
-    return value;
+    return getAttributes().get("value").getAttribute();
   }
 
   public void setValueAttribute(Attribute attribute) {
+    assert attribute != null : "Attribute cannot be null.";
     getOperation().getAttributes().get("value").setAttribute(attribute);
-    this.value = attribute;
+    if (getOperation().getOutput() != null)
+    {
+      getOperation().getOutput().setType(attribute.getType());
+    }
   }
 
   public static String getIdent() {

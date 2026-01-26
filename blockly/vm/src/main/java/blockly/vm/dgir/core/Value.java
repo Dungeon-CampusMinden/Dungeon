@@ -40,7 +40,7 @@ public abstract class Value implements Serializable {
     return type;
   }
 
-  protected void setType(Type type) {
+  public void setType(Type type) {
     this.type = type;
   }
 
