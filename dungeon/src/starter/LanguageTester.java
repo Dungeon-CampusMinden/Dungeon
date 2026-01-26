@@ -70,6 +70,11 @@ public class LanguageTester {
                 && Localization.currentLanguage() == Language.EN) {
               Localization.currentLanguage(Language.DE);
             }
+            // Shows an image in the current language.
+            if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
+              String path = Localization.getInstance().asset("dungeon/assets/images/open-book.png");
+              DialogUtils.showImagePopUp(path);
+            }
           }
         });
   }

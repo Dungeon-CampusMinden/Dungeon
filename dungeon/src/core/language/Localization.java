@@ -102,21 +102,26 @@ public class Localization {
    * @param basePath Path of the base such as 'assets/images/open-book.png'.
    * @return FileHandler for the current asset.
    */
-  public FileHandle asset(String basePath) {
-    FileHandle fileHandle = Gdx.files.internal(addSuffix(basePath));
+  public String asset(String basePath) {
+    FileHandle handler = Gdx.files.internal(addSuffix(basePath, false));
 
-    if (fileHandle.exists()) {
-      return fileHandle;
+    if (handler.exists()) {
+      return handler.path();
     } else {
-      return Gdx.files.internal(addSuffix(FALLBACK_LANGUAGE.toString()));
+      return Gdx.files.internal(addSuffix(basePath, true)).path();
     }
   }
 
-  private String addSuffix(String filePath) {
+  private String addSuffix(String filePath, boolean fallback) {
     int index = filePath.lastIndexOf(".");
     String name = filePath.substring(0, index);
     String fileFormat = filePath.substring(index);
-    return name + "_" + currentLanguage().toString() + fileFormat;
+
+    if (fallback) {
+      return name + "_" + FALLBACK_LANGUAGE.toString() + fileFormat;
+    } else {
+      return name + "_" + currentLanguage().toString() + fileFormat;
+    }
   }
 
   private String readFileContent(File file) throws IOException {
