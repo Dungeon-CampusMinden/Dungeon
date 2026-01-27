@@ -329,10 +329,10 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 	clean-green: {
 		font: roboto-semibold-32
 		fontColor: white
-		up: button_rectangle_depth_flat
-		down: button_rectangle_gloss
-		over: button_rectangle_depth_gloss
-		disabled: button_rectangle_depth_disabled
+		up: green_square_depth_flat
+		down: green_square_gloss
+		over: green_square_depth_gloss
+		disabled: generic-area-depth
 		pressedOffsetY: -2
 	}
 	clean-blue-outline: {
@@ -343,7 +343,16 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 		up: blue_square_depth_border
 		down: blue_square_flat
 		over: blue_square_depth_flat
-		disabled: button_rectangle_depth_disabled
+		disabled: generic-area-depth
+		pressedOffsetY: -2
+	}
+	clean-red-outline: {
+		font: roboto-semibold-32
+		fontColor: black
+		up: red_square_depth_border
+		down: red_square_border
+		over: red_square_depth_border
+		disabled: generic-area-depth
 		pressedOffsetY: -2
 	}
 }
@@ -386,6 +395,11 @@ com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
 	Letter: {
 		background: Paper
 		titleFont: myFont
+	}
+	no-title: {
+		background: generic-area-depth
+		titleFont: roboto-semibold-32
+		titleFontColor: transparent
 	}
 }
 }
