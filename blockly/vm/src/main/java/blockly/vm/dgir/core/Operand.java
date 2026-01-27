@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
  *
  * @param <ValueT> The type of value being referenced. Typically, a value but could also be a block or other type (branching operations)
  */
-public abstract class Operand<ValueT extends Value> {
+public abstract class Operand<ValueT> {
   @JsonBackReference
   private Operation parent;
 

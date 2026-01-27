@@ -33,12 +33,12 @@ public class FuncOp extends Op {
   }
 
   public FuncOp(String name) {
-    setOperation(Operation.Create(getIdent(), null, null, List.of(Region.createWithBlock())));
+    setOperation(Operation.Create(getIdent(), null, null, null, List.of(Region.createWithBlock())));
     setFuncName(name);
   }
 
   public FuncOp(String name, FuncType type) {
-    setOperation(Operation.Create(getIdent(), null, null, List.of(Region.createWithBlock())));
+    setOperation(Operation.Create(getIdent(), null, null, null, List.of(Region.createWithBlock())));
     setFuncName(name);
   }
 

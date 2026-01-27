@@ -13,6 +13,7 @@ import java.util.Optional;
  * A block containing a list of {@link Operation}.
  * Blocks are always attached to a {@link Region}.
  */
+@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class, property = "@id")
 public final class Block implements Serializable {
   @JsonManagedReference
   private final List<BlockArgument> arguments = new ArrayList<>();

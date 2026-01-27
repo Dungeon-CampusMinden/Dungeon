@@ -28,7 +28,7 @@ public class ConstantOp extends Op {
   }
 
   public ConstantOp(Attribute value) {
-    setOperation(Operation.Create(getIdent(), null, new OperationResult(value.getType()), null));
+    setOperation(Operation.Create(getIdent(), null, null, new OperationResult(value.getType()), null));
     setValueAttribute(value);
   }
 

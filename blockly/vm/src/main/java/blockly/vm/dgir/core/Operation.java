@@ -28,6 +28,12 @@ public final class Operation implements Serializable {
   private final List<ValueOperand> operands = new ArrayList<>();
 
   /**
+   * The input blocks of this operation.
+   */
+  @JsonManagedReference
+  private final List<BlockOperand> blockOperands = new ArrayList<>();
+
+  /**
    * The output of this operation.
    */
   @JsonManagedReference
@@ -53,13 +59,15 @@ public final class Operation implements Serializable {
 
   public static Operation Create(String name,
                                  List<ValueOperand> operands,
+                                 List<BlockOperand> blockOperands,
                                  OperationResult output,
                                  List<Region> regions) {
-    return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, output, regions);
+    return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, blockOperands, output, regions);
   }
 
   public static Operation Create(OperationDetails name,
                                  List<ValueOperand> operands,
+                                 List<BlockOperand> blockOperands,
                                  OperationResult output,
                                  List<Region> regions) {
     // Ensure the most important arguments is non-null
@@ -67,6 +75,9 @@ public final class Operation implements Serializable {
 
     // Ensure operands is a valid arraylist
     operands = operands == null ? new ArrayList<>() : new ArrayList<>(operands);
+
+    // Ensure block operands is a valid arraylist
+    blockOperands = blockOperands == null ? new ArrayList<>() : new ArrayList<>(blockOperands);
 
     // Create the default attributes
     List<NamedAttribute> attributes = new ArrayList<>(name.getAttributeNames().size());
@@ -79,7 +90,7 @@ public final class Operation implements Serializable {
 
     // Ensure regions is a valid arraylist
     regions = regions == null ? new ArrayList<>() : new ArrayList<>(regions);
-    return new Operation(name, operands, output, attributeMap, regions);
+    return new Operation(name, operands, blockOperands, output, attributeMap, regions);
   }
 
   // Operations should always be default constructible (for serialization purposes).
@@ -89,6 +100,7 @@ public final class Operation implements Serializable {
 
   public Operation(OperationDetails details,
                    List<ValueOperand> operands,
+                   List<BlockOperand> blockOperands,
                    OperationResult output,
                    Map<String, NamedAttribute> attributes,
                    List<Region> regions) {
@@ -97,6 +109,8 @@ public final class Operation implements Serializable {
 
     for (var operand : operands)
       addOperand(operand);
+    for (var blockOperand : blockOperands)
+      addBlockOperand(blockOperand);
     for (var attribute : attributes.values())
       addAttribute(attribute);
     for (var region : regions)
@@ -124,6 +138,18 @@ public final class Operation implements Serializable {
 
     operands.add(operand);
     operand.setParent(this);
+  }
+
+  public List<BlockOperand> getBlockOperands() {
+    return Collections.unmodifiableList(blockOperands);
+  }
+
+  public void addBlockOperand(BlockOperand blockOperand) {
+    assert blockOperand != null : "Block operand cannot be null.";
+    assert blockOperand.getParent() == null : "Block operand already has a parent.";
+
+    blockOperands.add(blockOperand);
+    blockOperand.setParent(this);
   }
 
   public OperationResult getOutput() {

@@ -31,7 +31,7 @@ public class ProgramOp extends Op {
 
   public ProgramOp(boolean withRegion) {
     if (withRegion) {
-      setOperation(Operation.Create(getIdent(), null, null, List.of(Region.createWithBlock())));
+      setOperation(Operation.Create(getIdent(), null, null, null, List.of(Region.createWithBlock())));
     }
   }
 

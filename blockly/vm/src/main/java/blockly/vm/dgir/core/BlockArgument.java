@@ -2,6 +2,9 @@ package blockly.vm.dgir.core;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+/**
+ * A value that represents an argument to a block.
+ */
 public class BlockArgument extends Value {
   /**
    * The block that owns this argument.
