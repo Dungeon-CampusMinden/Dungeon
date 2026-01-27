@@ -2,6 +2,11 @@ package modules.computer;
 
 import modules.computer.content.EmailsTab;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 public class ComputerStateLocal {
 
   public static ComputerStateLocal Instance = new ComputerStateLocal();
@@ -12,6 +17,8 @@ public class ComputerStateLocal {
   private EmailsTab.Email selectedEmail;
   private float emailListScrollY;
   private String browserUrl = "";
+
+  private final Set<String> openFiles = new LinkedHashSet<>();
 
   public ComputerStateLocal() {
     this.tab = "login";
@@ -57,5 +64,9 @@ public class ComputerStateLocal {
   }
   public void browserUrl(String browserUrl) {
     this.browserUrl = browserUrl;
+  }
+
+  public Set<String> openFiles() {
+    return openFiles;
   }
 }

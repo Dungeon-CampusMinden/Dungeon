@@ -54,11 +54,6 @@ public class ComputerFactory {
     }
 
     Optional<ComputerStateComponent> state = ctx.find(STATE_KEY, ComputerStateComponent.class);
-    return create(state.orElseThrow());
+    return new ComputerDialog(state.orElseThrow());
   }
-
-  private static Group create(ComputerStateComponent state){
-    return new ComputerDialog(state);
-  }
-
 }

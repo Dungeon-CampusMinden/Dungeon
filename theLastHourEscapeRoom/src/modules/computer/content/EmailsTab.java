@@ -35,7 +35,7 @@ public class EmailsTab extends ComputerTab {
       "dr.smith@gmail.com",
       "Highly confidential research",
       "Hiii,\nthis is a test.\\pAnother paragraph\\p\\aCheck out this website I made!;https://www.example.com",
-      List.of("test.html", "Important.xlsx")
+      List.of("Hello.html", "Important.xlsx")
     ),
     new Email(
       "Account Security",
@@ -56,7 +56,7 @@ public class EmailsTab extends ComputerTab {
       "support@company.internal",
       "Password expiration notice",
       "Hello,\\pYour password will expire in 3 days. Please update it as soon as possible.\\p\\aChange Password;https://intranet.company/reset",
-      List.of()
+      List.of("Help.html")
     ),
     new Email(
       "HR Department",
@@ -300,7 +300,8 @@ public class EmailsTab extends ComputerTab {
 
   private void clickedAttachment(String attachmentName){
     ComputerDialog.getInstance().ifPresent(c -> {
-      c.addTab(new TestMask(sharedState(), attachmentName, "FILE: "+attachmentName, true, Color.BLACK));
+      localState().openFiles().add(attachmentName);
+      c.addTab(new FileTab(sharedState(), attachmentName));
     });
   }
 

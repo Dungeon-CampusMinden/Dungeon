@@ -46,6 +46,11 @@ public class ComputerDialog extends Group {
     // Tab restore comes first
     activeTab = ComputerStateLocal.Instance.tab();
 
+    // Restore open files
+    for(String s : ComputerStateLocal.Instance.openFiles()){
+      addTab(new FileTab(sharedState, s));
+    }
+
     // Then build tabs + content
     createActors();
     if(!tabContentMap.containsKey(activeTab)){
@@ -60,8 +65,12 @@ public class ComputerDialog extends Group {
   }
 
   public void updateState(ComputerStateComponent newState) {
+    if(sharedState.equals(newState)) return;
     this.sharedState = newState;
-    // Additional logic to update the dialog based on the new state
+    buildTabs();
+    for (ComputerTab tab : tabContentMap.values()) {
+      tab.setSharedState(newState);
+    }
   }
 
   private void createActors(){
