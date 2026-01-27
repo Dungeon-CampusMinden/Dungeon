@@ -1,14 +1,16 @@
 package level;
 
 import contrib.components.DecoComponent;
+import contrib.entities.deco.Deco;
+import contrib.entities.deco.DecoFactory;
 import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogType;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadFactory;
 import contrib.systems.EventScheduler;
-import contrib.entities.deco.Deco;
-import contrib.entities.deco.DecoFactory;
 import core.Entity;
 import core.Game;
 import core.level.DungeonLevel;
@@ -16,13 +18,12 @@ import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import java.util.*;
 import modules.computer.ComputerFactory;
 import modules.computer.ComputerState;
 import modules.computer.ComputerStateComponent;
 import modules.computer.LastHourDialogTypes;
 import modules.trash.TrashMinigameUI;
-
-import java.util.*;
 
 /** The MushRoom. */
 public class LastHourLevel1 extends DungeonLevel {
@@ -76,31 +77,46 @@ public class LastHourLevel1 extends DungeonLevel {
 
     setupTrashcans();
 
+    DialogFactory.show(
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.OK)
+            .put(DialogContextKeys.TITLE, "Test")
+            .put(DialogContextKeys.MESSAGE, "!YzI60g Test longer message. Even more content that no one will ever read hi hello how are you doing?\nTest even more content so that it will eventually scroll or something\nAnother line just to be sure.")
+//          .put(DialogContextKeys.MESSAGE, "So this is a really cool escape room!\nYou have to find clues and solve puzzles to escape.\nIn 60 minutes the room will fill with gas!\nGood luck!")
+            .build());
+
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
 
-  private static final Deco[] trashcans = {
-    Deco.TrashCanBlue, Deco.TrashCanGreen, Deco.TrashCanRed
-  };
+  private static final Deco[] trashcans = {Deco.TrashCanBlue, Deco.TrashCanGreen, Deco.TrashCanRed};
   private static final String[] trashcanNotes = {
     "images/note-password-1.png", null, "images/note-password-2.png"
   };
+
   private void setupTrashcans() {
     DialogFactory.register(LastHourDialogTypes.TRASHCAN, TrashMinigameUI::build);
-    listPointsIndexed("trash").forEach(t -> {
-      Point p = t.a();
-      int index = t.b();
-      Deco deco = trashcans[index % trashcans.length];
-      Entity trashcan = DecoFactory.createDeco(p, deco);
-      trashcan.remove(DecoComponent.class);
-      trashcan.add(new InteractionComponent(() -> new Interaction((eInteract, who) -> {
-        DialogContext.Builder builder = DialogContext.builder();
-        builder.type(LastHourDialogTypes.TRASHCAN);
-        builder.put(TrashMinigameUI.KEY_NOTE_PATH, trashcanNotes[index % trashcanNotes.length]);
-        DialogFactory.show(builder.build(), who.id());
-      })));
-      Game.add(trashcan);
-    });
+    listPointsIndexed("trash")
+        .forEach(
+            t -> {
+              Point p = t.a();
+              int index = t.b();
+              Deco deco = trashcans[index % trashcans.length];
+              Entity trashcan = DecoFactory.createDeco(p, deco);
+              trashcan.remove(DecoComponent.class);
+              trashcan.add(
+                  new InteractionComponent(
+                      () ->
+                          new Interaction(
+                              (eInteract, who) -> {
+                                DialogContext.Builder builder = DialogContext.builder();
+                                builder.type(LastHourDialogTypes.TRASHCAN);
+                                builder.put(
+                                    TrashMinigameUI.KEY_NOTE_PATH,
+                                    trashcanNotes[index % trashcanNotes.length]);
+                                DialogFactory.show(builder.build(), who.id());
+                              })));
+              Game.add(trashcan);
+            });
   }
 
   @Override

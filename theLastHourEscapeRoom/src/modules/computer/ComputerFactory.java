@@ -3,14 +3,12 @@ package modules.computer;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.HeadlessDialogGroup;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.Game;
-
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,24 +17,29 @@ public class ComputerFactory {
   private static final String STATE_KEY = "computer_state";
   public static UIComponent computerDialogInstance;
 
-
   static {
     DialogFactory.register(LastHourDialogTypes.COMPUTER, ComputerFactory::build);
   }
 
-  public static void attachComputerDialog(Entity entity){
-    entity.add(new InteractionComponent(() -> new Interaction((eInteract, who) -> {
-      DialogContext.Builder builder = DialogContext.builder();
-      builder.type(LastHourDialogTypes.COMPUTER);
+  public static void attachComputerDialog(Entity entity) {
+    entity.add(
+        new InteractionComponent(
+            () ->
+                new Interaction(
+                    (eInteract, who) -> {
+                      DialogContext.Builder builder = DialogContext.builder();
+                      builder.type(LastHourDialogTypes.COMPUTER);
 
-      Optional<Entity> e = Game.levelEntities(Set.of(ComputerStateComponent.class)).findFirst();
-      e.ifPresent(stateEntity -> {
-        ComputerStateComponent state = stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
-        builder.put(STATE_KEY, state);
-        computerDialogInstance = DialogFactory.show(builder.build(), who.id());
-      });
-
-    })));
+                      Optional<Entity> e =
+                          Game.levelEntities(Set.of(ComputerStateComponent.class)).findFirst();
+                      e.ifPresent(
+                          stateEntity -> {
+                            ComputerStateComponent state =
+                                stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
+                            builder.put(STATE_KEY, state);
+                            computerDialogInstance = DialogFactory.show(builder.build(), who.id());
+                          });
+                    })));
   }
 
   /**

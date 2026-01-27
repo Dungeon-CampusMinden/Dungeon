@@ -1,11 +1,8 @@
 package modules.computer;
 
-import modules.computer.content.EmailsTab;
-
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
+import modules.computer.content.EmailsTab;
 
 public class ComputerStateLocal {
 
@@ -24,16 +21,18 @@ public class ComputerStateLocal {
     this.tab = "login";
   }
 
-  public String tab(){
+  public String tab() {
     return tab;
   }
-  public void tab(String tab){
+
+  public void tab(String tab) {
     this.tab = tab;
   }
 
   public String username() {
     return username;
   }
+
   public void username(String username) {
     this.username = username;
   }
@@ -41,6 +40,7 @@ public class ComputerStateLocal {
   public String password() {
     return password;
   }
+
   public void password(String password) {
     this.password = password;
   }
@@ -48,6 +48,7 @@ public class ComputerStateLocal {
   public void selectedEmail(EmailsTab.Email email) {
     this.selectedEmail = email;
   }
+
   public EmailsTab.Email selectedEmail() {
     return selectedEmail;
   }
@@ -55,6 +56,7 @@ public class ComputerStateLocal {
   public float emailListScrollY() {
     return emailListScrollY;
   }
+
   public void emailListScrollY(float emailListScrollY) {
     this.emailListScrollY = emailListScrollY;
   }
@@ -62,6 +64,7 @@ public class ComputerStateLocal {
   public String browserUrl() {
     return browserUrl;
   }
+
   public void browserUrl(String browserUrl) {
     this.browserUrl = browserUrl;
   }

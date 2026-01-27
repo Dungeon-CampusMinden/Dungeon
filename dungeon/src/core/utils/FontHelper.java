@@ -2,6 +2,7 @@ package core.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import java.util.HashMap;
@@ -112,6 +113,7 @@ public class FontHelper {
       params.color = color;
       params.borderWidth = borderWidth;
       params.borderColor = borderColor;
+      params.hinting = FreeTypeFontGenerator.Hinting.Full;
       params.genMipMaps = true;
 
       BitmapFont font = generator.generateFont(params);

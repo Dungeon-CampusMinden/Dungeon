@@ -1,9 +1,6 @@
 package util;
 
-import core.utils.Point;
-
 public enum Cursors {
-
   DEFAULT("cursors/pointer_a.png", 9, 6),
   EXTERNAL("cursors/cursor_alias.png", 1, 1),
   INTERACT("cursors/pointer_l.png", 8, 7),
@@ -29,6 +26,7 @@ public enum Cursors {
   public int hotspotX() {
     return hotspotX;
   }
+
   public int hotspotY() {
     return hotspotY;
   }

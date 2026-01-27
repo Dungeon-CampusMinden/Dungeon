@@ -41,7 +41,7 @@ public class TheLastHour {
    * @param args command-line arguments (not used in this starter)
    */
   public static void main(String[] args) {
-    if(RUN_MP_SERVER){
+    if (RUN_MP_SERVER) {
       Game.userOnFrame(TheLastHour::onFrame);
       PreRunConfiguration.multiplayerEnabled(true);
       PreRunConfiguration.isNetworkServer(true);
@@ -61,19 +61,20 @@ public class TheLastHour {
   }
 
   private static void onUserSetup() {
-    if(RUN_MP_SERVER){
+    if (RUN_MP_SERVER) {
       ECSManagement.add(new PositionSystem());
       ECSManagement.add(new VelocitySystem());
       ECSManagement.add(new FrictionSystem());
       ECSManagement.add(new MoveSystem());
 
       ECSManagement.system(
-        LevelSystem.class,
-        levelSystem ->
-          levelSystem.onLevelLoad(() -> {
-            GameLoop.onLevelLoad.execute();
-            Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
-          }));
+          LevelSystem.class,
+          levelSystem ->
+              levelSystem.onLevelLoad(
+                  () -> {
+                    GameLoop.onLevelLoad.execute();
+                    Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
+                  }));
     } else {
       Game.add(EntityFactory.newHero());
       Game.stage().ifPresent(CursorUtil::initListener);
@@ -82,7 +83,7 @@ public class TheLastHour {
     ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new KeypadSystem());
 
-    if(DEBUG_MODE && !Game.isHeadless()){
+    if (DEBUG_MODE && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());
       ECSManagement.add(new DebugDrawSystem());
       ECSManagement.add(new LevelEditorSystem());
@@ -92,5 +93,4 @@ public class TheLastHour {
   private static void onFrame() {
     HeroController.drainAndApplyInputs();
   }
-
 }

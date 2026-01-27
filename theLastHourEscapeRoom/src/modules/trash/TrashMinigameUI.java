@@ -7,16 +7,13 @@ import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.HeadlessDialogGroup;
-import contrib.utils.components.Debugger;
 import core.Game;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.Optional;
 
 public class TrashMinigameUI extends Group {
@@ -56,24 +53,22 @@ public class TrashMinigameUI extends Group {
     playfield = new Group();
     content.add(playfield).grow();
 
-//    placePapers();
     addAction(Actions.run(this::placePapers));
   }
 
   /**
-   * Place crumbled papers randomly in the playfield. They should be draggable.
-   * At the very bottom there should be an important note that the player needs to uncover
-   * and drag to the top of the playfield to win.
+   * Place crumbled papers randomly in the playfield. They should be draggable. At the very bottom
+   * there should be an important note that the player needs to uncover and drag to the top of the
+   * playfield to win.
    */
   private void placePapers() {
-    if(this.importantNotePath != null){
-      TrashItemActor note = new TrashItemActor(
-        TextureMap.instance().textureAt(new SimpleIPath(importantNotePath)), true
-      );
+    if (this.importantNotePath != null) {
+      TrashItemActor note =
+          new TrashItemActor(
+              TextureMap.instance().textureAt(new SimpleIPath(importantNotePath)), true);
       note.setPosition(
-        (playfield.getWidth() - note.getWidth()) / 2,
-        (playfield.getHeight() - note.getHeight()) / 2
-      );
+          (playfield.getWidth() - note.getWidth()) / 2,
+          (playfield.getHeight() - note.getHeight()) / 2);
       playfield.addActor(note);
     }
 
@@ -87,7 +82,8 @@ public class TrashMinigameUI extends Group {
       paper.setPosition(x, y);
 
       playfield.addActor(paper);
-    };
+    }
+    ;
   }
 
   @Override
@@ -100,7 +96,6 @@ public class TrashMinigameUI extends Group {
   public void resize(int width, int height) {
     setSize(width, height);
   }
-
 
   private class TrashItemActor extends Group {
     private final Image image;
@@ -117,42 +112,43 @@ public class TrashMinigameUI extends Group {
       setScale(0.3f);
 
       // Random variation
-      if(!isSpecial){
+      if (!isSpecial) {
         setScale(MathUtils.random(0.3f, 0.7f));
         setRotation(MathUtils.random(-180f, 180f));
       }
 
-      addListener(new InputListener() {
-        @Override
-        public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-          Vector2 stagePos = localToStageCoordinates(new com.badlogic.gdx.math.Vector2(x, y));
-          dragOffsetStage.set(stagePos.x - getX(), stagePos.y - getY());
-          return true;
-        }
+      addListener(
+          new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+              Vector2 stagePos = localToStageCoordinates(new com.badlogic.gdx.math.Vector2(x, y));
+              dragOffsetStage.set(stagePos.x - getX(), stagePos.y - getY());
+              return true;
+            }
 
-        @Override
-        public void touchDragged(InputEvent event, float x, float y, int pointer) {
-          Vector2 stagePos = localToStageCoordinates(new Vector2(x, y));
+            @Override
+            public void touchDragged(InputEvent event, float x, float y, int pointer) {
+              Vector2 stagePos = localToStageCoordinates(new Vector2(x, y));
 
-          float newX = stagePos.x - dragOffsetStage.x;
-          float newY = stagePos.y - dragOffsetStage.y;
+              float newX = stagePos.x - dragOffsetStage.x;
+              float newY = stagePos.y - dragOffsetStage.y;
 
-          if(!isSpecial){
-            // Check bounds to keep within playfield
-            float ownScaledWidth = getWidth() * getScaleX();
-            float ownScaledHeight = getHeight() * getScaleY();
-            float areaWidth = playfield.getWidth() - ownScaledWidth;
-            float areaHeight = playfield.getHeight() - ownScaledHeight;
-            float xOffset = 0.5f * ownScaledWidth - getWidth() * 0.5f;
-            float yOffset = 0.5f * ownScaledHeight - getHeight() * 0.5f;
+              if (!isSpecial) {
+                // Check bounds to keep within playfield
+                float ownScaledWidth = getWidth() * getScaleX();
+                float ownScaledHeight = getHeight() * getScaleY();
+                float areaWidth = playfield.getWidth() - ownScaledWidth;
+                float areaHeight = playfield.getHeight() - ownScaledHeight;
+                float xOffset = 0.5f * ownScaledWidth - getWidth() * 0.5f;
+                float yOffset = 0.5f * ownScaledHeight - getHeight() * 0.5f;
 
-            newX = MathUtils.clamp(newX, xOffset, xOffset + areaWidth);
-            newY = MathUtils.clamp(newY, yOffset, yOffset + areaHeight);
-          }
+                newX = MathUtils.clamp(newX, xOffset, xOffset + areaWidth);
+                newY = MathUtils.clamp(newY, yOffset, yOffset + areaHeight);
+              }
 
-          setPosition(newX, newY);
-        }
-      });
+              setPosition(newX, newY);
+            }
+          });
     }
   }
 }

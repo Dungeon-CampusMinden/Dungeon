@@ -6,16 +6,16 @@ public enum ComputerState {
   ;
 
   private final int progress;
-  ComputerState(int progress){
+
+  ComputerState(int progress) {
     this.progress = progress;
   }
 
-  public int progress(){
+  public int progress() {
     return progress;
   }
 
-  public boolean hasReached(ComputerState other){
+  public boolean hasReached(ComputerState other) {
     return this.progress >= other.progress;
   }
-
 }

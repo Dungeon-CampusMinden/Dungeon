@@ -7,20 +7,16 @@ import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import contrib.hud.UIUtils;
 import core.Game;
 import core.utils.FontHelper;
-import core.utils.components.draw.TextureGenerator;
 import core.utils.logging.DungeonLogger;
-import modules.computer.content.*;
-import util.Cursors;
-import util.Scene2dElementFactory;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import modules.computer.content.*;
+import util.Cursors;
+import util.Scene2dElementFactory;
 
 public class ComputerDialog extends Group {
 
@@ -47,25 +43,25 @@ public class ComputerDialog extends Group {
     activeTab = ComputerStateLocal.Instance.tab();
 
     // Restore open files
-    for(String s : ComputerStateLocal.Instance.openFiles()){
+    for (String s : ComputerStateLocal.Instance.openFiles()) {
       addTab(new FileTab(sharedState, s));
     }
 
     // Then build tabs + content
     createActors();
-    if(!tabContentMap.containsKey(activeTab)){
+    if (!tabContentMap.containsKey(activeTab)) {
       activeTab = tabContentMap.keySet().stream().findFirst().orElse(null);
     }
     showContent(activeTab);
   }
 
   public static Optional<ComputerDialog> getInstance() {
-    if(INSTANCE.getStage() == null) return Optional.empty();
+    if (INSTANCE.getStage() == null) return Optional.empty();
     return Optional.of(INSTANCE);
   }
 
   public void updateState(ComputerStateComponent newState) {
-    if(sharedState.equals(newState)) return;
+    if (sharedState.equals(newState)) return;
     this.sharedState = newState;
     buildTabs();
     for (ComputerTab tab : tabContentMap.values()) {
@@ -73,23 +69,25 @@ public class ComputerDialog extends Group {
     }
   }
 
-  private void createActors(){
+  private void createActors() {
     Table container = new Table();
     container.setTouchable(Touchable.enabled);
-    container.addListener(new ClickListener() {
-      @Override
-      public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-        if(!(event.getTarget() instanceof TextField)){
-          container.getStage().setKeyboardFocus(null); //Unfocus text fields when clicking outside
-        }
-        return super.touchDown(event, x, y, pointer, button);
-      }
-    });
+    container.addListener(
+        new ClickListener() {
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            if (!(event.getTarget() instanceof TextField)) {
+              container
+                  .getStage()
+                  .setKeyboardFocus(null); // Unfocus text fields when clicking outside
+            }
+            return super.touchDown(event, x, y, pointer, button);
+          }
+        });
     container.setFillParent(true);
     container.pad(100);
     this.addActor(container);
     addUnfocusListener(container);
-
 
     tabArea = new Table(skin);
     tabArea.left().padLeft(20);
@@ -99,14 +97,15 @@ public class ComputerDialog extends Group {
     browserArea.setBackground("generic-area-depth");
     browserArea.pad(5, 5, 5, 5);
     Button exit = Scene2dElementFactory.createExitButton();
-    exit.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        if(ComputerFactory.computerDialogInstance != null){
-          UIUtils.closeDialog(ComputerFactory.computerDialogInstance);
-        }
-      }
-    });
+    exit.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            if (ComputerFactory.computerDialogInstance != null) {
+              UIUtils.closeDialog(ComputerFactory.computerDialogInstance);
+            }
+          }
+        });
     browserArea.add(exit).height(40).width(40).expandX().right().row();
 
     Image divider = new Image(skin, "divider");
@@ -124,15 +123,15 @@ public class ComputerDialog extends Group {
 
     // only default tab is login
     addTabsForState(ComputerState.PRE_LOGIN);
-    if(sharedState.state() == ComputerState.LOGGED_IN){
+    if (sharedState.state() == ComputerState.LOGGED_IN) {
       addTabsForState(ComputerState.LOGGED_IN);
     }
   }
 
-  public void addTabsForState(ComputerState state){
-    if(state == ComputerState.PRE_LOGIN){
+  public void addTabsForState(ComputerState state) {
+    if (state == ComputerState.PRE_LOGIN) {
       addTab(new LoginMask(sharedState));
-    } else if (state == ComputerState.LOGGED_IN){
+    } else if (state == ComputerState.LOGGED_IN) {
       addTab(new EmailsTab(sharedState));
       addTab(new BrowserTab(sharedState));
     }
@@ -140,36 +139,37 @@ public class ComputerDialog extends Group {
 
   private void addUnfocusListener(Table container) {
     this.setTouchable(Touchable.enabled);
-    this.addCaptureListener(new InputListener() {
-      @Override
-      public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-        Actor t = event.getTarget();
-        while (t != null && !(t instanceof Widget)) {
-          t = t.getParent();
-        }
+    this.addCaptureListener(
+        new InputListener() {
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            Actor t = event.getTarget();
+            while (t != null && !(t instanceof Widget)) {
+              t = t.getParent();
+            }
 
-        if (t == null) {
-          container.getStage().setKeyboardFocus(null);
-          return true;
-        }
-        return super.touchDown(event, x, y, pointer, button);
-      }
-    });
+            if (t == null) {
+              container.getStage().setKeyboardFocus(null);
+              return true;
+            }
+            return super.touchDown(event, x, y, pointer, button);
+          }
+        });
   }
 
-  public void addTab(ComputerTab tab){
+  public void addTab(ComputerTab tab) {
     tabContentMap.put(tab.key(), tab);
     buildTabs();
   }
 
-  public void buildTabs(){
+  public void buildTabs() {
     tabArea.clearChildren();
     for (String tabKey : tabContentMap.keySet()) {
       buildTab(tabKey);
     }
   }
 
-  private void buildTab(String tabKey){
+  private void buildTab(String tabKey) {
     ComputerTab computerTab = tabContentMap.get(tabKey);
 
     Table tab = new Table(skin);
@@ -177,53 +177,57 @@ public class ComputerDialog extends Group {
     tab.setBackground(isActive ? "blue_square_flat" : "generic-area");
 
     Label.LabelStyle labelStyle = new Label.LabelStyle();
-    labelStyle.font = FontHelper.getFont(Scene2dElementFactory.FONT_PATH, 24, isActive ? Color.WHITE : Color.BLACK, 0);
+    labelStyle.font =
+        FontHelper.getFont(
+            Scene2dElementFactory.FONT_PATH, 24, isActive ? Color.WHITE : Color.BLACK, 0);
     Label label = new Label(computerTab.title(), labelStyle);
     tab.add(label).pad(0, 15, 0, 15).grow();
     tab.setTouchable(Touchable.enabled);
     tab.setUserObject(Cursors.INTERACT);
-    tab.addListener(new ClickListener(Input.Buttons.LEFT) {
-      @Override
-      public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-        if(!(event.getTarget() instanceof Button)){
-          clickedTab(tabKey);
-        }
-        return super.touchDown(event, x, y, pointer, button);
-      }
-    });
-
-    if(computerTab.closeable()){
-      Button exit = Scene2dElementFactory.createExitButton();
-      exit.addListener(new ChangeListener() {
-        @Override
-        public void changed(ChangeEvent event, Actor actor) {
-          // Close the tab
-          tabContentMap.remove(tabKey);
-          if(tabKey.equals(activeTab)){
-            activeTab = tabContentMap.keySet().stream().findFirst().orElse(null);
-            showContent(activeTab);
+    tab.addListener(
+        new ClickListener(Input.Buttons.LEFT) {
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            if (!(event.getTarget() instanceof Button)) {
+              clickedTab(tabKey);
+            }
+            return super.touchDown(event, x, y, pointer, button);
           }
-          buildTabs();
-          event.handle();
-          event.stop();
-        }
-      });
+        });
+
+    if (computerTab.closeable()) {
+      Button exit = Scene2dElementFactory.createExitButton();
+      exit.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+              // Close the tab
+              tabContentMap.remove(tabKey);
+              if (tabKey.equals(activeTab)) {
+                activeTab = tabContentMap.keySet().stream().findFirst().orElse(null);
+                showContent(activeTab);
+              }
+              buildTabs();
+              event.handle();
+              event.stop();
+            }
+          });
       tab.add(exit).height(40).width(40);
     }
 
     tabArea.add(tab).left().height(51).padBottom(-5);
   }
 
-  public void clickedTab(String tabKey){
-    if(tabKey.equals(activeTab)) return;
+  public void clickedTab(String tabKey) {
+    if (tabKey.equals(activeTab)) return;
     activeTab = tabKey;
     ComputerStateLocal.Instance.tab(tabKey);
     buildTabs();
     showContent(tabKey);
   }
 
-  private void showContent(String tabKey){
-    if(tabKey == null) {
+  private void showContent(String tabKey) {
+    if (tabKey == null) {
       LOGGER.error("Invalid tab name: null");
       return;
     }

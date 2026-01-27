@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import contrib.hud.UIUtils;
 import core.utils.FontHelper;
 import core.utils.logging.DungeonLogger;
-
 import java.util.function.Consumer;
 
 public class Scene2dElementFactory {
@@ -23,21 +22,22 @@ public class Scene2dElementFactory {
   public static String FONT_PATH = "fonts/Lexend-Regular.ttf";
   public static String FONT_PATH_BOLD = "fonts/Lexend-Bold.ttf";
 
-  public static Label createLabel(String text, int fontSize, Color fontColor, int borderSize, Color borderColor){
+  public static Label createLabel(
+      String text, int fontSize, Color fontColor, int borderSize, Color borderColor) {
     Label.LabelStyle style = new Label.LabelStyle();
     style.font = FontHelper.getFont(FONT_PATH, fontSize, fontColor, borderSize, borderColor);
     return new Label(text, style);
   }
 
-  public static Label createLabel(String text, int fontSize, Color fontColor){
+  public static Label createLabel(String text, int fontSize, Color fontColor) {
     return createLabel(text, fontSize, fontColor, 0, Color.BLACK);
   }
 
-  public static Label createLabel(String text, int fontSize){
+  public static Label createLabel(String text, int fontSize) {
     return createLabel(text, fontSize, Color.WHITE);
   }
 
-  public static Button createExitButton(){
+  public static Button createExitButton() {
     Button element = new Button(DEFAULT_SKIN, "exit-button");
     Texture tex = ((TextureRegionDrawable) element.getStyle().up).getRegion().getTexture();
     tex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
@@ -45,7 +45,7 @@ public class Scene2dElementFactory {
     return element;
   }
 
-  public static TextField createTextField(String text){
+  public static TextField createTextField(String text) {
     TextField element = new TextField(text, DEFAULT_SKIN);
 
     TextField.TextFieldStyle style = new TextField.TextFieldStyle(element.getStyle());
@@ -58,17 +58,18 @@ public class Scene2dElementFactory {
     return element;
   }
 
-  public static void addTextFieldChangeListener(TextField textField, Consumer<String> consumer){
-    textField.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        if(actor instanceof TextField textField){
-          consumer.accept(textField.getText());
-        } else {
-          LOGGER.warn("Actor is not a TextField: {}", actor);
-        }
-      }
-    });
+  public static void addTextFieldChangeListener(TextField textField, Consumer<String> consumer) {
+    textField.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            if (actor instanceof TextField textField) {
+              consumer.accept(textField.getText());
+            } else {
+              LOGGER.warn("Actor is not a TextField: {}", actor);
+            }
+          }
+        });
   }
 
   public static TextButton createButton(String text, String styleName, int fontSize) {
@@ -79,59 +80,62 @@ public class Scene2dElementFactory {
     element.setUserObject(Cursors.INTERACT);
     return element;
   }
+
   public static TextButton createButton(String text, String styleName) {
     return createButton(text, styleName, 24);
   }
 
-  public static Image createHorizontalDivider(){
+  public static Image createHorizontalDivider() {
     return new Image(DEFAULT_SKIN, "divider");
   }
 
-  public static Image createVerticalDivider(){
+  public static Image createVerticalDivider() {
     return new Image(DEFAULT_SKIN, "divider_vertical");
   }
 
-  public static ScrollPane createScrollPane(Actor actor, boolean scrollX, boolean scrollY){
+  public static ScrollPane createScrollPane(Actor actor, boolean scrollX, boolean scrollY) {
     ScrollPane scrollPane = new ScrollPane(actor, DEFAULT_SKIN);
     scrollPane.setScrollingDisabled(!scrollX, !scrollY);
     scrollPane.setFadeScrollBars(false);
     scrollPane.setScrollbarsOnTop(true);
-    scrollPane.addListener(new InputListener() {
-      @Override
-      public boolean mouseMoved(InputEvent event, float x, float y) {
-        event.getStage().setScrollFocus(scrollPane);
-        return false;
-      }
+    scrollPane.addListener(
+        new InputListener() {
+          @Override
+          public boolean mouseMoved(InputEvent event, float x, float y) {
+            event.getStage().setScrollFocus(scrollPane);
+            return false;
+          }
 
-      // Prevent scrolling when outside the scroll pane
-      @Override
-      public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-        if(toActor != null && toActor.isDescendantOf(scrollPane)) return;
-        if(event.getStage().getScrollFocus() != scrollPane) return;
+          // Prevent scrolling when outside the scroll pane
+          @Override
+          public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+            if (toActor != null && toActor.isDescendantOf(scrollPane)) return;
+            if (event.getStage().getScrollFocus() != scrollPane) return;
 
-        event.getStage().setScrollFocus(null);
-      }
+            event.getStage().setScrollFocus(null);
+          }
 
-      // Rebuilding the UI will cause an exit->enter, so we need to set the scroll focus back
-      @Override
-      public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-        if(event.getStage() == null) return;
-        event.getStage().setScrollFocus(scrollPane);
-      }
-    });
+          // Rebuilding the UI will cause an exit->enter, so we need to set the scroll focus back
+          @Override
+          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            if (event.getStage() == null) return;
+            event.getStage().setScrollFocus(scrollPane);
+          }
+        });
     return scrollPane;
   }
 
-  public static void scrollPaneScrollTo(ScrollPane scrollPane, float x, float y){
+  public static void scrollPaneScrollTo(ScrollPane scrollPane, float x, float y) {
     scrollPane.invalidate();
     scrollPane.layout();
     scrollPane.setSmoothScrolling(false);
     scrollPane.setScrollX(x);
     scrollPane.setScrollY(y);
 
-    if(Gdx.app == null) return;
-    Gdx.app.postRunnable(() -> {
-      scrollPane.setSmoothScrolling(true);
-    });
+    if (Gdx.app == null) return;
+    Gdx.app.postRunnable(
+        () -> {
+          scrollPane.setSmoothScrolling(true);
+        });
   }
 }

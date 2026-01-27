@@ -142,21 +142,22 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> DEBUG_TOGGLE_HUD =
       new ConfigKey<>(new String[] {"debug", "toggle_hud"}, new ConfigIntValue(Input.Keys.F3));
 
-  /**
-   * Keybinding to toggle the {@link contrib.utils.components.Debugger}'s Scene2D debug mode.
-   */
+  /** Keybinding to toggle the {@link contrib.utils.components.Debugger}'s Scene2D debug mode. */
   public static final ConfigKey<Integer> DEBUG_TOGGLE_SCENE_HUD =
-    new ConfigKey<>(new String[] {"debug", "toggle_scene_hud"}, new ConfigIntValue(Input.Keys.F5));
+      new ConfigKey<>(
+          new String[] {"debug", "toggle_scene_hud"}, new ConfigIntValue(Input.Keys.F5));
 
   /**
-   * Keybinding to increase the {@link contrib.utils.components.Debugger}'s multipurpose debug value.
+   * Keybinding to increase the {@link contrib.utils.components.Debugger}'s multipurpose debug
+   * value.
    */
   public static final ConfigKey<Integer> DEBUG_VALUE_UP =
-    new ConfigKey<>(new String[] {"debug", "value_up"}, new ConfigIntValue(Input.Keys.UP));
+      new ConfigKey<>(new String[] {"debug", "value_up"}, new ConfigIntValue(Input.Keys.UP));
 
   /**
-   * Keybinding to decrease the {@link contrib.utils.components.Debugger}'s multipurpose debug value.
+   * Keybinding to decrease the {@link contrib.utils.components.Debugger}'s multipurpose debug
+   * value.
    */
   public static final ConfigKey<Integer> DEBUG_VALUE_DOWN =
-    new ConfigKey<>(new String[] {"debug", "value_down"}, new ConfigIntValue(Input.Keys.DOWN));
+      new ConfigKey<>(new String[] {"debug", "value_down"}, new ConfigIntValue(Input.Keys.DOWN));
 }

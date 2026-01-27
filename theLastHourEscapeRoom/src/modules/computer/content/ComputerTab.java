@@ -16,7 +16,8 @@ public abstract class ComputerTab extends Table {
 
   protected Skin skin;
 
-  public ComputerTab(ComputerStateComponent sharedState, String key, String title, boolean closeable){
+  public ComputerTab(
+      ComputerStateComponent sharedState, String key, String title, boolean closeable) {
     this.sharedState = sharedState;
     this.key = key;
     this.title = title;
@@ -28,48 +29,47 @@ public abstract class ComputerTab extends Table {
     this.createActors();
   }
 
-  public String key(){
+  public String key() {
     return key;
   }
 
-  public String title(){
+  public String title() {
     return title;
   }
 
-  public void title(String title){
+  public void title(String title) {
     this.title = title;
     ComputerDialog.getInstance().ifPresent(ComputerDialog::buildTabs);
   }
 
-  public boolean closeable(){
+  public boolean closeable() {
     return closeable;
   }
 
-  public void closeable(boolean closeable){
+  public void closeable(boolean closeable) {
     this.closeable = closeable;
     ComputerDialog.getInstance().ifPresent(ComputerDialog::buildTabs);
   }
 
-  public ComputerStateComponent sharedState(){
+  public ComputerStateComponent sharedState() {
     return sharedState;
   }
 
-  public void setSharedState(ComputerStateComponent sharedState){
+  public void setSharedState(ComputerStateComponent sharedState) {
     updateState(sharedState);
     this.sharedState = sharedState;
   }
 
-  public ComputerStateLocal localState(){
+  public ComputerStateLocal localState() {
     return ComputerStateLocal.Instance;
   }
 
-  /**
-   * Creates and adds the actors to the tab.
-   */
+  /** Creates and adds the actors to the tab. */
   protected abstract void createActors();
 
   /**
    * Updates the tab's content based on the new shared {@link ComputerStateComponent}.
+   *
    * @param newStateComp The new shared ComputerStateComponent.
    */
   protected abstract void updateState(ComputerStateComponent newStateComp);
