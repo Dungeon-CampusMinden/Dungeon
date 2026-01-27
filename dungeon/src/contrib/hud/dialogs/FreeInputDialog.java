@@ -1,12 +1,7 @@
 package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import contrib.hud.UIUtils;
 import core.Game;
 import core.network.messages.c2s.DialogResponseMessage;
@@ -53,7 +48,7 @@ final class FreeInputDialog {
 
     Skin skin = UIUtils.defaultSkin();
     Dialog dialog = buildDialog(title, question, skin, ctx);
-    dialog.setSize(700, 350);
+    dialog.pack();
     return dialog;
   }
 
@@ -81,7 +76,7 @@ final class FreeInputDialog {
         context.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(CANCEL_BUTTON);
 
     Dialog dialog =
-        new Dialog(title, skin) {
+        new Dialog(title, skin, "no-title") {
           @Override
           protected void result(Object obj) {
             if (obj.equals(okLabel)) {
@@ -97,18 +92,21 @@ final class FreeInputDialog {
           }
         };
 
+    dialog.padBottom(20);
     dialog.setModal(true);
     dialog.setMovable(false);
     dialog.setResizable(false);
     dialog.setKeepWithinStage(true);
 
     Table content = dialog.getContentTable();
-    content.pad(16);
-    content.add(new Label(question, skin)).align(Align.center).padBottom(10).row();
-    content.add(input).width(200).padBottom(10).row();
+    content.pad(16, 50, 26, 50);
+    content.add(new Label(question, skin, "blank-black")).padBottom(10).row();
+    content.add(input).width(400).row();
 
-    dialog.button(okLabel, okLabel);
-    dialog.button(cancelLabel, cancelLabel);
+    dialog.getButtonTable().defaults().minWidth(150);
+    dialog.button(okLabel, okLabel, skin.get("clean-green", TextButton.TextButtonStyle.class));
+    dialog.button(
+        cancelLabel, cancelLabel, skin.get("clean-red-outline", TextButton.TextButtonStyle.class));
 
     return dialog;
   }

@@ -1,10 +1,12 @@
 package contrib.hud.dialogs;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
+import core.utils.FontHelper;
 
 /** Some basic layout for Dialogs. */
 public class DialogDesign extends VerticalGroup {
@@ -49,6 +51,10 @@ public class DialogDesign extends VerticalGroup {
    */
   public static Group createTextDialog(final Skin skin, String outputMsg) {
     outputMsg = UIUtils.formatString(outputMsg);
-    return createScrollPane(skin, new Container<>(new Label(outputMsg, skin)).align(Align.center));
+    Label.LabelStyle labelStyle = new Label.LabelStyle(skin.get("blank-black", Label.LabelStyle.class));
+    labelStyle.font = FontHelper.getFont(FontHelper.DEFAULT_FONT_PATH, 17, Color.BLACK, 0);
+    labelStyle.fontColor = Color.BLACK;
+    Label label = new Label(outputMsg, labelStyle);
+    return createScrollPane(skin, new Container<>(label).align(Align.center));
   }
 }
