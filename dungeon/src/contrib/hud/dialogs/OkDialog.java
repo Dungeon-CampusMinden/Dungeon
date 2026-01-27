@@ -3,6 +3,8 @@ package contrib.hud.dialogs;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import contrib.hud.UIUtils;
 import core.Game;
 
@@ -42,7 +44,7 @@ final class OkDialog {
         new TextDialog(
             title,
             skin,
-            "Letter",
+            "no-title",
             (d, id) -> {
               if (id.equals(DEFAULT_OK_BUTTON)) {
                 DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CONFIRM)
@@ -50,9 +52,15 @@ final class OkDialog {
               }
               return true;
             });
-    textDialog.getContentTable().add(DialogDesign.createTextDialog(skin, text)).center().grow();
-    textDialog.button(DEFAULT_OK_BUTTON, DEFAULT_OK_BUTTON);
+    Table content = textDialog.getContentTable();
+    content.add(DialogDesign.createTextDialog(skin, text)).center().grow().padBottom(10);
+
+    textDialog.getButtonTable().defaults().minWidth(150).padBottom(5);
+    textDialog.button(DEFAULT_OK_BUTTON, DEFAULT_OK_BUTTON, skin.get("clean-green", TextButton.TextButtonStyle.class));
+
+//    textDialog.setSize(400, 250);
     textDialog.pack();
+
     return textDialog;
   }
 }
