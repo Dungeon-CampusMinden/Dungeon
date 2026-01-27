@@ -14,7 +14,7 @@ public class TypeAttribute extends Attribute {
 
   @Override
   public Object getStorage() {
-    return type;
+    return null;
   }
 
   @Override

@@ -18,6 +18,11 @@ public class AttributeSerializer extends StdSerializer<Attribute> {
 
   @Override
   public void serialize(Attribute value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
-    gen.writePOJOProperty(value.getDetails().getIdent(), value.getStorage());
+    gen.writeStartObject();
+    gen.writeStringProperty("ident", value.getDetails().getIdent());
+    gen.writePOJOProperty("type", value.getType());
+    if (value.getStorage() != null)
+      gen.writePOJOProperty("value", value.getStorage());
+    gen.writeEndObject();
   }
 }

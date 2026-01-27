@@ -2,6 +2,8 @@ package blockly.vm.dgir.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.List;
+
 /**
  * This object contains all the basic information about a type object.
  */
@@ -38,6 +40,46 @@ public class TypeDetails {
 
     public Dialect getDialect() {
       return dialect;
+    }
+
+    /**
+     * Get the parameterized ident for this type given the provided type parameters.
+     * This is used for generic or complex types that take type parameters such as pointers or function types.
+     * <p>
+     * The syntax for parameterized types is:
+     * <pre>
+     * parameterizedType:
+     *    ident '<' typeParameter (',' typeParameter)* '>'
+     *    | ident '<' verbatim '>'
+     * typeParameter: ident | parameterizedType
+     * verbatim: any string that is not parsed or interpreted, just passed through as-is
+     * </pre>
+     *
+     * @param type The type parameters to use for generating the parameterized ident.
+     * @return The parameterized ident string.
+     */
+    public String getParameterizedIdent(Type type) {
+      return getIdent();
+    }
+
+    /**
+     * Configure this type from the provided parameterized ident.
+     * This is used for generic or complex types that take type parameters such as pointers or function types.
+     * <p>
+     * The syntax for parameterized types is:
+     * <pre>
+     * parameterizedType:
+     *    ident '<' typeParameter (',' typeParameter)* '>'
+     *    | ident '<' verbatim '>'
+     * typeParameter: ident | parameterizedType
+     * verbatim: any string that is not parsed or interpreted, just passed through as-is
+     * </pre>
+     *
+     * @param parameterizedIdent The parameterized ident string.
+     * @param type               The type object to configure.
+     */
+    public void fromParameterizedIdent(String parameterizedIdent, Type type) {
+      // Default implementation does nothing
     }
   }
 
@@ -96,6 +138,78 @@ public class TypeDetails {
     impl = unregisteredName;
   }
 
+  /**
+   * Create a Type instance from the provided parameterized ident.
+   * This is used for generic or complex types that take type parameters such as pointers or function types.
+   * It also works for simple types.
+   * Examples include:
+   * <pre>
+   * {@literal
+   *   int32
+   *   float64
+   *   func.func<((int, string) -> (bool))>
+   *   ptr.ptr<int>
+   * }
+   * </pre>
+   *
+   * @param parameterizedIdent The parameterized ident string.
+   * @return The created Type instance.
+   */
+  public static Type fromParameterizedIdent(String parameterizedIdent) {
+    // Extract the base ident
+    String baseIdent = parameterizedIdent;
+    int genericStart = parameterizedIdent.indexOf('<');
+    if (genericStart != -1) {
+      baseIdent = parameterizedIdent.substring(0, genericStart);
+    }
+
+    TypeDetails typeDetails = TypeDetails.get(baseIdent);
+    Type typeInstance;
+    try {
+      typeInstance = typeDetails.getType().getDeclaredConstructor().newInstance();
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to instantiate type: " + typeDetails.getType().getSimpleName(), e);
+    }
+    typeDetails.fromParameterizedIdent(parameterizedIdent, typeInstance);
+    return typeInstance;
+  }
+
+  /**
+   * Create a list of Type instances from the provided parameter string.
+   * This is used for parsing multiple types from a comma-separated list.
+   * It handles nested parameterized types correctly.
+   * Examples include:
+   * <pre>
+   * {@literal
+   *   * int32, float64, ptr<int>
+   *   * func.func<(int, string, struct<bool, float, ptr<int>>) -> (bool)>, ptr<func.func<(int) -> (int)>>
+   * }
+   * </pre>
+   *
+   * @param parameterString The comma-separated parameter string.
+   * @return The list of created Type instances.
+   */
+  public static List<Type> fromParameterString(String parameterString) {
+    // Split on commas, but handle nested parameterized types
+    List<Type> types = new java.util.ArrayList<>();
+    int bracketLevel = 0;
+    StringBuilder currentType = new StringBuilder();
+    for (char c : parameterString.toCharArray()) {
+      if (c == '<') bracketLevel++;
+      if (c == '>') bracketLevel--;
+      if (c == ',' && bracketLevel == 0) {
+        types.add(fromParameterizedIdent(currentType.toString().trim()));
+        currentType.setLength(0);
+      } else {
+        currentType.append(c);
+      }
+    }
+    if (!currentType.isEmpty()) {
+      types.add(fromParameterizedIdent(currentType.toString().trim()));
+    }
+    return types;
+  }
+
   public String getIdent() {
     return impl.getIdent();
   }
@@ -113,6 +227,15 @@ public class TypeDetails {
   @JsonIgnore
   public Impl getImpl() {
     return impl;
+  }
+
+  @JsonIgnore
+  public String getParameterizedIdent(Type type) {
+    return impl.getParameterizedIdent(type);
+  }
+
+  public void fromParameterizedIdent(String parameterizedIdent, Type type) {
+    impl.fromParameterizedIdent(parameterizedIdent, type);
   }
 
   private Impl impl = null;
