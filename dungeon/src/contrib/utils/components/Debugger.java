@@ -52,6 +52,11 @@ public class Debugger extends System {
   private static Entity pauseMenu;
   private static int advanceTimer = 0;
 
+  /**
+   * Use this value to quickly test different states or values in any other part of the game.
+   */
+  public static int multiPurposeDebugValue = 0;
+
   /** Creates a new Debugger system. */
   public Debugger() {
     super(AuthoritativeSide.CLIENT);
@@ -270,6 +275,15 @@ public class Debugger extends System {
       Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleHUD);
     if (InputHandler.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_SCENE_HUD.value()))
       Game.stage().ifPresent(stage -> stage.setDebugAll(!stage.isDebugAll()));
+    if (InputHandler.isKeyJustPressed(KeyboardConfig.DEBUG_VALUE_UP.value())) {
+      multiPurposeDebugValue += 1;
+      LOGGER.info("multiPurposeDebugValue: " + multiPurposeDebugValue);
+    }
+    if (InputHandler.isKeyJustPressed(KeyboardConfig.DEBUG_VALUE_DOWN.value())){
+      multiPurposeDebugValue -= 1;
+      LOGGER.info("multiPurposeDebugValue: " + multiPurposeDebugValue);
+    }
+
     checkFrameAdvance();
   }
 }
