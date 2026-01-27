@@ -17,7 +17,7 @@ import util.Scene2dElementFactory;
 public class LoginMask extends ComputerTab {
 
   private static final String USERNAME = "test";
-  private static final String PASSWORD = "1234";
+  private static final String PASSWORD = "A12B34XY";
 
   // Password feedback
   private static final String WRONG_FEEDBACK = "Invalid username or password.";
@@ -78,7 +78,7 @@ public class LoginMask extends ComputerTab {
       public void changed(ChangeEvent event, Actor actor) {
         String username = localState().username();
         String password = localState().password();
-        if(username.equals(USERNAME) && password.equals(PASSWORD)){
+        if(username.equals(USERNAME) && password.equalsIgnoreCase(PASSWORD)){
           ComputerStateComponent.setState(ComputerState.LOGGED_IN);
           ComputerDialog.getInstance().ifPresent(computer -> {
             computer.addTabsForState(ComputerState.LOGGED_IN);

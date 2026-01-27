@@ -1,6 +1,9 @@
 package level;
 
 import contrib.components.DecoComponent;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogFactory;
+import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadFactory;
 import contrib.systems.EventScheduler;
@@ -16,6 +19,8 @@ import core.utils.Point;
 import modules.computer.ComputerFactory;
 import modules.computer.ComputerState;
 import modules.computer.ComputerStateComponent;
+import modules.computer.LastHourDialogTypes;
+import modules.trash.TrashMinigameUI;
 
 import java.util.*;
 
@@ -69,7 +74,33 @@ public class LastHourLevel1 extends DungeonLevel {
     computerState.add(new ComputerStateComponent(ComputerState.PRE_LOGIN));
     Game.add(computerState);
 
+    setupTrashcans();
+
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
+  }
+
+  private static final Deco[] trashcans = {
+    Deco.TrashCanBlue, Deco.TrashCanGreen, Deco.TrashCanRed
+  };
+  private static final String[] trashcanNotes = {
+    "images/note-password-1.png", null, "images/note-password-2.png"
+  };
+  private void setupTrashcans() {
+    DialogFactory.register(LastHourDialogTypes.TRASHCAN, TrashMinigameUI::build);
+    listPointsIndexed("trash").forEach(t -> {
+      Point p = t.a();
+      int index = t.b();
+      Deco deco = trashcans[index % trashcans.length];
+      Entity trashcan = DecoFactory.createDeco(p, deco);
+      trashcan.remove(DecoComponent.class);
+      trashcan.add(new InteractionComponent(() -> new Interaction((eInteract, who) -> {
+        DialogContext.Builder builder = DialogContext.builder();
+        builder.type(LastHourDialogTypes.TRASHCAN);
+        builder.put(TrashMinigameUI.KEY_NOTE_PATH, trashcanNotes[index % trashcanNotes.length]);
+        DialogFactory.show(builder.build(), who.id());
+      })));
+      Game.add(trashcan);
+    });
   }
 
   @Override
