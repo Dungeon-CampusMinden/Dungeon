@@ -90,4 +90,5 @@ tasks.register('buildBlocklyJar', Jar) {
 
 tasks.named('test', Test) {
     useJUnitPlatform()
+    failOnNoDiscoveredTests = false
 }
