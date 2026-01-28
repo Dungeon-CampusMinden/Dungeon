@@ -2,6 +2,8 @@ package core.level.utils;
 
 import core.utils.Point;
 import core.utils.Vector2;
+import java.io.Serial;
+import java.io.Serializable;
 
 /**
  * A record representing a 2D coordinate with x and y Integer components.
@@ -15,7 +17,8 @@ import core.utils.Vector2;
  * @see Point
  * @see Vector2
  */
-public record Coordinate(int x, int y) {
+public record Coordinate(int x, int y) implements Serializable {
+  @Serial private static final long serialVersionUID = 1L;
 
   /**
    * Create a new coordinate from another coordinate.

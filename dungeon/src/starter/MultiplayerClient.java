@@ -22,7 +22,7 @@ public final class MultiplayerClient {
     PreRunConfiguration.isNetworkServer(false);
     PreRunConfiguration.networkServerAddress("127.0.0.1");
     PreRunConfiguration.networkPort(7777);
-    PreRunConfiguration.username("Player1");
+    PreRunConfiguration.username("Player2");
 
     // Game Settings
     Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);

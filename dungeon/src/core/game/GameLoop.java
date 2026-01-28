@@ -5,6 +5,7 @@ import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.backends.headless.HeadlessFiles;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -300,6 +301,8 @@ public final class GameLoop extends ScreenAdapter {
     doSetup = false;
     if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
       setupClient();
+    } else {
+      Gdx.files = new HeadlessFiles();
     }
 
     PreRunConfiguration.userOnSetup().execute();
@@ -353,7 +356,7 @@ public final class GameLoop extends ScreenAdapter {
 
           Entity newEntity = new Entity(event.entityId());
           newEntity.add(event.positionComponent());
-          newEntity.add(event.drawComponent());
+          if (event.drawComponent() != null) newEntity.add(event.drawComponent());
           newEntity.persistent(event.isPersistent());
           Game.add(newEntity);
         });
@@ -398,8 +401,18 @@ public final class GameLoop extends ScreenAdapter {
         (ctx, event) -> {
           try {
             Game.network().snapshotTranslator().applySnapshot(event, dispatcher);
-          } catch (Exception ignored) {
-            LOGGER.warn("Error while applying snapshot message: {}", ignored.getMessage(), ignored);
+          } catch (Exception e) {
+            LOGGER.warn("Error while applying snapshot message: {}", e.getMessage(), e);
+          }
+        });
+
+    dispatcher.registerHandler(
+        DeltaSnapshotMessage.class,
+        (ctx, event) -> {
+          try {
+            Game.network().snapshotTranslator().applyDelta(event, dispatcher);
+          } catch (Exception e) {
+            LOGGER.warn("Error while applying delta snapshot: {}", e.getMessage(), e);
           }
         });
 
