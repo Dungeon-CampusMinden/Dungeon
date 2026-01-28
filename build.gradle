@@ -78,7 +78,10 @@ allprojects {
                 proj.configurations.each { config ->
                     config.dependencies
                         .findAll { it instanceof ProjectDependency }
-                        .each { collectAssets(it.dependencyProject) }
+                        .each { dep ->
+                            def dependencyProject = project.project(dep.path)
+                            collectAssets(dependencyProject)
+                        }
                 }
             }
 
