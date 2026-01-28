@@ -194,7 +194,8 @@ public class TypeDetails {
     List<Type> types = new java.util.ArrayList<>();
     int bracketLevel = 0;
     StringBuilder currentType = new StringBuilder();
-    for (char c : parameterString.toCharArray()) {
+    for (int i = 0; i < parameterString.length(); i++) {
+      char c = parameterString.charAt(i);
       if (c == '<') bracketLevel++;
       if (c == '>') bracketLevel--;
       if (c == ',' && bracketLevel == 0) {

@@ -8,7 +8,7 @@ public class ConstantOp extends Op {
   @Override
   public OperationDetails.Impl createDetails() {
     class ConstantOpModel extends OperationDetails.Impl {
-      public ConstantOpModel() {
+      ConstantOpModel() {
         super(ConstantOp.getIdent(), ConstantOp.class, Dialect.get(Arith.class), List.of("value"));
       }
 

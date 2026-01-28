@@ -57,6 +57,16 @@ public final class Operation implements Serializable {
   @JsonBackReference
   private Block parent = null;
 
+  /**
+   * Static factory method to create an Operation instance.
+   *
+   * @param name          The name of the operation.
+   * @param operands      The input value operands.
+   * @param blockOperands The input block operands.
+   * @param output        The output result.
+   * @param regions       The regions.
+   * @return A new Operation instance.
+   */
   public static Operation Create(String name,
                                  List<ValueOperand> operands,
                                  List<BlockOperand> blockOperands,
@@ -98,6 +108,17 @@ public final class Operation implements Serializable {
 
   }
 
+  /**
+   * Full constructor for Operation.
+   * This constructor is not intended to be called directly. Use the static Create method instead as it will handle default values.
+   *
+   * @param details       The operation details.
+   * @param operands      The input value operands.
+   * @param blockOperands The input block operands.
+   * @param output        The output result.
+   * @param attributes    The named attributes.
+   * @param regions       The regions.
+   */
   public Operation(OperationDetails details,
                    List<ValueOperand> operands,
                    List<BlockOperand> blockOperands,

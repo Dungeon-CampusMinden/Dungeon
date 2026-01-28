@@ -26,7 +26,7 @@ public class FloatT extends Type {
   @Override
   public TypeDetails.Impl createImpl() {
     class FloatTModel extends TypeDetails.Impl {
-      public FloatTModel(int width) {
+      FloatTModel(int width) {
         super(FloatT.getIdent() + width, FloatT.class, Dialect.get(Builtin.class));
       }
     }

@@ -43,7 +43,7 @@ public class FuncOp extends Op {
   }
 
   public StringAttribute getFuncNameAttribute() {
-    return (StringAttribute) (getOperation().getAttributes().get("name").getAttribute());
+    return (StringAttribute) getOperation().getAttributes().get("name").getAttribute();
   }
 
   public String getFuncName() {
@@ -55,7 +55,7 @@ public class FuncOp extends Op {
   }
 
   public TypeAttribute getTypeAttribute() {
-    return (TypeAttribute) (getOperation().getAttributes().get("type").getAttribute());
+    return (TypeAttribute) getOperation().getAttributes().get("type").getAttribute();
   }
 
   public FuncType getType() {

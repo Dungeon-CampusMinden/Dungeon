@@ -10,7 +10,7 @@ public class StringAttribute extends Attribute {
   @Override
   public AttributeDetails.Impl createImpl() {
     class StringAttributeModel extends AttributeDetails.Impl {
-      public StringAttributeModel(String name, Class<? extends Attribute> type) {
+      StringAttributeModel(String name, Class<? extends Attribute> type) {
         super(name, type, null);
       }
     }

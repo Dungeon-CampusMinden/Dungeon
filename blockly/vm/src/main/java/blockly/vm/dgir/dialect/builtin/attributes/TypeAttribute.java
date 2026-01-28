@@ -31,7 +31,7 @@ public class TypeAttribute extends Attribute {
   @Override
   public AttributeDetails.Impl createImpl() {
     class TypeAttributeModel extends AttributeDetails.Impl {
-      public TypeAttributeModel(String name, Class<? extends Attribute> type, Dialect dialect) {
+      TypeAttributeModel(String name, Class<? extends Attribute> type, Dialect dialect) {
         super(name, type, dialect);
       }
     }

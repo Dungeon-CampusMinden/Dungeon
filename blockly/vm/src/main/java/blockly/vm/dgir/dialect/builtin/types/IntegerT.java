@@ -17,7 +17,7 @@ public class IntegerT extends Type {
   @Override
   public TypeDetails.Impl createImpl() {
     class IntegerTModel extends TypeDetails.Impl {
-      public IntegerTModel(String name, Class<? extends Type> type, Dialect dialect) {
+      IntegerTModel(String name, Class<? extends Type> type, Dialect dialect) {
         super(name, type, dialect);
       }
     }

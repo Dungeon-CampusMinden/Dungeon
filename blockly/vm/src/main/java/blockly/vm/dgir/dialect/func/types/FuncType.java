@@ -15,7 +15,7 @@ public class FuncType extends Type {
   @Override
   public TypeDetails.Impl createImpl() {
     class FuncTypeModel extends TypeDetails.Impl {
-      public FuncTypeModel(String name, Class<? extends Type> type, Dialect dialect) {
+      FuncTypeModel(String name, Class<? extends Type> type, Dialect dialect) {
         super(name, type, dialect);
       }
 
@@ -38,7 +38,7 @@ public class FuncType extends Type {
         // Strip prefix and suffix
         String inner = parameterizedIdent.substring(FuncType.getIdent().length() + 1, parameterizedIdent.length() - 1);
         // Split inputs and output
-        String[] parts = inner.split("->");
+        String[] parts = inner.split("->", -1);
         String inputsPart = parts[0].trim();
         String outputPart = parts[1].trim();
         {

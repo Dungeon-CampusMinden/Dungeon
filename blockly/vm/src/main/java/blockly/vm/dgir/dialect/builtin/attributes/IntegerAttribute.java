@@ -11,7 +11,7 @@ public class IntegerAttribute extends Attribute {
   @Override
   public AttributeDetails.Impl createImpl() {
     class IntegerAttributeModel extends AttributeDetails.Impl {
-      public IntegerAttributeModel(String name, Class<? extends Attribute> type) {
+      IntegerAttributeModel(String name, Class<? extends Attribute> type) {
         super(name, type, null);
       }
     }
