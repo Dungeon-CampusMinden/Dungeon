@@ -1,0 +1,134 @@
+package core.language;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import core.utils.JsonHandler;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
+/**
+ * Interface for selected languages.
+ *
+ * <p>Enables switching languages using JSON files.
+ */
+public class Localization {
+  private static final Language FALLBACK_LANGUAGE = Language.DE;
+  private static Language CURRENT_LANGUAGE = FALLBACK_LANGUAGE;
+  private static Localization INSTANCE;
+
+  private Localization() {}
+
+  /**
+   * Gets Instance of this class.
+   *
+   * @return INSTANCE of this class.
+   */
+  public static Localization getInstance() {
+    if (INSTANCE == null) {
+      INSTANCE = new Localization();
+    }
+    return INSTANCE;
+  }
+
+  /**
+   * Gets the current language.
+   *
+   * @return current language.
+   */
+  public static Language currentLanguage() {
+    return CURRENT_LANGUAGE;
+  }
+
+  /**
+   * Sets the current language.
+   *
+   * @param currentLanguage Language currently in use.
+   */
+  public static void currentLanguage(Language currentLanguage) {
+    CURRENT_LANGUAGE = currentLanguage;
+  }
+
+  /**
+   * Gets the value behind a JSON node path for the selected language.
+   *
+   * @param jsonNodes Nodes of the JSON up to the desired value as single params.
+   * @return value behind a JSON node path.
+   */
+  public String text(String... jsonNodes) throws IOException {
+    String jsonPath = "dungeon/assets/language/";
+    File file = new File(jsonPath + currentLanguage().toString() + ".json");
+    String text;
+
+    try {
+      String jsonString = readFileContent(file);
+      text = JsonHandler.getValueByPath(jsonString, jsonNodes);
+    } catch (IOException exception) {
+      throw new IOException("Failed to read File", exception);
+    }
+
+    if (text != null) {
+      return text;
+    } else {
+      return fallbackText(jsonNodes);
+    }
+  }
+
+  /* In the case that there is no value for the selected language. */
+  private String fallbackText(String... pathParams) throws IOException {
+    String jsonPath = "dungeon/assets/language/";
+    File file = new File(jsonPath + FALLBACK_LANGUAGE.toString() + ".json");
+    String text;
+
+    try {
+      String jsonString = readFileContent(file);
+      text = JsonHandler.getValueByPath(jsonString, pathParams);
+    } catch (IOException exception) {
+      throw new IOException("Failed to read File", exception);
+    }
+
+    if (text != null) {
+      return text;
+    } else {
+      return "Text not found!";
+    }
+  }
+
+  /**
+   * Adds language suffix to file.
+   *
+   * @param basePath Path of the base such as 'assets/images/open-book.png'.
+   * @return FileHandler for the current asset.
+   */
+  public String asset(String basePath) {
+    FileHandle handler = Gdx.files.internal(addSuffix(basePath, false));
+
+    if (handler.exists()) {
+      return handler.path();
+    } else {
+      return Gdx.files.internal(addSuffix(basePath, true)).path();
+    }
+  }
+
+  private String addSuffix(String filePath, boolean fallback) {
+    int index = filePath.lastIndexOf(".");
+    String name = filePath.substring(0, index);
+    String fileFormat = filePath.substring(index);
+
+    if (fallback) {
+      return name + "_" + FALLBACK_LANGUAGE.toString() + fileFormat;
+    } else {
+      return name + "_" + currentLanguage().toString() + fileFormat;
+    }
+  }
+
+  private String readFileContent(File file) throws IOException {
+    try (InputStream fileInputStream = new FileInputStream(file); ) {
+      return new String(fileInputStream.readAllBytes(), StandardCharsets.UTF_8);
+    } catch (IOException exception) {
+      throw new IOException("Failed to read File", exception);
+    }
+  }
+}
