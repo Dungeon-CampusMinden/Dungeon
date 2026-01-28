@@ -52,6 +52,10 @@ public class Level006 extends BlocklyLevel {
         "Variablen",
         "Bedingungen",
         "Sonstige");
+
+    addCodePopup(new ImagePopup("popups/level006/codepopups/01_intro.png"));
+    addCodePopup(new ImagePopup("popups/level006/codepopups/02_intro.png"));
+    addCodePopup(new ImagePopup("popups/overview1.png"));
   }
 
   @Override

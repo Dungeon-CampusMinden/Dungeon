@@ -10,6 +10,7 @@ import level.LevelManagementUtils;
 
 /** In this level, simple backtracking techniques are used to find the correct path. */
 public class Level017 extends BlocklyLevel {
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -37,6 +38,8 @@ public class Level017 extends BlocklyLevel {
         // Kategorien
         // Kategorien
         "Sonstige");
+
+    addCodePopup(new ImagePopup("popups/overview1.png"));
   }
 
   @Override
@@ -46,6 +49,11 @@ public class Level017 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.playerViewDirection(Direction.DOWN);
     LevelManagementUtils.zoomDefault();
+
+    if (showText) {
+      showPopups();
+      showText = false;
+    }
   }
 
   @Override
