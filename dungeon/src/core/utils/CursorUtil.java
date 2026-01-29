@@ -1,4 +1,4 @@
-package util;
+package core.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;

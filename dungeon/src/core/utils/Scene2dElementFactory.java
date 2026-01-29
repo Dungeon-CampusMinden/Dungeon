@@ -1,4 +1,4 @@
-package util;
+package core.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import contrib.hud.UIUtils;
-import core.utils.FontHelper;
 import core.utils.logging.DungeonLogger;
 import java.util.function.Consumer;
 
@@ -23,14 +22,14 @@ public class Scene2dElementFactory {
   public static String FONT_PATH_BOLD = "fonts/Lexend-Bold.ttf";
 
   public static Label createLabel(
-      String text, int fontSize, Color fontColor, int borderSize, Color borderColor) {
+      String text, FontSpec fontSpec) {
     Label.LabelStyle style = new Label.LabelStyle();
-    style.font = FontHelper.getFont(FONT_PATH, fontSize, fontColor, borderSize, borderColor);
+    style.font = FontHelper.getFont(fontSpec);
     return new Label(text, style);
   }
 
   public static Label createLabel(String text, int fontSize, Color fontColor) {
-    return createLabel(text, fontSize, fontColor, 0, Color.BLACK);
+    return createLabel(text, FontSpec.of(FONT_PATH, fontSize, fontColor));
   }
 
   public static Label createLabel(String text, int fontSize) {
@@ -96,7 +95,8 @@ public class Scene2dElementFactory {
   public static ScrollPane createScrollPane(Actor actor, boolean scrollX, boolean scrollY) {
     ScrollPane scrollPane = new ScrollPane(actor, DEFAULT_SKIN);
     scrollPane.setScrollingDisabled(!scrollX, !scrollY);
-    scrollPane.setFadeScrollBars(false);
+    scrollPane.setFadeScrollBars(true);
+    scrollPane.setScrollbarsVisible(true);
     scrollPane.setScrollbarsOnTop(true);
     scrollPane.addListener(
         new InputListener() {

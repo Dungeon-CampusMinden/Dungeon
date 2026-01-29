@@ -1,4 +1,4 @@
-package util;
+package core.utils;
 
 public enum Cursors {
   DEFAULT("cursors/pointer_a.png", 9, 6),
