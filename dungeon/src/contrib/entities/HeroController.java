@@ -278,6 +278,20 @@ public class HeroController {
   }
 
   /**
+   * Toggles the inventory UI for the hero entity. If the inventory UI is open, it will be closed;
+   * if it is closed, it will be opened.
+   *
+   * @param hero the hero entity whose inventory UI is to be toggled
+   */
+  public static void toggleInventory(Entity hero) {
+    if (isInventoryOpen(hero)) {
+      closeInventory(hero);
+    } else {
+      openInventory(hero);
+    }
+  }
+
+  /**
    * Adds an input message from a client to the input queue for processing.
    *
    * @param clientState The state of the client sending the input.
@@ -533,10 +547,7 @@ public class HeroController {
       case NEXT_SKILL -> HeroController.changeSkill(playerEntity, true);
       case PREV_SKILL -> HeroController.changeSkill(playerEntity, false);
       case INTERACT -> HeroController.interact(playerEntity, msg.point());
-      case TOGGLE_INVENTORY -> {
-        if (isInventoryOpen(playerEntity)) HeroController.closeInventory(playerEntity);
-        else HeroController.openInventory(playerEntity);
-      }
+      case TOGGLE_INVENTORY -> HeroController.toggleInventory(playerEntity);
       case INV_DROP -> {
         Optional<InventoryComponent> playerInv =
             clientState
