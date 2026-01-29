@@ -53,8 +53,14 @@ final class OkDialog {
     DialogDesign.setDialogDefaults(dialog, title);
     Table content = dialog.getContentTable();
 
-    content.add(Scene2dElementFactory.createLabel(text, DialogDesign.DIALOG_FONT_SPEC_NORMAL)).padBottom(10).row();
-    dialog.button(DEFAULT_OK_BUTTON, DEFAULT_OK_BUTTON, skin.get("clean-green", TextButton.TextButtonStyle.class));
+    content
+        .add(Scene2dElementFactory.createLabel(text, DialogDesign.DIALOG_FONT_SPEC_NORMAL))
+        .padBottom(10)
+        .row();
+    dialog.button(
+        DEFAULT_OK_BUTTON,
+        DEFAULT_OK_BUTTON,
+        skin.get("clean-green", TextButton.TextButtonStyle.class));
 
     dialog.pack();
 

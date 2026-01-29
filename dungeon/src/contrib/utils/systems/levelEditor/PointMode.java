@@ -58,7 +58,9 @@ public class PointMode extends LevelEditorMode {
                 DialogContext.builder()
                     .type(DialogType.DefaultTypes.FREE_INPUT)
                     .put(DialogContextKeys.TITLE, "Add Named Point")
-                    .put(DialogContextKeys.QUESTION, "Name of new point")
+                    .put(DialogContextKeys.QUESTION, "Name of point")
+                    .put(DialogContextKeys.CONFIRM_LABEL, "Add")
+                    .put(DialogContextKeys.CANCEL_LABEL, "Cancel")
                     .build());
         dialogUI.registerCallback(
             DialogContextKeys.INPUT_CALLBACK,

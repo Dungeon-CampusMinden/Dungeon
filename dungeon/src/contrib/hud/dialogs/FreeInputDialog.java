@@ -78,9 +78,7 @@ final class FreeInputDialog {
 
     boolean hasTitle = title != null && !title.isBlank();
     Dialog dialog =
-        new Dialog(title, skin,
-          hasTitle ? "default" : "no-title"
-          ) {
+        new Dialog(title, skin, hasTitle ? "default" : "no-title") {
           @Override
           protected void result(Object obj) {
             if (obj.equals(okLabel)) {
@@ -100,8 +98,11 @@ final class FreeInputDialog {
 
     Table content = dialog.getContentTable();
 
-    if(!question.isBlank()){
-      content.add(Scene2dElementFactory.createLabel(question, DialogDesign.DIALOG_FONT_SPEC_NORMAL)).padBottom(10).row();
+    if (!question.isBlank()) {
+      content
+          .add(Scene2dElementFactory.createLabel(question, DialogDesign.DIALOG_FONT_SPEC_NORMAL))
+          .padBottom(10)
+          .row();
     }
 
     content.add(input).width(400).padBottom(10).row();

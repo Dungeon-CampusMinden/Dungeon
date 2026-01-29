@@ -21,8 +21,7 @@ public class Scene2dElementFactory {
   public static String FONT_PATH = "fonts/Lexend-Regular.ttf";
   public static String FONT_PATH_BOLD = "fonts/Lexend-Bold.ttf";
 
-  public static Label createLabel(
-      String text, FontSpec fontSpec) {
+  public static Label createLabel(String text, FontSpec fontSpec) {
     Label.LabelStyle style = new Label.LabelStyle();
     style.font = FontHelper.getFont(fontSpec);
     return new Label(text, style);

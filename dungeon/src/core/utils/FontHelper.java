@@ -99,7 +99,7 @@ public class FontHelper {
     if (!fontStorage.containsKey(entry)) {
       FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(entry.path()));
       FreeTypeFontGenerator.FreeTypeFontParameter params =
-        new FreeTypeFontGenerator.FreeTypeFontParameter();
+          new FreeTypeFontGenerator.FreeTypeFontParameter();
 
       params.size = entry.size();
       params.color = entry.color();

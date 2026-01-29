@@ -8,9 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import core.utils.Scene2dElementFactory;
 import java.util.*;
 import modules.computer.ComputerStateComponent;
-import core.utils.Scene2dElementFactory;
 
 public class BrowserTab extends ComputerTab {
 

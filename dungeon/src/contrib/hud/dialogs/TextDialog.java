@@ -2,15 +2,11 @@ package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
 import core.Game;
 import core.utils.Scene2dElementFactory;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
 
 public class TextDialog {
 
@@ -26,7 +22,7 @@ public class TextDialog {
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("");
     String button =
-      ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(OkDialog.DEFAULT_OK_BUTTON);
+        ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(OkDialog.DEFAULT_OK_BUTTON);
 
     // On headless server, return a placeholder
     if (Game.isHeadless()) {
@@ -47,17 +43,22 @@ public class TextDialog {
    * @param title Title for the dialog.
    * @return The fully configured Dialog, which can then be added where it is needed.
    */
-  private static Dialog create(DialogContext ctx, String message, String confirmButton, String title) {
+  private static Dialog create(
+      DialogContext ctx, String message, String confirmButton, String title) {
     Skin skin = UIUtils.defaultSkin();
 
-    Dialog dialog = new HandledDialog(title, skin, (d, id) -> {
-          if (id.equals(confirmButton)) {
-            DialogCallbackResolver.createButtonCallback(
-                ctx.dialogId(), DialogContextKeys.ON_CONFIRM)
-              .accept(null);
-          }
-          return true;
-        });
+    Dialog dialog =
+        new HandledDialog(
+            title,
+            skin,
+            (d, id) -> {
+              if (id.equals(confirmButton)) {
+                DialogCallbackResolver.createButtonCallback(
+                        ctx.dialogId(), DialogContextKeys.ON_CONFIRM)
+                    .accept(null);
+              }
+              return true;
+            });
 
     DialogDesign.setDialogDefaults(dialog, title);
     Table content = dialog.getContentTable();
@@ -73,7 +74,8 @@ public class TextDialog {
     pane.setScrollbarsOnTop(false);
     content.add(pane).width(450).maxHeight(350).padBottom(10).row();
 
-    dialog.button(confirmButton, confirmButton, skin.get("clean-green", TextButton.TextButtonStyle.class));
+    dialog.button(
+        confirmButton, confirmButton, skin.get("clean-green", TextButton.TextButtonStyle.class));
 
     dialog.pack();
     return dialog;

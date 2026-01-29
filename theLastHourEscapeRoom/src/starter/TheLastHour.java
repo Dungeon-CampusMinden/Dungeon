@@ -15,11 +15,11 @@ import core.game.PreRunConfiguration;
 import core.level.loader.DungeonLoader;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.systems.*;
+import core.utils.CursorUtil;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import level.LastHourLevel1;
-import core.utils.CursorUtil;
 
 /**
  * Entry point for running a minimal dungeon game instance.

@@ -7,11 +7,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import core.utils.Scene2dElementFactory;
 import core.utils.components.draw.TextureGenerator;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerState;
 import modules.computer.ComputerStateComponent;
-import core.utils.Scene2dElementFactory;
 
 public class LoginMask extends ComputerTab {
 

@@ -6,12 +6,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import core.utils.Scene2dElementFactory;
 import core.utils.Tuple;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import modules.computer.ComputerStateComponent;
-import core.utils.Scene2dElementFactory;
 
 public class FileTab extends ComputerTab {
 

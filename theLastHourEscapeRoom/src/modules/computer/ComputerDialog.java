@@ -9,14 +9,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import contrib.hud.UIUtils;
 import core.Game;
+import core.utils.Cursors;
 import core.utils.FontHelper;
+import core.utils.Scene2dElementFactory;
 import core.utils.logging.DungeonLogger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import modules.computer.content.*;
-import core.utils.Cursors;
-import core.utils.Scene2dElementFactory;
 
 public class ComputerDialog extends Group {
 
@@ -164,7 +164,7 @@ public class ComputerDialog extends Group {
   }
 
   public void buildTabs() {
-    if(tabArea == null) return;
+    if (tabArea == null) return;
     tabArea.clearChildren();
     for (String tabKey : tabContentMap.keySet()) {
       buildTab(tabKey);

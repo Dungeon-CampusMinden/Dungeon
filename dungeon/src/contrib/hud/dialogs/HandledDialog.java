@@ -4,9 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import java.util.function.BiFunction;
 
-/**
- * A subclass of Dialog that allows the result handler to be defined per functional interface.
- */
+/** A subclass of Dialog that allows the result handler to be defined per functional interface. */
 public final class HandledDialog extends Dialog {
 
   /** Handler for Button presses. */
@@ -34,7 +32,11 @@ public final class HandledDialog extends Dialog {
    * @param windowStyleName the name of the style which should be used
    * @param resultHandler callbacks for the button presses
    */
-  public HandledDialog(String title, Skin skin, String windowStyleName, BiFunction<Dialog, String, Boolean> resultHandler) {
+  public HandledDialog(
+      String title,
+      Skin skin,
+      String windowStyleName,
+      BiFunction<Dialog, String, Boolean> resultHandler) {
     super(title, skin, windowStyleName);
     this.resultHandler = resultHandler;
   }
@@ -49,5 +51,4 @@ public final class HandledDialog extends Dialog {
   protected void result(final Object object) {
     if (!resultHandler.apply(this, object.toString())) cancel();
   }
-
 }
