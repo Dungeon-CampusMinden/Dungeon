@@ -212,7 +212,6 @@ public class HeroController {
    *
    * @param hero the hero entity to check
    * @return true if the inventory UI is open, false otherwise
-   *
    * @see UIUtils#getPlayerInventoryGUI(Entity)
    */
   public static boolean isInventoryOpen(Entity hero) {
