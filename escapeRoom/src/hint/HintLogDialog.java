@@ -150,7 +150,7 @@ public final class HintLogDialog {
         };
 
     Dialog textDialog =
-        new TextDialog(hint.title(), skin, DEFAULT_WINDOW_STYLE_NAME, resultHandler);
+        new HandledDialog(hint.title(), skin, DEFAULT_WINDOW_STYLE_NAME, resultHandler);
     textDialog
         .getContentTable()
         .add(DialogDesign.createTextDialog(skin, UIUtils.formatString(hint.text())))

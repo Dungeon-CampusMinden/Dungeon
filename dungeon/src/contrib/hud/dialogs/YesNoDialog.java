@@ -52,7 +52,7 @@ final class YesNoDialog {
           }
           return true;
         };
-    Dialog textDialog = new TextDialog(title, skin, "Letter", resultHandler);
+    Dialog textDialog = new HandledDialog(title, skin, "Letter", resultHandler);
     textDialog
         .getContentTable()
         .add(DialogDesign.createTextDialog(skin, UIUtils.formatString(text)))
