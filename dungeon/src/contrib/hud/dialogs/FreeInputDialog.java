@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import contrib.hud.UIUtils;
 import core.Game;
 import core.network.messages.c2s.DialogResponseMessage;
+import core.utils.Scene2dElementFactory;
 
 /**
  * Package-private builder for free text input dialogs.
@@ -39,7 +40,7 @@ final class FreeInputDialog {
    */
   static Group build(DialogContext ctx) {
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(TITLE_DEFAULT);
-    String question = ctx.require(DialogContextKeys.QUESTION, String.class);
+    String question = ctx.find(DialogContextKeys.QUESTION, String.class).orElse("");
 
     // On headless server, return placeholder
     if (Game.isHeadless()) {
@@ -75,8 +76,11 @@ final class FreeInputDialog {
     String cancelLabel =
         context.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(CANCEL_BUTTON);
 
+    boolean hasTitle = title != null && !title.isBlank();
     Dialog dialog =
-        new Dialog(title, skin, "no-title") {
+        new Dialog(title, skin,
+          hasTitle ? "default" : "no-title"
+          ) {
           @Override
           protected void result(Object obj) {
             if (obj.equals(okLabel)) {
@@ -92,18 +96,16 @@ final class FreeInputDialog {
           }
         };
 
-    dialog.padBottom(20);
-    dialog.setModal(true);
-    dialog.setMovable(false);
-    dialog.setResizable(false);
-    dialog.setKeepWithinStage(true);
+    DialogDesign.setDialogDefaults(dialog, title);
 
     Table content = dialog.getContentTable();
-    content.pad(16, 50, 26, 50);
-    content.add(new Label(question, skin, "blank-black")).padBottom(10).row();
-    content.add(input).width(400).row();
 
-    dialog.getButtonTable().defaults().minWidth(150);
+    if(!question.isBlank()){
+      content.add(Scene2dElementFactory.createLabel(question, DialogDesign.DIALOG_FONT_SPEC_NORMAL)).padBottom(10).row();
+    }
+
+    content.add(input).width(400).padBottom(10).row();
+
     dialog.button(okLabel, okLabel, skin.get("clean-green", TextButton.TextButtonStyle.class));
     dialog.button(
         cancelLabel, cancelLabel, skin.get("clean-red-outline", TextButton.TextButtonStyle.class));

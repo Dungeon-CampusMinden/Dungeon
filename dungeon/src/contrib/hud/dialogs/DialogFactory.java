@@ -12,9 +12,11 @@ import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
 import core.Game;
 import core.game.PreRunConfiguration;
+import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -192,7 +194,7 @@ public class DialogFactory {
    * Shows a simple OK dialog with a message and a single confirmation button.
    *
    * @param text The message to display in the dialog body
-   * @param title The dialog window title
+   * @param title The dialog window title. Leave blank or null for no title.
    * @param onConfirm Callback executed when the OK button is pressed
    * @param targetIds The target entity IDs for which the dialog is displayed
    * @return The {@link UIComponent} containing the dialog
@@ -261,44 +263,90 @@ public class DialogFactory {
   }
 
   /**
-   * Shows a customizable text dialog with optional multiple buttons and custom result handling.
+   * Shows a dialog for a text message. Similar to an OK dialog, but designed for bigger texts that need scrolling.
    *
    * @param text The message to display in the dialog body
    * @param title The dialog window title
    * @param onConfirm Callback executed when the confirm button is pressed
    * @param confirmLabel Label for the confirm button (uses default if null)
-   * @param cancelLabel Label for the cancel button (no cancel button if null)
-   * @param additionalButtons List of additional button labels (can be null)
    * @param targetEntityIds The target entity IDs for which the dialog is displayed
    * @return The {@link UIComponent} containing the dialog
    */
   public static UIComponent showTextDialog(
-      String text,
-      String title,
-      IVoidFunction onConfirm,
-      String confirmLabel,
-      String cancelLabel,
-      String[] additionalButtons,
-      int... targetEntityIds) {
+    String text,
+    String title,
+    IVoidFunction onConfirm,
+    String confirmLabel,
+    int... targetEntityIds) {
     DialogContext.Builder builder =
-        DialogContext.builder()
-            .type(DialogType.DefaultTypes.TEXT)
-            .put(DialogContextKeys.TITLE, title)
-            .put(DialogContextKeys.MESSAGE, text);
+      DialogContext.builder()
+        .type(DialogType.DefaultTypes.TEXT)
+        .put(DialogContextKeys.TITLE, title)
+        .put(DialogContextKeys.MESSAGE, text);
     if (confirmLabel != null) builder.put(DialogContextKeys.CONFIRM_LABEL, confirmLabel);
-    if (cancelLabel != null) builder.put(DialogContextKeys.CANCEL_LABEL, cancelLabel);
-    if (additionalButtons != null)
-      builder.put(DialogContextKeys.ADDITIONAL_BUTTONS, additionalButtons);
 
     UIComponent ui = show(builder.build(), targetEntityIds);
 
     ui.registerCallback(
-        DialogContextKeys.ON_CONFIRM,
-        data -> {
-          onConfirm.execute();
-          UIUtils.closeDialog(ui);
-        });
+      DialogContextKeys.ON_CONFIRM,
+      data -> {
+        onConfirm.execute();
+        UIUtils.closeDialog(ui);
+      });
     ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onConfirm.execute());
+
+    return ui;
+  }
+
+  /**
+   * Shows a dialog for a text message. Similar to an OK dialog, but designed for bigger texts that need scrolling.
+   *
+   * @param text The message to display in the dialog body
+   * @param title The dialog window title
+   * @param onConfirm Callback executed when the confirm button is pressed (can be null)
+   * @param confirmLabel Label for the confirm button (uses default if null)
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed
+   * @return The {@link UIComponent} containing the dialog
+   */
+  public static UIComponent showInputDialog(
+      String text,
+      String title,
+      String inputPrefill,
+      String inputPlaceholder,
+      String confirmLabel,
+      String cancelLabel,
+      Consumer<DialogResponseMessage.Payload> onConfirm,
+      IVoidFunction onCancel,
+      int... targetEntityIds) {
+    DialogContext.Builder builder =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.FREE_INPUT)
+            .put(DialogContextKeys.TITLE, title)
+            .put(DialogContextKeys.MESSAGE, text)
+          .put(DialogContextKeys.INPUT_PREFILL, inputPrefill)
+          .put(DialogContextKeys.INPUT_PLACEHOLDER, inputPlaceholder)
+          .put(DialogContextKeys.CONFIRM_LABEL, confirmLabel)
+          .put(DialogContextKeys.CANCEL_LABEL, cancelLabel);
+
+    UIComponent ui = show(builder.build(), targetEntityIds);
+
+    // Register callbacks
+    ui.registerCallback(
+      DialogContextKeys.INPUT_CALLBACK,
+      data -> {
+        if (onConfirm != null) {
+          onConfirm.accept(data);
+        }
+        UIUtils.closeDialog(ui);
+      });
+    ui.registerCallback(
+      DialogContextKeys.ON_CANCEL,
+      data -> {
+        if (onCancel != null) {
+          onCancel.execute();
+        }
+        UIUtils.closeDialog(ui);
+      });
 
     return ui;
   }

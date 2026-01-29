@@ -1,12 +1,10 @@
 package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import contrib.hud.UIUtils;
 import core.Game;
+import core.utils.Scene2dElementFactory;
 
 /**
  * Package-private builder for OK dialogs.
@@ -29,7 +27,7 @@ final class OkDialog {
    */
   static Group build(DialogContext ctx) {
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
-    String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("OK");
+    String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("");
 
     // On headless server, return a placeholder
     if (Game.isHeadless()) {
@@ -40,11 +38,10 @@ final class OkDialog {
   }
 
   private static Dialog create(Skin skin, String title, String text, String dialogId) {
-    Dialog textDialog =
-        new TextDialog(
+    Dialog dialog =
+        new HandledDialog(
             title,
             skin,
-            "no-title",
             (d, id) -> {
               if (id.equals(DEFAULT_OK_BUTTON)) {
                 DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CONFIRM)
@@ -52,14 +49,15 @@ final class OkDialog {
               }
               return true;
             });
-    Table content = textDialog.getContentTable();
-    content.add(DialogDesign.createTextDialog(skin, text)).center().grow().padBottom(10);
 
-    textDialog.getButtonTable().defaults().minWidth(150).padBottom(5);
-    textDialog.button(DEFAULT_OK_BUTTON, DEFAULT_OK_BUTTON, skin.get("clean-green", TextButton.TextButtonStyle.class));
+    DialogDesign.setDialogDefaults(dialog, title);
+    Table content = dialog.getContentTable();
 
-    textDialog.pack();
+    content.add(Scene2dElementFactory.createLabel(text, DialogDesign.DIALOG_FONT_SPEC_NORMAL)).padBottom(10).row();
+    dialog.button(DEFAULT_OK_BUTTON, DEFAULT_OK_BUTTON, skin.get("clean-green", TextButton.TextButtonStyle.class));
 
-    return textDialog;
+    dialog.pack();
+
+    return dialog;
   }
 }
