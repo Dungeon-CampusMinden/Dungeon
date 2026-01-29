@@ -5,7 +5,7 @@ import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
-import contrib.hud.inventory.InventoryGUI;
+import contrib.hud.dialogs.DialogContextKeys;
 import contrib.systems.HealthSystem;
 import contrib.systems.HudSystem;
 import contrib.systems.PositionSync;
@@ -209,7 +209,6 @@ public final class HeroBuilder {
     hero.persistent(persistent);
     PlayerComponent pc = new PlayerComponent(isLocal, playerName);
     hero.add(pc);
-    hero.add(new CharacterClassComponent(characterClass));
     CameraComponent cc = new CameraComponent();
     hero.add(new CharacterClassComponent(characterClass));
     if (isLocal) {
@@ -381,7 +380,11 @@ public final class HeroBuilder {
 
     // UI controls
     inputComp.registerCallback(
-        KeyboardConfig.INVENTORY_OPEN.value(), HeroController::toggleInventory, false, true);
+        KeyboardConfig.INVENTORY_OPEN.value(),
+        (caller) ->
+            Game.network()
+                .sendInput(new InputMessage(InputMessage.Action.TOGGLE_INVENTORY, Vector2.ZERO)),
+        false);
     inputComp.registerCallback(
         KeyboardConfig.CLOSE_UI.value(),
         (caller) ->
@@ -392,23 +395,19 @@ public final class HeroBuilder {
                         .topmostCloseableUI()
                         .ifPresent(
                             firstUI -> {
-                              UIComponent component = firstUI.b();
-                              Entity entity = firstUI.a();
+                              UIComponent uiComp = firstUI.b();
+                              Entity uiEntity = firstUI.a();
 
-                              // Check if this is the player's inventory
-                              if (InventoryGUI.inPlayerInventory(entity)) {
-                                // Use toggleInventory which properly notifies server via
-                                // InventoryUIMessage
-                                HeroController.toggleInventory(entity);
-                              } else {
-                                // For network dialogs (received from server), send close message
-                                if (component.dialogContext() != null) {
-                                  String dialogId = component.dialogContext().dialogId();
-                                  DialogCallbackResolver.sendDialogClosed(dialogId);
-                                }
-                                // Remove the UI component
-                                UIUtils.closeDialog(component);
+                              if (uiEntity.isLocal()) {
+                                // UI is not networked, just close locally
+                                UIUtils.closeDialog(uiComp);
+                                return;
                               }
+
+                              String dialogId = uiComp.dialogContext().dialogId();
+                              DialogCallbackResolver.createButtonCallback(
+                                      dialogId, DialogContextKeys.ON_CLOSE)
+                                  .accept(null);
                             }))),
         false,
         true);

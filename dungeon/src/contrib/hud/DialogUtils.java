@@ -22,7 +22,7 @@ public class DialogUtils {
    * @param title The title of the popup.
    * @param targetIds The target entity IDs for which the popup is displayed.
    * @return The popup entity.
-   * @see DialogFactory#showOkDialog(String, String, IVoidFunction) showOkDialog
+   * @see DialogFactory#showOkDialog(String, String, IVoidFunction, int...) showOkDialog
    */
   public static Entity showTextPopup(String text, String title, int... targetIds) {
     return showTextPopup(text, title, () -> {}, targetIds);
@@ -36,7 +36,7 @@ public class DialogUtils {
    * @param onFinished The function to execute when the popup is closed.
    * @param targetIds The target entity IDs for which the popup is displayed.
    * @return The popup entity.
-   * @see DialogFactory#showOkDialog(String, String, IVoidFunction) showOkDialog
+   * @see DialogFactory#showOkDialog(String, String, IVoidFunction, int...) showOkDialog
    */
   public static Entity showTextPopup(
       String text, String title, IVoidFunction onFinished, int... targetIds) {
@@ -53,10 +53,11 @@ public class DialogUtils {
    * @param imagePath the path to the image to display
    * @param speed the transition speed for showing and hiding the image
    * @param onClose the callback function to execute when the popup is closed
+   * @param targetIds the target entity IDs for which the popup is displayed
    * @see ShowImageUI
    */
   public static void showImagePopUp(
-      String imagePath, TransitionSpeed speed, IVoidFunction onClose) {
+      String imagePath, TransitionSpeed speed, IVoidFunction onClose, int... targetIds) {
     Entity dialogEntity = new Entity();
     DialogContext context =
         DialogContext.builder()
@@ -65,10 +66,9 @@ public class DialogUtils {
             .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, speed)
             .put(DialogContextKeys.OWNER_ENTITY, dialogEntity.id())
             .build();
-    UIComponent ui = new UIComponent(context, true, true, new int[] {});
+    UIComponent ui = new UIComponent(context, true, true, targetIds);
 
-    // Default onClose behavior (e.g. when pressing ESC)
-    ui.onClose((uic) -> onClose.execute());
+    ui.registerCallback(DialogContextKeys.ON_CLOSE, (data) -> onClose.execute());
 
     dialogEntity.add(ui);
     Game.add(dialogEntity);
@@ -79,19 +79,21 @@ public class DialogUtils {
    *
    * @param imagePath The path to the image to display. *
    * @param onClose the callback function to execute when the popup is closed
+   * @param targetIds the target entity IDs for which the popup is displayed
    * @see ShowImageUI
    */
-  public static void showImagePopUp(String imagePath, IVoidFunction onClose) {
-    showImagePopUp(imagePath, TransitionSpeed.MEDIUM, onClose);
+  public static void showImagePopUp(String imagePath, IVoidFunction onClose, int... targetIds) {
+    showImagePopUp(imagePath, TransitionSpeed.MEDIUM, onClose, targetIds);
   }
 
   /**
    * Displays an image in a popup.
    *
    * @param imagePath The path to the image to display.
+   * @param targetIds the target entity IDs for which the popup is displayed
    * @see ShowImageUI
    */
-  public static void showImagePopUp(String imagePath) {
-    showImagePopUp(imagePath, TransitionSpeed.MEDIUM, () -> {});
+  public static void showImagePopUp(String imagePath, int... targetIds) {
+    showImagePopUp(imagePath, TransitionSpeed.MEDIUM, () -> {}, targetIds);
   }
 }

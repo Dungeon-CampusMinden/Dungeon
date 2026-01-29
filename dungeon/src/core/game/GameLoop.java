@@ -408,7 +408,7 @@ public final class GameLoop extends ScreenAdapter {
         (ctx, msg) -> {
           LOGGER.debug("Received DialogShowMessage for dialog: {}", msg.context().dialogId());
 
-          DialogFactory.show(msg.context(), false, msg.canBeClosed(), new int[] {});
+          DialogFactory.show(msg.context(), false, msg.canBeClosed());
         });
 
     dispatcher.registerHandler(

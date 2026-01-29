@@ -27,8 +27,6 @@ public final class UIComponent implements Component {
   /** Server-side callbacks map. Keys match callback keys sent by clients. */
   private final Map<String, Consumer<Serializable>> callbacks = new HashMap<>();
 
-  private Consumer<UIComponent> onClose = (uiComponent) -> {};
-
   private Group dialog = null;
 
   /**
@@ -91,28 +89,6 @@ public final class UIComponent implements Component {
       throw new IllegalArgumentException("key and callback must not be null");
     }
     callbacks.put(key, callback);
-    return this;
-  }
-
-  /**
-   * Returns the onClose callback.
-   *
-   * @return the onClose callback
-   */
-  public Consumer<UIComponent> onClose() {
-    return onClose;
-  }
-
-  /**
-   * Sets the onClose callback.
-   *
-   * @param onClose the onClose callback to set
-   * @return this UIComponent for method chaining
-   */
-  public UIComponent onClose(Consumer<UIComponent> onClose) {
-    if (onClose != null) {
-      this.onClose = onClose;
-    }
     return this;
   }
 

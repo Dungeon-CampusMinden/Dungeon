@@ -39,6 +39,13 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
   @Serial private static final long serialVersionUID = 1L;
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Item.class);
 
+  /**
+   * The maximum stack size for any item.
+   *
+   * <p>Cannot be higher than 255 due to byte storage.
+   */
+  private static final long MAX_STACK_SIZE = 64;
+
   /** Random object used to generate random numbers for item related things. */
   public static final Random RANDOM = new Random();
 
@@ -73,8 +80,8 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
   private String description;
   private Animation inventoryAnimation;
   private Animation worldAnimation;
-  private int stackSize;
-  private int maxStackSize;
+  private byte stackSize;
+  private byte maxStackSize;
 
   /**
    * Determines whether the item uses simple interaction.
@@ -91,8 +98,8 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
    * @param description The description of the item.
    * @param inventoryAnimation The inventory animation of the item.
    * @param worldAnimation The world animation of the item.
-   * @param stackSize The stack size of the item.
-   * @param maxStackSize The max stack size of the item.
+   * @param stackSize The stack size of the item (max 64).
+   * @param maxStackSize The max stack size of the item (max 64).
    */
   public Item(
       final String displayName,
@@ -105,8 +112,12 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
     this.description = description;
     this.inventoryAnimation = inventoryAnimation;
     this.worldAnimation = worldAnimation;
-    this.stackSize = stackSize;
-    this.maxStackSize = maxStackSize;
+    if (stackSize > MAX_STACK_SIZE || maxStackSize > MAX_STACK_SIZE) {
+      throw new IllegalArgumentException(
+          "Stack size and max stack size cannot be higher than " + MAX_STACK_SIZE);
+    }
+    this.stackSize = (byte) stackSize;
+    this.maxStackSize = (byte) maxStackSize;
 
     // Stupidity check
     if (!Item.isRegistered(this.getClass())) {
@@ -280,10 +291,15 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
   /**
    * Set the stack size of this item.
    *
-   * @param stackSize The new stack size.
+   * @param stackSize The new stack size (max {@link #MAX_STACK_SIZE}; min 0).
    */
   public void stackSize(int stackSize) {
-    this.stackSize = stackSize;
+    if (stackSize > MAX_STACK_SIZE || stackSize < 0) {
+      throw new IllegalArgumentException(
+          "Stack size cannot be higher than " + MAX_STACK_SIZE + " or lower than 0");
+    }
+
+    this.stackSize = (byte) stackSize;
   }
 
   /**
@@ -298,10 +314,14 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
   /**
    * Set the max stack size of this item.
    *
-   * @param maxStackSize The new max stack size.
+   * @param maxStackSize The new max stack size (max {@link #MAX_STACK_SIZE}; min 1).
    */
   public void maxStackSize(int maxStackSize) {
-    this.maxStackSize = maxStackSize;
+    if (maxStackSize > MAX_STACK_SIZE || maxStackSize < 1) {
+      throw new IllegalArgumentException(
+          "Max stack size cannot be higher than " + MAX_STACK_SIZE + " or lower than 1");
+    }
+    this.maxStackSize = (byte) maxStackSize;
   }
 
   /**
@@ -366,7 +386,29 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
   }
 
   @Override
+  public void setAmount(int count) {
+    this.stackSize(count);
+  }
+
+  @Override
+  public int getAmount() {
+    return stackSize;
+  }
+
+  @Override
   public CraftingType resultType() {
     return CraftingType.ITEM;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
+    Item other = (Item) obj;
+
+    return displayName.equals(other.displayName)
+        && description.equals(other.description)
+        && stackSize == other.stackSize
+        && maxStackSize == other.maxStackSize;
   }
 }

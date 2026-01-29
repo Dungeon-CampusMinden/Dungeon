@@ -293,11 +293,10 @@ public final class MiscFactory {
                                       oldIC.triggerInteraction(interacted, interactor);
                                       interacted.remove(InteractionComponent.class);
                                       interacted.add(oldIC);
-                                      UIUtils.closeDialog(dialogUI, true);
+                                      UIUtils.closeDialog(dialogUI);
                                     });
                                 dialogUI.registerCallback(
-                                    DialogContextKeys.ON_NO,
-                                    data -> UIUtils.closeDialog(dialogUI, true));
+                                    DialogContextKeys.ON_NO, data -> UIUtils.closeDialog(dialogUI));
                               }));
 
               lockedChest.remove(InteractionComponent.class);
@@ -670,13 +669,10 @@ public final class MiscFactory {
                             invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
                             Game.remove(interacted);
                             door.open();
-                            UIUtils.closeDialog(doorUI, true);
+                            UIUtils.closeDialog(doorUI);
                           });
                       doorUI.registerCallback(
-                          DialogContextKeys.ON_NO,
-                          data -> {
-                            UIUtils.closeDialog(doorUI, true);
-                          });
+                          DialogContextKeys.ON_NO, data -> UIUtils.closeDialog(doorUI));
                     },
                     2f)));
     door.close();
