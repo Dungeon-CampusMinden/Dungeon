@@ -4,13 +4,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.Disposable;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogCreationException;
 import contrib.hud.elements.GUICombination;
+import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
+import core.game.PreRunConfiguration;
+import core.network.server.DialogTracker;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
@@ -178,6 +182,38 @@ public final class UIUtils {
   }
 
   /**
+   * Retrieves the first {@link InventoryComponent} from the given {@link UIComponent}'s dialog, if
+   * it is a {@link GUICombination}.
+   *
+   * @param ui the UIComponent whose dialog to check for inventories
+   * @return an Optional containing the first InventoryComponent found, or empty if none found
+   */
+  public static Optional<InventoryComponent> getFirstInventoryFromUI(UIComponent ui) {
+    return getInventoriesFromUI(ui).findFirst();
+  }
+
+  /**
+   * Retrieves the InventoryGUI associated with the given player's inventory, if it exists.
+   *
+   * @param player the player entity
+   * @return an Optional containing the InventoryGUI if found, or empty if not found
+   */
+  public static Optional<InventoryGUI> getPlayerInventoryGUI(Entity player) {
+    Optional<UIComponent> uiComponentOpt =
+        player.fetch(UIComponent.class).filter(ui -> ui.dialog() instanceof GUICombination);
+    if (uiComponentOpt.isEmpty()) {
+      return Optional.empty();
+    }
+
+    Optional<InventoryComponent> playerInventory = player.fetch(InventoryComponent.class);
+    return playerInventory.flatMap(
+        inventoryComponent ->
+            findAllTypesInGroup(uiComponentOpt.get().dialog(), InventoryGUI.class)
+                .filter(inventoryGUI -> inventoryGUI.inventoryComponent() == inventoryComponent)
+                .findFirst());
+  }
+
+  /**
    * Recursively searches for an Actor of the specified type within the given Group and its
    * subgroups.
    *
@@ -201,21 +237,42 @@ public final class UIUtils {
   }
 
   /**
+   * Recursively searches for all Actors of the specified type within the given Group and its
+   * subgroups.
+   *
+   * @param dialog the Group to search within
+   * @param type the Class type of the Actors to find
+   * @param <T> the type of the Actors
+   * @return a stream of all found Actors of the specified type
+   */
+  public static <T> Stream<T> findAllTypesInGroup(Group dialog, Class<T> type) {
+    Stream.Builder<T> results = Stream.builder();
+    for (Actor actor : dialog.getChildren()) {
+      if (type.isInstance(actor)) {
+        results.add(type.cast(actor));
+      } else if (actor instanceof Group group) {
+        findAllTypesInGroup(group, type).forEach(results::add);
+      }
+    }
+    return results.build();
+  }
+
+  /**
    * Closes the dialog associated with the given UIComponent and optionally deletes its owner.
    *
-   * <p>This method removes the UIComponent from its owner entity and optionally removes the owner
-   * entity from the game. If the owner of the UIComponent has a PlayerComponent, the number of open
-   * dialogs is decremented. All target entities are notified of the dialog closure.
+   * <p>This method removes the UIComponent from its owner entity and removes the owner entity from
+   * the game if the owner has no more Components after the UIComponent is removed. If the owner of
+   * the UIComponent has a PlayerComponent, the number of open dialogs is decremented. All target
+   * entities are notified of the dialog closure.
    *
    * @param uiComponent the UIComponent whose dialog is to be closed
-   * @param deleteOwner whether to remove the owner entity from the game after closing the dialog
-   * @param callDefaultClose whether to call the onClose (default close behavior) callback of the
-   *     UIComponent
    */
-  public static void closeDialog(
-      UIComponent uiComponent, boolean deleteOwner, boolean callDefaultClose) {
-    if (callDefaultClose) {
-      uiComponent.onClose().accept(uiComponent); // onClose callback
+  public static void closeDialog(UIComponent uiComponent) {
+    if (!uiComponent.canBeClosed()) {
+      LOGGER.debug(
+          "Tried to close a non-closable dialog on entity {}",
+          uiComponent.dialogContext().ownerEntity().id());
+      return;
     }
 
     try {
@@ -230,39 +287,19 @@ public final class UIUtils {
       }
       LOGGER.debug("Closed dialog on entity {}", ownerEntity.id());
 
-      if (deleteOwner) {
+      if (ownerEntity.componentStream().toList().isEmpty()) {
         Game.remove(ownerEntity);
+      }
+
+      if (PreRunConfiguration.isNetworkServer()) {
+        DialogTracker.instance().closeDialog(uiComponent.dialogContext().dialogId(), true);
+      }
+
+      if (uiComponent.dialog() instanceof Disposable disposable) {
+        disposable.dispose();
       }
     } catch (DialogCreationException e) {
       LOGGER.warn("Could not close dialog: {}", e.getMessage());
     }
-  }
-
-  /**
-   * Closes the dialog associated with the given UIComponent and optionally deletes its owner.
-   *
-   * <p>This method removes the UIComponent from its owner entity and optionally removes the owner
-   * entity from the game. If the owner of the UIComponent has a PlayerComponent, the number of open
-   * dialogs is decremented. All target entities are notified of the dialog closure.
-   *
-   * @param uiComponent the UIComponent whose dialog is to be closed
-   * @param deleteOwner whether to remove the owner entity from the game after closing the dialog
-   */
-  public static void closeDialog(UIComponent uiComponent, boolean deleteOwner) {
-    closeDialog(uiComponent, deleteOwner, true);
-  }
-
-  /**
-   * Closes the dialog associated with the given UIComponent.
-   *
-   * <p>If the owner of the UIComponent has a PlayerComponent, the number of open dialogs is
-   * decremented.
-   *
-   * <p>By default, the owner entity is not deleted.
-   *
-   * @param uiComponent the UIComponent whose dialog is to be closed
-   */
-  public static void closeDialog(UIComponent uiComponent) {
-    closeDialog(uiComponent, false);
   }
 }

@@ -92,7 +92,7 @@ public final class HintLogDialog {
           } else {
             showHintLog(log);
           }
-          UIUtils.closeDialog(ui, true);
+          UIUtils.closeDialog(ui);
         });
 
     ui.registerCallback(
@@ -104,7 +104,7 @@ public final class HintLogDialog {
           } else {
             showHintLog(log);
           }
-          UIUtils.closeDialog(ui, true);
+          UIUtils.closeDialog(ui);
         });
 
     return ui.dialogContext().ownerEntity();

@@ -64,7 +64,7 @@ public class PointMode extends LevelEditorMode {
               if (data instanceof String string && !string.isBlank()) {
                 getLevel().addNamedPoint(string, snapPos);
               }
-              UIUtils.closeDialog(dialogUI, true);
+              UIUtils.closeDialog(dialogUI);
             });
       }
     } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {

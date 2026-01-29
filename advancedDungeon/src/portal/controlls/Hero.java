@@ -6,8 +6,6 @@ import contrib.configuration.KeyboardConfig;
 import contrib.entities.HeroController;
 import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
-import contrib.hud.elements.GUICombination;
-import contrib.hud.inventory.InventoryGUI;
 import contrib.systems.EventScheduler;
 import contrib.utils.IAction;
 import contrib.utils.components.skill.Skill;
@@ -154,12 +152,7 @@ public record Hero(Entity hero) {
     if (cooldownEvent != null && EventScheduler.isScheduled(cooldownEvent)) return;
     hero.fetch(UIComponent.class)
         .ifPresentOrElse(
-            uiComponent -> {
-              if (uiComponent.dialog() instanceof GUICombination
-                  && !InventoryGUI.inPlayerInventory(hero)) {
-                UIUtils.closeDialog(uiComponent);
-              }
-            },
+            UIUtils::closeDialog,
             () -> {
               HeroController.interact(hero, point);
               cooldownEvent = EventScheduler.scheduleAction(INTERACTION_COOLDOWN, 250);
@@ -173,7 +166,7 @@ public record Hero(Entity hero) {
    * geöffnet.
    */
   public void openInventory() {
-    HeroController.toggleInventory(hero);
+    HeroController.openInventory(hero);
   }
 
   /**
