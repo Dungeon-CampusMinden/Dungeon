@@ -58,7 +58,6 @@ final class OkDialog {
     textDialog.getButtonTable().defaults().minWidth(150).padBottom(5);
     textDialog.button(DEFAULT_OK_BUTTON, DEFAULT_OK_BUTTON, skin.get("clean-green", TextButton.TextButtonStyle.class));
 
-//    textDialog.setSize(400, 250);
     textDialog.pack();
 
     return textDialog;

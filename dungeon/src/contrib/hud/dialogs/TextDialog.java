@@ -3,6 +3,7 @@ package contrib.hud.dialogs;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import contrib.hud.UIUtils;
 import core.Game;
 import java.util.ArrayList;
@@ -76,7 +77,8 @@ public final class TextDialog extends Dialog {
         .add(DialogDesign.createTextDialog(skin, outputMsg))
         .center()
         .grow();
-    textDialog.button(confirmButton, confirmButton);
+    textDialog.button(
+        confirmButton, confirmButton, skin.get("clean-green", TextButton.TextButtonStyle.class));
     return textDialog;
   }
 
@@ -134,12 +136,14 @@ public final class TextDialog extends Dialog {
               }
               return true;
             });
-    dialog.button(button, button);
+    dialog.button(button, button, skin.get("clean-green", TextButton.TextButtonStyle.class));
     if (cancelButton != null) {
-      dialog.button(cancelButton, cancelButton);
+      dialog.button(
+          cancelButton, cancelButton, skin.get("clean-green", TextButton.TextButtonStyle.class));
     }
     for (String extraButton : extraButtons) {
-      dialog.button(extraButton, extraButton);
+      dialog.button(
+          extraButton, extraButton, skin.get("clean-green", TextButton.TextButtonStyle.class));
     }
     dialog.pack();
     return dialog;

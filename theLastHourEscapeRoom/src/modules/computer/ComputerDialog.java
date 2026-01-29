@@ -1,5 +1,6 @@
 package modules.computer;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -42,13 +43,14 @@ public class ComputerDialog extends Group {
     // Tab restore comes first
     activeTab = ComputerStateLocal.Instance.tab();
 
+    // Then build tabs + content
+    createActors();
+
     // Restore open files
     for (String s : ComputerStateLocal.Instance.openFiles()) {
       addTab(new FileTab(sharedState, s));
     }
 
-    // Then build tabs + content
-    createActors();
     if (!tabContentMap.containsKey(activeTab)) {
       activeTab = tabContentMap.keySet().stream().findFirst().orElse(null);
     }
@@ -163,6 +165,7 @@ public class ComputerDialog extends Group {
   }
 
   public void buildTabs() {
+    if(tabArea == null) return;
     tabArea.clearChildren();
     for (String tabKey : tabContentMap.keySet()) {
       buildTab(tabKey);
