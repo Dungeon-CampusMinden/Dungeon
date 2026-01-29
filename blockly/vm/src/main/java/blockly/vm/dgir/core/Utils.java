@@ -1,5 +1,18 @@
 package blockly.vm.dgir.core;
 
+import com.mxgraph.layout.mxCircleLayout;
+import com.mxgraph.layout.mxIGraphLayout;
+import com.mxgraph.util.mxCellRenderer;
+import org.jgrapht.Graph;
+import org.jgrapht.ext.JGraphXAdapter;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.builder.GraphTypeBuilder;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.lang.StackWalker.Option;
 import java.lang.StackWalker.StackFrame;
 import java.util.Arrays;
@@ -33,8 +46,61 @@ public class Utils {
   public static class Reflection {
     private Reflection() {
     }
+
     public static boolean hasInterface(Class<?> clazz, Class<?> interfaceClass) {
       return Arrays.asList(clazz.getInterfaces()).contains(interfaceClass);
     }
   }
+
+  public static class Graphing {
+    private Graphing() {
+    }
+
+    public static Graph<Object, DefaultEdge> getUseGraph(Operation op) {
+      Graph<Object, DefaultEdge> useGraph = GraphTypeBuilder.directed().edgeClass(DefaultEdge.class).buildGraph();
+      for (Block block : op.getRegions().getFirst().getBlocks()) {
+        for (Operation o : block.getOperations()) {
+          if (o.getOutput() != null) {
+            useGraph.addVertex(o);
+            for (Operand<Value, ?> operand : o.getOutput().getUses()) {
+              Operation userOp = operand.getOwner();
+              useGraph.addVertex(userOp);
+              useGraph.addEdge(o, userOp);
+            }
+          }
+
+          if (!o.getRegions().isEmpty()) {
+            var subGraph = getUseGraph(o);
+            // Add the subgraph vertices and edges to the main graph
+            for (var vertex : subGraph.vertexSet()) {
+              useGraph.addVertex(vertex);
+            }
+            for (var edge : subGraph.edgeSet()) {
+              var source = subGraph.getEdgeSource(edge);
+              var target = subGraph.getEdgeTarget(edge);
+              useGraph.addEdge(source, target);
+            }
+          }
+        }
+      }
+      return useGraph;
+    }
+
+    public static File drawUseGraph(Operation op, String filePath) throws IOException {
+      Graph<Object, DefaultEdge> useGraph = getUseGraph(op);
+      return drawGraph(useGraph, filePath);
+    }
+
+    public static <V, E> File drawGraph(Graph<V, E> graph, String filePath) throws IOException {
+      JGraphXAdapter<V, E> graphAdapter = new JGraphXAdapter<V, E>(graph);
+      mxIGraphLayout layout = new mxCircleLayout(graphAdapter);
+      layout.execute(graphAdapter.getDefaultParent());
+      BufferedImage image = mxCellRenderer.createBufferedImage(graphAdapter, null, 2, new Color(1f, 1f, 1f, 0f), true, null);
+      File imgFile = new File(filePath);
+      ImageIO.write(image, "PNG", imgFile);
+      return imgFile;
+    }
+  }
 }
+
+

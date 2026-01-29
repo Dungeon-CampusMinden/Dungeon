@@ -1,5 +1,6 @@
 package dialect.builtin;
 
+import blockly.vm.dgir.core.Utils;
 import blockly.vm.dgir.core.serialization.Utility;
 import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
@@ -10,6 +11,7 @@ import blockly.vm.dgir.dialect.io.PrintOp;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,6 +53,12 @@ public class BuiltinTests {
 
     String result = mapper.writeValueAsString(op);
     System.out.println(result);
+
+    try {
+      var file = Utils.Graphing.drawUseGraph(op.getOperation(), "simpleProgramOp.png");
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
 
     var restoredOp = mapper.readValue(result, ProgramOp.class);
     System.out.println(mapper.writeValueAsString(restoredOp));
