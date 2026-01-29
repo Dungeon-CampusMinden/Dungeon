@@ -388,7 +388,7 @@ com.badlogic.gdx.scenes.scene2d.ui.Tree$TreeStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
 	default: {
-		background: window_background_blue
+		background: window_background_big_blue
 		titleFont: roboto-semibold-32
 		titleFontColor: transparent
 	}
@@ -397,7 +397,7 @@ com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
 		titleFont: myFont
 	}
 	no-title: {
-		background: generic-area-depth
+		background: window_background_big
 		titleFont: roboto-semibold-32
 		titleFontColor: transparent
 	}
