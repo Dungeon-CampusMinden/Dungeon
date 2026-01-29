@@ -2,8 +2,10 @@ package blockly.vm.dgir.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Holds all information about a unique operation and some of its utility methods.
@@ -17,20 +19,64 @@ public class OperationDetails {
     return new OperationDetails(clazz);
   }
 
+  protected OperationDetails(Impl impl) {
+    this.impl = impl;
+  }
+
+  public String getIdent() {
+    return impl.getIdent();
+  }
+
+  @JsonIgnore
+  public Class<? extends Op> getType() {
+    return impl.getType();
+  }
+
+  @JsonIgnore
+  public Dialect getDialect() {
+    return impl.getDialect();
+  }
+
+  @JsonIgnore
+  public List<String> getAttributeNames() {
+    return impl.getAttributeNames();
+  }
+
+  public boolean verify(Operation operation) {
+    return impl.verify(operation);
+  }
+
+  public void populateDefaultAttrs(List<NamedAttribute> attributes) {
+    impl.populateDefaultAttrs(attributes);
+  }
+
+  public boolean hasInterface(Class<?> interfaceClass) {
+    return impl.hasInterface(interfaceClass);
+  }
+
+  @JsonIgnore
+  public Impl getImpl() {
+    return impl;
+  }
+
+  private Impl impl = null;
+
   /**
    * This is the fully type erased interface to an operation
    */
   public abstract static class Impl {
-    protected String ident;
-    protected Class<? extends Op> type;
-    protected Dialect dialect;
-    protected List<String> attributeNames;
+    protected final String ident;
+    protected final Class<? extends Op> type;
+    protected final Dialect dialect;
+    protected final List<String> attributeNames;
+    protected final Set<Class<?>> interfaces;
 
     public Impl(String ident, Class<? extends Op> type, Dialect dialect, List<String> attributeNames) {
       this.ident = ident;
       this.type = type;
       this.dialect = dialect;
       this.attributeNames = Collections.unmodifiableList(attributeNames);
+      this.interfaces = Set.copyOf(Arrays.asList(type.getClasses()));
     }
 
     public String getIdent() {
@@ -52,6 +98,10 @@ public class OperationDetails {
     public abstract boolean verify(Operation operation);
 
     public abstract void populateDefaultAttrs(List<NamedAttribute> attributes);
+
+    public boolean hasInterface(Class<?> interfaceClass) {
+      return interfaces.contains(interfaceClass);
+    }
   }
 
   protected final static class UnregisteredOp extends Impl {
@@ -67,10 +117,6 @@ public class OperationDetails {
     @Override
     public void populateDefaultAttrs(List<NamedAttribute> attributes) {
     }
-  }
-
-  protected OperationDetails(Impl impl) {
-    this.impl = impl;
   }
 
   public OperationDetails(String ident) {
@@ -116,38 +162,4 @@ public class OperationDetails {
 
     impl = unregisteredName;
   }
-
-  public String getIdent() {
-    return impl.getIdent();
-  }
-
-  @JsonIgnore
-  public Class<? extends Op> getType() {
-    return impl.getType();
-  }
-
-  @JsonIgnore
-  public Dialect getDialect() {
-    return impl.getDialect();
-  }
-
-  @JsonIgnore
-  public List<String> getAttributeNames() {
-    return impl.getAttributeNames();
-  }
-
-  public boolean verify(Operation operation) {
-    return impl.verify(operation);
-  }
-
-  public void populateDefaultAttrs(List<NamedAttribute> attributes) {
-    impl.populateDefaultAttrs(attributes);
-  }
-
-  @JsonIgnore
-  public Impl getImpl() {
-    return impl;
-  }
-
-  private Impl impl = null;
 }

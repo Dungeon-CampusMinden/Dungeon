@@ -14,6 +14,31 @@ public class AttributeDetails {
     return new AttributeDetails(clazz);
   }
 
+  protected AttributeDetails(AttributeDetails.Impl impl) {
+    this.impl = impl;
+  }
+
+  public String getIdent() {
+    return impl.getIdent();
+  }
+
+  @JsonIgnore
+  public Class<? extends Attribute> getType() {
+    return impl.getType();
+  }
+
+  @JsonIgnore
+  public Dialect getDialect() {
+    return impl.getDialect();
+  }
+
+  @JsonIgnore
+  public AttributeDetails.Impl getImpl() {
+    return impl;
+  }
+
+  private AttributeDetails.Impl impl = null;
+
   /**
    * This is the fully type erased interface to an attribute
    */
@@ -46,10 +71,6 @@ public class AttributeDetails {
       super(ident, clazz, dialect);
     }
 
-  }
-
-  protected AttributeDetails(AttributeDetails.Impl impl) {
-    this.impl = impl;
   }
 
   public AttributeDetails(String ident) {
@@ -95,25 +116,4 @@ public class AttributeDetails {
 
     impl = unregisteredName;
   }
-
-  public String getIdent() {
-    return impl.getIdent();
-  }
-
-  @JsonIgnore
-  public Class<? extends Attribute> getType() {
-    return impl.getType();
-  }
-
-  @JsonIgnore
-  public Dialect getDialect() {
-    return impl.getDialect();
-  }
-
-  @JsonIgnore
-  public AttributeDetails.Impl getImpl() {
-    return impl;
-  }
-
-  private AttributeDetails.Impl impl = null;
 }

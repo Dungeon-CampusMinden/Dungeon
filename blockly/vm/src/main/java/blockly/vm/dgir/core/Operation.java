@@ -19,7 +19,7 @@ public final class Operation implements Serializable {
   /**
    * The unique identifier of this operation.
    */
-  private OperationDetails details = null;
+  private final OperationDetails details;
 
   /**
    * The input values of this operation.
@@ -31,25 +31,25 @@ public final class Operation implements Serializable {
    * The input blocks of this operation.
    */
   @JsonManagedReference
-  private final List<BlockOperand> blockOperands = new ArrayList<>();
+  private final List<BlockOperand> blockOperands;
 
   /**
    * The output of this operation.
    */
   @JsonManagedReference
-  private OperationResult output = null;
+  private OperationResult output;
 
   /**
    * The attributes of this operation.
    */
   @JsonManagedReference
-  private final Map<String, NamedAttribute> attributes = new HashMap<>();
+  private final Map<String, NamedAttribute> attributes;
 
   /**
    * The regions of this operation.
    */
   @JsonManagedReference
-  private final List<Region> regions = new ArrayList<>();
+  private final List<Region> regions;
 
   /**
    * The block containing this operation.
@@ -60,34 +60,33 @@ public final class Operation implements Serializable {
   /**
    * Static factory method to create an Operation instance.
    *
-   * @param name          The name of the operation.
-   * @param operands      The input value operands.
-   * @param blockOperands The input block operands.
-   * @param output        The output result.
-   * @param regions       The regions.
+   * @param name       The name of the operation.
+   * @param operands   The input value operands.
+   * @param successors The blocks that succeed this operation (branching).
+   * @param outputType The output result type.
+   * @param regions    The regions.
    * @return A new Operation instance.
    */
   public static Operation Create(String name,
-                                 List<ValueOperand> operands,
-                                 List<BlockOperand> blockOperands,
-                                 OperationResult output,
+                                 List<Value> operands,
+                                 List<Block> successors,
+                                 Type outputType,
                                  List<Region> regions) {
-    return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, blockOperands, output, regions);
+    return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, successors, outputType, regions);
   }
 
   public static Operation Create(OperationDetails name,
-                                 List<ValueOperand> operands,
-                                 List<BlockOperand> blockOperands,
-                                 OperationResult output,
+                                 List<Value> operands,
+                                 List<Block> successors,
+                                 Type outputType,
                                  List<Region> regions) {
-    // Ensure the most important arguments is non-null
-    if (name == null) throw new IllegalArgumentException("Operation details cannot be null");
+    assert name != null : "OperationDetails name cannot be null.";
 
     // Ensure operands is a valid arraylist
-    operands = operands == null ? new ArrayList<>() : new ArrayList<>(operands);
+    operands = operands == null ? new ArrayList<>() : operands;
 
     // Ensure block operands is a valid arraylist
-    blockOperands = blockOperands == null ? new ArrayList<>() : new ArrayList<>(blockOperands);
+    successors = successors == null ? new ArrayList<>() : successors;
 
     // Create the default attributes
     List<NamedAttribute> attributes = new ArrayList<>(name.getAttributeNames().size());
@@ -100,140 +99,82 @@ public final class Operation implements Serializable {
 
     // Ensure regions is a valid arraylist
     regions = regions == null ? new ArrayList<>() : new ArrayList<>(regions);
-    return new Operation(name, operands, blockOperands, output, attributeMap, regions);
-  }
-
-  // Operations should always be default constructible (for serialization purposes).
-  public Operation() {
-
+    return new Operation(name, operands, successors, outputType, attributeMap, regions);
   }
 
   /**
    * Full constructor for Operation.
    * This constructor is not intended to be called directly. Use the static Create method instead as it will handle default values.
    *
-   * @param details       The operation details.
-   * @param operands      The input value operands.
-   * @param blockOperands The input block operands.
-   * @param output        The output result.
-   * @param attributes    The named attributes.
-   * @param regions       The regions.
+   * @param details    The operation details.
+   * @param operands   The input values.
+   * @param successors The blocks succeeding this operation.
+   * @param resultType The output result type.
+   * @param attributes The named attributes.
+   * @param regions    The regions.
    */
   public Operation(OperationDetails details,
-                   List<ValueOperand> operands,
-                   List<BlockOperand> blockOperands,
-                   OperationResult output,
+                   List<Value> operands,
+                   List<Block> successors,
+                   Type resultType,
                    Map<String, NamedAttribute> attributes,
                    List<Region> regions) {
-    setDetails(details);
-    setOutput(output);
+    this.details = details;
+
+    if (resultType != null) {
+      this.output = new OperationResult(this, resultType);
+    }
 
     for (var operand : operands)
       addOperand(operand);
-    for (var blockOperand : blockOperands)
-      addBlockOperand(blockOperand);
-    for (var attribute : attributes.values())
-      addAttribute(attribute);
-    for (var region : regions)
-      addRegion(region);
+
+    // Populate a new list for block operands and make it unmodifiable
+    List<BlockOperand> blockOperands = new ArrayList<>(successors.size());
+    for (int i = 0; i < successors.size(); i++) {
+      blockOperands.set(i, new BlockOperand(this, successors.get(i)));
+    }
+    this.blockOperands = Collections.unmodifiableList(blockOperands);
+
+    // Create an unmodifiable map for the attributes
+    this.attributes = Map.copyOf(attributes);
+
+    // Create an unmodifiable list for the regions
+    this.regions = List.copyOf(regions);
+  }
+
+  public boolean verify(boolean recursive) {
+    return false;
   }
 
   public OperationDetails getDetails() {
     return details;
   }
 
-  public void setDetails(OperationDetails details) {
-    assert this.details == null : "Operation details already set.";
-    assert details != null : "Operation details cannot be null.";
-
-    this.details = details;
-  }
-
   public List<ValueOperand> getOperands() {
     return Collections.unmodifiableList(operands);
   }
 
-  public void addOperand(ValueOperand operand) {
-    assert operand != null : "Operand cannot be null.";
-    assert operand.getParent() == null : "Operand already has a parent.";
+  public void addOperand(Value value) {
+    assert value != null : "Operand cannot be null.";
 
-    operands.add(operand);
-    operand.setParent(this);
+    operands.add(new ValueOperand(this, value));
   }
 
   public List<BlockOperand> getBlockOperands() {
-    return Collections.unmodifiableList(blockOperands);
-  }
-
-  public void addBlockOperand(BlockOperand blockOperand) {
-    assert blockOperand != null : "Block operand cannot be null.";
-    assert blockOperand.getParent() == null : "Block operand already has a parent.";
-
-    blockOperands.add(blockOperand);
-    blockOperand.setParent(this);
+    return blockOperands;
   }
 
   public OperationResult getOutput() {
     return output;
   }
 
-  public void setOutput(OperationResult output) {
-    assert this.output == null || output == null : "Output already set.";
-    assert output == null || output.getParent() == null : "Output already has a parent.";
-
-    if (this.output != null)
-      removeOutput();
-    this.output = output;
-    if (output != null)
-      output.setParent(this);
-  }
-
-  public void removeOutput() {
-    this.output.setParent(null);
-    this.output = null;
-  }
-
-
   public Map<String, NamedAttribute> getAttributes() {
-    return Collections.unmodifiableMap(attributes);
-  }
-
-  private void addAttribute(NamedAttribute attribute) {
-    assert attribute != null : "Attribute cannot be null.";
-    assert attribute.getParent() == null : "Attribute already has a parent.";
-
-    attributes.put(attribute.getName(), attribute);
-    attribute.setParent(this);
-  }
-
-  private void removeAttribute(NamedAttribute attribute) {
-    assert attribute != null : "Attribute cannot be null.";
-    assert attribute.getParent() == this : "Attribute does not belong to this operation.";
-
-    attributes.remove(attribute.getName());
-    attribute.setParent(null);
+    return attributes;
   }
 
   public List<Region> getRegions() {
-    return Collections.unmodifiableList(regions);
+    return regions;
   }
-
-  public void addRegion(Region region) {
-    assert region != null : "Region cannot be null.";
-    assert region.getParent() == null : "Region already has a parent.";
-
-    regions.add(region);
-    region.setParent(this);
-  }
-
-  public void removeRegion(Region region) {
-    assert region != null : "Region cannot be null.";
-    assert region.getParent() == this : "Region does not belong to this operation.";
-
-    regions.remove(region);
-    region.setParent(null);
-  }
-
 
   public Block getParent() {
     return parent;

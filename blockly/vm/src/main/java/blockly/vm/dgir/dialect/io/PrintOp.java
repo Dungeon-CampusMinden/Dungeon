@@ -35,7 +35,7 @@ public class PrintOp extends Op {
   }
 
   public PrintOp(List<Value> operands) {
-    setOperation(Operation.Create(getIdent(), operands.stream().map(ValueOperand::new).toList(), null, null, null));
+    setOperation(Operation.Create(getIdent(), operands, null, null, null));
   }
 
   public static String getIdent() {

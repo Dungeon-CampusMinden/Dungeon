@@ -6,9 +6,9 @@ plugins {
 dependencies {
     implementation project(':dungeon')
     implementation 'tools.jackson.core:jackson-databind:3.0.3'
+    implementation 'org.jgrapht:jgrapht-core:1.5.1'
 
     errorprone("com.google.errorprone:error_prone_core:2.46.0")
-
 
     testImplementation supportDependencies.junit
     testRuntimeOnly supportDependencies.junitLauncher

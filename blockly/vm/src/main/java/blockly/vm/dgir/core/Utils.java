@@ -2,6 +2,7 @@ package blockly.vm.dgir.core;
 
 import java.lang.StackWalker.Option;
 import java.lang.StackWalker.StackFrame;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class Utils {
@@ -29,4 +30,11 @@ public class Utils {
     }
   }
 
+  public static class Reflection {
+    private Reflection() {
+    }
+    public static boolean hasInterface(Class<?> clazz, Class<?> interfaceClass) {
+      return Arrays.asList(clazz.getInterfaces()).contains(interfaceClass);
+    }
+  }
 }

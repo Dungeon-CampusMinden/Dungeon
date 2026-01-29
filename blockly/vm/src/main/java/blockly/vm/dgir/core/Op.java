@@ -39,18 +39,13 @@ public abstract class Op {
     return getOperation().getDetails();
   }
 
-  public void setDetails(OperationDetails details) {
-    assert getOperation() != null : "Operation is null.";
-    getOperation().setDetails(details);
-  }
-
   @JsonIgnore
   public List<ValueOperand> getOperands() {
     assert getOperation() != null : "Operation is null.";
     return getOperation().getOperands();
   }
 
-  public void addOperand(ValueOperand operand) {
+  public void addOperand(Value operand) {
     assert getOperation() != null : "Operation is null.";
     getOperation().addOperand(operand);
   }
@@ -59,16 +54,6 @@ public abstract class Op {
   public OperationResult getOutput() {
     assert getOperation() != null : "Operation is null.";
     return getOperation().getOutput();
-  }
-
-  public void setOutput(OperationResult output) {
-    assert getOperation() != null : "Operation is null.";
-    getOperation().setOutput(output);
-  }
-
-  public void removeOutput() {
-    assert getOperation() != null : "Operation is null.";
-    getOperation().removeOutput();
   }
 
   @JsonIgnore
@@ -81,15 +66,5 @@ public abstract class Op {
   public List<Region> getRegions() {
     assert getOperation() != null : "Operation is null.";
     return getOperation().getRegions();
-  }
-
-  public void addRegion(Region region) {
-    assert getOperation() != null : "Operation is null.";
-    getOperation().addRegion(region);
-  }
-
-  public void removeRegion(Region region) {
-    assert getOperation() != null : "Operation is null.";
-    getOperation().removeRegion(region);
   }
 }

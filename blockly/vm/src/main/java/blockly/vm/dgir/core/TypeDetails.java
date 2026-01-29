@@ -16,6 +16,40 @@ public class TypeDetails {
     return new TypeDetails(clazz);
   }
 
+  protected TypeDetails(Impl impl) {
+    this.impl = impl;
+  }
+
+  public String getIdent() {
+    return impl.getIdent();
+  }
+
+  @JsonIgnore
+  public Class<? extends Type> getType() {
+    return impl.getType();
+  }
+
+  @JsonIgnore
+  public Dialect getDialect() {
+    return impl.getDialect();
+  }
+
+  @JsonIgnore
+  public Impl getImpl() {
+    return impl;
+  }
+
+  @JsonIgnore
+  public String getParameterizedIdent(Type type) {
+    return impl.getParameterizedIdent(type);
+  }
+
+  public void fromParameterizedIdent(String parameterizedIdent, Type type) {
+    impl.fromParameterizedIdent(parameterizedIdent, type);
+  }
+
+  private Impl impl = null;
+
   /**
    * This is the fully type erased interface for a type object.
    */
@@ -88,10 +122,6 @@ public class TypeDetails {
       super(ident, clazz, dialect);
     }
 
-  }
-
-  protected TypeDetails(Impl impl) {
-    this.impl = impl;
   }
 
   public TypeDetails(String ident) {
@@ -210,34 +240,4 @@ public class TypeDetails {
     }
     return types;
   }
-
-  public String getIdent() {
-    return impl.getIdent();
-  }
-
-  @JsonIgnore
-  public Class<? extends Type> getType() {
-    return impl.getType();
-  }
-
-  @JsonIgnore
-  public Dialect getDialect() {
-    return impl.getDialect();
-  }
-
-  @JsonIgnore
-  public Impl getImpl() {
-    return impl;
-  }
-
-  @JsonIgnore
-  public String getParameterizedIdent(Type type) {
-    return impl.getParameterizedIdent(type);
-  }
-
-  public void fromParameterizedIdent(String parameterizedIdent, Type type) {
-    impl.fromParameterizedIdent(parameterizedIdent, type);
-  }
-
-  private Impl impl = null;
 }

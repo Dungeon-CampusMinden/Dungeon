@@ -3,20 +3,26 @@ package blockly.vm.dgir.core;
 import com.fasterxml.jackson.annotation.*;
 
 import java.io.Serializable;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * A block containing a list of {@link Operation}.
  * Blocks are always attached to a {@link Region}.
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class, property = "@id")
-public final class Block implements Serializable {
+public final class Block extends IRObjectWithUseList<Block, BlockOperand> implements Serializable {
+  /**
+   * The value arguments of this block.
+   * These are the input values to the block.
+   */
   @JsonManagedReference
   private final List<BlockArgument> arguments = new ArrayList<>();
+  /**
+   * The operations contained in this block.
+   * These are executed in order.
+   */
   @JsonManagedReference
   private final List<Operation> operations = new ArrayList<>();
 
@@ -34,6 +40,18 @@ public final class Block implements Serializable {
     for (Operation operation : operations) {
       addOperation(operation);
     }
+  }
+
+  public boolean hasTerminator(){
+    if(operations.isEmpty()) return false;
+    Operation lastOp = operations.getLast();
+    return lastOp.getDetails().hasInterface(IControlFlowOp.class);
+  }
+
+  @JsonIgnore
+  public Operation getTerminator(){
+    assert hasTerminator() : "Block does not have a terminator operation.";
+    return operations.getLast();
   }
 
   public List<BlockArgument> getArguments() {
