@@ -19,7 +19,7 @@ import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import level.LastHourLevel1;
-import util.CursorUtil;
+import core.utils.CursorUtil;
 
 /**
  * Entry point for running a minimal dungeon game instance.

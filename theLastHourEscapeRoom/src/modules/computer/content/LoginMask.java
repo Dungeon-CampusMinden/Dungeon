@@ -11,7 +11,7 @@ import core.utils.components.draw.TextureGenerator;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerState;
 import modules.computer.ComputerStateComponent;
-import util.Scene2dElementFactory;
+import core.utils.Scene2dElementFactory;
 
 public class LoginMask extends ComputerTab {
 

@@ -12,8 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerStateComponent;
-import util.Cursors;
-import util.Scene2dElementFactory;
+import core.utils.Cursors;
+import core.utils.Scene2dElementFactory;
 
 public class EmailsTab extends ComputerTab {
 

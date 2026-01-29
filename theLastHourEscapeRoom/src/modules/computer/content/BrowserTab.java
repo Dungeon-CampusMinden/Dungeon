@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import java.util.*;
 import modules.computer.ComputerStateComponent;
-import util.Scene2dElementFactory;
+import core.utils.Scene2dElementFactory;
 
 public class BrowserTab extends ComputerTab {
 

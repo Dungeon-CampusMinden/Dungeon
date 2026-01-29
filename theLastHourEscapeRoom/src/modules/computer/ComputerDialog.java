@@ -1,6 +1,5 @@
 package modules.computer;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -16,8 +15,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import modules.computer.content.*;
-import util.Cursors;
-import util.Scene2dElementFactory;
+import core.utils.Cursors;
+import core.utils.Scene2dElementFactory;
 
 public class ComputerDialog extends Group {
 
