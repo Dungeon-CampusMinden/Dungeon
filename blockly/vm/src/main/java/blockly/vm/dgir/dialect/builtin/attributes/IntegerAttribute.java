@@ -1,47 +1,37 @@
 package blockly.vm.dgir.dialect.builtin.attributes;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.dialect.builtin.Builtin;
 import blockly.vm.dgir.dialect.builtin.types.IntegerT;
-import blockly.vm.dgir.dialect.builtin.types.StringT;
 
-public class IntegerAttribute extends Attribute {
+import java.util.Optional;
+
+public class IntegerAttribute extends Attribute implements ITypedAttribute {
   public static final IntegerAttribute INSTANCE = new IntegerAttribute();
+  private IntegerT type;
   private long value;
 
   @Override
   public AttributeDetails.Impl createImpl() {
     class IntegerAttributeModel extends AttributeDetails.Impl {
-      IntegerAttributeModel(String name, Class<? extends Attribute> type) {
-        super(name, type, null);
+      IntegerAttributeModel() {
+        super(IntegerAttribute.getIdent(), IntegerAttribute.class, Dialect.get(Builtin.class));
       }
     }
-    return new IntegerAttributeModel(getIdent(), getClass());
+    return new IntegerAttributeModel();
   }
 
-  public IntegerAttribute(){
-  }
-
-  @Override
-  public Object getStorage() {
-    return value;
+  public IntegerAttribute() {
   }
 
   @Override
-  public void setStorage(Object storage) {
-    getType().validate(storage);
-    setValue((long) storage);
+  public Long getStorage() {
+    return getValue();
   }
 
-  public IntegerAttribute(long value) {
-    setValue(value);
-  }
-
-  public long getValue() {
-    return value;
-  }
-
-  public void setValue(long value) {
+  public IntegerAttribute(long value, IntegerT type) {
     this.value = value;
+    this.type = type;
   }
 
   public static String getIdent() {
@@ -53,7 +43,15 @@ public class IntegerAttribute extends Attribute {
   }
 
   @Override
-  public Type getType() {
-    return IntegerT.INT64;
+  public IntegerT getType() {
+    return type;
+  }
+
+  public long getValue() {
+    return value;
+  }
+
+  public void setValue(long value) {
+    this.value = value;
   }
 }

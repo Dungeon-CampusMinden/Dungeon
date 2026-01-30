@@ -59,14 +59,7 @@ public class FuncOp extends Op {
   }
 
   public FuncType getType() {
-    return (FuncType) getTypeAttribute().getType();
-  }
-
-  public void setType(FuncType type) {
-    getTypeAttribute().setType(type);
-    for (int i = 0; i < type.getInputs().size(); i++) {
-
-    }
+    return (FuncType) getTypeAttribute().getStorage();
   }
 
   public static String getIdent() {

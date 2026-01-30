@@ -1,6 +1,7 @@
 package blockly.vm.dgir.core.serialization;
 
 import blockly.vm.dgir.core.Attribute;
+import blockly.vm.dgir.core.ITypedAttribute;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
@@ -15,12 +16,12 @@ public class AttributeSerializer extends StdSerializer<Attribute> {
     super(t);
   }
 
-
   @Override
   public void serialize(Attribute value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
     gen.writeStartObject();
     gen.writeStringProperty("ident", value.getDetails().getIdent());
-    gen.writePOJOProperty("type", value.getType());
+    if (value instanceof ITypedAttribute typedAttribute)
+      gen.writePOJOProperty("type", typedAttribute.getType());
     if (value.getStorage() != null)
       gen.writePOJOProperty("value", value.getStorage());
     gen.writeEndObject();

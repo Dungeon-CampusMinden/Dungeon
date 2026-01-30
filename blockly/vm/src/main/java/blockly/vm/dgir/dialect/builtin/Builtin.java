@@ -3,6 +3,7 @@ package blockly.vm.dgir.dialect.builtin;
 import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
+import blockly.vm.dgir.dialect.builtin.attributes.SymbolRefAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.TypeAttribute;
 import blockly.vm.dgir.dialect.builtin.types.FloatT;
 import blockly.vm.dgir.dialect.builtin.types.IntegerT;
@@ -42,7 +43,8 @@ public class Builtin extends Dialect {
     return List.of(
       IntegerAttribute.INSTANCE,
       StringAttribute.INSTANCE,
-      TypeAttribute.INSTANCE
+      TypeAttribute.INSTANCE,
+      SymbolRefAttribute.INSTANCE
     );
   }
 }

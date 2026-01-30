@@ -1,12 +1,15 @@
 package dialect.builtin;
 
+import blockly.vm.dgir.core.CFG;
 import blockly.vm.dgir.core.Utils;
 import blockly.vm.dgir.core.serialization.Utility;
 import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
 import blockly.vm.dgir.dialect.arith.ConstantOp;
 import blockly.vm.dgir.dialect.builtin.ProgramOp;
+import blockly.vm.dgir.dialect.builtin.types.IntegerT;
 import blockly.vm.dgir.dialect.func.FuncOp;
+import blockly.vm.dgir.dialect.func.ReturnOp;
 import blockly.vm.dgir.dialect.io.PrintOp;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
@@ -46,16 +49,19 @@ public class BuiltinTests {
     var textOp = new ConstantOp(new StringAttribute("Hello World!"));
     funcBlock.addOperation(textOp.getOperation());
 
-    var numberTextOP = new ConstantOp(new IntegerAttribute(42));
+    var numberTextOP = new ConstantOp(new IntegerAttribute(42, IntegerT.INT32));
     funcBlock.addOperation(numberTextOP.getOperation());
 
     funcBlock.addOperation(new PrintOp(List.of(textOp.getOperation().getOutput(), numberTextOP.getOperation().getOutput())).getOperation());
+
+    funcBlock.addOperation(new ReturnOp(List.of()));
 
     String result = mapper.writeValueAsString(op);
     System.out.println(result);
 
     try {
-      var file = Utils.Graphing.drawUseGraph(op.getOperation(), "simpleProgramOp.png");
+      Utils.Graphing.drawGraph(CFG.getCfgFor(null, op.getRegions().getFirst().getBlocks().getFirst()), "simpleProgramCfg.png");
+      Utils.Graphing.drawUseGraph(op.getOperation(), "simpleProgramOp.png");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

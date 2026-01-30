@@ -27,20 +27,19 @@ public class ConstantOp extends Op {
   public ConstantOp() {
   }
 
-  public ConstantOp(Attribute value) {
+  public ConstantOp(ITypedAttribute value) {
     setOperation(Operation.Create(getIdent(), null, null, value.getType(), null));
     setValueAttribute(value);
   }
 
-  public Attribute getValueAttribute() {
-    return getAttributes().get("value").getAttribute();
+  public ITypedAttribute getValueAttribute() {
+    return (ITypedAttribute) getAttributes().get("value").getAttribute();
   }
 
-  public void setValueAttribute(Attribute attribute) {
+  public void setValueAttribute(ITypedAttribute attribute) {
     assert attribute != null : "Attribute cannot be null.";
-    getOperation().getAttributes().get("value").setAttribute(attribute);
-    if (getOperation().getOutput() != null)
-    {
+    getOperation().getAttributes().get("value").setAttribute((Attribute) attribute);
+    if (getOperation().getOutput() != null) {
       getOperation().getOutput().setType(attribute.getType());
     }
   }

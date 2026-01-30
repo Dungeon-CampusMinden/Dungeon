@@ -14,7 +14,8 @@ public class Func extends Dialect {
   @Override
   public List<Op> allOps() {
     return List.of(
-      new FuncOp()
+      new FuncOp(),
+      new ReturnOp()
     );
   }
 

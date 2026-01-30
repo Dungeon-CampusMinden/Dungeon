@@ -79,6 +79,11 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
     return Collections.unmodifiableList(operations);
   }
 
+  public void addOperation(Op op){
+    assert op != null : "Op cannot be null.";
+    addOperation(op.getOperation());
+  }
+
   public void addOperation(Operation operation) {
     assert operation != null : "Operation cannot be null.";
     assert operation.getParent() == null : "Operation already has a parent.";

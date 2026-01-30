@@ -66,9 +66,9 @@ public class AttributeDetails {
     }
   }
 
-  protected final static class UnregisteredAttribute extends AttributeDetails.Impl {
-    UnregisteredAttribute(String ident, Class<? extends Attribute> clazz, Dialect dialect) {
-      super(ident, clazz, dialect);
+  protected final static class UnregisteredAttributeModel extends AttributeDetails.Impl {
+    UnregisteredAttributeModel(String ident, Dialect dialect) {
+      super(ident, Attribute.class, dialect);
     }
 
   }
@@ -89,7 +89,7 @@ public class AttributeDetails {
     }
 
     unregisteredDetails = DGIRContext.attributesByIdent.put(ident,
-      new AttributeDetails.UnregisteredAttribute(ident, Attribute.class, DGIRContext.getReferencedDialect(ident)));
+      new UnregisteredAttributeModel(ident, DGIRContext.getReferencedDialect(ident)));
     DGIRContext.attributes.put(Attribute.class, unregisteredDetails);
 
     impl = unregisteredDetails;
@@ -111,7 +111,7 @@ public class AttributeDetails {
     }
 
     unregisteredName = DGIRContext.attributesByIdent.put(clazz.getName(),
-      new UnregisteredAttribute(clazz.getName(), Attribute.class, null));
+      new UnregisteredAttributeModel(clazz.getName(), null));
     DGIRContext.attributes.put(clazz, unregisteredName);
 
     impl = unregisteredName;

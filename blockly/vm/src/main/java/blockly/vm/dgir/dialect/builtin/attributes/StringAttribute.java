@@ -1,53 +1,33 @@
 package blockly.vm.dgir.dialect.builtin.attributes;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.dialect.builtin.Builtin;
 import blockly.vm.dgir.dialect.builtin.types.StringT;
 
-public class StringAttribute extends Attribute {
+public class StringAttribute extends Attribute implements ITypedAttribute {
   public static final StringAttribute INSTANCE = new StringAttribute();
   private String value;
 
   @Override
   public AttributeDetails.Impl createImpl() {
     class StringAttributeModel extends AttributeDetails.Impl {
-      StringAttributeModel(String name, Class<? extends Attribute> type) {
-        super(name, type, null);
+      StringAttributeModel() {
+        super(StringAttribute.getIdent(), StringAttribute.class, Dialect.get(Builtin.class));
       }
     }
-    return new StringAttributeModel(getIdent(), getClass());
+    return new StringAttributeModel();
   }
 
   public StringAttribute() {
-    super(RegisteredAttributeDetails.lookup(StringT.getIdent()).orElse(null));
   }
 
   @Override
-  public Object getStorage() {
+  public String getStorage() {
     return value;
-  }
-
-  @Override
-  public void setStorage(Object storage) {
-    getType().validate(storage);
-    setValue((String) storage);
   }
 
   public StringAttribute(String value) {
-    super(RegisteredAttributeDetails.lookup(getIdent()).orElseThrow());
-    setValue(value);
-  }
-
-  public String getValue() {
-    return value;
-  }
-
-  public void setValue(String value) {
     this.value = value;
-  }
-
-  @Override
-  public Type getType() {
-    return StringT.INSTANCE;
   }
 
   public static String getIdent() {
@@ -56,5 +36,18 @@ public class StringAttribute extends Attribute {
 
   public static String getNamespace() {
     return "";
+  }
+
+  @Override
+  public StringT getType() {
+    return StringT.INSTANCE;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
   }
 }

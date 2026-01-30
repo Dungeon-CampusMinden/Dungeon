@@ -72,6 +72,7 @@ public final class Operation implements Serializable {
                                  List<Block> successors,
                                  Type outputType,
                                  List<Region> regions) {
+    assert RegisteredOperationDetails.lookup(name).isPresent() : "OperationDetails not found for name: " + name + "\n Make sure it is registered in with the dialect.";
     return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, successors, outputType, regions);
   }
 
