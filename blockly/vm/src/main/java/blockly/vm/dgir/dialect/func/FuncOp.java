@@ -34,24 +34,26 @@ public class FuncOp extends Op {
 
   public FuncOp(String name) {
     setOperation(Operation.Create(getIdent(), null, null, null, List.of(Region.createWithBlock())));
-    setFuncName(name);
+    getFuncNameAttribute().setValue(name);
+    getTypeAttribute().setType(new FuncType());
   }
 
   public FuncOp(String name, FuncType type) {
-    setOperation(Operation.Create(getIdent(), null, null, null, List.of(Region.createWithBlock())));
-    setFuncName(name);
+    setOperation(Operation.Create(getIdent(), null, null, type.getOutput(), List.of(Region.createWithBlock())));
+    getFuncNameAttribute().setValue(name);
+    getTypeAttribute().setType(type);
   }
 
   public StringAttribute getFuncNameAttribute() {
-    return (StringAttribute) getOperation().getAttributes().get("name").getAttribute();
+    return getAttribute(StringAttribute.class, "name");
   }
 
   public String getFuncName() {
     return getFuncNameAttribute().getValue();
   }
 
-  public void setFuncName(String newName) {
-    getFuncNameAttribute().setValue(newName);
+  public TypeAttribute GetTypeAttribute() {
+    return getAttribute(TypeAttribute.class, "type");
   }
 
   public TypeAttribute getTypeAttribute() {

@@ -9,8 +9,8 @@ import java.util.List;
 public class FuncType extends Type {
   public static final FuncType INSTANCE = new FuncType();
 
-  private List<Type> inputs = new ArrayList<>();
-  private Type output = null;
+  private List<Type> inputs;
+  private Type output;
 
   @Override
   public TypeDetails.Impl createImpl() {
@@ -58,10 +58,12 @@ public class FuncType extends Type {
   }
 
   public FuncType() {
+    inputs = new ArrayList<>();
+    output = null;
   }
 
   public FuncType(List<Type> inputs, Type output) {
-    this.inputs = inputs;
+    this.inputs = new ArrayList<>(inputs);
     this.output = output;
   }
 

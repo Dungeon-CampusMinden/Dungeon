@@ -67,4 +67,12 @@ public abstract class Op {
     assert getOperation() != null : "Operation is null.";
     return getOperation().getRegions();
   }
+
+  public <T extends Attribute> T getAttribute(String name) {
+    return (T) getAttributes().get(name).getAttribute();
+  }
+
+  public <T extends Attribute> T getAttribute(Class<T> clazz, String name) {
+    return (T) getAttributes().get(name).getAttribute();
+  }
 }

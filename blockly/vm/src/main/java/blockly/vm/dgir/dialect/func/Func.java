@@ -15,7 +15,8 @@ public class Func extends Dialect {
   public List<Op> allOps() {
     return List.of(
       new FuncOp(),
-      new ReturnOp()
+      new ReturnOp(),
+      new CallOp()
     );
   }
 

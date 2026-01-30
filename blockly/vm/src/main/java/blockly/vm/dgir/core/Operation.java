@@ -151,6 +151,10 @@ public final class Operation implements Serializable {
     return details;
   }
 
+  public boolean hasInterface(Class<?> iface) {
+    return details.hasInterface(iface);
+  }
+
   public List<ValueOperand> getOperands() {
     return Collections.unmodifiableList(operands);
   }
@@ -175,6 +179,10 @@ public final class Operation implements Serializable {
 
   public List<Region> getRegions() {
     return regions;
+  }
+
+  public Region getFirstRegion() {
+    return regions.getFirst();
   }
 
   public Block getParent() {
