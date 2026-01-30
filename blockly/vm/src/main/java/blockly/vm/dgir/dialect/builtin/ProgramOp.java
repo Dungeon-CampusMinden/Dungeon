@@ -23,10 +23,14 @@ public class ProgramOp extends Op {
       }
     }
 
-    return new ProgramOpModel(getIdent(), this.getClass(), DGIRContext.registeredDialects.get(Builtin.class), List.of());
+    return new ProgramOpModel(getIdent(), this.getClass(), Dialect.get(Builtin.class), List.of());
   }
 
-  ProgramOp() {
+  public ProgramOp() {
+  }
+
+  public ProgramOp(Operation operation) {
+    super(operation);
   }
 
   public ProgramOp(boolean withRegion) {

@@ -25,6 +25,10 @@ public abstract class Op {
     this.operation = null;
   }
 
+  public Op(Operation operation) {
+    this.operation = operation;
+  }
+
   public Operation getOperation() {
     return operation;
   }
@@ -68,11 +72,29 @@ public abstract class Op {
     return getOperation().getRegions();
   }
 
-  public <T extends Attribute> T getAttribute(String name) {
-    return (T) getAttributes().get(name).getAttribute();
+  public <T extends Attribute> T getAttribute(Class<T> clazz, String name) {
+    return clazz.cast(getAttributes().get(name).getAttribute());
   }
 
-  public <T extends Attribute> T getAttribute(Class<T> clazz, String name) {
-    return (T) getAttributes().get(name).getAttribute();
+  /**
+   * Check equality based on the underlying operation.
+   * Ops are only a sematic wrapper of the operation state and therefore not indicative of equality.
+   *
+   * @param obj the reference object with which to compare.
+   * @return true if the underlying operations are equal, false otherwise.
+   */
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof Op other && this.getOperation().equals(other.getOperation());
+  }
+
+  /**
+   * Hash code based on the underlying operation.
+   *
+   * @return the hash code value for the operation stored in this op.
+   */
+  @Override
+  public int hashCode() {
+    return operation.hashCode();
   }
 }

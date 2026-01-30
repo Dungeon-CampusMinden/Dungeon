@@ -1,18 +1,25 @@
 package blockly.vm.dgir.dialect.func;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.traits.ISymbol;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.TypeAttribute;
 import blockly.vm.dgir.dialect.func.types.FuncType;
 
 import java.util.List;
 
-public class FuncOp extends Op {
+public class FuncOp extends Op implements ISymbol {
   @Override
   public OperationDetails.Impl createDetails() {
     class FuncOpModel extends OperationDetails.Impl {
       FuncOpModel() {
-        super(FuncOp.getIdent(), FuncOp.class, DGIRContext.registeredDialects.get(Func.class), List.of("name", "type"));
+        super(FuncOp.getIdent(),
+          FuncOp.class,
+          DGIRContext.registeredDialects.get(Func.class),
+          List.of(
+            SymbolTable.getSymbolAttributeName(),
+            "type")
+        );
       }
 
       @Override
@@ -29,7 +36,11 @@ public class FuncOp extends Op {
     return new FuncOpModel();
   }
 
-  FuncOp() {
+  public FuncOp() {
+  }
+
+  public FuncOp(Operation operation) {
+    super(operation);
   }
 
   public FuncOp(String name) {
@@ -45,7 +56,7 @@ public class FuncOp extends Op {
   }
 
   public StringAttribute getFuncNameAttribute() {
-    return getAttribute(StringAttribute.class, "name");
+    return getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName());
   }
 
   public String getFuncName() {

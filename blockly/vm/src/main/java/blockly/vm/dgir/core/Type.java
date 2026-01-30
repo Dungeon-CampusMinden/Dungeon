@@ -7,13 +7,12 @@ import tools.jackson.databind.annotation.JsonSerialize;
 public abstract class Type {
   private TypeDetails details;
 
-  // Every type should be default constructible.
   public Type() {
-    setDetails(TypeDetails.get(getClass()));
+    details = TypeDetails.get(getClass());
   }
 
   public Type(TypeDetails typeDetails) {
-    setDetails(typeDetails);
+    details = typeDetails;
   }
 
   public abstract TypeDetails.Impl createImpl();
@@ -22,10 +21,9 @@ public abstract class Type {
     return details;
   }
 
-  protected void setDetails(TypeDetails details) {
-    assert Utils.Caller.getCallingClass().isAssignableFrom(Type.class)
-      || Utils.Caller.getCallingClass().isAssignableFrom(RegisteredTypeDetails.class)
-      : "Only subclasses of Type can set the details. Was called from " + Utils.Caller.getCallingClass().getName();
+  void setDetails(TypeDetails details) {
+    assert Utils.Caller.getCallingClass().isAssignableFrom(RegisteredTypeDetails.class)
+      : "Only RegisteredTypeDetails is allowed to set details. Was called from " + Utils.Caller.getCallingClass().getName();
 
     this.details = details;
   }

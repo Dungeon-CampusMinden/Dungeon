@@ -2,10 +2,9 @@ package blockly.vm.dgir.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 /**
  * Holds all information about a unique operation and some of its utility methods.
@@ -54,12 +53,65 @@ public class OperationDetails {
     return impl.hasInterface(interfaceClass);
   }
 
+  /**
+   * Create an instance of the op from the operation state.
+   * Only returns a value if the operation is of type of op.
+   *
+   * @param clazz     The class of the op to create
+   * @param operation The operation state to use
+   * @return The op instance or null if the operation is not of the given type
+   */
+  public <T extends Op> T as(Class<T> clazz, Operation operation) {
+    if (!isa(clazz)) {
+      return null;
+    }
+
+    try {
+      return clazz.cast(impl.operationConstructor.newInstance(operation));
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to create operation instance of type " + clazz.getName(), e);
+    }
+  }
+
+  /**
+   * Create an instance of the op from the operation state.
+   *
+   * @param operation The operation state to use
+   * @return The op instance
+   */
+  public Op asOp(Operation operation) {
+    try {
+      return impl.operationConstructor.newInstance(operation);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to create operation instance of type " + getType().getName(), e);
+    }
+  }
+
+  /**
+   * Check if this operation is of the given type.
+   *
+   * @param clazz The type to check for
+   * @return true if this operation is of the given type, false otherwise
+   */
+  public boolean isa(Class<? extends Op> clazz) {
+    return clazz.equals(getType());
+  }
+
   @JsonIgnore
   public Impl getImpl() {
     return impl;
   }
 
   private Impl impl = null;
+
+
+  public static Optional<Constructor<? extends Op>> hasSpecificConstructor(Class<? extends Op> opClass, Class<?>... parameterTypes) {
+    try {
+      return Optional.of(opClass.getConstructor(Operation.class));
+    } catch (NoSuchMethodException e) {
+      return Optional.empty();
+    }
+  }
 
   /**
    * This is the fully type erased interface to an operation
@@ -70,6 +122,8 @@ public class OperationDetails {
     protected final Dialect dialect;
     protected final List<String> attributeNames;
     protected final Set<Class<?>> interfaces;
+    protected final Constructor<? extends Op> operationConstructor;
+    protected final Constructor<? extends Op> emptyConstructor;
 
     public Impl(String ident, Class<? extends Op> type, Dialect dialect, List<String> attributeNames) {
       this.ident = ident;
@@ -77,6 +131,10 @@ public class OperationDetails {
       this.dialect = dialect;
       this.attributeNames = Collections.unmodifiableList(attributeNames);
       this.interfaces = Set.copyOf(Arrays.asList(type.getClasses()));
+      this.operationConstructor = hasSpecificConstructor(type, Operation.class).orElse(null);
+      this.emptyConstructor = hasSpecificConstructor(type).orElse(null);
+      assert operationConstructor != null && emptyConstructor != null
+        : "Op of type " + type + " must have a constructor that takes an operation and an empty constructor.";
     }
 
     public String getIdent() {

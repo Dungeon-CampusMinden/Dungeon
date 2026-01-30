@@ -37,7 +37,10 @@ public class CallOp extends Op {
   }
 
   public CallOp() {
+  }
 
+  public CallOp(Operation operation) {
+    super(operation);
   }
 
   public CallOp(String name, List<Value> operands, FuncType calleeType) {

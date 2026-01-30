@@ -1,6 +1,7 @@
 package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.opinterfaces.ISymbolTable;
+import blockly.vm.dgir.core.traits.ISymbolTable;
+import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,4 +18,28 @@ public class SymbolTable {
 
   private final Operation owner;
   private final Map<String, Operation> symbols = new HashMap<>();
+
+  public static Operation lookupSymbolIn(Operation operation, String symbolName) {
+    assert operation.hasInterface(ISymbolTable.class);
+    Region region = operation.getFirstRegion();
+    if (region.getBlocks().isEmpty())
+      return null;
+
+    for (Operation op : region.getBlocks().getFirst().getOperations()) {
+      String name = getNameIfSymbol(op, getSymbolAttributeName());
+      if (name != null && name.equals(symbolName)) {
+        return op;
+      }
+    }
+    return null;
+  }
+
+  private static String getNameIfSymbol(Operation op, String symbolAttributeName) {
+    var attr = op.getAttribute(StringAttribute.class, symbolAttributeName);
+    return attr == null ? null : attr.getValue();
+  }
+
+  public static String getSymbolAttributeName() {
+    return "symbol_name";
+  }
 }

@@ -1,12 +1,12 @@
 package blockly.vm.dgir.dialect.func;
 
 import blockly.vm.dgir.core.*;
-import blockly.vm.dgir.core.opinterfaces.ITerminator;
+import blockly.vm.dgir.core.traits.ITerminator;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 
 import java.util.List;
 
-public class ReturnOp extends Op implements ITerminator<ReturnOp> {
+public class ReturnOp extends Op implements ITerminator {
   @Override
   public OperationDetails.Impl createDetails() {
     class ReturnOpModel extends OperationDetails.Impl {
@@ -27,6 +27,10 @@ public class ReturnOp extends Op implements ITerminator<ReturnOp> {
   }
 
   public ReturnOp() {
+  }
+
+  public ReturnOp(Operation operation) {
+    super(operation);
   }
 
   public ReturnOp(List<Value> operands) {

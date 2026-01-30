@@ -143,6 +143,7 @@ public final class Operation implements Serializable {
     this.regions = List.copyOf(regions);
   }
 
+  // TODO implement verify
   public boolean verify(boolean recursive) {
     return false;
   }
@@ -153,6 +154,36 @@ public final class Operation implements Serializable {
 
   public boolean hasInterface(Class<?> iface) {
     return details.hasInterface(iface);
+  }
+
+  /**
+   * Create an instance of the op from the operation state.
+   * Only returns a value if the operation is of type of op.
+   *
+   * @param clazz The class of the op to create
+   * @return The op instance or null if the operation is not of the given type
+   */
+  public <T extends Op> T as(Class<T> clazz) {
+    return getDetails().as(clazz, this);
+  }
+
+  /**
+   * Create an instance of the op from the operation state.
+   *
+   * @return The op instance
+   */
+  public Op asOp() {
+    return getDetails().asOp(this);
+  }
+
+  /**
+   * Check if this operation is of the given type.
+   *
+   * @param clazz The type to check for
+   * @return true if this operation is of the given type, false otherwise
+   */
+  public boolean isa(Class<? extends Op> clazz) {
+    return getDetails().isa(clazz);
   }
 
   public List<ValueOperand> getOperands() {
@@ -175,6 +206,10 @@ public final class Operation implements Serializable {
 
   public Map<String, NamedAttribute> getAttributes() {
     return attributes;
+  }
+
+  public <T extends Attribute> T getAttribute(Class<T> clazz, String name) {
+    return clazz.cast(getAttributes().get(name).getAttribute());
   }
 
   public List<Region> getRegions() {

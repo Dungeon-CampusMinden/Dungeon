@@ -1,7 +1,7 @@
 package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.opinterfaces.IControlFlowOp;
-import blockly.vm.dgir.core.opinterfaces.ITerminator;
+import blockly.vm.dgir.core.traits.IControlFlowOp;
+import blockly.vm.dgir.core.traits.ITerminator;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.builder.GraphTypeBuilder;

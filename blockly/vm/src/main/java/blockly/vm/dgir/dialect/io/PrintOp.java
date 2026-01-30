@@ -34,6 +34,10 @@ public class PrintOp extends Op {
   public PrintOp() {
   }
 
+  public PrintOp(Operation operation) {
+    super(operation);
+  }
+
   public PrintOp(List<Value> operands) {
     setOperation(Operation.Create(getIdent(), operands, null, null, null));
   }

@@ -1,6 +1,6 @@
 package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.opinterfaces.IControlFlowOp;
+import blockly.vm.dgir.core.traits.IControlFlowOp;
 import com.fasterxml.jackson.annotation.*;
 
 import java.io.Serializable;

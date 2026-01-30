@@ -1,6 +1,7 @@
 package dialect.builtin;
 
 import blockly.vm.dgir.core.CFG;
+import blockly.vm.dgir.core.Operation;
 import blockly.vm.dgir.core.Utils;
 import blockly.vm.dgir.core.serialization.Utility;
 import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class BuiltinTests {
   @Test
@@ -112,6 +114,12 @@ public class BuiltinTests {
 
     String result = mapper.writeValueAsString(op);
     System.out.println(result);
+
+    {
+      Operation rawOp = op.getOperation();
+      ProgramOp typedOp = rawOp.as(ProgramOp.class);
+      assertNotEquals(null, rawOp);
+    }
 
     try {
       Utils.Graphing.drawGraph(CFG.getCfgFor(null, op.getRegions().getFirst().getBlocks().getFirst()), "functionCallCfg.png");
