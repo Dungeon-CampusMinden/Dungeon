@@ -1,6 +1,6 @@
 package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.traits.IControlFlowOp;
+import blockly.vm.dgir.core.traits.IControlFlow;
 import com.fasterxml.jackson.annotation.*;
 
 import java.io.Serializable;
@@ -46,7 +46,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   public boolean hasTerminator(){
     if(operations.isEmpty()) return false;
     Operation lastOp = operations.getLast();
-    return lastOp.getDetails().hasInterface(IControlFlowOp.class);
+    return lastOp.getDetails().hasTrait(IControlFlow.class);
   }
 
   @JsonIgnore

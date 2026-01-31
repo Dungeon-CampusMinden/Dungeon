@@ -11,6 +11,4 @@ public interface IOpTrait {
       throw new RuntimeException("Class other than Op implemented IOpTrait: " + getClass().getName(), e);
     }
   }
-
-  boolean verifyTrait(Operation op);
 }

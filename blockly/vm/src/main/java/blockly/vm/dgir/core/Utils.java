@@ -1,7 +1,8 @@
 package blockly.vm.dgir.core;
 
-import com.mxgraph.layout.mxCircleLayout;
-import com.mxgraph.layout.mxIGraphLayout;
+import com.mxgraph.layout.*;
+import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
+import com.mxgraph.layout.orthogonal.mxOrthogonalLayout;
 import com.mxgraph.util.mxCellRenderer;
 import org.jgrapht.Graph;
 import org.jgrapht.ext.JGraphXAdapter;
@@ -86,15 +87,18 @@ public class Utils {
       return useGraph;
     }
 
-    public static File drawUseGraph(Operation op, String filePath) throws IOException {
+    public static File drawUseGraph(Operation op, String filePath, boolean hierarchicalLayout) throws IOException {
       Graph<Object, DefaultEdge> useGraph = getUseGraph(op);
-      return drawGraph(useGraph, filePath);
+      return drawGraph(useGraph, filePath, hierarchicalLayout);
     }
 
-    public static <V, E> File drawGraph(Graph<V, E> graph, String filePath) throws IOException {
+    public static <V, E> File drawGraph(Graph<V, E> graph, String filePath, boolean hierarchicalLayout) throws IOException {
       JGraphXAdapter<V, E> graphAdapter = new JGraphXAdapter<V, E>(graph);
-      mxIGraphLayout layout = new mxCircleLayout(graphAdapter);
-      layout.execute(graphAdapter.getDefaultParent());
+      if (hierarchicalLayout)
+        new mxHierarchicalLayout(graphAdapter).execute(graphAdapter.getDefaultParent());
+      else
+        new mxCompactTreeLayout(graphAdapter, false).execute(graphAdapter.getDefaultParent());
+      new mxParallelEdgeLayout(graphAdapter).execute(graphAdapter.getDefaultParent());
       BufferedImage image = mxCellRenderer.createBufferedImage(graphAdapter, null, 2, new Color(1f, 1f, 1f, 0f), true, null);
       File imgFile = new File(filePath);
       ImageIO.write(image, "PNG", imgFile);

@@ -28,5 +28,9 @@ public abstract class Type {
     this.details = details;
   }
 
+  public String getParameterizedIdent() {
+    return details.getParameterizedIdent(this);
+  }
+
   public abstract boolean validate(Object value);
 }

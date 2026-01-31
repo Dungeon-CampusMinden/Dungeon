@@ -39,7 +39,7 @@ public class PrintOp extends Op {
   }
 
   public PrintOp(List<Value> operands) {
-    setOperation(Operation.Create(getIdent(), operands, null, null, null));
+    setOperation(Operation.Create(getIdent(), operands, null, null, 0));
   }
 
   public static String getIdent() {

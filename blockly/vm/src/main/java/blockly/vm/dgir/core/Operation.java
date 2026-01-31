@@ -1,6 +1,8 @@
 package blockly.vm.dgir.core;
 
 import blockly.vm.dgir.core.serialization.OperationSerializer;
+import blockly.vm.dgir.core.traits.IOpTrait;
+import blockly.vm.dgir.core.traits.ISymbolTable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import tools.jackson.databind.annotation.JsonSerialize;
@@ -64,23 +66,23 @@ public final class Operation implements Serializable {
    * @param operands   The input value operands.
    * @param successors The blocks that succeed this operation (branching).
    * @param outputType The output result type.
-   * @param regions    The regions.
+   * @param numRegions The number of regions.
    * @return A new Operation instance.
    */
   public static Operation Create(String name,
                                  List<Value> operands,
                                  List<Block> successors,
                                  Type outputType,
-                                 List<Region> regions) {
+                                 int numRegions) {
     assert RegisteredOperationDetails.lookup(name).isPresent() : "OperationDetails not found for name: " + name + "\n Make sure it is registered in with the dialect.";
-    return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, successors, outputType, regions);
+    return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, successors, outputType, numRegions);
   }
 
   public static Operation Create(OperationDetails name,
                                  List<Value> operands,
                                  List<Block> successors,
                                  Type outputType,
-                                 List<Region> regions) {
+                                 int numRegions) {
     assert name != null : "OperationDetails name cannot be null.";
 
     // Ensure operands is a valid arraylist
@@ -98,9 +100,7 @@ public final class Operation implements Serializable {
     // Create the attribute map
     Map<String, NamedAttribute> attributeMap = attributes.stream().collect(Collectors.toUnmodifiableMap(NamedAttribute::getName, attr -> attr));
 
-    // Ensure regions is a valid arraylist
-    regions = regions == null ? new ArrayList<>() : new ArrayList<>(regions);
-    return new Operation(name, operands, successors, outputType, attributeMap, regions);
+    return new Operation(name, operands, successors, outputType, attributeMap, numRegions);
   }
 
   /**
@@ -112,14 +112,14 @@ public final class Operation implements Serializable {
    * @param successors The blocks succeeding this operation.
    * @param resultType The output result type.
    * @param attributes The named attributes.
-   * @param regions    The regions.
+   * @param numRegions The number of regions.
    */
   public Operation(OperationDetails details,
                    List<Value> operands,
                    List<Block> successors,
                    Type resultType,
                    Map<String, NamedAttribute> attributes,
-                   List<Region> regions) {
+                   int numRegions) {
     this.details = details;
 
     if (resultType != null) {
@@ -139,8 +139,12 @@ public final class Operation implements Serializable {
     // Create an unmodifiable map for the attributes
     this.attributes = Map.copyOf(attributes);
 
-    // Create an unmodifiable list for the regions
-    this.regions = List.copyOf(regions);
+    // Create an unmodifiable list of the regions
+    var regions = new ArrayList<Region>(numRegions);
+    for (int i = 0; i < numRegions; i++) {
+      regions.add(new Region(this));
+    }
+    this.regions = Collections.unmodifiableList(regions);
   }
 
   // TODO implement verify
@@ -152,8 +156,8 @@ public final class Operation implements Serializable {
     return details;
   }
 
-  public boolean hasInterface(Class<?> iface) {
-    return details.hasInterface(iface);
+  public boolean hasTrait(Class<? extends IOpTrait> traitClass) {
+    return details.hasTrait(traitClass);
   }
 
   /**
@@ -165,6 +169,20 @@ public final class Operation implements Serializable {
    */
   public <T extends Op> T as(Class<T> clazz) {
     return getDetails().as(clazz, this);
+  }
+
+  /**
+   * Create an instance of the op from the operation state if it implements the given trait.
+   *
+   * @param clazz The trait to check for
+   * @param <T>   The trait type
+   * @return The op instance or null if the operation does not implement the trait
+   */
+  public <T extends IOpTrait> T asTrait(Class<T> clazz) {
+    if (hasTrait(clazz)) {
+      return clazz.cast(as(getDetails().getType()));
+    }
+    return null;
   }
 
   /**
@@ -224,10 +242,39 @@ public final class Operation implements Serializable {
     return parent;
   }
 
+  public Region getParentRegion() {
+    if (getParent() == null) return null;
+    return getParent().getParent();
+  }
+
+  public Operation getParentOperation() {
+    if (getParent() == null) return null;
+    return getParent().getParent().getParent();
+  }
+
   public void setParent(Block parent) {
     assert Utils.Caller.getCallingClass() == Block.class : "Assigning the parent of an operation is only allowed from the Block class. Was called from " + Utils.Caller.getCallingClass().getName();
     assert this.parent == null || parent == null : "Operation already has a parent. Unparent first before setting a new parent. (Use the block interface to unparent.)";
 
     this.parent = parent;
+  }
+
+  /**
+   * Walks though the parent structure and returns the first parent operation that implements the given trait.
+   *
+   * @param traitClass The trait to search for
+   * @param <T>        The trait type
+   * @return The first parent operation that implements the given trait or null if none was found.
+   */
+  public <T extends IOpTrait> T getParentWithTrait(Class<T> traitClass) {
+    if (getParent() == null) return null;
+    Operation currentParent = getParentOperation();
+    while (currentParent != null) {
+      if (currentParent.hasTrait(traitClass)) {
+        return currentParent.asTrait(traitClass);
+      }
+      currentParent = currentParent.getParentOperation();
+    }
+    return null;
   }
 }

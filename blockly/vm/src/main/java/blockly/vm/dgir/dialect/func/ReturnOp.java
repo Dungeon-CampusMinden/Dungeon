@@ -34,12 +34,7 @@ public class ReturnOp extends Op implements ITerminator {
   }
 
   public ReturnOp(List<Value> operands) {
-    setOperation(Operation.Create(getIdent(), operands, null, null, null));
-  }
-
-  @Override
-  public boolean verifyTrait(Operation op) {
-    return true;
+    setOperation(Operation.Create(getIdent(), operands, null, null, 0));
   }
 
   public static String getIdent() {

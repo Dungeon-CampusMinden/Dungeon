@@ -1,9 +1,10 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.traits.IOpTrait;
+import blockly.vm.dgir.dialect.io.IO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -49,8 +50,8 @@ public class OperationDetails {
     impl.populateDefaultAttrs(attributes);
   }
 
-  public boolean hasInterface(Class<?> interfaceClass) {
-    return impl.hasInterface(interfaceClass);
+  public boolean hasTrait(Class<? extends IOpTrait> traitClass) {
+    return impl.hasTrait(traitClass);
   }
 
   /**
@@ -121,7 +122,7 @@ public class OperationDetails {
     protected final Class<? extends Op> type;
     protected final Dialect dialect;
     protected final List<String> attributeNames;
-    protected final Set<Class<?>> interfaces;
+    protected final Set<Class<? extends IOpTrait>> traits;
     protected final Constructor<? extends Op> operationConstructor;
     protected final Constructor<? extends Op> emptyConstructor;
 
@@ -130,7 +131,13 @@ public class OperationDetails {
       this.type = type;
       this.dialect = dialect;
       this.attributeNames = Collections.unmodifiableList(attributeNames);
-      this.interfaces = Set.copyOf(Arrays.asList(type.getClasses()));
+      // Only copy the Traits implemented by the Op, not the other interfaces it implements
+      this.traits = Set.copyOf(
+        Arrays.stream(type.getInterfaces())
+          .filter(IOpTrait.class::isAssignableFrom)
+          .map(aClass -> aClass.<IOpTrait>asSubclass(IOpTrait.class))
+          .toList()
+      );
       this.operationConstructor = hasSpecificConstructor(type, Operation.class).orElse(null);
       this.emptyConstructor = hasSpecificConstructor(type).orElse(null);
       assert operationConstructor != null && emptyConstructor != null
@@ -157,8 +164,8 @@ public class OperationDetails {
 
     public abstract void populateDefaultAttrs(List<NamedAttribute> attributes);
 
-    public boolean hasInterface(Class<?> interfaceClass) {
-      return interfaces.contains(interfaceClass);
+    public boolean hasTrait(Class<? extends IOpTrait> traitClass) {
+      return traits.contains(traitClass);
     }
   }
 

@@ -32,7 +32,7 @@ public class ConstantOp extends Op {
   }
 
   public ConstantOp(ITypedAttribute value) {
-    setOperation(Operation.Create(getIdent(), null, null, value.getType(), null));
+    setOperation(Operation.Create(getIdent(), null, null, value.getType(), 0));
     setValueAttribute(value);
   }
 

@@ -9,8 +9,7 @@ public interface ISymbol extends IOpTrait {
     return get().getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName()).getValue();
   }
 
-  @Override
-  default boolean verifyTrait(Operation op) {
+  default boolean verifyTrait(ISymbol op) {
     return get().getAttributes().containsKey(SymbolTable.getSymbolAttributeName());
   }
 }

@@ -2,8 +2,7 @@ package dialect.builtin;
 
 import blockly.vm.dgir.core.CFG;
 import blockly.vm.dgir.core.Operation;
-import blockly.vm.dgir.core.Utils;
-import blockly.vm.dgir.core.serialization.Utility;
+import blockly.vm.dgir.core.serialization.Utils;
 import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
 import blockly.vm.dgir.dialect.arith.ConstantOp;
@@ -27,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 public class BuiltinTests {
   @Test
   public void emptyProgramOp() {
-    ObjectMapper mapper = Utility.getMapper(true, true);
+    ObjectMapper mapper = Utils.getMapper(true, true);
 
     ProgramOp op = new ProgramOp(true);
 
@@ -40,7 +39,7 @@ public class BuiltinTests {
 
   @Test
   public void simpleProgramOp() {
-    ObjectMapper mapper = Utility.getMapper(true, true);
+    ObjectMapper mapper = Utils.getMapper(true, true);
 
     ProgramOp op = new ProgramOp(true);
     var programRegion = op.getOperation().getRegions().getFirst();
@@ -65,8 +64,8 @@ public class BuiltinTests {
     System.out.println(result);
 
     try {
-      Utils.Graphing.drawGraph(CFG.getCfgFor(null, op.getRegions().getFirst().getBlocks().getFirst()), "simpleProgramCfg.png");
-      Utils.Graphing.drawUseGraph(op.getOperation(), "simpleProgramOp.png");
+      blockly.vm.dgir.core.Utils.Graphing.drawGraph(CFG.getCfg(null, op.getOperation()), "simpleProgramCfg.png", true);
+      blockly.vm.dgir.core.Utils.Graphing.drawUseGraph(op.getOperation(), "simpleProgramOpUse.png", true);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -78,7 +77,7 @@ public class BuiltinTests {
 
   @Test
   public void functionCall(){
-    ObjectMapper mapper = Utility.getMapper(true, true);
+    ObjectMapper mapper = Utils.getMapper(true, true);
 
 
     ProgramOp op = new ProgramOp(true);
@@ -118,12 +117,12 @@ public class BuiltinTests {
     {
       Operation rawOp = op.getOperation();
       ProgramOp typedOp = rawOp.as(ProgramOp.class);
-      assertNotEquals(null, rawOp);
+      assertNotEquals(null, typedOp.getOperation());
     }
 
     try {
-      Utils.Graphing.drawGraph(CFG.getCfgFor(null, op.getRegions().getFirst().getBlocks().getFirst()), "functionCallCfg.png");
-      Utils.Graphing.drawUseGraph(op.getOperation(), "functionCall.png");
+      blockly.vm.dgir.core.Utils.Graphing.drawGraph(CFG.getCfg(null, op.getOperation()), "functionCallCfg.png", true);
+      blockly.vm.dgir.core.Utils.Graphing.drawUseGraph(op.getOperation(), "functionCallUse.png", true);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

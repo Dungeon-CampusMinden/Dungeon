@@ -11,22 +11,17 @@ public final class Region {
   private final List<Block> blocks = new ArrayList<>();
 
   @JsonBackReference
-  private Operation parent = null;
+  private final Operation parent;
 
-  public Region() {
+  Region(Operation parent) {
+    this.parent = parent;
   }
 
   public Region(List<Block> blocks, Operation parent) {
+    this(parent);
     for (Block block : blocks) {
       addBlock(block);
     };
-    setParent(parent);
-  }
-
-  public static Region createWithBlock() {
-    var region = new Region();
-    region.getOrCreateDefaultBlock();
-    return region;
   }
 
   @JsonIgnore
@@ -83,12 +78,5 @@ public final class Region {
 
   public Operation getParent() {
     return parent;
-  }
-
-  public void setParent(Operation operation) {
-    assert Utils.Caller.getCallingClass() == Operation.class : "Assigning the parent of a region is only allowed from the Operation class. Was called from " + Utils.Caller.getCallingClass().getName();
-    assert this.parent == null || operation == null : "Region already has a parent. Unparent first before setting a new parent. (Use the operation interface to unparent.)";
-
-    this.parent = operation;
   }
 }

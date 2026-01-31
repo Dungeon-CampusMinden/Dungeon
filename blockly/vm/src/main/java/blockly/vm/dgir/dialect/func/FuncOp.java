@@ -1,6 +1,7 @@
 package blockly.vm.dgir.dialect.func;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.traits.IControlFlow;
 import blockly.vm.dgir.core.traits.ISymbol;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.TypeAttribute;
@@ -8,7 +9,7 @@ import blockly.vm.dgir.dialect.func.types.FuncType;
 
 import java.util.List;
 
-public class FuncOp extends Op implements ISymbol {
+public class FuncOp extends Op implements ISymbol, IControlFlow {
   @Override
   public OperationDetails.Impl createDetails() {
     class FuncOpModel extends OperationDetails.Impl {
@@ -44,13 +45,12 @@ public class FuncOp extends Op implements ISymbol {
   }
 
   public FuncOp(String name) {
-    setOperation(Operation.Create(getIdent(), null, null, null, List.of(Region.createWithBlock())));
-    getFuncNameAttribute().setValue(name);
-    getTypeAttribute().setType(new FuncType());
+    this(name, new FuncType());
   }
 
   public FuncOp(String name, FuncType type) {
-    setOperation(Operation.Create(getIdent(), null, null, type.getOutput(), List.of(Region.createWithBlock())));
+    setOperation(Operation.Create(getIdent(), null, null, type.getOutput(), 1));
+    getRegions().getFirst().getOrCreateDefaultBlock();
     getFuncNameAttribute().setValue(name);
     getTypeAttribute().setType(type);
   }

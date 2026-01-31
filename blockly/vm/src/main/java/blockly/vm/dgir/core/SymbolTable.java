@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class SymbolTable {
   public SymbolTable(Operation owner) {
-    assert owner.hasInterface(ISymbolTable.class);
+    assert owner.hasTrait(ISymbolTable.class);
     this.owner = owner;
   }
 
@@ -20,7 +20,7 @@ public class SymbolTable {
   private final Map<String, Operation> symbols = new HashMap<>();
 
   public static Operation lookupSymbolIn(Operation operation, String symbolName) {
-    assert operation.hasInterface(ISymbolTable.class);
+    assert operation.hasTrait(ISymbolTable.class);
     Region region = operation.getFirstRegion();
     if (region.getBlocks().isEmpty())
       return null;

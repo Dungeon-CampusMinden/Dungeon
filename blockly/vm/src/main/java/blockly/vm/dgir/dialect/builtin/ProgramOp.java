@@ -1,10 +1,11 @@
 package blockly.vm.dgir.dialect.builtin;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.traits.ISymbolTable;
 
 import java.util.List;
 
-public class ProgramOp extends Op {
+public class ProgramOp extends Op implements ISymbolTable {
   @Override
   public OperationDetails.Impl createDetails() {
     class ProgramOpModel extends OperationDetails.Impl {
@@ -35,7 +36,7 @@ public class ProgramOp extends Op {
 
   public ProgramOp(boolean withRegion) {
     if (withRegion) {
-      setOperation(Operation.Create(getIdent(), null, null, null, List.of(Region.createWithBlock())));
+      setOperation(Operation.Create(getIdent(), null, null, null, 1));
     }
   }
 

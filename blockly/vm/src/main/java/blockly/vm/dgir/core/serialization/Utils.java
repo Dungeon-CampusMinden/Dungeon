@@ -8,7 +8,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
-public class Utility {
+public class Utils {
   public static ObjectMapper getMapper(boolean prettyPrint, boolean registerDialects) {
     if (registerDialects) {
       registerAllDialects();

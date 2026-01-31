@@ -1,18 +1,25 @@
 package blockly.vm.dgir.dialect.func;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.traits.ICaller;
+import blockly.vm.dgir.core.traits.IControlFlow;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 import blockly.vm.dgir.dialect.builtin.attributes.SymbolRefAttribute;
 import blockly.vm.dgir.dialect.func.types.FuncType;
 
 import java.util.List;
 
-public class CallOp extends Op {
+public class CallOp extends Op implements IControlFlow, ICaller {
   @Override
   public OperationDetails.Impl createDetails() {
     class CallOpModel extends OperationDetails.Impl {
       CallOpModel() {
-        super(CallOp.getIdent(), CallOp.class, Dialect.get(Builtin.class), List.of("name"));
+        super(
+          CallOp.getIdent(),
+          CallOp.class,
+          Dialect.get(Builtin.class),
+          List.of(SymbolTable.getSymbolAttributeName())
+        );
       }
 
       @Override
@@ -44,12 +51,12 @@ public class CallOp extends Op {
   }
 
   public CallOp(String name, List<Value> operands, FuncType calleeType) {
-    setOperation(Operation.Create(getIdent(), operands, null, calleeType.getOutput(), null));
+    setOperation(Operation.Create(getIdent(), operands, null, calleeType.getOutput(), 0));
     setName(name);
   }
 
   public CallOp(FuncOp funcOp, List<Value> operands) {
-    setOperation(Operation.Create(getIdent(), operands, null, funcOp.getType().getOutput(), null));
+    setOperation(Operation.Create(getIdent(), operands, null, funcOp.getType().getOutput(), 0));
     setName(funcOp.getFuncName());
   }
 
@@ -58,6 +65,6 @@ public class CallOp extends Op {
   }
 
   public void setName(String name) {
-    getAttribute(SymbolRefAttribute.class, "name").setValue(name);
+    getAttribute(SymbolRefAttribute.class, SymbolTable.getSymbolAttributeName()).setValue(name);
   }
 }
