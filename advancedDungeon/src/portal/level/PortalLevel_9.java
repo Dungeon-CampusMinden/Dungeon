@@ -11,7 +11,6 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import java.util.Map;
-
 import portal.energyPellet.EnergyPelletCatcher;
 import portal.energyPellet.EnergyPelletLauncher;
 import portal.lightBridge.LightBridgeFactory;
@@ -25,10 +24,18 @@ import portal.util.ToggleableComponent;
  * the other side of the level.
  */
 public class PortalLevel_9 extends AdvancedLevel {
-  private Entity lightBridge, lightBridge2, lever1, lever2, lever3, lever4, pressurePlate1, pressurePlate2;
-  private DoorTile doorNorth, doorEast, doorSouth, doorWest, doorRoom1, doorRoom2 ;
+  private Entity lightBridge,
+      lightBridge2,
+      lever1,
+      lever2,
+      lever3,
+      lever4,
+      pressurePlate1,
+      pressurePlate2;
+  private DoorTile doorNorth, doorEast, doorSouth, doorWest, doorRoom1, doorRoom2;
   private ToggleableComponent catcherToggle;
   private boolean catcherAktiv = false;
+
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
    * start tile of the player to the given heroPos.
@@ -38,7 +45,7 @@ public class PortalLevel_9 extends AdvancedLevel {
    * @param namedPoints The custom points of the level.
    */
   public PortalLevel_9(
-    LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, "Portal Level 9");
   }
 
@@ -48,10 +55,12 @@ public class PortalLevel_9 extends AdvancedLevel {
     ExitTile door = (ExitTile) Game.randomTile(LevelElement.EXIT).orElseThrow();
     door.open();
 
-    lightBridge = LightBridgeFactory.createEmitter(namedPoints.get("lightBridge1"), Direction.RIGHT, false);
+    lightBridge =
+        LightBridgeFactory.createEmitter(namedPoints.get("lightBridge1"), Direction.RIGHT, false);
     Game.add(lightBridge);
 
-    lightBridge2 = LightBridgeFactory.createEmitter(namedPoints.get("lightBridge2"), Direction.DOWN, false);
+    lightBridge2 =
+        LightBridgeFactory.createEmitter(namedPoints.get("lightBridge2"), Direction.DOWN, false);
     Game.add(lightBridge2);
 
     doorNorth = (DoorTile) tileAt(namedPoints.get("doorNorth")).orElse(null);
@@ -70,21 +79,15 @@ public class PortalLevel_9 extends AdvancedLevel {
     doorRoom1.close();
     doorRoom2.close();
 
-    lever1 =
-      LeverFactory.createLever(
-        namedPoints.get("lever1"));
+    lever1 = LeverFactory.createLever(namedPoints.get("lever1"));
 
     Game.add(lever1);
 
-    lever2 = LeverFactory.createLever(
-      namedPoints.get("lever2"));
+    lever2 = LeverFactory.createLever(namedPoints.get("lever2"));
 
+    lever3 = LeverFactory.createLever(namedPoints.get("lever3"));
 
-    lever3 = LeverFactory.createLever(
-      namedPoints.get("lever3"));
-
-    lever4 = LeverFactory.createLever(
-      namedPoints.get("lever4"));
+    lever4 = LeverFactory.createLever(namedPoints.get("lever4"));
 
     Game.add(lever2);
     Game.add(lever3);
@@ -102,27 +105,23 @@ public class PortalLevel_9 extends AdvancedLevel {
     Entity cube2 = Cube.portalCube(namedPoints.get("cube2"));
     Game.add(cube2);
 
-
     Entity launcher =
-      EnergyPelletLauncher.energyPelletLauncher(
-        namedPoints.get("pelletLauncher"), Direction.DOWN, 100000, 100000);
+        EnergyPelletLauncher.energyPelletLauncher(
+            namedPoints.get("pelletLauncher"), Direction.DOWN, 100000, 100000);
 
     Entity catcher =
-      EnergyPelletCatcher.energyPelletCatcher(namedPoints.get("pelletCatcher"), Direction.RIGHT);
+        EnergyPelletCatcher.energyPelletCatcher(namedPoints.get("pelletCatcher"), Direction.RIGHT);
     catcherToggle = catcher.fetch(ToggleableComponent.class).orElseThrow();
 
     Game.add(catcher);
     Game.add(launcher);
   }
 
-
   @Override
   protected void onTick() {
 
-
-
     if (isLeverOn(lever1) && isLeverOn(lever2) && isLeverOn(lever3)) {
-        doorNorth.open();
+      doorNorth.open();
     } else {
       doorNorth.close();
     }
@@ -134,7 +133,7 @@ public class PortalLevel_9 extends AdvancedLevel {
     }
 
     if (!isLeverOn(lever1) && !isLeverOn(lever3)) {
-        doorRoom1.open();
+      doorRoom1.open();
     } else {
       doorRoom1.close();
     }
@@ -172,8 +171,6 @@ public class PortalLevel_9 extends AdvancedLevel {
     } else {
       LightBridgeFactory.deactivate(lightBridge2);
     }
-
-
   }
 
   private boolean isLeverOn(Entity entity) {
