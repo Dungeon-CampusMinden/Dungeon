@@ -1,11 +1,14 @@
 package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.traits.ICaller;
+import blockly.vm.dgir.core.traits.ISymbolUser;
 import blockly.vm.dgir.core.traits.IControlFlow;
 import blockly.vm.dgir.core.traits.ITerminator;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.builder.GraphTypeBuilder;
+
+import javax.swing.text.html.Option;
+import java.util.Optional;
 
 public class CFG {
   /**
@@ -271,18 +274,21 @@ public class CFG {
         // If it does not have regions we know its a simple unstructured control flow operation
         else {
           // This operation i a function call an therefore we need to build its subgraph anyways.
-          if (blockOperation.hasTrait(ICaller.class)) {
+          ISymbolUser symbolUser;
+          if ((symbolUser = blockOperation.asTrait(ISymbolUser.class)) != null) {
             cfg.addVertex(new CfgNode(blockOperation));
 
-            Operation targetOp = ICaller.getTargetOperation(blockOperation);
+            Optional<Operation> targetOp = SymbolTable.lookupSymbolInNearestTable(
+              blockOperation,
+              symbolUser.getSymbolRefAttribute().getValue());
             // If we can find the target operation we create the function call edge
-            if (targetOp != null) {
+            if (targetOp.isPresent()) {
               // Get the cfg for the function call and add it to the graph
-              cfg = getCfg(cfg, targetOp);
+              cfg = getCfg(cfg, targetOp.get());
               // Add the edge from the call op to the called op
               cfg.addEdge(
                 new CfgNode(blockOperation),
-                new CfgNode(targetOp),
+                new CfgNode(targetOp.get()),
                 new Transition(Transition.Type.OP_OP, Transition.Context.FUNCTION_CALL)
               );
             } else {

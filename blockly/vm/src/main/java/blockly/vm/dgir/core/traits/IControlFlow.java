@@ -23,20 +23,4 @@ public interface IControlFlow extends IOpTrait {
     assert op.hasTrait(IControlFlow.class) : "Operation does not implement IControlFlow.";
     return !op.getRegions().isEmpty();
   }
-
-  default Block getSuccessor(){
-    return getSuccessor(get());
-  }
-
-  default boolean isBranch(){
-    return isBranch(get());
-  }
-
-  default boolean isStructured() {
-    return isStructured(get());
-  }
-
-  default boolean verifyTrait(IControlFlow op){
-    return true;
-  }
 }

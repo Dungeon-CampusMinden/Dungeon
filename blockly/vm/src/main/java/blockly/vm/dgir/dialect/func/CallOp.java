@@ -1,7 +1,7 @@
 package blockly.vm.dgir.dialect.func;
 
 import blockly.vm.dgir.core.*;
-import blockly.vm.dgir.core.traits.ICaller;
+import blockly.vm.dgir.core.traits.ISymbolUser;
 import blockly.vm.dgir.core.traits.IControlFlow;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 import blockly.vm.dgir.dialect.builtin.attributes.SymbolRefAttribute;
@@ -9,7 +9,7 @@ import blockly.vm.dgir.dialect.func.types.FuncType;
 
 import java.util.List;
 
-public class CallOp extends Op implements IControlFlow, ICaller {
+public class CallOp extends Op implements IControlFlow, ISymbolUser {
   @Override
   public OperationDetails.Impl createDetails() {
     class CallOpModel extends OperationDetails.Impl {
@@ -18,7 +18,7 @@ public class CallOp extends Op implements IControlFlow, ICaller {
           CallOp.getIdent(),
           CallOp.class,
           Dialect.get(Builtin.class),
-          List.of(SymbolTable.getSymbolAttributeName())
+          List.of(getCalleeAttributeName())
         );
       }
 
@@ -52,19 +52,58 @@ public class CallOp extends Op implements IControlFlow, ICaller {
 
   public CallOp(String name, List<Value> operands, FuncType calleeType) {
     setOperation(Operation.Create(getIdent(), operands, null, calleeType.getOutput(), 0));
-    setName(name);
+    setCallee(name);
   }
 
   public CallOp(FuncOp funcOp, List<Value> operands) {
     setOperation(Operation.Create(getIdent(), operands, null, funcOp.getType().getOutput(), 0));
-    setName(funcOp.getFuncName());
+    setCallee(funcOp.getFuncName());
   }
 
-  public String getName() {
-    return getAttribute(SymbolRefAttribute.class, "name").getStorage();
+  public String getCallee() {
+    return getAttribute(SymbolRefAttribute.class, getCalleeAttributeName()).getStorage();
   }
 
-  public void setName(String name) {
-    getAttribute(SymbolRefAttribute.class, SymbolTable.getSymbolAttributeName()).setValue(name);
+  private void setCallee(String name) {
+    getSymbolRefAttribute().setValue(name);
+  }
+
+  public static String getCalleeAttributeName() {
+    return "callee";
+  }
+
+  @Override
+  public SymbolRefAttribute getSymbolRefAttribute() {
+    return getAttribute(SymbolRefAttribute.class, getCalleeAttributeName());
+  }
+
+  @Override
+  public boolean verifySymbolUser() {
+    var calleeName = getCallee();
+    var calleeOp = SymbolTable.lookupSymbolInNearestTableAsOp(getOperation(), calleeName, FuncOp.class);
+    if (calleeOp.isEmpty())
+      return false;
+
+    // Make sure that the function type matches the call site
+    var funcType = calleeOp.get().getType();
+    // Check operand types
+    var operands = getOperands();
+    // Check that we have the correct number of operands
+    if (operands.size() != funcType.getInputs().size())
+      return false;
+    // Check that each operand type matches the function input type
+    for (int i = 0; i < operands.size(); i++) {
+      if (!operands.get(i).getType().equals(funcType.getInputs().get(i))) {
+        return false;
+      }
+    }
+    // Check that the outputs are the same
+    if (getOutput() != null && funcType.getOutput() != null) {
+      if (!getOutput().getType().equals(funcType.getOutput())) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
