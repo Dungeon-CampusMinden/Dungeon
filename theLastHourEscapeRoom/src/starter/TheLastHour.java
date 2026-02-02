@@ -1,6 +1,8 @@
 package starter;
 
+import contrib.entities.CharacterClass;
 import contrib.entities.EntityFactory;
+import contrib.entities.HeroBuilder;
 import contrib.entities.HeroController;
 import contrib.modules.keypad.KeypadSystem;
 import contrib.systems.CollisionSystem;
@@ -76,7 +78,7 @@ public class TheLastHour {
                     Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
                   }));
     } else {
-      Game.add(EntityFactory.newHero());
+      Game.add(HeroBuilder.builder().characterClass(CharacterClass.WIZARD).build());
       Game.stage().ifPresent(CursorUtil::initListener);
     }
 

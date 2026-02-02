@@ -4,9 +4,7 @@ import contrib.components.DecoComponent;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
-import contrib.hud.dialogs.DialogType;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadFactory;
@@ -77,14 +75,23 @@ public class LastHourLevel1 extends DungeonLevel {
 
     setupTrashcans();
 
-    DialogFactory.show(
-        DialogContext.builder()
-            .type(DialogType.DefaultTypes.OK)
-            .put(DialogContextKeys.TITLE, "Test")
-            .put(DialogContextKeys.MESSAGE, "!YzI60g Test longer message. Even more content that no one will ever read hi hello how are you doing?\nTest even more content so that it will eventually scroll or something\nAnother line just to be sure.")
-//          .put(DialogContextKeys.MESSAGE, "So this is a really cool escape room!\nYou have to find clues and solve puzzles to escape.\nIn 60 minutes the room will fill with gas!\nGood luck!")
-            .build());
+    String lorem =
+        """
+      Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 
+      Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
+
+      Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
+      """;
+
+    //    DialogFactory.showOkDialog("Welcome to this escape room adventure!\nYou have 20 minutes to
+    // find a way out.\n\nGood Luck!", "", () -> {});
+    //    DialogFactory.showTextDialog("Welcome to this escape room adventure!\nYou have 20 minutes
+    // to find a way out.\n\nGood Luck!", "", () -> {}, "OK", null, null);
+    //    DialogFactory.showTextDialog(lorem, "Some Title", () -> {}, "Dann mal weiter...");
+        DialogFactory.showYesNoDialog("Welcome to this escape room adventure!\nYou have 20 minutes to find a way out.\n\nGood Luck\n\nDo you want another popup?", "", () -> {
+          DialogFactory.showTextDialog(lorem, "Some Title", () -> {}, "Dann mal weiter...");
+        }, () -> {});
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
 

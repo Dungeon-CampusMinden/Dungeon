@@ -154,7 +154,7 @@ public class EmailsTab extends ComputerTab {
     boolean isSelected = email.equals(selectedEmail);
 
     Table container = new Table(skin);
-    container.setBackground(isSelected ? "blue_square_flat" : "button_rectangle_border_blue");
+    container.setBackground(isSelected ? "blue_square_flat" : "blue_square_border");
     container.pad(10, 20, 10, 10);
 
     Label subjectLabel =

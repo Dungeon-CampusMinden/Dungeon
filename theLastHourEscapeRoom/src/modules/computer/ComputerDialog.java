@@ -177,6 +177,8 @@ public class ComputerDialog extends Group {
     Table tab = new Table(skin);
     boolean isActive = tabKey.equals(activeTab);
     tab.setBackground(isActive ? "blue_square_flat" : "generic-area");
+    tab.getBackground().setLeftWidth(15);
+    tab.getBackground().setRightWidth(15);
 
     Label.LabelStyle labelStyle = new Label.LabelStyle();
     labelStyle.font =
