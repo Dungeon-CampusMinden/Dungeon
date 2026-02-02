@@ -41,6 +41,7 @@ import core.sound.player.GdxSoundPlayer;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
 import core.systems.*;
+import core.utils.BaseContainerUI;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.InputManager;
@@ -65,6 +66,7 @@ public final class GameLoop extends ScreenAdapter {
   private static ISoundPlayer soundPlayer = new NoSoundPlayer();
   private static Stage stage;
   private boolean doSetup = true;
+  private static final Set<IResizable> resizables = new HashSet<>();
 
   /**
    * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
@@ -545,6 +547,15 @@ public final class GameLoop extends ScreenAdapter {
               x.getViewport().setWorldSize(width, height);
               x.getViewport().update(width, height, true);
             });
+    resizables.forEach(r -> r.onResize(width, height));
+  }
+
+  public static void registerResizable(IResizable resizable) {
+    resizables.add(resizable);
+  }
+
+  public static boolean removeResizable(IResizable resizable) {
+    return resizables.remove(resizable);
   }
 
   /**
