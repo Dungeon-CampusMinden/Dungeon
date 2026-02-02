@@ -1,9 +1,11 @@
 package contrib.hud.dialogs;
 
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import contrib.hud.UIUtils;
 import core.Game;
+import core.utils.BaseContainerUI;
 import core.utils.Scene2dElementFactory;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +45,7 @@ public class TextDialog {
    * @param title Title for the dialog.
    * @return The fully configured Dialog, which can then be added where it is needed.
    */
-  private static Dialog create(
+  private static Group create(
       DialogContext ctx, String message, String confirmButton, String title) {
     Skin skin = UIUtils.defaultSkin();
 
@@ -78,6 +80,6 @@ public class TextDialog {
         confirmButton, confirmButton, skin.get("clean-green", TextButton.TextButtonStyle.class));
 
     dialog.pack();
-    return dialog;
+    return new BaseContainerUI(dialog);
   }
 }

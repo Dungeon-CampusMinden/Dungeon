@@ -1,9 +1,11 @@
 package contrib.hud.dialogs;
 
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import contrib.hud.UIUtils;
 import core.Game;
+import core.utils.BaseContainerUI;
 import core.utils.Scene2dElementFactory;
 
 /**
@@ -37,7 +39,7 @@ final class OkDialog {
     return create(UIUtils.defaultSkin(), title, text, ctx.dialogId());
   }
 
-  private static Dialog create(Skin skin, String title, String text, String dialogId) {
+  private static Group create(Skin skin, String title, String text, String dialogId) {
     Dialog dialog =
         new HandledDialog(
             title,
@@ -64,6 +66,6 @@ final class OkDialog {
 
     dialog.pack();
 
-    return dialog;
+    return new BaseContainerUI(dialog);
   }
 }
