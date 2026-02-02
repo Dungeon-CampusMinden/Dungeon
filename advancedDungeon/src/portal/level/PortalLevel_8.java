@@ -22,12 +22,12 @@ import portal.physicsobject.Cube;
 import java.util.Map;
 
 public class PortalLevel_8 extends AdvancedLevel {
-  private LeverComponent plate, plate2, plate3;
+  private LeverComponent plate, plate2, plate3, plate4, plate5;
   private ExitTile door;
-  private Entity pressurePlate, lever, lever2,  lightBridge, pressurePlate2, lightBridge2, pressurePlate3, tractorBeam, lightBridge3;
+  private Entity pressurePlate, lever, lever2,  lightBridge, lightBridge2, pressurePlate2, pressurePlate3, pressurePlate4, pressurePlate5, tractorBeam, lightBridge3, lightBridge4  ;
   private EventScheduler.ScheduledAction myTask, tractorBeamTask1, tractorBeamTask2;
   private boolean isLightBridgeOn = false;
-  private DoorTile door1;
+  private DoorTile door1, door2;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -44,16 +44,16 @@ public class PortalLevel_8 extends AdvancedLevel {
 
   @Override
   protected void onFirstTick() {
-//    door = (ExitTile) Game.randomTile(LevelElement.EXIT).orElseThrow();
-//    door.open();
-//
+
     lightBridge = LightBridgeFactory.createEmitter(namedPoints.get("lightBridge"), Direction.UP, false);
     lightBridge2 = LightBridgeFactory.createEmitter(namedPoints.get("lightBridge2"), Direction.UP, false);
     lightBridge3 = LightBridgeFactory.createEmitter(namedPoints.get("lightBridge3"), Direction.UP, false);
+    lightBridge4 = LightBridgeFactory.createEmitter(namedPoints.get("lightBridge4"), Direction.RIGHT, false);
 //
     Game.add(lightBridge);
     Game.add(lightBridge2);
     Game.add(lightBridge3);
+    Game.add(lightBridge4);
 //
 //
     pressurePlate = PressurePlates.cubePressurePlate(namedPoints.get("pressurePlate"), 1);
@@ -71,16 +71,22 @@ public class PortalLevel_8 extends AdvancedLevel {
 
     tractorBeam.fetch(TractorBeamComponent.class).get().deactivate();
 
-
-
     pressurePlate2 = PressurePlates.cubePressurePlate(namedPoints.get("pressurePlate2"), 1);
     Game.add(pressurePlate2);
     plate2 = pressurePlate2.fetch(LeverComponent.class).orElse(null);
 
-
     pressurePlate3 = PressurePlates.cubePressurePlate(namedPoints.get("pressurePlate3"), 1);
     Game.add(pressurePlate3);
     plate3 = pressurePlate3.fetch(LeverComponent.class).orElse(null);
+
+    pressurePlate4 = PressurePlates.cubePressurePlate(namedPoints.get("pressurePlate4"), 1);
+    Game.add(pressurePlate4);
+    plate4 = pressurePlate4.fetch(LeverComponent.class).orElse(null);
+
+    pressurePlate5 = PressurePlates.cubePressurePlate(namedPoints.get("pressurePlate5"), 1);
+    Game.add(pressurePlate5);
+    plate5 = pressurePlate5.fetch(LeverComponent.class).orElse(null);
+
 
     lever =
       LeverFactory.createLever(
@@ -91,6 +97,10 @@ public class PortalLevel_8 extends AdvancedLevel {
     door1 = (DoorTile) tileAt(namedPoints.get("door1")).orElse(null);
     door1.close();
 
+    door2 = (DoorTile) tileAt(namedPoints.get("door2")).orElse(null);
+    door2.close();
+
+
     lever2 =
       LeverFactory.createLever(
         namedPoints.get("lever2"));
@@ -98,56 +108,9 @@ public class PortalLevel_8 extends AdvancedLevel {
     Game.add(lever2);
 
 
-//
-//
-//    lightBridge2 = LightBridgeFactory.createEmitter(namedPoints.get("lightBridge2"), Direction.UP, false);
-//
-//    Game.add(lightBridge2);
+    ExitTile door = (ExitTile) Game.randomTile(LevelElement.EXIT).orElseThrow();
+    door.open();
 
-//    pressurePlate3 = AdvancedFactory.cubePressurePlate(namedPoints.get("pressurePlate3"), 1);
-//    plate3 = pressurePlate3.fetch(LeverComponent.class).orElse(null);
-//
-//    Game.add(pressurePlate3);
-//
-//    tractorBeam =
-//      TractorBeamFactory.createTractorBeam(namedPoints.get("traktorBeam"), Direction.LEFT);
-//
-//    Game.add(tractorBeam);
-//
-//    Entity sphere = AdvancedFactory.moveableSphere(namedPoints.get("sphere"));
-//    Game.add(sphere);
-
-//
-//
-//
-//    Entity tractorbeamLever2 =
-//      LeverFactory.createLever(
-//        namedPoints.get("schalter1"),
-//        new ICommand() {
-//          @Override
-//          public void execute() {
-//            LightBridgeFactory.activate(emitter);
-//
-//            EventScheduler.scheduleAction(
-//              () -> {
-//                LightBridgeFactory.deactivate(emitter);
-//              },
-//              2300);
-//
-//          }
-//
-//          @Override
-//          public void undo() {
-//            LightBridgeFactory.activate(emitter);
-//
-//            EventScheduler.scheduleAction(
-//              () -> {
-//                LightBridgeFactory.deactivate(emitter);
-//              },
-//              2300);
-//          }
-//        });
-//    Game.add(tractorbeamLever2);
   }
 
   @Override
@@ -156,11 +119,22 @@ public class PortalLevel_8 extends AdvancedLevel {
     checkTractorBeams();
 
     if (isLeverOn(lever)) {
-      door1.open();
+      door2.open();
+    } else {
+      door2.close();
     }
 
     if (isLeverOn(lever2)) {
       LightBridgeFactory.activate(lightBridge2);
+    }
+
+    if (plate4.isOn() && plate5.isOn()) {
+      LightBridgeFactory.activate(lightBridge4);
+      door1.open();
+      door2.close();
+    } else {
+      LightBridgeFactory.deactivate(lightBridge4);
+      door1.close();
     }
 
   }
