@@ -349,9 +349,11 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 	clean-red-outline: {
 		font: roboto-semibold-32
 		fontColor: black
+		downFontColor: white
+		overFontColor: white
 		up: red_square_depth_border
-		down: red_square_border
-		over: red_square_depth_border
+		down: red_square_flat
+		over: red_square_depth_flat
 		disabled: generic-area-depth
 		pressedOffsetY: -2
 	}
