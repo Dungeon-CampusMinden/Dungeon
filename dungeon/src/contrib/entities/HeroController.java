@@ -383,6 +383,7 @@ public class HeroController {
       if (inventory.get(itemSlot).isEmpty()) {
         inventory.set(itemSlot, item);
       } else if (!inventory.add(item)) {
+        System.out.println("test");
         throw new RuntimeException("No space to return item to inventory");
       }
     } catch (RuntimeException e) {

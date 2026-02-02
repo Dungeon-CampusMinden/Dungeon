@@ -7,13 +7,6 @@
                 "id": "ItemResourceMushroomRed",
                 "count": 1
             }
-        },
-        {
-            "type": "item",
-            "item": {
-                "id": "ItemPotionWater",
-                "count": 1
-            }
         }
     ],
     "results": [
@@ -26,6 +19,38 @@
                 ],
                 "count": 1
             }
-        }
+        },
+        {
+                    "type": "item",
+                    "item": {
+                        "id": "ItemPotionHealth",
+                        "param": [
+                            "contrib.item.HealthPotionType:WEAK",
+                        ],
+                        "count": 1
+                    }
+        },
+
+        {
+                    "type": "item",
+                    "item": {
+                        "id": "ItemPotionHealth",
+                        "param": [
+                            "contrib.item.HealthPotionType:WEAK",
+                        ],
+                        "count": 1
+                    }
+        },
+
+        {
+                    "type": "item",
+                    "item": {
+                        "id": "ItemPotionHealth",
+                        "param": [
+                            "contrib.item.HealthPotionType:WEAK",
+                        ],
+                        "count": 1
+                    }
+                }
     ]
 }

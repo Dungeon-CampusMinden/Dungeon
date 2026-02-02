@@ -68,7 +68,7 @@ public final class InventoryComponent implements Component {
       return true;
     }
 
-    int firstEmpty = this.findNextAvailableSlot();
+      int firstEmpty = this.findNextAvailableSlot();
     if (firstEmpty == -1) return false;
     LOGGER.debug(
         "Item '{}' was added to the inventory of entity '{}'.",
