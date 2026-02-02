@@ -3,10 +3,7 @@ package core.language;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import core.utils.JsonHandler;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -17,21 +14,8 @@ import java.nio.charset.StandardCharsets;
 public class Localization {
   private static final Language FALLBACK_LANGUAGE = Language.DE;
   private static Language CURRENT_LANGUAGE = FALLBACK_LANGUAGE;
-  private static Localization INSTANCE;
 
   private Localization() {}
-
-  /**
-   * Gets Instance of this class.
-   *
-   * @return INSTANCE of this class.
-   */
-  public static Localization getInstance() {
-    if (INSTANCE == null) {
-      INSTANCE = new Localization();
-    }
-    return INSTANCE;
-  }
 
   /**
    * Gets the current language.
@@ -57,17 +41,14 @@ public class Localization {
    * @param jsonNodes Nodes of the JSON up to the desired value as single params.
    * @return value behind a JSON node path.
    */
-  public String text(String... jsonNodes) throws IOException {
-    String jsonPath = "dungeon/assets/language/";
-    File file = new File(jsonPath + currentLanguage().toString() + ".json");
-    String text;
+  public static String text(String jsonNodes) throws IOException {
+    String jsonPath = "language/";
+    FileHandle fileHandler = Gdx.files.internal(jsonPath + currentLanguage().toString() + ".json");
+    String[] nodes = jsonNodes.split("\\.");
 
-    try {
-      String jsonString = readFileContent(file);
-      text = JsonHandler.getValueByPath(jsonString, jsonNodes);
-    } catch (IOException exception) {
-      throw new IOException("Failed to read File", exception);
-    }
+    String jsonString = fileHandler.readString(StandardCharsets.UTF_8.name());
+    ;
+    String text = JsonHandler.getValueByPath(jsonString, nodes);
 
     if (text != null) {
       return text;
@@ -77,17 +58,14 @@ public class Localization {
   }
 
   /* In the case that there is no value for the selected language. */
-  private String fallbackText(String... pathParams) throws IOException {
-    String jsonPath = "dungeon/assets/language/";
-    File file = new File(jsonPath + FALLBACK_LANGUAGE.toString() + ".json");
-    String text;
+  private static String fallbackText(String jsonNodes) throws IOException {
+    String jsonPath = "language/";
+    FileHandle fileHandler = Gdx.files.internal(jsonPath + FALLBACK_LANGUAGE.toString() + ".json");
+    String[] nodes = jsonNodes.split("\\.");
 
-    try {
-      String jsonString = readFileContent(file);
-      text = JsonHandler.getValueByPath(jsonString, pathParams);
-    } catch (IOException exception) {
-      throw new IOException("Failed to read File", exception);
-    }
+    String jsonString = fileHandler.readString(StandardCharsets.UTF_8.name());
+    ;
+    String text = JsonHandler.getValueByPath(jsonString, nodes);
 
     if (text != null) {
       return text;
@@ -102,7 +80,7 @@ public class Localization {
    * @param basePath Path of the base such as 'assets/images/open-book.png'.
    * @return FileHandler for the current asset.
    */
-  public String asset(String basePath) {
+  public static String asset(String basePath) {
     FileHandle handler = Gdx.files.internal(addSuffix(basePath, false));
 
     if (handler.exists()) {
@@ -112,7 +90,7 @@ public class Localization {
     }
   }
 
-  private String addSuffix(String filePath, boolean fallback) {
+  private static String addSuffix(String filePath, boolean fallback) {
     int index = filePath.lastIndexOf(".");
     String name = filePath.substring(0, index);
     String fileFormat = filePath.substring(index);
@@ -121,14 +99,6 @@ public class Localization {
       return name + "_" + FALLBACK_LANGUAGE.toString() + fileFormat;
     } else {
       return name + "_" + currentLanguage().toString() + fileFormat;
-    }
-  }
-
-  private String readFileContent(File file) throws IOException {
-    try (InputStream fileInputStream = new FileInputStream(file); ) {
-      return new String(fileInputStream.readAllBytes(), StandardCharsets.UTF_8);
-    } catch (IOException exception) {
-      throw new IOException("Failed to read File", exception);
     }
   }
 }

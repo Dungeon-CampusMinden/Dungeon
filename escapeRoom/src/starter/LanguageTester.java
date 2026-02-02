@@ -2,6 +2,7 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import contrib.entities.CharacterClass;
 import contrib.entities.EntityFactory;
 import contrib.hud.DialogUtils;
@@ -13,6 +14,7 @@ import core.language.Localization;
 import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
 import core.utils.Tuple;
+import core.utils.components.draw.TextureGenerator;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 
@@ -23,6 +25,8 @@ import java.io.IOException;
  * and German.
  */
 public class LanguageTester {
+  private static final String TEST_PATH_DE = "images/open-book_de.png";
+  private static final String TEST_PATH_EN = "images/open-book_en.png";
 
   /**
    * Main method to start the game.
@@ -36,7 +40,12 @@ public class LanguageTester {
       addLanguageSystem();
       Game.disableAudio(true);
       Game.frameRate(30);
-      Game.userOnSetup(() -> Game.add(EntityFactory.newHero(CharacterClass.HUNTER)));
+      Game.userOnSetup(
+          () -> {
+            TextureGenerator.registerGenerateColorTexture(TEST_PATH_DE, 100, 100, Color.RED);
+            TextureGenerator.registerGenerateColorTexture(TEST_PATH_EN, 100, 100, Color.GREEN);
+            Game.add(EntityFactory.newHero(CharacterClass.HUNTER));
+          });
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -55,8 +64,7 @@ public class LanguageTester {
             if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
               try {
                 DialogUtils.showTextPopup(
-                    Localization.getInstance().text("text", "test", "message"),
-                    Localization.getInstance().text("text", "test", "title"));
+                    Localization.text("text.test.message"), Localization.text("text.test.title"));
               } catch (IOException e) {
                 throw new RuntimeException(e);
               }
@@ -72,7 +80,7 @@ public class LanguageTester {
             }
             // Shows an image in the current language.
             if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
-              String path = Localization.getInstance().asset("dungeon/assets/images/open-book.png");
+              String path = Localization.asset("images/open-book.png");
               DialogUtils.showImagePopUp(path);
             }
           }
