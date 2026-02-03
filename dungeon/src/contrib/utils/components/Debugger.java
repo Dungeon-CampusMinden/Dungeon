@@ -9,6 +9,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
+import contrib.hud.dialogs.PauseDialog;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
@@ -200,10 +201,7 @@ public class Debugger extends System {
   }
 
   private static void pause() {
-    UIComponent ui =
-        DialogFactory.show(
-            DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).center(false).build());
-    ui.dialog().setVisible(true);
+    UIComponent ui = PauseDialog.showPauseDialog();
     pauseMenu = ui.dialogContext().ownerEntity();
   }
 
