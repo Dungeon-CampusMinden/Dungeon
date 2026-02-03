@@ -1,6 +1,5 @@
 package contrib.utils.systems.levelEditor;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import contrib.systems.LevelEditorSystem;
 import contrib.systems.PositionSync;
@@ -9,6 +8,7 @@ import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;
+import core.utils.InputManager;
 import core.utils.Point;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -28,15 +28,15 @@ public class ShiftLevelMode extends LevelEditorMode {
 
   @Override
   public void execute() {
-    if (Gdx.input.isKeyJustPressed(PRIMARY_UP)) {
+    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
       shiftLevel(0, 1);
-    } else if (Gdx.input.isKeyJustPressed(PRIMARY_DOWN)) {
+    } else if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
       shiftLevel(0, -1);
     }
 
-    if (Gdx.input.isKeyJustPressed(SECONDARY_UP)) {
+    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
       shiftLevel(1, 0);
-    } else if (Gdx.input.isKeyJustPressed(SECONDARY_DOWN)) {
+    } else if (InputManager.isKeyJustPressed(SECONDARY_DOWN)) {
       shiftLevel(-1, 0);
     }
   }
