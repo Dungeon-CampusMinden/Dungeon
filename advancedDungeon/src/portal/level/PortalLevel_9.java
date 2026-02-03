@@ -19,9 +19,7 @@ import portal.physicsobject.PressurePlates;
 import portal.util.AdvancedLevel;
 import portal.util.ToggleableComponent;
 
-/**
- * Portal level just for playing without any riddles.
- */
+/** Portal level just for playing without any riddles. */
 public class PortalLevel_9 extends AdvancedLevel {
   private Entity lightBridge,
       lightBridge2,
