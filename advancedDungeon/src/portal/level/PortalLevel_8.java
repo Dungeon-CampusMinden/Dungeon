@@ -3,7 +3,6 @@ package portal.level;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.systems.EventScheduler;
-import contrib.utils.ICommand;
 import core.Entity;
 import core.Game;
 import core.level.elements.tile.DoorTile;
@@ -12,19 +11,28 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
+import java.util.Map;
 import portal.lightBridge.LightBridgeFactory;
+import portal.physicsobject.Cube;
 import portal.physicsobject.PressurePlates;
 import portal.tractorBeam.TractorBeamComponent;
 import portal.tractorBeam.TractorBeamFactory;
 import portal.util.AdvancedLevel;
-import portal.physicsobject.Cube;
-
-import java.util.Map;
 
 public class PortalLevel_8 extends AdvancedLevel {
   private LeverComponent plate, plate2, plate3, plate4, plate5;
   private ExitTile door;
-  private Entity pressurePlate, lever, lightBridge, lightBridge2, pressurePlate2, pressurePlate3, pressurePlate4, pressurePlate5, tractorBeam, lightBridge3, lightBridge4  ;
+  private Entity pressurePlate,
+      lever,
+      lightBridge,
+      lightBridge2,
+      pressurePlate2,
+      pressurePlate3,
+      pressurePlate4,
+      pressurePlate5,
+      tractorBeam,
+      lightBridge3,
+      lightBridge4;
   private EventScheduler.ScheduledAction myTask, tractorBeamTask1, tractorBeamTask2;
   private boolean isLightBridgeOn = false;
   private DoorTile door1, door2;
@@ -38,36 +46,41 @@ public class PortalLevel_8 extends AdvancedLevel {
    * @param namedPoints The custom points of the level.
    */
   public PortalLevel_8(
-    LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
+      LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, "Portal Level 8");
   }
 
   @Override
   protected void onFirstTick() {
 
-    lightBridge = LightBridgeFactory.createEmitter(namedPoints.get("lightBridge"), Direction.UP, false);
-    lightBridge2 = LightBridgeFactory.createEmitter(namedPoints.get("lightBridge2"), Direction.UP, false);
-    lightBridge3 = LightBridgeFactory.createEmitter(namedPoints.get("lightBridge3"), Direction.UP, false);
-    lightBridge4 = LightBridgeFactory.createEmitter(namedPoints.get("lightBridge4"), Direction.RIGHT, false);
-//
+    lightBridge =
+        LightBridgeFactory.createEmitter(namedPoints.get("lightBridge"), Direction.UP, false);
+    lightBridge2 =
+        LightBridgeFactory.createEmitter(namedPoints.get("lightBridge2"), Direction.UP, false);
+    lightBridge3 =
+        LightBridgeFactory.createEmitter(namedPoints.get("lightBridge3"), Direction.UP, false);
+    lightBridge4 =
+        LightBridgeFactory.createEmitter(namedPoints.get("lightBridge4"), Direction.RIGHT, false);
+    //
     Game.add(lightBridge);
     Game.add(lightBridge2);
     Game.add(lightBridge3);
     Game.add(lightBridge4);
-//
-//
+    //
+    //
     pressurePlate = PressurePlates.cubePressurePlate(namedPoints.get("pressurePlate"), 1);
     Game.add(pressurePlate);
     plate = pressurePlate.fetch(LeverComponent.class).orElse(null);
-//
-//
+    //
+    //
     Entity cube = Cube.portalCube(namedPoints.get("cube1"));
     Game.add(cube);
 
     Entity cube2 = Cube.portalCube(namedPoints.get("cube2"));
     Game.add(cube2);
 
-    tractorBeam = TractorBeamFactory.createTractorBeam(namedPoints.get("traktorBeam"), Direction.LEFT);
+    tractorBeam =
+        TractorBeamFactory.createTractorBeam(namedPoints.get("traktorBeam"), Direction.LEFT);
 
     tractorBeam.fetch(TractorBeamComponent.class).get().deactivate();
 
@@ -87,10 +100,7 @@ public class PortalLevel_8 extends AdvancedLevel {
     Game.add(pressurePlate5);
     plate5 = pressurePlate5.fetch(LeverComponent.class).orElse(null);
 
-
-    lever =
-      LeverFactory.createLever(
-        namedPoints.get("lever"));
+    lever = LeverFactory.createLever(namedPoints.get("lever"));
 
     Game.add(lever);
 
@@ -102,7 +112,6 @@ public class PortalLevel_8 extends AdvancedLevel {
 
     ExitTile door = (ExitTile) Game.randomTile(LevelElement.EXIT).orElseThrow();
     door.open();
-
   }
 
   @Override
@@ -116,7 +125,6 @@ public class PortalLevel_8 extends AdvancedLevel {
       door2.close();
     }
 
-
     if (plate4.isOn() && plate5.isOn()) {
       LightBridgeFactory.activate(lightBridge4);
       door1.open();
@@ -125,7 +133,6 @@ public class PortalLevel_8 extends AdvancedLevel {
       LightBridgeFactory.deactivate(lightBridge4);
       door1.close();
     }
-
   }
 
   private boolean isLeverOn(Entity entity) {
@@ -146,16 +153,20 @@ public class PortalLevel_8 extends AdvancedLevel {
       }
 
       if (getTractorBeamComponent(tractorBeam).isReversed()) {
-        TractorBeamFactory.reverseTractorBeam(tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+        TractorBeamFactory.reverseTractorBeam(
+            tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
       }
 
     } else {
-      if (tractorBeamTask1 == null && getTractorBeamComponent(tractorBeam).isActive() && !getTractorBeamComponent(tractorBeam).isReversed()) {
-        tractorBeamTask1 = EventScheduler.scheduleAction(
-          () -> {
-            getTractorBeamComponent(tractorBeam).deactivate();
-          },
-          3000);
+      if (tractorBeamTask1 == null
+          && getTractorBeamComponent(tractorBeam).isActive()
+          && !getTractorBeamComponent(tractorBeam).isReversed()) {
+        tractorBeamTask1 =
+            EventScheduler.scheduleAction(
+                () -> {
+                  getTractorBeamComponent(tractorBeam).deactivate();
+                },
+                3000);
       }
     }
 
@@ -168,24 +179,26 @@ public class PortalLevel_8 extends AdvancedLevel {
       }
 
       if (!getTractorBeamComponent(tractorBeam).isReversed()) {
-        TractorBeamFactory.reverseTractorBeam(tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
+        TractorBeamFactory.reverseTractorBeam(
+            tractorBeam.fetch(TractorBeamComponent.class).get().getTractorBeamEntities());
       }
 
     } else {
-      if (tractorBeamTask2 == null && getTractorBeamComponent(tractorBeam).isActive() && getTractorBeamComponent(tractorBeam).isReversed()) {
-        tractorBeamTask2 = EventScheduler.scheduleAction(
-          () -> {
-            getTractorBeamComponent(tractorBeam).deactivate();
-          },
-          3000
-        );
+      if (tractorBeamTask2 == null
+          && getTractorBeamComponent(tractorBeam).isActive()
+          && getTractorBeamComponent(tractorBeam).isReversed()) {
+        tractorBeamTask2 =
+            EventScheduler.scheduleAction(
+                () -> {
+                  getTractorBeamComponent(tractorBeam).deactivate();
+                },
+                3000);
       }
     }
-
   }
 
   private void checkLightBridge() {
-    if (plate.isOn() ) {
+    if (plate.isOn()) {
 
       if (myTask != null) {
         EventScheduler.cancelAction(myTask);
@@ -199,21 +212,17 @@ public class PortalLevel_8 extends AdvancedLevel {
 
     } else {
       if (myTask == null && isLightBridgeOn) {
-        myTask = EventScheduler.scheduleAction(
-          () -> {
-            LightBridgeFactory.deactivate(lightBridge);
-            LightBridgeFactory.deactivate(lightBridge2);
-            LightBridgeFactory.deactivate(lightBridge3);
-            isLightBridgeOn = false;
-            myTask = null;
-          },
-          800);
+        myTask =
+            EventScheduler.scheduleAction(
+                () -> {
+                  LightBridgeFactory.deactivate(lightBridge);
+                  LightBridgeFactory.deactivate(lightBridge2);
+                  LightBridgeFactory.deactivate(lightBridge3);
+                  isLightBridgeOn = false;
+                  myTask = null;
+                },
+                800);
       }
     }
   }
-
 }
-
-
-
-
