@@ -18,7 +18,9 @@ import portal.physicsobject.PressurePlates;
 import portal.tractorBeam.TractorBeamComponent;
 import portal.tractorBeam.TractorBeamFactory;
 import portal.util.AdvancedLevel;
-
+/**
+ * Portal level just for playing without any riddles.
+ */
 public class PortalLevel_8 extends AdvancedLevel {
   private LeverComponent plate, plate2, plate3, plate4, plate5;
   private ExitTile door;

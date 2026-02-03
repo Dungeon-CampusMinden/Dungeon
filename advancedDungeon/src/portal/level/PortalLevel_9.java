@@ -20,8 +20,7 @@ import portal.util.AdvancedLevel;
 import portal.util.ToggleableComponent;
 
 /**
- * Portal level one. In this level the player has to implement basic controls to reach the exit on
- * the other side of the level.
+ * Portal level just for playing without any riddles.
  */
 public class PortalLevel_9 extends AdvancedLevel {
   private Entity lightBridge,
