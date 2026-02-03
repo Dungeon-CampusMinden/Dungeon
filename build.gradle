@@ -26,6 +26,7 @@ licenseReport {
 
 subprojects {
     tasks.withType(Jar).configureEach {
+        dependsOn ':generateLicenseReport'
         from(rootProject.fileTree("${rootProject.buildDir}/reports/dependency-license") {
             include 'licenses.txt'
         }) {
@@ -38,6 +39,7 @@ subprojects {
         }
     }
 }
+
 allprojects {
     apply plugin: 'java'
     apply plugin: 'checkstyle'
