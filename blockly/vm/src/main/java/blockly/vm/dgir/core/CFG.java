@@ -79,7 +79,7 @@ public class CFG {
         default -> "UNKNOWN";
       };
       // Add the context if it is not the default context
-      return context == Context.DEFAULT ? base : base + " (" + context + ")";
+      return context == Context.DEFAULT ? base : base + "\n(" + context + ")";
     }
   }
 
@@ -154,7 +154,7 @@ public class CFG {
      */
     private String toString(Operation operation) {
       return operation.getDetails().getIdent() +
-        " (" +
+        "\n(" +
         "Operands: " + operation.getOperands().size() + ", " +
         "Output: " + (operation.getOutput() != null ? operation.getOutput().getType().getParameterizedIdent() : "void") + ", " +
         "Regions: " + operation.getRegions().size() +
@@ -162,8 +162,8 @@ public class CFG {
     }
 
     public String toString(Block block) {
-      return "Block " +
-        " (" +
+      return "Block\n" +
+        "(" +
         "Operations: " + block.getOperations().size() +
         ")";
     }
@@ -172,7 +172,7 @@ public class CFG {
     public String toString() {
       if (isBlock()) {
         assert block != null;
-        return "Block: \n" + toString(block);
+        return toString(block);
       } else {
         assert operation != null;
         return "Operation: " + toString(operation);
