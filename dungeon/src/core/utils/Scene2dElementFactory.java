@@ -11,8 +11,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import contrib.hud.UIUtils;
+import contrib.hud.elements.CustomSelectBox;
 import core.utils.logging.DungeonLogger;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Scene2dElementFactory {
 
@@ -20,6 +22,8 @@ public class Scene2dElementFactory {
   private static final Skin DEFAULT_SKIN = UIUtils.defaultSkin();
   public static String FONT_PATH = "fonts/Lexend-Regular.ttf";
   public static String FONT_PATH_BOLD = "fonts/Lexend-Bold.ttf";
+  public static final FontSpec FONT_SPEC = FontSpec.of(FONT_PATH, 24, Color.WHITE);
+  public static final FontSpec FONT_SPEC_BOLD = FontSpec.of(FONT_PATH_BOLD, 24, Color.WHITE);
 
   public static Label createLabel(String text, FontSpec fontSpec) {
     Label.LabelStyle style = new Label.LabelStyle();
@@ -136,5 +140,24 @@ public class Scene2dElementFactory {
         () -> {
           scrollPane.setSmoothScrolling(true);
         });
+  }
+
+  public static <T> SelectBox<T> createSelectBox(Function<T, String> valueFormatter, boolean small) {
+    FontSpec spec = Scene2dElementFactory.FONT_SPEC;
+    if(!small){
+      spec = spec.withSize(32);
+    }
+    BitmapFont font = FontHelper.getFont(spec);
+    CustomSelectBox<T> selectBox = new CustomSelectBox<>(UIUtils.defaultSkin(), small ? "small" : "default");
+    selectBox.getStyle().font = font;
+    selectBox.getList().getStyle().font = font;
+    selectBox.setValueFormatter(valueFormatter);
+    return selectBox;
+  }
+  public static <T> SelectBox<T> createSelectBox(Function<T, String> valueFormatter) {
+    return createSelectBox(valueFormatter, true);
+  }
+  public static <T> SelectBox<T> createSelectBox() {
+    return createSelectBox(null);
   }
 }
