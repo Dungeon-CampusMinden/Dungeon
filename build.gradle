@@ -1,3 +1,5 @@
+import com.github.jk1.license.render.*
+
 buildscript {
     apply from: 'dependencies.gradle'
 }
@@ -7,7 +9,35 @@ plugins {
     id 'com.diffplug.spotless' version "${spotlessVersion}"
 }
 
+plugins {
+    id 'com.github.jk1.dependency-license-report' version "${jk1licenseVersion}"
+}
 
+licenseReport {
+    projects = [project] + project.subprojects
+    configurations = ['runtimeClasspath', 'compileClasspath']
+
+    renderers = [
+        new com.github.jk1.license.render.TextReportRenderer('licenses.txt')
+    ]
+
+    excludeGroups = ['org.junit', 'org.mockito', 'org.junit.platform']
+}
+
+subprojects {
+    tasks.withType(Jar).configureEach {
+        from(rootProject.fileTree("${rootProject.buildDir}/reports/dependency-license") {
+            include 'licenses.txt'
+        }) {
+            rename { 'THIRD-PARTY-LICENSES.txt' }
+            into 'META-INF'
+        }
+
+        from("${rootProject.projectDir}/LICENSE") {
+            into 'META-INF'
+        }
+    }
+}
 allprojects {
     apply plugin: 'java'
     apply plugin: 'checkstyle'
