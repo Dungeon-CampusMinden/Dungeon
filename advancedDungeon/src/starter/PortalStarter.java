@@ -51,7 +51,7 @@ public class PortalStarter {
    *
    * <p>Also disables recompilation for player control.
    */
-  public static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = true;
 
   private static final boolean LEVELEDITOR_MODE = false;
 
@@ -209,7 +209,9 @@ public class PortalStarter {
           DungeonLoader.addLevel(Tuple.of("lightbridge1", LightBridgeLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("lightwall1", LightWallLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("tractorbeam1", TractorBeamLevel_1.class));
-          DungeonLoader.addLevel(Tuple.of("Level9", PortalLevel_9.class));
+          DungeonLoader.addLevel(Tuple.of("portallevel8", PortalLevel_8.class));
+          DungeonLoader.addLevel(Tuple.of("portallevel9", PortalLevel_9.class));
+
           createSystems();
           createHero();
 
