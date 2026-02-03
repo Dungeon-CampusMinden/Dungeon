@@ -24,7 +24,7 @@ import java.util.Map;
 public class PortalLevel_8 extends AdvancedLevel {
   private LeverComponent plate, plate2, plate3, plate4, plate5;
   private ExitTile door;
-  private Entity pressurePlate, lever, lever2,  lightBridge, lightBridge2, pressurePlate2, pressurePlate3, pressurePlate4, pressurePlate5, tractorBeam, lightBridge3, lightBridge4  ;
+  private Entity pressurePlate, lever, lightBridge, lightBridge2, pressurePlate2, pressurePlate3, pressurePlate4, pressurePlate5, tractorBeam, lightBridge3, lightBridge4  ;
   private EventScheduler.ScheduledAction myTask, tractorBeamTask1, tractorBeamTask2;
   private boolean isLightBridgeOn = false;
   private DoorTile door1, door2;
@@ -100,14 +100,6 @@ public class PortalLevel_8 extends AdvancedLevel {
     door2 = (DoorTile) tileAt(namedPoints.get("door2")).orElse(null);
     door2.close();
 
-
-    lever2 =
-      LeverFactory.createLever(
-        namedPoints.get("lever2"));
-
-    Game.add(lever2);
-
-
     ExitTile door = (ExitTile) Game.randomTile(LevelElement.EXIT).orElseThrow();
     door.open();
 
@@ -124,9 +116,6 @@ public class PortalLevel_8 extends AdvancedLevel {
       door2.close();
     }
 
-    if (isLeverOn(lever2)) {
-      LightBridgeFactory.activate(lightBridge2);
-    }
 
     if (plate4.isOn() && plate5.isOn()) {
       LightBridgeFactory.activate(lightBridge4);
