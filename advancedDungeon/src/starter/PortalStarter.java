@@ -41,7 +41,6 @@ import portal.portals.abstraction.PortalConfig;
  */
 public class PortalStarter {
 
-
   /**
    * Activate this to enable Debug mode.
    *
@@ -54,8 +53,6 @@ public class PortalStarter {
   public static final boolean DEBUG_MODE = true;
 
   private static final boolean LEVELEDITOR_MODE = false;
-
-
 
   private static final String SAVE_LEVEL_KEY = "LEVEL";
   private static final String SAVE_FILE = "currentPortalLevel.json";
