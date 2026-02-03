@@ -26,6 +26,12 @@ com.badlogic.gdx.graphics.Color: {
 		b: 0.023529412
 		a: 1
 	}
+	blue_matte: {
+		r: 0.09019608
+		g: 0.09019608
+		b: 0.7490196
+		a: 1
+	}
 	experience_green: {
 		r: 0.16078432
 		g: 1
@@ -194,9 +200,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
 	default: {
-		checkboxOn: checkbox-on
-		checkboxOff: checkbox
-		font: myFont
+		checkboxOn: check_square_grey_checkmark
+		checkboxOff: check_square_grey
+		font: roboto-semibold-32
+		fontColor: black
 	}
 	radio: {
 		checkboxOn: radio-on
@@ -245,11 +252,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 	default: {
-		font: myFont
-		fontColorSelected: green
-		fontColorUnselected: orange
-		selection: mySelection
-		background: white
+		font: roboto-semibold-32
+		fontColorSelected: blue_matte
+		fontColorUnselected: black
+		selection: list
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
@@ -289,8 +295,18 @@ com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
 	default: {
-		font: myFont
+		font: roboto-semibold-32
 		fontColor: black
+		overFontColor: blue_matte
+		background: select_box
+		scrollStyle: default
+		listStyle: default
+	}
+	small: {
+		font: roboto-semibold-32
+		fontColor: black
+		overFontColor: blue_matte
+		background: select_box_32pt
 		scrollStyle: default
 		listStyle: default
 	}
@@ -303,6 +319,12 @@ com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle: {
 	default-vertical: {
 		background: slider-vertical
 		knob: slider-knob
+	}
+	clean-horizontal: {
+		knobOver: icon_circle
+		knobDown: icon_circle
+		background: slide_horizontal_grey
+		knob: icon_outline_circle
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle: {
@@ -372,8 +394,8 @@ com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
 	default: {
-		label: default
-		background: round-white
+		label: blank-black
+		background: window_background_big
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Touchpad$TouchpadStyle: {
