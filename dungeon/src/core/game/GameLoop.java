@@ -41,6 +41,7 @@ import core.sound.player.NoSoundPlayer;
 import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
+import core.utils.InputManager;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
@@ -228,6 +229,7 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.executeOneTick(
         isMultiplayerClient ? System.AuthoritativeSide.CLIENT : System.AuthoritativeSide.BOTH);
 
+    InputManager.update();
     CameraSystem.camera().update();
     // stage logic
     stage().ifPresent(GameLoop::updateStage);
@@ -304,6 +306,7 @@ public final class GameLoop extends ScreenAdapter {
 
     PreRunConfiguration.userOnSetup().execute();
     Game.network().start();
+    InputManager.init();
 
     Crafting.loadRecipes();
 
