@@ -27,6 +27,8 @@ licenseReport {
 subprojects {
     tasks.withType(Jar).configureEach {
         dependsOn ':generateLicenseReport'
+
+        // Third-party license report
         from(rootProject.fileTree("${rootProject.buildDir}/reports/dependency-license") {
             include 'licenses.txt'
         }) {
@@ -34,9 +36,12 @@ subprojects {
             into 'META-INF'
         }
 
-        from("${rootProject.projectDir}/LICENSE") {
-            into 'META-INF'
+        // All root LICENSE files
+        from(rootProject.projectDir) {
+            include("LICENSE*.md")
+            into("META-INF")
         }
+
     }
 }
 
