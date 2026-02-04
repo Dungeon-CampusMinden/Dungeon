@@ -15,6 +15,8 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import core.Game;
+import core.utils.components.draw.TextureMap;
+import core.utils.components.path.SimpleIPath;
 
 /** UI element that displays an image with optional text, used through the ShowImageSystem. */
 public class ShowImageUI extends Group {
@@ -47,7 +49,7 @@ public class ShowImageUI extends Group {
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
     currentImagePath = component.imagePath();
-    background = new Image(new Texture(Gdx.files.internal(currentImagePath)));
+    background = new Image(TextureMap.instance().textureAt(new SimpleIPath(currentImagePath)));
     background.setOrigin(Align.center);
     this.addActor(background);
 
