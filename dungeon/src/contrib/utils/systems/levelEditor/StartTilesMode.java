@@ -1,6 +1,5 @@
 package contrib.utils.systems.levelEditor;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -13,6 +12,7 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
 import core.utils.FontHelper;
+import core.utils.InputManager;
 import core.utils.Point;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -47,9 +47,9 @@ public class StartTilesMode extends LevelEditorMode {
     // Primary Up/Down to change selected start tile index. The index can be between 0 and the lists
     // size. if its equal to the lists size, it adds a new point to the list.
     int maxIndex = getLevel().startTiles().size();
-    if (Gdx.input.isKeyJustPressed(PRIMARY_UP)) {
+    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
       currentStartTileIndex = (currentStartTileIndex + 1) % (maxIndex + 1);
-    } else if (Gdx.input.isKeyJustPressed(PRIMARY_DOWN)) {
+    } else if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
       currentStartTileIndex = Math.floorMod(currentStartTileIndex - 1, maxIndex + 1);
     }
 
@@ -57,9 +57,9 @@ public class StartTilesMode extends LevelEditorMode {
     // - LMB: set the selected start tile to the cursor position. if the index is equal to the list
     // size, add a new start tile at the cursor position.
     // - RMB: remove the start tile at the cursor position, if it exists.
-    if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+    if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
       setStartTile();
-    } else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+    } else if (InputManager.isButtonJustPressed(Input.Buttons.RIGHT)) {
       removeStartTile();
     }
   }

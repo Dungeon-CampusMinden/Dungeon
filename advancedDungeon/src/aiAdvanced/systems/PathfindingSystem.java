@@ -4,11 +4,11 @@ import aiAdvanced.pathfinding.PathfindingLogic;
 import aiAdvanced.pathfinding.PathfindingVisualizer;
 import aiAdvanced.pathfinding.TileState;
 import aiAdvanced.starter.KeyboardConfig;
-import com.badlogic.gdx.Gdx;
 import contrib.components.PathComponent;
 import core.Entity;
 import core.System;
 import core.level.utils.Coordinate;
+import core.utils.InputManager;
 import core.utils.Tuple;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,7 +104,7 @@ public class PathfindingSystem extends System {
    * @return true if the key is just pressed, false otherwise
    */
   private boolean isStartMovingKeyPressed() {
-    return Gdx.input.isKeyJustPressed(KeyboardConfig.START_MOVING_PATHFINDING.value());
+    return InputManager.isKeyJustPressed(KeyboardConfig.START_MOVING_PATHFINDING.value());
   }
 
   /**
@@ -113,7 +113,7 @@ public class PathfindingSystem extends System {
    * @return true if the key is just pressed, false otherwise
    */
   private boolean isStepPathfindingKeyPressed() {
-    return Gdx.input.isKeyJustPressed(KeyboardConfig.STEP_PATHFINDING.value());
+    return InputManager.isKeyJustPressed(KeyboardConfig.STEP_PATHFINDING.value());
   }
 
   /**

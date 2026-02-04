@@ -1,9 +1,9 @@
 package contrib.utils.systems.levelEditor;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import contrib.systems.LevelEditorSystem;
 import core.level.loader.DungeonSaver;
+import core.utils.InputManager;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -17,7 +17,7 @@ public class SaveMode extends LevelEditorMode {
 
   @Override
   public void execute() {
-    if (Gdx.input.isKeyJustPressed(PRIMARY_UP)) {
+    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
       DungeonSaver.saveCurrentDungeon();
       LevelEditorSystem.showFeedback("Exported level to clipboard!", Color.GREEN);
     }
