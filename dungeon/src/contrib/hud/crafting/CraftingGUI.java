@@ -28,11 +28,14 @@ import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
+import core.components.PositionComponent;
+import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -147,6 +150,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private final Button buttonOk, buttonCancel;
   private final InventoryComponent targetInventory;
   private Recipe currentRecipe = null;
+  private DialogContext ctx;
 
   /**
    * Create a CraftingGUI that has the given InventoryComponent as target inventory for successfully
@@ -155,9 +159,14 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
    * @param sourceInventory The source inventory where items to be crafted are stored.
    * @param targetInventory The target inventory.
    * @param dialogId The dialog ID for network callbacks.
+   * @param ctx The dialog context object.
    */
   CraftingGUI(
-      InventoryComponent sourceInventory, InventoryComponent targetInventory, String dialogId) {
+      InventoryComponent sourceInventory,
+      InventoryComponent targetInventory,
+      DialogContext ctx,
+      String dialogId) {
+    this.ctx = ctx;
     var oldCallback = sourceInventory.onItemAdded();
     sourceInventory.onItemAdded(
         item -> {
@@ -240,7 +249,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
       throw new DialogCreationException("Missing InventoryComponent for CraftingGuiDialog");
     }
     InventoryGUI inventoryGUI = new InventoryGUI(heroInventory);
-    CraftingGUI craftingGUI = new CraftingGUI(craftInventory, heroInventory, ctx.dialogId());
+    CraftingGUI craftingGUI = new CraftingGUI(craftInventory, heroInventory, ctx, ctx.dialogId());
 
     CraftingGUI.registerCallbacks(
         entity
@@ -432,12 +441,28 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private void craft() {
     if (this.currentRecipe == null) return;
     CraftingResult[] results = this.currentRecipe.results();
+
     Arrays.stream(results)
         .filter(result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
         .forEach(
             result -> {
-              Item item = (Item) result;
-              this.targetInventory.add(item);
+              try {
+                Item item;
+                item = (Item) result.getClass().getDeclaredConstructor().newInstance();
+                // check if there is enough space in the inventory
+                boolean res = this.targetInventory.add(item);
+                // otherwise drop the items on the ground
+                if (!res) {
+                  // get the position of the hero
+                  Entity entity = this.ctx.requireEntity(DialogContextKeys.ENTITY);
+                  PositionComponent pc = entity.fetch(PositionComponent.class).orElse(null);
+                  Point position = pc.position();
+                  boolean success = item.drop(position).isPresent();
+                }
+              } catch (Exception e) {
+                LOGGER.error("Failed to instantiate crafting result item: {}", e.getMessage());
+                return;
+              }
             });
     this.inventory.clear();
     this.updateRecipe();
