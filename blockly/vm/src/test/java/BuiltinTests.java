@@ -1,7 +1,4 @@
-package dialect.builtin;
-
 import blockly.vm.dgir.core.CFG;
-import blockly.vm.dgir.core.Operation;
 import blockly.vm.dgir.core.serialization.Utils;
 import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
@@ -20,10 +17,10 @@ import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BuiltinTests {
+  public static boolean printResult = false;
   @Test
   public void emptyProgramOp() {
     ObjectMapper mapper = Utils.getMapper(true, true);
@@ -31,10 +28,14 @@ public class BuiltinTests {
     ProgramOp op = new ProgramOp(true);
 
     String result = mapper.writeValueAsString(op);
-    System.out.println(result);
+    if (printResult)
+      System.out.println(result);
 
-    var restoredOp = mapper.readValue(result, ProgramOp.class);
-    assertEquals(mapper.writeValueAsString(op), mapper.writeValueAsString(restoredOp));
+    assertEquals("", TestUtils.compareSerializedOperations(
+      mapper,
+      op.get(),
+      mapper.readValue(result, ProgramOp.class).get()
+    ));
   }
 
   @Test
@@ -61,7 +62,9 @@ public class BuiltinTests {
     funcBlock.addOperation(new ReturnOp(List.of()));
 
     String result = mapper.writeValueAsString(op);
-    System.out.println(result);
+    if (printResult)
+      System.out.println(result);
+
 
     try {
       blockly.vm.dgir.core.Utils.Graphing.drawGraph(CFG.getCfg(null, op.getOperation()), "simpleProgramCfg.png", true);
@@ -70,13 +73,15 @@ public class BuiltinTests {
       throw new RuntimeException(e);
     }
 
-    var restoredOp = mapper.readValue(result, ProgramOp.class);
-    System.out.println(mapper.writeValueAsString(restoredOp));
-    assertEquals(mapper.writeValueAsString(op), mapper.writeValueAsString(restoredOp));
+    assertEquals("", TestUtils.compareSerializedOperations(
+      mapper,
+      op.get(),
+      mapper.readValue(result, ProgramOp.class).get()
+    ));
   }
 
   @Test
-  public void functionCall(){
+  public void functionCall() {
     ObjectMapper mapper = Utils.getMapper(true, true);
 
 
@@ -112,13 +117,8 @@ public class BuiltinTests {
     }
 
     String result = mapper.writeValueAsString(op);
-    System.out.println(result);
-
-    {
-      Operation rawOp = op.getOperation();
-      ProgramOp typedOp = rawOp.as(ProgramOp.class);
-      assertNotEquals(null, typedOp.getOperation());
-    }
+    if (printResult)
+      System.out.println(result);
 
     try {
       blockly.vm.dgir.core.Utils.Graphing.drawGraph(CFG.getCfg(null, op.getOperation()), "functionCallCfg.png", true);
@@ -126,5 +126,11 @@ public class BuiltinTests {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+
+    assertEquals("", TestUtils.compareSerializedOperations(
+      mapper,
+      op.getOperation(),
+      mapper.readValue(result, ProgramOp.class).getOperation()
+    ));
   }
 }
