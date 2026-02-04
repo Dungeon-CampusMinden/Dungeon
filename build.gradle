@@ -4,7 +4,6 @@ buildscript {
     apply from: 'dependencies.gradle'
 }
 
-
 plugins {
     id 'com.diffplug.spotless' version "${spotlessVersion}"
 }
@@ -16,11 +15,7 @@ plugins {
 licenseReport {
     projects = [project] + project.subprojects
     configurations = ['runtimeClasspath', 'compileClasspath']
-
-    renderers = [
-        new com.github.jk1.license.render.TextReportRenderer('licenses.txt')
-    ]
-
+    renderers = [new com.github.jk1.license.render.TextReportRenderer('licenses.txt')]
     excludeGroups = ['org.junit', 'org.mockito', 'org.junit.platform']
 }
 
@@ -41,7 +36,6 @@ subprojects {
             include("LICENSE*.md")
             into("META-INF")
         }
-
     }
 }
 
