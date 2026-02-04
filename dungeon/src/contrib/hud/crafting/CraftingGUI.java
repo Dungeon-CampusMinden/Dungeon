@@ -159,6 +159,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
    * @param sourceInventory The source inventory where items to be crafted are stored.
    * @param targetInventory The target inventory.
    * @param dialogId The dialog ID for network callbacks.
+   * @param ctx The dialog context object.
    */
   CraftingGUI(
       InventoryComponent sourceInventory,
