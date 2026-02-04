@@ -2,7 +2,6 @@ package contrib.hud.dialogs;
 
 import core.Game;
 import core.network.messages.c2s.DialogResponseMessage;
-import core.network.messages.c2s.DialogResponseMessage.ResponseType;
 import core.network.server.DialogTracker;
 import core.utils.logging.DungeonLogger;
 import java.io.Serializable;
@@ -37,8 +36,7 @@ public final class DialogCallbackResolver {
   public static Consumer<Serializable> createButtonCallback(String dialogId, String callbackKey) {
     if (isNetworkClient()) {
       return (data) -> {
-        DialogResponseMessage msg =
-            new DialogResponseMessage(dialogId, ResponseType.CALLBACK, callbackKey, data);
+        DialogResponseMessage msg = new DialogResponseMessage(dialogId, callbackKey, data);
         Game.network().send((short) 0, msg, true);
       };
     } else {
@@ -53,21 +51,6 @@ public final class DialogCallbackResolver {
                           dialogId,
                           callbackKey));
     }
-  }
-
-  /**
-   * Sends a dialog closed message over the network.
-   *
-   * <p>This method notifies the server (or other clients in network mode) that a dialog has been
-   * closed. It creates and sends a {@link DialogResponseMessage} with {@link ResponseType#CLOSED}
-   * to indicate the dialog closure.
-   *
-   * @param dialogId the unique identifier of the dialog that was closed
-   */
-  public static void sendDialogClosed(String dialogId) {
-    DialogResponseMessage msg =
-        new DialogResponseMessage(dialogId, ResponseType.CLOSED, null, null);
-    Game.network().send((short) 0, msg, true);
   }
 
   /**

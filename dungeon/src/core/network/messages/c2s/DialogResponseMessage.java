@@ -18,22 +18,12 @@ import java.io.Serializable;
  * </ul>
  *
  * @param dialogId the unique identifier of the dialog being responded to
- * @param responseType the type of response (callback execution or dialog closed)
  * @param callbackKey the callback key to execute (e.g., "onConfirm", "craft"), null for CLOSED
  * @param data optional custom data for the callback, may be null
  * @see core.network.messages.s2c.DialogShowMessage
  * @see core.network.server.DialogTracker
  */
-public record DialogResponseMessage(
-    String dialogId, ResponseType responseType, String callbackKey, Serializable data)
+public record DialogResponseMessage(String dialogId, String callbackKey, Serializable data)
     implements NetworkMessage {
   @Serial private static final long serialVersionUID = 2L;
-
-  /** The type of user response to a dialog. */
-  public enum ResponseType {
-    /** User triggered a callback. {@code callbackKey} identifies which callback to execute. */
-    CALLBACK,
-    /** User closed the dialog without selecting an option. */
-    CLOSED
-  }
 }

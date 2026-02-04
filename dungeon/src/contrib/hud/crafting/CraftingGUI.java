@@ -193,7 +193,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   @Override
   protected void initDragAndDrop(DragAndDrop dragAndDrop) {
     dragAndDrop.addTarget(
-        new DragAndDrop.Target(this.actor()) {
+        new DragAndDrop.Target(this) {
           @Override
           public boolean drag(
               DragAndDrop.Source source,
@@ -235,7 +235,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     InventoryComponent heroInventory = entity.fetch(InventoryComponent.class).orElse(null);
     InventoryComponent craftInventory = craftEntity.fetch(InventoryComponent.class).orElse(null);
     if (craftInventory == null || heroInventory == null) {
-      Entity missingEntity = (craftInventory == null) ? entity : craftEntity;
+      Entity missingEntity = (craftInventory == null) ? craftEntity : entity;
       LOGGER.error("Entity {} has no InventoryComponent for CraftingGuiDialog", missingEntity);
       throw new DialogCreationException("Missing InventoryComponent for CraftingGuiDialog");
     }
@@ -264,11 +264,26 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     uiComponent.registerCallback(
         CALLBACK_CRAFT,
         data -> {
-          if (data instanceof Item[] items) {
-            craftingGUI.inventory.setItems(items);
-          } else {
+          if (!(data instanceof Item[] clientItems)) {
             LOGGER.warn("Invalid data for crafting callback: expected Item[], got {}", data);
+            return;
           }
+
+          // Get current server inventory state (don't trust client)
+          Item[] currentServerItems = craftingGUI.inventory.items();
+
+          // Validate: client items must exactly match server items
+          if (!Arrays.deepEquals(currentServerItems, clientItems)) {
+            LOGGER.warn("Craft request items don't match server inventory");
+            return;
+          }
+
+          // validate recipe
+          if (craftingGUI.currentRecipe == null) {
+            LOGGER.warn("Craft requested but no valid recipe found");
+            return;
+          }
+
           craftingGUI.craft();
           UIUtils.closeDialog(uiComponent);
         });
@@ -278,7 +293,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
           craftingGUI.cancel();
           UIUtils.closeDialog(uiComponent);
         });
-    uiComponent.onClose(ui -> craftingGUI.cancel());
+    uiComponent.registerCallback(DialogContextKeys.ON_CLOSE, data -> craftingGUI.cancel());
   }
 
   @Override
@@ -337,7 +352,11 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
       int startY = this.y() + Math.round(this.height() * INPUT_ITEMS_Y);
 
       for (int i = 0; i < this.inventory.count(); i++) {
-        Sprite sprite = this.inventory.get(i).orElseThrow().inventoryAnimation().update();
+        Sprite sprite =
+            this.inventory.get(i).map(item -> item.inventoryAnimation().update()).orElse(null);
+        if (sprite == null) {
+          continue;
+        }
         int textureX = startX + ITEM_GAP * (i + 1) + size * i;
         batch.draw(sprite, textureX, startY, size, size);
 
@@ -439,7 +458,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
               Item item = (Item) result;
               this.targetInventory.add(item);
             });
-    this.inventory.clear();
+    this.inventory.clear(); // TODO: only consume needed item; return remaining items
     this.updateRecipe();
   }
 

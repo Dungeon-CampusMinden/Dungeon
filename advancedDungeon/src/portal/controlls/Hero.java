@@ -5,9 +5,6 @@ import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.HeroController;
 import contrib.hud.DialogUtils;
-import contrib.hud.UIUtils;
-import contrib.hud.elements.GUICombination;
-import contrib.hud.inventory.InventoryGUI;
 import contrib.systems.EventScheduler;
 import contrib.utils.IAction;
 import contrib.utils.components.skill.Skill;
@@ -155,10 +152,7 @@ public record Hero(Entity hero) {
     hero.fetch(UIComponent.class)
         .ifPresentOrElse(
             uiComponent -> {
-              if (uiComponent.dialog() instanceof GUICombination
-                  && !InventoryGUI.inPlayerInventory(hero)) {
-                UIUtils.closeDialog(uiComponent);
-              }
+              if (HeroController.isInventoryOpen(hero)) HeroController.closeInventory(hero);
             },
             () -> {
               HeroController.interact(hero, point);

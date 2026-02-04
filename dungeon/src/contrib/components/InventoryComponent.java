@@ -70,12 +70,7 @@ public final class InventoryComponent implements Component {
 
     int firstEmpty = this.findNextAvailableSlot();
     if (firstEmpty == -1) return false;
-    LOGGER.debug(
-        "Item '{}' was added to the inventory of entity '{}'.",
-        item.getClass().getSimpleName(),
-        this.getClass().getSimpleName());
-    inventory[firstEmpty] = item;
-    return true;
+    return set(firstEmpty, item);
   }
 
   /**
@@ -93,8 +88,8 @@ public final class InventoryComponent implements Component {
       int spaceLeft = stack.maxStackSize() - stack.stackSize();
       if (spaceLeft > 0) {
         int toTransfer = Math.min(spaceLeft, item.stackSize());
-        stack.stackSize(stack.stackSize() + toTransfer);
-        item.stackSize(item.stackSize() - toTransfer);
+        stack.stackSize((byte) (stack.stackSize() + toTransfer));
+        item.stackSize((byte) (item.stackSize() - toTransfer));
       }
     }
 
@@ -153,8 +148,7 @@ public final class InventoryComponent implements Component {
    * @return True if the inventory contains the item, false otherwise.
    */
   public boolean hasItem(final Item item) {
-    return Arrays.stream(this.inventory)
-        .anyMatch(invItem -> invItem != null && invItem.equals(item));
+    return Arrays.stream(this.inventory).anyMatch(invItem -> invItem == item);
   }
 
   /**
@@ -291,14 +285,19 @@ public final class InventoryComponent implements Component {
    *
    * @param index Index of item to get.
    * @param item Item to set at index.
+   * @return true if the item was set, false if the index is out of bounds.
    */
-  public void set(int index, final Item item) {
+  public boolean set(int index, final Item item) {
     if (index >= this.inventory.length || index < 0) {
       LOGGER.warn("Tried to set item at invalid inventory index: {}", index);
-      return;
+      return false;
     }
+    if (this.inventory[index] == item) return true; // no change
     this.inventory[index % this.inventory.length] = item;
+    if (item == null) return true; // no callback for null items
+
     this.onItemAdded.accept(item);
+    return true;
   }
 
   /**
@@ -346,7 +345,7 @@ public final class InventoryComponent implements Component {
     for (int i = 0; i < inventory.length; i++) {
       if (inventory[i] != null && inventory[i].equals(itemToRemoveOne)) {
         Item it = inventory[i];
-        it.stackSize(it.stackSize() - 1);
+        it.stackSize((byte) (it.stackSize() - 1));
         if (it.stackSize() <= 0) inventory[i] = null;
         this.onItemRemoved.accept(it);
         return true;
@@ -379,7 +378,7 @@ public final class InventoryComponent implements Component {
         this.remove(item);
         iterator.remove(); // safe removal from Set
       } else {
-        item.stackSize(stack - amount);
+        item.stackSize((byte) (stack - amount));
         amount = 0;
       }
       this.onItemRemoved.accept(item);
@@ -468,28 +467,5 @@ public final class InventoryComponent implements Component {
    */
   public Consumer<Item> onItemRemoved() {
     return this.onItemRemoved;
-  }
-
-  /**
-   * Sets the items in the inventory to the provided array of items.
-   *
-   * <p>If the provided array has fewer items than the inventory size, the remaining slots will be
-   * set to null. If the array has more items than the inventory size, the excess items will be
-   * ignored.
-   *
-   * @param newItems An array of items to set in the inventory.
-   */
-  public void setItems(Item[] newItems) {
-    if (newItems.length > this.inventory.length) {
-      LOGGER.warn("Provided items array exceeds inventory size. Excess items will be ignored.");
-    }
-    for (int i = 0; i < this.inventory.length; i++) {
-      if (i < newItems.length) {
-        this.inventory[i] = newItems[i];
-      } else {
-        this.inventory[i] = null;
-      }
-      this.onItemAdded.accept(this.inventory[i]);
-    }
   }
 }
