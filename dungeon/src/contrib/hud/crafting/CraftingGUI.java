@@ -467,7 +467,6 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     this.updateRecipe();
   }
 
-
   /** Allows to reset the CraftingGUI moving all Items back to the Inventory they came from. */
   public void cancel() {
     this.inventory.transferAll(targetInventory);
