@@ -1,9 +1,12 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.serialization.TypeDeserializer;
 import blockly.vm.dgir.core.serialization.TypeSerializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(using = TypeSerializer.class)
+@JsonDeserialize(using = TypeDeserializer.class)
 public abstract class Type {
   private TypeDetails details;
 

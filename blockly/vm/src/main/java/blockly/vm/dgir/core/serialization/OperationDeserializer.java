@@ -1,7 +1,9 @@
 package blockly.vm.dgir.core.serialization;
 
 import blockly.vm.dgir.core.*;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.SimpleObjectIdResolver;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
@@ -26,6 +28,13 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
     // Get the ident field so that we can lookup the correct operation type.
     var operationDetails = RegisteredOperationDetails.lookup(node.get("ident").asString());
     assert operationDetails.isPresent() : "Operation " + node.get("ident").asString() + " must be a registered to deserialize.\n\tMake sure to load its dialect before deserializing.";
+
+    // Create the object ID generator for looking up Value references.
+    // The generator is scoped to Value.class to match the @JsonIdentityInfo on Value
+    ObjectIdGenerator<?> idGenerator = new ObjectIdGenerators.UUIDGenerator().forScope(Value.class);
+    // Create a simple resolver for object IDs
+    SimpleObjectIdResolver idResolver = new SimpleObjectIdResolver();
+
     /* Deserialize the operands from the node, these are serialized as a list of value references.
     e.g.
     "operands" : [ {
@@ -37,8 +46,11 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       operands = new ArrayList<>();
       for (JsonNode operandNode : node.get("operands")) {
         String valueId = operandNode.get("value").asString();
-        ReadableObjectId id = ctxt.findObjectId(valueId, new ObjectIdGenerators.UUIDGenerator(), null);
-        Value value = (Value) id.resolve();
+        // Convert the string UUID to the proper key type used by the generator
+        Object idKey = idGenerator.key(java.util.UUID.fromString(valueId));
+        // Find or create the object ID entry - this will handle forward/backward references
+        ReadableObjectId readableId = ctxt.findObjectId(idKey, idGenerator, idResolver);
+        Value value = (Value) readableId.resolve();
         operands.add(value);
       }
     }
@@ -92,7 +104,9 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
     // if the output was deserialized, get the Value object from the operation and register it.
     if (outputType != null && outputValueId != null) {
       Value outputValue = operation.getOutput();
-      ReadableObjectId id = ctxt.findObjectId(outputValueId, new ObjectIdGenerators.UUIDGenerator(), null);
+      // Convert the string UUID to the proper key type used by the generator
+      Object idKey = idGenerator.key(java.util.UUID.fromString(outputValueId));
+      ReadableObjectId id = ctxt.findObjectId(idKey, idGenerator, idResolver);
       id.bindItem(ctxt, outputValue);
     }
 

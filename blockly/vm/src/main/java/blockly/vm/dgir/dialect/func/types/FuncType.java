@@ -4,19 +4,20 @@ import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.dialect.func.Func;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class FuncType extends Type {
   public static final FuncType INSTANCE = new FuncType();
 
-  private List<Type> inputs;
-  private Type output;
+  private final List<Type> inputs;
+  private final Type output;
 
   @Override
   public TypeDetails.Impl createImpl() {
     class FuncTypeModel extends TypeDetails.Impl {
-      FuncTypeModel(String name, Class<? extends Type> type, Dialect dialect) {
-        super(name, type, dialect);
+      FuncTypeModel() {
+        super(FuncType.getIdent(), FuncType.class, Dialect.get(Func.class));
       }
 
       @Override
@@ -31,39 +32,49 @@ public class FuncType extends Type {
       }
 
       @Override
-      public void fromParameterizedIdent(String parameterizedIdent, Type type) {
-        assert type instanceof FuncType : "Expected FuncType, got " + type.getClass().getSimpleName();
-        var funcType = (FuncType) type;
+      public Type fromParameterizedIdent(String parameterizedIdent) {
+        // Check that the ident matches up to the parameterized part
+        String[] parts = getStrings(parameterizedIdent);
+        String inputsPart = parts[0].trim();
+        String outputPart = parts[1].trim();
+        List<Type> inputs;
+        Type output;
+        {
+          // Parse inputs
+          inputsPart = inputsPart.substring(1, inputsPart.length() - 1).trim(); // Remove surrounding parentheses
+          // Handle all inputs, including nested parameterized types
+          inputs = TypeDetails.fromParameterString(inputsPart);
+        }
+        {
+          // Parse output
+          outputPart = outputPart.substring(1, outputPart.length() - 1).trim(); // Remove surrounding parentheses
+          output = TypeDetails.fromParameterizedIdent(outputPart);
+        }
+        return new FuncType(inputs, output);
+      }
+
+      private String[] getStrings(String parameterizedIdent) {
+        if (!parameterizedIdent.startsWith(FuncType.getIdent() + "<") || !parameterizedIdent.endsWith(">")) {
+          throw new IllegalArgumentException("Invalid parameterized ident for FuncType: " + parameterizedIdent);
+        }
         // Example: func.func<((int, string, ptr<int>, struct<int, float, ptr<bool>) -> (bool))>
         // Strip prefix and suffix
         String inner = parameterizedIdent.substring(FuncType.getIdent().length() + 1, parameterizedIdent.length() - 1);
         // Split inputs and output
         String[] parts = inner.split("->", -1);
-        String inputsPart = parts[0].trim();
-        String outputPart = parts[1].trim();
-        {
-          // Parse inputs
-          inputsPart = inputsPart.substring(1, inputsPart.length() - 1).trim(); // Remove surrounding parentheses
-          // Handle all inputs, including nested parameterized types
-          funcType.inputs = TypeDetails.fromParameterString(inputsPart);
-        }
-        {
-          // Parse output
-          outputPart = outputPart.substring(1, outputPart.length() - 1).trim(); // Remove surrounding parentheses
-          funcType.output = TypeDetails.fromParameterizedIdent(outputPart);
-        }
+        return parts;
       }
     }
-    return new FuncTypeModel(getIdent(), getClass(), Dialect.get(Func.class));
+    return new FuncTypeModel();
   }
 
   public FuncType() {
-    inputs = new ArrayList<>();
+    inputs = List.of();
     output = null;
   }
 
   public FuncType(List<Type> inputs, Type output) {
-    this.inputs = new ArrayList<>(inputs);
+    this.inputs = Collections.unmodifiableList(inputs);
     this.output = output;
   }
 

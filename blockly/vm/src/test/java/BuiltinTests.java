@@ -20,7 +20,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BuiltinTests {
-  public static boolean printResult = false;
+  public static boolean printResult = true;
   @Test
   public void emptyProgramOp() {
     ObjectMapper mapper = Utils.getMapper(true, true);

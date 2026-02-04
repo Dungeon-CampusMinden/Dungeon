@@ -2,6 +2,8 @@ package blockly.vm.dgir.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -44,10 +46,6 @@ public class TypeDetails {
     return impl.getParameterizedIdent(type);
   }
 
-  public void fromParameterizedIdent(String parameterizedIdent, Type type) {
-    impl.fromParameterizedIdent(parameterizedIdent, type);
-  }
-
   private Impl impl = null;
 
   /**
@@ -57,11 +55,18 @@ public class TypeDetails {
     protected String ident;
     protected Class<? extends Type> type;
     protected Dialect dialect;
+    protected Constructor<? extends Type> constructor;
 
     public Impl(String ident, Class<? extends Type> type, Dialect dialect) {
       this.ident = ident;
       this.type = type;
       this.dialect = dialect;
+      // Pre-fetch the default constructor
+      try {
+        this.constructor = type.getDeclaredConstructor();
+      } catch (NoSuchMethodException e) {
+        throw new RuntimeException("Type class must have a default constructor: " + type.getSimpleName(), e);
+      }
     }
 
     public String getIdent() {
@@ -97,8 +102,9 @@ public class TypeDetails {
     }
 
     /**
-     * Configure this type from the provided parameterized ident.
+     * Create a Type instance from the provided parameterized ident.
      * This is used for generic or complex types that take type parameters such as pointers or function types.
+     * Still works for simple types.
      * <p>
      * The syntax for parameterized types is:
      * <pre>
@@ -110,10 +116,13 @@ public class TypeDetails {
      * </pre>
      *
      * @param parameterizedIdent The parameterized ident string.
-     * @param type               The type object to configure.
      */
-    public void fromParameterizedIdent(String parameterizedIdent, Type type) {
-      // Default implementation does nothing
+    public Type fromParameterizedIdent(String parameterizedIdent) {
+      try {
+        return constructor.newInstance();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
@@ -194,14 +203,7 @@ public class TypeDetails {
     }
 
     TypeDetails typeDetails = TypeDetails.get(baseIdent);
-    Type typeInstance;
-    try {
-      typeInstance = typeDetails.getType().getDeclaredConstructor().newInstance();
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to instantiate type: " + typeDetails.getType().getSimpleName(), e);
-    }
-    typeDetails.fromParameterizedIdent(parameterizedIdent, typeInstance);
-    return typeInstance;
+    return typeDetails.getImpl().fromParameterizedIdent(parameterizedIdent);
   }
 
   /**

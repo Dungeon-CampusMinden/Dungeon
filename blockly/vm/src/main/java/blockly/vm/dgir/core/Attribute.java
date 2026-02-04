@@ -1,14 +1,18 @@
 package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.serialization.AttributeDeserializer;
-import blockly.vm.dgir.core.serialization.AttributeSerializer;
-import tools.jackson.databind.annotation.JsonDeserialize;
-import tools.jackson.databind.annotation.JsonSerialize;
+import blockly.vm.dgir.core.serialization.AttributeTypeIdResolver;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import tools.jackson.databind.annotation.JsonTypeIdResolver;
 
 import java.io.Serializable;
 
-@JsonSerialize(using = AttributeSerializer.class)
-@JsonDeserialize(using = AttributeDeserializer.class)
+@JsonTypeInfo(
+  use = JsonTypeInfo.Id.CUSTOM,
+  include = JsonTypeInfo.As.EXISTING_PROPERTY,
+  property = "ident")
+@JsonTypeIdResolver(AttributeTypeIdResolver.class)
 public abstract class Attribute implements Serializable {
   private AttributeDetails details;
 
@@ -22,6 +26,7 @@ public abstract class Attribute implements Serializable {
     setDetails(details);
   }
 
+  @JsonIgnore
   public AttributeDetails getDetails() {
     return details;
   }
@@ -35,5 +40,11 @@ public abstract class Attribute implements Serializable {
     this.details = details;
   }
 
+  @JsonProperty("ident")
+  private String getIdent() {
+    return details.getIdent();
+  }
+
+  @JsonIgnore
   public abstract Object getStorage();
 }

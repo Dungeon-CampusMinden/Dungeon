@@ -3,6 +3,8 @@ package blockly.vm.dgir.dialect.builtin.attributes;
 import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 import blockly.vm.dgir.dialect.builtin.types.IntegerT;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Optional;
 
@@ -24,14 +26,20 @@ public class IntegerAttribute extends Attribute implements ITypedAttribute {
   public IntegerAttribute() {
   }
 
+  public IntegerAttribute(long value) {
+    this.value = value;
+    this.type = IntegerT.INT64;
+  }
+
+  @JsonCreator
+  public IntegerAttribute(@JsonProperty("value") long value, @JsonProperty("type") IntegerT type) {
+    this.value = value;
+    this.type = type;
+  }
+
   @Override
   public Long getStorage() {
     return getValue();
-  }
-
-  public IntegerAttribute(long value, IntegerT type) {
-    this.value = value;
-    this.type = type;
   }
 
   public static String getIdent() {

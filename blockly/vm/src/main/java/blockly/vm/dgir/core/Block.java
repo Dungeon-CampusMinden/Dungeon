@@ -36,7 +36,6 @@ import java.util.List;
  * </pre>
  *
  * @author <a href="mailto:lasse.foster@hsbi.de">Lasse Foster</a>
- *
  * @see Region
  * @see Operation
  * @see BlockArgument
@@ -62,14 +61,17 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   public Block() {
   }
 
-  public Block(List<BlockArgument> arguments,
-               List<Operation> operations) {
-    for (BlockArgument argument : arguments) {
-      addArgument(argument);
-    }
-    for (Operation operation : operations) {
-      addOperation(operation);
-    }
+  @JsonCreator
+  public Block(@JsonProperty("arguments") List<BlockArgument> arguments,
+               @JsonProperty("operations") List<Operation> operations) {
+    if (arguments != null)
+      for (BlockArgument argument : arguments) {
+        addArgument(argument);
+      }
+    if (operations != null)
+      for (Operation operation : operations) {
+        addOperation(operation);
+      }
   }
 
   public boolean hasTerminator() {
