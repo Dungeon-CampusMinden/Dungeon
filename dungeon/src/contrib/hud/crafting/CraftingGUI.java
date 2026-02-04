@@ -35,8 +35,6 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
-
-import javax.swing.text.Position;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.Objects;
@@ -163,7 +161,10 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
    * @param dialogId The dialog ID for network callbacks.
    */
   CraftingGUI(
-      InventoryComponent sourceInventory, InventoryComponent targetInventory, DialogContext ctx, String dialogId) {
+      InventoryComponent sourceInventory,
+      InventoryComponent targetInventory,
+      DialogContext ctx,
+      String dialogId) {
     this.ctx = ctx;
     var oldCallback = sourceInventory.onItemAdded();
     sourceInventory.onItemAdded(
@@ -444,23 +445,28 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
         .filter(result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
         .forEach(
             result -> {
-              Item item = (Item) result;
-              // check if there is enough space in the inventory
-              boolean res = this.targetInventory.add(item);
-            //otherwise drop the items on the ground
-              if (!res) {
-                // get the position of the hero
-                Entity entity = this.ctx.requireEntity(DialogContextKeys.ENTITY);
-                PositionComponent pc = entity.fetch(PositionComponent.class).orElse(null);
-                Point position = pc.position();
-                boolean success = item.drop(position).isPresent();
+              try {
+                Item item;
+                item = (Item) result.getClass().getDeclaredConstructor().newInstance();
+                // check if there is enough space in the inventory
+                boolean res = this.targetInventory.add(item);
+                // otherwise drop the items on the ground
+                if (!res) {
+                  // get the position of the hero
+                  Entity entity = this.ctx.requireEntity(DialogContextKeys.ENTITY);
+                  PositionComponent pc = entity.fetch(PositionComponent.class).orElse(null);
+                  Point position = pc.position();
+                  boolean success = item.drop(position).isPresent();
+                }
+              } catch (Exception e) {
+                LOGGER.error("Failed to instantiate crafting result item: {}", e.getMessage());
+                return;
               }
-
-              System.out.println(res);
             });
     this.inventory.clear();
     this.updateRecipe();
   }
+
 
   /** Allows to reset the CraftingGUI moving all Items back to the Inventory they came from. */
   public void cancel() {

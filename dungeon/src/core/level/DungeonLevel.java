@@ -1,10 +1,7 @@
 package core.level;
 
-import contrib.entities.MiscFactory;
 import contrib.entities.deco.Deco;
 import contrib.utils.level.ITickable;
-import core.Entity;
-import core.Game;
 import core.level.elements.ILevel;
 import core.level.elements.astar.TileConnection;
 import core.level.elements.astar.TileHeuristic;
@@ -350,10 +347,7 @@ public class DungeonLevel implements ILevel, ITickable {
    * @see #onTick()
    * @see ITickable
    */
-  protected void onFirstTick() {
-      Entity cauldrown = MiscFactory.newCraftingCauldron(new Point(5, 5));
-      Game.add(cauldrown);
-  }
+  protected void onFirstTick() {}
 
   /**
    * Called when the level is ticked.
