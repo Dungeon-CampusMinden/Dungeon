@@ -1,6 +1,8 @@
 package blockly.vm.dgir.core;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A reference to a value used as an operand to an operation.
@@ -17,12 +19,13 @@ public abstract class Operand<
   /**
    * The value referenced by this operand
    */
+  @JsonIdentityReference(alwaysAsId = true)
   private ValueT value;
 
   /**
    * The operation that owns this operand
    */
-  @JsonBackReference
+  @JsonIgnore
   private final Operation owner;
 
   public Operand(Operation owner) {

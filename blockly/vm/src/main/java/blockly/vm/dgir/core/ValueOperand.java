@@ -1,6 +1,6 @@
 package blockly.vm.dgir.core;
 
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A reference to a dynamic value, which could be supplied by an operation,
@@ -12,6 +12,7 @@ public final class ValueOperand extends Operand<Value, ValueOperand> {
     super(owner, value);
   }
 
+  @JsonIgnore
   public Type getType() {
     assert getValue() != null : "ValueOperand has no value assigned.";
     return getValue().getType();

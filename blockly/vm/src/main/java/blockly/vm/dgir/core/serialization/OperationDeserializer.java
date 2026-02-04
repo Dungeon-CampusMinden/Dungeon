@@ -1,0 +1,108 @@
+package blockly.vm.dgir.core.serialization;
+
+import blockly.vm.dgir.core.*;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.ReadableObjectId;
+import tools.jackson.databind.deser.std.StdDeserializer;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class OperationDeserializer extends StdDeserializer<Operation> {
+  public OperationDeserializer() {
+    this(Operation.class);
+  }
+
+  public OperationDeserializer(Class<?> vc) {
+    super(vc);
+  }
+
+  @Override
+  public Operation deserialize(JsonParser jp, DeserializationContext ctxt) {
+    JsonNode node = jp.readValueAsTree();
+    // Get the ident field so that we can lookup the correct operation type.
+    var operationDetails = RegisteredOperationDetails.lookup(node.get("ident").asString());
+    assert operationDetails.isPresent() : "Operation " + node.get("ident").asString() + " must be a registered to deserialize.\n\tMake sure to load its dialect before deserializing.";
+    /* Deserialize the operands from the node, these are serialized as a list of value references.
+    e.g.
+    "operands" : [ {
+                "value" : "187b5131-0518-4b67-9aa0-59b8679f53c7"
+              } ]
+     */
+    List<Value> operands = null;
+    if (node.has("operands")) {
+      operands = new ArrayList<>();
+      for (JsonNode operandNode : node.get("operands")) {
+        String valueId = operandNode.get("value").asString();
+        ReadableObjectId id = ctxt.findObjectId(valueId, new ObjectIdGenerators.UUIDGenerator(), null);
+        Value value = (Value) id.resolve();
+        operands.add(value);
+      }
+    }
+    // Deserialize the attributes if they exist.
+    List<NamedAttribute> attributes = null;
+    if (node.has("attributes")) {
+      attributes = new ArrayList<>();
+      for (JsonNode attributeNode : node.get("attributes")) {
+        NamedAttribute attribute = ctxt.readTreeAsValue(attributeNode, NamedAttribute.class);
+        attributes.add(attribute);
+      }
+    }
+    // Deserialize the output if it exists. Since only the output type is serialized we only need to deserialize that.
+    // Since other operations can have references to the output value, we need to create a new Value object for the output
+    // and register it with the DeserializationContext.
+    Type outputType = null;
+    String outputValueId = null;
+    if (node.has("output")) {
+      JsonNode outputNode = node.get("output");
+      outputValueId = outputNode.get("@id").asString();
+      outputType = ctxt.readTreeAsValue(outputNode.get("type"), Type.class);
+    }
+    // TODO deserialize block operands (successors).
+
+    // Deserialize regions if they exist.
+
+    List<Region> regions = null;
+    if (node.has("regions")) {
+      regions = new ArrayList<>();
+      for (JsonNode regionNode : node.get("regions")) {
+        Region region = ctxt.readTreeAsValue(regionNode, Region.class);
+        regions.add(region);
+      }
+    }
+
+    // Create the operation instance.
+    Operation operation = Operation.Create(
+      operationDetails.get(),
+      operands ,
+      null,
+      outputType,
+      regions != null ? regions.size() : 0);
+
+    // Set the attributes if they were deserialized.
+    if (attributes != null) {
+      for (NamedAttribute attribute : attributes) {
+        operation.setAttribute(attribute.getName(), attribute.getAttribute());
+      }
+    }
+
+    // if the output was deserialized, get the Value object from the operation and register it.
+    if (outputType != null && outputValueId != null) {
+      Value outputValue = operation.getOutput();
+      ReadableObjectId id = ctxt.findObjectId(outputValueId, new ObjectIdGenerators.UUIDGenerator(), null);
+      id.bindItem(ctxt, outputValue);
+    }
+
+    // Take the deserialized regions and set their parent operation to this operation.
+    if (regions != null) {
+      for (int i = 0; i < regions.size(); i++) {
+        operation.getRegions().get(i).takeRegion(regions.get(i));
+      }
+    }
+
+    return operation;
+  }
+}

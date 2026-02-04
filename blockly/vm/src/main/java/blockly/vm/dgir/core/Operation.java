@@ -1,10 +1,14 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.serialization.OpDeserializer;
+import blockly.vm.dgir.core.serialization.OperationDeserializer;
 import blockly.vm.dgir.core.serialization.OperationSerializer;
 import blockly.vm.dgir.core.traits.IOpTrait;
 import blockly.vm.dgir.core.traits.ISymbolTable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.io.Serializable;
@@ -17,6 +21,7 @@ import java.util.stream.Collectors;
  * of their behavior. This is especially useful for serialization and deserialization.
  */
 @JsonSerialize(using = OperationSerializer.class)
+@JsonDeserialize(using = OperationDeserializer.class)
 public final class Operation implements Serializable {
   /**
    * The unique identifier of this operation.
@@ -26,37 +31,32 @@ public final class Operation implements Serializable {
   /**
    * The input values of this operation.
    */
-  @JsonManagedReference
   private final List<ValueOperand> operands = new ArrayList<>();
 
   /**
    * The input blocks of this operation.
    */
-  @JsonManagedReference
   private final List<BlockOperand> blockOperands;
 
   /**
    * The output of this operation.
    */
-  @JsonManagedReference
   private OperationResult output;
 
   /**
    * The attributes of this operation.
    */
-  @JsonManagedReference
   private final Map<String, NamedAttribute> attributes;
 
   /**
    * The regions of this operation.
    */
-  @JsonManagedReference
   private final List<Region> regions;
 
   /**
    * The block containing this operation.
    */
-  @JsonBackReference
+  @JsonIgnore
   private Block parent = null;
 
   /**
@@ -226,8 +226,18 @@ public final class Operation implements Serializable {
     return attributes;
   }
 
+  public Attribute getAttributeByName(String name) {
+    return getAttributes().get(name).getAttribute();
+  }
+
   public <T extends Attribute> T getAttribute(Class<T> clazz, String name) {
-    return clazz.cast(getAttributes().get(name).getAttribute());
+    return clazz.cast(getAttributeByName(name));
+  }
+
+  public void setAttribute(String name, Attribute attribute) {
+    NamedAttribute namedAttribute = getAttributes().get(name);
+    assert namedAttribute != null : "Attribute with name " + name + " does not exist.";
+    namedAttribute.setAttribute(attribute);
   }
 
   public List<Region> getRegions() {

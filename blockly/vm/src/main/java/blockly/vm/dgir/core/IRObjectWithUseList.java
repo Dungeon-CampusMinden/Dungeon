@@ -1,5 +1,8 @@
 package blockly.vm.dgir.core;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,6 +59,7 @@ public class IRObjectWithUseList<
    *
    * @return The set of operands that use this value.
    */
+  @JsonIgnore
   public Set<OperandT> getUses() {
     return uses;
   }

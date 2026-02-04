@@ -1,7 +1,9 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.serialization.OpDeserializer;
 import blockly.vm.dgir.core.serialization.OpSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.Map;
  * The Op class will never be serialized, but the state will be which contains all the necessary information to recreate the operation.
  */
 @JsonSerialize(using = OpSerializer.class)
+@JsonDeserialize(using = OpDeserializer.class)
 public abstract class Op {
   private Operation operation;
 

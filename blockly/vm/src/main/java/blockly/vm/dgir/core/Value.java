@@ -25,6 +25,7 @@ public abstract class Value extends IRObjectWithUseList<Value, ValueOperand> imp
   }
 
   private Type type;
+  @JsonIgnore
   private Kind kind;
 
   public Value() {

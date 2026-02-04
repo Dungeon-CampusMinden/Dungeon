@@ -43,11 +43,11 @@ public class BuiltinTests {
 
     ProgramOp op = new ProgramOp(true);
     var programRegion = op.getOperation().getRegions().getFirst();
-    var progBlock = programRegion.getOrCreateDefaultBlock();
+    var progBlock = programRegion.getEntryBlock();
 
     var funcOp = new FuncOp("main");
     var funcRegion = funcOp.getOperation().getRegions().getFirst();
-    var funcBlock = funcRegion.getOrCreateDefaultBlock();
+    var funcBlock = funcRegion.getEntryBlock();
     progBlock.addOperation(funcOp.getOperation());
 
     var textOp = new ConstantOp(new StringAttribute("Hello World!"));
@@ -82,12 +82,12 @@ public class BuiltinTests {
 
     ProgramOp op = new ProgramOp(true);
     var programRegion = op.getOperation().getRegions().getFirst();
-    var progBlock = programRegion.getOrCreateDefaultBlock();
+    var progBlock = programRegion.getEntryBlock();
 
     var fooFuncOp = new FuncOp("foo", new FuncType(List.of(), StringT.INSTANCE));
     {
       var fooFuncRegion = fooFuncOp.getOperation().getFirstRegion();
-      var fooFuncBlock = fooFuncRegion.getOrCreateDefaultBlock();
+      var fooFuncBlock = fooFuncRegion.getEntryBlock();
 
       var helloWorldTextOp = new ConstantOp(new StringAttribute("Hello World!"));
       fooFuncBlock.addOperation(helloWorldTextOp);
@@ -101,7 +101,7 @@ public class BuiltinTests {
     var funcOp = new FuncOp("main");
     {
       var funcRegion = funcOp.getOperation().getRegions().getFirst();
-      var funcBlock = funcRegion.getOrCreateDefaultBlock();
+      var funcBlock = funcRegion.getEntryBlock();
       progBlock.addOperation(funcOp.getOperation());
 
       var funcCallOp = new CallOp(fooFuncOp, List.of());

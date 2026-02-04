@@ -50,7 +50,7 @@ public class FuncOp extends Op implements ISymbol, IControlFlow {
 
   public FuncOp(String name, FuncType type) {
     setOperation(Operation.Create(getIdent(), null, null, type.getOutput(), 1));
-    getRegions().getFirst().getOrCreateDefaultBlock();
+    getRegions().getFirst().getEntryBlock();
     getFuncNameAttribute().setValue(name);
     getTypeAttribute().setType(type);
   }

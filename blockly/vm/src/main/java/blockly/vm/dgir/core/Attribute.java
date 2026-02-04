@@ -1,11 +1,14 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.serialization.AttributeDeserializer;
 import blockly.vm.dgir.core.serialization.AttributeSerializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.io.Serializable;
 
 @JsonSerialize(using = AttributeSerializer.class)
+@JsonDeserialize(using = AttributeDeserializer.class)
 public abstract class Attribute implements Serializable {
   private AttributeDetails details;
 
