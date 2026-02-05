@@ -8,7 +8,6 @@ import coderunner.BlocklyCommands;
 import com.badlogic.gdx.Gdx;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
-import contrib.components.AIComponent;
 import contrib.components.BlockComponent;
 import contrib.components.ItemComponent;
 import contrib.modules.interaction.InteractionComponent;
@@ -227,8 +226,7 @@ public class BlocklyCommandExecuteSystem extends System {
 
     if (checkTileOpt.isEmpty()
         || !checkTileOpt.get().isAccessible()
-        || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(BlockComponent.class))
-        || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(AIComponent.class))) {
+        || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(BlockComponent.class))) {
       DISABLE_SHOOT_ON_HERO = false;
       return;
     }

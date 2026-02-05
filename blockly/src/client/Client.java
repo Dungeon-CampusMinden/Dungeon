@@ -1,6 +1,7 @@
 package client;
 
 import coderunner.BlocklyCodeRunner;
+import coderunner.BlocklyCommands;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
 import contrib.systems.*;
@@ -245,6 +246,7 @@ public class Client {
     Game.system(PositionSystem.class, System::stop);
     Game.system(BlocklyCommandExecuteSystem.class, s -> s.clear());
     createHero();
+    BlocklyCommands.DISABLE_SHOOT_ON_HERO = false;
     DungeonLoader.reloadCurrentLevel();
     Game.system(PositionSystem.class, System::run);
     DialogTracker.instance().clear();
