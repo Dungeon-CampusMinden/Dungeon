@@ -8,6 +8,7 @@ import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Vector2;
 import java.util.function.Supplier;
+import level.LevelManagementUtils;
 import systems.BlocklyCommandExecuteSystem;
 
 /**
@@ -20,15 +21,17 @@ import systems.BlocklyCommandExecuteSystem;
 public class InevitableFireballSkill extends FireballSkill {
 
   private static final Supplier<Point> TARGET_PLAYER =
-      () ->
-          Game.player()
-              .flatMap(hero -> hero.fetch(PositionComponent.class))
-              .map(PositionComponent::position)
-              // offset for error with fireball path calculation (#2230)
-              .map(point -> point.translate(Vector2.of(0.5f, 0.5f)))
-              .orElse(null);
+      () -> {
+        LevelManagementUtils.centerHero();
+        return Game.player()
+            .flatMap(hero -> hero.fetch(PositionComponent.class))
+            .map(pc -> pc.position())
+            .map(point -> point.translate(Vector2.of(0.5f, 0.5f)))
+            // offset for error with fireball path calculation (#2230)
+            .orElse(null);
+      };
 
-  /** Create a Fireball that will freez and kill the player. */
+  /** Create a Fireball that will freeze and kill the player. */
   public InevitableFireballSkill() {
     super(TARGET_PLAYER, 500);
     this.damageAmount = 9999;
