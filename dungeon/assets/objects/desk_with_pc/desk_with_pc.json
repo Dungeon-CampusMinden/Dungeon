@@ -1,0 +1,47 @@
+{
+  "off": {
+    "config": {
+      "spriteWidth": 64,
+      "spriteHeight": 64,
+      "x": 0,
+      "y": 0,
+      "rows": 1,
+      "columns": 1
+    },
+    "framesPerSprite": 10,
+    "scaleX": 3.5,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "on": {
+    "config": {
+      "spriteWidth": 64,
+      "spriteHeight": 64,
+      "x": 0,
+      "y": 64,
+      "rows": 1,
+      "columns": 2
+    },
+    "framesPerSprite": 30,
+    "scaleX": 3.5,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "virus": {
+    "config": {
+      "spriteWidth": 64,
+      "spriteHeight": 64,
+      "x": 0,
+      "y": 128,
+      "rows": 1,
+      "columns": 2
+    },
+    "framesPerSprite": 30,
+    "scaleX": 3,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  }
+}
