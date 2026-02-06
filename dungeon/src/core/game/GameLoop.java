@@ -28,6 +28,7 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.components.SoundComponent;
 import core.level.loader.DungeonLoader;
 import core.level.loader.LevelParser;
 import core.network.ConnectionListener;
@@ -35,6 +36,8 @@ import core.network.MessageDispatcher;
 import core.network.client.ClientNetwork;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.*;
+import core.network.server.SoundTracker;
+import core.sound.SoundSpec;
 import core.sound.player.GdxSoundPlayer;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
@@ -77,6 +80,8 @@ public final class GameLoop extends ScreenAdapter {
   public static final IVoidFunction onLevelLoad =
       () -> {
         if (!PreRunConfiguration.isNetworkServer()) return; // no authority
+
+        SoundTracker.instance().clear();
 
         List<Entity> allPlayers = ECSManagement.allPlayers().toList();
         boolean firstLoad = !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().get());
@@ -405,6 +410,52 @@ public final class GameLoop extends ScreenAdapter {
           } catch (Exception ignored) {
             LOGGER.warn("Error while applying snapshot message: {}", ignored.getMessage(), ignored);
           }
+        });
+
+    dispatcher.registerHandler(
+        SoundPlayMessage.class,
+        (ctx, msg) -> {
+          LOGGER.debug(
+              "Received SoundPlayMessage: {} (instance={})",
+              msg.soundName(),
+              msg.soundInstanceId());
+
+          Optional<Entity> entity = Game.findEntityById(msg.entityId());
+          if (entity.isEmpty() && msg.maxDistance() > 0f) {
+            LOGGER.warn(
+                "Entity {} not found for positional sound {}", msg.entityId(), msg.soundName());
+            return;
+          }
+
+          SoundSpec spec =
+              SoundSpec.builder(msg.soundName())
+                  .instanceId(msg.soundInstanceId())
+                  .volume(msg.volume())
+                  .pitch(msg.pitch())
+                  .pan(msg.pan())
+                  .looping(msg.looping())
+                  .maxDistance(msg.maxDistance())
+                  .attenuation(msg.attenuationFactor())
+                  .build();
+
+          Entity targetEntity = entity.orElseGet(() -> Game.audio().ensureSoundHub());
+          SoundComponent sc =
+              targetEntity
+                  .fetch(SoundComponent.class)
+                  .orElseGet(
+                      () -> {
+                        SoundComponent newSc = new SoundComponent();
+                        targetEntity.add(newSc);
+                        return newSc;
+                      });
+          sc.add(spec);
+        });
+
+    dispatcher.registerHandler(
+        SoundStopMessage.class,
+        (ctx, msg) -> {
+          LOGGER.debug("Received SoundStopMessage: {}", msg.soundInstanceId());
+          Game.audio().stopInstance(msg.soundInstanceId());
         });
 
     dispatcher.registerHandler(

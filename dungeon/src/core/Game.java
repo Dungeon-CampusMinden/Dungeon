@@ -896,8 +896,8 @@ public final class Game {
   /**
    * Returns the centralized sound API for managing entity-backed audio.
    *
-   * <p>Use this API to play audio on entities or globally. All audio are entity-backed and synced
-   * via snapshots in multiplayer.
+   * <p>Use this API to play audio on entities or globally. All audio are entity-backed and sent via
+   * messages in multiplayer.
    *
    * <p>Example:
    *

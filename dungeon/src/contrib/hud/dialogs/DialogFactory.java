@@ -118,7 +118,7 @@ public class DialogFactory {
    *     found after creation
    */
   public static UIComponent show(
-      DialogContext context, boolean willPause, boolean canBeClosed, int[] targetEntityIds) {
+      DialogContext context, boolean willPause, boolean canBeClosed, int... targetEntityIds) {
     Objects.requireNonNull(context, "context");
 
     // Determine the owner entity (who holds the UIComponent)
