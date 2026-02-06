@@ -9,6 +9,9 @@ import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
+import level.LastHourLevel1;
+
 import java.util.Optional;
 import java.util.Set;
 
@@ -27,6 +30,12 @@ public class ComputerFactory {
             () ->
                 new Interaction(
                     (eInteract, who) -> {
+                      DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
+                      if(dc.currentStateName().equals(LastHourLevel1.PC_STATE_OFF)){
+                        DialogFactory.showOkDialog("Trying to turn on the computer doesn't work.\nIt seems to not have any power...", "", () -> {}, who.id());
+                        return;
+                      }
+
                       DialogContext.Builder builder = DialogContext.builder();
                       builder.type(LastHourDialogTypes.COMPUTER);
 

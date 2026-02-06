@@ -8,12 +8,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import core.sound.Sounds;
 import core.utils.Cursors;
 import core.utils.Scene2dElementFactory;
 import java.util.Arrays;
 import java.util.List;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerStateComponent;
+import util.LastHourSounds;
 
 public class EmailsTab extends ComputerTab {
 
@@ -306,6 +308,7 @@ public class EmailsTab extends ComputerTab {
     selectedEmail = email;
     localState().selectedEmail(email);
     createActors();
+    Sounds.playLocal(LastHourSounds.COMPUTER_TAB_CLICKED, 0.65f, 0.3f);
   }
 
   private void clickedAttachment(String attachmentName) {

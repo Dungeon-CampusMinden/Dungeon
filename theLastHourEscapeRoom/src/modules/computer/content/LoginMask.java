@@ -7,11 +7,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
 import core.utils.components.draw.TextureGenerator;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerState;
 import modules.computer.ComputerStateComponent;
+import util.LastHourSounds;
 
 public class LoginMask extends ComputerTab {
 
@@ -92,7 +94,7 @@ public class LoginMask extends ComputerTab {
                       computer -> {
                         computer.addTabsForState(ComputerState.LOGGED_IN);
                       });
-              onLoginSuccess();
+              onLoginSuccess(false);
             } else {
               onWrongCredentials();
             }
@@ -100,7 +102,7 @@ public class LoginMask extends ComputerTab {
         });
 
     if (completed) {
-      onLoginSuccess();
+      onLoginSuccess(true);
     }
 
     Table form = new Table();
@@ -117,19 +119,23 @@ public class LoginMask extends ComputerTab {
     ComputerState oldState = sharedState().state();
     ComputerState newState = newStateComp.state();
     if (oldState != newState && newState == ComputerState.LOGGED_IN) {
-      onLoginSuccess();
+      onLoginSuccess(false);
     }
   }
 
-  private void onLoginSuccess() {
+  private void onLoginSuccess(boolean completedPrior) {
     usernameField.setDisabled(true);
     passwordField.setDisabled(true);
     loginButton.setDisabled(true);
     loginFeedback.setText(CORRECT_FEEDBACK);
     loginFeedback.setColor(CORRECT_COLOR);
+    if(!completedPrior){
+      Sounds.playLocal(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
+    }
   }
 
   private void onWrongCredentials() {
     loginFeedback.setText(WRONG_FEEDBACK);
+    Sounds.playLocal(LastHourSounds.COMPUTER_LOGIN_FAILED);
   }
 }

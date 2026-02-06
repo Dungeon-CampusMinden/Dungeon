@@ -55,7 +55,7 @@ public class TheLastHour {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    Game.disableAudio(true);
+    Game.disableAudio(false);
     Game.userOnSetup(TheLastHour::onUserSetup);
     Game.frameRate(60);
     Game.windowTitle("The Last Hour");

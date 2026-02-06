@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import contrib.hud.UIUtils;
 import core.Game;
+import core.sound.Sounds;
 import core.utils.Cursors;
 import core.utils.FontHelper;
 import core.utils.Scene2dElementFactory;
@@ -17,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import modules.computer.content.*;
+import util.LastHourSounds;
 
 public class ComputerDialog extends Group {
 
@@ -228,6 +230,7 @@ public class ComputerDialog extends Group {
     ComputerStateLocal.Instance.tab(tabKey);
     buildTabs();
     showContent(tabKey);
+    Sounds.playLocal(LastHourSounds.COMPUTER_TAB_CLICKED, 1.2f, 0.4f);
   }
 
   private void showContent(String tabKey) {

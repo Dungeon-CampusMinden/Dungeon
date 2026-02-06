@@ -1,32 +1,53 @@
 package level;
 
+import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
+import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadFactory;
 import contrib.systems.EventScheduler;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.sound.CoreSounds;
+import core.sound.Sounds;
 import core.utils.Point;
 import java.util.*;
+
+import core.utils.Rectangle;
+import core.utils.components.draw.DepthLayer;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
+import core.utils.components.path.SimpleIPath;
 import modules.computer.ComputerFactory;
 import modules.computer.ComputerState;
 import modules.computer.ComputerStateComponent;
 import modules.computer.LastHourDialogTypes;
 import modules.trash.TrashMinigameUI;
+import util.LastHourSounds;
 
 /** The MushRoom. */
 public class LastHourLevel1 extends DungeonLevel {
 
   private DoorTile storageDoor;
+  public static Entity ComputerEntity;
+  public static final String PC_STATE_OFF = "off";
+  public static final String PC_STATE_ON = "on";
+  public static final String PC_STATE_VIRUS = "virus";
+  public static final String PC_SIGNAL_ON = "on";
+  public static final String PC_SIGNAL_INFECT = "infect";
+  public static final String PC_SIGNAL_CLEAR = "clear";
 
   /**
    * Creates a new Demo Level.
@@ -63,16 +84,7 @@ public class LastHourLevel1 extends DungeonLevel {
             },
             true));
 
-    // Main PC
-    Entity pc = DecoFactory.createDeco(getPoint("pc-main"), Deco.DeskWithPC1);
-    pc.remove(DecoComponent.class);
-    ComputerFactory.attachComputerDialog(pc);
-    Game.add(pc);
-
-    Entity computerState = new Entity("computer-state");
-    computerState.add(new ComputerStateComponent(ComputerState.PRE_LOGIN));
-    Game.add(computerState);
-
+    setupPC();
     setupTrashcans();
 
     String lorem =
@@ -93,6 +105,47 @@ public class LastHourLevel1 extends DungeonLevel {
           DialogFactory.showTextDialog(lorem, "Some Title", () -> {}, "Dann mal weiter...");
         }, () -> {});
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
+  }
+
+  private void setupPC(){
+    Entity pc = new Entity("pc-main");
+    PositionComponent positionComp = new PositionComponent(getPoint("pc-main").translate(-0.7f, -0.9f));
+    pc.add(positionComp);
+    pc.add(new CollideComponent(new Rectangle(2.0f, 1.3f, 0.8f, 1f)));
+
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(new SimpleIPath("objects/desk_with_pc"));
+    State stOff = State.fromMap(animationMap, PC_STATE_OFF);
+    State stOn = State.fromMap(animationMap, PC_STATE_ON);
+    State stVirus = State.fromMap(animationMap, PC_STATE_VIRUS);
+    List<State> states = List.of(stOff, stOn, stVirus);
+    StateMachine sm = new StateMachine(states, stOff);
+    sm.addTransition(stOff, PC_SIGNAL_ON, stOn);
+    sm.addTransition(stOn, PC_SIGNAL_INFECT, stVirus);
+    sm.addTransition(stVirus, PC_SIGNAL_CLEAR, stOn);
+    DrawComponent dc = new DrawComponent(sm);
+    dc.depth(DepthLayer.Player.depth());
+    pc.add(dc);
+    ComputerFactory.attachComputerDialog(pc);
+    Game.add(pc);
+
+    Entity computerState = new Entity("computer-state");
+    computerState.add(new ComputerStateComponent(ComputerState.PRE_LOGIN));
+    Game.add(computerState);
+
+    // Power switch (hidden under papers)
+    Entity paper = DecoFactory.createDeco(getPoint("paper-switch"), Deco.SheetWritten2);
+    paper.remove(DecoComponent.class);
+    paper.add(new InteractionComponent(() -> new Interaction((e, who) -> {
+      if(!dc.currentStateName().equals(PC_STATE_OFF)) return;
+      DialogFactory.showYesNoDialog("There is a switch hidden below these stacks of paper.\n\nDo you want to flip it?", "", () -> {
+        Sounds.playLocal(CoreSounds.SETTINGS_TOGGLE_CLICK, 1, 1.5f);
+        DialogFactory.showOkDialog("You flipped the switch.\n\nYou can hear electricity buzzing throughout the room.", "", () -> {
+          dc.sendSignal(PC_SIGNAL_ON);
+          Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
+        });
+      }, () -> {}, who.id());
+    })));
+    Game.add(paper);
   }
 
   private static final Deco[] trashcans = {Deco.TrashCanBlue, Deco.TrashCanGreen, Deco.TrashCanRed};
