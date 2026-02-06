@@ -17,7 +17,7 @@ public class FuncType extends Type {
   public TypeDetails.Impl createImpl() {
     class FuncTypeModel extends TypeDetails.Impl {
       FuncTypeModel() {
-        super(FuncType.getIdent(), FuncType.class, Dialect.get(Func.class));
+        super(INSTANCE, FuncType.getIdent(), FuncType.class, Dialect.get(Func.class));
       }
 
       @Override
@@ -48,7 +48,11 @@ public class FuncType extends Type {
         {
           // Parse output
           outputPart = outputPart.substring(1, outputPart.length() - 1).trim(); // Remove surrounding parentheses
-          output = TypeDetails.fromParameterizedIdent(outputPart);
+          if (outputPart.isEmpty()) {
+            output = null;
+          } else {
+            output = TypeDetails.fromParameterizedIdent(outputPart);
+          }
         }
         return new FuncType(inputs, output);
       }

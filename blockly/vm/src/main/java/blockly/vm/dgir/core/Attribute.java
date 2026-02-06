@@ -3,6 +3,7 @@ package blockly.vm.dgir.core;
 import blockly.vm.dgir.core.serialization.AttributeTypeIdResolver;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
 
@@ -13,6 +14,7 @@ import java.io.Serializable;
   include = JsonTypeInfo.As.EXISTING_PROPERTY,
   property = "ident")
 @JsonTypeIdResolver(AttributeTypeIdResolver.class)
+@JsonPropertyOrder({"ident", "type"})
 public abstract class Attribute implements Serializable {
   private AttributeDetails details;
 

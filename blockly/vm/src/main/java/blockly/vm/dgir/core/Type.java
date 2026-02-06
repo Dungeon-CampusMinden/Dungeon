@@ -1,14 +1,20 @@
 package blockly.vm.dgir.core;
 
 import blockly.vm.dgir.core.serialization.TypeDeserializer;
-import blockly.vm.dgir.core.serialization.TypeSerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
 import tools.jackson.databind.annotation.JsonDeserialize;
-import tools.jackson.databind.annotation.JsonSerialize;
 
-@JsonSerialize(using = TypeSerializer.class)
 @JsonDeserialize(using = TypeDeserializer.class)
 public abstract class Type {
+  @JsonIgnore
   private TypeDetails details;
+
+  // Serialize the type as a parameterized ident string
+  @JsonValue
+  public String getParameterizedIdent() {
+    return details.getParameterizedIdent(this);
+  }
 
   public Type() {
     details = TypeDetails.get(getClass());
@@ -29,10 +35,6 @@ public abstract class Type {
       : "Only RegisteredTypeDetails is allowed to set details. Was called from " + Utils.Caller.getCallingClass().getName();
 
     this.details = details;
-  }
-
-  public String getParameterizedIdent() {
-    return details.getParameterizedIdent(this);
   }
 
   public abstract boolean validate(Object value);

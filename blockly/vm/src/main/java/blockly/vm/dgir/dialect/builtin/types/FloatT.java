@@ -26,11 +26,11 @@ public class FloatT extends Type {
   @Override
   public TypeDetails.Impl createImpl() {
     class FloatTModel extends TypeDetails.Impl {
-      FloatTModel(int width) {
-        super(FloatT.getIdent() + width, FloatT.class, Dialect.get(Builtin.class));
+      FloatTModel(Type defaultInstance, int width) {
+        super(defaultInstance, FloatT.getIdent() + width, FloatT.class, Dialect.get(Builtin.class));
       }
     }
-    return new FloatTModel(getWidth());
+    return new FloatTModel(this, getWidth());
   }
 
   @JsonIgnore

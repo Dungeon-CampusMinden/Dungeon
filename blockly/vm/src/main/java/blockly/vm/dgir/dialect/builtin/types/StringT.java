@@ -16,7 +16,7 @@ public class StringT extends Type {
   public TypeDetails.Impl createImpl() {
     class StringTModel extends TypeDetails.Impl {
       StringTModel() {
-        super(StringT.getIdent(), StringT.class, Dialect.get(Builtin.class));
+        super(INSTANCE, StringT.getIdent(), StringT.class, Dialect.get(Builtin.class));
       }
     }
     return new StringTModel();

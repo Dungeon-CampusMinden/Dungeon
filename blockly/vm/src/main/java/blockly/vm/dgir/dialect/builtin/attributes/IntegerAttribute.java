@@ -10,9 +10,8 @@ import java.util.Optional;
 
 public class IntegerAttribute extends Attribute implements ITypedAttribute {
   public static final IntegerAttribute INSTANCE = new IntegerAttribute();
-  private IntegerT type;
-  private long value;
 
+  // --------------------- Type Info ------------------------------
   @Override
   public AttributeDetails.Impl createImpl() {
     class IntegerAttributeModel extends AttributeDetails.Impl {
@@ -22,6 +21,18 @@ public class IntegerAttribute extends Attribute implements ITypedAttribute {
     }
     return new IntegerAttributeModel();
   }
+
+  public static String getIdent() {
+    return "integerAttr";
+  }
+
+  public static String getNamespace() {
+    return "";
+  }
+  // -----------------------------------------------------------------
+
+  private IntegerT type;
+  private long value;
 
   public IntegerAttribute() {
   }
@@ -37,17 +48,10 @@ public class IntegerAttribute extends Attribute implements ITypedAttribute {
     this.type = type;
   }
 
+
   @Override
   public Long getStorage() {
     return getValue();
-  }
-
-  public static String getIdent() {
-    return "integerAttr";
-  }
-
-  public static String getNamespace() {
-    return "";
   }
 
   @Override

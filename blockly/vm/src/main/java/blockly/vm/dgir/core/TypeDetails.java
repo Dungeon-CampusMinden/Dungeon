@@ -52,12 +52,14 @@ public class TypeDetails {
    * This is the fully type erased interface for a type object.
    */
   public abstract static class Impl {
+    protected Type defaultInstance;
     protected String ident;
     protected Class<? extends Type> type;
     protected Dialect dialect;
     protected Constructor<? extends Type> constructor;
 
-    public Impl(String ident, Class<? extends Type> type, Dialect dialect) {
+    public Impl(Type defaultInstance, String ident, Class<? extends Type> type, Dialect dialect) {
+      this.defaultInstance = defaultInstance;
       this.ident = ident;
       this.type = type;
       this.dialect = dialect;
@@ -119,16 +121,30 @@ public class TypeDetails {
      */
     public Type fromParameterizedIdent(String parameterizedIdent) {
       try {
-        return constructor.newInstance();
+        return defaultInstance;
       } catch (Exception e) {
         throw new RuntimeException(e);
+      }
+    }
+
+    public <T extends Type> T fromParameterizedIdent(String parameterizedIdent, Class<T> clazz) {
+      assert clazz.isAssignableFrom(defaultInstance.getClass()) : "Cannot create type of class " + clazz.getSimpleName() + " from the impl of type " + defaultInstance.getClass().getSimpleName();
+      Type type = fromParameterizedIdent(parameterizedIdent);
+      return clazz.cast(type);
+    }
+
+    public <T extends Type> T createInstance(Class<T> clazz) {
+      try {
+        return clazz.cast(constructor.newInstance());
+      } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        throw new RuntimeException("Failed to create instance of type: " + type.getSimpleName(), e);
       }
     }
   }
 
   protected final static class UnregisteredType extends Impl {
     UnregisteredType(String ident, Class<? extends Type> clazz, Dialect dialect) {
-      super(ident, clazz, dialect);
+      super(null, ident, clazz, dialect);
     }
 
   }

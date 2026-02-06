@@ -1,7 +1,6 @@
 package blockly.vm.dgir.dialect.builtin.types;
 
 import blockly.vm.dgir.core.Dialect;
-import blockly.vm.dgir.core.RegisteredTypeDetails;
 import blockly.vm.dgir.core.Type;
 import blockly.vm.dgir.core.TypeDetails;
 import blockly.vm.dgir.dialect.builtin.Builtin;
@@ -12,17 +11,27 @@ public class IntegerT extends Type {
   public static final IntegerT INT32 = new IntegerT(32);
   public static final IntegerT INT64 = new IntegerT(64);
 
-  private final int width;
-
+  // --------------------- Type Info ------------------------------
   @Override
   public TypeDetails.Impl createImpl() {
     class IntegerTModel extends TypeDetails.Impl {
-      IntegerTModel(String name, Class<? extends Type> type, Dialect dialect) {
-        super(name, type, dialect);
+      IntegerTModel(Type defaultInstance, String name) {
+        super(defaultInstance, name, IntegerT.class, Dialect.get(Builtin.class));
       }
     }
-    return new IntegerTModel(getIdent() + getWidth(), getClass(), Dialect.get(Builtin.class));
+    return new IntegerTModel(this, getIdent() + getWidth());
   }
+
+  public static String getIdent() {
+    return "int";
+  }
+
+  public static String getNamespace() {
+    return "";
+  }
+  // -----------------------------------------------------------------
+
+  private final int width;
 
   public IntegerT() {
     width = 32;
@@ -60,13 +69,5 @@ public class IntegerT extends Type {
         return false;
       }
     }
-  }
-
-  public static String getIdent() {
-    return "int";
-  }
-
-  public static String getNamespace() {
-    return "";
   }
 }
