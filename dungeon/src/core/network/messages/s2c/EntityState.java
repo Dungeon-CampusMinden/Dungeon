@@ -2,11 +2,9 @@ package core.network.messages.s2c;
 
 import contrib.item.Item;
 import core.network.messages.NetworkMessage;
-import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
 import java.io.Serial;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,7 +30,6 @@ public class EntityState implements NetworkMessage {
   private final Float maxMana;
   private final String stateName;
   private final Integer tintColor;
-  private final List<SoundSpec> sounds;
   private final Item[] inventory;
 
   /**
@@ -52,7 +49,6 @@ public class EntityState implements NetworkMessage {
     this.maxMana = builder.maxMana;
     this.stateName = builder.stateName;
     this.tintColor = builder.tintColor;
-    this.sounds = builder.sounds;
     this.inventory = builder.inventory;
   }
 
@@ -156,15 +152,6 @@ public class EntityState implements NetworkMessage {
   }
 
   /**
-   * Gets the optional audio list of the entity.
-   *
-   * @return an Optional containing the audio list if present, otherwise an empty Optional
-   */
-  public Optional<List<SoundSpec>> sounds() {
-    return Optional.ofNullable(sounds);
-  }
-
-  /**
    * Creates a new Builder instance for constructing an EntityState.
    *
    * @return a new Builder instance
@@ -195,7 +182,6 @@ public class EntityState implements NetworkMessage {
     private Float maxMana;
     private String stateName;
     private Integer tintColor;
-    private List<SoundSpec> sounds;
     private Item[] inventory;
 
     /**
@@ -327,17 +313,6 @@ public class EntityState implements NetworkMessage {
      */
     public Builder tintColor(Integer tintColor) {
       this.tintColor = tintColor;
-      return this;
-    }
-
-    /**
-     * Sets the audio list for the entity.
-     *
-     * @param sounds the list of SoundSpec instances
-     * @return the Builder instance
-     */
-    public Builder sounds(List<SoundSpec> sounds) {
-      this.sounds = sounds;
       return this;
     }
 
