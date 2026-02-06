@@ -1,24 +1,18 @@
 package contrib.hud.dialogs;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import core.Game;
+import core.sound.CoreSounds;
+import core.sound.Sounds;
 import core.utils.BaseContainerUI;
 import core.utils.FontSpec;
-import core.utils.IVoidFunction;
 import core.utils.Scene2dElementFactory;
-import core.utils.components.draw.TextureGenerator;
 import core.utils.settings.ClientSettings;
 
 import java.util.ArrayList;
@@ -108,12 +102,14 @@ public class PauseDialog extends Table {
       public void changed(ChangeEvent event, Actor actor) {
         DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_RESUME)
           .accept(null);
+        Sounds.playLocal(CoreSounds.INTERFACE_DIALOG_CLOSED);
       }
     });
     settingsBtn.addListener(new ChangeListener() {
       @Override
       public void changed(ChangeEvent event, Actor actor) {
         showSettings();
+        Sounds.playLocal(CoreSounds.INTERFACE_BUTTON_CLICKED);
       }
     });
     quitBtn.addListener(new ChangeListener() {
@@ -121,6 +117,7 @@ public class PauseDialog extends Table {
       public void changed(ChangeEvent event, Actor actor) {
         DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_QUIT)
           .accept(null);
+        Sounds.playLocal(CoreSounds.INTERFACE_DIALOG_CLOSED);
       }
     });
 
@@ -139,6 +136,7 @@ public class PauseDialog extends Table {
       @Override
       public void changed(ChangeEvent event, Actor actor) {
         showMainView();
+        Sounds.playLocal(CoreSounds.INTERFACE_BUTTON_CLICKED);
       }
     });
     List<Actor> settingsActors = new ArrayList<>();
@@ -154,6 +152,14 @@ public class PauseDialog extends Table {
 
     Table settingsTable = new Table();
     settingsActors.forEach(actor -> {
+      actor.addListener(new InputListener(){
+        @Override
+        public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+          if (fromActor != null && fromActor.isDescendantOf(actor) || pointer != -1) return;
+          Sounds.playLocal(CoreSounds.INTERFACE_ITEM_HOVERED, 1, 0.6f);
+          super.enter(event, x, y, pointer, fromActor);
+        }
+      });
       settingsTable.add(actor).width(500).align(Align.center).pad(0, 10, 20, 10).row();
     });
 

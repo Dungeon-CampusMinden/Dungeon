@@ -3,6 +3,7 @@ package core.utils.settings;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -10,6 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import contrib.hud.UIUtils;
+import core.sound.CoreSounds;
+import core.sound.Sounds;
 import core.utils.FontHelper;
 import core.utils.Scene2dElementFactory;
 
@@ -68,10 +71,12 @@ public class EnumSetting<E extends Enum<E>> extends SettingValue<E> {
       @Override
       public void changed(ChangeEvent event, Actor actor) {
         value(selectBox.getSelected());
+        Sounds.playLocal(CoreSounds.SETTINGS_ENUM_VALUE_SELECTED, 1.0f);
       }
     });
 
     Table table = new Table();
+    table.setTouchable(Touchable.enabled);
     table.add(label).right().growX().padRight(10);
     table.add(selectBox).left().width(310);
 

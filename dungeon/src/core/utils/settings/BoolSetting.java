@@ -2,12 +2,15 @@ package core.utils.settings;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
+import core.sound.CoreSounds;
+import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
 
 public class BoolSetting extends SettingValue<Boolean> {
@@ -29,10 +32,13 @@ public class BoolSetting extends SettingValue<Boolean> {
       @Override
       public void changed(ChangeEvent event, Actor actor) {
         value(checkBox.isChecked());
+        float pitch = value() ? 1.0f : 0.8f;
+        Sounds.playLocal(CoreSounds.SETTINGS_TOGGLE_CLICK, pitch);
       }
     });
 
     Table table = new Table();
+    table.setTouchable(Touchable.enabled);
     table.add(label).right().growX().padRight(10);
     table.add(checkBox).width(310);
 

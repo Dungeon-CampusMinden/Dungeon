@@ -8,6 +8,8 @@ import com.badlogic.gdx.utils.Align;
 import core.Game;
 import core.game.GameLoop;
 import core.game.IResizable;
+import core.sound.CoreSounds;
+import core.sound.Sounds;
 
 /**
  * A container UI that fills the entire stage and positions a single child actor using alignment
@@ -30,6 +32,7 @@ public class BaseContainerUI extends Table implements IResizable {
    */
   public BaseContainerUI(Actor content) {
     this(content, Align.center);
+    Sounds.playLocal(CoreSounds.INTERFACE_DIALOG_OPENED);
   }
 
   /**

@@ -9,9 +9,12 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.CustomSelectBox;
+import core.sound.CoreSounds;
+import core.sound.Sounds;
 import core.utils.logging.DungeonLogger;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -57,6 +60,15 @@ public class Scene2dElementFactory {
 
     element.setStyle(style);
     element.setUserObject(Cursors.TEXT);
+    element.addListener(new ChangeListener() {
+      @Override
+      public void changed(ChangeEvent event, Actor actor) {
+        if (actor instanceof TextField) {
+          float pitch = 0.85f + (float) Math.random() * 0.3f;
+          Sounds.playLocal(CoreSounds.INTERFACE_TEXTFIELD_TYPED, pitch);
+        }
+      }
+    });
     return element;
   }
 
@@ -80,6 +92,7 @@ public class Scene2dElementFactory {
     style.font = FontHelper.getFont(FONT_PATH_BOLD, fontSize, Color.WHITE, 0, Color.BLACK);
     element.getLabel().setStyle(style);
     element.setUserObject(Cursors.INTERACT);
+    addHoverSound(element);
     return element;
   }
 
@@ -159,5 +172,18 @@ public class Scene2dElementFactory {
   }
   public static <T> SelectBox<T> createSelectBox() {
     return createSelectBox(null);
+  }
+
+
+  private static void addHoverSound(Actor actor){
+    actor.addListener(new InputListener() {
+      @Override
+      public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+        // Only play sound if the mouse newly entered this button (not when moving onto a child actor)
+        if ((fromActor != null && fromActor.isDescendantOf(actor)) || pointer != -1 || (actor instanceof Disableable disableable && disableable.isDisabled())) return;
+        Sounds.playLocal(CoreSounds.INTERFACE_ITEM_HOVERED);
+        super.enter(event, x, y, pointer, fromActor);
+      }
+    });
   }
 }
