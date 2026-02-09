@@ -33,10 +33,10 @@ public abstract class SettingValue<T> {
   }
 
   public void value(T value) {
+    this.value = value;
     if(onChange != null){
       onChange.accept(value);
     }
-    this.value = value;
   }
 
   public void onChange(Consumer<T> listener){
