@@ -1,16 +1,24 @@
 import blockly.vm.dgir.core.Operation;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class TestUtils {
+  private static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+
   public static String compareSerializedOperations(ObjectMapper mapper, Operation op1, Operation op2) {
     try {
       String json1 = mapper.writeValueAsString(op1);
       String json2 = mapper.writeValueAsString(op2);
-      /*
-      Replace all UUIDs in the form of "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" with a standardized string "UUID".
-       */
-      String normalizedJson1 = json1.replaceAll("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", "UUID");
-      String normalizedJson2 = json2.replaceAll("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", "UUID");
+
+      String normalizedJson1 = normalizeJson(json1);
+      String normalizedJson2 = normalizeJson(json2);
+
       if (normalizedJson1.equals(normalizedJson2)) {
         return "";
       }
@@ -18,6 +26,21 @@ public class TestUtils {
     } catch (Exception e) {
       return "Error during serialization comparison: " + e.getMessage();
     }
+  }
+
+  private static String normalizeJson(String json) {
+    AtomicInteger uuidCounter = new AtomicInteger();
+    Map<UUID, String> uuidMap = new HashMap<>();
+
+    Matcher matcher = UUID_PATTERN.matcher(json);
+    StringBuffer sb = new StringBuffer();
+    while (matcher.find()) {
+      UUID uuid = UUID.fromString(matcher.group());
+      String replacement = uuidMap.computeIfAbsent(uuid, u -> "UUID_" + uuidCounter.getAndIncrement());
+      matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+    }
+    matcher.appendTail(sb);
+    return sb.toString();
   }
 
   /**
