@@ -1,97 +1,39 @@
 package portal.laser;
 
 import core.Component;
-import core.Entity;
-import core.utils.Direction;
-import core.utils.Point;
-import java.util.ArrayList;
-import java.util.List;
-import portal.portals.components.PortalExtendComponent;
 
-/** Helper component for the laser. */
+/**
+ * Similar to the {@link portal.util.ToggleableComponent ToggleableComponent} it stores a boolean to
+ * determine if the laser is active. Also used to determine a group of laser related entities.
+ */
 public class LaserComponent implements Component {
 
-  private final Direction direction;
-  private List<Entity> segments = new ArrayList<>();
-  private boolean active = false;
-  private boolean throughCube = false;
+  private boolean active;
 
   /**
-   * Creates a LaserComponent with its original direction.
+   * Creates a LaserComponent with a given state.
    *
-   * @param direction original direction of the laser
+   * @param active true if active, otherwise false.
    */
-  public LaserComponent(Direction direction) {
-    this.direction = direction;
+  public LaserComponent(boolean active) {
+    this.active = active;
   }
 
   /**
-   * Returns the direction of the original laser.
+   * Returns the state of the laser.
    *
-   * @return direction of the laser.
-   */
-  public Direction getDirection() {
-    return direction;
-  }
-
-  /**
-   * Returns the laser's activation state.
-   *
-   * @return true if laser is active, otherwise false.
+   * @return true if active, otherwise false.
    */
   public boolean isActive() {
     return active;
   }
 
   /**
-   * Sets the laser's activation state.
+   * Sets the new state of the LaserComponent.
    *
-   * @param value the new active state of the laser.
+   * @param active new state of the component.
    */
-  public void setActive(boolean value) {
-    this.active = value;
-  }
-
-  /**
-   * Returns all the entities of the laser.
-   *
-   * @return list of all entities for this laser.
-   */
-  public List<Entity> getSegments() {
-    return segments;
-  }
-
-  /**
-   * Extends the laser.
-   *
-   * @param direction direction the laser is getting extending into.
-   * @param from starting point of the laser.
-   * @param pec helper component for extending and retracting the laser.
-   */
-  public void extend(Direction direction, Point from, PortalExtendComponent pec) {
-    LaserFactory.extendLaser(direction, from, this.segments, pec, this);
-  }
-
-  /** Retracts the laser. */
-  public void trim() {
-    LaserFactory.trimAfterFirstEmitter(this.segments);
-  }
-
-  /**
-   * Returns whether the laser is going through the cube or not.
-   *
-   * @return true if laser is going through the cube, otherwise false.
-   */
-  public boolean isThroughCube() {
-    return throughCube;
-  }
-
-  /**
-   * Sets if the laser is going through the cube.
-   *
-   * @param throughCube new throughCube state.
-   */
-  public void setThroughCube(boolean throughCube) {
-    this.throughCube = throughCube;
+  public void setActive(boolean active) {
+    this.active = active;
   }
 }

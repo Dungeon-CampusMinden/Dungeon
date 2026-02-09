@@ -17,7 +17,6 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
-import portal.laser.LaserComponent;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
@@ -368,9 +367,6 @@ public class PortalFactory {
               bluePortal -> {
                 bluePortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
               });
-      if (other.name().equals("laserEmitter")) {
-        other.fetch(LaserComponent.class).get().setThroughCube(true);
-      }
       return;
     }
 
@@ -428,9 +424,6 @@ public class PortalFactory {
               greenPortal -> {
                 greenPortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
               });
-      if (other.name().equals("laserEmitter")) {
-        other.fetch(LaserComponent.class).get().setThroughCube(true);
-      }
       return;
     }
 
@@ -602,17 +595,6 @@ public class PortalFactory {
    * @param direction Direction where it extends to.
    */
   private static void onCollideLeave(Entity portal, Entity other, Direction direction) {
-    if (other.name().equals("laserEmitter")) {
-      other
-          .fetch(LaserComponent.class)
-          .ifPresent(
-              lc -> {
-                if (lc.isThroughCube()) {
-                  clearExtendedEntity(portal, other);
-                }
-              });
-      return;
-    }
     clearExtendedEntity(portal, other);
   }
 
