@@ -52,7 +52,7 @@ public class PortalStarter {
    */
   public static final boolean DEBUG_MODE = false;
 
-  private static final boolean LEVELEDITOR_MODE = false;
+  private static final boolean LEVELEDITOR_MODE = true;
 
   private static final String SAVE_LEVEL_KEY = "LEVEL";
   private static final String SAVE_FILE = "currentPortalLevel.json";
@@ -292,7 +292,7 @@ public class PortalStarter {
   }
 
   private static void createSystems() {
-    if (LEVELEDITOR_MODE) Game.add(new LevelEditorSystem());
+    if (LEVELEDITOR_MODE) Game.add(new LevelEditorSystem(true, "./advancedDungeon/assets/levels/portal/"));
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());

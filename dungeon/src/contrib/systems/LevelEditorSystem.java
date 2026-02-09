@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import contrib.components.HealthComponent;
 import contrib.utils.systems.levelEditor.*;
+import core.Component;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -39,6 +40,8 @@ public class LevelEditorSystem extends System {
   private static boolean internalStopped = false;
   private static boolean active = false;
   private static final int TOGGLE_ACTIVE = Input.Keys.F4;
+  private static boolean saveToFile = false;
+  private static String pathToLevels = "";
 
   private static final int TOGGLE_DEBUG_SHADER = Input.Keys.SPACE;
   private boolean debugShaderActive = false;
@@ -60,6 +63,16 @@ public class LevelEditorSystem extends System {
   private static final float FEEDBACK_MESSAGE_DURATION = 3.0f; // seconds
 
   private static Map<Integer, InputComponent.InputData> playerClallbacks = null;
+
+  public LevelEditorSystem(boolean saveToFile, String pathToLevels, Class<? extends Component>... filterRules) {
+    super(filterRules);
+    LevelEditorSystem.saveToFile = saveToFile;
+    LevelEditorSystem.pathToLevels = pathToLevels;
+  }
+
+  public LevelEditorSystem(Class<? extends Component>... filterRules) {
+    super(filterRules);
+  }
 
   /**
    * Gets the active status of the LevelEditorSystem.
@@ -287,7 +300,7 @@ public class LevelEditorSystem extends System {
         case LevelBounds -> new LevelBoundsMode();
         case ShiftLevel -> new ShiftLevelMode();
         case StartTiles -> new StartTilesMode();
-        case SaveLevel -> new SaveMode();
+        case SaveLevel -> new SaveMode(saveToFile, pathToLevels);
       };
     }
   }
