@@ -1,4 +1,4 @@
-import blockly.vm.dgir.core.CFG;
+import blockly.vm.dgir.core.DotCFG;
 import blockly.vm.dgir.core.serialization.Utils;
 import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
@@ -17,6 +17,8 @@ import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
 
+import static blockly.vm.dgir.core.Utils.Graphing.drawGraph;
+import static blockly.vm.dgir.core.Utils.Graphing.drawUseGraph;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BuiltinTests {
@@ -67,8 +69,7 @@ public class BuiltinTests {
 
 
     try {
-      blockly.vm.dgir.core.Utils.Graphing.drawGraph(CFG.getCfg(null, op.getOperation()), "simpleProgramCfg.png", true);
-      blockly.vm.dgir.core.Utils.Graphing.drawUseGraph(op.getOperation(), "simpleProgramOpUse.png", true);
+      drawUseGraph(op.getOperation(), "simpleProgramOpUse.png", true);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -121,8 +122,10 @@ public class BuiltinTests {
       System.out.println(result);
 
     try {
-      blockly.vm.dgir.core.Utils.Graphing.drawGraph(CFG.getCfg(null, op.getOperation()), "functionCallCfg.png", true);
-      blockly.vm.dgir.core.Utils.Graphing.drawUseGraph(op.getOperation(), "functionCallUse.png", true);
+      var graph_cluster = DotCFG.buildCfg(op.getOperation());
+      drawGraph(graph_cluster.getLeft(), "functionCallCfg.png", true);
+      System.out.println(graph_cluster.getRight().toDotString(graph_cluster.getLeft()));
+      drawUseGraph(op.getOperation(), "functionCallUse.png", true);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

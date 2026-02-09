@@ -7,10 +7,9 @@ import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.builder.GraphTypeBuilder;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
-public class CFG {
+public class DetailedCFG {
   /**
    * A transition in the CFG.
    */

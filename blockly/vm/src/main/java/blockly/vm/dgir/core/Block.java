@@ -14,7 +14,7 @@ import java.util.List;
  * Each block has a list of {@link BlockArgument} which are the input values to the block, that can be used by the operations within the block,
  * or blocks dominated by this block {@link DominatorTree}.
  * Each block has a list of operations that are executed in order. The last operation in the block must be a terminator operation,
- * which defines the control flow to other blocks, such as branches or jumps or returns to the parent operation/caller {@link CFG}.
+ * which defines the control flow to other blocks, such as branches or jumps or returns to the parent operation/caller {@link DotCFG}.
  * <p>
  * A block can be moved between regions, which updates the parent region of the block accordingly.
  * Blocks maintain the parent-child relationship with their operations and block arguments, ensuring that each operation and argument knows which block it belongs to.
@@ -40,7 +40,7 @@ import java.util.List;
  * @see Operation
  * @see BlockArgument
  * @see DominatorTree
- * @see CFG
+ * @see DotCFG
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class, property = "@id")
 public final class Block extends IRObjectWithUseList<Block, BlockOperand> implements Serializable {
