@@ -146,4 +146,26 @@ public final class Region {
   public Operation getParent() {
     return parent;
   }
+
+  /**
+   * Finds the ancestor operation of the given operation that lies in this region. If the given operation itself lies in this region, it is returned.
+   * This means that the operation that gets returned is always a first level descendant of this region, meaning it is not nested.
+   *
+   * @param op The operation to find the ancestor op of.
+   * @return The same op if it lies in this region, otherwise the ancestor op of the op in this region. Null if no ancestor op exists in this region.
+   */
+  public Operation findAncestorOpInRegion(Operation op) {
+    Operation currentOp = op;
+    Region opRegion = currentOp.getParentRegion();
+    while (opRegion != null) {
+      if (opRegion == this)
+        return currentOp;
+
+      currentOp = opRegion.getParent();
+      if (currentOp == null)
+        return null;
+      opRegion = currentOp.getParentRegion();
+    }
+    return null;
+  }
 }
