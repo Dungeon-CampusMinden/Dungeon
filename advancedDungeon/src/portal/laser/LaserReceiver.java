@@ -15,6 +15,7 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.Map;
+import portal.util.ToggleableComponent;
 
 /** Class to create the LaserReceiver Entity. */
 public class LaserReceiver {
@@ -46,7 +47,7 @@ public class LaserReceiver {
     dc.sendSignal("inactive");
     receiver.add(dc);
 
-    receiver.add(new LaserReceiverComponent());
+    receiver.add(new ToggleableComponent(false));
 
     TriConsumer<Entity, Entity, Direction> actionEnter =
         (you, other, collisionDir) -> {
@@ -55,7 +56,7 @@ public class LaserReceiver {
               .ifPresent(
                   lc -> {
                     dc.sendSignal("active");
-                    you.fetch(LaserReceiverComponent.class).get().setActive(true);
+                    you.fetch(ToggleableComponent.class).get().activate();
                   });
         };
 
@@ -66,7 +67,7 @@ public class LaserReceiver {
               .ifPresent(
                   lc -> {
                     dc.sendSignal("inactive");
-                    you.fetch(LaserReceiverComponent.class).get().setActive(false);
+                    you.fetch(ToggleableComponent.class).get().deactivate();
                   });
         };
 
