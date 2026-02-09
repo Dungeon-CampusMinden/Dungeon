@@ -7,7 +7,9 @@ import {
   call_code_route,
   call_code_status_route
 } from "../api/api.ts";
+import {checkIfVariablesAreDeclared} from "../generators/java/variables.ts";
 import {completeLevel, getCurrentLevel} from "./level.ts";
+import {changePopupText} from "./popup.ts";
 let startBlock: Blockly.Block | null = null;
 export let currentBlock: Blockly.Block | null = null;
 
@@ -196,6 +198,13 @@ export const setupButtons = (workspace: Blockly.WorkspaceSvg) => {
 
 const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, delayInput: HTMLInputElement) => {
   buttons.startBtn.addEventListener("click", async () => {
+
+    // if (javaGenerator.hasErrors) {
+    //   console.log("generator has Errors");
+    //   return;
+    // }
+
+
     buttons.startBtn.disabled = true;
 
     buttons.resetBtn.click();
@@ -215,6 +224,8 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
     workspace.highlightBlock(null);
     currentBlock = getStartBlock(workspace);
 
+
+
     // collect all code snippets
     const codeSnippets: string[] = [];
     while (currentBlock !== null) {
@@ -223,7 +234,10 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
 
       // Skip the start block itself
       if (currentBlock.type !== "start") {
+        console.log("currentBlockType " + currentBlock.type);
+        console.log(currentBlock);
         const snippet = javaGenerator.blockToCode(currentBlock, true) as string;
+        console.log(snippet)
         codeSnippets.push(snippet.trim());
       }
 
@@ -232,9 +246,15 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
 
     // send the full program in a single request
     const fullProgram = codeSnippets.join("\n");
-
+    const message = checkIfVariablesAreDeclared(codeSnippets);
     const apiResponse = await call_code_route(fullProgram);
-    if (!apiResponse) {
+
+    if (message) {
+      changePopupText(message);
+    }
+
+
+    if (!apiResponse || message) {
       await call_clear_route();
       workspace.highlightBlock(null);
       buttons.startBtn.disabled = false;

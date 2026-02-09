@@ -15,6 +15,7 @@ header {
   width: 100%;
   max-width: 100vw;
   height: var(--header-height);
+  position: relative;
 }
 
 #page-title {
@@ -37,6 +38,7 @@ header {
   flex-basis: 100%;
   height: 100%;
   min-width: 600px;
+  position:relative;
 }
 
 #outputPanel {
@@ -137,6 +139,7 @@ header {
     display: flex;
     align-items: center;
     padding: 0 10px;
+    position:relative;
 }
 
 .level-selector {
@@ -154,4 +157,55 @@ header {
 .level-nav-button:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+}
+
+.popupDiv {
+    position: absolute;
+    left:50%;
+    background-color:red;
+    z-index: 1000;
+    transform: translateX(-50%);
+    height:100%;
+    width: 60%;
+    text-align: center;
+    display: None;
+    opacity: 0;
+}
+
+
+.cross {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.cross span {
+    position: relative; /* Basis für die Pseudoelemente */
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.cross span::before,
+.cross span::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #fff;
+    transform-origin: center;
+}
+
+.cross span::before {
+    transform: rotate(45deg);
+}
+
+.cross span::after {
+    transform: rotate(-45deg);
 }
