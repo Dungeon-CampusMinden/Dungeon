@@ -1,16 +1,22 @@
 package core.utils.settings;
 
+import com.badlogic.gdx.Input;
 import contrib.entities.CharacterClass;
 import contrib.entities.deco.Deco;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.function.BiConsumer;
 
 public class ClientSettings {
 
-  private static ClientSettings instance = null;
+  public static final String MASTER_VOLUME = "masterVolume";
+  public static final String EFFECTS_VOLUME = "effectsVolume";
+  public static final String MUSIC_VOLUME = "musicVolume";
 
+  private static ClientSettings instance = null;
   private final HashMap<String, SettingValue<?>> settings;
+  private BiConsumer<String, Integer> onVolumeChange = (key, value) -> {};
 
   private ClientSettings() {
     settings = new LinkedHashMap<>();
@@ -24,14 +30,18 @@ public class ClientSettings {
     return instance;
   }
 
+  public static void setOnVolumeChange(BiConsumer<String, Integer> onChange) {
+    getInstance().onVolumeChange = onChange;
+  }
+
   private void init() {
     IntSliderSetting masterVolume = new IntSliderSetting("Master Volume", 70, 0, 100, 5);
     IntSliderSetting effectsVolume = new IntSliderSetting("Effects Volume", 70, 0, 100, 5);
-    IntSliderSetting musicVolume = new IntSliderSetting("Music Volume", 50, 0, 100, 5);
+    IntSliderSetting musicVolume = new IntSliderSetting("Music Volume", 10, 0, 100, 5);
 
-    masterVolume.onChange((v) -> {
-      System.out.println("MasterVolume changed to " + v);
-    });
+    masterVolume.onChange((v) -> onVolumeChange.accept(MASTER_VOLUME, v));
+    effectsVolume.onChange((v) -> onVolumeChange.accept(EFFECTS_VOLUME, v));
+    musicVolume.onChange((v) -> onVolumeChange.accept(MUSIC_VOLUME, v));
 
     EnumSetting<CharacterClass> heroClassSetting =
         new EnumSetting<>(
@@ -40,29 +50,30 @@ public class ClientSettings {
             CharacterClass.values(),
             ClientSettings::formatEnumTitle);
 
-    registerSetting("masterVolume", masterVolume);
-    registerSetting("effectsVolume", effectsVolume);
-    registerSetting("musicVolume", musicVolume);
+    registerSetting(MASTER_VOLUME, masterVolume);
+    registerSetting(EFFECTS_VOLUME, effectsVolume);
+    registerSetting(MUSIC_VOLUME, musicVolume);
 
     registerSetting("hero", heroClassSetting);
     registerSetting("deco", new EnumSetting<>("Selected Deco", Deco.Desk, Deco.values(), ClientSettings::formatEnumTitle));
 
-    registerSetting("colorblind", new BoolSetting("Colorblind Mode 1", false));
-    registerSetting("colorblind2", new BoolSetting("Colorblind Mode 2", false));
-    registerSetting("colorblind3", new BoolSetting("Colorblind Mode 3", false));
-    registerSetting("colorblind4", new BoolSetting("Colorblind Mode 4", false));
+    registerSetting("colorblind", new BoolSetting("Colorblind Mode", false));
+
+    registerSetting("section1", new SectionDividerSetting("Controls"));
+    registerSetting("controls1", new ButtonBindingSetting("Pause", Input.Keys.P));
+    registerSetting("controls2", new ButtonBindingSetting("Interact", Input.Keys.E));
   }
 
   public static int masterVolume() {
-    return (int) getSetting("masterVolume").value();
+    return (int) getSetting(MASTER_VOLUME).value();
   }
 
   public static int effectsVolume() {
-    return (int) getSetting("effectsVolume").value();
+    return (int) getSetting(EFFECTS_VOLUME).value();
   }
 
   public static int musicVolume() {
-    return (int) getSetting("musicVolume").value();
+    return (int) getSetting(MUSIC_VOLUME).value();
   }
 
   public static void registerSetting(String key, SettingValue<?> setting) {
