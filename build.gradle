@@ -6,14 +6,12 @@ buildscript {
 
 plugins {
     id 'com.diffplug.spotless' version "${spotlessVersion}"
-}
-
-plugins {
     id 'com.github.jk1.dependency-license-report' version "${jk1licenseVersion}"
 }
 
 licenseReport {
     projects = [project] + project.subprojects
+    allowedLicensesFile = new File("$projectDir/.github/allowed-licenses.json")
     configurations = ['runtimeClasspath', 'compileClasspath']
     renderers = [new com.github.jk1.license.render.TextReportRenderer('licenses.txt')]
     excludeGroups = ['org.junit', 'org.mockito', 'org.junit.platform']
