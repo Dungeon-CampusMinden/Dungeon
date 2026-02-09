@@ -11,7 +11,7 @@ public enum LastHourSounds implements ISound {
   COMPUTER_TAB_CLICKED(CoreSounds.INTERFACE_BUTTON_CLICKED.soundName(), 1.0f),
   COMPUTER_LOGIN_FAILED("kenney_ui_error_002", 0.7f),
   COMPUTER_LOGIN_SUCCESS("kenney_ui_confirmation_002", 1.0f),
-  COMPUTER_VIRUS_CAUGHT("", 1.0f),
+  COMPUTER_VIRUS_CAUGHT("kenney_ui_error_003", 1.0f),
   COMPUTER_EMAIL_RECEIVED("", 1.0f),
 
   ELECTRICITY_TURNED_ON("kenney_ui_maximize_001", 1.0f),

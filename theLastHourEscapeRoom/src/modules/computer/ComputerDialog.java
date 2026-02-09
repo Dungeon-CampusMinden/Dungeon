@@ -125,16 +125,16 @@ public class ComputerDialog extends Group {
     container.add(browserArea).grow();
 
     // only default tab is login
-    addTabsForState(ComputerState.PRE_LOGIN);
-    if (sharedState.state() == ComputerState.LOGGED_IN) {
-      addTabsForState(ComputerState.LOGGED_IN);
+    addTabsForState(ComputerProgress.ON);
+    if (sharedState.state() == ComputerProgress.LOGGED_IN) {
+      addTabsForState(ComputerProgress.LOGGED_IN);
     }
   }
 
-  public void addTabsForState(ComputerState state) {
-    if (state == ComputerState.PRE_LOGIN) {
+  public void addTabsForState(ComputerProgress state) {
+    if (state == ComputerProgress.ON) {
       addTab(new LoginMask(sharedState));
-    } else if (state == ComputerState.LOGGED_IN) {
+    } else if (state == ComputerProgress.LOGGED_IN) {
       addTab(new EmailsTab(sharedState));
       addTab(new BrowserTab(sharedState));
     }

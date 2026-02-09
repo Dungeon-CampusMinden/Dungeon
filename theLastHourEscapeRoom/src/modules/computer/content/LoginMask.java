@@ -11,7 +11,7 @@ import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
 import core.utils.components.draw.TextureGenerator;
 import modules.computer.ComputerDialog;
-import modules.computer.ComputerState;
+import modules.computer.ComputerProgress;
 import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;
 
@@ -36,7 +36,7 @@ public class LoginMask extends ComputerTab {
   }
 
   protected void createActors() {
-    boolean completed = sharedState().state().hasReached(ComputerState.LOGGED_IN);
+    boolean completed = sharedState().state().hasReached(ComputerProgress.LOGGED_IN);
     if (completed) {
       localState().username(USERNAME);
       localState().password(PASSWORD);
@@ -88,11 +88,11 @@ public class LoginMask extends ComputerTab {
             String username = localState().username();
             String password = localState().password();
             if (username.equals(USERNAME) && password.equalsIgnoreCase(PASSWORD)) {
-              ComputerStateComponent.setState(ComputerState.LOGGED_IN);
+              ComputerStateComponent.setState(ComputerProgress.LOGGED_IN);
               ComputerDialog.getInstance()
                   .ifPresent(
                       computer -> {
-                        computer.addTabsForState(ComputerState.LOGGED_IN);
+                        computer.addTabsForState(ComputerProgress.LOGGED_IN);
                       });
               onLoginSuccess(false);
             } else {
@@ -116,9 +116,9 @@ public class LoginMask extends ComputerTab {
 
   @Override
   protected void updateState(ComputerStateComponent newStateComp) {
-    ComputerState oldState = sharedState().state();
-    ComputerState newState = newStateComp.state();
-    if (oldState != newState && newState == ComputerState.LOGGED_IN) {
+    ComputerProgress oldState = sharedState().state();
+    ComputerProgress newState = newStateComp.state();
+    if (oldState != newState && newState == ComputerProgress.LOGGED_IN) {
       onLoginSuccess(false);
     }
   }

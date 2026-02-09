@@ -98,6 +98,11 @@ public class BrowserTab extends ComputerTab {
     } else {
       target = create404Page();
     }
+
+    if(url.equals("https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm")){
+      ComputerStateComponent.setInfection(true);
+    }
+
     contentTable.add(target).grow();
   }
 

@@ -1,5 +1,7 @@
 package starter;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import contrib.entities.CharacterClass;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroBuilder;
@@ -21,6 +23,8 @@ import core.utils.CursorUtil;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+
+import core.utils.settings.ClientSettings;
 import level.LastHourLevel1;
 
 /**
@@ -33,6 +37,9 @@ import level.LastHourLevel1;
  * <p>Usage: run with the Gradle task {@code runBasicStarter}.
  */
 public class TheLastHour {
+
+  private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
+  public static Music backgroundMusic;
 
   private static boolean DEBUG_MODE = true;
   private static boolean RUN_MP_SERVER = false;
@@ -80,6 +87,7 @@ public class TheLastHour {
     } else {
       Game.add(HeroBuilder.builder().characterClass(CharacterClass.WIZARD).build());
       Game.stage().ifPresent(CursorUtil::initListener);
+      setupMusic();
     }
 
     ECSManagement.add(new CollisionSystem());
@@ -90,6 +98,19 @@ public class TheLastHour {
       ECSManagement.add(new DebugDrawSystem());
       ECSManagement.add(new LevelEditorSystem());
     }
+  }
+
+  private static void setupMusic() {
+    backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
+    backgroundMusic.setLooping(true);
+    backgroundMusic.play();
+    backgroundMusic.setVolume(ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
+
+    ClientSettings.setOnVolumeChange((key, value) -> {
+      if(key.equals(ClientSettings.MUSIC_VOLUME) || key.equals(ClientSettings.MASTER_VOLUME)) {
+        backgroundMusic.setVolume(ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
+      }
+    });
   }
 
   private static void onFrame() {

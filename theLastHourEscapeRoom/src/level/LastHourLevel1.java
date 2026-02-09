@@ -6,7 +6,6 @@ import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
-import contrib.modules.interaction.ISimpleIInteractable;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadFactory;
@@ -31,7 +30,7 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import modules.computer.ComputerFactory;
-import modules.computer.ComputerState;
+import modules.computer.ComputerProgress;
 import modules.computer.ComputerStateComponent;
 import modules.computer.LastHourDialogTypes;
 import modules.trash.TrashMinigameUI;
@@ -41,7 +40,7 @@ import util.LastHourSounds;
 public class LastHourLevel1 extends DungeonLevel {
 
   private DoorTile storageDoor;
-  public static Entity ComputerEntity;
+  public static Entity pc;
   public static final String PC_STATE_OFF = "off";
   public static final String PC_STATE_ON = "on";
   public static final String PC_STATE_VIRUS = "virus";
@@ -108,7 +107,7 @@ public class LastHourLevel1 extends DungeonLevel {
   }
 
   private void setupPC(){
-    Entity pc = new Entity("pc-main");
+    pc = new Entity("pc-main");
     PositionComponent positionComp = new PositionComponent(getPoint("pc-main").translate(-0.7f, -0.9f));
     pc.add(positionComp);
     pc.add(new CollideComponent(new Rectangle(2.0f, 1.3f, 0.8f, 1f)));
@@ -129,7 +128,7 @@ public class LastHourLevel1 extends DungeonLevel {
     Game.add(pc);
 
     Entity computerState = new Entity("computer-state");
-    computerState.add(new ComputerStateComponent(ComputerState.PRE_LOGIN));
+    computerState.add(new ComputerStateComponent(ComputerProgress.OFF, false));
     Game.add(computerState);
 
     // Power switch (hidden under papers)
@@ -140,7 +139,7 @@ public class LastHourLevel1 extends DungeonLevel {
       DialogFactory.showYesNoDialog("There is a switch hidden below these stacks of paper.\n\nDo you want to flip it?", "", () -> {
         Sounds.playLocal(CoreSounds.SETTINGS_TOGGLE_CLICK, 1, 1.5f);
         DialogFactory.showOkDialog("You flipped the switch.\n\nYou can hear electricity buzzing throughout the room.", "", () -> {
-          dc.sendSignal(PC_SIGNAL_ON);
+          ComputerStateComponent.setState(ComputerProgress.ON);
           Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
         });
       }, () -> {}, who.id());
@@ -180,7 +179,36 @@ public class LastHourLevel1 extends DungeonLevel {
   }
 
   @Override
-  protected void onTick() {}
+  protected void onTick() {
+    checkPCStateUpdate();
+  }
+
+  private void checkPCStateUpdate() {
+    ComputerStateComponent csc = ComputerStateComponent.getState();
+    DrawComponent dc = pc.fetch(DrawComponent.class).orElseThrow();
+    if(!dc.currentStateName().equals(pcStateToDCState(csc))){
+      // Update local state to match shared state
+      if(csc.isInfected()) {
+        dc.sendSignal(PC_SIGNAL_INFECT);
+        Sounds.play(LastHourSounds.COMPUTER_VIRUS_CAUGHT, 1, 1.0f);
+      }
+      else {
+        if(csc.state() == ComputerProgress.ON) {
+          dc.sendSignal(PC_SIGNAL_ON);
+        }
+        else {
+          dc.sendSignal(PC_SIGNAL_CLEAR);
+          Sounds.playLocal(CoreSounds.INTERFACE_BUTTON_BACKWARD);
+        }
+      }
+    }
+  }
+
+  private String pcStateToDCState(ComputerStateComponent csc) {
+    if(csc.isInfected()) return PC_STATE_VIRUS;
+    if(csc.state() == ComputerProgress.OFF) return PC_STATE_OFF;
+    return PC_STATE_ON;
+  }
 
   /** Plays ambient sounds at random intervals. */
   private void playAmbientSound() {
