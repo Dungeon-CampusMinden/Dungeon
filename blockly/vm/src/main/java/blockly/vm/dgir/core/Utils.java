@@ -63,7 +63,7 @@ public class Utils {
         for (Operation o : block.getOperations()) {
           if (o.getOutput() != null) {
             useGraph.addVertex(o);
-            for (Operand<Value, ?> operand : o.getOutput().getUses()) {
+            for (Operand<Value, ?> operand : o.getOutputValue().getUses()) {
               Operation userOp = operand.getOwner();
               useGraph.addVertex(userOp);
               useGraph.addEdge(o, userOp);

@@ -9,48 +9,14 @@ import java.io.Serializable;
  * A dynamic value which has a type and can be supplied either by Operations or block arguments.
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class, property = "@id")
-public abstract class Value extends IRObjectWithUseList<Value, ValueOperand> implements Serializable {
-  /**
-   * The kind of value, to draw a distinction between op results and block arguments.
-   */
-  public enum Kind {
-    /**
-     * This Value is the result of an operation.
-     */
-    OpResult,
-    /**
-     * This value is a block argument.
-     */
-    BlockArgument
-  }
+public final class Value extends IRObjectWithUseList<Value, ValueOperand> implements Serializable {
+  private final Type type;
 
-  private Type type;
-  @JsonIgnore
-  private Kind kind;
-
-  public Value() {
-    type = null;
-    kind = null;
-  }
-
-  protected Value(Type type, Kind kind) {
+  public Value(Type type) {
     this.type = type;
-    this.kind = kind;
   }
 
   public Type getType() {
     return type;
-  }
-
-  public void setType(Type type) {
-    this.type = type;
-  }
-
-  public Kind getKind() {
-    return kind;
-  }
-
-  protected void setKind(Kind kind) {
-    this.kind = kind;
   }
 }

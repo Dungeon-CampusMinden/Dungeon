@@ -70,8 +70,13 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
     String outputValueId = null;
     if (node.has("output")) {
       JsonNode outputNode = node.get("output");
-      outputValueId = outputNode.get("@id").asString();
-      outputType = ctxt.readTreeAsValue(outputNode.get("type"), Type.class);
+      // This output is a reference to an existing value
+      if (!outputNode.has("@id"))
+        outputValueId = outputNode.asString();
+      else {
+        outputValueId = outputNode.get("@id").asString();
+        outputType = ctxt.readTreeAsValue(outputNode.get("type"), Type.class);
+      }
     }
     // TODO deserialize block operands (successors).
 
@@ -86,13 +91,33 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       }
     }
 
-    // Create the operation instance.
-    Operation operation = Operation.Create(
-      operationDetails.get(),
-      operands ,
-      null,
-      outputType,
-      regions != null ? regions.size() : 0);
+    Operation operation = null;
+    // In case we do have the output value id but no type we must resolve the reference and get the type from the value.
+    // Afterward we set the value on the operation so that it points to the correct value
+    if (outputType == null && outputValueId != null) {
+      // Convert the string UUID to the proper key type used by the generator
+      Object idKey = idGenerator.key(java.util.UUID.fromString(outputValueId));
+      // Find or create the object ID entry - this will handle forward/backward references
+      ReadableObjectId readableId = ctxt.findObjectId(idKey, idGenerator, idResolver);
+      Value value = (Value) readableId.resolve();
+
+      // Create the operation instance with the resolved output value type and set the output value on the operation.
+      operation = Operation.Create(
+        operationDetails.get(),
+        operands,
+        null,
+        value.getType(),
+        regions != null ? regions.size() : 0);
+      operation.setOutputValue(value);
+    } else {
+      // Create the operation instance.
+      operation = Operation.Create(
+        operationDetails.get(),
+        operands,
+        null,
+        outputType,
+        regions != null ? regions.size() : 0);
+    }
 
     // Set the attributes if they were deserialized.
     if (attributes != null) {
@@ -103,7 +128,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
 
     // if the output was deserialized, get the Value object from the operation and register it.
     if (outputType != null && outputValueId != null) {
-      Value outputValue = operation.getOutput();
+      Value outputValue = operation.getOutputValue();
       // Convert the string UUID to the proper key type used by the generator
       Object idKey = idGenerator.key(java.util.UUID.fromString(outputValueId));
       ReadableObjectId id = ctxt.findObjectId(idKey, idGenerator, idResolver);

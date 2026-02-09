@@ -33,19 +33,11 @@ public class ConstantOp extends Op {
 
   public ConstantOp(ITypedAttribute value) {
     setOperation(Operation.Create(getIdent(), null, null, value.getType(), 0));
-    setValueAttribute(value);
+    getAttributes().get("value").setAttribute((Attribute) value);
   }
 
   public ITypedAttribute getValueAttribute() {
     return (ITypedAttribute) getAttributes().get("value").getAttribute();
-  }
-
-  public void setValueAttribute(ITypedAttribute attribute) {
-    assert attribute != null : "Attribute cannot be null.";
-    getOperation().getAttributes().get("value").setAttribute((Attribute) attribute);
-    if (getOperation().getOutput() != null) {
-      getOperation().getOutput().setType(attribute.getType());
-    }
   }
 
   public static String getIdent() {

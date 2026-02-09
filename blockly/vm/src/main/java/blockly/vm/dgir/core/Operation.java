@@ -1,13 +1,9 @@
 package blockly.vm.dgir.core;
 
-import blockly.vm.dgir.core.serialization.OpDeserializer;
 import blockly.vm.dgir.core.serialization.OperationDeserializer;
 import blockly.vm.dgir.core.serialization.OperationSerializer;
 import blockly.vm.dgir.core.traits.IOpTrait;
-import blockly.vm.dgir.core.traits.ISymbolTable;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -220,6 +216,16 @@ public final class Operation implements Serializable {
 
   public OperationResult getOutput() {
     return output;
+  }
+
+  public Value getOutputValue() {
+    assert getOutput() != null : "Operation has no output.";
+    return getOutput().getValue();
+  }
+
+  public void setOutputValue(Value value){
+    assert this.output != null : "Trying to set output value of an operation that has no output.";
+    this.output.setValue(value);
   }
 
   public Map<String, NamedAttribute> getAttributes() {

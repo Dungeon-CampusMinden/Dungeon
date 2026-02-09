@@ -11,8 +11,6 @@ import java.util.List;
 /**
  * A block containing a list of {@link Operation}.
  * Blocks are always attached to a {@link Region}.
- * Each block has a list of {@link BlockArgument} which are the input values to the block, that can be used by the operations within the block,
- * or blocks dominated by this block {@link DominatorTree}.
  * Each block has a list of operations that are executed in order. The last operation in the block must be a terminator operation,
  * which defines the control flow to other blocks, such as branches or jumps or returns to the parent operation/caller {@link DotCFG}.
  * <p>
@@ -38,17 +36,11 @@ import java.util.List;
  * @author <a href="mailto:lasse.foster@hsbi.de">Lasse Foster</a>
  * @see Region
  * @see Operation
- * @see BlockArgument
  * @see DominatorTree
  * @see DotCFG
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class, property = "@id")
 public final class Block extends IRObjectWithUseList<Block, BlockOperand> implements Serializable {
-  /**
-   * The value arguments of this block.
-   * These are the input values to the block.
-   */
-  private final List<BlockArgument> arguments = new ArrayList<>();
   /**
    * The operations contained in this block.
    * These are executed in order.
@@ -62,12 +54,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   }
 
   @JsonCreator
-  public Block(@JsonProperty("arguments") List<BlockArgument> arguments,
-               @JsonProperty("operations") List<Operation> operations) {
-    if (arguments != null)
-      for (BlockArgument argument : arguments) {
-        addArgument(argument);
-      }
+  public Block(@JsonProperty("operations") List<Operation> operations) {
     if (operations != null)
       for (Operation operation : operations) {
         addOperation(operation);
@@ -84,26 +71,6 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   public Operation getTerminator() {
     assert hasTerminator() : "Block does not have a terminator operation.";
     return operations.getLast();
-  }
-
-  public List<BlockArgument> getArguments() {
-    return Collections.unmodifiableList(arguments);
-  }
-
-  public void addArgument(BlockArgument argument) {
-    assert argument != null : "Argument cannot be null.";
-    assert argument.getParent() == null : "Argument already has a parent.";
-
-    arguments.add(argument);
-    argument.setParent(this);
-  }
-
-  public void removeArgument(BlockArgument argument) {
-    assert argument != null : "Argument cannot be null.";
-    assert argument.getParent() == this : "Argument does not belong to this block.";
-
-    arguments.remove(argument);
-    argument.setParent(null);
   }
 
   public List<Operation> getOperations() {
@@ -131,12 +98,13 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
     operation.setParent(null);
   }
 
-  public int getArgumentIndex(BlockArgument blockArgument) {
-    return arguments.indexOf(blockArgument);
-  }
-
   public Region getParent() {
     return parent;
+  }
+
+  @JsonIgnore
+  public Operation getParentOperation(){
+    return getParent().getParent();
   }
 
   public void setParent(Region parent) {

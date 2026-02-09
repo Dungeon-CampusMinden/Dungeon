@@ -113,7 +113,7 @@ public class DotCFG {
 
     private Cluster currentCluster;
 
-    public GraphBuilder(Operation root) {
+    GraphBuilder(Operation root) {
       cfg = GraphTypeBuilder
         .<Operation, DefaultEdge>directed()
         .edgeClass(DefaultEdge.class)
@@ -126,7 +126,7 @@ public class DotCFG {
       currentCluster = rootCluster;
     }
 
-    public Pair<Graph<Operation, DefaultEdge>, Cluster> getCfg() {
+    Pair<Graph<Operation, DefaultEdge>, Cluster> getCfg() {
       return Pair.of(cfg, rootCluster);
     }
 
@@ -135,7 +135,7 @@ public class DotCFG {
      *
      * @param op The operation to process
      */
-    public void processOperation(Operation op) {
+    void processOperation(Operation op) {
       cfg.addVertex(op);
       currentCluster.addOperation(op);
 

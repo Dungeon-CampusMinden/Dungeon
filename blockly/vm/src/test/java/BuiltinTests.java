@@ -59,7 +59,7 @@ public class BuiltinTests {
     var numberTextOP = new ConstantOp(new IntegerAttribute(42, IntegerT.INT32));
     funcBlock.addOperation(numberTextOP.getOperation());
 
-    funcBlock.addOperation(new PrintOp(List.of(textOp.getOperation().getOutput(), numberTextOP.getOperation().getOutput())).getOperation());
+    funcBlock.addOperation(new PrintOp(List.of(textOp.getOutputValue(), numberTextOP.getOutputValue())).getOperation());
 
     funcBlock.addOperation(new ReturnOp(List.of()));
 
@@ -98,7 +98,7 @@ public class BuiltinTests {
       var helloWorldTextOp = new ConstantOp(new StringAttribute("Hello World!"));
       fooFuncBlock.addOperation(helloWorldTextOp);
 
-      var returnOp = new ReturnOp(List.of(helloWorldTextOp.getOperation().getOutput()));
+      var returnOp = new ReturnOp(List.of(helloWorldTextOp.getOutputValue()));
       fooFuncBlock.addOperation(returnOp);
 
       progBlock.addOperation(fooFuncOp.getOperation());
@@ -113,7 +113,7 @@ public class BuiltinTests {
       var funcCallOp = new CallOp(fooFuncOp, List.of());
       funcBlock.addOperation(funcCallOp.getOperation());
 
-      funcBlock.addOperation(new PrintOp(List.of(funcCallOp.getOperation().getOutput())));
+      funcBlock.addOperation(new PrintOp(List.of(funcCallOp.getOperation().getOutput().getValue())));
       funcBlock.addOperation(new ReturnOp(List.of()));
     }
 
@@ -129,6 +129,38 @@ public class BuiltinTests {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+
+    assertEquals("", TestUtils.compareSerializedOperations(
+      mapper,
+      op.getOperation(),
+      mapper.readValue(result, ProgramOp.class).getOperation()
+    ));
+  }
+
+  /**
+   * Checks whether values which are written to multiple types are serialized and deserialized correctly.
+   */
+  @Test
+  public void overrideValue() {
+    ObjectMapper mapper = Utils.getMapper(true, true);
+
+    ProgramOp op = new ProgramOp(true);
+    var programRegion = op.getOperation().getRegions().getFirst();
+    var progBlock = programRegion.getEntryBlock();
+
+    var constOp = new ConstantOp(new IntegerAttribute(42, IntegerT.INT32));
+    progBlock.addOperation(constOp.getOperation());
+
+    var secondConstOp = new ConstantOp(new IntegerAttribute(100, IntegerT.INT32));
+    secondConstOp.setOutputValue(constOp.getOutputValue());
+    progBlock.addOperation(secondConstOp.getOperation());
+
+    progBlock.addOperation(new PrintOp(List.of(secondConstOp.getOutputValue())).getOperation());
+    progBlock.addOperation(new ReturnOp(List.of()));
+
+    String result = mapper.writeValueAsString(op);
+    if (printResult)
+      System.out.println(result);
 
     assertEquals("", TestUtils.compareSerializedOperations(
       mapper,

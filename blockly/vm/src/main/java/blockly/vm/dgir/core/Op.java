@@ -64,6 +64,17 @@ public abstract class Op {
   }
 
   @JsonIgnore
+  public Value getOutputValue() {
+    assert getOutput() != null : "Operation has no output.";
+    return getOutput().getValue();
+  }
+
+  public void setOutputValue(Value value) {
+    assert getOperation() != null : "Operation is null.";
+    getOperation().setOutputValue(value);
+  }
+
+  @JsonIgnore
   public Map<String, NamedAttribute> getAttributes() {
     assert getOperation() != null : "Operation is null.";
     return getOperation().getAttributes();
