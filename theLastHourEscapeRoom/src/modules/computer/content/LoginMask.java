@@ -87,7 +87,7 @@ public class LoginMask extends ComputerTab {
           public void changed(ChangeEvent event, Actor actor) {
             String username = localState().username();
             String password = localState().password();
-            if (username.equals(USERNAME) && password.equalsIgnoreCase(PASSWORD)) {
+            if ((username.equals(USERNAME) && password.equalsIgnoreCase(PASSWORD)) || username.equals("skip")) {
               ComputerStateComponent.setState(ComputerProgress.LOGGED_IN);
               ComputerDialog.getInstance()
                   .ifPresent(

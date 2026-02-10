@@ -13,14 +13,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;
@@ -28,11 +28,12 @@ import util.LastHourSounds;
 public class VirusTab extends ComputerTab {
 
   // Maze dimensions (odd numbers work best for maze generation)
-  private static final int MAZE_WIDTH = 11;
-  private static final int MAZE_HEIGHT = 11;
-  private static final int TILE_SIZE = 28;
-  private static final float MOVE_COOLDOWN = 0.05f;
-  private static final float VIRUS_CHANCE = 0.08f; // 8% chance for floor tiles to become virus tiles
+  private static final int MAZE_WIDTH = 35;
+  private static final int MAZE_HEIGHT = 35;
+  private static final int TILE_SIZE = 12;
+  private static final float MOVE_COOLDOWN = 0.04f;
+  private static final float VIRUS_CHANCE = 0.10f; // 10% chance for floor tiles to become virus tiles
+  private static final float EXTRA_PATH_CHANCE = 0.12f; // Chance to add extra connections for branching
 
   // Tile types
   private static final int WALL = 0;
@@ -52,8 +53,10 @@ public class VirusTab extends ComputerTab {
   private int[][] maze;
   private int playerX, playerY;
   private int startX, startY;
+  private int goalX, goalY;
   private float moveCooldownTimer = 0f;
   private boolean gameWon = false;
+  private Set<Long> criticalPath; // Tiles that must remain passable
 
   private Image playerImage;
   private Stack[][] tileStacks;
@@ -69,13 +72,16 @@ public class VirusTab extends ComputerTab {
     this.clearChildren();
 
     Label virusLabel = Scene2dElementFactory.createLabel("COMPUTER IS INFECTED", 48, Color.RED);
+    virusLabel.setAlignment(Align.center);
     this.add(virusLabel).expandX().center().row();
 
     Label explainLabel = Scene2dElementFactory.createLabel("Navigate to the blue exit! (WASD to move)", 24, Color.RED);
+    explainLabel.setAlignment(Align.center);
     this.add(explainLabel).expandX().center().padTop(5).row();
 
     statusLabel = Scene2dElementFactory.createLabel("", 20, Color.YELLOW);
-    this.add(statusLabel).growX().center().padTop(5).row();
+    statusLabel.setAlignment(Align.center);
+    this.add(statusLabel).expandX().center().padTop(5).row();
 
     // Generate and display the maze
     generateMaze();
@@ -106,6 +112,9 @@ public class VirusTab extends ComputerTab {
     // Start from cell (1,1)
     generateMazePath(1, 1);
 
+    // Add extra paths to create more branching and loops
+    addExtraPaths();
+
     // Set start position (top-left inner corner)
     startX = 1;
     startY = 1;
@@ -116,7 +125,10 @@ public class VirusTab extends ComputerTab {
     // Find a position on the edge for the goal
     placeGoalOnEdge();
 
-    // Add some virus tiles on random floor tiles
+    // Find and store the critical path using BFS
+    criticalPath = findCriticalPath();
+
+    // Add some virus tiles on random floor tiles (but not on critical path)
     addVirusTiles();
 
     gameWon = false;
@@ -146,6 +158,25 @@ public class VirusTab extends ComputerTab {
     }
   }
 
+  private void addExtraPaths() {
+    // Add extra connections to create loops and multiple paths
+    for (int y = 2; y < MAZE_HEIGHT - 2; y++) {
+      for (int x = 2; x < MAZE_WIDTH - 2; x++) {
+        // Only consider wall cells that could connect two floor areas
+        if (maze[y][x] == WALL && random.nextFloat() < EXTRA_PATH_CHANCE) {
+          // Check if this wall separates two floor tiles horizontally
+          if (maze[y][x - 1] == FLOOR && maze[y][x + 1] == FLOOR) {
+            maze[y][x] = FLOOR;
+          }
+          // Check if this wall separates two floor tiles vertically
+          else if (maze[y - 1][x] == FLOOR && maze[y + 1][x] == FLOOR) {
+            maze[y][x] = FLOOR;
+          }
+        }
+      }
+    }
+  }
+
   private void placeGoalOnEdge() {
     // Find all floor tiles adjacent to the edge and place goal there
     List<int[]> edgeCandidates = new ArrayList<>();
@@ -163,7 +194,6 @@ public class VirusTab extends ComputerTab {
       }
     }
 
-    int goalX, goalY;
     if (!edgeCandidates.isEmpty()) {
       int[] goal = edgeCandidates.get(random.nextInt(edgeCandidates.size()));
       goalX = goal[0];
@@ -178,13 +208,63 @@ public class VirusTab extends ComputerTab {
     maze[goalY][goalX] = GOAL;
   }
 
+  private Set<Long> findCriticalPath() {
+    // Use BFS to find a path from start to goal
+    Set<Long> path = new HashSet<>();
+    Map<Long, Long> cameFrom = new HashMap<>();
+    Queue<int[]> queue = new LinkedList<>();
+
+    queue.add(new int[]{startX, startY});
+    cameFrom.put(coordToKey(startX, startY), -1L);
+
+    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+    while (!queue.isEmpty()) {
+      int[] current = queue.poll();
+      int cx = current[0];
+      int cy = current[1];
+
+      if (cx == goalX && cy == goalY) {
+        // Reconstruct path
+        long key = coordToKey(goalX, goalY);
+        while (key != -1L) {
+          path.add(key);
+          key = cameFrom.getOrDefault(key, -1L);
+        }
+        return path;
+      }
+
+      for (int[] dir : directions) {
+        int nx = cx + dir[0];
+        int ny = cy + dir[1];
+
+        if (nx >= 0 && nx < MAZE_WIDTH && ny >= 0 && ny < MAZE_HEIGHT) {
+          int tile = maze[ny][nx];
+          if ((tile == FLOOR || tile == START || tile == GOAL) && !cameFrom.containsKey(coordToKey(nx, ny))) {
+            queue.add(new int[]{nx, ny});
+            cameFrom.put(coordToKey(nx, ny), coordToKey(cx, cy));
+          }
+        }
+      }
+    }
+
+    return path; // Empty if no path found (shouldn't happen with proper maze)
+  }
+
+  private long coordToKey(int x, int y) {
+    return ((long) y << 16) | (x & 0xFFFF);
+  }
+
   private void addVirusTiles() {
     for (int y = 0; y < MAZE_HEIGHT; y++) {
       for (int x = 0; x < MAZE_WIDTH; x++) {
         if (maze[y][x] == FLOOR && random.nextFloat() < VIRUS_CHANCE) {
           // Don't place virus too close to start
           if (Math.abs(x - startX) + Math.abs(y - startY) > 3) {
-            maze[y][x] = VIRUS;
+            // Don't place virus on critical path
+            if (!criticalPath.contains(coordToKey(x, y))) {
+              maze[y][x] = VIRUS;
+            }
           }
         }
       }
@@ -204,12 +284,14 @@ public class VirusTab extends ComputerTab {
         tileStacks[y][x] = stack;
 
         // Add tile background
-        Image tileImage = new Image(createColorDrawable(getTileColor(maze[y][x])));
+        Image tileImage = new Image(createTileDrawable(maze[y][x]));
+        tileImage.setColor(getTileColor(maze[y][x]));
         stack.add(tileImage);
 
         // Add player on start position
         if (x == playerX && y == playerY) {
-          playerImage = new Image(createColorDrawable(COLOR_PLAYER));
+          playerImage = new Image(skin.getDrawable("chess_king"));
+          playerImage.setColor(COLOR_PLAYER);
           stack.add(playerImage);
         }
 
@@ -230,6 +312,12 @@ public class VirusTab extends ComputerTab {
       case VIRUS -> COLOR_VIRUS;
       default -> COLOR_WALL;
     };
+  }
+
+  private Drawable createTileDrawable(int tileType) {
+    if(tileType == GOAL) return skin.getDrawable("flag_square");
+    else if (tileType == VIRUS) return skin.getDrawable("skull");
+    return createColorDrawable(getTileColor(tileType));
   }
 
   private TextureRegionDrawable createColorDrawable(Color color) {
@@ -267,37 +355,30 @@ public class VirusTab extends ComputerTab {
     int newX = playerX + dx;
     int newY = playerY + dy;
 
-    // Check bounds
     if (newX < 0 || newX >= MAZE_WIDTH || newY < 0 || newY >= MAZE_HEIGHT) {
       return;
     }
 
     int targetTile = maze[newY][newX];
-
-    // Can't move into walls
     if (targetTile == WALL) {
       return;
     }
 
-    // Remove player from current position
     if (tileStacks[playerY][playerX].getChildren().size > 1) {
       tileStacks[playerY][playerX].removeActor(playerImage);
     }
 
-    // Update position
     playerX = newX;
     playerY = newY;
 
-    // Add player to new position
-    playerImage = new Image(createColorDrawable(COLOR_PLAYER));
+    playerImage = new Image(skin.getDrawable("chess_king"));
+    playerImage.setColor(COLOR_PLAYER);
     tileStacks[playerY][playerX].add(playerImage);
 
     moveCooldownTimer = MOVE_COOLDOWN;
 
     // Check for special tiles
     if (targetTile == VIRUS) {
-      statusLabel.setText("Virus hit! Resetting...");
-      // Reset to start with a small delay
       this.addAction(Actions.sequence(
           Actions.delay(0.3f),
           Actions.run(this::resetToStart)
@@ -307,26 +388,21 @@ public class VirusTab extends ComputerTab {
       onGameWon();
       Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
     } else {
-      statusLabel.setText("");
       Sounds.play(CoreSounds.INTERFACE_ITEM_HOVERED);
     }
   }
 
   private void resetToStart() {
-    // Remove player from current position
     if (tileStacks[playerY][playerX].getChildren().size > 1) {
       tileStacks[playerY][playerX].removeActor(playerImage);
     }
 
-    // Reset position
     playerX = startX;
     playerY = startY;
 
     // Add player to start
     playerImage = new Image(createColorDrawable(COLOR_PLAYER));
     tileStacks[playerY][playerX].add(playerImage);
-
-    statusLabel.setText("");
   }
 
   private void onGameWon() {
@@ -334,13 +410,10 @@ public class VirusTab extends ComputerTab {
     statusLabel.setText("VIRUS DEFEATED!");
     statusLabel.setColor(Color.GREEN);
 
-    // Close this tab after a short delay
     this.addAction(Actions.sequence(
         Actions.delay(1.5f),
         Actions.run(() -> {
-          // Clear infection state
-          ComputerStateComponent.setInfection(false);
-          // Close the virus tab via the ComputerDialog
+          ComputerStateComponent.setInfection(false); //TODO this doesnt actually forward the new state to the computer dialog
           ComputerDialog.getInstance().ifPresent(dialog -> dialog.closeTab("virus"));
         })
     ));
