@@ -16,6 +16,7 @@ import core.level.elements.tile.*;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.level.utils.TileTextureFactory;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -107,6 +108,23 @@ public interface ILevel extends IndexedGraph<Tile> {
    * @param checkTile The tile for which connections to neighbors are added.
    */
   void addConnectionsToNeighbours(final Tile checkTile);
+
+  /** Refreshes the textures of all tiles in the level. */
+  default void refreshLevelTextures() {
+    LevelElement[][] levelElements = new LevelElement[layout().length][layout()[0].length];
+    for (int y = 0; y < layout().length; y++) {
+      for (int x = 0; x < layout()[0].length; x++) {
+        levelElements[y][x] = layout()[y][x].levelElement();
+      }
+    }
+    for (Tile[] row : layout()) {
+      for (Tile tile : row) {
+        tile.texturePath(
+            TileTextureFactory.findTexturePath(
+                tile, this.layout(), tile.levelElement(), levelElements));
+      }
+    }
+  }
 
   /**
    * Retrieves a random tile of the specified type from the level.
