@@ -38,11 +38,28 @@ public final class DialogContext implements Serializable {
    */
   public DialogContext(
       DialogType dialogType, boolean center, Map<String, Serializable> attributes) {
+    this(dialogType, center, attributes, null);
+  }
+
+  /**
+   * Constructs a new DialogContext with the specified parameters and dialog ID.
+   *
+   * @param dialogType The type of dialog to create
+   * @param center Whether the dialog should be centered on screen
+   * @param attributes Map of serializable attributes for dialog configuration (if null, an empty
+   *     map is used)
+   * @param dialogId The dialog ID to use (if null, a new ID is generated)
+   */
+  public DialogContext(
+      DialogType dialogType,
+      boolean center,
+      Map<String, Serializable> attributes,
+      String dialogId) {
     attributes = attributes == null ? new HashMap<>() : new HashMap<>(attributes);
     this.dialogType = dialogType;
     this.center = center;
     this.attributes = attributes;
-    this.dialogId = "dialog-" + UUID.randomUUID();
+    this.dialogId = dialogId == null ? "dialog-" + UUID.randomUUID() : dialogId;
   }
 
   /**
@@ -215,6 +232,7 @@ public final class DialogContext implements Serializable {
     private DialogType type;
     private boolean center = true;
     private final Map<String, Serializable> attributes = new HashMap<>();
+    private String dialogId;
 
     private Builder() {}
 
@@ -227,6 +245,7 @@ public final class DialogContext implements Serializable {
       this.type = from.dialogType();
       this.center = from.center();
       this.attributes.putAll(from.attributes());
+      this.dialogId = from.dialogId();
     }
 
     /**
@@ -249,6 +268,17 @@ public final class DialogContext implements Serializable {
      */
     public Builder center(boolean value) {
       this.center = value;
+      return this;
+    }
+
+    /**
+     * Sets the dialog ID to use.
+     *
+     * @param value the dialog ID to use (null to generate a new ID)
+     * @return This builder for method chaining
+     */
+    public Builder dialogId(String value) {
+      this.dialogId = value;
       return this;
     }
 
@@ -280,8 +310,7 @@ public final class DialogContext implements Serializable {
       if (type == null) {
         throw new DialogCreationException("Dialog type must be set");
       }
-      // Don't auto-generate dialogId - only server-sent dialogs should have one
-      return new DialogContext(type, center, attributes);
+      return new DialogContext(type, center, attributes, dialogId);
     }
   }
 }

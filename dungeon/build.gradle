@@ -67,6 +67,10 @@ sourceSets {
     }
 }
 
+tasks.named('compileJava') {
+    dependsOn 'generateProto'
+}
+
 tasks.register('runBasicStarter', JavaExec) {
     group 'starter'
     mainClass = 'starter.BasicStarter'

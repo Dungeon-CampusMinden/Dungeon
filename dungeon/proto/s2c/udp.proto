@@ -1,0 +1,16 @@
+// UDP registration acknowledgment.
+
+syntax = "proto3";
+
+package dungeon.s2c;
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.s2c";
+option java_outer_classname = "UdpProto";
+
+// Server-to-client: UDP registration acknowledged.
+// Maps to: core.network.messages.s2c.RegisterAck
+message RegisterAck {
+  // True if registration was successful.
+  bool ok = 1;
+}

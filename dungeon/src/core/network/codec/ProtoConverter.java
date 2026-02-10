@@ -1,26 +1,50 @@
 package core.network.codec;
 
 import com.google.protobuf.ByteString;
+import contrib.item.Item;
+import core.Game;
+import core.components.DrawComponent;
+import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.RequestEntitySpawn;
 import core.network.messages.c2s.SoundFinishedMessage;
+import core.network.messages.s2c.ConnectAck;
+import core.network.messages.s2c.ConnectReject;
+import core.network.messages.s2c.DialogCloseMessage;
+import core.network.messages.s2c.DialogShowMessage;
+import core.network.messages.s2c.EntityDespawnEvent;
+import core.network.messages.s2c.EntitySpawnBatch;
+import core.network.messages.s2c.EntitySpawnEvent;
+import core.network.messages.s2c.EntityState;
+import core.network.messages.s2c.GameOverEvent;
+import core.network.messages.s2c.LevelChangeEvent;
+import core.network.messages.s2c.RegisterAck;
+import core.network.messages.s2c.SnapshotMessage;
+import core.network.messages.s2c.SoundPlayMessage;
+import core.network.messages.s2c.SoundStopMessage;
 import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.animation.AnimationConfig;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-/**
- * Converts between protobuf messages and domain objects for common network types.
- */
+/** Converts between protobuf messages and domain objects for common network types. */
 public final class ProtoConverter {
 
   private static final String DIALOG_CLOSED_KEY = "CLOSED";
@@ -34,10 +58,7 @@ public final class ProtoConverter {
    * @return the protobuf point message
    */
   public static core.network.proto.common.Point toProto(Point point) {
-    return core.network.proto.common.Point.newBuilder()
-        .setX(point.x())
-        .setY(point.y())
-        .build();
+    return core.network.proto.common.Point.newBuilder().setX(point.x()).setY(point.y()).build();
   }
 
   /**
@@ -57,10 +78,7 @@ public final class ProtoConverter {
    * @return the protobuf vector message
    */
   public static core.network.proto.common.Vector2 toProto(Vector2 vector) {
-    return core.network.proto.common.Vector2.newBuilder()
-        .setX(vector.x())
-        .setY(vector.y())
-        .build();
+    return core.network.proto.common.Vector2.newBuilder().setX(vector.x()).setY(vector.y()).build();
   }
 
   /**
@@ -186,8 +204,8 @@ public final class ProtoConverter {
   /**
    * Converts an {@link InputMessage} into its protobuf representation.
    *
-   * <p>The deprecated {@link InputMessage.Action#TOGGLE_INVENTORY} is not supported and will
-   * result in an exception.
+   * <p>The deprecated {@link InputMessage.Action#TOGGLE_INVENTORY} is not supported and will result
+   * in an exception.
    *
    * @param message the domain input message to convert
    * @return the protobuf input message
@@ -282,20 +300,12 @@ public final class ProtoConverter {
       case CAST_SKILL -> {
         core.network.proto.common.Point target = proto.getCastSkill().getTarget();
         yield new InputMessage(
-            sessionId,
-            clientTick,
-            sequence,
-            InputMessage.Action.CAST_SKILL,
-            fromProto(target));
+            sessionId, clientTick, sequence, InputMessage.Action.CAST_SKILL, fromProto(target));
       }
       case INTERACT -> {
         core.network.proto.common.Point target = proto.getInteract().getTarget();
         yield new InputMessage(
-            sessionId,
-            clientTick,
-            sequence,
-            InputMessage.Action.INTERACT,
-            fromProto(target));
+            sessionId, clientTick, sequence, InputMessage.Action.INTERACT, fromProto(target));
       }
       case SKILL_CHANGE -> {
         boolean nextSkill = proto.getSkillChange().getNextSkill();
@@ -309,11 +319,7 @@ public final class ProtoConverter {
       case INV_DROP -> {
         int slotIndex = proto.getInvDrop().getSlotIndex();
         yield new InputMessage(
-            sessionId,
-            clientTick,
-            sequence,
-            InputMessage.Action.INV_DROP,
-            new Point(slotIndex, 0));
+            sessionId, clientTick, sequence, InputMessage.Action.INV_DROP, new Point(slotIndex, 0));
       }
       case INV_MOVE -> {
         int fromSlot = proto.getInvMove().getFromSlot();
@@ -328,14 +334,9 @@ public final class ProtoConverter {
       case INV_USE -> {
         int slotIndex = proto.getInvUse().getSlotIndex();
         yield new InputMessage(
-            sessionId,
-            clientTick,
-            sequence,
-            InputMessage.Action.INV_USE,
-            new Point(slotIndex, 0));
+            sessionId, clientTick, sequence, InputMessage.Action.INV_USE, new Point(slotIndex, 0));
       }
-      case ACTION_NOT_SET ->
-          throw new IllegalArgumentException("InputMessage action is required.");
+      case ACTION_NOT_SET -> throw new IllegalArgumentException("InputMessage action is required.");
     };
   }
 
@@ -436,8 +437,7 @@ public final class ProtoConverter {
    * @param message the domain sound finished message to convert
    * @return the protobuf sound finished message
    */
-  public static core.network.proto.c2s.SoundFinishedMessage toProto(
-      SoundFinishedMessage message) {
+  public static core.network.proto.c2s.SoundFinishedMessage toProto(SoundFinishedMessage message) {
     return core.network.proto.c2s.SoundFinishedMessage.newBuilder()
         .setSoundInstanceId(message.soundInstanceId())
         .build();
@@ -449,9 +449,591 @@ public final class ProtoConverter {
    * @param proto the protobuf sound finished message
    * @return the domain sound finished message
    */
-  public static SoundFinishedMessage fromProto(
-      core.network.proto.c2s.SoundFinishedMessage proto) {
+  public static SoundFinishedMessage fromProto(core.network.proto.c2s.SoundFinishedMessage proto) {
     return new SoundFinishedMessage(proto.getSoundInstanceId());
+  }
+
+  /**
+   * Converts a {@link ConnectAck} into its protobuf representation.
+   *
+   * @param message the domain connect ack message to convert
+   * @return the protobuf connect ack message
+   */
+  public static core.network.proto.s2c.ConnectAck toProto(ConnectAck message) {
+    return core.network.proto.s2c.ConnectAck.newBuilder()
+        .setClientId(message.clientId())
+        .setSessionId(message.sessionId())
+        .setSessionToken(ByteString.copyFrom(message.sessionToken()))
+        .build();
+  }
+
+  /**
+   * Converts a protobuf connect ack message into a {@link ConnectAck}.
+   *
+   * @param proto the protobuf connect ack message
+   * @return the domain connect ack message
+   */
+  public static ConnectAck fromProto(core.network.proto.s2c.ConnectAck proto) {
+    return new ConnectAck(
+        toShortExact(proto.getClientId(), "client_id"),
+        proto.getSessionId(),
+        proto.getSessionToken().toByteArray());
+  }
+
+  /**
+   * Converts a {@link ConnectReject} into its protobuf representation.
+   *
+   * @param message the domain connect reject message to convert
+   * @return the protobuf connect reject message
+   */
+  public static core.network.proto.s2c.ConnectReject toProto(ConnectReject message) {
+    ConnectReject.Reason reason = ConnectReject.Reason.fromCode(message.reason());
+    return core.network.proto.s2c.ConnectReject.newBuilder().setReason(toProto(reason)).build();
+  }
+
+  /**
+   * Converts a protobuf connect reject message into a {@link ConnectReject}.
+   *
+   * @param proto the protobuf connect reject message
+   * @return the domain connect reject message
+   */
+  public static ConnectReject fromProto(core.network.proto.s2c.ConnectReject proto) {
+    return new ConnectReject(fromProto(proto.getReason()));
+  }
+
+  /**
+   * Converts a {@link DialogShowMessage} into its protobuf representation.
+   *
+   * @param message the domain dialog show message to convert
+   * @return the protobuf dialog show message
+   */
+  public static core.network.proto.s2c.DialogShowMessage toProto(DialogShowMessage message) {
+    return DialogContextProtoConverter.toProto(message.context(), message.canBeClosed());
+  }
+
+  /**
+   * Converts a protobuf dialog show message into a {@link DialogShowMessage}.
+   *
+   * @param proto the protobuf dialog show message
+   * @return the domain dialog show message
+   */
+  public static DialogShowMessage fromProto(core.network.proto.s2c.DialogShowMessage proto) {
+    return new DialogShowMessage(
+        DialogContextProtoConverter.fromProto(proto), proto.getCanBeClosed());
+  }
+
+  /**
+   * Converts a {@link DialogCloseMessage} into its protobuf representation.
+   *
+   * @param message the domain dialog close message to convert
+   * @return the protobuf dialog close message
+   */
+  public static core.network.proto.s2c.DialogCloseMessage toProto(DialogCloseMessage message) {
+    return core.network.proto.s2c.DialogCloseMessage.newBuilder()
+        .setDialogId(message.dialogId())
+        .build();
+  }
+
+  /**
+   * Converts a protobuf dialog close message into a {@link DialogCloseMessage}.
+   *
+   * @param proto the protobuf dialog close message
+   * @return the domain dialog close message
+   */
+  public static DialogCloseMessage fromProto(core.network.proto.s2c.DialogCloseMessage proto) {
+    return new DialogCloseMessage(proto.getDialogId());
+  }
+
+  /**
+   * Converts an {@link EntitySpawnEvent} into its protobuf representation.
+   *
+   * @param message the domain spawn event to convert
+   * @return the protobuf spawn event
+   */
+  public static core.network.proto.s2c.EntitySpawnEvent toProto(EntitySpawnEvent message) {
+    var builder =
+        core.network.proto.s2c.EntitySpawnEvent.newBuilder()
+            .setEntityId(message.entityId())
+            .setPosition(toProto(message.positionComponent().position()))
+            .setDrawInfo(toProto(message.drawComponent()))
+            .setIsPersistent(message.isPersistent());
+
+    PlayerComponent playerComponent = message.playerComponent();
+    if (playerComponent != null) {
+      builder.setPlayerInfo(toProto(playerComponent));
+    }
+
+    if (playerComponent != null || message.characterClassId() != 0) {
+      builder.setCharacterClassId(message.characterClassId());
+    }
+
+    return builder.build();
+  }
+
+  /**
+   * Converts a protobuf spawn event into an {@link EntitySpawnEvent}.
+   *
+   * @param proto the protobuf spawn event
+   * @return the domain spawn event
+   */
+  public static EntitySpawnEvent fromProto(core.network.proto.s2c.EntitySpawnEvent proto) {
+    PositionComponent position = new PositionComponent(fromProto(proto.getPosition()));
+    DrawComponent drawComponent = fromProto(proto.getDrawInfo());
+    PlayerComponent playerComponent =
+        proto.hasPlayerInfo() ? fromProto(proto.getPlayerInfo()) : null;
+    byte characterClassId =
+        proto.hasCharacterClassId()
+            ? toByteExact(proto.getCharacterClassId(), "character_class_id")
+            : 0;
+
+    return new EntitySpawnEvent(
+        proto.getEntityId(),
+        position,
+        drawComponent,
+        proto.getIsPersistent(),
+        playerComponent,
+        characterClassId);
+  }
+
+  /**
+   * Converts an {@link EntitySpawnBatch} into its protobuf representation.
+   *
+   * @param message the domain spawn batch to convert
+   * @return the protobuf spawn batch
+   */
+  public static core.network.proto.s2c.EntitySpawnBatch toProto(EntitySpawnBatch message) {
+    var builder = core.network.proto.s2c.EntitySpawnBatch.newBuilder();
+    for (EntitySpawnEvent event : message.entities()) {
+      builder.addEntities(toProto(event));
+    }
+    return builder.build();
+  }
+
+  /**
+   * Converts a protobuf spawn batch into an {@link EntitySpawnBatch}.
+   *
+   * @param proto the protobuf spawn batch
+   * @return the domain spawn batch
+   */
+  public static EntitySpawnBatch fromProto(core.network.proto.s2c.EntitySpawnBatch proto) {
+    List<EntitySpawnEvent> events = new ArrayList<>();
+    for (core.network.proto.s2c.EntitySpawnEvent event : proto.getEntitiesList()) {
+      events.add(fromProto(event));
+    }
+    return new EntitySpawnBatch(events);
+  }
+
+  /**
+   * Converts an {@link EntityDespawnEvent} into its protobuf representation.
+   *
+   * @param message the domain despawn event to convert
+   * @return the protobuf despawn event
+   */
+  public static core.network.proto.s2c.EntityDespawnEvent toProto(EntityDespawnEvent message) {
+    return core.network.proto.s2c.EntityDespawnEvent.newBuilder()
+        .setEntityId(message.entityId())
+        .setReason(message.reason())
+        .build();
+  }
+
+  /**
+   * Converts a protobuf despawn event into an {@link EntityDespawnEvent}.
+   *
+   * @param proto the protobuf despawn event
+   * @return the domain despawn event
+   */
+  public static EntityDespawnEvent fromProto(core.network.proto.s2c.EntityDespawnEvent proto) {
+    return new EntityDespawnEvent(proto.getEntityId(), proto.getReason());
+  }
+
+  /**
+   * Converts an {@link EntityState} into its protobuf representation.
+   *
+   * @param message the domain entity state to convert
+   * @return the protobuf entity state
+   */
+  public static core.network.proto.s2c.EntityState toProto(EntityState message) {
+    var builder = core.network.proto.s2c.EntityState.newBuilder().setEntityId(message.entityId());
+
+    message.entityName().ifPresent(builder::setEntityName);
+    message.position().ifPresent(point -> builder.setPosition(toProto(point)));
+    message.viewDirection().ifPresent(builder::setViewDirection);
+    message.rotation().ifPresent(builder::setRotation);
+    message.currentHealth().ifPresent(builder::setCurrentHealth);
+    message.maxHealth().ifPresent(builder::setMaxHealth);
+    message.currentMana().ifPresent(builder::setCurrentMana);
+    message.maxMana().ifPresent(builder::setMaxMana);
+    message.stateName().ifPresent(builder::setStateName);
+    message.tintColor().ifPresent(builder::setTintColor);
+
+    message
+        .inventory()
+        .ifPresent(
+            items -> {
+              for (int i = 0; i < items.length; i++) {
+                core.network.proto.s2c.ItemSlot.Builder slot =
+                    core.network.proto.s2c.ItemSlot.newBuilder().setSlotIndex(i);
+                Item item = items[i];
+                if (item != null) {
+                  slot.setItem(toProtoItem(item));
+                }
+                builder.addInventory(slot);
+              }
+            });
+
+    return builder.build();
+  }
+
+  /**
+   * Converts a protobuf entity state into an {@link EntityState}.
+   *
+   * @param proto the protobuf entity state
+   * @return the domain entity state
+   */
+  public static EntityState fromProto(core.network.proto.s2c.EntityState proto) {
+    EntityState.Builder builder = EntityState.builder().entityId(proto.getEntityId());
+
+    if (proto.hasEntityName()) {
+      builder.entityName(proto.getEntityName());
+    }
+    if (proto.hasPosition()) {
+      builder.position(fromProto(proto.getPosition()));
+    }
+    if (proto.hasViewDirection()) {
+      builder.viewDirection(proto.getViewDirection());
+    }
+    if (proto.hasRotation()) {
+      builder.rotation(proto.getRotation());
+    }
+    if (proto.hasCurrentHealth()) {
+      builder.currentHealth(proto.getCurrentHealth());
+    }
+    if (proto.hasMaxHealth()) {
+      builder.maxHealth(proto.getMaxHealth());
+    }
+    if (proto.hasCurrentMana()) {
+      builder.currentMana(proto.getCurrentMana());
+    }
+    if (proto.hasMaxMana()) {
+      builder.maxMana(proto.getMaxMana());
+    }
+    if (proto.hasStateName()) {
+      builder.stateName(proto.getStateName());
+    }
+    if (proto.hasTintColor()) {
+      builder.tintColor(proto.getTintColor());
+    }
+
+    List<core.network.proto.s2c.ItemSlot> slots = proto.getInventoryList();
+    if (!slots.isEmpty()) {
+      int maxIndex =
+          slots.stream().mapToInt(core.network.proto.s2c.ItemSlot::getSlotIndex).max().orElse(-1);
+      if (maxIndex < 0) {
+        throw new IllegalArgumentException("Inventory slot indices must be non-negative.");
+      }
+      Item[] items = new Item[maxIndex + 1];
+      for (core.network.proto.s2c.ItemSlot slot : slots) {
+        int index = slot.getSlotIndex();
+        if (index < 0 || index >= items.length) {
+          throw new IllegalArgumentException("Inventory slot index out of range: " + index);
+        }
+        if (slot.hasItem()) {
+          items[index] = fromProtoItem(slot.getItem());
+        }
+      }
+      builder.inventory(items);
+    }
+
+    return builder.build();
+  }
+
+  /**
+   * Converts a {@link SnapshotMessage} into its protobuf representation.
+   *
+   * @param message the domain snapshot message to convert
+   * @return the protobuf snapshot message
+   */
+  public static core.network.proto.s2c.SnapshotMessage toProto(SnapshotMessage message) {
+    var builder =
+        core.network.proto.s2c.SnapshotMessage.newBuilder().setServerTick(message.serverTick());
+    for (EntityState state : message.entities()) {
+      builder.addEntities(toProto(state));
+    }
+    return builder.build();
+  }
+
+  /**
+   * Converts a protobuf snapshot message into a {@link SnapshotMessage}.
+   *
+   * @param proto the protobuf snapshot message
+   * @return the domain snapshot message
+   */
+  public static SnapshotMessage fromProto(core.network.proto.s2c.SnapshotMessage proto) {
+    List<EntityState> entities = new ArrayList<>();
+    for (core.network.proto.s2c.EntityState state : proto.getEntitiesList()) {
+      entities.add(fromProto(state));
+    }
+    return new SnapshotMessage(proto.getServerTick(), entities);
+  }
+
+  /**
+   * Converts a {@link GameOverEvent} into its protobuf representation.
+   *
+   * @param message the domain game over event to convert
+   * @return the protobuf game over event
+   */
+  public static core.network.proto.s2c.GameOverEvent toProto(GameOverEvent message) {
+    return core.network.proto.s2c.GameOverEvent.newBuilder().setReason(message.reason()).build();
+  }
+
+  /**
+   * Converts a protobuf game over event into a {@link GameOverEvent}.
+   *
+   * @param proto the protobuf game over event
+   * @return the domain game over event
+   */
+  public static GameOverEvent fromProto(core.network.proto.s2c.GameOverEvent proto) {
+    return new GameOverEvent(proto.getReason());
+  }
+
+  /**
+   * Converts a {@link LevelChangeEvent} into its protobuf representation.
+   *
+   * @param message the domain level change event to convert
+   * @return the protobuf level change event
+   */
+  public static core.network.proto.s2c.LevelChangeEvent toProto(LevelChangeEvent message) {
+    return core.network.proto.s2c.LevelChangeEvent.newBuilder()
+        .setLevelName(message.levelName())
+        .setLevelData(message.levelData())
+        .build();
+  }
+
+  /**
+   * Converts a protobuf level change event into a {@link LevelChangeEvent}.
+   *
+   * @param proto the protobuf level change event
+   * @return the domain level change event
+   */
+  public static LevelChangeEvent fromProto(core.network.proto.s2c.LevelChangeEvent proto) {
+    return new LevelChangeEvent(proto.getLevelName(), proto.getLevelData());
+  }
+
+  /**
+   * Converts a {@link RegisterAck} into its protobuf representation.
+   *
+   * @param message the domain register ack to convert
+   * @return the protobuf register ack
+   */
+  public static core.network.proto.s2c.RegisterAck toProto(RegisterAck message) {
+    return core.network.proto.s2c.RegisterAck.newBuilder().setOk(message.ok()).build();
+  }
+
+  /**
+   * Converts a protobuf register ack into a {@link RegisterAck}.
+   *
+   * @param proto the protobuf register ack
+   * @return the domain register ack
+   */
+  public static RegisterAck fromProto(core.network.proto.s2c.RegisterAck proto) {
+    return new RegisterAck(proto.getOk());
+  }
+
+  /**
+   * Converts a {@link SoundPlayMessage} into its protobuf representation.
+   *
+   * @param message the domain sound play message to convert
+   * @return the protobuf sound play message
+   */
+  public static core.network.proto.s2c.SoundPlayMessage toProto(SoundPlayMessage message) {
+    return core.network.proto.s2c.SoundPlayMessage.newBuilder()
+        .setSoundInstanceId(message.soundInstanceId())
+        .setEntityId(message.entityId())
+        .setSoundName(message.soundName())
+        .setVolume(message.volume())
+        .setPitch(message.pitch())
+        .setPan(message.pan())
+        .setLooping(message.looping())
+        .setMaxDistance(message.maxDistance())
+        .setAttenuationFactor(message.attenuationFactor())
+        .build();
+  }
+
+  /**
+   * Converts a protobuf sound play message into a {@link SoundPlayMessage}.
+   *
+   * @param proto the protobuf sound play message
+   * @return the domain sound play message
+   */
+  public static SoundPlayMessage fromProto(core.network.proto.s2c.SoundPlayMessage proto) {
+    return new SoundPlayMessage(
+        proto.getSoundInstanceId(),
+        proto.getEntityId(),
+        proto.getSoundName(),
+        proto.getVolume(),
+        proto.getPitch(),
+        proto.getPan(),
+        proto.getLooping(),
+        proto.getMaxDistance(),
+        proto.getAttenuationFactor());
+  }
+
+  /**
+   * Converts a {@link SoundStopMessage} into its protobuf representation.
+   *
+   * @param message the domain sound stop message to convert
+   * @return the protobuf sound stop message
+   */
+  public static core.network.proto.s2c.SoundStopMessage toProto(SoundStopMessage message) {
+    return core.network.proto.s2c.SoundStopMessage.newBuilder()
+        .setSoundInstanceId(message.soundInstanceId())
+        .build();
+  }
+
+  /**
+   * Converts a protobuf sound stop message into a {@link SoundStopMessage}.
+   *
+   * @param proto the protobuf sound stop message
+   * @return the domain sound stop message
+   */
+  public static SoundStopMessage fromProto(core.network.proto.s2c.SoundStopMessage proto) {
+    return new SoundStopMessage(proto.getSoundInstanceId());
+  }
+
+  private static core.network.proto.s2c.ConnectReject.RejectReason toProto(
+      ConnectReject.Reason reason) {
+    return switch (reason) {
+      case INVALID_NAME ->
+          core.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_INVALID_NAME;
+      case INCOMPATIBLE_VERSION ->
+          core.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_INCOMPATIBLE_VERSION;
+      case NO_SESSION_FOUND ->
+          core.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_NO_SESSION_FOUND;
+      case INVALID_SESSION_TOKEN ->
+          core.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_INVALID_SESSION_TOKEN;
+      case OTHER -> core.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_OTHER;
+    };
+  }
+
+  private static ConnectReject.Reason fromProto(
+      core.network.proto.s2c.ConnectReject.RejectReason reason) {
+    return switch (reason) {
+      case REJECT_REASON_INVALID_NAME -> ConnectReject.Reason.INVALID_NAME;
+      case REJECT_REASON_INCOMPATIBLE_VERSION -> ConnectReject.Reason.INCOMPATIBLE_VERSION;
+      case REJECT_REASON_NO_SESSION_FOUND -> ConnectReject.Reason.NO_SESSION_FOUND;
+      case REJECT_REASON_INVALID_SESSION_TOKEN -> ConnectReject.Reason.INVALID_SESSION_TOKEN;
+      case REJECT_REASON_OTHER, REJECT_REASON_UNSPECIFIED, UNRECOGNIZED ->
+          ConnectReject.Reason.OTHER;
+    };
+  }
+
+  private static core.network.proto.s2c.DrawInfo toProto(DrawComponent component) {
+    Animation animation = component.currentAnimation();
+    Optional<IPath> path = animation.sourcePath();
+    String texturePath =
+        path.map(IPath::pathString)
+            .orElseThrow(() -> new IllegalArgumentException("DrawComponent path is missing."));
+
+    core.network.proto.s2c.DrawInfo.Builder builder =
+        core.network.proto.s2c.DrawInfo.newBuilder().setTexturePath(texturePath);
+    builder.setScaleX(animation.getScaleX());
+    builder.setScaleY(animation.getScaleY());
+
+    String stateName = component.currentStateName();
+    if (stateName != null && !stateName.isEmpty()) {
+      int frameIndex = currentFrameIndex(animation);
+      builder.setCurrentAnimation(
+          core.network.proto.s2c.AnimationInfo.newBuilder()
+              .setAnimationName(stateName)
+              .setCurrentFrame(frameIndex)
+              .build());
+    }
+
+    return builder.build();
+  }
+
+  private static DrawComponent fromProto(core.network.proto.s2c.DrawInfo proto) {
+    if (proto.getTexturePath().isEmpty()) {
+      throw new IllegalArgumentException("DrawInfo.texture_path is required.");
+    }
+
+    AnimationConfig config = new AnimationConfig();
+    if (proto.hasScaleX()) {
+      config.scaleX(proto.getScaleX());
+    }
+    if (proto.hasScaleY()) {
+      config.scaleY(proto.getScaleY());
+    }
+
+    SimpleIPath texturePath = new SimpleIPath(proto.getTexturePath());
+    DrawComponent drawComponent;
+    if (Game.isHeadless()) {
+      Animation animation = new Animation(texturePath, config);
+      drawComponent = new DrawComponent(animation);
+    } else {
+      drawComponent = new DrawComponent(texturePath, config);
+    }
+
+    if (proto.hasCurrentAnimation()) {
+      core.network.proto.s2c.AnimationInfo animationInfo = proto.getCurrentAnimation();
+      String stateName = animationInfo.getAnimationName();
+      if (!stateName.isEmpty() && drawComponent.hasState(stateName)) {
+        drawComponent.stateMachine().setState(stateName, null);
+        Animation animation = drawComponent.currentAnimation();
+        int framesPerSprite = animation.getConfig().framesPerSprite();
+        int frameCount = animationInfo.getCurrentFrame() * framesPerSprite;
+        animation.frameCount(Math.max(frameCount, 0));
+      }
+    }
+
+    return drawComponent;
+  }
+
+  private static core.network.proto.s2c.PlayerInfo toProto(PlayerComponent component) {
+    return core.network.proto.s2c.PlayerInfo.newBuilder()
+        .setPlayerName(component.playerName())
+        .setIsLocalPlayer(component.isLocal())
+        .build();
+  }
+
+  private static PlayerComponent fromProto(core.network.proto.s2c.PlayerInfo proto) {
+    return new PlayerComponent(proto.getIsLocalPlayer(), proto.getPlayerName());
+  }
+
+  private static core.network.proto.common.Item toProtoItem(Item item) {
+    return core.network.proto.common.Item.newBuilder()
+        .setItemType(item.getClass().getSimpleName())
+        .setStackSize(item.stackSize())
+        .setMaxStackSize(item.maxStackSize())
+        .build();
+  }
+
+  private static Item fromProtoItem(core.network.proto.common.Item proto) {
+    String itemType = proto.getItemType();
+    Class<? extends Item> itemClass = Item.getItem(itemType);
+    if (itemClass == null) {
+      throw new IllegalArgumentException("Unknown item type: " + itemType);
+    }
+
+    try {
+      Item item = itemClass.getDeclaredConstructor().newInstance();
+      int maxStackSize = proto.getMaxStackSize();
+      if (maxStackSize > 0) {
+        item.maxStackSize(maxStackSize);
+      }
+      item.stackSize(proto.getStackSize());
+      return item;
+    } catch (ReflectiveOperationException e) {
+      throw new IllegalArgumentException("Failed to instantiate item type: " + itemType, e);
+    }
+  }
+
+  private static int currentFrameIndex(Animation animation) {
+    int framesPerSprite = animation.getConfig().framesPerSprite();
+    if (framesPerSprite <= 0) {
+      return 0;
+    }
+    return animation.frameCount() / framesPerSprite;
   }
 
   private static Point requirePoint(InputMessage message) {
@@ -487,10 +1069,16 @@ public final class ProtoConverter {
     }
   }
 
+  private static byte toByteExact(int value, String fieldName) {
+    if (value < Byte.MIN_VALUE || value > Byte.MAX_VALUE) {
+      throw new IllegalArgumentException(fieldName + " out of range for byte: " + value);
+    }
+    return (byte) value;
+  }
+
   private static short toShortExact(int value, String fieldName) {
     if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
-      throw new IllegalArgumentException(
-          fieldName + " out of range for short: " + value);
+      throw new IllegalArgumentException(fieldName + " out of range for short: " + value);
     }
     return (short) value;
   }

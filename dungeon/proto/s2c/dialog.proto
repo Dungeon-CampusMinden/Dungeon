@@ -1,0 +1,69 @@
+// Dialog messages from server.
+
+syntax = "proto3";
+
+package dungeon.s2c;
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.s2c";
+option java_outer_classname = "DialogProto";
+
+// Server-to-client: Display a dialog to the player.
+// Maps to: core.network.messages.s2c.DialogShowMessage
+message DialogShowMessage {
+  // Unique identifier for this dialog instance.
+  string dialog_id = 1;
+
+  // Dialog type identifier (supports custom types).
+  string dialog_type = 2;
+
+  // Whether the dialog should be centered on screen.
+  bool center = 3;
+
+  // Whether player can close without selecting an option.
+  bool can_be_closed = 4;
+
+  // Entity ID that owns this dialog (for inventory, etc.).
+  optional int32 owner_entity_id = 5;
+
+  // Primary entity ID (for interactions).
+  optional int32 entity_id = 6;
+
+  // Secondary entity ID (for dual inventory, etc.).
+  optional int32 secondary_entity_id = 7;
+
+  // All dialog-specific data as typed attributes.
+  repeated DialogAttribute attributes = 10;
+}
+
+// A typed attribute for dialog data.
+message DialogAttribute {
+  string key = 1;
+  oneof value {
+    string string_value = 2;
+    int32 int_value = 3;
+    int64 long_value = 4;
+    float float_value = 5;
+    double double_value = 6;
+    bool bool_value = 7;
+    StringList string_list = 8;
+    IntList int_list = 9;
+  }
+}
+
+// Wrapper for string arrays.
+message StringList {
+  repeated string values = 1;
+}
+
+// Wrapper for int arrays.
+message IntList {
+  repeated int32 values = 1;
+}
+
+// Server-to-client: Close an open dialog.
+// Maps to: core.network.messages.s2c.DialogCloseMessage
+message DialogCloseMessage {
+  // ID of the dialog to close.
+  string dialog_id = 1;
+}

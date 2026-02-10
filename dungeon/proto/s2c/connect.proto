@@ -1,0 +1,38 @@
+// Connection response messages.
+
+syntax = "proto3";
+
+package dungeon.s2c;
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.s2c";
+option java_outer_classname = "ConnectProto";
+
+// Server-to-client: Connection acknowledged.
+// Maps to: core.network.messages.s2c.ConnectAck
+message ConnectAck {
+  // Assigned client ID.
+  int32 client_id = 1;
+
+  // Assigned session ID.
+  int32 session_id = 2;
+
+  // Assigned session token for reconnection.
+  bytes session_token = 3;
+}
+
+// Server-to-client: Connection rejected.
+// Maps to: core.network.messages.s2c.ConnectReject
+message ConnectReject {
+  // Reason for rejection.
+  RejectReason reason = 1;
+
+  enum RejectReason {
+    REJECT_REASON_UNSPECIFIED = 0;
+    REJECT_REASON_INVALID_NAME = 1;
+    REJECT_REASON_INCOMPATIBLE_VERSION = 2;
+    REJECT_REASON_NO_SESSION_FOUND = 3;
+    REJECT_REASON_INVALID_SESSION_TOKEN = 4;
+    REJECT_REASON_OTHER = 5;
+  }
+}

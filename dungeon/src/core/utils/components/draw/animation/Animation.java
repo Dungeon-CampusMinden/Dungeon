@@ -219,6 +219,24 @@ public class Animation implements Serializable, Cloneable {
   }
 
   /**
+   * Returns the source path for this animation, if available.
+   *
+   * <p>For spritesheets this returns the sheet path. For single or multi-frame animations this
+   * returns the first frame path.
+   *
+   * @return an Optional containing the source path
+   */
+  public Optional<IPath> sourcePath() {
+    if (sourceType == SourceType.SPRITESHEET) {
+      return Optional.ofNullable(sheetPath);
+    }
+    if (framePaths == null || framePaths.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(framePaths.get(0));
+  }
+
+  /**
    * Get the pixel width of the underlying sprite frame.
    *
    * @return The sprite width in pixels.

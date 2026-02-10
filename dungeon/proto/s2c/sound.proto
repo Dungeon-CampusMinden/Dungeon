@@ -1,0 +1,47 @@
+// Sound-related server messages.
+
+syntax = "proto3";
+
+package dungeon.s2c;
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.s2c";
+option java_outer_classname = "SoundProto";
+
+// Server-to-client: Play a sound.
+// Maps to: core.network.messages.s2c.SoundPlayMessage
+message SoundPlayMessage {
+  // Unique identifier for this sound instance.
+  int64 sound_instance_id = 1;
+
+  // Entity emitting the sound (for position tracking).
+  int32 entity_id = 2;
+
+  // Sound asset name (file name without extension).
+  string sound_name = 3;
+
+  // Base volume [0.0, 1.0].
+  float volume = 4;
+
+  // Playback pitch multiplier (1.0 = normal).
+  float pitch = 5;
+
+  // Stereo pan [-1.0 left, 0.0 center, 1.0 right].
+  float pan = 6;
+
+  // Whether the sound loops.
+  bool looping = 7;
+
+  // Maximum audible distance (-1 for global/infinite).
+  float max_distance = 8;
+
+  // Distance attenuation factor.
+  float attenuation_factor = 9;
+}
+
+// Server-to-client: Stop a playing sound.
+// Maps to: core.network.messages.s2c.SoundStopMessage
+message SoundStopMessage {
+  // Sound instance to stop.
+  int64 sound_instance_id = 1;
+}

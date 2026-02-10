@@ -1,0 +1,67 @@
+package core.network.codec;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogType;
+import contrib.utils.components.showImage.TransitionSpeed;
+import core.network.proto.s2c.DialogShowMessage;
+import org.junit.jupiter.api.Test;
+
+/** Tests for {@link DialogContextProtoConverter}. */
+public class DialogContextProtoConverterTest {
+
+  /** Verifies dialog context conversion roundtrip. */
+  @Test
+  public void testDialogContextRoundTrip() {
+    DialogContext context =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.TEXT)
+            .center(false)
+            .dialogId("dialog-42")
+            .put(DialogContextKeys.TITLE, "Hello")
+            .put(DialogContextKeys.MESSAGE, "World")
+            .put(DialogContextKeys.OWNER_ENTITY, 10)
+            .put(DialogContextKeys.ENTITY, 20)
+            .put(DialogContextKeys.ADDITIONAL_BUTTONS, new String[] {"Retry", "Quit"})
+            .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.SLOW)
+            .build();
+
+    DialogShowMessage proto = DialogContextProtoConverter.toProto(context, true);
+
+    assertEquals("dialog-42", proto.getDialogId());
+    assertEquals("TEXT", proto.getDialogType());
+    assertTrue(proto.getCanBeClosed());
+    assertFalse(proto.getCenter());
+    assertTrue(proto.hasOwnerEntityId());
+    assertEquals(10, proto.getOwnerEntityId());
+    assertTrue(proto.hasEntityId());
+    assertEquals(20, proto.getEntityId());
+    assertTrue(
+        proto.getAttributesList().stream()
+            .noneMatch(
+                attr ->
+                    DialogContextKeys.OWNER_ENTITY.equals(attr.getKey())
+                        || DialogContextKeys.ENTITY.equals(attr.getKey())));
+
+    DialogContext roundTrip = DialogContextProtoConverter.fromProto(proto);
+
+    assertEquals("dialog-42", roundTrip.dialogId());
+    assertEquals(context.dialogType(), roundTrip.dialogType());
+    assertEquals(context.center(), roundTrip.center());
+    assertEquals("Hello", roundTrip.require(DialogContextKeys.TITLE, String.class));
+    assertEquals("World", roundTrip.require(DialogContextKeys.MESSAGE, String.class));
+    assertEquals(10, roundTrip.require(DialogContextKeys.OWNER_ENTITY, Integer.class));
+    assertEquals(20, roundTrip.require(DialogContextKeys.ENTITY, Integer.class));
+    assertArrayEquals(
+        new String[] {"Retry", "Quit"},
+        roundTrip.require(DialogContextKeys.ADDITIONAL_BUTTONS, String[].class));
+    assertEquals(
+        TransitionSpeed.SLOW,
+        roundTrip.require(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class));
+  }
+}

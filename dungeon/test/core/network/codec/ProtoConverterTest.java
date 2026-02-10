@@ -44,28 +44,23 @@ public class ProtoConverterTest {
   @Test
   public void testDirectionToProto() {
     assertEquals(
-        core.network.proto.common.Direction.DIRECTION_UP,
-        ProtoConverter.toProto(Direction.UP));
+        core.network.proto.common.Direction.DIRECTION_UP, ProtoConverter.toProto(Direction.UP));
     assertEquals(
-        core.network.proto.common.Direction.DIRECTION_DOWN,
-        ProtoConverter.toProto(Direction.DOWN));
+        core.network.proto.common.Direction.DIRECTION_DOWN, ProtoConverter.toProto(Direction.DOWN));
     assertEquals(
-        core.network.proto.common.Direction.DIRECTION_LEFT,
-        ProtoConverter.toProto(Direction.LEFT));
+        core.network.proto.common.Direction.DIRECTION_LEFT, ProtoConverter.toProto(Direction.LEFT));
     assertEquals(
         core.network.proto.common.Direction.DIRECTION_RIGHT,
         ProtoConverter.toProto(Direction.RIGHT));
     assertEquals(
-        core.network.proto.common.Direction.DIRECTION_NONE,
-        ProtoConverter.toProto(Direction.NONE));
+        core.network.proto.common.Direction.DIRECTION_NONE, ProtoConverter.toProto(Direction.NONE));
   }
 
   /** Verifies direction conversion from protobuf. */
   @Test
   public void testDirectionFromProto() {
     assertEquals(
-        Direction.UP,
-        ProtoConverter.fromProto(core.network.proto.common.Direction.DIRECTION_UP));
+        Direction.UP, ProtoConverter.fromProto(core.network.proto.common.Direction.DIRECTION_UP));
     assertEquals(
         Direction.DOWN,
         ProtoConverter.fromProto(core.network.proto.common.Direction.DIRECTION_DOWN));
@@ -82,8 +77,7 @@ public class ProtoConverterTest {
         Direction.NONE,
         ProtoConverter.fromProto(core.network.proto.common.Direction.DIRECTION_UNSPECIFIED));
     assertEquals(
-        Direction.NONE,
-        ProtoConverter.fromProto(core.network.proto.common.Direction.UNRECOGNIZED));
+        Direction.NONE, ProtoConverter.fromProto(core.network.proto.common.Direction.UNRECOGNIZED));
   }
 
   /** Verifies sound specification conversion roundtrip. */
