@@ -3,6 +3,13 @@ export const changePopupText = (text : string) => {
   const popup = document.querySelector(".popupDiv");
   if(popupParagraph && popup) {
     popupParagraph.textContent = text;
+
+  }
+}
+
+export const displayPopup = () => {
+  const popup = document.querySelector(".popupDiv");
+  if (popup) {
     popup.style.opacity = "1"
     popup.style.display = "block";
   }

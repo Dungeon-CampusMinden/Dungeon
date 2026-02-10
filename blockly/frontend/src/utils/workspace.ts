@@ -9,7 +9,8 @@ import {
 } from "../api/api.ts";
 import {checkIfVariablesAreDeclared} from "../generators/java/variables.ts";
 import {completeLevel, getCurrentLevel} from "./level.ts";
-import {changePopupText} from "./popup.ts";
+import {changePopupText, displayPopup} from "./popup.ts";
+import {hasMissingIterationCount} from "../generators/java/loops.ts";
 let startBlock: Blockly.Block | null = null;
 export let currentBlock: Blockly.Block | null = null;
 
@@ -246,11 +247,23 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
 
     // send the full program in a single request
     const fullProgram = codeSnippets.join("\n");
+
+    console.log("code snippets")
+    console.log(codeSnippets);
+
     const message = checkIfVariablesAreDeclared(codeSnippets);
+    const message2 = hasMissingIterationCount(fullProgram);
     const apiResponse = await call_code_route(fullProgram);
 
-    if (message) {
+    if (message2) {
+      changePopupText("Die Anzahl der Iterationen fehlt in der Schleife");
+      alert("Die Anzahl der Iterationen fehlt in der Schleife");
+      displayPopup();
+    } else if (message) {
       changePopupText(message);
+      displayPopup();
+      alert(message);
+
     }
 
 
