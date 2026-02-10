@@ -18,6 +18,9 @@ public class DungeonSaver {
   /**
    * Saves the current dungeon by printing it to the console. The output is also copied to the
    * system clipboard for easy pasting into a .level file.
+   *
+   * @param saveToFile whether the result should be saved to the file
+   * @param pathToLevels the path to the folder where the level file is stored
    */
   public static void saveCurrentDungeon(boolean saveToFile, String pathToLevels) {
     ILevel currentLevel = Game.currentLevel().orElse(null);

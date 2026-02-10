@@ -13,7 +13,12 @@ public class SaveMode extends LevelEditorMode {
   private boolean saveToFile;
   private String pathToLevels;
 
-  /** Constructs a new SaveMode. */
+  /**
+   * Constructs a new SaveMode.
+   *
+   * @param saveToFile whether the result should be saved to the file
+   * @param pathToLevels the path to the folder where the level file is stored
+   */
   public SaveMode(boolean saveToFile, String pathToLevels) {
     super("Save Mode");
     this.saveToFile = saveToFile;
