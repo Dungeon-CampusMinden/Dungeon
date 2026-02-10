@@ -3,8 +3,6 @@ package core.network.codec;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import contrib.item.Item;
-import core.Game;
-import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.network.messages.NetworkMessage;
@@ -32,10 +30,7 @@ import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
-import core.utils.components.draw.animation.Animation;
-import core.utils.components.draw.animation.AnimationConfig;
-import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
+import core.utils.components.draw.DrawInfoData;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,7 +40,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /** Converts between protobuf messages and domain objects for common network types. */
 public final class ProtoConverter {
@@ -628,7 +622,7 @@ public final class ProtoConverter {
         core.network.proto.s2c.EntitySpawnEvent.newBuilder()
             .setEntityId(message.entityId())
             .setPosition(toProto(message.positionComponent().position()))
-            .setDrawInfo(toProto(message.drawComponent()))
+            .setDrawInfo(toProto(message.drawInfo()))
             .setIsPersistent(message.isPersistent());
 
     PlayerComponent playerComponent = message.playerComponent();
@@ -651,7 +645,7 @@ public final class ProtoConverter {
    */
   public static EntitySpawnEvent fromProto(core.network.proto.s2c.EntitySpawnEvent proto) {
     PositionComponent position = new PositionComponent(fromProto(proto.getPosition()));
-    DrawComponent drawComponent = fromProto(proto.getDrawInfo());
+    DrawInfoData drawInfo = fromProto(proto.getDrawInfo());
     PlayerComponent playerComponent =
         proto.hasPlayerInfo() ? fromProto(proto.getPlayerInfo()) : null;
     byte characterClassId =
@@ -662,7 +656,7 @@ public final class ProtoConverter {
     return new EntitySpawnEvent(
         proto.getEntityId(),
         position,
-        drawComponent,
+        drawInfo,
         proto.getIsPersistent(),
         playerComponent,
         characterClassId);
@@ -1000,24 +994,30 @@ public final class ProtoConverter {
     };
   }
 
-  private static core.network.proto.s2c.DrawInfo toProto(DrawComponent component) {
-    Animation animation = component.currentAnimation();
-    Optional<IPath> path = animation.sourcePath();
-    String texturePath =
-        path.map(IPath::pathString)
-            .orElseThrow(() -> new IllegalArgumentException("DrawComponent path is missing."));
+  private static core.network.proto.s2c.DrawInfo toProto(DrawInfoData drawInfo) {
+    if (drawInfo == null) {
+      throw new IllegalArgumentException("DrawInfoData is required.");
+    }
+    String texturePath = drawInfo.texturePath();
+    if (texturePath == null || texturePath.isBlank()) {
+      throw new IllegalArgumentException("DrawInfoData.texturePath is required.");
+    }
 
     core.network.proto.s2c.DrawInfo.Builder builder =
         core.network.proto.s2c.DrawInfo.newBuilder().setTexturePath(texturePath);
-    builder.setScaleX(animation.getScaleX());
-    builder.setScaleY(animation.getScaleY());
+    if (drawInfo.scaleX() != null) {
+      builder.setScaleX(drawInfo.scaleX());
+    }
+    if (drawInfo.scaleY() != null) {
+      builder.setScaleY(drawInfo.scaleY());
+    }
 
-    String stateName = component.currentStateName();
-    if (stateName != null && !stateName.isEmpty()) {
-      int frameIndex = currentFrameIndex(animation);
+    String animationName = drawInfo.animationName();
+    if (animationName != null && !animationName.isEmpty()) {
+      int frameIndex = drawInfo.currentFrame() != null ? Math.max(0, drawInfo.currentFrame()) : 0;
       builder.setCurrentAnimation(
           core.network.proto.s2c.AnimationInfo.newBuilder()
-              .setAnimationName(stateName)
+              .setAnimationName(animationName)
               .setCurrentFrame(frameIndex)
               .build());
     }
@@ -1025,41 +1025,25 @@ public final class ProtoConverter {
     return builder.build();
   }
 
-  private static DrawComponent fromProto(core.network.proto.s2c.DrawInfo proto) {
+  private static DrawInfoData fromProto(core.network.proto.s2c.DrawInfo proto) {
     if (proto.getTexturePath().isEmpty()) {
       throw new IllegalArgumentException("DrawInfo.texture_path is required.");
     }
 
-    AnimationConfig config = new AnimationConfig();
-    if (proto.hasScaleX()) {
-      config.scaleX(proto.getScaleX());
-    }
-    if (proto.hasScaleY()) {
-      config.scaleY(proto.getScaleY());
-    }
-
-    SimpleIPath texturePath = new SimpleIPath(proto.getTexturePath());
-    DrawComponent drawComponent;
-    if (Game.isHeadless()) {
-      Animation animation = new Animation(texturePath, config);
-      drawComponent = new DrawComponent(animation);
-    } else {
-      drawComponent = new DrawComponent(texturePath, config);
-    }
+    Float scaleX = proto.hasScaleX() ? proto.getScaleX() : null;
+    Float scaleY = proto.hasScaleY() ? proto.getScaleY() : null;
+    String animationName = null;
+    Integer currentFrame = null;
 
     if (proto.hasCurrentAnimation()) {
       core.network.proto.s2c.AnimationInfo animationInfo = proto.getCurrentAnimation();
-      String stateName = animationInfo.getAnimationName();
-      if (!stateName.isEmpty() && drawComponent.hasState(stateName)) {
-        drawComponent.stateMachine().setState(stateName, null);
-        Animation animation = drawComponent.currentAnimation();
-        int framesPerSprite = animation.getConfig().framesPerSprite();
-        int frameCount = animationInfo.getCurrentFrame() * framesPerSprite;
-        animation.frameCount(Math.max(frameCount, 0));
+      if (!animationInfo.getAnimationName().isEmpty()) {
+        animationName = animationInfo.getAnimationName();
+        currentFrame = animationInfo.getCurrentFrame();
       }
     }
 
-    return drawComponent;
+    return new DrawInfoData(proto.getTexturePath(), scaleX, scaleY, animationName, currentFrame);
   }
 
   private static core.network.proto.s2c.PlayerInfo toProto(PlayerComponent component) {
@@ -1099,14 +1083,6 @@ public final class ProtoConverter {
     } catch (ReflectiveOperationException e) {
       throw new IllegalArgumentException("Failed to instantiate item type: " + itemType, e);
     }
-  }
-
-  private static int currentFrameIndex(Animation animation) {
-    int framesPerSprite = animation.getConfig().framesPerSprite();
-    if (framesPerSprite <= 0) {
-      return 0;
-    }
-    return animation.frameCount() / framesPerSprite;
   }
 
   private static Point requirePoint(InputMessage message) {

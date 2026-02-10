@@ -46,6 +46,7 @@ import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.InputManager;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.DrawComponentFactory;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
 
@@ -362,7 +363,7 @@ public final class GameLoop extends ScreenAdapter {
 
           Entity newEntity = new Entity(event.entityId());
           newEntity.add(event.positionComponent());
-          newEntity.add(event.drawComponent());
+          newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
           newEntity.persistent(event.isPersistent());
           Game.add(newEntity);
         });
