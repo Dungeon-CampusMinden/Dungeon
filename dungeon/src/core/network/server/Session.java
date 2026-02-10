@@ -29,8 +29,9 @@ public final class Session {
 
   private volatile ClientState clientState;
 
-  private final BiFunction<InetSocketAddress, Object, CompletableFuture<Boolean>> udpSender;
-  private final BiFunction<ChannelHandlerContext, Object, CompletableFuture<Boolean>> tcpSender;
+  private final BiFunction<InetSocketAddress, NetworkMessage, CompletableFuture<Boolean>> udpSender;
+  private final BiFunction<ChannelHandlerContext, NetworkMessage, CompletableFuture<Boolean>>
+      tcpSender;
 
   /**
    * Creates a Session with TCP context and senders.
@@ -41,8 +42,8 @@ public final class Session {
    */
   public Session(
       ChannelHandlerContext tcpCtx,
-      BiFunction<InetSocketAddress, Object, CompletableFuture<Boolean>> udpSender,
-      BiFunction<ChannelHandlerContext, Object, CompletableFuture<Boolean>> tcpSender) {
+      BiFunction<InetSocketAddress, NetworkMessage, CompletableFuture<Boolean>> udpSender,
+      BiFunction<ChannelHandlerContext, NetworkMessage, CompletableFuture<Boolean>> tcpSender) {
     this.tcpCtx = tcpCtx;
     this.udpSender = udpSender;
     this.tcpSender = tcpSender;

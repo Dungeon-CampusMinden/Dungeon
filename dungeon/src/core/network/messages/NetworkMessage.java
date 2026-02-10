@@ -5,6 +5,7 @@ import java.io.Serializable;
 /**
  * Marker interface for all network messages.
  *
- * <p>All implementations must be Java-serializable for the current Netty prototype transport.
+ * <p>Messages are encoded with protobuf in {@link core.network.codec.NetworkCodec}. The {@link
+ * Serializable} marker remains for legacy compatibility during migration.
  */
 public interface NetworkMessage extends Serializable {}

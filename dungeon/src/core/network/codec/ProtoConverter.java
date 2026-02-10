@@ -1,11 +1,13 @@
 package core.network.codec;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Message;
 import contrib.item.Item;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.network.messages.c2s.InputMessage;
@@ -42,6 +44,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /** Converts between protobuf messages and domain objects for common network types. */
@@ -50,6 +53,76 @@ public final class ProtoConverter {
   private static final String DIALOG_CLOSED_KEY = "CLOSED";
 
   private ProtoConverter() {}
+
+  /**
+   * Converts a {@link NetworkMessage} into its protobuf representation.
+   *
+   * @param message the network message to convert
+   * @return the protobuf message
+   */
+  public static Message toProto(NetworkMessage message) {
+    Objects.requireNonNull(message, "message");
+    return switch (message) {
+      case ConnectRequest msg -> toProto(msg);
+      case InputMessage msg -> toProto(msg);
+      case DialogResponseMessage msg -> toProto(msg);
+      case RegisterUdp msg -> toProto(msg);
+      case RequestEntitySpawn msg -> toProto(msg);
+      case SoundFinishedMessage msg -> toProto(msg);
+      case ConnectAck msg -> toProto(msg);
+      case ConnectReject msg -> toProto(msg);
+      case DialogShowMessage msg -> toProto(msg);
+      case DialogCloseMessage msg -> toProto(msg);
+      case EntitySpawnEvent msg -> toProto(msg);
+      case EntitySpawnBatch msg -> toProto(msg);
+      case EntityDespawnEvent msg -> toProto(msg);
+      case EntityState msg -> toProto(msg);
+      case GameOverEvent msg -> toProto(msg);
+      case LevelChangeEvent msg -> toProto(msg);
+      case RegisterAck msg -> toProto(msg);
+      case SnapshotMessage msg -> toProto(msg);
+      case SoundPlayMessage msg -> toProto(msg);
+      case SoundStopMessage msg -> toProto(msg);
+      default ->
+          throw new IllegalArgumentException(
+              "Unsupported network message type: " + message.getClass().getName());
+    };
+  }
+
+  /**
+   * Converts a protobuf message into its domain {@link NetworkMessage} representation.
+   *
+   * @param message the protobuf message to convert
+   * @return the network message
+   */
+  public static NetworkMessage fromProto(Message message) {
+    Objects.requireNonNull(message, "message");
+    return switch (message) {
+      case core.network.proto.c2s.ConnectRequest msg -> fromProto(msg);
+      case core.network.proto.c2s.InputMessage msg -> fromProto(msg);
+      case core.network.proto.c2s.DialogResponseMessage msg -> fromProto(msg);
+      case core.network.proto.c2s.RegisterUdp msg -> fromProto(msg);
+      case core.network.proto.c2s.RequestEntitySpawn msg -> fromProto(msg);
+      case core.network.proto.c2s.SoundFinishedMessage msg -> fromProto(msg);
+      case core.network.proto.s2c.ConnectAck msg -> fromProto(msg);
+      case core.network.proto.s2c.ConnectReject msg -> fromProto(msg);
+      case core.network.proto.s2c.DialogShowMessage msg -> fromProto(msg);
+      case core.network.proto.s2c.DialogCloseMessage msg -> fromProto(msg);
+      case core.network.proto.s2c.EntitySpawnEvent msg -> fromProto(msg);
+      case core.network.proto.s2c.EntitySpawnBatch msg -> fromProto(msg);
+      case core.network.proto.s2c.EntityDespawnEvent msg -> fromProto(msg);
+      case core.network.proto.s2c.EntityState msg -> fromProto(msg);
+      case core.network.proto.s2c.GameOverEvent msg -> fromProto(msg);
+      case core.network.proto.s2c.LevelChangeEvent msg -> fromProto(msg);
+      case core.network.proto.s2c.RegisterAck msg -> fromProto(msg);
+      case core.network.proto.s2c.SnapshotMessage msg -> fromProto(msg);
+      case core.network.proto.s2c.SoundPlayMessage msg -> fromProto(msg);
+      case core.network.proto.s2c.SoundStopMessage msg -> fromProto(msg);
+      default ->
+          throw new IllegalArgumentException(
+              "Unsupported proto message type: " + message.getClass().getName());
+    };
+  }
 
   /**
    * Converts a {@link Point} into its protobuf representation.
