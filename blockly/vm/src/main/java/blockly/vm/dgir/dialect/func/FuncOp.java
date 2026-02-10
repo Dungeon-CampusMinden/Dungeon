@@ -1,7 +1,7 @@
 package blockly.vm.dgir.dialect.func;
 
 import blockly.vm.dgir.core.*;
-import blockly.vm.dgir.core.traits.IControlFlow;
+import blockly.vm.dgir.core.traits.IIsolatedFromAbove;
 import blockly.vm.dgir.core.traits.ISymbol;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.TypeAttribute;
@@ -9,7 +9,7 @@ import blockly.vm.dgir.dialect.func.types.FuncType;
 
 import java.util.List;
 
-public class FuncOp extends Op implements ISymbol, IControlFlow {
+public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove {
   @Override
   public OperationDetails.Impl createDetails() {
     class FuncOpModel extends OperationDetails.Impl {
