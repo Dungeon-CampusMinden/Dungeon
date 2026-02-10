@@ -293,4 +293,13 @@ public final class Operation implements Serializable {
     }
     return null;
   }
+
+  /**
+   * Get the successor blocks of this operation by mapping the block operands to their values.
+   * @return The successor blocks of this operation.
+   */
+  @JsonIgnore
+  public List<Block> getSuccessors() {
+    return getBlockOperands().stream().map(BlockOperand::getValue).toList();
+  }
 }

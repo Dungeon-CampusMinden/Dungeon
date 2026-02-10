@@ -5,6 +5,10 @@ import org.jgrapht.alg.util.Pair;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.builder.GraphTypeBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
+
 /**
  * DominatorTree is a data structure that represents the dominance relationships between blocks in a control flow graph (CFG).
  * A block A is said to dominate a block B if every path from the entry block to block B must go through block A.
@@ -14,21 +18,76 @@ import org.jgrapht.graph.builder.GraphTypeBuilder;
  * @see <a href="https://en.wikipedia.org/wiki/Dominator_(graph_theory)">Dominator Tree</a>
  */
 public class DominatorTree {
-  private Block root;
-  private Graph<Block, DefaultEdge> dominatorGraph;
+  static Map<Region, DominatorTree> dominatorTrees = new HashMap<>();
 
-  public DominatorTree(Block root) {
-    this.root = root;
-    this.dominatorGraph = GraphTypeBuilder
+  private Region region;
+  private Graph<Block, DefaultEdge> graph;
+
+  public DominatorTree() {
+  }
+
+  public void recalculate(Region region) {
+    assert region.getBlocks().size() > 1 : "Can't create a dominator tree for a region with only one block.";
+
+    this.region = null;
+    this.graph = null;
+
+    this.region = region;
+
+    Graph<Block, DefaultEdge> dominatorGraph = GraphTypeBuilder
       .<Block, DefaultEdge>directed()
       .vertexClass(Block.class)
       .edgeClass(DefaultEdge.class)
       .allowingMultipleEdges(true)
       .allowingSelfLoops(true)
       .buildGraph();
+
+    // Add the root of the dominator tree to the graph. It is always the entry block of the region.
+    graph.addVertex(region.getEntryBlock());
+    doDfsWalk();
   }
 
-  public boolean properlyDominates(Block dominator, Operation dominatorOp, Block dominated, Operation dominatedOp) {
+  // Does a depth first search from the entry block of the region to establish the whole cfg.
+  // It walks from the entry node through all successor blocks and adds them to the graph, going deeper as it encounters
+  // new successor blocks.
+  private void doDfsWalk()
+  {
+    // A stack on which we store the last successors to work on. We start with the entry block of the region and then
+    // keep adding successors to the stack as we encounter them.
+    final Stack<Block> workList = new Stack<>();
+    workList.push(region.getEntryBlock());
+
+    // Do a depth first search from the entry block of the region to establish the whole cfg.
+    while (!workList.isEmpty()) {
+      Block currentBlock = workList.pop();
+      // Add all successors of the current block to the graph and to the work list if they haven't been visited yet.
+      for (Block successor : currentBlock.getSuccessors()) {
+        if (!graph.containsVertex(successor)) {
+          graph.addVertex(successor);
+          workList.push(successor);
+        }
+        // Add an edge from the current block to the successor block
+        graph.addEdge(currentBlock, successor);
+      }
+    }
+  }
+
+  public static DominatorTree getDominatorTree(Region region) {
+    assert region.getBlocks().size() > 1 : "Can't create a dominator tree for a region with only one block.";
+
+    // Check if this tree is already cached
+    if (dominatorTrees.containsKey(region)) {
+      return dominatorTrees.get(region);
+    }
+
+    // Create a new tree and cache it
+    DominatorTree tree = new DominatorTree();
+    tree.recalculate(region);
+    dominatorTrees.put(region, tree);
+    return tree;
+  }
+
+  public static boolean properlyDominates(Block dominator, Operation dominatorOp, Block dominated, Operation dominatedOp) {
     assert dominator != null && dominated != null : "Dominator and dominated blocks must not be null.";
     // Blocks cannot properly dominate themselves
     if (dominator.equals(dominated) && dominatorOp.equals(dominatedOp)) {
@@ -58,6 +117,7 @@ public class DominatorTree {
       }
     }
     //TODO finish implementation using an actual dominator tree
+
     return false;
   }
 
@@ -78,7 +138,7 @@ public class DominatorTree {
    * Returns the original operation if the block is already in the target region or the op containing the region the block is nested under.
    * @see Region#findAncestorOpInRegion(Operation)
    */
-  public Pair<Block, Operation> findAncestorInRegion(Region region, Block block, Operation operation) {
+  public static Pair<Block, Operation> findAncestorInRegion(Region region, Block block, Operation operation) {
     // If the block is already in the target region, return it as-is
     if (block.getParent() == region) {
       return Pair.of(block, operation);
@@ -90,5 +150,4 @@ public class DominatorTree {
     }
     return Pair.of(op.getParent(), op);
   }
-
 }

@@ -113,4 +113,14 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
 
     this.parent = parent;
   }
+
+  /**
+   * Get the successors of this block as defined by the terminator operation. This is a convenience method that delegates
+   * to the terminator operation of this block.
+   * @return The successors of this block as defined by the terminator operation.
+   */
+  @JsonIgnore
+  public List<Block> getSuccessors() {
+    return operations.getLast().getSuccessors();
+  }
 }
