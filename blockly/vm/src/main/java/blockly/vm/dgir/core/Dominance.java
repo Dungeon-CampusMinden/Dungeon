@@ -7,8 +7,8 @@ import static blockly.vm.dgir.core.DominatorTree.getDominatorTree;
 public class Dominance {
   public static boolean properlyDominates(Block dominator, Operation dominatorOp, Block dominated, Operation dominatedOp) {
     assert dominator != null && dominated != null : "Dominator and dominated blocks must not be null.";
-    // Blocks cannot properly dominate themselves
-    if (dominator.equals(dominated) && dominatorOp.equals(dominatedOp)) {
+    // Blocks and operations cannot properly dominate themselves.
+    if (dominator == dominated && dominatorOp == dominatedOp) {
       return false;
     }
 
@@ -35,7 +35,22 @@ public class Dominance {
       }
     }
 
+    // Were in the same region, and same block. Check if the dominatorOp is defined before the dominatedOp in the same block.
+    if (dominator.equals(dominated)){
+      return isBeforeInBlock(dominator, dominatorOp, dominatedOp);
+    }
+
     return getDominatorTree(dominator.getParent()).properlyDominates(dominator, dominated);
+  }
+
+  private static boolean isBeforeInBlock(Block block, Operation dominatorOp, Operation dominatedOp) {
+      if (dominatorOp == dominatedOp)
+        return false;
+      if (dominatorOp == block.getOperations().getLast())
+        return false;
+      if (dominatedOp == block.getOperations().getLast())
+        return true;
+      return block.isBefore(dominatorOp, dominatedOp);
   }
 
   /**

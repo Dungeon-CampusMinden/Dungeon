@@ -123,4 +123,14 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   public List<Block> getSuccessors() {
     return operations.getLast().getSuccessors();
   }
+
+  /**
+   * Check if operation a is defined before operation b in this block. This is a convenience method that delegates to the list of operations in this block.
+   * @param a The first operation to compare.
+   * @param b The second operation to compare.
+   * @return {@code true} if operation a is defined before operation b in this block, {@code false} otherwise.
+   */
+  public boolean isBefore(Operation a, Operation b) {
+      return operations.indexOf(a) < operations.indexOf(b);
+  }
 }

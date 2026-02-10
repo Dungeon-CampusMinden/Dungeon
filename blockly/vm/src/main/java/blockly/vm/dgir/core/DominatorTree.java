@@ -228,11 +228,11 @@ public class DominatorTree {
     assert dominator != dominated : "Dominator and dominated blocks must not be the same.";
     assert isReachableFromEntry(dominator) && isReachableFromEntry(dominated) : "Both blocks must be reachable from the entry block.";
 
-    Block current = dominator;
+    Block current = dominated;
     while (true) {
       Block idom = getImmediateDominator(current);
-      if (idom == null) return false;
-      if (idom.equals(dominated)) return true;
+      if (idom == null) return false; // hit root without finding dominator
+      if (idom.equals(dominator)) return true;
       current = idom;
     }
   }
