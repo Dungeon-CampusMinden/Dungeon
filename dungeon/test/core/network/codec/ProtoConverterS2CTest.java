@@ -12,7 +12,6 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
 import contrib.item.Item;
 import contrib.item.concreteItem.ItemPotionHealth;
-import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.network.messages.s2c.ConnectAck;
@@ -31,9 +30,7 @@ import core.network.messages.s2c.SoundPlayMessage;
 import core.network.messages.s2c.SoundStopMessage;
 import core.utils.Direction;
 import core.utils.Point;
-import core.utils.components.draw.animation.Animation;
-import core.utils.components.draw.animation.AnimationConfig;
-import core.utils.components.path.SimpleIPath;
+import core.utils.components.draw.DrawInfoData;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -42,11 +39,8 @@ public class ProtoConverterS2CTest {
 
   private static final float DELTA = 1e-6f;
 
-  private static DrawComponent createDrawComponent() {
-    AnimationConfig config = new AnimationConfig().scaleX(2.0f).scaleY(3.0f);
-    Animation animation = new Animation(new SimpleIPath("character/hero.png"), config);
-    animation.frameCount(20);
-    return new DrawComponent(animation);
+  private static DrawInfoData createDrawInfo() {
+    return new DrawInfoData("character/hero.png", 2.0f, 3.0f, "idle", 20);
   }
 
   /** Verifies connect ack conversion roundtrip. */
@@ -119,10 +113,10 @@ public class ProtoConverterS2CTest {
   @Test
   public void testEntitySpawnRoundTrip() {
     PositionComponent position = new PositionComponent(new Point(4.0f, 5.0f), Direction.UP);
-    DrawComponent drawComponent = createDrawComponent();
+    DrawInfoData drawInfo = createDrawInfo();
     PlayerComponent playerComponent = new PlayerComponent(true, "Hero");
     EntitySpawnEvent message =
-        new EntitySpawnEvent(42, position, drawComponent, true, playerComponent, (byte) 1);
+        new EntitySpawnEvent(42, position, drawInfo, true, playerComponent, (byte) 1);
 
     core.network.proto.s2c.EntitySpawnEvent proto = ProtoConverter.toProto(message);
     assertEquals(42, proto.getEntityId());
@@ -141,12 +135,11 @@ public class ProtoConverterS2CTest {
     assertEquals("Hero", roundTrip.playerComponent().playerName());
     assertTrue(roundTrip.playerComponent().isLocal());
     assertEquals(1, roundTrip.characterClassId());
-    assertEquals(
-        "character/hero.png",
-        roundTrip.drawComponent().currentAnimation().sourcePath().orElseThrow().pathString());
-    assertEquals(2.0f, roundTrip.drawComponent().currentAnimation().getScaleX(), DELTA);
-    assertEquals(3.0f, roundTrip.drawComponent().currentAnimation().getScaleY(), DELTA);
-    assertEquals(20, roundTrip.drawComponent().currentAnimation().frameCount());
+    assertEquals("character/hero.png", roundTrip.drawInfo().texturePath());
+    assertEquals(2.0f, roundTrip.drawInfo().scaleX(), DELTA);
+    assertEquals(3.0f, roundTrip.drawInfo().scaleY(), DELTA);
+    assertEquals("idle", roundTrip.drawInfo().animationName());
+    assertEquals(20, roundTrip.drawInfo().currentFrame());
   }
 
   /** Verifies entity spawn batch conversion roundtrip. */
@@ -156,7 +149,7 @@ public class ProtoConverterS2CTest {
         new EntitySpawnEvent(
             1,
             new PositionComponent(new Point(1.0f, 1.0f)),
-            createDrawComponent(),
+            createDrawInfo(),
             false,
             null,
             (byte) 0);
@@ -164,7 +157,7 @@ public class ProtoConverterS2CTest {
         new EntitySpawnEvent(
             2,
             new PositionComponent(new Point(2.0f, 2.0f)),
-            createDrawComponent(),
+            createDrawInfo(),
             true,
             new PlayerComponent(false, "Other"),
             (byte) 2);
