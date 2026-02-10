@@ -29,6 +29,15 @@ public final class Operation implements Serializable {
    */
   private final List<ValueOperand> operands = new ArrayList<>();
 
+
+  /**
+   * The values defined by this operation for the body of the operation. These values are only visible within the body
+   * of the operation and are not accessible from outside.
+   * They represent values like function parameters or loop variables.
+   * e.g. func.func(%0 : int32, %1 : int32) ...
+   */
+  private final List<Value> bodyValues;
+
   /**
    * The input blocks of this operation.
    */
@@ -58,34 +67,40 @@ public final class Operation implements Serializable {
   /**
    * Static factory method to create an Operation instance.
    *
-   * @param name       The name of the operation.
-   * @param operands   The input value operands.
-   * @param successors The blocks that succeed this operation (branching).
-   * @param outputType The output result type.
-   * @param numRegions The number of regions.
+   * @param name           The name of the operation.
+   * @param operands       The input value operands.
+   * @param bodyValueTypes The types of the body values defined by this operation.
+   * @param successors     The blocks that succeed this operation (branching).
+   * @param outputType     The output result type.
+   * @param numRegions     The number of regions.
    * @return A new Operation instance.
    */
   public static Operation Create(String name,
                                  List<Value> operands,
+                                 List<Type> bodyValueTypes,
                                  List<Block> successors,
                                  Type outputType,
                                  int numRegions) {
     assert RegisteredOperationDetails.lookup(name).isPresent() : "OperationDetails not found for name: " + name + "\n Make sure it is registered in with the dialect.";
-    return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, successors, outputType, numRegions);
+    return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, bodyValueTypes, successors, outputType, numRegions);
   }
 
   public static Operation Create(OperationDetails name,
                                  List<Value> operands,
+                                 List<Type> bodyValueTypes,
                                  List<Block> successors,
                                  Type outputType,
                                  int numRegions) {
     assert name != null : "OperationDetails name cannot be null.";
 
-    // Ensure operands is a valid arraylist
-    operands = operands == null ? new ArrayList<>() : operands;
+    // Ensure operands is a valid list
+    operands = operands == null ? List.of() : operands;
+
+    // Ensure bodyValueTypes is a valid list
+    bodyValueTypes = bodyValueTypes == null ? List.of() : bodyValueTypes;
 
     // Ensure block operands is a valid arraylist
-    successors = successors == null ? new ArrayList<>() : successors;
+    successors = successors == null ? List.of() : successors;
 
     // Create the default attributes
     List<NamedAttribute> attributes = new ArrayList<>(name.getAttributeNames().size());
@@ -96,22 +111,24 @@ public final class Operation implements Serializable {
     // Create the attribute map
     Map<String, NamedAttribute> attributeMap = attributes.stream().collect(Collectors.toUnmodifiableMap(NamedAttribute::getName, attr -> attr));
 
-    return new Operation(name, operands, successors, outputType, attributeMap, numRegions);
+    return new Operation(name, operands, bodyValueTypes, successors, outputType, attributeMap, numRegions);
   }
 
   /**
    * Full constructor for Operation.
    * This constructor is not intended to be called directly. Use the static Create method instead as it will handle default values.
    *
-   * @param details    The operation details.
-   * @param operands   The input values.
-   * @param successors The blocks succeeding this operation.
-   * @param resultType The output result type.
-   * @param attributes The named attributes.
-   * @param numRegions The number of regions.
+   * @param details        The operation details.
+   * @param operands       The input values.
+   * @param bodyValueTypes The types of the body values defined by this operation.
+   * @param successors     The blocks succeeding this operation.
+   * @param resultType     The output result type.
+   * @param attributes     The named attributes.
+   * @param numRegions     The number of regions.
    */
   public Operation(OperationDetails details,
                    List<Value> operands,
+                   List<Type> bodyValueTypes,
                    List<Block> successors,
                    Type resultType,
                    Map<String, NamedAttribute> attributes,
@@ -125,10 +142,16 @@ public final class Operation implements Serializable {
     for (var operand : operands)
       addOperand(operand);
 
+    List<Value> bodyValues = new ArrayList<>(bodyValueTypes.size());
+    for (int i = 0; i < bodyValueTypes.size(); i++) {
+      bodyValues.add(i, new Value(bodyValueTypes.get(i)));
+    }
+    this.bodyValues = Collections.unmodifiableList(bodyValues);
+
     // Populate a new list for block operands and make it unmodifiable
     List<BlockOperand> blockOperands = new ArrayList<>(successors.size());
     for (int i = 0; i < successors.size(); i++) {
-      blockOperands.set(i, new BlockOperand(this, successors.get(i)));
+      blockOperands.add(i, new BlockOperand(this, successors.get(i)));
     }
     this.blockOperands = Collections.unmodifiableList(blockOperands);
 
@@ -210,6 +233,18 @@ public final class Operation implements Serializable {
     operands.add(new ValueOperand(this, value));
   }
 
+  public List<Value> getBodyValues() {
+    return bodyValues;
+  }
+
+  public Value getBodyValue(int index) {
+    return bodyValues.get(index);
+  }
+  
+  public int getBodyValueIndex(Value value){
+    return bodyValues.indexOf(value);
+  }
+
   public List<BlockOperand> getBlockOperands() {
     return blockOperands;
   }
@@ -223,7 +258,7 @@ public final class Operation implements Serializable {
     return getOutput().getValue();
   }
 
-  public void setOutputValue(Value value){
+  public void setOutputValue(Value value) {
     assert this.output != null : "Trying to set output value of an operation that has no output.";
     this.output.setValue(value);
   }
@@ -296,6 +331,7 @@ public final class Operation implements Serializable {
 
   /**
    * Get the successor blocks of this operation by mapping the block operands to their values.
+   *
    * @return The successor blocks of this operation.
    */
   @JsonIgnore
