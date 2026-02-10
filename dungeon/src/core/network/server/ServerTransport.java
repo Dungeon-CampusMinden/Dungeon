@@ -180,13 +180,13 @@ public final class ServerTransport {
     return udpChannel;
   }
 
-  private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, Object obj) {
+  private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, NetworkMessage msg) {
     if (udpChannel == null || !udpChannel.isActive()) {
       LOGGER.warn("UDP channel not active; cannot send to {}", target);
       return CompletableFuture.completedFuture(false);
     }
     try {
-      byte[] data = serialize(obj);
+      byte[] data = serialize(msg);
       if (data.length > SAFE_UDP_MTU) {
         LOGGER.warn("Skip UDP send; payload too large ({} B) to {}", data.length, target);
         return CompletableFuture.completedFuture(false);
@@ -202,12 +202,12 @@ public final class ServerTransport {
     }
   }
 
-  private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, Object obj) {
+  private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, NetworkMessage msg) {
     if (ctx == null || ctx.channel() == null || !ctx.channel().isActive()) {
       return CompletableFuture.completedFuture(false);
     }
     try {
-      byte[] data = serialize(obj);
+      byte[] data = serialize(msg);
       if (data.length > MAX_TCP_OBJECT_SIZE) {
         LOGGER.warn("Skip TCP send; payload too large ({} B) to {}", data.length, ctx.channel());
         return CompletableFuture.completedFuture(false);
@@ -299,17 +299,13 @@ public final class ServerTransport {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) throws Exception {
       LOGGER.trace("TCP received {} bytes from {}", frame.readableBytes(), ctx.channel());
-      Object obj = deserialize(frame);
+      NetworkMessage msg = deserialize(frame);
       Session session = sessions.get(ctx.channel().id());
       if (session == null) {
         LOGGER.warn("Received TCP message for unknown session on channel {}", ctx.channel());
         return;
       }
-      if (obj instanceof NetworkMessage msg) {
-        inboundQueue.offer(Tuple.of(session, msg));
-      } else {
-        LOGGER.debug("TCP received unexpected object: {}", obj.getClass().getName());
-      }
+      inboundQueue.offer(Tuple.of(session, msg));
     }
 
     @Override
@@ -358,9 +354,9 @@ public final class ServerTransport {
         return;
       }
 
-      Object obj;
+      NetworkMessage msg;
       try {
-        obj = deserialize(content);
+        msg = deserialize(content);
       } catch (Exception e) {
         LOGGER.warn("Failed to deserialize UDP from {}", pkt.sender(), e);
         return;
@@ -369,7 +365,7 @@ public final class ServerTransport {
       InetSocketAddress sender = pkt.sender();
       Short mappedClientId = udpToClientId.get(sender);
 
-      if (obj instanceof RegisterUdp reg) {
+      if (msg instanceof RegisterUdp reg) {
         Session tcpSender = clientIdToSession.get(reg.clientId());
         if (tcpSender == null) {
           LOGGER.warn("RegisterUdp for unknown clientId={} from {}", reg.clientId(), sender);
@@ -391,11 +387,7 @@ public final class ServerTransport {
         return;
       }
 
-      if (obj instanceof NetworkMessage msg) {
-        inboundQueue.offer(Tuple.of(session, msg));
-      } else {
-        LOGGER.debug("Unexpected UDP object {} from {}", obj.getClass().getName(), sender);
-      }
+      inboundQueue.offer(Tuple.of(session, msg));
     }
 
     @Override

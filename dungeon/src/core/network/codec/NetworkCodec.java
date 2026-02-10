@@ -1,57 +1,70 @@
 package core.network.codec;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
+import core.network.messages.NetworkMessage;
 import io.netty.buffer.ByteBuf;
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Objects;
 
 /**
- * Utility class for serializing and deserializing objects over the network.
+ * Protocol Buffer based network codec.
  *
- * <p>This class provides methods to serialize objects into byte arrays and deserialize byte arrays
- * back into objects. It ensures that the objects being serialized are `Serializable` and handles
- * the conversion using Java's built-in serialization mechanisms.
- *
- * <p>TODO: Replace with more efficient and secure serialization.
+ * <p>Frames are encoded with a 1-byte message type header followed by protobuf payload bytes.
  */
 public final class NetworkCodec {
 
-  // Private constructor to prevent instantiation of this utility class
   private NetworkCodec() {}
 
   /**
-   * Serializes a given object into a byte array.
+   * Serializes a given network message into a byte array with a type header.
    *
-   * @param obj the object to serialize; must implement {@link Serializable}
-   * @return a byte array representing the serialized object
-   * @throws IOException if an I/O error occurs during serialization
-   * @throws NotSerializableException if the object does not implement {@link Serializable}
+   * @param message the message to serialize
+   * @return a byte array representing the serialized message
+   * @throws IOException if serialization fails
    */
-  public static byte[] serialize(Object obj) throws IOException {
-    if (!(obj instanceof Serializable)) {
-      throw new NotSerializableException("Object not serializable: " + obj);
-    }
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
-      oos.writeObject(obj);
-    }
-    return bos.toByteArray();
+  public static byte[] serialize(NetworkMessage message) throws IOException {
+    Objects.requireNonNull(message, "message");
+    Message proto = ProtoConverter.toProto(message);
+    return serializeProto(proto);
   }
 
   /**
-   * Deserializes an object from a {@link ByteBuf}.
+   * Deserializes a {@link NetworkMessage} from a {@link ByteBuf}.
    *
-   * @param buf the {@link ByteBuf} containing the serialized object data
-   * @return the deserialized object
-   * @throws IOException if an I/O error occurs during deserialization
-   * @throws ClassNotFoundException if the class of the deserialized object cannot be found
+   * @param buf the {@link ByteBuf} containing the serialized message data
+   * @return the deserialized message
+   * @throws IOException if parsing fails
    */
-  public static Object deserialize(ByteBuf buf) throws IOException, ClassNotFoundException {
-    int len = buf.readableBytes();
-    byte[] array = new byte[len];
-    buf.getBytes(buf.readerIndex(), array);
-    try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(array))) {
-      return ois.readObject();
+  public static NetworkMessage deserialize(ByteBuf buf) throws IOException {
+    if (buf.readableBytes() < 1) {
+      throw new IOException("Empty buffer; missing message type header.");
+    }
+    byte typeId = buf.readByte();
+    byte[] payload = new byte[buf.readableBytes()];
+    buf.readBytes(payload);
+    Message proto = parseProto(typeId, payload);
+    return ProtoConverter.fromProto(proto);
+  }
+
+  private static byte[] serializeProto(Message message) throws IOException {
+    try {
+      byte typeId = MessageRegistry.typeId(message);
+      byte[] protoBytes = message.toByteArray();
+      byte[] result = new byte[1 + protoBytes.length];
+      result[0] = typeId;
+      System.arraycopy(protoBytes, 0, result, 1, protoBytes.length);
+      return result;
+    } catch (IllegalArgumentException e) {
+      throw new IOException("Failed to serialize message.", e);
+    }
+  }
+
+  private static Message parseProto(byte typeId, byte[] payload) throws IOException {
+    try {
+      return MessageRegistry.parse(typeId, payload);
+    } catch (InvalidProtocolBufferException | IllegalArgumentException e) {
+      throw new IOException("Failed to parse message type " + typeId + ".", e);
     }
   }
 }
