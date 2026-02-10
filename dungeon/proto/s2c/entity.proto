@@ -16,8 +16,8 @@ message EntitySpawnEvent {
   // Unique entity identifier.
   int32 entity_id = 1;
 
-  // Initial position in world.
-  dungeon.common.Point position = 2;
+  // Initial position/orientation in world.
+  dungeon.common.PositionInfo position = 2;
 
   // Visual representation info.
   DrawInfo draw_info = 3;
@@ -89,14 +89,11 @@ message EntityState {
   // Optional: Entity display name.
   optional string entity_name = 2;
 
-  // Optional: Current position.
-  optional dungeon.common.Point position = 3;
+  // Optional: Current position/orientation.
+  optional dungeon.common.PositionInfo position = 3;
 
-  // Optional: View/facing direction (Direction enum name).
-  optional string view_direction = 4;
-
-  // Optional: Rotation angle in degrees.
-  optional float rotation = 5;
+  reserved 4, 5;
+  reserved "view_direction", "rotation";
 
   // Optional: Current health points.
   optional int32 current_health = 6;
