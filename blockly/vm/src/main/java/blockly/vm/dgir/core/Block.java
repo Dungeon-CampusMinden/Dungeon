@@ -24,7 +24,7 @@ import java.util.List;
  * A block in DGIR can be conceptually represented as follows:
  * <pre>
  * {@code
- * Block (BlockArgument arg1 : Type1, BlockArgument arg2 : Type2, ...) {
+ * Block {
  *  Operation1
  *  Operation2
  *  ...
@@ -36,7 +36,6 @@ import java.util.List;
  * @author <a href="mailto:lasse.foster@hsbi.de">Lasse Foster</a>
  * @see Region
  * @see Operation
- * @see DominatorTree
  * @see DotCFG
  */
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class, property = "@id")
