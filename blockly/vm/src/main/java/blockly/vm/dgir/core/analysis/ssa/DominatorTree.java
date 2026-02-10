@@ -1,8 +1,9 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.analysis.ssa;
 
+import blockly.vm.dgir.core.Block;
+import blockly.vm.dgir.core.Region;
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
-import org.jgrapht.alg.util.Pair;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.builder.GraphTypeBuilder;
 

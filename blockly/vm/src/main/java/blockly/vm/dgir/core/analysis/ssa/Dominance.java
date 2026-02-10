@@ -1,8 +1,11 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.analysis.ssa;
 
+import blockly.vm.dgir.core.Block;
+import blockly.vm.dgir.core.Operation;
+import blockly.vm.dgir.core.Region;
 import org.jgrapht.alg.util.Pair;
 
-import static blockly.vm.dgir.core.DominatorTree.getDominatorTree;
+import static blockly.vm.dgir.core.analysis.ssa.DominatorTree.getDominatorTree;
 
 public class Dominance {
   public static boolean properlyDominates(Block dominator, Operation dominatorOp, Block dominated, Operation dominatedOp) {
