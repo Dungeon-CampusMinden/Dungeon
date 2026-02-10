@@ -55,7 +55,19 @@ public class ComputerDialog extends Group {
     if (!tabContentMap.containsKey(activeTab)) {
       activeTab = tabContentMap.keySet().stream().findFirst().orElse(null);
     }
+
+    checkVirus();
+
     showContent(activeTab);
+  }
+
+  private void checkVirus() {
+    if(sharedState.isInfected()){
+      ComputerTab virusTab = new VirusTab(sharedState);
+      addTab(virusTab);
+      activeTab = virusTab.key();
+      buildTabs();
+    }
   }
 
   public static Optional<ComputerDialog> getInstance() {
@@ -165,6 +177,16 @@ public class ComputerDialog extends Group {
     buildTabs();
   }
 
+  public void closeTab(String tabKey) {
+    if (!tabContentMap.containsKey(tabKey)) return;
+    tabContentMap.remove(tabKey);
+    if (tabKey.equals(activeTab)) {
+      activeTab = tabContentMap.keySet().stream().findFirst().orElse(null);
+      showContent(activeTab);
+    }
+    buildTabs();
+  }
+
   public void buildTabs() {
     if (tabArea == null) return;
     tabArea.clearChildren();
@@ -190,6 +212,7 @@ public class ComputerDialog extends Group {
     tab.add(label).pad(0, 15, 0, 15).grow();
     tab.setTouchable(Touchable.enabled);
     tab.setUserObject(Cursors.INTERACT);
+    if(sharedState.isInfected()) tab.setUserObject(Cursors.DISABLED);
     tab.addListener(
         new ClickListener(Input.Buttons.LEFT) {
           @Override
@@ -226,6 +249,7 @@ public class ComputerDialog extends Group {
 
   public void clickedTab(String tabKey) {
     if (tabKey.equals(activeTab)) return;
+    if (sharedState.isInfected()) return; // Cannot switch off of the virus tab
     activeTab = tabKey;
     ComputerStateLocal.Instance.tab(tabKey);
     buildTabs();
