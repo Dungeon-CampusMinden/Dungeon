@@ -1,0 +1,17 @@
+{
+    "allowedLicenses": [
+        { "moduleLicense": ".*MIT.*", "moduleName": ".*" },
+        { "moduleLicense": ".*Apache.*2\\.0.*", "moduleName": ".*" },
+        { "moduleLicense": ".*BSD.*", "moduleName": ".*" },
+        { "moduleLicense": ".*Unicode/ICU.*", "moduleName": ".*" },
+        {
+            "moduleLicense": ".*LGPL.*",
+            "moduleName": "com.badlogicgames.jlayer:jlayer"
+        },
+        {
+            "moduleLicense": ".*Lesser General Public License.*",
+            "moduleName": "org.jcraft:jorbis"
+        }
+    ]
+}
+
