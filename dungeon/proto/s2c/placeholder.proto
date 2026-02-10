@@ -1,6 +1,0 @@
-syntax = "proto3";
-
-package dungeon.s2c;
-
-option java_multiple_files = true;
-option java_package = "core.network.proto.s2c";

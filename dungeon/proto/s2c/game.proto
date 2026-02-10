@@ -1,0 +1,16 @@
+// Game state messages.
+
+syntax = "proto3";
+
+package dungeon.s2c;
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.s2c";
+option java_outer_classname = "GameProto";
+
+// Server-to-client: Game has ended.
+// Maps to: core.network.messages.s2c.GameOverEvent
+message GameOverEvent {
+  // Reason for game over.
+  string reason = 1;
+}

@@ -1,0 +1,130 @@
+// Entity-related server messages.
+
+syntax = "proto3";
+
+package dungeon.s2c;
+
+import "common/common_types.proto";
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.s2c";
+option java_outer_classname = "EntityProto";
+
+// Server-to-client: New entity spawned.
+// Maps to: core.network.messages.s2c.EntitySpawnEvent
+message EntitySpawnEvent {
+  // Unique entity identifier.
+  int32 entity_id = 1;
+
+  // Initial position in world.
+  dungeon.common.Point position = 2;
+
+  // Visual representation info.
+  DrawInfo draw_info = 3;
+
+  // Whether entity persists across level reloads.
+  bool is_persistent = 4;
+
+  // Player-specific info (only for player entities).
+  optional PlayerInfo player_info = 5;
+
+  // Character class ID (maps to CharacterClass enum ordinal).
+  optional int32 character_class_id = 6;
+}
+
+// Server-to-client: Batch spawn multiple entities.
+message EntitySpawnBatch {
+  repeated EntitySpawnEvent entities = 1;
+}
+
+// Visual/rendering information for an entity.
+message DrawInfo {
+  // Path to the entity's texture or sprite sheet.
+  string texture_path = 1;
+
+  // X scale factor (default 1.0).
+  optional float scale_x = 2;
+
+  // Y scale factor (default 1.0).
+  optional float scale_y = 3;
+
+  // Current animation state.
+  optional AnimationInfo current_animation = 4;
+}
+
+// Animation state information.
+message AnimationInfo {
+  // Name of the current animation.
+  string animation_name = 1;
+
+  // Current frame index in animation.
+  int32 current_frame = 2;
+}
+
+// Player-specific information.
+message PlayerInfo {
+  // Display name of the player.
+  string player_name = 1;
+
+  // Whether this is the receiving client's own player.
+  bool is_local_player = 2;
+}
+
+// Server-to-client: Entity despawned/removed.
+// Maps to: core.network.messages.s2c.EntityDespawnEvent
+message EntityDespawnEvent {
+  // ID of the despawned entity.
+  int32 entity_id = 1;
+
+  // Reason for despawn.
+  string reason = 2;
+}
+
+// Entity state for snapshot updates.
+// Maps to: core.network.messages.s2c.EntityState
+message EntityState {
+  // Required: Entity identifier.
+  int32 entity_id = 1;
+
+  // Optional: Entity display name.
+  optional string entity_name = 2;
+
+  // Optional: Current position.
+  optional dungeon.common.Point position = 3;
+
+  // Optional: View/facing direction (Direction enum name).
+  optional string view_direction = 4;
+
+  // Optional: Rotation angle in degrees.
+  optional float rotation = 5;
+
+  // Optional: Current health points.
+  optional int32 current_health = 6;
+
+  // Optional: Maximum health points.
+  optional int32 max_health = 7;
+
+  // Optional: Current mana points.
+  optional float current_mana = 8;
+
+  // Optional: Maximum mana points.
+  optional float max_mana = 9;
+
+  // Optional: Current state name.
+  optional string state_name = 10;
+
+  // Optional: Tint color overlay (packed RGBA).
+  optional int32 tint_color = 11;
+
+  // Optional: Inventory contents.
+  repeated ItemSlot inventory = 12;
+}
+
+// Represents a slot in an inventory.
+message ItemSlot {
+  // Slot index.
+  int32 slot_index = 1;
+
+  // Item in this slot (absent if slot is empty).
+  optional dungeon.common.Item item = 2;
+}

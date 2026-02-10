@@ -115,7 +115,8 @@ public class ProtoConverterC2STest {
     InputMessage message = new InputMessage(1, 1, (short) 1, InputMessage.Action.NEXT_SKILL, null);
 
     core.network.proto.c2s.InputMessage proto = ProtoConverter.toProto(message);
-    assertEquals(core.network.proto.c2s.InputMessage.ActionCase.SKILL_CHANGE, proto.getActionCase());
+    assertEquals(
+        core.network.proto.c2s.InputMessage.ActionCase.SKILL_CHANGE, proto.getActionCase());
     assertTrue(proto.getSkillChange().getNextSkill());
 
     InputMessage roundTrip = ProtoConverter.fromProto(proto);
@@ -129,7 +130,8 @@ public class ProtoConverterC2STest {
     InputMessage message = new InputMessage(2, 3, (short) 4, InputMessage.Action.PREV_SKILL, null);
 
     core.network.proto.c2s.InputMessage proto = ProtoConverter.toProto(message);
-    assertEquals(core.network.proto.c2s.InputMessage.ActionCase.SKILL_CHANGE, proto.getActionCase());
+    assertEquals(
+        core.network.proto.c2s.InputMessage.ActionCase.SKILL_CHANGE, proto.getActionCase());
     assertFalse(proto.getSkillChange().getNextSkill());
 
     InputMessage roundTrip = ProtoConverter.fromProto(proto);
@@ -211,8 +213,7 @@ public class ProtoConverterC2STest {
   /** Verifies dialog response conversion with custom data and closed callback. */
   @Test
   public void testDialogResponseClosedRoundTrip() {
-    DialogResponseMessage message =
-        new DialogResponseMessage("dialog-1", null, "payload");
+    DialogResponseMessage message = new DialogResponseMessage("dialog-1", null, "payload");
 
     core.network.proto.c2s.DialogResponseMessage proto = ProtoConverter.toProto(message);
     assertEquals("dialog-1", proto.getDialogId());
