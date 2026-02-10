@@ -39,7 +39,7 @@
       "columns": 2
     },
     "framesPerSprite": 30,
-    "scaleX": 3,
+    "scaleX": 3.5,
     "scaleY": 0,
     "isLooping": true,
     "centered": false

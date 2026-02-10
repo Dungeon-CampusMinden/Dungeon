@@ -8,6 +8,7 @@ public enum LastHourDialogTypes implements DialogType {
   /** A simple {@link hint.HintLogDialog} dialog type. */
   COMPUTER("computer"),
   TRASHCAN("trashcan"),
+  TEXT_CUTSCENE("text_cutscene"),
   ;
 
   private final String typeName;

@@ -35,6 +35,7 @@ import modules.computer.ComputerStateComponent;
 import modules.computer.LastHourDialogTypes;
 import modules.trash.TrashMinigameUI;
 import util.LastHourSounds;
+import util.ui.BlackFadeCutscene;
 
 /** The MushRoom. */
 public class LastHourLevel1 extends DungeonLevel {
@@ -100,9 +101,14 @@ public class LastHourLevel1 extends DungeonLevel {
     //    DialogFactory.showTextDialog("Welcome to this escape room adventure!\nYou have 20 minutes
     // to find a way out.\n\nGood Luck!", "", () -> {}, "OK", null, null);
     //    DialogFactory.showTextDialog(lorem, "Some Title", () -> {}, "Dann mal weiter...");
-        DialogFactory.showYesNoDialog("Welcome to this escape room adventure!\nYou have 20 minutes to find a way out.\n\nGood Luck\n\nDo you want another popup?", "", () -> {
-          DialogFactory.showTextDialog(lorem, "Some Title", () -> {}, "Dann mal weiter...");
-        }, () -> {});
+
+    BlackFadeCutscene.show(List.of("Test message", "And page 2"), false, true, () -> {
+      DialogFactory.showYesNoDialog("Welcome to this escape room adventure!\nYou have 20 minutes to find a way out.\n\nGood Luck\n\nDo you want another popup?", "", () -> {
+        DialogFactory.showTextDialog(lorem, "Some Title", () -> {}, "Dann mal weiter...");
+      }, () -> {});
+    });
+
+
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
 

@@ -45,7 +45,7 @@ public class ButtonBindingSetting extends SettingValue<Integer> {
     buttonEntry.left();
 
     Table buttonDisplay = new Table(UIUtils.defaultSkin());
-    buttonDisplay.setBackground("generic-area-depth");
+    buttonDisplay.setBackground(editable ? "blue_square_depth_border" : "generic-area");
     Label buttonLabel = Scene2dElementFactory.createLabel(Input.Keys.toString(value()), 24, Color.BLACK);
     buttonLabel.setAlignment(Align.center);
     buttonDisplay.setTouchable(Touchable.enabled);

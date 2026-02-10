@@ -24,6 +24,7 @@ public class BaseContainerUI extends Table implements IResizable {
   private int align;
   private float offsetX;
   private float offsetY;
+  private boolean grow;
 
   /**
    * Creates a new BaseContainerUI with the specified content actor.
@@ -32,7 +33,6 @@ public class BaseContainerUI extends Table implements IResizable {
    */
   public BaseContainerUI(Actor content) {
     this(content, Align.center);
-    Sounds.playLocal(CoreSounds.INTERFACE_DIALOG_OPENED);
   }
 
   /**
@@ -42,7 +42,17 @@ public class BaseContainerUI extends Table implements IResizable {
    * @param align The alignment/anchor point.
    */
   public BaseContainerUI(Actor content, int align) {
-    this(content, align, 0, 0);
+    this(content, align, 0, 0, false, true);
+  }
+
+  /**
+   * Creates a new BaseContainerUI with the specified content actor, alignment, and offsets.
+   * @param content The actor to display.
+   * @param grow Whether the content should grow to fill available space in its cell.
+   * @param playSound Whether to play the dialog open sound effect when this UI is created.
+   */
+  public BaseContainerUI(Actor content, boolean grow, boolean playSound) {
+    this(content, Align.center, 0, 0, grow, playSound);
   }
 
   /**
@@ -53,15 +63,18 @@ public class BaseContainerUI extends Table implements IResizable {
    * @param offsetX The X offset from the anchor point.
    * @param offsetY The Y offset from the anchor point.
    */
-  public BaseContainerUI(Actor content, int align, float offsetX, float offsetY) {
+  public BaseContainerUI(Actor content, int align, float offsetX, float offsetY, boolean grow, boolean playSound) {
     this.align = align;
     this.offsetX = offsetX;
     this.offsetY = offsetY;
+    this.grow = grow;
 
     this.setFillParent(true);
     setSize(Game.windowWidth(), Game.windowHeight());
 
     setContent(content);
+
+    if(playSound) Sounds.playLocal(CoreSounds.INTERFACE_DIALOG_OPENED);
   }
 
   @Override
@@ -155,6 +168,8 @@ public class BaseContainerUI extends Table implements IResizable {
 
     this.clearChildren();
     Cell<Actor> cell = this.add(content).align(align);
+
+    if(grow) cell.grow();
 
     if ((align & Align.right) != 0) {
       cell.padRight(offsetX);

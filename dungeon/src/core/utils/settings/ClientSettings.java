@@ -37,7 +37,7 @@ public class ClientSettings {
   private void init() {
     IntSliderSetting masterVolume = new IntSliderSetting("Master Volume", 70, 0, 100, 5);
     IntSliderSetting effectsVolume = new IntSliderSetting("Effects Volume", 70, 0, 100, 5);
-    IntSliderSetting musicVolume = new IntSliderSetting("Music Volume", 10, 0, 100, 5);
+    IntSliderSetting musicVolume = new IntSliderSetting("Music Volume", 0, 0, 100, 5);
 
     masterVolume.onChange((v) -> onVolumeChange.accept(MASTER_VOLUME, v));
     effectsVolume.onChange((v) -> onVolumeChange.accept(EFFECTS_VOLUME, v));
@@ -60,7 +60,7 @@ public class ClientSettings {
     registerSetting("colorblind", new BoolSetting("Colorblind Mode", false));
 
     registerSetting("section1", new SectionDividerSetting("Controls"));
-    registerSetting("controls1", new ButtonBindingSetting("Pause", Input.Keys.P));
+    registerSetting("controls1", new ButtonBindingSetting("Pause", Input.Keys.P, false));
     registerSetting("controls2", new ButtonBindingSetting("Interact", Input.Keys.E));
   }
 
