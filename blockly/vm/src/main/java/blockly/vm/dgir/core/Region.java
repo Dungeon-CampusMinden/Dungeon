@@ -1,12 +1,8 @@
 package blockly.vm.dgir.core;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * A region containing a list of {@link Block}.
@@ -53,30 +49,52 @@ import java.util.List;
  * @see Operation
  * @see Block
  */
+@JsonPropertyOrder({"bodyValues", "blocks"})
 public final class Region {
   private final List<Block> blocks = new ArrayList<>();
+  /**
+   * Values that act like parameters/arguments visible only inside this region (e.g., block arguments for CFG nodes).
+   */
+  @JsonIdentityReference(alwaysAsId = false)
+  private final List<Value> bodyValues;
 
   @JsonIgnore
   private final Operation parent;
 
   public Region() {
-    this.parent = null;
+    this(null, List.of());
   }
 
-  Region(Operation parent) {
+  public Region(Operation parent) {
+    this(parent, List.of());
+  }
+
+  public Region(Operation parent, List<Type> bodyValueTypes) {
     this.parent = parent;
+    this.bodyValues = initBodyValues(bodyValueTypes);
   }
 
-  @JsonCreator
-  public Region(@JsonProperty(value = "blocks") List<Block> blocks) {
-    this(blocks != null ? blocks : Collections.emptyList(), null);
-  }
-
-  public Region(List<Block> blocks, Operation parent) {
-    this(parent);
+  private Region(List<Block> blocks, Operation parent, List<Value> bodyValues) {
+    this.parent = parent;
+    this.bodyValues = new ArrayList<>(bodyValues == null ? List.of() : bodyValues);
     for (Block block : blocks) {
       addBlock(block);
     }
+  }
+
+  @JsonCreator
+  public static Region createRegion(@JsonProperty(value = "blocks") List<Block> blocks,
+                                    @JsonProperty(value = "bodyValues") List<Value> bodyValues) {
+    return new Region(blocks != null ? blocks : List.of(), null, bodyValues);
+  }
+
+  private static List<Value> initBodyValues(List<Type> bodyValueTypes) {
+    List<Type> types = bodyValueTypes == null ? List.of() : bodyValueTypes;
+    List<Value> values = new ArrayList<>(types.size());
+    for (Type type : types) {
+      values.add(new Value(Objects.requireNonNull(type, "body value type cannot be null")));
+    }
+    return values;
   }
 
   @JsonIgnore
@@ -137,14 +155,61 @@ public final class Region {
    * @param other The other region to take blocks from.
    */
   public void takeRegion(Region other) {
+    // Make sure that both regions have the same body values or that this region is empty
+    assert this.bodyValues.size() == other.bodyValues.size() : "Body values of regions must have the same size.";
+    for (int i = 0; i < this.bodyValues.size(); i++) {
+      assert this.bodyValues.get(i).getType() == other.bodyValues.get(i).getType() : "Body value types of regions must match.";
+    }
+
     for (Block block : new ArrayList<>(other.blocks)) {
       other.removeBlock(block);
       addBlock(block);
+    }
+
+    // Replace the value uses from the other regions body values with the body values of this region.
+    for (int i = 0; i < this.bodyValues.size(); i++) {
+      Value thisBodyValue = this.bodyValues.get(i);
+      Value otherBodyValue = other.bodyValues.get(i);
+      if (thisBodyValue != otherBodyValue)
+        otherBodyValue.replaceAllUsesWith(thisBodyValue);
     }
   }
 
   public Operation getParent() {
     return parent;
+  }
+
+  @JsonIdentityReference(alwaysAsId = false)
+  public List<Value> getBodyValues() {
+    return bodyValues;
+  }
+
+  public Value getBodyValue(int index) {
+    return bodyValues.get(index);
+  }
+
+  public int getBodyValueIndex(Value value) {
+    return bodyValues.indexOf(value);
+  }
+
+  public void setBodyValues(List<Value> bodyValues) {
+    // Make sure that the body values have the same size and types as the previous values or that none of the values are in use
+    if (!this.bodyValues.isEmpty() && bodyValues.stream().anyMatch(v -> !v.getUses().isEmpty())) {
+      assert this.bodyValues.size() == bodyValues.size() : "Body values of regions must have the same size.";
+      for (int i = 0; i < this.bodyValues.size(); i++) {
+        assert this.bodyValues.get(i).getType() == bodyValues.get(i).getType() : "Body value types of regions must match.";
+      }
+    }
+
+    // Replace the body values with the new ones
+    if (!this.bodyValues.isEmpty())
+      for (int i = 0; i < bodyValues.size(); i++) {
+        Value oldValue = this.bodyValues.get(i);
+        oldValue.replaceAllUsesWith(bodyValues.get(i));
+      }
+
+    this.bodyValues.clear();
+    this.bodyValues.addAll(bodyValues);
   }
 
   /**

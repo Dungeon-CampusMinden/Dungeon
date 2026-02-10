@@ -36,8 +36,8 @@ public final class ReachingDefinitions {
     assert root != null : "root operation cannot be null";
     List<MissingDefinition> problems = new ArrayList<>();
     for (Region region : root.getRegions()) {
-      // Each region starts with seeds derived from the owning operation (operands/body values) plus parent facts if allowed.
-      analyzeRegion(region, seedForOperation(root, Set.of()), problems);
+      // Each region starts with seeds derived from the owning operation (operands) and its own body values plus parent facts if allowed.
+      analyzeRegion(region, seedForRegion(root, region, Set.of()), problems);
     }
     return problems;
   }
@@ -107,7 +107,7 @@ public final class ReachingDefinitions {
 
         // Recurse into child regions with the current facts as entry seeds.
         for (Region child : op.getRegions()) {
-          analyzeRegion(child, new HashSet<>(state), problems);
+          analyzeRegion(child, seedForRegion(op, child, state), problems);
         }
         // Transfer: the op's result becomes available after the op executes.
         if (op.getOutput() != null) {
@@ -187,19 +187,19 @@ public final class ReachingDefinitions {
       if (op.getOutput() != null) {
         defs.add(op.getOutputValue());
       }
-      // Body values are scoped to the operation and become visible when entering its regions; handled in seedForOperation.
+      // Body values belong to regions; they are seeded separately in seedForRegion.
     }
     return defs;
   }
 
   /**
-   * Seed facts when entering an operation's regions: include its operands and body values, and only propagate parent
-   * state if the op is not isolated-from-above.
+   * Seed facts when entering a region of an operation: include the operation operands, the region's body values, and
+   * optionally the parent state if the operation is not isolated-from-above.
    */
-  private static Set<Value> seedForOperation(Operation op, Set<Value> parentState) {
+  private static Set<Value> seedForRegion(Operation op, Region region, Set<Value> parentState) {
     Set<Value> seed = new HashSet<>();
     op.getOperands().forEach(o -> seed.add(o.getValue()));
-    seed.addAll(op.getBodyValues());
+    seed.addAll(region.getBodyValues());
     if (!op.hasTrait(IIsolatedFromAbove.class)) {
       seed.addAll(parentState);
     }

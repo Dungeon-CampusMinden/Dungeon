@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
+// We have to use the deserializer because we cant use @JsonCreator on static methods and therefore can put the logic
+// directly in this class.
 @JsonDeserialize(using = TypeDeserializer.class)
 public abstract class Type {
   @JsonIgnore

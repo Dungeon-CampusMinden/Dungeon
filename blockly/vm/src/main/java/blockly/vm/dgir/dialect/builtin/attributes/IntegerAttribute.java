@@ -6,8 +6,6 @@ import blockly.vm.dgir.dialect.builtin.types.IntegerT;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Optional;
-
 public class IntegerAttribute extends Attribute implements ITypedAttribute {
   public static final IntegerAttribute INSTANCE = new IntegerAttribute();
 

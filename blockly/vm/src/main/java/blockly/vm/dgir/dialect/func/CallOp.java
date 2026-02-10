@@ -51,12 +51,12 @@ public class CallOp extends Op implements IControlFlow, ISymbolUser {
   }
 
   public CallOp(String name, List<Value> operands, FuncType calleeType) {
-    setOperation(Operation.Create(getIdent(), operands, null, calleeType.getOutput(), 0));
+    setOperation(Operation.Create(getIdent(), operands, null, calleeType.getOutput()));
     setCallee(name);
   }
 
   public CallOp(FuncOp funcOp, List<Value> operands) {
-    setOperation(Operation.Create(getIdent(), operands, null, funcOp.getType().getOutput(), 0));
+    setOperation(Operation.Create(getIdent(), operands, null, funcOp.getType().getOutput()));
     setCallee(funcOp.getFuncName());
   }
 

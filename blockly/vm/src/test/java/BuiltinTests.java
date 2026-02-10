@@ -85,12 +85,11 @@ public class BuiltinTests {
   public void functionCall() {
     ObjectMapper mapper = Utils.getMapper(true, true);
 
-
     ProgramOp op = new ProgramOp(true);
     var programRegion = op.getOperation().getRegions().getFirst();
     var progBlock = programRegion.getEntryBlock();
 
-    var fooFuncOp = new FuncOp("foo", new FuncType(List.of(), StringT.INSTANCE));
+    var fooFuncOp = new FuncOp("foo", new FuncType(List.of(StringT.INSTANCE), StringT.INSTANCE));
     {
       var fooFuncRegion = fooFuncOp.getOperation().getFirstRegion();
       var fooFuncBlock = fooFuncRegion.getEntryBlock();

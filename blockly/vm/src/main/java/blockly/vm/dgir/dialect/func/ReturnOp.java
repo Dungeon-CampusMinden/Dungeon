@@ -34,7 +34,7 @@ public class ReturnOp extends Op implements ITerminator {
   }
 
   public ReturnOp(List<Value> operands) {
-    setOperation(Operation.Create(getIdent(), operands, null, null, 0));
+    setOperation(Operation.Create(getIdent(), operands, null, null));
   }
 
   public static String getIdent() {

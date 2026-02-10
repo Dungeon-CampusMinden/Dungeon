@@ -12,7 +12,8 @@ import java.io.Serializable;
 public final class Value extends IRObjectWithUseList<Value, ValueOperand> implements Serializable {
   private final Type type;
 
-  public Value(Type type) {
+  @JsonCreator
+  public Value(@JsonProperty("type") Type type) {
     this.type = type;
   }
 

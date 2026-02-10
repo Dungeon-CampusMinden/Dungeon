@@ -2,7 +2,9 @@ package blockly.vm.dgir.core;
 
 import blockly.vm.dgir.core.serialization.OpDeserializer;
 import blockly.vm.dgir.core.serialization.OpSerializer;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
