@@ -4,6 +4,7 @@ import contrib.item.Item;
 import core.network.messages.NetworkMessage;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Vector2;
 import java.io.Serial;
 import java.util.Optional;
 
@@ -24,6 +25,7 @@ public class EntityState implements NetworkMessage {
   private final Point position;
   private final String viewDirection;
   private final Float rotation;
+  private final Vector2 scale;
   private final Integer curHealth;
   private final Integer maxHealth;
   private final Float curMana;
@@ -43,6 +45,7 @@ public class EntityState implements NetworkMessage {
     this.position = builder.position;
     this.viewDirection = builder.viewDirection;
     this.rotation = builder.rotation;
+    this.scale = builder.scale;
     this.curHealth = builder.curHealth;
     this.maxHealth = builder.maxHealth;
     this.curMana = builder.curMana;
@@ -95,6 +98,15 @@ public class EntityState implements NetworkMessage {
    */
   public Optional<Float> rotation() {
     return Optional.ofNullable(rotation);
+  }
+
+  /**
+   * Gets the optional scale of the entity.
+   *
+   * @return an Optional containing the scale if present, otherwise an empty Optional
+   */
+  public Optional<Vector2> scale() {
+    return Optional.ofNullable(scale);
   }
 
   /**
@@ -176,6 +188,7 @@ public class EntityState implements NetworkMessage {
     private Point position;
     private String viewDirection;
     private Float rotation;
+    private Vector2 scale;
     private Integer curHealth;
     private Integer maxHealth;
     private Float curMana;
@@ -236,6 +249,17 @@ public class EntityState implements NetworkMessage {
      */
     public Builder rotation(Float rotation) {
       this.rotation = rotation;
+      return this;
+    }
+
+    /**
+     * Sets the scale of the entity.
+     *
+     * @param scale the scale value
+     * @return the Builder instance
+     */
+    public Builder scale(Vector2 scale) {
+      this.scale = scale;
       return this;
     }
 

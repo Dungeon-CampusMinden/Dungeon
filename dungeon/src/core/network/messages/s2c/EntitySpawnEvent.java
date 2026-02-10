@@ -19,7 +19,8 @@ import core.utils.components.draw.DrawInfoData;
  * created on the server that the client needs to know about.
  *
  * @param entityId the entity's unique ID
- * @param positionComponent the entity's position component
+ * @param positionComponent the entity's position component TODO: consider a data-only position
+ *     payload for network isolation
  * @param drawInfo the entity's draw info (data-only, render thread builds component)
  * @param isPersistent whether the entity should be saved to the map
  * @param playerComponent the entity's player component, if it has one (null if not)

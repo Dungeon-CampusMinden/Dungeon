@@ -22,6 +22,16 @@ message Vector2 {
   float y = 2;
 }
 
+// Represents position and orientation state.
+// Maps to: core.components.PositionComponent
+message PositionInfo {
+  // TODO: Optional rotation/scale when partial updates are needed.
+  Point position = 1;
+  Direction view_direction = 2;
+  float rotation = 3;
+  Vector2 scale = 4;
+}
+
 // Represents viewing/movement direction.
 // Maps to: core.utils.Direction
 enum Direction {

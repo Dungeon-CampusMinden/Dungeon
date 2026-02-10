@@ -3,6 +3,7 @@ package core.network.codec;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import core.components.PositionComponent;
 import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
@@ -78,6 +79,30 @@ public class ProtoConverterTest {
         ProtoConverter.fromProto(core.network.proto.common.Direction.DIRECTION_UNSPECIFIED));
     assertEquals(
         Direction.NONE, ProtoConverter.fromProto(core.network.proto.common.Direction.UNRECOGNIZED));
+  }
+
+  /** Verifies position component conversion roundtrip. */
+  @Test
+  public void testPositionComponentRoundTrip() {
+    PositionComponent component = new PositionComponent(new Point(1.5f, -2.0f), Direction.RIGHT);
+    component.rotation(30.0f);
+    component.scale(Vector2.of(1.25f, 0.75f));
+
+    core.network.proto.common.PositionInfo proto = ProtoConverter.toProto(component);
+    assertEquals(1.5f, proto.getPosition().getX(), DELTA);
+    assertEquals(-2.0f, proto.getPosition().getY(), DELTA);
+    assertEquals(core.network.proto.common.Direction.DIRECTION_RIGHT, proto.getViewDirection());
+    assertEquals(30.0f, proto.getRotation(), DELTA);
+    assertEquals(1.25f, proto.getScale().getX(), DELTA);
+    assertEquals(0.75f, proto.getScale().getY(), DELTA);
+
+    PositionComponent roundTrip = ProtoConverter.fromProto(proto);
+    assertEquals(1.5f, roundTrip.position().x(), DELTA);
+    assertEquals(-2.0f, roundTrip.position().y(), DELTA);
+    assertEquals(Direction.RIGHT, roundTrip.viewDirection());
+    assertEquals(30.0f, roundTrip.rotation(), DELTA);
+    assertEquals(1.25f, roundTrip.scale().x(), DELTA);
+    assertEquals(0.75f, roundTrip.scale().y(), DELTA);
   }
 
   /** Verifies sound specification conversion roundtrip. */

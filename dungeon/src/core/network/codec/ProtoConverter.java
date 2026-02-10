@@ -159,6 +159,41 @@ public final class ProtoConverter {
   }
 
   /**
+   * Converts a {@link PositionComponent} into its protobuf representation.
+   *
+   * @param component the position component to convert
+   * @return the protobuf position info
+   */
+  public static core.network.proto.common.PositionInfo toProto(PositionComponent component) {
+    return core.network.proto.common.PositionInfo.newBuilder()
+        .setPosition(toProto(component.position()))
+        .setViewDirection(toProto(component.viewDirection()))
+        .setRotation(component.rotation())
+        .setScale(toProto(component.scale()))
+        .build();
+  }
+
+  /**
+   * Converts a protobuf position info into a {@link PositionComponent}.
+   *
+   * @param proto the protobuf position info
+   * @return the position component
+   */
+  public static PositionComponent fromProto(core.network.proto.common.PositionInfo proto) {
+    if (!proto.hasPosition()) {
+      throw new IllegalArgumentException("PositionInfo.position is required.");
+    }
+
+    PositionComponent component =
+        new PositionComponent(fromProto(proto.getPosition()), fromProto(proto.getViewDirection()));
+    component.rotation(proto.getRotation());
+    if (proto.hasScale()) {
+      component.scale(fromProto(proto.getScale()));
+    }
+    return component;
+  }
+
+  /**
    * Converts a {@link Direction} into its protobuf representation.
    *
    * @param direction the domain direction to convert
@@ -621,7 +656,7 @@ public final class ProtoConverter {
     var builder =
         core.network.proto.s2c.EntitySpawnEvent.newBuilder()
             .setEntityId(message.entityId())
-            .setPosition(toProto(message.positionComponent().position()))
+            .setPosition(toProto(message.positionComponent()))
             .setDrawInfo(toProto(message.drawInfo()))
             .setIsPersistent(message.isPersistent());
 
@@ -644,7 +679,7 @@ public final class ProtoConverter {
    * @return the domain spawn event
    */
   public static EntitySpawnEvent fromProto(core.network.proto.s2c.EntitySpawnEvent proto) {
-    PositionComponent position = new PositionComponent(fromProto(proto.getPosition()));
+    PositionComponent position = fromProto(proto.getPosition());
     DrawInfoData drawInfo = fromProto(proto.getDrawInfo());
     PlayerComponent playerComponent =
         proto.hasPlayerInfo() ? fromProto(proto.getPlayerInfo()) : null;
@@ -723,9 +758,28 @@ public final class ProtoConverter {
     var builder = core.network.proto.s2c.EntityState.newBuilder().setEntityId(message.entityId());
 
     message.entityName().ifPresent(builder::setEntityName);
-    message.position().ifPresent(point -> builder.setPosition(toProto(point)));
-    message.viewDirection().ifPresent(builder::setViewDirection);
-    message.rotation().ifPresent(builder::setRotation);
+    boolean hasPosition = message.position().isPresent();
+    boolean hasViewDirection = message.viewDirection().isPresent();
+    boolean hasRotation = message.rotation().isPresent();
+    boolean hasScale = message.scale().isPresent();
+    if (hasPosition) {
+      // TODO: Support partial position updates once snapshot diffing is introduced.
+      Direction viewDirection =
+          message.viewDirection().map(ProtoConverter::parseDirection).orElse(Direction.NONE);
+      float rotation = message.rotation().orElse(0.0f);
+      Vector2 scale = message.scale().orElse(Vector2.ONE);
+
+      core.network.proto.common.PositionInfo positionInfo =
+          core.network.proto.common.PositionInfo.newBuilder()
+              .setPosition(toProto(message.position().orElseThrow()))
+              .setViewDirection(toProto(viewDirection))
+              .setRotation(rotation)
+              .setScale(toProto(scale))
+              .build();
+      builder.setPosition(positionInfo);
+    } else if (hasViewDirection || hasRotation || hasScale) {
+      throw new IllegalArgumentException("Position is required to send rotation or scale.");
+    }
     message.currentHealth().ifPresent(builder::setCurrentHealth);
     message.maxHealth().ifPresent(builder::setMaxHealth);
     message.currentMana().ifPresent(builder::setCurrentMana);
@@ -764,13 +818,17 @@ public final class ProtoConverter {
       builder.entityName(proto.getEntityName());
     }
     if (proto.hasPosition()) {
-      builder.position(fromProto(proto.getPosition()));
-    }
-    if (proto.hasViewDirection()) {
-      builder.viewDirection(proto.getViewDirection());
-    }
-    if (proto.hasRotation()) {
-      builder.rotation(proto.getRotation());
+      core.network.proto.common.PositionInfo positionInfo = proto.getPosition();
+      builder.position(fromProto(positionInfo.getPosition()));
+      core.network.proto.common.Direction viewDirection = positionInfo.getViewDirection();
+      if (viewDirection != core.network.proto.common.Direction.DIRECTION_UNSPECIFIED
+          && viewDirection != core.network.proto.common.Direction.UNRECOGNIZED) {
+        builder.viewDirection(fromProto(viewDirection));
+      }
+      builder.rotation(positionInfo.getRotation());
+      if (positionInfo.hasScale()) {
+        builder.scale(fromProto(positionInfo.getScale()));
+      }
     }
     if (proto.hasCurrentHealth()) {
       builder.currentHealth(proto.getCurrentHealth());
@@ -1092,6 +1150,17 @@ public final class ProtoConverter {
           "InputMessage point is required for action " + message.action());
     }
     return point;
+  }
+
+  private static Direction parseDirection(String direction) {
+    if (direction == null) {
+      return Direction.NONE;
+    }
+    try {
+      return Direction.valueOf(direction);
+    } catch (IllegalArgumentException e) {
+      return Direction.NONE;
+    }
   }
 
   private static byte[] serializeDialogData(Serializable data) {

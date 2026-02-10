@@ -30,6 +30,7 @@ import core.network.messages.s2c.SoundPlayMessage;
 import core.network.messages.s2c.SoundStopMessage;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.draw.DrawInfoData;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -113,6 +114,8 @@ public class ProtoConverterS2CTest {
   @Test
   public void testEntitySpawnRoundTrip() {
     PositionComponent position = new PositionComponent(new Point(4.0f, 5.0f), Direction.UP);
+    position.rotation(45.0f);
+    position.scale(Vector2.of(1.5f, 0.75f));
     DrawInfoData drawInfo = createDrawInfo();
     PlayerComponent playerComponent = new PlayerComponent(true, "Hero");
     EntitySpawnEvent message =
@@ -120,8 +123,13 @@ public class ProtoConverterS2CTest {
 
     core.network.proto.s2c.EntitySpawnEvent proto = ProtoConverter.toProto(message);
     assertEquals(42, proto.getEntityId());
-    assertEquals(4.0f, proto.getPosition().getX(), DELTA);
-    assertEquals(5.0f, proto.getPosition().getY(), DELTA);
+    assertEquals(4.0f, proto.getPosition().getPosition().getX(), DELTA);
+    assertEquals(5.0f, proto.getPosition().getPosition().getY(), DELTA);
+    assertEquals(
+        core.network.proto.common.Direction.DIRECTION_UP, proto.getPosition().getViewDirection());
+    assertEquals(45.0f, proto.getPosition().getRotation(), DELTA);
+    assertEquals(1.5f, proto.getPosition().getScale().getX(), DELTA);
+    assertEquals(0.75f, proto.getPosition().getScale().getY(), DELTA);
     assertTrue(proto.hasPlayerInfo());
     assertEquals("Hero", proto.getPlayerInfo().getPlayerName());
     assertTrue(proto.getPlayerInfo().getIsLocalPlayer());
@@ -131,6 +139,10 @@ public class ProtoConverterS2CTest {
     assertEquals(42, roundTrip.entityId());
     assertEquals(4.0f, roundTrip.positionComponent().position().x(), DELTA);
     assertEquals(5.0f, roundTrip.positionComponent().position().y(), DELTA);
+    assertEquals(Direction.UP, roundTrip.positionComponent().viewDirection());
+    assertEquals(45.0f, roundTrip.positionComponent().rotation(), DELTA);
+    assertEquals(1.5f, roundTrip.positionComponent().scale().x(), DELTA);
+    assertEquals(0.75f, roundTrip.positionComponent().scale().y(), DELTA);
     assertNotNull(roundTrip.playerComponent());
     assertEquals("Hero", roundTrip.playerComponent().playerName());
     assertTrue(roundTrip.playerComponent().isLocal());
@@ -197,6 +209,7 @@ public class ProtoConverterS2CTest {
             .position(new Point(1.5f, 2.5f))
             .viewDirection(Direction.LEFT)
             .rotation(90.0f)
+            .scale(Vector2.of(1.25f, 0.75f))
             .currentHealth(5)
             .maxHealth(10)
             .currentMana(2.5f)
@@ -222,6 +235,8 @@ public class ProtoConverterS2CTest {
     assertEquals(5.0f, roundTrip.maxMana().orElseThrow(), DELTA);
     assertEquals("idle", roundTrip.stateName().orElseThrow());
     assertEquals(0x11223344, roundTrip.tintColor().orElseThrow());
+    assertEquals(1.25f, roundTrip.scale().orElseThrow().x(), DELTA);
+    assertEquals(0.75f, roundTrip.scale().orElseThrow().y(), DELTA);
     assertEquals(3, roundTrip.inventory().orElseThrow().length);
     assertEquals(ItemPotionHealth.class, roundTrip.inventory().orElseThrow()[1].getClass());
   }
