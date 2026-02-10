@@ -1,12 +1,15 @@
 package blockly.vm.dgir.core;
 
 import org.jgrapht.Graph;
+import org.jgrapht.Graphs;
 import org.jgrapht.alg.util.Pair;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.builder.GraphTypeBuilder;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -21,57 +24,19 @@ public class DominatorTree {
   static Map<Region, DominatorTree> dominatorTrees = new HashMap<>();
 
   private Region region;
+  // Graph representing the dominator tree (idom edges).
   private Graph<Block, DefaultEdge> graph;
 
   public DominatorTree() {
   }
 
-  public void recalculate(Region region) {
-    assert region.getBlocks().size() > 1 : "Can't create a dominator tree for a region with only one block.";
-
-    this.region = null;
-    this.graph = null;
-
-    this.region = region;
-
-    Graph<Block, DefaultEdge> dominatorGraph = GraphTypeBuilder
-      .<Block, DefaultEdge>directed()
-      .vertexClass(Block.class)
-      .edgeClass(DefaultEdge.class)
-      .allowingMultipleEdges(true)
-      .allowingSelfLoops(true)
-      .buildGraph();
-
-    // Add the root of the dominator tree to the graph. It is always the entry block of the region.
-    graph.addVertex(region.getEntryBlock());
-    doDfsWalk();
-  }
-
-  // Does a depth first search from the entry block of the region to establish the whole cfg.
-  // It walks from the entry node through all successor blocks and adds them to the graph, going deeper as it encounters
-  // new successor blocks.
-  private void doDfsWalk()
-  {
-    // A stack on which we store the last successors to work on. We start with the entry block of the region and then
-    // keep adding successors to the stack as we encounter them.
-    final Stack<Block> workList = new Stack<>();
-    workList.push(region.getEntryBlock());
-
-    // Do a depth first search from the entry block of the region to establish the whole cfg.
-    while (!workList.isEmpty()) {
-      Block currentBlock = workList.pop();
-      // Add all successors of the current block to the graph and to the work list if they haven't been visited yet.
-      for (Block successor : currentBlock.getSuccessors()) {
-        if (!graph.containsVertex(successor)) {
-          graph.addVertex(successor);
-          workList.push(successor);
-        }
-        // Add an edge from the current block to the successor block
-        graph.addEdge(currentBlock, successor);
-      }
-    }
-  }
-
+  /**
+   * Static factory method to get the dominator tree for a given {@link Region}. If the tree has already been computed and cached, it is returned from the cache.
+   * Otherwise, a new tree is created, computed, cached, and returned.
+   *
+   * @param region The region for which to get the dominator tree.
+   * @return The dominator tree for the given region.
+   */
   public static DominatorTree getDominatorTree(Region region) {
     assert region.getBlocks().size() > 1 : "Can't create a dominator tree for a region with only one block.";
 
@@ -87,67 +52,220 @@ public class DominatorTree {
     return tree;
   }
 
-  public static boolean properlyDominates(Block dominator, Operation dominatorOp, Block dominated, Operation dominatedOp) {
-    assert dominator != null && dominated != null : "Dominator and dominated blocks must not be null.";
-    // Blocks cannot properly dominate themselves
-    if (dominator.equals(dominated) && dominatorOp.equals(dominatedOp)) {
-      return false;
+  /**
+   * Recomputes the dominator tree for the given {@link Region}. The algorithm proceeds in three phases:
+   * <ol>
+   *   <li>Build the full CFG reachable from the entry block using a DFS walk.</li>
+   *   <li>Compute the fixed-point of dominance sets (classic forward data-flow algorithm).</li>
+   *   <li>Derive immediate dominators (idom) from the dominance sets and emit the dominator tree graph.</li>
+   * </ol>
+   * The resulting tree is stored in {@link #graph} with directed edges {@code idom -> node}.
+   */
+  public void recalculate(Region region) {
+    assert region.getBlocks().size() > 1 : "Can't create a dominator tree for a region with only one block.";
+
+    this.region = null;
+    this.graph = null;
+
+    this.region = region;
+
+    // Phase 1: build CFG by walking successors from the entry block.
+    Graph<Block, DefaultEdge> cfg = GraphTypeBuilder
+      .<Block, DefaultEdge>directed()
+      .vertexClass(Block.class)
+      .edgeClass(DefaultEdge.class)
+      .allowingMultipleEdges(false)
+      .allowingSelfLoops(true)
+      .buildGraph();
+
+    cfg.addVertex(region.getEntryBlock());
+    doDfsWalk(cfg);
+
+    // Phase 2: iterative dominance computation. Initialize entry to {entry}, all others to universal set.
+    Map<Block, Set<Block>> dominators = new HashMap<>();
+    Set<Block> allBlocks = cfg.vertexSet();
+    Block entry = region.getEntryBlock();
+    for (Block block : allBlocks) {
+      if (block.equals(entry)) {
+        dominators.put(block, Set.of(entry));
+      } else {
+        dominators.put(block, new HashSet<>(allBlocks));
+      }
     }
 
-    // If the blocks are in different regions, we need to check if the dominated block has an ancestor block in the
-    // dominator's region. If not, then the dominator cannot properly dominate the dominated block since only blocks
-    // in the same region can have a dominance relationship.
-    if (dominator.getParent() != dominated.getParent()) {
-      // Find the nearest ancestor block of the dominated in the dominator's region
-      var result = findAncestorInRegion(dominator.getParent(), dominated, dominatedOp);
-      dominated = result.getFirst();
-      dominatedOp = result.getSecond();
-      if (dominated == null) {
-        return false;
-      }
-      assert dominated.getParent() == dominator.getParent() : "The ancestor block found should belong to the dominator's region.";
+    boolean changed;
+    do {
+      changed = false;
+      for (Block block : allBlocks) {
+        if (block.equals(entry)) continue;
 
-      // If dominator encloses dominated, then dominated is properly dominated.
-      // If the dominatorOp and dominatedOp arent the same they might not be in the correct order and we need to check if
-      // the dominatorOp is defined before the dominatedOp via the dominator tree.
-      // This is necessary since values can be reassigned in DGIR and therefore pure order of operations isn't information
-      // enough to determine dominance.
-      if (dominator == dominated && dominatorOp == dominatedOp) {
-        return true;
+        // Intersect predecessors' dominator sets, then add the block itself per definition.
+        Set<Block> newDom = new HashSet<>(allBlocks);
+        for (Block pred : Graphs.predecessorListOf(cfg, block)) {
+          newDom.retainAll(dominators.get(pred));
+        }
+        newDom.add(block);
+
+        Set<Block> oldDom = dominators.get(block);
+        if (!oldDom.equals(newDom)) {
+          dominators.put(block, newDom);
+          changed = true;
+        }
       }
+    } while (changed);
+
+    // Phase 3: extract immediate dominators. For each block, find the nearest dominator not dominated by another candidate.
+    // An immediate dominator is the dominator that is not dominated by another candidate.
+    // A candidate is a dominator that is not itself.
+    Graph<Block, DefaultEdge> dominatorGraph = GraphTypeBuilder
+      .<Block, DefaultEdge>directed()
+      .vertexClass(Block.class)
+      .edgeClass(DefaultEdge.class)
+      .allowingMultipleEdges(false)
+      .allowingSelfLoops(false)
+      .buildGraph();
+
+    for (Block block : allBlocks) {
+      dominatorGraph.addVertex(block);
     }
-    //TODO finish implementation using an actual dominator tree
 
-    return false;
+    for (Block block : allBlocks) {
+      if (block.equals(entry)) continue;
+
+      // Remove self, then pick the dominator that is not dominated by another candidate (nearest toward entry).
+      Set<Block> doms = new HashSet<>(dominators.get(block));
+      doms.remove(block);
+      Block idom = null;
+      for (Block candidate : doms) {
+        boolean dominatedByOther = false;
+        for (Block other : doms) {
+          if (other.equals(candidate)) continue;
+          // If another dominator also dominates candidate, candidate is higher and cannot be idom.
+          if (dominators.get(candidate).contains(other)) {
+            dominatedByOther = true;
+            break;
+          }
+        }
+        if (!dominatedByOther) {
+          idom = candidate;
+          break;
+        }
+      }
+
+      assert idom != null : "Every non-entry block must have an immediate dominator.";
+      dominatorGraph.addEdge(idom, block);
+    }
+
+    this.graph = dominatorGraph;
   }
 
   /**
-   * Walks outward from the given {@code block} until it reaches the nearest ancestor block that
-   * belongs to the requested {@code region}. If the block is already in that region, it is returned
-   * as-is. If the block is nested under an operation whose parent region is the target, the parent
-   * block of that operation is returned. If no ancestor is found in the target region, {@code null}
-   * is returned.
-   * <p>
-   * The helper {@link Region#findAncestorOpInRegion(Operation)} is used to climb from a block’s
-   * parent operation toward the requested region.</p>
-   *
-   * @param region    The region to search for an ancestor block.
-   * @param block     The block from which to start the search.
-   * @param operation The operation which is supposed to be dominated.
-   * @return The nearest ancestor block of the given block that belongs to the requested region, or {@code null} if no such block exists.
-   * Returns the original operation if the block is already in the target region or the op containing the region the block is nested under.
-   * @see Region#findAncestorOpInRegion(Operation)
+   * Performs a DFS from the region entry to enumerate all reachable blocks and add CFG edges.
+   * Successors discovered for the first time are pushed on the stack to continue traversal.
    */
-  public static Pair<Block, Operation> findAncestorInRegion(Region region, Block block, Operation operation) {
-    // If the block is already in the target region, return it as-is
-    if (block.getParent() == region) {
-      return Pair.of(block, operation);
-    }
+  private void doDfsWalk(Graph<Block, DefaultEdge> cfg) {
+    // A stack on which we store the last successors to work on. We start with the entry block of the region and then
+    // keep adding successors to the stack as we encounter them.
+    final Stack<Block> workList = new Stack<>();
+    workList.push(region.getEntryBlock());
 
-    Operation op = region.findAncestorOpInRegion(block.getParentOperation());
-    if (op == null) {
-      return Pair.of(null, null);
+    // Do a depth first search from the entry block of the region to establish the whole cfg.
+    while (!workList.isEmpty()) {
+      Block currentBlock = workList.pop();
+      // Add all successors of the current block to the graph and to the work list if they haven't been visited yet.
+      for (Block successor : currentBlock.getSuccessors()) {
+        if (!cfg.containsVertex(successor)) {
+          cfg.addVertex(successor);
+          workList.push(successor);
+        }
+        // Add an edge from the current block to the successor block
+        cfg.addEdge(currentBlock, successor);
+      }
     }
-    return Pair.of(op.getParent(), op);
+  }
+
+  /**
+   * Checks if the dominator block properly dominates the dominated block.
+   * A block is properly dominated by another block if the dominator block dominates the dominated block and they are
+   * not the same block.
+   * @param dominator The dominator block.
+   * @param dominated The dominated block.
+   * @return {@code true} if the dominator block properly dominates the dominated block, {@code false} otherwise.
+   */
+  public boolean properlyDominates(Block dominator, Block dominated) {
+    assert dominator != null && dominated != null : "Dominator and dominated blocks must not be null.";
+    if (dominator.equals(dominated))
+      return false;
+    return dominates(dominator, dominated);
+  }
+
+  /**
+   * Checks if the dominator block dominates the dominated block.
+   * @param dominator The dominator block.
+   * @param dominated The dominated block.
+   * @return {@code true} if the dominator dominates the dominated block, {@code false} otherwise.
+   */
+  public boolean dominates(Block dominator, Block dominated) {
+    assert dominator != null && dominated != null : "Dominator and dominated blocks must not be null.";
+    if (dominator.equals(dominated)) return true;
+    if (!isReachableFromEntry(dominator) || !isReachableFromEntry(dominated))
+      return false;
+
+    if (getImmediateDominator(dominated) == dominator) return true;
+    if (getImmediateDominator(dominator) == dominated) return false;
+
+    return dominatedByWalk(dominator, dominated);
+  }
+
+  /**
+   * Checks if a block dominates another block by walking up the dominator tree. This is a very expensive operation.
+   * @param dominator The dominator block.
+   * @param dominated The dominated block.
+   * @return {@code true} if the dominator dominates the dominated block, {@code false} otherwise.
+   */
+  private boolean dominatedByWalk(Block dominator, Block dominated) {
+    assert dominator != null && dominated != null : "Dominator and dominated blocks must not be null.";
+    assert dominator != dominated : "Dominator and dominated blocks must not be the same.";
+    assert isReachableFromEntry(dominator) && isReachableFromEntry(dominated) : "Both blocks must be reachable from the entry block.";
+
+    Block current = dominator;
+    while (true) {
+      Block idom = getImmediateDominator(current);
+      if (idom == null) return false;
+      if (idom.equals(dominated)) return true;
+      current = idom;
+    }
+  }
+
+  /**
+   * Returns the immediate dominator of the given block.
+   * @param block The block for which to get the immediate dominator.
+   * @return The immediate dominator of the given block, or {@code null} if the block has no immediate dominator.
+   */
+  public Block getImmediateDominator(Block block) {
+    Set<DefaultEdge> incomingEdges = graph.incomingEdgesOf(block);
+    if (incomingEdges.isEmpty()) return null;
+    return graph.getEdgeSource(incomingEdges.iterator().next());
+  }
+
+  /**
+   * Checks whether a block is reachable from the entry block. This is done by walking up the dominator tree from the
+   * given block to see if we reach the entry block.
+   *
+   * @param block The block to check.
+   * @return {@code true} if the block is reachable from the entry block, {@code false} otherwise.
+   */
+  public boolean isReachableFromEntry(Block block) {
+    Block current = block;
+    Block entry = region.getEntryBlock();
+    while (true) {
+      if (current.equals(entry)) {
+        return true;
+      }
+      Block idom = getImmediateDominator(current);
+      if (idom == null)
+        return false;
+      current = idom;
+    }
   }
 }
