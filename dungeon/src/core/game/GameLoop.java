@@ -8,7 +8,12 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
@@ -62,6 +67,9 @@ public final class GameLoop extends ScreenAdapter {
   private static ISoundPlayer soundPlayer = new NoSoundPlayer();
   private static Stage stage;
   private boolean doSetup = true;
+  private boolean gameIsRunning = false;
+  private Table mainMenuTable = null;
+  private Skin skin;
 
   /**
    * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
@@ -127,6 +135,7 @@ public final class GameLoop extends ScreenAdapter {
    * @see PreRunConfiguration
    */
   public static void run() {
+    java.lang.System.out.println("function run called");
     Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
     config.setWindowSizeLimits(
         PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight(), 9999, 9999);
@@ -183,6 +192,8 @@ public final class GameLoop extends ScreenAdapter {
                 PreRunConfiguration.windowHeight()),
             new SpriteBatch());
     Gdx.input.setInputProcessor(stage);
+
+
   }
 
   /**
@@ -223,15 +234,19 @@ public final class GameLoop extends ScreenAdapter {
     frame(delta);
     clearScreen();
 
-    // Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
-    final boolean isMultiplayerClient =
+    if (gameIsRunning) {
+//       Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
+      final boolean isMultiplayerClient =
         PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
-    ECSManagement.executeOneTick(
+      ECSManagement.executeOneTick(
         isMultiplayerClient ? System.AuthoritativeSide.CLIENT : System.AuthoritativeSide.BOTH);
 
-    InputManager.update();
-    CameraSystem.camera().update();
-    // stage logic
+      InputManager.update();
+      CameraSystem.camera().update();
+
+
+    }
+    //       stage logic
     stage().ifPresent(GameLoop::updateStage);
   }
 
@@ -257,6 +272,7 @@ public final class GameLoop extends ScreenAdapter {
    * <p>Will perform some setup.
    */
   private void setupClient() {
+    java.lang.System.out.println("setup client called");
     LOGGER.info("Setting up client...");
     doSetup = false;
     if (Gdx.audio != null && !PreRunConfiguration.disableAudio()) {
@@ -281,6 +297,8 @@ public final class GameLoop extends ScreenAdapter {
               });
     }
     setupStage();
+    skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
+
   }
 
   /**
@@ -298,6 +316,7 @@ public final class GameLoop extends ScreenAdapter {
    * @see PreRunConfiguration#userOnSetup()
    */
   private void setup() {
+    java.lang.System.out.println("setting up the game");
     LOGGER.info("Setting up game...");
     doSetup = false;
     if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
@@ -447,6 +466,47 @@ public final class GameLoop extends ScreenAdapter {
     fullscreenKey();
     Game.soundPlayer().update(delta);
     PreRunConfiguration.userOnFrame().execute();
+    renderMainMenu();
+
+  }
+
+  private void createMainMenu() {
+    mainMenuTable = new Table();
+    mainMenuTable.setFillParent(true);
+    mainMenuTable.center(); // Menü zentrieren
+
+    TextButton startButton = new TextButton("Start", skin);
+    TextButton exitButton  = new TextButton("Exit", skin);
+
+    // Start Button startet das Spiel
+    startButton.addListener(new ClickListener() {
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+        gameIsRunning = true;
+        mainMenuTable.setVisible(false);
+      }
+    });
+
+//    // Exit Button schließt das Spiel
+    exitButton.addListener(new ClickListener() {
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+        Game.exit("User Exit");
+      }
+    });
+
+    mainMenuTable.add(startButton).pad(10).width(200);
+    mainMenuTable.row();
+    mainMenuTable.add(exitButton).pad(10).width(200);
+
+    stage.addActor(mainMenuTable);
+  }
+
+  private void renderMainMenu() {
+    if (mainMenuTable == null) {
+      java.lang.System.out.println("drawing main menu");
+      createMainMenu();
+    }
   }
 
   private void fullscreenKey() {
