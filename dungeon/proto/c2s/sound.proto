@@ -1,0 +1,16 @@
+// Sound-related client messages.
+
+syntax = "proto3";
+
+package dungeon.c2s;
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.c2s";
+option java_outer_classname = "SoundProto";
+
+// Client-to-server: Sound playback has finished.
+// Maps to: core.network.messages.c2s.SoundFinishedMessage
+message SoundFinishedMessage {
+  // Unique identifier of the finished sound instance.
+  int64 sound_instance_id = 1;
+}
