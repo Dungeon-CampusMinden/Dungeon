@@ -1,0 +1,22 @@
+// UDP registration messages.
+
+syntax = "proto3";
+
+package dungeon.c2s;
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.c2s";
+option java_outer_classname = "UdpProto";
+
+// Client-to-server: UDP registration after receiving ConnectAck.
+// Maps to: core.network.messages.c2s.RegisterUdp
+message RegisterUdp {
+  // Session ID assigned by server.
+  int32 session_id = 1;
+
+  // Session token assigned by server (must match).
+  bytes session_token = 2;
+
+  // Client ID assigned by server in ConnectAck.
+  int32 client_id = 3;
+}

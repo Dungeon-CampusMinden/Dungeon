@@ -1,0 +1,22 @@
+// Dialog response messages.
+
+syntax = "proto3";
+
+package dungeon.c2s;
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.c2s";
+option java_outer_classname = "DialogProto";
+
+// Client-to-server: Response to a displayed dialog.
+// Maps to: core.network.messages.c2s.DialogResponseMessage
+message DialogResponseMessage {
+  // Unique identifier of the dialog being responded to.
+  string dialog_id = 1;
+
+  // Callback key to execute (use "CLOSED" for close without action).
+  string callback_key = 2;
+
+  // Optional custom data for the callback (serialized bytes).
+  optional bytes custom_data = 3;
+}

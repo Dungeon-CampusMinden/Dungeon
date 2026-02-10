@@ -1,5 +1,4 @@
 // Common types shared across all messages.
-// File: dungeon/proto/common/common_types.proto
 
 syntax = "proto3";
 
