@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'com.google.protobuf'
 }
 
 
@@ -17,6 +18,10 @@ dependencies {
     // Netty for server-client communication
     implementation supportDependencies.netty_all
 
+    // Protobuf for network serialization
+    api supportDependencies.protobuf_java
+    implementation supportDependencies.protobuf_java_util
+
     // JUnit and Mockito for testing
     testImplementation supportDependencies.junit
     testImplementation supportDependencies.junitLauncher
@@ -27,12 +32,40 @@ dependencies {
     testImplementation("com.badlogicgames.gdx:gdx:$gdxVersion")
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    generateProtoTasks {
+        all().configureEach { task ->
+            task.builtins {
+                java { }
+            }
+        }
+    }
+}
 
-sourceSets.main.java.srcDirs = ['src/']
-sourceSets.main.resources.srcDirs = ['assets/']
-
-sourceSets.test.java.srcDirs = ['test/']
-sourceSets.test.resources.srcDirs = ['test_assets/']
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/', "$buildDir/generated/source/proto/main/java"]
+        }
+        resources {
+            srcDirs = ['assets/']
+        }
+        proto {
+            srcDir 'proto'
+        }
+    }
+    test {
+        java {
+            srcDirs = ['test/']
+        }
+        resources {
+            srcDirs = ['test_assets/']
+        }
+    }
+}
 
 tasks.register('runBasicStarter', JavaExec) {
     group 'starter'
