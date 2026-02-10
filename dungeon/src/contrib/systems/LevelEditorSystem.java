@@ -64,12 +64,27 @@ public class LevelEditorSystem extends System {
 
   private static Map<Integer, InputComponent.InputData> playerClallbacks = null;
 
-  public LevelEditorSystem(boolean saveToFile, String pathToLevels, Class<? extends Component>... filterRules) {
+  /**
+   * Creates a new LevelEditorSystem.
+   *
+   * @param saveToFile Whether the changes should be directly saved to file.
+   * @param pathToLevels The folder in which the file is placed
+   * @param filterRules Needed Component-Classes. Entities need the components to be processed by
+   *     this system.
+   */
+  public LevelEditorSystem(
+      boolean saveToFile, String pathToLevels, Class<? extends Component>... filterRules) {
     super(filterRules);
     LevelEditorSystem.saveToFile = saveToFile;
     LevelEditorSystem.pathToLevels = pathToLevels;
   }
 
+  /**
+   * Creates a new LevelEditorSystem.
+   *
+   * @param filterRules Needed Component-Classes. Entities need the components to be processed by
+   *     this system.
+   */
   public LevelEditorSystem(Class<? extends Component>... filterRules) {
     super(filterRules);
   }

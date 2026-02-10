@@ -4,7 +4,6 @@ import core.Game;
 import core.level.DungeonLevel;
 import core.level.elements.ILevel;
 import core.utils.ClipboardUtil;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
