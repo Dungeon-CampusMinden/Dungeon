@@ -2,10 +2,13 @@ package level;
 
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
+import contrib.entities.ShowImageFactory;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
 import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogType;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadFactory;
@@ -29,10 +32,7 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import modules.computer.ComputerFactory;
-import modules.computer.ComputerProgress;
-import modules.computer.ComputerStateComponent;
-import modules.computer.LastHourDialogTypes;
+import modules.computer.*;
 import modules.trash.TrashMinigameUI;
 import util.LastHourSounds;
 import util.ui.BlackFadeCutscene;
@@ -86,6 +86,7 @@ public class LastHourLevel1 extends DungeonLevel {
 
     setupPC();
     setupTrashcans();
+    setupDecoderShelfs();
 
     String lorem =
         """
@@ -184,6 +185,29 @@ public class LastHourLevel1 extends DungeonLevel {
             });
   }
 
+  private List<String> decoderTablePaths = List.of(
+    "images/base64.png",
+    "images/binary_hex.jpg",
+    "images/hex_ascii.png",
+    "images/braille.png",
+    "images/decoder_74155.png",
+    "images/morse.png"
+  );
+  private void setupDecoderShelfs(){
+    listPointsIndexed("decode").forEach(t -> {
+      Point p = t.a();
+      int index = t.b();
+      Entity decoderShelf = DecoFactory.createDeco(p, Deco.BookshelfLarge);
+      decoderShelf.remove(DecoComponent.class);
+      decoderShelf.add(new InteractionComponent(() -> new Interaction((e, who) -> {
+        DialogContext.Builder builder = DialogContext.builder().type(DialogType.DefaultTypes.IMAGE);
+        builder.put(DialogContextKeys.IMAGE, decoderTablePaths.get(index % decoderTablePaths.size()));
+        DialogFactory.show(builder.build(), who.id());
+      })));
+      Game.add(decoderShelf);
+    });
+  }
+
   @Override
   protected void onTick() {
     checkPCStateUpdate();
@@ -208,6 +232,12 @@ public class LastHourLevel1 extends DungeonLevel {
         }
       }
     }
+
+    ComputerDialog.getInstance().ifPresent(cd -> {
+      if (cd.sharedState() != csc){
+        cd.updateState(csc);
+      }
+    });
   }
 
   private String pcStateToDCState(ComputerStateComponent csc) {
