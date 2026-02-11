@@ -49,6 +49,8 @@ public abstract class System {
    * <p>Use this in your own system to implement logic that should be executed after an entity was
    * added.
    *
+   * <p>This will also be triggered, if a new level was loaded or the System was added to the ECS.
+   *
    * <p>The default implementation is just empty.
    */
   protected Consumer<Entity> onEntityAdd = (e) -> {};
@@ -58,6 +60,9 @@ public abstract class System {
    *
    * <p>Use this in your own system to implement logic that should be executed after an entity was
    * removed.
+   *
+   * <p>This will also be triggered, if a new level was loaded or the System was removed from the
+   * ECS.
    *
    * <p>The default implementation is just empty.
    */

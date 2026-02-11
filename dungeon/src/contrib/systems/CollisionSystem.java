@@ -4,6 +4,7 @@ import contrib.components.CollideComponent;
 import contrib.utils.components.collide.Collider;
 import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
+import core.Game;
 import core.System;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
@@ -48,10 +49,39 @@ public final class CollisionSystem extends System {
   public CollisionSystem() {
     super(CollideComponent.class);
     onEntityAdd = this::onAddEntity;
+    onEntityRemove = this::onRemoveEntity;
   }
 
   private void onAddEntity(Entity e) {
     PositionSync.syncPosition(e);
+  }
+
+  private void onRemoveEntity(Entity e) {
+    // Check if this entity is colliding, if yes trigger onLeave
+    // Remove all collisions where this id is part of
+    collisions.keySet().stream()
+        .filter(key -> key.a == e.id() || key.b == e.id())
+        .peek(key -> triggerOnLeave(e, key))
+        .toList()
+        .forEach(collisions::remove);
+  }
+
+  private void triggerOnLeave(Entity removedEntity, CollisionKey key) {
+    // Determine the other entity in the collision
+    long otherId = (key.a == removedEntity.id()) ? key.b : key.a;
+
+    // iterate over ALL entities, so collisions will be resolved if a new level was loaded
+    Entity other =
+        Game.allEntities().filter(entity -> entity.id() == otherId).findFirst().orElse(null);
+
+    if (other == null) return;
+    // Trigger onLeave for both entities
+    removedEntity
+        .fetch(CollideComponent.class)
+        .ifPresent(comp -> comp.onLeave(removedEntity, other, Direction.NONE));
+    other
+        .fetch(CollideComponent.class)
+        .ifPresent(comp -> comp.onLeave(other, removedEntity, Direction.NONE));
   }
 
   /**
