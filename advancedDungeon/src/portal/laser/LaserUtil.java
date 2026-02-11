@@ -75,7 +75,7 @@ public class LaserUtil {
             lc -> {
               List<Entity> listOfRelevantEntities =
                   Game.levelEntities(Set.of(LaserComponent.class))
-                      .filter(entity -> emitter.fetch(LaserComponent.class).get().equals(lc))
+                      .filter(entity -> entity.fetch(LaserComponent.class).get().equals(lc))
                       .toList();
               for (Entity entity : listOfRelevantEntities) {
                 if (emitter.equals(entity)) {
