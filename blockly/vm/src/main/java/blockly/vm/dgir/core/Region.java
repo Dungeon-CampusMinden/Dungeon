@@ -83,8 +83,8 @@ public final class Region {
   }
 
   @JsonCreator
-  public static Region createRegion(@JsonProperty(value = "blocks") List<Block> blocks,
-                                    @JsonProperty(value = "bodyValues") List<Value> bodyValues) {
+  public static Region createRegion(@JsonProperty(value = "bodyValues") List<Value> bodyValues,
+                                    @JsonProperty(value = "blocks") List<Block> blocks) {
     return new Region(blocks != null ? blocks : List.of(), null, bodyValues);
   }
 
