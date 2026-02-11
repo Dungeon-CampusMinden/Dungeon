@@ -150,7 +150,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private final Button buttonOk, buttonCancel;
   private final InventoryComponent targetInventory;
   private Recipe currentRecipe = null;
-  private DialogContext ctx;
+  private Entity entity = null;
 
   /**
    * Create a CraftingGUI that has the given InventoryComponent as target inventory for successfully
@@ -161,12 +161,9 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
    * @param dialogId The dialog ID for network callbacks.
    * @param ctx The dialog context object.
    */
-  CraftingGUI(
-      InventoryComponent sourceInventory,
-      InventoryComponent targetInventory,
-      DialogContext ctx,
-      String dialogId) {
-    this.ctx = ctx;
+  CraftingGUI(InventoryComponent sourceInventory, Entity entity, String dialogId) {
+
+    this.entity = entity;
     var oldCallback = sourceInventory.onItemAdded();
     sourceInventory.onItemAdded(
         item -> {
@@ -174,7 +171,14 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
           this.updateRecipe();
         });
     this.inventory = sourceInventory;
-    this.targetInventory = targetInventory;
+    InventoryComponent heroInventory = entity.fetch(InventoryComponent.class).orElse(null);
+
+    if (heroInventory == null) {
+      LOGGER.error("Entity {} has no InventoryComponent for CraftingGuiDialog", heroInventory);
+      throw new DialogCreationException("Missing InventoryComponent for CraftingGuiDialog");
+    }
+
+    this.targetInventory = heroInventory;
 
     if (Game.isHeadless()) {
       this.buttonOk = new Button(this, 0, 0, 0, 0);
@@ -242,14 +246,21 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
     Entity craftEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
     InventoryComponent heroInventory = entity.fetch(InventoryComponent.class).orElse(null);
+    InventoryComponent heroInventory2 = entity.fetch(InventoryComponent.class).orElse(null);
+    if (heroInventory2 == null) {
+      LOGGER.error("heroInventory2 is null");
+    }
     InventoryComponent craftInventory = craftEntity.fetch(InventoryComponent.class).orElse(null);
     if (craftInventory == null || heroInventory == null) {
       Entity missingEntity = (craftInventory == null) ? entity : craftEntity;
       LOGGER.error("Entity {} has no InventoryComponent for CraftingGuiDialog", missingEntity);
       throw new DialogCreationException("Missing InventoryComponent for CraftingGuiDialog");
     }
+
     InventoryGUI inventoryGUI = new InventoryGUI(heroInventory);
-    CraftingGUI craftingGUI = new CraftingGUI(craftInventory, heroInventory, ctx, ctx.dialogId());
+    //    CraftingGUI craftingGUI = new CraftingGUI(craftInventory, heroInventory, ctx,
+    // ctx.dialogId());
+    CraftingGUI craftingGUI = new CraftingGUI(craftInventory, entity, ctx.dialogId());
 
     CraftingGUI.registerCallbacks(
         entity
@@ -454,8 +465,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
                 // otherwise drop the items on the ground
                 if (!res) {
                   // get the position of the hero
-                  Entity entity = this.ctx.requireEntity(DialogContextKeys.ENTITY);
-                  PositionComponent pc = entity.fetch(PositionComponent.class).orElse(null);
+                  PositionComponent pc = this.entity.fetch(PositionComponent.class).orElse(null);
                   Point position = pc.position();
                   boolean success = item.drop(position).isPresent();
                 }
