@@ -83,25 +83,31 @@ public class CallOp extends Op implements IControlFlow, ISymbolUser {
   public boolean verifySymbolUser() {
     var calleeName = getCallee();
     var calleeOp = SymbolTable.lookupSymbolInNearestTableAsOp(getOperation(), calleeName, FuncOp.class);
-    if (calleeOp.isEmpty())
+    if (calleeOp.isEmpty()) {
+      getOperation().emitError("Could not find function " + calleeName);
       return false;
+    }
 
     // Make sure that the function type matches the call site
     var funcType = calleeOp.get().getType();
     // Check operand types
     var operands = getOperands();
     // Check that we have the correct number of operands
-    if (operands.size() != funcType.getInputs().size())
+    if (operands.size() != funcType.getInputs().size()) {
+      getOperation().emitError("Wrong number of operands for function call: " + operands.size() + " != " + funcType.getInputs().size());
       return false;
+    }
     // Check that each operand type matches the function input type
     for (int i = 0; i < operands.size(); i++) {
       if (!operands.get(i).getType().equals(funcType.getInputs().get(i))) {
+        getOperation().emitError("Operand " + i + " does not match function input type");
         return false;
       }
     }
     // Check that the outputs are the same
     if (getOutput() != null && funcType.getOutput() != null) {
       if (!getOutput().getType().equals(funcType.getOutput())) {
+        getOperation().emitError("Function output type does not match call site output type");
         return false;
       }
     }

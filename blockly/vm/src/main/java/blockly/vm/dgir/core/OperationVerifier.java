@@ -3,6 +3,7 @@ package blockly.vm.dgir.core;
 import blockly.vm.dgir.core.analysis.ReachingDefinitions;
 import blockly.vm.dgir.core.traits.IIsolatedFromAbove;
 import blockly.vm.dgir.core.traits.INoTerminator;
+import blockly.vm.dgir.core.traits.IOpTrait;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,7 +63,7 @@ public class OperationVerifier {
     }
 
     Deque<WorkItem> workList = new ArrayDeque<>();
-    workList.push(new WorkItem(operation));
+    workList.add(new WorkItem(operation));
 
     while (!workList.isEmpty()) {
       WorkItem top = workList.peekLast();
@@ -80,7 +81,7 @@ public class OperationVerifier {
         };
         if (!visitOnExit.apply(top))
           return false;
-        workList.pop();
+        workList.removeLast();
         continue;
       }
 
@@ -100,7 +101,7 @@ public class OperationVerifier {
         // Skip isolate from above operations
         for (Operation op : top.block.getOperations()) {
           if (op.getRegions().isEmpty() || !op.hasTrait(IIsolatedFromAbove.class))
-            workList.push(new WorkItem(op));
+            workList.add(new WorkItem(op));
         }
         continue;
       }
@@ -109,13 +110,13 @@ public class OperationVerifier {
       if (recursive)
         for (Region region : currentOp.getRegions().reversed())
           for (Block block : region.getBlocks().reversed())
-            workList.push(new WorkItem(block));
+            workList.add(new WorkItem(block));
     }
 
     return true;
   }
 
-  private boolean mayBeValidWithoutTerminator(Block block) {
+  private boolean isValidWithoutTerminator(Block block) {
     if (block.getParent() == null)
       return true;
     if (block.getParent().getBlocks().size() > 1)
@@ -123,48 +124,56 @@ public class OperationVerifier {
     return block.getParentOperation().hasTrait(INoTerminator.class);
   }
 
-  private boolean verifyOnEntry(Operation op) {
+  private boolean verifyOnEntry(Operation operation) {
     // Check that operands are non null and structurally ok
-    for (ValueOperand operand : op.getOperands())
+    for (ValueOperand operand : operation.getOperands())
       if (operand == null) {
-        op.emitError("Operation has null operand");
+        operation.emitError("Operation has null operand");
         return false;
       } else if (operand.getValue() == null) {
-        op.emitError("Operation has operand with null value");
+        operation.emitError("Operation has operand with null value");
         return false;
       }
 
     // Verify that all of the attributes of this operation are valid
-    for (NamedAttribute attr : op.getAttributes().values())
+    for (NamedAttribute attr : operation.getAttributes().values())
       if (attr.getAttribute() == null) {
-        op.emitError("Operation has attribute with null value: " + attr.getName());
+        operation.emitError("Operation has attribute with null value: " + attr.getName());
         return false;
       }
       // Verify that the attribute value is valid and of the correct type in case it is typed
       else if (attr.getAttribute() instanceof ITypedAttribute typedAttribute
         && !typedAttribute.getType().validate(attr.getAttribute().getStorage())) {
-        op.emitError("Operation has attribute with invalid value: " + attr.getName());
+        operation.emitError("Operation has attribute with invalid value: " + attr.getName());
         return false;
       }
 
-    Optional<RegisteredOperationDetails> details = op.getDetails().asRegisteredDetails();
-    if (details.isPresent() && !details.get().verify(op)) {
-      op.emitError("Operation failed verification through registered details");
+    Optional<RegisteredOperationDetails> details = operation.getDetails().asRegisteredDetails();
+    if (details.isEmpty()) {
+      operation.emitError("Operation is not registered");
+      return false;
+    }
+    if (!details.get().verify(operation)) {
+      operation.emitError("Operation failed verification through registered details");
       return false;
     }
 
+    // Verify that all the operation traits are valid
+    if (!details.get().verifyTraits(operation))
+      return false;
+
     // If this operation has no regions, we are done with verification at this point and can skip the region checks
-    if (op.getRegions().isEmpty())
+    if (operation.getRegions().isEmpty())
       return true;
 
     // Verify that child regions are ok
-    for (Region region : op.getRegions()) {
+    for (Region region : operation.getRegions()) {
       if (region.getBlocks().isEmpty())
         continue;
 
       // Verify that the first block has no predecessors
       if (!region.getBlocks().getFirst().getPredecessors().isEmpty()) {
-        op.emitError("Entry block of region has predecessors.");
+        operation.emitError("Entry block of region has predecessors.");
         return false;
       }
     }
@@ -187,35 +196,32 @@ public class OperationVerifier {
       if (!verify(o))
         opFailedVerify.set(true);
     });
-    if (opFailedVerify.get())
-      return false;
-
-    Optional<RegisteredOperationDetails> details = op.getDetails().asRegisteredDetails();
-    if (details.isPresent() && !details.get().verify(op)) {
-      op.emitError("Operation failed verification through registered details");
-      return false;
-    }
-
-    if (details.isPresent())
-      return true;
-    op.emitError("Operation is not registered");
-    return false;
+    // Registered verification already performed on entry
+    return !opFailedVerify.get();
   }
 
   private boolean verifyOnEntry(Block block) {
     // Verify that this block has a terminator
     if (block.getOperations().isEmpty()) {
-      if (mayBeValidWithoutTerminator(block))
+      if (isValidWithoutTerminator(block))
         return true;
 
-      block.getOperations().getLast().emitError("Operation is not a terminator");
+      Operation parentOp = block.getParentOperation();
+      if (parentOp != null)
+        parentOp.emitError("Block must end in a terminator operation");
+      else
+        System.err.println("Error: Block must end in a terminator operation");
       return false;
+    }
 
+    boolean allowNoTerminator = isValidWithoutTerminator(block);
+    if (!allowNoTerminator && !block.hasTerminator()) {
+      block.getOperations().getLast().emitError("Block does not have a terminator");
+      return false;
     }
 
     // Check each operation and make sure there are no branches out of the middle of this block
     for (Operation op : block.getOperations()) {
-      // Only the last instruction is allowed to have successors
       if (op != block.getOperations().getLast() && !op.getSuccessors().isEmpty()) {
         block.getOperations().getLast().emitError("Branching out of block must be the last operation in the block");
         return false;
@@ -233,7 +239,7 @@ public class OperationVerifier {
         return false;
       }
 
-    if (!mayBeValidWithoutTerminator(block))
+    if (isValidWithoutTerminator(block))
       return true;
 
     // Verify that this block has a terminator

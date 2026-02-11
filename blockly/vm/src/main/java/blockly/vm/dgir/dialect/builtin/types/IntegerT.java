@@ -49,14 +49,14 @@ public class IntegerT extends Type {
 
   @Override
   public boolean validate(Object value) {
-    if (!(value instanceof Number))
+    if (!(value instanceof Number number))
       return false;
 
-    switch (value) {
+    switch (number) {
       case Byte b when getWidth() == 8 -> {
         return true;
       }
-      case Short i when getWidth() == 16 -> {
+      case Short s when getWidth() == 16 -> {
         return true;
       }
       case Integer i when getWidth() == 32 -> {
@@ -67,6 +67,41 @@ public class IntegerT extends Type {
       }
       default -> {
         return false;
+      }
+    }
+  }
+
+  /**
+   * Take a number of any integer type and convert it to the correct type for this IntegerT. For example, if this is an
+   * INT16 and the input is a Byte, convert it to a Short.
+   *
+   * @param number The number to convert.
+   * @return The converted number.
+   */
+  public Number convertToValidNumber(Number number) {
+    if (number instanceof Float || number instanceof Double) {
+      throw new IllegalArgumentException("Cannot convert floating point number to integer: " + number);
+    }
+
+    long value = number.longValue();
+    switch (getWidth()) {
+      case 8 -> {
+        assert value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE : "Value out of range: " + value + " for width: " + getWidth();
+        return (byte) value;
+      }
+      case 16 -> {
+        assert value >= Short.MIN_VALUE && value <= Short.MAX_VALUE : "Value out of range: " + value + " for width: " + getWidth();
+        return (short) value;
+      }
+      case 32 -> {
+        assert value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE : "Value out of range: " + value + " for width: " + getWidth();
+        return (int) value;
+      }
+      case 64 -> {
+        return value;
+      }
+      default -> {
+        throw new RuntimeException("Invalid integer width: " + getWidth());
       }
     }
   }

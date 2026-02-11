@@ -35,6 +35,17 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
     // Create a simple resolver for object IDs
     SimpleObjectIdResolver idResolver = new SimpleObjectIdResolver();
 
+    // Deserialize regions if they exist.
+    // This has to be done before deserializing operands since an operand can reference a body value inside a region.
+    List<Region> regions = null;
+    if (node.has("regions")) {
+      regions = new ArrayList<>();
+      for (JsonNode regionNode : node.get("regions")) {
+        Region region = ctxt.readTreeAsValue(regionNode, Region.class);
+        regions.add(region);
+      }
+    }
+
     /* Deserialize the operands from the node, these are serialized as a list of value references.
     e.g.
     "operands" : [ {
@@ -79,17 +90,6 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       }
     }
     // TODO deserialize block operands (successors).
-
-    // Deserialize regions if they exist.
-
-    List<Region> regions = null;
-    if (node.has("regions")) {
-      regions = new ArrayList<>();
-      for (JsonNode regionNode : node.get("regions")) {
-        Region region = ctxt.readTreeAsValue(regionNode, Region.class);
-        regions.add(region);
-      }
-    }
 
     Operation operation = null;
     // In case we do have the output value id but no type we must resolve the reference and get the type from the value.

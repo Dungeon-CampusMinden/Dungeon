@@ -8,6 +8,10 @@ import blockly.vm.dgir.core.Operation;
  * Ops that should use this interface include cf.branch, cf.branch_if, etc.
  */
 public interface IControlFlow extends IOpTrait {
+  default boolean verify(IControlFlow op) {
+    return true;
+  }
+
   static Block getSuccessor(Operation op){
     assert op.hasTrait(IControlFlow.class) : "Operation does not implement IControlFlow.";
     assert op.getBlockOperands().size() == 1 : "Control flow ops must have exactly one block operand/successor.";

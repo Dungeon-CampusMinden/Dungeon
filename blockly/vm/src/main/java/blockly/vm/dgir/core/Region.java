@@ -158,7 +158,7 @@ public final class Region {
     // Make sure that both regions have the same body values or that this region is empty
     assert this.bodyValues.size() == other.bodyValues.size() : "Body values of regions must have the same size.";
     for (int i = 0; i < this.bodyValues.size(); i++) {
-      assert this.bodyValues.get(i).getType() == other.bodyValues.get(i).getType() : "Body value types of regions must match.";
+      assert this.bodyValues.get(i).getType().equals(other.bodyValues.get(i).getType()) : "Body value types of regions must match.";
     }
 
     for (Block block : new ArrayList<>(other.blocks)) {
@@ -197,7 +197,7 @@ public final class Region {
     if (!this.bodyValues.isEmpty() && bodyValues.stream().anyMatch(v -> !v.getUses().isEmpty())) {
       assert this.bodyValues.size() == bodyValues.size() : "Body values of regions must have the same size.";
       for (int i = 0; i < this.bodyValues.size(); i++) {
-        assert this.bodyValues.get(i).getType() == bodyValues.get(i).getType() : "Body value types of regions must match.";
+        assert this.bodyValues.get(i).getType().equals(bodyValues.get(i).getType()) : "Body value types of regions must match.";
       }
     }
 

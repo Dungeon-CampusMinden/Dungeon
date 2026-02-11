@@ -4,13 +4,16 @@ import blockly.vm.dgir.core.Operation;
 import blockly.vm.dgir.core.SymbolTable;
 
 public interface ISymbolTable extends IOpTrait {
-  static Operation lookupSymbol(Operation op, String name) {
-    return SymbolTable.lookupSymbolIn(op, name);
+  default boolean verify(ISymbolTable trait) {
+    if (get().getRegions().size() != 1){
+      get().emitError("Symbol table must have exactly one region.");
+      return false;
+    }
+    return true;
   }
 
-  static void verifyTrait(Operation op) {
-    assert op.hasTrait(ISymbolTable.class) : "Operation does not implement ISymbolTable.";
-    assert op.getRegions().size() == 1;
+  static Operation lookupSymbol(Operation op, String name) {
+    return SymbolTable.lookupSymbolIn(op, name);
   }
 
   default Operation lookupSymbol(String name) {

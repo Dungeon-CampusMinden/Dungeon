@@ -30,25 +30,25 @@ public class IntegerAttribute extends Attribute implements ITypedAttribute {
   // -----------------------------------------------------------------
 
   private IntegerT type;
-  private long value;
+  private Number value;
 
   public IntegerAttribute() {
   }
 
-  public IntegerAttribute(long value) {
+  public IntegerAttribute(Number value) {
     this.value = value;
     this.type = IntegerT.INT64;
   }
 
   @JsonCreator
-  public IntegerAttribute(@JsonProperty("value") long value, @JsonProperty("type") IntegerT type) {
-    this.value = value;
+  public IntegerAttribute(@JsonProperty("value") Number value, @JsonProperty("type") IntegerT type) {
+    this.value = type.convertToValidNumber(value);
     this.type = type;
   }
 
 
   @Override
-  public Long getStorage() {
+  public Number getStorage() {
     return getValue();
   }
 
@@ -57,11 +57,12 @@ public class IntegerAttribute extends Attribute implements ITypedAttribute {
     return type;
   }
 
-  public long getValue() {
+  public Number getValue() {
     return value;
   }
 
-  public void setValue(long value) {
+  public void setValue(Number value) {
+    getType().validate(value);
     this.value = value;
   }
 }

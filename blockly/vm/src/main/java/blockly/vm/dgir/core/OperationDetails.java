@@ -5,7 +5,9 @@ import blockly.vm.dgir.dialect.io.IO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Holds all information about a unique operation and some of its utility methods.
@@ -48,6 +50,10 @@ public class OperationDetails {
 
   public void populateDefaultAttrs(List<NamedAttribute> attributes) {
     impl.populateDefaultAttrs(attributes);
+  }
+
+  public Set<Class<? extends IOpTrait>> getTraits() {
+    return impl.getTraits();
   }
 
   public boolean hasTrait(Class<? extends IOpTrait> traitClass) {
@@ -121,6 +127,23 @@ public class OperationDetails {
     return Optional.empty();
   }
 
+  public boolean verifyTraits(Operation operation) {
+    Op op = asOp(operation);
+    for (Class<? extends IOpTrait> trait : getTraits()) {
+      Method verifier = impl.getVerifier(trait);
+      try {
+        boolean result = (boolean) verifier.invoke(trait.cast(op), trait.cast(op));
+        if (!result) {
+          operation.emitError("Operation failed verification for trait " + trait.getName());
+          return false;
+        }
+      } catch (Exception e) {
+        throw new RuntimeException("Failed to invoke verifier for trait " + trait.getName(), e);
+      }
+    }
+    return true;
+  }
+
   /**
    * This is the fully type erased interface to an operation
    */
@@ -130,6 +153,7 @@ public class OperationDetails {
     protected final Dialect dialect;
     protected final List<String> attributeNames;
     protected final Set<Class<? extends IOpTrait>> traits;
+    protected final Map<Class<? extends IOpTrait>, Method> traitVerifiers;
     protected final Constructor<? extends Op> operationConstructor;
     protected final Constructor<? extends Op> emptyConstructor;
 
@@ -145,6 +169,16 @@ public class OperationDetails {
           .map(aClass -> aClass.<IOpTrait>asSubclass(IOpTrait.class))
           .toList()
       );
+      // Assert that all traits contain a method called 'verify' that takes an instance of the OpTrait as parameter
+      // e.g. default boolean verify(IIsolatedFromAbove trait) { return true; }
+      traitVerifiers = traits.stream().collect(Collectors.toMap(trait -> trait, trait -> {
+        try {
+          return trait.getMethod("verify", trait);
+        } catch (NoSuchMethodException e) {
+          throw new RuntimeException("Trait " + trait.getName() + " must have a method called verify that takes an instance of the trait as parameter.", e);
+        }
+      }));
+
       this.operationConstructor = hasSpecificConstructor(type, Operation.class).orElse(null);
       this.emptyConstructor = hasSpecificConstructor(type).orElse(null);
       assert operationConstructor != null && emptyConstructor != null
@@ -173,6 +207,18 @@ public class OperationDetails {
 
     public boolean hasTrait(Class<? extends IOpTrait> traitClass) {
       return traits.contains(traitClass);
+    }
+
+    public Set<Class<? extends IOpTrait>> getTraits() {
+      return traits;
+    }
+
+    public Map<Class<? extends IOpTrait>, Method> getTraitVerifiers() {
+      return traitVerifiers;
+    }
+
+    public Method getVerifier(Class<? extends IOpTrait> traitClass) {
+      return traitVerifiers.get(traitClass);
     }
   }
 

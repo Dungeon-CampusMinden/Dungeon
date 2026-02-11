@@ -1,6 +1,7 @@
 package blockly.vm.dgir.dialect.func;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.traits.IGlobal;
 import blockly.vm.dgir.core.traits.IIsolatedFromAbove;
 import blockly.vm.dgir.core.traits.ISymbol;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
@@ -9,7 +10,7 @@ import blockly.vm.dgir.dialect.func.types.FuncType;
 
 import java.util.List;
 
-public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove {
+public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal {
   @Override
   public OperationDetails.Impl createDetails() {
     class FuncOpModel extends OperationDetails.Impl {
@@ -25,8 +26,16 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove {
 
       @Override
       public boolean verify(Operation operation) {
-        // TODO This check still has to be implemented
-        System.out.println("Missing verification for operation " + getIdent());
+        // Ensure that the op has one region and that that region has exactly one block.
+        if (operation.getRegions().size() != 1) {
+          operation.emitError("Operation must have exactly one region");
+          return false;
+        }
+        if (operation.getRegions().getFirst().getBlocks().size() != 1) {
+          operation.emitError("Operation region must have exactly one block");
+          return false;
+        }
+
         return true;
       }
 
@@ -52,6 +61,7 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove {
 
   public FuncOp(String name, FuncType type) {
     setOperation(Operation.Create(getIdent(), null, null, type.getOutput(), type.getInputs()));
+    getRegions().getFirst().getEntryBlock();
     getFuncNameAttribute().setValue(name);
     getTypeAttribute().setType(type);
   }

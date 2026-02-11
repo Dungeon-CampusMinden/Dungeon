@@ -6,4 +6,8 @@ package blockly.vm.dgir.core.traits;
  * and isolates them from the surrounding context.
  */
 public interface IIsolatedFromAbove extends IOpTrait {
+  default boolean verify(IIsolatedFromAbove op) {
+    // The verification of this trait is done in the reaching definitions analysis.
+    return true;
+  }
 }

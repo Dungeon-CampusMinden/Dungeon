@@ -1,5 +1,8 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.traits.IOpTrait;
+
+import java.util.List;
 import java.util.Optional;
 
 public class RegisteredOperationDetails extends OperationDetails {

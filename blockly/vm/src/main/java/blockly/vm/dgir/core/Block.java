@@ -62,8 +62,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
 
   public boolean hasTerminator() {
     if (operations.isEmpty()) return false;
-    Operation lastOp = operations.getLast();
-    return lastOp.getDetails().hasTrait(ITerminator.class);
+    return operations.getLast().hasTrait(ITerminator.class);
   }
 
   @JsonIgnore
@@ -121,7 +120,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    */
   @JsonIgnore
   public List<Block> getSuccessors() {
-    return operations.getLast().getSuccessors();
+    return !operations.isEmpty() ? operations.getLast().getSuccessors() : List.of();
   }
 
   /**

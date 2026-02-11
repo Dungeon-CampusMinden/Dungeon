@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class BuiltinTests {
   public static boolean printResult = true;
+
   @Test
   public void emptyProgramOp() {
     ObjectMapper mapper = Utils.getMapper(true, true);
@@ -33,7 +34,7 @@ public class BuiltinTests {
     if (printResult)
       System.out.println(result);
 
-    assertTrue(op.getOperation().verify(true));
+    assertFalse(op.getOperation().verify(true));
 
     assertEquals("", TestUtils.compareSerializedOperations(
       mapper,
@@ -97,10 +98,7 @@ public class BuiltinTests {
       var fooFuncRegion = fooFuncOp.getOperation().getFirstRegion();
       var fooFuncBlock = fooFuncRegion.getEntryBlock();
 
-      var helloWorldTextOp = new ConstantOp(new StringAttribute("Hello World!"));
-      fooFuncBlock.addOperation(helloWorldTextOp);
-
-      var returnOp = new ReturnOp(List.of(helloWorldTextOp.getOutputValue()));
+      var returnOp = new ReturnOp(List.of(fooFuncRegion.getBodyValue(0)));
       fooFuncBlock.addOperation(returnOp);
 
       progBlock.addOperation(fooFuncOp.getOperation());
@@ -112,7 +110,10 @@ public class BuiltinTests {
       var funcBlock = funcRegion.getEntryBlock();
       progBlock.addOperation(funcOp.getOperation());
 
-      var funcCallOp = new CallOp(fooFuncOp, List.of());
+      var helloWorldTextOp = new ConstantOp(new StringAttribute("Hello World!"));
+      funcBlock.addOperation(helloWorldTextOp);
+
+      var funcCallOp = new CallOp(fooFuncOp, List.of(helloWorldTextOp.getOutputValue()));
       funcBlock.addOperation(funcCallOp.getOperation());
 
       funcBlock.addOperation(new PrintOp(List.of(funcCallOp.getOperation().getOutput().getValue())));
@@ -173,5 +174,22 @@ public class BuiltinTests {
       op.getOperation(),
       mapper.readValue(result, ProgramOp.class).getOperation()
     ));
+  }
+
+  /**
+   * Checks wether an incorect program with a function without terminator is correctly rejected by the verifier.
+   */
+  @Test
+  public void missingTerminator() {
+    ObjectMapper mapper = Utils.getMapper(true, true);
+    ProgramOp op = new ProgramOp(true);
+    var programRegion = op.getOperation().getRegions().getFirst();
+    var progBlock = programRegion.getEntryBlock();
+    progBlock.addOperation(new FuncOp("main").getOperation());
+
+    if (printResult)
+      System.out.println(mapper.writeValueAsString(op));
+
+    assertFalse(op.getOperation().verify(true));
   }
 }
