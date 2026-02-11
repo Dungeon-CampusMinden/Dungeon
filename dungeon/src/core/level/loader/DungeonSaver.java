@@ -1,12 +1,11 @@
 package core.level.loader;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import core.Game;
 import core.level.DungeonLevel;
 import core.level.elements.ILevel;
 import core.utils.ClipboardUtil;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * This class is responsible for saving the current state of the dungeon in the game.
@@ -19,10 +18,9 @@ public class DungeonSaver {
    * Saves the current dungeon by printing it to the console. The output is also copied to the
    * system clipboard for easy pasting into a .level file.
    *
-   * @param saveToFile whether the result should be saved to the file
    * @param pathToLevels the path to the folder where the level file is stored
    */
-  public static void saveCurrentDungeon(boolean saveToFile, String pathToLevels) {
+  public static void saveCurrentDungeon(String pathToLevels) {
     ILevel currentLevel = Game.currentLevel().orElse(null);
     if (currentLevel == null) {
       System.out.println("No level to save.");
@@ -36,14 +34,17 @@ public class DungeonSaver {
     String output = LevelParser.serializeLevel(dunLevel);
     System.out.println(output);
     ClipboardUtil.copyToClipboard(output);
-
-    if (saveToFile) {
+    if (pathToLevels != null && !pathToLevels.isEmpty()) {
       String currentLevelFile = DungeonLoader.currentLevel();
-      String fullPath = pathToLevels + currentLevelFile + "_1.level";
+
+      // Sauberes Zusammenfügen des Pfads
+      FileHandle folder = Gdx.files.local(pathToLevels);
+      FileHandle file = folder.child(currentLevelFile + "_1.level");
+
       try {
-        Files.write(Paths.get(fullPath), output.getBytes());
-        System.out.println("Level sucessfully saved: " + fullPath);
-      } catch (IOException e) {
+        file.writeString(output, false); // false = überschreibt die Datei
+        System.out.println("Level successfully saved: " + file.path());
+      } catch (Exception e) {
         e.printStackTrace();
       }
     }

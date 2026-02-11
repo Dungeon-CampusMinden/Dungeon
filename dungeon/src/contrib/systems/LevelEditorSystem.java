@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import contrib.components.HealthComponent;
 import contrib.utils.systems.levelEditor.*;
-import core.Component;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -40,7 +39,6 @@ public class LevelEditorSystem extends System {
   private static boolean internalStopped = false;
   private static boolean active = false;
   private static final int TOGGLE_ACTIVE = Input.Keys.F4;
-  private static boolean saveToFile = false;
   private static String pathToLevels = "";
 
   private static final int TOGGLE_DEBUG_SHADER = Input.Keys.SPACE;
@@ -67,26 +65,16 @@ public class LevelEditorSystem extends System {
   /**
    * Creates a new LevelEditorSystem.
    *
-   * @param saveToFile Whether the changes should be directly saved to file.
-   * @param pathToLevels The folder in which the file is placed
-   * @param filterRules Needed Component-Classes. Entities need the components to be processed by
-   *     this system.
+   * @param pathToLevels The folder in which the file is placed this system.
    */
-  public LevelEditorSystem(
-      boolean saveToFile, String pathToLevels, Class<? extends Component>... filterRules) {
-    super(filterRules);
-    LevelEditorSystem.saveToFile = saveToFile;
+  public LevelEditorSystem(String pathToLevels) {
+    super();
     LevelEditorSystem.pathToLevels = pathToLevels;
   }
 
-  /**
-   * Creates a new LevelEditorSystem.
-   *
-   * @param filterRules Needed Component-Classes. Entities need the components to be processed by
-   *     this system.
-   */
-  public LevelEditorSystem(Class<? extends Component>... filterRules) {
-    super(filterRules);
+  /** Creates a new LevelEditorSystem. */
+  public LevelEditorSystem() {
+    super();
   }
 
   /**
@@ -315,7 +303,7 @@ public class LevelEditorSystem extends System {
         case LevelBounds -> new LevelBoundsMode();
         case ShiftLevel -> new ShiftLevelMode();
         case StartTiles -> new StartTilesMode();
-        case SaveLevel -> new SaveMode(saveToFile, pathToLevels);
+        case SaveLevel -> new SaveMode(pathToLevels);
       };
     }
   }

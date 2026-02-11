@@ -10,25 +10,22 @@ import java.util.Map;
 /** The SaveMode allows the user to save the current dungeon layout to the clipboard. */
 public class SaveMode extends LevelEditorMode {
 
-  private boolean saveToFile;
   private String pathToLevels;
 
   /**
    * Constructs a new SaveMode.
    *
-   * @param saveToFile whether the result should be saved to the file
    * @param pathToLevels the path to the folder where the level file is stored
    */
-  public SaveMode(boolean saveToFile, String pathToLevels) {
+  public SaveMode(String pathToLevels) {
     super("Save Mode");
-    this.saveToFile = saveToFile;
     this.pathToLevels = pathToLevels;
   }
 
   @Override
   public void execute() {
     if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
-      DungeonSaver.saveCurrentDungeon(this.saveToFile, this.pathToLevels);
+      DungeonSaver.saveCurrentDungeon(this.pathToLevels);
       LevelEditorSystem.showFeedback("Exported level to clipboard!", Color.GREEN);
     }
   }
