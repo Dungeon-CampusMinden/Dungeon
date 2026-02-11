@@ -3,6 +3,7 @@ package modules.computer.content;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogContext;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerStateComponent;
 import modules.computer.ComputerStateLocal;
@@ -13,6 +14,7 @@ public abstract class ComputerTab extends Table {
   private String title;
   private boolean closeable;
   private ComputerStateComponent sharedState;
+  private DialogContext ctx;
 
   protected Skin skin;
 
@@ -73,4 +75,27 @@ public abstract class ComputerTab extends Table {
    * @param newStateComp The new shared ComputerStateComponent.
    */
   protected abstract void updateState(ComputerStateComponent newStateComp);
+
+  /**
+   * Sets the DialogContext for this tab, allowing it to access dialog-specific parameters and the owner dialog itself.
+   * @param ctx The DialogContext to set for this tab
+   */
+  public void context(DialogContext ctx) {
+    this.ctx = ctx;
+  }
+
+  /**
+   * Retrieves the DialogContext associated with the ComputerDialog
+   * @return The DialogContext for the dialog
+   */
+  public DialogContext context() {
+    return ctx;
+  }
+
+  /**
+   * Called when the tab is removed from the dialog.
+   */
+  public void onRemove() {
+
+  }
 }

@@ -18,6 +18,7 @@ import java.util.Set;
 public class ComputerFactory {
 
   private static final String STATE_KEY = "computer_state";
+  public static final String UPDATE_STATE_KEY = "update_state";
   public static UIComponent computerDialogInstance;
 
   static {
@@ -47,6 +48,12 @@ public class ComputerFactory {
                                 stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
                             builder.put(STATE_KEY, state);
                             computerDialogInstance = DialogFactory.show(builder.build(), who.id());
+                            computerDialogInstance.registerCallback(UPDATE_STATE_KEY, data -> {
+                              if (data instanceof ComputerStateComponent(ComputerProgress state1, boolean isInfected)) {
+                                ComputerStateComponent.setState(state1);
+                                ComputerStateComponent.setInfection(isInfected);
+                              }
+                            });
                           });
                     })));
   }
@@ -66,6 +73,6 @@ public class ComputerFactory {
     }
 
     Optional<ComputerStateComponent> state = ctx.find(STATE_KEY, ComputerStateComponent.class);
-    return new ComputerDialog(state.orElseThrow());
+    return new ComputerDialog(state.orElseThrow(), ctx);
   }
 }

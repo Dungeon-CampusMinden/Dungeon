@@ -16,6 +16,7 @@ public class ComputerStateLocal {
   private String browserUrl = "";
 
   private final Set<String> openFiles = new LinkedHashSet<>();
+  private final Set<String> browserHistory = new LinkedHashSet<>();
 
   public ComputerStateLocal() {
     this.tab = "login";
@@ -71,5 +72,9 @@ public class ComputerStateLocal {
 
   public Set<String> openFiles() {
     return openFiles;
+  }
+
+  public Set<String> browserHistory() {
+    return browserHistory;
   }
 }

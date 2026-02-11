@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogContext;
 import core.Game;
 import core.sound.Sounds;
 import core.utils.Cursors;
@@ -32,12 +33,16 @@ public class ComputerDialog extends Group {
   private Table contentArea;
 
   private String activeTab = null;
+  private String previousTab = null;
   private final Map<String, ComputerTab> tabContentMap = new LinkedHashMap<>();
 
-  public ComputerDialog(ComputerStateComponent state) {
+  private DialogContext ctx;
+
+  public ComputerDialog(ComputerStateComponent state, DialogContext ctx) {
     INSTANCE = this;
 
     this.sharedState = state;
+    this.ctx = ctx;
     this.skin = UIUtils.defaultSkin();
     this.setSize(Game.windowWidth(), Game.windowHeight());
 
@@ -63,22 +68,34 @@ public class ComputerDialog extends Group {
 
   private void checkVirus() {
     if(sharedState.isInfected()){
-      ComputerTab virusTab = new VirusTab(sharedState);
-      addTab(virusTab);
-      activeTab = virusTab.key();
-      buildTabs();
+      addVirusTab();
     }
   }
 
+  private void addVirusTab(){
+    if (tabContentMap.containsKey(VirusTab.KEY)) return;
+    ComputerTab virusTab = new VirusTab(sharedState);
+    addTab(virusTab);
+    setActiveTab(virusTab.key());
+  }
+
   public static Optional<ComputerDialog> getInstance() {
-    if (INSTANCE.getStage() == null) return Optional.empty();
+    if (INSTANCE == null || INSTANCE.getStage() == null) return Optional.empty();
     return Optional.of(INSTANCE);
   }
 
   public void updateState(ComputerStateComponent newState) {
     if (sharedState.equals(newState)) return;
     this.sharedState = newState;
-    buildTabs();
+    if(newState.isInfected()){
+      if(!tabContentMap.containsKey(VirusTab.KEY)){
+        addVirusTab();
+      }
+    } else {
+      if(tabContentMap.containsKey(VirusTab.KEY)){
+        closeTab(VirusTab.KEY);
+      }
+    }
     for (ComputerTab tab : tabContentMap.values()) {
       tab.setSharedState(newState);
     }
@@ -173,16 +190,23 @@ public class ComputerDialog extends Group {
   }
 
   public void addTab(ComputerTab tab) {
+    tab.context(ctx);
     tabContentMap.put(tab.key(), tab);
     buildTabs();
   }
 
   public void closeTab(String tabKey) {
     if (!tabContentMap.containsKey(tabKey)) return;
+    ComputerTab tab = tabContentMap.get(tabKey);
+    tab.onRemove();
     tabContentMap.remove(tabKey);
     if (tabKey.equals(activeTab)) {
-      activeTab = tabContentMap.keySet().stream().findFirst().orElse(null);
-      showContent(activeTab);
+      if(previousTab != null){
+        setActiveTab(previousTab);
+      } else {
+        String firstTab = tabContentMap.keySet().stream().findFirst().orElse(null);
+        setActiveTab(firstTab);
+      }
     }
     buildTabs();
   }
@@ -231,12 +255,7 @@ public class ComputerDialog extends Group {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
               // Close the tab
-              tabContentMap.remove(tabKey);
-              if (tabKey.equals(activeTab)) {
-                activeTab = tabContentMap.keySet().stream().findFirst().orElse(null);
-                showContent(activeTab);
-              }
-              buildTabs();
+              closeTab(tabKey);
               event.handle();
               event.stop();
             }
@@ -250,10 +269,7 @@ public class ComputerDialog extends Group {
   public void clickedTab(String tabKey) {
     if (tabKey.equals(activeTab)) return;
     if (sharedState.isInfected()) return; // Cannot switch off of the virus tab
-    activeTab = tabKey;
-    ComputerStateLocal.Instance.tab(tabKey);
-    buildTabs();
-    showContent(tabKey);
+    setActiveTab(tabKey);
     Sounds.playLocal(LastHourSounds.COMPUTER_TAB_CLICKED, 1.2f, 0.4f);
   }
 
@@ -266,11 +282,23 @@ public class ComputerDialog extends Group {
     contentArea.add(tabContentMap.get(tabKey)).grow();
   }
 
+  private void setActiveTab(String tabKey) {
+    previousTab = activeTab;
+    activeTab = tabKey;
+    ComputerStateLocal.Instance.tab(tabKey);
+    showContent(activeTab);
+    buildTabs();
+  }
+
   @Override
   public void draw(Batch batch, float parentAlpha) {
     // Adjust size in case of window resize
     this.setSize(Game.windowWidth(), Game.windowHeight());
 
     super.draw(batch, parentAlpha);
+  }
+
+  public ComputerStateComponent sharedState() {
+    return sharedState;
   }
 }

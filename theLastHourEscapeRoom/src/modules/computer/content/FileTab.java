@@ -12,17 +12,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import modules.computer.ComputerStateComponent;
+import modules.computer.ComputerStateLocal;
 
 public class FileTab extends ComputerTab {
 
   private static Map<String, Actor> files = null;
 
+  private String fileName;
   private Table content;
 
   public FileTab(ComputerStateComponent sharedState, String fileName) {
     super(sharedState, "file-" + fileName, String.format("\"%s\"", fileName), true);
     Actor fileContent = getFileMap().getOrDefault(fileName, create404Page(fileName));
     content.add(fileContent).grow();
+
+    this.fileName = fileName;
+    localState().openFiles().add(fileName);
   }
 
   protected void createActors() {
@@ -31,7 +36,7 @@ public class FileTab extends ComputerTab {
     this.add(content).grow();
   }
 
-  private Actor create404Page(String fileName) {
+  private static Actor create404Page(String fileName) {
     Table table = new Table();
     Label label =
         Scene2dElementFactory.createLabel(
@@ -40,7 +45,7 @@ public class FileTab extends ComputerTab {
     return table;
   }
 
-  private Actor createHelpPage() {
+  private static Actor createHelpPage() {
     Table table = new Table();
     ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(table, false, true);
     table.align(Align.topLeft);
@@ -83,12 +88,12 @@ public class FileTab extends ComputerTab {
     return scrollPane;
   }
 
-  private Map<String, Actor> getFileMap() {
+  private static Map<String, Actor> getFileMap() {
     if (files == null) registerFiles();
     return files;
   }
 
-  private void registerFiles() {
+  private static void registerFiles() {
     files = new HashMap<>();
     files.put(
         "Hello.html", Scene2dElementFactory.createLabel("Helloooo world :D", 96, Color.BLACK));
@@ -97,4 +102,9 @@ public class FileTab extends ComputerTab {
 
   @Override
   protected void updateState(ComputerStateComponent newStateComp) {}
+
+  @Override
+  public void onRemove() {
+    ComputerStateLocal.Instance.openFiles().remove(fileName);
+  }
 }
