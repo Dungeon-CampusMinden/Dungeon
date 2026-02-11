@@ -16,6 +16,7 @@ import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
+import portal.portals.components.PortalExtendComponent;
 
 /** Class to create the LaserCube Entity. */
 public class LaserCube {
@@ -54,7 +55,7 @@ public class LaserCube {
                         new Point(
                             pc.position().x() + pc.viewDirection().x(),
                             pc.position().y() + pc.viewDirection().y());
-                    // Laser ExtendLogic
+                    LaserUtil.extendLaser(pc.viewDirection(), newPos.translate(pc.viewDirection().opposite()),other.fetch(PortalExtendComponent.class).get(),lc);
                   });
         };
 
