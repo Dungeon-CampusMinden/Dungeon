@@ -2,6 +2,7 @@ package portal.riddles;
 
 import portal.controlls.Hero;
 import portal.controlls.PlayerController;
+import portal.riddles.utils.Timer;
 
 /**
  * Eine konkrete Implementierung von {@link PlayerController}, die Eingaben verarbeitet und damit
@@ -37,6 +38,22 @@ public class MyPlayerController extends PlayerController {
    * @param key Der gedrückte Knopf als Zeichenkette (z.B. "W", "A", "D").
    */
   protected void processKey(String key) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    if (key.equals("W")) move(0, 5);
+    if (key.equals("S")) move(0, -5);
+    if (key.equals("A")) move(-5, 0);
+    if (key.equals("D")) move(5, 0);
+    if (key.equals("Q")) hero.shootSkill();
+    if (key.equals("F")) {
+      if (Timer.isTimerEnd("F")) {
+        hero.nextSkill();
+        Timer.startTimer("F", 120);
+      }
+    }
+    if (key.equals("E")) hero.interact(hero.getMousePosition());
+  }
+
+  private void move(int x, int y) {
+    if (x != 0) hero.setXSpeed(x);
+    if (y != 0) hero.setYSpeed(y);
   }
 }
