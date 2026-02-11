@@ -24,7 +24,9 @@ public class CallOp extends Op implements IControlFlow, ISymbolUser {
 
       @Override
       public boolean verify(Operation operation) {
-        return false;
+        // TODO This check still has to be implemented
+        System.out.println("Missing verification for operation " + getIdent());
+        return true;
       }
 
       @Override

@@ -4,7 +4,6 @@ import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.core.traits.IIsolatedFromAbove;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Forward must-reaching-definitions analysis for DGIR.
@@ -167,9 +166,7 @@ public final class ReachingDefinitions {
       // Get the uses and get their value (block)
       preds.put(
         block,
-        block.getUses().stream()
-          .map(BlockOperand::getValue)
-          .collect(Collectors.toUnmodifiableSet())
+        block.getPredecessors()
       );
     }
     return preds;

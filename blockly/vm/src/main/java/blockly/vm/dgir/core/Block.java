@@ -1,12 +1,12 @@
 package blockly.vm.dgir.core;
 
 import blockly.vm.dgir.core.traits.IControlFlow;
+import blockly.vm.dgir.core.traits.ITerminator;
 import com.fasterxml.jackson.annotation.*;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A block containing a list of {@link Operation}.
@@ -63,7 +63,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   public boolean hasTerminator() {
     if (operations.isEmpty()) return false;
     Operation lastOp = operations.getLast();
-    return lastOp.getDetails().hasTrait(IControlFlow.class);
+    return lastOp.getDetails().hasTrait(ITerminator.class);
   }
 
   @JsonIgnore
@@ -102,7 +102,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   }
 
   @JsonIgnore
-  public Operation getParentOperation(){
+  public Operation getParentOperation() {
     return getParent().getParent();
   }
 
@@ -116,6 +116,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   /**
    * Get the successors of this block as defined by the terminator operation. This is a convenience method that delegates
    * to the terminator operation of this block.
+   *
    * @return The successors of this block as defined by the terminator operation.
    */
   @JsonIgnore
@@ -125,11 +126,24 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
 
   /**
    * Check if operation a is defined before operation b in this block. This is a convenience method that delegates to the list of operations in this block.
+   *
    * @param a The first operation to compare.
    * @param b The second operation to compare.
    * @return {@code true} if operation a is defined before operation b in this block, {@code false} otherwise.
    */
   public boolean isBefore(Operation a, Operation b) {
-      return operations.indexOf(a) < operations.indexOf(b);
+    return operations.indexOf(a) < operations.indexOf(b);
+  }
+
+  /**
+   * Get the predecessors of this block as defined by the use list of this block. This is a convenience method that
+   * delegates to the use list of this block.
+   *
+   * @return The predecessors of this block as defined by the use list of this block.
+   */
+  public Set<Block> getPredecessors() {
+    return getUses().stream()
+      .map(BlockOperand::getValue)
+      .collect(Collectors.toUnmodifiableSet());
   }
 }

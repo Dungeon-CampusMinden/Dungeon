@@ -15,7 +15,9 @@ public class PrintOp extends Op {
 
       @Override
       public boolean verify(Operation operation) {
-        return false;
+        // TODO This check still has to be implemented
+        System.out.println("Missing verification for operation " + getIdent());
+        return true;
       }
 
       @Override

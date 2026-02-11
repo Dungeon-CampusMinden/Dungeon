@@ -92,7 +92,7 @@ public class FuncType extends Type {
 
   @Override
   public boolean validate(Object value) {
-    return false;
+    return value instanceof FuncType;
   }
 
   public static String getIdent() {

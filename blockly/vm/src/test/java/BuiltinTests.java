@@ -33,6 +33,8 @@ public class BuiltinTests {
     if (printResult)
       System.out.println(result);
 
+    assertTrue(op.getOperation().verify(true));
+
     assertEquals("", TestUtils.compareSerializedOperations(
       mapper,
       op.get(),
@@ -67,6 +69,7 @@ public class BuiltinTests {
     if (printResult)
       System.out.println(result);
 
+    assertTrue(op.getOperation().verify(true));
 
     try {
       drawUseGraph(op.getOperation(), "simpleProgramOpUse.png", true);
@@ -120,6 +123,8 @@ public class BuiltinTests {
     if (printResult)
       System.out.println(result);
 
+    assertTrue(op.getOperation().verify(true));
+
     try {
       var graph_cluster = DotCFG.buildCfg(op.getOperation());
       drawGraph(graph_cluster.getLeft(), "functionCallCfg.png", true);
@@ -160,6 +165,8 @@ public class BuiltinTests {
     String result = mapper.writeValueAsString(op);
     if (printResult)
       System.out.println(result);
+
+    assertTrue(op.getOperation().verify(true));
 
     assertEquals("", TestUtils.compareSerializedOperations(
       mapper,

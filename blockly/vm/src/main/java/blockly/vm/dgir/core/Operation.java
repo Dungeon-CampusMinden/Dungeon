@@ -2,6 +2,7 @@ package blockly.vm.dgir.core;
 
 import blockly.vm.dgir.core.serialization.OperationDeserializer;
 import blockly.vm.dgir.core.serialization.OperationSerializer;
+import blockly.vm.dgir.core.traits.IIsolatedFromAbove;
 import blockly.vm.dgir.core.traits.IOpTrait;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import tools.jackson.databind.annotation.JsonDeserialize;
@@ -10,6 +11,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -166,9 +168,8 @@ public final class Operation implements Serializable {
     this.regions = Collections.unmodifiableList(regions);
   }
 
-  // TODO implement verify
   public boolean verify(boolean recursive) {
-    return false;
+    return new OperationVerifier(recursive).verify(this);
   }
 
   public OperationDetails getDetails() {
@@ -325,5 +326,14 @@ public final class Operation implements Serializable {
   @JsonIgnore
   public List<Block> getSuccessors() {
     return getBlockOperands().stream().map(BlockOperand::getValue).toList();
+  }
+
+  // Emit an error with the given message and information about this operation.
+  public void emitError(String s) {
+    String opInfo = "Operation '" + getDetails().getIdent() + "'";
+    if (getParentOperation() != null) {
+      opInfo += " of Operation '" + getParentOperation().getDetails().getIdent() + "'";
+    }
+    System.err.println("Error: " + opInfo + " | " + s );
   }
 }

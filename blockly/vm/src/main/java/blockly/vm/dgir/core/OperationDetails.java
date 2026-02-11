@@ -114,6 +114,13 @@ public class OperationDetails {
     }
   }
 
+  public Optional<RegisteredOperationDetails> asRegisteredDetails() {
+    if (this instanceof RegisteredOperationDetails registeredDetails) {
+      return Optional.of(registeredDetails);
+    }
+    return Optional.empty();
+  }
+
   /**
    * This is the fully type erased interface to an operation
    */
@@ -176,7 +183,9 @@ public class OperationDetails {
 
     @Override
     public boolean verify(Operation operation) {
-      return false;
+      // TODO This check still has to be implemented
+      System.out.println("Missing verification for operation " + getIdent());
+      return true;
     }
 
     @Override

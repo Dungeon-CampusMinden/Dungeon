@@ -1,11 +1,12 @@
 package blockly.vm.dgir.dialect.builtin;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.traits.INoTerminator;
 import blockly.vm.dgir.core.traits.ISymbolTable;
 
 import java.util.List;
 
-public class ProgramOp extends Op implements ISymbolTable {
+public class ProgramOp extends Op implements ISymbolTable, INoTerminator {
   @Override
   public OperationDetails.Impl createDetails() {
     class ProgramOpModel extends OperationDetails.Impl {
@@ -15,6 +16,8 @@ public class ProgramOp extends Op implements ISymbolTable {
 
       @Override
       public boolean verify(Operation operation) {
+        // TODO This check still has to be implemented
+        System.out.println("Missing verification for operation " + getIdent());
         return true;
       }
 

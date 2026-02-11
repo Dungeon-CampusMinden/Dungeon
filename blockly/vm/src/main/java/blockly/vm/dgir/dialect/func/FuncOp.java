@@ -25,6 +25,8 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove {
 
       @Override
       public boolean verify(Operation operation) {
+        // TODO This check still has to be implemented
+        System.out.println("Missing verification for operation " + getIdent());
         return true;
       }
 
