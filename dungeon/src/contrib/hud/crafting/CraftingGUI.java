@@ -157,9 +157,8 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
    * crafted items.
    *
    * @param sourceInventory The source inventory where items to be crafted are stored.
-   * @param targetInventory The target inventory.
+   * @param entity The entity that is crafting
    * @param dialogId The dialog ID for network callbacks.
-   * @param ctx The dialog context object.
    */
   CraftingGUI(InventoryComponent sourceInventory, Entity entity, String dialogId) {
 
@@ -246,10 +245,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
     Entity craftEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
     InventoryComponent heroInventory = entity.fetch(InventoryComponent.class).orElse(null);
-    InventoryComponent heroInventory2 = entity.fetch(InventoryComponent.class).orElse(null);
-    if (heroInventory2 == null) {
-      LOGGER.error("heroInventory2 is null");
-    }
+
     InventoryComponent craftInventory = craftEntity.fetch(InventoryComponent.class).orElse(null);
     if (craftInventory == null || heroInventory == null) {
       Entity missingEntity = (craftInventory == null) ? entity : craftEntity;
@@ -258,8 +254,6 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     }
 
     InventoryGUI inventoryGUI = new InventoryGUI(heroInventory);
-    //    CraftingGUI craftingGUI = new CraftingGUI(craftInventory, heroInventory, ctx,
-    // ctx.dialogId());
     CraftingGUI craftingGUI = new CraftingGUI(craftInventory, entity, ctx.dialogId());
 
     CraftingGUI.registerCallbacks(
