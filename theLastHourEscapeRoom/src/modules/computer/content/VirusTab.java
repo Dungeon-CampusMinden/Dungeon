@@ -13,24 +13,27 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import contrib.hud.dialogs.DialogCallbackResolver;
+import contrib.hud.dialogs.DialogContext;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
 import java.util.*;
 import modules.computer.ComputerDialog;
+import modules.computer.ComputerFactory;
 import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;
 
 public class VirusTab extends ComputerTab {
 
+  public static String KEY = "virus";
+
   // Maze dimensions (odd numbers work best for maze generation)
-  private static final int MAZE_WIDTH = 35;
-  private static final int MAZE_HEIGHT = 35;
-  private static final int TILE_SIZE = 12;
+  private static final int MAZE_WIDTH = 32;
+  private static final int MAZE_HEIGHT = 21;
+  private static final int TILE_SIZE = 22;
   private static final float MOVE_COOLDOWN = 0.04f;
   private static final float VIRUS_CHANCE = 0.10f; // 10% chance for floor tiles to become virus tiles
   private static final float EXTRA_PATH_CHANCE = 0.12f; // Chance to add extra connections for branching
@@ -45,6 +48,7 @@ public class VirusTab extends ComputerTab {
   // Colors for tiles
   private static final Color COLOR_WALL = new Color(0.15f, 0.15f, 0.2f, 1f);
   private static final Color COLOR_FLOOR = new Color(0.4f, 0.4f, 0.45f, 1f);
+  private static final Color COLOR_FLOOR_OCCUPIED = new Color(0.8f, 0.8f, 0.85f, 1f);
   private static final Color COLOR_START = new Color(0.2f, 0.6f, 0.2f, 1f);
   private static final Color COLOR_GOAL = new Color(0.2f, 0.5f, 0.9f, 1f);
   private static final Color COLOR_VIRUS = new Color(0.8f, 0.2f, 0.2f, 1f);
@@ -60,7 +64,7 @@ public class VirusTab extends ComputerTab {
 
   private Image playerImage;
   private Stack[][] tileStacks;
-  private Label statusLabel;
+  private Label virusLabel;
   private Random random;
 
   public VirusTab(ComputerStateComponent sharedState) {
@@ -71,17 +75,14 @@ public class VirusTab extends ComputerTab {
     random = new Random();
     this.clearChildren();
 
-    Label virusLabel = Scene2dElementFactory.createLabel("COMPUTER IS INFECTED", 48, Color.RED);
+    virusLabel = Scene2dElementFactory.createLabel("COMPUTER IS INFECTED", 48, Color.WHITE);
+    virusLabel.setColor(Color.RED);
     virusLabel.setAlignment(Align.center);
     this.add(virusLabel).expandX().center().row();
 
     Label explainLabel = Scene2dElementFactory.createLabel("Navigate to the blue exit! (WASD to move)", 24, Color.RED);
     explainLabel.setAlignment(Align.center);
     this.add(explainLabel).expandX().center().padTop(5).row();
-
-    statusLabel = Scene2dElementFactory.createLabel("", 20, Color.YELLOW);
-    statusLabel.setAlignment(Align.center);
-    this.add(statusLabel).expandX().center().padTop(5).row();
 
     // Generate and display the maze
     generateMaze();
@@ -283,10 +284,21 @@ public class VirusTab extends ComputerTab {
         Stack stack = new Stack();
         tileStacks[y][x] = stack;
 
-        // Add tile background
-        Image tileImage = new Image(createTileDrawable(maze[y][x]));
-        tileImage.setColor(getTileColor(maze[y][x]));
-        stack.add(tileImage);
+        int tileType = maze[y][x];
+
+        // Add floor tile as base for virus and goal tiles
+        if (tileType == VIRUS || tileType == GOAL) {
+          Image floorImage = new Image(createColorDrawable(COLOR_FLOOR_OCCUPIED));
+          stack.add(floorImage);
+
+          // Add icon on top
+          Image iconImage = new Image(tileType == VIRUS ? skin.getDrawable("skull") : skin.getDrawable("flag_square"));
+          iconImage.setColor(tileType == VIRUS ? COLOR_VIRUS : COLOR_GOAL);
+          stack.add(iconImage);
+        } else {
+          Image tileImage = new Image(createColorDrawable(getTileColor(tileType)));
+          stack.add(tileImage);
+        }
 
         // Add player on start position
         if (x == playerX && y == playerY) {
@@ -312,12 +324,6 @@ public class VirusTab extends ComputerTab {
       case VIRUS -> COLOR_VIRUS;
       default -> COLOR_WALL;
     };
-  }
-
-  private Drawable createTileDrawable(int tileType) {
-    if(tileType == GOAL) return skin.getDrawable("flag_square");
-    else if (tileType == VIRUS) return skin.getDrawable("skull");
-    return createColorDrawable(getTileColor(tileType));
   }
 
   private TextureRegionDrawable createColorDrawable(Color color) {
@@ -407,14 +413,13 @@ public class VirusTab extends ComputerTab {
 
   private void onGameWon() {
     gameWon = true;
-    statusLabel.setText("VIRUS DEFEATED!");
-    statusLabel.setColor(Color.GREEN);
+    virusLabel.setText("Virus defeated! System secured.");
+    virusLabel.setColor(new Color(0.0f, 0.5f, 0.0f, 1f)); // Dark green for visibility on white
 
     this.addAction(Actions.sequence(
         Actions.delay(1.5f),
         Actions.run(() -> {
-          ComputerStateComponent.setInfection(false); //TODO this doesnt actually forward the new state to the computer dialog
-          ComputerDialog.getInstance().ifPresent(dialog -> dialog.closeTab("virus"));
+          DialogCallbackResolver.createButtonCallback(context().dialogId(), ComputerFactory.UPDATE_STATE_KEY).accept(ComputerStateComponent.getState().withInfection(false));
         })
     ));
   }
