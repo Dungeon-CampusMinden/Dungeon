@@ -10,6 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import core.utils.Scene2dElementFactory;
 import java.util.*;
+import java.util.List;
+
+import modules.computer.ComputerDialog;
 import modules.computer.ComputerStateComponent;
 
 public class BrowserTab extends ComputerTab {
@@ -20,6 +23,7 @@ public class BrowserTab extends ComputerTab {
   private String url = "";
   private TextField urlField;
   private Table contentTable;
+  private Table historyTable;
   private Map<String, Actor> websites = null;
 
   public BrowserTab(ComputerStateComponent sharedState) {
@@ -35,19 +39,51 @@ public class BrowserTab extends ComputerTab {
   protected void createActors() {
     this.url = localState().browserUrl();
     this.clearChildren();
-    this.add(createAdressBar()).growX().row();
-    this.add(Scene2dElementFactory.createHorizontalDivider())
+
+    Table main = new Table();
+
+    Table browseArea = new Table();
+    browseArea.add(createAdressBar()).growX().row();
+    browseArea.add(Scene2dElementFactory.createHorizontalDivider())
         .height(4)
         .pad(10, 0, 10, 0)
         .fillX()
         .row();
     contentTable = new Table();
-    this.add(contentTable).grow();
+    browseArea.add(contentTable).grow();
+
+    historyTable = new Table();
+    refreshHistorySidebar();
+
+    main.add(browseArea).grow();
+    main.add(Scene2dElementFactory.createVerticalDivider()).width(4).fillY().pad(0, 10, 0, 10);
+    main.add(historyTable).width(300).fillY();
+    this.add(main).grow();
+  }
+
+  private void refreshHistorySidebar() {
+    Label header = Scene2dElementFactory.createLabel("History", 24, Color.GRAY);
+
+    Table scrollContent = new Table();
+    scrollContent.top().left();
+    localState().browserHistory().forEach(entry -> {
+      Label link = EmailsTab.createLinkLabel(entry, entry);
+      link.setAlignment(Align.left);
+      link.setWrap(true);
+      scrollContent.add(link).growX().row();
+      scrollContent.add(Scene2dElementFactory.createHorizontalDivider()).height(4).pad(5, 0, 5, 0).fillX().row();
+    });
+    ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(scrollContent, false, true);
+
+    Table table = new Table();
+    table.add(header).padBottom(10).row();
+    table.add(scrollPane).grow();
+
+    historyTable.clearChildren();
+    historyTable.add(table).grow();
   }
 
   private Table createAdressBar() {
-    Table table = new Table();
-
     urlField = Scene2dElementFactory.createTextField(url);
     urlField.setMessageText(PLACEHOLDER);
     urlField.setAlignment(Align.left);
@@ -71,7 +107,7 @@ public class BrowserTab extends ComputerTab {
             return super.keyDown(event, keycode);
           }
         });
-    table.add(urlField).growX().height(50);
+
     Button goButton = Scene2dElementFactory.createButton("Go", "clean-green");
     goButton.addListener(
         new ClickListener(Input.Buttons.LEFT) {
@@ -82,6 +118,9 @@ public class BrowserTab extends ComputerTab {
             return super.touchDown(event, x, y, pointer, button);
           }
         });
+
+    Table table = new Table();
+    table.add(urlField).growX().height(50);
     table.add(goButton).width(100).height(50).padLeft(10);
     return table;
   }
@@ -89,6 +128,7 @@ public class BrowserTab extends ComputerTab {
   public void navigate(String url) {
     this.url = url;
     localState().browserUrl(url);
+    localState().browserHistory().add(url);
     urlField.setText(url);
     contentTable.clear();
 
@@ -101,9 +141,13 @@ public class BrowserTab extends ComputerTab {
 
     if(url.equals("https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm")){
       ComputerStateComponent.setInfection(true);
+      ComputerDialog.getInstance().ifPresent(dialog -> {
+        dialog.updateState(ComputerStateComponent.getState());
+      });
     }
 
     contentTable.add(target).grow();
+    refreshHistorySidebar();
   }
 
   private Actor create404Page() {

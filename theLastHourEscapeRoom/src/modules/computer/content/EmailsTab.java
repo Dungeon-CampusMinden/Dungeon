@@ -232,19 +232,13 @@ public class EmailsTab extends ComputerTab {
       Label lineLabel;
       if (Link.isLink(line)) {
         Link link = Link.parse(line);
-        lineLabel = Scene2dElementFactory.createLabel(link.text, 18, Color.BLUE);
-        lineLabel.setUserObject(Cursors.EXTERNAL);
+        lineLabel = createLinkLabel(link.text, link.url);
         lineLabel.addListener(
             new InputListener() {
               @Override
-              public boolean touchDown(
-                  InputEvent event, float x, float y, int pointer, int button) {
+              public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 BrowserTab.getInstance()
-                    .ifPresent(
-                        bt -> {
-                          bt.navigate(link.url);
-                          ComputerDialog.getInstance().orElseThrow().clickedTab(bt.key());
-                        });
+                  .ifPresent(bt -> ComputerDialog.getInstance().orElseThrow().clickedTab(bt.key()));
                 return super.touchDown(event, x, y, pointer, button);
               }
 
@@ -315,7 +309,6 @@ public class EmailsTab extends ComputerTab {
     ComputerDialog.getInstance()
         .ifPresent(
             c -> {
-              localState().openFiles().add(attachmentName);
               c.addTab(new FileTab(sharedState(), attachmentName));
             });
   }
@@ -345,5 +338,24 @@ public class EmailsTab extends ComputerTab {
         return new Link(parts[0], parts[0]);
       }
     }
+  }
+
+  public static Label createLinkLabel(String text, String url){
+    Label label = Scene2dElementFactory.createLabel(text, 18, Color.BLUE);
+    label.setUserObject(Cursors.EXTERNAL);
+    label.addListener(
+      new InputListener() {
+        @Override
+        public boolean touchDown(
+          InputEvent event, float x, float y, int pointer, int button) {
+          BrowserTab.getInstance()
+            .ifPresent(
+              bt -> {
+                bt.navigate(url);
+              });
+          return super.touchDown(event, x, y, pointer, button);
+        }
+      });
+    return label;
   }
 }
