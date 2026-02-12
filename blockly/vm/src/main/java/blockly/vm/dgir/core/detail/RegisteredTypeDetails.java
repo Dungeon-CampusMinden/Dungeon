@@ -1,4 +1,7 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.detail;
+
+import blockly.vm.dgir.core.DGIRContext;
+import blockly.vm.dgir.core.ir.Type;
 
 import java.util.Optional;
 

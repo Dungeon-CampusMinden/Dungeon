@@ -1,5 +1,8 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.analysis;
 
+import blockly.vm.dgir.core.ir.Block;
+import blockly.vm.dgir.core.ir.Operation;
+import blockly.vm.dgir.core.ir.Region;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.AsSubgraph;

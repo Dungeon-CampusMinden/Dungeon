@@ -1,4 +1,4 @@
-import blockly.vm.dgir.core.DotCFG;
+import blockly.vm.dgir.core.analysis.DotCFG;
 import blockly.vm.dgir.core.serialization.Utils;
 import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;

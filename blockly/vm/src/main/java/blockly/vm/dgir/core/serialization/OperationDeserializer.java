@@ -1,6 +1,10 @@
 package blockly.vm.dgir.core.serialization;
 
-import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.detail.RegisteredOperationDetails;
+import blockly.vm.dgir.core.ir.NamedAttribute;
+import blockly.vm.dgir.core.ir.Operation;
+import blockly.vm.dgir.core.ir.Region;
+import blockly.vm.dgir.core.ir.Value;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;

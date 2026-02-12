@@ -1,9 +1,13 @@
 package blockly.vm.dgir.dialect.builtin;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.detail.OperationDetails;
+import blockly.vm.dgir.core.ir.Block;
+import blockly.vm.dgir.core.ir.NamedAttribute;
+import blockly.vm.dgir.core.ir.Op;
+import blockly.vm.dgir.core.ir.Operation;
 import blockly.vm.dgir.core.traits.IGlobalContainer;
 import blockly.vm.dgir.core.traits.INoTerminator;
-import blockly.vm.dgir.core.traits.ISymbol;
 import blockly.vm.dgir.core.traits.ISymbolTable;
 import blockly.vm.dgir.dialect.func.FuncOp;
 

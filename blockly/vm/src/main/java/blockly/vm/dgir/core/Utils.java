@@ -1,8 +1,11 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.ir.Block;
+import blockly.vm.dgir.core.ir.Operand;
+import blockly.vm.dgir.core.ir.Operation;
+import blockly.vm.dgir.core.ir.Value;
 import com.mxgraph.layout.*;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
-import com.mxgraph.layout.orthogonal.mxOrthogonalLayout;
 import com.mxgraph.util.mxCellRenderer;
 import org.jgrapht.Graph;
 import org.jgrapht.ext.JGraphXAdapter;

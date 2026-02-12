@@ -1,6 +1,8 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.ir;
 
-import blockly.vm.dgir.core.traits.IControlFlow;
+import blockly.vm.dgir.core.IRObjectWithUseList;
+import blockly.vm.dgir.core.Utils;
+import blockly.vm.dgir.core.analysis.DotCFG;
 import blockly.vm.dgir.core.traits.ITerminator;
 import com.fasterxml.jackson.annotation.*;
 

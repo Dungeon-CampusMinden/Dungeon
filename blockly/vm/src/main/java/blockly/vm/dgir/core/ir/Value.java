@@ -1,8 +1,8 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.ir;
 
+import blockly.vm.dgir.core.IRObjectWithUseList;
 import com.fasterxml.jackson.annotation.*;
 
-import java.io.Serial;
 import java.io.Serializable;
 
 /**

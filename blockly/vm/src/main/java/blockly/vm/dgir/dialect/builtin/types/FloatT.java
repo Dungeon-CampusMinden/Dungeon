@@ -1,9 +1,8 @@
 package blockly.vm.dgir.dialect.builtin.types;
 
 import blockly.vm.dgir.core.Dialect;
-import blockly.vm.dgir.core.RegisteredTypeDetails;
-import blockly.vm.dgir.core.Type;
-import blockly.vm.dgir.core.TypeDetails;
+import blockly.vm.dgir.core.ir.Type;
+import blockly.vm.dgir.core.detail.TypeDetails;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

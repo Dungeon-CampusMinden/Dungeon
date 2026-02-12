@@ -1,5 +1,12 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.detail.RegisteredAttributeDetails;
+import blockly.vm.dgir.core.detail.RegisteredOperationDetails;
+import blockly.vm.dgir.core.detail.RegisteredTypeDetails;
+import blockly.vm.dgir.core.ir.Attribute;
+import blockly.vm.dgir.core.ir.Op;
+import blockly.vm.dgir.core.ir.Type;
+
 import java.util.List;
 
 public abstract class Dialect {

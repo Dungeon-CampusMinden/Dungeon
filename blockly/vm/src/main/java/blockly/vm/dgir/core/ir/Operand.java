@@ -1,6 +1,6 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.ir;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import blockly.vm.dgir.core.IRObjectWithUseList;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

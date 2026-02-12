@@ -1,17 +1,18 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.ir;
 
+import blockly.vm.dgir.core.OperationVerifier;
+import blockly.vm.dgir.core.Utils;
+import blockly.vm.dgir.core.detail.OperationDetails;
+import blockly.vm.dgir.core.detail.RegisteredOperationDetails;
 import blockly.vm.dgir.core.serialization.OperationDeserializer;
 import blockly.vm.dgir.core.serialization.OperationSerializer;
-import blockly.vm.dgir.core.traits.IIsolatedFromAbove;
 import blockly.vm.dgir.core.traits.IOpTrait;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**

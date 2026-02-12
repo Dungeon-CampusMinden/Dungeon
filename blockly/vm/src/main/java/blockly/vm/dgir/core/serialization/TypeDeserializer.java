@@ -1,7 +1,7 @@
 package blockly.vm.dgir.core.serialization;
 
-import blockly.vm.dgir.core.Type;
-import blockly.vm.dgir.core.TypeDetails;
+import blockly.vm.dgir.core.ir.Type;
+import blockly.vm.dgir.core.detail.TypeDetails;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.deser.std.StdDeserializer;

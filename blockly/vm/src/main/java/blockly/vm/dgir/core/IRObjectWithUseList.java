@@ -1,6 +1,6 @@
 package blockly.vm.dgir.core;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import blockly.vm.dgir.core.ir.Operand;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.HashSet;

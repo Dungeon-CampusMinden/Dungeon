@@ -1,11 +1,9 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.ir;
 
 import blockly.vm.dgir.core.serialization.NamedAttributeDeserializer;
 import blockly.vm.dgir.core.serialization.NamedAttributeSerializer;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 

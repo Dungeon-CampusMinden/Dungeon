@@ -1,6 +1,11 @@
 package blockly.vm.dgir.dialect.func;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.detail.OperationDetails;
+import blockly.vm.dgir.core.ir.NamedAttribute;
+import blockly.vm.dgir.core.ir.Op;
+import blockly.vm.dgir.core.ir.Operation;
+import blockly.vm.dgir.core.ir.Value;
 import blockly.vm.dgir.core.traits.ISymbolUser;
 import blockly.vm.dgir.core.traits.IControlFlow;
 import blockly.vm.dgir.dialect.builtin.Builtin;

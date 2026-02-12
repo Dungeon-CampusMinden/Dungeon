@@ -1,6 +1,6 @@
 package blockly.vm.dgir.core.serialization;
 
-import blockly.vm.dgir.core.Type;
+import blockly.vm.dgir.core.ir.Type;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;

@@ -1,5 +1,8 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.ir;
 
+import blockly.vm.dgir.core.Utils;
+import blockly.vm.dgir.core.detail.RegisteredTypeDetails;
+import blockly.vm.dgir.core.detail.TypeDetails;
 import blockly.vm.dgir.core.serialization.TypeDeserializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -32,7 +35,7 @@ public abstract class Type {
     return details;
   }
 
-  void setDetails(TypeDetails details) {
+  public void setDetails(TypeDetails details) {
     assert Utils.Caller.getCallingClass().isAssignableFrom(RegisteredTypeDetails.class)
       : "Only RegisteredTypeDetails is allowed to set details. Was called from " + Utils.Caller.getCallingClass().getName();
 

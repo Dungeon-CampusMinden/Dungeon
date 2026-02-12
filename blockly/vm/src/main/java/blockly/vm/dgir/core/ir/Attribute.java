@@ -1,5 +1,8 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.ir;
 
+import blockly.vm.dgir.core.Utils;
+import blockly.vm.dgir.core.detail.AttributeDetails;
+import blockly.vm.dgir.core.detail.RegisteredAttributeDetails;
 import blockly.vm.dgir.core.serialization.AttributeTypeIdResolver;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -1,4 +1,4 @@
-import blockly.vm.dgir.core.Operation;
+import blockly.vm.dgir.core.ir.Operation;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.HashMap;

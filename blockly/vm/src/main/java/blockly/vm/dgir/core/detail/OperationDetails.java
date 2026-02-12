@@ -1,7 +1,10 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.detail;
 
+import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.ir.NamedAttribute;
+import blockly.vm.dgir.core.ir.Op;
+import blockly.vm.dgir.core.ir.Operation;
 import blockly.vm.dgir.core.traits.IOpTrait;
-import blockly.vm.dgir.dialect.io.IO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.lang.reflect.Constructor;

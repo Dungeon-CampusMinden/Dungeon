@@ -1,6 +1,6 @@
 package blockly.vm.dgir.core.traits;
 
-import blockly.vm.dgir.core.Operation;
+import blockly.vm.dgir.core.ir.Operation;
 
 /**
  * Mark an operation as not having a terminator.

@@ -1,6 +1,8 @@
 package blockly.vm.dgir.dialect.arith;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.detail.OperationDetails;
+import blockly.vm.dgir.core.ir.*;
 
 import java.util.List;
 

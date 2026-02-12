@@ -1,8 +1,7 @@
 package blockly.vm.dgir.core.serialization;
 
-import blockly.vm.dgir.core.Attribute;
-import blockly.vm.dgir.core.RegisteredAttributeDetails;
-import blockly.vm.dgir.core.Type;
+import blockly.vm.dgir.core.ir.Attribute;
+import blockly.vm.dgir.core.detail.RegisteredAttributeDetails;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;

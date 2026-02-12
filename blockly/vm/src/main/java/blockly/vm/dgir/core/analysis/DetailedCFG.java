@@ -1,5 +1,10 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.analysis;
 
+import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.ir.Block;
+import blockly.vm.dgir.core.ir.BlockOperand;
+import blockly.vm.dgir.core.ir.Operation;
+import blockly.vm.dgir.core.ir.Region;
 import blockly.vm.dgir.core.traits.ISymbolUser;
 import blockly.vm.dgir.core.traits.IControlFlow;
 import blockly.vm.dgir.core.traits.ITerminator;

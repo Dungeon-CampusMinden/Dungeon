@@ -1,6 +1,9 @@
 package blockly.vm.dgir.dialect.builtin.attributes;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.detail.AttributeDetails;
+import blockly.vm.dgir.core.ir.Attribute;
+import blockly.vm.dgir.core.ir.Type;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 
 public class TypeAttribute extends Attribute {

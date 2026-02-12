@@ -1,6 +1,5 @@
 package blockly.vm.dgir.core.traits;
 
-import blockly.vm.dgir.core.Operation;
 import blockly.vm.dgir.core.SymbolTable;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
 

@@ -1,5 +1,8 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.detail;
 
+import blockly.vm.dgir.core.DGIRContext;
+import blockly.vm.dgir.core.Dialect;
+import blockly.vm.dgir.core.ir.Type;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.lang.reflect.Constructor;

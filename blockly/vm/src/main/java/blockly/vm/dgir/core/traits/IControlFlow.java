@@ -1,7 +1,7 @@
 package blockly.vm.dgir.core.traits;
 
-import blockly.vm.dgir.core.Block;
-import blockly.vm.dgir.core.Operation;
+import blockly.vm.dgir.core.ir.Block;
+import blockly.vm.dgir.core.ir.Operation;
 
 /**
  * This interface marks an operation as having an input on the control flow of the program.

@@ -1,6 +1,9 @@
 package blockly.vm.dgir.dialect.builtin;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.ir.Attribute;
+import blockly.vm.dgir.core.ir.Op;
+import blockly.vm.dgir.core.ir.Type;
 import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.SymbolRefAttribute;
@@ -8,7 +11,6 @@ import blockly.vm.dgir.dialect.builtin.attributes.TypeAttribute;
 import blockly.vm.dgir.dialect.builtin.types.FloatT;
 import blockly.vm.dgir.dialect.builtin.types.IntegerT;
 import blockly.vm.dgir.dialect.builtin.types.StringT;
-import blockly.vm.dgir.dialect.io.PrintOp;
 
 import java.util.List;
 

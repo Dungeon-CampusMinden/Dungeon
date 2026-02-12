@@ -1,6 +1,9 @@
 package blockly.vm.dgir.dialect.func;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.ir.Attribute;
+import blockly.vm.dgir.core.ir.Op;
+import blockly.vm.dgir.core.ir.Type;
 import blockly.vm.dgir.dialect.func.types.FuncType;
 
 import java.util.List;

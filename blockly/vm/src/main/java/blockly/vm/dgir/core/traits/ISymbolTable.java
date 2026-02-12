@@ -1,6 +1,6 @@
 package blockly.vm.dgir.core.traits;
 
-import blockly.vm.dgir.core.Operation;
+import blockly.vm.dgir.core.ir.Operation;
 import blockly.vm.dgir.core.SymbolTable;
 
 public interface ISymbolTable extends IOpTrait {

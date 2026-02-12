@@ -1,12 +1,14 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.ir.Block;
+import blockly.vm.dgir.core.ir.Op;
+import blockly.vm.dgir.core.ir.Operation;
+import blockly.vm.dgir.core.ir.Region;
 import blockly.vm.dgir.core.traits.ISymbol;
 import blockly.vm.dgir.core.traits.ISymbolTable;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 

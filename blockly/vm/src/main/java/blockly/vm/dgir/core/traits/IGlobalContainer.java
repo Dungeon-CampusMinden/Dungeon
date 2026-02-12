@@ -1,8 +1,8 @@
 package blockly.vm.dgir.core.traits;
 
-import blockly.vm.dgir.core.Block;
-import blockly.vm.dgir.core.Operation;
-import blockly.vm.dgir.core.Region;
+import blockly.vm.dgir.core.ir.Block;
+import blockly.vm.dgir.core.ir.Operation;
+import blockly.vm.dgir.core.ir.Region;
 
 /**
  * Marks an operation that can only contain global operations. This is used to mark the top-level container of a module,

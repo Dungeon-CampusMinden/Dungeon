@@ -1,6 +1,6 @@
 package blockly.vm.dgir.core.analysis;
 
-import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.ir.*;
 import blockly.vm.dgir.core.traits.IIsolatedFromAbove;
 
 import java.util.*;

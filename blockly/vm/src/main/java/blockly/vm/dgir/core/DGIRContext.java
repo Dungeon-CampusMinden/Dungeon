@@ -1,5 +1,10 @@
 package blockly.vm.dgir.core;
 
+import blockly.vm.dgir.core.detail.*;
+import blockly.vm.dgir.core.ir.Attribute;
+import blockly.vm.dgir.core.ir.Op;
+import blockly.vm.dgir.core.ir.Type;
+
 import java.util.HashMap;
 import java.util.Map;
 

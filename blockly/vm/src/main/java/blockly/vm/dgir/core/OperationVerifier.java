@@ -1,9 +1,10 @@
 package blockly.vm.dgir.core;
 
 import blockly.vm.dgir.core.analysis.ReachingDefinitions;
+import blockly.vm.dgir.core.detail.RegisteredOperationDetails;
+import blockly.vm.dgir.core.ir.*;
 import blockly.vm.dgir.core.traits.IIsolatedFromAbove;
 import blockly.vm.dgir.core.traits.INoTerminator;
-import blockly.vm.dgir.core.traits.IOpTrait;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;

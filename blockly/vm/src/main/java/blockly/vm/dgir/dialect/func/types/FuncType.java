@@ -1,9 +1,10 @@
 package blockly.vm.dgir.dialect.func.types;
 
 import blockly.vm.dgir.core.*;
+import blockly.vm.dgir.core.detail.TypeDetails;
+import blockly.vm.dgir.core.ir.Type;
 import blockly.vm.dgir.dialect.func.Func;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 

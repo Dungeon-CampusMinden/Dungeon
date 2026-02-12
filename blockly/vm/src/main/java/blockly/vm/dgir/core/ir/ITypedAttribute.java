@@ -1,4 +1,4 @@
-package blockly.vm.dgir.core;
+package blockly.vm.dgir.core.ir;
 
 public interface ITypedAttribute {
   Type getType();

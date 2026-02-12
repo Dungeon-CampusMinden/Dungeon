@@ -1,7 +1,7 @@
 package blockly.vm.dgir.core.traits;
 
-import blockly.vm.dgir.core.Op;
-import blockly.vm.dgir.core.Operation;
+import blockly.vm.dgir.core.ir.Op;
+import blockly.vm.dgir.core.ir.Operation;
 
 public interface IOpTrait {
   default Operation get() {

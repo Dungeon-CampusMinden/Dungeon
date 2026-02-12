@@ -1,7 +1,7 @@
 package blockly.vm.dgir.core.serialization;
 
-import blockly.vm.dgir.core.Op;
-import blockly.vm.dgir.core.Operation;
+import blockly.vm.dgir.core.ir.Op;
+import blockly.vm.dgir.core.ir.Operation;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;

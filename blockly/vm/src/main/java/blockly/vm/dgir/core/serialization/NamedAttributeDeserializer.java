@@ -1,7 +1,7 @@
 package blockly.vm.dgir.core.serialization;
 
-import blockly.vm.dgir.core.Attribute;
-import blockly.vm.dgir.core.NamedAttribute;
+import blockly.vm.dgir.core.ir.Attribute;
+import blockly.vm.dgir.core.ir.NamedAttribute;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
