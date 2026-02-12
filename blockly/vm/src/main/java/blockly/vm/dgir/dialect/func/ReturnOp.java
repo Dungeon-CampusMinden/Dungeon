@@ -38,7 +38,7 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand {
           var returnType = returnOp.getOperandType().orElseThrow();
           var funcType = parentFuncOp.getType();
           if (!returnType.equals(funcType.getOutput())) {
-            operation.emitError("Return type " + returnType + " does not match function return type " + funcType.getOutput());
+            operation.emitError("Return type " + returnType.getParameterizedIdent() + " does not match function return type " + (funcType.getOutput() != null ? funcType.getOutput().getParameterizedIdent() : null));
             return false;
           }
         }

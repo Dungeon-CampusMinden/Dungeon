@@ -2,10 +2,7 @@ package blockly.vm.dgir.dialect.func;
 
 import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.core.detail.OperationDetails;
-import blockly.vm.dgir.core.ir.NamedAttribute;
-import blockly.vm.dgir.core.ir.Op;
-import blockly.vm.dgir.core.ir.Operation;
-import blockly.vm.dgir.core.ir.Value;
+import blockly.vm.dgir.core.ir.*;
 import blockly.vm.dgir.core.traits.ISymbolUser;
 import blockly.vm.dgir.core.traits.IControlFlow;
 import blockly.vm.dgir.dialect.builtin.Builtin;
@@ -13,6 +10,7 @@ import blockly.vm.dgir.dialect.builtin.attributes.SymbolRefAttribute;
 import blockly.vm.dgir.dialect.func.types.FuncType;
 
 import java.util.List;
+import java.util.Optional;
 
 public class CallOp extends Op implements ISymbolUser {
   @Override
@@ -29,10 +27,26 @@ public class CallOp extends Op implements ISymbolUser {
 
       @Override
       public boolean verify(Operation operation) {
-        // TODO This check still has to be implemented
-        System.out.println("Missing verification for operation " + getIdent());
+        CallOp callOp = operation.as(CallOp.class);
+
+        // Make sure that the callee function signature matches the call site
+        Optional<FuncOp> callee = SymbolTable.lookupSymbolInNearestTableAsOp(operation, callOp.getCallee(), FuncOp.class);
+        if (callee.isEmpty()) {
+          operation.emitError("Could not find function " + callOp.getCallee());
+          return false;
+        }
+
+        // Make sure that the function type matches the call site
+        var calleeType = callee.get().getType();
+        var funcType = callOp.getFunctionType();
+
+        if (!calleeType.equals(funcType)) {
+          callOp.getOperation().emitError("Function type does not match call site type for function " + callOp.getCallee() + ": " + calleeType.getParameterizedIdent() + " != " + funcType.getParameterizedIdent());
+          return false;
+        }
         return true;
       }
+
 
       @Override
       public void populateDefaultAttrs(List<NamedAttribute> attributes) {
@@ -87,44 +101,19 @@ public class CallOp extends Op implements ISymbolUser {
     return "callee";
   }
 
-  @Override
-  public SymbolRefAttribute getSymbolRefAttribute() {
-    return getAttribute(SymbolRefAttribute.class, getCalleeAttributeName());
+  /**
+   * Get the function type that results from this calls operands and output.
+   *
+   * @return The function type that results from this calls operands and output.
+   */
+  public FuncType getFunctionType() {
+    List<Type> inputTypes = getOperands().stream().map(ValueOperand::getType).toList();
+    Type outputType = getOutput() != null ? getOutput().getType() : null;
+    return new FuncType(inputTypes, outputType);
   }
 
   @Override
-  public boolean verifySymbolUser() {
-    var calleeName = getCallee();
-    var calleeOp = SymbolTable.lookupSymbolInNearestTableAsOp(getOperation(), calleeName, FuncOp.class);
-    if (calleeOp.isEmpty()) {
-      getOperation().emitError("Could not find function " + calleeName);
-      return false;
-    }
-
-    // Make sure that the function type matches the call site
-    var funcType = calleeOp.get().getType();
-    // Check operand types
-    var operands = getOperands();
-    // Check that we have the correct number of operands
-    if (operands.size() != funcType.getInputs().size()) {
-      getOperation().emitError("Wrong number of operands for function call: " + operands.size() + " != " + funcType.getInputs().size());
-      return false;
-    }
-    // Check that each operand type matches the function input type
-    for (int i = 0; i < operands.size(); i++) {
-      if (!operands.get(i).getType().equals(funcType.getInputs().get(i))) {
-        getOperation().emitError("Operand " + i + " does not match function input type");
-        return false;
-      }
-    }
-    // Check that the outputs are the same
-    if (getOutput() != null && funcType.getOutput() != null) {
-      if (!getOutput().getType().equals(funcType.getOutput())) {
-        getOperation().emitError("Function output type does not match call site output type");
-        return false;
-      }
-    }
-
-    return true;
+  public SymbolRefAttribute getSymbolRefAttribute() {
+    return getAttribute(SymbolRefAttribute.class, getCalleeAttributeName());
   }
 }

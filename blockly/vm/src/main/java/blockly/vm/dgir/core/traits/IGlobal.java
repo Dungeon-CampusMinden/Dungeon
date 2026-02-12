@@ -4,6 +4,11 @@ import java.util.Objects;
 
 public interface IGlobal extends IOpTrait {
   default boolean verify(IGlobal op) {
-    return Objects.requireNonNull(get().getParentOperation()).hasTrait(IGlobalContainer.class);
+    // Verify that the operation is contained in a global container if it has a parent.
+    if (get().getParentOperation() == null) {
+      return true;
+    }
+
+    return get().getParentOperation().hasTrait(IGlobalContainer.class);
   }
 }

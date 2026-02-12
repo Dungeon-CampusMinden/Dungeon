@@ -3,10 +3,11 @@ package blockly.vm.dgir.dialect.arith;
 import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.core.detail.OperationDetails;
 import blockly.vm.dgir.core.ir.*;
+import blockly.vm.dgir.core.traits.ISingleOperand;
 
 import java.util.List;
 
-public class ConstantOp extends Op {
+public class ConstantOp extends Op implements ISingleOperand {
   @Override
   public OperationDetails.Impl createDetails() {
     class ConstantOpModel extends OperationDetails.Impl {
@@ -16,8 +17,6 @@ public class ConstantOp extends Op {
 
       @Override
       public boolean verify(Operation operation) {
-        // TODO This check still has to be implemented
-        System.out.println("Missing verification for operation " + getIdent());
         return true;
       }
 

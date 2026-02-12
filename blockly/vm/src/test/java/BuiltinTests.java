@@ -16,7 +16,6 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import static blockly.vm.dgir.core.Utils.Graphing.drawGraph;
 import static blockly.vm.dgir.core.Utils.Graphing.drawUseGraph;
@@ -46,7 +45,7 @@ public class BuiltinTests {
     assertEquals("", TestUtils.compareSerializedOperations(
       mapper,
       op.get(),
-      mapper.readValue(result, ProgramOp.class).get()
+      result
     ));
   }
 
@@ -77,7 +76,7 @@ public class BuiltinTests {
     assertEquals("", TestUtils.compareSerializedOperations(
       mapper,
       programOp.get(),
-      mapper.readValue(result, ProgramOp.class).get()
+      result
     ));
   }
 
@@ -120,7 +119,7 @@ public class BuiltinTests {
     assertEquals("", TestUtils.compareSerializedOperations(
       mapper,
       programOp.getOperation(),
-      mapper.readValue(result, ProgramOp.class).getOperation()
+      result
     ));
   }
 
@@ -152,12 +151,12 @@ public class BuiltinTests {
     assertEquals("", TestUtils.compareSerializedOperations(
       mapper,
       programOp.getOperation(),
-      mapper.readValue(result, ProgramOp.class).getOperation()
+      result
     ));
   }
 
   /**
-   * Checks wether an incorect program with a function without terminator is correctly rejected by the verifier.
+   * Checks whether an incorrect program with a function without terminator is correctly rejected by the verifier.
    */
   @Test
   public void missingTerminator() {

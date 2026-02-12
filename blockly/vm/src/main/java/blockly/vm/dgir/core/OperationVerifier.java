@@ -154,14 +154,15 @@ public class OperationVerifier {
       operation.emitError("Operation is not registered");
       return false;
     }
-    if (!details.get().verify(operation)) {
-      operation.emitError("Operation failed verification through registered details");
-      return false;
-    }
 
     // Verify that all the operation traits are valid
     if (!details.get().verifyTraits(operation))
       return false;
+
+    if (!details.get().verify(operation)) {
+      operation.emitError("Operation failed verification through registered details of operation " + operation.getDetails().getIdent());
+      return false;
+    }
 
     // If this operation has no regions, we are done with verification at this point and can skip the region checks
     if (operation.getRegions().isEmpty())

@@ -204,6 +204,16 @@ public class OperationDetails {
       return attributeNames;
     }
 
+    /**
+     * Called during the validation through the {@link OperationVerifier} and after the traits have been verified.
+     * Therefore, any verification that depends on the traits should be implemented here, and any verification that can be
+     * done independently of the traits should be implemented in the trait verifiers.
+     * <p>
+     * If this mehtod is reached all traits have been verified successfully.
+     *
+     * @param operation The operation to verify
+     * @return true if the operation is valid, false otherwise
+     */
     public abstract boolean verify(Operation operation);
 
     public abstract void populateDefaultAttrs(List<NamedAttribute> attributes);

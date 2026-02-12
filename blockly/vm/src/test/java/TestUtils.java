@@ -16,6 +16,10 @@ import java.util.regex.Pattern;
 public class TestUtils {
   private static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
 
+  public static String compareSerializedOperations(ObjectMapper mapper, Operation op1, String op2Json) {
+    return compareSerializedOperations(mapper, op1, mapper.readValue(op2Json, Operation.class));
+  }
+
   public static String compareSerializedOperations(ObjectMapper mapper, Operation op1, Operation op2) {
     try {
       String json1 = mapper.writeValueAsString(op1);
