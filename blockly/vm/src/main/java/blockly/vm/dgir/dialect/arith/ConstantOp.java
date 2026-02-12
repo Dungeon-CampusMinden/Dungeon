@@ -4,6 +4,9 @@ import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.core.detail.OperationDetails;
 import blockly.vm.dgir.core.ir.*;
 import blockly.vm.dgir.core.traits.ISingleOperand;
+import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
+import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
+import blockly.vm.dgir.dialect.builtin.types.IntegerT;
 
 import java.util.List;
 
@@ -40,11 +43,15 @@ public class ConstantOp extends Op implements ISingleOperand {
   }
 
   public ConstantOp(String value) {
-    this(new blockly.vm.dgir.dialect.builtin.attributes.StringAttribute(value));
+    this(new StringAttribute(value));
   }
 
   public ConstantOp(int value) {
-    this(new blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute(value, blockly.vm.dgir.dialect.builtin.types.IntegerT.INT32));
+    this(new IntegerAttribute(value, IntegerT.INT32));
+  }
+
+  public ConstantOp(boolean value) {
+    this(new IntegerAttribute(value ? 1 : 0, IntegerT.BOOL));
   }
 
   public ITypedAttribute getValueAttribute() {

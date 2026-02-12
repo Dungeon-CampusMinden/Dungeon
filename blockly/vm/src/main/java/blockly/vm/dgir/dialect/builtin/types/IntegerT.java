@@ -55,7 +55,7 @@ public class IntegerT extends Type {
       return false;
 
     switch (number) {
-      case Byte b when getWidth() == 8 -> {
+      case Byte b when getWidth() == 1 || getWidth() == 8-> {
         return true;
       }
       case Short s when getWidth() == 16 -> {
@@ -87,6 +87,10 @@ public class IntegerT extends Type {
 
     long value = number.longValue();
     switch (getWidth()) {
+      case 1 -> {
+        assert value == 0 || value == 1 : "Value out of range: " + value + " for width: " + getWidth();
+        return (byte) value;
+      }
       case 8 -> {
         assert value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE : "Value out of range: " + value + " for width: " + getWidth();
         return (byte) value;

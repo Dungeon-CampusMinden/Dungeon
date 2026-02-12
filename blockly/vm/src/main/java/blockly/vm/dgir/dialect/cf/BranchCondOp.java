@@ -5,6 +5,7 @@ import blockly.vm.dgir.core.detail.OperationDetails;
 import blockly.vm.dgir.core.ir.*;
 import blockly.vm.dgir.core.traits.IControlFlow;
 import blockly.vm.dgir.core.traits.ITerminator;
+import blockly.vm.dgir.dialect.builtin.types.IntegerT;
 
 import java.util.List;
 
@@ -45,5 +46,6 @@ public class BranchCondOp extends Op implements ITerminator, IControlFlow {
 
   public BranchCondOp(Value condition, Block target, Block elseTarget) {
     super(Operation.Create(getIdent(), List.of(condition), List.of(target, elseTarget), null));
+    assert condition.getType().equals(IntegerT.BOOL) : "Condition must be of type bool/int1.";
   }
 }

@@ -8,6 +8,8 @@ import blockly.vm.dgir.core.ir.Block;
 import blockly.vm.dgir.core.serialization.Utils;
 import blockly.vm.dgir.dialect.arith.ConstantOp;
 import blockly.vm.dgir.dialect.builtin.ProgramOp;
+import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
+import blockly.vm.dgir.dialect.builtin.types.IntegerT;
 import blockly.vm.dgir.dialect.cf.BranchCondOp;
 import blockly.vm.dgir.dialect.cf.BranchOp;
 import blockly.vm.dgir.dialect.func.FuncOp;
@@ -79,7 +81,7 @@ public class CoreTests {
     Block mergeBlock = funcOp.addBlock(new Block());
 
     // Entry branches conditionally to left or right
-    var cond = entryBlock.addOperation(new ConstantOp(42)); // Condition value, type doesn't matter for this test context usually, but should be boolean-like ideally
+    var cond = entryBlock.addOperation(new ConstantOp(true)); // Condition value, type doesn't matter for this test context usually, but should be boolean-like ideally
     // Assuming ConstantOp(42) produces a valid condition for BranchCondOp for simplicity or if allowed.
     // Wait, BranchCondOp takes a condition. Since tests are strict about types, let's assume boolean or make sure.
     // IntegerT is not BooleanT. Let's check BranchCondOp requirements or just use BranchOp for simple non-conditional if possible? No, simply branching to two blocks needs Cond.
@@ -116,7 +118,7 @@ public class CoreTests {
     Block mergeBlock = funcOp.addBlock(new Block());
 
     // Entry defines val
-    var val = entryBlock.addOperation(new ConstantOp(42));
+    var val = entryBlock.addOperation(new ConstantOp(true));
     entryBlock.addOperation(new BranchCondOp(val.getOutputValue(), leftBlock, rightBlock));
 
     // Left uses val
