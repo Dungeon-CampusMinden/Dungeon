@@ -51,7 +51,6 @@ import java.util.*;
  */
 @JsonPropertyOrder({"bodyValues", "blocks"})
 public final class Region {
-  @JsonIdentityReference(alwaysAsId = false)
   private final List<Block> blocks = new ArrayList<>();
   /**
    * Values that act like parameters/arguments visible only inside this region (e.g., block arguments for CFG nodes).

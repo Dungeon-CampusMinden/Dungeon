@@ -21,7 +21,6 @@ public abstract class Operand<
   /**
    * The value referenced by this operand
    */
-  @JsonValue
   @JsonIdentityReference(alwaysAsId = true)
   private ValueT value;
 

@@ -8,9 +8,13 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OperationDeserializer extends StdDeserializer<Operation> {
+  private static final Map<Operation, Map<BlockOperand, JsonNode>> unresolvedSuccessorReferences = new HashMap<>();
+
   public OperationDeserializer() {
     this(Operation.class);
   }
@@ -32,7 +36,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       operands = new ArrayList<>();
       for (JsonNode operandNode : node.get("operands")) {
         // Let Jackson resolve the identity reference so already-deserialized body values inside a region are reused.
-        Value value = ctxt.readTreeAsValue(operandNode, Value.class);
+        Value value = ctxt.readTreeAsValue(operandNode.get("value"), Value.class);
         operands.add(value);
       }
     }
@@ -52,13 +56,20 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       outputValue = ctxt.readTreeAsValue(outputNode, Value.class);
     }
 
-    // Deserialize successors if they exist. These are the block operands
+    // Deserialize successors if they exist.
+    // Since successors are mostly forward references we will perform a 2 step resolve of their IDs. For that we store
+    // all the unresolved references in a static lookup map and try to resolve all the references once we deserialized
+    // all the child regions, as those are were the operations with the unresolved references reside.
     List<Block> successors = null;
+    Map<Block, JsonNode> unresolvedSuccessors = new HashMap<>();
     if (node.has("successors")) {
       successors = new ArrayList<>();
       for (JsonNode successorNode : node.get("successors")) {
-        Block block = ctxt.readTreeAsValue(successorNode, Block.class);
-        successors.add(block);
+        Block placeHolderBlock = new Block();
+        successors.add(placeHolderBlock);
+        unresolvedSuccessors.put(placeHolderBlock, successorNode.get("value"));
+        // The references themselves are connected to their BlockOperands after the operation itself is created and added
+        // to the global list of unresolved references for further processing.
       }
     }
 
@@ -69,6 +80,31 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       for (JsonNode regionNode : node.get("regions")) {
         Region region = ctxt.readTreeAsValue(regionNode, Region.class);
         regions.add(region);
+      }
+    }
+
+    // Now that the regions are deserialized, we can go over all their operations and resolve their block operands.
+    // Note!: This step does not resolve the block operands of this operation, as those are part of the parent region and
+    // not the ones we just deserialized. In fact, this operation is the result of another region deserialization
+    if (regions != null) {
+      // Go over all regions and their blocks and operations and resolve the block operands.
+      for (Region region : regions) {
+        for (Block block : region.getBlocks()) {
+          for (Operation operation : block.getOperations()) {
+            // Check if we have any unresolved references for this operation.
+            Map<BlockOperand, JsonNode> unresolvedReferences = unresolvedSuccessorReferences.get(operation);
+            if (unresolvedReferences != null) {
+              // Go over all unresolved references and resolve them.
+              for (Map.Entry<BlockOperand, JsonNode> entry : unresolvedReferences.entrySet()) {
+                BlockOperand blockOperand = entry.getKey();
+                JsonNode blockId = entry.getValue();
+                // Now we just use jackson to resolve the reference
+                Block targetBlock = ctxt.readTreeAsValue(blockId, Block.class);
+                blockOperand.setValue(targetBlock);
+              }
+            }
+          }
+        }
       }
     }
 
@@ -107,6 +143,16 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
         operation.getRegions().get(i).takeRegion(regions.get(i));
       }
     }
+
+    // Connect the unresolved successors and connect them to their corresponding BlockOperands.
+    Map<BlockOperand, JsonNode> unresolvedBlockOperands = new HashMap<>();
+    for (BlockOperand blockOperand : operation.getBlockOperands()) {
+      // This gives us a direct lookup from the BlockOperand to the ID of the Block it must resolve to.
+      // That way we can can update the block operands directly, without having to access the operation itself.
+      unresolvedBlockOperands.put(blockOperand, unresolvedSuccessors.get(blockOperand.getValue()));
+    }
+    if (!unresolvedBlockOperands.isEmpty())
+      unresolvedSuccessorReferences.put(operation, unresolvedBlockOperands);
 
     return operation;
   }
