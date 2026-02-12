@@ -45,31 +45,31 @@ tasks.register('runBlockly', JavaExec) {
 }
 
 
-tasks.register('buildBlocklyJar', Jar) {
-    group 'jar'
-    archiveBaseName = 'Blockly'
+tasks.named('jar', Jar) {
+    dependsOn project(':dungeon').tasks.named('jar')
+    archiveBaseName.set('Blockly')
+    archiveFileName.set('Blockly.jar')
+
     from sourceSets.main.output
     from project(':dungeon').sourceSets.main.output
+
     from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
     }
 
-    // Include source files from Language Server
+
+    // Source für Language Server
     from(project(':dungeon').projectDir) {
         include 'src/core/level/utils/LevelElement.java'
-        // Remove 'src/' prefix from paths
-        eachFile { file ->
-            file.path = file.path.replaceFirst('src/', '')
-        }
+        eachFile { it.path = it.path.replaceFirst('src/', '') }
         includeEmptyDirs = false
     }
     from(projectDir) {
         include 'src/core/utils/Direction.java'
         include 'src/coderunner/BlocklyCommands.java'
-        // Remove 'src/' prefix from paths
-        eachFile { file ->
-            file.path = file.path.replaceFirst('src/', '')
-        }
+        eachFile { it.path = it.path.replaceFirst('src/', '') }
         includeEmptyDirs = false
     }
 
@@ -79,10 +79,8 @@ tasks.register('buildBlocklyJar', Jar) {
         attributes 'Main-Class': 'client.Client'
     }
 
-    archiveFileName = 'Blockly.jar'
-
     into('assets') {
-        from new File(project(':dungeon').projectDir, '/assets')
+        from project(':dungeon').file('assets')
     }
 
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
