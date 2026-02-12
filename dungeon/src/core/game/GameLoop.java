@@ -7,13 +7,14 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
@@ -50,6 +51,7 @@ import core.utils.InputManager;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
+import java.util.List;
 
 /**
  * The Dungeon-GameLoop.
@@ -70,6 +72,9 @@ public final class GameLoop extends ScreenAdapter {
   private boolean gameIsRunning = false;
   private Table mainMenuTable = null;
   private Skin skin;
+  private Table settingsMenuTable;
+  private Table levelTable;
+  private TextureRegionDrawable menuBackground;
 
   /**
    * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
@@ -473,10 +478,35 @@ public final class GameLoop extends ScreenAdapter {
   private void createMainMenu() {
     mainMenuTable = new Table();
     mainMenuTable.setFillParent(true);
+
+    Texture bgTexture = new Texture(Gdx.files.internal("blumenwiese.png"));
+    menuBackground = new TextureRegionDrawable(new TextureRegion(bgTexture));
+    mainMenuTable.setBackground(menuBackground);;
+
     mainMenuTable.center(); // Menü zentrieren
 
     TextButton startButton = new TextButton("Start", skin);
     TextButton exitButton  = new TextButton("Exit", skin);
+    TextButton settingsBtn = new TextButton("Settings", skin);
+    TextButton levelsBtn = new TextButton("Levels", skin);
+
+    // WECHSEL-LOGIK: Hauptmenü -> Settings
+    settingsBtn.addListener(new ClickListener() {
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+        mainMenuTable.setVisible(false);
+        settingsMenuTable.setVisible(true);
+      }
+    });
+
+
+    levelsBtn.addListener(new ClickListener() {
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+        mainMenuTable.setVisible(false);
+        levelTable.setVisible(true);
+      }
+    });
 
     // Start Button startet das Spiel
     startButton.addListener(new ClickListener() {
@@ -498,8 +528,71 @@ public final class GameLoop extends ScreenAdapter {
     mainMenuTable.add(startButton).pad(10).width(200);
     mainMenuTable.row();
     mainMenuTable.add(exitButton).pad(10).width(200);
+    mainMenuTable.row();
+    mainMenuTable.add(settingsBtn).pad(10).width(200);
+    mainMenuTable.row();
+    mainMenuTable.add(levelsBtn).pad(10).width(200);
 
     stage.addActor(mainMenuTable);
+
+    settingsMenuTable = new Table();
+    settingsMenuTable.setFillParent(true);
+    settingsMenuTable.setBackground(menuBackground);
+    settingsMenuTable.setVisible(false); // Am Anfang unsichtbar!
+
+    TextButton backBtn = new TextButton("Back to Main", skin);
+
+    // WECHSEL-LOGIK: Settings -> Hauptmenü
+    backBtn.addListener(new ClickListener() {
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+        settingsMenuTable.setVisible(false);
+        mainMenuTable.setVisible(true);
+      }
+    });
+
+    settingsMenuTable.add(new Label("SETTINGS", skin)).padBottom(20).row();
+    // Hier könntest du Slider für Volume etc. einbauen
+    settingsMenuTable.add(backBtn).width(250);
+    stage.addActor(settingsMenuTable);
+
+
+    levelTable = new Table();
+    levelTable.setFillParent(true);
+    levelTable.setBackground(menuBackground);
+    levelTable.setVisible(false); // Am Anfang unsichtbar!
+
+
+    TextButton backBtn2 = new TextButton("Back to Main", skin);
+
+    backBtn2.addListener(new ClickListener() {
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+        levelTable.setVisible(false);
+        mainMenuTable.setVisible(true);
+      }
+    });
+
+    TextButton level1Button = new TextButton("Level1", skin);
+    TextButton level2Button = new TextButton("Level2", skin);
+    TextButton level3Button = new TextButton("Level3", skin);
+    TextButton level4Button = new TextButton("Level4", skin);
+
+    levelTable.center();
+
+    levelTable.add(backBtn2).pad(10).width(250);
+    levelTable.row();
+    levelTable.add(level1Button).pad(10).width(250);
+    levelTable.row();
+    levelTable.add(level2Button).pad(10).width(250);
+    levelTable.row();
+    levelTable.add(level3Button).pad(10).width(250);
+    levelTable.row();
+    levelTable.add(level4Button).pad(10).width(250);
+
+
+    stage.addActor(levelTable);
+
   }
 
   private void renderMainMenu() {
