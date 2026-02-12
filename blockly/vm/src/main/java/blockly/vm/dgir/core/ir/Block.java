@@ -142,12 +142,12 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    * Get the predecessors of this block as defined by the use list of this block. This is a convenience method that
    * delegates to the use list of this block.
    *
-   * @return The predecessors of this block as defined by the use list of this block.
+   * @return The predecessor blocks of this block as defined by the use list of this block.
    */
   @JsonIgnore
   public Set<Block> getPredecessors() {
     return getUses().stream()
-      .map(BlockOperand::getValue)
+      .map(blockOperand -> blockOperand.getOwner().getParent())
       .collect(Collectors.toUnmodifiableSet());
   }
 }
