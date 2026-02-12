@@ -7,6 +7,7 @@ import contrib.components.DecoComponent;
 import contrib.entities.HeroController;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
+import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
@@ -28,6 +29,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
+import core.systems.DrawSystem;
 import core.utils.Point;
 import java.util.*;
 
@@ -93,6 +95,8 @@ public class LastHourLevel extends DungeonLevel {
     setupPC();
     setupTrashcans();
     setupDecoderShelfs();
+    setupPapers();
+    setupInteractables();
 
     String lorem =
         """
@@ -130,6 +134,56 @@ public class LastHourLevel extends DungeonLevel {
     });
 
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
+  }
+
+  private void setupInteractables() {
+    Entity desk0 = DecoFactory.createDeco(getPoint("desk-nothing0"), Deco.StampingTable);
+    desk0.remove(DecoComponent.class);
+    desk0.add(new InteractionComponent(() -> new Interaction((e, who) -> {
+      DialogFactory.showOkDialog("More papers documenting weird science experiments.\nYou try to understand any of it, but it just doesn't make sense to you.", "", () -> {}, who.id());
+    })));
+
+    Entity desk1 = DecoFactory.createDeco(getPoint("desk-nothing1"), Deco.WritingTable);
+    desk1.remove(DecoComponent.class);
+    desk1.add(new InteractionComponent(() -> new Interaction((e, who) -> {
+      DialogFactory.showOkDialog("A bunch of papers laying all over the place on the desk.\nYou weed through them, until a weird looking note catches your eye", "", () -> {
+        DialogUtils.showImagePopUp("images/note-password-1.png");
+      }, who.id());
+    })));
+
+    Entity printer = DecoFactory.createDeco(getPoint("printer"), Deco.Printer2);
+    printer.remove(DecoComponent.class);
+    printer.add(new InteractionComponent(() -> new Interaction((e, who) -> {
+      DialogFactory.showOkDialog("Someone forgot to turn of the printer, so it's been spweing\nout more and more documents, until presumably the power outage\nstopped it.", "", () -> {}, who.id());
+    })));
+
+
+    listPointsIndexed("locker").forEach(t -> {
+      Point p = t.a();
+      int index = t.b();
+      Entity locker = DecoFactory.createDeco(p, Deco.Cabinet);
+      locker.remove(DecoComponent.class);
+      locker.add(new InteractionComponent(() -> new Interaction((e, who) -> {
+        DialogFactory.showOkDialog("You open the locker, but it's empty except for some white coats.\nSeems like someone already went through it...", "", () -> {}, who.id());
+      })));
+      Game.add(locker);
+    });
+
+    List.of(desk0, desk1, printer).forEach(Game::add);
+  }
+
+  private void setupPapers() {
+    Game.levelEntities(Set.of(DecoComponent.class)).forEach(e -> {
+      DecoComponent dc = e.fetch(DecoComponent.class).orElseThrow();
+      if(dc.type() == Deco.SheetWritten1 || dc.type() == Deco.SheetWritten2) {
+        e.fetch(CollideComponent.class).ifPresent(cc -> {
+          cc.isSolid(false);
+        });
+        e.fetch(DrawComponent.class).ifPresent(drawComp -> {
+          DrawSystem.getInstance().changeEntityDepth(e, DepthLayer.BackgroundDeco.depth());
+        });
+      }
+    });
   }
 
   private void setupPC(){
@@ -174,9 +228,8 @@ public class LastHourLevel extends DungeonLevel {
   }
 
   private static final Deco[] trashcans = {Deco.TrashCanBlue, Deco.TrashCanGreen, Deco.TrashCanRed};
-  private static final String[] trashcanNotes = {
-    "images/note-password-1.png", null, "images/note-password-2.png"
-  };
+  private static final String trashNote = "images/note-password-2.png";
+  private static final int trashIndex = 5;
 
   private void setupTrashcans() {
     DialogFactory.register(LastHourDialogTypes.TRASHCAN, TrashMinigameUI::build);
@@ -197,7 +250,7 @@ public class LastHourLevel extends DungeonLevel {
                                 builder.type(LastHourDialogTypes.TRASHCAN);
                                 builder.put(
                                     TrashMinigameUI.KEY_NOTE_PATH,
-                                    trashcanNotes[index % trashcanNotes.length]);
+                                    index == trashIndex ? trashNote : null);
                                 DialogFactory.show(builder.build(), who.id());
                               })));
               Game.add(trashcan);
