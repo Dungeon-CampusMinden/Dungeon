@@ -1,7 +1,6 @@
 package blockly.vm.dgir.core.traits;
 
-import blockly.vm.dgir.core.ir.Region;
-import blockly.vm.dgir.core.ir.Value;
+import blockly.vm.dgir.core.ir.*;
 
 public interface ISingleRegion extends IOpTrait {
   default boolean verify(ISingleRegion trait) {
@@ -18,5 +17,26 @@ public interface ISingleRegion extends IOpTrait {
 
   default Value getArgument(int index) {
     return getRegion().getBodyValue(index);
+  }
+
+  default Operation addOperation(Operation operation, int blockIndex) {
+    return getRegion().getBlocks().get(blockIndex).addOperation(operation);
+  }
+
+  default <OpT extends Op> OpT addOperation(OpT op, int blockIndex){
+    return getRegion().getBlocks().get(blockIndex).addOperation(op);
+  }
+
+  default Block getEntryBlock() {
+    return getRegion().getEntryBlock();
+  }
+
+  default Block getBlock(int index) {
+    return getRegion().getBlocks().get(index);
+  }
+
+  default Block addBlock(Block block){
+    getRegion().addBlock(block);
+    return block;
   }
 }

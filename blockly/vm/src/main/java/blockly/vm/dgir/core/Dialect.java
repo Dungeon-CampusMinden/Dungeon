@@ -8,6 +8,7 @@ import blockly.vm.dgir.core.ir.Op;
 import blockly.vm.dgir.core.ir.Type;
 import blockly.vm.dgir.dialect.arith.Arith;
 import blockly.vm.dgir.dialect.builtin.Builtin;
+import blockly.vm.dgir.dialect.cf.CF;
 import blockly.vm.dgir.dialect.func.Func;
 import blockly.vm.dgir.dialect.io.IO;
 
@@ -47,6 +48,7 @@ public abstract class Dialect {
     List<Dialect> dialects = List.of(
       new Arith(),
       new Builtin(),
+      new CF(),
       new Func(),
       new IO()
     );

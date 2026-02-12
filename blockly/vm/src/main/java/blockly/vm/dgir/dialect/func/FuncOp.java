@@ -12,7 +12,7 @@ import blockly.vm.dgir.dialect.func.types.FuncType;
 
 import java.util.List;
 
-public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, ISingleBlock, ISingleRegion {
+public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, ISingleRegion {
   @Override
   public OperationDetails.Impl createDetails() {
     class FuncOpModel extends OperationDetails.Impl {
@@ -28,16 +28,6 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, 
 
       @Override
       public boolean verify(Operation operation) {
-        // Ensure that the op has one region and that that region has exactly one block.
-        if (operation.getRegions().size() != 1) {
-          operation.emitError("Operation must have exactly one region");
-          return false;
-        }
-        if (operation.getRegions().getFirst().getBlocks().size() != 1) {
-          operation.emitError("Operation region must have exactly one block");
-          return false;
-        }
-
         return true;
       }
 

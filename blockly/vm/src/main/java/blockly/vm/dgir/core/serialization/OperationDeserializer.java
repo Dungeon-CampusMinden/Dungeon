@@ -1,10 +1,7 @@
 package blockly.vm.dgir.core.serialization;
 
 import blockly.vm.dgir.core.detail.RegisteredOperationDetails;
-import blockly.vm.dgir.core.ir.NamedAttribute;
-import blockly.vm.dgir.core.ir.Operation;
-import blockly.vm.dgir.core.ir.Region;
-import blockly.vm.dgir.core.ir.Value;
+import blockly.vm.dgir.core.ir.*;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
@@ -35,7 +32,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       operands = new ArrayList<>();
       for (JsonNode operandNode : node.get("operands")) {
         // Let Jackson resolve the identity reference so already-deserialized body values inside a region are reused.
-        Value value = ctxt.readTreeAsValue(operandNode.get("value"), Value.class);
+        Value value = ctxt.readTreeAsValue(operandNode, Value.class);
         operands.add(value);
       }
     }
@@ -54,7 +51,16 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       JsonNode outputNode = node.get("output");
       outputValue = ctxt.readTreeAsValue(outputNode, Value.class);
     }
-    // TODO deserialize block operands (successors).
+
+    // Deserialize successors if they exist. These are the block operands
+    List<Block> successors = null;
+    if (node.has("successors")) {
+      successors = new ArrayList<>();
+      for (JsonNode successorNode : node.get("successors")) {
+        Block block = ctxt.readTreeAsValue(successorNode, Block.class);
+        successors.add(block);
+      }
+    }
 
     // Deserialize regions if they exist.
     List<Region> regions = null;
@@ -73,7 +79,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       operation = Operation.Create(
         operationDetails.get(),
         operands,
-        null,
+        successors,
         outputValue.getType(),
         regions != null ? regions.size() : 0);
       operation.setOutputValue(outputValue);
@@ -82,7 +88,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       operation = Operation.Create(
         operationDetails.get(),
         operands,
-        null,
+        successors,
         null,
         regions != null ? regions.size() : 0);
     }

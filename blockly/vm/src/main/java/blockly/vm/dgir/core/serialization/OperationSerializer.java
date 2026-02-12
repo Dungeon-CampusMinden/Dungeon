@@ -23,6 +23,8 @@ public class OperationSerializer extends StdSerializer<Operation> {
     gen.writeStringProperty("ident", value.getDetails().getIdent());
     if (!value.getOperands().isEmpty())
       gen.writePOJOProperty("operands", value.getOperands());
+    if (!value.getBlockOperands().isEmpty())
+      gen.writePOJOProperty("successors", value.getBlockOperands());
     if (!value.getAttributes().isEmpty()) {
       // Convert the map to a list of attributes.
       gen.writePOJOProperty("attributes", value.getAttributes().values());

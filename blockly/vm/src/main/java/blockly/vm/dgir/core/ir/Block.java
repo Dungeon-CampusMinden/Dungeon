@@ -83,12 +83,13 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
     return op;
   }
 
-  public void addOperation(Operation operation) {
+  public Operation addOperation(Operation operation) {
     assert operation != null : "Operation cannot be null.";
     assert operation.getParent() == null : "Operation already has a parent.";
 
     operations.add(operation);
     operation.setParent(this);
+    return operation;
   }
 
   public void removeOperation(Operation operation) {
@@ -143,6 +144,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    *
    * @return The predecessors of this block as defined by the use list of this block.
    */
+  @JsonIgnore
   public Set<Block> getPredecessors() {
     return getUses().stream()
       .map(BlockOperand::getValue)

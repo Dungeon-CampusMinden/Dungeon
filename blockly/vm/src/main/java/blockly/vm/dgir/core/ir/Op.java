@@ -33,7 +33,12 @@ public abstract class Op {
     this.operation = operation;
   }
 
+  public Operation getOperationOrNull(){
+    return operation;
+  }
+
   public Operation getOperation() {
+    assert operation != null : "Operation is null.";
     return operation;
   }
 
@@ -42,7 +47,6 @@ public abstract class Op {
   }
 
   public boolean verify(boolean recursive) {
-    assert getOperation() != null : "Operation is null.";
     return getOperation().verify(recursive);
   }
 
@@ -53,49 +57,41 @@ public abstract class Op {
 
   @JsonIgnore
   public OperationDetails getDetails() {
-    assert getOperation() != null : "Operation is null.";
     return getOperation().getDetails();
   }
 
   @JsonIgnore
   public List<ValueOperand> getOperands() {
-    assert getOperation() != null : "Operation is null.";
     return getOperation().getOperands();
   }
 
   @JsonIgnore
   public OperationResult getOutput() {
-    assert getOperation() != null : "Operation is null.";
     return getOperation().getOutput();
   }
 
   @JsonIgnore
   public Value getOutputValue() {
-    assert getOutput() != null : "Operation has no output.";
     return getOutput().getValue();
   }
 
   public Op setOutputValue(Value value) {
-    assert getOperation() != null : "Operation is null.";
     getOperation().setOutputValue(value);
     return this;
   }
 
   @JsonIgnore
   public Map<String, NamedAttribute> getAttributes() {
-    assert getOperation() != null : "Operation is null.";
     return getOperation().getAttributes();
   }
 
   @JsonIgnore
   public List<Region> getRegions() {
-    assert getOperation() != null : "Operation is null.";
     return getOperation().getRegions();
   }
 
   @JsonIgnore
   public Region getRegion(int index) {
-    assert getOperation() != null : "Operation is null.";
     return getRegions().get(index);
   }
 
@@ -106,6 +102,10 @@ public abstract class Op {
 
   public <T extends Attribute> T getAttribute(Class<T> clazz, String name) {
     return clazz.cast(getAttributes().get(name).getAttribute());
+  }
+
+  public List<Block> getSuccessors(){
+    return getOperation().getSuccessors();
   }
 
   /**

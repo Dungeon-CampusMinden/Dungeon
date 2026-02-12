@@ -1,8 +1,10 @@
 package blockly.vm.dgir.core.ir;
 
 import blockly.vm.dgir.core.IRObjectWithUseList;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * A reference to a value used as an operand to an operation.
@@ -19,6 +21,7 @@ public abstract class Operand<
   /**
    * The value referenced by this operand
    */
+  @JsonValue
   @JsonIdentityReference(alwaysAsId = true)
   private ValueT value;
 
@@ -95,6 +98,7 @@ public abstract class Operand<
   private void insertIntoCurrentUseList() {
     if (value != null)
       value.getUses().add((DerivedT) this);
+
   }
 
   private void removeFromCurrentUseList() {

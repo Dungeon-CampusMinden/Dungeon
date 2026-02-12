@@ -6,6 +6,8 @@ import blockly.vm.dgir.core.detail.TypeDetails;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 
 public class IntegerT extends Type {
+  public static final IntegerT INT1 = new IntegerT(1);
+  public static final IntegerT BOOL = INT1;
   public static final IntegerT INT8 = new IntegerT(8);
   public static final IntegerT INT16 = new IntegerT(16);
   public static final IntegerT INT32 = new IntegerT(32);
@@ -38,7 +40,7 @@ public class IntegerT extends Type {
   }
 
   public IntegerT(int width) {
-    assert width == 8 || width == 16 || width == 32 || width == 64 : "Invalid integer width: " + width;
+    assert width == 1 || width == 8 || width == 16 || width == 32 || width == 64 : "Invalid integer width: " + width;
 
     this.width = width;
   }

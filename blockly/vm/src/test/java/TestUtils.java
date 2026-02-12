@@ -1,4 +1,5 @@
 import blockly.vm.dgir.core.ir.Block;
+import blockly.vm.dgir.core.ir.Op;
 import blockly.vm.dgir.core.ir.Operation;
 import blockly.vm.dgir.dialect.builtin.ProgramOp;
 import blockly.vm.dgir.dialect.func.FuncOp;
@@ -13,8 +14,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class TestUtils {
   private static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+
+  public static void testSerialization(ObjectMapper mapper, Op op, boolean printResult){
+    String result = mapper.writeValueAsString(op);
+    if (printResult)
+      System.out.println(result);
+
+    assertEquals("", TestUtils.compareSerializedOperations(
+      mapper,
+      op.getOperation(),
+      result
+    ));
+  }
 
   public static String compareSerializedOperations(ObjectMapper mapper, Operation op1, String op2Json) {
     return compareSerializedOperations(mapper, op1, mapper.readValue(op2Json, Operation.class));

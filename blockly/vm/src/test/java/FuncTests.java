@@ -42,19 +42,10 @@ public class FuncTests {
   @Test
   public void basicFuncSerialization() {
     FuncOp funcOp = new FuncOp("testFunc");
-    funcOp.addOperation(new ReturnOp());
+    funcOp.addOperation(new ReturnOp(), 0);
 
-    String result = mapper.writeValueAsString(funcOp);
-    if (printResult)
-      System.out.println(result);
-
+    TestUtils.testSerialization(mapper, funcOp, printResult);
     assertTrue(funcOp.verify(true));
-
-    assertEquals("", TestUtils.compareSerializedOperations(
-      mapper,
-      funcOp.getOperation(),
-      result
-    ));
   }
 
   /**
@@ -66,19 +57,10 @@ public class FuncTests {
     FuncOp funcOp = new FuncOp("add", type);
 
     // In a real scenario, we might have an add operation here. For this test, we just return one of the parameters.
-    funcOp.addOperation(new ReturnOp(funcOp.getArgument(0)));
+    funcOp.addOperation(new ReturnOp(funcOp.getArgument(0)), 0);
 
-    String result = mapper.writeValueAsString(funcOp);
-    if (printResult)
-      System.out.println(result);
-
+    TestUtils.testSerialization(mapper, funcOp, printResult);
     assertTrue(funcOp.verify(true));
-
-    assertEquals("", TestUtils.compareSerializedOperations(
-      mapper,
-      funcOp.getOperation(),
-      result
-    ));
   }
 
   /**
@@ -90,8 +72,9 @@ public class FuncTests {
     FuncOp funcOp = new FuncOp("mismatch", type);
 
     // Returning an INT32 when the function expects StringT
-    funcOp.addOperation(new ReturnOp(funcOp.getArgument(0)));
+    funcOp.addOperation(new ReturnOp(funcOp.getArgument(0)), 0);
 
+    TestUtils.testSerialization(mapper, funcOp, printResult);
     assertFalse(funcOp.verify(true));
   }
 
@@ -103,26 +86,17 @@ public class FuncTests {
     Pair<ProgramOp, FuncOp> entry = TestUtils.createProgramOpWithEntryFunc();
     ProgramOp programOp = entry.getLeft();
     FuncOp mainFunc = entry.getRight();
-    mainFunc.addOperation(new ReturnOp());
+    mainFunc.addOperation(new ReturnOp(), 0);
 
     FuncType type = new FuncType(List.of(IntegerT.INT32), IntegerT.INT32);
     FuncOp factorial = programOp.addOperation(new FuncOp("factorial", type));
 
     // Simple recursive call without base case for IR structure testing
-    var callOp = factorial.addOperation(new CallOp(factorial, factorial.getArgument(0)));
-    factorial.addOperation(new ReturnOp(callOp.getOutputValue()));
+    var callOp = factorial.addOperation(new CallOp(factorial, factorial.getArgument(0)), 0);
+    factorial.addOperation(new ReturnOp(callOp.getOutputValue()), 0);
 
-    String result = mapper.writeValueAsString(programOp);
-    if (printResult)
-      System.out.println(result);
-
+    TestUtils.testSerialization(mapper, programOp, printResult);
     assertTrue(programOp.verify(true));
-
-    assertEquals("", TestUtils.compareSerializedOperations(
-      mapper,
-      programOp.getOperation(),
-      result
-    ));
   }
 
   @Test
@@ -132,24 +106,15 @@ public class FuncTests {
     FuncOp mainFunc = entry.getRight();
 
     FuncOp otherFunc = programOp.addOperation(new FuncOp("other", new FuncType(List.of(), IntegerT.INT32)));
-    var constOp = otherFunc.addOperation(new ConstantOp(42));
-    otherFunc.addOperation(new ReturnOp(constOp.getOutputValue()));
+    var constOp = otherFunc.addOperation(new ConstantOp(42), 0);
+    otherFunc.addOperation(new ReturnOp(constOp.getOutputValue()), 0);
 
-    var callOp = mainFunc.addOperation(new CallOp(otherFunc));
-    mainFunc.addOperation(new PrintOp(callOp.getOutputValue()));
-    mainFunc.addOperation(new ReturnOp());
+    var callOp = mainFunc.addOperation(new CallOp(otherFunc), 0);
+    mainFunc.addOperation(new PrintOp(callOp.getOutputValue()), 0);
+    mainFunc.addOperation(new ReturnOp(), 0);
 
-    String result = mapper.writeValueAsString(programOp);
-    if (printResult)
-      System.out.println(result);
-
+    TestUtils.testSerialization(mapper, programOp, printResult);
     assertTrue(programOp.verify(true));
-
-    assertEquals("", TestUtils.compareSerializedOperations(
-      mapper,
-      programOp.getOperation(),
-      result
-    ));
   }
 
   @Test
@@ -158,9 +123,10 @@ public class FuncTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp mainFunc = entry.getRight();
 
-    mainFunc.addOperation(new CallOp("ghost", new FuncType(List.of(), IntegerT.INT32)));
-    mainFunc.addOperation(new ReturnOp());
+    mainFunc.addOperation(new CallOp("ghost", new FuncType(List.of(), IntegerT.INT32)), 0);
+    mainFunc.addOperation(new ReturnOp(), 0);
 
+    TestUtils.testSerialization(mapper, programOp, printResult);
     assertFalse(programOp.verify(true));
   }
 
@@ -171,12 +137,13 @@ public class FuncTests {
     FuncOp mainFunc = entry.getRight();
 
     FuncOp target = programOp.addOperation(new FuncOp("target", new FuncType(List.of(IntegerT.INT32), IntegerT.INT32)));
-    target.addOperation(new ReturnOp(target.getArgument(0)));
+    target.addOperation(new ReturnOp(target.getArgument(0)), 0);
 
     // Call with 0 args, expects 1
-    mainFunc.addOperation(new CallOp(target));
-    mainFunc.addOperation(new ReturnOp());
+    mainFunc.addOperation(new CallOp(target), 0);
+    mainFunc.addOperation(new ReturnOp(), 0);
 
+    TestUtils.testSerialization(mapper, programOp, printResult);
     assertFalse(programOp.verify(true));
   }
 
@@ -187,13 +154,14 @@ public class FuncTests {
     FuncOp mainFunc = entry.getRight();
 
     FuncOp target = programOp.addOperation(new FuncOp("target", new FuncType(List.of(IntegerT.INT32), IntegerT.INT32)));
-    target.addOperation(new ReturnOp(target.getArgument(0)));
+    target.addOperation(new ReturnOp(target.getArgument(0)), 0);
 
     // Call with String arg, expects Int
-    var strOp = mainFunc.addOperation(new ConstantOp("test"));
-    mainFunc.addOperation(new CallOp(target, strOp.getOutputValue()));
-    mainFunc.addOperation(new ReturnOp());
+    var strOp = mainFunc.addOperation(new ConstantOp("test"), 0);
+    mainFunc.addOperation(new CallOp(target, strOp.getOutputValue()), 0);
+    mainFunc.addOperation(new ReturnOp(), 0);
 
+    TestUtils.testSerialization(mapper, programOp, printResult);
     assertFalse(programOp.verify(true));
   }
 }

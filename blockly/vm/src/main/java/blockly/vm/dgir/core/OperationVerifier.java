@@ -27,7 +27,10 @@ public class OperationVerifier {
     if (!operation.getRegions().isEmpty()) {
       List<ReachingDefinitions.MissingDefinition> missingDefinitions = ReachingDefinitions.validate(operation);
       if (!missingDefinitions.isEmpty()) {
-        operation.emitError("Operation has missing definitions: " + missingDefinitions);
+        operation.emitError("Operation has missing definitions: \n\t" +
+          missingDefinitions.stream()
+            .map(ReachingDefinitions.MissingDefinition::message)
+            .reduce((a, b) -> a + "\n\t" + b).orElse(""));
         return false;
       }
     }

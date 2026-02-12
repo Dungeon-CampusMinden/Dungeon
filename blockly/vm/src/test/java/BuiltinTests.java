@@ -14,11 +14,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.util.List;
 
-import static blockly.vm.dgir.core.Utils.Graphing.drawGraph;
-import static blockly.vm.dgir.core.Utils.Graphing.drawUseGraph;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BuiltinTests {
@@ -34,19 +31,11 @@ public class BuiltinTests {
 
   @Test
   public void emptyProgramOp() {
-    ProgramOp op = new ProgramOp();
+    ProgramOp programOp = new ProgramOp();
 
-    String result = mapper.writeValueAsString(op);
-    if (printResult)
-      System.out.println(result);
+    assertFalse(programOp.verify(true));
 
-    assertFalse(op.verify(true));
-
-    assertEquals("", TestUtils.compareSerializedOperations(
-      mapper,
-      op.get(),
-      result
-    ));
+    TestUtils.testSerialization(mapper, programOp, printResult);
   }
 
   @Test
@@ -55,29 +44,15 @@ public class BuiltinTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcMainOp = entry.getRight();
 
-    var textOp = funcMainOp.addOperation(new ConstantOp("Hello World!"));
-    var numberTextOP = funcMainOp.addOperation(new ConstantOp(42));
+    var textOp = funcMainOp.addOperation(new ConstantOp("Hello World!"), 0);
+    var numberTextOP = funcMainOp.addOperation(new ConstantOp(42), 0);
 
-    funcMainOp.addOperation(new PrintOp(textOp.getOutputValue(), numberTextOP.getOutputValue()));
-    funcMainOp.addOperation(new ReturnOp());
-
-    String result = mapper.writeValueAsString(programOp);
-    if (printResult)
-      System.out.println(result);
+    funcMainOp.addOperation(new PrintOp(textOp.getOutputValue(), numberTextOP.getOutputValue()), 0);
+    funcMainOp.addOperation(new ReturnOp(), 0);
 
     assertTrue(programOp.verify(true));
 
-    try {
-      drawUseGraph(programOp.getOperation(), "simpleProgramOpUse.png", true);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-    assertEquals("", TestUtils.compareSerializedOperations(
-      mapper,
-      programOp.get(),
-      result
-    ));
+    TestUtils.testSerialization(mapper, programOp, printResult);
   }
 
   @Test
@@ -91,36 +66,19 @@ public class BuiltinTests {
         "foo",
         new FuncType(List.of(StringT.INSTANCE), StringT.INSTANCE)));
     {
-      fooFuncOp.addOperation(new ReturnOp(fooFuncOp.getArgument(0)));
+      fooFuncOp.addOperation(new ReturnOp(fooFuncOp.getArgument(0)), 0);
     }
 
     {
-      var helloWorldTextOp = funcMainOp.addOperation(new ConstantOp("Hello World!"));
-      var funcCallOp = funcMainOp.addOperation(new CallOp(fooFuncOp, helloWorldTextOp.getOutputValue()));
-      funcMainOp.addOperation(new PrintOp(funcCallOp.getOutputValue()));
-      funcMainOp.addOperation(new ReturnOp());
+      var helloWorldTextOp = funcMainOp.addOperation(new ConstantOp("Hello World!"), 0);
+      var funcCallOp = funcMainOp.addOperation(new CallOp(fooFuncOp, helloWorldTextOp.getOutputValue()), 0);
+      funcMainOp.addOperation(new PrintOp(funcCallOp.getOutputValue()), 0);
+      funcMainOp.addOperation(new ReturnOp(), 0);
     }
-
-    String result = mapper.writeValueAsString(programOp);
-    if (printResult)
-      System.out.println(result);
 
     assertTrue(programOp.verify(true));
 
-    try {
-      var graph_cluster = DotCFG.buildCfg(programOp.getOperation());
-      drawGraph(graph_cluster.getLeft(), "functionCallCfg.png", true);
-      System.out.println(graph_cluster.getRight().toDotString(graph_cluster.getLeft()));
-      drawUseGraph(programOp.getOperation(), "functionCallUse.png", true);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-    assertEquals("", TestUtils.compareSerializedOperations(
-      mapper,
-      programOp.getOperation(),
-      result
-    ));
+    TestUtils.testSerialization(mapper, programOp, printResult);
   }
 
   /**
@@ -132,27 +90,20 @@ public class BuiltinTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcMainOp = entry.getRight();
 
-    var constOp = funcMainOp.addOperation(new ConstantOp(42));
+    var constOp = funcMainOp.addOperation(new ConstantOp(42), 0);
 
     var secondConstOp = funcMainOp.addOperation(
       new ConstantOp(100)
         .setOutputValue(constOp.getOutputValue())
+      , 0
     );
 
-    funcMainOp.addOperation(new PrintOp(secondConstOp.getOutputValue()));
-    funcMainOp.addOperation(new ReturnOp());
-
-    String result = mapper.writeValueAsString(programOp);
-    if (printResult)
-      System.out.println(result);
+    funcMainOp.addOperation(new PrintOp(secondConstOp.getOutputValue()), 0);
+    funcMainOp.addOperation(new ReturnOp(), 0);
 
     assertTrue(programOp.verify(true));
 
-    assertEquals("", TestUtils.compareSerializedOperations(
-      mapper,
-      programOp.getOperation(),
-      result
-    ));
+    TestUtils.testSerialization(mapper, programOp, printResult);
   }
 
   /**
@@ -163,9 +114,8 @@ public class BuiltinTests {
     Pair<ProgramOp, FuncOp> entry = TestUtils.createProgramOpWithEntryFunc();
     ProgramOp programOp = entry.getLeft();
 
-    if (printResult)
-      System.out.println(mapper.writeValueAsString(programOp));
-
     assertFalse(programOp.verify(true));
+
+    TestUtils.testSerialization(mapper, programOp, printResult);
   }
 }

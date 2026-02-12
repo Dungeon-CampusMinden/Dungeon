@@ -30,6 +30,7 @@ public class Builtin extends Dialect {
   @Override
   public List<Type> allTypes() {
     return List.of(
+      IntegerT.INT1,
       IntegerT.INT8,
       IntegerT.INT16,
       IntegerT.INT32,
