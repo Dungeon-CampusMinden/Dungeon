@@ -1,10 +1,13 @@
 package level;
 
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
-import contrib.entities.ShowImageFactory;
+import contrib.entities.HeroController;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
+import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
@@ -13,9 +16,11 @@ import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadFactory;
 import contrib.systems.EventScheduler;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.components.InputComponent;
 import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
@@ -29,6 +34,7 @@ import java.util.*;
 import core.utils.Rectangle;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.shader.OutlineShader;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
@@ -38,7 +44,7 @@ import util.LastHourSounds;
 import util.ui.BlackFadeCutscene;
 
 /** The MushRoom. */
-public class LastHourLevel1 extends DungeonLevel {
+public class LastHourLevel extends DungeonLevel {
 
   private DoorTile storageDoor;
   public static Entity pc;
@@ -56,7 +62,7 @@ public class LastHourLevel1 extends DungeonLevel {
    * @param designLabel The design label of the level.
    * @param namedPoints The custom points of the level.
    */
-  public LastHourLevel1(
+  public LastHourLevel(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, "last-hour-1");
   }
@@ -109,6 +115,19 @@ public class LastHourLevel1 extends DungeonLevel {
       }, () -> {});
     });
 
+    Game.player().ifPresent(p -> {
+      p.fetch(InputComponent.class).ifPresent(ic -> {
+        p.fetch(DrawComponent.class).ifPresent(dc -> {
+          ic.registerCallback(Input.Keys.SPACE, (e) -> {
+            if(dc.shaders().get("outline") == null) {
+              dc.shaders().add("outline", new OutlineShader(1, Color.RED));
+            } else {
+              dc.shaders().remove("outline");
+            }
+          }, false, false);
+        });
+      });
+    });
 
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
@@ -211,6 +230,7 @@ public class LastHourLevel1 extends DungeonLevel {
   @Override
   protected void onTick() {
     checkPCStateUpdate();
+    checkInteractFeedback();
   }
 
   private void checkPCStateUpdate() {
@@ -237,6 +257,37 @@ public class LastHourLevel1 extends DungeonLevel {
       if (cd.sharedState() != csc){
         cd.updateState(csc);
       }
+    });
+  }
+
+  private Entity interactableEntity = null;
+  private void checkInteractFeedback() {
+    Game.player().ifPresent(p -> {
+      Optional<Entity> found = HeroController.findInteractable(p, SkillTools.cursorPositionAsPoint());
+      if(found.isPresent() && found.get() != interactableEntity){
+        // New interactable entity
+        if(interactableEntity != null){
+          // Remove old feedback
+          removeInteractFeedback(interactableEntity);
+        }
+        interactableEntity = found.get();
+        addInteractFeedback(interactableEntity);
+      }
+      else if(found.isEmpty() && interactableEntity != null){
+        // No interactable entity anymore, remove old feedback
+        removeInteractFeedback(interactableEntity);
+        interactableEntity = null;
+      }
+    });
+  }
+  private void removeInteractFeedback(Entity entity){
+    entity.fetch(DrawComponent.class).ifPresent(dc -> {
+      dc.shaders().remove("outline");
+    });
+  }
+  private void addInteractFeedback(Entity entity){
+    entity.fetch(DrawComponent.class).ifPresent(dc -> {
+      dc.shaders().add("outline", new OutlineShader(1, new Color(0.8f, 0, 0, 1f)));
     });
   }
 

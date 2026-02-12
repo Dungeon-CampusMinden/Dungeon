@@ -3,7 +3,6 @@ package starter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import contrib.entities.CharacterClass;
-import contrib.entities.EntityFactory;
 import contrib.entities.HeroBuilder;
 import contrib.entities.HeroController;
 import contrib.modules.keypad.KeypadSystem;
@@ -25,7 +24,7 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 
 import core.utils.settings.ClientSettings;
-import level.LastHourLevel1;
+import level.LastHourLevel;
 
 /**
  * Entry point for running a minimal dungeon game instance.
@@ -56,7 +55,7 @@ public class TheLastHour {
       PreRunConfiguration.isNetworkServer(true);
     }
 
-    DungeonLoader.addLevel(Tuple.of("lasthour", LastHourLevel1.class));
+    DungeonLoader.addLevel(Tuple.of("lasthour", LastHourLevel.class));
     try {
       Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     } catch (IOException e) {
