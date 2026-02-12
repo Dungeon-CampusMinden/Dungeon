@@ -14,6 +14,7 @@ import {
   setupButtons
 } from "./utils/workspace.ts";
 import {getCurrentLevel, LevelChangedEvent, setupLevelSelector, updateLevelList} from "./utils/level.ts";
+import {addListenerToFlyOut, updateElementAlignment} from "./utils/popup.ts";
 
 Blockly.setLocale(De as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -54,6 +55,24 @@ if (toolboxFlyout) {
   toolboxFlyout.autoClose = false;
 }
 
+const containers = [".blocklyToolboxDiv", ".blocklyToolboxFlyout", ".injectionDiv"];
+
+containers.forEach(selector => {
+  const el = document.querySelector(selector);
+  if (el) {
+    el.addEventListener('wheel', () => {
+      requestAnimationFrame(updateElementAlignment);
+    }, { passive: true });
+
+    el.addEventListener('touchmove', () => {
+      requestAnimationFrame(updateElementAlignment);
+    }, { passive: true });
+  }
+});
+
+
+addListenerToFlyOut();
+
 // Level Selector
 const levelSelector = setupLevelSelector();
 levelSelector.addEventListener("levelChanged", (event) => {
@@ -83,6 +102,9 @@ levelSelector.addEventListener("levelChanged", (event) => {
   // Update toolbox
   workspace.updateToolbox(toolbox);
   workspace.getToolbox()?.refreshSelection();
+  updateElementAlignment();
+
+
 });
 
 // This function resets the code and output divs, shows the
@@ -189,3 +211,5 @@ updateLevelList().then(() => {
 
 placeDefaultStartBlock(workspace);
 workspace.scrollCenter(); // centering workspace
+
+
