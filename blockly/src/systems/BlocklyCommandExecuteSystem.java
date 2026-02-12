@@ -8,6 +8,7 @@ import coderunner.BlocklyCommands;
 import com.badlogic.gdx.Gdx;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
+import contrib.components.AIComponent;
 import contrib.components.BlockComponent;
 import contrib.components.ItemComponent;
 import contrib.modules.interaction.InteractionComponent;
@@ -224,12 +225,26 @@ public class BlocklyCommandExecuteSystem extends System {
       moveDirection = viewDirection.opposite();
     }
 
-    if (checkTileOpt.isEmpty()
-        || !checkTileOpt.get().isAccessible()
-        || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(BlockComponent.class))) {
-      DISABLE_SHOOT_ON_HERO = false;
-      return;
+    if (push) {
+      // when pushing check that the rock is not pushed into a monster
+      if (checkTileOpt.isEmpty()
+          || !checkTileOpt.get().isAccessible()
+          || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(BlockComponent.class))
+          || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(AIComponent.class))) {
+        DISABLE_SHOOT_ON_HERO = false;
+        return;
+      }
+    } else {
+      // when pulling check make sure that the hero can pull into a monster and die
+      if (checkTileOpt.isEmpty()
+          || !checkTileOpt.get().isAccessible()
+          || Game.entityAtTile(checkTileOpt.get())
+              .anyMatch(e -> e.isPresent(BlockComponent.class))) {
+        DISABLE_SHOOT_ON_HERO = false;
+        return;
+      }
     }
+
     ArrayList<Entity> toMove =
         new ArrayList<>(
             Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList());
