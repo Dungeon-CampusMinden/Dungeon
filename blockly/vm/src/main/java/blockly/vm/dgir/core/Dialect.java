@@ -6,6 +6,10 @@ import blockly.vm.dgir.core.detail.RegisteredTypeDetails;
 import blockly.vm.dgir.core.ir.Attribute;
 import blockly.vm.dgir.core.ir.Op;
 import blockly.vm.dgir.core.ir.Type;
+import blockly.vm.dgir.dialect.arith.Arith;
+import blockly.vm.dgir.dialect.builtin.Builtin;
+import blockly.vm.dgir.dialect.func.Func;
+import blockly.vm.dgir.dialect.io.IO;
 
 import java.util.List;
 
@@ -37,5 +41,16 @@ public abstract class Dialect {
 
   public static Dialect get(Class<? extends Dialect> dialectClass) {
     return DGIRContext.registeredDialects.get(dialectClass);
+  }
+
+  public static void registerAllDialects() {
+    List<Dialect> dialects = List.of(
+      new Arith(),
+      new Builtin(),
+      new Func(),
+      new IO()
+    );
+
+    dialects.forEach(Dialect::init);
   }
 }

@@ -5,16 +5,14 @@ import blockly.vm.dgir.core.detail.OperationDetails;
 import blockly.vm.dgir.core.ir.NamedAttribute;
 import blockly.vm.dgir.core.ir.Op;
 import blockly.vm.dgir.core.ir.Operation;
-import blockly.vm.dgir.core.traits.IGlobal;
-import blockly.vm.dgir.core.traits.IIsolatedFromAbove;
-import blockly.vm.dgir.core.traits.ISymbol;
+import blockly.vm.dgir.core.traits.*;
 import blockly.vm.dgir.dialect.builtin.attributes.StringAttribute;
 import blockly.vm.dgir.dialect.builtin.attributes.TypeAttribute;
 import blockly.vm.dgir.dialect.func.types.FuncType;
 
 import java.util.List;
 
-public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal {
+public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, ISingleBlock, ISingleRegion {
   @Override
   public OperationDetails.Impl createDetails() {
     class FuncOpModel extends OperationDetails.Impl {
@@ -65,7 +63,7 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal {
 
   public FuncOp(String name, FuncType type) {
     setOperation(Operation.Create(getIdent(), null, null, type.getOutput(), type.getInputs()));
-    getRegions().getFirst().getEntryBlock();
+    getRegion().getEntryBlock();
     getFuncNameAttribute().setValue(name);
     getTypeAttribute().setType(type);
   }

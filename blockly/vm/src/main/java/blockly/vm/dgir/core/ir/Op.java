@@ -41,6 +41,16 @@ public abstract class Op {
     this.operation = operation;
   }
 
+  public boolean verify(boolean recursive) {
+    assert getOperation() != null : "Operation is null.";
+    return getOperation().verify(recursive);
+  }
+
+  public <OpT extends Op> OpT as(Class<OpT> clazz) {
+    assert clazz.isInstance(this) : "Operation is not of type " + clazz.getName();
+    return clazz.cast(this);
+  }
+
   @JsonIgnore
   public OperationDetails getDetails() {
     assert getOperation() != null : "Operation is null.";
@@ -51,11 +61,6 @@ public abstract class Op {
   public List<ValueOperand> getOperands() {
     assert getOperation() != null : "Operation is null.";
     return getOperation().getOperands();
-  }
-
-  public void addOperand(Value operand) {
-    assert getOperation() != null : "Operation is null.";
-    getOperation().addOperand(operand);
   }
 
   @JsonIgnore
@@ -70,9 +75,10 @@ public abstract class Op {
     return getOutput().getValue();
   }
 
-  public void setOutputValue(Value value) {
+  public Op setOutputValue(Value value) {
     assert getOperation() != null : "Operation is null.";
     getOperation().setOutputValue(value);
+    return this;
   }
 
   @JsonIgnore
@@ -85,6 +91,17 @@ public abstract class Op {
   public List<Region> getRegions() {
     assert getOperation() != null : "Operation is null.";
     return getOperation().getRegions();
+  }
+
+  @JsonIgnore
+  public Region getRegion(int index) {
+    assert getOperation() != null : "Operation is null.";
+    return getRegions().get(index);
+  }
+
+  @JsonIgnore
+  public Region getFirstRegion() {
+    return getRegion(0);
   }
 
   public <T extends Attribute> T getAttribute(Class<T> clazz, String name) {

@@ -31,7 +31,7 @@ public final class Operation implements Serializable {
   /**
    * The input values of this operation.
    */
-  private final List<ValueOperand> operands = new ArrayList<>();
+  private final List<ValueOperand> operands;
 
   /**
    * The input blocks of this operation.
@@ -148,8 +148,11 @@ public final class Operation implements Serializable {
       this.output = new OperationResult(this, resultType);
     }
 
+    List<ValueOperand> operandsList = new ArrayList<>(operands.size());
     for (var operand : operands)
-      addOperand(operand);
+      operandsList.add(new ValueOperand(this, operand));
+    this.operands = Collections.unmodifiableList(operandsList);
+
 
     // Populate a new list for block operands and make it unmodifiable
     List<BlockOperand> blockOperands = new ArrayList<>(successors.size());
@@ -227,12 +230,6 @@ public final class Operation implements Serializable {
 
   public List<ValueOperand> getOperands() {
     return Collections.unmodifiableList(operands);
-  }
-
-  public void addOperand(Value value) {
-    assert value != null : "Operand cannot be null.";
-
-    operands.add(new ValueOperand(this, value));
   }
 
   public List<BlockOperand> getBlockOperands() {

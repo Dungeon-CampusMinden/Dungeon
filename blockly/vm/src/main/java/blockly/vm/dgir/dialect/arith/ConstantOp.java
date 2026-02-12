@@ -40,6 +40,14 @@ public class ConstantOp extends Op {
     getAttributes().get("value").setAttribute((Attribute) value);
   }
 
+  public ConstantOp(String value) {
+    this(new blockly.vm.dgir.dialect.builtin.attributes.StringAttribute(value));
+  }
+
+  public ConstantOp(int value) {
+    this(new blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute(value, blockly.vm.dgir.dialect.builtin.types.IntegerT.INT32));
+  }
+
   public ITypedAttribute getValueAttribute() {
     return (ITypedAttribute) getAttributes().get("value").getAttribute();
   }

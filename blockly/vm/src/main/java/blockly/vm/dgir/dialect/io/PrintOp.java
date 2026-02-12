@@ -49,6 +49,10 @@ public class PrintOp extends Op {
     setOperation(Operation.Create(getIdent(), operands, null, null));
   }
 
+  public PrintOp(Value... operands) {
+    this(List.of(operands));
+  }
+
   public static String getIdent() {
     return "io.print";
   }

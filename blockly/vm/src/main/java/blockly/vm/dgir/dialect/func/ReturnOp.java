@@ -2,16 +2,20 @@ package blockly.vm.dgir.dialect.func;
 
 import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.core.detail.OperationDetails;
+import blockly.vm.dgir.core.detail.RegisteredOperationDetails;
 import blockly.vm.dgir.core.ir.NamedAttribute;
 import blockly.vm.dgir.core.ir.Op;
 import blockly.vm.dgir.core.ir.Operation;
 import blockly.vm.dgir.core.ir.Value;
+import blockly.vm.dgir.core.traits.ISingleOperand;
 import blockly.vm.dgir.core.traits.ITerminator;
+import blockly.vm.dgir.core.traits.IZeroOrOneOperand;
 import blockly.vm.dgir.dialect.builtin.Builtin;
 
 import java.util.List;
+import java.util.Objects;
 
-public class ReturnOp extends Op implements ITerminator {
+public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand {
   @Override
   public OperationDetails.Impl createDetails() {
     class ReturnOpModel extends OperationDetails.Impl {
@@ -21,8 +25,24 @@ public class ReturnOp extends Op implements ITerminator {
 
       @Override
       public boolean verify(Operation operation) {
-        // TODO This check still has to be implemented
-        System.out.println("Missing verification for operation " + getIdent());
+        ReturnOp returnOp = operation.as(ReturnOp.class);
+
+        // Ensure that the parent operation is a func.func op
+        FuncOp parentFuncOp = Objects.requireNonNull(operation.getParentOperation()).as(FuncOp.class);
+        if (parentFuncOp == null) {
+          operation.emitError("Return operation must be nested in a function");
+          return false;
+        }
+        // Ensure that the return ops operand type is the same as the function output type if there is an operand
+        if (returnOp.getOperand().isPresent()) {
+          var returnType = returnOp.getOperandType().orElseThrow();
+          var funcType = parentFuncOp.getType();
+          if (!returnType.equals(funcType.getOutput())) {
+            operation.emitError("Return type " + returnType + " does not match function return type " + funcType.getOutput());
+            return false;
+          }
+        }
+
         return true;
       }
 
@@ -34,14 +54,18 @@ public class ReturnOp extends Op implements ITerminator {
   }
 
   public ReturnOp() {
+    var details = RegisteredOperationDetails.lookup(ReturnOp.class);
+    if (details.isPresent()) {
+      setOperation(Operation.Create(getIdent(), null, null, null));
+    }
   }
 
   public ReturnOp(Operation operation) {
     super(operation);
   }
 
-  public ReturnOp(List<Value> operands) {
-    setOperation(Operation.Create(getIdent(), operands, null, null));
+  public ReturnOp(Value operand) {
+    setOperation(Operation.Create(getIdent(), List.of(operand), null, null));
   }
 
   public static String getIdent() {

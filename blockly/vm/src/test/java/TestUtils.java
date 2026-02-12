@@ -1,4 +1,9 @@
+import blockly.vm.dgir.core.ir.Block;
 import blockly.vm.dgir.core.ir.Operation;
+import blockly.vm.dgir.dialect.builtin.ProgramOp;
+import blockly.vm.dgir.dialect.func.FuncOp;
+import blockly.vm.dgir.dialect.func.types.FuncType;
+import org.apache.commons.lang3.tuple.Pair;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.HashMap;
@@ -76,5 +81,15 @@ public class TestUtils {
       diff.append("\n");
     }
     return diff.toString();
+  }
+
+  /**
+   * Create a new ProgramOp with a func.func op inside with the symbol_name "main"
+   * @return a pair of the created ProgramOp and the block contained in the func.func op
+   */
+  public static Pair<ProgramOp, FuncOp> createProgramOpWithEntryFunc(){
+    ProgramOp programOp = new ProgramOp();
+    FuncOp funcOp = programOp.addOperation(new FuncOp("main"));
+    return Pair.of(programOp, funcOp);
   }
 }

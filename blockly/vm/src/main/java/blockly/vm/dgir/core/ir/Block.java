@@ -77,9 +77,10 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
     return Collections.unmodifiableList(operations);
   }
 
-  public void addOperation(Op op) {
+  public <OpT extends Op> OpT addOperation(OpT op) {
     assert op != null : "Op cannot be null.";
     addOperation(op.getOperation());
+    return op;
   }
 
   public void addOperation(Operation operation) {

@@ -2,18 +2,18 @@ package blockly.vm.dgir.dialect.builtin;
 
 import blockly.vm.dgir.core.*;
 import blockly.vm.dgir.core.detail.OperationDetails;
+import blockly.vm.dgir.core.detail.RegisteredOperationDetails;
 import blockly.vm.dgir.core.ir.Block;
 import blockly.vm.dgir.core.ir.NamedAttribute;
 import blockly.vm.dgir.core.ir.Op;
 import blockly.vm.dgir.core.ir.Operation;
-import blockly.vm.dgir.core.traits.IGlobalContainer;
-import blockly.vm.dgir.core.traits.INoTerminator;
-import blockly.vm.dgir.core.traits.ISymbolTable;
+import blockly.vm.dgir.core.traits.*;
 import blockly.vm.dgir.dialect.func.FuncOp;
+import blockly.vm.dgir.dialect.func.ReturnOp;
 
 import java.util.List;
 
-public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGlobalContainer {
+public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGlobalContainer, ISingleRegion, ISingleBlock {
   @Override
   public OperationDetails.Impl createDetails() {
     class ProgramOpModel extends OperationDetails.Impl {
@@ -23,16 +23,6 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
 
       @Override
       public boolean verify(Operation operation) {
-        // Make sure that there is a single region containing a single block
-        if (operation.getRegions().size() != 1) {
-          operation.emitError("Operation must have exactly one region");
-          return false;
-        }
-        if (operation.getRegions().getFirst().getBlocks().size() != 1) {
-          operation.emitError("Operation region must have exactly one block");
-          return false;
-        }
-
         // Make sure that there is a toplevel func op with symbol_name "main"
         boolean hasMainFunc = false;
         Block block = operation.getRegions().getFirst().getBlocks().getFirst();
@@ -67,23 +57,20 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
   }
 
   public ProgramOp() {
+    var details = RegisteredOperationDetails.lookup(getIdent());
+    if (details.isPresent()) {
+      setOperation(Operation.Create(getIdent(), null, null, null, 1));
+      getRegions().getFirst().getEntryBlock();
+    }
   }
 
   public ProgramOp(Operation operation) {
     super(operation);
   }
 
-  public ProgramOp(boolean withRegion) {
-    if (withRegion) {
-      setOperation(Operation.Create(getIdent(), null, null, null, 1));
-    }
-    getRegions().getFirst().getEntryBlock();
-  }
-
   public static String getIdent() {
     return "program";
   }
-
 
   public static String getNamespace() {
     return "";

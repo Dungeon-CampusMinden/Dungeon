@@ -14,7 +14,7 @@ import blockly.vm.dgir.dialect.func.types.FuncType;
 
 import java.util.List;
 
-public class CallOp extends Op implements IControlFlow, ISymbolUser {
+public class CallOp extends Op implements ISymbolUser {
   @Override
   public OperationDetails.Impl createDetails() {
     class CallOpModel extends OperationDetails.Impl {
@@ -62,9 +62,17 @@ public class CallOp extends Op implements IControlFlow, ISymbolUser {
     setCallee(name);
   }
 
+  public CallOp(String name, FuncType calleeType, Value... operands) {
+    this(name, List.of(operands), calleeType);
+  }
+
   public CallOp(FuncOp funcOp, List<Value> operands) {
     setOperation(Operation.Create(getIdent(), operands, null, funcOp.getType().getOutput()));
     setCallee(funcOp.getFuncName());
+  }
+
+  public CallOp(FuncOp funcOp, Value... operands) {
+    this(funcOp, List.of(operands));
   }
 
   public String getCallee() {
