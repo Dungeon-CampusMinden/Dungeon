@@ -14,6 +14,8 @@ dependencies {
     api supportDependencies.gdx_freetype
     api supportDependencies.gdx_freetype_platform
     api supportDependencies.gdx_backend_headless
+    api supportDependencies.gdx_controllers
+    api supportDependencies.gdx_controllers_desktop
 
     // Netty for server-client communication
     implementation supportDependencies.netty_all
