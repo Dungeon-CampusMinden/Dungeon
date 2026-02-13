@@ -21,7 +21,7 @@ rootProject.name = 'Dungeon Projekt'
 
 
 include 'dungeon',
-    'blockly', 'blockly:dgir-compiler', 'blockly:vm',
+    'blockly', 'dgir', 'blockly:vm',
     'advancedDungeon',
     'escapeRoom',
     'theLastHourEscapeRoom'

@@ -1,0 +1,50 @@
+package dialect.builtin.attributes;
+
+import core.*;
+import core.detail.AttributeDetails;
+import core.ir.Attribute;
+import core.ir.Type;
+import dialect.builtin.Builtin;
+
+public class TypeAttribute extends Attribute {
+  public static final TypeAttribute INSTANCE = new TypeAttribute();
+  private Type type;
+
+  public TypeAttribute() {
+  }
+
+  @Override
+  public Type getStorage() {
+    return type;
+  }
+
+  public TypeAttribute(Type type) {
+    this.type = type;
+  }
+
+  @Override
+  public AttributeDetails.Impl createImpl() {
+    class TypeAttributeModel extends AttributeDetails.Impl {
+      TypeAttributeModel() {
+        super(TypeAttribute.getIdent(), TypeAttribute.class, Dialect.get(Builtin.class));
+      }
+    }
+    return new TypeAttributeModel();
+  }
+
+  public Type getType() {
+    return type;
+  }
+
+  public void setType(Type type) {
+    this.type = type;
+  }
+
+  public static String getIdent() {
+    return "typeAttr";
+  }
+
+  public static String getNamespace() {
+    return "";
+  }
+}

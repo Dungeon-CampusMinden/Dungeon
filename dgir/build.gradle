@@ -1,0 +1,33 @@
+plugins {
+    id 'java-library'
+    id("net.ltgt.errorprone") version "4.4.0"
+}
+
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['assets/']
+
+sourceSets.test.java.srcDirs = ['test/']
+sourceSets.test.resources.srcDirs = ['test_assets/']
+
+dependencies {
+    implementation "org.apache.commons:commons-lang3:3.20.0"
+    implementation 'tools.jackson.core:jackson-databind:3.0.3'
+    implementation 'org.jgrapht:jgrapht-core:1.5.1'
+    implementation 'org.jgrapht:jgrapht-ext:1.5.2'
+    implementation 'org.jgrapht:jgrapht-io:1.5.2'
+    implementation 'guru.nidi:graphviz-java:0.18.1'
+    implementation 'com.eclipsesource.j2v8:j2v8_linux_x86_64:4.6.0'
+
+    errorprone("com.google.errorprone:error_prone_core:2.46.0")
+
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+
+repositories {
+    mavenCentral()
+}
