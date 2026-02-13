@@ -150,4 +150,8 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
       .map(blockOperand -> blockOperand.getOwner().getParent())
       .collect(Collectors.toUnmodifiableSet());
   }
+
+  public int getIndex() {
+    return getParent().getBlocks().indexOf(this);
+  }
 }

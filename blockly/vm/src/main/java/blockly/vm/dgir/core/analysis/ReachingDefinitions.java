@@ -3,6 +3,7 @@ package blockly.vm.dgir.core.analysis;
 import blockly.vm.dgir.core.ir.*;
 import blockly.vm.dgir.core.traits.IIsolatedFromAbove;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -95,7 +96,14 @@ public final class ReachingDefinitions {
         // Validate every operand against the reaching set at this program point.
         for (ValueOperand operand : op.getOperands()) {
           if (!state.contains(operand.getValue())) {
-            problems.add(new MissingDefinition(op, operand, "Operand value " + operand.getValue() + " for operation " + op + " is not defined on all paths"));
+            String message = MessageFormat.format("Operand {0} with value {1} for operation {2}: {3} in block {4} is not defined on all paths",
+              op.getOperands().indexOf(operand),
+              operand.getValue(),
+              op.getIndex(),
+              op,
+              block.getIndex()
+            );
+            problems.add(new MissingDefinition(op, operand, message));
           }
         }
 

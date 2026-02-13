@@ -12,6 +12,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,7 +75,7 @@ public final class Operation implements Serializable {
                                  List<Block> successors,
                                  Type outputType,
                                  List<Type>... regionBodyValueTypes) {
-    assert RegisteredOperationDetails.lookup(name).isPresent() : "OperationDetails not found for name: " + name + "\n Make sure it is registered in with the dialect.";
+    assert RegisteredOperationDetails.lookup(name).isPresent() : MessageFormat.format("OperationDetails not found for name: {0}\n Make sure it is registered in with the dialect.", name);
     return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, successors, outputType, regionBodyValueTypes);
   }
 
@@ -97,7 +98,7 @@ public final class Operation implements Serializable {
                                  List<Block> successors,
                                  Type outputType,
                                  int numRegions) {
-    assert RegisteredOperationDetails.lookup(name).isPresent() : "OperationDetails not found for name: " + name + "\n Make sure it is registered in with the dialect.";
+    assert RegisteredOperationDetails.lookup(name).isPresent() : MessageFormat.format("OperationDetails not found for name: {0}\n Make sure it is registered in with the dialect.", name);
     return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, successors, outputType, numRegions);
   }
 
@@ -264,7 +265,7 @@ public final class Operation implements Serializable {
 
   public void setAttribute(String name, Attribute attribute) {
     NamedAttribute namedAttribute = getAttributes().get(name);
-    assert namedAttribute != null : "Attribute with name " + name + " does not exist.";
+    assert namedAttribute != null : MessageFormat.format("Attribute with name {0} does not exist.", name);
     namedAttribute.setAttribute(attribute);
   }
 
@@ -291,7 +292,7 @@ public final class Operation implements Serializable {
   }
 
   public void setParent(Block parent) {
-    assert Utils.Caller.getCallingClass() == Block.class : "Assigning the parent of an operation is only allowed from the Block class. Was called from " + Utils.Caller.getCallingClass().getName();
+    assert Utils.Caller.getCallingClass() == Block.class : MessageFormat.format("Assigning the parent of an operation is only allowed from the Block class. Was called from {0}", Utils.Caller.getCallingClass().getName());
     assert this.parent == null || parent == null : "Operation already has a parent. Unparent first before setting a new parent. (Use the block interface to unparent.)";
 
     this.parent = parent;
@@ -326,12 +327,74 @@ public final class Operation implements Serializable {
     return getBlockOperands().stream().map(BlockOperand::getValue).toList();
   }
 
+  public void emitMessage(String s) {
+    System.out.println(MessageFormat.format("Message: {0}\n\t| {1}", this, s));
+  }
+
+  public void emitWarning(String s) {
+    // Yellow color for warning
+    System.out.println(MessageFormat.format("\u001B[33mWarning: {0}\n\t| {1}\u001B[0m", this, s));
+  }
+
   // Emit an error with the given message and information about this operation.
   public void emitError(String s) {
-    String opInfo = "Operation '" + getDetails().getIdent() + "'";
-    if (getParentOperation() != null) {
-      opInfo += " of Operation '" + getParentOperation().getDetails().getIdent() + "'";
+    System.err.println(MessageFormat.format("Error: {0}\n\t| {1}", this, s));
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(getDetails().getIdent());
+
+    sb.append(" (");
+    sb.append(operands.stream()
+      .map(op -> op.getType().getParameterizedIdent())
+      .collect(Collectors.joining(", ")));
+    sb.append(")");
+
+    sb.append(" -> (");
+    if (output != null) {
+      sb.append(output.getValue().getType().getParameterizedIdent());
     }
-    System.err.println("Error: " + opInfo + " | " + s );
+    sb.append(")");
+
+    if (!attributes.isEmpty()) {
+      String attrs = attributes.values().stream()
+        .filter(attr -> attr.getAttribute() != null)
+        .map(attr -> MessageFormat.format("{0} = {1}", attr.getName(), attr.getAttribute().getStorage()))
+        .collect(Collectors.joining(", "));
+
+      if (!attrs.isEmpty()) {
+        sb.append(" { ");
+        sb.append(attrs);
+        sb.append(" }");
+      }
+    }
+
+    if (!regions.isEmpty()) {
+      for (Region region : regions) {
+        sb.append(" { ");
+        List<Block> blocks = region.getBlocks();
+        for (int j = 0; j < blocks.size(); j++) {
+          Block block = blocks.get(j);
+          sb.append("[").append(block.getOperations().size()).append("]");
+          if (j < blocks.size() - 1) {
+            sb.append(", ");
+          }
+        }
+        sb.append(" }");
+      }
+    }
+
+    return sb.toString();
+  }
+
+  /**
+   * Get the index of this operation in its parent's operations list.
+   * @return The index of this operation in its parent's operations list.
+   */
+  public int getIndex() {
+    if (getParent() == null) return -1;
+    return getParent().getOperations().indexOf(this);
   }
 }

@@ -1,10 +1,8 @@
 package blockly.vm.dgir.core.ir;
 
 import blockly.vm.dgir.core.IRObjectWithUseList;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * A reference to a value used as an operand to an operation.
@@ -44,13 +42,8 @@ public abstract class Operand<
    *
    * @return The index number of this operand, or -1 if not found.
    */
-  public int GetOperandNumber() {
-    int index = -1;
-    for (var operand : owner.getOperands()) {
-      ++index;
-      if (operand == this) return index;
-    }
-    return -1;
+  public int getIndex() {
+    return owner.getOperands().indexOf(this);
   }
 
   /**

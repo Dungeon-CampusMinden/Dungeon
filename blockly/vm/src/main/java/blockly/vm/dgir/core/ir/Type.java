@@ -45,6 +45,11 @@ public abstract class Type {
   public abstract boolean validate(Object value);
 
   @Override
+  public String toString() {
+    return getParameterizedIdent();
+  }
+
+  @Override
   public boolean equals(Object obj) {
     return (obj instanceof Type other) && this.getParameterizedIdent().equals(other.getParameterizedIdent());
   }
