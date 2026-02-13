@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class BuiltinTests {
   public static boolean printResult = true;
+  public static boolean printDotGraph = false;
 
   static ObjectMapper mapper;
 
@@ -35,7 +36,7 @@ public class BuiltinTests {
 
     assertFalse(programOp.verify(true));
 
-    TestUtils.testSerialization(mapper, programOp, printResult);
+    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
   }
 
   @Test
@@ -52,7 +53,7 @@ public class BuiltinTests {
 
     assertTrue(programOp.verify(true));
 
-    TestUtils.testSerialization(mapper, programOp, printResult);
+    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
   }
 
   @Test
@@ -78,7 +79,7 @@ public class BuiltinTests {
 
     assertTrue(programOp.verify(true));
 
-    TestUtils.testSerialization(mapper, programOp, printResult);
+    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
   }
 
   /**
@@ -103,7 +104,7 @@ public class BuiltinTests {
 
     assertTrue(programOp.verify(true));
 
-    TestUtils.testSerialization(mapper, programOp, printResult);
+    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
   }
 
   /**
@@ -116,6 +117,6 @@ public class BuiltinTests {
 
     assertFalse(programOp.verify(true));
 
-    TestUtils.testSerialization(mapper, programOp, printResult);
+    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
   }
 }

@@ -8,8 +8,6 @@ import blockly.vm.dgir.core.ir.Block;
 import blockly.vm.dgir.core.serialization.Utils;
 import blockly.vm.dgir.dialect.arith.ConstantOp;
 import blockly.vm.dgir.dialect.builtin.ProgramOp;
-import blockly.vm.dgir.dialect.builtin.attributes.IntegerAttribute;
-import blockly.vm.dgir.dialect.builtin.types.IntegerT;
 import blockly.vm.dgir.dialect.cf.BranchCondOp;
 import blockly.vm.dgir.dialect.cf.BranchOp;
 import blockly.vm.dgir.dialect.func.FuncOp;
@@ -24,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CoreTests {
   static boolean printResult = true;
+  static boolean printDotGraph = true;
   static ObjectMapper mapper;
 
   @BeforeAll
@@ -42,7 +41,7 @@ public class CoreTests {
     funcOp.addOperation(new PrintOp(constOp.getOutputValue()), 0);
     funcOp.addOperation(new ReturnOp(), 0);
 
-    TestUtils.testSerialization(mapper, programOp, printResult);
+    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
     assertTrue(programOp.verify(true));
   }
 
@@ -65,7 +64,7 @@ public class CoreTests {
     targetBlock.addOperation(new PrintOp(constOp.getOutputValue()));
     targetBlock.addOperation(new ReturnOp());
 
-    TestUtils.testSerialization(mapper, programOp, printResult);
+    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
     assertTrue(programOp.verify(true));
   }
 
@@ -102,7 +101,7 @@ public class CoreTests {
     mergeBlock.addOperation(new PrintOp(val.getOutputValue()));
     mergeBlock.addOperation(new ReturnOp());
 
-    TestUtils.testSerialization(mapper, programOp, printResult);
+    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
     assertFalse(programOp.verify(true));
   }
 
@@ -133,7 +132,7 @@ public class CoreTests {
     mergeBlock.addOperation(new PrintOp(val.getOutputValue()));
     mergeBlock.addOperation(new ReturnOp());
 
-    TestUtils.testSerialization(mapper, programOp, printResult);
+    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
     // This should be valid because 'val' strictly dominates all uses.
     assertTrue(programOp.verify(true));
   }

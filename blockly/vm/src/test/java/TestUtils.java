@@ -1,3 +1,4 @@
+import blockly.vm.dgir.core.analysis.DotCFG;
 import blockly.vm.dgir.core.ir.Block;
 import blockly.vm.dgir.core.ir.Op;
 import blockly.vm.dgir.core.ir.Operation;
@@ -19,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TestUtils {
   private static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
 
-  public static void testSerialization(ObjectMapper mapper, Op op, boolean printResult){
+  public static void testSerialization(ObjectMapper mapper, Op op, boolean printResult, boolean printDotGraph) {
     String result = mapper.writeValueAsString(op);
     if (printResult)
       System.out.println(result);
@@ -29,6 +30,11 @@ public class TestUtils {
       op.getOperation(),
       result
     ));
+
+    if (printDotGraph) {
+      var graph = DotCFG.buildCfg(op.getOperation());
+      System.out.println(graph.getRight().toDotString(graph.getLeft()));
+    }
   }
 
   public static String compareSerializedOperations(ObjectMapper mapper, Operation op1, String op2Json) {
@@ -71,7 +77,8 @@ public class TestUtils {
    * Create a new string based on the initial string.
    * The string is printed in whole and line by line the difference is printed next to the original line if there is a difference.
    * The difference is separated by a " | " symbol.
-   * @param base The original string
+   *
+   * @param base     The original string
    * @param modified The modified string
    * @return the diff string
    */
@@ -104,9 +111,10 @@ public class TestUtils {
 
   /**
    * Create a new ProgramOp with a func.func op inside with the symbol_name "main"
+   *
    * @return a pair of the created ProgramOp and the block contained in the func.func op
    */
-  public static Pair<ProgramOp, FuncOp> createProgramOpWithEntryFunc(){
+  public static Pair<ProgramOp, FuncOp> createProgramOpWithEntryFunc() {
     ProgramOp programOp = new ProgramOp();
     FuncOp funcOp = programOp.addOperation(new FuncOp("main"));
     return Pair.of(programOp, funcOp);
