@@ -25,7 +25,7 @@ import java.util.Optional;
 public class Utils {
 
   public static final class Caller {
-    private static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
+    public static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
 
     private Caller() {
     }

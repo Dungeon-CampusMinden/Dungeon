@@ -3,10 +3,6 @@ package blockly.vm.dgir.core.analysis;
 import blockly.vm.dgir.core.ir.Block;
 import blockly.vm.dgir.core.ir.Operation;
 import blockly.vm.dgir.core.ir.Region;
-import org.apache.commons.lang3.tuple.Pair;
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.builder.GraphTypeBuilder;
 
 import java.util.*;
 import java.util.function.Function;
@@ -16,7 +12,7 @@ public class DotCFG {
   private DotCFG() {
   }
 
-  public static Pair<Graph<Operation, DefaultEdge>, Cluster> buildCfg(Operation root) {
+  public static Cluster buildCfgCluster(Operation root) {
     GraphBuilder builder = new GraphBuilder(root);
     builder.processOperation(root);
     return builder.getCfg();
@@ -73,12 +69,17 @@ public class DotCFG {
         .collect(Collectors.joining("\n"));
     }
 
+    @Override
+    public String toString() {
+      return toString(-1);
+    }
+
     /**
      * Recursively creates a dot graph representation of this cluster and its children.
      *
      * @return A dot graph representation of this cluster and its children.
      */
-    public String toDotString(int clusterIndex) {
+    public String toString(int clusterIndex) {
       // The dot graph representation of this cluster
       StringBuilder maskedDotGraph = new StringBuilder();
       maskedDotGraph.append(clusterIndex == -1 ? "digraph cfg" : "subgraph cluster_" + clusterIndex).append(" {\n");
@@ -99,7 +100,7 @@ public class DotCFG {
           for (int j = 0; j < regionChildren.size(); j++) {
             Cluster block = regionChildren.get(j);
             // Serialize the block graph as a subgraph
-            String blockGraph = block.toDotString(j);
+            String blockGraph = block.toString(j);
             // Add the subgraph to the region subgraph with indentation
             regionBuilder.append(padLeftMultiline(blockGraph, 1));
           }
@@ -148,26 +149,17 @@ public class DotCFG {
   }
 
   private static class GraphBuilder {
-    private Graph<Operation, DefaultEdge> cfg;
     private final Cluster rootCluster;
 
     private Cluster currentCluster;
 
     GraphBuilder(Operation root) {
-      cfg = GraphTypeBuilder
-        .<Operation, DefaultEdge>directed()
-        .edgeClass(DefaultEdge.class)
-        .vertexClass(Operation.class)
-        .allowingSelfLoops(true)
-        .allowingMultipleEdges(true)
-        .buildGraph();
-
       rootCluster = new Cluster(root, null);
       currentCluster = rootCluster;
     }
 
-    Pair<Graph<Operation, DefaultEdge>, Cluster> getCfg() {
-      return Pair.of(cfg, rootCluster);
+    Cluster getCfg() {
+      return rootCluster;
     }
 
     /**
@@ -176,7 +168,6 @@ public class DotCFG {
      * @param op The operation to process
      */
     void processOperation(Operation op) {
-      cfg.addVertex(op);
       currentCluster.addOperation(op);
 
       // If there are no regions in this operation end the generation here
@@ -184,12 +175,6 @@ public class DotCFG {
 
       for (Region region : op.getRegions()) {
         processRegion(region);
-      }
-      // Add edges from this operation to the first operation in each region entry block
-      for (Region region : op.getRegions()) {
-        if (!region.getBlocks().isEmpty() && !region.getEntryBlock().getOperations().isEmpty()) {
-          cfg.addEdge(op, region.getEntryBlock().getOperations().getFirst());
-        }
       }
     }
 
@@ -206,12 +191,8 @@ public class DotCFG {
     private void processBlock(Block block) {
       // Open a new cluster for the block
       currentCluster = currentCluster.addChild(new Cluster(currentCluster.owner, currentCluster));
-      Operation prev = null;
       for (Operation op : block.getOperations()) {
         processOperation(op);
-        if (prev != null)
-          cfg.addEdge(prev, op);
-        prev = op;
       }
       // Close the block cluster
       currentCluster = currentCluster.getParent();

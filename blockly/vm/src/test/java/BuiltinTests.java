@@ -1,6 +1,4 @@
 import blockly.vm.dgir.core.Dialect;
-import blockly.vm.dgir.core.analysis.DotCFG;
-import blockly.vm.dgir.core.serialization.Utils;
 import blockly.vm.dgir.dialect.arith.ConstantOp;
 import blockly.vm.dgir.dialect.builtin.ProgramOp;
 import blockly.vm.dgir.dialect.builtin.types.StringT;
@@ -12,31 +10,22 @@ import blockly.vm.dgir.dialect.io.PrintOp;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BuiltinTests {
-  public static boolean printResult = true;
-  public static boolean printDotGraph = false;
-
-  static ObjectMapper mapper;
-
   @BeforeAll
   public static void setup() {
     Dialect.registerAllDialects();
-    mapper = Utils.getMapper(true);
   }
 
   @Test
   public void emptyProgramOp() {
     ProgramOp programOp = new ProgramOp();
 
-    assertFalse(programOp.verify(true));
-
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
+    assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
 
   @Test
@@ -51,9 +40,7 @@ public class BuiltinTests {
     funcMainOp.addOperation(new PrintOp(textOp.getOutputValue(), numberTextOP.getOutputValue()), 0);
     funcMainOp.addOperation(new ReturnOp(), 0);
 
-    assertTrue(programOp.verify(true));
-
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
+    assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
 
   @Test
@@ -77,9 +64,7 @@ public class BuiltinTests {
       funcMainOp.addOperation(new ReturnOp(), 0);
     }
 
-    assertTrue(programOp.verify(true));
-
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
+    assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
 
   /**
@@ -102,9 +87,8 @@ public class BuiltinTests {
     funcMainOp.addOperation(new PrintOp(secondConstOp.getOutputValue()), 0);
     funcMainOp.addOperation(new ReturnOp(), 0);
 
-    assertTrue(programOp.verify(true));
 
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
+    assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
 
   /**
@@ -115,8 +99,6 @@ public class BuiltinTests {
     Pair<ProgramOp, FuncOp> entry = TestUtils.createProgramOpWithEntryFunc();
     ProgramOp programOp = entry.getLeft();
 
-    assertFalse(programOp.verify(true));
-
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
+    assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
 }

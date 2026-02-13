@@ -41,8 +41,7 @@ public class CoreTests {
     funcOp.addOperation(new PrintOp(constOp.getOutputValue()), 0);
     funcOp.addOperation(new ReturnOp(), 0);
 
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
-    assertTrue(programOp.verify(true));
+    assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
 
   @Test
@@ -64,8 +63,7 @@ public class CoreTests {
     targetBlock.addOperation(new PrintOp(constOp.getOutputValue()));
     targetBlock.addOperation(new ReturnOp());
 
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
-    assertTrue(programOp.verify(true));
+    assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
 
   @Test
@@ -101,8 +99,7 @@ public class CoreTests {
     mergeBlock.addOperation(new PrintOp(val.getOutputValue()));
     mergeBlock.addOperation(new ReturnOp());
 
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
-    assertFalse(programOp.verify(true));
+    assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
 
   @Test
@@ -132,8 +129,6 @@ public class CoreTests {
     mergeBlock.addOperation(new PrintOp(val.getOutputValue()));
     mergeBlock.addOperation(new ReturnOp());
 
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
-    // This should be valid because 'val' strictly dominates all uses.
-    assertTrue(programOp.verify(true));
+    assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
 }

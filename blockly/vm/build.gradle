@@ -10,6 +10,8 @@ dependencies {
     implementation 'org.jgrapht:jgrapht-core:1.5.1'
     implementation 'org.jgrapht:jgrapht-ext:1.5.2'
     implementation 'org.jgrapht:jgrapht-io:1.5.2'
+    implementation 'guru.nidi:graphviz-java:0.18.1'
+    implementation 'com.eclipsesource.j2v8:j2v8_linux_x86_64:4.6.0'
 
     errorprone("com.google.errorprone:error_prone_core:2.46.0")
 

@@ -45,8 +45,7 @@ public class FuncTests {
     FuncOp funcOp = new FuncOp("testFunc");
     funcOp.addOperation(new ReturnOp(), 0);
 
-    TestUtils.testSerialization(mapper, funcOp, printResult, printDotGraph);
-    assertTrue(funcOp.verify(true));
+    assertTrue(TestUtils.testValidityAndSerialization(funcOp));
   }
 
   /**
@@ -60,8 +59,7 @@ public class FuncTests {
     // In a real scenario, we might have an add operation here. For this test, we just return one of the parameters.
     funcOp.addOperation(new ReturnOp(funcOp.getArgument(0)), 0);
 
-    TestUtils.testSerialization(mapper, funcOp, printResult, printDotGraph);
-    assertTrue(funcOp.verify(true));
+    assertTrue(TestUtils.testValidityAndSerialization(funcOp));
   }
 
   /**
@@ -75,8 +73,7 @@ public class FuncTests {
     // Returning an INT32 when the function expects StringT
     funcOp.addOperation(new ReturnOp(funcOp.getArgument(0)), 0);
 
-    TestUtils.testSerialization(mapper, funcOp, printResult, printDotGraph);
-    assertFalse(funcOp.verify(true));
+    assertFalse(TestUtils.testValidityAndSerialization(funcOp));
   }
 
   /**
@@ -96,8 +93,7 @@ public class FuncTests {
     var callOp = factorial.addOperation(new CallOp(factorial, factorial.getArgument(0)), 0);
     factorial.addOperation(new ReturnOp(callOp.getOutputValue()), 0);
 
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
-    assertTrue(programOp.verify(true));
+    assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
 
   @Test
@@ -114,8 +110,7 @@ public class FuncTests {
     mainFunc.addOperation(new PrintOp(callOp.getOutputValue()), 0);
     mainFunc.addOperation(new ReturnOp(), 0);
 
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
-    assertTrue(programOp.verify(true));
+    assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
 
   @Test
@@ -127,8 +122,7 @@ public class FuncTests {
     mainFunc.addOperation(new CallOp("ghost", new FuncType(List.of(), IntegerT.INT32)), 0);
     mainFunc.addOperation(new ReturnOp(), 0);
 
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
-    assertFalse(programOp.verify(true));
+    assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
 
   @Test
@@ -144,8 +138,7 @@ public class FuncTests {
     mainFunc.addOperation(new CallOp(target), 0);
     mainFunc.addOperation(new ReturnOp(), 0);
 
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
-    assertFalse(programOp.verify(true));
+    assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
 
   @Test
@@ -162,7 +155,6 @@ public class FuncTests {
     mainFunc.addOperation(new CallOp(target, strOp.getOutputValue()), 0);
     mainFunc.addOperation(new ReturnOp(), 0);
 
-    TestUtils.testSerialization(mapper, programOp, printResult, printDotGraph);
-    assertFalse(programOp.verify(true));
+    assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
 }

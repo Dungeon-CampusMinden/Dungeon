@@ -1,13 +1,16 @@
 import blockly.vm.dgir.core.analysis.DotCFG;
-import blockly.vm.dgir.core.ir.Block;
 import blockly.vm.dgir.core.ir.Op;
 import blockly.vm.dgir.core.ir.Operation;
+import blockly.vm.dgir.core.serialization.Utils;
 import blockly.vm.dgir.dialect.builtin.ProgramOp;
 import blockly.vm.dgir.dialect.func.FuncOp;
-import blockly.vm.dgir.dialect.func.types.FuncType;
+import guru.nidi.graphviz.engine.Engine;
+import guru.nidi.graphviz.engine.Format;
+import guru.nidi.graphviz.engine.Graphviz;
 import org.apache.commons.lang3.tuple.Pair;
 import tools.jackson.databind.ObjectMapper;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -18,9 +21,17 @@ import java.util.regex.Pattern;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestUtils {
+  public static ObjectMapper mapper = Utils.getMapper(true);
+  public static boolean printResult = true;
+  public static boolean printCfg = false;
+  public static boolean saveCfg = false;
+  public static boolean saveCfgImage = true;
+  // The file path for saved files (cfg and image)
+  public static String savePath = "test_results/";
+
   private static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
 
-  public static void testSerialization(ObjectMapper mapper, Op op, boolean printResult, boolean printDotGraph) {
+  public static boolean testValidityAndSerialization(Op op) {
     String result = mapper.writeValueAsString(op);
     if (printResult)
       System.out.println(result);
@@ -31,10 +42,51 @@ public class TestUtils {
       result
     ));
 
-    if (printDotGraph) {
-      var graph = DotCFG.buildCfg(op.getOperation());
-      System.out.println(graph.getRight().toDotString(-1));
+    // Check that this is a valid op, otherwise we can't generate a cfg
+    if (!op.verify(true))
+      return false;
+
+    if (printCfg || saveCfg || saveCfgImage) {
+      DotCFG.Cluster cfg = DotCFG.buildCfgCluster(op.getOperation());
+      String callerName = blockly.vm.dgir.core.Utils.Caller.STACK_WALKER.walk(stream ->
+        stream
+          .skip(1)
+          .findFirst()
+          .map(StackWalker.StackFrame::getMethodName)
+          .orElse("unknown")
+      );
+
+      // Print the cfg to console
+      if (printCfg)
+        System.out.println(cfg);
+
+      // Save the cfg to a file with the caller name as the file name
+      if (saveCfg) {
+        String filePath = savePath + callerName + ".dot";
+        try {
+          BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false));
+          writer.write(cfg.toString());
+          writer.close();
+          System.out.println("Saved CFG to " + filePath);
+        } catch (IOException e) {
+          System.out.println("Failed to save CFG to " + filePath + ": " + e.getMessage());
+        }
+      }
+
+      // Generate an image of the cfg and save it to a file with the caller name as the file name
+      if (saveCfgImage) {
+        String filePath = savePath + callerName + ".png";
+        try {
+          Graphviz.fromString(cfg.toString())
+            .engine(Engine.DOT)
+            .render(Format.PNG)
+            .toFile(new File(filePath));
+        } catch (IOException e) {
+          System.out.println("Failed to save CFG image to " + filePath + ": " + e.getMessage());
+        }
+      }
     }
+    return true;
   }
 
   public static String compareSerializedOperations(ObjectMapper mapper, Operation op1, String op2Json) {
