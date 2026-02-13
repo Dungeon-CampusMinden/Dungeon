@@ -42,19 +42,22 @@ public class TestUtils {
       result
     ));
 
+    String callerName = blockly.vm.dgir.core.Utils.Caller.STACK_WALKER.walk(stream ->
+      stream
+        .skip(1)
+        .findFirst()
+        .map(StackWalker.StackFrame::getMethodName)
+        .orElse("unknown")
+    );
+
     // Check that this is a valid op, otherwise we can't generate a cfg
-    if (!op.verify(true))
+    if (!op.verify(true)) {
+      System.out.println("Skipping cfg generation for invalid op: " + op.getClass().getSimpleName() + " for test " + callerName);
       return false;
+    }
 
     if (printCfg || saveCfg || saveCfgImage) {
       DotCFG.Cluster cfg = DotCFG.buildCfgCluster(op.getOperation());
-      String callerName = blockly.vm.dgir.core.Utils.Caller.STACK_WALKER.walk(stream ->
-        stream
-          .skip(1)
-          .findFirst()
-          .map(StackWalker.StackFrame::getMethodName)
-          .orElse("unknown")
-      );
 
       // Print the cfg to console
       if (printCfg)
