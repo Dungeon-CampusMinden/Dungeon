@@ -1,19 +1,16 @@
 package blockly.vm.dgir.core.analysis;
 
 import blockly.vm.dgir.core.ir.Block;
-import blockly.vm.dgir.core.ir.BlockOperand;
 import blockly.vm.dgir.core.ir.Operation;
 import blockly.vm.dgir.core.ir.Region;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jgrapht.Graph;
-import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.builder.GraphTypeBuilder;
-import org.jgrapht.nio.dot.DOTExporter;
 
-import java.io.StringWriter;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class DotCFG {
   private DotCFG() {
@@ -36,6 +33,9 @@ public class DotCFG {
     private final Cluster parent;
     private final List<Operation> operations = new ArrayList<>();
     private final List<Cluster> children = new ArrayList<>();
+
+    public static Function<Operation, String> identGenerator =
+      op -> op.getDetails().getIdent().replace(".", "_") + "_" + op.hashCode();
 
     public Cluster(Operation owner, Cluster parent) {
       this.owner = owner;
@@ -67,58 +67,83 @@ public class DotCFG {
       return parent;
     }
 
-    /**
-     * Returns a subgraph of the given CFG that includes only the operations in this cluster.
-     * The subgraph will include all edges from the original CFG that connect operations in this cluster.
-     * Note that this method does not include any operations from child clusters, only the operations directly in this cluster.
-     *
-     * @param cfg The original CFG to mask.
-     * @return A subgraph of the given CFG that includes only the operations in this cluster.
-     */
-    public AsSubgraph<Operation, DefaultEdge> getMasked(Graph<Operation, DefaultEdge> cfg) {
-      // The list of operations to include in the subgraph including the first operation of each child entry block
-      List<Operation> withEntry = new ArrayList<>(operations);
-      for (Cluster regionChild : children) {
-        // Check if the region is empty and skip it if it is
-        if (regionChild.getChildren().isEmpty())
-          continue;
-        Cluster entryBlock = regionChild.getChildren().getFirst();
-        if (!entryBlock.getOperations().isEmpty())
-          withEntry.add(entryBlock.getOperations().getFirst());
-      }
-      return new AsSubgraph<>(cfg, Set.copyOf(withEntry));
+    public static String padLeftMultiline(String s, int level) {
+      return Arrays.stream(s.split("\n", -1))
+        .map(line -> "\t".repeat(line.isEmpty() ? 0 : level) + line)
+        .collect(Collectors.joining("\n"));
     }
 
     /**
      * Recursively creates a dot graph representation of this cluster and its children.
-     * The graph type of the children graphs are replaced with 'subgraph' and a unique label is assigned to each cluster.
      *
-     * @param cfg The original CFG to mask.
      * @return A dot graph representation of this cluster and its children.
      */
-    public String toDotString(Graph<Operation, DefaultEdge> cfg) {
-      List<String> subgraphs = new ArrayList<>();
-      int clusterCounter = 0;
-      for (Cluster child : children) {
-        subgraphs.add(child.toDotString(cfg));
-        // Replace the graph type of the child cluster with 'subgraph' and add a unique label
-        subgraphs.set(subgraphs.size() - 1, subgraphs.getLast().replace("digraph", "subgraph"));
-        subgraphs.set(subgraphs.size() - 1, subgraphs.getLast().replace("subgraph G", "subgraph cluster_" + clusterCounter++));
-      }
-      class OpVertexIdent implements Function<Operation, String> {
-        @Override
-        public String apply(Operation op) {
-          return op.getDetails().getIdent().replace(".", "_") + "_" + op.hashCode();
+    public String toDotString(int clusterIndex) {
+      // The dot graph representation of this cluster
+      StringBuilder maskedDotGraph = new StringBuilder();
+      maskedDotGraph.append(clusterIndex == -1 ? "digraph cfg" : "subgraph cluster_" + clusterIndex).append(" {\n");
+
+      StringBuilder bodyBuilder = new StringBuilder();
+      if (clusterIndex != -1)
+        bodyBuilder.append("label=\"block ").append(clusterIndex).append(": ").append(identGenerator.apply(owner)).append("\";\n");
+      // Handle regions
+      if (!children.isEmpty()) {
+        // Iterate over the regions
+        for (int i = 0; i < getChildren().size(); i++) {
+          StringBuilder regionBuilder = new StringBuilder();
+          Cluster region = getChildren().get(i);
+          regionBuilder.append("subgraph cluster_").append(i).append(" {\n");
+          regionBuilder.append("label=\"region ").append(i).append(": ").append(identGenerator.apply(region.getOwner())).append("\";\n");
+          // Iterate over all the blocks in this region and add them to the subgraph
+          List<Cluster> regionChildren = region.getChildren();
+          for (int j = 0; j < regionChildren.size(); j++) {
+            Cluster block = regionChildren.get(j);
+            // Serialize the block graph as a subgraph
+            String blockGraph = block.toDotString(j);
+            // Add the subgraph to the region subgraph with indentation
+            regionBuilder.append(padLeftMultiline(blockGraph, 1));
+          }
+          // Close the region subgraph
+          regionBuilder.append("}\n");
+          // Add the region subgraph to the main graph
+          bodyBuilder.append(padLeftMultiline(regionBuilder.toString(), 1));
         }
       }
-      DOTExporter<Operation, DefaultEdge> exporter = new DOTExporter<>(new OpVertexIdent());
-      StringWriter sb = new StringWriter();
-      exporter.exportGraph(getMasked(cfg), sb);
+      // Add the operations in this cluster to the graph
+      for (Operation op : operations) {
+        bodyBuilder.append(identGenerator.apply(op)).append(";\n");
+      }
+      // Add the connection from operation to operation
+      for (int i = 0; i < operations.size() - 1; i++) {
+        Operation op = operations.get(i);
+        Operation nextOp = operations.get(i + 1);
+        bodyBuilder.append(identGenerator.apply(op)).append(" -> ").append(identGenerator.apply(nextOp)).append(";\n");
+      }
 
-      // Add the subgraphs to the main graph after the opening brace of the main graph
-      StringBuilder mainGraph = new StringBuilder(sb.toString());
-      mainGraph.insert(mainGraph.indexOf("{") + 2, String.join("\n", subgraphs).indent(1));
-      return mainGraph.toString();
+      // Add edges from all operations in this cluster to their child regions entry block first operation
+      for (Operation op : operations) {
+        for (Region region : op.getRegions()) {
+          if (region.getEntryBlock() != null) {
+            Operation entryOp = region.getEntryBlock().getOperations().getFirst();
+            bodyBuilder.append(identGenerator.apply(op)).append(" -> ").append(identGenerator.apply(entryOp)).append(";\n");
+          }
+        }
+      }
+
+      // Add edges from all operations in the child blocks to their target blocks
+      for (Cluster region : children) {
+        for (Cluster block : region.getChildren()) {
+          Operation lastOp = block.getOperations().getLast();
+          for (Block successor : lastOp.getSuccessors()) {
+            Operation entryOp = successor.getOperations().getFirst();
+            bodyBuilder.append(identGenerator.apply(lastOp)).append(" -> ").append(identGenerator.apply(entryOp)).append(";\n");
+          }
+        }
+      }
+
+      maskedDotGraph.append(padLeftMultiline(bodyBuilder.toString(), 1));
+      maskedDotGraph.append("}\n");
+      return maskedDotGraph.toString();
     }
   }
 
@@ -170,7 +195,7 @@ public class DotCFG {
 
     private void processRegion(Region region) {
       // Open a new cluster for the region
-      currentCluster = currentCluster.addChild(new Cluster(currentCluster.owner, currentCluster));
+      currentCluster = currentCluster.addChild(new Cluster(region.getParent(), currentCluster));
       for (Block block : region.getBlocks()) {
         processBlock(block);
       }

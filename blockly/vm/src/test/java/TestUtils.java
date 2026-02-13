@@ -33,7 +33,7 @@ public class TestUtils {
 
     if (printDotGraph) {
       var graph = DotCFG.buildCfg(op.getOperation());
-      System.out.println(graph.getRight().toDotString(graph.getLeft()));
+      System.out.println(graph.getRight().toDotString(-1));
     }
   }
 
