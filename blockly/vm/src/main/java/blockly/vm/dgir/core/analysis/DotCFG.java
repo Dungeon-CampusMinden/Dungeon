@@ -1,6 +1,7 @@
 package blockly.vm.dgir.core.analysis;
 
 import blockly.vm.dgir.core.ir.Block;
+import blockly.vm.dgir.core.ir.BlockOperand;
 import blockly.vm.dgir.core.ir.Operation;
 import blockly.vm.dgir.core.ir.Region;
 import org.apache.commons.lang3.tuple.Pair;
@@ -24,6 +25,12 @@ public class DotCFG {
     return builder.getCfg();
   }
 
+  /**
+   * A cluster is a logical grouping of multiple operations within the CFG. It can alternatively be thought of as a block, or a region.
+   * Clusters can be nested within each other to represent hierarchical structures in the CFG.
+   * A cluster also contains the first operation of each child cluster since it needs to draw a connection to that operation.
+   * An empty cluster represents a region and can only contain other clusters.
+   */
   public static class Cluster {
     private final Operation owner;
     private final Cluster parent;
@@ -69,10 +76,15 @@ public class DotCFG {
      * @return A subgraph of the given CFG that includes only the operations in this cluster.
      */
     public AsSubgraph<Operation, DefaultEdge> getMasked(Graph<Operation, DefaultEdge> cfg) {
+      // The list of operations to include in the subgraph including the first operation of each child entry block
       List<Operation> withEntry = new ArrayList<>(operations);
-      for (Cluster child : children) {
-        if (!child.getOperations().isEmpty())
-          withEntry.add(child.getOperations().getFirst());
+      for (Cluster regionChild : children) {
+        // Check if the region is empty and skip it if it is
+        if (regionChild.getChildren().isEmpty())
+          continue;
+        Cluster entryBlock = regionChild.getChildren().getFirst();
+        if (!entryBlock.getOperations().isEmpty())
+          withEntry.add(entryBlock.getOperations().getFirst());
       }
       return new AsSubgraph<>(cfg, Set.copyOf(withEntry));
     }
@@ -148,18 +160,22 @@ public class DotCFG {
       for (Region region : op.getRegions()) {
         processRegion(region);
       }
-      // Add edges from this operation to the first operation in each region
+      // Add edges from this operation to the first operation in each region entry block
       for (Region region : op.getRegions()) {
-        if (!region.getBlocks().isEmpty() && !region.getBlocks().getFirst().getOperations().isEmpty()) {
-          cfg.addEdge(op, region.getBlocks().getFirst().getOperations().getFirst());
+        if (!region.getBlocks().isEmpty() && !region.getEntryBlock().getOperations().isEmpty()) {
+          cfg.addEdge(op, region.getEntryBlock().getOperations().getFirst());
         }
       }
     }
 
     private void processRegion(Region region) {
+      // Open a new cluster for the region
+      currentCluster = currentCluster.addChild(new Cluster(currentCluster.owner, currentCluster));
       for (Block block : region.getBlocks()) {
         processBlock(block);
       }
+      // Close the region cluster
+      currentCluster = currentCluster.getParent();
     }
 
     private void processBlock(Block block) {
