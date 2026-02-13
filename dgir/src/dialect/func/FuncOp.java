@@ -52,8 +52,7 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, 
   }
 
   public FuncOp(String name, FuncType type) {
-    setOperation(Operation.Create(getIdent(), null, null, type.getOutput(), type.getInputs()));
-    getRegion().getEntryBlock();
+    super(true, Operation.Create(getIdent(), null, null, type.getOutput(), type.getInputs()));
     getFuncNameAttribute().setValue(name);
     getTypeAttribute().setType(type);
   }

@@ -28,8 +28,7 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
         Block block = operation.getRegions().getFirst().getBlocks().getFirst();
         for (Operation op : block.getOperations()) {
           var funcOp = op.as(FuncOp.class);
-          if (funcOp != null)
-          {
+          if (funcOp != null) {
             if (funcOp.getFuncName().equals("main")) {
               if (hasMainFunc) {
                 operation.emitError("There must be exactly one function with name main");
@@ -57,11 +56,10 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
   }
 
   public ProgramOp() {
-    var details = RegisteredOperationDetails.lookup(getIdent());
-    if (details.isPresent()) {
-      setOperation(Operation.Create(getIdent(), null, null, null, 1));
-      getRegions().getFirst().getEntryBlock();
-    }
+    executeIfRegistered(ProgramOp.class, () -> {
+        setOperation(true, Operation.Create(getIdent(), null, null, null, 1));
+      }
+    );
   }
 
   public ProgramOp(Operation operation) {

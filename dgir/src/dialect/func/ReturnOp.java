@@ -8,14 +8,16 @@ import core.ir.Op;
 import core.ir.Operation;
 import core.ir.Value;
 import core.traits.ISingleOperand;
+import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;
 import core.traits.IZeroOrOneOperand;
 import dialect.builtin.Builtin;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
-public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand {
+public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpecificParentOp {
   @Override
   public OperationDetails.Impl createDetails() {
     class ReturnOpModel extends OperationDetails.Impl {
@@ -54,10 +56,8 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand {
   }
 
   public ReturnOp() {
-    var details = RegisteredOperationDetails.lookup(ReturnOp.class);
-    if (details.isPresent()) {
-      setOperation(Operation.Create(getIdent(), null, null, null));
-    }
+    executeIfRegistered(ReturnOp.class, () ->
+      setOperation(false, Operation.Create(getIdent(), null, null, null)));
   }
 
   public ReturnOp(Operation operation) {
@@ -65,7 +65,7 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand {
   }
 
   public ReturnOp(Value operand) {
-    setOperation(Operation.Create(getIdent(), List.of(operand), null, null));
+    super(Operation.Create(getIdent(), List.of(operand), null, null));
   }
 
   public static String getIdent() {
@@ -74,5 +74,10 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand {
 
   public static String getNamespace() {
     return "func";
+  }
+
+  @Override
+  public List<Class<? extends Op>> getValidParentTypes() {
+    return List.of(FuncOp.class);
   }
 }

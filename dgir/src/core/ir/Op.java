@@ -1,6 +1,7 @@
 package core.ir;
 
 import core.detail.OperationDetails;
+import core.detail.RegisteredOperationDetails;
 import core.serialization.OpDeserializer;
 import core.serialization.OpSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,17 +34,40 @@ public abstract class Op {
     this.operation = operation;
   }
 
-  public Operation getOperationOrNull(){
+  public Op(boolean ensureEntryBlocks, Operation operation) {
+    this.operation = operation;
+    if (ensureEntryBlocks)
+      ensureEntryBlocks();
+  }
+
+  /**
+   * Sets the operation and ensures that all regions have an entry block.
+   *
+   * @param operation the operation to set
+   */
+  public void setOperation(boolean ensureEntryBlocks, Operation operation) {
+    this.operation = operation;
+    if (ensureEntryBlocks)
+      ensureEntryBlocks();
+  }
+
+  /**
+   * Returns the underlying operation if it exists, otherwise returns null.
+   *
+   * @return the underlying operation or null
+   */
+  public Operation getOperationOrNull() {
     return operation;
   }
 
+  /**
+   * Returns the underlying operation.
+   *
+   * @return the underlying operation (never null)
+   */
   public Operation getOperation() {
     assert operation != null : "Operation is null.";
     return operation;
-  }
-
-  public void setOperation(Operation operation) {
-    this.operation = operation;
   }
 
   public boolean verify(boolean recursive) {
@@ -85,6 +109,15 @@ public abstract class Op {
     return getOperation().getAttributes();
   }
 
+  /**
+   * Goes over all blocks and ensures that they have at least their entry block.
+   */
+  public void ensureEntryBlocks() {
+    for (Region region : getRegions()) {
+      region.ensureEntryBlock();
+    }
+  }
+
   @JsonIgnore
   public List<Region> getRegions() {
     return getOperation().getRegions();
@@ -104,7 +137,7 @@ public abstract class Op {
     return clazz.cast(getAttributes().get(name).getAttribute());
   }
 
-  public List<Block> getSuccessors(){
+  public List<Block> getSuccessors() {
     return getOperation().getSuccessors();
   }
 
@@ -128,5 +161,25 @@ public abstract class Op {
   @Override
   public int hashCode() {
     return operation.hashCode();
+  }
+
+  /**
+   * This is a helper method to execute a callback if an op class is registered in the RegisteredOperationDetails.
+   * It is mainly intended for use in default constructors which also get invoked for registration and therefore cannot
+   * rely on the registration being completed.
+   * <p>
+   * In this case, during registration through the {@link core.Dialect} no code is executed and the OperationDetails can
+   * be retreived through the {@link Op#createDetails} method.
+   * All subsequent uses of the default constructor will be used to create an actual instance of that op.
+   * <p>
+   * This is useful for cases where we want to execute some code only if a certain op is registered, without having to
+   * check for the registration multiple times.
+   *
+   */
+  public static void executeIfRegistered(Class<? extends Op> opClass, Runnable callback) {
+    var details = RegisteredOperationDetails.lookup(opClass);
+    if (details.isPresent()) {
+      callback.run();
+    }
   }
 }

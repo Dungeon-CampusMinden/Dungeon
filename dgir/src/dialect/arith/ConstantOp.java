@@ -38,7 +38,7 @@ public class ConstantOp extends Op implements ISingleOperand {
   }
 
   public ConstantOp(ITypedAttribute value) {
-    setOperation(Operation.Create(getIdent(), null, null, value.getType()));
+    super(true, Operation.Create(getIdent(), null, null, value.getType()));
     getAttributes().get("value").setAttribute((Attribute) value);
   }
 

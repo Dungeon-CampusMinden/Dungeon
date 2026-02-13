@@ -72,7 +72,7 @@ public class CallOp extends Op implements ISymbolUser {
   }
 
   public CallOp(String name, List<Value> operands, FuncType calleeType) {
-    setOperation(Operation.Create(getIdent(), operands, null, calleeType.getOutput()));
+    super(Operation.Create(getIdent(), operands, null, calleeType.getOutput()));
     setCallee(name);
   }
 
@@ -81,7 +81,7 @@ public class CallOp extends Op implements ISymbolUser {
   }
 
   public CallOp(FuncOp funcOp, List<Value> operands) {
-    setOperation(Operation.Create(getIdent(), operands, null, funcOp.getType().getOutput()));
+    super(Operation.Create(getIdent(), operands, null, funcOp.getType().getOutput()));
     setCallee(funcOp.getFuncName());
   }
 

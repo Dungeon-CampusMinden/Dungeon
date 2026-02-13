@@ -11,6 +11,7 @@ import dialect.builtin.Builtin;
 import dialect.cf.CF;
 import dialect.func.Func;
 import dialect.io.IO;
+import dialect.scf.SCF;
 
 import java.util.List;
 
@@ -50,7 +51,8 @@ public abstract class Dialect {
       new Builtin(),
       new CF(),
       new Func(),
-      new IO()
+      new IO(),
+      new SCF()
     );
 
     dialects.forEach(Dialect::init);

@@ -49,7 +49,7 @@ public class TestUtils {
       stream
         .skip(1)
         .findFirst()
-        .map(StackWalker.StackFrame::getMethodName)
+        .map(stackFrame -> stackFrame.getDeclaringClass().getSimpleName() + "." + stackFrame.getMethodName())
         .orElse("unknown")
     );
 

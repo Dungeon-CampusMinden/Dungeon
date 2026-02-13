@@ -97,12 +97,17 @@ public final class Region {
     return values;
   }
 
+  /**
+   * Ensures that there is at least one block in this region.
+   */
+  public void ensureEntryBlock(){
+    if(this.blocks.isEmpty())
+      addBlock(new Block());
+  }
+
   @JsonIgnore
   public Block getEntryBlock() {
-    // Ensure that there is at least one block (the entry block).
-    if (this.blocks.isEmpty()) {
-      addBlock(new Block());
-    }
+    ensureEntryBlock();
     return blocks.getFirst();
   }
 
