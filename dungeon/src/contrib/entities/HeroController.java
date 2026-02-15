@@ -95,7 +95,7 @@ public class HeroController {
   public static void useSkill(Entity hero, Point target) {
     LOGGER.debug("Hero {} using skill at point {}", hero.id(), target);
     hero.fetch(SkillComponent.class)
-        .flatMap(SkillComponent::activeSkill)
+        .flatMap(SkillComponent::activeMainSkill)
         .ifPresent(
             skill -> {
               if (skill instanceof CursorSkill cursorSkill) {
@@ -169,8 +169,8 @@ public class HeroController {
     hero.fetch(SkillComponent.class)
         .ifPresent(
             skillComponent -> {
-              if (nextSkill) skillComponent.nextSkill();
-              else skillComponent.prevSkill();
+              if (nextSkill) skillComponent.nextMainSkill();
+              else skillComponent.prevMainSkill();
             });
   }
 
