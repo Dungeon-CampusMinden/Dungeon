@@ -22,7 +22,8 @@ public class SkillComponent implements Component {
    * The index of the currently active skill in {@link #skills}. If no skill is active, the value is
    * {@code -1}.
    */
-  private int activeSkill = -1;
+  private int activeMainSkill = -1;
+  private int activeSecondSkill = -1;
 
   /**
    * Creates a new {@code SkillComponent} with the given skills.
@@ -33,8 +34,13 @@ public class SkillComponent implements Component {
    */
   public SkillComponent(Skill... skills) {
     this.skills = new ArrayList<>(Arrays.asList(skills));
-    if (skills.length > 0) {
-      activeSkill = 0;
+
+    if (!this.skills.isEmpty()) {
+      activeMainSkill = 0;
+    }
+
+    if (this.skills.size() > 1) {
+      activeSecondSkill = 1;
     }
   }
 
@@ -47,9 +53,12 @@ public class SkillComponent implements Component {
    */
   public void addSkill(Skill skill) {
     if (skill != null) {
-      skills.add(skill);
-      if (activeSkill == -1) {
-        activeSkill = 0;
+      this.skills.add(skill);
+
+      if (activeMainSkill == -1) {
+        activeMainSkill = 0;
+      } else if(activeSecondSkill == -1 && this.skills.size() > 1) {
+        activeSecondSkill = this.skills.size() - 1;
       }
     }
   }
@@ -63,14 +72,25 @@ public class SkillComponent implements Component {
    * @param skill the skill to remove
    */
   public void removeSkill(Skill skill) {
-    if (skills.remove(skill)) {
-      activeSkill = skills.size() - 1;
+    if (this.skills.remove(skill)) {
+      if(this.skills.size() > 1) {
+        activeMainSkill = this.skills.size() - 2;
+        activeSecondSkill = this.skills.size() - 1;
+      } else if(this.skills.size() == 1) {
+        activeMainSkill = 0;
+        activeSecondSkill = -1;
+      } else {
+        activeMainSkill = -1;
+        activeSecondSkill = -1;
+      }
     }
   }
 
   /** Remove all skills. */
   public void removeAll() {
-    skills.clear();
+    this.skills.clear();
+    activeMainSkill = -1;
+    activeSecondSkill = -1;
   }
 
   /**
@@ -82,8 +102,17 @@ public class SkillComponent implements Component {
    * @param skillClass the class of the skills to remove
    */
   public void removeSkill(Class<? extends Skill> skillClass) {
-    skills.removeIf(s -> skillClass.isAssignableFrom(s.getClass()));
-    activeSkill = skills.size() - 1;
+    this.skills.removeIf(s -> skillClass.isAssignableFrom(s.getClass()));
+    if(this.skills.size() > 1) {
+      activeMainSkill = this.skills.size() - 2;
+      activeSecondSkill = this.skills.size() - 1;
+    } else if(this.skills.size() == 1) {
+      activeMainSkill = 0;
+      activeSecondSkill = -1;
+    } else {
+      activeMainSkill = -1;
+      activeSecondSkill = -1;
+    }
   }
 
   /**
@@ -94,43 +123,96 @@ public class SkillComponent implements Component {
    *     exists
    */
   public Optional<Skill> getSkill(Class<? extends Skill> skillClass) {
-    return skills.stream().filter(s -> skillClass.isAssignableFrom(s.getClass())).findFirst();
+    return this.skills.stream().filter(s -> skillClass.isAssignableFrom(s.getClass())).findFirst();
   }
 
   /**
-   * Returns the currently active skill.
+   * Returns the currently active main skill.
    *
-   * @return an {@link Optional} containing the active skill, or {@link Optional#empty()} if no
-   *     skill is active
+   * @return an {@link Optional} containing the active main skill, or {@link Optional#empty()} if no
+   *     main skill is active
    */
-  public Optional<Skill> activeSkill() {
-    if (activeSkill == -1 || activeSkill >= skills.size()) {
+  public Optional<Skill> activeMainSkill() {
+    if (activeMainSkill == -1 || activeMainSkill >= this.skills.size()) {
       return Optional.empty();
     }
-    return Optional.of(skills.get(activeSkill));
+    return Optional.of(this.skills.get(activeMainSkill));
   }
 
   /**
-   * Moves the active skill to the next one in the list.
+   * Returns the currently active second skill.
+   *
+   * @return an {@link Optional} containing the active second skill, or {@link Optional#empty()} if no
+   *     second skill is active
+   */
+  public Optional<Skill> activeSecondSkill() {
+    if (activeSecondSkill == -1 || activeSecondSkill >= this.skills.size()) {
+      return Optional.empty();
+    }
+    return Optional.of(this.skills.get(activeSecondSkill));
+  }
+
+  /**
+   * Moves the active main skill to the next one in the list.
    *
    * <p>If the end of the list is reached, it wraps around to the first skill. If no skills are
    * present, nothing happens.
    */
-  public void nextSkill() {
-    if (!skills.isEmpty()) {
-      activeSkill = (activeSkill + 1) % skills.size();
+  public void nextMainSkill() {
+    if(this.skills.size() >= 2) {
+      int startIndex = activeMainSkill;
+
+      do {
+        activeMainSkill = (activeMainSkill + 1) % skills.size();
+      } while (activeMainSkill == activeSecondSkill && activeMainSkill != startIndex);
     }
   }
 
   /**
-   * Moves the active skill to the previous one in the list.
+   * Moves the active main skill to the previous one in the list.
    *
    * <p>If the beginning of the list is reached, it wraps around to the last skill. If no skills are
    * present, nothing happens.
    */
-  public void prevSkill() {
-    if (!skills.isEmpty()) {
-      activeSkill = (activeSkill - 1 + skills.size()) % skills.size();
+  public void prevMainSkill() {
+    if(this.skills.size() >= 2) {
+      int startIndex = activeMainSkill;
+
+      do {
+        activeMainSkill = (activeMainSkill - 1 + skills.size()) % skills.size();
+      } while (activeMainSkill == activeSecondSkill && activeMainSkill != startIndex);
+    }
+  }
+
+  /**
+   * Moves the active second skill to the next one in the list.
+   *
+   * <p>If the end of the list is reached, it wraps around to the first skill. If no skills are
+   * present, nothing happens.
+   */
+  public void nextSecondSkill() {
+    if(this.skills.size() >= 2) {
+      int startIndex = activeSecondSkill;
+
+      do {
+        activeSecondSkill = (activeSecondSkill + 1) % skills.size();
+      } while (activeSecondSkill == activeMainSkill && activeSecondSkill != startIndex);
+    }
+  }
+
+  /**
+   * Moves the active second skill to the previous one in the list.
+   *
+   * <p>If the beginning of the list is reached, it wraps around to the last skill. If no skills are
+   * present, nothing happens.
+   */
+  public void prevSecondSkill() {
+    if(this.skills.size() >= 2) {
+      int startIndex = activeSecondSkill;
+
+      do {
+        activeSecondSkill = (activeSecondSkill - 1 + skills.size()) % skills.size();
+      } while (activeSecondSkill == activeMainSkill && activeSecondSkill != startIndex);
     }
   }
 
@@ -140,6 +222,6 @@ public class SkillComponent implements Component {
    * @return a copy of the skill list
    */
   public List<Skill> getSkills() {
-    return List.copyOf(skills);
+    return List.copyOf(this.skills);
   }
 }

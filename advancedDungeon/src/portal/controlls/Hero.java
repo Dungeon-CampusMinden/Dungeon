@@ -133,13 +133,13 @@ public record Hero(Entity hero) {
   /** Feuert den Skill ab. */
   public void shootSkill() {
     hero.fetch(SkillComponent.class)
-        .flatMap(SkillComponent::activeSkill)
+        .flatMap(SkillComponent::activeMainSkill)
         .ifPresent(fs -> fs.execute(hero));
   }
 
   /** Schalte auf den nächsten Skill. */
   public void nextSkill() {
-    hero.fetch(SkillComponent.class).ifPresent(sc -> sc.nextSkill());
+    hero.fetch(SkillComponent.class).ifPresent(sc -> sc.nextMainSkill());
   }
 
   /**
