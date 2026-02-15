@@ -82,7 +82,7 @@ public class LightWallLevel_1 extends AdvancedLevel {
       if (now - last >= CHORT_SHOOT_INTERVAL_MS) {
         shooter
             .fetch(SkillComponent.class)
-            .flatMap(sc -> sc.activeSkill())
+            .flatMap(sc -> sc.activeMainSkill())
             .ifPresent(skill -> skill.execute(shooter));
         shooterLastShot.put(shooter, now);
       }
