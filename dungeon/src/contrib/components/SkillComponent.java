@@ -23,6 +23,7 @@ public class SkillComponent implements Component {
    * {@code -1}.
    */
   private int activeMainSkill = -1;
+
   private int activeSecondSkill = -1;
 
   /**
@@ -57,7 +58,7 @@ public class SkillComponent implements Component {
 
       if (activeMainSkill == -1) {
         activeMainSkill = 0;
-      } else if(activeSecondSkill == -1 && this.skills.size() > 1) {
+      } else if (activeSecondSkill == -1 && this.skills.size() > 1) {
         activeSecondSkill = this.skills.size() - 1;
       }
     }
@@ -73,10 +74,10 @@ public class SkillComponent implements Component {
    */
   public void removeSkill(Skill skill) {
     if (this.skills.remove(skill)) {
-      if(this.skills.size() > 1) {
+      if (this.skills.size() > 1) {
         activeMainSkill = this.skills.size() - 2;
         activeSecondSkill = this.skills.size() - 1;
-      } else if(this.skills.size() == 1) {
+      } else if (this.skills.size() == 1) {
         activeMainSkill = 0;
         activeSecondSkill = -1;
       } else {
@@ -103,10 +104,10 @@ public class SkillComponent implements Component {
    */
   public void removeSkill(Class<? extends Skill> skillClass) {
     this.skills.removeIf(s -> skillClass.isAssignableFrom(s.getClass()));
-    if(this.skills.size() > 1) {
+    if (this.skills.size() > 1) {
       activeMainSkill = this.skills.size() - 2;
       activeSecondSkill = this.skills.size() - 1;
-    } else if(this.skills.size() == 1) {
+    } else if (this.skills.size() == 1) {
       activeMainSkill = 0;
       activeSecondSkill = -1;
     } else {
@@ -142,8 +143,8 @@ public class SkillComponent implements Component {
   /**
    * Returns the currently active second skill.
    *
-   * @return an {@link Optional} containing the active second skill, or {@link Optional#empty()} if no
-   *     second skill is active
+   * @return an {@link Optional} containing the active second skill, or {@link Optional#empty()} if
+   *     no second skill is active
    */
   public Optional<Skill> activeSecondSkill() {
     if (activeSecondSkill == -1 || activeSecondSkill >= this.skills.size()) {
@@ -159,7 +160,7 @@ public class SkillComponent implements Component {
    * present, nothing happens.
    */
   public void nextMainSkill() {
-    if(this.skills.size() >= 2) {
+    if (this.skills.size() >= 2) {
       int startIndex = activeMainSkill;
 
       do {
@@ -175,7 +176,7 @@ public class SkillComponent implements Component {
    * present, nothing happens.
    */
   public void prevMainSkill() {
-    if(this.skills.size() >= 2) {
+    if (this.skills.size() >= 2) {
       int startIndex = activeMainSkill;
 
       do {
@@ -191,7 +192,7 @@ public class SkillComponent implements Component {
    * present, nothing happens.
    */
   public void nextSecondSkill() {
-    if(this.skills.size() >= 2) {
+    if (this.skills.size() >= 2) {
       int startIndex = activeSecondSkill;
 
       do {
@@ -207,7 +208,7 @@ public class SkillComponent implements Component {
    * present, nothing happens.
    */
   public void prevSecondSkill() {
-    if(this.skills.size() >= 2) {
+    if (this.skills.size() >= 2) {
       int startIndex = activeSecondSkill;
 
       do {
