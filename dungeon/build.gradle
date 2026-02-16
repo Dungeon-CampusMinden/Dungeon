@@ -2,8 +2,14 @@ plugins {
     id 'java-library'
 }
 
+repositories {
+    mavenCentral()
+}
 
 dependencies {
+    // LITIENGINE: the main dependency for game development
+    implementation "de.gurkenlabs:litiengine:0.11.1"
+
     // LibGDX: expose this API to users because of core.level.elements.ILevel
     api supportDependencies.gdx
     api supportDependencies.gdx_platform
