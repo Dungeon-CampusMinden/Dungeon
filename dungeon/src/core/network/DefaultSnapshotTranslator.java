@@ -9,7 +9,6 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.components.SoundComponent;
 import core.network.messages.c2s.RequestEntitySpawn;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.SnapshotMessage;
@@ -119,15 +118,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                         builder.tintColor(dc.tintColor());
                       });
 
-              // Sounds
-              e.fetch(SoundComponent.class)
-                  .ifPresent(
-                      sc -> {
-                        if (!sc.sounds().isEmpty()) {
-                          builder.sounds(sc.sounds());
-                        }
-                      });
-
               // Inventory
               e.fetch(InventoryComponent.class).ifPresent(ic -> builder.inventory(ic.items()));
 
@@ -141,11 +131,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
       // Normal Entity
       return true;
     }
-    // Sound Entity
-    if (entity.isPresent(SoundComponent.class)) {
-      return true;
-    }
-
     return false;
   }
 
@@ -235,29 +220,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                                       entity.add(mc);
                                       snap.currentMana().ifPresent(mc::currentAmount);
                                     }));
-
-                // Sounds
-                snap.sounds()
-                    .ifPresentOrElse(
-                        soundSpecs -> {
-                          SoundComponent sc =
-                              entity
-                                  .fetch(SoundComponent.class)
-                                  .orElseGet(
-                                      () -> {
-                                        SoundComponent newSc = new SoundComponent();
-                                        entity.add(newSc);
-                                        return newSc;
-                                      });
-                          // replace all sounds and stop removed ones
-                          var removedSounds = sc.replaceAll(soundSpecs);
-                          removedSounds.forEach(
-                              spec -> Game.audio().stopInstance(spec.instanceId()));
-                        },
-                        () -> {
-                          // No audio in snapshot, clear if present
-                          Game.audio().stopAllOnEntity(entity);
-                        });
 
                 // Inventory
                 snap.inventory()

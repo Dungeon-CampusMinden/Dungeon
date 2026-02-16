@@ -433,11 +433,28 @@ public final class ServerTransport {
   }
 
   private void onSoundFinished(Session session, SoundFinishedMessage msg) {
+    short clientId = session.clientState().map(ClientState::clientId).orElse((short) 0);
+    SoundTracker tracker = SoundTracker.instance();
+
+    if (!tracker.isTracked(msg.soundInstanceId())) {
+      LOGGER.debug(
+          "Ignoring SoundFinishedMessage for unknown sound {} from client {}",
+          msg.soundInstanceId(),
+          clientId);
+      return;
+    }
+
+    if (!tracker.canReport(clientId, msg.soundInstanceId())) {
+      LOGGER.warn(
+          "Client {} not authorized to report sound {} finished", clientId, msg.soundInstanceId());
+      return;
+    }
+
     LOGGER.debug(
         "Received SoundFinishedMessage from client {}: instanceId={}",
-        session.clientId(),
+        clientId,
         msg.soundInstanceId());
-    core.Game.audio().notifySoundFinished(msg.soundInstanceId());
+    Game.audio().notifySoundFinished(msg.soundInstanceId());
   }
 
   private void onConnectRequest(Session session, ConnectRequest req) {
@@ -487,6 +504,7 @@ public final class ServerTransport {
 
     // Resync dialogs for the new client
     DialogTracker.instance().resyncDialogsToClient(newClientId);
+    SoundTracker.instance().resyncSoundsToClient(newClientId);
 
     LOGGER.info("Accepted client id={} name='{}' {}", newClientId, playerName, session);
   }
@@ -564,6 +582,7 @@ public final class ServerTransport {
 
     // Resync dialogs for the reconnecting client
     DialogTracker.instance().resyncDialogsToClient(clientId);
+    SoundTracker.instance().resyncSoundsToClient(clientId);
 
     LOGGER.info("Restored client id={} name='{}' {}", clientId, playerName, session);
   }
