@@ -18,6 +18,7 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -89,26 +90,33 @@ public class JoystickSystem extends System {
   }
 
   private void executeJoystick(Entity player) {
-    Controller controller = getActiveController();
-    if (controller == null) {
-      return;
-    }
+
     boolean controlsDisabled = isControlsDisabled(player);
-    updateMouseCursor(controller);
-    handleMouse(controller);
-    if (!controlsDisabled) {
-      handleMovement(controller);
-      handleActions(controller, SkillTools.cursorPositionAsPoint());
-    }
-    handleInventoryToggle(controller, player);
+    getActiveController()
+        .ifPresent(
+            controller -> {
+              updateMouseCursor(controller);
+              handleMouse(controller);
+              if (!controlsDisabled) {
+                handleMovement(controller);
+                handleActions(controller, SkillTools.cursorPositionAsPoint());
+              }
+              handleInventoryToggle(controller, player);
+            });
   }
 
-  private Controller getActiveController() {
+  /**
+   * Returns the currently active controller, lazily resolving the first connected controller if
+   * none is cached yet.
+   *
+   * @return the active controller, or null if no controller is connected
+   */
+  private Optional<Controller> getActiveController() {
     if (activeController == null) {
       var controllers = Controllers.getControllers();
       activeController = controllers.size == 0 ? null : controllers.first();
     }
-    return activeController;
+    return Optional.ofNullable(activeController);
   }
 
   private boolean isControlsDisabled(Entity player) {
@@ -222,14 +230,16 @@ public class JoystickSystem extends System {
 
   private void updateMouseCursor(Controller controller) {
     Vector2 aim = readRightStick(controller);
-    // avoid jump to position 0,0
+    // avoid jump to position 0,0.
+    if (aim.isZero()) {
+      return;
+    }
+
     if (cursorX < 0f || cursorY < 0f) {
       cursorX = Gdx.input.getX();
       cursorY = Gdx.input.getY();
     }
-    if (aim.isZero()) {
-      return;
-    }
+
     // smooth movement
     float dt = Gdx.graphics.getDeltaTime();
     cursorX += aim.x() * JoystickConfig.CURSOR_SPEED * dt;
