@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Random;
 
 /**
@@ -49,31 +50,23 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
   /** Random object used to generate random numbers for item related things. */
   public static final Random RANDOM = new Random();
 
-  /**
-   * Maps identifiers in crafting recipes (e.g. {@link ItemResourceBerry}) to their corresponding
-   * class objects (e.g. ItemResourceBerry.java). This map is used to associate identifiers in
-   * crafting recipes with the actual classes and create an instance of the respective item when the
-   * recipe is crafted.
-   *
-   * <p>The keys in the map are the simple names of the classes (e.g. "ItemBookRed"), and the values
-   * are the corresponding class objects.
-   */
-  private static final Map<String, Class<? extends Item>> REGISTERED_ITEMS = new HashMap<>();
+  protected static final String DATA_KEY_POTION_TYPE = "health_potion_type";
+  protected static final String DATA_KEY_HEAL_AMOUNT = "heal_amount";
+  private static final String DATA_KEY_PARAM_PREFIX = "param";
 
   static {
-    registerItem(ItemDefault.class);
-    registerItem(ItemPotionHealth.class);
-    registerItem(ItemPotionWater.class);
-    registerItem(ItemResourceBerry.class);
-    registerItem(ItemResourceEgg.class);
-    registerItem(ItemResourceMushroomRed.class);
-    registerItem(ItemWoodenArrow.class);
-    registerItem(ItemWoodenBow.class);
-    registerItem(ItemBigKey.class);
-    registerItem(ItemFairy.class);
-    registerItem(ItemHammer.class);
-    registerItem(ItemHeart.class);
-    registerItem(ItemKey.class);
+    ItemRegistry.register(ItemPotionHealth.class, Item::createHealthPotionFromData);
+    ItemRegistry.register(ItemPotionWater.class);
+    ItemRegistry.register(ItemResourceBerry.class);
+    ItemRegistry.register(ItemResourceEgg.class);
+    ItemRegistry.register(ItemResourceMushroomRed.class);
+    ItemRegistry.register(ItemWoodenArrow.class);
+    ItemRegistry.register(ItemWoodenBow.class);
+    ItemRegistry.register(ItemBigKey.class);
+    ItemRegistry.register(ItemFairy.class);
+    ItemRegistry.register(ItemHammer.class);
+    ItemRegistry.register(ItemHeart.class, Item::createHeartFromData);
+    ItemRegistry.register(ItemKey.class);
   }
 
   private String displayName;
@@ -161,15 +154,25 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
   }
 
   /**
-   * Register an item. This is used to associate the simple name of the class with the class object
-   * in the {@link #REGISTERED_ITEMS} map.
+   * Returns item-specific data for network or persistence serialization.
    *
-   * <p>When a new item is created, it should be registered using this method.
+   * <p>Override this in subclasses that require constructor parameters to be reconstructed.
+   *
+   * @return item data map (empty by default)
+   */
+  public Map<String, String> itemData() {
+    return Map.of();
+  }
+
+  /**
+   * Register an item class using its simple name.
    *
    * @param clazz The class of the item to register.
+   * @deprecated Use {@link ItemRegistry#register(Class)} instead.
    */
+  @Deprecated
   public static void registerItem(final Class<? extends Item> clazz) {
-    REGISTERED_ITEMS.put(clazz.getSimpleName(), clazz);
+    ItemRegistry.register(clazz);
   }
 
   /**
@@ -180,9 +183,11 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
    * corresponding class objects.
    *
    * @return A copy of the registered items.
+   * @deprecated Use {@link ItemRegistry#entries()} instead.
    */
+  @Deprecated
   public static Map<String, Class<? extends Item>> registeredItems() {
-    return new HashMap<>(REGISTERED_ITEMS);
+    return new HashMap<>(ItemRegistry.entries());
   }
 
   /**
@@ -193,13 +198,89 @@ public class Item implements CraftingIngredient, CraftingResult, Serializable {
    *
    * @param id The identifier of the item.
    * @return The class of the item with the given identifier.
+   * @deprecated Use {@link ItemRegistry#lookup(String)} instead.
    */
+  @Deprecated
   public static Class<? extends Item> getItem(final String id) {
-    return REGISTERED_ITEMS.get(id);
+    return ItemRegistry.lookup(id).orElse(null);
   }
 
   private static boolean isRegistered(final Class<? extends Item> clazz) {
-    return REGISTERED_ITEMS.containsValue(clazz);
+    return ItemRegistry.isRegistered(clazz);
+  }
+
+  static void ensureRegistryInitialized() {
+    // Method intentionally empty; calling it triggers Item class initialization.
+  }
+
+  private static Item createHealthPotionFromData(Map<String, String> data) {
+    Optional<HealthPotionType> type = resolveHealthPotionType(data);
+    if (type.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Missing or invalid item data for " + ItemPotionHealth.class.getSimpleName());
+    }
+    return new ItemPotionHealth(type.get());
+  }
+
+  private static Item createHeartFromData(Map<String, String> data) {
+    OptionalInt healAmount = parseInt(data.get(DATA_KEY_HEAL_AMOUNT));
+    if (healAmount.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Missing or invalid item data for " + ItemHeart.class.getSimpleName());
+    }
+    return new ItemHeart(healAmount.getAsInt());
+  }
+
+  private static Optional<HealthPotionType> resolveHealthPotionType(Map<String, String> data) {
+    String typeName = data.get(DATA_KEY_POTION_TYPE);
+    if (typeName != null && !typeName.isBlank()) {
+      try {
+        return Optional.of(HealthPotionType.valueOf(typeName));
+      } catch (IllegalArgumentException ignored) {
+      }
+    }
+
+    for (Map.Entry<String, String> entry : data.entrySet()) {
+      if (entry.getKey().startsWith(DATA_KEY_PARAM_PREFIX)) {
+        Optional<HealthPotionType> parsed = parseHealthPotionType(entry.getValue());
+        if (parsed.isPresent()) {
+          return parsed;
+        }
+      }
+    }
+
+    OptionalInt healAmount = parseInt(data.get(DATA_KEY_HEAL_AMOUNT));
+    if (healAmount.isPresent()) {
+      return HealthPotionType.fromHealAmount(healAmount.getAsInt());
+    }
+    return Optional.empty();
+  }
+
+  private static Optional<HealthPotionType> parseHealthPotionType(String rawValue) {
+    if (rawValue == null || rawValue.isBlank()) {
+      return Optional.empty();
+    }
+    String value = rawValue.strip();
+    int separator = value.indexOf(':');
+    if (separator >= 0 && separator + 1 < value.length()) {
+      value = value.substring(separator + 1).strip();
+    }
+    try {
+      return Optional.of(HealthPotionType.valueOf(value));
+    } catch (IllegalArgumentException ignored) {
+      return Optional.empty();
+    }
+  }
+
+  private static OptionalInt parseInt(String value) {
+    if (value == null || value.isBlank()) {
+      return OptionalInt.empty();
+    }
+    try {
+      return OptionalInt.of(Integer.parseInt(value));
+    } catch (NumberFormatException e) {
+      return OptionalInt.empty();
+    }
   }
 
   /**

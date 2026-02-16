@@ -1,13 +1,12 @@
 package contrib.crafting;
 
 import contrib.item.Item;
+import contrib.item.ItemRegistry;
+import contrib.item.MissingItemRegistrationException;
 import core.Game;
 import core.utils.JsonHandler;
 import core.utils.logging.DungeonLogger;
 import java.io.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Parameter;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -22,11 +21,11 @@ import java.util.stream.Collectors;
  * the provided ingredients.
  *
  * <p>It will load the recipes from the files via {@link #loadRecipes()}. Recipes have to be in the
- * 'assets/recipes' directory. This will automatically happen at program start. Call this in your
+ * 'assets/recipes' directory. This will autmaticly happen an program start. Call this in your
  * {@link core.game.PreRunConfiguration#userOnSetup() onSetup callback}.
  */
 public final class Crafting {
-  private static final HashSet<Recipe> RECIPES = new LinkedHashSet<>();
+  private static final HashSet<Recipe> RECIPES = new HashSet<>();
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Crafting.class);
 
   /**
@@ -199,17 +198,30 @@ public final class Crafting {
               throw new IllegalArgumentException(
                   "'param' must be an array of strings. File: " + name);
             List<Object> paramList = (List<Object>) paramObj;
-            Constructor<? extends Item>[] itemConstructors =
-                (Constructor<? extends Item>[]) Item.getItem(id).getDeclaredConstructors();
-            Object[] params = parseParams(paramList, name);
-            Constructor<?> fittingCons = findFittingConstructor(itemConstructors, params);
-            if (fittingCons == null) {
-              throw new RuntimeException(
-                  "No fitting constructor found for item: " + id + ". File: " + name);
-            }
-            ingredientsArray[i] = (CraftingIngredient) fittingCons.newInstance(params);
+            ItemRegistry.lookup(id)
+                .orElseThrow(
+                    () ->
+                        new MissingItemRegistrationException(
+                            "Unknown item id: " + id + ". File: " + name));
+            Map<String, String> paramData = parseParamData(paramList, name);
+            Item item =
+                ItemRegistry.create(id, paramData)
+                    .orElseThrow(
+                        () ->
+                            new IllegalArgumentException(
+                                "Item '"
+                                    + id
+                                    + "' uses 'param' but no factory is registered. File: "
+                                    + name));
+            ingredientsArray[i] = item;
           } else {
-            ingredientsArray[i] = Item.getItem(id).getDeclaredConstructor().newInstance();
+            Class<? extends Item> itemClass =
+                ItemRegistry.lookup(id)
+                    .orElseThrow(
+                        () ->
+                            new MissingItemRegistrationException(
+                                "Unknown item id: " + id + ". File: " + name));
+            ingredientsArray[i] = itemClass.getDeclaredConstructor().newInstance();
           }
           if (itemMap.containsKey("count")) {
             Object countObj = itemMap.get("count");
@@ -250,17 +262,31 @@ public final class Crafting {
                   "'param' must be an array of strings. File: " + name);
             List<Object> paramList = (List<Object>) paramObj;
 
-            Constructor<? extends Item>[] itemConstructors =
-                (Constructor<? extends Item>[]) Item.getItem(id).getDeclaredConstructors();
-            Object[] params = parseParams(paramList, name);
-            Constructor<?> fittingCons = findFittingConstructor(itemConstructors, params);
-            if (fittingCons == null) {
-              throw new RuntimeException(
-                  "No fitting constructor found for item: " + id + ". File: " + name);
-            }
-            resultsArray[i] = (CraftingResult) fittingCons.newInstance(params);
+            Class<? extends Item> itemClass =
+                ItemRegistry.lookup(id)
+                    .orElseThrow(
+                        () ->
+                            new MissingItemRegistrationException(
+                                "Unknown item id: " + id + ". File: " + name));
+            Map<String, String> paramData = parseParamData(paramList, name);
+            Item item =
+                ItemRegistry.create(id, paramData)
+                    .orElseThrow(
+                        () ->
+                            new IllegalArgumentException(
+                                "Item '"
+                                    + id
+                                    + "' uses 'param' but no factory is registered. File: "
+                                    + name));
+            resultsArray[i] = item;
           } else {
-            resultsArray[i] = Item.getItem(id).getDeclaredConstructor().newInstance();
+            Class<? extends Item> itemClass =
+                ItemRegistry.lookup(id)
+                    .orElseThrow(
+                        () ->
+                            new MissingItemRegistrationException(
+                                "Unknown item id: " + id + ". File: " + name));
+            resultsArray[i] = itemClass.getDeclaredConstructor().newInstance();
           }
           if (itemMap.containsKey("count")) {
             Object countObj = itemMap.get("count");
@@ -279,11 +305,9 @@ public final class Crafting {
       // RECIPES.add(recipe); // Recipe is added by the calling methods loadFromJar/loadFromFile
 
       return new Recipe(orderedRecipe, ingredientsArray, resultsArray);
-    } catch (IOException
-        | InvocationTargetException
-        | InstantiationException
-        | IllegalAccessException
-        | NoSuchMethodException ex) {
+    } catch (MissingItemRegistrationException ex) {
+      throw ex;
+    } catch (IOException | ReflectiveOperationException ex) {
       LOGGER.error("Error parsing recipe ({}): {}", name, ex.getMessage(), ex);
     } catch (IllegalArgumentException | InvalidRecipeException | ClassCastException ex) {
       // Catching more specific exceptions from JsonHandler or casting issues
@@ -294,108 +318,27 @@ public final class Crafting {
     return null;
   }
 
-  private static Object[] parseParams(List<Object> paramList, String recipeName) {
-    Object[] params = new Object[paramList.size()];
-    for (int i = 0; i < params.length; i++) {
+  private static Map<String, String> parseParamData(List<Object> paramList, String recipeName) {
+    if (paramList.isEmpty()) {
+      throw new IllegalArgumentException("'param' must not be empty. File: " + recipeName);
+    }
+    Map<String, String> data = new LinkedHashMap<>();
+    for (int i = 0; i < paramList.size(); i++) {
       Object pObj = paramList.get(i);
-      if (!(pObj instanceof String paramString)) {
+      if (!(pObj instanceof String)) {
         throw new IllegalArgumentException(
             "Parameter in 'param' list must be a string. Found: "
                 + (pObj == null ? "null" : pObj.getClass().getName())
                 + " in recipe "
                 + recipeName);
       }
-      String[] split = paramString.split(":", 2);
-      if (split.length != 2) {
+      String paramString = ((String) pObj).trim();
+      if (paramString.isEmpty()) {
         throw new IllegalArgumentException(
-            "Parameter string '"
-                + paramString
-                + "' must be in 'type:value' format. Recipe: "
-                + recipeName);
+            "Parameter in 'param' list must not be blank. Recipe: " + recipeName);
       }
-      String type = split[0];
-      String value = split[1];
-
-      // check if type is native if not check is it a class
-      switch (type) {
-        case "int":
-          params[i] = Integer.parseInt(value);
-          break;
-        case "float":
-          params[i] = Float.parseFloat(value);
-          break;
-        case "double":
-          params[i] = Double.parseDouble(value);
-          break;
-        case "long":
-          params[i] = Long.parseLong(value);
-          break;
-        case "short":
-          params[i] = Short.parseShort(value);
-          break;
-        case "byte":
-          params[i] = Byte.parseByte(value);
-          break;
-        case "boolean":
-          params[i] = Boolean.parseBoolean(value);
-          break;
-        case "char":
-          if (value.length() != 1)
-            throw new IllegalArgumentException(
-                "Char value must be a single character. Got: " + value);
-          params[i] = value.charAt(0);
-          break;
-        default:
-          try {
-            Class<?> clazz = Class.forName(type);
-            if (clazz.isEnum()) {
-              Object[] constants = clazz.getEnumConstants();
-              boolean found = false;
-              for (Object constant : constants) {
-                if (constant.toString().equalsIgnoreCase(value)) {
-                  params[i] = constant;
-                  found = true;
-                  break;
-                }
-              }
-              if (!found) {
-                throw new IllegalArgumentException(
-                    "No Enum constant found for: "
-                        + value
-                        + " in Enum "
-                        + type
-                        + ". Recipe: "
-                        + recipeName);
-              }
-            } else {
-              throw new IllegalArgumentException(
-                  "Unsupported parameter type: " + type + ". Recipe: " + recipeName);
-            }
-          } catch (ClassNotFoundException ex) {
-            throw new IllegalArgumentException(
-                "Class not found for parameter type: " + type + ". Recipe: " + recipeName, ex);
-          }
-      }
+      data.put("param" + i, paramString);
     }
-    return params;
-  }
-
-  private static Constructor<? extends Item> findFittingConstructor(
-      Constructor<? extends Item>[] constructors, Object... params) {
-    for (Constructor<? extends Item> constructor : constructors) {
-      if (constructor.getParameterCount() == params.length) {
-        boolean valid = true;
-        for (int i = 0; i < params.length; i++) {
-          Parameter parameter = constructor.getParameters()[i];
-          if (!parameter.getType().isAssignableFrom(params[i].getClass())) {
-            valid = false;
-          }
-        }
-        if (valid) {
-          return constructor;
-        }
-      }
-    }
-    return null;
+    return data;
   }
 }
