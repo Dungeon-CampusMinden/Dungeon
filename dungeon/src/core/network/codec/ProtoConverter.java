@@ -3,6 +3,7 @@ package core.network.codec;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import contrib.item.Item;
+import contrib.item.ItemRegistry;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.network.messages.NetworkMessage;
@@ -39,7 +40,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /** Converts between protobuf messages and domain objects for common network types. */
 public final class ProtoConverter {
@@ -1116,22 +1119,41 @@ public final class ProtoConverter {
   }
 
   private static core.network.proto.common.Item toProtoItem(Item item) {
-    return core.network.proto.common.Item.newBuilder()
-        .setItemType(item.getClass().getSimpleName())
-        .setStackSize(item.stackSize())
-        .setMaxStackSize(item.maxStackSize())
-        .build();
+    String itemType = ItemRegistry.idFor(item);
+    core.network.proto.common.Item.Builder builder =
+        core.network.proto.common.Item.newBuilder()
+            .setItemType(itemType)
+            .setStackSize(item.stackSize())
+            .setMaxStackSize(item.maxStackSize());
+
+    Map<String, String> itemData = item.itemData();
+    if (itemData != null && !itemData.isEmpty()) {
+      builder.putAllItemData(itemData);
+    }
+
+    return builder.build();
   }
 
   private static Item fromProtoItem(core.network.proto.common.Item proto) {
     String itemType = proto.getItemType();
-    Class<? extends Item> itemClass = Item.getItem(itemType);
-    if (itemClass == null) {
-      throw new IllegalArgumentException("Unknown item type: " + itemType);
-    }
+    Class<? extends Item> itemClass =
+        ItemRegistry.lookup(itemType)
+            .orElseThrow(() -> new IllegalArgumentException("Unknown item type: " + itemType));
 
+    Map<String, String> itemData = proto.getItemDataMap();
     try {
-      Item item = itemClass.getDeclaredConstructor().newInstance();
+      Optional<Item> itemFromData =
+          itemData.isEmpty() ? Optional.empty() : ItemRegistry.create(itemType, itemData);
+      if (!itemData.isEmpty() && itemFromData.isEmpty()) {
+        throw new IllegalArgumentException(
+            "Item data provided but no factory registered for item type: " + itemType);
+      }
+      Item item;
+      if (itemFromData.isPresent()) {
+        item = itemFromData.get();
+      } else {
+        item = itemClass.getDeclaredConstructor().newInstance();
+      }
       int maxStackSize = proto.getMaxStackSize();
       if (maxStackSize > 0) {
         item.maxStackSize(maxStackSize);

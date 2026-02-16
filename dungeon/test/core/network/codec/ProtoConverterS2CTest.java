@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
+import contrib.item.HealthPotionType;
 import contrib.item.Item;
 import contrib.item.concreteItem.ItemPotionHealth;
 import core.components.PlayerComponent;
@@ -201,7 +202,7 @@ public class ProtoConverterS2CTest {
   /** Verifies entity state conversion roundtrip. */
   @Test
   public void testEntityStateRoundTrip() {
-    ItemPotionHealth item = new ItemPotionHealth();
+    ItemPotionHealth item = new ItemPotionHealth(HealthPotionType.GREATER);
     EntityState message =
         EntityState.builder()
             .entityId(7)
@@ -224,6 +225,14 @@ public class ProtoConverterS2CTest {
     assertTrue(proto.hasEntityName());
     assertEquals("Goblin", proto.getEntityName());
 
+    core.network.proto.s2c.ItemSlot slot = proto.getInventory(1);
+    assertEquals(1, slot.getSlotIndex());
+    assertTrue(slot.hasItem());
+    assertEquals(
+        HealthPotionType.GREATER.name(), slot.getItem().getItemDataMap().get("health_potion_type"));
+    assertEquals(
+        Integer.toString(item.healAmount()), slot.getItem().getItemDataMap().get("heal_amount"));
+
     EntityState roundTrip = ProtoConverter.fromProto(proto);
     assertEquals(7, roundTrip.entityId());
     assertEquals("Goblin", roundTrip.entityName().orElseThrow());
@@ -239,6 +248,9 @@ public class ProtoConverterS2CTest {
     assertEquals(0.75f, roundTrip.scale().orElseThrow().y(), DELTA);
     assertEquals(3, roundTrip.inventory().orElseThrow().length);
     assertEquals(ItemPotionHealth.class, roundTrip.inventory().orElseThrow()[1].getClass());
+    ItemPotionHealth roundTripItem = (ItemPotionHealth) roundTrip.inventory().orElseThrow()[1];
+    assertEquals(HealthPotionType.GREATER, roundTripItem.type());
+    assertEquals(item.healAmount(), roundTripItem.healAmount());
   }
 
   /** Verifies snapshot message conversion roundtrip. */
