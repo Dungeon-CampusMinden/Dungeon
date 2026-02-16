@@ -243,7 +243,9 @@ public class ProtoConverterC2STest {
   /** Verifies dialog response conversion with custom data and closed callback. */
   @Test
   public void testDialogResponseClosedRoundTrip() {
-    DialogResponseMessage message = new DialogResponseMessage("dialog-1", null, "payload");
+    DialogResponseMessage message =
+        new DialogResponseMessage(
+            "dialog-1", null, new DialogResponseMessage.StringValue("payload"));
 
     core.network.proto.c2s.DialogResponseMessage proto = ProtoConverter.toProto(message);
     assertEquals("dialog-1", proto.getDialogId());
@@ -253,7 +255,9 @@ public class ProtoConverterC2STest {
     DialogResponseMessage roundTrip = ProtoConverter.fromProto(proto);
     assertEquals("dialog-1", roundTrip.dialogId());
     assertNull(roundTrip.callbackKey());
-    assertEquals("payload", roundTrip.data());
+    DialogResponseMessage.StringValue payload =
+        roundTrip.payloadAs(DialogResponseMessage.StringValue.class);
+    assertEquals("payload", payload.value());
   }
 
   /** Verifies dialog response conversion without custom data. */
@@ -271,7 +275,7 @@ public class ProtoConverterC2STest {
     DialogResponseMessage roundTrip = ProtoConverter.fromProto(proto);
     assertEquals("dialog-2", roundTrip.dialogId());
     assertEquals("onConfirm", roundTrip.callbackKey());
-    assertNull(roundTrip.data());
+    assertNull(roundTrip.payload());
   }
 
   /** Verifies UDP registration conversion. */

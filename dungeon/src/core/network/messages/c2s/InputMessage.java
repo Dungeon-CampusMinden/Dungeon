@@ -6,8 +6,6 @@ import core.network.messages.NetworkMessage;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -28,7 +26,6 @@ public record InputMessage(
     Action action,
     Payload payload)
     implements NetworkMessage {
-  @Serial private static final long serialVersionUID = 1L;
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InputMessage.class);
 
   private static short currentSequence = 0;
@@ -238,7 +235,7 @@ public record InputMessage(
   }
 
   /** Marker interface for input payloads. */
-  public sealed interface Payload extends Serializable
+  public sealed interface Payload
       permits Move,
           CastSkill,
           Interact,

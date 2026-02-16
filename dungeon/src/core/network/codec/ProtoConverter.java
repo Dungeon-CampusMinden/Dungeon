@@ -32,7 +32,6 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.DrawInfoData;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -485,9 +484,9 @@ public final class ProtoConverter {
         core.network.proto.c2s.DialogResponseMessage.newBuilder()
             .setDialogId(message.dialogId())
             .setCallbackKey(callbackKey);
-    Serializable data = message.data();
-    if (data != null) {
-      setDialogPayload(builder, data);
+    DialogResponseMessage.Payload payload = message.payload();
+    if (payload != null) {
+      setDialogPayload(builder, payload);
     }
     return builder.build();
   }
@@ -504,8 +503,8 @@ public final class ProtoConverter {
     if (DIALOG_CLOSED_KEY.equals(callbackKey)) {
       callbackKey = null;
     }
-    Serializable data = parseDialogPayload(proto);
-    return new DialogResponseMessage(proto.getDialogId(), callbackKey, data);
+    DialogResponseMessage.Payload payload = parseDialogPayload(proto);
+    return new DialogResponseMessage(proto.getDialogId(), callbackKey, payload);
   }
 
   /**
@@ -1198,23 +1197,26 @@ public final class ProtoConverter {
   }
 
   private static void setDialogPayload(
-      core.network.proto.c2s.DialogResponseMessage.Builder builder, Serializable data) {
-    if (data instanceof String stringValue) {
-      builder.setStringValue(stringValue);
-    } else if (data instanceof Integer intValue) {
-      builder.setIntValue(intValue);
-    } else if (data instanceof Long longValue) {
-      builder.setLongValue(longValue);
-    } else if (data instanceof Float floatValue) {
-      builder.setFloatValue(floatValue);
-    } else if (data instanceof Double doubleValue) {
-      builder.setDoubleValue(doubleValue);
-    } else if (data instanceof Boolean boolValue) {
-      builder.setBoolValue(boolValue);
-    } else if (data instanceof String[] stringArray) {
+      core.network.proto.c2s.DialogResponseMessage.Builder builder,
+      DialogResponseMessage.Payload payload) {
+    if (payload instanceof DialogResponseMessage.StringValue stringValue) {
+      builder.setStringValue(stringValue.value());
+    } else if (payload instanceof DialogResponseMessage.IntValue intValue) {
+      builder.setIntValue(intValue.value());
+    } else if (payload instanceof DialogResponseMessage.LongValue longValue) {
+      builder.setLongValue(longValue.value());
+    } else if (payload instanceof DialogResponseMessage.FloatValue floatValue) {
+      builder.setFloatValue(floatValue.value());
+    } else if (payload instanceof DialogResponseMessage.DoubleValue doubleValue) {
+      builder.setDoubleValue(doubleValue.value());
+    } else if (payload instanceof DialogResponseMessage.BoolValue boolValue) {
+      builder.setBoolValue(boolValue.value());
+    } else if (payload instanceof DialogResponseMessage.StringList stringList) {
+      String[] stringArray = stringList.values();
       builder.setStringList(
           core.network.proto.c2s.StringList.newBuilder().addAllValues(Arrays.asList(stringArray)));
-    } else if (data instanceof int[] intArray) {
+    } else if (payload instanceof DialogResponseMessage.IntList intList) {
+      int[] intArray = intList.values();
       core.network.proto.c2s.IntList.Builder listBuilder =
           core.network.proto.c2s.IntList.newBuilder();
       for (int value : intArray) {
@@ -1223,21 +1225,25 @@ public final class ProtoConverter {
       builder.setIntList(listBuilder);
     } else {
       throw new IllegalArgumentException(
-          "Unsupported dialog response payload type: " + data.getClass().getName());
+          "Unsupported dialog response payload type: " + payload.getClass().getName());
     }
   }
 
-  private static Serializable parseDialogPayload(
+  private static DialogResponseMessage.Payload parseDialogPayload(
       core.network.proto.c2s.DialogResponseMessage proto) {
     return switch (proto.getPayloadCase()) {
-      case STRING_VALUE -> proto.getStringValue();
-      case INT_VALUE -> proto.getIntValue();
-      case LONG_VALUE -> proto.getLongValue();
-      case FLOAT_VALUE -> proto.getFloatValue();
-      case DOUBLE_VALUE -> proto.getDoubleValue();
-      case BOOL_VALUE -> proto.getBoolValue();
-      case STRING_LIST -> proto.getStringList().getValuesList().toArray(new String[0]);
-      case INT_LIST -> proto.getIntList().getValuesList().stream().mapToInt(i -> i).toArray();
+      case STRING_VALUE -> new DialogResponseMessage.StringValue(proto.getStringValue());
+      case INT_VALUE -> new DialogResponseMessage.IntValue(proto.getIntValue());
+      case LONG_VALUE -> new DialogResponseMessage.LongValue(proto.getLongValue());
+      case FLOAT_VALUE -> new DialogResponseMessage.FloatValue(proto.getFloatValue());
+      case DOUBLE_VALUE -> new DialogResponseMessage.DoubleValue(proto.getDoubleValue());
+      case BOOL_VALUE -> new DialogResponseMessage.BoolValue(proto.getBoolValue());
+      case STRING_LIST ->
+          new DialogResponseMessage.StringList(
+              proto.getStringList().getValuesList().toArray(new String[0]));
+      case INT_LIST ->
+          new DialogResponseMessage.IntList(
+              proto.getIntList().getValuesList().stream().mapToInt(i -> i).toArray());
       case PAYLOAD_NOT_SET -> null;
     };
   }

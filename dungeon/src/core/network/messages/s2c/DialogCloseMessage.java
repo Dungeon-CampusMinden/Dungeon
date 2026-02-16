@@ -1,7 +1,6 @@
 package core.network.messages.s2c;
 
 import core.network.messages.NetworkMessage;
-import java.io.Serial;
 
 /**
  * Server-to-client message instructing the client to close a dialog.
@@ -13,6 +12,4 @@ import java.io.Serial;
  * @see DialogShowMessage
  * @see core.network.server.DialogTracker#closeDialog(String)
  */
-public record DialogCloseMessage(String dialogId) implements NetworkMessage {
-  @Serial private static final long serialVersionUID = 1L;
-}
+public record DialogCloseMessage(String dialogId) implements NetworkMessage {}

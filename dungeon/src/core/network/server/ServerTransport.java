@@ -28,7 +28,6 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.*;
@@ -759,12 +758,12 @@ public final class ServerTransport {
     }
 
     // 4. Execute callback by key from DialogTracker
-    Optional<Consumer<Serializable>> callbackOpt =
+    Optional<Consumer<DialogResponseMessage.Payload>> callbackOpt =
         DialogTracker.instance().getCallback(dialogId, msg.callbackKey());
     if (callbackOpt.isPresent()) {
-      Consumer<Serializable> callback = callbackOpt.get();
+      Consumer<DialogResponseMessage.Payload> callback = callbackOpt.get();
       try {
-        callback.accept(msg.data());
+        callback.accept(msg.payload());
       } catch (Exception e) {
         LOGGER.error("Error executing callback for dialog {}", dialogId, e);
       }
