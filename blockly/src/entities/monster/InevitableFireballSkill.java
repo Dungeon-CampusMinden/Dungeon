@@ -35,7 +35,7 @@ public class InevitableFireballSkill extends FireballSkill {
             .orElse(null);
       };
 
-  /**  Create a Fireball that will stop blockly-code execution on spawn. */
+  /** Create a Fireball that will stop blockly-code execution on spawn. */
   public InevitableFireballSkill() {
     super(TARGET_PLAYER, 500);
     this.damageAmount = 9999;
