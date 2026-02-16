@@ -40,7 +40,7 @@ public class KeypadSystem extends System {
               .put(DialogContextKeys.OWNER_ENTITY, newOverlay.id())
               .build();
       UIComponent uic = new UIComponent(context, true);
-      uic.onClose((comp) -> d.kc.isUIOpen(false));
+      uic.registerCallback(DialogContextKeys.ON_CLOSE, (ignored) -> d.kc.isUIOpen(false));
       newOverlay.add(uic);
       d.kc.overlay(newOverlay);
       Game.add(newOverlay);

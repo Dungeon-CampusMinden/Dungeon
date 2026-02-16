@@ -74,12 +74,14 @@ public record InputMessage(
   }
 
   /**
-   * Increment and return the current sequence number. Wraps around at Short.MAX_VALUE.
+   * Increment and return the current sequence number. Wraps around using full 16-bit range. Uses
+   * signed short (-32768 to 32767) to represent unsigned 0-65535.
    *
    * @return the incremented sequence number
    */
   private static short incrementAndGetSequence() {
-    currentSequence = (short) ((currentSequence + 1) % Short.MAX_VALUE);
+    // Increment and wrap using full 16-bit range (natural overflow from 32767 to -32768)
+    currentSequence++;
     return currentSequence;
   }
 
@@ -102,44 +104,49 @@ public record InputMessage(
    */
   public enum Action {
     /** Move to a specific {@link core.utils.Direction direction}. */
-    MOVE(0),
+    MOVE(0, false),
     /** Cast a skill towards or at a specific {@link core.utils.Point point}. */
-    CAST_SKILL(1),
+    CAST_SKILL(1, false),
     /** Interact with an object at a specific {@link core.utils.Point point}. */
-    INTERACT(2),
+    INTERACT(2, false),
     /** Switch to the next skill in the player's skill set. */
-    NEXT_SKILL(3),
+    NEXT_SKILL(3, false),
     /** Switch to the previous skill in the player's skill set. */
-    PREV_SKILL(4),
+    PREV_SKILL(4, false),
     /**
      * Drop a specified item from the inventory.
      *
      * <p>The point x coordinate represents the inventory slot index of the item to be dropped.
      */
-    INV_DROP(5),
+    INV_DROP(5, true),
     /**
      * Move an item within the inventory.
      *
      * <p>The point x coordinate represents the source inventory slot index, and the point y
      * coordinate represents the destination inventory slot index.
      */
-    INV_MOVE(6),
+    INV_MOVE(6, true),
     /**
      * Uses the item in the specified inventory slot.
      *
      * <p>The point x coordinate represents the inventory slot index of the item to be used.
      */
-    INV_USE(7);
+    INV_USE(7, true),
+    /** Toggle the visibility of the inventory UI. */
+    TOGGLE_INVENTORY(8, true);
 
     private final byte value;
+    private final boolean ignorePause;
 
     /**
      * Constructor for Action enum.
      *
      * @param value the byte value representing the action
+     * @param ignorePause whether this action should ignore game pause state
      */
-    Action(int value) {
+    Action(int value, boolean ignorePause) {
       this.value = (byte) value;
+      this.ignorePause = ignorePause;
     }
 
     /**
@@ -149,6 +156,15 @@ public record InputMessage(
      */
     public byte value() {
       return value;
+    }
+
+    /**
+     * Check if the action ignores the game pause state.
+     *
+     * @return true if the action ignores pause, false otherwise
+     */
+    public boolean ignorePause() {
+      return ignorePause;
     }
   }
 }

@@ -49,6 +49,9 @@ public class DialogContextKeys {
   /** The key for the callback function to execute on cancellation. */
   public static final String ON_CANCEL = "onCancel";
 
+  /** The key for the callback function to execute on closure of the dialog. */
+  public static final String ON_CLOSE = "onClose";
+
   /**
    * The key for the callback function to handle input submission.
    *

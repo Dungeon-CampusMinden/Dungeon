@@ -66,29 +66,26 @@ public class Button {
 
   // Init button by registering an input listener on the parent actor for detecting clicks.
   private void init() {
-    this.parent
-        .actor()
-        .addListener(
-            new InputListener() {
-              @Override
-              public boolean touchDown(
-                  InputEvent event, float x, float y, int pointer, int button) {
-                if (Button.this.x() <= (x + Button.this.parent.x())
-                    && (Button.this.x() + Button.this.width()) >= (x + Button.this.parent.x())
-                    && Button.this.y() <= (y + Button.this.parent.y())
-                    && (Button.this.y() + Button.this.height()) >= (y + Button.this.parent.y())) {
-                  Button.this.pressed = true;
-                  Button.this.onClick.accept(Button.this);
-                  return true;
-                }
-                return false;
-              }
+    this.parent.addListener(
+        new InputListener() {
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            if (Button.this.x() <= (x + Button.this.parent.x())
+                && (Button.this.x() + Button.this.width()) >= (x + Button.this.parent.x())
+                && Button.this.y() <= (y + Button.this.parent.y())
+                && (Button.this.y() + Button.this.height()) >= (y + Button.this.parent.y())) {
+              Button.this.pressed = true;
+              Button.this.onClick.accept(Button.this);
+              return true;
+            }
+            return false;
+          }
 
-              @Override
-              public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                Button.this.pressed = false;
-              }
-            });
+          @Override
+          public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+            Button.this.pressed = false;
+          }
+        });
   }
 
   /**

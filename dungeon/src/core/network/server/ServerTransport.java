@@ -4,10 +4,7 @@ import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.*;
 
-import contrib.components.UIComponent;
 import contrib.entities.HeroController;
-import contrib.hud.UIUtils;
-import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -432,29 +429,7 @@ public final class ServerTransport {
     dispatcher.registerHandler(RequestEntitySpawn.class, this::onRequestEntitySpawn);
     dispatcher.registerHandler(InputMessage.class, this::onInputMessage);
     dispatcher.registerHandler(SoundFinishedMessage.class, this::onSoundFinished);
-    dispatcher.registerHandler(InventoryUIMessage.class, this::onInventoryUIMessage);
     dispatcher.registerHandler(DialogResponseMessage.class, this::onDialogResponse);
-  }
-
-  private void onInventoryUIMessage(Session session, InventoryUIMessage msg) {
-    LOGGER.debug(
-        "Received InventoryUIMessage (open={}) from client {}", msg.open(), session.clientId());
-
-    Optional<Entity> sessionEntity = session.clientState().flatMap(ClientState::playerEntity);
-    if (sessionEntity.isEmpty()) {
-      LOGGER.warn("Ignoring InventoryUIMessage from session with no player entity: {}", session);
-      return;
-    }
-
-    Entity player = sessionEntity.get();
-    if (msg.open() == InventoryGUI.inPlayerInventory(player)) { // already correct state
-      LOGGER.debug(
-          "Ignoring redundant InventoryUIMessage (open={}) from client {}",
-          msg.open(),
-          session.clientId());
-      return;
-    }
-    HeroController.toggleInventory(player);
   }
 
   private void onSoundFinished(Session session, SoundFinishedMessage msg) {
@@ -766,26 +741,13 @@ public final class ServerTransport {
       return;
     }
 
-    // 3. Handle CLOSED response type (user closed dialog without selecting an option)
-    if (msg.responseType() == DialogResponseMessage.ResponseType.CLOSED) {
-      // Remove UIComponent from the dialog entity
-      int entityId = tracker.getEntityId(dialogId);
-      if (entityId >= 0) {
-        Game.findEntityById(entityId)
-            .flatMap(e -> e.fetch(UIComponent.class))
-            .ifPresent(UIUtils::closeDialog);
-      }
-      tracker.closeDialog(dialogId, false);
-      return;
-    }
-
-    // 4. Try to claim (first-responder wins)
+    // 3. Try to claim (first-responder wins)
     if (!tracker.tryClaimDialog(dialogId, clientId)) {
       LOGGER.debug("Dialog {} already claimed by another client, ignoring response", dialogId);
       return;
     }
 
-    // 5. Execute callback by key from DialogTracker
+    // 4. Execute callback by key from DialogTracker
     Optional<Consumer<Serializable>> callbackOpt =
         DialogTracker.instance().getCallback(dialogId, msg.callbackKey());
     if (callbackOpt.isPresent()) {

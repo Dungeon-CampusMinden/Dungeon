@@ -11,11 +11,10 @@ import contrib.utils.AttributeBarUtil;
 import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
 import core.Game;
+import core.game.PreRunConfiguration;
 import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -27,13 +26,13 @@ import java.util.function.Function;
  *
  * <p>Usage:
  *
- * <pre>
+ * <pre>{@code
  * // Show an OK dialog
  * DialogFactory.showOkDialog("Hello World", "Greeting", () -> System.out.println("OK pressed"));
  *
  * // Show a Yes/No dialog
  * DialogFactory.showYesNoDialog("Continue?", "Confirm", () -> continueAction(), () -> cancelAction());
- * </pre>
+ * }</pre>
  *
  * @see DialogContext
  * @see DialogDesign
@@ -67,14 +66,10 @@ public class DialogFactory {
    *
    * @param type The unique type of the dialog
    * @param creator Function that creates a dialog from a context
-   * @throws DialogCreationException if a dialog type with the given name is already registered
    */
   public static void register(DialogType type, Function<DialogContext, Group> creator) {
     Objects.requireNonNull(type, "type");
     Objects.requireNonNull(creator, "creator");
-    if (registry.containsKey(type)) {
-      throw new DialogCreationException("Dialog type '" + type + "' is already registered");
-    }
     registry.put(type, creator);
   }
 
@@ -86,7 +81,7 @@ public class DialogFactory {
    *
    * @param ctx The context containing all necessary data for dialog creation
    * @return The created dialog instance
-   * @throws DialogCreationException if the dialog type is not registered
+   * @throws DialogCreationException if the dialog type is not registered or creation fails
    */
   public static Group create(DialogContext ctx) {
     Objects.requireNonNull(ctx, "context");
@@ -118,7 +113,7 @@ public class DialogFactory {
    *     found after creation
    */
   public static UIComponent show(
-      DialogContext context, boolean willPause, boolean canBeClosed, int[] targetEntityIds) {
+      DialogContext context, boolean willPause, boolean canBeClosed, int... targetEntityIds) {
     Objects.requireNonNull(context, "context");
 
     // Determine the owner entity (who holds the UIComponent)
@@ -129,7 +124,12 @@ public class DialogFactory {
             .orElseGet(
                 () -> {
                   // Create a new temp dialog entity
-                  Entity newEntity = new Entity("dialog-" + context.dialogType());
+                  Entity newEntity;
+                  if (PreRunConfiguration.isNetworkServer()) {
+                    newEntity = new Entity("dialog-" + context.dialogType());
+                  } else {
+                    newEntity = Entity.createLocalEntity("dialog-" + context.dialogType());
+                  }
                   Game.add(newEntity);
                   return Game.findEntityById(newEntity.id())
                       .orElseThrow(
@@ -160,7 +160,7 @@ public class DialogFactory {
    *     found after creation
    */
   public static UIComponent show(final DialogContext context, boolean canBeClosed) {
-    return show(context, true, canBeClosed, new int[0]);
+    return show(context, true, canBeClosed);
   }
 
   /**
@@ -209,10 +209,14 @@ public class DialogFactory {
     UIComponent ui = show(ctx, targetIds);
 
     // Register callback
-    ui.registerCallback(DialogContextKeys.ON_CONFIRM, data -> UIUtils.closeDialog(ui, true, true));
+    ui.registerCallback(
+        DialogContextKeys.ON_CONFIRM,
+        data -> {
+          onConfirm.execute();
+          UIUtils.closeDialog(ui);
+        });
 
-    // Default onClose behavior (e.g. when pressing ESC)
-    ui.onClose(uic -> onConfirm.execute());
+    ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onConfirm.execute());
 
     return ui;
   }
@@ -243,12 +247,15 @@ public class DialogFactory {
         DialogContextKeys.ON_YES,
         data -> {
           onYes.execute();
-          UIUtils.closeDialog(ui, true, false);
+          UIUtils.closeDialog(ui);
         });
-    ui.registerCallback(DialogContextKeys.ON_NO, data -> UIUtils.closeDialog(ui, true, true));
-
-    // Default onClose behavior (e.g. when pressing ESC)
-    ui.onClose(uic -> onNo.execute());
+    ui.registerCallback(
+        DialogContextKeys.ON_NO,
+        data -> {
+          onNo.execute();
+          UIUtils.closeDialog(ui);
+        });
+    ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onNo.execute());
 
     return ui;
   }
@@ -258,7 +265,7 @@ public class DialogFactory {
    *
    * @param text The message to display in the dialog body
    * @param title The dialog window title
-   * @param onConfirm Callback executed when the confirm button is pressed (can be null)
+   * @param onConfirm Callback executed when the confirm button is pressed
    * @param confirmLabel Label for the confirm button (uses default if null)
    * @param cancelLabel Label for the cancel button (no cancel button if null)
    * @param additionalButtons List of additional button labels (can be null)
@@ -285,15 +292,13 @@ public class DialogFactory {
 
     UIComponent ui = show(builder.build(), targetEntityIds);
 
-    // Register callbacks
-    if (onConfirm != null) {
-      ui.registerCallback(
-          DialogContextKeys.ON_CONFIRM,
-          data -> {
-            onConfirm.execute();
-            UIUtils.closeDialog(ui, true);
-          });
-    }
+    ui.registerCallback(
+        DialogContextKeys.ON_CONFIRM,
+        data -> {
+          onConfirm.execute();
+          UIUtils.closeDialog(ui);
+        });
+    ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onConfirm.execute());
 
     return ui;
   }
