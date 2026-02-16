@@ -28,9 +28,10 @@ message InputMessage {
     CastSkillAction cast_skill = 11;
     InteractAction interact = 12;
     SkillChangeAction skill_change = 13;
-    InventoryDropAction inv_drop = 14;
-    InventoryMoveAction inv_move = 15;
-    InventoryUseAction inv_use = 16;
+    ToggleInventoryAction toggle_inventory = 14;
+    InventoryDropAction inv_drop = 15;
+    InventoryMoveAction inv_move = 16;
+    InventoryUseAction inv_use = 17;
   }
 }
 
@@ -57,6 +58,9 @@ message SkillChangeAction {
   // True = next skill, false = previous skill.
   bool next_skill = 1;
 }
+
+// Toggle inventory UI visibility.
+message ToggleInventoryAction {}
 
 // Drop item from inventory.
 message InventoryDropAction {

@@ -540,14 +540,25 @@ public class HeroController {
       case MOVE -> {
         CharacterClass heroClass =
             playerEntity.fetch(CharacterClassComponent.class).orElseThrow().characterClass();
-        HeroController.moveHero(
-            playerEntity, Vector2.of(msg.point()).direction(), heroClass.speed());
+        InputMessage.Move move = msg.payloadAs(InputMessage.Move.class);
+        HeroController.moveHero(playerEntity, move.direction().direction(), heroClass.speed());
       }
-      case CAST_SKILL -> HeroController.useSkill(playerEntity, msg.point());
-      case NEXT_SKILL -> HeroController.changeSkill(playerEntity, true);
-      case PREV_SKILL -> HeroController.changeSkill(playerEntity, false);
-      case INTERACT -> HeroController.interact(playerEntity, msg.point());
-      case TOGGLE_INVENTORY -> HeroController.toggleInventory(playerEntity);
+      case CAST_SKILL -> {
+        InputMessage.CastSkill castSkill = msg.payloadAs(InputMessage.CastSkill.class);
+        HeroController.useSkill(playerEntity, castSkill.target());
+      }
+      case NEXT_SKILL, PREV_SKILL -> {
+        InputMessage.SkillChange change = msg.payloadAs(InputMessage.SkillChange.class);
+        HeroController.changeSkill(playerEntity, change.nextSkill());
+      }
+      case INTERACT -> {
+        InputMessage.Interact interact = msg.payloadAs(InputMessage.Interact.class);
+        HeroController.interact(playerEntity, interact.target());
+      }
+      case TOGGLE_INVENTORY -> {
+        msg.payloadAs(InputMessage.ToggleInventory.class);
+        HeroController.toggleInventory(playerEntity);
+      }
       case INV_DROP -> {
         Optional<InventoryComponent> playerInv =
             clientState
@@ -560,16 +571,19 @@ public class HeroController {
           LOGGER.warn("No inventory component found for entity {} to drop item", playerEntity.id());
           break;
         }
-        int itemIndex = (int) msg.point().x();
+        InputMessage.InventoryDrop drop = msg.payloadAs(InputMessage.InventoryDrop.class);
+        int itemIndex = drop.slotIndex();
         HeroController.dropItem(playerEntity, playerInv.get(), itemIndex);
       }
       case INV_MOVE -> {
-        int fromIndex = (int) msg.point().x();
-        int toIndex = (int) msg.point().y();
+        InputMessage.InventoryMove move = msg.payloadAs(InputMessage.InventoryMove.class);
+        int fromIndex = move.fromSlot();
+        int toIndex = move.toSlot();
         HeroController.moveItem(playerEntity, fromIndex, toIndex);
       }
       case INV_USE -> {
-        int itemIndex = (int) msg.point().x();
+        InputMessage.InventoryUse use = msg.payloadAs(InputMessage.InventoryUse.class);
+        int itemIndex = use.slotIndex();
         HeroController.useItem(playerEntity, itemIndex);
       }
       default -> LOGGER.warn("Unknown action {} for client {}", msg.action(), clientState);

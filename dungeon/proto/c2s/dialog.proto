@@ -17,6 +17,25 @@ message DialogResponseMessage {
   // Callback key to execute (use "CLOSED" for close without action).
   string callback_key = 2;
 
-  // Optional custom data for the callback (serialized bytes).
-  optional bytes custom_data = 3;
+  // Optional typed payload for the callback.
+  oneof payload {
+    string string_value = 10;
+    int32 int_value = 11;
+    int64 long_value = 12;
+    float float_value = 13;
+    double double_value = 14;
+    bool bool_value = 15;
+    StringList string_list = 16;
+    IntList int_list = 17;
+  }
+}
+
+// Helper message for repeated strings.
+message StringList {
+  repeated string values = 1;
+}
+
+// Helper message for repeated ints.
+message IntList {
+  repeated int32 values = 1;
 }
