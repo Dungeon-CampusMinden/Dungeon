@@ -32,13 +32,9 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.DrawInfoData;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -309,9 +305,6 @@ public final class ProtoConverter {
   /**
    * Converts an {@link InputMessage} into its protobuf representation.
    *
-   * <p>The deprecated {@link InputMessage.Action#TOGGLE_INVENTORY} is not supported and will result
-   * in an exception.
-   *
    * @param message the domain input message to convert
    * @return the protobuf input message
    */
@@ -324,56 +317,65 @@ public final class ProtoConverter {
 
     switch (message.action()) {
       case MOVE -> {
-        Point point = requirePoint(message);
+        InputMessage.Move move = message.payloadAs(InputMessage.Move.class);
+        Vector2 direction = move.direction();
         builder.setMove(
             core.network.proto.c2s.MoveAction.newBuilder()
                 .setDirection(
                     core.network.proto.common.Vector2.newBuilder()
-                        .setX(point.x())
-                        .setY(point.y())
+                        .setX(direction.x())
+                        .setY(direction.y())
                         .build())
                 .build());
       }
       case CAST_SKILL -> {
-        Point point = requirePoint(message);
+        InputMessage.CastSkill castSkill = message.payloadAs(InputMessage.CastSkill.class);
         builder.setCastSkill(
-            core.network.proto.c2s.CastSkillAction.newBuilder().setTarget(toProto(point)).build());
+            core.network.proto.c2s.CastSkillAction.newBuilder()
+                .setTarget(toProto(castSkill.target()))
+                .setMainSkill(castSkill.mainSkill())
+                .build());
       }
       case INTERACT -> {
-        Point point = requirePoint(message);
+        InputMessage.Interact interact = message.payloadAs(InputMessage.Interact.class);
         builder.setInteract(
-            core.network.proto.c2s.InteractAction.newBuilder().setTarget(toProto(point)).build());
+            core.network.proto.c2s.InteractAction.newBuilder()
+                .setTarget(toProto(interact.target()))
+                .build());
       }
-      case NEXT_SKILL ->
-          builder.setSkillChange(
-              core.network.proto.c2s.SkillChangeAction.newBuilder().setNextSkill(true).build());
-      case PREV_SKILL ->
-          builder.setSkillChange(
-              core.network.proto.c2s.SkillChangeAction.newBuilder().setNextSkill(false).build());
+      case NEXT_SKILL, PREV_SKILL -> {
+        InputMessage.SkillChange change = message.payloadAs(InputMessage.SkillChange.class);
+        builder.setSkillChange(
+            core.network.proto.c2s.SkillChangeAction.newBuilder()
+                .setNextSkill(change.nextSkill())
+                .setMainSkill(change.mainSkill())
+                .build());
+      }
       case INV_DROP -> {
-        Point point = requirePoint(message);
+        InputMessage.InventoryDrop drop = message.payloadAs(InputMessage.InventoryDrop.class);
         builder.setInvDrop(
             core.network.proto.c2s.InventoryDropAction.newBuilder()
-                .setSlotIndex((int) point.x())
+                .setSlotIndex(drop.slotIndex())
                 .build());
       }
       case INV_MOVE -> {
-        Point point = requirePoint(message);
+        InputMessage.InventoryMove move = message.payloadAs(InputMessage.InventoryMove.class);
         builder.setInvMove(
             core.network.proto.c2s.InventoryMoveAction.newBuilder()
-                .setFromSlot((int) point.x())
-                .setToSlot((int) point.y())
+                .setFromSlot(move.fromSlot())
+                .setToSlot(move.toSlot())
                 .build());
       }
       case INV_USE -> {
-        Point point = requirePoint(message);
+        InputMessage.InventoryUse use = message.payloadAs(InputMessage.InventoryUse.class);
         builder.setInvUse(
             core.network.proto.c2s.InventoryUseAction.newBuilder()
-                .setSlotIndex((int) point.x())
+                .setSlotIndex(use.slotIndex())
                 .build());
       }
       case TOGGLE_INVENTORY ->
-          throw new IllegalArgumentException("Toggle inventory action is deprecated.");
+          builder.setToggleInventory(
+              core.network.proto.c2s.ToggleInventoryAction.newBuilder().build());
     }
 
     return builder.build();
@@ -381,8 +383,6 @@ public final class ProtoConverter {
 
   /**
    * Converts a protobuf input message into an {@link InputMessage}.
-   *
-   * <p>The deprecated toggle inventory action is not supported and will result in an exception.
    *
    * @param proto the protobuf input message
    * @return the domain input message
@@ -400,31 +400,51 @@ public final class ProtoConverter {
             clientTick,
             sequence,
             InputMessage.Action.MOVE,
-            new Point(direction.getX(), direction.getY()));
+            new InputMessage.Move(Vector2.of(direction.getX(), direction.getY())));
       }
       case CAST_SKILL -> {
         core.network.proto.common.Point target = proto.getCastSkill().getTarget();
-        yield new InputMessage(
-            sessionId, clientTick, sequence, InputMessage.Action.CAST_SKILL, fromProto(target));
-      }
-      case INTERACT -> {
-        core.network.proto.common.Point target = proto.getInteract().getTarget();
-        yield new InputMessage(
-            sessionId, clientTick, sequence, InputMessage.Action.INTERACT, fromProto(target));
-      }
-      case SKILL_CHANGE -> {
-        boolean nextSkill = proto.getSkillChange().getNextSkill();
+        boolean mainSkill = proto.getCastSkill().getMainSkill();
         yield new InputMessage(
             sessionId,
             clientTick,
             sequence,
-            nextSkill ? InputMessage.Action.NEXT_SKILL : InputMessage.Action.PREV_SKILL,
-            null);
+            InputMessage.Action.CAST_SKILL,
+            new InputMessage.CastSkill(fromProto(target), mainSkill));
       }
+      case INTERACT -> {
+        core.network.proto.common.Point target = proto.getInteract().getTarget();
+        yield new InputMessage(
+            sessionId,
+            clientTick,
+            sequence,
+            InputMessage.Action.INTERACT,
+            new InputMessage.Interact(fromProto(target)));
+      }
+      case SKILL_CHANGE -> {
+        boolean nextSkill = proto.getSkillChange().getNextSkill();
+        boolean mainSkill = proto.getSkillChange().getMainSkill();
+        InputMessage.Action action =
+            nextSkill ? InputMessage.Action.NEXT_SKILL
+              : InputMessage.Action.PREV_SKILL;
+        yield new InputMessage(
+            sessionId, clientTick, sequence, action, new InputMessage.SkillChange(nextSkill, mainSkill));
+      }
+      case TOGGLE_INVENTORY ->
+          new InputMessage(
+              sessionId,
+              clientTick,
+              sequence,
+              InputMessage.Action.TOGGLE_INVENTORY,
+              new InputMessage.ToggleInventory());
       case INV_DROP -> {
         int slotIndex = proto.getInvDrop().getSlotIndex();
         yield new InputMessage(
-            sessionId, clientTick, sequence, InputMessage.Action.INV_DROP, new Point(slotIndex, 0));
+            sessionId,
+            clientTick,
+            sequence,
+            InputMessage.Action.INV_DROP,
+            new InputMessage.InventoryDrop(slotIndex));
       }
       case INV_MOVE -> {
         int fromSlot = proto.getInvMove().getFromSlot();
@@ -434,12 +454,16 @@ public final class ProtoConverter {
             clientTick,
             sequence,
             InputMessage.Action.INV_MOVE,
-            new Point(fromSlot, toSlot));
+            new InputMessage.InventoryMove(fromSlot, toSlot));
       }
       case INV_USE -> {
         int slotIndex = proto.getInvUse().getSlotIndex();
         yield new InputMessage(
-            sessionId, clientTick, sequence, InputMessage.Action.INV_USE, new Point(slotIndex, 0));
+            sessionId,
+            clientTick,
+            sequence,
+            InputMessage.Action.INV_USE,
+            new InputMessage.InventoryUse(slotIndex));
       }
       case ACTION_NOT_SET -> throw new IllegalArgumentException("InputMessage action is required.");
     };
@@ -463,7 +487,7 @@ public final class ProtoConverter {
             .setCallbackKey(callbackKey);
     Serializable data = message.data();
     if (data != null) {
-      builder.setCustomData(ByteString.copyFrom(serializeDialogData(data)));
+      setDialogPayload(builder, data);
     }
     return builder.build();
   }
@@ -480,10 +504,7 @@ public final class ProtoConverter {
     if (DIALOG_CLOSED_KEY.equals(callbackKey)) {
       callbackKey = null;
     }
-    Serializable data = null;
-    if (proto.hasCustomData()) {
-      data = deserializeDialogData(proto.getCustomData());
-    }
+    Serializable data = parseDialogPayload(proto);
     return new DialogResponseMessage(proto.getDialogId(), callbackKey, data);
   }
 
@@ -1165,15 +1186,6 @@ public final class ProtoConverter {
     }
   }
 
-  private static Point requirePoint(InputMessage message) {
-    Point point = message.point();
-    if (point == null) {
-      throw new IllegalArgumentException(
-          "InputMessage point is required for action " + message.action());
-    }
-    return point;
-  }
-
   private static Direction parseDirection(String direction) {
     if (direction == null) {
       return Direction.NONE;
@@ -1185,28 +1197,49 @@ public final class ProtoConverter {
     }
   }
 
-  private static byte[] serializeDialogData(Serializable data) {
-    try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bos)) {
-      oos.writeObject(data);
-      return bos.toByteArray();
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Failed to serialize dialog data.", e);
+  private static void setDialogPayload(
+      core.network.proto.c2s.DialogResponseMessage.Builder builder, Serializable data) {
+    if (data instanceof String stringValue) {
+      builder.setStringValue(stringValue);
+    } else if (data instanceof Integer intValue) {
+      builder.setIntValue(intValue);
+    } else if (data instanceof Long longValue) {
+      builder.setLongValue(longValue);
+    } else if (data instanceof Float floatValue) {
+      builder.setFloatValue(floatValue);
+    } else if (data instanceof Double doubleValue) {
+      builder.setDoubleValue(doubleValue);
+    } else if (data instanceof Boolean boolValue) {
+      builder.setBoolValue(boolValue);
+    } else if (data instanceof String[] stringArray) {
+      builder.setStringList(
+          core.network.proto.c2s.StringList.newBuilder().addAllValues(Arrays.asList(stringArray)));
+    } else if (data instanceof int[] intArray) {
+      core.network.proto.c2s.IntList.Builder listBuilder =
+          core.network.proto.c2s.IntList.newBuilder();
+      for (int value : intArray) {
+        listBuilder.addValues(value);
+      }
+      builder.setIntList(listBuilder);
+    } else {
+      throw new IllegalArgumentException(
+          "Unsupported dialog response payload type: " + data.getClass().getName());
     }
   }
 
-  private static Serializable deserializeDialogData(ByteString data) {
-    byte[] bytes = data.toByteArray();
-    try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-        ObjectInputStream ois = new ObjectInputStream(bis)) {
-      Object result = ois.readObject();
-      if (result instanceof Serializable serializable) {
-        return serializable;
-      }
-      throw new IllegalArgumentException("Dialog data is not serializable.");
-    } catch (IOException | ClassNotFoundException e) {
-      throw new IllegalArgumentException("Failed to deserialize dialog data.", e);
-    }
+  private static Serializable parseDialogPayload(
+      core.network.proto.c2s.DialogResponseMessage proto) {
+    return switch (proto.getPayloadCase()) {
+      case STRING_VALUE -> proto.getStringValue();
+      case INT_VALUE -> proto.getIntValue();
+      case LONG_VALUE -> proto.getLongValue();
+      case FLOAT_VALUE -> proto.getFloatValue();
+      case DOUBLE_VALUE -> proto.getDoubleValue();
+      case BOOL_VALUE -> proto.getBoolValue();
+      case STRING_LIST -> proto.getStringList().getValuesList().toArray(new String[0]);
+      case INT_LIST -> proto.getIntList().getValuesList().stream().mapToInt(i -> i).toArray();
+      case PAYLOAD_NOT_SET -> null;
+    };
   }
 
   private static byte toByteExact(int value, String fieldName) {

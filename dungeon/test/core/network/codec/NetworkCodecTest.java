@@ -19,7 +19,7 @@ import core.network.messages.s2c.LevelChangeEvent;
 import core.network.messages.s2c.RegisterAck;
 import core.network.messages.s2c.SoundPlayMessage;
 import core.network.messages.s2c.SoundStopMessage;
-import core.utils.Point;
+import core.utils.Vector2;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.util.List;
@@ -46,7 +46,12 @@ class NetworkCodecTest {
   private static List<NetworkMessage> sampleMessages() {
     return List.of(
         new ConnectRequest((short) 1, "player", 42, new byte[] {1, 2, 3}),
-        new InputMessage(42, 100, (short) 7, InputMessage.Action.MOVE, new Point(1.5f, -2.5f)),
+        new InputMessage(
+            42,
+            100,
+            (short) 7,
+            InputMessage.Action.MOVE,
+            new InputMessage.Move(Vector2.of(1.5f, -2.5f))),
         new DialogResponseMessage("dialog-1", "onConfirm", null),
         new RegisterUdp(42, new byte[] {9, 8, 7}, (short) 4),
         new RequestEntitySpawn(99),

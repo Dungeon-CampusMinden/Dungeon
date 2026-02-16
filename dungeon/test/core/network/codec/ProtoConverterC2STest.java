@@ -1,20 +1,11 @@
 package core.network.codec;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import core.network.messages.c2s.ConnectRequest;
-import core.network.messages.c2s.DialogResponseMessage;
-import core.network.messages.c2s.InputMessage;
-import core.network.messages.c2s.RegisterUdp;
-import core.network.messages.c2s.RequestEntitySpawn;
-import core.network.messages.c2s.SoundFinishedMessage;
+import core.network.messages.c2s.*;
 import core.utils.Point;
+import core.utils.Vector2;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Tests for {@link ProtoConverter} c2s message conversions. */
 public class ProtoConverterC2STest {
@@ -62,7 +53,12 @@ public class ProtoConverterC2STest {
   @Test
   public void testInputMessageMoveRoundTrip() {
     InputMessage message =
-        new InputMessage(5, 10, (short) 7, InputMessage.Action.MOVE, new Point(1.5f, -2.0f));
+        new InputMessage(
+            5,
+            10,
+            (short) 7,
+            InputMessage.Action.MOVE,
+            new InputMessage.Move(Vector2.of(1.5f, -2.0f)));
 
     core.network.proto.c2s.InputMessage proto = ProtoConverter.toProto(message);
     assertEquals(core.network.proto.c2s.InputMessage.ActionCase.MOVE, proto.getActionCase());
@@ -71,15 +67,21 @@ public class ProtoConverterC2STest {
 
     InputMessage roundTrip = ProtoConverter.fromProto(proto);
     assertEquals(InputMessage.Action.MOVE, roundTrip.action());
-    assertEquals(1.5f, roundTrip.point().x(), DELTA);
-    assertEquals(-2.0f, roundTrip.point().y(), DELTA);
+    InputMessage.Move move = roundTrip.payloadAs(InputMessage.Move.class);
+    assertEquals(1.5f, move.direction().x(), DELTA);
+    assertEquals(-2.0f, move.direction().y(), DELTA);
   }
 
   /** Verifies cast skill action conversion. */
   @Test
   public void testInputMessageCastSkillRoundTrip() {
     InputMessage message =
-        new InputMessage(1, 2, (short) 3, InputMessage.Action.CAST_SKILL, new Point(3.0f, 4.0f));
+        new InputMessage(
+            1,
+            2,
+            (short) 3,
+            InputMessage.Action.CAST_SKILL,
+            new InputMessage.CastSkill(new Point(3.0f, 4.0f), true));
 
     core.network.proto.c2s.InputMessage proto = ProtoConverter.toProto(message);
     assertEquals(core.network.proto.c2s.InputMessage.ActionCase.CAST_SKILL, proto.getActionCase());
@@ -88,15 +90,21 @@ public class ProtoConverterC2STest {
 
     InputMessage roundTrip = ProtoConverter.fromProto(proto);
     assertEquals(InputMessage.Action.CAST_SKILL, roundTrip.action());
-    assertEquals(3.0f, roundTrip.point().x(), DELTA);
-    assertEquals(4.0f, roundTrip.point().y(), DELTA);
+    InputMessage.CastSkill castSkill = roundTrip.payloadAs(InputMessage.CastSkill.class);
+    assertEquals(3.0f, castSkill.target().x(), DELTA);
+    assertEquals(4.0f, castSkill.target().y(), DELTA);
   }
 
   /** Verifies interact action conversion. */
   @Test
   public void testInputMessageInteractRoundTrip() {
     InputMessage message =
-        new InputMessage(9, 8, (short) 7, InputMessage.Action.INTERACT, new Point(-1.0f, 2.5f));
+        new InputMessage(
+            9,
+            8,
+            (short) 7,
+            InputMessage.Action.INTERACT,
+            new InputMessage.Interact(new Point(-1.0f, 2.5f)));
 
     core.network.proto.c2s.InputMessage proto = ProtoConverter.toProto(message);
     assertEquals(core.network.proto.c2s.InputMessage.ActionCase.INTERACT, proto.getActionCase());
@@ -105,14 +113,17 @@ public class ProtoConverterC2STest {
 
     InputMessage roundTrip = ProtoConverter.fromProto(proto);
     assertEquals(InputMessage.Action.INTERACT, roundTrip.action());
-    assertEquals(-1.0f, roundTrip.point().x(), DELTA);
-    assertEquals(2.5f, roundTrip.point().y(), DELTA);
+    InputMessage.Interact interact = roundTrip.payloadAs(InputMessage.Interact.class);
+    assertEquals(-1.0f, interact.target().x(), DELTA);
+    assertEquals(2.5f, interact.target().y(), DELTA);
   }
 
   /** Verifies next skill action conversion. */
   @Test
   public void testInputMessageNextSkillRoundTrip() {
-    InputMessage message = new InputMessage(1, 1, (short) 1, InputMessage.Action.NEXT_SKILL, null);
+    InputMessage message =
+        new InputMessage(
+            1, 1, (short) 1, InputMessage.Action.NEXT_SKILL, new InputMessage.SkillChange(true, true));
 
     core.network.proto.c2s.InputMessage proto = ProtoConverter.toProto(message);
     assertEquals(
@@ -121,13 +132,16 @@ public class ProtoConverterC2STest {
 
     InputMessage roundTrip = ProtoConverter.fromProto(proto);
     assertEquals(InputMessage.Action.NEXT_SKILL, roundTrip.action());
-    assertNull(roundTrip.point());
+    InputMessage.SkillChange change = roundTrip.payloadAs(InputMessage.SkillChange.class);
+    assertTrue(change.nextSkill());
   }
 
   /** Verifies previous skill action conversion. */
   @Test
   public void testInputMessagePrevSkillRoundTrip() {
-    InputMessage message = new InputMessage(2, 3, (short) 4, InputMessage.Action.PREV_SKILL, null);
+    InputMessage message =
+        new InputMessage(
+            2, 3, (short) 4, InputMessage.Action.PREV_SKILL, new InputMessage.SkillChange(false, true));
 
     core.network.proto.c2s.InputMessage proto = ProtoConverter.toProto(message);
     assertEquals(
@@ -136,14 +150,16 @@ public class ProtoConverterC2STest {
 
     InputMessage roundTrip = ProtoConverter.fromProto(proto);
     assertEquals(InputMessage.Action.PREV_SKILL, roundTrip.action());
-    assertNull(roundTrip.point());
+    InputMessage.SkillChange change = roundTrip.payloadAs(InputMessage.SkillChange.class);
+    assertFalse(change.nextSkill());
   }
 
   /** Verifies inventory drop action conversion. */
   @Test
   public void testInputMessageInventoryDropRoundTrip() {
     InputMessage message =
-        new InputMessage(3, 4, (short) 5, InputMessage.Action.INV_DROP, new Point(2, 0));
+        new InputMessage(
+            3, 4, (short) 5, InputMessage.Action.INV_DROP, new InputMessage.InventoryDrop(2));
 
     core.network.proto.c2s.InputMessage proto = ProtoConverter.toProto(message);
     assertEquals(core.network.proto.c2s.InputMessage.ActionCase.INV_DROP, proto.getActionCase());
@@ -151,15 +167,16 @@ public class ProtoConverterC2STest {
 
     InputMessage roundTrip = ProtoConverter.fromProto(proto);
     assertEquals(InputMessage.Action.INV_DROP, roundTrip.action());
-    assertEquals(2.0f, roundTrip.point().x(), DELTA);
-    assertEquals(0.0f, roundTrip.point().y(), DELTA);
+    InputMessage.InventoryDrop drop = roundTrip.payloadAs(InputMessage.InventoryDrop.class);
+    assertEquals(2, drop.slotIndex());
   }
 
   /** Verifies inventory move action conversion. */
   @Test
   public void testInputMessageInventoryMoveRoundTrip() {
     InputMessage message =
-        new InputMessage(3, 4, (short) 5, InputMessage.Action.INV_MOVE, new Point(-1, 4));
+        new InputMessage(
+            3, 4, (short) 5, InputMessage.Action.INV_MOVE, new InputMessage.InventoryMove(-1, 4));
 
     core.network.proto.c2s.InputMessage proto = ProtoConverter.toProto(message);
     assertEquals(core.network.proto.c2s.InputMessage.ActionCase.INV_MOVE, proto.getActionCase());
@@ -168,15 +185,17 @@ public class ProtoConverterC2STest {
 
     InputMessage roundTrip = ProtoConverter.fromProto(proto);
     assertEquals(InputMessage.Action.INV_MOVE, roundTrip.action());
-    assertEquals(-1.0f, roundTrip.point().x(), DELTA);
-    assertEquals(4.0f, roundTrip.point().y(), DELTA);
+    InputMessage.InventoryMove move = roundTrip.payloadAs(InputMessage.InventoryMove.class);
+    assertEquals(-1, move.fromSlot());
+    assertEquals(4, move.toSlot());
   }
 
   /** Verifies inventory use action conversion. */
   @Test
   public void testInputMessageInventoryUseRoundTrip() {
     InputMessage message =
-        new InputMessage(3, 4, (short) 5, InputMessage.Action.INV_USE, new Point(7, 0));
+        new InputMessage(
+            3, 4, (short) 5, InputMessage.Action.INV_USE, new InputMessage.InventoryUse(7));
 
     core.network.proto.c2s.InputMessage proto = ProtoConverter.toProto(message);
     assertEquals(core.network.proto.c2s.InputMessage.ActionCase.INV_USE, proto.getActionCase());
@@ -184,17 +203,28 @@ public class ProtoConverterC2STest {
 
     InputMessage roundTrip = ProtoConverter.fromProto(proto);
     assertEquals(InputMessage.Action.INV_USE, roundTrip.action());
-    assertEquals(7.0f, roundTrip.point().x(), DELTA);
-    assertEquals(0.0f, roundTrip.point().y(), DELTA);
+    InputMessage.InventoryUse use = roundTrip.payloadAs(InputMessage.InventoryUse.class);
+    assertEquals(7, use.slotIndex());
   }
 
-  /** Ensures the deprecated toggle inventory action is rejected. */
+  /** Verifies toggle inventory action conversion. */
   @Test
-  public void testInputMessageToggleInventoryRejected() {
+  public void testInputMessageToggleInventoryRoundTrip() {
     InputMessage message =
-        new InputMessage(1, 1, (short) 1, InputMessage.Action.TOGGLE_INVENTORY, null);
+        new InputMessage(
+            1,
+            1,
+            (short) 1,
+            InputMessage.Action.TOGGLE_INVENTORY,
+            new InputMessage.ToggleInventory());
 
-    assertThrows(IllegalArgumentException.class, () -> ProtoConverter.toProto(message));
+    core.network.proto.c2s.InputMessage proto = ProtoConverter.toProto(message);
+    assertEquals(
+        core.network.proto.c2s.InputMessage.ActionCase.TOGGLE_INVENTORY, proto.getActionCase());
+
+    InputMessage roundTrip = ProtoConverter.fromProto(proto);
+    assertEquals(InputMessage.Action.TOGGLE_INVENTORY, roundTrip.action());
+    roundTrip.payloadAs(InputMessage.ToggleInventory.class);
   }
 
   /** Ensures input message actions are required. */
@@ -218,7 +248,7 @@ public class ProtoConverterC2STest {
     core.network.proto.c2s.DialogResponseMessage proto = ProtoConverter.toProto(message);
     assertEquals("dialog-1", proto.getDialogId());
     assertEquals("CLOSED", proto.getCallbackKey());
-    assertTrue(proto.hasCustomData());
+    assertEquals("payload", proto.getStringValue());
 
     DialogResponseMessage roundTrip = ProtoConverter.fromProto(proto);
     assertEquals("dialog-1", roundTrip.dialogId());
@@ -234,7 +264,9 @@ public class ProtoConverterC2STest {
     core.network.proto.c2s.DialogResponseMessage proto = ProtoConverter.toProto(message);
     assertEquals("dialog-2", proto.getDialogId());
     assertEquals("onConfirm", proto.getCallbackKey());
-    assertFalse(proto.hasCustomData());
+    assertEquals(
+        core.network.proto.c2s.DialogResponseMessage.PayloadCase.PAYLOAD_NOT_SET,
+        proto.getPayloadCase());
 
     DialogResponseMessage roundTrip = ProtoConverter.fromProto(proto);
     assertEquals("dialog-2", roundTrip.dialogId());
