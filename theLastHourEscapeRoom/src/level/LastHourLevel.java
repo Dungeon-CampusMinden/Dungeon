@@ -17,11 +17,13 @@ import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadFactory;
 import contrib.systems.EventScheduler;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.InputComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
@@ -43,6 +45,7 @@ import core.utils.components.path.SimpleIPath;
 import modules.computer.*;
 import modules.trash.TrashMinigameUI;
 import util.LastHourSounds;
+import util.shaders.LightingShader;
 import util.ui.BlackFadeCutscene;
 
 /** The MushRoom. */
@@ -97,6 +100,7 @@ public class LastHourLevel extends DungeonLevel {
     setupDecoderShelfs();
     setupPapers();
     setupInteractables();
+    setupLightingShader();
 
     String lorem =
         """
@@ -136,6 +140,10 @@ public class LastHourLevel extends DungeonLevel {
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
 
+  private void setupLightingShader() {
+    DrawSystem.getInstance().sceneShaders().add("lighting", new LightingShader().ambientLight(0));
+  }
+
   private void setupInteractables() {
     Entity desk0 = DecoFactory.createDeco(getPoint("desk-nothing0"), Deco.StampingTable);
     desk0.remove(DecoComponent.class);
@@ -154,7 +162,7 @@ public class LastHourLevel extends DungeonLevel {
     Entity printer = DecoFactory.createDeco(getPoint("printer"), Deco.Printer2);
     printer.remove(DecoComponent.class);
     printer.add(new InteractionComponent(() -> new Interaction((e, who) -> {
-      DialogFactory.showOkDialog("Someone forgot to turn of the printer, so it's been spweing\nout more and more documents, until presumably the power outage\nstopped it.", "", () -> {}, who.id());
+      DialogFactory.showOkDialog("Someone forgot to turn of the printer, so it's been spewing\nout more and more documents, until presumably the power outage\nstopped it.", "", () -> {}, who.id());
     })));
 
 
@@ -218,7 +226,7 @@ public class LastHourLevel extends DungeonLevel {
       if(!dc.currentStateName().equals(PC_STATE_OFF)) return;
       DialogFactory.showYesNoDialog("There is a switch hidden below these stacks of paper.\n\nDo you want to flip it?", "", () -> {
         Sounds.playLocal(CoreSounds.SETTINGS_TOGGLE_CLICK, 1, 1.5f);
-        DialogFactory.showOkDialog("You flipped the switch.\n\nYou can hear electricity buzzing throughout the room.", "", () -> {
+        DialogFactory.showOkDialog("You flipped the switch.\n\nYou can hear electricity buzzing throughout the room, as a few partly broken lights turn on.", "", () -> {
           ComputerStateComponent.setState(ComputerProgress.ON);
           Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
         });
@@ -284,6 +292,24 @@ public class LastHourLevel extends DungeonLevel {
   protected void onTick() {
     checkPCStateUpdate();
     checkInteractFeedback();
+    updateLightingShader();
+  }
+
+  private void updateLightingShader() {
+    if(!(DrawSystem.getInstance().sceneShaders().get("lighting") instanceof LightingShader ls)) return;
+
+    ls.clearLightSources();
+
+    if(ComputerStateComponent.getState().state().hasReached(ComputerProgress.ON)){
+      ls.ambientLight(0.2f);
+      Color color = ComputerStateComponent.getState().isInfected() ? Color.RED : Color.BLUE;
+      float intensity = ComputerStateComponent.getState().isInfected() ? 0.8f : 0.5f;
+      ls.addLightSource(EntityUtils.getPosition(pc), intensity, color);
+    }
+
+    Game.levelEntities(Set.of(PlayerComponent.class)).forEach(e -> {
+      ls.addLightSource(EntityUtils.getPosition(e), 1f);
+    });
   }
 
   private void checkPCStateUpdate() {
