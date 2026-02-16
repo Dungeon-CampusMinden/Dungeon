@@ -162,7 +162,7 @@ public class ComputerDialog extends Group {
 
   public void addTabsForState(ComputerProgress state) {
     if (state == ComputerProgress.ON) {
-      addTab(new LoginMask(sharedState));
+      addTab(new LoginTab(sharedState));
     } else if (state == ComputerProgress.LOGGED_IN) {
       addTab(new EmailsTab(sharedState));
       addTab(new BrowserTab(sharedState));

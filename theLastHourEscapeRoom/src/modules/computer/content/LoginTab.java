@@ -15,7 +15,7 @@ import modules.computer.ComputerProgress;
 import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;
 
-public class LoginMask extends ComputerTab {
+public class LoginTab extends ComputerTab {
 
   private static final String USERNAME = "test";
   private static final String PASSWORD = "A12B34XY";
@@ -31,7 +31,7 @@ public class LoginMask extends ComputerTab {
   private Button loginButton;
   private Label loginFeedback;
 
-  public LoginMask(ComputerStateComponent sharedState) {
+  public LoginTab(ComputerStateComponent sharedState) {
     super(sharedState, "login", "Login", false);
   }
 
