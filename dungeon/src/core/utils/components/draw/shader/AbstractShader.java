@@ -353,4 +353,29 @@ public abstract class AbstractShader implements Disposable {
       program.setUniformf(name, value);
     }
   }
+
+  /**
+   * Binds an array of Vector3s to the shader.
+   */
+  public record Vector3ArrayUniform(String name, List<Vector3> values) implements UniformBinding {
+    @Override
+    public void bind(ShaderProgram program) {
+      int count = Math.min(values.size(), 100); // Guard against array bounds
+
+      // Pass the count of active lights
+      program.setUniformi(name+"_count", count);
+
+      // Flatten the Vector3 list into a single float array
+      float[] flatArray = new float[count * 3];
+      for (int i = 0; i < count; i++) {
+        Vector3 v = values.get(i);
+        flatArray[i * 3] = v.x;
+        flatArray[i * 3 + 1] = v.y;
+        flatArray[i * 3 + 2] = v.z;
+      }
+
+      // Send the entire array to the GPU in one call
+      program.setUniform3fv(name, flatArray, 0, flatArray.length);
+    }
+  }
 }
