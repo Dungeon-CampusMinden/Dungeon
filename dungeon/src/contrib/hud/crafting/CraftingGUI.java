@@ -180,8 +180,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
             this, new Animation(new SimpleIPath(BUTTON_CANCEL_TEXTURE_PATH)), 0, 0, 1, 1);
     this.buttonOk.onClick(
         (button) ->
-            DialogCallbackResolver.createButtonCallback(dialogId, CALLBACK_CRAFT)
-                .accept(this.inventory.items()));
+            DialogCallbackResolver.createButtonCallback(dialogId, CALLBACK_CRAFT).accept(null));
     this.buttonCancel.onClick(
         (button) ->
             DialogCallbackResolver.createButtonCallback(dialogId, CALLBACK_CANCEL).accept(null));
@@ -263,21 +262,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private static void registerCallbacks(UIComponent uiComponent, CraftingGUI craftingGUI) {
     uiComponent.registerCallback(
         CALLBACK_CRAFT,
-        data -> {
-          if (!(data instanceof Item[] clientItems)) {
-            LOGGER.warn("Invalid data for crafting callback: expected Item[], got {}", data);
-            return;
-          }
-
-          // Get current server inventory state (don't trust client)
-          Item[] currentServerItems = craftingGUI.inventory.items();
-
-          // Validate: client items must exactly match server items
-          if (!Arrays.deepEquals(currentServerItems, clientItems)) {
-            LOGGER.warn("Craft request items don't match server inventory");
-            return;
-          }
-
+        payload -> {
           // validate recipe
           if (craftingGUI.currentRecipe == null) {
             LOGGER.warn("Craft requested but no valid recipe found");

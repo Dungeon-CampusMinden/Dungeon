@@ -4,7 +4,6 @@ import core.Game;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.network.server.DialogTracker;
 import core.utils.logging.DungeonLogger;
-import java.io.Serializable;
 import java.util.function.Consumer;
 
 /**
@@ -31,20 +30,21 @@ public final class DialogCallbackResolver {
    *
    * @param dialogId the unique identifier of the dialog
    * @param callbackKey the key identifying the specific callback for the button
-   * @return a Consumer that accepts serializable data and executes the appropriate callback
+   * @return a Consumer that accepts dialog payload data and executes the appropriate callback
    */
-  public static Consumer<Serializable> createButtonCallback(String dialogId, String callbackKey) {
+  public static Consumer<DialogResponseMessage.Payload> createButtonCallback(
+      String dialogId, String callbackKey) {
     if (isNetworkClient()) {
-      return (data) -> {
-        DialogResponseMessage msg = new DialogResponseMessage(dialogId, callbackKey, data);
+      return (payload) -> {
+        DialogResponseMessage msg = new DialogResponseMessage(dialogId, callbackKey, payload);
         Game.network().send((short) 0, msg, true);
       };
     } else {
-      return (data) ->
+      return (payload) ->
           DialogTracker.instance()
               .getCallback(dialogId, callbackKey)
               .ifPresentOrElse(
-                  callback -> callback.accept(data),
+                  callback -> callback.accept(payload),
                   () ->
                       LOGGER.warn(
                           "No callback found for dialogId: {} and callbackKey: {}",

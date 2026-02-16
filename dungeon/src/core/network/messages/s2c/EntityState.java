@@ -5,7 +5,6 @@ import core.network.messages.NetworkMessage;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
-import java.io.Serial;
 import java.util.Optional;
 
 /**
@@ -18,8 +17,6 @@ import java.util.Optional;
  * @see core.network.SnapshotTranslator
  */
 public class EntityState implements NetworkMessage {
-  @Serial private static final long serialVersionUID = 1L;
-
   private final int entityId;
   private final String entityName;
   private final Point position;

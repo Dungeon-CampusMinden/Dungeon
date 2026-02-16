@@ -1,7 +1,6 @@
 package core.network.messages.s2c;
 
 import core.network.messages.NetworkMessage;
-import java.io.Serial;
 
 /**
  * Server-to-client message instructing the client to play a sound.
@@ -27,6 +26,4 @@ public record SoundPlayMessage(
     boolean looping,
     float maxDistance,
     float attenuationFactor)
-    implements NetworkMessage {
-  @Serial private static final long serialVersionUID = 1L;
-}
+    implements NetworkMessage {}
