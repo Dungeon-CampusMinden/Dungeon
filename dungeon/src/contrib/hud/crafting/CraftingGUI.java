@@ -456,9 +456,9 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
               this.targetInventory.add(item);
             });
     Arrays.stream(this.currentRecipe.ingredients())
-      .filter(Item.class::isInstance)
-      .map(Item.class::cast)
-      .forEach(item -> this.inventory.remove(item.getClass(), item.stackSize()));
+        .filter(Item.class::isInstance)
+        .map(Item.class::cast)
+        .forEach(item -> this.inventory.remove(item.getClass(), item.stackSize()));
     this.updateRecipe();
   }
 
