@@ -35,6 +35,9 @@ public record Recipe(boolean ordered, CraftingIngredient[] ingredients, Crafting
    * @return true if the inputs can be used to craft the recipe, false otherwise
    */
   public boolean canCraft(final CraftingIngredient[] inputs) {
+    if (inputs.length != this.ingredients.length) {
+      return false;
+    }
     var needAmount = Arrays.stream(inputs).mapToInt(CraftingIngredient::getAmount).sum();
     var haveAmount = Arrays.stream(this.ingredients).mapToInt(CraftingIngredient::getAmount).sum();
     if (needAmount < haveAmount) {
