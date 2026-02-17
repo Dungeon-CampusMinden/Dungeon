@@ -45,6 +45,7 @@ import core.utils.components.path.SimpleIPath;
 import modules.computer.*;
 import modules.trash.TrashMinigameUI;
 import util.LastHourSounds;
+import util.Lore;
 import util.shaders.LightingShader;
 import util.ui.BlackFadeCutscene;
 
@@ -102,25 +103,11 @@ public class LastHourLevel extends DungeonLevel {
     setupInteractables();
     setupLightingShader();
 
-    String lorem =
-        """
-      Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 
-      Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
+    BlackFadeCutscene.show(Lore.IntroTexts, false, true, () -> {
+      DialogFactory.showOkDialog(Lore.PostIntroDialogTexts.getFirst(), "", () -> {
 
-      Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
-      """;
-
-    //    DialogFactory.showOkDialog("Welcome to this escape room adventure!\nYou have 20 minutes to
-    // find a way out.\n\nGood Luck!", "", () -> {});
-    //    DialogFactory.showTextDialog("Welcome to this escape room adventure!\nYou have 20 minutes
-    // to find a way out.\n\nGood Luck!", "", () -> {}, "OK", null, null);
-    //    DialogFactory.showTextDialog(lorem, "Some Title", () -> {}, "Dann mal weiter...");
-
-    BlackFadeCutscene.show(List.of("Test message", "And page 2"), false, true, () -> {
-      DialogFactory.showYesNoDialog("Welcome to this escape room adventure!\nYou have 20 minutes to find a way out.\n\nGood Luck\n\nDo you want another popup?", "", () -> {
-        DialogFactory.showTextDialog(lorem, "Some Title", () -> {}, "Dann mal weiter...");
-      }, () -> {});
+      });
     });
 
     Game.player().ifPresent(p -> {
@@ -216,7 +203,7 @@ public class LastHourLevel extends DungeonLevel {
     Game.add(pc);
 
     Entity computerState = new Entity("computer-state");
-    computerState.add(new ComputerStateComponent(ComputerProgress.OFF, false));
+    computerState.add(new ComputerStateComponent(ComputerProgress.OFF, false, null));
     Game.add(computerState);
 
     // Power switch (hidden under papers)
@@ -226,13 +213,22 @@ public class LastHourLevel extends DungeonLevel {
       if(!dc.currentStateName().equals(PC_STATE_OFF)) return;
       DialogFactory.showYesNoDialog("There is a switch hidden below these stacks of paper.\n\nDo you want to flip it?", "", () -> {
         Sounds.playLocal(CoreSounds.SETTINGS_TOGGLE_CLICK, 1, 1.5f);
-        DialogFactory.showOkDialog("You flipped the switch.\n\nYou can hear electricity buzzing throughout the room, as a few partly broken lights turn on.", "", () -> {
+        DialogFactory.showOkDialog("You flipped the switch.\n\nYou can hear electricity buzzing throughout the room,\nas a few partly broken lights turn on.", "", () -> {
           ComputerStateComponent.setState(ComputerProgress.ON);
           Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
         });
       }, () -> {}, who.id());
     })));
     Game.add(paper);
+
+    Entity profilePaper = DecoFactory.createDeco(getPoint("profile-paper"), Deco.SheetWritten1);
+    profilePaper.remove(DecoComponent.class);
+    profilePaper.remove(CollideComponent.class);
+    DrawSystem.getInstance().changeEntityDepth(profilePaper, DepthLayer.AbovePlayer.depth());
+    profilePaper.add(new InteractionComponent(() -> new Interaction((e, who) -> {
+      DialogUtils.showImagePopUp("images/scientist_profile.png");
+    })));
+    Game.add(profilePaper);
   }
 
   private static final Deco[] trashcans = {Deco.TrashCanBlue, Deco.TrashCanGreen, Deco.TrashCanRed};
