@@ -2,6 +2,7 @@ package portal.laser;
 
 import contrib.components.CollideComponent;
 import contrib.components.SpikyComponent;
+import contrib.systems.EventScheduler;
 import contrib.systems.PositionSync;
 import contrib.utils.components.collide.Hitbox;
 import contrib.utils.components.health.DamageType;
@@ -18,6 +19,8 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.path.SimpleIPath;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import portal.portals.components.PortalExtendComponent;
@@ -40,6 +43,9 @@ public class LaserUtil {
         .fetch(LaserComponent.class)
         .ifPresent(
             lc -> {
+              if(lc.isActive()) {
+                return;
+              }
               emitter
                   .fetch(PositionComponent.class)
                   .ifPresent(
@@ -73,18 +79,17 @@ public class LaserUtil {
         .fetch(LaserComponent.class)
         .ifPresent(
             lc -> {
-              List<Entity> listOfRelevantEntities =
-                  Game.levelEntities(Set.of(LaserComponent.class))
-                      .filter(entity -> entity.fetch(LaserComponent.class).get().equals(lc))
-                      .toList();
-              for (Entity entity : listOfRelevantEntities) {
-                if (emitter.equals(entity)) {
-                  updateEmitterVisual(emitter, false);
-                  removeEmitterHitbox(emitter);
-                } else {
-                  Game.remove(entity);
-                }
+              if(!lc.isActive()) {
+                return;
               }
+            Game.levelEntities(Set.of(LaserComponent.class))
+                    .filter(entity -> entity.fetch(LaserComponent.class).get().equals(lc))
+                      .filter(entity -> !entity.equals(emitter))
+                          .forEach(Game::remove);
+
+              updateEmitterVisual(emitter, false);
+              emitter.remove(SpikyComponent.class);
+              emitter.remove(CollideComponent.class);
               lc.setActive(false);
             });
   }
@@ -103,7 +108,7 @@ public class LaserUtil {
     Point end = calculateEndPoint(startintPoint, direction);
     int totalPoints = calculateNumberOfPoints(startintPoint, end);
 
-    Entity newEmitter = LaserFactory.createEmitter(comp.isActive(), from, direction);
+    Entity newEmitter = LaserFactory.createEmitter(from, direction);
     newEmitter.add(comp);
     newEmitter.add(pec);
     newEmitter.remove(DrawComponent.class);
@@ -126,7 +131,7 @@ public class LaserUtil {
    */
   public static void trimLaser(Entity emitter) {
     deactivate(emitter);
-    activate(emitter);
+//    activate(emitter);
   }
 
   /**
@@ -209,18 +214,11 @@ public class LaserUtil {
     emitter.add(velocityComponent);
     emitter.add(new SpikyComponent(9999, DamageType.PHYSICAL, 10));
     Hitbox newCollider = new Hitbox(Vector2.of(hitboxX, hitboxY), Vector2.of(offsetX, offsetY));
-    emitter
-        .fetch(CollideComponent.class)
-        .ifPresentOrElse(
-            cc -> {
-              cc.collider(newCollider);
-              PositionSync.syncPosition(emitter);
-            },
-            () -> {
-              CollideComponent cc = new CollideComponent();
-              cc.collider(newCollider);
-              emitter.add(cc);
-            });
+
+    CollideComponent cc = new CollideComponent();
+    cc.collider(newCollider);
+    emitter.add(cc);
+
 
     emitter.fetch(CollideComponent.class).ifPresent(c -> c.isSolid(false));
   }

@@ -27,19 +27,14 @@ public class LaserFactory {
   /**
    * Creates the laser, either active or not active.
    *
-   * @param active true if the laser should be active, otherwise false.
    * @param from starting point of the laser.
    * @param direction direction the laser is facing.
    * @return the laser entity.
    */
-  public static Entity createLaser(boolean active, Point from, Direction direction) {
-    ;
-    Entity emitter = createEmitter(active, from, direction);
-    LaserComponent laserComponent = new LaserComponent(active);
+  public static Entity createLaser(Point from, Direction direction) {
+    Entity emitter = createEmitter(from, direction);
+    LaserComponent laserComponent = new LaserComponent(false);
     emitter.add(laserComponent);
-    if (active) {
-      LaserUtil.activate(emitter);
-    }
     PortalExtendComponent pec = new PortalExtendComponent();
     pec.onExtend =
         (outputDirection, point, portalExtendComponent) -> {
@@ -52,20 +47,18 @@ public class LaserFactory {
 
   /**
    * Creates an emitter entity.
-   *
-   * @param active state of the emitter.
    * @param position position of the emitter.
    * @param direction direction the emitter is facing.
    * @return the emitter entity.
    */
-  public static Entity createEmitter(boolean active, Point position, Direction direction) {
+  public static Entity createEmitter(Point position, Direction direction) {
     Entity emitter = new Entity("laserEmitter");
     PositionComponent pc = new PositionComponent(position);
     pc.rotation(rotationFor(direction));
     pc.viewDirection(direction);
     emitter.add(pc);
     emitter.add(new PortalIgnoreComponent());
-    DrawComponent dc = new DrawComponent(active ? EMITTER_ACTIVE : EMITTER_INACTIVE);
+    DrawComponent dc = new DrawComponent(EMITTER_INACTIVE);
     dc.depth(DepthLayer.Normal.depth());
     emitter.add(dc);
     return emitter;
