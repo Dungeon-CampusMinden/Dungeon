@@ -16,83 +16,14 @@ import java.util.List;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;
+import util.Lore;
 
 public class EmailsTab extends ComputerTab {
 
   private static final String PARAGRAPH_SPLIT = "\\\\p";
   private static final String LINK_TOKEN = "\\a";
 
-  private static final String OWN_MAIL = "dr.martin.brenner@company.xyz";
-  private static final String OWN_NAME = "Dr. Martin Brenner";
   private static final String MAILBOX_NAME = "Lookout";
-  private static final List<Email> inbox =
-      List.of(
-          new Email(
-              "Dr. Smith",
-              "dr.smith@gmail.com",
-              "Highly confidential research",
-              "Hiii,\nthis is a test.\\pAnother paragraph\\p\\aCheck out this website I made!;https://www.example.com",
-              List.of("Hello.html", "Important.xlsx")),
-          new Email(
-              "Account Security",
-              "security@paypa1.com",
-              "Unusual login attempt detected",
-              "We detected a suspicious sign-in attempt on your account.\\pIf this was not you, verify your identity immediately.\\p\\aVisit Paypa1;https://paypa1.com/secure",
-              List.of()),
-          new Email(
-              "cloud support team",
-              "notifications@cloudservice",
-              "Wir haben Ihr Konto gesperrt! Ihre Fotos und Videos werden am",
-              "\\aZur Löschung vorgesehen;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\aIhr Konto war inaktiv und hat das Speicherlimit überschritten. Gemäß unserer Aufbewahrungsrichtlinien sind Ihre Dateien zur Löschung vorgesehen;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\aDAUERTHAFTER DATENVERLUST\nWenn Sie Ihren Speicherplan nicht bis zum verlängern, werden Ihre Daten dauerhaft von unseren Servern gelöscht;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\p\\aMeine Dateien behalten;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm\\p\\p\\aAbmelden;https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm",
-              List.of("License_renewal.ics")),
-          new Email(
-              "IT Support",
-              "support@company.internal",
-              "Password expiration notice",
-              "Hello,\\pYour password will expire in 3 days. Please update it as soon as possible.\\p\\aChange Password;https://intranet.company/reset",
-              List.of("Help.html")),
-          new Email(
-              "HR Department",
-              "hr@company.internal",
-              "Updated employee handbook",
-              "Dear employee,\\pWe have published an updated version of the employee handbook.\\pPlease review the attached document.",
-              List.of("Employee_Handbook_2026.pdf")),
-          new Email(
-              "Microsoft Billing",
-              "billing@microslop.com",
-              "Your subscription will be suspended",
-              "We were unable to process your last payment.\\pTo avoid service interruption, confirm your billing information now.\\p\\ahttps://microsoft-support.co/billing;https://microslop-support.co/billing",
-              List.of("Receipt.html")),
-          new Email(
-              "Alex Johnson",
-              "alex.johnson@partner.org",
-              "Meeting notes & next steps",
-              "Hey,\\pThanks for the meeting earlier today.\\pI've attached the notes and action items we discussed.",
-              List.of("Meeting_Notes.docx")),
-          new Email(
-              "Microsoft Cloud-Speicher",
-              "Microsoft_account_team@onmicrosoft.com",
-              "HEUTE: Ihre Fotos und Videos werden gelöscht - Sofort handeln",
-              "Microsoft\\pKontobenachrichtigung - Cloud-Speicher - SOFORTIGE AKTION\\pSehr geehrte Nutzerin / sehr geehrter Nutzer,\\pDies ist eine AUTOMATISCHE KRITISCHE WARNUNG des Sicherheitssystems von Microsoft.\\pIHRE FOTOS UND VIDEOS\nWERDEN DAUERHAFT GELÖSCHT\\pServicedetails:\\pProdukt: Microsoft Cloud-Speicher\\pAblaufdatum: HEUTE - LETZER TAG\\p\\aSPEICHER JETZT FREISCHALTEN\nKOSTENLOS;https://subkuzb.somelinkshortener.org/4MkOtH235ArQM4epqmbnrkgm18NVSIMYXZAXQPQZB1017602ARSS330N1",
-              List.of()),
-          new Email(
-              "Online Store",
-              "no-reply@shop.example",
-              "Your order has shipped",
-              "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
-              List.of("Invoice_48392.pdf")),
-          new Email(
-              "Online Store",
-              "no-reply@shop.example",
-              "Your order has shipped 2",
-              "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
-              List.of("Invoice_48392.pdf")),
-          new Email(
-              "Online Store",
-              "no-reply@shop.example",
-              "Your order has shipped 3",
-              "Good news!\\pYour order #48392 has been shipped and is on its way.\\p\\ahttps://shop.example/track/48392",
-              List.of("Invoice_48392.pdf")));
 
   private static final String LINK_NONE = "Full Link: <none>";
   private static final String LINK_SOME = "Full Link: %s";
@@ -106,7 +37,7 @@ public class EmailsTab extends ComputerTab {
   }
 
   protected void createActors() {
-    this.title("E-Mails (" + inbox.size() + ")");
+    this.title("E-Mails (" + Lore.EmailList.size() + ")");
     this.selectedEmail = localState().selectedEmail();
     this.clearChildren();
     this.add(createEmailListContainer()).growY().top();
@@ -123,14 +54,14 @@ public class EmailsTab extends ComputerTab {
     container.add(inboxLabel).left().padBottom(10).row();
 
     Label userLabel =
-        Scene2dElementFactory.createLabel(OWN_NAME + " <" + OWN_MAIL + ">", 20, Color.DARK_GRAY);
+        Scene2dElementFactory.createLabel(Lore.ScientistName + " <" + Lore.ScientistEmail + ">", 20, Color.DARK_GRAY);
     container.add(userLabel).left().padBottom(20).row();
 
     Table subArea = new Table();
     container.add(subArea).grow().padLeft(15).row();
 
     Label emailsLabel =
-        Scene2dElementFactory.createLabel("E-Mails: (" + inbox.size() + ")", 24, Color.BLACK);
+        Scene2dElementFactory.createLabel("E-Mails: (" + Lore.EmailList.size() + ")", 24, Color.BLACK);
     subArea.add(emailsLabel).expandX().left().padBottom(10).row();
 
     Table emailList = new Table();
@@ -142,7 +73,7 @@ public class EmailsTab extends ComputerTab {
     scrollPane.addAction(
         Actions.forever(
             Actions.run(() -> localState().emailListScrollY(scrollPane.getVisualScrollY()))));
-    for (Email email : inbox) {
+    for (Email email : Lore.EmailList) {
       Table emailEntry = createEmailHeader(email);
       emailList.add(emailEntry).left().pad(5, 0, 5, 16 + 5).growX().row();
     }

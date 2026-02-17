@@ -14,11 +14,9 @@ import modules.computer.ComputerDialog;
 import modules.computer.ComputerProgress;
 import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;
+import util.Lore;
 
 public class LoginTab extends ComputerTab {
-
-  private static final String USERNAME = "test";
-  private static final String PASSWORD = "A12B34XY";
 
   // Password feedback
   private static final String WRONG_FEEDBACK = "Invalid username or password.";
@@ -38,17 +36,14 @@ public class LoginTab extends ComputerTab {
   protected void createActors() {
     boolean completed = sharedState().state().hasReached(ComputerProgress.LOGGED_IN);
     if (completed) {
-      localState().username(USERNAME);
-      localState().password(PASSWORD);
+      localState().username(Lore.LoginEmail);
+      localState().password(Lore.LoginPassword);
     }
 
-    Drawable company =
-        new TextureRegionDrawable(
-            TextureGenerator.generateColorTexture(100, 100, new Color(0, 0, 0.7f, 1)));
-    Image companyLogo = new Image(company);
+    Image companyLogo = new Image(skin, Lore.CompanyDrawable);
     this.add(companyLogo).width(200).height(200).center().padBottom(20).row();
 
-    Label label = Scene2dElementFactory.createLabel("Company XYZ", 64, Color.BLACK);
+    Label label = Scene2dElementFactory.createLabel(Lore.CompanyName, 64, Color.BLACK);
     this.add(label).center().padBottom(10).row();
     Label flavor =
         Scene2dElementFactory.createLabel(
@@ -60,7 +55,7 @@ public class LoginTab extends ComputerTab {
     loginFeedback.setAlignment(Align.center);
 
     usernameField = Scene2dElementFactory.createTextField(localState().username());
-    usernameField.setMessageText("Username");
+    usernameField.setMessageText("Email");
     Scene2dElementFactory.addTextFieldChangeListener(
         usernameField,
         (text) -> {
@@ -87,7 +82,7 @@ public class LoginTab extends ComputerTab {
           public void changed(ChangeEvent event, Actor actor) {
             String username = localState().username();
             String password = localState().password();
-            if ((username.equals(USERNAME) && password.equalsIgnoreCase(PASSWORD)) || username.equals("skip")) {
+            if ((username.equalsIgnoreCase(Lore.LoginEmail) && password.equalsIgnoreCase(Lore.LoginPassword)) || username.equals("skipp")) {
               ComputerStateComponent.setState(ComputerProgress.LOGGED_IN);
               ComputerDialog.getInstance()
                   .ifPresent(
