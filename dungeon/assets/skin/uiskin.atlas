@@ -6,7 +6,7 @@ filter: Linear, Linear
 repeat: none
 arrow_basic_e_small
   rotate: false
-  xy: 1585, 1571
+  xy: 718, 763
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
@@ -164,6 +164,13 @@ chess_king
   orig: 64, 64
   offset: 0, 0
   index: -1
+company_logo
+  rotate: false
+  xy: 1319, 1019
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
 cursor
   rotate: false
   xy: 711, 635
@@ -275,14 +282,14 @@ horizontal-split-pane
   index: -1
 icon_circle
   rotate: false
-  xy: 1651, 1791
+  xy: 1243, 961
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 icon_outline_circle
   rotate: false
-  xy: 1243, 961
+  xy: 1285, 985
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -360,7 +367,7 @@ progress-bar-fill-vert
   index: -1
 progress-bar-small
   rotate: false
-  xy: 718, 765
+  xy: 581, 394
   size: 22, 22
   split: 5, 5, 5, 5
   orig: 22, 22
@@ -451,9 +458,16 @@ round-white-small
   orig: 24, 24
   offset: 0, 0
   index: -1
+scientist_portrait
+  rotate: false
+  xy: 515, 302
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
 scrollbar_future_grey_small
   rotate: false
-  xy: 581, 392
+  xy: 1651, 1783
   size: 16, 24
   split: 0, 0, 6, 7
   pad: 0, 0, 0, 0
@@ -550,7 +564,7 @@ slider-horizontal
   index: -1
 slider-knob
   rotate: false
-  xy: 515, 310
+  xy: 1585, 1571
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
