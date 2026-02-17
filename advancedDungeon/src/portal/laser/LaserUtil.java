@@ -39,34 +39,27 @@ public class LaserUtil {
    * @param emitter emitter that should be activated.
    */
   public static void activate(Entity emitter) {
-    emitter
-        .fetch(LaserComponent.class)
-        .ifPresent(
-            lc -> {
-              if(lc.isActive()) {
-                return;
-              }
-              emitter
-                  .fetch(PositionComponent.class)
-                  .ifPresent(
-                      pc -> {
-                        Direction dir = pc.viewDirection();
-                        Point start = pc.position().translate(dir);
-                        Point end = calculateEndPoint(start, dir);
-                        int totalPoints = calculateNumberOfPoints(start, end);
+    LaserComponent laserComponent = emitter.fetch(LaserComponent.class).get();
+    if(laserComponent.isActive()) {
+      return;
+    }
+    laserComponent.setActive(true);
+    PositionComponent pc = emitter.fetch(PositionComponent.class).get();
 
-                        for (int i = 0; i < totalPoints; i++) {
-                          Entity segment =
-                              LaserFactory.createSegment(start, end, totalPoints, i, dir);
-                          segment.add(lc);
-                          Game.add(segment);
-                        }
+    Direction dir = pc.viewDirection();
+    Point start = pc.position().translate(dir);
+    Point end = calculateEndPoint(start, dir);
+    int totalPoints = calculateNumberOfPoints(start, end);
 
-                        updateEmitterVisual(emitter, true);
-                        configureEmitterHitbox(emitter, totalPoints, dir);
-                        lc.setActive(true);
-                      });
-            });
+    for (int i = 0; i < totalPoints; i++) {
+      Entity segment = LaserFactory.createSegment(start, end, totalPoints, i, dir);
+      segment.add(laserComponent);
+      Game.add(segment);
+    }
+
+    updateEmitterVisual(emitter, true);
+    configureEmitterHitbox(emitter, totalPoints, dir);
+
   }
 
   /**
@@ -75,23 +68,20 @@ public class LaserUtil {
    * @param emitter emitter that should be deactivated.
    */
   public static void deactivate(Entity emitter) {
-    emitter
-        .fetch(LaserComponent.class)
-        .ifPresent(
-            lc -> {
-              if(!lc.isActive()) {
-                return;
-              }
-            Game.levelEntities(Set.of(LaserComponent.class))
-                    .filter(entity -> entity.fetch(LaserComponent.class).get().equals(lc))
-                      .filter(entity -> entity.fetch(LaserEmitterComponent.class).isEmpty())
-                          .forEach(Game::remove);
+    LaserComponent laserComponent = emitter.fetch(LaserComponent.class).get();
+    if(!laserComponent.isActive()) {
+      return;
+    }
+    laserComponent.setActive(false);
+    Game.levelEntities(Set.of(LaserComponent.class))
+            .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
+            .filter(entity -> entity.fetch(LaserEmitterComponent.class).isEmpty())
+            .forEach(Game::remove);
 
-              updateEmitterVisual(emitter, false);
-              emitter.remove(SpikyComponent.class);
-              emitter.remove(CollideComponent.class);
-              lc.setActive(false);
-            });
+    updateEmitterVisual(emitter, false);
+    emitter.remove(SpikyComponent.class);
+    emitter.remove(CollideComponent.class);
+
   }
 
   /**
@@ -111,11 +101,13 @@ public class LaserUtil {
     Entity newEmitter = LaserFactory.createEmitter(from, direction);
     newEmitter.add(comp);
     newEmitter.add(pec);
+    newEmitter.add(new LaserExtendComponent());
     newEmitter.remove(DrawComponent.class);
 
     for (int i = 0; i < totalPoints; i++) {
       Entity segment = LaserFactory.createSegment(startintPoint, end, totalPoints, i, direction);
       segment.add(comp);
+      segment.add(new LaserExtendComponent());
       Game.add(segment);
     }
 
@@ -130,8 +122,11 @@ public class LaserUtil {
    * @param emitter the original emitter of the laser
    */
   public static void trimLaser(Entity emitter) {
-    deactivate(emitter);
-    activate(emitter);
+    LaserComponent laserComponent = emitter.fetch(LaserComponent.class).get();
+    Game.levelEntities(Set.of(LaserComponent.class))
+      .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
+      .filter(entity -> entity.fetch(LaserExtendComponent.class).isPresent())
+      .forEach(Game::remove);
   }
 
   /**
