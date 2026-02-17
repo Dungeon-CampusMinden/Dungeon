@@ -1,9 +1,9 @@
-export const changePopupText = (text : string) => {
+export const updatePopup = (text : string) => {
   const popupParagraph = document.querySelector(".popupText");
   const popup = document.querySelector(".popupDiv");
   if(popupParagraph && popup) {
     popupParagraph.textContent = text;
-
+    displayPopup();
   }
 }
 
@@ -17,13 +17,9 @@ export const displayPopup = () => {
 
 
 export function updateElementAlignment() {
-  console.log("calling updateElement alignment");
   const toolbox = document.querySelector(".blocklyToolbox"); // Die tatsächliche Toolbox-Box
   const myElement = document.querySelector(".popupDiv");
   const flyOutElement = document.querySelector(".blocklyToolboxFlyout");
-
-  console.log(toolbox);
-  console.log(myElement);
 
   if (toolbox && myElement && flyOutElement) {
     // 1. Breite der Haupt-Toolbox holen
@@ -41,8 +37,6 @@ export function updateElementAlignment() {
     // 3. Gesamtbreite berechnen
     const totalOffset = toolboxWidth + flyoutWidth;
 
-    console.log("Toolbox:", toolboxWidth, "Flyout:", flyoutWidth, "Gesamt:", totalOffset);
-
     // 4. Den Wert an CSS übergeben
     document.documentElement.style.setProperty('--toolbox-width', totalOffset + 'px');
   }
@@ -56,7 +50,6 @@ export function addListenerToFlyOut()  {
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.attributeName === "style") {
-        console.log("Flyout hat sich verändert!");
         updateElementAlignment(); // Deine Funktion von oben
       }
     });
