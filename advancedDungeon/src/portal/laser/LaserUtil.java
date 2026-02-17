@@ -84,7 +84,7 @@ public class LaserUtil {
               }
             Game.levelEntities(Set.of(LaserComponent.class))
                     .filter(entity -> entity.fetch(LaserComponent.class).get().equals(lc))
-                      .filter(entity -> !entity.equals(emitter))
+                      .filter(entity -> entity.fetch(LaserEmitterComponent.class).isEmpty())
                           .forEach(Game::remove);
 
               updateEmitterVisual(emitter, false);
@@ -131,7 +131,7 @@ public class LaserUtil {
    */
   public static void trimLaser(Entity emitter) {
     deactivate(emitter);
-//    activate(emitter);
+    activate(emitter);
   }
 
   /**

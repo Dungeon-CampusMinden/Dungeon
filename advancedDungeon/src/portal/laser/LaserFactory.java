@@ -35,6 +35,7 @@ public class LaserFactory {
     Entity emitter = createEmitter(from, direction);
     LaserComponent laserComponent = new LaserComponent(false);
     emitter.add(laserComponent);
+    emitter.add(new LaserEmitterComponent());
     PortalExtendComponent pec = new PortalExtendComponent();
     pec.onExtend =
         (outputDirection, point, portalExtendComponent) -> {
