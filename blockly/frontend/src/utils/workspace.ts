@@ -7,7 +7,17 @@ import {
   call_code_route,
   call_code_status_route
 } from "../api/api.ts";
+import {checkIfVariablesAreDeclared} from "../generators/java/variables.ts";
 import {completeLevel, getCurrentLevel} from "./level.ts";
+import {changePopupText, displayPopup, updateElementAlignment, updatePopup} from "./popup.ts";
+import {hasMissingIterationCount} from "../generators/java/loops.ts";
+import {
+  containsDirection,
+  hasEmptyWhileLoopHead, hasIfWithMissingCondition,
+  hasIncompleteIfComparison, isHeroActiveWithoutParameters, isHeroInteractWithoutParameters,
+  isMissingDirectionInIsNearComponent, isMissingDirectionInIsNearTile
+} from "./errorChecking.ts";
+
 let startBlock: Blockly.Block | null = null;
 export let currentBlock: Blockly.Block | null = null;
 
@@ -196,6 +206,13 @@ export const setupButtons = (workspace: Blockly.WorkspaceSvg) => {
 
 const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, delayInput: HTMLInputElement) => {
   buttons.startBtn.addEventListener("click", async () => {
+
+    // if (javaGenerator.hasErrors) {
+    //   console.log("generator has Errors");
+    //   return;
+    // }
+
+
     buttons.startBtn.disabled = true;
 
     buttons.resetBtn.click();
@@ -215,6 +232,8 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
     workspace.highlightBlock(null);
     currentBlock = getStartBlock(workspace);
 
+
+
     // collect all code snippets
     const codeSnippets: string[] = [];
     while (currentBlock !== null) {
@@ -223,7 +242,10 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
 
       // Skip the start block itself
       if (currentBlock.type !== "start") {
+        console.log("currentBlockType " + currentBlock.type);
+        console.log(currentBlock);
         const snippet = javaGenerator.blockToCode(currentBlock, true) as string;
+        console.log(snippet)
         codeSnippets.push(snippet.trim());
       }
 
@@ -231,10 +253,51 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
     }
 
     // send the full program in a single request
+
+
+
     const fullProgram = codeSnippets.join("\n");
 
+    console.log("code snippets")
+    console.log(codeSnippets);
+
+
     const apiResponse = await call_code_route(fullProgram);
-    if (!apiResponse) {
+
+    // check if Variables are declared
+    const message = checkIfVariablesAreDeclared(codeSnippets);
+    updateElementAlignment();
+    // check if for loop has number of iterations
+    if (hasMissingIterationCount(fullProgram)) {
+      updatePopup("Die Anzahl der Iterationen fehlt in der Schleife");
+    } else if (message) {
+      updatePopup(message);
+    } else if (hasEmptyWhileLoopHead(fullProgram)) {
+      updatePopup("In der While Schleife ist kein Kopf angegeben.");
+    } else if (hasIfWithMissingCondition(fullProgram)) {
+      updatePopup("Im If Statement fehlt eine Abfrage");
+    } else if (isMissingDirectionInIsNearTile(fullProgram, "WALL")) {
+      updatePopup("Das Wand Tile braucht eine Richtungangabe");
+    } else if (isMissingDirectionInIsNearTile(fullProgram, "FLOOR")) {
+      updatePopup("Das Boden Tile braucht eine Richtungsangabe");
+    } else if (isMissingDirectionInIsNearTile(fullProgram, "PIT")) {
+      updatePopup("Das Loch Tile braucht eine Richtungsangabe");
+    } else if (isMissingDirectionInIsNearComponent(fullProgram, "LeverComponent")) {
+      updatePopup("Schalter/Fackel braucht eine Richtungsangabe");
+    } else if (isMissingDirectionInIsNearComponent(fullProgram, "AIComponent")) {
+      updatePopup("Monster braucht eine Richtungsangabe");
+    } else if (isHeroActiveWithoutParameters(fullProgram)) {
+      updatePopup("active braucht eine Richtungsangabe");
+    } else if (isHeroInteractWithoutParameters(fullProgram)) {
+      updatePopup("benutzen braucht eine Richtungsangabe");
+    } else if (hasIncompleteIfComparison(fullProgram)) {
+      updatePopup("bei einem Vergleich muss eine Variable auf beiden seiten stehen");
+    } else if (containsDirection(fullProgram)) {
+      updatePopup("Eine Rotation muss eine Richtungsangabe enthalten");
+    }
+
+    if (!apiResponse || message) {
+
       await call_clear_route();
       workspace.highlightBlock(null);
       buttons.startBtn.disabled = false;

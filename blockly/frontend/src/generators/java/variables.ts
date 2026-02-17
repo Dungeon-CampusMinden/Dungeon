@@ -10,6 +10,8 @@ export function set_number(block: Blockly.Block, generator: Blockly.Generator) {
 
   if (field_value) {
     javaGenerator.variables.set(variable_name!, Number(field_value));
+    console.log(`${variable_name} = ${field_value};`)
+
     return `${variable_name} = ${field_value};`;
   } else {
     return null;
@@ -77,3 +79,35 @@ export function get_variable(
 
   return [variable_name, Order.NONE];
 }
+
+export const checkIfVariablesAreDeclared = (codeLines : string[]) => {
+
+// Globaler Scope
+  const scopes: Set<string>[] = [new Set<string>()];
+  let message = "";
+  for (let line of codeLines) {
+    line = line.trim();
+
+    // Variablen deklarieren (nur let, var, const - C-Typen kannst du hinzufügen)
+    const matchDecl = line.match(/(let|var|const|int)\s+([a-zA-Z_][a-zA-Z0-9_]*)/);
+    if (matchDecl) {
+      const varName = matchDecl[2];
+      scopes[scopes.length - 1].add(varName);
+      continue;
+    }
+
+    // Variablen zuweisen
+    const matchAssign = line.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\s*=/);
+    if (matchAssign) {
+      const varName = matchAssign[1];
+      // Prüfen, ob Variable in einem Scope existiert
+      const exists = scopes.some(scope => scope.has(varName));
+      if (!exists) {
+        message = `Fehler: Variable '${varName}' wurde nicht erstellt!`
+        console.log(message);
+      }
+    }
+  }
+  return message;
+}
+
