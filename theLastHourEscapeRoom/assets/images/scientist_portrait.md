@@ -1,0 +1,3 @@
+- Source: https://opengameart.org/content/fairy-avatars-pixel-art
+- Author: [CraftPix.net 2D Game Assets](https://opengameart.org/users/craftpixnet-2d-game-assets)
+- License: CC BY 3.0
