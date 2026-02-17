@@ -166,6 +166,7 @@ public class ComputerDialog extends Group {
     } else if (state == ComputerProgress.LOGGED_IN) {
       addTab(new EmailsTab(sharedState));
       addTab(new BrowserTab(sharedState));
+      addTab(new BlogTab(sharedState));
     }
   }
 
