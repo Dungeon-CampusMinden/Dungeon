@@ -1,6 +1,8 @@
 package core.network.server;
 
 import contrib.components.UIComponent;
+import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogContextKeys;
 import core.Game;
 import core.game.PreRunConfiguration;
 import core.network.NetworkUtils;
@@ -9,6 +11,7 @@ import core.network.messages.s2c.DialogShowMessage;
 import core.utils.logging.DungeonLogger;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -162,6 +165,9 @@ public final class DialogTracker {
   /**
    * Retrieves a callback by key for execution.
    *
+   * <p>If the callbackKey is {@link DialogContextKeys#ON_CLOSE}, wraps the original callback to
+   * also close the dialog after execution.
+   *
    * @param dialogId the dialog containing the callback
    * @param callbackKey the key identifying the callback
    * @return an Optional containing the callback, or empty if not found
@@ -170,6 +176,17 @@ public final class DialogTracker {
     DialogInfo info = dialogs.get(dialogId);
     if (info == null) {
       return Optional.empty();
+    }
+    if (Objects.equals(callbackKey, DialogContextKeys.ON_CLOSE)) {
+      return Optional.of(
+          (data) -> {
+            try {
+              Optional.ofNullable(info.uiComponent().callbacks().get(DialogContextKeys.ON_CLOSE))
+                  .ifPresent(cb -> cb.accept(data));
+            } finally {
+              UIUtils.closeDialog(info.uiComponent());
+            }
+          });
     }
     return Optional.ofNullable(info.uiComponent().callbacks().get(callbackKey));
   }
