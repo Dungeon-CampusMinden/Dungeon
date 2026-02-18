@@ -63,12 +63,12 @@ public class VirusTab extends ComputerTab {
     codeField.setMessageText("Security Code");
     this.add(codeField).width(300).center().padTop(20).row();
 
-    Button submitButton = Scene2dElementFactory.createButton("Submit", "default", 24);
+    Button submitButton = Scene2dElementFactory.createButton("Submit", "clean-green", 24);
     submitButton.addListener(new ChangeListener() {
       @Override
       public void changed(ChangeEvent event, Actor actor) {
         String inputCode = codeField.getText();
-        if (inputCode.equals(typeToCode.get(virusType))) {
+        if (virusType == null || inputCode.equals(typeToCode.get(virusType))) {
           virusLabel.setText("Virus Neutralized!");
           virusLabel.setColor(new Color(0, 0.8f, 0, 1));
           virusLabel.addAction(Actions.sequence(
@@ -83,6 +83,7 @@ public class VirusTab extends ComputerTab {
         }
       }
     });
+    this.add(submitButton).center().padTop(10);
 
     this.center();
   }
