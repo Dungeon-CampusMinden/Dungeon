@@ -9,6 +9,7 @@ import core.Component;
 public class LaserComponent implements Component {
 
   private boolean active;
+  private boolean isBeingDeactivated;
 
   /**
    * Creates a LaserComponent with a given state.
@@ -35,5 +36,13 @@ public class LaserComponent implements Component {
    */
   public void setActive(boolean active) {
     this.active = active;
+  }
+
+  public boolean isBeingDeactivated() {
+    return isBeingDeactivated;
+  }
+
+  public void setBeingDeactivated(boolean beingDeactivated) {
+    isBeingDeactivated = beingDeactivated;
   }
 }

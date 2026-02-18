@@ -69,6 +69,7 @@ public class LaserUtil {
    */
   public static void deactivate(Entity emitter) {
     LaserComponent laserComponent = emitter.fetch(LaserComponent.class).get();
+    laserComponent.setBeingDeactivated(true);
     if(!laserComponent.isActive()) {
       return;
     }
@@ -81,7 +82,7 @@ public class LaserUtil {
     updateEmitterVisual(emitter, false);
     emitter.remove(SpikyComponent.class);
     emitter.remove(CollideComponent.class);
-
+    laserComponent.setBeingDeactivated(false);
   }
 
   /**
@@ -123,10 +124,14 @@ public class LaserUtil {
    */
   public static void trimLaser(Entity emitter) {
     LaserComponent laserComponent = emitter.fetch(LaserComponent.class).get();
-    Game.levelEntities(Set.of(LaserComponent.class))
-      .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
-      .filter(entity -> entity.fetch(LaserExtendComponent.class).isPresent())
-      .forEach(Game::remove);
+    if (!laserComponent.isBeingDeactivated()) {
+      laserComponent.setBeingDeactivated(true);
+      Game.levelEntities(Set.of(LaserComponent.class))
+        .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
+        .filter(entity -> entity.fetch(LaserExtendComponent.class).isPresent())
+        .forEach(Game::remove);
+      laserComponent.setBeingDeactivated(false);
+    }
   }
 
   /**
