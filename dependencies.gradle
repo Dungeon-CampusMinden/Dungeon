@@ -10,6 +10,7 @@ ext {
     mockitoVersion = '5.21.0'
     antlrVersion = '4.13.2'
     jk1licenseVersion = '3.0.1'
+    gdxControllersVersion = '2.2.4'
 
     // -- NETWORK / SERVER
     nettyVersion = '4.2.10.Final'
@@ -24,6 +25,8 @@ ext {
         gdx_freetype              : "com.badlogicgames.gdx:gdx-freetype:$gdxVersion",
         gdx_freetype_platform     : "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop",
         gdx_backend_headless      : "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion",
+        gdx_controllers         : "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion",
+        gdx_controllers_desktop : "com.badlogicgames.gdx-controllers:gdx-controllers-desktop:$gdxControllersVersion",
 
         // JUnit and Mockito for testing
         junit                     : "org.junit.jupiter:junit-jupiter:$junitVersion",
