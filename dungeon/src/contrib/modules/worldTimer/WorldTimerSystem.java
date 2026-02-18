@@ -35,7 +35,7 @@ public class WorldTimerSystem extends System {
 
   public WorldTimerSystem() {
     super(AuthoritativeSide.CLIENT, 17, WorldTimerComponent.class, PositionComponent.class);
-    FONT = FontHelper.getPixelFont(TIMER_FONT);
+    FONT = FontHelper.getFont(TIMER_FONT);
   }
 
   @Override
