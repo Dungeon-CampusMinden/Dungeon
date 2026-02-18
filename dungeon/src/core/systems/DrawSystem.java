@@ -115,6 +115,7 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   private void onEntityChanged(Entity changed, boolean added) {
+    if(changed.fetch(DrawComponent.class).isEmpty()) return;
     DSData data = DSData.build(changed);
     int depth = data.dc.depth();
     List<Entity> entitiesAtDepth = sortedEntities.get(depth);
