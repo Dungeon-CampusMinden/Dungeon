@@ -59,6 +59,7 @@ public class VM {
         // Abort the execution.
         case Action.Abort abort -> {
           System.err.println("Execution aborted: " + abort.message());
+          cleanupAfterAbort();
         }
         // Call another function. This is only used for function calls.
         case Action.Call call -> {
@@ -89,13 +90,17 @@ public class VM {
         // It opens a new stack frame for the region and jumps to the first operation in the region.
         case Action.StepInto stepInto -> {
           state.pushStackFrame(stepInto.isolatedFromAbove());
-          opStack.push(stepInto.region().getEntryBlock().getOperations().getFirst());
+          // Push the next operation after the step into operation to the op stack.
+          if (stepInto.nextOperation() != null)
+            opStack.push(stepInto.nextOperation());
+          opStack.push(stepInto.region().getEntryOperation());
         }
       }
 
       return currentAction;
     } catch (Exception e) {
       System.err.println("Error during execution: " + e.getMessage());
+      cleanupAfterAbort();
       return Action.Abort("Error during execution: " + e.getMessage());
     }
   }
@@ -110,5 +115,12 @@ public class VM {
     assert runner != null : "No runner registered for operation " + currentOp.getDetails().getIdent();
 
     return runner.run(currentOp, state);
+  }
+
+  private void cleanupAfterAbort() {
+    opStack.clear();
+    if (state != null) {
+      state.reset();
+    }
   }
 }

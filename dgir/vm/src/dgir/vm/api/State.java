@@ -82,4 +82,11 @@ public class State {
     frame.getLeft().add(value);
     values.put(value, object);
   }
+
+  /** Resets execution state after an abort. */
+  public void reset() {
+    values.clear();
+    stackFrames.clear();
+    instructionCount = 0;
+  }
 }

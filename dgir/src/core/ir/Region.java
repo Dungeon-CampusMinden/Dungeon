@@ -1,6 +1,8 @@
 package core.ir;
 
 import com.fasterxml.jackson.annotation.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -100,8 +102,8 @@ public final class Region {
   /**
    * Ensures that there is at least one block in this region.
    */
-  public void ensureEntryBlock(){
-    if(this.blocks.isEmpty())
+  public void ensureEntryBlock() {
+    if (this.blocks.isEmpty())
       addBlock(new Block());
   }
 
@@ -109,6 +111,17 @@ public final class Region {
   public Block getEntryBlock() {
     ensureEntryBlock();
     return blocks.getFirst();
+  }
+
+  /**
+   * Get the first operation in the entry block.
+   *
+   * @return The first operation in the entry block.
+   */
+  public @NotNull Operation getEntryOperation() {
+    var operations = getEntryBlock().getOperations();
+    assert !operations.isEmpty() : "Entry block must have at least one operation.";
+    return operations.getFirst();
   }
 
   /**

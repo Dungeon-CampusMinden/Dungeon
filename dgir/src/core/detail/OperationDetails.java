@@ -196,7 +196,7 @@ public class OperationDetails {
       assert operationConstructor != null && emptyConstructor != null
         : "Op of type " + type + " must have a constructor that takes an operation and an empty constructor.";
 
-      System.out.println("Created new operation details for " + ident + " with traits " + traits.stream().map(Class::getSimpleName).toList());
+      //System.out.println("Created new operation details for " + ident + " with traits " + traits.stream().map(Class::getSimpleName).toList());
     }
 
     public String getIdent() {

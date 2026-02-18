@@ -15,6 +15,6 @@ public class FuncRunner extends OpRunner {
 
   @Override
   protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-    return Action.StepInto(op.getFirstRegion(), true);
+    return Action.StepInto(op.getFirstRegion(), true, null);
   }
 }

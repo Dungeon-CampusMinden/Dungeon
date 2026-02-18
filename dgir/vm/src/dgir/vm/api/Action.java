@@ -29,6 +29,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
 
   /**
    * Calls the given function operation.
+   *
    * @param funcOp The function operation to call.
    * @return An action that represents the call.
    */
@@ -38,11 +39,14 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
 
   /**
    * Steps into the given region.
-   * @param region The region to step into. Must be a child region of the current operation.
+   *
+   * @param region            The region to step into. Must be a region that is a child of the current operation.
+   * @param isolatedFromAbove Whether the new stack frame created for the region should be isolated from the above stack frame.
+   * @param nextOperation     The operation to execute after returning from the region, or null if nothing should be executed after returning from the region.
    * @return An action that represents the step into.
    */
-  public static @NotNull Action StepInto(@NotNull Region region, boolean isolatedFromAbove) {
-    return new StepInto(region, isolatedFromAbove);
+  public static @NotNull Action StepInto(@NotNull Region region, boolean isolatedFromAbove, @Nullable Operation nextOperation) {
+    return new StepInto(region, isolatedFromAbove, nextOperation);
   }
 
   /**
@@ -74,6 +78,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
 
   /**
    * Jumps to the given block and executes it. The block must be in the same region as the current block.
+   *
    * @param target The target block.
    */
   public record Jump(@NotNull Block target) implements Action {
@@ -81,6 +86,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
 
   /**
    * Calls the given function operation.
+   *
    * @param funcOp The function operation to call.
    */
   public record Call(@NotNull Operation funcOp) implements Action {
@@ -88,13 +94,20 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
 
   /**
    * Steps into the given region.
-   * @param region The region to step into. Must be a region that is a child of the current operation.
+   *
+   * @param region            The region to step into. Must be a region that is a child of the current operation.
+   * @param isolatedFromAbove Whether the new stack frame created for the region should be isolated from the above stack frame.
+   *                          If true, values defined in the above stack frame will not be accessible in the new stack frame.
+   * @param nextOperation     The operation to execute after returning from the region, or null if nothing should be executed
+   *                          after returning from the region.
    */
-  public record StepInto(Region region, boolean isolatedFromAbove) implements Action {
+  public record StepInto(@NotNull Region region, boolean isolatedFromAbove,
+                         @Nullable Operation nextOperation) implements Action {
   }
 
   /**
    * Returns the given value and exits the current block. The value can be null if the block does not return anything.
+   *
    * @param value The value to return. Can be null if the block does not return anything.
    */
   public record Return(@Nullable Object value) implements Action {
@@ -102,6 +115,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
 
   /**
    * Aborts the execution of the program with the given message.
+   *
    * @param message The error message.
    */
   public record Abort(@NotNull String message) implements Action {

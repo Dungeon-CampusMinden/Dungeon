@@ -28,7 +28,7 @@ public class VmConsoleTest {
   void helloWorldTest() {
     ProgramOp programOp = new ProgramOp();
     FuncOp funcOp = programOp.addOperation(new FuncOp("main"));
-    var text = funcOp.addOperation(new ConstantOp("Hello World!"), 0);
+    var text = funcOp.addOperation(new ConstantOp("Hello World!\n"), 0);
     funcOp.addOperation(new PrintOp(List.of(text.getOutputValue())), 0);
     funcOp.addOperation(new ReturnOp(), 0);
 
