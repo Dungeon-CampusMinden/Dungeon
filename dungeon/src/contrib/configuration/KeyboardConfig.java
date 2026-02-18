@@ -45,23 +45,48 @@ public class KeyboardConfig {
           new String[] {"inventory", "transfer"}, new ConfigIntValue(Input.Buttons.RIGHT));
 
   /** This key is used to use the active skill. */
-  public static final ConfigKey<Integer> USE_SKILL =
+  public static final ConfigKey<Integer> USE_MAIN_SKILL =
       new ConfigKey<>(new String[] {"skill", "fireball"}, new ConfigIntValue(Input.Keys.Q));
 
-  /** Select the next skill as active Skill in the {@link contrib.components.SkillComponent}. */
-  public static final ConfigKey<Integer> NEXT_SKILL =
+  /**
+   * Select the next skill as active main Skill in the {@link contrib.components.SkillComponent}.
+   */
+  public static final ConfigKey<Integer> NEXT_MAIN_SKILL =
       new ConfigKey<>(
-          new String[] {"skill", "select next skill"}, new ConfigIntValue(Input.Keys.PERIOD));
+          new String[] {"skill", "select next main skill"}, new ConfigIntValue(Input.Keys.PERIOD));
 
-  /** Select the previous skill as active Skill in the {@link contrib.components.SkillComponent}. */
-  public static final ConfigKey<Integer> PREV_SKILL =
+  /**
+   * Select the previous skill as active main Skill in the {@link
+   * contrib.components.SkillComponent}.
+   */
+  public static final ConfigKey<Integer> PREV_MAIN_SKILL =
       new ConfigKey<>(
-          new String[] {"skill", "select prev skill"}, new ConfigIntValue(Input.Keys.COMMA));
+          new String[] {"skill", "select prev main skill"}, new ConfigIntValue(Input.Keys.COMMA));
+
+  /**
+   * Select the next skill as active second Skill in the {@link contrib.components.SkillComponent}.
+   */
+  public static final ConfigKey<Integer> NEXT_SECOND_SKILL =
+      new ConfigKey<>(
+          new String[] {"skill", "select next second skill"}, new ConfigIntValue(Input.Keys.PLUS));
+
+  /**
+   * Select the previous skill as active second Skill in the {@link
+   * contrib.components.SkillComponent}.
+   */
+  public static final ConfigKey<Integer> PREV_SECOND_SKILL =
+      new ConfigKey<>(
+          new String[] {"skill", "select prev second skill"}, new ConfigIntValue(Input.Keys.MINUS));
 
   /** This key is used shoot the active skill. */
-  public static final ConfigKey<Integer> MOUSE_USE_SKILL =
+  public static final ConfigKey<Integer> MOUSE_USE_MAIN_SKILL =
       new ConfigKey<>(
-          new String[] {"skill", "mouse_fireball"}, new ConfigIntValue(Input.Buttons.LEFT));
+          new String[] {"skill", "mouse_left_skill"}, new ConfigIntValue(Input.Buttons.LEFT));
+
+  /** This key is used shoot the active skill. */
+  public static final ConfigKey<Integer> MOUSE_USE_SECOND_SKILL =
+      new ConfigKey<>(
+          new String[] {"skill", "mouse_right_skill"}, new ConfigIntValue(Input.Buttons.RIGHT));
 
   /** Keybinding to zoom in ,if the {@link contrib.utils.components.Debugger} is active. */
   public static final ConfigKey<Integer> DEBUG_ZOOM_IN =
