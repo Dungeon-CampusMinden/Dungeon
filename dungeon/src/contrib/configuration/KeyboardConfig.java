@@ -22,7 +22,7 @@ public class KeyboardConfig {
 
   /** This key is used to interact with the world. */
   public static final ConfigKey<Integer> MOUSE_INTERACT_WORLD =
-      new ConfigKey<>(new String[] {"interact", "mouse"}, new ConfigIntValue(Input.Buttons.RIGHT));
+      new ConfigKey<>(new String[] {"interact", "mouse"}, new ConfigIntValue(Input.Buttons.MIDDLE));
 
   /** WTF? . */
   public static final ConfigKey<Integer> USE_ITEM =
@@ -68,7 +68,8 @@ public class KeyboardConfig {
    */
   public static final ConfigKey<Integer> NEXT_SECOND_SKILL =
       new ConfigKey<>(
-          new String[] {"skill", "select next second skill"}, new ConfigIntValue(Input.Keys.PLUS));
+          new String[] {"skill", "select next second skill"},
+          new ConfigIntValue(Input.Keys.RIGHT_BRACKET));
 
   /**
    * Select the previous skill as active second Skill in the {@link
@@ -76,7 +77,7 @@ public class KeyboardConfig {
    */
   public static final ConfigKey<Integer> PREV_SECOND_SKILL =
       new ConfigKey<>(
-          new String[] {"skill", "select prev second skill"}, new ConfigIntValue(Input.Keys.MINUS));
+          new String[] {"skill", "select prev second skill"}, new ConfigIntValue(Input.Keys.SLASH));
 
   /** This key is used shoot the active skill. */
   public static final ConfigKey<Integer> MOUSE_USE_MAIN_SKILL =

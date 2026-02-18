@@ -194,7 +194,6 @@ public class HeroController {
             skillComponent -> {
               if (nextSkill) skillComponent.nextMainSkill();
               else skillComponent.prevMainSkill();
-              System.out.println("Next main Skill: " + nextSkill);
             });
   }
 
@@ -212,7 +211,6 @@ public class HeroController {
             skillComponent -> {
               if (nextSkill) skillComponent.nextSecondSkill();
               else skillComponent.prevSecondSkill();
-              System.out.println("Next second Skill: " + nextSkill);
             });
   }
 
