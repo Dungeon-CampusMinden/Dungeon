@@ -22,11 +22,11 @@ import java.util.stream.Collectors;
  * the provided ingredients.
  *
  * <p>It will load the recipes from the files via {@link #loadRecipes()}. Recipes have to be in the
- * 'assets/recipes' directory. This will autmaticly happen an program start. Call this in your
+ * 'assets/recipes' directory. This will automatically happen at program start. Call this in your
  * {@link core.game.PreRunConfiguration#userOnSetup() onSetup callback}.
  */
 public final class Crafting {
-  private static final HashSet<Recipe> RECIPES = new HashSet<>();
+  private static final HashSet<Recipe> RECIPES = new LinkedHashSet<>();
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Crafting.class);
 
   /**
@@ -211,6 +211,16 @@ public final class Crafting {
           } else {
             ingredientsArray[i] = Item.getItem(id).getDeclaredConstructor().newInstance();
           }
+          if (itemMap.containsKey("count")) {
+            Object countObj = itemMap.get("count");
+            int count;
+            try {
+              count = Integer.parseInt(String.valueOf(countObj));
+            } catch (ClassCastException ex) {
+              throw new IllegalArgumentException("'count' must be an integer. File: " + name, ex);
+            }
+            ingredientsArray[i].setAmount(count);
+          }
         } else {
           throw new RuntimeException("Unknown ingredient type: " + type + ". File: " + name);
         }
@@ -252,6 +262,16 @@ public final class Crafting {
           } else {
             resultsArray[i] = Item.getItem(id).getDeclaredConstructor().newInstance();
           }
+          if (itemMap.containsKey("count")) {
+            Object countObj = itemMap.get("count");
+            int count;
+            try {
+              count = Integer.parseInt(String.valueOf(countObj));
+            } catch (ClassCastException ex) {
+              throw new IllegalArgumentException("'count' must be an integer. File: " + name, ex);
+            }
+            resultsArray[i].setAmount(count);
+          }
         } else {
           throw new RuntimeException("Unknown result type: " + type + ". File: " + name);
         }
@@ -278,14 +298,13 @@ public final class Crafting {
     Object[] params = new Object[paramList.size()];
     for (int i = 0; i < params.length; i++) {
       Object pObj = paramList.get(i);
-      if (!(pObj instanceof String)) {
+      if (!(pObj instanceof String paramString)) {
         throw new IllegalArgumentException(
             "Parameter in 'param' list must be a string. Found: "
                 + (pObj == null ? "null" : pObj.getClass().getName())
                 + " in recipe "
                 + recipeName);
       }
-      String paramString = (String) pObj;
       String[] split = paramString.split(":", 2);
       if (split.length != 2) {
         throw new IllegalArgumentException(
