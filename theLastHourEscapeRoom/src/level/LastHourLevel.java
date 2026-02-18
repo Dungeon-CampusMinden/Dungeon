@@ -16,6 +16,8 @@ import contrib.hud.dialogs.DialogType;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadFactory;
+import contrib.modules.worldTimer.WorldTimerFactory;
+import contrib.modules.worldTimer.WorldTimerSystem;
 import contrib.systems.EventScheduler;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.SkillTools;
@@ -102,6 +104,7 @@ public class LastHourLevel extends DungeonLevel {
     setupPapers();
     setupInteractables();
     setupLightingShader();
+    setupTimer();
 
 
     BlackFadeCutscene.show(Lore.IntroTexts, false, true, () -> {
@@ -125,6 +128,11 @@ public class LastHourLevel extends DungeonLevel {
     });
 
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
+  }
+
+  private void setupTimer() {
+    Game.add(WorldTimerFactory.createWorldTimer(getPoint("timer"), 10000));
+    Game.add(new WorldTimerSystem());
   }
 
   private void setupLightingShader() {
@@ -301,7 +309,10 @@ public class LastHourLevel extends DungeonLevel {
       Color color = ComputerStateComponent.getState().isInfected() ? Color.RED : Color.BLUE;
       float intensity = ComputerStateComponent.getState().isInfected() ? 0.8f : 0.5f;
       ls.addLightSource(EntityUtils.getPosition(pc), intensity, color);
+
+      ls.addLightSource(getPoint("timer").translate(0.75f, 0), 0.5f, Color.RED);
     }
+
 
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(e -> {
       ls.addLightSource(EntityUtils.getPosition(e), 1f);
