@@ -1,4 +1,8 @@
-// The foojay resolver plugin allows Gradle to automatically download
+pluginManagement {
+    plugins {
+        id 'org.jetbrains.kotlin.jvm' version '2.3.0'
+    }
+}// The foojay resolver plugin allows Gradle to automatically download
 // and use different JDK versions for different projects or tasks.
 // This is especially useful for projects that require specific JDK versions
 // without needing to manually install them on the system.

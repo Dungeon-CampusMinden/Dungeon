@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id "net.ltgt.errorprone" version "4.4.0"
+    id 'org.jetbrains.kotlin.jvm'
 }
 
 sourceSets.main.java.srcDirs = ['src/']
@@ -20,6 +21,7 @@ dependencies {
 
     testImplementation supportDependencies.junit
     testRuntimeOnly supportDependencies.junitLauncher
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 tasks.withType(Test).configureEach {
@@ -28,4 +30,7 @@ tasks.withType(Test).configureEach {
 
 repositories {
     mavenCentral()
+}
+kotlin {
+    jvmToolchain(21)
 }

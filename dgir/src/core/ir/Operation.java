@@ -8,6 +8,7 @@ import core.serialization.OperationDeserializer;
 import core.serialization.OperationSerializer;
 import core.traits.IOpTrait;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -391,10 +392,22 @@ public final class Operation implements Serializable {
 
   /**
    * Get the index of this operation in its parent's operations list.
+   *
    * @return The index of this operation in its parent's operations list.
    */
   public int getIndex() {
     if (getParent() == null) return -1;
     return getParent().getOperations().indexOf(this);
+  }
+
+  /**
+   * Get the next operation in the parent's operations list.
+   * @return The next operation in the parent's operations list, or null if this is the last operation.
+   */
+  public @Nullable Operation getNext() {
+    if (getParent() == null) return null;
+    int index = getIndex();
+    if (index == -1 || index == getParent().getOperations().size() - 1) return null;
+    return getParent().getOperations().get(index + 1);
   }
 }

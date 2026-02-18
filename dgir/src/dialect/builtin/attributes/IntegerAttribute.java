@@ -3,13 +3,13 @@ package dialect.builtin.attributes;
 import core.*;
 import core.detail.AttributeDetails;
 import core.ir.Attribute;
-import core.ir.ITypedAttribute;
+import core.ir.TypedAttribute;
 import dialect.builtin.Builtin;
 import dialect.builtin.types.IntegerT;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class IntegerAttribute extends Attribute implements ITypedAttribute {
+public class IntegerAttribute extends TypedAttribute {
   public static final IntegerAttribute INSTANCE = new IntegerAttribute();
 
   // --------------------- Type Info ------------------------------
@@ -32,32 +32,27 @@ public class IntegerAttribute extends Attribute implements ITypedAttribute {
   }
   // -----------------------------------------------------------------
 
-  private IntegerT type;
   private Number value;
 
   public IntegerAttribute() {
+    super(IntegerT.INT64);
   }
 
   public IntegerAttribute(Number value) {
+    super(IntegerT.INT64);
     this.value = value;
-    this.type = IntegerT.INT64;
   }
 
   @JsonCreator
   public IntegerAttribute(@JsonProperty("value") Number value, @JsonProperty("type") IntegerT type) {
+    super(type);
     this.value = type.convertToValidNumber(value);
-    this.type = type;
   }
 
 
   @Override
   public Number getStorage() {
     return getValue();
-  }
-
-  @Override
-  public IntegerT getType() {
-    return type;
   }
 
   public Number getValue() {

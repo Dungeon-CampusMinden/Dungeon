@@ -146,7 +146,7 @@ public class OperationVerifier {
         return false;
       }
       // Verify that the attribute value is valid and of the correct type in case it is typed
-      else if (attr.getAttribute() instanceof ITypedAttribute typedAttribute
+      else if (attr.getAttribute() instanceof TypedAttribute typedAttribute
         && !typedAttribute.getType().validate(attr.getAttribute().getStorage())) {
         operation.emitError("Operation attribute '" + attr.getName() + "' with invalid value for storage type " + typedAttribute.getType().getParameterizedIdent() + ": " + attr.getAttribute().getStorage());
         return false;

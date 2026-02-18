@@ -17,6 +17,13 @@ public class AttributeDetails {
     return new AttributeDetails(clazz);
   }
 
+  private AttributeDetails.Impl impl = null;
+
+  @JsonIgnore
+  public AttributeDetails.Impl getImpl() {
+    return impl;
+  }
+
   protected AttributeDetails(AttributeDetails.Impl impl) {
     this.impl = impl;
   }
@@ -35,12 +42,15 @@ public class AttributeDetails {
     return impl.getDialect();
   }
 
-  @JsonIgnore
-  public AttributeDetails.Impl getImpl() {
-    return impl;
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof AttributeDetails other && this.impl == other.impl;
   }
 
-  private AttributeDetails.Impl impl = null;
+  @Override
+  public int hashCode() {
+    return impl.hashCode();
+  }
 
   /**
    * This is the fully type erased interface to an attribute

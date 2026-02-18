@@ -1,4 +1,5 @@
 import core.Dialect;
+import dgir.vm.api.OpRunnerRegistry;
 import dgir.vm.api.VM;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
@@ -17,6 +18,7 @@ public class VmConsoleTest {
   @BeforeAll
   public static void setup() {
     Dialect.registerAllDialects();
+    OpRunnerRegistry.registerAllRunners();
   }
 
   /**

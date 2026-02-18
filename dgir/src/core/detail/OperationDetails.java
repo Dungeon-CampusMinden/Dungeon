@@ -24,6 +24,13 @@ public class OperationDetails {
     return new OperationDetails(clazz);
   }
 
+  @JsonIgnore
+  public Impl getImpl() {
+    return impl;
+  }
+
+  private Impl impl = null;
+
   protected OperationDetails(Impl impl) {
     this.impl = impl;
   }
@@ -107,13 +114,15 @@ public class OperationDetails {
     return clazz.equals(getType());
   }
 
-  @JsonIgnore
-  public Impl getImpl() {
-    return impl;
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof OperationDetails other && this.impl == other.impl;
   }
 
-  private Impl impl = null;
-
+  @Override
+  public int hashCode() {
+    return impl.hashCode();
+  }
 
   public static Optional<Constructor<? extends Op>> hasSpecificConstructor(Class<? extends Op> opClass, Class<?>... parameterTypes) {
     try {
@@ -186,6 +195,8 @@ public class OperationDetails {
       this.emptyConstructor = hasSpecificConstructor(type).orElse(null);
       assert operationConstructor != null && emptyConstructor != null
         : "Op of type " + type + " must have a constructor that takes an operation and an empty constructor.";
+
+      System.out.println("Created new operation details for " + ident + " with traits " + traits.stream().map(Class::getSimpleName).toList());
     }
 
     public String getIdent() {
@@ -238,6 +249,7 @@ public class OperationDetails {
   protected final static class UnregisteredOp extends Impl {
     UnregisteredOp(String ident, Class<? extends Op> clazz, Dialect dialect, List<String> attributeNames) {
       super(ident, clazz, dialect, Collections.unmodifiableList(attributeNames));
+      System.out.println("Created new UnregisteredOp Details with ident " + ident + " and type " + clazz.getName());
     }
 
     @Override

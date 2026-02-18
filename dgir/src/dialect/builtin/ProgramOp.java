@@ -10,6 +10,7 @@ import core.ir.Operation;
 import core.traits.*;
 import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -72,5 +73,16 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
 
   public static String getNamespace() {
     return "";
+  }
+
+  public @NotNull FuncOp getMainFunc() {
+    Block block = getBlock();
+    for (Operation op : block.getOperations()) {
+      var funcOp = op.as(FuncOp.class);
+      if (funcOp != null && funcOp.getFuncName().equals("main")) {
+        return funcOp;
+      }
+    }
+    throw new IllegalStateException("Could not find main function. This should have been caught by verification.");
   }
 }

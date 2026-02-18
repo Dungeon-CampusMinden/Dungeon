@@ -3,11 +3,11 @@ package dialect.builtin.attributes;
 import core.*;
 import core.detail.AttributeDetails;
 import core.ir.Attribute;
-import core.ir.ITypedAttribute;
+import core.ir.TypedAttribute;
 import dialect.builtin.Builtin;
 import dialect.builtin.types.StringT;
 
-public class StringAttribute extends Attribute implements ITypedAttribute {
+public class StringAttribute extends TypedAttribute {
   public static final StringAttribute INSTANCE = new StringAttribute();
   private String value;
 
@@ -22,15 +22,17 @@ public class StringAttribute extends Attribute implements ITypedAttribute {
   }
 
   public StringAttribute() {
+    super(StringT.INSTANCE);
+  }
+
+  public StringAttribute(String value) {
+    super(StringT.INSTANCE);
+    this.value = value;
   }
 
   @Override
   public String getStorage() {
     return value;
-  }
-
-  public StringAttribute(String value) {
-    this.value = value;
   }
 
   public static String getIdent() {
@@ -39,11 +41,6 @@ public class StringAttribute extends Attribute implements ITypedAttribute {
 
   public static String getNamespace() {
     return "";
-  }
-
-  @Override
-  public StringT getType() {
-    return StringT.INSTANCE;
   }
 
   public String getValue() {

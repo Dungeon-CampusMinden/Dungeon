@@ -1,32 +1,19 @@
 package dgir.vm.api;
 
-import core.ir.Op;
 import core.ir.Operation;
 import dialect.builtin.ProgramOp;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Objects;
+
 public class VM {
-  public enum Status {
-    OK,
-    ERROR,
-    FINISHED
-  }
-
-  static class StepResult {
-    @NotNull Status status;
-    @Nullable Operation nextOperation;
-    @NotNull String message;
-
-    StepResult(@NotNull Status status, @Nullable Operation nextOperation, @NotNull String message) {
-      this.status = status;
-      this.nextOperation = nextOperation;
-      this.message = message;
-    }
-  }
-
   private @Nullable ProgramOp program;
+  private @Nullable State state;
+
+  private @NotNull Deque<Operation> opStack = new ArrayDeque<>();
 
   public VM() {
 
@@ -34,6 +21,9 @@ public class VM {
 
   public void init(@NotNull ProgramOp program) {
     this.program = program;
+    this.opStack.clear();
+    this.opStack.push(program.getMainFunc().getOperation());
+    this.state = new State();
   }
 
   public boolean run() {
@@ -42,25 +32,83 @@ public class VM {
       return false;
     }
 
-    StepResult result;
-    do {
-      result = stepImpl();
-    } while (result.status == Status.OK);
+    Action currentAction = Action.Next();
+    while (!(currentAction instanceof Action.Abort) && !opStack.isEmpty()) {
+      currentAction = step();
+    }
 
-    if (result.status == Status.FINISHED) {
-      System.out.println("Program finished successfully.");
-      return true;
-    } else {
-      System.err.println("Program failed with error: " + result.message);
-      return false;
+    return !(currentAction instanceof Action.Abort);
+  }
+
+  public @NotNull Action step() {
+    try {
+      assert !opStack.isEmpty() : "No operation to execute.";
+      assert state != null : "No state to execute the operation in.";
+
+      Operation currentOp = opStack.peek();
+      assert currentOp != null : "Reached end of program without an explicit jump or return.";
+
+      Action currentAction = stepImpl();
+      switch (currentAction) {
+        // Just continue to the next operation in the current block.
+        case Action.Next ignored -> {
+          var nextOp = currentOp.getNext();
+          assert nextOp != null : "Reached end of block without an explicit jump or return.";
+          opStack.push(nextOp);
+        }
+        // Abort the execution.
+        case Action.Abort abort -> {
+          System.err.println("Execution aborted: " + abort.message());
+        }
+        // Call another function. This is only used for function calls.
+        case Action.Call call -> {
+          // Push the next operation beneath the call operation to the op stack.
+          // This way when returning from the function, the VM will know which operation to execute next.
+          opStack.push(currentOp.getNext());
+          // Push the function operation itself to the op stack, so that it will be executed in the next step and the VM
+          // will jump to the function body.
+          opStack.push(call.funcOp());
+        }
+        // Jump to another block in the same region. This is used for control flow operations like if and while.
+        case Action.Jump jump -> {
+          opStack.push(jump.target().getOperations().getFirst());
+        }
+        // Return from the current region. This is used for function calls, as well as for returning from if and while
+        // blocks and similar structured control flow ops
+        case Action.Return aReturn -> {
+          // Set the return value of the parent operation if it produces any.
+          if (aReturn.value() != null) {
+            state.setValue(Objects.requireNonNull(currentOp.getParentOperation()).getOutputValue(), aReturn.value());
+          }
+          // Pop the stack frame for the region we just left.
+          state.popStackFrame();
+          // No need to push anything to the op stack, as the caller will have already pushed the next operation to execute after the call.
+        }
+        // Step into a region. This is used for nested regions like the then and else regions of an if operation, or the
+        // body of a while operation, as well as function calls.
+        // It opens a new stack frame for the region and jumps to the first operation in the region.
+        case Action.StepInto stepInto -> {
+          state.pushStackFrame(stepInto.isolatedFromAbove());
+          opStack.push(stepInto.region().getEntryBlock().getOperations().getFirst());
+        }
+      }
+
+      return currentAction;
+    } catch (Exception e) {
+      System.err.println("Error during execution: " + e.getMessage());
+      return Action.Abort("Error during execution: " + e.getMessage());
     }
   }
 
-  private @NotNull StepResult stepImpl() {
-    return new StepResult(Status.ERROR, null, "Not implemented yet");
-  }
+  protected @NotNull Action stepImpl() {
+    assert program != null : "VM not initialized with a program.";
+    assert !opStack.isEmpty() : "No operation to execute.";
+    assert state != null : "No state to execute the operation in.";
 
-  public @NotNull Pair<Status, String> step() {
-    return Pair.of(Status.ERROR, "Not implemented yet");
+    Operation currentOp = opStack.pop();
+    OpRunner runner = OpRunnerRegistry.getOpRunner(currentOp);
+    assert runner != null : "No runner registered for operation " + currentOp.getDetails().getIdent();
+
+    return runner.run(currentOp, state);
   }
 }

@@ -1,0 +1,109 @@
+package dgir.vm.api;
+
+
+import core.ir.Block;
+import core.ir.Operation;
+import core.ir.Region;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.text.MessageFormat;
+
+public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Action.StepInto, Action.Return, Action.Abort {
+  /**
+   * Executes the next operation in the current block.
+   */
+  public static @NotNull Action Next() {
+    return new Next();
+  }
+
+  /**
+   * Jumps to the given block and executes it. The block must be in the same region as the current block.
+   *
+   * @param target The target block.
+   * @return An action that represents the jump.
+   */
+  public static @NotNull Action Jump(@NotNull Block target) {
+    return new Jump(target);
+  }
+
+  /**
+   * Calls the given function operation.
+   * @param funcOp The function operation to call.
+   * @return An action that represents the call.
+   */
+  public static @NotNull Action Call(@NotNull Operation funcOp) {
+    return new Call(funcOp);
+  }
+
+  /**
+   * Steps into the given region.
+   * @param region The region to step into. Must be a child region of the current operation.
+   * @return An action that represents the step into.
+   */
+  public static @NotNull Action StepInto(@NotNull Region region, boolean isolatedFromAbove) {
+    return new StepInto(region, isolatedFromAbove);
+  }
+
+  /**
+   * Returns the given value and exits the current block. The value can be null if the block does not return anything.
+   *
+   * @param value The value to return. Can be null if the block does not return anything.
+   * @return An action that represents the return.
+   */
+  public static @NotNull Action Return(@Nullable Object value) {
+    return new Return(value);
+  }
+
+  /**
+   * Aborts the execution of the program with the given message.
+   * The message should be a human-readable description of the error that occurred.
+   *
+   * @param message The error message.
+   * @return An action that represents the abort.
+   */
+  public static @NotNull Action Abort(@NotNull String message, @Nullable Object... args) {
+    return new Abort(MessageFormat.format(message, args));
+  }
+
+  /**
+   * Executes the next operation in the current block.
+   */
+  public record Next() implements Action {
+  }
+
+  /**
+   * Jumps to the given block and executes it. The block must be in the same region as the current block.
+   * @param target The target block.
+   */
+  public record Jump(@NotNull Block target) implements Action {
+  }
+
+  /**
+   * Calls the given function operation.
+   * @param funcOp The function operation to call.
+   */
+  public record Call(@NotNull Operation funcOp) implements Action {
+  }
+
+  /**
+   * Steps into the given region.
+   * @param region The region to step into. Must be a region that is a child of the current operation.
+   */
+  public record StepInto(Region region, boolean isolatedFromAbove) implements Action {
+  }
+
+  /**
+   * Returns the given value and exits the current block. The value can be null if the block does not return anything.
+   * @param value The value to return. Can be null if the block does not return anything.
+   */
+  public record Return(@Nullable Object value) implements Action {
+  }
+
+  /**
+   * Aborts the execution of the program with the given message.
+   * @param message The error message.
+   */
+  public record Abort(@NotNull String message) implements Action {
+  }
+}

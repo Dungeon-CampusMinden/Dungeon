@@ -37,9 +37,9 @@ public class ConstantOp extends Op implements ISingleOperand {
     super(operation);
   }
 
-  public ConstantOp(ITypedAttribute value) {
+  public ConstantOp(TypedAttribute value) {
     super(true, Operation.Create(getIdent(), null, null, value.getType()));
-    getAttributes().get("value").setAttribute((Attribute) value);
+    getAttributes().get("value").setAttribute(value);
   }
 
   public ConstantOp(String value) {
@@ -54,8 +54,16 @@ public class ConstantOp extends Op implements ISingleOperand {
     this(new IntegerAttribute(value ? 1 : 0, IntegerT.BOOL));
   }
 
-  public ITypedAttribute getValueAttribute() {
-    return (ITypedAttribute) getAttributes().get("value").getAttribute();
+  public TypedAttribute getValueAttribute() {
+    return (TypedAttribute) getAttributes().get("value").getAttribute();
+  }
+
+  public Type getValueType() {
+    return getValueAttribute().getType();
+  }
+
+  public Object getValue() {
+    return getValueAttribute().getStorage();
   }
 
   public static String getIdent() {

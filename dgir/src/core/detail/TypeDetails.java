@@ -21,6 +21,13 @@ public class TypeDetails {
     return new TypeDetails(clazz);
   }
 
+  private Impl impl = null;
+
+  @JsonIgnore
+  public Impl getImpl() {
+    return impl;
+  }
+
   protected TypeDetails(Impl impl) {
     this.impl = impl;
   }
@@ -40,16 +47,19 @@ public class TypeDetails {
   }
 
   @JsonIgnore
-  public Impl getImpl() {
-    return impl;
-  }
-
-  @JsonIgnore
   public String getParameterizedIdent(Type type) {
     return impl.getParameterizedIdent(type);
   }
 
-  private Impl impl = null;
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof TypeDetails other && this.impl == other.impl;
+  }
+
+  @Override
+  public int hashCode() {
+    return impl.hashCode();
+  }
 
   /**
    * This is the fully type erased interface for a type object.
