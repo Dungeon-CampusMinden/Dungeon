@@ -1,7 +1,8 @@
 package core;
 
+import core.platform.Platform;
+import core.platform.gdx.GdxWindowAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import contrib.utils.EntityUtils;
@@ -70,6 +71,10 @@ public final class Game {
 
   private static final boolean SLOW_NETWORK = false;
 
+  static {
+    Platform.window(new GdxWindowAdapter());
+  }
+
   /**
    * Starts the dungeon.
    *
@@ -125,7 +130,7 @@ public final class Game {
    * @return The window width or if non graphics is available, returns 0.
    */
   public static int windowWidth() {
-    return Optional.ofNullable(Gdx.graphics).map(Graphics::getWidth).orElse(0);
+    return Platform.window().width();
   }
 
   /**
@@ -143,7 +148,7 @@ public final class Game {
    * @return The window height or if non graphics is available, returns 0.
    */
   public static int windowHeight() {
-    return Optional.ofNullable(Gdx.graphics).map(Graphics::getHeight).orElse(0);
+    return Platform.window().height();
   }
 
   /**
@@ -206,7 +211,7 @@ public final class Game {
    * @param newTitle The new window title.
    */
   public static void updateWindowTitle(String newTitle) {
-    Gdx.graphics.setTitle(newTitle);
+    Platform.window().setTitle(newTitle);
   }
 
   /**
