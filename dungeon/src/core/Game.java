@@ -2,7 +2,7 @@ package core;
 
 import core.platform.Platform;
 import core.platform.gdx.GdxWindowAdapter;
-import com.badlogic.gdx.Gdx;
+import core.platform.gdx.GdxRuntimeAdapter;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import contrib.utils.EntityUtils;
@@ -73,6 +73,7 @@ public final class Game {
 
   static {
     Platform.window(new GdxWindowAdapter());
+    Platform.runtime(new GdxRuntimeAdapter());
   }
 
   /**
@@ -841,9 +842,7 @@ public final class Game {
         LOGGER.warn("Error shutting down network handler", e);
       }
     }
-    if (Gdx.app != null) {
-      Gdx.app.exit();
-    }
+    Platform.runtime().requestExit();
   }
 
   /**
@@ -941,6 +940,6 @@ public final class Game {
    * @return true if the game is running in headless mode, false otherwise
    */
   public static boolean isHeadless() {
-    return Gdx.gl == null || Gdx.graphics == null;
+    return Platform.runtime().isHeadless();
   }
 }
