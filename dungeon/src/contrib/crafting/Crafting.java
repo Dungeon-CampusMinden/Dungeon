@@ -211,6 +211,7 @@ public final class Crafting {
           } else {
             ingredientsArray[i] = Item.getItem(id).getDeclaredConstructor().newInstance();
           }
+
           if (itemMap.containsKey("count")) {
             Object countObj = itemMap.get("count");
             int count;
@@ -262,6 +263,7 @@ public final class Crafting {
           } else {
             resultsArray[i] = Item.getItem(id).getDeclaredConstructor().newInstance();
           }
+
           if (itemMap.containsKey("count")) {
             Object countObj = itemMap.get("count");
             int count;
