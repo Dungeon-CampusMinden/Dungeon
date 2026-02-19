@@ -449,7 +449,7 @@ public final class ECSManagement {
    * (libGDX / LITIENGINE) to provide the authoritative delta time.
    */
   public static void executeOneTick(System.AuthoritativeSide side) {
-    final long now = java.lang.System.nanoTime();
+    final long now = core.utils.Time.nowNs();
     final float deltaSeconds;
     if (lastTickNanos < 0L) {
       deltaSeconds = 0f; // first tick: no meaningful delta yet

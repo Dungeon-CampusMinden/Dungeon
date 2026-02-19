@@ -95,7 +95,7 @@ public class FrameBufferPool implements Disposable {
 
     // Create a new PooledFbo wrapper for tracking time
     PooledFbo pooledFbo = new PooledFbo(fbo);
-    pooledFbo.lastUsedTime = nowMs();
+    pooledFbo.lastUsedTime = core.utils.Time.nowMs();
 
     availablePool.computeIfAbsent(key, k -> new LinkedList<>()).add(pooledFbo);
   }
@@ -103,10 +103,10 @@ public class FrameBufferPool implements Disposable {
   /** Runs once per frame (or periodically) to cull excess FBOs down to the SOFT_LIMIT. */
   public void update() {
     // Culling logic only runs periodically (e.g., every 1 second)
-    if ((nowMs() - lastCullTime) < 1000) {
+    if (core.utils.Time.sinceMs(lastCullTime) < 1000) {
       return;
     }
-    lastCullTime = nowMs();
+    lastCullTime = core.utils.Time.nowMs();
 
     if (currentFboCount <= SOFT_LIMIT) {
       return;
@@ -119,7 +119,7 @@ public class FrameBufferPool implements Disposable {
         PooledFbo pooledFbo = fboIt.next();
 
         // Check two conditions: Time limit passed AND we are over the soft limit
-        if ((nowMs() - pooledFbo.lastUsedTime) > CULL_TIMEOUT_MS
+        if (core.utils.Time.sinceMs(pooledFbo.lastUsedTime) > CULL_TIMEOUT_MS
             && currentFboCount > SOFT_LIMIT) {
           pooledFbo.fbo.dispose();
           fboIt.remove();
@@ -158,11 +158,7 @@ public class FrameBufferPool implements Disposable {
 
     PooledFbo(FrameBuffer fbo) {
       this.fbo = fbo;
-      this.lastUsedTime = nowMs();
+      this.lastUsedTime = core.utils.Time.nowMs();
     }
-  }
-
-  private static long nowMs() {
-    return java.lang.System.currentTimeMillis();
   }
 }

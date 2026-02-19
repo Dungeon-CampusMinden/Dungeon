@@ -67,7 +67,7 @@ public final class InputManager {
                 lastKeyTapTimesMs,
                 previousKeyTapTimesMs,
                 keyDownTimesMs,
-                nowMs());
+                core.utils.Time.nowMs());
             return oldProcessor != null && oldProcessor.keyDown(keycode);
           }
 
@@ -92,7 +92,7 @@ public final class InputManager {
                 lastButtonTapTimesMs,
                 previousButtonTapTimesMs,
                 buttonDownTimesMs,
-                nowMs());
+                core.utils.Time.nowMs());
             return oldProcessor != null
                 && oldProcessor.touchDown(screenX, screenY, pointer, button);
           }
@@ -350,7 +350,7 @@ public final class InputManager {
     if (downTime == null || !isPressed.test(code)) {
       return false;
     }
-    return (nowMs() - downTime) >= holdDurationMs;
+    return core.utils.Time.sinceMs(downTime) >= holdDurationMs;
   }
 
   private static void updateFrame(
@@ -361,9 +361,5 @@ public final class InputManager {
     pressed.addAll(justPressed);
     justPressed.clear();
     justReleased.clear();
-  }
-
-  private static long nowMs() {
-    return java.lang.System.currentTimeMillis();
   }
 }
