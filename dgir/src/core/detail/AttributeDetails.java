@@ -37,7 +37,9 @@ public class AttributeDetails {
     this.impl = impl;
   }
 
-  /** Look up or create an {@link AttributeDetails} by ident string. */
+  /**
+   * Look up or create an {@link AttributeDetails} by ident string.
+   */
   public AttributeDetails(String ident) {
     // Try the registered registry first
     AttributeDetails registeredDetails = DGIRContext.registeredAttributesByIdent.get(ident);
@@ -59,7 +61,9 @@ public class AttributeDetails {
     impl = unregisteredDetails;
   }
 
-  /** Look up or create an {@link AttributeDetails} by attribute class. */
+  /**
+   * Look up or create an {@link AttributeDetails} by attribute class.
+   */
   public AttributeDetails(Class<? extends Attribute> clazz) {
     // Try the registered registry first
     AttributeDetails registeredName = DGIRContext.registeredAttributes.get(clazz);
@@ -156,7 +160,9 @@ public class AttributeDetails {
   // Inner: UnregisteredAttributeModel
   // =========================================================================
 
-  /** Placeholder used when an attribute ident is referenced before registration. */
+  /**
+   * Placeholder used when an attribute ident is referenced before registration.
+   */
   protected static final class UnregisteredAttributeModel extends AttributeDetails.Impl {
     UnregisteredAttributeModel(String ident, Dialect dialect) {
       super(ident, Attribute.class, dialect);

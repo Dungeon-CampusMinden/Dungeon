@@ -53,7 +53,9 @@ public class OperationDetails {
     this.impl = impl;
   }
 
-  /** Look up or create an {@link OperationDetails} by ident string. */
+  /**
+   * Look up or create an {@link OperationDetails} by ident string.
+   */
   public OperationDetails(String ident) {
     // Try the registered registry first
     OperationDetails registeredDetails = DGIRContext.registeredOperationsByIdent.get(ident);
@@ -75,7 +77,9 @@ public class OperationDetails {
     impl = unregisteredDetails;
   }
 
-  /** Look up or create an {@link OperationDetails} by op class. */
+  /**
+   * Look up or create an {@link OperationDetails} by op class.
+   */
   public OperationDetails(Class<? extends Op> clazz) {
     // Try the registered registry first
     OperationDetails registeredName = DGIRContext.registeredOperations.get(clazz);
@@ -282,7 +286,7 @@ public class OperationDetails {
       }));
 
       this.operationConstructor = hasSpecificConstructor(type, Operation.class).orElse(null);
-      this.emptyConstructor     = hasSpecificConstructor(type).orElse(null);
+      this.emptyConstructor = hasSpecificConstructor(type).orElse(null);
       assert operationConstructor != null && emptyConstructor != null
         : "Op of type " + type + " must have a constructor that takes an Operation and an empty constructor.";
     }
@@ -335,7 +339,9 @@ public class OperationDetails {
   // Inner: UnregisteredOp
   // =========================================================================
 
-  /** Placeholder used when an operation ident is referenced before registration. */
+  /**
+   * Placeholder used when an operation ident is referenced before registration.
+   */
   protected static final class UnregisteredOp extends Impl {
 
     UnregisteredOp(String ident, Class<? extends Op> clazz, Dialect dialect, List<String> attributeNames) {

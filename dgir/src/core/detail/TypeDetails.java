@@ -41,7 +41,9 @@ public class TypeDetails {
     this.impl = impl;
   }
 
-  /** Look up or create a {@link TypeDetails} by ident string. */
+  /**
+   * Look up or create a {@link TypeDetails} by ident string.
+   */
   public TypeDetails(String ident) {
     // Try the registered registry first
     TypeDetails registeredName = DGIRContext.registeredTypesByIdent.get(ident);
@@ -63,7 +65,9 @@ public class TypeDetails {
     impl = unregisteredName;
   }
 
-  /** Look up or create a {@link TypeDetails} by type class. */
+  /**
+   * Look up or create a {@link TypeDetails} by type class.
+   */
   public TypeDetails(Class<? extends Type> clazz) {
     // Try the registered registry first
     TypeDetails registeredName = DGIRContext.registeredTypes.get(clazz);
@@ -277,7 +281,9 @@ public class TypeDetails {
   // Inner: UnregisteredType
   // =========================================================================
 
-  /** Placeholder used when a type ident is referenced before registration. */
+  /**
+   * Placeholder used when a type ident is referenced before registration.
+   */
   protected static final class UnregisteredType extends Impl {
     UnregisteredType(String ident, Class<? extends Type> clazz, Dialect dialect) {
       super(null, ident, clazz, dialect);
