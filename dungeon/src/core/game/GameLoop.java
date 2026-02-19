@@ -169,8 +169,8 @@ public final class GameLoop extends ScreenAdapter {
     return Optional.ofNullable(stage);
   }
 
-  private static void updateStage(final Stage stage) {
-    stage.act(Gdx.graphics.getDeltaTime());
+  private static void updateStage(final Stage stage, final float delta) {
+    stage.act(delta);
     stage.draw();
   }
 
@@ -232,7 +232,7 @@ public final class GameLoop extends ScreenAdapter {
     InputManager.update();
     CameraSystem.camera().update();
     // stage logic
-    stage().ifPresent(GameLoop::updateStage);
+    stage().ifPresent(s -> updateStage(s, delta));
   }
 
   /**
