@@ -470,6 +470,8 @@ public final class ECSManagement {
    * @param deltaSeconds time since last frame/tick in seconds (provided by host loop)
    */
   public static void executeOneTick(System.AuthoritativeSide side, float deltaSeconds) {
+    if (!(deltaSeconds >= 0f)) deltaSeconds = 0f;
+
     List<System> authoritativeSystems =
       ECSManagement.systems().values().stream()
         .filter(sys -> isAuthoritative(side, sys))
@@ -477,6 +479,12 @@ public final class ECSManagement {
 
     // Execute logic for each system.
     for (System system : authoritativeSystems) {
+      if (newLevelLoadedThisTick) {
+        currentTick++;
+        return; // Early exit if a new level was loaded this tick.
+      }
+
+      system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
 
       if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
         system.execute();
@@ -484,14 +492,16 @@ public final class ECSManagement {
       }
     }
 
+    // Render phase (nur wenn Kontext da ist)
     if (!Game.isHeadless() && Game.windowHeight() > 0 && Game.windowWidth() > 0) {
-      // Render logic: Call the render method for each system if OpenGL context is available.
-      systems().values().forEach(system -> system.render(deltaSeconds));
+      float finalDeltaSeconds = deltaSeconds;
+      systems().values().forEach(system -> system.render(finalDeltaSeconds));
     }
 
     currentTick++;
     newLevelLoadedThisTick = false;
   }
+
 
   /**
    * Finds an entity by its unique ID.
