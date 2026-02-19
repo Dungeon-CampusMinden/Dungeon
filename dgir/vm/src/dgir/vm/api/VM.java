@@ -1,17 +1,22 @@
 package dgir.vm.api;
 
 import core.ir.Operation;
+import core.ir.Value;
+import core.traits.INoTerminator;
 import dialect.builtin.ProgramOp;
+import dialect.func.FuncOp;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 import java.util.Objects;
 
 public class VM {
   private @Nullable ProgramOp program;
   private @Nullable State state;
+  private @Nullable Action lastAction;
 
   private @NotNull Deque<Operation> opStack = new ArrayDeque<>();
 
@@ -23,7 +28,7 @@ public class VM {
     assert program.verify(true) : "Program is invalid.";
     this.program = program;
     this.opStack.clear();
-    this.opStack.push(program.getMainFunc().getOperation());
+    this.opStack.push(program.get());
     this.state = new State();
   }
 
@@ -49,6 +54,13 @@ public class VM {
       Operation currentOp = opStack.peek();
       assert currentOp != null : "Reached end of program without an explicit jump or return.";
 
+      // We reached the end of the program. This is a special case since the operation will not push a next operation onto the stack
+      // and we would cause and endless loop if we did not terminate like this.
+      if (currentOp.hasTrait(INoTerminator.class) && lastAction instanceof Action.Terminate) {
+        opStack.pop();
+        return Action.Next();
+      }
+
       Action currentAction = stepImpl();
       switch (currentAction) {
         // Just continue to the next operation in the current block.
@@ -70,9 +82,21 @@ public class VM {
           currentOp.getNext().ifPresent(opStack::push);
           // Push the current op onto the stack so that we can retrieve it when we want to set the return value of the function.
           opStack.push(currentOp);
-          // Push the function operation itself to the op stack, so that it will be executed in the next step and the VM
-          // will jump to the function body.
-          opStack.push(call.funcOp());
+          state.pushStackFrame(true);
+
+          Operation funcOp = call.funcOp();
+          // Set the values of the function's arguments in the new stack frame.
+          // These values are stored as body values in the function's region.'
+          List<Value> bodyValues = funcOp.getFirstRegion().orElseThrow().getBodyValues();
+          assert bodyValues.size() == call.args().length : "Number of arguments does not match number of body values.";
+          for (int i = 0; i < bodyValues.size(); i++) {
+            Value argValue = bodyValues.get(i);
+            Object argObject = call.args()[i];
+            state.setValue(argValue, argObject);
+          }
+
+          // Push the first operation in the function's region onto the op stack.'
+          opStack.push(funcOp.getFirstRegion().get().getEntryOperation());
         }
         // Jump to another block in the same region. This is used for control flow operations like if and while.
         case Action.Jump jump -> {
@@ -85,8 +109,8 @@ public class VM {
           state.popStackFrame();
 
           // Set the return value of the call operation if it produces any.
+          Operation caller = opStack.pop();
           if (aTerminate.value().isPresent()) {
-            Operation caller = opStack.pop();
             state.setValueForOutput(caller, aTerminate.value().get());
           }
           // No need to push anything to the op stack, as the caller will have already pushed the next operation to execute after the call.
@@ -95,13 +119,26 @@ public class VM {
         // body of a while operation, as well as function calls.
         // It opens a new stack frame for the region and jumps to the first operation in the region.
         case Action.StepInto stepInto -> {
-          state.pushStackFrame(stepInto.isolatedFromAbove());
           // Push the next operation after the step into operation to the op stack.
           stepInto.nextOperation().ifPresent(opStack::push);
+          // Open a new stack frame for the region and jump to the first operation in the region.
+          state.pushStackFrame(stepInto.isolatedFromAbove());
+
+          // Same as for the func op we need to push the body values of the region onto the stack.
+          List<Value> bodyValues = stepInto.region().getBodyValues();
+          assert bodyValues.size() == stepInto.args().length : "Number of arguments does not match number of body values.";
+          for (int i = 0; i < bodyValues.size(); i++) {
+            Value argValue = bodyValues.get(i);
+            Object argObject = stepInto.args()[i];
+            state.setValue(argValue, argObject);
+          }
+
           opStack.push(stepInto.region().getEntryOperation());
+
         }
       }
 
+      lastAction = currentAction;
       return currentAction;
     } catch (Exception e) {
       System.err.println("Error during execution: " + e.getMessage());

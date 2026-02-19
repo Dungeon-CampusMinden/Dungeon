@@ -17,6 +17,17 @@ public class CallRunner extends OpRunner {
   @Override
   protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
     CallOp callOp = op.as(CallOp.class).orElseThrow();
-    return Action.Call(SymbolTable.lookupSymbolInNearestTable(op, callOp.getCallee()).orElseThrow());
+    Object[] args = callOp
+      .getOperands()
+      .stream()
+      .map(operand ->
+        state.getValue(operand)
+          .orElseThrow(() -> new AssertionError("Not all operands of call op hold value")))
+      .toArray();
+
+    return Action.Call(
+      SymbolTable.lookupSymbolInNearestTable(op, callOp.getCallee())
+        .orElseThrow(() -> new AssertionError("Callee " + callOp.getCallee() + "not found.")),
+      args);
   }
 }

@@ -7,7 +7,6 @@ import core.ir.Region;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.text.html.Option;
 import java.text.MessageFormat;
 import java.util.Optional;
 
@@ -35,8 +34,8 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    * @param funcOp The function operation to call.
    * @return An action that represents the call.
    */
-  public static @NotNull Action Call(@NotNull Operation funcOp) {
-    return new Call(funcOp);
+  public static @NotNull Action Call(@NotNull Operation funcOp, @NotNull Object... args) {
+    return new Call(funcOp, args);
   }
 
   /**
@@ -47,8 +46,8 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    * @param nextOperation     The operation to execute after returning from the region, or null if nothing should be executed after returning from the region.
    * @return An action that represents the step into.
    */
-  public static @NotNull Action StepInto(@NotNull Region region, boolean isolatedFromAbove, @NotNull Optional<Operation> nextOperation) {
-    return new StepInto(region, isolatedFromAbove, nextOperation);
+  public static @NotNull Action StepInto(@NotNull Region region, boolean isolatedFromAbove, @NotNull Optional<Operation> nextOperation, @NotNull Object... args) {
+    return new StepInto(region, isolatedFromAbove, nextOperation, args);
   }
 
   /**
@@ -91,7 +90,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    *
    * @param funcOp The function operation to call.
    */
-  public record Call(@NotNull Operation funcOp) implements Action {
+  public record Call(@NotNull Operation funcOp, Object... args) implements Action {
   }
 
   /**
@@ -103,8 +102,10 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    * @param nextOperation     The operation to execute after returning from the region, or null if nothing should be executed
    *                          after returning from the region.
    */
-  public record StepInto(@NotNull Region region, boolean isolatedFromAbove,
-                         @NotNull Optional<Operation> nextOperation) implements Action {
+  public record StepInto(@NotNull Region region,
+                         boolean isolatedFromAbove,
+                         @NotNull Optional<Operation> nextOperation,
+                         Object... args) implements Action {
   }
 
   /**
