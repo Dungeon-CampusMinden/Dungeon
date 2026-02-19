@@ -20,8 +20,15 @@ public class PrintOp extends Op {
 
       @Override
       public boolean verify(Operation operation) {
-        // TODO This check still has to be implemented
-        System.out.println("Missing verification for operation " + getIdent());
+        PrintOp printOp = operation.as(PrintOp.class).orElseThrow();
+
+        // The print op needs to have at least one operand
+        if (printOp.getOperands().isEmpty())
+        {
+          operation.emitError("Print operation must have at least one operand");
+          return false;
+        }
+
         return true;
       }
 
@@ -31,11 +38,6 @@ public class PrintOp extends Op {
       }
     }
     return new PrintOpModel(getIdent(), this.getClass(), Dialect.get(IO.class), List.of());
-  }
-
-  @Override
-  public OperationDetails getDetails() {
-    return null;
   }
 
   public PrintOp() {

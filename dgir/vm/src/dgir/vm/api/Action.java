@@ -7,9 +7,11 @@ import core.ir.Region;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.text.html.Option;
 import java.text.MessageFormat;
+import java.util.Optional;
 
-public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Action.StepInto, Action.Return, Action.Abort {
+public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Action.StepInto, Action.Terminate, Action.Abort {
   /**
    * Executes the next operation in the current block.
    */
@@ -45,18 +47,18 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    * @param nextOperation     The operation to execute after returning from the region, or null if nothing should be executed after returning from the region.
    * @return An action that represents the step into.
    */
-  public static @NotNull Action StepInto(@NotNull Region region, boolean isolatedFromAbove, @Nullable Operation nextOperation) {
+  public static @NotNull Action StepInto(@NotNull Region region, boolean isolatedFromAbove, @NotNull Optional<Operation> nextOperation) {
     return new StepInto(region, isolatedFromAbove, nextOperation);
   }
 
   /**
-   * Returns the given value and exits the current block. The value can be null if the block does not return anything.
+   * Terminates the current block and returns the given value. The value can be null if the block does not return anything.
    *
    * @param value The value to return. Can be null if the block does not return anything.
    * @return An action that represents the return.
    */
-  public static @NotNull Action Return(@Nullable Object value) {
-    return new Return(value);
+  public static @NotNull Action Terminate(@NotNull Optional<Object> value) {
+    return new Terminate(value);
   }
 
   /**
@@ -102,15 +104,15 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    *                          after returning from the region.
    */
   public record StepInto(@NotNull Region region, boolean isolatedFromAbove,
-                         @Nullable Operation nextOperation) implements Action {
+                         @NotNull Optional<Operation> nextOperation) implements Action {
   }
 
   /**
-   * Returns the given value and exits the current block. The value can be null if the block does not return anything.
+   * Terminates the current block and returns the given value. The value can be null if the block does not return anything.
    *
    * @param value The value to return. Can be null if the block does not return anything.
    */
-  public record Return(@Nullable Object value) implements Action {
+  public record Terminate(@NotNull Optional<Object> value) implements Action {
   }
 
   /**

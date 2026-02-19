@@ -8,6 +8,7 @@ import core.serialization.OperationDeserializer;
 import core.serialization.OperationSerializer;
 import core.traits.IOpTrait;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
@@ -33,33 +34,33 @@ public final class Operation implements Serializable {
   /**
    * The input values of this operation.
    */
-  private final List<ValueOperand> operands;
+  private final @NotNull List<ValueOperand> operands;
 
   /**
    * The input blocks of this operation.
    */
-  private final List<BlockOperand> blockOperands;
+  private final @NotNull List<BlockOperand> blockOperands;
 
   /**
    * The output of this operation.
    */
-  private OperationResult output;
+  private @Nullable OperationResult output;
 
   /**
    * The attributes of this operation.
    */
-  private final Map<String, NamedAttribute> attributes;
+  private final @NotNull Map<String, NamedAttribute> attributes;
 
   /**
    * The regions of this operation.
    */
-  private final List<Region> regions;
+  private final @NotNull List<Region> regions;
 
   /**
    * The block containing this operation.
    */
   @JsonIgnore
-  private Block parent = null;
+  private @Nullable Block parent = null;
 
   /**
    * Static factory method to create an Operation instance.
@@ -193,7 +194,7 @@ public final class Operation implements Serializable {
    * @param clazz The class of the op to create
    * @return The op instance or null if the operation is not of the given type
    */
-  public <T extends Op> T as(Class<T> clazz) {
+  public <T extends Op> Optional<T> as(@NotNull Class<T> clazz) {
     return getDetails().as(clazz, this);
   }
 
@@ -204,11 +205,9 @@ public final class Operation implements Serializable {
    * @param <T>   The trait type
    * @return The op instance or null if the operation does not implement the trait
    */
-  public <T extends IOpTrait> T asTrait(Class<T> clazz) {
-    if (hasTrait(clazz)) {
-      return clazz.cast(as(getDetails().getType()));
-    }
-    return null;
+  public <T extends IOpTrait> @NotNull Optional<T> asTrait(Class<T> clazz) {
+    if (!hasTrait(clazz)) return Optional.empty();
+    return Optional.of(clazz.cast(asOp()));
   }
 
   /**
@@ -216,7 +215,7 @@ public final class Operation implements Serializable {
    *
    * @return The op instance
    */
-  public Op asOp() {
+  public @NotNull Op asOp() {
     return getDetails().asOp(this);
   }
 
@@ -230,21 +229,22 @@ public final class Operation implements Serializable {
     return getDetails().isa(clazz);
   }
 
-  public List<ValueOperand> getOperands() {
-    return Collections.unmodifiableList(operands);
+  public @NotNull List<ValueOperand> getOperands() {
+    return operands;
   }
 
-  public List<BlockOperand> getBlockOperands() {
+  public @NotNull List<BlockOperand> getBlockOperands() {
     return blockOperands;
   }
 
-  public OperationResult getOutput() {
-    return output;
+  public Optional<OperationResult> getOutput() {
+    return Optional.ofNullable(output);
   }
 
-  public Value getOutputValue() {
-    assert getOutput() != null : "Operation has no output.";
-    return getOutput().getValue();
+  public Optional<Value> getOutputValue() {
+    if (output == null)
+      return Optional.empty();
+    return getOutput().map(OperationResult::getValue);
   }
 
   public void setOutputValue(Value value) {
@@ -252,44 +252,47 @@ public final class Operation implements Serializable {
     this.output.setValue(value);
   }
 
-  public Map<String, NamedAttribute> getAttributes() {
+  public @NotNull Map<String, NamedAttribute> getAttributes() {
     return attributes;
   }
 
-  public Attribute getAttributeByName(String name) {
+  public @NotNull Optional<Attribute> getAttributeByName(@NotNull String name) {
+    if (!getAttributes().containsKey(name))
+      return Optional.empty();
     return getAttributes().get(name).getAttribute();
   }
 
-  public <T extends Attribute> T getAttribute(Class<T> clazz, String name) {
-    return clazz.cast(getAttributeByName(name));
+  public <T extends Attribute> @NotNull Optional<T> getAttribute(@NotNull Class<T> clazz, @NotNull String name) {
+    var attribute = getAttributeByName(name);
+    if (attribute.isEmpty() || !clazz.isInstance(attribute.get()))
+      return Optional.empty();
+    return Optional.of(clazz.cast(attribute.get()));
   }
 
-  public void setAttribute(String name, Attribute attribute) {
+  public void setAttribute(@NotNull String name, @NotNull Attribute attribute) {
     NamedAttribute namedAttribute = getAttributes().get(name);
     assert namedAttribute != null : MessageFormat.format("Attribute with name {0} does not exist.", name);
     namedAttribute.setAttribute(attribute);
   }
 
-  public List<Region> getRegions() {
+  public @NotNull List<Region> getRegions() {
     return regions;
   }
 
-  public Region getFirstRegion() {
-    return regions.getFirst();
+  public @NotNull Optional<Region> getFirstRegion() {
+    return regions.isEmpty() ? Optional.empty() : Optional.of(regions.getFirst());
   }
 
-  public Block getParent() {
-    return parent;
+  public @NotNull Optional<Block> getParent() {
+    return Optional.ofNullable(parent);
   }
 
-  public Region getParentRegion() {
-    if (getParent() == null) return null;
-    return getParent().getParent();
+  public @NotNull Optional<Region> getParentRegion() {
+    return getParent().flatMap(Block::getParent);
   }
 
-  public Operation getParentOperation() {
-    if (getParent() == null) return null;
-    return getParent().getParent().getParent();
+  public @NotNull Optional<Operation> getParentOperation() {
+    return getParentRegion().map(Region::getParent);
   }
 
   public void setParent(Block parent) {
@@ -306,16 +309,17 @@ public final class Operation implements Serializable {
    * @param <T>        The trait type
    * @return The first parent operation that implements the given trait or null if none was found.
    */
-  public <T extends IOpTrait> T getParentWithTrait(Class<T> traitClass) {
-    if (getParent() == null) return null;
-    Operation currentParent = getParentOperation();
-    while (currentParent != null) {
-      if (currentParent.hasTrait(traitClass)) {
-        return currentParent.asTrait(traitClass);
-      }
-      currentParent = currentParent.getParentOperation();
+  public <T extends IOpTrait> @NotNull Optional<T> getParentWithTrait(Class<T> traitClass) {
+    Optional<Operation> currentParent = getParentOperation();
+    if (currentParent.isEmpty()) return Optional.empty();
+
+    while (currentParent.isPresent()) {
+      Optional<T> asTrait = currentParent.get().asTrait(traitClass);
+      if (asTrait.isPresent())
+        return asTrait;
+      currentParent = currentParent.get().getParentOperation();
     }
-    return null;
+    return Optional.empty();
   }
 
   /**
@@ -324,26 +328,26 @@ public final class Operation implements Serializable {
    * @return The successor blocks of this operation.
    */
   @JsonIgnore
-  public List<Block> getSuccessors() {
+  public @NotNull List<Block> getSuccessors() {
     return getBlockOperands().stream().map(BlockOperand::getValue).toList();
   }
 
-  public void emitMessage(String s) {
+  public void emitMessage(@NotNull String s) {
     System.out.println(MessageFormat.format("Message: {0}\n\t| {1}", this, s));
   }
 
-  public void emitWarning(String s) {
+  public void emitWarning(@NotNull String s) {
     // Yellow color for warning
     System.out.println(MessageFormat.format("\u001B[33mWarning: {0}\n\t| {1}\u001B[0m", this, s));
   }
 
   // Emit an error with the given message and information about this operation.
-  public void emitError(String s) {
+  public void emitError(@NotNull String s) {
     System.err.println(MessageFormat.format("Error: {0}\n\t| {1}", this, s));
   }
 
   @Override
-  public String toString() {
+  public @NotNull String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append(getDetails().getIdent());
 
@@ -361,8 +365,8 @@ public final class Operation implements Serializable {
 
     if (!attributes.isEmpty()) {
       String attrs = attributes.values().stream()
-        .filter(attr -> attr.getAttribute() != null)
-        .map(attr -> MessageFormat.format("{0} = {1}", attr.getName(), attr.getAttribute().getStorage()))
+        .filter(attr -> attr.getAttribute().isPresent())
+        .map(attr -> MessageFormat.format("{0} = {1}", attr.getName(), attr.getAttribute().get().getStorage()))
         .collect(Collectors.joining(", "));
 
       if (!attrs.isEmpty()) {
@@ -396,18 +400,23 @@ public final class Operation implements Serializable {
    * @return The index of this operation in its parent's operations list.
    */
   public int getIndex() {
-    if (getParent() == null) return -1;
-    return getParent().getOperations().indexOf(this);
+    return getParent()
+      .map(block -> block.getOperations().indexOf(this))
+      .orElse(-1);
   }
 
   /**
-   * Get the next operation in the parent's operations list.
-   * @return The next operation in the parent's operations list, or null if this is the last operation.
+   * Get the next operation in the same block as this operation.
+   *
+   * @return The next operation in the same block as this operation, if there is a next operation.
    */
-  public @Nullable Operation getNext() {
-    if (getParent() == null) return null;
-    int index = getIndex();
-    if (index == -1 || index == getParent().getOperations().size() - 1) return null;
-    return getParent().getOperations().get(index + 1);
+  public Optional<Operation> getNext() {
+    return getParent()
+      .map(block -> {
+        int index = block.getOperations().indexOf(this);
+        if (index == -1 || index == block.getOperations().size() - 1)
+          return null;
+        return block.getOperations().get(index + 1);
+      });
   }
 }

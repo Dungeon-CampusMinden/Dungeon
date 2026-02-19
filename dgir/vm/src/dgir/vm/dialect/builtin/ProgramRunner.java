@@ -10,20 +10,22 @@ import dialect.builtin.ProgramOp;
 import dialect.func.FuncOp;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public class ProgramRunner extends OpRunner {
   public ProgramRunner() {
-    super(RegisteredOperationDetails.get(ProgramOp.class));
+    super(RegisteredOperationDetails.lookup(ProgramOp.class).orElseThrow());
   }
 
   @Override
   protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-    ProgramOp programOp = op.as(ProgramOp.class);
+    ProgramOp programOp = op.as(ProgramOp.class).orElseThrow();
     // Find the entry function and jump to it.
     FuncOp entry = null;
     for (Operation operation : programOp.getBlock().getOperations()) {
-      FuncOp funcOp = operation.as(FuncOp.class);
-      if (funcOp != null && funcOp.getFuncName().equals("main")) {
-        entry = funcOp;
+      Optional<FuncOp> funcOp = operation.as(FuncOp.class);
+      if (funcOp.isPresent() && funcOp.get().getFuncName().equals("main")) {
+        entry = funcOp.get();
         break;
       }
     }

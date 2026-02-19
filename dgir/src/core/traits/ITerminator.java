@@ -1,11 +1,22 @@
 package core.traits;
 
+import core.ir.Block;
+import core.ir.Operation;
+
+import java.util.Optional;
+
 public interface ITerminator extends IOpTrait {
   default boolean verify(ITerminator trait) {
     // Make sure the terminator is the last operation in the region.
-    if (!get().getParent().getOperations().getLast().equals(get()))
+    Optional<Block> block = get().getParent();
+    Operation self = get();
+    if (block.isEmpty()) {
+      self.emitError("Terminator must be in a block.");
+      return false;
+    }
+    if (!block.get().getOperations().getLast().equals(self))
     {
-      get().emitError("Terminator must be the last operation in the region.");
+      self.emitError("Terminator must be the last operation in the region.");
       return false;
     }
     return true;

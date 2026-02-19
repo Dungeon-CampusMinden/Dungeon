@@ -12,7 +12,7 @@ public interface ISingleRegion extends IOpTrait {
   }
 
   default Region getRegion() {
-    return get().getFirstRegion();
+    return get().getFirstRegion().orElseThrow(() -> new RuntimeException("Operation must have exactly one region."));
   }
 
   default Value getArgument(int index) {
@@ -23,7 +23,7 @@ public interface ISingleRegion extends IOpTrait {
     return getRegion().getBlocks().get(blockIndex).addOperation(operation);
   }
 
-  default <OpT extends Op> OpT addOperation(OpT op, int blockIndex){
+  default <OpT extends Op> OpT addOperation(OpT op, int blockIndex) {
     return getRegion().getBlocks().get(blockIndex).addOperation(op);
   }
 
@@ -35,7 +35,7 @@ public interface ISingleRegion extends IOpTrait {
     return getRegion().getBlocks().get(index);
   }
 
-  default Block addBlock(Block block){
+  default Block addBlock(Block block) {
     getRegion().addBlock(block);
     return block;
   }

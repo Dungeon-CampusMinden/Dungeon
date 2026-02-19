@@ -88,13 +88,15 @@ public abstract class Operand<
    * Insert this operand into the use list of the value currently stored
    */
   private void insertIntoCurrentUseList() {
-    if (value != null)
+    if (value != null) {
+      //noinspection unchecked
       value.getUses().add((DerivedT) this);
-
+    }
   }
 
   private void removeFromCurrentUseList() {
     if (value != null)
+      //noinspection unchecked
       value.getUses().remove((DerivedT) this);
   }
 

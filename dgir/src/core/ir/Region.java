@@ -1,8 +1,9 @@
 package core.ir;
 
 import com.fasterxml.jackson.annotation.*;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.*;
 
@@ -53,15 +54,15 @@ import java.util.*;
  */
 @JsonPropertyOrder({"bodyValues", "blocks"})
 public final class Region {
-  private final List<Block> blocks = new ArrayList<>();
+  private final @NotNull List<Block> blocks = new ArrayList<>();
   /**
    * Values that act like parameters/arguments visible only inside this region (e.g., block arguments for CFG nodes).
    */
   @JsonIdentityReference(alwaysAsId = false)
-  private final List<Value> bodyValues;
+  private final @NotNull List<Value> bodyValues;
 
   @JsonIgnore
-  private final Operation parent;
+  private final @NotNull Operation parent;
 
   public Region() {
     this(null, List.of());
@@ -108,7 +109,7 @@ public final class Region {
   }
 
   @JsonIgnore
-  public Block getEntryBlock() {
+  public @NotNull Block getEntryBlock() {
     ensureEntryBlock();
     return blocks.getFirst();
   }
@@ -118,6 +119,7 @@ public final class Region {
    *
    * @return The first operation in the entry block.
    */
+  @JsonIgnore
   public @NotNull Operation getEntryOperation() {
     var operations = getEntryBlock().getOperations();
     assert !operations.isEmpty() : "Entry block must have at least one operation.";
@@ -129,32 +131,33 @@ public final class Region {
    *
    * @return An unmodifiable list of blocks.
    */
-  public List<Block> getBlocks() {
+  @Contract(pure = true)
+  public @NotNull @UnmodifiableView List<Block> getBlocks() {
     return Collections.unmodifiableList(blocks);
   }
 
-  public void addBlockAt(int index, Block block) {
-    assert block.getParent() == null : "Block is already part of a region.";
+  public void addBlockAt(int index, @NotNull Block block) {
+    assert block.getParent().isEmpty() : "Block is already part of a region.";
     assert index >= 0 && index <= blocks.size() : "Index out of bounds.";
 
     blocks.add(index, block);
     block.setParent(this);
   }
 
-  public void addBlock(Block block) {
+  public void addBlock(@NotNull Block block) {
     addBlockAt(blocks.size(), block);
   }
 
-  public void addBlockBefore(Block block, Block before) {
+  public void addBlockBefore(@NotNull Block block, @NotNull Block before) {
     addBlockAt(blocks.indexOf(before), block);
   }
 
-  public void addBlockAfter(Block block, Block after) {
+  public void addBlockAfter(@NotNull Block block, @NotNull Block after) {
     addBlockAt(blocks.indexOf(after) + 1, block);
   }
 
-  public void removeBlock(Block block) {
-    assert block.getParent() == this : "Block is not part of this region.";
+  public void removeBlock(@NotNull Block block) {
+    assert blocks.contains(block) : "Block is not part of this region.";
     removeBlockAt(blocks.indexOf(block));
   }
 
@@ -172,7 +175,7 @@ public final class Region {
    *
    * @param other The other region to take blocks from.
    */
-  public void takeRegion(Region other) {
+  public void takeRegion(@NotNull Region other) {
     // Make sure that both regions have the same body values or that this region is empty
     assert this.bodyValues.size() == other.bodyValues.size() : "Body values of regions must have the same size.";
     for (int i = 0; i < this.bodyValues.size(); i++) {
@@ -193,12 +196,11 @@ public final class Region {
     }
   }
 
-  public Operation getParent() {
+  public @NotNull Operation getParent() {
     return parent;
   }
 
-  @JsonIdentityReference(alwaysAsId = false)
-  public List<Value> getBodyValues() {
+  public @NotNull List<Value> getBodyValues() {
     return bodyValues;
   }
 
@@ -206,11 +208,11 @@ public final class Region {
     return bodyValues.get(index);
   }
 
-  public int getBodyValueIndex(Value value) {
+  public int getBodyValueIndex(@NotNull Value value) {
     return bodyValues.indexOf(value);
   }
 
-  public void setBodyValues(List<Value> bodyValues) {
+  public void setBodyValues(@NotNull List<Value> bodyValues) {
     // Make sure that the body values have the same size and types as the previous values or that none of the values are in use
     if (!this.bodyValues.isEmpty() && bodyValues.stream().anyMatch(v -> !v.getUses().isEmpty())) {
       assert this.bodyValues.size() == bodyValues.size() : "Body values of regions must have the same size.";
@@ -228,27 +230,5 @@ public final class Region {
 
     this.bodyValues.clear();
     this.bodyValues.addAll(bodyValues);
-  }
-
-  /**
-   * Finds the ancestor operation of the given operation that lies in this region. If the given operation itself lies in this region, it is returned.
-   * This means that the operation that gets returned is always a first level descendant of this region, meaning it is not nested.
-   *
-   * @param op The operation to find the ancestor op of.
-   * @return The same op if it lies in this region, otherwise the ancestor op of the op in this region. Null if no ancestor op exists in this region.
-   */
-  public Operation findAncestorOpInRegion(Operation op) {
-    Operation currentOp = op;
-    Region opRegion = currentOp.getParentRegion();
-    while (opRegion != null) {
-      if (opRegion == this)
-        return currentOp;
-
-      currentOp = opRegion.getParent();
-      if (currentOp == null)
-        return null;
-      opRegion = currentOp.getParentRegion();
-    }
-    return null;
   }
 }

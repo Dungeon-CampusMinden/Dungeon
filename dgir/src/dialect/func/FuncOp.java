@@ -58,19 +58,15 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, 
   }
 
   public StringAttribute getFuncNameAttribute() {
-    return getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName());
+    return getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName()).orElseThrow(() -> new RuntimeException("Symbol attribute not found"));
   }
 
   public String getFuncName() {
     return getFuncNameAttribute().getValue();
   }
 
-  public TypeAttribute GetTypeAttribute() {
-    return getAttribute(TypeAttribute.class, "type");
-  }
-
   public TypeAttribute getTypeAttribute() {
-    return (TypeAttribute) getOperation().getAttributes().get("type").getAttribute();
+    return getOperation().getAttribute(TypeAttribute.class, "type").orElseThrow(() -> new RuntimeException("Type attribute not found"));
   }
 
   public FuncType getType() {

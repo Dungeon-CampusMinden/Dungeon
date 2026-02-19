@@ -11,14 +11,14 @@ import org.jetbrains.annotations.NotNull;
 public class ConstantRunner extends OpRunner {
   public ConstantRunner()
   {
-    super(RegisteredOperationDetails.get(ConstantOp.class));
+    super(RegisteredOperationDetails.lookup(ConstantOp.class).orElseThrow());
   }
 
 
   @Override
   protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-    ConstantOp constantOp = op.as(ConstantOp.class);
-    state.setValue(constantOp.getOutputValue(), constantOp.getValue());
+    ConstantOp constantOp = op.as(ConstantOp.class).orElseThrow();
+    state.setValue(constantOp.getOutputValue().orElseThrow(), constantOp.getValueStorage());
     return Action.Next();
   }
 }

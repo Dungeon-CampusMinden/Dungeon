@@ -64,9 +64,10 @@ public class Utils {
       Graph<Object, DefaultEdge> useGraph = GraphTypeBuilder.directed().edgeClass(DefaultEdge.class).buildGraph();
       for (Block block : op.getRegions().getFirst().getBlocks()) {
         for (Operation o : block.getOperations()) {
-          if (o.getOutput() != null) {
+          Optional<Value> output = o.getOutputValue();
+          if (output.isPresent()) {
             useGraph.addVertex(o);
-            for (Operand<Value, ?> operand : o.getOutputValue().getUses()) {
+            for (Operand<Value, ?> operand : output.get().getUses()) {
               Operation userOp = operand.getOwner();
               useGraph.addVertex(userOp);
               useGraph.addEdge(o, userOp);

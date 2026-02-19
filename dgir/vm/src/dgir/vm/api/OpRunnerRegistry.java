@@ -5,6 +5,9 @@ import core.ir.Op;
 import core.ir.Operation;
 import dgir.vm.dialect.arith.ConstantRunner;
 import dgir.vm.dialect.builtin.ProgramRunner;
+import dgir.vm.dialect.cf.BranchCondRunner;
+import dgir.vm.dialect.cf.BranchRunner;
+import dgir.vm.dialect.func.CallRunner;
 import dgir.vm.dialect.func.FuncRunner;
 import dgir.vm.dialect.func.ReturnRunner;
 import dgir.vm.dialect.io.PrintRunner;
@@ -85,8 +88,16 @@ public class OpRunnerRegistry {
     );
     registerOpRunners(builtinRunners);
 
+    // cf
+    List<OpRunner> cfRunners = List.of(
+      new BranchCondRunner(),
+      new BranchRunner()
+    );
+    registerOpRunners(cfRunners);
+
     // func
     List<OpRunner> funcRunners = List.of(
+      new CallRunner(),
       new FuncRunner(),
       new ReturnRunner()
     );

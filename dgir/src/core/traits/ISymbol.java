@@ -5,7 +5,7 @@ import dialect.builtin.attributes.StringAttribute;
 
 public interface ISymbol extends IOpTrait {
   default boolean verify(ISymbol trait) {
-    if (!get().getAttributes().containsKey(SymbolTable.getSymbolAttributeName())){
+    if (!get().getAttributes().containsKey(SymbolTable.getSymbolAttributeName())) {
       get().emitError("Symbol must have a symbol attribute.");
       return false;
     }
@@ -13,6 +13,8 @@ public interface ISymbol extends IOpTrait {
   }
 
   default String getSymbol() {
-    return get().getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName()).getValue();
+    return get()
+      .getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName()).orElseThrow()
+      .getValue();
   }
 }

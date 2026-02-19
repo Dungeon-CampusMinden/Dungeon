@@ -5,11 +5,14 @@ import core.detail.RegisteredOperationDetails;
 import core.serialization.OpDeserializer;
 import core.serialization.OpSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Abstract base class for all operations in the DGIR.
@@ -74,29 +77,24 @@ public abstract class Op {
     return getOperation().verify(recursive);
   }
 
-  public <OpT extends Op> OpT as(Class<OpT> clazz) {
-    assert clazz.isInstance(this) : "Operation is not of type " + clazz.getName();
-    return clazz.cast(this);
-  }
-
   @JsonIgnore
-  public OperationDetails getDetails() {
+  public @NotNull OperationDetails getDetails() {
     return getOperation().getDetails();
   }
 
   @JsonIgnore
-  public List<ValueOperand> getOperands() {
+  public @NotNull List<ValueOperand> getOperands() {
     return getOperation().getOperands();
   }
 
   @JsonIgnore
-  public OperationResult getOutput() {
+  public Optional<OperationResult> getOutput() {
     return getOperation().getOutput();
   }
 
   @JsonIgnore
-  public Value getOutputValue() {
-    return getOutput().getValue();
+  public Optional<Value> getOutputValue() {
+    return getOperation().getOutputValue();
   }
 
   public Op setOutputValue(Value value) {
@@ -133,8 +131,8 @@ public abstract class Op {
     return getRegion(0);
   }
 
-  public <T extends Attribute> T getAttribute(Class<T> clazz, String name) {
-    return clazz.cast(getAttributes().get(name).getAttribute());
+  public <T extends Attribute> Optional<T> getAttribute(@NotNull Class<T> clazz, @NotNull String name) {
+    return getOperation().getAttribute(clazz, name);
   }
 
   public List<Block> getSuccessors() {

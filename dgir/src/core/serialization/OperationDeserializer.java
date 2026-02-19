@@ -132,7 +132,10 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
     // Set the attributes if they were deserialized.
     if (attributes != null) {
       for (NamedAttribute attribute : attributes) {
-        operation.setAttribute(attribute.getName(), attribute.getAttribute());
+        operation.setAttribute(
+          attribute.getName(),
+          attribute.getAttribute()
+            .orElseThrow(() -> new AssertionError("Attribute " + attribute.getName() + " must have a value after deserialization.")));
       }
     }
 

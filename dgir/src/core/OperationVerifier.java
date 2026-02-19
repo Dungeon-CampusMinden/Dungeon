@@ -121,11 +121,11 @@ public class OperationVerifier {
   }
 
   private boolean isValidWithoutTerminator(Block block) {
-    if (block.getParent() == null)
-      return true;
-    if (block.getParent().getBlocks().size() > 1)
-      return false;
-    return block.getParentOperation().hasTrait(INoTerminator.class);
+    return block.getParent()
+      .map(parentRegion ->
+        parentRegion.getBlocks().size() == 1
+          && parentRegion.getParent().hasTrait(INoTerminator.class))
+      .orElse(false);
   }
 
   private boolean verifyOnEntry(Operation operation) {
@@ -141,14 +141,14 @@ public class OperationVerifier {
 
     // Verify that all of the attributes of this operation are valid
     for (NamedAttribute attr : operation.getAttributes().values())
-      if (attr.getAttribute() == null) {
+      if (attr.getAttribute().isEmpty()) {
         operation.emitError("Operation has attribute with null value: " + attr.getName());
         return false;
       }
       // Verify that the attribute value is valid and of the correct type in case it is typed
-      else if (attr.getAttribute() instanceof TypedAttribute typedAttribute
-        && !typedAttribute.getType().validate(attr.getAttribute().getStorage())) {
-        operation.emitError("Operation attribute '" + attr.getName() + "' with invalid value for storage type " + typedAttribute.getType().getParameterizedIdent() + ": " + attr.getAttribute().getStorage());
+      else if (attr.getAttribute().get() instanceof TypedAttribute typedAttribute
+        && !typedAttribute.getType().validate(typedAttribute.getStorage())) {
+        operation.emitError("Operation attribute '" + attr.getName() + "' with invalid value for storage type " + typedAttribute.getType().getParameterizedIdent() + ": " + typedAttribute.getStorage());
         return false;
       }
 
@@ -211,11 +211,12 @@ public class OperationVerifier {
       if (isValidWithoutTerminator(block))
         return true;
 
-      Operation parentOp = block.getParentOperation();
-      if (parentOp != null)
-        parentOp.emitError("Block must end in a terminator operation");
+      Optional<Operation> parentOp = block.getParentOperation();
+      if (parentOp.isPresent())
+        parentOp.get().emitError("Block must end in a terminator operation");
       else
         System.err.println("Error: Block must end in a terminator operation");
+
       return false;
     }
 
@@ -239,7 +240,7 @@ public class OperationVerifier {
   private boolean verifyOnExit(Block block) {
     // Verify that this block is not branching to a block of a different region
     for (Block successor : block.getSuccessors())
-      if (successor.getParent() != block.getParent()) {
+      if (!successor.getParent().equals(block.getParent())) {
         block.getOperations().getLast().emitError("Branching to block of a different region");
         return false;
       }

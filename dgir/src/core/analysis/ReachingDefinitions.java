@@ -117,9 +117,7 @@ public final class ReachingDefinitions {
           analyzeRegion(child, seedForRegion(op, child, state), problems);
         }
         // Transfer: the op's result becomes available after the op executes.
-        if (op.getOutput() != null) {
-          state.add(op.getOutputValue());
-        }
+        op.getOutputValue().ifPresent(state::add);
       }
     }
   }
@@ -127,11 +125,11 @@ public final class ReachingDefinitions {
   /**
    * Compute the IN set for a block: the set of values defined on all incoming paths.
    *
-   * @param block The block to analyze.
-   * @param preds The predecessor blocks of {@code block}.
-   * @param out The OUT set for each predecessor.
+   * @param block       The block to analyze.
+   * @param preds       The predecessor blocks of {@code block}.
+   * @param out         The OUT set for each predecessor.
    * @param entryValues The seed values for the entry block of the region, used when a block has no predecessors.
-   * @param entryBlock The entry block of the region.
+   * @param entryBlock  The entry block of the region.
    * @return The IN set for the block.
    */
   private static Set<Value> computeIn(Block block,
@@ -189,9 +187,7 @@ public final class ReachingDefinitions {
   private static Set<Value> gen(Block block) {
     Set<Value> defs = new HashSet<>();
     for (Operation op : block.getOperations()) {
-      if (op.getOutput() != null) {
-        defs.add(op.getOutputValue());
-      }
+      op.getOutputValue().ifPresent(defs::add);
       // Body values belong to regions; they are seeded separately in seedForRegion.
     }
     return defs;

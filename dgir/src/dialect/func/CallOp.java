@@ -8,6 +8,7 @@ import core.traits.IControlFlow;
 import dialect.builtin.Builtin;
 import dialect.builtin.attributes.SymbolRefAttribute;
 import dialect.func.types.FuncType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +28,7 @@ public class CallOp extends Op implements ISymbolUser {
 
       @Override
       public boolean verify(Operation operation) {
-        CallOp callOp = operation.as(CallOp.class);
+        CallOp callOp = operation.as(CallOp.class).orElseThrow();
 
         // Make sure that the callee function signature matches the call site
         Optional<FuncOp> callee = SymbolTable.lookupSymbolInNearestTableAsOp(operation, callOp.getCallee(), FuncOp.class);
@@ -90,7 +91,9 @@ public class CallOp extends Op implements ISymbolUser {
   }
 
   public String getCallee() {
-    return getAttribute(SymbolRefAttribute.class, getCalleeAttributeName()).getStorage();
+    return getAttribute(SymbolRefAttribute.class, getCalleeAttributeName())
+      .orElseThrow(() -> new AssertionError("No callee attribute found"))
+      .getStorage();
   }
 
   private void setCallee(String name) {
@@ -106,14 +109,14 @@ public class CallOp extends Op implements ISymbolUser {
    *
    * @return The function type that results from this calls operands and output.
    */
-  public FuncType getFunctionType() {
+  public @NotNull FuncType getFunctionType() {
     List<Type> inputTypes = getOperands().stream().map(ValueOperand::getType).toList();
-    Type outputType = getOutput() != null ? getOutput().getType() : null;
+    Type outputType = getOutput().map(OperationResult::getType).orElse(null);
     return new FuncType(inputTypes, outputType);
   }
 
   @Override
-  public SymbolRefAttribute getSymbolRefAttribute() {
-    return getAttribute(SymbolRefAttribute.class, getCalleeAttributeName());
+  public @NotNull SymbolRefAttribute getSymbolRefAttribute() {
+    return getAttribute(SymbolRefAttribute.class, getCalleeAttributeName()).orElseThrow(() -> new RuntimeException("No symbol attribute found"));
   }
 }

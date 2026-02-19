@@ -6,6 +6,7 @@ import core.ir.Op;
 import core.ir.Operation;
 import core.traits.IOpTrait;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -78,13 +79,13 @@ public class OperationDetails {
    * @param operation The operation state to use
    * @return The op instance or null if the operation is not of the given type
    */
-  public <T extends Op> T as(Class<T> clazz, Operation operation) {
+  public <T extends Op> Optional<T> as(@NotNull Class<T> clazz, @NotNull Operation operation) {
     if (!isa(clazz)) {
-      return null;
+      return Optional.empty();
     }
 
     try {
-      return clazz.cast(impl.operationConstructor.newInstance(operation));
+      return Optional.of(clazz.cast(impl.operationConstructor.newInstance(operation)));
     } catch (Exception e) {
       throw new RuntimeException("Failed to create operation instance of type " + clazz.getName(), e);
     }
@@ -96,7 +97,7 @@ public class OperationDetails {
    * @param operation The operation state to use
    * @return The op instance
    */
-  public Op asOp(Operation operation) {
+  public @NotNull Op asOp(@NotNull Operation operation) {
     try {
       return impl.operationConstructor.newInstance(operation);
     } catch (Exception e) {
@@ -110,7 +111,7 @@ public class OperationDetails {
    * @param clazz The type to check for
    * @return true if this operation is of the given type, false otherwise
    */
-  public boolean isa(Class<? extends Op> clazz) {
+  public boolean isa(@NotNull Class<? extends Op> clazz) {
     return clazz.equals(getType());
   }
 

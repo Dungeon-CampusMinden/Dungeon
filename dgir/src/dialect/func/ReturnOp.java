@@ -15,6 +15,7 @@ import dialect.builtin.Builtin;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpecificParentOp {
@@ -27,18 +28,23 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpe
 
       @Override
       public boolean verify(Operation operation) {
-        ReturnOp returnOp = operation.as(ReturnOp.class);
+        ReturnOp returnOp = operation.as(ReturnOp.class).orElseThrow();
 
         // Ensure that the parent operation is a func.func op
-        FuncOp parentFuncOp = Objects.requireNonNull(operation.getParentOperation()).as(FuncOp.class);
-        if (parentFuncOp == null) {
+        Optional<Operation> parentOp = operation.getParentOperation();
+        if (parentOp.isEmpty()) {
+          operation.emitError("Return operation must be nested in a function");
+          return false;
+        }
+        Optional<FuncOp> parentFuncOp = parentOp.get().as(FuncOp.class);
+        if (parentFuncOp.isEmpty()) {
           operation.emitError("Return operation must be nested in a function");
           return false;
         }
         // Ensure that the return ops operand type is the same as the function output type if there is an operand
         if (returnOp.getOperand().isPresent()) {
           var returnType = returnOp.getOperandType().orElseThrow();
-          var funcType = parentFuncOp.getType();
+          var funcType = parentFuncOp.get().getType();
           if (!returnType.equals(funcType.getOutput())) {
             operation.emitError("Return type " + returnType.getParameterizedIdent() + " does not match function return type " + (funcType.getOutput() != null ? funcType.getOutput().getParameterizedIdent() : null));
             return false;

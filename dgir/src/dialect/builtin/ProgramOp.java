@@ -29,8 +29,8 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
         Block block = operation.getRegions().getFirst().getBlocks().getFirst();
         for (Operation op : block.getOperations()) {
           var funcOp = op.as(FuncOp.class);
-          if (funcOp != null) {
-            if (funcOp.getFuncName().equals("main")) {
+          if (funcOp.isPresent()) {
+            if (funcOp.get().getFuncName().equals("main")) {
               if (hasMainFunc) {
                 operation.emitError("There must be exactly one function with name main");
                 return false;
@@ -79,8 +79,8 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
     Block block = getBlock();
     for (Operation op : block.getOperations()) {
       var funcOp = op.as(FuncOp.class);
-      if (funcOp != null && funcOp.getFuncName().equals("main")) {
-        return funcOp;
+      if (funcOp.isPresent() && funcOp.get().getFuncName().equals("main")) {
+        return funcOp.get();
       }
     }
     throw new IllegalStateException("Could not find main function. This should have been caught by verification.");

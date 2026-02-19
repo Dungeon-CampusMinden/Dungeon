@@ -5,6 +5,9 @@ import core.Utils;
 import core.analysis.DotCFG;
 import core.traits.ITerminator;
 import com.fasterxml.jackson.annotation.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.io.Serializable;
 import java.util.*;
@@ -46,16 +49,16 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    * The operations contained in this block.
    * These are executed in order.
    */
-  private final List<Operation> operations = new ArrayList<>();
+  private final @NotNull List<Operation> operations = new ArrayList<>();
 
   @JsonIgnore
-  private Region parent;
+  private @Nullable Region parent;
 
   public Block() {
   }
 
   @JsonCreator
-  public Block(@JsonProperty("operations") List<Operation> operations) {
+  public Block(@JsonProperty("operations") @Nullable List<Operation> operations) {
     if (operations != null)
       for (Operation operation : operations) {
         addOperation(operation);
@@ -68,50 +71,48 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   }
 
   @JsonIgnore
-  public Operation getTerminator() {
-    assert hasTerminator() : "Block does not have a terminator operation.";
-    return operations.getLast();
+  public Optional<Operation> getTerminator() {
+    if (operations.isEmpty() || !operations.getLast().hasTrait(ITerminator.class))
+      return Optional.empty();
+    return Optional.of(operations.getLast());
   }
 
-  public List<Operation> getOperations() {
+  public @NotNull @UnmodifiableView List<Operation> getOperations() {
     return Collections.unmodifiableList(operations);
   }
 
-  public <OpT extends Op> OpT addOperation(OpT op) {
-    assert op != null : "Op cannot be null.";
+  public <OpT extends Op> @NotNull OpT addOperation(@NotNull OpT op) {
     addOperation(op.getOperation());
     return op;
   }
 
-  public Operation addOperation(Operation operation) {
-    assert operation != null : "Operation cannot be null.";
-    assert operation.getParent() == null : "Operation already has a parent.";
+  public @NotNull Operation addOperation(@NotNull Operation operation) {
+    assert operation.getParent().isEmpty() : "Operation already has a parent.";
 
     operations.add(operation);
     operation.setParent(this);
     return operation;
   }
 
-  public void removeOperation(Operation operation) {
-    assert operation != null : "Operation cannot be null.";
-    assert operation.getParent() == this : "Operation does not belong to this block.";
+  public void removeOperation(@NotNull Operation operation) {
+    assert operation.getParent().orElseThrow() == this : "Operation does not belong to this block.";
 
     operations.remove(operation);
     operation.setParent(null);
   }
 
-  public Region getParent() {
-    return parent;
+  public @NotNull Optional<Region> getParent() {
+    return Optional.ofNullable(parent);
   }
 
   @JsonIgnore
-  public Operation getParentOperation() {
-    return getParent().getParent();
+  public @NotNull Optional<Operation> getParentOperation() {
+    return getParent().map(Region::getParent);
   }
 
-  public void setParent(Region parent) {
+  public void setParent(@Nullable Region parent) {
     assert Utils.Caller.getCallingClass() == Region.class : "Assigning the parent of a block is only allowed from the Region class. Was called from " + Utils.Caller.getCallingClass().getName();
-    assert parent == null || this.parent == null : "Block already has a parent. Unparent first before setting a new parent. (Use the region interface to unparent.)";
+    assert this.parent == null || parent == null : "Block already has a parent. Unparent first before setting a new parent. (Use the region interface to unparent.)";
 
     this.parent = parent;
   }
@@ -123,7 +124,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    * @return The successors of this block as defined by the terminator operation.
    */
   @JsonIgnore
-  public List<Block> getSuccessors() {
+  public @NotNull List<Block> getSuccessors() {
     return !operations.isEmpty() ? operations.getLast().getSuccessors() : List.of();
   }
 
@@ -134,7 +135,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    * @param b The second operation to compare.
    * @return {@code true} if operation a is defined before operation b in this block, {@code false} otherwise.
    */
-  public boolean isBefore(Operation a, Operation b) {
+  public boolean isBefore(@NotNull Operation a, @NotNull Operation b) {
     return operations.indexOf(a) < operations.indexOf(b);
   }
 
@@ -145,13 +146,17 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    * @return The predecessor blocks of this block as defined by the use list of this block.
    */
   @JsonIgnore
-  public Set<Block> getPredecessors() {
+  public @NotNull Set<Block> getPredecessors() {
     return getUses().stream()
       .map(blockOperand -> blockOperand.getOwner().getParent())
+      .filter(Optional::isPresent)
+      .map(Optional::get)
       .collect(Collectors.toUnmodifiableSet());
   }
 
   public int getIndex() {
-    return getParent().getBlocks().indexOf(this);
+    return getParent()
+      .map(region -> region.getBlocks().indexOf(this))
+      .orElse(-1);
   }
 }

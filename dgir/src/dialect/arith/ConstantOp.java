@@ -55,15 +55,19 @@ public class ConstantOp extends Op implements ISingleOperand {
   }
 
   public TypedAttribute getValueAttribute() {
-    return (TypedAttribute) getAttributes().get("value").getAttribute();
+    return getAttribute(TypedAttribute.class, "value").orElseThrow(() -> new AssertionError("No value attribute found."));
   }
 
   public Type getValueType() {
     return getValueAttribute().getType();
   }
 
-  public Object getValue() {
+  public Object getValueStorage() {
     return getValueAttribute().getStorage();
+  }
+
+  public Value getValue(){
+    return getOutputValue().orElseThrow(() -> new AssertionError("No output value found."));
   }
 
   public static String getIdent() {

@@ -20,6 +20,7 @@ public class VM {
   }
 
   public void init(@NotNull ProgramOp program) {
+    assert program.verify(true) : "Program is invalid.";
     this.program = program;
     this.opStack.clear();
     this.opStack.push(program.getMainFunc().getOperation());
@@ -52,20 +53,23 @@ public class VM {
       switch (currentAction) {
         // Just continue to the next operation in the current block.
         case Action.Next ignored -> {
-          var nextOp = currentOp.getNext();
-          assert nextOp != null : "Reached end of block without an explicit jump or return.";
-          opStack.push(nextOp);
+          currentOp.getNext().ifPresentOrElse(opStack::push, () -> {
+            currentOp.emitError("Reached end of block without an explicit jump or return.");
+            cleanupAfterAbort();
+          });
         }
         // Abort the execution.
         case Action.Abort abort -> {
-          System.err.println("Execution aborted: " + abort.message());
+          currentOp.emitError("Execution aborted: " + abort.message());
           cleanupAfterAbort();
         }
         // Call another function. This is only used for function calls.
         case Action.Call call -> {
           // Push the next operation beneath the call operation to the op stack.
           // This way when returning from the function, the VM will know which operation to execute next.
-          opStack.push(currentOp.getNext());
+          currentOp.getNext().ifPresent(opStack::push);
+          // Push the current op onto the stack so that we can retrieve it when we want to set the return value of the function.
+          opStack.push(currentOp);
           // Push the function operation itself to the op stack, so that it will be executed in the next step and the VM
           // will jump to the function body.
           opStack.push(call.funcOp());
@@ -76,13 +80,15 @@ public class VM {
         }
         // Return from the current region. This is used for function calls, as well as for returning from if and while
         // blocks and similar structured control flow ops
-        case Action.Return aReturn -> {
-          // Set the return value of the parent operation if it produces any.
-          if (aReturn.value() != null) {
-            state.setValue(Objects.requireNonNull(currentOp.getParentOperation()).getOutputValue(), aReturn.value());
-          }
+        case Action.Terminate aTerminate -> {
           // Pop the stack frame for the region we just left.
           state.popStackFrame();
+
+          // Set the return value of the call operation if it produces any.
+          if (aTerminate.value().isPresent()) {
+            Operation caller = opStack.pop();
+            state.setValueForOutput(caller, aTerminate.value().get());
+          }
           // No need to push anything to the op stack, as the caller will have already pushed the next operation to execute after the call.
         }
         // Step into a region. This is used for nested regions like the then and else regions of an if operation, or the
@@ -91,8 +97,7 @@ public class VM {
         case Action.StepInto stepInto -> {
           state.pushStackFrame(stepInto.isolatedFromAbove());
           // Push the next operation after the step into operation to the op stack.
-          if (stepInto.nextOperation() != null)
-            opStack.push(stepInto.nextOperation());
+          stepInto.nextOperation().ifPresent(opStack::push);
           opStack.push(stepInto.region().getEntryOperation());
         }
       }
