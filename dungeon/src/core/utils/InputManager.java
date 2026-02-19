@@ -2,7 +2,6 @@ package core.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.utils.TimeUtils;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,7 +23,7 @@ import java.util.Set;
  * long)}, and {@link #isButtonHeld(int, long)} instead of the corresponding {@link
  * com.badlogic.gdx.Gdx.Input} methods.
  *
- * <p>Time-based methods use milliseconds from {@link TimeUtils#millis()}. Double-tap checks return
+ * <p>Time-based methods use milliseconds from {@link java.lang.System#currentTimeMillis()}. Double-tap checks return
  * true only on the second tap's press frame, and hold checks return true once the duration has
  * elapsed while the key/button remains pressed.
  */
@@ -68,7 +67,7 @@ public final class InputManager {
                 lastKeyTapTimesMs,
                 previousKeyTapTimesMs,
                 keyDownTimesMs,
-                TimeUtils.millis());
+                nowMs());
             return oldProcessor != null && oldProcessor.keyDown(keycode);
           }
 
@@ -93,7 +92,7 @@ public final class InputManager {
                 lastButtonTapTimesMs,
                 previousButtonTapTimesMs,
                 buttonDownTimesMs,
-                TimeUtils.millis());
+                nowMs());
             return oldProcessor != null
                 && oldProcessor.touchDown(screenX, screenY, pointer, button);
           }
@@ -351,7 +350,7 @@ public final class InputManager {
     if (downTime == null || !isPressed.test(code)) {
       return false;
     }
-    return TimeUtils.timeSinceMillis(downTime) >= holdDurationMs;
+    return (nowMs() - downTime) >= holdDurationMs;
   }
 
   private static void updateFrame(
@@ -362,5 +361,9 @@ public final class InputManager {
     pressed.addAll(justPressed);
     justPressed.clear();
     justReleased.clear();
+  }
+
+  private static long nowMs() {
+    return java.lang.System.currentTimeMillis();
   }
 }
