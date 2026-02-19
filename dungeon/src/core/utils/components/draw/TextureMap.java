@@ -78,6 +78,7 @@ public final class TextureMap extends HashMap<String, Texture> {
       }
     }
     Texture texture = loadPMA(toUse);
+    toUse.dispose();
     putTexture(path, texture);
   }
 
