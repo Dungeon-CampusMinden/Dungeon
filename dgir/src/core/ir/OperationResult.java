@@ -2,13 +2,26 @@ package core.ir;
 
 import com.fasterxml.jackson.annotation.*;
 
+/**
+ * The single result value produced by an {@link Operation}.
+ * Wraps a {@link Value} and enforces type-consistency when the value is replaced.
+ */
 public class OperationResult {
+
+  // =========================================================================
+  // Members
+  // =========================================================================
+
   @JsonIdentityReference(alwaysAsId = false)
   @JsonValue
   private Value value;
 
   @JsonIgnore
   private final Operation parent;
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   public OperationResult(Operation parent, Value value) {
     this.parent = parent;
@@ -21,13 +34,18 @@ public class OperationResult {
     this.value = new Value(type);
   }
 
+  // =========================================================================
+  // Functions
+  // =========================================================================
+
   public Value getValue() {
     return value;
   }
 
   public void setValue(Value value) {
     assert value != null : "Cannot set null value as result";
-    assert value.getType().equals(this.value.getType()) : "Type mismatch while setting result value: " + value.getType() + " != " + this.value.getType();
+    assert value.getType().equals(this.value.getType())
+      : "Type mismatch while setting result value: " + value.getType() + " != " + this.value.getType();
     this.value = value;
   }
 

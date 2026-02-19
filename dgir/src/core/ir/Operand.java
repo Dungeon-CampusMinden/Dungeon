@@ -5,9 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * A reference to a value used as an operand to an operation.
+ * A reference to a value used as an operand to an {@link Operation}.
+ * Manages its own entry in the referenced value's use-list.
  *
- * @param <ValueT> The type of value being referenced. Typically, a value but could also be a block or other type (branching operations)
+ * @param <ValueT>  The type of value being referenced (e.g. {@link Value} or {@link Block}).
+ * @param <DerivedT> The concrete operand subclass (for self-referential use-list typing).
  */
 public abstract class Operand<
   // The value type accepted by this operand
@@ -16,17 +18,21 @@ public abstract class Operand<
   DerivedT extends Operand<ValueT, DerivedT>
   > {
 
-  /**
-   * The value referenced by this operand
-   */
+  // =========================================================================
+  // Members
+  // =========================================================================
+
+  /** The value referenced by this operand. */
   @JsonIdentityReference(alwaysAsId = true)
   private ValueT value;
 
-  /**
-   * The operation that owns this operand
-   */
+  /** The operation that owns this operand. */
   @JsonIgnore
   private final Operation owner;
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   public Operand(Operation owner) {
     this.owner = owner;
@@ -37,10 +43,14 @@ public abstract class Operand<
     setValue(value);
   }
 
+  // =========================================================================
+  // Functions
+  // =========================================================================
+
   /**
-   * Get the index number of this operand in the owner's operand list.
+   * Get the index of this operand in its owner's operand list.
    *
-   * @return The index number of this operand, or -1 if not found.
+   * @return The index, or -1 if not found.
    */
   public int getIndex() {
     return owner.getOperands().indexOf(this);
@@ -49,34 +59,34 @@ public abstract class Operand<
   /**
    * Get the operation that owns this operand.
    *
-   * @return The operation that owns this operand.
+   * @return The owning operation.
    */
   public Operation getOwner() {
     return owner;
   }
 
   /**
-   * Get the value being used by this operand.
+   * Get the value referenced by this operand.
    *
-   * @return The value being used by this operand.
+   * @return The referenced value.
    */
   public ValueT getValue() {
     return value;
   }
 
   /**
-   * Get the use list for the current value being used by this operand.
+   * Get the use-list object for the value currently referenced by this operand.
    *
-   * @return The use list for the current value being used by this operand.
+   * @return The use-list of the current value.
    */
   public IRObjectWithUseList<ValueT, DerivedT> geCurrentUseList() {
     return value;
   }
 
   /**
-   * Set the value being used by this operand.
+   * Point this operand at a new value, updating both the old and new use-lists.
    *
-   * @param value The new value.
+   * @param value The new value to reference.
    */
   public void setValue(ValueT value) {
     removeFromCurrentUseList();
@@ -84,9 +94,11 @@ public abstract class Operand<
     insertIntoCurrentUseList();
   }
 
-  /**
-   * Insert this operand into the use list of the value currently stored
-   */
+  // =========================================================================
+  // Use-list Management
+  // =========================================================================
+
+  /** Insert this operand into the use-list of the currently referenced value. */
   private void insertIntoCurrentUseList() {
     if (value != null) {
       //noinspection unchecked
@@ -94,6 +106,7 @@ public abstract class Operand<
     }
   }
 
+  /** Remove this operand from the use-list of the currently referenced value. */
   private void removeFromCurrentUseList() {
     if (value != null)
       //noinspection unchecked
@@ -101,7 +114,8 @@ public abstract class Operand<
   }
 
   /**
-   * Drop this operand from the use list and set its value to null
+   * Drop this operand from the use-list and clear the reference.
+   * Should only be called by subclasses during teardown.
    */
   protected void drop() {
     removeFromCurrentUseList();

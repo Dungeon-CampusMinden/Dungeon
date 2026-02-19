@@ -12,14 +12,24 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 // directly in this class.
 @JsonDeserialize(using = TypeDeserializer.class)
 public abstract class Type {
+
+  // =========================================================================
+  // Members
+  // =========================================================================
+
   @JsonIgnore
   private TypeDetails details;
 
-  // Serialize the type as a parameterized ident string
-  @JsonValue
-  public String getParameterizedIdent() {
-    return details.getParameterizedIdent(this);
-  }
+  // =========================================================================
+  // Type Info
+  // =========================================================================
+
+  /** Create and return the impl object that describes this type kind. */
+  public abstract TypeDetails.Impl createImpl();
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   public Type() {
     details = TypeDetails.get(getClass());
@@ -29,7 +39,9 @@ public abstract class Type {
     details = typeDetails;
   }
 
-  public abstract TypeDetails.Impl createImpl();
+  // =========================================================================
+  // Functions
+  // =========================================================================
 
   public TypeDetails getDetails() {
     return details;
@@ -38,11 +50,21 @@ public abstract class Type {
   public void setDetails(TypeDetails details) {
     assert Utils.Caller.getCallingClass().isAssignableFrom(RegisteredTypeDetails.class)
       : "Only RegisteredTypeDetails is allowed to set details. Was called from " + Utils.Caller.getCallingClass().getName();
-
     this.details = details;
   }
 
+  /** Return this type's parameterized ident string (used as the JSON serialized form). */
+  @JsonValue
+  public String getParameterizedIdent() {
+    return details.getParameterizedIdent(this);
+  }
+
+  /** Validate whether {@code value} is a legal storage value for this type. */
   public abstract boolean validate(Object value);
+
+  // =========================================================================
+  // Object
+  // =========================================================================
 
   @Override
   public String toString() {

@@ -19,9 +19,23 @@ import java.io.Serializable;
 @JsonTypeIdResolver(AttributeTypeIdResolver.class)
 @JsonPropertyOrder({"ident", "type"})
 public abstract class Attribute implements Serializable {
+
+  // =========================================================================
+  // Members
+  // =========================================================================
+
   private AttributeDetails details;
 
+  // =========================================================================
+  // Attribute Info
+  // =========================================================================
+
+  /** Create and return the impl object that describes this attribute kind. */
   public abstract AttributeDetails.Impl createImpl();
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   public Attribute() {
     setDetails(AttributeDetails.get(getClass()));
@@ -31,17 +45,20 @@ public abstract class Attribute implements Serializable {
     setDetails(details);
   }
 
+  // =========================================================================
+  // Functions
+  // =========================================================================
+
   @JsonIgnore
   public AttributeDetails getDetails() {
     return details;
   }
 
   public void setDetails(AttributeDetails details) {
-    // Make sure that only classes extending Attribute call this method.
+    // Only subclasses of Attribute and RegisteredAttributeDetails may set the details
     assert Utils.Caller.getCallingClass().isAssignableFrom(Attribute.class)
       || Utils.Caller.getCallingClass().isAssignableFrom(RegisteredAttributeDetails.class)
       : "Only subclasses of Attribute can set the details. Was called from " + Utils.Caller.getCallingClass().getName();
-
     this.details = details;
   }
 
@@ -50,6 +67,7 @@ public abstract class Attribute implements Serializable {
     return details.getIdent();
   }
 
+  /** Return the raw storage value of this attribute (used for serialization and display). */
   @JsonIgnore
   public abstract Object getStorage();
 }

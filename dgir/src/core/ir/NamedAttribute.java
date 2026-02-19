@@ -11,11 +11,23 @@ import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.util.Optional;
 
+/**
+ * An {@link Attribute} paired with its name, as stored inside an {@link Operation}.
+ */
 @JsonSerialize(using = NamedAttributeSerializer.class)
 @JsonDeserialize(using = NamedAttributeDeserializer.class)
 public final class NamedAttribute {
+
+  // =========================================================================
+  // Members
+  // =========================================================================
+
   private final @NotNull String name;
   private @Nullable Attribute attribute;
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   @JsonCreator
   public NamedAttribute(@JsonProperty("name") @NotNull String name,
@@ -23,6 +35,10 @@ public final class NamedAttribute {
     this.name = name;
     this.attribute = attribute;
   }
+
+  // =========================================================================
+  // Functions
+  // =========================================================================
 
   public @NotNull String getName() {
     return name;

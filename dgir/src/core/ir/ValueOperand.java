@@ -3,14 +3,21 @@ package core.ir;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * A reference to a dynamic value, which could be supplied by an operation,
- * or other source such as block arguments.
- *
+ * A reference to a dynamic {@link Value} used as an input to an {@link Operation}.
  */
 public final class ValueOperand extends Operand<Value, ValueOperand> {
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
   public ValueOperand(Operation owner, Value value) {
     super(owner, value);
   }
+
+  // =========================================================================
+  // Functions
+  // =========================================================================
 
   @JsonIgnore
   public Type getType() {

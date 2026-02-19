@@ -8,61 +8,52 @@ import org.jetbrains.annotations.UnmodifiableView;
 import java.util.*;
 
 /**
- * A region containing a list of {@link Block}.
- * Regions can be attached to an {@link Operation} but also freestanding in case they are supposed to be moved into an
- * operation. These regions are called "orphan regions" and do not contribute to the semantics of the program until they are
- * attached to an operation.
+ * A region containing an ordered list of {@link Block}s, attached to an {@link Operation}.
  * <p>
- * A region can take all blocks from another region using {@link #takeRegion(Region)} which is useful in case a region
- * needs to be build up before attaching it to an operation. In that case, an orphan region can be created, populated with blocks,
- * and then attached to an operation.
+ * Regions can also be freestanding ("orphan" regions) while being built up, and then
+ * transferred into an operation via {@link #takeRegion(Region)}.
  * <p>
- * Regions always have at least one block, the entry block, which can be accessed using {@link #getEntryBlock()}. This block
- * is created automatically if no blocks are provided during construction. It is the block where execution starts when entering the region.
- * Regions can have multiple blocks, which can be added using {@link #addBlock(Block)} or removed using {@link #removeBlock(Block)}.
- * Regions maintain the parent-child relationship with their blocks, ensuring that each block knows which region it belongs to.
- * Regions themselves maintain a reference to their parent operation, if any, which can be accessed using {@link #getParent()}.
+ * Every region always has at least one block — the <em>entry block</em> — which is created
+ * automatically if needed. Execution enters a region through this block.
  * <p>
- * Regions are a fundamental part of the control flow structure in the DGIR, allowing for complex execution paths and nested operations.
- * They are essential for representing structured control flow such as loops, if-else statements, and function bodies
- * within the intermediate representation.
- * <p>
- * A region in DGIR can be conceptually represented as follows:
- * <pre>
- * {@code
+ * Regions may carry <em>body values</em>: typed values that are visible inside the region
+ * and act like block/region arguments (e.g. loop induction variables).
+ * <pre>{@code
  * Region {
  *   Block entryBlock {
- *    Operation1
- *    Operation2
- *    ...
- *    TerminatorOperation
- *  }
- *  Block anotherBlock {
- *    OperationA
- *    OperationB
- *    ...
- *    TerminatorOperation
- *  }
- *  ...
+ *     Operation1
+ *     ...
+ *     TerminatorOperation
+ *   }
+ *   Block otherBlock { ... }
  * }
- * }
- * </pre>
+ * }</pre>
  *
- * @author <a href="mailto:lasse.foster@hsbi.de">Lasse Foster</a>
  * @see Operation
  * @see Block
  */
 @JsonPropertyOrder({"bodyValues", "blocks"})
 public final class Region {
+
+  // =========================================================================
+  // Members
+  // =========================================================================
+
   private final @NotNull List<Block> blocks = new ArrayList<>();
+
   /**
-   * Values that act like parameters/arguments visible only inside this region (e.g., block arguments for CFG nodes).
+   * Values visible inside this region, acting as parameters/arguments
+   * (e.g. the induction variable of a for-loop body).
    */
   @JsonIdentityReference(alwaysAsId = false)
   private final @NotNull List<Value> bodyValues;
 
   @JsonIgnore
   private final @NotNull Operation parent;
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   public Region() {
     this(null, List.of());
@@ -80,28 +71,64 @@ public final class Region {
   private Region(List<Block> blocks, Operation parent, List<Value> bodyValues) {
     this.parent = parent;
     this.bodyValues = new ArrayList<>(bodyValues == null ? List.of() : bodyValues);
-    for (Block block : blocks) {
+    for (Block block : blocks)
       addBlock(block);
-    }
   }
 
+  /** Deserialization factory — body values and blocks are wired up by Jackson. */
   @JsonCreator
   public static Region createRegion(@JsonProperty(value = "bodyValues") List<Value> bodyValues,
                                     @JsonProperty(value = "blocks") List<Block> blocks) {
     return new Region(blocks != null ? blocks : List.of(), null, bodyValues);
   }
 
-  private static List<Value> initBodyValues(List<Type> bodyValueTypes) {
-    List<Type> types = bodyValueTypes == null ? List.of() : bodyValueTypes;
-    List<Value> values = new ArrayList<>(types.size());
-    for (Type type : types) {
-      values.add(new Value(Objects.requireNonNull(type, "body value type cannot be null")));
-    }
-    return values;
+  // =========================================================================
+  // Blocks
+  // =========================================================================
+
+  /**
+   * Get the blocks in this region.
+   *
+   * @return An unmodifiable view of the block list.
+   */
+  @Contract(pure = true)
+  public @NotNull @UnmodifiableView List<Block> getBlocks() {
+    return Collections.unmodifiableList(blocks);
+  }
+
+  public void addBlock(@NotNull Block block) {
+    addBlockAt(blocks.size(), block);
+  }
+
+  public void addBlockAt(int index, @NotNull Block block) {
+    assert block.getParent().isEmpty() : "Block is already part of a region.";
+    assert index >= 0 && index <= blocks.size() : "Index out of bounds.";
+    blocks.add(index, block);
+    block.setParent(this);
+  }
+
+  public void addBlockBefore(@NotNull Block block, @NotNull Block before) {
+    addBlockAt(blocks.indexOf(before), block);
+  }
+
+  public void addBlockAfter(@NotNull Block block, @NotNull Block after) {
+    addBlockAt(blocks.indexOf(after) + 1, block);
+  }
+
+  public void removeBlock(@NotNull Block block) {
+    assert blocks.contains(block) : "Block is not part of this region.";
+    removeBlockAt(blocks.indexOf(block));
+  }
+
+  public void removeBlockAt(int index) {
+    assert index >= 0 && index < blocks.size() : "Index out of bounds.";
+    Block block = blocks.remove(index);
+    if (block != null)
+      block.setParent(null);
   }
 
   /**
-   * Ensures that there is at least one block in this region.
+   * Ensure this region has at least one (entry) block.
    */
   public void ensureEntryBlock() {
     if (this.blocks.isEmpty())
@@ -126,79 +153,9 @@ public final class Region {
     return operations.getFirst();
   }
 
-  /**
-   * Get the blocks in this region.
-   *
-   * @return An unmodifiable list of blocks.
-   */
-  @Contract(pure = true)
-  public @NotNull @UnmodifiableView List<Block> getBlocks() {
-    return Collections.unmodifiableList(blocks);
-  }
-
-  public void addBlockAt(int index, @NotNull Block block) {
-    assert block.getParent().isEmpty() : "Block is already part of a region.";
-    assert index >= 0 && index <= blocks.size() : "Index out of bounds.";
-
-    blocks.add(index, block);
-    block.setParent(this);
-  }
-
-  public void addBlock(@NotNull Block block) {
-    addBlockAt(blocks.size(), block);
-  }
-
-  public void addBlockBefore(@NotNull Block block, @NotNull Block before) {
-    addBlockAt(blocks.indexOf(before), block);
-  }
-
-  public void addBlockAfter(@NotNull Block block, @NotNull Block after) {
-    addBlockAt(blocks.indexOf(after) + 1, block);
-  }
-
-  public void removeBlock(@NotNull Block block) {
-    assert blocks.contains(block) : "Block is not part of this region.";
-    removeBlockAt(blocks.indexOf(block));
-  }
-
-  public void removeBlockAt(int index) {
-    assert index >= 0 && index < blocks.size() : "Index out of bounds.";
-
-    Block block = blocks.remove(index);
-    if (block != null) {
-      block.setParent(null);
-    }
-  }
-
-  /**
-   * Take all blocks from another region and add them to this region.
-   *
-   * @param other The other region to take blocks from.
-   */
-  public void takeRegion(@NotNull Region other) {
-    // Make sure that both regions have the same body values or that this region is empty
-    assert this.bodyValues.size() == other.bodyValues.size() : "Body values of regions must have the same size.";
-    for (int i = 0; i < this.bodyValues.size(); i++) {
-      assert this.bodyValues.get(i).getType().equals(other.bodyValues.get(i).getType()) : "Body value types of regions must match.";
-    }
-
-    for (Block block : new ArrayList<>(other.blocks)) {
-      other.removeBlock(block);
-      addBlock(block);
-    }
-
-    // Replace the value uses from the other regions body values with the body values of this region.
-    for (int i = 0; i < this.bodyValues.size(); i++) {
-      Value thisBodyValue = this.bodyValues.get(i);
-      Value otherBodyValue = other.bodyValues.get(i);
-      if (thisBodyValue != otherBodyValue)
-        otherBodyValue.replaceAllUsesWith(thisBodyValue);
-    }
-  }
-
-  public @NotNull Operation getParent() {
-    return parent;
-  }
+  // =========================================================================
+  // Body Values
+  // =========================================================================
 
   public @NotNull List<Value> getBodyValues() {
     return bodyValues;
@@ -212,23 +169,75 @@ public final class Region {
     return bodyValues.indexOf(value);
   }
 
+  /**
+   * Replace the body values of this region with a new list.
+   * Existing uses of the old values are redirected to the corresponding new values.
+   *
+   * @param bodyValues The new body values. Must match the existing list in size and types if
+   *                   any of the current values are already in use.
+   */
   public void setBodyValues(@NotNull List<Value> bodyValues) {
-    // Make sure that the body values have the same size and types as the previous values or that none of the values are in use
     if (!this.bodyValues.isEmpty() && bodyValues.stream().anyMatch(v -> !v.getUses().isEmpty())) {
-      assert this.bodyValues.size() == bodyValues.size() : "Body values of regions must have the same size.";
+      assert this.bodyValues.size() == bodyValues.size()
+        : "Body values of regions must have the same size.";
       for (int i = 0; i < this.bodyValues.size(); i++) {
-        assert this.bodyValues.get(i).getType().equals(bodyValues.get(i).getType()) : "Body value types of regions must match.";
+        assert this.bodyValues.get(i).getType().equals(bodyValues.get(i).getType())
+          : "Body value types of regions must match.";
       }
     }
 
-    // Replace the body values with the new ones
     if (!this.bodyValues.isEmpty())
-      for (int i = 0; i < bodyValues.size(); i++) {
-        Value oldValue = this.bodyValues.get(i);
-        oldValue.replaceAllUsesWith(bodyValues.get(i));
-      }
+      for (int i = 0; i < bodyValues.size(); i++)
+        this.bodyValues.get(i).replaceAllUsesWith(bodyValues.get(i));
 
     this.bodyValues.clear();
     this.bodyValues.addAll(bodyValues);
+  }
+
+  // =========================================================================
+  // Parent & Transfer
+  // =========================================================================
+
+  public @NotNull Operation getParent() {
+    return parent;
+  }
+
+  /**
+   * Move all blocks from {@code other} into this region.
+   * Uses of {@code other}'s body values are replaced with the corresponding values from this region.
+   *
+   * @param other The region to drain. Must have matching body value types.
+   */
+  public void takeRegion(@NotNull Region other) {
+    assert this.bodyValues.size() == other.bodyValues.size()
+      : "Body values of regions must have the same size.";
+    for (int i = 0; i < this.bodyValues.size(); i++) {
+      assert this.bodyValues.get(i).getType().equals(other.bodyValues.get(i).getType())
+        : "Body value types of regions must match.";
+    }
+
+    for (Block block : new ArrayList<>(other.blocks)) {
+      other.removeBlock(block);
+      addBlock(block);
+    }
+
+    for (int i = 0; i < this.bodyValues.size(); i++) {
+      Value thisBodyValue  = this.bodyValues.get(i);
+      Value otherBodyValue = other.bodyValues.get(i);
+      if (thisBodyValue != otherBodyValue)
+        otherBodyValue.replaceAllUsesWith(thisBodyValue);
+    }
+  }
+
+  // =========================================================================
+  // Private Helpers
+  // =========================================================================
+
+  private static List<Value> initBodyValues(List<Type> bodyValueTypes) {
+    List<Type> types = bodyValueTypes == null ? List.of() : bodyValueTypes;
+    List<Value> values = new ArrayList<>(types.size());
+    for (Type type : types)
+      values.add(new Value(Objects.requireNonNull(type, "body value type cannot be null")));
+    return values;
   }
 }
