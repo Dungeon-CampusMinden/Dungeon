@@ -1,6 +1,5 @@
 package core.game;
 
-import com.badlogic.gdx.Gdx;
 import contrib.systems.EventScheduler;
 import contrib.systems.HudSystem;
 import contrib.systems.LevelTickSystem;
@@ -44,6 +43,7 @@ public final class ECSManagement {
   private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
 
   private static int currentTick = 0;
+  private static long lastTickNanos = -1L;
 
   /**
    * Essential systems that are always added to the game.
@@ -439,35 +439,44 @@ public final class ECSManagement {
   }
 
   /**
-   * Execute one tick of the ECS.
+   * Backwards-compatible entry point.
    *
-   * <p>This will call the {@link System#execute()} method of each registered {@link System} in the
-   * game, if the system is running and the required number of frames has passed since its last
-   * execution.
+   * <p>Historically, ECSManagement fetched delta time via libGDX (Gdx.graphics.getDeltaTime()).
+   * This method now computes an engine-agnostic delta using System.nanoTime() and forwards to
+   * {@link #executeOneTick(System.AuthoritativeSide, float)}.
    *
-   * <p>After executing all systems, if an OpenGL context is available, it will call the {@link
-   * System#render(float)} method of each registered {@link System}.
-   *
-   * <p>If a new level was loaded during this tick, the execution will be interrupted to prevent
-   * inconsistencies.
-   *
-   * @param side the authoritative side for which to execute systems ({@link
-   *     System.AuthoritativeSide#BOTH for all systems})
+   * <p>Prefer calling {@link #executeOneTick(System.AuthoritativeSide, float)} from the host loop
+   * (libGDX / LITIENGINE) to provide the authoritative delta time.
    */
   public static void executeOneTick(System.AuthoritativeSide side) {
+    final long now = java.lang.System.nanoTime();
+    final float deltaSeconds;
+    if (lastTickNanos < 0L) {
+      deltaSeconds = 0f; // first tick: no meaningful delta yet
+    } else {
+      deltaSeconds = (now - lastTickNanos) / 1_000_000_000f;
+    }
+    lastTickNanos = now;
+    executeOneTick(side, deltaSeconds);
+  }
+
+  /**
+   * Execute one tick of the ECS.
+   *
+   * <p>The host loop provides {@code deltaSeconds}. This removes the ECS dependency on any
+   * specific game framework (e.g. libGDX) for timing.
+   *
+   * @param side the authoritative side for which to execute systems
+   * @param deltaSeconds time since last frame/tick in seconds (provided by host loop)
+   */
+  public static void executeOneTick(System.AuthoritativeSide side, float deltaSeconds) {
     List<System> authoritativeSystems =
-        ECSManagement.systems().values().stream()
-            .filter(sys -> isAuthoritative(side, sys))
-            .toList();
+      ECSManagement.systems().values().stream()
+        .filter(sys -> isAuthoritative(side, sys))
+        .toList();
 
     // Execute logic for each system.
     for (System system : authoritativeSystems) {
-      if (newLevelLoadedThisTick) {
-        currentTick++;
-        return; // Early exit if a new level was loaded this tick.
-      }
-
-      system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
 
       if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
         system.execute();
@@ -477,8 +486,7 @@ public final class ECSManagement {
 
     if (!Game.isHeadless() && Game.windowHeight() > 0 && Game.windowWidth() > 0) {
       // Render logic: Call the render method for each system if OpenGL context is available.
-      float delta = Gdx.graphics.getDeltaTime();
-      systems().values().forEach(system -> system.render(delta));
+      systems().values().forEach(system -> system.render(deltaSeconds));
     }
 
     currentTick++;

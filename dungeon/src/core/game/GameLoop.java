@@ -227,7 +227,7 @@ public final class GameLoop extends ScreenAdapter {
     final boolean isMultiplayerClient =
         PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
     ECSManagement.executeOneTick(
-        isMultiplayerClient ? System.AuthoritativeSide.CLIENT : System.AuthoritativeSide.BOTH);
+        isMultiplayerClient ? System.AuthoritativeSide.CLIENT : System.AuthoritativeSide.BOTH, delta);
 
     InputManager.update();
     CameraSystem.camera().update();
