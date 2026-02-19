@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /** Global access to platform backends (window, input, audio, ...). */
 public final class Platform {
-  private static WindowAdapter window;
+  private static WindowAdapter window = new NullWindowAdapter();
   private static RuntimeAdapter runtime = new NullRuntimeAdapter();
 
   private Platform() {}

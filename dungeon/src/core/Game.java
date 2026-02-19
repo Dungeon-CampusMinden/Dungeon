@@ -1,8 +1,6 @@
 package core;
 
 import core.platform.Platform;
-import core.platform.gdx.GdxWindowAdapter;
-import core.platform.gdx.GdxRuntimeAdapter;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import contrib.utils.EntityUtils;
@@ -70,11 +68,6 @@ public final class Game {
   private static final AudioApi AudioAPI = new AudioApi();
 
   private static final boolean SLOW_NETWORK = false;
-
-  static {
-    Platform.window(new GdxWindowAdapter());
-    Platform.runtime(new GdxRuntimeAdapter());
-  }
 
   /**
    * Starts the dungeon.

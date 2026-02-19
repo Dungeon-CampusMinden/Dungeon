@@ -25,7 +25,8 @@ public class BasicStarter {
    *
    * @param args command-line arguments (not used in this starter)
    */
-  public static void main(String[] args) {
+  static void main(String[] args) {
+    GdxPlatformBootstrap.init();
     DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
     try {
       Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
