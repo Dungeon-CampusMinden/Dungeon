@@ -1,6 +1,5 @@
 package contrib.systems;
 
-import com.badlogic.gdx.utils.TimeUtils;
 import contrib.utils.IAction;
 import core.System;
 import java.util.PriorityQueue;
@@ -37,7 +36,7 @@ public class EventScheduler extends System {
    * @return The scheduled action that was created and added to the list.
    */
   public static ScheduledAction scheduleAction(IAction action, long delayMillis) {
-    long executeAt = TimeUtils.millis() + delayMillis;
+    long executeAt = nowMs() + delayMillis;
     ScheduledAction scheduledAction = new ScheduledAction(action, executeAt);
     scheduledActions.add(scheduledAction);
     return scheduledAction;
@@ -90,7 +89,7 @@ public class EventScheduler extends System {
    */
   @Override
   public void execute() {
-    long currentTime = TimeUtils.millis();
+    long currentTime = nowMs();
 
     while (!scheduledActions.isEmpty()) {
       ScheduledAction scheduledAction = scheduledActions.peek();
@@ -135,5 +134,9 @@ public class EventScheduler extends System {
   public void stop() {
     if (pausable) run = false;
     else run = true;
+  }
+
+  private static long nowMs() {
+    return java.lang.System.currentTimeMillis();
   }
 }
