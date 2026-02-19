@@ -17,12 +17,11 @@ import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.*;
 import core.Game;
-import core.utils.BaseContainerUI;
-import core.utils.FontSpec;
-import core.utils.Scene2dElementFactory;
+import core.utils.*;
 import modules.computer.LastHourDialogTypes;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * A UI component that displays a black background with text messages in sequence.
@@ -30,6 +29,7 @@ import java.util.List;
  */
 public class BlackFadeCutscene extends Table {
 
+  public static final String FONT_SIZES_KEY = "font_sizes";
   public static final String MESSAGE_SPLIT_TOKEN = "\n\n";
   public static final String FADE_IN_KEY = "fadeIn";
   public static final String FADE_OUT_KEY = "fadeOut";
@@ -39,6 +39,7 @@ public class BlackFadeCutscene extends Table {
   private static final int FONT_SIZE = 32;
 
   private final List<String> messages;
+  private final List<Integer> fontSizes;
   private final boolean fadeIn;
   private final boolean fadeOut;
 
@@ -59,8 +60,9 @@ public class BlackFadeCutscene extends Table {
    * @param fadeIn     Whether to fade in when showing
    * @param fadeOut    Whether to fade out when hiding
    */
-  private BlackFadeCutscene(List<String> messages, boolean fadeIn, boolean fadeOut, DialogContext ctx) {
+  private BlackFadeCutscene(List<String> messages, List<Integer> fontSizes, boolean fadeIn, boolean fadeOut, DialogContext ctx) {
     this.messages = messages;
+    this.fontSizes = fontSizes;
     this.fadeIn = fadeIn;
     this.fadeOut = fadeOut;
     this.ctx = ctx;
@@ -76,13 +78,21 @@ public class BlackFadeCutscene extends Table {
    * @param onComplete Callback to run when all messages have been shown
    * @return The created UIComponent
    */
-  public static UIComponent show(List<String> messages, boolean fadeIn, boolean fadeOut, Runnable onComplete, int... targetIds) {
-    String joinedMessages = String.join(MESSAGE_SPLIT_TOKEN, messages);
+  public static UIComponent show(List<Tuple<String, Integer>> messages, boolean fadeIn, boolean fadeOut, Runnable onComplete, int... targetIds) {
+    List<String> messagesList = messages.stream()
+        .map(Tuple::a)
+        .toList();
+    List<Integer> fontSizes = messages.stream()
+        .map(Tuple::b)
+        .toList();
+    String joinedMessages = String.join(MESSAGE_SPLIT_TOKEN, messagesList);
+    String joinedFontSizes = String.join(MESSAGE_SPLIT_TOKEN, fontSizes.stream().map(String::valueOf).toList());
 
     DialogContext ctx =
       DialogContext.builder()
         .type(LastHourDialogTypes.TEXT_CUTSCENE)
         .put(DialogContextKeys.MESSAGE, joinedMessages)
+        .put(FONT_SIZES_KEY, joinedFontSizes)
         .put(FADE_IN_KEY, fadeIn)
         .put(FADE_OUT_KEY, fadeOut)
         .build();
@@ -109,7 +119,7 @@ public class BlackFadeCutscene extends Table {
    * @param onComplete Callback to run when all messages have been shown
    * @return The created UIComponent
    */
-  public static UIComponent show(List<String> messages, Runnable onComplete) {
+  public static UIComponent show(List<Tuple<String, Integer>> messages, Runnable onComplete) {
     return show(messages, true, true, onComplete);
   }
 
@@ -125,6 +135,9 @@ public class BlackFadeCutscene extends Table {
     String messages = ctx.require(DialogContextKeys.MESSAGE, String.class);
     // Split by special token into individual messages
     List<String> messageList = List.of(messages.split(MESSAGE_SPLIT_TOKEN));
+    List<Integer> fontSizes = Stream.of(ctx.require(FONT_SIZES_KEY, String.class).split(MESSAGE_SPLIT_TOKEN))
+        .map(Integer::valueOf)
+        .toList();
     boolean fadeIn = ctx.find(FADE_IN_KEY, Boolean.class).orElse(true);
     boolean fadeOut = ctx.find(FADE_OUT_KEY, Boolean.class).orElse(true);
 
@@ -133,7 +146,7 @@ public class BlackFadeCutscene extends Table {
       return new HeadlessDialogGroup();
     }
 
-    return new BaseContainerUI(new BlackFadeCutscene(messageList, fadeIn, fadeOut, ctx), true, false);
+    return new BaseContainerUI(new BlackFadeCutscene(messageList, fontSizes, fadeIn, fadeOut, ctx), true, false);
   }
 
   private void createActors() {
@@ -181,6 +194,10 @@ public class BlackFadeCutscene extends Table {
     if (currentMessageIndex < messages.size()) {
       isAnimating = true;
       String text = messages.get(currentMessageIndex);
+      Integer fontSize = fontSizes.get(currentMessageIndex);
+      Label.LabelStyle style = messageLabel.getStyle();
+      style.font = FontHelper.getFont(FontSpec.of(fontSize));
+      messageLabel.setStyle(style);
       messageLabel.setText(text);
       messageLabel.addAction(Actions.sequence(
           Actions.fadeIn(TEXT_FADE_DURATION),

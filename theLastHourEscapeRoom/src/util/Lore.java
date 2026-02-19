@@ -1,5 +1,6 @@
 package util;
 
+import core.utils.Tuple;
 import modules.computer.content.BlogTab;
 import modules.computer.content.EmailsTab;
 
@@ -17,16 +18,18 @@ public class Lore {
   public static final String LoginEmail = ScientistEmail;
   public static final String LoginPassword = "a12b34xy";
 
-  public static final List<String> IntroTexts = List.of(
-    "Story here"
+  public static final List<Tuple<String, Integer>> IntroTexts = List.of(
+    Tuple.of("Story here", 32),
+    Tuple.of("The Last Hour", 120)
   );
   public static final List<String> PostIntroDialogTexts = List.of(
     "Goal explanation here",
     "Possible multi stage."
   );
 
-  public static final List<String> OutroTexts = List.of(
-    "Outro story here"
+  public static final List<Tuple<String, Integer>> OutroTexts = List.of(
+    Tuple.of("Outro story here", 32),
+    Tuple.of("Congratulations!\nYou escaped! :D", 256)
   );
 
   public static final List<BlogTab.BlogEntry> BlogEntries = List.of(
