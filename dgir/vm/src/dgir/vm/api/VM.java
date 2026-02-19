@@ -4,14 +4,12 @@ import core.ir.Operation;
 import core.ir.Value;
 import core.traits.INoTerminator;
 import dialect.builtin.ProgramOp;
-import dialect.func.FuncOp;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
-import java.util.Objects;
 
 public class VM {
   private @Nullable ProgramOp program;
