@@ -211,6 +211,15 @@ public final class Crafting {
           } else {
             ingredientsArray[i] = Item.getItem(id).getDeclaredConstructor().newInstance();
           }
+
+          // read count field from JSON and set stack size
+          if (itemMap.containsKey("count")) {
+            Object countObj = itemMap.get("count");
+            if (countObj instanceof Number) {
+              int count = ((Number) countObj).intValue();
+              ingredientsArray[i].setAmount(count);
+            }
+          }
         } else {
           throw new RuntimeException("Unknown ingredient type: " + type + ". File: " + name);
         }
@@ -252,6 +261,18 @@ public final class Crafting {
           } else {
             resultsArray[i] = Item.getItem(id).getDeclaredConstructor().newInstance();
           }
+
+          // read count field from JSON and set stack size
+          if (itemMap.containsKey("count")) {
+            Object countObj = itemMap.get("count");
+            if (countObj instanceof Number) {
+              int count = ((Number) countObj).intValue();
+              if (resultsArray[i] instanceof CraftingIngredient) {
+                ((CraftingIngredient) resultsArray[i]).setAmount(count);
+              }
+            }
+          }
+
         } else {
           throw new RuntimeException("Unknown result type: " + type + ". File: " + name);
         }

@@ -2,9 +2,6 @@ package contrib.entities;
 
 import contrib.item.Item;
 import contrib.item.concreteItem.ItemPotionHealth;
-import contrib.item.concreteItem.ItemPotionWater;
-import contrib.item.concreteItem.ItemResourceBerry;
-import contrib.item.concreteItem.ItemResourceMushroomRed;
 import contrib.item.concreteItem.ItemWoodenArrow;
 import contrib.item.concreteItem.ItemWoodenBow;
 import contrib.utils.components.health.DamageType;
@@ -64,10 +61,7 @@ public enum CharacterClass {
           new ItemWoodenBow(),
           new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE),
           new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE),
-          new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE),
-          new ItemResourceBerry(),
-          new ItemResourceMushroomRed(),
-          new ItemPotionWater()),
+          new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE)),
       10,
       0,
       0,
