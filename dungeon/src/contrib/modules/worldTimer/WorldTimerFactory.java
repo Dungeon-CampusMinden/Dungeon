@@ -6,10 +6,10 @@ import core.utils.Point;
 
 public class WorldTimerFactory {
 
-  public static Entity createWorldTimer(Point pos, int timestamp) {
+  public static Entity createWorldTimer(Point pos, int timestamp, int duration) {
     Entity e = new Entity();
     e.add(new PositionComponent(pos));
-    e.add(new WorldTimerComponent(timestamp));
+    e.add(new WorldTimerComponent(timestamp, duration));
     return e;
   }
 

@@ -31,7 +31,7 @@ public class WorldTimerSystem extends System {
   private static BitmapFont FONT;
   private static SpriteBatch BATCH = new SpriteBatch();
 
-  int frameCount = 0;
+  int currentUnixTime;
 
   public WorldTimerSystem() {
     super(AuthoritativeSide.CLIENT, 17, WorldTimerComponent.class, PositionComponent.class);
@@ -40,16 +40,15 @@ public class WorldTimerSystem extends System {
 
   @Override
   public void execute() {
-    frameCount += 17;
+    currentUnixTime = (int) (java.lang.System.currentTimeMillis() / 1000L);
     filteredEntityStream().map(Data::of).forEach(this::update);
   }
 
   private void update(Data data) {
-    int seconds = 59 - (frameCount / 60);
-    seconds = Math.max(seconds, 0);
+    int secondsSinceStart = currentUnixTime - data.tc.timestamp();
+    int secondsLeft = data.tc.duration() - secondsSinceStart;
 
-    // Create timer sprite programmatically
-    String timerString = "14:"+seconds;
+    String timerString = String.format("%02d:%02d", secondsLeft / 60, secondsLeft % 60);
     GlyphLayout layout = new GlyphLayout(FONT, timerString);
 
     int fboWidth = (int)layout.width + PADDING_X *2;
@@ -79,6 +78,7 @@ public class WorldTimerSystem extends System {
       fbo.getHeight()
     );
     fbo.end();
+    fbo.dispose();
 
     String path = "@gen/worldTimer/"+data.e.name()+".png";
     IPath ipath = new SimpleIPath(path);
