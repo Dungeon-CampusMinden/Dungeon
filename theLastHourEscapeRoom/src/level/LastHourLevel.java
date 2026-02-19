@@ -15,6 +15,7 @@ import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
+import contrib.modules.keypad.KeypadComponent;
 import contrib.modules.keypad.KeypadFactory;
 import contrib.modules.worldTimer.WorldTimerFactory;
 import contrib.modules.worldTimer.WorldTimerSystem;
@@ -38,6 +39,7 @@ import core.utils.Point;
 import java.util.*;
 
 import core.utils.Rectangle;
+import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.shader.OutlineShader;
@@ -51,11 +53,12 @@ import util.Lore;
 import util.shaders.LightingShader;
 import util.ui.BlackFadeCutscene;
 
-/** The MushRoom. */
+/** The Last Hour Room. */
 public class LastHourLevel extends DungeonLevel {
 
   private DoorTile storageDoor;
   public static Entity pc;
+  public static Entity keypad;
   public static final String PC_STATE_OFF = "off";
   public static final String PC_STATE_ON = "on";
   public static final String PC_STATE_VIRUS = "virus";
@@ -89,14 +92,14 @@ public class LastHourLevel extends DungeonLevel {
     DoorTile entryDoor = (DoorTile) tileAt(getPoint("door-entry")).orElseThrow();
     entryDoor.close();
 
-    Game.add(
-        KeypadFactory.createKeypad(
-            getPoint("keypad-storage"),
-            List.of(1, 2, 3, 4),
-            () -> {
-              storageDoor.open();
-            },
-            true));
+    keypad = KeypadFactory.createKeypad(
+      getPoint("keypad-storage"),
+      List.of(1, 2, 3, 4),
+      () -> {
+        storageDoor.open();
+      },
+      true);
+    Game.add(keypad);
 
     setupPC();
     setupTrashcans();
@@ -105,6 +108,7 @@ public class LastHourLevel extends DungeonLevel {
     setupInteractables();
     setupLightingShader();
     setupTimer();
+    setupEndTrigger();
 
 
     BlackFadeCutscene.show(Lore.IntroTexts, false, true, () -> {
@@ -130,9 +134,26 @@ public class LastHourLevel extends DungeonLevel {
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
 
+  private void setupEndTrigger() {
+    Entity trigger = new Entity("end-trigger");
+    trigger.add(new PositionComponent(getPoint("end-trigger")));
+    trigger.add(new CollideComponent(Vector2.ZERO, Vector2.ONE, (e, other, dir) -> {
+      other.fetch(InputComponent.class).ifPresent(pc -> {
+        pc.deactivateControls();
+        BlackFadeCutscene.show(Lore.OutroTexts, true, false, () -> {
+          Game.exit("Win");
+        });
+      });
+    }, null).isSolid(false));
+    Game.add(trigger);
+  }
+
   private void setupTimer() {
-    Game.add(WorldTimerFactory.createWorldTimer(getPoint("timer"), 10000));
-    Game.add(new WorldTimerSystem());
+    int unixTime = (int) (System.currentTimeMillis() / 1000L);
+    Game.add(WorldTimerFactory.createWorldTimer(getPoint("timer"), unixTime, 60 * 20));
+    if(!Game.isHeadless()){
+      Game.add(new WorldTimerSystem());
+    }
   }
 
   private void setupLightingShader() {
@@ -295,7 +316,7 @@ public class LastHourLevel extends DungeonLevel {
   @Override
   protected void onTick() {
     checkPCStateUpdate();
-    checkInteractFeedback();
+//    checkInteractFeedback();
     updateLightingShader();
   }
 
@@ -311,12 +332,14 @@ public class LastHourLevel extends DungeonLevel {
       ls.addLightSource(EntityUtils.getPosition(pc), intensity, color);
 
       ls.addLightSource(getPoint("timer").translate(0.75f, 0), 0.5f, Color.RED);
+
+      keypad.fetch(KeypadComponent.class).ifPresent(kc -> {
+        Color keypadColor = kc.isUnlocked() ? Color.GREEN : Color.RED;
+        ls.addLightSource(getPoint("keypad-storage").translate(0.5f, 0.5f), 0.3f, keypadColor);
+      });
     }
 
-
-    Game.levelEntities(Set.of(PlayerComponent.class)).forEach(e -> {
-      ls.addLightSource(EntityUtils.getPosition(e), 1f);
-    });
+    Game.allPlayers().forEach(e -> ls.addLightSource(EntityUtils.getPosition(e), 1f));
   }
 
   private void checkPCStateUpdate() {
