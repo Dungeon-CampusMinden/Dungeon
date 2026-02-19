@@ -237,17 +237,21 @@ public final class Operation implements Serializable {
     return blockOperands;
   }
 
-  public Optional<OperationResult> getOutput() {
+  public @NotNull Optional<OperationResult> getOutput() {
     return Optional.ofNullable(output);
   }
 
-  public Optional<Value> getOutputValue() {
+  public @NotNull Optional<Value> getOutputValue() {
     if (output == null)
       return Optional.empty();
     return getOutput().map(OperationResult::getValue);
   }
 
-  public void setOutputValue(Value value) {
+  public @NotNull Value getOutputValueThrowing() {
+    return getOutput().map(OperationResult::getValue).orElseThrow();
+  }
+
+  public void setOutputValue(@NotNull Value value) {
     assert this.output != null : "Trying to set output value of an operation that has no output.";
     this.output.setValue(value);
   }

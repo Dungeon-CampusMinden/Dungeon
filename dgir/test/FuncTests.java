@@ -91,7 +91,7 @@ public class FuncTests {
 
     // Simple recursive call without base case for IR structure testing
     var callOp = factorial.addOperation(new CallOp(factorial, factorial.getArgument(0)), 0);
-    factorial.addOperation(new ReturnOp(callOp.getOutputValue()), 0);
+    factorial.addOperation(new ReturnOp(callOp.getOutputValueThrowing()), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -104,10 +104,10 @@ public class FuncTests {
 
     FuncOp otherFunc = programOp.addOperation(new FuncOp("other", new FuncType(List.of(), IntegerT.INT32)));
     var constOp = otherFunc.addOperation(new ConstantOp(42), 0);
-    otherFunc.addOperation(new ReturnOp(constOp.getOutputValue()), 0);
+    otherFunc.addOperation(new ReturnOp(constOp.getValue()), 0);
 
     var callOp = mainFunc.addOperation(new CallOp(otherFunc), 0);
-    mainFunc.addOperation(new PrintOp(callOp.getOutputValue()), 0);
+    mainFunc.addOperation(new PrintOp(callOp.getOutputValueThrowing()), 0);
     mainFunc.addOperation(new ReturnOp(), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
@@ -152,7 +152,7 @@ public class FuncTests {
 
     // Call with String arg, expects Int
     var strOp = mainFunc.addOperation(new ConstantOp("test"), 0);
-    mainFunc.addOperation(new CallOp(target, strOp.getOutputValue()), 0);
+    mainFunc.addOperation(new CallOp(target, strOp.getValue()), 0);
     mainFunc.addOperation(new ReturnOp(), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));

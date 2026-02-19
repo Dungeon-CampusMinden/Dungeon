@@ -38,7 +38,7 @@ public class CoreTests {
     FuncOp funcOp = entry.getRight();
 
     var constOp = funcOp.addOperation(new ConstantOp(42), 0);
-    funcOp.addOperation(new PrintOp(constOp.getOutputValue()), 0);
+    funcOp.addOperation(new PrintOp(constOp.getValue()), 0);
     funcOp.addOperation(new ReturnOp(), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
@@ -60,7 +60,7 @@ public class CoreTests {
     entryBlock.addOperation(new BranchOp(targetBlock));
 
     // Target block: use val, return
-    targetBlock.addOperation(new PrintOp(constOp.getOutputValue()));
+    targetBlock.addOperation(new PrintOp(constOp.getOutputValueThrowing()));
     targetBlock.addOperation(new ReturnOp());
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
@@ -85,7 +85,7 @@ public class CoreTests {
     // Let's assume ConstantOp(1) acts as true/false or use a proper check.
     // BranchCondOp constructor: BranchCondOp(Value condition, Block target, Block elseTarget)
 
-    entryBlock.addOperation(new BranchCondOp(cond.getOutputValue(), leftBlock, rightBlock));
+    entryBlock.addOperation(new BranchCondOp(cond.getValue(), leftBlock, rightBlock));
 
     // Left block: defines val, branches to merge
     var val = leftBlock.addOperation(new ConstantOp(100));
@@ -96,7 +96,7 @@ public class CoreTests {
 
     // Merge block: uses val
     // This is a violation because 'val' is not defined on the path through 'rightBlock'.
-    mergeBlock.addOperation(new PrintOp(val.getOutputValue()));
+    mergeBlock.addOperation(new PrintOp(val.getValue()));
     mergeBlock.addOperation(new ReturnOp());
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
@@ -115,18 +115,18 @@ public class CoreTests {
 
     // Entry defines val
     var val = entryBlock.addOperation(new ConstantOp(true));
-    entryBlock.addOperation(new BranchCondOp(val.getOutputValue(), leftBlock, rightBlock));
+    entryBlock.addOperation(new BranchCondOp(val.getValue(), leftBlock, rightBlock));
 
     // Left uses val
-    leftBlock.addOperation(new PrintOp(val.getOutputValue()));
+    leftBlock.addOperation(new PrintOp(val.getValue()));
     leftBlock.addOperation(new BranchOp(mergeBlock));
 
     // Right uses val
-    rightBlock.addOperation(new PrintOp(val.getOutputValue()));
+    rightBlock.addOperation(new PrintOp(val.getValue()));
     rightBlock.addOperation(new BranchOp(mergeBlock));
 
     // Merge uses val
-    mergeBlock.addOperation(new PrintOp(val.getOutputValue()));
+    mergeBlock.addOperation(new PrintOp(val.getValue()));
     mergeBlock.addOperation(new ReturnOp());
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));

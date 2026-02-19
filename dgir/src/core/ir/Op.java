@@ -97,6 +97,10 @@ public abstract class Op {
     return getOperation().getOutputValue();
   }
 
+  public @Nullable Value getOutputValueThrowing() {
+    return getOperation().getOutputValueThrowing();
+  }
+
   public Op setOutputValue(Value value) {
     getOperation().setOutputValue(value);
     return this;
