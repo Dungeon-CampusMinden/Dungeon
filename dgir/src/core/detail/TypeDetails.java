@@ -10,9 +10,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
- * This object contains all the basic information about a type object.
+ * Holds all basic information about a type kind and exposes it through a
+ * stable interface. The actual data lives in the inner {@link Impl}.
  */
 public class TypeDetails {
+
+  // =========================================================================
+  // Static Factories
+  // =========================================================================
+
   public static TypeDetails get(String ident) {
     return new TypeDetails(ident);
   }
@@ -21,15 +27,71 @@ public class TypeDetails {
     return new TypeDetails(clazz);
   }
 
+  // =========================================================================
+  // Members
+  // =========================================================================
+
   private Impl impl = null;
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
+  protected TypeDetails(Impl impl) {
+    this.impl = impl;
+  }
+
+  /** Look up or create a {@link TypeDetails} by ident string. */
+  public TypeDetails(String ident) {
+    // Try the registered registry first
+    TypeDetails registeredName = DGIRContext.registeredTypesByIdent.get(ident);
+    if (registeredName != null) {
+      impl = registeredName.impl;
+      return;
+    }
+
+    // Fall back to the unregistered cache; create a dummy entry if absent
+    Impl unregisteredName = DGIRContext.typesByIdent.get(ident);
+    if (unregisteredName != null) {
+      impl = unregisteredName;
+      return;
+    }
+
+    unregisteredName = DGIRContext.typesByIdent.put(ident,
+      new UnregisteredType(ident, Type.class, DGIRContext.getReferencedDialect(ident)));
+    DGIRContext.types.put(Type.class, unregisteredName);
+    impl = unregisteredName;
+  }
+
+  /** Look up or create a {@link TypeDetails} by type class. */
+  public TypeDetails(Class<? extends Type> clazz) {
+    // Try the registered registry first
+    TypeDetails registeredName = DGIRContext.registeredTypes.get(clazz);
+    if (registeredName != null) {
+      impl = registeredName.impl;
+      return;
+    }
+
+    // Fall back to the unregistered cache; create a dummy entry if absent
+    Impl unregisteredName = DGIRContext.types.get(clazz);
+    if (unregisteredName != null) {
+      impl = unregisteredName;
+      return;
+    }
+
+    unregisteredName = DGIRContext.typesByIdent.put(clazz.getName(),
+      new UnregisteredType(clazz.getName(), Type.class, null));
+    DGIRContext.types.put(clazz, unregisteredName);
+    impl = unregisteredName;
+  }
+
+  // =========================================================================
+  // Delegates
+  // =========================================================================
 
   @JsonIgnore
   public Impl getImpl() {
     return impl;
-  }
-
-  protected TypeDetails(Impl impl) {
-    this.impl = impl;
   }
 
   public String getIdent() {
@@ -51,6 +113,69 @@ public class TypeDetails {
     return impl.getParameterizedIdent(type);
   }
 
+  // =========================================================================
+  // Static Helpers
+  // =========================================================================
+
+  /**
+   * Create a Type instance from the provided parameterized ident.
+   * Works for both simple and generic/complex types (e.g. {@code func.func<...>}).
+   * <p>Examples:
+   * <pre>{@literal
+   *   int32
+   *   float64
+   *   func.func<((int, string) -> (bool))>
+   * }</pre>
+   *
+   * @param parameterizedIdent The parameterized ident string.
+   * @return The created Type instance.
+   */
+  public static Type fromParameterizedIdent(String parameterizedIdent) {
+    String baseIdent = parameterizedIdent;
+    int genericStart = parameterizedIdent.indexOf('<');
+    if (genericStart != -1) {
+      baseIdent = parameterizedIdent.substring(0, genericStart);
+    }
+    return TypeDetails.get(baseIdent).getImpl().fromParameterizedIdent(parameterizedIdent);
+  }
+
+  /**
+   * Parse a comma-separated list of (possibly nested/parameterized) type strings
+   * into a list of Type instances.
+   * <p>Examples:
+   * <pre>{@literal
+   *   int32, float64, ptr<int>
+   *   func.func<(int, string) -> (bool)>, ptr<func.func<(int) -> (int)>>
+   * }</pre>
+   *
+   * @param parameterString The comma-separated parameter string.
+   * @return The list of created Type instances.
+   */
+  public static List<Type> fromParameterString(String parameterString) {
+    List<Type> types = new java.util.ArrayList<>();
+    int bracketLevel = 0;
+    StringBuilder currentType = new StringBuilder();
+    for (int i = 0; i < parameterString.length(); i++) {
+      char c = parameterString.charAt(i);
+      if (c == '<') bracketLevel++;
+      if (c == '>') bracketLevel--;
+      if (c == ',' && bracketLevel == 0) {
+        types.add(fromParameterizedIdent(currentType.toString().trim()));
+        currentType.setLength(0);
+      } else {
+        currentType.append(c);
+      }
+    }
+    if (!currentType.isEmpty()) {
+      types.add(fromParameterizedIdent(currentType.toString().trim()));
+    }
+    return types;
+  }
+
+  // =========================================================================
+  // Object
+  // =========================================================================
+
   @Override
   public boolean equals(Object obj) {
     return obj instanceof TypeDetails other && this.impl == other.impl;
@@ -61,10 +186,16 @@ public class TypeDetails {
     return impl.hashCode();
   }
 
+  // =========================================================================
+  // Inner: Impl
+  // =========================================================================
+
   /**
-   * This is the fully type erased interface for a type object.
+   * Fully type-erased description of a type kind.
+   * Subclasses are created per type class inside each type's {@code createImpl()} method.
    */
   public abstract static class Impl {
+
     protected Type defaultInstance;
     protected String ident;
     protected Class<? extends Type> type;
@@ -76,7 +207,7 @@ public class TypeDetails {
       this.ident = ident;
       this.type = type;
       this.dialect = dialect;
-      // Pre-fetch the default constructor
+      // Pre-fetch the default constructor to fail fast and avoid repeated reflection lookups
       try {
         this.constructor = type.getDeclaredConstructor();
       } catch (NoSuchMethodException e) {
@@ -97,19 +228,18 @@ public class TypeDetails {
     }
 
     /**
-     * Get the parameterized ident for this type given the provided type parameters.
-     * This is used for generic or complex types that take type parameters such as pointers or function types.
+     * Get the parameterized ident for this type. Simple types return just the ident;
+     * generic types (e.g. {@link core.ir.Type} parameterized) override this to include parameters.
      * <p>
-     * The syntax for parameterized types is:
+     * Syntax:
      * <pre>
      * parameterizedType:
-     *    ident '<' typeParameter (',' typeParameter)* '>'
-     *    | ident '<' verbatim '>'
-     * typeParameter: ident | parameterizedType
-     * verbatim: any string that is not parsed or interpreted, just passed through as-is
+     *    ident
+     *    | ident '&lt;' typeParameter (',' typeParameter)* '&gt;'
+     *    | ident '&lt;' verbatim '&gt;'
      * </pre>
      *
-     * @param type The type parameters to use for generating the parameterized ident.
+     * @param type The concrete type instance to generate the ident for.
      * @return The parameterized ident string.
      */
     public String getParameterizedIdent(Type type) {
@@ -117,33 +247,21 @@ public class TypeDetails {
     }
 
     /**
-     * Create a Type instance from the provided parameterized ident.
-     * This is used for generic or complex types that take type parameters such as pointers or function types.
-     * Still works for simple types.
-     * <p>
-     * The syntax for parameterized types is:
-     * <pre>
-     * parameterizedType:
-     *    ident '<' typeParameter (',' typeParameter)* '>'
-     *    | ident '<' verbatim '>'
-     * typeParameter: ident | parameterizedType
-     * verbatim: any string that is not parsed or interpreted, just passed through as-is
-     * </pre>
+     * Reconstruct a Type instance from its parameterized ident string.
+     * Simple types return their default instance; generic types override this.
      *
      * @param parameterizedIdent The parameterized ident string.
+     * @return The reconstructed Type instance.
      */
     public Type fromParameterizedIdent(String parameterizedIdent) {
-      try {
-        return defaultInstance;
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+      return defaultInstance;
     }
 
     public <T extends Type> T fromParameterizedIdent(String parameterizedIdent, Class<T> clazz) {
-      assert clazz.isAssignableFrom(defaultInstance.getClass()) : "Cannot create type of class " + clazz.getSimpleName() + " from the impl of type " + defaultInstance.getClass().getSimpleName();
-      Type type = fromParameterizedIdent(parameterizedIdent);
-      return clazz.cast(type);
+      assert clazz.isAssignableFrom(defaultInstance.getClass())
+        : "Cannot create type of class " + clazz.getSimpleName()
+        + " from the impl of type " + defaultInstance.getClass().getSimpleName();
+      return clazz.cast(fromParameterizedIdent(parameterizedIdent));
     }
 
     public <T extends Type> T createInstance(Class<T> clazz) {
@@ -155,120 +273,14 @@ public class TypeDetails {
     }
   }
 
-  protected final static class UnregisteredType extends Impl {
+  // =========================================================================
+  // Inner: UnregisteredType
+  // =========================================================================
+
+  /** Placeholder used when a type ident is referenced before registration. */
+  protected static final class UnregisteredType extends Impl {
     UnregisteredType(String ident, Class<? extends Type> clazz, Dialect dialect) {
       super(null, ident, clazz, dialect);
     }
-
-  }
-
-  public TypeDetails(String ident) {
-    // Try to get the registered Type first
-    TypeDetails registeredName = DGIRContext.registeredTypesByIdent.get(ident);
-    if (registeredName != null) {
-      impl = registeredName.impl;
-      return;
-    }
-
-    // Try to get the unregistered operation next and if that doesn't work, add a new dummy
-    Impl unregisteredName = DGIRContext.typesByIdent.get(ident);
-    if (unregisteredName != null) {
-      impl = unregisteredName;
-      return;
-    }
-
-    unregisteredName = DGIRContext.typesByIdent.put(ident,
-      new UnregisteredType(ident, Type.class, DGIRContext.getReferencedDialect(ident)));
-    DGIRContext.types.put(Type.class, unregisteredName);
-
-    impl = unregisteredName;
-  }
-
-  public TypeDetails(Class<? extends Type> clazz) {
-    // Try to get the registered Type first
-    TypeDetails registeredName = DGIRContext.registeredTypes.get(clazz);
-    if (registeredName != null) {
-      impl = registeredName.impl;
-      return;
-    }
-
-    // Try to get the unregistered type next nad if that doesn't work, add a new dummy
-    Impl unregisteredName = DGIRContext.types.get(clazz);
-    if (unregisteredName != null) {
-      impl = unregisteredName;
-      return;
-    }
-
-    unregisteredName = DGIRContext.typesByIdent.put(clazz.getName(),
-      new UnregisteredType(clazz.getName(), Type.class, null));
-    DGIRContext.types.put(clazz, unregisteredName);
-
-    impl = unregisteredName;
-  }
-
-  /**
-   * Create a Type instance from the provided parameterized ident.
-   * This is used for generic or complex types that take type parameters such as pointers or function types.
-   * It also works for simple types.
-   * Examples include:
-   * <pre>
-   * {@literal
-   *   int32
-   *   float64
-   *   func.func<((int, string) -> (bool))>
-   *   ptr.ptr<int>
-   * }
-   * </pre>
-   *
-   * @param parameterizedIdent The parameterized ident string.
-   * @return The created Type instance.
-   */
-  public static Type fromParameterizedIdent(String parameterizedIdent) {
-    // Extract the base ident
-    String baseIdent = parameterizedIdent;
-    int genericStart = parameterizedIdent.indexOf('<');
-    if (genericStart != -1) {
-      baseIdent = parameterizedIdent.substring(0, genericStart);
-    }
-
-    TypeDetails typeDetails = TypeDetails.get(baseIdent);
-    return typeDetails.getImpl().fromParameterizedIdent(parameterizedIdent);
-  }
-
-  /**
-   * Create a list of Type instances from the provided parameter string.
-   * This is used for parsing multiple types from a comma-separated list.
-   * It handles nested parameterized types correctly.
-   * Examples include:
-   * <pre>
-   * {@literal
-   *   * int32, float64, ptr<int>
-   *   * func.func<(int, string, struct<bool, float, ptr<int>>) -> (bool)>, ptr<func.func<(int) -> (int)>>
-   * }
-   * </pre>
-   *
-   * @param parameterString The comma-separated parameter string.
-   * @return The list of created Type instances.
-   */
-  public static List<Type> fromParameterString(String parameterString) {
-    // Split on commas, but handle nested parameterized types
-    List<Type> types = new java.util.ArrayList<>();
-    int bracketLevel = 0;
-    StringBuilder currentType = new StringBuilder();
-    for (int i = 0; i < parameterString.length(); i++) {
-      char c = parameterString.charAt(i);
-      if (c == '<') bracketLevel++;
-      if (c == '>') bracketLevel--;
-      if (c == ',' && bracketLevel == 0) {
-        types.add(fromParameterizedIdent(currentType.toString().trim()));
-        currentType.setLength(0);
-      } else {
-        currentType.append(c);
-      }
-    }
-    if (!currentType.isEmpty()) {
-      types.add(fromParameterizedIdent(currentType.toString().trim()));
-    }
-    return types;
   }
 }

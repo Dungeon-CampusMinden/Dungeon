@@ -5,29 +5,44 @@ import core.ir.Op;
 
 import java.util.Optional;
 
+/**
+ * A fully registered {@link OperationDetails} instance.
+ * Created by {@link #insert(Op)} during dialect initialisation.
+ */
 public class RegisteredOperationDetails extends OperationDetails {
-  protected RegisteredOperationDetails(Impl impl) {
-    super(impl);
-  }
 
+  // =========================================================================
+  // Static Registration
+  // =========================================================================
+
+  /**
+   * Register the given op in the global context.
+   * If the op already carries a {@link RegisteredOperationDetails}, it is reused;
+   * otherwise a new one is created via {@link Op#createDetails()}.
+   *
+   * @param op The op instance to register.
+   */
   public static void insert(Op op) {
     RegisteredOperationDetails details;
     if (op.getOperationOrNull() != null
-      && op.getDetails() != null
-      && op.getDetails() instanceof RegisteredOperationDetails) {
-      details = (RegisteredOperationDetails) op.getDetails();
+      && op.getDetails() instanceof RegisteredOperationDetails existing) {
+      details = existing;
     } else {
       details = new RegisteredOperationDetails(op.createDetails());
     }
 
-    // Register the operation name in case it doesnt exist yet
+    // Populate the unregistered caches so look-ups before registration still resolve
     DGIRContext.operations.put(details.getType(), details.getImpl());
     DGIRContext.operationsByIdent.put(details.getIdent(), details.getImpl());
 
-    // Register the operation in the registry
+    // Populate the registered caches
     DGIRContext.registeredOperations.put(details.getType(), details);
     DGIRContext.registeredOperationsByIdent.put(details.getIdent(), new RegisteredOperationDetails(details.getImpl()));
   }
+
+  // =========================================================================
+  // Static Lookups
+  // =========================================================================
 
   public static Optional<RegisteredOperationDetails> lookup(Class<? extends Op> clazz) {
     return Optional.ofNullable(DGIRContext.registeredOperations.get(clazz));
@@ -35,5 +50,13 @@ public class RegisteredOperationDetails extends OperationDetails {
 
   public static Optional<RegisteredOperationDetails> lookup(String name) {
     return Optional.ofNullable(DGIRContext.registeredOperationsByIdent.get(name));
+  }
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
+  protected RegisteredOperationDetails(Impl impl) {
+    super(impl);
   }
 }

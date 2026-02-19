@@ -5,29 +5,45 @@ import core.ir.Type;
 
 import java.util.Optional;
 
+/**
+ * A fully registered {@link TypeDetails} instance.
+ * Created by {@link #insert(Type)} during dialect initialisation.
+ */
 public class RegisteredTypeDetails extends TypeDetails {
-  protected RegisteredTypeDetails(TypeDetails.Impl impl) {
-    super(impl);
-  }
 
+  // =========================================================================
+  // Static Registration
+  // =========================================================================
+
+  /**
+   * Register the given type in the global context.
+   * If the type already carries a {@link RegisteredTypeDetails}, it is reused;
+   * otherwise a new one is created via {@link Type#createImpl()}.
+   *
+   * @param type The type instance to register.
+   */
   public static void insert(Type type) {
     RegisteredTypeDetails details;
-    if (type.getDetails() != null && type.getDetails() instanceof RegisteredTypeDetails) {
-      details = (RegisteredTypeDetails) type.getDetails();
-    }else {
+    if (type.getDetails() instanceof RegisteredTypeDetails existing) {
+      details = existing;
+    } else {
       details = new RegisteredTypeDetails(type.createImpl());
     }
 
-    // Register the operation name in case it doesnt exist yet
+    // Populate the unregistered caches so look-ups before registration still resolve
     DGIRContext.types.put(details.getType(), details.getImpl());
     DGIRContext.typesByIdent.put(details.getIdent(), details.getImpl());
 
-    // Register the operation in the registry
+    // Populate the registered caches
     DGIRContext.registeredTypes.put(details.getType(), details);
     DGIRContext.registeredTypesByIdent.put(details.getIdent(), details);
 
     type.setDetails(details);
   }
+
+  // =========================================================================
+  // Static Lookups
+  // =========================================================================
 
   public static Optional<RegisteredTypeDetails> lookup(Class<? extends Type> clazz) {
     return Optional.ofNullable(DGIRContext.registeredTypes.get(clazz));
@@ -35,5 +51,13 @@ public class RegisteredTypeDetails extends TypeDetails {
 
   public static Optional<RegisteredTypeDetails> lookup(String name) {
     return Optional.ofNullable(DGIRContext.registeredTypesByIdent.get(name));
+  }
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
+  protected RegisteredTypeDetails(TypeDetails.Impl impl) {
+    super(impl);
   }
 }
