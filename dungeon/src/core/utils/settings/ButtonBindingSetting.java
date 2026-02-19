@@ -28,16 +28,16 @@ public class ButtonBindingSetting extends SettingValue<Integer> {
 
   public ButtonBindingSetting(String name, int defaultValue) {
     super(name, defaultValue);
-    dummy = new TextField("", UIUtils.defaultSkin());
   }
   public ButtonBindingSetting(String name, int defaultValue, boolean editable) {
     super(name, defaultValue);
     this.editable = editable;
-    dummy = new TextField("", UIUtils.defaultSkin());
   }
 
   @Override
   public Actor toUIActor() {
+    dummy = new TextField("", UIUtils.defaultSkin());
+
     Label label = Scene2dElementFactory.createLabel(name(), 24, Color.BLACK);
     label.setAlignment(Align.right);
 
