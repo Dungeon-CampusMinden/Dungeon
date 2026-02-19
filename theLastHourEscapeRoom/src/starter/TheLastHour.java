@@ -1,7 +1,9 @@
 package starter;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
+import contrib.components.SkillComponent;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.entities.HeroController;
@@ -10,7 +12,9 @@ import contrib.systems.CollisionSystem;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.Debugger;
+import core.Entity;
 import core.Game;
+import core.components.InputComponent;
 import core.configuration.KeyboardConfig;
 import core.game.ECSManagement;
 import core.game.GameLoop;
@@ -84,7 +88,9 @@ public class TheLastHour {
                     Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
                   }));
     } else {
-      Game.add(HeroBuilder.builder().characterClass(CharacterClass.WIZARD).build());
+      Entity hero = HeroBuilder.builder().characterClass(CharacterClass.WIZARD).build();
+      hero.fetch(SkillComponent.class).ifPresent(SkillComponent::removeAll);
+      Game.add(hero);
       Game.stage().ifPresent(CursorUtil::initListener);
       setupMusic();
     }

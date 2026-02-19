@@ -14,6 +14,7 @@ public enum LastHourSounds implements ISound {
   COMPUTER_VIRUS_CAUGHT("kenney_ui_error_003", 1.0f),
   COMPUTER_EMAIL_RECEIVED("", 1.0f),
 
+  /** Sounds like a beep-boop-beeeeep. */
   ELECTRICITY_TURNED_ON("kenney_ui_maximize_001", 1.0f),
 
   ;

@@ -61,7 +61,7 @@ public class VirusTab extends ComputerTab {
 
     TextField codeField = Scene2dElementFactory.createTextField("");
     codeField.setMessageText("Security Code");
-    this.add(codeField).width(300).center().padTop(20).row();
+    this.add(codeField).width(400).center().padTop(20).row();
 
     Button submitButton = Scene2dElementFactory.createButton("Submit", "clean-green", 24);
     submitButton.addListener(new ChangeListener() {
@@ -83,7 +83,7 @@ public class VirusTab extends ComputerTab {
         }
       }
     });
-    this.add(submitButton).center().padTop(10);
+    this.add(submitButton).width(400).center().padTop(10);
 
     this.center();
   }
