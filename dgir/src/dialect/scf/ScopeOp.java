@@ -14,6 +14,11 @@ import java.util.List;
  * Op which opens a new scope. The scope has no effect other than hiding new variables from the outside.
  */
 public class ScopeOp extends Op implements ISingleRegion, IControlFlow {
+
+  // =========================================================================
+  // Type Info
+  // =========================================================================
+
   @Override
   public OperationDetails.Impl createDetails() {
     class ScopeOpDetails extends OperationDetails.Impl {
@@ -41,10 +46,14 @@ public class ScopeOp extends Op implements ISingleRegion, IControlFlow {
     return "scf";
   }
 
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
   public ScopeOp() {
-    executeIfRegistered(ScopeOp.class, () -> {
-      setOperation(true, Operation.Create(getIdent(), null, null, null, 1));
-    });
+    executeIfRegistered(ScopeOp.class, () ->
+      setOperation(true, Operation.Create(getIdent(), null, null, null, 1))
+    );
   }
 
   public ScopeOp(Operation operation) {

@@ -2,7 +2,6 @@ package dialect.builtin.attributes;
 
 import core.*;
 import core.detail.AttributeDetails;
-import core.ir.Attribute;
 import core.ir.TypedAttribute;
 import dialect.builtin.Builtin;
 import dialect.builtin.types.IntegerT;
@@ -10,9 +9,17 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class IntegerAttribute extends TypedAttribute {
+
+  // =========================================================================
+  // Static Fields
+  // =========================================================================
+
   public static final IntegerAttribute INSTANCE = new IntegerAttribute();
 
-  // --------------------- Type Info ------------------------------
+  // =========================================================================
+  // Type Info
+  // =========================================================================
+
   @Override
   public AttributeDetails.Impl createImpl() {
     class IntegerAttributeModel extends AttributeDetails.Impl {
@@ -30,9 +37,16 @@ public class IntegerAttribute extends TypedAttribute {
   public static String getNamespace() {
     return "";
   }
-  // -----------------------------------------------------------------
+
+  // =========================================================================
+  // Members
+  // =========================================================================
 
   private Number value;
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   public IntegerAttribute() {
     super(IntegerT.INT64);
@@ -49,6 +63,9 @@ public class IntegerAttribute extends TypedAttribute {
     this.value = type.convertToValidNumber(value);
   }
 
+  // =========================================================================
+  // Functions
+  // =========================================================================
 
   @Override
   public Number getStorage() {

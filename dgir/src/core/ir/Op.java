@@ -4,6 +4,7 @@ import core.detail.OperationDetails;
 import core.detail.RegisteredOperationDetails;
 import core.serialization.OpDeserializer;
 import core.serialization.OpSerializer;
+import core.traits.IOpTrait;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,19 +17,36 @@ import java.util.Optional;
 
 /**
  * Abstract base class for all operations in the DGIR.
- * This class contains the actual state in form an operation object.
- * The derived classes are responsible for creating the specific implementations of the operation behavior.
- * They are also responsible for serialization and deserialization behavior of the operations.
- * The Op class will never be serialized, but the state will be which contains all the necessary information to recreate the operation.
+ * <p>
+ * Each subclass represents a specific operation kind and is responsible for defining
+ * its details via {@link #createDetails()}. The actual operation state is held in a
+ * backing {@link Operation} instance; this class is a semantic wrapper around that state.
+ * <p>
+ * The Op class itself is never serialized — the backing {@link Operation} carries all
+ * necessary information to recreate the operation.
  */
 @JsonSerialize(using = OpSerializer.class)
 @JsonDeserialize(using = OpDeserializer.class)
 public abstract class Op {
+
+  // =========================================================================
+  // Members
+  // =========================================================================
+
   private Operation operation;
 
+  // =========================================================================
+  // Op Info
+  // =========================================================================
+
+  /** Create and return the details object that describes this op kind. */
   public abstract OperationDetails.Impl createDetails();
 
-  // Every op should be default-constructible
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
+  /** Every op must be default-constructible (used during dialect registration). */
   public Op() {
     this.operation = null;
   }
@@ -43,10 +61,34 @@ public abstract class Op {
       ensureEntryBlocks();
   }
 
+  // =========================================================================
+  // Operation Access
+  // =========================================================================
+
   /**
-   * Sets the operation and ensures that all regions have an entry block.
+   * Returns the backing operation, or {@code null} if not yet initialised.
    *
-   * @param operation the operation to set
+   * @return the backing operation or null.
+   */
+  public Operation getOperationOrNull() {
+    return operation;
+  }
+
+  /**
+   * Returns the backing operation.
+   *
+   * @return the backing operation (never null).
+   */
+  public Operation getOperation() {
+    assert operation != null : "Operation is null.";
+    return operation;
+  }
+
+  /**
+   * Sets the backing operation and optionally ensures every region has an entry block.
+   *
+   * @param ensureEntryBlocks whether to create missing entry blocks.
+   * @param operation         the operation to set.
    */
   public void setOperation(boolean ensureEntryBlocks, Operation operation) {
     this.operation = operation;
@@ -54,37 +96,71 @@ public abstract class Op {
       ensureEntryBlocks();
   }
 
-  /**
-   * Returns the underlying operation if it exists, otherwise returns null.
-   *
-   * @return the underlying operation or null
-   */
-  public Operation getOperationOrNull() {
-    return operation;
-  }
-
-  /**
-   * Returns the underlying operation.
-   *
-   * @return the underlying operation (never null)
-   */
-  public Operation getOperation() {
-    assert operation != null : "Operation is null.";
-    return operation;
-  }
+  // =========================================================================
+  // Verification
+  // =========================================================================
 
   public boolean verify(boolean recursive) {
     return getOperation().verify(recursive);
   }
+
+  // =========================================================================
+  // Details & Traits
+  // =========================================================================
 
   @JsonIgnore
   public @NotNull OperationDetails getDetails() {
     return getOperation().getDetails();
   }
 
+  public boolean hasTrait(Class<? extends IOpTrait> traitClass) {
+    return getOperation().hasTrait(traitClass);
+  }
+
+  /**
+   * Return this op as an instance of {@code clazz} if it matches, otherwise empty.
+   *
+   * @see Operation#as(Class)
+   */
+  public <T extends Op> Optional<T> as(@NotNull Class<T> clazz) {
+    return getOperation().as(clazz);
+  }
+
+  /**
+   * Return this op cast to the given trait if it implements it, otherwise empty.
+   *
+   * @see Operation#asTrait(Class)
+   */
+  public <T extends IOpTrait> @NotNull Optional<T> asTrait(Class<T> clazz) {
+    return getOperation().asTrait(clazz);
+  }
+
+  /**
+   * Check if this op is of the given type.
+   *
+   * @see Operation#isa(Class)
+   */
+  public boolean isa(Class<? extends Op> clazz) {
+    return getOperation().isa(clazz);
+  }
+
+  // =========================================================================
+  // Operands & Output
+  // =========================================================================
+
   @JsonIgnore
   public @NotNull List<ValueOperand> getOperands() {
     return getOperation().getOperands();
+  }
+
+  @JsonIgnore
+  public @NotNull List<BlockOperand> getBlockOperands() {
+    return getOperation().getBlockOperands();
+  }
+
+  @JsonIgnore
+  public @NotNull List<Block> getSuccessors() {
+    return getOperation().getSuccessors();
   }
 
   @JsonIgnore
@@ -106,13 +182,33 @@ public abstract class Op {
     return this;
   }
 
+  // =========================================================================
+  // Attributes
+  // =========================================================================
+
   @JsonIgnore
-  public Map<String, NamedAttribute> getAttributes() {
+  public @NotNull Map<String, NamedAttribute> getAttributes() {
     return getOperation().getAttributes();
   }
 
+  public @NotNull Optional<Attribute> getAttributeByName(@NotNull String name) {
+    return getOperation().getAttributeByName(name);
+  }
+
+  public <T extends Attribute> Optional<T> getAttribute(@NotNull Class<T> clazz, @NotNull String name) {
+    return getOperation().getAttribute(clazz, name);
+  }
+
+  public void setAttribute(@NotNull String name, @NotNull Attribute attribute) {
+    getOperation().setAttribute(name, attribute);
+  }
+
+  // =========================================================================
+  // Regions
+  // =========================================================================
+
   /**
-   * Goes over all blocks and ensures that they have at least their entry block.
+   * Goes over all regions and ensures that each has at least one entry block.
    */
   public void ensureEntryBlocks() {
     for (Region region : getRegions()) {
@@ -121,7 +217,7 @@ public abstract class Op {
   }
 
   @JsonIgnore
-  public List<Region> getRegions() {
+  public @NotNull List<Region> getRegions() {
     return getOperation().getRegions();
   }
 
@@ -135,48 +231,96 @@ public abstract class Op {
     return getRegion(0);
   }
 
-  public <T extends Attribute> Optional<T> getAttribute(@NotNull Class<T> clazz, @NotNull String name) {
-    return getOperation().getAttribute(clazz, name);
+  // =========================================================================
+  // Parent & Navigation
+  // =========================================================================
+
+  @JsonIgnore
+  public @NotNull Optional<Block> getParent() {
+    return getOperation().getParent();
   }
 
-  public List<Block> getSuccessors() {
-    return getOperation().getSuccessors();
+  @JsonIgnore
+  public @NotNull Optional<Region> getParentRegion() {
+    return getOperation().getParentRegion();
+  }
+
+  @JsonIgnore
+  public @NotNull Optional<Operation> getParentOperation() {
+    return getOperation().getParentOperation();
   }
 
   /**
-   * Check equality based on the underlying operation.
-   * Ops are only a sematic wrapper of the operation state and therefore not indicative of equality.
+   * Walks the parent chain and returns the first parent that implements the given trait.
    *
-   * @param obj the reference object with which to compare.
-   * @return true if the underlying operations are equal, false otherwise.
+   * @see Operation#getParentWithTrait(Class)
+   */
+  public <T extends IOpTrait> @NotNull Optional<T> getParentWithTrait(Class<T> traitClass) {
+    return getOperation().getParentWithTrait(traitClass);
+  }
+
+  /**
+   * Get the index of this operation in its parent block's operations list.
+   *
+   * @see Operation#getIndex()
+   */
+  public int getIndex() {
+    return getOperation().getIndex();
+  }
+
+  /**
+   * Get the next operation in the same block.
+   *
+   * @see Operation#getNext()
+   */
+  public Optional<Operation> getNext() {
+    return getOperation().getNext();
+  }
+
+  // =========================================================================
+  // Diagnostics
+  // =========================================================================
+
+  public void emitMessage(@NotNull String s) {
+    getOperation().emitMessage(s);
+  }
+
+  public void emitWarning(@NotNull String s) {
+    getOperation().emitWarning(s);
+  }
+
+  public void emitError(@NotNull String s) {
+    getOperation().emitError(s);
+  }
+
+  // =========================================================================
+  // Object
+  // =========================================================================
+
+  /**
+   * Equality is based on the backing operation — Op is only a semantic wrapper.
    */
   @Override
   public boolean equals(Object obj) {
     return obj instanceof Op other && this.getOperation().equals(other.getOperation());
   }
 
-  /**
-   * Hash code based on the underlying operation.
-   *
-   * @return the hash code value for the operation stored in this op.
-   */
   @Override
   public int hashCode() {
     return operation.hashCode();
   }
 
+  // =========================================================================
+  // Static Helpers
+  // =========================================================================
+
   /**
-   * This is a helper method to execute a callback if an op class is registered in the RegisteredOperationDetails.
-   * It is mainly intended for use in default constructors which also get invoked for registration and therefore cannot
-   * rely on the registration being completed.
+   * Execute {@code callback} only if the given op class is already registered.
    * <p>
-   * In this case, during registration through the {@link core.Dialect} no code is executed and the OperationDetails can
-   * be retreived through the {@link Op#createDetails} method.
-   * All subsequent uses of the default constructor will be used to create an actual instance of that op.
-   * <p>
-   * This is useful for cases where we want to execute some code only if a certain op is registered, without having to
-   * check for the registration multiple times.
-   *
+   * Intended for use in default constructors: during dialect registration the
+   * default constructor is called without registration being complete, so no
+   * initialisation should happen then. On all subsequent calls the op is
+   * registered and the callback is executed normally.
    */
   public static void executeIfRegistered(Class<? extends Op> opClass, Runnable callback) {
     var details = RegisteredOperationDetails.lookup(opClass);

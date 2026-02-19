@@ -2,23 +2,24 @@ package dialect.func;
 
 import core.*;
 import core.detail.OperationDetails;
-import core.detail.RegisteredOperationDetails;
 import core.ir.NamedAttribute;
 import core.ir.Op;
 import core.ir.Operation;
 import core.ir.Value;
-import core.traits.ISingleOperand;
 import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;
 import core.traits.IZeroOrOneOperand;
 import dialect.builtin.Builtin;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 
 public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpecificParentOp {
+
+  // =========================================================================
+  // Type Info
+  // =========================================================================
+
   @Override
   public OperationDetails.Impl createDetails() {
     class ReturnOpModel extends OperationDetails.Impl {
@@ -41,16 +42,17 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpe
           operation.emitError("Return operation must be nested in a function");
           return false;
         }
-        // Ensure that the return ops operand type is the same as the function output type if there is an operand
+        // Ensure that the return op's operand type matches the function output type
         if (returnOp.getOperand().isPresent()) {
           var returnType = returnOp.getOperandType().orElseThrow();
           var funcType = parentFuncOp.get().getType();
           if (!returnType.equals(funcType.getOutput())) {
-            operation.emitError("Return type " + returnType.getParameterizedIdent() + " does not match function return type " + (funcType.getOutput() != null ? funcType.getOutput().getParameterizedIdent() : null));
+            operation.emitError("Return type " + returnType.getParameterizedIdent()
+              + " does not match function return type "
+              + (funcType.getOutput() != null ? funcType.getOutput().getParameterizedIdent() : null));
             return false;
           }
         }
-
         return true;
       }
 
@@ -60,6 +62,18 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpe
     }
     return new ReturnOpModel();
   }
+
+  public static String getIdent() {
+    return "func.return";
+  }
+
+  public static String getNamespace() {
+    return "func";
+  }
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   public ReturnOp() {
     executeIfRegistered(ReturnOp.class, () ->
@@ -74,13 +88,9 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpe
     super(Operation.Create(getIdent(), List.of(operand), null, null));
   }
 
-  public static String getIdent() {
-    return "func.return";
-  }
-
-  public static String getNamespace() {
-    return "func";
-  }
+  // =========================================================================
+  // Functions
+  // =========================================================================
 
   @Override
   public List<Class<? extends Op>> getValidParentTypes() {

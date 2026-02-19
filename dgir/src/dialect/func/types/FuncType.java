@@ -9,10 +9,16 @@ import java.util.Collections;
 import java.util.List;
 
 public class FuncType extends Type {
+
+  // =========================================================================
+  // Static Fields
+  // =========================================================================
+
   public static final FuncType INSTANCE = new FuncType();
 
-  private final List<Type> inputs;
-  private final Type output;
+  // =========================================================================
+  // Type Info
+  // =========================================================================
 
   @Override
   public TypeDetails.Impl createImpl() {
@@ -28,27 +34,23 @@ public class FuncType extends Type {
         return FuncType.getIdent() + "<("
           + String.join(", ", funcType.getInputs().stream().map(t -> t.getDetails().getParameterizedIdent(t)).toList())
           + ") -> ("
-          + (funcType.getOutput() == null ?  "" : funcType.getOutput().getDetails().getParameterizedIdent(funcType.getOutput()))
+          + (funcType.getOutput() == null ? "" : funcType.getOutput().getDetails().getParameterizedIdent(funcType.getOutput()))
           + ")>";
       }
 
       @Override
       public Type fromParameterizedIdent(String parameterizedIdent) {
-        // Check that the ident matches up to the parameterized part
         String[] parts = getStrings(parameterizedIdent);
         String inputsPart = parts[0].trim();
         String outputPart = parts[1].trim();
         List<Type> inputs;
         Type output;
         {
-          // Parse inputs
-          inputsPart = inputsPart.substring(1, inputsPart.length() - 1).trim(); // Remove surrounding parentheses
-          // Handle all inputs, including nested parameterized types
+          inputsPart = inputsPart.substring(1, inputsPart.length() - 1).trim();
           inputs = TypeDetails.fromParameterString(inputsPart);
         }
         {
-          // Parse output
-          outputPart = outputPart.substring(1, outputPart.length() - 1).trim(); // Remove surrounding parentheses
+          outputPart = outputPart.substring(1, outputPart.length() - 1).trim();
           if (outputPart.isEmpty()) {
             output = null;
           } else {
@@ -62,16 +64,32 @@ public class FuncType extends Type {
         if (!parameterizedIdent.startsWith(FuncType.getIdent() + "<") || !parameterizedIdent.endsWith(">")) {
           throw new IllegalArgumentException("Invalid parameterized ident for FuncType: " + parameterizedIdent);
         }
-        // Example: func.func<((int, string, ptr<int>, struct<int, float, ptr<bool>) -> (bool))>
-        // Strip prefix and suffix
         String inner = parameterizedIdent.substring(FuncType.getIdent().length() + 1, parameterizedIdent.length() - 1);
-        // Split inputs and output
         String[] parts = inner.split("->", -1);
         return parts;
       }
     }
     return new FuncTypeModel();
   }
+
+  public static String getIdent() {
+    return "func.func";
+  }
+
+  public static String getNamespace() {
+    return "func";
+  }
+
+  // =========================================================================
+  // Members
+  // =========================================================================
+
+  private final List<Type> inputs;
+  private final Type output;
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   public FuncType() {
     inputs = List.of();
@@ -82,6 +100,10 @@ public class FuncType extends Type {
     this.inputs = Collections.unmodifiableList(inputs);
     this.output = output;
   }
+
+  // =========================================================================
+  // Functions
+  // =========================================================================
 
   public List<Type> getInputs() {
     return inputs;
@@ -94,13 +116,5 @@ public class FuncType extends Type {
   @Override
   public boolean validate(Object value) {
     return value instanceof FuncType;
-  }
-
-  public static String getIdent() {
-    return "func.func";
-  }
-
-  public static String getNamespace() {
-    return "func";
   }
 }

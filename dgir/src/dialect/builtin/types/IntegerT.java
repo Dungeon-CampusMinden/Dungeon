@@ -6,14 +6,22 @@ import core.detail.TypeDetails;
 import dialect.builtin.Builtin;
 
 public class IntegerT extends Type {
-  public static final IntegerT INT1 = new IntegerT(1);
-  public static final IntegerT BOOL = INT1;
-  public static final IntegerT INT8 = new IntegerT(8);
+
+  // =========================================================================
+  // Static Fields
+  // =========================================================================
+
+  public static final IntegerT INT1  = new IntegerT(1);
+  public static final IntegerT BOOL  = INT1;
+  public static final IntegerT INT8  = new IntegerT(8);
   public static final IntegerT INT16 = new IntegerT(16);
   public static final IntegerT INT32 = new IntegerT(32);
   public static final IntegerT INT64 = new IntegerT(64);
 
-  // --------------------- Type Info ------------------------------
+  // =========================================================================
+  // Type Info
+  // =========================================================================
+
   @Override
   public TypeDetails.Impl createImpl() {
     class IntegerTModel extends TypeDetails.Impl {
@@ -31,9 +39,16 @@ public class IntegerT extends Type {
   public static String getNamespace() {
     return "";
   }
-  // -----------------------------------------------------------------
+
+  // =========================================================================
+  // Members
+  // =========================================================================
 
   private final int width;
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   public IntegerT() {
     width = 32;
@@ -41,9 +56,12 @@ public class IntegerT extends Type {
 
   public IntegerT(int width) {
     assert width == 1 || width == 8 || width == 16 || width == 32 || width == 64 : "Invalid integer width: " + width;
-
     this.width = width;
   }
+
+  // =========================================================================
+  // Functions
+  // =========================================================================
 
   public int getWidth() {
     return width;
@@ -55,7 +73,7 @@ public class IntegerT extends Type {
       return false;
 
     switch (number) {
-      case Byte b when getWidth() == 1 || getWidth() == 8-> {
+      case Byte b when getWidth() == 1 || getWidth() == 8 -> {
         return true;
       }
       case Short s when getWidth() == 16 -> {

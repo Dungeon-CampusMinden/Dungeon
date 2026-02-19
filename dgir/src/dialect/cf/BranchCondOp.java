@@ -10,6 +10,11 @@ import dialect.builtin.types.IntegerT;
 import java.util.List;
 
 public class BranchCondOp extends Op implements ITerminator, IControlFlow {
+
+  // =========================================================================
+  // Type Info
+  // =========================================================================
+
   @Override
   public OperationDetails.Impl createDetails() {
     class BranchCondOpDetails extends OperationDetails.Impl {
@@ -36,6 +41,10 @@ public class BranchCondOp extends Op implements ITerminator, IControlFlow {
   public static String getNamespace() {
     return "cf";
   }
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   public BranchCondOp() {
   }

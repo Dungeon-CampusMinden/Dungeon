@@ -7,20 +7,16 @@ import core.ir.Type;
 import dialect.builtin.Builtin;
 
 public class TypeAttribute extends Attribute {
+
+  // =========================================================================
+  // Static Fields
+  // =========================================================================
+
   public static final TypeAttribute INSTANCE = new TypeAttribute();
-  private Type type;
 
-  public TypeAttribute() {
-  }
-
-  @Override
-  public Type getStorage() {
-    return type;
-  }
-
-  public TypeAttribute(Type type) {
-    this.type = type;
-  }
+  // =========================================================================
+  // Type Info
+  // =========================================================================
 
   @Override
   public AttributeDetails.Impl createImpl() {
@@ -32,19 +28,45 @@ public class TypeAttribute extends Attribute {
     return new TypeAttributeModel();
   }
 
-  public Type getType() {
-    return type;
-  }
-
-  public void setType(Type type) {
-    this.type = type;
-  }
-
   public static String getIdent() {
     return "typeAttr";
   }
 
   public static String getNamespace() {
     return "";
+  }
+
+  // =========================================================================
+  // Members
+  // =========================================================================
+
+  private Type type;
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
+  public TypeAttribute() {
+  }
+
+  public TypeAttribute(Type type) {
+    this.type = type;
+  }
+
+  // =========================================================================
+  // Functions
+  // =========================================================================
+
+  @Override
+  public Type getStorage() {
+    return type;
+  }
+
+  public Type getType() {
+    return type;
+  }
+
+  public void setType(Type type) {
+    this.type = type;
   }
 }

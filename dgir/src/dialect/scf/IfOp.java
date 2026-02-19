@@ -9,9 +9,15 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Op which represents an if statement. It has one region for the "then" block and optionally one region for the "else" block.
+ * Op which represents an if statement.
+ * It has one region for the "then" block and optionally one region for the "else" block.
  */
 public class IfOp extends Op implements IControlFlow {
+
+  // =========================================================================
+  // Type Info
+  // =========================================================================
+
   @Override
   public OperationDetails.Impl createDetails() {
     class IfOpDetails extends OperationDetails.Impl {
@@ -31,7 +37,6 @@ public class IfOp extends Op implements IControlFlow {
     return new IfOpDetails();
   }
 
-
   public static String getIdent() {
     return "scf.if";
   }
@@ -40,6 +45,9 @@ public class IfOp extends Op implements IControlFlow {
     return "scf";
   }
 
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   public IfOp() {
   }
@@ -51,6 +59,10 @@ public class IfOp extends Op implements IControlFlow {
   public IfOp(Value condition, boolean withElseBlock) {
     super(Operation.Create(getIdent(), List.of(condition), null, null, withElseBlock ? 2 : 1));
   }
+
+  // =========================================================================
+  // Functions
+  // =========================================================================
 
   public Region getThenRegion() {
     return getRegions().getFirst();

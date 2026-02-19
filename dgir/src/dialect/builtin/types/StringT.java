@@ -6,10 +6,16 @@ import core.detail.TypeDetails;
 import dialect.builtin.Builtin;
 
 public class StringT extends Type {
+
+  // =========================================================================
+  // Static Fields
+  // =========================================================================
+
   public static final StringT INSTANCE = new StringT();
 
-  public StringT() {
-  }
+  // =========================================================================
+  // Type Info
+  // =========================================================================
 
   @Override
   public TypeDetails.Impl createImpl() {
@@ -21,16 +27,27 @@ public class StringT extends Type {
     return new StringTModel();
   }
 
-  @Override
-  public boolean validate(Object value) {
-    return value instanceof String;
-  }
-
   public static String getIdent() {
     return "string";
   }
 
   public static String getNamespace() {
     return "";
+  }
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
+  public StringT() {
+  }
+
+  // =========================================================================
+  // Functions
+  // =========================================================================
+
+  @Override
+  public boolean validate(Object value) {
+    return value instanceof String;
   }
 }

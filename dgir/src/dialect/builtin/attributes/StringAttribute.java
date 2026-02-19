@@ -2,14 +2,21 @@ package dialect.builtin.attributes;
 
 import core.*;
 import core.detail.AttributeDetails;
-import core.ir.Attribute;
 import core.ir.TypedAttribute;
 import dialect.builtin.Builtin;
 import dialect.builtin.types.StringT;
 
 public class StringAttribute extends TypedAttribute {
+
+  // =========================================================================
+  // Static Fields
+  // =========================================================================
+
   public static final StringAttribute INSTANCE = new StringAttribute();
-  private String value;
+
+  // =========================================================================
+  // Type Info
+  // =========================================================================
 
   @Override
   public AttributeDetails.Impl createImpl() {
@@ -21,6 +28,24 @@ public class StringAttribute extends TypedAttribute {
     return new StringAttributeModel();
   }
 
+  public static String getIdent() {
+    return "stringAttr";
+  }
+
+  public static String getNamespace() {
+    return "";
+  }
+
+  // =========================================================================
+  // Members
+  // =========================================================================
+
+  private String value;
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
   public StringAttribute() {
     super(StringT.INSTANCE);
   }
@@ -30,17 +55,13 @@ public class StringAttribute extends TypedAttribute {
     this.value = value;
   }
 
+  // =========================================================================
+  // Functions
+  // =========================================================================
+
   @Override
   public String getStorage() {
     return value;
-  }
-
-  public static String getIdent() {
-    return "stringAttr";
-  }
-
-  public static String getNamespace() {
-    return "";
   }
 
   public String getValue() {

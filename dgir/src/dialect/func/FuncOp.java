@@ -13,6 +13,11 @@ import dialect.func.types.FuncType;
 import java.util.List;
 
 public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, ISingleRegion {
+
+  // =========================================================================
+  // Type Info
+  // =========================================================================
+
   @Override
   public OperationDetails.Impl createDetails() {
     class FuncOpModel extends OperationDetails.Impl {
@@ -40,6 +45,18 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, 
     return new FuncOpModel();
   }
 
+  public static String getIdent() {
+    return "func.func";
+  }
+
+  public static String getNamespace() {
+    return "func";
+  }
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
   public FuncOp() {
   }
 
@@ -57,8 +74,13 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, 
     getTypeAttribute().setType(type);
   }
 
+  // =========================================================================
+  // Functions
+  // =========================================================================
+
   public StringAttribute getFuncNameAttribute() {
-    return getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName()).orElseThrow(() -> new RuntimeException("Symbol attribute not found"));
+    return getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName())
+      .orElseThrow(() -> new RuntimeException("Symbol attribute not found"));
   }
 
   public String getFuncName() {
@@ -66,18 +88,11 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, 
   }
 
   public TypeAttribute getTypeAttribute() {
-    return getOperation().getAttribute(TypeAttribute.class, "type").orElseThrow(() -> new RuntimeException("Type attribute not found"));
+    return getOperation().getAttribute(TypeAttribute.class, "type")
+      .orElseThrow(() -> new RuntimeException("Type attribute not found"));
   }
 
   public FuncType getType() {
     return (FuncType) getTypeAttribute().getStorage();
-  }
-
-  public static String getIdent() {
-    return "func.func";
-  }
-
-  public static String getNamespace() {
-    return "func";
   }
 }

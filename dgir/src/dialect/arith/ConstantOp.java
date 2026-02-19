@@ -11,6 +11,11 @@ import dialect.builtin.types.IntegerT;
 import java.util.List;
 
 public class ConstantOp extends Op implements ISingleOperand {
+
+  // =========================================================================
+  // Type Info
+  // =========================================================================
+
   @Override
   public OperationDetails.Impl createDetails() {
     class ConstantOpModel extends OperationDetails.Impl {
@@ -29,6 +34,18 @@ public class ConstantOp extends Op implements ISingleOperand {
     }
     return new ConstantOpModel();
   }
+
+  public static String getIdent() {
+    return "artih.constant";
+  }
+
+  public static String getNamespace() {
+    return "arith";
+  }
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   public ConstantOp() {
   }
@@ -54,6 +71,10 @@ public class ConstantOp extends Op implements ISingleOperand {
     this(new IntegerAttribute(value ? 1 : 0, IntegerT.BOOL));
   }
 
+  // =========================================================================
+  // Functions
+  // =========================================================================
+
   public TypedAttribute getValueAttribute() {
     return getAttribute(TypedAttribute.class, "value").orElseThrow(() -> new AssertionError("No value attribute found."));
   }
@@ -66,15 +87,7 @@ public class ConstantOp extends Op implements ISingleOperand {
     return getValueAttribute().getStorage();
   }
 
-  public Value getValue(){
+  public Value getValue() {
     return getOutputValue().orElseThrow(() -> new AssertionError("No output value found."));
-  }
-
-  public static String getIdent() {
-    return "artih.constant";
-  }
-
-  public static String getNamespace() {
-    return "arith";
   }
 }

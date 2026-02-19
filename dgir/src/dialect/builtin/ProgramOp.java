@@ -2,19 +2,22 @@ package dialect.builtin;
 
 import core.*;
 import core.detail.OperationDetails;
-import core.detail.RegisteredOperationDetails;
 import core.ir.Block;
 import core.ir.NamedAttribute;
 import core.ir.Op;
 import core.ir.Operation;
 import core.traits.*;
 import dialect.func.FuncOp;
-import dialect.func.ReturnOp;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGlobalContainer, ISingleRegion, ISingleBlock {
+
+  // =========================================================================
+  // Type Info
+  // =========================================================================
+
   @Override
   public OperationDetails.Impl createDetails() {
     class ProgramOpModel extends OperationDetails.Impl {
@@ -56,17 +59,6 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
     return new ProgramOpModel(getIdent(), this.getClass(), Dialect.get(Builtin.class), List.of());
   }
 
-  public ProgramOp() {
-    executeIfRegistered(ProgramOp.class, () -> {
-        setOperation(true, Operation.Create(getIdent(), null, null, null, 1));
-      }
-    );
-  }
-
-  public ProgramOp(Operation operation) {
-    super(operation);
-  }
-
   public static String getIdent() {
     return "program";
   }
@@ -74,6 +66,24 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
   public static String getNamespace() {
     return "";
   }
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
+  public ProgramOp() {
+    executeIfRegistered(ProgramOp.class, () ->
+      setOperation(true, Operation.Create(getIdent(), null, null, null, 1))
+    );
+  }
+
+  public ProgramOp(Operation operation) {
+    super(operation);
+  }
+
+  // =========================================================================
+  // Functions
+  // =========================================================================
 
   public @NotNull FuncOp getMainFunc() {
     Block block = getBlock();

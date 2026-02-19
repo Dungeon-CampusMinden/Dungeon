@@ -13,6 +13,11 @@ import java.util.List;
  * Marks the end of a structured control flow region.
  */
 public class ContinueOp extends Op implements ITerminator, ISpecificParentOp {
+
+  // =========================================================================
+  // Type Info
+  // =========================================================================
+
   @Override
   public OperationDetails.Impl createDetails() {
     class ContinueOpDetails extends OperationDetails.Impl {
@@ -40,6 +45,10 @@ public class ContinueOp extends Op implements ITerminator, ISpecificParentOp {
     return "scf";
   }
 
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
   public ContinueOp() {
     executeIfRegistered(ContinueOp.class, () ->
       setOperation(true, Operation.Create(getIdent(), null, null, null)));
@@ -48,6 +57,10 @@ public class ContinueOp extends Op implements ITerminator, ISpecificParentOp {
   public ContinueOp(Operation operation) {
     super(operation);
   }
+
+  // =========================================================================
+  // Functions
+  // =========================================================================
 
   @Override
   public List<Class<? extends Op>> getValidParentTypes() {

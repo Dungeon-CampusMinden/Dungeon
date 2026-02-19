@@ -12,6 +12,11 @@ import core.traits.ITerminator;
 import java.util.List;
 
 public class BranchOp extends Op implements ITerminator, IControlFlow {
+
+  // =========================================================================
+  // Type Info
+  // =========================================================================
+
   @Override
   public OperationDetails.Impl createDetails() {
     class BranchOpDetails extends OperationDetails.Impl {
@@ -39,6 +44,10 @@ public class BranchOp extends Op implements ITerminator, IControlFlow {
     return "cf";
   }
 
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
   public BranchOp() {
   }
 
@@ -46,11 +55,15 @@ public class BranchOp extends Op implements ITerminator, IControlFlow {
     super(operation);
   }
 
-  public BranchOp(Block target){
+  public BranchOp(Block target) {
     super(Operation.Create(getIdent(), null, List.of(target), null));
   }
 
-  public Block getTarget(){
+  // =========================================================================
+  // Functions
+  // =========================================================================
+
+  public Block getTarget() {
     return getSuccessors().getFirst();
   }
 }

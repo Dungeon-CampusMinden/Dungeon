@@ -9,13 +9,17 @@ import core.ir.Value;
 
 import java.util.List;
 
-
 public class PrintOp extends Op {
+
+  // =========================================================================
+  // Type Info
+  // =========================================================================
+
   @Override
   public OperationDetails.Impl createDetails() {
     class PrintOpModel extends OperationDetails.Impl {
-      PrintOpModel(String name, Class<? extends Op> type, Dialect dialect, List<String> attributeNames) {
-        super(name, type, dialect, attributeNames);
+      PrintOpModel() {
+        super(PrintOp.getIdent(), PrintOp.class, Dialect.get(IO.class), List.of());
       }
 
       @Override
@@ -23,22 +27,31 @@ public class PrintOp extends Op {
         PrintOp printOp = operation.as(PrintOp.class).orElseThrow();
 
         // The print op needs to have at least one operand
-        if (printOp.getOperands().isEmpty())
-        {
+        if (printOp.getOperands().isEmpty()) {
           operation.emitError("Print operation must have at least one operand");
           return false;
         }
-
         return true;
       }
 
       @Override
       public void populateDefaultAttrs(List<NamedAttribute> attributes) {
-
       }
     }
-    return new PrintOpModel(getIdent(), this.getClass(), Dialect.get(IO.class), List.of());
+    return new PrintOpModel();
   }
+
+  public static String getIdent() {
+    return "io.print";
+  }
+
+  public static String getNamespace() {
+    return "io";
+  }
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
 
   public PrintOp() {
   }
@@ -53,13 +66,5 @@ public class PrintOp extends Op {
 
   public PrintOp(Value... operands) {
     this(List.of(operands));
-  }
-
-  public static String getIdent() {
-    return "io.print";
-  }
-
-  public static String getNamespace() {
-    return "io";
   }
 }

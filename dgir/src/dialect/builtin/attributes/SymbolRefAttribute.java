@@ -6,20 +6,16 @@ import core.ir.Attribute;
 import dialect.builtin.Builtin;
 
 public class SymbolRefAttribute extends Attribute {
+
+  // =========================================================================
+  // Static Fields
+  // =========================================================================
+
   public static final SymbolRefAttribute INSTANCE = new SymbolRefAttribute();
-  private String value;
 
-  public SymbolRefAttribute() {
-  }
-
-  @Override
-  public String getStorage() {
-    return value;
-  }
-
-  public SymbolRefAttribute(String value) {
-    this.value = value;
-  }
+  // =========================================================================
+  // Type Info
+  // =========================================================================
 
   @Override
   public AttributeDetails.Impl createImpl() {
@@ -31,19 +27,45 @@ public class SymbolRefAttribute extends Attribute {
     return new SymbolRefAttributeModel();
   }
 
-  public String getValue() {
-    return value;
-  }
-
-  public void setValue(String value) {
-    this.value = value;
-  }
-
   public static String getIdent() {
     return "symbolRefAttr";
   }
 
   public static String getNamespace() {
     return "";
+  }
+
+  // =========================================================================
+  // Members
+  // =========================================================================
+
+  private String value;
+
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
+  public SymbolRefAttribute() {
+  }
+
+  public SymbolRefAttribute(String value) {
+    this.value = value;
+  }
+
+  // =========================================================================
+  // Functions
+  // =========================================================================
+
+  @Override
+  public String getStorage() {
+    return value;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
   }
 }
