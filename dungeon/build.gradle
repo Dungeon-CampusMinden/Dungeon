@@ -82,6 +82,13 @@ tasks.register('debugBasicStarter', JavaExec) {
     debug = true
 }
 
+tasks.register('runLitiengineStarter', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.LitiengineStarter'
+    classpath = sourceSets.main.runtimeClasspath
+    workingDir = projectDir
+}
+
 tasks.register('runMPServer', JavaExec) {
     group 'starter'
     mainClass = 'starter.MultiplayerServer'
