@@ -1,5 +1,34 @@
+import org.gradle.api.attributes.java.TargetJvmVersion
+
 plugins {
     id 'java-library'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+def java25Launcher = javaToolchains.launcherFor {
+    languageVersion = JavaLanguageVersion.of(25)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release.set(25)
+}
+
+[
+    configurations.compileClasspath,
+    configurations.runtimeClasspath,
+    configurations.testCompileClasspath,
+    configurations.testRuntimeClasspath
+].each { cfg ->
+    cfg.attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
+}
+
+tasks.withType(JavaExec).configureEach {
+    javaLauncher = java25Launcher
 }
 
 repositories {
@@ -67,4 +96,5 @@ tasks.register('runMPClient', JavaExec) {
 
 tasks.named('test', Test) {
     useJUnitPlatform()
+    javaLauncher = java25Launcher
 }
