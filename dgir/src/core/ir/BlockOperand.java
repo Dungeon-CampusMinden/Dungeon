@@ -12,7 +12,9 @@ public class BlockOperand extends Operand<Block, BlockOperand> {
   // Constructors
   // =========================================================================
 
-  /** Deserialization constructor — owner is set later by {@link Operation}. */
+  /**
+   * Deserialization constructor — owner is set later by {@link Operation}.
+   */
   @JsonCreator
   public BlockOperand(@JsonProperty("value") Block block) {
     super(null, block);

@@ -24,7 +24,9 @@ public abstract class Type {
   // Type Info
   // =========================================================================
 
-  /** Create and return the impl object that describes this type kind. */
+  /**
+   * Create and return the impl object that describes this type kind.
+   */
   public abstract TypeDetails.Impl createImpl();
 
   // =========================================================================
@@ -53,13 +55,17 @@ public abstract class Type {
     this.details = details;
   }
 
-  /** Return this type's parameterized ident string (used as the JSON serialized form). */
+  /**
+   * Return this type's parameterized ident string (used as the JSON serialized form).
+   */
   @JsonValue
   public String getParameterizedIdent() {
     return details.getParameterizedIdent(this);
   }
 
-  /** Validate whether {@code value} is a legal storage value for this type. */
+  /**
+   * Validate whether {@code value} is a legal storage value for this type.
+   */
   public abstract boolean validate(Object value);
 
   // =========================================================================

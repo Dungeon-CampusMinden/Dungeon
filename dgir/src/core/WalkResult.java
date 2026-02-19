@@ -1,13 +1,26 @@
 package core;
 
 /**
- * Result values for AST walking methods.
+ * Result values returned by AST/IR walking callbacks to control traversal flow.
  */
 public enum WalkResult {
-  /** Continue walking as normal */
+
+  // =========================================================================
+  // Values
+  // =========================================================================
+
+  /**
+   * Continue walking normally.
+   */
   CONTINUE,
-  /** Skip walking the children of the current node */
+
+  /**
+   * Skip the children of the current node and continue with its siblings.
+   */
   SKIP_CHILDREN,
-  /** Abort the entire walk immediately */
+
+  /**
+   * Abort the entire walk immediately.
+   */
   ABORT
 }

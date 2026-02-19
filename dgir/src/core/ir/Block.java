@@ -44,7 +44,9 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   // Members
   // =========================================================================
 
-  /** Operations in this block, executed in order. The last must be a terminator. */
+  /**
+   * Operations in this block, executed in order. The last must be a terminator.
+   */
   private final @NotNull List<Operation> operations = new ArrayList<>();
 
   @JsonIgnore

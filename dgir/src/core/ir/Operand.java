@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * A reference to a value used as an operand to an {@link Operation}.
  * Manages its own entry in the referenced value's use-list.
  *
- * @param <ValueT>  The type of value being referenced (e.g. {@link Value} or {@link Block}).
+ * @param <ValueT>   The type of value being referenced (e.g. {@link Value} or {@link Block}).
  * @param <DerivedT> The concrete operand subclass (for self-referential use-list typing).
  */
 public abstract class Operand<
@@ -22,11 +22,15 @@ public abstract class Operand<
   // Members
   // =========================================================================
 
-  /** The value referenced by this operand. */
+  /**
+   * The value referenced by this operand.
+   */
   @JsonIdentityReference(alwaysAsId = true)
   private ValueT value;
 
-  /** The operation that owns this operand. */
+  /**
+   * The operation that owns this operand.
+   */
   @JsonIgnore
   private final Operation owner;
 
@@ -98,7 +102,9 @@ public abstract class Operand<
   // Use-list Management
   // =========================================================================
 
-  /** Insert this operand into the use-list of the currently referenced value. */
+  /**
+   * Insert this operand into the use-list of the currently referenced value.
+   */
   private void insertIntoCurrentUseList() {
     if (value != null) {
       //noinspection unchecked
@@ -106,7 +112,9 @@ public abstract class Operand<
     }
   }
 
-  /** Remove this operand from the use-list of the currently referenced value. */
+  /**
+   * Remove this operand from the use-list of the currently referenced value.
+   */
   private void removeFromCurrentUseList() {
     if (value != null)
       //noinspection unchecked

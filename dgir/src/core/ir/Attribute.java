@@ -30,7 +30,9 @@ public abstract class Attribute implements Serializable {
   // Attribute Info
   // =========================================================================
 
-  /** Create and return the impl object that describes this attribute kind. */
+  /**
+   * Create and return the impl object that describes this attribute kind.
+   */
   public abstract AttributeDetails.Impl createImpl();
 
   // =========================================================================
@@ -67,7 +69,9 @@ public abstract class Attribute implements Serializable {
     return details.getIdent();
   }
 
-  /** Return the raw storage value of this attribute (used for serialization and display). */
+  /**
+   * Return the raw storage value of this attribute (used for serialization and display).
+   */
   @JsonIgnore
   public abstract Object getStorage();
 }

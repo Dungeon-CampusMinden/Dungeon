@@ -8,46 +8,79 @@ import core.ir.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Global registry for all dialects, operations, types, and attributes known to the DGIR.
+ * <p>
+ * Each category has two parallel maps: an <em>unregistered</em> cache (populated on first
+ * reference, even before a dialect is initialised) and a <em>registered</em> map (populated
+ * by the dialect's {@code init()} call). Look-ups always prefer the registered entry.
+ */
 public class DGIRContext {
 
-  // Mapping from op-ident and op class to its op details. In case the op aren't registered the class will be Op.class
-  // and the op-ident will be the full class name. These are not reliable in any way.
+  // =========================================================================
+  // Operations
+  // =========================================================================
+
+  /** Unregistered cache: class → impl (ident and class are unreliable until registered). */
   public static final Map<Class<? extends Op>, OperationDetails.Impl> operations = new HashMap<>();
+  /** Unregistered cache: ident → impl. */
   public static final Map<String, OperationDetails.Impl> operationsByIdent = new HashMap<>();
 
-  // All the registered operations.
+  /** Registered operations by class. */
   public static final Map<Class<? extends Op>, RegisteredOperationDetails> registeredOperations = new HashMap<>();
+  /** Registered operations by ident. */
   public static final Map<String, RegisteredOperationDetails> registeredOperationsByIdent = new HashMap<>();
 
-  // Mapping from attribute-ident and attribute class to its attribute details. In case the attributes aren't registered the class will be Attribute.class
-  // and the attribute-ident will be the full class name. These are not reliable in any way.
+  // =========================================================================
+  // Attributes
+  // =========================================================================
+
+  /** Unregistered cache: class → impl. */
   public static final Map<Class<? extends Attribute>, AttributeDetails.Impl> attributes = new HashMap<>();
+  /** Unregistered cache: ident → impl. */
   public static final Map<String, AttributeDetails.Impl> attributesByIdent = new HashMap<>();
 
-  // All the registered attributes.
+  /** Registered attributes by class. */
   public static final Map<Class<? extends Attribute>, RegisteredAttributeDetails> registeredAttributes = new HashMap<>();
+  /** Registered attributes by ident. */
   public static final Map<String, RegisteredAttributeDetails> registeredAttributesByIdent = new HashMap<>();
 
-  // Mapping from type-ident and type class to its type details. In case the types aren't registered the class will be Type.class
-  // and the type-ident will be the full class name. These are not reliable in any way.
+  // =========================================================================
+  // Types
+  // =========================================================================
+
+  /** Unregistered cache: class → impl. */
   public static final Map<Class<? extends Type>, TypeDetails.Impl> types = new HashMap<>();
+  /** Unregistered cache: ident → impl. */
   public static final Map<String, TypeDetails.Impl> typesByIdent = new HashMap<>();
 
-  // All the registered types.
+  /** Registered types by class. */
   public static final Map<Class<? extends Type>, RegisteredTypeDetails> registeredTypes = new HashMap<>();
+  /** Registered types by ident. */
   public static final Map<String, RegisteredTypeDetails> registeredTypesByIdent = new HashMap<>();
 
-  // All the registered dialects.
+  // =========================================================================
+  // Dialects
+  // =========================================================================
+
+  /** All registered dialects by class. */
   public static final Map<Class<? extends Dialect>, Dialect> registeredDialects = new HashMap<>();
+  /** All registered dialects by namespace string. */
   public static final Map<String, Dialect> registeredDialectsByName = new HashMap<>();
 
+  // =========================================================================
+  // Static Helpers
+  // =========================================================================
+
   /**
-   * Tries to get the dialect referenced by the given typename.
-   * If there is a '.' in the typename, the part before the last '.' is treated as the dialect namespace.
-   * If that namespace can't be found, the builtin dialect "" is returned.
+   * Resolve the dialect that owns the given type or operation name.
+   * <p>
+   * If the name contains a {@code '.'}, the part before the first dot is treated as the
+   * dialect namespace. If no matching dialect is found, the builtin dialect ({@code ""})
+   * is returned.
    *
-   * @param name The name of the type
-   * @return The dialect instance
+   * @param name The ident string to resolve (e.g. {@code "arith.constant"} or {@code "int32"}).
+   * @return The owning {@link Dialect}, or the builtin dialect as a fallback.
    */
   public static Dialect getReferencedDialect(String name) {
     var i = name.indexOf('.');

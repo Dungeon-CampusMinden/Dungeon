@@ -10,20 +10,53 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
+/**
+ * Validates the structural and semantic correctness of an {@link Operation} and,
+ * optionally, all operations nested within it.
+ * <p>
+ * Verification is performed in a single iterative traversal using a work-list. Each
+ * work item (operation or block) is visited twice — once on entry and once on exit —
+ * mirroring a depth-first pre/post-order walk without recursion.
+ * <p>
+ * {@link IIsolatedFromAbove} operations are skipped during the main traversal and
+ * re-verified in parallel on exit from their enclosing operation.
+ */
 public class OperationVerifier {
+
+  // =========================================================================
+  // Members
+  // =========================================================================
+
   private final boolean recursive;
 
+  // =========================================================================
+  // Constructors
+  // =========================================================================
+
+  /**
+   * @param recursive {@code true} to verify all nested operations; {@code false} to verify
+   *                  only the top-level operation and its immediate structure.
+   */
   public OperationVerifier(boolean recursive) {
     this.recursive = recursive;
   }
 
-  public boolean verify(Operation operation) {
-    if (!verifyOperation(operation)) {
-      return false;
-    }
+  // =========================================================================
+  // Public API
+  // =========================================================================
 
-    // At this point structurally the operation is valid and we can now check that all value uses are valid and
-    // reaching definitions are correct.
+  /**
+   * Verify {@code operation} and (if recursive) all operations nested within it.
+   * After structural verification passes, reaching-definition analysis is run
+   * over every region to ensure all value uses have a visible definition.
+   *
+   * @param operation The operation to verify.
+   * @return {@code true} if verification succeeds.
+   */
+  public boolean verify(Operation operation) {
+    if (!verifyOperation(operation))
+      return false;
+
     if (!operation.getRegions().isEmpty()) {
       List<ReachingDefinitions.MissingDefinition> missingDefinitions = ReachingDefinitions.validate(operation);
       if (!missingDefinitions.isEmpty()) {
@@ -38,14 +71,20 @@ public class OperationVerifier {
     return true;
   }
 
+  // =========================================================================
+  // Traversal
+  // =========================================================================
 
   /**
-   * Verify the properties stopping region recursion at any isolated from above operations
+   * Iterative pre/post-order traversal over all operations and blocks reachable from
+   * {@code operation}, stopping region descent at {@link IIsolatedFromAbove} operations.
    *
-   * @return true if the operation is valid, false otherwise.
+   * @param operation The root operation.
+   * @return {@code true} if every visited node passes verification.
    */
   private boolean verifyOperation(Operation operation) {
-    // Union type to represent work items
+
+    // Small union type to track whether the current item is a Block or an Operation
     class WorkItem {
       final Operation op;
       final Block block;
@@ -71,38 +110,28 @@ public class OperationVerifier {
 
     while (!workList.isEmpty()) {
       WorkItem top = workList.peekLast();
-
       final boolean isExit = top.visited;
       top.visited = true;
 
-      // 2nd visit of this work item
+      // ---- Second visit (exit) ----
       if (isExit) {
-        // Lambda to visit either a block or an operation on exit
-        Function<WorkItem, Boolean> visitOnExit = (WorkItem item) -> {
-          if (item.op != null)
-            return verifyOnExit(item.op);
-          return verifyOnExit(item.block);
-        };
+        Function<WorkItem, Boolean> visitOnExit = item ->
+          item.op != null ? verifyOnExit(item.op) : verifyOnExit(item.block);
         if (!visitOnExit.apply(top))
           return false;
         workList.removeLast();
         continue;
       }
 
-      // 1st visit of this work item
-      // Lambda to visit either a block or an operation on entry
-      Function<WorkItem, Boolean> visitOnEntry = (WorkItem item) -> {
-        if (item.op != null)
-          return verifyOnEntry(item.op);
-        return verifyOnEntry(item.block);
-      };
-
+      // ---- First visit (entry) ----
+      Function<WorkItem, Boolean> visitOnEntry = item ->
+        item.op != null ? verifyOnEntry(item.op) : verifyOnEntry(item.block);
       if (!visitOnEntry.apply(top))
         return false;
 
-      // If we are in a block add all operations to the work list
+      // Enqueue children
       if (top.block != null) {
-        // Skip isolate from above operations
+        // For blocks: enqueue ops that are not isolated-from-above (those are handled on exit)
         for (Operation op : top.block.getOperations()) {
           if (op.getRegions().isEmpty() || !op.hasTrait(IIsolatedFromAbove.class))
             workList.add(new WorkItem(op));
@@ -110,9 +139,10 @@ public class OperationVerifier {
         continue;
       }
 
-      Operation currentOp = top.op;
+      // For operations: enqueue all blocks of all regions in reverse order so they are
+      // processed in forward order when popped from the stack
       if (recursive)
-        for (Region region : currentOp.getRegions().reversed())
+        for (Region region : top.op.getRegions().reversed())
           for (Block block : region.getBlocks().reversed())
             workList.add(new WorkItem(block));
     }
@@ -120,17 +150,13 @@ public class OperationVerifier {
     return true;
   }
 
-  private boolean isValidWithoutTerminator(Block block) {
-    return block.getParent()
-      .map(parentRegion ->
-        parentRegion.getBlocks().size() == 1
-          && parentRegion.getParent().hasTrait(INoTerminator.class))
-      .orElse(false);
-  }
+  // =========================================================================
+  // Entry / Exit Handlers
+  // =========================================================================
 
   private boolean verifyOnEntry(Operation operation) {
-    // Check that operands are non null and structurally ok
-    for (ValueOperand operand : operation.getOperands())
+    // All operands must be non-null and have a non-null value
+    for (ValueOperand operand : operation.getOperands()) {
       if (operand == null) {
         operation.emitError("Operation has null operand");
         return false;
@@ -138,45 +164,46 @@ public class OperationVerifier {
         operation.emitError("Operation has operand with null value");
         return false;
       }
+    }
 
-    // Verify that all of the attributes of this operation are valid
-    for (NamedAttribute attr : operation.getAttributes().values())
+    // All attributes must be set and type-valid
+    for (NamedAttribute attr : operation.getAttributes().values()) {
       if (attr.getAttribute().isEmpty()) {
         operation.emitError("Operation has attribute with null value: " + attr.getName());
         return false;
       }
-      // Verify that the attribute value is valid and of the correct type in case it is typed
-      else if (attr.getAttribute().get() instanceof TypedAttribute typedAttribute
+      if (attr.getAttribute().get() instanceof TypedAttribute typedAttribute
         && !typedAttribute.getType().validate(typedAttribute.getStorage())) {
-        operation.emitError("Operation attribute '" + attr.getName() + "' with invalid value for storage type " + typedAttribute.getType().getParameterizedIdent() + ": " + typedAttribute.getStorage());
+        operation.emitError("Operation attribute '" + attr.getName()
+          + "' with invalid value for storage type "
+          + typedAttribute.getType().getParameterizedIdent() + ": " + typedAttribute.getStorage());
         return false;
       }
+    }
 
+    // Operation must be registered
     Optional<RegisteredOperationDetails> details = operation.getDetails().asRegisteredDetails();
     if (details.isEmpty()) {
       operation.emitError("Operation is not registered");
       return false;
     }
 
-    // Verify that all the operation traits are valid
+    // Verify traits first, then the operation's own verify()
     if (!details.get().verifyTraits(operation))
       return false;
-
     if (!details.get().verify(operation)) {
-      operation.emitError("Operation failed verification through registered details of operation " + operation.getDetails().getIdent());
+      operation.emitError("Operation failed verification through registered details of operation "
+        + operation.getDetails().getIdent());
       return false;
     }
 
-    // If this operation has no regions, we are done with verification at this point and can skip the region checks
+    // Region structural checks
     if (operation.getRegions().isEmpty())
       return true;
 
-    // Verify that child regions are ok
     for (Region region : operation.getRegions()) {
       if (region.getBlocks().isEmpty())
         continue;
-
-      // Verify that the first block has no predecessors
       if (!region.getBlocks().getFirst().getPredecessors().isEmpty()) {
         operation.emitError("Entry block of region has predecessors.");
         return false;
@@ -187,46 +214,41 @@ public class OperationVerifier {
   }
 
   private boolean verifyOnExit(Operation op) {
-    List<Operation> operationsWithIsolatedRegions = new ArrayList<>();
+    // Collect and re-verify all isolated-from-above child operations in parallel
+    List<Operation> isolatedOps = new ArrayList<>();
     if (recursive)
       for (Region region : op.getRegions())
         for (Block block : region.getBlocks())
           for (Operation o : block.getOperations())
-            if (!o.getRegions().isEmpty() &&
-              o.hasTrait(IIsolatedFromAbove.class))
-              operationsWithIsolatedRegions.add(o);
+            if (!o.getRegions().isEmpty() && o.hasTrait(IIsolatedFromAbove.class))
+              isolatedOps.add(o);
 
-    AtomicBoolean opFailedVerify = new AtomicBoolean(false);
-    operationsWithIsolatedRegions.parallelStream().forEach(o -> {
+    AtomicBoolean failed = new AtomicBoolean(false);
+    isolatedOps.parallelStream().forEach(o -> {
       if (!verify(o))
-        opFailedVerify.set(true);
+        failed.set(true);
     });
-    // Registered verification already performed on entry
-    return !opFailedVerify.get();
+    return !failed.get();
   }
 
   private boolean verifyOnEntry(Block block) {
-    // Verify that this block has a terminator
     if (block.getOperations().isEmpty()) {
       if (isValidWithoutTerminator(block))
         return true;
-
       Optional<Operation> parentOp = block.getParentOperation();
       if (parentOp.isPresent())
         parentOp.get().emitError("Block must end in a terminator operation");
       else
         System.err.println("Error: Block must end in a terminator operation");
-
       return false;
     }
 
-    boolean allowNoTerminator = isValidWithoutTerminator(block);
-    if (!allowNoTerminator && !block.hasTerminator()) {
+    if (!isValidWithoutTerminator(block) && !block.hasTerminator()) {
       block.getOperations().getLast().emitError("Block does not have a terminator");
       return false;
     }
 
-    // Check each operation and make sure there are no branches out of the middle of this block
+    // No operation other than the last may branch
     for (Operation op : block.getOperations()) {
       if (op != block.getOperations().getLast() && !op.getSuccessors().isEmpty()) {
         block.getOperations().getLast().emitError("Branching out of block must be the last operation in the block");
@@ -238,22 +260,39 @@ public class OperationVerifier {
   }
 
   private boolean verifyOnExit(Block block) {
-    // Verify that this block is not branching to a block of a different region
-    for (Block successor : block.getSuccessors())
+    // All successors must belong to the same region as this block
+    for (Block successor : block.getSuccessors()) {
       if (!successor.getParent().equals(block.getParent())) {
         block.getOperations().getLast().emitError("Branching to block of a different region");
         return false;
       }
+    }
 
     if (isValidWithoutTerminator(block))
       return true;
 
-    // Verify that this block has a terminator
     if (!block.hasTerminator()) {
       block.getOperations().getLast().emitError("Block does not have a terminator");
       return false;
     }
 
     return true;
+  }
+
+  // =========================================================================
+  // Private Helpers
+  // =========================================================================
+
+  /**
+   * Return {@code true} if {@code block} is allowed to have no terminator.
+   * This is the case when the block is the sole block in a region whose parent
+   * operation carries the {@link INoTerminator} trait.
+   */
+  private boolean isValidWithoutTerminator(Block block) {
+    return block.getParent()
+      .map(parentRegion ->
+        parentRegion.getBlocks().size() == 1
+          && parentRegion.getParent().hasTrait(INoTerminator.class))
+      .orElse(false);
   }
 }

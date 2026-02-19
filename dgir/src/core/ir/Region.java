@@ -75,7 +75,9 @@ public final class Region {
       addBlock(block);
   }
 
-  /** Deserialization factory — body values and blocks are wired up by Jackson. */
+  /**
+   * Deserialization factory — body values and blocks are wired up by Jackson.
+   */
   @JsonCreator
   public static Region createRegion(@JsonProperty(value = "bodyValues") List<Value> bodyValues,
                                     @JsonProperty(value = "blocks") List<Block> blocks) {
@@ -222,7 +224,7 @@ public final class Region {
     }
 
     for (int i = 0; i < this.bodyValues.size(); i++) {
-      Value thisBodyValue  = this.bodyValues.get(i);
+      Value thisBodyValue = this.bodyValues.get(i);
       Value otherBodyValue = other.bodyValues.get(i);
       if (thisBodyValue != otherBodyValue)
         otherBodyValue.replaceAllUsesWith(thisBodyValue);
