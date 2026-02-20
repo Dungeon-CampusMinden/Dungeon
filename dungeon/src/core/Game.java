@@ -1,8 +1,7 @@
 package core;
 
 import core.platform.Platform;
-import com.badlogic.gdx.ai.pfa.GraphPath;
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import core.ui.StageHandle;
 import contrib.utils.EntityUtils;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
@@ -299,7 +298,7 @@ public final class Game {
    *
    * @return The optional stage.
    */
-  public static Optional<Stage> stage() {
+  public static Optional<StageHandle> stage() {
     return GameLoop.stage();
   }
 
@@ -788,9 +787,18 @@ public final class Game {
    * @param end End tile
    * @return Generated path or Optional.empty() if no current level
    */
-  public static Optional<GraphPath<Tile>> findPath(final Tile start, final Tile end) {
-    return currentLevel()
-        .map(level -> level.findPath(start, end)); // map liefert Optional<GraphPath<Tile>>
+  public static Optional<List<Tile>> findPath(final Tile start, final Tile end) {
+    return currentLevel().flatMap(level -> {
+      var gdxPath = level.findPath(start, end);
+      if (gdxPath == null) {
+        return Optional.empty();
+      }
+      List<Tile> result = new ArrayList<>(gdxPath.getCount());
+      for (int i = 0; i < gdxPath.getCount(); i++) {
+        result.add(gdxPath.get(i));
+      }
+      return Optional.of(Collections.unmodifiableList(result));
+    });
   }
 
   /**

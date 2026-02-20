@@ -18,6 +18,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;
+import core.ui.StageHandle;
 import core.utils.Point;
 import core.utils.logging.DungeonLogger;
 import java.io.Serial;
@@ -133,7 +134,14 @@ public final class AttributeBarUtil {
     Vector3 worldCoords = new Vector3(pos.x(), pos.y(), 0);
     Vector3 screenCoords = CameraSystem.camera().project(worldCoords);
 
-    Stage stage = Game.stage().orElseThrow(() -> new RuntimeException("No stage available"));
+    StageHandle stageHandle =
+      Game.stage().orElseThrow(() -> new RuntimeException("No stage available"));
+
+    Stage stage =
+      stageHandle
+        .unwrap(Stage.class)
+        .orElseThrow(() -> new RuntimeException("No libGDX stage available"));
+
     screenCoords.x = screenCoords.x / stage.getViewport().getScreenWidth() * stage.getWidth();
     screenCoords.y = screenCoords.y / stage.getViewport().getScreenHeight() * stage.getHeight();
 

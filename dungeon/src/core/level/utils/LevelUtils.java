@@ -50,7 +50,9 @@ public final class LevelUtils {
     Tile toTile = Game.tileAt(to).orElse(null);
     if (fromTile == null || !fromTile.isAccessible()) return new DefaultGraphPath<>();
     if (toTile == null || !toTile.isAccessible()) return new DefaultGraphPath<>();
-    return Game.findPath(fromTile, toTile).orElse(new DefaultGraphPath<>());
+    return Game.currentLevel()
+      .map(level -> level.findPath(fromTile, toTile))
+      .orElseGet(DefaultGraphPath::new);
   }
 
   /**

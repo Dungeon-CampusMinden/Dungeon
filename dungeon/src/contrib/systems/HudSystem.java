@@ -103,7 +103,11 @@ public final class HudSystem extends System {
 
     Game.stage()
         .ifPresentOrElse(
-            stage -> {
+        stageHandle -> {
+          Stage stage =
+            stageHandle
+                .unwrap(Stage.class)
+                .orElseThrow(() -> new IllegalStateException("Stage is not a libGDX Stage"));
               addDialogToStage(dialog, stage);
               addMapping(entity, dialog, component);
               DialogTracker.instance().registerDialog(component);

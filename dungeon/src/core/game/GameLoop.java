@@ -2,6 +2,8 @@ package core.game;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
+import core.ui.StageHandle;
+import core.ui.gdx.GdxStageHandle;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
@@ -165,7 +167,11 @@ public final class GameLoop extends ScreenAdapter {
    *
    * @return The configured stage, can be empty.
    */
-  public static Optional<Stage> stage() {
+  public static Optional<StageHandle> stage() {
+    return stageGdx().map(GdxStageHandle::new);
+  }
+
+  private static Optional<Stage> stageGdx() {
     return Optional.ofNullable(stage);
   }
 
@@ -232,7 +238,7 @@ public final class GameLoop extends ScreenAdapter {
     InputManager.update();
     CameraSystem.camera().update();
     // stage logic
-    stage().ifPresent(s -> updateStage(s, delta));
+    stageGdx().ifPresent(s -> updateStage(s, delta));
   }
 
   /**
@@ -497,11 +503,11 @@ public final class GameLoop extends ScreenAdapter {
   @Override
   public void resize(int width, int height) {
     super.resize(width, height);
-    stage()
+    stageGdx()
         .ifPresent(
-            x -> {
-              x.getViewport().setWorldSize(width, height);
-              x.getViewport().update(width, height, true);
+            s -> {
+              s.getViewport().setWorldSize(width, height);
+              s.getViewport().update(width, height, true);
             });
   }
 
