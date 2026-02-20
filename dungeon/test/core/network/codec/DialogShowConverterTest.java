@@ -9,11 +9,13 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
 import contrib.utils.components.showImage.TransitionSpeed;
-import core.network.proto.s2c.DialogShowMessage;
+import core.network.codec.converters.s2c.DialogShowConverter;
+import core.network.messages.s2c.DialogShowMessage;
 import org.junit.jupiter.api.Test;
 
-/** Tests for {@link DialogContextProtoConverter}. */
-public class DialogContextProtoConverterTest {
+/** Tests for {@link DialogShowConverter}. */
+public class DialogShowConverterTest {
+  private static final DialogShowConverter CONVERTER = new DialogShowConverter();
 
   /** Verifies dialog context conversion roundtrip. */
   @Test
@@ -31,7 +33,8 @@ public class DialogContextProtoConverterTest {
             .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.SLOW)
             .build();
 
-    DialogShowMessage proto = DialogContextProtoConverter.toProto(context, true);
+    DialogShowMessage message = new DialogShowMessage(context, true);
+    core.network.proto.s2c.DialogShowMessage proto = CONVERTER.toProto(message);
 
     assertEquals("dialog-42", proto.getDialogId());
     assertEquals("TEXT", proto.getDialogType());
@@ -49,7 +52,8 @@ public class DialogContextProtoConverterTest {
                 attr ->
                     DialogContextKeys.ENTITY.equals(attr.getKey()) && attr.getIntValue() == 20));
 
-    DialogContext roundTrip = DialogContextProtoConverter.fromProto(proto);
+    DialogShowMessage roundTripMessage = CONVERTER.fromProto(proto);
+    DialogContext roundTrip = roundTripMessage.context();
 
     assertEquals("dialog-42", roundTrip.dialogId());
     assertEquals(context.dialogType(), roundTrip.dialogType());

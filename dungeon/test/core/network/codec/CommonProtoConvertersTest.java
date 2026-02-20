@@ -10,8 +10,8 @@ import core.utils.Point;
 import core.utils.Vector2;
 import org.junit.jupiter.api.Test;
 
-/** Tests for {@link ProtoConverter}. */
-public class ProtoConverterTest {
+/** Tests for {@link CommonProtoConverters}. */
+public class CommonProtoConvertersTest {
 
   private static final float DELTA = 1e-6f;
 
@@ -19,8 +19,8 @@ public class ProtoConverterTest {
   @Test
   public void testPointRoundTrip() {
     Point point = new Point(1.25f, -2.5f);
-    core.network.proto.common.Point protoPoint = ProtoConverter.toProto(point);
-    Point roundTrip = ProtoConverter.fromProto(protoPoint);
+    core.network.proto.common.Point protoPoint = CommonProtoConverters.toProto(point);
+    Point roundTrip = CommonProtoConverters.fromProto(protoPoint);
 
     assertEquals(point.x(), protoPoint.getX(), DELTA);
     assertEquals(point.y(), protoPoint.getY(), DELTA);
@@ -32,8 +32,8 @@ public class ProtoConverterTest {
   @Test
   public void testVector2RoundTrip() {
     Vector2 vector = Vector2.of(3.5f, -4.75f);
-    core.network.proto.common.Vector2 protoVector = ProtoConverter.toProto(vector);
-    Vector2 roundTrip = ProtoConverter.fromProto(protoVector);
+    core.network.proto.common.Vector2 protoVector = CommonProtoConverters.toProto(vector);
+    Vector2 roundTrip = CommonProtoConverters.fromProto(protoVector);
 
     assertEquals(vector.x(), protoVector.getX(), DELTA);
     assertEquals(vector.y(), protoVector.getY(), DELTA);
@@ -45,40 +45,46 @@ public class ProtoConverterTest {
   @Test
   public void testDirectionToProto() {
     assertEquals(
-        core.network.proto.common.Direction.DIRECTION_UP, ProtoConverter.toProto(Direction.UP));
+        core.network.proto.common.Direction.DIRECTION_UP,
+        CommonProtoConverters.toProto(Direction.UP));
     assertEquals(
-        core.network.proto.common.Direction.DIRECTION_DOWN, ProtoConverter.toProto(Direction.DOWN));
+        core.network.proto.common.Direction.DIRECTION_DOWN,
+        CommonProtoConverters.toProto(Direction.DOWN));
     assertEquals(
-        core.network.proto.common.Direction.DIRECTION_LEFT, ProtoConverter.toProto(Direction.LEFT));
+        core.network.proto.common.Direction.DIRECTION_LEFT,
+        CommonProtoConverters.toProto(Direction.LEFT));
     assertEquals(
         core.network.proto.common.Direction.DIRECTION_RIGHT,
-        ProtoConverter.toProto(Direction.RIGHT));
+        CommonProtoConverters.toProto(Direction.RIGHT));
     assertEquals(
-        core.network.proto.common.Direction.DIRECTION_NONE, ProtoConverter.toProto(Direction.NONE));
+        core.network.proto.common.Direction.DIRECTION_NONE,
+        CommonProtoConverters.toProto(Direction.NONE));
   }
 
   /** Verifies direction conversion from protobuf. */
   @Test
   public void testDirectionFromProto() {
     assertEquals(
-        Direction.UP, ProtoConverter.fromProto(core.network.proto.common.Direction.DIRECTION_UP));
+        Direction.UP,
+        CommonProtoConverters.fromProto(core.network.proto.common.Direction.DIRECTION_UP));
     assertEquals(
         Direction.DOWN,
-        ProtoConverter.fromProto(core.network.proto.common.Direction.DIRECTION_DOWN));
+        CommonProtoConverters.fromProto(core.network.proto.common.Direction.DIRECTION_DOWN));
     assertEquals(
         Direction.LEFT,
-        ProtoConverter.fromProto(core.network.proto.common.Direction.DIRECTION_LEFT));
+        CommonProtoConverters.fromProto(core.network.proto.common.Direction.DIRECTION_LEFT));
     assertEquals(
         Direction.RIGHT,
-        ProtoConverter.fromProto(core.network.proto.common.Direction.DIRECTION_RIGHT));
+        CommonProtoConverters.fromProto(core.network.proto.common.Direction.DIRECTION_RIGHT));
     assertEquals(
         Direction.NONE,
-        ProtoConverter.fromProto(core.network.proto.common.Direction.DIRECTION_NONE));
+        CommonProtoConverters.fromProto(core.network.proto.common.Direction.DIRECTION_NONE));
     assertEquals(
         Direction.NONE,
-        ProtoConverter.fromProto(core.network.proto.common.Direction.DIRECTION_UNSPECIFIED));
+        CommonProtoConverters.fromProto(core.network.proto.common.Direction.DIRECTION_UNSPECIFIED));
     assertEquals(
-        Direction.NONE, ProtoConverter.fromProto(core.network.proto.common.Direction.UNRECOGNIZED));
+        Direction.NONE,
+        CommonProtoConverters.fromProto(core.network.proto.common.Direction.UNRECOGNIZED));
   }
 
   /** Verifies position component conversion roundtrip. */
@@ -88,7 +94,7 @@ public class ProtoConverterTest {
     component.rotation(30.0f);
     component.scale(Vector2.of(1.25f, 0.75f));
 
-    core.network.proto.common.PositionInfo proto = ProtoConverter.toProto(component);
+    core.network.proto.common.PositionInfo proto = CommonProtoConverters.toProto(component);
     assertEquals(1.5f, proto.getPosition().getX(), DELTA);
     assertEquals(-2.0f, proto.getPosition().getY(), DELTA);
     assertEquals(core.network.proto.common.Direction.DIRECTION_RIGHT, proto.getViewDirection());
@@ -96,7 +102,7 @@ public class ProtoConverterTest {
     assertEquals(1.25f, proto.getScale().getX(), DELTA);
     assertEquals(0.75f, proto.getScale().getY(), DELTA);
 
-    PositionComponent roundTrip = ProtoConverter.fromProto(proto);
+    PositionComponent roundTrip = CommonProtoConverters.fromProto(proto);
     assertEquals(1.5f, roundTrip.position().x(), DELTA);
     assertEquals(-2.0f, roundTrip.position().y(), DELTA);
     assertEquals(Direction.RIGHT, roundTrip.viewDirection());
@@ -120,8 +126,8 @@ public class ProtoConverterTest {
             .targets(1, 2, 3)
             .build();
 
-    core.network.proto.common.SoundSpec protoSpec = ProtoConverter.toProto(spec);
-    SoundSpec roundTrip = ProtoConverter.fromProto(protoSpec);
+    core.network.proto.common.SoundSpec protoSpec = CommonProtoConverters.toProto(spec);
+    SoundSpec roundTrip = CommonProtoConverters.fromProto(protoSpec);
 
     assertEquals(spec.instanceId(), protoSpec.getInstanceId());
     assertEquals(spec.soundName(), protoSpec.getSoundName());

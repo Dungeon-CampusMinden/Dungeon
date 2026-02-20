@@ -2,7 +2,6 @@ package core.components;
 
 import core.Component;
 import core.sound.SoundSpec;
-
 import java.util.*;
 
 /**
@@ -59,7 +58,8 @@ public class SoundComponent implements Component {
   /**
    * Appends a sound specification to this component.
    *
-   * <p>If a sound with the same instance ID already exists, this method will overwrite it by adding the new spec.
+   * <p>If a sound with the same instance ID already exists, this method will overwrite it by adding
+   * the new spec.
    *
    * @param spec the sound specification to add, must not be null
    * @throws NullPointerException if spec is null

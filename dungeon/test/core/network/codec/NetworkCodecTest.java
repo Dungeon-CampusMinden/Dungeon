@@ -6,6 +6,7 @@ import com.google.protobuf.Message;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.*;
 import core.network.messages.s2c.*;
+import core.sound.SoundSpec;
 import core.utils.Vector2;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
@@ -23,10 +24,10 @@ class NetworkCodecTest {
 
   private static void assertRoundTrip(NetworkMessage message) throws IOException {
     byte[] bytes = NetworkCodec.serialize(message);
-    Message expectedProto = ProtoConverter.toProto(message);
-    assertEquals(MessageRegistry.typeId(expectedProto), bytes[0]);
+    Message expectedProto = ConverterRegistry.global().toProto(message);
+    assertEquals(ConverterRegistry.global().typeId(expectedProto), bytes[0]);
     NetworkMessage decoded = NetworkCodec.deserialize(Unpooled.wrappedBuffer(bytes));
-    Message decodedProto = ProtoConverter.toProto(decoded);
+    Message decodedProto = ConverterRegistry.global().toProto(decoded);
     assertEquals(expectedProto, decodedProto);
   }
 
@@ -56,7 +57,17 @@ class NetworkCodecTest {
         new GameOverEvent("Game over"),
         new LevelChangeEvent("level-1", "data"),
         new RegisterAck(true),
-        new SoundPlayMessage(1L, 2, "sound", 0.5f, 1.0f, 0.0f, false, 10.0f, 0.1f),
+        new SoundPlayMessage(
+            2,
+            SoundSpec.builder("sound")
+                .instanceId(1L)
+                .volume(0.5f)
+                .pitch(1.0f)
+                .pan(0.0f)
+                .looping(false)
+                .maxDistance(10.0f)
+                .attenuation(0.1f)
+                .build()),
         new SoundStopMessage(2L));
   }
 }

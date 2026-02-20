@@ -10,7 +10,4 @@ import core.sound.SoundSpec;
  * @param soundSpec the specification of the sound to play
  * @see SoundStopMessage
  */
-public record SoundPlayMessage(
-  int entityId,
-  SoundSpec soundSpec)
-    implements NetworkMessage {}
+public record SoundPlayMessage(int entityId, SoundSpec soundSpec) implements NetworkMessage {}
