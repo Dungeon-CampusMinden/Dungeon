@@ -15,7 +15,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
   /**
    * Executes the next operation in the current block.
    */
-  public static @NotNull Action Next() {
+  static @NotNull Action Next() {
     return new Next();
   }
 
@@ -25,7 +25,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    * @param target The target block.
    * @return An action that represents the jump.
    */
-  public static @NotNull Action Jump(@NotNull Block target) {
+  static @NotNull Action Jump(@NotNull Block target) {
     return new Jump(target);
   }
 
@@ -35,7 +35,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    * @param funcOp The function operation to call.
    * @return An action that represents the call.
    */
-  public static @NotNull Action Call(@NotNull Operation funcOp, @NotNull Object... args) {
+  static @NotNull Action Call(@NotNull Operation funcOp, @NotNull Object... args) {
     return new Call(funcOp, List.of(args));
   }
 
@@ -47,7 +47,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    * @param nextOperation     The operation to execute after returning from the region, or null if nothing should be executed after returning from the region.
    * @return An action that represents the step into.
    */
-  public static @NotNull Action StepInto(@NotNull Region region, boolean isolatedFromAbove, @NotNull Optional<Operation> nextOperation, @NotNull Object... args) {
+  static @NotNull Action StepInto(@NotNull Region region, boolean isolatedFromAbove, @NotNull Optional<Operation> nextOperation, @NotNull Object... args) {
     return new StepInto(region, isolatedFromAbove, nextOperation, List.of(args));
   }
 
@@ -57,7 +57,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    * @param value The value to return. Can be null if the block does not return anything.
    * @return An action that represents the return.
    */
-  public static @NotNull Action Terminate(@Nullable Object value) {
+  static @NotNull Action Terminate(@Nullable Object value) {
     return new Terminate(value);
   }
 
@@ -68,14 +68,14 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    * @param message The error message.
    * @return An action that represents the abort.
    */
-  public static @NotNull Action Abort(@NotNull String message, @Nullable Object... args) {
+  static @NotNull Action Abort(@NotNull String message, @Nullable Object... args) {
     return new Abort(MessageFormat.format(message, args));
   }
 
   /**
    * Executes the next operation in the current block.
    */
-  public record Next() implements Action {
+  record Next() implements Action {
   }
 
   /**
@@ -83,7 +83,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    *
    * @param target The target block.
    */
-  public record Jump(@NotNull Block target) implements Action {
+  record Jump(@NotNull Block target) implements Action {
   }
 
   /**
@@ -91,7 +91,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    *
    * @param funcOp The function operation to call.
    */
-  public record Call(@NotNull Operation funcOp, @NotNull List<@NotNull Object> args) implements Action {
+  record Call(@NotNull Operation funcOp, @NotNull List<@NotNull Object> args) implements Action {
     public Call {
       args = List.copyOf(args);
     }
@@ -106,7 +106,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    * @param nextOperation     The operation to execute after returning from the region, or null if nothing should be executed
    *                          after returning from the region.
    */
-  public record StepInto(@NotNull Region region,
+  record StepInto(@NotNull Region region,
                          boolean isolatedFromAbove,
                          @NotNull Optional<Operation> nextOperation,
                          List<Object> args) implements Action {
@@ -120,7 +120,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    *
    * @param value The value to return. Can be null if the block does not return anything.
    */
-  public record Terminate(@Nullable Object value) implements Action {
+  record Terminate(@Nullable Object value) implements Action {
   }
 
   /**
@@ -128,6 +128,6 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    *
    * @param message The error message.
    */
-  public record Abort(@NotNull String message) implements Action {
+  record Abort(@NotNull String message) implements Action {
   }
 }

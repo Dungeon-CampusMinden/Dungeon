@@ -46,7 +46,7 @@ public final class Region {
    * Values visible inside this region, acting as parameters/arguments
    * (e.g. the induction variable of a for-loop body).
    */
-  @JsonIdentityReference(alwaysAsId = false)
+  @JsonIdentityReference
   private final @NotNull List<Value> bodyValues;
 
   @JsonIgnore
@@ -206,8 +206,8 @@ public final class Region {
   // =========================================================================
 
   @Contract(pure = true)
-  public @Nullable Operation getParent() {
-    return parent;
+  public @NotNull Optional<Operation> getParent() {
+    return Optional.ofNullable(parent);
   }
 
   /**

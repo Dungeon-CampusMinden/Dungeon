@@ -128,25 +128,4 @@ public class SymbolTable {
   public static String getSymbolAttributeName() {
     return "symbol_name";
   }
-
-  /* Walk all of the operations within the given set of regions, without
-   * traversing into any nested symbol tables. Stops walking if the result of the
-   * callback is anything other than `WalkResult::advance`.
-   */
-  private static Optional<WalkResult> walk(@NotNull List<Region> regions, @NotNull Function<Operation, Optional<WalkResult>> callback) {
-    for (Region region : regions) {
-      for (Block block : region.getBlocks()) {
-        for (Operation operation : block.getOperations()) {
-          if (operation.hasTrait(ISymbolTable.class)) {
-            continue;
-          }
-          Optional<WalkResult> result = callback.apply(operation);
-          if (result.isPresent() && result.get() != WalkResult.CONTINUE) {
-            return result;
-          }
-        }
-      }
-    }
-    return Optional.empty();
-  }
 }

@@ -3,7 +3,6 @@ package dgir.vm.dialect.func;
 import core.detail.RegisteredOperationDetails;
 import core.ir.Operation;
 import core.ir.Value;
-import core.ir.ValueOperand;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;

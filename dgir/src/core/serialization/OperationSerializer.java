@@ -17,8 +17,6 @@ public class OperationSerializer extends StdSerializer<Operation> {
 
   @Override
   public void serialize(Operation value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
-    assert value.getDetails() != null : "Operation details must be set before serialization.";
-
     gen.writeStartObject();
     gen.writeStringProperty("ident", value.getDetails().getIdent());
     if (!value.getOperands().isEmpty())

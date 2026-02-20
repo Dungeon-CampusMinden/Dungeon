@@ -75,16 +75,16 @@ public class IntegerT extends Type {
       return false;
 
     switch (number) {
-      case Byte b when getWidth() == 1 || getWidth() == 8 -> {
+      case Byte ignored when getWidth() == 1 || getWidth() == 8 -> {
         return true;
       }
-      case Short s when getWidth() == 16 -> {
+      case Short ignored when getWidth() == 16 -> {
         return true;
       }
-      case Integer i when getWidth() == 32 -> {
+      case Integer ignored when getWidth() == 32 -> {
         return true;
       }
-      case Long l when getWidth() == 64 -> {
+      case Long ignored when getWidth() == 64 -> {
         return true;
       }
       default -> {
@@ -126,9 +126,7 @@ public class IntegerT extends Type {
       case 64 -> {
         return value;
       }
-      default -> {
-        throw new RuntimeException("Invalid integer width: " + getWidth());
-      }
+      default -> throw new RuntimeException("Invalid integer width: " + getWidth());
     }
   }
 }

@@ -14,7 +14,7 @@ public class OperationResult {
   // Members
   // =========================================================================
 
-  @JsonIdentityReference(alwaysAsId = false)
+  @JsonIdentityReference
   @JsonValue
   private @NotNull Value value;
 
@@ -44,7 +44,7 @@ public class OperationResult {
     return value;
   }
 
-  public void setValue(@NotNull Value value) {;
+  public void setValue(@NotNull Value value) {
     assert value.getType().equals(this.value.getType())
       : "Type mismatch while setting result value: " + value.getType() + " != " + this.value.getType();
     this.value = value;

@@ -381,7 +381,7 @@ public final class Operation implements Serializable {
 
   @Contract(pure = true)
   public @NotNull Optional<Operation> getParentOperation() {
-    return getParentRegion().map(Region::getParent);
+    return getParentRegion().flatMap(Region::getParent);
   }
 
   public void setParent(Block parent) {

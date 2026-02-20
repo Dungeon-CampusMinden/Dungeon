@@ -9,7 +9,6 @@ import dialect.io.PrintOp;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
-import java.util.Optional;
 
 public class PrintRunner extends OpRunner {
   public static @NotNull PrintStream out = System.out;

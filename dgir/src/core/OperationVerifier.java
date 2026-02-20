@@ -308,7 +308,10 @@ public class OperationVerifier {
     return block.getParent()
       .map(parentRegion ->
         parentRegion.getBlocks().size() == 1
-          && parentRegion.getParent().hasTrait(INoTerminator.class))
+          && parentRegion
+          .getParent()
+          .map(operation -> operation.hasTrait(INoTerminator.class))
+          .orElse(true))
       .orElse(false);
   }
 }

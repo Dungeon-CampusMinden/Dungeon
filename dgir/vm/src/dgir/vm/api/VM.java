@@ -16,7 +16,7 @@ public class VM {
   private @Nullable State state;
   private @Nullable Action lastAction;
 
-  private @NotNull Deque<Operation> opStack = new ArrayDeque<>();
+  private final @NotNull Deque<Operation> opStack = new ArrayDeque<>();
 
   public VM() {
 

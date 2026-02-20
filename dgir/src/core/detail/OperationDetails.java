@@ -38,7 +38,7 @@ public class OperationDetails {
   @Contract(pure = true)
   public static @NotNull Optional<Constructor<? extends Op>> hasSpecificConstructor(@NotNull Class<? extends Op> opClass, @NotNull Class<?>... parameterTypes) {
     try {
-      return Optional.of(opClass.getConstructor(Operation.class));
+      return Optional.of(opClass.getConstructor(parameterTypes));
     } catch (NoSuchMethodException e) {
       return Optional.empty();
     }

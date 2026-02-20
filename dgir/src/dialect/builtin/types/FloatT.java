@@ -73,10 +73,10 @@ public class FloatT extends Type {
       return false;
 
     switch (value) {
-      case Float f when getWidth() == 32 -> {
+      case Float ignored when getWidth() == 32 -> {
         return true;
       }
-      case Double d when getWidth() == 64 -> {
+      case Double ignored when getWidth() == 64 -> {
         return true;
       }
       default -> {

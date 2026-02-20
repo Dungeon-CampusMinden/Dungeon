@@ -3,7 +3,6 @@ package core.traits;
 import core.ir.Block;
 import core.ir.Op;
 import core.ir.Operation;
-import core.ir.Region;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

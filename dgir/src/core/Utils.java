@@ -1,27 +1,12 @@
 package core;
 
-import core.ir.Block;
-import core.ir.Operand;
-import core.ir.Operation;
-import core.ir.Value;
 import com.mxgraph.layout.*;
-import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
-import com.mxgraph.util.mxCellRenderer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jgrapht.Graph;
-import org.jgrapht.ext.JGraphXAdapter;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.builder.GraphTypeBuilder;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.lang.StackWalker.Option;
 import java.lang.StackWalker.StackFrame;
-import java.util.Arrays;
 import java.util.Optional;
 
 /**

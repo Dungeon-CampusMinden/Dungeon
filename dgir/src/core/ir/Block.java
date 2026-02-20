@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * @see Operation
  * @see DotCFG
  */
-@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class, property = "@id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
 public final class Block extends IRObjectWithUseList<Block, BlockOperand> implements Serializable {
 
   // =========================================================================
@@ -151,7 +151,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   @JsonIgnore
   @Contract(pure = true)
   public @NotNull Optional<Operation> getParentOperation() {
-    return getParent().map(Region::getParent);
+    return getParent().flatMap(Region::getParent);
   }
 
   public void setParent(@Nullable Region parent) {

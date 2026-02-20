@@ -82,7 +82,7 @@ public class IntegerAttribute extends TypedAttribute {
   }
 
   public void setValue(Number value) {
-    getType().validate(value);
+    assert getType().validate(value) : "Value " + value + " is not valid for type " + getType();
     this.value = value;
   }
 }

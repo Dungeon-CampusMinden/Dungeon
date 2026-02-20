@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Global registry for all dialects, operations, types, and attributes known to the DGIR.

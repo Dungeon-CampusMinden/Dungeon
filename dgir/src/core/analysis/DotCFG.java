@@ -5,7 +5,6 @@ import core.ir.Operation;
 import core.ir.Region;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -187,7 +186,7 @@ public class DotCFG {
 
     private void processRegion(@NotNull Region region) {
       // Open a new cluster for the region
-      currentCluster = currentCluster.addChild(new Cluster(region.getParent(), currentCluster));
+      currentCluster = currentCluster.addChild(new Cluster(region.getParent().orElseThrow(), currentCluster));
       for (Block block : region.getBlocks()) {
         processBlock(block);
       }

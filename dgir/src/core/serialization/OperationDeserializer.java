@@ -108,7 +108,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       }
     }
 
-    Operation operation = null;
+    Operation operation;
     // In case we do have the output value resolved we must set it on the operation so that it points to the correct value
     if (outputValue != null) {
       // Create the operation instance with the resolved output value type and set the output value on the operation.
