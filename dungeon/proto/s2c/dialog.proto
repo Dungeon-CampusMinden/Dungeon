@@ -4,6 +4,8 @@ syntax = "proto3";
 
 package dungeon.s2c;
 
+import "common/common_types.proto";
+
 option java_multiple_files = true;
 option java_package = "core.network.proto.s2c";
 option java_outer_classname = "DialogProto";
@@ -37,19 +39,9 @@ message DialogAttribute {
     float float_value = 5;
     double double_value = 6;
     bool bool_value = 7;
-    StringList string_list = 8;
-    IntList int_list = 9;
+    dungeon.common.StringList string_list = 8;
+    dungeon.common.IntList int_list = 9;
   }
-}
-
-// Wrapper for string arrays.
-message StringList {
-  repeated string values = 1;
-}
-
-// Wrapper for int arrays.
-message IntList {
-  repeated int32 values = 1;
 }
 
 // Server-to-client: Close an open dialog.

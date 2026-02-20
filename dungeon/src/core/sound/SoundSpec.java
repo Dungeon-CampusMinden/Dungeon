@@ -255,4 +255,16 @@ public record SoundSpec(
           this.targetEntityIds);
     }
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    return this.instanceId() == ((SoundSpec) o).instanceId();
+  }
+
+  @Override
+  public int hashCode() {
+    return Long.hashCode(this.instanceId());
+  }
 }

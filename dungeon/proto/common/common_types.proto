@@ -71,12 +71,6 @@ message SoundSpec {
   float attenuation_factor = 8;
 }
 
-// RGBA color representation.
-message Color {
-  // Packed RGBA value (0xRRGGBBAA).
-  int32 rgba = 1;
-}
-
 // Generic key-value pair for extensibility.
 message KeyValue {
   string key = 1;
@@ -97,4 +91,14 @@ message Item {
 
   // Item-specific parameters (e.g., "strength" -> "50" for potions).
   map<string, string> item_data = 4;
+}
+
+// Helper message for repeated strings.
+message StringList {
+    repeated string values = 1;
+}
+
+// Helper message for repeated ints.
+message IntList {
+    repeated int32 values = 1;
 }

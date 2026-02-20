@@ -92,29 +92,26 @@ message EntityState {
   // Optional: Current position/orientation.
   optional dungeon.common.PositionInfo position = 3;
 
-  reserved 4, 5;
-  reserved "view_direction", "rotation";
-
   // Optional: Current health points.
-  optional int32 current_health = 6;
+  optional int32 current_health = 4;
 
   // Optional: Maximum health points.
-  optional int32 max_health = 7;
+  optional int32 max_health = 5;
 
   // Optional: Current mana points.
-  optional float current_mana = 8;
+  optional float current_mana = 6;
 
   // Optional: Maximum mana points.
-  optional float max_mana = 9;
+  optional float max_mana = 7;
 
   // Optional: Current state name.
-  optional string state_name = 10;
+  optional string state_name = 8;
 
   // Optional: Tint color overlay (packed RGBA).
   optional int32 tint_color = 11;
 
   // Optional: Inventory contents.
-  repeated ItemSlot inventory = 12;
+  repeated ItemSlot inventory = 10;
 }
 
 // Represents a slot in an inventory.

@@ -4,10 +4,11 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
 import contrib.utils.components.showImage.TransitionSpeed;
+import core.network.proto.common.IntList;
+import core.network.proto.common.StringList;
 import core.network.proto.s2c.DialogAttribute;
 import core.network.proto.s2c.DialogShowMessage;
-import core.network.proto.s2c.IntList;
-import core.network.proto.s2c.StringList;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;

@@ -10,12 +10,14 @@ import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.*;
 import core.network.messages.s2c.*;
 import core.network.proto.c2s.CustomAction;
-import core.network.proto.c2s.IntList;
+import core.network.proto.common.IntList;
+import core.network.proto.common.StringList;
 import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.DrawInfoData;
+
 import java.util.*;
 
 /** Converts between protobuf messages and domain objects for common network types. */
@@ -998,16 +1000,9 @@ public final class ProtoConverter {
    */
   public static core.network.proto.s2c.SoundPlayMessage toProto(SoundPlayMessage message) {
     return core.network.proto.s2c.SoundPlayMessage.newBuilder()
-        .setSoundInstanceId(message.soundInstanceId())
-        .setEntityId(message.entityId())
-        .setSoundName(message.soundName())
-        .setVolume(message.volume())
-        .setPitch(message.pitch())
-        .setPan(message.pan())
-        .setLooping(message.looping())
-        .setMaxDistance(message.maxDistance())
-        .setAttenuationFactor(message.attenuationFactor())
-        .build();
+      .setEntityId(message.entityId())
+      .setSpec(toProto(message.soundSpec()))
+      .build();
   }
 
   /**
@@ -1017,16 +1012,7 @@ public final class ProtoConverter {
    * @return the domain sound play message
    */
   public static SoundPlayMessage fromProto(core.network.proto.s2c.SoundPlayMessage proto) {
-    return new SoundPlayMessage(
-        proto.getSoundInstanceId(),
-        proto.getEntityId(),
-        proto.getSoundName(),
-        proto.getVolume(),
-        proto.getPitch(),
-        proto.getPan(),
-        proto.getLooping(),
-        proto.getMaxDistance(),
-        proto.getAttenuationFactor());
+    return new SoundPlayMessage(proto.getEntityId(), fromProto(proto.getSpec()));
   }
 
   /**
@@ -1210,11 +1196,10 @@ public final class ProtoConverter {
       case DialogResponseMessage.DoubleValue(double value1) -> builder.setDoubleValue(value1);
       case DialogResponseMessage.BoolValue(boolean value1) -> builder.setBoolValue(value1);
       case DialogResponseMessage.StringList(String[] stringArray) ->
-          builder.setStringList(
-              core.network.proto.c2s.StringList.newBuilder()
+          builder.setStringList(StringList.newBuilder()
                   .addAllValues(Arrays.asList(stringArray)));
       case DialogResponseMessage.IntList(int[] intArray) -> {
-        core.network.proto.c2s.IntList.Builder listBuilder = IntList.newBuilder();
+        IntList.Builder listBuilder = IntList.newBuilder();
         for (int value : intArray) {
           listBuilder.addValues(value);
         }

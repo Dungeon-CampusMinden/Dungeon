@@ -4,6 +4,8 @@ syntax = "proto3";
 
 package dungeon.c2s;
 
+import "common/common_types.proto";
+
 option java_multiple_files = true;
 option java_package = "core.network.proto.c2s";
 option java_outer_classname = "DialogProto";
@@ -25,17 +27,8 @@ message DialogResponseMessage {
     float float_value = 13;
     double double_value = 14;
     bool bool_value = 15;
-    StringList string_list = 16;
-    IntList int_list = 17;
+    dungeon.common.StringList string_list = 16;
+    dungeon.common.IntList int_list = 17;
   }
 }
 
-// Helper message for repeated strings.
-message StringList {
-  repeated string values = 1;
-}
-
-// Helper message for repeated ints.
-message IntList {
-  repeated int32 values = 1;
-}
