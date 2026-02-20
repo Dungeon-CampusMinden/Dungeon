@@ -86,12 +86,7 @@ public class VM {
           // Set the values of the function's arguments in the new stack frame.
           // These values are stored as body values in the function's region.'
           List<Value> bodyValues = funcOp.getFirstRegion().orElseThrow().getBodyValues();
-          assert bodyValues.size() == call.args().size() : "Number of arguments does not match number of body values.";
-          for (int i = 0; i < bodyValues.size(); i++) {
-            Value argValue = bodyValues.get(i);
-            Object argObject = call.args().get(i);
-            state.setValue(argValue, argObject);
-          }
+          setupRegion(state, bodyValues, call.args());
 
           // Push the first operation in the function's region onto the op stack.'
           opStack.push(funcOp.getFirstRegion().get().getEntryOperation());
@@ -124,12 +119,7 @@ public class VM {
 
           // Same as for the func op we need to push the body values of the region onto the stack.
           List<Value> bodyValues = stepInto.region().getBodyValues();
-          assert bodyValues.size() == stepInto.args().size() : "Number of arguments does not match number of body values.";
-          for (int i = 0; i < bodyValues.size(); i++) {
-            Value argValue = bodyValues.get(i);
-            Object argObject = stepInto.args().get(i);
-            state.setValue(argValue, argObject);
-          }
+          setupRegion(state, bodyValues, stepInto.args());
 
           opStack.push(stepInto.region().getEntryOperation());
 
@@ -143,6 +133,15 @@ public class VM {
       e.printStackTrace(System.err);
       cleanupAfterAbort();
       return Action.Abort("Error during execution: " + e);
+    }
+  }
+
+  private static void setupRegion(@NotNull State state, @NotNull List<Value> bodyValues, @NotNull List<Object> args) {
+    assert bodyValues.size() == args.size() : "Number of arguments does not match number of body values.";
+    for (int i = 0; i < bodyValues.size(); i++) {
+      Value argValue = bodyValues.get(i);
+      Object argObject = args.get(i);
+      state.setValue(argValue, argObject);
     }
   }
 
