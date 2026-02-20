@@ -108,7 +108,7 @@ message EntityState {
   optional string state_name = 8;
 
   // Optional: Tint color overlay (packed RGBA).
-  optional int32 tint_color = 11;
+  optional int32 tint_color = 9;
 
   // Optional: Inventory contents.
   repeated ItemSlot inventory = 10;
