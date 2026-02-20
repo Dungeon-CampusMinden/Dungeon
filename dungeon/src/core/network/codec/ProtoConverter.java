@@ -7,42 +7,22 @@ import contrib.item.ItemRegistry;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.network.messages.NetworkMessage;
-import core.network.messages.c2s.ConnectRequest;
-import core.network.messages.c2s.DialogResponseMessage;
-import core.network.messages.c2s.InputMessage;
-import core.network.messages.c2s.RegisterUdp;
-import core.network.messages.c2s.RequestEntitySpawn;
-import core.network.messages.c2s.SoundFinishedMessage;
-import core.network.messages.s2c.ConnectAck;
-import core.network.messages.s2c.ConnectReject;
-import core.network.messages.s2c.DialogCloseMessage;
-import core.network.messages.s2c.DialogShowMessage;
-import core.network.messages.s2c.EntityDespawnEvent;
-import core.network.messages.s2c.EntitySpawnBatch;
-import core.network.messages.s2c.EntitySpawnEvent;
-import core.network.messages.s2c.EntityState;
-import core.network.messages.s2c.GameOverEvent;
-import core.network.messages.s2c.LevelChangeEvent;
-import core.network.messages.s2c.RegisterAck;
-import core.network.messages.s2c.SnapshotMessage;
-import core.network.messages.s2c.SoundPlayMessage;
-import core.network.messages.s2c.SoundStopMessage;
+import core.network.messages.c2s.*;
+import core.network.messages.s2c.*;
+import core.network.proto.c2s.CustomAction;
+import core.network.proto.c2s.IntList;
 import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.DrawInfoData;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /** Converts between protobuf messages and domain objects for common network types. */
 public final class ProtoConverter {
 
   private static final String DIALOG_CLOSED_KEY = "CLOSED";
+  private static final int DEFAULT_CUSTOM_SCHEMA_VERSION = 1;
 
   private ProtoConverter() {}
 
@@ -375,6 +355,15 @@ public final class ProtoConverter {
       case TOGGLE_INVENTORY ->
           builder.setToggleInventory(
               core.network.proto.c2s.ToggleInventoryAction.newBuilder().build());
+      case CUSTOM -> {
+        InputMessage.Custom custom = message.payloadAs(InputMessage.Custom.class);
+        builder.setCustom(
+            core.network.proto.c2s.CustomAction.newBuilder()
+                .setCommandId(custom.commandId())
+                .setPayload(ByteString.copyFrom(custom.payload()))
+                .setSchemaVersion(custom.schemaVersion())
+                .build());
+      }
     }
 
     return builder.build();
@@ -463,6 +452,20 @@ public final class ProtoConverter {
             sequence,
             InputMessage.Action.INV_USE,
             new InputMessage.InventoryUse(slotIndex));
+      }
+      case CUSTOM -> {
+        CustomAction custom = proto.getCustom();
+        int schemaVersion =
+            custom.getSchemaVersion() <= 0
+                ? DEFAULT_CUSTOM_SCHEMA_VERSION
+                : custom.getSchemaVersion();
+        yield new InputMessage(
+            sessionId,
+            clientTick,
+            sequence,
+            InputMessage.Action.CUSTOM,
+            new InputMessage.Custom(
+                custom.getCommandId(), custom.getPayload().toByteArray(), schemaVersion));
       }
       case ACTION_NOT_SET -> throw new IllegalArgumentException("InputMessage action is required.");
     };
@@ -1199,33 +1202,27 @@ public final class ProtoConverter {
   private static void setDialogPayload(
       core.network.proto.c2s.DialogResponseMessage.Builder builder,
       DialogResponseMessage.Payload payload) {
-    if (payload instanceof DialogResponseMessage.StringValue stringValue) {
-      builder.setStringValue(stringValue.value());
-    } else if (payload instanceof DialogResponseMessage.IntValue intValue) {
-      builder.setIntValue(intValue.value());
-    } else if (payload instanceof DialogResponseMessage.LongValue longValue) {
-      builder.setLongValue(longValue.value());
-    } else if (payload instanceof DialogResponseMessage.FloatValue floatValue) {
-      builder.setFloatValue(floatValue.value());
-    } else if (payload instanceof DialogResponseMessage.DoubleValue doubleValue) {
-      builder.setDoubleValue(doubleValue.value());
-    } else if (payload instanceof DialogResponseMessage.BoolValue boolValue) {
-      builder.setBoolValue(boolValue.value());
-    } else if (payload instanceof DialogResponseMessage.StringList stringList) {
-      String[] stringArray = stringList.values();
-      builder.setStringList(
-          core.network.proto.c2s.StringList.newBuilder().addAllValues(Arrays.asList(stringArray)));
-    } else if (payload instanceof DialogResponseMessage.IntList intList) {
-      int[] intArray = intList.values();
-      core.network.proto.c2s.IntList.Builder listBuilder =
-          core.network.proto.c2s.IntList.newBuilder();
-      for (int value : intArray) {
-        listBuilder.addValues(value);
+    switch (payload) {
+      case DialogResponseMessage.StringValue(String value5) -> builder.setStringValue(value5);
+      case DialogResponseMessage.IntValue(int value4) -> builder.setIntValue(value4);
+      case DialogResponseMessage.LongValue(long value3) -> builder.setLongValue(value3);
+      case DialogResponseMessage.FloatValue(float value2) -> builder.setFloatValue(value2);
+      case DialogResponseMessage.DoubleValue(double value1) -> builder.setDoubleValue(value1);
+      case DialogResponseMessage.BoolValue(boolean value1) -> builder.setBoolValue(value1);
+      case DialogResponseMessage.StringList(String[] stringArray) ->
+          builder.setStringList(
+              core.network.proto.c2s.StringList.newBuilder()
+                  .addAllValues(Arrays.asList(stringArray)));
+      case DialogResponseMessage.IntList(int[] intArray) -> {
+        core.network.proto.c2s.IntList.Builder listBuilder = IntList.newBuilder();
+        for (int value : intArray) {
+          listBuilder.addValues(value);
+        }
+        builder.setIntList(listBuilder);
       }
-      builder.setIntList(listBuilder);
-    } else {
-      throw new IllegalArgumentException(
-          "Unsupported dialog response payload type: " + payload.getClass().getName());
+      default ->
+          throw new IllegalArgumentException(
+              "Unsupported dialog response payload type: " + payload.getClass().getName());
     }
   }
 

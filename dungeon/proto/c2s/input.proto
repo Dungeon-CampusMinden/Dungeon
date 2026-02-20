@@ -32,6 +32,7 @@ message InputMessage {
     InventoryDropAction inv_drop = 15;
     InventoryMoveAction inv_move = 16;
     InventoryUseAction inv_use = 17;
+    CustomAction custom = 18;
   }
 }
 
@@ -83,4 +84,16 @@ message InventoryMoveAction {
 message InventoryUseAction {
   // Inventory slot index of item to use.
   int32 slot_index = 1;
+}
+
+// Execute a custom, namespaced command.
+message CustomAction {
+  // Namespaced command identifier, e.g. "escapeRoom:hint_log.open".
+  string command_id = 1;
+
+  // Opaque command payload.
+  bytes payload = 2;
+
+  // Schema version of the payload.
+  uint32 schema_version = 3;
 }

@@ -6,7 +6,9 @@ import core.network.messages.NetworkMessage;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * Client→server: Player input (e.g., movement, skill use, interaction).
@@ -27,6 +29,10 @@ public record InputMessage(
     Payload payload)
     implements NetworkMessage {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InputMessage.class);
+  private static final int DEFAULT_CUSTOM_SCHEMA_VERSION = 1;
+  private static final int MAX_CUSTOM_PAYLOAD_BYTES = 8_192;
+  private static final Pattern ROUTE_KEY_PATTERN =
+      Pattern.compile("^[a-zA-Z0-9._-]+:[a-zA-Z0-9._-]+$");
 
   private static short currentSequence = 0;
 
@@ -158,6 +164,39 @@ public record InputMessage(
   }
 
   /**
+   * Creates a custom command input message with an empty payload.
+   *
+   * @param commandId namespaced command identifier
+   * @return the created input message
+   */
+  public static InputMessage custom(String commandId) {
+    return custom(commandId, new byte[0]);
+  }
+
+  /**
+   * Creates a custom command input message with default payload metadata.
+   *
+   * @param commandId namespaced command identifier
+   * @param payload opaque payload bytes
+   * @return the created input message
+   */
+  public static InputMessage custom(String commandId, byte[] payload) {
+    return custom(commandId, payload, DEFAULT_CUSTOM_SCHEMA_VERSION);
+  }
+
+  /**
+   * Creates a custom command input message.
+   *
+   * @param commandId namespaced command identifier
+   * @param payload opaque payload bytes
+   * @param schemaVersion payload schema version
+   * @return the created input message
+   */
+  public static InputMessage custom(String commandId, byte[] payload, int schemaVersion) {
+    return new InputMessage(Action.CUSTOM, new Custom(commandId, payload, schemaVersion));
+  }
+
+  /**
    * Increment and return the current sequence number. Wraps around using full 16-bit range. Uses
    * signed short (-32768 to 32767) to represent unsigned 0-65535.
    *
@@ -201,6 +240,16 @@ public record InputMessage(
     return type.cast(payload);
   }
 
+  /**
+   * Validates whether a route key follows the required namespaced format.
+   *
+   * @param routeKey route key to validate
+   * @return true when the key matches {@code <namespace>:<action>}
+   */
+  public static boolean isValidRouteKey(String routeKey) {
+    return routeKey != null && ROUTE_KEY_PATTERN.matcher(routeKey).matches();
+  }
+
   private static void validatePayload(Action action, Payload payload) {
     switch (action) {
       case MOVE -> requirePayload(action, payload, Move.class);
@@ -222,6 +271,7 @@ public record InputMessage(
       case INV_MOVE -> requirePayload(action, payload, InventoryMove.class);
       case INV_USE -> requirePayload(action, payload, InventoryUse.class);
       case TOGGLE_INVENTORY -> requirePayload(action, payload, ToggleInventory.class);
+      case CUSTOM -> requirePayload(action, payload, Custom.class);
     }
   }
 
@@ -243,7 +293,8 @@ public record InputMessage(
           InventoryDrop,
           InventoryMove,
           InventoryUse,
-          ToggleInventory {}
+          ToggleInventory,
+          Custom {}
 
   /**
    * Payload for movement input.
@@ -326,6 +377,44 @@ public record InputMessage(
   public record ToggleInventory() implements Payload {}
 
   /**
+   * Payload for executing a custom command.
+   *
+   * @param commandId namespaced command identifier (for example: {@code escapeRoom:hint_log.open})
+   * @param payload opaque payload bytes
+   * @param schemaVersion payload schema version (must be positive)
+   */
+  public record Custom(String commandId, byte[] payload, int schemaVersion) implements Payload {
+    /**
+     * Creates a validated custom payload.
+     *
+     * @param commandId namespaced command identifier
+     * @param payload opaque payload bytes
+     * @param schemaVersion payload schema version
+     */
+    public Custom {
+      Objects.requireNonNull(commandId, "commandId");
+      Objects.requireNonNull(payload, "payload");
+      if (!isValidRouteKey(commandId)) {
+        throw new IllegalArgumentException(
+            "Invalid commandId '" + commandId + "'. Expected format <namespace>:<action>.");
+      }
+      if (payload.length > MAX_CUSTOM_PAYLOAD_BYTES) {
+        throw new IllegalArgumentException(
+            "Custom payload exceeds max size of " + MAX_CUSTOM_PAYLOAD_BYTES + " bytes.");
+      }
+      if (schemaVersion <= 0) {
+        throw new IllegalArgumentException("schemaVersion must be > 0.");
+      }
+      payload = Arrays.copyOf(payload, payload.length);
+    }
+
+    @Override
+    public byte[] payload() {
+      return Arrays.copyOf(payload, payload.length);
+    }
+  }
+
+  /**
    * The action types for player input.
    *
    * <p>Defines the various actions a player can perform, such as moving, casting skills, and
@@ -333,36 +422,35 @@ public record InputMessage(
    */
   public enum Action {
     /** Move in a specific {@link core.utils.Direction direction}. */
-    MOVE(0, false),
-    /** Cast the main skill towards or at a specific {@link core.utils.Point point}. */
-    CAST_SKILL(1, false),
+    MOVE(0),
+    /** Cast a skill towards or at a specific {@link core.utils.Point point}. */
+    CAST_SKILL(1),
     /** Interact with an object at a specific {@link core.utils.Point point}. */
-    INTERACT(2, false),
-    /** Switch to the next main skill in the player's skill set. */
-    NEXT_SKILL(3, false),
-    /** Switch to the previous main skill in the player's skill set. */
-    PREV_SKILL(4, false),
+    INTERACT(2),
+    /** Switch to the next skill in the player's skill set. */
+    NEXT_SKILL(3),
+    /** Switch to the previous skill in the player's skill set. */
+    PREV_SKILL(4),
     /** Drop a specified item from the inventory. */
-    INV_DROP(5, true),
+    INV_DROP(5),
     /** Move an item within the inventory. */
-    INV_MOVE(6, true),
+    INV_MOVE(6),
     /** Use the item in the specified inventory slot. */
-    INV_USE(7, true),
+    INV_USE(7),
     /** Toggle the visibility of the inventory UI. */
-    TOGGLE_INVENTORY(8, true);
+    TOGGLE_INVENTORY(8),
+    /** Execute a namespaced custom command. */
+    CUSTOM(9);
 
     private final byte value;
-    private final boolean ignorePause;
 
     /**
      * Constructor for Action enum.
      *
      * @param value the byte value representing the action
-     * @param ignorePause whether this action should ignore game pause state
      */
-    Action(int value, boolean ignorePause) {
+    Action(int value) {
       this.value = (byte) value;
-      this.ignorePause = ignorePause;
     }
 
     /**
@@ -372,15 +460,6 @@ public record InputMessage(
      */
     public byte value() {
       return value;
-    }
-
-    /**
-     * Check if the action ignores the game pause state.
-     *
-     * @return true if the action ignores pause, false otherwise
-     */
-    public boolean ignorePause() {
-      return ignorePause;
     }
   }
 }
