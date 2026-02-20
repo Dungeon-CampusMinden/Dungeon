@@ -178,6 +178,7 @@ public final class ItemRegistry {
     return Optional.of(item);
   }
 
+  /** Factory for creating items from serialized item data. */
   @FunctionalInterface
   public interface ItemFactory {
     /**

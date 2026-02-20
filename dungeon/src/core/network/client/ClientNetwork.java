@@ -647,8 +647,8 @@ public final class ClientNetwork {
    * Client-side UDP sender for {@link Session}. Mirrors server-side send path and size checks.
    *
    * @param target target address
-   * @param obj object to send
-   * @return CompletableFuture indicating success sending the object
+   * @param msg message to send
+   * @return CompletableFuture indicating success sending the message
    */
   private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, NetworkMessage msg) {
     if (udp == null || !udp.isActive()) {
@@ -675,8 +675,8 @@ public final class ClientNetwork {
    * Client-side TCP sender for {@link Session}. Mirrors server-side send path and size checks.
    *
    * @param ctx channel context
-   * @param obj object to send
-   * @return CompletableFuture indicating the acknowledgment of the send object by the recipient
+   * @param msg message to send
+   * @return CompletableFuture indicating the acknowledgment of the sent message by the recipient
    */
   private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, NetworkMessage msg) {
     if (ctx == null || ctx.channel() == null || !ctx.channel().isActive()) {

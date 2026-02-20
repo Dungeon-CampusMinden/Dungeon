@@ -99,3 +99,13 @@ tasks.register('runMPClient', JavaExec) {
 tasks.named('test', Test) {
     useJUnitPlatform()
 }
+
+tasks.named('checkstyleMain') {
+    exclude 'build/generated/source/proto/**'
+    exclude '**/core/network/proto/**'
+}
+
+tasks.named('checkstyleTest') {
+    exclude 'build/generated/source/proto/**'
+    exclude '**/core/network/proto/**'
+}
