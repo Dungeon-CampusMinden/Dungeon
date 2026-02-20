@@ -13,6 +13,7 @@ import java.util.*;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerStateComponent;
 
+/** A tab representing a web browser within the computer dialog. */
 public class BrowserTab extends ComputerTab {
 
   private static BrowserTab Instance;
@@ -24,12 +25,22 @@ public class BrowserTab extends ComputerTab {
   private Table historyTable;
   private Map<String, Actor> websites = null;
 
+  /**
+   * Creates a new BrowserTab with the given shared state.
+   *
+   * @param sharedState the shared computer state component
+   */
   public BrowserTab(ComputerStateComponent sharedState) {
     super(sharedState, "browser", "Browser", false);
     Instance = this;
     navigate(url);
   }
 
+  /**
+   * Gets the map of available websites and their corresponding content actors. Lazily initialized.
+   *
+   * @return a map of URLs to content actors
+   */
   public static Optional<BrowserTab> getInstance() {
     return Optional.ofNullable(Instance);
   }
@@ -132,6 +143,11 @@ public class BrowserTab extends ComputerTab {
     return table;
   }
 
+  /**
+   * Navigates the browser state to a given URL.
+   *
+   * @param url the URL to navigate to
+   */
   public void navigate(String url) {
     this.url = url;
     localState().browserUrl(url);

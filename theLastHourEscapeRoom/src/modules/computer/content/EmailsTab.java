@@ -18,6 +18,7 @@ import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;
 import util.Lore;
 
+/** Tab for displaying the list of emails and their details in the computer UI. */
 public class EmailsTab extends ComputerTab {
 
   private static final String PARAGRAPH_SPLIT = "\\\\p";
@@ -32,6 +33,11 @@ public class EmailsTab extends ComputerTab {
   private Label emailLinkFull = null;
   private Email selectedEmail = null;
 
+  /**
+   * Constructs the EmailsTab with the shared computer state.
+   *
+   * @param sharedState the shared state component
+   */
   public EmailsTab(ComputerStateComponent sharedState) {
     super(sharedState, "emails", "E-Mails", false);
   }
@@ -251,10 +257,25 @@ public class EmailsTab extends ComputerTab {
   @Override
   protected void updateState(ComputerStateComponent newStateComp) {}
 
+  /**
+   * Data class representing an email.
+   *
+   * @param sender the name of the email sender
+   * @param senderMail the email address of the sender
+   * @param subject the subject line of the email
+   * @param content the body content of the email, with paragraphs split by \p and links starting
+   *     with \a
+   * @param attachments a list of attachment names included with the email
+   */
   public record Email(
       String sender, String senderMail, String subject, String content, List<String> attachments) {
 
-    // Split the content into its paragraphs, split by a \p.
+    /**
+     * Parses the content string into individual lines, splitting by the defined paragraph split
+     * token.
+     *
+     * @return a list of content lines to be displayed in the email details view
+     */
     public List<String> parsedContentLines() {
       return Arrays.asList(content.split(PARAGRAPH_SPLIT));
     }
@@ -275,6 +296,13 @@ public class EmailsTab extends ComputerTab {
     }
   }
 
+  /**
+   * Creates a Label styled as a hyperlink, which opens the given URL in the browser when clicked.
+   *
+   * @param text the display text for the link
+   * @param url the URL to navigate to when the link is clicked
+   * @return a Label instance representing the hyperlink
+   */
   public static Label createLinkLabel(String text, String url) {
     Label label = Scene2dElementFactory.createLabel(text, 18, Color.BLUE);
     label.setUserObject(Cursors.EXTERNAL);

@@ -13,13 +13,12 @@ import core.sound.CoreSounds;
 import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
 
-/**
- * A concrete implementation of SettingValue for boolean settings.
- */
+/** A concrete implementation of SettingValue for boolean settings. */
 public class BoolSetting extends SettingValue<Boolean> {
 
   /**
    * Creates a new BoolSetting with the specified name and default value.
+   *
    * @param name the name of the setting
    * @param defaultValue the default boolean value for the setting
    */

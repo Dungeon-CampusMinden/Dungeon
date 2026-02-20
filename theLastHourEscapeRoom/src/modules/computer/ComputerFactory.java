@@ -15,16 +15,34 @@ import java.util.Set;
 import level.LastHourLevel;
 import util.Lore;
 
+/** Factory class for creating and managing the computer dialog in the escape room level. */
 public class ComputerFactory {
 
   private static final String STATE_KEY = "computer_state";
+
+  /** Key for updating the computer state from the dialog callbacks. */
   public static final String UPDATE_STATE_KEY = "update_state";
-  public static UIComponent computerDialogInstance;
+
+  private static UIComponent computerDialogInstance;
 
   static {
     DialogFactory.register(LastHourDialogTypes.COMPUTER, ComputerFactory::build);
   }
 
+  /**
+   * Returns the current instance of the computer dialog, or null if it is not open.
+   *
+   * @return the current computer dialog instance, or null if not open
+   */
+  public static UIComponent getComputerDialogInstance() {
+    return computerDialogInstance;
+  }
+
+  /**
+   * Attaches an interaction component to an entity that represents the computer.
+   *
+   * @param entity the entity to attach the interaction component to
+   */
   public static void attachComputerDialog(Entity entity) {
     entity.add(
         new InteractionComponent(

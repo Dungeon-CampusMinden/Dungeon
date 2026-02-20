@@ -8,6 +8,7 @@ import modules.computer.ComputerDialog;
 import modules.computer.ComputerStateComponent;
 import modules.computer.ComputerStateLocal;
 
+/** Abstract base class for tabs in the ComputerDialog. */
 public abstract class ComputerTab extends Table {
 
   private final String key;
@@ -18,6 +19,16 @@ public abstract class ComputerTab extends Table {
 
   protected Skin skin;
 
+  /**
+   * Constructs a new ComputerTab with the specified parameters.
+   *
+   * @param sharedState The shared ComputerStateComponent that this tab will use to display and
+   *     update computer state.
+   * @param key A unique key identifying this tab, used for tab management in ComputerDialog
+   * @param title The title of the tab to be displayed in the ComputerDialog's tab header
+   * @param closeable Whether this tab can be closed by the user (if true, a close button will be
+   *     shown on the tab header)
+   */
   public ComputerTab(
       ComputerStateComponent sharedState, String key, String title, boolean closeable) {
     this.sharedState = sharedState;
@@ -31,39 +42,85 @@ public abstract class ComputerTab extends Table {
     this.createActors();
   }
 
+  /**
+   * Returns the unique key identifying this tab, used for tab management in ComputerDialog.
+   *
+   * @return the unique key for this tab
+   */
   public String key() {
     return key;
   }
 
+  /**
+   * Returns the title of this tab to be displayed in the ComputerDialog's tab header.
+   *
+   * @return the title of this tab
+   */
   public String title() {
     return title;
   }
 
+  /**
+   * Sets the title of this tab and triggers a rebuild of the ComputerDialog's tabs to update the
+   * display.
+   *
+   * @param title the new title for this tab
+   */
   public void title(String title) {
     this.title = title;
     ComputerDialog.getInstance().ifPresent(ComputerDialog::buildTabs);
   }
 
+  /**
+   * Returns whether this tab can be closed by the user. If true, a close button will be shown on
+   * the tab header.
+   *
+   * @return true if this tab is closeable, false otherwise
+   */
   public boolean closeable() {
     return closeable;
   }
 
+  /**
+   * Sets whether this tab can be closed by the user and triggers a rebuild of the ComputerDialog's
+   * tabs to update the display.
+   *
+   * @param closeable true if this tab should be closeable, false otherwise
+   */
   public void closeable(boolean closeable) {
     this.closeable = closeable;
     ComputerDialog.getInstance().ifPresent(ComputerDialog::buildTabs);
   }
 
+  /**
+   * Returns the shared ComputerStateComponent that this tab uses to display and update computer
+   * state.
+   *
+   * @return the shared ComputerStateComponent for this tab
+   */
   public ComputerStateComponent sharedState() {
     return sharedState;
   }
 
+  /**
+   * Sets the shared ComputerStateComponent for this tab and updates the tab's content based on the
+   * new state.
+   *
+   * @param sharedState the new shared ComputerStateComponent to set for this tab
+   */
   public void setSharedState(ComputerStateComponent sharedState) {
     updateState(sharedState);
     this.sharedState = sharedState;
   }
 
+  /**
+   * Returns the local ComputerStateLocal instance that this tab can use to access local state and
+   * utility methods.
+   *
+   * @return the ComputerStateLocal instance for this tab
+   */
   public ComputerStateLocal localState() {
-    return ComputerStateLocal.Instance;
+    return ComputerStateLocal.getInstance();
   }
 
   /** Creates and adds the actors to the tab. */
@@ -87,7 +144,7 @@ public abstract class ComputerTab extends Table {
   }
 
   /**
-   * Retrieves the DialogContext associated with the ComputerDialog
+   * Retrieves the DialogContext associated with the ComputerDialog.
    *
    * @return The DialogContext for the dialog
    */

@@ -5,10 +5,20 @@ import core.sound.ISound;
 
 /** Enum that lists available in-game sounds and convenient playback helpers. */
 public enum LastHourSounds implements ISound {
+
+  /** A sound effect. */
   COMPUTER_TAB_CLICKED(CoreSounds.INTERFACE_BUTTON_CLICKED.soundName(), 1.0f),
+
+  /** A sound effect. */
   COMPUTER_LOGIN_FAILED("kenney_ui_error_002", 0.7f),
+
+  /** A sound effect. */
   COMPUTER_LOGIN_SUCCESS("kenney_ui_confirmation_002", 1.0f),
+
+  /** A sound effect. */
   COMPUTER_VIRUS_CAUGHT("kenney_ui_error_003", 1.0f),
+
+  /** A sound effect. */
   COMPUTER_EMAIL_RECEIVED("", 1.0f),
 
   /** Sounds like a beep-boop-beeeeep. */

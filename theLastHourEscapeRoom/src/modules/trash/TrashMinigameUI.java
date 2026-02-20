@@ -16,17 +16,29 @@ import core.utils.components.draw.TextureMap;
 import core.utils.components.path.SimpleIPath;
 import java.util.Optional;
 
+/**
+ * A minigame where the player has to find an important note hidden under crumbled papers in a
+ * trashcan.
+ */
 public class TrashMinigameUI extends Group {
 
   private static final String CRUMBLED_TEXTURE = "images/crumbled-paper.png";
+
+  /** Key for the note path for the Dialog API. */
   public static final String KEY_NOTE_PATH = "note_path";
 
   private final Table root;
   private final Table content;
   private final Group playfield;
 
-  private String importantNotePath = "images/note-password-1.png";
+  private final String importantNotePath;
 
+  /**
+   * Builds the TrashMinigameUI from the given DialogContext.
+   *
+   * @param dialogContext the DialogContext
+   * @return a new instance of TrashMinigameUI, or a HeadlessDialogGroup if running in headless mode
+   */
   public static Group build(DialogContext dialogContext) {
     Optional<String> path = dialogContext.find(KEY_NOTE_PATH, String.class);
 
@@ -36,6 +48,11 @@ public class TrashMinigameUI extends Group {
     return new TrashMinigameUI(path.orElse(null));
   }
 
+  /**
+   * Creates a new TrashMinigameUI.
+   *
+   * @param importantNotePath the path to the important note texture, or null if there is no note
+   */
   public TrashMinigameUI(String importantNotePath) {
     setSize(Game.windowWidth(), Game.windowHeight());
     this.importantNotePath = importantNotePath;
@@ -92,7 +109,12 @@ public class TrashMinigameUI extends Group {
     resize(Game.windowWidth(), Game.windowHeight());
   }
 
-  /** Call this from Screen#resize */
+  /**
+   * Resize the UI to fill the screen.
+   *
+   * @param width the new width of the window
+   * @param height the new height of the window
+   */
   public void resize(int width, int height) {
     setSize(width, height);
   }
@@ -101,6 +123,13 @@ public class TrashMinigameUI extends Group {
     private final Image image;
     private Vector2 dragOffsetStage = new Vector2();
 
+    /**
+     * Creates a new TrashItemActor with the given texture.
+     *
+     * @param texture the texture to use for this item
+     * @param isSpecial whether this item is the important note (true) or a regular crumbled paper
+     *     (false).
+     */
     public TrashItemActor(Texture texture, boolean isSpecial) {
       image = new Image(texture);
       addActor(image);

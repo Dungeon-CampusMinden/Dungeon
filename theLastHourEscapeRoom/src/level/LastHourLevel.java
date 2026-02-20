@@ -54,14 +54,17 @@ import util.ui.BlackFadeCutscene;
 public class LastHourLevel extends DungeonLevel {
 
   private DoorTile storageDoor;
-  public static Entity pc;
-  public static Entity keypad;
+  private static Entity pc;
+  private static Entity keypad;
+
+  /** The state of the PC when it's off. */
   public static final String PC_STATE_OFF = "off";
-  public static final String PC_STATE_ON = "on";
-  public static final String PC_STATE_VIRUS = "virus";
-  public static final String PC_SIGNAL_ON = "on";
-  public static final String PC_SIGNAL_INFECT = "infect";
-  public static final String PC_SIGNAL_CLEAR = "clear";
+
+  private static final String PC_STATE_ON = "on";
+  private static final String PC_STATE_VIRUS = "virus";
+  private static final String PC_SIGNAL_ON = "on";
+  private static final String PC_SIGNAL_INFECT = "infect";
+  private static final String PC_SIGNAL_CLEAR = "clear";
 
   /**
    * Creates a new Demo Level.

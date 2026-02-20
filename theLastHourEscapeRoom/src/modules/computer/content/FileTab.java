@@ -14,6 +14,7 @@ import java.util.Map;
 import modules.computer.ComputerStateComponent;
 import modules.computer.ComputerStateLocal;
 
+/** Tab for displaying the contents of files in the computer UI. */
 public class FileTab extends ComputerTab {
 
   private static Map<String, Actor> files = null;
@@ -21,6 +22,12 @@ public class FileTab extends ComputerTab {
   private String fileName;
   private Table content;
 
+  /**
+   * Constructs a new FileTab for the specified file name.
+   *
+   * @param sharedState the shared computer state component
+   * @param fileName the name of the file to display in this tab
+   */
   public FileTab(ComputerStateComponent sharedState, String fileName) {
     super(sharedState, "file-" + fileName, String.format("\"%s\"", fileName), true);
     Actor fileContent = getFileMap().getOrDefault(fileName, create404Page(fileName));
@@ -105,6 +112,6 @@ public class FileTab extends ComputerTab {
 
   @Override
   public void onRemove() {
-    ComputerStateLocal.Instance.openFiles().remove(fileName);
+    ComputerStateLocal.getInstance().openFiles().remove(fileName);
   }
 }

@@ -28,10 +28,10 @@ import modules.computer.LastHourDialogTypes;
  */
 public class BlackFadeCutscene extends Table {
 
-  public static final String FONT_SIZES_KEY = "font_sizes";
-  public static final String MESSAGE_SPLIT_TOKEN = "\n\n";
-  public static final String FADE_IN_KEY = "fadeIn";
-  public static final String FADE_OUT_KEY = "fadeOut";
+  private static final String FONT_SIZES_KEY = "font_sizes";
+  private static final String MESSAGE_SPLIT_TOKEN = "\n\n";
+  private static final String FADE_IN_KEY = "fadeIn";
+  private static final String FADE_OUT_KEY = "fadeOut";
 
   private static final float FADE_DURATION = 1.5f;
   private static final float TEXT_FADE_DURATION = 0.7f;
@@ -56,8 +56,10 @@ public class BlackFadeCutscene extends Table {
    * Creates a new BlackFadeCutscene.
    *
    * @param messages The list of text messages to display in sequence
+   * @param fontSizes The list of font sizes corresponding to each message
    * @param fadeIn Whether to fade in when showing
    * @param fadeOut Whether to fade out when hiding
+   * @param ctx The dialog context containing configuration for the cutscene
    */
   private BlackFadeCutscene(
       List<String> messages,
@@ -80,6 +82,7 @@ public class BlackFadeCutscene extends Table {
    * @param fadeIn Whether to fade in when showing
    * @param fadeOut Whether to fade out when hiding
    * @param onComplete Callback to run when all messages have been shown
+   * @param targetIds The target entity ids this UI should be shown for
    * @return The created UIComponent
    */
   public static UIComponent show(

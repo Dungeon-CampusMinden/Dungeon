@@ -21,6 +21,7 @@ import java.util.Optional;
 import modules.computer.content.*;
 import util.LastHourSounds;
 
+/** Main dialog for computer interaction, containing tabs for different content. */
 public class ComputerDialog extends Group {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ComputerDialog.class);
@@ -38,6 +39,14 @@ public class ComputerDialog extends Group {
 
   private DialogContext ctx;
 
+  /**
+   * Creates a new ComputerDialog with the given shared state and dialog context.
+   *
+   * @param state the shared state of the computer, which will be passed to all tabs and updated
+   *     when the state changes
+   * @param ctx the dialog context containing configuration for this dialog, such as the owner
+   *     entity
+   */
   public ComputerDialog(ComputerStateComponent state, DialogContext ctx) {
     INSTANCE = this;
 
@@ -47,13 +56,13 @@ public class ComputerDialog extends Group {
     this.setSize(Game.windowWidth(), Game.windowHeight());
 
     // Tab restore comes first
-    activeTab = ComputerStateLocal.Instance.tab();
+    activeTab = ComputerStateLocal.getInstance().tab();
 
     // Then build tabs + content
     createActors();
 
     // Restore open files
-    for (String s : ComputerStateLocal.Instance.openFiles()) {
+    for (String s : ComputerStateLocal.getInstance().openFiles()) {
       addTab(new FileTab(sharedState, s));
     }
 
@@ -79,11 +88,23 @@ public class ComputerDialog extends Group {
     setActiveTab(virusTab.key());
   }
 
+  /**
+   * Gets the singleton instance of ComputerDialog.
+   *
+   * @return Optional containing the ComputerDialog instance if it exists and is active, or empty if
+   *     it does not exist or has no stage
+   */
   public static Optional<ComputerDialog> getInstance() {
     if (INSTANCE == null || INSTANCE.getStage() == null) return Optional.empty();
     return Optional.of(INSTANCE);
   }
 
+  /**
+   * Updates the shared state of the computer and propagates changes to tabs. If the infection
+   * status has changed, tabs will be added or removed accordingly.
+   *
+   * @param newState the new shared state to update to
+   */
   public void updateState(ComputerStateComponent newState) {
     if (sharedState.equals(newState)) return;
     this.sharedState = newState;
@@ -133,8 +154,8 @@ public class ComputerDialog extends Group {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            if (ComputerFactory.computerDialogInstance != null) {
-              UIUtils.closeDialog(ComputerFactory.computerDialogInstance);
+            if (ComputerFactory.getComputerDialogInstance() != null) {
+              UIUtils.closeDialog(ComputerFactory.getComputerDialogInstance());
             }
           }
         });
@@ -160,6 +181,11 @@ public class ComputerDialog extends Group {
     }
   }
 
+  /**
+   * Adds tabs to the dialog based on the given computer state.
+   *
+   * @param state the computer state to add tabs for
+   */
   public void addTabsForState(ComputerProgress state) {
     if (state == ComputerProgress.ON) {
       addTab(new LoginTab(sharedState));
@@ -190,12 +216,22 @@ public class ComputerDialog extends Group {
         });
   }
 
+  /**
+   * Adds a new tab to the dialog.
+   *
+   * @param tab the ComputerTab to add
+   */
   public void addTab(ComputerTab tab) {
     tab.context(ctx);
     tabContentMap.put(tab.key(), tab);
     buildTabs();
   }
 
+  /**
+   * Closes the tab with the given key.
+   *
+   * @param tabKey the key of the tab to close
+   */
   public void closeTab(String tabKey) {
     if (!tabContentMap.containsKey(tabKey)) return;
     ComputerTab tab = tabContentMap.get(tabKey);
@@ -212,6 +248,7 @@ public class ComputerDialog extends Group {
     buildTabs();
   }
 
+  /** Rebuilds the tab buttons area. */
   public void buildTabs() {
     if (tabArea == null) return;
     tabArea.clearChildren();
@@ -267,6 +304,11 @@ public class ComputerDialog extends Group {
     tabArea.add(tab).left().height(51).padBottom(-5);
   }
 
+  /**
+   * Handles clicking on a tab.
+   *
+   * @param tabKey the key of the clicked tab
+   */
   public void clickedTab(String tabKey) {
     if (tabKey.equals(activeTab)) return;
     if (sharedState.isInfected()) return; // Cannot switch off of the virus tab
@@ -286,7 +328,7 @@ public class ComputerDialog extends Group {
   private void setActiveTab(String tabKey) {
     previousTab = activeTab;
     activeTab = tabKey;
-    ComputerStateLocal.Instance.tab(tabKey);
+    ComputerStateLocal.getInstance().tab(tabKey);
     showContent(activeTab);
     buildTabs();
   }
@@ -299,6 +341,11 @@ public class ComputerDialog extends Group {
     super.draw(batch, parentAlpha);
   }
 
+  /**
+   * Gets the shared state of the computer.
+   *
+   * @return the shared state of the computer
+   */
   public ComputerStateComponent sharedState() {
     return sharedState;
   }

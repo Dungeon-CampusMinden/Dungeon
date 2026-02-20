@@ -7,11 +7,19 @@ import java.util.List;
 import modules.computer.ComputerStateComponent;
 import util.Lore;
 
+/**
+ * Computer tab that displays a blog with comments, as the help system in the Last Hour escape room.
+ */
 public class BlogTab extends ComputerTab {
 
   private static final String TITLE = "Brenner Blog";
   private float timeSinceLogin = 0f; // TODO: Fill from shared state somehow
 
+  /**
+   * Constructs a new BlogTab with the given shared ComputerStateComponent.
+   *
+   * @param sharedState the shared computer state component
+   */
   public BlogTab(ComputerStateComponent sharedState) {
     super(sharedState, "blog", "My Blog", false);
   }
@@ -108,7 +116,22 @@ public class BlogTab extends ComputerTab {
   @Override
   protected void updateState(ComputerStateComponent newStateComp) {}
 
+  /**
+   * Data class representing a blog entry.
+   *
+   * @param title the title of the blog entry
+   * @param content the content of the blog entry
+   * @param comments the list of comments on the blog entry
+   */
   public record BlogEntry(String title, String content, List<BlogComment> comments) {}
 
+  /**
+   * Data class representing a comment on a blog entry.
+   *
+   * @param user the username of the commenter
+   * @param content the content of the comment
+   * @param timeBeforeDisplay the time in seconds before the comment should be displayed after the
+   *     blog entry is shown
+   */
   public record BlogComment(String user, String content, float timeBeforeDisplay) {}
 }

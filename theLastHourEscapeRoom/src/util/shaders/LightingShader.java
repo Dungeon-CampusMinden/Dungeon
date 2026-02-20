@@ -65,6 +65,11 @@ public class LightingShader extends AbstractShader {
     return this;
   }
 
+  /**
+   * Gets the current ambient light level for the shader.
+   *
+   * @return the ambient light level
+   */
   public float ambientLight() {
     return ambientLight;
   }
@@ -100,6 +105,7 @@ public class LightingShader extends AbstractShader {
    *
    * @param position the position of the light source
    * @param intensity the intensity of the light source
+   * @param color the color of the light source
    */
   public record Light(Point position, float intensity, Color color) {}
 }

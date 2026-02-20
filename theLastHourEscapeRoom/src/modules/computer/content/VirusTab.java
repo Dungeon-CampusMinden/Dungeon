@@ -14,8 +14,10 @@ import modules.computer.ComputerFactory;
 import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;
 
+/** Tab content for when the computer is infected with a virus. */
 public class VirusTab extends ComputerTab {
 
+  /** Key for identifying the virus tab in the computer dialog. */
   public static String KEY = "virus";
 
   private String virusType;
@@ -27,6 +29,11 @@ public class VirusTab extends ComputerTab {
           "Adware", "ESCAPE",
           "Worm", "ESCAPE");
 
+  /**
+   * Creates a new VirusTab with the given shared computer state.
+   *
+   * @param sharedState the shared state component
+   */
   public VirusTab(ComputerStateComponent sharedState) {
     super(sharedState, "virus", "*+*+* VIRUS *+*+*", false);
   }

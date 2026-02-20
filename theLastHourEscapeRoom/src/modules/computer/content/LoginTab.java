@@ -13,6 +13,7 @@ import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;
 import util.Lore;
 
+/** Tab for logging into the computer, containing username and password fields and feedback. */
 public class LoginTab extends ComputerTab {
 
   // Password feedback
@@ -26,6 +27,11 @@ public class LoginTab extends ComputerTab {
   private Button loginButton;
   private Label loginFeedback;
 
+  /**
+   * Creates a new LoginTab with the given shared state.
+   *
+   * @param sharedState the shared computer state component
+   */
   public LoginTab(ComputerStateComponent sharedState) {
     super(sharedState, "login", "Login", false);
   }

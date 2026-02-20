@@ -5,26 +5,49 @@ import java.util.List;
 import modules.computer.content.BlogTab;
 import modules.computer.content.EmailsTab;
 
+/**
+ * Helper class to store all the lore related information, such as story texts, character names,
+ * emails and blog entries.
+ */
 public class Lore {
 
+  /** Name of the company. */
   public static final String CompanyName = "CyberTech Solutions";
+
+  /** Short name of the company. */
   public static final String CompanyDrawable = "company_logo";
+
+  /** Name of the scientist, the main character of the story. */
   public static final String ScientistName = "Prof. Dr. Martin Brenner";
+
+  /** Short name of the scientist. */
   public static final String ScientistNameShort = "Dr. Brenner";
+
+  /** Email of the scientist. */
   public static final String ScientistEmail = "dr.brenner@cybertech-solutions.com";
+
+  /** Short name of the scientist. */
   public static final String ScientistPortraitDrawable = "scientist_portrait";
 
+  /** Email and password for the computer login. */
   public static final String LoginEmail = ScientistEmail;
+
+  /** Password for the computer login. */
   public static final String LoginPassword = "a12b34xy";
 
+  /** List of intro texts, each with a corresponding font sizes. */
   public static final List<Tuple<String, Integer>> IntroTexts =
       List.of(Tuple.of("Story here", 32), Tuple.of("The Last Hour", 120));
+
+  /** List of post intro dialog texts. */
   public static final List<String> PostIntroDialogTexts =
       List.of("Goal explanation here", "Possible multi stage.");
 
+  /** List of outro texts, each with a corresponding font sizes. */
   public static final List<Tuple<String, Integer>> OutroTexts =
       List.of(Tuple.of("Outro story here", 32), Tuple.of("Congratulations!\nYou escaped! :D", 256));
 
+  /** List of blog entries, each with a title, content and a list of comments. */
   public static final List<BlogTab.BlogEntry> BlogEntries =
       List.of(
           new BlogTab.BlogEntry("Kleine Panne", "Blog entry 1", List.of()),
@@ -35,6 +58,7 @@ public class Lore {
                   new BlogTab.BlogComment("TechAnalyst", "Blog comment 1", 180),
                   new BlogTab.BlogComment("CyberLab", "Blog comment 2", 300))));
 
+  /** List of emails, each with a sender, sender email, subject, content and list of attachments. */
   public static final List<EmailsTab.Email> EmailList =
       List.of(
           new EmailsTab.Email(
