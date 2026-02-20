@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Optional;
 
 public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Action.StepInto, Action.Terminate, Action.Abort {
@@ -35,7 +36,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    * @return An action that represents the call.
    */
   public static @NotNull Action Call(@NotNull Operation funcOp, @NotNull Object... args) {
-    return new Call(funcOp, args);
+    return new Call(funcOp, List.of(args));
   }
 
   /**
@@ -47,7 +48,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    * @return An action that represents the step into.
    */
   public static @NotNull Action StepInto(@NotNull Region region, boolean isolatedFromAbove, @NotNull Optional<Operation> nextOperation, @NotNull Object... args) {
-    return new StepInto(region, isolatedFromAbove, nextOperation, args);
+    return new StepInto(region, isolatedFromAbove, nextOperation, List.of(args));
   }
 
   /**
@@ -90,7 +91,10 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    *
    * @param funcOp The function operation to call.
    */
-  public record Call(@NotNull Operation funcOp, Object... args) implements Action {
+  public record Call(@NotNull Operation funcOp, @NotNull List<@NotNull Object> args) implements Action {
+    public Call {
+      args = List.copyOf(args);
+    }
   }
 
   /**
@@ -105,7 +109,10 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
   public record StepInto(@NotNull Region region,
                          boolean isolatedFromAbove,
                          @NotNull Optional<Operation> nextOperation,
-                         Object... args) implements Action {
+                         List<Object> args) implements Action {
+    public StepInto {
+      args = List.copyOf(args);
+    }
   }
 
   /**
