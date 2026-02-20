@@ -1,8 +1,5 @@
 package core.utils.components.draw.animation;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 /**
  * Configuration for extracting frames from a spritesheet.
  *
@@ -11,8 +8,7 @@ import java.io.Serializable;
  * information is used by {@link AnimationConfig} and related classes to cut a spritesheet into
  * individual frames.
  */
-public class SpritesheetConfig implements Serializable, Cloneable {
-  @Serial private static final long serialVersionUID = 1L;
+public class SpritesheetConfig implements Cloneable {
 
   private int spriteWidth = 16;
   private int spriteHeight = 16;

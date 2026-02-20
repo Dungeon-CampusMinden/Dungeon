@@ -1,8 +1,5 @@
 package core.utils.components.draw;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 /**
  * Data-only representation of draw state for network synchronization.
  *
@@ -15,9 +12,7 @@ import java.io.Serializable;
  * @param currentFrame optional current animation frame index
  */
 public record DrawInfoData(
-    String texturePath, Float scaleX, Float scaleY, String animationName, Integer currentFrame)
-    implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    String texturePath, Float scaleX, Float scaleY, String animationName, Integer currentFrame) {
 
   // TODO: Replace texture paths with asset IDs/atlas references once an asset registry exists.
 }

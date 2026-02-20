@@ -39,20 +39,8 @@ public final class DialogContextProtoConverter {
             .setCenter(context.center())
             .setCanBeClosed(canBeClosed);
 
-    context
-        .find(DialogContextKeys.OWNER_ENTITY, Integer.class)
-        .ifPresent(builder::setOwnerEntityId);
-    context.find(DialogContextKeys.ENTITY, Integer.class).ifPresent(builder::setEntityId);
-    context
-        .find(DialogContextKeys.SECONDARY_ENTITY, Integer.class)
-        .ifPresent(builder::setSecondaryEntityId);
-
     for (Map.Entry<String, Serializable> entry : context.attributes().entrySet()) {
-      String key = entry.getKey();
-      if (isEntityKey(key)) {
-        continue;
-      }
-      DialogAttribute attribute = toAttribute(key, entry.getValue());
+      DialogAttribute attribute = toAttribute(entry.getKey(), entry.getValue());
       if (attribute != null) {
         builder.addAttributes(attribute);
       }
@@ -78,20 +66,7 @@ public final class DialogContextProtoConverter {
       builder.dialogId(proto.getDialogId());
     }
 
-    if (proto.hasOwnerEntityId()) {
-      builder.put(DialogContextKeys.OWNER_ENTITY, proto.getOwnerEntityId());
-    }
-    if (proto.hasEntityId()) {
-      builder.put(DialogContextKeys.ENTITY, proto.getEntityId());
-    }
-    if (proto.hasSecondaryEntityId()) {
-      builder.put(DialogContextKeys.SECONDARY_ENTITY, proto.getSecondaryEntityId());
-    }
-
     for (DialogAttribute attribute : proto.getAttributesList()) {
-      if (isEntityKey(attribute.getKey())) {
-        continue;
-      }
       Serializable value = fromAttribute(attribute.getKey(), attribute);
       if (value != null) {
         builder.put(attribute.getKey(), value);
@@ -107,32 +82,30 @@ public final class DialogContextProtoConverter {
     }
     DialogAttribute.Builder builder = DialogAttribute.newBuilder().setKey(key);
 
-    if (value instanceof String stringValue) {
-      builder.setStringValue(stringValue);
-    } else if (value instanceof Integer intValue) {
-      builder.setIntValue(intValue);
-    } else if (value instanceof Long longValue) {
-      builder.setLongValue(longValue);
-    } else if (value instanceof Float floatValue) {
-      builder.setFloatValue(floatValue);
-    } else if (value instanceof Double doubleValue) {
-      builder.setDoubleValue(doubleValue);
-    } else if (value instanceof Boolean boolValue) {
-      builder.setBoolValue(boolValue);
-    } else if (value instanceof String[] stringArray) {
-      builder.setStringList(StringList.newBuilder().addAllValues(Arrays.asList(stringArray)));
-    } else if (value instanceof int[] intArray) {
-      IntList.Builder intList = IntList.newBuilder();
-      for (int item : intArray) {
-        intList.addValues(item);
+    switch (value) {
+      case String stringValue -> builder.setStringValue(stringValue);
+      case Integer intValue -> builder.setIntValue(intValue);
+      case Long longValue -> builder.setLongValue(longValue);
+      case Float floatValue -> builder.setFloatValue(floatValue);
+      case Double doubleValue -> builder.setDoubleValue(doubleValue);
+      case Boolean boolValue -> builder.setBoolValue(boolValue);
+      case String[] stringArray ->
+          builder.setStringList(StringList.newBuilder().addAllValues(Arrays.asList(stringArray)));
+      case int[] intArray -> {
+        IntList.Builder intList = IntList.newBuilder();
+        for (int item : intArray) {
+          intList.addValues(item);
+        }
+        builder.setIntList(intList);
       }
-      builder.setIntList(intList);
-    } else if (value instanceof TransitionSpeed speed
-        && DialogContextKeys.IMAGE_TRANSITION_SPEED.equals(key)) {
-      builder.setStringValue(speed.name());
-    } else {
-      throw new IllegalArgumentException(
-          "Unsupported dialog attribute type for key '" + key + "': " + value.getClass().getName());
+      case TransitionSpeed speed when DialogContextKeys.IMAGE_TRANSITION_SPEED.equals(key) ->
+          builder.setStringValue(speed.name());
+      default ->
+          throw new IllegalArgumentException(
+              "Unsupported dialog attribute type for key '"
+                  + key
+                  + "': "
+                  + value.getClass().getName());
     }
 
     return builder.build();
@@ -172,23 +145,7 @@ public final class DialogContextProtoConverter {
     return new DialogTypeWrapper(typeString);
   }
 
-  private static boolean isEntityKey(String key) {
-    return DialogContextKeys.OWNER_ENTITY.equals(key)
-        || DialogContextKeys.ENTITY.equals(key)
-        || DialogContextKeys.SECONDARY_ENTITY.equals(key);
-  }
-
-  private static final class DialogTypeWrapper implements DialogType {
-    private final String type;
-
-    private DialogTypeWrapper(String type) {
-      this.type = type;
-    }
-
-    @Override
-    public String type() {
-      return type;
-    }
+  private record DialogTypeWrapper(String type) implements DialogType {
 
     @Override
     public boolean equals(Object obj) {
@@ -199,11 +156,6 @@ public final class DialogContextProtoConverter {
         return false;
       }
       return Objects.equals(type, other.type());
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(type);
     }
   }
 }

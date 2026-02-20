@@ -23,17 +23,8 @@ message DialogShowMessage {
   // Whether player can close without selecting an option.
   bool can_be_closed = 4;
 
-  // Entity ID that owns this dialog (for inventory, etc.).
-  optional int32 owner_entity_id = 5;
-
-  // Primary entity ID (for interactions).
-  optional int32 entity_id = 6;
-
-  // Secondary entity ID (for dual inventory, etc.).
-  optional int32 secondary_entity_id = 7;
-
   // All dialog-specific data as typed attributes.
-  repeated DialogAttribute attributes = 10;
+  repeated DialogAttribute attributes = 5;
 }
 
 // A typed attribute for dialog data.

@@ -456,11 +456,7 @@ public final class ServerTransport {
         req.sessionId(),
         session);
     if (req.protocolVersion() != SERVER_PROTOCOL_VERSION) {
-      session.sendMessage(
-          new ConnectReject(
-              ConnectReject.Reason.INCOMPATIBLE_VERSION,
-              "Server=" + SERVER_PROTOCOL_VERSION + ", yours=" + req.protocolVersion()),
-          true);
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.INCOMPATIBLE_VERSION), true);
       LOGGER.info(
           "Rejected ConnectRequest due to incompatible version: server={} client={}",
           SERVER_PROTOCOL_VERSION,

@@ -1,6 +1,5 @@
 package core.utils.components.draw.state;
 
-import java.io.Serializable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -17,5 +16,4 @@ import java.util.function.Supplier;
  * @param data a supplier of optional data to attach to the target state upon transition
  */
 public record EpsilonTransition(
-    Function<State, Boolean> function, State targetState, Supplier<Object> data)
-    implements Serializable {}
+    Function<State, Boolean> function, State targetState, Supplier<Object> data) {}

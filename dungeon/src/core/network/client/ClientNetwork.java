@@ -320,9 +320,8 @@ public final class ClientNetwork {
                         if (msg
                             instanceof ConnectAck(short id, int sessionId, byte[] sessionToken)) {
                           onConnectAck(id, sessionId, sessionToken);
-                        } else if (msg instanceof ConnectReject(byte reason, Object extraData)) {
-                          onConnectReject(
-                              session, ConnectReject.Reason.fromCode(reason), extraData);
+                        } else if (msg instanceof ConnectReject(byte reason)) {
+                          onConnectReject(session, ConnectReject.Reason.fromCode(reason));
                         } else if (msg instanceof RegisterAck(boolean ok)) {
                           onRegisterAck(ok);
                         } else {
@@ -480,13 +479,8 @@ public final class ClientNetwork {
     saveLastSessionToFile(sessionId, sessionToken);
   }
 
-  private void onConnectReject(Session session, ConnectReject.Reason reason, Object extraData) {
-    String reasonStr =
-        "Connection rejected by server: "
-            + reason
-            + " ("
-            + (extraData != null ? extraData : "no extra data")
-            + ")";
+  private void onConnectReject(Session session, ConnectReject.Reason reason) {
+    String reasonStr = "Connection rejected by server: " + reason;
     LOGGER.warn(reasonStr);
     if (reason == ConnectReject.Reason.NO_SESSION_FOUND
         || reason == ConnectReject.Reason.INVALID_SESSION_TOKEN) {

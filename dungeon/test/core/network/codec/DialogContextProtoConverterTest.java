@@ -37,16 +37,17 @@ public class DialogContextProtoConverterTest {
     assertEquals("TEXT", proto.getDialogType());
     assertTrue(proto.getCanBeClosed());
     assertFalse(proto.getCenter());
-    assertTrue(proto.hasOwnerEntityId());
-    assertEquals(10, proto.getOwnerEntityId());
-    assertTrue(proto.hasEntityId());
-    assertEquals(20, proto.getEntityId());
     assertTrue(
         proto.getAttributesList().stream()
-            .noneMatch(
+            .anyMatch(
                 attr ->
                     DialogContextKeys.OWNER_ENTITY.equals(attr.getKey())
-                        || DialogContextKeys.ENTITY.equals(attr.getKey())));
+                        && attr.getIntValue() == 10));
+    assertTrue(
+        proto.getAttributesList().stream()
+            .anyMatch(
+                attr ->
+                    DialogContextKeys.ENTITY.equals(attr.getKey()) && attr.getIntValue() == 20));
 
     DialogContext roundTrip = DialogContextProtoConverter.fromProto(proto);
 

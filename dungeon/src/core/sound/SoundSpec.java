@@ -1,8 +1,5 @@
 package core.sound;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 /**
  * Describes a single sound instance to be played for an entity.
  *
@@ -44,9 +41,7 @@ public record SoundSpec(
     float pan,
     float maxDistance,
     float attenuationFactor,
-    int... targetEntityIds)
-    implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+    int... targetEntityIds) {
 
   /**
    * Constructs a SoundSpec with the specified parameters. The targetEntityIds array is defensively

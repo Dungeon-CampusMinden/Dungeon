@@ -1,8 +1,5 @@
 package core.utils;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 /**
  * A simple generic record representing a tuple of two values.
  *
@@ -11,8 +8,7 @@ import java.io.Serializable;
  * @param <A> foo
  * @param <B> foo
  */
-public record Tuple<A, B>(A a, B b) implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+public record Tuple<A, B>(A a, B b) {
 
   /**
    * Create a new tuple.

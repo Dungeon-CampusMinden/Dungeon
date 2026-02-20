@@ -30,9 +30,7 @@ import java.util.*;
  * <p>Animation frames are stored internally as {@link Sprite} objects and can be updated
  * frame-by-frame with {@link #update()}.
  */
-public class Animation implements Serializable, Cloneable {
-  @Serial private static final long serialVersionUID = 1L;
-
+public class Animation implements Cloneable {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Animation.class);
 
   /** Path to the missing texture fallback image. */
@@ -525,19 +523,6 @@ public class Animation implements Serializable, Cloneable {
       return dirName + "/" + baseName + ".png";
     }
     return pathString;
-  }
-
-  @Serial
-  private void writeObject(ObjectOutputStream out) throws IOException {
-    out.defaultWriteObject();
-  }
-
-  @Serial
-  private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-    in.defaultReadObject();
-    this.sprites = null;
-    this.loaded = false;
-    // width/height will be recomputed on load; keep existing values as hints
   }
 
   @Override
