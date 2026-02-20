@@ -54,14 +54,16 @@ public class EmailsTab extends ComputerTab {
     container.add(inboxLabel).left().padBottom(10).row();
 
     Label userLabel =
-        Scene2dElementFactory.createLabel(Lore.ScientistName + " <" + Lore.ScientistEmail + ">", 20, Color.DARK_GRAY);
+        Scene2dElementFactory.createLabel(
+            Lore.ScientistName + " <" + Lore.ScientistEmail + ">", 20, Color.DARK_GRAY);
     container.add(userLabel).left().padBottom(20).row();
 
     Table subArea = new Table();
     container.add(subArea).grow().padLeft(15).row();
 
     Label emailsLabel =
-        Scene2dElementFactory.createLabel("E-Mails: (" + Lore.EmailList.size() + ")", 24, Color.BLACK);
+        Scene2dElementFactory.createLabel(
+            "E-Mails: (" + Lore.EmailList.size() + ")", 24, Color.BLACK);
     subArea.add(emailsLabel).expandX().left().padBottom(10).row();
 
     Table emailList = new Table();
@@ -167,9 +169,11 @@ public class EmailsTab extends ComputerTab {
         lineLabel.addListener(
             new InputListener() {
               @Override
-              public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+              public boolean touchDown(
+                  InputEvent event, float x, float y, int pointer, int button) {
                 BrowserTab.getInstance()
-                  .ifPresent(bt -> ComputerDialog.getInstance().orElseThrow().clickedTab(bt.key()));
+                    .ifPresent(
+                        bt -> ComputerDialog.getInstance().orElseThrow().clickedTab(bt.key()));
                 return super.touchDown(event, x, y, pointer, button);
               }
 
@@ -271,22 +275,21 @@ public class EmailsTab extends ComputerTab {
     }
   }
 
-  public static Label createLinkLabel(String text, String url){
+  public static Label createLinkLabel(String text, String url) {
     Label label = Scene2dElementFactory.createLabel(text, 18, Color.BLUE);
     label.setUserObject(Cursors.EXTERNAL);
     label.addListener(
-      new InputListener() {
-        @Override
-        public boolean touchDown(
-          InputEvent event, float x, float y, int pointer, int button) {
-          BrowserTab.getInstance()
-            .ifPresent(
-              bt -> {
-                bt.navigate(url);
-              });
-          return super.touchDown(event, x, y, pointer, button);
-        }
-      });
+        new InputListener() {
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            BrowserTab.getInstance()
+                .ifPresent(
+                    bt -> {
+                      bt.navigate(url);
+                    });
+            return super.touchDown(event, x, y, pointer, button);
+          }
+        });
     return label;
   }
 }

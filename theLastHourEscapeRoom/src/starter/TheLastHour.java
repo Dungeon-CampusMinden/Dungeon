@@ -1,7 +1,6 @@
 package starter;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import contrib.components.SkillComponent;
 import contrib.entities.CharacterClass;
@@ -14,7 +13,6 @@ import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
-import core.components.InputComponent;
 import core.configuration.KeyboardConfig;
 import core.game.ECSManagement;
 import core.game.GameLoop;
@@ -25,9 +23,8 @@ import core.systems.*;
 import core.utils.CursorUtil;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
-
 import core.utils.settings.ClientSettings;
+import java.io.IOException;
 import level.LastHourLevel;
 
 /**
@@ -109,13 +106,16 @@ public class TheLastHour {
     backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
     backgroundMusic.setLooping(true);
     backgroundMusic.play();
-    backgroundMusic.setVolume(ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
+    backgroundMusic.setVolume(
+        ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
 
-    ClientSettings.setOnVolumeChange((key, value) -> {
-      if(key.equals(ClientSettings.MUSIC_VOLUME) || key.equals(ClientSettings.MASTER_VOLUME)) {
-        backgroundMusic.setVolume(ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
-      }
-    });
+    ClientSettings.setOnVolumeChange(
+        (key, value) -> {
+          if (key.equals(ClientSettings.MUSIC_VOLUME) || key.equals(ClientSettings.MASTER_VOLUME)) {
+            backgroundMusic.setVolume(
+                ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
+          }
+        });
   }
 
   private static void onFrame() {

@@ -1,13 +1,10 @@
 package util;
 
-import core.Game;
 import core.sound.CoreSounds;
 import core.sound.ISound;
-import core.sound.SoundSpec;
 
 /** Enum that lists available in-game sounds and convenient playback helpers. */
 public enum LastHourSounds implements ISound {
-
   COMPUTER_TAB_CLICKED(CoreSounds.INTERFACE_BUTTON_CLICKED.soundName(), 1.0f),
   COMPUTER_LOGIN_FAILED("kenney_ui_error_002", 0.7f),
   COMPUTER_LOGIN_SUCCESS("kenney_ui_confirmation_002", 1.0f),
@@ -16,7 +13,6 @@ public enum LastHourSounds implements ISound {
 
   /** Sounds like a beep-boop-beeeeep. */
   ELECTRICITY_TURNED_ON("kenney_ui_maximize_001", 1.0f),
-
   ;
 
   private final String soundName;

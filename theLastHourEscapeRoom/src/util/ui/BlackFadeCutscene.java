@@ -18,14 +18,13 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.*;
 import core.Game;
 import core.utils.*;
-import modules.computer.LastHourDialogTypes;
-
 import java.util.List;
 import java.util.stream.Stream;
+import modules.computer.LastHourDialogTypes;
 
 /**
- * A UI component that displays a black background with text messages in sequence.
- * Messages advance on click and can fade in/out on show and hide.
+ * A UI component that displays a black background with text messages in sequence. Messages advance
+ * on click and can fade in/out on show and hide.
  */
 public class BlackFadeCutscene extends Table {
 
@@ -56,11 +55,16 @@ public class BlackFadeCutscene extends Table {
   /**
    * Creates a new BlackFadeCutscene.
    *
-   * @param messages   The list of text messages to display in sequence
-   * @param fadeIn     Whether to fade in when showing
-   * @param fadeOut    Whether to fade out when hiding
+   * @param messages The list of text messages to display in sequence
+   * @param fadeIn Whether to fade in when showing
+   * @param fadeOut Whether to fade out when hiding
    */
-  private BlackFadeCutscene(List<String> messages, List<Integer> fontSizes, boolean fadeIn, boolean fadeOut, DialogContext ctx) {
+  private BlackFadeCutscene(
+      List<String> messages,
+      List<Integer> fontSizes,
+      boolean fadeIn,
+      boolean fadeOut,
+      DialogContext ctx) {
     this.messages = messages;
     this.fontSizes = fontSizes;
     this.fadeIn = fadeIn;
@@ -72,42 +76,47 @@ public class BlackFadeCutscene extends Table {
   /**
    * Shows the BlackFadeCutscene with the specified parameters.
    *
-   * @param messages   The list of text messages to display
-   * @param fadeIn     Whether to fade in when showing
-   * @param fadeOut    Whether to fade out when hiding
+   * @param messages The list of text messages to display
+   * @param fadeIn Whether to fade in when showing
+   * @param fadeOut Whether to fade out when hiding
    * @param onComplete Callback to run when all messages have been shown
    * @return The created UIComponent
    */
-  public static UIComponent show(List<Tuple<String, Integer>> messages, boolean fadeIn, boolean fadeOut, Runnable onComplete, int... targetIds) {
-    List<String> messagesList = messages.stream()
-        .map(Tuple::a)
-        .toList();
-    List<Integer> fontSizes = messages.stream()
-        .map(Tuple::b)
-        .toList();
+  public static UIComponent show(
+      List<Tuple<String, Integer>> messages,
+      boolean fadeIn,
+      boolean fadeOut,
+      Runnable onComplete,
+      int... targetIds) {
+    List<String> messagesList = messages.stream().map(Tuple::a).toList();
+    List<Integer> fontSizes = messages.stream().map(Tuple::b).toList();
     String joinedMessages = String.join(MESSAGE_SPLIT_TOKEN, messagesList);
-    String joinedFontSizes = String.join(MESSAGE_SPLIT_TOKEN, fontSizes.stream().map(String::valueOf).toList());
+    String joinedFontSizes =
+        String.join(MESSAGE_SPLIT_TOKEN, fontSizes.stream().map(String::valueOf).toList());
 
     DialogContext ctx =
-      DialogContext.builder()
-        .type(LastHourDialogTypes.TEXT_CUTSCENE)
-        .put(DialogContextKeys.MESSAGE, joinedMessages)
-        .put(FONT_SIZES_KEY, joinedFontSizes)
-        .put(FADE_IN_KEY, fadeIn)
-        .put(FADE_OUT_KEY, fadeOut)
-        .build();
+        DialogContext.builder()
+            .type(LastHourDialogTypes.TEXT_CUTSCENE)
+            .put(DialogContextKeys.MESSAGE, joinedMessages)
+            .put(FONT_SIZES_KEY, joinedFontSizes)
+            .put(FADE_IN_KEY, fadeIn)
+            .put(FADE_OUT_KEY, fadeOut)
+            .build();
 
     UIComponent ui = DialogFactory.show(ctx, targetIds);
 
     // Register callback
-    ui.registerCallback(DialogContextKeys.ON_RESUME, data -> {
-      UIUtils.closeDialog(ui, true, true);
-    });
-    ui.onClose((uic) -> {
-      if(onComplete != null) {
-        onComplete.run();
-      }
-    });
+    ui.registerCallback(
+        DialogContextKeys.ON_RESUME,
+        data -> {
+          UIUtils.closeDialog(ui, true, true);
+        });
+    ui.onClose(
+        (uic) -> {
+          if (onComplete != null) {
+            onComplete.run();
+          }
+        });
 
     return ui;
   }
@@ -115,7 +124,7 @@ public class BlackFadeCutscene extends Table {
   /**
    * Shows the BlackFadeCutscene with default fade settings (both enabled).
    *
-   * @param messages   The list of text messages to display
+   * @param messages The list of text messages to display
    * @param onComplete Callback to run when all messages have been shown
    * @return The created UIComponent
    */
@@ -135,9 +144,10 @@ public class BlackFadeCutscene extends Table {
     String messages = ctx.require(DialogContextKeys.MESSAGE, String.class);
     // Split by special token into individual messages
     List<String> messageList = List.of(messages.split(MESSAGE_SPLIT_TOKEN));
-    List<Integer> fontSizes = Stream.of(ctx.require(FONT_SIZES_KEY, String.class).split(MESSAGE_SPLIT_TOKEN))
-        .map(Integer::valueOf)
-        .toList();
+    List<Integer> fontSizes =
+        Stream.of(ctx.require(FONT_SIZES_KEY, String.class).split(MESSAGE_SPLIT_TOKEN))
+            .map(Integer::valueOf)
+            .toList();
     boolean fadeIn = ctx.find(FADE_IN_KEY, Boolean.class).orElse(true);
     boolean fadeOut = ctx.find(FADE_OUT_KEY, Boolean.class).orElse(true);
 
@@ -146,7 +156,8 @@ public class BlackFadeCutscene extends Table {
       return new HeadlessDialogGroup();
     }
 
-    return new BaseContainerUI(new BlackFadeCutscene(messageList, fontSizes, fadeIn, fadeOut, ctx), true, false);
+    return new BaseContainerUI(
+        new BlackFadeCutscene(messageList, fontSizes, fadeIn, fadeOut, ctx), true, false);
   }
 
   private void createActors() {
@@ -167,23 +178,22 @@ public class BlackFadeCutscene extends Table {
     this.add(messageLabel).width(Game.windowWidth() * 0.5f).center();
 
     // Add click listener to advance messages
-    this.addListener(new ClickListener(Input.Buttons.LEFT) {
-      @Override
-      public void clicked(InputEvent event, float x, float y) {
-        if (!isAnimating) {
-          advanceMessage();
-        }
-      }
-    });
+    this.addListener(
+        new ClickListener(Input.Buttons.LEFT) {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+            if (!isAnimating) {
+              advanceMessage();
+            }
+          }
+        });
 
     // Initial setup
     if (fadeIn) {
       this.getColor().a = 0f;
       messageLabel.getColor().a = 0f;
-      this.addAction(Actions.sequence(
-          Actions.fadeIn(FADE_DURATION),
-          Actions.run(this::showCurrentMessage)
-      ));
+      this.addAction(
+          Actions.sequence(Actions.fadeIn(FADE_DURATION), Actions.run(this::showCurrentMessage)));
     } else {
       messageLabel.getColor().a = 0f;
       showCurrentMessage();
@@ -199,10 +209,9 @@ public class BlackFadeCutscene extends Table {
       style.font = FontHelper.getFont(FontSpec.of(fontSize));
       messageLabel.setStyle(style);
       messageLabel.setText(text);
-      messageLabel.addAction(Actions.sequence(
-          Actions.fadeIn(TEXT_FADE_DURATION),
-          Actions.run(() -> isAnimating = false)
-      ));
+      messageLabel.addAction(
+          Actions.sequence(
+              Actions.fadeIn(TEXT_FADE_DURATION), Actions.run(() -> isAnimating = false)));
     }
   }
 
@@ -212,10 +221,9 @@ public class BlackFadeCutscene extends Table {
     if (currentMessageIndex < messages.size()) {
       // Fade out current message, then show next
       isAnimating = true;
-      messageLabel.addAction(Actions.sequence(
-          Actions.fadeOut(TEXT_FADE_DURATION),
-          Actions.run(this::showCurrentMessage)
-      ));
+      messageLabel.addAction(
+          Actions.sequence(
+              Actions.fadeOut(TEXT_FADE_DURATION), Actions.run(this::showCurrentMessage)));
     } else {
       // All messages shown, complete the cutscene
       completeCutscene();
@@ -227,15 +235,19 @@ public class BlackFadeCutscene extends Table {
     if (fadeOut) {
       // Fade out text first, then fade out background, then run callback
       messageLabel.addAction(Actions.fadeOut(TEXT_FADE_DURATION));
-      this.addAction(Actions.sequence(
-          Actions.delay(TEXT_FADE_DURATION),
-          Actions.fadeOut(FADE_DURATION),
-          Actions.run(() -> {
-            DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_RESUME).accept(null);
-          })
-      ));
+      this.addAction(
+          Actions.sequence(
+              Actions.delay(TEXT_FADE_DURATION),
+              Actions.fadeOut(FADE_DURATION),
+              Actions.run(
+                  () -> {
+                    DialogCallbackResolver.createButtonCallback(
+                            ctx.dialogId(), DialogContextKeys.ON_RESUME)
+                        .accept(null);
+                  })));
     } else {
-      DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_RESUME).accept(null);
+      DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_RESUME)
+          .accept(null);
     }
   }
 

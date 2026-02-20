@@ -4,12 +4,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
-import core.utils.components.draw.TextureGenerator;
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerProgress;
 import modules.computer.ComputerStateComponent;
@@ -82,7 +79,9 @@ public class LoginTab extends ComputerTab {
           public void changed(ChangeEvent event, Actor actor) {
             String username = localState().username();
             String password = localState().password();
-            if ((username.equalsIgnoreCase(Lore.LoginEmail) && password.equalsIgnoreCase(Lore.LoginPassword)) || username.equals("skipp")) {
+            if ((username.equalsIgnoreCase(Lore.LoginEmail)
+                    && password.equalsIgnoreCase(Lore.LoginPassword))
+                || username.equals("skipp")) {
               ComputerStateComponent.setState(ComputerProgress.LOGGED_IN);
               ComputerDialog.getInstance()
                   .ifPresent(
@@ -124,7 +123,7 @@ public class LoginTab extends ComputerTab {
     loginButton.setDisabled(true);
     loginFeedback.setText(CORRECT_FEEDBACK);
     loginFeedback.setColor(CORRECT_COLOR);
-    if(!completedPrior){
+    if (!completedPrior) {
       Sounds.playLocal(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
     }
   }

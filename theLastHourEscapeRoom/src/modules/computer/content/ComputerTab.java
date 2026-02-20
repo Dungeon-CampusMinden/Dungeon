@@ -77,7 +77,9 @@ public abstract class ComputerTab extends Table {
   protected abstract void updateState(ComputerStateComponent newStateComp);
 
   /**
-   * Sets the DialogContext for this tab, allowing it to access dialog-specific parameters and the owner dialog itself.
+   * Sets the DialogContext for this tab, allowing it to access dialog-specific parameters and the
+   * owner dialog itself.
+   *
    * @param ctx The DialogContext to set for this tab
    */
   public void context(DialogContext ctx) {
@@ -86,16 +88,13 @@ public abstract class ComputerTab extends Table {
 
   /**
    * Retrieves the DialogContext associated with the ComputerDialog
+   *
    * @return The DialogContext for the dialog
    */
   public DialogContext context() {
     return ctx;
   }
 
-  /**
-   * Called when the tab is removed from the dialog.
-   */
-  public void onRemove() {
-
-  }
+  /** Called when the tab is removed from the dialog. */
+  public void onRemove() {}
 }

@@ -67,12 +67,12 @@ public class ComputerDialog extends Group {
   }
 
   private void checkVirus() {
-    if(sharedState.isInfected()){
+    if (sharedState.isInfected()) {
       addVirusTab();
     }
   }
 
-  private void addVirusTab(){
+  private void addVirusTab() {
     if (tabContentMap.containsKey(VirusTab.KEY)) return;
     ComputerTab virusTab = new VirusTab(sharedState);
     addTab(virusTab);
@@ -87,12 +87,12 @@ public class ComputerDialog extends Group {
   public void updateState(ComputerStateComponent newState) {
     if (sharedState.equals(newState)) return;
     this.sharedState = newState;
-    if(newState.isInfected()){
-      if(!tabContentMap.containsKey(VirusTab.KEY)){
+    if (newState.isInfected()) {
+      if (!tabContentMap.containsKey(VirusTab.KEY)) {
         addVirusTab();
       }
     } else {
-      if(tabContentMap.containsKey(VirusTab.KEY)){
+      if (tabContentMap.containsKey(VirusTab.KEY)) {
         closeTab(VirusTab.KEY);
       }
     }
@@ -202,7 +202,7 @@ public class ComputerDialog extends Group {
     tab.onRemove();
     tabContentMap.remove(tabKey);
     if (tabKey.equals(activeTab)) {
-      if(previousTab != null){
+      if (previousTab != null) {
         setActiveTab(previousTab);
       } else {
         String firstTab = tabContentMap.keySet().stream().findFirst().orElse(null);
@@ -237,7 +237,7 @@ public class ComputerDialog extends Group {
     tab.add(label).pad(0, 15, 0, 15).grow();
     tab.setTouchable(Touchable.enabled);
     tab.setUserObject(Cursors.INTERACT);
-    if(sharedState.isInfected()) tab.setUserObject(Cursors.DISABLED);
+    if (sharedState.isInfected()) tab.setUserObject(Cursors.DISABLED);
     tab.addListener(
         new ClickListener(Input.Buttons.LEFT) {
           @Override

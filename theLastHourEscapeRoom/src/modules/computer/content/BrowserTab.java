@@ -10,8 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import core.utils.Scene2dElementFactory;
 import java.util.*;
-import java.util.List;
-
 import modules.computer.ComputerDialog;
 import modules.computer.ComputerStateComponent;
 
@@ -44,7 +42,8 @@ public class BrowserTab extends ComputerTab {
 
     Table browseArea = new Table();
     browseArea.add(createAdressBar()).growX().row();
-    browseArea.add(Scene2dElementFactory.createHorizontalDivider())
+    browseArea
+        .add(Scene2dElementFactory.createHorizontalDivider())
         .height(4)
         .pad(10, 0, 10, 0)
         .fillX()
@@ -66,13 +65,21 @@ public class BrowserTab extends ComputerTab {
 
     Table scrollContent = new Table();
     scrollContent.top().left();
-    localState().browserHistory().forEach(entry -> {
-      Label link = EmailsTab.createLinkLabel(entry, entry);
-      link.setAlignment(Align.left);
-      link.setWrap(true);
-      scrollContent.add(link).growX().row();
-      scrollContent.add(Scene2dElementFactory.createHorizontalDivider()).height(4).pad(5, 0, 5, 0).fillX().row();
-    });
+    localState()
+        .browserHistory()
+        .forEach(
+            entry -> {
+              Label link = EmailsTab.createLinkLabel(entry, entry);
+              link.setAlignment(Align.left);
+              link.setWrap(true);
+              scrollContent.add(link).growX().row();
+              scrollContent
+                  .add(Scene2dElementFactory.createHorizontalDivider())
+                  .height(4)
+                  .pad(5, 0, 5, 0)
+                  .fillX()
+                  .row();
+            });
     ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(scrollContent, false, true);
 
     Table table = new Table();
@@ -139,12 +146,14 @@ public class BrowserTab extends ComputerTab {
       target = create404Page();
     }
 
-    if(url.equals("https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm")){
+    if (url.equals("https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm")) {
       ComputerStateComponent.setInfection(true);
       ComputerStateComponent.setVirusType("Ransomware");
-      ComputerDialog.getInstance().ifPresent(dialog -> {
-        dialog.updateState(ComputerStateComponent.getState());
-      });
+      ComputerDialog.getInstance()
+          .ifPresent(
+              dialog -> {
+                dialog.updateState(ComputerStateComponent.getState());
+              });
     }
 
     contentTable.add(target).grow();

@@ -10,11 +10,10 @@ import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
-import level.LastHourLevel;
-import util.Lore;
-
 import java.util.Optional;
 import java.util.Set;
+import level.LastHourLevel;
+import util.Lore;
 
 public class ComputerFactory {
 
@@ -33,8 +32,14 @@ public class ComputerFactory {
                 new Interaction(
                     (eInteract, who) -> {
                       DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
-                      if(dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)){
-                        DialogFactory.showOkDialog("This seems to be "+ Lore.ScientistNameShort +"'s computer\n\nTrying to turn on the computer doesn't work.\nIt seems to not have any power...", "", () -> {}, who.id());
+                      if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
+                        DialogFactory.showOkDialog(
+                            "This seems to be "
+                                + Lore.ScientistNameShort
+                                + "'s computer\n\nTrying to turn on the computer doesn't work.\nIt seems to not have any power...",
+                            "",
+                            () -> {},
+                            who.id());
                         return;
                       }
 
@@ -49,13 +54,20 @@ public class ComputerFactory {
                                 stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
                             builder.put(STATE_KEY, state);
                             computerDialogInstance = DialogFactory.show(builder.build(), who.id());
-                            computerDialogInstance.registerCallback(UPDATE_STATE_KEY, data -> {
-                              if (data instanceof ComputerStateComponent(ComputerProgress state1, boolean isInfected, String virusType)) {
-                                ComputerStateComponent.setState(state1);
-                                ComputerStateComponent.setInfection(isInfected);
-                                ComputerStateComponent.setVirusType(virusType);
-                              }
-                            });
+                            computerDialogInstance.registerCallback(
+                                UPDATE_STATE_KEY,
+                                data -> {
+                                  if (data
+                                      instanceof
+                                      ComputerStateComponent(
+                                          ComputerProgress state1,
+                                          boolean isInfected,
+                                          String virusType)) {
+                                    ComputerStateComponent.setState(state1);
+                                    ComputerStateComponent.setInfection(isInfected);
+                                    ComputerStateComponent.setVirusType(virusType);
+                                  }
+                                });
                           });
                     })));
   }
