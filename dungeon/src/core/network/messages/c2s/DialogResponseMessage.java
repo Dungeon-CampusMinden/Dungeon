@@ -6,9 +6,9 @@ import java.util.Objects;
 /**
  * Represents a client-to-server message that reports a user interaction with a dialog.
  *
- * <p>This message is sent by network callbacks created by
- * {@link contrib.hud.dialogs.DialogCallbackResolver} when the user clicks a button, submits
- * input, or closes a dialog.
+ * <p>This message is sent by network callbacks created by {@link
+ * contrib.hud.dialogs.DialogCallbackResolver} when the user clicks a button, submits input, or
+ * closes a dialog.
  *
  * <p>The server validates this message against {@link core.network.server.DialogTracker} to ensure
  * the client is authorized to respond and, for shared dialogs, only the first response triggers a
@@ -47,8 +47,8 @@ public record DialogResponseMessage(String dialogId, String callbackKey, Payload
    * @param <T> The expected payload subtype.
    * @return The payload as the requested type.
    * @throws NullPointerException If {@code type} is {@code null}.
-   * @throws IllegalArgumentException If {@code payload} is {@code null} or not assignable to
-   *     {@code type}.
+   * @throws IllegalArgumentException If {@code payload} is {@code null} or not assignable to {@code
+   *     type}.
    */
   public <T extends Payload> T payloadAs(Class<T> type) {
     Objects.requireNonNull(type, "type");

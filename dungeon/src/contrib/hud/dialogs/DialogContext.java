@@ -2,7 +2,6 @@ package contrib.hud.dialogs;
 
 import core.Entity;
 import core.Game;
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
 
@@ -21,8 +20,7 @@ import java.util.*;
  * @see DialogFactory
  * @see DialogType
  */
-public final class DialogContext implements Serializable {
-  @Serial private static final long serialVersionUID = 2L;
+public final class DialogContext {
   private final DialogType dialogType;
   private final boolean center;
   private final Map<String, Serializable> attributes;

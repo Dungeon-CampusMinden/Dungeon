@@ -3,8 +3,6 @@ package core.components;
 import com.badlogic.gdx.Input;
 import core.Component;
 import core.systems.InputSystem;
-import java.io.Serial;
-import java.io.Serializable;
 
 /**
  * Marks an entity as playable by the player.
@@ -19,8 +17,7 @@ import java.io.Serializable;
  * @see Input.Keys
  * @see InputSystem
  */
-public final class PlayerComponent implements Component, Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+public final class PlayerComponent implements Component {
 
   private int openDialogs = 0;
   private final boolean isLocalPlayer;

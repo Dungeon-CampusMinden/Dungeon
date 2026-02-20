@@ -4,8 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -17,8 +15,7 @@ import java.util.Optional;
  * <p>Instances of this class are usually loaded from a JSON file alongside a spritesheet via {@link
  * #loadAnimationConfigMap(String)}.
  */
-public class AnimationConfig implements Cloneable, Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+public class AnimationConfig implements Cloneable {
 
   /** Optional spritesheet configuration (width, height, offsets, etc.). */
   private SpritesheetConfig config;
