@@ -87,16 +87,7 @@ public final class SoundTracker {
 
     // Send to all target clients
     SoundPlayMessage msg =
-        new SoundPlayMessage(
-            spec.instanceId(),
-            entityId,
-            spec.soundName(),
-            spec.baseVolume(),
-            spec.pitch(),
-            spec.pan(),
-            spec.looping(),
-            spec.maxDistance(),
-            spec.attenuationFactor());
+        new SoundPlayMessage(entityId, spec);
 
     for (short clientId : authorizedClientIds) {
       Game.network().send(clientId, msg, true);
@@ -227,16 +218,7 @@ public final class SoundTracker {
       }
 
       SoundPlayMessage msg =
-          new SoundPlayMessage(
-              info.spec().instanceId(),
-              info.entityId(),
-              info.spec().soundName(),
-              info.spec().baseVolume(),
-              info.spec().pitch(),
-              info.spec().pan(),
-              info.spec().looping(),
-              info.spec().maxDistance(),
-              info.spec().attenuationFactor());
+          new SoundPlayMessage(info.entityId(), info.spec());
 
       Game.network().send(clientId, msg, true);
     }

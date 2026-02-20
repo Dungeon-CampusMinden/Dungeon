@@ -1,7 +1,5 @@
 package core.game;
 
-import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
@@ -37,7 +35,6 @@ import core.network.client.ClientNetwork;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.*;
 import core.network.server.SoundTracker;
-import core.sound.SoundSpec;
 import core.sound.player.GdxSoundPlayer;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
@@ -48,7 +45,10 @@ import core.utils.InputManager;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.DrawComponentFactory;
 import core.utils.logging.DungeonLogger;
+
 import java.util.*;
+
+import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
 /**
  * The Dungeon-GameLoop.
@@ -408,8 +408,8 @@ public final class GameLoop extends ScreenAdapter {
         (ctx, event) -> {
           try {
             Game.network().snapshotTranslator().applySnapshot(event, dispatcher);
-          } catch (Exception ignored) {
-            LOGGER.warn("Error while applying snapshot message: {}", ignored.getMessage(), ignored);
+          } catch (Exception e) {
+            LOGGER.warn("Error while applying snapshot message: {}", e.getMessage(), e);
           }
         });
 
@@ -418,26 +418,15 @@ public final class GameLoop extends ScreenAdapter {
         (ctx, msg) -> {
           LOGGER.debug(
               "Received SoundPlayMessage: {} (instance={})",
-              msg.soundName(),
-              msg.soundInstanceId());
+              msg.soundSpec().soundName(),
+              msg.soundSpec().instanceId());
 
           Optional<Entity> entity = Game.findEntityById(msg.entityId());
-          if (entity.isEmpty() && msg.maxDistance() > 0f) {
+          if (entity.isEmpty() && msg.soundSpec().maxDistance() > 0f) {
             LOGGER.warn(
-                "Entity {} not found for positional sound {}", msg.entityId(), msg.soundName());
+                "Entity {} not found for positional sound {}", msg.entityId(), msg.soundSpec().soundName());
             return;
           }
-
-          SoundSpec spec =
-              SoundSpec.builder(msg.soundName())
-                  .instanceId(msg.soundInstanceId())
-                  .volume(msg.volume())
-                  .pitch(msg.pitch())
-                  .pan(msg.pan())
-                  .looping(msg.looping())
-                  .maxDistance(msg.maxDistance())
-                  .attenuation(msg.attenuationFactor())
-                  .build();
 
           Entity targetEntity = entity.orElseGet(() -> Game.audio().ensureSoundHub());
           SoundComponent sc =
@@ -449,7 +438,7 @@ public final class GameLoop extends ScreenAdapter {
                         targetEntity.add(newSc);
                         return newSc;
                       });
-          sc.add(spec);
+          sc.add(msg.soundSpec());
         });
 
     dispatcher.registerHandler(
