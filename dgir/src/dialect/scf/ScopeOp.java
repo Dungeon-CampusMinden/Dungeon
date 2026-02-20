@@ -7,12 +7,12 @@ import core.ir.Op;
 import core.ir.Operation;
 import core.traits.IControlFlow;
 import core.traits.ISingleRegion;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 /**
- * Op which opens a new scope. The scope has no effect other than hiding new variables from the outside.
+ * Op which opens a new scope. The scope has no effect other than hiding new variables from the
+ * outside.
  */
 public class ScopeOp extends Op implements ISingleRegion, IControlFlow {
 
@@ -33,8 +33,7 @@ public class ScopeOp extends Op implements ISingleRegion, IControlFlow {
       }
 
       @Override
-      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
-      }
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {}
     }
     return new ScopeOpDetails();
   }
@@ -52,9 +51,8 @@ public class ScopeOp extends Op implements ISingleRegion, IControlFlow {
   // =========================================================================
 
   public ScopeOp() {
-    executeIfRegistered(ScopeOp.class, () ->
-      setOperation(true, Operation.Create(getIdent(), null, null, null, 1))
-    );
+    executeIfRegistered(
+        ScopeOp.class, () -> setOperation(true, Operation.Create(getIdent(), null, null, null, 1)));
   }
 
   public ScopeOp(Operation operation) {

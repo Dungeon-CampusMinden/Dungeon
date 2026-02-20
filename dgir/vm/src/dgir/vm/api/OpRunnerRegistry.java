@@ -11,27 +11,26 @@ import dgir.vm.dialect.func.CallRunner;
 import dgir.vm.dialect.func.FuncRunner;
 import dgir.vm.dialect.func.ReturnRunner;
 import dgir.vm.dialect.io.PrintRunner;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * This class is responsible for managing the registry of operation runners in the Blockly VM.
- * It stores a reference from an operation detail instance to a function handling the execution of that operation.
- * When an operation is executed in the VM, the OpRunnerRegistry is used to look up the appropriate function to execute
- * based on the operation's details.
- * <p>
- * This allows for a flexible and extensible way to define how different operations are executed in the VM, as new
- * operations can be added to the registry without modifying the core execution logic of the VM.
+ * This class is responsible for managing the registry of operation runners in the Blockly VM. It
+ * stores a reference from an operation detail instance to a function handling the execution of that
+ * operation. When an operation is executed in the VM, the OpRunnerRegistry is used to look up the
+ * appropriate function to execute based on the operation's details.
+ *
+ * <p>This allows for a flexible and extensible way to define how different operations are executed
+ * in the VM, as new operations can be added to the registry without modifying the core execution
+ * logic of the VM.
  */
 public class OpRunnerRegistry {
   private static final @NotNull Map<OperationDetails, OpRunner> registry = new HashMap<>();
 
-  private OpRunnerRegistry() {
-  }
+  private OpRunnerRegistry() {}
 
   public static void registerOpRunners(@NotNull List<OpRunner> runners) {
     for (OpRunner runner : runners) {
@@ -77,36 +76,23 @@ public class OpRunnerRegistry {
 
   public static void registerAllRunners() {
     // arith
-    List<OpRunner> arithRunners = List.of(
-      new ConstantRunner()
-    );
+    List<OpRunner> arithRunners = List.of(new ConstantRunner());
     registerOpRunners(arithRunners);
 
     // builtin
-    List<OpRunner> builtinRunners = List.of(
-      new ProgramRunner()
-    );
+    List<OpRunner> builtinRunners = List.of(new ProgramRunner());
     registerOpRunners(builtinRunners);
 
     // cf
-    List<OpRunner> cfRunners = List.of(
-      new BranchCondRunner(),
-      new BranchRunner()
-    );
+    List<OpRunner> cfRunners = List.of(new BranchCondRunner(), new BranchRunner());
     registerOpRunners(cfRunners);
 
     // func
-    List<OpRunner> funcRunners = List.of(
-      new CallRunner(),
-      new FuncRunner(),
-      new ReturnRunner()
-    );
+    List<OpRunner> funcRunners = List.of(new CallRunner(), new FuncRunner(), new ReturnRunner());
     registerOpRunners(funcRunners);
 
     // io
-    List<OpRunner> ioRunners = List.of(
-      new PrintRunner()
-    );
+    List<OpRunner> ioRunners = List.of(new PrintRunner());
     registerOpRunners(ioRunners);
   }
 }

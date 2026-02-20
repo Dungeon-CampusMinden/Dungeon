@@ -7,9 +7,8 @@ import core.traits.ISingleOperand;
 import dialect.builtin.attributes.IntegerAttribute;
 import dialect.builtin.attributes.StringAttribute;
 import dialect.builtin.types.IntegerT;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public class ConstantOp extends Op implements ISingleOperand {
 
@@ -21,7 +20,11 @@ public class ConstantOp extends Op implements ISingleOperand {
   public OperationDetails.@NotNull Impl createDetails() {
     class ConstantOpModel extends OperationDetails.Impl {
       ConstantOpModel() {
-        super(ConstantOp.getIdent(), ConstantOp.class, Dialect.getOrThrow(Arith.class), List.of("value"));
+        super(
+            ConstantOp.getIdent(),
+            ConstantOp.class,
+            Dialect.getOrThrow(Arith.class),
+            List.of("value"));
       }
 
       @Override
@@ -30,8 +33,7 @@ public class ConstantOp extends Op implements ISingleOperand {
       }
 
       @Override
-      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
-      }
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {}
     }
     return new ConstantOpModel();
   }
@@ -48,8 +50,7 @@ public class ConstantOp extends Op implements ISingleOperand {
   // Constructors
   // =========================================================================
 
-  public ConstantOp() {
-  }
+  public ConstantOp() {}
 
   public ConstantOp(Operation operation) {
     super(operation);
@@ -77,7 +78,8 @@ public class ConstantOp extends Op implements ISingleOperand {
   // =========================================================================
 
   public TypedAttribute getValueAttribute() {
-    return getAttribute(TypedAttribute.class, "value").orElseThrow(() -> new AssertionError("No value attribute found."));
+    return getAttribute(TypedAttribute.class, "value")
+        .orElseThrow(() -> new AssertionError("No value attribute found."));
   }
 
   public Type getValueType() {

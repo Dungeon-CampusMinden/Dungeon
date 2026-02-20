@@ -18,7 +18,8 @@ public class OpDeserializer extends StdDeserializer<Op> {
 
   @Override
   public Op deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
-    // Deserialize the object as an operation and create a new Op object with the deserialized value.
+    // Deserialize the object as an operation and create a new Op object with the deserialized
+    // value.
     Operation operation = p.readValueAs(Operation.class);
     return operation.asOp();
   }

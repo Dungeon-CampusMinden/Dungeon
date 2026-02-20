@@ -7,9 +7,8 @@ import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
 import dialect.func.ReturnOp;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 
 public class ReturnRunner extends OpRunner {
   public ReturnRunner() {
@@ -21,7 +20,7 @@ public class ReturnRunner extends OpRunner {
     ReturnOp returnOp = op.as(ReturnOp.class).orElseThrow();
     Optional<Value> returnValue = returnOp.getReturnValue();
     return returnValue
-      .map(value -> Action.Terminate(state.getValue(value)))
-      .orElseGet(() -> Action.Terminate(null));
+        .map(value -> Action.Terminate(state.getValue(value)))
+        .orElseGet(() -> Action.Terminate(null));
   }
 }

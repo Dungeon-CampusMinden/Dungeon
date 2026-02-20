@@ -49,8 +49,7 @@ public class TypeAttribute extends Attribute {
   // Constructors
   // =========================================================================
 
-  public TypeAttribute() {
-  }
+  public TypeAttribute() {}
 
   public TypeAttribute(Type type) {
     this.type = type;

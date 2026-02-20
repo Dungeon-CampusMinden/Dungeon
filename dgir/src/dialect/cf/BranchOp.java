@@ -8,9 +8,8 @@ import core.ir.Op;
 import core.ir.Operation;
 import core.traits.IControlFlow;
 import core.traits.ITerminator;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public class BranchOp extends Op implements ITerminator, IControlFlow {
 
@@ -31,8 +30,7 @@ public class BranchOp extends Op implements ITerminator, IControlFlow {
       }
 
       @Override
-      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
-      }
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {}
     }
     return new BranchOpDetails();
   }
@@ -49,8 +47,7 @@ public class BranchOp extends Op implements ITerminator, IControlFlow {
   // Constructors
   // =========================================================================
 
-  public BranchOp() {
-  }
+  public BranchOp() {}
 
   public BranchOp(Operation operation) {
     super(operation);

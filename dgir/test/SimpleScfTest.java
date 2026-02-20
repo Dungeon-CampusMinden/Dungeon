@@ -1,16 +1,10 @@
 import core.Dialect;
 import dialect.arith.ConstantOp;
-import dialect.builtin.ProgramOp;
-import dialect.func.FuncOp;
-import dialect.func.ReturnOp;
-import dialect.io.PrintOp;
 import dialect.scf.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-/**
- * Simple test to debug SCF operations
- */
+/** Simple test to debug SCF operations */
 public class SimpleScfTest {
   @BeforeAll
   public static void setup() {
@@ -35,7 +29,8 @@ public class SimpleScfTest {
 
     System.out.println("ConstOp verify: " + condOp.verify(true));
     System.out.println("If verify: " + ifOp.verify(true));
-    System.out.println("Then has terminator: " + ifOp.getThenRegion().getEntryBlock().hasTerminator());
+    System.out.println(
+        "Then has terminator: " + ifOp.getThenRegion().getEntryBlock().hasTerminator());
   }
 
   @Test
@@ -45,12 +40,9 @@ public class SimpleScfTest {
     var upperBound = new ConstantOp(10);
     var step = new ConstantOp(1);
 
-    ForOp forOp = new ForOp(
-      initValue.getValue(),
-      lowerBound.getValue(),
-      upperBound.getValue(),
-      step.getValue()
-    );
+    ForOp forOp =
+        new ForOp(
+            initValue.getValue(), lowerBound.getValue(), upperBound.getValue(), step.getValue());
 
     forOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
 
@@ -59,4 +51,3 @@ public class SimpleScfTest {
     System.out.println("For has terminator: " + forOp.getRegion().getEntryBlock().hasTerminator());
   }
 }
-

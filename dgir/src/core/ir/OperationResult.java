@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * The single result value produced by an {@link Operation}.
- * Wraps a {@link Value} and enforces type-consistency when the value is replaced.
+ * The single result value produced by an {@link Operation}. Wraps a {@link Value} and enforces
+ * type-consistency when the value is replaced.
  */
 public class OperationResult {
 
@@ -14,12 +14,9 @@ public class OperationResult {
   // Members
   // =========================================================================
 
-  @JsonIdentityReference
-  @JsonValue
-  private @NotNull Value value;
+  @JsonIdentityReference @JsonValue private @NotNull Value value;
 
-  @JsonIgnore
-  private final @NotNull Operation parent;
+  @JsonIgnore private final @NotNull Operation parent;
 
   // =========================================================================
   // Constructors
@@ -46,7 +43,10 @@ public class OperationResult {
 
   public void setValue(@NotNull Value value) {
     assert value.getType().equals(this.value.getType())
-      : "Type mismatch while setting result value: " + value.getType() + " != " + this.value.getType();
+        : "Type mismatch while setting result value: "
+            + value.getType()
+            + " != "
+            + this.value.getType();
     this.value = value;
   }
 

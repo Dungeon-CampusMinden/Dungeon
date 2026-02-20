@@ -1,20 +1,17 @@
 package core.ir;
 
-import core.serialization.NamedAttributeDeserializer;
-import core.serialization.NamedAttributeSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import core.serialization.NamedAttributeDeserializer;
+import core.serialization.NamedAttributeSerializer;
+import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
-import java.util.Optional;
-
-/**
- * An {@link Attribute} paired with its name, as stored inside an {@link Operation}.
- */
+/** An {@link Attribute} paired with its name, as stored inside an {@link Operation}. */
 @JsonSerialize(using = NamedAttributeSerializer.class)
 @JsonDeserialize(using = NamedAttributeDeserializer.class)
 public final class NamedAttribute {
@@ -31,8 +28,9 @@ public final class NamedAttribute {
   // =========================================================================
 
   @JsonCreator
-  public NamedAttribute(@JsonProperty("name") @NotNull String name,
-                        @JsonProperty("attribute") @Nullable Attribute attribute) {
+  public NamedAttribute(
+      @JsonProperty("name") @NotNull String name,
+      @JsonProperty("attribute") @Nullable Attribute attribute) {
     this.name = name;
     this.attribute = attribute;
   }

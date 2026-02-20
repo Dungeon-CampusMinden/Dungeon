@@ -1,18 +1,17 @@
 package core.detail;
 
-import core.ir.Attribute;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.DGIRContext;
 import core.Dialect;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import core.ir.Attribute;
+import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 /**
- * Holds all basic information about an attribute kind and exposes it through a
- * stable interface. The actual data lives in the inner {@link Impl}.
+ * Holds all basic information about an attribute kind and exposes it through a stable interface.
+ * The actual data lives in the inner {@link Impl}.
  */
 public class AttributeDetails {
 
@@ -44,9 +43,7 @@ public class AttributeDetails {
     this.impl = impl;
   }
 
-  /**
-   * Look up or create an {@link AttributeDetails} by ident string.
-   */
+  /** Look up or create an {@link AttributeDetails} by ident string. */
   public AttributeDetails(@NotNull String ident) {
     // Try the registered registry first
     AttributeDetails registeredDetails = DGIRContext.registeredAttributesByIdent.get(ident);
@@ -62,15 +59,15 @@ public class AttributeDetails {
       return;
     }
 
-    unregisteredDetails = DGIRContext.attributesByIdent.computeIfAbsent(ident,
-      idnt -> new UnregisteredAttributeModel(idnt, DGIRContext.getReferencedDialect(idnt)));
+    unregisteredDetails =
+        DGIRContext.attributesByIdent.computeIfAbsent(
+            ident,
+            idnt -> new UnregisteredAttributeModel(idnt, DGIRContext.getReferencedDialect(idnt)));
     DGIRContext.attributes.put(Attribute.class, unregisteredDetails);
     impl = unregisteredDetails;
   }
 
-  /**
-   * Look up or create an {@link AttributeDetails} by attribute class.
-   */
+  /** Look up or create an {@link AttributeDetails} by attribute class. */
   public AttributeDetails(@NotNull Class<? extends Attribute> clazz) {
     // Try the registered registry first
     AttributeDetails registeredName = DGIRContext.registeredAttributes.get(clazz);
@@ -86,8 +83,9 @@ public class AttributeDetails {
       return;
     }
 
-    unregisteredName = DGIRContext.attributesByIdent.computeIfAbsent(clazz.getName(),
-      idnt -> new UnregisteredAttributeModel(clazz.getName(), null));
+    unregisteredName =
+        DGIRContext.attributesByIdent.computeIfAbsent(
+            clazz.getName(), idnt -> new UnregisteredAttributeModel(clazz.getName(), null));
     DGIRContext.attributes.put(clazz, unregisteredName);
     impl = unregisteredName;
   }
@@ -138,9 +136,8 @@ public class AttributeDetails {
   // =========================================================================
 
   /**
-   * Fully type-erased description of an attribute kind.
-   * Subclasses are created per attribute class inside each attribute's
-   * {@code createImpl()} method.
+   * Fully type-erased description of an attribute kind. Subclasses are created per attribute class
+   * inside each attribute's {@code createImpl()} method.
    */
   public abstract static class Impl {
 
@@ -148,7 +145,10 @@ public class AttributeDetails {
     protected @NotNull Class<? extends Attribute> type;
     protected @Nullable Dialect dialect;
 
-    public Impl(@NotNull String ident, @NotNull Class<? extends Attribute> type, @Nullable Dialect dialect) {
+    public Impl(
+        @NotNull String ident,
+        @NotNull Class<? extends Attribute> type,
+        @Nullable Dialect dialect) {
       this.ident = ident;
       this.type = type;
       this.dialect = dialect;
@@ -174,9 +174,7 @@ public class AttributeDetails {
   // Inner: UnregisteredAttributeModel
   // =========================================================================
 
-  /**
-   * Placeholder used when an attribute ident is referenced before registration.
-   */
+  /** Placeholder used when an attribute ident is referenced before registration. */
   protected static final class UnregisteredAttributeModel extends AttributeDetails.Impl {
     UnregisteredAttributeModel(@NotNull String ident, @Nullable Dialect dialect) {
       super(ident, Attribute.class, dialect);

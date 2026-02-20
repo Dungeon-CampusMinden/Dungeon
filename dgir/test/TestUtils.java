@@ -1,3 +1,6 @@
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import core.analysis.DotCFG;
 import core.ir.Op;
 import core.ir.Operation;
@@ -7,9 +10,6 @@ import dialect.func.FuncOp;
 import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
-import org.apache.commons.lang3.tuple.Pair;
-import tools.jackson.databind.ObjectMapper;
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -19,9 +19,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.apache.commons.lang3.tuple.Pair;
+import tools.jackson.databind.ObjectMapper;
 
 public class TestUtils {
   public static ObjectMapper mapper = Utils.getMapper(true);
@@ -32,30 +31,36 @@ public class TestUtils {
   // The file path for saved files (cfg and image)
   public static String savePath = "test_results/";
 
-  private static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+  private static final Pattern UUID_PATTERN =
+      Pattern.compile(
+          "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
 
   public static boolean testValidityAndSerialization(Op op) {
     String result = mapper.writeValueAsString(op);
-    if (printResult)
-      System.out.println(result);
+    if (printResult) System.out.println(result);
 
-    assertEquals("", TestUtils.compareSerializedOperations(
-      mapper,
-      op.getOperation(),
-      result
-    ));
+    assertEquals("", TestUtils.compareSerializedOperations(mapper, op.getOperation(), result));
 
-    String callerName = core.Utils.Caller.STACK_WALKER.walk(stream ->
-      stream
-        .skip(1)
-        .findFirst()
-        .map(stackFrame -> stackFrame.getDeclaringClass().getSimpleName() + "." + stackFrame.getMethodName())
-        .orElse("unknown")
-    );
+    String callerName =
+        core.Utils.Caller.STACK_WALKER.walk(
+            stream ->
+                stream
+                    .skip(1)
+                    .findFirst()
+                    .map(
+                        stackFrame ->
+                            stackFrame.getDeclaringClass().getSimpleName()
+                                + "."
+                                + stackFrame.getMethodName())
+                    .orElse("unknown"));
 
     // Check that this is a valid op, otherwise we can't generate a cfg
     if (!op.verify(true)) {
-      System.out.println("Skipping cfg generation for invalid op: " + op.getClass().getSimpleName() + " for test " + callerName);
+      System.out.println(
+          "Skipping cfg generation for invalid op: "
+              + op.getClass().getSimpleName()
+              + " for test "
+              + callerName);
       return false;
     }
 
@@ -63,8 +68,7 @@ public class TestUtils {
       DotCFG.Cluster cfg = DotCFG.buildCfgCluster(op.getOperation());
 
       // Print the cfg to console
-      if (printCfg)
-        System.out.println(cfg);
+      if (printCfg) System.out.println(cfg);
 
       // Save the cfg to a file with the caller name as the file name
       if (saveCfg) {
@@ -84,9 +88,9 @@ public class TestUtils {
         String filePath = savePath + callerName + ".png";
         try {
           Graphviz.fromString(cfg.toString())
-            .engine(Engine.DOT)
-            .render(Format.PNG)
-            .toFile(new File(filePath));
+              .engine(Engine.DOT)
+              .render(Format.PNG)
+              .toFile(new File(filePath));
         } catch (IOException e) {
           System.out.println("Failed to save CFG image to " + filePath + ": " + e.getMessage());
         }
@@ -95,11 +99,13 @@ public class TestUtils {
     return true;
   }
 
-  public static String compareSerializedOperations(ObjectMapper mapper, Operation op1, String op2Json) {
+  public static String compareSerializedOperations(
+      ObjectMapper mapper, Operation op1, String op2Json) {
     return compareSerializedOperations(mapper, op1, mapper.readValue(op2Json, Operation.class));
   }
 
-  public static String compareSerializedOperations(ObjectMapper mapper, Operation op1, Operation op2) {
+  public static String compareSerializedOperations(
+      ObjectMapper mapper, Operation op1, Operation op2) {
     try {
       String json1 = mapper.writeValueAsString(op1);
       String json2 = mapper.writeValueAsString(op2);
@@ -124,7 +130,8 @@ public class TestUtils {
     StringBuffer sb = new StringBuffer();
     while (matcher.find()) {
       UUID uuid = UUID.fromString(matcher.group());
-      String replacement = uuidMap.computeIfAbsent(uuid, u -> "UUID_" + uuidCounter.getAndIncrement());
+      String replacement =
+          uuidMap.computeIfAbsent(uuid, u -> "UUID_" + uuidCounter.getAndIncrement());
       matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
     }
     matcher.appendTail(sb);
@@ -132,11 +139,11 @@ public class TestUtils {
   }
 
   /**
-   * Create a new string based on the initial string.
-   * The string is printed in whole and line by line the difference is printed next to the original line if there is a difference.
-   * The difference is separated by a " | " symbol.
+   * Create a new string based on the initial string. The string is printed in whole and line by
+   * line the difference is printed next to the original line if there is a difference. The
+   * difference is separated by a " | " symbol.
    *
-   * @param base     The original string
+   * @param base The original string
    * @param modified The modified string
    * @return the diff string
    */

@@ -3,16 +3,14 @@ package core.analysis;
 import core.ir.Block;
 import core.ir.Operation;
 import core.ir.Region;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public class DotCFG {
-  private DotCFG() {
-  }
+  private DotCFG() {}
 
   @Contract(pure = true)
   public static @NotNull Cluster buildCfgCluster(@NotNull Operation root) {
@@ -22,10 +20,11 @@ public class DotCFG {
   }
 
   /**
-   * A cluster is a logical grouping of multiple operations within the CFG. It can alternatively be thought of as a block, or a region.
-   * Clusters can be nested within each other to represent hierarchical structures in the CFG.
-   * A cluster also contains the first operation of each child cluster since it needs to draw a connection to that operation.
-   * An empty cluster represents a region and can only contain other clusters.
+   * A cluster is a logical grouping of multiple operations within the CFG. It can alternatively be
+   * thought of as a block, or a region. Clusters can be nested within each other to represent
+   * hierarchical structures in the CFG. A cluster also contains the first operation of each child
+   * cluster since it needs to draw a connection to that operation. An empty cluster represents a
+   * region and can only contain other clusters.
    */
   public static class Cluster {
     private final @NotNull Operation owner;
@@ -34,7 +33,7 @@ public class DotCFG {
     private final @NotNull List<Cluster> children = new ArrayList<>();
 
     public static Function<Operation, String> identGenerator =
-      op -> op.getDetails().getIdent().replace(".", "_") + "_" + op.hashCode();
+        op -> op.getDetails().getIdent().replace(".", "_") + "_" + op.hashCode();
 
     public Cluster(@NotNull Operation owner) {
       this.owner = owner;
@@ -73,8 +72,8 @@ public class DotCFG {
 
     public static @NotNull String padLeftMultiline(@NotNull String s, int level) {
       return Arrays.stream(s.split("\n", -1))
-        .map(line -> "\t".repeat(line.isEmpty() ? 0 : level) + line)
-        .collect(Collectors.joining("\n"));
+          .map(line -> "\t".repeat(line.isEmpty() ? 0 : level) + line)
+          .collect(Collectors.joining("\n"));
     }
 
     @Override
@@ -90,11 +89,18 @@ public class DotCFG {
     public @NotNull String toString(int clusterIndex) {
       // The dot graph representation of this cluster
       StringBuilder maskedDotGraph = new StringBuilder();
-      maskedDotGraph.append(clusterIndex == -1 ? "digraph cfg" : "subgraph cluster_" + clusterIndex).append(" {\n");
+      maskedDotGraph
+          .append(clusterIndex == -1 ? "digraph cfg" : "subgraph cluster_" + clusterIndex)
+          .append(" {\n");
 
       StringBuilder bodyBuilder = new StringBuilder();
       if (clusterIndex != -1)
-        bodyBuilder.append("label=\"block ").append(clusterIndex).append(": ").append(identGenerator.apply(owner)).append("\";\n");
+        bodyBuilder
+            .append("label=\"block ")
+            .append(clusterIndex)
+            .append(": ")
+            .append(identGenerator.apply(owner))
+            .append("\";\n");
       // Handle regions
       if (!children.isEmpty()) {
         // Iterate over the regions
@@ -102,7 +108,12 @@ public class DotCFG {
           StringBuilder regionBuilder = new StringBuilder();
           Cluster region = getChildren().get(i);
           regionBuilder.append("subgraph cluster_").append(i).append(" {\n");
-          regionBuilder.append("label=\"region ").append(i).append(": ").append(identGenerator.apply(region.getOwner())).append("\";\n");
+          regionBuilder
+              .append("label=\"region ")
+              .append(i)
+              .append(": ")
+              .append(identGenerator.apply(region.getOwner()))
+              .append("\";\n");
           // Iterate over all the blocks in this region and add them to the subgraph
           List<Cluster> regionChildren = region.getChildren();
           for (int j = 0; j < regionChildren.size(); j++) {
@@ -126,14 +137,23 @@ public class DotCFG {
       for (int i = 0; i < operations.size() - 1; i++) {
         Operation op = operations.get(i);
         Operation nextOp = operations.get(i + 1);
-        bodyBuilder.append(identGenerator.apply(op)).append(" -> ").append(identGenerator.apply(nextOp)).append(";\n");
+        bodyBuilder
+            .append(identGenerator.apply(op))
+            .append(" -> ")
+            .append(identGenerator.apply(nextOp))
+            .append(";\n");
       }
 
-      // Add edges from all operations in this cluster to their child regions entry block first operation
+      // Add edges from all operations in this cluster to their child regions entry block first
+      // operation
       for (Operation op : operations) {
         for (Region region : op.getRegions()) {
           Operation entryOp = region.getEntryBlock().getOperations().getFirst();
-          bodyBuilder.append(identGenerator.apply(op)).append(" -> ").append(identGenerator.apply(entryOp)).append(";\n");
+          bodyBuilder
+              .append(identGenerator.apply(op))
+              .append(" -> ")
+              .append(identGenerator.apply(entryOp))
+              .append(";\n");
         }
       }
 
@@ -143,7 +163,11 @@ public class DotCFG {
           Operation lastOp = block.getOperations().getLast();
           for (Block successor : lastOp.getSuccessors()) {
             Operation entryOp = successor.getOperations().getFirst();
-            bodyBuilder.append(identGenerator.apply(lastOp)).append(" -> ").append(identGenerator.apply(entryOp)).append(";\n");
+            bodyBuilder
+                .append(identGenerator.apply(lastOp))
+                .append(" -> ")
+                .append(identGenerator.apply(entryOp))
+                .append(";\n");
           }
         }
       }
@@ -164,7 +188,8 @@ public class DotCFG {
       currentCluster = rootCluster;
     }
 
-    @NotNull Cluster getCfg() {
+    @NotNull
+    Cluster getCfg() {
       return rootCluster;
     }
 
@@ -186,7 +211,8 @@ public class DotCFG {
 
     private void processRegion(@NotNull Region region) {
       // Open a new cluster for the region
-      currentCluster = currentCluster.addChild(new Cluster(region.getParent().orElseThrow(), currentCluster));
+      currentCluster =
+          currentCluster.addChild(new Cluster(region.getParent().orElseThrow(), currentCluster));
       for (Block block : region.getBlocks()) {
         processBlock(block);
       }

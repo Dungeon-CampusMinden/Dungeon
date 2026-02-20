@@ -12,20 +12,19 @@ import dialect.cf.CF;
 import dialect.func.Func;
 import dialect.io.IO;
 import dialect.scf.SCF;
+import java.util.List;
+import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.List;
-import java.util.Optional;
-
 /**
  * Base class for all DGIR dialects.
- * <p>
- * A dialect groups a set of related {@link Op operations}, {@link Type types}, and
- * {@link Attribute attributes} under a shared namespace. Dialects are registered once at
- * startup via {@link #registerAllDialects()}, which calls {@link #init()} on each one and
- * populates the global {@link DGIRContext} registries.
+ *
+ * <p>A dialect groups a set of related {@link Op operations}, {@link Type types}, and {@link
+ * Attribute attributes} under a shared namespace. Dialects are registered once at startup via
+ * {@link #registerAllDialects()}, which calls {@link #init()} on each one and populates the global
+ * {@link DGIRContext} registries.
  */
 public abstract class Dialect {
 
@@ -33,27 +32,19 @@ public abstract class Dialect {
   // Dialect Info
   // =========================================================================
 
-  /**
-   * The namespace prefix used in operation/type idents (e.g. {@code "arith"}, {@code "func"}).
-   */
+  /** The namespace prefix used in operation/type idents (e.g. {@code "arith"}, {@code "func"}). */
   @Contract(pure = true)
   public abstract @NotNull String getNamespace();
 
-  /**
-   * All operation prototypes contributed by this dialect.
-   */
+  /** All operation prototypes contributed by this dialect. */
   @Contract(pure = true)
   public abstract @NotNull @Unmodifiable List<Op> allOps();
 
-  /**
-   * All type prototypes contributed by this dialect.
-   */
+  /** All type prototypes contributed by this dialect. */
   @Contract(pure = true)
   public abstract @NotNull @Unmodifiable List<Type> allTypes();
 
-  /**
-   * All attribute prototypes contributed by this dialect.
-   */
+  /** All attribute prototypes contributed by this dialect. */
   @Contract(pure = true)
   public abstract @NotNull @Unmodifiable List<Attribute> allAttributes();
 
@@ -62,8 +53,8 @@ public abstract class Dialect {
   // =========================================================================
 
   /**
-   * Register this dialect in the global {@link DGIRContext}.
-   * Inserts all ops, types, and attributes into their respective registries.
+   * Register this dialect in the global {@link DGIRContext}. Inserts all ops, types, and attributes
+   * into their respective registries.
    */
   public void init() {
     DGIRContext.registeredDialects.put(this.getClass(), this);
@@ -89,8 +80,10 @@ public abstract class Dialect {
   /**
    * Look up a registered dialect by its class.
    *
-   * @param dialectClass The class of the dialect to look up (e.g. {@code Arith.class} or {@code Func.class}).
-   * @return An optional containing the registered dialect, or empty if no such dialect is registered.
+   * @param dialectClass The class of the dialect to look up (e.g. {@code Arith.class} or {@code
+   *     Func.class}).
+   * @return An optional containing the registered dialect, or empty if no such dialect is
+   *     registered.
    */
   @Contract(pure = true)
   public static @NotNull Optional<Dialect> get(@NotNull Class<? extends Dialect> dialectClass) {
@@ -98,30 +91,29 @@ public abstract class Dialect {
   }
 
   /**
-   * Look up a registered dialect by its class, throwing an exception if no such dialect is registered.
+   * Look up a registered dialect by its class, throwing an exception if no such dialect is
+   * registered.
    *
-   * @param dialectClass The class of the dialect to look up (e.g. {@code Arith.class} or {@code Func.class}).
+   * @param dialectClass The class of the dialect to look up (e.g. {@code Arith.class} or {@code
+   *     Func.class}).
    * @return The registered dialect.
    */
   @Contract(pure = true)
   public static @NotNull Dialect getOrThrow(@NotNull Class<? extends Dialect> dialectClass) {
-    return get(dialectClass).orElseThrow(() -> new IllegalArgumentException("Dialect not registered: " + dialectClass.getSimpleName()));
+    return get(dialectClass)
+        .orElseThrow(
+            () ->
+                new IllegalArgumentException(
+                    "Dialect not registered: " + dialectClass.getSimpleName()));
   }
 
-
   /**
-   * Register all built-in dialects in dependency order.
-   * Must be called once before constructing any IR.
+   * Register all built-in dialects in dependency order. Must be called once before constructing any
+   * IR.
    */
   public static void registerAllDialects() {
-    List<Dialect> dialects = List.of(
-      new Arith(),
-      new Builtin(),
-      new CF(),
-      new Func(),
-      new IO(),
-      new SCF()
-    );
+    List<Dialect> dialects =
+        List.of(new Arith(), new Builtin(), new CF(), new Func(), new IO(), new SCF());
     dialects.forEach(Dialect::init);
   }
 }

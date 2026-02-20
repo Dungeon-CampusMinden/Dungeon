@@ -9,10 +9,9 @@ import dialect.cf.BranchOp;
 import org.jetbrains.annotations.NotNull;
 
 public class BranchRunner extends OpRunner {
-  public BranchRunner(){
+  public BranchRunner() {
     super(RegisteredOperationDetails.lookup(BranchOp.class).orElseThrow());
   }
-
 
   @Override
   protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {

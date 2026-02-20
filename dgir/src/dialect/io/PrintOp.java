@@ -6,9 +6,8 @@ import core.ir.NamedAttribute;
 import core.ir.Op;
 import core.ir.Operation;
 import core.ir.Value;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public class PrintOp extends Op {
 
@@ -36,8 +35,7 @@ public class PrintOp extends Op {
       }
 
       @Override
-      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
-      }
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {}
     }
     return new PrintOpModel();
   }
@@ -54,8 +52,7 @@ public class PrintOp extends Op {
   // Constructors
   // =========================================================================
 
-  public PrintOp() {
-  }
+  public PrintOp() {}
 
   public PrintOp(Operation operation) {
     super(operation);

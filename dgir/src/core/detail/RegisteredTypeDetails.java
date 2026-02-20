@@ -2,14 +2,13 @@ package core.detail;
 
 import core.DGIRContext;
 import core.ir.Type;
+import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 /**
- * A fully registered {@link TypeDetails} instance.
- * Created by {@link #insert(Type)} during dialect initialisation.
+ * A fully registered {@link TypeDetails} instance. Created by {@link #insert(Type)} during dialect
+ * initialisation.
  */
 public class RegisteredTypeDetails extends TypeDetails {
 
@@ -18,9 +17,9 @@ public class RegisteredTypeDetails extends TypeDetails {
   // =========================================================================
 
   /**
-   * Register the given type in the global context.
-   * If the type already carries a {@link RegisteredTypeDetails}, it is reused;
-   * otherwise a new one is created via {@link Type#createImpl()}.
+   * Register the given type in the global context. If the type already carries a {@link
+   * RegisteredTypeDetails}, it is reused; otherwise a new one is created via {@link
+   * Type#createImpl()}.
    *
    * @param type The type instance to register.
    */
@@ -48,7 +47,8 @@ public class RegisteredTypeDetails extends TypeDetails {
   // =========================================================================
 
   @Contract(pure = true)
-  public static @NotNull Optional<RegisteredTypeDetails> lookup(@NotNull Class<? extends Type> clazz) {
+  public static @NotNull Optional<RegisteredTypeDetails> lookup(
+      @NotNull Class<? extends Type> clazz) {
     return Optional.ofNullable(DGIRContext.registeredTypes.get(clazz));
   }
 

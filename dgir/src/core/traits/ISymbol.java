@@ -18,7 +18,8 @@ public interface ISymbol extends IOpTrait {
   @Contract(pure = true)
   default @NotNull String getSymbol() {
     return get()
-      .getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName()).orElseThrow()
-      .getValue();
+        .getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName())
+        .orElseThrow()
+        .getValue();
   }
 }

@@ -3,14 +3,13 @@ package core.traits;
 import core.ir.Type;
 import core.ir.Value;
 import core.ir.ValueOperand;
+import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 /**
- * A trait for operations that can have zero or one operand. This is used for operations like "return" that can optionally
- * return a value.
+ * A trait for operations that can have zero or one operand. This is used for operations like
+ * "return" that can optionally return a value.
  */
 public interface IZeroOrOneOperand extends IOpTrait {
   @Contract(pure = true)
@@ -24,7 +23,8 @@ public interface IZeroOrOneOperand extends IOpTrait {
   }
 
   /**
-   * Gets the operand of the operation, if it exists. If the operation has no operands, returns an empty Optional.
+   * Gets the operand of the operation, if it exists. If the operation has no operands, returns an
+   * empty Optional.
    *
    * @return The operand of the operation, if it exists.
    */
@@ -36,8 +36,9 @@ public interface IZeroOrOneOperand extends IOpTrait {
   }
 
   /**
-   * Gets the type of the operand, if it exists. If the operation has no operands, returns an empty Optional.
-   * If the operation has an operand, but the operand does not have a type, returns an Optional containing an empty Optional.
+   * Gets the type of the operand, if it exists. If the operation has no operands, returns an empty
+   * Optional. If the operation has an operand, but the operand does not have a type, returns an
+   * Optional containing an empty Optional.
    *
    * @return The type of the operand, if it exists.
    */

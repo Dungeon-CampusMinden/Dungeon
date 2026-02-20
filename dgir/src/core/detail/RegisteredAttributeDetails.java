@@ -2,14 +2,13 @@ package core.detail;
 
 import core.DGIRContext;
 import core.ir.Attribute;
+import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 /**
- * A fully registered {@link AttributeDetails} instance.
- * Created by {@link #insert(Attribute)} during dialect initialisation.
+ * A fully registered {@link AttributeDetails} instance. Created by {@link #insert(Attribute)}
+ * during dialect initialisation.
  */
 public class RegisteredAttributeDetails extends AttributeDetails {
 
@@ -18,9 +17,9 @@ public class RegisteredAttributeDetails extends AttributeDetails {
   // =========================================================================
 
   /**
-   * Register the given attribute in the global context.
-   * If the attribute already carries a {@link RegisteredAttributeDetails}, it is reused;
-   * otherwise a new one is created via {@link Attribute#createImpl()}.
+   * Register the given attribute in the global context. If the attribute already carries a {@link
+   * RegisteredAttributeDetails}, it is reused; otherwise a new one is created via {@link
+   * Attribute#createImpl()}.
    *
    * @param attr The attribute instance to register.
    */
@@ -48,7 +47,8 @@ public class RegisteredAttributeDetails extends AttributeDetails {
   // =========================================================================
 
   @Contract(pure = true)
-  public static @NotNull Optional<RegisteredAttributeDetails> lookup(@NotNull Class<? extends Attribute> clazz) {
+  public static @NotNull Optional<RegisteredAttributeDetails> lookup(
+      @NotNull Class<? extends Attribute> clazz) {
     return Optional.ofNullable(DGIRContext.registeredAttributes.get(clazz));
   }
 

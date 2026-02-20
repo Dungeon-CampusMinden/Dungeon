@@ -24,7 +24,10 @@ public class SymbolRefAttribute extends Attribute {
   public AttributeDetails.@NotNull Impl createImpl() {
     class SymbolRefAttributeModel extends AttributeDetails.Impl {
       SymbolRefAttributeModel() {
-        super(SymbolRefAttribute.getIdent(), SymbolRefAttribute.class, Dialect.getOrThrow(Builtin.class));
+        super(
+            SymbolRefAttribute.getIdent(),
+            SymbolRefAttribute.class,
+            Dialect.getOrThrow(Builtin.class));
       }
     }
     return new SymbolRefAttributeModel();
@@ -48,8 +51,7 @@ public class SymbolRefAttribute extends Attribute {
   // Constructors
   // =========================================================================
 
-  public SymbolRefAttribute() {
-  }
+  public SymbolRefAttribute() {}
 
   public SymbolRefAttribute(String value) {
     this.value = value;

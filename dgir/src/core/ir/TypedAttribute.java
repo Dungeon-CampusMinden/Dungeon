@@ -4,8 +4,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * An {@link Attribute} that carries an associated {@link Type}, allowing the stored
- * value to be type-checked at the IR level.
+ * An {@link Attribute} that carries an associated {@link Type}, allowing the stored value to be
+ * type-checked at the IR level.
  */
 public abstract class TypedAttribute extends Attribute {
 

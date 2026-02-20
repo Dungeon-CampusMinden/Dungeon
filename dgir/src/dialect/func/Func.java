@@ -5,11 +5,10 @@ import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
 import dialect.func.types.FuncType;
+import java.util.List;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
-
-import java.util.List;
 
 public class Func extends Dialect {
   @Contract(pure = true)
@@ -21,19 +20,13 @@ public class Func extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return List.of(
-      new FuncOp(),
-      new ReturnOp(),
-      new CallOp()
-    );
+    return List.of(new FuncOp(), new ReturnOp(), new CallOp());
   }
 
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Type> allTypes() {
-    return List.of(
-      FuncType.INSTANCE
-    );
+    return List.of(FuncType.INSTANCE);
   }
 
   @Contract(pure = true)

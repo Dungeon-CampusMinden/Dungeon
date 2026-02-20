@@ -1,3 +1,5 @@
+import static org.junit.jupiter.api.Assertions.*;
+
 import core.Dialect;
 import core.serialization.Utils;
 import dialect.arith.ConstantOp;
@@ -9,22 +11,18 @@ import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
 import dialect.func.types.FuncType;
 import dialect.io.PrintOp;
+import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
- * Test cases for FuncOp and related operations. These test check for correct serialization and deserialization of FuncOp,
- * as well as correct verification of the operation and its operands. They also check for correct handling of function
- * parameters and return values.
+ * Test cases for FuncOp and related operations. These test check for correct serialization and
+ * deserialization of FuncOp, as well as correct verification of the operation and its operands.
+ * They also check for correct handling of function parameters and return values.
  *
- * There are multiple positive and negative test cases for each operation.
- *
+ * <p>There are multiple positive and negative test cases for each operation.
  */
 public class FuncTests {
   public static boolean printResult = true;
@@ -38,7 +36,8 @@ public class FuncTests {
   }
 
   /**
-   * Basic test case to check for correct serialization and deserialization of a simple FuncOp with no parameters and no return value.
+   * Basic test case to check for correct serialization and deserialization of a simple FuncOp with
+   * no parameters and no return value.
    */
   @Test
   public void basicFuncSerialization() {
@@ -48,15 +47,14 @@ public class FuncTests {
     assertTrue(TestUtils.testValidityAndSerialization(funcOp));
   }
 
-  /**
-   * Test case for a function with multiple parameters and a return value.
-   */
+  /** Test case for a function with multiple parameters and a return value. */
   @Test
   public void funcWithParamsAndReturn() {
     FuncType type = new FuncType(List.of(IntegerT.INT32, IntegerT.INT32), IntegerT.INT32);
     FuncOp funcOp = new FuncOp("add", type);
 
-    // In a real scenario, we might have an add operation here. For this test, we just return one of the parameters.
+    // In a real scenario, we might have an add operation here. For this test, we just return one of
+    // the parameters.
     funcOp.addOperation(new ReturnOp(funcOp.getArgument(0)), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(funcOp));
@@ -76,9 +74,7 @@ public class FuncTests {
     assertFalse(TestUtils.testValidityAndSerialization(funcOp));
   }
 
-  /**
-   * Test case for a recursive function call.
-   */
+  /** Test case for a recursive function call. */
   @Test
   public void recursiveFuncCall() {
     Pair<ProgramOp, FuncOp> entry = TestUtils.createProgramOpWithEntryFunc();
@@ -102,7 +98,8 @@ public class FuncTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp mainFunc = entry.getRight();
 
-    FuncOp otherFunc = programOp.addOperation(new FuncOp("other", new FuncType(List.of(), IntegerT.INT32)));
+    FuncOp otherFunc =
+        programOp.addOperation(new FuncOp("other", new FuncType(List.of(), IntegerT.INT32)));
     var constOp = otherFunc.addOperation(new ConstantOp(42), 0);
     otherFunc.addOperation(new ReturnOp(constOp.getValue()), 0);
 
@@ -131,7 +128,9 @@ public class FuncTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp mainFunc = entry.getRight();
 
-    FuncOp target = programOp.addOperation(new FuncOp("target", new FuncType(List.of(IntegerT.INT32), IntegerT.INT32)));
+    FuncOp target =
+        programOp.addOperation(
+            new FuncOp("target", new FuncType(List.of(IntegerT.INT32), IntegerT.INT32)));
     target.addOperation(new ReturnOp(target.getArgument(0)), 0);
 
     // Call with 0 args, expects 1
@@ -147,7 +146,9 @@ public class FuncTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp mainFunc = entry.getRight();
 
-    FuncOp target = programOp.addOperation(new FuncOp("target", new FuncType(List.of(IntegerT.INT32), IntegerT.INT32)));
+    FuncOp target =
+        programOp.addOperation(
+            new FuncOp("target", new FuncType(List.of(IntegerT.INT32), IntegerT.INT32)));
     target.addOperation(new ReturnOp(target.getArgument(0)), 0);
 
     // Call with String arg, expects Int

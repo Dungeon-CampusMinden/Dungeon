@@ -18,5 +18,6 @@ public interface ISymbolUser extends IOpTrait {
   }
 
   @Contract(pure = true)
-  @NotNull SymbolRefAttribute getSymbolRefAttribute();
+  @NotNull
+  SymbolRefAttribute getSymbolRefAttribute();
 }

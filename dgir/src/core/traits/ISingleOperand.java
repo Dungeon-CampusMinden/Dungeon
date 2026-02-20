@@ -3,10 +3,9 @@ package core.traits;
 import core.ir.Type;
 import core.ir.Value;
 import core.ir.ValueOperand;
+import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
 
 public interface ISingleOperand extends IOpTrait {
   @Contract(pure = true)

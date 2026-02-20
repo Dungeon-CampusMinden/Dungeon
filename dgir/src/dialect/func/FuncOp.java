@@ -9,9 +9,8 @@ import core.traits.*;
 import dialect.builtin.attributes.StringAttribute;
 import dialect.builtin.attributes.TypeAttribute;
 import dialect.func.types.FuncType;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, ISingleRegion {
 
@@ -23,13 +22,11 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, 
   public OperationDetails.@NotNull Impl createDetails() {
     class FuncOpModel extends OperationDetails.Impl {
       FuncOpModel() {
-        super(FuncOp.getIdent(),
-          FuncOp.class,
-          DGIRContext.registeredDialects.get(Func.class),
-          List.of(
-            SymbolTable.getSymbolAttributeName(),
-            "type")
-        );
+        super(
+            FuncOp.getIdent(),
+            FuncOp.class,
+            DGIRContext.registeredDialects.get(Func.class),
+            List.of(SymbolTable.getSymbolAttributeName(), "type"));
       }
 
       @Override
@@ -58,8 +55,7 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, 
   // Constructors
   // =========================================================================
 
-  public FuncOp() {
-  }
+  public FuncOp() {}
 
   public FuncOp(Operation operation) {
     super(operation);
@@ -81,7 +77,7 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, 
 
   public StringAttribute getFuncNameAttribute() {
     return getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName())
-      .orElseThrow(() -> new RuntimeException("Symbol attribute not found"));
+        .orElseThrow(() -> new RuntimeException("Symbol attribute not found"));
   }
 
   public String getFuncName() {
@@ -89,8 +85,9 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, 
   }
 
   public TypeAttribute getTypeAttribute() {
-    return getOperation().getAttribute(TypeAttribute.class, "type")
-      .orElseThrow(() -> new RuntimeException("Type attribute not found"));
+    return getOperation()
+        .getAttribute(TypeAttribute.class, "type")
+        .orElseThrow(() -> new RuntimeException("Type attribute not found"));
   }
 
   public FuncType getType() {

@@ -1,30 +1,30 @@
 package core.ir;
 
+import com.fasterxml.jackson.annotation.*;
 import core.IRObjectWithUseList;
 import core.Utils;
 import core.analysis.DotCFG;
 import core.traits.ITerminator;
-import com.fasterxml.jackson.annotation.*;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
-
 /**
- * A block containing an ordered list of {@link Operation}s.
- * Blocks are always attached to a {@link Region} and represent a sequence of
- * operations with a single entry point and a terminating exit operation.
- * <p>
- * The last operation in a block must be a terminator (see {@link ITerminator}), which
- * defines control flow to successor blocks via branches, jumps, or returns.
- * <p>
- * Blocks maintain the parent-child relationship with their contained operations and with
- * their enclosing {@link Region}. They are fundamental to representing unstructured
- * control flow (CFG nodes) in the DGIR.
+ * A block containing an ordered list of {@link Operation}s. Blocks are always attached to a {@link
+ * Region} and represent a sequence of operations with a single entry point and a terminating exit
+ * operation.
+ *
+ * <p>The last operation in a block must be a terminator (see {@link ITerminator}), which defines
+ * control flow to successor blocks via branches, jumps, or returns.
+ *
+ * <p>Blocks maintain the parent-child relationship with their contained operations and with their
+ * enclosing {@link Region}. They are fundamental to representing unstructured control flow (CFG
+ * nodes) in the DGIR.
+ *
  * <pre>{@code
  * Block {
  *   Operation1
@@ -45,26 +45,20 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   // Members
   // =========================================================================
 
-  /**
-   * Operations in this block, executed in order. The last must be a terminator.
-   */
+  /** Operations in this block, executed in order. The last must be a terminator. */
   private final @NotNull List<Operation> operations = new ArrayList<>();
 
-  @JsonIgnore
-  private @Nullable Region parent;
+  @JsonIgnore private @Nullable Region parent;
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
-  public Block() {
-  }
+  public Block() {}
 
   @JsonCreator
   public Block(@JsonProperty("operations") @Nullable List<Operation> operations) {
-    if (operations != null)
-      for (Operation operation : operations)
-        addOperation(operation);
+    if (operations != null) for (Operation operation : operations) addOperation(operation);
   }
 
   // =========================================================================
@@ -124,8 +118,8 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   }
 
   /**
-   * Get the predecessor blocks of this block via its use-list.
-   * A block B is a predecessor of this block if some operation in B branches to this block.
+   * Get the predecessor blocks of this block via its use-list. A block B is a predecessor of this
+   * block if some operation in B branches to this block.
    *
    * @return An unmodifiable set of predecessor blocks.
    */
@@ -133,10 +127,10 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   @Contract(pure = true)
   public @NotNull Set<Block> getPredecessors() {
     return getUses().stream()
-      .map(blockOperand -> blockOperand.getOwner().getParent())
-      .filter(Optional::isPresent)
-      .map(Optional::get)
-      .collect(Collectors.toUnmodifiableSet());
+        .map(blockOperand -> blockOperand.getOwner().getParent())
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(Collectors.toUnmodifiableSet());
   }
 
   // =========================================================================
@@ -156,10 +150,10 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
 
   public void setParent(@Nullable Region parent) {
     assert Utils.Caller.getCallingClass() == Region.class
-      : "Assigning the parent of a block is only allowed from the Region class. Was called from "
-      + Utils.Caller.getCallingClass().getName();
+        : "Assigning the parent of a block is only allowed from the Region class. Was called from "
+            + Utils.Caller.getCallingClass().getName();
     assert this.parent == null || parent == null
-      : "Block already has a parent. Unparent first before setting a new parent. (Use the region interface to unparent.)";
+        : "Block already has a parent. Unparent first before setting a new parent. (Use the region interface to unparent.)";
     this.parent = parent;
   }
 
@@ -170,9 +164,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    */
   @Contract(pure = true)
   public int getIndex() {
-    return getParent()
-      .map(region -> region.getBlocks().indexOf(this))
-      .orElse(-1);
+    return getParent().map(region -> region.getBlocks().indexOf(this)).orElse(-1);
   }
 
   // =========================================================================

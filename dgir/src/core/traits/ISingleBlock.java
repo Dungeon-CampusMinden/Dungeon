@@ -30,7 +30,7 @@ public interface ISingleBlock extends IOpTrait {
     return operation;
   }
 
-  default <OpT extends Op> @NotNull OpT addOperation(@NotNull OpT op){
+  default <OpT extends Op> @NotNull OpT addOperation(@NotNull OpT op) {
     get().getFirstRegion().orElseThrow().getEntryBlock().addOperation(op);
     return op;
   }

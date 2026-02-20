@@ -1,5 +1,6 @@
 package core.ir;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.OperationVerifier;
 import core.Utils;
 import core.detail.OperationDetails;
@@ -7,7 +8,10 @@ import core.detail.RegisteredOperationDetails;
 import core.serialization.OperationDeserializer;
 import core.serialization.OperationSerializer;
 import core.traits.IOpTrait;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,15 +19,10 @@ import org.jetbrains.annotations.Unmodifiable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
-import java.io.Serializable;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.stream.Collectors;
-
 /**
  * This class represents the data state associated with each concrete implementation of an
- * operation. This structure is used so that operations can be constructed independently
- * of their behavior. This is especially useful for serialization and deserialization.
+ * operation. This structure is used so that operations can be constructed independently of their
+ * behavior. This is especially useful for serialization and deserialization.
  */
 @JsonSerialize(using = OperationSerializer.class)
 @JsonDeserialize(using = OperationDeserializer.class)
@@ -36,55 +35,76 @@ public final class Operation implements Serializable {
   /**
    * Static factory method to create an Operation instance.
    *
-   * @param name       The name of the operation.
-   * @param operands   The input value operands.
+   * @param name The name of the operation.
+   * @param operands The input value operands.
    * @param successors The blocks that succeed this operation (branching).
    * @param outputType The output result type.
    * @return A new Operation instance.
    */
   @Contract(pure = true)
   @SafeVarargs
-  public static Operation Create(@NotNull String name,
-                                 @Nullable List<Value> operands,
-                                 @Nullable List<Block> successors,
-                                 @Nullable Type outputType,
-                                 @NotNull List<Type>... regionBodyValueTypes) {
+  public static Operation Create(
+      @NotNull String name,
+      @Nullable List<Value> operands,
+      @Nullable List<Block> successors,
+      @Nullable Type outputType,
+      @NotNull List<Type>... regionBodyValueTypes) {
     assert RegisteredOperationDetails.lookup(name).isPresent()
-      : MessageFormat.format("OperationDetails not found for name: {0}\n Make sure it is registered in with the dialect.", name);
-    return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, successors, outputType, regionBodyValueTypes);
+        : MessageFormat.format(
+            "OperationDetails not found for name: {0}\n Make sure it is registered in with the dialect.",
+            name);
+    return Create(
+        RegisteredOperationDetails.lookup(name).orElseThrow(),
+        operands,
+        successors,
+        outputType,
+        regionBodyValueTypes);
   }
 
   @Contract(pure = true)
   @SafeVarargs
-  public static Operation Create(@NotNull OperationDetails name,
-                                 @Nullable List<Value> operands,
-                                 @Nullable List<Block> successors,
-                                 @Nullable Type outputType,
-                                 @NotNull List<Type>... regionBodyValueTypes) {
+  public static Operation Create(
+      @NotNull OperationDetails name,
+      @Nullable List<Value> operands,
+      @Nullable List<Block> successors,
+      @Nullable Type outputType,
+      @NotNull List<Type>... regionBodyValueTypes) {
     var operation = Create(name, operands, successors, outputType, regionBodyValueTypes.length);
     for (int i = 0; i < regionBodyValueTypes.length; i++) {
-      operation.getRegions().get(i).setBodyValues(regionBodyValueTypes[i].stream().map(Value::new).toList());
+      operation
+          .getRegions()
+          .get(i)
+          .setBodyValues(regionBodyValueTypes[i].stream().map(Value::new).toList());
     }
     return operation;
   }
 
   @Contract(pure = true)
-  public static Operation Create(@NotNull String name,
-                                 @Nullable List<Value> operands,
-                                 @Nullable List<Block> successors,
-                                 @Nullable Type outputType,
-                                 int numRegions) {
+  public static Operation Create(
+      @NotNull String name,
+      @Nullable List<Value> operands,
+      @Nullable List<Block> successors,
+      @Nullable Type outputType,
+      int numRegions) {
     assert RegisteredOperationDetails.lookup(name).isPresent()
-      : MessageFormat.format("OperationDetails not found for name: {0}\n Make sure it is registered in with the dialect.", name);
-    return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, successors, outputType, numRegions);
+        : MessageFormat.format(
+            "OperationDetails not found for name: {0}\n Make sure it is registered in with the dialect.",
+            name);
+    return Create(
+        RegisteredOperationDetails.lookup(name).orElseThrow(),
+        operands,
+        successors,
+        outputType,
+        numRegions);
   }
 
   @Contract(pure = true)
-  public static Operation Create(@NotNull OperationDetails name,
-                                 @Nullable List<Value> operands,
-                                 @Nullable List<Block> successors,
-                                 @Nullable Type outputType,
-                                 int numRegions) {
+  public static Operation Create(
+      @NotNull OperationDetails name,
+      @Nullable List<Value> operands,
+      @Nullable List<Block> successors,
+      @Nullable Type outputType,
+      int numRegions) {
     operands = operands == null ? List.of() : operands;
     successors = successors == null ? List.of() : successors;
 
@@ -93,8 +113,9 @@ public final class Operation implements Serializable {
       attributes.add(new NamedAttribute(attrName, null));
     }
     name.populateDefaultAttrs(attributes);
-    Map<String, NamedAttribute> attributeMap = attributes.stream()
-      .collect(Collectors.toUnmodifiableMap(NamedAttribute::getName, attr -> attr));
+    Map<String, NamedAttribute> attributeMap =
+        attributes.stream()
+            .collect(Collectors.toUnmodifiableMap(NamedAttribute::getName, attr -> attr));
 
     return new Operation(name, operands, successors, outputType, attributeMap, numRegions);
   }
@@ -103,52 +124,26 @@ public final class Operation implements Serializable {
   // Members
   // =========================================================================
 
-  /**
-   * The unique identifier of this operation.
-   */
-  @NotNull
-  private final OperationDetails details;
+  /** The unique identifier of this operation. */
+  @NotNull private final OperationDetails details;
 
-  /**
-   * The input values of this operation.
-   */
-  @NotNull
-  @Unmodifiable
-  private final List<ValueOperand> operands;
+  /** The input values of this operation. */
+  @NotNull @Unmodifiable private final List<ValueOperand> operands;
 
-  /**
-   * The input blocks of this operation (branch successors).
-   */
-  @NotNull
-  @Unmodifiable
-  private final List<BlockOperand> blockOperands;
+  /** The input blocks of this operation (branch successors). */
+  @NotNull @Unmodifiable private final List<BlockOperand> blockOperands;
 
-  /**
-   * The output of this operation.
-   */
-  @Nullable
-  private final OperationResult output;
+  /** The output of this operation. */
+  @Nullable private final OperationResult output;
 
-  /**
-   * The attributes of this operation.
-   */
-  @NotNull
-  @Unmodifiable
-  private final Map<String, NamedAttribute> attributes;
+  /** The attributes of this operation. */
+  @NotNull @Unmodifiable private final Map<String, NamedAttribute> attributes;
 
-  /**
-   * The regions of this operation.
-   */
-  @NotNull
-  @Unmodifiable
-  private final List<Region> regions;
+  /** The regions of this operation. */
+  @NotNull @Unmodifiable private final List<Region> regions;
 
-  /**
-   * The block containing this operation.
-   */
-  @JsonIgnore
-  @Nullable
-  private Block parent = null;
+  /** The block containing this operation. */
+  @JsonIgnore @Nullable private Block parent = null;
 
   // =========================================================================
   // Constructors
@@ -157,26 +152,26 @@ public final class Operation implements Serializable {
   /**
    * Full constructor for Operation.
    *
-   * @param details    The operation details.
-   * @param operands   The input values.
+   * @param details The operation details.
+   * @param operands The input values.
    * @param successors The blocks succeeding this operation.
    * @param resultType The output result type.
    * @param attributes The named attributes.
    * @param numRegions The number of regions.
    */
-  public Operation(@NotNull OperationDetails details,
-                   @NotNull List<Value> operands,
-                   @NotNull List<Block> successors,
-                   @Nullable Type resultType,
-                   @NotNull Map<String, NamedAttribute> attributes,
-                   int numRegions) {
+  public Operation(
+      @NotNull OperationDetails details,
+      @NotNull List<Value> operands,
+      @NotNull List<Block> successors,
+      @Nullable Type resultType,
+      @NotNull Map<String, NamedAttribute> attributes,
+      int numRegions) {
     this.details = details;
 
     this.output = resultType != null ? new OperationResult(this, resultType) : null;
 
     List<ValueOperand> operandsList = new ArrayList<>(operands.size());
-    for (var operand : operands)
-      operandsList.add(new ValueOperand(this, operand));
+    for (var operand : operands) operandsList.add(new ValueOperand(this, operand));
     this.operands = Collections.unmodifiableList(operandsList);
 
     List<BlockOperand> blockOperandsList = new ArrayList<>(successors.size());
@@ -288,12 +283,11 @@ public final class Operation implements Serializable {
   @JsonIgnore
   @Contract(pure = true)
   public @NotNull @Unmodifiable List<Block> getSuccessors() {
-    return getBlockOperands()
-      .stream()
-      .map(BlockOperand::getValue)
-      .filter(Optional::isPresent)
-      .map(Optional::get)
-      .toList();
+    return getBlockOperands().stream()
+        .map(BlockOperand::getValue)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .toList();
   }
 
   @Contract(pure = true)
@@ -327,22 +321,22 @@ public final class Operation implements Serializable {
 
   @Contract(pure = true)
   public @NotNull Optional<Attribute> getAttributeByName(@NotNull String name) {
-    if (!getAttributes().containsKey(name))
-      return Optional.empty();
+    if (!getAttributes().containsKey(name)) return Optional.empty();
     return getAttributes().get(name).getAttribute();
   }
 
   @Contract(pure = true)
-  public <T extends Attribute> @NotNull Optional<T> getAttribute(@NotNull Class<T> clazz, @NotNull String name) {
+  public <T extends Attribute> @NotNull Optional<T> getAttribute(
+      @NotNull Class<T> clazz, @NotNull String name) {
     var attribute = getAttributeByName(name);
-    if (attribute.isEmpty() || !clazz.isInstance(attribute.get()))
-      return Optional.empty();
+    if (attribute.isEmpty() || !clazz.isInstance(attribute.get())) return Optional.empty();
     return Optional.of(clazz.cast(attribute.get()));
   }
 
   public void setAttribute(@NotNull String name, @NotNull Attribute attribute) {
     NamedAttribute namedAttribute = getAttributes().get(name);
-    assert namedAttribute != null : MessageFormat.format("Attribute with name {0} does not exist.", name);
+    assert namedAttribute != null
+        : MessageFormat.format("Attribute with name {0} does not exist.", name);
     namedAttribute.setAttribute(attribute);
   }
 
@@ -386,9 +380,11 @@ public final class Operation implements Serializable {
 
   public void setParent(Block parent) {
     assert Utils.Caller.getCallingClass() == Block.class
-      : MessageFormat.format("Assigning the parent of an operation is only allowed from the Block class. Was called from {0}", Utils.Caller.getCallingClass().getName());
+        : MessageFormat.format(
+            "Assigning the parent of an operation is only allowed from the Block class. Was called from {0}",
+            Utils.Caller.getCallingClass().getName());
     assert this.parent == null || parent == null
-      : "Operation already has a parent. Unparent first before setting a new parent. (Use the block interface to unparent.)";
+        : "Operation already has a parent. Unparent first before setting a new parent. (Use the block interface to unparent.)";
     this.parent = parent;
   }
 
@@ -399,14 +395,14 @@ public final class Operation implements Serializable {
    * @return The first parent operation implementing the trait, or empty if none was found.
    */
   @Contract(pure = true)
-  public <T extends IOpTrait> @NotNull Optional<T> getParentWithTrait(@NotNull Class<T> traitClass) {
+  public <T extends IOpTrait> @NotNull Optional<T> getParentWithTrait(
+      @NotNull Class<T> traitClass) {
     Optional<Operation> currentParent = getParentOperation();
     if (currentParent.isEmpty()) return Optional.empty();
 
     while (currentParent.isPresent()) {
       Optional<T> asTrait = currentParent.get().asTrait(traitClass);
-      if (asTrait.isPresent())
-        return asTrait;
+      if (asTrait.isPresent()) return asTrait;
       currentParent = currentParent.get().getParentOperation();
     }
     return Optional.empty();
@@ -419,9 +415,7 @@ public final class Operation implements Serializable {
    */
   @Contract(pure = true)
   public int getIndex() {
-    return getParent()
-      .map(block -> block.getOperations().indexOf(this))
-      .orElse(-1);
+    return getParent().map(block -> block.getOperations().indexOf(this)).orElse(-1);
   }
 
   /**
@@ -431,12 +425,13 @@ public final class Operation implements Serializable {
    */
   @Contract(pure = true)
   public @NotNull Optional<Operation> getNext() {
-    return getParent().map(block -> {
-      int index = block.getOperations().indexOf(this);
-      if (index == -1 || index == block.getOperations().size() - 1)
-        return null;
-      return block.getOperations().get(index + 1);
-    });
+    return getParent()
+        .map(
+            block -> {
+              int index = block.getOperations().indexOf(this);
+              if (index == -1 || index == block.getOperations().size() - 1) return null;
+              return block.getOperations().get(index + 1);
+            });
   }
 
   // =========================================================================
@@ -468,9 +463,10 @@ public final class Operation implements Serializable {
     sb.append(getDetails().getIdent());
 
     sb.append(" (");
-    sb.append(operands.stream()
-      .map(op -> op.getType().orElseThrow().getParameterizedIdent())
-      .collect(Collectors.joining(", ")));
+    sb.append(
+        operands.stream()
+            .map(op -> op.getType().orElseThrow().getParameterizedIdent())
+            .collect(Collectors.joining(", ")));
     sb.append(")");
 
     sb.append(" -> (");
@@ -480,10 +476,14 @@ public final class Operation implements Serializable {
     sb.append(")");
 
     if (!attributes.isEmpty()) {
-      String attrs = attributes.values().stream()
-        .filter(attr -> attr.getAttribute().isPresent())
-        .map(attr -> MessageFormat.format("{0} = {1}", attr.getName(), attr.getAttribute().get().getStorage()))
-        .collect(Collectors.joining(", "));
+      String attrs =
+          attributes.values().stream()
+              .filter(attr -> attr.getAttribute().isPresent())
+              .map(
+                  attr ->
+                      MessageFormat.format(
+                          "{0} = {1}", attr.getName(), attr.getAttribute().get().getStorage()))
+              .collect(Collectors.joining(", "));
       if (!attrs.isEmpty()) {
         sb.append(" { ");
         sb.append(attrs);

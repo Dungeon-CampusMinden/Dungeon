@@ -8,11 +8,11 @@ import core.ir.Op;
 import core.ir.Operation;
 import core.traits.*;
 import dialect.func.FuncOp;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
-public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGlobalContainer, ISingleRegion, ISingleBlock {
+public class ProgramOp extends Op
+    implements ISymbolTable, INoTerminator, IGlobalContainer, ISingleRegion, ISingleBlock {
 
   // =========================================================================
   // Type Info
@@ -21,7 +21,8 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
   @Override
   public OperationDetails.@NotNull Impl createDetails() {
     class ProgramOpModel extends OperationDetails.Impl {
-      ProgramOpModel(String name, Class<? extends Op> type, Dialect dialect, List<String> attributeNames) {
+      ProgramOpModel(
+          String name, Class<? extends Op> type, Dialect dialect, List<String> attributeNames) {
         super(name, type, dialect, attributeNames);
       }
 
@@ -51,12 +52,11 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
       }
 
       @Override
-      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
-
-      }
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {}
     }
 
-    return new ProgramOpModel(getIdent(), this.getClass(), Dialect.getOrThrow(Builtin.class), List.of());
+    return new ProgramOpModel(
+        getIdent(), this.getClass(), Dialect.getOrThrow(Builtin.class), List.of());
   }
 
   public static String getIdent() {
@@ -72,9 +72,9 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
   // =========================================================================
 
   public ProgramOp() {
-    executeIfRegistered(ProgramOp.class, () ->
-      setOperation(true, Operation.Create(getIdent(), null, null, null, 1))
-    );
+    executeIfRegistered(
+        ProgramOp.class,
+        () -> setOperation(true, Operation.Create(getIdent(), null, null, null, 1)));
   }
 
   public ProgramOp(Operation operation) {
@@ -93,6 +93,7 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
         return funcOp.get();
       }
     }
-    throw new IllegalStateException("Could not find main function. This should have been caught by verification.");
+    throw new IllegalStateException(
+        "Could not find main function. This should have been caught by verification.");
   }
 }

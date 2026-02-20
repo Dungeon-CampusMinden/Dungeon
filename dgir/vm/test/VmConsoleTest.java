@@ -14,19 +14,16 @@ import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
 import dialect.func.types.FuncType;
 import dialect.io.PrintOp;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
-/**
- * Testcases for the VM, only testing output from and to the console.
- */
+/** Testcases for the VM, only testing output from and to the console. */
 public class VmConsoleTest {
   private ByteArrayOutputStream output;
   private final boolean printToConsole = true;
@@ -57,7 +54,8 @@ public class VmConsoleTest {
   }
 
   /**
-   * Creates a simple dgir program printing "Hello World!" to the console and runs it through the VM.
+   * Creates a simple dgir program printing "Hello World!" to the console and runs it through the
+   * VM.
    */
   @Test
   void helloWorldTest() {
@@ -73,14 +71,13 @@ public class VmConsoleTest {
     assert capturedOutput().equals("Hello World!\n") : "Unexpected console output";
   }
 
-  /**
-   * Same as helloWorldTest but the string is produced by a function call.
-   */
+  /** Same as helloWorldTest but the string is produced by a function call. */
   @Test
   void helloWorldCallTest() {
     ProgramOp programOp = new ProgramOp();
 
-    FuncOp stringOp = programOp.addOperation(new FuncOp("string", new FuncType(List.of(), StringT.INSTANCE)));
+    FuncOp stringOp =
+        programOp.addOperation(new FuncOp("string", new FuncType(List.of(), StringT.INSTANCE)));
     {
       var text = stringOp.addOperation(new ConstantOp("Hello World!\n"), 0);
       stringOp.addOperation(new ReturnOp(text.getValue()), 0);
@@ -100,7 +97,8 @@ public class VmConsoleTest {
   }
 
   /**
-   * Tests BranchOp: entry block prints "before", branches unconditionally to a second block that prints "after".
+   * Tests BranchOp: entry block prints "before", branches unconditionally to a second block that
+   * prints "after".
    */
   @Test
   void unconditionalBranchTest() {
@@ -135,7 +133,7 @@ public class VmConsoleTest {
     FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
 
     Block entryBlock = mainOp.getEntryBlock();
-    Block trueBlock  = mainOp.addBlock(new Block());
+    Block trueBlock = mainOp.addBlock(new Block());
     Block falseBlock = mainOp.addBlock(new Block());
     Block mergeBlock = mainOp.addBlock(new Block());
 
@@ -163,7 +161,8 @@ public class VmConsoleTest {
   }
 
   /**
-   * Tests BranchCondOp taking the false branch: condition is false, so the "false" block is executed.
+   * Tests BranchCondOp taking the false branch: condition is false, so the "false" block is
+   * executed.
    */
   @Test
   void conditionalBranchFalseBranchTest() {
@@ -171,7 +170,7 @@ public class VmConsoleTest {
     FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
 
     Block entryBlock = mainOp.getEntryBlock();
-    Block trueBlock  = mainOp.addBlock(new Block());
+    Block trueBlock = mainOp.addBlock(new Block());
     Block falseBlock = mainOp.addBlock(new Block());
     Block mergeBlock = mainOp.addBlock(new Block());
 
@@ -199,15 +198,16 @@ public class VmConsoleTest {
   }
 
   /**
-   * Tests BranchCondOp where the condition is provided by a function call.
-   * A helper function returns a boolean constant; the main function uses it as a branch condition.
+   * Tests BranchCondOp where the condition is provided by a function call. A helper function
+   * returns a boolean constant; the main function uses it as a branch condition.
    */
   @Test
   void conditionalBranchFromFunctionCallTest() {
     ProgramOp programOp = new ProgramOp();
 
     // Helper function: returns true (int1)
-    FuncOp condFunc = programOp.addOperation(new FuncOp("getCondition", new FuncType(List.of(), IntegerT.BOOL)));
+    FuncOp condFunc =
+        programOp.addOperation(new FuncOp("getCondition", new FuncType(List.of(), IntegerT.BOOL)));
     {
       var t = condFunc.addOperation(new ConstantOp(true), 0);
       condFunc.addOperation(new ReturnOp(t.getValue()), 0);
@@ -217,13 +217,14 @@ public class VmConsoleTest {
     FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
 
     Block entryBlock = mainOp.getEntryBlock();
-    Block trueBlock  = mainOp.addBlock(new Block());
+    Block trueBlock = mainOp.addBlock(new Block());
     Block falseBlock = mainOp.addBlock(new Block());
     Block mergeBlock = mainOp.addBlock(new Block());
 
     // Entry: call getCondition(), branch on its result
     var callResult = entryBlock.addOperation(new CallOp(condFunc));
-    entryBlock.addOperation(new BranchCondOp(callResult.getOutputValue().orElseThrow(), trueBlock, falseBlock));
+    entryBlock.addOperation(
+        new BranchCondOp(callResult.getOutputValue().orElseThrow(), trueBlock, falseBlock));
 
     // True block
     var yes = trueBlock.addOperation(new ConstantOp("condition true\n"));
@@ -245,19 +246,22 @@ public class VmConsoleTest {
   }
 
   /**
-   * Tests a function call where the callee itself uses BranchCondOp internally to decide what to print.
+   * Tests a function call where the callee itself uses BranchCondOp internally to decide what to
+   * print.
    */
   @Test
   void functionCallWithInternalBranchTest() {
     ProgramOp programOp = new ProgramOp();
 
     // Helper function: takes an int1 parameter and prints "positive\n" or "non-positive\n"
-    FuncOp printFunc = programOp.addOperation(new FuncOp("printBranch", new FuncType(List.of(IntegerT.BOOL), null)));
+    FuncOp printFunc =
+        programOp.addOperation(
+            new FuncOp("printBranch", new FuncType(List.of(IntegerT.BOOL), null)));
     {
       Block funcEntry = printFunc.getEntryBlock();
-      Block posBlock  = printFunc.addBlock(new Block());
-      Block negBlock  = printFunc.addBlock(new Block());
-      Block retBlock  = printFunc.addBlock(new Block());
+      Block posBlock = printFunc.addBlock(new Block());
+      Block negBlock = printFunc.addBlock(new Block());
+      Block retBlock = printFunc.addBlock(new Block());
 
       // Branch on the parameter
       var param = printFunc.getArgument(0);
@@ -281,9 +285,9 @@ public class VmConsoleTest {
     // Main: call printBranch(true) then printBranch(false)
     FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
     {
-      var trueVal  = mainOp.addOperation(new ConstantOp(true),  0);
+      var trueVal = mainOp.addOperation(new ConstantOp(true), 0);
       var falseVal = mainOp.addOperation(new ConstantOp(false), 0);
-      mainOp.addOperation(new CallOp(printFunc, trueVal.getValue()),  0);
+      mainOp.addOperation(new CallOp(printFunc, trueVal.getValue()), 0);
       mainOp.addOperation(new CallOp(printFunc, falseVal.getValue()), 0);
       mainOp.addOperation(new ReturnOp(), 0);
     }
@@ -291,6 +295,7 @@ public class VmConsoleTest {
     VM vm = new VM();
     vm.init(programOp);
     assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("positive\nnon-positive\n") : "Unexpected output: " + capturedOutput();
+    assert capturedOutput().equals("positive\nnon-positive\n")
+        : "Unexpected output: " + capturedOutput();
   }
 }

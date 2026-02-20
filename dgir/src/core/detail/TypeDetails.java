@@ -1,22 +1,21 @@
 package core.detail;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.DGIRContext;
 import core.Dialect;
 import core.ir.Type;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Holds all basic information about a type kind and exposes it through a
- * stable interface. The actual data lives in the inner {@link Impl}.
+ * Holds all basic information about a type kind and exposes it through a stable interface. The
+ * actual data lives in the inner {@link Impl}.
  */
 public class TypeDetails {
 
@@ -48,9 +47,7 @@ public class TypeDetails {
     this.impl = impl;
   }
 
-  /**
-   * Look up or create a {@link TypeDetails} by ident string.
-   */
+  /** Look up or create a {@link TypeDetails} by ident string. */
   public TypeDetails(@NotNull String ident) {
     // Try the registered registry first
     TypeDetails registeredName = DGIRContext.registeredTypesByIdent.get(ident);
@@ -66,15 +63,15 @@ public class TypeDetails {
       return;
     }
 
-    unregisteredName = DGIRContext.typesByIdent.computeIfAbsent(ident,
-      idnt -> new UnregisteredType(idnt, Type.class, DGIRContext.getReferencedDialect(idnt)));
+    unregisteredName =
+        DGIRContext.typesByIdent.computeIfAbsent(
+            ident,
+            idnt -> new UnregisteredType(idnt, Type.class, DGIRContext.getReferencedDialect(idnt)));
     DGIRContext.types.put(Type.class, unregisteredName);
     impl = Objects.requireNonNull(unregisteredName);
   }
 
-  /**
-   * Look up or create a {@link TypeDetails} by type class.
-   */
+  /** Look up or create a {@link TypeDetails} by type class. */
   public TypeDetails(@NotNull Class<? extends Type> clazz) {
     // Try the registered registry first
     TypeDetails registeredName = DGIRContext.registeredTypes.get(clazz);
@@ -90,8 +87,9 @@ public class TypeDetails {
       return;
     }
 
-    unregisteredName = DGIRContext.typesByIdent.computeIfAbsent(clazz.getName(),
-      ident -> new UnregisteredType(clazz.getName(), Type.class, null));
+    unregisteredName =
+        DGIRContext.typesByIdent.computeIfAbsent(
+            clazz.getName(), ident -> new UnregisteredType(clazz.getName(), Type.class, null));
     DGIRContext.types.put(clazz, unregisteredName);
     impl = unregisteredName;
   }
@@ -134,9 +132,11 @@ public class TypeDetails {
   // =========================================================================
 
   /**
-   * Create a Type instance from the provided parameterized ident.
-   * Works for both simple and generic/complex types (e.g. {@code func.func<...>}).
+   * Create a Type instance from the provided parameterized ident. Works for both simple and
+   * generic/complex types (e.g. {@code func.func<...>}).
+   *
    * <p>Examples:
+   *
    * <pre>{@literal
    *   int32
    *   float64
@@ -157,9 +157,11 @@ public class TypeDetails {
   }
 
   /**
-   * Parse a comma-separated list of (possibly nested/parameterized) type strings
-   * into a list of Type instances.
+   * Parse a comma-separated list of (possibly nested/parameterized) type strings into a list of
+   * Type instances.
+   *
    * <p>Examples:
+   *
    * <pre>{@literal
    *   int32, float64, ptr<int>
    *   func.func<(int, string) -> (bool)>, ptr<func.func<(int) -> (int)>>
@@ -209,8 +211,8 @@ public class TypeDetails {
   // =========================================================================
 
   /**
-   * Fully type-erased description of a type kind.
-   * Subclasses are created per type class inside each type's {@code createImpl()} method.
+   * Fully type-erased description of a type kind. Subclasses are created per type class inside each
+   * type's {@code createImpl()} method.
    */
   public abstract static class Impl {
 
@@ -220,7 +222,11 @@ public class TypeDetails {
     protected @Nullable Dialect dialect;
     protected @NotNull Constructor<? extends Type> constructor;
 
-    public Impl(@Nullable Type defaultInstance, @NotNull String ident, @NotNull Class<? extends Type> type, @Nullable Dialect dialect) {
+    public Impl(
+        @Nullable Type defaultInstance,
+        @NotNull String ident,
+        @NotNull Class<? extends Type> type,
+        @Nullable Dialect dialect) {
       this.defaultInstance = defaultInstance;
       this.ident = ident;
       this.type = type;
@@ -229,7 +235,8 @@ public class TypeDetails {
       try {
         this.constructor = type.getDeclaredConstructor();
       } catch (NoSuchMethodException e) {
-        throw new RuntimeException("Type class must have a default constructor: " + type.getSimpleName(), e);
+        throw new RuntimeException(
+            "Type class must have a default constructor: " + type.getSimpleName(), e);
       }
     }
 
@@ -249,10 +256,11 @@ public class TypeDetails {
     }
 
     /**
-     * Get the parameterized ident for this type. Simple types return just the ident;
-     * generic types (e.g. {@link core.ir.Type} parameterized) override this to include parameters.
-     * <p>
-     * Syntax:
+     * Get the parameterized ident for this type. Simple types return just the ident; generic types
+     * (e.g. {@link core.ir.Type} parameterized) override this to include parameters.
+     *
+     * <p>Syntax:
+     *
      * <pre>
      * parameterizedType:
      *    ident
@@ -269,8 +277,8 @@ public class TypeDetails {
     }
 
     /**
-     * Reconstruct a Type instance from its parameterized ident string.
-     * Simple types return their default instance; generic types override this.
+     * Reconstruct a Type instance from its parameterized ident string. Simple types return their
+     * default instance; generic types override this.
      *
      * @param parameterizedIdent The parameterized ident string.
      * @return The reconstructed Type instance.
@@ -278,28 +286,35 @@ public class TypeDetails {
     @Contract(pure = true)
     public @NotNull Type fromParameterizedIdent(@NotNull String parameterizedIdent) {
       assert defaultInstance != null
-        : "Cannot create type from parameterized ident without a default instance: " + getIdent()
-        + "\nReceived parameterized ident: " + parameterizedIdent
-        + "\nMake sure the type details are registered.";
+          : "Cannot create type from parameterized ident without a default instance: "
+              + getIdent()
+              + "\nReceived parameterized ident: "
+              + parameterizedIdent
+              + "\nMake sure the type details are registered.";
 
       return defaultInstance;
     }
 
     @Contract(pure = true)
-    public <T extends Type> Optional<T> fromParameterizedIdent(@NotNull String parameterizedIdent, @NotNull Class<T> clazz) {
+    public <T extends Type> Optional<T> fromParameterizedIdent(
+        @NotNull String parameterizedIdent, @NotNull Class<T> clazz) {
       assert defaultInstance != null
-        : "Cannot create type from parameterized ident without a default instance: " + getIdent()
-        + "\nReceived parameterized ident: " + parameterizedIdent
-        + "\nExpected type class: " + clazz.getSimpleName()
-        + "\nMake sure the type details are registered.";
+          : "Cannot create type from parameterized ident without a default instance: "
+              + getIdent()
+              + "\nReceived parameterized ident: "
+              + parameterizedIdent
+              + "\nExpected type class: "
+              + clazz.getSimpleName()
+              + "\nMake sure the type details are registered.";
 
       assert clazz.isAssignableFrom(defaultInstance.getClass())
-        : "Cannot create type of class " + clazz.getSimpleName()
-        + " from the impl of type " + defaultInstance.getClass().getSimpleName();
+          : "Cannot create type of class "
+              + clazz.getSimpleName()
+              + " from the impl of type "
+              + defaultInstance.getClass().getSimpleName();
 
       Type type = fromParameterizedIdent(parameterizedIdent);
-      if (!clazz.isInstance(type))
-        return Optional.empty();
+      if (!clazz.isInstance(type)) return Optional.empty();
       return Optional.of(clazz.cast(type));
     }
 
@@ -307,8 +322,7 @@ public class TypeDetails {
     public <T extends Type> Optional<T> createInstance(@NotNull Class<T> clazz) {
       try {
         Type type = constructor.newInstance();
-        if (!clazz.isInstance(type))
-          return Optional.empty();
+        if (!clazz.isInstance(type)) return Optional.empty();
         return Optional.of(clazz.cast(type));
       } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
         throw new RuntimeException("Failed to create instance of type: " + type.getSimpleName(), e);
@@ -320,9 +334,7 @@ public class TypeDetails {
   // Inner: UnregisteredType
   // =========================================================================
 
-  /**
-   * Placeholder used when a type ident is referenced before registration.
-   */
+  /** Placeholder used when a type ident is referenced before registration. */
   protected static final class UnregisteredType extends Impl {
     UnregisteredType(String ident, Class<? extends Type> clazz, Dialect dialect) {
       super(null, ident, clazz, dialect);

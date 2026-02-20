@@ -7,10 +7,9 @@ import core.traits.ISymbolUser;
 import dialect.builtin.Builtin;
 import dialect.builtin.attributes.SymbolRefAttribute;
 import dialect.func.types.FuncType;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 
 public class CallOp extends Op implements ISymbolUser {
 
@@ -23,11 +22,10 @@ public class CallOp extends Op implements ISymbolUser {
     class CallOpModel extends OperationDetails.Impl {
       CallOpModel() {
         super(
-          CallOp.getIdent(),
-          CallOp.class,
-          Dialect.getOrThrow(Builtin.class),
-          List.of(getCalleeAttributeName())
-        );
+            CallOp.getIdent(),
+            CallOp.class,
+            Dialect.getOrThrow(Builtin.class),
+            List.of(getCalleeAttributeName()));
       }
 
       @Override
@@ -35,7 +33,8 @@ public class CallOp extends Op implements ISymbolUser {
         CallOp callOp = operation.as(CallOp.class).orElseThrow();
 
         // Make sure that the callee function exists in the nearest symbol table
-        Optional<FuncOp> callee = SymbolTable.lookupSymbolInNearestTableAsOp(operation, callOp.getCallee(), FuncOp.class);
+        Optional<FuncOp> callee =
+            SymbolTable.lookupSymbolInNearestTableAsOp(operation, callOp.getCallee(), FuncOp.class);
         if (callee.isEmpty()) {
           operation.emitError("Could not find function " + callOp.getCallee());
           return false;
@@ -45,9 +44,15 @@ public class CallOp extends Op implements ISymbolUser {
         var calleeType = callee.get().getType();
         var funcType = callOp.getFunctionType();
         if (!calleeType.equals(funcType)) {
-          callOp.getOperation().emitError("Function type does not match call site type for function "
-            + callOp.getCallee() + ": "
-            + calleeType.getParameterizedIdent() + " != " + funcType.getParameterizedIdent());
+          callOp
+              .getOperation()
+              .emitError(
+                  "Function type does not match call site type for function "
+                      + callOp.getCallee()
+                      + ": "
+                      + calleeType.getParameterizedIdent()
+                      + " != "
+                      + funcType.getParameterizedIdent());
           return false;
         }
         return true;
@@ -77,8 +82,7 @@ public class CallOp extends Op implements ISymbolUser {
   // Constructors
   // =========================================================================
 
-  public CallOp() {
-  }
+  public CallOp() {}
 
   public CallOp(Operation operation) {
     super(operation);
@@ -108,8 +112,8 @@ public class CallOp extends Op implements ISymbolUser {
 
   public String getCallee() {
     return getAttribute(SymbolRefAttribute.class, getCalleeAttributeName())
-      .orElseThrow(() -> new AssertionError("No callee attribute found"))
-      .getStorage();
+        .orElseThrow(() -> new AssertionError("No callee attribute found"))
+        .getStorage();
   }
 
   private void setCallee(String name) {
@@ -122,11 +126,8 @@ public class CallOp extends Op implements ISymbolUser {
    * @return The function type that results from this call's operands and output.
    */
   public @NotNull FuncType getFunctionType() {
-    List<Type> inputTypes = getOperands()
-      .stream()
-      .map(ValueOperand::getType)
-      .map(type -> type.orElse(null))
-      .toList();
+    List<Type> inputTypes =
+        getOperands().stream().map(ValueOperand::getType).map(type -> type.orElse(null)).toList();
     Type outputType = getOutput().map(OperationResult::getType).orElse(null);
     return new FuncType(inputTypes, outputType);
   }
@@ -134,6 +135,6 @@ public class CallOp extends Op implements ISymbolUser {
   @Override
   public @NotNull SymbolRefAttribute getSymbolRefAttribute() {
     return getAttribute(SymbolRefAttribute.class, getCalleeAttributeName())
-      .orElseThrow(() -> new RuntimeException("No symbol attribute found"));
+        .orElseThrow(() -> new RuntimeException("No symbol attribute found"));
   }
 }

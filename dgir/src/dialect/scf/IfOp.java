@@ -4,14 +4,13 @@ import core.Dialect;
 import core.detail.OperationDetails;
 import core.ir.*;
 import core.traits.IControlFlow;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Op which represents an if statement.
- * It has one region for the "then" block and optionally one region for the "else" block.
+ * Op which represents an if statement. It has one region for the "then" block and optionally one
+ * region for the "else" block.
  */
 public class IfOp extends Op implements IControlFlow {
 
@@ -32,8 +31,7 @@ public class IfOp extends Op implements IControlFlow {
       }
 
       @Override
-      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
-      }
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {}
     }
     return new IfOpDetails();
   }
@@ -50,8 +48,7 @@ public class IfOp extends Op implements IControlFlow {
   // Constructors
   // =========================================================================
 
-  public IfOp() {
-  }
+  public IfOp() {}
 
   public IfOp(Operation operation) {
     super(operation);

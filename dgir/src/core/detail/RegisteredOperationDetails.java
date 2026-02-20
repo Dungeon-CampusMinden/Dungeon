@@ -2,14 +2,13 @@ package core.detail;
 
 import core.DGIRContext;
 import core.ir.Op;
+import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 /**
- * A fully registered {@link OperationDetails} instance.
- * Created by {@link #insert(Op)} during dialect initialisation.
+ * A fully registered {@link OperationDetails} instance. Created by {@link #insert(Op)} during
+ * dialect initialisation.
  */
 public class RegisteredOperationDetails extends OperationDetails {
 
@@ -18,16 +17,16 @@ public class RegisteredOperationDetails extends OperationDetails {
   // =========================================================================
 
   /**
-   * Register the given op in the global context.
-   * If the op already carries a {@link RegisteredOperationDetails}, it is reused;
-   * otherwise a new one is created via {@link Op#createDetails()}.
+   * Register the given op in the global context. If the op already carries a {@link
+   * RegisteredOperationDetails}, it is reused; otherwise a new one is created via {@link
+   * Op#createDetails()}.
    *
    * @param op The op instance to register.
    */
   public static void insert(@NotNull Op op) {
     RegisteredOperationDetails details;
     if (op.getOperationOrNull() != null
-      && op.getDetails() instanceof RegisteredOperationDetails existing) {
+        && op.getDetails() instanceof RegisteredOperationDetails existing) {
       details = existing;
     } else {
       details = new RegisteredOperationDetails(op.createDetails());
@@ -39,7 +38,8 @@ public class RegisteredOperationDetails extends OperationDetails {
 
     // Populate the registered caches
     DGIRContext.registeredOperations.put(details.getType(), details);
-    DGIRContext.registeredOperationsByIdent.put(details.getIdent(), new RegisteredOperationDetails(details.getImpl()));
+    DGIRContext.registeredOperationsByIdent.put(
+        details.getIdent(), new RegisteredOperationDetails(details.getImpl()));
   }
 
   // =========================================================================
@@ -47,7 +47,8 @@ public class RegisteredOperationDetails extends OperationDetails {
   // =========================================================================
 
   @Contract(pure = true)
-  public static @NotNull Optional<RegisteredOperationDetails> lookup(@NotNull Class<? extends Op> clazz) {
+  public static @NotNull Optional<RegisteredOperationDetails> lookup(
+      @NotNull Class<? extends Op> clazz) {
     return Optional.ofNullable(DGIRContext.registeredOperations.get(clazz));
   }
 

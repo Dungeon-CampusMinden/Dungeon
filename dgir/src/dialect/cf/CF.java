@@ -4,11 +4,10 @@ import core.Dialect;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
+import java.util.List;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
-
-import java.util.List;
 
 public class CF extends Dialect {
   @Contract(pure = true)
@@ -20,10 +19,7 @@ public class CF extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return List.of(
-      new BranchOp(),
-      new BranchCondOp()
-    );
+    return List.of(new BranchOp(), new BranchCondOp());
   }
 
   @Contract(pure = true)

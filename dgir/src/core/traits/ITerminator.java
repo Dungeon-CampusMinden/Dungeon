@@ -2,9 +2,8 @@ package core.traits;
 
 import core.ir.Block;
 import core.ir.Operation;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 
 public interface ITerminator extends IOpTrait {
   default boolean verify(@NotNull ITerminator ignored) {
@@ -15,8 +14,7 @@ public interface ITerminator extends IOpTrait {
       self.emitError("Terminator must be in a block.");
       return false;
     }
-    if (!block.get().getOperations().getLast().equals(self))
-    {
+    if (!block.get().getOperations().getLast().equals(self)) {
       self.emitError("Terminator must be the last operation in the region.");
       return false;
     }

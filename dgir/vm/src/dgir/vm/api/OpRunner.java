@@ -4,7 +4,6 @@ import core.detail.OperationDetails;
 import core.ir.Operation;
 import org.jetbrains.annotations.NotNull;
 
-
 public abstract class OpRunner {
   private final @NotNull OperationDetails targetOp;
 
@@ -18,7 +17,11 @@ public abstract class OpRunner {
 
   public final @NotNull Action run(@NotNull Operation op, @NotNull State state) {
     if (!op.getDetails().equals(targetOp)) {
-      throw new IllegalArgumentException("OpRunner can only run operations of type " + targetOp.getIdent() + ", but got " + op.getDetails().getIdent());
+      throw new IllegalArgumentException(
+          "OpRunner can only run operations of type "
+              + targetOp.getIdent()
+              + ", but got "
+              + op.getDetails().getIdent());
     }
     return runImpl(op, state);
   }

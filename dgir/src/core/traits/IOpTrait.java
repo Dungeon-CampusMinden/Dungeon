@@ -11,7 +11,8 @@ public interface IOpTrait {
     try {
       return ((Op) this).getOperation();
     } catch (ClassCastException e) {
-      throw new RuntimeException("Class other than Op implemented IOpTrait: " + getClass().getName(), e);
+      throw new RuntimeException(
+          "Class other than Op implemented IOpTrait: " + getClass().getName(), e);
     }
   }
 }

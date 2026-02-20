@@ -1,30 +1,29 @@
 package core.ir;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.detail.OperationDetails;
 import core.detail.RegisteredOperationDetails;
 import core.serialization.OpDeserializer;
 import core.serialization.OpSerializer;
 import core.traits.IOpTrait;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 /**
  * Abstract base class for all operations in the DGIR.
- * <p>
- * Each subclass represents a specific operation kind and is responsible for defining
- * its details via {@link #createDetails()}. The actual operation state is held in a
- * backing {@link Operation} instance; this class is a semantic wrapper around that state.
- * <p>
- * The Op class itself is never serialized — the backing {@link Operation} carries all
- * necessary information to recreate the operation.
+ *
+ * <p>Each subclass represents a specific operation kind and is responsible for defining its details
+ * via {@link #createDetails()}. The actual operation state is held in a backing {@link Operation}
+ * instance; this class is a semantic wrapper around that state.
+ *
+ * <p>The Op class itself is never serialized — the backing {@link Operation} carries all necessary
+ * information to recreate the operation.
  */
 @JsonSerialize(using = OpSerializer.class)
 @JsonDeserialize(using = OpDeserializer.class)
@@ -40,18 +39,14 @@ public abstract class Op {
   // Op Info
   // =========================================================================
 
-  /**
-   * Create and return the details object that describes this op kind.
-   */
+  /** Create and return the details object that describes this op kind. */
   public abstract @NotNull OperationDetails.Impl createDetails();
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
-  /**
-   * Every op must be default-constructible (used during dialect registration).
-   */
+  /** Every op must be default-constructible (used during dialect registration). */
   public Op() {
     this.operation = null;
   }
@@ -62,8 +57,7 @@ public abstract class Op {
 
   public Op(boolean ensureEntryBlocks, @NotNull Operation operation) {
     this.operation = operation;
-    if (ensureEntryBlocks)
-      ensureEntryBlocks();
+    if (ensureEntryBlocks) ensureEntryBlocks();
   }
 
   // =========================================================================
@@ -94,12 +88,11 @@ public abstract class Op {
    * Sets the backing operation and optionally ensures every region has an entry block.
    *
    * @param ensureEntryBlocks whether to create missing entry blocks.
-   * @param operation         the operation to set.
+   * @param operation the operation to set.
    */
   public void setOperation(boolean ensureEntryBlocks, @NotNull Operation operation) {
     this.operation = operation;
-    if (ensureEntryBlocks)
-      ensureEntryBlocks();
+    if (ensureEntryBlocks) ensureEntryBlocks();
   }
 
   // =========================================================================
@@ -222,7 +215,8 @@ public abstract class Op {
   }
 
   @Contract(pure = true)
-  public <T extends Attribute> @NotNull Optional<T> getAttribute(@NotNull Class<T> clazz, @NotNull String name) {
+  public <T extends Attribute> @NotNull Optional<T> getAttribute(
+      @NotNull Class<T> clazz, @NotNull String name) {
     return getOperation().getAttribute(clazz, name);
   }
 
@@ -234,9 +228,7 @@ public abstract class Op {
   // Regions
   // =========================================================================
 
-  /**
-   * Goes over all regions and ensures that each has at least one entry block.
-   */
+  /** Goes over all regions and ensures that each has at least one entry block. */
   public void ensureEntryBlocks() {
     for (Region region : getRegions()) {
       region.ensureEntryBlock();
@@ -336,9 +328,7 @@ public abstract class Op {
   // Object
   // =========================================================================
 
-  /**
-   * Equality is based on the backing operation — Op is only a semantic wrapper.
-   */
+  /** Equality is based on the backing operation — Op is only a semantic wrapper. */
   @Override
   public boolean equals(@Nullable Object obj) {
     return obj instanceof Op other && this.getOperation().equals(other.getOperation());
@@ -346,8 +336,7 @@ public abstract class Op {
 
   @Override
   public int hashCode() {
-    if (operation == null)
-      return 0;
+    if (operation == null) return 0;
     return operation.hashCode();
   }
 
@@ -357,13 +346,13 @@ public abstract class Op {
 
   /**
    * Execute {@code callback} only if the given op class is already registered.
-   * <p>
-   * Intended for use in default constructors: during dialect registration the
-   * default constructor is called without registration being complete, so no
-   * initialisation should happen then. On all subsequent calls the op is
-   * registered and the callback is executed normally.
+   *
+   * <p>Intended for use in default constructors: during dialect registration the default
+   * constructor is called without registration being complete, so no initialisation should happen
+   * then. On all subsequent calls the op is registered and the callback is executed normally.
    */
-  public static void executeIfRegistered(@NotNull Class<? extends Op> opClass, @NotNull Runnable callback) {
+  public static void executeIfRegistered(
+      @NotNull Class<? extends Op> opClass, @NotNull Runnable callback) {
     var details = RegisteredOperationDetails.lookup(opClass);
     if (details.isPresent()) {
       callback.run();

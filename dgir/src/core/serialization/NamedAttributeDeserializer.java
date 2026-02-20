@@ -18,7 +18,8 @@ public class NamedAttributeDeserializer extends StdDeserializer<NamedAttribute> 
   }
 
   @Override
-  public NamedAttribute deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+  public NamedAttribute deserialize(JsonParser p, DeserializationContext ctxt)
+      throws JacksonException {
     JsonNode node = p.readValueAsTree();
     // Get the name of this named attribute.
     String name = node.get("name").asString();

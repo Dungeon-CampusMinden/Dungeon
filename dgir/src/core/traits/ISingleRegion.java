@@ -16,7 +16,9 @@ public interface ISingleRegion extends IOpTrait {
 
   @Contract(pure = true)
   default @NotNull Region getRegion() {
-    return get().getFirstRegion().orElseThrow(() -> new RuntimeException("Operation must have exactly one region."));
+    return get()
+        .getFirstRegion()
+        .orElseThrow(() -> new RuntimeException("Operation must have exactly one region."));
   }
 
   @Contract(pure = true)
@@ -33,7 +35,7 @@ public interface ISingleRegion extends IOpTrait {
   }
 
   @Contract(pure = true)
-  default @NotNull  Block getEntryBlock() {
+  default @NotNull Block getEntryBlock() {
     return getRegion().getEntryBlock();
   }
 

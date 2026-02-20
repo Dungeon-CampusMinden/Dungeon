@@ -6,9 +6,8 @@ import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
 import dialect.io.PrintOp;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.PrintStream;
+import org.jetbrains.annotations.NotNull;
 
 public class PrintRunner extends OpRunner {
   public static @NotNull PrintStream out = System.out;
@@ -28,7 +27,10 @@ public class PrintRunner extends OpRunner {
     } else {
       Object formatString = state.getValue(printOp.getOperand(0).orElseThrow());
       assert formatString instanceof String : "Format string must be a string";
-      Object[] args = printOp.getOperands().subList(1, printOp.getOperands().size()).stream().map(state::getValue).toArray();
+      Object[] args =
+          printOp.getOperands().subList(1, printOp.getOperands().size()).stream()
+              .map(state::getValue)
+              .toArray();
       out.printf(formatString.toString(), args);
     }
 

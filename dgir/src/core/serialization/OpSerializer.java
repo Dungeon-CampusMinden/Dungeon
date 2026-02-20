@@ -16,7 +16,8 @@ public class OpSerializer extends StdSerializer<Op> {
   }
 
   @Override
-  public void serialize(Op value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
+  public void serialize(Op value, JsonGenerator gen, SerializationContext provider)
+      throws JacksonException {
     gen.writePOJO(value.getOperation());
   }
 }

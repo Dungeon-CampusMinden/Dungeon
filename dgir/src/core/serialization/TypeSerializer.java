@@ -16,7 +16,8 @@ public class TypeSerializer extends StdSerializer<Type> {
   }
 
   @Override
-  public void serialize(Type value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
+  public void serialize(Type value, JsonGenerator gen, SerializationContext provider)
+      throws JacksonException {
     gen.writeString(value.getDetails().getParameterizedIdent(value));
   }
 }

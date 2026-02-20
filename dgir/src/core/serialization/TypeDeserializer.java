@@ -1,7 +1,7 @@
 package core.serialization;
 
-import core.ir.Type;
 import core.detail.TypeDetails;
+import core.ir.Type;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.deser.std.StdDeserializer;

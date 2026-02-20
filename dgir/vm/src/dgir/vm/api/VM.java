@@ -4,12 +4,11 @@ import core.ir.Operation;
 import core.ir.Value;
 import core.traits.INoTerminator;
 import dialect.builtin.ProgramOp;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class VM {
   private @Nullable ProgramOp program;
@@ -18,9 +17,7 @@ public class VM {
 
   private final @NotNull Deque<Operation> opStack = new ArrayDeque<>();
 
-  public VM() {
-
-  }
+  public VM() {}
 
   public void init(@NotNull ProgramOp program) {
     assert program.verify(true) : "Program is invalid.";
@@ -52,7 +49,8 @@ public class VM {
       Operation currentOp = opStack.peek();
       assert currentOp != null : "Reached end of program without an explicit jump or return.";
 
-      // We reached the end of the program. This is a special case since the operation will not push a next operation onto the stack
+      // We reached the end of the program. This is a special case since the operation will not push
+      // a next operation onto the stack
       // and we would cause and endless loop if we did not terminate like this.
       if (currentOp.hasTrait(INoTerminator.class) && lastAction instanceof Action.Terminate) {
         opStack.pop();
@@ -63,10 +61,14 @@ public class VM {
       switch (currentAction) {
         // Just continue to the next operation in the current block.
         case Action.Next ignored -> {
-          currentOp.getNext().ifPresentOrElse(opStack::push, () -> {
-            currentOp.emitError("Reached end of block without an explicit jump or return.");
-            cleanupAfterAbort();
-          });
+          currentOp
+              .getNext()
+              .ifPresentOrElse(
+                  opStack::push,
+                  () -> {
+                    currentOp.emitError("Reached end of block without an explicit jump or return.");
+                    cleanupAfterAbort();
+                  });
         }
         // Abort the execution.
         case Action.Abort abort -> {
@@ -76,9 +78,11 @@ public class VM {
         // Call another function. This is only used for function calls.
         case Action.Call call -> {
           // Push the next operation beneath the call operation to the op stack.
-          // This way when returning from the function, the VM will know which operation to execute next.
+          // This way when returning from the function, the VM will know which operation to execute
+          // next.
           currentOp.getNext().ifPresent(opStack::push);
-          // Push the current op onto the stack so that we can retrieve it when we want to set the return value of the function.
+          // Push the current op onto the stack so that we can retrieve it when we want to set the
+          // return value of the function.
           opStack.push(currentOp);
           state.pushStackFrame(true);
 
@@ -91,11 +95,13 @@ public class VM {
           // Push the first operation in the function's region onto the op stack.'
           opStack.push(funcOp.getFirstRegion().get().getEntryOperation());
         }
-        // Jump to another block in the same region. This is used for control flow operations like if and while.
+        // Jump to another block in the same region. This is used for control flow operations like
+        // if and while.
         case Action.Jump jump -> {
           opStack.push(jump.target().getOperations().getFirst());
         }
-        // Return from the current region. This is used for function calls, as well as for returning from if and while
+        // Return from the current region. This is used for function calls, as well as for returning
+        // from if and while
         // blocks and similar structured control flow ops
         case Action.Terminate aTerminate -> {
           // Pop the stack frame for the region we just left.
@@ -106,9 +112,11 @@ public class VM {
           if (aTerminate.value() != null) {
             state.setValueForOutput(caller, aTerminate.value());
           }
-          // No need to push anything to the op stack, as the caller will have already pushed the next operation to execute after the call.
+          // No need to push anything to the op stack, as the caller will have already pushed the
+          // next operation to execute after the call.
         }
-        // Step into a region. This is used for nested regions like the then and else regions of an if operation, or the
+        // Step into a region. This is used for nested regions like the then and else regions of an
+        // if operation, or the
         // body of a while operation, as well as function calls.
         // It opens a new stack frame for the region and jumps to the first operation in the region.
         case Action.StepInto stepInto -> {
@@ -122,7 +130,6 @@ public class VM {
           setupRegion(state, bodyValues, stepInto.args());
 
           opStack.push(stepInto.region().getEntryOperation());
-
         }
       }
 
@@ -136,8 +143,10 @@ public class VM {
     }
   }
 
-  private static void setupRegion(@NotNull State state, @NotNull List<Value> bodyValues, @NotNull List<Object> args) {
-    assert bodyValues.size() == args.size() : "Number of arguments does not match number of body values.";
+  private static void setupRegion(
+      @NotNull State state, @NotNull List<Value> bodyValues, @NotNull List<Object> args) {
+    assert bodyValues.size() == args.size()
+        : "Number of arguments does not match number of body values.";
     for (int i = 0; i < bodyValues.size(); i++) {
       Value argValue = bodyValues.get(i);
       Object argObject = args.get(i);
@@ -152,7 +161,8 @@ public class VM {
 
     Operation currentOp = opStack.pop();
     OpRunner runner = OpRunnerRegistry.getOpRunner(currentOp);
-    assert runner != null : "No runner registered for operation " + currentOp.getDetails().getIdent();
+    assert runner != null
+        : "No runner registered for operation " + currentOp.getDetails().getIdent();
 
     return runner.run(currentOp, state);
   }

@@ -1,23 +1,22 @@
 package core.detail;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.*;
 import core.ir.NamedAttribute;
 import core.ir.Op;
 import core.ir.Operation;
 import core.traits.IOpTrait;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Holds all information about an operation kind and exposes it through a
- * stable interface. The actual data lives in the inner {@link Impl}.
+ * Holds all information about an operation kind and exposes it through a stable interface. The
+ * actual data lives in the inner {@link Impl}.
  */
 public class OperationDetails {
 
@@ -36,7 +35,8 @@ public class OperationDetails {
   }
 
   @Contract(pure = true)
-  public static @NotNull Optional<Constructor<? extends Op>> hasSpecificConstructor(@NotNull Class<? extends Op> opClass, @NotNull Class<?>... parameterTypes) {
+  public static @NotNull Optional<Constructor<? extends Op>> hasSpecificConstructor(
+      @NotNull Class<? extends Op> opClass, @NotNull Class<?>... parameterTypes) {
     try {
       return Optional.of(opClass.getConstructor(parameterTypes));
     } catch (NoSuchMethodException e) {
@@ -58,9 +58,7 @@ public class OperationDetails {
     this.impl = impl;
   }
 
-  /**
-   * Look up or create an {@link OperationDetails} by ident string.
-   */
+  /** Look up or create an {@link OperationDetails} by ident string. */
   public OperationDetails(@NotNull String ident) {
     // Try the registered registry first
     OperationDetails registeredDetails = DGIRContext.registeredOperationsByIdent.get(ident);
@@ -76,15 +74,17 @@ public class OperationDetails {
       return;
     }
 
-    unregisteredDetails = DGIRContext.operationsByIdent.computeIfAbsent(ident,
-      idnt -> new UnregisteredOp(idnt, Op.class, DGIRContext.getReferencedDialect(idnt), List.of()));
+    unregisteredDetails =
+        DGIRContext.operationsByIdent.computeIfAbsent(
+            ident,
+            idnt ->
+                new UnregisteredOp(
+                    idnt, Op.class, DGIRContext.getReferencedDialect(idnt), List.of()));
     DGIRContext.operations.put(Op.class, unregisteredDetails);
     impl = unregisteredDetails;
   }
 
-  /**
-   * Look up or create an {@link OperationDetails} by op class.
-   */
+  /** Look up or create an {@link OperationDetails} by op class. */
   public OperationDetails(@NotNull Class<? extends Op> clazz) {
     // Try the registered registry first
     OperationDetails registeredName = DGIRContext.registeredOperations.get(clazz);
@@ -100,8 +100,10 @@ public class OperationDetails {
       return;
     }
 
-    unregisteredName = DGIRContext.operationsByIdent.computeIfAbsent(clazz.getName(),
-      idnt -> new UnregisteredOp(clazz.getName(), Op.class, null, List.of()));
+    unregisteredName =
+        DGIRContext.operationsByIdent.computeIfAbsent(
+            clazz.getName(),
+            idnt -> new UnregisteredOp(clazz.getName(), Op.class, null, List.of()));
     DGIRContext.operations.put(clazz, unregisteredName);
     impl = unregisteredName;
   }
@@ -162,10 +164,10 @@ public class OperationDetails {
   // =========================================================================
 
   /**
-   * Wrap the given {@link Operation} in a typed {@code Op} of type {@code clazz},
-   * if this details instance describes that op kind.
+   * Wrap the given {@link Operation} in a typed {@code Op} of type {@code clazz}, if this details
+   * instance describes that op kind.
    *
-   * @param clazz     The class of the op to create.
+   * @param clazz The class of the op to create.
    * @param operation The backing operation state.
    * @return The typed op wrapper, or empty if the kinds do not match.
    */
@@ -177,7 +179,8 @@ public class OperationDetails {
     try {
       return Optional.of(clazz.cast(impl.operationConstructor.newInstance(operation)));
     } catch (Exception e) {
-      throw new RuntimeException("Failed to create operation instance of type " + clazz.getName(), e);
+      throw new RuntimeException(
+          "Failed to create operation instance of type " + clazz.getName(), e);
     }
   }
 
@@ -192,7 +195,8 @@ public class OperationDetails {
     try {
       return impl.operationConstructor.newInstance(operation);
     } catch (Exception e) {
-      throw new RuntimeException("Failed to create operation instance of type " + getType().getName(), e);
+      throw new RuntimeException(
+          "Failed to create operation instance of type " + getType().getName(), e);
     }
   }
 
@@ -208,9 +212,9 @@ public class OperationDetails {
   }
 
   /**
-   * Verify all traits registered for this operation kind against the given operation.
-   * Called before the per-op {@link Impl#verify} so that trait invariants are
-   * guaranteed when custom verification runs.
+   * Verify all traits registered for this operation kind against the given operation. Called before
+   * the per-op {@link Impl#verify} so that trait invariants are guaranteed when custom verification
+   * runs.
    *
    * @param operation The operation to verify.
    * @return {@code true} if all trait verifiers pass.
@@ -264,8 +268,8 @@ public class OperationDetails {
   // =========================================================================
 
   /**
-   * Fully type-erased description of an operation kind.
-   * Subclasses are created per op class inside each op's {@code createDetails()} method.
+   * Fully type-erased description of an operation kind. Subclasses are created per op class inside
+   * each op's {@code createDetails()} method.
    */
   public abstract static class Impl {
 
@@ -278,36 +282,56 @@ public class OperationDetails {
     protected final @NotNull Constructor<? extends Op> operationConstructor;
     protected final @NotNull Constructor<? extends Op> emptyConstructor;
 
-    public Impl(@NotNull String ident, @NotNull Class<? extends Op> type, @Nullable Dialect dialect, @NotNull List<String> attributeNames) {
+    public Impl(
+        @NotNull String ident,
+        @NotNull Class<? extends Op> type,
+        @Nullable Dialect dialect,
+        @NotNull List<String> attributeNames) {
       this.ident = ident;
       this.type = type;
       this.dialect = dialect;
       this.attributeNames = Collections.unmodifiableList(attributeNames);
 
       // Collect only the interfaces that are IOpTrait subtypes
-      this.traits = Set.copyOf(
-        Arrays.stream(type.getInterfaces())
-          .filter(IOpTrait.class::isAssignableFrom)
-          .map(aClass -> aClass.<IOpTrait>asSubclass(IOpTrait.class))
-          .toList()
-      );
+      this.traits =
+          Set.copyOf(
+              Arrays.stream(type.getInterfaces())
+                  .filter(IOpTrait.class::isAssignableFrom)
+                  .map(aClass -> aClass.<IOpTrait>asSubclass(IOpTrait.class))
+                  .toList());
 
       // Each trait must expose a verify(TraitType) default method
-      traitVerifiers = traits.stream().collect(Collectors.toMap(trait -> trait, trait -> {
-        try {
-          return trait.getMethod("verify", trait);
-        } catch (NoSuchMethodException e) {
-          throw new RuntimeException(
-            "Trait " + trait.getName() + " must have a method called verify that takes an instance of the trait as parameter.", e);
-        }
-      }));
+      traitVerifiers =
+          traits.stream()
+              .collect(
+                  Collectors.toMap(
+                      trait -> trait,
+                      trait -> {
+                        try {
+                          return trait.getMethod("verify", trait);
+                        } catch (NoSuchMethodException e) {
+                          throw new RuntimeException(
+                              "Trait "
+                                  + trait.getName()
+                                  + " must have a method called verify that takes an instance of the trait as parameter.",
+                              e);
+                        }
+                      }));
 
-      this.operationConstructor = hasSpecificConstructor(type, Operation.class)
-        .orElseThrow(() -> new RuntimeException(
-          "Op class " + type.getName() + " must have a constructor that takes an Operation."));
-      this.emptyConstructor = hasSpecificConstructor(type)
-        .orElseThrow(() -> new RuntimeException(
-          "Op class " + type.getName() + " must have an empty constructor."));
+      this.operationConstructor =
+          hasSpecificConstructor(type, Operation.class)
+              .orElseThrow(
+                  () ->
+                      new RuntimeException(
+                          "Op class "
+                              + type.getName()
+                              + " must have a constructor that takes an Operation."));
+      this.emptyConstructor =
+          hasSpecificConstructor(type)
+              .orElseThrow(
+                  () ->
+                      new RuntimeException(
+                          "Op class " + type.getName() + " must have an empty constructor."));
     }
 
     @Contract(pure = true)
@@ -351,8 +375,8 @@ public class OperationDetails {
     }
 
     /**
-     * Called during validation via {@link core.OperationVerifier}, after all trait verifiers
-     * have already passed. Any verification that depends on trait guarantees belongs here.
+     * Called during validation via {@link core.OperationVerifier}, after all trait verifiers have
+     * already passed. Any verification that depends on trait guarantees belongs here.
      *
      * @param operation The operation to verify.
      * @return {@code true} if the operation is valid.
@@ -367,14 +391,20 @@ public class OperationDetails {
   // Inner: UnregisteredOp
   // =========================================================================
 
-  /**
-   * Placeholder used when an operation ident is referenced before registration.
-   */
+  /** Placeholder used when an operation ident is referenced before registration. */
   protected static final class UnregisteredOp extends Impl {
 
-    UnregisteredOp(@NotNull String ident, @NotNull Class<? extends Op> clazz, @Nullable Dialect dialect, @NotNull List<String> attributeNames) {
+    UnregisteredOp(
+        @NotNull String ident,
+        @NotNull Class<? extends Op> clazz,
+        @Nullable Dialect dialect,
+        @NotNull List<String> attributeNames) {
       super(ident, clazz, dialect, attributeNames);
-      System.out.println("Created new UnregisteredOp Details with ident " + ident + " and type " + clazz.getName());
+      System.out.println(
+          "Created new UnregisteredOp Details with ident "
+              + ident
+              + " and type "
+              + clazz.getName());
     }
 
     @Override
@@ -385,7 +415,6 @@ public class OperationDetails {
     }
 
     @Override
-    public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
-    }
+    public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {}
   }
 }

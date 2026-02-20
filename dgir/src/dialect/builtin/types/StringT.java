@@ -1,8 +1,8 @@
 package dialect.builtin.types;
 
 import core.Dialect;
-import core.ir.Type;
 import core.detail.TypeDetails;
+import core.ir.Type;
 import dialect.builtin.Builtin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,8 +41,7 @@ public class StringT extends Type {
   // Constructors
   // =========================================================================
 
-  public StringT() {
-  }
+  public StringT() {}
 
   // =========================================================================
   // Functions

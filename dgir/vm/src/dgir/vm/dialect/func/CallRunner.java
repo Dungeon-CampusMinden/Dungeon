@@ -17,15 +17,11 @@ public class CallRunner extends OpRunner {
   @Override
   protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
     CallOp callOp = op.as(CallOp.class).orElseThrow();
-    Object[] args = callOp
-      .getOperands()
-      .stream()
-      .map(state::getValue)
-      .toArray();
+    Object[] args = callOp.getOperands().stream().map(state::getValue).toArray();
 
     return Action.Call(
-      SymbolTable.lookupSymbolInNearestTable(op, callOp.getCallee())
-        .orElseThrow(() -> new AssertionError("Callee " + callOp.getCallee() + "not found.")),
-      args);
+        SymbolTable.lookupSymbolInNearestTable(op, callOp.getCallee())
+            .orElseThrow(() -> new AssertionError("Callee " + callOp.getCallee() + "not found.")),
+        args);
   }
 }

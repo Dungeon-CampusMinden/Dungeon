@@ -7,12 +7,11 @@ import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;
 import core.traits.IZeroOrOneOperand;
 import dialect.builtin.Builtin;
+import java.util.List;
+import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
-
-import java.util.List;
-import java.util.Optional;
 
 public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpecificParentOp {
 
@@ -24,7 +23,11 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpe
   public OperationDetails.@NotNull Impl createDetails() {
     class ReturnOpModel extends OperationDetails.Impl {
       ReturnOpModel() {
-        super(ReturnOp.getIdent(), ReturnOp.class, DGIRContext.registeredDialects.get(Builtin.class), List.of());
+        super(
+            ReturnOp.getIdent(),
+            ReturnOp.class,
+            DGIRContext.registeredDialects.get(Builtin.class),
+            List.of());
       }
 
       @Override
@@ -44,14 +47,20 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpe
         }
         // Ensure that the return op's operand type matches the function output type
         if (returnOp.getOperandType().isPresent()) {
-          var returnType = returnOp
-            .getOperandType().get()
-            .orElseThrow(() -> new RuntimeException("Return op operand value is not set."));
+          var returnType =
+              returnOp
+                  .getOperandType()
+                  .get()
+                  .orElseThrow(() -> new RuntimeException("Return op operand value is not set."));
           var funcType = parentFuncOp.get().getType();
           if (!returnType.equals(funcType.getOutput())) {
-            operation.emitError("Return type " + returnType.getParameterizedIdent()
-              + " does not match function return type "
-              + (funcType.getOutput() != null ? funcType.getOutput().getParameterizedIdent() : null));
+            operation.emitError(
+                "Return type "
+                    + returnType.getParameterizedIdent()
+                    + " does not match function return type "
+                    + (funcType.getOutput() != null
+                        ? funcType.getOutput().getParameterizedIdent()
+                        : null));
             return false;
           }
         }
@@ -59,8 +68,7 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpe
       }
 
       @Override
-      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
-      }
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {}
     }
     return new ReturnOpModel();
   }
@@ -78,8 +86,8 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpe
   // =========================================================================
 
   public ReturnOp() {
-    executeIfRegistered(ReturnOp.class, () ->
-      setOperation(false, Operation.Create(getIdent(), null, null, null)));
+    executeIfRegistered(
+        ReturnOp.class, () -> setOperation(false, Operation.Create(getIdent(), null, null, null)));
   }
 
   public ReturnOp(Operation operation) {

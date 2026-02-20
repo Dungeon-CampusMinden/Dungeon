@@ -16,7 +16,8 @@ public class NamedAttributeSerializer extends StdSerializer<NamedAttribute> {
   }
 
   @Override
-  public void serialize(NamedAttribute value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
+  public void serialize(NamedAttribute value, JsonGenerator gen, SerializationContext provider)
+      throws JacksonException {
     gen.writeStartObject();
     gen.writeStringProperty("name", value.getName());
     gen.writePOJOProperty("attribute", value.getAttribute());

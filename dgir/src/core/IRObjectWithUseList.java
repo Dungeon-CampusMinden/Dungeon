@@ -1,42 +1,37 @@
 package core;
 
-import core.ir.Operand;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import core.ir.Operand;
+import java.util.HashSet;
+import java.util.Set;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Base class for any IR object that maintains a use-list of {@link Operand}s referencing it.
- * <p>
- * Concrete examples are {@link core.ir.Value} (referenced by {@link core.ir.ValueOperand}s)
- * and {@link core.ir.Block} (referenced by {@link core.ir.BlockOperand}s).
+ *
+ * <p>Concrete examples are {@link core.ir.Value} (referenced by {@link core.ir.ValueOperand}s) and
+ * {@link core.ir.Block} (referenced by {@link core.ir.BlockOperand}s).
  *
  * @param <DerivedValueT> The concrete subclass extending this class (e.g. {@code Value}).
- * @param <OperandT>      The operand type that references {@code DerivedValueT}.
+ * @param <OperandT> The operand type that references {@code DerivedValueT}.
  */
 public class IRObjectWithUseList<
-  DerivedValueT extends IRObjectWithUseList<DerivedValueT, OperandT>,
-  OperandT extends Operand<DerivedValueT, OperandT>
-  > {
+    DerivedValueT extends IRObjectWithUseList<DerivedValueT, OperandT>,
+    OperandT extends Operand<DerivedValueT, OperandT>> {
 
   // =========================================================================
   // Members
   // =========================================================================
 
-  /**
-   * All operands currently referencing this object.
-   */
+  /** All operands currently referencing this object. */
   private final @NotNull Set<OperandT> uses = new HashSet<>();
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
-  public IRObjectWithUseList() {
-  }
+  public IRObjectWithUseList() {}
 
   // =========================================================================
   // Use-list
@@ -53,25 +48,21 @@ public class IRObjectWithUseList<
     return uses;
   }
 
-  /**
-   * Return {@code true} if at least one operand references this object.
-   */
+  /** Return {@code true} if at least one operand references this object. */
   @Contract(pure = true)
   public boolean hasUse() {
     return !uses.isEmpty();
   }
 
-  /**
-   * Return {@code true} if exactly one operand references this object.
-   */
+  /** Return {@code true} if exactly one operand references this object. */
   @Contract(pure = true)
   public boolean hasOneUse() {
     return uses.size() == 1;
   }
 
   /**
-   * Redirect every operand currently referencing this object to reference {@code newValue}
-   * instead, and update the use-lists of both objects accordingly.
+   * Redirect every operand currently referencing this object to reference {@code newValue} instead,
+   * and update the use-lists of both objects accordingly.
    *
    * @param newValue The replacement value. Must not be {@code this}.
    */

@@ -1,3 +1,5 @@
+import static org.junit.jupiter.api.Assertions.*;
+
 import core.Dialect;
 import core.ir.Block;
 import core.serialization.Utils;
@@ -13,12 +15,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
- * These are test for checking the validity of the core IR and traits. These test are mainly there to check if the
- * structural analysis of the IR hold, especially reaching definitions and in that context region visiblity, nesting
- * and isolation.
+ * These are test for checking the validity of the core IR and traits. These test are mainly there
+ * to check if the structural analysis of the IR hold, especially reaching definitions and in that
+ * context region visiblity, nesting and isolation.
  */
 public class CoreTests {
   static boolean printResult = true;
@@ -78,10 +78,17 @@ public class CoreTests {
     Block mergeBlock = funcOp.addBlock(new Block());
 
     // Entry branches conditionally to left or right
-    var cond = entryBlock.addOperation(new ConstantOp(true)); // Condition value, type doesn't matter for this test context usually, but should be boolean-like ideally
-    // Assuming ConstantOp(42) produces a valid condition for BranchCondOp for simplicity or if allowed.
-    // Wait, BranchCondOp takes a condition. Since tests are strict about types, let's assume boolean or make sure.
-    // IntegerT is not BooleanT. Let's check BranchCondOp requirements or just use BranchOp for simple non-conditional if possible? No, simply branching to two blocks needs Cond.
+    var cond =
+        entryBlock.addOperation(
+            new ConstantOp(
+                true)); // Condition value, type doesn't matter for this test context usually, but
+    // should be boolean-like ideally
+    // Assuming ConstantOp(42) produces a valid condition for BranchCondOp for simplicity or if
+    // allowed.
+    // Wait, BranchCondOp takes a condition. Since tests are strict about types, let's assume
+    // boolean or make sure.
+    // IntegerT is not BooleanT. Let's check BranchCondOp requirements or just use BranchOp for
+    // simple non-conditional if possible? No, simply branching to two blocks needs Cond.
     // Let's assume ConstantOp(1) acts as true/false or use a proper check.
     // BranchCondOp constructor: BranchCondOp(Value condition, Block target, Block elseTarget)
 

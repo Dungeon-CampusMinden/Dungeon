@@ -4,11 +4,10 @@ import core.*;
 import core.detail.TypeDetails;
 import core.ir.Type;
 import dialect.func.Func;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.Collections;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class FuncType extends Type {
 
@@ -31,13 +30,21 @@ public class FuncType extends Type {
 
       @Override
       public @NotNull String getParameterizedIdent(@NotNull Type type) {
-        assert type instanceof FuncType : "Expected FuncType, got " + type.getClass().getSimpleName();
+        assert type instanceof FuncType
+            : "Expected FuncType, got " + type.getClass().getSimpleName();
         var funcType = (FuncType) type;
-        return FuncType.getIdent() + "<("
-          + String.join(", ", funcType.getInputs().stream().map(t -> t.getDetails().getParameterizedIdent(t)).toList())
-          + ") -> ("
-          + (funcType.getOutput() == null ? "" : funcType.getOutput().getDetails().getParameterizedIdent(funcType.getOutput()))
-          + ")>";
+        return FuncType.getIdent()
+            + "<("
+            + String.join(
+                ", ",
+                funcType.getInputs().stream()
+                    .map(t -> t.getDetails().getParameterizedIdent(t))
+                    .toList())
+            + ") -> ("
+            + (funcType.getOutput() == null
+                ? ""
+                : funcType.getOutput().getDetails().getParameterizedIdent(funcType.getOutput()))
+            + ")>";
       }
 
       @Override
@@ -63,10 +70,14 @@ public class FuncType extends Type {
       }
 
       private String[] getStrings(String parameterizedIdent) {
-        if (!parameterizedIdent.startsWith(FuncType.getIdent() + "<") || !parameterizedIdent.endsWith(">")) {
-          throw new IllegalArgumentException("Invalid parameterized ident for FuncType: " + parameterizedIdent);
+        if (!parameterizedIdent.startsWith(FuncType.getIdent() + "<")
+            || !parameterizedIdent.endsWith(">")) {
+          throw new IllegalArgumentException(
+              "Invalid parameterized ident for FuncType: " + parameterizedIdent);
         }
-        String inner = parameterizedIdent.substring(FuncType.getIdent().length() + 1, parameterizedIdent.length() - 1);
+        String inner =
+            parameterizedIdent.substring(
+                FuncType.getIdent().length() + 1, parameterizedIdent.length() - 1);
         return inner.split("->", -1);
       }
     }

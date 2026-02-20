@@ -9,11 +9,9 @@ import dialect.arith.ConstantOp;
 import org.jetbrains.annotations.NotNull;
 
 public class ConstantRunner extends OpRunner {
-  public ConstantRunner()
-  {
+  public ConstantRunner() {
     super(RegisteredOperationDetails.lookup(ConstantOp.class).orElseThrow());
   }
-
 
   @Override
   protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {

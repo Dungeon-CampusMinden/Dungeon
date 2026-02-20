@@ -6,9 +6,8 @@ import core.ir.*;
 import core.traits.IControlFlow;
 import core.traits.ITerminator;
 import dialect.builtin.types.IntegerT;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public class BranchCondOp extends Op implements ITerminator, IControlFlow {
 
@@ -29,8 +28,7 @@ public class BranchCondOp extends Op implements ITerminator, IControlFlow {
       }
 
       @Override
-      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
-      }
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {}
     }
     return new BranchCondOpDetails();
   }
@@ -47,8 +45,7 @@ public class BranchCondOp extends Op implements ITerminator, IControlFlow {
   // Constructors
   // =========================================================================
 
-  public BranchCondOp() {
-  }
+  public BranchCondOp() {}
 
   public BranchCondOp(Operation operation) {
     super(operation);
