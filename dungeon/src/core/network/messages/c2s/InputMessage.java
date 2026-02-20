@@ -245,37 +245,81 @@ public record InputMessage(
           InventoryUse,
           ToggleInventory {}
 
-  /** Payload for movement input. */
+  /**
+   * Payload for movement input.
+   *
+   * @param direction the movement direction vector
+   */
   public record Move(Vector2 direction) implements Payload {
+    /**
+     * Creates a movement payload.
+     *
+     * @param direction the movement direction vector
+     */
     public Move {
       Objects.requireNonNull(direction, "direction");
     }
   }
 
-  /** Payload for casting a skill. */
+  /**
+   * Payload for casting a skill.
+   *
+   * @param target the target point for the cast
+   */
   public record CastSkill(Point target, boolean mainSkill) implements Payload {
+    /**
+     * Creates a cast-skill payload.
+     *
+     * @param target the target point for the cast
+     */
     public CastSkill {
       Objects.requireNonNull(target, "target");
     }
   }
 
-  /** Payload for interacting with a world point. */
+  /**
+   * Payload for interacting with a world point.
+   *
+   * @param target the interaction target point
+   */
   public record Interact(Point target) implements Payload {
+    /**
+     * Creates an interaction payload.
+     *
+     * @param target the interaction target point
+     */
     public Interact {
       Objects.requireNonNull(target, "target");
     }
   }
 
-  /** Payload for switching skills. */
+  /**
+   * Payload for switching skills.
+   *
+   * @param nextSkill true for next skill, false for previous skill
+   */
   public record SkillChange(boolean nextSkill, boolean mainSkill) implements Payload {}
 
-  /** Payload for dropping an inventory item. */
+  /**
+   * Payload for dropping an inventory item.
+   *
+   * @param slotIndex the inventory slot index to drop
+   */
   public record InventoryDrop(int slotIndex) implements Payload {}
 
-  /** Payload for moving items between inventory slots. */
+  /**
+   * Payload for moving items between inventory slots.
+   *
+   * @param fromSlot the source inventory slot index
+   * @param toSlot the target inventory slot index
+   */
   public record InventoryMove(int fromSlot, int toSlot) implements Payload {}
 
-  /** Payload for using an inventory item. */
+  /**
+   * Payload for using an inventory item.
+   *
+   * @param slotIndex the inventory slot index to use
+   */
   public record InventoryUse(int slotIndex) implements Payload {}
 
   /** Payload for toggling inventory visibility. */
