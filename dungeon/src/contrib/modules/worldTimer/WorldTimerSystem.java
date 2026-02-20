@@ -22,6 +22,10 @@ import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
+/**
+ * This system is responsible for rendering a timer image to a texture, which will be fed into the
+ * DrawComponent of entities with a WorldTimerComponent.
+ */
 public class WorldTimerSystem extends System {
 
   private static int HEIGHT = 64;
@@ -32,8 +36,9 @@ public class WorldTimerSystem extends System {
   private static BitmapFont FONT;
   private static SpriteBatch BATCH = new SpriteBatch();
 
-  int currentUnixTime;
+  private int currentUnixTime;
 
+  /** Create a new WorldTimerSystem. */
   public WorldTimerSystem() {
     super(AuthoritativeSide.CLIENT, 17, WorldTimerComponent.class, PositionComponent.class);
     FONT = FontHelper.getFont(TIMER_FONT);

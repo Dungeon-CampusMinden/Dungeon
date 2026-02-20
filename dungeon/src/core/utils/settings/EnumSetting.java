@@ -15,23 +15,66 @@ import core.utils.Scene2dElementFactory;
 import java.util.Collection;
 import java.util.function.Function;
 
+/**
+ * A SettingValue implementation for enum types, allowing users to select a value from an enum.
+ *
+ * @param <E> the enum type that this setting represents
+ */
 public class EnumSetting<E extends Enum<E>> extends SettingValue<E> {
 
   private final Array<E> values;
   private final Function<E, String> labelFormatter;
 
+  /**
+   * Creates a new EnumSetting with the specified name and default value, using all enum constants
+   * as options.
+   *
+   * @param name the name of the setting
+   * @param defaultValue the default enum value for the setting, which must be one of the enum
+   *     constants
+   */
   public EnumSetting(String name, E defaultValue) {
     this(name, defaultValue, defaultValue.getDeclaringClass().getEnumConstants(), null);
   }
 
+  /**
+   * Creates a new EnumSetting with the specified name, default value, and subset of enum constants.
+   *
+   * @param name the name of the setting
+   * @param defaultValue the default enum value for the setting, which must be included in the
+   *     subset
+   * @param subset an array of enum constants to use as options for this setting, which must include
+   *     the default value
+   */
   public EnumSetting(String name, E defaultValue, E[] subset) {
     this(name, defaultValue, subset, null);
   }
 
+  /**
+   * Creates a new EnumSetting with the specified name, default value, subset of enum constants.
+   *
+   * @param name the name of the setting
+   * @param defaultValue the default enum value for the setting, which must be included in the
+   *     subset
+   * @param subset a collection of enum constants to use as options for this setting, which must
+   *     include the default value
+   */
   public EnumSetting(String name, E defaultValue, Collection<E> subset) {
     this(name, defaultValue, subset.toArray((E[]) new Enum[0]), null);
   }
 
+  /**
+   * Creates a new EnumSetting with the specified name, default value, subset of enum constants, and
+   * label formatter.
+   *
+   * @param name the name of the setting
+   * @param defaultValue the default enum value for the setting, which must be included in the
+   *     subset
+   * @param subset an array of enum constants to use as options for this setting, which must include
+   *     the default value
+   * @param labelFormatter a function that converts enum values to display strings in the UI; if
+   *     null, the enum's name() method will be used
+   */
   public EnumSetting(String name, E defaultValue, E[] subset, Function<E, String> labelFormatter) {
     super(name, defaultValue);
 

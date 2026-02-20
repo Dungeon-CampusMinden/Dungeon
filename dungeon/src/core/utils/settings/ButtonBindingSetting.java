@@ -17,16 +17,31 @@ import core.sound.CoreSounds;
 import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
 
+/** A SettingValue that allows the user to bind a keyboard key to an action. */
 public class ButtonBindingSetting extends SettingValue<Integer> {
 
   private boolean editable = true;
   private boolean isEditing = false;
   private TextField dummy;
 
+  /**
+   * Create a new ButtonBindingSetting with the given name and default key code.
+   *
+   * @param name the display name of the setting
+   * @param defaultValue the default key code to bind, using libGDX's Input.Keys constants
+   */
   public ButtonBindingSetting(String name, int defaultValue) {
     super(name, defaultValue);
   }
 
+  /**
+   * Create a new ButtonBindingSetting with the given name, default key code, and editability.
+   *
+   * @param name the display name of the setting
+   * @param defaultValue the default key code to bind, using libGDX's Input.Keys constants
+   * @param editable whether the setting can be edited by the user (if false, the button will be
+   *     displayed but not interactive)
+   */
   public ButtonBindingSetting(String name, int defaultValue, boolean editable) {
     super(name, defaultValue);
     this.editable = editable;

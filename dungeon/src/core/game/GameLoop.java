@@ -549,10 +549,21 @@ public final class GameLoop extends ScreenAdapter {
     resizables.forEach(r -> r.onResize(width, height));
   }
 
+  /**
+   * Register an {@link IResizable} to be notified when the window is resized.
+   *
+   * @param resizable the resizable to register
+   */
   public static void registerResizable(IResizable resizable) {
     resizables.add(resizable);
   }
 
+  /**
+   * Unregister an {@link IResizable} to stop being notified when the window is resized.
+   *
+   * @param resizable the resizable to unregister
+   * @return true if the resizable was registered and removed, false otherwise
+   */
   public static boolean removeResizable(IResizable resizable) {
     return resizables.remove(resizable);
   }

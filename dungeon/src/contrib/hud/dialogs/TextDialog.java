@@ -9,6 +9,10 @@ import core.utils.Scene2dElementFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A simple Text Dialog that shows only the provided string in a scrolling pane. Use as alternative
+ * to the OkDialog but for longer texts.
+ */
 public class TextDialog {
 
   /**

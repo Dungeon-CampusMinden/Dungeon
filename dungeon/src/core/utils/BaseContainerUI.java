@@ -63,6 +63,8 @@ public class BaseContainerUI extends Table implements IResizable {
    * @param align The alignment/anchor point.
    * @param offsetX The X offset from the anchor point.
    * @param offsetY The Y offset from the anchor point.
+   * @param grow Whether the content should grow to fill available space in its cell.
+   * @param playSound Whether to play the dialog open sound effect when this UI is created
    */
   public BaseContainerUI(
       Actor content, int align, float offsetX, float offsetY, boolean grow, boolean playSound) {

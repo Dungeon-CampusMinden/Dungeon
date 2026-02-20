@@ -1,6 +1,5 @@
 package contrib.hud.dialogs;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -16,7 +15,11 @@ import core.utils.Scene2dElementFactory;
 public class DialogDesign {
 
   private static final String DIALOG_FONT = "fonts/Roboto-SemiBold.ttf";
+
+  /** The default font specification for dialog text. */
   public static final FontSpec DIALOG_FONT_SPEC_NORMAL = FontSpec.of(DIALOG_FONT, 20, Color.BLACK);
+
+  /** The font specification for dialog titles. */
   public static final FontSpec DIALOG_FONT_SPEC_TITLE = FontSpec.of(DIALOG_FONT, 36);
 
   /**
@@ -58,17 +61,6 @@ public class DialogDesign {
     return scrollPane;
   }
 
-  public static void scrollPaneScrollTo(ScrollPane scrollPane, float x, float y) {
-    scrollPane.invalidate();
-    scrollPane.layout();
-    scrollPane.setSmoothScrolling(false);
-    scrollPane.setScrollX(x);
-    scrollPane.setScrollY(y);
-
-    if (Gdx.app == null) return;
-    Gdx.app.postRunnable(() -> scrollPane.setSmoothScrolling(true));
-  }
-
   /**
    * Creates a simple Dialog which only has static Text shown.
    *
@@ -94,6 +86,12 @@ public class DialogDesign {
     return pane;
   }
 
+  /**
+   * Adds a title to the given parent table with consistent styling and spacing.
+   *
+   * @param parent the Table to which the title should be added
+   * @param title the text of the title to display
+   */
   public static void addTitleTable(Table parent, String title) {
     Table titleTable = new Table();
     titleTable
@@ -103,6 +101,15 @@ public class DialogDesign {
     parent.add(titleTable).growX().height(48).padBottom(10).row();
   }
 
+  /**
+   * Configures a Dialog with default button spacing, content padding, and an optional title. This
+   * method removes the default title table and applies consistent styling to the dialog's content
+   * and buttons.
+   *
+   * @param dialog the Dialog to configure with default layout settings
+   * @param title the text of the title to display at the top of the dialog, or an empty string for
+   *     no title
+   */
   public static void setDialogDefaults(Dialog dialog, String title) {
     dialog.getButtonTable().defaults().minWidth(150).space(10);
 

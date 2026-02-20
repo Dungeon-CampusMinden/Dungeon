@@ -305,8 +305,12 @@ public class DialogFactory {
    *
    * @param text The message to display in the dialog body
    * @param title The dialog window title
+   * @param inputPrefill The pre-filled text in the input field (can be null)
+   * @param inputPlaceholder The placeholder text for the input field (can be null)
    * @param onConfirm Callback executed when the confirm button is pressed (can be null)
    * @param confirmLabel Label for the confirm button (uses default if null)
+   * @param cancelLabel Label for the cancel button (uses default if null)
+   * @param onCancel Callback executed when the cancel button is pressed (can be null)
    * @param targetEntityIds The target entity IDs for which the dialog is displayed
    * @return The {@link UIComponent} containing the dialog
    */

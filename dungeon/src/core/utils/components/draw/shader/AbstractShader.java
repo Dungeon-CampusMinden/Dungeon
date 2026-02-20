@@ -354,7 +354,13 @@ public abstract class AbstractShader implements Disposable {
     }
   }
 
-  /** Binds an array of Vector3s to the shader. */
+  /**
+   * Binds an array of Vector3 uniforms. Will additionally bind a uniform with the suffix "_count"
+   * to indicate how many elements are in the list.
+   *
+   * @param name The uniform name in the shader.
+   * @param values The list of Vector3 values to bind.
+   */
   public record Vector3ArrayUniform(String name, List<Vector3> values) implements UniformBinding {
     @Override
     public void bind(ShaderProgram program) {
