@@ -46,15 +46,16 @@ public final class HintLogDialog {
   }
 
   /**
-   * Opens a dialog showing the latest hint in the given storage.
+   * Opens a dialog showing the latest hint in the given storage for specific target entities.
    *
-   * <p>If the storage contains no hints, a fallback hint will be displayed.
+   * <p>If no target IDs are provided, the dialog is shown with default targeting.
    *
    * @param log the {@link HintLogComponent} containing all available hints
+   * @param targetEntityIds entity IDs that should receive this dialog
    * @return the {@link Entity} that holds the dialog
    */
-  public static Entity showHintLog(HintLogComponent log) {
-    return showHintLog(log, log.hints.size() - 1);
+  public static Entity showHintLog(HintLogComponent log, int... targetEntityIds) {
+    return showHintLog(log, log.hints.size() - 1, targetEntityIds);
   }
 
   /**
@@ -65,9 +66,10 @@ public final class HintLogDialog {
    *
    * @param log the {@link HintLogComponent} containing all available hints
    * @param index the index of the hint to display
+   * @param targetEntityIds entity IDs that should receive this dialog
    * @return the {@link Entity} that holds the dialog
    */
-  private static Entity showHintLog(HintLogComponent log, int index) {
+  private static Entity showHintLog(HintLogComponent log, int index, int... targetEntityIds) {
     Hint hint;
     if (index < 0 || index > log.hints.size() - 1) hint = NO_HINT;
     else hint = log.hints().get(index);
@@ -80,7 +82,10 @@ public final class HintLogDialog {
             .put("hintIndex", index)
             .build();
 
-    UIComponent ui = DialogFactory.show(context);
+    UIComponent ui =
+        targetEntityIds.length == 0
+            ? DialogFactory.show(context)
+            : DialogFactory.show(context, targetEntityIds);
 
     // Register navigation callbacks
     ui.registerCallback(
@@ -88,9 +93,9 @@ public final class HintLogDialog {
         data -> {
           if (!log.hints().isEmpty()) {
             int i = (index + 1) % log.hints().size();
-            showHintLog(log, i);
+            showHintLog(log, i, targetEntityIds);
           } else {
-            showHintLog(log);
+            showHintLog(log, targetEntityIds);
           }
           UIUtils.closeDialog(ui);
         });
@@ -100,9 +105,9 @@ public final class HintLogDialog {
         data -> {
           if (!log.hints().isEmpty()) {
             int i = (index - 1 + log.hints().size()) % log.hints().size();
-            showHintLog(log, i);
+            showHintLog(log, i, targetEntityIds);
           } else {
-            showHintLog(log);
+            showHintLog(log, targetEntityIds);
           }
           UIUtils.closeDialog(ui);
         });

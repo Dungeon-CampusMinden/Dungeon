@@ -1,18 +1,8 @@
 package core.network.codec;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-import core.network.messages.c2s.ConnectRequest;
-import core.network.messages.c2s.DialogResponseMessage;
-import core.network.messages.c2s.InputMessage;
-import core.network.messages.c2s.RegisterUdp;
-import core.network.messages.c2s.RequestEntitySpawn;
-import core.network.messages.c2s.SoundFinishedMessage;
+import core.network.messages.c2s.*;
 import core.utils.Point;
 import core.utils.Vector2;
 import org.junit.jupiter.api.Test;
@@ -235,6 +225,54 @@ public class ProtoConverterC2STest {
     InputMessage roundTrip = ProtoConverter.fromProto(proto);
     assertEquals(InputMessage.Action.TOGGLE_INVENTORY, roundTrip.action());
     roundTrip.payloadAs(InputMessage.ToggleInventory.class);
+  }
+
+  /** Verifies custom action conversion. */
+  @Test
+  public void testInputMessageCustomRoundTrip() {
+    byte[] payload = new byte[] {4, 5, 6};
+    InputMessage message =
+        new InputMessage(
+            10,
+            20,
+            (short) 30,
+            InputMessage.Action.CUSTOM,
+            new InputMessage.Custom("escapeRoom:hint_log.open", payload, 2));
+
+    core.network.proto.c2s.InputMessage proto = ProtoConverter.toProto(message);
+    assertEquals(core.network.proto.c2s.InputMessage.ActionCase.CUSTOM, proto.getActionCase());
+    assertEquals("escapeRoom:hint_log.open", proto.getCustom().getCommandId());
+    assertArrayEquals(payload, proto.getCustom().getPayload().toByteArray());
+    assertEquals(2, proto.getCustom().getSchemaVersion());
+
+    InputMessage roundTrip = ProtoConverter.fromProto(proto);
+    assertEquals(InputMessage.Action.CUSTOM, roundTrip.action());
+    InputMessage.Custom custom = roundTrip.payloadAs(InputMessage.Custom.class);
+    assertEquals("escapeRoom:hint_log.open", custom.commandId());
+    assertArrayEquals(payload, custom.payload());
+    assertEquals(2, custom.schemaVersion());
+  }
+
+  /** Verifies fallback defaults for custom action metadata. */
+  @Test
+  public void testInputMessageCustomFromProtoDefaults() {
+    core.network.proto.c2s.InputMessage proto =
+        core.network.proto.c2s.InputMessage.newBuilder()
+            .setSessionId(3)
+            .setClientTick(4)
+            .setSequence(5)
+            .setCustom(
+                core.network.proto.c2s.CustomAction.newBuilder()
+                    .setCommandId("escapeRoom:hint_log.open")
+                    .build())
+            .build();
+
+    InputMessage roundTrip = ProtoConverter.fromProto(proto);
+    assertEquals(InputMessage.Action.CUSTOM, roundTrip.action());
+    InputMessage.Custom custom = roundTrip.payloadAs(InputMessage.Custom.class);
+    assertEquals("escapeRoom:hint_log.open", custom.commandId());
+    assertArrayEquals(new byte[0], custom.payload());
+    assertEquals(1, custom.schemaVersion());
   }
 
   /** Ensures input message actions are required. */

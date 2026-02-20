@@ -4,21 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.protobuf.Message;
 import core.network.messages.NetworkMessage;
-import core.network.messages.c2s.ConnectRequest;
-import core.network.messages.c2s.DialogResponseMessage;
-import core.network.messages.c2s.InputMessage;
-import core.network.messages.c2s.RegisterUdp;
-import core.network.messages.c2s.RequestEntitySpawn;
-import core.network.messages.c2s.SoundFinishedMessage;
-import core.network.messages.s2c.ConnectAck;
-import core.network.messages.s2c.ConnectReject;
-import core.network.messages.s2c.DialogCloseMessage;
-import core.network.messages.s2c.EntityDespawnEvent;
-import core.network.messages.s2c.GameOverEvent;
-import core.network.messages.s2c.LevelChangeEvent;
-import core.network.messages.s2c.RegisterAck;
-import core.network.messages.s2c.SoundPlayMessage;
-import core.network.messages.s2c.SoundStopMessage;
+import core.network.messages.c2s.*;
+import core.network.messages.s2c.*;
 import core.utils.Vector2;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
@@ -52,6 +39,12 @@ class NetworkCodecTest {
             (short) 7,
             InputMessage.Action.MOVE,
             new InputMessage.Move(Vector2.of(1.5f, -2.5f))),
+        new InputMessage(
+            42,
+            101,
+            (short) 8,
+            InputMessage.Action.CUSTOM,
+            new InputMessage.Custom("escapeRoom:hint_log.open", new byte[] {1}, 1)),
         new DialogResponseMessage("dialog-1", "onConfirm", null),
         new RegisterUdp(42, new byte[] {9, 8, 7}, (short) 4),
         new RequestEntitySpawn(99),
