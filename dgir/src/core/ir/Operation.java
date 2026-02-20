@@ -249,16 +249,27 @@ public final class Operation implements Serializable {
     return operands;
   }
 
+  public @NotNull Optional<ValueOperand> getOperand(int index) {
+    return operands.size() > index ? Optional.of(operands.get(index)) : Optional.empty();
+  }
+
   public @NotNull List<BlockOperand> getBlockOperands() {
     return blockOperands;
   }
 
   /**
    * Get the successor blocks of this operation via its block operands.
+   *
+   * @return An unmodifiable list of successor blocks.
    */
   @JsonIgnore
   public @NotNull List<Block> getSuccessors() {
-    return getBlockOperands().stream().map(BlockOperand::getValue).toList();
+    return getBlockOperands()
+      .stream()
+      .map(BlockOperand::getValue)
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .toList();
   }
 
   public @NotNull Optional<OperationResult> getOutput() {
@@ -413,7 +424,7 @@ public final class Operation implements Serializable {
 
     sb.append(" (");
     sb.append(operands.stream()
-      .map(op -> op.getType().getParameterizedIdent())
+      .map(op -> op.getType().orElseThrow().getParameterizedIdent())
       .collect(Collectors.joining(", ")));
     sb.append(")");
 

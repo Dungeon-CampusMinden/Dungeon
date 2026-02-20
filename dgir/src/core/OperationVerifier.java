@@ -160,7 +160,7 @@ public class OperationVerifier {
       if (operand == null) {
         operation.emitError("Operation has null operand");
         return false;
-      } else if (operand.getValue() == null) {
+      } else if (operand.getValue().isEmpty()) {
         operation.emitError("Operation has operand with null value");
         return false;
       }

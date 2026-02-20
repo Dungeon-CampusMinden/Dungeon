@@ -56,7 +56,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    * @param value The value to return. Can be null if the block does not return anything.
    * @return An action that represents the return.
    */
-  public static @NotNull Action Terminate(@NotNull Optional<Object> value) {
+  public static @NotNull Action Terminate(@Nullable Object value) {
     return new Terminate(value);
   }
 
@@ -113,7 +113,7 @@ public sealed interface Action permits Action.Next, Action.Jump, Action.Call, Ac
    *
    * @param value The value to return. Can be null if the block does not return anything.
    */
-  public record Terminate(@NotNull Optional<Object> value) implements Action {
+  public record Terminate(@Nullable Object value) implements Action {
   }
 
   /**

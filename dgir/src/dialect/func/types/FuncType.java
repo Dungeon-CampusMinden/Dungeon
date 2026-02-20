@@ -65,8 +65,7 @@ public class FuncType extends Type {
           throw new IllegalArgumentException("Invalid parameterized ident for FuncType: " + parameterizedIdent);
         }
         String inner = parameterizedIdent.substring(FuncType.getIdent().length() + 1, parameterizedIdent.length() - 1);
-        String[] parts = inner.split("->", -1);
-        return parts;
+        return inner.split("->", -1);
       }
     }
     return new FuncTypeModel();

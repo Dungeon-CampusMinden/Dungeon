@@ -152,7 +152,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
     for (BlockOperand blockOperand : operation.getBlockOperands()) {
       // This gives us a direct lookup from the BlockOperand to the ID of the Block it must resolve to.
       // That way we can can update the block operands directly, without having to access the operation itself.
-      unresolvedBlockOperands.put(blockOperand, unresolvedSuccessors.get(blockOperand.getValue()));
+      unresolvedBlockOperands.put(blockOperand, unresolvedSuccessors.get(blockOperand.getValue().orElseThrow()));
     }
     if (!unresolvedBlockOperands.isEmpty())
       unresolvedSuccessorReferences.put(operation, unresolvedBlockOperands);

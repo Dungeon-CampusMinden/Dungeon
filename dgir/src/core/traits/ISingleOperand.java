@@ -2,6 +2,9 @@ package core.traits;
 
 import core.ir.Type;
 import core.ir.Value;
+import core.ir.ValueOperand;
+
+import java.util.Optional;
 
 public interface ISingleOperand extends IOpTrait {
   default boolean verify(ISingleOperand op) {
@@ -13,11 +16,11 @@ public interface ISingleOperand extends IOpTrait {
     return true;
   }
 
-  default Value getOperand() {
-    return get().getOperands().getFirst().getValue();
+  default Optional<Value> getOperand() {
+    return get().getOperand(0).flatMap(ValueOperand::getValue);
   }
 
-  default Type getOperandType() {
-    return getOperand().getType();
+  default Optional<Type> getOperandType() {
+    return getOperand().map(Value::getType);
   }
 }

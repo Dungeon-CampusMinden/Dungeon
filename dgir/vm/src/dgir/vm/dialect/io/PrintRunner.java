@@ -24,12 +24,12 @@ public class PrintRunner extends OpRunner {
     assert !printOp.getOperands().isEmpty() : "Print operation must have at least one operand";
 
     if (printOp.getOperands().size() == 1) {
-      Object value = state.getValue(printOp.getOperands().getFirst()).orElseThrow();
+      Object value = state.getValue(printOp.getOperand(0).orElseThrow());
       out.print(value);
     } else {
-      Object formatString = state.getValue(printOp.getOperands().getFirst().getValue()).orElseThrow();
+      Object formatString = state.getValue(printOp.getOperand(0).orElseThrow());
       assert formatString instanceof String : "Format string must be a string";
-      Object[] args = printOp.getOperands().subList(1, printOp.getOperands().size()).stream().map(operand -> state.getValue(operand.getValue())).toArray();
+      Object[] args = printOp.getOperands().subList(1, printOp.getOperands().size()).stream().map(state::getValue).toArray();
       out.printf(formatString.toString(), args);
     }
 

@@ -17,7 +17,7 @@ public class BranchCondRunner extends OpRunner {
   @Override
   protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
     BranchCondOp branchCondOp = op.as(BranchCondOp.class).orElseThrow();
-    byte condition = state.getValue(branchCondOp.getOperands().getFirst().getValue(), Byte.class).orElseThrow();
+    byte condition = state.getValue(branchCondOp.getOperand(0).orElseThrow(), Byte.class).orElseThrow();
     if (condition != 0) {
       return Action.Jump(op.getSuccessors().get(0));
     } else {

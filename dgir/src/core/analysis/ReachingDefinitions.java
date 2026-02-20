@@ -95,10 +95,10 @@ public final class ReachingDefinitions {
       for (Operation op : block.getOperations()) {
         // Validate every operand against the reaching set at this program point.
         for (ValueOperand operand : op.getOperands()) {
-          if (!state.contains(operand.getValue())) {
+          if (!state.contains(operand.getValue().orElseThrow(() -> new AssertionError("Operand value must be present")))) {
             String message = MessageFormat.format("Operand {0} with value {1} for operation {2}: {3} in block {4} is not defined on all paths",
-              op.getOperands().indexOf(operand),
-              operand.getValue(),
+              operand.getIndex(),
+              operand.getValue().get(),
               op.getIndex(),
               op,
               block.getIndex()
@@ -199,7 +199,11 @@ public final class ReachingDefinitions {
    */
   private static Set<Value> seedForRegion(Operation op, Region region, Set<Value> parentState) {
     Set<Value> seed = new HashSet<>();
-    op.getOperands().forEach(o -> seed.add(o.getValue()));
+    op.getOperands()
+      .forEach(o -> seed.add(
+        o.getValue()
+          .orElseThrow(() -> new AssertionError("Operand value must be present"))
+      ));
     seed.addAll(region.getBodyValues());
     if (!op.hasTrait(IIsolatedFromAbove.class)) {
       seed.addAll(parentState);

@@ -2,6 +2,8 @@ package dgir.vm.dialect.func;
 
 import core.detail.RegisteredOperationDetails;
 import core.ir.Operation;
+import core.ir.Value;
+import core.ir.ValueOperand;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
@@ -17,9 +19,10 @@ public class ReturnRunner extends OpRunner {
 
   @Override
   protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-    if (op.getOperands().isEmpty()) {
-      return Action.Terminate(Optional.empty());
-    }
-    return Action.Terminate(state.getValue(op.getOperands().getFirst().getValue()));
+    ReturnOp returnOp = op.as(ReturnOp.class).orElseThrow();
+    Optional<Value> returnValue = returnOp.getReturnValue();
+    return returnValue
+      .map(value -> Action.Terminate(state.getValue(value)))
+      .orElseGet(() -> Action.Terminate(null));
   }
 }

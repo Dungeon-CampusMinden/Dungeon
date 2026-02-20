@@ -108,8 +108,8 @@ public class VM {
 
           // Set the return value of the call operation if it produces any.
           Operation caller = opStack.pop();
-          if (aTerminate.value().isPresent()) {
-            state.setValueForOutput(caller, aTerminate.value().get());
+          if (aTerminate.value() != null) {
+            state.setValueForOutput(caller, aTerminate.value());
           }
           // No need to push anything to the op stack, as the caller will have already pushed the next operation to execute after the call.
         }
@@ -140,8 +140,9 @@ public class VM {
       return currentAction;
     } catch (Exception e) {
       System.err.println("Error during execution: " + e.getMessage());
+      e.printStackTrace(System.err);
       cleanupAfterAbort();
-      return Action.Abort("Error during execution: " + e.getMessage());
+      return Action.Abort("Error during execution: " + e);
     }
   }
 

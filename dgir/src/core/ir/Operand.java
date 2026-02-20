@@ -3,6 +3,10 @@ package core.ir;
 import core.IRObjectWithUseList;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * A reference to a value used as an operand to an {@link Operation}.
@@ -26,23 +30,23 @@ public abstract class Operand<
    * The value referenced by this operand.
    */
   @JsonIdentityReference(alwaysAsId = true)
-  private ValueT value;
+  private @Nullable ValueT value;
 
   /**
    * The operation that owns this operand.
    */
   @JsonIgnore
-  private final Operation owner;
+  private final @NotNull Operation owner;
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
-  public Operand(Operation owner) {
+  public Operand(@NotNull Operation owner) {
     this.owner = owner;
   }
 
-  public Operand(Operation owner, ValueT value) {
+  public Operand(@NotNull Operation owner, @Nullable ValueT value) {
     this.owner = owner;
     setValue(value);
   }
@@ -65,7 +69,7 @@ public abstract class Operand<
    *
    * @return The owning operation.
    */
-  public Operation getOwner() {
+  public @NotNull Operation getOwner() {
     return owner;
   }
 
@@ -74,8 +78,8 @@ public abstract class Operand<
    *
    * @return The referenced value.
    */
-  public ValueT getValue() {
-    return value;
+  public @NotNull Optional<ValueT> getValue() {
+    return Optional.ofNullable(value);
   }
 
   /**
@@ -83,8 +87,8 @@ public abstract class Operand<
    *
    * @return The use-list of the current value.
    */
-  public IRObjectWithUseList<ValueT, DerivedT> geCurrentUseList() {
-    return value;
+  public Optional<IRObjectWithUseList<ValueT, DerivedT>> geCurrentUseList() {
+    return Optional.ofNullable(value);
   }
 
   /**
@@ -92,7 +96,7 @@ public abstract class Operand<
    *
    * @param value The new value to reference.
    */
-  public void setValue(ValueT value) {
+  public void setValue(@Nullable ValueT value) {
     removeFromCurrentUseList();
     this.value = value;
     insertIntoCurrentUseList();

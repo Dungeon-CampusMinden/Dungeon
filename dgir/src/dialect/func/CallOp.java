@@ -122,7 +122,11 @@ public class CallOp extends Op implements ISymbolUser {
    * @return The function type that results from this call's operands and output.
    */
   public @NotNull FuncType getFunctionType() {
-    List<Type> inputTypes = getOperands().stream().map(ValueOperand::getType).toList();
+    List<Type> inputTypes = getOperands()
+      .stream()
+      .map(ValueOperand::getType)
+      .map(type -> type.orElse(null))
+      .toList();
     Type outputType = getOutput().map(OperationResult::getType).orElse(null);
     return new FuncType(inputTypes, outputType);
   }

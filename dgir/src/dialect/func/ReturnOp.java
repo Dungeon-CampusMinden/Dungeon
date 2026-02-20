@@ -2,14 +2,12 @@ package dialect.func;
 
 import core.*;
 import core.detail.OperationDetails;
-import core.ir.NamedAttribute;
-import core.ir.Op;
-import core.ir.Operation;
-import core.ir.Value;
+import core.ir.*;
 import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;
 import core.traits.IZeroOrOneOperand;
 import dialect.builtin.Builtin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,8 +41,10 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpe
           return false;
         }
         // Ensure that the return op's operand type matches the function output type
-        if (returnOp.getOperand().isPresent()) {
-          var returnType = returnOp.getOperandType().orElseThrow();
+        if (returnOp.getOperandType().isPresent()) {
+          var returnType = returnOp
+            .getOperandType().get()
+            .orElseThrow(() -> new RuntimeException("Return op operand value is not set."));
           var funcType = parentFuncOp.get().getType();
           if (!returnType.equals(funcType.getOutput())) {
             operation.emitError("Return type " + returnType.getParameterizedIdent()
@@ -95,5 +95,9 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpe
   @Override
   public List<Class<? extends Op>> getValidParentTypes() {
     return List.of(FuncOp.class);
+  }
+
+  public @NotNull Optional<Value> getReturnValue() {
+    return getOperand().flatMap(value -> value);
   }
 }

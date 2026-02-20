@@ -5,6 +5,7 @@ import core.ir.Value;
 import core.ir.ValueOperand;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -25,6 +26,27 @@ public class State {
   }
 
   /**
+   * Check if a value if visible in the current stack frame.
+   * Stops at isolated from above frames.
+   *
+   * @param value The value to check.
+   * @return True if the value is visible in the current stack frame, false otherwise.
+   */
+  public boolean isValueVisible(@NotNull Value value) {
+    for (Pair<Set<Value>, Boolean> frame : stackFrames) {
+      Set<Value> definedValues = frame.getLeft();
+      boolean isIsolatedFromAbove = frame.getRight();
+      if (definedValues != null && definedValues.contains(value)) {
+        return true;
+      }
+      if (isIsolatedFromAbove) {
+        break;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Closes the current stack frame and removes all values defined in it from the state.
    */
   public void popStackFrame() {
@@ -36,7 +58,7 @@ public class State {
     // Make sure to not remove values defined in other stack frames as they are still accessible there.
     for (Value value : definedValues) {
       // Since we popped the frame, we can just check if the value is still defined in the state.
-      if (getValue(value).isEmpty()) {
+      if (!isValueVisible(value)) {
         values.remove(value);
       }
     }
@@ -47,40 +69,58 @@ public class State {
    *
    * @param value The value to get the object for.
    * @return The object associated with the given value or null.
+   * @throws IllegalStateException If the value is not defined in the current stack frame.
    */
-  public @NotNull Optional<Object> getValue(@NotNull Value value) {
-    // Go over all stack frames in reverse order and check if the value is defined in any of the visible stack frames.
-    // If it is, return the associated object.
-    for (Pair<Set<Value>, Boolean> frame : stackFrames) {
-      // The values defined in the current stack frame
-      Set<Value> definedValues = frame.getLeft();
-      // Whether the current stack frame is isolated from the above stack frame
-      boolean isIsolatedFromAbove = frame.getRight();
-      // Check if the value is defined in the current stack frame and return the associated object if it is.
-      if (definedValues != null && definedValues.contains(value)) {
-        return Optional.of(values.get(value));
-      }
-      if (isIsolatedFromAbove) {
-        break;
-      }
+  public @NotNull Object getValue(@NotNull Value value) {
+    if (!isValueVisible(value)) {
+      throw new IllegalStateException("Value " + value + " is not defined in the current stack frame.");
     }
-    // If the value is not defined in any of the visible stack frames, return null.
-    return Optional.empty();
+    return values.get(value);
   }
 
-  public @NotNull Optional<Object> getValue(@NotNull ValueOperand operand) {
-    return getValue(operand.getValue());
+  /**
+   * Gets the object associated with the given operand.
+   *
+   * @param operand The operand to get the object for.
+   * @return The object associated with the operand.
+   * @throws IllegalStateException If the operand does not reference a value.
+   */
+  public @NotNull Object getValue(@NotNull ValueOperand operand) {
+    return getValue(operand.getValue().orElseThrow(() -> new AssertionError("Operand value must be present")));
   }
 
+  /**
+   * Gets the object associated with the given value and casts it to the given class.
+   * Returns an empty optional if the object is not an instance of the given class.
+   *
+   * @param value The value to get the object for.
+   * @param clazz The class to cast the object to.
+   * @param <T>   The type of the class to cast the object to.
+   * @return The object associated with the given value cast to the given class, or an
+   * empty optional if the object is not an instance of the given class.
+   * @throws IllegalStateException If the value is not defined in the current stack frame.
+   */
   public <T> @NotNull Optional<T> getValue(@NotNull Value value, @NotNull Class<T> clazz) {
     var obj = getValue(value);
-    if (obj.isEmpty())
-      return Optional.empty();
-
-    if (clazz.isInstance(obj.get()))
-      return Optional.of(clazz.cast(obj.get()));
+    if (clazz.isInstance(obj))
+      return Optional.of(clazz.cast(obj));
 
     return Optional.empty();
+  }
+
+  /**
+   * Gets the object associated with the given value and casts it to the given class.
+   * Returns an empty optional if the object is not an instance of the given class.
+   *
+   * @param operand The operand to get the object for.
+   * @param clazz The class to cast the object to.
+   * @param <T>   The type of the class to cast the object to.
+   * @return The object associated with the given value cast to the given class, or an
+   * empty optional if the object is not an instance of the given class.
+   * @throws IllegalStateException If the value is not defined in the current stack frame.
+   */
+  public <T> @NotNull Optional<T> getValue(@NotNull ValueOperand operand, @NotNull Class<T> clazz) {
+    return getValue(operand.getValue().orElseThrow(), clazz);
   }
 
   /**
@@ -101,8 +141,9 @@ public class State {
 
   /**
    * Sets the value associated with the output of the given operation to the given object.
+   *
    * @param operation The operation whose output value should be set.
-   * @param object The object to associate with the output value.
+   * @param object    The object to associate with the output value.
    */
   public void setValueForOutput(@NotNull Operation operation, @NotNull Object object) {
     setValue(operation.getOutputValue().orElseThrow(), object);

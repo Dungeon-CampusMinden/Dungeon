@@ -2,6 +2,7 @@ package core.ir;
 
 import core.IRObjectWithUseList;
 import com.fasterxml.jackson.annotation.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
@@ -16,14 +17,14 @@ public final class Value extends IRObjectWithUseList<Value, ValueOperand> implem
   // Members
   // =========================================================================
 
-  private final Type type;
+  private final @NotNull Type type;
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
   @JsonCreator
-  public Value(@JsonProperty("type") Type type) {
+  public Value(@JsonProperty("type") @NotNull Type type) {
     this.type = type;
   }
 
@@ -31,7 +32,16 @@ public final class Value extends IRObjectWithUseList<Value, ValueOperand> implem
   // Functions
   // =========================================================================
 
-  public Type getType() {
+  public @NotNull Type getType() {
     return type;
+  }
+
+  // =========================================================================
+  // Object
+  // =========================================================================
+
+  @Override
+  public String toString() {
+    return "Value{" + "type=" + type + '}';
   }
 }

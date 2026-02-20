@@ -154,6 +154,11 @@ public abstract class Op {
   }
 
   @JsonIgnore
+  public @NotNull Optional<ValueOperand> getOperand(int index) {
+    return getOperation().getOperand(index);
+  }
+
+  @JsonIgnore
   public @NotNull List<BlockOperand> getBlockOperands() {
     return getOperation().getBlockOperands();
   }

@@ -20,9 +20,7 @@ public class CallRunner extends OpRunner {
     Object[] args = callOp
       .getOperands()
       .stream()
-      .map(operand ->
-        state.getValue(operand)
-          .orElseThrow(() -> new AssertionError("Not all operands of call op hold value")))
+      .map(state::getValue)
       .toArray();
 
     return Action.Call(

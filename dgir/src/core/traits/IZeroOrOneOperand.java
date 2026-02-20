@@ -2,6 +2,8 @@ package core.traits;
 
 import core.ir.Type;
 import core.ir.Value;
+import core.ir.ValueOperand;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -19,12 +21,25 @@ public interface IZeroOrOneOperand extends IOpTrait {
     return true;
   }
 
-  default Optional<Value> getOperand() {
+  /**
+   * Gets the operand of the operation, if it exists. If the operation has no operands, returns an empty Optional.
+   *
+   * @return The operand of the operation, if it exists.
+   */
+  @SuppressWarnings("OptionalMapToOptional")
+  default @NotNull Optional<Optional<Value>> getOperand() {
     if (get().getOperands().isEmpty()) return Optional.empty();
-    return Optional.ofNullable(get().getOperands().getFirst().getValue());
+    return Optional.of(get().getOperand(0).flatMap(ValueOperand::getValue));
   }
 
-  default Optional<Type> getOperandType() {
-    return getOperand().map(Value::getType);
+  /**
+   * Gets the type of the operand, if it exists. If the operation has no operands, returns an empty Optional.
+   * If the operation has an operand, but the operand does not have a type, returns an Optional containing an empty Optional.
+   *
+   * @return The type of the operand, if it exists.
+   */
+  @SuppressWarnings("OptionalMapToOptional")
+  default @NotNull Optional<Optional<@NotNull Type>> getOperandType() {
+    return getOperand().map(value -> value.map(Value::getType));
   }
 }

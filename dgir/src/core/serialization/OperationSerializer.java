@@ -29,7 +29,7 @@ public class OperationSerializer extends StdSerializer<Operation> {
       // Convert the map to a list of attributes.
       gen.writePOJOProperty("attributes", value.getAttributes().values());
     }
-    if (value.getOutput() != null)
+    if (value.getOutput().isPresent())
       gen.writePOJOProperty("output", value.getOutput());
     if (!value.getRegions().isEmpty())
       gen.writePOJOProperty("regions", value.getRegions());
