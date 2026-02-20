@@ -237,7 +237,7 @@ public class EmailsTab extends ComputerTab {
     selectedEmail = email;
     localState().selectedEmail(email);
     createActors();
-    Sounds.playLocal(LastHourSounds.COMPUTER_TAB_CLICKED, 0.65f, 0.3f);
+    Sounds.play(LastHourSounds.COMPUTER_TAB_CLICKED, 0.65f, 0.3f);
   }
 
   private void clickedAttachment(String attachmentName) {

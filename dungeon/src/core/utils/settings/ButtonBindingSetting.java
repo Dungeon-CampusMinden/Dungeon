@@ -57,7 +57,7 @@ public class ButtonBindingSetting extends SettingValue<Integer> {
             }
             isEditing = true;
             buttonLabel.setText("<>");
-            Sounds.playLocal(CoreSounds.INTERFACE_BUTTON_CLICKED);
+            Sounds.play(CoreSounds.INTERFACE_BUTTON_CLICKED);
             buttonDisplay
                 .getStage()
                 .setKeyboardFocus(

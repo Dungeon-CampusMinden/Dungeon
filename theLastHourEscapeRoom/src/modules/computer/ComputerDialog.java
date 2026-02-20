@@ -271,7 +271,7 @@ public class ComputerDialog extends Group {
     if (tabKey.equals(activeTab)) return;
     if (sharedState.isInfected()) return; // Cannot switch off of the virus tab
     setActiveTab(tabKey);
-    Sounds.playLocal(LastHourSounds.COMPUTER_TAB_CLICKED, 1.2f, 0.4f);
+    Sounds.play(LastHourSounds.COMPUTER_TAB_CLICKED, 1.2f, 0.4f);
   }
 
   private void showContent(String tabKey) {

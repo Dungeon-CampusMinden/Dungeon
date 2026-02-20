@@ -34,7 +34,7 @@ public class BoolSetting extends SettingValue<Boolean> {
           public void changed(ChangeEvent event, Actor actor) {
             value(checkBox.isChecked());
             float pitch = value() ? 1.0f : 0.8f;
-            Sounds.playLocal(CoreSounds.SETTINGS_TOGGLE_CLICK, pitch);
+            Sounds.play(CoreSounds.SETTINGS_TOGGLE_CLICK, pitch);
           }
         });
 

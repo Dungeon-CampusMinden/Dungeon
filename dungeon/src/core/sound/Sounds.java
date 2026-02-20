@@ -63,37 +63,4 @@ public class Sounds {
     return Game.audio()
         .playGlobal(new SoundSpec.Builder(sound.soundName()).volume(volume).pitch(pitch));
   }
-
-  /**
-   * Play this sound with its default volume.
-   *
-   * @return an Optional holding the play handle if playback started
-   */
-  public static long playLocal(ISound sound) {
-    return playLocal(sound, 1);
-  }
-
-  /**
-   * Play this sound with a custom pitch.
-   *
-   * @param pitch the playback pitch to apply
-   * @return an Optional holding the play handle if playback started
-   */
-  public static long playLocal(ISound sound, float pitch) {
-    return playLocal(sound, pitch, 1);
-  }
-
-  /**
-   * Play this sound with a custom pitch and volume.
-   *
-   * @param pitch the playback pitch to apply
-   * @param volumeModifier the playback volumeModifier to apply
-   * @return the id of the sound instance if playback started, or -1 if it failed to play
-   */
-  public static long playLocal(ISound sound, float pitch, float volumeModifier) {
-    // TODO play only for the local player
-    float volume = getEffectsVolume() * sound.volume() * volumeModifier;
-    return Game.audio()
-        .playGlobal(new SoundSpec.Builder(sound.soundName()).volume(volume).pitch(pitch));
-  }
 }

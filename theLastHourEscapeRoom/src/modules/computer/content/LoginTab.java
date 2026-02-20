@@ -124,12 +124,12 @@ public class LoginTab extends ComputerTab {
     loginFeedback.setText(CORRECT_FEEDBACK);
     loginFeedback.setColor(CORRECT_COLOR);
     if (!completedPrior) {
-      Sounds.playLocal(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
+      Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
     }
   }
 
   private void onWrongCredentials() {
     loginFeedback.setText(WRONG_FEEDBACK);
-    Sounds.playLocal(LastHourSounds.COMPUTER_LOGIN_FAILED);
+    Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
   }
 }

@@ -62,7 +62,7 @@ public class EnumSetting<E extends Enum<E>> extends SettingValue<E> {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             value(selectBox.getSelected());
-            Sounds.playLocal(CoreSounds.SETTINGS_ENUM_VALUE_SELECTED, 1.0f);
+            Sounds.play(CoreSounds.SETTINGS_ENUM_VALUE_SELECTED, 1.0f);
           }
         });
 

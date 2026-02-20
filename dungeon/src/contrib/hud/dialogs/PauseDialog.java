@@ -103,7 +103,7 @@ public class PauseDialog extends Table {
           public void changed(ChangeEvent event, Actor actor) {
             DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_RESUME)
                 .accept(null);
-            Sounds.playLocal(CoreSounds.INTERFACE_DIALOG_CLOSED);
+            Sounds.play(CoreSounds.INTERFACE_DIALOG_CLOSED);
           }
         });
     settingsBtn.addListener(
@@ -111,7 +111,7 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showSettings();
-            Sounds.playLocal(CoreSounds.INTERFACE_BUTTON_CLICKED);
+            Sounds.play(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     quitBtn.addListener(
@@ -120,7 +120,7 @@ public class PauseDialog extends Table {
           public void changed(ChangeEvent event, Actor actor) {
             DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_QUIT)
                 .accept(null);
-            Sounds.playLocal(CoreSounds.INTERFACE_DIALOG_CLOSED);
+            Sounds.play(CoreSounds.INTERFACE_DIALOG_CLOSED);
           }
         });
 
@@ -142,7 +142,7 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showMainView();
-            Sounds.playLocal(CoreSounds.INTERFACE_BUTTON_CLICKED);
+            Sounds.play(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     List<Actor> settingsActors = new ArrayList<>();
@@ -167,7 +167,7 @@ public class PauseDialog extends Table {
                 public void enter(
                     InputEvent event, float x, float y, int pointer, Actor fromActor) {
                   if (fromActor != null && fromActor.isDescendantOf(actor) || pointer != -1) return;
-                  Sounds.playLocal(CoreSounds.INTERFACE_ITEM_HOVERED, 1, 0.6f);
+                  Sounds.play(CoreSounds.INTERFACE_ITEM_HOVERED, 1, 0.6f);
                   super.enter(event, x, y, pointer, fromActor);
                 }
               });

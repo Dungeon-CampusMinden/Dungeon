@@ -313,7 +313,7 @@ public class LastHourLevel extends DungeonLevel {
                           "There is a switch hidden below these stacks of paper.\n\nDo you want to flip it?",
                           "",
                           () -> {
-                            Sounds.playLocal(CoreSounds.SETTINGS_TOGGLE_CLICK, 1, 1.5f);
+                            Sounds.play(CoreSounds.SETTINGS_TOGGLE_CLICK, 1, 1.5f);
                             DialogFactory.showOkDialog(
                                 "You flipped the switch.\n\nYou can hear electricity buzzing throughout the room,\nas a few partly broken lights turn on.",
                                 "",
@@ -451,7 +451,7 @@ public class LastHourLevel extends DungeonLevel {
           dc.sendSignal(PC_SIGNAL_ON);
         } else {
           dc.sendSignal(PC_SIGNAL_CLEAR);
-          Sounds.playLocal(CoreSounds.INTERFACE_BUTTON_BACKWARD);
+          Sounds.play(CoreSounds.INTERFACE_BUTTON_BACKWARD);
         }
       }
     }
