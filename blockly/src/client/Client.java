@@ -19,9 +19,12 @@ import core.utils.Vector2;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import level.produs.*;
+import server.FrontendServer;
 import server.Server;
 import systems.BlocklyCommandExecuteSystem;
 import systems.TintTilesSystem;
@@ -62,6 +65,29 @@ public class Client {
    * @throws IOException if textures can not be loaded.
    */
   public static void main(String[] args) throws IOException {
+//    File folder = new File("blockly/frontend/dist");
+//
+//    if (!folder.exists()) {
+//      java.lang.System.out.println("Folder does not exist: " + folder.getAbsolutePath());
+//      return;
+//    }
+//
+//    java.lang.System.out.println("Listing files in: " + folder.getAbsolutePath());
+//
+//    File[] files = folder.listFiles();
+//    if (files != null) {
+//      for (File f : files) {
+//        java.lang.System.out.println(f.getName() + (f.isDirectory() ? "/" : ""));
+//      }
+//    } else {
+//      java.lang.System.out.println("No files found or folder is not a directory.");
+//    }
+
+    FrontendServer.run();
+
+
+
+
     for (String arg : args) {
       if (arg.equalsIgnoreCase("web=true")) {
         runInWeb = true;
@@ -79,6 +105,7 @@ public class Client {
     // build and start game
     try {
       Game.run();
+
     } finally {
       // Ensure that the server is stopped when the game ends
       if (httpServer != null) {
