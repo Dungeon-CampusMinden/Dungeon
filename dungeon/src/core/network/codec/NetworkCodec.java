@@ -25,7 +25,7 @@ public final class NetworkCodec {
    */
   public static byte[] serialize(NetworkMessage message) throws IOException {
     Objects.requireNonNull(message, "message");
-    Message proto = ProtoConverter.toProto(message);
+    Message proto = ConverterRegistry.global().toProto(message);
     return serializeProto(proto);
   }
 
@@ -44,12 +44,12 @@ public final class NetworkCodec {
     byte[] payload = new byte[buf.readableBytes()];
     buf.readBytes(payload);
     Message proto = parseProto(typeId, payload);
-    return ProtoConverter.fromProto(proto);
+    return ConverterRegistry.global().fromProto(proto);
   }
 
   private static byte[] serializeProto(Message message) throws IOException {
     try {
-      byte typeId = MessageRegistry.typeId(message);
+      byte typeId = ConverterRegistry.global().typeId(message);
       byte[] protoBytes = message.toByteArray();
       byte[] result = new byte[1 + protoBytes.length];
       result[0] = typeId;
@@ -62,7 +62,7 @@ public final class NetworkCodec {
 
   private static Message parseProto(byte typeId, byte[] payload) throws IOException {
     try {
-      return MessageRegistry.parse(typeId, payload);
+      return ConverterRegistry.global().parse(typeId, payload);
     } catch (InvalidProtocolBufferException | IllegalArgumentException e) {
       throw new IOException("Failed to parse message type " + typeId + ".", e);
     }

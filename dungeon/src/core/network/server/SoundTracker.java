@@ -86,8 +86,7 @@ public final class SoundTracker {
     }
 
     // Send to all target clients
-    SoundPlayMessage msg =
-        new SoundPlayMessage(entityId, spec);
+    SoundPlayMessage msg = new SoundPlayMessage(entityId, spec);
 
     for (short clientId : authorizedClientIds) {
       Game.network().send(clientId, msg, true);
@@ -217,8 +216,7 @@ public final class SoundTracker {
         continue;
       }
 
-      SoundPlayMessage msg =
-          new SoundPlayMessage(info.entityId(), info.spec());
+      SoundPlayMessage msg = new SoundPlayMessage(info.entityId(), info.spec());
 
       Game.network().send(clientId, msg, true);
     }

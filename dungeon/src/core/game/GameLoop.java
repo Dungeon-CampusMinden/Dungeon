@@ -1,5 +1,7 @@
 package core.game;
 
+import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
@@ -45,10 +47,7 @@ import core.utils.InputManager;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.DrawComponentFactory;
 import core.utils.logging.DungeonLogger;
-
 import java.util.*;
-
-import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
 /**
  * The Dungeon-GameLoop.
@@ -424,7 +423,9 @@ public final class GameLoop extends ScreenAdapter {
           Optional<Entity> entity = Game.findEntityById(msg.entityId());
           if (entity.isEmpty() && msg.soundSpec().maxDistance() > 0f) {
             LOGGER.warn(
-                "Entity {} not found for positional sound {}", msg.entityId(), msg.soundSpec().soundName());
+                "Entity {} not found for positional sound {}",
+                msg.entityId(),
+                msg.soundSpec().soundName());
             return;
           }
 

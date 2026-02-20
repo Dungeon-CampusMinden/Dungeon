@@ -1,40 +1,60 @@
-package core.network.codec;
+package core.network.codec.converters.s2c;
 
+import com.google.protobuf.Parser;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
 import contrib.utils.components.showImage.TransitionSpeed;
+import core.network.codec.MessageConverter;
+import core.network.messages.s2c.DialogShowMessage;
 import core.network.proto.common.IntList;
 import core.network.proto.common.StringList;
 import core.network.proto.s2c.DialogAttribute;
-import core.network.proto.s2c.DialogShowMessage;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Converts between {@link DialogContext} and {@link DialogShowMessage}.
- *
- * <p>All dialog-specific data is encoded as typed attributes. Only primitives, strings, and arrays
- * are supported.
- */
-public final class DialogContextProtoConverter {
+/** Converter for server-to-client dialog show messages. */
+public final class DialogShowConverter
+    implements MessageConverter<DialogShowMessage, core.network.proto.s2c.DialogShowMessage> {
+  private static final byte WIRE_TYPE_ID = 9;
 
-  private DialogContextProtoConverter() {}
+  @Override
+  public core.network.proto.s2c.DialogShowMessage toProto(DialogShowMessage message) {
+    return toProto(message.context(), message.canBeClosed());
+  }
 
-  /**
-   * Converts a dialog context to a protobuf show message.
-   *
-   * @param context the dialog context to convert
-   * @param canBeClosed whether the dialog can be closed without selection
-   * @return the protobuf dialog show message
-   */
-  public static DialogShowMessage toProto(DialogContext context, boolean canBeClosed) {
+  @Override
+  public DialogShowMessage fromProto(core.network.proto.s2c.DialogShowMessage proto) {
+    return new DialogShowMessage(fromDialogProto(proto), proto.getCanBeClosed());
+  }
+
+  @Override
+  public Class<DialogShowMessage> domainType() {
+    return DialogShowMessage.class;
+  }
+
+  @Override
+  public Class<core.network.proto.s2c.DialogShowMessage> protoType() {
+    return core.network.proto.s2c.DialogShowMessage.class;
+  }
+
+  @Override
+  public Parser<core.network.proto.s2c.DialogShowMessage> parser() {
+    return core.network.proto.s2c.DialogShowMessage.parser();
+  }
+
+  @Override
+  public byte wireTypeId() {
+    return WIRE_TYPE_ID;
+  }
+
+  private static core.network.proto.s2c.DialogShowMessage toProto(
+      DialogContext context, boolean canBeClosed) {
     Objects.requireNonNull(context, "context");
-    DialogShowMessage.Builder builder =
-        DialogShowMessage.newBuilder()
+    core.network.proto.s2c.DialogShowMessage.Builder builder =
+        core.network.proto.s2c.DialogShowMessage.newBuilder()
             .setDialogId(context.dialogId())
             .setDialogType(context.dialogType().type())
             .setCenter(context.center())
@@ -50,13 +70,7 @@ public final class DialogContextProtoConverter {
     return builder.build();
   }
 
-  /**
-   * Converts a protobuf dialog show message to a dialog context.
-   *
-   * @param proto the protobuf dialog show message
-   * @return the dialog context
-   */
-  public static DialogContext fromProto(DialogShowMessage proto) {
+  private static DialogContext fromDialogProto(core.network.proto.s2c.DialogShowMessage proto) {
     Objects.requireNonNull(proto, "proto");
     DialogContext.Builder builder =
         DialogContext.builder()

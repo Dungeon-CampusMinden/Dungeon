@@ -14,6 +14,20 @@ import contrib.item.Item;
 import contrib.item.concreteItem.ItemPotionHealth;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.network.codec.converters.s2c.ConnectAckConverter;
+import core.network.codec.converters.s2c.ConnectRejectConverter;
+import core.network.codec.converters.s2c.DialogCloseConverter;
+import core.network.codec.converters.s2c.DialogShowConverter;
+import core.network.codec.converters.s2c.EntityDespawnConverter;
+import core.network.codec.converters.s2c.EntitySpawnBatchConverter;
+import core.network.codec.converters.s2c.EntitySpawnEventConverter;
+import core.network.codec.converters.s2c.EntityStateConverter;
+import core.network.codec.converters.s2c.GameOverConverter;
+import core.network.codec.converters.s2c.LevelChangeConverter;
+import core.network.codec.converters.s2c.RegisterAckConverter;
+import core.network.codec.converters.s2c.SnapshotConverter;
+import core.network.codec.converters.s2c.SoundPlayConverter;
+import core.network.codec.converters.s2c.SoundStopConverter;
 import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.ConnectReject;
 import core.network.messages.s2c.DialogCloseMessage;
@@ -28,6 +42,7 @@ import core.network.messages.s2c.RegisterAck;
 import core.network.messages.s2c.SnapshotMessage;
 import core.network.messages.s2c.SoundPlayMessage;
 import core.network.messages.s2c.SoundStopMessage;
+import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -35,10 +50,29 @@ import core.utils.components.draw.DrawInfoData;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-/** Tests for {@link ProtoConverter} s2c message conversions. */
-public class ProtoConverterS2CTest {
+/** Tests for s2c message converters. */
+public class S2CConverterTest {
 
   private static final float DELTA = 1e-6f;
+
+  private static final ConnectAckConverter CONNECT_ACK_CONVERTER = new ConnectAckConverter();
+  private static final ConnectRejectConverter CONNECT_REJECT_CONVERTER =
+      new ConnectRejectConverter();
+  private static final DialogShowConverter DIALOG_SHOW_CONVERTER = new DialogShowConverter();
+  private static final DialogCloseConverter DIALOG_CLOSE_CONVERTER = new DialogCloseConverter();
+  private static final EntitySpawnEventConverter ENTITY_SPAWN_EVENT_CONVERTER =
+      new EntitySpawnEventConverter();
+  private static final EntitySpawnBatchConverter ENTITY_SPAWN_BATCH_CONVERTER =
+      new EntitySpawnBatchConverter();
+  private static final EntityDespawnConverter ENTITY_DESPAWN_CONVERTER =
+      new EntityDespawnConverter();
+  private static final EntityStateConverter ENTITY_STATE_CONVERTER = new EntityStateConverter();
+  private static final SnapshotConverter SNAPSHOT_CONVERTER = new SnapshotConverter();
+  private static final GameOverConverter GAME_OVER_CONVERTER = new GameOverConverter();
+  private static final LevelChangeConverter LEVEL_CHANGE_CONVERTER = new LevelChangeConverter();
+  private static final RegisterAckConverter REGISTER_ACK_CONVERTER = new RegisterAckConverter();
+  private static final SoundPlayConverter SOUND_PLAY_CONVERTER = new SoundPlayConverter();
+  private static final SoundStopConverter SOUND_STOP_CONVERTER = new SoundStopConverter();
 
   private static DrawInfoData createDrawInfo() {
     return new DrawInfoData("character/hero.png", 2.0f, 3.0f, "idle", 20);
@@ -50,12 +84,12 @@ public class ProtoConverterS2CTest {
     byte[] token = new byte[] {4, 5, 6};
     ConnectAck message = new ConnectAck((short) 7, 42, token);
 
-    core.network.proto.s2c.ConnectAck proto = ProtoConverter.toProto(message);
+    core.network.proto.s2c.ConnectAck proto = CONNECT_ACK_CONVERTER.toProto(message);
     assertEquals(7, proto.getClientId());
     assertEquals(42, proto.getSessionId());
     assertArrayEquals(token, proto.getSessionToken().toByteArray());
 
-    ConnectAck roundTrip = ProtoConverter.fromProto(proto);
+    ConnectAck roundTrip = CONNECT_ACK_CONVERTER.fromProto(proto);
     assertEquals(message.clientId(), roundTrip.clientId());
     assertEquals(message.sessionId(), roundTrip.sessionId());
     assertArrayEquals(message.sessionToken(), roundTrip.sessionToken());
@@ -66,12 +100,12 @@ public class ProtoConverterS2CTest {
   public void testConnectRejectRoundTrip() {
     ConnectReject message = new ConnectReject(ConnectReject.Reason.INCOMPATIBLE_VERSION);
 
-    core.network.proto.s2c.ConnectReject proto = ProtoConverter.toProto(message);
+    core.network.proto.s2c.ConnectReject proto = CONNECT_REJECT_CONVERTER.toProto(message);
     assertEquals(
         core.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_INCOMPATIBLE_VERSION,
         proto.getReason());
 
-    ConnectReject roundTrip = ProtoConverter.fromProto(proto);
+    ConnectReject roundTrip = CONNECT_REJECT_CONVERTER.fromProto(proto);
     assertEquals(message.reason(), roundTrip.reason());
   }
 
@@ -87,11 +121,11 @@ public class ProtoConverterS2CTest {
             .build();
     DialogShowMessage message = new DialogShowMessage(context, false);
 
-    core.network.proto.s2c.DialogShowMessage proto = ProtoConverter.toProto(message);
+    core.network.proto.s2c.DialogShowMessage proto = DIALOG_SHOW_CONVERTER.toProto(message);
     assertEquals("dialog-100", proto.getDialogId());
     assertFalse(proto.getCanBeClosed());
 
-    DialogShowMessage roundTrip = ProtoConverter.fromProto(proto);
+    DialogShowMessage roundTrip = DIALOG_SHOW_CONVERTER.fromProto(proto);
     assertEquals("dialog-100", roundTrip.context().dialogId());
     assertFalse(roundTrip.canBeClosed());
     assertEquals("Title", roundTrip.context().require(DialogContextKeys.TITLE, String.class));
@@ -102,10 +136,10 @@ public class ProtoConverterS2CTest {
   public void testDialogCloseRoundTrip() {
     DialogCloseMessage message = new DialogCloseMessage("dialog-200");
 
-    core.network.proto.s2c.DialogCloseMessage proto = ProtoConverter.toProto(message);
+    core.network.proto.s2c.DialogCloseMessage proto = DIALOG_CLOSE_CONVERTER.toProto(message);
     assertEquals("dialog-200", proto.getDialogId());
 
-    DialogCloseMessage roundTrip = ProtoConverter.fromProto(proto);
+    DialogCloseMessage roundTrip = DIALOG_CLOSE_CONVERTER.fromProto(proto);
     assertEquals("dialog-200", roundTrip.dialogId());
   }
 
@@ -120,7 +154,7 @@ public class ProtoConverterS2CTest {
     EntitySpawnEvent message =
         new EntitySpawnEvent(42, position, drawInfo, true, playerComponent, (byte) 1);
 
-    core.network.proto.s2c.EntitySpawnEvent proto = ProtoConverter.toProto(message);
+    core.network.proto.s2c.EntitySpawnEvent proto = ENTITY_SPAWN_EVENT_CONVERTER.toProto(message);
     assertEquals(42, proto.getEntityId());
     assertEquals(4.0f, proto.getPosition().getPosition().getX(), DELTA);
     assertEquals(5.0f, proto.getPosition().getPosition().getY(), DELTA);
@@ -134,7 +168,7 @@ public class ProtoConverterS2CTest {
     assertTrue(proto.getPlayerInfo().getIsLocalPlayer());
     assertEquals(1, proto.getCharacterClassId());
 
-    EntitySpawnEvent roundTrip = ProtoConverter.fromProto(proto);
+    EntitySpawnEvent roundTrip = ENTITY_SPAWN_EVENT_CONVERTER.fromProto(proto);
     assertEquals(42, roundTrip.entityId());
     assertEquals(4.0f, roundTrip.positionComponent().position().x(), DELTA);
     assertEquals(5.0f, roundTrip.positionComponent().position().y(), DELTA);
@@ -174,10 +208,10 @@ public class ProtoConverterS2CTest {
             (byte) 2);
 
     EntitySpawnBatch message = new EntitySpawnBatch(List.of(first, second));
-    core.network.proto.s2c.EntitySpawnBatch proto = ProtoConverter.toProto(message);
+    core.network.proto.s2c.EntitySpawnBatch proto = ENTITY_SPAWN_BATCH_CONVERTER.toProto(message);
     assertEquals(2, proto.getEntitiesCount());
 
-    EntitySpawnBatch roundTrip = ProtoConverter.fromProto(proto);
+    EntitySpawnBatch roundTrip = ENTITY_SPAWN_BATCH_CONVERTER.fromProto(proto);
     assertEquals(2, roundTrip.entities().size());
     assertEquals(1, roundTrip.entities().get(0).entityId());
     assertEquals(2, roundTrip.entities().get(1).entityId());
@@ -188,11 +222,11 @@ public class ProtoConverterS2CTest {
   public void testEntityDespawnRoundTrip() {
     EntityDespawnEvent message = new EntityDespawnEvent(99, "destroyed");
 
-    core.network.proto.s2c.EntityDespawnEvent proto = ProtoConverter.toProto(message);
+    core.network.proto.s2c.EntityDespawnEvent proto = ENTITY_DESPAWN_CONVERTER.toProto(message);
     assertEquals(99, proto.getEntityId());
     assertEquals("destroyed", proto.getReason());
 
-    EntityDespawnEvent roundTrip = ProtoConverter.fromProto(proto);
+    EntityDespawnEvent roundTrip = ENTITY_DESPAWN_CONVERTER.fromProto(proto);
     assertEquals(99, roundTrip.entityId());
     assertEquals("destroyed", roundTrip.reason());
   }
@@ -218,7 +252,7 @@ public class ProtoConverterS2CTest {
             .inventory(new Item[] {null, item, null})
             .build();
 
-    core.network.proto.s2c.EntityState proto = ProtoConverter.toProto(message);
+    core.network.proto.s2c.EntityState proto = ENTITY_STATE_CONVERTER.toProto(message);
     assertEquals(7, proto.getEntityId());
     assertTrue(proto.hasEntityName());
     assertEquals("Goblin", proto.getEntityName());
@@ -231,7 +265,7 @@ public class ProtoConverterS2CTest {
     assertEquals(
         Integer.toString(item.healAmount()), slot.getItem().getItemDataMap().get("heal_amount"));
 
-    EntityState roundTrip = ProtoConverter.fromProto(proto);
+    EntityState roundTrip = ENTITY_STATE_CONVERTER.fromProto(proto);
     assertEquals(7, roundTrip.entityId());
     assertEquals("Goblin", roundTrip.entityName().orElseThrow());
     assertEquals("LEFT", roundTrip.viewDirection().orElseThrow());
@@ -257,11 +291,11 @@ public class ProtoConverterS2CTest {
     EntityState state = EntityState.builder().entityId(5).build();
     SnapshotMessage message = new SnapshotMessage(123, List.of(state));
 
-    core.network.proto.s2c.SnapshotMessage proto = ProtoConverter.toProto(message);
+    core.network.proto.s2c.SnapshotMessage proto = SNAPSHOT_CONVERTER.toProto(message);
     assertEquals(123, proto.getServerTick());
     assertEquals(1, proto.getEntitiesCount());
 
-    SnapshotMessage roundTrip = ProtoConverter.fromProto(proto);
+    SnapshotMessage roundTrip = SNAPSHOT_CONVERTER.fromProto(proto);
     assertEquals(123, roundTrip.serverTick());
     assertEquals(1, roundTrip.entities().size());
   }
@@ -271,10 +305,10 @@ public class ProtoConverterS2CTest {
   public void testGameOverRoundTrip() {
     GameOverEvent message = new GameOverEvent("all_levels_completed");
 
-    core.network.proto.s2c.GameOverEvent proto = ProtoConverter.toProto(message);
+    core.network.proto.s2c.GameOverEvent proto = GAME_OVER_CONVERTER.toProto(message);
     assertEquals("all_levels_completed", proto.getReason());
 
-    GameOverEvent roundTrip = ProtoConverter.fromProto(proto);
+    GameOverEvent roundTrip = GAME_OVER_CONVERTER.fromProto(proto);
     assertEquals("all_levels_completed", roundTrip.reason());
   }
 
@@ -283,11 +317,11 @@ public class ProtoConverterS2CTest {
   public void testLevelChangeRoundTrip() {
     LevelChangeEvent message = new LevelChangeEvent("level-1", "data");
 
-    core.network.proto.s2c.LevelChangeEvent proto = ProtoConverter.toProto(message);
+    core.network.proto.s2c.LevelChangeEvent proto = LEVEL_CHANGE_CONVERTER.toProto(message);
     assertEquals("level-1", proto.getLevelName());
     assertEquals("data", proto.getLevelData());
 
-    LevelChangeEvent roundTrip = ProtoConverter.fromProto(proto);
+    LevelChangeEvent roundTrip = LEVEL_CHANGE_CONVERTER.fromProto(proto);
     assertEquals("level-1", roundTrip.levelName());
     assertEquals("data", roundTrip.levelData());
   }
@@ -297,29 +331,38 @@ public class ProtoConverterS2CTest {
   public void testRegisterAckRoundTrip() {
     RegisterAck message = new RegisterAck(true);
 
-    core.network.proto.s2c.RegisterAck proto = ProtoConverter.toProto(message);
+    core.network.proto.s2c.RegisterAck proto = REGISTER_ACK_CONVERTER.toProto(message);
     assertTrue(proto.getOk());
 
-    RegisterAck roundTrip = ProtoConverter.fromProto(proto);
+    RegisterAck roundTrip = REGISTER_ACK_CONVERTER.fromProto(proto);
     assertTrue(roundTrip.ok());
   }
 
   /** Verifies sound play conversion roundtrip. */
   @Test
   public void testSoundPlayRoundTrip() {
-    SoundPlayMessage message =
-        new SoundPlayMessage(11L, 2, "torch", 0.5f, 1.1f, -0.2f, true, 10.0f, 0.9f);
+    SoundSpec soundSpec =
+        SoundSpec.builder("torch")
+            .instanceId(11L)
+            .volume(0.5f)
+            .pitch(1.1f)
+            .pan(-0.2f)
+            .looping(true)
+            .maxDistance(10.0f)
+            .attenuation(0.9f)
+            .build();
+    SoundPlayMessage message = new SoundPlayMessage(2, soundSpec);
 
-    core.network.proto.s2c.SoundPlayMessage proto = ProtoConverter.toProto(message);
-    assertEquals(11L, proto.getSoundInstanceId());
+    core.network.proto.s2c.SoundPlayMessage proto = SOUND_PLAY_CONVERTER.toProto(message);
     assertEquals(2, proto.getEntityId());
-    assertEquals("torch", proto.getSoundName());
+    assertEquals(11L, proto.getSpec().getInstanceId());
+    assertEquals("torch", proto.getSpec().getSoundName());
 
-    SoundPlayMessage roundTrip = ProtoConverter.fromProto(proto);
-    assertEquals(11L, roundTrip.soundInstanceId());
+    SoundPlayMessage roundTrip = SOUND_PLAY_CONVERTER.fromProto(proto);
     assertEquals(2, roundTrip.entityId());
-    assertEquals("torch", roundTrip.soundName());
-    assertEquals(0.5f, roundTrip.volume(), DELTA);
+    assertEquals(11L, roundTrip.soundSpec().instanceId());
+    assertEquals("torch", roundTrip.soundSpec().soundName());
+    assertEquals(0.5f, roundTrip.soundSpec().baseVolume(), DELTA);
   }
 
   /** Verifies sound stop conversion roundtrip. */
@@ -327,10 +370,10 @@ public class ProtoConverterS2CTest {
   public void testSoundStopRoundTrip() {
     SoundStopMessage message = new SoundStopMessage(55L);
 
-    core.network.proto.s2c.SoundStopMessage proto = ProtoConverter.toProto(message);
+    core.network.proto.s2c.SoundStopMessage proto = SOUND_STOP_CONVERTER.toProto(message);
     assertEquals(55L, proto.getSoundInstanceId());
 
-    SoundStopMessage roundTrip = ProtoConverter.fromProto(proto);
+    SoundStopMessage roundTrip = SOUND_STOP_CONVERTER.fromProto(proto);
     assertEquals(55L, roundTrip.soundInstanceId());
   }
 }
