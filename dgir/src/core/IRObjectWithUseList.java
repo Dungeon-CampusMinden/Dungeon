@@ -2,6 +2,8 @@ package core;
 
 import core.ir.Operand;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,7 +29,7 @@ public class IRObjectWithUseList<
   /**
    * All operands currently referencing this object.
    */
-  private final Set<OperandT> uses = new HashSet<>();
+  private final @NotNull Set<OperandT> uses = new HashSet<>();
 
   // =========================================================================
   // Constructors
@@ -46,13 +48,15 @@ public class IRObjectWithUseList<
    * @return The live use-set.
    */
   @JsonIgnore
-  public Set<OperandT> getUses() {
+  @Contract(pure = true)
+  public @NotNull Set<OperandT> getUses() {
     return uses;
   }
 
   /**
    * Return {@code true} if at least one operand references this object.
    */
+  @Contract(pure = true)
   public boolean hasUse() {
     return !uses.isEmpty();
   }
@@ -60,6 +64,7 @@ public class IRObjectWithUseList<
   /**
    * Return {@code true} if exactly one operand references this object.
    */
+  @Contract(pure = true)
   public boolean hasOneUse() {
     return uses.size() == 1;
   }
@@ -70,7 +75,7 @@ public class IRObjectWithUseList<
    *
    * @param newValue The replacement value. Must not be {@code this}.
    */
-  public void replaceAllUsesWith(DerivedValueT newValue) {
+  public void replaceAllUsesWith(@NotNull DerivedValueT newValue) {
     assert newValue != this : "Cannot replace all uses with self.";
     // Pre-add all uses to the new value's use-set so they are visible immediately
     newValue.getUses().addAll(uses);

@@ -5,6 +5,8 @@ import core.detail.AttributeDetails;
 import core.ir.Attribute;
 import core.ir.Type;
 import dialect.builtin.Builtin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class TypeAttribute extends Attribute {
 
@@ -19,10 +21,10 @@ public class TypeAttribute extends Attribute {
   // =========================================================================
 
   @Override
-  public AttributeDetails.Impl createImpl() {
+  public AttributeDetails.@NotNull Impl createImpl() {
     class TypeAttributeModel extends AttributeDetails.Impl {
       TypeAttributeModel() {
-        super(TypeAttribute.getIdent(), TypeAttribute.class, Dialect.get(Builtin.class));
+        super(TypeAttribute.getIdent(), TypeAttribute.class, Dialect.getOrThrow(Builtin.class));
       }
     }
     return new TypeAttributeModel();
@@ -58,7 +60,7 @@ public class TypeAttribute extends Attribute {
   // =========================================================================
 
   @Override
-  public Type getStorage() {
+  public @Nullable Object getStorage() {
     return type;
   }
 

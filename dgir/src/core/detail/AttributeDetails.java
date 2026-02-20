@@ -4,6 +4,11 @@ import core.ir.Attribute;
 import core.DGIRContext;
 import core.Dialect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Holds all basic information about an attribute kind and exposes it through a
@@ -15,11 +20,11 @@ public class AttributeDetails {
   // Static Factories
   // =========================================================================
 
-  public static AttributeDetails get(String ident) {
+  public static @NotNull AttributeDetails get(@NotNull String ident) {
     return new AttributeDetails(ident);
   }
 
-  public static AttributeDetails get(Class<? extends Attribute> clazz) {
+  public static @NotNull AttributeDetails get(@NotNull Class<? extends Attribute> clazz) {
     return new AttributeDetails(clazz);
   }
 
@@ -27,20 +32,20 @@ public class AttributeDetails {
   // Members
   // =========================================================================
 
-  private AttributeDetails.Impl impl = null;
+  private final @NotNull Impl impl;
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
-  protected AttributeDetails(AttributeDetails.Impl impl) {
+  protected AttributeDetails(@NotNull AttributeDetails.Impl impl) {
     this.impl = impl;
   }
 
   /**
    * Look up or create an {@link AttributeDetails} by ident string.
    */
-  public AttributeDetails(String ident) {
+  public AttributeDetails(@NotNull String ident) {
     // Try the registered registry first
     AttributeDetails registeredDetails = DGIRContext.registeredAttributesByIdent.get(ident);
     if (registeredDetails != null) {
@@ -55,8 +60,8 @@ public class AttributeDetails {
       return;
     }
 
-    unregisteredDetails = DGIRContext.attributesByIdent.put(ident,
-      new UnregisteredAttributeModel(ident, DGIRContext.getReferencedDialect(ident)));
+    unregisteredDetails = DGIRContext.attributesByIdent.computeIfAbsent(ident,
+      idnt -> new UnregisteredAttributeModel(idnt, DGIRContext.getReferencedDialect(idnt)));
     DGIRContext.attributes.put(Attribute.class, unregisteredDetails);
     impl = unregisteredDetails;
   }
@@ -64,7 +69,7 @@ public class AttributeDetails {
   /**
    * Look up or create an {@link AttributeDetails} by attribute class.
    */
-  public AttributeDetails(Class<? extends Attribute> clazz) {
+  public AttributeDetails(@NotNull Class<? extends Attribute> clazz) {
     // Try the registered registry first
     AttributeDetails registeredName = DGIRContext.registeredAttributes.get(clazz);
     if (registeredName != null) {
@@ -79,8 +84,8 @@ public class AttributeDetails {
       return;
     }
 
-    unregisteredName = DGIRContext.attributesByIdent.put(clazz.getName(),
-      new UnregisteredAttributeModel(clazz.getName(), null));
+    unregisteredName = DGIRContext.attributesByIdent.computeIfAbsent(clazz.getName(),
+      idnt -> new UnregisteredAttributeModel(clazz.getName(), null));
     DGIRContext.attributes.put(clazz, unregisteredName);
     impl = unregisteredName;
   }
@@ -90,21 +95,21 @@ public class AttributeDetails {
   // =========================================================================
 
   @JsonIgnore
-  public AttributeDetails.Impl getImpl() {
+  public @NotNull AttributeDetails.Impl getImpl() {
     return impl;
   }
 
-  public String getIdent() {
+  public @NotNull String getIdent() {
     return impl.getIdent();
   }
 
   @JsonIgnore
-  public Class<? extends Attribute> getType() {
+  public @NotNull Class<? extends Attribute> getType() {
     return impl.getType();
   }
 
   @JsonIgnore
-  public Dialect getDialect() {
+  public @NotNull Optional<Dialect> getDialect() {
     return impl.getDialect();
   }
 
@@ -113,7 +118,7 @@ public class AttributeDetails {
   // =========================================================================
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     return obj instanceof AttributeDetails other && this.impl == other.impl;
   }
 
@@ -133,26 +138,26 @@ public class AttributeDetails {
    */
   public abstract static class Impl {
 
-    protected String ident;
-    protected Class<? extends Attribute> type;
-    protected Dialect dialect;
+    protected @NotNull String ident;
+    protected @NotNull Class<? extends Attribute> type;
+    protected @Nullable Dialect dialect;
 
-    public Impl(String ident, Class<? extends Attribute> type, Dialect dialect) {
+    public Impl(@NotNull String ident, @NotNull Class<? extends Attribute> type, @Nullable Dialect dialect) {
       this.ident = ident;
       this.type = type;
       this.dialect = dialect;
     }
 
-    public String getIdent() {
+    public @NotNull String getIdent() {
       return ident;
     }
 
-    public Class<? extends Attribute> getType() {
+    public @NotNull Class<? extends Attribute> getType() {
       return type;
     }
 
-    public Dialect getDialect() {
-      return dialect;
+    public @NotNull Optional<Dialect> getDialect() {
+      return Optional.ofNullable(dialect);
     }
   }
 
@@ -164,7 +169,7 @@ public class AttributeDetails {
    * Placeholder used when an attribute ident is referenced before registration.
    */
   protected static final class UnregisteredAttributeModel extends AttributeDetails.Impl {
-    UnregisteredAttributeModel(String ident, Dialect dialect) {
+    UnregisteredAttributeModel(@NotNull String ident, @Nullable Dialect dialect) {
       super(ident, Attribute.class, dialect);
     }
   }

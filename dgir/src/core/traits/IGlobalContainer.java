@@ -3,13 +3,16 @@ package core.traits;
 import core.ir.Block;
 import core.ir.Operation;
 import core.ir.Region;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Marks an operation that can only contain global operations. This is used to mark the top-level container of a module,
  * which can only contain global operations.
  */
 public interface IGlobalContainer extends IOpTrait {
-  default boolean verify(IGlobalContainer op) {
+  @Contract(pure = true)
+  default boolean verify(@NotNull IGlobalContainer op) {
     // Ensure that all operations contained in the regions are global operations.
     for (Region region : op.get().getRegions()) {
       for (Block block : region.getBlocks()) {

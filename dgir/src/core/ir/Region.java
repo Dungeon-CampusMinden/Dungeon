@@ -3,6 +3,7 @@ package core.ir;
 import com.fasterxml.jackson.annotation.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.*;
@@ -49,7 +50,7 @@ public final class Region {
   private final @NotNull List<Value> bodyValues;
 
   @JsonIgnore
-  private final @NotNull Operation parent;
+  private final @Nullable Operation parent;
 
   // =========================================================================
   // Constructors
@@ -59,16 +60,16 @@ public final class Region {
     this(null, List.of());
   }
 
-  public Region(Operation parent) {
+  public Region(@Nullable Operation parent) {
     this(parent, List.of());
   }
 
-  public Region(Operation parent, List<Type> bodyValueTypes) {
+  public Region(@Nullable Operation parent, List<Type> bodyValueTypes) {
     this.parent = parent;
     this.bodyValues = initBodyValues(bodyValueTypes);
   }
 
-  private Region(List<Block> blocks, Operation parent, List<Value> bodyValues) {
+  private Region(@NotNull List<Block> blocks, @Nullable Operation parent, @Nullable List<Value> bodyValues) {
     this.parent = parent;
     this.bodyValues = new ArrayList<>(bodyValues == null ? List.of() : bodyValues);
     for (Block block : blocks)
@@ -79,8 +80,8 @@ public final class Region {
    * Deserialization factory — body values and blocks are wired up by Jackson.
    */
   @JsonCreator
-  public static Region createRegion(@JsonProperty(value = "bodyValues") List<Value> bodyValues,
-                                    @JsonProperty(value = "blocks") List<Block> blocks) {
+  public static Region createRegion(@JsonProperty(value = "bodyValues") @Nullable List<Value> bodyValues,
+                                    @JsonProperty(value = "blocks") @Nullable List<Block> blocks) {
     return new Region(blocks != null ? blocks : List.of(), null, bodyValues);
   }
 

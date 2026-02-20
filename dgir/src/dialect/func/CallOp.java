@@ -19,19 +19,19 @@ public class CallOp extends Op implements ISymbolUser {
   // =========================================================================
 
   @Override
-  public OperationDetails.Impl createDetails() {
+  public OperationDetails.@NotNull Impl createDetails() {
     class CallOpModel extends OperationDetails.Impl {
       CallOpModel() {
         super(
           CallOp.getIdent(),
           CallOp.class,
-          Dialect.get(Builtin.class),
+          Dialect.getOrThrow(Builtin.class),
           List.of(getCalleeAttributeName())
         );
       }
 
       @Override
-      public boolean verify(Operation operation) {
+      public boolean verify(@NotNull Operation operation) {
         CallOp callOp = operation.as(CallOp.class).orElseThrow();
 
         // Make sure that the callee function exists in the nearest symbol table
@@ -54,7 +54,7 @@ public class CallOp extends Op implements ISymbolUser {
       }
 
       @Override
-      public void populateDefaultAttrs(List<NamedAttribute> attributes) {
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
         attributes.get(0).setAttribute(new SymbolRefAttribute("foo"));
       }
     }

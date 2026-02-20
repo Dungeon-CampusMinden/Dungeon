@@ -7,7 +7,9 @@ import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;
 import core.traits.IZeroOrOneOperand;
 import dialect.builtin.Builtin;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,14 +21,14 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpe
   // =========================================================================
 
   @Override
-  public OperationDetails.Impl createDetails() {
+  public OperationDetails.@NotNull Impl createDetails() {
     class ReturnOpModel extends OperationDetails.Impl {
       ReturnOpModel() {
         super(ReturnOp.getIdent(), ReturnOp.class, DGIRContext.registeredDialects.get(Builtin.class), List.of());
       }
 
       @Override
-      public boolean verify(Operation operation) {
+      public boolean verify(@NotNull Operation operation) {
         ReturnOp returnOp = operation.as(ReturnOp.class).orElseThrow();
 
         // Ensure that the parent operation is a func.func op
@@ -57,7 +59,7 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpe
       }
 
       @Override
-      public void populateDefaultAttrs(List<NamedAttribute> attributes) {
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
       }
     }
     return new ReturnOpModel();
@@ -92,8 +94,9 @@ public class ReturnOp extends Op implements ITerminator, IZeroOrOneOperand, ISpe
   // Functions
   // =========================================================================
 
+  @Contract(pure = true)
   @Override
-  public List<Class<? extends Op>> getValidParentTypes() {
+  public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
     return List.of(FuncOp.class);
   }
 

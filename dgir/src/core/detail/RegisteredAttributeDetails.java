@@ -2,6 +2,7 @@ package core.detail;
 
 import core.DGIRContext;
 import core.ir.Attribute;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -22,7 +23,7 @@ public class RegisteredAttributeDetails extends AttributeDetails {
    *
    * @param attr The attribute instance to register.
    */
-  public static void insert(Attribute attr) {
+  public static void insert(@NotNull Attribute attr) {
     RegisteredAttributeDetails details;
     if (attr.getDetails() instanceof RegisteredAttributeDetails existing) {
       details = existing;
@@ -45,11 +46,11 @@ public class RegisteredAttributeDetails extends AttributeDetails {
   // Static Lookups
   // =========================================================================
 
-  public static Optional<RegisteredAttributeDetails> lookup(Class<? extends Attribute> clazz) {
+  public static @NotNull Optional<RegisteredAttributeDetails> lookup(@NotNull Class<? extends Attribute> clazz) {
     return Optional.ofNullable(DGIRContext.registeredAttributes.get(clazz));
   }
 
-  public static Optional<RegisteredAttributeDetails> lookup(String name) {
+  public static @NotNull Optional<RegisteredAttributeDetails> lookup(@NotNull String name) {
     return Optional.ofNullable(DGIRContext.registeredAttributesByIdent.get(name));
   }
 
@@ -57,7 +58,7 @@ public class RegisteredAttributeDetails extends AttributeDetails {
   // Constructors
   // =========================================================================
 
-  protected RegisteredAttributeDetails(AttributeDetails.Impl impl) {
+  protected RegisteredAttributeDetails(@NotNull Impl impl) {
     super(impl);
   }
 }

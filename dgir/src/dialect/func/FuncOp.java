@@ -9,6 +9,7 @@ import core.traits.*;
 import dialect.builtin.attributes.StringAttribute;
 import dialect.builtin.attributes.TypeAttribute;
 import dialect.func.types.FuncType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, 
   // =========================================================================
 
   @Override
-  public OperationDetails.Impl createDetails() {
+  public OperationDetails.@NotNull Impl createDetails() {
     class FuncOpModel extends OperationDetails.Impl {
       FuncOpModel() {
         super(FuncOp.getIdent(),
@@ -32,12 +33,12 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, 
       }
 
       @Override
-      public boolean verify(Operation operation) {
+      public boolean verify(@NotNull Operation operation) {
         return true;
       }
 
       @Override
-      public void populateDefaultAttrs(List<NamedAttribute> attributes) {
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
         attributes.get(0).setAttribute(new StringAttribute("foo"));
         attributes.get(1).setAttribute(new TypeAttribute(new FuncType()));
       }

@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
 
 import java.io.Serializable;
@@ -24,7 +26,7 @@ public abstract class Attribute implements Serializable {
   // Members
   // =========================================================================
 
-  private AttributeDetails details;
+  private @NotNull AttributeDetails details;
 
   // =========================================================================
   // Attribute Info
@@ -33,7 +35,7 @@ public abstract class Attribute implements Serializable {
   /**
    * Create and return the impl object that describes this attribute kind.
    */
-  public abstract AttributeDetails.Impl createImpl();
+  public abstract @NotNull AttributeDetails.Impl createImpl();
 
   // =========================================================================
   // Constructors
@@ -43,7 +45,7 @@ public abstract class Attribute implements Serializable {
     setDetails(AttributeDetails.get(getClass()));
   }
 
-  public Attribute(AttributeDetails details) {
+  public Attribute(@NotNull AttributeDetails details) {
     setDetails(details);
   }
 
@@ -52,11 +54,11 @@ public abstract class Attribute implements Serializable {
   // =========================================================================
 
   @JsonIgnore
-  public AttributeDetails getDetails() {
+  public @NotNull AttributeDetails getDetails() {
     return details;
   }
 
-  public void setDetails(AttributeDetails details) {
+  public void setDetails(@NotNull AttributeDetails details) {
     // Only subclasses of Attribute and RegisteredAttributeDetails may set the details
     assert Utils.Caller.getCallingClass().isAssignableFrom(Attribute.class)
       || Utils.Caller.getCallingClass().isAssignableFrom(RegisteredAttributeDetails.class)
@@ -65,7 +67,7 @@ public abstract class Attribute implements Serializable {
   }
 
   @JsonProperty("ident")
-  private String getIdent() {
+  private @NotNull String getIdent() {
     return details.getIdent();
   }
 
@@ -73,5 +75,5 @@ public abstract class Attribute implements Serializable {
    * Return the raw storage value of this attribute (used for serialization and display).
    */
   @JsonIgnore
-  public abstract Object getStorage();
+  public abstract @Nullable Object getStorage();
 }

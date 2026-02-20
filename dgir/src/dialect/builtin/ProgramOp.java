@@ -19,14 +19,14 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
   // =========================================================================
 
   @Override
-  public OperationDetails.Impl createDetails() {
+  public OperationDetails.@NotNull Impl createDetails() {
     class ProgramOpModel extends OperationDetails.Impl {
       ProgramOpModel(String name, Class<? extends Op> type, Dialect dialect, List<String> attributeNames) {
         super(name, type, dialect, attributeNames);
       }
 
       @Override
-      public boolean verify(Operation operation) {
+      public boolean verify(@NotNull Operation operation) {
         // Make sure that there is a toplevel func op with symbol_name "main"
         boolean hasMainFunc = false;
         Block block = operation.getRegions().getFirst().getBlocks().getFirst();
@@ -51,12 +51,12 @@ public class ProgramOp extends Op implements ISymbolTable, INoTerminator, IGloba
       }
 
       @Override
-      public void populateDefaultAttrs(List<NamedAttribute> attributes) {
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
 
       }
     }
 
-    return new ProgramOpModel(getIdent(), this.getClass(), Dialect.get(Builtin.class), List.of());
+    return new ProgramOpModel(getIdent(), this.getClass(), Dialect.getOrThrow(Builtin.class), List.of());
   }
 
   public static String getIdent() {

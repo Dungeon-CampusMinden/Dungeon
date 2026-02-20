@@ -3,6 +3,7 @@ package core.traits;
 import core.ir.Type;
 import core.ir.Value;
 import core.ir.ValueOperand;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -12,7 +13,8 @@ import java.util.Optional;
  * return a value.
  */
 public interface IZeroOrOneOperand extends IOpTrait {
-  default boolean verify(IZeroOrOneOperand op) {
+  @Contract(pure = true)
+  default boolean verify(@NotNull IZeroOrOneOperand op) {
     // Ensure that the operation only has one operator
     if (get().getOperands().size() > 1) {
       get().emitError("Operation must have at most one operand.");
@@ -27,6 +29,7 @@ public interface IZeroOrOneOperand extends IOpTrait {
    * @return The operand of the operation, if it exists.
    */
   @SuppressWarnings("OptionalMapToOptional")
+  @Contract(pure = true)
   default @NotNull Optional<Optional<Value>> getOperand() {
     if (get().getOperands().isEmpty()) return Optional.empty();
     return Optional.of(get().getOperand(0).flatMap(ValueOperand::getValue));
@@ -39,6 +42,7 @@ public interface IZeroOrOneOperand extends IOpTrait {
    * @return The type of the operand, if it exists.
    */
   @SuppressWarnings("OptionalMapToOptional")
+  @Contract(pure = true)
   default @NotNull Optional<Optional<@NotNull Type>> getOperandType() {
     return getOperand().map(value -> value.map(Value::getType));
   }

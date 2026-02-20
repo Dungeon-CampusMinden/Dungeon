@@ -7,6 +7,7 @@ import core.ir.Operation;
 import core.traits.IOpTrait;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -23,15 +24,15 @@ public class OperationDetails {
   // Static Factories
   // =========================================================================
 
-  public static OperationDetails get(String ident) {
+  public static @NotNull OperationDetails get(@NotNull String ident) {
     return new OperationDetails(ident);
   }
 
-  public static OperationDetails get(Class<? extends Op> clazz) {
+  public static @NotNull OperationDetails get(@NotNull Class<? extends Op> clazz) {
     return new OperationDetails(clazz);
   }
 
-  public static Optional<Constructor<? extends Op>> hasSpecificConstructor(Class<? extends Op> opClass, Class<?>... parameterTypes) {
+  public static @NotNull Optional<Constructor<? extends Op>> hasSpecificConstructor(@NotNull Class<? extends Op> opClass, @NotNull Class<?>... parameterTypes) {
     try {
       return Optional.of(opClass.getConstructor(Operation.class));
     } catch (NoSuchMethodException e) {
@@ -43,20 +44,20 @@ public class OperationDetails {
   // Members
   // =========================================================================
 
-  private Impl impl = null;
+  private final @NotNull Impl impl;
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
-  protected OperationDetails(Impl impl) {
+  protected OperationDetails(@NotNull Impl impl) {
     this.impl = impl;
   }
 
   /**
    * Look up or create an {@link OperationDetails} by ident string.
    */
-  public OperationDetails(String ident) {
+  public OperationDetails(@NotNull String ident) {
     // Try the registered registry first
     OperationDetails registeredDetails = DGIRContext.registeredOperationsByIdent.get(ident);
     if (registeredDetails != null) {
@@ -71,8 +72,8 @@ public class OperationDetails {
       return;
     }
 
-    unregisteredDetails = DGIRContext.operationsByIdent.put(ident,
-      new UnregisteredOp(ident, Op.class, DGIRContext.getReferencedDialect(ident), null));
+    unregisteredDetails = DGIRContext.operationsByIdent.computeIfAbsent(ident,
+      idnt -> new UnregisteredOp(idnt, Op.class, DGIRContext.getReferencedDialect(idnt), List.of()));
     DGIRContext.operations.put(Op.class, unregisteredDetails);
     impl = unregisteredDetails;
   }
@@ -80,7 +81,7 @@ public class OperationDetails {
   /**
    * Look up or create an {@link OperationDetails} by op class.
    */
-  public OperationDetails(Class<? extends Op> clazz) {
+  public OperationDetails(@NotNull Class<? extends Op> clazz) {
     // Try the registered registry first
     OperationDetails registeredName = DGIRContext.registeredOperations.get(clazz);
     if (registeredName != null) {
@@ -95,8 +96,8 @@ public class OperationDetails {
       return;
     }
 
-    unregisteredName = DGIRContext.operationsByIdent.put(clazz.getName(),
-      new UnregisteredOp(clazz.getName(), Op.class, null, List.of()));
+    unregisteredName = DGIRContext.operationsByIdent.computeIfAbsent(clazz.getName(),
+      idnt -> new UnregisteredOp(clazz.getName(), Op.class, null, List.of()));
     DGIRContext.operations.put(clazz, unregisteredName);
     impl = unregisteredName;
   }
@@ -106,7 +107,7 @@ public class OperationDetails {
   // =========================================================================
 
   @JsonIgnore
-  public Impl getImpl() {
+  public @NotNull Impl getImpl() {
     return impl;
   }
 
@@ -200,7 +201,7 @@ public class OperationDetails {
    * @param operation The operation to verify.
    * @return {@code true} if all trait verifiers pass.
    */
-  public boolean verifyTraits(Operation operation) {
+  public boolean verifyTraits(@NotNull Operation operation) {
     Op op = asOp(operation);
     for (Class<? extends IOpTrait> trait : getTraits()) {
       Method verifier = impl.getVerifier(trait);
@@ -221,7 +222,7 @@ public class OperationDetails {
   // Casting
   // =========================================================================
 
-  public Optional<RegisteredOperationDetails> asRegisteredDetails() {
+  public @NotNull Optional<RegisteredOperationDetails> asRegisteredDetails() {
     if (this instanceof RegisteredOperationDetails registeredDetails) {
       return Optional.of(registeredDetails);
     }
@@ -233,7 +234,7 @@ public class OperationDetails {
   // =========================================================================
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     return obj instanceof OperationDetails other && this.impl == other.impl;
   }
 
@@ -252,16 +253,16 @@ public class OperationDetails {
    */
   public abstract static class Impl {
 
-    protected final String ident;
-    protected final Class<? extends Op> type;
-    protected final Dialect dialect;
-    protected final List<String> attributeNames;
-    protected final Set<Class<? extends IOpTrait>> traits;
-    protected final Map<Class<? extends IOpTrait>, Method> traitVerifiers;
-    protected final Constructor<? extends Op> operationConstructor;
-    protected final Constructor<? extends Op> emptyConstructor;
+    protected final @NotNull String ident;
+    protected final @NotNull Class<? extends Op> type;
+    protected final @Nullable Dialect dialect;
+    protected final @NotNull List<String> attributeNames;
+    protected final @NotNull Set<Class<? extends IOpTrait>> traits;
+    protected final @NotNull Map<Class<? extends IOpTrait>, Method> traitVerifiers;
+    protected final @NotNull Constructor<? extends Op> operationConstructor;
+    protected final @NotNull Constructor<? extends Op> emptyConstructor;
 
-    public Impl(String ident, Class<? extends Op> type, Dialect dialect, List<String> attributeNames) {
+    public Impl(@NotNull String ident, @NotNull Class<? extends Op> type, @Nullable Dialect dialect, @NotNull List<String> attributeNames) {
       this.ident = ident;
       this.type = type;
       this.dialect = dialect;
@@ -285,41 +286,43 @@ public class OperationDetails {
         }
       }));
 
-      this.operationConstructor = hasSpecificConstructor(type, Operation.class).orElse(null);
-      this.emptyConstructor = hasSpecificConstructor(type).orElse(null);
-      assert operationConstructor != null && emptyConstructor != null
-        : "Op of type " + type + " must have a constructor that takes an Operation and an empty constructor.";
+      this.operationConstructor = hasSpecificConstructor(type, Operation.class)
+        .orElseThrow(() -> new RuntimeException(
+          "Op class " + type.getName() + " must have a constructor that takes an Operation."));
+      this.emptyConstructor = hasSpecificConstructor(type)
+        .orElseThrow(() -> new RuntimeException(
+          "Op class " + type.getName() + " must have an empty constructor."));
     }
 
-    public String getIdent() {
+    public @NotNull String getIdent() {
       return ident;
     }
 
-    public Class<? extends Op> getType() {
+    public @NotNull Class<? extends Op> getType() {
       return type;
     }
 
-    public Dialect getDialect() {
+    public @Nullable Dialect getDialect() {
       return dialect;
     }
 
-    public List<String> getAttributeNames() {
+    public @NotNull List<String> getAttributeNames() {
       return attributeNames;
     }
 
-    public Set<Class<? extends IOpTrait>> getTraits() {
+    public @NotNull Set<Class<? extends IOpTrait>> getTraits() {
       return traits;
     }
 
-    public boolean hasTrait(Class<? extends IOpTrait> traitClass) {
+    public boolean hasTrait(@NotNull Class<? extends IOpTrait> traitClass) {
       return traits.contains(traitClass);
     }
 
-    public Map<Class<? extends IOpTrait>, Method> getTraitVerifiers() {
+    public @NotNull Map<Class<? extends IOpTrait>, Method> getTraitVerifiers() {
       return traitVerifiers;
     }
 
-    public Method getVerifier(Class<? extends IOpTrait> traitClass) {
+    public Method getVerifier(@NotNull Class<? extends IOpTrait> traitClass) {
       return traitVerifiers.get(traitClass);
     }
 
@@ -330,9 +333,9 @@ public class OperationDetails {
      * @param operation The operation to verify.
      * @return {@code true} if the operation is valid.
      */
-    public abstract boolean verify(Operation operation);
+    public abstract boolean verify(@NotNull Operation operation);
 
-    public abstract void populateDefaultAttrs(List<NamedAttribute> attributes);
+    public abstract void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes);
   }
 
   // =========================================================================
@@ -344,20 +347,20 @@ public class OperationDetails {
    */
   protected static final class UnregisteredOp extends Impl {
 
-    UnregisteredOp(String ident, Class<? extends Op> clazz, Dialect dialect, List<String> attributeNames) {
-      super(ident, clazz, dialect, attributeNames == null ? Collections.emptyList() : Collections.unmodifiableList(attributeNames));
+    UnregisteredOp(@NotNull String ident, @NotNull Class<? extends Op> clazz, @Nullable Dialect dialect, @NotNull List<String> attributeNames) {
+      super(ident, clazz, dialect, attributeNames);
       System.out.println("Created new UnregisteredOp Details with ident " + ident + " and type " + clazz.getName());
     }
 
     @Override
-    public boolean verify(Operation operation) {
+    public boolean verify(@NotNull Operation operation) {
       // TODO: implement proper verification
       System.out.println("Missing verification for operation " + getIdent());
       return true;
     }
 
     @Override
-    public void populateDefaultAttrs(List<NamedAttribute> attributes) {
+    public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
     }
   }
 }

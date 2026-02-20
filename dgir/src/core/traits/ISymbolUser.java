@@ -2,9 +2,12 @@ package core.traits;
 
 import core.SymbolTable;
 import dialect.builtin.attributes.SymbolRefAttribute;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public interface ISymbolUser extends IOpTrait {
-  default boolean verify(ISymbolUser trait) {
+  @Contract(pure = true)
+  default boolean verify(@NotNull ISymbolUser trait) {
     var symbolName = trait.getSymbolRefAttribute().getValue();
     var symbolOp = SymbolTable.lookupSymbolInNearestTable(get(), symbolName);
     if (symbolOp.isEmpty()) {
@@ -14,5 +17,6 @@ public interface ISymbolUser extends IOpTrait {
     return true;
   }
 
-  SymbolRefAttribute getSymbolRefAttribute();
+  @Contract(pure = true)
+  @NotNull SymbolRefAttribute getSymbolRefAttribute();
 }

@@ -5,10 +5,11 @@ import core.detail.RegisteredOperationDetails;
 import core.ir.*;
 import core.traits.IIsolatedFromAbove;
 import core.traits.INoTerminator;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 
 /**
  * Validates the structural and semantic correctness of an {@link Operation} and,
@@ -53,7 +54,7 @@ public class OperationVerifier {
    * @param operation The operation to verify.
    * @return {@code true} if verification succeeds.
    */
-  public boolean verify(Operation operation) {
+  public boolean verify(@NotNull Operation operation) {
     if (!verifyOperation(operation))
       return false;
 
@@ -82,26 +83,36 @@ public class OperationVerifier {
    * @param operation The root operation.
    * @return {@code true} if every visited node passes verification.
    */
-  private boolean verifyOperation(Operation operation) {
+  private boolean verifyOperation(@NotNull Operation operation) {
 
     // Small union type to track whether the current item is a Block or an Operation
     class WorkItem {
-      final Operation op;
-      final Block block;
+      final @Nullable Operation op;
+      final @Nullable Block block;
       boolean visited;
 
-      WorkItem(Operation op) {
-        assert op != null : "Operation cannot be null.";
+      WorkItem(@NotNull Operation op) {
         this.op = op;
         this.block = null;
         this.visited = false;
       }
 
-      WorkItem(Block block) {
-        assert block != null : "Block cannot be null.";
+      WorkItem(@NotNull Block block) {
         this.op = null;
         this.block = block;
         this.visited = false;
+      }
+
+      boolean verifyOnExit() {
+        return op != null ?
+          OperationVerifier.this.verifyOnExit(op)
+          : OperationVerifier.this.verifyOnExit(Objects.requireNonNull(block));
+      }
+
+      boolean verifyOnEntry() {
+        return op != null ?
+          OperationVerifier.this.verifyOnEntry(op)
+          : OperationVerifier.this.verifyOnEntry(Objects.requireNonNull(block));
       }
     }
 
@@ -115,18 +126,14 @@ public class OperationVerifier {
 
       // ---- Second visit (exit) ----
       if (isExit) {
-        Function<WorkItem, Boolean> visitOnExit = item ->
-          item.op != null ? verifyOnExit(item.op) : verifyOnExit(item.block);
-        if (!visitOnExit.apply(top))
+        if (!top.verifyOnExit())
           return false;
         workList.removeLast();
         continue;
       }
 
       // ---- First visit (entry) ----
-      Function<WorkItem, Boolean> visitOnEntry = item ->
-        item.op != null ? verifyOnEntry(item.op) : verifyOnEntry(item.block);
-      if (!visitOnEntry.apply(top))
+      if (!top.verifyOnEntry())
         return false;
 
       // Enqueue children
@@ -141,10 +148,11 @@ public class OperationVerifier {
 
       // For operations: enqueue all blocks of all regions in reverse order so they are
       // processed in forward order when popped from the stack
-      if (recursive)
+      if (recursive && top.op != null) {
         for (Region region : top.op.getRegions().reversed())
           for (Block block : region.getBlocks().reversed())
             workList.add(new WorkItem(block));
+      }
     }
 
     return true;
@@ -154,7 +162,7 @@ public class OperationVerifier {
   // Entry / Exit Handlers
   // =========================================================================
 
-  private boolean verifyOnEntry(Operation operation) {
+  private boolean verifyOnEntry(@NotNull Operation operation) {
     // All operands must be non-null and have a non-null value
     for (ValueOperand operand : operation.getOperands()) {
       if (operand == null) {
@@ -213,7 +221,7 @@ public class OperationVerifier {
     return true;
   }
 
-  private boolean verifyOnExit(Operation op) {
+  boolean verifyOnExit(@NotNull Operation op) {
     // Collect and re-verify all isolated-from-above child operations in parallel
     List<Operation> isolatedOps = new ArrayList<>();
     if (recursive)
@@ -231,7 +239,7 @@ public class OperationVerifier {
     return !failed.get();
   }
 
-  private boolean verifyOnEntry(Block block) {
+  private boolean verifyOnEntry(@NotNull Block block) {
     if (block.getOperations().isEmpty()) {
       if (isValidWithoutTerminator(block))
         return true;
@@ -259,7 +267,7 @@ public class OperationVerifier {
     return true;
   }
 
-  private boolean verifyOnExit(Block block) {
+  boolean verifyOnExit(@NotNull Block block) {
     // All successors must belong to the same region as this block
     for (Block successor : block.getSuccessors()) {
       if (!successor.getParent().equals(block.getParent())) {
@@ -288,7 +296,7 @@ public class OperationVerifier {
    * This is the case when the block is the sole block in a region whose parent
    * operation carries the {@link INoTerminator} trait.
    */
-  private boolean isValidWithoutTerminator(Block block) {
+  private boolean isValidWithoutTerminator(@NotNull Block block) {
     return block.getParent()
       .map(parentRegion ->
         parentRegion.getBlocks().size() == 1

@@ -6,6 +6,7 @@ import core.ir.*;
 import core.traits.IControlFlow;
 import core.traits.ISingleRegion;
 import dialect.builtin.types.IntegerT;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -24,19 +25,19 @@ public class ForOp extends Op implements IControlFlow, ISingleRegion {
   // =========================================================================
 
   @Override
-  public OperationDetails.Impl createDetails() {
+  public OperationDetails.@NotNull Impl createDetails() {
     class ForOpDetails extends OperationDetails.Impl {
       ForOpDetails() {
-        super(ForOp.getIdent(), ForOp.class, Dialect.get(SCF.class), List.of());
+        super(ForOp.getIdent(), ForOp.class, Dialect.getOrThrow(SCF.class), List.of());
       }
 
       @Override
-      public boolean verify(Operation operation) {
+      public boolean verify(@NotNull Operation operation) {
         return true;
       }
 
       @Override
-      public void populateDefaultAttrs(List<NamedAttribute> attributes) {
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
       }
     }
     return new ForOpDetails();

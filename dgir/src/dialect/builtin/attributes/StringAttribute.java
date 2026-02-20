@@ -5,6 +5,8 @@ import core.detail.AttributeDetails;
 import core.ir.TypedAttribute;
 import dialect.builtin.Builtin;
 import dialect.builtin.types.StringT;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class StringAttribute extends TypedAttribute {
 
@@ -19,10 +21,10 @@ public class StringAttribute extends TypedAttribute {
   // =========================================================================
 
   @Override
-  public AttributeDetails.Impl createImpl() {
+  public AttributeDetails.@NotNull Impl createImpl() {
     class StringAttributeModel extends AttributeDetails.Impl {
       StringAttributeModel() {
-        super(StringAttribute.getIdent(), StringAttribute.class, Dialect.get(Builtin.class));
+        super(StringAttribute.getIdent(), StringAttribute.class, Dialect.getOrThrow(Builtin.class));
       }
     }
     return new StringAttributeModel();
@@ -60,7 +62,7 @@ public class StringAttribute extends TypedAttribute {
   // =========================================================================
 
   @Override
-  public String getStorage() {
+  public @Nullable Object getStorage() {
     return value;
   }
 

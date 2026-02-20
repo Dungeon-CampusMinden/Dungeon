@@ -2,9 +2,12 @@ package core.traits;
 
 import core.SymbolTable;
 import dialect.builtin.attributes.StringAttribute;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public interface ISymbol extends IOpTrait {
-  default boolean verify(ISymbol trait) {
+  @Contract(pure = true)
+  default boolean verify(@NotNull ISymbol trait) {
     if (!get().getAttributes().containsKey(SymbolTable.getSymbolAttributeName())) {
       get().emitError("Symbol must have a symbol attribute.");
       return false;
@@ -12,7 +15,8 @@ public interface ISymbol extends IOpTrait {
     return true;
   }
 
-  default String getSymbol() {
+  @Contract(pure = true)
+  default @NotNull String getSymbol() {
     return get()
       .getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName()).orElseThrow()
       .getValue();

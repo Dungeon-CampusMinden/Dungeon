@@ -6,6 +6,7 @@ import core.ir.NamedAttribute;
 import core.ir.Op;
 import core.ir.Operation;
 import core.ir.Value;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -16,14 +17,14 @@ public class PrintOp extends Op {
   // =========================================================================
 
   @Override
-  public OperationDetails.Impl createDetails() {
+  public OperationDetails.@NotNull Impl createDetails() {
     class PrintOpModel extends OperationDetails.Impl {
       PrintOpModel() {
-        super(PrintOp.getIdent(), PrintOp.class, Dialect.get(IO.class), List.of());
+        super(PrintOp.getIdent(), PrintOp.class, Dialect.getOrThrow(IO.class), List.of());
       }
 
       @Override
-      public boolean verify(Operation operation) {
+      public boolean verify(@NotNull Operation operation) {
         PrintOp printOp = operation.as(PrintOp.class).orElseThrow();
 
         // The print op needs to have at least one operand
@@ -35,7 +36,7 @@ public class PrintOp extends Op {
       }
 
       @Override
-      public void populateDefaultAttrs(List<NamedAttribute> attributes) {
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
       }
     }
     return new PrintOpModel();

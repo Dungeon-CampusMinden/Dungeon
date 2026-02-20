@@ -3,6 +3,8 @@ package core.analysis;
 import core.ir.Block;
 import core.ir.Operation;
 import core.ir.Region;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -12,7 +14,7 @@ public class DotCFG {
   private DotCFG() {
   }
 
-  public static Cluster buildCfgCluster(Operation root) {
+  public static @NotNull Cluster buildCfgCluster(@NotNull Operation root) {
     GraphBuilder builder = new GraphBuilder(root);
     builder.processOperation(root);
     return builder.getCfg();
@@ -25,52 +27,57 @@ public class DotCFG {
    * An empty cluster represents a region and can only contain other clusters.
    */
   public static class Cluster {
-    private final Operation owner;
-    private final Cluster parent;
-    private final List<Operation> operations = new ArrayList<>();
-    private final List<Cluster> children = new ArrayList<>();
+    private final @NotNull Operation owner;
+    private final @NotNull Cluster parent;
+    private final @NotNull List<Operation> operations = new ArrayList<>();
+    private final @NotNull List<Cluster> children = new ArrayList<>();
 
     public static Function<Operation, String> identGenerator =
       op -> op.getDetails().getIdent().replace(".", "_") + "_" + op.hashCode();
 
-    public Cluster(Operation owner, Cluster parent) {
+    public Cluster(@NotNull Operation owner) {
+      this.owner = owner;
+      this.parent = this; // The root cluster is its own parent
+    }
+
+    public Cluster(@NotNull Operation owner, @NotNull Cluster parent) {
       this.owner = owner;
       this.parent = parent;
     }
 
-    public List<Operation> getOperations() {
+    public @NotNull List<Operation> getOperations() {
       return operations;
     }
 
-    public void addOperation(Operation op) {
+    public void addOperation(@NotNull Operation op) {
       operations.add(op);
     }
 
-    public List<Cluster> getChildren() {
+    public @NotNull List<Cluster> getChildren() {
       return children;
     }
 
-    public Cluster addChild(Cluster child) {
+    public @NotNull Cluster addChild(@NotNull Cluster child) {
       children.add(child);
       return child;
     }
 
-    public Operation getOwner() {
+    public @NotNull Operation getOwner() {
       return owner;
     }
 
-    public Cluster getParent() {
+    public @NotNull Cluster getParent() {
       return parent;
     }
 
-    public static String padLeftMultiline(String s, int level) {
+    public static @NotNull String padLeftMultiline(@NotNull String s, int level) {
       return Arrays.stream(s.split("\n", -1))
         .map(line -> "\t".repeat(line.isEmpty() ? 0 : level) + line)
         .collect(Collectors.joining("\n"));
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
       return toString(-1);
     }
 
@@ -79,7 +86,7 @@ public class DotCFG {
      *
      * @return A dot graph representation of this cluster and its children.
      */
-    public String toString(int clusterIndex) {
+    public @NotNull String toString(int clusterIndex) {
       // The dot graph representation of this cluster
       StringBuilder maskedDotGraph = new StringBuilder();
       maskedDotGraph.append(clusterIndex == -1 ? "digraph cfg" : "subgraph cluster_" + clusterIndex).append(" {\n");
@@ -124,10 +131,8 @@ public class DotCFG {
       // Add edges from all operations in this cluster to their child regions entry block first operation
       for (Operation op : operations) {
         for (Region region : op.getRegions()) {
-          if (region.getEntryBlock() != null) {
-            Operation entryOp = region.getEntryBlock().getOperations().getFirst();
-            bodyBuilder.append(identGenerator.apply(op)).append(" -> ").append(identGenerator.apply(entryOp)).append(";\n");
-          }
+          Operation entryOp = region.getEntryBlock().getOperations().getFirst();
+          bodyBuilder.append(identGenerator.apply(op)).append(" -> ").append(identGenerator.apply(entryOp)).append(";\n");
         }
       }
 
@@ -149,16 +154,16 @@ public class DotCFG {
   }
 
   private static class GraphBuilder {
-    private final Cluster rootCluster;
+    private final @NotNull Cluster rootCluster;
 
-    private Cluster currentCluster;
+    private @NotNull Cluster currentCluster;
 
-    GraphBuilder(Operation root) {
-      rootCluster = new Cluster(root, null);
+    GraphBuilder(@NotNull Operation root) {
+      rootCluster = new Cluster(root);
       currentCluster = rootCluster;
     }
 
-    Cluster getCfg() {
+    @NotNull Cluster getCfg() {
       return rootCluster;
     }
 
@@ -167,7 +172,7 @@ public class DotCFG {
      *
      * @param op The operation to process
      */
-    void processOperation(Operation op) {
+    void processOperation(@NotNull Operation op) {
       currentCluster.addOperation(op);
 
       // If there are no regions in this operation end the generation here
@@ -178,7 +183,7 @@ public class DotCFG {
       }
     }
 
-    private void processRegion(Region region) {
+    private void processRegion(@NotNull Region region) {
       // Open a new cluster for the region
       currentCluster = currentCluster.addChild(new Cluster(region.getParent(), currentCluster));
       for (Block block : region.getBlocks()) {
@@ -188,7 +193,7 @@ public class DotCFG {
       currentCluster = currentCluster.getParent();
     }
 
-    private void processBlock(Block block) {
+    private void processBlock(@NotNull Block block) {
       // Open a new cluster for the block
       currentCluster = currentCluster.addChild(new Cluster(currentCluster.owner, currentCluster));
       for (Operation op : block.getOperations()) {

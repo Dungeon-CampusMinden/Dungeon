@@ -2,6 +2,7 @@ package core.analysis;
 
 import core.ir.*;
 import core.traits.IIsolatedFromAbove;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -14,7 +15,8 @@ public final class ReachingDefinitions {
   /**
    * A missing-definition diagnostic.
    */
-  public record MissingDefinition(Operation operation, ValueOperand operand, String message) {
+  public record MissingDefinition(@NotNull Operation operation, @NotNull ValueOperand operand,
+                                  @NotNull String message) {
   }
 
   private ReachingDefinitions() {
@@ -32,8 +34,7 @@ public final class ReachingDefinitions {
    * </ul>
    * The result is a list of diagnostics for operands that are used before being definitely defined.
    */
-  public static List<MissingDefinition> validate(Operation root) {
-    assert root != null : "root operation cannot be null";
+  public static @NotNull List<MissingDefinition> validate(@NotNull Operation root) {
     List<MissingDefinition> problems = new ArrayList<>();
     for (Region region : root.getRegions()) {
       // Each region starts with seeds derived from the owning operation (operands) and its own body values plus parent facts if allowed.
@@ -47,7 +48,7 @@ public final class ReachingDefinitions {
    *
    * @param incoming seed definitions visible at the region entry (e.g., block args or enclosing defs)
    */
-  private static void analyzeRegion(Region region, Set<Value> incoming, List<MissingDefinition> problems) {
+  private static void analyzeRegion(@NotNull Region region, @NotNull Set<Value> incoming, @NotNull List<MissingDefinition> problems) {
     // If the region is empty, there's nothing to analyze.
     List<Block> blocks = region.getBlocks();
     if (blocks.isEmpty()) {
@@ -132,11 +133,11 @@ public final class ReachingDefinitions {
    * @param entryBlock  The entry block of the region.
    * @return The IN set for the block.
    */
-  private static Set<Value> computeIn(Block block,
-                                      Map<Block, Set<Block>> preds,
-                                      Map<Block, Set<Value>> out,
-                                      Set<Value> entryValues,
-                                      Block entryBlock) {
+  private static @NotNull Set<Value> computeIn(@NotNull Block block,
+                                               @NotNull Map<Block, Set<Block>> preds,
+                                               @NotNull Map<Block, Set<Value>> out,
+                                               @NotNull Set<Value> entryValues,
+                                               @NotNull Block entryBlock) {
     // The predecessors of this block.
     Set<Block> predBlocks = preds.getOrDefault(block, Set.of());
     if (predBlocks.isEmpty()) {
@@ -165,7 +166,7 @@ public final class ReachingDefinitions {
    * @param blocks The blocks to analyze.
    * @return A map from each block to its predecessors.
    */
-  private static Map<Block, Set<Block>> getPredecessors(List<Block> blocks) {
+  private static @NotNull Map<Block, Set<Block>> getPredecessors(@NotNull List<Block> blocks) {
     // Use the use list of each block to find its predecessors.
     Map<Block, Set<Block>> preds = new HashMap<>();
     for (Block block : blocks) {
@@ -184,7 +185,7 @@ public final class ReachingDefinitions {
    * @param block The block to analyze.
    * @return The GEN set for the block.
    */
-  private static Set<Value> gen(Block block) {
+  private static @NotNull Set<Value> gen(@NotNull Block block) {
     Set<Value> defs = new HashSet<>();
     for (Operation op : block.getOperations()) {
       op.getOutputValue().ifPresent(defs::add);
@@ -197,7 +198,7 @@ public final class ReachingDefinitions {
    * Seed facts when entering a region of an operation: include the operation operands, the region's body values, and
    * optionally the parent state if the operation is not isolated-from-above.
    */
-  private static Set<Value> seedForRegion(Operation op, Region region, Set<Value> parentState) {
+  private static @NotNull Set<Value> seedForRegion(@NotNull Operation op, @NotNull Region region, @NotNull Set<Value> parentState) {
     Set<Value> seed = new HashSet<>();
     op.getOperands()
       .forEach(o -> seed.add(

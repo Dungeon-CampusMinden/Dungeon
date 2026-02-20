@@ -7,6 +7,7 @@ import core.traits.ISingleOperand;
 import dialect.builtin.attributes.IntegerAttribute;
 import dialect.builtin.attributes.StringAttribute;
 import dialect.builtin.types.IntegerT;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -17,19 +18,19 @@ public class ConstantOp extends Op implements ISingleOperand {
   // =========================================================================
 
   @Override
-  public OperationDetails.Impl createDetails() {
+  public OperationDetails.@NotNull Impl createDetails() {
     class ConstantOpModel extends OperationDetails.Impl {
       ConstantOpModel() {
-        super(ConstantOp.getIdent(), ConstantOp.class, Dialect.get(Arith.class), List.of("value"));
+        super(ConstantOp.getIdent(), ConstantOp.class, Dialect.getOrThrow(Arith.class), List.of("value"));
       }
 
       @Override
-      public boolean verify(Operation operation) {
+      public boolean verify(@NotNull Operation operation) {
         return true;
       }
 
       @Override
-      public void populateDefaultAttrs(List<NamedAttribute> attributes) {
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
       }
     }
     return new ConstantOpModel();

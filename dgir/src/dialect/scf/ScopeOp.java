@@ -7,6 +7,7 @@ import core.ir.Op;
 import core.ir.Operation;
 import core.traits.IControlFlow;
 import core.traits.ISingleRegion;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -20,19 +21,19 @@ public class ScopeOp extends Op implements ISingleRegion, IControlFlow {
   // =========================================================================
 
   @Override
-  public OperationDetails.Impl createDetails() {
+  public OperationDetails.@NotNull Impl createDetails() {
     class ScopeOpDetails extends OperationDetails.Impl {
       ScopeOpDetails() {
-        super(ScopeOp.getIdent(), ScopeOp.class, Dialect.get(SCF.class), List.of());
+        super(ScopeOp.getIdent(), ScopeOp.class, Dialect.getOrThrow(SCF.class), List.of());
       }
 
       @Override
-      public boolean verify(Operation operation) {
+      public boolean verify(@NotNull Operation operation) {
         return true;
       }
 
       @Override
-      public void populateDefaultAttrs(List<NamedAttribute> attributes) {
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
       }
     }
     return new ScopeOpDetails();

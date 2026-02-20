@@ -4,6 +4,8 @@ import core.*;
 import core.detail.TypeDetails;
 import core.ir.Type;
 import dialect.func.Func;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,14 +23,14 @@ public class FuncType extends Type {
   // =========================================================================
 
   @Override
-  public TypeDetails.Impl createImpl() {
+  public TypeDetails.@NotNull Impl createImpl() {
     class FuncTypeModel extends TypeDetails.Impl {
       FuncTypeModel() {
-        super(INSTANCE, FuncType.getIdent(), FuncType.class, Dialect.get(Func.class));
+        super(INSTANCE, FuncType.getIdent(), FuncType.class, Dialect.getOrThrow(Func.class));
       }
 
       @Override
-      public String getParameterizedIdent(Type type) {
+      public @NotNull String getParameterizedIdent(@NotNull Type type) {
         assert type instanceof FuncType : "Expected FuncType, got " + type.getClass().getSimpleName();
         var funcType = (FuncType) type;
         return FuncType.getIdent() + "<("
@@ -39,7 +41,7 @@ public class FuncType extends Type {
       }
 
       @Override
-      public Type fromParameterizedIdent(String parameterizedIdent) {
+      public @NotNull Type fromParameterizedIdent(@NotNull String parameterizedIdent) {
         String[] parts = getStrings(parameterizedIdent);
         String inputsPart = parts[0].trim();
         String outputPart = parts[1].trim();
@@ -113,7 +115,7 @@ public class FuncType extends Type {
   }
 
   @Override
-  public boolean validate(Object value) {
+  public boolean validate(@Nullable Object value) {
     return value instanceof FuncType;
   }
 }

@@ -2,6 +2,7 @@ package core.detail;
 
 import core.DGIRContext;
 import core.ir.Type;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -22,7 +23,7 @@ public class RegisteredTypeDetails extends TypeDetails {
    *
    * @param type The type instance to register.
    */
-  public static void insert(Type type) {
+  public static void insert(@NotNull Type type) {
     RegisteredTypeDetails details;
     if (type.getDetails() instanceof RegisteredTypeDetails existing) {
       details = existing;
@@ -45,11 +46,11 @@ public class RegisteredTypeDetails extends TypeDetails {
   // Static Lookups
   // =========================================================================
 
-  public static Optional<RegisteredTypeDetails> lookup(Class<? extends Type> clazz) {
+  public static @NotNull Optional<RegisteredTypeDetails> lookup(@NotNull Class<? extends Type> clazz) {
     return Optional.ofNullable(DGIRContext.registeredTypes.get(clazz));
   }
 
-  public static Optional<RegisteredTypeDetails> lookup(String name) {
+  public static @NotNull Optional<RegisteredTypeDetails> lookup(@NotNull String name) {
     return Optional.ofNullable(DGIRContext.registeredTypesByIdent.get(name));
   }
 
@@ -57,7 +58,7 @@ public class RegisteredTypeDetails extends TypeDetails {
   // Constructors
   // =========================================================================
 
-  protected RegisteredTypeDetails(TypeDetails.Impl impl) {
+  protected RegisteredTypeDetails(@NotNull Impl impl) {
     super(impl);
   }
 }

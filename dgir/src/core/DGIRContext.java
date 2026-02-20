@@ -4,9 +4,12 @@ import core.detail.*;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Global registry for all dialects, operations, types, and attributes known to the DGIR.
@@ -22,37 +25,37 @@ public class DGIRContext {
   // =========================================================================
 
   /** Unregistered cache: class → impl (ident and class are unreliable until registered). */
-  public static final Map<Class<? extends Op>, OperationDetails.Impl> operations = new HashMap<>();
+  public static final @NotNull Map<Class<? extends Op>, OperationDetails.Impl> operations = new HashMap<>();
   /** Unregistered cache: ident → impl. */
-  public static final Map<String, OperationDetails.Impl> operationsByIdent = new HashMap<>();
+  public static final @NotNull Map<String, OperationDetails.Impl> operationsByIdent = new HashMap<>();
 
   /** Registered operations by class. */
-  public static final Map<Class<? extends Op>, RegisteredOperationDetails> registeredOperations = new HashMap<>();
+  public static final @NotNull Map<Class<? extends Op>, RegisteredOperationDetails> registeredOperations = new HashMap<>();
   /** Registered operations by ident. */
-  public static final Map<String, RegisteredOperationDetails> registeredOperationsByIdent = new HashMap<>();
+  public static final @NotNull Map<String, RegisteredOperationDetails> registeredOperationsByIdent = new HashMap<>();
 
   // =========================================================================
   // Attributes
   // =========================================================================
 
   /** Unregistered cache: class → impl. */
-  public static final Map<Class<? extends Attribute>, AttributeDetails.Impl> attributes = new HashMap<>();
+  public static final @NotNull Map<Class<? extends Attribute>, AttributeDetails.Impl> attributes = new HashMap<>();
   /** Unregistered cache: ident → impl. */
-  public static final Map<String, AttributeDetails.Impl> attributesByIdent = new HashMap<>();
+  public static final @NotNull Map<String, AttributeDetails.Impl> attributesByIdent = new HashMap<>();
 
   /** Registered attributes by class. */
-  public static final Map<Class<? extends Attribute>, RegisteredAttributeDetails> registeredAttributes = new HashMap<>();
+  public static final @NotNull Map<Class<? extends Attribute>, RegisteredAttributeDetails> registeredAttributes = new HashMap<>();
   /** Registered attributes by ident. */
-  public static final Map<String, RegisteredAttributeDetails> registeredAttributesByIdent = new HashMap<>();
+  public static final @NotNull Map<String, RegisteredAttributeDetails> registeredAttributesByIdent = new HashMap<>();
 
   // =========================================================================
   // Types
   // =========================================================================
 
   /** Unregistered cache: class → impl. */
-  public static final Map<Class<? extends Type>, TypeDetails.Impl> types = new HashMap<>();
+  public static final @NotNull Map<Class<? extends Type>, TypeDetails.Impl> types = new HashMap<>();
   /** Unregistered cache: ident → impl. */
-  public static final Map<String, TypeDetails.Impl> typesByIdent = new HashMap<>();
+  public static final @NotNull Map<String, TypeDetails.Impl> typesByIdent = new HashMap<>();
 
   /** Registered types by class. */
   public static final Map<Class<? extends Type>, RegisteredTypeDetails> registeredTypes = new HashMap<>();
@@ -82,7 +85,7 @@ public class DGIRContext {
    * @param name The ident string to resolve (e.g. {@code "arith.constant"} or {@code "int32"}).
    * @return The owning {@link Dialect}, or the builtin dialect as a fallback.
    */
-  public static Dialect getReferencedDialect(String name) {
+  public static @NotNull Dialect getReferencedDialect(@NotNull String name) {
     var i = name.indexOf('.');
     if (i >= 0) {
       var namespace = name.substring(0, i);
@@ -91,6 +94,6 @@ public class DGIRContext {
         return dialect;
       }
     }
-    return registeredDialectsByName.get("");
+    return Objects.requireNonNull(registeredDialectsByName.get(""));
   }
 }

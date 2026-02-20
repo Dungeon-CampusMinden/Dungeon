@@ -2,6 +2,9 @@ package core.traits;
 
 import core.ir.Op;
 import core.ir.Operation;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,7 +13,8 @@ import java.util.Optional;
  * This trait describes an operation that can only have a specific list of parent operation types.
  */
 public interface ISpecificParentOp extends IOpTrait {
-  default boolean verify(ISpecificParentOp trait) {
+  @Contract(pure = true)
+  default boolean verify(@NotNull ISpecificParentOp trait) {
     Operation operation = get();
     Optional<Operation> parentOp = operation.getParentOperation();
     if (parentOp.isEmpty()) {
@@ -29,5 +33,6 @@ public interface ISpecificParentOp extends IOpTrait {
     return false;
   }
 
-  List<Class<? extends Op>> getValidParentTypes();
+  @Contract(pure = true)
+  @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes();
 }

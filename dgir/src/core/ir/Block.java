@@ -98,7 +98,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   }
 
   @JsonIgnore
-  public Optional<Operation> getTerminator() {
+  public @NotNull Optional<Operation> getTerminator() {
     if (operations.isEmpty() || !operations.getLast().hasTrait(ITerminator.class))
       return Optional.empty();
     return Optional.of(operations.getLast());

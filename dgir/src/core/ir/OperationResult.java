@@ -1,6 +1,7 @@
 package core.ir;
 
 import com.fasterxml.jackson.annotation.*;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The single result value produced by an {@link Operation}.
@@ -14,22 +15,21 @@ public class OperationResult {
 
   @JsonIdentityReference(alwaysAsId = false)
   @JsonValue
-  private Value value;
+  private @NotNull Value value;
 
   @JsonIgnore
-  private final Operation parent;
+  private final @NotNull Operation parent;
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
-  public OperationResult(Operation parent, Value value) {
+  public OperationResult(@NotNull Operation parent, @NotNull Value value) {
     this.parent = parent;
-    assert value != null : "Cannot set null value as result";
     this.value = value;
   }
 
-  public OperationResult(Operation parent, Type type) {
+  public OperationResult(@NotNull Operation parent, @NotNull Type type) {
     this.parent = parent;
     this.value = new Value(type);
   }
@@ -38,22 +38,21 @@ public class OperationResult {
   // Functions
   // =========================================================================
 
-  public Value getValue() {
+  public @NotNull Value getValue() {
     return value;
   }
 
-  public void setValue(Value value) {
-    assert value != null : "Cannot set null value as result";
+  public void setValue(@NotNull Value value) {;
     assert value.getType().equals(this.value.getType())
       : "Type mismatch while setting result value: " + value.getType() + " != " + this.value.getType();
     this.value = value;
   }
 
-  public Type getType() {
+  public @NotNull Type getType() {
     return value.getType();
   }
 
-  public Operation getParent() {
+  public @NotNull Operation getParent() {
     return parent;
   }
 }

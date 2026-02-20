@@ -4,6 +4,8 @@ import core.Dialect;
 import core.ir.Type;
 import core.detail.TypeDetails;
 import dialect.builtin.Builtin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class StringT extends Type {
 
@@ -18,10 +20,10 @@ public class StringT extends Type {
   // =========================================================================
 
   @Override
-  public TypeDetails.Impl createImpl() {
+  public TypeDetails.@NotNull Impl createImpl() {
     class StringTModel extends TypeDetails.Impl {
       StringTModel() {
-        super(INSTANCE, StringT.getIdent(), StringT.class, Dialect.get(Builtin.class));
+        super(INSTANCE, StringT.getIdent(), StringT.class, Dialect.getOrThrow(Builtin.class));
       }
     }
     return new StringTModel();
@@ -47,7 +49,7 @@ public class StringT extends Type {
   // =========================================================================
 
   @Override
-  public boolean validate(Object value) {
+  public boolean validate(@Nullable Object value) {
     return value instanceof String;
   }
 }

@@ -2,11 +2,12 @@ package core.traits;
 
 import core.ir.Block;
 import core.ir.Operation;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 public interface ITerminator extends IOpTrait {
-  default boolean verify(ITerminator trait) {
+  default boolean verify(@NotNull ITerminator trait) {
     // Make sure the terminator is the last operation in the region.
     Optional<Block> block = get().getParent();
     Operation self = get();

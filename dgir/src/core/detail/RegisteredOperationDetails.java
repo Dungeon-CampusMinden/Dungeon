@@ -2,6 +2,7 @@ package core.detail;
 
 import core.DGIRContext;
 import core.ir.Op;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -22,7 +23,7 @@ public class RegisteredOperationDetails extends OperationDetails {
    *
    * @param op The op instance to register.
    */
-  public static void insert(Op op) {
+  public static void insert(@NotNull Op op) {
     RegisteredOperationDetails details;
     if (op.getOperationOrNull() != null
       && op.getDetails() instanceof RegisteredOperationDetails existing) {
@@ -44,11 +45,11 @@ public class RegisteredOperationDetails extends OperationDetails {
   // Static Lookups
   // =========================================================================
 
-  public static Optional<RegisteredOperationDetails> lookup(Class<? extends Op> clazz) {
+  public static @NotNull Optional<RegisteredOperationDetails> lookup(@NotNull Class<? extends Op> clazz) {
     return Optional.ofNullable(DGIRContext.registeredOperations.get(clazz));
   }
 
-  public static Optional<RegisteredOperationDetails> lookup(String name) {
+  public static @NotNull Optional<RegisteredOperationDetails> lookup(@NotNull String name) {
     return Optional.ofNullable(DGIRContext.registeredOperationsByIdent.get(name));
   }
 
@@ -56,7 +57,7 @@ public class RegisteredOperationDetails extends OperationDetails {
   // Constructors
   // =========================================================================
 
-  protected RegisteredOperationDetails(Impl impl) {
+  protected RegisteredOperationDetails(@NotNull Impl impl) {
     super(impl);
   }
 }

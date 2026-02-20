@@ -4,6 +4,8 @@ import core.Dialect;
 import core.ir.Type;
 import core.detail.TypeDetails;
 import dialect.builtin.Builtin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class IntegerT extends Type {
 
@@ -23,10 +25,10 @@ public class IntegerT extends Type {
   // =========================================================================
 
   @Override
-  public TypeDetails.Impl createImpl() {
+  public TypeDetails.@NotNull Impl createImpl() {
     class IntegerTModel extends TypeDetails.Impl {
       IntegerTModel(Type defaultInstance, String name) {
-        super(defaultInstance, name, IntegerT.class, Dialect.get(Builtin.class));
+        super(defaultInstance, name, IntegerT.class, Dialect.getOrThrow(Builtin.class));
       }
     }
     return new IntegerTModel(this, getIdent() + getWidth());
@@ -68,7 +70,7 @@ public class IntegerT extends Type {
   }
 
   @Override
-  public boolean validate(Object value) {
+  public boolean validate(@Nullable Object value) {
     if (!(value instanceof Number number))
       return false;
 

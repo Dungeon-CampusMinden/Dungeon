@@ -12,8 +12,11 @@ import dialect.cf.CF;
 import dialect.func.Func;
 import dialect.io.IO;
 import dialect.scf.SCF;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Base class for all DGIR dialects.
@@ -32,22 +35,22 @@ public abstract class Dialect {
   /**
    * The namespace prefix used in operation/type idents (e.g. {@code "arith"}, {@code "func"}).
    */
-  public abstract String getNamespace();
+  public abstract @NotNull String getNamespace();
 
   /**
    * All operation prototypes contributed by this dialect.
    */
-  public abstract List<Op> allOps();
+  public abstract @NotNull @Unmodifiable List<Op> allOps();
 
   /**
    * All type prototypes contributed by this dialect.
    */
-  public abstract List<Type> allTypes();
+  public abstract @NotNull @Unmodifiable List<Type> allTypes();
 
   /**
    * All attribute prototypes contributed by this dialect.
    */
-  public abstract List<Attribute> allAttributes();
+  public abstract @NotNull @Unmodifiable List<Attribute> allAttributes();
 
   // =========================================================================
   // Registration
@@ -79,14 +82,25 @@ public abstract class Dialect {
   // =========================================================================
 
   /**
-   * Look up a registered dialect by class.
+   * Look up a registered dialect by its class.
    *
-   * @param dialectClass The dialect class to look up.
-   * @return The registered dialect instance.
+   * @param dialectClass The class of the dialect to look up (e.g. {@code Arith.class} or {@code Func.class}).
+   * @return An optional containing the registered dialect, or empty if no such dialect is registered.
    */
-  public static Dialect get(Class<? extends Dialect> dialectClass) {
-    return DGIRContext.registeredDialects.get(dialectClass);
+  public static @NotNull Optional<Dialect> get(@NotNull Class<? extends Dialect> dialectClass) {
+    return Optional.ofNullable(DGIRContext.registeredDialects.get(dialectClass));
   }
+
+  /**
+   * Look up a registered dialect by its class, throwing an exception if no such dialect is registered.
+   *
+   * @param dialectClass The class of the dialect to look up (e.g. {@code Arith.class} or {@code Func.class}).
+   * @return The registered dialect.
+   */
+  public static @NotNull Dialect getOrThrow(@NotNull Class<? extends Dialect> dialectClass) {
+    return get(dialectClass).orElseThrow(() -> new IllegalArgumentException("Dialect not registered: " + dialectClass.getSimpleName()));
+  }
+
 
   /**
    * Register all built-in dialects in dependency order.

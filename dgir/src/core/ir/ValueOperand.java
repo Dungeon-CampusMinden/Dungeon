@@ -1,6 +1,7 @@
 package core.ir;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -13,7 +14,7 @@ public final class ValueOperand extends Operand<Value, ValueOperand> {
   // Constructors
   // =========================================================================
 
-  public ValueOperand(Operation owner, Value value) {
+  public ValueOperand(@NotNull Operation owner, @NotNull Value value) {
     super(owner, value);
   }
 
@@ -22,7 +23,7 @@ public final class ValueOperand extends Operand<Value, ValueOperand> {
   // =========================================================================
 
   @JsonIgnore
-  public Optional<Type> getType() {
+  public @NotNull Optional<Type> getType() {
     return getValue().map(Value::getType);
   }
 }

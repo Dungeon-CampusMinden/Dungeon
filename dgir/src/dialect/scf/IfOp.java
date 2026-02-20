@@ -4,6 +4,7 @@ import core.Dialect;
 import core.detail.OperationDetails;
 import core.ir.*;
 import core.traits.IControlFlow;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,19 +20,19 @@ public class IfOp extends Op implements IControlFlow {
   // =========================================================================
 
   @Override
-  public OperationDetails.Impl createDetails() {
+  public OperationDetails.@NotNull Impl createDetails() {
     class IfOpDetails extends OperationDetails.Impl {
       IfOpDetails() {
-        super(IfOp.getIdent(), IfOp.class, Dialect.get(SCF.class), List.of());
+        super(IfOp.getIdent(), IfOp.class, Dialect.getOrThrow(SCF.class), List.of());
       }
 
       @Override
-      public boolean verify(Operation operation) {
+      public boolean verify(@NotNull Operation operation) {
         return true;
       }
 
       @Override
-      public void populateDefaultAttrs(List<NamedAttribute> attributes) {
+      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
       }
     }
     return new IfOpDetails();

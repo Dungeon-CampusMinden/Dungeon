@@ -6,6 +6,9 @@ import core.ir.Op;
 import core.ir.Operation;
 import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
 
@@ -19,19 +22,19 @@ public class ContinueOp extends Op implements ITerminator, ISpecificParentOp {
   // =========================================================================
 
   @Override
-  public OperationDetails.Impl createDetails() {
+  public OperationDetails.@NotNull Impl createDetails() {
     class ContinueOpDetails extends OperationDetails.Impl {
       ContinueOpDetails() {
-        super(ContinueOp.getIdent(), ContinueOp.class, Dialect.get(SCF.class), List.of());
+        super(ContinueOp.getIdent(), ContinueOp.class, Dialect.getOrThrow(SCF.class), List.of());
       }
 
       @Override
-      public boolean verify(Operation operation) {
+      public boolean verify(@NotNull Operation operation) {
         return true;
       }
 
       @Override
-      public void populateDefaultAttrs(List<core.ir.NamedAttribute> attributes) {
+      public void populateDefaultAttrs(@NotNull List<core.ir.NamedAttribute> attributes) {
       }
     }
     return new ContinueOpDetails();
@@ -62,8 +65,9 @@ public class ContinueOp extends Op implements ITerminator, ISpecificParentOp {
   // Functions
   // =========================================================================
 
+  @Contract(pure = true)
   @Override
-  public List<Class<? extends Op>> getValidParentTypes() {
+  public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
     return List.of(IfOp.class, ScopeOp.class, ForOp.class);
   }
 }

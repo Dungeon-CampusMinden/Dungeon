@@ -4,12 +4,14 @@ import core.ir.Block;
 import core.ir.Op;
 import core.ir.Operation;
 import core.ir.Region;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 public interface ISingleBlock extends IOpTrait {
-  default boolean verify(ISingleBlock op) {
+  @Contract(pure = true)
+  default boolean verify(@NotNull ISingleBlock op) {
     if (get().getRegions().size() != 1) {
       get().emitError("Operation must have exactly one region.");
       return false;
@@ -21,6 +23,7 @@ public interface ISingleBlock extends IOpTrait {
     return true;
   }
 
+  @Contract(pure = true)
   default @NotNull Block getBlock() {
     return get().getFirstRegion().orElseThrow().getEntryBlock();
   }

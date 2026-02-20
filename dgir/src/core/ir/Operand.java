@@ -87,7 +87,7 @@ public abstract class Operand<
    *
    * @return The use-list of the current value.
    */
-  public Optional<IRObjectWithUseList<ValueT, DerivedT>> geCurrentUseList() {
+  public @NotNull Optional<IRObjectWithUseList<ValueT, DerivedT>> geCurrentUseList() {
     return Optional.ofNullable(value);
   }
 

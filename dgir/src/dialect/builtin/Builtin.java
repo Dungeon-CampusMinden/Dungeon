@@ -11,24 +11,26 @@ import dialect.builtin.attributes.TypeAttribute;
 import dialect.builtin.types.FloatT;
 import dialect.builtin.types.IntegerT;
 import dialect.builtin.types.StringT;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
 
 public class Builtin extends Dialect {
   @Override
-  public String getNamespace() {
+  public @NotNull String getNamespace() {
     return "";
   }
 
   @Override
-  public List<Op> allOps() {
+  public @NotNull @Unmodifiable List<Op> allOps() {
     return List.of(
       new ProgramOp()
     );
   }
 
   @Override
-  public List<Type> allTypes() {
+  public @NotNull @Unmodifiable List<Type> allTypes() {
     return List.of(
       IntegerT.INT1,
       IntegerT.INT8,
@@ -42,7 +44,7 @@ public class Builtin extends Dialect {
   }
 
   @Override
-  public List<Attribute> allAttributes() {
+  public @Unmodifiable @NotNull List<Attribute> allAttributes() {
     return List.of(
       IntegerAttribute.INSTANCE,
       StringAttribute.INSTANCE,

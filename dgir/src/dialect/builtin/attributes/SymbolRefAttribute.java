@@ -4,6 +4,8 @@ import core.*;
 import core.detail.AttributeDetails;
 import core.ir.Attribute;
 import dialect.builtin.Builtin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SymbolRefAttribute extends Attribute {
 
@@ -18,10 +20,10 @@ public class SymbolRefAttribute extends Attribute {
   // =========================================================================
 
   @Override
-  public AttributeDetails.Impl createImpl() {
+  public AttributeDetails.@NotNull Impl createImpl() {
     class SymbolRefAttributeModel extends AttributeDetails.Impl {
       SymbolRefAttributeModel() {
-        super(SymbolRefAttribute.getIdent(), SymbolRefAttribute.class, Dialect.get(Builtin.class));
+        super(SymbolRefAttribute.getIdent(), SymbolRefAttribute.class, Dialect.getOrThrow(Builtin.class));
       }
     }
     return new SymbolRefAttributeModel();
@@ -57,7 +59,7 @@ public class SymbolRefAttribute extends Attribute {
   // =========================================================================
 
   @Override
-  public String getStorage() {
+  public @Nullable String getStorage() {
     return value;
   }
 

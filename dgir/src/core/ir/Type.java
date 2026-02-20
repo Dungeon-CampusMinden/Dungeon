@@ -6,6 +6,8 @@ import core.detail.TypeDetails;
 import core.serialization.TypeDeserializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
 // We have to use the deserializer because we cant use @JsonCreator on static methods and therefore can put the logic
@@ -18,7 +20,7 @@ public abstract class Type {
   // =========================================================================
 
   @JsonIgnore
-  private TypeDetails details;
+  private @NotNull TypeDetails details;
 
   // =========================================================================
   // Type Info
@@ -27,7 +29,7 @@ public abstract class Type {
   /**
    * Create and return the impl object that describes this type kind.
    */
-  public abstract TypeDetails.Impl createImpl();
+  public abstract @NotNull TypeDetails.Impl createImpl();
 
   // =========================================================================
   // Constructors
@@ -37,7 +39,7 @@ public abstract class Type {
     details = TypeDetails.get(getClass());
   }
 
-  public Type(TypeDetails typeDetails) {
+  public Type(@NotNull TypeDetails typeDetails) {
     details = typeDetails;
   }
 
@@ -45,11 +47,11 @@ public abstract class Type {
   // Functions
   // =========================================================================
 
-  public TypeDetails getDetails() {
+  public @NotNull TypeDetails getDetails() {
     return details;
   }
 
-  public void setDetails(TypeDetails details) {
+  public void setDetails(@NotNull TypeDetails details) {
     assert Utils.Caller.getCallingClass().isAssignableFrom(RegisteredTypeDetails.class)
       : "Only RegisteredTypeDetails is allowed to set details. Was called from " + Utils.Caller.getCallingClass().getName();
     this.details = details;
@@ -59,14 +61,14 @@ public abstract class Type {
    * Return this type's parameterized ident string (used as the JSON serialized form).
    */
   @JsonValue
-  public String getParameterizedIdent() {
+  public @NotNull String getParameterizedIdent() {
     return details.getParameterizedIdent(this);
   }
 
   /**
    * Validate whether {@code value} is a legal storage value for this type.
    */
-  public abstract boolean validate(Object value);
+  public abstract boolean validate(@Nullable Object value);
 
   // =========================================================================
   // Object
@@ -78,7 +80,7 @@ public abstract class Type {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     return (obj instanceof Type other) && this.getParameterizedIdent().equals(other.getParameterizedIdent());
   }
 

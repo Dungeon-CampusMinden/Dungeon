@@ -33,29 +33,33 @@ public abstract class Op {
   // Members
   // =========================================================================
 
-  private Operation operation;
+  private @Nullable Operation operation;
 
   // =========================================================================
   // Op Info
   // =========================================================================
 
-  /** Create and return the details object that describes this op kind. */
-  public abstract OperationDetails.Impl createDetails();
+  /**
+   * Create and return the details object that describes this op kind.
+   */
+  public abstract @NotNull OperationDetails.Impl createDetails();
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
-  /** Every op must be default-constructible (used during dialect registration). */
+  /**
+   * Every op must be default-constructible (used during dialect registration).
+   */
   public Op() {
     this.operation = null;
   }
 
-  public Op(Operation operation) {
+  public Op(@NotNull Operation operation) {
     this.operation = operation;
   }
 
-  public Op(boolean ensureEntryBlocks, Operation operation) {
+  public Op(boolean ensureEntryBlocks, @NotNull Operation operation) {
     this.operation = operation;
     if (ensureEntryBlocks)
       ensureEntryBlocks();
@@ -70,7 +74,7 @@ public abstract class Op {
    *
    * @return the backing operation or null.
    */
-  public Operation getOperationOrNull() {
+  public @Nullable Operation getOperationOrNull() {
     return operation;
   }
 
@@ -79,7 +83,7 @@ public abstract class Op {
    *
    * @return the backing operation (never null).
    */
-  public Operation getOperation() {
+  public @NotNull Operation getOperation() {
     assert operation != null : "Operation is null.";
     return operation;
   }
@@ -90,7 +94,7 @@ public abstract class Op {
    * @param ensureEntryBlocks whether to create missing entry blocks.
    * @param operation         the operation to set.
    */
-  public void setOperation(boolean ensureEntryBlocks, Operation operation) {
+  public void setOperation(boolean ensureEntryBlocks, @NotNull Operation operation) {
     this.operation = operation;
     if (ensureEntryBlocks)
       ensureEntryBlocks();
@@ -113,7 +117,7 @@ public abstract class Op {
     return getOperation().getDetails();
   }
 
-  public boolean hasTrait(Class<? extends IOpTrait> traitClass) {
+  public boolean hasTrait(@NotNull Class<? extends IOpTrait> traitClass) {
     return getOperation().hasTrait(traitClass);
   }
 
@@ -122,7 +126,7 @@ public abstract class Op {
    *
    * @see Operation#as(Class)
    */
-  public <T extends Op> Optional<T> as(@NotNull Class<T> clazz) {
+  public <T extends Op> @NotNull Optional<T> as(@NotNull Class<T> clazz) {
     return getOperation().as(clazz);
   }
 
@@ -131,7 +135,7 @@ public abstract class Op {
    *
    * @see Operation#asTrait(Class)
    */
-  public <T extends IOpTrait> @NotNull Optional<T> asTrait(Class<T> clazz) {
+  public <T extends IOpTrait> @NotNull Optional<T> asTrait(@NotNull Class<T> clazz) {
     return getOperation().asTrait(clazz);
   }
 
@@ -140,7 +144,7 @@ public abstract class Op {
    *
    * @see Operation#isa(Class)
    */
-  public boolean isa(Class<? extends Op> clazz) {
+  public boolean isa(@NotNull Class<? extends Op> clazz) {
     return getOperation().isa(clazz);
   }
 
@@ -182,7 +186,7 @@ public abstract class Op {
     return getOperation().getOutputValueThrowing();
   }
 
-  public Op setOutputValue(Value value) {
+  public @NotNull Op setOutputValue(@NotNull Value value) {
     getOperation().setOutputValue(value);
     return this;
   }
@@ -200,7 +204,7 @@ public abstract class Op {
     return getOperation().getAttributeByName(name);
   }
 
-  public <T extends Attribute> Optional<T> getAttribute(@NotNull Class<T> clazz, @NotNull String name) {
+  public <T extends Attribute> @NotNull Optional<T> getAttribute(@NotNull Class<T> clazz, @NotNull String name) {
     return getOperation().getAttribute(clazz, name);
   }
 
@@ -227,13 +231,13 @@ public abstract class Op {
   }
 
   @JsonIgnore
-  public Region getRegion(int index) {
-    return getRegions().get(index);
+  public @NotNull Optional<Region> getRegion(int index) {
+    return getOperation().getRegion(index);
   }
 
   @JsonIgnore
-  public Region getFirstRegion() {
-    return getRegion(0);
+  public @NotNull Optional<Region> getFirstRegion() {
+    return getOperation().getFirstRegion();
   }
 
   // =========================================================================
@@ -278,7 +282,7 @@ public abstract class Op {
    *
    * @see Operation#getNext()
    */
-  public Optional<Operation> getNext() {
+  public @NotNull Optional<Operation> getNext() {
     return getOperation().getNext();
   }
 
@@ -306,12 +310,14 @@ public abstract class Op {
    * Equality is based on the backing operation — Op is only a semantic wrapper.
    */
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     return obj instanceof Op other && this.getOperation().equals(other.getOperation());
   }
 
   @Override
   public int hashCode() {
+    if (operation == null)
+      return 0;
     return operation.hashCode();
   }
 
@@ -327,7 +333,7 @@ public abstract class Op {
    * initialisation should happen then. On all subsequent calls the op is
    * registered and the callback is executed normally.
    */
-  public static void executeIfRegistered(Class<? extends Op> opClass, Runnable callback) {
+  public static void executeIfRegistered(@NotNull Class<? extends Op> opClass, @NotNull Runnable callback) {
     var details = RegisteredOperationDetails.lookup(opClass);
     if (details.isPresent()) {
       callback.run();

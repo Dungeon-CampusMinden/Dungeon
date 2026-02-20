@@ -1,12 +1,15 @@
 package core.traits;
 
 import core.ir.Operation;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Mark an operation as not having a terminator.
  */
 public interface INoTerminator extends IOpTrait {
-  default boolean verify(INoTerminator op) {
+  @Contract(pure = true)
+  default boolean verify(@NotNull INoTerminator op) {
     Operation operation = get();
     // Check that the operation has exactly one region, block and no terminator.
     if (operation.getRegions().size() != 1){

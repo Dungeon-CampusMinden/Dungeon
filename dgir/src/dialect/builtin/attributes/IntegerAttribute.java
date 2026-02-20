@@ -7,6 +7,8 @@ import dialect.builtin.Builtin;
 import dialect.builtin.types.IntegerT;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class IntegerAttribute extends TypedAttribute {
 
@@ -21,10 +23,10 @@ public class IntegerAttribute extends TypedAttribute {
   // =========================================================================
 
   @Override
-  public AttributeDetails.Impl createImpl() {
+  public AttributeDetails.@NotNull Impl createImpl() {
     class IntegerAttributeModel extends AttributeDetails.Impl {
       IntegerAttributeModel() {
-        super(IntegerAttribute.getIdent(), IntegerAttribute.class, Dialect.get(Builtin.class));
+        super(IntegerAttribute.getIdent(), IntegerAttribute.class, Dialect.getOrThrow(Builtin.class));
       }
     }
     return new IntegerAttributeModel();
@@ -68,7 +70,7 @@ public class IntegerAttribute extends TypedAttribute {
   // =========================================================================
 
   @Override
-  public Number getStorage() {
+  public @Nullable Object getStorage() {
     return getValue();
   }
 

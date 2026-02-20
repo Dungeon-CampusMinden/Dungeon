@@ -5,6 +5,8 @@ import core.ir.Type;
 import core.detail.TypeDetails;
 import dialect.builtin.Builtin;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class FloatT extends Type {
 
@@ -20,10 +22,10 @@ public class FloatT extends Type {
   // =========================================================================
 
   @Override
-  public TypeDetails.Impl createImpl() {
+  public TypeDetails.@NotNull Impl createImpl() {
     class FloatTModel extends TypeDetails.Impl {
       FloatTModel(Type defaultInstance, int width) {
-        super(defaultInstance, FloatT.getIdent() + width, FloatT.class, Dialect.get(Builtin.class));
+        super(defaultInstance, FloatT.getIdent() + width, FloatT.class, Dialect.getOrThrow(Builtin.class));
       }
     }
     return new FloatTModel(this, getWidth());
@@ -66,7 +68,7 @@ public class FloatT extends Type {
   }
 
   @Override
-  public boolean validate(Object value) {
+  public boolean validate(@Nullable Object value) {
     if (!(value instanceof Number))
       return false;
 
