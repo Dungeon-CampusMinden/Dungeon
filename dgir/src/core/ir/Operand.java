@@ -3,6 +3,7 @@ package core.ir;
 import core.IRObjectWithUseList;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,6 +61,7 @@ public abstract class Operand<
    *
    * @return The index, or -1 if not found.
    */
+  @Contract(pure = true)
   public int getIndex() {
     return owner.getOperands().indexOf(this);
   }
@@ -69,6 +71,7 @@ public abstract class Operand<
    *
    * @return The owning operation.
    */
+  @Contract(pure = true)
   public @NotNull Operation getOwner() {
     return owner;
   }
@@ -78,6 +81,7 @@ public abstract class Operand<
    *
    * @return The referenced value.
    */
+  @Contract(pure = true)
   public @NotNull Optional<ValueT> getValue() {
     return Optional.ofNullable(value);
   }
@@ -87,6 +91,7 @@ public abstract class Operand<
    *
    * @return The use-list of the current value.
    */
+  @Contract(pure = true)
   public @NotNull Optional<IRObjectWithUseList<ValueT, DerivedT>> geCurrentUseList() {
     return Optional.ofNullable(value);
   }

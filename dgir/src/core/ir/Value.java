@@ -2,6 +2,7 @@ package core.ir;
 
 import core.IRObjectWithUseList;
 import com.fasterxml.jackson.annotation.*;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -32,6 +33,7 @@ public final class Value extends IRObjectWithUseList<Value, ValueOperand> implem
   // Functions
   // =========================================================================
 
+  @Contract(pure = true)
   public @NotNull Type getType() {
     return type;
   }

@@ -2,6 +2,7 @@ package core.detail;
 
 import core.DGIRContext;
 import core.ir.Type;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -46,10 +47,12 @@ public class RegisteredTypeDetails extends TypeDetails {
   // Static Lookups
   // =========================================================================
 
+  @Contract(pure = true)
   public static @NotNull Optional<RegisteredTypeDetails> lookup(@NotNull Class<? extends Type> clazz) {
     return Optional.ofNullable(DGIRContext.registeredTypes.get(clazz));
   }
 
+  @Contract(pure = true)
   public static @NotNull Optional<RegisteredTypeDetails> lookup(@NotNull String name) {
     return Optional.ofNullable(DGIRContext.registeredTypesByIdent.get(name));
   }

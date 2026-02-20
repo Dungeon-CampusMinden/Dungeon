@@ -4,6 +4,7 @@ import core.ir.Attribute;
 import core.DGIRContext;
 import core.Dialect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,10 +21,12 @@ public class AttributeDetails {
   // Static Factories
   // =========================================================================
 
+  @Contract(pure = true)
   public static @NotNull AttributeDetails get(@NotNull String ident) {
     return new AttributeDetails(ident);
   }
 
+  @Contract(pure = true)
   public static @NotNull AttributeDetails get(@NotNull Class<? extends Attribute> clazz) {
     return new AttributeDetails(clazz);
   }
@@ -95,20 +98,24 @@ public class AttributeDetails {
   // =========================================================================
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull AttributeDetails.Impl getImpl() {
     return impl;
   }
 
+  @Contract(pure = true)
   public @NotNull String getIdent() {
     return impl.getIdent();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Class<? extends Attribute> getType() {
     return impl.getType();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Optional<Dialect> getDialect() {
     return impl.getDialect();
   }
@@ -148,14 +155,17 @@ public class AttributeDetails {
       this.dialect = dialect;
     }
 
+    @Contract(pure = true)
     public @NotNull String getIdent() {
       return ident;
     }
 
+    @Contract(pure = true)
     public @NotNull Class<? extends Attribute> getType() {
       return type;
     }
 
+    @Contract(pure = true)
     public @NotNull Optional<Dialect> getDialect() {
       return Optional.ofNullable(dialect);
     }

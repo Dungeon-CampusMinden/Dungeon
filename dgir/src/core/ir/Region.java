@@ -137,8 +137,8 @@ public final class Region {
     if (this.blocks.isEmpty())
       addBlock(new Block());
   }
-
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Block getEntryBlock() {
     ensureEntryBlock();
     return blocks.getFirst();
@@ -150,6 +150,7 @@ public final class Region {
    * @return The first operation in the entry block.
    */
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Operation getEntryOperation() {
     var operations = getEntryBlock().getOperations();
     assert !operations.isEmpty() : "Entry block must have at least one operation.";
@@ -160,14 +161,17 @@ public final class Region {
   // Body Values
   // =========================================================================
 
+  @Contract(pure = true)
   public @NotNull List<Value> getBodyValues() {
     return bodyValues;
   }
 
+  @Contract(pure = true)
   public Value getBodyValue(int index) {
     return bodyValues.get(index);
   }
 
+  @Contract(pure = true)
   public int getBodyValueIndex(@NotNull Value value) {
     return bodyValues.indexOf(value);
   }
@@ -201,7 +205,8 @@ public final class Region {
   // Parent & Transfer
   // =========================================================================
 
-  public @NotNull Operation getParent() {
+  @Contract(pure = true)
+  public @Nullable Operation getParent() {
     return parent;
   }
 

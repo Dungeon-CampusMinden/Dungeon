@@ -5,6 +5,7 @@ import core.Utils;
 import core.analysis.DotCFG;
 import core.traits.ITerminator;
 import com.fasterxml.jackson.annotation.*;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -70,6 +71,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   // Operations
   // =========================================================================
 
+  @Contract(pure = true)
   public @NotNull @UnmodifiableView List<Operation> getOperations() {
     return Collections.unmodifiableList(operations);
   }
@@ -92,12 +94,14 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
     operation.setParent(null);
   }
 
+  @Contract(pure = true)
   public boolean hasTerminator() {
     if (operations.isEmpty()) return false;
     return operations.getLast().hasTrait(ITerminator.class);
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Optional<Operation> getTerminator() {
     if (operations.isEmpty() || !operations.getLast().hasTrait(ITerminator.class))
       return Optional.empty();
@@ -114,6 +118,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    * @return The successors of this block, or an empty list if there is no terminator.
    */
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull List<Block> getSuccessors() {
     return !operations.isEmpty() ? operations.getLast().getSuccessors() : List.of();
   }
@@ -125,6 +130,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    * @return An unmodifiable set of predecessor blocks.
    */
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Set<Block> getPredecessors() {
     return getUses().stream()
       .map(blockOperand -> blockOperand.getOwner().getParent())
@@ -137,11 +143,13 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   // Parent & Navigation
   // =========================================================================
 
+  @Contract(pure = true)
   public @NotNull Optional<Region> getParent() {
     return Optional.ofNullable(parent);
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Optional<Operation> getParentOperation() {
     return getParent().map(Region::getParent);
   }
@@ -160,6 +168,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    *
    * @return The index, or -1 if this block has no parent.
    */
+  @Contract(pure = true)
   public int getIndex() {
     return getParent()
       .map(region -> region.getBlocks().indexOf(this))
@@ -177,6 +186,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    * @param b The second operation.
    * @return {@code true} if {@code a} is defined before {@code b}.
    */
+  @Contract(pure = true)
   public boolean isBefore(@NotNull Operation a, @NotNull Operation b) {
     return operations.indexOf(a) < operations.indexOf(b);
   }

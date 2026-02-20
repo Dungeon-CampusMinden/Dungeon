@@ -5,6 +5,7 @@ import core.detail.AttributeDetails;
 import core.ir.Attribute;
 import core.ir.Type;
 import dialect.builtin.Builtin;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,11 +60,13 @@ public class TypeAttribute extends Attribute {
   // Functions
   // =========================================================================
 
+  @Contract(pure = true)
   @Override
   public @Nullable Object getStorage() {
     return type;
   }
 
+  @Contract(pure = true)
   public Type getType() {
     return type;
   }

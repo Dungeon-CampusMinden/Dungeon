@@ -6,6 +6,7 @@ import core.ir.Op;
 import core.ir.Operation;
 import core.traits.IOpTrait;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,14 +25,17 @@ public class OperationDetails {
   // Static Factories
   // =========================================================================
 
+  @Contract(pure = true)
   public static @NotNull OperationDetails get(@NotNull String ident) {
     return new OperationDetails(ident);
   }
 
+  @Contract(pure = true)
   public static @NotNull OperationDetails get(@NotNull Class<? extends Op> clazz) {
     return new OperationDetails(clazz);
   }
 
+  @Contract(pure = true)
   public static @NotNull Optional<Constructor<? extends Op>> hasSpecificConstructor(@NotNull Class<? extends Op> opClass, @NotNull Class<?>... parameterTypes) {
     try {
       return Optional.of(opClass.getConstructor(Operation.class));
@@ -107,29 +111,35 @@ public class OperationDetails {
   // =========================================================================
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Impl getImpl() {
     return impl;
   }
 
+  @Contract(pure = true)
   public String getIdent() {
     return impl.getIdent();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public Class<? extends Op> getType() {
     return impl.getType();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public Dialect getDialect() {
     return impl.getDialect();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public List<String> getAttributeNames() {
     return impl.getAttributeNames();
   }
 
+  @Contract(pure = true)
   public boolean verify(Operation operation) {
     return impl.verify(operation);
   }
@@ -138,6 +148,7 @@ public class OperationDetails {
     impl.populateDefaultAttrs(attributes);
   }
 
+  @Contract(pure = true)
   public Set<Class<? extends IOpTrait>> getTraits() {
     return impl.getTraits();
   }
@@ -158,6 +169,7 @@ public class OperationDetails {
    * @param operation The backing operation state.
    * @return The typed op wrapper, or empty if the kinds do not match.
    */
+  @Contract(pure = true)
   public <T extends Op> Optional<T> as(@NotNull Class<T> clazz, @NotNull Operation operation) {
     if (!isa(clazz)) {
       return Optional.empty();
@@ -175,6 +187,7 @@ public class OperationDetails {
    * @param operation The backing operation state.
    * @return The op wrapper.
    */
+  @Contract(pure = true)
   public @NotNull Op asOp(@NotNull Operation operation) {
     try {
       return impl.operationConstructor.newInstance(operation);
@@ -189,6 +202,7 @@ public class OperationDetails {
    * @param clazz The type to check for.
    * @return {@code true} if this details instance describes {@code clazz}.
    */
+  @Contract(pure = true)
   public boolean isa(@NotNull Class<? extends Op> clazz) {
     return clazz.equals(getType());
   }
@@ -201,6 +215,7 @@ public class OperationDetails {
    * @param operation The operation to verify.
    * @return {@code true} if all trait verifiers pass.
    */
+  @Contract(pure = true)
   public boolean verifyTraits(@NotNull Operation operation) {
     Op op = asOp(operation);
     for (Class<? extends IOpTrait> trait : getTraits()) {
@@ -222,6 +237,7 @@ public class OperationDetails {
   // Casting
   // =========================================================================
 
+  @Contract(pure = true)
   public @NotNull Optional<RegisteredOperationDetails> asRegisteredDetails() {
     if (this instanceof RegisteredOperationDetails registeredDetails) {
       return Optional.of(registeredDetails);
@@ -294,34 +310,42 @@ public class OperationDetails {
           "Op class " + type.getName() + " must have an empty constructor."));
     }
 
+    @Contract(pure = true)
     public @NotNull String getIdent() {
       return ident;
     }
 
+    @Contract(pure = true)
     public @NotNull Class<? extends Op> getType() {
       return type;
     }
 
+    @Contract(pure = true)
     public @Nullable Dialect getDialect() {
       return dialect;
     }
 
+    @Contract(pure = true)
     public @NotNull List<String> getAttributeNames() {
       return attributeNames;
     }
 
+    @Contract(pure = true)
     public @NotNull Set<Class<? extends IOpTrait>> getTraits() {
       return traits;
     }
 
+    @Contract(pure = true)
     public boolean hasTrait(@NotNull Class<? extends IOpTrait> traitClass) {
       return traits.contains(traitClass);
     }
 
+    @Contract(pure = true)
     public @NotNull Map<Class<? extends IOpTrait>, Method> getTraitVerifiers() {
       return traitVerifiers;
     }
 
+    @Contract(pure = true)
     public Method getVerifier(@NotNull Class<? extends IOpTrait> traitClass) {
       return traitVerifiers.get(traitClass);
     }
@@ -333,6 +357,7 @@ public class OperationDetails {
      * @param operation The operation to verify.
      * @return {@code true} if the operation is valid.
      */
+    @Contract(pure = true)
     public abstract boolean verify(@NotNull Operation operation);
 
     public abstract void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes);

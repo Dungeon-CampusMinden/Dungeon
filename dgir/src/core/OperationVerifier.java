@@ -5,6 +5,7 @@ import core.detail.RegisteredOperationDetails;
 import core.ir.*;
 import core.traits.IIsolatedFromAbove;
 import core.traits.INoTerminator;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,6 +55,7 @@ public class OperationVerifier {
    * @param operation The operation to verify.
    * @return {@code true} if verification succeeds.
    */
+  @Contract(pure = true)
   public boolean verify(@NotNull Operation operation) {
     if (!verifyOperation(operation))
       return false;
@@ -83,6 +85,7 @@ public class OperationVerifier {
    * @param operation The root operation.
    * @return {@code true} if every visited node passes verification.
    */
+  @Contract(pure = true)
   private boolean verifyOperation(@NotNull Operation operation) {
 
     // Small union type to track whether the current item is a Block or an Operation
@@ -162,6 +165,7 @@ public class OperationVerifier {
   // Entry / Exit Handlers
   // =========================================================================
 
+  @Contract(pure = true)
   private boolean verifyOnEntry(@NotNull Operation operation) {
     // All operands must be non-null and have a non-null value
     for (ValueOperand operand : operation.getOperands()) {
@@ -221,6 +225,7 @@ public class OperationVerifier {
     return true;
   }
 
+  @Contract(pure = true)
   boolean verifyOnExit(@NotNull Operation op) {
     // Collect and re-verify all isolated-from-above child operations in parallel
     List<Operation> isolatedOps = new ArrayList<>();
@@ -239,6 +244,7 @@ public class OperationVerifier {
     return !failed.get();
   }
 
+  @Contract(pure = true)
   private boolean verifyOnEntry(@NotNull Block block) {
     if (block.getOperations().isEmpty()) {
       if (isValidWithoutTerminator(block))
@@ -267,6 +273,7 @@ public class OperationVerifier {
     return true;
   }
 
+  @Contract(pure = true)
   boolean verifyOnExit(@NotNull Block block) {
     // All successors must belong to the same region as this block
     for (Block successor : block.getSuccessors()) {
@@ -296,6 +303,7 @@ public class OperationVerifier {
    * This is the case when the block is the sole block in a region whose parent
    * operation carries the {@link INoTerminator} trait.
    */
+  @Contract(pure = true)
   private boolean isValidWithoutTerminator(@NotNull Block block) {
     return block.getParent()
       .map(parentRegion ->

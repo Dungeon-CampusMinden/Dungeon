@@ -2,6 +2,7 @@ package core.analysis;
 
 import core.ir.*;
 import core.traits.IIsolatedFromAbove;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.MessageFormat;
@@ -34,6 +35,7 @@ public final class ReachingDefinitions {
    * </ul>
    * The result is a list of diagnostics for operands that are used before being definitely defined.
    */
+  @Contract(pure = true)
   public static @NotNull List<MissingDefinition> validate(@NotNull Operation root) {
     List<MissingDefinition> problems = new ArrayList<>();
     for (Region region : root.getRegions()) {
@@ -133,6 +135,7 @@ public final class ReachingDefinitions {
    * @param entryBlock  The entry block of the region.
    * @return The IN set for the block.
    */
+  @Contract(pure = true)
   private static @NotNull Set<Value> computeIn(@NotNull Block block,
                                                @NotNull Map<Block, Set<Block>> preds,
                                                @NotNull Map<Block, Set<Value>> out,
@@ -166,6 +169,7 @@ public final class ReachingDefinitions {
    * @param blocks The blocks to analyze.
    * @return A map from each block to its predecessors.
    */
+  @Contract(pure = true)
   private static @NotNull Map<Block, Set<Block>> getPredecessors(@NotNull List<Block> blocks) {
     // Use the use list of each block to find its predecessors.
     Map<Block, Set<Block>> preds = new HashMap<>();
@@ -185,6 +189,7 @@ public final class ReachingDefinitions {
    * @param block The block to analyze.
    * @return The GEN set for the block.
    */
+  @Contract(pure = true)
   private static @NotNull Set<Value> gen(@NotNull Block block) {
     Set<Value> defs = new HashSet<>();
     for (Operation op : block.getOperations()) {
@@ -198,6 +203,7 @@ public final class ReachingDefinitions {
    * Seed facts when entering a region of an operation: include the operation operands, the region's body values, and
    * optionally the parent state if the operation is not isolated-from-above.
    */
+  @Contract(pure = true)
   private static @NotNull Set<Value> seedForRegion(@NotNull Operation op, @NotNull Region region, @NotNull Set<Value> parentState) {
     Set<Value> seed = new HashSet<>();
     op.getOperands()

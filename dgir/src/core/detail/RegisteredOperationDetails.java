@@ -2,6 +2,7 @@ package core.detail;
 
 import core.DGIRContext;
 import core.ir.Op;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -45,10 +46,12 @@ public class RegisteredOperationDetails extends OperationDetails {
   // Static Lookups
   // =========================================================================
 
+  @Contract(pure = true)
   public static @NotNull Optional<RegisteredOperationDetails> lookup(@NotNull Class<? extends Op> clazz) {
     return Optional.ofNullable(DGIRContext.registeredOperations.get(clazz));
   }
 
+  @Contract(pure = true)
   public static @NotNull Optional<RegisteredOperationDetails> lookup(@NotNull String name) {
     return Optional.ofNullable(DGIRContext.registeredOperationsByIdent.get(name));
   }

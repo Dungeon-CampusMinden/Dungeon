@@ -42,6 +42,7 @@ public final class Operation implements Serializable {
    * @param outputType The output result type.
    * @return A new Operation instance.
    */
+  @Contract(pure = true)
   @SafeVarargs
   public static Operation Create(@NotNull String name,
                                  @Nullable List<Value> operands,
@@ -53,6 +54,7 @@ public final class Operation implements Serializable {
     return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, successors, outputType, regionBodyValueTypes);
   }
 
+  @Contract(pure = true)
   @SafeVarargs
   public static Operation Create(@NotNull OperationDetails name,
                                  @Nullable List<Value> operands,
@@ -66,6 +68,7 @@ public final class Operation implements Serializable {
     return operation;
   }
 
+  @Contract(pure = true)
   public static Operation Create(@NotNull String name,
                                  @Nullable List<Value> operands,
                                  @Nullable List<Block> successors,
@@ -76,6 +79,7 @@ public final class Operation implements Serializable {
     return Create(RegisteredOperationDetails.lookup(name).orElseThrow(), operands, successors, outputType, numRegions);
   }
 
+  @Contract(pure = true)
   public static Operation Create(@NotNull OperationDetails name,
                                  @Nullable List<Value> operands,
                                  @Nullable List<Block> successors,

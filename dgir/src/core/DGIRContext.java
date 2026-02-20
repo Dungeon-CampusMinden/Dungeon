@@ -4,6 +4,7 @@ import core.detail.*;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -85,6 +86,7 @@ public class DGIRContext {
    * @param name The ident string to resolve (e.g. {@code "arith.constant"} or {@code "int32"}).
    * @return The owning {@link Dialect}, or the builtin dialect as a fallback.
    */
+  @Contract(pure = true)
   public static @NotNull Dialect getReferencedDialect(@NotNull String name) {
     var i = name.indexOf('.');
     if (i >= 0) {

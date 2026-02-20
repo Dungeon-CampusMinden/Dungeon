@@ -3,6 +3,7 @@ package core.analysis;
 import core.ir.Block;
 import core.ir.Operation;
 import core.ir.Region;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,6 +15,7 @@ public class DotCFG {
   private DotCFG() {
   }
 
+  @Contract(pure = true)
   public static @NotNull Cluster buildCfgCluster(@NotNull Operation root) {
     GraphBuilder builder = new GraphBuilder(root);
     builder.processOperation(root);

@@ -7,6 +7,7 @@ import dialect.builtin.Builtin;
 import dialect.builtin.types.IntegerT;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,11 +70,13 @@ public class IntegerAttribute extends TypedAttribute {
   // Functions
   // =========================================================================
 
+  @Contract(pure = true)
   @Override
   public @Nullable Object getStorage() {
     return getValue();
   }
 
+  @Contract(pure = true)
   public Number getValue() {
     return value;
   }

@@ -6,6 +6,7 @@ import core.detail.TypeDetails;
 import core.serialization.TypeDeserializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
@@ -47,6 +48,7 @@ public abstract class Type {
   // Functions
   // =========================================================================
 
+  @Contract(pure = true)
   public @NotNull TypeDetails getDetails() {
     return details;
   }
@@ -60,6 +62,7 @@ public abstract class Type {
   /**
    * Return this type's parameterized ident string (used as the JSON serialized form).
    */
+  @Contract(pure = true)
   @JsonValue
   public @NotNull String getParameterizedIdent() {
     return details.getParameterizedIdent(this);
@@ -68,6 +71,7 @@ public abstract class Type {
   /**
    * Validate whether {@code value} is a legal storage value for this type.
    */
+  @Contract(pure = true)
   public abstract boolean validate(@Nullable Object value);
 
   // =========================================================================

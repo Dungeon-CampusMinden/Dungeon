@@ -12,6 +12,7 @@ import dialect.cf.CF;
 import dialect.func.Func;
 import dialect.io.IO;
 import dialect.scf.SCF;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -35,21 +36,25 @@ public abstract class Dialect {
   /**
    * The namespace prefix used in operation/type idents (e.g. {@code "arith"}, {@code "func"}).
    */
+  @Contract(pure = true)
   public abstract @NotNull String getNamespace();
 
   /**
    * All operation prototypes contributed by this dialect.
    */
+  @Contract(pure = true)
   public abstract @NotNull @Unmodifiable List<Op> allOps();
 
   /**
    * All type prototypes contributed by this dialect.
    */
+  @Contract(pure = true)
   public abstract @NotNull @Unmodifiable List<Type> allTypes();
 
   /**
    * All attribute prototypes contributed by this dialect.
    */
+  @Contract(pure = true)
   public abstract @NotNull @Unmodifiable List<Attribute> allAttributes();
 
   // =========================================================================
@@ -87,6 +92,7 @@ public abstract class Dialect {
    * @param dialectClass The class of the dialect to look up (e.g. {@code Arith.class} or {@code Func.class}).
    * @return An optional containing the registered dialect, or empty if no such dialect is registered.
    */
+  @Contract(pure = true)
   public static @NotNull Optional<Dialect> get(@NotNull Class<? extends Dialect> dialectClass) {
     return Optional.ofNullable(DGIRContext.registeredDialects.get(dialectClass));
   }
@@ -97,6 +103,7 @@ public abstract class Dialect {
    * @param dialectClass The class of the dialect to look up (e.g. {@code Arith.class} or {@code Func.class}).
    * @return The registered dialect.
    */
+  @Contract(pure = true)
   public static @NotNull Dialect getOrThrow(@NotNull Class<? extends Dialect> dialectClass) {
     return get(dialectClass).orElseThrow(() -> new IllegalArgumentException("Dialect not registered: " + dialectClass.getSimpleName()));
   }

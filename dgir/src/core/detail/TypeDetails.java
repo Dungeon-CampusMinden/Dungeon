@@ -4,6 +4,7 @@ import core.DGIRContext;
 import core.Dialect;
 import core.ir.Type;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,10 +24,12 @@ public class TypeDetails {
   // Static Factories
   // =========================================================================
 
+  @Contract(pure = true)
   public static @NotNull TypeDetails get(@NotNull String ident) {
     return new TypeDetails(ident);
   }
 
+  @Contract(pure = true)
   public static @NotNull TypeDetails get(@NotNull Class<? extends Type> clazz) {
     return new TypeDetails(clazz);
   }
@@ -98,25 +101,30 @@ public class TypeDetails {
   // =========================================================================
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Impl getImpl() {
     return impl;
   }
 
+  @Contract(pure = true)
   public String getIdent() {
     return impl.getIdent();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public Class<? extends Type> getType() {
     return impl.getType();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public Dialect getDialect() {
     return impl.getDialect();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public String getParameterizedIdent(Type type) {
     return impl.getParameterizedIdent(type);
   }
@@ -138,6 +146,7 @@ public class TypeDetails {
    * @param parameterizedIdent The parameterized ident string.
    * @return The created Type instance.
    */
+  @Contract(pure = true)
   public static Type fromParameterizedIdent(String parameterizedIdent) {
     String baseIdent = parameterizedIdent;
     int genericStart = parameterizedIdent.indexOf('<');
@@ -159,6 +168,7 @@ public class TypeDetails {
    * @param parameterString The comma-separated parameter string.
    * @return The list of created Type instances.
    */
+  @Contract(pure = true)
   public static List<Type> fromParameterString(String parameterString) {
     List<Type> types = new java.util.ArrayList<>();
     int bracketLevel = 0;
@@ -223,14 +233,17 @@ public class TypeDetails {
       }
     }
 
+    @Contract(pure = true)
     public @NotNull String getIdent() {
       return ident;
     }
 
+    @Contract(pure = true)
     public @NotNull Class<? extends Type> getType() {
       return type;
     }
 
+    @Contract(pure = true)
     public @Nullable Dialect getDialect() {
       return dialect;
     }
@@ -250,6 +263,7 @@ public class TypeDetails {
      * @param type The concrete type instance to generate the ident for.
      * @return The parameterized ident string.
      */
+    @Contract(pure = true)
     public @NotNull String getParameterizedIdent(@NotNull Type type) {
       return getIdent();
     }
@@ -261,6 +275,7 @@ public class TypeDetails {
      * @param parameterizedIdent The parameterized ident string.
      * @return The reconstructed Type instance.
      */
+    @Contract(pure = true)
     public @NotNull Type fromParameterizedIdent(@NotNull String parameterizedIdent) {
       assert defaultInstance != null
         : "Cannot create type from parameterized ident without a default instance: " + getIdent()
@@ -270,6 +285,7 @@ public class TypeDetails {
       return defaultInstance;
     }
 
+    @Contract(pure = true)
     public <T extends Type> Optional<T> fromParameterizedIdent(@NotNull String parameterizedIdent, @NotNull Class<T> clazz) {
       assert defaultInstance != null
         : "Cannot create type from parameterized ident without a default instance: " + getIdent()
@@ -287,6 +303,7 @@ public class TypeDetails {
       return Optional.of(clazz.cast(type));
     }
 
+    @Contract(pure = true)
     public <T extends Type> Optional<T> createInstance(@NotNull Class<T> clazz) {
       try {
         Type type = constructor.newInstance();

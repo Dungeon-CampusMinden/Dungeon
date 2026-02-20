@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
@@ -53,6 +54,7 @@ public abstract class Attribute implements Serializable {
   // Functions
   // =========================================================================
 
+  @Contract(pure = true)
   @JsonIgnore
   public @NotNull AttributeDetails getDetails() {
     return details;
@@ -74,6 +76,7 @@ public abstract class Attribute implements Serializable {
   /**
    * Return the raw storage value of this attribute (used for serialization and display).
    */
+  @Contract(pure = true)
   @JsonIgnore
   public abstract @Nullable Object getStorage();
 }

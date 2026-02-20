@@ -1,6 +1,7 @@
 package core.ir;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -23,6 +24,7 @@ public final class ValueOperand extends Operand<Value, ValueOperand> {
   // =========================================================================
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Optional<Type> getType() {
     return getValue().map(Value::getType);
   }

@@ -1,5 +1,6 @@
 package core.ir;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -26,6 +27,7 @@ public abstract class TypedAttribute extends Attribute {
   // Functions
   // =========================================================================
 
+  @Contract(pure = true)
   public @NotNull Type getType() {
     return type;
   }

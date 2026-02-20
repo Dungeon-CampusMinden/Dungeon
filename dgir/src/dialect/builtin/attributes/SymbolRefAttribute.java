@@ -4,6 +4,7 @@ import core.*;
 import core.detail.AttributeDetails;
 import core.ir.Attribute;
 import dialect.builtin.Builtin;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,11 +59,13 @@ public class SymbolRefAttribute extends Attribute {
   // Functions
   // =========================================================================
 
+  @Contract(pure = true)
   @Override
   public @Nullable String getStorage() {
     return value;
   }
 
+  @Contract(pure = true)
   public String getValue() {
     return value;
   }

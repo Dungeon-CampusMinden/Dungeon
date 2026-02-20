@@ -8,6 +8,7 @@ import core.traits.IOpTrait;
 import core.traits.ISymbol;
 import core.traits.ISymbolTable;
 import dialect.builtin.attributes.StringAttribute;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,6 +31,7 @@ public class SymbolTable {
    * @return The operation that defines the symbol with the given name, or null if no such symbol exists in the first region and block of the given operation.
    * @throws AssertionError if the given operation does not implement ISymbolTable.
    */
+  @Contract(pure = true)
   public static @Nullable Operation lookupSymbolIn(@NotNull Operation operation, @NotNull String symbolName) {
     assert operation.hasTrait(ISymbolTable.class);
     Region region = operation.getFirstRegion().orElseThrow(() -> new AssertionError("Operation does not have a region. Symbol tables must have at least one region."));
@@ -53,6 +55,7 @@ public class SymbolTable {
    * @param symbolAttributeName Name of the attribute that stores the symbol name.
    * @return Symbol name of the given operation, or null if the operation does not have the symbol attribute.
    */
+  @Contract(pure = true)
   private static @NotNull Optional<String> getNameIfSymbol(@NotNull Operation op, @NotNull String symbolAttributeName) {
     var attr = op.getAttribute(StringAttribute.class, symbolAttributeName);
     return attr.map(StringAttribute::getValue);
@@ -67,8 +70,8 @@ public class SymbolTable {
    * is found in the parent chain.
    * @throws AssertionError if the given operation is null.
    */
+  @Contract(pure = true)
   public static @NotNull Optional<Operation> nearestSymbolTable(@NotNull Operation from) {
-
     if (from.hasTrait(ISymbolTable.class)) {
       return Optional.of(from);
     }
@@ -85,6 +88,7 @@ public class SymbolTable {
    * @param symbolName Name of the symbol to look up.
    * @return An Optional containing the operation that defines the symbol with the given name if found, or an empty Optional if no such symbol exists.
    */
+  @Contract(pure = true)
   public static @NotNull Optional<Operation> lookupSymbolInNearestTable(@NotNull Operation from, @NotNull String symbolName) {
     Optional<Operation> symbolTableOp = nearestSymbolTable(from);
     if (symbolTableOp.isEmpty()) {
@@ -105,6 +109,7 @@ public class SymbolTable {
    * @param <T>        Type of the symbol to look up.
    * @return An Optional containing the operation that defines the symbol with the given name if found and is an instance of the given class, or an empty Optional if no such symbol exists.
    */
+  @Contract(pure = true)
   public static <T extends Op & ISymbol> Optional<@NotNull T> lookupSymbolInNearestTableAsOp(@NotNull Operation from, @NotNull String symbolName, @NotNull Class<T> clazz) {
     Optional<Operation> foundOp = lookupSymbolInNearestTable(from, symbolName);
     if (foundOp.isEmpty() || !foundOp.get().isa(clazz)) {
@@ -119,6 +124,7 @@ public class SymbolTable {
    *
    * @return Name of the attribute used to store the symbol name.
    */
+  @Contract(pure = true)
   public static String getSymbolAttributeName() {
     return "symbol_name";
   }

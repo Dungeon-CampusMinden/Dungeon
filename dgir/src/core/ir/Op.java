@@ -6,6 +6,7 @@ import core.serialization.OpDeserializer;
 import core.serialization.OpSerializer;
 import core.traits.IOpTrait;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
@@ -83,6 +84,7 @@ public abstract class Op {
    *
    * @return the backing operation (never null).
    */
+  @Contract(pure = true)
   public @NotNull Operation getOperation() {
     assert operation != null : "Operation is null.";
     return operation;
@@ -104,6 +106,7 @@ public abstract class Op {
   // Verification
   // =========================================================================
 
+  @Contract(pure = true)
   public boolean verify(boolean recursive) {
     return getOperation().verify(recursive);
   }
@@ -113,10 +116,12 @@ public abstract class Op {
   // =========================================================================
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull OperationDetails getDetails() {
     return getOperation().getDetails();
   }
 
+  @Contract(pure = true)
   public boolean hasTrait(@NotNull Class<? extends IOpTrait> traitClass) {
     return getOperation().hasTrait(traitClass);
   }
@@ -126,6 +131,7 @@ public abstract class Op {
    *
    * @see Operation#as(Class)
    */
+  @Contract(pure = true)
   public <T extends Op> @NotNull Optional<T> as(@NotNull Class<T> clazz) {
     return getOperation().as(clazz);
   }
@@ -135,6 +141,7 @@ public abstract class Op {
    *
    * @see Operation#asTrait(Class)
    */
+  @Contract(pure = true)
   public <T extends IOpTrait> @NotNull Optional<T> asTrait(@NotNull Class<T> clazz) {
     return getOperation().asTrait(clazz);
   }
@@ -144,6 +151,7 @@ public abstract class Op {
    *
    * @see Operation#isa(Class)
    */
+  @Contract(pure = true)
   public boolean isa(@NotNull Class<? extends Op> clazz) {
     return getOperation().isa(clazz);
   }
@@ -153,35 +161,42 @@ public abstract class Op {
   // =========================================================================
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull List<ValueOperand> getOperands() {
     return getOperation().getOperands();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Optional<ValueOperand> getOperand(int index) {
     return getOperation().getOperand(index);
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull List<BlockOperand> getBlockOperands() {
     return getOperation().getBlockOperands();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull List<Block> getSuccessors() {
     return getOperation().getSuccessors();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public Optional<OperationResult> getOutput() {
     return getOperation().getOutput();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public Optional<Value> getOutputValue() {
     return getOperation().getOutputValue();
   }
 
+  @Contract(pure = true)
   public @Nullable Value getOutputValueThrowing() {
     return getOperation().getOutputValueThrowing();
   }
@@ -196,14 +211,17 @@ public abstract class Op {
   // =========================================================================
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Map<String, NamedAttribute> getAttributes() {
     return getOperation().getAttributes();
   }
 
+  @Contract(pure = true)
   public @NotNull Optional<Attribute> getAttributeByName(@NotNull String name) {
     return getOperation().getAttributeByName(name);
   }
 
+  @Contract(pure = true)
   public <T extends Attribute> @NotNull Optional<T> getAttribute(@NotNull Class<T> clazz, @NotNull String name) {
     return getOperation().getAttribute(clazz, name);
   }
@@ -226,16 +244,19 @@ public abstract class Op {
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull List<Region> getRegions() {
     return getOperation().getRegions();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Optional<Region> getRegion(int index) {
     return getOperation().getRegion(index);
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Optional<Region> getFirstRegion() {
     return getOperation().getFirstRegion();
   }
@@ -245,16 +266,19 @@ public abstract class Op {
   // =========================================================================
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Optional<Block> getParent() {
     return getOperation().getParent();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Optional<Region> getParentRegion() {
     return getOperation().getParentRegion();
   }
 
   @JsonIgnore
+  @Contract(pure = true)
   public @NotNull Optional<Operation> getParentOperation() {
     return getOperation().getParentOperation();
   }
@@ -264,6 +288,7 @@ public abstract class Op {
    *
    * @see Operation#getParentWithTrait(Class)
    */
+  @Contract(pure = true)
   public <T extends IOpTrait> @NotNull Optional<T> getParentWithTrait(Class<T> traitClass) {
     return getOperation().getParentWithTrait(traitClass);
   }
@@ -273,6 +298,7 @@ public abstract class Op {
    *
    * @see Operation#getIndex()
    */
+  @Contract(pure = true)
   public int getIndex() {
     return getOperation().getIndex();
   }
@@ -282,6 +308,7 @@ public abstract class Op {
    *
    * @see Operation#getNext()
    */
+  @Contract(pure = true)
   public @NotNull Optional<Operation> getNext() {
     return getOperation().getNext();
   }
@@ -290,14 +317,17 @@ public abstract class Op {
   // Diagnostics
   // =========================================================================
 
+  @Contract(pure = true)
   public void emitMessage(@NotNull String s) {
     getOperation().emitMessage(s);
   }
 
+  @Contract(pure = true)
   public void emitWarning(@NotNull String s) {
     getOperation().emitWarning(s);
   }
 
+  @Contract(pure = true)
   public void emitError(@NotNull String s) {
     getOperation().emitError(s);
   }

@@ -5,6 +5,7 @@ import core.detail.AttributeDetails;
 import core.ir.TypedAttribute;
 import dialect.builtin.Builtin;
 import dialect.builtin.types.StringT;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,11 +62,13 @@ public class StringAttribute extends TypedAttribute {
   // Functions
   // =========================================================================
 
+  @Contract(pure = true)
   @Override
   public @Nullable Object getStorage() {
     return value;
   }
 
+  @Contract(pure = true)
   public String getValue() {
     return value;
   }

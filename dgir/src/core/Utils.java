@@ -7,6 +7,7 @@ import core.ir.Value;
 import com.mxgraph.layout.*;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.util.mxCellRenderer;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jgrapht.Graph;
 import org.jgrapht.ext.JGraphXAdapter;
@@ -50,6 +51,7 @@ public class Utils {
      * @return the calling class.
      * @throws IllegalStateException if the caller cannot be determined.
      */
+    @Contract(pure = true)
     public static @NotNull Class<?> getCallingClass() {
       Optional<Class<?>> caller = STACK_WALKER.walk(stream -> stream
         .skip(2)   // skip getCallingClass() itself

@@ -4,6 +4,7 @@ import core.serialization.NamedAttributeDeserializer;
 import core.serialization.NamedAttributeSerializer;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
@@ -40,10 +41,12 @@ public final class NamedAttribute {
   // Functions
   // =========================================================================
 
+  @Contract(pure = true)
   public @NotNull String getName() {
     return name;
   }
 
+  @Contract(pure = true)
   public @NotNull Optional<Attribute> getAttribute() {
     return Optional.ofNullable(attribute);
   }

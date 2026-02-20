@@ -1,6 +1,7 @@
 package core.ir;
 
 import com.fasterxml.jackson.annotation.*;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -38,6 +39,7 @@ public class OperationResult {
   // Functions
   // =========================================================================
 
+  @Contract(pure = true)
   public @NotNull Value getValue() {
     return value;
   }
@@ -48,10 +50,12 @@ public class OperationResult {
     this.value = value;
   }
 
+  @Contract(pure = true)
   public @NotNull Type getType() {
     return value.getType();
   }
 
+  @Contract(pure = true)
   public @NotNull Operation getParent() {
     return parent;
   }

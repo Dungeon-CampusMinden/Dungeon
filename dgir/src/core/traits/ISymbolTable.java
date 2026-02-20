@@ -4,6 +4,7 @@ import core.ir.Operation;
 import core.SymbolTable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface ISymbolTable extends IOpTrait {
   @Contract(pure = true)
@@ -16,12 +17,12 @@ public interface ISymbolTable extends IOpTrait {
   }
 
   @Contract(pure = true)
-  static Operation lookupSymbol(Operation op, String name) {
+  static @Nullable Operation lookupSymbol(Operation op, String name) {
     return SymbolTable.lookupSymbolIn(op, name);
   }
 
   @Contract(pure = true)
-  default Operation lookupSymbol(String name) {
+  default @Nullable Operation lookupSymbol(String name) {
     return lookupSymbol(get(), name);
   }
 }
