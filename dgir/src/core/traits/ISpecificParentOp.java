@@ -14,7 +14,7 @@ import java.util.Optional;
  */
 public interface ISpecificParentOp extends IOpTrait {
   @Contract(pure = true)
-  default boolean verify(@NotNull ISpecificParentOp trait) {
+  default boolean verify(@NotNull ISpecificParentOp ignored) {
     Operation operation = get();
     Optional<Operation> parentOp = operation.getParentOperation();
     if (parentOp.isEmpty()) {

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface IControlFlow extends IOpTrait {
   @Contract(pure = true)
-  default boolean verify(@NotNull IControlFlow op) {
+  default boolean verify(@NotNull IControlFlow ignored) {
     return true;
   }
 }

@@ -14,7 +14,7 @@ import java.util.Optional;
  */
 public interface IZeroOrOneOperand extends IOpTrait {
   @Contract(pure = true)
-  default boolean verify(@NotNull IZeroOrOneOperand op) {
+  default boolean verify(@NotNull IZeroOrOneOperand ignored) {
     // Ensure that the operation only has one operator
     if (get().getOperands().size() > 1) {
       get().emitError("Operation must have at most one operand.");

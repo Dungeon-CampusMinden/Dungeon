@@ -6,11 +6,9 @@ import core.ir.Operation;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 public interface ISingleBlock extends IOpTrait {
   @Contract(pure = true)
-  default boolean verify(@NotNull ISingleBlock op) {
+  default boolean verify(@NotNull ISingleBlock ignored) {
     if (get().getRegions().size() != 1) {
       get().emitError("Operation must have exactly one region.");
       return false;

@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface ISingleOperand extends IOpTrait {
   @Contract(pure = true)
-  default boolean verify(@NotNull ISingleOperand op) {
+  default boolean verify(@NotNull ISingleOperand ignored) {
     // Ensure that the operation only has one operator
     if (get().getOperands().size() == 1) {
       get().emitError("Operation must have exactly one operand.");

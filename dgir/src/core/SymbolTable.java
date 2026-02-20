@@ -1,6 +1,5 @@
 package core;
 
-import core.ir.Block;
 import core.ir.Op;
 import core.ir.Operation;
 import core.ir.Region;
@@ -12,9 +11,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * SymbolTable for ops which implement the ISymbolTable interface.

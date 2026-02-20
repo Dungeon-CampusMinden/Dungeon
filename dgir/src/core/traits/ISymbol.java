@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ISymbol extends IOpTrait {
   @Contract(pure = true)
-  default boolean verify(@NotNull ISymbol trait) {
+  default boolean verify(@NotNull ISymbol ignored) {
     if (!get().getAttributes().containsKey(SymbolTable.getSymbolAttributeName())) {
       get().emitError("Symbol must have a symbol attribute.");
       return false;

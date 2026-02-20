@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface INoTerminator extends IOpTrait {
   @Contract(pure = true)
-  default boolean verify(@NotNull INoTerminator op) {
+  default boolean verify(@NotNull INoTerminator ignored) {
     Operation operation = get();
     // Check that the operation has exactly one region, block and no terminator.
     if (operation.getRegions().size() != 1){

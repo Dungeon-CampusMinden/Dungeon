@@ -3,11 +3,9 @@ package core.traits;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 public interface IGlobal extends IOpTrait {
   @Contract(pure = true)
-  default boolean verify(@NotNull IGlobal op) {
+  default boolean verify(@NotNull IGlobal ignored) {
     return get().getParentOperation()
       // Ensure that the op is inside a global container op
       .map(parent -> parent.hasTrait(IGlobalContainer.class))

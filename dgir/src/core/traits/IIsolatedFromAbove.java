@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface IIsolatedFromAbove extends IOpTrait {
   @Contract(pure = true)
-  default boolean verify(@NotNull IIsolatedFromAbove op) {
+  default boolean verify(@NotNull IIsolatedFromAbove ignored) {
     // The verification of this trait is done in the reaching definitions analysis.
     return true;
   }

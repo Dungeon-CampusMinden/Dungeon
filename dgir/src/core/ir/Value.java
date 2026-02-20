@@ -11,7 +11,7 @@ import java.io.Serializable;
  * A dynamic value produced by an {@link Operation} or introduced as a block/region argument.
  * Values carry a {@link Type} and maintain a use-list of all {@link ValueOperand}s that reference them.
  */
-@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class, property = "@id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
 public final class Value extends IRObjectWithUseList<Value, ValueOperand> implements Serializable {
 
   // =========================================================================

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ISingleRegion extends IOpTrait {
   @Contract(pure = true)
-  default boolean verify(@NotNull ISingleRegion trait) {
+  default boolean verify(@NotNull ISingleRegion ignored) {
     if (get().getRegions().size() != 1) {
       get().emitError("Operation must have exactly one region.");
       return false;
