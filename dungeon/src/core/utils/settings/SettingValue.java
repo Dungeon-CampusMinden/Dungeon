@@ -1,7 +1,6 @@
 package core.utils.settings;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-
 import java.util.function.Consumer;
 
 public abstract class SettingValue<T> {
@@ -21,10 +20,11 @@ public abstract class SettingValue<T> {
     this.onChange = onChange;
   }
 
-  public String name(){
+  public String name() {
     return name;
   }
-  public void name(String name){
+
+  public void name(String name) {
     this.name = name;
   }
 
@@ -34,15 +34,14 @@ public abstract class SettingValue<T> {
 
   public void value(T value) {
     this.value = value;
-    if(onChange != null){
+    if (onChange != null) {
       onChange.accept(value);
     }
   }
 
-  public void onChange(Consumer<T> listener){
+  public void onChange(Consumer<T> listener) {
     this.onChange = listener;
   }
 
   public abstract Actor toUIActor();
-
 }

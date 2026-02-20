@@ -115,7 +115,7 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   private void onEntityChanged(Entity changed, boolean added) {
-    if(changed.fetch(DrawComponent.class).isEmpty()) return;
+    if (changed.fetch(DrawComponent.class).isEmpty()) return;
     DSData data = DSData.build(changed);
     int depth = data.dc.depth();
     List<Entity> entitiesAtDepth = sortedEntities.get(depth);
@@ -677,16 +677,18 @@ public final class DrawSystem extends System implements Disposable {
 
       // Final world size includes padding on all sides
       Vector2 finalWorldSize =
-          Vector2.of(worldWidth + 2 * paddingX * worldWidth, worldHeight + 2 * paddingY * worldHeight);
+          Vector2.of(
+              worldWidth + 2 * paddingX * worldWidth, worldHeight + 2 * paddingY * worldHeight);
 
       // Scale is being factored into the transformation everywhere except the position, since it is
       // passed directly to the draw method. Thus, we need to factor it in here to offset the
       // padding.
       Point offsetPosition =
-        dsd.pc
-          .position()
-          .translate(
-            -paddingX * dsd.pc.scale().x() * worldWidth, -paddingY * dsd.pc.scale().y() * worldHeight);
+          dsd.pc
+              .position()
+              .translate(
+                  -paddingX * dsd.pc.scale().x() * worldWidth,
+                  -paddingY * dsd.pc.scale().y() * worldHeight);
 
       DrawConfig conf = makeConfig(dsd, finalWorldSize, dsd.pc.scale());
       draw(offsetPosition, fboTexture, conf);

@@ -14,7 +14,6 @@ import core.utils.BaseContainerUI;
 import core.utils.FontSpec;
 import core.utils.Scene2dElementFactory;
 import core.utils.settings.ClientSettings;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,10 +59,7 @@ public class PauseDialog extends Table {
    * @return The {@link UIComponent} containing the dialog
    */
   public static UIComponent showPauseDialog(int... targetIds) {
-    DialogContext ctx =
-      DialogContext.builder()
-        .type(DialogType.DefaultTypes.PAUSE_MENU)
-        .build();
+    DialogContext ctx = DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).build();
 
     UIComponent ui = DialogFactory.show(ctx, targetIds);
 
@@ -92,34 +88,41 @@ public class PauseDialog extends Table {
   }
 
   private Table createMainView(DialogContext ctx) {
-    Label label = Scene2dElementFactory.createLabel("PAUSED", FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
+    Label label =
+        Scene2dElementFactory.createLabel(
+            "PAUSED", FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
     TextButton resumeBtn = Scene2dElementFactory.createButton("Resume", "clean-green", 32);
-    TextButton settingsBtn = Scene2dElementFactory.createButton("Settings", "clean-blue-outline", 32);
-    TextButton quitBtn = Scene2dElementFactory.createButton("Quit to Desktop", "clean-red-outline", 32);
+    TextButton settingsBtn =
+        Scene2dElementFactory.createButton("Settings", "clean-blue-outline", 32);
+    TextButton quitBtn =
+        Scene2dElementFactory.createButton("Quit to Desktop", "clean-red-outline", 32);
 
-    resumeBtn.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_RESUME)
-          .accept(null);
-        Sounds.playLocal(CoreSounds.INTERFACE_DIALOG_CLOSED);
-      }
-    });
-    settingsBtn.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        showSettings();
-        Sounds.playLocal(CoreSounds.INTERFACE_BUTTON_CLICKED);
-      }
-    });
-    quitBtn.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_QUIT)
-          .accept(null);
-        Sounds.playLocal(CoreSounds.INTERFACE_DIALOG_CLOSED);
-      }
-    });
+    resumeBtn.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_RESUME)
+                .accept(null);
+            Sounds.playLocal(CoreSounds.INTERFACE_DIALOG_CLOSED);
+          }
+        });
+    settingsBtn.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            showSettings();
+            Sounds.playLocal(CoreSounds.INTERFACE_BUTTON_CLICKED);
+          }
+        });
+    quitBtn.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_QUIT)
+                .accept(null);
+            Sounds.playLocal(CoreSounds.INTERFACE_DIALOG_CLOSED);
+          }
+        });
 
     Table menu = new Table();
     menu.add(label).padBottom(30).align(Align.center).row();
@@ -129,21 +132,26 @@ public class PauseDialog extends Table {
     return menu;
   }
 
-  private Table createSettingsView(DialogContext ctx){
-    Label label = Scene2dElementFactory.createLabel("SETTINGS", FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
+  private Table createSettingsView(DialogContext ctx) {
+    Label label =
+        Scene2dElementFactory.createLabel(
+            "SETTINGS", FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
     TextButton backBtn = Scene2dElementFactory.createButton("Back", "clean-green", 32);
-    backBtn.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        showMainView();
-        Sounds.playLocal(CoreSounds.INTERFACE_BUTTON_CLICKED);
-      }
-    });
+    backBtn.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            showMainView();
+            Sounds.playLocal(CoreSounds.INTERFACE_BUTTON_CLICKED);
+          }
+        });
     List<Actor> settingsActors = new ArrayList<>();
 
-    ClientSettings.getSettings().forEach((s, setting) -> {
-      settingsActors.add(setting.toUIActor());
-    });
+    ClientSettings.getSettings()
+        .forEach(
+            (s, setting) -> {
+              settingsActors.add(setting.toUIActor());
+            });
 
     Table menu = new Table();
     menu.add(label).padBottom(15).align(Align.center).row();
@@ -151,22 +159,24 @@ public class PauseDialog extends Table {
     menu.add(Scene2dElementFactory.createHorizontalDivider()).growX().padBottom(5).row();
 
     Table settingsTable = new Table();
-    settingsActors.forEach(actor -> {
-      actor.addListener(new InputListener(){
-        @Override
-        public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-          if (fromActor != null && fromActor.isDescendantOf(actor) || pointer != -1) return;
-          Sounds.playLocal(CoreSounds.INTERFACE_ITEM_HOVERED, 1, 0.6f);
-          super.enter(event, x, y, pointer, fromActor);
-        }
-      });
-      settingsTable.add(actor).width(500).align(Align.center).pad(0, 10, 20, 10).row();
-    });
+    settingsActors.forEach(
+        actor -> {
+          actor.addListener(
+              new InputListener() {
+                @Override
+                public void enter(
+                    InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                  if (fromActor != null && fromActor.isDescendantOf(actor) || pointer != -1) return;
+                  Sounds.playLocal(CoreSounds.INTERFACE_ITEM_HOVERED, 1, 0.6f);
+                  super.enter(event, x, y, pointer, fromActor);
+                }
+              });
+          settingsTable.add(actor).width(500).align(Align.center).pad(0, 10, 20, 10).row();
+        });
 
     ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(settingsTable, false, true);
     scrollPane.setFlickScroll(false);
-    ScrollPane.ScrollPaneStyle style =
-      new ScrollPane.ScrollPaneStyle(scrollPane.getStyle());
+    ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle(scrollPane.getStyle());
     style.background = null;
     style.corner = null;
     scrollPane.setStyle(style);

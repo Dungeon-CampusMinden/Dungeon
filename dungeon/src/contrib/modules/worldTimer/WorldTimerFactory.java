@@ -12,5 +12,4 @@ public class WorldTimerFactory {
     e.add(new WorldTimerComponent(timestamp, duration));
     return e;
   }
-
 }

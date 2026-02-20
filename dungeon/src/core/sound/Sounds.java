@@ -3,14 +3,12 @@ package core.sound;
 import core.Game;
 import core.utils.settings.ClientSettings;
 
-/**
- * Utility class for playing sounds with various options.
- */
+/** Utility class for playing sounds with various options. */
 public class Sounds {
 
-  private static float getEffectsVolume(){
-    float master = (float)ClientSettings.masterVolume() / 100;
-    float effects = (float)ClientSettings.effectsVolume() / 100;
+  private static float getEffectsVolume() {
+    float master = (float) ClientSettings.masterVolume() / 100;
+    float effects = (float) ClientSettings.effectsVolume() / 100;
     return master * effects;
   }
 
@@ -62,7 +60,8 @@ public class Sounds {
    */
   public static long play(ISound sound, float pitch, float volumeModifier) {
     float volume = getEffectsVolume() * sound.volume() * volumeModifier;
-    return Game.audio().playGlobal(new SoundSpec.Builder(sound.soundName()).volume(volume).pitch(pitch));
+    return Game.audio()
+        .playGlobal(new SoundSpec.Builder(sound.soundName()).volume(volume).pitch(pitch));
   }
 
   /**
@@ -92,8 +91,9 @@ public class Sounds {
    * @return the id of the sound instance if playback started, or -1 if it failed to play
    */
   public static long playLocal(ISound sound, float pitch, float volumeModifier) {
-    //TODO play only for the local player
+    // TODO play only for the local player
     float volume = getEffectsVolume() * sound.volume() * volumeModifier;
-    return Game.audio().playGlobal(new SoundSpec.Builder(sound.soundName()).volume(volume).pitch(pitch));
+    return Game.audio()
+        .playGlobal(new SoundSpec.Builder(sound.soundName()).volume(volume).pitch(pitch));
   }
 }

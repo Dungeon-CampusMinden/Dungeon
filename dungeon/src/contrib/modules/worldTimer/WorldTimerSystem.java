@@ -27,7 +27,8 @@ public class WorldTimerSystem extends System {
   private static int HEIGHT = 64;
   private static int PADDING_X = 15;
   private static int PADDING_Y = 5;
-  private static FontSpec TIMER_FONT = new FontSpec("fonts/Doto_Rounded-ExtraBold.ttf", HEIGHT, Color.RED, 0, Color.WHITE);
+  private static FontSpec TIMER_FONT =
+      new FontSpec("fonts/Doto_Rounded-ExtraBold.ttf", HEIGHT, Color.RED, 0, Color.WHITE);
   private static BitmapFont FONT;
   private static SpriteBatch BATCH = new SpriteBatch();
 
@@ -51,39 +52,30 @@ public class WorldTimerSystem extends System {
     String timerString = String.format("%02d:%02d", secondsLeft / 60, secondsLeft % 60);
     GlyphLayout layout = new GlyphLayout(FONT, timerString);
 
-    int fboWidth = (int)layout.width + PADDING_X *2;
-    int fboHeight = HEIGHT + PADDING_Y *2;
-    FrameBuffer fbo = new FrameBuffer(
-      Pixmap.Format.RGBA8888,
-      fboWidth,
-      fboHeight,
-      false
-    );
+    int fboWidth = (int) layout.width + PADDING_X * 2;
+    int fboHeight = HEIGHT + PADDING_Y * 2;
+    FrameBuffer fbo = new FrameBuffer(Pixmap.Format.RGBA8888, fboWidth, fboHeight, false);
 
     fbo.begin();
 
     Gdx.gl.glClearColor(0f, 0f, 0f, 1.0f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-
     BATCH.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, fboWidth, fboHeight));
     BATCH.begin();
     FONT.draw(BATCH, timerString, PADDING_X, HEIGHT - PADDING_Y);
     BATCH.end();
 
-    Pixmap pixmap = Pixmap.createFromFrameBuffer(
-      0,
-      0,
-      fbo.getWidth(),
-      fbo.getHeight()
-    );
+    Pixmap pixmap = Pixmap.createFromFrameBuffer(0, 0, fbo.getWidth(), fbo.getHeight());
     fbo.end();
     fbo.dispose();
 
-    String path = "@gen/worldTimer/"+data.e.name()+".png";
+    String path = "@gen/worldTimer/" + data.e.name() + ".png";
     IPath ipath = new SimpleIPath(path);
     TextureMap.instance().putPixmap(ipath, pixmap, true);
-    TextureMap.instance().textureAt(ipath).setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+    TextureMap.instance()
+        .textureAt(ipath)
+        .setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
     data.e.remove(DrawComponent.class);
     data.e.add(new DrawComponent(new Animation(ipath, new AnimationConfig().scaleX(0.5f))));
@@ -96,10 +88,10 @@ public class WorldTimerSystem extends System {
 
   private record Data(Entity e, WorldTimerComponent tc, PositionComponent pc) {
     private static Data of(Entity e) {
-      return new Data(e,
-        e.fetch(WorldTimerComponent.class).orElseThrow(),
-        e.fetch(PositionComponent.class).orElseThrow()
-      );
+      return new Data(
+          e,
+          e.fetch(WorldTimerComponent.class).orElseThrow(),
+          e.fetch(PositionComponent.class).orElseThrow());
     }
   }
 }

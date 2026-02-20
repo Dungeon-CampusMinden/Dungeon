@@ -60,15 +60,16 @@ public class Scene2dElementFactory {
 
     element.setStyle(style);
     element.setUserObject(Cursors.TEXT);
-    element.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        if (actor instanceof TextField) {
-          float pitch = 0.85f + (float) Math.random() * 0.3f;
-          Sounds.playLocal(CoreSounds.INTERFACE_TEXTFIELD_TYPED, pitch);
-        }
-      }
-    });
+    element.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            if (actor instanceof TextField) {
+              float pitch = 0.85f + (float) Math.random() * 0.3f;
+              Sounds.playLocal(CoreSounds.INTERFACE_TEXTFIELD_TYPED, pitch);
+            }
+          }
+        });
     return element;
   }
 
@@ -155,35 +156,42 @@ public class Scene2dElementFactory {
         });
   }
 
-  public static <T> SelectBox<T> createSelectBox(Function<T, String> valueFormatter, boolean small) {
+  public static <T> SelectBox<T> createSelectBox(
+      Function<T, String> valueFormatter, boolean small) {
     FontSpec spec = Scene2dElementFactory.FONT_SPEC;
-    if(!small){
+    if (!small) {
       spec = spec.withSize(32);
     }
     BitmapFont font = FontHelper.getFont(spec);
-    CustomSelectBox<T> selectBox = new CustomSelectBox<>(UIUtils.defaultSkin(), small ? "small" : "default");
+    CustomSelectBox<T> selectBox =
+        new CustomSelectBox<>(UIUtils.defaultSkin(), small ? "small" : "default");
     selectBox.getStyle().font = font;
     selectBox.getList().getStyle().font = font;
     selectBox.setValueFormatter(valueFormatter);
     return selectBox;
   }
+
   public static <T> SelectBox<T> createSelectBox(Function<T, String> valueFormatter) {
     return createSelectBox(valueFormatter, true);
   }
+
   public static <T> SelectBox<T> createSelectBox() {
     return createSelectBox(null);
   }
 
-
-  private static void addHoverSound(Actor actor){
-    actor.addListener(new InputListener() {
-      @Override
-      public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-        // Only play sound if the mouse newly entered this button (not when moving onto a child actor)
-        if ((fromActor != null && fromActor.isDescendantOf(actor)) || pointer != -1 || (actor instanceof Disableable disableable && disableable.isDisabled())) return;
-        Sounds.playLocal(CoreSounds.INTERFACE_ITEM_HOVERED);
-        super.enter(event, x, y, pointer, fromActor);
-      }
-    });
+  private static void addHoverSound(Actor actor) {
+    actor.addListener(
+        new InputListener() {
+          @Override
+          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            // Only play sound if the mouse newly entered this button (not when moving onto a child
+            // actor)
+            if ((fromActor != null && fromActor.isDescendantOf(actor))
+                || pointer != -1
+                || (actor instanceof Disableable disableable && disableable.isDisabled())) return;
+            Sounds.playLocal(CoreSounds.INTERFACE_ITEM_HOVERED);
+            super.enter(event, x, y, pointer, fromActor);
+          }
+        });
   }
 }

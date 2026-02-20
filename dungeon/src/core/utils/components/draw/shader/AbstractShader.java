@@ -354,16 +354,14 @@ public abstract class AbstractShader implements Disposable {
     }
   }
 
-  /**
-   * Binds an array of Vector3s to the shader.
-   */
+  /** Binds an array of Vector3s to the shader. */
   public record Vector3ArrayUniform(String name, List<Vector3> values) implements UniformBinding {
     @Override
     public void bind(ShaderProgram program) {
       int count = Math.min(values.size(), 100); // Guard against array bounds
 
       // Pass the count of active lights
-      program.setUniformi(name+"_count", count);
+      program.setUniformi(name + "_count", count);
 
       // Flatten the Vector3 list into a single float array
       float[] flatArray = new float[count * 3];

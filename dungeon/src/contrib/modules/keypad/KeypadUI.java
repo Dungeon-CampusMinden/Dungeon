@@ -98,7 +98,7 @@ public class KeypadUI extends Group {
    * @return A new KeypadUI instance.
    */
   public static Group build(DialogContext context) {
-    if(Game.isHeadless()) return new HeadlessDialogGroup();
+    if (Game.isHeadless()) return new HeadlessDialogGroup();
     return new KeypadUI(context.requireEntity(DialogContextKeys.ENTITY));
   }
 

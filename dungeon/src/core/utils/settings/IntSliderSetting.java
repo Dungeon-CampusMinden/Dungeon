@@ -12,7 +12,6 @@ import contrib.hud.UIUtils;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
-
 import java.util.function.Function;
 
 public class IntSliderSetting extends SettingValue<Integer> {
@@ -25,18 +24,25 @@ public class IntSliderSetting extends SettingValue<Integer> {
   public IntSliderSetting(String name, int defaultValue) {
     this(name, defaultValue, 0, 100, 1, null);
   }
+
   public IntSliderSetting(String name, int defaultValue, int min, int max, int step) {
     this(name, defaultValue, min, max, step, null);
   }
 
-  public IntSliderSetting(String name, int defaultValue, int min, int max, int step, Function<Integer, String> labelFormatter) {
+  public IntSliderSetting(
+      String name,
+      int defaultValue,
+      int min,
+      int max,
+      int step,
+      Function<Integer, String> labelFormatter) {
     super(name, defaultValue);
 
     this.min = min;
     this.max = max;
     this.step = step;
 
-    if(labelFormatter == null){
+    if (labelFormatter == null) {
       labelFormatter = Object::toString;
     }
     this.labelFormatter = labelFormatter;
@@ -46,22 +52,24 @@ public class IntSliderSetting extends SettingValue<Integer> {
   public Actor toUIActor() {
     Label label = Scene2dElementFactory.createLabel(name(), 24, Color.BLACK);
     label.setAlignment(Align.right);
-    Label valueLabel = Scene2dElementFactory.createLabel(labelFormatter.apply(value()), 24, Color.BLACK);
+    Label valueLabel =
+        Scene2dElementFactory.createLabel(labelFormatter.apply(value()), 24, Color.BLACK);
     valueLabel.setAlignment(Align.center);
     Slider slider = new Slider(min, max, step, false, UIUtils.defaultSkin(), "clean-horizontal");
     slider.setValue(value());
-    slider.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        if (actor instanceof Slider slider) {
-          int val = (int) slider.getValue();
-          if(val == value()) return;
-          value(val);
-          valueLabel.setText(labelFormatter.apply(val));
-          Sounds.playLocal(CoreSounds.SETTINGS_SLIDER_STEP);
-        }
-      }
-    });
+    slider.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            if (actor instanceof Slider slider) {
+              int val = (int) slider.getValue();
+              if (val == value()) return;
+              value(val);
+              valueLabel.setText(labelFormatter.apply(val));
+              Sounds.playLocal(CoreSounds.SETTINGS_SLIDER_STEP);
+            }
+          }
+        });
 
     Table table = new Table();
     table.setTouchable(Touchable.enabled);

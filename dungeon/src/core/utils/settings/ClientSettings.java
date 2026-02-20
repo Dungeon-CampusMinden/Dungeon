@@ -3,7 +3,6 @@ package core.utils.settings;
 import com.badlogic.gdx.Input;
 import contrib.entities.CharacterClass;
 import contrib.entities.deco.Deco;
-
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.function.BiConsumer;
@@ -55,7 +54,10 @@ public class ClientSettings {
     registerSetting(MUSIC_VOLUME, musicVolume);
 
     registerSetting("hero", heroClassSetting);
-    registerSetting("deco", new EnumSetting<>("Selected Deco", Deco.Desk, Deco.values(), ClientSettings::formatEnumTitle));
+    registerSetting(
+        "deco",
+        new EnumSetting<>(
+            "Selected Deco", Deco.Desk, Deco.values(), ClientSettings::formatEnumTitle));
 
     registerSetting("colorblind", new BoolSetting("Colorblind Mode", false));
 
@@ -99,12 +101,11 @@ public class ClientSettings {
     return getInstance().settings;
   }
 
-
-
-  public static void save(){
+  public static void save() {
     // Serialize to json
   }
-  public static void load(){
+
+  public static void load() {
     // load from json
   }
 
@@ -112,9 +113,7 @@ public class ClientSettings {
     String[] parts = e.name().toLowerCase().split("_");
     StringBuilder out = new StringBuilder();
     for (String p : parts) {
-      out.append(Character.toUpperCase(p.charAt(0)))
-        .append(p.substring(1))
-        .append(' ');
+      out.append(Character.toUpperCase(p.charAt(0))).append(p.substring(1)).append(' ');
     }
     return out.toString().trim();
   }

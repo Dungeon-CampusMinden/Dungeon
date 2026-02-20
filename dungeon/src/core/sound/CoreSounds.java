@@ -2,7 +2,6 @@ package core.sound;
 
 /** Enum that lists core sound effects and convenient playback helpers. */
 public enum CoreSounds implements ISound {
-
   INTERFACE_ITEM_HOVERED("kenney_ui_glass_005", 0.3f),
   INTERFACE_BUTTON_CLICKED("kenney_ui_select_001", 0.4f),
   INTERFACE_BUTTON_FORWARD("kenney_ui_confirmation_001", 1.0f),
@@ -14,7 +13,6 @@ public enum CoreSounds implements ISound {
   SETTINGS_TOGGLE_CLICK("kenney_ui_switch_001", 0.4f),
   SETTINGS_SLIDER_STEP("kenney_ui_select_002", 0.3f),
   SETTINGS_ENUM_VALUE_SELECTED("kenney_ui_drop_004", 0.3f),
-
   ;
 
   private final String soundName;

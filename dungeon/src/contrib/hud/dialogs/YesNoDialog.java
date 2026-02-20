@@ -10,8 +10,6 @@ import core.Game;
 import core.utils.BaseContainerUI;
 import core.utils.Scene2dElementFactory;
 
-import java.util.function.BiFunction;
-
 /**
  * Package-private builder for Yes/No dialogs.
  *
@@ -46,35 +44,35 @@ final class YesNoDialog {
 
   private static Group create(Skin skin, String title, String text, String dialogId) {
     Dialog dialog =
-      new HandledDialog(
-        title,
-        skin,
-        (d, id) -> {
-          if (id.equals(DEFAULT_DIALOG_YES)) {
-            DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_YES)
-              .accept(null);
-          } else if (id.equals(DEFAULT_DIALOG_NO)) {
-            DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_NO)
-              .accept(null);
-          }
-          return true;
-        });
+        new HandledDialog(
+            title,
+            skin,
+            (d, id) -> {
+              if (id.equals(DEFAULT_DIALOG_YES)) {
+                DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_YES)
+                    .accept(null);
+              } else if (id.equals(DEFAULT_DIALOG_NO)) {
+                DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_NO)
+                    .accept(null);
+              }
+              return true;
+            });
 
     DialogDesign.setDialogDefaults(dialog, title);
     Table content = dialog.getContentTable();
 
     content
-      .add(Scene2dElementFactory.createLabel(text, DialogDesign.DIALOG_FONT_SPEC_NORMAL))
-      .padBottom(10)
-      .row();
+        .add(Scene2dElementFactory.createLabel(text, DialogDesign.DIALOG_FONT_SPEC_NORMAL))
+        .padBottom(10)
+        .row();
     dialog.button(
-      DEFAULT_DIALOG_YES,
-      DEFAULT_DIALOG_YES,
-      skin.get("clean-green", TextButton.TextButtonStyle.class));
+        DEFAULT_DIALOG_YES,
+        DEFAULT_DIALOG_YES,
+        skin.get("clean-green", TextButton.TextButtonStyle.class));
     dialog.button(
-      DEFAULT_DIALOG_NO,
-      DEFAULT_DIALOG_NO,
-      skin.get("clean-red-outline", TextButton.TextButtonStyle.class));
+        DEFAULT_DIALOG_NO,
+        DEFAULT_DIALOG_NO,
+        skin.get("clean-red-outline", TextButton.TextButtonStyle.class));
 
     dialog.pack();
 

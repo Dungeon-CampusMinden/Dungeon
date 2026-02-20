@@ -1,7 +1,6 @@
 package core.utils.settings;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -10,13 +9,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-import contrib.hud.UIUtils;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
-import core.utils.FontHelper;
 import core.utils.Scene2dElementFactory;
-
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Function;
 
@@ -37,12 +32,7 @@ public class EnumSetting<E extends Enum<E>> extends SettingValue<E> {
     this(name, defaultValue, subset.toArray((E[]) new Enum[0]), null);
   }
 
-  public EnumSetting(
-    String name,
-    E defaultValue,
-    E[] subset,
-    Function<E, String> labelFormatter
-  ) {
+  public EnumSetting(String name, E defaultValue, E[] subset, Function<E, String> labelFormatter) {
     super(name, defaultValue);
 
     if (subset == null || subset.length == 0) {
@@ -67,13 +57,14 @@ public class EnumSetting<E extends Enum<E>> extends SettingValue<E> {
     selectBox.setItems(values);
     selectBox.setSelected(value());
 
-    selectBox.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        value(selectBox.getSelected());
-        Sounds.playLocal(CoreSounds.SETTINGS_ENUM_VALUE_SELECTED, 1.0f);
-      }
-    });
+    selectBox.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            value(selectBox.getSelected());
+            Sounds.playLocal(CoreSounds.SETTINGS_ENUM_VALUE_SELECTED, 1.0f);
+          }
+        });
 
     Table table = new Table();
     table.setTouchable(Touchable.enabled);
@@ -82,6 +73,4 @@ public class EnumSetting<E extends Enum<E>> extends SettingValue<E> {
 
     return table;
   }
-
-
 }

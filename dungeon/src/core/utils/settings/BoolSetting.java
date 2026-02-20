@@ -28,14 +28,15 @@ public class BoolSetting extends SettingValue<Boolean> {
     checkBox.setChecked(value());
     checkBox.align(Align.left);
 
-    checkBox.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        value(checkBox.isChecked());
-        float pitch = value() ? 1.0f : 0.8f;
-        Sounds.playLocal(CoreSounds.SETTINGS_TOGGLE_CLICK, pitch);
-      }
-    });
+    checkBox.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            value(checkBox.isChecked());
+            float pitch = value() ? 1.0f : 0.8f;
+            Sounds.playLocal(CoreSounds.SETTINGS_TOGGLE_CLICK, pitch);
+          }
+        });
 
     Table table = new Table();
     table.setTouchable(Touchable.enabled);

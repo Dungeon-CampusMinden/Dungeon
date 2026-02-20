@@ -72,7 +72,7 @@ public class ShowImageUI extends Group {
   public static Group build(DialogContext ctx) {
     String img_path = ctx.require(DialogContextKeys.IMAGE, String.class);
 
-    if(Game.isHeadless()){
+    if (Game.isHeadless()) {
       return new HeadlessDialogGroup();
     }
 
