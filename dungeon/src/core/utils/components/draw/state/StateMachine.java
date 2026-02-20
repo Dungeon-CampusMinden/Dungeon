@@ -5,9 +5,10 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
 import core.utils.components.path.IPath;
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -17,8 +18,7 @@ import java.util.function.Supplier;
  * <p>Supports named states, regular transitions triggered by signals, and epsilon transitions that
  * are evaluated each update cycle.
  */
-public class StateMachine implements Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+public class StateMachine {
 
   /**
    * Defines globally whether the frame counter should be reset when the animation state changes.

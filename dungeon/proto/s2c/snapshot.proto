@@ -1,0 +1,21 @@
+// World state snapshot messages.
+
+syntax = "proto3";
+
+package dungeon.s2c;
+
+import "s2c/entity.proto";
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.s2c";
+option java_outer_classname = "SnapshotProto";
+
+// Server-to-client: World state snapshot for a game tick.
+// Maps to: core.network.messages.s2c.SnapshotMessage
+message SnapshotMessage {
+  // Server tick number for this snapshot.
+  int32 server_tick = 1;
+
+  // States of all relevant entities.
+  repeated EntityState entities = 2;
+}

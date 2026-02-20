@@ -6,6 +6,7 @@ buildscript {
 
 plugins {
     id 'com.diffplug.spotless' version "${spotlessVersion}"
+    id 'com.google.protobuf' version "${protobufGradlePluginVersion}" apply false
     id 'com.github.jk1.dependency-license-report' version "${jk1licenseVersion}"
 }
 

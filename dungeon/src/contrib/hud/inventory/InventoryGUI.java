@@ -391,12 +391,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
                 itemDragPayload.inventoryComponent(),
                 itemDragPayload.slot());
           } else {
-            Game.network()
-                .send(
-                    (short) 0,
-                    new InputMessage(
-                        InputMessage.Action.INV_DROP, Vector2.of(itemDragPayload.slot(), 0)),
-                    true);
+            Game.network().send((short) 0, InputMessage.invDrop(itemDragPayload.slot()), true);
           }
         }
       }
@@ -430,12 +425,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
           if (Game.network().isServer()) {
             HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
           } else {
-            Game.network()
-                .send(
-                    (short) 0,
-                    new InputMessage(
-                        InputMessage.Action.INV_MOVE, Vector2.of(sourceSlot, targetSlot)),
-                    true);
+            Game.network().send((short) 0, InputMessage.invMove(sourceSlot, targetSlot), true);
           }
         }
       }
@@ -458,11 +448,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
                   return HeroController.useItem(player, getSlotByMousePosition());
                 } else {
                   Game.network()
-                      .send(
-                          (short) 0,
-                          new InputMessage(
-                              InputMessage.Action.INV_USE, Vector2.of(getSlotByMousePosition(), 0)),
-                          true);
+                      .send((short) 0, InputMessage.invUse(getSlotByMousePosition()), true);
                   return true;
                 }
               }
@@ -484,11 +470,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
                   return HeroController.useItem(player, getSlotByMousePosition());
                 } else {
                   Game.network()
-                      .send(
-                          (short) 0,
-                          new InputMessage(
-                              InputMessage.Action.INV_USE, Vector2.of(getSlotByMousePosition(), 0)),
-                          true);
+                      .send((short) 0, InputMessage.invUse(getSlotByMousePosition()), true);
                   return true;
                 }
               }
@@ -524,12 +506,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
                       Game.player().orElseThrow(), sourceSlot, nextBestTargetSlot);
                 } else {
                   Game.network()
-                      .send(
-                          (short) 0,
-                          new InputMessage(
-                              InputMessage.Action.INV_MOVE,
-                              Vector2.of(sourceSlot, nextBestTargetSlot)),
-                          true);
+                      .send((short) 0, InputMessage.invMove(sourceSlot, nextBestTargetSlot), true);
                   return true;
                 }
               }

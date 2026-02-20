@@ -1,0 +1,28 @@
+// Sound-related server messages.
+
+syntax = "proto3";
+
+package dungeon.s2c;
+
+import "common/common_types.proto";
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.s2c";
+option java_outer_classname = "SoundProto";
+
+// Server-to-client: Play a sound.
+// Maps to: core.network.messages.s2c.SoundPlayMessage
+message SoundPlayMessage {
+  // Entity emitting the sound (for position tracking).
+  int32 entity_id = 1;
+
+  // Sound spec
+  dungeon.common.SoundSpec spec = 2;
+}
+
+// Server-to-client: Stop a playing sound.
+// Maps to: core.network.messages.s2c.SoundStopMessage
+message SoundStopMessage {
+  // Sound instance to stop.
+  int64 sound_instance_id = 1;
+}

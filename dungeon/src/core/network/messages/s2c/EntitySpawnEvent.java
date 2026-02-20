@@ -7,6 +7,8 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.RequestEntitySpawn;
+import core.utils.components.draw.DrawComponentFactory;
+import core.utils.components.draw.DrawInfoData;
 
 /**
  * Server→client: spawn entity.
@@ -17,8 +19,9 @@ import core.network.messages.c2s.RequestEntitySpawn;
  * created on the server that the client needs to know about.
  *
  * @param entityId the entity's unique ID
- * @param positionComponent the entity's position component
- * @param drawComponent the entity's draw component
+ * @param positionComponent the entity's position component TODO: consider a data-only position
+ *     payload for network isolation
+ * @param drawInfo the entity's draw info (data-only, render thread builds component)
  * @param isPersistent whether the entity should be saved to the map
  * @param playerComponent the entity's player component, if it has one (null if not)
  * @param characterClassId the entity's character class ID, if it has one (0 if not)
@@ -28,7 +31,7 @@ import core.network.messages.c2s.RequestEntitySpawn;
 public record EntitySpawnEvent(
     int entityId,
     PositionComponent positionComponent,
-    DrawComponent drawComponent,
+    DrawInfoData drawInfo,
     boolean isPersistent,
     // For Player entities (Hero):
     PlayerComponent playerComponent,
@@ -47,7 +50,7 @@ public record EntitySpawnEvent(
     this(
         entity.id(),
         entity.fetch(PositionComponent.class).orElseThrow(),
-        entity.fetch(DrawComponent.class).orElseThrow(),
+        DrawComponentFactory.toDrawInfo(entity.fetch(DrawComponent.class).orElseThrow()),
         entity.isPersistent(),
         entity.fetch(PlayerComponent.class).orElse(null),
         entity

@@ -5,8 +5,7 @@ import core.network.messages.NetworkMessage;
 /**
  * Client→server: initial handshake request.
  *
- * <p>Temporary Java-serialized prototype to be replaced by protobuf later. Expected max size: tiny
- * (a few dozen bytes).
+ * <p>Encoded with protobuf; expected size: tiny (a few dozen bytes).
  *
  * @param protocolVersion The protocol version the client is using. Must match the server's version.
  * @param playerName desired player name, must be unique on server
