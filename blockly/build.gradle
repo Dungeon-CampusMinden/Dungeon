@@ -42,10 +42,19 @@ tasks.register('runBlockly', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     def webFlag = project.hasProperty('web') ? project.property('web') : 'false'
     args "web=${webFlag}"
+
+    standardOutput = System.out
+    errorOutput = System.err
 }
 
+tasks.register("npmBuild", Exec) {
+    group = 'build'
+    workingDir = file("$projectDir/frontend")
+    commandLine("npm.cmd", "run", "build")
+}
 
 tasks.named('jar', Jar) {
+    dependsOn project(':dungeon').tasks.named('jar')
     dependsOn project(':dungeon').tasks.named('jar')
     archiveBaseName.set('Blockly')
     archiveFileName.set('Blockly.jar')
@@ -81,6 +90,9 @@ tasks.named('jar', Jar) {
 
     into('assets') {
         from project(':dungeon').file('assets')
+
+        // Frontend-Build hinzufügen
+        from projectDir.toPath().resolve('frontend/dist').toFile()
     }
 
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
