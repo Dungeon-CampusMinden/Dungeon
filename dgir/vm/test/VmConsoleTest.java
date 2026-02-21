@@ -2,6 +2,7 @@ import core.Dialect;
 import core.ir.Block;
 import dgir.vm.api.OpRunnerRegistry;
 import dgir.vm.api.VM;
+import dgir.vm.dialect.io.ConsoleInRunner;
 import dgir.vm.dialect.io.PrintRunner;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
@@ -13,8 +14,12 @@ import dialect.func.CallOp;
 import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
 import dialect.func.types.FuncType;
+import dialect.io.ConsoleInOp;
 import dialect.io.PrintOp;
+
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -297,5 +302,57 @@ public class VmConsoleTest {
     assert vm.run() : "Program did not terminate successfully.";
     assert capturedOutput().equals("positive\nnon-positive\n")
         : "Unexpected output: " + capturedOutput();
+  }
+
+  /**
+   * Test if console inputs can be used to direct the control flow of the program. The program reads
+   * a line from the console, and branches on whether the input is "yes" or "no". The test provides
+   * "yes" as input and checks if the correct branch is taken.
+   */
+  @Test
+  void consoleInputBranchTest() {
+    ProgramOp programOp = new ProgramOp();
+    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+
+    Block entryBlock = mainOp.getEntryBlock();
+    Block yesBlock = mainOp.addBlock(new Block());
+    Block noBlock = mainOp.addBlock(new Block());
+    Block mergeBlock = mainOp.addBlock(new Block());
+
+    // Entry: read input from console, compare to "yes", branch conditionally
+    var input = entryBlock.addOperation(new ConsoleInOp(IntegerT.BOOL));
+    entryBlock.addOperation(new BranchCondOp(input.getResult(), yesBlock, noBlock));
+
+    // Yes block: print "You said true!\n", jump to merge
+    var yesText = yesBlock.addOperation(new ConstantOp("You said true!\n"));
+    yesBlock.addOperation(new PrintOp(yesText.getValue()));
+    yesBlock.addOperation(new BranchOp(mergeBlock));
+
+    // No block: print "You said false!\n", jump to merge
+    var noText = noBlock.addOperation(new ConstantOp("You said false!\n"));
+    noBlock.addOperation(new PrintOp(noText.getValue()));
+    noBlock.addOperation(new BranchOp(mergeBlock));
+
+    // Merge block: return
+    mergeBlock.addOperation(new ReturnOp());
+
+    VM vm = new VM();
+    vm.init(programOp);
+
+    // Test positive case
+    {
+      String simulatedInput = "1\n";
+      ConsoleInRunner.in = new ByteArrayInputStream(simulatedInput.getBytes());
+      assert vm.run() : "Program did not terminate successfully.";
+      assert capturedOutput().equals("You said true!\n") : "Unexpected output: " + capturedOutput();
+    }
+    resetOutput();
+    // Test negative case
+    {
+      String simulatedInput = "0\n";
+      ConsoleInRunner.in = new ByteArrayInputStream(simulatedInput.getBytes());
+      assert vm.run() : "Program did not terminate successfully.";
+      assert capturedOutput().equals("You said false!\n") : "Unexpected output: " + capturedOutput();
+    }
   }
 }

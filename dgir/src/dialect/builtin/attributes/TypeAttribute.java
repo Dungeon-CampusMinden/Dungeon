@@ -9,20 +9,22 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 public class TypeAttribute extends Attribute {
 
   // =========================================================================
   // Static Fields
   // =========================================================================
 
-  public static final TypeAttribute INSTANCE = new TypeAttribute();
+  public static final @NotNull TypeAttribute INSTANCE = new TypeAttribute();
 
   // =========================================================================
   // Type Info
   // =========================================================================
 
   @Override
-  public AttributeDetails.@NotNull Impl createImpl() {
+  public @NotNull AttributeDetails.Impl createImpl() {
     class TypeAttributeModel extends AttributeDetails.Impl {
       TypeAttributeModel() {
         super(TypeAttribute.getIdent(), TypeAttribute.class, Dialect.getOrThrow(Builtin.class));
@@ -31,11 +33,11 @@ public class TypeAttribute extends Attribute {
     return new TypeAttributeModel();
   }
 
-  public static String getIdent() {
+  public static @NotNull String getIdent() {
     return "typeAttr";
   }
 
-  public static String getNamespace() {
+  public static @NotNull String getNamespace() {
     return "";
   }
 
@@ -43,7 +45,7 @@ public class TypeAttribute extends Attribute {
   // Members
   // =========================================================================
 
-  private Type type;
+  private @Nullable Type type;
 
   // =========================================================================
   // Constructors
@@ -51,7 +53,7 @@ public class TypeAttribute extends Attribute {
 
   public TypeAttribute() {}
 
-  public TypeAttribute(Type type) {
+  public TypeAttribute(@Nullable Type type) {
     this.type = type;
   }
 
@@ -61,16 +63,16 @@ public class TypeAttribute extends Attribute {
 
   @Contract(pure = true)
   @Override
-  public @Nullable Object getStorage() {
+  public @Nullable Type getStorage() {
     return type;
   }
 
   @Contract(pure = true)
-  public Type getType() {
-    return type;
+  public @NotNull Optional<Type> getType() {
+    return Optional.ofNullable(type);
   }
 
-  public void setType(Type type) {
+  public void setType(@Nullable Type type) {
     this.type = type;
   }
 }

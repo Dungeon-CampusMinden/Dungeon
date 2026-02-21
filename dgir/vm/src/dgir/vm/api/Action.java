@@ -74,8 +74,8 @@ public sealed interface Action
    * @param message The error message.
    * @return An action that represents the abort.
    */
-  static @NotNull Action Abort(@NotNull String message, @Nullable Object... args) {
-    return new Abort(MessageFormat.format(message, args));
+  static @NotNull Action Abort(@NotNull Optional<Exception> exception, @NotNull String message, @Nullable Object... args) {
+    return new Abort(MessageFormat.format(message, args), exception);
   }
 
   /** Executes the next operation in the current block. */
@@ -135,5 +135,5 @@ public sealed interface Action
    *
    * @param message The error message.
    */
-  record Abort(@NotNull String message) implements Action {}
+  record Abort(@NotNull String message, @NotNull Optional<Exception> e) implements Action {}
 }

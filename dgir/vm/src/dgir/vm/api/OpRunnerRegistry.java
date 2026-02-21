@@ -10,6 +10,7 @@ import dgir.vm.dialect.cf.BranchRunner;
 import dgir.vm.dialect.func.CallRunner;
 import dgir.vm.dialect.func.FuncRunner;
 import dgir.vm.dialect.func.ReturnRunner;
+import dgir.vm.dialect.io.ConsoleInRunner;
 import dgir.vm.dialect.io.PrintRunner;
 import java.util.HashMap;
 import java.util.List;
@@ -92,7 +93,7 @@ public class OpRunnerRegistry {
     registerOpRunners(funcRunners);
 
     // io
-    List<OpRunner> ioRunners = List.of(new PrintRunner());
+    List<OpRunner> ioRunners = List.of(new PrintRunner(), new ConsoleInRunner());
     registerOpRunners(ioRunners);
   }
 }

@@ -1,11 +1,17 @@
 package dgir.vm.api;
 
 import core.detail.OperationDetails;
+import core.detail.RegisteredOperationDetails;
+import core.ir.Op;
 import core.ir.Operation;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class OpRunner {
   private final @NotNull OperationDetails targetOp;
+
+  public OpRunner(@NotNull Class<? extends Op> targetOpType) {
+    this(RegisteredOperationDetails.lookup(targetOpType).orElseThrow());
+  }
 
   public OpRunner(@NotNull OperationDetails targetOp) {
     this.targetOp = targetOp;

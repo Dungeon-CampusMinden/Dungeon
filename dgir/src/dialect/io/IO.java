@@ -19,7 +19,7 @@ public class IO extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return List.of(new PrintOp());
+    return List.of(new PrintOp(), new ConsoleInOp());
   }
 
   @Contract(pure = true)

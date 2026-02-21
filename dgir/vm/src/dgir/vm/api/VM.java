@@ -7,6 +7,8 @@ import dialect.builtin.ProgramOp;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
+import java.util.Optional;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,9 +24,16 @@ public class VM {
   public void init(@NotNull ProgramOp program) {
     assert program.verify(true) : "Program is invalid.";
     this.program = program;
-    this.opStack.clear();
-    this.opStack.push(program.get());
-    this.state = new State();
+    state = new State();
+  }
+
+  private void resetState() {
+    assert state != null : "VM not initialized with a state.";
+    assert program != null : "VM not initialized with a program.";
+    state.reset();
+    opStack.clear();
+    opStack.push(program.get());
+    lastAction = null;
   }
 
   public boolean run() {
@@ -33,12 +42,23 @@ public class VM {
       return false;
     }
 
+    // Cleanup state for reruns.
+    resetState();
+
     Action currentAction = Action.Next();
     while (!(currentAction instanceof Action.Abort) && !opStack.isEmpty()) {
       currentAction = step();
     }
 
-    return !(currentAction instanceof Action.Abort);
+    if (currentAction instanceof Action.Abort(String message, Optional<Exception> exception)) {
+      exception.ifPresent(e -> {
+        System.err.println("Exception during execution. Exception message: " + e.getMessage());
+        e.printStackTrace(System.err);
+      });
+      return false;
+    }
+
+    return true;
   }
 
   public @NotNull Action step() {
@@ -136,10 +156,8 @@ public class VM {
       lastAction = currentAction;
       return currentAction;
     } catch (Exception e) {
-      System.err.println("Error during execution: " + e.getMessage());
-      e.printStackTrace(System.err);
       cleanupAfterAbort();
-      return Action.Abort("Error during execution: " + e);
+      return Action.Abort(Optional.of(e), "Error during execution: " + e);
     }
   }
 

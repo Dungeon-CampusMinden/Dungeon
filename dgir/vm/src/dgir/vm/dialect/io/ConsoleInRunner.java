@@ -1,0 +1,63 @@
+package dgir.vm.dialect.io;
+
+import core.ir.Operation;
+import dgir.vm.api.Action;
+import dgir.vm.api.OpRunner;
+import dgir.vm.api.State;
+import dialect.builtin.types.FloatT;
+import dialect.builtin.types.IntegerT;
+import dialect.builtin.types.StringT;
+import dialect.io.ConsoleInOp;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.InputStream;
+import java.util.Optional;
+import java.util.Scanner;
+
+public class ConsoleInRunner extends OpRunner {
+  public static @NotNull InputStream in = System.in;
+
+  public ConsoleInRunner() {
+    super(ConsoleInOp.class);
+  }
+
+  @Override
+  protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
+    ConsoleInOp consoleInOp = op.as(ConsoleInOp.class).orElseThrow();
+    Scanner scanner = new Scanner(in);
+
+    try {
+      switch (consoleInOp.getResultType()) {
+        case StringT s -> state.setValueForOutput(op, scanner.nextLine());
+        case IntegerT i -> {
+          switch (i.getWidth()) {
+            case 1 -> state.setValueForOutput(op, (byte) (scanner.nextByte() & 0x1));
+            case 8 -> state.setValueForOutput(op, scanner.nextByte());
+            case 16 -> state.setValueForOutput(op, scanner.nextShort());
+            case 32 -> state.setValueForOutput(op, scanner.nextInt());
+            case 64 -> state.setValueForOutput(op, scanner.nextLong());
+            default ->
+                throw new IllegalStateException(
+                    "Unsupported integer width for console input: " + i.getWidth());
+          }
+        }
+        case FloatT f -> {
+          switch (f.getWidth()) {
+            case 32 -> state.setValueForOutput(op, scanner.nextFloat());
+            case 64 -> state.setValueForOutput(op, scanner.nextDouble());
+            default ->
+                throw new IllegalStateException(
+                    "Unsupported float width for console input: " + f.getWidth());
+          }
+        }
+        default -> throw new IllegalStateException("Unsupported type for console input: " + op);
+      }
+      // Consume the newline character
+      scanner.nextLine();
+    } catch (Exception e) {
+      return Action.Abort(Optional.of(e), "Error reading from console: " + e.getMessage());
+    }
+    scanner.close();
+    return Action.Next();
+  }
+}
