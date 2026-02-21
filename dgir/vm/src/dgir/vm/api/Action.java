@@ -44,16 +44,13 @@ public sealed interface Action
    *     operation.
    * @param isolatedFromAbove Whether the new stack frame created for the region should be isolated
    *     from the above stack frame.
-   * @param nextOperation The operation to execute after returning from the region, or null if
-   *     nothing should be executed after returning from the region.
    * @return An action that represents the step into.
    */
   static @NotNull Action StepInto(
       @NotNull Region region,
       boolean isolatedFromAbove,
-      @NotNull Optional<Operation> nextOperation,
       @NotNull Object... args) {
-    return new StepInto(region, isolatedFromAbove, nextOperation, List.of(args));
+    return new StepInto(region, isolatedFromAbove, List.of(args));
   }
 
   /**
@@ -108,13 +105,10 @@ public sealed interface Action
    * @param isolatedFromAbove Whether the new stack frame created for the region should be isolated
    *     from the above stack frame. If true, values defined in the above stack frame will not be
    *     accessible in the new stack frame.
-   * @param nextOperation The operation to execute after returning from the region, or null if
-   *     nothing should be executed after returning from the region.
    */
   record StepInto(
       @NotNull Region region,
       boolean isolatedFromAbove,
-      @NotNull Optional<Operation> nextOperation,
       List<Object> args)
       implements Action {
     public StepInto {

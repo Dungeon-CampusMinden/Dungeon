@@ -271,6 +271,11 @@ public final class Operation implements Serializable {
   }
 
   @Contract(pure = true)
+  public @NotNull Optional<Value> getOperandValue(int i) {
+    return getOperand(i).flatMap(ValueOperand::getValue);
+  }
+
+  @Contract(pure = true)
   public @NotNull @Unmodifiable List<BlockOperand> getBlockOperands() {
     return blockOperands;
   }

@@ -270,7 +270,7 @@ public class VmConsoleTest {
       Block retBlock = printFunc.addBlock(new Block());
 
       // Branch on the parameter
-      var param = printFunc.getArgument(0);
+      var param = printFunc.getArgument(0).orElseThrow();
       funcEntry.addOperation(new BranchCondOp(param, posBlock, negBlock));
 
       {

@@ -72,6 +72,18 @@ public class ForOp extends Op implements IControlFlow, ISingleRegion {
   // =========================================================================
 
   public Value getInductionValue() {
-    return getRegion().getBodyValue(0);
+    return getRegion().getBodyValue(0).orElseThrow();
+  }
+
+  public Value getLowerBound() {
+    return getRegion().getBodyValue(1).orElseThrow();
+  }
+
+  public Value getUpperBound() {
+    return getRegion().getBodyValue(2).orElseThrow();
+  }
+
+  public Value getStep() {
+    return getRegion().getBodyValue(3).orElseThrow();
   }
 }

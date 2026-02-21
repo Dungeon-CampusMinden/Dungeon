@@ -10,6 +10,7 @@ import java.io.PrintStream;
 import org.jetbrains.annotations.NotNull;
 
 public class PrintRunner extends OpRunner {
+  public static boolean parallelSystemOut = false;
   public static @NotNull PrintStream out = System.out;
 
   public PrintRunner() {
@@ -24,6 +25,9 @@ public class PrintRunner extends OpRunner {
     if (printOp.getOperands().size() == 1) {
       Object value = state.getValue(printOp.getOperand(0).orElseThrow());
       out.print(value);
+      if (parallelSystemOut && out != System.out) {
+        System.out.print(value);
+      }
     } else {
       Object formatString = state.getValue(printOp.getOperand(0).orElseThrow());
       assert formatString instanceof String : "Format string must be a string";
@@ -32,6 +36,9 @@ public class PrintRunner extends OpRunner {
               .map(state::getValue)
               .toArray();
       out.printf(formatString.toString(), args);
+      if (parallelSystemOut && out != System.out) {
+        System.out.printf(formatString.toString(), args);
+      }
     }
 
     return Action.Next();

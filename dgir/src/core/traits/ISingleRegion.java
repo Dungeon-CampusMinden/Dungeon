@@ -4,6 +4,8 @@ import core.ir.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public interface ISingleRegion extends IOpTrait {
   @Contract(pure = true)
   default boolean verify(@NotNull ISingleRegion ignored) {
@@ -22,7 +24,7 @@ public interface ISingleRegion extends IOpTrait {
   }
 
   @Contract(pure = true)
-  default @NotNull Value getArgument(int index) {
+  default @NotNull Optional<Value> getArgument(int index) {
     return getRegion().getBodyValue(index);
   }
 
@@ -40,8 +42,9 @@ public interface ISingleRegion extends IOpTrait {
   }
 
   @Contract(pure = true)
-  default @NotNull Block getBlock(int index) {
-    return getRegion().getBlocks().get(index);
+  default @NotNull Optional<Block> getBlock(int index) {
+    if (index >= getRegion().getBlocks().size()) return Optional.empty();
+    return Optional.ofNullable(getRegion().getBlocks().get(index));
   }
 
   default @NotNull Block addBlock(@NotNull Block block) {

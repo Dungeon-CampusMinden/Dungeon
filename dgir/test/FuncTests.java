@@ -55,7 +55,7 @@ public class FuncTests {
 
     // In a real scenario, we might have an add operation here. For this test, we just return one of
     // the parameters.
-    funcOp.addOperation(new ReturnOp(funcOp.getArgument(0)), 0);
+    funcOp.addOperation(new ReturnOp(funcOp.getArgument(0).orElseThrow()), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(funcOp));
   }
@@ -69,7 +69,7 @@ public class FuncTests {
     FuncOp funcOp = new FuncOp("mismatch", type);
 
     // Returning an INT32 when the function expects StringT
-    funcOp.addOperation(new ReturnOp(funcOp.getArgument(0)), 0);
+    funcOp.addOperation(new ReturnOp(funcOp.getArgument(0).orElseThrow()), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(funcOp));
   }
@@ -86,7 +86,7 @@ public class FuncTests {
     FuncOp factorial = programOp.addOperation(new FuncOp("factorial", type));
 
     // Simple recursive call without base case for IR structure testing
-    var callOp = factorial.addOperation(new CallOp(factorial, factorial.getArgument(0)), 0);
+    var callOp = factorial.addOperation(new CallOp(factorial, factorial.getArgument(0).orElseThrow()), 0);
     factorial.addOperation(new ReturnOp(callOp.getOutputValueThrowing()), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
@@ -131,7 +131,7 @@ public class FuncTests {
     FuncOp target =
         programOp.addOperation(
             new FuncOp("target", new FuncType(List.of(IntegerT.INT32), IntegerT.INT32)));
-    target.addOperation(new ReturnOp(target.getArgument(0)), 0);
+    target.addOperation(new ReturnOp(target.getArgument(0).orElseThrow()), 0);
 
     // Call with 0 args, expects 1
     mainFunc.addOperation(new CallOp(target), 0);
@@ -149,7 +149,7 @@ public class FuncTests {
     FuncOp target =
         programOp.addOperation(
             new FuncOp("target", new FuncType(List.of(IntegerT.INT32), IntegerT.INT32)));
-    target.addOperation(new ReturnOp(target.getArgument(0)), 0);
+    target.addOperation(new ReturnOp(target.getArgument(0).orElseThrow()), 0);
 
     // Call with String arg, expects Int
     var strOp = mainFunc.addOperation(new ConstantOp("test"), 0);

@@ -12,6 +12,11 @@ import dgir.vm.dialect.func.FuncRunner;
 import dgir.vm.dialect.func.ReturnRunner;
 import dgir.vm.dialect.io.ConsoleInRunner;
 import dgir.vm.dialect.io.PrintRunner;
+import dgir.vm.dialect.scf.BreakRunner;
+import dgir.vm.dialect.scf.ContinueRunner;
+import dgir.vm.dialect.scf.ForRunner;
+import dgir.vm.dialect.scf.IfRunner;
+import dgir.vm.dialect.scf.ScopeRunner;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,5 +100,10 @@ public class OpRunnerRegistry {
     // io
     List<OpRunner> ioRunners = List.of(new PrintRunner(), new ConsoleInRunner());
     registerOpRunners(ioRunners);
+
+    // scf
+    List<OpRunner> scfRunners =
+        List.of(new BreakRunner(), new ContinueRunner(), new ForRunner(), new IfRunner(), new ScopeRunner());
+    registerOpRunners(scfRunners);
   }
 }

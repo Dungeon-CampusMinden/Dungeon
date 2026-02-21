@@ -46,7 +46,7 @@ public final class Region {
    * Values visible inside this region, acting as parameters/arguments (e.g. the induction variable
    * of a for-loop body).
    */
-  @JsonIdentityReference private final @NotNull List<Value> bodyValues;
+  @JsonIdentityReference private final @NotNull List<@NotNull Value> bodyValues;
 
   @JsonIgnore private final @Nullable Operation parent;
 
@@ -161,8 +161,9 @@ public final class Region {
   }
 
   @Contract(pure = true)
-  public Value getBodyValue(int index) {
-    return bodyValues.get(index);
+  public Optional<Value> getBodyValue(int index) {
+    if (index < 0 || index >= bodyValues.size()) return Optional.empty();
+    return Optional.of(bodyValues.get(index));
   }
 
   @Contract(pure = true)

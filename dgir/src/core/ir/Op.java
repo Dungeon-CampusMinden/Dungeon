@@ -6,6 +6,7 @@ import core.detail.RegisteredOperationDetails;
 import core.serialization.OpDeserializer;
 import core.serialization.OpSerializer;
 import core.traits.IOpTrait;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -163,6 +164,12 @@ public abstract class Op {
   @Contract(pure = true)
   public @NotNull Optional<ValueOperand> getOperand(int index) {
     return getOperation().getOperand(index);
+  }
+
+  @JsonIgnore
+  @Contract(pure = true)
+  public @NotNull Optional<Value> getOperandValue(int i) {
+    return getOperation().getOperandValue(i);
   }
 
   @JsonIgnore

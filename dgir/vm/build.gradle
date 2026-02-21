@@ -13,6 +13,7 @@ sourceSets.test.resources.srcDirs = ['test_assets/']
 dependencies {
     // The vm is dependent on the main dgir module, as it provides the core game logic and data structures.
     implementation project(':dgir')
+    implementation 'io.arxila.javatuples:javatuples:2.0.1'
 
     errorprone "com.google.errorprone:error_prone_core:2.46.0"
 

@@ -53,7 +53,7 @@ public class BuiltinTests {
         programOp.addOperation(
             new FuncOp("foo", new FuncType(List.of(StringT.INSTANCE), StringT.INSTANCE)));
     {
-      fooFuncOp.addOperation(new ReturnOp(fooFuncOp.getArgument(0)), 0);
+      fooFuncOp.addOperation(new ReturnOp(fooFuncOp.getArgument(0).orElseThrow()), 0);
     }
 
     {

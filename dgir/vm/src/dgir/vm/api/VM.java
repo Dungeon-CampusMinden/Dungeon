@@ -51,10 +51,11 @@ public class VM {
     }
 
     if (currentAction instanceof Action.Abort(String message, Optional<Exception> exception)) {
-      exception.ifPresent(e -> {
-        System.err.println("Exception during execution. Exception message: " + e.getMessage());
-        e.printStackTrace(System.err);
-      });
+      exception.ifPresent(
+          e -> {
+            System.err.println("Exception during execution. Exception message: " + e.getMessage());
+            e.printStackTrace(System.err);
+          });
       return false;
     }
 
@@ -141,7 +142,15 @@ public class VM {
         // It opens a new stack frame for the region and jumps to the first operation in the region.
         case Action.StepInto stepInto -> {
           // Push the next operation after the step into operation to the op stack.
-          stepInto.nextOperation().ifPresent(opStack::push);
+          currentOp
+              .getNext()
+              .ifPresentOrElse(
+                  opStack::push,
+                  () -> {
+                    currentOp.emitError(
+                        "Reached end of block without an explicit jump or return after stepping into region.");
+                    throw new IllegalStateException();
+                  });
           // Open a new stack frame for the region and jump to the first operation in the region.
           state.pushStackFrame(stepInto.isolatedFromAbove());
 

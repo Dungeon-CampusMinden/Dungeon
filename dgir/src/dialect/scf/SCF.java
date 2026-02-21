@@ -19,7 +19,7 @@ public class SCF extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return List.of(new ContinueOp(), new ForOp(), new IfOp(), new ScopeOp());
+    return List.of(new BreakOp(), new ContinueOp(), new ForOp(), new IfOp(), new ScopeOp());
   }
 
   @Contract(pure = true)
