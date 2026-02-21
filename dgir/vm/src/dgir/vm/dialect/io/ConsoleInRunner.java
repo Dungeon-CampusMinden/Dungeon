@@ -15,7 +15,22 @@ import java.util.Optional;
 import java.util.Scanner;
 
 public class ConsoleInRunner extends OpRunner {
-  public static @NotNull InputStream in = System.in;
+  private static @NotNull InputStream in = System.in;
+  private static @NotNull Scanner scanner = new Scanner(in);
+
+  static {
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  scanner.close();
+                }));
+  }
+
+  public static void setInputStream(@NotNull InputStream in) {
+    ConsoleInRunner.in = in;
+    scanner = new Scanner(in);
+  }
 
   public ConsoleInRunner() {
     super(ConsoleInOp.class);
@@ -24,7 +39,6 @@ public class ConsoleInRunner extends OpRunner {
   @Override
   protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
     ConsoleInOp consoleInOp = op.as(ConsoleInOp.class).orElseThrow();
-    Scanner scanner = new Scanner(in);
 
     try {
       switch (consoleInOp.getResultType()) {
@@ -40,6 +54,8 @@ public class ConsoleInRunner extends OpRunner {
                 throw new IllegalStateException(
                     "Unsupported integer width for console input: " + i.getWidth());
           }
+          // Consume the newline character
+          scanner.nextLine();
         }
         case FloatT f -> {
           switch (f.getWidth()) {
@@ -49,15 +65,14 @@ public class ConsoleInRunner extends OpRunner {
                 throw new IllegalStateException(
                     "Unsupported float width for console input: " + f.getWidth());
           }
+          // Consume the newline character
+          scanner.nextLine();
         }
         default -> throw new IllegalStateException("Unsupported type for console input: " + op);
       }
-      // Consume the newline character
-      scanner.nextLine();
     } catch (Exception e) {
       return Action.Abort(Optional.of(e), "Error reading from console: " + e.getMessage());
     }
-    scanner.close();
     return Action.Next();
   }
 }

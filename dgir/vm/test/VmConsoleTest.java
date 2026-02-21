@@ -14,6 +14,7 @@ import dialect.func.CallOp;
 import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
 import dialect.func.types.FuncType;
+import dialect.builtin.types.FloatT;
 import dialect.io.ConsoleInOp;
 import dialect.io.PrintOp;
 
@@ -342,7 +343,7 @@ public class VmConsoleTest {
     // Test positive case
     {
       String simulatedInput = "1\n";
-      ConsoleInRunner.in = new ByteArrayInputStream(simulatedInput.getBytes());
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream(simulatedInput.getBytes()));
       assert vm.run() : "Program did not terminate successfully.";
       assert capturedOutput().equals("You said true!\n") : "Unexpected output: " + capturedOutput();
     }
@@ -350,9 +351,226 @@ public class VmConsoleTest {
     // Test negative case
     {
       String simulatedInput = "0\n";
-      ConsoleInRunner.in = new ByteArrayInputStream(simulatedInput.getBytes());
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream(simulatedInput.getBytes()));
       assert vm.run() : "Program did not terminate successfully.";
-      assert capturedOutput().equals("You said false!\n") : "Unexpected output: " + capturedOutput();
+      assert capturedOutput().equals("You said false!\n")
+          : "Unexpected output: " + capturedOutput();
     }
+  }
+
+  /**
+   * Tests reading an integer (INT32) from the console and printing it back to the console. The
+   * program reads one integer and prints it with a newline.
+   */
+  @Test
+  void consoleInputReadIntTest() {
+    ProgramOp programOp = new ProgramOp();
+    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+
+    // Read an INT32 from the console
+    var input = mainOp.addOperation(new ConsoleInOp(IntegerT.INT32), 0);
+    // Print it back
+    mainOp.addOperation(new PrintOp(input.getResult()), 0);
+    mainOp.addOperation(new ReturnOp(), 0);
+
+    VM vm = new VM();
+    vm.init(programOp);
+
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("42\n".getBytes()));
+    assert vm.run() : "Program did not terminate successfully.";
+    assert capturedOutput().equals("42") : "Unexpected output: " + capturedOutput();
+  }
+
+  /**
+   * Tests reading a string from the console and printing it back to the console. The program reads
+   * one line of text and echoes it.
+   */
+  @Test
+  void consoleInputReadStringTest() {
+    ProgramOp programOp = new ProgramOp();
+    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+
+    // Read a String from the console
+    var input = mainOp.addOperation(new ConsoleInOp(StringT.INSTANCE), 0);
+    // Print it back
+    mainOp.addOperation(new PrintOp(input.getResult()), 0);
+    mainOp.addOperation(new ReturnOp(), 0);
+
+    VM vm = new VM();
+    vm.init(programOp);
+
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("Hello from stdin\n".getBytes()));
+    assert vm.run() : "Program did not terminate successfully.";
+    assert capturedOutput().equals("Hello from stdin") : "Unexpected output: " + capturedOutput();
+  }
+
+  /**
+   * Tests formatted printing using a string read from the console. The program reads a name from
+   * the console and prints a greeting using printf-style formatting.
+   */
+  @Test
+  void consoleInputFormattedPrintStringTest() {
+    ProgramOp programOp = new ProgramOp();
+    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+
+    // Format string constant
+    var fmt = mainOp.addOperation(new ConstantOp("Hello, %s!\n"), 0);
+    // Read the name from the console
+    var name = mainOp.addOperation(new ConsoleInOp(StringT.INSTANCE), 0);
+    // Print formatted: "Hello, <name>!\n"
+    mainOp.addOperation(new PrintOp(fmt.getValue(), name.getResult()), 0);
+    mainOp.addOperation(new ReturnOp(), 0);
+
+    VM vm = new VM();
+    vm.init(programOp);
+
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("World\n".getBytes()));
+    assert vm.run() : "Program did not terminate successfully.";
+    assert capturedOutput().equals("Hello, World!\n") : "Unexpected output: " + capturedOutput();
+  }
+
+  /**
+   * Tests formatted printing using an integer read from the console. The program reads a number
+   * from the console and prints it inside a sentence using printf-style formatting.
+   */
+  @Test
+  void consoleInputFormattedPrintIntTest() {
+    ProgramOp programOp = new ProgramOp();
+    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+
+    // Format string constant
+    var fmt = mainOp.addOperation(new ConstantOp("The answer is %d.\n"), 0);
+    // Read an INT32 from the console
+    var number = mainOp.addOperation(new ConsoleInOp(IntegerT.INT32), 0);
+    // Print formatted: "The answer is <number>.\n"
+    mainOp.addOperation(new PrintOp(fmt.getValue(), number.getResult()), 0);
+    mainOp.addOperation(new ReturnOp(), 0);
+
+    VM vm = new VM();
+    vm.init(programOp);
+
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("42\n".getBytes()));
+    assert vm.run() : "Program did not terminate successfully.";
+    assert capturedOutput().equals("The answer is 42.\n")
+        : "Unexpected output: " + capturedOutput();
+  }
+
+  /**
+   * Tests formatted printing using a float read from the console. The program reads a
+   * floating-point number and prints it with two decimal places using printf-style formatting.
+   */
+  @Test
+  void consoleInputFormattedPrintFloatTest() {
+    ProgramOp programOp = new ProgramOp();
+    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+
+    // Format string constant
+    var fmt = mainOp.addOperation(new ConstantOp("Pi is approximately %.2f.\n"), 0);
+    // Read a FLOAT32 from the console
+    var number = mainOp.addOperation(new ConsoleInOp(FloatT.FLOAT32), 0);
+    // Print formatted: "Pi is approximately <number>.\n"
+    mainOp.addOperation(new PrintOp(fmt.getValue(), number.getResult()), 0);
+    mainOp.addOperation(new ReturnOp(), 0);
+
+    VM vm = new VM();
+    vm.init(programOp);
+
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("3.14\n".getBytes()));
+    assert vm.run() : "Program did not terminate successfully.";
+    assert capturedOutput().equals("Pi is approximately 3.14.\n")
+        : "Unexpected output: " + capturedOutput();
+  }
+
+  /**
+   * Tests a program where a boolean console input drives a branch, and only the true branch reads a
+   * second value from the console (an integer) and prints it using a format string. The false
+   * branch prints a fixed constant without any further console input.
+   *
+   * <p>The program structure is:
+   *
+   * <pre>
+   *   entry:  flag = consoleIn(bool)
+   *           branchCond(flag, trueBlock, falseBlock)
+   *   trueBlock:  n = consoleIn(int32)
+   *               print("You entered: %d\n", n)
+   *               branch mergeBlock
+   *   falseBlock: print("No input given.\n")
+   *               branch mergeBlock
+   *   mergeBlock: return
+   * </pre>
+   */
+  @Test
+  void consoleInputBranchOnlyOneBranchReadsInputTest() {
+    ProgramOp programOp = new ProgramOp();
+    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+
+    Block entryBlock = mainOp.getEntryBlock();
+    Block trueBlock = mainOp.addBlock(new Block());
+    Block falseBlock = mainOp.addBlock(new Block());
+    Block mergeBlock = mainOp.addBlock(new Block());
+
+    // Entry: read a bool from console, branch on it
+    var flag = entryBlock.addOperation(new ConsoleInOp(IntegerT.BOOL));
+    entryBlock.addOperation(new BranchCondOp(flag.getResult(), trueBlock, falseBlock));
+
+    // True block: read an integer from console, print it formatted, jump to merge
+    var fmt = trueBlock.addOperation(new ConstantOp("You entered: %d\n"));
+    var n = trueBlock.addOperation(new ConsoleInOp(IntegerT.INT32));
+    trueBlock.addOperation(new PrintOp(fmt.getValue(), n.getResult()));
+    trueBlock.addOperation(new BranchOp(mergeBlock));
+
+    // False block: print a fixed message without any console input, jump to merge
+    var noInput = falseBlock.addOperation(new ConstantOp("No input given.\n"));
+    falseBlock.addOperation(new PrintOp(noInput.getValue()));
+    falseBlock.addOperation(new BranchOp(mergeBlock));
+
+    // Merge block: return
+    mergeBlock.addOperation(new ReturnOp());
+
+    VM vm = new VM();
+    vm.init(programOp);
+
+    // Test true branch: flag=1 -> read integer 7 -> print "You entered: 7\n"
+    {
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream("1\n7\n".getBytes()));
+      assert vm.run() : "Program did not terminate successfully.";
+      assert capturedOutput().equals("You entered: 7\n") : "Unexpected output: " + capturedOutput();
+    }
+    resetOutput();
+    // Test false branch: flag=0 -> no further console read -> print "No input given.\n"
+    {
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream("0\n".getBytes()));
+      assert vm.run() : "Program did not terminate successfully.";
+      assert capturedOutput().equals("No input given.\n")
+          : "Unexpected output: " + capturedOutput();
+    }
+  }
+
+  /**
+   * Tests reading multiple values from the console — an integer and a string — and printing them
+   * together using printf-style format string with two substitutions.
+   */
+  @Test
+  void consoleInputFormattedPrintMultipleValuesTest() {
+    ProgramOp programOp = new ProgramOp();
+    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+
+    // Format string constant
+    var fmt = mainOp.addOperation(new ConstantOp("%s scored %d points.\n"), 0);
+    // Read a name (string) then a score (int)
+    var nameIn = mainOp.addOperation(new ConsoleInOp(StringT.INSTANCE), 0);
+    var scoreIn = mainOp.addOperation(new ConsoleInOp(IntegerT.INT32), 0);
+    // Print formatted
+    mainOp.addOperation(new PrintOp(fmt.getValue(), nameIn.getResult(), scoreIn.getResult()), 0);
+    mainOp.addOperation(new ReturnOp(), 0);
+
+    VM vm = new VM();
+    vm.init(programOp);
+
+    // Two consecutive lines: first the name, then the score
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("Alice\n100\n".getBytes()));
+    assert vm.run() : "Program did not terminate successfully.";
+    assert capturedOutput().equals("Alice scored 100 points.\n")
+        : "Unexpected output: " + capturedOutput();
   }
 }
