@@ -1,9 +1,6 @@
-import core.Dialect;
 import core.ir.Block;
-import dgir.vm.api.OpRunnerRegistry;
 import dgir.vm.api.VM;
 import dgir.vm.dialect.io.ConsoleInRunner;
-import dgir.vm.dialect.io.PrintRunner;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
 import dialect.builtin.types.IntegerT;
@@ -19,46 +16,15 @@ import dialect.io.ConsoleInOp;
 import dialect.io.PrintOp;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /** Testcases for the VM, only testing output from and to the console. */
-public class VmConsoleTest {
-  private ByteArrayOutputStream output;
-  private final boolean printToConsole = true;
-
-  @BeforeAll
-  public static void setup() {
-    Dialect.registerAllDialects();
-    OpRunnerRegistry.registerAllRunners();
-  }
-
-  @BeforeEach
-  void resetOutput() {
-    output = new ByteArrayOutputStream();
-    PrintRunner.out = new PrintStream(output);
-  }
-
-  @AfterEach
-  void restoreOutput() {
-    PrintRunner.out = System.out;
-  }
-
-  private String capturedOutput() {
-    if (printToConsole) {
-      System.out.print(this.output);
-      System.out.flush();
-    }
-    return output.toString(StandardCharsets.UTF_8);
-  }
-
+public class VmConsoleTest extends VmTestBase {
   /**
    * Creates a simple dgir program printing "Hello World!" to the console and runs it through the
    * VM.
@@ -71,10 +37,7 @@ public class VmConsoleTest {
     funcOp.addOperation(new PrintOp(List.of(text.getValue())), 0);
     funcOp.addOperation(new ReturnOp(), 0);
 
-    VM vm = new VM();
-    vm.init(programOp);
-    assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("Hello World!\n") : "Unexpected console output";
+    runProgram(programOp, "Hello World!\n");
   }
 
   /** Same as helloWorldTest but the string is produced by a function call. */
@@ -96,10 +59,7 @@ public class VmConsoleTest {
       mainOp.addOperation(new ReturnOp(), 0);
     }
 
-    VM vm = new VM();
-    vm.init(programOp);
-    assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("Hello World!\n") : "Unexpected console output";
+    runProgram(programOp, "Hello World!\n");
   }
 
   /**
@@ -124,10 +84,7 @@ public class VmConsoleTest {
     afterBlock.addOperation(new PrintOp(after.getValue()));
     afterBlock.addOperation(new ReturnOp());
 
-    VM vm = new VM();
-    vm.init(programOp);
-    assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("before\nafter\n") : "Unexpected output: " + capturedOutput();
+    runProgram(programOp, "before\nafter\n");
   }
 
   /**
@@ -160,10 +117,7 @@ public class VmConsoleTest {
     // Merge block: return
     mergeBlock.addOperation(new ReturnOp());
 
-    VM vm = new VM();
-    vm.init(programOp);
-    assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("yes\n") : "Unexpected output: " + capturedOutput();
+    runProgram(programOp, "yes\n");
   }
 
   /**
@@ -197,10 +151,7 @@ public class VmConsoleTest {
     // Merge block: return
     mergeBlock.addOperation(new ReturnOp());
 
-    VM vm = new VM();
-    vm.init(programOp);
-    assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("no\n") : "Unexpected output: " + capturedOutput();
+    runProgram(programOp, "no\n");
   }
 
   /**
@@ -245,10 +196,7 @@ public class VmConsoleTest {
     // Merge block: return
     mergeBlock.addOperation(new ReturnOp());
 
-    VM vm = new VM();
-    vm.init(programOp);
-    assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("condition true\n") : "Unexpected output: " + capturedOutput();
+    runProgram(programOp, "condition true\n");
   }
 
   /**
@@ -298,11 +246,7 @@ public class VmConsoleTest {
       mainOp.addOperation(new ReturnOp(), 0);
     }
 
-    VM vm = new VM();
-    vm.init(programOp);
-    assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("positive\nnon-positive\n")
-        : "Unexpected output: " + capturedOutput();
+    runProgram(programOp, "positive\nnon-positive\n");
   }
 
   /**
@@ -337,24 +281,19 @@ public class VmConsoleTest {
     // Merge block: return
     mergeBlock.addOperation(new ReturnOp());
 
-    VM vm = new VM();
-    vm.init(programOp);
-
+    VM vm = createVm(programOp);
     // Test positive case
     {
       String simulatedInput = "1\n";
-      ConsoleInRunner.setInputStream(new ByteArrayInputStream(simulatedInput.getBytes()));
-      assert vm.run() : "Program did not terminate successfully.";
-      assert capturedOutput().equals("You said true!\n") : "Unexpected output: " + capturedOutput();
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream(simulatedInput.getBytes(UTF_8)));
+      runVM(vm, "You said true!\n");
     }
     resetOutput();
     // Test negative case
     {
       String simulatedInput = "0\n";
-      ConsoleInRunner.setInputStream(new ByteArrayInputStream(simulatedInput.getBytes()));
-      assert vm.run() : "Program did not terminate successfully.";
-      assert capturedOutput().equals("You said false!\n")
-          : "Unexpected output: " + capturedOutput();
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream(simulatedInput.getBytes(UTF_8)));
+      runVM(vm, "You said false!\n");
     }
   }
 
@@ -373,12 +312,8 @@ public class VmConsoleTest {
     mainOp.addOperation(new PrintOp(input.getResult()), 0);
     mainOp.addOperation(new ReturnOp(), 0);
 
-    VM vm = new VM();
-    vm.init(programOp);
-
-    ConsoleInRunner.setInputStream(new ByteArrayInputStream("42\n".getBytes()));
-    assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("42") : "Unexpected output: " + capturedOutput();
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("42\n".getBytes(UTF_8)));
+    runProgram(programOp, "42");
   }
 
   /**
@@ -396,12 +331,8 @@ public class VmConsoleTest {
     mainOp.addOperation(new PrintOp(input.getResult()), 0);
     mainOp.addOperation(new ReturnOp(), 0);
 
-    VM vm = new VM();
-    vm.init(programOp);
-
-    ConsoleInRunner.setInputStream(new ByteArrayInputStream("Hello from stdin\n".getBytes()));
-    assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("Hello from stdin") : "Unexpected output: " + capturedOutput();
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("Hello from stdin\n".getBytes(UTF_8)));
+    runProgram(programOp, "Hello from stdin");
   }
 
   /**
@@ -421,12 +352,8 @@ public class VmConsoleTest {
     mainOp.addOperation(new PrintOp(fmt.getValue(), name.getResult()), 0);
     mainOp.addOperation(new ReturnOp(), 0);
 
-    VM vm = new VM();
-    vm.init(programOp);
-
-    ConsoleInRunner.setInputStream(new ByteArrayInputStream("World\n".getBytes()));
-    assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("Hello, World!\n") : "Unexpected output: " + capturedOutput();
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("World\n".getBytes(UTF_8)));
+    runProgram(programOp, "Hello, World!\n");
   }
 
   /**
@@ -446,13 +373,8 @@ public class VmConsoleTest {
     mainOp.addOperation(new PrintOp(fmt.getValue(), number.getResult()), 0);
     mainOp.addOperation(new ReturnOp(), 0);
 
-    VM vm = new VM();
-    vm.init(programOp);
-
-    ConsoleInRunner.setInputStream(new ByteArrayInputStream("42\n".getBytes()));
-    assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("The answer is 42.\n")
-        : "Unexpected output: " + capturedOutput();
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("42\n".getBytes(UTF_8)));
+    runProgram(programOp, "The answer is 42.\n");
   }
 
   /**
@@ -472,13 +394,8 @@ public class VmConsoleTest {
     mainOp.addOperation(new PrintOp(fmt.getValue(), number.getResult()), 0);
     mainOp.addOperation(new ReturnOp(), 0);
 
-    VM vm = new VM();
-    vm.init(programOp);
-
-    ConsoleInRunner.setInputStream(new ByteArrayInputStream("3.14\n".getBytes()));
-    assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("Pi is approximately 3.14.\n")
-        : "Unexpected output: " + capturedOutput();
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("3.14\n".getBytes(UTF_8)));
+    runProgram(programOp, "Pi is approximately 3.14.\n");
   }
 
   /**
@@ -527,22 +444,17 @@ public class VmConsoleTest {
     // Merge block: return
     mergeBlock.addOperation(new ReturnOp());
 
-    VM vm = new VM();
-    vm.init(programOp);
-
+    VM vm = createVm(programOp);
     // Test true branch: flag=1 -> read integer 7 -> print "You entered: 7\n"
     {
-      ConsoleInRunner.setInputStream(new ByteArrayInputStream("1\n7\n".getBytes()));
-      assert vm.run() : "Program did not terminate successfully.";
-      assert capturedOutput().equals("You entered: 7\n") : "Unexpected output: " + capturedOutput();
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream("1\n7\n".getBytes(UTF_8)));
+      runVM(vm, "You entered: 7\n");
     }
     resetOutput();
     // Test false branch: flag=0 -> no further console read -> print "No input given.\n"
     {
-      ConsoleInRunner.setInputStream(new ByteArrayInputStream("0\n".getBytes()));
-      assert vm.run() : "Program did not terminate successfully.";
-      assert capturedOutput().equals("No input given.\n")
-          : "Unexpected output: " + capturedOutput();
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream("0\n".getBytes(UTF_8)));
+      runVM(vm, "No input given.\n");
     }
   }
 
@@ -564,13 +476,8 @@ public class VmConsoleTest {
     mainOp.addOperation(new PrintOp(fmt.getValue(), nameIn.getResult(), scoreIn.getResult()), 0);
     mainOp.addOperation(new ReturnOp(), 0);
 
-    VM vm = new VM();
-    vm.init(programOp);
-
     // Two consecutive lines: first the name, then the score
-    ConsoleInRunner.setInputStream(new ByteArrayInputStream("Alice\n100\n".getBytes()));
-    assert vm.run() : "Program did not terminate successfully.";
-    assert capturedOutput().equals("Alice scored 100 points.\n")
-        : "Unexpected output: " + capturedOutput();
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("Alice\n100\n".getBytes(UTF_8)));
+    runProgram(programOp, "Alice scored 100 points.\n");
   }
 }
