@@ -21,6 +21,10 @@ public class VM {
 
   public VM() {}
 
+  public @Nullable ProgramOp getProgram() {
+    return program;
+  }
+
   public void init(@NotNull ProgramOp program) {
     assert program.verify(true) : "Program is invalid.";
     this.program = program;
@@ -151,6 +155,9 @@ public class VM {
                         "Reached end of block without an explicit jump or return after stepping into region.");
                     throw new IllegalStateException();
                   });
+          // Push the current op onto the stack so that we can retrieve it when we want to set the return value that
+          // the region returns.
+          opStack.push(currentOp);
           // Open a new stack frame for the region and jump to the first operation in the region.
           state.pushStackFrame(stepInto.isolatedFromAbove());
 
