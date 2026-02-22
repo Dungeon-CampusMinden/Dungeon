@@ -2,9 +2,6 @@ package core.game;
 
 import core.Game;
 import core.System;
-import core.systems.CameraSystem;
-import core.systems.DrawSystem;
-import core.utils.InputManager;
 import core.utils.logging.DungeonLogger;
 
 /**
@@ -17,13 +14,8 @@ import core.utils.logging.DungeonLogger;
 public final class GameLoopCore {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(GameLoopCore.class);
 
-  /** Called once per frame BEFORE clearing the screen (host-specific). */
+  /** Called once per frame BEFORE host-specific rendering (e.g., clearing the screen). */
   public void beforeRender(final float deltaSeconds) {
-    // Keep DrawSystem projection in sync with current camera before rendering systems.
-    ECSManagement.system(
-      DrawSystem.class,
-      drawSystem -> DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
-
     // Drain inbound network messages on the game thread before running systems.
     try {
       Game.network().pollAndDispatch();
@@ -31,12 +23,12 @@ public final class GameLoopCore {
       LOGGER.warn("Error while polling network messages: {}", e.getMessage(), e);
     }
 
-    // Frame callbacks and sound update are engine-agnostic.
+    // Frame callbacks and sound update are backend-agnostic.
     Game.soundPlayer().update(deltaSeconds);
     PreRunConfiguration.userOnFrame().execute();
   }
 
-  /** Called once per frame AFTER clearing the screen (host-specific). */
+  /** Called once per frame to execute one ECS tick. */
   public void tick(final float deltaSeconds) {
     final boolean isMultiplayerClient =
       PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
@@ -44,9 +36,5 @@ public final class GameLoopCore {
     ECSManagement.executeOneTick(
       isMultiplayerClient ? System.AuthoritativeSide.CLIENT : System.AuthoritativeSide.BOTH,
       deltaSeconds);
-
-    // Input and camera post-update (same order as before).
-    InputManager.update();
-    CameraSystem.camera().update();
   }
 }

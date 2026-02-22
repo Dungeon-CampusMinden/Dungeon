@@ -118,22 +118,26 @@ public final class GdxGameLoopHost extends ScreenAdapter {
     // Host-specific: fullscreen toggle key (still uses libGDX display modes).
     fullscreenKey();
 
-    // Engine-agnostic parts:
+    // Host-specific: keep projection in sync (was in old GameLoop.render()).
+    ECSManagement.system(
+      DrawSystem.class,
+      drawSystem -> DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
+
+    // Backend-agnostic parts:
     core.beforeRender(delta);
 
     // Host-specific: clear screen before systems render.
     clearScreen();
 
-    // Engine-agnostic tick (ECS + input update + camera update):
+    // Backend-agnostic ECS tick:
     core.tick(delta);
+
+    // Host-specific: input + camera update order (was in old GameLoop.render()).
+    InputManager.update();
+    CameraSystem.camera().update();
 
     // Host-specific: Stage act/draw after ECS tick.
     Optional.ofNullable(stage).ifPresent(s -> updateStage(s, delta));
-  }
-
-  private static void updateStage(final Stage stage, final float delta) {
-    stage.act(delta);
-    stage.draw();
   }
 
   private static void setupStage() {
@@ -145,6 +149,11 @@ public final class GdxGameLoopHost extends ScreenAdapter {
           PreRunConfiguration.windowHeight()),
         new SpriteBatch());
     Gdx.input.setInputProcessor(stage);
+  }
+
+  private static void updateStage(final Stage stage, final float delta) {
+    stage.act(delta);
+    stage.draw();
   }
 
   /**
@@ -339,20 +348,6 @@ public final class GdxGameLoopHost extends ScreenAdapter {
           .flatMap(e -> e.fetch(UIComponent.class))
           .ifPresent(UIUtils::closeDialog);
       });
-  }
-
-  /**
-   * Called at the beginning of each frame, before the entities are updated and the systems are
-   * executed.
-   *
-   * <p>This is the place to add basic logic that isn't part of any system.
-   *
-   * @param delta The time since the last loop.
-   */
-  private void frame(float delta) {
-    fullscreenKey();
-    Game.soundPlayer().update(delta);
-    PreRunConfiguration.userOnFrame().execute();
   }
 
   private void fullscreenKey() {
