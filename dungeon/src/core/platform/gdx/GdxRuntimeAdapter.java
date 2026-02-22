@@ -15,4 +15,10 @@ public final class GdxRuntimeAdapter implements RuntimeAdapter {
   public boolean isHeadless() {
     return Gdx.gl == null || Gdx.graphics == null;
   }
+
+  @Override
+  public boolean supportsGdxRendering() {
+    // Only true when the libGDX OpenGL + graphics + files context is actually available.
+    return Gdx.gl != null && Gdx.graphics != null && Gdx.files != null;
+  }
 }

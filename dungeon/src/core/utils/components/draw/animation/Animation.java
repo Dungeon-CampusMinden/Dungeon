@@ -1,10 +1,8 @@
 package core.utils.components.draw.animation;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import core.Game;
 import core.platform.Platform;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
@@ -140,7 +138,7 @@ public class Animation implements Serializable, Cloneable {
     this.framePaths = new ArrayList<>(paths);
 
     // Size from first frame if possible
-    if (canUseTextures() || TextureMap.instance().containsKey(paths.get(0).pathString())) {
+    if (canUseTextures()) {
       Texture t = TextureMap.instance().textureAt(paths.get(0));
       calculateWorldSize(t.getWidth(), t.getHeight());
     } else {
@@ -388,7 +386,9 @@ public class Animation implements Serializable, Cloneable {
   }
 
   private static boolean canUseTextures() {
-    return !Game.isHeadless();
+    // Textures/SpriteBatch/etc. are currently provided by libGDX only.
+    // A non-headless window in another host (e.g., LITIENGINE) must NOT enable gdx textures.
+    return Platform.runtime().supportsGdxRendering();
   }
 
   private void ensureLoaded() {
