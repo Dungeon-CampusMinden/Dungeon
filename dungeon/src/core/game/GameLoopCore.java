@@ -27,13 +27,37 @@ public final class GameLoopCore {
     PreRunConfiguration.userOnFrame().execute();
   }
 
-  /** Called once per frame to execute one ECS tick. */
+  /**
+   * Advances the game simulation by one tick using the given delta time and executes systems that
+   * are intended to run during rendering.
+   *
+   * <p>This is a convenience overload for {@link #tick(float, boolean)} with {@code renderSystems}
+   * set to {@code true}.
+   *
+   * @param deltaSeconds elapsed time since the last frame/tick in seconds
+   */
   public void tick(final float deltaSeconds) {
+    tick(deltaSeconds, true);
+  }
+
+  /**
+   * Advances the game simulation by one tick using the given delta time and executes systems based on
+   * the {@code renderSystems} flag.
+   *
+   * <p>If {@code renderSystems} is {@code true}, systems that are intended to run during rendering will
+   * be executed. If {@code false}, only non-rendering systems will be executed. This allows for
+   * flexibility in controlling which systems run during different phases of the game loop.
+   *
+   * @param deltaSeconds elapsed time since the last frame/tick in seconds
+   * @param renderSystems whether to execute systems that are intended to run during rendering
+   */
+  public void tick(final float deltaSeconds, final boolean renderSystems) {
     final boolean isMultiplayerClient =
       PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
 
     ECSManagement.executeOneTick(
       isMultiplayerClient ? System.AuthoritativeSide.CLIENT : System.AuthoritativeSide.BOTH,
-      deltaSeconds);
+      deltaSeconds,
+      renderSystems);
   }
 }

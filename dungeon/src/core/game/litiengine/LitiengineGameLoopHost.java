@@ -1,6 +1,7 @@
 package core.game.litiengine;
 
 import core.game.GameLoopCore;
+import core.platform.Platform;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.IUpdateable;
 
@@ -16,6 +17,9 @@ public final class LitiengineGameLoopHost {
   public static void run(String[] args, GameLoopCore core) {
     Game.init(args); // spawns an empty window after Game.start()
 
+    Platform.window(new core.platform.litiengine.LitiengineWindowAdapter());
+    Platform.runtime(new core.platform.litiengine.LitiengineRuntimeAdapter());
+
     Game.loop().attach(new IUpdateable() { // attach to update loop
       private float logAccumulator = 0f;
 
@@ -25,7 +29,7 @@ public final class LitiengineGameLoopHost {
         final float deltaSeconds = Game.loop().getDeltaTime() / 1000.0f;
 
         core.beforeRender(deltaSeconds);
-        core.tick(deltaSeconds);
+        core.tick(deltaSeconds, false);
 
         // visible proof in console (once per ~1s)
         logAccumulator += deltaSeconds;

@@ -461,15 +461,31 @@ public final class ECSManagement {
   }
 
   /**
-   * Execute one tick of the ECS.
-   *
-   * <p>The host loop provides {@code deltaSeconds}. This removes the ECS dependency on any
-   * specific game framework (e.g. libGDX) for timing.
+   * Execute one tick of the ECS (default: renderSystems = true).
    *
    * @param side the authoritative side for which to execute systems
    * @param deltaSeconds time since last frame/tick in seconds (provided by host loop)
    */
   public static void executeOneTick(System.AuthoritativeSide side, float deltaSeconds) {
+    executeOneTick(side, deltaSeconds, true);
+  }
+
+  /**
+   * Execute one tick of the ECS.
+   *
+   * <p>The host loop provides {@code deltaSeconds}. This removes the ECS dependency on any
+   * specific game framework (e.g. libGDX) for timing.
+   *
+   * <p>Use {@code renderSystems = false} for hosts that do not support the current libGDX-based
+   * render pipeline (e.g. LITIENGINE integration stage).
+   *
+   * @param side the authoritative side for which to execute systems
+   * @param deltaSeconds time since last frame/tick in seconds (provided by host loop)
+   * @param renderSystems whether to call {@link System#render(float)} for all systems
+   */
+  public static void executeOneTick(
+    System.AuthoritativeSide side, float deltaSeconds, boolean renderSystems) {
+
     if (!(deltaSeconds >= 0f)) deltaSeconds = 0f;
 
     List<System> authoritativeSystems =
@@ -492,16 +508,17 @@ public final class ECSManagement {
       }
     }
 
-    // Render phase (nur wenn Kontext da ist)
-    if (!Game.isHeadless() && Game.windowHeight() > 0 && Game.windowWidth() > 0) {
-      float finalDeltaSeconds = deltaSeconds;
-      systems().values().forEach(system -> system.render(finalDeltaSeconds));
+    // Render phase (can be disabled for non-libGDX hosts)
+    if (renderSystems) {
+      if (!Game.isHeadless() && Game.windowHeight() > 0 && Game.windowWidth() > 0) {
+        float finalDeltaSeconds = deltaSeconds;
+        systems().values().forEach(system -> system.render(finalDeltaSeconds));
+      }
     }
 
     currentTick++;
     newLevelLoadedThisTick = false;
   }
-
 
   /**
    * Finds an entity by its unique ID.
