@@ -1,16 +1,16 @@
 package starter;
 
-import de.gurkenlabs.litiengine.Game;
+import core.game.GameLoopCore;
+import core.game.litiengine.LitiengineGameLoopHost;
 
 public final class LitiengineStarter {
   private LitiengineStarter() {}
 
   static void main(String[] args) {
-    Game.info().setName("Dungeon");
-    Game.info().setSubTitle("LITIENGINE bootstrap");
-    Game.info().setVersion("0.0.0-dev");
+    // Initialize Dungeon runtime (logger/network) without starting libGDX.
+    core.Game.initialize();
 
-    Game.init(args);
-    Game.start();
+    // Start LITIENGINE host which drives the Dungeon core loop.
+    LitiengineGameLoopHost.run(args, new GameLoopCore());
   }
 }

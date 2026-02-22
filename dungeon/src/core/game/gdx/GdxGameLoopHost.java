@@ -123,6 +123,9 @@ public final class GdxGameLoopHost extends ScreenAdapter {
       DrawSystem.class,
       drawSystem -> DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
 
+    // Host-specific: sound update belongs to the host (not the core).
+    Game.soundPlayer().update(delta);
+
     // Backend-agnostic parts:
     core.beforeRender(delta);
 

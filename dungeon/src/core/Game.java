@@ -69,51 +69,13 @@ public final class Game {
   private static final boolean SLOW_NETWORK = false;
 
   /**
-   * Starts the dungeon.
+   * Initializes the game by setting up the network handler and window event manager.
    *
-   * <ul>
-   *   <li>Initializes the default logger configuration if not already initialized.
-   *   <li>Sets up the appropriate network handler based on multiplayer settings.
-   *   <li>Initializes and starts the network handler.
-   *   <li>Registers a listener for window close requests to exit the game gracefully.
-   *   <li>Starts the main game loop if not in multiplayer server mode.
-   * </ul>
-   *
-   * @see PreRunConfiguration
-   * @see INetworkHandler
-   * @see GameLoop
+   * <p>This method is called internally before the game loop starts, but can also be called
+   * manually if needed (e.g., for testing purposes).
    */
   public static void run() {
-    if (!DungeonLoggerConfig.isInitialized()) {
-      DungeonLoggerConfig.initDefault();
-    }
-
-    if (PreRunConfiguration.multiplayerEnabled()) {
-      networkHandler = SLOW_NETWORK ? new SlowNettyNetworkHandler() : new NettyNetworkHandler();
-    } else {
-      networkHandler = new LocalNetworkHandler();
-    }
-
-    try {
-      // Explicitly inject a SnapshotTranslator before initialization
-      networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
-      networkHandler.initialize(
-          PreRunConfiguration.isNetworkServer(),
-          PreRunConfiguration.networkServerAddress(),
-          PreRunConfiguration.networkPort(),
-          PreRunConfiguration.username());
-      LOGGER.info("Network handler initialized.");
-    } catch (NetworkException e) {
-      LOGGER.error("Failed to initialize network handler.", e);
-    }
-
-    WindowEventManager.registerCloseRequestListener(
-        () -> {
-          exit("Game closed");
-          return true;
-        });
-
-    // Start the main game loop
+    initialize();
     GameLoop.run();
   }
 
@@ -942,5 +904,42 @@ public final class Game {
    */
   public static boolean isHeadless() {
     return Platform.runtime().isHeadless();
+  }
+
+  /**
+   * Initializes the game by setting up the network handler and registering necessary event listeners.
+   *
+   * <p>This method is typically called internally when starting the game, but can also be called
+   * manually if needed. It ensures that the network handler is properly initialized based on the
+   * multiplayer settings and that the game can exit gracefully when the window is closed.
+   */
+  public static void initialize() {
+    if (!DungeonLoggerConfig.isInitialized()) {
+      DungeonLoggerConfig.initDefault();
+    }
+
+    if (PreRunConfiguration.multiplayerEnabled()) {
+      networkHandler = SLOW_NETWORK ? new SlowNettyNetworkHandler() : new NettyNetworkHandler();
+    } else {
+      networkHandler = new LocalNetworkHandler();
+    }
+
+    try {
+      networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
+      networkHandler.initialize(
+        PreRunConfiguration.isNetworkServer(),
+        PreRunConfiguration.networkServerAddress(),
+        PreRunConfiguration.networkPort(),
+        PreRunConfiguration.username());
+      LOGGER.info("Network handler initialized.");
+    } catch (NetworkException e) {
+      LOGGER.error("Failed to initialize network handler.", e);
+    }
+
+    WindowEventManager.registerCloseRequestListener(
+      () -> {
+        exit("Game closed");
+        return true;
+      });
   }
 }

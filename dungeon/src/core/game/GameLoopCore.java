@@ -23,8 +23,7 @@ public final class GameLoopCore {
       LOGGER.warn("Error while polling network messages: {}", e.getMessage(), e);
     }
 
-    // Frame callbacks and sound update are backend-agnostic.
-    Game.soundPlayer().update(deltaSeconds);
+    // Frame callbacks are backend-agnostic.
     PreRunConfiguration.userOnFrame().execute();
   }
 
