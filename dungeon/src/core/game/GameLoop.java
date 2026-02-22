@@ -78,6 +78,44 @@ public final class GameLoop {
     };
 
   /**
+   * Compatibility hook: used by LevelSystem in the old GameLoop.
+   *
+   * <p>Engine-neutral logic: no libGDX types.
+   */
+  public static final IVoidFunction onLevelLoadCoreOnly =
+    () -> {
+      if (!PreRunConfiguration.isNetworkServer()) return; // no authority
+
+      List<Entity> allPlayers = ECSManagement.allPlayers().toList();
+      boolean firstLoad = !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().get());
+      allPlayers.forEach(ECSManagement::remove);
+
+      // cleanup systems
+      Map<Class<? extends System>, System> s = ECSManagement.systems();
+      ECSManagement.removeAllSystems();
+
+      ECSManagement.activeEntityStorage(
+        ECSManagement.levelStorageMap()
+          .computeIfAbsent(Game.currentLevel().orElse(null), k -> new HashSet<>()));
+
+      // re-add systems
+      s.values().forEach(ECSManagement::add);
+
+      try {
+        allPlayers.forEach(GameLoop::placeOnLevelStart);
+      } catch (MissingComponentException e) {
+        LOGGER.warn(e.getMessage());
+      }
+
+      ECSManagement.allEntities()
+        .filter(Entity::isPersistent)
+        .map(ECSManagement::remove)
+        .forEach(ECSManagement::add);
+
+      PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
+    };
+
+  /**
    * Compatibility hook: used by LevelChangeEvent handler in the old GameLoop.
    *
    * <p>Engine-neutral logic: no libGDX types.
