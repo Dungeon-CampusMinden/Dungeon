@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import core.Game;
+import core.platform.Platform;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -364,12 +365,13 @@ public class Animation implements Serializable, Cloneable {
       jsonPath = pathString.replaceAll("\\.(png|jpg|jpeg)$", ".json");
     }
 
-    if (Gdx.files != null && Gdx.files.internal(pathString).exists()) {
-      if (canUseTextures()) {
-        TextureMap.instance().textureAt(new SimpleIPath(pathString));
-      }
-    } else {
+    if (!Platform.resources().exists(pathString)) {
       throw new IllegalArgumentException("Image file not found: " + pathString);
+    }
+
+    if (com.badlogic.gdx.Gdx.files == null) {
+      throw new IllegalStateException(
+        "Sprite sheet loading requires the libGDX render backend (Gdx.files is null): " + pathString);
     }
 
     Map<String, AnimationConfig> configs = AnimationConfig.loadAnimationConfigMap(jsonPath);

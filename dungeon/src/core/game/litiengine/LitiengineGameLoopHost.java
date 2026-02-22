@@ -19,6 +19,7 @@ public final class LitiengineGameLoopHost {
 
     Platform.window(new core.platform.litiengine.LitiengineWindowAdapter());
     Platform.runtime(new core.platform.litiengine.LitiengineRuntimeAdapter());
+    Platform.resources(new core.platform.classpath.ClasspathResourcesAdapter());
 
     Game.loop().attach(new IUpdateable() { // attach to update loop
       private float logAccumulator = 0f;

@@ -11,5 +11,6 @@ public final class GdxPlatformBootstrap {
   public static void init() {
     Platform.window(new GdxWindowAdapter());
     Platform.runtime(new GdxRuntimeAdapter());
+    Platform.resources(new core.platform.gdx.GdxResourcesAdapter());
   }
 }
