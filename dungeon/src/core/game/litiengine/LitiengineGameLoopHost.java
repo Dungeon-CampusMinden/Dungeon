@@ -2,6 +2,7 @@ package core.game.litiengine;
 
 import core.game.ECSManagement;
 import core.game.GameLoopCore;
+import core.game.SystemProfile;
 import core.platform.Platform;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.IUpdateable;
@@ -22,7 +23,7 @@ public final class LitiengineGameLoopHost {
     Platform.runtime(new core.platform.litiengine.LitiengineRuntimeAdapter());
     Platform.resources(new core.platform.classpath.ClasspathResourcesAdapter());
 
-    ECSManagement.bootstrapDefaultSystems(false);
+    ECSManagement.bootstrapDefaultSystems(SystemProfile.LITIENGINE_SIMULATION);
 
     Game.loop().attach(new IUpdateable() { // attach to update loop
       private float logAccumulator = 0f;

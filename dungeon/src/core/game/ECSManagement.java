@@ -59,35 +59,39 @@ public final class ECSManagement {
   private static boolean defaultSystemsBootstrapped = false;
 
   /**
-   * Bootstraps the default system set.
-   *
-   * <p>This used to happen in a static initializer. It is now host-controlled so different
-   * backends (libGDX vs LITIENGINE) can decide whether render-dependent systems should be registered.
-   *
-   * @param includeRenderingSystems true to register Draw/Sound and other render-dependent defaults
-   */
-  public static synchronized void bootstrapDefaultSystems(boolean includeRenderingSystems) {
-    if (defaultSystemsBootstrapped) {
-      return;
+     * Registers the default set of ECS systems according to the given {@link SystemProfile}.
+     *
+     * <p>This method is idempotent: systems are only created and registered if no instance of the
+     * respective system type is currently registered.
+     *
+     * <p>Thread-safety: the method is {@code synchronized} to avoid concurrent bootstrap attempts
+     * registering duplicate systems.
+     *
+     * @param profile Controls which optional system groups (e.g. rendering, HUD) are included.
+     *     Must not be {@code null}.
+     */
+    public static synchronized void bootstrapDefaultSystems(SystemProfile profile) {
+      // Idempotent bootstrap: only add systems if not already registered.
+      registerIfAbsent(LevelSystem.class, LevelSystem::new);
+
+      if (profile.includeRendering()) {
+        registerIfAbsent(SoundSystem.class, SoundSystem::new);
+        registerIfAbsent(DrawSystem.class, DrawSystem::getInstance);
+      }
+
+      registerIfAbsent(EventScheduler.class, EventScheduler::new);
+      registerIfAbsent(LevelTickSystem.class, LevelTickSystem::new);
+
+      if (profile.includeHud()) {
+        registerIfAbsent(HudSystem.class, HudSystem::new);
+      }
     }
 
-    // Keep previous order as closely as possible
-    ECSManagement.add(new LevelSystem());
-
-    if (includeRenderingSystems) {
-      ECSManagement.add(new SoundSystem());
-      ECSManagement.add(DrawSystem.getInstance());
+  private static void registerIfAbsent(
+    Class<? extends System> type, java.util.function.Supplier<? extends System> factory) {
+    if (!SYSTEMS.containsKey(type)) {
+      ECSManagement.add(factory.get());
     }
-
-    ECSManagement.add(new EventScheduler());
-    ECSManagement.add(new LevelTickSystem());
-
-    // HudSystem is mostly UI/Stage-based; keep it only for render-capable host for now.
-    if (includeRenderingSystems) {
-      ECSManagement.add(new HudSystem());
-    }
-
-    defaultSystemsBootstrapped = true;
   }
 
   /**
