@@ -46,20 +46,6 @@ public final class ECSManagement {
   private static long lastTickNanos = -1L;
 
   /**
-   * Essential systems that are always added to the game.
-   *
-   * <p>Essential systems are systems that are required for the game to function properly.
-   */
-  private static final System[] ESSENTIAL_SYSTEMS = {
-    new LevelSystem(),
-    new SoundSystem(),
-    DrawSystem.getInstance(),
-    new EventScheduler(),
-    new LevelTickSystem(),
-    new HudSystem()
-  };
-
-  /**
    * Set to true if a new level was loaded during the current tick. This flag is used to interrupt
    * system execution when a level change occurs.
    */
@@ -68,9 +54,40 @@ public final class ECSManagement {
   static {
     LEVEL_STORAGE_MAP.put(null, activeEntityStorage);
     activeEntityStorage.add(new EntitySystemMapper());
-    for (System system : ESSENTIAL_SYSTEMS) {
-      ECSManagement.add(system);
+  }
+
+  private static boolean defaultSystemsBootstrapped = false;
+
+  /**
+   * Bootstraps the default system set.
+   *
+   * <p>This used to happen in a static initializer. It is now host-controlled so different
+   * backends (libGDX vs LITIENGINE) can decide whether render-dependent systems should be registered.
+   *
+   * @param includeRenderingSystems true to register Draw/Sound and other render-dependent defaults
+   */
+  public static synchronized void bootstrapDefaultSystems(boolean includeRenderingSystems) {
+    if (defaultSystemsBootstrapped) {
+      return;
     }
+
+    // Keep previous order as closely as possible
+    ECSManagement.add(new LevelSystem());
+
+    if (includeRenderingSystems) {
+      ECSManagement.add(new SoundSystem());
+      ECSManagement.add(DrawSystem.getInstance());
+    }
+
+    ECSManagement.add(new EventScheduler());
+    ECSManagement.add(new LevelTickSystem());
+
+    // HudSystem is mostly UI/Stage-based; keep it only for render-capable host for now.
+    if (includeRenderingSystems) {
+      ECSManagement.add(new HudSystem());
+    }
+
+    defaultSystemsBootstrapped = true;
   }
 
   /**

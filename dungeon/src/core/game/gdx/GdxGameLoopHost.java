@@ -211,6 +211,8 @@ public final class GdxGameLoopHost extends ScreenAdapter {
     LOGGER.info("Setting up game...");
     doSetup = false;
 
+    ECSManagement.bootstrapDefaultSystems(true);
+
     // Client-side setup (systems, message handlers, stage, audio) – exactly like before.
     if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
       setupClient();
