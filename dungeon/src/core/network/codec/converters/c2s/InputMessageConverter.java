@@ -135,7 +135,11 @@ public final class InputMessageConverter
         InputMessage.Action action =
             nextSkill ? InputMessage.Action.NEXT_SKILL : InputMessage.Action.PREV_SKILL;
         yield new InputMessage(
-            sessionId, clientTick, sequence, action, new InputMessage.SkillChange(nextSkill,  mainSkill));
+            sessionId,
+            clientTick,
+            sequence,
+            action,
+            new InputMessage.SkillChange(nextSkill, mainSkill));
       }
       case TOGGLE_INVENTORY ->
           new InputMessage(

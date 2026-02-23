@@ -144,7 +144,11 @@ public class C2SConverterTest {
   public void testInputMessageNextSkillRoundTrip() {
     InputMessage message =
         new InputMessage(
-            1, 1, (short) 1, InputMessage.Action.NEXT_SKILL, new InputMessage.SkillChange(true, true));
+            1,
+            1,
+            (short) 1,
+            InputMessage.Action.NEXT_SKILL,
+            new InputMessage.SkillChange(true, true));
 
     core.network.proto.c2s.InputMessage proto = INPUT_MESSAGE_CONVERTER.toProto(message);
     assertEquals(
@@ -162,7 +166,11 @@ public class C2SConverterTest {
   public void testInputMessagePrevSkillRoundTrip() {
     InputMessage message =
         new InputMessage(
-            2, 3, (short) 4, InputMessage.Action.PREV_SKILL, new InputMessage.SkillChange(false, true));
+            2,
+            3,
+            (short) 4,
+            InputMessage.Action.PREV_SKILL,
+            new InputMessage.SkillChange(false, true));
 
     core.network.proto.c2s.InputMessage proto = INPUT_MESSAGE_CONVERTER.toProto(message);
     assertEquals(

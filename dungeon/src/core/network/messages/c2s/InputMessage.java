@@ -316,6 +316,7 @@ public record InputMessage(
    * Payload for casting a skill.
    *
    * @param target the target point for the cast
+   * @param mainSkill whether to cast the main skill (true) or second skill (false)
    */
   public record CastSkill(Point target, boolean mainSkill) implements Payload {
     /**
@@ -348,6 +349,7 @@ public record InputMessage(
    * Payload for switching skills.
    *
    * @param nextSkill true for next skill, false for previous skill
+   * @param mainSkill whether to switch the main skill (true) or second skill (false)
    */
   public record SkillChange(boolean nextSkill, boolean mainSkill) implements Payload {}
 

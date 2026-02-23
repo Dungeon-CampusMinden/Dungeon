@@ -332,11 +332,13 @@ public final class HeroBuilder {
     inputComp.registerCallback(
         KeyboardConfig.USE_MAIN_SKILL.value(),
         (caller) ->
-            Game.network().sendInput(InputMessage.castSkill(SkillTools.cursorPositionAsPoint(), true)));
+            Game.network()
+                .sendInput(InputMessage.castSkill(SkillTools.cursorPositionAsPoint(), true)));
     inputComp.registerCallback(
         KeyboardConfig.MOUSE_USE_MAIN_SKILL.value(),
         (caller) ->
-            Game.network().sendInput(InputMessage.castSkill(SkillTools.cursorPositionAsPoint(), true)));
+            Game.network()
+                .sendInput(InputMessage.castSkill(SkillTools.cursorPositionAsPoint(), true)));
     inputComp.registerCallback(
         KeyboardConfig.NEXT_MAIN_SKILL.value(),
         caller -> Game.network().sendInput(InputMessage.nextSkill(true)),
@@ -352,11 +354,11 @@ public final class HeroBuilder {
                 .sendInput(InputMessage.castSkill(SkillTools.cursorPositionAsPoint(), false)));
     inputComp.registerCallback(
         KeyboardConfig.NEXT_SECOND_SKILL.value(),
-      caller -> Game.network().sendInput(InputMessage.nextSkill(false)),
+        caller -> Game.network().sendInput(InputMessage.nextSkill(false)),
         false);
     inputComp.registerCallback(
         KeyboardConfig.PREV_SECOND_SKILL.value(),
-      caller -> Game.network().sendInput(InputMessage.prevSkill(false)),
+        caller -> Game.network().sendInput(InputMessage.prevSkill(false)),
         false);
 
     // Interact
