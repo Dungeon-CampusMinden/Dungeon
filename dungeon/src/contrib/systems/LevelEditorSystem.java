@@ -39,6 +39,7 @@ public class LevelEditorSystem extends System {
   private static boolean internalStopped = false;
   private static boolean active = false;
   private static final int TOGGLE_ACTIVE = Input.Keys.F4;
+  private static String pathToLevels = "";
 
   private static final int TOGGLE_DEBUG_SHADER = Input.Keys.SPACE;
   private boolean debugShaderActive = false;
@@ -60,6 +61,21 @@ public class LevelEditorSystem extends System {
   private static final float FEEDBACK_MESSAGE_DURATION = 3.0f; // seconds
 
   private static Map<Integer, InputComponent.InputData> playerClallbacks = null;
+
+  /**
+   * Creates a new LevelEditorSystem.
+   *
+   * @param pathToLevels The folder in which the file is placed this system.
+   */
+  public LevelEditorSystem(String pathToLevels) {
+    super();
+    LevelEditorSystem.pathToLevels = pathToLevels;
+  }
+
+  /** Creates a new LevelEditorSystem. */
+  public LevelEditorSystem() {
+    super();
+  }
 
   /**
    * Gets the active status of the LevelEditorSystem.
@@ -287,7 +303,7 @@ public class LevelEditorSystem extends System {
         case LevelBounds -> new LevelBoundsMode();
         case ShiftLevel -> new ShiftLevelMode();
         case StartTiles -> new StartTilesMode();
-        case SaveLevel -> new SaveMode();
+        case SaveLevel -> new SaveMode(pathToLevels);
       };
     }
   }

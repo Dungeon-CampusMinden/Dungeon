@@ -292,7 +292,8 @@ public class PortalStarter {
   }
 
   private static void createSystems() {
-    if (LEVELEDITOR_MODE) Game.add(new LevelEditorSystem());
+    if (LEVELEDITOR_MODE)
+      Game.add(new LevelEditorSystem(/* "./advancedDungeon/assets/levels/portal/") */ ));
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());
