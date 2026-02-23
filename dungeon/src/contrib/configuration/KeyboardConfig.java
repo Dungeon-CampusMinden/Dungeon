@@ -53,7 +53,7 @@ public class KeyboardConfig {
    */
   public static final ConfigKey<Integer> NEXT_MAIN_SKILL =
       new ConfigKey<>(
-          new String[] {"skill", "select next main skill"}, new ConfigIntValue(Input.Keys.PERIOD));
+          new String[] {"skill", "select next main skill"}, new ConfigIntValue(Input.Keys.RIGHT));
 
   /**
    * Select the previous skill as active main Skill in the {@link
@@ -61,7 +61,7 @@ public class KeyboardConfig {
    */
   public static final ConfigKey<Integer> PREV_MAIN_SKILL =
       new ConfigKey<>(
-          new String[] {"skill", "select prev main skill"}, new ConfigIntValue(Input.Keys.COMMA));
+          new String[] {"skill", "select prev main skill"}, new ConfigIntValue(Input.Keys.LEFT));
 
   /**
    * Select the next skill as active second Skill in the {@link contrib.components.SkillComponent}.
@@ -69,7 +69,7 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> NEXT_SECOND_SKILL =
       new ConfigKey<>(
           new String[] {"skill", "select next second skill"},
-          new ConfigIntValue(Input.Keys.RIGHT_BRACKET));
+          new ConfigIntValue(Input.Keys.UP));
 
   /**
    * Select the previous skill as active second Skill in the {@link
@@ -77,7 +77,7 @@ public class KeyboardConfig {
    */
   public static final ConfigKey<Integer> PREV_SECOND_SKILL =
       new ConfigKey<>(
-          new String[] {"skill", "select prev second skill"}, new ConfigIntValue(Input.Keys.SLASH));
+          new String[] {"skill", "select prev second skill"}, new ConfigIntValue(Input.Keys.DOWN));
 
   /** This key is used shoot the active skill. */
   public static final ConfigKey<Integer> MOUSE_USE_MAIN_SKILL =
