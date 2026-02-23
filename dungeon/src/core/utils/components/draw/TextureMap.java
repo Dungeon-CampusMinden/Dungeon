@@ -32,9 +32,21 @@ public final class TextureMap extends HashMap<String, Texture> {
   public Texture textureAt(final IPath path) {
     final String key = path.pathString();
 
+    // In non-libGDX hosts (e.g. LITIENGINE), texture creation must not be attempted.
+    if (!Platform.runtime().supportsGdxRendering()) {
+      return null;
+    }
+
     if (!containsKey(key)) {
       final String resolvedPath = resolveImplicitFilePath(key);
-      put(key, loadPMA(resolvedPath));
+      final Texture tex = loadPMA(resolvedPath);
+
+      // IMPORTANT: do not cache null – otherwise callers using containsKey(...) will misbehave.
+      if (tex != null) {
+        put(key, tex);
+      } else {
+        return null;
+      }
     }
 
     return get(key);
@@ -45,6 +57,12 @@ public final class TextureMap extends HashMap<String, Texture> {
    * path, it is disposed of first.
    */
   public void putTexture(final IPath path, final Texture texture) {
+    if (texture == null) {
+      // Don’t store null textures; keep cache clean and predictable.
+      remove(path.pathString());
+      return;
+    }
+
     if (containsKey(path.pathString())) {
       Texture oldTexture = get(path.pathString());
       if (oldTexture != null) {

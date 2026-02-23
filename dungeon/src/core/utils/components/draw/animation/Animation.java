@@ -137,9 +137,9 @@ public class Animation implements Serializable, Cloneable {
     this.sourceType = SourceType.SINGLE_OR_MULTI;
     this.framePaths = new ArrayList<>(paths);
 
-    // Size from first frame if possible
-    if (canUseTextures()) {
-      Texture t = TextureMap.instance().textureAt(paths.get(0));
+    // Size from first frame if possible (only when a libGDX rendering backend exists)
+    Texture t = canUseTextures() ? TextureMap.instance().textureAt(paths.get(0)) : null;
+    if (t != null) {
       calculateWorldSize(t.getWidth(), t.getHeight());
     } else {
       calculateWorldSize(16, 16);
@@ -456,28 +456,33 @@ public class Animation implements Serializable, Cloneable {
    * @param paths A list of image paths.
    */
   private void loadSpritesFromPaths(List<IPath> paths) {
-    if (paths == null || paths.isEmpty())
+    if (paths == null || paths.isEmpty()) {
       throw new IllegalStateException("No frame paths provided");
-
-    sprites = new Sprite[paths.size()];
-    for (int i = 0; i < paths.size(); i++) {
-      if (TextureMap.instance().containsKey(paths.get(i).pathString()) || canUseTextures()) {
-        sprites[i] = new Sprite(TextureMap.instance().textureAt(paths.get(i)));
-      } else {
-        sprites[i] = new Sprite();
-      }
     }
 
-    int textWidth;
-    int textHeight;
+    sprites = new Sprite[paths.size()];
 
-    if (TextureMap.instance().containsKey(paths.get(0).pathString()) || canUseTextures()) {
-      Texture t = TextureMap.instance().textureAt(paths.get(0));
-      textWidth = t.getWidth();
-      textHeight = t.getHeight();
-    } else {
-      textWidth = 16;
-      textHeight = 16;
+    // Non-render hosts: always placeholders.
+    if (!canUseTextures()) {
+      for (int i = 0; i < sprites.length; i++) {
+        sprites[i] = new Sprite();
+      }
+      calculateWorldSize(16, 16);
+      return;
+    }
+
+    for (int i = 0; i < paths.size(); i++) {
+      Texture tex = TextureMap.instance().textureAt(paths.get(i));
+      sprites[i] = (tex != null) ? new Sprite(tex) : new Sprite();
+    }
+
+    int textWidth = 16;
+    int textHeight = 16;
+
+    Texture first = TextureMap.instance().textureAt(paths.get(0));
+    if (first != null) {
+      textWidth = first.getWidth();
+      textHeight = first.getHeight();
     }
 
     calculateWorldSize(textWidth, textHeight);
@@ -489,32 +494,44 @@ public class Animation implements Serializable, Cloneable {
    * @param path Path to the spritesheet image.
    */
   private void loadSpritesFromSpritesheet(IPath path) {
-    Texture spritesheet = null;
-    if (TextureMap.instance().containsKey(path.pathString()) || canUseTextures()) {
-      spritesheet = TextureMap.instance().textureAt(path);
-    }
-
     SpritesheetConfig ssc =
-        config
-            .config()
-            .orElseThrow(
-                () ->
-                    new IllegalStateException(
-                        "SpritesheetConfig expected but not present in config"));
+      config
+        .config()
+        .orElseThrow(
+          () ->
+            new IllegalStateException(
+              "SpritesheetConfig expected but not present in config"));
+
     int sWidth = ssc.spriteWidth();
     int sHeight = ssc.spriteHeight();
     int offsetX = ssc.x();
     int offsetY = ssc.y();
 
     sprites = new Sprite[ssc.rows() * ssc.columns()];
+
+    // Non-render hosts: placeholders only.
+    if (!canUseTextures()) {
+      for (int i = 0; i < sprites.length; i++) {
+        sprites[i] = new Sprite();
+      }
+      calculateWorldSize(sWidth, sHeight);
+      return;
+    }
+
+    Texture spritesheet = TextureMap.instance().textureAt(path);
+
     for (int y = 0; y < ssc.rows(); y++) {
       for (int x = 0; x < ssc.columns(); x++) {
         int index = y * ssc.columns() + x;
-        if (canUseTextures() && spritesheet != null) {
+        if (spritesheet != null) {
           sprites[index] =
-              new Sprite(
-                  new TextureRegion(
-                      spritesheet, offsetX + sWidth * x, offsetY + sHeight * y, sWidth, sHeight));
+            new Sprite(
+              new TextureRegion(
+                spritesheet,
+                offsetX + sWidth * x,
+                offsetY + sHeight * y,
+                sWidth,
+                sHeight));
         } else {
           sprites[index] = new Sprite();
         }
