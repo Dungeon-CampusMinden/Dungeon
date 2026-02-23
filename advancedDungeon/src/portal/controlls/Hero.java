@@ -127,16 +127,28 @@ public record Hero(Entity hero) {
     return SkillTools.cursorPositionAsPoint();
   }
 
-  /** Feuert den Skill ab. */
-  public void shootSkill() {
+  /** Feuert den main Skill ab. */
+  public void shootMainSkill() {
     hero.fetch(SkillComponent.class)
-        .flatMap(SkillComponent::activeSkill)
+        .flatMap(SkillComponent::activeMainSkill)
         .ifPresent(fs -> fs.execute(hero));
   }
 
-  /** Schalte auf den nächsten Skill. */
-  public void nextSkill() {
-    hero.fetch(SkillComponent.class).ifPresent(sc -> sc.nextSkill());
+  /** Schalte auf den nächsten main Skill. */
+  public void nextMainSkill() {
+    hero.fetch(SkillComponent.class).ifPresent(sc -> sc.nextMainSkill());
+  }
+
+  /** Feuert den second Skill ab. */
+  public void shootSecondSkill() {
+    hero.fetch(SkillComponent.class)
+        .flatMap(SkillComponent::activeSecondSkill)
+        .ifPresent(fs -> fs.execute(hero));
+  }
+
+  /** Schalte auf den nächsten second Skill. */
+  public void nextSecondSkill() {
+    hero.fetch(SkillComponent.class).ifPresent(sc -> sc.nextSecondSkill());
   }
 
   /**
