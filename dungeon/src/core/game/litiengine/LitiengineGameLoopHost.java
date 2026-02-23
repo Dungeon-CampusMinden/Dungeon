@@ -6,6 +6,7 @@ import core.game.SystemProfile;
 import core.platform.Platform;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.IUpdateable;
+import core.game.litiengine.DungeonDebugScreen;
 
 /**
  * LITIENGINE host that drives the engine-agnostic GameLoopCore.
@@ -45,6 +46,8 @@ public final class LitiengineGameLoopHost {
       }
     });
 
+    Game.screens().add(new DungeonDebugScreen());
+    Game.screens().display(DungeonDebugScreen.NAME);
     Game.start();
   }
 }
