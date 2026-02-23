@@ -367,9 +367,12 @@ public class Animation implements Serializable, Cloneable {
       throw new IllegalArgumentException("Image file not found: " + pathString);
     }
 
-    if (com.badlogic.gdx.Gdx.files == null) {
-      throw new IllegalStateException(
-        "Sprite sheet loading requires the libGDX render backend (Gdx.files is null): " + pathString);
+    // We may run on a non-libGDX host (e.g. LITIENGINE). In that case we still parse the
+    // animation configs, but actual sprite/texture loading is deferred or replaced by placeholders.
+    if (!canUseTextures()) {
+      LOGGER.warn(
+        "Loading animation configs without libGDX rendering backend. Sprites will be placeholders until a render backend is available. path={}",
+        pathString);
     }
 
     Map<String, AnimationConfig> configs = AnimationConfig.loadAnimationConfigMap(jsonPath);
@@ -394,12 +397,44 @@ public class Animation implements Serializable, Cloneable {
   private void ensureLoaded() {
     if (loaded && sprites != null) return;
 
+    if (!canUseTextures()) {
+      initPlaceholderSprites();
+      loaded = true;
+      return;
+    }
+
     if (sourceType == SourceType.SINGLE_OR_MULTI) {
       loadSpritesFromPaths(framePaths);
     } else {
       loadSpritesFromSpritesheet(sheetPath);
     }
     loaded = true;
+  }
+
+  private void initPlaceholderSprites() {
+    final int count = Math.max(1, expectedSpriteCount());
+    this.sprites = new Sprite[count];
+    for (int i = 0; i < count; i++) {
+      this.sprites[i] = new Sprite(); // empty sprite as placeholder
+    }
+
+    // Keep non-zero dimensions to avoid accidental divide-by-zero in rare call paths.
+    // Real sizes will be available once textures are actually loaded on a render-capable backend.
+    if (this.width <= 0) this.width = 1;
+    if (this.height <= 0) this.height = 1;
+  }
+
+  private int expectedSpriteCount() {
+    // SINGLE_OR_MULTI and PATH_LIST both use framePaths
+    if (this.framePaths != null && !this.framePaths.isEmpty()) {
+      return this.framePaths.size();
+    }
+
+    // SPRITESHEET: use rows * columns from config if present
+    return this.config
+      .config()
+      .map(c -> Math.max(1, c.rows() * c.columns()))
+      .orElse(1);
   }
 
   private void tryEagerLoad() {

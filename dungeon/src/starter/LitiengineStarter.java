@@ -36,8 +36,9 @@ public final class LitiengineStarter {
     // Use core-only onLevelLoad to avoid decoration/texture pipeline.
     Game.system(LevelSystem.class, ls -> ls.onLevelLoad(GameLoop.onLevelLoadCoreOnly));
 
-    // IMPORTANT: do NOT spawn hero yet (would trigger libGDX-based texture loading).
-    Game.userOnSetup(() -> {});
+    // Spawn hero even on LITIENGINE host.
+    // Rendering is still disabled, but animations must not crash the game logic.
+    Game.userOnSetup(() -> Game.add(EntityFactory.newHero()));
 
     // Initialize network/logging etc.
     Game.initialize();

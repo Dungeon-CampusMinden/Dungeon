@@ -217,27 +217,43 @@ public class AnimationConfig implements Cloneable, Serializable {
     JsonReader jsonReader = new JsonReader();
     Map<String, AnimationConfig> animationMap = new HashMap<>();
 
-    FileHandle f = Gdx.files.internal(jsonFilePath);
-    if (!f.exists()) return null;
+    // Engine-neutral resource lookup (works for libGDX and non-libGDX hosts like LITIENGINE)
+    if (jsonFilePath == null || jsonFilePath.isBlank() || !core.platform.Platform.resources().exists(jsonFilePath)) {
+      return null;
+    }
 
-    JsonValue root = jsonReader.parse(f);
+    // Read JSON from Platform.resources() (no Gdx.files dependency)
+    JsonValue root;
+    try (java.io.InputStream in = core.platform.Platform.resources().open(jsonFilePath)) {
+      String json = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+      root = jsonReader.parse(json);
+    } catch (Exception e) {
+      return null;
+    }
+
+    if (root == null) return null;
 
     for (JsonValue entry = root.child; entry != null; entry = entry.next) {
       String animationName = entry.name;
 
-      // Read SpritesheetConfig
+      // Read SpritesheetConfig (optional; some configs may omit it)
       JsonValue configJson = entry.get("config");
-      SpritesheetConfig sheetConfig = new SpritesheetConfig();
-      sheetConfig.spriteWidth(configJson.getInt("spriteWidth"));
-      sheetConfig.spriteHeight(configJson.getInt("spriteHeight"));
-      sheetConfig.x(configJson.getInt("x"));
-      sheetConfig.y(configJson.getInt("y"));
-      sheetConfig.rows(configJson.getInt("rows"));
-      sheetConfig.columns(configJson.getInt("columns"));
+      SpritesheetConfig sheetConfig = null;
+      if (configJson != null) {
+        sheetConfig = new SpritesheetConfig();
+        sheetConfig.spriteWidth(configJson.getInt("spriteWidth"));
+        sheetConfig.spriteHeight(configJson.getInt("spriteHeight"));
+        sheetConfig.x(configJson.getInt("x"));
+        sheetConfig.y(configJson.getInt("y"));
+        sheetConfig.rows(configJson.getInt("rows"));
+        sheetConfig.columns(configJson.getInt("columns"));
+      }
 
       // Read AnimationConfig
       AnimationConfig animConfig = new AnimationConfig();
-      animConfig.config(sheetConfig);
+      if (sheetConfig != null) {
+        animConfig.config(sheetConfig);
+      }
       animConfig.framesPerSprite(entry.getInt("framesPerSprite", 10));
       animConfig.scaleX(entry.getFloat("scaleX", 1f));
       animConfig.scaleY(entry.getFloat("scaleY", 0f));
@@ -247,7 +263,6 @@ public class AnimationConfig implements Cloneable, Serializable {
 
       animationMap.put(animationName, animConfig);
     }
-
     return animationMap;
   }
 
