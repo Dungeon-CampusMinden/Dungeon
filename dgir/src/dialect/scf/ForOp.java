@@ -35,7 +35,7 @@ public final class ForOp extends ScfOp implements SCF, IControlFlow, ISingleRegi
   // Constructors
   // =========================================================================
 
-  public ForOp() {}
+  private ForOp() {}
 
   public ForOp(Operation operation) {
     super(operation);

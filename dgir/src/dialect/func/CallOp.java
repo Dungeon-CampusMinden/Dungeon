@@ -66,7 +66,7 @@ public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
   // Constructors
   // =========================================================================
 
-  public CallOp() {}
+  private CallOp() {}
 
   public CallOp(Operation operation) {
     super(operation);

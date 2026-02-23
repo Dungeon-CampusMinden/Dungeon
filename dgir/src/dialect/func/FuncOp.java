@@ -36,7 +36,7 @@ public final class FuncOp extends FuncBaseOp implements Func, ISymbol, IIsolated
   // Constructors
   // =========================================================================
 
-  public FuncOp() {}
+  private FuncOp() {}
 
   public FuncOp(Operation operation) {
     super(operation);

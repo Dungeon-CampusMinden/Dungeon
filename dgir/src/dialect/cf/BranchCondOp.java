@@ -30,7 +30,7 @@ public final class BranchCondOp extends CfOp implements CF, ITerminator, IContro
   // Constructors
   // =========================================================================
 
-  public BranchCondOp() {}
+  private BranchCondOp() {}
 
   public BranchCondOp(Operation operation) {
     super(operation);

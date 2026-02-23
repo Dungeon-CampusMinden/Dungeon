@@ -39,7 +39,7 @@ public final class PrintOp extends IoOp implements IO {
   // Constructors
   // =========================================================================
 
-  public PrintOp() {}
+  private PrintOp() {}
 
   public PrintOp(Operation operation) {
     super(operation);

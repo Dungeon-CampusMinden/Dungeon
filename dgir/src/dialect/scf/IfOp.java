@@ -47,7 +47,7 @@ public final class IfOp extends ScfOp implements SCF, IControlFlow {
   // Constructors
   // =========================================================================
 
-  public IfOp() {}
+  private IfOp() {}
 
   public IfOp(Operation operation) {
     super(operation);

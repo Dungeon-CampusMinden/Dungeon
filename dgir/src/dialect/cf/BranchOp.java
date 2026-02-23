@@ -28,7 +28,7 @@ public final class BranchOp extends CfOp implements CF, ITerminator, IControlFlo
   // Constructors
   // =========================================================================
 
-  public BranchOp() {}
+  private BranchOp() {}
 
   public BranchOp(Operation operation) {
     super(operation);

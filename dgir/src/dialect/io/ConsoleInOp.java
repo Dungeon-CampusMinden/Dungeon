@@ -61,7 +61,7 @@ public final class ConsoleInOp extends IoOp implements IO {
   // Constructors
   // =========================================================================
 
-  public ConsoleInOp() {}
+  private ConsoleInOp() {}
 
   public ConsoleInOp(Operation operation) {
     super(operation);
