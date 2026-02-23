@@ -117,15 +117,15 @@ public class HeroController {
   }
 
   /**
-   * Uses the hero's active skill targeting the specified point. If the active skill is a
+   * Uses the hero's active main skill targeting the specified point. If the active main skill is a
    * CursorSkill or ProjectileSkill, sets the target position accordingly before executing the
    * skill.
    *
    * @param hero the hero entity using the skill
    * @param target the target point for the skill (can be null if not applicable)
    */
-  public static void useSkill(Entity hero, Point target) {
-    LOGGER.debug("Hero {} using skill at point {}", hero.id(), target);
+  public static void useMainSkill(Entity hero, Point target) {
+    LOGGER.debug("Hero {} using main skill at point {}", hero.id(), target);
     hero.fetch(SkillComponent.class)
         .flatMap(SkillComponent::activeMainSkill)
         .ifPresentOrElse(
@@ -138,6 +138,29 @@ public class HeroController {
               skill.execute(hero);
             },
             () -> LOGGER.debug("Hero {} has no active skill to use.", hero.id()));
+  }
+
+  /**
+   * Uses the hero's active second skill targeting the specified point. If the active second skill
+   * is a CursorSkill or ProjectileSkill, sets the target position accordingly before executing the
+   * skill.
+   *
+   * @param hero the hero entity using the skill
+   * @param target the target point for the skill (can be null if not applicable)
+   */
+  public static void useSecondSkill(Entity hero, Point target) {
+    LOGGER.debug("Hero {} using second skill at point {}", hero.id(), target);
+    hero.fetch(SkillComponent.class)
+        .flatMap(SkillComponent::activeSecondSkill)
+        .ifPresent(
+            skill -> {
+              if (skill instanceof CursorSkill cursorSkill) {
+                cursorSkill.cursorPositionSupplier(() -> target);
+              } else if (skill instanceof ProjectileSkill projSkill) {
+                projSkill.endPointSupplier(() -> target);
+              }
+              skill.execute(hero);
+            });
   }
 
   /**
@@ -191,19 +214,38 @@ public class HeroController {
   }
 
   /**
+   * Changes the active main skill of the hero entity. If nextSkill is true, switches to the next
+   * skill; otherwise, switches to the previous skill.
+   *
+   * @param hero the hero entity whose skill is to be changed
+   * @param nextSkill if true, switch to the next skill; if false, switch to the previous skill
+   */
+  public static void changeMainSkill(Entity hero, boolean nextSkill) {
+    LOGGER.debug("Hero {} changing main skill, nextSkill={}", hero.id(), nextSkill);
+    hero.fetch(SkillComponent.class)
+        .ifPresent(
+            skillComponent -> {
+              if (nextSkill) skillComponent.nextMainSkill();
+              else skillComponent.prevMainSkill();
+              System.out.println("Next main Skill: " + nextSkill);
+            });
+  }
+
+  /**
    * Changes the active skill of the hero entity. If nextSkill is true, switches to the next skill;
    * otherwise, switches to the previous skill.
    *
    * @param hero the hero entity whose skill is to be changed
    * @param nextSkill if true, switch to the next skill; if false, switch to the previous skill
    */
-  public static void changeSkill(Entity hero, boolean nextSkill) {
-    LOGGER.debug("Hero {} changing skill, nextSkill={}", hero.id(), nextSkill);
+  public static void changeSecondSkill(Entity hero, boolean nextSkill) {
+    LOGGER.debug("Hero {} changing second skill, nextSecondSkill={}", hero.id(), nextSkill);
     hero.fetch(SkillComponent.class)
         .ifPresent(
             skillComponent -> {
-              if (nextSkill) skillComponent.nextMainSkill();
-              else skillComponent.prevMainSkill();
+              if (nextSkill) skillComponent.nextSecondSkill();
+              else skillComponent.prevSecondSkill();
+              System.out.println("Next second Skill: " + nextSkill);
             });
   }
 
@@ -543,9 +585,12 @@ public class HeroController {
         HeroController.moveHero(
             playerEntity, Vector2.of(msg.point()).direction(), heroClass.speed());
       }
-      case CAST_SKILL -> HeroController.useSkill(playerEntity, msg.point());
-      case NEXT_SKILL -> HeroController.changeSkill(playerEntity, true);
-      case PREV_SKILL -> HeroController.changeSkill(playerEntity, false);
+      case CAST_MAIN_SKILL -> HeroController.useMainSkill(playerEntity, msg.point());
+      case CAST_SECOND_SKILL -> HeroController.useSecondSkill(playerEntity, msg.point());
+      case NEXT_MAIN_SKILL -> HeroController.changeMainSkill(playerEntity, true);
+      case PREV_MAIN_SKILL -> HeroController.changeMainSkill(playerEntity, false);
+      case NEXT_SECOND_SKILL -> HeroController.changeSecondSkill(playerEntity, true);
+      case PREV_SECOND_SKILL -> HeroController.changeSecondSkill(playerEntity, false);
       case INTERACT -> HeroController.interact(playerEntity, msg.point());
       case TOGGLE_INVENTORY -> HeroController.toggleInventory(playerEntity);
       case INV_DROP -> {

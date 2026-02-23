@@ -105,14 +105,14 @@ public record InputMessage(
   public enum Action {
     /** Move to a specific {@link core.utils.Direction direction}. */
     MOVE(0, false),
-    /** Cast a skill towards or at a specific {@link core.utils.Point point}. */
-    CAST_SKILL(1, false),
+    /** Cast the main skill towards or at a specific {@link core.utils.Point point}. */
+    CAST_MAIN_SKILL(1, false),
     /** Interact with an object at a specific {@link core.utils.Point point}. */
     INTERACT(2, false),
-    /** Switch to the next skill in the player's skill set. */
-    NEXT_SKILL(3, false),
-    /** Switch to the previous skill in the player's skill set. */
-    PREV_SKILL(4, false),
+    /** Switch to the next main skill in the player's skill set. */
+    NEXT_MAIN_SKILL(3, false),
+    /** Switch to the previous main skill in the player's skill set. */
+    PREV_MAIN_SKILL(4, false),
     /**
      * Drop a specified item from the inventory.
      *
@@ -133,7 +133,13 @@ public record InputMessage(
      */
     INV_USE(7, true),
     /** Toggle the visibility of the inventory UI. */
-    TOGGLE_INVENTORY(8, true);
+    TOGGLE_INVENTORY(8, true),
+    /** Switch to the next second skill in the player's skill set. */
+    NEXT_SECOND_SKILL(9, false),
+    /** Switch to the previous second skill in the player's skill set. */
+    PREV_SECOND_SKILL(10, false),
+    /** Cast a second skill towards or at a specific {@link core.utils.Point point}. */
+    CAST_SECOND_SKILL(11, false);
 
     private final byte value;
     private final boolean ignorePause;

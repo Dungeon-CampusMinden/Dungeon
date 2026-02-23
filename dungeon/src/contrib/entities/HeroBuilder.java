@@ -334,30 +334,50 @@ public final class HeroBuilder {
 
     // Skills
     inputComp.registerCallback(
-        KeyboardConfig.USE_SKILL.value(),
+        KeyboardConfig.USE_MAIN_SKILL.value(),
         (caller) ->
             Game.network()
                 .sendInput(
                     new InputMessage(
-                        InputMessage.Action.CAST_SKILL, SkillTools.cursorPositionAsPoint())));
+                        InputMessage.Action.CAST_MAIN_SKILL, SkillTools.cursorPositionAsPoint())));
     inputComp.registerCallback(
-        KeyboardConfig.MOUSE_USE_SKILL.value(),
+        KeyboardConfig.MOUSE_USE_MAIN_SKILL.value(),
         (caller) ->
             Game.network()
                 .sendInput(
                     new InputMessage(
-                        InputMessage.Action.CAST_SKILL, SkillTools.cursorPositionAsPoint())));
+                        InputMessage.Action.CAST_MAIN_SKILL, SkillTools.cursorPositionAsPoint())));
     inputComp.registerCallback(
-        KeyboardConfig.NEXT_SKILL.value(),
+        KeyboardConfig.NEXT_MAIN_SKILL.value(),
         caller ->
             Game.network()
-                .sendInput(new InputMessage(InputMessage.Action.NEXT_SKILL, Vector2.ZERO)),
+                .sendInput(new InputMessage(InputMessage.Action.NEXT_MAIN_SKILL, Vector2.ZERO)),
         false);
     inputComp.registerCallback(
-        KeyboardConfig.PREV_SKILL.value(),
+        KeyboardConfig.PREV_MAIN_SKILL.value(),
         caller ->
             Game.network()
-                .sendInput(new InputMessage(InputMessage.Action.PREV_SKILL, Vector2.ZERO)),
+                .sendInput(new InputMessage(InputMessage.Action.PREV_MAIN_SKILL, Vector2.ZERO)),
+        false);
+    inputComp.registerCallback(
+        KeyboardConfig.MOUSE_USE_SECOND_SKILL.value(),
+        (caller) ->
+            Game.network()
+                .sendInput(
+                    new InputMessage(
+                        InputMessage.Action.CAST_SECOND_SKILL,
+                        SkillTools.cursorPositionAsPoint())));
+    inputComp.registerCallback(
+        KeyboardConfig.NEXT_SECOND_SKILL.value(),
+        caller ->
+            Game.network()
+                .sendInput(new InputMessage(InputMessage.Action.NEXT_SECOND_SKILL, Vector2.ZERO)),
+        false);
+    inputComp.registerCallback(
+        KeyboardConfig.PREV_SECOND_SKILL.value(),
+        caller ->
+            Game.network()
+                .sendInput(new InputMessage(InputMessage.Action.PREV_SECOND_SKILL, Vector2.ZERO)),
         false);
 
     // Interact
