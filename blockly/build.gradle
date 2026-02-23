@@ -53,6 +53,11 @@ tasks.register("npmBuild", Exec) {
     commandLine("npm.cmd", "run", "build")
 }
 
+tasks.register("blocklyJars", Jar) {
+    group='build'
+
+}
+
 tasks.named('jar', Jar) {
     dependsOn project(':dungeon').tasks.named('jar')
     dependsOn project(':dungeon').tasks.named('jar')

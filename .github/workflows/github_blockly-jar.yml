@@ -1,0 +1,68 @@
+name: Build Blockly JAR with Frontend
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 1. Node.js Setup für das Frontend
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Oder deine bevorzugte Version
+          cache: 'npm'
+          cache-dependency-path: 'blockly/frontend/package-lock.json' # Pfad zu deiner package-lock
+
+      # 2. Frontend bauen
+      - name: Build Frontend
+        run: |
+          cd blockly
+          cd frontend
+          npm install
+          npm run build
+        # Dieser Schritt erzeugt den 'dist' Ordner, den Gradle später einsammelt
+
+      # 3. Java Setup
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      # 4. Gradle Build (Sammelt das 'dist' Verzeichnis ein)
+      - name: Build JAR with Gradle
+        run: ./gradlew jar
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Blockly-Complete-JAR
+          path: blockly/build/libs/Blockly.jar
+
+  deploy:
+      needs: build # Wartet, bis 'build' fertig ist
+      runs-on: ubuntu-latest
+      if: github.ref == 'refs/heads/master' # Nur beim Master-Branch ausführen
+      steps:
+        - uses: actions/download-artifact@v4
+          with:
+            name: build-jar
+        - run: mkdir deploy-out && mv Blockly.jar deploy-out/
+        - uses: peaceiris/actions-gh-pages@v4
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            publish_branch: build-artifacts
+            publish_dir: deploy-out/
+            force_orphan: true
