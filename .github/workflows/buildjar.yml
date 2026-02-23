@@ -24,13 +24,6 @@ jobs:
 
       - name: Build JAR
         run: ./gradlew build
-
-      - name: Run JAR
-        run: |
-          JAR=$(ls build/libs/*.jar | head -n 1)
-          echo "Running $JAR"
-          java -jar "$JAR"
-
       - name: Publish to _blocklyjar branch
         run: |
           git config user.name "github-actions"
@@ -44,7 +37,7 @@ jobs:
 
           # Artefakte kopieren
           mkdir artifacts
-          cp build/libs/*.jar artifacts/
+          cp */build/libs/*.jar artifacts/
 
           git add artifacts
           git commit -m "Update JAR artifacts"
