@@ -68,8 +68,7 @@ public class KeyboardConfig {
    */
   public static final ConfigKey<Integer> NEXT_SECOND_SKILL =
       new ConfigKey<>(
-          new String[] {"skill", "select next second skill"},
-          new ConfigIntValue(Input.Keys.UP));
+          new String[] {"skill", "select next second skill"}, new ConfigIntValue(Input.Keys.UP));
 
   /**
    * Select the previous skill as active second Skill in the {@link
