@@ -82,7 +82,7 @@ public class SymbolTable {
     }
 
     var symbolTableOp = from.getParentWithTrait(ISymbolTable.class);
-    return symbolTableOp.map(IOpTrait::get);
+    return symbolTableOp.map(IOpTrait::getOperation);
   }
 
   /**

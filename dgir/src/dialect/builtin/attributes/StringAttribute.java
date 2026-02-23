@@ -3,7 +3,7 @@ package dialect.builtin.attributes;
 import core.*;
 import core.detail.AttributeDetails;
 import core.ir.TypedAttribute;
-import dialect.builtin.Builtin;
+import dialect.builtin.BuiltinDialect;
 import dialect.builtin.types.StringT;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ public class StringAttribute extends TypedAttribute {
   public AttributeDetails.@NotNull Impl createImpl() {
     class StringAttributeModel extends AttributeDetails.Impl {
       StringAttributeModel() {
-        super(StringAttribute.getIdent(), StringAttribute.class, Dialect.getOrThrow(Builtin.class));
+        super(StringAttribute.getIdent(), StringAttribute.class, Dialect.getOrThrow(BuiltinDialect.class));
       }
     }
     return new StringAttributeModel();

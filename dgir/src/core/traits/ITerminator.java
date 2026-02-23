@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 public interface ITerminator extends IOpTrait {
   default boolean verify(@NotNull ITerminator ignored) {
     // Make sure the terminator is the last operation in the region.
-    Optional<Block> block = get().getParent();
-    Operation self = get();
+    Optional<Block> block = getOperation().getParent();
+    Operation self = getOperation();
     if (block.isEmpty()) {
       self.emitError("Terminator must be in a block.");
       return false;

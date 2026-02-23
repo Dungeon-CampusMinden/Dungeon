@@ -1,44 +1,29 @@
 package dialect.cf;
 
-import core.Dialect;
-import core.detail.OperationDetails;
-import core.ir.*;
+import core.ir.Block;
+import core.ir.Operation;
+import core.ir.Value;
 import core.traits.IControlFlow;
 import core.traits.ITerminator;
 import dialect.builtin.types.IntegerT;
 import java.util.List;
+import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
-public class BranchCondOp extends Op implements ITerminator, IControlFlow {
+public final class BranchCondOp extends CfOp implements CF, ITerminator, IControlFlow {
 
   // =========================================================================
   // Type Info
   // =========================================================================
 
   @Override
-  public OperationDetails.@NotNull Impl createDetails() {
-    class BranchCondOpDetails extends OperationDetails.Impl {
-      BranchCondOpDetails() {
-        super(BranchCondOp.getIdent(), BranchCondOp.class, Dialect.getOrThrow(CF.class), List.of());
-      }
-
-      @Override
-      public boolean verify(@NotNull Operation operation) {
-        return true;
-      }
-
-      @Override
-      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {}
-    }
-    return new BranchCondOpDetails();
-  }
-
-  public static String getIdent() {
+  public @NotNull String getIdent() {
     return "cf.br_cond";
   }
 
-  public static String getNamespace() {
-    return "cf";
+  @Override
+  public Function<Operation, Boolean> getVerifier() {
+    return ignored -> true;
   }
 
   // =========================================================================
@@ -52,7 +37,7 @@ public class BranchCondOp extends Op implements ITerminator, IControlFlow {
   }
 
   public BranchCondOp(Value condition, Block target, Block elseTarget) {
-    super(Operation.Create(getIdent(), List.of(condition), List.of(target, elseTarget), null));
+    setOperation(Operation.Create(this, List.of(condition), List.of(target, elseTarget), null));
     assert condition.getType().equals(IntegerT.BOOL) : "Condition must be of type bool/int1.";
   }
 }

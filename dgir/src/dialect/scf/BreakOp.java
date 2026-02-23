@@ -10,37 +10,22 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
+import java.util.function.Function;
 
-public class BreakOp extends Op implements ITerminator, ISpecificParentOp {
+public final class BreakOp extends ScfOp implements SCF, ITerminator, ISpecificParentOp {
 
   // =========================================================================
   // Type Info
   // =========================================================================
 
   @Override
-  public @NotNull OperationDetails.Impl createDetails() {
-    class BreakOpDetails extends OperationDetails.Impl {
-      BreakOpDetails() {
-        super(BreakOp.getIdent(), BreakOp.class, Dialect.getOrThrow(SCF.class), List.of());
-      }
-
-      @Override
-      public boolean verify(@NotNull Operation operation) {
-        return true;
-      }
-
-      @Override
-      public void populateDefaultAttrs(@NotNull List<core.ir.NamedAttribute> attributes) {}
-    }
-    return new BreakOpDetails();
-  }
-
-  public static @NotNull String getIdent() {
+  public @NotNull String getIdent() {
     return "scf.break";
   }
 
-  public static @NotNull String getNamespace() {
-    return "scf";
+  @Override
+  public Function<Operation, Boolean> getVerifier() {
+    return ignored -> true;
   }
 
   // =========================================================================
@@ -49,7 +34,7 @@ public class BreakOp extends Op implements ITerminator, ISpecificParentOp {
 
   public BreakOp() {
     executeIfRegistered(
-        BreakOp.class, () -> setOperation(false, Operation.Create(getIdent(), null, null, null)));
+        BreakOp.class, () -> setOperation(false, Operation.Create(this, null, null, null)));
   }
 
   public BreakOp(Operation operation) {

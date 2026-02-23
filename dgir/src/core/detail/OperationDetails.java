@@ -9,6 +9,7 @@ import core.traits.IOpTrait;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +39,7 @@ public class OperationDetails {
   public static @NotNull Optional<Constructor<? extends Op>> hasSpecificConstructor(
       @NotNull Class<? extends Op> opClass, @NotNull Class<?>... parameterTypes) {
     try {
-      return Optional.of(opClass.getConstructor(parameterTypes));
+      return Optional.of(opClass.getDeclaredConstructor(parameterTypes));
     } catch (NoSuchMethodException e) {
       return Optional.empty();
     }
@@ -59,7 +60,7 @@ public class OperationDetails {
   }
 
   /** Look up or create an {@link OperationDetails} by ident string. */
-  public OperationDetails(@NotNull String ident) {
+  private OperationDetails(@NotNull String ident) {
     // Try the registered registry first
     OperationDetails registeredDetails = DGIRContext.registeredOperationsByIdent.get(ident);
     if (registeredDetails != null) {
@@ -85,7 +86,7 @@ public class OperationDetails {
   }
 
   /** Look up or create an {@link OperationDetails} by op class. */
-  public OperationDetails(@NotNull Class<? extends Op> clazz) {
+  private OperationDetails(@NotNull Class<? extends Op> clazz) {
     // Try the registered registry first
     OperationDetails registeredName = DGIRContext.registeredOperations.get(clazz);
     if (registeredName != null) {
@@ -144,10 +145,6 @@ public class OperationDetails {
   @Contract(pure = true)
   public boolean verify(Operation operation) {
     return impl.verify(operation);
-  }
-
-  public void populateDefaultAttrs(List<NamedAttribute> attributes) {
-    impl.populateDefaultAttrs(attributes);
   }
 
   @Contract(pure = true)
@@ -246,6 +243,9 @@ public class OperationDetails {
     if (this instanceof RegisteredOperationDetails registeredDetails) {
       return Optional.of(registeredDetails);
     }
+    if (this.impl instanceof RegisteredOperationDetails.RegisteredOperationImpl registeredImpl) {
+      return Optional.of(new RegisteredOperationDetails(registeredImpl));
+    }
     return Optional.empty();
   }
 
@@ -263,6 +263,22 @@ public class OperationDetails {
     return impl.hashCode();
   }
 
+  public Op createDefaultInstance() {
+    try {
+      boolean accessible = impl.emptyConstructor.canAccess(null);
+      if (!accessible) impl.emptyConstructor.setAccessible(true);
+      Op op = impl.emptyConstructor.newInstance();
+      if (!accessible) impl.emptyConstructor.setAccessible(false);
+      return op;
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Failed to create default instance of operation type "
+              + getType().getName()
+              + e.getMessage(),
+          e);
+    }
+  }
+
   // =========================================================================
   // Inner: Impl
   // =========================================================================
@@ -272,25 +288,36 @@ public class OperationDetails {
    * each op's {@code createDetails()} method.
    */
   public abstract static class Impl {
-
     protected final @NotNull String ident;
     protected final @NotNull Class<? extends Op> type;
     protected final @Nullable Dialect dialect;
     protected final @NotNull List<String> attributeNames;
+    protected final @NotNull Function<Operation, Boolean> verifier;
     protected final @NotNull Set<Class<? extends IOpTrait>> traits;
     protected final @NotNull Map<Class<? extends IOpTrait>, Method> traitVerifiers;
     protected final @NotNull Constructor<? extends Op> operationConstructor;
     protected final @NotNull Constructor<? extends Op> emptyConstructor;
 
+    public Impl(@NotNull Op op) {
+      this(
+          op.getIdent(),
+          op.getClass(),
+          Dialect.getOrThrow(op.getDialect()),
+          op.getDefaultAttributes().stream().map(NamedAttribute::getName).toList(),
+          op.getVerifier());
+    }
+
     public Impl(
         @NotNull String ident,
         @NotNull Class<? extends Op> type,
         @Nullable Dialect dialect,
-        @NotNull List<String> attributeNames) {
+        @NotNull List<String> attributeNames,
+        @NotNull Function<Operation, Boolean> verifier) {
       this.ident = ident;
       this.type = type;
       this.dialect = dialect;
       this.attributeNames = Collections.unmodifiableList(attributeNames);
+      this.verifier = verifier;
 
       // Collect only the interfaces that are IOpTrait subtypes
       this.traits =
@@ -382,9 +409,9 @@ public class OperationDetails {
      * @return {@code true} if the operation is valid.
      */
     @Contract(pure = true)
-    public abstract boolean verify(@NotNull Operation operation);
-
-    public abstract void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes);
+    public final boolean verify(@NotNull Operation operation) {
+      return verifier.apply(operation);
+    }
   }
 
   // =========================================================================
@@ -393,28 +420,24 @@ public class OperationDetails {
 
   /** Placeholder used when an operation ident is referenced before registration. */
   protected static final class UnregisteredOp extends Impl {
-
     UnregisteredOp(
         @NotNull String ident,
         @NotNull Class<? extends Op> clazz,
         @Nullable Dialect dialect,
         @NotNull List<String> attributeNames) {
-      super(ident, clazz, dialect, attributeNames);
+      super(
+          ident,
+          clazz,
+          dialect,
+          attributeNames,
+          op -> {
+            throw new RuntimeException("Operation " + ident + " has not been registered.");
+          });
       System.out.println(
           "Created new UnregisteredOp Details with ident "
               + ident
               + " and type "
               + clazz.getName());
     }
-
-    @Override
-    public boolean verify(@NotNull Operation operation) {
-      // TODO: implement proper verification
-      System.out.println("Missing verification for operation " + getIdent());
-      return true;
-    }
-
-    @Override
-    public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {}
   }
 }

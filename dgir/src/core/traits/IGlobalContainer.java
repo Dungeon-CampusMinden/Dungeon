@@ -14,7 +14,7 @@ public interface IGlobalContainer extends IOpTrait {
   @Contract(pure = true)
   default boolean verify(@NotNull IGlobalContainer op) {
     // Ensure that all operations contained in the regions are global operations.
-    for (Region region : op.get().getRegions()) {
+    for (Region region : op.getOperation().getRegions()) {
       for (Block block : region.getBlocks()) {
         for (Operation operation : block.getOperations()) {
           if (!operation.hasTrait(IGlobal.class)) {

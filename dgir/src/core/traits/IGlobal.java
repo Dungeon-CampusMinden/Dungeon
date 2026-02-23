@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 public interface IGlobal extends IOpTrait {
   @Contract(pure = true)
   default boolean verify(@NotNull IGlobal ignored) {
-    return get()
+    return getOperation()
         .getParentOperation()
         // Ensure that the op is inside a global container op
         .map(parent -> parent.hasTrait(IGlobalContainer.class))

@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 public interface ISymbol extends IOpTrait {
   @Contract(pure = true)
   default boolean verify(@NotNull ISymbol ignored) {
-    if (!get().getAttributes().containsKey(SymbolTable.getSymbolAttributeName())) {
-      get().emitError("Symbol must have a symbol attribute.");
+    if (!getOperation().getAttributes().containsKey(SymbolTable.getSymbolAttributeName())) {
+      getOperation().emitError("Symbol must have a symbol attribute.");
       return false;
     }
     return true;
@@ -17,7 +17,7 @@ public interface ISymbol extends IOpTrait {
 
   @Contract(pure = true)
   default @NotNull String getSymbol() {
-    return get()
+    return getOperation()
         .getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName())
         .orElseThrow()
         .getValue();

@@ -3,7 +3,7 @@ package dialect.builtin.types;
 import core.Dialect;
 import core.detail.TypeDetails;
 import core.ir.Type;
-import dialect.builtin.Builtin;
+import dialect.builtin.BuiltinDialect;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +28,7 @@ public class IntegerT extends Type {
   public TypeDetails.@NotNull Impl createImpl() {
     class IntegerTModel extends TypeDetails.Impl {
       IntegerTModel(Type defaultInstance, String name) {
-        super(defaultInstance, name, IntegerT.class, Dialect.getOrThrow(Builtin.class));
+        super(defaultInstance, name, IntegerT.class, Dialect.getOrThrow(BuiltinDialect.class));
       }
     }
     return new IntegerTModel(this, getIdent() + getWidth());

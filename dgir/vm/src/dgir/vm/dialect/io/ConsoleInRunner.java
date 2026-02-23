@@ -11,12 +11,13 @@ import dialect.io.ConsoleInOp;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.Scanner;
 
 public class ConsoleInRunner extends OpRunner {
   private static @NotNull InputStream in = System.in;
-  private static @NotNull Scanner scanner = new Scanner(in);
+  private static @NotNull Scanner scanner = new Scanner(in, StandardCharsets.UTF_8);
 
   static {
     Runtime.getRuntime()
@@ -29,7 +30,7 @@ public class ConsoleInRunner extends OpRunner {
 
   public static void setInputStream(@NotNull InputStream in) {
     ConsoleInRunner.in = in;
-    scanner = new Scanner(in);
+    scanner = new Scanner(in, StandardCharsets.UTF_8);
   }
 
   public ConsoleInRunner() {

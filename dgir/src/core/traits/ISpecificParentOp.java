@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Unmodifiable;
 public interface ISpecificParentOp extends IOpTrait {
   @Contract(pure = true)
   default boolean verify(@NotNull ISpecificParentOp ignored) {
-    Operation operation = get();
+    Operation operation = getOperation();
     Optional<Operation> parentOp = operation.getParentOperation();
     if (parentOp.isEmpty()) {
       return true;

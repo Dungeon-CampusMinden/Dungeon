@@ -121,6 +121,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       }
     }
 
+    Op op = operationDetails.get().createDefaultInstance();
     Operation operation;
     // In case we do have the output value resolved we must set it on the operation so that it
     // points to the correct value
@@ -129,7 +130,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       // on the operation.
       operation =
           Operation.Create(
-              operationDetails.get(),
+              op,
               operands,
               successors,
               outputValue.getType(),
@@ -138,12 +139,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
     } else {
       // Create the operation instance.
       operation =
-          Operation.Create(
-              operationDetails.get(),
-              operands,
-              successors,
-              null,
-              regions != null ? regions.size() : 0);
+          Operation.Create(op, operands, successors, null, regions != null ? regions.size() : 0);
     }
 
     // Set the attributes if they were deserialized.

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import core.IRObjectWithUseList;
 import core.Utils;
 import core.analysis.DotCFG;
+import core.serialization.BlockIdGenerator;
 import core.traits.ITerminator;
 import java.io.Serializable;
 import java.util.*;
@@ -38,7 +39,7 @@ import org.jetbrains.annotations.UnmodifiableView;
  * @see Operation
  * @see DotCFG
  */
-@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
+@JsonIdentityInfo(generator = BlockIdGenerator.class)
 public final class Block extends IRObjectWithUseList<Block, BlockOperand> implements Serializable {
 
   // =========================================================================

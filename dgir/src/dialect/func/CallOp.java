@@ -1,77 +1,61 @@
 package dialect.func;
 
-import core.*;
-import core.detail.OperationDetails;
+import core.SymbolTable;
 import core.ir.*;
 import core.traits.ISymbolUser;
-import dialect.builtin.Builtin;
 import dialect.builtin.attributes.SymbolRefAttribute;
 import dialect.func.types.FuncType;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
-public class CallOp extends Op implements ISymbolUser {
+public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
 
   // =========================================================================
   // Type Info
   // =========================================================================
 
   @Override
-  public OperationDetails.@NotNull Impl createDetails() {
-    class CallOpModel extends OperationDetails.Impl {
-      CallOpModel() {
-        super(
-            CallOp.getIdent(),
-            CallOp.class,
-            Dialect.getOrThrow(Builtin.class),
-            List.of(getCalleeAttributeName()));
-      }
-
-      @Override
-      public boolean verify(@NotNull Operation operation) {
-        CallOp callOp = operation.as(CallOp.class).orElseThrow();
-
-        // Make sure that the callee function exists in the nearest symbol table
-        Optional<FuncOp> callee =
-            SymbolTable.lookupSymbolInNearestTableAsOp(operation, callOp.getCallee(), FuncOp.class);
-        if (callee.isEmpty()) {
-          operation.emitError("Could not find function " + callOp.getCallee());
-          return false;
-        }
-
-        // Make sure that the function type matches the call site
-        var calleeType = callee.get().getType();
-        var funcType = callOp.getFunctionType();
-        if (!calleeType.equals(funcType)) {
-          callOp
-              .getOperation()
-              .emitError(
-                  "Function type does not match call site type for function "
-                      + callOp.getCallee()
-                      + ": "
-                      + calleeType.getParameterizedIdent()
-                      + " != "
-                      + funcType.getParameterizedIdent());
-          return false;
-        }
-        return true;
-      }
-
-      @Override
-      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
-        attributes.get(0).setAttribute(new SymbolRefAttribute("foo"));
-      }
-    }
-    return new CallOpModel();
-  }
-
-  public static String getIdent() {
+  public @NotNull String getIdent() {
     return "func.call";
   }
 
-  public static String getNamespace() {
-    return "func";
+  @Override
+  public Function<Operation, Boolean> getVerifier() {
+    return operation -> {
+      CallOp callOp = operation.as(CallOp.class).orElseThrow();
+
+      // Make sure that the callee function exists in the nearest symbol table
+      Optional<FuncOp> callee =
+          SymbolTable.lookupSymbolInNearestTableAsOp(operation, callOp.getCallee(), FuncOp.class);
+      if (callee.isEmpty()) {
+        operation.emitError("Could not find function " + callOp.getCallee());
+        return false;
+      }
+
+      // Make sure that the function type matches the call site
+      var calleeType = callee.get().getType();
+      var funcType = callOp.getFunctionType();
+      if (!calleeType.equals(funcType)) {
+        callOp
+            .getOperation()
+            .emitError(
+                "Function type does not match call site type for function "
+                    + callOp.getCallee()
+                    + ": "
+                    + calleeType.getParameterizedIdent()
+                    + " != "
+                    + funcType.getParameterizedIdent());
+        return false;
+      }
+      return true;
+    };
+  }
+
+  @Override
+  public @NotNull List<NamedAttribute> getDefaultAttributes() {
+    return List.of(new NamedAttribute(getCalleeAttributeName(), new SymbolRefAttribute("foo")));
   }
 
   public static String getCalleeAttributeName() {
@@ -89,7 +73,7 @@ public class CallOp extends Op implements ISymbolUser {
   }
 
   public CallOp(String name, List<Value> operands, FuncType calleeType) {
-    super(Operation.Create(getIdent(), operands, null, calleeType.getOutput()));
+    setOperation(Operation.Create(this, operands, null, calleeType.getOutput()));
     setCallee(name);
   }
 
@@ -98,7 +82,7 @@ public class CallOp extends Op implements ISymbolUser {
   }
 
   public CallOp(FuncOp funcOp, List<Value> operands) {
-    super(Operation.Create(getIdent(), operands, null, funcOp.getType().getOutput()));
+    setOperation(Operation.Create(this, operands, null, funcOp.getType().getOutput()));
     setCallee(funcOp.getFuncName());
   }
 

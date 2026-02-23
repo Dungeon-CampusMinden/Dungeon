@@ -3,7 +3,7 @@ package dialect.func.types;
 import core.*;
 import core.detail.TypeDetails;
 import core.ir.Type;
-import dialect.func.Func;
+import dialect.func.FuncDialect;
 import java.util.Collections;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ public class FuncType extends Type {
   public TypeDetails.@NotNull Impl createImpl() {
     class FuncTypeModel extends TypeDetails.Impl {
       FuncTypeModel() {
-        super(INSTANCE, FuncType.getIdent(), FuncType.class, Dialect.getOrThrow(Func.class));
+        super(INSTANCE, FuncType.getIdent(), FuncType.class, Dialect.getOrThrow(FuncDialect.class));
       }
 
       @Override

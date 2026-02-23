@@ -16,6 +16,6 @@ public class ProgramRunner extends OpRunner {
   @Override
   protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
     ProgramOp programOp = op.as(ProgramOp.class).orElseThrow();
-    return Action.Call(programOp.getMainFunc().get());
+    return Action.Call(programOp.getMainFunc().getOperation());
   }
 }

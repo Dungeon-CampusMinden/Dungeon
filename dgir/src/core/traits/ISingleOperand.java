@@ -11,8 +11,8 @@ public interface ISingleOperand extends IOpTrait {
   @Contract(pure = true)
   default boolean verify(@NotNull ISingleOperand ignored) {
     // Ensure that the operation only has one operator
-    if (get().getOperands().size() == 1) {
-      get().emitError("Operation must have exactly one operand.");
+    if (getOperation().getOperands().size() == 1) {
+      getOperation().emitError("Operation must have exactly one operand.");
       return false;
     }
     return true;
@@ -20,7 +20,7 @@ public interface ISingleOperand extends IOpTrait {
 
   @Contract(pure = true)
   default @NotNull Optional<Value> getOperand() {
-    return get().getOperand(0).flatMap(ValueOperand::getValue);
+    return getOperation().getOperand(0).flatMap(ValueOperand::getValue);
   }
 
   @Contract(pure = true)

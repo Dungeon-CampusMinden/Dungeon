@@ -32,44 +32,16 @@ public final class Operation implements Serializable {
   // Static Factory
   // =========================================================================
 
-  /**
-   * Static factory method to create an Operation instance.
-   *
-   * @param name The name of the operation.
-   * @param operands The input value operands.
-   * @param successors The blocks that succeed this operation (branching).
-   * @param outputType The output result type.
-   * @return A new Operation instance.
-   */
   @Contract(pure = true)
+  @NotNull
   @SafeVarargs
   public static Operation Create(
-      @NotNull String name,
+      @NotNull Op op,
       @Nullable List<Value> operands,
       @Nullable List<Block> successors,
       @Nullable Type outputType,
       @NotNull List<Type>... regionBodyValueTypes) {
-    assert RegisteredOperationDetails.lookup(name).isPresent()
-        : MessageFormat.format(
-            "OperationDetails not found for name: {0}\n Make sure it is registered in with the dialect.",
-            name);
-    return Create(
-        RegisteredOperationDetails.lookup(name).orElseThrow(),
-        operands,
-        successors,
-        outputType,
-        regionBodyValueTypes);
-  }
-
-  @Contract(pure = true)
-  @SafeVarargs
-  public static Operation Create(
-      @NotNull OperationDetails name,
-      @Nullable List<Value> operands,
-      @Nullable List<Block> successors,
-      @Nullable Type outputType,
-      @NotNull List<Type>... regionBodyValueTypes) {
-    var operation = Create(name, operands, successors, outputType, regionBodyValueTypes.length);
+    Operation operation = Create(op, operands, successors, outputType, regionBodyValueTypes.length);
     for (int i = 0; i < regionBodyValueTypes.length; i++) {
       operation
           .getRegions()
@@ -81,43 +53,23 @@ public final class Operation implements Serializable {
 
   @Contract(pure = true)
   public static Operation Create(
-      @NotNull String name,
+      @NotNull Op op,
       @Nullable List<Value> operands,
       @Nullable List<Block> successors,
       @Nullable Type outputType,
       int numRegions) {
-    assert RegisteredOperationDetails.lookup(name).isPresent()
-        : MessageFormat.format(
-            "OperationDetails not found for name: {0}\n Make sure it is registered in with the dialect.",
-            name);
-    return Create(
-        RegisteredOperationDetails.lookup(name).orElseThrow(),
-        operands,
-        successors,
+    return new Operation(
+        RegisteredOperationDetails.lookup(op.getIdent())
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        MessageFormat.format("Operation {0} is not registered.", op.getIdent()))),
+        operands != null ? operands : List.of(),
+        successors != null ? successors : List.of(),
         outputType,
+        op.getDefaultAttributes().stream()
+            .collect(Collectors.toMap(NamedAttribute::getName, attr -> attr)),
         numRegions);
-  }
-
-  @Contract(pure = true)
-  public static Operation Create(
-      @NotNull OperationDetails name,
-      @Nullable List<Value> operands,
-      @Nullable List<Block> successors,
-      @Nullable Type outputType,
-      int numRegions) {
-    operands = operands == null ? List.of() : operands;
-    successors = successors == null ? List.of() : successors;
-
-    List<NamedAttribute> attributes = new ArrayList<>(name.getAttributeNames().size());
-    for (String attrName : name.getAttributeNames()) {
-      attributes.add(new NamedAttribute(attrName, null));
-    }
-    name.populateDefaultAttrs(attributes);
-    Map<String, NamedAttribute> attributeMap =
-        attributes.stream()
-            .collect(Collectors.toUnmodifiableMap(NamedAttribute::getName, attr -> attr));
-
-    return new Operation(name, operands, successors, outputType, attributeMap, numRegions);
   }
 
   // =========================================================================

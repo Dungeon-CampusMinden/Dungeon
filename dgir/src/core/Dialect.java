@@ -6,12 +6,12 @@ import core.detail.RegisteredTypeDetails;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
-import dialect.arith.Arith;
-import dialect.builtin.Builtin;
-import dialect.cf.CF;
-import dialect.func.Func;
-import dialect.io.IO;
-import dialect.scf.SCF;
+import dialect.arith.ArithDialect;
+import dialect.builtin.BuiltinDialect;
+import dialect.cf.CfDialect;
+import dialect.func.FuncDialect;
+import dialect.io.IoDialect;
+import dialect.scf.SCFDialect;
 import java.util.List;
 import java.util.Optional;
 import org.jetbrains.annotations.Contract;
@@ -80,8 +80,8 @@ public abstract class Dialect {
   /**
    * Look up a registered dialect by its class.
    *
-   * @param dialectClass The class of the dialect to look up (e.g. {@code Arith.class} or {@code
-   *     Func.class}).
+   * @param dialectClass The class of the dialect to look up (e.g. {@code ArithDialect.class} or {@code
+   *     FuncDialect.class}).
    * @return An optional containing the registered dialect, or empty if no such dialect is
    *     registered.
    */
@@ -94,8 +94,8 @@ public abstract class Dialect {
    * Look up a registered dialect by its class, throwing an exception if no such dialect is
    * registered.
    *
-   * @param dialectClass The class of the dialect to look up (e.g. {@code Arith.class} or {@code
-   *     Func.class}).
+   * @param dialectClass The class of the dialect to look up (e.g. {@code ArithDialect.class} or {@code
+   *     FuncDialect.class}).
    * @return The registered dialect.
    */
   @Contract(pure = true)
@@ -113,7 +113,7 @@ public abstract class Dialect {
    */
   public static void registerAllDialects() {
     List<Dialect> dialects =
-        List.of(new Arith(), new Builtin(), new CF(), new Func(), new IO(), new SCF());
+        List.of(new ArithDialect(), new BuiltinDialect(), new CfDialect(), new FuncDialect(), new IoDialect(), new SCFDialect());
     dialects.forEach(Dialect::init);
   }
 }

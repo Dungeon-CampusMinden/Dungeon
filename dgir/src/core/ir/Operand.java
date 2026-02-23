@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
  * @param <ValueT> The type of value being referenced (e.g. {@link Value} or {@link Block}).
  * @param <DerivedT> The concrete operand subclass (for self-referential use-list typing).
  */
+@SuppressWarnings("unchecked")
 public abstract class Operand<
     // The value type accepted by this operand
     ValueT extends IRObjectWithUseList<ValueT, DerivedT>,

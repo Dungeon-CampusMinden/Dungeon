@@ -36,7 +36,7 @@ public class VM {
     assert program != null : "VM not initialized with a program.";
     state.reset();
     opStack.clear();
-    opStack.push(program.get());
+    opStack.push(program.getOperation());
     lastAction = null;
   }
 

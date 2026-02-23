@@ -3,7 +3,7 @@ package dialect.builtin.attributes;
 import core.*;
 import core.detail.AttributeDetails;
 import core.ir.Attribute;
-import dialect.builtin.Builtin;
+import dialect.builtin.BuiltinDialect;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +27,7 @@ public class SymbolRefAttribute extends Attribute {
         super(
             SymbolRefAttribute.getIdent(),
             SymbolRefAttribute.class,
-            Dialect.getOrThrow(Builtin.class));
+            Dialect.getOrThrow(BuiltinDialect.class));
       }
     }
     return new SymbolRefAttributeModel();

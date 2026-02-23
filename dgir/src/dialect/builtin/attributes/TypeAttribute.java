@@ -4,7 +4,7 @@ import core.*;
 import core.detail.AttributeDetails;
 import core.ir.Attribute;
 import core.ir.Type;
-import dialect.builtin.Builtin;
+import dialect.builtin.BuiltinDialect;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +27,7 @@ public class TypeAttribute extends Attribute {
   public @NotNull AttributeDetails.Impl createImpl() {
     class TypeAttributeModel extends AttributeDetails.Impl {
       TypeAttributeModel() {
-        super(TypeAttribute.getIdent(), TypeAttribute.class, Dialect.getOrThrow(Builtin.class));
+        super(TypeAttribute.getIdent(), TypeAttribute.class, Dialect.getOrThrow(BuiltinDialect.class));
       }
     }
     return new TypeAttributeModel();

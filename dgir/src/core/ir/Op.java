@@ -1,18 +1,20 @@
 package core.ir;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import core.Dialect;
 import core.detail.OperationDetails;
 import core.detail.RegisteredOperationDetails;
 import core.serialization.OpDeserializer;
 import core.serialization.OpSerializer;
 import core.traits.IOpTrait;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -20,8 +22,8 @@ import tools.jackson.databind.annotation.JsonSerialize;
  * Abstract base class for all operations in the DGIR.
  *
  * <p>Each subclass represents a specific operation kind and is responsible for defining its details
- * via {@link #createDetails()}. The actual operation state is held in a backing {@link Operation}
- * instance; this class is a semantic wrapper around that state.
+ * via the associated abstract functions. The actual operation state is held in a backing {@link
+ * Operation} instance; this class is a semantic wrapper around that state.
  *
  * <p>The Op class itself is never serialized — the backing {@link Operation} carries all necessary
  * information to recreate the operation.
@@ -29,7 +31,6 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(using = OpSerializer.class)
 @JsonDeserialize(using = OpDeserializer.class)
 public abstract class Op {
-
   // =========================================================================
   // Members
   // =========================================================================
@@ -40,8 +41,58 @@ public abstract class Op {
   // Op Info
   // =========================================================================
 
-  /** Create and return the details object that describes this op kind. */
-  public abstract @NotNull OperationDetails.Impl createDetails();
+  /**
+   * Get the dialect that contributed this operation.
+   *
+   * @return the dialect that contributed this operation.
+   */
+  @Contract(pure = true)
+  @NotNull
+  public abstract Class<? extends Dialect> getDialect();
+
+  /**
+   * Get the namespace of this dialect.
+   *
+   * @return the namespace of this dialect.
+   */
+  @Contract(pure = true)
+  @NotNull
+  public abstract String getNamespace();
+
+  /**
+   * Get the unique identifier of this operation.
+   *
+   * @return the unique identifier of this operation.
+   */
+  @Contract(pure = true)
+  @NotNull
+  public abstract String getIdent();
+
+  /**
+   * Get a list of all default attributes for this operation. These attributes are populated on the
+   * operation when it is created, and can be used to provide default values for attributes that are
+   * not explicitly set by the user.
+   *
+   * <p>All attributes need to be defined at this point since it is a immutable property of the
+   * operation.
+   *
+   * @return a list of all default attributes for this operation.
+   */
+  @Contract(pure = true)
+  @NotNull
+  @Unmodifiable
+  public List<NamedAttribute> getDefaultAttributes() {
+    return List.of();
+  }
+
+  /**
+   * Get a verifier function for this operation. This function is called during the verification
+   * phase of the operation, and is used to check that the operation is well-formed. The function
+   * should return true if the operation is well-formed, and false otherwise.
+   *
+   * @return a verifier function for this operation.
+   */
+  public abstract Function<Operation, Boolean> getVerifier();
 
   // =========================================================================
   // Constructors
@@ -54,11 +105,6 @@ public abstract class Op {
 
   public Op(@NotNull Operation operation) {
     this.operation = operation;
-  }
-
-  public Op(boolean ensureEntryBlocks, @NotNull Operation operation) {
-    this.operation = operation;
-    if (ensureEntryBlocks) ensureEntryBlocks();
   }
 
   // =========================================================================
@@ -83,6 +129,15 @@ public abstract class Op {
   public @NotNull Operation getOperation() {
     assert operation != null : "Operation is null.";
     return operation;
+  }
+
+  /**
+   * Sets the backing operation.
+   *
+   * @param operation the operation to set.
+   */
+  public void setOperation(@NotNull Operation operation) {
+    this.operation = operation;
   }
 
   /**

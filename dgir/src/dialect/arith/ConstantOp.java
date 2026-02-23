@@ -1,63 +1,48 @@
 package dialect.arith;
 
 import core.*;
-import core.detail.OperationDetails;
 import core.ir.*;
 import core.traits.ISingleOperand;
 import dialect.builtin.attributes.IntegerAttribute;
 import dialect.builtin.attributes.StringAttribute;
 import dialect.builtin.types.IntegerT;
 import java.util.List;
+import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
-public class ConstantOp extends Op implements ISingleOperand {
+public final class ConstantOp extends ArithOp implements Arith, ISingleOperand {
 
   // =========================================================================
   // Type Info
   // =========================================================================
 
   @Override
-  public OperationDetails.@NotNull Impl createDetails() {
-    class ConstantOpModel extends OperationDetails.Impl {
-      ConstantOpModel() {
-        super(
-            ConstantOp.getIdent(),
-            ConstantOp.class,
-            Dialect.getOrThrow(Arith.class),
-            List.of("value"));
-      }
-
-      @Override
-      public boolean verify(@NotNull Operation operation) {
-        return true;
-      }
-
-      @Override
-      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {}
-    }
-    return new ConstantOpModel();
+  public @NotNull String getIdent() {
+    return "arith.constant";
   }
 
-  public static String getIdent() {
-    return "artih.constant";
+  @Override
+  public Function<Operation, Boolean> getVerifier() {
+    return ignored -> true;
   }
 
-  public static String getNamespace() {
-    return "arith";
+  @Override
+  public @NotNull java.util.List<NamedAttribute> getDefaultAttributes() {
+    return List.of(new NamedAttribute("value", null));
   }
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
-  public ConstantOp() {}
+  private ConstantOp() {}
 
   public ConstantOp(Operation operation) {
     super(operation);
   }
 
   public ConstantOp(TypedAttribute value) {
-    super(true, Operation.Create(getIdent(), null, null, value.getType()));
+    setOperation(true, Operation.Create(this, null, null, value.getType()));
     getAttributes().get("value").setAttribute(value);
   }
 

@@ -7,41 +7,27 @@ import core.ir.Operation;
 import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;
 import java.util.List;
+import java.util.function.Function;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 /** Marks the end of a structured control flow region. */
-public class ContinueOp extends Op implements ITerminator, ISpecificParentOp {
+public final class ContinueOp extends ScfOp implements SCF, ITerminator, ISpecificParentOp {
 
   // =========================================================================
   // Type Info
   // =========================================================================
 
   @Override
-  public OperationDetails.@NotNull Impl createDetails() {
-    class ContinueOpDetails extends OperationDetails.Impl {
-      ContinueOpDetails() {
-        super(ContinueOp.getIdent(), ContinueOp.class, Dialect.getOrThrow(SCF.class), List.of());
-      }
-
-      @Override
-      public boolean verify(@NotNull Operation operation) {
-        return true;
-      }
-
-      @Override
-      public void populateDefaultAttrs(@NotNull List<core.ir.NamedAttribute> attributes) {}
-    }
-    return new ContinueOpDetails();
-  }
-
-  public static String getIdent() {
+  public @NotNull String getIdent() {
     return "scf.continue";
   }
 
-  public static String getNamespace() {
-    return "scf";
+  @Override
+  public Function<Operation, Boolean> getVerifier() {
+    return ignored -> true;
   }
 
   // =========================================================================
@@ -50,7 +36,7 @@ public class ContinueOp extends Op implements ITerminator, ISpecificParentOp {
 
   public ContinueOp() {
     executeIfRegistered(
-        ContinueOp.class, () -> setOperation(true, Operation.Create(getIdent(), null, null, null)));
+        ContinueOp.class, () -> setOperation(true, Operation.Create(this, null, null, null)));
   }
 
   public ContinueOp(Operation operation) {

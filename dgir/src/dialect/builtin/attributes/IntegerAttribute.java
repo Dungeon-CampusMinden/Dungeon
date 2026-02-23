@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import core.*;
 import core.detail.AttributeDetails;
 import core.ir.TypedAttribute;
-import dialect.builtin.Builtin;
+import dialect.builtin.BuiltinDialect;
 import dialect.builtin.types.IntegerT;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +28,7 @@ public class IntegerAttribute extends TypedAttribute {
     class IntegerAttributeModel extends AttributeDetails.Impl {
       IntegerAttributeModel() {
         super(
-            IntegerAttribute.getIdent(), IntegerAttribute.class, Dialect.getOrThrow(Builtin.class));
+            IntegerAttribute.getIdent(), IntegerAttribute.class, Dialect.getOrThrow(BuiltinDialect.class));
       }
     }
     return new IntegerAttributeModel();

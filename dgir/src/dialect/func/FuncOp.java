@@ -1,54 +1,35 @@
 package dialect.func;
 
-import core.*;
-import core.detail.OperationDetails;
-import core.ir.NamedAttribute;
-import core.ir.Op;
+import core.SymbolTable;
 import core.ir.Operation;
 import core.traits.*;
 import dialect.builtin.attributes.StringAttribute;
 import dialect.builtin.attributes.TypeAttribute;
 import dialect.func.types.FuncType;
-import java.util.List;
+import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 
-public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, ISingleRegion {
+public final class FuncOp extends FuncBaseOp implements Func, ISymbol, IIsolatedFromAbove, IGlobal, ISingleRegion {
 
   // =========================================================================
   // Type Info
   // =========================================================================
 
   @Override
-  public OperationDetails.@NotNull Impl createDetails() {
-    class FuncOpModel extends OperationDetails.Impl {
-      FuncOpModel() {
-        super(
-            FuncOp.getIdent(),
-            FuncOp.class,
-            DGIRContext.registeredDialects.get(Func.class),
-            List.of(SymbolTable.getSymbolAttributeName(), "type"));
-      }
-
-      @Override
-      public boolean verify(@NotNull Operation operation) {
-        return true;
-      }
-
-      @Override
-      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {
-        attributes.get(0).setAttribute(new StringAttribute("foo"));
-        attributes.get(1).setAttribute(new TypeAttribute(new FuncType()));
-      }
-    }
-    return new FuncOpModel();
-  }
-
-  public static String getIdent() {
+  public @NotNull String getIdent() {
     return "func.func";
   }
 
-  public static String getNamespace() {
-    return "func";
+  @Override
+  public Function<Operation, Boolean> getVerifier() {
+    return ignored -> true;
+  }
+
+  @Override
+  public @NotNull java.util.List<core.ir.NamedAttribute> getDefaultAttributes() {
+    return java.util.List.of(
+        new core.ir.NamedAttribute(SymbolTable.getSymbolAttributeName(), new StringAttribute("foo")),
+        new core.ir.NamedAttribute("type", new TypeAttribute(new FuncType())));
   }
 
   // =========================================================================
@@ -66,7 +47,7 @@ public class FuncOp extends Op implements ISymbol, IIsolatedFromAbove, IGlobal, 
   }
 
   public FuncOp(String name, FuncType type) {
-    super(true, Operation.Create(getIdent(), null, null, type.getOutput(), type.getInputs()));
+    setOperation(true, Operation.Create(this, null, null, type.getOutput(), type.getInputs()));
     getFuncNameAttribute().setValue(name);
     getTypeAttribute().setType(type);
   }

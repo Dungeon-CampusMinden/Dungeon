@@ -3,6 +3,8 @@ package core.detail;
 import core.DGIRContext;
 import core.ir.Op;
 import java.util.Optional;
+
+import core.ir.Operation;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,14 +14,20 @@ import org.jetbrains.annotations.NotNull;
  */
 public class RegisteredOperationDetails extends OperationDetails {
 
+  public static class RegisteredOperationImpl extends OperationDetails.Impl {
+    public RegisteredOperationImpl(@NotNull Op op) {
+      super(op);
+    }
+  }
+
   // =========================================================================
   // Static Registration
   // =========================================================================
 
   /**
    * Register the given op in the global context. If the op already carries a {@link
-   * RegisteredOperationDetails}, it is reused; otherwise a new one is created via {@link
-   * Op#createDetails()}.
+   * RegisteredOperationDetails}, it is reused. Otherwise, a new {@link RegisteredOperationDetails}
+   * is created and used for registration.
    *
    * @param op The op instance to register.
    */
@@ -29,7 +37,7 @@ public class RegisteredOperationDetails extends OperationDetails {
         && op.getDetails() instanceof RegisteredOperationDetails existing) {
       details = existing;
     } else {
-      details = new RegisteredOperationDetails(op.createDetails());
+      details = new RegisteredOperationDetails(new RegisteredOperationImpl(op));
     }
 
     // Populate the unregistered caches so look-ups before registration still resolve

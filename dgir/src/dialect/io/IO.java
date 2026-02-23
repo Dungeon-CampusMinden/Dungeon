@@ -1,36 +1,3 @@
 package dialect.io;
 
-import core.*;
-import core.ir.Attribute;
-import core.ir.Op;
-import core.ir.Type;
-import java.util.List;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
-
-public class IO extends Dialect {
-  @Contract(pure = true)
-  @Override
-  public @NotNull String getNamespace() {
-    return "io";
-  }
-
-  @Contract(pure = true)
-  @Override
-  public @NotNull @Unmodifiable List<Op> allOps() {
-    return List.of(new PrintOp(), new ConsoleInOp());
-  }
-
-  @Contract(pure = true)
-  @Override
-  public @NotNull @Unmodifiable List<Type> allTypes() {
-    return List.of();
-  }
-
-  @Contract(pure = true)
-  @Override
-  public @Unmodifiable @NotNull List<Attribute> allAttributes() {
-    return List.of();
-  }
-}
+public sealed interface IO permits ConsoleInOp, PrintOp {}

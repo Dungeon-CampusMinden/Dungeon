@@ -9,9 +9,9 @@ public interface ISymbolUser extends IOpTrait {
   @Contract(pure = true)
   default boolean verify(@NotNull ISymbolUser trait) {
     var symbolName = trait.getSymbolRefAttribute().getValue();
-    var symbolOp = SymbolTable.lookupSymbolInNearestTable(get(), symbolName);
+    var symbolOp = SymbolTable.lookupSymbolInNearestTable(getOperation(), symbolName);
     if (symbolOp.isEmpty()) {
-      get().emitError("Could not find symbol " + symbolName);
+      getOperation().emitError("Could not find symbol " + symbolName);
       return false;
     }
     return true;

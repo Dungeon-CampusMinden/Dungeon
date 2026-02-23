@@ -1,47 +1,46 @@
 package dialect.scf;
 
-import core.Dialect;
-import core.detail.OperationDetails;
+import core.Utils;
 import core.ir.*;
 import core.traits.IControlFlow;
+import dialect.builtin.types.IntegerT;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
+import java.util.function.Function;
 
 /**
  * Op which represents an if statement. It has one region for the "then" block and optionally one
  * region for the "else" block.
  */
-public class IfOp extends Op implements IControlFlow {
+public final class IfOp extends ScfOp implements SCF, IControlFlow {
 
   // =========================================================================
   // Type Info
   // =========================================================================
 
   @Override
-  public OperationDetails.@NotNull Impl createDetails() {
-    class IfOpDetails extends OperationDetails.Impl {
-      IfOpDetails() {
-        super(IfOp.getIdent(), IfOp.class, Dialect.getOrThrow(SCF.class), List.of());
-      }
-
-      @Override
-      public boolean verify(@NotNull Operation operation) {
-        return true;
-      }
-
-      @Override
-      public void populateDefaultAttrs(@NotNull List<NamedAttribute> attributes) {}
-    }
-    return new IfOpDetails();
-  }
-
-  public static String getIdent() {
+  public @NotNull String getIdent() {
     return "scf.if";
   }
 
-  public static String getNamespace() {
-    return "scf";
+  @Override
+  public Function<Operation, Boolean> getVerifier() {
+    return operation -> {
+      // Make sure the operations condition is of type int1
+      Optional<Value> condOpt = operation.getOperandValue(0);
+      if (condOpt.isEmpty()) {
+        operation.emitError("Condition operand is missing");
+        return false;
+      }
+
+      if (!condOpt.get().getType().equals(IntegerT.BOOL)) {
+        operation.emitError("Condition operand must be of type int1");
+        return false;
+      }
+      return true;
+    };
   }
 
   // =========================================================================
@@ -55,7 +54,8 @@ public class IfOp extends Op implements IControlFlow {
   }
 
   public IfOp(Value condition, boolean withElseBlock) {
-    super(Operation.Create(getIdent(), List.of(condition), null, null, withElseBlock ? 2 : 1));
+    setOperation(
+        Operation.Create(this, List.of(condition), null, null, withElseBlock ? 2 : 1));
   }
 
   // =========================================================================

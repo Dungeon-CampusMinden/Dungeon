@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.Dialect;
 import core.detail.TypeDetails;
 import core.ir.Type;
-import dialect.builtin.Builtin;
+import dialect.builtin.BuiltinDialect;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +29,7 @@ public class FloatT extends Type {
             defaultInstance,
             FloatT.getIdent() + width,
             FloatT.class,
-            Dialect.getOrThrow(Builtin.class));
+            Dialect.getOrThrow(BuiltinDialect.class));
       }
     }
     return new FloatTModel(this, getWidth());

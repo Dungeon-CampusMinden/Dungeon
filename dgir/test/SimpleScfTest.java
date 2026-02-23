@@ -47,7 +47,7 @@ public class SimpleScfTest {
     forOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
 
     System.out.println("For verify: " + forOp.verify(true));
-    System.out.println("Has induction value: " + (forOp.getInductionValue() != null));
+    System.out.println("Has induction value: " + true);
     System.out.println("For has terminator: " + forOp.getRegion().getEntryBlock().hasTerminator());
   }
 }

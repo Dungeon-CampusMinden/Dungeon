@@ -15,8 +15,8 @@ public interface IZeroOrOneOperand extends IOpTrait {
   @Contract(pure = true)
   default boolean verify(@NotNull IZeroOrOneOperand ignored) {
     // Ensure that the operation only has one operator
-    if (get().getOperands().size() > 1) {
-      get().emitError("Operation must have at most one operand.");
+    if (getOperation().getOperands().size() > 1) {
+      getOperation().emitError("Operation must have at most one operand.");
       return false;
     }
     return true;
@@ -31,8 +31,8 @@ public interface IZeroOrOneOperand extends IOpTrait {
   @SuppressWarnings("OptionalMapToOptional")
   @Contract(pure = true)
   default @NotNull Optional<Optional<Value>> getOperand() {
-    if (get().getOperands().isEmpty()) return Optional.empty();
-    return Optional.of(get().getOperand(0).flatMap(ValueOperand::getValue));
+    if (getOperation().getOperands().isEmpty()) return Optional.empty();
+    return Optional.of(getOperation().getOperand(0).flatMap(ValueOperand::getValue));
   }
 
   /**

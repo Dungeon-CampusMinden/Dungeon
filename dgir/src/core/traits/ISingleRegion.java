@@ -9,8 +9,8 @@ import java.util.Optional;
 public interface ISingleRegion extends IOpTrait {
   @Contract(pure = true)
   default boolean verify(@NotNull ISingleRegion ignored) {
-    if (get().getRegions().size() != 1) {
-      get().emitError("Operation must have exactly one region.");
+    if (getOperation().getRegions().size() != 1) {
+      getOperation().emitError("Operation must have exactly one region.");
       return false;
     }
     return true;
@@ -18,7 +18,7 @@ public interface ISingleRegion extends IOpTrait {
 
   @Contract(pure = true)
   default @NotNull Region getRegion() {
-    return get()
+    return getOperation()
         .getFirstRegion()
         .orElseThrow(() -> new RuntimeException("Operation must have exactly one region."));
   }
