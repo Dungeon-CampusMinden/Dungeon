@@ -21,7 +21,7 @@ import systems.BlocklyCommandExecuteSystem;
 public class InevitableFireballSkill extends FireballSkill {
 
   // Vector to center the fireball
-  private static Vector2 centerFireballOnMonster = Vector2.of(0.5f, 0.5f);
+  private static final Vector2 CENTER_FIREBALL = Vector2.of(0.5f, 0.5f);
 
   private static final Supplier<Point> TARGET_PLAYER =
       () -> {
@@ -31,7 +31,7 @@ public class InevitableFireballSkill extends FireballSkill {
             .map(PositionComponent::position)
             // translate the fireball to the center of the monster
             // by default it is throwing the fireball to the lower left corner
-            .map(point -> point.translate(centerFireballOnMonster))
+            .map(point -> point.translate(CENTER_FIREBALL))
             .orElse(null);
       };
 
