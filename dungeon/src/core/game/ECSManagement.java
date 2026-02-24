@@ -13,6 +13,7 @@ import core.components.PositionComponent;
 import core.level.elements.ILevel;
 import core.network.messages.s2c.EntityDespawnEvent;
 import core.network.messages.s2c.EntitySpawnEvent;
+import core.platform.Platform;
 import core.systems.*;
 import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
@@ -75,8 +76,9 @@ public final class ECSManagement {
       registerIfAbsent(LevelSystem.class, LevelSystem::new);
 
       if (profile.includeRendering()) {
-        registerIfAbsent(SoundSystem.class, SoundSystem::new);
-        registerIfAbsent(DrawSystem.class, DrawSystem::getInstance);
+        for (var binding : Platform.render().defaultRenderSystems()) {
+          registerIfAbsent(binding.type(), binding.factory());
+        }
       }
 
       registerIfAbsent(EventScheduler.class, EventScheduler::new);

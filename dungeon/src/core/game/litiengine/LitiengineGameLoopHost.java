@@ -52,6 +52,7 @@ public final class LitiengineGameLoopHost {
     Platform.window(new core.platform.litiengine.LitiengineWindowAdapter());
     Platform.runtime(new core.platform.litiengine.LitiengineRuntimeAdapter());
     Platform.resources(new core.platform.classpath.ClasspathResourcesAdapter());
+    Platform.render(new core.platform.NullRenderAdapter());
 
     // Bridge LITIENGINE input events into our engine-agnostic InputManager.
     LitiengineInputBridge.install();

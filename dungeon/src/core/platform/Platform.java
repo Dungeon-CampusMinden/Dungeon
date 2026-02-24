@@ -7,6 +7,7 @@ public final class Platform {
   private static WindowAdapter window = new NullWindowAdapter();
   private static RuntimeAdapter runtime = new NullRuntimeAdapter();
   private static ResourcesAdapter resources = new core.platform.classpath.ClasspathResourcesAdapter();
+  private static RenderAdapter render = new NullRenderAdapter();
 
   private Platform() {}
 
@@ -32,5 +33,13 @@ public final class Platform {
 
   public static void resources(ResourcesAdapter adapter) {
     resources = java.util.Objects.requireNonNull(adapter);
+  }
+
+  public static RenderAdapter render() { // NEW
+    return render;
+  }
+
+  public static void render(RenderAdapter adapter) { // NEW
+    render = Objects.requireNonNull(adapter);
   }
 }
