@@ -362,4 +362,54 @@ public final class InputManager {
     justPressed.clear();
     justReleased.clear();
   }
+
+  public static void notifyKeyDown(int keycode) {
+    // Ignore repeats while the key is already down
+    if (pressedKeys.contains(keycode) || justPressedKeys.contains(keycode)) {
+      return;
+    }
+
+    registerPress(
+      keycode,
+      justPressedKeys,
+      pressedKeys,
+      justReleasedKeys,
+      lastKeyTapTimesMs,
+      previousKeyTapTimesMs,
+      keyDownTimesMs,
+      core.utils.Time.nowMs());
+  }
+
+  public static void notifyKeyUp(int keycode) {
+    // Ignore spurious releases
+    if (!pressedKeys.contains(keycode) && !justPressedKeys.contains(keycode)) {
+      return;
+    }
+
+    registerRelease(keycode, pressedKeys, justReleasedKeys, keyDownTimesMs);
+  }
+
+  public static void notifyButtonDown(int button) {
+    if (pressedButtons.contains(button) || justPressedButtons.contains(button)) {
+      return;
+    }
+
+    registerPress(
+      button,
+      justPressedButtons,
+      pressedButtons,
+      justReleasedButtons,
+      lastButtonTapTimesMs,
+      previousButtonTapTimesMs,
+      buttonDownTimesMs,
+      core.utils.Time.nowMs());
+  }
+
+  public static void notifyButtonUp(int button) {
+    if (!pressedButtons.contains(button) && !justPressedButtons.contains(button)) {
+      return;
+    }
+
+    registerRelease(button, pressedButtons, justReleasedButtons, buttonDownTimesMs);
+  }
 }

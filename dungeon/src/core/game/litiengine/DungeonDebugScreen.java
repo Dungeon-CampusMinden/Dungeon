@@ -131,7 +131,7 @@ public final class DungeonDebugScreen extends Screen {
   private int getWidthSafe() {
     // Screen#getWidth isn't always available depending on LITIENGINE version; window size fallback.
     try {
-      return (int) de.gurkenlabs.litiengine.Game.window().getWidth();
+      return de.gurkenlabs.litiengine.Game.window().getWidth();
     } catch (Exception ignored) {
       return 1280;
     }
@@ -139,7 +139,7 @@ public final class DungeonDebugScreen extends Screen {
 
   private int getHeightSafe() {
     try {
-      return (int) de.gurkenlabs.litiengine.Game.window().getHeight();
+      return de.gurkenlabs.litiengine.Game.window().getHeight();
     } catch (Exception ignored) {
       return 720;
     }

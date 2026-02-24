@@ -4,6 +4,8 @@ import core.game.ECSManagement;
 import core.game.GameLoopCore;
 import core.game.SystemProfile;
 import core.platform.Platform;
+import core.platform.litiengine.LitiengineInputBridge;
+import core.utils.InputManager;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.GameListener;
 import de.gurkenlabs.litiengine.IUpdateable;
@@ -51,6 +53,8 @@ public final class LitiengineGameLoopHost {
     Platform.runtime(new core.platform.litiengine.LitiengineRuntimeAdapter());
     Platform.resources(new core.platform.classpath.ClasspathResourcesAdapter());
 
+    LitiengineInputBridge.install();
+
     // Host chooses which default systems exist (simulation only).
     ECSManagement.bootstrapDefaultSystems(SystemProfile.LITIENGINE_SIMULATION);
 
@@ -66,6 +70,7 @@ public final class LitiengineGameLoopHost {
           }
         });
 
+    InputManager.update();
     Game.start();
   }
 }
