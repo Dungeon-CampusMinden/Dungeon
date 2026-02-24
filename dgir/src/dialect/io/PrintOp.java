@@ -1,8 +1,5 @@
 package dialect.io;
 
-import core.*;
-import core.detail.OperationDetails;
-import core.ir.NamedAttribute;
 import core.ir.Operation;
 import core.ir.Value;
 import java.util.List;
@@ -10,6 +7,19 @@ import java.util.function.Function;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Prints one or more values to standard output in the {@code io} dialect.
+ *
+ * <p>The op accepts a variable-length list of value operands. At least one operand must be present;
+ * the verifier enforces this constraint.
+ *
+ * <p>Ident: {@code io.print}
+ *
+ * <pre>{@code
+ * io.print %value
+ * io.print %a, %b, %c
+ * }</pre>
+ */
 public final class PrintOp extends IoOp implements IO {
 
   // =========================================================================
@@ -41,14 +51,29 @@ public final class PrintOp extends IoOp implements IO {
 
   private PrintOp() {}
 
+  /**
+   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
+   *
+   * @param operation the backing operation state.
+   */
   public PrintOp(Operation operation) {
     super(operation);
   }
 
+  /**
+   * Create a print op with the given operand list.
+   *
+   * @param operands the values to print; must contain at least one element.
+   */
   public PrintOp(List<Value> operands) {
     setOperation(Operation.Create(this, operands, null, null));
   }
 
+  /**
+   * Create a print op with a varargs operand list.
+   *
+   * @param operands the values to print; must contain at least one element.
+   */
   public PrintOp(Value... operands) {
     this(List.of(operands));
   }

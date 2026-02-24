@@ -6,6 +6,15 @@ import core.ir.Operation;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Constrains an operation to have exactly one region containing exactly one block.
+ *
+ * <p>The verifier enforces the one-region / one-block structure. Convenience default methods
+ * ({@link #getBlock()}, {@link #addOperation(Operation)}, {@link #addOperation(Op)}) provide direct
+ * access to that single block without requiring callers to traverse regions manually.
+ *
+ * <p>Examples: {@link dialect.builtin.ProgramOp}, {@link dialect.scf.ScopeOp}.
+ */
 public interface ISingleBlock extends IOpTrait {
   @Contract(pure = true)
   default boolean verify(@NotNull ISingleBlock ignored) {

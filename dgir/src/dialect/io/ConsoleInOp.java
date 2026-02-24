@@ -1,10 +1,7 @@
 package dialect.io;
 
-import core.Dialect;
-import core.detail.OperationDetails;
 import core.ir.*;
 
-import java.util.List;
 import java.util.function.Function;
 
 import dialect.builtin.types.FloatT;
@@ -13,10 +10,19 @@ import dialect.builtin.types.StringT;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A blocking console input operation. This operation will read a line of input from the console and
- * return it as the return type of the operation.
+ * Blocking console-input operation in the {@code io} dialect.
  *
- * <p>If the input cannot be converted, this operation is expected to throw an exception.
+ * <p>Reads a single line from standard input and returns it converted to the declared result type.
+ * If the input cannot be parsed as the target type, the runtime is expected to throw an exception.
+ *
+ * <p>The result type must be one of {@link IntegerT}, {@link FloatT}, or {@link StringT}.
+ *
+ * <p>Ident: {@code io.consoleIn}
+ *
+ * <pre>{@code
+ * %n = io.consoleIn : int32
+ * %s = io.consoleIn : string
+ * }</pre>
  */
 public final class ConsoleInOp extends IoOp implements IO {
 
@@ -63,19 +69,44 @@ public final class ConsoleInOp extends IoOp implements IO {
 
   private ConsoleInOp() {}
 
+  /**
+   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
+   *
+   * @param operation the backing operation state.
+   */
   public ConsoleInOp(Operation operation) {
     super(operation);
   }
 
+  /**
+   * Create a console-input op that produces a value of the given type.
+   *
+   * @param type the result type; must be {@link IntegerT}, {@link FloatT}, or {@link StringT}.
+   */
   public ConsoleInOp(@NotNull Type type) {
     setOperation(Operation.Create(this, null, null, type));
   }
 
+  // =========================================================================
+  // Functions
+  // =========================================================================
+
+  /**
+   * Returns the output value produced by this operation.
+   *
+   * @return the result value.
+   * @throws IllegalStateException if no output value has been set.
+   */
   public @NotNull Value getResult() {
     return getOutputValue()
         .orElseThrow(() -> new IllegalStateException("No output value set for ConsoleInOp."));
   }
 
+  /**
+   * Returns the type of the value produced by this operation.
+   *
+   * @return the result type.
+   */
   public @NotNull Type getResultType() {
     return getResult().getType();
   }

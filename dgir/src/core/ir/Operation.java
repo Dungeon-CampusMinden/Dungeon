@@ -19,9 +19,16 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
- * This class represents the data state associated with each concrete implementation of an
- * operation. This structure is used so that operations can be constructed independently of their
- * behavior. This is especially useful for serialization and deserialization.
+ * Carries the runtime state associated with a concrete operation instance.
+ *
+ * <p>The design deliberately separates <em>data</em> (this class) from <em>behaviour</em> (the
+ * {@link Op} subclass hierarchy). This decoupling makes serialisation and deserialisation
+ * straightforward: an {@code Operation} can be created from JSON without instantiating any
+ * dialect-specific {@code Op} class, and the {@code Op} wrapper can be reconstructed on demand via
+ * {@link #asOp()}.
+ *
+ * <p>An {@code Operation} is always created through one of the {@link #Create} static factory
+ * methods; direct constructor calls are for deserialisation only.
  */
 @JsonSerialize(using = OperationSerializer.class)
 @JsonDeserialize(using = OperationDeserializer.class)
@@ -31,6 +38,22 @@ public final class Operation implements Serializable {
   // Static Factory
   // =========================================================================
 
+  /**
+   * Create an {@link Operation} and populate body values for each of its regions.
+   *
+   * <p>Each element of {@code regionBodyValueTypes} corresponds to one region in declaration order.
+   * The values are created as fresh {@link Value} instances typed according to the provided lists
+   * and set as the region's body values after creation.
+   *
+   * @param op                   a default (no-arg) op prototype used to obtain the ident and
+   *                             default attributes.
+   * @param operands             input value operands, or {@code null} for none.
+   * @param successors           successor blocks (for branching ops), or {@code null} for none.
+   * @param outputType           result type, or {@code null} for void ops.
+   * @param regionBodyValueTypes per-region lists of body value types; the number of elements
+   *                             determines {@code numRegions}.
+   * @return the newly constructed operation.
+   */
   @Contract(pure = true)
   @NotNull
   @SafeVarargs
@@ -50,6 +73,17 @@ public final class Operation implements Serializable {
     return operation;
   }
 
+  /**
+   * Create an {@link Operation} with a fixed number of empty regions.
+   *
+   * @param op         a default op prototype used to obtain the ident and default attributes.
+   * @param operands   input value operands, or {@code null} for none.
+   * @param successors successor blocks, or {@code null} for none.
+   * @param outputType result type, or {@code null} for void ops.
+   * @param numRegions number of (initially empty) regions to attach.
+   * @return the newly constructed operation.
+   * @throws IllegalArgumentException if {@code op}'s ident is not yet registered.
+   */
   @Contract(pure = true)
   public static Operation Create(
       @NotNull Op op,
@@ -144,6 +178,12 @@ public final class Operation implements Serializable {
   // Verification
   // =========================================================================
 
+  /**
+   * Run the {@link core.OperationVerifier} on this operation.
+   *
+   * @param recursive {@code true} to also verify all nested operations and blocks.
+   * @return {@code true} if verification succeeds.
+   */
   @Contract(pure = true)
   public boolean verify(boolean recursive) {
     return new OperationVerifier(recursive).verify(this);
@@ -153,11 +193,22 @@ public final class Operation implements Serializable {
   // Details & Traits
   // =========================================================================
 
+  /**
+   * Returns the {@link OperationDetails} that describe this operation kind.
+   *
+   * @return the details instance, never {@code null}.
+   */
   @Contract(pure = true)
   public @NotNull OperationDetails getDetails() {
     return details;
   }
 
+  /**
+   * Returns {@code true} if this operation's kind implements the given trait.
+   *
+   * @param traitClass the trait to check for.
+   * @return {@code true} if the trait is present.
+   */
   @Contract(pure = true)
   public boolean hasTrait(@NotNull Class<? extends IOpTrait> traitClass) {
     return details.hasTrait(traitClass);
@@ -211,21 +262,43 @@ public final class Operation implements Serializable {
   // Operands & Output
   // =========================================================================
 
+  /**
+   * Returns the input value operands of this operation.
+   *
+   * @return an unmodifiable list of {@link ValueOperand}s.
+   */
   @Contract(pure = true)
   public @NotNull @Unmodifiable List<ValueOperand> getOperands() {
     return operands;
   }
 
+  /**
+   * Returns the operand at the given index, if present.
+   *
+   * @param index zero-based operand index.
+   * @return the operand, or empty if the index is out of range.
+   */
   @Contract(pure = true)
   public @NotNull Optional<ValueOperand> getOperand(int index) {
     return operands.size() > index ? Optional.of(operands.get(index)) : Optional.empty();
   }
 
+  /**
+   * Returns the value referenced by the operand at the given index, if present.
+   *
+   * @param i zero-based operand index.
+   * @return the referenced {@link Value}, or empty if the index is out of range or unset.
+   */
   @Contract(pure = true)
   public @NotNull Optional<Value> getOperandValue(int i) {
     return getOperand(i).flatMap(ValueOperand::getValue);
   }
 
+  /**
+   * Returns the block operands (successor-block references) of this operation.
+   *
+   * @return an unmodifiable list of {@link BlockOperand}s.
+   */
   @Contract(pure = true)
   public @NotNull @Unmodifiable List<BlockOperand> getBlockOperands() {
     return blockOperands;
@@ -246,21 +319,43 @@ public final class Operation implements Serializable {
         .toList();
   }
 
+  /**
+   * Returns the {@link OperationResult} for this operation, if it produces a value.
+   *
+   * @return the result wrapper, or empty for void operations.
+   */
   @Contract(pure = true)
   public @NotNull Optional<OperationResult> getOutput() {
     return Optional.ofNullable(output);
   }
 
+  /**
+   * Returns the output {@link Value} produced by this operation, if any.
+   *
+   * @return the output value, or empty for void operations.
+   */
   @Contract(pure = true)
   public @NotNull Optional<Value> getOutputValue() {
     if (output == null) return Optional.empty();
     return getOutput().map(OperationResult::getValue);
   }
 
+  /**
+   * Returns the output {@link Value}, throwing if this operation is void.
+   *
+   * @return the output value.
+   * @throws NoSuchElementException if this operation has no output.
+   */
   public @NotNull Value getOutputValueThrowing() {
     return getOutput().map(OperationResult::getValue).orElseThrow();
   }
 
+  /**
+   * Replace the output value of this operation.
+   *
+   * @param value the new output value; its type must match the existing result type.
+   * @throws AssertionError if this operation has no output.
+   */
   public void setOutputValue(@NotNull Value value) {
     assert this.output != null : "Trying to set output value of an operation that has no output.";
     this.output.setValue(value);
@@ -270,17 +365,37 @@ public final class Operation implements Serializable {
   // Attributes
   // =========================================================================
 
+  /**
+   * Returns all named attributes of this operation.
+   *
+   * @return an unmodifiable map from attribute name to {@link NamedAttribute}.
+   */
   @Contract(pure = true)
   public @NotNull @Unmodifiable Map<String, NamedAttribute> getAttributes() {
     return attributes;
   }
 
+  /**
+   * Returns the attribute value for the given name, if present and set.
+   *
+   * @param name the attribute name to look up.
+   * @return the {@link Attribute}, or empty if not present or not set.
+   */
   @Contract(pure = true)
   public @NotNull Optional<Attribute> getAttributeByName(@NotNull String name) {
     if (!getAttributes().containsKey(name)) return Optional.empty();
     return getAttributes().get(name).getAttribute();
   }
 
+  /**
+   * Returns the attribute for the given name cast to {@code clazz}, if present, set, and of the
+   * correct type.
+   *
+   * @param clazz the expected attribute class.
+   * @param name  the attribute name.
+   * @param <T>   the attribute type.
+   * @return the typed attribute, or empty if absent, unset, or the wrong type.
+   */
   @Contract(pure = true)
   public <T extends Attribute> @NotNull Optional<T> getAttribute(
       @NotNull Class<T> clazz, @NotNull String name) {
@@ -289,6 +404,13 @@ public final class Operation implements Serializable {
     return Optional.of(clazz.cast(attribute.get()));
   }
 
+  /**
+   * Set the value of an existing named attribute.
+   *
+   * @param name      the attribute name; the attribute must already exist in the map.
+   * @param attribute the new attribute value.
+   * @throws AssertionError if no attribute with the given name exists.
+   */
   public void setAttribute(@NotNull String name, @NotNull Attribute attribute) {
     NamedAttribute namedAttribute = getAttributes().get(name);
     assert namedAttribute != null
@@ -300,16 +422,32 @@ public final class Operation implements Serializable {
   // Regions
   // =========================================================================
 
+  /**
+   * Returns the regions attached to this operation.
+   *
+   * @return an unmodifiable list of {@link Region}s.
+   */
   @Contract(pure = true)
   public @NotNull @Unmodifiable List<Region> getRegions() {
     return regions;
   }
 
+  /**
+   * Returns the region at the given index, if present.
+   *
+   * @param index zero-based region index.
+   * @return the region, or empty if the index is out of range.
+   */
   @Contract(pure = true)
   public @NotNull Optional<Region> getRegion(int index) {
     return regions.size() > index ? Optional.of(regions.get(index)) : Optional.empty();
   }
 
+  /**
+   * Returns the first region attached to this operation, if any.
+   *
+   * @return the first region, or empty if this operation has no regions.
+   */
   @Contract(pure = true)
   public @NotNull Optional<Region> getFirstRegion() {
     return regions.isEmpty() ? Optional.empty() : Optional.of(regions.getFirst());
@@ -319,21 +457,43 @@ public final class Operation implements Serializable {
   // Parent & Navigation
   // =========================================================================
 
+  /**
+   * Returns the block that contains this operation, if any.
+   *
+   * @return the parent block, or empty if this operation is not yet placed in a block.
+   */
   @Contract(pure = true)
   public @NotNull Optional<Block> getParent() {
     return Optional.ofNullable(parent);
   }
 
+  /**
+   * Returns the region that contains the parent block of this operation, if any.
+   *
+   * @return the parent region, or empty if not available.
+   */
   @Contract(pure = true)
   public @NotNull Optional<Region> getParentRegion() {
     return getParent().flatMap(Block::getParent);
   }
 
+  /**
+   * Returns the operation that owns the parent region of this operation, if any.
+   *
+   * @return the parent operation, or empty if this operation is at the top of the tree.
+   */
   @Contract(pure = true)
   public @NotNull Optional<Operation> getParentOperation() {
     return getParentRegion().flatMap(Region::getParent);
   }
 
+  /**
+   * Set the parent block of this operation. May only be called from {@link Block}.
+   *
+   * @param parent the new parent block, or {@code null} to detach.
+   * @throws AssertionError if called from outside {@link Block}, or if this operation already has a
+   *                        non-null parent and the new value is also non-null.
+   */
   public void setParent(Block parent) {
     assert Utils.Caller.getCallingClass() == Block.class
         : MessageFormat.format(
@@ -394,16 +554,31 @@ public final class Operation implements Serializable {
   // Diagnostics
   // =========================================================================
 
+  /**
+   * Print an informational message referencing this operation to standard output.
+   *
+   * @param s the message text.
+   */
   @Contract(pure = true)
   public void emitMessage(@NotNull String s) {
     System.out.println(MessageFormat.format("Message: {0}\n\t| {1}", this, s));
   }
 
+  /**
+   * Print a warning referencing this operation to standard output (in yellow).
+   *
+   * @param s the warning text.
+   */
   @Contract(pure = true)
   public void emitWarning(@NotNull String s) {
     System.out.println(MessageFormat.format("\u001B[33mWarning: {0}\n\t| {1}\u001B[0m", this, s));
   }
 
+  /**
+   * Print an error referencing this operation to standard error.
+   *
+   * @param s the error text.
+   */
   @Contract(pure = true)
   public void emitError(@NotNull String s) {
     System.err.println(MessageFormat.format("Error: {0}\n\t| {1}", this, s));

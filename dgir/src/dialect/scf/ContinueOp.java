@@ -1,7 +1,5 @@
 package dialect.scf;
 
-import core.Dialect;
-import core.detail.OperationDetails;
 import core.ir.Op;
 import core.ir.Operation;
 import core.traits.ISpecificParentOp;
@@ -13,7 +11,22 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-/** Marks the end of a structured control flow region. */
+/**
+ * Marks the end of a structured control-flow region body in the {@code scf} dialect.
+ *
+ * <p>This is a terminator that completes the current iteration of a loop or the body of a
+ * conditional. It is valid inside {@link IfOp}, {@link ScopeOp}, and {@link ForOp} bodies
+ * (enforced by {@link ISpecificParentOp}).
+ *
+ * <p>Ident: {@code scf.continue}
+ *
+ * <pre>{@code
+ * scf.for (%i = ...) {
+ *   // ... body ...
+ *   scf.continue
+ * }
+ * }</pre>
+ */
 public final class ContinueOp extends ScfOp implements SCF, ITerminator, ISpecificParentOp {
 
   // =========================================================================
@@ -34,11 +47,17 @@ public final class ContinueOp extends ScfOp implements SCF, ITerminator, ISpecif
   // Constructors
   // =========================================================================
 
+  /** Default constructor; creates a backing operation when the dialect is already registered. */
   public ContinueOp() {
     executeIfRegistered(
         ContinueOp.class, () -> setOperation(true, Operation.Create(this, null, null, null)));
   }
 
+  /**
+   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
+   *
+   * @param operation the backing operation state.
+   */
   public ContinueOp(Operation operation) {
     super(operation);
   }
@@ -47,6 +66,11 @@ public final class ContinueOp extends ScfOp implements SCF, ITerminator, ISpecif
   // Functions
   // =========================================================================
 
+  /**
+   * Returns the valid parent op types: {@link IfOp}, {@link ScopeOp}, and {@link ForOp}.
+   *
+   * @return an unmodifiable list of the three permitted parent classes.
+   */
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {

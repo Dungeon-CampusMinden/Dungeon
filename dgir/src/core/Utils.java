@@ -164,6 +164,16 @@ public class Utils {
     }
   }
 
+  /**
+   * Adapt an {@link Optional} to an {@link Iterable} with zero or one element.
+   *
+   * <p>Useful in enhanced for-loops where a method returns an {@code Optional} and you want to
+   * iterate over the value if present, or skip the loop body if empty.
+   *
+   * @param optional the optional value to iterate over.
+   * @param <T>      the element type.
+   * @return an iterable yielding the value if present, or an empty iterable.
+   */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   @Contract(pure = true)
   @NotNull
@@ -171,21 +181,33 @@ public class Utils {
     return () -> optional.stream().iterator();
   }
 
+  /**
+   * Reflection-based helpers for collecting operation prototypes from a dialect's sealed marker
+   * interface.
+   */
   public static class Dialect {
     /**
-     * A mapping from dialect classes to their contributed operations. This is used to populate the
-     * global {@link DGIRContext} operation registry at startup. The operations for each dialect are
-     * collected via reflection by looking at all permitted subclasses of the dialect's
-     * IDialectOperations interface and invoking their default constructors to get their prototypes.
+     * Cache of already-computed operation prototype lists, keyed by dialect class. Populated lazily
+     * by {@link #allOps(Class, Class)} on the first call for each dialect.
      */
     private static final @NotNull Map<Class<? extends core.Dialect>, @Unmodifiable List<Op>>
         dialectOps = new HashMap<>();
 
     /**
-     * Returns a list of all operation prototypes contributed by this dialect. These prototypes are
-     * used to populate the global {@link DGIRContext} operation registry at startup.
+     * Collect all operation prototypes contributed by a dialect by reflectively instantiating
+     * every permitted subclass of {@code diOps} via its no-arg constructor.
      *
-     * @return a list of all operation prototypes contributed by this dialect.
+     * <p>Results are cached so that repeated calls for the same dialect are cheap. The
+     * {@code diOps} argument must be a {@code sealed} interface whose every {@code permits} entry
+     * is a concrete op class with a declared no-arg constructor.
+     *
+     * @param dialect the dialect class requesting the ops (used as the cache key).
+     * @param diOps   the sealed marker interface whose permitted subclasses enumerate the dialect's
+     *                ops (e.g. {@link dialect.builtin.Builtin}).
+     * @return an unmodifiable list of op prototypes, one per permitted subclass.
+     * @throws AssertionError   if {@code diOps} is not a sealed interface.
+     * @throws RuntimeException if any permitted subclass lacks a no-arg constructor or its
+     *                          constructor throws.
      */
     @NotNull
     @Unmodifiable

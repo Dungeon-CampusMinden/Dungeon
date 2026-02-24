@@ -68,12 +68,31 @@ public abstract class Type {
     return getIdent();
   }
 
+  /**
+   * Returns the namespace prefix for this type (e.g. {@code ""} for builtin types or
+   * {@code "func"} for the func dialect).
+   *
+   * @return the namespace string, never {@code null}.
+   */
   @Contract(pure = true)
   public abstract @NotNull String getNamespace();
 
+  /**
+   * Returns the class of the dialect that contributes this type.
+   *
+   * @return the dialect class, never {@code null}.
+   */
   @Contract(pure = true)
   public abstract @NotNull Class<? extends Dialect> getDialect();
 
+  /**
+   * Returns a function that checks whether a given value is a valid instance of this type.
+   *
+   * <p>The validator is stored in {@link core.detail.TypeDetails.Registered} at registration time
+   * and used by {@link #validate(Object)} to type-check attribute storage values.
+   *
+   * @return the validator function, never {@code null}.
+   */
   @Contract(pure = true)
   public abstract Function<Object, Boolean> getValidator();
 
@@ -115,6 +134,13 @@ public abstract class Type {
     return details;
   }
 
+  /**
+   * Replace the details for this type. May only be called from
+   * {@link core.detail.TypeDetails.Registered} during dialect registration.
+   *
+   * @param details the new details instance.
+   * @throws AssertionError if called from outside {@link core.detail.TypeDetails.Registered}.
+   */
   public void setDetails(@NotNull TypeDetails details) {
     // Only allow TypeDetails.Registered to set details, since they are the registration of the
     // types.

@@ -22,11 +22,23 @@ public class OperationResult {
   // Constructors
   // =========================================================================
 
+  /**
+   * Create a result wrapping an existing {@link Value}.
+   *
+   * @param parent the operation that produces this result.
+   * @param value  the pre-existing value to wrap.
+   */
   public OperationResult(@NotNull Operation parent, @NotNull Value value) {
     this.parent = parent;
     this.value = value;
   }
 
+  /**
+   * Create a result by allocating a fresh {@link Value} of the given type.
+   *
+   * @param parent the operation that produces this result.
+   * @param type   the type of the new value.
+   */
   public OperationResult(@NotNull Operation parent, @NotNull Type type) {
     this.parent = parent;
     this.value = new Value(type);
@@ -36,11 +48,22 @@ public class OperationResult {
   // Functions
   // =========================================================================
 
+  /**
+   * Returns the {@link Value} wrapped by this result.
+   *
+   * @return the result value, never {@code null}.
+   */
   @Contract(pure = true)
   public @NotNull Value getValue() {
     return value;
   }
 
+  /**
+   * Replace the result value, enforcing that the type is unchanged.
+   *
+   * @param value the new result value; its type must match the current result type.
+   * @throws AssertionError if the types do not match.
+   */
   public void setValue(@NotNull Value value) {
     assert value.getType().equals(this.value.getType())
         : "Type mismatch while setting result value: "
@@ -50,11 +73,21 @@ public class OperationResult {
     this.value = value;
   }
 
+  /**
+   * Returns the type of the result value.
+   *
+   * @return the result type, never {@code null}.
+   */
   @Contract(pure = true)
   public @NotNull Type getType() {
     return value.getType();
   }
 
+  /**
+   * Returns the operation that owns this result.
+   *
+   * @return the parent operation, never {@code null}.
+   */
   @Contract(pure = true)
   public @NotNull Operation getParent() {
     return parent;

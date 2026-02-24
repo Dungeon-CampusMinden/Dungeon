@@ -49,6 +49,11 @@ public final class NamedAttribute {
     return Optional.ofNullable(attribute);
   }
 
+  /**
+   * Replace the attribute value stored in this named attribute.
+   *
+   * @param attribute the new attribute value; must not be {@code null}.
+   */
   public void setAttribute(@NotNull Attribute attribute) {
     this.attribute = attribute;
   }

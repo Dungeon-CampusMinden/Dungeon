@@ -9,6 +9,18 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+/**
+ * The {@code io} dialect provides basic console input/output operations.
+ *
+ * <p>Namespace: {@code io}
+ *
+ * <p>Operations: {@link IO} (sealed interface enumerating all ops)
+ *
+ * <ul>
+ *   <li>{@link PrintOp} — prints one or more values to standard output
+ *   <li>{@link ConsoleInOp} — reads a line from standard input and returns it as a typed value
+ * </ul>
+ */
 public class IoDialect extends Dialect {
   @Contract(pure = true)
   @Override

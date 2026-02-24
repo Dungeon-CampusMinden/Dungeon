@@ -2,6 +2,7 @@ package dialect.arith;
 
 import core.*;
 import core.ir.*;
+import core.traits.INoOperands;
 import core.traits.ISingleOperand;
 import dialect.builtin.attributes.IntegerAttribute;
 import dialect.builtin.attributes.StringAttribute;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
  * %c = arith.constant value = 42 : int32
  * }</pre>
  */
-public final class ConstantOp extends ArithOp implements Arith, ISingleOperand {
+public final class ConstantOp extends ArithOp implements Arith, INoOperands {
 
   // =========================================================================
   // Type Info

@@ -19,6 +19,11 @@ public abstract class TypedAttribute extends Attribute {
   // Constructors
   // =========================================================================
 
+  /**
+   * Create a typed attribute associated with the given type.
+   *
+   * @param type the type that governs validation of the stored value.
+   */
   protected TypedAttribute(@NotNull Type type) {
     this.type = type;
   }
@@ -27,6 +32,11 @@ public abstract class TypedAttribute extends Attribute {
   // Functions
   // =========================================================================
 
+  /**
+   * Returns the type associated with this attribute.
+   *
+   * @return the type, never {@code null}.
+   */
   @Contract(pure = true)
   public @NotNull Type getType() {
     return type;

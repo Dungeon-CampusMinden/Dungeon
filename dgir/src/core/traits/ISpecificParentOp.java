@@ -9,7 +9,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
- * This trait describes an operation that can only have a specific list of parent operation types.
+ * Constrains an operation to be directly nested inside one of a specific set of parent op types.
+ *
+ * <p>The verifier walks to the immediate parent operation and checks its type against the list
+ * returned by {@link #getValidParentTypes()}. An op with no parent passes unconditionally.
+ *
+ * <p>Examples: {@link dialect.scf.BreakOp} (only valid inside {@link dialect.scf.ForOp}),
+ * {@link dialect.scf.ContinueOp} (valid inside {@link dialect.scf.IfOp},
+ * {@link dialect.scf.ScopeOp}, or {@link dialect.scf.ForOp}),
+ * {@link dialect.func.ReturnOp} (only valid inside {@link dialect.func.FuncOp}).
  */
 public interface ISpecificParentOp extends IOpTrait {
   @Contract(pure = true)
@@ -37,6 +45,11 @@ public interface ISpecificParentOp extends IOpTrait {
     return false;
   }
 
+  /**
+   * Returns the list of op classes that are allowed as the immediate parent of this operation.
+   *
+   * @return an unmodifiable list of valid parent op classes.
+   */
   @Contract(pure = true)
   @NotNull
   @Unmodifiable

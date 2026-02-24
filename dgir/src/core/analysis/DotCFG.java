@@ -9,9 +9,22 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Builds a hierarchical CFG (control-flow graph) representation in Graphviz DOT format.
+ *
+ * <p>The entry point is {@link #buildCfgCluster(Operation)}, which produces a {@link Cluster} tree
+ * that mirrors the operation/region/block hierarchy of the IR. The resulting tree can be rendered
+ * to a DOT string for visualisation with Graphviz.
+ */
 public class DotCFG {
   private DotCFG() {}
 
+  /**
+   * Build a {@link Cluster} tree rooted at {@code root}, covering all reachable regions and blocks.
+   *
+   * @param root the top-level operation to start from.
+   * @return the root {@link Cluster} of the CFG tree.
+   */
   @Contract(pure = true)
   public static @NotNull Cluster buildCfgCluster(@NotNull Operation root) {
     GraphBuilder builder = new GraphBuilder(root);
@@ -20,56 +33,107 @@ public class DotCFG {
   }
 
   /**
-   * A cluster is a logical grouping of multiple operations within the CFG. It can alternatively be
-   * thought of as a block, or a region. Clusters can be nested within each other to represent
-   * hierarchical structures in the CFG. A cluster also contains the first operation of each child
-   * cluster since it needs to draw a connection to that operation. An empty cluster represents a
-   * region and can only contain other clusters.
+   * A node in the CFG cluster tree. A cluster represents either a region, a block, or the root
+   * operation. Clusters can be nested to reflect the hierarchical structure of the IR.
+   *
+   * <p>The root cluster owns itself as its parent. An empty cluster (no operations) represents a
+   * region and can only contain child clusters (one per block in that region).
    */
   public static class Cluster {
+    /** The operation that owns this cluster (the op whose region or block this represents). */
     private final @NotNull Operation owner;
+
+    /** The parent cluster, or {@code this} for the root. */
     private final @NotNull Cluster parent;
+
+    /** Operations directly contained in this cluster (i.e. the block's operation list). */
     private final @NotNull List<Operation> operations = new ArrayList<>();
+
+    /** Child clusters (one per sub-region or sub-block). */
     private final @NotNull List<Cluster> children = new ArrayList<>();
 
+    /**
+     * Function that generates a unique DOT node identifier for an operation.
+     * Defaults to {@code <ident>_<hashCode>} with dots replaced by underscores.
+     */
     public static Function<Operation, String> identGenerator =
         op -> op.getDetails().ident().replace(".", "_") + "_" + op.hashCode();
 
+    /** Create a root cluster (its own parent). */
     public Cluster(@NotNull Operation owner) {
       this.owner = owner;
       this.parent = this; // The root cluster is its own parent
     }
 
+    /** Create a child cluster with an explicit parent. */
     public Cluster(@NotNull Operation owner, @NotNull Cluster parent) {
       this.owner = owner;
       this.parent = parent;
     }
 
+    /**
+     * Returns the operations directly in this cluster.
+     *
+     * @return the mutable operations list.
+     */
     public @NotNull List<Operation> getOperations() {
       return operations;
     }
 
+    /**
+     * Append an operation to this cluster.
+     *
+     * @param op the operation to add.
+     */
     public void addOperation(@NotNull Operation op) {
       operations.add(op);
     }
 
+    /**
+     * Returns the child clusters of this cluster.
+     *
+     * @return the mutable children list.
+     */
     public @NotNull List<Cluster> getChildren() {
       return children;
     }
 
+    /**
+     * Add a child cluster and return it.
+     *
+     * @param child the cluster to add.
+     * @return {@code child}, for convenient chaining.
+     */
     public @NotNull Cluster addChild(@NotNull Cluster child) {
       children.add(child);
       return child;
     }
 
+    /**
+     * Returns the operation that owns this cluster.
+     *
+     * @return the owner operation.
+     */
     public @NotNull Operation getOwner() {
       return owner;
     }
 
+    /**
+     * Returns the parent cluster, or {@code this} if this is the root.
+     *
+     * @return the parent cluster.
+     */
     public @NotNull Cluster getParent() {
       return parent;
     }
 
+    /**
+     * Indent each non-empty line of {@code s} by {@code level} tab characters.
+     *
+     * @param s     the string to pad.
+     * @param level the number of tab characters to prepend to each non-empty line.
+     * @return the indented string.
+     */
     public static @NotNull String padLeftMultiline(@NotNull String s, int level) {
       return Arrays.stream(s.split("\n", -1))
           .map(line -> "\t".repeat(line.isEmpty() ? 0 : level) + line)

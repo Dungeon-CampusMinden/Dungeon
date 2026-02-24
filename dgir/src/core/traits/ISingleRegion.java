@@ -6,6 +6,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
+/**
+ * Constrains an operation to have exactly one region.
+ *
+ * <p>The verifier enforces the single-region structure. Convenience default methods give direct
+ * access to the region, its entry block, individual blocks by index, body arguments
+ * ({@link #getArgument(int)}), and block/operation insertion.
+ *
+ * <p>Examples: {@link dialect.func.FuncOp}, {@link dialect.scf.ForOp}, {@link dialect.scf.ScopeOp}.
+ */
 public interface ISingleRegion extends IOpTrait {
   @Contract(pure = true)
   default boolean verify(@NotNull ISingleRegion ignored) {

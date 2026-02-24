@@ -13,8 +13,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * SymbolTable for ops which implement the ISymbolTable interface. This allows managing the symbols
- * of that op.
+ * Static helpers for resolving named symbols within the IR.
+ *
+ * <p>A <em>symbol</em> is any operation that implements {@link core.traits.ISymbol}; it carries a
+ * {@code "symbol_name"} {@link dialect.builtin.attributes.StringAttribute} that serves as its
+ * unique identifier within the enclosing {@link core.traits.ISymbolTable} scope.
+ *
+ * <p>Lookup always searches the <em>first block</em> of the <em>first region</em> of the nearest
+ * enclosing {@link core.traits.ISymbolTable} op. Multi-region or multi-block symbol tables are not
+ * supported.
  */
 public class SymbolTable {
   /**
@@ -134,6 +141,11 @@ public class SymbolTable {
    * operations.
    *
    * @return Name of the attribute used to store the symbol name.
+   */
+  /**
+   * Returns the attribute name used to store the symbol name in {@link core.traits.ISymbol} ops.
+   *
+   * @return {@code "symbol_name"}
    */
   @Contract(pure = true)
   public static String getSymbolAttributeName() {

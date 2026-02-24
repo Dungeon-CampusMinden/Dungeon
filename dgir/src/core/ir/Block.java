@@ -66,16 +66,35 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   // Operations
   // =========================================================================
 
+  /**
+   * Returns the operations in this block in execution order.
+   *
+   * @return an unmodifiable view of the operations list.
+   */
   @Contract(pure = true)
   public @NotNull @UnmodifiableView List<Operation> getOperations() {
     return Collections.unmodifiableList(operations);
   }
 
+  /**
+   * Append a typed op to this block, using its backing operation.
+   *
+   * @param op the op to add; must not already have a parent.
+   * @param <OpT> the op type.
+   * @return {@code op}, for convenient chaining.
+   */
   public <OpT extends Op> @NotNull OpT addOperation(@NotNull OpT op) {
     addOperation(op.getOperation());
     return op;
   }
 
+  /**
+   * Append an operation to the end of this block.
+   *
+   * @param operation the operation to append; must not already have a parent.
+   * @return {@code operation}, for convenient chaining.
+   * @throws AssertionError if the operation already has a parent block.
+   */
   public @NotNull Operation addOperation(@NotNull Operation operation) {
     assert operation.getParent().isEmpty() : "Operation already has a parent.";
     operations.add(operation);
@@ -83,18 +102,34 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
     return operation;
   }
 
+  /**
+   * Remove an operation from this block and detach it from its parent.
+   *
+   * @param operation the operation to remove; must be owned by this block.
+   * @throws AssertionError if the operation does not belong to this block.
+   */
   public void removeOperation(@NotNull Operation operation) {
     assert operation.getParent().orElseThrow() == this : "Operation does not belong to this block.";
     operations.remove(operation);
     operation.setParent(null);
   }
 
+  /**
+   * Returns {@code true} if this block is non-empty and its last operation is a terminator.
+   *
+   * @return {@code true} if a terminator is present.
+   */
   @Contract(pure = true)
   public boolean hasTerminator() {
     if (operations.isEmpty()) return false;
     return operations.getLast().hasTrait(ITerminator.class);
   }
 
+  /**
+   * Returns the terminator of this block, if present.
+   *
+   * @return the last operation if it is a terminator, otherwise empty.
+   */
   @JsonIgnore
   @Contract(pure = true)
   public @NotNull Optional<Operation> getTerminator() {
@@ -149,6 +184,13 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
     return getParent().flatMap(Region::getParent);
   }
 
+  /**
+   * Set the parent region of this block. May only be called from {@link Region}.
+   *
+   * @param parent the new parent region, or {@code null} to detach.
+   * @throws AssertionError if called from outside {@link Region}, or if this block already has a
+   *                        non-null parent and the new value is also non-null.
+   */
   public void setParent(@Nullable Region parent) {
     assert Utils.Caller.getCallingClass() == Region.class
         : "Assigning the parent of a block is only allowed from the Region class. Was called from "
