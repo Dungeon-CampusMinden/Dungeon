@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.OperationVerifier;
 import core.Utils;
 import core.detail.OperationDetails;
-import core.detail.RegisteredOperationDetails;
 import core.serialization.OperationDeserializer;
 import core.serialization.OperationSerializer;
 import core.traits.IOpTrait;
@@ -59,7 +58,7 @@ public final class Operation implements Serializable {
       @Nullable Type outputType,
       int numRegions) {
     return new Operation(
-        RegisteredOperationDetails.lookup(op.getIdent())
+        OperationDetails.Registered.lookup(op.getIdent())
             .orElseThrow(
                 () ->
                     new IllegalArgumentException(
@@ -417,7 +416,7 @@ public final class Operation implements Serializable {
   @Override
   public @NotNull String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append(getDetails().getIdent());
+    sb.append(getDetails().ident());
 
     sb.append(" (");
     sb.append(

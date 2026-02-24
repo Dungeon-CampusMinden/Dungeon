@@ -62,7 +62,7 @@ public class AttributeDetails {
     unregisteredDetails =
         DGIRContext.attributesByIdent.computeIfAbsent(
             ident,
-            idnt -> new UnregisteredAttributeModel(idnt, DGIRContext.getReferencedDialect(idnt)));
+            idnt -> new UnregisteredAttributeModel(idnt, DGIRContext.getReferencedDialect(idnt).orElseThrow()));
     DGIRContext.attributes.put(Attribute.class, unregisteredDetails);
     impl = unregisteredDetails;
   }

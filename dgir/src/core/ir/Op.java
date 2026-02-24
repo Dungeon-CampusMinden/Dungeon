@@ -3,7 +3,6 @@ package core.ir;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.Dialect;
 import core.detail.OperationDetails;
-import core.detail.RegisteredOperationDetails;
 import core.serialization.OpDeserializer;
 import core.serialization.OpSerializer;
 import core.traits.IOpTrait;
@@ -415,7 +414,7 @@ public abstract class Op {
    */
   public static void executeIfRegistered(
       @NotNull Class<? extends Op> opClass, @NotNull Runnable callback) {
-    var details = RegisteredOperationDetails.lookup(opClass);
+    var details = OperationDetails.Registered.lookup(opClass);
     if (details.isPresent()) {
       callback.run();
     }

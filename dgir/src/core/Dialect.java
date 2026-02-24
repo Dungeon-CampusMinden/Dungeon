@@ -1,7 +1,7 @@
 package core;
 
+import core.detail.OperationDetails;
 import core.detail.RegisteredAttributeDetails;
-import core.detail.RegisteredOperationDetails;
 import core.detail.TypeDetails;
 import core.ir.Attribute;
 import core.ir.Op;
@@ -62,7 +62,7 @@ public abstract class Dialect {
 
     System.out.println("Initializing dialect: " + getNamespace());
     for (var op : allOps()) {
-      RegisteredOperationDetails.insert(op);
+      OperationDetails.Registered.insert(op);
     }
     for (var type : allTypes()) {
       TypeDetails.Registered.insert(type);

@@ -1,6 +1,5 @@
 package dgir.vm.dialect.cf;
 
-import core.detail.RegisteredOperationDetails;
 import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
@@ -10,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class BranchCondRunner extends OpRunner {
   public BranchCondRunner() {
-    super(RegisteredOperationDetails.lookup(BranchCondOp.class).orElseThrow());
+    super(BranchCondOp.class);
   }
 
   @Override

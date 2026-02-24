@@ -19,9 +19,7 @@ public interface IGlobalContainer extends IOpTrait {
         for (Operation operation : block.getOperations()) {
           if (!operation.hasTrait(IGlobal.class)) {
             operation.emitError(
-                "Operation "
-                    + operation.getDetails().getIdent()
-                    + " is not a global operation and cannot be contained in a global container.");
+                "Operation is not a global operation and cannot be contained in a global container.");
             return false;
           }
         }

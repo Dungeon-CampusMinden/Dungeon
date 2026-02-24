@@ -196,7 +196,7 @@ public class VM {
     Operation currentOp = opStack.pop();
     OpRunner runner = OpRunnerRegistry.getOpRunner(currentOp);
     assert runner != null
-        : "No runner registered for operation " + currentOp.getDetails().getIdent();
+        : "No runner registered for operation " + currentOp.getDetails().ident();
 
     return runner.run(currentOp, state);
   }

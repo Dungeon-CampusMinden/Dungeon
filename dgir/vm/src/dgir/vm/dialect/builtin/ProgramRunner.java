@@ -1,6 +1,5 @@
 package dgir.vm.dialect.builtin;
 
-import core.detail.RegisteredOperationDetails;
 import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
@@ -10,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ProgramRunner extends OpRunner {
   public ProgramRunner() {
-    super(RegisteredOperationDetails.lookup(ProgramOp.class).orElseThrow());
+    super(ProgramOp.class);
   }
 
   @Override

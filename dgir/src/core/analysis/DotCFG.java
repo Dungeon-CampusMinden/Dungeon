@@ -33,7 +33,7 @@ public class DotCFG {
     private final @NotNull List<Cluster> children = new ArrayList<>();
 
     public static Function<Operation, String> identGenerator =
-        op -> op.getDetails().getIdent().replace(".", "_") + "_" + op.hashCode();
+        op -> op.getDetails().ident().replace(".", "_") + "_" + op.hashCode();
 
     public Cluster(@NotNull Operation owner) {
       this.owner = owner;

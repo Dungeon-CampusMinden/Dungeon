@@ -1,6 +1,6 @@
 package core.serialization;
 
-import core.detail.RegisteredOperationDetails;
+import core.detail.OperationDetails;
 import core.ir.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
   public Operation deserialize(JsonParser jp, DeserializationContext ctxt) {
     JsonNode node = jp.readValueAsTree();
     // Get the ident field so that we can lookup the correct operation type.
-    var operationDetails = RegisteredOperationDetails.lookup(node.get("ident").asString());
+    var operationDetails = OperationDetails.Registered.lookup(node.get("ident").asString());
     assert operationDetails.isPresent()
         : "Operation "
             + node.get("ident").asString()

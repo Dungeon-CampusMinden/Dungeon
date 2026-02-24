@@ -1,7 +1,6 @@
 package dgir.vm.dialect.func;
 
 import core.SymbolTable;
-import core.detail.RegisteredOperationDetails;
 import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
@@ -11,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CallRunner extends OpRunner {
   public CallRunner() {
-    super(RegisteredOperationDetails.lookup(CallOp.class).orElseThrow());
+    super(CallOp.class);
   }
 
   @Override

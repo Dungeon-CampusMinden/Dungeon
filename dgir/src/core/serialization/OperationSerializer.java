@@ -19,7 +19,7 @@ public class OperationSerializer extends StdSerializer<Operation> {
   public void serialize(Operation value, JsonGenerator gen, SerializationContext provider)
       throws JacksonException {
     gen.writeStartObject();
-    gen.writeStringProperty("ident", value.getDetails().getIdent());
+    gen.writeStringProperty("ident", value.getDetails().ident());
     if (!value.getOperands().isEmpty()) gen.writePOJOProperty("operands", value.getOperands());
     if (!value.getBlockOperands().isEmpty())
       gen.writePOJOProperty("successors", value.getBlockOperands());

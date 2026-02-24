@@ -7,6 +7,8 @@ import core.ir.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,20 +26,19 @@ public class DGIRContext {
   // =========================================================================
 
   /** Unregistered cache: class → impl (ident and class are unreliable until registered). */
-  public static final @NotNull Map<Class<? extends Op>, OperationDetails.Impl> operations =
+  public static final @NotNull Map<Class<? extends Op>, OperationDetails> operations =
       new HashMap<>();
 
   /** Unregistered cache: ident → impl. */
-  public static final @NotNull Map<String, OperationDetails.Impl> operationsByIdent =
-      new HashMap<>();
+  public static final @NotNull Map<String, OperationDetails> operationsByIdent = new HashMap<>();
 
   /** Registered operations by class. */
-  public static final @NotNull Map<Class<? extends Op>, RegisteredOperationDetails>
+  public static final @NotNull Map<Class<? extends Op>, OperationDetails.Registered>
       registeredOperations = new HashMap<>();
 
   /** Registered operations by ident. */
-  public static final @NotNull Map<String, RegisteredOperationDetails> registeredOperationsByIdent =
-      new HashMap<>();
+  public static final @NotNull Map<String, OperationDetails.Registered>
+      registeredOperationsByIdent = new HashMap<>();
 
   // =========================================================================
   // Attributes
@@ -100,15 +101,15 @@ public class DGIRContext {
    * @return The owning {@link Dialect}, or the builtin dialect as a fallback.
    */
   @Contract(pure = true)
-  public static @NotNull Dialect getReferencedDialect(@NotNull String name) {
+  public static @NotNull Optional<Dialect> getReferencedDialect(@NotNull String name) {
     var i = name.indexOf('.');
     if (i >= 0) {
       var namespace = name.substring(0, i);
       var dialect = registeredDialectsByName.get(namespace);
       if (dialect != null) {
-        return dialect;
+        return Optional.of(dialect);
       }
     }
-    return Objects.requireNonNull(registeredDialectsByName.get(""));
+    return Optional.empty();
   }
 }

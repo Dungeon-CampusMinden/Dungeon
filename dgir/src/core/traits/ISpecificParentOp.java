@@ -33,7 +33,7 @@ public interface ISpecificParentOp extends IOpTrait {
                 .reduce((a, b) -> a + ", " + b)
                 .orElse("")
             + ". Found parent operation of type: "
-            + parentOp.get().getDetails().getIdent());
+            + parentOp.get().getDetails().ident());
     return false;
   }
 

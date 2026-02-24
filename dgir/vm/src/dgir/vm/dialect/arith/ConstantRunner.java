@@ -1,6 +1,5 @@
 package dgir.vm.dialect.arith;
 
-import core.detail.RegisteredOperationDetails;
 import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
@@ -10,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ConstantRunner extends OpRunner {
   public ConstantRunner() {
-    super(RegisteredOperationDetails.lookup(ConstantOp.class).orElseThrow());
+    super(ConstantOp.class);
   }
 
   @Override

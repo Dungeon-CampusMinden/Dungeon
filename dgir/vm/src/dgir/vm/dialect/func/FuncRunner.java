@@ -1,6 +1,5 @@
 package dgir.vm.dialect.func;
 
-import core.detail.RegisteredOperationDetails;
 import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
@@ -10,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class FuncRunner extends OpRunner {
   public FuncRunner() {
-    super(RegisteredOperationDetails.lookup(FuncOp.class).orElseThrow());
+    super(FuncOp.class);
   }
 
   @Override

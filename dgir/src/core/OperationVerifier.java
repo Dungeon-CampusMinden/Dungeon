@@ -1,7 +1,7 @@
 package core;
 
 import core.analysis.ReachingDefinitions;
-import core.detail.RegisteredOperationDetails;
+import core.detail.OperationDetails;
 import core.ir.*;
 import core.traits.IIsolatedFromAbove;
 import core.traits.INoTerminator;
@@ -196,7 +196,7 @@ public class OperationVerifier {
     }
 
     // Operation must be registered
-    Optional<RegisteredOperationDetails> details = operation.getDetails().asRegisteredDetails();
+    Optional<OperationDetails.Registered> details = operation.getDetails() instanceof OperationDetails.Registered registered ? Optional.of(registered) : Optional.empty();
     if (details.isEmpty()) {
       operation.emitError("Operation is not registered");
       return false;
@@ -207,7 +207,7 @@ public class OperationVerifier {
     if (!details.get().verify(operation)) {
       operation.emitError(
           "Operation failed verification through registered details of operation "
-              + operation.getDetails().getIdent());
+              + operation.getDetails().ident());
       return false;
     }
 

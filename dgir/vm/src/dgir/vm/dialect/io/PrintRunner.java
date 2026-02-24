@@ -1,6 +1,5 @@
 package dgir.vm.dialect.io;
 
-import core.detail.RegisteredOperationDetails;
 import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
@@ -14,7 +13,7 @@ public class PrintRunner extends OpRunner {
   public static @NotNull PrintStream out = System.out;
 
   public PrintRunner() {
-    super(RegisteredOperationDetails.lookup(PrintOp.class).orElseThrow());
+    super(PrintOp.class);
   }
 
   @Override
