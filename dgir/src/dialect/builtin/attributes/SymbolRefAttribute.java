@@ -8,12 +8,19 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Attribute that holds a reference to a symbol by its string name.
+ *
+ * <p>Ident: {@code symbolRefAttr}. Used by operations such as {@link dialect.func.CallOp} to
+ * record the name of a callee function without hard-linking the IR nodes together.
+ */
 public class SymbolRefAttribute extends Attribute {
 
   // =========================================================================
   // Static Fields
   // =========================================================================
 
+  /** Prototype instance used during dialect registration. */
   public static final SymbolRefAttribute INSTANCE = new SymbolRefAttribute();
 
   // =========================================================================
@@ -33,11 +40,15 @@ public class SymbolRefAttribute extends Attribute {
     return new SymbolRefAttributeModel();
   }
 
-  public static String getIdent() {
+  /** Returns the ident string {@code "symbolRefAttr"}. */
+  @Contract(pure = true)
+  public static @NotNull String getIdent() {
     return "symbolRefAttr";
   }
 
-  public static String getNamespace() {
+  /** Returns the namespace of this attribute ({@code ""}, the builtin namespace). */
+  @Contract(pure = true)
+  public static @NotNull String getNamespace() {
     return "";
   }
 
@@ -45,15 +56,22 @@ public class SymbolRefAttribute extends Attribute {
   // Members
   // =========================================================================
 
+  /** The referenced symbol name. */
   private String value;
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
+  /** Create a default symbol reference attribute with a {@code null} name. */
   public SymbolRefAttribute() {}
 
-  public SymbolRefAttribute(String value) {
+  /**
+   * Create a symbol reference attribute pointing to the given name.
+   *
+   * @param value the symbol name to reference.
+   */
+  public SymbolRefAttribute(@NotNull String value) {
     this.value = value;
   }
 
@@ -61,18 +79,33 @@ public class SymbolRefAttribute extends Attribute {
   // Functions
   // =========================================================================
 
+  /**
+   * Returns the referenced symbol name.
+   *
+   * @return the symbol name, or {@code null} if not set.
+   */
   @Contract(pure = true)
   @Override
   public @Nullable String getStorage() {
     return value;
   }
 
+  /**
+   * Returns the referenced symbol name.
+   *
+   * @return the symbol name.
+   */
   @Contract(pure = true)
   public String getValue() {
     return value;
   }
 
-  public void setValue(String value) {
+  /**
+   * Updates the referenced symbol name.
+   *
+   * @param value the new symbol name.
+   */
+  public void setValue(@NotNull String value) {
     this.value = value;
   }
 }

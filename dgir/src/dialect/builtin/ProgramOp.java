@@ -5,8 +5,27 @@ import core.ir.Operation;
 import core.traits.*;
 import dialect.func.FuncOp;
 import java.util.function.Function;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Top-level container operation for a DGIR program.
+ *
+ * <p>{@code ProgramOp} holds a single region with a single block. That block must contain exactly
+ * one {@link FuncOp} whose symbol name is {@code "main"}; this function serves as the program
+ * entry point.
+ *
+ * <p>The op acts as a {@link ISymbolTable} anchor: all symbol look-ups issued by nested operations
+ * resolve against this table.
+ *
+ * <p>Ident: {@code program}
+ *
+ * <pre>{@code
+ * program {
+ *   func.func @main() { ... }
+ * }
+ * }</pre>
+ */
 public final class ProgramOp extends BuiltinOp
     implements Builtin, ISymbolTable, INoTerminator, IGlobalContainer, ISingleRegion, ISingleBlock {
 
@@ -14,6 +33,7 @@ public final class ProgramOp extends BuiltinOp
   // Type Info
   // =========================================================================
 
+  @Contract(pure = true)
   @Override
   public @NotNull String getIdent() {
     return "program";
@@ -49,13 +69,19 @@ public final class ProgramOp extends BuiltinOp
   // Constructors
   // =========================================================================
 
+  /** Default constructor used during dialect registration. */
   public ProgramOp() {
     executeIfRegistered(
         ProgramOp.class,
         () -> setOperation(true, Operation.Create(this, null, null, null, 1)));
   }
 
-  public ProgramOp(Operation operation) {
+  /**
+   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
+   *
+   * @param operation the backing operation state.
+   */
+  public ProgramOp(@NotNull Operation operation) {
     super(operation);
   }
 
@@ -63,6 +89,14 @@ public final class ProgramOp extends BuiltinOp
   // Functions
   // =========================================================================
 
+  /**
+   * Finds and returns the {@code main} function declared inside this program.
+   *
+   * @return the {@code main} {@link FuncOp}.
+   * @throws IllegalStateException if no {@code main} function exists (should have been caught by
+   *     verification).
+   */
+  @Contract(pure = true)
   public @NotNull FuncOp getMainFunc() {
     Block block = getBlock();
     for (Operation op : block.getOperations()) {

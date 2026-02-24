@@ -1,18 +1,23 @@
 package dialect.builtin.types;
 
-import core.Dialect;
-import core.detail.TypeDetails;
-import core.ir.Type;
-import dialect.builtin.BuiltinDialect;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class StringT extends Type {
+import java.util.function.Function;
+
+/**
+ * UTF-16 string type in the {@code builtin} dialect.
+ *
+ * <p>Ident: {@code string}. Validated values must be Java {@link String} instances.
+ *
+ * <p>The single pre-built instance is available as {@link #INSTANCE}.
+ */
+public class StringT extends BuiltinType {
 
   // =========================================================================
   // Static Fields
   // =========================================================================
 
+  /** Singleton instance of the string type. */
   public static final StringT INSTANCE = new StringT();
 
   // =========================================================================
@@ -20,35 +25,19 @@ public class StringT extends Type {
   // =========================================================================
 
   @Override
-  public TypeDetails.@NotNull Impl createImpl() {
-    class StringTModel extends TypeDetails.Impl {
-      StringTModel() {
-        super(INSTANCE, StringT.getIdent(), StringT.class, Dialect.getOrThrow(BuiltinDialect.class));
-      }
-    }
-    return new StringTModel();
-  }
-
-  public static String getIdent() {
+  public @NotNull String getIdent() {
     return "string";
   }
 
-  public static String getNamespace() {
-    return "";
+  @Override
+  public Function<Object, Boolean> getValidator() {
+    return value -> value instanceof String;
   }
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
+  /** Creates a new {@code StringT} instance. Prefer {@link #INSTANCE} over this constructor. */
   public StringT() {}
-
-  // =========================================================================
-  // Functions
-  // =========================================================================
-
-  @Override
-  public boolean validate(@Nullable Object value) {
-    return value instanceof String;
-  }
 }

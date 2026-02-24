@@ -64,17 +64,17 @@ public class DGIRContext {
   // =========================================================================
 
   /** Unregistered cache: class → impl. */
-  public static final @NotNull Map<Class<? extends Type>, TypeDetails.Impl> types = new HashMap<>();
+  public static final @NotNull Map<Class<? extends Type>, TypeDetails> types = new HashMap<>();
 
   /** Unregistered cache: ident → impl. */
-  public static final @NotNull Map<String, TypeDetails.Impl> typesByIdent = new HashMap<>();
+  public static final @NotNull Map<String, TypeDetails> typesByIdent = new HashMap<>();
 
   /** Registered types by class. */
-  public static final Map<Class<? extends Type>, RegisteredTypeDetails> registeredTypes =
+  public static final Map<Class<? extends Type>, TypeDetails.Registered> registeredTypes =
       new HashMap<>();
 
   /** Registered types by ident. */
-  public static final Map<String, RegisteredTypeDetails> registeredTypesByIdent = new HashMap<>();
+  public static final Map<String, TypeDetails.Registered> registeredTypesByIdent = new HashMap<>();
 
   // =========================================================================
   // Dialects

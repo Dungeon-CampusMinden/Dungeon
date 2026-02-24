@@ -2,14 +2,17 @@ package core.ir;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
+import core.Dialect;
 import core.Utils;
-import core.detail.RegisteredTypeDetails;
 import core.detail.TypeDetails;
 import core.serialization.TypeDeserializer;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
+
+import java.util.function.Function;
 
 // We have to use the deserializer because we cant use @JsonCreator on static methods and therefore
 // can put the logic
@@ -27,8 +30,69 @@ public abstract class Type {
   // Type Info
   // =========================================================================
 
-  /** Create and return the impl object that describes this type kind. */
-  public abstract @NotNull TypeDetails.Impl createImpl();
+  /**
+   * Get the identifier for this type. This is a unique string that identifies the basic type
+   * without any parameters. Example: {@code "i32"} or {@code "func.func"} (instead of {@code
+   * func.func<...>}).
+   *
+   * <p>Syntax:
+   *
+   * <pre>
+   * ident:
+   *    namespace '.' name
+   * </pre>
+   *
+   * @return The ident string.
+   */
+  @Contract(pure = true)
+  public abstract @NotNull String getIdent();
+
+  /**
+   * Get the parameterized ident for this type. Simple types return just the ident; generic types
+   * (e.g. {@link core.ir.Type} parameterized) override this to include parameters.
+   *
+   * <p>Syntax:
+   *
+   * <pre>
+   * parameterizedType:
+   *    ident
+   *    | ident '&lt;' typeParameter (',' typeParameter)* '&gt;'
+   *    | ident '&lt;' verbatim '&gt;'
+   * </pre>
+   *
+   * @return The parameterized ident string.
+   */
+  @Contract(pure = true)
+  @JsonValue
+  public @NotNull String getParameterizedIdent() {
+    return getIdent();
+  }
+
+  @Contract(pure = true)
+  public abstract @NotNull String getNamespace();
+
+  @Contract(pure = true)
+  public abstract @NotNull Class<? extends Dialect> getDialect();
+
+  @Contract(pure = true)
+  public abstract Function<Object, Boolean> getValidator();
+
+  /**
+   * Returns a factory that creates a type from a parameterized identifier. This is used for types
+   * that have parameters, such as ptrs or function types. The parameterized identifier is the
+   * string representation of the type, including its parameters. For example, for a pointer type,
+   * the parameterized identifier could be "ptr<i32>" or "ptr<ptr<f64>>".
+   *
+   * <p>The factory should parse the parameterized identifier and return the corresponding type
+   * instance. For types that do not have parameters, this can simply return a factory that ignores
+   * the parameterized identifier and returns the default instance of the type.
+   *
+   * @return A factory that creates a type from a parameterized identifier.
+   */
+  @Contract(pure = true)
+  public Function<Pair<String, TypeDetails>, Type> getParameterizedStringFactory() {
+    return args -> args.getRight().defaultInstance();
+  }
 
   // =========================================================================
   // Constructors
@@ -52,22 +116,16 @@ public abstract class Type {
   }
 
   public void setDetails(@NotNull TypeDetails details) {
-    assert Utils.Caller.getCallingClass().isAssignableFrom(RegisteredTypeDetails.class)
-        : "Only RegisteredTypeDetails is allowed to set details. Was called from "
-            + Utils.Caller.getCallingClass().getName();
+    // Only allow TypeDetails.Registered to set details, since they are the registration of the
+    // types.
+    assert Utils.Caller.getCallingClass().isAssignableFrom(TypeDetails.Registered.class)
+        : "Only TypeDetails.Registered can set details for a type.";
     this.details = details;
   }
 
-  /** Return this type's parameterized ident string (used as the JSON serialized form). */
-  @Contract(pure = true)
-  @JsonValue
-  public @NotNull String getParameterizedIdent() {
-    return details.getParameterizedIdent(this);
+  public final boolean validate(Object value) {
+    return getDetails().validator().apply(value);
   }
-
-  /** Validate whether {@code value} is a legal storage value for this type. */
-  @Contract(pure = true)
-  public abstract boolean validate(@Nullable Object value);
 
   // =========================================================================
   // Object

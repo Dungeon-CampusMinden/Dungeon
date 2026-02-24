@@ -10,7 +10,20 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+/**
+ * The {@code cf} dialect provides low-level control-flow operations.
+ *
+ * <p>Namespace: {@code cf}
+ *
+ * <p>Operations: {@link CF} (sealed interface enumerating all ops)
+ *
+ * <ul>
+ *   <li>{@link BranchOp} — unconditional branch to a target block
+ *   <li>{@link BranchCondOp} — conditional branch choosing between two target blocks
+ * </ul>
+ */
 public class CfDialect extends Dialect {
+
   @Contract(pure = true)
   @Override
   public @NotNull String getNamespace() {

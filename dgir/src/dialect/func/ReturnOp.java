@@ -13,12 +13,28 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+/**
+ * Returns from a {@link FuncOp}, optionally carrying a single return value.
+ *
+ * <p>This is a terminator: it must be the last operation in the function body's exit block. If the
+ * enclosing {@link FuncOp} has a non-void output type, exactly one operand must be provided and its
+ * type must match the function output type.
+ *
+ * <p>MLIR reference: {@code func.return}
+ *
+ * <pre>{@code
+ * func.return %result : int32
+ * // or, for void functions:
+ * func.return
+ * }</pre>
+ */
 public final class ReturnOp extends FuncBaseOp implements Func, ITerminator, IZeroOrOneOperand, ISpecificParentOp {
 
   // =========================================================================
   // Type Info
   // =========================================================================
 
+  @Contract(pure = true)
   @Override
   public @NotNull String getIdent() {
     return "func.return";
@@ -67,16 +83,27 @@ public final class ReturnOp extends FuncBaseOp implements Func, ITerminator, IZe
   // Constructors
   // =========================================================================
 
+  /** Default constructor used during dialect registration. */
   public ReturnOp() {
     executeIfRegistered(
         ReturnOp.class, () -> setOperation(false, Operation.Create(this, null, null, null)));
   }
 
-  public ReturnOp(Operation operation) {
+  /**
+   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
+   *
+   * @param operation the backing operation state.
+   */
+  public ReturnOp(@NotNull Operation operation) {
     super(operation);
   }
 
-  public ReturnOp(Value operand) {
+  /**
+   * Create a return op that yields the given value.
+   *
+   * @param operand the value to return from the enclosing function.
+   */
+  public ReturnOp(@NotNull Value operand) {
     setOperation(Operation.Create(this, List.of(operand), null, null));
   }
 
@@ -90,6 +117,12 @@ public final class ReturnOp extends FuncBaseOp implements Func, ITerminator, IZe
     return List.of(FuncOp.class);
   }
 
+  /**
+   * Returns the value being returned, or empty if this is a void return.
+   *
+   * @return the optional return value.
+   */
+  @Contract(pure = true)
   public @NotNull Optional<Value> getReturnValue() {
     return getOperand().flatMap(value -> value);
   }

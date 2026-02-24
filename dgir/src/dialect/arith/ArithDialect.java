@@ -10,7 +10,19 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+/**
+ * The {@code arith} dialect provides basic arithmetic operations.
+ *
+ * <p>Namespace: {@code arith}
+ *
+ * <p>Operations: {@link Arith} (sealed interface enumerating all ops)
+ *
+ * <ul>
+ *   <li>{@link ConstantOp} — produces a constant value
+ * </ul>
+ */
 public class ArithDialect extends Dialect {
+
   @Contract(pure = true)
   @Override
   public @NotNull String getNamespace() {

@@ -3,112 +3,121 @@ package dialect.func.types;
 import core.*;
 import core.detail.TypeDetails;
 import core.ir.Type;
-import dialect.func.FuncDialect;
+
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FuncType extends Type {
+/**
+ * Function signature type in the {@code func} dialect.
+ *
+ * <p>A {@code FuncType} describes a function's parameter types and optional return type:
+ *
+ * <pre>
+ *   func.func&lt;(int32, string) -&gt; (bool)&gt;
+ * </pre>
+ *
+ * <p>The {@link #getParameterizedIdent()} method renders the full signature; simple (void/no-arg)
+ * function types can be compared by this string. The singleton {@link #INSTANCE} is a no-argument
+ * void function type used as a registration prototype.
+ */
+public class FuncType extends FuncBaseType {
 
   // =========================================================================
   // Static Fields
   // =========================================================================
 
+  /** Prototype instance used during dialect registration (no-arg, void). */
   public static final FuncType INSTANCE = new FuncType();
 
   // =========================================================================
   // Type Info
   // =========================================================================
 
+  @Contract(pure = true)
   @Override
-  public TypeDetails.@NotNull Impl createImpl() {
-    class FuncTypeModel extends TypeDetails.Impl {
-      FuncTypeModel() {
-        super(INSTANCE, FuncType.getIdent(), FuncType.class, Dialect.getOrThrow(FuncDialect.class));
-      }
-
-      @Override
-      public @NotNull String getParameterizedIdent(@NotNull Type type) {
-        assert type instanceof FuncType
-            : "Expected FuncType, got " + type.getClass().getSimpleName();
-        var funcType = (FuncType) type;
-        return FuncType.getIdent()
-            + "<("
-            + String.join(
-                ", ",
-                funcType.getInputs().stream()
-                    .map(t -> t.getDetails().getParameterizedIdent(t))
-                    .toList())
-            + ") -> ("
-            + (funcType.getOutput() == null
-                ? ""
-                : funcType.getOutput().getDetails().getParameterizedIdent(funcType.getOutput()))
-            + ")>";
-      }
-
-      @Override
-      public @NotNull Type fromParameterizedIdent(@NotNull String parameterizedIdent) {
-        String[] parts = getStrings(parameterizedIdent);
-        String inputsPart = parts[0].trim();
-        String outputPart = parts[1].trim();
-        List<Type> inputs;
-        Type output;
-        {
-          inputsPart = inputsPart.substring(1, inputsPart.length() - 1).trim();
-          inputs = TypeDetails.fromParameterString(inputsPart);
-        }
-        {
-          outputPart = outputPart.substring(1, outputPart.length() - 1).trim();
-          if (outputPart.isEmpty()) {
-            output = null;
-          } else {
-            output = TypeDetails.fromParameterizedIdent(outputPart);
-          }
-        }
-        return new FuncType(inputs, output);
-      }
-
-      private String[] getStrings(String parameterizedIdent) {
-        if (!parameterizedIdent.startsWith(FuncType.getIdent() + "<")
-            || !parameterizedIdent.endsWith(">")) {
-          throw new IllegalArgumentException(
-              "Invalid parameterized ident for FuncType: " + parameterizedIdent);
-        }
-        String inner =
-            parameterizedIdent.substring(
-                FuncType.getIdent().length() + 1, parameterizedIdent.length() - 1);
-        return inner.split("->", -1);
-      }
-    }
-    return new FuncTypeModel();
-  }
-
-  public static String getIdent() {
+  public @NotNull String getIdent() {
     return "func.func";
   }
 
-  public static String getNamespace() {
-    return "func";
+  @Contract(pure = true)
+  @Override
+  public @NotNull String getParameterizedIdent() {
+    return getIdent()
+        + "<("
+        + String.join(
+            ", ", getInputs().stream().map(Type::getParameterizedIdent).toList())
+        + ") -> ("
+        + (getOutput() == null ? "" : getOutput().getParameterizedIdent())
+        + ")>";
+  }
+
+  @Override
+  public Function<Pair<String, TypeDetails>, Type> getParameterizedStringFactory() {
+    return args -> {
+      // Extract the single parameter (the full "(inputs) -> (output)" string), then split on "->"
+      // at depth 0 so nested func types containing "->" are never split prematurely.
+      String param = Utils.getParameterStrings(args.getLeft()).getFirst();
+      List<String> arrowParts = Utils.splitAtDepthZero(param, "->");
+      String inputsPart = arrowParts.get(0).trim();
+      String outputPart = arrowParts.get(1).trim();
+      List<Type> inputs;
+      {
+        inputsPart = inputsPart.substring(1, inputsPart.length() - 1).trim();
+        inputs = TypeDetails.fromParameterString(inputsPart);
+      }
+      Type output;
+      {
+        outputPart = outputPart.substring(1, outputPart.length() - 1).trim();
+        if (outputPart.isEmpty()) {
+          output = null;
+        } else {
+          output = TypeDetails.fromParameterizedIdent(outputPart);
+        }
+      }
+      return new FuncType(inputs, output);
+    };
+  }
+
+  @Override
+  public Function<Object, Boolean> getValidator() {
+    // I currently do not know what about a value passed to type should do wrong since its just
+    // other types.
+    return value -> true;
   }
 
   // =========================================================================
   // Members
   // =========================================================================
 
+  /** The ordered list of input types (never {@code null}, may be empty). */
   private final List<Type> inputs;
-  private final Type output;
+
+  /** The return type, or {@code null} for void functions. */
+  private final @Nullable Type output;
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
+  /** Create a no-argument void function type. */
   public FuncType() {
     inputs = List.of();
     output = null;
   }
 
-  public FuncType(List<Type> inputs, Type output) {
+  /**
+   * Create a function type with the given input types and return type.
+   *
+   * @param inputs the ordered list of parameter types; must not be {@code null}.
+   * @param output the return type, or {@code null} for a void function.
+   */
+  public FuncType(@NotNull List<Type> inputs, @Nullable Type output) {
     this.inputs = Collections.unmodifiableList(inputs);
     this.output = output;
   }
@@ -117,16 +126,23 @@ public class FuncType extends Type {
   // Functions
   // =========================================================================
 
-  public List<Type> getInputs() {
+  /**
+   * Returns the ordered list of input (parameter) types.
+   *
+   * @return immutable list of input types.
+   */
+  @Contract(pure = true)
+  public @NotNull List<Type> getInputs() {
     return inputs;
   }
 
-  public Type getOutput() {
+  /**
+   * Returns the return type of this function, or {@code null} for void functions.
+   *
+   * @return the return type, or {@code null}.
+   */
+  @Contract(pure = true)
+  public @Nullable Type getOutput() {
     return output;
-  }
-
-  @Override
-  public boolean validate(@Nullable Object value) {
-    return value instanceof FuncType;
   }
 }

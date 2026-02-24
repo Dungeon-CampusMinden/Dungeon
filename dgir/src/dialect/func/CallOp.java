@@ -6,16 +6,32 @@ import core.traits.ISymbolUser;
 import dialect.builtin.attributes.SymbolRefAttribute;
 import dialect.func.types.FuncType;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Calls a named function in the {@code func} dialect.
+ *
+ * <p>The callee is referenced by name via the {@code "callee"} {@link SymbolRefAttribute}. At
+ * verification time the symbol is resolved in the nearest enclosing {@link core.SymbolTable} and
+ * the operand/result types are checked against the callee's {@link FuncType}.
+ *
+ * <p>MLIR reference: {@code func.call}
+ *
+ * <pre>{@code
+ * %result = func.call @add(%a, %b) : (int32, int32) -> int32
+ * }</pre>
+ */
 public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
 
   // =========================================================================
   // Type Info
   // =========================================================================
 
+  @Contract(pure = true)
   @Override
   public @NotNull String getIdent() {
     return "func.call";
@@ -53,12 +69,19 @@ public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
     };
   }
 
+  @Contract(pure = true)
   @Override
   public @NotNull List<NamedAttribute> getDefaultAttributes() {
     return List.of(new NamedAttribute(getCalleeAttributeName(), new SymbolRefAttribute("foo")));
   }
 
-  public static String getCalleeAttributeName() {
+  /**
+   * Returns the attribute name used to store the callee symbol reference.
+   *
+   * @return {@code "callee"}
+   */
+  @Contract(pure = true)
+  public static @NotNull String getCalleeAttributeName() {
     return "callee";
   }
 
@@ -68,25 +91,56 @@ public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
 
   private CallOp() {}
 
-  public CallOp(Operation operation) {
+  /**
+   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
+   *
+   * @param operation the backing operation state.
+   */
+  public CallOp(@NotNull Operation operation) {
     super(operation);
   }
 
-  public CallOp(String name, List<Value> operands, FuncType calleeType) {
+  /**
+   * Create a call with an explicit operand list and callee type.
+   *
+   * @param name        the symbol name of the function to call.
+   * @param operands    the argument values.
+   * @param calleeType  the function signature used to determine the result type.
+   */
+  public CallOp(@NotNull String name, @NotNull List<Value> operands, @NotNull FuncType calleeType) {
     setOperation(Operation.Create(this, operands, null, calleeType.getOutput()));
     setCallee(name);
   }
 
-  public CallOp(String name, FuncType calleeType, Value... operands) {
+  /**
+   * Create a call using varargs syntax.
+   *
+   * @param name        the symbol name of the function to call.
+   * @param calleeType  the function signature used to determine the result type.
+   * @param operands    the argument values (varargs).
+   */
+  public CallOp(@NotNull String name, @NotNull FuncType calleeType, Value... operands) {
     this(name, List.of(operands), calleeType);
   }
 
-  public CallOp(FuncOp funcOp, List<Value> operands) {
+  /**
+   * Create a call to a specific {@link FuncOp} with an explicit operand list.
+   *
+   * @param funcOp   the function to call.
+   * @param operands the argument values.
+   */
+  public CallOp(@NotNull FuncOp funcOp, @NotNull List<Value> operands) {
     setOperation(Operation.Create(this, operands, null, funcOp.getType().getOutput()));
     setCallee(funcOp.getFuncName());
   }
 
-  public CallOp(FuncOp funcOp, Value... operands) {
+  /**
+   * Create a call to a specific {@link FuncOp} using varargs syntax.
+   *
+   * @param funcOp   the function to call.
+   * @param operands the argument values (varargs).
+   */
+  public CallOp(@NotNull FuncOp funcOp, Value... operands) {
     this(funcOp, List.of(operands));
   }
 
@@ -94,21 +148,30 @@ public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
   // Functions
   // =========================================================================
 
-  public String getCallee() {
-    return getAttribute(SymbolRefAttribute.class, getCalleeAttributeName())
-        .orElseThrow(() -> new AssertionError("No callee attribute found"))
-        .getStorage();
+  /**
+   * Returns the symbol name of the callee function.
+   *
+   * @return the callee symbol name.
+   */
+  @Contract(pure = true)
+  public @NotNull String getCallee() {
+    return Objects.requireNonNull(
+        getAttribute(SymbolRefAttribute.class, getCalleeAttributeName())
+            .orElseThrow(() -> new AssertionError("No callee attribute found"))
+            .getStorage(),
+        "Callee symbol name must not be null");
   }
 
-  private void setCallee(String name) {
+  private void setCallee(@NotNull String name) {
     getSymbolRefAttribute().setValue(name);
   }
 
   /**
    * Get the function type that results from this call's operands and output.
    *
-   * @return The function type that results from this call's operands and output.
+   * @return The function type inferred from the operands and the operation result.
    */
+  @Contract(pure = true)
   public @NotNull FuncType getFunctionType() {
     List<Type> inputTypes =
         getOperands().stream().map(ValueOperand::getType).map(type -> type.orElse(null)).toList();
@@ -116,6 +179,7 @@ public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
     return new FuncType(inputTypes, outputType);
   }
 
+  @Contract(pure = true)
   @Override
   public @NotNull SymbolRefAttribute getSymbolRefAttribute() {
     return getAttribute(SymbolRefAttribute.class, getCalleeAttributeName())

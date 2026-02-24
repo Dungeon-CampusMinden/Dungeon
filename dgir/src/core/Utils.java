@@ -18,6 +18,117 @@ import org.jetbrains.annotations.Unmodifiable;
  */
 public class Utils {
 
+  /**
+   * Split {@code text} by the first occurrence of {@code delimiter} that appears at nesting depth
+   * 0, where depth is tracked by counting matched pairs of {@code < >} and {@code ( )}.
+   *
+   * <p>This is the core primitive used by {@link #getParameterStrings(String)}. It can be reused
+   * whenever a string must be split on an arbitrary delimiter sequence while respecting bracket
+   * nesting — for example splitting {@code "(i32, string) -> (bool)"} on {@code "->"}.
+   *
+   * <p>If the delimiter does not appear at depth 0, the whole input is returned as a single-element
+   * list.
+   *
+   * <p>Examples:
+   *
+   * <pre>
+   *   splitAtDepthZero("(i32, string) -> (bool)", "->")
+   *       → ["(i32, string) ", " (bool)"]          // raw, untrimmed
+   *
+   *   splitAtDepthZero("i32, string", ",")
+   *       → ["i32", " string"]
+   *
+   *   splitAtDepthZero("func.func&lt;(string) -&gt; (bool)&gt;, i32", ",")
+   *       → ["func.func&lt;(string) -&gt; (bool)&gt;", " i32"]
+   * </pre>
+   *
+   * @param text      the string to split; must not be {@code null}.
+   * @param delimiter the delimiter sequence to split on; must not be {@code null} or empty.
+   * @return an unmodifiable list of the parts (in order, not trimmed); never {@code null}.
+   */
+  @Contract(pure = true)
+  public static @NotNull @Unmodifiable List<String> splitAtDepthZero(
+      @NotNull String text, @NotNull String delimiter) {
+    assert !delimiter.isEmpty() : "delimiter must not be empty";
+
+    List<String> result = new ArrayList<>();
+    int depth = 0;
+    int start = 0;
+    int i = 0;
+
+    while (i < text.length()) {
+      char c = text.charAt(i);
+
+      // Track nesting depth
+      if (c == '<' || c == '(') {
+        depth++;
+        i++;
+        continue;
+      }
+      if (c == '>' || c == ')') {
+        depth--;
+        i++;
+        continue;
+      }
+
+      // Check for delimiter match at depth 0
+      if (depth == 0 && text.startsWith(delimiter, i)) {
+        result.add(text.substring(start, i));
+        i += delimiter.length();
+        start = i;
+        continue;
+      }
+
+      i++;
+    }
+
+    // Add the final segment
+    result.add(text.substring(start));
+
+    return Collections.unmodifiableList(result);
+  }
+
+  /**
+   * Extract the top-level comma-separated parameter strings from a parameterized type ident.
+   *
+   * <p>The method strips the outermost {@code <…>} wrapper and then splits the inner text by
+   * {@code ','} at nesting depth 0 via {@link #splitAtDepthZero(String, String)}. Both
+   * angle-bracket pairs ({@code < >}) and parenthesis pairs ({@code ( )}) increment/decrement the
+   * depth counter, so nested generic types and parenthesised signatures are never split mid-way.
+   * Each resulting segment is trimmed of surrounding whitespace and empty segments are dropped.
+   *
+   * <p>Examples:
+   *
+   * <pre>
+   *   "func.func&lt;(i32, string) -&gt; (bool)&gt;"
+   *       → ["(i32, string) -> (bool)"]
+   *
+   *   "struct.struct&lt;i32, string&gt;"
+   *       → ["i32", "string"]
+   *
+   *   "func.func&lt;(i32, func.func&lt;(string) -&gt; (bool)&gt;) -&gt; (bool)&gt;"
+   *       → ["(i32, func.func&lt;(string) -&gt; (bool)&gt;) -> (bool)"]
+   * </pre>
+   *
+   * @param parameterizedIdent a parameterized ident string that contains exactly one outermost
+   *                           {@code <…>} wrapper (e.g. {@code "foo<a, b<c>, d>"}).
+   * @return an unmodifiable list of trimmed, non-empty parameter strings; never {@code null}.
+   */
+  @Contract(pure = true)
+  public static @NotNull @Unmodifiable List<String> getParameterStrings(
+      @NotNull String parameterizedIdent) {
+    // Strip the outermost < … >
+    String inner =
+        parameterizedIdent.substring(
+            parameterizedIdent.indexOf('<') + 1, parameterizedIdent.length() - 1);
+
+    // Delegate to the general splitter, then trim and drop empty segments
+    return splitAtDepthZero(inner, ",").stream()
+        .map(String::trim)
+        .filter(s -> !s.isEmpty())
+        .toList();
+  }
+
   // =========================================================================
   // Inner: Caller
   // =========================================================================
@@ -67,8 +178,8 @@ public class Utils {
      * collected via reflection by looking at all permitted subclasses of the dialect's
      * IDialectOperations interface and invoking their default constructors to get their prototypes.
      */
-    private static final @NotNull Map<Class<? extends core.Dialect>, @Unmodifiable List<Op>> dialectOps =
-        new HashMap<>();
+    private static final @NotNull Map<Class<? extends core.Dialect>, @Unmodifiable List<Op>>
+        dialectOps = new HashMap<>();
 
     /**
      * Returns a list of all operation prototypes contributed by this dialect. These prototypes are

@@ -2,7 +2,7 @@ package core;
 
 import core.detail.RegisteredAttributeDetails;
 import core.detail.RegisteredOperationDetails;
-import core.detail.RegisteredTypeDetails;
+import core.detail.TypeDetails;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
@@ -65,7 +65,7 @@ public abstract class Dialect {
       RegisteredOperationDetails.insert(op);
     }
     for (var type : allTypes()) {
-      RegisteredTypeDetails.insert(type);
+      TypeDetails.Registered.insert(type);
     }
     for (var attr : allAttributes()) {
       RegisteredAttributeDetails.insert(attr);

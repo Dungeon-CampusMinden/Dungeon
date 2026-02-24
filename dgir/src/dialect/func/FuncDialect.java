@@ -11,7 +11,27 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+/**
+ * The {@code func} dialect provides function-definition and call operations.
+ *
+ * <p>Namespace: {@code func}
+ *
+ * <p>Operations: {@link Func} (sealed interface enumerating all ops)
+ *
+ * <ul>
+ *   <li>{@link FuncOp} — declares a named function with a body region
+ *   <li>{@link CallOp} — calls a named function
+ *   <li>{@link ReturnOp} — returns from a function, optionally with a value
+ * </ul>
+ *
+ * <p>Types:
+ *
+ * <ul>
+ *   <li>{@link FuncType} — a function signature ({@code (inputs) -> output})
+ * </ul>
+ */
 public class FuncDialect extends Dialect {
+
   @Contract(pure = true)
   @Override
   public @NotNull String getNamespace() {

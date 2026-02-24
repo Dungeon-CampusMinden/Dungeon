@@ -6,14 +6,28 @@ import core.traits.IControlFlow;
 import core.traits.ITerminator;
 import java.util.List;
 import java.util.function.Function;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Unconditional branch to a single target {@link Block}.
+ *
+ * <p>This is a terminator: it must be the last operation in its parent block, and it transfers
+ * control unconditionally to the specified successor.
+ *
+ * <p>MLIR reference: {@code cf.br}
+ *
+ * <pre>{@code
+ * cf.br ^target
+ * }</pre>
+ */
 public final class BranchOp extends CfOp implements CF, ITerminator, IControlFlow {
 
   // =========================================================================
   // Type Info
   // =========================================================================
 
+  @Contract(pure = true)
   @Override
   public @NotNull String getIdent() {
     return "cf.br";
@@ -30,11 +44,21 @@ public final class BranchOp extends CfOp implements CF, ITerminator, IControlFlo
 
   private BranchOp() {}
 
-  public BranchOp(Operation operation) {
+  /**
+   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
+   *
+   * @param operation the backing operation state.
+   */
+  public BranchOp(@NotNull Operation operation) {
     super(operation);
   }
 
-  public BranchOp(Block target) {
+  /**
+   * Create an unconditional branch to {@code target}.
+   *
+   * @param target the successor block to branch to.
+   */
+  public BranchOp(@NotNull Block target) {
     setOperation(Operation.Create(this, null, List.of(target), null));
   }
 
@@ -42,7 +66,13 @@ public final class BranchOp extends CfOp implements CF, ITerminator, IControlFlo
   // Functions
   // =========================================================================
 
-  public Block getTarget() {
+  /**
+   * Returns the target block this branch jumps to.
+   *
+   * @return the successor block.
+   */
+  @Contract(pure = true)
+  public @NotNull Block getTarget() {
     return getSuccessors().getFirst();
   }
 }
