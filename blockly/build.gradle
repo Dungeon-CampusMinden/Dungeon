@@ -1,20 +1,20 @@
 plugins {
-  id 'antlr'
+    id 'antlr'
 }
 
 repositories {
-  mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-  implementation project(':dungeon'), 'com.github.javaparser:javaparser-symbol-solver-core:3.28.0'
+    implementation project(':dungeon'), 'com.github.javaparser:javaparser-symbol-solver-core:3.28.0'
 
-  // ANTLR version 4 for DSL Grammar
-  antlr supportDependencies.antlr
+    // ANTLR version 4 for DSL Grammar
+    antlr supportDependencies.antlr
 
-  // JUnit 4 and Mockito for testing
-  testImplementation supportDependencies.junit
-  testRuntimeOnly supportDependencies.junitLauncher
+    // JUnit 4 and Mockito for testing
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
 }
 
 sourceSets.main.java.srcDirs = ['src/', "$buildDir/generated-src/"]
@@ -31,8 +31,15 @@ sourceSets.main.antlr.srcDirs = ['src']
 
 // generate ANTLR visitor and listener classes from grammar
 generateGrammarSource {
-  maxHeapSize = '64m'
-  arguments += ['-visitor', '-listener', '-long-messages']
+    maxHeapSize = '64m'
+    arguments += ['-visitor', '-listener', '-long-messages']
+}
+
+tasks.withType(Jar) {
+    // Das hier filtert ALLES, was im fertigen JAR landen würde
+    exclude("**/*.xcf")
+    exclude("**/debug/**")
+    exclude("**/*.pdf") // Falls eine Library Dokumentation mitschleppt
 }
 
 
@@ -53,10 +60,6 @@ tasks.register("npmBuild", Exec) {
     commandLine("npm.cmd", "run", "build")
 }
 
-tasks.register("blocklyJars", Jar) {
-    group='build'
-
-}
 
 tasks.named('jar', Jar) {
     dependsOn project(':dungeon').tasks.named('jar')
@@ -102,6 +105,71 @@ tasks.named('jar', Jar) {
 
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
+
+def createJar(taskName, isWeb) {
+    return tasks.register(taskName, Jar) {
+        // Hier setzen wir den Namen (z.B. Blockly-web.jar oder Blockly-desktop.jar)
+        archiveBaseName = 'Blockly'
+        archiveClassifier = isWeb ? 'web' : 'desktop'
+
+        // DAS WICHTIGSTE: Alle Abhängigkeiten laden
+        dependsOn project(':dungeon').tasks.named('jar')
+
+        // Code von beiden Projekten holen
+        from sourceSets.main.output
+        from project(':dungeon').sourceSets.main.output
+
+        // Alle Libraries (Fat-JAR Logik)
+        from {
+            configurations.runtimeClasspath.collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+
+        // Deine Flag-Datei einbauen
+        from(resources.text.fromString("web=${isWeb}")) {
+            rename { "application.properties" }
+        }
+
+        // Die speziellen Java-Files für den Language Server
+        from(project(':dungeon').projectDir) {
+            include 'src/core/level/utils/LevelElement.java'
+            eachFile { it.path = it.path.replaceFirst('src/', '') }
+            includeEmptyDirs = false
+        }
+        from(projectDir) {
+            include 'src/core/utils/Direction.java'
+            include 'src/coderunner/BlocklyCommands.java'
+            eachFile { it.path = it.path.replaceFirst('src/', '') }
+            includeEmptyDirs = false
+        }
+
+        // Assets und Frontend einbinden
+        into('assets') {
+            from project(':dungeon').file('assets')
+            from projectDir.toPath().resolve('frontend/dist').toFile()
+        }
+
+        // Sicherheit & Ordnung
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+
+        manifest {
+            attributes 'Main-Class': 'client.Client'
+        }
+    }
+}
+
+// Wir registrieren die beiden Tasks
+createJar("jarDesktop", false)
+createJar("jarWeb", true)
+
+// Optional: Mit 'build' beide gleichzeitig erstellen
+artifacts {
+    archives jarDesktop, jarWeb
+}
+
+
 
 tasks.named('test', Test) {
     useJUnitPlatform()

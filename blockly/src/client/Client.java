@@ -22,6 +22,7 @@ import entities.HeroTankControlledFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 import java.util.Set;
 import level.produs.*;
 import server.FrontendServer;
@@ -83,15 +84,26 @@ public class Client {
 //      java.lang.System.out.println("No files found or folder is not a directory.");
 //    }
 
-    FrontendServer.run();
 
 
+    try {
+      Properties props = new Properties();
+      // Lädt die Datei aus dem Inneren des JARs
+      props.load(Client.class.getResourceAsStream("/application.properties"));
+      runInWeb = Boolean.parseBoolean(props.getProperty("web"));
+    } catch (Exception e) {
+      java.lang.System.out.println("Exception reading web mode setting to false");
+      // Fallback, falls die Datei fehlt
+      runInWeb = false;
+    }
 
+    java.lang.System.out.println("Web mode is " + runInWeb);
+    // if (arg.equalsIgnoreCase("web=true")) {
+    //   runInWeb = true;
+    // }
 
-    for (String arg : args) {
-      if (arg.equalsIgnoreCase("web=true")) {
-        runInWeb = true;
-      }
+    if (runInWeb) {
+      FrontendServer.run();
     }
 
     StateMachine.setResetFrame(false);
@@ -117,74 +129,74 @@ public class Client {
 
   private static void onSetup() {
     Game.userOnSetup(
-        () -> {
-          // chapter 1
-          DungeonLoader.addLevel(Tuple.of("level001", Level001.class));
-          DungeonLoader.addLevel(Tuple.of("level002", Level002.class));
-          DungeonLoader.addLevel(Tuple.of("level003", Level003.class));
-          DungeonLoader.addLevel(Tuple.of("level004", Level004.class));
-          DungeonLoader.addLevel(Tuple.of("level005", Level005.class));
-          DungeonLoader.addLevel(Tuple.of("level006", Level006.class));
-          DungeonLoader.addLevel(Tuple.of("level007", Level007.class));
-          DungeonLoader.addLevel(Tuple.of("level008", Level008.class));
-          DungeonLoader.addLevel(Tuple.of("level009", Level009.class));
-          DungeonLoader.addLevel(Tuple.of("level010", Level010.class));
-          DungeonLoader.addLevel(Tuple.of("level011", Level011.class));
-          DungeonLoader.addLevel(Tuple.of("level012", Level012.class));
+      () -> {
+        // chapter 1
+        DungeonLoader.addLevel(Tuple.of("level001", Level001.class));
+        DungeonLoader.addLevel(Tuple.of("level002", Level002.class));
+        DungeonLoader.addLevel(Tuple.of("level003", Level003.class));
+        DungeonLoader.addLevel(Tuple.of("level004", Level004.class));
+        DungeonLoader.addLevel(Tuple.of("level005", Level005.class));
+        DungeonLoader.addLevel(Tuple.of("level006", Level006.class));
+        DungeonLoader.addLevel(Tuple.of("level007", Level007.class));
+        DungeonLoader.addLevel(Tuple.of("level008", Level008.class));
+        DungeonLoader.addLevel(Tuple.of("level009", Level009.class));
+        DungeonLoader.addLevel(Tuple.of("level010", Level010.class));
+        DungeonLoader.addLevel(Tuple.of("level011", Level011.class));
+        DungeonLoader.addLevel(Tuple.of("level012", Level012.class));
 
-          // chapter 2
-          DungeonLoader.addLevel(Tuple.of("level013", Level013.class));
-          DungeonLoader.addLevel(Tuple.of("level014", Level014.class));
-          DungeonLoader.addLevel(Tuple.of("level015", Level015.class));
-          DungeonLoader.addLevel(Tuple.of("level016", Level016.class));
-          DungeonLoader.addLevel(Tuple.of("level017", Level017.class));
+        // chapter 2
+        DungeonLoader.addLevel(Tuple.of("level013", Level013.class));
+        DungeonLoader.addLevel(Tuple.of("level014", Level014.class));
+        DungeonLoader.addLevel(Tuple.of("level015", Level015.class));
+        DungeonLoader.addLevel(Tuple.of("level016", Level016.class));
+        DungeonLoader.addLevel(Tuple.of("level017", Level017.class));
 
-          // chapter 3
-          DungeonLoader.addLevel(Tuple.of("level018", Level018.class));
-          DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
-          DungeonLoader.addLevel(Tuple.of("level020", Level020.class));
-          DungeonLoader.addLevel(Tuple.of("level021", Level021.class));
-          DungeonLoader.addLevel(Tuple.of("level022", Level022.class));
+        // chapter 3
+        DungeonLoader.addLevel(Tuple.of("level018", Level018.class));
+        DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
+        DungeonLoader.addLevel(Tuple.of("level020", Level020.class));
+        DungeonLoader.addLevel(Tuple.of("level021", Level021.class));
+        DungeonLoader.addLevel(Tuple.of("level022", Level022.class));
 
-          createHero();
-          createSystems();
+        createHero();
+        createSystems();
 
-          startServer();
+        startServer();
 
-          DungeonLoader.loadLevel(0);
-        });
+        DungeonLoader.loadLevel(0);
+      });
   }
 
   private static void onLevelLoad() {
     Game.userOnLevelLoad(
-        (firstLoad) -> {
-          BlocklyCodeRunner.instance().stopCode();
-          Game.system(
-              BlocklyCommandExecuteSystem.class,
-              s -> {
-                // stopping the system will also avoid adding new commands to the queue. The System
-                // will be reactivated in BlocklyLevel#onTick
-                s.fullStop();
-                s.clear();
-              });
-          Game.player()
-              .flatMap(e -> e.fetch(VelocityComponent.class))
-              .ifPresent(
-                  vc -> {
-                    vc.clearForces();
-                    vc.currentVelocity(Vector2.ZERO);
-                  });
-          Game.player()
-              .flatMap(e -> e.fetch(AmmunitionComponent.class))
-              .map(AmmunitionComponent::resetCurrentAmmunition);
-        });
+      (firstLoad) -> {
+        BlocklyCodeRunner.instance().stopCode();
+        Game.system(
+          BlocklyCommandExecuteSystem.class,
+          s -> {
+            // stopping the system will also avoid adding new commands to the queue. The System
+            // will be reactivated in BlocklyLevel#onTick
+            s.fullStop();
+            s.clear();
+          });
+        Game.player()
+          .flatMap(e -> e.fetch(VelocityComponent.class))
+          .ifPresent(
+            vc -> {
+              vc.clearForces();
+              vc.currentVelocity(Vector2.ZERO);
+            });
+        Game.player()
+          .flatMap(e -> e.fetch(AmmunitionComponent.class))
+          .map(AmmunitionComponent::resetCurrentAmmunition);
+      });
   }
 
   private static void configGame() throws IOException {
     Game.loadConfig(
-        new SimpleIPath("dungeon_config.json"),
-        contrib.configuration.KeyboardConfig.class,
-        core.configuration.KeyboardConfig.class);
+      new SimpleIPath("dungeon_config.json"),
+      contrib.configuration.KeyboardConfig.class,
+      core.configuration.KeyboardConfig.class);
     Game.frameRate(30);
     Game.disableAudio(true);
     Game.resizeable(true);
@@ -211,15 +223,15 @@ public class Client {
     Game.add(new BlocklyCommandExecuteSystem());
     if (DEBUG_MODE) Game.add(new Debugger());
     Game.add(
-        new System() {
-          @Override
-          public void execute() {
-            if (scheduleRestart) {
-              scheduleRestart = false;
-              restart();
-            }
+      new System() {
+        @Override
+        public void execute() {
+          if (scheduleRestart) {
+            scheduleRestart = false;
+            restart();
           }
-        });
+        }
+      });
     if (DEBUG_MODE) {
       Game.add(new DebugDrawSystem());
       Game.add(new LevelEditorSystem());
