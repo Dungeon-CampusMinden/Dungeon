@@ -458,11 +458,12 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     Arrays.stream(this.currentRecipe.ingredients())
         .filter(Item.class::isInstance)
         .map(Item.class::cast)
-      .forEach(item -> {
-        for (int i = 0; i < item.stackSize(); i++) {
-          this.inventory.removeOne(item);
-        }
-      });
+        .forEach(
+            item -> {
+              for (int i = 0; i < item.stackSize(); i++) {
+                this.inventory.removeOne(item);
+              }
+            });
     this.updateRecipe();
   }
 
