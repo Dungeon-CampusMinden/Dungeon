@@ -1,7 +1,7 @@
 package core;
 
+import core.detail.AttributeDetails;
 import core.detail.OperationDetails;
-import core.detail.RegisteredAttributeDetails;
 import core.detail.TypeDetails;
 import core.ir.Attribute;
 import core.ir.Op;
@@ -68,7 +68,7 @@ public abstract class Dialect {
       TypeDetails.Registered.insert(type);
     }
     for (var attr : allAttributes()) {
-      RegisteredAttributeDetails.insert(attr);
+      AttributeDetails.Registered.insert(attr);
     }
     System.out.println("Dialect " + getNamespace() + " initialized successfully.");
   }

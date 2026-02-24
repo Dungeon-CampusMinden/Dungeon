@@ -1,7 +1,6 @@
 package dialect.builtin.attributes;
 
 import core.*;
-import core.detail.AttributeDetails;
 import core.ir.Attribute;
 import dialect.builtin.BuiltinDialect;
 import org.jetbrains.annotations.Contract;
@@ -28,28 +27,21 @@ public class SymbolRefAttribute extends Attribute {
   // =========================================================================
 
   @Override
-  public AttributeDetails.@NotNull Impl createImpl() {
-    class SymbolRefAttributeModel extends AttributeDetails.Impl {
-      SymbolRefAttributeModel() {
-        super(
-            SymbolRefAttribute.getIdent(),
-            SymbolRefAttribute.class,
-            Dialect.getOrThrow(BuiltinDialect.class));
-      }
-    }
-    return new SymbolRefAttributeModel();
-  }
-
-  /** Returns the ident string {@code "symbolRefAttr"}. */
   @Contract(pure = true)
-  public static @NotNull String getIdent() {
+  public @NotNull String getIdent() {
     return "symbolRefAttr";
   }
 
-  /** Returns the namespace of this attribute ({@code ""}, the builtin namespace). */
+  @Override
   @Contract(pure = true)
-  public static @NotNull String getNamespace() {
+  public @NotNull String getNamespace() {
     return "";
+  }
+
+  @Override
+  @Contract(pure = true)
+  public @NotNull Class<? extends Dialect> getDialect() {
+    return BuiltinDialect.class;
   }
 
   // =========================================================================

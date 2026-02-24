@@ -1,7 +1,6 @@
 package dialect.builtin.attributes;
 
 import core.*;
-import core.detail.AttributeDetails;
 import core.ir.Attribute;
 import core.ir.Type;
 import dialect.builtin.BuiltinDialect;
@@ -31,25 +30,21 @@ public class TypeAttribute extends Attribute {
   // =========================================================================
 
   @Override
-  public @NotNull AttributeDetails.Impl createImpl() {
-    class TypeAttributeModel extends AttributeDetails.Impl {
-      TypeAttributeModel() {
-        super(TypeAttribute.getIdent(), TypeAttribute.class, Dialect.getOrThrow(BuiltinDialect.class));
-      }
-    }
-    return new TypeAttributeModel();
-  }
-
-  /** Returns the ident string {@code "typeAttr"}. */
   @Contract(pure = true)
-  public static @NotNull String getIdent() {
+  public @NotNull String getIdent() {
     return "typeAttr";
   }
 
-  /** Returns the namespace of this attribute ({@code ""}, the builtin namespace). */
+  @Override
   @Contract(pure = true)
-  public static @NotNull String getNamespace() {
+  public @NotNull String getNamespace() {
     return "";
+  }
+
+  @Override
+  @Contract(pure = true)
+  public @NotNull Class<? extends Dialect> getDialect() {
+    return BuiltinDialect.class;
   }
 
   // =========================================================================

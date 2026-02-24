@@ -4,14 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import core.Utils;
+import core.Dialect;
 import core.detail.AttributeDetails;
-import core.detail.RegisteredAttributeDetails;
 import core.serialization.AttributeTypeIdResolver;
 import java.io.Serializable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
 
 @JsonTypeInfo(
@@ -32,19 +30,40 @@ public abstract class Attribute implements Serializable {
   // Attribute Info
   // =========================================================================
 
-  /** Create and return the impl object that describes this attribute kind. */
-  public abstract @NotNull AttributeDetails.Impl createImpl();
+  /**
+   * Returns the unique ident string for this attribute kind (e.g. {@code "integerAttr"}).
+   *
+   * @return the ident string, never {@code null}.
+   */
+  @Contract(pure = true)
+  public abstract @NotNull String getIdent();
+
+  /**
+   * Returns the namespace prefix for this attribute kind (e.g. {@code ""} for builtin attributes).
+   *
+   * @return the namespace string, never {@code null}.
+   */
+  @Contract(pure = true)
+  public abstract @NotNull String getNamespace();
+
+  /**
+   * Returns the class of the dialect that contributes this attribute kind.
+   *
+   * @return the dialect class, never {@code null}.
+   */
+  @Contract(pure = true)
+  public abstract @NotNull Class<? extends Dialect> getDialect();
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
   public Attribute() {
-    setDetails(AttributeDetails.get(getClass()));
+    this.details = AttributeDetails.get(getClass());
   }
 
   public Attribute(@NotNull AttributeDetails details) {
-    setDetails(details);
+    this.details = details;
   }
 
   // =========================================================================
@@ -57,22 +76,18 @@ public abstract class Attribute implements Serializable {
     return details;
   }
 
+  /** Package-private — only {@link AttributeDetails.Registered#insert} may call this. */
   public void setDetails(@NotNull AttributeDetails details) {
-    // Only subclasses of Attribute and RegisteredAttributeDetails may set the details
-    assert Utils.Caller.getCallingClass().isAssignableFrom(Attribute.class)
-            || Utils.Caller.getCallingClass().isAssignableFrom(RegisteredAttributeDetails.class)
-        : "Only subclasses of Attribute can set the details. Was called from "
-            + Utils.Caller.getCallingClass().getName();
     this.details = details;
   }
 
   @JsonProperty("ident")
-  private @NotNull String getIdent() {
-    return details.getIdent();
+  private @NotNull String getIdentForJson() {
+    return details.ident();
   }
 
   /** Return the raw storage value of this attribute (used for serialization and display). */
   @Contract(pure = true)
   @JsonIgnore
-  public abstract @Nullable Object getStorage();
+  public abstract @org.jetbrains.annotations.Nullable Object getStorage();
 }

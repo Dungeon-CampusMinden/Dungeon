@@ -1,7 +1,7 @@
 package core.serialization;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import core.detail.RegisteredAttributeDetails;
+import core.detail.AttributeDetails;
 import core.ir.Attribute;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;
@@ -17,7 +17,7 @@ public class AttributeTypeIdResolver extends TypeIdResolverBase {
   @Override
   public String idFromValue(DatabindContext ctxt, Object value) throws JacksonException {
     if (value instanceof Attribute attribute) {
-      return attribute.getDetails().getIdent();
+      return attribute.getDetails().ident();
     }
     throw new JacksonException("Cannot resolve type id for value: " + value) {};
   }
@@ -35,10 +35,10 @@ public class AttributeTypeIdResolver extends TypeIdResolverBase {
 
   @Override
   public JavaType typeFromId(DatabindContext context, String id) throws JacksonException {
-    var optionalCls = RegisteredAttributeDetails.lookup(id);
+    var optionalCls = AttributeDetails.Registered.lookup(id);
     if (optionalCls.isEmpty()) {
       throw new JacksonException("Unknown attribute type id: " + id) {};
     }
-    return context.getTypeFactory().constructType(optionalCls.get().getType());
+    return context.getTypeFactory().constructType(optionalCls.get().type());
   }
 }

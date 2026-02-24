@@ -44,21 +44,20 @@ public class DGIRContext {
   // Attributes
   // =========================================================================
 
-  /** Unregistered cache: class → impl. */
-  public static final @NotNull Map<Class<? extends Attribute>, AttributeDetails.Impl> attributes =
+  /** Unregistered cache: class → details (ident and class are unreliable until registered). */
+  public static final @NotNull Map<Class<? extends Attribute>, AttributeDetails> attributes =
       new HashMap<>();
 
-  /** Unregistered cache: ident → impl. */
-  public static final @NotNull Map<String, AttributeDetails.Impl> attributesByIdent =
-      new HashMap<>();
+  /** Unregistered cache: ident → details. */
+  public static final @NotNull Map<String, AttributeDetails> attributesByIdent = new HashMap<>();
 
   /** Registered attributes by class. */
-  public static final @NotNull Map<Class<? extends Attribute>, RegisteredAttributeDetails>
+  public static final @NotNull Map<Class<? extends Attribute>, AttributeDetails.Registered>
       registeredAttributes = new HashMap<>();
 
   /** Registered attributes by ident. */
-  public static final @NotNull Map<String, RegisteredAttributeDetails> registeredAttributesByIdent =
-      new HashMap<>();
+  public static final @NotNull Map<String, AttributeDetails.Registered>
+      registeredAttributesByIdent = new HashMap<>();
 
   // =========================================================================
   // Types

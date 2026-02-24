@@ -88,7 +88,17 @@ public sealed interface TypeDetails {
   // Static Factories
   // =========================================================================
 
-  @Contract(pure = true)
+  /**
+   * Look up the {@link TypeDetails} for the given ident string. The registered registry is checked
+   * first; if not found, the unregistered cache is consulted, and a new {@link Unregistered}
+   * placeholder is created and cached if this is the first reference to that ident.
+   *
+   * <p><strong>Note:</strong> this method has the side effect of populating the global
+   * {@link core.DGIRContext} caches when a new placeholder is created.
+   *
+   * @param ident the type ident string (e.g. {@code "int32"} or {@code "func.func"}).
+   * @return the details instance, never {@code null}.
+   */
   static @NotNull TypeDetails get(@NotNull String ident) {
     // Try the registered registry first
     Registered registeredDetails = DGIRContext.registeredTypesByIdent.get(ident);
@@ -103,12 +113,24 @@ public sealed interface TypeDetails {
     }
 
     unregisteredDetails =
-        DGIRContext.typesByIdent.computeIfAbsent(ident, idnt -> new Unregistered(idnt, Type.class));
+        DGIRContext.typesByIdent.computeIfAbsent(
+            ident,
+            idnt -> new Unregistered(idnt, Type.class, DGIRContext.getReferencedDialect(idnt)));
     DGIRContext.types.put(Type.class, unregisteredDetails);
     return unregisteredDetails;
   }
 
-  @Contract(pure = true)
+  /**
+   * Look up the {@link TypeDetails} for the given type class. The registered registry is checked
+   * first; if not found, the unregistered cache is consulted, and a new {@link Unregistered}
+   * placeholder is created and cached if this is the first reference to that class.
+   *
+   * <p><strong>Note:</strong> this method has the side effect of populating the global
+   * {@link core.DGIRContext} caches when a new placeholder is created.
+   *
+   * @param clazz the type class to look up.
+   * @return the details instance, never {@code null}.
+   */
   static @NotNull TypeDetails get(@NotNull Class<? extends Type> clazz) {
     // Try the registered registry first
     TypeDetails registeredName = DGIRContext.registeredTypes.get(clazz);
@@ -124,7 +146,8 @@ public sealed interface TypeDetails {
 
     unregisteredName =
         DGIRContext.typesByIdent.computeIfAbsent(
-            clazz.getName(), ident -> new Unregistered(clazz.getName(), Type.class));
+            clazz.getName(),
+            ident -> new Unregistered(clazz.getName(), Type.class, Optional.empty()));
     DGIRContext.types.put(clazz, unregisteredName);
     return unregisteredName;
   }
@@ -345,17 +368,32 @@ public sealed interface TypeDetails {
   // =========================================================================
 
   /**
-   * Placeholder used when a type ident is referenced before its owning dialect has been
-   * initialised. Calling {@link #dialect()} or {@link #defaultInstance()} on an unregistered
-   * placeholder throws an {@link IllegalStateException}.
+   * Placeholder created the first time a type ident or class is referenced before its owning
+   * dialect has been initialised.
    *
-   * @param ident the ident string that was referenced.
-   * @param type  always {@link Type}{@code .class} for unregistered entries.
+   * <p>The {@code type} field is always set to {@link core.ir.Type Type.class} because the
+   * concrete subclass is not yet known. The {@code dialectOpt} field is populated by
+   * {@link core.DGIRContext#getReferencedDialect(String)} when the ident contains a namespace
+   * prefix, and left empty when the placeholder is created from a bare class name.
+   *
+   * <p>Only {@link #ident()}, {@link #type()}, and {@link #dialect()} (when a dialect could be
+   * resolved) are usable on this placeholder; {@link #defaultInstance()} throws
+   * {@link IllegalStateException}, and {@link #validator()} returns a permissive fallback.
+   *
+   * @param ident      the ident string that was referenced.
+   * @param type       always {@link Type}{@code .class} for unregistered entries.
+   * @param dialectOpt the owning dialect if it could be resolved from the ident prefix, otherwise
+   *                   empty.
    */
-  record Unregistered(@NotNull String ident, @NotNull Class<? extends Type> type)
+  record Unregistered(
+      @NotNull String ident,
+      @NotNull Class<? extends Type> type,
+      @NotNull Optional<Dialect> dialectOpt)
       implements TypeDetails {
+
     @Override
     public @NotNull Dialect dialect() {
+      if (dialectOpt.isPresent()) return dialectOpt.get();
       throw new IllegalStateException("Cannot get dialect for unregistered type: " + ident);
     }
 
@@ -368,7 +406,8 @@ public sealed interface TypeDetails {
     @Override
     public @NotNull Function<Object, Boolean> validator() {
       return value -> {
-        System.err.println("WARNING: Value " + value + " cannot be validated for unregistered type: " + ident);
+        System.err.println(
+            "WARNING: Value " + value + " cannot be validated for unregistered type: " + ident);
         return true;
       };
     }

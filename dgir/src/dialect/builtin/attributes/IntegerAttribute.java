@@ -3,7 +3,6 @@ package dialect.builtin.attributes;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import core.*;
-import core.detail.AttributeDetails;
 import core.ir.TypedAttribute;
 import dialect.builtin.BuiltinDialect;
 import dialect.builtin.types.IntegerT;
@@ -31,26 +30,21 @@ public class IntegerAttribute extends TypedAttribute {
   // =========================================================================
 
   @Override
-  public AttributeDetails.@NotNull Impl createImpl() {
-    class IntegerAttributeModel extends AttributeDetails.Impl {
-      IntegerAttributeModel() {
-        super(
-            IntegerAttribute.getIdent(), IntegerAttribute.class, Dialect.getOrThrow(BuiltinDialect.class));
-      }
-    }
-    return new IntegerAttributeModel();
-  }
-
-  /** Returns the ident string {@code "integerAttr"}. */
   @Contract(pure = true)
-  public static @NotNull String getIdent() {
+  public @NotNull String getIdent() {
     return "integerAttr";
   }
 
-  /** Returns the namespace of this attribute ({@code ""}, the builtin namespace). */
+  @Override
   @Contract(pure = true)
-  public static @NotNull String getNamespace() {
+  public @NotNull String getNamespace() {
     return "";
+  }
+
+  @Override
+  @Contract(pure = true)
+  public @NotNull Class<? extends Dialect> getDialect() {
+    return BuiltinDialect.class;
   }
 
   // =========================================================================
