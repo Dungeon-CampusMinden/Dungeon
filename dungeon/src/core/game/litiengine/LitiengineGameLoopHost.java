@@ -53,7 +53,11 @@ public final class LitiengineGameLoopHost {
     Platform.runtime(new core.platform.litiengine.LitiengineRuntimeAdapter());
     Platform.resources(new core.platform.classpath.ClasspathResourcesAdapter());
 
+    // Bridge LITIENGINE input events into our engine-agnostic InputManager.
     LitiengineInputBridge.install();
+
+    // Ensure we start with a clean input state.
+    InputManager.reset();
 
     // Host chooses which default systems exist (simulation only).
     ECSManagement.bootstrapDefaultSystems(SystemProfile.LITIENGINE_SIMULATION);
@@ -65,12 +69,17 @@ public final class LitiengineGameLoopHost {
           @Override
           public void update() {
             final float deltaSeconds = Game.loop().getDeltaTime() / 1000.0f;
+
             core.beforeRender(deltaSeconds);
-            core.tick(deltaSeconds);
+
+            // LITIENGINE_SIMULATION => no rendering systems (libGDX pipeline)
+            core.tick(deltaSeconds, false);
+
+            // Must be called once per frame to clear justPressed/justReleased.
+            InputManager.update();
           }
         });
 
-    InputManager.update();
     Game.start();
   }
 }
