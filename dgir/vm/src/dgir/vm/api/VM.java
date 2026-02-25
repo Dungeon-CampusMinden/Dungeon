@@ -64,6 +64,19 @@ public class VM {
    */
   private volatile int stepTargetDepth = 0;
 
+  /**
+   * The source location (file + line) of the operation that was <em>current</em> when a
+   * {@link #stepOver()} or {@link #stepIn()} command was issued.
+   *
+   * <p>Used to implement <em>line-granular</em> stepping: if the depth condition is satisfied but
+   * the next operation still belongs to the same source line, the VM keeps executing silently
+   * instead of pausing. This prevents the user from having to press "next" multiple times to
+   * advance through a single high-level source statement that lowers to several IR operations.
+   *
+   * <p>Set to {@link Location#UNKNOWN} when no step is pending.
+   */
+  private volatile Location stepOriginLocation = Location.UNKNOWN;
+
   // =========================================================================
   // Construction
   // =========================================================================
@@ -210,6 +223,10 @@ public class VM {
    * Step over the current operation: execute it (including any nested regions or function calls)
    * and pause at the next operation at the same call-stack depth. Implements the DAP "next"
    * command. Calling this when the VM is not paused is a no-op.
+   *
+   * <p>Stepping is <em>line-granular</em>: if multiple IR operations share the same source line,
+   * the VM advances silently past all of them and only pauses when the next operation belongs to a
+   * different source line (or the program ends).
    */
   public void stepOver() {
     pauseLock.lock();
@@ -220,6 +237,9 @@ public class VM {
       // the same "level". The op currently on top will be executed next (and may push
       // nested ops); we want to pause once the stack is back at this depth.
       stepTargetDepth = callStack.size();
+      // Remember which source line we are stepping from so we can skip over peer IR
+      // operations that belong to the same line.
+      stepOriginLocation = getCurrentLocation();
       resumeCondition.signalAll();
     } finally {
       pauseLock.unlock();
@@ -230,12 +250,18 @@ public class VM {
    * Step into the current operation: pause at the very next operation executed, which may be
    * inside a nested region or function call. Implements the DAP "stepIn" command.
    * Calling this when the VM is not paused is a no-op.
+   *
+   * <p>Stepping is <em>line-granular</em>: if the next operation still belongs to the same source
+   * line, the VM keeps advancing until it reaches a different line (or the program ends).
    */
   public void stepIn() {
     pauseLock.lock();
     try {
       paused = false;
       stepMode = StepMode.STEP_IN;
+      // Remember which source line we are stepping from so we can skip over peer IR
+      // operations that belong to the same line.
+      stepOriginLocation = getCurrentLocation();
       resumeCondition.signalAll();
     } finally {
       pauseLock.unlock();
@@ -299,8 +325,17 @@ public class VM {
           if (bp.matches(location)) {
             DebugControl bpCtrl = debugger.onBreakpointHit(currentOp, bp, location);
             if (bpCtrl == DebugControl.PAUSE) {
-              // A breakpoint hit cancels any pending step mode.
+              // A breakpoint hit cancels any pending step mode so the prior step context
+              // does not bleed into the next user command.
               stepMode = StepMode.NONE;
+              stepOriginLocation = Location.UNKNOWN;
+              // Block until the user issues continue/next/stepIn.
+              // Important: currentOp is still on opStack (it was peek()ed, not pop()ed), so
+              // any stepOver()/stepIn() call that arrives while we wait here will read
+              // getCurrentLocation() == currentOp.getLocation(). That means stepOriginLocation
+              // is set to the breakpointed op's line, which is exactly right: the subsequent
+              // step will execute the breakpointed op and then advance to the next source line,
+              // skipping any peer IR ops that share the same line as the breakpoint.
               waitForResume();
             }
             break;
@@ -403,26 +438,45 @@ public class VM {
 
       // If we did a single-step, decide whether to pause now.
       if (stepMode != StepMode.NONE) {
-        boolean shouldPauseNow =
+        Operation nextOp = opStack.peek();
+        Location nextLocation = nextOp != null ? nextOp.getLocation() : currentOp.getLocation();
+
+        // Depth condition: have we returned to the level we started stepping at?
+        boolean depthConditionMet =
             switch (stepMode) {
-              // Step-in: always pause after exactly one operation.
+              // Step-in: depth is always satisfied after any single operation.
               case STEP_IN -> true;
-              // Step-over: pause only once the op-stack depth has returned to the target
-              // (i.e. we have finished executing the current op and all nested regions/calls).
+              // Step-over: only once the call-stack depth is back at (or below) the target.
               case STEP_OVER -> callStack.size() <= stepTargetDepth;
               case NONE -> false;
             };
+
+        // Line-granularity: even if the depth is right, keep running silently while the
+        // next operation is still on the same source line we stepped from.  This prevents
+        // the user having to press "next" multiple times to advance through a single
+        // high-level statement that lowers to several IR operations on the same line.
+        //
+        // Special cases that always pause regardless of line:
+        //   • The program is about to end (nextOp == null) — we must pause so the debugger
+        //     can show the final state before the exited event fires.
+        //   • The origin location is UNKNOWN — locations are not tracked for this program,
+        //     so fall back to op-granular stepping.
+        boolean onSameLine =
+            nextOp != null
+                && !stepOriginLocation.equals(Location.UNKNOWN)
+                && nextLocation.file().equals(stepOriginLocation.file())
+                && nextLocation.line() == stepOriginLocation.line();
+
+        boolean shouldPauseNow = depthConditionMet && !onSameLine;
+
         if (shouldPauseNow) {
           stepMode = StepMode.NONE;
+          stepOriginLocation = Location.UNKNOWN;
           // Notify the debugger that the step completed (so it can send a "step" stopped event
           // and update the UI), then unconditionally block until resumed.  We do this here
           // rather than deferring to the next iteration's pre-execution hook so the pause
           // happens even when the op-stack is now empty (end of program).
           if (debugger != null) {
-            Operation nextOp = opStack.peek();
-            Location nextLocation = nextOp != null
-                ? nextOp.getLocation()
-                : currentOp.getLocation();
             debugger.onStep(nextOp != null ? nextOp : currentOp, nextLocation);
           }
           // Always pause — the step is complete.

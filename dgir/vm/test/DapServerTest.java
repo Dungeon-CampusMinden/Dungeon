@@ -58,6 +58,22 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * <h2>Timeout policy</h2>
  * Every blocking call uses a {@code 5-second} timeout so a hung VM never stalls the test suite.
+ *
+ * <h2>Expected log noise</h2>
+ * Every test that calls {@link ClientSession#close()} (i.e. all end-to-end tests) will produce
+
+ * two INFO log lines from the server side after the socket is closed:
+ * <pre>
+ * INFO: Socket closed
+ *   java.net.SocketException: Socket closed
+ *       at ...StreamMessageProducer.listen(...)
+ *       ...
+ * INFO: DAP session closed.
+ * </pre>
+ * These are <b>not errors</b>. Closing the client socket is the normal teardown path; lsp4j's
+ * {@code StreamMessageProducer} catches the resulting {@code SocketException} and logs it at INFO
+ * before marking the JSON-RPC stream as finished. The server's cleanup thread then closes its
+ * side of the socket and logs {@code "DAP session closed."}. Both messages can safely be ignored.
  */
 class DapServerTest extends VmTestBase {
 
@@ -226,7 +242,13 @@ class DapServerTest extends VmTestBase {
    */
   record ClientSession(Socket socket, CollectingClient client) {
     /**
-     * Closes the underlying TCP socket.
+     * Closes the underlying TCP socket, signalling end-of-stream to the server.
+     *
+     * <p>When this method is called, the server-side lsp4j {@code StreamMessageProducer} detects
+     * the closed stream and logs a {@code SocketException: Socket closed} at INFO level. This is
+     * <b>expected and harmless</b>: it is the normal shutdown path for a JSON-RPC stream that ends
+     * without an explicit {@code disconnect} request. The server's cleanup thread then closes its
+     * side of the socket and logs {@code "DAP session closed."}.
      *
      * @throws IOException if the socket cannot be closed
      */
@@ -553,6 +575,9 @@ class DapServerTest extends VmTestBase {
    *   <li>Wait for a {@code stopped} event; assert {@code reason == "breakpoint"} and
    *       {@code threadId == 1}.</li>
    *   <li>Resume with {@code continue}; wait for {@code exited} and {@code terminated}.</li>
+   *   <li>Close the session. The server logs a {@code SocketException: Socket closed} and
+   *       {@code "DAP session closed."} — both are expected; see the class-level note on
+   *       <em>Expected log noise</em>.</li>
    * </ol>
    */
   @Test
@@ -595,20 +620,25 @@ class DapServerTest extends VmTestBase {
   // =========================================================================
 
   /**
-   * Verifies that a sequence of {@code stepIn} and {@code next} commands each produce a
-   * {@code stopped("step")} event, and that the program completes normally once {@code continue}
-   * is sent.
+   * Verifies that a sequence of {@code next} commands each produce exactly one
+   * {@code stopped("step")} event per distinct source line, and that the program completes
+   * normally once {@code continue} is sent.
    *
-   * <p>The test uses {@link #multiLinePrintProgram()} to have several distinct operations to step
-   * through. After the entry stop, the first step is a {@code stepIn} (semantically equivalent to
-   * {@code next} in this flat IR), and the subsequent steps use {@code next}.
+   * <p>Stepping is <em>line-granular</em>: a single {@code next} advances past all IR operations
+   * that share the same source line and only fires one {@code stopped("step")} event when the VM
+   * reaches the first operation on a different line. This means the number of step events equals
+   * the number of distinct source lines traversed, not the number of raw IR operations.
+   *
+   * <p>The test uses {@link #multiLinePrintProgram()}, which assigns every IR operation its own
+   * distinct line (1–7), so each {@code next} advances exactly one IR operation here. Three
+   * consecutive {@code next} commands should therefore fire three {@code stopped("step")} events.
    *
    * <p><b>Steps:</b>
    * <ol>
    *   <li>Connect and perform the full handshake with {@code stopOnEntry=true}.</li>
    *   <li>Await and verify the initial {@code stopped("entry")} event.</li>
-   *   <li>Issue {@code stepIn} once and two {@code next} commands, asserting a
-   *       {@code stopped("step")} event after each.</li>
+   *   <li>Issue three {@code next} commands, asserting a {@code stopped("step")} event after
+   *       each one.</li>
    *   <li>Send {@code continue}; wait for {@code exited} and {@code terminated}.</li>
    * </ol>
    */
@@ -620,7 +650,7 @@ class DapServerTest extends VmTestBase {
     StoppedEventArguments first = session.client().awaitStopped();
     assertEquals("entry", first.getReason());
 
-    // Step through several operations
+    // Step through three distinct source lines
     for (int i = 0; i < 3; i++) {
       if (i == 0) session.remote().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
       else session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
@@ -636,9 +666,9 @@ class DapServerTest extends VmTestBase {
   }
 
   /**
-   * Verifies that the {@code stepIn} DAP command behaves identically to {@code next} in the
-   * DGIR VM (there are no callable sub-routines to step <em>into</em> at the IR level), firing a
-   * single {@code stopped("step")} event.
+   * Verifies that the {@code stepIn} DAP command is line-granular and behaves identically to
+   * {@code next} in a flat DGIR program (no callee to step into), firing exactly one
+   * {@code stopped("step")} event per distinct source line.
    *
    * <p><b>Steps:</b>
    * <ol>

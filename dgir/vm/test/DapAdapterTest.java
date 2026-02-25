@@ -429,6 +429,14 @@ class DapAdapterTest extends VmTestBase {
   // next() / stepIn() fire "step" stopped event
   // =========================================================================
 
+  /**
+   * Verifies that {@code next} fires exactly one {@code stopped("step")} event per source line.
+   *
+   * <p>Uses {@link #multiLinePrintProgram()} where every IR operation is on its own distinct
+   * line (lines 1–7). The VM is paused on entry (line 1 / {@code ProgramOp}), then {@code next}
+   * is issued once. Because line-granular stepping is in effect, the VM runs until it reaches an
+   * operation on a different source line and fires a single {@code stopped("step")} event.
+   */
   @Test
   void next_firesStopped_withStepReason() throws Exception {
     var h = createHandle(multiLinePrintProgram());
@@ -466,8 +474,11 @@ class DapAdapterTest extends VmTestBase {
   }
 
   /**
-   * Stepping in should behave the same as stepping over for this simple program since there are no
-   * function calls to step into, so it should also fire a "step" stopped event.
+   * Verifies that {@code stepIn} fires exactly one {@code stopped("step")} event per source line,
+   * i.e. the same line-granular behaviour as {@code next} for a flat (non-call) program.
+   *
+   * <p>When there are no sub-routines to descend into, {@code stepIn} and {@code next} are
+   * semantically identical: both advance to the next distinct source line.
    */
   @Test
   void stepIn_behavesSameAsNext() throws Exception {
@@ -501,6 +512,74 @@ class DapAdapterTest extends VmTestBase {
           return true;
         });
     checkOutput("A\nB\n");
+  }
+
+  /**
+   * Verifies that line-granular stepping skips over multiple IR operations that share the same
+   * source line without pausing between them.
+   *
+   * <p>The test program places two IR operations ({@code constant} and {@code print}) on
+   * <em>the same source line</em> (line 3), then a {@code return} on line 4:
+   * <pre>{@code
+   * // same-line.java
+   * line 1: program {
+   * line 2:   func main() {
+   * line 3:     print(constant "X")   ← ConstantOp col 14  +  PrintOp col 5 — both on line 3
+   * line 4:     return
+   *           }
+   *         }
+   * }</pre>
+   *
+   * <p>After stopping on entry (line 1), a single {@code next} command must advance to line 3
+   * (skipping line 2's {@code FuncOp}), and a second {@code next} must advance to line 4
+   * (skipping both the {@code ConstantOp} and the {@code PrintOp} on line 3 in one step).
+   * Only two {@code stopped("step")} events may be fired — one per distinct source line.
+   */
+  @Test
+  void step_lineGranular_skipsMultipleOpsOnSameLine() throws Exception {
+    // Build a program where ConstantOp and PrintOp are on the same source line (line 3).
+    ProgramOp prog = new ProgramOp(new Location("same-line.java", 1, 1));
+    dialect.func.FuncOp main =
+        prog.addOperation(new dialect.func.FuncOp(new Location("same-line.java", 2, 3), "main"));
+    var c = main.addOperation(new ConstantOp(new Location("same-line.java", 3, 14), "X"), 0);
+    main.addOperation(new PrintOp(new Location("same-line.java", 3, 5), c.getValue()), 0);
+    main.addOperation(new ReturnOp(new Location("same-line.java", 4, 3)), 0);
+
+    var h = createHandle(prog);
+    h.adapter().initialize(new InitializeRequestArguments()).get();
+    h.adapter().launch(Map.of("stopOnEntry", true)).get();
+    h.adapter().configurationDone(new ConfigurationDoneArguments()).get();
+
+    // ---- entry stop (line 1 / ProgramOp) ----
+    ArgumentCaptor<StoppedEventArguments> cap = ArgumentCaptor.forClass(StoppedEventArguments.class);
+    await(() -> { verify(h.client(), atLeastOnce()).stopped(cap.capture()); return true; });
+    assertEquals("entry", cap.getValue().getReason());
+    clearInvocations(h.client());
+
+    // ---- first stepIn: ProgramOp (line 1) executes; expect pause at FuncOp (line 2) ----
+    h.adapter().stepIn(new StepInArguments()).get();
+    await(() -> { verify(h.client(), atLeastOnce()).stopped(cap.capture()); return true; });
+    assertEquals("step", cap.getValue().getReason());
+    clearInvocations(h.client());
+
+    // ---- second next: FuncOp (line 2) executes; expect pause at ConstantOp (line 3) ----
+    h.adapter().next(new NextArguments()).get();
+    await(() -> { verify(h.client(), atLeastOnce()).stopped(cap.capture()); return true; });
+    assertEquals("step", cap.getValue().getReason());
+    clearInvocations(h.client());
+
+    // ---- third next: ConstantOp + PrintOp are both on line 3 — only ONE stopped event,
+    //      then pause at ReturnOp (line 4). ----
+    h.adapter().next(new NextArguments()).get();
+    await(() -> { verify(h.client(), atLeastOnce()).stopped(cap.capture()); return true; });
+    assertEquals("step", cap.getValue().getReason());
+    // Exactly one stopped event fired (not two, which would happen with op-granular stepping).
+    verify(h.client(), times(1)).stopped(any());
+    clearInvocations(h.client());
+
+    // ---- finish ----
+    h.adapter().continue_(new ContinueArguments()).get();
+    await(() -> { verify(h.client(), atLeastOnce()).terminated(any()); return true; });
   }
 
   // =========================================================================
