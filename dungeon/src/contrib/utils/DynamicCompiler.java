@@ -63,6 +63,10 @@ public class DynamicCompiler {
    * @return The compiled and loaded {@link Class} object.
    * @throws Exception If compilation or loading fails.
    */
+
+  private static JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+  private static StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+
   public static Class<?> compileAndLoad(IPath sourcePath, String className) throws Exception {
     File outputRoot = new File(System.getProperty("BASEREFLECTIONDIR"));
     File outputFile = new File(outputRoot, className.replace('.', '/') + ".java");
@@ -74,9 +78,6 @@ public class DynamicCompiler {
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
       writer.write(sourceCode);
     }
-
-    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
 
     Iterable<? extends JavaFileObject> compilationUnits =
         fileManager.getJavaFileObjects(outputFile);
