@@ -42,15 +42,15 @@ public class Level001 extends BlocklyLevel {
         "Bedingungen",
         "Sonstige");
 
-    addWebPopup(new ImagePopup("popups/level001/webpopups/01_start_block.png"));
-    addWebPopup(new ImagePopup("popups/level001/webpopups/02_skills.png"));
-    addWebPopup(new ImagePopup("popups/level001/webpopups/03_commands.png"));
-    addWebPopup(new ImagePopup("popups/level001/webpopups/04_start_game.png"));
+    addWebPopup(new ImagePopup("popups/level001/webpopups/01_start_block.webp"));
+    addWebPopup(new ImagePopup("popups/level001/webpopups/02_skills.jpg"));
+    addWebPopup(new ImagePopup("popups/level001/webpopups/03_commands.jpg"));
+    addWebPopup(new ImagePopup("popups/level001/webpopups/04_start_game.jpg"));
 
-    addCodePopup(new ImagePopup("popups/level001/codepopups/01_start_block.png"));
-    addCodePopup(new ImagePopup("popups/level001/codepopups/02_skills.png"));
-    addCodePopup(new ImagePopup("popups/level001/codepopups/03_commands.png"));
-    addCodePopup(new ImagePopup("popups/overview1.png"));
+    addCodePopup(new ImagePopup("popups/level001/codepopups/01_start_block.jpg"));
+    addCodePopup(new ImagePopup("popups/level001/codepopups/02_skills.jpg"));
+    addCodePopup(new ImagePopup("popups/level001/codepopups/03_commands.jpg"));
+    addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }
 
   @Override
