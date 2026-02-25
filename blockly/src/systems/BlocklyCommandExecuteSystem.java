@@ -225,13 +225,17 @@ public class BlocklyCommandExecuteSystem extends System {
       moveDirection = viewDirection.opposite();
     }
 
-    if (checkTileOpt.isEmpty()
-        || !checkTileOpt.get().isAccessible()
+    // if not accessible or empty, then abort
+    if (!checkTileOpt.map(Tile::isAccessible).orElse(false)
         || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(BlockComponent.class))
-        || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(AIComponent.class))) {
+        // when pushing check that the rock is not pushed into a monster
+        || (push
+            && Game.entityAtTile(checkTileOpt.get())
+                .anyMatch(e -> e.isPresent(AIComponent.class)))) {
       DISABLE_SHOOT_ON_HERO = false;
       return;
     }
+
     ArrayList<Entity> toMove =
         new ArrayList<>(
             Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList());
