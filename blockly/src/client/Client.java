@@ -93,14 +93,15 @@ public class Client {
       runInWeb = Boolean.parseBoolean(props.getProperty("web"));
     } catch (Exception e) {
       java.lang.System.out.println("Exception reading web mode setting to false");
-      // Fallback, falls die Datei fehlt
-      runInWeb = false;
+      for (String arg : args) {
+        if (arg.equalsIgnoreCase("web=true")) {
+          runInWeb = true;
+        }
+      }
     }
 
     java.lang.System.out.println("Web mode is " + runInWeb);
-    // if (arg.equalsIgnoreCase("web=true")) {
-    //   runInWeb = true;
-    // }
+
 
     if (runInWeb) {
       FrontendServer.run();
@@ -117,8 +118,10 @@ public class Client {
     // build and start game
     try {
       Game.run();
-
-    } finally {
+    } catch (Error error) {
+      java.lang.System.out.println(error.getMessage());
+    }
+    finally {
       // Ensure that the server is stopped when the game ends
       if (httpServer != null) {
         httpServer.stop(0);

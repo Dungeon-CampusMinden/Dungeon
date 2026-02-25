@@ -30,7 +30,7 @@ public class DemoRoom {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DemoRoom.class);
 
   private static final boolean DEBUG_MODE = false;
-  private static final String BACKGROUND_MUSIC = "sounds/background.wav";
+  private static final String BACKGROUND_MUSIC = "sounds/background.ogg";
   private static final int START_LEVEL = 0;
 
   /**

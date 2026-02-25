@@ -25,7 +25,7 @@ import java.io.IOException;
 public class CoopDungeon {
   private static final boolean DEBUG_MODE = false;
 
-  private static final String BACKGROUND_MUSIC = "sounds/background.wav";
+  private static final String BACKGROUND_MUSIC = "sounds/background.ogg";
   private static final int START_LEVEL = 0;
 
   /**

@@ -19,7 +19,7 @@ import spriteTestDungeon.level.Level01;
  */
 public class SpriteTestRoom {
   private static final boolean DEBUG_MODE = true;
-  private static final String BACKGROUND_MUSIC = "sounds/background.wav";
+  private static final String BACKGROUND_MUSIC = "sounds/background.ogg";
   private static final int START_LEVEL = 0;
 
   /**
