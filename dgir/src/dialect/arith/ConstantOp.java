@@ -67,7 +67,7 @@ public final class ConstantOp extends ArithOp implements Arith, INoOperands {
    * @param location the source location of this operation.
    * @param value the typed attribute holding the constant value and its type.
    */
-  public ConstantOp(@NotNull SourceLocation location, @NotNull TypedAttribute value) {
+  public ConstantOp(@NotNull Location location, @NotNull TypedAttribute value) {
     setOperation(true, Operation.Create(location, this, null, null, value.getType()));
     getAttributes().get("value").setAttribute(value);
   }
@@ -78,7 +78,7 @@ public final class ConstantOp extends ArithOp implements Arith, INoOperands {
    * @param location the source location of this operation.
    * @param value the string literal to embed.
    */
-  public ConstantOp(@NotNull SourceLocation location, @NotNull String value) {
+  public ConstantOp(@NotNull Location location, @NotNull String value) {
     this(location, new StringAttribute(value));
   }
 
@@ -88,7 +88,7 @@ public final class ConstantOp extends ArithOp implements Arith, INoOperands {
    * @param location the source location of this operation.
    * @param value the integer value to embed.
    */
-  public ConstantOp(@NotNull SourceLocation location, int value) {
+  public ConstantOp(@NotNull Location location, int value) {
     this(location, new IntegerAttribute(value, IntegerT.INT32));
   }
 
@@ -98,7 +98,7 @@ public final class ConstantOp extends ArithOp implements Arith, INoOperands {
    * @param location the source location of this operation.
    * @param value the boolean value to embed.
    */
-  public ConstantOp(@NotNull SourceLocation location, boolean value) {
+  public ConstantOp(@NotNull Location location, boolean value) {
     this(location, new IntegerAttribute(value ? 1 : 0, IntegerT.BOOL));
   }
 

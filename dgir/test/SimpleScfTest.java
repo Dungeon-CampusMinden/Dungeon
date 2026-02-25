@@ -1,5 +1,5 @@
 import core.Dialect;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import dialect.arith.ConstantOp;
 import dialect.scf.*;
 import org.junit.jupiter.api.BeforeAll;
@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 /** Simple test to debug SCF operations */
 public class SimpleScfTest {
-  static final SourceLocation LOC = SourceLocation.UNKNOWN;
+  static final Location LOC = Location.UNKNOWN;
 
   @BeforeAll
   public static void setup() {

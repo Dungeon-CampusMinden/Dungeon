@@ -3,9 +3,10 @@ package dgir.vm.api;
 import core.ir.Operation;
 import core.ir.Value;
 import core.ir.ValueOperand;
-import java.util.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
 
 public class State {
   private final @NotNull Map<Value, Object> values = new HashMap<>();
@@ -152,5 +153,30 @@ public class State {
     values.clear();
     stackFrames.clear();
     instructionCount = 0;
+  }
+
+  /**
+   * Returns all values that are visible in the current scope as an unmodifiable map from
+   * {@link Value} to its bound object.  Values in isolated parent frames are excluded.
+   *
+   * <p>Intended for DAP {@code VariablesResponse} population; may be called from any thread
+   * while the VM is paused.
+   *
+   * @return a snapshot map of visible value bindings, innermost scope first.
+   */
+  public @NotNull Map<Value, Object> getVisibleValues() {
+    Map<Value, Object> result = new LinkedHashMap<>();
+    for (Pair<Set<Value>, Boolean> frame : stackFrames) {
+      Set<Value> defined = frame.getLeft();
+      boolean isolated = frame.getRight();
+      if (defined != null) {
+        for (Value v : defined) {
+          // Only add if not already shadowed by a deeper frame entry.
+          result.putIfAbsent(v, values.get(v));
+        }
+      }
+      if (isolated) break;
+    }
+    return Collections.unmodifiableMap(result);
   }
 }

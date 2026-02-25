@@ -2,7 +2,7 @@ package dialect.cf;
 
 import core.ir.Block;
 import core.ir.Operation;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.ir.Value;
 import core.traits.IControlFlow;
 import core.traits.ITerminator;
@@ -68,7 +68,7 @@ public final class BranchCondOp extends CfOp implements CF, ITerminator, IContro
    * @param target     the successor block taken when {@code condition} is {@code true}.
    * @param elseTarget the successor block taken when {@code condition} is {@code false}.
    */
-  public BranchCondOp(@NotNull SourceLocation location, @NotNull Value condition, @NotNull Block target, @NotNull Block elseTarget) {
+  public BranchCondOp(@NotNull Location location, @NotNull Value condition, @NotNull Block target, @NotNull Block elseTarget) {
     setOperation(Operation.Create(location, this, List.of(condition), List.of(target, elseTarget), null));
     assert condition.getType().equals(IntegerT.BOOL) : "Condition must be of type bool/int1.";
   }

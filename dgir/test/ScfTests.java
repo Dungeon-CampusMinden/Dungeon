@@ -1,7 +1,7 @@
 import static org.junit.jupiter.api.Assertions.*;
 
 import core.Dialect;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.serialization.Utils;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
@@ -23,7 +23,7 @@ import tools.jackson.databind.ObjectMapper;
  * that reaching definitions hold in complex cases and some negative test cases.
  */
 public class ScfTests {
-  static final SourceLocation LOC = SourceLocation.UNKNOWN;
+  static final Location LOC = Location.UNKNOWN;
   static ObjectMapper mapper;
 
   @BeforeAll
@@ -267,7 +267,7 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC, 
+            new ForOp(LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -297,7 +297,7 @@ public class ScfTests {
 
     ForOp outerFor =
         funcOp.addOperation(
-            new ForOp(LOC, 
+            new ForOp(LOC,
                 outerInit.getValue(),
                 outerLower.getValue(),
                 outerUpper.getValue(),
@@ -315,7 +315,7 @@ public class ScfTests {
             .getRegion()
             .getEntryBlock()
             .addOperation(
-                new ForOp(LOC, 
+                new ForOp(LOC,
                     innerInit.getValue(),
                     innerLower.getValue(),
                     innerUpper.getValue(),
@@ -347,7 +347,7 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC, 
+            new ForOp(LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -387,7 +387,7 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC, 
+            new ForOp(LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -446,7 +446,7 @@ public class ScfTests {
         ifOp.getThenRegion()
             .getEntryBlock()
             .addOperation(
-                new ForOp(LOC, 
+                new ForOp(LOC,
                     initValue.getValue(),
                     lowerBound.getValue(),
                     upperBound.getValue(),
@@ -480,7 +480,7 @@ public class ScfTests {
             .getRegion()
             .getEntryBlock()
             .addOperation(
-                new ForOp(LOC, 
+                new ForOp(LOC,
                     initValue.getValue(),
                     lowerBound.getValue(),
                     upperBound.getValue(),
@@ -541,7 +541,7 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC, 
+            new ForOp(LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -614,7 +614,7 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC, 
+            new ForOp(LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -645,7 +645,7 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC, 
+            new ForOp(LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -724,7 +724,7 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC, 
+            new ForOp(LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -782,7 +782,7 @@ public class ScfTests {
 
     ForOp forOp =
         helperFunc.addOperation(
-            new ForOp(LOC, 
+            new ForOp(LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),

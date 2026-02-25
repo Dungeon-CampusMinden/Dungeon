@@ -1,7 +1,7 @@
 import core.analysis.DotCFG;
 import core.ir.Op;
 import core.ir.Operation;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.serialization.Utils;
 import dialect.builtin.ProgramOp;
 import dialect.func.FuncOp;
@@ -184,8 +184,8 @@ public class TestUtils {
    * @return a pair of the created ProgramOp and the block contained in the func.func op
    */
   public static Pair<ProgramOp, FuncOp> createProgramOpWithEntryFunc() {
-    ProgramOp programOp = new ProgramOp(SourceLocation.UNKNOWN);
-    FuncOp funcOp = programOp.addOperation(new FuncOp(SourceLocation.UNKNOWN, "main"));
+    ProgramOp programOp = new ProgramOp(Location.UNKNOWN);
+    FuncOp funcOp = programOp.addOperation(new FuncOp(Location.UNKNOWN, "main"));
     return Pair.of(programOp, funcOp);
   }
 }

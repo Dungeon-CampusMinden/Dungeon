@@ -57,7 +57,7 @@ public final class Operation implements Serializable {
   @NotNull
   @SafeVarargs
   public static Operation Create(
-      @NotNull SourceLocation location,
+      @NotNull Location location,
       @NotNull Op op,
       @Nullable List<Value> operands,
       @Nullable List<Block> successors,
@@ -88,7 +88,7 @@ public final class Operation implements Serializable {
    */
   @Contract(pure = true)
   public static Operation Create(
-      @NotNull SourceLocation location,
+      @NotNull Location location,
       @NotNull Op op,
       @Nullable List<Value> operands,
       @Nullable List<Block> successors,
@@ -135,7 +135,7 @@ public final class Operation implements Serializable {
   @Nullable private Block parent = null;
 
   /** The source location of this operation. */
-  @NotNull private final SourceLocation location;
+  @NotNull private final Location location;
 
   // =========================================================================
   // Constructors
@@ -153,7 +153,7 @@ public final class Operation implements Serializable {
    * @param numRegions The number of regions.
    */
   public Operation(
-      @NotNull SourceLocation location,
+      @NotNull Location location,
       @NotNull OperationDetails details,
       @NotNull List<Value> operands,
       @NotNull List<Block> successors,
@@ -561,7 +561,7 @@ public final class Operation implements Serializable {
   }
 
   @Contract(pure = true)
-  public @NotNull SourceLocation getLocation() {
+  public @NotNull Location getLocation() {
     return location;
   }
 
@@ -621,7 +621,7 @@ public final class Operation implements Serializable {
     }
     sb.append(")");
 
-    if (!location.equals(SourceLocation.UNKNOWN)) {
+    if (!location.equals(Location.UNKNOWN)) {
       sb.append(" @ ");
       sb.append(location);
     }

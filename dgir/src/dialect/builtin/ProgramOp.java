@@ -2,7 +2,7 @@ package dialect.builtin;
 
 import core.ir.Block;
 import core.ir.Operation;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.traits.*;
 import dialect.func.FuncOp;
 import java.util.function.Function;
@@ -74,7 +74,7 @@ public final class ProgramOp extends BuiltinOp
   private ProgramOp() {
     executeIfRegistered(
         ProgramOp.class,
-        () -> setOperation(true, Operation.Create(SourceLocation.UNKNOWN, this, null, null, null, 1)));
+        () -> setOperation(true, Operation.Create(Location.UNKNOWN, this, null, null, null, 1)));
   }
 
   /**
@@ -82,7 +82,7 @@ public final class ProgramOp extends BuiltinOp
    *
    * @param location the source location of this operation.
    */
-  public ProgramOp(@NotNull SourceLocation location) {
+  public ProgramOp(@NotNull Location location) {
     setOperation(true, Operation.Create(location, this, null, null, null, 1));
   }
 

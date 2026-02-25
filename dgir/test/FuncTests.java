@@ -1,5 +1,5 @@
 import core.Dialect;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.serialization.Utils;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>There are multiple positive and negative test cases for each operation.
  */
 public class FuncTests {
-  static final SourceLocation LOC = SourceLocation.UNKNOWN;
+  static final Location LOC = Location.UNKNOWN;
   public static boolean printResult = true;
   public static boolean printDotGraph = false;
   static ObjectMapper mapper;

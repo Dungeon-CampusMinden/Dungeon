@@ -1,5 +1,5 @@
 import core.Dialect;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
 import dialect.builtin.types.StringT;
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BuiltinTests {
-  private static final SourceLocation LOC = SourceLocation.UNKNOWN;
+  private static final Location LOC = Location.UNKNOWN;
 
   @BeforeAll
   public static void setup() {

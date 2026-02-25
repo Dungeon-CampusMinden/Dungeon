@@ -27,7 +27,7 @@ public class ForRunner extends OpRunner {
     // bound, otherwise skip the loop.
     if (initialValueNum < upperBoundNum && initialValueNum >= lowerBoundNum) {
       // Set the body value (induction variable) to the initial value.
-      return Action.StepInto(forOp.getRegion(), false, initialValueNum);
+      return Action.StepIntoRegion(forOp.getRegion(), false, initialValueNum);
     } else {
       return Action.Next();
     }

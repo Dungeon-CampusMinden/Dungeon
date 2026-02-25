@@ -109,7 +109,7 @@ public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
    * @param operands    the argument values.
    * @param calleeType  the function signature used to determine the result type.
    */
-  public CallOp(@NotNull SourceLocation location, @NotNull String name, @NotNull List<Value> operands, @NotNull FuncType calleeType) {
+  public CallOp(@NotNull Location location, @NotNull String name, @NotNull List<Value> operands, @NotNull FuncType calleeType) {
     setOperation(Operation.Create(location, this, operands, null, calleeType.getOutput()));
     setCallee(name);
   }
@@ -122,7 +122,7 @@ public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
    * @param calleeType  the function signature used to determine the result type.
    * @param operands    the argument values (varargs).
    */
-  public CallOp(@NotNull SourceLocation location, @NotNull String name, @NotNull FuncType calleeType, Value... operands) {
+  public CallOp(@NotNull Location location, @NotNull String name, @NotNull FuncType calleeType, Value... operands) {
     this(location, name, List.of(operands), calleeType);
   }
 
@@ -133,7 +133,7 @@ public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
    * @param funcOp   the function to call.
    * @param operands the argument values.
    */
-  public CallOp(@NotNull SourceLocation location, @NotNull FuncOp funcOp, @NotNull List<Value> operands) {
+  public CallOp(@NotNull Location location, @NotNull FuncOp funcOp, @NotNull List<Value> operands) {
     setOperation(Operation.Create(location, this, operands, null, funcOp.getType().getOutput()));
     setCallee(funcOp.getFuncName());
   }
@@ -145,7 +145,7 @@ public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
    * @param funcOp   the function to call.
    * @param operands the argument values (varargs).
    */
-  public CallOp(@NotNull SourceLocation location, @NotNull FuncOp funcOp, Value... operands) {
+  public CallOp(@NotNull Location location, @NotNull FuncOp funcOp, Value... operands) {
     this(location, funcOp, List.of(operands));
   }
 

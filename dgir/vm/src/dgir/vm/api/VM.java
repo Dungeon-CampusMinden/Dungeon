@@ -1,7 +1,7 @@
 package dgir.vm.api;
 
 import core.ir.Operation;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.ir.Value;
 import core.traits.INoTerminator;
 import dialect.builtin.ProgramOp;
@@ -18,6 +18,7 @@ public class VM {
   private @Nullable State state;
   private @Nullable Action lastAction;
 
+  private final @NotNull Deque<Operation> callStack = new ArrayDeque<>();
   private final @NotNull Deque<Operation> opStack = new ArrayDeque<>();
 
   // =========================================================================
@@ -38,11 +39,30 @@ public class VM {
   private final @NotNull Condition resumeCondition = pauseLock.newCondition();
   private volatile boolean paused = false;
 
+  /** Distinguishes between the three single-step modes used by the debugger. */
+  private enum StepMode {
+    /** Normal execution — no pending single-step. */
+    NONE,
+    /**
+     * Step-in: pause at the very next operation, regardless of call depth.
+     * Equivalent to the DAP "stepIn" command.
+     */
+    STEP_IN,
+    /**
+     * Step-over: keep running until the call-stack depth has returned to
+     * {@link #stepTargetDepth}, then pause. Equivalent to the DAP "next" command.
+     */
+    STEP_OVER
+  }
+
+  /** The active single-step mode; only consulted while the VM is running. */
+  private volatile StepMode stepMode = StepMode.NONE;
+
   /**
-   * When {@code true} the VM pauses again after executing exactly one more operation.
-   * Set by {@link #stepOver()}, cleared once consumed.
+   * The call-stack depth that must be reached (or gone below) before the VM pauses
+   * again when {@link #stepMode} is {@link StepMode#STEP_OVER}.
    */
-  private volatile boolean stepOnce = false;
+  private volatile int stepTargetDepth = 0;
 
   // =========================================================================
   // Construction
@@ -68,6 +88,7 @@ public class VM {
     assert state != null : "VM not initialized with a state.";
     assert program != null : "VM not initialized with a program.";
     state.reset();
+    callStack.clear();
     opStack.clear();
     opStack.push(program.getOperation());
     lastAction = null;
@@ -131,18 +152,43 @@ public class VM {
   }
 
   /**
-   * Return the {@link SourceLocation} of the operation that would be executed next, or
-   * {@link SourceLocation#UNKNOWN} if the stack is empty or the VM has not been initialised.
+   * Return the {@link Location} of the operation that would be executed next, or
+   * {@link Location#UNKNOWN} if the stack is empty or the VM has not been initialised.
    *
    * <p>This may be called from any thread (including while the VM is paused) to obtain the
    * current program counter for DAP {@code StoppedEvent} / {@code StackTraceResponse} payloads.
    *
    * @return the current source location.
    */
-  public @NotNull SourceLocation getCurrentLocation() {
-    if (opStack.isEmpty()) return SourceLocation.UNKNOWN;
+  public @NotNull Location getCurrentLocation() {
+    if (opStack.isEmpty()) return Location.UNKNOWN;
     Operation top = opStack.peek();
-    return top == null ? SourceLocation.UNKNOWN : top.getLocation();
+    return top == null ? Location.UNKNOWN : top.getLocation();
+  }
+
+  /**
+   * Returns a snapshot of the current operation stack from top (innermost) to bottom (outermost).
+   *
+   * <p>This may be called from any thread while the VM is paused to populate the DAP
+   * {@code StackTraceResponse}.  Each entry is a pending {@link Operation}; entries that are
+   * call-site markers (operations whose next op was pushed beneath them) are included so the
+   * debugger can show a meaningful call chain.
+   *
+   * @return an unmodifiable list of operations, innermost first.
+   */
+  public @NotNull @Unmodifiable List<Operation> getCallStack() {
+    return List.copyOf(callStack);
+  }
+
+  /**
+   * Returns the current {@link State}, or {@code Optional.empty()} if the VM has not been
+   * initialised yet.  Callers may inspect the state while the VM is paused to populate
+   * DAP {@code VariablesResponse} payloads.
+   *
+   * @return the active state.
+   */
+  public @NotNull Optional<State> getState() {
+    return Optional.ofNullable(state);
   }
 
   /**
@@ -153,7 +199,7 @@ public class VM {
     pauseLock.lock();
     try {
       paused = false;
-      stepOnce = false;
+      stepMode = StepMode.NONE;
       resumeCondition.signalAll();
     } finally {
       pauseLock.unlock();
@@ -161,15 +207,35 @@ public class VM {
   }
 
   /**
-   * Advance exactly one operation from a paused state and then pause again. Implements the DAP
-   * "next" / "stepOver" command at IR level (every operation is one step).
-   * Calling this when the VM is not paused is a no-op.
+   * Step over the current operation: execute it (including any nested regions or function calls)
+   * and pause at the next operation at the same call-stack depth. Implements the DAP "next"
+   * command. Calling this when the VM is not paused is a no-op.
    */
   public void stepOver() {
     pauseLock.lock();
     try {
       paused = false;
-      stepOnce = true;
+      stepMode = StepMode.STEP_OVER;
+      // Record the current callstack depth so we can detect when we have returned to
+      // the same "level". The op currently on top will be executed next (and may push
+      // nested ops); we want to pause once the stack is back at this depth.
+      stepTargetDepth = callStack.size();
+      resumeCondition.signalAll();
+    } finally {
+      pauseLock.unlock();
+    }
+  }
+
+  /**
+   * Step into the current operation: pause at the very next operation executed, which may be
+   * inside a nested region or function call. Implements the DAP "stepIn" command.
+   * Calling this when the VM is not paused is a no-op.
+   */
+  public void stepIn() {
+    pauseLock.lock();
+    try {
+      paused = false;
+      stepMode = StepMode.STEP_IN;
       resumeCondition.signalAll();
     } finally {
       pauseLock.unlock();
@@ -216,6 +282,7 @@ public class VM {
       // We reached the end of the program. This is a special case since the operation will not
       // push a next operation onto the stack and we would loop endlessly if we did not stop here.
       if (currentOp.hasTrait(INoTerminator.class) && lastAction instanceof Action.Terminate) {
+        callStack.pop();
         opStack.pop();
         return Action.Next();
       }
@@ -224,23 +291,34 @@ public class VM {
       // Debug hook: notify the debugger before executing the operation.
       // ------------------------------------------------------------------
       if (debugger != null) {
-        SourceLocation location = currentOp.getLocation();
+        Location location = currentOp.getLocation();
 
         // Check breakpoints first; only fire the first matching one per step.
+        // Breakpoints always interrupt execution, even during a step-over.
         for (Breakpoint bp : breakpoints) {
           if (bp.matches(location)) {
             DebugControl bpCtrl = debugger.onBreakpointHit(currentOp, bp, location);
             if (bpCtrl == DebugControl.PAUSE) {
+              // A breakpoint hit cancels any pending step mode.
+              stepMode = StepMode.NONE;
               waitForResume();
             }
             break;
           }
         }
 
-        // Always call onStep so the adapter can update its UI.
-        DebugControl stepCtrl = debugger.onStep(currentOp, location);
-        if (stepCtrl == DebugControl.PAUSE) {
-          waitForResume();
+        // Skip the pre-execution onStep when any step mode is active: the step-complete
+        // notification is delivered in the re-arm block below, after the op has executed.
+        // This prevents the debugger's stepPending flag from being consumed prematurely
+        // on the op that was already paused on before the step command was issued.
+        // Breakpoints still fire above regardless of step mode.
+        boolean inStepMode = stepMode != StepMode.NONE;
+
+        if (!inStepMode) {
+          DebugControl stepCtrl = debugger.onStep(currentOp, location);
+          if (stepCtrl == DebugControl.PAUSE) {
+            waitForResume();
+          }
         }
       }
 
@@ -278,6 +356,7 @@ public class VM {
           // These values are stored as body values in the function's region.'
           List<Value> bodyValues = funcOp.getFirstRegion().orElseThrow().getBodyValues();
           setupRegion(state, bodyValues, call.args());
+          callStack.push(funcOp);
           opStack.push(funcOp.getFirstRegion().get().getEntryOperation());
         }
         // Jump to another block in the same region. This is used for control flow operations like
@@ -299,7 +378,7 @@ public class VM {
         // if operation, or the
         // body of a while operation, as well as function calls.
         // It opens a new stack frame for the region and jumps to the first operation in the region.
-        case Action.StepInto stepInto -> {
+        case Action.StepIntoRegion stepIntoRegion -> {
           currentOp
               .getNext()
               .ifPresentOrElse(
@@ -313,27 +392,46 @@ public class VM {
           // the region returns.
           opStack.push(currentOp);
           // Open a new stack frame for the region and jump to the first operation in the region.
-          state.pushStackFrame(stepInto.isolatedFromAbove());
+          state.pushStackFrame(stepIntoRegion.isolatedFromAbove());
 
           // Same as for the func op we need to push the body values of the region onto the stack.
-          List<Value> bodyValues = stepInto.region().getBodyValues();
-          setupRegion(state, bodyValues, stepInto.args());
-          opStack.push(stepInto.region().getEntryOperation());
+          List<Value> bodyValues = stepIntoRegion.region().getBodyValues();
+          setupRegion(state, bodyValues, stepIntoRegion.args());
+          opStack.push(stepIntoRegion.region().getEntryOperation());
         }
       }
 
-      // If we did a single-step, re-arm the pause for the next operation.
-      if (stepOnce) {
-        pauseLock.lock();
-        try {
-          stepOnce = false;
-          paused = true;
-        } finally {
-          pauseLock.unlock();
+      // If we did a single-step, decide whether to pause now.
+      if (stepMode != StepMode.NONE) {
+        boolean shouldPauseNow =
+            switch (stepMode) {
+              // Step-in: always pause after exactly one operation.
+              case STEP_IN -> true;
+              // Step-over: pause only once the op-stack depth has returned to the target
+              // (i.e. we have finished executing the current op and all nested regions/calls).
+              case STEP_OVER -> callStack.size() <= stepTargetDepth;
+              case NONE -> false;
+            };
+        if (shouldPauseNow) {
+          stepMode = StepMode.NONE;
+          // Notify the debugger that the step completed (so it can send a "step" stopped event
+          // and update the UI), then unconditionally block until resumed.  We do this here
+          // rather than deferring to the next iteration's pre-execution hook so the pause
+          // happens even when the op-stack is now empty (end of program).
+          if (debugger != null) {
+            Operation nextOp = opStack.peek();
+            Location nextLocation = nextOp != null
+                ? nextOp.getLocation()
+                : currentOp.getLocation();
+            debugger.onStep(nextOp != null ? nextOp : currentOp, nextLocation);
+          }
+          // Always pause — the step is complete.
+          waitForResume();
         }
       }
 
       lastAction = currentAction;
+      ++state.instructionCount;
       return currentAction;
     } catch (Exception e) {
       cleanupAfterAbort();

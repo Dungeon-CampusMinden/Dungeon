@@ -1,7 +1,7 @@
 package dialect.io;
 
 import core.ir.Operation;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.ir.Value;
 import org.jetbrains.annotations.NotNull;
 
@@ -67,7 +67,7 @@ public final class PrintOp extends IoOp implements IO {
    * @param location the source location of this operation.
    * @param operands the values to print; must contain at least one element.
    */
-  public PrintOp(@NotNull SourceLocation location, List<Value> operands) {
+  public PrintOp(@NotNull Location location, List<Value> operands) {
     setOperation(Operation.Create(location, this, operands, null, null));
   }
 
@@ -77,7 +77,7 @@ public final class PrintOp extends IoOp implements IO {
    * @param location the source location of this operation.
    * @param operands the values to print; must contain at least one element.
    */
-  public PrintOp(@NotNull SourceLocation location, Value... operands) {
+  public PrintOp(@NotNull Location location, Value... operands) {
     this(location, List.of(operands));
   }
 }

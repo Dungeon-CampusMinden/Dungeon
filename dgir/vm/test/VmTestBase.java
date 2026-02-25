@@ -61,13 +61,17 @@ public class VmTestBase {
       System.out.flush();
     }
 
+    checkOutput(expectedOutput);
+  }
+
+  public void checkOutput(String expectedOutput) {
     assertEquals(
         expectedOutput,
         this.out(),
         "Program output did not match expected output\n\n"
-            + mapper.writeValueAsString(vm.getProgram()));
+            + mapper.writeValueAsString(expectedOutput));
     if (printIr) {
-      System.out.println(mapper.writeValueAsString(vm.getProgram()));
+      System.out.println(mapper.writeValueAsString(expectedOutput));
     }
   }
 }

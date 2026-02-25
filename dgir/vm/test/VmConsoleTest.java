@@ -1,5 +1,5 @@
 import core.ir.Block;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import dgir.vm.api.VM;
 import dgir.vm.dialect.io.ConsoleInRunner;
 import dialect.arith.ConstantOp;
@@ -24,7 +24,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 /** Testcases for the VM, only testing output from and to the console. */
 public class VmConsoleTest extends VmTestBase {
-  static final SourceLocation LOC = SourceLocation.UNKNOWN;
+  static final Location LOC = Location.UNKNOWN;
   /**
    * Creates a simple dgir program printing "Hello World!" to the console and runs it through the
    * VM.

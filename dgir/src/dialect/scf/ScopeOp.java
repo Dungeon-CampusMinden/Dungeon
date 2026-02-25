@@ -1,7 +1,7 @@
 package dialect.scf;
 
 import core.ir.Operation;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.traits.IControlFlow;
 import core.traits.ISingleRegion;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ public final class ScopeOp extends ScfOp implements SCF, ISingleRegion, IControl
   /** Default constructor used during dialect registration. */
   private ScopeOp() {
     executeIfRegistered(
-        ScopeOp.class, () -> setOperation(true, Operation.Create(SourceLocation.UNKNOWN, this, null, null, null, 1)));
+        ScopeOp.class, () -> setOperation(true, Operation.Create(Location.UNKNOWN, this, null, null, null, 1)));
   }
 
   /**
@@ -54,7 +54,7 @@ public final class ScopeOp extends ScfOp implements SCF, ISingleRegion, IControl
    *
    * @param location the source location of this operation.
    */
-  public ScopeOp(@NotNull SourceLocation location) {
+  public ScopeOp(@NotNull Location location) {
     setOperation(true, Operation.Create(location, this, null, null, null, 1));
   }
 

@@ -1,7 +1,7 @@
 package dgir.vm.api;
 
 import core.ir.Operation;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -11,10 +11,10 @@ import org.jetbrains.annotations.NotNull;
  * <p>Implement this interface and register it with {@link VM#setDebugger(Debugger)} to receive
  * callbacks before each operation is executed.  The callbacks are:
  * <ul>
- *   <li>{@link #onStep(Operation, SourceLocation)} — called immediately before every operation is
+ *   <li>{@link #onStep(Operation, Location)} — called immediately before every operation is
  *       dispatched.  The debugger can inspect the location, update the DAP client, and decide
  *       whether to proceed or pause.
- *   <li>{@link #onBreakpointHit(Operation, Breakpoint, SourceLocation)} — called when the current
+ *   <li>{@link #onBreakpointHit(Operation, Breakpoint, Location)} — called when the current
  *       operation matches a registered {@link Breakpoint}.
  * </ul>
  *
@@ -34,7 +34,7 @@ public interface Debugger {
    * @param location  the source location carried by {@code operation}.
    * @return how the VM should proceed.
    */
-  @NotNull DebugControl onStep(@NotNull Operation operation, @NotNull SourceLocation location);
+  @NotNull DebugControl onStep(@NotNull Operation operation, @NotNull Location location);
 
   /**
    * Called when the current operation's source location matches a registered {@link Breakpoint}.
@@ -48,6 +48,6 @@ public interface Debugger {
   @NotNull DebugControl onBreakpointHit(
       @NotNull Operation operation,
       @NotNull Breakpoint breakpoint,
-      @NotNull SourceLocation location);
+      @NotNull Location location);
 }
 

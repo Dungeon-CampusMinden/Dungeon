@@ -1,4 +1,4 @@
-import core.ir.SourceLocation;
+import core.ir.Location;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
 import dialect.func.FuncOp;
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.*;
  * stdout produced by PrintOp/PrintRunner.
  */
 public class ScfTest extends VmTestBase {
-  static final SourceLocation LOC = SourceLocation.UNKNOWN;
+  static final Location LOC = Location.UNKNOWN;
   /** Probe: for(i=0; i<3; i++) print(i) -- verify the actual output produced. */
   @Test
   void basicForLoopOutput() {

@@ -1,0 +1,189 @@
+package dgir.vm.dap;
+
+import dgir.vm.api.VM;
+import org.eclipse.lsp4j.debug.launch.DSPLauncher;
+import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
+import org.eclipse.lsp4j.jsonrpc.Launcher;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
+
+/**
+ * TCP server that accepts DAP client connections and wires each one to a {@link VM} via a {@link
+ * DapAdapter}.
+ *
+ * <p>The server uses lsp4j's {@link DSPLauncher} to handle the DAP wire protocol (JSON-RPC over a
+ * Content-Length–framed stream). Each accepted connection gets its own {@link DapAdapter} / {@link
+ * VM} pair produced by the supplied factory.
+ *
+ * <h2>Usage</h2>
+ *
+ * <pre>{@code
+ * DapServer server = new DapServer(4711, () -> {
+ *     VM vm = new VM();
+ *     vm.init(buildMyProgram());
+ *     return vm;
+ * });
+ * server.start();   // non-blocking; each connection is handled on its own daemon threads
+ * }</pre>
+ *
+ * <h2>Connecting from VS Code</h2>
+ *
+ * Add an entry to {@code .vscode/launch.json}:
+ *
+ * <pre>{@code
+ * {
+ *   "type": "dgir",
+ *   "request": "attach",
+ *   "name": "Debug DGIR program",
+ *   "port": 4711,
+ *   "stopOnEntry": true
+ * }
+ * }</pre>
+ */
+public class DapServer {
+
+  private static final Logger LOG = Logger.getLogger(DapServer.class.getName());
+
+  /** Conventional DAP port used by VS Code when no port is explicitly specified. */
+  public static final int DEFAULT_PORT = 4711;
+
+  private final int port;
+  private final @NotNull Supplier<VM> vmFactory;
+  private final @NotNull AtomicReference<ServerSocket> serverSocketRef = new AtomicReference<>();
+
+  /**
+   * Create a server that listens on the given port.
+   *
+   * @param port the TCP port to listen on.
+   * @param vmFactory factory that creates a fully {@link VM#init}-ed VM per debug session.
+   */
+  public DapServer(int port, @NotNull Supplier<VM> vmFactory) {
+    this.port = port;
+    this.vmFactory = vmFactory;
+  }
+
+  /**
+   * Create a server on the {@link #DEFAULT_PORT default port} (4711).
+   *
+   * @param vmFactory factory that creates a fully {@link VM#init}-ed VM per debug session.
+   */
+  public DapServer(@NotNull Supplier<VM> vmFactory) {
+    this(DEFAULT_PORT, vmFactory);
+  }
+
+  // =========================================================================
+  // Lifecycle
+  // =========================================================================
+
+  /**
+   * Open the listening socket and start the accept loop on a daemon thread.
+   *
+   * @throws IOException if the server socket cannot be bound.
+   */
+  public void start() throws IOException {
+    ServerSocket ss = new ServerSocket(port);
+    serverSocketRef.set(ss);
+    LOG.info("DAP server listening on port " + ss.getLocalPort());
+
+    Thread acceptThread =
+        new Thread(
+            () -> {
+              try (ServerSocket ignored = ss) {
+                while (!ss.isClosed()) {
+                  Socket client;
+                  try {
+                    client = ss.accept();
+                  } catch (IOException e) {
+                    if (!ss.isClosed()) LOG.warning("DAP accept error: " + e.getMessage());
+                    break;
+                  }
+                  LOG.info("DAP client connected from " + client.getRemoteSocketAddress());
+                  handleSession(client);
+                }
+              } catch (IOException e) {
+                LOG.fine("DAP server socket closed: " + e.getMessage());
+              }
+            },
+            "dap-accept");
+    acceptThread.setDaemon(true);
+    acceptThread.start();
+  }
+
+  /** Stop accepting new connections. Active sessions continue until the client disconnects. */
+  public void stop() {
+    ServerSocket ss = serverSocketRef.getAndSet(null);
+    if (ss != null) {
+      try {
+        ss.close();
+      } catch (IOException e) {
+        LOG.fine("Error closing server socket: " + e.getMessage());
+      }
+    }
+  }
+
+  /**
+   * The port the server is currently bound to, or {@code -1} if not running. Useful when the OS
+   * assigned the port (e.g. {@code new DapServer(0, factory)}).
+   */
+  public int getBoundPort() {
+    ServerSocket ss = serverSocketRef.get();
+    return ss != null ? ss.getLocalPort() : -1;
+  }
+
+  // =========================================================================
+  // Session wiring
+  // =========================================================================
+
+  private void handleSession(@NotNull Socket socket) {
+    VM vm = vmFactory.get();
+    DapAdapter adapter = new DapAdapter(vm);
+    Launcher<IDebugProtocolClient> launcher;
+    try {
+      // Let lsp4j build the JSON-RPC / DAP message pump.
+      launcher =
+          DSPLauncher.createServerLauncher(
+              adapter, socket.getInputStream(), socket.getOutputStream());
+    } catch (IOException e) {
+      LOG.warning("Failed to create DAP session: " + e.getMessage());
+      return;
+    }
+
+    // Give the adapter a reference to the remote client proxy so it can fire events.
+    adapter.setClient(launcher.getRemoteProxy());
+
+    // Start listening for incoming messages on a daemon thread.
+    Future<?> listening = launcher.startListening();
+
+    // Clean-up thread: close the socket once the session ends.
+    Thread cleanup = getCleanupThread(socket, listening);
+    cleanup.start();
+  }
+
+  private static @NotNull Thread getCleanupThread(@NotNull Socket socket, Future<?> listening) {
+    Thread cleanup =
+        new Thread(
+            () -> {
+              try {
+                listening.get();
+              } catch (Exception e) {
+                LOG.fine("DAP session ended: " + e.getMessage());
+              }
+              try {
+                socket.close();
+              } catch (IOException e) {
+                LOG.fine("Error closing DAP socket: " + e.getMessage());
+              }
+              LOG.info("DAP session closed.");
+            },
+            "dap-session-cleanup");
+    cleanup.setDaemon(true);
+    return cleanup;
+  }
+}

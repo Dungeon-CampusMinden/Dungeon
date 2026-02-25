@@ -3,7 +3,7 @@ package dialect.func;
 import core.SymbolTable;
 import core.ir.NamedAttribute;
 import core.ir.Operation;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.traits.IGlobal;
 import core.traits.IIsolatedFromAbove;
 import core.traits.ISingleRegion;
@@ -86,7 +86,7 @@ public final class FuncOp extends FuncBaseOp implements Func, ISymbol, IIsolated
    * @param location the source location of this operation.
    * @param name the symbol name of the function.
    */
-  public FuncOp(@NotNull SourceLocation location, @NotNull String name) {
+  public FuncOp(@NotNull Location location, @NotNull String name) {
     this(location, name, new FuncType());
   }
 
@@ -97,7 +97,7 @@ public final class FuncOp extends FuncBaseOp implements Func, ISymbol, IIsolated
    * @param name the symbol name of the function.
    * @param type the function signature.
    */
-  public FuncOp(@NotNull SourceLocation location, @NotNull String name, @NotNull FuncType type) {
+  public FuncOp(@NotNull Location location, @NotNull String name, @NotNull FuncType type) {
     setOperation(true, Operation.Create(location, this, null, null, type.getOutput(), type.getInputs()));
     getFuncNameAttribute().setValue(name);
     getTypeAttribute().setType(type);

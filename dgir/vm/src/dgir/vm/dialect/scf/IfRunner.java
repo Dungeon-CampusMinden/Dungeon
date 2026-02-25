@@ -19,9 +19,9 @@ public class IfRunner extends OpRunner {
     // Step into the then region if the condition is true, otherwise step into the else region if it exists, or just
     // continue to the next operation.
     if (condition != 0) {
-      return Action.StepInto(ifOp.getThenRegion(), false);
+      return Action.StepIntoRegion(ifOp.getThenRegion(), false);
     } else if (ifOp.getElseRegion().isPresent()) {
-      return Action.StepInto(ifOp.getElseRegion().get(), false);
+      return Action.StepIntoRegion(ifOp.getElseRegion().get(), false);
     }
     return Action.Next();
   }

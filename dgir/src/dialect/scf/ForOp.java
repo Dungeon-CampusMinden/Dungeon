@@ -1,7 +1,7 @@
 package dialect.scf;
 
 import core.ir.*;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.traits.IControlFlow;
 import core.traits.ISingleRegion;
 import dialect.builtin.types.IntegerT;
@@ -75,7 +75,7 @@ public final class ForOp extends ScfOp implements SCF, IControlFlow, ISingleRegi
    * @param upperBound the upper bound of the loop (exclusive).
    * @param step       the step size per iteration.
    */
-  public ForOp(@NotNull SourceLocation location, Value initValue, Value lowerBound, Value upperBound, Value step) {
+  public ForOp(@NotNull Location location, Value initValue, Value lowerBound, Value upperBound, Value step) {
     setOperation(
         true,
         Operation.Create(

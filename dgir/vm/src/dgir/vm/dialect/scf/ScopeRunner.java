@@ -15,6 +15,6 @@ public class ScopeRunner extends OpRunner {
   @Override
   protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
     // Just step into the scope region.
-    return Action.StepInto(op.getRegion(0).orElseThrow(), false);
+    return Action.StepIntoRegion(op.getRegion(0).orElseThrow(), false);
   }
 }

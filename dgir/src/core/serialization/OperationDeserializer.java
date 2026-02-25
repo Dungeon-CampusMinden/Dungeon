@@ -93,11 +93,11 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       }
     }
 
-    SourceLocation location = SourceLocation.UNKNOWN;
+    Location location = Location.UNKNOWN;
     // Get the source location if it exists
     if (node.has("loc")) {
       String loc = node.get("loc").asString();
-      location = SourceLocation.fromString(loc);
+      location = Location.fromString(loc);
     }
 
     // Now that the regions are deserialized, we can go over all their operations and resolve their

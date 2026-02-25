@@ -3,14 +3,15 @@ package dgir.vm.api;
 import core.ir.Block;
 import core.ir.Operation;
 import core.ir.Region;
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.Optional;
+
 public sealed interface Action
-    permits Action.Next, Action.Jump, Action.Call, Action.StepInto, Action.Terminate, Action.Abort {
+    permits Action.Next, Action.Jump, Action.Call, Action.StepIntoRegion, Action.Terminate, Action.Abort {
   /** Executes the next operation in the current block. */
   static @NotNull Action Next() {
     return new Next();
@@ -46,11 +47,11 @@ public sealed interface Action
    *     from the above stack frame.
    * @return An action that represents the step into.
    */
-  static @NotNull Action StepInto(
+  static @NotNull Action StepIntoRegion(
       @NotNull Region region,
       boolean isolatedFromAbove,
       @NotNull Object... args) {
-    return new StepInto(region, isolatedFromAbove, List.of(args));
+    return new StepIntoRegion(region, isolatedFromAbove, List.of(args));
   }
 
   /**
@@ -106,12 +107,12 @@ public sealed interface Action
    *     from the above stack frame. If true, values defined in the above stack frame will not be
    *     accessible in the new stack frame.
    */
-  record StepInto(
+  record StepIntoRegion(
       @NotNull Region region,
       boolean isolatedFromAbove,
       List<Object> args)
       implements Action {
-    public StepInto {
+    public StepIntoRegion {
       args = List.copyOf(args);
     }
   }

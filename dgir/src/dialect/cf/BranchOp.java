@@ -2,7 +2,7 @@ package dialect.cf;
 
 import core.ir.Block;
 import core.ir.Operation;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.traits.IControlFlow;
 import core.traits.ITerminator;
 import org.jetbrains.annotations.Contract;
@@ -61,7 +61,7 @@ public final class BranchOp extends CfOp implements CF, ITerminator, IControlFlo
    * @param location the source location of this operation.
    * @param target the successor block to branch to.
    */
-  public BranchOp(@NotNull SourceLocation location, @NotNull Block target) {
+  public BranchOp(@NotNull Location location, @NotNull Block target) {
     setOperation(Operation.Create(location, this, null, List.of(target), null));
   }
 

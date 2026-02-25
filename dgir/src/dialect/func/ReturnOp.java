@@ -2,7 +2,7 @@ package dialect.func;
 
 import core.ir.Op;
 import core.ir.Operation;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.ir.Value;
 import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;
@@ -88,7 +88,7 @@ public final class ReturnOp extends FuncBaseOp implements Func, ITerminator, IZe
   /** Default constructor used during dialect registration. */
   private ReturnOp() {
     executeIfRegistered(
-        ReturnOp.class, () -> setOperation(false, Operation.Create(SourceLocation.UNKNOWN, this, null, null, null)));
+        ReturnOp.class, () -> setOperation(false, Operation.Create(Location.UNKNOWN, this, null, null, null)));
   }
 
   /**
@@ -105,7 +105,7 @@ public final class ReturnOp extends FuncBaseOp implements Func, ITerminator, IZe
    *
    * @param location the source location of this operation.
    */
-  public ReturnOp(@NotNull SourceLocation location) {
+  public ReturnOp(@NotNull Location location) {
     setOperation(false, Operation.Create(location, this, null, null, null));
   }
 
@@ -115,7 +115,7 @@ public final class ReturnOp extends FuncBaseOp implements Func, ITerminator, IZe
    * @param location the source location of this operation.
    * @param operand the value to return from the enclosing function.
    */
-  public ReturnOp(@NotNull SourceLocation location, @NotNull Value operand) {
+  public ReturnOp(@NotNull Location location, @NotNull Value operand) {
     setOperation(Operation.Create(location, this, List.of(operand), null, null));
   }
 

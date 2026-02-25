@@ -2,7 +2,7 @@ package dialect.scf;
 
 import core.ir.Op;
 import core.ir.Operation;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +51,7 @@ public final class BreakOp extends ScfOp implements SCF, ITerminator, ISpecificP
   /** Default constructor used during dialect registration. */
   private BreakOp() {
     executeIfRegistered(
-        BreakOp.class, () -> setOperation(false, Operation.Create(SourceLocation.UNKNOWN, this, null, null, null)));
+        BreakOp.class, () -> setOperation(false, Operation.Create(Location.UNKNOWN, this, null, null, null)));
   }
 
   /**
@@ -68,7 +68,7 @@ public final class BreakOp extends ScfOp implements SCF, ITerminator, ISpecificP
    *
    * @param location the source location of this operation.
    */
-  public BreakOp(@NotNull SourceLocation location) {
+  public BreakOp(@NotNull Location location) {
     setOperation(false, Operation.Create(location, this, null, null, null));
   }
 

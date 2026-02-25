@@ -1,6 +1,6 @@
 import core.Dialect;
 import core.ir.Block;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.serialization.Utils;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * context region visiblity, nesting and isolation.
  */
 public class CoreTests {
-  static final SourceLocation LOC = SourceLocation.UNKNOWN;
+  static final Location LOC = Location.UNKNOWN;
   static boolean printResult = true;
   static boolean printDotGraph = true;
   static ObjectMapper mapper;

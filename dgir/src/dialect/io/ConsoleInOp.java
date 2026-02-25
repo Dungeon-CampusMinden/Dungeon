@@ -1,7 +1,7 @@
 package dialect.io;
 
 import core.ir.Operation;
-import core.ir.SourceLocation;
+import core.ir.Location;
 import core.ir.Type;
 import core.ir.Value;
 import dialect.builtin.types.FloatT;
@@ -86,7 +86,7 @@ public final class ConsoleInOp extends IoOp implements IO {
    * @param location the source location of this operation.
    * @param type the result type; must be {@link IntegerT}, {@link FloatT}, or {@link StringT}.
    */
-  public ConsoleInOp(@NotNull SourceLocation location, @NotNull Type type) {
+  public ConsoleInOp(@NotNull Location location, @NotNull Type type) {
     setOperation(Operation.Create(location, this, null, null, type));
   }
 

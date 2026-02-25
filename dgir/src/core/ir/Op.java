@@ -357,7 +357,7 @@ public abstract class Op {
    * @see Operation#getLocation()
    */
   @Contract(pure = true)
-  public @NotNull SourceLocation getLocation() {
+  public @NotNull Location getLocation() {
     return getOperation().getLocation();
   }
 
