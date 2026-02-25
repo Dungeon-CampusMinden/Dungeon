@@ -13,8 +13,6 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.draw.state.Transition;
 import core.utils.components.path.IPath;
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -47,8 +45,7 @@ import java.util.*;
  * @see Animation
  * @see IPath
  */
-public final class DrawComponent implements Component, Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+public final class DrawComponent implements Component {
 
   private final StateMachine stateMachine;
   private int depth = DepthLayer.Normal.depth();

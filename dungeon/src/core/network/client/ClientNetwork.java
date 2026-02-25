@@ -190,8 +190,8 @@ public final class ClientNetwork {
   /**
    * Send a reliable {@link NetworkMessage} over TCP to the server.
    *
-   * <p>Performs Java serialization and writes a 4-byte length-prefixed frame. Drops the message if
-   * it exceeds the configured TCP object size.
+   * <p>Encodes the message using protobuf and writes a 4-byte length-prefixed frame. Drops the
+   * message if it exceeds the configured TCP object size.
    *
    * @param msg message to send
    * @return CompletableFuture that completes with true if the message was sent, false if
@@ -223,8 +223,8 @@ public final class ClientNetwork {
   /**
    * Send an unreliable {@link InputMessage} over UDP to the server.
    *
-   * <p>Performs Java serialization and sends a datagram. If the payload exceeds the safe UDP MTU,
-   * it uses TCP instead.
+   * <p>Encodes the message using protobuf and sends a datagram. If the payload exceeds the safe UDP
+   * MTU, it uses TCP instead.
    *
    * @param input input message to send
    */
@@ -316,16 +316,15 @@ public final class ClientNetwork {
                       protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame)
                           throws Exception {
                         int size = frame.readableBytes();
-                        Object obj = deserialize(frame);
-                        if (obj
+                        NetworkMessage msg = deserialize(frame);
+                        if (msg
                             instanceof ConnectAck(short id, int sessionId, byte[] sessionToken)) {
                           onConnectAck(id, sessionId, sessionToken);
-                        } else if (obj instanceof ConnectReject(byte reason, Object extraData)) {
-                          onConnectReject(
-                              session, ConnectReject.Reason.fromCode(reason), extraData);
-                        } else if (obj instanceof RegisterAck(boolean ok)) {
+                        } else if (msg instanceof ConnectReject(byte reason)) {
+                          onConnectReject(session, ConnectReject.Reason.fromCode(reason));
+                        } else if (msg instanceof RegisterAck(boolean ok)) {
                           onRegisterAck(ok);
-                        } else if (obj instanceof NetworkMessage msg) {
+                        } else {
                           onNetworkMessage(msg, size);
                         }
                       }
@@ -434,15 +433,13 @@ public final class ClientNetwork {
               @Override
               protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket pkt) {
                 try {
-                  Object obj = deserialize(pkt.content());
-                  if (obj instanceof NetworkMessage msg) {
-                    if (session != null) {
-                      inboundQueue.offer(Tuple.of(session, msg));
-                    } else {
-                      LOGGER.debug(
-                          "Dropping UDP inbound before session init: {}",
-                          msg.getClass().getSimpleName());
-                    }
+                  NetworkMessage msg = deserialize(pkt.content());
+                  if (session != null) {
+                    inboundQueue.offer(Tuple.of(session, msg));
+                  } else {
+                    LOGGER.debug(
+                        "Dropping UDP inbound before session init: {}",
+                        msg.getClass().getSimpleName());
                   }
                 } catch (Exception e) {
                   LOGGER.warn("UDP client decode error", e);
@@ -482,13 +479,8 @@ public final class ClientNetwork {
     saveLastSessionToFile(sessionId, sessionToken);
   }
 
-  private void onConnectReject(Session session, ConnectReject.Reason reason, Object extraData) {
-    String reasonStr =
-        "Connection rejected by server: "
-            + reason
-            + " ("
-            + (extraData != null ? extraData : "no extra data")
-            + ")";
+  private void onConnectReject(Session session, ConnectReject.Reason reason) {
+    String reasonStr = "Connection rejected by server: " + reason;
     LOGGER.warn(reasonStr);
     if (reason == ConnectReject.Reason.NO_SESSION_FOUND
         || reason == ConnectReject.Reason.INVALID_SESSION_TOKEN) {
@@ -655,16 +647,16 @@ public final class ClientNetwork {
    * Client-side UDP sender for {@link Session}. Mirrors server-side send path and size checks.
    *
    * @param target target address
-   * @param obj object to send
-   * @return CompletableFuture indicating success sending the object
+   * @param msg message to send
+   * @return CompletableFuture indicating success sending the message
    */
-  private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, Object obj) {
+  private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, NetworkMessage msg) {
     if (udp == null || !udp.isActive()) {
       LOGGER.warn("UDP channel not active; cannot send to {}", target);
       return CompletableFuture.completedFuture(false);
     }
     try {
-      byte[] data = serialize(obj);
+      byte[] data = serialize(msg);
       if (data.length > SAFE_UDP_MTU) {
         LOGGER.warn("Skip UDP send; payload too large ({} B) to {}", data.length, target);
         return CompletableFuture.completedFuture(false);
@@ -683,15 +675,15 @@ public final class ClientNetwork {
    * Client-side TCP sender for {@link Session}. Mirrors server-side send path and size checks.
    *
    * @param ctx channel context
-   * @param obj object to send
-   * @return CompletableFuture indicating the acknowledgment of the send object by the recipient
+   * @param msg message to send
+   * @return CompletableFuture indicating the acknowledgment of the sent message by the recipient
    */
-  private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, Object obj) {
+  private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, NetworkMessage msg) {
     if (ctx == null || ctx.channel() == null || !ctx.channel().isActive()) {
       return CompletableFuture.completedFuture(false);
     }
     try {
-      byte[] data = serialize(obj);
+      byte[] data = serialize(msg);
       if (data.length > MAX_TCP_OBJECT_SIZE) {
         LOGGER.warn("Skip TCP send; payload too large ({} B) to {}", data.length, ctx.channel());
         return CompletableFuture.completedFuture(false);

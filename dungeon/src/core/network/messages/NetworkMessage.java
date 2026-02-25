@@ -1,10 +1,8 @@
 package core.network.messages;
 
-import java.io.Serializable;
-
 /**
  * Marker interface for all network messages.
  *
- * <p>All implementations must be Java-serializable for the current Netty prototype transport.
+ * <p>Messages are encoded with protobuf in {@link core.network.codec.NetworkCodec}.
  */
-public interface NetworkMessage extends Serializable {}
+public interface NetworkMessage {}

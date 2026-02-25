@@ -3,22 +3,32 @@ package core.network.messages.s2c;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import core.sound.SoundSpec;
 import org.junit.jupiter.api.Test;
 
 class SoundPlayMessageTest {
   @Test
   void storesFields() {
-    SoundPlayMessage msg =
-        new SoundPlayMessage(10L, 42, "boom", 0.6f, 1.1f, -0.2f, true, 30f, 0.3f);
+    SoundSpec spec =
+        SoundSpec.builder("boom")
+            .instanceId(10L)
+            .volume(0.6f)
+            .pitch(1.1f)
+            .pan(-0.2f)
+            .looping(true)
+            .maxDistance(30f)
+            .attenuation(0.3f)
+            .build();
+    SoundPlayMessage msg = new SoundPlayMessage(42, spec);
 
-    assertEquals(10L, msg.soundInstanceId());
     assertEquals(42, msg.entityId());
-    assertEquals("boom", msg.soundName());
-    assertEquals(0.6f, msg.volume(), 0.0001f);
-    assertEquals(1.1f, msg.pitch(), 0.0001f);
-    assertEquals(-0.2f, msg.pan(), 0.0001f);
-    assertTrue(msg.looping());
-    assertEquals(30f, msg.maxDistance(), 0.0001f);
-    assertEquals(0.3f, msg.attenuationFactor(), 0.0001f);
+    assertEquals(10L, msg.soundSpec().instanceId());
+    assertEquals("boom", msg.soundSpec().soundName());
+    assertEquals(0.6f, msg.soundSpec().baseVolume(), 0.0001f);
+    assertEquals(1.1f, msg.soundSpec().pitch(), 0.0001f);
+    assertEquals(-0.2f, msg.soundSpec().pan(), 0.0001f);
+    assertTrue(msg.soundSpec().looping());
+    assertEquals(30f, msg.soundSpec().maxDistance(), 0.0001f);
+    assertEquals(0.3f, msg.soundSpec().attenuationFactor(), 0.0001f);
   }
 }

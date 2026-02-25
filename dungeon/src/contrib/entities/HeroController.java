@@ -22,6 +22,7 @@ import core.components.PlayerComponent;
 import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
 import core.level.utils.LevelUtils;
+import core.network.input.InputCommandRouter;
 import core.network.messages.c2s.InputMessage;
 import core.network.server.ClientState;
 import core.utils.*;
@@ -51,6 +52,10 @@ public class HeroController {
 
   /** The ID for the movement force. */
   public static final String MOVEMENT_ID = "Movement";
+
+  static {
+    registerDefaultInputHandlers();
+  }
 
   private HeroController() {}
 
@@ -341,6 +346,94 @@ public class HeroController {
     inputQueue.add(Tuple.of(clientState, msg));
   }
 
+  private static void registerDefaultInputHandlers() {
+    registerDefaultHandler(InputMessage.Action.MOVE, false, HeroController::handleMove);
+    registerDefaultHandler(InputMessage.Action.CAST_SKILL, false, HeroController::handleCastSkill);
+    registerDefaultHandler(InputMessage.Action.INTERACT, false, HeroController::handleInteract);
+    registerDefaultHandler(
+        InputMessage.Action.NEXT_SKILL, false, HeroController::handleSkillChange);
+    registerDefaultHandler(
+        InputMessage.Action.PREV_SKILL, false, HeroController::handleSkillChange);
+    registerDefaultHandler(
+        InputMessage.Action.TOGGLE_INVENTORY, true, HeroController::handleToggleInventory);
+    registerDefaultHandler(InputMessage.Action.INV_DROP, true, HeroController::handleInventoryDrop);
+    registerDefaultHandler(InputMessage.Action.INV_MOVE, true, HeroController::handleInventoryMove);
+    registerDefaultHandler(InputMessage.Action.INV_USE, true, HeroController::handleInventoryUse);
+  }
+
+  private static void registerDefaultHandler(
+      InputMessage.Action action,
+      boolean ignorePause,
+      InputCommandRouter.InputCommandHandler handler) {
+    InputCommandRouter.register(InputCommandRouter.routeKey(action), ignorePause, handler);
+  }
+
+  private static void handleMove(InputCommandRouter.InputCommandContext context) {
+    CharacterClass heroClass =
+        context.playerEntity().fetch(CharacterClassComponent.class).orElseThrow().characterClass();
+    InputMessage.Move move = context.payloadAs(InputMessage.Move.class);
+    HeroController.moveHero(
+        context.playerEntity(), move.direction().direction(), heroClass.speed());
+  }
+
+  private static void handleCastSkill(InputCommandRouter.InputCommandContext context) {
+    InputMessage.CastSkill castSkill = context.payloadAs(InputMessage.CastSkill.class);
+    boolean mainSkill = castSkill.mainSkill();
+    if (mainSkill) {
+      HeroController.useMainSkill(context.playerEntity(), castSkill.target());
+    } else {
+      HeroController.useSecondSkill(context.playerEntity(), castSkill.target());
+    }
+  }
+
+  private static void handleInteract(InputCommandRouter.InputCommandContext context) {
+    InputMessage.Interact interact = context.payloadAs(InputMessage.Interact.class);
+    HeroController.interact(context.playerEntity(), interact.target());
+  }
+
+  private static void handleSkillChange(InputCommandRouter.InputCommandContext context) {
+    InputMessage.SkillChange change = context.payloadAs(InputMessage.SkillChange.class);
+    boolean mainSkill = change.mainSkill();
+    if (mainSkill) {
+      HeroController.changeMainSkill(context.playerEntity(), change.nextSkill());
+    } else {
+      HeroController.changeSecondSkill(context.playerEntity(), change.nextSkill());
+    }
+  }
+
+  private static void handleToggleInventory(InputCommandRouter.InputCommandContext context) {
+    context.payloadAs(InputMessage.ToggleInventory.class);
+    HeroController.toggleInventory(context.playerEntity());
+  }
+
+  private static void handleInventoryDrop(InputCommandRouter.InputCommandContext context) {
+    Optional<InventoryComponent> playerInv =
+        context
+            .clientState()
+            .playerEntity()
+            .map(e -> e.fetch(UIComponent.class))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .flatMap(UIUtils::getFirstInventoryFromUI);
+    if (playerInv.isEmpty()) {
+      LOGGER.warn(
+          "No inventory component found for entity {} to drop item", context.playerEntity().id());
+      return;
+    }
+    InputMessage.InventoryDrop drop = context.payloadAs(InputMessage.InventoryDrop.class);
+    HeroController.dropItem(context.playerEntity(), playerInv.get(), drop.slotIndex());
+  }
+
+  private static void handleInventoryMove(InputCommandRouter.InputCommandContext context) {
+    InputMessage.InventoryMove move = context.payloadAs(InputMessage.InventoryMove.class);
+    HeroController.moveItem(context.playerEntity(), move.fromSlot(), move.toSlot());
+  }
+
+  private static void handleInventoryUse(InputCommandRouter.InputCommandContext context) {
+    InputMessage.InventoryUse use = context.payloadAs(InputMessage.InventoryUse.class);
+    HeroController.useItem(context.playerEntity(), use.slotIndex());
+  }
+
   /**
    * Drops the item at the specified inventory slot from the hero entity's inventory.
    *
@@ -562,61 +655,23 @@ public class HeroController {
       }
 
       var hudSys = Game.systems().get(HudSystem.class);
-      if ((hudSys instanceof HudSystem hudSystem && !hudSystem.hasOpenPausingUI(playerEntity))
-          || msg.action().ignorePause()) {
-        try {
-          applyInput(clientState, msg, playerEntity);
-        } catch (Exception e) {
-          LOGGER.warn("Failed to apply input for client {}: {}", clientState, e.getMessage(), e);
-        }
+      boolean paused =
+          hudSys instanceof HudSystem hudSystem && hudSystem.hasOpenPausingUI(playerEntity);
+      try {
+        applyInput(clientState, msg, playerEntity, paused);
+      } catch (Exception e) {
+        LOGGER.warn("Failed to apply input for client {}: {}", clientState, e.getMessage(), e);
       }
       clientState.updateProcessedSeq(msg.sequence());
       clientState.updateLastActivity();
     }
   }
 
-  private static void applyInput(ClientState clientState, InputMessage msg, Entity playerEntity) {
-    switch (msg.action()) {
-      case MOVE -> {
-        CharacterClass heroClass =
-            playerEntity.fetch(CharacterClassComponent.class).orElseThrow().characterClass();
-        HeroController.moveHero(
-            playerEntity, Vector2.of(msg.point()).direction(), heroClass.speed());
-      }
-      case CAST_MAIN_SKILL -> HeroController.useMainSkill(playerEntity, msg.point());
-      case CAST_SECOND_SKILL -> HeroController.useSecondSkill(playerEntity, msg.point());
-      case NEXT_MAIN_SKILL -> HeroController.changeMainSkill(playerEntity, true);
-      case PREV_MAIN_SKILL -> HeroController.changeMainSkill(playerEntity, false);
-      case NEXT_SECOND_SKILL -> HeroController.changeSecondSkill(playerEntity, true);
-      case PREV_SECOND_SKILL -> HeroController.changeSecondSkill(playerEntity, false);
-      case INTERACT -> HeroController.interact(playerEntity, msg.point());
-      case TOGGLE_INVENTORY -> HeroController.toggleInventory(playerEntity);
-      case INV_DROP -> {
-        Optional<InventoryComponent> playerInv =
-            clientState
-                .playerEntity()
-                .map(e -> e.fetch(UIComponent.class))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .flatMap(UIUtils::getFirstInventoryFromUI);
-        if (playerInv.isEmpty()) {
-          LOGGER.warn("No inventory component found for entity {} to drop item", playerEntity.id());
-          break;
-        }
-        int itemIndex = (int) msg.point().x();
-        HeroController.dropItem(playerEntity, playerInv.get(), itemIndex);
-      }
-      case INV_MOVE -> {
-        int fromIndex = (int) msg.point().x();
-        int toIndex = (int) msg.point().y();
-        HeroController.moveItem(playerEntity, fromIndex, toIndex);
-      }
-      case INV_USE -> {
-        int itemIndex = (int) msg.point().x();
-        HeroController.useItem(playerEntity, itemIndex);
-      }
-      default -> LOGGER.warn("Unknown action {} for client {}", msg.action(), clientState);
+  private static void applyInput(
+      ClientState clientState, InputMessage msg, Entity playerEntity, boolean paused) {
+    boolean executed = InputCommandRouter.dispatch(clientState, playerEntity, msg, paused);
+    if (executed) {
+      LOGGER.trace("Applied input for client {} (action: {})", clientState, msg.action());
     }
-    LOGGER.trace("Applied input for client {} (action: {})", clientState, msg.action());
   }
 }

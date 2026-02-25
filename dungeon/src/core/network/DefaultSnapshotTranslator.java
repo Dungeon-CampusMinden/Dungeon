@@ -92,6 +92,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                         builder.position(pc.position());
                         builder.viewDirection(pc.viewDirection());
                         builder.rotation(pc.rotation());
+                        builder.scale(pc.scale());
                       });
 
               // Health
@@ -177,6 +178,8 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                                     } catch (IllegalArgumentException ignored) {
                                     }
                                   });
+                          snap.rotation().ifPresent(pc::rotation);
+                          snap.scale().ifPresent(pc::scale);
                           PositionSync.syncPosition(entity);
                         });
 

@@ -1,5 +1,7 @@
 package contrib.item;
 
+import java.util.Optional;
+
 /** The types of health potions that can be created. Each type has a different healing amount. */
 public enum HealthPotionType {
   /** A weak health potion that restores a small amount of health. */
@@ -57,5 +59,20 @@ public enum HealthPotionType {
     if (randomValue < 0.75f) return WEAK;
     if (randomValue < 0.95f) return NORMAL;
     return GREATER;
+  }
+
+  /**
+   * Resolves a health potion type from a heal amount.
+   *
+   * @param healAmount The heal amount to match.
+   * @return the matching type if found
+   */
+  public static Optional<HealthPotionType> fromHealAmount(int healAmount) {
+    for (HealthPotionType type : values()) {
+      if (type.healAmount == healAmount) {
+        return Optional.of(type);
+      }
+    }
+    return Optional.empty();
   }
 }

@@ -1,8 +1,5 @@
 package core.utils.components.path;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 /**
  * Simple implementation of the {@link IPath} interface.
  *
@@ -11,8 +8,7 @@ import java.io.Serializable;
  * <p>This class stores a String. The String will be interpreted as a Path to a file or directory in
  * the dungeon framework.
  */
-public class SimpleIPath implements IPath, Serializable {
-  @Serial private static final long serialVersionUID = 1L;
+public class SimpleIPath implements IPath {
 
   private final String path;
 

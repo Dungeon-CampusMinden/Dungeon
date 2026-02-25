@@ -1,6 +1,5 @@
 package demoDungeon.level;
 
-import com.badlogic.gdx.Input;
 import contrib.components.*;
 import contrib.entities.DungeonMonster;
 import contrib.entities.LeverFactory;
@@ -16,7 +15,6 @@ import contrib.utils.components.ai.AIUtils;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
-import core.components.InputComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.DungeonLevel;
@@ -101,22 +99,6 @@ public class Level01 extends DungeonLevel {
     Game.add(HintGiverFactory.mailbox(new Point(1, 5)));
     PetriNetSystem petriNetSystem = new PetriNetSystem();
     Game.add(petriNetSystem);
-    // register hint log
-    Game.player()
-        .ifPresent(
-            player ->
-                player
-                    .fetch(InputComponent.class)
-                    .ifPresent(
-                        inputComponent ->
-                            inputComponent.registerCallback(
-                                Input.Keys.T,
-                                entity ->
-                                    player
-                                        .fetch(HintLogComponent.class)
-                                        .ifPresent(HintLogDialog::showHintLog),
-                                false,
-                                true)));
 
     // Talk to NPC riddle
     riddle1 = new Entity("Talk to monster riddle");

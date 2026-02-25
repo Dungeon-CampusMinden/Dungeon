@@ -11,6 +11,7 @@ import contrib.hud.dialogs.DialogType;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import core.level.utils.Coordinate;
+import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.InputManager;
 import core.utils.Point;
 import java.util.LinkedHashMap;
@@ -60,9 +61,10 @@ public class PointMode extends LevelEditorMode {
                     .build());
         dialogUI.registerCallback(
             DialogContextKeys.INPUT_CALLBACK,
-            data -> {
-              if (data instanceof String string && !string.isBlank()) {
-                getLevel().addNamedPoint(string, snapPos);
+            payload -> {
+              if (payload instanceof DialogResponseMessage.StringValue value
+                  && !value.value().isBlank()) {
+                getLevel().addNamedPoint(value.value(), snapPos);
               }
               UIUtils.closeDialog(dialogUI);
             });

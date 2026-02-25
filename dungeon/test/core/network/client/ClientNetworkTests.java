@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import core.network.ConnectionListener;
 import core.network.messages.c2s.InputMessage;
-import core.utils.Point;
+import core.utils.Vector2;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,7 +92,12 @@ public class ClientNetworkTests {
     assertDoesNotThrow(
         () ->
             client.sendUnreliableInput(
-                new InputMessage(0, 0, (short) 0, InputMessage.Action.MOVE, new Point(0, 0))));
+                new InputMessage(
+                    0,
+                    0,
+                    (short) 0,
+                    InputMessage.Action.MOVE,
+                    new InputMessage.Move(Vector2.of(0, 0)))));
   }
 
   /** Validates that adding a null connection listener does not throw exceptions. */

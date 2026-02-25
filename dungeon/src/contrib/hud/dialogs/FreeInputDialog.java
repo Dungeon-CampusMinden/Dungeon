@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
 import core.Game;
+import core.network.messages.c2s.DialogResponseMessage;
 
 /**
  * Package-private builder for free text input dialogs.
@@ -87,7 +88,7 @@ final class FreeInputDialog {
               String userInput = input.getText();
               DialogCallbackResolver.createButtonCallback(
                       context.dialogId(), DialogContextKeys.INPUT_CALLBACK)
-                  .accept(userInput);
+                  .accept(new DialogResponseMessage.StringValue(userInput));
             } else {
               DialogCallbackResolver.createButtonCallback(
                       context.dialogId(), DialogContextKeys.ON_CANCEL)

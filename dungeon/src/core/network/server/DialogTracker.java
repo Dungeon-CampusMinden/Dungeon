@@ -6,10 +6,10 @@ import contrib.hud.dialogs.DialogContextKeys;
 import core.Game;
 import core.game.PreRunConfiguration;
 import core.network.NetworkUtils;
+import core.network.messages.c2s.DialogResponseMessage;
 import core.network.messages.s2c.DialogCloseMessage;
 import core.network.messages.s2c.DialogShowMessage;
 import core.utils.logging.DungeonLogger;
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -172,7 +172,8 @@ public final class DialogTracker {
    * @param callbackKey the key identifying the callback
    * @return an Optional containing the callback, or empty if not found
    */
-  public Optional<Consumer<Serializable>> getCallback(String dialogId, String callbackKey) {
+  public Optional<Consumer<DialogResponseMessage.Payload>> getCallback(
+      String dialogId, String callbackKey) {
     DialogInfo info = dialogs.get(dialogId);
     if (info == null) {
       return Optional.empty();

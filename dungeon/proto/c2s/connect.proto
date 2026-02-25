@@ -1,0 +1,25 @@
+// Connection request from client.
+
+syntax = "proto3";
+
+package dungeon.c2s;
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.c2s";
+option java_outer_classname = "ConnectProto";
+
+// Client-to-server: Initial handshake request.
+// Maps to: core.network.messages.c2s.ConnectRequest
+message ConnectRequest {
+  // Protocol version the client is using (must match server).
+  int32 protocol_version = 1;
+
+  // Desired player name (must be unique on server).
+  string player_name = 2;
+
+  // Previous session ID (0 if new connection).
+  optional int32 session_id = 3;
+
+  // Previous session token (empty if new connection).
+  optional bytes session_token = 4;
+}

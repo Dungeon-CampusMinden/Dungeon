@@ -1,0 +1,99 @@
+// Player input messages.
+
+syntax = "proto3";
+
+package dungeon.c2s;
+
+import "common/common_types.proto";
+
+option java_multiple_files = true;
+option java_package = "core.network.proto.c2s";
+option java_outer_classname = "InputProto";
+
+// Client-to-server: Player input message.
+// Maps to: core.network.messages.c2s.InputMessage
+message InputMessage {
+  // Session ID of the client sending the input.
+  int32 session_id = 1;
+
+  // Client tick when the input was generated.
+  int32 client_tick = 2;
+
+  // Monotonically increasing sequence number per client.
+  int32 sequence = 3;
+
+  // Action payload (exactly one must be set).
+  oneof action {
+    MoveAction move = 10;
+    CastSkillAction cast_skill = 11;
+    InteractAction interact = 12;
+    SkillChangeAction skill_change = 13;
+    ToggleInventoryAction toggle_inventory = 14;
+    InventoryDropAction inv_drop = 15;
+    InventoryMoveAction inv_move = 16;
+    InventoryUseAction inv_use = 17;
+    CustomAction custom = 18;
+  }
+}
+
+// Move in a specific direction.
+message MoveAction {
+  // Direction vector (normalized by receiver).
+  dungeon.common.Vector2 direction = 1;
+}
+
+// Cast the active skill at a target position.
+message CastSkillAction {
+  // World position to target with skill.
+  dungeon.common.Point target = 1;
+  bool main_skill = 2; // True = main skill, false = second skill.
+}
+
+// Interact with entity/object at a position.
+message InteractAction {
+  // World position to interact at.
+  dungeon.common.Point target = 1;
+}
+
+// Change the currently active skill.
+message SkillChangeAction {
+  // True = next skill, false = previous skill.
+  bool next_skill = 1;
+  bool main_skill = 2; // True = main skill, false = second skill.
+}
+
+// Toggle inventory UI visibility.
+message ToggleInventoryAction {}
+
+// Drop item from inventory.
+message InventoryDropAction {
+  // Inventory slot index to drop from.
+  int32 slot_index = 1;
+}
+
+// Move or swap items in inventory.
+message InventoryMoveAction {
+  // Source slot index.
+  int32 from_slot = 1;
+
+  // Destination slot index.
+  int32 to_slot = 2;
+}
+
+// Use item from inventory.
+message InventoryUseAction {
+  // Inventory slot index of item to use.
+  int32 slot_index = 1;
+}
+
+// Execute a custom, namespaced command.
+message CustomAction {
+  // Namespaced command identifier, e.g. "escapeRoom:hint_log.open".
+  string command_id = 1;
+
+  // Opaque command payload.
+  bytes payload = 2;
+
+  // Schema version of the payload.
+  uint32 schema_version = 3;
+}

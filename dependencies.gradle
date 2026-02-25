@@ -1,6 +1,7 @@
 ext {
     // -- PLUGINS
     spotlessVersion = '8.2.1'
+    protobufGradlePluginVersion = '0.9.4'
 
     // -- DEPENDENCIES
     gdxVersion = '1.12.1'
@@ -9,6 +10,7 @@ ext {
     junitLauncherVersion = '6.0.3'
     mockitoVersion = '5.21.0'
     antlrVersion = '4.13.2'
+    protobufVersion = '4.33.5'
     jk1licenseVersion = '3.0.1'
 
     // -- NETWORK / SERVER
@@ -32,6 +34,10 @@ ext {
 
         // ANTLR version 4 for DSL Grammar
         antlr                     : "org.antlr:antlr4:$antlrVersion",
+
+        // Protobuf for network serialization
+        protobuf_java             : "com.google.protobuf:protobuf-java:$protobufVersion",
+        protobuf_java_util        : "com.google.protobuf:protobuf-java-util:$protobufVersion",
 
         // Netty for multiplayer logic
         netty_all     : "io.netty:netty-all:$nettyVersion",]

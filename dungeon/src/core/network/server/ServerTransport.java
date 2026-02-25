@@ -28,7 +28,6 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.*;
@@ -180,13 +179,13 @@ public final class ServerTransport {
     return udpChannel;
   }
 
-  private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, Object obj) {
+  private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, NetworkMessage msg) {
     if (udpChannel == null || !udpChannel.isActive()) {
       LOGGER.warn("UDP channel not active; cannot send to {}", target);
       return CompletableFuture.completedFuture(false);
     }
     try {
-      byte[] data = serialize(obj);
+      byte[] data = serialize(msg);
       if (data.length > SAFE_UDP_MTU) {
         LOGGER.warn("Skip UDP send; payload too large ({} B) to {}", data.length, target);
         return CompletableFuture.completedFuture(false);
@@ -202,12 +201,12 @@ public final class ServerTransport {
     }
   }
 
-  private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, Object obj) {
+  private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, NetworkMessage msg) {
     if (ctx == null || ctx.channel() == null || !ctx.channel().isActive()) {
       return CompletableFuture.completedFuture(false);
     }
     try {
-      byte[] data = serialize(obj);
+      byte[] data = serialize(msg);
       if (data.length > MAX_TCP_OBJECT_SIZE) {
         LOGGER.warn("Skip TCP send; payload too large ({} B) to {}", data.length, ctx.channel());
         return CompletableFuture.completedFuture(false);
@@ -299,17 +298,13 @@ public final class ServerTransport {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) throws Exception {
       LOGGER.trace("TCP received {} bytes from {}", frame.readableBytes(), ctx.channel());
-      Object obj = deserialize(frame);
+      NetworkMessage msg = deserialize(frame);
       Session session = sessions.get(ctx.channel().id());
       if (session == null) {
         LOGGER.warn("Received TCP message for unknown session on channel {}", ctx.channel());
         return;
       }
-      if (obj instanceof NetworkMessage msg) {
-        inboundQueue.offer(Tuple.of(session, msg));
-      } else {
-        LOGGER.debug("TCP received unexpected object: {}", obj.getClass().getName());
-      }
+      inboundQueue.offer(Tuple.of(session, msg));
     }
 
     @Override
@@ -358,9 +353,9 @@ public final class ServerTransport {
         return;
       }
 
-      Object obj;
+      NetworkMessage msg;
       try {
-        obj = deserialize(content);
+        msg = deserialize(content);
       } catch (Exception e) {
         LOGGER.warn("Failed to deserialize UDP from {}", pkt.sender(), e);
         return;
@@ -369,7 +364,7 @@ public final class ServerTransport {
       InetSocketAddress sender = pkt.sender();
       Short mappedClientId = udpToClientId.get(sender);
 
-      if (obj instanceof RegisterUdp reg) {
+      if (msg instanceof RegisterUdp reg) {
         Session tcpSender = clientIdToSession.get(reg.clientId());
         if (tcpSender == null) {
           LOGGER.warn("RegisterUdp for unknown clientId={} from {}", reg.clientId(), sender);
@@ -391,11 +386,7 @@ public final class ServerTransport {
         return;
       }
 
-      if (obj instanceof NetworkMessage msg) {
-        inboundQueue.offer(Tuple.of(session, msg));
-      } else {
-        LOGGER.debug("Unexpected UDP object {} from {}", obj.getClass().getName(), sender);
-      }
+      inboundQueue.offer(Tuple.of(session, msg));
     }
 
     @Override
@@ -465,11 +456,7 @@ public final class ServerTransport {
         req.sessionId(),
         session);
     if (req.protocolVersion() != SERVER_PROTOCOL_VERSION) {
-      session.sendMessage(
-          new ConnectReject(
-              ConnectReject.Reason.INCOMPATIBLE_VERSION,
-              "Server=" + SERVER_PROTOCOL_VERSION + ", yours=" + req.protocolVersion()),
-          true);
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.INCOMPATIBLE_VERSION), true);
       LOGGER.info(
           "Rejected ConnectRequest due to incompatible version: server={} client={}",
           SERVER_PROTOCOL_VERSION,
@@ -767,12 +754,12 @@ public final class ServerTransport {
     }
 
     // 4. Execute callback by key from DialogTracker
-    Optional<Consumer<Serializable>> callbackOpt =
+    Optional<Consumer<DialogResponseMessage.Payload>> callbackOpt =
         DialogTracker.instance().getCallback(dialogId, msg.callbackKey());
     if (callbackOpt.isPresent()) {
-      Consumer<Serializable> callback = callbackOpt.get();
+      Consumer<DialogResponseMessage.Payload> callback = callbackOpt.get();
       try {
-        callback.accept(msg.data());
+        callback.accept(msg.payload());
       } catch (Exception e) {
         LOGGER.error("Error executing callback for dialog {}", dialogId, e);
       }
