@@ -12,6 +12,7 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * This class represents a health potion item in the game. The health potion can be used to restore
@@ -115,5 +116,18 @@ public class ItemPotionHealth extends Item {
     return Map.of(
         DATA_KEY_POTION_TYPE, type.name(),
         DATA_KEY_HEAL_AMOUNT, Integer.toString(healAmount));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ItemPotionHealth other)) return false;
+
+    return this.healAmount == other.healAmount;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(ItemPotionHealth.class, healAmount);
   }
 }
