@@ -14,12 +14,16 @@ import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
 import core.utils.Point;
 import core.utils.logging.DungeonLogger;
-import java.io.*;
+import level.BlocklyLevel;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import level.BlocklyLevel;
 
 /**
  * Controls communication between the Blockly frontend and the dungeon game. Provides HTTP endpoints
@@ -371,8 +375,8 @@ public class Server {
 
   private void handleGamestateRequest(HttpExchange exchange) throws IOException {
     String response = "LevelLayout:" + Game.currentLevel().get().printLevel()+System.lineSeparator()
-            +"HeroPosition: "+Game.hero().get().fetch(PositionComponent.class).get().position().toString()+System.lineSeparator()
-            +"View Direction: "+Game.hero().get().fetch(PositionComponent.class).get().viewDirection().toString();
+            +"HeroPosition: "+Game.player().get().fetch(PositionComponent.class).get().position().toString()+System.lineSeparator()
+            +"View Direction: "+Game.player().get().fetch(PositionComponent.class).get().viewDirection().toString();
 
     exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     exchange.sendResponseHeaders(200, response.getBytes().length);
