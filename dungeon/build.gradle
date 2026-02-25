@@ -1,8 +1,14 @@
 plugins {
     id 'java-library'
     id 'com.google.protobuf'
+    id 'application' // necessary to use installDist task
+    id 'org.beryx.runtime' version '2.0.1' // Java badass runtime
 }
 
+application {
+    mainClass = "starter.BasicStarter"
+    applicationName = "dungeon"
+}
 
 dependencies {
     // LibGDX: expose this API to users because of core.level.elements.ILevel
@@ -108,4 +114,65 @@ tasks.named('checkstyleMain') {
 tasks.named('checkstyleTest') {
     exclude 'build/generated/source/proto/**'
     exclude '**/core/network/proto/**'
+}
+
+/*
+    this task creates the jar files based on compiled classes from .java files and assets( comes from java-library plugin)
+    manifest attribute is set to the main class of the project.
+    It provides the main class information to jpackage for creating the native executable
+*/
+tasks.named('jar', Jar) {
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
+}
+
+/*
+    "Uses the jpackage tool to create a platform-specific application image.
+    depends on: runtime"
+
+    - installDist is a task called from jpackageImage task. it uses the jar files to create a proper directory structure with all necessary jar files and assets
+    - packageImage task (from org.beryx.runtime plugin) uses the JDK's jpackage tool (configured in the runtime.jpackage block) to create the executable of project with bundled JRE
+ */
+tasks.named('jpackageImage') {
+    dependsOn 'installDist'
+}
+
+
+/*
+    "Creates an image containing your application, a custom JRE, and appropriate start scripts.
+    If the property distDir is not set, this task depends on either installDist or installShadowDist"
+
+    runtime(Config Block)
+    Configuration block for org.beryx.runtime plugin(Java Badass Runtime)
+    This plugin creates a custom JRE (using jlink) and packages it with the application (using jpackage)
+*/
+runtime {
+    options = ['--strip-debug',
+               '--compress', '2',
+               '--no-header-files',
+               '--no-man-pages',
+               '--strip-native-commands',
+               '--vm', 'server']
+
+    // Java modules to include in the custom JRE (only these will be bundled, reducing size)
+    modules = [
+        'java.base',
+        'java.desktop',
+        'java.logging',
+        'java.naming',
+        'jdk.unsupported',
+        'jdk.zipfs'
+    ]
+
+    // Configuration for jpackage tool
+    jpackage {
+
+        // Directory containing all JARs (created by installDist task)    "../build/install/dungeon/lib"
+        def inputDir = layout.buildDirectory.dir("install/${application.applicationName}/lib").get().asFile
+
+        // Options passed to jpackage tool (jpackage requires --input option to know where all jars are)
+        imageOptions = ["--input", inputDir.absolutePath]
+
+    }
 }
