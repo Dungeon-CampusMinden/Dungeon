@@ -1,8 +1,4 @@
 
-plugins {
-    id 'antlr'
-}
-
 
 
 
@@ -13,8 +9,7 @@ repositories {
 dependencies {
     implementation project(':dungeon'), 'com.github.javaparser:javaparser-symbol-solver-core:3.28.0'
 
-    // ANTLR version 4 for DSL Grammar
-    antlr supportDependencies.antlr
+
 
     // JUnit 4 and Mockito for testing
     testImplementation supportDependencies.junit
@@ -31,13 +26,6 @@ processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-sourceSets.main.antlr.srcDirs = ['src']
-
-// generate ANTLR visitor and listener classes from grammar
-generateGrammarSource {
-    maxHeapSize = '64m'
-    arguments += ['-visitor', '-listener', '-long-messages']
-}
 
 tasks.withType(Jar) {
     // Das hier filtert ALLES, was im fertigen JAR landen würde
@@ -45,6 +33,7 @@ tasks.withType(Jar) {
     exclude("**/debug/**")
     exclude("**/*.pdf") // Falls eine Library Dokumentation mitschleppt
 }
+
 
 
 tasks.register('runBlockly', JavaExec) {
