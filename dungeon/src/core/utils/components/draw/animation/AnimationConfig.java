@@ -1,9 +1,5 @@
 package core.utils.components.draw.animation;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.JsonValue;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -214,39 +210,46 @@ public class AnimationConfig implements Cloneable, Serializable {
    * @return a map of animation name → {@link AnimationConfig}, or {@code null} if file not found
    */
   public static Map<String, AnimationConfig> loadAnimationConfigMap(String jsonFilePath) {
-    JsonReader jsonReader = new JsonReader();
     Map<String, AnimationConfig> animationMap = new HashMap<>();
 
     // Engine-neutral resource lookup (works for libGDX and non-libGDX hosts like LITIENGINE)
-    if (jsonFilePath == null || jsonFilePath.isBlank() || !core.platform.Platform.resources().exists(jsonFilePath)) {
+    if (jsonFilePath == null || jsonFilePath.isBlank()
+      || !core.platform.Platform.resources().exists(jsonFilePath)) {
       return null;
     }
 
-    // Read JSON from Platform.resources() (no Gdx.files dependency)
-    JsonValue root;
+    final String json;
     try (java.io.InputStream in = core.platform.Platform.resources().open(jsonFilePath)) {
-      String json = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
-      root = jsonReader.parse(json);
+      json = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
     } catch (Exception e) {
       return null;
     }
 
-    if (root == null) return null;
+    final Map<String, Object> root;
+    try {
+      root = core.utils.JsonHandler.readJson(json);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
 
-    for (JsonValue entry = root.child; entry != null; entry = entry.next) {
-      String animationName = entry.name;
+    if (root == null || root.isEmpty()) return animationMap;
 
-      // Read SpritesheetConfig (optional; some configs may omit it)
-      JsonValue configJson = entry.get("config");
+    for (Map.Entry<String, Object> animEntry : root.entrySet()) {
+      String animationName = animEntry.getKey();
+      Map<String, Object> entry = asMap(animEntry.getValue());
+      if (entry == null) continue;
+
+      // Read SpritesheetConfig (optional)
       SpritesheetConfig sheetConfig = null;
-      if (configJson != null) {
+      Map<String, Object> cfg = asMap(entry.get("config"));
+      if (cfg != null) {
         sheetConfig = new SpritesheetConfig();
-        sheetConfig.spriteWidth(configJson.getInt("spriteWidth"));
-        sheetConfig.spriteHeight(configJson.getInt("spriteHeight"));
-        sheetConfig.x(configJson.getInt("x"));
-        sheetConfig.y(configJson.getInt("y"));
-        sheetConfig.rows(configJson.getInt("rows"));
-        sheetConfig.columns(configJson.getInt("columns"));
+        sheetConfig.spriteWidth(getInt(cfg, "spriteWidth", sheetConfig.spriteWidth()));
+        sheetConfig.spriteHeight(getInt(cfg, "spriteHeight", sheetConfig.spriteHeight()));
+        sheetConfig.x(getInt(cfg, "x", sheetConfig.x()));
+        sheetConfig.y(getInt(cfg, "y", sheetConfig.y()));
+        sheetConfig.rows(getInt(cfg, "rows", sheetConfig.rows()));
+        sheetConfig.columns(getInt(cfg, "columns", sheetConfig.columns()));
       }
 
       // Read AnimationConfig
@@ -254,16 +257,62 @@ public class AnimationConfig implements Cloneable, Serializable {
       if (sheetConfig != null) {
         animConfig.config(sheetConfig);
       }
-      animConfig.framesPerSprite(entry.getInt("framesPerSprite", 10));
-      animConfig.scaleX(entry.getFloat("scaleX", 1f));
-      animConfig.scaleY(entry.getFloat("scaleY", 0f));
-      animConfig.isLooping(entry.getBoolean("isLooping", true));
-      animConfig.centered(entry.getBoolean("centered", false));
-      animConfig.mirrored(entry.getBoolean("mirrored", false));
+
+      animConfig.framesPerSprite(getInt(entry, "framesPerSprite", 10));
+      animConfig.scaleX(getFloat(entry, "scaleX", 1f));
+      animConfig.scaleY(getFloat(entry, "scaleY", 0f));
+      animConfig.isLooping(getBoolean(entry, "isLooping", true));
+      animConfig.centered(getBoolean(entry, "centered", false));
+      animConfig.mirrored(getBoolean(entry, "mirrored", false));
 
       animationMap.put(animationName, animConfig);
     }
+
     return animationMap;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> asMap(Object o) {
+    if (o instanceof Map<?, ?> m) {
+      // JsonHandler returns Map<String,Object>, but we still guard defensively
+      Map<String, Object> out = new HashMap<>();
+      for (Map.Entry<?, ?> e : m.entrySet()) {
+        if (e.getKey() instanceof String k) {
+          out.put(k, e.getValue());
+        }
+      }
+      return out;
+    }
+    return null;
+  }
+
+  private static int getInt(Map<String, Object> m, String key, int def) {
+    Object v = m.get(key);
+    if (v == null) return def;
+    if (v instanceof Number n) return n.intValue();
+    try {
+      return Integer.parseInt(String.valueOf(v));
+    } catch (Exception ignored) {
+      return def;
+    }
+  }
+
+  private static float getFloat(Map<String, Object> m, String key, float def) {
+    Object v = m.get(key);
+    if (v == null) return def;
+    if (v instanceof Number n) return n.floatValue();
+    try {
+      return Float.parseFloat(String.valueOf(v));
+    } catch (Exception ignored) {
+      return def;
+    }
+  }
+
+  private static boolean getBoolean(Map<String, Object> m, String key, boolean def) {
+    Object v = m.get(key);
+    if (v == null) return def;
+    if (v instanceof Boolean b) return b;
+    return Boolean.parseBoolean(String.valueOf(v));
   }
 
   @Override
