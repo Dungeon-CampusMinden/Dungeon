@@ -1,10 +1,9 @@
 package contrib.utils.components.ai.idle;
 
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
 import core.components.PositionComponent;
-import core.level.Tile;
+import core.level.path.TilePath;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -23,7 +22,7 @@ public final class SentryPatrolWalk implements Consumer<Entity> {
   private final boolean canEnterWalls;
 
   private boolean toB = true; // true = moving towards B, false = towards A
-  private GraphPath<Tile> currentPath;
+  private TilePath currentPath;
 
   /**
    * Creates a new {@code SentryPatrolWalk}.
@@ -71,10 +70,8 @@ public final class SentryPatrolWalk implements Consumer<Entity> {
   }
 
   private void pathCalculator(Point from, Point to) {
-    if (canEnterWalls) {
-      currentPath = LevelUtils.calculatePathInsideWall(from, to);
-    } else {
-      currentPath = LevelUtils.calculatePath(from, to);
-    }
+    currentPath = canEnterWalls
+      ? LevelUtils.calculateTilePathInsideWall(from, to)
+      : LevelUtils.calculateTilePath(from, to);
   }
 }

@@ -1,10 +1,9 @@
 package contrib.utils.components.ai.idle;
 
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
 import core.Game;
-import core.level.Tile;
+import core.level.path.TilePath;
 import core.level.utils.LevelUtils;
 import java.util.function.Consumer;
 
@@ -14,7 +13,7 @@ import java.util.function.Consumer;
 public final class RadiusWalk implements Consumer<Entity> {
   private final float radius;
   private final int breakTime;
-  private GraphPath<Tile> path;
+  private TilePath path;
   private int currentBreak = 0;
 
   /**
@@ -34,7 +33,7 @@ public final class RadiusWalk implements Consumer<Entity> {
     if (path == null || AIUtils.pathFinishedOrLeft(entity, path)) {
       if (currentBreak >= breakTime) {
         currentBreak = 0;
-        path = LevelUtils.calculatePathToRandomTileInRange(entity, radius);
+        path = LevelUtils.calculateTilePathToRandomTileInRange(entity, radius);
         accept(entity);
       }
 

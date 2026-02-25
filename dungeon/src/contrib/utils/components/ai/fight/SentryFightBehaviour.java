@@ -1,13 +1,12 @@
 package contrib.utils.components.ai.fight;
 
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AIUtils;
 import contrib.utils.components.ai.ISkillUser;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.projectileSkill.DamageProjectileSkill;
 import core.Entity;
 import core.components.PositionComponent;
-import core.level.Tile;
+import core.level.path.TilePath;
 import core.level.utils.LevelUtils;
 import core.utils.Direction;
 import core.utils.Point;
@@ -23,7 +22,7 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
   private final Point pointB;
   private final boolean canEnterWalls;
   private boolean toB = true; // true = moving towards B, false = towards A
-  private GraphPath<Tile> currentPath;
+  private TilePath currentPath;
 
   private final float attackRange;
   private DamageProjectileSkill fightSkill;
@@ -108,11 +107,9 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
   }
 
   private void pathCalculator(Point from, Point to) {
-    if (canEnterWalls) {
-      currentPath = LevelUtils.calculatePathInsideWall(from, to);
-    } else {
-      currentPath = LevelUtils.calculatePath(from, to);
-    }
+    currentPath = canEnterWalls
+      ? LevelUtils.calculateTilePathInsideWall(from, to)
+      : LevelUtils.calculateTilePath(from, to);
   }
 
   @Override

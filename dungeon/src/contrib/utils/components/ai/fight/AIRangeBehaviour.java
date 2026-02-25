@@ -2,13 +2,13 @@ package contrib.utils.components.ai.fight;
 
 import static core.level.utils.LevelUtils.accessibleTilesInRange;
 
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AIUtils;
 import contrib.utils.components.ai.ISkillUser;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import core.level.Tile;
+import core.level.path.TilePath;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import java.util.List;
@@ -116,11 +116,11 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    * @return A path to safety, either to a reachable tile outside the minimum attack range or a
    *     random tile within the search radius.
    */
-  private GraphPath<Tile> escapePath(Entity entity, Point positionEntity, Point positionPlayer) {
+  private TilePath escapePath(Entity entity, Point positionEntity, Point positionPlayer) {
     return findPathToSafety(positionEntity, positionPlayer)
         .orElseGet(
             () ->
-                LevelUtils.calculatePathToRandomTileInRange(
+                LevelUtils.calculateTilePathToRandomTileInRange(
                     entity, SEARCH_RADIUS_FACTOR * maxAttackRange));
   }
 
@@ -132,12 +132,12 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    * @param positionPlayer The position of the player.
    * @return An optional containing the path to safety, or empty if no such path exists.
    */
-  private Optional<GraphPath<Tile>> findPathToSafety(Point positionEntity, Point positionPlayer) {
+  private Optional<TilePath> findPathToSafety(Point positionEntity, Point positionPlayer) {
     List<Tile> tiles = accessibleTilesInRange(positionEntity, maxAttackRange - minAttackRange);
     for (Tile t : tiles) {
       Point p = t.position();
       if (!Point.inRange(p, positionPlayer, minAttackRange)) {
-        return Optional.of(LevelUtils.calculatePath(positionEntity, p));
+        return Optional.of(LevelUtils.calculateTilePath(positionEntity, p));
       }
     }
     return Optional.empty();
@@ -149,7 +149,7 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    * @param entity The entity to move.
    */
   private void moveToPlayer(Entity entity) {
-    GraphPath<Tile> path = LevelUtils.calculatePathToPlayer(entity);
+    TilePath path = LevelUtils.calculateTilePathToPlayer(entity);
     AIUtils.followPath(entity, path);
   }
 

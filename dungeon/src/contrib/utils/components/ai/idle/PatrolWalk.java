@@ -1,11 +1,11 @@
 package contrib.utils.components.ai.idle;
 
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.path.TilePath;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -28,7 +28,7 @@ public final class PatrolWalk implements Consumer<Entity> {
   private final int pauseFrames;
   private final float radius;
   private final MODE mode;
-  private GraphPath<Tile> currentPath;
+  private TilePath currentPath;
   private boolean initialized = false;
   private boolean forward = true;
   private int frameCounter = -1;
@@ -100,7 +100,7 @@ public final class PatrolWalk implements Consumer<Entity> {
     if (currentPath != null && !AIUtils.pathFinished(entity, currentPath)) {
       if (AIUtils.pathLeft(entity, currentPath)) {
         currentPath =
-            LevelUtils.calculatePath(
+            LevelUtils.calculateTilePath(
                 position.position(), this.checkpoints.get(currentCheckpoint).position());
       }
       AIUtils.followPath(entity, currentPath);
@@ -125,13 +125,13 @@ public final class PatrolWalk implements Consumer<Entity> {
         Random rnd = new Random();
         currentCheckpoint = rnd.nextInt(checkpoints.size());
         currentPath =
-            LevelUtils.calculatePath(
+            LevelUtils.calculateTilePath(
                 position.position(), this.checkpoints.get(currentCheckpoint).position());
       }
       case LOOP -> {
         currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
         currentPath =
-            LevelUtils.calculatePath(
+            LevelUtils.calculateTilePath(
                 position.position(), this.checkpoints.get(currentCheckpoint).position());
       }
       case BACK_AND_FORTH -> {
@@ -149,7 +149,7 @@ public final class PatrolWalk implements Consumer<Entity> {
           }
         }
         currentPath =
-            LevelUtils.calculatePath(
+            LevelUtils.calculateTilePath(
                 position.position(), this.checkpoints.get(currentCheckpoint).position());
       }
       default -> {}

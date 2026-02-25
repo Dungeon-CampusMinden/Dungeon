@@ -1,10 +1,9 @@
 package contrib.utils.components.ai.fight;
 
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
 import core.Game;
-import core.level.Tile;
+import core.level.path.TilePath;
 import core.level.utils.LevelUtils;
 import java.util.function.Consumer;
 
@@ -20,7 +19,7 @@ public class AIChaseBehaviour implements Consumer<Entity> {
   private final float chaseRange;
   private final int delay = Game.frameRate();
   private int timeSinceLastUpdate = delay;
-  private GraphPath<Tile> path;
+  private TilePath path;
 
   /**
    * Creates a new AIChaseBehaviour with the given chase range.
@@ -41,14 +40,14 @@ public class AIChaseBehaviour implements Consumer<Entity> {
   }
 
   private void handlePlayerInChaseRange(final Entity entity) {
-    path = LevelUtils.calculatePathToPlayer(entity);
+    path = LevelUtils.calculateTilePathToPlayer(entity);
     AIUtils.followPath(entity, path);
     timeSinceLastUpdate = delay;
   }
 
   private void handlePlayerNotInChaseRange(final Entity entity) {
     if (timeSinceLastUpdate >= delay) {
-      path = LevelUtils.calculatePathToPlayer(entity);
+      path = LevelUtils.calculateTilePathToPlayer(entity);
       timeSinceLastUpdate = 0;
     }
     timeSinceLastUpdate++;

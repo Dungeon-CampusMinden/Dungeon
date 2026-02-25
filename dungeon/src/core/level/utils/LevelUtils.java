@@ -7,6 +7,8 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
+import core.level.path.ListTilePath;
+import core.level.path.TilePath;
 import core.utils.*;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -184,8 +186,7 @@ public final class LevelUtils {
    */
   public static GraphPath<Tile> calculatePathToPlayer(final Entity entity) {
     Optional<Entity> player = Game.player();
-    if (player.isPresent()) return calculatePath(entity, player.get());
-    else return calculatePath(entity, entity);
+    return player.map(value -> calculatePath(entity, value)).orElseGet(() -> calculatePath(entity, entity));
   }
 
   /**
@@ -228,7 +229,7 @@ public final class LevelUtils {
     // BFS queue
     Queue<Tile> tileQueue = new ArrayDeque<>();
     Game.tileAt(center).ifPresent(tileQueue::add);
-    while (tileQueue.size() > 0) {
+    while (!tileQueue.isEmpty()) {
       Tile current = tileQueue.remove();
       boolean added = tiles.add(current);
       if (added) {
@@ -535,5 +536,85 @@ public final class LevelUtils {
         Game.tileAt(new Coordinate(x, y)).ifPresent(t -> t.tintColor(color));
       }
     }
+  }
+
+  /**
+   * Calculates a path of tiles between two points and converts it to a TilePath.
+   *
+   * @param from the start point
+   * @param to the end point
+   * @return a TilePath containing all tiles from {@code from} to {@code to}
+   */
+  public static TilePath calculateTilePath(final Point from, final Point to) {
+    return toTilePath(calculatePath(from, to));
+  }
+
+  /**
+   * Calculates a path of tiles between two coordinates and converts it to a TilePath.
+   *
+   * @param from the start coordinate
+   * @param to the end coordinate
+   * @return a TilePath containing all tiles from {@code from} to {@code to}
+   */
+  public static TilePath calculateTilePath(final Coordinate from, final Coordinate to) {
+    return toTilePath(calculatePath(from, to));
+  }
+
+
+  /**
+   * Calculates a {@link TilePath} from the given entity to the current player.
+   *
+   * <p>If no player exists, the path is calculated from the entity to itself.
+   *
+   * <p>This method requires the entity to have a {@link PositionComponent}.
+   *
+   * @param entity the entity to start from
+   * @return a {@link TilePath} to the player, or to the entity itself if no player exists
+   * @throws MissingComponentException if the entity has no {@link PositionComponent}
+   */
+  public static TilePath calculateTilePathToPlayer(final Entity entity) {
+    return toTilePath(calculatePathToPlayer(entity));
+  }
+
+  /**
+   * Calculates a path of tiles between two points, assuming they lie on a straight horizontal or
+   * vertical line, and converts it to a TilePath.
+   *
+   * @param from the start point
+   * @param to the end point
+   * @return a TilePath containing all tiles from {@code from} to {@code to}
+   */
+  public static TilePath calculateTilePathInsideWall(final Point from, final Point to) {
+    return toTilePath(calculatePathInsideWall(from, to));
+  }
+
+  /**
+   * Calculates a {@link TilePath} from the given entity to a randomly chosen accessible tile within
+   * the specified radius.
+   *
+   * <p>If no accessible tile exists within the radius, the resulting path targets the entity's
+   * current position (i.e., a path from the entity to itself).
+   *
+   * <p>This method requires the entity to have a {@link PositionComponent}.
+   *
+   * @param entity the entity whose position is used as the center/start
+   * @param radius the radius in which an accessible target tile is selected
+   * @return a {@link TilePath} to a random accessible tile in range, or to the entity itself if no
+   *     such tile exists
+   * @throws MissingComponentException if the entity has no {@link PositionComponent}
+   */
+  public static TilePath calculateTilePathToRandomTileInRange(final Entity entity, float radius) {
+    return toTilePath(calculatePathToRandomTileInRange(entity, radius));
+  }
+
+  private static TilePath toTilePath(final com.badlogic.gdx.ai.pfa.GraphPath<Tile> gdxPath) {
+    ListTilePath out = new ListTilePath();
+    if (gdxPath == null || gdxPath.getCount() <= 0) {
+      return out;
+    }
+    for (int i = 0; i < gdxPath.getCount(); i++) {
+      out.add(gdxPath.get(i));
+    }
+    return out;
   }
 }

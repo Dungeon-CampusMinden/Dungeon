@@ -1,11 +1,10 @@
 package contrib.utils.components.ai.idle;
 
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.level.Tile;
+import core.level.path.TilePath;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -15,7 +14,7 @@ import java.util.function.Consumer;
 public final class StaticRadiusWalk implements Consumer<Entity> {
   private final float radius;
   private final int breakTime;
-  private GraphPath<Tile> path;
+  private TilePath path;
   private int currentBreak = 0;
   private Point center;
 
@@ -54,11 +53,10 @@ public final class StaticRadiusWalk implements Consumer<Entity> {
                     () -> MissingComponentException.build(entity, PositionComponent.class));
         if (pc2.position().equals(PositionComponent.ILLEGAL_POSITION)) return;
         Point currentPosition = pc2.position();
-        // center is the start position of the entity, so it must be
-        // accessible
+        // center is the start position of the entity, so it must be accessible
         Point newEndTile =
             LevelUtils.randomAccessibleTileInRangeAsPoint(center, radius).orElse(center);
-        path = LevelUtils.calculatePath(currentPosition, newEndTile);
+        path = LevelUtils.calculateTilePath(currentPosition, newEndTile);
         accept(entity);
       }
       currentBreak++;
