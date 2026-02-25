@@ -1,6 +1,7 @@
 import static org.junit.jupiter.api.Assertions.*;
 
 import core.Dialect;
+import core.ir.SourceLocation;
 import core.serialization.Utils;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
@@ -22,6 +23,7 @@ import tools.jackson.databind.ObjectMapper;
  * that reaching definitions hold in complex cases and some negative test cases.
  */
 public class ScfTests {
+  static final SourceLocation LOC = SourceLocation.UNKNOWN;
   static ObjectMapper mapper;
 
   @BeforeAll
@@ -38,12 +40,12 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    ScopeOp scopeOp = funcOp.addOperation(new ScopeOp(), 0);
-    var constOp = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(42));
-    scopeOp.getRegion().getEntryBlock().addOperation(new PrintOp(constOp.getValue()));
-    scopeOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    ScopeOp scopeOp = funcOp.addOperation(new ScopeOp(LOC), 0);
+    var constOp = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 42));
+    scopeOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, constOp.getValue()));
+    scopeOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -54,18 +56,18 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    ScopeOp outerScope = funcOp.addOperation(new ScopeOp(), 0);
-    var outerConst = outerScope.getRegion().getEntryBlock().addOperation(new ConstantOp(10));
+    ScopeOp outerScope = funcOp.addOperation(new ScopeOp(LOC), 0);
+    var outerConst = outerScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 10));
 
-    ScopeOp innerScope = outerScope.getRegion().getEntryBlock().addOperation(new ScopeOp());
-    var innerConst = innerScope.getRegion().getEntryBlock().addOperation(new ConstantOp(20));
+    ScopeOp innerScope = outerScope.getRegion().getEntryBlock().addOperation(new ScopeOp(LOC));
+    var innerConst = innerScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 20));
     // Inner scope can use values from outer scope
-    innerScope.getRegion().getEntryBlock().addOperation(new PrintOp(outerConst.getValue()));
-    innerScope.getRegion().getEntryBlock().addOperation(new PrintOp(innerConst.getValue()));
-    innerScope.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    innerScope.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, outerConst.getValue()));
+    innerScope.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, innerConst.getValue()));
+    innerScope.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    outerScope.getRegion().getEntryBlock().addOperation(new ContinueOp());
-    funcOp.addOperation(new ReturnOp(), 0);
+    outerScope.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -76,16 +78,16 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    ScopeOp scopeOp = funcOp.addOperation(new ScopeOp(), 0);
-    var const1 = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(1));
-    var const2 = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(2));
-    var const3 = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(3));
-    scopeOp.getRegion().getEntryBlock().addOperation(new PrintOp(const1.getValue()));
-    scopeOp.getRegion().getEntryBlock().addOperation(new PrintOp(const2.getValue()));
-    scopeOp.getRegion().getEntryBlock().addOperation(new PrintOp(const3.getValue()));
-    scopeOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    ScopeOp scopeOp = funcOp.addOperation(new ScopeOp(LOC), 0);
+    var const1 = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 1));
+    var const2 = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 2));
+    var const3 = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 3));
+    scopeOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, const1.getValue()));
+    scopeOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, const2.getValue()));
+    scopeOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, const3.getValue()));
+    scopeOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -96,12 +98,12 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    ScopeOp scopeOp = funcOp.addOperation(new ScopeOp(), 0);
-    var constOp = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(42));
-    scopeOp.getRegion().getEntryBlock().addOperation(new PrintOp(constOp.getValue()));
+    ScopeOp scopeOp = funcOp.addOperation(new ScopeOp(LOC), 0);
+    var constOp = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 42));
+    scopeOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, constOp.getValue()));
     // Missing ContinueOp
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -114,14 +116,14 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var condOp = funcOp.addOperation(new ConstantOp(true), 0);
-    IfOp ifOp = funcOp.addOperation(new IfOp(condOp.getValue(), false), 0);
+    var condOp = funcOp.addOperation(new ConstantOp(LOC, true), 0);
+    IfOp ifOp = funcOp.addOperation(new IfOp(LOC, condOp.getValue(), false), 0);
 
-    var thenConst = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(42));
-    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(thenConst.getValue()));
-    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp());
+    var thenConst = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 42));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, thenConst.getValue()));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -132,22 +134,22 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var condOp = funcOp.addOperation(new ConstantOp(true), 0);
-    IfOp ifOp = funcOp.addOperation(new IfOp(condOp.getValue(), true), 0);
+    var condOp = funcOp.addOperation(new ConstantOp(LOC, true), 0);
+    IfOp ifOp = funcOp.addOperation(new IfOp(LOC, condOp.getValue(), true), 0);
 
     // Then branch
     var thenConst =
-        ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp("Then branch"));
-    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(thenConst.getValue()));
-    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp());
+        ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Then branch"));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, thenConst.getValue()));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Else branch
     var elseConst =
-        ifOp.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp("Else branch"));
-    ifOp.getElseRegion().get().getEntryBlock().addOperation(new PrintOp(elseConst.getValue()));
-    ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp());
+        ifOp.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp(LOC, "Else branch"));
+    ifOp.getElseRegion().get().getEntryBlock().addOperation(new PrintOp(LOC, elseConst.getValue()));
+    ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -158,32 +160,32 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var outerCond = funcOp.addOperation(new ConstantOp(true), 0);
-    IfOp outerIf = funcOp.addOperation(new IfOp(outerCond.getValue(), false), 0);
+    var outerCond = funcOp.addOperation(new ConstantOp(LOC, true), 0);
+    IfOp outerIf = funcOp.addOperation(new IfOp(LOC, outerCond.getValue(), false), 0);
 
     // Nested if inside outer then
-    var innerCond = outerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(false));
+    var innerCond = outerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, false));
     IfOp innerIf =
-        outerIf.getThenRegion().getEntryBlock().addOperation(new IfOp(innerCond.getValue(), true));
+        outerIf.getThenRegion().getEntryBlock().addOperation(new IfOp(LOC, innerCond.getValue(), true));
 
     // Inner then
     var innerThenConst =
-        innerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp("Inner then"));
-    innerIf.getThenRegion().getEntryBlock().addOperation(new PrintOp(innerThenConst.getValue()));
-    innerIf.getThenRegion().getEntryBlock().addOperation(new ContinueOp());
+        innerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Inner then"));
+    innerIf.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, innerThenConst.getValue()));
+    innerIf.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Inner else
     var innerElseConst =
-        innerIf.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp("Inner else"));
+        innerIf.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp(LOC, "Inner else"));
     innerIf
         .getElseRegion()
         .get()
         .getEntryBlock()
-        .addOperation(new PrintOp(innerElseConst.getValue()));
-    innerIf.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp());
+        .addOperation(new PrintOp(LOC, innerElseConst.getValue()));
+    innerIf.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    outerIf.getThenRegion().getEntryBlock().addOperation(new ContinueOp());
-    funcOp.addOperation(new ReturnOp(), 0);
+    outerIf.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -194,18 +196,18 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var outerValue = funcOp.addOperation(new ConstantOp(100), 0);
-    var condOp = funcOp.addOperation(new ConstantOp(true), 0);
-    IfOp ifOp = funcOp.addOperation(new IfOp(condOp.getValue(), true), 0);
+    var outerValue = funcOp.addOperation(new ConstantOp(LOC, 100), 0);
+    var condOp = funcOp.addOperation(new ConstantOp(LOC, true), 0);
+    IfOp ifOp = funcOp.addOperation(new IfOp(LOC, condOp.getValue(), true), 0);
 
     // Both branches should be able to use the outer value
-    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(outerValue.getValue()));
-    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp());
+    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, outerValue.getValue()));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    ifOp.getElseRegion().get().getEntryBlock().addOperation(new PrintOp(outerValue.getValue()));
-    ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp());
+    ifOp.getElseRegion().get().getEntryBlock().addOperation(new PrintOp(LOC, outerValue.getValue()));
+    ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -216,14 +218,14 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var condOp = funcOp.addOperation(new ConstantOp(true), 0);
-    IfOp ifOp = funcOp.addOperation(new IfOp(condOp.getValue(), false), 0);
+    var condOp = funcOp.addOperation(new ConstantOp(LOC, true), 0);
+    IfOp ifOp = funcOp.addOperation(new IfOp(LOC, condOp.getValue(), false), 0);
 
-    var thenConst = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(42));
-    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(thenConst.getValue()));
+    var thenConst = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 42));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, thenConst.getValue()));
     // Missing ContinueOp
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -234,18 +236,18 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var condOp = funcOp.addOperation(new ConstantOp(true), 0);
-    IfOp ifOp = funcOp.addOperation(new IfOp(condOp.getValue(), true), 0);
+    var condOp = funcOp.addOperation(new ConstantOp(LOC, true), 0);
+    IfOp ifOp = funcOp.addOperation(new IfOp(LOC, condOp.getValue(), true), 0);
 
     // Then branch is OK
-    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp());
+    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Else branch missing terminator
-    var elseConst = ifOp.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp(42));
-    ifOp.getElseRegion().get().getEntryBlock().addOperation(new PrintOp(elseConst.getValue()));
+    var elseConst = ifOp.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp(LOC, 42));
+    ifOp.getElseRegion().get().getEntryBlock().addOperation(new PrintOp(LOC, elseConst.getValue()));
     // Missing ContinueOp
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -258,14 +260,14 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var initValue = funcOp.addOperation(new ConstantOp(0), 0);
-    var lowerBound = funcOp.addOperation(new ConstantOp(0), 0);
-    var upperBound = funcOp.addOperation(new ConstantOp(10), 0);
-    var step = funcOp.addOperation(new ConstantOp(1), 0);
+    var initValue = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var lowerBound = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var upperBound = funcOp.addOperation(new ConstantOp(LOC, 10), 0);
+    var step = funcOp.addOperation(new ConstantOp(LOC, 1), 0);
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(
+            new ForOp(LOC, 
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -273,10 +275,10 @@ public class ScfTests {
             0);
 
     // Use the induction variable
-    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(forOp.getInductionValue()));
-    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, forOp.getInductionValue()));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -288,14 +290,14 @@ public class ScfTests {
     FuncOp funcOp = entry.getRight();
 
     // Outer loop
-    var outerInit = funcOp.addOperation(new ConstantOp(0), 0);
-    var outerLower = funcOp.addOperation(new ConstantOp(0), 0);
-    var outerUpper = funcOp.addOperation(new ConstantOp(5), 0);
-    var outerStep = funcOp.addOperation(new ConstantOp(1), 0);
+    var outerInit = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var outerLower = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var outerUpper = funcOp.addOperation(new ConstantOp(LOC, 5), 0);
+    var outerStep = funcOp.addOperation(new ConstantOp(LOC, 1), 0);
 
     ForOp outerFor =
         funcOp.addOperation(
-            new ForOp(
+            new ForOp(LOC, 
                 outerInit.getValue(),
                 outerLower.getValue(),
                 outerUpper.getValue(),
@@ -303,17 +305,17 @@ public class ScfTests {
             0);
 
     // Inner loop
-    var innerInit = outerFor.getRegion().getEntryBlock().addOperation(new ConstantOp(0));
-    var innerLower = outerFor.getRegion().getEntryBlock().addOperation(new ConstantOp(0));
-    var innerUpper = outerFor.getRegion().getEntryBlock().addOperation(new ConstantOp(3));
-    var innerStep = outerFor.getRegion().getEntryBlock().addOperation(new ConstantOp(1));
+    var innerInit = outerFor.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 0));
+    var innerLower = outerFor.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 0));
+    var innerUpper = outerFor.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 3));
+    var innerStep = outerFor.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 1));
 
     ForOp innerFor =
         outerFor
             .getRegion()
             .getEntryBlock()
             .addOperation(
-                new ForOp(
+                new ForOp(LOC, 
                     innerInit.getValue(),
                     innerLower.getValue(),
                     innerUpper.getValue(),
@@ -323,11 +325,11 @@ public class ScfTests {
     innerFor
         .getRegion()
         .getEntryBlock()
-        .addOperation(new PrintOp(outerFor.getInductionValue(), innerFor.getInductionValue()));
-    innerFor.getRegion().getEntryBlock().addOperation(new ContinueOp());
+        .addOperation(new PrintOp(LOC, outerFor.getInductionValue(), innerFor.getInductionValue()));
+    innerFor.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    outerFor.getRegion().getEntryBlock().addOperation(new ContinueOp());
-    funcOp.addOperation(new ReturnOp(), 0);
+    outerFor.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -338,14 +340,14 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var initValue = funcOp.addOperation(new ConstantOp(0), 0);
-    var lowerBound = funcOp.addOperation(new ConstantOp(0), 0);
-    var upperBound = funcOp.addOperation(new ConstantOp(10), 0);
-    var step = funcOp.addOperation(new ConstantOp(2), 0);
+    var initValue = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var lowerBound = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var upperBound = funcOp.addOperation(new ConstantOp(LOC, 10), 0);
+    var step = funcOp.addOperation(new ConstantOp(LOC, 2), 0);
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(
+            new ForOp(LOC, 
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -353,21 +355,21 @@ public class ScfTests {
             0);
 
     // Complex body with multiple operations
-    var text = forOp.getRegion().getEntryBlock().addOperation(new ConstantOp("Loop iteration: "));
+    var text = forOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Loop iteration: "));
     forOp
         .getRegion()
         .getEntryBlock()
-        .addOperation(new PrintOp(text.getValue(), forOp.getInductionValue()));
+        .addOperation(new PrintOp(LOC, text.getValue(), forOp.getInductionValue()));
 
     // Nested scope inside loop
-    ScopeOp innerScope = forOp.getRegion().getEntryBlock().addOperation(new ScopeOp());
+    ScopeOp innerScope = forOp.getRegion().getEntryBlock().addOperation(new ScopeOp(LOC));
     var scopeConst =
-        innerScope.getRegion().getEntryBlock().addOperation(new ConstantOp("Inside scope"));
-    innerScope.getRegion().getEntryBlock().addOperation(new PrintOp(scopeConst.getValue()));
-    innerScope.getRegion().getEntryBlock().addOperation(new ContinueOp());
+        innerScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Inside scope"));
+    innerScope.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, scopeConst.getValue()));
+    innerScope.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
-    funcOp.addOperation(new ReturnOp(), 0);
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -378,24 +380,24 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var initValue = funcOp.addOperation(new ConstantOp(0), 0);
-    var lowerBound = funcOp.addOperation(new ConstantOp(0), 0);
-    var upperBound = funcOp.addOperation(new ConstantOp(10), 0);
-    var step = funcOp.addOperation(new ConstantOp(1), 0);
+    var initValue = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var lowerBound = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var upperBound = funcOp.addOperation(new ConstantOp(LOC, 10), 0);
+    var step = funcOp.addOperation(new ConstantOp(LOC, 1), 0);
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(
+            new ForOp(LOC, 
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
                 step.getValue()),
             0);
 
-    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(forOp.getInductionValue()));
+    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, forOp.getInductionValue()));
     // Missing ContinueOp
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -408,19 +410,19 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    ScopeOp scopeOp = funcOp.addOperation(new ScopeOp(), 0);
+    ScopeOp scopeOp = funcOp.addOperation(new ScopeOp(LOC), 0);
 
-    var condOp = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(true));
+    var condOp = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, true));
     IfOp ifOp =
-        scopeOp.getRegion().getEntryBlock().addOperation(new IfOp(condOp.getValue(), false));
+        scopeOp.getRegion().getEntryBlock().addOperation(new IfOp(LOC, condOp.getValue(), false));
 
     var thenConst =
-        ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp("Inside if in scope"));
-    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(thenConst.getValue()));
-    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp());
+        ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Inside if in scope"));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, thenConst.getValue()));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    scopeOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
-    funcOp.addOperation(new ReturnOp(), 0);
+    scopeOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -431,30 +433,30 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var condOp = funcOp.addOperation(new ConstantOp(true), 0);
-    IfOp ifOp = funcOp.addOperation(new IfOp(condOp.getValue(), false), 0);
+    var condOp = funcOp.addOperation(new ConstantOp(LOC, true), 0);
+    IfOp ifOp = funcOp.addOperation(new IfOp(LOC, condOp.getValue(), false), 0);
 
     // For loop inside if
-    var initValue = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(0));
-    var lowerBound = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(0));
-    var upperBound = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(5));
-    var step = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(1));
+    var initValue = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 0));
+    var lowerBound = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 0));
+    var upperBound = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 5));
+    var step = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 1));
 
     ForOp forOp =
         ifOp.getThenRegion()
             .getEntryBlock()
             .addOperation(
-                new ForOp(
+                new ForOp(LOC, 
                     initValue.getValue(),
                     lowerBound.getValue(),
                     upperBound.getValue(),
                     step.getValue()));
 
-    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(forOp.getInductionValue()));
-    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, forOp.getInductionValue()));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp());
-    funcOp.addOperation(new ReturnOp(), 0);
+    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -466,48 +468,48 @@ public class ScfTests {
     FuncOp funcOp = entry.getRight();
 
     // Scope containing a for loop
-    ScopeOp outerScope = funcOp.addOperation(new ScopeOp(), 0);
+    ScopeOp outerScope = funcOp.addOperation(new ScopeOp(LOC), 0);
 
-    var initValue = outerScope.getRegion().getEntryBlock().addOperation(new ConstantOp(0));
-    var lowerBound = outerScope.getRegion().getEntryBlock().addOperation(new ConstantOp(0));
-    var upperBound = outerScope.getRegion().getEntryBlock().addOperation(new ConstantOp(3));
-    var step = outerScope.getRegion().getEntryBlock().addOperation(new ConstantOp(1));
+    var initValue = outerScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 0));
+    var lowerBound = outerScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 0));
+    var upperBound = outerScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 3));
+    var step = outerScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 1));
 
     ForOp forOp =
         outerScope
             .getRegion()
             .getEntryBlock()
             .addOperation(
-                new ForOp(
+                new ForOp(LOC, 
                     initValue.getValue(),
                     lowerBound.getValue(),
                     upperBound.getValue(),
                     step.getValue()));
 
     // If inside for
-    var condOp = forOp.getRegion().getEntryBlock().addOperation(new ConstantOp(true));
-    IfOp ifOp = forOp.getRegion().getEntryBlock().addOperation(new IfOp(condOp.getValue(), true));
+    var condOp = forOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, true));
+    IfOp ifOp = forOp.getRegion().getEntryBlock().addOperation(new IfOp(LOC, condOp.getValue(), true));
 
     // Scope inside if then
-    ScopeOp thenScope = ifOp.getThenRegion().getEntryBlock().addOperation(new ScopeOp());
-    var thenText = thenScope.getRegion().getEntryBlock().addOperation(new ConstantOp("Then scope"));
+    ScopeOp thenScope = ifOp.getThenRegion().getEntryBlock().addOperation(new ScopeOp(LOC));
+    var thenText = thenScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Then scope"));
     thenScope
         .getRegion()
         .getEntryBlock()
-        .addOperation(new PrintOp(thenText.getValue(), forOp.getInductionValue()));
-    thenScope.getRegion().getEntryBlock().addOperation(new ContinueOp());
-    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp());
+        .addOperation(new PrintOp(LOC, thenText.getValue(), forOp.getInductionValue()));
+    thenScope.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Scope inside if else
-    ScopeOp elseScope = ifOp.getElseRegion().get().getEntryBlock().addOperation(new ScopeOp());
-    var elseText = elseScope.getRegion().getEntryBlock().addOperation(new ConstantOp("Else scope"));
-    elseScope.getRegion().getEntryBlock().addOperation(new PrintOp(elseText.getValue()));
-    elseScope.getRegion().getEntryBlock().addOperation(new ContinueOp());
-    ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp());
+    ScopeOp elseScope = ifOp.getElseRegion().get().getEntryBlock().addOperation(new ScopeOp(LOC));
+    var elseText = elseScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Else scope"));
+    elseScope.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, elseText.getValue()));
+    elseScope.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
-    outerScope.getRegion().getEntryBlock().addOperation(new ContinueOp());
-    funcOp.addOperation(new ReturnOp(), 0);
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    outerScope.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -519,42 +521,42 @@ public class ScfTests {
     FuncOp funcOp = entry.getRight();
 
     // First scope
-    ScopeOp scope1 = funcOp.addOperation(new ScopeOp(), 0);
-    var const1 = scope1.getRegion().getEntryBlock().addOperation(new ConstantOp("Scope 1"));
-    scope1.getRegion().getEntryBlock().addOperation(new PrintOp(const1.getValue()));
-    scope1.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    ScopeOp scope1 = funcOp.addOperation(new ScopeOp(LOC), 0);
+    var const1 = scope1.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Scope 1"));
+    scope1.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, const1.getValue()));
+    scope1.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // If statement
-    var condOp = funcOp.addOperation(new ConstantOp(true), 0);
-    IfOp ifOp = funcOp.addOperation(new IfOp(condOp.getValue(), false), 0);
-    var ifConst = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp("If block"));
-    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(ifConst.getValue()));
-    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp());
+    var condOp = funcOp.addOperation(new ConstantOp(LOC, true), 0);
+    IfOp ifOp = funcOp.addOperation(new IfOp(LOC, condOp.getValue(), false), 0);
+    var ifConst = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "If block"));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, ifConst.getValue()));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // For loop
-    var initValue = funcOp.addOperation(new ConstantOp(0), 0);
-    var lowerBound = funcOp.addOperation(new ConstantOp(0), 0);
-    var upperBound = funcOp.addOperation(new ConstantOp(2), 0);
-    var step = funcOp.addOperation(new ConstantOp(1), 0);
+    var initValue = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var lowerBound = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var upperBound = funcOp.addOperation(new ConstantOp(LOC, 2), 0);
+    var step = funcOp.addOperation(new ConstantOp(LOC, 1), 0);
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(
+            new ForOp(LOC, 
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
                 step.getValue()),
             0);
-    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(forOp.getInductionValue()));
-    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, forOp.getInductionValue()));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Second scope
-    ScopeOp scope2 = funcOp.addOperation(new ScopeOp(), 0);
-    var const2 = scope2.getRegion().getEntryBlock().addOperation(new ConstantOp("Scope 2"));
-    scope2.getRegion().getEntryBlock().addOperation(new PrintOp(const2.getValue()));
-    scope2.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    ScopeOp scope2 = funcOp.addOperation(new ScopeOp(LOC), 0);
+    var const2 = scope2.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Scope 2"));
+    scope2.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, const2.getValue()));
+    scope2.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -567,14 +569,14 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    ScopeOp scopeOp = funcOp.addOperation(new ScopeOp(), 0);
-    var innerValue = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(42));
-    scopeOp.getRegion().getEntryBlock().addOperation(new PrintOp(innerValue.getValue()));
-    scopeOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    ScopeOp scopeOp = funcOp.addOperation(new ScopeOp(LOC), 0);
+    var innerValue = scopeOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 42));
+    scopeOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, innerValue.getValue()));
+    scopeOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Try to use value defined inside scope - this should fail
-    funcOp.addOperation(new PrintOp(innerValue.getValue()), 0);
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new PrintOp(LOC, innerValue.getValue()), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -585,16 +587,16 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var condOp = funcOp.addOperation(new ConstantOp(true), 0);
-    IfOp ifOp = funcOp.addOperation(new IfOp(condOp.getValue(), false), 0);
+    var condOp = funcOp.addOperation(new ConstantOp(LOC, true), 0);
+    IfOp ifOp = funcOp.addOperation(new IfOp(LOC, condOp.getValue(), false), 0);
 
-    var thenValue = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(100));
-    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(thenValue.getValue()));
-    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp());
+    var thenValue = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, 100));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, thenValue.getValue()));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Try to use value defined in then block - this should fail
-    funcOp.addOperation(new PrintOp(thenValue.getValue()), 0);
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new PrintOp(LOC, thenValue.getValue()), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -605,27 +607,27 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var initValue = funcOp.addOperation(new ConstantOp(0), 0);
-    var lowerBound = funcOp.addOperation(new ConstantOp(0), 0);
-    var upperBound = funcOp.addOperation(new ConstantOp(5), 0);
-    var step = funcOp.addOperation(new ConstantOp(1), 0);
+    var initValue = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var lowerBound = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var upperBound = funcOp.addOperation(new ConstantOp(LOC, 5), 0);
+    var step = funcOp.addOperation(new ConstantOp(LOC, 1), 0);
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(
+            new ForOp(LOC, 
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
                 step.getValue()),
             0);
 
-    var loopValue = forOp.getRegion().getEntryBlock().addOperation(new ConstantOp("Inside loop"));
-    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(loopValue.getValue()));
-    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    var loopValue = forOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Inside loop"));
+    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, loopValue.getValue()));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Try to use value defined inside loop - this should fail
-    funcOp.addOperation(new PrintOp(loopValue.getValue()), 0);
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new PrintOp(LOC, loopValue.getValue()), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -636,26 +638,26 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var initValue = funcOp.addOperation(new ConstantOp(0), 0);
-    var lowerBound = funcOp.addOperation(new ConstantOp(0), 0);
-    var upperBound = funcOp.addOperation(new ConstantOp(5), 0);
-    var step = funcOp.addOperation(new ConstantOp(1), 0);
+    var initValue = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var lowerBound = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var upperBound = funcOp.addOperation(new ConstantOp(LOC, 5), 0);
+    var step = funcOp.addOperation(new ConstantOp(LOC, 1), 0);
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(
+            new ForOp(LOC, 
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
                 step.getValue()),
             0);
 
-    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(forOp.getInductionValue()));
-    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, forOp.getInductionValue()));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Try to use induction variable outside loop - this should fail
-    funcOp.addOperation(new PrintOp(forOp.getInductionValue()), 0);
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new PrintOp(LOC, forOp.getInductionValue()), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -668,10 +670,10 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    ScopeOp scopeOp = funcOp.addOperation(new ScopeOp(), 0);
-    scopeOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    ScopeOp scopeOp = funcOp.addOperation(new ScopeOp(LOC), 0);
+    scopeOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -682,12 +684,12 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var condOp = funcOp.addOperation(new ConstantOp(true), 0);
-    IfOp ifOp = funcOp.addOperation(new IfOp(condOp.getValue(), false), 0);
+    var condOp = funcOp.addOperation(new ConstantOp(LOC, true), 0);
+    IfOp ifOp = funcOp.addOperation(new IfOp(LOC, condOp.getValue(), false), 0);
 
-    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp());
+    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -698,13 +700,13 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var condOp = funcOp.addOperation(new ConstantOp(true), 0);
-    IfOp ifOp = funcOp.addOperation(new IfOp(condOp.getValue(), true), 0);
+    var condOp = funcOp.addOperation(new ConstantOp(LOC, true), 0);
+    IfOp ifOp = funcOp.addOperation(new IfOp(LOC, condOp.getValue(), true), 0);
 
-    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp());
-    ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp());
+    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -715,23 +717,23 @@ public class ScfTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcOp = entry.getRight();
 
-    var initValue = funcOp.addOperation(new ConstantOp(0), 0);
-    var lowerBound = funcOp.addOperation(new ConstantOp(0), 0);
-    var upperBound = funcOp.addOperation(new ConstantOp(5), 0);
-    var step = funcOp.addOperation(new ConstantOp(1), 0);
+    var initValue = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var lowerBound = funcOp.addOperation(new ConstantOp(LOC, 0), 0);
+    var upperBound = funcOp.addOperation(new ConstantOp(LOC, 5), 0);
+    var step = funcOp.addOperation(new ConstantOp(LOC, 1), 0);
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(
+            new ForOp(LOC, 
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
                 step.getValue()),
             0);
 
-    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -743,22 +745,22 @@ public class ScfTests {
     FuncOp funcOp = entry.getRight();
 
     // Create 5 levels of nested scopes
-    ScopeOp scope1 = funcOp.addOperation(new ScopeOp(), 0);
-    ScopeOp scope2 = scope1.getRegion().getEntryBlock().addOperation(new ScopeOp());
-    ScopeOp scope3 = scope2.getRegion().getEntryBlock().addOperation(new ScopeOp());
-    ScopeOp scope4 = scope3.getRegion().getEntryBlock().addOperation(new ScopeOp());
-    ScopeOp scope5 = scope4.getRegion().getEntryBlock().addOperation(new ScopeOp());
+    ScopeOp scope1 = funcOp.addOperation(new ScopeOp(LOC), 0);
+    ScopeOp scope2 = scope1.getRegion().getEntryBlock().addOperation(new ScopeOp(LOC));
+    ScopeOp scope3 = scope2.getRegion().getEntryBlock().addOperation(new ScopeOp(LOC));
+    ScopeOp scope4 = scope3.getRegion().getEntryBlock().addOperation(new ScopeOp(LOC));
+    ScopeOp scope5 = scope4.getRegion().getEntryBlock().addOperation(new ScopeOp(LOC));
 
-    var deepValue = scope5.getRegion().getEntryBlock().addOperation(new ConstantOp("Deep"));
-    scope5.getRegion().getEntryBlock().addOperation(new PrintOp(deepValue.getValue()));
-    scope5.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    var deepValue = scope5.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Deep"));
+    scope5.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, deepValue.getValue()));
+    scope5.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    scope4.getRegion().getEntryBlock().addOperation(new ContinueOp());
-    scope3.getRegion().getEntryBlock().addOperation(new ContinueOp());
-    scope2.getRegion().getEntryBlock().addOperation(new ContinueOp());
-    scope1.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    scope4.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    scope3.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    scope2.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+    scope1.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    funcOp.addOperation(new ReturnOp(), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -771,34 +773,34 @@ public class ScfTests {
 
     // Create helper function with SCF ops
     FuncOp helperFunc =
-        programOp.addOperation(new FuncOp("helper", new FuncType(List.of(), IntegerT.INT32)));
+        programOp.addOperation(new FuncOp(LOC, "helper", new FuncType(List.of(), IntegerT.INT32)));
 
-    var initValue = helperFunc.addOperation(new ConstantOp(0), 0);
-    var lowerBound = helperFunc.addOperation(new ConstantOp(0), 0);
-    var upperBound = helperFunc.addOperation(new ConstantOp(3), 0);
-    var step = helperFunc.addOperation(new ConstantOp(1), 0);
+    var initValue = helperFunc.addOperation(new ConstantOp(LOC, 0), 0);
+    var lowerBound = helperFunc.addOperation(new ConstantOp(LOC, 0), 0);
+    var upperBound = helperFunc.addOperation(new ConstantOp(LOC, 3), 0);
+    var step = helperFunc.addOperation(new ConstantOp(LOC, 1), 0);
 
     ForOp forOp =
         helperFunc.addOperation(
-            new ForOp(
+            new ForOp(LOC, 
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
                 step.getValue()),
             0);
-    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(forOp.getInductionValue()));
-    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, forOp.getInductionValue()));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    var returnValue = helperFunc.addOperation(new ConstantOp(42), 0);
-    helperFunc.addOperation(new ReturnOp(returnValue.getValue()), 0);
+    var returnValue = helperFunc.addOperation(new ConstantOp(LOC, 42), 0);
+    helperFunc.addOperation(new ReturnOp(LOC, returnValue.getValue()), 0);
 
     // Main function with scope
-    ScopeOp mainScope = mainFunc.addOperation(new ScopeOp(), 0);
-    var text = mainScope.getRegion().getEntryBlock().addOperation(new ConstantOp("Main scope"));
-    mainScope.getRegion().getEntryBlock().addOperation(new PrintOp(text.getValue()));
-    mainScope.getRegion().getEntryBlock().addOperation(new ContinueOp());
+    ScopeOp mainScope = mainFunc.addOperation(new ScopeOp(LOC), 0);
+    var text = mainScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Main scope"));
+    mainScope.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, text.getValue()));
+    mainScope.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    mainFunc.addOperation(new ReturnOp(), 0);
+    mainFunc.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }

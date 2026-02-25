@@ -19,7 +19,7 @@ public abstract class ArithOp extends Op {
   // =========================================================================
 
   /** Default constructor used during dialect registration. */
-  public ArithOp() {
+  ArithOp() {
     super();
   }
 

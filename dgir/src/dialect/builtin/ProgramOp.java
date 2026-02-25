@@ -2,6 +2,7 @@ package dialect.builtin;
 
 import core.ir.Block;
 import core.ir.Operation;
+import core.ir.SourceLocation;
 import core.traits.*;
 import dialect.func.FuncOp;
 import java.util.function.Function;
@@ -70,10 +71,19 @@ public final class ProgramOp extends BuiltinOp
   // =========================================================================
 
   /** Default constructor used during dialect registration. */
-  public ProgramOp() {
+  private ProgramOp() {
     executeIfRegistered(
         ProgramOp.class,
-        () -> setOperation(true, Operation.Create(this, null, null, null, 1)));
+        () -> setOperation(true, Operation.Create(SourceLocation.UNKNOWN, this, null, null, null, 1)));
+  }
+
+  /**
+   * Create a new program op with the given source location.
+   *
+   * @param location the source location of this operation.
+   */
+  public ProgramOp(@NotNull SourceLocation location) {
+    setOperation(true, Operation.Create(location, this, null, null, null, 1));
   }
 
   /**

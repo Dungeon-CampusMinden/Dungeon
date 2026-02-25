@@ -2,14 +2,16 @@ package dialect.cf;
 
 import core.ir.Block;
 import core.ir.Operation;
+import core.ir.SourceLocation;
 import core.ir.Value;
 import core.traits.IControlFlow;
 import core.traits.ITerminator;
 import dialect.builtin.types.IntegerT;
-import java.util.List;
-import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Conditional branch that selects between two target blocks based on a boolean condition.
@@ -61,12 +63,13 @@ public final class BranchCondOp extends CfOp implements CF, ITerminator, IContro
   /**
    * Create a conditional branch.
    *
+   * @param location   the source location of this operation.
    * @param condition  an {@link IntegerT#BOOL} value controlling the branch direction.
    * @param target     the successor block taken when {@code condition} is {@code true}.
    * @param elseTarget the successor block taken when {@code condition} is {@code false}.
    */
-  public BranchCondOp(@NotNull Value condition, @NotNull Block target, @NotNull Block elseTarget) {
-    setOperation(Operation.Create(this, List.of(condition), List.of(target, elseTarget), null));
+  public BranchCondOp(@NotNull SourceLocation location, @NotNull Value condition, @NotNull Block target, @NotNull Block elseTarget) {
+    setOperation(Operation.Create(location, this, List.of(condition), List.of(target, elseTarget), null));
     assert condition.getType().equals(IntegerT.BOOL) : "Condition must be of type bool/int1.";
   }
 }

@@ -2,14 +2,15 @@ package core.serialization;
 
 import core.detail.OperationDetails;
 import core.ir.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.deser.std.StdDeserializer;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class OperationDeserializer extends StdDeserializer<Operation> {
   private static final Map<Operation, Map<BlockOperand, JsonNode>> unresolvedSuccessorReferences =
@@ -92,6 +93,13 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       }
     }
 
+    SourceLocation location = SourceLocation.UNKNOWN;
+    // Get the source location if it exists
+    if (node.has("loc")) {
+      String loc = node.get("loc").asString();
+      location = SourceLocation.fromString(loc);
+    }
+
     // Now that the regions are deserialized, we can go over all their operations and resolve their
     // block operands.
     // Note!: This step does not resolve the block operands of this operation, as those are part of
@@ -130,6 +138,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       // on the operation.
       operation =
           Operation.Create(
+              location,
               op,
               operands,
               successors,
@@ -139,7 +148,8 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
     } else {
       // Create the operation instance.
       operation =
-          Operation.Create(op, operands, successors, null, regions != null ? regions.size() : 0);
+          Operation.Create(
+              location, op, operands, successors, null, regions != null ? regions.size() : 0);
     }
 
     // Set the attributes if they were deserialized.

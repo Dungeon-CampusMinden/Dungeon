@@ -25,17 +25,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /** Testcases for the VM, only testing output from and to the console. */
 public class VmConsoleTest extends VmTestBase {
+  static final SourceLocation LOC = SourceLocation.UNKNOWN;
   /**
    * Creates a simple dgir program printing "Hello World!" to the console and runs it through the
    * VM.
    */
   @Test
   void helloWorldTest() {
-    ProgramOp programOp = new ProgramOp();
-    FuncOp funcOp = programOp.addOperation(new FuncOp("main"));
-    var text = funcOp.addOperation(new ConstantOp("Hello World!\n"), 0);
-    funcOp.addOperation(new PrintOp(List.of(text.getValue())), 0);
-    funcOp.addOperation(new ReturnOp(), 0);
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp funcOp = programOp.addOperation(new FuncOp(LOC, "main"));
+    var text = funcOp.addOperation(new ConstantOp(LOC, "Hello World!\n"), 0);
+    funcOp.addOperation(new PrintOp(LOC, List.of(text.getValue())), 0);
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     runProgram(programOp, "Hello World!\n");
   }
@@ -43,20 +44,20 @@ public class VmConsoleTest extends VmTestBase {
   /** Same as helloWorldTest but the string is produced by a function call. */
   @Test
   void helloWorldCallTest() {
-    ProgramOp programOp = new ProgramOp();
+    ProgramOp programOp = new ProgramOp(LOC);
 
     FuncOp stringOp =
-        programOp.addOperation(new FuncOp("string", new FuncType(List.of(), StringT.INSTANCE)));
+        programOp.addOperation(new FuncOp(LOC, "string", new FuncType(List.of(), StringT.INSTANCE)));
     {
-      var text = stringOp.addOperation(new ConstantOp("Hello World!\n"), 0);
-      stringOp.addOperation(new ReturnOp(text.getValue()), 0);
+      var text = stringOp.addOperation(new ConstantOp(LOC, "Hello World!\n"), 0);
+      stringOp.addOperation(new ReturnOp(LOC, text.getValue()), 0);
     }
 
     {
-      FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
-      var text = mainOp.addOperation(new CallOp(stringOp), 0);
-      mainOp.addOperation(new PrintOp(List.of(text.getOutputValue().orElseThrow())), 0);
-      mainOp.addOperation(new ReturnOp(), 0);
+      FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
+      var text = mainOp.addOperation(new CallOp(LOC, stringOp), 0);
+      mainOp.addOperation(new PrintOp(LOC, List.of(text.getOutputValue().orElseThrow())), 0);
+      mainOp.addOperation(new ReturnOp(LOC), 0);
     }
 
     runProgram(programOp, "Hello World!\n");
@@ -68,21 +69,21 @@ public class VmConsoleTest extends VmTestBase {
    */
   @Test
   void unconditionalBranchTest() {
-    ProgramOp programOp = new ProgramOp();
-    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
     Block entryBlock = mainOp.getEntryBlock();
     Block afterBlock = mainOp.addBlock(new Block());
 
     // Entry block: print "before\n", then branch unconditionally
-    var before = entryBlock.addOperation(new ConstantOp("before\n"));
-    entryBlock.addOperation(new PrintOp(before.getValue()));
-    entryBlock.addOperation(new BranchOp(afterBlock));
+    var before = entryBlock.addOperation(new ConstantOp(LOC, "before\n"));
+    entryBlock.addOperation(new PrintOp(LOC, before.getValue()));
+    entryBlock.addOperation(new BranchOp(LOC, afterBlock));
 
     // After block: print "after\n", then return
-    var after = afterBlock.addOperation(new ConstantOp("after\n"));
-    afterBlock.addOperation(new PrintOp(after.getValue()));
-    afterBlock.addOperation(new ReturnOp());
+    var after = afterBlock.addOperation(new ConstantOp(LOC, "after\n"));
+    afterBlock.addOperation(new PrintOp(LOC, after.getValue()));
+    afterBlock.addOperation(new ReturnOp(LOC));
 
     runProgram(programOp, "before\nafter\n");
   }
@@ -92,8 +93,8 @@ public class VmConsoleTest extends VmTestBase {
    */
   @Test
   void conditionalBranchTrueBranchTest() {
-    ProgramOp programOp = new ProgramOp();
-    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
     Block entryBlock = mainOp.getEntryBlock();
     Block trueBlock = mainOp.addBlock(new Block());
@@ -101,21 +102,21 @@ public class VmConsoleTest extends VmTestBase {
     Block mergeBlock = mainOp.addBlock(new Block());
 
     // Entry: define condition = true, branch conditionally
-    var cond = entryBlock.addOperation(new ConstantOp(true));
-    entryBlock.addOperation(new BranchCondOp(cond.getValue(), trueBlock, falseBlock));
+    var cond = entryBlock.addOperation(new ConstantOp(LOC, true));
+    entryBlock.addOperation(new BranchCondOp(LOC, cond.getValue(), trueBlock, falseBlock));
 
     // True block: print "yes\n", jump to merge
-    var yes = trueBlock.addOperation(new ConstantOp("yes\n"));
-    trueBlock.addOperation(new PrintOp(yes.getValue()));
-    trueBlock.addOperation(new BranchOp(mergeBlock));
+    var yes = trueBlock.addOperation(new ConstantOp(LOC, "yes\n"));
+    trueBlock.addOperation(new PrintOp(LOC, yes.getValue()));
+    trueBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // False block: print "no\n", jump to merge
-    var no = falseBlock.addOperation(new ConstantOp("no\n"));
-    falseBlock.addOperation(new PrintOp(no.getValue()));
-    falseBlock.addOperation(new BranchOp(mergeBlock));
+    var no = falseBlock.addOperation(new ConstantOp(LOC, "no\n"));
+    falseBlock.addOperation(new PrintOp(LOC, no.getValue()));
+    falseBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // Merge block: return
-    mergeBlock.addOperation(new ReturnOp());
+    mergeBlock.addOperation(new ReturnOp(LOC));
 
     runProgram(programOp, "yes\n");
   }
@@ -126,8 +127,8 @@ public class VmConsoleTest extends VmTestBase {
    */
   @Test
   void conditionalBranchFalseBranchTest() {
-    ProgramOp programOp = new ProgramOp();
-    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
     Block entryBlock = mainOp.getEntryBlock();
     Block trueBlock = mainOp.addBlock(new Block());
@@ -135,21 +136,21 @@ public class VmConsoleTest extends VmTestBase {
     Block mergeBlock = mainOp.addBlock(new Block());
 
     // Entry: define condition = false, branch conditionally
-    var cond = entryBlock.addOperation(new ConstantOp(false));
-    entryBlock.addOperation(new BranchCondOp(cond.getValue(), trueBlock, falseBlock));
+    var cond = entryBlock.addOperation(new ConstantOp(LOC, false));
+    entryBlock.addOperation(new BranchCondOp(LOC, cond.getValue(), trueBlock, falseBlock));
 
     // True block: print "yes\n", jump to merge
-    var yes = trueBlock.addOperation(new ConstantOp("yes\n"));
-    trueBlock.addOperation(new PrintOp(yes.getValue()));
-    trueBlock.addOperation(new BranchOp(mergeBlock));
+    var yes = trueBlock.addOperation(new ConstantOp(LOC, "yes\n"));
+    trueBlock.addOperation(new PrintOp(LOC, yes.getValue()));
+    trueBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // False block: print "no\n", jump to merge
-    var no = falseBlock.addOperation(new ConstantOp("no\n"));
-    falseBlock.addOperation(new PrintOp(no.getValue()));
-    falseBlock.addOperation(new BranchOp(mergeBlock));
+    var no = falseBlock.addOperation(new ConstantOp(LOC, "no\n"));
+    falseBlock.addOperation(new PrintOp(LOC, no.getValue()));
+    falseBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // Merge block: return
-    mergeBlock.addOperation(new ReturnOp());
+    mergeBlock.addOperation(new ReturnOp(LOC));
 
     runProgram(programOp, "no\n");
   }
@@ -160,18 +161,18 @@ public class VmConsoleTest extends VmTestBase {
    */
   @Test
   void conditionalBranchFromFunctionCallTest() {
-    ProgramOp programOp = new ProgramOp();
+    ProgramOp programOp = new ProgramOp(LOC);
 
     // Helper function: returns true (int1)
     FuncOp condFunc =
-        programOp.addOperation(new FuncOp("getCondition", new FuncType(List.of(), IntegerT.BOOL)));
+        programOp.addOperation(new FuncOp(LOC, "getCondition", new FuncType(List.of(), IntegerT.BOOL)));
     {
-      var t = condFunc.addOperation(new ConstantOp(true), 0);
-      condFunc.addOperation(new ReturnOp(t.getValue()), 0);
+      var t = condFunc.addOperation(new ConstantOp(LOC, true), 0);
+      condFunc.addOperation(new ReturnOp(LOC, t.getValue()), 0);
     }
 
     // Main function
-    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
     Block entryBlock = mainOp.getEntryBlock();
     Block trueBlock = mainOp.addBlock(new Block());
@@ -179,22 +180,22 @@ public class VmConsoleTest extends VmTestBase {
     Block mergeBlock = mainOp.addBlock(new Block());
 
     // Entry: call getCondition(), branch on its result
-    var callResult = entryBlock.addOperation(new CallOp(condFunc));
+    var callResult = entryBlock.addOperation(new CallOp(LOC, condFunc));
     entryBlock.addOperation(
-        new BranchCondOp(callResult.getOutputValue().orElseThrow(), trueBlock, falseBlock));
+        new BranchCondOp(LOC, callResult.getOutputValue().orElseThrow(), trueBlock, falseBlock));
 
     // True block
-    var yes = trueBlock.addOperation(new ConstantOp("condition true\n"));
-    trueBlock.addOperation(new PrintOp(yes.getValue()));
-    trueBlock.addOperation(new BranchOp(mergeBlock));
+    var yes = trueBlock.addOperation(new ConstantOp(LOC, "condition true\n"));
+    trueBlock.addOperation(new PrintOp(LOC, yes.getValue()));
+    trueBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // False block
-    var no = falseBlock.addOperation(new ConstantOp("condition false\n"));
-    falseBlock.addOperation(new PrintOp(no.getValue()));
-    falseBlock.addOperation(new BranchOp(mergeBlock));
+    var no = falseBlock.addOperation(new ConstantOp(LOC, "condition false\n"));
+    falseBlock.addOperation(new PrintOp(LOC, no.getValue()));
+    falseBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // Merge block: return
-    mergeBlock.addOperation(new ReturnOp());
+    mergeBlock.addOperation(new ReturnOp(LOC));
 
     runProgram(programOp, "condition true\n");
   }
@@ -205,12 +206,12 @@ public class VmConsoleTest extends VmTestBase {
    */
   @Test
   void functionCallWithInternalBranchTest() {
-    ProgramOp programOp = new ProgramOp();
+    ProgramOp programOp = new ProgramOp(LOC);
 
     // Helper function: takes an int1 parameter and prints "positive\n" or "non-positive\n"
     FuncOp printFunc =
         programOp.addOperation(
-            new FuncOp("printBranch", new FuncType(List.of(IntegerT.BOOL), null)));
+            new FuncOp(LOC, "printBranch", new FuncType(List.of(IntegerT.BOOL), null)));
     {
       Block funcEntry = printFunc.getEntryBlock();
       Block posBlock = printFunc.addBlock(new Block());
@@ -219,31 +220,31 @@ public class VmConsoleTest extends VmTestBase {
 
       // Branch on the parameter
       var param = printFunc.getArgument(0).orElseThrow();
-      funcEntry.addOperation(new BranchCondOp(param, posBlock, negBlock));
+      funcEntry.addOperation(new BranchCondOp(LOC, param, posBlock, negBlock));
 
       {
-        var posText = posBlock.addOperation(new ConstantOp("positive\n"));
-        posBlock.addOperation(new PrintOp(posText.getValue()));
-        posBlock.addOperation(new BranchOp(retBlock));
+        var posText = posBlock.addOperation(new ConstantOp(LOC, "positive\n"));
+        posBlock.addOperation(new PrintOp(LOC, posText.getValue()));
+        posBlock.addOperation(new BranchOp(LOC, retBlock));
       }
 
       {
-        var negText = negBlock.addOperation(new ConstantOp("non-positive\n"));
-        negBlock.addOperation(new PrintOp(negText.getValue()));
-        negBlock.addOperation(new BranchOp(retBlock));
+        var negText = negBlock.addOperation(new ConstantOp(LOC, "non-positive\n"));
+        negBlock.addOperation(new PrintOp(LOC, negText.getValue()));
+        negBlock.addOperation(new BranchOp(LOC, retBlock));
       }
 
-      retBlock.addOperation(new ReturnOp());
+      retBlock.addOperation(new ReturnOp(LOC));
     }
 
     // Main: call printBranch(true) then printBranch(false)
-    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
     {
-      var trueVal = mainOp.addOperation(new ConstantOp(true), 0);
-      var falseVal = mainOp.addOperation(new ConstantOp(false), 0);
-      mainOp.addOperation(new CallOp(printFunc, trueVal.getValue()), 0);
-      mainOp.addOperation(new CallOp(printFunc, falseVal.getValue()), 0);
-      mainOp.addOperation(new ReturnOp(), 0);
+      var trueVal = mainOp.addOperation(new ConstantOp(LOC, true), 0);
+      var falseVal = mainOp.addOperation(new ConstantOp(LOC, false), 0);
+      mainOp.addOperation(new CallOp(LOC, printFunc, trueVal.getValue()), 0);
+      mainOp.addOperation(new CallOp(LOC, printFunc, falseVal.getValue()), 0);
+      mainOp.addOperation(new ReturnOp(LOC), 0);
     }
 
     runProgram(programOp, "positive\nnon-positive\n");
@@ -256,8 +257,8 @@ public class VmConsoleTest extends VmTestBase {
    */
   @Test
   void consoleInputBranchTest() {
-    ProgramOp programOp = new ProgramOp();
-    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
     Block entryBlock = mainOp.getEntryBlock();
     Block yesBlock = mainOp.addBlock(new Block());
@@ -265,21 +266,21 @@ public class VmConsoleTest extends VmTestBase {
     Block mergeBlock = mainOp.addBlock(new Block());
 
     // Entry: read input from console, compare to "yes", branch conditionally
-    var input = entryBlock.addOperation(new ConsoleInOp(IntegerT.BOOL));
-    entryBlock.addOperation(new BranchCondOp(input.getResult(), yesBlock, noBlock));
+    var input = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.BOOL));
+    entryBlock.addOperation(new BranchCondOp(LOC, input.getResult(), yesBlock, noBlock));
 
     // Yes block: print "You said true!\n", jump to merge
-    var yesText = yesBlock.addOperation(new ConstantOp("You said true!\n"));
-    yesBlock.addOperation(new PrintOp(yesText.getValue()));
-    yesBlock.addOperation(new BranchOp(mergeBlock));
+    var yesText = yesBlock.addOperation(new ConstantOp(LOC, "You said true!\n"));
+    yesBlock.addOperation(new PrintOp(LOC, yesText.getValue()));
+    yesBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // No block: print "You said false!\n", jump to merge
-    var noText = noBlock.addOperation(new ConstantOp("You said false!\n"));
-    noBlock.addOperation(new PrintOp(noText.getValue()));
-    noBlock.addOperation(new BranchOp(mergeBlock));
+    var noText = noBlock.addOperation(new ConstantOp(LOC, "You said false!\n"));
+    noBlock.addOperation(new PrintOp(LOC, noText.getValue()));
+    noBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // Merge block: return
-    mergeBlock.addOperation(new ReturnOp());
+    mergeBlock.addOperation(new ReturnOp(LOC));
 
     VM vm = createVm(programOp);
     // Test positive case
@@ -303,14 +304,14 @@ public class VmConsoleTest extends VmTestBase {
    */
   @Test
   void consoleInputReadIntTest() {
-    ProgramOp programOp = new ProgramOp();
-    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
     // Read an INT32 from the console
-    var input = mainOp.addOperation(new ConsoleInOp(IntegerT.INT32), 0);
+    var input = mainOp.addOperation(new ConsoleInOp(LOC, IntegerT.INT32), 0);
     // Print it back
-    mainOp.addOperation(new PrintOp(input.getResult()), 0);
-    mainOp.addOperation(new ReturnOp(), 0);
+    mainOp.addOperation(new PrintOp(LOC, input.getResult()), 0);
+    mainOp.addOperation(new ReturnOp(LOC), 0);
 
     ConsoleInRunner.setInputStream(new ByteArrayInputStream("42\n".getBytes(UTF_8)));
     runProgram(programOp, "42");
@@ -322,14 +323,14 @@ public class VmConsoleTest extends VmTestBase {
    */
   @Test
   void consoleInputReadStringTest() {
-    ProgramOp programOp = new ProgramOp();
-    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
     // Read a String from the console
-    var input = mainOp.addOperation(new ConsoleInOp(StringT.INSTANCE), 0);
+    var input = mainOp.addOperation(new ConsoleInOp(LOC, StringT.INSTANCE), 0);
     // Print it back
-    mainOp.addOperation(new PrintOp(input.getResult()), 0);
-    mainOp.addOperation(new ReturnOp(), 0);
+    mainOp.addOperation(new PrintOp(LOC, input.getResult()), 0);
+    mainOp.addOperation(new ReturnOp(LOC), 0);
 
     ConsoleInRunner.setInputStream(new ByteArrayInputStream("Hello from stdin\n".getBytes(UTF_8)));
     runProgram(programOp, "Hello from stdin");
@@ -341,16 +342,16 @@ public class VmConsoleTest extends VmTestBase {
    */
   @Test
   void consoleInputFormattedPrintStringTest() {
-    ProgramOp programOp = new ProgramOp();
-    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
     // Format string constant
-    var fmt = mainOp.addOperation(new ConstantOp("Hello, %s!\n"), 0);
+    var fmt = mainOp.addOperation(new ConstantOp(LOC, "Hello, %s!\n"), 0);
     // Read the name from the console
-    var name = mainOp.addOperation(new ConsoleInOp(StringT.INSTANCE), 0);
+    var name = mainOp.addOperation(new ConsoleInOp(LOC, StringT.INSTANCE), 0);
     // Print formatted: "Hello, <name>!\n"
-    mainOp.addOperation(new PrintOp(fmt.getValue(), name.getResult()), 0);
-    mainOp.addOperation(new ReturnOp(), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmt.getValue(), name.getResult()), 0);
+    mainOp.addOperation(new ReturnOp(LOC), 0);
 
     ConsoleInRunner.setInputStream(new ByteArrayInputStream("World\n".getBytes(UTF_8)));
     runProgram(programOp, "Hello, World!\n");
@@ -362,16 +363,16 @@ public class VmConsoleTest extends VmTestBase {
    */
   @Test
   void consoleInputFormattedPrintIntTest() {
-    ProgramOp programOp = new ProgramOp();
-    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
     // Format string constant
-    var fmt = mainOp.addOperation(new ConstantOp("The answer is %d.\n"), 0);
+    var fmt = mainOp.addOperation(new ConstantOp(LOC, "The answer is %d.\n"), 0);
     // Read an INT32 from the console
-    var number = mainOp.addOperation(new ConsoleInOp(IntegerT.INT32), 0);
+    var number = mainOp.addOperation(new ConsoleInOp(LOC, IntegerT.INT32), 0);
     // Print formatted: "The answer is <number>.\n"
-    mainOp.addOperation(new PrintOp(fmt.getValue(), number.getResult()), 0);
-    mainOp.addOperation(new ReturnOp(), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmt.getValue(), number.getResult()), 0);
+    mainOp.addOperation(new ReturnOp(LOC), 0);
 
     ConsoleInRunner.setInputStream(new ByteArrayInputStream("42\n".getBytes(UTF_8)));
     runProgram(programOp, "The answer is 42.\n");
@@ -383,16 +384,16 @@ public class VmConsoleTest extends VmTestBase {
    */
   @Test
   void consoleInputFormattedPrintFloatTest() {
-    ProgramOp programOp = new ProgramOp();
-    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
     // Format string constant
-    var fmt = mainOp.addOperation(new ConstantOp("Pi is approximately %.2f.\n"), 0);
+    var fmt = mainOp.addOperation(new ConstantOp(LOC, "Pi is approximately %.2f.\n"), 0);
     // Read a FLOAT32 from the console
-    var number = mainOp.addOperation(new ConsoleInOp(FloatT.FLOAT32), 0);
+    var number = mainOp.addOperation(new ConsoleInOp(LOC, FloatT.FLOAT32), 0);
     // Print formatted: "Pi is approximately <number>.\n"
-    mainOp.addOperation(new PrintOp(fmt.getValue(), number.getResult()), 0);
-    mainOp.addOperation(new ReturnOp(), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmt.getValue(), number.getResult()), 0);
+    mainOp.addOperation(new ReturnOp(LOC), 0);
 
     ConsoleInRunner.setInputStream(new ByteArrayInputStream("3.14\n".getBytes(UTF_8)));
     runProgram(programOp, "Pi is approximately 3.14.\n");
@@ -418,8 +419,8 @@ public class VmConsoleTest extends VmTestBase {
    */
   @Test
   void consoleInputBranchOnlyOneBranchReadsInputTest() {
-    ProgramOp programOp = new ProgramOp();
-    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
     Block entryBlock = mainOp.getEntryBlock();
     Block trueBlock = mainOp.addBlock(new Block());
@@ -427,22 +428,22 @@ public class VmConsoleTest extends VmTestBase {
     Block mergeBlock = mainOp.addBlock(new Block());
 
     // Entry: read a bool from console, branch on it
-    var flag = entryBlock.addOperation(new ConsoleInOp(IntegerT.BOOL));
-    entryBlock.addOperation(new BranchCondOp(flag.getResult(), trueBlock, falseBlock));
+    var flag = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.BOOL));
+    entryBlock.addOperation(new BranchCondOp(LOC, flag.getResult(), trueBlock, falseBlock));
 
     // True block: read an integer from console, print it formatted, jump to merge
-    var fmt = trueBlock.addOperation(new ConstantOp("You entered: %d\n"));
-    var n = trueBlock.addOperation(new ConsoleInOp(IntegerT.INT32));
-    trueBlock.addOperation(new PrintOp(fmt.getValue(), n.getResult()));
-    trueBlock.addOperation(new BranchOp(mergeBlock));
+    var fmt = trueBlock.addOperation(new ConstantOp(LOC, "You entered: %d\n"));
+    var n = trueBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
+    trueBlock.addOperation(new PrintOp(LOC, fmt.getValue(), n.getResult()));
+    trueBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // False block: print a fixed message without any console input, jump to merge
-    var noInput = falseBlock.addOperation(new ConstantOp("No input given.\n"));
-    falseBlock.addOperation(new PrintOp(noInput.getValue()));
-    falseBlock.addOperation(new BranchOp(mergeBlock));
+    var noInput = falseBlock.addOperation(new ConstantOp(LOC, "No input given.\n"));
+    falseBlock.addOperation(new PrintOp(LOC, noInput.getValue()));
+    falseBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // Merge block: return
-    mergeBlock.addOperation(new ReturnOp());
+    mergeBlock.addOperation(new ReturnOp(LOC));
 
     VM vm = createVm(programOp);
     // Test true branch: flag=1 -> read integer 7 -> print "You entered: 7\n"
@@ -464,17 +465,17 @@ public class VmConsoleTest extends VmTestBase {
    */
   @Test
   void consoleInputFormattedPrintMultipleValuesTest() {
-    ProgramOp programOp = new ProgramOp();
-    FuncOp mainOp = programOp.addOperation(new FuncOp("main"));
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
     // Format string constant
-    var fmt = mainOp.addOperation(new ConstantOp("%s scored %d points.\n"), 0);
+    var fmt = mainOp.addOperation(new ConstantOp(LOC, "%s scored %d points.\n"), 0);
     // Read a name (string) then a score (int)
-    var nameIn = mainOp.addOperation(new ConsoleInOp(StringT.INSTANCE), 0);
-    var scoreIn = mainOp.addOperation(new ConsoleInOp(IntegerT.INT32), 0);
+    var nameIn = mainOp.addOperation(new ConsoleInOp(LOC, StringT.INSTANCE), 0);
+    var scoreIn = mainOp.addOperation(new ConsoleInOp(LOC, IntegerT.INT32), 0);
     // Print formatted
-    mainOp.addOperation(new PrintOp(fmt.getValue(), nameIn.getResult(), scoreIn.getResult()), 0);
-    mainOp.addOperation(new ReturnOp(), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmt.getValue(), nameIn.getResult(), scoreIn.getResult()), 0);
+    mainOp.addOperation(new ReturnOp(LOC), 0);
 
     // Two consecutive lines: first the name, then the score
     ConsoleInRunner.setInputStream(new ByteArrayInputStream("Alice\n100\n".getBytes(UTF_8)));

@@ -3,14 +3,19 @@ package dialect.func;
 import core.SymbolTable;
 import core.ir.NamedAttribute;
 import core.ir.Operation;
-import core.traits.*;
+import core.ir.SourceLocation;
+import core.traits.IGlobal;
+import core.traits.IIsolatedFromAbove;
+import core.traits.ISingleRegion;
+import core.traits.ISymbol;
 import dialect.builtin.attributes.StringAttribute;
 import dialect.builtin.attributes.TypeAttribute;
 import dialect.func.types.FuncType;
-import java.util.List;
-import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Declares a named function with a body region in the {@code func} dialect.
@@ -78,20 +83,22 @@ public final class FuncOp extends FuncBaseOp implements Func, ISymbol, IIsolated
   /**
    * Create a function with the given name and a default (no-arg, void) {@link FuncType}.
    *
+   * @param location the source location of this operation.
    * @param name the symbol name of the function.
    */
-  public FuncOp(@NotNull String name) {
-    this(name, new FuncType());
+  public FuncOp(@NotNull SourceLocation location, @NotNull String name) {
+    this(location, name, new FuncType());
   }
 
   /**
    * Create a function with the given name and explicit type.
    *
+   * @param location the source location of this operation.
    * @param name the symbol name of the function.
    * @param type the function signature.
    */
-  public FuncOp(@NotNull String name, @NotNull FuncType type) {
-    setOperation(true, Operation.Create(this, null, null, type.getOutput(), type.getInputs()));
+  public FuncOp(@NotNull SourceLocation location, @NotNull String name, @NotNull FuncType type) {
+    setOperation(true, Operation.Create(location, this, null, null, type.getOutput(), type.getInputs()));
     getFuncNameAttribute().setValue(name);
     getTypeAttribute().setType(type);
   }

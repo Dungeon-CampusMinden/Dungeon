@@ -1,21 +1,21 @@
 package core.ir;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.Dialect;
 import core.detail.OperationDetails;
 import core.serialization.OpDeserializer;
 import core.serialization.OpSerializer;
 import core.traits.IOpTrait;
-
-import java.util.*;
-import java.util.function.Function;
-
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Abstract base class for all operations in the DGIR.
@@ -163,7 +163,6 @@ public abstract class Op {
   // Details & Traits
   // =========================================================================
 
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull OperationDetails getDetails() {
     return getOperation().getDetails();
@@ -208,43 +207,36 @@ public abstract class Op {
   // Operands & Output
   // =========================================================================
 
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull List<ValueOperand> getOperands() {
     return getOperation().getOperands();
   }
 
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull Optional<ValueOperand> getOperand(int index) {
     return getOperation().getOperand(index);
   }
 
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull Optional<Value> getOperandValue(int i) {
     return getOperation().getOperandValue(i);
   }
 
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull List<BlockOperand> getBlockOperands() {
     return getOperation().getBlockOperands();
   }
 
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull List<Block> getSuccessors() {
     return getOperation().getSuccessors();
   }
 
-  @JsonIgnore
   @Contract(pure = true)
   public Optional<OperationResult> getOutput() {
     return getOperation().getOutput();
   }
 
-  @JsonIgnore
   @Contract(pure = true)
   public Optional<Value> getOutputValue() {
     return getOperation().getOutputValue();
@@ -264,7 +256,6 @@ public abstract class Op {
   // Attributes
   // =========================================================================
 
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull Map<String, NamedAttribute> getAttributes() {
     return getOperation().getAttributes();
@@ -296,19 +287,16 @@ public abstract class Op {
     }
   }
 
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull List<Region> getRegions() {
     return getOperation().getRegions();
   }
 
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull Optional<Region> getRegion(int index) {
     return getOperation().getRegion(index);
   }
 
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull Optional<Region> getFirstRegion() {
     return getOperation().getFirstRegion();
@@ -318,19 +306,16 @@ public abstract class Op {
   // Parent & Navigation
   // =========================================================================
 
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull Optional<Block> getParent() {
     return getOperation().getParent();
   }
 
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull Optional<Region> getParentRegion() {
     return getOperation().getParentRegion();
   }
 
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull Optional<Operation> getParentOperation() {
     return getOperation().getParentOperation();
@@ -364,6 +349,16 @@ public abstract class Op {
   @Contract(pure = true)
   public @NotNull Optional<Operation> getNext() {
     return getOperation().getNext();
+  }
+
+  /**
+   * Get the source location of this operation.
+   *
+   * @see Operation#getLocation()
+   */
+  @Contract(pure = true)
+  public @NotNull SourceLocation getLocation() {
+    return getOperation().getLocation();
   }
 
   // =========================================================================

@@ -2,12 +2,14 @@ package dialect.cf;
 
 import core.ir.Block;
 import core.ir.Operation;
+import core.ir.SourceLocation;
 import core.traits.IControlFlow;
 import core.traits.ITerminator;
-import java.util.List;
-import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Unconditional branch to a single target {@link Block}.
@@ -56,10 +58,11 @@ public final class BranchOp extends CfOp implements CF, ITerminator, IControlFlo
   /**
    * Create an unconditional branch to {@code target}.
    *
+   * @param location the source location of this operation.
    * @param target the successor block to branch to.
    */
-  public BranchOp(@NotNull Block target) {
-    setOperation(Operation.Create(this, null, List.of(target), null));
+  public BranchOp(@NotNull SourceLocation location, @NotNull Block target) {
+    setOperation(Operation.Create(location, this, null, List.of(target), null));
   }
 
   // =========================================================================

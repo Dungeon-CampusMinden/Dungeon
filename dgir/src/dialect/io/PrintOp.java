@@ -1,11 +1,12 @@
 package dialect.io;
 
 import core.ir.Operation;
+import core.ir.SourceLocation;
 import core.ir.Value;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 import java.util.function.Function;
-
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Prints one or more values to standard output in the {@code io} dialect.
@@ -63,18 +64,20 @@ public final class PrintOp extends IoOp implements IO {
   /**
    * Create a print op with the given operand list.
    *
+   * @param location the source location of this operation.
    * @param operands the values to print; must contain at least one element.
    */
-  public PrintOp(List<Value> operands) {
-    setOperation(Operation.Create(this, operands, null, null));
+  public PrintOp(@NotNull SourceLocation location, List<Value> operands) {
+    setOperation(Operation.Create(location, this, operands, null, null));
   }
 
   /**
    * Create a print op with a varargs operand list.
    *
+   * @param location the source location of this operation.
    * @param operands the values to print; must contain at least one element.
    */
-  public PrintOp(Value... operands) {
-    this(List.of(operands));
+  public PrintOp(@NotNull SourceLocation location, Value... operands) {
+    this(location, List.of(operands));
   }
 }

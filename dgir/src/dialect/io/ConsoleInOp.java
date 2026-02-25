@@ -1,13 +1,15 @@
 package dialect.io;
 
-import core.ir.*;
-
-import java.util.function.Function;
-
+import core.ir.Operation;
+import core.ir.SourceLocation;
+import core.ir.Type;
+import core.ir.Value;
 import dialect.builtin.types.FloatT;
 import dialect.builtin.types.IntegerT;
 import dialect.builtin.types.StringT;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Function;
 
 /**
  * Blocking console-input operation in the {@code io} dialect.
@@ -81,10 +83,11 @@ public final class ConsoleInOp extends IoOp implements IO {
   /**
    * Create a console-input op that produces a value of the given type.
    *
+   * @param location the source location of this operation.
    * @param type the result type; must be {@link IntegerT}, {@link FloatT}, or {@link StringT}.
    */
-  public ConsoleInOp(@NotNull Type type) {
-    setOperation(Operation.Create(this, null, null, type));
+  public ConsoleInOp(@NotNull SourceLocation location, @NotNull Type type) {
+    setOperation(Operation.Create(location, this, null, null, type));
   }
 
   // =========================================================================

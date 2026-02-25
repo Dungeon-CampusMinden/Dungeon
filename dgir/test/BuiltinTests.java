@@ -1,6 +1,5 @@
-import static org.junit.jupiter.api.Assertions.*;
-
 import core.Dialect;
+import core.ir.SourceLocation;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
 import dialect.builtin.types.StringT;
@@ -9,12 +8,18 @@ import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
 import dialect.func.types.FuncType;
 import dialect.io.PrintOp;
-import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class BuiltinTests {
+  private static final SourceLocation LOC = SourceLocation.UNKNOWN;
+
   @BeforeAll
   public static void setup() {
     Dialect.registerAllDialects();
@@ -22,7 +27,7 @@ public class BuiltinTests {
 
   @Test
   public void emptyProgramOp() {
-    ProgramOp programOp = new ProgramOp();
+    ProgramOp programOp = new ProgramOp(LOC);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -33,12 +38,12 @@ public class BuiltinTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcMainOp = entry.getRight();
 
-    var textOp = funcMainOp.addOperation(new ConstantOp("Hello World!"), 0);
-    var numberTextOP = funcMainOp.addOperation(new ConstantOp(42), 0);
+    var textOp = funcMainOp.addOperation(new ConstantOp(LOC, "Hello World!"), 0);
+    var numberTextOP = funcMainOp.addOperation(new ConstantOp(LOC, 42), 0);
 
     funcMainOp.addOperation(
-        new PrintOp(textOp.getOutputValueThrowing(), numberTextOP.getOutputValueThrowing()), 0);
-    funcMainOp.addOperation(new ReturnOp(), 0);
+        new PrintOp(LOC, textOp.getOutputValueThrowing(), numberTextOP.getOutputValueThrowing()), 0);
+    funcMainOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -51,18 +56,18 @@ public class BuiltinTests {
 
     var fooFuncOp =
         programOp.addOperation(
-            new FuncOp("foo", new FuncType(List.of(StringT.INSTANCE), StringT.INSTANCE)));
+            new FuncOp(LOC, "foo", new FuncType(List.of(StringT.INSTANCE), StringT.INSTANCE)));
     {
-      fooFuncOp.addOperation(new ReturnOp(fooFuncOp.getArgument(0).orElseThrow()), 0);
+      fooFuncOp.addOperation(new ReturnOp(LOC, fooFuncOp.getArgument(0).orElseThrow()), 0);
     }
 
     {
-      var helloWorldTextOp = funcMainOp.addOperation(new ConstantOp("Hello World!"), 0);
+      var helloWorldTextOp = funcMainOp.addOperation(new ConstantOp(LOC, "Hello World!"), 0);
       var funcCallOp =
           funcMainOp.addOperation(
-              new CallOp(fooFuncOp, helloWorldTextOp.getOutputValueThrowing()), 0);
-      funcMainOp.addOperation(new PrintOp(funcCallOp.getOutputValueThrowing()), 0);
-      funcMainOp.addOperation(new ReturnOp(), 0);
+              new CallOp(LOC, fooFuncOp, helloWorldTextOp.getOutputValueThrowing()), 0);
+      funcMainOp.addOperation(new PrintOp(LOC, funcCallOp.getOutputValueThrowing()), 0);
+      funcMainOp.addOperation(new ReturnOp(LOC), 0);
     }
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
@@ -78,13 +83,13 @@ public class BuiltinTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcMainOp = entry.getRight();
 
-    var constOp = funcMainOp.addOperation(new ConstantOp(42), 0);
+    var constOp = funcMainOp.addOperation(new ConstantOp(LOC, 42), 0);
 
     var secondConstOp =
-        funcMainOp.addOperation(new ConstantOp(100).setOutputValue(constOp.getValue()), 0);
+        funcMainOp.addOperation(new ConstantOp(LOC, 100).setOutputValue(constOp.getValue()), 0);
 
-    funcMainOp.addOperation(new PrintOp(secondConstOp.getOutputValueThrowing()), 0);
-    funcMainOp.addOperation(new ReturnOp(), 0);
+    funcMainOp.addOperation(new PrintOp(LOC, secondConstOp.getOutputValueThrowing()), 0);
+    funcMainOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }

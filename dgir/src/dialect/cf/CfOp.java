@@ -19,7 +19,7 @@ public abstract class CfOp extends Op {
   // =========================================================================
 
   /** Default constructor used during dialect registration. */
-  public CfOp() {
+  CfOp() {
     super();
   }
 

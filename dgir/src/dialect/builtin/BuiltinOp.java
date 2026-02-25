@@ -19,7 +19,7 @@ public abstract class BuiltinOp extends Op {
   // =========================================================================
 
   /** Default constructor used during dialect registration. */
-  public BuiltinOp() {
+  BuiltinOp() {
     super();
   }
 

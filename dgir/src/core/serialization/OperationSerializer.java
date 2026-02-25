@@ -1,6 +1,7 @@
 package core.serialization;
 
 import core.ir.Operation;
+import core.ir.SourceLocation;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
@@ -29,6 +30,8 @@ public class OperationSerializer extends StdSerializer<Operation> {
     }
     if (value.getOutput().isPresent()) gen.writePOJOProperty("output", value.getOutput());
     if (!value.getRegions().isEmpty()) gen.writePOJOProperty("regions", value.getRegions());
+    if (!value.getLocation().equals(SourceLocation.UNKNOWN))
+      gen.writeStringProperty("loc", value.getLocation().toString());
     gen.writeEndObject();
   }
 }

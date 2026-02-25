@@ -5,12 +5,13 @@ import core.ir.*;
 import core.traits.ISymbolUser;
 import dialect.builtin.attributes.SymbolRefAttribute;
 import dialect.func.types.FuncType;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Calls a named function in the {@code func} dialect.
@@ -103,45 +104,49 @@ public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
   /**
    * Create a call with an explicit operand list and callee type.
    *
+   * @param location    the source location of this operation.
    * @param name        the symbol name of the function to call.
    * @param operands    the argument values.
    * @param calleeType  the function signature used to determine the result type.
    */
-  public CallOp(@NotNull String name, @NotNull List<Value> operands, @NotNull FuncType calleeType) {
-    setOperation(Operation.Create(this, operands, null, calleeType.getOutput()));
+  public CallOp(@NotNull SourceLocation location, @NotNull String name, @NotNull List<Value> operands, @NotNull FuncType calleeType) {
+    setOperation(Operation.Create(location, this, operands, null, calleeType.getOutput()));
     setCallee(name);
   }
 
   /**
    * Create a call using varargs syntax.
    *
+   * @param location    the source location of this operation.
    * @param name        the symbol name of the function to call.
    * @param calleeType  the function signature used to determine the result type.
    * @param operands    the argument values (varargs).
    */
-  public CallOp(@NotNull String name, @NotNull FuncType calleeType, Value... operands) {
-    this(name, List.of(operands), calleeType);
+  public CallOp(@NotNull SourceLocation location, @NotNull String name, @NotNull FuncType calleeType, Value... operands) {
+    this(location, name, List.of(operands), calleeType);
   }
 
   /**
    * Create a call to a specific {@link FuncOp} with an explicit operand list.
    *
+   * @param location the source location of this operation.
    * @param funcOp   the function to call.
    * @param operands the argument values.
    */
-  public CallOp(@NotNull FuncOp funcOp, @NotNull List<Value> operands) {
-    setOperation(Operation.Create(this, operands, null, funcOp.getType().getOutput()));
+  public CallOp(@NotNull SourceLocation location, @NotNull FuncOp funcOp, @NotNull List<Value> operands) {
+    setOperation(Operation.Create(location, this, operands, null, funcOp.getType().getOutput()));
     setCallee(funcOp.getFuncName());
   }
 
   /**
    * Create a call to a specific {@link FuncOp} using varargs syntax.
    *
+   * @param location the source location of this operation.
    * @param funcOp   the function to call.
    * @param operands the argument values (varargs).
    */
-  public CallOp(@NotNull FuncOp funcOp, Value... operands) {
-    this(funcOp, List.of(operands));
+  public CallOp(@NotNull SourceLocation location, @NotNull FuncOp funcOp, Value... operands) {
+    this(location, funcOp, List.of(operands));
   }
 
   // =========================================================================

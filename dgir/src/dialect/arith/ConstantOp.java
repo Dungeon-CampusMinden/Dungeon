@@ -1,16 +1,15 @@
 package dialect.arith;
 
-import core.*;
 import core.ir.*;
 import core.traits.INoOperands;
-import core.traits.ISingleOperand;
 import dialect.builtin.attributes.IntegerAttribute;
 import dialect.builtin.attributes.StringAttribute;
 import dialect.builtin.types.IntegerT;
-import java.util.List;
-import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Produces a single constant value in the {@code arith} dialect.
@@ -65,38 +64,42 @@ public final class ConstantOp extends ArithOp implements Arith, INoOperands {
   /**
    * Create a constant op whose value is given by the typed attribute.
    *
+   * @param location the source location of this operation.
    * @param value the typed attribute holding the constant value and its type.
    */
-  public ConstantOp(@NotNull TypedAttribute value) {
-    setOperation(true, Operation.Create(this, null, null, value.getType()));
+  public ConstantOp(@NotNull SourceLocation location, @NotNull TypedAttribute value) {
+    setOperation(true, Operation.Create(location, this, null, null, value.getType()));
     getAttributes().get("value").setAttribute(value);
   }
 
   /**
    * Create a string constant.
    *
+   * @param location the source location of this operation.
    * @param value the string literal to embed.
    */
-  public ConstantOp(@NotNull String value) {
-    this(new StringAttribute(value));
+  public ConstantOp(@NotNull SourceLocation location, @NotNull String value) {
+    this(location, new StringAttribute(value));
   }
 
   /**
    * Create a 32-bit integer constant.
    *
+   * @param location the source location of this operation.
    * @param value the integer value to embed.
    */
-  public ConstantOp(int value) {
-    this(new IntegerAttribute(value, IntegerT.INT32));
+  public ConstantOp(@NotNull SourceLocation location, int value) {
+    this(location, new IntegerAttribute(value, IntegerT.INT32));
   }
 
   /**
    * Create a boolean ({@code int1}) constant.
    *
+   * @param location the source location of this operation.
    * @param value the boolean value to embed.
    */
-  public ConstantOp(boolean value) {
-    this(new IntegerAttribute(value ? 1 : 0, IntegerT.BOOL));
+  public ConstantOp(@NotNull SourceLocation location, boolean value) {
+    this(location, new IntegerAttribute(value ? 1 : 0, IntegerT.BOOL));
   }
 
   // =========================================================================

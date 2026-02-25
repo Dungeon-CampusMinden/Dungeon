@@ -1,6 +1,5 @@
-import static org.junit.jupiter.api.Assertions.*;
-
 import core.Dialect;
+import core.ir.SourceLocation;
 import core.serialization.Utils;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
@@ -11,11 +10,15 @@ import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
 import dialect.func.types.FuncType;
 import dialect.io.PrintOp;
-import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test cases for FuncOp and related operations. These test check for correct serialization and
@@ -25,6 +28,7 @@ import tools.jackson.databind.ObjectMapper;
  * <p>There are multiple positive and negative test cases for each operation.
  */
 public class FuncTests {
+  static final SourceLocation LOC = SourceLocation.UNKNOWN;
   public static boolean printResult = true;
   public static boolean printDotGraph = false;
   static ObjectMapper mapper;
@@ -41,8 +45,8 @@ public class FuncTests {
    */
   @Test
   public void basicFuncSerialization() {
-    FuncOp funcOp = new FuncOp("testFunc");
-    funcOp.addOperation(new ReturnOp(), 0);
+    FuncOp funcOp = new FuncOp(LOC, "testFunc");
+    funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(funcOp));
   }
@@ -51,11 +55,11 @@ public class FuncTests {
   @Test
   public void funcWithParamsAndReturn() {
     FuncType type = new FuncType(List.of(IntegerT.INT32, IntegerT.INT32), IntegerT.INT32);
-    FuncOp funcOp = new FuncOp("add", type);
+    FuncOp funcOp = new FuncOp(LOC, "add", type);
 
     // In a real scenario, we might have an add operation here. For this test, we just return one of
     // the parameters.
-    funcOp.addOperation(new ReturnOp(funcOp.getArgument(0).orElseThrow()), 0);
+    funcOp.addOperation(new ReturnOp(LOC, funcOp.getArgument(0).orElseThrow()), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(funcOp));
   }
@@ -66,10 +70,10 @@ public class FuncTests {
   @Test
   public void funcWithMismatchedReturn() {
     FuncType type = new FuncType(List.of(IntegerT.INT32), StringT.INSTANCE);
-    FuncOp funcOp = new FuncOp("mismatch", type);
+    FuncOp funcOp = new FuncOp(LOC, "mismatch", type);
 
     // Returning an INT32 when the function expects StringT
-    funcOp.addOperation(new ReturnOp(funcOp.getArgument(0).orElseThrow()), 0);
+    funcOp.addOperation(new ReturnOp(LOC, funcOp.getArgument(0).orElseThrow()), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(funcOp));
   }
@@ -80,14 +84,14 @@ public class FuncTests {
     Pair<ProgramOp, FuncOp> entry = TestUtils.createProgramOpWithEntryFunc();
     ProgramOp programOp = entry.getLeft();
     FuncOp mainFunc = entry.getRight();
-    mainFunc.addOperation(new ReturnOp(), 0);
+    mainFunc.addOperation(new ReturnOp(LOC), 0);
 
     FuncType type = new FuncType(List.of(IntegerT.INT32), IntegerT.INT32);
-    FuncOp factorial = programOp.addOperation(new FuncOp("factorial", type));
+    FuncOp factorial = programOp.addOperation(new FuncOp(LOC, "factorial", type));
 
     // Simple recursive call without base case for IR structure testing
-    var callOp = factorial.addOperation(new CallOp(factorial, factorial.getArgument(0).orElseThrow()), 0);
-    factorial.addOperation(new ReturnOp(callOp.getOutputValueThrowing()), 0);
+    var callOp = factorial.addOperation(new CallOp(LOC, factorial, factorial.getArgument(0).orElseThrow()), 0);
+    factorial.addOperation(new ReturnOp(LOC, callOp.getOutputValueThrowing()), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -99,13 +103,13 @@ public class FuncTests {
     FuncOp mainFunc = entry.getRight();
 
     FuncOp otherFunc =
-        programOp.addOperation(new FuncOp("other", new FuncType(List.of(), IntegerT.INT32)));
-    var constOp = otherFunc.addOperation(new ConstantOp(42), 0);
-    otherFunc.addOperation(new ReturnOp(constOp.getValue()), 0);
+        programOp.addOperation(new FuncOp(LOC, "other", new FuncType(List.of(), IntegerT.INT32)));
+    var constOp = otherFunc.addOperation(new ConstantOp(LOC, 42), 0);
+    otherFunc.addOperation(new ReturnOp(LOC, constOp.getValue()), 0);
 
-    var callOp = mainFunc.addOperation(new CallOp(otherFunc), 0);
-    mainFunc.addOperation(new PrintOp(callOp.getOutputValueThrowing()), 0);
-    mainFunc.addOperation(new ReturnOp(), 0);
+    var callOp = mainFunc.addOperation(new CallOp(LOC, otherFunc), 0);
+    mainFunc.addOperation(new PrintOp(LOC, callOp.getOutputValueThrowing()), 0);
+    mainFunc.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -116,8 +120,8 @@ public class FuncTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp mainFunc = entry.getRight();
 
-    mainFunc.addOperation(new CallOp("ghost", new FuncType(List.of(), IntegerT.INT32)), 0);
-    mainFunc.addOperation(new ReturnOp(), 0);
+    mainFunc.addOperation(new CallOp(LOC, "ghost", new FuncType(List.of(), IntegerT.INT32)), 0);
+    mainFunc.addOperation(new ReturnOp(LOC), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -130,12 +134,12 @@ public class FuncTests {
 
     FuncOp target =
         programOp.addOperation(
-            new FuncOp("target", new FuncType(List.of(IntegerT.INT32), IntegerT.INT32)));
-    target.addOperation(new ReturnOp(target.getArgument(0).orElseThrow()), 0);
+            new FuncOp(LOC, "target", new FuncType(List.of(IntegerT.INT32), IntegerT.INT32)));
+    target.addOperation(new ReturnOp(LOC, target.getArgument(0).orElseThrow()), 0);
 
     // Call with 0 args, expects 1
-    mainFunc.addOperation(new CallOp(target), 0);
-    mainFunc.addOperation(new ReturnOp(), 0);
+    mainFunc.addOperation(new CallOp(LOC, target), 0);
+    mainFunc.addOperation(new ReturnOp(LOC), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -148,13 +152,13 @@ public class FuncTests {
 
     FuncOp target =
         programOp.addOperation(
-            new FuncOp("target", new FuncType(List.of(IntegerT.INT32), IntegerT.INT32)));
-    target.addOperation(new ReturnOp(target.getArgument(0).orElseThrow()), 0);
+            new FuncOp(LOC, "target", new FuncType(List.of(IntegerT.INT32), IntegerT.INT32)));
+    target.addOperation(new ReturnOp(LOC, target.getArgument(0).orElseThrow()), 0);
 
     // Call with String arg, expects Int
-    var strOp = mainFunc.addOperation(new ConstantOp("test"), 0);
-    mainFunc.addOperation(new CallOp(target, strOp.getValue()), 0);
-    mainFunc.addOperation(new ReturnOp(), 0);
+    var strOp = mainFunc.addOperation(new ConstantOp(LOC, "test"), 0);
+    mainFunc.addOperation(new CallOp(LOC, target, strOp.getValue()), 0);
+    mainFunc.addOperation(new ReturnOp(LOC), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
   }

@@ -1,22 +1,22 @@
 package core.ir;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.OperationVerifier;
 import core.Utils;
 import core.detail.OperationDetails;
 import core.serialization.OperationDeserializer;
 import core.serialization.OperationSerializer;
 import core.traits.IOpTrait;
-import java.io.Serializable;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
+
+import java.io.Serializable;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Carries the runtime state associated with a concrete operation instance.
@@ -45,25 +45,26 @@ public final class Operation implements Serializable {
    * The values are created as fresh {@link Value} instances typed according to the provided lists
    * and set as the region's body values after creation.
    *
-   * @param op                   a default (no-arg) op prototype used to obtain the ident and
-   *                             default attributes.
-   * @param operands             input value operands, or {@code null} for none.
-   * @param successors           successor blocks (for branching ops), or {@code null} for none.
-   * @param outputType           result type, or {@code null} for void ops.
+   * @param location the source location of the operation.
+   * @param op a default (no-arg) op prototype used to obtain the ident and default attributes.
+   * @param operands input value operands, or {@code null} for none.
+   * @param successors successor blocks (for branching ops), or {@code null} for none.
+   * @param outputType result type, or {@code null} for void ops.
    * @param regionBodyValueTypes per-region lists of body value types; the number of elements
-   *                             determines {@code numRegions}.
    * @return the newly constructed operation.
    */
   @Contract(pure = true)
   @NotNull
   @SafeVarargs
   public static Operation Create(
+      @NotNull SourceLocation location,
       @NotNull Op op,
       @Nullable List<Value> operands,
       @Nullable List<Block> successors,
       @Nullable Type outputType,
       @NotNull List<Type>... regionBodyValueTypes) {
-    Operation operation = Create(op, operands, successors, outputType, regionBodyValueTypes.length);
+    Operation operation =
+        Create(location, op, operands, successors, outputType, regionBodyValueTypes.length);
     for (int i = 0; i < regionBodyValueTypes.length; i++) {
       operation
           .getRegions()
@@ -76,8 +77,9 @@ public final class Operation implements Serializable {
   /**
    * Create an {@link Operation} with a fixed number of empty regions.
    *
-   * @param op         a default op prototype used to obtain the ident and default attributes.
-   * @param operands   input value operands, or {@code null} for none.
+   * @param location the source location of the operation.
+   * @param op a default op prototype used to obtain the ident and default attributes.
+   * @param operands input value operands, or {@code null} for none.
    * @param successors successor blocks, or {@code null} for none.
    * @param outputType result type, or {@code null} for void ops.
    * @param numRegions number of (initially empty) regions to attach.
@@ -86,12 +88,14 @@ public final class Operation implements Serializable {
    */
   @Contract(pure = true)
   public static Operation Create(
+      @NotNull SourceLocation location,
       @NotNull Op op,
       @Nullable List<Value> operands,
       @Nullable List<Block> successors,
       @Nullable Type outputType,
       int numRegions) {
     return new Operation(
+        location,
         OperationDetails.Registered.lookup(op.getIdent())
             .orElseThrow(
                 () ->
@@ -128,7 +132,10 @@ public final class Operation implements Serializable {
   @NotNull @Unmodifiable private final List<Region> regions;
 
   /** The block containing this operation. */
-  @JsonIgnore @Nullable private Block parent = null;
+  @Nullable private Block parent = null;
+
+  /** The source location of this operation. */
+  @NotNull private final SourceLocation location;
 
   // =========================================================================
   // Constructors
@@ -137,6 +144,7 @@ public final class Operation implements Serializable {
   /**
    * Full constructor for Operation.
    *
+   * @param location The source location of this operation.
    * @param details The operation details.
    * @param operands The input values.
    * @param successors The blocks succeeding this operation.
@@ -145,12 +153,15 @@ public final class Operation implements Serializable {
    * @param numRegions The number of regions.
    */
   public Operation(
+      @NotNull SourceLocation location,
       @NotNull OperationDetails details,
       @NotNull List<Value> operands,
       @NotNull List<Block> successors,
       @Nullable Type resultType,
       @NotNull Map<String, NamedAttribute> attributes,
       int numRegions) {
+    this.location = location;
+
     this.details = details;
 
     this.output = resultType != null ? new OperationResult(this, resultType) : null;
@@ -309,7 +320,6 @@ public final class Operation implements Serializable {
    *
    * @return An unmodifiable list of successor blocks.
    */
-  @JsonIgnore
   @Contract(pure = true)
   public @NotNull @Unmodifiable List<Block> getSuccessors() {
     return getBlockOperands().stream()
@@ -392,8 +402,8 @@ public final class Operation implements Serializable {
    * correct type.
    *
    * @param clazz the expected attribute class.
-   * @param name  the attribute name.
-   * @param <T>   the attribute type.
+   * @param name the attribute name.
+   * @param <T> the attribute type.
    * @return the typed attribute, or empty if absent, unset, or the wrong type.
    */
   @Contract(pure = true)
@@ -407,7 +417,7 @@ public final class Operation implements Serializable {
   /**
    * Set the value of an existing named attribute.
    *
-   * @param name      the attribute name; the attribute must already exist in the map.
+   * @param name the attribute name; the attribute must already exist in the map.
    * @param attribute the new attribute value.
    * @throws AssertionError if no attribute with the given name exists.
    */
@@ -492,7 +502,7 @@ public final class Operation implements Serializable {
    *
    * @param parent the new parent block, or {@code null} to detach.
    * @throws AssertionError if called from outside {@link Block}, or if this operation already has a
-   *                        non-null parent and the new value is also non-null.
+   *     non-null parent and the new value is also non-null.
    */
   public void setParent(Block parent) {
     assert Utils.Caller.getCallingClass() == Block.class
@@ -550,6 +560,11 @@ public final class Operation implements Serializable {
             });
   }
 
+  @Contract(pure = true)
+  public @NotNull SourceLocation getLocation() {
+    return location;
+  }
+
   // =========================================================================
   // Diagnostics
   // =========================================================================
@@ -605,6 +620,11 @@ public final class Operation implements Serializable {
       sb.append(output.getValue().getType().getParameterizedIdent());
     }
     sb.append(")");
+
+    if (!location.equals(SourceLocation.UNKNOWN)) {
+      sb.append(" @ ");
+      sb.append(location);
+    }
 
     if (!attributes.isEmpty()) {
       String attrs =

@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class IoOp extends Op {
 
   /** Default constructor used during dialect registration. */
-  public IoOp() {
+  IoOp() {
     super();
   }
 

@@ -1,6 +1,7 @@
 package dialect.scf;
 
 import core.ir.*;
+import core.ir.SourceLocation;
 import core.traits.IControlFlow;
 import dialect.builtin.types.IntegerT;
 import org.jetbrains.annotations.NotNull;
@@ -74,12 +75,13 @@ public final class IfOp extends ScfOp implements SCF, IControlFlow {
   /**
    * Create an if-op with the given boolean condition.
    *
+   * @param location      the source location of this operation.
    * @param condition     a {@link IntegerT#BOOL} value controlling the branch.
    * @param withElseBlock {@code true} to also create an else region.
    */
-  public IfOp(Value condition, boolean withElseBlock) {
+  public IfOp(@NotNull SourceLocation location, Value condition, boolean withElseBlock) {
     setOperation(
-        Operation.Create(this, List.of(condition), null, null, withElseBlock ? 2 : 1));
+        Operation.Create(location, this, List.of(condition), null, null, withElseBlock ? 2 : 1));
   }
 
   // =========================================================================

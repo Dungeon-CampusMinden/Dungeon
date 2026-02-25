@@ -1,6 +1,7 @@
 package dialect.scf;
 
 import core.ir.Operation;
+import core.ir.SourceLocation;
 import core.traits.IControlFlow;
 import core.traits.ISingleRegion;
 import org.jetbrains.annotations.NotNull;
@@ -42,10 +43,19 @@ public final class ScopeOp extends ScfOp implements SCF, ISingleRegion, IControl
   // Constructors
   // =========================================================================
 
-  /** Default constructor; creates a backing operation when the dialect is already registered. */
-  public ScopeOp() {
+  /** Default constructor used during dialect registration. */
+  private ScopeOp() {
     executeIfRegistered(
-        ScopeOp.class, () -> setOperation(true, Operation.Create(this, null, null, null, 1)));
+        ScopeOp.class, () -> setOperation(true, Operation.Create(SourceLocation.UNKNOWN, this, null, null, null, 1)));
+  }
+
+  /**
+   * Create a scope op.
+   *
+   * @param location the source location of this operation.
+   */
+  public ScopeOp(@NotNull SourceLocation location) {
+    setOperation(true, Operation.Create(location, this, null, null, null, 1));
   }
 
   /**

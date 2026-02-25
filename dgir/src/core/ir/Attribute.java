@@ -7,10 +7,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import core.Dialect;
 import core.detail.AttributeDetails;
 import core.serialization.AttributeTypeIdResolver;
-import java.io.Serializable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
+
+import java.io.Serializable;
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.CUSTOM,
@@ -44,6 +45,7 @@ public abstract class Attribute implements Serializable {
    * @return the namespace string, never {@code null}.
    */
   @Contract(pure = true)
+  @JsonIgnore
   public abstract @NotNull String getNamespace();
 
   /**
@@ -52,6 +54,7 @@ public abstract class Attribute implements Serializable {
    * @return the dialect class, never {@code null}.
    */
   @Contract(pure = true)
+  @JsonIgnore
   public abstract @NotNull Class<? extends Dialect> getDialect();
 
   // =========================================================================

@@ -2,14 +2,15 @@ package dialect.scf;
 
 import core.ir.Op;
 import core.ir.Operation;
+import core.ir.SourceLocation;
 import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;
-import java.util.List;
-import java.util.function.Function;
-
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Marks the end of a structured control-flow region body in the {@code scf} dialect.
@@ -47,10 +48,10 @@ public final class ContinueOp extends ScfOp implements SCF, ITerminator, ISpecif
   // Constructors
   // =========================================================================
 
-  /** Default constructor; creates a backing operation when the dialect is already registered. */
-  public ContinueOp() {
+  /** Default constructor used during dialect registration. */
+  private ContinueOp() {
     executeIfRegistered(
-        ContinueOp.class, () -> setOperation(true, Operation.Create(this, null, null, null)));
+        ContinueOp.class, () -> setOperation(true, Operation.Create(SourceLocation.UNKNOWN, this, null, null, null)));
   }
 
   /**
@@ -60,6 +61,15 @@ public final class ContinueOp extends ScfOp implements SCF, ITerminator, ISpecif
    */
   public ContinueOp(Operation operation) {
     super(operation);
+  }
+
+  /**
+   * Create a continue op.
+   *
+   * @param location the source location of this operation.
+   */
+  public ContinueOp(@NotNull SourceLocation location) {
+    setOperation(true, Operation.Create(location, this, null, null, null));
   }
 
   // =========================================================================

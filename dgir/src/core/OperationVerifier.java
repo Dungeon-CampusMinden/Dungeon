@@ -5,11 +5,12 @@ import core.detail.OperationDetails;
 import core.ir.*;
 import core.traits.IIsolatedFromAbove;
 import core.traits.INoTerminator;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Validates the structural and semantic correctness of an {@link Operation} and, optionally, all
@@ -206,8 +207,7 @@ public class OperationVerifier {
     if (!details.get().verifyTraits(operation)) return false;
     if (!details.get().verify(operation)) {
       operation.emitError(
-          "Operation failed verification through registered details of operation "
-              + operation.getDetails().ident());
+          "Operation failed verification through registered details.");
       return false;
     }
 

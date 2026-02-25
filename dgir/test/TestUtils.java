@@ -1,16 +1,19 @@
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import core.analysis.DotCFG;
 import core.ir.Op;
 import core.ir.Operation;
+import core.ir.SourceLocation;
 import core.serialization.Utils;
 import dialect.builtin.ProgramOp;
 import dialect.func.FuncOp;
 import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
-import java.io.*;
+import org.apache.commons.lang3.tuple.Pair;
+import tools.jackson.databind.ObjectMapper;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -19,8 +22,9 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.tuple.Pair;
-import tools.jackson.databind.ObjectMapper;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestUtils {
   public static ObjectMapper mapper = Utils.getMapper(true);
@@ -180,8 +184,8 @@ public class TestUtils {
    * @return a pair of the created ProgramOp and the block contained in the func.func op
    */
   public static Pair<ProgramOp, FuncOp> createProgramOpWithEntryFunc() {
-    ProgramOp programOp = new ProgramOp();
-    FuncOp funcOp = programOp.addOperation(new FuncOp("main"));
+    ProgramOp programOp = new ProgramOp(SourceLocation.UNKNOWN);
+    FuncOp funcOp = programOp.addOperation(new FuncOp(SourceLocation.UNKNOWN, "main"));
     return Pair.of(programOp, funcOp);
   }
 }

@@ -19,7 +19,7 @@ public abstract class FuncBaseOp extends Op {
   // =========================================================================
 
   /** Default constructor used during dialect registration. */
-  public FuncBaseOp() {
+  FuncBaseOp() {
     super();
   }
 

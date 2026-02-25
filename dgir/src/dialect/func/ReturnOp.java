@@ -2,16 +2,18 @@ package dialect.func;
 
 import core.ir.Op;
 import core.ir.Operation;
+import core.ir.SourceLocation;
 import core.ir.Value;
 import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;
 import core.traits.IZeroOrOneOperand;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Returns from a {@link FuncOp}, optionally carrying a single return value.
@@ -84,9 +86,9 @@ public final class ReturnOp extends FuncBaseOp implements Func, ITerminator, IZe
   // =========================================================================
 
   /** Default constructor used during dialect registration. */
-  public ReturnOp() {
+  private ReturnOp() {
     executeIfRegistered(
-        ReturnOp.class, () -> setOperation(false, Operation.Create(this, null, null, null)));
+        ReturnOp.class, () -> setOperation(false, Operation.Create(SourceLocation.UNKNOWN, this, null, null, null)));
   }
 
   /**
@@ -99,12 +101,22 @@ public final class ReturnOp extends FuncBaseOp implements Func, ITerminator, IZe
   }
 
   /**
+   * Create a void return op.
+   *
+   * @param location the source location of this operation.
+   */
+  public ReturnOp(@NotNull SourceLocation location) {
+    setOperation(false, Operation.Create(location, this, null, null, null));
+  }
+
+  /**
    * Create a return op that yields the given value.
    *
+   * @param location the source location of this operation.
    * @param operand the value to return from the enclosing function.
    */
-  public ReturnOp(@NotNull Value operand) {
-    setOperation(Operation.Create(this, List.of(operand), null, null));
+  public ReturnOp(@NotNull SourceLocation location, @NotNull Value operand) {
+    setOperation(Operation.Create(location, this, List.of(operand), null, null));
   }
 
   // =========================================================================

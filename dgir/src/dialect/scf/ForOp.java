@@ -1,6 +1,7 @@
 package dialect.scf;
 
 import core.ir.*;
+import core.ir.SourceLocation;
 import core.traits.IControlFlow;
 import core.traits.ISingleRegion;
 import dialect.builtin.types.IntegerT;
@@ -68,15 +69,17 @@ public final class ForOp extends ScfOp implements SCF, IControlFlow, ISingleRegi
   /**
    * Create a for-loop with the given loop parameters.
    *
+   * @param location   the source location of this operation.
    * @param initValue  the initial value of the induction variable.
    * @param lowerBound the lower bound of the loop (inclusive).
    * @param upperBound the upper bound of the loop (exclusive).
    * @param step       the step size per iteration.
    */
-  public ForOp(Value initValue, Value lowerBound, Value upperBound, Value step) {
+  public ForOp(@NotNull SourceLocation location, Value initValue, Value lowerBound, Value upperBound, Value step) {
     setOperation(
         true,
         Operation.Create(
+            location,
             this,
             List.of(initValue, lowerBound, upperBound, step),
             null,
