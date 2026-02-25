@@ -32,6 +32,7 @@ import core.network.MessageDispatcher;
 import core.network.client.ClientNetwork;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.*;
+import core.platform.gdx.GdxInputBridge;
 import core.sound.player.GdxSoundPlayer;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
@@ -152,6 +153,10 @@ public final class GdxGameLoopHost extends ScreenAdapter {
           PreRunConfiguration.windowHeight()),
         new SpriteBatch());
     Gdx.input.setInputProcessor(stage);
+
+    // Bridge libGDX input events into our engine-agnostic InputManager.
+    GdxInputBridge.install();
+    InputManager.reset();
   }
 
   private static void updateStage(final Stage stage, final float delta) {
@@ -223,11 +228,6 @@ public final class GdxGameLoopHost extends ScreenAdapter {
 
     // Start networking (even in single player this may be a LocalNetworkHandler).
     Game.network().start();
-
-    // Initialize input mapping once a graphics context exists.
-    if (!Game.isHeadless()) {
-      InputManager.init();
-    }
 
     // Load data and execute LevelSystem once to load initial level.
     Crafting.loadRecipes();

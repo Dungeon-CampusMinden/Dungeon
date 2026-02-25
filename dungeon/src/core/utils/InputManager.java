@@ -1,31 +1,17 @@
 package core.utils;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * System that tracks input states reliably across all platforms.
+ * Engine-agnostic input state tracker.
  *
- * <p>This system wraps libGDX's InputProcessor to track key and button press states, providing a
- * workaround for platform-specific issues (particularly on macOS) where {@link
- * com.badlogic.gdx.Input#isKeyJustPressed(int)} doesn't work reliably.
+ * <p>Backends feed input events via {@link #notifyKeyDown(int)}, {@link #notifyKeyUp(int)},
+ * {@link #notifyButtonDown(int)}, {@link #notifyButtonUp(int)}.
  *
- * <p>Usage: Call {@link #init()} after setting up the input processor (e.g., after {@link
- * com.badlogic.gdx.Gdx.Input#setInputProcessor(InputProcessor)}), then call {@link #update()} once
- * per frame (typically at the end of your render/update loop). Use the static methods {@link
- * #isKeyJustPressed(int)}, {@link #isKeyPressed(int)}, {@link #isKeyJustReleased(int)}, {@link
- * #isButtonJustPressed(int)}, {@link #isButtonPressed(int)}, {@link #isButtonJustReleased(int)},
- * {@link #isKeyDoubleTapped(int)}, {@link #isButtonDoubleTapped(int)}, {@link #isKeyHeld(int,
- * long)}, and {@link #isButtonHeld(int, long)} instead of the corresponding {@link
- * com.badlogic.gdx.Gdx.Input} methods.
- *
- * <p>Time-based methods use milliseconds from {@link java.lang.System#currentTimeMillis()}. Double-tap checks return
- * true only on the second tap's press frame, and hold checks return true once the duration has
- * elapsed while the key/button remains pressed.
+ * <p>Call {@link #update()} once per frame to clear "just pressed/released" states.
  */
 public final class InputManager {
 
@@ -47,84 +33,18 @@ public final class InputManager {
   private InputManager() {} // static utility class
 
   /**
-   * Initializes the input state tracking by wrapping the current input processor.
+   * Legacy entry point for libGDX runs.
    *
-   * <p>This method should be called after setting up the input processor (e.g., after setting the
-   * Stage as input processor). This replaces the current processor with a wrapper that forwards to
-   * the previous one.
+   * <p>Calls the libGDX bridge via reflection if present (so this class stays libGDX-free).
    */
+  @Deprecated
   public static void init() {
-    InputProcessor oldProcessor = Gdx.input.getInputProcessor();
-    Gdx.input.setInputProcessor(
-        new InputProcessor() {
-          @Override
-          public boolean keyDown(int keycode) {
-            registerPress(
-                keycode,
-                justPressedKeys,
-                pressedKeys,
-                justReleasedKeys,
-                lastKeyTapTimesMs,
-                previousKeyTapTimesMs,
-                keyDownTimesMs,
-                core.utils.Time.nowMs());
-            return oldProcessor != null && oldProcessor.keyDown(keycode);
-          }
-
-          @Override
-          public boolean keyUp(int keycode) {
-            registerRelease(keycode, pressedKeys, justReleasedKeys, keyDownTimesMs);
-            return oldProcessor != null && oldProcessor.keyUp(keycode);
-          }
-
-          @Override
-          public boolean keyTyped(char character) {
-            return oldProcessor != null && oldProcessor.keyTyped(character);
-          }
-
-          @Override
-          public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-            registerPress(
-                button,
-                justPressedButtons,
-                pressedButtons,
-                justReleasedButtons,
-                lastButtonTapTimesMs,
-                previousButtonTapTimesMs,
-                buttonDownTimesMs,
-                core.utils.Time.nowMs());
-            return oldProcessor != null
-                && oldProcessor.touchDown(screenX, screenY, pointer, button);
-          }
-
-          @Override
-          public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-            registerRelease(button, pressedButtons, justReleasedButtons, buttonDownTimesMs);
-            return oldProcessor != null && oldProcessor.touchUp(screenX, screenY, pointer, button);
-          }
-
-          @Override
-          public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
-            registerRelease(button, pressedButtons, justReleasedButtons, buttonDownTimesMs);
-            return oldProcessor != null
-                && oldProcessor.touchCancelled(screenX, screenY, pointer, button);
-          }
-
-          @Override
-          public boolean touchDragged(int screenX, int screenY, int pointer) {
-            return oldProcessor != null && oldProcessor.touchDragged(screenX, screenY, pointer);
-          }
-
-          @Override
-          public boolean mouseMoved(int screenX, int screenY) {
-            return oldProcessor != null && oldProcessor.mouseMoved(screenX, screenY);
-          }
-
-          @Override
-          public boolean scrolled(float amountX, float amountY) {
-            return oldProcessor != null && oldProcessor.scrolled(amountX, amountY);
-          }
-        });
+    try {
+      Class<?> c = Class.forName("core.platform.gdx.GdxInputBridge");
+      c.getMethod("install").invoke(null);
+    } catch (Throwable ignored) {
+      // Not running on libGDX backend.
+    }
   }
 
   /**
@@ -365,9 +285,7 @@ public final class InputManager {
 
   public static void notifyKeyDown(int keycode) {
     // Ignore repeats while the key is already down
-    if (pressedKeys.contains(keycode) || justPressedKeys.contains(keycode)) {
-      return;
-    }
+    if (pressedKeys.contains(keycode) || justPressedKeys.contains(keycode)) return;
 
     registerPress(
       keycode,
@@ -382,17 +300,12 @@ public final class InputManager {
 
   public static void notifyKeyUp(int keycode) {
     // Ignore spurious releases
-    if (!pressedKeys.contains(keycode) && !justPressedKeys.contains(keycode)) {
-      return;
-    }
-
+    if (!pressedKeys.contains(keycode) && !justPressedKeys.contains(keycode)) return;
     registerRelease(keycode, pressedKeys, justReleasedKeys, keyDownTimesMs);
   }
 
   public static void notifyButtonDown(int button) {
-    if (pressedButtons.contains(button) || justPressedButtons.contains(button)) {
-      return;
-    }
+    if (pressedButtons.contains(button) || justPressedButtons.contains(button)) return;
 
     registerPress(
       button,
@@ -406,10 +319,7 @@ public final class InputManager {
   }
 
   public static void notifyButtonUp(int button) {
-    if (!pressedButtons.contains(button) && !justPressedButtons.contains(button)) {
-      return;
-    }
-
+    if (!pressedButtons.contains(button) && !justPressedButtons.contains(button)) return;
     registerRelease(button, pressedButtons, justReleasedButtons, buttonDownTimesMs);
   }
 }

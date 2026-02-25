@@ -84,7 +84,7 @@ public class TextureGenerator {
 
   private static Pixmap invokeGdxRenderer(String path, ShaderList shaders) {
     try {
-      Class<?> cls = Class.forName("core.platform.gdx.render.GdxShaderTextureBaker");
+      Class<?> cls = Class.forName("core.platform.gdx.render.GdxShaderTextureRenderer");
       Method m = cls.getMethod("renderToPixmap", String.class, ShaderList.class);
       return (Pixmap) m.invoke(null, path, shaders);
     } catch (ReflectiveOperationException e) {
