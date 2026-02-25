@@ -55,6 +55,11 @@ import javax.tools.*;
  * </ul>
  */
 public class DynamicCompiler {
+
+  private static JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+  private static StandardJavaFileManager fileManager =
+      compiler.getStandardFileManager(null, null, null);
+
   /**
    * Compiles and loads a Java class from the specified source file.
    *
@@ -74,9 +79,6 @@ public class DynamicCompiler {
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
       writer.write(sourceCode);
     }
-
-    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
 
     Iterable<? extends JavaFileObject> compilationUnits =
         fileManager.getJavaFileObjects(outputFile);
