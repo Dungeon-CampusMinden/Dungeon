@@ -1,6 +1,5 @@
 package contrib.components;
 
-import com.badlogic.gdx.utils.Null;
 import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
@@ -39,7 +38,10 @@ public final class HealthComponent implements Component, BarDisplayable {
   private Consumer<Entity> onDeath;
   private int maximalHealthpoints;
   private int currentHealthpoints;
-  private @Null Entity lastCause = null;
+
+  // Nullable by design: callers should use lastDamageCause() which returns Optional.
+  private Entity lastCause = null;
+
   private boolean godMode = false;
   private boolean dead = false;
 
