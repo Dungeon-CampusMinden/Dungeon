@@ -21,6 +21,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.systems.AttributeBarSystem;
 import contrib.systems.DebugDrawSystem;
+import contrib.systems.JoystickSystem;
 import contrib.utils.CheckPatternPainter;
 import core.Entity;
 import core.Game;
@@ -567,5 +568,6 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new InputSystem());
     ECSManagement.add(new DebugDrawSystem());
     ECSManagement.add(new AttributeBarSystem());
+    ECSManagement.add(new JoystickSystem());
   }
 }
