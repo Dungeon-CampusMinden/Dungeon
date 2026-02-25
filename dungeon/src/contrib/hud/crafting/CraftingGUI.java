@@ -9,10 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
-import contrib.crafting.Crafting;
-import contrib.crafting.CraftingResult;
-import contrib.crafting.CraftingType;
-import contrib.crafting.Recipe;
+import contrib.crafting.*;
 import contrib.hud.IInventoryHolder;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
@@ -443,7 +440,15 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
               Item item = (Item) result;
               this.targetInventory.add(item);
             });
-    this.inventory.clear(); // TODO: only consume needed item; return remaining items
+    Arrays.stream(this.currentRecipe.ingredients())
+        .filter(Item.class::isInstance)
+        .map(Item.class::cast)
+        .forEach(
+            item -> {
+              for (int i = 0; i < item.stackSize(); i++) {
+                this.inventory.removeOne(item);
+              }
+            });
     this.updateRecipe();
   }
 

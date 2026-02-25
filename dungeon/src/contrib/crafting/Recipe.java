@@ -37,7 +37,7 @@ public record Recipe(boolean ordered, CraftingIngredient[] ingredients, Crafting
   public boolean canCraft(final CraftingIngredient[] inputs) {
     var needAmount = Arrays.stream(inputs).mapToInt(CraftingIngredient::getAmount).sum();
     var haveAmount = Arrays.stream(this.ingredients).mapToInt(CraftingIngredient::getAmount).sum();
-    if (needAmount < haveAmount) {
+    if (needAmount != haveAmount) {
       return false;
     }
 
@@ -51,18 +51,25 @@ public record Recipe(boolean ordered, CraftingIngredient[] ingredients, Crafting
     }
 
     for (final CraftingIngredient ingredient : this.ingredients) {
+      int requiredAmount = ingredient.getAmount();
+      int amountCounter = 0;
       boolean matched = false;
+
       for (final CraftingIngredient input : inputs) {
-        if (ingredient.match(input)) {
-          matched = true;
-          break;
+        boolean typeMatch = ingredient.match(input);
+        if (typeMatch) {
+          amountCounter += input.getAmount();
+          if (amountCounter == requiredAmount) {
+            matched = true;
+            break;
+          }
         }
       }
+
       if (!matched) {
         return false;
       }
     }
-
     return true;
   }
 
