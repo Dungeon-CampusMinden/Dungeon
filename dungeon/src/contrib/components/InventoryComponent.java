@@ -316,15 +316,15 @@ public final class InventoryComponent implements Component {
   }
 
   /**
-   * Removes one unit from the smallest stack of an item of the same class as the specified item in
-   * the inventory.
+   * Removes one unit from the smallest stack of an item of the same instance as the specified item
+   * in the inventory.
    *
-   * <p>If multiple stacks of items of the same class exist, the unit is removed from the stack with
-   * the smaller size. If only one stack exists, the unit ist removed from that stack. If the stack
-   * size reaches zero or below, the item is removed from the inventory entirely.
+   * <p>If multiple stacks of items of the same instance exist, the unit is removed from the stack
+   * with the smaller size. If only one stack exists, the unit ist removed from that stack. If the
+   * stack size reaches zero or below, the item is removed from the inventory entirely.
    *
-   * @param item The reference item whose class is used to determine which item to remove one unit
-   *     from.
+   * @param item The reference item whose instance is used to determine which item to remove one
+   *     unit from.
    * @return true if one unit was successfully removed; false if no matching item was found in the
    *     inventory.
    */
