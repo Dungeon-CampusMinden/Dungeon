@@ -55,6 +55,11 @@ import javax.tools.*;
  * </ul>
  */
 public class DynamicCompiler {
+
+  private static JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+  private static StandardJavaFileManager fileManager =
+      compiler.getStandardFileManager(null, null, null);
+
   /**
    * Compiles and loads a Java class from the specified source file.
    *
@@ -63,10 +68,6 @@ public class DynamicCompiler {
    * @return The compiled and loaded {@link Class} object.
    * @throws Exception If compilation or loading fails.
    */
-
-  private static JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-  private static StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-
   public static Class<?> compileAndLoad(IPath sourcePath, String className) throws Exception {
     File outputRoot = new File(System.getProperty("BASEREFLECTIONDIR"));
     File outputFile = new File(outputRoot, className.replace('.', '/') + ".java");
