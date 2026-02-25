@@ -11,6 +11,7 @@ import core.Entity;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -116,18 +117,17 @@ public class ItemPotionHealth extends Item {
         DATA_KEY_POTION_TYPE, type.name(),
         DATA_KEY_HEAL_AMOUNT, Integer.toString(healAmount));
   }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof ItemPotionHealth)) return false;
+    if (!(o instanceof ItemPotionHealth other)) return false;
 
-    ItemPotionHealth other = (ItemPotionHealth) o;
-
-    return this.heal_amount == other.heal_amount;
+    return this.healAmount == other.healAmount;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(ItemPotionHealth.class, heal_amount);
+    return Objects.hash(ItemPotionHealth.class, healAmount);
   }
 }
