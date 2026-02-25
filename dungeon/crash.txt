@@ -1,0 +1,6 @@
+Wed Feb 25 13:06:43 CET 2026 Main Update Loop threw an exception:
+java.lang.NullPointerException: Cannot invoke "de.gurkenlabs.litiengine.gui.screens.ScreenManager.current()" because the return value of "de.gurkenlabs.litiengine.Game.screens()" is null
+	at de.gurkenlabs.litiengine.graphics.RenderComponent.renderGraphics(RenderComponent.java:168)
+	at de.gurkenlabs.litiengine.graphics.RenderComponent.render(RenderComponent.java:148)
+	at de.gurkenlabs.litiengine.GameLoop.process(GameLoop.java:93)
+	at de.gurkenlabs.litiengine.UpdateLoop.run(UpdateLoop.java:57)

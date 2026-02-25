@@ -3,11 +3,10 @@ package core.utils.components.draw;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import core.systems.DrawSystem;
+import core.platform.Platform;
 import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
+import java.lang.reflect.Method;
 
 /** Utility class for generating and registering textures. */
 public class TextureGenerator {
@@ -45,31 +44,51 @@ public class TextureGenerator {
   }
 
   /**
-   * Renders a texture with the given shaders and registers it in the TextureMap at the given base.
-   *
-   * @param base The base to the base texture.
-   * @param path The base to register the rendered texture at.
-   * @param shaders The shaders to apply.
+    * Renders a texture using the GDX shader renderer and registers it in the TextureMap at the given
+    * path. The base parameter is used for caching purposes in the shader renderer, and should be a
+    * unique identifier for the texture being rendered (e.g. a file path or a descriptive name). The path
+    * parameter is the path to register the generated texture at in the TextureMap. The shaders parameter
+    * is the list of shaders to apply when rendering the texture.
+    *
+    * @param base A unique identifier for caching the rendered texture (e.g. a file path or descriptive name).
+    * @param path The path to register the generated texture at in the TextureMap.
+    * @param shaders The list of shaders to apply when rendering the texture.
    */
   public static void registerRenderShaderTexture(String base, String path, ShaderList shaders) {
-    TextureMap.instance()
-        .putPixmap(new SimpleIPath(path), staticRenderShaderTexture(base, shaders), true);
+    if (!Platform.runtime().supportsGdxRendering()) return;
+
+    Pixmap pm = staticRenderShaderTexture(base, shaders);
+    if (pm == null) return;
+
+    try {
+      TextureMap.instance().putPixmap(new SimpleIPath(path), pm, true);
+    } finally {
+      pm.dispose();
+    }
   }
 
   /**
-   * Renders a texture with the given shaders and returns the resulting pixmap.
+   * Renders a texture using the GDX shader renderer and returns it as a Pixmap. The base parameter is
+   * used for caching purposes in the shader renderer, and should be a unique identifier for the
+   * texture being rendered (e.g. a file path or a descriptive name). The shaders parameter is the
+   * list of shaders to apply when rendering the texture.
    *
-   * @param path The path to the base texture.
-   * @param shaders The shaders to apply.
-   * @return The resulting pixmap.
+   * @param path A unique identifier for caching the rendered texture (e.g. a file path or descriptive name).
+   * @param shaders The list of shaders to apply when rendering the texture.
+   * @return The rendered texture as a Pixmap, or null if rendering is not supported.
    */
   public static Pixmap staticRenderShaderTexture(String path, ShaderList shaders) {
-    Texture base = TextureMap.instance().textureAt(new SimpleIPath(path));
-    TextureRegion region = new TextureRegion(base);
-    FrameBuffer fbo = DrawSystem.getInstance().processShaders(region, shaders);
-    fbo.begin();
-    Pixmap pm = Pixmap.createFromFrameBuffer(0, 0, fbo.getWidth(), fbo.getHeight());
-    fbo.end();
-    return pm;
+    if (!Platform.runtime().supportsGdxRendering()) return null;
+    return invokeGdxRenderer(path, shaders);
+  }
+
+  private static Pixmap invokeGdxRenderer(String path, ShaderList shaders) {
+    try {
+      Class<?> cls = Class.forName("core.platform.gdx.render.GdxShaderTextureBaker");
+      Method m = cls.getMethod("renderToPixmap", String.class, ShaderList.class);
+      return (Pixmap) m.invoke(null, path, shaders);
+    } catch (ReflectiveOperationException e) {
+      throw new IllegalStateException("GDX shader renderer not available", e);
+    }
   }
 }

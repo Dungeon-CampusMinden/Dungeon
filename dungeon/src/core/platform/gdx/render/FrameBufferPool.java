@@ -1,4 +1,4 @@
-package core.utils.components.draw;
+package core.platform.gdx.render;
 
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;

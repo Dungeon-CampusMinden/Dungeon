@@ -21,6 +21,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
+import core.platform.gdx.render.FrameBufferPool;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Vector2;
