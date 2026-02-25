@@ -1,8 +1,10 @@
 import core.ir.Block;
+import core.ir.SourceLocation;
 import dgir.vm.api.VM;
 import dgir.vm.dialect.io.ConsoleInRunner;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
+import dialect.builtin.types.FloatT;
 import dialect.builtin.types.IntegerT;
 import dialect.builtin.types.StringT;
 import dialect.cf.BranchCondOp;
@@ -11,17 +13,14 @@ import dialect.func.CallOp;
 import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
 import dialect.func.types.FuncType;
-import dialect.builtin.types.FloatT;
 import dialect.io.ConsoleInOp;
 import dialect.io.PrintOp;
-
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.util.List;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /** Testcases for the VM, only testing output from and to the console. */
 public class VmConsoleTest extends VmTestBase {

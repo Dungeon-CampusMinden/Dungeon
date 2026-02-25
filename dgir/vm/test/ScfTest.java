@@ -1,3 +1,4 @@
+import core.ir.SourceLocation;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
 import dialect.func.FuncOp;
@@ -404,7 +405,7 @@ public class ScfTest extends VmTestBase {
 
       ForOp outer =
           main.addOperation(
-              new ForOp(LOC, 
+              new ForOp(LOC,
                   outerInit.getValue(),
                   outerLower.getValue(),
                   outerUpper.getValue(),
@@ -421,7 +422,7 @@ public class ScfTest extends VmTestBase {
             outer
                 .getEntryBlock()
                 .addOperation(
-                    new ForOp(LOC, 
+                    new ForOp(LOC,
                         innerInit.getValue(),
                         innerLower.getValue(),
                         innerUpper.getValue(),
@@ -452,7 +453,7 @@ public class ScfTest extends VmTestBase {
 
       ForOp outer =
           main.addOperation(
-              new ForOp(LOC, 
+              new ForOp(LOC,
                   outerInit.getValue(),
                   outerLower.getValue(),
                   outerUpper.getValue(),
@@ -469,7 +470,7 @@ public class ScfTest extends VmTestBase {
             outer
                 .getEntryBlock()
                 .addOperation(
-                    new ForOp(LOC, 
+                    new ForOp(LOC,
                         innerInit.getValue(),
                         innerLower.getValue(),
                         innerUpper.getValue(),
@@ -504,7 +505,7 @@ public class ScfTest extends VmTestBase {
 
       ForOp outer =
           main.addOperation(
-              new ForOp(LOC, 
+              new ForOp(LOC,
                   outerInit.getValue(),
                   outerLower.getValue(),
                   outerUpper.getValue(),
@@ -520,7 +521,7 @@ public class ScfTest extends VmTestBase {
             outer
                 .getEntryBlock()
                 .addOperation(
-                    new ForOp(LOC, 
+                    new ForOp(LOC,
                         innerInit.getValue(),
                         innerLower.getValue(),
                         innerUpper.getValue(),
