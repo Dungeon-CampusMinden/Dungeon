@@ -1,7 +1,9 @@
 package dgir.vm.dap;
 
+import core.ir.Block;
 import core.ir.Operation;
 import core.ir.Location;
+import core.ir.Region;
 import core.ir.Value;
 import dgir.vm.api.Breakpoint;
 import dgir.vm.api.DebugControl;
@@ -182,6 +184,73 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     SetBreakpointsResponse resp = new SetBreakpointsResponse();
     resp.setBreakpoints(verified.toArray(new org.eclipse.lsp4j.debug.Breakpoint[0]));
     return CompletableFuture.completedFuture(resp);
+  }
+
+  @Override
+  public CompletableFuture<BreakpointLocationsResponse> breakpointLocations(
+      BreakpointLocationsArguments args) {
+
+    String requestedPath = args.getSource() != null ? args.getSource().getPath() : null;
+    int startLine = args.getLine() > 0 ? args.getLine() : 1;
+    int endLine   = args.getEndLine() > 0 ? args.getEndLine() : startLine;
+
+    List<BreakpointLocation> locations = new ArrayList<>();
+
+    if (vm.getProgram() != null) {
+      // Walk every operation in the IR tree and collect those whose source location falls
+      // inside the requested file + line range.
+      collectBreakpointLocations(
+          vm.getProgram().getOperation(), requestedPath, startLine, endLine, locations);
+    }
+
+    BreakpointLocationsResponse resp = new BreakpointLocationsResponse();
+    resp.setBreakpoints(locations.toArray(new BreakpointLocation[0]));
+    return CompletableFuture.completedFuture(resp);
+  }
+
+  /**
+   * Recursively walks the IR tree rooted at {@code op}, collecting one
+   * {@link BreakpointLocation} per distinct (file, line) pair that matches the filter.
+   *
+   * @param op           the root operation to walk
+   * @param requestedPath source-file filter; {@code null} means accept any file
+   * @param startLine    first line of the range (inclusive)
+   * @param endLine      last line of the range (inclusive)
+   * @param out          accumulator list
+   */
+  private static void collectBreakpointLocations(
+      @NotNull Operation op,
+      @Nullable String requestedPath,
+      int startLine,
+      int endLine,
+      @NotNull List<BreakpointLocation> out) {
+
+    Location loc = op.getLocation();
+    if (!loc.equals(Location.UNKNOWN)) {
+      boolean fileMatches = requestedPath == null || requestedPath.equals(loc.file());
+      boolean lineMatches = loc.line() >= startLine && loc.line() <= endLine;
+      if (fileMatches && lineMatches) {
+        // Deduplicate: only one entry per (file, line) pair.
+        final int line = loc.line();
+        final int col  = Math.max(0, loc.column());
+        boolean alreadyPresent = out.stream().anyMatch(l -> l.getLine() == line);
+        if (!alreadyPresent) {
+          BreakpointLocation bl = new BreakpointLocation();
+          bl.setLine(line);
+          bl.setColumn(col);
+          out.add(bl);
+        }
+      }
+    }
+
+    // Recurse into nested regions → blocks → operations.
+    for (Region region : op.getRegions()) {
+      for (Block block : region.getBlocks()) {
+        for (Operation nested : block.getOperations()) {
+          collectBreakpointLocations(nested, requestedPath, startLine, endLine, out);
+        }
+      }
+    }
   }
 
   // =========================================================================
