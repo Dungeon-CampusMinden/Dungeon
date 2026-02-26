@@ -43,3 +43,45 @@ tasks.withType(Test).configureEach {
 repositories {
     mavenCentral()
 }
+
+// ---------------------------------------------------------------------------
+// Fat-jar for the DAP debug server
+// ---------------------------------------------------------------------------
+// Creates dgir/vm/build/libs/dgir-vm-dap.jar — a self-contained executable
+// jar with the main class set to DgirDebugServer.
+// Build with:  ./gradlew :dgir:vm:dapJar
+// Run with:    java -jar dgir/vm/build/libs/dgir-vm-dap.jar --program my.dgir
+tasks.register('dapJar', Jar) {
+    group = 'build'
+    description = 'Assembles a self-contained (fat) JAR for the DGIR DAP debug server.'
+    archiveBaseName.set('dgir-vm-dap')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // Exclude JAR signature files from dependencies — merging signed jars into a fat jar
+    // invalidates their signatures and causes a SecurityException at startup.
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.RSA'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/LICENSE'
+    exclude 'META-INF/LICENSE.txt'
+    exclude 'META-INF/NOTICE'
+    exclude 'META-INF/NOTICE.txt'
+
+    manifest {
+        attributes(
+            'Main-Class': 'dgir.vm.DgirDebugServer',
+            'Implementation-Title': 'DGIR VM DAP Server',
+            'Implementation-Version': archiveVersion
+        )
+    }
+
+    // Include this subproject's compiled classes
+    from sourceSets.main.output
+
+    // Include all runtime dependency classes (flattened into the jar)
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
