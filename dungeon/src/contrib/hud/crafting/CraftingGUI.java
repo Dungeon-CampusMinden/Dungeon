@@ -25,11 +25,14 @@ import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
+import core.level.utils.LevelUtils;
+import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -116,6 +119,8 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private static final Animation backgroundAnimation;
   private static final BitmapFont bitmapFont;
 
+  private static final int DROP_RADIUS = 1;
+
   static {
     if (Game.isHeadless()) {
       backgroundAnimation = null;
@@ -144,17 +149,19 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private final Button buttonOk, buttonCancel;
   private final InventoryComponent targetInventory;
   private Recipe currentRecipe = null;
+  private Entity entity = null;
 
   /**
    * Create a CraftingGUI that has the given InventoryComponent as target inventory for successfully
    * crafted items.
    *
    * @param sourceInventory The source inventory where items to be crafted are stored.
-   * @param targetInventory The target inventory.
+   * @param entity The entity that is crafting
    * @param dialogId The dialog ID for network callbacks.
    */
-  CraftingGUI(
-      InventoryComponent sourceInventory, InventoryComponent targetInventory, String dialogId) {
+  CraftingGUI(InventoryComponent sourceInventory, Entity entity, String dialogId) {
+
+    this.entity = entity;
     var oldCallback = sourceInventory.onItemAdded();
     sourceInventory.onItemAdded(
         item -> {
@@ -162,7 +169,14 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
           this.updateRecipe();
         });
     this.inventory = sourceInventory;
-    this.targetInventory = targetInventory;
+    InventoryComponent heroInventory = entity.fetch(InventoryComponent.class).orElse(null);
+
+    if (heroInventory == null) {
+      LOGGER.error("Entity {} has no InventoryComponent for CraftingGuiDialog", heroInventory);
+      throw new DialogCreationException("Missing InventoryComponent for CraftingGuiDialog");
+    }
+
+    this.targetInventory = heroInventory;
 
     if (Game.isHeadless()) {
       this.buttonOk = new Button(this, 0, 0, 0, 0);
@@ -229,14 +243,16 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
     Entity craftEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
     InventoryComponent heroInventory = entity.fetch(InventoryComponent.class).orElse(null);
+
     InventoryComponent craftInventory = craftEntity.fetch(InventoryComponent.class).orElse(null);
     if (craftInventory == null || heroInventory == null) {
       Entity missingEntity = (craftInventory == null) ? craftEntity : entity;
       LOGGER.error("Entity {} has no InventoryComponent for CraftingGuiDialog", missingEntity);
       throw new DialogCreationException("Missing InventoryComponent for CraftingGuiDialog");
     }
+
     InventoryGUI inventoryGUI = new InventoryGUI(heroInventory);
-    CraftingGUI craftingGUI = new CraftingGUI(craftInventory, heroInventory, ctx.dialogId());
+    CraftingGUI craftingGUI = new CraftingGUI(craftInventory, entity, ctx.dialogId());
 
     CraftingGUI.registerCallbacks(
         entity
@@ -433,12 +449,38 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private void craft() {
     if (this.currentRecipe == null) return;
     CraftingResult[] results = this.currentRecipe.results();
+
     Arrays.stream(results)
         .filter(result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
         .forEach(
             result -> {
-              Item item = (Item) result;
-              this.targetInventory.add(item);
+              Item item;
+              try {
+                item = (Item) result.getClass().getDeclaredConstructor().newInstance();
+              } catch (ReflectiveOperationException e) {
+                LOGGER.error("Failed to instantiate crafting result item: {}", e.getMessage());
+                return;
+              }
+              // check if there is enough space in the inventory
+              boolean res = this.targetInventory.add(item);
+              // otherwise drop the items on the ground
+              if (!res) {
+                Point centerPos =
+                    Game.positionOf(this.entity)
+                        .orElse(null); // TODO: vlt schon vorher im Ctor als Supplier speichern
+                if (centerPos == null) {
+                  LOGGER.error("Failed to get position of entity for dropping crafted item");
+                  return;
+                }
+                LevelUtils.randomAccessibleTileInRangeAsPoint(centerPos, DROP_RADIUS)
+                    .ifPresentOrElse(
+                        dropPos -> {
+                          if (item.drop(dropPos).isEmpty()) {
+                            LOGGER.error("Failed to drop crafted item on the ground");
+                          }
+                        },
+                        () -> LOGGER.error("Failed to find drop position for crafted item"));
+              }
             });
     Arrays.stream(this.currentRecipe.ingredients())
         .filter(Item.class::isInstance)
