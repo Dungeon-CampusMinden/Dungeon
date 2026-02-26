@@ -1,0 +1,80 @@
+{
+    "ident": "program",
+    "loc": "HelloWorld.dgir:1:1",
+    "regions": [
+        {
+            "blocks": [
+                {
+                    "@id": ".blk_0",
+                    "operations": [
+                        {
+                            "ident": "func.func",
+                            "loc": "HelloWorld.dgir:2:4",
+                            "attributes": [
+                                {
+                                    "name": "type",
+                                    "attribute": {
+                                        "ident": "typeAttr",
+                                        "type": "func.func<() -> ()>"
+                                    }
+                                },
+                                {
+                                    "name": "symbol_name",
+                                    "attribute": {
+                                        "ident": "stringAttr",
+                                        "type": "string",
+                                        "value": "main"
+                                    }
+                                }
+                            ],
+                            "regions": [
+                                {
+                                    "blocks": [
+                                        {
+                                            "@id": ".blk_1",
+                                            "operations": [
+                                                {
+                                                    "ident": "arith.constant",
+                                                    "loc": "HelloWorld.dgir:3:8",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "stringAttr",
+                                                                "type": "string",
+                                                                "value": "Hello World!"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%0",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "io.print",
+                                                    "loc": "HelloWorld.dgir:4:8",
+                                                    "operands": [
+                                                        {
+                                                            "index": 0,
+                                                            "value": "%0"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "ident": "func.return"
+                                                }
+                                            ],
+                                            "index": 0
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "index": 0
+                }
+            ]
+        }
+    ]
+}
