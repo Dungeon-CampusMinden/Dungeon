@@ -90,7 +90,7 @@ class DapJarIntegrationTest {
      * Source file name embedded in every operation location inside {@code HelloWorld.json}.
      * Used when constructing {@code setBreakpoints} requests.
      */
-    static final String SOURCE_FILE = "HelloWorld.dgir";
+    static final String SOURCE_FILE = "HelloWorld.java";
 
     /**
      * Line of the {@code arith.constant "Hello World!"} operation in {@code HelloWorld.dgir}.

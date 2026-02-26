@@ -774,7 +774,8 @@ class DapServerTest extends VmTestBase {
    * at least one operation has executed and produced a binding.
    *
    * <p>After the entry stop, two step commands are issued: the first enters the {@code main}
-   * function (executes {@code ProgramOp}), and the second executes the {@code ConstantOp("A")}
+   * function (executes the first op in {@code main}, {@code ConstantOp("A")}), and the second
+   * executes the {@code PrintOp} on the next line.
    * that produces the first visible local binding. At that point the scopes/variables
    * introspection should be populated.
    *
@@ -786,9 +787,9 @@ class DapServerTest extends VmTestBase {
    * <ol>
    *   <li>Connect and perform the full handshake with {@code stopOnEntry=true}.</li>
    *   <li>Drain the entry-stop event.</li>
-   *   <li>Send {@code stepIn} (executes ProgramOp / enters main); drain the resulting
+   *   <li>Send {@code stepIn} (executes {@code ConstantOp("A")}); drain the resulting
    *       {@code stopped("step")} event.</li>
-   *   <li>Send {@code next} (executes {@code ConstantOp("A")}); drain the resulting
+   *   <li>Send {@code next} (executes {@code PrintOp("A")}); drain the resulting
    *       {@code stopped("step")} event.</li>
    *   <li>Send {@code scopes} for frame ID {@code 1}; assert one scope named {@code "Locals"}.</li>
    *   <li>Send {@code variables} for the locals scope; assert at least one variable with
@@ -803,11 +804,11 @@ class DapServerTest extends VmTestBase {
 
     session.client().awaitStopped(); // entry pause
 
-    // Step into one to execute ProgramOp and enter main (pushes stack frame, no binding yet).
+    // Step into one to execute ConstantOp("A") and produce the first binding.
     session.remote().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
     session.client().awaitStopped(); // step
 
-    // Step again — executes ConstantOp("A"), creating the first visible binding.
+    // Step again — executes PrintOp("A"), creating the first visible binding.
     session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
     session.client().awaitStopped(); // step
 

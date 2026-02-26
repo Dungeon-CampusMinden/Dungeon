@@ -1,12 +1,14 @@
 package core.ir;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import core.IRObjectWithUseList;
-import java.io.Serializable;
-
 import core.serialization.ValueIdGenerator;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.Serializable;
 
 /**
  * A dynamic value produced by an {@link Operation} or introduced as a block/region argument. Values
@@ -45,6 +47,6 @@ public final class Value extends IRObjectWithUseList<Value, ValueOperand> implem
 
   @Override
   public String toString() {
-    return "Value{" + "type=" + type + '}';
+    return type.toString();
   }
 }
