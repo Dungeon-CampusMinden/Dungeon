@@ -14,9 +14,9 @@ export const updatePopup = (text : string) => {
 const displayPopup = () => {
   const popup = document.querySelector(".popupDiv");
   if (popup) {
-    // @ts-ignore
+    // @ts-expect-error style is not defined
     popup.style.opacity = "1"
-    // @ts-ignore
+    // @ts-expect-error style is not defined
     popup.style.display = "block";
   }
   setupCross();
@@ -27,11 +27,11 @@ const setupCross = () => {
   cross?.addEventListener("click", () => {
     const popup = document.querySelector(".popupDiv");
     if (popup) {
-      // @ts-ignore
+      // @ts-expect-error style is not defined
       popup.style.opacity = "0"
-      // @ts-ignore
+      // @ts-expect-error style is not defined
       popup.style.transition = "0.3s";
-      // @ts-ignore
+      // @ts-expect-error style is not defined
       popup.style.display = "none";
     }
   })
@@ -75,7 +75,7 @@ export function addListenerToFlyOut()  {
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.attributeName === "style") {
-        updateElementAlignment(); // Deine Funktion von oben
+        updateElementAlignment();
       }
     });
   });

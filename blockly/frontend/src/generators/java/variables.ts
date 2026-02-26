@@ -10,7 +10,6 @@ export function set_number(block: Blockly.Block, generator: Blockly.Generator) {
 
   if (field_value) {
     javaGenerator.variables.set(variable_name!, Number(field_value));
-    console.log(`${variable_name} = ${field_value};`)
 
     return `${variable_name} = ${field_value};`;
   } else {
