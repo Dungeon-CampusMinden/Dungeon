@@ -2,6 +2,7 @@ package core.platform.grid;
 
 import core.level.Tile;
 import core.level.elements.ILevel;
+import core.level.path.DynamicObstacles;
 import core.level.utils.Coordinate;
 import core.platform.PathfindingAdapter;
 import java.util.*;
@@ -24,6 +25,8 @@ public final class GridPathfindingAdapter implements PathfindingAdapter {
     final Coordinate startC = start.coordinate();
     final Coordinate goalC = end.coordinate();
 
+    if (DynamicObstacles.isBlocked(goalC)) return Optional.of(List.of());
+
     final ArrayDeque<Coordinate> q = new ArrayDeque<>();
     final Map<Coordinate, Coordinate> cameFrom = new HashMap<>();
     final Set<Coordinate> visited = new HashSet<>();
@@ -38,6 +41,7 @@ public final class GridPathfindingAdapter implements PathfindingAdapter {
       for (int[] d : DIRS) {
         final Coordinate next = new Coordinate(cur.x() + d[0], cur.y() + d[1]);
         if (visited.contains(next)) continue;
+        if (DynamicObstacles.isBlocked(next)) continue;
 
         final Tile t = level.tileAt(next).orElse(null);
         if (t == null || !t.isAccessible()) continue;

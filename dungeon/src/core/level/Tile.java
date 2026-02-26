@@ -1,9 +1,6 @@
 package core.level;
 
-import com.badlogic.gdx.ai.pfa.Connection;
-import com.badlogic.gdx.utils.Array;
 import core.level.elements.ILevel;
-import core.level.elements.astar.TileConnection;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -34,7 +31,6 @@ public abstract class Tile {
   protected IPath texturePath;
   protected ILevel level;
   protected LevelElement levelElement;
-  protected transient Array<Connection<Tile>> connections = new Array<>();
   protected int index;
   protected boolean visible = true;
   protected int tintColor = -1; // -1 means no tint color
@@ -147,8 +143,8 @@ public abstract class Tile {
    *
    * @param tileLevel The level this tile is in.
    */
-  public void level(final DungeonLevel tileLevel) {
-    level = tileLevel;
+  public void level(final ILevel tileLevel) {
+    this.level = tileLevel;
   }
 
   /**
@@ -176,28 +172,6 @@ public abstract class Tile {
    */
   public float friction() {
     return this.friction;
-  }
-
-  /**
-   * Connects two tiles together. This means you can go from one tile to another. Connections are
-   * needed to calculate a path through the dungeon.
-   *
-   * @param to Tile to connect with.
-   */
-  public void addConnection(final Tile to) {
-    if (connections == null) {
-      connections = new Array<>();
-    }
-    connections.add(new TileConnection(this, to));
-  }
-
-  /**
-   * Used by LibGDX pathfinding.
-   *
-   * @return All connections to other tiles.
-   */
-  public Array<Connection<Tile>> connections() {
-    return connections;
   }
 
   /**

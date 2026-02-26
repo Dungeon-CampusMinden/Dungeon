@@ -1,14 +1,10 @@
 package core.level.elements;
 
-import com.badlogic.gdx.ai.pfa.Connection;
-import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
-import com.badlogic.gdx.utils.Array;
 import contrib.entities.deco.Deco;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
-import core.level.elements.astar.TileHeuristic;
 import core.level.elements.tile.*;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -26,11 +22,9 @@ import java.util.function.Function;
  * <p>This is the datatype used in every API call inside the dungeon framework to define a level.
  * Each level you want to use needs to implement this interface.
  *
- * <p>Also provides the API for the LibGDX Pathfinding.
- *
  * @see DungeonLevel
  */
-public interface ILevel extends IndexedGraph<Tile> {
+public interface ILevel {
 
   /** Default random number generator (seeded with current time). */
   Random RANDOM = new Random();
@@ -99,13 +93,6 @@ public interface ILevel extends IndexedGraph<Tile> {
   List<PitTile> pitTiles();
 
   /**
-   * Adds connections to neighboring tiles for a specified tile.
-   *
-   * @param checkTile The tile for which connections to neighbors are added.
-   */
-  void addConnectionsToNeighbours(final Tile checkTile);
-
-  /**
    * Retrieves a random tile of the specified type from the level.
    *
    * <p>The method uses a switch statement to determine the type of tile requested and retrieves a
@@ -132,30 +119,6 @@ public interface ILevel extends IndexedGraph<Tile> {
           default -> throw new NoSuchElementException("No such tile type: '" + elementType + "'");
         });
   }
-
-  /**
-   * Retrieves the count of nodes in the level for use in libGDX pathfinding algorithms.
-   *
-   * @return The number of nodes in the level.
-   */
-  int getNodeCount();
-
-  @Override
-  default int getIndex(final Tile tile) {
-    return tile.index();
-  }
-
-  @Override
-  default Array<Connection<Tile>> getConnections(final Tile fromNode) {
-    return fromNode.connections();
-  }
-
-  /**
-   * Retrieves the TileHeuristic associated with the Level.
-   *
-   * @return The TileHeuristic for the Level.
-   */
-  TileHeuristic tileHeuristic();
 
   /**
    * Retrieves the layout of the level, represented as a 2D array of tiles.

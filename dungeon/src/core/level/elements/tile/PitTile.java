@@ -1,7 +1,5 @@
 package core.level.elements.tile;
 
-import core.Game;
-import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -41,20 +39,27 @@ public class PitTile extends Tile {
   }
 
   /**
-   * Opens the pit. If the pit is open, it will remove all connections to its neighbour tiles for
-   * pathfinding.
+   * Opens this pit.
+   *
+   * <p>When the pit is open, it becomes inaccessible (entities cannot walk over it). If the pit is
+   * already open, this call has no effect.
+   *
+   * <p>Opening the pit also triggers a texture refresh to reflect the new state.
    */
   public void open() {
     if (!open) {
       this.open = true;
       refreshTexture();
-      ((DungeonLevel) Game.currentLevel().orElse(null)).removeFromPathfinding(this);
     }
   }
 
   /**
-   * Closes the pit. Unless the time to open is set to 0 If the pit is closed, it will add
-   * connections to its neighbour tiles for pathfinding.
+   * Closes this pit.
+   *
+   * <p>When the pit is closed, it becomes accessible again (entities can walk over it). If the pit is
+   * already closed, this call has no effect.
+   *
+   * <p>Closing the pit also triggers a texture refresh to reflect the new state.
    */
   public void close() {
     if (open) {
@@ -65,7 +70,6 @@ public class PitTile extends Tile {
 
       this.open = false;
       refreshTexture();
-      ((DungeonLevel) Game.currentLevel().orElse(null)).addToPathfinding(this);
     }
   }
 

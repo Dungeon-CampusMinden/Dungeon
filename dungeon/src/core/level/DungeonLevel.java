@@ -3,8 +3,6 @@ package core.level;
 import contrib.entities.deco.Deco;
 import contrib.utils.level.ITickable;
 import core.level.elements.ILevel;
-import core.level.elements.astar.TileConnection;
-import core.level.elements.astar.TileHeuristic;
 import core.level.elements.tile.*;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -12,7 +10,6 @@ import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
 import core.utils.Point;
 import core.utils.Tuple;
-import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,12 +32,7 @@ public class DungeonLevel implements ILevel, ITickable {
 
   private static int levelNameSuffix = 1;
   protected String levelName;
-  private static final Vector2[] CONNECTION_OFFSETS = {
-    Vector2.of(0, 1), Vector2.of(0, -1), Vector2.of(1, 0), Vector2.of(-1, 0),
-  };
-  protected final TileHeuristic tileHeuristic = new TileHeuristic();
   protected final ArrayList<Tile> startTiles = new ArrayList<>();
-  protected int nodeCount = 0;
   protected Tile[][] layout;
   protected ArrayList<FloorTile> floorTiles = new ArrayList<>();
   protected ArrayList<WallTile> wallTiles = new ArrayList<>();
@@ -155,34 +147,10 @@ public class DungeonLevel implements ILevel, ITickable {
   private void putTilesInLists() {
     for (Tile[] tiles : layout) {
       for (int x = 0; x < layout[0].length; x++) {
-        addTile(tiles[x]);
+        Tile t = tiles[x];
+        if (t == null) continue;
+        addTile(t);
       }
-    }
-  }
-
-  @Override
-  public int getNodeCount() {
-    return nodeCount;
-  }
-
-  @Override
-  public TileHeuristic tileHeuristic() {
-    return tileHeuristic;
-  }
-
-  /**
-   * Check each tile around the tile, if it is accessible add it to the connectionList.
-   *
-   * @param checkTile Tile to check for.
-   */
-  @Override
-  public void addConnectionsToNeighbours(Tile checkTile) {
-    for (Vector2 v : CONNECTION_OFFSETS) {
-      Coordinate c = checkTile.coordinate().translate(v);
-      this.tileAt(c)
-          .filter(Tile::isAccessible)
-          .filter(t -> !checkTile.connections().contains(new TileConnection(checkTile, t), false))
-          .ifPresent(checkTile::addConnection);
     }
   }
 
@@ -223,6 +191,8 @@ public class DungeonLevel implements ILevel, ITickable {
 
   @Override
   public void removeTile(Tile tile) {
+    if (tile == null) return;
+
     switch (tile.levelElement()) {
       case SKIP -> skipTiles.remove((SkipTile) tile);
       case FLOOR -> floorTiles.remove((FloorTile) tile);
@@ -235,55 +205,14 @@ public class DungeonLevel implements ILevel, ITickable {
       case GITTER -> gitterTiles.remove((GitterTile) tile);
       case GLASSWALL -> glassWallTiles.remove((GlasswandTile) tile);
     }
-    this.removeFromPathfinding(tile);
+
     layout[tile.coordinate().y()][tile.coordinate().x()] = null;
-  }
-
-  /**
-   * Removes the given tile from the pathfinding. By removing all neighbours connections to this
-   * tile and its index.
-   *
-   * @param tile Tile to remove from pathfinding.
-   */
-  public void removeFromPathfinding(Tile tile) {
-    tile.connections()
-        .forEach(
-            x ->
-                x.getToNode()
-                    .connections()
-                    .removeValue(new TileConnection(x.getToNode(), tile), false));
-    if (tile.isAccessible()) removeIndex(tile.index());
-  }
-
-  /**
-   * Adds the given tile to the pathfinding. By adding all neighbours connections to this tile and
-   * giving it an index. If the tile is not accessible, it will not be added to the pathfinding.
-   *
-   * @param tile Tile to add to pathfinding.
-   */
-  public void addToPathfinding(Tile tile) {
-    if (tile == null || !tile.isAccessible()) return;
-    this.addConnectionsToNeighbours(tile);
-    tile.connections()
-        .forEach(
-            x -> {
-              if (!x.getToNode()
-                  .connections()
-                  .contains(new TileConnection(x.getToNode(), tile), false))
-                x.getToNode().addConnection(tile);
-            });
-    tile.index(nodeCount++);
-  }
-
-  private void removeIndex(int index) {
-    Arrays.stream(layout)
-        .flatMap(x -> Arrays.stream(x).filter(y -> y.index() > index))
-        .forEach(x -> x.index(x.index() - 1));
-    nodeCount--;
   }
 
   @Override
   public void addTile(Tile tile) {
+    if (tile == null) return;
+
     switch (tile.levelElement()) {
       case SKIP -> skipTiles.add((SkipTile) tile);
       case FLOOR -> floorTiles.add((FloorTile) tile);
@@ -296,9 +225,10 @@ public class DungeonLevel implements ILevel, ITickable {
       case GITTER -> gitterTiles.add((GitterTile) tile);
       case GLASSWALL -> glassWallTiles.add((GlasswandTile) tile);
     }
-    this.addToPathfinding(tile);
+
     layout[tile.coordinate().y()][tile.coordinate().x()] = tile;
     tile.level(this);
+    assignIndex(tile);
   }
 
   @Override
@@ -499,5 +429,13 @@ public class DungeonLevel implements ILevel, ITickable {
    */
   public Point removeNamedPoint(String name) {
     return namedPoints.remove(name);
+  }
+
+  private void assignIndex(final Tile tile) {
+    if (tile == null || layout == null || layout.length == 0 || layout[0].length == 0) return;
+    final int w = layout[0].length;
+    final int x = tile.coordinate().x();
+    final int y = tile.coordinate().y();
+    tile.index(y * w + x);
   }
 }

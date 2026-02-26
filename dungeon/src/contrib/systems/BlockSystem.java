@@ -5,7 +5,9 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
-import core.level.DungeonLevel;
+import core.level.Tile;
+import core.level.path.DynamicObstacles;
+import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.HashMap;
@@ -35,16 +37,14 @@ public final class BlockSystem extends System {
       entity -> {
         BSData data = buildDataObject(entity);
         oldPositions.remove(data.pc);
-        ((DungeonLevel) Game.currentLevel().orElse(null))
-            .addToPathfinding(Game.tileAt(data.pc.position()).orElse(null));
+        blockAt(data.pc.position(), false);
       };
 
   private final Consumer<Entity> onAdd =
       entity -> {
         BSData data = buildDataObject(entity);
         oldPositions.put(data.pc, data.pc.position());
-        ((DungeonLevel) Game.currentLevel().orElse(null))
-            .removeFromPathfinding(Game.tileAt(data.pc.position()).orElse(null));
+        blockAt(data.pc.position(), true);
       };
 
   /** Creates a new BlockSystem. */
@@ -79,10 +79,9 @@ public final class BlockSystem extends System {
     Point currentP = data.pc.position();
     Point oldP = oldPositions.get(data.pc);
     if (currentP.equals(oldP)) return;
-    ((DungeonLevel) Game.currentLevel().orElse(null))
-        .addToPathfinding(Game.tileAt(oldP).orElse(null));
-    ((DungeonLevel) Game.currentLevel().orElse(null))
-        .removeFromPathfinding(Game.tileAt(currentP).orElse(null));
+
+    blockAt(oldP, false);
+    blockAt(currentP, true);
     oldPositions.put(data.pc, currentP);
   }
 
@@ -94,4 +93,16 @@ public final class BlockSystem extends System {
   }
 
   private record BSData(Entity e, PositionComponent pc) {}
+
+  private void blockAt(final Point p, final boolean block) {
+    if (p == null) return;
+
+    // Use tile lookup to stay consistent with level bounds / coordinate mapping.
+    final Tile t = Game.tileAt(p).orElse(null);
+    if (t == null) return;
+
+    final Coordinate c = t.coordinate();
+    if (block) DynamicObstacles.block(c);
+    else DynamicObstacles.unblock(c);
+  }
 }
