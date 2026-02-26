@@ -14,7 +14,9 @@ export const updatePopup = (text : string) => {
 const displayPopup = () => {
   const popup = document.querySelector(".popupDiv");
   if (popup) {
+    // @ts-ignore
     popup.style.opacity = "1"
+    // @ts-ignore
     popup.style.display = "block";
   }
   setupCross();
@@ -25,8 +27,11 @@ const setupCross = () => {
   cross?.addEventListener("click", () => {
     const popup = document.querySelector(".popupDiv");
     if (popup) {
+      // @ts-ignore
       popup.style.opacity = "0"
+      // @ts-ignore
       popup.style.transition = "0.3s";
+      // @ts-ignore
       popup.style.display = "none";
     }
   })

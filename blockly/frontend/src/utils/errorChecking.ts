@@ -1,31 +1,29 @@
-export function hasEmptyWhileLoopHead(code: string): boolean {
-  // Regex explanation:
-  // while      -> match the keyword
-  // \s*        -> allow optional whitespace
-  // \(         -> opening parenthesis
-  // \s*        -> allow whitespace inside
-  // \)         -> closing parenthesis with nothing between
-  // \s*        -> optional whitespace
-  // \{         -> opening curly brace
-  const regex = /while\s*\(\s*\)\s*\{/;
 
+/**
+  * Checks if a while loop has an empty head
+ * @param code the code to check
+ * @returns whether a while loop has an empty head
+ */
+export function hasEmptyWhileLoopHead(code: string): boolean {
+  const regex = /while\s*\(\s*\)\s*\{/;
   return regex.test(code);
 }
-
+/**
+ * Checks whether an if statement has a missing condition
+ * @param code the code to check
+ * @returns whether an if statmeent has a missing condition
+ */
 export function hasIfWithMissingCondition(code: string): boolean {
-  // Explanation:
-  // if         -> match "if"
-  // \s*        -> optional whitespace
-  // \(         -> opening parenthesis
-  // \s*        -> optional whitespace
-  // falsch     -> the word "falsch"
-  // \s*        -> optional whitespace
-  // \)         -> closing parenthesis
   const regex = /if\s*\(\s*falsch\s*\)/;
 
   return regex.test(code);
 }
-
+/**
+ * Checks whether a tile has no direction statement
+ * @param code the code to check
+ * @param tileType the tile type to check for in the code
+ * @returns whether the tile type is missing a direction
+ */
 export function isMissingDirectionInIsNearTile(code: string, tileType: string): boolean {
   const regex = new RegExp(
     `hero\\.isNearTile\\s*\\(\\s*LevelElement\\.${tileType}\\s*(?:,\\s*)?\\)`,
@@ -35,6 +33,12 @@ export function isMissingDirectionInIsNearTile(code: string, tileType: string): 
   return regex.test(code);
 }
 
+/**
+ * Checks whether a direction is missing in component statement
+ * @param code the code to check
+ * @param componentName the component type to check for
+ * @returns whether the the compnent type is missing a direction
+ */
 export function isMissingDirectionInIsNearComponent(
   code: string,
   componentName: string
@@ -47,25 +51,36 @@ export function isMissingDirectionInIsNearComponent(
   return regex.test(code);
 }
 
+/**
+ * Checks whether a direction is missing in component statement
+ * @param code the code to check
+ * @param componentName the component type to check for
+ * @returns whether the the compnent type is missing a direction
+ */
 export function isHeroActiveWithoutParameters(code: string): boolean {
   // Match hero.active() optionally with spaces: hero.active ( )
   const regex = /hero\.active\s*\(\s*\)/s;
   return regex.test(code);
 }
 
+/**
+ * Checks whether a hero interaction is missing a direction
+ * @param code the code to check
+ * @returns whether the hero interaction is missing a direction
+ */
 export function isHeroInteractWithoutParameters(code: string): boolean {
   // Match hero.active() optionally with spaces: hero.active ( )
   const regex = /hero\.interact\s*\(\s*\)/s;
   return regex.test(code);
 }
 
+
+/**
+ * Checks whether the if comparison is incomplete
+ * @param code the code to check
+ * @returns whether the if comparison is incomplete
+ */
 export function hasIncompleteIfComparison(code: string): boolean {
-  // Regex Erklärung:
-  // if\s*\(       -> "if" gefolgt von "(" mit optionalem Whitespace
-  // \s*([^\s=]*)?\s*  -> linke Seite (optional)
-  // ==             -> Vergleichsoperator
-  // \s*([^\s)]*)?\s* -> rechte Seite (optional)
-  // \)             -> schließende Klammer
   const regex = /if\s*\(\s*([^\s=]*)?\s*==\s*([^\s)]*)?\s*\)/;
 
   // Teste, ob eine oder beide Seiten leer sind
@@ -80,11 +95,20 @@ export function hasIncompleteIfComparison(code: string): boolean {
 
 }
 
+/**
+ * Check for the error message that a simple rotation has no direction
+ * @param code whether the message is in the code
+ */
 export function containsDirection(code: string): boolean {
   return /keine\s+Richtungsangabe/.test(code);
 }
 
-
+/**
+ *
+ * Check if a variable is used but not initialized in the code
+ * @param codeLines
+ * @returns a message with the variable that is not declared
+ */
 export const checkIfVariablesAreDeclared = (codeLines : string[]) => {
 
 // Globaler Scope
@@ -114,3 +138,21 @@ export const checkIfVariablesAreDeclared = (codeLines : string[]) => {
   }
   return message;
 }
+
+/**
+ * Checks if a for loop does not have an interation count
+ * @param code whether the number of iterations are missing in the for loop
+ */
+export function hasMissingIterationCount(code: string): boolean {
+  /**
+   * Erklärung des Regex:
+   * - for\s*\(           → for-Schleife mit öffnender Klammer
+   * - [^;]*;             → Initialisierungsteil
+   * - \s*[^<]*<\s*;     → Vergleich mit "<", aber nichts danach (FEHLER)
+   */
+  const invalidForRegex =
+    /for\s*\(\s*[^;]*;\s*[^<]*<\s*;\s*[^)]*\)/;
+
+  return invalidForRegex.test(code);
+}
+

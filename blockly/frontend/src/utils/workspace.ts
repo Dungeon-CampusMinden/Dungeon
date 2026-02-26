@@ -9,8 +9,7 @@ import {
 } from "../api/api.ts";
 import {completeLevel, getCurrentLevel} from "./level.ts";
 import {updateElementAlignment, updatePopup} from "./popup.ts";
-import {hasMissingIterationCount} from "../generators/java/loops.ts";
-import {checkIfVariablesAreDeclared,
+import {checkIfVariablesAreDeclared, hasMissingIterationCount,
   containsDirection,
   hasEmptyWhileLoopHead, hasIfWithMissingCondition,
   hasIncompleteIfComparison, isHeroActiveWithoutParameters, isHeroInteractWithoutParameters,
