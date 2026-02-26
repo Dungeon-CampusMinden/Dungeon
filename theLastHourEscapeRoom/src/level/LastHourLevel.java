@@ -41,6 +41,7 @@ import core.utils.components.draw.shader.OutlineShader;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.DungeonLogger;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,6 +55,7 @@ import util.ui.BlackFadeCutscene;
 
 /** The Last Hour Room. */
 public class LastHourLevel extends DungeonLevel {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LastHourLevel.class);
 
   private DoorTile storageDoor;
   private static Entity pc;
@@ -152,7 +154,7 @@ public class LastHourLevel extends DungeonLevel {
     }
   }
 
-  private void setupLightingShader() {
+  static void setupLightingShader() {
     DrawSystem.getInstance().sceneShaders().add("lighting", new LightingShader().ambientLight(0));
   }
 
@@ -382,39 +384,42 @@ public class LastHourLevel extends DungeonLevel {
     checkPCStateUpdate();
     if (!Game.isHeadless()) {
       checkInteractFeedback();
-      updateLightingShader();
+      updateLightingShader(getPoint("timer"), getPoint("keypad-storage"));
     }
   }
 
-  private void updateLightingShader() {
+  static void updateLightingShader(Point timerPos, Point keypadPos) {
     if (!(DrawSystem.getInstance().sceneShaders().get("lighting") instanceof LightingShader ls))
       return;
 
     ls.clearLightSources();
 
-    if (ComputerStateComponent.getState().state().hasReached(ComputerProgress.ON)) {
-      ls.ambientLight(0.2f);
-      Color color = ComputerStateComponent.getState().isInfected() ? Color.RED : Color.BLUE;
-      float intensity = ComputerStateComponent.getState().isInfected() ? 0.8f : 0.5f;
-      ls.addLightSource(EntityUtils.getPosition(pc), intensity, color);
+    if (ComputerStateComponent.getState().isPresent()) {
+      var state = ComputerStateComponent.getState().get();
+      if (state.state().hasReached(ComputerProgress.ON)) {
+        ls.ambientLight(0.2f);
+        Color color = state.isInfected() ? Color.RED : Color.BLUE;
+        float intensity = state.isInfected() ? 0.8f : 0.5f;
+        ls.addLightSource(EntityUtils.getPosition(pc), intensity, color);
 
-      ls.addLightSource(getPoint("timer").translate(0.75f, 0), 0.5f, Color.RED);
+        ls.addLightSource(timerPos.translate(0.75f, 0), 0.5f, Color.RED);
 
-      keypad
-          .fetch(KeypadComponent.class)
-          .ifPresent(
-              kc -> {
-                Color keypadColor = kc.isUnlocked() ? Color.GREEN : Color.RED;
-                ls.addLightSource(
-                    getPoint("keypad-storage").translate(0.5f, 0.5f), 0.3f, keypadColor);
-              });
+        var keyComp = keypad.fetch(KeypadComponent.class).orElseThrow();
+        Color keypadColor = keyComp.isUnlocked() ? Color.GREEN : Color.RED;
+        ls.addLightSource(keypadPos.translate(0.5f, 0.5f), 0.3f, keypadColor);
+      }
     }
 
     Game.allPlayers().forEach(e -> ls.addLightSource(EntityUtils.getPosition(e), 1f));
   }
 
   private void checkPCStateUpdate() {
-    ComputerStateComponent csc = ComputerStateComponent.getState();
+    if (ComputerStateComponent.getState().isEmpty()) {
+      LOGGER.warn("ComputerStateComponent is missing from level, cannot update PC state.");
+      return;
+    }
+
+    ComputerStateComponent csc = ComputerStateComponent.getState().get();
     DrawComponent dc = pc.fetch(DrawComponent.class).orElseThrow();
     if (!dc.currentStateName().equals(pcStateToDCState(csc))) {
       // Update local state to match shared state
@@ -440,9 +445,9 @@ public class LastHourLevel extends DungeonLevel {
             });
   }
 
-  private Entity interactableEntity = null;
+  static Entity interactableEntity = null;
 
-  private void checkInteractFeedback() {
+  static void checkInteractFeedback() {
     Game.player()
         .ifPresent(
             p -> {
@@ -464,7 +469,7 @@ public class LastHourLevel extends DungeonLevel {
             });
   }
 
-  private void removeInteractFeedback(Entity entity) {
+  static void removeInteractFeedback(Entity entity) {
     entity
         .fetch(DrawComponent.class)
         .ifPresent(
@@ -473,7 +478,7 @@ public class LastHourLevel extends DungeonLevel {
             });
   }
 
-  private void addInteractFeedback(Entity entity) {
+  static void addInteractFeedback(Entity entity) {
     entity
         .fetch(DrawComponent.class)
         .ifPresent(

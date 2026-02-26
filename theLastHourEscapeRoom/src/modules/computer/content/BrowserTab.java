@@ -168,7 +168,7 @@ public class BrowserTab extends ComputerTab {
       ComputerDialog.getInstance()
           .ifPresent(
               dialog -> {
-                dialog.updateState(ComputerStateComponent.getState());
+                dialog.updateState(ComputerStateComponent.getState().orElseThrow());
               });
     }
 
