@@ -1,51 +1,79 @@
-name: Build and Publish JAR (Manual)
+name: Build and Release Blockly JARs
 
 on:
-  workflow_dispatch:
+    push:
+        branches: [ "main", "master" ]
+    workflow_dispatch:
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    build:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v6
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v5
-        with:
-          java-version: '21'
-          distribution: 'temurin'
+            # 1. Node.js Setup für das Frontend
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+                  cache: 'npm'
+                  cache-dependency-path: 'blockly/frontend/package-lock.json'
 
-      - name: Make Gradle executable
-        run: chmod +x gradlew
+            # 2. Frontend bauen
+            - name: Build Frontend
+              run: |
+                  cd blockly/frontend
+                  npm install
+                  npm run build
 
-      - name: Build JAR
-        run: ./gradlew build
+            # 3. Java Setup
+            - name: Set up JDK 21
+              uses: actions/setup-java@v4
+              with:
+                  java-version: '21'
+                  distribution: 'temurin'
+                  cache: 'gradle'
 
-      - name: Run JAR
-        run: |
-          JAR=$(ls build/libs/*.jar | head -n 1)
-          echo "Running $JAR"
-          java -jar "$JAR"
+            - name: Make gradlew executable
+              run: chmod +x gradlew
 
-      - name: Publish to _blocklyjar branch
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+            # 4. Beide JARs bauen (Desktop und Web)
+            - name: Build JARs with Gradle
+                # Wir rufen hier deine beiden neuen Tasks auf
+              run: ./gradlew jarDesktop jarWeb
 
-          # Neue orphan branch erzeugen
-          git checkout --orphan _blocklyjar
+            # 5. Beide JAR-Artefakte für den nächsten Job speichern
+            - name: Upload Build Artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: Blockly-JARs
+                  # Der Stern sorgt dafür, dass alle Dateien im Ordner genommen werden
+                  path: blockly/build/libs/*.jar
 
-          # Alles löschen
-          git rm -rf . || true
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Download the JARs
+              uses: actions/download-artifact@v4
+              with:
+                  name: Blockly-JARs
 
-          # Artefakte kopieren
-          mkdir artifacts
-          cp build/libs/*.jar artifacts/
-
-          git add artifacts
-          git commit -m "Update JAR artifacts"
-          git push origin _blocklyjar --force
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  # Hier laden wir jetzt alle JARs hoch, die wir gefunden haben
+                  files: |
+                      *.jar
+                  tag_name: v1.0.${{ github.run_number }}
+                  name: Release v1.0.${{ github.run_number }}
+                  # draft: false macht es zu einem echten, öffentlichen Release!
+                  draft: false
+                  prerelease: false
+                  generate_release_notes: true # GitHub schreibt automatisch, was sich geändert hat
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
