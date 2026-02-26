@@ -21,6 +21,7 @@ import core.utils.*;
 import modules.computer.LastHourDialogTypes;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -85,6 +86,7 @@ public class BlackFadeCutscene extends Table {
    * @param onComplete Callback to run when all messages have been shown
    * @param targetIds The target entity ids this UI should be shown for
    * @return The created UIComponent
+   * @throws NullPointerException if onComplete is null
    */
   public static UIComponent show(
       List<Tuple<String, Integer>> messages,
@@ -92,6 +94,7 @@ public class BlackFadeCutscene extends Table {
       boolean fadeOut,
       Runnable onComplete,
       int... targetIds) {
+    Objects.requireNonNull(onComplete, "onComplete callback cannot be null");
     List<String> messagesList = messages.stream().map(Tuple::a).toList();
     List<Integer> fontSizes = messages.stream().map(Tuple::b).toList();
     String joinedMessages = String.join(MESSAGE_SPLIT_TOKEN, messagesList);
@@ -113,15 +116,12 @@ public class BlackFadeCutscene extends Table {
     ui.registerCallback(
         DialogContextKeys.ON_RESUME,
         data -> {
+          onComplete.run();
           UIUtils.closeDialog(ui);
         });
     ui.registerCallback(
         DialogContextKeys.ON_CLOSE,
-        data -> {
-          if (onComplete != null) {
-            onComplete.run();
-          }
-        });
+        data -> onComplete.run());
 
     return ui;
   }
@@ -132,8 +132,10 @@ public class BlackFadeCutscene extends Table {
    * @param messages The list of text messages to display
    * @param onComplete Callback to run when all messages have been shown
    * @return The created UIComponent
+   * @throws NullPointerException if onComplete is null
    */
   public static UIComponent show(List<Tuple<String, Integer>> messages, Runnable onComplete) {
+    Objects.requireNonNull(onComplete, "onComplete callback cannot be null");
     return show(messages, true, true, onComplete);
   }
 
