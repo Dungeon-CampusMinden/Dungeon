@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TestUtils {
   public static ObjectMapper mapper = Utils.getMapper(true);
   public static boolean printResult = true;
+  public static boolean saveResult = false;
   public static boolean printCfg = false;
   public static boolean saveCfg = false;
   public static boolean saveCfgImage = true;
@@ -57,6 +58,18 @@ public class TestUtils {
                                 + "."
                                 + stackFrame.getMethodName())
                     .orElse("unknown"));
+
+    if (saveResult) {
+      String filePath = savePath + callerName + ".json";
+      try {
+        BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath), UTF_8);
+        writer.write(result);
+        writer.close();
+        System.out.println("Saved result to " + filePath);
+      } catch (IOException e) {
+        System.out.println("Failed to save result to " + filePath + ": " + e.getMessage());
+      }
+    }
 
     // Check that this is a valid op, otherwise we can't generate a cfg
     if (!op.verify(true)) {

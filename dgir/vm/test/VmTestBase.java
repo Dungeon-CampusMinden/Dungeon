@@ -26,6 +26,7 @@ public class VmTestBase {
   public static void setup() {
     Dialect.registerAllDialects();
     OpRunnerRegistry.registerAllRunners();
+
   }
 
   @BeforeEach
