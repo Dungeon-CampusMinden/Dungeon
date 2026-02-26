@@ -54,29 +54,31 @@ jobs:
                   path: blockly/build/libs/*.jar
 
     deploy:
-        needs: build
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-        steps:
-            - name: Download the JARs
-              uses: actions/download-artifact@v4
-              with:
-                  name: Blockly-JARs
+      needs: build
+      runs-on: ubuntu-latest
+      permissions:
+        contents: write
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 0
 
-            - name: Install GitHub CLI
-              run: |
-                sudo apt update
-                sudo apt install -y gh
+        - name: Download the JARs
+          uses: actions/download-artifact@v4
+          with:
+            name: Blockly-JARs
 
-            - name: Create GitHub Release
-              run: |
-                TAG="v1.0.${{ github.run_number }}"
+        - name: Install GitHub CLI
+          run: sudo apt update && sudo apt install -y gh
 
-                gh release create "$TAG" *.jar \
-                  --title "Release $TAG" \
-                  --notes "Automatisch generiert von GitHub Actions" \
-                  --draft=false \
-                  --prerelease=false
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        - name: Create GitHub Release
+          run: |
+            TAG="v1.0.${{ github.run_number }}"
+            gh release create "$TAG" *.jar \
+              --title "Release $TAG" \
+              --notes "Automatisch generiert von GitHub Actions" \
+              --draft=false \
+              --prerelease=false
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
