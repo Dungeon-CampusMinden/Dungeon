@@ -63,7 +63,6 @@ final class FreeInputDialog {
    */
   private static Group buildDialog(
       String title, String question, Skin skin, DialogContext context) {
-
     TextField input =
         new TextField(context.find(DialogContextKeys.INPUT_PREFILL, String.class).orElse(""), skin);
     input.setMessageText(
@@ -75,15 +74,14 @@ final class FreeInputDialog {
     String cancelLabel =
         context.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(CANCEL_BUTTON);
 
-    boolean hasTitle = title != null && !title.isBlank();
     Dialog dialog =
-        new Dialog(title, skin, hasTitle ? "default" : "no-title") {
+        new Dialog(title, skin, title.isBlank() ? "default" : "no-title") {
           @Override
           protected void result(Object obj) {
             if (obj.equals(okLabel)) {
               String userInput = input.getText();
               DialogCallbackResolver.createButtonCallback(
-                      context.dialogId(), DialogContextKeys.INPUT_CALLBACK)
+                      context.dialogId(), DialogContextKeys.ON_CONFIRM)
                   .accept(new DialogResponseMessage.StringValue(userInput));
             } else {
               DialogCallbackResolver.createButtonCallback(

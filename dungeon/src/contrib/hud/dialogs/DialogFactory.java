@@ -305,12 +305,12 @@ public class DialogFactory {
    *
    * @param text The message to display in the dialog body
    * @param title The dialog window title
-   * @param inputPrefill The pre-filled text in the input field (can be null)
-   * @param inputPlaceholder The placeholder text for the input field (can be null)
-   * @param onConfirm Callback executed when the confirm button is pressed (can be null)
+   * @param inputPrefill The pre-filled text in the input field
+   * @param inputPlaceholder The placeholder text for the input field
+   * @param onConfirm Callback executed when the confirm button is pressed
    * @param confirmLabel Label for the confirm button (uses default if null)
    * @param cancelLabel Label for the cancel button (uses default if null)
-   * @param onCancel Callback executed when the cancel button is pressed (can be null)
+   * @param onCancel Callback executed when the cancel button is pressed
    * @param targetEntityIds The target entity IDs for which the dialog is displayed
    * @return The {@link UIComponent} containing the dialog
    */
@@ -324,6 +324,8 @@ public class DialogFactory {
       Consumer<DialogResponseMessage.Payload> onConfirm,
       IVoidFunction onCancel,
       int... targetEntityIds) {
+    Objects.requireNonNull(onConfirm, "onConfirm callback cannot be null");
+    Objects.requireNonNull(onCancel, "onCancel callback cannot be null");
     DialogContext.Builder builder =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.FREE_INPUT)
@@ -338,19 +340,15 @@ public class DialogFactory {
 
     // Register callbacks
     ui.registerCallback(
-        DialogContextKeys.INPUT_CALLBACK,
+        DialogContextKeys.ON_CONFIRM,
         data -> {
-          if (onConfirm != null) {
-            onConfirm.accept(data);
-          }
+          onConfirm.accept(data);
           UIUtils.closeDialog(ui);
         });
     ui.registerCallback(
         DialogContextKeys.ON_CANCEL,
         data -> {
-          if (onCancel != null) {
-            onCancel.execute();
-          }
+          onCancel.execute();
           UIUtils.closeDialog(ui);
         });
 
