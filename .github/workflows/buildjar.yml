@@ -1,8 +1,9 @@
 name: Build and Release Blockly JARs
 
 on:
-    push:
-        branches: [ "main", "master" ]
+  push:
+    branches:
+      - '**'  
     workflow_dispatch:
 
 jobs:
