@@ -54,7 +54,7 @@ public class FrontendServer {
 
     server.setExecutor(null);
     server.start();
-    System.out.println("Server läuft auf http://localhost:8080/");
+    System.out.println("Server läuft auf http://localhost:8081/");
   }
 
   private static String guessMime(String name) {
