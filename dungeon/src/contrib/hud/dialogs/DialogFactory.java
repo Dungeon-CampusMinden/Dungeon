@@ -76,6 +76,15 @@ public class DialogFactory {
   }
 
   /**
+   * Returns an unmodifiable view of all currently registered {@link DialogType}s.
+   *
+   * @return a {@link Set} containing every registered dialog type
+   */
+  public static Set<DialogType> registeredTypes() {
+    return Collections.unmodifiableSet(registry.keySet());
+  }
+
+  /**
    * Creates a dialog of the specified type without displaying it.
    *
    * <p>This method only creates the dialog instance based on the provided context. It does not add

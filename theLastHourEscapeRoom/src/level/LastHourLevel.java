@@ -1,6 +1,5 @@
 package level;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
@@ -110,7 +109,7 @@ public class LastHourLevel extends DungeonLevel {
     setupDecoderShelfs();
     setupPapers();
     setupInteractables();
-    setupLightingShader();
+    if (!Game.isHeadless()) setupLightingShader();
     setupTimer();
     setupEndTrigger();
 
@@ -119,31 +118,6 @@ public class LastHourLevel extends DungeonLevel {
         false,
         true,
         () -> DialogFactory.showOkDialog(Lore.PostIntroDialogTexts.getFirst(), "", () -> {}));
-
-    Game.player()
-        .ifPresent(
-            p -> {
-              p.fetch(InputComponent.class)
-                  .ifPresent(
-                      ic -> {
-                        p.fetch(DrawComponent.class)
-                            .ifPresent(
-                                dc -> {
-                                  ic.registerCallback(
-                                      Input.Keys.SPACE,
-                                      (e) -> {
-                                        if (dc.shaders().get("outline") == null) {
-                                          dc.shaders()
-                                              .add("outline", new OutlineShader(1, Color.RED));
-                                        } else {
-                                          dc.shaders().remove("outline");
-                                        }
-                                      },
-                                      false,
-                                      false);
-                                });
-                      });
-            });
 
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
@@ -370,7 +344,7 @@ public class LastHourLevel extends DungeonLevel {
             });
   }
 
-  private List<String> decoderTablePaths =
+  private final List<String> decoderTablePaths =
       List.of(
           "images/base64.png",
           "images/binary_hex.jpg",
@@ -406,8 +380,10 @@ public class LastHourLevel extends DungeonLevel {
   @Override
   protected void onTick() {
     checkPCStateUpdate();
-    //    checkInteractFeedback();
-    updateLightingShader();
+    if (!Game.isHeadless()) {
+      checkInteractFeedback();
+      updateLightingShader();
+    }
   }
 
   private void updateLightingShader() {

@@ -156,7 +156,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                 Optional<Entity> targetEntity = Game.findEntityById(entityId);
 
                 if (targetEntity.isEmpty()) {
-                  LOGGER.warn(
+                  LOGGER.info(
                       "No entity found for snapshot with id: {}. Requesting spawn.", entityId);
                   Game.network().send((short) 0, new RequestEntitySpawn(entityId), true);
                   return;
