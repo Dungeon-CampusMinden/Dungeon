@@ -52,30 +52,30 @@ jobs:
                   # Der Stern sorgt dafür, dass alle Dateien im Ordner genommen werden
                   path: blockly/build/libs/*.jar
 
-  deploy:
-      needs: build
-      runs-on: ubuntu-latest
-      permissions:
-          contents: write
-      steps:
-          - name: Download the JARs
-            uses: actions/download-artifact@v4
-            with:
-                name: Blockly-JARs
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Download the JARs
+              uses: actions/download-artifact@v4
+              with:
+                  name: Blockly-JARs
 
-          - name: Set up GitHub CLI
-            uses: actions/setup-gh-cli@v2
+            - name: Set up GitHub CLI
+              uses: actions/setup-gh-cli@v2
 
-          - name: Create GitHub Release
-            run: |
-              # Tag generieren
-              TAG="v1.0.${{ github.run_number }}"
+            - name: Create GitHub Release
+              run: |
+                # Tag generieren
+                TAG="v1.0.${{ github.run_number }}"
 
-              # Release erstellen (wenn schon existiert, wird es aktualisiert)
-              gh release create "$TAG" *.jar \
-                --title "Release $TAG" \
-                --notes "Automatisch generiert von GitHub Actions" \
-                --draft=false \
-                --prerelease=false
-            env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # Release erstellen (wenn schon existiert, wird es aktualisiert)
+                gh release create "$TAG" *.jar \
+                  --title "Release $TAG" \
+                  --notes "Automatisch generiert von GitHub Actions" \
+                  --draft=false \
+                  --prerelease=false
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
