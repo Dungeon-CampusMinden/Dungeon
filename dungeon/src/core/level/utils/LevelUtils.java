@@ -1,7 +1,5 @@
 package core.level.utils;
 
-import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -17,6 +15,8 @@ import java.util.*;
 /** Offers some utility functions to work on and with {@link core.level.elements.ILevel}. */
 public final class LevelUtils {
 
+  private LevelUtils() {}
+
   private static final Random RANDOM = new Random();
 
   /** These vectors can be used to calculate neighbor coordinates. */
@@ -25,184 +25,18 @@ public final class LevelUtils {
         Vector2.of(-1, 0), Vector2.of(1, 0), Vector2.of(0, -1), Vector2.of(0, 1),
       };
 
-  /**
-   * Finds the path from the given point to another given point.
-   *
-   * <p>Throws an IllegalArgumentException if the tile at 'from' or 'to' is non-accessible.
-   *
-   * @param from The start point.
-   * @param to The end point.
-   * @return Path from the start point to the end point.
-   */
-  public static GraphPath<Tile> calculatePath(final Point from, final Point to) {
-    return calculatePath(from.toCoordinate(), to.toCoordinate());
-  }
 
   /**
-   * Finds the path from the given coordinate to another given coordinate.
+   * Returns the last {@link Tile} of the given {@link TilePath}.
    *
-   * <p>Throws an IllegalArgumentException if the tile at the start or end is non-accessible.
+   * <p>If the provided path is {@code null} or empty, this method returns {@code null}.
    *
-   * @param from The start coordinate.
-   * @param to The end coordinate.
-   * @return Path from the start coordinate to the end coordinate.
+   * @param path the path whose last tile should be returned
+   * @return the last tile of the path, or {@code null} if {@code path} is {@code null} or empty
    */
-  public static GraphPath<Tile> calculatePath(final Coordinate from, final Coordinate to) {
-    GraphPath<Tile> path = new DefaultGraphPath<>();
-
-    Tile fromTile = Game.tileAt(from).orElse(null);
-    Tile toTile = Game.tileAt(to).orElse(null);
-    if (fromTile == null || !fromTile.isAccessible()) return path;
-    if (toTile == null || !toTile.isAccessible()) return path;
-
-    List<Tile> tiles = Game.findPath(fromTile, toTile).orElse(List.of());
-    for (Tile t : tiles) {
-      path.add(t);
-    }
-    return path;
-  }
-
-  /**
-   * Calculates a path of tiles between two points, assuming they lie on a straight horizontal or
-   * vertical line.
-   *
-   * @param from the start point
-   * @param to the end point
-   * @return a path containing all tiles from {@code from} to {@code to}
-   */
-  public static GraphPath<Tile> calculatePathInsideWall(final Point from, final Point to) {
-    return calculatePathInsideWall(from.toCoordinate(), to.toCoordinate());
-  }
-
-  /**
-   * Calculates a path of tiles between two coordinates, assuming they lie on a straight horizontal
-   * or vertical line.
-   *
-   * @param from the start coordinate
-   * @param to the end coordinate
-   * @return a path containing all tiles from {@code from} to {@code to}, or an empty path if
-   *     invalid
-   */
-  public static GraphPath<Tile> calculatePathInsideWall(
-      final Coordinate from, final Coordinate to) {
-    GraphPath<Tile> path = new DefaultGraphPath<>();
-
-    Tile fromTile = Game.tileAt(from).orElse(null);
-    Tile toTile = Game.tileAt(to).orElse(null);
-
-    if (fromTile == null || toTile == null) {
-      return path;
-    }
-
-    Coordinate current = new Coordinate(from);
-
-    while (!current.equals(to)) {
-      Tile currentTile = Game.tileAt(current).orElse(null);
-      if (currentTile == null) break;
-      path.add(currentTile);
-
-      // one step towards the end coordinate
-      if (current.x() < to.x()) {
-        current = new Coordinate(current.x() + 1, current.y());
-      } else if (current.x() > to.x()) {
-        current = new Coordinate(current.x() - 1, current.y());
-      } else if (current.y() < to.y()) {
-        current = new Coordinate(current.x(), current.y() + 1);
-      } else if (current.y() > to.y()) {
-        current = new Coordinate(current.x(), current.y() - 1);
-      }
-    }
-
-    path.add(toTile);
-
-    return path;
-  }
-
-  /**
-   * Finds the path to a random (accessible) tile in the given radius, starting from the given
-   * point.
-   *
-   * <p>If there is no accessible tile in the range, the path will be calculated from the given
-   * start point to the given start point.
-   *
-   * <p>Throws an IllegalArgumentException if the tile at the start point is non-accessible.
-   *
-   * @param point The start point.
-   * @param radius Radius in which the tiles are to be considered.
-   * @return Path from the center point to the randomly selected tile.
-   */
-  public static GraphPath<Tile> calculatePathToRandomTileInRange(final Point point, float radius) {
-    return calculatePath(point, randomAccessibleTileInRangeAsPoint(point, radius).orElse(point));
-  }
-
-  /**
-   * Finds the path to a random (accessible) tile in the given radius, starting from the position of
-   * the given entity.
-   *
-   * <p>If there is no accessible tile in the range, the path will be calculated from the given
-   * start point to the given start point.
-   *
-   * <p>Throws an IllegalArgumentException if the entities position is on a non-accessible tile.
-   *
-   * @param entity Entity whose position is the center point.
-   * @param radius Radius in which the tiles are to be considered.
-   * @return Path from the position of the entity to the randomly selected tile.
-   */
-  public static GraphPath<Tile> calculatePathToRandomTileInRange(
-      final Entity entity, float radius) {
-    Point point =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class))
-            .position();
-    return calculatePathToRandomTileInRange(point, radius);
-  }
-
-  /**
-   * Finds the path from the position of one entity to the position of another entity.
-   *
-   * <p>Throws an IllegalArgumentException if one of the entities position is non-accessible.
-   *
-   * @param from Entity whose position is the start point.
-   * @param to Entity whose position is the goal point.
-   * @return Path from one entity to the other entity.
-   */
-  public static GraphPath<Tile> calculatePath(final Entity from, final Entity to) {
-    PositionComponent fromPositionComponent =
-        from.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(from, PositionComponent.class));
-    PositionComponent positionComponent =
-        to.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(to, PositionComponent.class));
-    return calculatePath(fromPositionComponent.position(), positionComponent.position());
-  }
-
-  /**
-   * Finds the path from the position of one entity to the position of the player.
-   *
-   * <p>If no player exists in the game, the path will be calculated from the given entity to the
-   * given entity.
-   *
-   * <p>Throws an IllegalArgumentException if one of the entities position is non-accessible.
-   *
-   * @param entity Entity from which the path to the player is calculated.
-   * @return Path from the entity to the player, if there is no player, the path from the entity to
-   *     itself.
-   */
-  public static GraphPath<Tile> calculatePathToPlayer(final Entity entity) {
-    Optional<Entity> player = Game.player();
-    return player.map(value -> calculatePath(entity, value)).orElseGet(() -> calculatePath(entity, entity));
-  }
-
-  /**
-   * Get the last Tile in the given GraphPath.
-   *
-   * @param path Considered GraphPath.
-   * @return Last Tile in the given path.
-   * @see GraphPath
-   */
-  public static Tile lastTile(final GraphPath<Tile> path) {
-    return path.get(path.getCount() - 1);
+  public static Tile lastTile(final TilePath path) {
+    if (path == null || path.isEmpty()) return null;
+    return path.get(path.size() - 1);
   }
 
   /**
@@ -544,53 +378,128 @@ public final class LevelUtils {
   }
 
   /**
-   * Calculates a path of tiles between two points and converts it to a TilePath.
+   * Calculates a list of tiles representing the path from one point to another.
    *
-   * @param from the start point
-   * @param to the end point
-   * @return a TilePath containing all tiles from {@code from} to {@code to}
+   * <p>Throws an IllegalArgumentException if the tile at 'from' or 'to' is non-accessible.
+   *
+   * @param from The start point.
+   * @param to The end point.
+   * @return List of tiles representing the path from the start point to the end point.
+   */
+  public static List<Tile> calculatePathTiles(final Point from, final Point to) {
+    return calculatePathTiles(from.toCoordinate(), to.toCoordinate());
+  }
+
+  /**
+   * Calculates a list of tiles representing the path from one coordinate to another.
+   *
+   * <p>Throws an IllegalArgumentException if the tile at the start or end is non-accessible.
+   *
+   * @param from The start coordinate.
+   * @param to The end coordinate.
+   * @return List of tiles representing the path from the start coordinate to the end coordinate.
+   */
+  public static List<Tile> calculatePathTiles(final Coordinate from, final Coordinate to) {
+    final Tile fromTile = Game.tileAt(from).orElse(null);
+    final Tile toTile = Game.tileAt(to).orElse(null);
+
+    if (fromTile == null || toTile == null) return List.of();
+    if (!fromTile.isAccessible() || !toTile.isAccessible()) return List.of();
+
+    return Game.findPath(fromTile, toTile).orElse(List.of());
+  }
+
+  /**
+   * Calculates a {@link TilePath} from one point to another.
+   *
+   * <p>Throws an IllegalArgumentException if the tile at 'from' or 'to' is non-accessible.
+   *
+   * @param from The start point.
+   * @param to The end point.
+   * @return A {@link TilePath} representing the path from the start point to the end point.
    */
   public static TilePath calculateTilePath(final Point from, final Point to) {
-    return toTilePath(calculatePath(from, to));
+    return new ListTilePath(calculatePathTiles(from, to));
   }
 
   /**
-   * Calculates a path of tiles between two coordinates and converts it to a TilePath.
+   * Calculates a {@link TilePath} from one coordinate to another.
    *
-   * @param from the start coordinate
-   * @param to the end coordinate
-   * @return a TilePath containing all tiles from {@code from} to {@code to}
+   * <p>Throws an IllegalArgumentException if the tile at the start or end is non-accessible.
+   *
+   * @param from The start coordinate.
+   * @param to The end coordinate.
+   * @return A {@link TilePath} representing the path from the start coordinate to the end coordinate.
    */
   public static TilePath calculateTilePath(final Coordinate from, final Coordinate to) {
-    return toTilePath(calculatePath(from, to));
+    return new ListTilePath(calculatePathTiles(from, to));
   }
 
-
   /**
-   * Calculates a {@link TilePath} from the given entity to the current player.
+   * Calculates a {@link TilePath} from the position of the given entity to the position of the
+   * player.
    *
-   * <p>If no player exists, the path is calculated from the entity to itself.
+   * <p>If no player exists in the game, the path will be calculated from the given entity to the
+   * given entity.
    *
-   * <p>This method requires the entity to have a {@link PositionComponent}.
+   * <p>Throws a {@link core.utils.components.MissingComponentException} if the entity has no
+   * {@link core.components.PositionComponent}.
    *
-   * @param entity the entity to start from
-   * @return a {@link TilePath} to the player, or to the entity itself if no player exists
-   * @throws MissingComponentException if the entity has no {@link PositionComponent}
+   * @param entity the entity from which the path to the player is calculated
+   * @return a {@link TilePath} from the entity to the player, or from the entity to itself if no
+   *     player exists
    */
   public static TilePath calculateTilePathToPlayer(final Entity entity) {
-    return toTilePath(calculatePathToPlayer(entity));
+    final Point from =
+      entity
+        .fetch(PositionComponent.class)
+        .map(PositionComponent::position)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+
+    final Point to = Game.player().flatMap(Game::positionOf).orElse(from);
+    return calculateTilePath(from, to);
   }
 
   /**
-   * Calculates a path of tiles between two points, assuming they lie on a straight horizontal or
-   * vertical line, and converts it to a TilePath.
+   * Calculates a {@link TilePath} between two points, assuming they lie on a straight horizontal or
+   * vertical line.
+   *
+   * <p>If the two points do not share the same x- or y-coordinate (i.e., they are neither
+   * horizontally nor vertically aligned), an empty {@link TilePath} is returned.
+   *
+   * <p>Unlike {@link #calculateTilePath(Point, Point)}, this method does not require the tiles
+   * along the path to be accessible, making it suitable for traversing wall tiles.
+   *
+   * <p>If a tile along the path does not exist in the level, the path is truncated at that point.
    *
    * @param from the start point
    * @param to the end point
-   * @return a TilePath containing all tiles from {@code from} to {@code to}
+   * @return a {@link TilePath} containing all tiles from {@code from} to {@code to}, or an empty
+   *     path if the points are not axis-aligned or a tile is missing
    */
   public static TilePath calculateTilePathInsideWall(final Point from, final Point to) {
-    return toTilePath(calculatePathInsideWall(from, to));
+    final Coordinate a = from.toCoordinate();
+    final Coordinate b = to.toCoordinate();
+
+    // only horizontal OR vertical
+    if (a.x() != b.x() && a.y() != b.y()) return new ListTilePath();
+
+    final int dx = Integer.compare(b.x(), a.x());
+    final int dy = Integer.compare(b.y(), a.y());
+
+    final List<Tile> tiles = new ArrayList<>();
+    Coordinate cur = a;
+
+    while (true) {
+      final Optional<Tile> t = Game.tileAt(cur);
+      if (t.isEmpty()) break; // out of level -> stop defensively
+      tiles.add(t.get());
+
+      if (cur.equals(b)) break;
+      cur = new Coordinate(cur.x() + dx, cur.y() + dy);
+    }
+
+    return new ListTilePath(tiles);
   }
 
   /**
@@ -609,17 +518,13 @@ public final class LevelUtils {
    * @throws MissingComponentException if the entity has no {@link PositionComponent}
    */
   public static TilePath calculateTilePathToRandomTileInRange(final Entity entity, float radius) {
-    return toTilePath(calculatePathToRandomTileInRange(entity, radius));
-  }
+    final Point from =
+      entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class))
+        .position();
 
-  private static TilePath toTilePath(final com.badlogic.gdx.ai.pfa.GraphPath<Tile> gdxPath) {
-    ListTilePath out = new ListTilePath();
-    if (gdxPath == null || gdxPath.getCount() <= 0) {
-      return out;
-    }
-    for (int i = 0; i < gdxPath.getCount(); i++) {
-      out.add(gdxPath.get(i));
-    }
-    return out;
+    final Point target = randomAccessibleTileInRangeAsPoint(from, radius).orElse(from);
+    return calculateTilePath(from, target);
   }
 }
