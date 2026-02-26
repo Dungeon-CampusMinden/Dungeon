@@ -9,6 +9,8 @@ ext {
     junitVersion = '6.0.3'
     junitLauncherVersion = '6.0.3'
     mockitoVersion = '5.21.0'
+    jk1licenseVersion = '3.1.1'
+    protobufVersion = '4.33.5'
 
     // -- NETWORK / SERVER
     nettyVersion = '4.2.10.Final'
@@ -28,6 +30,11 @@ ext {
         junit                     : "org.junit.jupiter:junit-jupiter:$junitVersion",
         junitLauncher             : "org.junit.platform:junit-platform-launcher:$junitLauncherVersion",
         mockito_core              : "org.mockito:mockito-core:$mockitoVersion",
+
+        // Protobuf for network serialization
+        protobuf_java             : "com.google.protobuf:protobuf-java:$protobufVersion",
+        protobuf_java_util        : "com.google.protobuf:protobuf-java-util:$protobufVersion",
+
 
         // Netty for multiplayer logic
         netty_all     : "io.netty:netty-all:$nettyVersion",]
