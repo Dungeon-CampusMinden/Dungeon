@@ -51,29 +51,29 @@ jobs:
                   name: Blockly-JARs
                   # Der Stern sorgt dafür, dass alle Dateien im Ordner genommen werden
                   path: blockly/build/libs/*.jar
-
-    deploy:
-        needs: build
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-        steps:
-            - name: Download the JARs
-              uses: actions/download-artifact@v4
-              with:
-                  name: Blockly-JARs
-
-            - name: Create GitHub Release
-              uses: softprops/action-gh-release@v2
-              with:
-                  # Hier laden wir jetzt alle JARs hoch, die wir gefunden haben
-                  files: |
-                      *.jar
-                  tag_name: v1.0.${{ github.run_number }}
-                  name: Release v1.0.${{ github.run_number }}
-                  # draft: false macht es zu einem echten, öffentlichen Release!
-                  draft: false
-                  prerelease: false
-                  generate_release_notes: true # GitHub schreibt automatisch, was sich geändert hat
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#
+#    deploy:
+#        needs: build
+#        runs-on: ubuntu-latest
+#        permissions:
+#            contents: write
+#        steps:
+#            - name: Download the JARs
+#              uses: actions/download-artifact@v4
+#              with:
+#                  name: Blockly-JARs
+#
+#            - name: Create GitHub Release
+#              uses: softprops/action-gh-release@v2
+#              with:
+#                  # Hier laden wir jetzt alle JARs hoch, die wir gefunden haben
+#                  files: |
+#                      *.jar
+#                  tag_name: v1.0.${{ github.run_number }}
+#                  name: Release v1.0.${{ github.run_number }}
+#                  # draft: false macht es zu einem echten, öffentlichen Release!
+#                  draft: false
+#                  prerelease: false
+#                  generate_release_notes: true # GitHub schreibt automatisch, was sich geändert hat
+#              env:
+#                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
