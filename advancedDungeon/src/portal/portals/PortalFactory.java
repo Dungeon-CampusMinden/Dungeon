@@ -99,7 +99,8 @@ public class PortalFactory {
               portal.add(new VelocityComponent(0.0000000001f));
               Map<String, Animation> animationMap =
                   Animation.loadAnimationSpritesheet(BLUE_PORTAL_TEXTURE);
-
+              // To allow collision with the stationary Portal elements like lightwalls.
+              portal.add(new VelocityComponent(0.0000000001f));
               State fallback = new State("NONE", animationMap.get("fallback"));
               State top = new State("UP", animationMap.get("bottom"));
               State bottom = new State("DOWN", animationMap.get("fallback"));
@@ -363,8 +364,9 @@ public class PortalFactory {
       portal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
       PortalUtils.getBluePortal()
           .ifPresent(
-              bluePortal ->
-                  bluePortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other));
+              bluePortal -> {
+                bluePortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
+              });
       return;
     }
 
@@ -419,8 +421,9 @@ public class PortalFactory {
       portal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
       PortalUtils.getGreenPortal()
           .ifPresent(
-              greenPortal ->
-                  greenPortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other));
+              greenPortal -> {
+                greenPortal.fetch(PortalComponent.class).get().setExtendedEntityThrough(other);
+              });
       return;
     }
 
