@@ -14,7 +14,7 @@ export function rotate(
 ) {
   const ALLOWED_DIRECTIONS = ["Direction.LEFT", "Direction.RIGHT"]
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  if (dir === "") return "";
+  if (dir === "") return "keine Richtungsangabe";
   // if not allowed, shows error and disconnects the input
   if(!ALLOWED_DIRECTIONS.includes(dir)) {
     block.setWarningText("Ungültige Richtung. Erlaubt sind: links, rechts");

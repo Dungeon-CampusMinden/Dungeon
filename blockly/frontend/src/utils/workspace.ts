@@ -8,6 +8,14 @@ import {
   call_code_status_route
 } from "../api/api.ts";
 import {completeLevel, getCurrentLevel} from "./level.ts";
+import {updateElementAlignment, updatePopup} from "./popup.ts";
+import {checkIfVariablesAreDeclared, hasMissingIterationCount,
+  containsDirection,
+  hasEmptyWhileLoopHead, hasIfWithMissingCondition,
+  hasIncompleteIfComparison, isHeroActiveWithoutParameters, isHeroInteractWithoutParameters,
+  isMissingDirectionInIsNearComponent, isMissingDirectionInIsNearTile
+} from "./errorChecking.ts";
+
 let startBlock: Blockly.Block | null = null;
 export let currentBlock: Blockly.Block | null = null;
 
@@ -233,8 +241,56 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
     // send the full program in a single request
     const fullProgram = codeSnippets.join("\n");
 
+
     const apiResponse = await call_code_route(fullProgram);
-    if (!apiResponse) {
+
+    // check if Variables are declared
+    const message = checkIfVariablesAreDeclared(codeSnippets);
+    updateElementAlignment();
+    // check if for loop has number of iterations
+    if (hasMissingIterationCount(fullProgram)) {
+      updatePopup("Die Anzahl der Iterationen fehlt in der Schleife.");
+      return;
+    } else if (message) {
+      updatePopup(message);
+      return;
+    } else if (hasEmptyWhileLoopHead(fullProgram)) {
+      updatePopup("In der While-Schleife ist keine Bedingung angegeben.");
+      return;
+    } else if (hasIfWithMissingCondition(fullProgram)) {
+      updatePopup("Im Wenn-Dann Befehl fehlt eine Abfrage.");
+      return;
+    } else if (isMissingDirectionInIsNearTile(fullProgram, "WALL")) {
+      updatePopup("Das Wand-Element braucht eine Richtungangabe");
+      return;
+    } else if (isMissingDirectionInIsNearTile(fullProgram, "FLOOR")) {
+      updatePopup("Das Boden-Element braucht eine Richtungsangabe");
+      return;
+    } else if (isMissingDirectionInIsNearTile(fullProgram, "PIT")) {
+      updatePopup("Das Loch-Element braucht eine Richtungsangabe.");
+      return;
+    } else if (isMissingDirectionInIsNearComponent(fullProgram, "LeverComponent")) {
+      updatePopup("Schalter/Fackel braucht eine Richtungsangabe.");
+      return;
+    } else if (isMissingDirectionInIsNearComponent(fullProgram, "AIComponent")) {
+      updatePopup("Das Monster-Element braucht eine Richtungsangabe.");
+      return;
+    } else if (isHeroActiveWithoutParameters(fullProgram)) {
+      updatePopup("Das Aktiv-Element braucht eine Richtungsangabe.");
+      return;
+    } else if (isHeroInteractWithoutParameters(fullProgram)) {
+      updatePopup("Das Benutzen braucht eine Richtungsangabe.");
+      return;
+    } else if (hasIncompleteIfComparison(fullProgram)) {
+      updatePopup("Bei einem Vergleich muss eine Wert auf beiden Seiten stehen");
+      return;
+    } else if (containsDirection(fullProgram)) {
+      updatePopup("Eine Rotation muss eine Richtungsangabe enthalten");
+      return;
+    }
+
+    if (!apiResponse || message) {
+
       await call_clear_route();
       workspace.highlightBlock(null);
       buttons.startBtn.disabled = false;
