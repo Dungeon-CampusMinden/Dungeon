@@ -28,7 +28,7 @@ import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
+import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
@@ -121,6 +121,8 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private static final TextureRegion numberBackground;
   private static final Animation backgroundAnimation;
   private static final BitmapFont bitmapFont;
+
+  private static final int DROP_RADIUS = 1;
 
   static {
     if (Game.isHeadless()) {
@@ -451,21 +453,32 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
         .filter(result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
         .forEach(
             result -> {
+              Item item;
               try {
-                Item item;
                 item = (Item) result.getClass().getDeclaredConstructor().newInstance();
-                // check if there is enough space in the inventory
-                boolean res = this.targetInventory.add(item);
-                // otherwise drop the items on the ground
-                if (!res) {
-                  // get the position of the hero
-                  PositionComponent pc = this.entity.fetch(PositionComponent.class).orElse(null);
-                  Point position = pc.position();
-                  boolean success = item.drop(position).isPresent();
-                }
-              } catch (Exception e) {
+              } catch (ReflectiveOperationException e) {
                 LOGGER.error("Failed to instantiate crafting result item: {}", e.getMessage());
                 return;
+              }
+              // check if there is enough space in the inventory
+              boolean res = this.targetInventory.add(item);
+              // otherwise drop the items on the ground
+              if (!res) {
+                Point centerPos =
+                    Game.positionOf(this.entity)
+                        .orElse(null); // TODO: vlt schon vorher im Ctor als Supplier speichern
+                if (centerPos == null) {
+                  LOGGER.error("Failed to get position of entity for dropping crafted item");
+                  return;
+                }
+                LevelUtils.randomAccessibleTileInRangeAsPoint(centerPos, DROP_RADIUS)
+                    .ifPresentOrElse(
+                        dropPos -> {
+                          if (item.drop(dropPos).isEmpty()) {
+                            LOGGER.error("Failed to drop crafted item on the ground");
+                          }
+                        },
+                        () -> LOGGER.error("Failed to find drop position for crafted item"));
               }
             });
     this.inventory.clear();
