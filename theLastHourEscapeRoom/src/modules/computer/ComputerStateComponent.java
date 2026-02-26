@@ -4,7 +4,6 @@ import core.Component;
 import core.Entity;
 import core.game.ECSManagement;
 import core.network.messages.c2s.DialogResponseMessage;
-
 import java.io.Serializable;
 import java.util.Set;
 

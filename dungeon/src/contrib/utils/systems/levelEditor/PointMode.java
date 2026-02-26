@@ -14,7 +14,6 @@ import core.level.utils.Coordinate;
 import core.network.messages.c2s.DialogResponseMessage;
 import core.utils.InputManager;
 import core.utils.Point;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;

@@ -42,17 +42,16 @@ import core.utils.components.draw.shader.OutlineShader;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import modules.computer.*;
 import modules.trash.TrashMinigameUI;
 import util.LastHourSounds;
 import util.Lore;
 import util.shaders.LightingShader;
 import util.ui.BlackFadeCutscene;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 /** The Last Hour Room. */
 public class LastHourLevel extends DungeonLevel {
@@ -163,10 +162,7 @@ public class LastHourLevel extends DungeonLevel {
                           pc -> {
                             pc.deactivateControls(true);
                             BlackFadeCutscene.show(
-                                Lore.OutroTexts,
-                                true,
-                                false,
-                                () -> Game.exit("Win"));
+                                Lore.OutroTexts, true, false, () -> Game.exit("Win"));
                           });
                 },
                 null)

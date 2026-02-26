@@ -18,11 +18,10 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.*;
 import core.Game;
 import core.utils.*;
-import modules.computer.LastHourDialogTypes;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
+import modules.computer.LastHourDialogTypes;
 
 /**
  * A UI component that displays a black background with text messages in sequence. Messages advance
@@ -119,9 +118,7 @@ public class BlackFadeCutscene extends Table {
           onComplete.run();
           UIUtils.closeDialog(ui);
         });
-    ui.registerCallback(
-        DialogContextKeys.ON_CLOSE,
-        data -> onComplete.run());
+    ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onComplete.run());
 
     return ui;
   }

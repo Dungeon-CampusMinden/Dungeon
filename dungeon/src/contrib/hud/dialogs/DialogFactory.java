@@ -289,11 +289,11 @@ public class DialogFactory {
     UIComponent ui = show(builder.build(), targetEntityIds);
 
     ui.registerCallback(
-      DialogContextKeys.ON_CONFIRM,
-      data -> {
-        onConfirm.execute();
-        UIUtils.closeDialog(ui);
-      });
+        DialogContextKeys.ON_CONFIRM,
+        data -> {
+          onConfirm.execute();
+          UIUtils.closeDialog(ui);
+        });
     ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onConfirm.execute());
 
     return ui;
@@ -338,21 +338,21 @@ public class DialogFactory {
 
     // Register callbacks
     ui.registerCallback(
-      DialogContextKeys.INPUT_CALLBACK,
-      data -> {
-        if (onConfirm != null) {
-          onConfirm.accept(data);
-        }
-        UIUtils.closeDialog(ui);
-      });
+        DialogContextKeys.INPUT_CALLBACK,
+        data -> {
+          if (onConfirm != null) {
+            onConfirm.accept(data);
+          }
+          UIUtils.closeDialog(ui);
+        });
     ui.registerCallback(
-      DialogContextKeys.ON_CANCEL,
-      data -> {
-        if (onCancel != null) {
-          onCancel.execute();
-        }
-        UIUtils.closeDialog(ui);
-      });
+        DialogContextKeys.ON_CANCEL,
+        data -> {
+          if (onCancel != null) {
+            onCancel.execute();
+          }
+          UIUtils.closeDialog(ui);
+        });
 
     return ui;
   }
