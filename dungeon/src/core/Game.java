@@ -741,26 +741,15 @@ public final class Game {
   }
 
   /**
-   * Starts the indexed A* pathfinding algorithm and returns a path.
+   * Finds a path from the start tile to the end tile using the platform's pathfinding implementation.
    *
-   * <p>Returns an empty Optional if there is no current level.
-   *
-   * @param start Start tile
-   * @param end End tile
-   * @return Generated path or Optional.empty() if no current level
+   * @param start the starting tile
+   * @param end the target tile
+   * @return an {@link Optional} containing a list of tiles representing the path from start to end,
+   *     or an empty {@code Optional} if no path exists or if there is no current level
    */
   public static Optional<List<Tile>> findPath(final Tile start, final Tile end) {
-    return currentLevel().flatMap(level -> {
-      var gdxPath = level.findPath(start, end);
-      if (gdxPath == null) {
-        return Optional.empty();
-      }
-      List<Tile> result = new ArrayList<>(gdxPath.getCount());
-      for (int i = 0; i < gdxPath.getCount(); i++) {
-        result.add(gdxPath.get(i));
-      }
-      return Optional.of(Collections.unmodifiableList(result));
-    });
+    return currentLevel().flatMap(level -> Platform.pathfinding().findPath(level, start, end));
   }
 
   /**

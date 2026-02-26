@@ -48,13 +48,18 @@ public final class LevelUtils {
    * @return Path from the start coordinate to the end coordinate.
    */
   public static GraphPath<Tile> calculatePath(final Coordinate from, final Coordinate to) {
+    GraphPath<Tile> path = new DefaultGraphPath<>();
+
     Tile fromTile = Game.tileAt(from).orElse(null);
     Tile toTile = Game.tileAt(to).orElse(null);
-    if (fromTile == null || !fromTile.isAccessible()) return new DefaultGraphPath<>();
-    if (toTile == null || !toTile.isAccessible()) return new DefaultGraphPath<>();
-    return Game.currentLevel()
-      .map(level -> level.findPath(fromTile, toTile))
-      .orElseGet(DefaultGraphPath::new);
+    if (fromTile == null || !fromTile.isAccessible()) return path;
+    if (toTile == null || !toTile.isAccessible()) return path;
+
+    List<Tile> tiles = Game.findPath(fromTile, toTile).orElse(List.of());
+    for (Tile t : tiles) {
+      path.add(t);
+    }
+    return path;
   }
 
   /**

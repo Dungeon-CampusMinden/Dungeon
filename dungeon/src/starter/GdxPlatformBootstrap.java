@@ -13,5 +13,6 @@ public final class GdxPlatformBootstrap {
     Platform.runtime(new GdxRuntimeAdapter());
     Platform.resources(new core.platform.gdx.GdxResourcesAdapter());
     Platform.render(new core.platform.gdx.GdxRenderAdapter());
+    Platform.pathfinding(new core.platform.gdx.GdxPathfindingAdapter());
   }
 }

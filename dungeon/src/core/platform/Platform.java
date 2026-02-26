@@ -8,6 +8,7 @@ public final class Platform {
   private static RuntimeAdapter runtime = new NullRuntimeAdapter();
   private static ResourcesAdapter resources = new core.platform.classpath.ClasspathResourcesAdapter();
   private static RenderAdapter render = new NullRenderAdapter();
+  private static PathfindingAdapter pathfinding = new NullPathfindingAdapter();
 
   private Platform() {}
 
@@ -41,5 +42,13 @@ public final class Platform {
 
   public static void render(RenderAdapter adapter) { // NEW
     render = Objects.requireNonNull(adapter);
+  }
+
+  public static PathfindingAdapter pathfinding() {
+    return pathfinding;
+  }
+
+  public static void pathfinding(PathfindingAdapter adapter) {
+    pathfinding = Objects.requireNonNull(adapter);
   }
 }

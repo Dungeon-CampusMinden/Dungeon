@@ -1,9 +1,6 @@
 package core.level.elements;
 
 import com.badlogic.gdx.ai.pfa.Connection;
-import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
-import com.badlogic.gdx.ai.pfa.GraphPath;
-import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
 import contrib.entities.deco.Deco;
@@ -142,31 +139,6 @@ public interface ILevel extends IndexedGraph<Tile> {
    * @return The number of nodes in the level.
    */
   int getNodeCount();
-
-  /**
-   * Starts the indexed A* pathfinding algorithm and returns a path between the specified start and
-   * end tiles.
-   *
-   * <p>Throws an IllegalArgumentException if either the start or end tile is non-accessible.
-   *
-   * @param start The starting tile for pathfinding.
-   * @param end The destination tile for pathfinding.
-   * @return The generated path between the start and end tiles.
-   * @throws IllegalArgumentException If the start or end tile is non-accessible.
-   */
-  default GraphPath<Tile> findPath(final Tile start, final Tile end)
-      throws IllegalArgumentException {
-    if (!start.isAccessible())
-      throw new IllegalArgumentException(
-          "Cannot calculate path because the start point is non-accessible.");
-    if (!end.isAccessible())
-      throw new IllegalArgumentException(
-          "Cannot calculate path because the end point is non-accessible.");
-
-    GraphPath<Tile> path = new DefaultGraphPath<>();
-    new IndexedAStarPathFinder<>(this).searchNodePath(start, end, tileHeuristic(), path);
-    return path;
-  }
 
   @Override
   default int getIndex(final Tile tile) {
