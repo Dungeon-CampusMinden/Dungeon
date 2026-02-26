@@ -46,7 +46,7 @@ public class ConsoleInRunner extends OpRunner {
         case StringT s -> state.setValueForOutput(op, scanner.nextLine());
         case IntegerT i -> {
           switch (i.getWidth()) {
-            case 1 -> state.setValueForOutput(op, (byte) (scanner.nextByte() & 0x1));
+            case 1 -> state.setValueForOutput(op, (byte) (scanner.nextByte() == 0 ? 0 : 1));
             case 8 -> state.setValueForOutput(op, scanner.nextByte());
             case 16 -> state.setValueForOutput(op, scanner.nextShort());
             case 32 -> state.setValueForOutput(op, scanner.nextInt());
