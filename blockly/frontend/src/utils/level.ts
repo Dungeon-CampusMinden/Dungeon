@@ -262,17 +262,6 @@ export const setupLevelSelector = () => {
     setLevelProgress(0);
   }
 
-  // TODO: MOVE ELSEWHERE
-  const cross = document.querySelector(".cross")
-  cross?.addEventListener("click", () => {
-    const popup = document.querySelector(".popupDiv");
-    if (popup) {
-      popup.style.opacity = "0"
-      popup.style.transition = "0.3s";
-      popup.style.display = "none";
-    }
-  })
-
 
   return select;
 }

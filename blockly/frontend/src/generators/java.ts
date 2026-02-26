@@ -12,7 +12,6 @@ import * as items from "./java/items.ts";
 
 class JavaGenerator extends Blockly.Generator {
   public variables: Map<string, number|string>;
-  public hasErrors = false; // globaler Fehlerstatus
 
   constructor() {
     super("JAVA");

@@ -1,3 +1,7 @@
+/**
+ * Updates the popup and displays the text
+ * @param text the text that should be displayed.
+ */
 export const updatePopup = (text : string) => {
   const popupParagraph = document.querySelector(".popupText");
   const popup = document.querySelector(".popupDiv");
@@ -7,43 +11,59 @@ export const updatePopup = (text : string) => {
   }
 }
 
-export const displayPopup = () => {
+const displayPopup = () => {
   const popup = document.querySelector(".popupDiv");
   if (popup) {
     popup.style.opacity = "1"
     popup.style.display = "block";
   }
+  setupCross();
 }
 
+const setupCross = () => {
+  const cross = document.querySelector(".cross")
+  cross?.addEventListener("click", () => {
+    const popup = document.querySelector(".popupDiv");
+    if (popup) {
+      popup.style.opacity = "0"
+      popup.style.transition = "0.3s";
+      popup.style.display = "none";
+    }
+  })
+}
 
+/**
+* Updates the alignment of the popup
+*/
 export function updateElementAlignment() {
-  const toolbox = document.querySelector(".blocklyToolbox"); // Die tatsächliche Toolbox-Box
+  const toolbox = document.querySelector(".blocklyToolbox");
   const myElement = document.querySelector(".popupDiv");
   const flyOutElement = document.querySelector(".blocklyToolboxFlyout");
 
   if (toolbox && myElement && flyOutElement) {
-    // 1. Breite der Haupt-Toolbox holen
+    // 1. Get width of toolbox
     const toolboxWidth = toolbox.getBoundingClientRect().width;
 
-    // 2. Prüfen, ob das Flyout sichtbar ist und seine Breite holen
+    // 2. check if the flyout is visible and get width
     const flyoutStyle = window.getComputedStyle(flyOutElement);
     let flyoutWidth = 0;
 
-    // Wenn das Flyout nicht versteckt ist, nehmen wir dessen Breite dazu
+    // If the fly out is visible add the width
     if (flyoutStyle.display !== "none" && flyoutStyle.visibility !== "hidden") {
       flyoutWidth = flyOutElement.getBoundingClientRect().width;
     }
 
-    // 3. Gesamtbreite berechnen
+    // 3. Calculate total width
     const totalOffset = toolboxWidth + flyoutWidth;
 
-    // 4. Den Wert an CSS übergeben
+    // 4. change value in css
     document.documentElement.style.setProperty('--toolbox-width', totalOffset + 'px');
   }
 }
 
-// Einmal ausführen und bei jedem Fenster-Resize wiederholen
-// window.addEventListener('resize', updateElementAlignment);
+/**
+ * Add listener to fly out element
+ */
 export function addListenerToFlyOut()  {
   const flyOutElement = document.querySelector(".blocklyToolboxFlyout");
 
@@ -55,9 +75,8 @@ export function addListenerToFlyOut()  {
     });
   });
 
-// Beobachte Änderungen am Style-Attribut des Flyouts
+// Observer changes of the flyout element
   if (flyOutElement != null) {
     observer.observe(flyOutElement, { attributes: true });
   }
-
 }

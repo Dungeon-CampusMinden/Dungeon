@@ -164,20 +164,16 @@ header {
     position: absolute;
     background-color: #d83838;
     z-index: 1;
-    /*transform: translateX(-50%);*/
     text-align: center;
     display: None;
     opacity: 0;
     font-weight: bold;
     font-size: 1.6rem;
-
-    /* Das Element startet erst dort, wo die Toolbox aufhört */
-    /*left: var(--toolbox-width, 70px);*/
+    /* Element starts  where the toolbox ends*/
     left: var(--toolbox-width);
-    /* Die Breite ist 100% vom injectionDiv MINUS die Toolbox */
+    /* Die width 100% minus the width of the toolbox */
     width: calc(100% - var(--toolbox-width));
 
-    /* Verhindert, dass es hinter die Sidebar rutschen kann */
     z-index: 50;
 }
 
