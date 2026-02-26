@@ -65,6 +65,7 @@ public final class GameLoop extends ScreenAdapter {
   private static ISoundPlayer soundPlayer = new NoSoundPlayer();
   private static Stage stage;
   private boolean doSetup = true;
+  private static final Set<IResizable> resizables = new HashSet<>();
 
   /**
    * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
@@ -545,6 +546,26 @@ public final class GameLoop extends ScreenAdapter {
               x.getViewport().setWorldSize(width, height);
               x.getViewport().update(width, height, true);
             });
+    resizables.forEach(r -> r.onResize(width, height));
+  }
+
+  /**
+   * Register an {@link IResizable} to be notified when the window is resized.
+   *
+   * @param resizable the resizable to register
+   */
+  public static void registerResizable(IResizable resizable) {
+    resizables.add(resizable);
+  }
+
+  /**
+   * Unregister an {@link IResizable} to stop being notified when the window is resized.
+   *
+   * @param resizable the resizable to unregister
+   * @return true if the resizable was registered and removed, false otherwise
+   */
+  public static boolean removeResizable(IResizable resizable) {
+    return resizables.remove(resizable);
   }
 
   /**

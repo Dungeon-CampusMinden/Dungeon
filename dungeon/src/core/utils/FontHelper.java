@@ -2,6 +2,7 @@ package core.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ public class FontHelper {
   /** Internal path to default font file. */
   public static final String DEFAULT_FONT_PATH = "fonts/Roboto-SemiBold.ttf";
 
-  private static final Map<FontEntry, BitmapFont> fontStorage = new HashMap<>();
+  private static final Map<FontSpec, BitmapFont> fontStorage = new HashMap<>();
 
   /**
    * Loads or retrieves the default font: Roboto-SemiBold at size 16.
@@ -91,28 +92,22 @@ public class FontHelper {
    * Loads or retrieves a cached font with full customization options. If the font with the same
    * parameters was previously generated, the cached version is returned.
    *
-   * @param path the internal path to the TrueType font file
-   * @param size the size of the font
-   * @param color the font color
-   * @param borderWidth the border width in pixels
-   * @param borderColor the color of the border
+   * @param entry the {@link FontSpec} defining the font parameters
    * @return the generated or cached {@link BitmapFont}
    */
-  public static BitmapFont getFont(
-      String path, int size, Color color, float borderWidth, Color borderColor) {
-
-    FontEntry entry = new FontEntry(path, size, color, borderWidth, borderColor);
-
+  public static BitmapFont getFont(FontSpec entry) {
     if (!fontStorage.containsKey(entry)) {
-      FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(path));
+      FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(entry.path()));
       FreeTypeFontGenerator.FreeTypeFontParameter params =
           new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-      params.size = size;
-      params.color = color;
-      params.borderWidth = borderWidth;
-      params.borderColor = borderColor;
-      params.genMipMaps = true;
+      params.size = entry.size();
+      params.color = entry.color();
+      params.borderWidth = entry.borderWidth();
+      params.borderColor = entry.borderColor();
+      params.hinting = FreeTypeFontGenerator.Hinting.Medium;
+      params.minFilter = Texture.TextureFilter.Linear;
+      params.magFilter = Texture.TextureFilter.Linear;
 
       BitmapFont font = generator.generateFont(params);
       fontStorage.put(entry, font);
@@ -123,14 +118,19 @@ public class FontHelper {
   }
 
   /**
-   * Internal record used to cache fonts based on their unique configuration.
+   * Loads or retrieves a cached font with full customization options. If the font with the same
+   * parameters was previously generated, the cached version is returned.
    *
-   * @param path the font file path
-   * @param size the font size
+   * @param path the internal path to the TrueType font file
+   * @param size the size of the font
    * @param color the font color
-   * @param borderWidth the border width
-   * @param borderColor the border color
+   * @param borderWidth the border width in pixels
+   * @param borderColor the color of the border
+   * @return the generated or cached {@link BitmapFont}
    */
-  private record FontEntry(
-      String path, int size, Color color, float borderWidth, Color borderColor) {}
+  public static BitmapFont getFont(
+      String path, int size, Color color, float borderWidth, Color borderColor) {
+    FontSpec entry = new FontSpec(path, size, color, borderWidth, borderColor);
+    return getFont(entry);
+  }
 }

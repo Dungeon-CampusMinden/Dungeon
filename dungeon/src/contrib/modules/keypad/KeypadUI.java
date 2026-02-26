@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.HeadlessDialogGroup;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -97,6 +98,7 @@ public class KeypadUI extends Group {
    * @return A new KeypadUI instance.
    */
   public static Group build(DialogContext context) {
+    if (Game.isHeadless()) return new HeadlessDialogGroup();
     return new KeypadUI(context.requireEntity(DialogContextKeys.ENTITY));
   }
 

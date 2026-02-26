@@ -1,15 +1,12 @@
 package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import contrib.hud.UIUtils;
 import core.Game;
 import core.network.messages.c2s.DialogResponseMessage;
+import core.utils.BaseContainerUI;
+import core.utils.Scene2dElementFactory;
 
 /**
  * Package-private builder for free text input dialogs.
@@ -44,7 +41,7 @@ final class FreeInputDialog {
    */
   static Group build(DialogContext ctx) {
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(TITLE_DEFAULT);
-    String question = ctx.require(DialogContextKeys.QUESTION, String.class);
+    String question = ctx.find(DialogContextKeys.QUESTION, String.class).orElse("");
 
     // On headless server, return placeholder
     if (Game.isHeadless()) {
@@ -52,9 +49,7 @@ final class FreeInputDialog {
     }
 
     Skin skin = UIUtils.defaultSkin();
-    Dialog dialog = buildDialog(title, question, skin, ctx);
-    dialog.setSize(700, 350);
-    return dialog;
+    return buildDialog(title, question, skin, ctx);
   }
 
   /**
@@ -66,9 +61,8 @@ final class FreeInputDialog {
    * @param context The dialog context containing additional settings and preferences.
    * @return The configured, centered Dialog ready to be displayed.
    */
-  private static Dialog buildDialog(
+  private static Group buildDialog(
       String title, String question, Skin skin, DialogContext context) {
-
     TextField input =
         new TextField(context.find(DialogContextKeys.INPUT_PREFILL, String.class).orElse(""), skin);
     input.setMessageText(
@@ -81,13 +75,13 @@ final class FreeInputDialog {
         context.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(CANCEL_BUTTON);
 
     Dialog dialog =
-        new Dialog(title, skin) {
+        new Dialog(title, skin, title.isBlank() ? "default" : "no-title") {
           @Override
           protected void result(Object obj) {
             if (obj.equals(okLabel)) {
               String userInput = input.getText();
               DialogCallbackResolver.createButtonCallback(
-                      context.dialogId(), DialogContextKeys.INPUT_CALLBACK)
+                      context.dialogId(), DialogContextKeys.ON_CONFIRM)
                   .accept(new DialogResponseMessage.StringValue(userInput));
             } else {
               DialogCallbackResolver.createButtonCallback(
@@ -97,19 +91,25 @@ final class FreeInputDialog {
           }
         };
 
-    dialog.setModal(true);
-    dialog.setMovable(false);
-    dialog.setResizable(false);
-    dialog.setKeepWithinStage(true);
+    DialogDesign.setDialogDefaults(dialog, title);
 
     Table content = dialog.getContentTable();
-    content.pad(16);
-    content.add(new Label(question, skin)).align(Align.center).padBottom(10).row();
-    content.add(input).width(200).padBottom(10).row();
 
-    dialog.button(okLabel, okLabel);
-    dialog.button(cancelLabel, cancelLabel);
+    if (!question.isBlank()) {
+      content
+          .add(Scene2dElementFactory.createLabel(question, DialogDesign.DIALOG_FONT_SPEC_NORMAL))
+          .padBottom(10)
+          .row();
+    }
 
-    return dialog;
+    content.add(input).width(400).padBottom(10).row();
+
+    dialog.button(okLabel, okLabel, skin.get("clean-green", TextButton.TextButtonStyle.class));
+    dialog.button(
+        cancelLabel, cancelLabel, skin.get("clean-red-outline", TextButton.TextButtonStyle.class));
+
+    dialog.pack();
+
+    return new BaseContainerUI(dialog);
   }
 }

@@ -6,9 +6,7 @@ import contrib.components.HealthComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.UIUtils;
-import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogFactory;
-import contrib.hud.dialogs.DialogType;
+import contrib.hud.dialogs.PauseDialog;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
@@ -27,10 +25,7 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
-import core.utils.Direction;
-import core.utils.IVoidFunction;
-import core.utils.InputManager;
-import core.utils.Point;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
@@ -51,6 +46,9 @@ public class Debugger extends System {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Debugger.class);
   private static Entity pauseMenu;
   private static int advanceTimer = 0;
+
+  /** Use this value to quickly test different states or values in any other part of the game. */
+  public static int multiPurposeDebugValue = 0;
 
   /** Creates a new Debugger system. */
   public Debugger() {
@@ -197,10 +195,7 @@ public class Debugger extends System {
   }
 
   private static void pause() {
-    UIComponent ui =
-        DialogFactory.show(
-            DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).center(false).build());
-    ui.dialog().setVisible(true);
+    UIComponent ui = PauseDialog.showPauseDialog();
     pauseMenu = ui.dialogContext().ownerEntity();
   }
 
@@ -268,6 +263,17 @@ public class Debugger extends System {
       Debugger.ADVANCE_FRAME();
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value()))
       Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleHUD);
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_SCENE_HUD.value()))
+      Game.stage().ifPresent(stage -> stage.setDebugAll(!stage.isDebugAll()));
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_VALUE_UP.value())) {
+      multiPurposeDebugValue += 1;
+      LOGGER.info("multiPurposeDebugValue: " + multiPurposeDebugValue);
+    }
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_VALUE_DOWN.value())) {
+      multiPurposeDebugValue -= 1;
+      LOGGER.info("multiPurposeDebugValue: " + multiPurposeDebugValue);
+    }
+
     checkFrameAdvance();
   }
 }

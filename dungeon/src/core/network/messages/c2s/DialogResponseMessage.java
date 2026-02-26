@@ -72,15 +72,7 @@ public record DialogResponseMessage(String dialogId, String callbackKey, Payload
    *
    * @see DialogResponseMessage
    */
-  public sealed interface Payload
-      permits StringValue,
-          IntValue,
-          LongValue,
-          FloatValue,
-          DoubleValue,
-          BoolValue,
-          StringList,
-          IntList {}
+  public interface Payload {}
 
   /**
    * Represents a string payload for dialog responses.

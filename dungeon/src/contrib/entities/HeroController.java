@@ -187,6 +187,29 @@ public class HeroController {
       return;
     }
 
+    Optional<Entity> target = findInteractable(hero, point);
+
+    // Trigger interaction if entity found
+    target.ifPresentOrElse(
+        entity -> {
+          InteractionComponent ic = entity.fetch(InteractionComponent.class).orElseThrow();
+          LOGGER.trace("Hero {} interacting with entity {}", hero.id(), entity.id());
+          ic.triggerInteraction(entity, hero);
+        },
+        () -> LOGGER.trace("No interactable entity found for hero {} to interact with", hero.id()));
+  }
+
+  /**
+   * First attempts to find an interactable entity at the specified point (e.g., mouse cursor
+   * position). If no interactable entity is found or the entity is out of range, it searches within
+   * a 1-tile radius around the hero.
+   *
+   * @param hero the hero entity attempting the interaction
+   * @param point the target point where the interaction is attempted (e.g., cursor position)
+   * @return an Optional containing the found entity, or Optional.empty() if no interactable entity
+   *     was found within range
+   */
+  public static Optional<Entity> findInteractable(Entity hero, Point point) {
     // Try finding interactable at the exact point first
     Optional<Entity> target =
         Game.tileAt(point)
@@ -208,14 +231,7 @@ public class HeroController {
               .findFirst();
     }
 
-    // Trigger interaction if entity found
-    target.ifPresentOrElse(
-        entity -> {
-          InteractionComponent ic = entity.fetch(InteractionComponent.class).orElseThrow();
-          LOGGER.trace("Hero {} interacting with entity {}", hero.id(), entity.id());
-          ic.triggerInteraction(entity, hero);
-        },
-        () -> LOGGER.trace("No interactable entity found for hero {} to interact with", hero.id()));
+    return target;
   }
 
   /**

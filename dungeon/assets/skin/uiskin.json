@@ -20,16 +20,16 @@ com.badlogic.gdx.graphics.g2d.BitmapFont: {
 	}
 }
 com.badlogic.gdx.graphics.Color: {
-    white: {
-        r: 1
-        g: 1
-        b: 1
-        a: 1
-    }
 	black: {
 		r: 0.023529412
 		g: 0.023529412
 		b: 0.023529412
+		a: 1
+	}
+	blue_matte: {
+		r: 0.09019608
+		g: 0.09019608
+		b: 0.7490196
 		a: 1
 	}
 	experience_green: {
@@ -67,6 +67,18 @@ com.badlogic.gdx.graphics.Color: {
 		g: 0
 		b: 0
 		a: 0
+	}
+	transparent: {
+		r: 1
+		g: 1
+		b: 1
+		a: 0
+	}
+	white: {
+		r: 1
+		g: 1
+		b: 1
+		a: 1
 	}
 }
 com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable: {
@@ -179,12 +191,19 @@ com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
 		checked: round-dark-gray
 		checkedOver: round-light-gray
 	}
+	exit-button: {
+		up: exit_clear
+		down: exit_clear_hovered
+		over: exit_clear_hovered
+		disabled: exit_clear
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
 	default: {
-		checkboxOn: checkbox-on
-		checkboxOff: checkbox
-		font: myFont
+		checkboxOn: check_square_grey_checkmark
+		checkboxOff: check_square_grey
+		font: roboto-semibold-32
+		fontColor: black
 	}
 	radio: {
 		checkboxOn: radio-on
@@ -226,18 +245,17 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		font: roboto-semibold-32
 		fontColor: black
 	}
-    blank-white: {
-        font: roboto-semibold-32
-        fontColor: white
-    }
+	blank-white: {
+		font: roboto-semibold-32
+		fontColor: white
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 	default: {
-		font: myFont
-		fontColorSelected: green
-		fontColorUnselected: orange
-		selection: mySelection
-		background: white
+		font: roboto-semibold-32
+		fontColorSelected: blue_matte
+		fontColorUnselected: black
+		selection: list
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
@@ -268,17 +286,27 @@ com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 	default: {
-		background: white
-		hScroll: round-black-small
-		hScrollKnob: round-gray-small
-		vScroll: round-black-small
-		vScrollKnob: round-gray-small
+		background: generic-area
+		hScroll: scrollbar_future_transparent_small_horizontal
+		hScrollKnob: scrollbar_future_grey_small_horizontal
+		vScroll: scrollbar_future_transparent_small
+		vScrollKnob: scrollbar_future_grey_small
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
 	default: {
-		font: myFont
+		font: roboto-semibold-32
 		fontColor: black
+		overFontColor: blue_matte
+		background: select_box
+		scrollStyle: default
+		listStyle: default
+	}
+	small: {
+		font: roboto-semibold-32
+		fontColor: black
+		overFontColor: blue_matte
+		background: select_box_32pt
 		scrollStyle: default
 		listStyle: default
 	}
@@ -291,6 +319,12 @@ com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle: {
 	default-vertical: {
 		background: slider-vertical
 		knob: slider-knob
+	}
+	clean-horizontal: {
+		knobOver: icon_circle
+		knobDown: icon_circle
+		background: slide_horizontal_grey
+		knob: icon_outline_circle
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle: {
@@ -314,14 +348,45 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 		down: round-gray
 		over: round-light-gray
 	}
+	clean-green: {
+		font: roboto-semibold-32
+		fontColor: white
+		up: green_square_depth_flat
+		down: green_square_gloss
+		over: green_square_depth_gloss
+		disabled: generic-area-depth
+		pressedOffsetY: -2
+	}
+	clean-blue-outline: {
+		font: roboto-semibold-32
+		fontColor: black
+		downFontColor: white
+		overFontColor: white
+		up: blue_square_depth_border
+		down: blue_square_flat
+		over: blue_square_depth_flat
+		disabled: generic-area-depth
+		pressedOffsetY: -2
+	}
+	clean-red-outline: {
+		font: roboto-semibold-32
+		fontColor: black
+		downFontColor: white
+		overFontColor: white
+		up: red_square_depth_border
+		down: red_square_flat
+		over: red_square_depth_flat
+		disabled: generic-area-depth
+		pressedOffsetY: -2
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 	default: {
 		font: myFont
 		fontColor: black
-		background: white
-		focusedBackground: textfield
-		disabledBackground: white
+		background: textfield
+		focusedBackground: textfield-active
+		disabledBackground: textfield-disabled
 		cursor: cursor
 		selection: selection
 		messageFont: myFont
@@ -329,8 +394,8 @@ com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
 	default: {
-		label: default
-		background: round-white
+		label: blank-black
+		background: window_background_big
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Touchpad$TouchpadStyle: {
@@ -347,12 +412,18 @@ com.badlogic.gdx.scenes.scene2d.ui.Tree$TreeStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
 	default: {
-		background: window_fire1
-		titleFont: myFont
+		background: window_background_big_blue
+		titleFont: roboto-semibold-32
+		titleFontColor: transparent
 	}
 	Letter: {
 		background: Paper
 		titleFont: myFont
+	}
+	no-title: {
+		background: window_background_big
+		titleFont: roboto-semibold-32
+		titleFontColor: transparent
 	}
 }
 }
