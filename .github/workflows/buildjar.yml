@@ -63,17 +63,15 @@ jobs:
               with:
                   name: Blockly-JARs
 
-            - name: Set up GitHub CLI
-              uses: cli/gh-actions/setup-gh@v2
-              with:
-                version: latest
-                
+            - name: Install GitHub CLI
+              run: |
+                sudo apt update
+                sudo apt install -y gh
+
             - name: Create GitHub Release
               run: |
-                # Tag generieren
                 TAG="v1.0.${{ github.run_number }}"
 
-                # Release erstellen (wenn schon existiert, wird es aktualisiert)
                 gh release create "$TAG" *.jar \
                   --title "Release $TAG" \
                   --notes "Automatisch generiert von GitHub Actions" \
