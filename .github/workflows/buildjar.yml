@@ -64,8 +64,10 @@ jobs:
                   name: Blockly-JARs
 
             - name: Set up GitHub CLI
-              uses: actions/setup-gh-cli@v2
-
+              uses: cli/gh-actions/setup-gh@v2
+              with:
+                version: latest
+                
             - name: Create GitHub Release
               run: |
                 # Tag generieren
