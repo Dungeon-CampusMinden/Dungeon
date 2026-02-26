@@ -5,6 +5,7 @@ import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.backends.headless.HeadlessFiles;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -308,16 +309,20 @@ public final class GameLoop extends ScreenAdapter {
     doSetup = false;
     if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
       setupClient();
+    } else {
+      Gdx.files = new HeadlessFiles();
     }
+
+    Crafting.loadRecipes();
 
     PreRunConfiguration.userOnSetup().execute();
     Game.network().start();
 
     if (!Game.isHeadless()) InputManager.init();
 
-    Crafting.loadRecipes();
-
-    Game.system(LevelSystem.class, LevelSystem::execute); // load initial level
+    if (!DungeonLoader.levelOrder().isEmpty()) {
+      if (Game.currentLevel().isEmpty()) DungeonLoader.loadLevel(0); // load the first level
+    } else LOGGER.warn("No levels found to load!");
   }
 
   private void setupMessageHandlers() {

@@ -123,8 +123,6 @@ public class Client {
           createSystems();
 
           startServer();
-
-          DungeonLoader.loadLevel(0);
         });
   }
 
