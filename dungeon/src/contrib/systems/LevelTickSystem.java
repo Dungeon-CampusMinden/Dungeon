@@ -17,7 +17,7 @@ public class LevelTickSystem extends System {
 
   /** Creates a new LevelTickSystem. */
   public LevelTickSystem() {
-    super(AuthoritativeSide.SERVER);
+    super(AuthoritativeSide.BOTH);
   }
 
   /** The current level of the game. */

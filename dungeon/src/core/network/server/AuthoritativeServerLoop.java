@@ -3,8 +3,6 @@ package core.network.server;
 import static core.network.config.NetworkConfig.SERVER_SNAPSHOT_HZ;
 import static core.network.config.NetworkConfig.SERVER_TICK_HZ;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.headless.HeadlessFiles;
 import contrib.entities.HeroBuilder;
 import contrib.entities.HeroController;
 import core.Entity;
@@ -71,21 +69,13 @@ public final class AuthoritativeServerLoop {
    * tasks.
    */
   public void start() {
-    Gdx.files = new HeadlessFiles();
-
     PreRunConfiguration.frameRate(SERVER_TICK_HZ);
-    PreRunConfiguration.userOnSetup().execute();
 
-    try {
-      DungeonLoader.afterAllLevels(
-          () -> {
-            Game.network().broadcast(new GameOverEvent("All levels completed"), true);
-            Game.exit("Game Over");
-          });
-      DungeonLoader.loadLevel(0);
-    } catch (Exception e) {
-      LOGGER.warn("Failed to load initial level on server", e);
-    }
+    DungeonLoader.afterAllLevels(
+        () -> {
+          Game.network().broadcast(new GameOverEvent("All levels completed"), true);
+          Game.exit("Game Over");
+        });
 
     long tickPeriodMs = 1000L / SERVER_TICK_HZ;
     long snapshotPeriodMs = 1000L / SERVER_SNAPSHOT_HZ;
