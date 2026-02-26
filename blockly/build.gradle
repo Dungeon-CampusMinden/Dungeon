@@ -9,8 +9,6 @@ repositories {
 dependencies {
     implementation project(':dungeon'), 'com.github.javaparser:javaparser-symbol-solver-core:3.28.0'
 
-
-
     // JUnit 4 and Mockito for testing
     testImplementation supportDependencies.junit
     testRuntimeOnly supportDependencies.junitLauncher
