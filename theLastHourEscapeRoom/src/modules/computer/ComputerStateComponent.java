@@ -3,6 +3,8 @@ package modules.computer;
 import core.Component;
 import core.Entity;
 import core.game.ECSManagement;
+import core.network.messages.c2s.DialogResponseMessage;
+
 import java.io.Serializable;
 import java.util.Set;
 
@@ -15,7 +17,7 @@ import java.util.Set;
  *     infected
  */
 public record ComputerStateComponent(ComputerProgress state, boolean isInfected, String virusType)
-    implements Component, Serializable {
+    implements Component, Serializable, DialogResponseMessage.Payload {
 
   /**
    * Create a new ComputerStateComponent with the given state.

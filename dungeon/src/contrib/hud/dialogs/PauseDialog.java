@@ -64,7 +64,7 @@ public class PauseDialog extends Table {
     UIComponent ui = DialogFactory.show(ctx, targetIds);
 
     // Register callback
-    ui.registerCallback(DialogContextKeys.ON_RESUME, data -> UIUtils.closeDialog(ui, true, true));
+    ui.registerCallback(DialogContextKeys.ON_RESUME, data -> UIUtils.closeDialog(ui));
     ui.registerCallback(DialogContextKeys.ON_QUIT, data -> Game.exit("Quit from pause menu"));
 
     return ui;

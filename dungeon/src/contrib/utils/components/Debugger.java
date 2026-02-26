@@ -25,10 +25,7 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
-import core.utils.Direction;
-import core.utils.IVoidFunction;
-import core.utils.InputManager;
-import core.utils.Point;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
@@ -266,13 +263,13 @@ public class Debugger extends System {
       Debugger.ADVANCE_FRAME();
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value()))
       Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleHUD);
-    if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_SCENE_HUD.value()))
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_SCENE_HUD.value()))
       Game.stage().ifPresent(stage -> stage.setDebugAll(!stage.isDebugAll()));
-    if (InputHandler.isKeyJustPressed(KeyboardConfig.DEBUG_VALUE_UP.value())) {
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_VALUE_UP.value())) {
       multiPurposeDebugValue += 1;
       LOGGER.info("multiPurposeDebugValue: " + multiPurposeDebugValue);
     }
-    if (InputHandler.isKeyJustPressed(KeyboardConfig.DEBUG_VALUE_DOWN.value())) {
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_VALUE_DOWN.value())) {
       multiPurposeDebugValue -= 1;
       LOGGER.info("multiPurposeDebugValue: " + multiPurposeDebugValue);
     }
