@@ -1,6 +1,7 @@
 package network;
 
 import contrib.modules.keypad.KeypadComponent;
+import contrib.modules.worldTimer.WorldTimerComponent;
 import core.Entity;
 import core.network.config.DefaultEntitySpawnStrategy;
 import core.network.config.EntitySpawnStrategy;
@@ -20,6 +21,7 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   private static final String METADATA_TYPE = "lh.type";
   private static final String TYPE_COMPUTER = "computer-state";
   private static final String TYPE_KEYPAD = "keypad";
+  private static final String TYPE_WORLD_TIMER = "world-timer";
   private static final String METADATA_PROGRESS = "progress";
   private static final String METADATA_INFECTED = "isInfected";
   private static final String METADATA_VIRUS_TYPE = "virusType";
@@ -27,6 +29,8 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   private static final String METADATA_KEYPAD_ENTERED_DIGITS = "keypad.enteredDigits";
   private static final String METADATA_KEYPAD_UNLOCKED = "keypad.isUnlocked";
   private static final String METADATA_KEYPAD_SHOW_DIGIT_COUNT = "keypad.showDigitCount";
+  private static final String METADATA_WORLD_TIMER_TIMESTAMP = "worldTimer.timestamp";
+  private static final String METADATA_WORLD_TIMER_DURATION = "worldTimer.duration";
 
   private final EntitySpawnStrategy delegate = new DefaultEntitySpawnStrategy();
 
@@ -40,15 +44,17 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   @Override
   public Optional<EntitySpawnEvent> buildSpawnEvent(Entity entity) {
     Optional<EntitySpawnEvent> defaultSpawn = delegate.buildSpawnEvent(entity);
+    Map<String, String> metadata = new HashMap<>();
+    defaultSpawn.ifPresent(spawnEvent -> metadata.putAll(spawnEvent.metadata()));
 
-    if (defaultSpawn.isPresent() && entity.fetch(KeypadComponent.class).isPresent()) {
-      KeypadComponent keypad = entity.fetch(KeypadComponent.class).orElseThrow();
-      Map<String, String> metadata = new HashMap<>(defaultSpawn.orElseThrow().metadata());
-      metadata.put(METADATA_TYPE, TYPE_KEYPAD);
-      metadata.put(METADATA_KEYPAD_CORRECT_DIGITS, digitsToString(keypad.correctDigits()));
-      metadata.put(METADATA_KEYPAD_ENTERED_DIGITS, digitsToString(keypad.enteredDigits()));
-      metadata.put(METADATA_KEYPAD_UNLOCKED, String.valueOf(keypad.isUnlocked()));
-      metadata.put(METADATA_KEYPAD_SHOW_DIGIT_COUNT, String.valueOf(keypad.showDigitCount()));
+    entity
+        .fetch(KeypadComponent.class)
+        .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));
+    entity
+        .fetch(WorldTimerComponent.class)
+        .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
+
+    if (defaultSpawn.isPresent() && !metadata.isEmpty()) {
       EntitySpawnEvent base = defaultSpawn.orElseThrow();
       return Optional.of(
           EntitySpawnEvent.builder()
@@ -66,24 +72,62 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
       return defaultSpawn;
     }
 
+    entity
+        .fetch(WorldTimerComponent.class)
+        .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
+
     return entity
         .fetch(ComputerStateComponent.class)
         .map(
-            state ->
-                EntitySpawnEvent.builder()
-                    .entityId(entity.id())
-                    .isPersistent(false)
-                    .metadata(
-                        Map.of(
-                            METADATA_TYPE,
-                            TYPE_COMPUTER,
-                            METADATA_PROGRESS,
-                            state.state().name(),
-                            METADATA_INFECTED,
-                            String.valueOf(state.isInfected()),
-                            METADATA_VIRUS_TYPE,
-                            state.virusType() == null ? "" : state.virusType()))
-                    .build());
+            state -> {
+              Map<String, String> mergedMetadata = new HashMap<>(metadata);
+              mergedMetadata.putAll(computerStateMetadata(state));
+              return EntitySpawnEvent.builder()
+                  .entityId(entity.id())
+                  .isPersistent(false)
+                  .metadata(mergedMetadata)
+                  .build();
+            })
+        .or(
+            () ->
+                metadata.isEmpty()
+                    ? Optional.empty()
+                    : Optional.of(
+                        EntitySpawnEvent.builder()
+                            .entityId(entity.id())
+                            .isPersistent(false)
+                            .metadata(metadata)
+                            .build()));
+  }
+
+  private Map<String, String> computerStateMetadata(ComputerStateComponent state) {
+    return Map.of(
+        METADATA_TYPE,
+        TYPE_COMPUTER,
+        METADATA_PROGRESS,
+        state.state().name(),
+        METADATA_INFECTED,
+        String.valueOf(state.isInfected()),
+        METADATA_VIRUS_TYPE,
+        state.virusType() == null ? "" : state.virusType());
+  }
+
+  private Map<String, String> keypadMetadata(KeypadComponent keypad) {
+    Map<String, String> metadata = new HashMap<>();
+    metadata.put(METADATA_TYPE, TYPE_KEYPAD);
+    metadata.put(METADATA_KEYPAD_CORRECT_DIGITS, digitsToString(keypad.correctDigits()));
+    metadata.put(METADATA_KEYPAD_ENTERED_DIGITS, digitsToString(keypad.enteredDigits()));
+    metadata.put(METADATA_KEYPAD_UNLOCKED, String.valueOf(keypad.isUnlocked()));
+    metadata.put(METADATA_KEYPAD_SHOW_DIGIT_COUNT, String.valueOf(keypad.showDigitCount()));
+    return metadata;
+  }
+
+  private Map<String, String> worldTimerMetadata(WorldTimerComponent worldTimer) {
+    Map<String, String> metadata = new HashMap<>();
+    metadata.put(METADATA_TYPE, TYPE_WORLD_TIMER);
+    metadata.put(METADATA_WORLD_TIMER_TIMESTAMP, String.valueOf(worldTimer.timestamp()));
+    metadata.put(METADATA_WORLD_TIMER_DURATION, String.valueOf(worldTimer.duration()));
+    return metadata;
   }
 
   private String digitsToString(List<Integer> digits) {
