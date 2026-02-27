@@ -47,7 +47,7 @@ public class TestUtils {
     assertEquals("", TestUtils.compareSerializedOperations(mapper, op.getOperation(), result));
 
     String callerName =
-        core.Utils.Caller.STACK_WALKER.walk(
+        core.Utils.STACK_WALKER.walk(
             stream ->
                 stream
                     .skip(1)

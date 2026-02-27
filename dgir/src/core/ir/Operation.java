@@ -2,7 +2,6 @@ package core.ir;
 
 import core.OperationVerifier;
 import core.Utils;
-import core.detail.OperationDetails;
 import core.serialization.OperationDeserializer;
 import core.serialization.OperationSerializer;
 import core.traits.IOpTrait;
@@ -305,6 +304,11 @@ public final class Operation implements Serializable {
     return getOperand(i).flatMap(ValueOperand::getValue);
   }
 
+  @Contract(pure = true)
+  public @NotNull Optional<Type> getOperandType(int i) {
+    return getOperandValue(i).map(Value::getType);
+  }
+
   /**
    * Returns the block operands (successor-block references) of this operation.
    *
@@ -348,16 +352,6 @@ public final class Operation implements Serializable {
   public @NotNull Optional<Value> getOutputValue() {
     if (output == null) return Optional.empty();
     return getOutput().map(OperationResult::getValue);
-  }
-
-  /**
-   * Returns the output {@link Value}, throwing if this operation is void.
-   *
-   * @return the output value.
-   * @throws NoSuchElementException if this operation has no output.
-   */
-  public @NotNull Value getOutputValueThrowing() {
-    return getOutput().map(OperationResult::getValue).orElseThrow();
   }
 
   /**
@@ -505,10 +499,10 @@ public final class Operation implements Serializable {
    *     non-null parent and the new value is also non-null.
    */
   public void setParent(Block parent) {
-    assert Utils.Caller.getCallingClass() == Block.class
+    assert Utils.getCallingClass() == Block.class
         : MessageFormat.format(
             "Assigning the parent of an operation is only allowed from the Block class. Was called from {0}",
-            Utils.Caller.getCallingClass().getName());
+            Utils.getCallingClass().getName());
     assert this.parent == null || parent == null
         : "Operation already has a parent. Unparent first before setting a new parent. (Use the block interface to unparent.)";
     this.parent = parent;

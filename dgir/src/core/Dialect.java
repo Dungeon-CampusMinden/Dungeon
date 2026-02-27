@@ -1,8 +1,8 @@
 package core;
 
-import core.detail.AttributeDetails;
-import core.detail.OperationDetails;
-import core.detail.TypeDetails;
+import core.ir.AttributeDetails;
+import core.ir.OperationDetails;
+import core.ir.TypeDetails;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;

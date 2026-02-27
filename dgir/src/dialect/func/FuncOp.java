@@ -23,14 +23,14 @@ import java.util.function.Function;
  * <p>A {@code func.func} op carries two mandatory attributes:
  *
  * <ul>
- *   <li>{@link SymbolTable#getSymbolAttributeName()} — the function's symbol name (e.g.
- *       {@code "main"}).
+ *   <li>{@link SymbolTable#getSymbolAttributeName()} — the function's symbol name (e.g. {@code
+ *       "main"}).
  *   <li>{@code "type"} — a {@link TypeAttribute} wrapping the function's {@link FuncType}.
  * </ul>
  *
- * <p>The op contributes exactly one region that holds the function body. It implements
- * {@link ISymbol} so its name can be looked up via {@link SymbolTable}, and {@link IIsolatedFromAbove}
- * to prevent the body from capturing values defined outside the function.
+ * <p>The op contributes exactly one region that holds the function body. It implements {@link
+ * ISymbol} so its name can be looked up via {@link SymbolTable}, and {@link IIsolatedFromAbove} to
+ * prevent the body from capturing values defined outside the function.
  *
  * <p>MLIR reference: {@code func.func}
  *
@@ -40,7 +40,8 @@ import java.util.function.Function;
  * }
  * }</pre>
  */
-public final class FuncOp extends FuncBaseOp implements Func, ISymbol, IIsolatedFromAbove, IGlobal, ISingleRegion {
+public final class FuncOp extends FuncBaseOp
+    implements Func, ISymbol, IIsolatedFromAbove, IGlobal, ISingleRegion {
 
   // =========================================================================
   // Type Info
@@ -98,7 +99,8 @@ public final class FuncOp extends FuncBaseOp implements Func, ISymbol, IIsolated
    * @param type the function signature.
    */
   public FuncOp(@NotNull Location location, @NotNull String name, @NotNull FuncType type) {
-    setOperation(true, Operation.Create(location, this, null, null, type.getOutput(), type.getInputs()));
+    setOperation(
+        true, Operation.Create(location, this, null, null, type.getOutput(), type.getInputs()));
     getFuncNameAttribute().setValue(name);
     getTypeAttribute().setType(type);
   }
@@ -115,7 +117,7 @@ public final class FuncOp extends FuncBaseOp implements Func, ISymbol, IIsolated
    */
   @Contract(pure = true)
   public @NotNull StringAttribute getFuncNameAttribute() {
-    return getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName())
+    return getAttribute(SymbolTable.getSymbolAttributeName(), StringAttribute.class)
         .orElseThrow(() -> new RuntimeException("Symbol attribute not found"));
   }
 

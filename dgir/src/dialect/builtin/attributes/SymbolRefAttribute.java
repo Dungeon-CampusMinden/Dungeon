@@ -5,23 +5,14 @@ import core.ir.Attribute;
 import dialect.builtin.BuiltinDialect;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Attribute that holds a reference to a symbol by its string name.
  *
- * <p>Ident: {@code symbolRefAttr}. Used by operations such as {@link dialect.func.CallOp} to
- * record the name of a callee function without hard-linking the IR nodes together.
+ * <p>Ident: {@code symbolRefAttr}. Used by operations such as {@link dialect.func.CallOp} to record
+ * the name of a callee function without hard-linking the IR nodes together.
  */
 public class SymbolRefAttribute extends Attribute {
-
-  // =========================================================================
-  // Static Fields
-  // =========================================================================
-
-  /** Prototype instance used during dialect registration. */
-  public static final SymbolRefAttribute INSTANCE = new SymbolRefAttribute();
-
   // =========================================================================
   // Type Info
   // =========================================================================
@@ -49,14 +40,16 @@ public class SymbolRefAttribute extends Attribute {
   // =========================================================================
 
   /** The referenced symbol name. */
-  private String value;
+  private @NotNull String value;
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
   /** Create a default symbol reference attribute with a {@code null} name. */
-  public SymbolRefAttribute() {}
+  public SymbolRefAttribute() {
+    value = "";
+  }
 
   /**
    * Create a symbol reference attribute pointing to the given name.
@@ -78,7 +71,7 @@ public class SymbolRefAttribute extends Attribute {
    */
   @Contract(pure = true)
   @Override
-  public @Nullable String getStorage() {
+  public @NotNull String getStorage() {
     return value;
   }
 
@@ -88,7 +81,7 @@ public class SymbolRefAttribute extends Attribute {
    * @return the symbol name.
    */
   @Contract(pure = true)
-  public String getValue() {
+  public @NotNull String getValue() {
     return value;
   }
 

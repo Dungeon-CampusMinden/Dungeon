@@ -1,6 +1,7 @@
 package dialect.arith;
 
 import core.ir.*;
+import core.traits.IHasResult;
 import core.traits.INoOperands;
 import dialect.builtin.attributes.IntegerAttribute;
 import dialect.builtin.attributes.StringAttribute;
@@ -17,13 +18,8 @@ import java.util.function.Function;
  * <p>The constant is carried by the required {@code "value"} attribute, which must be a {@link
  * TypedAttribute}. The operation result type is taken directly from the attribute type.
  *
- * <p>MLIR reference: {@code arith.constant}
- *
- * <pre>{@code
- * %c = arith.constant value = 42 : int32
- * }</pre>
  */
-public final class ConstantOp extends ArithOp implements Arith, INoOperands {
+public final class ConstantOp extends ArithOp implements Arith, INoOperands, IHasResult {
 
   // =========================================================================
   // Type Info
@@ -114,7 +110,7 @@ public final class ConstantOp extends ArithOp implements Arith, INoOperands {
    */
   @Contract(pure = true)
   public @NotNull TypedAttribute getValueAttribute() {
-    return getAttribute(TypedAttribute.class, "value")
+    return getAttribute("value", TypedAttribute.class)
         .orElseThrow(() -> new AssertionError("No value attribute found."));
   }
 

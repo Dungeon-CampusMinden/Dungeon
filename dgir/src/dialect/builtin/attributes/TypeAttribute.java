@@ -4,9 +4,9 @@ import core.*;
 import core.ir.Attribute;
 import core.ir.Type;
 import dialect.builtin.BuiltinDialect;
+import dialect.builtin.types.IntegerT;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -17,14 +17,6 @@ import java.util.Optional;
  * full function type into the operation's attribute dictionary.
  */
 public class TypeAttribute extends Attribute {
-
-  // =========================================================================
-  // Static Fields
-  // =========================================================================
-
-  /** Prototype instance used during dialect registration. */
-  public static final @NotNull TypeAttribute INSTANCE = new TypeAttribute();
-
   // =========================================================================
   // Type Info
   // =========================================================================
@@ -52,21 +44,23 @@ public class TypeAttribute extends Attribute {
   // =========================================================================
 
   /** The wrapped type, or {@code null} if unset. */
-  private @Nullable Type type;
+  private @NotNull Type type;
 
   // =========================================================================
   // Constructors
   // =========================================================================
 
   /** Create a default type attribute with a {@code null} type. */
-  public TypeAttribute() {}
+  public TypeAttribute() {
+    type = IntegerT.INT64;
+  }
 
   /**
    * Create a type attribute wrapping the given type.
    *
    * @param type the type to wrap; may be {@code null}.
    */
-  public TypeAttribute(@Nullable Type type) {
+  public TypeAttribute(@NotNull Type type) {
     this.type = type;
   }
 
@@ -81,7 +75,7 @@ public class TypeAttribute extends Attribute {
    */
   @Contract(pure = true)
   @Override
-  public @Nullable Type getStorage() {
+  public @NotNull Type getStorage() {
     return type;
   }
 
@@ -91,8 +85,8 @@ public class TypeAttribute extends Attribute {
    * @return an optional containing the wrapped type, or empty if unset.
    */
   @Contract(pure = true)
-  public @NotNull Optional<Type> getType() {
-    return Optional.ofNullable(type);
+  public @NotNull Type getType() {
+    return type;
   }
 
   /**
@@ -100,7 +94,7 @@ public class TypeAttribute extends Attribute {
    *
    * @param type the new type; may be {@code null} to clear the attribute.
    */
-  public void setType(@Nullable Type type) {
+  public void setType(@NotNull Type type) {
     this.type = type;
   }
 }

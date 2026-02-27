@@ -1,6 +1,6 @@
 package dgir.vm.api;
 
-import core.detail.OperationDetails;
+import core.ir.OperationDetails;
 import core.ir.Op;
 import core.ir.Operation;
 import org.jetbrains.annotations.NotNull;

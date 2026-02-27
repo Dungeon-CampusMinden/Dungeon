@@ -2,8 +2,6 @@ package core.traits;
 
 import core.ir.Type;
 import core.ir.Value;
-import core.ir.ValueOperand;
-import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,16 +19,20 @@ public interface ISingleOperand extends IOpTrait {
       getOperation().emitError("Operation must have exactly one operand.");
       return false;
     }
+    if (getOperation().getOperand(0).isEmpty()) {
+      getOperation().emitError("Operation must have non-null operand");
+      return false;
+    }
     return true;
   }
 
   @Contract(pure = true)
-  default @NotNull Optional<Value> getOperand() {
-    return getOperation().getOperand(0).flatMap(ValueOperand::getValue);
+  default @NotNull Value getOperand() {
+    return getOperation().getOperandValue(0).orElseThrow();
   }
 
   @Contract(pure = true)
-  default @NotNull Optional<Type> getOperandType() {
-    return getOperand().map(Value::getType);
+  default @NotNull Type getOperandType() {
+    return getOperand().getType();
   }
 }

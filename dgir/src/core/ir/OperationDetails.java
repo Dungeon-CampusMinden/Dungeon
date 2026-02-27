@@ -1,19 +1,17 @@
-package core.detail;
+package core.ir;
 
-import core.*;
-import core.ir.NamedAttribute;
-import core.ir.Op;
-import core.ir.Operation;
+import core.DGIRContext;
+import core.Dialect;
 import core.traits.IOpTrait;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * Describes an operation kind and exposes its metadata through a stable interface.
@@ -114,6 +112,26 @@ public sealed interface OperationDetails {
       return Optional.of(opClass.getDeclaredConstructor(parameterTypes));
     } catch (NoSuchMethodException e) {
       return Optional.empty();
+    }
+  }
+
+  // Collect interfaces from class hierarchy, including interface inheritance.
+  static @NotNull Set<Class<?>> getAllInterfaces(@NotNull Class<?> clazz) {
+    Set<Class<?>> interfaces = new LinkedHashSet<>();
+    Class<?> current = clazz;
+    while (current != null) {
+      for (Class<?> iface : current.getInterfaces()) {
+        collectInterfaceHierarchy(iface, interfaces);
+      }
+      current = current.getSuperclass();
+    }
+    return interfaces;
+  }
+
+  static void collectInterfaceHierarchy(@NotNull Class<?> iface, @NotNull Set<Class<?>> out) {
+    if (!out.add(iface)) return;
+    for (Class<?> parent : iface.getInterfaces()) {
+      collectInterfaceHierarchy(parent, out);
     }
   }
 
@@ -380,7 +398,7 @@ public sealed interface OperationDetails {
      * @param op a default (no-arg) op prototype; must not be {@code null}.
      * @return a fully populated {@link Registered} instance.
      * @throws RuntimeException if the op class is missing required constructors or any registered
-     *     {@link core.traits.IOpTrait} does not expose the expected {@code verify} method.
+     *     {@link IOpTrait} does not expose the expected {@code verify} method.
      */
     public static @NotNull Registered create(@NotNull Op op) {
       final var ident = op.getIdent();
@@ -391,8 +409,9 @@ public sealed interface OperationDetails {
       final var verifier = op.getVerifier();
       final Set<Class<? extends IOpTrait>> traits =
           Set.copyOf(
-              Arrays.stream(type.getInterfaces())
+              OperationDetails.getAllInterfaces(type).stream()
                   .filter(IOpTrait.class::isAssignableFrom)
+                  .filter(aClass -> !aClass.equals(IOpTrait.class))
                   .map(aClass -> aClass.<IOpTrait>asSubclass(IOpTrait.class))
                   .toList());
       final Map<Class<? extends IOpTrait>, Method> traitVerifiers =

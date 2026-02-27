@@ -1,12 +1,9 @@
 package core;
 
-import core.detail.*;
-import core.ir.Attribute;
-import core.ir.Op;
-import core.ir.Type;
+import core.ir.*;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.jetbrains.annotations.Contract;

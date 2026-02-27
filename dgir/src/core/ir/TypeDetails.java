@@ -1,19 +1,18 @@
-package core.detail;
+package core.ir;
 
 import core.DGIRContext;
 import core.Dialect;
 import core.Utils;
-import core.ir.Type;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Holds all basic information about a type kind and exposes it through a stable interface. The

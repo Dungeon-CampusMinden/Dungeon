@@ -15,12 +15,12 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Static helpers for resolving named symbols within the IR.
  *
- * <p>A <em>symbol</em> is any operation that implements {@link core.traits.ISymbol}; it carries a
+ * <p>A <em>symbol</em> is any operation that implements {@link ISymbol}; it carries a
  * {@code "symbol_name"} {@link dialect.builtin.attributes.StringAttribute} that serves as its
- * unique identifier within the enclosing {@link core.traits.ISymbolTable} scope.
+ * unique identifier within the enclosing {@link ISymbolTable} scope.
  *
  * <p>Lookup always searches the <em>first block</em> of the <em>first region</em> of the nearest
- * enclosing {@link core.traits.ISymbolTable} op. Multi-region or multi-block symbol tables are not
+ * enclosing {@link ISymbolTable} op. Multi-region or multi-block symbol tables are not
  * supported.
  */
 public class SymbolTable {
@@ -143,7 +143,7 @@ public class SymbolTable {
    * @return Name of the attribute used to store the symbol name.
    */
   /**
-   * Returns the attribute name used to store the symbol name in {@link core.traits.ISymbol} ops.
+   * Returns the attribute name used to store the symbol name in {@link ISymbol} ops.
    *
    * @return {@code "symbol_name"}
    */

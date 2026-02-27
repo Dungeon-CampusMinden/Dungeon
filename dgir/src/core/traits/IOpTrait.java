@@ -1,6 +1,7 @@
 package core.traits;
 
 import core.ir.Operation;
+import core.ir.OperationDetails;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,12 +12,12 @@ import org.jetbrains.annotations.NotNull;
  *
  * <ul>
  *   <li>a {@code default boolean verify(@NotNull SelfTrait ignored)} method that is called during
- *       verification (see {@link core.detail.OperationDetails#verifyTraits});
+ *       verification (see {@link OperationDetails#verifyTraits});
  *   <li>convenience accessor default methods backed by {@link #getOperation()}.
  * </ul>
  *
  * <p>Op classes pick up traits by simply implementing the desired trait interfaces. The
- * {@link core.detail.OperationDetails.Registered} introspects declared interfaces at registration
+ * {@link OperationDetails.Registered} introspects declared interfaces at registration
  * time and stores both the trait set and the verifier methods.
  */
 public interface IOpTrait {

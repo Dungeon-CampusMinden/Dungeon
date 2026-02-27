@@ -1,7 +1,7 @@
 package dialect.func.types;
 
 import core.*;
-import core.detail.TypeDetails;
+import core.ir.TypeDetails;
 import core.ir.Type;
 
 import java.util.Collections;

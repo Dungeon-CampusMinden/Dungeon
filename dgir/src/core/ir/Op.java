@@ -1,7 +1,6 @@
 package core.ir;
 
 import core.Dialect;
-import core.detail.OperationDetails;
 import core.serialization.OpDeserializer;
 import core.serialization.OpSerializer;
 import core.traits.IOpTrait;
@@ -242,11 +241,6 @@ public abstract class Op {
     return getOperation().getOutputValue();
   }
 
-  @Contract(pure = true)
-  public @Nullable Value getOutputValueThrowing() {
-    return getOperation().getOutputValueThrowing();
-  }
-
   public @NotNull Op setOutputValue(@NotNull Value value) {
     getOperation().setOutputValue(value);
     return this;
@@ -268,7 +262,7 @@ public abstract class Op {
 
   @Contract(pure = true)
   public <T extends Attribute> @NotNull Optional<T> getAttribute(
-      @NotNull Class<T> clazz, @NotNull String name) {
+      @NotNull String name, @NotNull Class<T> clazz) {
     return getOperation().getAttribute(clazz, name);
   }
 

@@ -42,7 +42,7 @@ public class BuiltinTests {
     var numberTextOP = funcMainOp.addOperation(new ConstantOp(LOC, 42), 0);
 
     funcMainOp.addOperation(
-        new PrintOp(LOC, textOp.getOutputValueThrowing(), numberTextOP.getOutputValueThrowing()), 0);
+        new PrintOp(LOC, textOp.getResult(), numberTextOP.getResult()), 0);
     funcMainOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
@@ -65,8 +65,8 @@ public class BuiltinTests {
       var helloWorldTextOp = funcMainOp.addOperation(new ConstantOp(LOC, "Hello World!"), 0);
       var funcCallOp =
           funcMainOp.addOperation(
-              new CallOp(LOC, fooFuncOp, helloWorldTextOp.getOutputValueThrowing()), 0);
-      funcMainOp.addOperation(new PrintOp(LOC, funcCallOp.getOutputValueThrowing()), 0);
+              new CallOp(LOC, fooFuncOp, helloWorldTextOp.getResult()), 0);
+      funcMainOp.addOperation(new PrintOp(LOC, funcCallOp.getOutputValue().orElseThrow()), 0);
       funcMainOp.addOperation(new ReturnOp(LOC), 0);
     }
 
@@ -88,7 +88,7 @@ public class BuiltinTests {
     var secondConstOp =
         funcMainOp.addOperation(new ConstantOp(LOC, 100).setOutputValue(constOp.getValue()), 0);
 
-    funcMainOp.addOperation(new PrintOp(LOC, secondConstOp.getOutputValueThrowing()), 0);
+    funcMainOp.addOperation(new PrintOp(LOC, secondConstOp.getOutputValue().orElseThrow()), 0);
     funcMainOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));

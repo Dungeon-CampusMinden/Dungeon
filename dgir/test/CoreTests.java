@@ -63,7 +63,7 @@ public class CoreTests {
     entryBlock.addOperation(new BranchOp(LOC, targetBlock));
 
     // Target block: use val, return
-    targetBlock.addOperation(new PrintOp(LOC, constOp.getOutputValueThrowing()));
+    targetBlock.addOperation(new PrintOp(LOC, constOp.getResult()));
     targetBlock.addOperation(new ReturnOp(LOC));
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));

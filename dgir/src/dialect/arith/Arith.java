@@ -6,4 +6,4 @@ package dialect.arith;
  * <p>Every concrete op must both extend {@link ArithOp} and implement this interface so that
  * {@link core.Utils.Dialect#allOps} can discover it automatically via reflection.
  */
-public sealed interface Arith permits ConstantOp {}
+public sealed interface Arith permits ConstantOp, CompareOp, AddOp, SubOp, MulOp, DivOp, RemOp, CastOp {}

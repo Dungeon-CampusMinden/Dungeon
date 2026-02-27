@@ -161,7 +161,7 @@ public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
   @Contract(pure = true)
   public @NotNull String getCallee() {
     return Objects.requireNonNull(
-        getAttribute(SymbolRefAttribute.class, getCalleeAttributeName())
+        getAttribute(getCalleeAttributeName(), SymbolRefAttribute.class)
             .orElseThrow(() -> new AssertionError("No callee attribute found"))
             .getStorage(),
         "Callee symbol name must not be null");
@@ -187,7 +187,7 @@ public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
   @Contract(pure = true)
   @Override
   public @NotNull SymbolRefAttribute getSymbolRefAttribute() {
-    return getAttribute(SymbolRefAttribute.class, getCalleeAttributeName())
+    return getAttribute(getCalleeAttributeName(), SymbolRefAttribute.class)
         .orElseThrow(() -> new RuntimeException("No symbol attribute found"));
   }
 }

@@ -5,10 +5,12 @@ import core.Utils;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
-import java.util.List;
+import dialect.arith.attributes.CompModeAttr;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.List;
 
 /**
  * The {@code arith} dialect provides basic arithmetic operations.
@@ -19,6 +21,13 @@ import org.jetbrains.annotations.Unmodifiable;
  *
  * <ul>
  *   <li>{@link ConstantOp} — produces a constant value
+ *   <li>{@link AddOp} — adds two numeric operands
+ *   <li>{@link SubOp} — subtracts two numeric operands
+ *   <li>{@link MulOp} — multiplies two numeric operands
+ *   <li>{@link DivOp} — divides two numeric operands
+ *   <li>{@link RemOp} — remainder of two numeric operands
+ *   <li>{@link CompareOp} — compares two numeric operands
+ *   <li>{@link CastOp} — casts a numeric operand to a target type
  * </ul>
  */
 public class ArithDialect extends Dialect {
@@ -44,8 +53,6 @@ public class ArithDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @Unmodifiable @NotNull List<Attribute> allAttributes() {
-    return List.of();
+    return List.of(new CompModeAttr());
   }
 }
-
-

@@ -12,10 +12,11 @@ import dialect.builtin.attributes.TypeAttribute;
 import dialect.builtin.types.FloatT;
 import dialect.builtin.types.IntegerT;
 import dialect.builtin.types.StringT;
-import java.util.List;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.List;
 
 /**
  * The {@code builtin} dialect provides the fundamental building blocks shared by all other
@@ -79,10 +80,10 @@ public class BuiltinDialect extends Dialect {
   @Override
   public @Unmodifiable @NotNull List<Attribute> allAttributes() {
     return List.of(
-        IntegerAttribute.INSTANCE,
-        StringAttribute.INSTANCE,
-        TypeAttribute.INSTANCE,
-        SymbolRefAttribute.INSTANCE);
+        new IntegerAttribute(),
+        new StringAttribute(),
+        new TypeAttribute(),
+        new SymbolRefAttribute());
   }
 }
 

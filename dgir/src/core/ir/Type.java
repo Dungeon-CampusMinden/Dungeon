@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import core.Dialect;
 import core.Utils;
-import core.detail.TypeDetails;
 import core.serialization.TypeDeserializer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Contract;
@@ -69,8 +68,8 @@ public abstract class Type {
   }
 
   /**
-   * Returns the namespace prefix for this type (e.g. {@code ""} for builtin types or
-   * {@code "func"} for the func dialect).
+   * Returns the namespace prefix for this type (e.g. {@code ""} for builtin types or {@code "func"}
+   * for the func dialect).
    *
    * @return the namespace string, never {@code null}.
    */
@@ -88,7 +87,7 @@ public abstract class Type {
   /**
    * Returns a function that checks whether a given value is a valid instance of this type.
    *
-   * <p>The validator is stored in {@link core.detail.TypeDetails.Registered} at registration time
+   * <p>The validator is stored in {@link TypeDetails.Registered} at registration time
    * and used by {@link #validate(Object)} to type-check attribute storage values.
    *
    * @return the validator function, never {@code null}.
@@ -135,16 +134,16 @@ public abstract class Type {
   }
 
   /**
-   * Replace the details for this type. May only be called from
-   * {@link core.detail.TypeDetails.Registered} during dialect registration.
+   * Replace the details for this type. May only be called from {@link
+   * TypeDetails.Registered} during dialect registration.
    *
    * @param details the new details instance.
-   * @throws AssertionError if called from outside {@link core.detail.TypeDetails.Registered}.
+   * @throws AssertionError if called from outside {@link TypeDetails.Registered}.
    */
-  public void setDetails(@NotNull TypeDetails details) {
+  void setDetails(@NotNull TypeDetails details) {
     // Only allow TypeDetails.Registered to set details, since they are the registration of the
     // types.
-    assert Utils.Caller.getCallingClass().isAssignableFrom(TypeDetails.Registered.class)
+    assert Utils.getCallingClass().isAssignableFrom(TypeDetails.Registered.class)
         : "Only TypeDetails.Registered can set details for a type.";
     this.details = details;
   }

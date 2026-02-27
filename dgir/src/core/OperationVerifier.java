@@ -1,7 +1,7 @@
 package core;
 
 import core.analysis.ReachingDefinitions;
-import core.detail.OperationDetails;
+import core.ir.OperationDetails;
 import core.ir.*;
 import core.traits.IIsolatedFromAbove;
 import core.traits.INoTerminator;

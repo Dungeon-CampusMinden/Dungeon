@@ -6,7 +6,6 @@ import dialect.builtin.BuiltinDialect;
 import dialect.builtin.types.StringT;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Attribute that carries a Java {@link String} value.
@@ -14,14 +13,6 @@ import org.jetbrains.annotations.Nullable;
  * <p>Ident: {@code stringAttr}. The stored value is a plain Java {@code String}.
  */
 public class StringAttribute extends TypedAttribute {
-
-  // =========================================================================
-  // Static Fields
-  // =========================================================================
-
-  /** Prototype instance used during dialect registration. */
-  public static final StringAttribute INSTANCE = new StringAttribute();
-
   // =========================================================================
   // Type Info
   // =========================================================================
@@ -49,7 +40,7 @@ public class StringAttribute extends TypedAttribute {
   // =========================================================================
 
   /** The string value stored by this attribute. */
-  private String value;
+  private @NotNull String value;
 
   // =========================================================================
   // Constructors
@@ -58,6 +49,7 @@ public class StringAttribute extends TypedAttribute {
   /** Create a default string attribute with a {@code null} value. */
   public StringAttribute() {
     super(StringT.INSTANCE);
+    value = "";
   }
 
   /**
@@ -76,7 +68,7 @@ public class StringAttribute extends TypedAttribute {
 
   @Contract(pure = true)
   @Override
-  public @Nullable Object getStorage() {
+  public @NotNull Object getStorage() {
     return value;
   }
 
@@ -86,7 +78,7 @@ public class StringAttribute extends TypedAttribute {
    * @return the string value.
    */
   @Contract(pure = true)
-  public String getValue() {
+  public @NotNull String getValue() {
     return value;
   }
 
@@ -95,7 +87,7 @@ public class StringAttribute extends TypedAttribute {
    *
    * @param value the new string value.
    */
-  public void setValue(String value) {
+  public void setValue(@NotNull String value) {
     this.value = value;
   }
 }

@@ -1,12 +1,12 @@
-package core.detail;
+package core.ir;
 
 import core.DGIRContext;
 import core.Dialect;
-import core.ir.Attribute;
-import java.lang.reflect.Constructor;
-import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.Constructor;
+import java.util.Optional;
 
 /**
  * Describes an attribute kind and exposes its metadata through a stable interface.

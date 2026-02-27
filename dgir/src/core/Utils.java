@@ -1,16 +1,15 @@
 package core;
 
+import core.ir.Op;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
+
 import java.lang.StackWalker.Option;
 import java.lang.StackWalker.StackFrame;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.List;
-
-import core.ir.Op;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * Miscellaneous utility helpers used throughout the DGIR. All inner classes have private
@@ -42,7 +41,7 @@ public class Utils {
    *       → ["func.func&lt;(string) -&gt; (bool)&gt;", " i32"]
    * </pre>
    *
-   * @param text      the string to split; must not be {@code null}.
+   * @param text the string to split; must not be {@code null}.
    * @param delimiter the delimiter sequence to split on; must not be {@code null} or empty.
    * @return an unmodifiable list of the parts (in order, not trimmed); never {@code null}.
    */
@@ -91,11 +90,11 @@ public class Utils {
   /**
    * Extract the top-level comma-separated parameter strings from a parameterized type ident.
    *
-   * <p>The method strips the outermost {@code <…>} wrapper and then splits the inner text by
-   * {@code ','} at nesting depth 0 via {@link #splitAtDepthZero(String, String)}. Both
-   * angle-bracket pairs ({@code < >}) and parenthesis pairs ({@code ( )}) increment/decrement the
-   * depth counter, so nested generic types and parenthesised signatures are never split mid-way.
-   * Each resulting segment is trimmed of surrounding whitespace and empty segments are dropped.
+   * <p>The method strips the outermost {@code <…>} wrapper and then splits the inner text by {@code
+   * ','} at nesting depth 0 via {@link #splitAtDepthZero(String, String)}. Both angle-bracket pairs
+   * ({@code < >}) and parenthesis pairs ({@code ( )}) increment/decrement the depth counter, so
+   * nested generic types and parenthesised signatures are never split mid-way. Each resulting
+   * segment is trimmed of surrounding whitespace and empty segments are dropped.
    *
    * <p>Examples:
    *
@@ -111,7 +110,7 @@ public class Utils {
    * </pre>
    *
    * @param parameterizedIdent a parameterized ident string that contains exactly one outermost
-   *                           {@code <…>} wrapper (e.g. {@code "foo<a, b<c>, d>"}).
+   *     {@code <…>} wrapper (e.g. {@code "foo<a, b<c>, d>"}).
    * @return an unmodifiable list of trimmed, non-empty parameter strings; never {@code null}.
    */
   @Contract(pure = true)
@@ -133,35 +132,25 @@ public class Utils {
   // Inner: Caller
   // =========================================================================
 
+  public static final @NotNull StackWalker STACK_WALKER =
+      StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
+
   /**
-   * Stack-walking helpers for identifying the direct caller of a method. Used to enforce "only
-   * callable from X" invariants at runtime.
+   * Return the {@link Class} that directly called the method which invoked this utility.
+   *
+   * @return the calling class.
+   * @throws IllegalStateException if the caller cannot be determined.
    */
-  public static final class Caller {
-
-    public static final @NotNull StackWalker STACK_WALKER =
-        StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
-
-    private Caller() {}
-
-    /**
-     * Return the {@link Class} that directly called the method which invoked this utility.
-     *
-     * @return the calling class.
-     * @throws IllegalStateException if the caller cannot be determined.
-     */
-    @Contract(pure = true)
-    public static @NotNull Class<?> getCallingClass() {
-      Optional<Class<?>> caller =
-          STACK_WALKER.walk(
-              stream ->
-                  stream
-                      .skip(2) // skip getCallingClass() itself
-                      .findFirst()
-                      .map(StackFrame::getDeclaringClass));
-      return caller.orElseThrow(
-          () -> new IllegalStateException("Unable to determine calling class"));
-    }
+  @Contract(pure = true)
+  public static @NotNull Class<?> getCallingClass() {
+    Optional<Class<?>> caller =
+        STACK_WALKER.walk(
+            stream ->
+                stream
+                    .skip(2) // skip getCallingClass() itself
+                    .findFirst()
+                    .map(StackFrame::getDeclaringClass));
+    return caller.orElseThrow(() -> new IllegalStateException("Unable to determine calling class"));
   }
 
   /**
@@ -171,7 +160,7 @@ public class Utils {
    * iterate over the value if present, or skip the loop body if empty.
    *
    * @param optional the optional value to iterate over.
-   * @param <T>      the element type.
+   * @param <T> the element type.
    * @return an iterable yielding the value if present, or an empty iterable.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -194,20 +183,20 @@ public class Utils {
         dialectOps = new HashMap<>();
 
     /**
-     * Collect all operation prototypes contributed by a dialect by reflectively instantiating
-     * every permitted subclass of {@code diOps} via its no-arg constructor.
+     * Collect all operation prototypes contributed by a dialect by reflectively instantiating every
+     * permitted subclass of {@code diOps} via its no-arg constructor.
      *
-     * <p>Results are cached so that repeated calls for the same dialect are cheap. The
-     * {@code diOps} argument must be a {@code sealed} interface whose every {@code permits} entry
-     * is a concrete op class with a declared no-arg constructor.
+     * <p>Results are cached so that repeated calls for the same dialect are cheap. The {@code
+     * diOps} argument must be a {@code sealed} interface whose every {@code permits} entry is a
+     * concrete op class with a declared no-arg constructor.
      *
      * @param dialect the dialect class requesting the ops (used as the cache key).
-     * @param diOps   the sealed marker interface whose permitted subclasses enumerate the dialect's
-     *                ops (e.g. {@link dialect.builtin.Builtin}).
+     * @param diOps the sealed marker interface whose permitted subclasses enumerate the dialect's
+     *     ops (e.g. {@link dialect.builtin.Builtin}).
      * @return an unmodifiable list of op prototypes, one per permitted subclass.
-     * @throws AssertionError   if {@code diOps} is not a sealed interface.
+     * @throws AssertionError if {@code diOps} is not a sealed interface.
      * @throws RuntimeException if any permitted subclass lacks a no-arg constructor or its
-     *                          constructor throws.
+     *     constructor throws.
      */
     @NotNull
     @Unmodifiable

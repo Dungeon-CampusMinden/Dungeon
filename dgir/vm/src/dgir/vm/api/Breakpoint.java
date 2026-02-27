@@ -1,6 +1,7 @@
 package dgir.vm.api;
 
 import core.ir.Location;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -35,6 +36,8 @@ public record Breakpoint(@NotNull String file, int line, int column) {
     return column == 0 || column == location.column();
   }
 
+  @Contract(pure = true)
+  @Override
   public @NotNull String toString() {
     return file + ":" + line + (column != 0 ? ":" + column : "");
   }

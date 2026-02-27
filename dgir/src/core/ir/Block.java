@@ -1,18 +1,22 @@
 package core.ir;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import core.IRObjectWithUseList;
 import core.Utils;
 import core.analysis.DotCFG;
 import core.serialization.BlockIdGenerator;
 import core.traits.ITerminator;
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
+
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A block containing an ordered list of {@link Operation}s. Blocks are always attached to a {@link
@@ -192,9 +196,9 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    *                        non-null parent and the new value is also non-null.
    */
   public void setParent(@Nullable Region parent) {
-    assert Utils.Caller.getCallingClass() == Region.class
+    assert Utils.getCallingClass() == Region.class
         : "Assigning the parent of a block is only allowed from the Region class. Was called from "
-            + Utils.Caller.getCallingClass().getName();
+            + Utils.getCallingClass().getName();
     assert this.parent == null || parent == null
         : "Block already has a parent. Unparent first before setting a new parent. (Use the region interface to unparent.)";
     this.parent = parent;

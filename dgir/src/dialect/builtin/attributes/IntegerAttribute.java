@@ -8,7 +8,6 @@ import dialect.builtin.BuiltinDialect;
 import dialect.builtin.types.IntegerT;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Attribute that carries an integer value together with its {@link IntegerT} type.
@@ -17,14 +16,6 @@ import org.jetbrains.annotations.Nullable;
  * matches the integer width — e.g. {@link Integer} for {@link IntegerT#INT32}.
  */
 public class IntegerAttribute extends TypedAttribute {
-
-  // =========================================================================
-  // Static Fields
-  // =========================================================================
-
-  /** Prototype instance used during dialect registration. */
-  public static final IntegerAttribute INSTANCE = new IntegerAttribute();
-
   // =========================================================================
   // Type Info
   // =========================================================================
@@ -52,7 +43,7 @@ public class IntegerAttribute extends TypedAttribute {
   // =========================================================================
 
   /** The integer value stored by this attribute. */
-  private Number value;
+  private @NotNull Number value;
 
   // =========================================================================
   // Constructors
@@ -61,6 +52,7 @@ public class IntegerAttribute extends TypedAttribute {
   /** Create a default integer attribute (value {@code null}, type {@link IntegerT#INT64}). */
   public IntegerAttribute() {
     super(IntegerT.INT64);
+    value = 0L;
   }
 
   /**
@@ -93,7 +85,7 @@ public class IntegerAttribute extends TypedAttribute {
 
   @Contract(pure = true)
   @Override
-  public @Nullable Object getStorage() {
+  public @NotNull Object getStorage() {
     return getValue();
   }
 
@@ -103,7 +95,7 @@ public class IntegerAttribute extends TypedAttribute {
    * @return the numeric value.
    */
   @Contract(pure = true)
-  public Number getValue() {
+  public @NotNull Number getValue() {
     return value;
   }
 

@@ -1,7 +1,7 @@
 package core.serialization;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import core.detail.AttributeDetails;
+import core.ir.AttributeDetails;
 import core.ir.Attribute;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindContext;

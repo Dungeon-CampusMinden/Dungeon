@@ -91,7 +91,7 @@ public class FuncTests {
 
     // Simple recursive call without base case for IR structure testing
     var callOp = factorial.addOperation(new CallOp(LOC, factorial, factorial.getArgument(0).orElseThrow()), 0);
-    factorial.addOperation(new ReturnOp(LOC, callOp.getOutputValueThrowing()), 0);
+    factorial.addOperation(new ReturnOp(LOC, callOp.getOutputValue().orElseThrow()), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }
@@ -108,7 +108,7 @@ public class FuncTests {
     otherFunc.addOperation(new ReturnOp(LOC, constOp.getValue()), 0);
 
     var callOp = mainFunc.addOperation(new CallOp(LOC, otherFunc), 0);
-    mainFunc.addOperation(new PrintOp(LOC, callOp.getOutputValueThrowing()), 0);
+    mainFunc.addOperation(new PrintOp(LOC, callOp.getOutputValue().orElseThrow()), 0);
     mainFunc.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));

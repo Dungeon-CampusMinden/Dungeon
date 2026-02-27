@@ -1,11 +1,9 @@
 package core.ir;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import core.Dialect;
-import core.detail.AttributeDetails;
 import core.serialization.AttributeTypeIdResolver;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -20,12 +18,11 @@ import java.io.Serializable;
 @JsonTypeIdResolver(AttributeTypeIdResolver.class)
 @JsonPropertyOrder({"ident", "type"})
 public abstract class Attribute implements Serializable {
-
   // =========================================================================
   // Members
   // =========================================================================
 
-  private @NotNull AttributeDetails details;
+  private final @NotNull AttributeDetails details;
 
   // =========================================================================
   // Attribute Info
@@ -65,10 +62,6 @@ public abstract class Attribute implements Serializable {
     this.details = AttributeDetails.get(getClass());
   }
 
-  public Attribute(@NotNull AttributeDetails details) {
-    this.details = details;
-  }
-
   // =========================================================================
   // Functions
   // =========================================================================
@@ -79,18 +72,29 @@ public abstract class Attribute implements Serializable {
     return details;
   }
 
-  /** Package-private — only {@link AttributeDetails.Registered#insert} may call this. */
-  public void setDetails(@NotNull AttributeDetails details) {
-    this.details = details;
-  }
-
-  @JsonProperty("ident")
-  private @NotNull String getIdentForJson() {
-    return details.ident();
-  }
-
   /** Return the raw storage value of this attribute (used for serialization and display). */
   @Contract(pure = true)
   @JsonIgnore
-  public abstract @org.jetbrains.annotations.Nullable Object getStorage();
+  public abstract @NotNull Object getStorage();
+
+  // =========================================================================
+  // Object
+  // =========================================================================
+
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof Attribute other
+        && this.details.equals(other.details)
+        && this.getStorage().equals(other.getStorage());
+  }
+
+  @Override
+  public int hashCode() {
+    return this.details.hashCode() + this.getStorage().hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return getIdent() + "(" + getStorage() + ")";
+  }
 }
