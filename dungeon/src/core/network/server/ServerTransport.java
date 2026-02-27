@@ -7,8 +7,6 @@ import static core.network.config.NetworkConfig.*;
 import contrib.entities.HeroController;
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
 import core.network.MessageDispatcher;
 import core.network.config.NetworkConfig;
 import core.network.messages.NetworkMessage;
@@ -678,16 +676,15 @@ public final class ServerTransport {
       return;
     }
     Entity entity = optEntity.get();
-    PositionComponent pc = entity.fetch(PositionComponent.class).orElse(null);
-    DrawComponent dc = entity.fetch(DrawComponent.class).orElse(null);
-    if (pc == null || dc == null) {
-      LOGGER.warn(
-          "Entity id='{}' missing components for spawn (entity was: '{}')",
-          entityId,
-          entity.name());
-      return;
-    }
-    session.sendMessage(new EntitySpawnEvent(entity), true);
+    NetworkConfig.ENTITY_SPAWN_STRATEGY
+        .buildSpawnEvent(entity)
+        .ifPresentOrElse(
+            event -> session.sendMessage(event, true),
+            () ->
+                LOGGER.warn(
+                    "Entity id='{}' not eligible for spawn (entity was: '{}')",
+                    entityId,
+                    entity.name()));
   }
 
   private void onInputMessage(Session session, InputMessage msg) {
