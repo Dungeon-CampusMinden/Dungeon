@@ -10,6 +10,8 @@ import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;
 
+import java.util.function.Function;
+
 /**
  * Allow an entity to collide with other entities that have a {@link CollideComponent}.
  *
@@ -105,6 +107,9 @@ public final class CollideComponent implements Component {
    * </ul>
    */
   private TriConsumer<Entity, Entity, Direction> collideHold;
+
+  /** Optional Callback to check, if the entity is static */
+  private Function<Entity, Boolean> staticCallback;
 
   /**
    * Creates a new {@code CollideComponent}.
@@ -352,5 +357,14 @@ public final class CollideComponent implements Component {
    */
   public void collider(Collider collider) {
     this.collider = collider;
+  }
+
+  /** Returns if the entity is static.
+   *
+   * @param entity The entity that should be checked.
+   * @return True if the entity is static.
+   * */
+  public boolean isStatic(Entity entity) {
+    return staticCallback.apply(entity);
   }
 }
