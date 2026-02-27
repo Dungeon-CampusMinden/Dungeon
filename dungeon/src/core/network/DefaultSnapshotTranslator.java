@@ -156,7 +156,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                 Optional<Entity> targetEntity = Game.findEntityById(entityId);
 
                 if (targetEntity.isEmpty()) {
-                  LOGGER.warn(
+                  LOGGER.info(
                       "No entity found for snapshot with id: {}. Requesting spawn.", entityId);
                   Game.network().send((short) 0, new RequestEntitySpawn(entityId), true);
                   return;
@@ -175,7 +175,11 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                                   viewDir -> {
                                     try {
                                       pc.viewDirection(Direction.valueOf(viewDir));
-                                    } catch (IllegalArgumentException ignored) {
+                                    } catch (IllegalArgumentException e) {
+                                      LOGGER.warn(
+                                          "Invalid view direction '{}' for entity id: {}. Skipping view direction update.",
+                                          viewDir,
+                                          snap.entityId());
                                     }
                                   });
                           snap.rotation().ifPresent(pc::rotation);
@@ -189,12 +193,26 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                         dc -> {
                           snap.stateName()
                               .ifPresent(
-                                  stateName ->
-                                      dc.stateMachine()
-                                          .setState(
-                                              stateName,
-                                              Direction.valueOf(
-                                                  snap.viewDirection().orElse("DOWN"))));
+                                  stateName -> {
+                                    if (!dc.hasState(stateName)) {
+                                      LOGGER.debug(
+                                          "Ignoring unknown snapshot state '{}' for entity id {}.",
+                                          stateName,
+                                          entityId);
+                                      return;
+                                    }
+                                    Direction direction = Direction.DOWN;
+                                    try {
+                                      direction =
+                                          Direction.valueOf(snap.viewDirection().orElse("DOWN"));
+                                    } catch (IllegalArgumentException e) {
+                                      LOGGER.warn(
+                                          "Invalid state name '{}' for entity id: {}. Skipping state update.",
+                                          stateName,
+                                          snap.entityId());
+                                    }
+                                    dc.stateMachine().setState(stateName, direction);
+                                  });
                           snap.tintColor().ifPresent(dc::tintColor);
                         });
 

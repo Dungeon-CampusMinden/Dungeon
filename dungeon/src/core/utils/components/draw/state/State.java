@@ -165,6 +165,18 @@ public class State {
   }
 
   /**
+   * Returns this state's base animation without applying data-driven overrides.
+   *
+   * <p>Use this when serializing a state definition where invoking {@link #getAnimation()} could
+   * depend on runtime state data.
+   *
+   * @return the base animation backing this state
+   */
+  public Animation baseAnimation() {
+    return animation;
+  }
+
+  /**
    * @return user-defined data associated with this state.
    */
   public Object getData() {

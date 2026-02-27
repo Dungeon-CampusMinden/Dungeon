@@ -18,9 +18,15 @@ public final class EntitySpawnEventConverter
     core.network.proto.s2c.EntitySpawnEvent.Builder builder =
         core.network.proto.s2c.EntitySpawnEvent.newBuilder()
             .setEntityId(message.entityId())
-            .setPosition(CommonProtoConverters.toProto(message.positionComponent()))
-            .setDrawInfo(CommonProtoConverters.toProto(message.drawInfo()))
             .setIsPersistent(message.isPersistent());
+
+    if (message.positionComponent() != null) {
+      builder.setPosition(CommonProtoConverters.toProto(message.positionComponent()));
+    }
+
+    if (message.drawInfo() != null) {
+      builder.setDrawInfo(CommonProtoConverters.toProto(message.drawInfo()));
+    }
 
     PlayerComponent playerComponent = message.playerComponent();
     if (playerComponent != null) {
@@ -31,13 +37,19 @@ public final class EntitySpawnEventConverter
       builder.setCharacterClassId(message.characterClassId());
     }
 
+    if (!message.metadata().isEmpty()) {
+      builder.putAllMetadata(message.metadata());
+    }
+
     return builder.build();
   }
 
   @Override
   public EntitySpawnEvent fromProto(core.network.proto.s2c.EntitySpawnEvent proto) {
-    PositionComponent position = CommonProtoConverters.fromProto(proto.getPosition());
-    DrawInfoData drawInfo = CommonProtoConverters.fromProto(proto.getDrawInfo());
+    PositionComponent position =
+        proto.hasPosition() ? CommonProtoConverters.fromProto(proto.getPosition()) : null;
+    DrawInfoData drawInfo =
+        proto.hasDrawInfo() ? CommonProtoConverters.fromProto(proto.getDrawInfo()) : null;
     PlayerComponent playerComponent =
         proto.hasPlayerInfo() ? CommonProtoConverters.fromProto(proto.getPlayerInfo()) : null;
     byte characterClassId =
@@ -51,7 +63,8 @@ public final class EntitySpawnEventConverter
         drawInfo,
         proto.getIsPersistent(),
         playerComponent,
-        characterClassId);
+        characterClassId,
+        proto.getMetadataMap());
   }
 
   @Override

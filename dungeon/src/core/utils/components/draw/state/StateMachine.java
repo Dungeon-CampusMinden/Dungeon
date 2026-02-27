@@ -6,6 +6,7 @@ import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
 import core.utils.components.path.IPath;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -175,6 +176,15 @@ public class StateMachine {
    */
   public String getCurrentStateName() {
     return currentState.name;
+  }
+
+  /**
+   * Returns all registered states in insertion order.
+   *
+   * @return an unmodifiable view of this state machine's states
+   */
+  public List<State> states() {
+    return Collections.unmodifiableList(states);
   }
 
   /**

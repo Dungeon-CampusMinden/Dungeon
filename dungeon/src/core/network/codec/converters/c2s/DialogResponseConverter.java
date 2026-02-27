@@ -1,10 +1,15 @@
 package core.network.codec.converters.c2s;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Parser;
+import core.network.codec.DialogValueCodec;
+import core.network.codec.DialogValueCodecRegistry;
 import core.network.codec.MessageConverter;
 import core.network.messages.c2s.DialogResponseMessage;
+import core.network.proto.common.CustomValue;
 import core.network.proto.common.IntList;
 import core.network.proto.common.StringList;
+import java.io.Serializable;
 import java.util.Arrays;
 
 /** Converter for client-to-server dialog response messages. */
@@ -80,9 +85,30 @@ public final class DialogResponseConverter
         }
         builder.setIntList(listBuilder);
       }
-      default ->
+      default -> {
+        if (payload instanceof Serializable serializablePayload) {
+          @SuppressWarnings("unchecked")
+          DialogValueCodec<Serializable> codec =
+              (DialogValueCodec<Serializable>)
+                  DialogValueCodecRegistry.global()
+                      .byType(payload.getClass())
+                      .orElseThrow(
+                          () ->
+                              new IllegalArgumentException(
+                                  "Unsupported dialog response payload type: "
+                                      + payload.getClass().getName()
+                                      + ". Register a DialogValueCodec for this type."));
+          builder.setCustomValue(
+              CustomValue.newBuilder()
+                  .setTypeId(codec.typeId())
+                  .setData(ByteString.copyFrom(codec.encode(serializablePayload))));
+        } else {
           throw new IllegalArgumentException(
-              "Unsupported dialog response payload type: " + payload.getClass().getName());
+              "Unsupported dialog response payload type: "
+                  + payload.getClass().getName()
+                  + ". Register a DialogValueCodec for this type.");
+        }
+      }
     }
   }
 
@@ -101,6 +127,23 @@ public final class DialogResponseConverter
       case INT_LIST ->
           new DialogResponseMessage.IntList(
               proto.getIntList().getValuesList().stream().mapToInt(i -> i).toArray());
+      case CUSTOM_VALUE -> {
+        CustomValue custom = proto.getCustomValue();
+        DialogValueCodec<?> codec =
+            DialogValueCodecRegistry.global()
+                .byTypeId(custom.getTypeId())
+                .orElseThrow(
+                    () ->
+                        new IllegalArgumentException(
+                            "No DialogValueCodec registered for typeId '"
+                                + custom.getTypeId()
+                                + "'"));
+        Serializable decoded = codec.decode(custom.getData().toByteArray());
+        if (decoded instanceof DialogResponseMessage.Payload payload) {
+          yield payload;
+        }
+        yield new DialogResponseMessage.CustomPayload(decoded);
+      }
       case PAYLOAD_NOT_SET -> null;
     };
   }

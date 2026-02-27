@@ -16,6 +16,8 @@ import core.network.messages.c2s.RequestEntitySpawn;
 import core.network.messages.c2s.SoundFinishedMessage;
 import core.utils.Point;
 import core.utils.Vector2;
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 /** Tests for c2s message converters. */
@@ -355,6 +357,102 @@ public class C2SConverterTest {
     assertNull(roundTrip.payload());
   }
 
+  /** Verifies custom payload codec roundtrip via CUSTOM_VALUE. */
+  @Test
+  public void testDialogResponseCustomPayloadRoundTrip() {
+    DialogValueCodecRegistry registry = DialogValueCodecRegistry.global();
+    if (registry.byTypeId("C2SConverterTestPayload").isEmpty()) {
+      registry.register(
+          new DialogValueCodec<TestPayload>() {
+            @Override
+            public String typeId() {
+              return "C2SConverterTestPayload";
+            }
+
+            @Override
+            public Class<TestPayload> type() {
+              return TestPayload.class;
+            }
+
+            @Override
+            public byte[] encode(TestPayload value) {
+              return (value.label() + "|" + value.count()).getBytes(StandardCharsets.UTF_8);
+            }
+
+            @Override
+            public TestPayload decode(byte[] data) {
+              String[] parts = new String(data, StandardCharsets.UTF_8).split("\\|");
+              return new TestPayload(parts[0], Integer.parseInt(parts[1]));
+            }
+          });
+    }
+
+    DialogResponseMessage message =
+        new DialogResponseMessage("dialog-custom", "onCustom", new TestPayload("hello", 17));
+
+    core.network.proto.c2s.DialogResponseMessage proto = DIALOG_RESPONSE_CONVERTER.toProto(message);
+    assertEquals(
+        core.network.proto.c2s.DialogResponseMessage.PayloadCase.CUSTOM_VALUE,
+        proto.getPayloadCase());
+    assertEquals("C2SConverterTestPayload", proto.getCustomValue().getTypeId());
+
+    DialogResponseMessage roundTrip = DIALOG_RESPONSE_CONVERTER.fromProto(proto);
+    TestPayload payload = roundTrip.payloadAs(TestPayload.class);
+    assertEquals("hello", payload.label());
+    assertEquals(17, payload.count());
+  }
+
+  /** Verifies custom codec decode fallback to {@link DialogResponseMessage.CustomPayload}. */
+  @Test
+  public void testDialogResponseCustomPayloadWrapperRoundTrip() {
+    DialogValueCodecRegistry registry = DialogValueCodecRegistry.global();
+    if (registry.byTypeId("C2SConverterTestData").isEmpty()) {
+      registry.register(
+          new DialogValueCodec<TestData>() {
+            @Override
+            public String typeId() {
+              return "C2SConverterTestData";
+            }
+
+            @Override
+            public Class<TestData> type() {
+              return TestData.class;
+            }
+
+            @Override
+            public byte[] encode(TestData value) {
+              return (value.label() + "|" + value.count()).getBytes(StandardCharsets.UTF_8);
+            }
+
+            @Override
+            public TestData decode(byte[] data) {
+              String[] parts = new String(data, StandardCharsets.UTF_8).split("\\|");
+              return new TestData(parts[0], Integer.parseInt(parts[1]));
+            }
+          });
+    }
+
+    core.network.proto.c2s.DialogResponseMessage proto =
+        core.network.proto.c2s.DialogResponseMessage.newBuilder()
+            .setDialogId("dialog-wrapper")
+            .setCallbackKey("onWrapper")
+            .setCustomValue(
+                core.network.proto.common.CustomValue.newBuilder()
+                    .setTypeId("C2SConverterTestData")
+                    .setData(
+                        com.google.protobuf.ByteString.copyFrom(
+                            "wrapped|99".getBytes(StandardCharsets.UTF_8))))
+            .build();
+
+    DialogResponseMessage roundTrip = DIALOG_RESPONSE_CONVERTER.fromProto(proto);
+    DialogResponseMessage.CustomPayload wrapped =
+        roundTrip.payloadAs(DialogResponseMessage.CustomPayload.class);
+    assertTrue(wrapped.value() instanceof TestData);
+    TestData value = (TestData) wrapped.value();
+    assertEquals("wrapped", value.label());
+    assertEquals(99, value.count());
+  }
+
   /** Verifies UDP registration conversion. */
   @Test
   public void testRegisterUdpRoundTrip() {
@@ -396,4 +494,8 @@ public class C2SConverterTest {
     SoundFinishedMessage roundTrip = SOUND_FINISHED_CONVERTER.fromProto(proto);
     assertEquals(123L, roundTrip.soundInstanceId());
   }
+
+  private record TestPayload(String label, int count) implements DialogResponseMessage.Payload {}
+
+  private record TestData(String label, int count) implements Serializable {}
 }

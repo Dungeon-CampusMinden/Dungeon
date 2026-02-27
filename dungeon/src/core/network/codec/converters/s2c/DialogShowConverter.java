@@ -1,12 +1,15 @@
 package core.network.codec.converters.s2c;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Parser;
 import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
-import contrib.utils.components.showImage.TransitionSpeed;
+import core.network.codec.DialogValueCodec;
+import core.network.codec.DialogValueCodecRegistry;
 import core.network.codec.MessageConverter;
 import core.network.messages.s2c.DialogShowMessage;
+import core.network.proto.common.CustomValue;
 import core.network.proto.common.IntList;
 import core.network.proto.common.StringList;
 import core.network.proto.s2c.DialogAttribute;
@@ -113,14 +116,25 @@ public final class DialogShowConverter
         }
         builder.setIntList(intList);
       }
-      case TransitionSpeed speed when DialogContextKeys.IMAGE_TRANSITION_SPEED.equals(key) ->
-          builder.setStringValue(speed.name());
-      default ->
-          throw new IllegalArgumentException(
-              "Unsupported dialog attribute type for key '"
-                  + key
-                  + "': "
-                  + value.getClass().getName());
+      default -> {
+        @SuppressWarnings("unchecked")
+        DialogValueCodec<Serializable> codec =
+            (DialogValueCodec<Serializable>)
+                DialogValueCodecRegistry.global()
+                    .byType(value.getClass())
+                    .orElseThrow(
+                        () ->
+                            new IllegalArgumentException(
+                                "Unsupported dialog attribute type for key '"
+                                    + key
+                                    + "': "
+                                    + value.getClass().getName()
+                                    + ". Register a DialogValueCodec for this type."));
+        builder.setCustomValue(
+            CustomValue.newBuilder()
+                .setTypeId(codec.typeId())
+                .setData(ByteString.copyFrom(codec.encode(value))));
+      }
     }
 
     return builder.build();
@@ -128,7 +142,7 @@ public final class DialogShowConverter
 
   private static Serializable fromAttribute(String key, DialogAttribute attribute) {
     return switch (attribute.getValueCase()) {
-      case STRING_VALUE -> transitionSpeedOrString(key, attribute.getStringValue());
+      case STRING_VALUE -> attribute.getStringValue();
       case INT_VALUE -> attribute.getIntValue();
       case LONG_VALUE -> attribute.getLongValue();
       case FLOAT_VALUE -> attribute.getFloatValue();
@@ -136,23 +150,27 @@ public final class DialogShowConverter
       case BOOL_VALUE -> attribute.getBoolValue();
       case STRING_LIST -> attribute.getStringList().getValuesList().toArray(new String[0]);
       case INT_LIST -> attribute.getIntList().getValuesList().stream().mapToInt(i -> i).toArray();
+      case CUSTOM_VALUE -> {
+        CustomValue custom = attribute.getCustomValue();
+        DialogValueCodec<?> codec =
+            DialogValueCodecRegistry.global()
+                .byTypeId(custom.getTypeId())
+                .orElseThrow(
+                    () ->
+                        new IllegalArgumentException(
+                            "No DialogValueCodec registered for typeId '"
+                                + custom.getTypeId()
+                                + "' (attribute key: '"
+                                + key
+                                + "')"));
+        yield codec.decode(custom.getData().toByteArray());
+      }
       case VALUE_NOT_SET -> null;
     };
   }
 
-  private static Serializable transitionSpeedOrString(String key, String value) {
-    if (!DialogContextKeys.IMAGE_TRANSITION_SPEED.equals(key)) {
-      return value;
-    }
-    try {
-      return TransitionSpeed.valueOf(value);
-    } catch (IllegalArgumentException ignored) {
-      return value;
-    }
-  }
-
   private static DialogType resolveDialogType(String typeString) {
-    for (DialogType.DefaultTypes type : DialogType.DefaultTypes.values()) {
+    for (DialogType type : DialogFactory.registeredTypes()) {
       if (type.type().equals(typeString)) {
         return type;
       }

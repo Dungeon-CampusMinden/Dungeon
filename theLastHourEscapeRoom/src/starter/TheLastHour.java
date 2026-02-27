@@ -18,6 +18,7 @@ import core.game.ECSManagement;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
 import core.level.loader.DungeonLoader;
+import core.network.config.NetworkConfig;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.systems.*;
 import core.utils.CursorUtil;
@@ -26,6 +27,8 @@ import core.utils.components.path.SimpleIPath;
 import core.utils.settings.ClientSettings;
 import java.io.IOException;
 import level.LastHourLevel;
+import network.LastHourEntitySpawnStrategy;
+import network.LastHourSnapshotTranslator;
 
 /**
  * Entry point for running a minimal dungeon game instance.
@@ -41,8 +44,8 @@ public class TheLastHour {
   private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
   private static Music backgroundMusic;
 
-  private static boolean DEBUG_MODE = true;
-  private static boolean RUN_MP_SERVER = false;
+  private static final boolean DEBUG_MODE = true;
+  private static final boolean RUN_MP_SERVER = true;
 
   /**
    * Main entry point to launch the basic dungeon game.
@@ -66,6 +69,8 @@ public class TheLastHour {
     Game.userOnSetup(TheLastHour::onUserSetup);
     Game.frameRate(60);
     Game.windowTitle("The Last Hour");
+    NetworkConfig.SNAPSHOT_TRANSLATOR = new LastHourSnapshotTranslator();
+    NetworkConfig.ENTITY_SPAWN_STRATEGY = new LastHourEntitySpawnStrategy();
     Game.run();
   }
 

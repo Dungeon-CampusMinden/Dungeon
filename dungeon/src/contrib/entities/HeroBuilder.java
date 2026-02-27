@@ -389,18 +389,17 @@ public final class HeroBuilder {
                         .ifPresent(
                             firstUI -> {
                               UIComponent uiComp = firstUI.b();
-                              Entity uiEntity = firstUI.a();
-
-                              if (uiEntity.isLocal()) {
-                                // UI is not networked, just close locally
-                                UIUtils.closeDialog(uiComp);
-                                return;
-                              }
 
                               String dialogId = uiComp.dialogContext().dialogId();
                               DialogCallbackResolver.createButtonCallback(
                                       dialogId, DialogContextKeys.ON_CLOSE)
                                   .accept(null);
+
+                              // UI is not networked, just close locally
+                              Entity uiEntity = firstUI.a();
+                              if (uiEntity.isLocal()) {
+                                UIUtils.closeDialog(uiComp);
+                              }
                             }))),
         false,
         true);

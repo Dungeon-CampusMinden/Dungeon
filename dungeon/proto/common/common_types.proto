@@ -102,3 +102,14 @@ message StringList {
 message IntList {
     repeated int32 values = 1;
 }
+
+// Type-discriminated binary value for custom/extension types.
+// Used by dialog attributes and response payloads to carry
+// subproject-defined types through the codec registry.
+message CustomValue {
+    // Unique type discriminator (e.g. "TransitionSpeed", "ComputerStateComponent").
+    string type_id = 1;
+
+    // Encoded payload produced by DialogValueCodec.encode().
+    bytes data = 2;
+}
