@@ -2,6 +2,7 @@ package level;
 
 import static level.LastHourLevel.*;
 
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.level.DungeonLevel;
@@ -37,9 +38,10 @@ public class LastHourLevelClient extends DungeonLevel {
   @Override
   protected void onTick() {
     checkInteractFeedback();
-    updateLightingShader(getPoint("timer"), getPoint("keypad-storage"));
-
     findEntities();
+
+    if (pc != null && keypad != null)
+      updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
   }
 
   private void findEntities() {
