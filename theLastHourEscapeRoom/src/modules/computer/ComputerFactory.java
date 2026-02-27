@@ -10,6 +10,8 @@ import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.network.codec.DialogValueCodecRegistry;
+import core.network.messages.c2s.DialogResponseMessage;
 import java.util.Optional;
 import java.util.Set;
 import level.LastHourLevel;
@@ -26,7 +28,16 @@ public class ComputerFactory {
   private static UIComponent computerDialogInstance;
 
   static {
+    ensureRegistration();
+  }
+
+  /** Ensures dialog type and codec registration for computer dialog networking. */
+  public static void ensureRegistration() {
     DialogFactory.register(LastHourDialogTypes.COMPUTER, ComputerFactory::build);
+    DialogValueCodecRegistry registry = DialogValueCodecRegistry.global();
+    if (registry.byType(ComputerStateComponent.class).isEmpty()) {
+      registry.register(new ComputerStateComponentCodec());
+    }
   }
 
   /**
@@ -78,12 +89,25 @@ public class ComputerFactory {
                                   if (data
                                       instanceof
                                       ComputerStateComponent(
-                                          ComputerProgress state1,
+                                          ComputerProgress computerState,
                                           boolean isInfected,
                                           String virusType)) {
-                                    ComputerStateComponent.setState(state1);
+                                    ComputerStateComponent.setState(computerState);
                                     ComputerStateComponent.setInfection(isInfected);
                                     ComputerStateComponent.setVirusType(virusType);
+                                  } else if (data
+                                      instanceof
+                                      DialogResponseMessage.CustomPayload(var wrappedValue)) {
+                                    if (wrappedValue
+                                        instanceof
+                                        ComputerStateComponent(
+                                            ComputerProgress state1,
+                                            boolean isInfected,
+                                            String virusType)) {
+                                      ComputerStateComponent.setState(state1);
+                                      ComputerStateComponent.setInfection(isInfected);
+                                      ComputerStateComponent.setVirusType(virusType);
+                                    }
                                   }
                                 });
                           });

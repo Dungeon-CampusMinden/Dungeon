@@ -79,7 +79,7 @@ public final class LastHourClient {
   }
 
   private static void registerCustomDialogs() {
-    DialogFactory.register(LastHourDialogTypes.COMPUTER, ComputerFactory::build);
+    ComputerFactory.ensureRegistration();
     DialogFactory.register(LastHourDialogTypes.TRASHCAN, TrashMinigameUI::build);
     DialogFactory.register(LastHourDialogTypes.TEXT_CUTSCENE, BlackFadeCutscene::build);
   }
