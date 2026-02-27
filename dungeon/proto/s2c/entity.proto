@@ -56,6 +56,9 @@ message DrawInfo {
 
   // Spritesheet slicing geometry (only for spritesheet entities).
   optional SpritesheetConfigInfo spritesheet_config = 6;
+
+  // Explicit state definitions used to reconstruct custom state machines.
+  repeated DrawStateInfo states = 7;
 }
 
 // Animation state information.
@@ -101,6 +104,60 @@ message SpritesheetConfigInfo {
 
   // Number of columns in the spritesheet grid.
   int32 columns = 6;
+}
+
+// State behavior type used for draw state reconstruction.
+enum DrawStateType {
+  // Default enum value.
+  DRAW_STATE_TYPE_UNSPECIFIED = 0;
+
+  // Regular non-directional state.
+  DRAW_STATE_TYPE_BASIC = 1;
+
+  // Simple directional state (single animation mirrored left/right).
+  DRAW_STATE_TYPE_SIMPLE_DIRECTIONAL = 2;
+
+  // Directional state (distinct directional animations).
+  DRAW_STATE_TYPE_DIRECTIONAL = 3;
+}
+
+// One animation source descriptor used by draw state definitions.
+message StateAnimationInfo {
+  // Path to the animation source texture or spritesheet.
+  string texture_path = 1;
+
+  // X scale factor (default 1.0).
+  optional float scale_x = 2;
+
+  // Y scale factor (default 1.0).
+  optional float scale_y = 3;
+
+  // Animation timing and behavior config (always present).
+  AnimationConfigInfo animation_config = 4;
+
+  // Spritesheet slicing geometry (only for spritesheet entities).
+  optional SpritesheetConfigInfo spritesheet_config = 5;
+}
+
+// Explicit draw state descriptor used to reconstruct custom state machines.
+message DrawStateInfo {
+  // State name as used by StateMachine#setState.
+  string state_name = 1;
+
+  // State behavior type.
+  DrawStateType state_type = 2;
+
+  // Base animation used by all state types (and DOWN for directional states).
+  StateAnimationInfo base_animation = 3;
+
+  // LEFT animation for directional states.
+  optional StateAnimationInfo left_animation = 4;
+
+  // UP animation for directional states.
+  optional StateAnimationInfo up_animation = 5;
+
+  // RIGHT animation for directional states.
+  optional StateAnimationInfo right_animation = 6;
 }
 
 // Player-specific information.

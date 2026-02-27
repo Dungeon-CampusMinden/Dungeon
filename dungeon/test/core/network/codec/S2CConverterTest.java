@@ -79,8 +79,25 @@ public class S2CConverterTest {
         new DrawInfoData.AnimationConfigData(4, true, false, true);
     DrawInfoData.SpritesheetConfigData spritesheetConfig =
         new DrawInfoData.SpritesheetConfigData(16, 24, 2, 3, 4, 5);
+    DrawInfoData.StateAnimationData idleAnimation =
+        new DrawInfoData.StateAnimationData(
+            "character/hero.png", 2.0f, 3.0f, animationConfig, spritesheetConfig);
     return new DrawInfoData(
-        "character/hero.png", 2.0f, 3.0f, "idle", 20, animationConfig, spritesheetConfig);
+        "character/hero.png",
+        2.0f,
+        3.0f,
+        "idle",
+        20,
+        animationConfig,
+        spritesheetConfig,
+        List.of(
+            new DrawInfoData.StateData(
+                "idle",
+                DrawInfoData.StateType.SIMPLE_DIRECTIONAL,
+                idleAnimation,
+                null,
+                null,
+                null)));
   }
 
   /** Verifies connect ack conversion roundtrip. */
@@ -201,6 +218,9 @@ public class S2CConverterTest {
     assertEquals(3, roundTrip.drawInfo().spritesheetConfig().offsetY());
     assertEquals(4, roundTrip.drawInfo().spritesheetConfig().rows());
     assertEquals(5, roundTrip.drawInfo().spritesheetConfig().columns());
+    assertNotNull(roundTrip.drawInfo().states());
+    assertEquals(1, roundTrip.drawInfo().states().size());
+    assertEquals("idle", roundTrip.drawInfo().states().getFirst().stateName());
   }
 
   /** Verifies entity spawn batch conversion roundtrip. */

@@ -189,12 +189,22 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                         dc -> {
                           snap.stateName()
                               .ifPresent(
-                                  stateName ->
-                                      dc.stateMachine()
-                                          .setState(
-                                              stateName,
-                                              Direction.valueOf(
-                                                  snap.viewDirection().orElse("DOWN"))));
+                                  stateName -> {
+                                    if (!dc.hasState(stateName)) {
+                                      LOGGER.debug(
+                                          "Ignoring unknown snapshot state '{}' for entity id {}.",
+                                          stateName,
+                                          entityId);
+                                      return;
+                                    }
+                                    Direction direction = Direction.DOWN;
+                                    try {
+                                      direction =
+                                          Direction.valueOf(snap.viewDirection().orElse("DOWN"));
+                                    } catch (IllegalArgumentException ignored) {
+                                    }
+                                    dc.stateMachine().setState(stateName, direction);
+                                  });
                           snap.tintColor().ifPresent(dc::tintColor);
                         });
 

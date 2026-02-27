@@ -8,6 +8,7 @@ import core.components.DrawComponent;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /** Tests for {@link DrawComponentFactory}. */
@@ -27,6 +28,7 @@ public class DrawComponentFactoryTest {
             "idle",
             3,
             new DrawInfoData.AnimationConfigData(5, true, false, false),
+            null,
             null);
 
     DrawComponent drawComponent = DrawComponentFactory.fromDrawInfo(info);
@@ -54,7 +56,8 @@ public class DrawComponentFactoryTest {
             "idle",
             1,
             new DrawInfoData.AnimationConfigData(2, false, true, true),
-            new DrawInfoData.SpritesheetConfigData(8, 12, 1, 2, 3, 4));
+            new DrawInfoData.SpritesheetConfigData(8, 12, 1, 2, 3, 4),
+            null);
 
     DrawComponent drawComponent = DrawComponentFactory.fromDrawInfo(info);
     Animation animation = drawComponent.currentAnimation();
@@ -86,6 +89,7 @@ public class DrawComponentFactoryTest {
             "idle",
             4,
             new DrawInfoData.AnimationConfigData(0, true, false, false),
+            null,
             null);
 
     DrawComponent drawComponent = DrawComponentFactory.fromDrawInfo(info);
@@ -93,5 +97,45 @@ public class DrawComponentFactoryTest {
 
     assertEquals(1, animation.getConfig().framesPerSprite());
     assertEquals(4, animation.frameCount());
+  }
+
+  /** Verifies custom state definitions are reconstructed for spawn synchronization. */
+  @Test
+  public void testFromDrawInfo_customStateDefinitions() {
+    DrawInfoData.StateAnimationData closedAnimation =
+        new DrawInfoData.StateAnimationData(
+            TEXTURE_PATH,
+            null,
+            null,
+            new DrawInfoData.AnimationConfigData(1, true, false, false),
+            null);
+    DrawInfoData.StateAnimationData openAnimation =
+        new DrawInfoData.StateAnimationData(
+            TEXTURE_PATH,
+            null,
+            null,
+            new DrawInfoData.AnimationConfigData(1, true, false, false),
+            null);
+    DrawInfoData info =
+        new DrawInfoData(
+            TEXTURE_PATH,
+            null,
+            null,
+            "closed",
+            0,
+            new DrawInfoData.AnimationConfigData(1, true, false, false),
+            null,
+            List.of(
+                new DrawInfoData.StateData(
+                    "closed", DrawInfoData.StateType.BASIC, closedAnimation, null, null, null),
+                new DrawInfoData.StateData(
+                    "open", DrawInfoData.StateType.BASIC, openAnimation, null, null, null)));
+
+    DrawComponent drawComponent = DrawComponentFactory.fromDrawInfo(info);
+
+    assertTrue(drawComponent.hasState("closed"));
+    assertTrue(drawComponent.hasState("open"));
+    drawComponent.stateMachine().setState("open", null);
+    assertEquals("open", drawComponent.currentStateName());
   }
 }

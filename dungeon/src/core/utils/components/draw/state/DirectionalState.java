@@ -145,6 +145,42 @@ public class DirectionalState extends State {
   }
 
   /**
+   * Returns the DOWN/default animation for this state.
+   *
+   * @return the DOWN/default animation
+   */
+  public Animation downAnimation() {
+    return super.baseAnimation();
+  }
+
+  /**
+   * Returns the LEFT animation for this state.
+   *
+   * @return the LEFT animation
+   */
+  public Animation leftAnimation() {
+    return left;
+  }
+
+  /**
+   * Returns the UP animation for this state.
+   *
+   * @return the UP animation
+   */
+  public Animation upAnimation() {
+    return up;
+  }
+
+  /**
+   * Returns the RIGHT animation for this state.
+   *
+   * @return the RIGHT animation
+   */
+  public Animation rightAnimation() {
+    return right;
+  }
+
+  /**
    * Returns the appropriate animation based on the current direction stored in the state's data.
    *
    * <p>If no direction is set or the direction is DOWN/NONE, the default (down) animation is

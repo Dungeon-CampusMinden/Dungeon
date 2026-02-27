@@ -10,6 +10,7 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.DrawInfoData;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /** Tests for {@link CommonProtoConverters}. */
@@ -154,6 +155,13 @@ public class CommonProtoConvertersTest {
   /** Verifies draw info conversion roundtrip for spritesheet-backed entities. */
   @Test
   public void testDrawInfoRoundTrip_withSpritesheetConfig() {
+    DrawInfoData.StateAnimationData closedAnimation =
+        new DrawInfoData.StateAnimationData(
+            "animation/missing_texture.png",
+            1.25f,
+            2.5f,
+            new DrawInfoData.AnimationConfigData(6, false, true, true),
+            new DrawInfoData.SpritesheetConfigData(32, 48, 4, 8, 3, 5));
     DrawInfoData drawInfo =
         new DrawInfoData(
             "animation/missing_texture.png",
@@ -162,7 +170,10 @@ public class CommonProtoConvertersTest {
             "idle",
             7,
             new DrawInfoData.AnimationConfigData(6, false, true, true),
-            new DrawInfoData.SpritesheetConfigData(32, 48, 4, 8, 3, 5));
+            new DrawInfoData.SpritesheetConfigData(32, 48, 4, 8, 3, 5),
+            List.of(
+                new DrawInfoData.StateData(
+                    "closed", DrawInfoData.StateType.BASIC, closedAnimation, null, null, null)));
 
     core.network.proto.s2c.DrawInfo proto = CommonProtoConverters.toProto(drawInfo);
     DrawInfoData roundTrip = CommonProtoConverters.fromProto(proto);
@@ -186,6 +197,9 @@ public class CommonProtoConvertersTest {
     assertEquals(drawInfo.spritesheetConfig().offsetY(), roundTrip.spritesheetConfig().offsetY());
     assertEquals(drawInfo.spritesheetConfig().rows(), roundTrip.spritesheetConfig().rows());
     assertEquals(drawInfo.spritesheetConfig().columns(), roundTrip.spritesheetConfig().columns());
+    assertEquals(1, roundTrip.states().size());
+    assertEquals("closed", roundTrip.states().getFirst().stateName());
+    assertEquals(DrawInfoData.StateType.BASIC, roundTrip.states().getFirst().stateType());
   }
 
   /** Verifies draw info conversion roundtrip for plain textures without spritesheet geometry. */
@@ -199,6 +213,7 @@ public class CommonProtoConvertersTest {
             null,
             null,
             new DrawInfoData.AnimationConfigData(10, true, false, false),
+            null,
             null);
 
     core.network.proto.s2c.DrawInfo proto = CommonProtoConverters.toProto(drawInfo);
@@ -216,5 +231,6 @@ public class CommonProtoConvertersTest {
     assertEquals(drawInfo.animationConfig().centered(), roundTrip.animationConfig().centered());
     assertEquals(drawInfo.animationConfig().mirrored(), roundTrip.animationConfig().mirrored());
     assertNull(roundTrip.spritesheetConfig());
+    assertNull(roundTrip.states());
   }
 }
