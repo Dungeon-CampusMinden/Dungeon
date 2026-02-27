@@ -1,5 +1,13 @@
 plugins {
   id 'antlr'
+    id 'java-library'
+    id 'application' // necessary to use installDist task
+    id 'org.beryx.runtime' version '2.0.1' // Java badass runtime
+}
+
+application {
+    mainClass = "client.Client"
+    applicationName = "blockly"
 }
 
 repositories {
@@ -90,3 +98,50 @@ tasks.named('test', Test) {
     useJUnitPlatform()
     failOnNoDiscoveredTests = false
 }
+
+tasks.named('jpackageImage'){
+    dependsOn 'installDist'
+}
+
+/*
+    "Creates an image containing your application, a custom JRE, and appropriate start scripts.
+    If the property distDir is not set, this task depends on either installDist or installShadowDist"
+
+    runtime(Config Block)
+    Configuration block for org.beryx.runtime plugin(Java Badass Runtime)
+    This plugin creates a custom JRE (using jlink) and packages it with the application (using jpackage)
+*/
+runtime {
+    options = ['--strip-debug',
+               '--compress', '2',
+               '--no-header-files',
+               '--no-man-pages',
+               '--strip-native-commands',
+               '--vm', 'server']
+
+    // Java modules to include in the custom JRE (only these will be bundled, reducing size)
+    modules = [
+        'java.base',
+        'java.desktop',
+        'java.logging',
+        'java.naming',
+        'java.compiler',
+        'jdk.compiler',
+        'jdk.unsupported',
+        'jdk.httpserver',
+        'jdk.zipfs'
+    ]
+
+    // Configuration for jpackage tool
+    jpackage {
+
+        // Directory containing all JARs (created by installDist task)    "../build/install/dungeon/lib"
+        def inputDir = layout.buildDirectory.dir("install/${application.applicationName}/lib").get().asFile
+
+        // Options passed to jpackage tool (jpackage requires --input option to know where all jars are)
+        imageOptions = ["--input", inputDir.absolutePath]
+
+    }
+}
+
+
