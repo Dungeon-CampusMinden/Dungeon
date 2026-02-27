@@ -4,6 +4,7 @@ import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.modules.keypad.KeypadComponent;
+import contrib.modules.worldTimer.WorldTimerComponent;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
@@ -31,6 +32,7 @@ public final class LastHourClient {
   private static final String METADATA_TYPE = "lh.type";
   private static final String TYPE_COMPUTER = "computer-state";
   private static final String TYPE_KEYPAD = "keypad";
+  private static final String TYPE_WORLD_TIMER = "world-timer";
   private static final String METADATA_PROGRESS = "progress";
   private static final String METADATA_INFECTED = "isInfected";
   private static final String METADATA_VIRUS_TYPE = "virusType";
@@ -38,6 +40,8 @@ public final class LastHourClient {
   private static final String METADATA_KEYPAD_ENTERED_DIGITS = "keypad.enteredDigits";
   private static final String METADATA_KEYPAD_UNLOCKED = "keypad.isUnlocked";
   private static final String METADATA_KEYPAD_SHOW_DIGIT_COUNT = "keypad.showDigitCount";
+  private static final String METADATA_WORLD_TIMER_TIMESTAMP = "worldTimer.timestamp";
+  private static final String METADATA_WORLD_TIMER_DURATION = "worldTimer.duration";
 
   /**
    * Main method to start the dev client.
@@ -109,6 +113,7 @@ public final class LastHourClient {
               }
               computerStateFromMetadata(event.metadata()).ifPresent(newEntity::add);
               keypadStateFromMetadata(event.metadata()).ifPresent(newEntity::add);
+              worldTimerStateFromMetadata(event.metadata()).ifPresent(newEntity::add);
               newEntity.persistent(event.isPersistent());
               Game.add(newEntity);
             });
@@ -193,6 +198,26 @@ public final class LastHourClient {
           .collect(Collectors.toCollection(ArrayList::new));
     } catch (NumberFormatException ex) {
       return new ArrayList<>();
+    }
+  }
+
+  private static Optional<WorldTimerComponent> worldTimerStateFromMetadata(
+      Map<String, String> metadata) {
+    if (!TYPE_WORLD_TIMER.equals(metadata.get(METADATA_TYPE))) {
+      return Optional.empty();
+    }
+
+    String timestampRaw = metadata.get(METADATA_WORLD_TIMER_TIMESTAMP);
+    String durationRaw = metadata.get(METADATA_WORLD_TIMER_DURATION);
+    if (timestampRaw == null || durationRaw == null) {
+      return Optional.empty();
+    }
+
+    try {
+      return Optional.of(
+          new WorldTimerComponent(Integer.parseInt(timestampRaw), Integer.parseInt(durationRaw)));
+    } catch (NumberFormatException ex) {
+      return Optional.empty();
     }
   }
 }

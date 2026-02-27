@@ -1,6 +1,7 @@
 package network;
 
 import contrib.modules.keypad.KeypadComponent;
+import contrib.modules.worldTimer.WorldTimerComponent;
 import core.Entity;
 import core.Game;
 import core.game.ECSManagement;
@@ -11,6 +12,7 @@ import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.SnapshotMessage;
 import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +32,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
   private static final String METADATA_TYPE = "lh.type";
   private static final String TYPE_COMPUTER = "computer-state";
   private static final String TYPE_KEYPAD = "keypad";
+  private static final String TYPE_WORLD_TIMER = "world-timer";
   private static final String METADATA_PROGRESS = "progress";
   private static final String METADATA_INFECTED = "isInfected";
   private static final String METADATA_VIRUS_TYPE = "virusType";
@@ -37,6 +40,8 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
   private static final String METADATA_KEYPAD_ENTERED_DIGITS = "keypad.enteredDigits";
   private static final String METADATA_KEYPAD_UNLOCKED = "keypad.isUnlocked";
   private static final String METADATA_KEYPAD_SHOW_DIGIT_COUNT = "keypad.showDigitCount";
+  private static final String METADATA_WORLD_TIMER_TIMESTAMP = "worldTimer.timestamp";
+  private static final String METADATA_WORLD_TIMER_DURATION = "worldTimer.duration";
 
   private final SnapshotTranslator delegate = new DefaultSnapshotTranslator();
 
@@ -75,7 +80,21 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
               int index = indexOfEntityStateById(entities, keypadEntity.id()).orElse(-1);
               if (index >= 0) {
                 EntityState baseState = entities.get(index);
-                entities.set(index, withMetadata(baseState, keypadMetadata(keypad)));
+                entities.set(index, withMergedMetadata(baseState, keypadMetadata(keypad)));
+              }
+            });
+
+    ECSManagement.levelEntities(Set.of(WorldTimerComponent.class))
+        .forEach(
+            timerEntity -> {
+              WorldTimerComponent worldTimer =
+                  timerEntity.fetch(WorldTimerComponent.class).orElseThrow();
+              int index = indexOfEntityStateById(entities, timerEntity.id()).orElse(-1);
+              if (index >= 0) {
+                EntityState baseState = entities.get(index);
+                entities.set(index, withMergedMetadata(baseState, worldTimerMetadata(worldTimer)));
+              } else {
+                entities.add(worldTimerState(timerEntity, worldTimer));
               }
             });
 
@@ -93,6 +112,19 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     delegate.applySnapshot(snapshot, dispatcher);
 
     for (EntityState entityState : snapshot.entities()) {
+      Optional<WorldTimerComponent> mappedWorldTimerState =
+          entityState.metadata().flatMap(this::worldTimerStateFromMetadata);
+      if (mappedWorldTimerState.isPresent()) {
+        WorldTimerComponent worldTimerState = mappedWorldTimerState.orElseThrow();
+        Game.findEntityById(entityState.entityId())
+            .ifPresent(
+                entity -> {
+                  entity.remove(WorldTimerComponent.class);
+                  entity.add(worldTimerState);
+                });
+        continue;
+      }
+
       Optional<KeypadState> mappedKeypadState =
           entityState.metadata().flatMap(this::keypadStateFromMetadata);
       if (mappedKeypadState.isPresent()) {
@@ -135,7 +167,15 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         .build();
   }
 
-  private EntityState withMetadata(EntityState baseState, Map<String, String> metadata) {
+  private EntityState worldTimerState(Entity entity, WorldTimerComponent worldTimer) {
+    return EntityState.builder()
+        .entityId(entity.id())
+        .entityName(entity.name())
+        .metadata(worldTimerMetadata(worldTimer))
+        .build();
+  }
+
+  private EntityState withMergedMetadata(EntityState baseState, Map<String, String> metadata) {
     EntityState.Builder builder = EntityState.builder().entityId(baseState.entityId());
     baseState.entityName().ifPresent(builder::entityName);
     baseState.position().ifPresent(builder::position);
@@ -149,7 +189,11 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     baseState.stateName().ifPresent(builder::stateName);
     baseState.tintColor().ifPresent(builder::tintColor);
     baseState.inventory().ifPresent(items -> builder.inventory(items.clone()));
-    builder.metadata(metadata);
+
+    Map<String, String> mergedMetadata = new HashMap<>();
+    baseState.metadata().ifPresent(mergedMetadata::putAll);
+    mergedMetadata.putAll(metadata);
+    builder.metadata(mergedMetadata);
     return builder.build();
   }
 
@@ -174,6 +218,16 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         String.valueOf(keypad.isUnlocked()),
         METADATA_KEYPAD_SHOW_DIGIT_COUNT,
         String.valueOf(keypad.showDigitCount()));
+  }
+
+  private Map<String, String> worldTimerMetadata(WorldTimerComponent worldTimer) {
+    return Map.of(
+        METADATA_TYPE,
+        TYPE_WORLD_TIMER,
+        METADATA_WORLD_TIMER_TIMESTAMP,
+        String.valueOf(worldTimer.timestamp()),
+        METADATA_WORLD_TIMER_DURATION,
+        String.valueOf(worldTimer.duration()));
   }
 
   private Optional<ComputerStateComponent> computerStateFromMetadata(Map<String, String> metadata) {
@@ -219,6 +273,27 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         Boolean.parseBoolean(metadata.getOrDefault(METADATA_KEYPAD_SHOW_DIGIT_COUNT, "true"));
 
     return Optional.of(new KeypadState(correctDigits, enteredDigits, isUnlocked, showDigitCount));
+  }
+
+  private Optional<WorldTimerComponent> worldTimerStateFromMetadata(Map<String, String> metadata) {
+    if (!TYPE_WORLD_TIMER.equals(metadata.get(METADATA_TYPE))) {
+      return Optional.empty();
+    }
+
+    String timestampRaw = metadata.get(METADATA_WORLD_TIMER_TIMESTAMP);
+    String durationRaw = metadata.get(METADATA_WORLD_TIMER_DURATION);
+    if (timestampRaw == null || durationRaw == null) {
+      return Optional.empty();
+    }
+
+    try {
+      return Optional.of(
+          new WorldTimerComponent(Integer.parseInt(timestampRaw), Integer.parseInt(durationRaw)));
+    } catch (NumberFormatException ex) {
+      LOGGER.warn(
+          "Invalid world timer metadata timestamp='{}' duration='{}'", timestampRaw, durationRaw);
+      return Optional.empty();
+    }
   }
 
   private void applyKeypadState(Entity entity, KeypadState keypadState) {
