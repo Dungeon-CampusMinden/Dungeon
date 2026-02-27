@@ -1,7 +1,13 @@
 plugins {
     id 'java-library'
+    id 'application' // necessary to use installDist task
+    id 'org.beryx.runtime' version '2.0.1' // Java badass runtime
 }
 
+application {
+    mainClass = "starter.TheLastHour"
+    applicationName = "theLastHourEscapeRoom"
+}
 
 dependencies {
     api project(':escapeRoom')
@@ -31,8 +37,11 @@ tasks.register('runTheLastHour', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('buildTheFinalHourJar', Jar) {
-    group = 'jar'
+tasks.named('jar', Jar) {
+    //group = 'jar'
+    dependsOn project(':dungeon').tasks.named('jar')
+    dependsOn project(':escapeRoom').tasks.named('jar')
+
     archiveBaseName.set('TheLastHour')
     archiveFileName.set('TheLastHour.jar')
 
@@ -56,11 +65,55 @@ tasks.register('buildTheFinalHourJar', Jar) {
     // manifest
     manifest {
         attributes(
-                'Main-Class': 'starter.TheFinalHour'
+                'Main-Class': 'starter.TheLastHour'
         )
     }
 
     // exclude signature files
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
+
+tasks.named('jpackageImage'){
+    dependsOn 'installDist'
+}
+
+/*
+    "Creates an image containing your application, a custom JRE, and appropriate start scripts.
+    If the property distDir is not set, this task depends on either installDist or installShadowDist"
+escapeRoom
+    runtime(Config Block)
+    Configuration block for org.beryx.runtime plugin(Java Badass Runtime)
+    This plugin creates a custom JRE (using jlink) and packages it with the application (using jpackage)
+*/
+runtime {
+    options = ['--strip-debug',
+               '--compress', '2',
+               '--no-header-files',
+               '--no-man-pages',
+               '--strip-native-commands',
+               '--vm', 'server']
+
+    // Java modules to include in the custom JRE (only these will be bundled, reducing size)
+    modules = [
+        'java.base',
+        'java.desktop',
+        'java.logging',
+        'java.naming',
+        'jdk.unsupported',
+        'jdk.zipfs'
+    ]
+
+    // Configuration for jpackage tool
+    jpackage {
+
+        // Directory containing all JARs (created by installDist task)    "../build/install/dungeon/lib"
+        def inputDir = layout.buildDirectory.dir("install/${application.applicationName}/lib").get().asFile
+
+        // Options passed to jpackage tool (jpackage requires --input option to know where all jars are)
+        imageOptions = ["--input", inputDir.absolutePath]
+
+    }
+}
+
+
 
