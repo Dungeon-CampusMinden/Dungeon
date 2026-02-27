@@ -1,12 +1,7 @@
 ---
 title: "Blockly Lösung: Level 10"
 ---
-
-## Blöcke
-![solution](./img/loesung_level_010.png)
-
 ## Code
-
 ```java
 hero.rotate(Direction.LEFT);
 for(int i = 1; i <= 3; i++){
