@@ -3,6 +3,7 @@ package starter;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.hud.dialogs.DialogFactory;
+import contrib.modules.keypad.KeypadComponent;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
@@ -16,9 +17,8 @@ import core.utils.Tuple;
 import core.utils.components.draw.DrawComponentFactory;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import level.LastHourLevelClient;
 import modules.computer.ComputerFactory;
 import modules.computer.ComputerProgress;
@@ -31,9 +31,16 @@ import util.ui.BlackFadeCutscene;
 
 /** The main class for the Multiplayer Client for development and testing purposes. */
 public final class LastHourClient {
+  private static final String METADATA_TYPE = "lh.type";
+  private static final String TYPE_COMPUTER = "computer-state";
+  private static final String TYPE_KEYPAD = "keypad";
   private static final String METADATA_PROGRESS = "progress";
   private static final String METADATA_INFECTED = "isInfected";
   private static final String METADATA_VIRUS_TYPE = "virusType";
+  private static final String METADATA_KEYPAD_CORRECT_DIGITS = "keypad.correctDigits";
+  private static final String METADATA_KEYPAD_ENTERED_DIGITS = "keypad.enteredDigits";
+  private static final String METADATA_KEYPAD_UNLOCKED = "keypad.isUnlocked";
+  private static final String METADATA_KEYPAD_SHOW_DIGIT_COUNT = "keypad.showDigitCount";
 
   /**
    * Main method to start the dev client.
@@ -104,6 +111,7 @@ public final class LastHourClient {
                 newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
               }
               computerStateFromMetadata(event.metadata()).ifPresent(newEntity::add);
+              keypadStateFromMetadata(event.metadata()).ifPresent(newEntity::add);
               newEntity.persistent(event.isPersistent());
               Game.add(newEntity);
             });
@@ -132,6 +140,11 @@ public final class LastHourClient {
 
   private static Optional<ComputerStateComponent> computerStateFromMetadata(
       Map<String, String> metadata) {
+    if (!TYPE_COMPUTER.equals(metadata.get(METADATA_TYPE))
+        && !metadata.containsKey(METADATA_PROGRESS)) {
+      return Optional.empty();
+    }
+
     String progressRaw = metadata.get(METADATA_PROGRESS);
     if (progressRaw == null || progressRaw.isBlank()) {
       return Optional.empty();
@@ -147,5 +160,42 @@ public final class LastHourClient {
     boolean infected = Boolean.parseBoolean(metadata.getOrDefault(METADATA_INFECTED, "false"));
     String virusType = metadata.getOrDefault(METADATA_VIRUS_TYPE, "");
     return Optional.of(new ComputerStateComponent(progress, infected, virusType));
+  }
+
+  private static Optional<KeypadComponent> keypadStateFromMetadata(Map<String, String> metadata) {
+    if (!TYPE_KEYPAD.equals(metadata.get(METADATA_TYPE))) {
+      return Optional.empty();
+    }
+
+    String correctDigitsRaw = metadata.get(METADATA_KEYPAD_CORRECT_DIGITS);
+    if (correctDigitsRaw == null) {
+      return Optional.empty();
+    }
+
+    KeypadComponent keypadComponent =
+        new KeypadComponent(
+            parseDigits(correctDigitsRaw),
+            () -> {},
+            Boolean.parseBoolean(metadata.getOrDefault(METADATA_KEYPAD_SHOW_DIGIT_COUNT, "true")));
+    keypadComponent
+        .enteredDigits()
+        .addAll(parseDigits(metadata.getOrDefault(METADATA_KEYPAD_ENTERED_DIGITS, "")));
+    keypadComponent.isUnlocked(
+        Boolean.parseBoolean(metadata.getOrDefault(METADATA_KEYPAD_UNLOCKED, "false")));
+    return Optional.of(keypadComponent);
+  }
+
+  private static ArrayList<Integer> parseDigits(String value) {
+    if (value == null || value.isBlank()) {
+      return new ArrayList<>();
+    }
+    try {
+      return Arrays.stream(value.split(","))
+          .map(String::trim)
+          .map(Integer::parseInt)
+          .collect(Collectors.toCollection(ArrayList::new));
+    } catch (NumberFormatException ex) {
+      return new ArrayList<>();
+    }
   }
 }
