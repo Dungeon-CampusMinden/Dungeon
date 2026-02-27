@@ -8,7 +8,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import core.Entity;
 import core.Game;
 import core.sound.Sounds;
 import core.utils.Cursors;
@@ -29,6 +32,7 @@ public class ComputerDialog extends Group {
 
   private ComputerStateComponent sharedState;
   private final Skin skin;
+  private final Entity owner;
 
   private Table tabArea;
   private Table contentArea;
@@ -37,7 +41,7 @@ public class ComputerDialog extends Group {
   private String previousTab = null;
   private final Map<String, ComputerTab> tabContentMap = new LinkedHashMap<>();
 
-  private DialogContext ctx;
+  private final DialogContext ctx;
 
   /**
    * Creates a new ComputerDialog with the given shared state and dialog context.
@@ -54,6 +58,7 @@ public class ComputerDialog extends Group {
     this.ctx = ctx;
     this.skin = UIUtils.defaultSkin();
     this.setSize(Game.windowWidth(), Game.windowHeight());
+    this.owner = ctx.requireEntity(DialogContextKeys.OWNER_ENTITY);
 
     // Tab restore comes first
     activeTab = ComputerStateLocal.getInstance().tab();
@@ -154,9 +159,8 @@ public class ComputerDialog extends Group {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            if (ComputerFactory.getComputerDialogInstance() != null) {
-              UIUtils.closeDialog(ComputerFactory.getComputerDialogInstance());
-            }
+            DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_CLOSE)
+                .accept(null);
           }
         });
     browserArea.add(exit).height(40).width(40).expandX().right().row();

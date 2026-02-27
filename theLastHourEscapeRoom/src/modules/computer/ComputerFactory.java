@@ -1,7 +1,6 @@
 package modules.computer;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.HeadlessDialogGroup;
@@ -25,8 +24,6 @@ public class ComputerFactory {
   /** Key for updating the computer state from the dialog callbacks. */
   public static final String UPDATE_STATE_KEY = "update_state";
 
-  private static UIComponent computerDialogInstance;
-
   static {
     ensureRegistration();
   }
@@ -38,15 +35,6 @@ public class ComputerFactory {
     if (registry.byType(ComputerStateComponent.class).isEmpty()) {
       registry.register(new ComputerStateComponentCodec());
     }
-  }
-
-  /**
-   * Returns the current instance of the computer dialog, or null if it is not open.
-   *
-   * @return the current computer dialog instance, or null if not open
-   */
-  public static UIComponent getComputerDialogInstance() {
-    return computerDialogInstance;
   }
 
   /**
@@ -82,7 +70,8 @@ public class ComputerFactory {
                             ComputerStateComponent state =
                                 stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
                             builder.put(STATE_KEY, state);
-                            computerDialogInstance = DialogFactory.show(builder.build(), who.id());
+                            var computerDialogInstance =
+                                DialogFactory.show(builder.build(), who.id());
                             computerDialogInstance.registerCallback(
                                 UPDATE_STATE_KEY,
                                 data -> {
