@@ -2,7 +2,11 @@ import core.ir.Block;
 import core.ir.Location;
 import dgir.vm.api.VM;
 import dgir.vm.dialect.io.ConsoleInRunner;
+import dialect.arith.BinaryOp;
+import dialect.arith.CompareOp;
 import dialect.arith.ConstantOp;
+import dialect.arith.attributes.BinModeAttr;
+import dialect.arith.attributes.CompModeAttr;
 import dialect.builtin.ProgramOp;
 import dialect.builtin.types.FloatT;
 import dialect.builtin.types.IntegerT;
@@ -479,5 +483,223 @@ public class VmConsoleTest extends VmTestBase {
     // Two consecutive lines: first the name, then the score
     ConsoleInRunner.setInputStream(new ByteArrayInputStream("Alice\n100\n".getBytes(UTF_8)));
     runProgram(programOp, "Alice scored 100 points.\n");
+  }
+
+  /**
+   * Tests BinaryOp with constant operands: computes 6 * 7 = 42 and prints the result.
+   */
+  @Test
+  void binaryOpMultiplyConstantsTest() {
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
+
+    var lhs = mainOp.addOperation(new ConstantOp(LOC, 6), 0);
+    var rhs = mainOp.addOperation(new ConstantOp(LOC, 7), 0);
+    var product =
+        mainOp.addOperation(
+            new BinaryOp(LOC, lhs.getValue(), rhs.getValue(), BinModeAttr.BinMode.MUL), 0);
+    var fmt = mainOp.addOperation(new ConstantOp(LOC, "6 * 7 = %d\n"), 0);
+    mainOp.addOperation(
+        new PrintOp(LOC, fmt.getValue(), product.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(new ReturnOp(LOC), 0);
+
+    runProgram(programOp, "6 * 7 = 42\n");
+  }
+
+  /**
+   * Tests several BinaryOp modes (ADD, SUB, DIV, MOD) with constant operands and prints all
+   * results.
+   */
+  @Test
+  void binaryOpArithmeticSuiteTest() {
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
+
+    var a = mainOp.addOperation(new ConstantOp(LOC, 20), 0);
+    var b = mainOp.addOperation(new ConstantOp(LOC, 3), 0);
+
+    var sum =
+        mainOp.addOperation(
+            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.BinMode.ADD), 0);
+    var diff =
+        mainOp.addOperation(
+            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.BinMode.SUB), 0);
+    var quot =
+        mainOp.addOperation(
+            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.BinMode.DIV), 0);
+    var rem =
+        mainOp.addOperation(
+            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.BinMode.MOD), 0);
+
+    var fmtSum  = mainOp.addOperation(new ConstantOp(LOC, "20 + 3 = %d\n"), 0);
+    var fmtDiff = mainOp.addOperation(new ConstantOp(LOC, "20 - 3 = %d\n"), 0);
+    var fmtQuot = mainOp.addOperation(new ConstantOp(LOC, "20 / 3 = %d\n"), 0);
+    var fmtRem  = mainOp.addOperation(new ConstantOp(LOC, "20 %% 3 = %d\n"), 0);
+
+    mainOp.addOperation(new PrintOp(LOC, fmtSum.getValue(),  sum.getOutputValue().orElseThrow()),  0);
+    mainOp.addOperation(new PrintOp(LOC, fmtDiff.getValue(), diff.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmtQuot.getValue(), quot.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmtRem.getValue(),  rem.getOutputValue().orElseThrow()),  0);
+    mainOp.addOperation(new ReturnOp(LOC), 0);
+
+    runProgram(programOp, "20 + 3 = 23\n20 - 3 = 17\n20 / 3 = 6\n20 % 3 = 2\n");
+  }
+
+  /**
+   * Tests CompareOp with constant integer operands: compares 10 &gt; 5 (true) and 3 &gt; 8 (false)
+   * and prints the boolean results.
+   */
+  @Test
+  void compareOpConstantsTest() {
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
+
+    var ten  = mainOp.addOperation(new ConstantOp(LOC, 10), 0);
+    var five = mainOp.addOperation(new ConstantOp(LOC, 5), 0);
+    var three = mainOp.addOperation(new ConstantOp(LOC, 3), 0);
+    var eight = mainOp.addOperation(new ConstantOp(LOC, 8), 0);
+
+    var cmpGt =
+        mainOp.addOperation(
+            new CompareOp(LOC, ten.getValue(), five.getValue(), CompModeAttr.CompMode.GT), 0);
+    var cmpLt =
+        mainOp.addOperation(
+            new CompareOp(LOC, three.getValue(), eight.getValue(), CompModeAttr.CompMode.LT), 0);
+    var cmpEq =
+        mainOp.addOperation(
+            new CompareOp(LOC, five.getValue(), five.getValue(), CompModeAttr.CompMode.EQ), 0);
+
+    var fmtGt = mainOp.addOperation(new ConstantOp(LOC, "10 > 5: %d\n"), 0);
+    var fmtLt = mainOp.addOperation(new ConstantOp(LOC, "3 < 8: %d\n"), 0);
+    var fmtEq = mainOp.addOperation(new ConstantOp(LOC, "5 == 5: %d\n"), 0);
+
+    mainOp.addOperation(new PrintOp(LOC, fmtGt.getValue(), cmpGt.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmtLt.getValue(), cmpLt.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmtEq.getValue(), cmpEq.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(new ReturnOp(LOC), 0);
+
+    runProgram(programOp, "10 > 5: 1\n3 < 8: 1\n5 == 5: 1\n");
+  }
+
+  /**
+   * Tests BinaryOp with two integers read from the console. The program reads two INT32 values,
+   * adds them, and prints the sum.
+   */
+  @Test
+  void binaryOpConsoleInputAddTest() {
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
+
+    var a = mainOp.addOperation(new ConsoleInOp(LOC, IntegerT.INT32), 0);
+    var b = mainOp.addOperation(new ConsoleInOp(LOC, IntegerT.INT32), 0);
+    var sum =
+        mainOp.addOperation(
+            new BinaryOp(LOC, a.getResult(), b.getResult(), BinModeAttr.BinMode.ADD), 0);
+    var fmt = mainOp.addOperation(new ConstantOp(LOC, "Sum: %d\n"), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmt.getValue(), sum.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(new ReturnOp(LOC), 0);
+
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("13\n29\n".getBytes(UTF_8)));
+    runProgram(programOp, "Sum: 42\n");
+  }
+
+  /**
+   * Tests CompareOp with two integers read from the console. The program reads two INT32 values,
+   * compares them with GE (greater-or-equal), and branches to print an appropriate message.
+   *
+   * <p>Tested with both orderings to exercise both branches.
+   */
+  @Test
+  void compareOpConsoleInputBranchTest() {
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
+
+    Block entryBlock = mainOp.getEntryBlock();
+    Block geBlock   = mainOp.addBlock(new Block());
+    Block ltBlock   = mainOp.addBlock(new Block());
+    Block mergeBlock = mainOp.addBlock(new Block());
+
+    // Read two integers, compare a >= b
+    var a = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
+    var b = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
+    var cmp = entryBlock.addOperation(
+        new CompareOp(LOC, a.getResult(), b.getResult(), CompModeAttr.CompMode.GE));
+    entryBlock.addOperation(new BranchCondOp(LOC, cmp.getOutputValue().orElseThrow(), geBlock, ltBlock));
+
+    // a >= b branch
+    var geMsg = geBlock.addOperation(new ConstantOp(LOC, "first is greater or equal\n"));
+    geBlock.addOperation(new PrintOp(LOC, geMsg.getValue()));
+    geBlock.addOperation(new BranchOp(LOC, mergeBlock));
+
+    // a < b branch
+    var ltMsg = ltBlock.addOperation(new ConstantOp(LOC, "first is smaller\n"));
+    ltBlock.addOperation(new PrintOp(LOC, ltMsg.getValue()));
+    ltBlock.addOperation(new BranchOp(LOC, mergeBlock));
+
+    mergeBlock.addOperation(new ReturnOp(LOC));
+
+    VM vm = createVm(programOp);
+    // 10 >= 3 → true
+    {
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream("10\n3\n".getBytes(UTF_8)));
+      runVM(vm, "first is greater or equal\n");
+    }
+    resetOutput();
+    // 2 >= 9 → false
+    {
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream("2\n9\n".getBytes(UTF_8)));
+      runVM(vm, "first is smaller\n");
+    }
+  }
+
+  /**
+   * Tests combining BinaryOp and CompareOp with console input. The program reads two integers,
+   * computes their product, then checks whether the product exceeds a constant threshold (100),
+   * and prints a message accordingly.
+   */
+  @Test
+  void binaryOpAndCompareOpWithConsoleInputTest() {
+    ProgramOp programOp = new ProgramOp(LOC);
+    FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
+
+    Block entryBlock  = mainOp.getEntryBlock();
+    Block bigBlock    = mainOp.addBlock(new Block());
+    Block smallBlock  = mainOp.addBlock(new Block());
+    Block mergeBlock  = mainOp.addBlock(new Block());
+
+    // Read a and b, compute product, compare product > 100
+    var a = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
+    var b = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
+    var product = entryBlock.addOperation(
+        new BinaryOp(LOC, a.getResult(), b.getResult(), BinModeAttr.BinMode.MUL));
+    var threshold = entryBlock.addOperation(new ConstantOp(LOC, 100));
+    var cmp = entryBlock.addOperation(
+        new CompareOp(LOC, product.getOutputValue().orElseThrow(), threshold.getValue(), CompModeAttr.CompMode.GT));
+    entryBlock.addOperation(new BranchCondOp(LOC, cmp.getOutputValue().orElseThrow(), bigBlock, smallBlock));
+
+    // product > 100
+    var fmtBig = bigBlock.addOperation(new ConstantOp(LOC, "Product %d exceeds 100!\n"));
+    bigBlock.addOperation(new PrintOp(LOC, fmtBig.getValue(), product.getOutputValue().orElseThrow()));
+    bigBlock.addOperation(new BranchOp(LOC, mergeBlock));
+
+    // product <= 100
+    var fmtSmall = smallBlock.addOperation(new ConstantOp(LOC, "Product %d is within 100.\n"));
+    smallBlock.addOperation(new PrintOp(LOC, fmtSmall.getValue(), product.getOutputValue().orElseThrow()));
+    smallBlock.addOperation(new BranchOp(LOC, mergeBlock));
+
+    mergeBlock.addOperation(new ReturnOp(LOC));
+
+    VM vm = createVm(programOp);
+    // 11 * 11 = 121 > 100
+    {
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream("11\n11\n".getBytes(UTF_8)));
+      runVM(vm, "Product 121 exceeds 100!\n");
+    }
+    resetOutput();
+    // 5 * 4 = 20 <= 100
+    {
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream("5\n4\n".getBytes(UTF_8)));
+      runVM(vm, "Product 20 is within 100.\n");
+    }
   }
 }
