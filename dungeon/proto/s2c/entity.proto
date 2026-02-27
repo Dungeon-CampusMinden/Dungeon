@@ -30,6 +30,9 @@ message EntitySpawnEvent {
 
   // Character class ID (maps to CharacterClass enum ordinal).
   optional int32 character_class_id = 6;
+
+  // Optional metadata for subproject-specific state.
+  map<string, string> metadata = 7;
 }
 
 // Server-to-client: Batch spawn multiple entities.
@@ -211,6 +214,9 @@ message EntityState {
 
   // Optional: Inventory contents.
   repeated ItemSlot inventory = 10;
+
+  // Optional metadata for subproject-specific state.
+  map<string, string> metadata = 11;
 }
 
 // Represents a slot in an inventory.
