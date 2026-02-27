@@ -212,6 +212,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                                           snap.entityId());
                                     }
                                     dc.stateMachine().setState(stateName, direction);
+                                  });
                           snap.tintColor().ifPresent(dc::tintColor);
                         });
 
