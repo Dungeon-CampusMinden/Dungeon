@@ -384,11 +384,11 @@ public class LastHourLevel extends DungeonLevel {
     checkPCStateUpdate();
     if (!Game.isHeadless()) {
       checkInteractFeedback();
-      updateLightingShader(getPoint("timer"), getPoint("keypad-storage"));
+      updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
     }
   }
 
-  static void updateLightingShader(Point timerPos, Point keypadPos) {
+  static void updateLightingShader(Point pcPos, Point timerPos, Entity keypad) {
     if (!(DrawSystem.getInstance().sceneShaders().get("lighting") instanceof LightingShader ls))
       return;
 
@@ -400,13 +400,13 @@ public class LastHourLevel extends DungeonLevel {
         ls.ambientLight(0.2f);
         Color color = state.isInfected() ? Color.RED : Color.BLUE;
         float intensity = state.isInfected() ? 0.8f : 0.5f;
-        ls.addLightSource(EntityUtils.getPosition(pc), intensity, color);
+        ls.addLightSource(pcPos, intensity, color);
 
         ls.addLightSource(timerPos.translate(0.75f, 0), 0.5f, Color.RED);
 
         var keyComp = keypad.fetch(KeypadComponent.class).orElseThrow();
         Color keypadColor = keyComp.isUnlocked() ? Color.GREEN : Color.RED;
-        ls.addLightSource(keypadPos.translate(0.5f, 0.5f), 0.3f, keypadColor);
+        ls.addLightSource(EntityUtils.getPosition(keypad).translate(0.5f, 0.5f), 0.3f, keypadColor);
       }
     }
 
