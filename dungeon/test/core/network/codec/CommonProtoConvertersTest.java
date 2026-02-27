@@ -2,12 +2,14 @@ package core.network.codec;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import core.components.PositionComponent;
 import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
+import core.utils.components.draw.DrawInfoData;
 import org.junit.jupiter.api.Test;
 
 /** Tests for {@link CommonProtoConverters}. */
@@ -147,5 +149,72 @@ public class CommonProtoConvertersTest {
     assertEquals(spec.maxDistance(), roundTrip.maxDistance(), DELTA);
     assertEquals(spec.attenuationFactor(), roundTrip.attenuationFactor(), DELTA);
     assertArrayEquals(new int[0], roundTrip.targetEntityIds());
+  }
+
+  /** Verifies draw info conversion roundtrip for spritesheet-backed entities. */
+  @Test
+  public void testDrawInfoRoundTrip_withSpritesheetConfig() {
+    DrawInfoData drawInfo =
+        new DrawInfoData(
+            "animation/missing_texture.png",
+            1.25f,
+            2.5f,
+            "idle",
+            7,
+            new DrawInfoData.AnimationConfigData(6, false, true, true),
+            new DrawInfoData.SpritesheetConfigData(32, 48, 4, 8, 3, 5));
+
+    core.network.proto.s2c.DrawInfo proto = CommonProtoConverters.toProto(drawInfo);
+    DrawInfoData roundTrip = CommonProtoConverters.fromProto(proto);
+
+    assertEquals(drawInfo.texturePath(), roundTrip.texturePath());
+    assertEquals(drawInfo.scaleX(), roundTrip.scaleX(), DELTA);
+    assertEquals(drawInfo.scaleY(), roundTrip.scaleY(), DELTA);
+    assertEquals(drawInfo.animationName(), roundTrip.animationName());
+    assertEquals(drawInfo.currentFrame(), roundTrip.currentFrame());
+    assertEquals(
+        drawInfo.animationConfig().framesPerSprite(),
+        roundTrip.animationConfig().framesPerSprite());
+    assertEquals(drawInfo.animationConfig().looping(), roundTrip.animationConfig().looping());
+    assertEquals(drawInfo.animationConfig().centered(), roundTrip.animationConfig().centered());
+    assertEquals(drawInfo.animationConfig().mirrored(), roundTrip.animationConfig().mirrored());
+    assertEquals(
+        drawInfo.spritesheetConfig().spriteWidth(), roundTrip.spritesheetConfig().spriteWidth());
+    assertEquals(
+        drawInfo.spritesheetConfig().spriteHeight(), roundTrip.spritesheetConfig().spriteHeight());
+    assertEquals(drawInfo.spritesheetConfig().offsetX(), roundTrip.spritesheetConfig().offsetX());
+    assertEquals(drawInfo.spritesheetConfig().offsetY(), roundTrip.spritesheetConfig().offsetY());
+    assertEquals(drawInfo.spritesheetConfig().rows(), roundTrip.spritesheetConfig().rows());
+    assertEquals(drawInfo.spritesheetConfig().columns(), roundTrip.spritesheetConfig().columns());
+  }
+
+  /** Verifies draw info conversion roundtrip for plain textures without spritesheet geometry. */
+  @Test
+  public void testDrawInfoRoundTrip_plainTexture() {
+    DrawInfoData drawInfo =
+        new DrawInfoData(
+            "animation/missing_texture.png",
+            null,
+            null,
+            null,
+            null,
+            new DrawInfoData.AnimationConfigData(10, true, false, false),
+            null);
+
+    core.network.proto.s2c.DrawInfo proto = CommonProtoConverters.toProto(drawInfo);
+    DrawInfoData roundTrip = CommonProtoConverters.fromProto(proto);
+
+    assertEquals(drawInfo.texturePath(), roundTrip.texturePath());
+    assertEquals(drawInfo.scaleX(), roundTrip.scaleX());
+    assertEquals(drawInfo.scaleY(), roundTrip.scaleY());
+    assertEquals(drawInfo.animationName(), roundTrip.animationName());
+    assertEquals(drawInfo.currentFrame(), roundTrip.currentFrame());
+    assertEquals(
+        drawInfo.animationConfig().framesPerSprite(),
+        roundTrip.animationConfig().framesPerSprite());
+    assertEquals(drawInfo.animationConfig().looping(), roundTrip.animationConfig().looping());
+    assertEquals(drawInfo.animationConfig().centered(), roundTrip.animationConfig().centered());
+    assertEquals(drawInfo.animationConfig().mirrored(), roundTrip.animationConfig().mirrored());
+    assertNull(roundTrip.spritesheetConfig());
   }
 }

@@ -50,6 +50,12 @@ message DrawInfo {
 
   // Current animation state.
   optional AnimationInfo current_animation = 4;
+
+  // Animation timing and behavior config (always present).
+  AnimationConfigInfo animation_config = 5;
+
+  // Spritesheet slicing geometry (only for spritesheet entities).
+  optional SpritesheetConfigInfo spritesheet_config = 6;
 }
 
 // Animation state information.
@@ -59,6 +65,42 @@ message AnimationInfo {
 
   // Current frame index in animation.
   int32 current_frame = 2;
+}
+
+// Animation timing and behavior configuration.
+message AnimationConfigInfo {
+  // Number of update ticks each sprite frame is displayed for.
+  int32 frames_per_sprite = 1;
+
+  // Whether the animation loops.
+  bool looping = 2;
+
+  // Whether sprites are drawn centered.
+  bool centered = 3;
+
+  // Whether sprites are drawn horizontally mirrored.
+  bool mirrored = 4;
+}
+
+// Spritesheet slicing geometry.
+message SpritesheetConfigInfo {
+  // Width of one sprite frame in pixels.
+  int32 sprite_width = 1;
+
+  // Height of one sprite frame in pixels.
+  int32 sprite_height = 2;
+
+  // X offset (pixels) of the first sprite in the sheet.
+  int32 offset_x = 3;
+
+  // Y offset (pixels) of the first sprite in the sheet.
+  int32 offset_y = 4;
+
+  // Number of rows in the spritesheet grid.
+  int32 rows = 5;
+
+  // Number of columns in the spritesheet grid.
+  int32 columns = 6;
 }
 
 // Player-specific information.

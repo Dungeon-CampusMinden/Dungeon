@@ -195,6 +195,31 @@ public final class CommonProtoConverters {
               .build());
     }
 
+    DrawInfoData.AnimationConfigData animationConfig = drawInfo.animationConfig();
+    if (animationConfig == null) {
+      throw new IllegalArgumentException("DrawInfoData.animationConfig is required.");
+    }
+    builder.setAnimationConfig(
+        core.network.proto.s2c.AnimationConfigInfo.newBuilder()
+            .setFramesPerSprite(animationConfig.framesPerSprite())
+            .setLooping(animationConfig.looping())
+            .setCentered(animationConfig.centered())
+            .setMirrored(animationConfig.mirrored())
+            .build());
+
+    DrawInfoData.SpritesheetConfigData spritesheetConfig = drawInfo.spritesheetConfig();
+    if (spritesheetConfig != null) {
+      builder.setSpritesheetConfig(
+          core.network.proto.s2c.SpritesheetConfigInfo.newBuilder()
+              .setSpriteWidth(spritesheetConfig.spriteWidth())
+              .setSpriteHeight(spritesheetConfig.spriteHeight())
+              .setOffsetX(spritesheetConfig.offsetX())
+              .setOffsetY(spritesheetConfig.offsetY())
+              .setRows(spritesheetConfig.rows())
+              .setColumns(spritesheetConfig.columns())
+              .build());
+    }
+
     return builder.build();
   }
 
@@ -222,7 +247,40 @@ public final class CommonProtoConverters {
       }
     }
 
-    return new DrawInfoData(proto.getTexturePath(), scaleX, scaleY, animationName, currentFrame);
+    if (!proto.hasAnimationConfig()) {
+      throw new IllegalArgumentException("DrawInfo.animation_config is required.");
+    }
+
+    core.network.proto.s2c.AnimationConfigInfo animationConfigInfo = proto.getAnimationConfig();
+    DrawInfoData.AnimationConfigData animationConfig =
+        new DrawInfoData.AnimationConfigData(
+            animationConfigInfo.getFramesPerSprite(),
+            animationConfigInfo.getLooping(),
+            animationConfigInfo.getCentered(),
+            animationConfigInfo.getMirrored());
+
+    DrawInfoData.SpritesheetConfigData spritesheetConfig = null;
+    if (proto.hasSpritesheetConfig()) {
+      core.network.proto.s2c.SpritesheetConfigInfo spritesheetConfigInfo =
+          proto.getSpritesheetConfig();
+      spritesheetConfig =
+          new DrawInfoData.SpritesheetConfigData(
+              spritesheetConfigInfo.getSpriteWidth(),
+              spritesheetConfigInfo.getSpriteHeight(),
+              spritesheetConfigInfo.getOffsetX(),
+              spritesheetConfigInfo.getOffsetY(),
+              spritesheetConfigInfo.getRows(),
+              spritesheetConfigInfo.getColumns());
+    }
+
+    return new DrawInfoData(
+        proto.getTexturePath(),
+        scaleX,
+        scaleY,
+        animationName,
+        currentFrame,
+        animationConfig,
+        spritesheetConfig);
   }
 
   /**

@@ -75,7 +75,12 @@ public class S2CConverterTest {
   private static final SoundStopConverter SOUND_STOP_CONVERTER = new SoundStopConverter();
 
   private static DrawInfoData createDrawInfo() {
-    return new DrawInfoData("character/hero.png", 2.0f, 3.0f, "idle", 20);
+    DrawInfoData.AnimationConfigData animationConfig =
+        new DrawInfoData.AnimationConfigData(4, true, false, true);
+    DrawInfoData.SpritesheetConfigData spritesheetConfig =
+        new DrawInfoData.SpritesheetConfigData(16, 24, 2, 3, 4, 5);
+    return new DrawInfoData(
+        "character/hero.png", 2.0f, 3.0f, "idle", 20, animationConfig, spritesheetConfig);
   }
 
   /** Verifies connect ack conversion roundtrip. */
@@ -185,6 +190,17 @@ public class S2CConverterTest {
     assertEquals(3.0f, roundTrip.drawInfo().scaleY(), DELTA);
     assertEquals("idle", roundTrip.drawInfo().animationName());
     assertEquals(20, roundTrip.drawInfo().currentFrame());
+    assertEquals(4, roundTrip.drawInfo().animationConfig().framesPerSprite());
+    assertTrue(roundTrip.drawInfo().animationConfig().looping());
+    assertFalse(roundTrip.drawInfo().animationConfig().centered());
+    assertTrue(roundTrip.drawInfo().animationConfig().mirrored());
+    assertNotNull(roundTrip.drawInfo().spritesheetConfig());
+    assertEquals(16, roundTrip.drawInfo().spritesheetConfig().spriteWidth());
+    assertEquals(24, roundTrip.drawInfo().spritesheetConfig().spriteHeight());
+    assertEquals(2, roundTrip.drawInfo().spritesheetConfig().offsetX());
+    assertEquals(3, roundTrip.drawInfo().spritesheetConfig().offsetY());
+    assertEquals(4, roundTrip.drawInfo().spritesheetConfig().rows());
+    assertEquals(5, roundTrip.drawInfo().spritesheetConfig().columns());
   }
 
   /** Verifies entity spawn batch conversion roundtrip. */

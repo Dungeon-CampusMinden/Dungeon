@@ -3,6 +3,7 @@ package core.utils.components.draw;
 import core.components.DrawComponent;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
+import core.utils.components.draw.animation.SpritesheetConfig;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.Objects;
@@ -33,8 +34,32 @@ public final class DrawComponentFactory {
       frameIndex = currentFrameIndex(animation);
     }
 
+    AnimationConfig config = animation.getConfig();
+    DrawInfoData.AnimationConfigData animationConfig =
+        new DrawInfoData.AnimationConfigData(
+            config.framesPerSprite(), config.isLooping(), config.centered(), config.mirrored());
+    DrawInfoData.SpritesheetConfigData spritesheetConfig =
+        config
+            .config()
+            .map(
+                value ->
+                    new DrawInfoData.SpritesheetConfigData(
+                        value.spriteWidth(),
+                        value.spriteHeight(),
+                        value.x(),
+                        value.y(),
+                        value.rows(),
+                        value.columns()))
+            .orElse(null);
+
     return new DrawInfoData(
-        texturePath, animation.getScaleX(), animation.getScaleY(), stateName, frameIndex);
+        texturePath,
+        animation.getScaleX(),
+        animation.getScaleY(),
+        stateName,
+        frameIndex,
+        animationConfig,
+        spritesheetConfig);
   }
 
   /**
@@ -52,7 +77,30 @@ public final class DrawComponentFactory {
       throw new IllegalArgumentException("DrawInfoData.texturePath is required.");
     }
 
-    AnimationConfig config = new AnimationConfig();
+    DrawInfoData.AnimationConfigData animationConfig =
+        Objects.requireNonNull(info.animationConfig(), "DrawInfoData.animationConfig is required.");
+
+    AnimationConfig config;
+    if (info.spritesheetConfig() != null) {
+      DrawInfoData.SpritesheetConfigData spritesheetConfig = info.spritesheetConfig();
+      SpritesheetConfig sourceConfig =
+          new SpritesheetConfig(
+              spritesheetConfig.offsetX(),
+              spritesheetConfig.offsetY(),
+              spritesheetConfig.rows(),
+              spritesheetConfig.columns(),
+              spritesheetConfig.spriteWidth(),
+              spritesheetConfig.spriteHeight());
+      config = new AnimationConfig(sourceConfig);
+    } else {
+      config = new AnimationConfig();
+    }
+
+    config.framesPerSprite(Math.max(1, animationConfig.framesPerSprite()));
+    config.isLooping(animationConfig.looping());
+    config.centered(animationConfig.centered());
+    config.mirrored(animationConfig.mirrored());
+
     if (info.scaleX() != null) {
       config.scaleX(info.scaleX());
     }
