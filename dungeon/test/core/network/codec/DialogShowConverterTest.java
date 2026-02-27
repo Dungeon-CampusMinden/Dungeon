@@ -11,6 +11,8 @@ import contrib.hud.dialogs.DialogType;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.network.codec.converters.s2c.DialogShowConverter;
 import core.network.messages.s2c.DialogShowMessage;
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 /** Tests for {@link DialogShowConverter}. */
@@ -51,6 +53,13 @@ public class DialogShowConverterTest {
             .anyMatch(
                 attr ->
                     DialogContextKeys.ENTITY.equals(attr.getKey()) && attr.getIntValue() == 20));
+    assertTrue(
+        proto.getAttributesList().stream()
+            .anyMatch(
+                attr ->
+                    DialogContextKeys.IMAGE_TRANSITION_SPEED.equals(attr.getKey())
+                        && attr.getValueCase()
+                            == core.network.proto.s2c.DialogAttribute.ValueCase.CUSTOM_VALUE));
 
     DialogShowMessage roundTripMessage = CONVERTER.fromProto(proto);
     DialogContext roundTrip = roundTripMessage.context();
@@ -69,4 +78,62 @@ public class DialogShowConverterTest {
         TransitionSpeed.SLOW,
         roundTrip.require(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class));
   }
+
+  /** Verifies custom codec roundtrip via CUSTOM_VALUE. */
+  @Test
+  public void testCustomCodecRoundTrip() {
+    DialogValueCodecRegistry registry = DialogValueCodecRegistry.global();
+    if (registry.byTypeId("DialogShowConverterTestData").isEmpty()) {
+      registry.register(
+          new DialogValueCodec<TestData>() {
+            @Override
+            public String typeId() {
+              return "DialogShowConverterTestData";
+            }
+
+            @Override
+            public Class<TestData> type() {
+              return TestData.class;
+            }
+
+            @Override
+            public byte[] encode(TestData value) {
+              return (value.label() + "|" + value.count()).getBytes(StandardCharsets.UTF_8);
+            }
+
+            @Override
+            public TestData decode(byte[] data) {
+              String[] parts = new String(data, StandardCharsets.UTF_8).split("\\|");
+              return new TestData(parts[0], Integer.parseInt(parts[1]));
+            }
+          });
+    }
+
+    DialogContext context =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.TEXT)
+            .center(false)
+            .dialogId("custom-test")
+            .put("custom_data", new TestData("hello", 42))
+            .build();
+
+    DialogShowMessage message = new DialogShowMessage(context, true);
+    core.network.proto.s2c.DialogShowMessage proto = CONVERTER.toProto(message);
+    assertTrue(
+        proto.getAttributesList().stream()
+            .anyMatch(
+                attr ->
+                    "custom_data".equals(attr.getKey())
+                        && attr.getValueCase()
+                            == core.network.proto.s2c.DialogAttribute.ValueCase.CUSTOM_VALUE));
+
+    DialogShowMessage roundTripMessage = CONVERTER.fromProto(proto);
+    DialogContext roundTrip = roundTripMessage.context();
+
+    TestData result = roundTrip.require("custom_data", TestData.class);
+    assertEquals("hello", result.label());
+    assertEquals(42, result.count());
+  }
+
+  private record TestData(String label, int count) implements Serializable {}
 }
