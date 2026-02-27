@@ -2,9 +2,6 @@ package dialect.builtin.attributes;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import core.*;
-import core.ir.TypedAttribute;
-import dialect.builtin.BuiltinDialect;
 import dialect.builtin.types.IntegerT;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  * <p>Ident: {@code integerAttr}. The stored value is always the narrowest Java numeric type that
  * matches the integer width — e.g. {@link Integer} for {@link IntegerT#INT32}.
  */
-public class IntegerAttribute extends TypedAttribute {
+public class IntegerAttribute extends BuiltinTypedAttr {
   // =========================================================================
   // Type Info
   // =========================================================================
@@ -24,18 +21,6 @@ public class IntegerAttribute extends TypedAttribute {
   @Contract(pure = true)
   public @NotNull String getIdent() {
     return "integerAttr";
-  }
-
-  @Override
-  @Contract(pure = true)
-  public @NotNull String getNamespace() {
-    return "";
-  }
-
-  @Override
-  @Contract(pure = true)
-  public @NotNull Class<? extends Dialect> getDialect() {
-    return BuiltinDialect.class;
   }
 
   // =========================================================================

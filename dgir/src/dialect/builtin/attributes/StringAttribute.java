@@ -1,8 +1,5 @@
 package dialect.builtin.attributes;
 
-import core.*;
-import core.ir.TypedAttribute;
-import dialect.builtin.BuiltinDialect;
 import dialect.builtin.types.StringT;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * <p>Ident: {@code stringAttr}. The stored value is a plain Java {@code String}.
  */
-public class StringAttribute extends TypedAttribute {
+public class StringAttribute extends BuiltinTypedAttr {
   // =========================================================================
   // Type Info
   // =========================================================================
@@ -21,18 +18,6 @@ public class StringAttribute extends TypedAttribute {
   @Contract(pure = true)
   public @NotNull String getIdent() {
     return "stringAttr";
-  }
-
-  @Override
-  @Contract(pure = true)
-  public @NotNull String getNamespace() {
-    return "";
-  }
-
-  @Override
-  @Contract(pure = true)
-  public @NotNull Class<? extends Dialect> getDialect() {
-    return BuiltinDialect.class;
   }
 
   // =========================================================================

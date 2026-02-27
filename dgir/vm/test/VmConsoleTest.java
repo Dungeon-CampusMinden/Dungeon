@@ -398,7 +398,7 @@ public class VmConsoleTest extends VmTestBase {
     mainOp.addOperation(new PrintOp(LOC, fmt.getValue(), number.getResult()), 0);
     mainOp.addOperation(new ReturnOp(LOC), 0);
 
-    ConsoleInRunner.setInputStream(new ByteArrayInputStream("3.14\n".getBytes(UTF_8)));
+    ConsoleInRunner.setInputStream(new ByteArrayInputStream("3.14159\n".getBytes(UTF_8)));
     runProgram(programOp, "Pi is approximately 3.14.\n");
   }
 

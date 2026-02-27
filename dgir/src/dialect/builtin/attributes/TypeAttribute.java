@@ -1,7 +1,6 @@
 package dialect.builtin.attributes;
 
-import core.*;
-import core.ir.Attribute;
+import core.Dialect;
 import core.ir.Type;
 import dialect.builtin.BuiltinDialect;
 import dialect.builtin.types.IntegerT;
@@ -16,7 +15,7 @@ import java.util.Optional;
  * <p>Ident: {@code typeAttr}. Used by operations such as {@link dialect.func.FuncOp} to embed the
  * full function type into the operation's attribute dictionary.
  */
-public class TypeAttribute extends Attribute {
+public class TypeAttribute extends BuiltinAttr {
   // =========================================================================
   // Type Info
   // =========================================================================

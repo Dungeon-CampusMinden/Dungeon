@@ -1,8 +1,5 @@
 package dialect.builtin.attributes;
 
-import core.*;
-import core.ir.Attribute;
-import dialect.builtin.BuiltinDialect;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
  * <p>Ident: {@code symbolRefAttr}. Used by operations such as {@link dialect.func.CallOp} to record
  * the name of a callee function without hard-linking the IR nodes together.
  */
-public class SymbolRefAttribute extends Attribute {
+public class SymbolRefAttribute extends BuiltinAttr {
   // =========================================================================
   // Type Info
   // =========================================================================
@@ -21,18 +18,6 @@ public class SymbolRefAttribute extends Attribute {
   @Contract(pure = true)
   public @NotNull String getIdent() {
     return "symbolRefAttr";
-  }
-
-  @Override
-  @Contract(pure = true)
-  public @NotNull String getNamespace() {
-    return "";
-  }
-
-  @Override
-  @Contract(pure = true)
-  public @NotNull Class<? extends Dialect> getDialect() {
-    return BuiltinDialect.class;
   }
 
   // =========================================================================
