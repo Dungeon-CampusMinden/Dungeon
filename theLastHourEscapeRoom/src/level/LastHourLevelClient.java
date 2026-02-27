@@ -51,7 +51,7 @@ public class LastHourLevelClient extends DungeonLevel {
     }
     if (keypad == null) {
       Game.levelEntities()
-          .filter(e -> e.name().equals("keypad-main"))
+          .filter(e -> e.name().equals("keypad"))
           .findFirst()
           .ifPresent(e -> keypad = e);
     }

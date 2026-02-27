@@ -175,7 +175,11 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                                   viewDir -> {
                                     try {
                                       pc.viewDirection(Direction.valueOf(viewDir));
-                                    } catch (IllegalArgumentException ignored) {
+                                    } catch (IllegalArgumentException e) {
+                                      LOGGER.warn(
+                                          "Invalid view direction '{}' for entity id: {}. Skipping view direction update.",
+                                          viewDir,
+                                          snap.entityId());
                                     }
                                   });
                           snap.rotation().ifPresent(pc::rotation);
@@ -201,10 +205,13 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                                     try {
                                       direction =
                                           Direction.valueOf(snap.viewDirection().orElse("DOWN"));
-                                    } catch (IllegalArgumentException ignored) {
+                                    } catch (IllegalArgumentException e) {
+                                      LOGGER.warn(
+                                          "Invalid state name '{}' for entity id: {}. Skipping state update.",
+                                          stateName,
+                                          snap.entityId());
                                     }
                                     dc.stateMachine().setState(stateName, direction);
-                                  });
                           snap.tintColor().ifPresent(dc::tintColor);
                         });
 
