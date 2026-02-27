@@ -1,0 +1,17 @@
+   */
+  private static void returnItemToInventory(
+      InventoryComponent inventory, Item item, int itemSlot, Entity entity) {
+@@ -393,6 +394,8 @@ private static void returnItemToInventory(
+          e.getMessage(),
+          e);
+    }
+
+    // hier hinzufügen dass die tiems auf den boden gelegt werden sollen
+  }
+
+  im hero controller muss das hinzugefügt werden
+
+
+level editor spinnt
+
+das mit dem blockly level
