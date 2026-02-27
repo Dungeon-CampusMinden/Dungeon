@@ -5,6 +5,7 @@ import core.Utils;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
+import dialect.arith.attributes.BinModeAttr;
 import dialect.arith.attributes.CompModeAttr;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -21,11 +22,7 @@ import java.util.List;
  *
  * <ul>
  *   <li>{@link ConstantOp} — produces a constant value
- *   <li>{@link AddOp} — adds two numeric operands
- *   <li>{@link SubOp} — subtracts two numeric operands
- *   <li>{@link MulOp} — multiplies two numeric operands
- *   <li>{@link DivOp} — divides two numeric operands
- *   <li>{@link RemOp} — remainder of two numeric operands
+ *   <li>{@link BinaryOp} — unified binary numeric operation
  *   <li>{@link CompareOp} — compares two numeric operands
  *   <li>{@link CastOp} — casts a numeric operand to a target type
  * </ul>
@@ -53,6 +50,6 @@ public class ArithDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @Unmodifiable @NotNull List<Attribute> allAttributes() {
-    return List.of(new CompModeAttr());
+    return List.of(new CompModeAttr(), new BinModeAttr());
   }
 }

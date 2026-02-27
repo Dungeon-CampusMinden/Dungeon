@@ -30,14 +30,19 @@ public class IntegerT extends BuiltinType {
 
   /** 1-bit integer used as a boolean ({@code false} = 0, {@code true} = 1). */
   public static final IntegerT INT1 = new IntegerT(1);
+
   /** Alias for {@link #INT1}. */
   public static final IntegerT BOOL = INT1;
+
   /** 8-bit signed integer. */
   public static final IntegerT INT8 = new IntegerT(8);
+
   /** 16-bit signed integer. */
   public static final IntegerT INT16 = new IntegerT(16);
+
   /** 32-bit signed integer. */
   public static final IntegerT INT32 = new IntegerT(32);
+
   /** 64-bit signed integer. */
   public static final IntegerT INT64 = new IntegerT(64);
 
@@ -116,9 +121,9 @@ public class IntegerT extends BuiltinType {
   }
 
   /**
-   * Take a number of any integer type and convert it to the correct Java type for this
-   * {@code IntegerT}. For example, if this is {@link #INT16} and the input is a {@code Byte},
-   * it is widened to a {@code Short}.
+   * Take a number of any integer type and convert it to the correct Java type for this {@code
+   * IntegerT}. For example, if this is {@link #INT16} and the input is a {@code Byte}, it is
+   * widened to a {@code Short}.
    *
    * @param number the number to convert; must not be a floating-point value.
    * @return the converted number in the narrowest Java type that matches this width.
@@ -133,23 +138,15 @@ public class IntegerT extends BuiltinType {
     long value = number.longValue();
     switch (getWidth()) {
       case 1 -> {
-        assert value == 0 || value == 1
-            : "Value out of range: " + value + " for width: " + getWidth();
-        return (byte) value;
+        return (byte) (value & 0x1L);
       }
       case 8 -> {
-        assert value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE
-            : "Value out of range: " + value + " for width: " + getWidth();
         return (byte) value;
       }
       case 16 -> {
-        assert value >= Short.MIN_VALUE && value <= Short.MAX_VALUE
-            : "Value out of range: " + value + " for width: " + getWidth();
         return (short) value;
       }
       case 32 -> {
-        assert value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE
-            : "Value out of range: " + value + " for width: " + getWidth();
         return (int) value;
       }
       case 64 -> {
