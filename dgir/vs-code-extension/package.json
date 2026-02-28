@@ -82,21 +82,13 @@
                 "type": "boolean",
                 "description": "Send Ctrl+C to stop the server when the debug session ends (default: true)."
               },
-              "internalConsoleOptions": {
-                "type": "string",
-                "description": "Controls Debug Console auto-open (default: neverOpen)."
-              },
               "stopOnEntry": {
                 "type": "boolean",
                 "description": "Pause before the first operation."
               },
-              "autoBasenameSourceMap": {
-                "type": "boolean",
-                "description": "Auto-map <name>.java to <name>.dgir when no sourceFileMap is provided."
-              },
               "sourceFileMap": {
                 "type": "object",
-                "description": "Map Java source paths to DGIR source paths (and back) for breakpoints and stack traces."
+                "description": "Optional path translation table used by the extension when talking to the DGIR DAP server:\n- VS Code sends absolute file paths for breakpoints (e.g. /home/me/project/src/Foo.java).\n- DGIR debug info typically uses workspace-relative paths (e.g. src/Foo.java).\n- The map rewrites paths both ways so breakpoints bind to the right file and stack traces open the correct source.\n- Example: { \"/home/me/project/src/Foo.java\": \"src/Foo.java\" }"
               }
             }
           }
@@ -111,9 +103,7 @@
             "jarPath": "${workspaceFolder}/dgir/vm/build/libs/dgir-vm-dap.jar",
             "stopOnEntry": true,
             "useTerminal": true,
-            "stopServerOnExit": true,
-            "internalConsoleOptions": "neverOpen",
-            "autoBasenameSourceMap": true
+            "stopServerOnExit": true
           }
         ]
       }

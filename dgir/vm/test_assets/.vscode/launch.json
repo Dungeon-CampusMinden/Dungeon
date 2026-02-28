@@ -13,9 +13,7 @@
             "jarPath": "${workspaceFolder}/../build/libs/dgir-vm-dap.jar",
             "stopOnEntry": true,
             "useTerminal": true,
-            "stopServerOnExit": true,
-            "internalConsoleOptions": "neverOpen",
-            "autoBasenameSourceMap": true
+            "stopServerOnExit": true
         }
     ]
 }
