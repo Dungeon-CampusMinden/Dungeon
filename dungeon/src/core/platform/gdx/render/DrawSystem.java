@@ -374,7 +374,7 @@ public final class DrawSystem extends System implements Disposable {
 
     batch().setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, stableWidth, stableHeight));
     batch().begin();
-    BlendUtils.setBlending(batch());
+    GdxBlendUtils.setBlending(batch());
     batch().setColor(Color.WHITE);
     batch().draw(fboRegion, 0, 0, stableWidth, stableHeight);
     batch().end();
@@ -410,7 +410,7 @@ public final class DrawSystem extends System implements Disposable {
 
     batch().setProjectionMatrix(CameraSystem.camera().combined);
     batch().begin();
-    BlendUtils.setBlending(batch());
+    GdxBlendUtils.setBlending(batch());
     renderAction.run();
     batch().end();
 
@@ -466,7 +466,7 @@ public final class DrawSystem extends System implements Disposable {
       currentSourceRegion.flip(false, true);
 
       fboBatch().begin();
-      BlendUtils.setBlending(fboBatch());
+      GdxBlendUtils.setBlending(fboBatch());
       pass.bind(fboBatch(), 1);
       setCommonUniforms(fboBatch().getShader(), width, height, worldBounds, 0);
       fboBatch().setColor(Color.WHITE);
@@ -569,7 +569,7 @@ public final class DrawSystem extends System implements Disposable {
 
     fboBatch().setProjectionMatrix(fboProjectionMatrix);
     fboBatch().begin();
-    BlendUtils.setBlending(fboBatch());
+    GdxBlendUtils.setBlending(fboBatch());
     fboBatch()
         .draw(
             region,
@@ -607,7 +607,7 @@ public final class DrawSystem extends System implements Disposable {
 
       fboBatch().setProjectionMatrix(fboProjectionMatrix);
       fboBatch().begin();
-      BlendUtils.setBlending(fboBatch());
+      GdxBlendUtils.setBlending(fboBatch());
       pass.bind(fboBatch(), shaderUpscaling);
 
       float rotation = 0;
@@ -649,7 +649,7 @@ public final class DrawSystem extends System implements Disposable {
    * @param height The height of the FBO
    */
   private void drawFboToBatch(FrameBuffer fbo, int width, int height) {
-    BlendUtils.setBlending(batch());
+    GdxBlendUtils.setBlending(batch());
     fboRegion.setRegion(fbo.getColorBufferTexture());
     fboRegion.flip(false, true); // Flip back to draw correctly
     batch().draw(fboRegion, 0, 0, width, height);
@@ -706,7 +706,7 @@ public final class DrawSystem extends System implements Disposable {
    * @param config the {@link DrawConfig} controlling the drawing parameters
    */
   public void draw(final Point position, final Texture texture, final DrawConfig config) {
-    BlendUtils.setBlending(batch());
+    GdxBlendUtils.setBlending(batch());
     fboRegion.setRegion(texture);
     fboRegion.flip(config.mirrored(), true);
     Affine2 transform = makeTransform(position, config);
@@ -725,7 +725,7 @@ public final class DrawSystem extends System implements Disposable {
    * @param config the {@link DrawConfig} controlling scaling, tint, and offset
    */
   public void draw(final Point position, final Sprite sprite, final DrawConfig config) {
-    BlendUtils.setBlending(batch());
+    GdxBlendUtils.setBlending(batch());
     Affine2 transform = makeTransform(position, config);
     batch()
         .setColor(config.tintColor() != -1 ? ColorUtils.pmaColor(config.tintColor()) : Color.WHITE);

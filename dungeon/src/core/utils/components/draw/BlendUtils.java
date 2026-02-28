@@ -1,56 +1,67 @@
 package core.utils.components.draw;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import core.platform.Platform;
 
-/** Utility class for setting different blending modes. */
-public class BlendUtils {
+/**
+ * Engine-agnostic blending facade.
+ *
+ * <p>This class must NOT reference libGDX GL classes directly. If the current runtime supports
+ * GDX rendering, calls are forwarded to {@code core.platform.gdx.render.GdxBlendUtils} via
+ * reflection.
+ */
+public final class BlendUtils {
 
-  /** Sets the blending mode to the default blending used in this project (PMA Blending). */
+  private BlendUtils() {}
+
+  /** Default blending used in this project (PMA Blending). */
   public static void setBlending() {
     setBlending(null);
   }
 
-  /**
-   * Sets the blending mode to the default blending used in this project (PMA Blending).
-   *
-   * @param batch The SpriteBatch to set the blending mode for. If null, sets the OpenGL blending
-   *     mode directly.
-   */
-  public static void setBlending(SpriteBatch batch) {
+  /** Default blending used in this project (PMA Blending). */
+  public static void setBlending(Object batch) {
     setPMABlending(batch);
   }
 
-  /**
-   * Sets the blending mode to Pre-Multiplied Alpha (PMA) Blending.
-   *
-   * @param batch The SpriteBatch to set the blending mode for. If null, sets the OpenGL blending
-   *     mode directly.
-   */
-  public static void setPMABlending(SpriteBatch batch) {
-    if (batch == null) {
-      Gdx.gl.glEnable(GL20.GL_BLEND);
-      Gdx.gl.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    } else {
-      batch.enableBlending();
-      batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
+  /** Pre-Multiplied Alpha (PMA) blending. */
+  public static void setPMABlending() {
+    if (!Platform.runtime().supportsGdxRendering()) return;
+    invokeNoArg("setPMABlending");
+  }
+
+  /** Pre-Multiplied Alpha (PMA) blending. */
+  public static void setPMABlending(Object batch) {
+    if (!Platform.runtime().supportsGdxRendering()) return;
+    invokeObjectArg("setPMABlending", batch);
+  }
+
+  /** Straight alpha blending. */
+  public static void setStraightAlphaBlending() {
+    if (!Platform.runtime().supportsGdxRendering()) return;
+    invokeNoArg("setStraightAlphaBlending");
+  }
+
+  /** Straight alpha blending. */
+  public static void setStraightAlphaBlending(Object batch) {
+    if (!Platform.runtime().supportsGdxRendering()) return;
+    invokeObjectArg("setStraightAlphaBlending", batch);
+  }
+
+  private static void invokeNoArg(String methodName) {
+    try {
+      Class<?> cls = Class.forName("core.platform.gdx.render.GdxBlendUtils");
+      cls.getMethod(methodName).invoke(null);
+    } catch (ReflectiveOperationException e) {
+      throw new IllegalStateException("GDX blend utils not available", e);
     }
   }
 
-  /**
-   * Sets the blending mode to Straight Alpha Blending.
-   *
-   * @param batch The SpriteBatch to set the blending mode for. If null, sets the OpenGL blending
-   *     mode directly.
-   */
-  public static void setStraightAlphaBlending(SpriteBatch batch) {
-    if (batch == null) {
-      Gdx.gl.glEnable(GL20.GL_BLEND);
-      Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    } else {
-      batch.enableBlending();
-      batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+  private static void invokeObjectArg(String methodName, Object arg) {
+    try {
+      Class<?> cls = Class.forName("core.platform.gdx.render.GdxBlendUtils");
+      cls.getMethod(methodName, Object.class).invoke(null, arg);
+    } catch (ReflectiveOperationException e) {
+      throw new IllegalStateException("GDX blend utils not available", e);
     }
   }
 }
