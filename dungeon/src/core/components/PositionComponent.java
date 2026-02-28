@@ -3,6 +3,7 @@ package core.components;
 import core.Component;
 import core.level.Tile;
 import core.level.utils.Coordinate;
+import core.platform.gdx.render.DrawSystem;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -13,7 +14,7 @@ import java.io.Serializable;
  * Store the position of the associated entity in the level.
  *
  * <p>Various systems access the position of an entity through this component, e.g., the {@link
- * core.systems.DrawSystem} uses the position to draw an entity in the right place, and the {@link
+ * DrawSystem} uses the position to draw an entity in the right place, and the {@link
  * core.systems.VelocitySystem} updates the position and direction of view values based on the
  * velocity and the previous position of an entity.
  *

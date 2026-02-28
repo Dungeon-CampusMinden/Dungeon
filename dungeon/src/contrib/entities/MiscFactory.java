@@ -22,7 +22,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.elements.tile.DoorTile;
-import core.systems.DrawSystem;
+import core.platform.gdx.render.DrawSystem;
 import core.utils.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;

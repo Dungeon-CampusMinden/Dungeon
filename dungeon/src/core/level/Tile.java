@@ -19,8 +19,6 @@ import java.util.List;
  *
  * <p>A Tile can be accessible or non-accessible; this is represented by a boolean value.
  *
- * <p>After you add a Tile to a Level, you must call {@link #level(DungeonLevel)}.
- *
  * <p>The concrete type of the Tile is defined by the inheriting class.
  */
 public abstract class Tile {

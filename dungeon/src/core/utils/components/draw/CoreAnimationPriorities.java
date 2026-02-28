@@ -1,10 +1,12 @@
 package core.utils.components.draw;
 
+import core.platform.gdx.render.DrawSystem;
+
 /**
  * Priorities for the core animations.
  *
  * <p>Priorities define the order in which animations will be drawn by the {@link
- * core.systems.DrawSystem}
+ * DrawSystem}
  *
  * @see CoreAnimations
  */

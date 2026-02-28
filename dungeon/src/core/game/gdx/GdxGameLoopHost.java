@@ -33,6 +33,7 @@ import core.network.client.ClientNetwork;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.*;
 import core.platform.gdx.GdxInputBridge;
+import core.platform.gdx.render.DrawSystem;
 import core.sound.player.GdxSoundPlayer;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;

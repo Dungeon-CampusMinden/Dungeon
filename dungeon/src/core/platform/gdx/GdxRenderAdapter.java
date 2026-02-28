@@ -1,7 +1,7 @@
 package core.platform.gdx;
 
 import core.platform.RenderAdapter;
-import core.systems.DrawSystem;
+import core.platform.gdx.render.DrawSystem;
 import core.systems.SoundSystem;
 import java.util.List;
 

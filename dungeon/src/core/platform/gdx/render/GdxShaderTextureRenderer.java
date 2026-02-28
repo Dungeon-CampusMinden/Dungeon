@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import core.systems.DrawSystem;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.draw.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;

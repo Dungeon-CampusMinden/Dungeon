@@ -1,4 +1,4 @@
-package core.systems;
+package core.platform.gdx.render;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
@@ -21,7 +21,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
-import core.platform.gdx.render.FrameBufferPool;
+import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Vector2;

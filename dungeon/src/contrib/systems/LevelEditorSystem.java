@@ -14,7 +14,7 @@ import core.components.InputComponent;
 import core.components.PlayerComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
-import core.systems.DrawSystem;
+import core.platform.gdx.render.DrawSystem;
 import core.utils.*;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.shader.OutlineShader;

@@ -3,7 +3,6 @@ package core.level.elements;
 import contrib.entities.deco.Deco;
 import core.Entity;
 import core.components.PositionComponent;
-import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.elements.tile.*;
 import core.level.utils.Coordinate;
@@ -22,7 +21,6 @@ import java.util.function.Function;
  * <p>This is the datatype used in every API call inside the dungeon framework to define a level.
  * Each level you want to use needs to implement this interface.
  *
- * @see DungeonLevel
  */
 public interface ILevel {
 

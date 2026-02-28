@@ -6,7 +6,7 @@ import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.sound.SoundSpec;
-import core.systems.DrawSystem;
+import core.platform.gdx.render.DrawSystem;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Vector2;

@@ -1,7 +1,7 @@
 package core.utils.components.draw.shader;
 
 import com.badlogic.gdx.math.Vector4;
-import core.systems.DrawSystem;
+import core.platform.gdx.render.DrawSystem;
 import core.utils.Rectangle;
 import java.util.List;
 

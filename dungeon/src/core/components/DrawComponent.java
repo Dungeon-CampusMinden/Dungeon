@@ -2,6 +2,7 @@ package core.components;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import core.Component;
+import core.platform.gdx.render.DrawSystem;
 import core.utils.Vector2;
 import core.utils.components.draw.*;
 import core.utils.components.draw.animation.Animation;
@@ -313,7 +314,7 @@ public final class DrawComponent implements Component, Serializable {
 
   /**
    * Check if the component is visible. If the component is visible, it will be drawn by the {@link
-   * core.systems.DrawSystem}.
+   * DrawSystem}.
    *
    * @return true if the component is visible, false if not.
    */
@@ -323,7 +324,7 @@ public final class DrawComponent implements Component, Serializable {
 
   /**
    * Set the visibility of the component. If the component is visible, it will be drawn by the
-   * {@link core.systems.DrawSystem}.
+   * {@link DrawSystem}.
    *
    * @param visible The new visibility status to set. True for visible, false for hidden.
    */
