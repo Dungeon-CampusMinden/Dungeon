@@ -73,9 +73,5 @@ public final class BinaryOp extends BinaryNumericResultOp implements Arith {
         .map(BinModeAttr::getMode)
         .orElseThrow(() -> new AssertionError("No binMode attribute found."));
   }
-
-  public @NotNull Type getResultType() {
-    return getOutput().orElseThrow(() -> new AssertionError("No output found.")).getType();
-  }
 }
 
