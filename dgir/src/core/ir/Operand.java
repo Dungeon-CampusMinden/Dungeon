@@ -57,6 +57,7 @@ public abstract class Operand<
    * @return The index, or -1 if not found.
    */
   @Contract(pure = true)
+  @JsonIgnore
   public abstract int getIndex();
 
   /**
