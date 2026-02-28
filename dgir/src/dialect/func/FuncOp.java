@@ -3,7 +3,7 @@ package dialect.func;
 import core.SymbolTable;
 import core.ir.NamedAttribute;
 import core.ir.Operation;
-import core.ir.Location;
+import core.debug.Location;
 import core.traits.IGlobal;
 import core.traits.IIsolatedFromAbove;
 import core.traits.ISingleRegion;

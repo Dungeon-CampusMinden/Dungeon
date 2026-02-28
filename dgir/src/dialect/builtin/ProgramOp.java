@@ -2,7 +2,7 @@ package dialect.builtin;
 
 import core.ir.Block;
 import core.ir.Operation;
-import core.ir.Location;
+import core.debug.Location;
 import core.traits.*;
 import dialect.func.FuncOp;
 import java.util.function.Function;

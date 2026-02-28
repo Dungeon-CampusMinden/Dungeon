@@ -2,7 +2,7 @@ package dialect.func;
 
 import core.ir.Op;
 import core.ir.Operation;
-import core.ir.Location;
+import core.debug.Location;
 import core.ir.Value;
 import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;

@@ -1,4 +1,4 @@
-import core.ir.Location;
+import core.debug.Location;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
 import dialect.func.FuncOp;

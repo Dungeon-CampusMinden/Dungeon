@@ -1,10 +1,12 @@
 package dgir.vm.api;
 
 import core.ir.Operation;
-import core.ir.Location;
+import core.debug.Location;
 import core.ir.Value;
 import core.traits.INoTerminator;
+import dgir.vm.dap.DebugUtils;
 import dialect.builtin.ProgramOp;
+import org.eclipse.lsp4j.debug.Breakpoint;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -322,7 +324,7 @@ public class VM {
         // Check breakpoints first; only fire the first matching one per step.
         // Breakpoints always interrupt execution, even during a step-over.
         for (Breakpoint bp : breakpoints) {
-          if (bp.matches(location)) {
+          if (DebugUtils.breakpointMatches(bp, location)) {
             DebugControl bpCtrl = debugger.onBreakpointHit(currentOp, bp, location);
             if (bpCtrl == DebugControl.PAUSE) {
               // A breakpoint hit cancels any pending step mode so the prior step context

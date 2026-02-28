@@ -1,5 +1,5 @@
 import core.Dialect;
-import core.ir.Location;
+import core.debug.Location;
 import core.serialization.Utils;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;

@@ -1,6 +1,5 @@
-import core.ir.Location;
+import core.debug.Location;
 import core.ir.Operation;
-import dgir.vm.api.Breakpoint;
 import dgir.vm.api.DebugControl;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapAdapter;
@@ -14,6 +13,7 @@ import dialect.scf.ContinueOp;
 import dialect.scf.ForOp;
 import org.eclipse.lsp4j.debug.*;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -301,8 +301,8 @@ class DapAdapterTest extends VmTestBase {
 
     // VM should now have exactly those two breakpoints
     assertEquals(2, h.vm().getBreakpoints().size());
-    assertTrue(h.vm().getBreakpoints().contains(new Breakpoint("test.java", 4, 0)));
-    assertTrue(h.vm().getBreakpoints().contains(new Breakpoint("test.java", 6, 0)));
+    assertTrue(hasBreakpoint(h.vm().getBreakpoints(), "test.java", 4, 0));
+    assertTrue(hasBreakpoint(h.vm().getBreakpoints(), "test.java", 6, 0));
   }
 
   @Test
@@ -330,8 +330,8 @@ class DapAdapterTest extends VmTestBase {
     h.adapter().setBreakpoints(args2).get();
 
     assertEquals(1, h.vm().getBreakpoints().size());
-    assertTrue(h.vm().getBreakpoints().contains(new Breakpoint("test.java", 6, 0)));
-    assertFalse(h.vm().getBreakpoints().contains(new Breakpoint("test.java", 4, 0)));
+    assertTrue(hasBreakpoint(h.vm().getBreakpoints(), "test.java", 6, 0));
+    assertFalse(hasBreakpoint(h.vm().getBreakpoints(), "test.java", 4, 0));
   }
 
   @Test
@@ -848,7 +848,12 @@ class DapAdapterTest extends VmTestBase {
     IDebugProtocolClient mockClient = mock(IDebugProtocolClient.class);
     adapter.setClient(mockClient);
 
-    Breakpoint bp = new Breakpoint("test.java", 3, 3);
+    Breakpoint bp = new Breakpoint();
+    Source src = new Source();
+    src.setPath("test.java");
+    bp.setSource(src);
+    bp.setLine(3);
+    bp.setColumn(3);
     Operation mockOp = mock(Operation.class);
     DebugControl ctrl = adapter.onBreakpointHit(mockOp, bp, new Location("test.java", 3, 3));
 
@@ -881,5 +886,22 @@ class DapAdapterTest extends VmTestBase {
     if (last instanceof Exception e) throw e;
     if (last instanceof Error e) throw e;
     fail("Condition not met within 5 seconds");
+  }
+
+  private static boolean hasBreakpoint(
+      @NotNull java.util.Set<Breakpoint> breakpoints,
+      @NotNull String path,
+      int line,
+      int column) {
+    return breakpoints.stream()
+        .anyMatch(
+            bp -> {
+              Source src = bp.getSource();
+              String bpPath = src != null ? src.getPath() : null;
+              Integer bpLine = bp.getLine();
+              Integer bpCol = bp.getColumn();
+              return path.equals(bpPath) && line == (bpLine != null ? bpLine : -1)
+                  && column == (bpCol != null ? bpCol : 0);
+            });
   }
 }

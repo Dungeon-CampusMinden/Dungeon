@@ -1,7 +1,7 @@
 package dialect.io;
 
 import core.ir.Operation;
-import core.ir.Location;
+import core.debug.Location;
 import core.ir.Type;
 import core.ir.Value;
 import dialect.builtin.types.FloatT;

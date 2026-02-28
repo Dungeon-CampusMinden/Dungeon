@@ -1,4 +1,4 @@
-package core.ir;
+package core.debug;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

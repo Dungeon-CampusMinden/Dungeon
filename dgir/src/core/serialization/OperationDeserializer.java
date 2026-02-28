@@ -1,5 +1,6 @@
 package core.serialization;
 
+import core.debug.Location;
 import core.ir.OperationDetails;
 import core.ir.*;
 import tools.jackson.core.JsonParser;

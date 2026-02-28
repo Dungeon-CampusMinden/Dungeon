@@ -1,7 +1,7 @@
 import core.analysis.DotCFG;
 import core.ir.Op;
 import core.ir.Operation;
-import core.ir.Location;
+import core.debug.Location;
 import core.serialization.Utils;
 import dialect.builtin.ProgramOp;
 import dialect.func.FuncOp;

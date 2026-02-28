@@ -1,6 +1,7 @@
 package dialect.func;
 
 import core.SymbolTable;
+import core.debug.Location;
 import core.ir.*;
 import core.traits.ISymbolUser;
 import dialect.builtin.attributes.SymbolRefAttribute;

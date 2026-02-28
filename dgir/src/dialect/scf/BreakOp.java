@@ -2,7 +2,7 @@ package dialect.scf;
 
 import core.ir.Op;
 import core.ir.Operation;
-import core.ir.Location;
+import core.debug.Location;
 import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;
 import org.jetbrains.annotations.NotNull;

@@ -1,7 +1,7 @@
 package dialect.scf;
 
 import core.ir.*;
-import core.ir.Location;
+import core.debug.Location;
 import core.traits.IControlFlow;
 import core.traits.ISingleRegion;
 import dialect.builtin.types.IntegerT;

@@ -1,7 +1,7 @@
 package core.serialization;
 
 import core.ir.Operation;
-import core.ir.Location;
+import core.debug.Location;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;

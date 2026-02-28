@@ -1,7 +1,7 @@
 package dgir.vm.dap;
 
+import core.debug.Location;
 import core.ir.*;
-import dgir.vm.api.Breakpoint;
 import dgir.vm.api.DebugControl;
 import dgir.vm.api.Debugger;
 import dgir.vm.api.VM;
@@ -14,10 +14,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.Thread;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * DAP adapter for the DGIR {@link VM}.
@@ -46,7 +48,13 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
 
   private static final String THREAD_NAME = "main";
 
+  private static final String VALUE_NAME_PREFIX = "%";
+
   private final @NotNull VM vm;
+
+  // Stable per-session debug names keyed by JVM identity.
+  private final @NotNull IdentityHashMap<Value, String> valueNames = new IdentityHashMap<>();
+  private final @NotNull AtomicInteger nextValueId = new AtomicInteger(0);
 
   /**
    * The lsp4j-generated client proxy. Set by {@link DapServer} after the launcher is created,
@@ -103,6 +111,13 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   // IDebugProtocolServer — lifecycle
   // =========================================================================
 
+  /**
+   * DAP initialize: announces adapter capabilities and signals that breakpoint setup may begin.
+   *
+   * <p>Important: the client relies on these flags to decide which requests it can send. For
+   * example, hover uses {@code evaluate} with {@code context="hover"}, so we must advertise {@code
+   * supportsEvaluateForHovers}.
+   */
   @Override
   public CompletableFuture<Capabilities> initialize(InitializeRequestArguments args) {
     Capabilities caps = new Capabilities();
@@ -110,11 +125,18 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     caps.setSupportsBreakpointLocationsRequest(true);
     caps.setSupportsStepInTargetsRequest(true);
     caps.setSupportsSingleThreadExecutionRequests(true);
+    caps.setSupportsEvaluateForHovers(true);
     // Notify the client that we are ready for breakpoint configuration.
     if (client != null) client.initialized();
     return CompletableFuture.completedFuture(caps);
   }
 
+  /**
+   * DAP launch: starts the VM in debug mode (optionally stopping on entry).
+   *
+   * <p>We read {@code stopOnEntry} from the launch arguments and defer VM execution until {@link
+   * #configurationDone} signals that all breakpoints are registered.
+   */
   @Override
   public CompletableFuture<Void> launch(Map<String, Object> args) {
     Object soe = args != null ? args.get("stopOnEntry") : null;
@@ -123,18 +145,25 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     return CompletableFuture.completedFuture(null);
   }
 
+  /** DAP attach: connects to a VM that is already prepared and starts it after configuration. */
   @Override
   public CompletableFuture<Void> attach(Map<String, Object> args) {
     startVmThread();
     return CompletableFuture.completedFuture(null);
   }
 
+  /** DAP configurationDone: unblocks the VM thread so the program can start. */
   @Override
   public CompletableFuture<Void> configurationDone(ConfigurationDoneArguments args) {
     configDone.countDown();
     return CompletableFuture.completedFuture(null);
   }
 
+  /**
+   * DAP disconnect: detach the debugger and resume the VM so it can exit cleanly.
+   *
+   * <p>We also clear breakpoints and unblock configuration in case launch was never called.
+   */
   @Override
   public CompletableFuture<Void> disconnect(DisconnectArguments args) {
     vm.setDebugger(null);
@@ -148,6 +177,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   // IDebugProtocolServer — breakpoints
   // =========================================================================
 
+  /** DAP setExceptionBreakpoints: not supported by the VM; acknowledge request as no-op. */
   @Override
   public CompletableFuture<SetExceptionBreakpointsResponse> setExceptionBreakpoints(
       SetExceptionBreakpointsArguments args) {
@@ -155,6 +185,12 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     return CompletableFuture.completedFuture(new SetExceptionBreakpointsResponse());
   }
 
+  /**
+   * DAP setBreakpoints: replaces breakpoints for a single source file.
+   *
+   * <p>DAP expects the adapter to return per-breakpoint verification. We always mark them as
+   * verified because the VM accepts any line/column and the actual check happens at runtime.
+   */
   @Override
   public CompletableFuture<SetBreakpointsResponse> setBreakpoints(SetBreakpointsArguments args) {
     // Clear only the breakpoints for this source file, then re-register.
@@ -163,30 +199,36 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
 
     // Remove existing breakpoints for this file.
     for (Breakpoint bp : new ArrayList<>(vm.getBreakpoints())) {
-      if (bp.file().equals(path)) vm.removeBreakpoint(bp);
+      Source src = bp.getSource();
+      String bpPath = src != null ? src.getPath() : null;
+      if (path.equals(bpPath)) vm.removeBreakpoint(bp);
     }
 
-    List<org.eclipse.lsp4j.debug.Breakpoint> verified = new ArrayList<>();
+    List<Breakpoint> verified = new ArrayList<>();
     SourceBreakpoint[] requested = args.getBreakpoints();
     if (requested != null) {
       for (SourceBreakpoint sb : requested) {
-        int line = sb.getLine();
-        Integer col = sb.getColumn();
-        vm.addBreakpoint(new Breakpoint(path, line, col != null ? col : 0));
-
-        org.eclipse.lsp4j.debug.Breakpoint bp = new org.eclipse.lsp4j.debug.Breakpoint();
+        var bp = new Breakpoint();
         bp.setVerified(true);
-        bp.setLine(line);
+        bp.setLine(sb.getLine());
+        bp.setColumn(sb.getColumn());
         bp.setSource(args.getSource());
         verified.add(bp);
+        vm.addBreakpoint(bp);
       }
     }
 
     SetBreakpointsResponse resp = new SetBreakpointsResponse();
-    resp.setBreakpoints(verified.toArray(new org.eclipse.lsp4j.debug.Breakpoint[0]));
+    resp.setBreakpoints(verified.toArray(Breakpoint[]::new));
     return CompletableFuture.completedFuture(resp);
   }
 
+  /**
+   * DAP breakpointLocations: returns all possible breakpoint lines for a source range.
+   *
+   * <p>This walks the IR and maps each operation location to a distinct (file, line) entry so the
+   * UI can offer valid breakpoint positions.
+   */
   @Override
   public CompletableFuture<BreakpointLocationsResponse> breakpointLocations(
       BreakpointLocationsArguments args) {
@@ -258,6 +300,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   // IDebugProtocolServer — execution control
   // =========================================================================
 
+  /** DAP continue: resumes execution and clears any pending step mode. */
   @Override
   public CompletableFuture<ContinueResponse> continue_(ContinueArguments args) {
     ContinueResponse resp = new ContinueResponse();
@@ -266,6 +309,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     return CompletableFuture.completedFuture(resp);
   }
 
+  /** DAP next (step over): request a line-granular step that does not enter calls. */
   @Override
   public CompletableFuture<Void> next(NextArguments args) {
     stepPending = true;
@@ -273,6 +317,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     return CompletableFuture.completedFuture(null);
   }
 
+  /** DAP stepIn: request a line-granular step that may enter calls. */
   @Override
   public CompletableFuture<Void> stepIn(StepInArguments args) {
     stepPending = true;
@@ -280,6 +325,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     return CompletableFuture.completedFuture(null);
   }
 
+  /** DAP pause: request a suspend on the next safe point. */
   @Override
   public CompletableFuture<Void> pause(PauseArguments args) {
     pauseRequested = true;
@@ -290,6 +336,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   // IDebugProtocolServer — inspection
   // =========================================================================
 
+  /** DAP threads: the VM is single-threaded, so we expose exactly one thread. */
   @Override
   public CompletableFuture<ThreadsResponse> threads() {
     org.eclipse.lsp4j.debug.Thread t = new org.eclipse.lsp4j.debug.Thread();
@@ -300,6 +347,12 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     return CompletableFuture.completedFuture(resp);
   }
 
+  /**
+   * DAP stackTrace: returns the current frame plus any call-stack frames reported by the VM.
+   *
+   * <p>Frame IDs are adapter-assigned opaque handles and are only meaningful while paused. The
+   * client will echo these IDs back in {@code scopes}, {@code variables}, and {@code evaluate}.
+   */
   @Override
   public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
     List<Operation> callStack = vm.getCallStack();
@@ -336,14 +389,13 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     return CompletableFuture.completedFuture(resp);
   }
 
-  private static @NotNull StackFrame buildFrameFromLocation(
-      @NotNull Location loc,
-      int frameId) {
+  private static @NotNull StackFrame buildFrameFromLocation(@NotNull Location loc, int frameId) {
     Source src = new Source();
     src.setPath(loc.file());
-    src.setName(loc.file().contains("/")
-        ? loc.file().substring(loc.file().lastIndexOf('/') + 1)
-        : loc.file());
+    src.setName(
+        loc.file().contains("/")
+            ? loc.file().substring(loc.file().lastIndexOf('/') + 1)
+            : loc.file());
 
     StackFrame frame = new StackFrame();
     frame.setId(frameId);
@@ -355,17 +407,16 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   }
 
   private static @NotNull StackFrame getStackFrame(
-      @NotNull List<Operation> callStack,
-      int i,
-      int idBase) {
+      @NotNull List<Operation> callStack, int i, int idBase) {
     Operation op = callStack.get(i);
     Location loc = op.getLocation();
 
     Source src = new Source();
     src.setPath(loc.file());
-    src.setName(loc.file().contains("/")
-        ? loc.file().substring(loc.file().lastIndexOf('/') + 1)
-        : loc.file());
+    src.setName(
+        loc.file().contains("/")
+            ? loc.file().substring(loc.file().lastIndexOf('/') + 1)
+            : loc.file());
 
     StackFrame frame = new StackFrame();
     // Use index+1 as frame ID so it is unique and non-zero.
@@ -388,9 +439,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     Operation current = op;
     while (true) {
       if (current.isa(FuncOp.class)) {
-        return current
-            .as(FuncOp.class)
-            .map(func -> func.getFuncNameAttribute().getValue());
+        return current.as(FuncOp.class).map(func -> func.getFuncNameAttribute().getValue());
       }
       var parent = current.getParentOperation();
       if (parent.isEmpty()) return java.util.Optional.empty();
@@ -398,6 +447,10 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     }
   }
 
+  /**
+   * DAP scopes: returns a single "Locals" scope. The {@code variablesReference} is an opaque handle
+   * the client uses to request variables.
+   */
   @Override
   public CompletableFuture<ScopesResponse> scopes(ScopesArguments args) {
     Scope scope = new Scope();
@@ -409,6 +462,12 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     return CompletableFuture.completedFuture(resp);
   }
 
+  /**
+   * DAP variables: exposes the VM's currently visible values as debugger variables.
+   *
+   * <p>Each entry is flattened into a name, value, and type string. Nested structures are not
+   * expanded yet, so {@code variablesReference} is always 0.
+   */
   @Override
   public CompletableFuture<VariablesResponse> variables(VariablesArguments args) {
     List<Variable> vars = new ArrayList<>();
@@ -422,10 +481,9 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
                 Object obj = entry.getValue();
 
                 Variable v = new Variable();
-                // Use the Value's string representation as the name; fall back to its identity.
-                v.setName(value.toString());
-                v.setValue(obj != null ? obj.toString() : "null");
-                v.setType(obj != null ? obj.getClass().getSimpleName() : "<null>");
+                v.setName(getValueDebugName(value));
+                v.setValue(formatValue(obj));
+                v.setType(value.getType().toString());
                 // No nested children for primitive/object values at the IR level.
                 v.setVariablesReference(0);
                 vars.add(v);
@@ -437,19 +495,62 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     return CompletableFuture.completedFuture(resp);
   }
 
+  /**
+   * DAP evaluate: resolves an expression in the current scope.
+   *
+   * <p>Hover uses {@code context="hover"} with a simple identifier expression. We match that
+   * identifier against the visible values and return the formatted result.
+   */
+  @Override
+  public CompletableFuture<EvaluateResponse> evaluate(EvaluateArguments args) {
+    EvaluateResponse resp = new EvaluateResponse();
+    String expression = args != null ? args.getExpression() : null;
+    if (expression == null || expression.isBlank()) {
+      resp.setResult("<empty>");
+      resp.setType("<error>");
+      return CompletableFuture.completedFuture(resp);
+    }
+
+    var stateOpt = vm.getState();
+    if (stateOpt.isEmpty()) {
+      resp.setResult("<no state>");
+      resp.setType("<error>");
+      return CompletableFuture.completedFuture(resp);
+    }
+
+    Map<Value, Object> visible = stateOpt.get().getVisibleValues();
+    for (Map.Entry<Value, Object> entry : visible.entrySet()) {
+      Value value = entry.getKey();
+      if (expression.equals(getValueDebugName(value))) {
+        Object obj = entry.getValue();
+        resp.setResult(formatValue(obj));
+        resp.setType(value.getType().toString());
+        resp.setVariablesReference(0);
+        return CompletableFuture.completedFuture(resp);
+      }
+    }
+
+    resp.setResult("<not found>");
+    resp.setType("<error>");
+    return CompletableFuture.completedFuture(resp);
+  }
+
   // =========================================================================
   // Debugger — VM callbacks (called on the VM thread)
   // =========================================================================
 
   private static boolean isEntryOperation(@NotNull Operation operation) {
     return operation
-      .getParentOperation()
-      .filter(op -> op.getIndex() == 0)
-      .flatMap(op -> op.as(FuncOp.class))
-      .map(func -> "main".equals(func.getFuncNameAttribute().getValue()))
-      .orElse(false);
+        .getParentOperation()
+        .filter(op -> op.getIndex() == 0)
+        .flatMap(op -> op.as(FuncOp.class))
+        .map(func -> "main".equals(func.getFuncNameAttribute().getValue()))
+        .orElse(false);
   }
 
+  /**
+   * VM callback before each operation. Decides whether to pause based on entry/step/pause flags.
+   */
   @Override
   public @NotNull DebugControl onStep(@NotNull Operation operation, @NotNull Location location) {
 
@@ -478,6 +579,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     return DebugControl.CONTINUE;
   }
 
+  /** VM callback when a breakpoint is about to be executed. */
   @Override
   public @NotNull DebugControl onBreakpointHit(
       @NotNull Operation operation, @NotNull Breakpoint breakpoint, @NotNull Location location) {
@@ -534,5 +636,18 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
       args.setDescription(location.toString());
     }
     client.stopped(args);
+  }
+
+  private @NotNull String getValueDebugName(@NotNull Value value) {
+    // Prefer source-level names; fallback to stable synthetic names when missing.
+    String explicit = value.getName();
+    if (!explicit.isBlank() && !"<unknown>".equals(explicit)) return explicit;
+    return valueNames.computeIfAbsent(
+        value, ignored -> VALUE_NAME_PREFIX + nextValueId.getAndIncrement());
+  }
+
+  private static @NotNull String formatValue(@Nullable Object value) {
+    // Keep formatting minimal for now; extend for structured types later.
+    return value != null ? value.toString() : "null";
   }
 }

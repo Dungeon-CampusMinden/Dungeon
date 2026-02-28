@@ -1,6 +1,7 @@
 package core.ir;
 
 import core.Dialect;
+import core.debug.Location;
 import core.serialization.OpDeserializer;
 import core.serialization.OpSerializer;
 import core.traits.IOpTrait;

@@ -1,5 +1,5 @@
 import core.Dialect;
-import core.ir.Location;
+import core.debug.Location;
 import dialect.arith.BinaryOp;
 import dialect.arith.CastOp;
 import dialect.arith.CompareOp;

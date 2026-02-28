@@ -2,7 +2,7 @@ package dialect.cf;
 
 import core.ir.Block;
 import core.ir.Operation;
-import core.ir.Location;
+import core.debug.Location;
 import core.ir.Value;
 import core.traits.IControlFlow;
 import core.traits.ITerminator;

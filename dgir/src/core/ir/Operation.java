@@ -2,6 +2,7 @@ package core.ir;
 
 import core.OperationVerifier;
 import core.Utils;
+import core.debug.Location;
 import core.serialization.OperationDeserializer;
 import core.serialization.OperationSerializer;
 import core.traits.IOpTrait;

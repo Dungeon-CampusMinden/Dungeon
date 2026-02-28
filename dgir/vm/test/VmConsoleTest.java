@@ -1,5 +1,5 @@
 import core.ir.Block;
-import core.ir.Location;
+import core.debug.Location;
 import dgir.vm.api.VM;
 import dgir.vm.dialect.io.ConsoleInRunner;
 import dialect.arith.BinaryOp;

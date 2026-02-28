@@ -1,5 +1,5 @@
 import core.Dialect;
-import core.ir.Location;
+import core.debug.Location;
 import dialect.arith.ConstantOp;
 import dialect.scf.*;
 import org.junit.jupiter.api.BeforeAll;

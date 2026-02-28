@@ -1,5 +1,5 @@
 import core.Dialect;
-import core.ir.Location;
+import core.debug.Location;
 import dgir.vm.dialect.io.PrintRunner;
 import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
