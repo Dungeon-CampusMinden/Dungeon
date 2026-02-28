@@ -96,8 +96,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
     Location location = Location.UNKNOWN;
     // Get the source location if it exists
     if (node.has("loc")) {
-      String loc = node.get("loc").asString();
-      location = Location.fromString(loc);
+      location = ctxt.readTreeAsValue(node.get("loc"), Location.class);
     }
 
     // Now that the regions are deserialized, we can go over all their operations and resolve their

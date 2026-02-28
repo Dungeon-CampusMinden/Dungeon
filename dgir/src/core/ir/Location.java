@@ -1,10 +1,13 @@
 package core.ir;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.jetbrains.annotations.NotNull;
 
 public record Location(@NotNull String file, int line, int column) {
   public static final Location UNKNOWN = new Location("<unknown>", -1, -1);
 
+  @JsonCreator
   public static @NotNull Location fromString(@NotNull String loc) {
     String[] parts = loc.split(":", -1);
     if (parts.length != 3) {
@@ -16,6 +19,7 @@ public record Location(@NotNull String file, int line, int column) {
     return new Location(file, line, column);
   }
 
+  @JsonValue
   @Override
   public @NotNull String toString() {
     return file + ":" + line + ":" + column;

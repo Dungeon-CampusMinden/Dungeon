@@ -31,7 +31,7 @@ public class OperationSerializer extends StdSerializer<Operation> {
     if (value.getOutput().isPresent()) gen.writePOJOProperty("output", value.getOutput());
     if (!value.getRegions().isEmpty()) gen.writePOJOProperty("regions", value.getRegions());
     if (!value.getLocation().equals(Location.UNKNOWN))
-      gen.writeStringProperty("loc", value.getLocation().toString());
+      gen.writePOJOProperty("location", value.getLocation());
     gen.writeEndObject();
   }
 }
