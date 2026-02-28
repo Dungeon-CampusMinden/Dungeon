@@ -52,7 +52,7 @@ public class IntegerT extends BuiltinType {
 
   @Override
   public @NotNull String getIdent() {
-    return "int";
+    return "int" + getWidth();
   }
 
   @Override
