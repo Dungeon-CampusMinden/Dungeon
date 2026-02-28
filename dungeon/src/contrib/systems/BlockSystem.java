@@ -8,101 +8,76 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.path.DynamicObstacles;
 import core.level.utils.Coordinate;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
- * The BlockSystem manages the pathfinding by adding and removing tiles based on {@link
- * BlockComponent}-Entities.
+ * The BlockSystem manages dynamic pathfinding obstacles based on {@link BlockComponent}-Entities.
  *
- * <p>Entities with the {@link BlockComponent} and {@link PositionComponent} will be processed by
- * this system.
+ * <p>Entities with {@link BlockComponent} and {@link PositionComponent} will be processed by this
+ * system. The tile coordinate under the entity is registered in {@link DynamicObstacles}.
  *
- * <p>The system takes the {@link PositionComponent#position()} of an entity and removes the tile
- * where the entity is placed from the pathfinding.
- *
- * <p>This system also checks for updated positions. If an entity moves, the tiles will be freed and
- * blocked accordingly.
- *
- * <p>If a {@link BlockComponent} gets removed, this system will free the respective tile.
- *
- * @see BlockComponent
+ * <p>If an entity moves, the old coordinate is unblocked and the new coordinate is blocked.
+ * If a {@link BlockComponent} gets removed, the respective coordinate is unblocked.
  */
 public final class BlockSystem extends System {
 
-  private HashMap<PositionComponent, Point> oldPositions;
+  private final Map<PositionComponent, Coordinate> oldTileCoords = new HashMap<>();
+
   private final Consumer<Entity> onRemove =
-      entity -> {
-        BSData data = buildDataObject(entity);
-        oldPositions.remove(data.pc);
-        blockAt(data.pc.position(), false);
-      };
+    entity -> {
+      final BSData data = buildDataObject(entity);
+      final Coordinate c = currentTileCoord(data.pc);
+      oldTileCoords.remove(data.pc);
+      DynamicObstacles.unblock(c);
+    };
 
   private final Consumer<Entity> onAdd =
-      entity -> {
-        BSData data = buildDataObject(entity);
-        oldPositions.put(data.pc, data.pc.position());
-        blockAt(data.pc.position(), true);
-      };
+    entity -> {
+      final BSData data = buildDataObject(entity);
+      final Coordinate c = currentTileCoord(data.pc);
+      oldTileCoords.put(data.pc, c);
+      DynamicObstacles.block(c);
+    };
 
   /** Creates a new BlockSystem. */
   public BlockSystem() {
     super(BlockComponent.class, PositionComponent.class);
     this.onEntityAdd = onAdd;
     this.onEntityRemove = onRemove;
-    oldPositions = new HashMap<>();
   }
 
-  /**
-   * Executes the system, processing all entities with {@link BlockComponent} and {@link
-   * PositionComponent}.
-   *
-   * <p>It updates the pathfinding if entities have moved since the last execution.
-   */
   @Override
   public void execute() {
     filteredEntityStream(BlockComponent.class, PositionComponent.class)
-        .map(this::buildDataObject)
-        .forEach(this::updateTiles);
+      .map(this::buildDataObject)
+      .forEach(this::updateTiles);
   }
 
-  /**
-   * Updates the pathfinding by comparing the old and current positions of an entity.
-   *
-   * <p>If an entity has moved, it frees the old tile and blocks the new tile accordingly.
-   *
-   * @param data The data object containing entity information.
-   */
-  private void updateTiles(BSData data) {
-    Point currentP = data.pc.position();
-    Point oldP = oldPositions.get(data.pc);
-    if (currentP.equals(oldP)) return;
+  private void updateTiles(final BSData data) {
+    final Coordinate current = currentTileCoord(data.pc);
+    final Coordinate old = oldTileCoords.get(data.pc);
+    if (Objects.equals(current, old)) return;
 
-    blockAt(oldP, false);
-    blockAt(currentP, true);
-    oldPositions.put(data.pc, currentP);
+    DynamicObstacles.unblock(old);
+    DynamicObstacles.block(current);
+    oldTileCoords.put(data.pc, current);
   }
 
-  private BSData buildDataObject(Entity e) {
-    PositionComponent pc =
-        e.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
+  private static Coordinate currentTileCoord(final PositionComponent pc) {
+    if (pc == null) return null;
+    return Game.tileAt(pc.position()).map(Tile::coordinate).orElse(null);
+  }
+
+  private BSData buildDataObject(final Entity e) {
+    final PositionComponent pc =
+      e.fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
     return new BSData(e, pc);
   }
 
   private record BSData(Entity e, PositionComponent pc) {}
-
-  private void blockAt(final Point p, final boolean block) {
-    if (p == null) return;
-
-    // Use tile lookup to stay consistent with level bounds / coordinate mapping.
-    final Tile t = Game.tileAt(p).orElse(null);
-    if (t == null) return;
-
-    final Coordinate c = t.coordinate();
-    if (block) DynamicObstacles.block(c);
-    else DynamicObstacles.unblock(c);
-  }
 }

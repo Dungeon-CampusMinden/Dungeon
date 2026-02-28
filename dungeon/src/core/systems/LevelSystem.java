@@ -12,6 +12,7 @@ import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
 import core.level.loader.DungeonLoader;
+import core.level.path.DynamicObstacles;
 import core.sound.SoundSpec;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
@@ -79,6 +80,7 @@ public final class LevelSystem extends System {
    */
   public void loadLevel(final ILevel level) {
     currentLevel = level;
+    DynamicObstacles.clear();
     onLevelLoad.execute();
     LOGGER.info("A new level was loaded.");
   }
