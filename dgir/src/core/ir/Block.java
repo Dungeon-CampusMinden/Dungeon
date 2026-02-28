@@ -210,6 +210,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    * @return The index, or -1 if this block has no parent.
    */
   @Contract(pure = true)
+  @JsonIgnore
   public int getIndex() {
     return getParent().map(region -> region.getBlocks().indexOf(this)).orElse(-1);
   }
