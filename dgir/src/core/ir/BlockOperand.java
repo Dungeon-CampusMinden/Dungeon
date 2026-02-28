@@ -12,4 +12,9 @@ public class BlockOperand extends Operand<Block, BlockOperand> {
   public BlockOperand(@NotNull Operation owner, @NotNull Block block) {
     super(owner, block);
   }
+
+  @Override
+  public int getIndex() {
+    return getOwner().getBlockOperands().indexOf(this);
+  }
 }

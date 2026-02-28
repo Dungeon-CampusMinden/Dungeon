@@ -3,10 +3,11 @@ package core.ir;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.IRObjectWithUseList;
-import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * A reference to a value used as an operand to an {@link Operation}. Manages its own entry in the
@@ -56,9 +57,7 @@ public abstract class Operand<
    * @return The index, or -1 if not found.
    */
   @Contract(pure = true)
-  public int getIndex() {
-    return owner.getOperands().indexOf(this);
-  }
+  public abstract int getIndex();
 
   /**
    * Get the operation that owns this operand.
