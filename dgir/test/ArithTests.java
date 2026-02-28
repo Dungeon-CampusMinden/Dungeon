@@ -166,7 +166,6 @@ public class ArithTests {
   @Test
   public void addRejectsNonNumericOperands() {
     Pair<ProgramOp, FuncOp> entry = TestUtils.createProgramOpWithEntryFunc();
-    ProgramOp programOp = entry.getLeft();
     FuncOp funcMain = entry.getRight();
 
     var stringOp = funcMain.addOperation(new ConstantOp(LOC, "oops"), 0);

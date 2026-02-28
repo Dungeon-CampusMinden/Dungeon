@@ -27,7 +27,6 @@ public class Utils {
           mapperBuilder.enable(tools.jackson.databind.SerializationFeature.INDENT_OUTPUT);
     }
 
-    ObjectMapper mapper = mapperBuilder.build();
-    return mapper;
+    return mapperBuilder.build();
   }
 }
