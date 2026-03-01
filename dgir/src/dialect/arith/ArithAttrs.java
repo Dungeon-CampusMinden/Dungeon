@@ -1,7 +1,5 @@
 package dialect.arith;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import core.Dialect;
 import core.ir.Attribute;
 import org.jetbrains.annotations.NotNull;
@@ -42,20 +40,23 @@ public sealed interface ArithAttrs {
       MOD
     }
 
-    private final @NotNull ArithAttrs.BinModeAttr.Mode mode;
+    private @NotNull BinModeAttr.Mode mode;
 
     public BinModeAttr() {
       this(Mode.ADD);
     }
 
-    @JsonCreator
-    public BinModeAttr(@JsonProperty("mode") @NotNull ArithAttrs.BinModeAttr.Mode mode) {
+    public BinModeAttr(@NotNull BinModeAttr.Mode mode) {
       super();
       this.mode = mode;
     }
 
-    public @NotNull ArithAttrs.BinModeAttr.Mode getMode() {
+    public @NotNull BinModeAttr.Mode getMode() {
       return mode;
+    }
+
+    public void setMode(@NotNull Mode mode) {
+      this.mode = mode;
     }
   }
 
@@ -79,20 +80,23 @@ public sealed interface ArithAttrs {
       GE // Greater than or equal
     }
 
-    private final @NotNull Mode mode;
+    private @NotNull Mode mode;
 
     public CompModeAttr() {
       this(Mode.EQ);
     }
 
-    @JsonCreator
-    public CompModeAttr(@JsonProperty("mode") @NotNull Mode mode) {
+    public CompModeAttr(@NotNull Mode mode) {
       super();
       this.mode = mode;
     }
 
     public @NotNull Mode getMode() {
       return mode;
+    }
+
+    public void setMode(@NotNull Mode mode) {
+      this.mode = mode;
     }
   }
 }

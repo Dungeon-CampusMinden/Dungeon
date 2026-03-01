@@ -35,7 +35,4 @@ public class MazeLevel extends BlocklyLevel {
       showText = false;
     }
   }
-
-  @Override
-  protected void onTick() {}
 }

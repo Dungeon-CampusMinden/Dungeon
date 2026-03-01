@@ -110,6 +110,7 @@ public class Level013 extends BlocklyLevel {
 
   @Override
   protected void onTick() {
+    super.onTick();
     if (torches.stream().allMatch(LeverComponent::isOn)) door.open();
     else door.close();
   }

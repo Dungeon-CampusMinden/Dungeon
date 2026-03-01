@@ -1,16 +1,15 @@
 package level;
 
 import client.Client;
+import components.HeroActionComponent;
 import contrib.hud.DialogUtils;
 import core.Game;
-import core.System;
 import core.level.DungeonLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import java.util.*;
-import systems.BlocklyCommandExecuteSystem;
 
 /**
  * This class is used to store the values from a parsed level file. It contains the layout (the
@@ -53,13 +52,11 @@ public abstract class BlocklyLevel extends DungeonLevel {
   }
 
   @Override
-  public void onTick(boolean isFirstTick) {
-    if (isFirstTick) {
-      onFirstTick();
-      Game.system(BlocklyCommandExecuteSystem.class, System::run);
-    } else {
-      onTick();
-    }
+  protected void onTick() {
+    super.onTick();
+    Game.player()
+        .flatMap(entity -> entity.fetch(HeroActionComponent.class))
+        .ifPresent(HeroActionComponent::tick);
   }
 
   /**

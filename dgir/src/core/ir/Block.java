@@ -9,14 +9,13 @@ import core.Utils;
 import core.analysis.DotCFG;
 import core.serialization.BlockIdGenerator;
 import core.traits.ITerminator;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
-
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * A block containing an ordered list of {@link Operation}s. Blocks are always attached to a {@link
@@ -102,6 +101,34 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   public @NotNull Operation addOperation(@NotNull Operation operation) {
     assert operation.getParent().isEmpty() : "Operation already has a parent.";
     operations.add(operation);
+    operation.setParent(this);
+    return operation;
+  }
+
+  /**
+   * Insert a typed op into this block at the given index, using its backing operation.
+   *
+   * @param op the op to insert; must not already have a parent.
+   * @param index the index to insert at.
+   * @param <OpT> the op type.
+   * @return {@code op}, for convenient chaining.
+   */
+  public <OpT extends Op> @NotNull OpT addOperation(@NotNull OpT op, int index) {
+    addOperation(op.getOperation(), index);
+    return op;
+  }
+
+  /**
+   * Insert an operation into this block at the given index.
+   *
+   * @param operation the operation to insert; must not already have a parent.
+   * @param index the index to insert at.
+   * @return {@code operation}, for convenient chaining.
+   */
+  public @NotNull Operation addOperation(@NotNull Operation operation, int index) {
+    assert operation.getParent().isEmpty() : "Operation already has a parent.";
+    assert index >= 0 && index <= operations.size() : "Index out of bounds.";
+    operations.add(index, operation);
     operation.setParent(this);
     return operation;
   }
@@ -193,7 +220,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    *
    * @param parent the new parent region, or {@code null} to detach.
    * @throws AssertionError if called from outside {@link Region}, or if this block already has a
-   *                        non-null parent and the new value is also non-null.
+   *     non-null parent and the new value is also non-null.
    */
   public void setParent(@Nullable Region parent) {
     assert Utils.getCallingClass() == Region.class

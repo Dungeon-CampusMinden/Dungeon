@@ -1,10 +1,6 @@
 plugins {
     id 'application'
-}
-
-application {
-    // Define the main class for the application
-    mainClass = 'client.Client'
+    id "net.ltgt.errorprone" version "4.4.0"
 }
 
 sourceSets.main.java.srcDirs = ['src/']
@@ -14,10 +10,11 @@ sourceSets.test.java.srcDirs = ['test/']
 sourceSets.test.resources.srcDirs = ['test_assets/']
 
 dependencies {
-    implementation project(':dungeon')
     implementation project(':dgir')
-    implementation project(':blockly:vm')
+    implementation project(':dgir:vm')
     implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.27.1'
+
+    errorprone "com.google.errorprone:error_prone_core:2.46.0"
 
     // JUnit 4 and Mockito for testing
     testImplementation supportDependencies.junit
@@ -41,18 +38,11 @@ jar {
     }
     // Exclude signature metadata from shaded dependencies to prevent invalid digest errors.
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
-    dependsOn project(':dungeon').tasks.named('jar')
+    dependsOn configurations.runtimeClasspath
 }
 
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
-}
-
-// Wire optional frontend startup into run/runJar
-tasks.withType(JavaExec).forEach {
-    it.doFirst {
-        println("\u001B[31mIf the frontend is not already running, start it with\n 'npm run dev'\nin the 'frontend' directory.\u001B[0m")
-    }
 }
 
 repositories {

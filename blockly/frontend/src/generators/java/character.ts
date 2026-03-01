@@ -5,7 +5,7 @@ export function move(
   _block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  return "hero.move();";
+  return "Hero.move();";
 }
 
 export function rotate(
@@ -22,5 +22,5 @@ export function rotate(
     return "";
   }
   block.setWarningText(null);
-  return "hero.rotate(" + dir + ");";
+  return "Hero.rotate(" + dir + ");";
 }

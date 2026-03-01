@@ -177,7 +177,18 @@ public final class Entity implements Comparable<Entity> {
    * @see Optional
    */
   public <T extends Component> Optional<T> fetch(final Class<T> klass) {
-    return Optional.ofNullable(klass.cast(components.get(klass)));
+    // Cheap check first
+    if (components.containsKey(klass)) {
+      return Optional.of(klass.cast(components.get(klass)));
+    }
+
+    // Check if one of the components is a subclass of the requested class
+    for (Component component : components.values()) {
+      if (klass.isAssignableFrom(component.getClass())) {
+        return Optional.of(klass.cast(component));
+      }
+    }
+    return Optional.empty();
   }
 
   /**

@@ -48,6 +48,5 @@ public class Level017 extends BlocklyLevel {
     LevelManagementUtils.zoomDefault();
   }
 
-  @Override
-  protected void onTick() {}
+
 }

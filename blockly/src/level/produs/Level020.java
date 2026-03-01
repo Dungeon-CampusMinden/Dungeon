@@ -144,6 +144,7 @@ public class Level020 extends BlocklyLevel {
 
   @Override
   protected void onTick() {
+    super.onTick();
     if (boss == null) return;
     // rotate boss after duration
     if (!EventScheduler.isScheduled(scheduledAction))

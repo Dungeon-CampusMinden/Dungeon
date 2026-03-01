@@ -121,7 +121,4 @@ public class Level001 extends BlocklyLevel {
       showText = false;
     }
   }
-
-  @Override
-  protected void onTick() {}
 }

@@ -74,7 +74,4 @@ public class Level002 extends BlocklyLevel {
               hedgehogBuilder.addToGame().build(point);
             });
   }
-
-  @Override
-  protected void onTick() {}
 }

@@ -1,18 +1,17 @@
 package core;
 
+import static dialect.builtin.BuiltinAttrs.StringAttribute;
+
 import core.ir.Op;
 import core.ir.Operation;
 import core.ir.Region;
 import core.traits.IOpTrait;
 import core.traits.ISymbol;
 import core.traits.ISymbolTable;
+import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
-
-import static dialect.builtin.BuiltinAttrs.StringAttribute;
 
 /**
  * Static helpers for resolving named symbols within the IR.
@@ -71,7 +70,7 @@ public class SymbolTable {
   @Contract(pure = true)
   private static @NotNull Optional<String> getNameIfSymbol(
       @NotNull Operation op, @NotNull String symbolAttributeName) {
-    var attr = op.getAttribute(StringAttribute.class, symbolAttributeName);
+    var attr = op.getAttributeAs(StringAttribute.class, symbolAttributeName);
     return attr.map(StringAttribute::getValue);
   }
 

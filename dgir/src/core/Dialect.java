@@ -1,11 +1,6 @@
 package core;
 
-import core.ir.AttributeDetails;
-import core.ir.OperationDetails;
-import core.ir.TypeDetails;
-import core.ir.Attribute;
-import core.ir.Op;
-import core.ir.Type;
+import core.ir.*;
 import dialect.arith.ArithDialect;
 import dialect.builtin.BuiltinDialect;
 import dialect.cf.CfDialect;
@@ -23,8 +18,8 @@ import org.jetbrains.annotations.Unmodifiable;
  *
  * <p>A dialect groups a set of related {@link Op operations}, {@link Type types}, and {@link
  * Attribute attributes} under a shared namespace. Dialects are registered once at startup via
- * {@link #registerAllDialects()}, which calls {@link #init()} on each one and populates the global
- * {@link DGIRContext} registries.
+ * {@link #registerAllDialects()}, which calls {@link #register()} on each one and populates the
+ * global {@link DGIRContext} registries.
  */
 public abstract class Dialect {
 
@@ -56,7 +51,7 @@ public abstract class Dialect {
    * Register this dialect in the global {@link DGIRContext}. Inserts all ops, types, and attributes
    * into their respective registries.
    */
-  public void init() {
+  public void register() {
     DGIRContext.registeredDialects.put(this.getClass(), this);
     DGIRContext.registeredDialectsByName.put(this.getNamespace(), this);
 
@@ -114,6 +109,6 @@ public abstract class Dialect {
   public static void registerAllDialects() {
     List<Dialect> dialects =
         List.of(new ArithDialect(), new BuiltinDialect(), new CfDialect(), new FuncDialect(), new IoDialect(), new ScfDialect());
-    dialects.forEach(Dialect::init);
+    dialects.forEach(Dialect::register);
   }
 }

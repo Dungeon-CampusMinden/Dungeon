@@ -3,15 +3,14 @@ package core.ir;
 import core.DGIRContext;
 import core.Dialect;
 import core.traits.IOpTrait;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * Describes an operation kind and exposes its metadata through a stable interface.
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
  * <p>Two sealed implementations exist:
  *
  * <ul>
- *   <li>{@link Registered} — fully populated once a dialect's {@link core.Dialect#init()} call
+ *   <li>{@link Registered} — fully populated once a dialect's {@link core.Dialect#register()} call
  *       invokes {@link Registered#insert(Op)} for every contributed op.
  *   <li>{@link Unregistered} — a lightweight placeholder created the first time an operation ident
  *       or class is referenced before the owning dialect has been initialised. Most accessors on
@@ -364,7 +363,7 @@ public sealed interface OperationDetails {
   /**
    * Fully populated description of an operation kind. Instances are created via {@link #create(Op)}
    * and registered into the global {@link core.DGIRContext} caches by {@link #insert(Op)}, which is
-   * called for every op contributed by a dialect during {@link core.Dialect#init()}.
+   * called for every op contributed by a dialect during {@link core.Dialect#register()}.
    */
   record Registered(
       @NotNull String ident,

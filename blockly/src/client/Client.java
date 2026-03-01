@@ -64,6 +64,7 @@ public class Client {
     for (String arg : args) {
       if (arg.equalsIgnoreCase("web=true")) {
         runInWeb = true;
+        break;
       }
     }
 
@@ -83,7 +84,7 @@ public class Client {
       if (httpServer != null) {
         httpServer.stop(0);
       }
-      BlocklyCodeRunner.instance().stopCode();
+      BlocklyCodeRunner.instance().stopExecution();
     }
   }
 
@@ -130,7 +131,7 @@ public class Client {
   private static void onLevelLoad() {
     Game.userOnLevelLoad(
         (firstLoad) -> {
-          BlocklyCodeRunner.instance().stopCode();
+          BlocklyCodeRunner.instance().stopExecution();
           Game.system(
               BlocklyCommandExecuteSystem.class,
               s -> {
@@ -240,7 +241,7 @@ public class Client {
       Server.waitDelta(); // wait for the next tick to execute the restart
       return;
     }
-    BlocklyCodeRunner.instance().stopCode();
+    BlocklyCodeRunner.instance().stopExecution();
     Game.removeAllEntities();
     Game.system(PositionSystem.class, System::stop);
     Game.system(BlocklyCommandExecuteSystem.class, s -> s.clear());

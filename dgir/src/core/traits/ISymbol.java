@@ -1,10 +1,10 @@
 package core.traits;
 
+import static dialect.builtin.BuiltinAttrs.StringAttribute;
+
 import core.SymbolTable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import static dialect.builtin.BuiltinAttrs.StringAttribute;
 
 /**
  * Marks an operation as declaring a named symbol that can be looked up via {@link SymbolTable}.
@@ -20,7 +20,7 @@ import static dialect.builtin.BuiltinAttrs.StringAttribute;
 public interface ISymbol extends IOpTrait {
   @Contract(pure = true)
   default boolean verify(@NotNull ISymbol ignored) {
-    if (!getOperation().getAttributes().containsKey(SymbolTable.getSymbolAttributeName())) {
+    if (!getOperation().getAttributeMap().containsKey(SymbolTable.getSymbolAttributeName())) {
       getOperation().emitError("Symbol must have a symbol attribute.");
       return false;
     }
@@ -30,7 +30,7 @@ public interface ISymbol extends IOpTrait {
   @Contract(pure = true)
   default @NotNull String getSymbol() {
     return getOperation()
-        .getAttribute(StringAttribute.class, SymbolTable.getSymbolAttributeName())
+        .getAttributeAs(StringAttribute.class, SymbolTable.getSymbolAttributeName())
         .orElseThrow()
         .getValue();
   }

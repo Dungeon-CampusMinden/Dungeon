@@ -1,6 +1,6 @@
 package systems;
 
-import static coderunner.BlocklyCommands.DISABLE_SHOOT_ON_HERO;
+import static coderunner.BlocklyCommands.DISABLE_SHOOT_AT_HERO;
 import static coderunner.BlocklyCommands.MAGIC_OFFSET;
 
 import client.Client;
@@ -198,7 +198,7 @@ public class BlocklyCommandExecuteSystem extends System {
         .map(VelocityComponent::maxSpeed)
         .filter(s -> s == 0)
         .isPresent()) return;
-    DISABLE_SHOOT_ON_HERO = true;
+    DISABLE_SHOOT_AT_HERO = true;
 
     PositionComponent heroPC =
         hero.fetch(PositionComponent.class)
@@ -208,7 +208,7 @@ public class BlocklyCommandExecuteSystem extends System {
     Optional<Tile> inFrontOpt =
         Game.tileAt(heroPC.position().translate(MAGIC_OFFSET), viewDirection);
     if (inFrontOpt.isEmpty()) {
-      DISABLE_SHOOT_ON_HERO = false;
+      DISABLE_SHOOT_AT_HERO = false;
       return;
     }
     Tile inFront = inFrontOpt.get();
@@ -229,7 +229,7 @@ public class BlocklyCommandExecuteSystem extends System {
         || !checkTileOpt.get().isAccessible()
         || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(BlockComponent.class))
         || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(AIComponent.class))) {
-      DISABLE_SHOOT_ON_HERO = false;
+      DISABLE_SHOOT_AT_HERO = false;
       return;
     }
     ArrayList<Entity> toMove =
@@ -247,7 +247,7 @@ public class BlocklyCommandExecuteSystem extends System {
           // give BlockComponent back
           toMove.forEach(entity -> entity.add(new BlockComponent()));
           turnEntity(hero, viewDirection);
-          DISABLE_SHOOT_ON_HERO = false;
+          DISABLE_SHOOT_AT_HERO = false;
         },
         toMove.toArray(Entity[]::new));
   }

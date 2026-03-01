@@ -89,6 +89,7 @@ public class Level006 extends BlocklyLevel {
 
   @Override
   protected void onTick() {
+    super.onTick();
     if (switch1.isOn() && switch2.isOn()) door.open();
     else door.close();
   }

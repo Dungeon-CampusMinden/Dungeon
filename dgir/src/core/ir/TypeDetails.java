@@ -3,16 +3,15 @@ package core.ir;
 import core.DGIRContext;
 import core.Dialect;
 import core.Utils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Holds all basic information about a type kind and exposes it through a stable interface. The
@@ -21,14 +20,15 @@ import java.util.function.Function;
  * <p>Two implementations exist:
  *
  * <ul>
- *   <li>{@link Registered} — fully populated after a dialect's {@link core.Dialect#init()} call.
+ *   <li>{@link Registered} — fully populated after a dialect's {@link core.Dialect#register()}
+ *       call.
  *   <li>{@link Unregistered} — placeholder inserted the first time a type ident is referenced
  *       before the owning dialect has been initialised.
  * </ul>
  *
- * <p>Callers should always use the static factory methods {@link #get(String)} and
- * {@link #get(Class)} rather than constructing instances directly, so that the global
- * {@link core.DGIRContext} caches are kept consistent.
+ * <p>Callers should always use the static factory methods {@link #get(String)} and {@link
+ * #get(Class)} rather than constructing instances directly, so that the global {@link
+ * core.DGIRContext} caches are kept consistent.
  */
 public sealed interface TypeDetails {
   // =========================================================================

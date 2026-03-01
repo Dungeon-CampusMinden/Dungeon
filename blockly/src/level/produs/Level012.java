@@ -14,7 +14,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-import java.util.*;
+import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -120,6 +120,7 @@ public class Level012 extends BlocklyLevel {
 
   @Override
   protected void onTick() {
+    super.onTick();
     if (switch1.isOn()) door1.open();
     else door1.close();
     if (switch2.isOn() && switch4.isOn() && !switch3.isOn()) door2.open();

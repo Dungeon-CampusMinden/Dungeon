@@ -66,6 +66,5 @@ public class Level011 extends BlocklyLevel {
     guardBuilder.build(getPoint(7));
   }
 
-  @Override
-  protected void onTick() {}
+
 }

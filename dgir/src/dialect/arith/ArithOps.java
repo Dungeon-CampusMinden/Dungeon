@@ -1,5 +1,9 @@
 package dialect.arith;
 
+import static dialect.arith.ArithAttrs.*;
+import static dialect.builtin.BuiltinAttrs.*;
+import static dialect.builtin.BuiltinTypes.*;
+
 import core.Dialect;
 import core.debug.Location;
 import core.ir.*;
@@ -7,16 +11,11 @@ import core.traits.IBinaryOperands;
 import core.traits.IHasResult;
 import core.traits.INoOperands;
 import core.traits.ISingleOperand;
+import java.util.List;
+import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
-
-import java.util.List;
-import java.util.function.Function;
-
-import static dialect.arith.ArithAttrs.*;
-import static dialect.builtin.BuiltinAttrs.*;
-import static dialect.builtin.BuiltinTypes.*;
 
 /**
  * Sealed marker interface for all operations in the {@link ArithDialect}.
@@ -179,7 +178,7 @@ public sealed interface ArithOps {
         if (!super.getVerifier().apply(operation)) {
           return false;
         }
-        if (operation.getAttribute(BinModeAttr.class, "binMode").isEmpty()) {
+        if (operation.getAttributeAs(BinModeAttr.class, "binMode").isEmpty()) {
           operation.emitError("Binary operation must define a binMode attribute");
           return false;
         }
@@ -209,7 +208,7 @@ public sealed interface ArithOps {
     }
 
     public @NotNull ArithAttrs.BinModeAttr.Mode getMode() {
-      return getAttribute("binMode", BinModeAttr.class)
+      return getAttributeAs("binMode", BinModeAttr.class)
           .map(BinModeAttr::getMode)
           .orElseThrow(() -> new AssertionError("No binMode attribute found."));
     }
@@ -264,7 +263,7 @@ public sealed interface ArithOps {
     }
 
     public @NotNull Type getTargetType() {
-      return getAttribute("to", TypeAttribute.class)
+      return getAttributeAs("to", TypeAttribute.class)
           .map(TypeAttribute::getType)
           .orElseThrow(() -> new AssertionError("No target type attribute found."));
     }
@@ -293,7 +292,7 @@ public sealed interface ArithOps {
     }
 
     public @NotNull ArithAttrs.CompModeAttr.Mode getCompMode() {
-      return getAttribute("compMode", CompModeAttr.class)
+      return getAttributeAs("compMode", CompModeAttr.class)
           .map(CompModeAttr::getMode)
           .orElseThrow(() -> new AssertionError("No compMode attribute found."));
     }
@@ -340,7 +339,7 @@ public sealed interface ArithOps {
     @Contract(pure = true)
     @Override
     public @NotNull List<NamedAttribute> getDefaultAttributes() {
-      return List.of(new NamedAttribute("value", null));
+      return List.of(new NamedAttribute("value", new IntegerAttribute(0, IntegerT.INT32)));
     }
 
     // =========================================================================
@@ -357,7 +356,7 @@ public sealed interface ArithOps {
      */
     public ConstantOp(@NotNull Location location, @NotNull TypedAttribute value) {
       setOperation(true, Operation.Create(location, this, null, null, value.getType()));
-      getAttributes().get("value").setAttribute(value);
+      getAttributeMap().get("value").setAttribute(value);
     }
 
     /**
@@ -402,7 +401,7 @@ public sealed interface ArithOps {
      */
     @Contract(pure = true)
     public @NotNull TypedAttribute getValueAttribute() {
-      return getAttribute("value", TypedAttribute.class)
+      return getAttributeAs("value", TypedAttribute.class)
           .orElseThrow(() -> new AssertionError("No value attribute found."));
     }
 

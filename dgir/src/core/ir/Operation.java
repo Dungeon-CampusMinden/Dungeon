@@ -6,17 +6,16 @@ import core.debug.Location;
 import core.serialization.OperationDeserializer;
 import core.serialization.OperationSerializer;
 import core.traits.IOpTrait;
+import java.io.Serializable;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
-
-import java.io.Serializable;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Carries the runtime state associated with a concrete operation instance.
@@ -376,8 +375,18 @@ public final class Operation implements Serializable {
    * @return an unmodifiable map from attribute name to {@link NamedAttribute}.
    */
   @Contract(pure = true)
-  public @NotNull @Unmodifiable Map<String, NamedAttribute> getAttributes() {
+  public @NotNull @Unmodifiable Map<String, NamedAttribute> getAttributeMap() {
     return attributes;
+  }
+
+  @Contract(pure = true)
+  public @NotNull @Unmodifiable List<NamedAttribute> getNamedAttributes() {
+    return attributes.values().stream().toList();
+  }
+
+  @Contract(pure = true)
+  public @NotNull @Unmodifiable List<Attribute> getAttributes() {
+    return attributes.values().stream().map(NamedAttribute::getAttribute).toList();
   }
 
   /**
@@ -387,9 +396,9 @@ public final class Operation implements Serializable {
    * @return the {@link Attribute}, or empty if not present or not set.
    */
   @Contract(pure = true)
-  public @NotNull Optional<Attribute> getAttributeByName(@NotNull String name) {
-    if (!getAttributes().containsKey(name)) return Optional.empty();
-    return getAttributes().get(name).getAttribute();
+  public @NotNull Optional<Attribute> getAttribute(@NotNull String name) {
+    if (!getAttributeMap().containsKey(name)) return Optional.empty();
+    return Optional.of(getAttributeMap().get(name).getAttribute());
   }
 
   /**
@@ -402,9 +411,9 @@ public final class Operation implements Serializable {
    * @return the typed attribute, or empty if absent, unset, or the wrong type.
    */
   @Contract(pure = true)
-  public <T extends Attribute> @NotNull Optional<T> getAttribute(
+  public <T extends Attribute> @NotNull Optional<T> getAttributeAs(
       @NotNull Class<T> clazz, @NotNull String name) {
-    var attribute = getAttributeByName(name);
+    var attribute = getAttribute(name);
     if (attribute.isEmpty() || !clazz.isInstance(attribute.get())) return Optional.empty();
     return Optional.of(clazz.cast(attribute.get()));
   }
@@ -417,7 +426,7 @@ public final class Operation implements Serializable {
    * @throws AssertionError if no attribute with the given name exists.
    */
   public void setAttribute(@NotNull String name, @NotNull Attribute attribute) {
-    NamedAttribute namedAttribute = getAttributes().get(name);
+    NamedAttribute namedAttribute = getAttributeMap().get(name);
     assert namedAttribute != null
         : MessageFormat.format("Attribute with name {0} does not exist.", name);
     namedAttribute.setAttribute(attribute);
@@ -624,11 +633,10 @@ public final class Operation implements Serializable {
     if (!attributes.isEmpty()) {
       String attrs =
           attributes.values().stream()
-              .filter(attr -> attr.getAttribute().isPresent())
               .map(
                   attr ->
                       MessageFormat.format(
-                          "{0} = {1}", attr.getName(), attr.getAttribute().get().getStorage()))
+                          "{0} = {1}", attr.getName(), attr.getAttribute().getStorage()))
               .collect(Collectors.joining(", "));
       if (!attrs.isEmpty()) {
         sb.append(" { ");

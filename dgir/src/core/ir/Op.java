@@ -5,17 +5,16 @@ import core.debug.Location;
 import core.serialization.OpDeserializer;
 import core.serialization.OpSerializer;
 import core.traits.IOpTrait;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * Abstract base class for all operations in the DGIR.
@@ -248,19 +247,29 @@ public abstract class Op {
   // =========================================================================
 
   @Contract(pure = true)
-  public @NotNull Map<String, NamedAttribute> getAttributes() {
+  public @NotNull @Unmodifiable Map<String, NamedAttribute> getAttributeMap() {
+    return getOperation().getAttributeMap();
+  }
+
+  @Contract(pure = true)
+  public @NotNull @Unmodifiable List<NamedAttribute> getNamedAttributes() {
+    return getOperation().getNamedAttributes();
+  }
+
+  @Contract(pure = true)
+  public @NotNull @Unmodifiable List<Attribute> getAttributes() {
     return getOperation().getAttributes();
   }
 
   @Contract(pure = true)
-  public @NotNull Optional<Attribute> getAttributeByName(@NotNull String name) {
-    return getOperation().getAttributeByName(name);
+  public @NotNull Optional<Attribute> getAttribute(@NotNull String name) {
+    return getOperation().getAttribute(name);
   }
 
   @Contract(pure = true)
-  public <T extends Attribute> @NotNull Optional<T> getAttribute(
+  public <T extends Attribute> @NotNull Optional<T> getAttributeAs(
       @NotNull String name, @NotNull Class<T> clazz) {
-    return getOperation().getAttribute(clazz, name);
+    return getOperation().getAttributeAs(clazz, name);
   }
 
   public void setAttribute(@NotNull String name, @NotNull Attribute attribute) {

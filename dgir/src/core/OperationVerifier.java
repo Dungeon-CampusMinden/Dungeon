@@ -1,16 +1,15 @@
 package core;
 
 import core.analysis.ReachingDefinitions;
-import core.ir.OperationDetails;
 import core.ir.*;
+import core.ir.OperationDetails;
 import core.traits.IIsolatedFromAbove;
 import core.traits.INoTerminator;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Validates the structural and semantic correctness of an {@link Operation} and, optionally, all
@@ -178,12 +177,8 @@ public class OperationVerifier {
     }
 
     // All attributes must be set and type-valid
-    for (NamedAttribute attr : operation.getAttributes().values()) {
-      if (attr.getAttribute().isEmpty()) {
-        operation.emitError("Operation has attribute with null value: " + attr.getName());
-        return false;
-      }
-      if (attr.getAttribute().get() instanceof TypedAttribute typedAttribute
+    for (NamedAttribute attr : operation.getAttributeMap().values()) {
+      if (attr.getAttribute() instanceof TypedAttribute typedAttribute
           && !typedAttribute.getType().validate(typedAttribute.getStorage())) {
         operation.emitError(
             "Operation attribute '"

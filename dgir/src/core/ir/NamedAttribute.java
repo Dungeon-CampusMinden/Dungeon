@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import core.serialization.NamedAttributeDeserializer;
 import core.serialization.NamedAttributeSerializer;
-import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -21,7 +19,7 @@ public final class NamedAttribute {
   // =========================================================================
 
   private final @NotNull String name;
-  private @Nullable Attribute attribute;
+  private @NotNull Attribute attribute;
 
   // =========================================================================
   // Constructors
@@ -30,7 +28,7 @@ public final class NamedAttribute {
   @JsonCreator
   public NamedAttribute(
       @JsonProperty("name") @NotNull String name,
-      @JsonProperty("attribute") @Nullable Attribute attribute) {
+      @JsonProperty("attribute") @NotNull Attribute attribute) {
     this.name = name;
     this.attribute = attribute;
   }
@@ -45,8 +43,8 @@ public final class NamedAttribute {
   }
 
   @Contract(pure = true)
-  public @NotNull Optional<Attribute> getAttribute() {
-    return Optional.ofNullable(attribute);
+  public @NotNull Attribute getAttribute() {
+    return attribute;
   }
 
   /**

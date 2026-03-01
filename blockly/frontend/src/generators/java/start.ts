@@ -8,5 +8,5 @@ export function start(block: Blockly.Block, generator: Blockly.Generator) {
         generator.INDENT
       )
     : "";
-  return "public static void execute(BlocklyCommands hero) {\n" + body + "\n}";
+  return "public static void main() {\n" + body + "\n}";
 }

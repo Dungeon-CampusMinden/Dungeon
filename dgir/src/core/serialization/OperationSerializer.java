@@ -1,7 +1,7 @@
 package core.serialization;
 
-import core.ir.Operation;
 import core.debug.Location;
+import core.ir.Operation;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
@@ -24,9 +24,9 @@ public class OperationSerializer extends StdSerializer<Operation> {
     if (!value.getOperands().isEmpty()) gen.writePOJOProperty("operands", value.getOperands());
     if (!value.getBlockOperands().isEmpty())
       gen.writePOJOProperty("successors", value.getBlockOperands());
-    if (!value.getAttributes().isEmpty()) {
+    if (!value.getAttributeMap().isEmpty()) {
       // Convert the map to a list of attributes.
-      gen.writePOJOProperty("attributes", value.getAttributes().values());
+      gen.writePOJOProperty("attributes", value.getAttributeMap().values());
     }
     if (value.getOutput().isPresent()) gen.writePOJOProperty("output", value.getOutput());
     if (!value.getRegions().isEmpty()) gen.writePOJOProperty("regions", value.getRegions());

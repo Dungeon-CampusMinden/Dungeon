@@ -122,6 +122,7 @@ public class Level021 extends BlocklyLevel {
 
   @Override
   protected void onTick() {
+    super.onTick();
     if (boss == null) return;
     float x = playerPC.position().x();
     if (x >= bossPC.position().x() - ESCAPE_DISTANCE) {

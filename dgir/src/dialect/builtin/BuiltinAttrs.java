@@ -1,17 +1,17 @@
 package dialect.builtin;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static dialect.builtin.BuiltinTypes.IntegerT;
+import static dialect.builtin.BuiltinTypes.StringT;
+import static dialect.func.FuncOps.CallOp;
+import static dialect.func.FuncOps.FuncOp;
+
 import core.Dialect;
 import core.ir.Attribute;
 import core.ir.Type;
 import core.ir.TypedAttribute;
+import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
-
-import static dialect.builtin.BuiltinTypes.*;
 
 public sealed interface BuiltinAttrs {
   abstract class BuiltinBaseAttr extends Attribute {
@@ -92,15 +92,14 @@ public sealed interface BuiltinAttrs {
     }
 
     /**
-     * Create an integer attribute with an explicit value and type (used during JSON deserialization).
+     * Create an integer attribute with an explicit value and type (used during JSON
+     * deserialization).
      *
-     * @param value the integer value; will be converted to the correct Java type via
-     *              {@link IntegerT#convertToValidNumber(Number)}.
-     * @param type  the integer type that determines the bit-width.
+     * @param value the integer value; will be converted to the correct Java type via {@link
+     *     IntegerT#convertToValidNumber(Number)}.
+     * @param type the integer type that determines the bit-width.
      */
-    @JsonCreator
-    public IntegerAttribute(
-      @JsonProperty("value") Number value, @JsonProperty("type") IntegerT type) {
+    public IntegerAttribute(Number value, IntegerT type) {
       super(type);
       this.value = type.convertToValidNumber(value);
     }
@@ -111,7 +110,7 @@ public sealed interface BuiltinAttrs {
 
     @Contract(pure = true)
     @Override
-    public @NotNull Object getStorage() {
+    public @NotNull Number getStorage() {
       return getValue();
     }
 
@@ -126,13 +125,13 @@ public sealed interface BuiltinAttrs {
     }
 
     /**
-     * Updates the integer value, validating it against the declared type.
+     * Sets the integer value of this attribute. The provided value will be converted to the correct
+     * Java type based on the attribute's {@link IntegerT} type.
      *
-     * @param value the new value; must be valid for the attribute's {@link IntegerT}.
+     * @param value the new integer value.
      */
     public void setValue(@NotNull Number value) {
-      assert getType().validate(value) : "Value " + value + " is not valid for type " + getType();
-      this.value = value;
+      this.value = ((IntegerT) getType()).convertToValidNumber(value);
     }
   }
 
@@ -200,7 +199,7 @@ public sealed interface BuiltinAttrs {
     }
 
     /**
-     * Updates the string value.
+     * Sets the string value of this attribute.
      *
      * @param value the new string value.
      */
@@ -212,8 +211,8 @@ public sealed interface BuiltinAttrs {
   /**
    * Attribute that holds a reference to a symbol by its string name.
    *
-   * <p>Ident: {@code symbolRefAttr}. Used by operations such as {@link dialect.func.CallOp} to record
-   * the name of a callee function without hard-linking the IR nodes together.
+   * <p>Ident: {@code symbolRefAttr}. Used by operations such as {@link CallOp} to record the name
+   * of a callee function without hard-linking the IR nodes together.
    */
   final class SymbolRefAttribute extends BuiltinBaseAttr implements BuiltinAttrs {
     // =========================================================================
@@ -276,20 +275,16 @@ public sealed interface BuiltinAttrs {
       return value;
     }
 
-    /**
-     * Updates the referenced symbol name.
-     *
-     * @param value the new symbol name.
-     */
     public void setValue(@NotNull String value) {
       this.value = value;
     }
   }
+
   /**
    * Attribute that wraps a {@link Type} instance as an IR attribute.
    *
-   * <p>Ident: {@code typeAttr}. Used by operations such as {@link dialect.func.FuncOp} to embed the
-   * full function type into the operation's attribute dictionary.
+   * <p>Ident: {@code typeAttr}. Used by operations such as {@link FuncOp} to embed the full
+   * function type into the operation's attribute dictionary.
    */
   final class TypeAttribute extends BuiltinBaseAttr implements BuiltinAttrs {
     // =========================================================================
@@ -364,11 +359,7 @@ public sealed interface BuiltinAttrs {
       return type;
     }
 
-    /**
-     * Updates the wrapped type.
-     *
-     * @param type the new type; may be {@code null} to clear the attribute.
-     */
+    /** Sets the wrapped type. */
     public void setType(@NotNull Type type) {
       this.type = type;
     }

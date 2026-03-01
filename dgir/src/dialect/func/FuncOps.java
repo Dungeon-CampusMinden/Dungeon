@@ -1,21 +1,20 @@
 package dialect.func;
 
+import static dialect.func.FuncTypes.*;
+
 import core.Dialect;
 import core.SymbolTable;
 import core.debug.Location;
 import core.ir.*;
 import core.traits.*;
 import dialect.builtin.BuiltinAttrs;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-
-import static dialect.func.FuncTypes.*;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * Sealed marker interface for all operations in the {@link FuncDialect}.
@@ -208,7 +207,7 @@ public sealed interface FuncOps {
     @Contract(pure = true)
     public @NotNull String getCallee() {
       return Objects.requireNonNull(
-          getAttribute(getCalleeAttributeName(), BuiltinAttrs.SymbolRefAttribute.class)
+          getAttributeAs(getCalleeAttributeName(), BuiltinAttrs.SymbolRefAttribute.class)
               .orElseThrow(() -> new AssertionError("No callee attribute found"))
               .getStorage(),
           "Callee symbol name must not be null");
@@ -234,7 +233,7 @@ public sealed interface FuncOps {
     @Contract(pure = true)
     @Override
     public @NotNull BuiltinAttrs.SymbolRefAttribute getSymbolRefAttribute() {
-      return getAttribute(getCalleeAttributeName(), BuiltinAttrs.SymbolRefAttribute.class)
+      return getAttributeAs(getCalleeAttributeName(), BuiltinAttrs.SymbolRefAttribute.class)
           .orElseThrow(() -> new RuntimeException("No symbol attribute found"));
     }
   }
@@ -332,7 +331,8 @@ public sealed interface FuncOps {
      */
     @Contract(pure = true)
     public @NotNull BuiltinAttrs.StringAttribute getFuncNameAttribute() {
-      return getAttribute(SymbolTable.getSymbolAttributeName(), BuiltinAttrs.StringAttribute.class)
+      return getAttributeAs(
+              SymbolTable.getSymbolAttributeName(), BuiltinAttrs.StringAttribute.class)
           .orElseThrow(() -> new RuntimeException("Symbol attribute not found"));
     }
 
@@ -355,7 +355,7 @@ public sealed interface FuncOps {
     @Contract(pure = true)
     public @NotNull BuiltinAttrs.TypeAttribute getTypeAttribute() {
       return getOperation()
-          .getAttribute(BuiltinAttrs.TypeAttribute.class, "type")
+          .getAttributeAs(BuiltinAttrs.TypeAttribute.class, "type")
           .orElseThrow(() -> new RuntimeException("Type attribute not found"));
     }
 

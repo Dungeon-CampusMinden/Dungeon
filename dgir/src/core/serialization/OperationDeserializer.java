@@ -1,17 +1,16 @@
 package core.serialization;
 
 import core.debug.Location;
-import core.ir.OperationDetails;
 import core.ir.*;
-import tools.jackson.core.JsonParser;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.deser.std.StdDeserializer;
-
+import core.ir.OperationDetails;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 public class OperationDeserializer extends StdDeserializer<Operation> {
   private static final Map<Operation, Map<BlockOperand, JsonNode>> unresolvedSuccessorReferences =
@@ -155,16 +154,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
     // Set the attributes if they were deserialized.
     if (attributes != null) {
       for (NamedAttribute attribute : attributes) {
-        operation.setAttribute(
-            attribute.getName(),
-            attribute
-                .getAttribute()
-                .orElseThrow(
-                    () ->
-                        new AssertionError(
-                            "Attribute "
-                                + attribute.getName()
-                                + " must have a value after deserialization.")));
+        operation.setAttribute(attribute.getName(), attribute.getAttribute());
       }
     }
 

@@ -1,9 +1,9 @@
 package entities;
 
 import client.Client;
-import coderunner.BlocklyCodeRunner;
 import coderunner.BlocklyCommands;
 import coderunner.Direction;
+import components.HeroActionComponent;
 import contrib.entities.EntityFactory;
 import core.Entity;
 import core.Game;
@@ -15,7 +15,6 @@ import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.function.Consumer;
 import level.BlocklyLevel;
 
 /**
@@ -62,11 +61,10 @@ public class HeroTankControlledFactory {
 
     ic.registerCallback(
         KeyboardConfig.PAUSE.value(),
-        new Consumer<Entity>() {
-          @Override
-          public void accept(Entity entity) {
-            if (!BlocklyCodeRunner.instance().isCodeRunning())
-              Game.currentLevel().ifPresent(level -> ((BlocklyLevel) level).showPopups());
+        ignored -> {
+          if (HeroActionComponent.ACTION_LOCK.tryAcquire()) {
+            HeroActionComponent.ACTION_LOCK.release();
+            Game.currentLevel().ifPresent(level -> ((BlocklyLevel) level).showPopups());
           }
         },
         false);

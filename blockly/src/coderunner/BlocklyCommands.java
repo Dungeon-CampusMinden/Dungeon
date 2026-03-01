@@ -1,6 +1,7 @@
 package coderunner;
 
-import contrib.components.*;
+import contrib.components.ItemComponent;
+import contrib.components.LeverComponent;
 import contrib.utils.EntityUtils;
 import core.Component;
 import core.Game;
@@ -8,7 +9,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.LevelElement;
-import core.utils.*;
+import core.utils.Vector2;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -100,7 +101,7 @@ public class BlocklyCommands {
    *
    * <p>Workaround for #1952
    */
-  public static boolean DISABLE_SHOOT_ON_HERO = false;
+  public static boolean DISABLE_SHOOT_AT_HERO = false;
 
   /**
    * Moves the hero in it's viewing direction.
