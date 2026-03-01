@@ -1,9 +1,13 @@
 import core.Dialect;
 import core.debug.Location;
-import dialect.arith.ConstantOp;
-import dialect.scf.*;
+import dialect.scf.ContinueOp;
+import dialect.scf.ForOp;
+import dialect.scf.IfOp;
+import dialect.scf.ScopeOp;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import static dialect.arith.ArithOps.ConstantOp;
 
 /** Simple test to debug SCF operations */
 public class SimpleScfTest {

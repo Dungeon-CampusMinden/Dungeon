@@ -1,8 +1,7 @@
 import core.Dialect;
-import core.ir.Block;
 import core.debug.Location;
+import core.ir.Block;
 import core.serialization.Utils;
-import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
 import dialect.cf.BranchCondOp;
 import dialect.cf.BranchOp;
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
+import static dialect.arith.ArithOps.ConstantOp;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

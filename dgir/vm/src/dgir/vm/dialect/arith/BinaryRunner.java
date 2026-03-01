@@ -5,11 +5,12 @@ import core.ir.Type;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.arith.BinaryOp;
-import dialect.arith.attributes.BinModeAttr;
 import dialect.builtin.types.FloatT;
 import dialect.builtin.types.IntegerT;
 import org.jetbrains.annotations.NotNull;
+
+import static dialect.arith.ArithAttr.BinModeAttr;
+import static dialect.arith.ArithOps.BinaryOp;
 
 public class BinaryRunner extends OpRunner {
   public BinaryRunner() {
@@ -23,7 +24,7 @@ public class BinaryRunner extends OpRunner {
     var rhs = NumericUtils.getNumber(state, binOp.getRhs());
     var resultType = binOp.getResultType();
 
-    var result = binaryNumeric(lhs, rhs, resultType, binOp.getBinMode());
+    var result = binaryNumeric(lhs, rhs, resultType, binOp.getMode());
     state.setValueForOutput(op, result);
     return Action.Next();
   }
@@ -40,7 +41,7 @@ public class BinaryRunner extends OpRunner {
     @NotNull Number lhs,
     @NotNull Number rhs,
     @NotNull Type resultType,
-    @NotNull BinModeAttr.BinMode mode) {
+    @NotNull BinModeAttr.Mode mode) {
     if (resultType instanceof FloatT floatT) {
       if (floatT.getWidth() == 32) {
         float left = lhs.floatValue();

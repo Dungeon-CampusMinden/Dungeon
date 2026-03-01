@@ -5,20 +5,20 @@ import core.Utils;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
-import dialect.arith.attributes.BinModeAttr;
-import dialect.arith.attributes.CompModeAttr;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
 
+import static dialect.arith.ArithOps.*;
+
 /**
  * The {@code arith} dialect provides basic arithmetic operations.
  *
  * <p>Namespace: {@code arith}
  *
- * <p>Operations: {@link Arith} (sealed interface enumerating all ops)
+ * <p>Operations: {@link ArithOps} (sealed interface enumerating all ops)
  *
  * <ul>
  *   <li>{@link ConstantOp} — produces a constant value
@@ -38,7 +38,7 @@ public class ArithDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return Utils.Dialect.allOps(ArithDialect.class, Arith.class);
+    return Utils.Dialect.allOps(ArithDialect.class, ArithOps.class);
   }
 
   @Contract(pure = true)
@@ -50,6 +50,6 @@ public class ArithDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @Unmodifiable @NotNull List<Attribute> allAttributes() {
-    return List.of(new CompModeAttr(), new BinModeAttr());
+    return Utils.Dialect.allAttributes(ArithDialect.class, ArithAttr.class);
   }
 }

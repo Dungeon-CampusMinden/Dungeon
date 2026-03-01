@@ -1,6 +1,8 @@
 package core;
 
+import core.ir.Attribute;
 import core.ir.Op;
+import core.ir.Type;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -183,6 +185,20 @@ public class Utils {
         dialectOps = new HashMap<>();
 
     /**
+     * Cache of already-computed attribute prototype lists, keyed by dialect class. Populated lazily
+     * by {@link #allAttributes(Class, Class)} on the first call for each dialect.
+     */
+    private static final @NotNull Map<Class<? extends core.Dialect>, @Unmodifiable List<Attribute>>
+        dialectAttributes = new HashMap<>();
+
+    /**
+     * Cache of already-computed type prototype lists, keyed by dialect class. Populated lazily by
+     * {@link #allTypes(Class, Class)} on the first call for each dialect.
+     */
+    private static final @NotNull Map<Class<? extends core.Dialect>, @Unmodifiable List<Type>>
+        dialectTypes = new HashMap<>();
+
+    /**
      * Collect all operation prototypes contributed by a dialect by reflectively instantiating every
      * permitted subclass of {@code diOps} via its no-arg constructor.
      *
@@ -244,6 +260,113 @@ public class Utils {
       }
       dialectOps.put(dialect, ops);
       return ops;
+    }
+
+    /**
+     * Collect all attribute prototypes contributed by a dialect by reflectively instantiating
+     * every permitted subclass of {@code diAttrs} via its no-arg constructor.
+     *
+     * <p>Results are cached so that repeated calls for the same dialect are cheap. The {@code
+     * diAttrs} argument must be a {@code sealed} interface whose every {@code permits} entry is a
+     * concrete attribute class with a declared no-arg constructor.
+     *
+     * @param dialect the dialect class requesting the attributes (used as the cache key).
+     * @param diAttrs the sealed marker interface whose permitted subclasses enumerate the
+     *     dialect's attributes.
+     * @return an unmodifiable list of attribute prototypes, one per permitted subclass.
+     * @throws AssertionError if {@code diAttrs} is not a sealed interface.
+     * @throws RuntimeException if any permitted subclass lacks a no-arg constructor or its
+     *     constructor throws.
+     */
+    @NotNull
+    @Unmodifiable
+    public static List<Attribute> allAttributes(
+        Class<? extends core.Dialect> dialect, Class<?> diAttrs) {
+      assert diAttrs.isSealed() : "IDialectAttributes interface must be sealed";
+
+      if (dialectAttributes.containsKey(dialect)) {
+        return dialectAttributes.get(dialect);
+      }
+
+      List<Attribute> attrs = new ArrayList<>();
+      Class<?>[] permittedSubclasses = diAttrs.getPermittedSubclasses();
+      for (Class<?> subclass : permittedSubclasses) {
+        try {
+          Constructor<?> defaultConstructor = subclass.getDeclaredConstructor();
+          boolean isAccessible = defaultConstructor.canAccess(null);
+          if (!isAccessible) defaultConstructor.setAccessible(true);
+          try {
+            Attribute newAttr = (Attribute) defaultConstructor.newInstance();
+            attrs.add(newAttr);
+          } catch (InstantiationException e) {
+            throw new RuntimeException(
+                "Executing default constructor failed for attribute: " + subclass.getName(), e);
+          } catch (IllegalArgumentException
+              | InvocationTargetException
+              | IllegalAccessException e) {
+            throw new RuntimeException(e);
+          }
+          if (!isAccessible) defaultConstructor.setAccessible(false);
+        } catch (NoSuchMethodException e) {
+          throw new RuntimeException(
+              "Attribute class must have a default constructor: " + subclass.getName(), e);
+        }
+      }
+      dialectAttributes.put(dialect, attrs);
+      return attrs;
+    }
+
+    /**
+     * Collect all type prototypes contributed by a dialect by reflectively instantiating every
+     * permitted subclass of {@code diTypes} via its no-arg constructor.
+     *
+     * <p>Results are cached so that repeated calls for the same dialect are cheap. The {@code
+     * diTypes} argument must be a {@code sealed} interface whose every {@code permits} entry is a
+     * concrete type class with a declared no-arg constructor.
+     *
+     * @param dialect the dialect class requesting the types (used as the cache key).
+     * @param diTypes the sealed marker interface whose permitted subclasses enumerate the
+     *     dialect's types.
+     * @return an unmodifiable list of type prototypes, one per permitted subclass.
+     * @throws AssertionError if {@code diTypes} is not a sealed interface.
+     * @throws RuntimeException if any permitted subclass lacks a no-arg constructor or its
+     *     constructor throws.
+     */
+    @NotNull
+    @Unmodifiable
+    public static List<Type> allTypes(Class<? extends core.Dialect> dialect, Class<?> diTypes) {
+      assert diTypes.isSealed() : "IDialectTypes interface must be sealed";
+
+      if (dialectTypes.containsKey(dialect)) {
+        return dialectTypes.get(dialect);
+      }
+
+      List<Type> types = new ArrayList<>();
+      Class<?>[] permittedSubclasses = diTypes.getPermittedSubclasses();
+      for (Class<?> subclass : permittedSubclasses) {
+        try {
+          Constructor<?> defaultConstructor = subclass.getDeclaredConstructor();
+          boolean isAccessible = defaultConstructor.canAccess(null);
+          if (!isAccessible) defaultConstructor.setAccessible(true);
+          try {
+            Type newType = (Type) defaultConstructor.newInstance();
+            types.add(newType);
+          } catch (InstantiationException e) {
+            throw new RuntimeException(
+                "Executing default constructor failed for type: " + subclass.getName(), e);
+          } catch (IllegalArgumentException
+              | InvocationTargetException
+              | IllegalAccessException e) {
+            throw new RuntimeException(e);
+          }
+          if (!isAccessible) defaultConstructor.setAccessible(false);
+        } catch (NoSuchMethodException e) {
+          throw new RuntimeException(
+              "Type class must have a default constructor: " + subclass.getName(), e);
+        }
+      }
+      dialectTypes.put(dialect, types);
+      return types;
     }
   }
 }

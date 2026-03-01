@@ -4,7 +4,6 @@ import dgir.vm.api.DebugControl;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapAdapter;
 import dgir.vm.dialect.io.PrintRunner;
-import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
 import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
@@ -23,6 +22,7 @@ import java.util.concurrent.Callable;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static dialect.arith.ArithOps.*;
 
 /**
  * Unit tests for {@link DapAdapter}.

@@ -1,21 +1,26 @@
-import static org.junit.jupiter.api.Assertions.*;
-
 import core.Dialect;
 import core.debug.Location;
 import core.serialization.Utils;
-import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
 import dialect.builtin.types.IntegerT;
 import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
 import dialect.func.types.FuncType;
 import dialect.io.PrintOp;
-import dialect.scf.*;
-import java.util.List;
+import dialect.scf.ContinueOp;
+import dialect.scf.ForOp;
+import dialect.scf.IfOp;
+import dialect.scf.ScopeOp;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
+
+import java.util.List;
+
+import static dialect.arith.ArithOps.ConstantOp;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The test cases for the SCF dialect. These are mostly focused on testing the control flow and

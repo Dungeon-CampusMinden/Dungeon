@@ -5,10 +5,12 @@ import core.ir.Type;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.arith.CompareOp;
 import dialect.builtin.types.FloatT;
 import dialect.builtin.types.IntegerT;
 import org.jetbrains.annotations.NotNull;
+
+
+import static dialect.arith.ArithOps.*;
 
 public class CompareRunner extends OpRunner {
   public CompareRunner() {

@@ -4,8 +4,9 @@ import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.arith.ConstantOp;
 import org.jetbrains.annotations.NotNull;
+
+import static dialect.arith.ArithOps.*;
 
 public class ConstantRunner extends OpRunner {
   public ConstantRunner() {

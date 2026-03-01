@@ -1,7 +1,6 @@
 import core.Dialect;
 import core.debug.Location;
 import dgir.vm.dialect.io.PrintRunner;
-import dialect.arith.ConstantOp;
 import dialect.builtin.ProgramOp;
 import dialect.func.ReturnOp;
 import dialect.io.PrintOp;
@@ -22,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static dialect.arith.ArithOps.*;
 
 /**
  * Integration tests for {@link DapServer}.
