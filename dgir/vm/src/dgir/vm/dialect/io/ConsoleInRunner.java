@@ -4,7 +4,6 @@ import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.io.ConsoleInOp;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -13,6 +12,7 @@ import java.util.Optional;
 import java.util.Scanner;
 
 import static dialect.builtin.BuiltinTypes.*;
+import static dialect.io.IoOps.ConsoleInOp;
 
 public class ConsoleInRunner extends OpRunner {
   private static @NotNull InputStream in = System.in;

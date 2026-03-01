@@ -4,10 +4,11 @@ import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.scf.ContinueOp;
-import dialect.scf.ForOp;
 import io.arxila.javatuples.Quartet;
 import org.jetbrains.annotations.NotNull;
+
+import static dialect.scf.ScfOps.ContinueOp;
+import static dialect.scf.ScfOps.ForOp;
 
 public class ContinueRunner extends OpRunner {
   public ContinueRunner() {

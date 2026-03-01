@@ -5,8 +5,9 @@ import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.func.CallOp;
 import org.jetbrains.annotations.NotNull;
+
+import static dialect.func.FuncOps.CallOp;
 
 public class CallRunner extends OpRunner {
   public CallRunner() {

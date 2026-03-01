@@ -5,9 +5,11 @@ import core.ir.Value;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.func.ReturnOp;
-import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
+
+import static dialect.func.FuncOps.ReturnOp;
 
 public class ReturnRunner extends OpRunner {
   public ReturnRunner() {

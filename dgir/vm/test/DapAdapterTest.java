@@ -4,11 +4,6 @@ import dgir.vm.api.DebugControl;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapAdapter;
 import dgir.vm.dialect.io.PrintRunner;
-import dialect.func.FuncOp;
-import dialect.func.ReturnOp;
-import dialect.io.PrintOp;
-import dialect.scf.ContinueOp;
-import dialect.scf.ForOp;
 import org.eclipse.lsp4j.debug.*;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +16,11 @@ import java.util.concurrent.Callable;
 
 import static dialect.arith.ArithOps.ConstantOp;
 import static dialect.builtin.BuiltinOps.ProgramOp;
+import static dialect.func.FuncOps.FuncOp;
+import static dialect.func.FuncOps.ReturnOp;
+import static dialect.io.IoOps.PrintOp;
+import static dialect.scf.ScfOps.ContinueOp;
+import static dialect.scf.ScfOps.ForOp;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -58,8 +58,7 @@ class DapAdapterTest extends VmTestBase {
    */
   static ProgramOp simplePrintProgram(String text) {
     ProgramOp prog = new ProgramOp(new Location("test.java", 1, 1));
-    dialect.func.FuncOp main =
-        prog.addOperation(new dialect.func.FuncOp(new Location("test.java", 2, 2), "main"));
+    FuncOp main = prog.addOperation(new FuncOp(new Location("test.java", 2, 2), "main"));
     var a = main.addOperation(new ConstantOp(new Location("test.java", 3, 12), text), 0);
     main.addOperation(new PrintOp(new Location("test.java", 3, 3), a.getValue()), 0);
     main.addOperation(new ReturnOp(new Location("test.java", 4, 2)), 0);
@@ -83,8 +82,7 @@ class DapAdapterTest extends VmTestBase {
    */
   static ProgramOp multiLinePrintProgram() {
     ProgramOp prog = new ProgramOp(new Location("test.java", 1, 1));
-    dialect.func.FuncOp main =
-        prog.addOperation(new dialect.func.FuncOp(new Location("test.java", 2, 2), "main"));
+    FuncOp main = prog.addOperation(new FuncOp(new Location("test.java", 2, 2), "main"));
     var a = main.addOperation(new ConstantOp(new Location("test.java", 3, 3), "A\n"), 0);
     main.addOperation(new PrintOp(new Location("test.java", 4, 3), a.getValue()), 0);
     var b = main.addOperation(new ConstantOp(new Location("test.java", 5, 3), "B\n"), 0);
@@ -546,8 +544,7 @@ class DapAdapterTest extends VmTestBase {
   void step_lineGranular_skipsMultipleOpsOnSameLine() throws Exception {
     // Build a program where ConstantOp and PrintOp are on the same source line (line 3).
     ProgramOp prog = new ProgramOp(new Location("same-line.java", 1, 1));
-    dialect.func.FuncOp main =
-        prog.addOperation(new dialect.func.FuncOp(new Location("same-line.java", 2, 3), "main"));
+    FuncOp main = prog.addOperation(new FuncOp(new Location("same-line.java", 2, 3), "main"));
     var c = main.addOperation(new ConstantOp(new Location("same-line.java", 3, 14), "X"), 0);
     main.addOperation(new PrintOp(new Location("same-line.java", 3, 5), c.getValue()), 0);
     main.addOperation(new ReturnOp(new Location("same-line.java", 4, 3)), 0);

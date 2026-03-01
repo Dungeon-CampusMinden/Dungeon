@@ -1,13 +1,10 @@
 import core.Dialect;
 import core.debug.Location;
-import dialect.scf.ContinueOp;
-import dialect.scf.ForOp;
-import dialect.scf.IfOp;
-import dialect.scf.ScopeOp;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static dialect.arith.ArithOps.ConstantOp;
+import static dialect.scf.ScfOps.*;
 
 /** Simple test to debug SCF operations */
 public class SimpleScfTest {
@@ -49,7 +46,11 @@ public class SimpleScfTest {
 
     ForOp forOp =
         new ForOp(
-            LOC, initValue.getValue(), lowerBound.getValue(), upperBound.getValue(), step.getValue());
+            LOC,
+            initValue.getValue(),
+            lowerBound.getValue(),
+            upperBound.getValue(),
+            step.getValue());
 
     forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 

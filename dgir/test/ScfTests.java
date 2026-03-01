@@ -1,10 +1,6 @@
 import core.Dialect;
 import core.debug.Location;
 import core.serialization.Utils;
-import dialect.scf.ContinueOp;
-import dialect.scf.ForOp;
-import dialect.scf.IfOp;
-import dialect.scf.ScopeOp;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,10 +11,10 @@ import java.util.List;
 import static dialect.arith.ArithOps.ConstantOp;
 import static dialect.builtin.BuiltinOps.ProgramOp;
 import static dialect.builtin.BuiltinTypes.IntegerT;
-import static dialect.func.FuncOps.FuncOp;
-import static dialect.func.FuncOps.ReturnOp;
+import static dialect.func.FuncOps.*;
 import static dialect.func.FuncTypes.FuncType;
 import static dialect.io.IoOps.PrintOp;
+import static dialect.scf.ScfOps.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

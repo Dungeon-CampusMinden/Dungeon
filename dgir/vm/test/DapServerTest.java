@@ -4,8 +4,6 @@ import dgir.vm.api.OpRunnerRegistry;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapServer;
 import dgir.vm.dialect.io.PrintRunner;
-import dialect.func.ReturnOp;
-import dialect.io.PrintOp;
 import org.eclipse.lsp4j.debug.*;
 import org.eclipse.lsp4j.debug.launch.DSPLauncher;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
@@ -25,6 +23,9 @@ import java.util.concurrent.TimeUnit;
 
 import static dialect.arith.ArithOps.ConstantOp;
 import static dialect.builtin.BuiltinOps.ProgramOp;
+import static dialect.func.FuncOps.FuncOp;
+import static dialect.func.FuncOps.ReturnOp;
+import static dialect.io.IoOps.PrintOp;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -140,7 +141,7 @@ class DapServerTest extends VmTestBase {
    */
   static ProgramOp simplePrintProgram(String text) {
     ProgramOp prog = new ProgramOp(LOC);
-    dialect.func.FuncOp main = prog.addOperation(new dialect.func.FuncOp(LOC, "main"));
+    FuncOp main = prog.addOperation(new FuncOp(LOC, "main"));
     var c = main.addOperation(new ConstantOp(LOC, text), 0);
     main.addOperation(new PrintOp(LOC, c.getValue()), 0);
     main.addOperation(new ReturnOp(LOC), 0);
@@ -177,8 +178,8 @@ class DapServerTest extends VmTestBase {
    */
   static ProgramOp multiLinePrintProgram() {
     ProgramOp prog = new ProgramOp(new Location("test.dgir", 1, 1));
-    dialect.func.FuncOp main =
-        prog.addOperation(new dialect.func.FuncOp(new Location("test.dgir", 2, 1), "main"));
+    FuncOp main =
+        prog.addOperation(new FuncOp(new Location("test.dgir", 2, 1), "main"));
     var a = main.addOperation(new ConstantOp(new Location("test.dgir", 3, 1), "A"), 0);
     main.addOperation(new PrintOp(new Location("test.dgir", 4, 1), a.getValue()), 0);
     var b = main.addOperation(new ConstantOp(new Location("test.dgir", 5, 1), "B"), 0);

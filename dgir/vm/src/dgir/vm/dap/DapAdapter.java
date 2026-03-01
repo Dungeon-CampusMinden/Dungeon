@@ -1,11 +1,13 @@
 package dgir.vm.dap;
 
 import core.debug.Location;
-import core.ir.*;
+import core.ir.Block;
+import core.ir.Operation;
+import core.ir.Region;
+import core.ir.Value;
 import dgir.vm.api.DebugControl;
 import dgir.vm.api.Debugger;
 import dgir.vm.api.VM;
-import dialect.func.FuncOp;
 import org.eclipse.lsp4j.debug.*;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
@@ -20,6 +22,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static dialect.func.FuncOps.FuncOp;
 
 /**
  * DAP adapter for the DGIR {@link VM}.

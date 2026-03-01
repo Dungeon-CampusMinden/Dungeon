@@ -4,8 +4,9 @@ import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.scf.IfOp;
 import org.jetbrains.annotations.NotNull;
+
+import static dialect.scf.ScfOps.IfOp;
 
 public class IfRunner extends OpRunner {
   public IfRunner() {

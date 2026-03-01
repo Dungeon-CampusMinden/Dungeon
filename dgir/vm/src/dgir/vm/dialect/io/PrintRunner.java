@@ -4,9 +4,11 @@ import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.io.PrintOp;
-import java.io.PrintStream;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.PrintStream;
+
+import static dialect.io.IoOps.PrintOp;
 
 public class PrintRunner extends OpRunner {
   public static boolean parallelSystemOut = false;

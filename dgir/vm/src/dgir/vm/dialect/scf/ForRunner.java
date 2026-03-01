@@ -5,9 +5,10 @@ import core.ir.Value;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.scf.ForOp;
 import io.arxila.javatuples.Quartet;
 import org.jetbrains.annotations.NotNull;
+
+import static dialect.scf.ScfOps.ForOp;
 
 public class ForRunner extends OpRunner {
 

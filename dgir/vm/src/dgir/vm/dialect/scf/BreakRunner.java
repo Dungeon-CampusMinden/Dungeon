@@ -4,8 +4,9 @@ import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.scf.BreakOp;
 import org.jetbrains.annotations.NotNull;
+
+import static dialect.scf.ScfOps.BreakOp;
 
 public class BreakRunner extends OpRunner {
   public BreakRunner() {
