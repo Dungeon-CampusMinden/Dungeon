@@ -4,8 +4,9 @@ import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.cf.BranchCondOp;
 import org.jetbrains.annotations.NotNull;
+
+import static dialect.cf.CfOps.BranchCondOp;
 
 public class BranchCondRunner extends OpRunner {
   public BranchCondRunner() {

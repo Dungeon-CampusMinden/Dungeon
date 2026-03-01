@@ -2,8 +2,6 @@ import core.debug.Location;
 import core.ir.Block;
 import dgir.vm.api.VM;
 import dgir.vm.dialect.io.ConsoleInRunner;
-import dialect.cf.BranchCondOp;
-import dialect.cf.BranchOp;
 import dialect.func.CallOp;
 import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
@@ -17,8 +15,9 @@ import java.util.List;
 
 import static dialect.arith.ArithAttrs.*;
 import static dialect.arith.ArithOps.*;
-import static dialect.builtin.BuiltinOps.*;
+import static dialect.builtin.BuiltinOps.ProgramOp;
 import static dialect.builtin.BuiltinTypes.*;
+import static dialect.cf.CfOps.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /** Testcases for the VM, only testing output from and to the console. */

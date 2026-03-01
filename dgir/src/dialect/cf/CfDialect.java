@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Unmodifiable;
  *
  * <p>Namespace: {@code cf}
  *
- * <p>Operations: {@link CF} (sealed interface enumerating all ops)
+ * <p>Operations: {@link CfOps} (sealed interface enumerating all ops)
  *
  * <ul>
  *   <li>{@link BranchOp} — unconditional branch to a target block
@@ -33,7 +33,7 @@ public class CfDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return Utils.Dialect.allOps(CfDialect.class, CF.class);
+    return Utils.Dialect.allOps(CfDialect.class, CfOps.class);
   }
 
   @Contract(pure = true)

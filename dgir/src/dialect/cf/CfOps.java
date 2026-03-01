@@ -1,0 +1,177 @@
+package dialect.cf;
+
+import core.Dialect;
+import core.debug.Location;
+import core.ir.Block;
+import core.ir.Op;
+import core.ir.Operation;
+import core.ir.Value;
+import core.traits.IControlFlow;
+import core.traits.ITerminator;
+import dialect.builtin.BuiltinTypes;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.function.Function;
+
+/**
+ * Sealed marker interface for all operations in the {@link CfDialect}.
+ *
+ * <p>Every concrete op must both extend {@link CfOp} and implement this interface so that {@link
+ * core.Utils.Dialect#allOps} can discover it automatically via reflection.
+ */
+public sealed interface CfOps {
+  /**
+   * Abstract base class for all operations in the {@code cf} (control-flow) dialect.
+   *
+   * <p>Concrete subclasses must implement {@link #getIdent()} and {@link #getVerifier()}, and must
+   * implement {@link CfOps} to be enumerated by {@link CfDialect}.
+   */
+  abstract class CfOp extends Op {
+
+    // =========================================================================
+    // Constructors
+    // =========================================================================
+
+    /** Default constructor used during dialect registration. */
+    CfOp() {
+      super();
+    }
+
+    // =========================================================================
+    // Op Info
+    // =========================================================================
+
+    @Contract(pure = true)
+    @Override
+    public @NotNull Class<? extends Dialect> getDialect() {
+      return CfDialect.class;
+    }
+
+    @Contract(pure = true)
+    @Override
+    public @NotNull String getNamespace() {
+      return "cf";
+    }
+  }
+
+  /**
+   * Conditional branch that selects between two target blocks based on a boolean condition.
+   *
+   * <p>This is a terminator: it must be the last operation in its parent block. Control is
+   * transferred to {@code target} if the condition is {@code true} ({@code 1}), or to {@code
+   * elseTarget} if the condition is {@code false} ({@code 0}).
+   *
+   * <p>The condition operand must be of type {@link BuiltinTypes.IntegerT#BOOL} ({@code int1}).
+   *
+   * <p>MLIR reference: {@code cf.br_cond}
+   *
+   * <pre>{@code
+   * cf.br_cond %cond, ^trueBlock, ^falseBlock
+   * }</pre>
+   */
+  final class BranchCondOp extends CfOp implements CfOps, ITerminator, IControlFlow {
+
+    // =========================================================================
+    // Type Info
+    // =========================================================================
+
+    @Contract(pure = true)
+    @Override
+    public @NotNull String getIdent() {
+      return "cf.br_cond";
+    }
+
+    @Override
+    public Function<Operation, Boolean> getVerifier() {
+      return ignored -> true;
+    }
+
+    // =========================================================================
+    // Constructors
+    // =========================================================================
+
+    private BranchCondOp() {}
+
+    /**
+     * Create a conditional branch.
+     *
+     * @param location the source location of this operation.
+     * @param condition an {@link BuiltinTypes.IntegerT#BOOL} value controlling the branch
+     *     direction.
+     * @param target the successor block taken when {@code condition} is {@code true}.
+     * @param elseTarget the successor block taken when {@code condition} is {@code false}.
+     */
+    public BranchCondOp(
+        @NotNull Location location,
+        @NotNull Value condition,
+        @NotNull Block target,
+        @NotNull Block elseTarget) {
+      setOperation(
+          Operation.Create(location, this, List.of(condition), List.of(target, elseTarget), null));
+      assert condition.getType().equals(BuiltinTypes.IntegerT.BOOL)
+          : "Condition must be of type bool/int1.";
+    }
+  }
+
+  /**
+   * Unconditional branch to a single target {@link Block}.
+   *
+   * <p>This is a terminator: it must be the last operation in its parent block, and it transfers
+   * control unconditionally to the specified successor.
+   *
+   * <p>MLIR reference: {@code cf.br}
+   *
+   * <pre>{@code
+   * cf.br ^target
+   * }</pre>
+   */
+  public final class BranchOp extends CfOp implements CfOps, ITerminator, IControlFlow {
+
+    // =========================================================================
+    // Type Info
+    // =========================================================================
+
+    @Contract(pure = true)
+    @Override
+    public @NotNull String getIdent() {
+      return "cf.br";
+    }
+
+    @Override
+    public Function<Operation, Boolean> getVerifier() {
+      return ignored -> true;
+    }
+
+    // =========================================================================
+    // Constructors
+    // =========================================================================
+
+    private BranchOp() {}
+
+    /**
+     * Create an unconditional branch to {@code target}.
+     *
+     * @param location the source location of this operation.
+     * @param target the successor block to branch to.
+     */
+    public BranchOp(@NotNull Location location, @NotNull Block target) {
+      setOperation(Operation.Create(location, this, null, List.of(target), null));
+    }
+
+    // =========================================================================
+    // Functions
+    // =========================================================================
+
+    /**
+     * Returns the target block this branch jumps to.
+     *
+     * @return the successor block.
+     */
+    @Contract(pure = true)
+    public @NotNull Block getTarget() {
+      return getSuccessors().getFirst();
+    }
+  }
+}
