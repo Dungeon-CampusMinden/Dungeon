@@ -1,16 +1,17 @@
 import core.Dialect;
 import core.debug.Location;
-import dialect.func.FuncOp;
-import dialect.func.ReturnOp;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static dialect.arith.ArithAttrs.*;
+import static dialect.arith.ArithAttrs.BinModeAttr;
+import static dialect.arith.ArithAttrs.CompModeAttr;
 import static dialect.arith.ArithOps.*;
-import static dialect.builtin.BuiltinAttrs.*;
-import static dialect.builtin.BuiltinOps.*;
+import static dialect.builtin.BuiltinAttrs.IntegerAttribute;
+import static dialect.builtin.BuiltinOps.ProgramOp;
 import static dialect.builtin.BuiltinTypes.*;
+import static dialect.func.FuncOps.FuncOp;
+import static dialect.func.FuncOps.ReturnOp;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ArithTests {

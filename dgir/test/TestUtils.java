@@ -3,7 +3,6 @@ import core.debug.Location;
 import core.ir.Op;
 import core.ir.Operation;
 import core.serialization.Utils;
-import dialect.func.FuncOp;
 import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -23,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static dialect.builtin.BuiltinOps.ProgramOp;
+import static dialect.func.FuncOps.FuncOp;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -1,9 +1,6 @@
 import core.Dialect;
 import core.debug.Location;
 import core.serialization.Utils;
-import dialect.func.FuncOp;
-import dialect.func.ReturnOp;
-import dialect.func.types.FuncType;
 import dialect.io.PrintOp;
 import dialect.scf.ContinueOp;
 import dialect.scf.ForOp;
@@ -16,9 +13,12 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
-import static dialect.arith.ArithOps.*;
-import static dialect.builtin.BuiltinOps.*;
-import static dialect.builtin.BuiltinTypes.*;
+import static dialect.arith.ArithOps.ConstantOp;
+import static dialect.builtin.BuiltinOps.ProgramOp;
+import static dialect.builtin.BuiltinTypes.IntegerT;
+import static dialect.func.FuncOps.FuncOp;
+import static dialect.func.FuncOps.ReturnOp;
+import static dialect.func.FuncTypes.FuncType;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

@@ -6,11 +6,12 @@ import core.ir.Block;
 import core.ir.Op;
 import core.ir.Operation;
 import core.traits.*;
-import dialect.func.FuncOp;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
+
+import static dialect.func.FuncOps.FuncOp;
 
 /**
  * Sealed marker interface for all operations in the {@link BuiltinDialect}.

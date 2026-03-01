@@ -5,19 +5,21 @@ import core.Utils;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
-import dialect.func.types.FuncType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
 
+import static dialect.func.FuncOps.*;
+import static dialect.func.FuncTypes.*;
+
 /**
  * The {@code func} dialect provides function-definition and call operations.
  *
  * <p>Namespace: {@code func}
  *
- * <p>Operations: {@link Func} (sealed interface enumerating all ops)
+ * <p>Operations: {@link FuncOps} (sealed interface enumerating all ops)
  *
  * <ul>
  *   <li>{@link FuncOp} — declares a named function with a body region
@@ -42,13 +44,13 @@ public class FuncDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return Utils.Dialect.allOps(FuncDialect.class, Func.class);
+    return Utils.Dialect.allOps(FuncDialect.class, FuncOps.class);
   }
 
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Type> allTypes() {
-    return List.of(new FuncType());
+    return Utils.Dialect.allTypes(FuncDialect.class, FuncTypes.class);
   }
 
   @Contract(pure = true)
@@ -57,5 +59,3 @@ public class FuncDialect extends Dialect {
     return List.of();
   }
 }
-
-
