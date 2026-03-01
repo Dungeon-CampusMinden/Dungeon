@@ -1,20 +1,24 @@
 package dialect.io;
 
-import core.*;
+import core.Dialect;
+import core.Utils;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
-import java.util.List;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.List;
+
+import static dialect.io.IoOps.*;
 
 /**
  * The {@code io} dialect provides basic console input/output operations.
  *
  * <p>Namespace: {@code io}
  *
- * <p>Operations: {@link IO} (sealed interface enumerating all ops)
+ * <p>Operations: {@link IoOps} (sealed interface enumerating all ops)
  *
  * <ul>
  *   <li>{@link PrintOp} — prints one or more values to standard output
@@ -31,7 +35,7 @@ public class IoDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return Utils.Dialect.allOps(IoDialect.class, IO.class);
+    return Utils.Dialect.allOps(IoDialect.class, IoOps.class);
   }
 
   @Contract(pure = true)

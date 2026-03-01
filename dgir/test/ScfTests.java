@@ -1,7 +1,6 @@
 import core.Dialect;
 import core.debug.Location;
 import core.serialization.Utils;
-import dialect.io.PrintOp;
 import dialect.scf.ContinueOp;
 import dialect.scf.ForOp;
 import dialect.scf.IfOp;
@@ -19,6 +18,7 @@ import static dialect.builtin.BuiltinTypes.IntegerT;
 import static dialect.func.FuncOps.FuncOp;
 import static dialect.func.FuncOps.ReturnOp;
 import static dialect.func.FuncTypes.FuncType;
+import static dialect.io.IoOps.PrintOp;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

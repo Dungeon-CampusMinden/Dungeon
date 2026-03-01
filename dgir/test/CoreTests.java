@@ -2,7 +2,6 @@ import core.Dialect;
 import core.debug.Location;
 import core.ir.Block;
 import core.serialization.Utils;
-import dialect.io.PrintOp;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -14,6 +13,7 @@ import static dialect.cf.CfOps.BranchCondOp;
 import static dialect.cf.CfOps.BranchOp;
 import static dialect.func.FuncOps.FuncOp;
 import static dialect.func.FuncOps.ReturnOp;
+import static dialect.io.IoOps.PrintOp;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

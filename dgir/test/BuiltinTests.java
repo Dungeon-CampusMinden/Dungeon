@@ -1,6 +1,5 @@
 import core.Dialect;
 import core.debug.Location;
-import dialect.io.PrintOp;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,6 +11,7 @@ import static dialect.builtin.BuiltinOps.ProgramOp;
 import static dialect.builtin.BuiltinTypes.StringT;
 import static dialect.func.FuncOps.*;
 import static dialect.func.FuncTypes.FuncType;
+import static dialect.io.IoOps.PrintOp;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,8 +39,7 @@ public class BuiltinTests {
     var textOp = funcMainOp.addOperation(new ConstantOp(LOC, "Hello World!"), 0);
     var numberTextOP = funcMainOp.addOperation(new ConstantOp(LOC, 42), 0);
 
-    funcMainOp.addOperation(
-        new PrintOp(LOC, textOp.getResult(), numberTextOP.getResult()), 0);
+    funcMainOp.addOperation(new PrintOp(LOC, textOp.getResult(), numberTextOP.getResult()), 0);
     funcMainOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
@@ -62,8 +61,7 @@ public class BuiltinTests {
     {
       var helloWorldTextOp = funcMainOp.addOperation(new ConstantOp(LOC, "Hello World!"), 0);
       var funcCallOp =
-          funcMainOp.addOperation(
-              new CallOp(LOC, fooFuncOp, helloWorldTextOp.getResult()), 0);
+          funcMainOp.addOperation(new CallOp(LOC, fooFuncOp, helloWorldTextOp.getResult()), 0);
       funcMainOp.addOperation(new PrintOp(LOC, funcCallOp.getOutputValue().orElseThrow()), 0);
       funcMainOp.addOperation(new ReturnOp(LOC), 0);
     }
