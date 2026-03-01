@@ -1,7 +1,6 @@
 package entities;
 
 import client.Client;
-import components.*;
 import contrib.components.*;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;

@@ -82,7 +82,7 @@ public class Server {
     clearContext.setHandler(this::handleClearRequest);
     HttpContext levelsContext = server.createContext("/levels");
     levelsContext.setHandler(this::handleLevelsRequest);
-    HttpContext levelContext = server.createContext("/level");
+    HttpContext levelContext = server.createContext("/src/level");
     levelContext.setHandler(this::handleLevelRequest);
     HttpContext codeContext = server.createContext("/code");
     codeContext.setHandler(this::handleCodeRequest);
@@ -411,7 +411,7 @@ public class Server {
 
     Map<String, List<String>> queryParams = parseQueryParams(exchange);
     String objectName = firstParam(queryParams, "object");
-    if (objectName == null) objectName = "/server";
+    if (objectName == null) objectName = "/src/server";
 
     String response = LanguageServer.GenerateCompletionItems(objectName);
     exchange.sendResponseHeaders(200, response.getBytes().length);
