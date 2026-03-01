@@ -6,7 +6,7 @@ import core.Dialect;
 import core.ir.Attribute;
 import org.jetbrains.annotations.NotNull;
 
-public sealed interface ArithAttr {
+public sealed interface ArithAttrs {
   abstract class ArithAttribute extends Attribute {
     @Override
     public @NotNull String getNamespace() {
@@ -23,7 +23,7 @@ public sealed interface ArithAttr {
     }
   }
 
-  final class BinModeAttr extends ArithAttribute implements ArithAttr {
+  final class BinModeAttr extends ArithAttribute implements ArithAttrs {
     @Override
     public @NotNull String getIdent() {
       return "arith.binMode";
@@ -42,24 +42,24 @@ public sealed interface ArithAttr {
       MOD
     }
 
-    private final @NotNull ArithAttr.BinModeAttr.Mode mode;
+    private final @NotNull ArithAttrs.BinModeAttr.Mode mode;
 
     public BinModeAttr() {
       this(Mode.ADD);
     }
 
     @JsonCreator
-    public BinModeAttr(@JsonProperty("mode") @NotNull ArithAttr.BinModeAttr.Mode mode) {
+    public BinModeAttr(@JsonProperty("mode") @NotNull ArithAttrs.BinModeAttr.Mode mode) {
       super();
       this.mode = mode;
     }
 
-    public @NotNull ArithAttr.BinModeAttr.Mode getMode() {
+    public @NotNull ArithAttrs.BinModeAttr.Mode getMode() {
       return mode;
     }
   }
 
-  final class CompModeAttr extends ArithAttribute implements ArithAttr {
+  final class CompModeAttr extends ArithAttribute implements ArithAttrs {
     @Override
     public @NotNull String getIdent() {
       return "arith.compMode";

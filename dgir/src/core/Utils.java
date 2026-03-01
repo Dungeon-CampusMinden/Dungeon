@@ -3,6 +3,7 @@ package core;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
+import dialect.builtin.BuiltinOps;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -208,7 +209,7 @@ public class Utils {
      *
      * @param dialect the dialect class requesting the ops (used as the cache key).
      * @param diOps the sealed marker interface whose permitted subclasses enumerate the dialect's
-     *     ops (e.g. {@link dialect.builtin.Builtin}).
+     *     ops (e.g. {@link BuiltinOps}).
      * @return an unmodifiable list of op prototypes, one per permitted subclass.
      * @throws AssertionError if {@code diOps} is not a sealed interface.
      * @throws RuntimeException if any permitted subclass lacks a no-arg constructor or its
@@ -263,16 +264,16 @@ public class Utils {
     }
 
     /**
-     * Collect all attribute prototypes contributed by a dialect by reflectively instantiating
-     * every permitted subclass of {@code diAttrs} via its no-arg constructor.
+     * Collect all attribute prototypes contributed by a dialect by reflectively instantiating every
+     * permitted subclass of {@code diAttrs} via its no-arg constructor.
      *
      * <p>Results are cached so that repeated calls for the same dialect are cheap. The {@code
      * diAttrs} argument must be a {@code sealed} interface whose every {@code permits} entry is a
      * concrete attribute class with a declared no-arg constructor.
      *
      * @param dialect the dialect class requesting the attributes (used as the cache key).
-     * @param diAttrs the sealed marker interface whose permitted subclasses enumerate the
-     *     dialect's attributes.
+     * @param diAttrs the sealed marker interface whose permitted subclasses enumerate the dialect's
+     *     attributes.
      * @return an unmodifiable list of attribute prototypes, one per permitted subclass.
      * @throws AssertionError if {@code diAttrs} is not a sealed interface.
      * @throws RuntimeException if any permitted subclass lacks a no-arg constructor or its
@@ -325,8 +326,8 @@ public class Utils {
      * concrete type class with a declared no-arg constructor.
      *
      * @param dialect the dialect class requesting the types (used as the cache key).
-     * @param diTypes the sealed marker interface whose permitted subclasses enumerate the
-     *     dialect's types.
+     * @param diTypes the sealed marker interface whose permitted subclasses enumerate the dialect's
+     *     types.
      * @return an unmodifiable list of type prototypes, one per permitted subclass.
      * @throws AssertionError if {@code diTypes} is not a sealed interface.
      * @throws RuntimeException if any permitted subclass lacks a no-arg constructor or its
@@ -350,7 +351,7 @@ public class Utils {
           if (!isAccessible) defaultConstructor.setAccessible(true);
           try {
             Type newType = (Type) defaultConstructor.newInstance();
-            types.add(newType);
+            types.addAll(newType.getDefaultTypeInstances());
           } catch (InstantiationException e) {
             throw new RuntimeException(
                 "Executing default constructor failed for type: " + subclass.getName(), e);

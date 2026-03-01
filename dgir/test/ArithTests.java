@@ -1,19 +1,17 @@
 import core.Dialect;
 import core.debug.Location;
-import dialect.builtin.ProgramOp;
-import dialect.builtin.attributes.IntegerAttribute;
-import dialect.builtin.types.FloatT;
-import dialect.builtin.types.IntegerT;
-import dialect.builtin.types.StringT;
 import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static dialect.arith.ArithAttr.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static dialect.arith.ArithAttrs.*;
 import static dialect.arith.ArithOps.*;
+import static dialect.builtin.BuiltinAttrs.*;
+import static dialect.builtin.BuiltinOps.*;
+import static dialect.builtin.BuiltinTypes.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ArithTests {
   private static final Location LOC = Location.UNKNOWN;
@@ -149,12 +147,7 @@ public class ArithTests {
     var int32Op = funcMain.addOperation(new ConstantOp(LOC, 1), 0);
 
     funcMain.addOperation(
-        new CompareOp(
-            LOC,
-            stringOp.getValue(),
-            int32Op.getValue(),
-            CompModeAttr.Mode.EQ),
-        0);
+        new CompareOp(LOC, stringOp.getValue(), int32Op.getValue(), CompModeAttr.Mode.EQ), 0);
 
     funcMain.addOperation(new ReturnOp(LOC), 0);
     assertFalse(TestUtils.testValidityAndSerialization(programOp));

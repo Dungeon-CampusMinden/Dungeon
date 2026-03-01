@@ -3,7 +3,6 @@ import core.serialization.Utils;
 import dgir.vm.api.OpRunnerRegistry;
 import dgir.vm.api.VM;
 import dgir.vm.dialect.io.PrintRunner;
-import dialect.builtin.ProgramOp;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
+import static dialect.builtin.BuiltinOps.ProgramOp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

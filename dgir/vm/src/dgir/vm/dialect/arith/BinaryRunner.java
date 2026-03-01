@@ -5,12 +5,11 @@ import core.ir.Type;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.arith.ArithAttr;
-import dialect.builtin.types.FloatT;
-import dialect.builtin.types.IntegerT;
+import dialect.arith.ArithAttrs;
 import org.jetbrains.annotations.NotNull;
 
 import static dialect.arith.ArithOps.BinaryOp;
+import static dialect.builtin.BuiltinTypes.*;
 
 public class BinaryRunner extends OpRunner {
   public BinaryRunner() {
@@ -41,7 +40,7 @@ public class BinaryRunner extends OpRunner {
     @NotNull Number lhs,
     @NotNull Number rhs,
     @NotNull Type resultType,
-    @NotNull ArithAttr.BinModeAttr.Mode mode) {
+    @NotNull ArithAttrs.BinModeAttr.Mode mode) {
     if (resultType instanceof FloatT floatT) {
       if (floatT.getWidth() == 32) {
         float left = lhs.floatValue();

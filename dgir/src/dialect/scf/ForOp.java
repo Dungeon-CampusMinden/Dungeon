@@ -1,15 +1,17 @@
 package dialect.scf;
 
-import core.ir.*;
 import core.debug.Location;
+import core.ir.Operation;
+import core.ir.Value;
 import core.traits.IControlFlow;
 import core.traits.ISingleRegion;
-import dialect.builtin.types.IntegerT;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Function;
+
+import static dialect.builtin.BuiltinTypes.IntegerT;
 
 /**
  * Counted for-loop in the {@code scf} dialect.
@@ -60,13 +62,14 @@ public final class ForOp extends ScfOp implements SCF, IControlFlow, ISingleRegi
   /**
    * Create a for-loop with the given loop parameters.
    *
-   * @param location   the source location of this operation.
-   * @param initValue  the initial value of the induction variable.
+   * @param location the source location of this operation.
+   * @param initValue the initial value of the induction variable.
    * @param lowerBound the lower bound of the loop (inclusive).
    * @param upperBound the upper bound of the loop (exclusive).
-   * @param step       the step size per iteration.
+   * @param step the step size per iteration.
    */
-  public ForOp(@NotNull Location location, Value initValue, Value lowerBound, Value upperBound, Value step) {
+  public ForOp(
+      @NotNull Location location, Value initValue, Value lowerBound, Value upperBound, Value step) {
     setOperation(
         true,
         Operation.Create(

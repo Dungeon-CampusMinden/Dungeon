@@ -5,18 +5,15 @@ import core.Utils;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
-import dialect.builtin.attributes.IntegerAttribute;
-import dialect.builtin.attributes.StringAttribute;
-import dialect.builtin.attributes.SymbolRefAttribute;
-import dialect.builtin.attributes.TypeAttribute;
-import dialect.builtin.types.FloatT;
-import dialect.builtin.types.IntegerT;
-import dialect.builtin.types.StringT;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
+
+import static dialect.builtin.BuiltinOps.*;
+import static dialect.builtin.BuiltinAttrs.*;
+import static dialect.builtin.BuiltinTypes.*;
 
 /**
  * The {@code builtin} dialect provides the fundamental building blocks shared by all other
@@ -24,11 +21,10 @@ import java.util.List;
  *
  * <p>Namespace: {@code ""} (empty — builtin idents have no prefix)
  *
- * <p>Operations: {@link Builtin} (sealed interface enumerating all ops)
+ * <p>Operations: {@link BuiltinOps} (sealed interface enumerating all ops)
  *
  * <ul>
- *   <li>{@link ProgramOp} — top-level container that must contain exactly one {@code main}
- *       function
+ *   <li>{@link ProgramOp} — top-level container that must contain exactly one {@code main} function
  * </ul>
  *
  * <p>Types:
@@ -59,32 +55,18 @@ public class BuiltinDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return Utils.Dialect.allOps(BuiltinDialect.class, Builtin.class);
+    return Utils.Dialect.allOps(BuiltinDialect.class, BuiltinOps.class);
   }
 
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Type> allTypes() {
-    return List.of(
-        IntegerT.INT1,
-        IntegerT.INT8,
-        IntegerT.INT16,
-        IntegerT.INT32,
-        IntegerT.INT64,
-        FloatT.FLOAT32,
-        FloatT.FLOAT64,
-        StringT.INSTANCE);
+    return Utils.Dialect.allTypes(BuiltinDialect.class, BuiltinTypes.class);
   }
 
   @Contract(pure = true)
   @Override
   public @Unmodifiable @NotNull List<Attribute> allAttributes() {
-    return List.of(
-        new IntegerAttribute(),
-        new StringAttribute(),
-        new TypeAttribute(),
-        new SymbolRefAttribute());
+    return Utils.Dialect.allAttributes(BuiltinDialect.class, BuiltinAttrs.class);
   }
 }
-
-

@@ -1,8 +1,6 @@
 import core.Dialect;
 import core.debug.Location;
 import core.serialization.Utils;
-import dialect.builtin.ProgramOp;
-import dialect.builtin.types.IntegerT;
 import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
 import dialect.func.types.FuncType;
@@ -18,7 +16,9 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
-import static dialect.arith.ArithOps.ConstantOp;
+import static dialect.arith.ArithOps.*;
+import static dialect.builtin.BuiltinOps.*;
+import static dialect.builtin.BuiltinTypes.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -169,19 +169,30 @@ public class ScfTests {
     IfOp outerIf = funcOp.addOperation(new IfOp(LOC, outerCond.getValue(), false), 0);
 
     // Nested if inside outer then
-    var innerCond = outerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, false));
+    var innerCond =
+        outerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, false));
     IfOp innerIf =
-        outerIf.getThenRegion().getEntryBlock().addOperation(new IfOp(LOC, innerCond.getValue(), true));
+        outerIf
+            .getThenRegion()
+            .getEntryBlock()
+            .addOperation(new IfOp(LOC, innerCond.getValue(), true));
 
     // Inner then
     var innerThenConst =
         innerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Inner then"));
-    innerIf.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, innerThenConst.getValue()));
+    innerIf
+        .getThenRegion()
+        .getEntryBlock()
+        .addOperation(new PrintOp(LOC, innerThenConst.getValue()));
     innerIf.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Inner else
     var innerElseConst =
-        innerIf.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp(LOC, "Inner else"));
+        innerIf
+            .getElseRegion()
+            .get()
+            .getEntryBlock()
+            .addOperation(new ConstantOp(LOC, "Inner else"));
     innerIf
         .getElseRegion()
         .get()
@@ -209,7 +220,10 @@ public class ScfTests {
     ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, outerValue.getValue()));
     ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-    ifOp.getElseRegion().get().getEntryBlock().addOperation(new PrintOp(LOC, outerValue.getValue()));
+    ifOp.getElseRegion()
+        .get()
+        .getEntryBlock()
+        .addOperation(new PrintOp(LOC, outerValue.getValue()));
     ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     funcOp.addOperation(new ReturnOp(LOC), 0);
@@ -248,7 +262,8 @@ public class ScfTests {
     ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Else branch missing terminator
-    var elseConst = ifOp.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp(LOC, 42));
+    var elseConst =
+        ifOp.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp(LOC, 42));
     ifOp.getElseRegion().get().getEntryBlock().addOperation(new PrintOp(LOC, elseConst.getValue()));
     // Missing ContinueOp
 
@@ -272,7 +287,8 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC,
+            new ForOp(
+                LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -302,7 +318,8 @@ public class ScfTests {
 
     ForOp outerFor =
         funcOp.addOperation(
-            new ForOp(LOC,
+            new ForOp(
+                LOC,
                 outerInit.getValue(),
                 outerLower.getValue(),
                 outerUpper.getValue(),
@@ -320,7 +337,8 @@ public class ScfTests {
             .getRegion()
             .getEntryBlock()
             .addOperation(
-                new ForOp(LOC,
+                new ForOp(
+                    LOC,
                     innerInit.getValue(),
                     innerLower.getValue(),
                     innerUpper.getValue(),
@@ -352,7 +370,8 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC,
+            new ForOp(
+                LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -360,7 +379,8 @@ public class ScfTests {
             0);
 
     // Complex body with multiple operations
-    var text = forOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Loop iteration: "));
+    var text =
+        forOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Loop iteration: "));
     forOp
         .getRegion()
         .getEntryBlock()
@@ -392,7 +412,8 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC,
+            new ForOp(
+                LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -422,7 +443,9 @@ public class ScfTests {
         scopeOp.getRegion().getEntryBlock().addOperation(new IfOp(LOC, condOp.getValue(), false));
 
     var thenConst =
-        ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Inside if in scope"));
+        ifOp.getThenRegion()
+            .getEntryBlock()
+            .addOperation(new ConstantOp(LOC, "Inside if in scope"));
     ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, thenConst.getValue()));
     ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
@@ -451,7 +474,8 @@ public class ScfTests {
         ifOp.getThenRegion()
             .getEntryBlock()
             .addOperation(
-                new ForOp(LOC,
+                new ForOp(
+                    LOC,
                     initValue.getValue(),
                     lowerBound.getValue(),
                     upperBound.getValue(),
@@ -485,7 +509,8 @@ public class ScfTests {
             .getRegion()
             .getEntryBlock()
             .addOperation(
-                new ForOp(LOC,
+                new ForOp(
+                    LOC,
                     initValue.getValue(),
                     lowerBound.getValue(),
                     upperBound.getValue(),
@@ -493,11 +518,13 @@ public class ScfTests {
 
     // If inside for
     var condOp = forOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, true));
-    IfOp ifOp = forOp.getRegion().getEntryBlock().addOperation(new IfOp(LOC, condOp.getValue(), true));
+    IfOp ifOp =
+        forOp.getRegion().getEntryBlock().addOperation(new IfOp(LOC, condOp.getValue(), true));
 
     // Scope inside if then
     ScopeOp thenScope = ifOp.getThenRegion().getEntryBlock().addOperation(new ScopeOp(LOC));
-    var thenText = thenScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Then scope"));
+    var thenText =
+        thenScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Then scope"));
     thenScope
         .getRegion()
         .getEntryBlock()
@@ -507,7 +534,8 @@ public class ScfTests {
 
     // Scope inside if else
     ScopeOp elseScope = ifOp.getElseRegion().get().getEntryBlock().addOperation(new ScopeOp(LOC));
-    var elseText = elseScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Else scope"));
+    var elseText =
+        elseScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Else scope"));
     elseScope.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, elseText.getValue()));
     elseScope.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
     ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp(LOC));
@@ -534,7 +562,8 @@ public class ScfTests {
     // If statement
     var condOp = funcOp.addOperation(new ConstantOp(LOC, true), 0);
     IfOp ifOp = funcOp.addOperation(new IfOp(LOC, condOp.getValue(), false), 0);
-    var ifConst = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "If block"));
+    var ifConst =
+        ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "If block"));
     ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, ifConst.getValue()));
     ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
@@ -546,7 +575,8 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC,
+            new ForOp(
+                LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -619,14 +649,16 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC,
+            new ForOp(
+                LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
                 step.getValue()),
             0);
 
-    var loopValue = forOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Inside loop"));
+    var loopValue =
+        forOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Inside loop"));
     forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, loopValue.getValue()));
     forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
@@ -650,7 +682,8 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC,
+            new ForOp(
+                LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -729,7 +762,8 @@ public class ScfTests {
 
     ForOp forOp =
         funcOp.addOperation(
-            new ForOp(LOC,
+            new ForOp(
+                LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -787,7 +821,8 @@ public class ScfTests {
 
     ForOp forOp =
         helperFunc.addOperation(
-            new ForOp(LOC,
+            new ForOp(
+                LOC,
                 initValue.getValue(),
                 lowerBound.getValue(),
                 upperBound.getValue(),
@@ -801,7 +836,8 @@ public class ScfTests {
 
     // Main function with scope
     ScopeOp mainScope = mainFunc.addOperation(new ScopeOp(LOC), 0);
-    var text = mainScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Main scope"));
+    var text =
+        mainScope.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Main scope"));
     mainScope.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, text.getValue()));
     mainScope.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 

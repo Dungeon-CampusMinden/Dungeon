@@ -1,7 +1,6 @@
 import core.Dialect;
 import core.debug.Location;
-import dialect.builtin.ProgramOp;
-import dialect.builtin.types.StringT;
+import dialect.builtin.BuiltinOps;
 import dialect.func.CallOp;
 import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
@@ -13,7 +12,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static dialect.arith.ArithOps.ConstantOp;
+import static dialect.arith.ArithOps.*;
+import static dialect.builtin.BuiltinOps.*;
+import static dialect.builtin.BuiltinTypes.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

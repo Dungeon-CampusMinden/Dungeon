@@ -1,15 +1,14 @@
 package dialect.io;
 
-import core.ir.Operation;
 import core.debug.Location;
+import core.ir.Operation;
 import core.ir.Type;
 import core.ir.Value;
-import dialect.builtin.types.FloatT;
-import dialect.builtin.types.IntegerT;
-import dialect.builtin.types.StringT;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
+
+import static dialect.builtin.BuiltinTypes.*;
 
 /**
  * Blocking console-input operation in the {@code io} dialect.

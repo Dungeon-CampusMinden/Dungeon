@@ -1,9 +1,10 @@
 package core.traits;
 
 import core.SymbolTable;
-import dialect.builtin.attributes.SymbolRefAttribute;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import static dialect.builtin.BuiltinAttrs.SymbolRefAttribute;
 
 /**
  * Marks an operation that references a symbol by name and must be verifiable against that symbol.

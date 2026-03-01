@@ -4,7 +4,6 @@ import core.SymbolTable;
 import core.debug.Location;
 import core.ir.*;
 import core.traits.ISymbolUser;
-import dialect.builtin.attributes.SymbolRefAttribute;
 import dialect.func.types.FuncType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +12,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+
+import static dialect.builtin.BuiltinAttrs.SymbolRefAttribute;
 
 /**
  * Calls a named function in the {@code func} dialect.

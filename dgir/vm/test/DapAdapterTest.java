@@ -4,7 +4,6 @@ import dgir.vm.api.DebugControl;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapAdapter;
 import dgir.vm.dialect.io.PrintRunner;
-import dialect.builtin.ProgramOp;
 import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
 import dialect.io.PrintOp;
@@ -20,9 +19,10 @@ import org.mockito.ArgumentCaptor;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import static dialect.arith.ArithOps.ConstantOp;
+import static dialect.builtin.BuiltinOps.ProgramOp;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static dialect.arith.ArithOps.*;
 
 /**
  * Unit tests for {@link DapAdapter}.
@@ -131,10 +131,16 @@ class DapAdapterTest extends VmTestBase {
               0);
       {
         ConstantOp printValue =
-            forOp.getEntryBlock().addOperation(new ConstantOp(new Location("test.java", 4, 18), "i: %d\n"));
-        forOp.getEntryBlock().addOperation(
-            new PrintOp(
-                new Location("test.java", 4, 5), printValue.getValue(), forOp.getInductionValue()));
+            forOp
+                .getEntryBlock()
+                .addOperation(new ConstantOp(new Location("test.java", 4, 18), "i: %d\n"));
+        forOp
+            .getEntryBlock()
+            .addOperation(
+                new PrintOp(
+                    new Location("test.java", 4, 5),
+                    printValue.getValue(),
+                    forOp.getInductionValue()));
         forOp.getEntryBlock().addOperation(new ContinueOp(new Location("test.java", 4, 3)));
       }
       main.addOperation(new ReturnOp(new Location("test.java", 5, 3)), 0);
@@ -432,11 +438,11 @@ class DapAdapterTest extends VmTestBase {
   /**
    * Verifies that {@code next} fires exactly one {@code stopped("step")} event per source line.
    *
-   * <p>Uses {@link #multiLinePrintProgram()} where every IR operation is on its own distinct
-   * line (lines 1–7). The VM is paused on entry at the first operation inside {@code main}
-   * (line 3 / {@code ConstantOp}), then a single step is issued. Because line-granular stepping
-   * is in effect, the VM runs until it reaches an operation on a different source line and fires
-   * a single {@code stopped("step")} event.
+   * <p>Uses {@link #multiLinePrintProgram()} where every IR operation is on its own distinct line
+   * (lines 1–7). The VM is paused on entry at the first operation inside {@code main} (line 3 /
+   * {@code ConstantOp}), then a single step is issued. Because line-granular stepping is in effect,
+   * the VM runs until it reaches an operation on a different source line and fires a single {@code
+   * stopped("step")} event.
    */
   @Test
   void next_firesStopped_withStepReason() throws Exception {
@@ -519,8 +525,9 @@ class DapAdapterTest extends VmTestBase {
    * Verifies that line-granular stepping skips over multiple IR operations that share the same
    * source line without pausing between them.
    *
-   * <p>The test program places two IR operations ({@code constant} and {@code print}) on
-   * <em>the same source line</em> (line 3), then a {@code return} on line 4:
+   * <p>The test program places two IR operations ({@code constant} and {@code print}) on <em>the
+   * same source line</em> (line 3), then a {@code return} on line 4:
+   *
    * <pre>{@code
    * // same-line.java
    * line 1: program {
@@ -531,9 +538,9 @@ class DapAdapterTest extends VmTestBase {
    *         }
    * }</pre>
    *
-   * <p>After stopping on entry (line 3 / first op in {@code main}), a single {@code next}
-   * must advance to line 4, skipping both the {@code ConstantOp} and the {@code PrintOp}
-   * on line 3 in one step. Only one {@code stopped("step")} event may be fired.
+   * <p>After stopping on entry (line 3 / first op in {@code main}), a single {@code next} must
+   * advance to line 4, skipping both the {@code ConstantOp} and the {@code PrintOp} on line 3 in
+   * one step. Only one {@code stopped("step")} event may be fired.
    */
   @Test
   void step_lineGranular_skipsMultipleOpsOnSameLine() throws Exception {
@@ -551,15 +558,24 @@ class DapAdapterTest extends VmTestBase {
     h.adapter().configurationDone(new ConfigurationDoneArguments()).get();
 
     // ---- entry stop (line 3 / first op in main) ----
-    ArgumentCaptor<StoppedEventArguments> cap = ArgumentCaptor.forClass(StoppedEventArguments.class);
-    await(() -> { verify(h.client(), atLeastOnce()).stopped(cap.capture()); return true; });
+    ArgumentCaptor<StoppedEventArguments> cap =
+        ArgumentCaptor.forClass(StoppedEventArguments.class);
+    await(
+        () -> {
+          verify(h.client(), atLeastOnce()).stopped(cap.capture());
+          return true;
+        });
     assertEquals("entry", cap.getValue().getReason());
     clearInvocations(h.client());
 
     // ---- next: ConstantOp + PrintOp are both on line 3 — only ONE stopped event,
     //      then pause at ReturnOp (line 4). ----
     h.adapter().next(new NextArguments()).get();
-    await(() -> { verify(h.client(), atLeastOnce()).stopped(cap.capture()); return true; });
+    await(
+        () -> {
+          verify(h.client(), atLeastOnce()).stopped(cap.capture());
+          return true;
+        });
     assertEquals("step", cap.getValue().getReason());
     // Exactly one stopped event fired (not two, which would happen with op-granular stepping).
     verify(h.client(), times(1)).stopped(any());
@@ -567,7 +583,11 @@ class DapAdapterTest extends VmTestBase {
 
     // ---- finish ----
     h.adapter().continue_(new ContinueArguments()).get();
-    await(() -> { verify(h.client(), atLeastOnce()).terminated(any()); return true; });
+    await(
+        () -> {
+          verify(h.client(), atLeastOnce()).terminated(any());
+          return true;
+        });
   }
 
   // =========================================================================
@@ -889,10 +909,7 @@ class DapAdapterTest extends VmTestBase {
   }
 
   private static boolean hasBreakpoint(
-      @NotNull java.util.Set<Breakpoint> breakpoints,
-      @NotNull String path,
-      int line,
-      int column) {
+      @NotNull java.util.Set<Breakpoint> breakpoints, @NotNull String path, int line, int column) {
     return breakpoints.stream()
         .anyMatch(
             bp -> {
@@ -900,7 +917,8 @@ class DapAdapterTest extends VmTestBase {
               String bpPath = src != null ? src.getPath() : null;
               Integer bpLine = bp.getLine();
               Integer bpCol = bp.getColumn();
-              return path.equals(bpPath) && line == (bpLine != null ? bpLine : -1)
+              return path.equals(bpPath)
+                  && line == (bpLine != null ? bpLine : -1)
                   && column == (bpCol != null ? bpCol : 0);
             });
   }

@@ -1,9 +1,6 @@
 import core.Dialect;
 import core.debug.Location;
 import core.serialization.Utils;
-import dialect.builtin.ProgramOp;
-import dialect.builtin.types.IntegerT;
-import dialect.builtin.types.StringT;
 import dialect.func.CallOp;
 import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
@@ -16,7 +13,9 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
-import static dialect.arith.ArithOps.ConstantOp;
+import static dialect.arith.ArithOps.*;
+import static dialect.builtin.BuiltinOps.*;
+import static dialect.builtin.BuiltinTypes.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -90,7 +89,9 @@ public class FuncTests {
     FuncOp factorial = programOp.addOperation(new FuncOp(LOC, "factorial", type));
 
     // Simple recursive call without base case for IR structure testing
-    var callOp = factorial.addOperation(new CallOp(LOC, factorial, factorial.getArgument(0).orElseThrow()), 0);
+    var callOp =
+        factorial.addOperation(
+            new CallOp(LOC, factorial, factorial.getArgument(0).orElseThrow()), 0);
     factorial.addOperation(new ReturnOp(LOC, callOp.getOutputValue().orElseThrow()), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));

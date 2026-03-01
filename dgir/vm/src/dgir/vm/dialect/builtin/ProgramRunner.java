@@ -4,8 +4,9 @@ import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.builtin.ProgramOp;
 import org.jetbrains.annotations.NotNull;
+
+import static dialect.builtin.BuiltinOps.ProgramOp;
 
 public class ProgramRunner extends OpRunner {
   public ProgramRunner() {

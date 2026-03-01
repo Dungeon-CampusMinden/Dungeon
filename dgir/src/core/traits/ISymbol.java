@@ -1,9 +1,10 @@
 package core.traits;
 
 import core.SymbolTable;
-import dialect.builtin.attributes.StringAttribute;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import static dialect.builtin.BuiltinAttrs.StringAttribute;
 
 /**
  * Marks an operation as declaring a named symbol that can be looked up via {@link SymbolTable}.

@@ -1,27 +1,31 @@
 import core.Dialect;
 import core.debug.Location;
-import dgir.vm.dialect.io.PrintRunner;
-import dialect.builtin.ProgramOp;
-import dialect.func.ReturnOp;
-import dialect.io.PrintOp;
 import dgir.vm.api.OpRunnerRegistry;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapServer;
+import dgir.vm.dialect.io.PrintRunner;
+import dialect.func.ReturnOp;
+import dialect.io.PrintOp;
 import org.eclipse.lsp4j.debug.*;
 import org.eclipse.lsp4j.debug.launch.DSPLauncher;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
+import static dialect.arith.ArithOps.ConstantOp;
+import static dialect.builtin.BuiltinOps.ProgramOp;
 import static org.junit.jupiter.api.Assertions.*;
-import static dialect.arith.ArithOps.*;
 
 /**
  * Integration tests for {@link DapServer}.

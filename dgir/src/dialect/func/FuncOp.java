@@ -1,21 +1,21 @@
 package dialect.func;
 
 import core.SymbolTable;
+import core.debug.Location;
 import core.ir.NamedAttribute;
 import core.ir.Operation;
-import core.debug.Location;
 import core.traits.IGlobal;
 import core.traits.IIsolatedFromAbove;
 import core.traits.ISingleRegion;
 import core.traits.ISymbol;
-import dialect.builtin.attributes.StringAttribute;
-import dialect.builtin.attributes.TypeAttribute;
 import dialect.func.types.FuncType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Function;
+
+import static dialect.builtin.BuiltinAttrs.*;
 
 /**
  * Declares a named function with a body region in the {@code func} dialect.

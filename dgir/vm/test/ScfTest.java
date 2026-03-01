@@ -1,12 +1,12 @@
 import core.debug.Location;
-import dialect.builtin.ProgramOp;
 import dialect.func.FuncOp;
 import dialect.func.ReturnOp;
 import dialect.io.PrintOp;
 import dialect.scf.*;
+import org.junit.jupiter.api.Test;
 
-import org.junit.jupiter.api.*;
-import static dialect.arith.ArithOps.*;
+import static dialect.arith.ArithOps.ConstantOp;
+import static dialect.builtin.BuiltinOps.ProgramOp;
 
 /**
  * VM-level execution tests for all SCF runners: ForRunner, ContinueRunner, BreakRunner, IfRunner,

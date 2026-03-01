@@ -7,11 +7,6 @@ import core.traits.IBinaryOperands;
 import core.traits.IHasResult;
 import core.traits.INoOperands;
 import core.traits.ISingleOperand;
-import dialect.builtin.attributes.IntegerAttribute;
-import dialect.builtin.attributes.StringAttribute;
-import dialect.builtin.attributes.TypeAttribute;
-import dialect.builtin.types.FloatT;
-import dialect.builtin.types.IntegerT;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -19,8 +14,9 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.List;
 import java.util.function.Function;
 
-import static dialect.arith.ArithAttr.BinModeAttr;
-import static dialect.arith.ArithAttr.CompModeAttr;
+import static dialect.arith.ArithAttrs.*;
+import static dialect.builtin.BuiltinAttrs.*;
+import static dialect.builtin.BuiltinTypes.*;
 
 /**
  * Sealed marker interface for all operations in the {@link ArithDialect}.
@@ -202,22 +198,22 @@ public sealed interface ArithOps {
      * @param mode the binary operation kind.
      */
     public BinaryOp(
-      @NotNull Location loc,
-      @NotNull Value lhs,
-      @NotNull Value rhs,
-      @NotNull ArithAttr.BinModeAttr.Mode mode) {
+        @NotNull Location loc,
+        @NotNull Value lhs,
+        @NotNull Value rhs,
+        @NotNull ArithAttrs.BinModeAttr.Mode mode) {
       setOperation(
-        Operation.Create(loc, this, List.of(lhs, rhs), null, getDominantType(lhs.getType(), rhs.getType())));
+          Operation.Create(
+              loc, this, List.of(lhs, rhs), null, getDominantType(lhs.getType(), rhs.getType())));
       setAttribute("binMode", new BinModeAttr(mode));
     }
 
-    public @NotNull ArithAttr.BinModeAttr.Mode getMode() {
+    public @NotNull ArithAttrs.BinModeAttr.Mode getMode() {
       return getAttribute("binMode", BinModeAttr.class)
-        .map(BinModeAttr::getMode)
-        .orElseThrow(() -> new AssertionError("No binMode attribute found."));
+          .map(BinModeAttr::getMode)
+          .orElseThrow(() -> new AssertionError("No binMode attribute found."));
     }
   }
-
 
   /** Casts a numeric operand to a target numeric type. */
   final class CastOp extends ArithOp implements ArithOps, ISingleOperand, IHasResult {
@@ -291,12 +287,12 @@ public sealed interface ArithOps {
         @NotNull Location loc,
         @NotNull Value lhs,
         @NotNull Value rhs,
-        @NotNull ArithAttr.CompModeAttr.Mode mode) {
+        @NotNull ArithAttrs.CompModeAttr.Mode mode) {
       setOperation(Operation.Create(loc, this, List.of(lhs, rhs), null, IntegerT.BOOL));
       setAttribute("compMode", new CompModeAttr(mode));
     }
 
-    public @NotNull ArithAttr.CompModeAttr.Mode getCompMode() {
+    public @NotNull ArithAttrs.CompModeAttr.Mode getCompMode() {
       return getAttribute("compMode", CompModeAttr.class)
           .map(CompModeAttr::getMode)
           .orElseThrow(() -> new AssertionError("No compMode attribute found."));

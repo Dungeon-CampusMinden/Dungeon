@@ -1,14 +1,17 @@
 package dialect.scf;
 
-import core.ir.*;
 import core.debug.Location;
+import core.ir.Operation;
+import core.ir.Region;
+import core.ir.Value;
 import core.traits.IControlFlow;
-import dialect.builtin.types.IntegerT;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+
+import static dialect.builtin.BuiltinTypes.IntegerT;
 
 /**
  * Conditional operation in the {@code scf} dialect.

@@ -6,17 +6,19 @@ import core.ir.Region;
 import core.traits.IOpTrait;
 import core.traits.ISymbol;
 import core.traits.ISymbolTable;
-import dialect.builtin.attributes.StringAttribute;
-import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+
+import static dialect.builtin.BuiltinAttrs.StringAttribute;
 
 /**
  * Static helpers for resolving named symbols within the IR.
  *
  * <p>A <em>symbol</em> is any operation that implements {@link ISymbol}; it carries a
- * {@code "symbol_name"} {@link dialect.builtin.attributes.StringAttribute} that serves as its
+ * {@code "symbol_name"} {@link StringAttribute} that serves as its
  * unique identifier within the enclosing {@link ISymbolTable} scope.
  *
  * <p>Lookup always searches the <em>first block</em> of the <em>first region</em> of the nearest

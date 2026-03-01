@@ -6,10 +6,11 @@ import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
 import dialect.func.types.FuncType;
-import java.util.List;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.List;
 
 /**
  * The {@code func} dialect provides function-definition and call operations.
@@ -47,7 +48,7 @@ public class FuncDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Type> allTypes() {
-    return List.of(FuncType.INSTANCE);
+    return List.of(new FuncType());
   }
 
   @Contract(pure = true)

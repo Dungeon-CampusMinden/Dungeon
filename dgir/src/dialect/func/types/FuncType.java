@@ -1,17 +1,17 @@
 package dialect.func.types;
 
-import core.*;
-import core.ir.TypeDetails;
+import core.Utils;
 import core.ir.Type;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Function;
-
+import core.ir.TypeDetails;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Function signature type in the {@code func} dialect.
@@ -27,13 +27,6 @@ import org.jetbrains.annotations.Nullable;
  * void function type used as a registration prototype.
  */
 public class FuncType extends FuncBaseType {
-
-  // =========================================================================
-  // Static Fields
-  // =========================================================================
-
-  /** Prototype instance used during dialect registration (no-arg, void). */
-  public static final FuncType INSTANCE = new FuncType();
 
   // =========================================================================
   // Type Info
@@ -82,6 +75,11 @@ public class FuncType extends FuncBaseType {
       }
       return new FuncType(inputs, output);
     };
+  }
+
+  @Override
+  public @NotNull @Unmodifiable List<Type> getDefaultTypeInstances() {
+    return List.of(this);
   }
 
   @Override

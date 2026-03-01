@@ -1,9 +1,8 @@
 import core.analysis.DotCFG;
+import core.debug.Location;
 import core.ir.Op;
 import core.ir.Operation;
-import core.debug.Location;
 import core.serialization.Utils;
-import dialect.builtin.ProgramOp;
 import dialect.func.FuncOp;
 import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.engine.Format;
@@ -23,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static dialect.builtin.BuiltinOps.ProgramOp;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

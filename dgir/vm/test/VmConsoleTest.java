@@ -2,10 +2,6 @@ import core.debug.Location;
 import core.ir.Block;
 import dgir.vm.api.VM;
 import dgir.vm.dialect.io.ConsoleInRunner;
-import dialect.builtin.ProgramOp;
-import dialect.builtin.types.FloatT;
-import dialect.builtin.types.IntegerT;
-import dialect.builtin.types.StringT;
 import dialect.cf.BranchCondOp;
 import dialect.cf.BranchOp;
 import dialect.func.CallOp;
@@ -19,14 +15,16 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
-import static dialect.arith.ArithAttr.BinModeAttr;
-import static dialect.arith.ArithAttr.CompModeAttr;
+import static dialect.arith.ArithAttrs.*;
 import static dialect.arith.ArithOps.*;
+import static dialect.builtin.BuiltinOps.*;
+import static dialect.builtin.BuiltinTypes.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /** Testcases for the VM, only testing output from and to the console. */
 public class VmConsoleTest extends VmTestBase {
   static final Location LOC = Location.UNKNOWN;
+
   /**
    * Creates a simple dgir program printing "Hello World!" to the console and runs it through the
    * VM.
@@ -48,7 +46,8 @@ public class VmConsoleTest extends VmTestBase {
     ProgramOp programOp = new ProgramOp(LOC);
 
     FuncOp stringOp =
-        programOp.addOperation(new FuncOp(LOC, "string", new FuncType(List.of(), StringT.INSTANCE)));
+        programOp.addOperation(
+            new FuncOp(LOC, "string", new FuncType(List.of(), StringT.INSTANCE)));
     {
       var text = stringOp.addOperation(new ConstantOp(LOC, "Hello World!\n"), 0);
       stringOp.addOperation(new ReturnOp(LOC, text.getValue()), 0);
@@ -166,7 +165,8 @@ public class VmConsoleTest extends VmTestBase {
 
     // Helper function: returns true (int1)
     FuncOp condFunc =
-        programOp.addOperation(new FuncOp(LOC, "getCondition", new FuncType(List.of(), IntegerT.BOOL)));
+        programOp.addOperation(
+            new FuncOp(LOC, "getCondition", new FuncType(List.of(), IntegerT.BOOL)));
     {
       var t = condFunc.addOperation(new ConstantOp(LOC, true), 0);
       condFunc.addOperation(new ReturnOp(LOC, t.getValue()), 0);
@@ -475,7 +475,8 @@ public class VmConsoleTest extends VmTestBase {
     var nameIn = mainOp.addOperation(new ConsoleInOp(LOC, StringT.INSTANCE), 0);
     var scoreIn = mainOp.addOperation(new ConsoleInOp(LOC, IntegerT.INT32), 0);
     // Print formatted
-    mainOp.addOperation(new PrintOp(LOC, fmt.getValue(), nameIn.getResult(), scoreIn.getResult()), 0);
+    mainOp.addOperation(
+        new PrintOp(LOC, fmt.getValue(), nameIn.getResult(), scoreIn.getResult()), 0);
     mainOp.addOperation(new ReturnOp(LOC), 0);
 
     // Two consecutive lines: first the name, then the score
@@ -483,9 +484,7 @@ public class VmConsoleTest extends VmTestBase {
     runProgram(programOp, "Alice scored 100 points.\n");
   }
 
-  /**
-   * Tests BinaryOp with constant operands: computes 6 * 7 = 42 and prints the result.
-   */
+  /** Tests BinaryOp with constant operands: computes 6 * 7 = 42 and prints the result. */
   @Test
   void binaryOpMultiplyConstantsTest() {
     ProgramOp programOp = new ProgramOp(LOC);
@@ -517,27 +516,25 @@ public class VmConsoleTest extends VmTestBase {
     var b = mainOp.addOperation(new ConstantOp(LOC, 3), 0);
 
     var sum =
-        mainOp.addOperation(
-            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.Mode.ADD), 0);
+        mainOp.addOperation(new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.Mode.ADD), 0);
     var diff =
-        mainOp.addOperation(
-            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.Mode.SUB), 0);
+        mainOp.addOperation(new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.Mode.SUB), 0);
     var quot =
-        mainOp.addOperation(
-            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.Mode.DIV), 0);
+        mainOp.addOperation(new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.Mode.DIV), 0);
     var rem =
-        mainOp.addOperation(
-            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.Mode.MOD), 0);
+        mainOp.addOperation(new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.Mode.MOD), 0);
 
-    var fmtSum  = mainOp.addOperation(new ConstantOp(LOC, "20 + 3 = %d\n"), 0);
+    var fmtSum = mainOp.addOperation(new ConstantOp(LOC, "20 + 3 = %d\n"), 0);
     var fmtDiff = mainOp.addOperation(new ConstantOp(LOC, "20 - 3 = %d\n"), 0);
     var fmtQuot = mainOp.addOperation(new ConstantOp(LOC, "20 / 3 = %d\n"), 0);
-    var fmtRem  = mainOp.addOperation(new ConstantOp(LOC, "20 %% 3 = %d\n"), 0);
+    var fmtRem = mainOp.addOperation(new ConstantOp(LOC, "20 %% 3 = %d\n"), 0);
 
-    mainOp.addOperation(new PrintOp(LOC, fmtSum.getValue(),  sum.getOutputValue().orElseThrow()),  0);
-    mainOp.addOperation(new PrintOp(LOC, fmtDiff.getValue(), diff.getOutputValue().orElseThrow()), 0);
-    mainOp.addOperation(new PrintOp(LOC, fmtQuot.getValue(), quot.getOutputValue().orElseThrow()), 0);
-    mainOp.addOperation(new PrintOp(LOC, fmtRem.getValue(),  rem.getOutputValue().orElseThrow()),  0);
+    mainOp.addOperation(new PrintOp(LOC, fmtSum.getValue(), sum.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(
+        new PrintOp(LOC, fmtDiff.getValue(), diff.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(
+        new PrintOp(LOC, fmtQuot.getValue(), quot.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmtRem.getValue(), rem.getOutputValue().orElseThrow()), 0);
     mainOp.addOperation(new ReturnOp(LOC), 0);
 
     runProgram(programOp, "20 + 3 = 23\n20 - 3 = 17\n20 / 3 = 6\n20 % 3 = 2\n");
@@ -552,7 +549,7 @@ public class VmConsoleTest extends VmTestBase {
     ProgramOp programOp = new ProgramOp(LOC);
     FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
-    var ten  = mainOp.addOperation(new ConstantOp(LOC, 10), 0);
+    var ten = mainOp.addOperation(new ConstantOp(LOC, 10), 0);
     var five = mainOp.addOperation(new ConstantOp(LOC, 5), 0);
     var three = mainOp.addOperation(new ConstantOp(LOC, 3), 0);
     var eight = mainOp.addOperation(new ConstantOp(LOC, 8), 0);
@@ -571,9 +568,12 @@ public class VmConsoleTest extends VmTestBase {
     var fmtLt = mainOp.addOperation(new ConstantOp(LOC, "3 < 8: %d\n"), 0);
     var fmtEq = mainOp.addOperation(new ConstantOp(LOC, "5 == 5: %d\n"), 0);
 
-    mainOp.addOperation(new PrintOp(LOC, fmtGt.getValue(), cmpGt.getOutputValue().orElseThrow()), 0);
-    mainOp.addOperation(new PrintOp(LOC, fmtLt.getValue(), cmpLt.getOutputValue().orElseThrow()), 0);
-    mainOp.addOperation(new PrintOp(LOC, fmtEq.getValue(), cmpEq.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(
+        new PrintOp(LOC, fmtGt.getValue(), cmpGt.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(
+        new PrintOp(LOC, fmtLt.getValue(), cmpLt.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(
+        new PrintOp(LOC, fmtEq.getValue(), cmpEq.getOutputValue().orElseThrow()), 0);
     mainOp.addOperation(new ReturnOp(LOC), 0);
 
     runProgram(programOp, "10 > 5: 1\n3 < 8: 1\n5 == 5: 1\n");
@@ -613,16 +613,18 @@ public class VmConsoleTest extends VmTestBase {
     FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
     Block entryBlock = mainOp.getEntryBlock();
-    Block geBlock   = mainOp.addBlock(new Block());
-    Block ltBlock   = mainOp.addBlock(new Block());
+    Block geBlock = mainOp.addBlock(new Block());
+    Block ltBlock = mainOp.addBlock(new Block());
     Block mergeBlock = mainOp.addBlock(new Block());
 
     // Read two integers, compare a >= b
     var a = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
     var b = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
-    var cmp = entryBlock.addOperation(
-        new CompareOp(LOC, a.getResult(), b.getResult(), CompModeAttr.Mode.GE));
-    entryBlock.addOperation(new BranchCondOp(LOC, cmp.getOutputValue().orElseThrow(), geBlock, ltBlock));
+    var cmp =
+        entryBlock.addOperation(
+            new CompareOp(LOC, a.getResult(), b.getResult(), CompModeAttr.Mode.GE));
+    entryBlock.addOperation(
+        new BranchCondOp(LOC, cmp.getOutputValue().orElseThrow(), geBlock, ltBlock));
 
     // a >= b branch
     var geMsg = geBlock.addOperation(new ConstantOp(LOC, "first is greater or equal\n"));
@@ -652,37 +654,46 @@ public class VmConsoleTest extends VmTestBase {
 
   /**
    * Tests combining BinaryOp and CompareOp with console input. The program reads two integers,
-   * computes their product, then checks whether the product exceeds a constant threshold (100),
-   * and prints a message accordingly.
+   * computes their product, then checks whether the product exceeds a constant threshold (100), and
+   * prints a message accordingly.
    */
   @Test
   void binaryOpAndCompareOpWithConsoleInputTest() {
     ProgramOp programOp = new ProgramOp(LOC);
     FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
-    Block entryBlock  = mainOp.getEntryBlock();
-    Block bigBlock    = mainOp.addBlock(new Block());
-    Block smallBlock  = mainOp.addBlock(new Block());
-    Block mergeBlock  = mainOp.addBlock(new Block());
+    Block entryBlock = mainOp.getEntryBlock();
+    Block bigBlock = mainOp.addBlock(new Block());
+    Block smallBlock = mainOp.addBlock(new Block());
+    Block mergeBlock = mainOp.addBlock(new Block());
 
     // Read a and b, compute product, compare product > 100
     var a = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
     var b = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
-    var product = entryBlock.addOperation(
-        new BinaryOp(LOC, a.getResult(), b.getResult(), BinModeAttr.Mode.MUL));
+    var product =
+        entryBlock.addOperation(
+            new BinaryOp(LOC, a.getResult(), b.getResult(), BinModeAttr.Mode.MUL));
     var threshold = entryBlock.addOperation(new ConstantOp(LOC, 100));
-    var cmp = entryBlock.addOperation(
-        new CompareOp(LOC, product.getOutputValue().orElseThrow(), threshold.getValue(), CompModeAttr.Mode.GT));
-    entryBlock.addOperation(new BranchCondOp(LOC, cmp.getOutputValue().orElseThrow(), bigBlock, smallBlock));
+    var cmp =
+        entryBlock.addOperation(
+            new CompareOp(
+                LOC,
+                product.getOutputValue().orElseThrow(),
+                threshold.getValue(),
+                CompModeAttr.Mode.GT));
+    entryBlock.addOperation(
+        new BranchCondOp(LOC, cmp.getOutputValue().orElseThrow(), bigBlock, smallBlock));
 
     // product > 100
     var fmtBig = bigBlock.addOperation(new ConstantOp(LOC, "Product %d exceeds 100!\n"));
-    bigBlock.addOperation(new PrintOp(LOC, fmtBig.getValue(), product.getOutputValue().orElseThrow()));
+    bigBlock.addOperation(
+        new PrintOp(LOC, fmtBig.getValue(), product.getOutputValue().orElseThrow()));
     bigBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // product <= 100
     var fmtSmall = smallBlock.addOperation(new ConstantOp(LOC, "Product %d is within 100.\n"));
-    smallBlock.addOperation(new PrintOp(LOC, fmtSmall.getValue(), product.getOutputValue().orElseThrow()));
+    smallBlock.addOperation(
+        new PrintOp(LOC, fmtSmall.getValue(), product.getOutputValue().orElseThrow()));
     smallBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     mergeBlock.addOperation(new ReturnOp(LOC));

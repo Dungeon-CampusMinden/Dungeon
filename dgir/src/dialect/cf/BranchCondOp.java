@@ -1,17 +1,18 @@
 package dialect.cf;
 
+import core.debug.Location;
 import core.ir.Block;
 import core.ir.Operation;
-import core.debug.Location;
 import core.ir.Value;
 import core.traits.IControlFlow;
 import core.traits.ITerminator;
-import dialect.builtin.types.IntegerT;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Function;
+
+import static dialect.builtin.BuiltinTypes.IntegerT;
 
 /**
  * Conditional branch that selects between two target blocks based on a boolean condition.

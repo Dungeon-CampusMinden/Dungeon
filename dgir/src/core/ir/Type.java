@@ -9,8 +9,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
+import java.util.List;
 import java.util.function.Function;
 
 // We have to use the deserializer because we cant use @JsonCreator on static methods and therefore
@@ -87,8 +89,8 @@ public abstract class Type {
   /**
    * Returns a function that checks whether a given value is a valid instance of this type.
    *
-   * <p>The validator is stored in {@link TypeDetails.Registered} at registration time
-   * and used by {@link #validate(Object)} to type-check attribute storage values.
+   * <p>The validator is stored in {@link TypeDetails.Registered} at registration time and used by
+   * {@link #validate(Object)} to type-check attribute storage values.
    *
    * @return the validator function, never {@code null}.
    */
@@ -112,6 +114,18 @@ public abstract class Type {
     return args -> args.getRight().defaultInstance();
   }
 
+  /**
+   * Returns a list of default type instances for this type. This is used for types that have no
+   * parameters. For example, for a simple integer type, this could return a list of all the
+   * predefined integer types (e.g. int1, int8, int16, int32, int64). For parameterized types, this
+   * should return a list containing the default instance of the type(this): {@code return
+   * List.of(this); }
+   *
+   * @return A list of default type instances.
+   */
+  @Contract(pure = true)
+  public abstract @NotNull @Unmodifiable List<Type> getDefaultTypeInstances();
+
   // =========================================================================
   // Constructors
   // =========================================================================
@@ -134,8 +148,8 @@ public abstract class Type {
   }
 
   /**
-   * Replace the details for this type. May only be called from {@link
-   * TypeDetails.Registered} during dialect registration.
+   * Replace the details for this type. May only be called from {@link TypeDetails.Registered}
+   * during dialect registration.
    *
    * @param details the new details instance.
    * @throws AssertionError if called from outside {@link TypeDetails.Registered}.

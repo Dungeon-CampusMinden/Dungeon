@@ -50,6 +50,6 @@ public class ArithDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @Unmodifiable @NotNull List<Attribute> allAttributes() {
-    return Utils.Dialect.allAttributes(ArithDialect.class, ArithAttr.class);
+    return Utils.Dialect.allAttributes(ArithDialect.class, ArithAttrs.class);
   }
 }

@@ -3,9 +3,9 @@ package dgir.vm.dialect.arith;
 import core.ir.Type;
 import core.ir.Value;
 import dgir.vm.api.State;
-import dialect.builtin.types.FloatT;
-import dialect.builtin.types.IntegerT;
 import org.jetbrains.annotations.NotNull;
+
+import static dialect.builtin.BuiltinTypes.*;
 
 final class NumericUtils {
   private NumericUtils() {}
