@@ -8,7 +8,7 @@ import core.utils.components.draw.*;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
-import core.utils.components.draw.shader.ShaderList;
+import core.platform.gdx.render.shader.ShaderList;
 import core.utils.components.draw.state.Signal;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;

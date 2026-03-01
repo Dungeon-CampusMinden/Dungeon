@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import core.platform.Platform;
-import core.utils.components.draw.shader.ShaderList;
+import core.platform.gdx.render.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
 import java.lang.reflect.Method;
 

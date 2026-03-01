@@ -1,4 +1,4 @@
-package core.utils.components.draw.shader;
+package core.platform.gdx.render.shader;
 
 import com.badlogic.gdx.math.Vector4;
 import core.utils.Rectangle;

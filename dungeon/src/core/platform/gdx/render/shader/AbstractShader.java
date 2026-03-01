@@ -1,4 +1,4 @@
-package core.utils.components.draw.shader;
+package core.platform.gdx.render.shader;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;

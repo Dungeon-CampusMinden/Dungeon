@@ -10,7 +10,7 @@ import core.platform.gdx.render.DrawSystem;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Vector2;
-import core.utils.components.draw.shader.LevelHideShader;
+import core.platform.gdx.render.shader.LevelHideShader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

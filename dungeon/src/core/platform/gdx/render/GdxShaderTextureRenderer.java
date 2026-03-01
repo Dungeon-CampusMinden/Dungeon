@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import core.utils.components.draw.TextureMap;
-import core.utils.components.draw.shader.ShaderList;
+import core.platform.gdx.render.shader.ShaderList;
 import core.utils.components.path.SimpleIPath;
 
 public final class GdxShaderTextureRenderer {

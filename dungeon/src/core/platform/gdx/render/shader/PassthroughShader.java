@@ -1,4 +1,4 @@
-package core.utils.components.draw.shader;
+package core.platform.gdx.render.shader;
 
 import core.utils.Rectangle;
 import java.util.List;
