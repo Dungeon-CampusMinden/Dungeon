@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
-import static dialect.arith.ArithAttr.BinModeAttr;
-import static dialect.arith.ArithAttr.CompModeAttr;
+import static dialect.arith.ArithAttr.BinMode;
+import static dialect.arith.ArithAttr.CompMode;
 import static dialect.arith.ArithOps.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -495,7 +495,7 @@ public class VmConsoleTest extends VmTestBase {
     var rhs = mainOp.addOperation(new ConstantOp(LOC, 7), 0);
     var product =
         mainOp.addOperation(
-            new BinaryOp(LOC, lhs.getValue(), rhs.getValue(), BinModeAttr.Mode.MUL), 0);
+            new BinaryOp(LOC, lhs.getValue(), rhs.getValue(), BinMode.Mode.MUL), 0);
     var fmt = mainOp.addOperation(new ConstantOp(LOC, "6 * 7 = %d\n"), 0);
     mainOp.addOperation(
         new PrintOp(LOC, fmt.getValue(), product.getOutputValue().orElseThrow()), 0);
@@ -518,16 +518,16 @@ public class VmConsoleTest extends VmTestBase {
 
     var sum =
         mainOp.addOperation(
-            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.Mode.ADD), 0);
+            new BinaryOp(LOC, a.getValue(), b.getValue(), BinMode.Mode.ADD), 0);
     var diff =
         mainOp.addOperation(
-            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.Mode.SUB), 0);
+            new BinaryOp(LOC, a.getValue(), b.getValue(), BinMode.Mode.SUB), 0);
     var quot =
         mainOp.addOperation(
-            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.Mode.DIV), 0);
+            new BinaryOp(LOC, a.getValue(), b.getValue(), BinMode.Mode.DIV), 0);
     var rem =
         mainOp.addOperation(
-            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.Mode.MOD), 0);
+            new BinaryOp(LOC, a.getValue(), b.getValue(), BinMode.Mode.MOD), 0);
 
     var fmtSum  = mainOp.addOperation(new ConstantOp(LOC, "20 + 3 = %d\n"), 0);
     var fmtDiff = mainOp.addOperation(new ConstantOp(LOC, "20 - 3 = %d\n"), 0);
@@ -559,13 +559,13 @@ public class VmConsoleTest extends VmTestBase {
 
     var cmpGt =
         mainOp.addOperation(
-            new CompareOp(LOC, ten.getValue(), five.getValue(), CompModeAttr.Mode.GT), 0);
+            new CompareOp(LOC, ten.getValue(), five.getValue(), CompMode.Mode.GT), 0);
     var cmpLt =
         mainOp.addOperation(
-            new CompareOp(LOC, three.getValue(), eight.getValue(), CompModeAttr.Mode.LT), 0);
+            new CompareOp(LOC, three.getValue(), eight.getValue(), CompMode.Mode.LT), 0);
     var cmpEq =
         mainOp.addOperation(
-            new CompareOp(LOC, five.getValue(), five.getValue(), CompModeAttr.Mode.EQ), 0);
+            new CompareOp(LOC, five.getValue(), five.getValue(), CompMode.Mode.EQ), 0);
 
     var fmtGt = mainOp.addOperation(new ConstantOp(LOC, "10 > 5: %d\n"), 0);
     var fmtLt = mainOp.addOperation(new ConstantOp(LOC, "3 < 8: %d\n"), 0);
@@ -592,7 +592,7 @@ public class VmConsoleTest extends VmTestBase {
     var b = mainOp.addOperation(new ConsoleInOp(LOC, IntegerT.INT32), 0);
     var sum =
         mainOp.addOperation(
-            new BinaryOp(LOC, a.getResult(), b.getResult(), BinModeAttr.Mode.ADD), 0);
+            new BinaryOp(LOC, a.getResult(), b.getResult(), BinMode.Mode.ADD), 0);
     var fmt = mainOp.addOperation(new ConstantOp(LOC, "Sum: %d\n"), 0);
     mainOp.addOperation(new PrintOp(LOC, fmt.getValue(), sum.getOutputValue().orElseThrow()), 0);
     mainOp.addOperation(new ReturnOp(LOC), 0);
@@ -621,7 +621,7 @@ public class VmConsoleTest extends VmTestBase {
     var a = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
     var b = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
     var cmp = entryBlock.addOperation(
-        new CompareOp(LOC, a.getResult(), b.getResult(), CompModeAttr.Mode.GE));
+        new CompareOp(LOC, a.getResult(), b.getResult(), CompMode.Mode.GE));
     entryBlock.addOperation(new BranchCondOp(LOC, cmp.getOutputValue().orElseThrow(), geBlock, ltBlock));
 
     // a >= b branch
@@ -669,10 +669,10 @@ public class VmConsoleTest extends VmTestBase {
     var a = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
     var b = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
     var product = entryBlock.addOperation(
-        new BinaryOp(LOC, a.getResult(), b.getResult(), BinModeAttr.Mode.MUL));
+        new BinaryOp(LOC, a.getResult(), b.getResult(), BinMode.Mode.MUL));
     var threshold = entryBlock.addOperation(new ConstantOp(LOC, 100));
     var cmp = entryBlock.addOperation(
-        new CompareOp(LOC, product.getOutputValue().orElseThrow(), threshold.getValue(), CompModeAttr.Mode.GT));
+        new CompareOp(LOC, product.getOutputValue().orElseThrow(), threshold.getValue(), CompMode.Mode.GT));
     entryBlock.addOperation(new BranchCondOp(LOC, cmp.getOutputValue().orElseThrow(), bigBlock, smallBlock));
 
     // product > 100

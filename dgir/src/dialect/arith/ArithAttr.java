@@ -23,7 +23,7 @@ public sealed interface ArithAttr {
     }
   }
 
-  final class BinModeAttr extends ArithAttribute implements ArithAttr {
+  final class BinMode extends ArithAttribute implements ArithAttr {
     @Override
     public @NotNull String getIdent() {
       return "arith.binMode";
@@ -42,24 +42,24 @@ public sealed interface ArithAttr {
       MOD
     }
 
-    private final @NotNull ArithAttr.BinModeAttr.Mode mode;
+    private final @NotNull ArithAttr.BinMode.Mode mode;
 
-    public BinModeAttr() {
+    public BinMode() {
       this(Mode.ADD);
     }
 
     @JsonCreator
-    public BinModeAttr(@JsonProperty("mode") @NotNull ArithAttr.BinModeAttr.Mode mode) {
+    public BinMode(@JsonProperty("mode") @NotNull ArithAttr.BinMode.Mode mode) {
       super();
       this.mode = mode;
     }
 
-    public @NotNull ArithAttr.BinModeAttr.Mode getMode() {
+    public @NotNull ArithAttr.BinMode.Mode getMode() {
       return mode;
     }
   }
 
-  final class CompModeAttr extends ArithAttribute implements ArithAttr {
+  final class CompMode extends ArithAttribute implements ArithAttr {
     @Override
     public @NotNull String getIdent() {
       return "arith.compMode";
@@ -81,12 +81,12 @@ public sealed interface ArithAttr {
 
     private final @NotNull Mode mode;
 
-    public CompModeAttr() {
+    public CompMode() {
       this(Mode.EQ);
     }
 
     @JsonCreator
-    public CompModeAttr(@JsonProperty("mode") @NotNull Mode mode) {
+    public CompMode(@JsonProperty("mode") @NotNull Mode mode) {
       super();
       this.mode = mode;
     }
