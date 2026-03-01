@@ -4,15 +4,21 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.game.ECSManagement;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import de.gurkenlabs.litiengine.graphics.ImageRenderer;
 import de.gurkenlabs.litiengine.graphics.TextRenderer;
 import de.gurkenlabs.litiengine.gui.screens.Screen;
+import de.gurkenlabs.litiengine.resources.Resources;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -21,14 +27,21 @@ import java.util.Optional;
  * <p>Renders a debug overlay (tick + entity count) and a simple world visualization:
  * level grid + entity markers based on PositionComponent.
  *
- * <p>This is intentionally independent of the Dungeon rendering pipeline (which is still libGDX-based).
+ * <p>This is intentionally independent of the Dungeon libGDX rendering pipeline.
+ * It uses LITIENGINE's pure Java (AWT) rendering and resource loading.
  */
 public final class DungeonDebugScreen extends Screen {
   public static final String NAME = "dungeon-debug";
 
-  // Simple debug scale: treat dungeon world units as "tiles"
+  // Treat dungeon world units as "tiles" (debug-only).
   private static final int TILE_PX = 32;
   private static final int ENTITY_PX = 10;
+
+  // Toggle: render actual tile textures if available on the classpath.
+  private static final boolean DRAW_TILE_TEXTURES = true;
+
+  // Cache resolved texture paths -> loaded images (also caches "missing" as null).
+  private final Map<String, BufferedImage> tileImageCache = new HashMap<>();
 
   public DungeonDebugScreen() {
     super(NAME);
@@ -37,6 +50,13 @@ public final class DungeonDebugScreen extends Screen {
   @Override
   public void render(Graphics2D g) {
     super.render(g);
+
+    // Pixel-art friendly scaling (avoid blurry interpolation on scaled sprites).
+    Object oldInterpolation = g.getRenderingHint(RenderingHints.KEY_INTERPOLATION);
+    g.setRenderingHint(
+      RenderingHints.KEY_INTERPOLATION,
+      RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR
+    );
 
     // Background
     g.setColor(Color.BLACK);
@@ -51,14 +71,18 @@ public final class DungeonDebugScreen extends Screen {
 
     // Overlay text
     g.setColor(Color.WHITE);
-    int tick = ECSManagement.currentTick();
-    long entities = ECSManagement.levelEntities().count();
+    int tick = core.game.ECSManagement.currentTick();
+    long entities = core.game.ECSManagement.levelEntities().count();
     TextRenderer.render(
       g,
       "Dungeon (LITIENGINE) tick=" + tick + " entities=" + entities
         + (levelOpt.isPresent() ? "" : " [no level loaded]"),
       10,
-      20);
+      20
+    );
+
+    // Restore hint
+    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, oldInterpolation);
   }
 
   private void renderLevelGrid(Graphics2D g, ILevel level) {
@@ -75,44 +99,79 @@ public final class DungeonDebugScreen extends Screen {
         Tile t = layout[y][x];
         if (t == null) continue;
 
-        // simple coloring: walls darker, floor lighter
+        int sx = x * TILE_PX;
+        int sy = (h - 1 - y) * TILE_PX; // flip Y for screen coords
+
+        if (DRAW_TILE_TEXTURES) {
+          BufferedImage img = imageForTile(t);
+          if (img != null) {
+            drawTileImage(g, img, sx, sy);
+            continue;
+          }
+        }
+
+        // fallback: simple coloring if no texture found
         LevelElement le = t.levelElement();
         if (le == LevelElement.WALL) {
           g.setColor(new Color(40, 40, 40));
         } else {
           g.setColor(new Color(80, 80, 80));
         }
-
-        int sx = x * TILE_PX;
-        int sy = (h - 1 - y) * TILE_PX; // flip Y for screen coordinates
         g.fillRect(sx, sy, TILE_PX, TILE_PX);
 
-        // grid lines (optional)
+        // grid lines
         g.setColor(new Color(20, 20, 20));
         g.drawRect(sx, sy, TILE_PX, TILE_PX);
       }
     }
   }
 
+  private void drawTileImage(Graphics2D g, BufferedImage img, int sx, int sy) {
+    if (img.getWidth() <= 0 || img.getHeight() <= 0) return;
+
+    double scaleX = TILE_PX / (double) img.getWidth();
+    double scaleY = TILE_PX / (double) img.getHeight();
+
+    ImageRenderer.renderScaled(g, img, sx, sy, scaleX, scaleY);
+  }
+
+  private BufferedImage imageForTile(Tile t) {
+    if (t == null || t.texturePath() == null) return null;
+
+    String raw = t.texturePath().pathString();
+    if (raw == null || raw.isBlank()) return null;
+
+    String resolved = resolveImplicitFilePath(raw);
+
+    // Cache hit (including cached-missing null)
+    if (tileImageCache.containsKey(resolved)) {
+      return tileImageCache.get(resolved);
+    }
+
+    // Let LITIENGINE load + cache internally (ResourcesContainer is an in-memory cache).
+    // Returns null if not found.
+    BufferedImage img = Resources.images().get(resolved);
+
+    tileImageCache.put(resolved, img);
+    return img;
+  }
+
   private void renderEntities(Graphics2D g, Optional<ILevel> levelOpt) {
-    // If we have a level, use its height for Y-flip.
     int levelHeight = levelOpt.map(l -> l.layout().length).orElse(0);
 
-    ECSManagement.levelEntities()
-      .forEach(
-        e -> e.fetch(PositionComponent.class).ifPresent(pc -> drawEntityMarker(g, e, pc.position(), levelHeight)));
+    core.game.ECSManagement.levelEntities()
+      .forEach(e ->
+        e.fetch(PositionComponent.class)
+          .ifPresent(pc -> drawEntityMarker(g, e, pc.position(), levelHeight)));
   }
 
   private void drawEntityMarker(Graphics2D g, Entity e, Point pos, int levelHeight) {
-    // Interpret world position as tile coordinates (debug-only).
-    // If your world uses pixel coordinates instead, you can switch TILE_PX to 1.
     int sx = Math.round(pos.x() * TILE_PX);
     int sy;
 
     if (levelHeight > 0) {
       sy = Math.round((levelHeight - 1 - pos.y()) * TILE_PX);
     } else {
-      // fallback: no flip if level unknown
       sy = Math.round(pos.y() * TILE_PX);
     }
 
@@ -128,8 +187,19 @@ public final class DungeonDebugScreen extends Screen {
     g.fillOval(sx - r, sy - r, ENTITY_PX, ENTITY_PX);
   }
 
+  private static String resolveImplicitFilePath(String pathString) {
+    // Keep identical behavior to Animation/TextureMap helpers:
+    // - If a folder is given: "<dir>/<basename>.png"
+    // - If no known extension is present: same as above
+    if (pathString.endsWith("/") || !pathString.matches(".*\\.(png|jpg|jpeg)$")) {
+      String dir = pathString.replaceAll("/$", "");
+      String baseName = dir.substring(dir.lastIndexOf('/') + 1);
+      return dir + "/" + baseName + ".png";
+    }
+    return pathString;
+  }
+
   private int getWidthSafe() {
-    // Screen#getWidth isn't always available depending on LITIENGINE version; window size fallback.
     try {
       return de.gurkenlabs.litiengine.Game.window().getWidth();
     } catch (Exception ignored) {
