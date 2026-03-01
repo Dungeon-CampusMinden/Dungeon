@@ -1,0 +1,84 @@
+package core.utils.components.draw.animation;
+
+import core.utils.components.path.IPath;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Objects;
+
+/**
+ * Engine-agnostic description of a single animation frame.
+ *
+ * <p>A frame references a texture path and optionally a rectangular region (spritesheet).
+ * Backends (libGDX, LITIENGINE, ...) can resolve this into a concrete render object.
+ */
+public final class AnimationFrame implements Serializable {
+  @Serial private static final long serialVersionUID = 1L;
+
+  private final IPath texturePath;
+
+  // Optional sub-region on a spritesheet. If regionW/regionH <= 0 -> full image.
+  private final int regionX;
+  private final int regionY;
+  private final int regionW;
+  private final int regionH;
+
+  // Backend cache (e.g. libGDX Sprite/TextureRegion). Not serialized.
+  private transient Object backendHandle;
+
+  public static AnimationFrame fullImage(final IPath texturePath) {
+    return new AnimationFrame(texturePath, -1, -1, -1, -1);
+  }
+
+  public static AnimationFrame region(final IPath texturePath, int x, int y, int w, int h) {
+    return new AnimationFrame(texturePath, x, y, w, h);
+  }
+
+  public AnimationFrame(
+    final IPath texturePath, final int regionX, final int regionY, final int regionW, final int regionH) {
+    this.texturePath = Objects.requireNonNull(texturePath, "texturePath");
+    this.regionX = regionX;
+    this.regionY = regionY;
+    this.regionW = regionW;
+    this.regionH = regionH;
+  }
+
+  public IPath texturePath() {
+    return texturePath;
+  }
+
+  public boolean hasRegion() {
+    return regionW > 0 && regionH > 0 && regionX >= 0 && regionY >= 0;
+  }
+
+  public int regionX() {
+    return regionX;
+  }
+
+  public int regionY() {
+    return regionY;
+  }
+
+  public int regionW() {
+    return regionW;
+  }
+
+  public int regionH() {
+    return regionH;
+  }
+
+  public Object backendHandle() {
+    return backendHandle;
+  }
+
+  public void backendHandle(final Object backendHandle) {
+    this.backendHandle = backendHandle;
+  }
+
+  @Override
+  public String toString() {
+    return "AnimationFrame{"
+      + "texturePath=" + texturePath
+      + ", region=" + (hasRegion() ? (regionX + "," + regionY + "," + regionW + "," + regionH) : "<full>")
+      + "}";
+  }
+}

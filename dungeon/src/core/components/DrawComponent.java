@@ -1,14 +1,14 @@
 package core.components;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import core.Component;
 import core.platform.gdx.render.DrawSystem;
+import core.platform.gdx.render.shader.ShaderList;
 import core.utils.Vector2;
 import core.utils.components.draw.*;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
+import core.utils.components.draw.animation.AnimationFrame;
 import core.utils.components.draw.animation.SpritesheetConfig;
-import core.platform.gdx.render.shader.ShaderList;
 import core.utils.components.draw.state.Signal;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
@@ -72,18 +72,10 @@ public final class DrawComponent implements Component, Serializable {
     this(path, config, null);
   }
 
-  /**
-   * Create a new DrawComponent.
-   *
-   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be
-   *     assumed that the target image file is within that folder with the same name as the folder
-   *     but as png. Example: "character/knight" resolves to "assets/character/knight/knight.png".
-   * @param config The animation config to use
-   * @param defaultStateName Name of the default state to use
-   * @see Animation
-   */
   public DrawComponent(final IPath path, AnimationConfig config, String defaultStateName) {
-    stateMachine = new StateMachine(path, config, defaultStateName);
+    this.stateMachine = (defaultStateName == null)
+      ? new StateMachine(path, config)
+      : new StateMachine(path, config, defaultStateName);
   }
 
   /**
@@ -170,6 +162,18 @@ public final class DrawComponent implements Component, Serializable {
     this.depth = depthLayer.depth();
   }
 
+  public void addTransition(Transition transition) {
+    stateMachine.addTransition(transition);
+  }
+
+  public void addTransition(State from, String signal, State to) {
+    stateMachine.addTransition(from, signal, to);
+  }
+
+  public void addTransition(String from, String signal, String to) {
+    stateMachine.addTransition(from, signal, to);
+  }
+
   /**
    * Send a {@link Signal} with associated data to the {@link StateMachine}.
    *
@@ -196,15 +200,6 @@ public final class DrawComponent implements Component, Serializable {
    */
   public void update() {
     stateMachine.update();
-  }
-
-  /**
-   * Get the current {@link Sprite} of this component.
-   *
-   * @return The current sprite frame.
-   */
-  public Sprite getSprite() {
-    return stateMachine.getSprite();
   }
 
   /**
@@ -258,7 +253,7 @@ public final class DrawComponent implements Component, Serializable {
    * @return true if the current animation is looping.
    */
   public boolean isCurrentAnimationLooping() {
-    return currentAnimation().isLooping();
+    return stateMachine.getCurrentState().getAnimation().getConfig().isLooping();
   }
 
   /**
@@ -268,16 +263,6 @@ public final class DrawComponent implements Component, Serializable {
    */
   public boolean isCurrentAnimationFinished() {
     return stateMachine.isAnimationFinished();
-  }
-
-  /**
-   * Check whether a state with the given name exists.
-   *
-   * @param name The name of the state.
-   * @return true if the state exists, false otherwise.
-   */
-  public boolean hasState(String name) {
-    return stateMachine.getState(name) != null;
   }
 
   /**
@@ -330,16 +315,6 @@ public final class DrawComponent implements Component, Serializable {
    */
   public void setVisible(boolean visible) {
     isVisible = visible;
-  }
-
-  /**
-   * Returns the tint color of the DrawComponent.
-   *
-   * @return The tint color in RGBA of the DrawComponent. If the tint color is -1, no tint is
-   *     applied.
-   */
-  public int tintColor() {
-    return this.tintColor;
   }
 
   /**
@@ -411,5 +386,25 @@ public final class DrawComponent implements Component, Serializable {
    */
   public Vector2 size() {
     return Vector2.of(getWidth(), getHeight());
+  }
+
+  public AnimationFrame getFrame() {
+    return stateMachine.getFrame();
+  }
+
+  public boolean hasState(String name) {
+    return stateMachine.states().stream().anyMatch(s -> s.name.equals(name));
+  }
+
+  public Optional<State> getState(String name) {
+    return stateMachine.states().stream().filter(s -> s.name.equals(name)).findFirst();
+  }
+
+  public void isVisible(boolean visible) {
+    this.isVisible = visible;
+  }
+
+  public int tintColor() {
+    return tintColor;
   }
 }

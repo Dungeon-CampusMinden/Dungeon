@@ -28,6 +28,7 @@ import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
+import core.platform.gdx.render.GdxAnimationFrames;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
@@ -308,7 +309,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   @Override
   protected void draw(Batch batch) {
     // Draw background
-    batch.draw(backgroundAnimation.update(), this.x(), this.y(), this.width(), this.height());
+    batch.draw(GdxAnimationFrames.toRegion(backgroundAnimation.update()), this.x(), this.y(), this.width(), this.height());
 
     this.drawItems(batch);
 
@@ -337,7 +338,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
       int startY = this.y() + Math.round(this.height() * INPUT_ITEMS_Y);
 
       for (int i = 0; i < this.inventory.count(); i++) {
-        Sprite sprite = this.inventory.get(i).orElseThrow().inventoryAnimation().update();
+        Sprite sprite = GdxAnimationFrames.toSprite(this.inventory.get(i).orElseThrow().inventoryAnimation().update());
         int textureX = startX + ITEM_GAP * (i + 1) + size * i;
         batch.draw(sprite, textureX, startY, size, size);
 
@@ -391,7 +392,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
         if (result.resultType() != CraftingType.ITEM || !(result instanceof Item item)) {
           continue;
         }
-        Sprite sprite = item.inventoryAnimation().update();
+        Sprite sprite = GdxAnimationFrames.toSprite(item.inventoryAnimation().update());
         batch.draw(sprite, x + ITEM_GAP * (i + 1) + size * i, y, size, size);
 
         GlyphLayout layout = new GlyphLayout(bitmapFont, item.displayName());

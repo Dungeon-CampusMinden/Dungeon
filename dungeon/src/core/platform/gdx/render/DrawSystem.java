@@ -501,7 +501,7 @@ public final class DrawSystem extends System implements Disposable {
    * @param dsd the data record of the entity to process
    */
   private void processShaderPassesSingleEntity(final DSData dsd) {
-    FrameBuffer generated = processShaders(dsd.dc.getSprite(), dsd.dc.shaders(), dsd.pc);
+    FrameBuffer generated = processShaders(GdxAnimationFrames.toRegion(dsd.dc.getFrame()), dsd.dc.shaders(), dsd.pc);
     FrameBuffer oldFbo = entityFboCache.put(dsd.e, generated);
     if (oldFbo != null) {
       LOGGER.warn("Entity FBO cache overwrite for entity: " + dsd.e);
@@ -733,7 +733,7 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   private void draw(final DSData dsd) {
-    Sprite sprite = dsd.dc.getSprite();
+    Sprite sprite = GdxAnimationFrames.toSprite(dsd.dc.getFrame());;
     DrawConfig conf =
         makeConfig(dsd, Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()), dsd.pc.scale());
     draw(dsd.pc.position(), sprite, conf);
@@ -750,7 +750,7 @@ public final class DrawSystem extends System implements Disposable {
    * @param config the {@link DrawConfig} controlling scaling, tint, and offset
    */
   public void draw(final Point position, final IPath path, final DrawConfig config) {
-    draw(position, new Sprite(TextureMap.instance().textureAt(path)), config);
+    draw(position, new Sprite(Objects.requireNonNull(TextureMap.instance().textureAt(path))), config);
   }
 
   // endregion

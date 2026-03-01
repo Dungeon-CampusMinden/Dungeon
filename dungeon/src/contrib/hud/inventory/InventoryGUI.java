@@ -30,6 +30,7 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.network.messages.c2s.InputMessage;
+import core.platform.gdx.render.GdxAnimationFrames;
 import core.utils.*;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
@@ -282,11 +283,11 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
       }
 
       batch.draw(
-          this.inventoryComponent.items()[i].inventoryAnimation().update(),
-          x,
-          y,
-          this.slotSize - (4 * BORDER_PADDING),
-          this.slotSize - (4 * BORDER_PADDING));
+        GdxAnimationFrames.toRegion(this.inventoryComponent.items()[i].inventoryAnimation().update()),
+        x,
+        y,
+        this.slotSize - (4 * BORDER_PADDING),
+        this.slotSize - (4 * BORDER_PADDING));
     }
   }
 
@@ -406,7 +407,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
                 InventoryGUI.this.inventoryComponent, isHeroInv, draggedSlot, itemToTransfer));
 
         // TODO: Test if SpriteDrawable is equivalent to creating a texture on the fly
-        Image image = new Image(new SpriteDrawable(itemToTransfer.inventoryAnimation().update()));
+        Image image = new Image(new SpriteDrawable(GdxAnimationFrames.toSprite(itemToTransfer.inventoryAnimation().update())));
         image.setSize(InventoryGUI.this.slotSize, InventoryGUI.this.slotSize);
         payload.setDragActor(image);
         dragAndDrop().setDragActorPosition(image.getWidth() / 2, -image.getHeight() / 2);

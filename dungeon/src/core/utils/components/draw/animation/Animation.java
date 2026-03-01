@@ -12,22 +12,10 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Represents an animation consisting of one or more {@link Sprite}s.
+ * Represents an animation consisting of one or more frames.
  *
- * <p>An {@code Animation} can be created from:
- *
- * <ul>
- *   <li>a single image file,
- *   <li>a folder of images,
- *   <li>a spritesheet with an accompanying {@link SpritesheetConfig},
- *   <li>or a list of explicit paths to images.
- * </ul>
- *
- * <p>The animation uses an {@link AnimationConfig} to determine scaling, frame duration, looping
- * behavior, and optionally spritesheet layout.
- *
- * <p>Animation frames are stored internally as {@link Sprite} objects and can be updated
- * frame-by-frame with {@link #update()}.
+ * <p>NOTE: The public API is engine-agnostic and returns {@link AnimationFrame}.
+ * libGDX {@link Sprite} objects may still be used internally for the GDX backend.
  */
 public class Animation implements Serializable, Cloneable {
   @Serial private static final long serialVersionUID = 1L;
@@ -47,7 +35,6 @@ public class Animation implements Serializable, Cloneable {
 
   /** Logical world size (computed from sprite pixel size and scale). */
   private float width = 1;
-
   private float height = 1;
 
   /** Sprite pixel-to-world scale used to compute width/height. */
@@ -59,7 +46,10 @@ public class Animation implements Serializable, Cloneable {
   /** Lazily-loaded runtime sprites. Not serializable. */
   private transient Sprite[] sprites;
 
-  /** Indicates whether sprites are loaded. */
+  /** Engine-agnostic frames (each may cache a backend handle). Not serializable. */
+  private transient AnimationFrame[] frames;
+
+  /** Indicates whether sprites/frames are loaded. */
   private transient boolean loaded;
 
   /** Source description for lazy loading. */
@@ -71,64 +61,41 @@ public class Animation implements Serializable, Cloneable {
   /** For SPRITESHEET: the path to the spritesheet image. */
   private IPath sheetPath;
 
-  /**
-   * Create a new animation from a path.
-   *
-   * @param path An {@link IPath} to either a single image or a folder of images.
-   * @param config The configuration to use for this animation.
-   * @throws IllegalArgumentException if the path is null or empty.
-   */
   public Animation(IPath path, AnimationConfig config) {
     if (path == null || path.pathString().isEmpty())
       throw new IllegalArgumentException("path can't be null or empty");
     this.config = config == null ? new AnimationConfig() : config;
 
-    // Resolve single vs spritesheet based on config presence
     String resolved = resolveImplicitFilePath(path.pathString());
     IPath exactPath = new SimpleIPath(resolved);
 
     if (this.config.config().isPresent()) {
-      // Spritesheet path retained; lazy-load frames
       this.sourceType = SourceType.SPRITESHEET;
       this.sheetPath = exactPath;
-      // Optional eager compute using known sprite px dimensions from config
+
       SpritesheetConfig ssc = this.config.config().get();
       calculateWorldSize(ssc.spriteWidth(), ssc.spriteHeight());
-      // Attempt eager load only if GL is available
+
       tryEagerLoad();
     } else {
-      // Single image treated as a single-frame multi source
       this.sourceType = SourceType.SINGLE_OR_MULTI;
       this.framePaths = new ArrayList<>();
       this.framePaths.add(exactPath);
-      // Try to read actual texture size if available; else fallback
+
       if (canUseTextures() || TextureMap.instance().containsKey(exactPath.pathString())) {
         Texture t = TextureMap.instance().textureAt(exactPath);
         calculateWorldSize(t.getWidth(), t.getHeight());
       } else {
-        // Fallback logical size for headless/server
         calculateWorldSize(16, 16);
       }
       tryEagerLoad();
     }
   }
 
-  /**
-   * Create a new animation with default configuration.
-   *
-   * @param path An {@link IPath} to either a single image or a folder of images.
-   */
   public Animation(IPath path) {
     this(path, new AnimationConfig());
   }
 
-  /**
-   * Create a new animation from multiple paths.
-   *
-   * @param paths A list of image paths to use.
-   * @param config The configuration to use for this animation.
-   * @throws IllegalArgumentException if paths is null or empty.
-   */
   public Animation(List<IPath> paths, AnimationConfig config) {
     if (paths == null || paths.isEmpty())
       throw new IllegalArgumentException("paths can't be null or empty");
@@ -137,7 +104,6 @@ public class Animation implements Serializable, Cloneable {
     this.sourceType = SourceType.SINGLE_OR_MULTI;
     this.framePaths = new ArrayList<>(paths);
 
-    // Size from first frame if possible (only when a libGDX rendering backend exists)
     Texture t = canUseTextures() ? TextureMap.instance().textureAt(paths.get(0)) : null;
     if (t != null) {
       calculateWorldSize(t.getWidth(), t.getHeight());
@@ -147,173 +113,95 @@ public class Animation implements Serializable, Cloneable {
     tryEagerLoad();
   }
 
-  /**
-   * Create a new animation from multiple paths with default configuration.
-   *
-   * @param paths A varargs array of image paths.
-   */
   public Animation(IPath... paths) {
     this(Arrays.asList(paths), new AnimationConfig());
   }
 
-  /**
-   * Create a new animation from a list of paths with default configuration.
-   *
-   * @param paths A list of image paths.
-   */
   public Animation(List<IPath> paths) {
     this(paths, new AnimationConfig());
   }
 
-  /**
-   * Get the current sprite frame based on the frame counter and configuration.
-   *
-   * @return The current {@link Sprite}.
-   */
-  public Sprite getSprite() {
+  /** Returns the current engine-agnostic frame. */
+  public AnimationFrame getFrame() {
     ensureLoaded();
-    int spriteIndex = frameCount / config.framesPerSprite();
-    if (config.isLooping()) {
-      spriteIndex = spriteIndex % sprites.length;
-    } else {
-      spriteIndex = Math.min(spriteIndex, sprites.length - 1);
+
+    int idx = frameCount / config.framesPerSprite();
+    if (frames == null || frames.length == 0) {
+      return AnimationFrame.fullImage(MISSING_TEXTURE_PATH);
     }
-    return sprites[spriteIndex];
+
+    if (config.isLooping()) {
+      idx = idx % frames.length;
+    } else {
+      idx = Math.min(idx, frames.length - 1);
+    }
+    return frames[idx];
   }
 
-  /**
-   * Get the logical width of the animation in world units.
-   *
-   * @return The width of the animation.
-   */
   public float getWidth() {
     return width;
   }
 
-  /**
-   * Get the logical height of the animation in world units.
-   *
-   * @return The height of the animation.
-   */
   public float getHeight() {
     return height;
   }
 
-  /**
-   * Get the scale factor in the X direction.
-   *
-   * @return The scale factor in the X direction.
-   */
   public float getScaleX() {
     return config.scaleX();
   }
 
-  /**
-   * Get the scale factor in the Y direction. If scaleY is not set, return scaleX.
-   *
-   * @return The scale factor in the Y direction.
-   */
   public float getScaleY() {
     return config.scaleY() == 0 ? config.scaleX() : config.scaleY();
   }
 
-  /**
-   * Get the pixel width of the underlying sprite frame.
-   *
-   * @return The sprite width in pixels.
-   */
   public float getSpriteWidth() {
-    return width / spriteScale / getScaleX();
+    ensureLoaded();
+    Sprite s = (sprites != null && sprites.length > 0) ? sprites[0] : null;
+    return s != null ? s.getRegionWidth() : 16;
   }
 
-  /**
-   * Get the pixel height of the underlying sprite frame.
-   *
-   * @return The sprite height in pixels.
-   */
   public float getSpriteHeight() {
-    return height / spriteScale / getScaleY();
+    ensureLoaded();
+    Sprite s = (sprites != null && sprites.length > 0) ? sprites[0] : null;
+    return s != null ? s.getRegionHeight() : 16;
   }
 
-  /**
-   * Check whether this animation is set to loop.
-   *
-   * @return true if the animation loops, false otherwise.
-   */
-  public boolean isLooping() {
-    return config.isLooping();
-  }
-
-  /**
-   * Check whether this animation has finished playing.
-   *
-   * @return true if the animation has finished, false otherwise.
-   */
   public boolean isFinished() {
     ensureLoaded();
-    int spriteIndex = frameCount / config.framesPerSprite();
-    return spriteIndex >= sprites.length;
+    int idx = frameCount / config.framesPerSprite();
+    int len = (frames == null) ? 0 : frames.length;
+    return len == 0 || idx >= len;
   }
 
-  /**
-   * Update the animation by advancing the frame counter.
-   *
-   * @return The updated current {@link Sprite}.
-   */
-  public Sprite update() {
+  /** Advances the frame counter and returns the new current frame. */
+  public AnimationFrame update() {
     frameCount++;
-    return getSprite();
+    return getFrame();
   }
 
-  /**
-   * Get the current frame counter.
-   *
-   * @return The frame counter.
-   */
   public int frameCount() {
     return frameCount;
   }
 
-  /**
-   * Set the frame counter.
-   *
-   * @param frameCount The new frame count value.
-   */
   public void frameCount(int frameCount) {
     this.frameCount = frameCount;
   }
 
-  /**
-   * Get the {@link AnimationConfig} used by this animation.
-   *
-   * @return The animation configuration.
-   */
   public AnimationConfig getConfig() {
     return config;
   }
 
-  /** Unload sprites to free memory; they will be reloaded on next use. */
   public void unload() {
     sprites = null;
+    frames = null;
     loaded = false;
   }
 
-  /**
-   * Sets whether the animation is mirrored horizontally.
-   *
-   * @param mirrored whether to mirror the animation
-   * @return this animation instance
-   */
   public Animation mirrored(boolean mirrored) {
     config.mirrored(mirrored);
     return this;
   }
 
-  /**
-   * Get whether the animation is mirrored horizontally.
-   *
-   * @return whether the animation is mirrored
-   */
   public boolean mirrored() {
     return config.mirrored();
   }
@@ -321,35 +209,16 @@ public class Animation implements Serializable, Cloneable {
   @Override
   public String toString() {
     return "Animation{"
-        + "width="
-        + width
-        + ", height="
-        + height
-        + ", frameCount="
-        + frameCount
-        + ", loaded="
-        + loaded
-        + ", sourceType="
-        + sourceType
-        + ", frames="
-        + (sourceType == SourceType.SINGLE_OR_MULTI
-            ? (framePaths == null ? 0 : framePaths.size())
-            : (config.config().map(c -> c.rows() * c.columns()).orElse(0)))
-        + ", config="
-        + config
-        + '}';
+      + "width=" + width
+      + ", height=" + height
+      + ", frameCount=" + frameCount
+      + ", loaded=" + loaded
+      + ", sourceType=" + sourceType
+      + ", frames=" + expectedSpriteCount()
+      + ", config=" + config
+      + "}";
   }
 
-  /**
-   * Load multiple animations from a spritesheet and its accompanying JSON configuration file.
-   *
-   * <p>The JSON file must be placed next to the spritesheet and have the same base name. It defines
-   * a map of animation names to {@link AnimationConfig} objects.
-   *
-   * @param path Path to the spritesheet image or folder.
-   * @return A map of animation names to {@link Animation} instances, or null if no config was
-   *     found.
-   */
   public static Map<String, Animation> loadAnimationSpritesheet(IPath path) {
     String pathString = path.pathString();
     String jsonPath;
@@ -367,11 +236,9 @@ public class Animation implements Serializable, Cloneable {
       throw new IllegalArgumentException("Image file not found: " + pathString);
     }
 
-    // We may run on a non-libGDX host (e.g. LITIENGINE). In that case we still parse the
-    // animation configs, but actual sprite/texture loading is deferred or replaced by placeholders.
     if (!canUseTextures()) {
       LOGGER.warn(
-        "Loading animation configs without libGDX rendering backend. Sprites will be placeholders until a render backend is available. path={}",
+        "Loading animation configs without libGDX rendering backend. Frames will be placeholders until a render backend is available. path={}",
         pathString);
     }
 
@@ -380,25 +247,21 @@ public class Animation implements Serializable, Cloneable {
 
     Map<String, Animation> animations = new HashMap<>();
     for (Map.Entry<String, AnimationConfig> entry : configs.entrySet()) {
-      String name = entry.getKey();
-      AnimationConfig cfg = entry.getValue();
-      animations.put(name, new Animation(path, cfg));
+      animations.put(entry.getKey(), new Animation(path, entry.getValue()));
     }
-
     return animations;
   }
 
   private static boolean canUseTextures() {
-    // Textures/SpriteBatch/etc. are currently provided by libGDX only.
-    // A non-headless window in another host (e.g., LITIENGINE) must NOT enable gdx textures.
     return Platform.runtime().supportsGdxRendering();
   }
 
   private void ensureLoaded() {
-    if (loaded && sprites != null) return;
+    if (loaded && frames != null && sprites != null) return;
 
     if (!canUseTextures()) {
       initPlaceholderSprites();
+      buildFrames();
       loaded = true;
       return;
     }
@@ -408,6 +271,8 @@ public class Animation implements Serializable, Cloneable {
     } else {
       loadSpritesFromSpritesheet(sheetPath);
     }
+
+    buildFrames();
     loaded = true;
   }
 
@@ -415,22 +280,16 @@ public class Animation implements Serializable, Cloneable {
     final int count = Math.max(1, expectedSpriteCount());
     this.sprites = new Sprite[count];
     for (int i = 0; i < count; i++) {
-      this.sprites[i] = new Sprite(); // empty sprite as placeholder
+      this.sprites[i] = new Sprite();
     }
-
-    // Keep non-zero dimensions to avoid accidental divide-by-zero in rare call paths.
-    // Real sizes will be available once textures are actually loaded on a render-capable backend.
     if (this.width <= 0) this.width = 1;
     if (this.height <= 0) this.height = 1;
   }
 
   private int expectedSpriteCount() {
-    // SINGLE_OR_MULTI and PATH_LIST both use framePaths
     if (this.framePaths != null && !this.framePaths.isEmpty()) {
       return this.framePaths.size();
     }
-
-    // SPRITESHEET: use rows * columns from config if present
     return this.config
       .config()
       .map(c -> Math.max(1, c.rows() * c.columns()))
@@ -442,19 +301,52 @@ public class Animation implements Serializable, Cloneable {
       try {
         ensureLoaded();
       } catch (Exception e) {
-        // Fail-safe: keep lazy; avoid crashing headless/server
         LOGGER.debug("Eager load failed; will lazy-load later: {}", e.getMessage());
         sprites = null;
+        frames = null;
         loaded = false;
       }
     }
   }
 
-  /**
-   * Load sprites directly from a list of image paths.
-   *
-   * @param paths A list of image paths.
-   */
+  private void buildFrames() {
+    final int count = (sprites != null) ? sprites.length : Math.max(1, expectedSpriteCount());
+    final AnimationFrame[] out = new AnimationFrame[count];
+
+    if (sourceType == SourceType.SINGLE_OR_MULTI) {
+      for (int i = 0; i < count; i++) {
+        final IPath p =
+          (framePaths != null && i < framePaths.size()) ? framePaths.get(i) : MISSING_TEXTURE_PATH;
+        out[i] = AnimationFrame.fullImage(p);
+        if (sprites != null && i < sprites.length) {
+          out[i].backendHandle(sprites[i]);
+        }
+      }
+    } else {
+      final SpritesheetConfig ssc = config.config().orElse(null);
+      final int cols = (ssc != null) ? ssc.columns() : 1;
+      final int sW = (ssc != null) ? ssc.spriteWidth() : -1;
+      final int sH = (ssc != null) ? ssc.spriteHeight() : -1;
+      final int offX = (ssc != null) ? ssc.x() : 0;
+      final int offY = (ssc != null) ? ssc.y() : 0;
+
+      for (int i = 0; i < count; i++) {
+        if (ssc != null && sW > 0 && sH > 0) {
+          final int x = i % cols;
+          final int y = i / cols;
+          out[i] = AnimationFrame.region(sheetPath, offX + sW * x, offY + sH * y, sW, sH);
+        } else {
+          out[i] = AnimationFrame.fullImage(sheetPath != null ? sheetPath : MISSING_TEXTURE_PATH);
+        }
+        if (sprites != null && i < sprites.length) {
+          out[i].backendHandle(sprites[i]);
+        }
+      }
+    }
+
+    this.frames = out;
+  }
+
   private void loadSpritesFromPaths(List<IPath> paths) {
     if (paths == null || paths.isEmpty()) {
       throw new IllegalStateException("No frame paths provided");
@@ -462,7 +354,6 @@ public class Animation implements Serializable, Cloneable {
 
     sprites = new Sprite[paths.size()];
 
-    // Non-render hosts: always placeholders.
     if (!canUseTextures()) {
       for (int i = 0; i < sprites.length; i++) {
         sprites[i] = new Sprite();
@@ -488,19 +379,13 @@ public class Animation implements Serializable, Cloneable {
     calculateWorldSize(textWidth, textHeight);
   }
 
-  /**
-   * Load sprites from a spritesheet using {@link SpritesheetConfig}.
-   *
-   * @param path Path to the spritesheet image.
-   */
   private void loadSpritesFromSpritesheet(IPath path) {
     SpritesheetConfig ssc =
       config
         .config()
         .orElseThrow(
           () ->
-            new IllegalStateException(
-              "SpritesheetConfig expected but not present in config"));
+            new IllegalStateException("SpritesheetConfig expected but not present in config"));
 
     int sWidth = ssc.spriteWidth();
     int sHeight = ssc.spriteHeight();
@@ -509,7 +394,6 @@ public class Animation implements Serializable, Cloneable {
 
     sprites = new Sprite[ssc.rows() * ssc.columns()];
 
-    // Non-render hosts: placeholders only.
     if (!canUseTextures()) {
       for (int i = 0; i < sprites.length; i++) {
         sprites[i] = new Sprite();
@@ -541,13 +425,6 @@ public class Animation implements Serializable, Cloneable {
     calculateWorldSize(sWidth, sHeight);
   }
 
-  /**
-   * Sets the width and height of the animation. Assumes the smallest dimension to be 1 tile in the
-   * world (before scale is applied).
-   *
-   * @param spriteWidth the width of the sprite
-   * @param spriteHeight the height of the sprite
-   */
   private void calculateWorldSize(int spriteWidth, int spriteHeight) {
     spriteScale = (float) 1 / Math.min(spriteWidth, spriteHeight);
     width = (float) spriteWidth * spriteScale * getScaleX();
@@ -572,28 +449,21 @@ public class Animation implements Serializable, Cloneable {
   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
     in.defaultReadObject();
     this.sprites = null;
+    this.frames = null;
     this.loaded = false;
-    // width/height will be recomputed on load; keep existing values as hints
   }
 
   @Override
   public Animation clone() {
     try {
       Animation cloned = (Animation) super.clone();
-
-      // Copy fields manually
       if (this.config != null) {
         cloned.config = config.clone();
       }
-
-      // Clone sprite array
-      if (this.sprites != null) {
-        cloned.sprites = new Sprite[this.sprites.length];
-        for (int i = 0; i < this.sprites.length; i++) {
-          cloned.sprites[i] = this.sprites[i] != null ? new Sprite(this.sprites[i]) : null;
-        }
-      }
-
+      // Do NOT clone backend handles. Force lazy reload on the clone.
+      cloned.sprites = null;
+      cloned.frames = null;
+      cloned.loaded = false;
       return cloned;
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException("Failed to clone", e);
