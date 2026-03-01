@@ -29,7 +29,7 @@ import static dialect.scf.ScfOps.*;
  *   <li>{@link ContinueOp} — marks the end of a structured control-flow region
  * </ul>
  */
-public class SCFDialect extends Dialect {
+public class ScfDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull String getNamespace() {
@@ -39,7 +39,7 @@ public class SCFDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return Utils.Dialect.allOps(SCFDialect.class, ScfOps.class);
+    return Utils.Dialect.allOps(ScfDialect.class, ScfOps.class);
   }
 
   @Contract(pure = true)

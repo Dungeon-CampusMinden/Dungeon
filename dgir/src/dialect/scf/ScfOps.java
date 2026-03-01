@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * Sealed marker interface for all operations in the {@link SCFDialect}.
+ * Sealed marker interface for all operations in the {@link ScfDialect}.
  *
  * <p>Every concrete op must both extend {@link ScfOp} and implement this interface so that {@link
  * core.Utils.Dialect#allOps} can discover it automatically via reflection.
@@ -30,7 +30,7 @@ public sealed interface ScfOps {
    * Abstract base class for all operations in the {@code scf} (structured control flow) dialect.
    *
    * <p>Concrete subclasses must implement {@link #getIdent()} and {@link #getVerifier()}, and must
-   * implement {@link ScfOps} to be enumerated by {@link SCFDialect}.
+   * implement {@link ScfOps} to be enumerated by {@link ScfDialect}.
    */
   abstract class ScfOp extends Op {
 
@@ -41,7 +41,7 @@ public sealed interface ScfOps {
     @Contract(pure = true)
     @Override
     public @NotNull Class<? extends Dialect> getDialect() {
-      return SCFDialect.class;
+      return ScfDialect.class;
     }
 
     @Contract(pure = true)

@@ -11,7 +11,7 @@ import dialect.builtin.BuiltinDialect;
 import dialect.cf.CfDialect;
 import dialect.func.FuncDialect;
 import dialect.io.IoDialect;
-import dialect.scf.SCFDialect;
+import dialect.scf.ScfDialect;
 import java.util.List;
 import java.util.Optional;
 import org.jetbrains.annotations.Contract;
@@ -113,7 +113,7 @@ public abstract class Dialect {
    */
   public static void registerAllDialects() {
     List<Dialect> dialects =
-        List.of(new ArithDialect(), new BuiltinDialect(), new CfDialect(), new FuncDialect(), new IoDialect(), new SCFDialect());
+        List.of(new ArithDialect(), new BuiltinDialect(), new CfDialect(), new FuncDialect(), new IoDialect(), new ScfDialect());
     dialects.forEach(Dialect::init);
   }
 }
