@@ -44,10 +44,7 @@ public final class ScopeOp extends ScfOp implements SCF, ISingleRegion, IControl
   // =========================================================================
 
   /** Default constructor used during dialect registration. */
-  private ScopeOp() {
-    executeIfRegistered(
-        ScopeOp.class, () -> setOperation(true, Operation.Create(Location.UNKNOWN, this, null, null, null, 1)));
-  }
+  private ScopeOp() {}
 
   /**
    * Create a scope op.
@@ -56,14 +53,5 @@ public final class ScopeOp extends ScfOp implements SCF, ISingleRegion, IControl
    */
   public ScopeOp(@NotNull Location location) {
     setOperation(true, Operation.Create(location, this, null, null, null, 1));
-  }
-
-  /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public ScopeOp(Operation operation) {
-    super(operation);
   }
 }

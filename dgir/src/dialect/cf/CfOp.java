@@ -2,7 +2,6 @@ package dialect.cf;
 
 import core.Dialect;
 import core.ir.Op;
-import core.ir.Operation;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,15 +20,6 @@ public abstract class CfOp extends Op {
   /** Default constructor used during dialect registration. */
   CfOp() {
     super();
-  }
-
-  /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public CfOp(@NotNull Operation operation) {
-    super(operation);
   }
 
   // =========================================================================

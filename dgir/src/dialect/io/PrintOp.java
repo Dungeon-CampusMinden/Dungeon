@@ -53,15 +53,6 @@ public final class PrintOp extends IoOp implements IO {
   private PrintOp() {}
 
   /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public PrintOp(Operation operation) {
-    super(operation);
-  }
-
-  /**
    * Create a print op with the given operand list.
    *
    * @param location the source location of this operation.

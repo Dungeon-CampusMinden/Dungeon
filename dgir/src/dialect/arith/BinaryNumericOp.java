@@ -17,15 +17,6 @@ public abstract class BinaryNumericOp extends ArithOp implements IBinaryOperands
     super();
   }
 
-  /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public BinaryNumericOp(@NotNull Operation operation) {
-    super(operation);
-  }
-
   @Override
   public Function<Operation, Boolean> getVerifier() {
     return BinaryNumericOp::verifyBinaryNumericOperands;

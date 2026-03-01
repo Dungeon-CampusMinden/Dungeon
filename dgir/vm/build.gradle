@@ -16,7 +16,7 @@ configurations {
 
 dependencies {
     // The vm is dependent on the main dgir module, as it provides the core game logic and data structures.
-    implementation project(':dgir')
+    api project(':dgir')
     implementation 'io.arxila.javatuples:javatuples:2.0.1'
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j:1.0.0'
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.debug:1.0.0'

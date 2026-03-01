@@ -53,15 +53,6 @@ public final class CastOp extends ArithOp implements Arith, ISingleOperand, IHas
   private CastOp() {}
 
   /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public CastOp(@NotNull Operation operation) {
-    super(operation);
-  }
-
-  /**
    * Create a cast op.
    *
    * @param loc the source location of this operation.

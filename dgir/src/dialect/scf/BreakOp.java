@@ -55,15 +55,6 @@ public final class BreakOp extends ScfOp implements SCF, ITerminator, ISpecificP
   }
 
   /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public BreakOp(Operation operation) {
-    super(operation);
-  }
-
-  /**
    * Create a break op.
    *
    * @param location the source location of this operation.

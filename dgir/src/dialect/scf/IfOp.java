@@ -64,15 +64,6 @@ public final class IfOp extends ScfOp implements SCF, IControlFlow {
   private IfOp() {}
 
   /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public IfOp(Operation operation) {
-    super(operation);
-  }
-
-  /**
    * Create an if-op with the given boolean condition.
    *
    * @param location      the source location of this operation.

@@ -73,15 +73,6 @@ public final class FuncOp extends FuncBaseOp
   private FuncOp() {}
 
   /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public FuncOp(@NotNull Operation operation) {
-    super(operation);
-  }
-
-  /**
    * Create a function with the given name and a default (no-arg, void) {@link FuncType}.
    *
    * @param location the source location of this operation.

@@ -2,7 +2,6 @@ package dialect.func;
 
 import core.Dialect;
 import core.ir.Op;
-import core.ir.Operation;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,15 +20,6 @@ public abstract class FuncBaseOp extends Op {
   /** Default constructor used during dialect registration. */
   FuncBaseOp() {
     super();
-  }
-
-  /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public FuncBaseOp(@NotNull Operation operation) {
-    super(operation);
   }
 
   // =========================================================================

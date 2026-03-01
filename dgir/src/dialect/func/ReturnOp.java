@@ -92,15 +92,6 @@ public final class ReturnOp extends FuncBaseOp implements Func, ITerminator, IZe
   }
 
   /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public ReturnOp(@NotNull Operation operation) {
-    super(operation);
-  }
-
-  /**
    * Create a void return op.
    *
    * @param location the source location of this operation.

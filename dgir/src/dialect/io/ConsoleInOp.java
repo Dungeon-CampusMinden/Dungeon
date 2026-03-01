@@ -72,15 +72,6 @@ public final class ConsoleInOp extends IoOp implements IO {
   private ConsoleInOp() {}
 
   /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public ConsoleInOp(Operation operation) {
-    super(operation);
-  }
-
-  /**
    * Create a console-input op that produces a value of the given type.
    *
    * @param location the source location of this operation.

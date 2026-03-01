@@ -43,15 +43,6 @@ public final class BinaryOp extends BinaryNumericResultOp implements Arith {
   private BinaryOp() {}
 
   /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public BinaryOp(@NotNull Operation operation) {
-    super(operation);
-  }
-
-  /**
    * Create a binary op with two numeric operands.
    *
    * @param loc the source location of this operation.

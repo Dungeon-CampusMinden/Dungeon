@@ -26,10 +26,6 @@ public final class CompareOp extends BinaryNumericOp implements Arith, IHasResul
 
   private CompareOp() {}
 
-  public CompareOp(Operation op) {
-    super(op);
-  }
-
   public CompareOp(
       @NotNull Location loc,
       @NotNull Value lhs,

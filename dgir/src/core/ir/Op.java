@@ -102,10 +102,6 @@ public abstract class Op {
     this.operation = null;
   }
 
-  public Op(@NotNull Operation operation) {
-    this.operation = operation;
-  }
-
   // =========================================================================
   // Operation Access
   // =========================================================================

@@ -1,13 +1,14 @@
 package dialect.builtin;
 
+import core.debug.Location;
 import core.ir.Block;
 import core.ir.Operation;
-import core.debug.Location;
 import core.traits.*;
 import dialect.func.FuncOp;
-import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Function;
 
 /**
  * Top-level container operation for a DGIR program.
@@ -84,15 +85,6 @@ public final class ProgramOp extends BuiltinOp
    */
   public ProgramOp(@NotNull Location location) {
     setOperation(true, Operation.Create(location, this, null, null, null, 1));
-  }
-
-  /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public ProgramOp(@NotNull Operation operation) {
-    super(operation);
   }
 
   // =========================================================================

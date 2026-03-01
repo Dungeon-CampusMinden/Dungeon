@@ -94,15 +94,6 @@ public final class CallOp extends FuncBaseOp implements Func, ISymbolUser {
   private CallOp() {}
 
   /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public CallOp(@NotNull Operation operation) {
-    super(operation);
-  }
-
-  /**
    * Create a call with an explicit operand list and callee type.
    *
    * @param location    the source location of this operation.

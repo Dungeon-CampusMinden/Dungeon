@@ -62,7 +62,8 @@ public sealed interface OperationDetails {
     unregisteredDetails =
         DGIRContext.operationsByIdent.computeIfAbsent(
             ident,
-            idnt -> new Unregistered(idnt, Op.class, DGIRContext.getReferencedDialect(idnt)));
+            idnt ->
+                new Unregistered(idnt, Optional.empty(), DGIRContext.getReferencedDialect(idnt)));
     DGIRContext.operations.put(Op.class, unregisteredDetails);
     return unregisteredDetails;
   }
@@ -93,7 +94,8 @@ public sealed interface OperationDetails {
 
     unregisteredDetails =
         DGIRContext.operationsByIdent.computeIfAbsent(
-            clazz.getName(), idnt -> new Unregistered(clazz.getName(), Op.class, Optional.empty()));
+            clazz.getName(),
+            idnt -> new Unregistered(clazz.getName(), Optional.of(clazz), Optional.empty()));
     DGIRContext.operations.put(clazz, unregisteredDetails);
     return unregisteredDetails;
   }
@@ -224,16 +226,6 @@ public sealed interface OperationDetails {
   }
 
   /**
-   * The constructor that accepts a single {@link Operation} argument — used to wrap a backing
-   * operation in a typed {@link Op} instance at runtime.
-   *
-   * @return the operation-wrapping constructor; never {@code null}.
-   * @throws IllegalStateException if called on an {@link Unregistered} placeholder.
-   */
-  @Contract(pure = true)
-  Constructor<? extends Op> operationConstructor();
-
-  /**
    * The no-arg constructor — used to create a default op instance (e.g. during dialect
    * registration).
    *
@@ -273,7 +265,9 @@ public sealed interface OperationDetails {
       return Optional.empty();
     }
     try {
-      return Optional.of(clazz.cast(operationConstructor().newInstance(operation)));
+      Op op = emptyConstructor().newInstance();
+      op.setOperation(operation);
+      return Optional.of(clazz.cast(op));
     } catch (Exception e) {
       throw new RuntimeException(
           "Failed to create operation instance of type " + clazz.getName(), e);
@@ -289,7 +283,9 @@ public sealed interface OperationDetails {
   @Contract(pure = true)
   default @NotNull Op asOp(@NotNull Operation operation) {
     try {
-      return operationConstructor().newInstance(operation);
+      Op op = emptyConstructor().newInstance();
+      op.setOperation(operation);
+      return op;
     } catch (Exception e) {
       throw new RuntimeException(
           "Failed to create operation instance of type " + type().getName(), e);
@@ -346,19 +342,12 @@ public sealed interface OperationDetails {
    * Create a default (no-arg) instance of the op represented by this details object. Intended for
    * use during dialect registration and introspection, not for building live IR nodes.
    *
-   * <p>If the no-arg constructor is not publicly accessible it is temporarily made accessible for
-   * the duration of the call and restored afterwards.
-   *
    * @return a freshly constructed default op instance; never {@code null}.
    * @throws RuntimeException if the no-arg constructor cannot be invoked.
    */
   default Op createDefaultInstance() {
     try {
-      boolean accessible = emptyConstructor().canAccess(null);
-      if (!accessible) emptyConstructor().setAccessible(true);
-      Op op = emptyConstructor().newInstance();
-      if (!accessible) emptyConstructor().setAccessible(false);
-      return op;
+      return emptyConstructor().newInstance();
     } catch (Exception e) {
       throw new RuntimeException(
           "Failed to create default instance of operation type "
@@ -385,7 +374,6 @@ public sealed interface OperationDetails {
       @NotNull Function<Operation, Boolean> verifier,
       @NotNull Set<Class<? extends IOpTrait>> traits,
       @NotNull Map<Class<? extends IOpTrait>, Method> traitVerifiers,
-      @NotNull Constructor<? extends Op> operationConstructor,
       @NotNull Constructor<? extends Op> emptyConstructor)
       implements OperationDetails {
     /**
@@ -431,31 +419,16 @@ public sealed interface OperationDetails {
                         }
                       }));
 
-      final var operationConstructor =
-          getSpecificConstructor(type, Operation.class)
-              .orElseThrow(
-                  () ->
-                      new RuntimeException(
-                          "Op class "
-                              + type.getName()
-                              + " must have a constructor that takes an Operation."));
       final var emptyConstructor =
           getSpecificConstructor(type)
               .orElseThrow(
                   () ->
                       new RuntimeException(
                           "Op class " + type.getName() + " must have an empty constructor."));
+      emptyConstructor.setAccessible(true);
 
       return new Registered(
-          ident,
-          type,
-          dialect,
-          attributeNames,
-          verifier,
-          traits,
-          traitVerifiers,
-          operationConstructor,
-          emptyConstructor);
+          ident, type, dialect, attributeNames, verifier, traits, traitVerifiers, emptyConstructor);
     }
 
     // =========================================================================
@@ -535,9 +508,15 @@ public sealed interface OperationDetails {
    */
   record Unregistered(
       @NotNull String ident,
-      @NotNull Class<? extends Op> type,
+      @NotNull Optional<Class<? extends Op>> clazz,
       @NotNull Optional<Dialect> dialectOpt)
       implements OperationDetails {
+
+    @Override
+    public @NotNull Class<? extends Op> type() {
+      if (clazz.isPresent()) return clazz.get();
+      throw new IllegalStateException("Cannot get type for unregistered op: " + ident);
+    }
 
     @Override
     public @NotNull Dialect dialect() {
@@ -558,12 +537,6 @@ public sealed interface OperationDetails {
     @Override
     public @NotNull @Unmodifiable Map<Class<? extends IOpTrait>, Method> traitVerifiers() {
       throw new IllegalStateException("Cannot get trait verifiers for unregistered op: " + ident);
-    }
-
-    @Override
-    public Constructor<? extends Op> operationConstructor() {
-      throw new IllegalStateException(
-          "Cannot get operation constructor for unregistered op: " + ident);
     }
 
     @Override

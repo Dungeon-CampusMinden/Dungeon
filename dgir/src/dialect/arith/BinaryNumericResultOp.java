@@ -4,7 +4,6 @@ import core.ir.Operation;
 import core.ir.OperationResult;
 import core.traits.IBinaryOperands;
 import core.traits.IHasResult;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
@@ -14,15 +13,6 @@ public abstract class BinaryNumericResultOp extends BinaryNumericOp implements I
   /** Default constructor used during dialect registration. */
   BinaryNumericResultOp() {
     super();
-  }
-
-  /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public BinaryNumericResultOp(@NotNull Operation operation) {
-    super(operation);
   }
 
   @Override

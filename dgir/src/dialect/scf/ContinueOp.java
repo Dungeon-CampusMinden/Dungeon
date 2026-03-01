@@ -55,15 +55,6 @@ public final class ContinueOp extends ScfOp implements SCF, ITerminator, ISpecif
   }
 
   /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public ContinueOp(Operation operation) {
-    super(operation);
-  }
-
-  /**
    * Create a continue op.
    *
    * @param location the source location of this operation.

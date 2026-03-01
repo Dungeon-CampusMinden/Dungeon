@@ -58,15 +58,6 @@ public final class ForOp extends ScfOp implements SCF, IControlFlow, ISingleRegi
   private ForOp() {}
 
   /**
-   * Wrapping constructor that binds this op to an existing backing {@link Operation}.
-   *
-   * @param operation the backing operation state.
-   */
-  public ForOp(Operation operation) {
-    super(operation);
-  }
-
-  /**
    * Create a for-loop with the given loop parameters.
    *
    * @param location   the source location of this operation.
