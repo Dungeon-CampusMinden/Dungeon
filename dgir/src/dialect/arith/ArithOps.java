@@ -19,8 +19,8 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.List;
 import java.util.function.Function;
 
-import static dialect.arith.ArithAttr.BinMode;
-import static dialect.arith.ArithAttr.CompMode;
+import static dialect.arith.ArithAttr.BinModeAttr;
+import static dialect.arith.ArithAttr.CompModeAttr;
 
 /**
  * Sealed marker interface for all operations in the {@link ArithDialect}.
@@ -174,7 +174,7 @@ public sealed interface ArithOps {
 
     @Override
     public @NotNull @Unmodifiable List<NamedAttribute> getDefaultAttributes() {
-      return List.of(new NamedAttribute("binMode", new BinMode(BinMode.Mode.ADD)));
+      return List.of(new NamedAttribute("binMode", new BinModeAttr(BinModeAttr.Mode.ADD)));
     }
 
     @Override
@@ -183,7 +183,7 @@ public sealed interface ArithOps {
         if (!super.getVerifier().apply(operation)) {
           return false;
         }
-        if (operation.getAttribute(BinMode.class, "binMode").isEmpty()) {
+        if (operation.getAttribute(BinModeAttr.class, "binMode").isEmpty()) {
           operation.emitError("Binary operation must define a binMode attribute");
           return false;
         }
@@ -205,15 +205,15 @@ public sealed interface ArithOps {
       @NotNull Location loc,
       @NotNull Value lhs,
       @NotNull Value rhs,
-      @NotNull ArithAttr.BinMode.Mode mode) {
+      @NotNull ArithAttr.BinModeAttr.Mode mode) {
       setOperation(
         Operation.Create(loc, this, List.of(lhs, rhs), null, getDominantType(lhs.getType(), rhs.getType())));
-      setAttribute("binMode", new BinMode(mode));
+      setAttribute("binMode", new BinModeAttr(mode));
     }
 
-    public @NotNull ArithAttr.BinMode.Mode getMode() {
-      return getAttribute("binMode", BinMode.class)
-        .map(BinMode::getMode)
+    public @NotNull ArithAttr.BinModeAttr.Mode getMode() {
+      return getAttribute("binMode", BinModeAttr.class)
+        .map(BinModeAttr::getMode)
         .orElseThrow(() -> new AssertionError("No binMode attribute found."));
     }
   }
@@ -282,7 +282,7 @@ public sealed interface ArithOps {
 
     @Override
     public @NotNull @Unmodifiable List<NamedAttribute> getDefaultAttributes() {
-      return List.of(new NamedAttribute("compMode", new CompMode(CompMode.Mode.EQ)));
+      return List.of(new NamedAttribute("compMode", new CompModeAttr(CompModeAttr.Mode.EQ)));
     }
 
     private CompareOp() {}
@@ -291,14 +291,14 @@ public sealed interface ArithOps {
         @NotNull Location loc,
         @NotNull Value lhs,
         @NotNull Value rhs,
-        @NotNull ArithAttr.CompMode.Mode mode) {
+        @NotNull ArithAttr.CompModeAttr.Mode mode) {
       setOperation(Operation.Create(loc, this, List.of(lhs, rhs), null, IntegerT.BOOL));
-      setAttribute("compMode", new CompMode(mode));
+      setAttribute("compMode", new CompModeAttr(mode));
     }
 
-    public @NotNull ArithAttr.CompMode.Mode getCompMode() {
-      return getAttribute("compMode", CompMode.class)
-          .map(CompMode::getMode)
+    public @NotNull ArithAttr.CompModeAttr.Mode getCompMode() {
+      return getAttribute("compMode", CompModeAttr.class)
+          .map(CompModeAttr::getMode)
           .orElseThrow(() -> new AssertionError("No compMode attribute found."));
     }
 

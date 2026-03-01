@@ -35,19 +35,19 @@ public class ArithTests {
 
     var addOp =
         funcMain.addOperation(
-            new BinaryOp(LOC, int32Op.getValue(), int64Op.getValue(), BinMode.Mode.ADD), 0);
+            new BinaryOp(LOC, int32Op.getValue(), int64Op.getValue(), BinModeAttr.Mode.ADD), 0);
     var subOp =
         funcMain.addOperation(
-            new BinaryOp(LOC, int64Op.getValue(), int32Op.getValue(), BinMode.Mode.SUB), 0);
+            new BinaryOp(LOC, int64Op.getValue(), int32Op.getValue(), BinModeAttr.Mode.SUB), 0);
     var mulOp =
         funcMain.addOperation(
-            new BinaryOp(LOC, int32Op.getValue(), int64Op.getValue(), BinMode.Mode.MUL), 0);
+            new BinaryOp(LOC, int32Op.getValue(), int64Op.getValue(), BinModeAttr.Mode.MUL), 0);
     var divOp =
         funcMain.addOperation(
-            new BinaryOp(LOC, int64Op.getValue(), int32Op.getValue(), BinMode.Mode.DIV), 0);
+            new BinaryOp(LOC, int64Op.getValue(), int32Op.getValue(), BinModeAttr.Mode.DIV), 0);
     var remOp =
         funcMain.addOperation(
-            new BinaryOp(LOC, int64Op.getValue(), int32Op.getValue(), BinMode.Mode.MOD), 0);
+            new BinaryOp(LOC, int64Op.getValue(), int32Op.getValue(), BinModeAttr.Mode.MOD), 0);
 
     assertEquals(IntegerT.INT64, addOp.getOutputValue().orElseThrow().getType());
     assertEquals(IntegerT.INT64, subOp.getOutputValue().orElseThrow().getType());
@@ -74,7 +74,7 @@ public class ArithTests {
                 LOC,
                 int32Op.getValue(),
                 float64Op.getOutputValue().orElseThrow(),
-                BinMode.Mode.ADD),
+                BinModeAttr.Mode.ADD),
             0);
 
     assertEquals(FloatT.FLOAT64, addOp.getOutputValue().orElseThrow().getType());
@@ -98,7 +98,7 @@ public class ArithTests {
                 LOC,
                 int32Op.getValue(),
                 float64Op.getOutputValue().orElseThrow(),
-                CompMode.Mode.LT),
+                CompModeAttr.Mode.LT),
             0);
 
     assertEquals(IntegerT.BOOL, cmpOp.getOutputValue().orElseThrow().getType());
@@ -153,7 +153,7 @@ public class ArithTests {
             LOC,
             stringOp.getValue(),
             int32Op.getValue(),
-            CompMode.Mode.EQ),
+            CompModeAttr.Mode.EQ),
         0);
 
     funcMain.addOperation(new ReturnOp(LOC), 0);
@@ -172,7 +172,7 @@ public class ArithTests {
         IllegalArgumentException.class,
         () ->
             funcMain.addOperation(
-                new BinaryOp(LOC, stringOp.getValue(), int32Op.getValue(), BinMode.Mode.ADD),
+                new BinaryOp(LOC, stringOp.getValue(), int32Op.getValue(), BinModeAttr.Mode.ADD),
                 0));
   }
 

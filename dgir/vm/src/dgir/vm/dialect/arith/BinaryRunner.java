@@ -41,7 +41,7 @@ public class BinaryRunner extends OpRunner {
     @NotNull Number lhs,
     @NotNull Number rhs,
     @NotNull Type resultType,
-    @NotNull ArithAttr.BinMode.Mode mode) {
+    @NotNull ArithAttr.BinModeAttr.Mode mode) {
     if (resultType instanceof FloatT floatT) {
       if (floatT.getWidth() == 32) {
         float left = lhs.floatValue();
