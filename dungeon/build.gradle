@@ -1,8 +1,8 @@
 plugins {
     id 'java-library'
     id 'com.google.protobuf'
-    id 'application' // necessary to use installDist task
-    id 'org.beryx.runtime' version '2.0.1' // Java badass runtime
+    id 'application'
+    id 'org.beryx.runtime' version '2.0.1'
 }
 
 application {

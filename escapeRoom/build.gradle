@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
-    id 'application' // necessary to use installDist task
-    id 'org.beryx.runtime' version '2.0.1' // Java badass runtime
+    id 'application'
+    id 'org.beryx.runtime' version '2.0.1'
 }
 
 application {
@@ -56,10 +56,8 @@ tasks.named('test', Test) {
     useJUnitPlatform()
 }
 
-// using the fat jar from old task buildDemonRun
 tasks.named('jar', Jar) {
     dependsOn project(':dungeon').tasks.named('jar')
-    //group = 'jar'
     archiveBaseName.set('EscaperoomDemo')
     archiveFileName.set('EscapeRoomDemo.jar')
 
