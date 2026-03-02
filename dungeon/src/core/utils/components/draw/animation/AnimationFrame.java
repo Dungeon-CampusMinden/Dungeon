@@ -22,24 +22,51 @@ public final class AnimationFrame implements Serializable {
   private final int regionW;
   private final int regionH;
 
+  // Optional render hint (e.g. "mirror horizontally").
+  private final boolean flipX;
+
   // Backend cache (e.g. libGDX Sprite/TextureRegion). Not serialized.
   private transient Object backendHandle;
 
   public static AnimationFrame fullImage(final IPath texturePath) {
-    return new AnimationFrame(texturePath, -1, -1, -1, -1);
+    return fullImage(texturePath, false);
+  }
+
+  public static AnimationFrame fullImage(final IPath texturePath, final boolean flipX) {
+    return new AnimationFrame(texturePath, -1, -1, -1, -1, flipX);
   }
 
   public static AnimationFrame region(final IPath texturePath, int x, int y, int w, int h) {
-    return new AnimationFrame(texturePath, x, y, w, h);
+    return region(texturePath, x, y, w, h, false);
+  }
+
+  public static AnimationFrame region(
+    final IPath texturePath, int x, int y, int w, int h, final boolean flipX) {
+    return new AnimationFrame(texturePath, x, y, w, h, flipX);
   }
 
   public AnimationFrame(
-    final IPath texturePath, final int regionX, final int regionY, final int regionW, final int regionH) {
+    final IPath texturePath,
+    final int regionX,
+    final int regionY,
+    final int regionW,
+    final int regionH) {
+    this(texturePath, regionX, regionY, regionW, regionH, false);
+  }
+
+  public AnimationFrame(
+    final IPath texturePath,
+    final int regionX,
+    final int regionY,
+    final int regionW,
+    final int regionH,
+    final boolean flipX) {
     this.texturePath = Objects.requireNonNull(texturePath, "texturePath");
     this.regionX = regionX;
     this.regionY = regionY;
     this.regionW = regionW;
     this.regionH = regionH;
+    this.flipX = flipX;
   }
 
   public IPath texturePath() {
@@ -66,6 +93,10 @@ public final class AnimationFrame implements Serializable {
     return regionH;
   }
 
+  public boolean flipX() {
+    return flipX;
+  }
+
   public Object backendHandle() {
     return backendHandle;
   }
@@ -79,6 +110,7 @@ public final class AnimationFrame implements Serializable {
     return "AnimationFrame{"
       + "texturePath=" + texturePath
       + ", region=" + (hasRegion() ? (regionX + "," + regionY + "," + regionW + "," + regionH) : "<full>")
+      + ", flipX=" + flipX
       + "}";
   }
 }

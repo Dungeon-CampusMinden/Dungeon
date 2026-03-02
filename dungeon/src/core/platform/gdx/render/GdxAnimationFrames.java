@@ -19,6 +19,7 @@ public final class GdxAnimationFrames {
 
     Object cached = frame.backendHandle();
     if (cached instanceof Sprite s) {
+      s.setFlip(frame.flipX(), false);
       return s;
     }
 
@@ -30,12 +31,12 @@ public final class GdxAnimationFrames {
     } else if (frame.hasRegion()) {
       out =
         new Sprite(
-          new TextureRegion(
-            tex, frame.regionX(), frame.regionY(), frame.regionW(), frame.regionH()));
+          new TextureRegion(tex, frame.regionX(), frame.regionY(), frame.regionW(), frame.regionH()));
     } else {
       out = new Sprite(tex);
     }
 
+    out.setFlip(frame.flipX(), false);
     frame.backendHandle(out);
     return out;
   }
