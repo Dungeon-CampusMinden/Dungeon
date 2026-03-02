@@ -89,6 +89,14 @@ public class JoystickSystem extends System {
         .forEach(this::executeJoystick);
   }
 
+  /**
+   * Processes joystick input for a specific player entity.
+   *
+   * <p>Updates mouse cursor, handles mouse simulation, and processes movement/actions if controls
+   * are enabled. Inventory toggle is always available regardless of control state.
+   *
+   * @param player the player entity to process joystick input for
+   */
   private void executeJoystick(Entity player) {
 
     boolean controlsDisabled = isControlsDisabled(player);
@@ -119,11 +127,25 @@ public class JoystickSystem extends System {
     return Optional.ofNullable(activeController);
   }
 
+  /**
+   * Checks if controls are disabled for the given player entity.
+   *
+   * @param player the player entity to check
+   * @return true if the player has an InputComponent and controls are deactivated, false otherwise
+   */
   private boolean isControlsDisabled(Entity player) {
     InputComponent inputComponent = player.fetch(InputComponent.class).orElse(null);
     return inputComponent != null && inputComponent.deactivateControls();
   }
 
+  /**
+   * Processes movement input from the controller and sends movement commands to the network.
+   *
+   * <p>Reads input from the left stick first, falling back to D-Pad if the stick is neutral. Sends
+   * movement commands for UP, DOWN, LEFT, and RIGHT directions based on the input vector.
+   *
+   * @param controller the controller to read movement input from
+   */
   private void handleMovement(Controller controller) {
     Vector2 moveLeftVector = readLeftStick(controller);
     if (moveLeftVector.isZero()) {
@@ -144,6 +166,15 @@ public class JoystickSystem extends System {
     }
   }
 
+  /**
+   * Processes action input from the controller and sends action commands to the network.
+   *
+   * <p>Handles right trigger for skill casting, interact button, and skill selection buttons
+   * (next/prev). All actions use the current cursor position as the target point.
+   *
+   * @param controller the controller to read action input from
+   * @param target the target point for actions (typically the cursor position)
+   */
   private void handleActions(Controller controller, Point target) {
     if (isRtTriggerJustPressed(controller)) {
       Game.network().sendInput(new InputMessage(InputMessage.Action.CAST_SKILL, target));
@@ -159,13 +190,31 @@ public class JoystickSystem extends System {
     }
   }
 
+  /**
+   * Handles inventory toggle input from the controller.
+   *
+   * <p>Checks if the inventory button was just pressed and toggles the inventory for the player
+   * entity if so.
+   *
+   * @param controller the controller to read inventory button input from
+   * @param player the player entity to toggle inventory for
+   */
   private void handleInventoryToggle(Controller controller, Entity player) {
     if (isJustPressed(controller, JoystickConfig.BUTTON_INVENTAR)) {
       HeroController.toggleInventory(player);
     }
   }
 
-  // buttons
+  /**
+   * Checks if a button was just pressed (pressed in this frame but not in the previous frame).
+   *
+   * <p>Returns true only on the first frame the button is detected as pressed, preventing repeated
+   * triggers while the button is held down.
+   *
+   * @param controller the controller to check the button state from
+   * @param button the button index to check
+   * @return true if the button was just pressed this frame, false otherwise
+   */
   private boolean isJustPressed(Controller controller, int button) {
     boolean isPressed = controller.getButton(button);
     if (isPressed) {
@@ -179,7 +228,15 @@ public class JoystickSystem extends System {
     return false;
   }
 
-  // give me back something like sin/cos coordinates( between -1 - 1 for both axes)
+  /**
+   * Reads D-Pad input from the controller and returns a normalized direction vector.
+   *
+   * <p>Returns a vector with components in the range [-1, 1] for each axis, or a zero-vector if no
+   * D-Pad buttons are pressed.
+   *
+   * @param controller the controller to read D-Pad input from
+   * @return a direction vector representing D-Pad input, or ZERO if no input
+   */
   private Vector2 readDpad(Controller controller) {
     int x = 0;
     int y = 0;
@@ -193,6 +250,15 @@ public class JoystickSystem extends System {
     return Vector2.of(x, y);
   }
 
+  /**
+   * Reads left stick input from the controller and returns a direction vector.
+   *
+   * <p>Applies deadzone filtering and inverts the Y-axis. Returns zero-vector if input is within
+   * the deadzone threshold.
+   *
+   * @param controller the controller to read left stick input from
+   * @return a direction vector from the left stick, or ZERO if within deadzone
+   */
   private Vector2 readLeftStick(Controller controller) {
     float x = controller.getAxis(JoystickConfig.AXIS_LEFT_X);
     float y = controller.getAxis(JoystickConfig.AXIS_LEFT_Y);
@@ -206,6 +272,15 @@ public class JoystickSystem extends System {
     return Vector2.of(x, -y);
   }
 
+  /**
+   * Reads right stick input from the controller and returns a direction vector.
+   *
+   * <p>Applies deadzone filtering and inverts the Y-axis. Returns {@link Vector2#ZERO} if input is
+   * within the deadzone threshold.
+   *
+   * @param controller the controller to read right stick input from
+   * @return a direction vector from the right stick, or ZERO if within deadzone
+   */
   private Vector2 readRightStick(Controller controller) {
 
     float x = controller.getAxis(JoystickConfig.AXIS_RIGHT_X);
@@ -220,6 +295,15 @@ public class JoystickSystem extends System {
     return Vector2.of(x, -y);
   }
 
+  /**
+   * Checks if the rt-button was just pressed (crossed the deadzone threshold this frame).
+   *
+   * <p>Returns true only on the first frame the trigger exceeds the deadzone, preventing repeated
+   * triggers while the trigger is held down.
+   *
+   * @param controller the controller to check the right trigger state from
+   * @return true if the rt-button was just pressed this frame, false otherwise
+   */
   private boolean isRtTriggerJustPressed(Controller controller) {
     float value = controller.getAxis(JoystickConfig.RT_AXIS);
     boolean pressedNow = Math.abs(value) > JoystickConfig.TRIGGER_DEADZONE;
@@ -228,6 +312,14 @@ public class JoystickSystem extends System {
     return justPressed;
   }
 
+  /**
+   * Updates the mouse cursor position based on right stick input.
+   *
+   * <p>Moves the cursor smoothly using the right stick direction, initializing from the current
+   * mouse position if needed. The cursor is constrained to screen boundaries.
+   *
+   * @param controller the controller to read right stick input from
+   */
   private void updateMouseCursor(Controller controller) {
     Vector2 aim = readRightStick(controller);
     // avoid jump to position 0,0.
@@ -259,6 +351,14 @@ public class JoystickSystem extends System {
     Gdx.input.setCursorPosition(Math.round(cursorX), Math.round(cursorY));
   }
 
+  /**
+   * Simulates mouse button events using the lt-button.
+   *
+   * <p>Maps the lt-button to mouse button actions: touchDown when pressed, touchDragged while held,
+   * and touchUp when released. Uses the current cursor position for all events.
+   *
+   * @param controller the controller to read left trigger input from
+   */
   private void handleMouse(Controller controller) {
     InputProcessor processor = Gdx.input.getInputProcessor();
     if (processor == null) {
