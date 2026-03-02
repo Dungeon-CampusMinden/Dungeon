@@ -4,6 +4,7 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.game.ECSManagement;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
@@ -83,6 +84,9 @@ public final class DungeonDebugScreen extends Screen {
 
     // Restore hint
     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, oldInterpolation);
+
+    final float deltaSeconds = de.gurkenlabs.litiengine.Game.loop().getDeltaTime() / 1000.0f;
+    ECSManagement.renderAll(deltaSeconds);
   }
 
   private void renderLevelGrid(Graphics2D g, ILevel level) {

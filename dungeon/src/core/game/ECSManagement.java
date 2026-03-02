@@ -533,10 +533,7 @@ public final class ECSManagement {
 
     // Render phase (can be disabled for non-libGDX hosts)
     if (renderSystems) {
-      if (!Game.isHeadless() && Game.windowHeight() > 0 && Game.windowWidth() > 0) {
-        float finalDeltaSeconds = deltaSeconds;
-        systems().values().forEach(system -> system.render(finalDeltaSeconds));
-      }
+      renderAll(deltaSeconds);
     }
 
     currentTick++;
@@ -552,5 +549,22 @@ public final class ECSManagement {
    */
   public static Optional<Entity> findEntityById(int entityId) {
     return ECSManagement.allEntities().filter(e -> e.id() == entityId).findFirst();
+  }
+
+  /**
+   * Executes the render phase for all registered systems.
+   *
+   * <p>This is useful for hosts with separate update/render loops (e.g. LITIENGINE Screens).
+   *
+   * @param deltaSeconds time since last frame/tick in seconds
+   */
+  public static void renderAll(float deltaSeconds) {
+    if (!(deltaSeconds >= 0f)) deltaSeconds = 0f;
+
+    if (Game.isHeadless()) return;
+    if (Game.windowHeight() <= 0 || Game.windowWidth() <= 0) return;
+
+    final float finalDeltaSeconds = deltaSeconds;
+    systems().values().forEach(system -> system.render(finalDeltaSeconds));
   }
 }
