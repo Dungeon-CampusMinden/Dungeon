@@ -1,4 +1,4 @@
-package core.sound.player;
+package core.platform.gdx.sound;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
@@ -9,6 +9,9 @@ import com.badlogic.gdx.files.FileHandle;
 import core.sound.*;
 import core.sound.parser.IAudioParser;
 import core.sound.parser.WavAudioParser;
+import core.sound.player.ISoundPlayer;
+import core.sound.player.NoSoundPlayer;
+import core.sound.player.PlayHandle;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
 
@@ -219,7 +222,7 @@ public class GdxSoundPlayer implements ISoundPlayer {
     activeHandles.removeIf(
         handle -> {
           handle.update(delta);
-          return !handle.isPlaying() && handle.finished;
+          return !handle.isPlaying() && handle.isFinished();
         });
   }
 
@@ -360,7 +363,7 @@ public class GdxSoundPlayer implements ISoundPlayer {
     }
 
     @Override
-    void update(float delta) {
+    public void update(float delta) {
       elapsedTime += (long) (delta * 1000);
       if (!stopped && !looping && !isPlaying()) {
         callFinished();

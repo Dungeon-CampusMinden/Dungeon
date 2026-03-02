@@ -1,6 +1,7 @@
 package core.sound.player;
 
 import core.Entity;
+import core.platform.gdx.sound.GdxSoundPlayer;
 import core.sound.AudioApi;
 import core.sound.SoundSpec;
 import core.utils.Point;

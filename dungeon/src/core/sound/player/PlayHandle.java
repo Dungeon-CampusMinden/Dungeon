@@ -1,5 +1,7 @@
 package core.sound.player;
 
+import core.platform.gdx.sound.GdxSoundPlayer;
+
 /**
  * Abstract base class for controlling a playing sound instance.
  *
@@ -43,6 +45,11 @@ public abstract class PlayHandle {
    */
   public long instanceId() {
     return instanceId;
+  }
+
+  /** @return true if {@link #callFinished()} has been triggered, false otherwise. */
+  public final boolean isFinished() {
+    return finished;
   }
 
   /**
@@ -150,5 +157,5 @@ public abstract class PlayHandle {
    *
    * @param delta time elapsed since last update in seconds
    */
-  abstract void update(float delta);
+  public abstract void update(float delta);
 }

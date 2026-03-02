@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
+import core.platform.gdx.sound.GdxSoundPlayer;
 import core.sound.SoundAsset;
 import java.lang.reflect.Field;
 import java.util.List;
