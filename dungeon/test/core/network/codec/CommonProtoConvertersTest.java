@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import core.components.PositionComponent;
+import core.level.utils.Coordinate;
 import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
@@ -42,6 +43,19 @@ public class CommonProtoConvertersTest {
     assertEquals(vector.y(), protoVector.getY(), DELTA);
     assertEquals(vector.x(), roundTrip.x(), DELTA);
     assertEquals(vector.y(), roundTrip.y(), DELTA);
+  }
+
+  /** Verifies coordinate conversion roundtrip. */
+  @Test
+  public void testCoordinateRoundTrip() {
+    Coordinate coordinate = new Coordinate(7, -3);
+    core.network.proto.common.Coordinate protoCoordinate =
+        CommonProtoConverters.toProto(coordinate);
+    Coordinate roundTrip = CommonProtoConverters.fromProto(protoCoordinate);
+
+    assertEquals(coordinate.x(), protoCoordinate.getX());
+    assertEquals(coordinate.y(), protoCoordinate.getY());
+    assertEquals(coordinate, roundTrip);
   }
 
   /** Verifies direction conversion to protobuf. */

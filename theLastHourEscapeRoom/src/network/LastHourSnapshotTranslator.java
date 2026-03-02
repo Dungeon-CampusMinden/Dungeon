@@ -72,7 +72,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
               }
             });
 
-    return Optional.of(new SnapshotMessage(snapshot.serverTick(), entities));
+    return Optional.of(new SnapshotMessage(snapshot.serverTick(), entities, snapshot.levelState()));
   }
 
   /**

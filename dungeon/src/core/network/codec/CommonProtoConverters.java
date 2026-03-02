@@ -4,6 +4,7 @@ import contrib.item.Item;
 import contrib.item.ItemRegistry;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.level.utils.Coordinate;
 import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
@@ -37,6 +38,29 @@ public final class CommonProtoConverters {
    */
   public static Point fromProto(core.network.proto.common.Point proto) {
     return new Point(proto.getX(), proto.getY());
+  }
+
+  /**
+   * Converts a {@link Coordinate} into its protobuf representation.
+   *
+   * @param coordinate the domain coordinate
+   * @return the protobuf coordinate
+   */
+  public static core.network.proto.common.Coordinate toProto(Coordinate coordinate) {
+    return core.network.proto.common.Coordinate.newBuilder()
+        .setX(coordinate.x())
+        .setY(coordinate.y())
+        .build();
+  }
+
+  /**
+   * Converts a protobuf coordinate into a {@link Coordinate}.
+   *
+   * @param proto the protobuf coordinate
+   * @return the domain coordinate
+   */
+  public static Coordinate fromProto(core.network.proto.common.Coordinate proto) {
+    return new Coordinate(proto.getX(), proto.getY());
   }
 
   /**

@@ -22,6 +22,13 @@ message Vector2 {
   float y = 2;
 }
 
+// Represents a tile coordinate with integer components.
+// Maps to: core.level.utils.Coordinate
+message Coordinate {
+  int32 x = 1;
+  int32 y = 2;
+}
+
 // Represents position and orientation state.
 // Maps to: core.components.PositionComponent
 message PositionInfo {
