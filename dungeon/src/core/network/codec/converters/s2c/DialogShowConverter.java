@@ -3,6 +3,7 @@ package core.network.codec.converters.s2c;
 import com.google.protobuf.Parser;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.network.codec.MessageConverter;
@@ -152,7 +153,7 @@ public final class DialogShowConverter
   }
 
   private static DialogType resolveDialogType(String typeString) {
-    for (DialogType.DefaultTypes type : DialogType.DefaultTypes.values()) {
+    for (DialogType type : DialogFactory.registeredTypes()) {
       if (type.type().equals(typeString)) {
         return type;
       }

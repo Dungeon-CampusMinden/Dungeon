@@ -9,6 +9,8 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.DrawInfoData;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -195,6 +197,38 @@ public final class CommonProtoConverters {
               .build());
     }
 
+    DrawInfoData.AnimationConfigData animationConfig = drawInfo.animationConfig();
+    if (animationConfig == null) {
+      throw new IllegalArgumentException("DrawInfoData.animationConfig is required.");
+    }
+    builder.setAnimationConfig(
+        core.network.proto.s2c.AnimationConfigInfo.newBuilder()
+            .setFramesPerSprite(animationConfig.framesPerSprite())
+            .setLooping(animationConfig.looping())
+            .setCentered(animationConfig.centered())
+            .setMirrored(animationConfig.mirrored())
+            .build());
+
+    DrawInfoData.SpritesheetConfigData spritesheetConfig = drawInfo.spritesheetConfig();
+    if (spritesheetConfig != null) {
+      builder.setSpritesheetConfig(
+          core.network.proto.s2c.SpritesheetConfigInfo.newBuilder()
+              .setSpriteWidth(spritesheetConfig.spriteWidth())
+              .setSpriteHeight(spritesheetConfig.spriteHeight())
+              .setOffsetX(spritesheetConfig.offsetX())
+              .setOffsetY(spritesheetConfig.offsetY())
+              .setRows(spritesheetConfig.rows())
+              .setColumns(spritesheetConfig.columns())
+              .build());
+    }
+
+    List<DrawInfoData.StateData> states = drawInfo.states();
+    if (states != null) {
+      for (DrawInfoData.StateData state : states) {
+        builder.addStates(toProtoStateInfo(state));
+      }
+    }
+
     return builder.build();
   }
 
@@ -222,7 +256,204 @@ public final class CommonProtoConverters {
       }
     }
 
-    return new DrawInfoData(proto.getTexturePath(), scaleX, scaleY, animationName, currentFrame);
+    if (!proto.hasAnimationConfig()) {
+      throw new IllegalArgumentException("DrawInfo.animation_config is required.");
+    }
+
+    core.network.proto.s2c.AnimationConfigInfo animationConfigInfo = proto.getAnimationConfig();
+    DrawInfoData.AnimationConfigData animationConfig =
+        new DrawInfoData.AnimationConfigData(
+            animationConfigInfo.getFramesPerSprite(),
+            animationConfigInfo.getLooping(),
+            animationConfigInfo.getCentered(),
+            animationConfigInfo.getMirrored());
+
+    DrawInfoData.SpritesheetConfigData spritesheetConfig = null;
+    if (proto.hasSpritesheetConfig()) {
+      core.network.proto.s2c.SpritesheetConfigInfo spritesheetConfigInfo =
+          proto.getSpritesheetConfig();
+      spritesheetConfig =
+          new DrawInfoData.SpritesheetConfigData(
+              spritesheetConfigInfo.getSpriteWidth(),
+              spritesheetConfigInfo.getSpriteHeight(),
+              spritesheetConfigInfo.getOffsetX(),
+              spritesheetConfigInfo.getOffsetY(),
+              spritesheetConfigInfo.getRows(),
+              spritesheetConfigInfo.getColumns());
+    }
+
+    List<DrawInfoData.StateData> states = null;
+    if (proto.getStatesCount() > 0) {
+      states = new ArrayList<>(proto.getStatesCount());
+      for (core.network.proto.s2c.DrawStateInfo stateInfo : proto.getStatesList()) {
+        states.add(fromProtoStateInfo(stateInfo));
+      }
+    }
+
+    return new DrawInfoData(
+        proto.getTexturePath(),
+        scaleX,
+        scaleY,
+        animationName,
+        currentFrame,
+        animationConfig,
+        spritesheetConfig,
+        states);
+  }
+
+  private static core.network.proto.s2c.DrawStateInfo toProtoStateInfo(
+      DrawInfoData.StateData state) {
+    if (state == null) {
+      throw new IllegalArgumentException("DrawInfoData.states entry is required.");
+    }
+    String stateName = state.stateName();
+    if (stateName == null || stateName.isBlank()) {
+      throw new IllegalArgumentException("DrawInfoData.StateData.stateName is required.");
+    }
+    core.network.proto.s2c.DrawStateInfo.Builder builder =
+        core.network.proto.s2c.DrawStateInfo.newBuilder()
+            .setStateName(stateName)
+            .setBaseAnimation(toProtoStateAnimation(state.baseAnimation()))
+            .setStateType(toProtoStateType(state.stateType()));
+    if (state.leftAnimation() != null) {
+      builder.setLeftAnimation(toProtoStateAnimation(state.leftAnimation()));
+    }
+    if (state.upAnimation() != null) {
+      builder.setUpAnimation(toProtoStateAnimation(state.upAnimation()));
+    }
+    if (state.rightAnimation() != null) {
+      builder.setRightAnimation(toProtoStateAnimation(state.rightAnimation()));
+    }
+    return builder.build();
+  }
+
+  private static core.network.proto.s2c.StateAnimationInfo toProtoStateAnimation(
+      DrawInfoData.StateAnimationData animation) {
+    if (animation == null) {
+      throw new IllegalArgumentException("DrawInfoData.StateData.baseAnimation is required.");
+    }
+    String texturePath = animation.texturePath();
+    if (texturePath == null || texturePath.isBlank()) {
+      throw new IllegalArgumentException(
+          "DrawInfoData.StateAnimationData.texturePath is required.");
+    }
+    DrawInfoData.AnimationConfigData animationConfig = animation.animationConfig();
+    if (animationConfig == null) {
+      throw new IllegalArgumentException(
+          "DrawInfoData.StateAnimationData.animationConfig is required.");
+    }
+    core.network.proto.s2c.StateAnimationInfo.Builder builder =
+        core.network.proto.s2c.StateAnimationInfo.newBuilder()
+            .setTexturePath(texturePath)
+            .setAnimationConfig(
+                core.network.proto.s2c.AnimationConfigInfo.newBuilder()
+                    .setFramesPerSprite(animationConfig.framesPerSprite())
+                    .setLooping(animationConfig.looping())
+                    .setCentered(animationConfig.centered())
+                    .setMirrored(animationConfig.mirrored())
+                    .build());
+    if (animation.scaleX() != null) {
+      builder.setScaleX(animation.scaleX());
+    }
+    if (animation.scaleY() != null) {
+      builder.setScaleY(animation.scaleY());
+    }
+    DrawInfoData.SpritesheetConfigData spritesheetConfig = animation.spritesheetConfig();
+    if (spritesheetConfig != null) {
+      builder.setSpritesheetConfig(
+          core.network.proto.s2c.SpritesheetConfigInfo.newBuilder()
+              .setSpriteWidth(spritesheetConfig.spriteWidth())
+              .setSpriteHeight(spritesheetConfig.spriteHeight())
+              .setOffsetX(spritesheetConfig.offsetX())
+              .setOffsetY(spritesheetConfig.offsetY())
+              .setRows(spritesheetConfig.rows())
+              .setColumns(spritesheetConfig.columns())
+              .build());
+    }
+    return builder.build();
+  }
+
+  private static core.network.proto.s2c.DrawStateType toProtoStateType(
+      DrawInfoData.StateType stateType) {
+    if (stateType == null) {
+      return core.network.proto.s2c.DrawStateType.DRAW_STATE_TYPE_BASIC;
+    }
+    return switch (stateType) {
+      case BASIC -> core.network.proto.s2c.DrawStateType.DRAW_STATE_TYPE_BASIC;
+      case SIMPLE_DIRECTIONAL ->
+          core.network.proto.s2c.DrawStateType.DRAW_STATE_TYPE_SIMPLE_DIRECTIONAL;
+      case DIRECTIONAL -> core.network.proto.s2c.DrawStateType.DRAW_STATE_TYPE_DIRECTIONAL;
+    };
+  }
+
+  private static DrawInfoData.StateData fromProtoStateInfo(
+      core.network.proto.s2c.DrawStateInfo proto) {
+    if (proto.getStateName().isEmpty()) {
+      throw new IllegalArgumentException("DrawStateInfo.state_name is required.");
+    }
+    if (!proto.hasBaseAnimation()) {
+      throw new IllegalArgumentException("DrawStateInfo.base_animation is required.");
+    }
+    DrawInfoData.StateAnimationData baseAnimation =
+        fromProtoStateAnimation(proto.getBaseAnimation());
+    DrawInfoData.StateAnimationData leftAnimation =
+        proto.hasLeftAnimation() ? fromProtoStateAnimation(proto.getLeftAnimation()) : null;
+    DrawInfoData.StateAnimationData upAnimation =
+        proto.hasUpAnimation() ? fromProtoStateAnimation(proto.getUpAnimation()) : null;
+    DrawInfoData.StateAnimationData rightAnimation =
+        proto.hasRightAnimation() ? fromProtoStateAnimation(proto.getRightAnimation()) : null;
+    return new DrawInfoData.StateData(
+        proto.getStateName(),
+        fromProtoStateType(proto.getStateType()),
+        baseAnimation,
+        leftAnimation,
+        upAnimation,
+        rightAnimation);
+  }
+
+  private static DrawInfoData.StateAnimationData fromProtoStateAnimation(
+      core.network.proto.s2c.StateAnimationInfo proto) {
+    if (proto.getTexturePath().isEmpty()) {
+      throw new IllegalArgumentException("StateAnimationInfo.texture_path is required.");
+    }
+    if (!proto.hasAnimationConfig()) {
+      throw new IllegalArgumentException("StateAnimationInfo.animation_config is required.");
+    }
+    Float scaleX = proto.hasScaleX() ? proto.getScaleX() : null;
+    Float scaleY = proto.hasScaleY() ? proto.getScaleY() : null;
+    core.network.proto.s2c.AnimationConfigInfo animationConfigInfo = proto.getAnimationConfig();
+    DrawInfoData.AnimationConfigData animationConfig =
+        new DrawInfoData.AnimationConfigData(
+            animationConfigInfo.getFramesPerSprite(),
+            animationConfigInfo.getLooping(),
+            animationConfigInfo.getCentered(),
+            animationConfigInfo.getMirrored());
+
+    DrawInfoData.SpritesheetConfigData spritesheetConfig = null;
+    if (proto.hasSpritesheetConfig()) {
+      core.network.proto.s2c.SpritesheetConfigInfo spritesheetConfigInfo =
+          proto.getSpritesheetConfig();
+      spritesheetConfig =
+          new DrawInfoData.SpritesheetConfigData(
+              spritesheetConfigInfo.getSpriteWidth(),
+              spritesheetConfigInfo.getSpriteHeight(),
+              spritesheetConfigInfo.getOffsetX(),
+              spritesheetConfigInfo.getOffsetY(),
+              spritesheetConfigInfo.getRows(),
+              spritesheetConfigInfo.getColumns());
+    }
+    return new DrawInfoData.StateAnimationData(
+        proto.getTexturePath(), scaleX, scaleY, animationConfig, spritesheetConfig);
+  }
+
+  private static DrawInfoData.StateType fromProtoStateType(
+      core.network.proto.s2c.DrawStateType proto) {
+    return switch (proto) {
+      case DRAW_STATE_TYPE_SIMPLE_DIRECTIONAL -> DrawInfoData.StateType.SIMPLE_DIRECTIONAL;
+      case DRAW_STATE_TYPE_DIRECTIONAL -> DrawInfoData.StateType.DIRECTIONAL;
+      case DRAW_STATE_TYPE_UNSPECIFIED, DRAW_STATE_TYPE_BASIC, UNRECOGNIZED ->
+          DrawInfoData.StateType.BASIC;
+    };
   }
 
   /**

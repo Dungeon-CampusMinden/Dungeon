@@ -144,7 +144,7 @@ public class BlackFadeCutscene extends Table {
    * @param ctx The dialog context containing the message, title, and confirmation callback
    * @return A fully configured pause menu or HeadlessDialogGroup
    */
-  static Group build(DialogContext ctx) {
+  public static Group build(DialogContext ctx) {
     String messages = ctx.require(DialogContextKeys.MESSAGE, String.class);
     // Split by special token into individual messages
     List<String> messageList = List.of(messages.split(MESSAGE_SPLIT_TOKEN));

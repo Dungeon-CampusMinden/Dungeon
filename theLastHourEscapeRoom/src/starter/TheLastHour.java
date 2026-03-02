@@ -41,8 +41,8 @@ public class TheLastHour {
   private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
   private static Music backgroundMusic;
 
-  private static boolean DEBUG_MODE = true;
-  private static boolean RUN_MP_SERVER = false;
+  private static final boolean DEBUG_MODE = true;
+  private static final boolean RUN_MP_SERVER = true;
 
   /**
    * Main entry point to launch the basic dungeon game.

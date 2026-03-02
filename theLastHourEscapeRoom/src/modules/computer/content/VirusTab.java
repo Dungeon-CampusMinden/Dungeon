@@ -79,7 +79,10 @@ public class VirusTab extends ComputerTab {
                           () -> {
                             DialogCallbackResolver.createButtonCallback(
                                     context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
-                                .accept(ComputerStateComponent.getState().withInfection(false));
+                                .accept(
+                                    ComputerStateComponent.getState()
+                                        .orElseThrow()
+                                        .withInfection(false));
                           })));
               Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
             } else {

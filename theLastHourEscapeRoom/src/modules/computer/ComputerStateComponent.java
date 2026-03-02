@@ -5,6 +5,7 @@ import core.Entity;
 import core.game.ECSManagement;
 import core.network.messages.c2s.DialogResponseMessage;
 import java.io.Serializable;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -52,9 +53,10 @@ public record ComputerStateComponent(ComputerProgress state, boolean isInfected,
    * Updates the state of the computer on the existing state entity within the current level.
    *
    * @param state the new computer progress state to set
+   * @throws java.util.NoSuchElementException if no state Entity is found
    */
   public static void setState(ComputerProgress state) {
-    Entity e = getStateEntity();
+    Entity e = getStateEntity().orElseThrow();
     ComputerStateComponent csc = e.fetch(ComputerStateComponent.class).orElseThrow();
     e.remove(ComputerStateComponent.class);
     e.add(csc.withState(state));
@@ -64,9 +66,10 @@ public record ComputerStateComponent(ComputerProgress state, boolean isInfected,
    * Updates the infection status on the existing state entity within the current level.
    *
    * @param infected the new infection status to set
+   * @throws java.util.NoSuchElementException if no state Entity is found
    */
   public static void setInfection(boolean infected) {
-    Entity e = getStateEntity();
+    Entity e = getStateEntity().orElseThrow();
     ComputerStateComponent csc = e.fetch(ComputerStateComponent.class).orElseThrow();
     e.remove(ComputerStateComponent.class);
     e.add(csc.withInfection(infected));
@@ -76,9 +79,10 @@ public record ComputerStateComponent(ComputerProgress state, boolean isInfected,
    * Updates the virus type on the existing state entity within the current level.
    *
    * @param virusType the new virus type string to set
+   * @throws java.util.NoSuchElementException if no state Entity is found
    */
   public static void setVirusType(String virusType) {
-    Entity e = getStateEntity();
+    Entity e = getStateEntity().orElseThrow();
     ComputerStateComponent csc = e.fetch(ComputerStateComponent.class).orElseThrow();
     e.remove(ComputerStateComponent.class);
     e.add(csc.withVirusType(virusType));
@@ -87,23 +91,20 @@ public record ComputerStateComponent(ComputerProgress state, boolean isInfected,
   /**
    * Retrieves the entity in the current level that holds the ComputerStateComponent.
    *
-   * @return the Entity containing the state component
-   * @throws IllegalStateException if no such entity exists in the current level
+   * @return An {@link Optional} containing the Entity with the ComputerStateComponent if it exists,
+   *     or an empty Optional if it does not
    */
-  private static Entity getStateEntity() {
-    return ECSManagement.levelEntities(Set.of(ComputerStateComponent.class))
-        .findFirst()
-        .orElseThrow(
-            () -> new IllegalStateException("No ComputerStateComponent found in current level!"));
+  private static Optional<Entity> getStateEntity() {
+    return ECSManagement.levelEntities(Set.of(ComputerStateComponent.class)).findFirst();
   }
 
   /**
    * Retrieves the current ComputerStateComponent from the state entity.
    *
-   * @return the current ComputerStateComponent instance
+   * @return An {@link Optional} containing the ComputerStateComponent if it exists, or an empty
+   *     Optional if it does not
    */
-  public static ComputerStateComponent getState() {
-    Entity e = getStateEntity();
-    return e.fetch(ComputerStateComponent.class).orElseThrow();
+  public static Optional<ComputerStateComponent> getState() {
+    return getStateEntity().flatMap(entity -> entity.fetch(ComputerStateComponent.class));
   }
 }
