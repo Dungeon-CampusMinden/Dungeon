@@ -29,6 +29,6 @@ message DialogResponseMessage {
     bool bool_value = 15;
     dungeon.common.StringList string_list = 16;
     dungeon.common.IntList int_list = 17;
+    dungeon.common.CustomValue custom_value = 18;
   }
 }
-

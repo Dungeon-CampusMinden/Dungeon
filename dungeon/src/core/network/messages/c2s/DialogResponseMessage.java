@@ -1,6 +1,7 @@
 package core.network.messages.c2s;
 
 import core.network.messages.NetworkMessage;
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -72,7 +73,7 @@ public record DialogResponseMessage(String dialogId, String callbackKey, Payload
    *
    * @see DialogResponseMessage
    */
-  public interface Payload {}
+  public interface Payload extends Serializable {}
 
   /**
    * Represents a string payload for dialog responses.
@@ -179,6 +180,26 @@ public record DialogResponseMessage(String dialogId, String callbackKey, Payload
      */
     public IntList {
       Objects.requireNonNull(values, "values");
+    }
+  }
+
+  /**
+   * Wraps a custom value decoded by a {@link core.network.codec.DialogValueCodec} that does not
+   * directly implement {@link Payload}.
+   *
+   * <p>Use {@link #value()} and cast to the expected type.
+   *
+   * @param value the decoded value
+   */
+  public record CustomPayload(Serializable value) implements Payload {
+    /**
+     * Creates a custom payload wrapper with a required value.
+     *
+     * @param value the decoded value
+     * @throws NullPointerException if {@code value} is {@code null}
+     */
+    public CustomPayload {
+      Objects.requireNonNull(value, "value");
     }
   }
 }

@@ -41,6 +41,7 @@ message DialogAttribute {
     bool bool_value = 7;
     dungeon.common.StringList string_list = 8;
     dungeon.common.IntList int_list = 9;
+    dungeon.common.CustomValue custom_value = 10;
   }
 }
 
