@@ -385,13 +385,13 @@ public final class GdxGameLoopHost extends ScreenAdapter {
 
   /** Create the systems. */
   private void createSystems() {
-    ECSManagement.add(new PositionSystem());
+    // Core gameplay systems (shared across hosts)
+    ECSManagement.bootstrapGameplaySystems(SystemProfile.GDX_CLIENT);
+
+    // Keep existing LevelSystem hook
     ECSManagement.system(LevelSystem.class, ls -> ls.onLevelLoad(GameLoop.onLevelLoad));
-    ECSManagement.add(new CameraSystem());
-    ECSManagement.add(new VelocitySystem());
-    ECSManagement.add(new FrictionSystem());
-    ECSManagement.add(new MoveSystem());
-    ECSManagement.add(new InputSystem());
+
+    // GDX-client extras (still contrib/libGDX specific)
     ECSManagement.add(new DebugDrawSystem());
     ECSManagement.add(new AttributeBarSystem());
   }

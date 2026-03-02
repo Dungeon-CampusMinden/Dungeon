@@ -60,34 +60,59 @@ public final class ECSManagement {
   private static boolean defaultSystemsBootstrapped = false;
 
   /**
-     * Registers the default set of ECS systems according to the given {@link SystemProfile}.
-     *
-     * <p>This method is idempotent: systems are only created and registered if no instance of the
-     * respective system type is currently registered.
-     *
-     * <p>Thread-safety: the method is {@code synchronized} to avoid concurrent bootstrap attempts
-     * registering duplicate systems.
-     *
-     * @param profile Controls which optional system groups (e.g. rendering, HUD) are included.
-     *     Must not be {@code null}.
-     */
-    public static synchronized void bootstrapDefaultSystems(SystemProfile profile) {
-      // Idempotent bootstrap: only add systems if not already registered.
-      registerIfAbsent(LevelSystem.class, LevelSystem::new);
+   * Registers the default set of ECS systems according to the given {@link SystemProfile}.
+   *
+   * <p>This method is idempotent: systems are only created and registered if no instance of the
+   * respective system type is currently registered.
+   *
+   * <p>Thread-safety: the method is {@code synchronized} to avoid concurrent bootstrap attempts
+   * registering duplicate systems.
+   *
+   * @param profile Controls which optional system groups (e.g. rendering, HUD) are included.
+   *     Must not be {@code null}.
+   */
+  public static synchronized void bootstrapDefaultSystems(SystemProfile profile) {
+    // Idempotent bootstrap: only add systems if not already registered.
+    registerIfAbsent(LevelSystem.class, LevelSystem::new);
 
-      if (profile.includeRendering()) {
-        for (var binding : Platform.render().defaultRenderSystems()) {
-          registerIfAbsent(binding.type(), binding.factory());
-        }
-      }
-
-      registerIfAbsent(EventScheduler.class, EventScheduler::new);
-      registerIfAbsent(LevelTickSystem.class, LevelTickSystem::new);
-
-      if (profile.includeHud()) {
-        registerIfAbsent(HudSystem.class, HudSystem::new);
+    if (profile.includeRendering()) {
+      for (var binding : Platform.render().defaultRenderSystems()) {
+        registerIfAbsent(binding.type(), binding.factory());
       }
     }
+
+    registerIfAbsent(EventScheduler.class, EventScheduler::new);
+    registerIfAbsent(LevelTickSystem.class, LevelTickSystem::new);
+
+    if (profile.includeHud()) {
+      registerIfAbsent(HudSystem.class, HudSystem::new);
+    }
+  }
+
+  /**
+   * Registers the core gameplay systems (movement/input) according to the given {@link SystemProfile}.
+   *
+   * <p>Reason: These systems are currently bootstrapped by host code (e.g. GdxGameLoopHost),
+   * which prevents non-libGDX hosts from running meaningful simulation.
+   *
+   * <p>Important: This method only registers engine-core systems (no contrib HUD/debug systems),
+   * keeping core independent of contrib.
+   */
+  public static synchronized void bootstrapGameplaySystems(SystemProfile profile) {
+    if (profile == null) throw new IllegalArgumentException("profile must not be null");
+
+    // Backend-agnostic simulation/gameplay systems
+    registerIfAbsent(PositionSystem.class, PositionSystem::new);
+    registerIfAbsent(VelocitySystem.class, VelocitySystem::new);
+    registerIfAbsent(FrictionSystem.class, FrictionSystem::new);
+    registerIfAbsent(MoveSystem.class, MoveSystem::new);
+    registerIfAbsent(InputSystem.class, InputSystem::new);
+
+    // Only meaningful when rendering is present (libGDX camera etc.)
+    if (profile.includeRendering()) {
+      registerIfAbsent(CameraSystem.class, CameraSystem::new);
+    }
+  }
 
   private static void registerIfAbsent(
     Class<? extends System> type, java.util.function.Supplier<? extends System> factory) {

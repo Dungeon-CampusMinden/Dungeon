@@ -1,6 +1,7 @@
 package core.game.litiengine;
 
 import core.game.ECSManagement;
+import core.game.GameLoop;
 import core.game.GameLoopCore;
 import core.game.SystemProfile;
 import core.platform.Platform;
@@ -63,6 +64,8 @@ public final class LitiengineGameLoopHost {
 
     // Host chooses which default systems exist (simulation only).
     ECSManagement.bootstrapDefaultSystems(SystemProfile.LITIENGINE_SIMULATION);
+    ECSManagement.bootstrapGameplaySystems(SystemProfile.LITIENGINE_SIMULATION);
+    ECSManagement.system(core.systems.LevelSystem.class, ls -> ls.onLevelLoad(GameLoop.onLevelLoad));
 
     // Drive ECS tick from LITIENGINE update loop.
     Game.loop()
