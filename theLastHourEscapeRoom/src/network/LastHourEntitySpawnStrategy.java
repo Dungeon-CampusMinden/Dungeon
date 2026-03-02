@@ -1,5 +1,6 @@
 package network;
 
+import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadComponent;
 import contrib.modules.worldTimer.WorldTimerComponent;
 import core.Entity;
@@ -14,7 +15,7 @@ import modules.computer.ComputerStateComponent;
 
 /**
  * Entity spawn strategy for The Last Hour that supports metadata-only spawn events for {@link
- * ComputerStateComponent} entities.
+ * ComputerStateComponent}, {@link KeypadComponent} entities.
  */
 public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
@@ -31,12 +32,13 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   private static final String METADATA_KEYPAD_SHOW_DIGIT_COUNT = "keypad.showDigitCount";
   private static final String METADATA_WORLD_TIMER_TIMESTAMP = "worldTimer.timestamp";
   private static final String METADATA_WORLD_TIMER_DURATION = "worldTimer.duration";
+  private static final String METADATA_INTERACTABLE = "interactable";
 
   private final EntitySpawnStrategy delegate = new DefaultEntitySpawnStrategy();
 
   /**
    * Builds a spawn event using default behavior first and falls back to metadata-only events for
-   * computer-state entities.
+   * custom entities.
    *
    * @param entity the source entity
    * @return an Optional containing a spawn event if the entity is spawnable, otherwise empty
@@ -53,6 +55,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
+    entity
+        .fetch(InteractionComponent.class)
+        .ifPresent(interaction -> metadata.put(METADATA_INTERACTABLE, String.valueOf(true)));
 
     if (defaultSpawn.isPresent() && !metadata.isEmpty()) {
       EntitySpawnEvent base = defaultSpawn.orElseThrow();
@@ -71,10 +76,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     if (defaultSpawn.isPresent()) {
       return defaultSpawn;
     }
-
-    entity
-        .fetch(WorldTimerComponent.class)
-        .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
 
     return entity
         .fetch(ComputerStateComponent.class)

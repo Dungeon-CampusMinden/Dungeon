@@ -3,6 +3,7 @@ package starter;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.hud.dialogs.DialogFactory;
+import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadComponent;
 import contrib.modules.worldTimer.WorldTimerComponent;
 import contrib.utils.components.Debugger;
@@ -42,6 +43,7 @@ public final class LastHourClient {
   private static final String METADATA_KEYPAD_SHOW_DIGIT_COUNT = "keypad.showDigitCount";
   private static final String METADATA_WORLD_TIMER_TIMESTAMP = "worldTimer.timestamp";
   private static final String METADATA_WORLD_TIMER_DURATION = "worldTimer.duration";
+  private static final String METADATA_INTERACTABLE = "interactable";
 
   /**
    * Main method to start the dev client.
@@ -110,6 +112,9 @@ public final class LastHourClient {
               }
               if (event.drawInfo() != null) {
                 newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
+              }
+              if (event.metadata().containsKey(METADATA_INTERACTABLE)) {
+                newEntity.add(new InteractionComponent());
               }
               computerStateFromMetadata(event.metadata()).ifPresent(newEntity::add);
               keypadStateFromMetadata(event.metadata()).ifPresent(newEntity::add);
