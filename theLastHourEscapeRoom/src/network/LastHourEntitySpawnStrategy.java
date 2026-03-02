@@ -19,20 +19,47 @@ import modules.computer.ComputerStateComponent;
  */
 public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
-  private static final String METADATA_TYPE = "lh.type";
-  private static final String TYPE_COMPUTER = "computer-state";
-  private static final String TYPE_KEYPAD = "keypad";
-  private static final String TYPE_WORLD_TIMER = "world-timer";
-  private static final String METADATA_PROGRESS = "progress";
-  private static final String METADATA_INFECTED = "isInfected";
-  private static final String METADATA_VIRUS_TYPE = "virusType";
-  private static final String METADATA_KEYPAD_CORRECT_DIGITS = "keypad.correctDigits";
-  private static final String METADATA_KEYPAD_ENTERED_DIGITS = "keypad.enteredDigits";
-  private static final String METADATA_KEYPAD_UNLOCKED = "keypad.isUnlocked";
-  private static final String METADATA_KEYPAD_SHOW_DIGIT_COUNT = "keypad.showDigitCount";
-  private static final String METADATA_WORLD_TIMER_TIMESTAMP = "worldTimer.timestamp";
-  private static final String METADATA_WORLD_TIMER_DURATION = "worldTimer.duration";
-  private static final String METADATA_INTERACTABLE = "interactable";
+  /** Metadata key identifying the custom entity type. */
+  public static final String METADATA_TYPE = "lh.type";
+
+  /** Type value for computer-state entities. */
+  public static final String TYPE_COMPUTER = "computer-state";
+
+  /** Type value for keypad entities. */
+  public static final String TYPE_KEYPAD = "keypad";
+
+  /** Type value for world-timer entities. */
+  public static final String TYPE_WORLD_TIMER = "world-timer";
+
+  /** Metadata key for the computer progress state. */
+  public static final String METADATA_PROGRESS = "progress";
+
+  /** Metadata key indicating whether the computer is infected. */
+  public static final String METADATA_INFECTED = "isInfected";
+
+  /** Metadata key for the virus type affecting the computer. */
+  public static final String METADATA_VIRUS_TYPE = "virusType";
+
+  /** Metadata key for the keypad's correct digit sequence. */
+  public static final String METADATA_KEYPAD_CORRECT_DIGITS = "keypad.correctDigits";
+
+  /** Metadata key for the digits entered on the keypad so far. */
+  public static final String METADATA_KEYPAD_ENTERED_DIGITS = "keypad.enteredDigits";
+
+  /** Metadata key indicating whether the keypad is unlocked. */
+  public static final String METADATA_KEYPAD_UNLOCKED = "keypad.isUnlocked";
+
+  /** Metadata key for the number of digits to display on the keypad. */
+  public static final String METADATA_KEYPAD_SHOW_DIGIT_COUNT = "keypad.showDigitCount";
+
+  /** Metadata key for the world timer's start timestamp. */
+  public static final String METADATA_WORLD_TIMER_TIMESTAMP = "worldTimer.timestamp";
+
+  /** Metadata key for the world timer's total duration. */
+  public static final String METADATA_WORLD_TIMER_DURATION = "worldTimer.duration";
+
+  /** Metadata key indicating whether the entity is interactable. */
+  public static final String METADATA_INTERACTABLE = "interactable";
 
   private final EntitySpawnStrategy delegate = new DefaultEntitySpawnStrategy();
 
