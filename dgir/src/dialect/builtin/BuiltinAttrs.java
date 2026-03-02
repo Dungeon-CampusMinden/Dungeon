@@ -1,5 +1,6 @@
 package dialect.builtin;
 
+import static dialect.builtin.BuiltinTypes.*;
 import static dialect.builtin.BuiltinTypes.IntegerT;
 import static dialect.builtin.BuiltinTypes.StringT;
 import static dialect.func.FuncOps.CallOp;
@@ -132,6 +133,47 @@ public sealed interface BuiltinAttrs {
      */
     public void setValue(@NotNull Number value) {
       this.value = ((IntegerT) getType()).convertToValidNumber(value);
+    }
+  }
+
+  final class FloatAttribute extends BuiltinBaseTypedAttr implements BuiltinAttrs {
+    @Override
+    @Contract(pure = true)
+    public @NotNull String getIdent() {
+      return "floatAttr";
+    }
+
+    private @NotNull Number value;
+
+    public FloatAttribute() {
+      super(FloatT.FLOAT64);
+      value = 0.0;
+    }
+
+    public FloatAttribute(@NotNull Number value) {
+      super(FloatT.FLOAT64);
+      this.value = value;
+    }
+
+    public FloatAttribute(@NotNull Number value, @NotNull FloatT type) {
+      super(type);
+      this.value = value;
+    }
+
+    @Contract(pure = true)
+    @Override
+    public @NotNull Number getStorage() {
+      return value;
+    }
+
+    @Contract(pure = true)
+    public @NotNull Number getValue() {
+      return value;
+    }
+
+    public void setValue(@NotNull Number value) {
+      this.value = ((FloatT) getType()).convertToValidNumber(value);
+      ;
     }
   }
 

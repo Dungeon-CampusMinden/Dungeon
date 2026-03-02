@@ -21,7 +21,7 @@ public sealed interface DgAttrs {
   }
 
   final class TurnDirectionAttr extends DungeonAttr implements DgAttrs {
-    public enum Direction {
+    public enum TurnDir {
       LEFT,
       RIGHT
     }
@@ -31,32 +31,32 @@ public sealed interface DgAttrs {
       return "dg.turnDirection";
     }
 
-    private @NotNull Direction direction;
+    private @NotNull TurnDir turnDir;
 
     private TurnDirectionAttr() {
-      this(Direction.LEFT);
+      this(TurnDir.LEFT);
     }
 
-    public TurnDirectionAttr(@NonNull Direction direction) {
-      this.direction = direction;
+    public TurnDirectionAttr(@NonNull TurnDir turnDir) {
+      this.turnDir = turnDir;
     }
 
     @Override
-    public @NotNull Direction getStorage() {
-      return direction;
+    public @NotNull TurnDir getStorage() {
+      return turnDir;
     }
 
-    public @NotNull Direction getDirection() {
-      return direction;
+    public @NotNull TurnDir getDirection() {
+      return turnDir;
     }
 
-    public void setDirection(@NotNull Direction direction) {
-      this.direction = direction;
+    public void setDirection(@NotNull TurnDir turnDir) {
+      this.turnDir = turnDir;
     }
   }
 
   final class UseDirectionAttr extends DungeonAttr implements DgAttrs {
-    public enum Direction {
+    public enum UseDir {
       HERE,
       UP,
       DOWN,
@@ -69,27 +69,27 @@ public sealed interface DgAttrs {
       return "dg.direction";
     }
 
-    private @NotNull Direction direction;
+    private @NotNull UseDir useDir;
 
     private UseDirectionAttr() {
-      this(Direction.UP);
+      this(UseDir.UP);
     }
 
-    public UseDirectionAttr(@NonNull Direction direction) {
-      this.direction = direction;
+    public UseDirectionAttr(@NonNull UseDir useDir) {
+      this.useDir = useDir;
     }
 
     @Override
-    public @NotNull Direction getStorage() {
-      return direction;
+    public @NotNull UseDir getStorage() {
+      return useDir;
     }
 
-    public @NotNull Direction getDirection() {
-      return direction;
+    public @NotNull UseDir getDirection() {
+      return useDir;
     }
 
-    public void setDirection(@NotNull Direction direction) {
-      this.direction = direction;
+    public void setDirection(@NotNull UseDir useDir) {
+      this.useDir = useDir;
     }
   }
 

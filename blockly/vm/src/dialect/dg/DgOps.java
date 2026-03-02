@@ -100,21 +100,21 @@ public sealed interface DgOps {
     @Override
     public @NotNull @Unmodifiable List<NamedAttribute> getDefaultAttributes() {
       return List.of(
-          new NamedAttribute("direction", new TurnDirectionAttr(TurnDirectionAttr.Direction.LEFT)));
+          new NamedAttribute("direction", new TurnDirectionAttr(TurnDirectionAttr.TurnDir.LEFT)));
     }
 
     private TurnOp() {}
 
-    public TurnOp(Location location, TurnDirectionAttr.Direction direction) {
+    public TurnOp(Location location, TurnDirectionAttr.TurnDir turnDir) {
       super(location);
-      getDirectionAttribute().setDirection(direction);
+      getDirectionAttribute().setDirection(turnDir);
     }
 
     public @NotNull TurnDirectionAttr getDirectionAttribute() {
       return getAttributeAs("direction", TurnDirectionAttr.class).orElseThrow();
     }
 
-    public @NotNull TurnDirectionAttr.Direction getDirection() {
+    public @NotNull DgAttrs.TurnDirectionAttr.TurnDir getDirection() {
       return getDirectionAttribute().getDirection();
     }
   }
@@ -140,21 +140,21 @@ public sealed interface DgOps {
     public @NotNull @Unmodifiable List<NamedAttribute> getDefaultAttributes() {
       return List.of(
           new NamedAttribute(
-              "direction", new DgAttrs.UseDirectionAttr(UseDirectionAttr.Direction.HERE)));
+              "direction", new DgAttrs.UseDirectionAttr(UseDirectionAttr.UseDir.HERE)));
     }
 
     private InteractOp() {}
 
-    public InteractOp(Location location, UseDirectionAttr.Direction direction) {
+    public InteractOp(Location location, UseDirectionAttr.UseDir useDir) {
       super(location);
-      getDirectionAttribute().setDirection(direction);
+      getDirectionAttribute().setDirection(useDir);
     }
 
     public @NotNull UseDirectionAttr getDirectionAttribute() {
       return getAttributeAs("direction", UseDirectionAttr.class).orElseThrow();
     }
 
-    public @NotNull UseDirectionAttr.Direction getDirection() {
+    public @NotNull DgAttrs.UseDirectionAttr.UseDir getDirection() {
       return getDirectionAttribute().getDirection();
     }
   }

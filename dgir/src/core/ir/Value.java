@@ -1,17 +1,16 @@
 package core.ir;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
 import com.fasterxml.jackson.annotation.*;
 import core.IRObjectWithUseList;
 import core.debug.Location;
 import core.debug.ValueDebugInfo;
 import core.serialization.ValueIdGenerator;
+import java.io.Serializable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.Serializable;
-
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 /**
  * A dynamic value produced by an {@link Operation} or introduced as a block/region argument. Values
@@ -80,8 +79,7 @@ public final class Value extends IRObjectWithUseList<Value, ValueOperand> implem
   @JsonInclude(NON_NULL)
   @Nullable
   ValueDebugInfo getDebugInfoIfKnown() {
-    //return debugInfo.equals(ValueDebugInfo.UNKNOWN) ? null : debugInfo;
-    return debugInfo;
+    return debugInfo.equals(ValueDebugInfo.UNKNOWN) ? null : debugInfo;
   }
 
   /** Returns the debug info, or {@link ValueDebugInfo#UNKNOWN} when not set. */

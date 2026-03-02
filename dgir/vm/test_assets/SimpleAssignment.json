@@ -1,0 +1,88 @@
+{
+    "ident": "program",
+    "loc": "SimpleAssignment.java:1:1",
+    "regions": [
+        {
+            "blocks": [
+                {
+                    "@id": ".blk_0",
+                    "operations": [
+                        {
+                            "ident": "func.func",
+                            "loc": "SimpleAssignment.java:2:3",
+                            "attributes": [
+                                {
+                                    "name": "symbol_name",
+                                    "attribute": {
+                                        "ident": "stringAttr",
+                                        "type": "string",
+                                        "value": "main"
+                                    }
+                                },
+                                {
+                                    "name": "type",
+                                    "attribute": {
+                                        "ident": "typeAttr",
+                                        "type": "func.func<() -> ()>"
+                                    }
+                                }
+                            ],
+                            "regions": [
+                                {
+                                    "blocks": [
+                                        {
+                                            "@id": ".blk_1",
+                                            "operations": [
+                                                {
+                                                    "ident": "arith.constant",
+                                                    "loc": "SimpleAssignment.java:3:5",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "integerAttr",
+                                                                "type": "int32",
+                                                                "value": 5
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%0",
+                                                        "type": "int32",
+                                                        "debug": {
+                                                            "loc": "SimpleAssignment.java:3:9",
+                                                            "name": "x"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "arith.constant",
+                                                    "loc": "SimpleAssignment.java:4:5",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "integerAttr",
+                                                                "type": "int32",
+                                                                "value": 10
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": "%0"
+                                                },
+                                                {
+                                                    "ident": "func.return",
+                                                    "loc": "SimpleAssignment.java:2:3"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

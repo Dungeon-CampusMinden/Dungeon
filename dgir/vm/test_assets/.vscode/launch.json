@@ -8,7 +8,7 @@
             "type": "dgir",
             "name": "Debug DGIR Program",
             "request": "launch",
-            "program": "${workspaceFolder}/HelloWorld.json",
+            "program": "${workspaceFolder}/SimpleAssignment.json",
             "dapPort": 4711,
             "jarPath": "${workspaceFolder}/../build/libs/dgir-vm-dap.jar",
             "stopOnEntry": true,

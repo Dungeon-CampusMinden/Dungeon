@@ -3,11 +3,10 @@ package dialect.builtin;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import core.Dialect;
 import core.ir.Type;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
-
 import java.util.List;
 import java.util.function.Function;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 public sealed interface BuiltinTypes {
   /**
@@ -165,25 +164,14 @@ public sealed interface BuiltinTypes {
             "Cannot convert floating point number to integer: " + number);
       }
 
-      long value = number.longValue();
-      switch (getWidth()) {
-        case 1 -> {
-          return (byte) (value & 0x1L);
-        }
-        case 8 -> {
-          return (byte) value;
-        }
-        case 16 -> {
-          return (short) value;
-        }
-        case 32 -> {
-          return (int) value;
-        }
-        case 64 -> {
-          return value;
-        }
+      return switch (getWidth()) {
+        case 1 -> (byte) (number.intValue() == 0 ? 0 : 1); // Mask to 1 bit for boolean
+        case 8 -> number.byteValue();
+        case 16 -> number.shortValue();
+        case 32 -> number.intValue();
+        case 64 -> number.longValue();
         default -> throw new RuntimeException("Invalid integer width: " + getWidth());
-      }
+      };
     }
   }
 
@@ -225,17 +213,11 @@ public sealed interface BuiltinTypes {
       return value -> {
         if (!(value instanceof Number)) return false;
 
-        switch (value) {
-          case Float ignored when getWidth() == 32 -> {
-            return true;
-          }
-          case Double ignored when getWidth() == 64 -> {
-            return true;
-          }
-          default -> {
-            return false;
-          }
-        }
+        return switch (value) {
+          case Float ignored when getWidth() == 32 -> true;
+          case Double ignored when getWidth() == 64 -> true;
+          default -> false;
+        };
       };
     }
 
@@ -282,6 +264,18 @@ public sealed interface BuiltinTypes {
     @JsonIgnore
     public int getWidth() {
       return width;
+    }
+
+    public Number convertToValidNumber(Number number) {
+      if (number instanceof Float || number instanceof Double) {
+        return switch (getWidth()) {
+          case 32 -> number.floatValue();
+          case 64 -> number.doubleValue();
+          default -> throw new RuntimeException("Invalid float width: " + getWidth());
+        };
+      }
+      throw new IllegalArgumentException(
+          "Cannot convert floating point number to float: " + number);
     }
   }
 

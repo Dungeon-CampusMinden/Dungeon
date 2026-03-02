@@ -30,5 +30,3 @@ include 'dungeon',
     'advancedDungeon',
     'escapeRoom',
     'theLastHourEscapeRoom'
-
-include 'blockly:javaDgirCompiler'

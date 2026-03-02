@@ -21,6 +21,8 @@ public class OperationSerializer extends StdSerializer<Operation> {
       throws JacksonException {
     gen.writeStartObject();
     gen.writeStringProperty("ident", value.getDetails().ident());
+    if (!value.getLocation().equals(Location.UNKNOWN))
+      gen.writePOJOProperty("loc", value.getLocation());
     if (!value.getOperands().isEmpty()) gen.writePOJOProperty("operands", value.getOperands());
     if (!value.getBlockOperands().isEmpty())
       gen.writePOJOProperty("successors", value.getBlockOperands());
@@ -30,8 +32,6 @@ public class OperationSerializer extends StdSerializer<Operation> {
     }
     if (value.getOutput().isPresent()) gen.writePOJOProperty("output", value.getOutput());
     if (!value.getRegions().isEmpty()) gen.writePOJOProperty("regions", value.getRegions());
-    if (!value.getLocation().equals(Location.UNKNOWN))
-      gen.writePOJOProperty("location", value.getLocation());
     gen.writeEndObject();
   }
 }

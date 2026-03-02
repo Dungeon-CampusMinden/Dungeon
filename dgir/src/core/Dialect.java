@@ -9,6 +9,7 @@ import dialect.io.IoDialect;
 import dialect.scf.ScfDialect;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.Unmodifiable;
  * global {@link DGIRContext} registries.
  */
 public abstract class Dialect {
+  Logger logger = Logger.getLogger(getClass().getName());
 
   // =========================================================================
   // Dialect Info
@@ -55,7 +57,7 @@ public abstract class Dialect {
     DGIRContext.registeredDialects.put(this.getClass(), this);
     DGIRContext.registeredDialectsByName.put(this.getNamespace(), this);
 
-    System.out.println("Initializing dialect: " + getNamespace());
+    logger.info("Registering dialect: " + getNamespace());
     for (var op : allOps()) {
       OperationDetails.Registered.insert(op);
     }
@@ -65,7 +67,7 @@ public abstract class Dialect {
     for (var attr : allAttributes()) {
       AttributeDetails.Registered.insert(attr);
     }
-    System.out.println("Dialect " + getNamespace() + " initialized successfully.");
+    logger.info("Registered dialect successfully: " + getNamespace());
   }
 
   // =========================================================================
