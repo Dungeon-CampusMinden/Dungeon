@@ -44,6 +44,15 @@ public class LastHourLevelClient extends DungeonLevel {
 
     if (pc != null && keypad != null)
       updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
+
+    if (ComputerStateComponent.getState().isPresent())
+      ComputerDialog.getInstance()
+          .ifPresent(
+              cd -> {
+                if (cd.sharedState() != ComputerStateComponent.getState().get()) {
+                  cd.updateState(ComputerStateComponent.getState().get());
+                }
+              });
   }
 
   private void findEntities() {

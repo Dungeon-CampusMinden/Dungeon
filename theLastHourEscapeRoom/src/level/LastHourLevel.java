@@ -55,8 +55,8 @@ public class LastHourLevel extends DungeonLevel {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LastHourLevel.class);
 
   private DoorTile storageDoor;
-  private static Entity pc;
-  private static Entity keypad;
+  private Entity pc;
+  private Entity keypad;
 
   /** The state of the PC when it's off. */
   public static final String PC_STATE_OFF = "off";

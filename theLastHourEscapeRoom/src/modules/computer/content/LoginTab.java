@@ -5,9 +5,11 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import contrib.hud.dialogs.DialogCallbackResolver;
 import core.sound.Sounds;
 import core.utils.Scene2dElementFactory;
 import modules.computer.ComputerDialog;
+import modules.computer.ComputerFactory;
 import modules.computer.ComputerProgress;
 import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;
@@ -88,7 +90,12 @@ public class LoginTab extends ComputerTab {
             if ((username.equalsIgnoreCase(Lore.LoginEmail)
                     && password.equalsIgnoreCase(Lore.LoginPassword))
                 || username.equals("skipp")) {
-              ComputerStateComponent.setState(ComputerProgress.LOGGED_IN);
+              DialogCallbackResolver.createButtonCallback(
+                      context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
+                  .accept(
+                      ComputerStateComponent.getState()
+                          .orElseThrow()
+                          .withState(ComputerProgress.LOGGED_IN));
               ComputerDialog.getInstance()
                   .ifPresent(
                       computer -> {
