@@ -2,11 +2,7 @@
 title: "Blockly Lösung: Level 21"
 ---
 
-## Blöcke
-![solution](./img/loesung_level_021.png)
-
 ## Code
-
 ```java
 for(int i = 0; i < 12; i++){
     hero.move();

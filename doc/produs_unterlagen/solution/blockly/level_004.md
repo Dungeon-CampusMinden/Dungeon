@@ -2,11 +2,8 @@
 title: "Blockly Lösung: Level 4"
 ---
 
-## Blöcke
-![solution](./img/loesung_level_004.png)
 
 ## Code
-
 ```java
 for(int i = 1; i < 7; i++){
     hero.move();
