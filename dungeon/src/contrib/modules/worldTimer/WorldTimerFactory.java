@@ -1,8 +1,10 @@
 package contrib.modules.worldTimer;
 
 import core.Entity;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
+import core.utils.components.path.SimpleIPath;
 
 /** Factory for creating world timer entities. */
 public class WorldTimerFactory {
@@ -19,6 +21,7 @@ public class WorldTimerFactory {
     Entity e = new Entity();
     e.add(new PositionComponent(pos));
     e.add(new WorldTimerComponent(timestamp, duration));
+    e.add(new DrawComponent(new SimpleIPath("animation/missing_texture.png")));
     return e;
   }
 }
