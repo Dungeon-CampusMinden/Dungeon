@@ -399,7 +399,10 @@ public class LastHourLevel extends DungeonLevel {
 
         var keyComp = keypad.fetch(KeypadComponent.class).orElseThrow();
         Color keypadColor = keyComp.isUnlocked() ? Color.GREEN : Color.RED;
-        ls.addLightSource(EntityUtils.getPosition(keypad).translate(0.5f, 0.5f), 0.3f, keypadColor);
+        ls.addLightSource(
+            Game.positionOf(keypad).orElse(new Point(0, 0)).translate(0.5f, 0.5f),
+            0.3f,
+            keypadColor);
       }
     }
 
