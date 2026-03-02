@@ -7,13 +7,14 @@ import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.platform.GameLoopHost;
+import core.platform.Platform;
 import core.ui.StageHandle;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
-import core.game.gdx.GdxGameLoopHost;
 import core.sound.player.ISoundPlayer;
 
 /**
@@ -136,9 +137,25 @@ public final class GameLoop {
     entity.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);
   }
 
-  /** Start the game loop using the current default host (currently: libGDX). */
   public static void run() {
-    GdxGameLoopHost.run(CORE);
+    run(new String[0]);
+  }
+
+  public static void run(String[] args) {
+    GameLoopHost host = Platform.loopHost();
+    if (host == null) {
+      host = tryLoadDefaultHost();
+      if (host != null) {
+        Platform.loopHost(host);
+      }
+    }
+
+    if (host == null) {
+      throw new IllegalStateException(
+        "No GameLoopHost installed. Set Platform.loopHost(...) before calling GameLoop.run().");
+    }
+
+    host.run(args, CORE);
   }
 
   /** Current tick number from ECS. */
@@ -146,13 +163,27 @@ public final class GameLoop {
     return ECSManagement.currentTick();
   }
 
-  /** HUD stage handle (only present when a UI stage exists). */
   public static Optional<StageHandle> stage() {
-    return GdxGameLoopHost.stage();
+    GameLoopHost host = Platform.loopHost();
+    return host == null ? Optional.empty() : host.stage();
   }
 
-  /** Sound player used by the active host. */
   public static ISoundPlayer soundPlayer() {
-    return GdxGameLoopHost.soundPlayer();
+    GameLoopHost host = Platform.loopHost();
+    return host == null ? new core.sound.player.NoSoundPlayer() : host.soundPlayer();
+  }
+
+  private static GameLoopHost tryLoadDefaultHost() {
+    return tryNew("core.platform.gdx.GdxLoopHost");
+  }
+
+  private static GameLoopHost tryNew(String fqcn) {
+    try {
+      Class<?> c = Class.forName(fqcn);
+      Object o = c.getDeclaredConstructor().newInstance();
+      return (GameLoopHost) o;
+    } catch (Throwable ignored) {
+      return null;
+    }
   }
 }
