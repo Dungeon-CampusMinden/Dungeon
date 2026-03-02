@@ -2,6 +2,7 @@ package compiler.java;
 
 import static dialect.arith.ArithAttrs.BinModeAttr.BinMode;
 import static dialect.arith.ArithAttrs.CompModeAttr.CompMode;
+import static dialect.arith.ArithOps.CastOp;
 import static dialect.arith.ArithOps.ConstantOp;
 import static dialect.builtin.BuiltinAttrs.*;
 import static dialect.builtin.BuiltinOps.ProgramOp;
@@ -95,11 +96,12 @@ public class JavaCompiler {
      */
     private int insertionIndex = -1;
 
-    public EmitContext(@NotNull String filename) {
+    EmitContext(@NotNull String filename) {
       this.filename = filename;
     }
 
-    public @NotNull Location loc(@NotNull Node node) {
+    @NotNull
+    Location loc(@NotNull Node node) {
       if (node.getRange().isEmpty()) {
         logger.warning("No range information available for AST node, using default location.");
         return new Location(filename, 0, 0);
@@ -108,20 +110,21 @@ public class JavaCompiler {
       return new Location(filename, r.begin.line, r.begin.column);
     }
 
-    public void pushScope() {
+    void pushScope() {
       scopedSymbolTable.push(new HashMap<>());
     }
 
-    public void popScope() {
+    void popScope() {
       scopedSymbolTable.pop();
     }
 
-    public void putValue(@NotNull String s, @NotNull Value value) {
+    void putValue(@NotNull String s, @NotNull Value value) {
       assert !scopedSymbolTable.isEmpty() : "There must be at least one scope to put a value in.";
       scopedSymbolTable.peek().put(s, value);
     }
 
-    public @NotNull Optional<Value> getValue(@NotNull String s) {
+    @NotNull
+    Optional<Value> getValue(@NotNull String s) {
       assert !scopedSymbolTable.isEmpty() : "There must be at least one scope to get a value from.";
       return Optional.ofNullable(scopedSymbolTable.peek().get(s));
     }
@@ -136,7 +139,7 @@ public class JavaCompiler {
      * @return an optional containing the old insertion point, or empty if there was no old
      *     insertion point.
      */
-    public Optional<Pair<Block, Integer>> setInsertionPoint(@Nullable Block block, int index) {
+    Optional<Pair<Block, Integer>> setInsertionPoint(@Nullable Block block, int index) {
       Optional<Pair<Block, Integer>> oldInsertionPoint = Optional.empty();
       if (insertionBlock != null) {
         oldInsertionPoint = Optional.of(new Pair<>(insertionBlock, insertionIndex));
@@ -146,7 +149,8 @@ public class JavaCompiler {
       return oldInsertionPoint;
     }
 
-    public @NotNull Operation insert(@NotNull Operation op) {
+    @NotNull
+    Operation insert(@NotNull Operation op) {
       assert insertionBlock != null : "Insertion block must be set before inserting an operation.";
       if (insertionIndex == -1) {
         insertionBlock.addOperation(op);
@@ -156,7 +160,7 @@ public class JavaCompiler {
       return op;
     }
 
-    public <OpT extends Op> @NotNull OpT insert(@NotNull OpT op) {
+    <OpT extends Op> @NotNull OpT insert(@NotNull OpT op) {
       insert(op.getOperation());
       return op;
     }
@@ -170,7 +174,8 @@ public class JavaCompiler {
      * @param message the diagnostic message
      * @return a formatted diagnostic message
      */
-    public @NotNull String formatDiagnostic(Node node, @NotNull String message, Object... args) {
+    @NotNull
+    String formatDiagnostic(Node node, @NotNull String message, Object... args) {
       Location loc = loc(node);
       StringBuilder formated =
           new StringBuilder(
@@ -194,7 +199,7 @@ public class JavaCompiler {
      * @param args any additional objects to include in the diagnostic message. These will be
      *     appended to the message.
      */
-    public void emitError(Node node, String message, Object... args) {
+    void emitError(Node node, String message, Object... args) {
       errors.add(formatDiagnostic(node, message, args));
     }
 
@@ -206,7 +211,7 @@ public class JavaCompiler {
      * @param args any additional objects to include in the diagnostic message. These will be
      *     appended to the message.
      */
-    public void emitWarning(Node node, String message, Object... args) {
+    void emitWarning(Node node, String message, Object... args) {
       warnings.add(formatDiagnostic(node, message, args));
     }
 
@@ -222,7 +227,7 @@ public class JavaCompiler {
       info.add(formatDiagnostic(node, message, args));
     }
 
-    public void printDiagnostics() {
+    void printDiagnostics() {
       for (String error : errors) {
         logger.severe(error);
       }
@@ -602,6 +607,19 @@ public class JavaCompiler {
       if (initValue.isEmpty()) {
         return;
       }
+      // Check that the init value and the target have the same value and emit cast statement if not
+      var variableType = fromAstType(n.getVariables().get(0).getType(), context);
+      if (variableType.isEmpty()) {
+        return;
+      }
+      if (!variableType.get().equals(initValue.get().getType())) {
+        initValue =
+            Optional.of(
+                context
+                    .insert(new CastOp(context.loc(n), initValue.get(), variableType.get()))
+                    .getResult());
+      }
+
       bindName(
           variableDeclarator.getName().asString(), initValue.get(), variableDeclarator, context);
     }

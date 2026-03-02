@@ -4,15 +4,14 @@ import core.Dialect;
 import core.Utils;
 import core.ir.Type;
 import core.ir.TypeDetails;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Function;
 
 public sealed interface FuncTypes {
   /**
@@ -45,8 +44,7 @@ public sealed interface FuncTypes {
    * </pre>
    *
    * <p>The {@link #getParameterizedIdent()} method renders the full signature; simple (void/no-arg)
-   * function types can be compared by this string. The singleton {@link #INSTANCE} is a no-argument
-   * void function type used as a registration prototype.
+   * function types can be compared by this string.
    */
   final class FuncType extends FuncBaseType implements FuncTypes {
 
