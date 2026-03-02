@@ -15,7 +15,7 @@ import core.level.elements.tile.ExitTile;
 import core.level.loader.DungeonLoader;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.components.draw.TextureMap;
+import core.platform.gdx.render.TextureMap;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;

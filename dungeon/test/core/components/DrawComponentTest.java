@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import contrib.systems.HealthSystem;
 import core.systems.VelocitySystem;
 import core.utils.Direction;
-import core.utils.components.draw.TextureMap;
+import core.platform.gdx.render.TextureMap;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;

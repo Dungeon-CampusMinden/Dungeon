@@ -1,8 +1,6 @@
 package core.systems;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.graphics.Texture;
 import contrib.systems.HealthSystem;
@@ -13,7 +11,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Vector2;
-import core.utils.components.draw.TextureMap;
+import core.platform.gdx.render.TextureMap;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;

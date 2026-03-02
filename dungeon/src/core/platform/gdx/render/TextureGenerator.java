@@ -1,4 +1,4 @@
-package core.utils.components.draw;
+package core.platform.gdx.render;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;

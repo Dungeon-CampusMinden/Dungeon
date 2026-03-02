@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
 import core.Game;
-import core.utils.components.draw.TextureGenerator;
+import core.platform.gdx.render.TextureGenerator;
 
 /**
  * Package-private builder for the pause menu.

@@ -27,7 +27,6 @@ import core.utils.Rectangle;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.*;
-import core.utils.components.draw.TextureMap;
 import core.utils.components.draw.animation.Animation;
 import core.platform.gdx.render.shader.AbstractShader;
 import core.platform.gdx.render.shader.ShaderList;

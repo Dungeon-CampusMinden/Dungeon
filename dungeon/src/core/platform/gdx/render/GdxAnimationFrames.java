@@ -3,7 +3,6 @@ package core.platform.gdx.render;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import core.utils.components.draw.TextureMap;
 import core.utils.components.draw.animation.AnimationFrame;
 
 /** Utility to resolve engine-agnostic {@link AnimationFrame}s into libGDX drawables. */

@@ -5,7 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import core.utils.components.draw.TextureMap;
+import core.platform.gdx.render.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
