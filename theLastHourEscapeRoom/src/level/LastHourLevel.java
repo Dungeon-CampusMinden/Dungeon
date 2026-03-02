@@ -42,10 +42,7 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import modules.computer.*;
 import modules.trash.TrashMinigameUI;
 import util.LastHourSounds;
@@ -70,6 +67,8 @@ public class LastHourLevel extends DungeonLevel {
   private static final String PC_SIGNAL_INFECT = "infect";
   private static final String PC_SIGNAL_CLEAR = "clear";
 
+  private static final Set<Integer> INTRO_SHOWN_TO = new HashSet<>();
+
   /**
    * Creates a new Demo Level.
    *
@@ -84,12 +83,6 @@ public class LastHourLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.levelEntities(Set.of(DecoComponent.class))
-        .forEach(
-            e -> {
-              e.remove(InteractionComponent.class);
-            });
-
     storageDoor = (DoorTile) tileAt(getPoint("door-storage")).orElseThrow();
     storageDoor.close();
 
@@ -98,12 +91,7 @@ public class LastHourLevel extends DungeonLevel {
 
     keypad =
         KeypadFactory.createKeypad(
-            getPoint("keypad-storage"),
-            List.of(1, 2, 3, 4),
-            () -> {
-              storageDoor.open();
-            },
-            true);
+            getPoint("keypad-storage"), List.of(1, 2, 3, 4), () -> storageDoor.open(), true);
     Game.add(keypad);
 
     setupPC();
@@ -115,13 +103,17 @@ public class LastHourLevel extends DungeonLevel {
     setupTimer();
     setupEndTrigger();
 
+    EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
+  }
+
+  private void showIntro(int targetId) {
     BlackFadeCutscene.show(
         Lore.IntroTexts,
         false,
         true,
-        () -> DialogFactory.showOkDialog(Lore.PostIntroDialogTexts.getFirst(), "", () -> {}));
-
-    EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
+        () -> DialogFactory.showOkDialog(Lore.PostIntroDialogTexts.getFirst(), "", () -> {}),
+        targetId);
+    INTRO_SHOWN_TO.add(targetId);
   }
 
   private void setupEndTrigger() {
@@ -382,6 +374,7 @@ public class LastHourLevel extends DungeonLevel {
   @Override
   protected void onTick() {
     checkPCStateUpdate();
+    Game.allPlayers().filter(p -> !INTRO_SHOWN_TO.contains(p.id())).forEach(p -> showIntro(p.id()));
     if (!Game.isHeadless()) {
       checkInteractFeedback();
       updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
