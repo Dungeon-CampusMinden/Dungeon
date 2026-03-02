@@ -1,3 +1,8 @@
+import static dialect.builtin.BuiltinOps.ProgramOp;
+import static dialect.func.FuncOps.FuncOp;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import core.analysis.DotCFG;
 import core.debug.Location;
 import core.ir.Op;
@@ -6,9 +11,6 @@ import core.serialization.Utils;
 import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
-import org.apache.commons.lang3.tuple.Pair;
-import tools.jackson.databind.ObjectMapper;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -20,11 +22,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static dialect.builtin.BuiltinOps.ProgramOp;
-import static dialect.func.FuncOps.FuncOp;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.apache.commons.lang3.tuple.Pair;
+import tools.jackson.databind.ObjectMapper;
 
 public class TestUtils {
   public static ObjectMapper mapper = Utils.getMapper(true);
@@ -58,6 +57,13 @@ public class TestUtils {
                                 + "."
                                 + stackFrame.getMethodName())
                     .orElse("unknown"));
+
+    // Ensure the output directory exists before writing files
+    try {
+      Files.createDirectories(Paths.get(savePath));
+    } catch (IOException e) {
+      System.out.println("Failed to create output directory '" + savePath + "': " + e);
+    }
 
     if (saveResult) {
       String filePath = savePath + callerName + ".json";

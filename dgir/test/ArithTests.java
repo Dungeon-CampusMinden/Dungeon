@@ -1,9 +1,3 @@
-import core.Dialect;
-import core.debug.Location;
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import static dialect.arith.ArithAttrs.BinModeAttr;
 import static dialect.arith.ArithAttrs.CompModeAttr;
 import static dialect.arith.ArithOps.*;
@@ -13,6 +7,12 @@ import static dialect.builtin.BuiltinTypes.*;
 import static dialect.func.FuncOps.FuncOp;
 import static dialect.func.FuncOps.ReturnOp;
 import static org.junit.jupiter.api.Assertions.*;
+
+import core.Dialect;
+import core.debug.Location;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class ArithTests {
   private static final Location LOC = Location.UNKNOWN;
@@ -34,19 +34,19 @@ public class ArithTests {
 
     var addOp =
         funcMain.addOperation(
-            new BinaryOp(LOC, int32Op.getValue(), int64Op.getValue(), BinModeAttr.Mode.ADD), 0);
+            new BinaryOp(LOC, int32Op.getValue(), int64Op.getValue(), BinModeAttr.BinMode.ADD), 0);
     var subOp =
         funcMain.addOperation(
-            new BinaryOp(LOC, int64Op.getValue(), int32Op.getValue(), BinModeAttr.Mode.SUB), 0);
+            new BinaryOp(LOC, int64Op.getValue(), int32Op.getValue(), BinModeAttr.BinMode.SUB), 0);
     var mulOp =
         funcMain.addOperation(
-            new BinaryOp(LOC, int32Op.getValue(), int64Op.getValue(), BinModeAttr.Mode.MUL), 0);
+            new BinaryOp(LOC, int32Op.getValue(), int64Op.getValue(), BinModeAttr.BinMode.MUL), 0);
     var divOp =
         funcMain.addOperation(
-            new BinaryOp(LOC, int64Op.getValue(), int32Op.getValue(), BinModeAttr.Mode.DIV), 0);
+            new BinaryOp(LOC, int64Op.getValue(), int32Op.getValue(), BinModeAttr.BinMode.DIV), 0);
     var remOp =
         funcMain.addOperation(
-            new BinaryOp(LOC, int64Op.getValue(), int32Op.getValue(), BinModeAttr.Mode.MOD), 0);
+            new BinaryOp(LOC, int64Op.getValue(), int32Op.getValue(), BinModeAttr.BinMode.MOD), 0);
 
     assertEquals(IntegerT.INT64, addOp.getOutputValue().orElseThrow().getType());
     assertEquals(IntegerT.INT64, subOp.getOutputValue().orElseThrow().getType());
@@ -73,7 +73,7 @@ public class ArithTests {
                 LOC,
                 int32Op.getValue(),
                 float64Op.getOutputValue().orElseThrow(),
-                BinModeAttr.Mode.ADD),
+                BinModeAttr.BinMode.ADD),
             0);
 
     assertEquals(FloatT.FLOAT64, addOp.getOutputValue().orElseThrow().getType());
@@ -97,7 +97,7 @@ public class ArithTests {
                 LOC,
                 int32Op.getValue(),
                 float64Op.getOutputValue().orElseThrow(),
-                CompModeAttr.Mode.LT),
+                CompModeAttr.CompMode.LT),
             0);
 
     assertEquals(IntegerT.BOOL, cmpOp.getOutputValue().orElseThrow().getType());
@@ -148,7 +148,7 @@ public class ArithTests {
     var int32Op = funcMain.addOperation(new ConstantOp(LOC, 1), 0);
 
     funcMain.addOperation(
-        new CompareOp(LOC, stringOp.getValue(), int32Op.getValue(), CompModeAttr.Mode.EQ), 0);
+        new CompareOp(LOC, stringOp.getValue(), int32Op.getValue(), CompModeAttr.CompMode.EQ), 0);
 
     funcMain.addOperation(new ReturnOp(LOC), 0);
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
@@ -166,7 +166,7 @@ public class ArithTests {
         IllegalArgumentException.class,
         () ->
             funcMain.addOperation(
-                new BinaryOp(LOC, stringOp.getValue(), int32Op.getValue(), BinModeAttr.Mode.ADD),
+                new BinaryOp(LOC, stringOp.getValue(), int32Op.getValue(), BinModeAttr.BinMode.ADD),
                 0));
   }
 

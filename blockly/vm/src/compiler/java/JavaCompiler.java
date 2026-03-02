@@ -1,5 +1,7 @@
 package compiler.java;
 
+import static dialect.arith.ArithAttrs.BinModeAttr.BinMode;
+import static dialect.arith.ArithAttrs.CompModeAttr.CompMode;
 import static dialect.arith.ArithOps.ConstantOp;
 import static dialect.builtin.BuiltinAttrs.*;
 import static dialect.builtin.BuiltinOps.ProgramOp;
@@ -31,6 +33,8 @@ import core.debug.ValueDebugInfo;
 import core.ir.*;
 import core.serialization.Utils;
 import core.traits.ITerminator;
+import dialect.arith.ArithOps.BinaryOp;
+import dialect.arith.ArithOps.CompareOp;
 import dialect.dg.DungeonDialect;
 import java.text.MessageFormat;
 import java.util.*;
@@ -182,16 +186,40 @@ public class JavaCompiler {
       return formated.toString();
     }
 
+    /**
+     * Emit an error message for the given AST node and message.
+     *
+     * @param node the AST node
+     * @param message the diagnostic message
+     * @param args any additional objects to include in the diagnostic message. These will be
+     *     appended to the message.
+     */
     public void emitError(Node node, String message, Object... args) {
-      errors.add(formatDiagnostic(node, message));
+      errors.add(formatDiagnostic(node, message, args));
     }
 
+    /**
+     * Emit a warning message for the given AST node and message.
+     *
+     * @param node the AST node
+     * @param message the diagnostic message
+     * @param args any additional objects to include in the diagnostic message. These will be
+     *     appended to the message.
+     */
     public void emitWarning(Node node, String message, Object... args) {
-      warnings.add(formatDiagnostic(node, message));
+      warnings.add(formatDiagnostic(node, message, args));
     }
 
+    /**
+     * Emit an info message for the given AST node and message.
+     *
+     * @param node the AST node
+     * @param message the diagnostic message
+     * @param args any additional objects to include in the diagnostic message. These will be
+     *     appended to the message.
+     */
     public void emitInfo(Node node, String message, Object... args) {
-      info.add(formatDiagnostic(node, message));
+      info.add(formatDiagnostic(node, message, args));
     }
 
     public void printDiagnostics() {
@@ -230,6 +258,21 @@ public class JavaCompiler {
   }
 
   private static final class JavaAstEmitter extends VoidVisitorAdapter<EmitContext> {
+    private @NotNull Optional<Value> resolveName(
+        @NotNull String name, @NotNull Node site, EmitContext context) {
+      Optional<Value> valueOpt = context.getValue(name);
+      if (valueOpt.isEmpty()) {
+        context.emitError(site, "Variable " + name + " is not defined in the current scope.");
+      }
+      return valueOpt;
+    }
+
+    private void bindName(
+        @NotNull String name, @NotNull Value value, @NotNull Node site, EmitContext context) {
+      context.putValue(name, value);
+      value.setDebugInfo(new ValueDebugInfo(context.loc(site), name));
+    }
+
     private Optional<ProgramOp> emit(CompilationUnit compilationUnit, String filename) {
       // Register all dialects so that we can use them during emission.
       Dialect.registerAllDialects();
@@ -490,17 +533,9 @@ public class JavaCompiler {
     public void visit(ExpressionStmt n, EmitContext context) {
       switch (n.getExpression()) {
         case AssignExpr assignExpr -> assignExpr.accept(this, context);
-        case BinaryExpr binaryExpr -> binaryExpr.accept(this, context);
-        case CastExpr castExpr -> castExpr.accept(this, context);
-        case ConditionalExpr conditionalExpr -> conditionalExpr.accept(this, context);
-        case MethodCallExpr methodCallExpr -> methodCallExpr.accept(this, context);
-        case UnaryExpr unaryExpr -> unaryExpr.accept(this, context);
         case VariableDeclarationExpr variableDeclarationExpr ->
             variableDeclarationExpr.accept(this, context);
-        default -> {
-          context.emitError(
-              n, "Expression " + n.getExpression() + " is not supported as a top-level statement.");
-        }
+        default -> emitExpression(n.getExpression(), context);
       }
     }
 
@@ -512,29 +547,17 @@ public class JavaCompiler {
       }
 
       String varName = n.getTarget().asNameExpr().getName().asString();
-      Optional<Value> varOpt = context.getValue(varName);
-      if (varOpt.isEmpty()) {
-        context.emitError(n, "Variable " + varName + " is not defined.");
+      if (resolveName(varName, n, context).isEmpty()) {
         return;
       }
-      Value var = varOpt.get();
-      // If we have a literal expression, create a new constant op and set its output value to the
-      // exisiting one.
-      if (n.getValue() instanceof LiteralExpr literalExpr) {
-        var newValAttr = valueAttrFromLiteralExpr(literalExpr, context);
-        if (newValAttr.isEmpty()) {
-          return;
-        }
-        var constant = context.insert(new ConstantOp(context.loc(n), newValAttr.get()));
-        constant.setOutputValue(varOpt.get());
-      } else if (n.getValue() instanceof NameExpr nameExpr) {
-        var newVal = context.getValue(nameExpr.getName().asString());
-        if (newVal.isEmpty()) {
-          context.emitError(n, "Variable " + nameExpr.getName() + " is not defined.");
-          return;
-        }
-        context.putValue(varName, newVal.get());
+
+      Optional<Value> rhs = emitExpression(n.getValue(), context);
+      if (rhs.isEmpty()) {
+        return;
       }
+
+      context.putValue(varName, rhs.get());
+      rhs.get().setDebugInfo(new ValueDebugInfo(context.loc(n), varName));
     }
 
     private @NotNull Optional<TypedAttribute> valueAttrFromLiteralExpr(
@@ -575,51 +598,79 @@ public class JavaCompiler {
         return;
       }
       Expression initializer = variableDeclarator.getInitializer().get();
-      if (!initializer.isLiteralExpr() && !initializer.isNameExpr()) {
-        context.emitError(
-            n,
-            "Only literal and variable reference initializers are supported. Initializer "
-                + initializer
-                + " is not supported.");
+      Optional<Value> initValue = emitExpression(initializer, context);
+      if (initValue.isEmpty()) {
         return;
       }
-      Value newVal;
-      switch (initializer) {
-        case LiteralExpr literal -> {
-          // Get the literal value and type from the literal expression.
-          Optional<TypedAttribute> attrOpt = valueAttrFromLiteralExpr(literal, context);
-          if (attrOpt.isEmpty()) {
-            return;
-          }
-          // Create the constant op and add its value to the symbol table.
-          var constant = context.insert(new ConstantOp(context.loc(n), attrOpt.get()));
-          context.putValue(variableDeclarator.getName().asString(), constant.getValue());
-          newVal = constant.getValue();
-        }
-        case NameExpr name -> {
-          // Look up the variable in the symbol table and add it to the symbol table with the new
-          // name.
-          Optional<Value> valueOpt = context.getValue(name.getName().asString());
-          if (valueOpt.isEmpty()) {
-            context.emitError(
-                name, "Variable " + name.getName() + " is not defined in the current scope.");
-            return;
-          }
-          context.putValue(variableDeclarator.getName().asString(), valueOpt.get());
-          newVal = valueOpt.get();
-        }
+      bindName(
+          variableDeclarator.getName().asString(), initValue.get(), variableDeclarator, context);
+    }
+
+    private @NotNull Optional<Value> emitExpression(Expression expression, EmitContext context) {
+      return switch (expression) {
+        case LiteralExpr literalExpr -> emitLiteral(literalExpr, context);
+        case NameExpr nameExpr -> resolveName(nameExpr.getName().asString(), expression, context);
+        case BinaryExpr binaryExpr -> emitBinary(binaryExpr, context);
         default -> {
           context.emitError(
-              n,
-              "Initializer "
-                  + initializer
-                  + " is not supported. Only literal and variable reference initializers are supported.");
-          return;
+              expression, "Expression %s is not supported in this context.", expression);
+          yield Optional.empty();
         }
+      };
+    }
+
+    private @NotNull Optional<Value> emitLiteral(LiteralExpr literalExpr, EmitContext context) {
+      Optional<TypedAttribute> attrOpt = valueAttrFromLiteralExpr(literalExpr, context);
+      return attrOpt.map(
+          typedAttribute ->
+              context.insert(new ConstantOp(context.loc(literalExpr), typedAttribute)).getValue());
+    }
+
+    private @NotNull Optional<Value> emitBinary(BinaryExpr binaryExpr, EmitContext context) {
+      Optional<Value> lhs = emitExpression(binaryExpr.getLeft(), context);
+      Optional<Value> rhs = emitExpression(binaryExpr.getRight(), context);
+      if (lhs.isEmpty() || rhs.isEmpty()) {
+        return Optional.empty();
       }
-      newVal.setDebugInfo(
-          new ValueDebugInfo(
-              context.loc(variableDeclarator), variableDeclarator.getName().asString()));
+
+      Optional<BinMode> binModeOpt =
+          Optional.ofNullable(
+              switch (binaryExpr.getOperator()) {
+                case PLUS -> BinMode.ADD;
+                case MINUS -> BinMode.SUB;
+                case MULTIPLY -> BinMode.MUL;
+                case DIVIDE -> BinMode.DIV;
+                case REMAINDER -> BinMode.MOD;
+                default -> null;
+              });
+
+      if (binModeOpt.isPresent()) {
+        var binOp =
+            context.insert(
+                new BinaryOp(context.loc(binaryExpr), lhs.get(), rhs.get(), binModeOpt.get()));
+        return Optional.of(binOp.getResult());
+      }
+
+      Optional<CompMode> compModeOpt =
+          Optional.ofNullable(
+              switch (binaryExpr.getOperator()) {
+                case EQUALS -> CompMode.EQ;
+                case NOT_EQUALS -> CompMode.NE;
+                case LESS -> CompMode.LT;
+                case GREATER -> CompMode.GT;
+                case LESS_EQUALS -> CompMode.LE;
+                case GREATER_EQUALS -> CompMode.GE;
+                default -> null;
+              });
+      if (compModeOpt.isPresent()) {
+        var compOp =
+            context.insert(
+                new CompareOp(context.loc(binaryExpr), lhs.get(), rhs.get(), compModeOpt.get()));
+        return Optional.of(compOp.getResult());
+      }
+      context.emitError(
+          binaryExpr, "Binary operator " + binaryExpr.getOperator() + " is not supported.");
+      return Optional.empty();
     }
   }
 }

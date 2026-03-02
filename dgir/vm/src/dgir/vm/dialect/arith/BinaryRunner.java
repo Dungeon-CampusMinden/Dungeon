@@ -1,15 +1,16 @@
 package dgir.vm.dialect.arith;
 
+import static dialect.arith.ArithAttrs.BinModeAttr.BinMode;
+import static dialect.arith.ArithOps.BinaryOp;
+import static dialect.builtin.BuiltinTypes.FloatT;
+import static dialect.builtin.BuiltinTypes.IntegerT;
+
 import core.ir.Operation;
 import core.ir.Type;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.arith.ArithAttrs;
 import org.jetbrains.annotations.NotNull;
-
-import static dialect.arith.ArithOps.BinaryOp;
-import static dialect.builtin.BuiltinTypes.*;
 
 public class BinaryRunner extends OpRunner {
   public BinaryRunner() {
@@ -34,18 +35,17 @@ public class BinaryRunner extends OpRunner {
    * an integer, both operands are treated as longs and the result is converted back to the
    * appropriate integer type. Supported operations are addition, subtraction, multiplication,
    * division, and modulus.
-   *
    */
   static @NotNull Number binaryNumeric(
-    @NotNull Number lhs,
-    @NotNull Number rhs,
-    @NotNull Type resultType,
-    @NotNull ArithAttrs.BinModeAttr.Mode mode) {
+      @NotNull Number lhs,
+      @NotNull Number rhs,
+      @NotNull Type resultType,
+      @NotNull BinMode binMode) {
     if (resultType instanceof FloatT floatT) {
       if (floatT.getWidth() == 32) {
         float left = lhs.floatValue();
         float right = rhs.floatValue();
-        return switch (mode) {
+        return switch (binMode) {
           case ADD -> left + right;
           case SUB -> left - right;
           case MUL -> left * right;
@@ -55,7 +55,7 @@ public class BinaryRunner extends OpRunner {
       }
       double left = lhs.doubleValue();
       double right = rhs.doubleValue();
-      return switch (mode) {
+      return switch (binMode) {
         case ADD -> left + right;
         case SUB -> left - right;
         case MUL -> left * right;
@@ -68,13 +68,13 @@ public class BinaryRunner extends OpRunner {
       long left = lhs.longValue();
       long right = rhs.longValue();
       long result =
-        switch (mode) {
-          case ADD -> left + right;
-          case SUB -> left - right;
-          case MUL -> left * right;
-          case DIV -> left / right;
-          case MOD -> left % right;
-        };
+          switch (binMode) {
+            case ADD -> left + right;
+            case SUB -> left - right;
+            case MUL -> left * right;
+            case DIV -> left / right;
+            case MOD -> left % right;
+          };
       return integerT.convertToValidNumber(result);
     }
 

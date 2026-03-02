@@ -4,15 +4,14 @@ import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
 import dialect.builtin.BuiltinOps;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
-
 import java.lang.StackWalker.Option;
 import java.lang.StackWalker.StackFrame;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * Miscellaneous utility helpers used throughout the DGIR. All inner classes have private
@@ -154,6 +153,19 @@ public class Utils {
                     .findFirst()
                     .map(StackFrame::getDeclaringClass));
     return caller.orElseThrow(() -> new IllegalStateException("Unable to determine calling class"));
+  }
+
+  @Contract(pure = true)
+  public static @NotNull String getCallingMethodName() {
+    Optional<String> caller =
+        STACK_WALKER.walk(
+            stream ->
+                stream
+                    .skip(2) // skip getCallingMethodName() itself
+                    .findFirst()
+                    .map(StackFrame::getMethodName));
+    return caller.orElseThrow(
+        () -> new IllegalStateException("Unable to determine calling method"));
   }
 
   /**

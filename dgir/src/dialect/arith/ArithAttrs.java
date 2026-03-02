@@ -29,10 +29,10 @@ public sealed interface ArithAttrs {
 
     @Override
     public @NotNull Object getStorage() {
-      return mode;
+      return binMode;
     }
 
-    public enum Mode {
+    public enum BinMode {
       ADD,
       SUB,
       MUL,
@@ -40,23 +40,23 @@ public sealed interface ArithAttrs {
       MOD
     }
 
-    private @NotNull BinModeAttr.Mode mode;
+    private @NotNull BinMode binMode;
 
     public BinModeAttr() {
-      this(Mode.ADD);
+      this(BinMode.ADD);
     }
 
-    public BinModeAttr(@NotNull BinModeAttr.Mode mode) {
+    public BinModeAttr(@NotNull BinMode binMode) {
       super();
-      this.mode = mode;
+      this.binMode = binMode;
     }
 
-    public @NotNull BinModeAttr.Mode getMode() {
-      return mode;
+    public @NotNull BinMode getMode() {
+      return binMode;
     }
 
-    public void setMode(@NotNull Mode mode) {
-      this.mode = mode;
+    public void setMode(@NotNull BinMode binMode) {
+      this.binMode = binMode;
     }
   }
 
@@ -68,10 +68,10 @@ public sealed interface ArithAttrs {
 
     @Override
     public @NotNull Object getStorage() {
-      return mode;
+      return compMode;
     }
 
-    public enum Mode {
+    public enum CompMode {
       EQ, // Equal
       NE, // Not equal
       LT, // Less than
@@ -80,23 +80,23 @@ public sealed interface ArithAttrs {
       GE // Greater than or equal
     }
 
-    private @NotNull Mode mode;
+    private @NotNull CompMode compMode;
 
     public CompModeAttr() {
-      this(Mode.EQ);
+      this(CompMode.EQ);
     }
 
-    public CompModeAttr(@NotNull Mode mode) {
+    public CompModeAttr(@NotNull CompMode compMode) {
       super();
-      this.mode = mode;
+      this.compMode = compMode;
     }
 
-    public @NotNull Mode getMode() {
-      return mode;
+    public @NotNull CompMode getMode() {
+      return compMode;
     }
 
-    public void setMode(@NotNull Mode mode) {
-      this.mode = mode;
+    public void setMode(@NotNull CompMode compMode) {
+      this.compMode = compMode;
     }
   }
 }
