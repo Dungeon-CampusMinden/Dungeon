@@ -84,20 +84,6 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
               }
             });
 
-    ECSManagement.levelEntities(Set.of(WorldTimerComponent.class))
-        .forEach(
-            timerEntity -> {
-              WorldTimerComponent worldTimer =
-                  timerEntity.fetch(WorldTimerComponent.class).orElseThrow();
-              int index = indexOfEntityStateById(entities, timerEntity.id()).orElse(-1);
-              if (index >= 0) {
-                EntityState baseState = entities.get(index);
-                entities.set(index, withMergedMetadata(baseState, worldTimerMetadata(worldTimer)));
-              } else {
-                entities.add(worldTimerState(timerEntity, worldTimer));
-              }
-            });
-
     return Optional.of(new SnapshotMessage(snapshot.serverTick(), entities));
   }
 
@@ -164,14 +150,6 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
                 String.valueOf(state.isInfected()),
                 METADATA_VIRUS_TYPE,
                 state.virusType() == null ? "" : state.virusType()))
-        .build();
-  }
-
-  private EntityState worldTimerState(Entity entity, WorldTimerComponent worldTimer) {
-    return EntityState.builder()
-        .entityId(entity.id())
-        .entityName(entity.name())
-        .metadata(worldTimerMetadata(worldTimer))
         .build();
   }
 
