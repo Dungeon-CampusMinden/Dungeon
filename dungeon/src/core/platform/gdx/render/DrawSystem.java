@@ -21,6 +21,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
+import core.platform.gdx.render.shader.GdxShaderComponent;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.Rectangle;
@@ -489,7 +490,7 @@ public final class DrawSystem extends System implements Disposable {
       group.stream()
           .map(DSData::build)
           .filter(this::shouldDraw)
-          .filter(dsd -> dsd.dc.shaders().hasEnabledShaders())
+          .filter(dsd -> hasEnabledShaders(dsd.e))
           .forEach(this::processShaderPassesSingleEntity);
     }
   }
@@ -500,8 +501,12 @@ public final class DrawSystem extends System implements Disposable {
    * @param dsd the data record of the entity to process
    */
   private void processShaderPassesSingleEntity(final DSData dsd) {
-    FrameBuffer generated = processShaders(GdxAnimationFrames.toRegion(dsd.dc.getFrame()), dsd.dc.shaders(), dsd.pc);
+    final ShaderList shaders = shadersOf(dsd.e);
+    if (shaders == null || !shaders.hasEnabledShaders()) return;
+
+    FrameBuffer generated = processShaders(GdxAnimationFrames.toRegion(dsd.dc.getFrame()), shaders, dsd.pc);
     FrameBuffer oldFbo = entityFboCache.put(dsd.e, generated);
+
     if (oldFbo != null) {
       LOGGER.warn("Entity FBO cache overwrite for entity: " + dsd.e);
       FBO_POOL.free(oldFbo);
@@ -667,7 +672,8 @@ public final class DrawSystem extends System implements Disposable {
       // --- Draw FBO Texture (Shader Result) ---
       Texture fboTexture = finalFbo.getColorBufferTexture();
 
-      float padding = dsd.dc.shaders().getTotalPadding();
+      final ShaderList shaders = shadersOf(dsd.e);
+      float padding = shaders != null ? shaders.getTotalPadding() : 0f;
       float unitSize = dsd.getUnitSizeInPixels();
       float paddingWorldUnits = padding / unitSize;
 
@@ -974,5 +980,14 @@ public final class DrawSystem extends System implements Disposable {
     float getUnitSizeInPixels() {
       return Math.min(dc.getSpriteWidth(), dc.getSpriteHeight());
     }
+  }
+
+  private ShaderList shadersOf(final Entity e) {
+    return e.fetch(GdxShaderComponent.class).map(GdxShaderComponent::shaders).orElse(null);
+  }
+
+  private boolean hasEnabledShaders(final Entity e) {
+    final ShaderList s = shadersOf(e);
+    return s != null && s.hasEnabledShaders();
   }
 }

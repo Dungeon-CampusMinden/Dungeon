@@ -1,8 +1,6 @@
 package core.components;
 
 import core.Component;
-import core.platform.gdx.render.DrawSystem;
-import core.platform.gdx.render.shader.ShaderList;
 import core.utils.Vector2;
 import core.utils.components.draw.*;
 import core.utils.components.draw.animation.Animation;
@@ -56,8 +54,6 @@ public final class DrawComponent implements Component, Serializable {
 
   private int tintColor = -1; // -1 means no tinting
   private boolean isVisible = true;
-
-  private final ShaderList shaders = new ShaderList();
 
   /**
    * Create a new DrawComponent.
@@ -298,8 +294,7 @@ public final class DrawComponent implements Component, Serializable {
   }
 
   /**
-   * Check if the component is visible. If the component is visible, it will be drawn by the {@link
-   * DrawSystem}.
+   * Check if the component is visible.
    *
    * @return true if the component is visible, false if not.
    */
@@ -308,8 +303,7 @@ public final class DrawComponent implements Component, Serializable {
   }
 
   /**
-   * Set the visibility of the component. If the component is visible, it will be drawn by the
-   * {@link DrawSystem}.
+   * Set the visibility of the component.
    *
    * @param visible The new visibility status to set. True for visible, false for hidden.
    */
@@ -368,15 +362,6 @@ public final class DrawComponent implements Component, Serializable {
    */
   public void depth(int depth) {
     this.depth = depth;
-  }
-
-  /**
-   * Get the list of shaders applied to this component.
-   *
-   * @return The shader list.
-   */
-  public ShaderList shaders() {
-    return shaders;
   }
 
   /**
