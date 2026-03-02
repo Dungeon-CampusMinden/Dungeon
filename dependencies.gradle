@@ -10,7 +10,7 @@ ext {
     junitLauncherVersion = '6.0.3'
     mockitoVersion = '5.21.0'
     antlrVersion = '4.13.2'
-    protobufVersion = '4.33.5'
+    protobufVersion = '4.34.0'
     jk1licenseVersion = '3.1.1'
 
     // -- NETWORK / SERVER
