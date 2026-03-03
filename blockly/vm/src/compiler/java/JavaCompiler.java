@@ -860,12 +860,16 @@ public class JavaCompiler {
           return emitIncrement(unaryExpr, false, operand, context);
         }
         case LOGICAL_COMPLEMENT -> {
-          return EmitResult.failure(
-              context, unaryExpr, "Logical complement operator is not supported.");
+          return EmitResult.of(
+              context
+                  .insert(new BinaryOp(context.loc(unaryExpr), operand, operand, BinMode.XOR))
+                  .getResult());
         }
         case BITWISE_COMPLEMENT -> {
-          return EmitResult.failure(
-              context, unaryExpr, "Bitwise complement operator is not supported.");
+          return EmitResult.of(
+              context
+                  .insert(new BinaryOp(context.loc(unaryExpr), operand, operand, BinMode.BXOR))
+                  .getResult());
         }
         case POSTFIX_INCREMENT -> {
           // Copy the value to a new value and return that so that we can modify the increment
