@@ -41,7 +41,9 @@ tasks.register('runBlockly', JavaExec) {
 tasks.register("npmBuild", Exec) {
     group = 'build'
     workingDir = file("$projectDir/frontend")
-    commandLine isWindows ? ['npm.cmd', 'run', 'build'] : ['npm', 'run', 'build']
+
+    def os = System.getProperty('os.name').toLowerCase()
+    commandLine os.contains('windows') ? ['npm.cmd', 'run', 'build'] : ['npm', 'run', 'build']
 }
 
 
