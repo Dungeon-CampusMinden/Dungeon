@@ -65,7 +65,6 @@ public final class LitiengineGameLoopHost {
     Platform.window(new core.platform.litiengine.LitiengineWindowAdapter());
     Platform.runtime(new core.platform.litiengine.LitiengineRuntimeAdapter());
     Platform.resources(new core.platform.classpath.ClasspathResourcesAdapter());
-    Platform.render(new core.platform.NullRenderAdapter());
     Platform.render(new LitiengineRenderAdapter());
     Platform.pathfinding(new core.platform.grid.GridPathfindingAdapter());
 
@@ -75,9 +74,7 @@ public final class LitiengineGameLoopHost {
     // Ensure we start with a clean input state.
     InputManager.reset();
 
-    // Host chooses which default systems exist (simulation only).
-    ECSManagement.bootstrapDefaultSystems(SystemProfile.LITIENGINE_SIMULATION);
-    ECSManagement.bootstrapGameplaySystems(SystemProfile.LITIENGINE_SIMULATION);
+    // Host chooses which default systems exist
     ECSManagement.bootstrapDefaultSystems(SystemProfile.LITIENGINE_CLIENT);
     ECSManagement.bootstrapGameplaySystems(SystemProfile.LITIENGINE_CLIENT);
     ECSManagement.system(core.systems.LevelSystem.class, ls -> ls.onLevelLoad(GameLoop.onLevelLoad));
