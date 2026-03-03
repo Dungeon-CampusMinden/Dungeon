@@ -1,7 +1,6 @@
 package core.platform.litiengine;
 
 import core.platform.RenderAdapter;
-import core.systems.SoundSystem;
 import java.util.List;
 
 /**
@@ -14,7 +13,9 @@ public final class LitiengineRenderAdapter implements RenderAdapter {
   @Override
   public List<SystemBinding> defaultRenderSystems() {
     return List.of(
-      new SystemBinding(SoundSystem.class, SoundSystem::new)
+      new SystemBinding(core.systems.SoundSystem.class, core.systems.SoundSystem::new),
+      new SystemBinding(core.platform.litiengine.render.LitiengineDebugDrawSystem.class,
+        core.platform.litiengine.render.LitiengineDebugDrawSystem::new)
     );
   }
 }
