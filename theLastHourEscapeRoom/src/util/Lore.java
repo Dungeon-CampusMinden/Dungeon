@@ -186,7 +186,9 @@ public class Lore {
   /** File name of the access code document downloaded from the recovery portal. */
   public static final String AccessCodeDownloadFileName = "unlock_code.pdf";
 
-  /** The door code encoded in Morse, to be decoded by the player using the 2nd decryption manual. */
+  /**
+   * The door code encoded in Morse, to be decoded by the player using the 2nd decryption manual.
+   */
   public static final String DoorCodeMorse = "...-- --... ..... ---..";
 
   /** The actual numeric door code as a list of individual digits. */

@@ -38,9 +38,9 @@ public class BlogTab extends ComputerTab {
   }
 
   /**
-   * Sets the UNIX timestamp of when the player logged in. This is used to determine when
-   * time-gated blog comments become visible. Static so it can be set before the BlogTab is
-   * instantiated, e.g. in multiplayer where login may occur before the tab exists.
+   * Sets the UNIX timestamp of when the player logged in. This is used to determine when time-gated
+   * blog comments become visible. Static so it can be set before the BlogTab is instantiated, e.g.
+   * in multiplayer where login may occur before the tab exists.
    *
    * @param timestamp the UNIX timestamp (seconds) of the login event
    */
@@ -164,8 +164,7 @@ public class BlogTab extends ComputerTab {
         }
         table.add(commentsTable).growX().row();
       } else {
-        Label noComments =
-            Scene2dElementFactory.createLabel("No comments yet.", 18, Color.GRAY);
+        Label noComments = Scene2dElementFactory.createLabel("No comments yet.", 18, Color.GRAY);
         table.add(noComments).growX().padTop(4).row();
       }
     }
