@@ -418,7 +418,7 @@ public class LastHourLevel extends DungeonLevel {
     }
 
     ComputerStateComponent csc = ComputerStateComponent.getState().get();
-    if(cscLastTick == null) {
+    if (cscLastTick == null) {
       cscLastTick = csc;
       return; // Skip update check on first tick.
     }
@@ -455,9 +455,7 @@ public class LastHourLevel extends DungeonLevel {
     }
 
     if (cscLastTick != csc) {
-      ComputerDialog.getInstance()
-        .ifPresent(
-          cd -> cd.updateState(csc));
+      ComputerDialog.getInstance().ifPresent(cd -> cd.updateState(csc));
     }
 
     cscLastTick = csc;

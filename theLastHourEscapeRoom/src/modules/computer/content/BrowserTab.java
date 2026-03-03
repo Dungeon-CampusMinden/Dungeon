@@ -205,9 +205,7 @@ public class BrowserTab extends ComputerTab {
 
     Label breadcrumb =
         Scene2dElementFactory.createLabel(
-            "Home  >  Support  >  SG-4 Recovery  >  Sequence 1 of 2",
-            16,
-            Color.GRAY);
+            "Home  >  Support  >  SG-4 Recovery  >  Sequence 1 of 2", 16, Color.GRAY);
     breadcrumb.setAlignment(Align.left);
     table.add(breadcrumb).left().padBottom(15).row();
 
@@ -380,8 +378,7 @@ public class BrowserTab extends ComputerTab {
     table.top().padTop(40);
 
     Label successLabel =
-        Scene2dElementFactory.createLabel(
-            "Verification successful.", 32, new Color(0, 0.6f, 0, 1));
+        Scene2dElementFactory.createLabel("Verification successful.", 32, new Color(0, 0.6f, 0, 1));
     successLabel.setAlignment(Align.center);
     table.add(successLabel).center().padBottom(20).row();
 
@@ -403,9 +400,7 @@ public class BrowserTab extends ComputerTab {
             if (index == 0) {
               ComputerDialog.getInstance()
                   .ifPresent(
-                      c ->
-                          c.addTab(
-                              new FileTab(sharedState(), Lore.AccessCodeDownloadFileName)));
+                      c -> c.addTab(new FileTab(sharedState(), Lore.AccessCodeDownloadFileName)));
             } else {
               String virusType = Lore.CodePageIndexToVirusType.get(index - 1);
               var newState =
