@@ -29,7 +29,7 @@ public final class LitiengineStarter {
       throw new RuntimeException(e);
     }
 
-    Game.disableAudio(true);
+    Game.disableAudio(false);
     Game.frameRate(30);
     Game.windowTitle("LITIENGINE Dungeon");
 

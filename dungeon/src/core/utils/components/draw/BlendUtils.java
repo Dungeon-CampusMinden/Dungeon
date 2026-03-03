@@ -3,11 +3,10 @@ package core.utils.components.draw;
 import core.platform.Platform;
 
 /**
- * Engine-agnostic blending facade.
+ * Utility class for setting blending modes used in rendering.
  *
- * <p>This class must NOT reference libGDX GL classes directly. If the current runtime supports
- * GDX rendering, calls are forwarded to {@code core.platform.gdx.render.GdxBlendUtils} via
- * reflection.
+ * <p>Provides static helper methods to configure blending on the current render platform,
+ * including Pre-Multiplied Alpha (PMA) blending and straight alpha blending.
  */
 public final class BlendUtils {
 
