@@ -20,7 +20,7 @@ public class LoginTab extends ComputerTab {
 
   // Password feedback
   private static final String WRONG_FEEDBACK = "Invalid username or password.";
-  private static final String CORRECT_FEEDBACK = "Login successful!\nWelcome Mr. So-And-So";
+  private static final String CORRECT_FEEDBACK = "Login successful!\nWelcome Dr. Mertens";
   private static final Color WRONG_COLOR = Color.RED;
   private static final Color CORRECT_COLOR = new Color(0, 0.5f, 0, 1);
 
