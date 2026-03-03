@@ -7,7 +7,7 @@ import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import core.level.utils.Coordinate;
 import core.network.messages.c2s.DialogResponseMessage;
-import core.utils.InputManager;
+import core.systems.input.InputManager;
 import core.utils.Point;
 import java.util.LinkedHashMap;
 import java.util.Map;

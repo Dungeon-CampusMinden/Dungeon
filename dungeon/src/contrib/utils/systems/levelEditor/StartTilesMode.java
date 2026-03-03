@@ -12,7 +12,7 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
 import core.utils.FontHelper;
-import core.utils.InputManager;
+import core.systems.input.InputManager;
 import core.utils.Point;
 import java.util.LinkedHashMap;
 import java.util.Map;

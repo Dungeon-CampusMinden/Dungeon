@@ -21,7 +21,7 @@ import core.level.DungeonLevel;
 import core.level.elements.ILevel;
 import core.systems.CameraSystem;
 import core.utils.FontHelper;
-import core.utils.InputManager;
+import core.systems.input.InputManager;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;

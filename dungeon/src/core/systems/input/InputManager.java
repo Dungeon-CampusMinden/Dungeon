@@ -1,4 +1,4 @@
-package core.utils;
+package core.systems.input;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;

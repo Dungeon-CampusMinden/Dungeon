@@ -22,7 +22,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
-import core.systems.InputSystem;
+import core.systems.input.InputSystem;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.Tuple;

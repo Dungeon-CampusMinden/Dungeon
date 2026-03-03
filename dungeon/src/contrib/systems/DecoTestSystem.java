@@ -12,7 +12,7 @@ import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.utils.FontHelper;
-import core.utils.InputManager;
+import core.systems.input.InputManager;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;

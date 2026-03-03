@@ -2,7 +2,7 @@ package core.components;
 
 import com.badlogic.gdx.Input;
 import core.Component;
-import core.systems.InputSystem;
+import core.systems.input.InputSystem;
 
 /**
  * Marks an entity as playable by the player.
