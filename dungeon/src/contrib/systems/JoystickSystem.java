@@ -116,9 +116,13 @@ public class JoystickSystem extends System {
     if (controller == null) {
       return false;
     }
-
     var controllers = Controllers.getControllers();
-    return java.util.Arrays.asList(controllers.items).stream().anyMatch(c -> c == controller);
+    for (int i = 0; i < controllers.size; i++) {
+      if (controllers.get(i) == controller) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
