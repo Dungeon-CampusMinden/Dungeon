@@ -325,7 +325,7 @@ const validateProgram = (fullProgram : string) => {
     { check: () => containsString(fullProgram, "no direction in rotation"), msg: "Eine Rotation muss eine Richtungsangabe enthalten" },
     { check: () => containsString(fullProgram,"no value was assigned to the variable"), msg: "Der Variable wurde keine Wert zugewiesen" },
     { check: () => hasEmptyNotCondition(fullProgram), msg: "Der Nicht-Befehl braucht eine Bedingung" },
-    { check: () => hasIncompleteLogicalOperator(fullProgram), msg: "Und und oder block nicht richtig benutzt"},
+    { check: () => hasIncompleteLogicalOperator(fullProgram), msg: "Und/Oder block nicht richtig benutzt"},
     { check: () => checkIfVariablesAreDeclared(fullProgram), msg: checkIfVariablesAreDeclared(fullProgram)}
   ];
 
