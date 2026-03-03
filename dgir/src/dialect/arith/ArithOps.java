@@ -2,8 +2,6 @@ package dialect.arith;
 
 import static dialect.arith.ArithAttrs.BinModeAttr;
 import static dialect.arith.ArithAttrs.BinModeAttr.BinMode;
-import static dialect.arith.ArithAttrs.CompModeAttr;
-import static dialect.arith.ArithAttrs.CompModeAttr.CompMode;
 import static dialect.builtin.BuiltinAttrs.*;
 import static dialect.builtin.BuiltinTypes.*;
 
@@ -15,6 +13,7 @@ import core.traits.IHasResult;
 import core.traits.INoOperands;
 import core.traits.ISingleOperand;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -58,6 +57,70 @@ public sealed interface ArithOps {
     @Override
     public @NotNull String getNamespace() {
       return "arith";
+    }
+  }
+
+  abstract class UnaryNumericOp extends ArithOp implements ISingleOperand {
+    /** Default constructor used during dialect registration. */
+    UnaryNumericOp() {
+      super();
+    }
+
+    @Override
+    public Function<Operation, Boolean> getVerifier() {
+      return BinaryNumericOp::verifyBinaryNumericOperands;
+    }
+
+    protected static boolean verifyUnaryNumericOperand(@NotNull Operation operation) {
+      ISingleOperand unaryOperand =
+          operation
+              .asTrait(ISingleOperand.class)
+              .orElseThrow(
+                  () ->
+                      new AssertionError(
+                          "Operation does not implement ISingleOperand: " + operation));
+      Type target = unaryOperand.getOperand().getType();
+      if (!isNumeric(target)) {
+        operation.emitError("Operands must be numeric");
+        return false;
+      }
+      return true;
+    }
+  }
+
+  abstract class UnaryNumericResultOp extends UnaryNumericOp implements IHasResult {
+    /** Default constructor used during dialect registration. */
+    UnaryNumericResultOp() {
+      super();
+    }
+
+    @Override
+    public Function<Operation, Boolean> getVerifier() {
+      return operation -> {
+        if (!verifyUnaryNumericOperand(operation)) {
+          return false;
+        }
+        var unaryOp = operation.asTrait(ISingleOperand.class).orElseThrow();
+        if (operation.getOutput().isEmpty()) {
+          operation.emitError("Operation must have an output");
+          return false;
+        }
+        var expectedType = unaryOp.getOperand().getType();
+        var actualType = operation.getOutput().map(OperationResult::getType).orElseThrow();
+        if (!actualType.equals(expectedType)) {
+          operation.emitError("Result type must match the operand type");
+          return false;
+        }
+        return true;
+      };
+    }
+  }
+
+  final class UnaryOp extends UnaryNumericResultOp implements ArithOps {
+
+    @Override
+    public @NotNull String getIdent() {
+      return "arith.unary";
     }
   }
 
@@ -150,6 +213,13 @@ public sealed interface ArithOps {
           operation.emitError("Binary operation must define a binMode attribute");
           return false;
         }
+        BinMode binMode = operation.getAttributeAs(BinModeAttr.class, "binMode").get().getMode();
+        Optional<String> modeError =
+            binMode.verifier.apply(operation.as(BinaryOp.class).orElseThrow());
+        if (modeError.isPresent()) {
+          operation.emitError(modeError.get());
+          return false;
+        }
         return true;
       };
     }
@@ -166,9 +236,26 @@ public sealed interface ArithOps {
      */
     public BinaryOp(
         @NotNull Location loc, @NotNull Value lhs, @NotNull Value rhs, @NotNull BinMode binMode) {
-      setOperation(
-          Operation.Create(
-              loc, this, List.of(lhs, rhs), null, getDominantType(lhs.getType(), rhs.getType())));
+      // Get the right output type for the given operands and binary operation kind.
+      Type outputType =
+          switch (binMode) {
+            // Regular arithmetic operations.
+            case ADD, SUB, MUL, DIV, MOD -> getDominantType(lhs.getType(), rhs.getType());
+            // Binary logical operations.
+            case BOR, BAND, BXOR -> {
+              if (lhs.getType().equals(rhs.getType())) {
+                yield lhs.getType();
+              } else {
+                throw new AssertionError("LHS and RHS must have the same type");
+              }
+            }
+            // Binary shift operations.
+            case LSH, RSHS, RSHU -> lhs.getType();
+            // Logical operations.
+            case AND, OR, XOR, EQ, NE, LT, LE, GT, GE -> IntegerT.BOOL;
+          };
+
+      setOperation(Operation.Create(loc, this, List.of(lhs, rhs), null, outputType));
       setAttribute("binMode", new BinModeAttr(binMode));
     }
 
@@ -231,47 +318,6 @@ public sealed interface ArithOps {
       return getAttributeAs("to", TypeAttribute.class)
           .map(TypeAttribute::getType)
           .orElseThrow(() -> new AssertionError("No target type attribute found."));
-    }
-  }
-
-  final class CompareOp extends BinaryNumericOp implements ArithOps, IHasResult {
-    @Override
-    public @NotNull String getIdent() {
-      return "arith.comp";
-    }
-
-    @Override
-    public @NotNull @Unmodifiable List<NamedAttribute> getDefaultAttributes() {
-      return List.of(new NamedAttribute("compMode", new CompModeAttr(CompMode.EQ)));
-    }
-
-    private CompareOp() {}
-
-    public CompareOp(
-        @NotNull Location loc, @NotNull Value lhs, @NotNull Value rhs, @NotNull CompMode compMode) {
-      setOperation(Operation.Create(loc, this, List.of(lhs, rhs), null, IntegerT.BOOL));
-      setAttribute("compMode", new CompModeAttr(compMode));
-    }
-
-    public @NotNull CompMode getCompMode() {
-      return getAttributeAs("compMode", CompModeAttr.class)
-          .map(CompModeAttr::getMode)
-          .orElseThrow(() -> new AssertionError("No compMode attribute found."));
-    }
-
-    @Override
-    public Function<Operation, Boolean> getVerifier() {
-      return operation -> {
-        CompareOp compareOp = operation.as(CompareOp.class).orElseThrow();
-        if (!verifyBinaryNumericOperands(operation)) {
-          return false;
-        }
-        if (!compareOp.getResultType().equals(IntegerT.BOOL)) {
-          operation.emitError("Compare result type must be bool");
-          return false;
-        }
-        return true;
-      };
     }
   }
 

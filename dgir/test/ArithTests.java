@@ -1,5 +1,4 @@
 import static dialect.arith.ArithAttrs.BinModeAttr;
-import static dialect.arith.ArithAttrs.CompModeAttr;
 import static dialect.arith.ArithOps.*;
 import static dialect.builtin.BuiltinAttrs.IntegerAttribute;
 import static dialect.builtin.BuiltinOps.ProgramOp;
@@ -93,11 +92,11 @@ public class ArithTests {
 
     var cmpOp =
         funcMain.addOperation(
-            new CompareOp(
+            new BinaryOp(
                 LOC,
                 int32Op.getValue(),
                 float64Op.getOutputValue().orElseThrow(),
-                CompModeAttr.CompMode.LT),
+                BinModeAttr.BinMode.LT),
             0);
 
     assertEquals(IntegerT.BOOL, cmpOp.getOutputValue().orElseThrow().getType());
@@ -148,7 +147,7 @@ public class ArithTests {
     var int32Op = funcMain.addOperation(new ConstantOp(LOC, 1), 0);
 
     funcMain.addOperation(
-        new CompareOp(LOC, stringOp.getValue(), int32Op.getValue(), CompModeAttr.CompMode.EQ), 0);
+        new BinaryOp(LOC, stringOp.getValue(), int32Op.getValue(), BinModeAttr.BinMode.EQ), 0);
 
     funcMain.addOperation(new ReturnOp(LOC), 0);
     assertFalse(TestUtils.testValidityAndSerialization(programOp));

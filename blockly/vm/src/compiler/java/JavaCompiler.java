@@ -1,7 +1,6 @@
 package compiler.java;
 
 import static dialect.arith.ArithAttrs.BinModeAttr.BinMode;
-import static dialect.arith.ArithAttrs.CompModeAttr.CompMode;
 import static dialect.arith.ArithOps.CastOp;
 import static dialect.arith.ArithOps.ConstantOp;
 import static dialect.builtin.BuiltinAttrs.*;
@@ -34,7 +33,6 @@ import core.ir.*;
 import core.serialization.Utils;
 import core.traits.ITerminator;
 import dialect.arith.ArithOps.BinaryOp;
-import dialect.arith.ArithOps.CompareOp;
 import dialect.builtin.BuiltinOps;
 import dialect.cf.CfOps;
 import dialect.dg.DungeonDialect;
@@ -674,6 +672,7 @@ public class JavaCompiler {
         case BinaryExpr binaryExpr ->
             emitBinary(binaryExpr, context, Optional.empty()).map(Optional::of);
         case MethodCallExpr methodCallExpr -> emitFunctionCall(methodCallExpr, context);
+        case UnaryExpr unaryExpr -> emitUnary(unaryExpr, context).map(Optional::of);
         default -> {
           context.emitError(
               expression,
@@ -686,7 +685,8 @@ public class JavaCompiler {
       };
     }
 
-    private @NotNull EmitResult<Value> emitLiteral(LiteralExpr literalExpr, EmitContext context) {
+    private @NotNull EmitResult<Value> emitLiteral(
+        @NotNull LiteralExpr literalExpr, @NotNull EmitContext context) {
       Optional<TypedAttribute> attrOpt = valueAttrFromLiteralExpr(literalExpr, context);
       return attrOpt
           .map(
@@ -699,12 +699,12 @@ public class JavaCompiler {
     }
 
     private @NotNull EmitResult<Value> emitBinary(
-        Node site,
-        BinaryExpr.Operator operator,
-        Value lhs,
-        Value rhs,
+        @NotNull Node site,
+        @NotNull BinaryExpr.Operator operator,
+        @NotNull Value lhs,
+        @NotNull Value rhs,
         @NotNull Optional<Value> targetValue,
-        EmitContext context) {
+        @NotNull EmitContext context) {
       Optional<BinMode> binModeOpt =
           Optional.ofNullable(
               switch (operator) {
@@ -713,6 +713,20 @@ public class JavaCompiler {
                 case MULTIPLY -> BinMode.MUL;
                 case DIVIDE -> BinMode.DIV;
                 case REMAINDER -> BinMode.MOD;
+                case OR -> BinMode.OR;
+                case AND -> BinMode.AND;
+                case BINARY_OR -> BinMode.BOR;
+                case BINARY_AND -> BinMode.BAND;
+                case XOR -> BinMode.XOR;
+                case EQUALS -> BinMode.EQ;
+                case NOT_EQUALS -> BinMode.NE;
+                case LESS -> BinMode.LT;
+                case GREATER -> BinMode.GT;
+                case LESS_EQUALS -> BinMode.LE;
+                case GREATER_EQUALS -> BinMode.GE;
+                case LEFT_SHIFT -> BinMode.LSH;
+                case SIGNED_RIGHT_SHIFT -> BinMode.RSHS;
+                case UNSIGNED_RIGHT_SHIFT -> BinMode.RSHU;
                 default -> null;
               });
 
@@ -720,23 +734,6 @@ public class JavaCompiler {
         var binOp = context.insert(new BinaryOp(context.loc(site), lhs, rhs, binModeOpt.get()));
         targetValue.ifPresent(binOp::setOutputValue);
         return EmitResult.of(binOp.getResult());
-      }
-
-      Optional<CompMode> compModeOpt =
-          Optional.ofNullable(
-              switch (operator) {
-                case EQUALS -> CompMode.EQ;
-                case NOT_EQUALS -> CompMode.NE;
-                case LESS -> CompMode.LT;
-                case GREATER -> CompMode.GT;
-                case LESS_EQUALS -> CompMode.LE;
-                case GREATER_EQUALS -> CompMode.GE;
-                default -> null;
-              });
-      if (compModeOpt.isPresent()) {
-        var compOp = context.insert(new CompareOp(context.loc(site), lhs, rhs, compModeOpt.get()));
-        targetValue.ifPresent(compOp::setOutputValue);
-        return EmitResult.of(compOp.getResult());
       }
       return EmitResult.failure(
           context, site, "Binary operator " + operator + " is not supported.");
@@ -761,7 +758,7 @@ public class JavaCompiler {
     }
 
     private static @NotNull String getResolvedFuncName(
-        String funcName, List<Type> args, EmitContext context) {
+        @NotNull String funcName, @NotNull List<Type> args, @NotNull EmitContext context) {
       StringBuilder sb = new StringBuilder(funcName);
       for (Type arg : args) {
         sb.append("_");
@@ -779,7 +776,7 @@ public class JavaCompiler {
      *     was an error during emission.
      */
     private @NotNull EmitResult<Optional<Value>> emitFunctionCall(
-        MethodCallExpr methodCallExpr, EmitContext context) {
+        @NotNull MethodCallExpr methodCallExpr, @NotNull EmitContext context) {
       // Get the call args of the method
       List<Value> args = new ArrayList<>();
       for (Expression arg : methodCallExpr.getArguments()) {
@@ -812,6 +809,85 @@ public class JavaCompiler {
       return EmitResult.success(callOp.getOutput().map(OperationResult::getValue));
     }
 
+    private @NotNull EmitResult<Value> emitIncrement(
+        @NotNull Node site, boolean positive, @NotNull Value target, @NotNull EmitContext context) {
+      ConstantOp one = context.insert(new ConstantOp(context.loc(site), 1));
+      if (positive) {
+        return emitBinary(
+            site, BinaryExpr.Operator.PLUS, target, one.getValue(), Optional.of(target), context);
+      } else {
+        return emitBinary(
+            site, BinaryExpr.Operator.MINUS, target, one.getValue(), Optional.of(target), context);
+      }
+    }
+
+    private @NotNull EmitResult<Value> emitUnary(
+        @NotNull UnaryExpr unaryExpr, @NotNull EmitContext context) {
+      EmitResult<Optional<Value>> operandRes = emitExpression(unaryExpr.getExpression(), context);
+      if (operandRes.isFailure() || operandRes.get().isEmpty()) {
+        return EmitResult.failure(
+            context, unaryExpr, "Could not resolve operand of unary expression.");
+      }
+      Value operand = operandRes.get().get();
+      if (!isNumeric(operand.getType())) {
+        context.emitError(
+            unaryExpr,
+            "Unary operator can only be applied to numeric types. Found type " + operand.getType());
+        return EmitResult.failure();
+      }
+      switch (unaryExpr.getOperator()) {
+        case PLUS -> {
+          return EmitResult.of(operand);
+        }
+        case MINUS -> {
+          ConstantOp minusOne = context.insert(new ConstantOp(context.loc(unaryExpr), -1));
+          return emitBinary(
+                  unaryExpr,
+                  BinaryExpr.Operator.MULTIPLY,
+                  operand,
+                  minusOne.getValue(),
+                  Optional.empty(),
+                  context)
+              .or(
+                  () ->
+                      EmitResult.failure(
+                          context, unaryExpr, "Failed to emit unary minus operator."));
+        }
+        case PREFIX_INCREMENT -> {
+          return emitIncrement(unaryExpr, true, operand, context);
+        }
+        case PREFIX_DECREMENT -> {
+          return emitIncrement(unaryExpr, false, operand, context);
+        }
+        case LOGICAL_COMPLEMENT -> {
+          return EmitResult.failure(
+              context, unaryExpr, "Logical complement operator is not supported.");
+        }
+        case BITWISE_COMPLEMENT -> {
+          return EmitResult.failure(
+              context, unaryExpr, "Bitwise complement operator is not supported.");
+        }
+        case POSTFIX_INCREMENT -> {
+          // Copy the value to a new value and return that so that we can modify the increment
+          // target.
+          BuiltinOps.IdOp idOp =
+              context.insert(new BuiltinOps.IdOp(context.loc(unaryExpr), operand));
+          emitIncrement(unaryExpr, true, operand, context);
+          return EmitResult.of(idOp.getResult());
+        }
+        case POSTFIX_DECREMENT -> {
+          // Copy the value to a new value and return that so that we can modify the increment
+          // target.
+          BuiltinOps.IdOp idOp =
+              context.insert(new BuiltinOps.IdOp(context.loc(unaryExpr), operand));
+          emitIncrement(unaryExpr, false, operand, context);
+          return EmitResult.of(idOp.getResult());
+        }
+      }
+      return EmitResult.failure(
+          context, unaryExpr, "Unary operator " + unaryExpr.getOperator() + " is not supported.");
+    }
+
     /**
      * Find the method declaration corresponding to a method call with the given argument types.
      * This is used to resolve overloaded method calls. If no method declaration is found, an error
@@ -822,8 +898,8 @@ public class JavaCompiler {
      * @param context the emit context
      * @return the method declaration corresponding to the method call, or an empty optional if no
      */
-    private Optional<MethodDeclaration> findTargetMethod(
-        MethodCallExpr site, List<Type> args, EmitContext context) {
+    private @NotNull Optional<MethodDeclaration> findTargetMethod(
+        @NotNull MethodCallExpr site, @NotNull List<Type> args, @NotNull EmitContext context) {
       // Go upwards from this node to find the method declaration.
       Optional<Node> currentNode = Optional.of(site);
       while (currentNode.isPresent()) {
@@ -878,7 +954,7 @@ public class JavaCompiler {
     }
 
     private @NotNull Optional<TypedAttribute> valueAttrFromLiteralExpr(
-        LiteralExpr literalExpr, EmitContext context) {
+        @NotNull LiteralExpr literalExpr, @NotNull EmitContext context) {
       return Optional.ofNullable(
           switch (literalExpr) {
             case BooleanLiteralExpr boolL ->

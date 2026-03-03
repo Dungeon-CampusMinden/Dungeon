@@ -1,7 +1,6 @@
 package dialect.scf;
 
 import static dialect.arith.ArithAttrs.BinModeAttr.BinMode;
-import static dialect.arith.ArithAttrs.CompModeAttr.CompMode;
 
 import core.Dialect;
 import core.debug.Location;
@@ -488,7 +487,7 @@ public sealed interface ScfOps {
     }
 
     public static void setupStaticForLoop(
-        WhileOp op, Value induction, int compareVal, CompMode compMode, int step) {
+        WhileOp op, Value induction, int compareVal, BinMode compMode, int step) {
       Region condRegion = op.getConditionRegion();
 
       Block continueBlock = condRegion.addBlock(new Block());
@@ -513,8 +512,7 @@ public sealed interface ScfOps {
             entryBlock.addOperation(new ArithOps.ConstantOp(Location.UNKNOWN, compareVal));
         var compResult =
             entryBlock.addOperation(
-                new ArithOps.CompareOp(
-                    Location.UNKNOWN, induction, compConst.getValue(), compMode));
+                new ArithOps.BinaryOp(Location.UNKNOWN, induction, compConst.getValue(), compMode));
         entryBlock.addOperation(
             new CfOps.BranchCondOp(
                 Location.UNKNOWN, compResult.getResult(), continueBlock, breakBlock));
