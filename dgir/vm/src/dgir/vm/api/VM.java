@@ -1,6 +1,6 @@
 package dgir.vm.api;
 
-import static dialect.builtin.BuiltinOps.*;
+import static dialect.builtin.BuiltinOps.ProgramOp;
 
 import core.debug.Location;
 import core.ir.Operation;
@@ -407,6 +407,8 @@ public class VM {
         // while which have a
         // separate region for the body and the condition check logic.
         case Action.JumpToRegion jumpToRegion -> {
+          assert currentOp.getParentOperation().equals(jumpToRegion.target().getParent())
+              : "Jumping to other region only allowed in the same parent operation.";
           // Remove all the values currently held
           var oldFrame = state.popStackFrame().orElseThrow();
           state.pushStackFrame(oldFrame.getRight());
