@@ -10,7 +10,6 @@ import core.utils.Rectangle;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;
-
 import java.util.function.Function;
 
 /**
@@ -109,11 +108,9 @@ public final class CollideComponent implements Component {
    */
   private TriConsumer<Entity, Entity, Direction> collideHold;
 
-  /** Optional Callback to check, if the entity is static */
-  private Function<Entity, Boolean> staticCallback = entity ->
-    entity.fetch(VelocityComponent.class)
-      .map(vc -> vc.maxSpeed() == 0f)
-      .orElse(true);
+  /** Optional Callback to check, if the entity is static. */
+  private Function<Entity, Boolean> staticCallback =
+      entity -> entity.fetch(VelocityComponent.class).map(vc -> vc.maxSpeed() == 0f).orElse(true);
 
   /**
    * Creates a new {@code CollideComponent}.
@@ -368,7 +365,7 @@ public final class CollideComponent implements Component {
    *
    * @param entity The entity that should be checked.
    * @return True if the entity is static.
-   * */
+   */
   public boolean isStatic(Entity entity) {
     return staticCallback.apply(entity);
   }
@@ -377,7 +374,7 @@ public final class CollideComponent implements Component {
    * Sets the entity static or non-static.
    *
    * @param callback Function that receives an entity and returns true, if the entity is static.
-   * */
+   */
   public void staticCallback(Function<Entity, Boolean> callback) {
     this.staticCallback = callback != null ? callback : this.staticCallback;
   }
