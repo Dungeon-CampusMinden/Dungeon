@@ -9,6 +9,41 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 public sealed interface BuiltinTypes {
+  static boolean isNumeric(@NotNull Type type) {
+    return type instanceof IntegerT || type instanceof FloatT;
+  }
+
+  static @NotNull Type getDominantType(@NotNull Type lhsType, @NotNull Type rhsType) {
+    if (!isNumeric(lhsType) || !isNumeric(rhsType)) {
+      throw new IllegalArgumentException("Dominant type requires numeric operands");
+    }
+
+    if (lhsType instanceof FloatT || rhsType instanceof FloatT) {
+      int lhsFloatWidth = lhsType instanceof FloatT floatT ? floatT.getWidth() : 0;
+      int rhsFloatWidth = rhsType instanceof FloatT floatT ? floatT.getWidth() : 0;
+      int lhsIntWidth = lhsType instanceof IntegerT intT ? intT.getWidth() : 0;
+      int rhsIntWidth = rhsType instanceof IntegerT intT ? intT.getWidth() : 0;
+      int desiredWidth =
+          Math.max(Math.max(lhsFloatWidth, rhsFloatWidth), Math.max(lhsIntWidth, rhsIntWidth));
+      return desiredWidth > 32 ? FloatT.FLOAT64 : FloatT.FLOAT32;
+    }
+
+    int lhsWidth = ((IntegerT) lhsType).getWidth();
+    int rhsWidth = ((IntegerT) rhsType).getWidth();
+    return integerTypeByWidth(Math.max(lhsWidth, rhsWidth));
+  }
+
+  static @NotNull IntegerT integerTypeByWidth(int width) {
+    return switch (width) {
+      case 1 -> IntegerT.INT1;
+      case 8 -> IntegerT.INT8;
+      case 16 -> IntegerT.INT16;
+      case 32 -> IntegerT.INT32;
+      case 64 -> IntegerT.INT64;
+      default -> new IntegerT(width);
+    };
+  }
+
   /**
    * Abstract base class for all types contributed by the {@link BuiltinDialect}.
    *
@@ -159,11 +194,6 @@ public sealed interface BuiltinTypes {
      * @throws IllegalArgumentException if {@code number} is a float or double.
      */
     public Number convertToValidNumber(Number number) {
-      if (number instanceof Float || number instanceof Double) {
-        throw new IllegalArgumentException(
-            "Cannot convert floating point number to integer: " + number);
-      }
-
       return switch (getWidth()) {
         case 1 -> (byte) (number.intValue() == 0 ? 0 : 1); // Mask to 1 bit for boolean
         case 8 -> number.byteValue();
@@ -267,15 +297,11 @@ public sealed interface BuiltinTypes {
     }
 
     public Number convertToValidNumber(Number number) {
-      if (number instanceof Float || number instanceof Double) {
-        return switch (getWidth()) {
-          case 32 -> number.floatValue();
-          case 64 -> number.doubleValue();
-          default -> throw new RuntimeException("Invalid float width: " + getWidth());
-        };
-      }
-      throw new IllegalArgumentException(
-          "Cannot convert floating point number to float: " + number);
+      return switch (getWidth()) {
+        case 32 -> number.floatValue();
+        case 64 -> number.doubleValue();
+        default -> throw new RuntimeException("Invalid float width: " + getWidth());
+      };
     }
   }
 

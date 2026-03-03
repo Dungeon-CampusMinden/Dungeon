@@ -1,6 +1,6 @@
 package dialect.func;
 
-import static dialect.func.FuncTypes.*;
+import static dialect.func.FuncTypes.FuncType;
 
 import core.Dialect;
 import core.SymbolTable;
@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 /**
@@ -152,6 +153,23 @@ public sealed interface FuncOps {
         @NotNull List<Value> operands,
         @NotNull FuncType calleeType) {
       setOperation(Operation.Create(location, this, operands, null, calleeType.getOutput()));
+      setCallee(name);
+    }
+
+    /**
+     * Create a call with an explicit operand list and return type.
+     *
+     * @param location the source location of this operation.
+     * @param name the symbol name of the function to call.
+     * @param operands the argument values.
+     * @param returnType the return type of the call
+     */
+    public CallOp(
+        @NotNull Location location,
+        @NotNull String name,
+        @NotNull List<Value> operands,
+        @Nullable Type returnType) {
+      setOperation(Operation.Create(location, this, operands, null, returnType));
       setCallee(name);
     }
 

@@ -124,9 +124,6 @@ public final class Value extends IRObjectWithUseList<Value, ValueOperand> implem
 
   @Override
   public String toString() {
-    if (debugInfo.name().equals("<unknown>")) {
-      return type.toString();
-    }
     return debugInfo.name() + ": " + type;
   }
 }

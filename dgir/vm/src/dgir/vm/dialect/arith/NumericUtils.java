@@ -1,11 +1,11 @@
 package dgir.vm.dialect.arith;
 
+import static dialect.builtin.BuiltinTypes.*;
+
 import core.ir.Type;
 import core.ir.Value;
 import dgir.vm.api.State;
 import org.jetbrains.annotations.NotNull;
-
-import static dialect.builtin.BuiltinTypes.*;
 
 final class NumericUtils {
   private NumericUtils() {}
@@ -44,7 +44,7 @@ final class NumericUtils {
       return integerT.convertToValidNumber(value);
     }
     if (targetType instanceof FloatT floatT) {
-      return floatT.getWidth() == 32 ? value.floatValue() : value.doubleValue();
+      return floatT.convertToValidNumber(value);
     }
     throw new IllegalArgumentException("Unsupported numeric target type: " + targetType);
   }

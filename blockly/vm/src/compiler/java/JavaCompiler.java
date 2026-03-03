@@ -6,8 +6,7 @@ import static dialect.arith.ArithOps.CastOp;
 import static dialect.arith.ArithOps.ConstantOp;
 import static dialect.builtin.BuiltinAttrs.*;
 import static dialect.builtin.BuiltinOps.ProgramOp;
-import static dialect.builtin.BuiltinTypes.FloatT;
-import static dialect.builtin.BuiltinTypes.IntegerT;
+import static dialect.builtin.BuiltinTypes.*;
 import static dialect.func.FuncOps.FuncOp;
 import static dialect.func.FuncOps.ReturnOp;
 import static dialect.func.FuncTypes.FuncType;
@@ -37,6 +36,7 @@ import core.traits.ITerminator;
 import dialect.arith.ArithOps.BinaryOp;
 import dialect.arith.ArithOps.CompareOp;
 import dialect.dg.DungeonDialect;
+import dialect.func.FuncOps;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.logging.Logger;
@@ -62,10 +62,10 @@ public class JavaCompiler {
     }
 
     JavaAstEmitter emitter = new JavaAstEmitter();
-    return emitter.emit(result, filename);
+    return emitter.emit(result, filename).toOptional();
   }
 
-  private static final class EmitContext {
+  public static final class EmitContext {
     private final @NotNull String filename;
 
     private final List<String> info = new ArrayList<>();
@@ -180,7 +180,7 @@ public class JavaCompiler {
       StringBuilder formated =
           new StringBuilder(
               MessageFormat.format(
-                  "{0}:{1}:{2}: {3}\n{4}", loc.file(), loc.line(), loc.column(), message, node));
+                  "{0}:{1}:{2} -> {3}", loc.file(), loc.line(), loc.column(), message));
       // Append the string representation of the args to the message.
       if (args.length > 0) {
         formated.append("\nAdditional info:\n");
@@ -263,13 +263,13 @@ public class JavaCompiler {
   }
 
   private static final class JavaAstEmitter extends VoidVisitorAdapter<EmitContext> {
-    private @NotNull Optional<Value> resolveName(
+    private @NotNull EmitResult<Value> resolveName(
         @NotNull String name, @NotNull Node site, EmitContext context) {
-      Optional<Value> valueOpt = context.getValue(name);
-      if (valueOpt.isEmpty()) {
-        context.emitError(site, "Variable " + name + " is not defined in the current scope.");
-      }
-      return valueOpt;
+      return EmitResult.ofOptional(
+          context.getValue(name),
+          context,
+          site,
+          "Variable " + name + " is not defined in the current scope.");
     }
 
     private void bindName(
@@ -278,7 +278,17 @@ public class JavaCompiler {
       value.setDebugInfo(new ValueDebugInfo(context.loc(site), name));
     }
 
-    private Optional<ProgramOp> emit(CompilationUnit compilationUnit, String filename) {
+    private Optional<Type> implicitCastAllowed(Type to, Type from) {
+      if (from.equals(to)) {
+        return Optional.of(to);
+      }
+      if (isNumeric(from) && isNumeric(to)) {
+        return Optional.ofNullable(getDominantType(to, from).equals(to) ? to : null);
+      }
+      return Optional.empty();
+    }
+
+    private EmitResult<ProgramOp> emit(CompilationUnit compilationUnit, String filename) {
       // Register all dialects so that we can use them during emission.
       Dialect.registerAllDialects();
       DungeonDialect dungeonDialect = new DungeonDialect();
@@ -287,7 +297,7 @@ public class JavaCompiler {
       EmitContext context = new EmitContext(filename);
       compilationUnit.accept(this, context);
       context.printDiagnostics();
-      return Optional.ofNullable(context.program);
+      return EmitResult.ofNullable(context.program);
     }
 
     @Override
@@ -336,8 +346,8 @@ public class JavaCompiler {
       if (context.errors.isEmpty()) {
         context.program = program;
       } else {
-        String incompleteProgram = Utils.getMapper(true).writeValueAsString(context.errors);
-        context.emitError(n, "Incomplete program: ", incompleteProgram);
+        String incompleteProgram = Utils.getMapper(true).writeValueAsString(program);
+        context.emitError(n, "Incorrect program: \n" + n, incompleteProgram);
       }
       context.popScope();
     }
@@ -481,7 +491,7 @@ public class JavaCompiler {
           context.insert(
               new FuncOp(
                   context.loc(n),
-                  n.getName().asString(),
+                  getResolvedFuncName(n.getName().asString(), inputTypes, context),
                   new FuncType(inputTypes, outputType.orElse(null))));
 
       // Emit all statements in the method body. These will insert themselves into the function op.
@@ -552,17 +562,17 @@ public class JavaCompiler {
       }
 
       String varName = n.getTarget().asNameExpr().getName().asString();
-      if (resolveName(varName, n, context).isEmpty()) {
+      if (resolveName(varName, n, context).isFailure()) {
         return;
       }
 
-      Optional<Value> rhs = emitExpression(n.getValue(), context);
-      if (rhs.isEmpty()) {
+      EmitResult<Optional<Value>> rhs = emitExpression(n.getValue(), context);
+      if (rhs.isFailure() || rhs.get().isEmpty()) {
         return;
       }
 
-      context.putValue(varName, rhs.get());
-      rhs.get().setDebugInfo(new ValueDebugInfo(context.loc(n), varName));
+      context.putValue(varName, rhs.get().get());
+      rhs.get().get().setDebugInfo(new ValueDebugInfo(context.loc(n), varName));
     }
 
     private @NotNull Optional<TypedAttribute> valueAttrFromLiteralExpr(
@@ -573,8 +583,11 @@ public class JavaCompiler {
                 new IntegerAttribute(boolL.getValue() ? 1 : 0, IntegerT.BOOL);
             case CharLiteralExpr charL ->
                 new IntegerAttribute((byte) charL.getValue().charAt(0), IntegerT.INT8);
-            case DoubleLiteralExpr doubleL ->
-                new FloatAttribute(Double.parseDouble(doubleL.getValue()), FloatT.FLOAT64);
+            case DoubleLiteralExpr doubleL -> {
+              if (doubleL.getValue().contains("f") || doubleL.getValue().contains("F"))
+                yield new FloatAttribute(Float.parseFloat(doubleL.getValue()), FloatT.FLOAT32);
+              else yield new FloatAttribute(Double.parseDouble(doubleL.getValue()), FloatT.FLOAT64);
+            }
             case IntegerLiteralExpr intL ->
                 new IntegerAttribute(Integer.parseInt(intL.getValue()), IntegerT.INT32);
             case LongLiteralExpr longL ->
@@ -603,53 +616,92 @@ public class JavaCompiler {
         return;
       }
       Expression initializer = variableDeclarator.getInitializer().get();
-      Optional<Value> initValue = emitExpression(initializer, context);
-      if (initValue.isEmpty()) {
+      EmitResult<Optional<Value>> initValueRes = emitExpression(initializer, context);
+      if (initValueRes.isFailure() || initValueRes.get().isEmpty()) {
         return;
       }
+      Value initValue = initValueRes.get().get();
       // Check that the init value and the target have the same value and emit cast statement if not
       var variableType = fromAstType(n.getVariables().get(0).getType(), context);
       if (variableType.isEmpty()) {
         return;
       }
-      if (!variableType.get().equals(initValue.get().getType())) {
+      if (!variableType.get().equals(initValue.getType())) {
+        Optional<Type> castTypeOpt = implicitCastAllowed(variableType.get(), initValue.getType());
+        if (castTypeOpt.isEmpty()) {
+          context.emitError(
+              n,
+              "Cannot assign value of type "
+                  + initValue.getType()
+                  + " to variable of type "
+                  + variableType.get()
+                  + " because there is no implicit cast between these types.");
+          return;
+        }
         initValue =
-            Optional.of(
-                context
-                    .insert(new CastOp(context.loc(n), initValue.get(), variableType.get()))
-                    .getResult());
+            context.insert(new CastOp(context.loc(n), initValue, variableType.get())).getResult();
       }
 
-      bindName(
-          variableDeclarator.getName().asString(), initValue.get(), variableDeclarator, context);
+      bindName(variableDeclarator.getName().asString(), initValue, variableDeclarator, context);
     }
 
-    private @NotNull Optional<Value> emitExpression(Expression expression, EmitContext context) {
+    @Override
+    public void visit(ReturnStmt n, EmitContext arg) {
+      if (n.getExpression().isPresent()) {
+        EmitResult<Optional<Value>> exprRes = emitExpression(n.getExpression().get(), arg);
+        if (exprRes.isFailure() || exprRes.get().isEmpty()) {
+          return;
+        }
+        arg.insert(new ReturnOp(arg.loc(n), exprRes.get().get()));
+      } else {
+        arg.insert(new ReturnOp(arg.loc(n)));
+      }
+    }
+
+    private @NotNull EmitResult<Optional<Value>> emitExpression(
+        Expression expression, EmitContext context) {
       return switch (expression) {
-        case LiteralExpr literalExpr -> emitLiteral(literalExpr, context);
-        case NameExpr nameExpr -> resolveName(nameExpr.getName().asString(), expression, context);
-        case BinaryExpr binaryExpr -> emitBinary(binaryExpr, context);
+        case LiteralExpr literalExpr -> emitLiteral(literalExpr, context).map(Optional::of);
+        case NameExpr nameExpr ->
+            resolveName(nameExpr.getName().asString(), expression, context).map(Optional::of);
+        case BinaryExpr binaryExpr -> emitBinary(binaryExpr, context).map(Optional::of);
+        case MethodCallExpr methodCallExpr -> emitFunctionCall(methodCallExpr, context);
         default -> {
           context.emitError(
-              expression, "Expression %s is not supported in this context.", expression);
-          yield Optional.empty();
+              expression,
+              expression.getClass().getSimpleName()
+                  + " '"
+                  + expression
+                  + "' is not supported in this context.");
+          yield EmitResult.failure();
         }
       };
     }
 
-    private @NotNull Optional<Value> emitLiteral(LiteralExpr literalExpr, EmitContext context) {
+    private @NotNull EmitResult<Value> emitLiteral(LiteralExpr literalExpr, EmitContext context) {
       Optional<TypedAttribute> attrOpt = valueAttrFromLiteralExpr(literalExpr, context);
-      return attrOpt.map(
-          typedAttribute ->
-              context.insert(new ConstantOp(context.loc(literalExpr), typedAttribute)).getValue());
+      return attrOpt
+          .map(
+              typedAttribute ->
+                  EmitResult.success(
+                      context
+                          .insert(new ConstantOp(context.loc(literalExpr), typedAttribute))
+                          .getValue()))
+          .orElseGet(EmitResult::failure);
     }
 
-    private @NotNull Optional<Value> emitBinary(BinaryExpr binaryExpr, EmitContext context) {
-      Optional<Value> lhs = emitExpression(binaryExpr.getLeft(), context);
-      Optional<Value> rhs = emitExpression(binaryExpr.getRight(), context);
-      if (lhs.isEmpty() || rhs.isEmpty()) {
-        return Optional.empty();
+    private @NotNull EmitResult<Value> emitBinary(BinaryExpr binaryExpr, EmitContext context) {
+      EmitResult<Optional<Value>> lhsRes = emitExpression(binaryExpr.getLeft(), context);
+      EmitResult<Optional<Value>> rhsRes = emitExpression(binaryExpr.getRight(), context);
+      if (lhsRes.isFailure()
+          || lhsRes.get().isEmpty()
+          || rhsRes.isFailure()
+          || rhsRes.get().isEmpty()) {
+        return EmitResult.failure(context, binaryExpr, "Could not resolve left or right operand.");
       }
+
+      Value lhs = lhsRes.get().get();
+      Value rhs = rhsRes.get().get();
 
       Optional<BinMode> binModeOpt =
           Optional.ofNullable(
@@ -664,9 +716,8 @@ public class JavaCompiler {
 
       if (binModeOpt.isPresent()) {
         var binOp =
-            context.insert(
-                new BinaryOp(context.loc(binaryExpr), lhs.get(), rhs.get(), binModeOpt.get()));
-        return Optional.of(binOp.getResult());
+            context.insert(new BinaryOp(context.loc(binaryExpr), lhs, rhs, binModeOpt.get()));
+        return EmitResult.of(binOp.getResult());
       }
 
       Optional<CompMode> compModeOpt =
@@ -682,12 +733,103 @@ public class JavaCompiler {
               });
       if (compModeOpt.isPresent()) {
         var compOp =
-            context.insert(
-                new CompareOp(context.loc(binaryExpr), lhs.get(), rhs.get(), compModeOpt.get()));
-        return Optional.of(compOp.getResult());
+            context.insert(new CompareOp(context.loc(binaryExpr), lhs, rhs, compModeOpt.get()));
+        return EmitResult.of(compOp.getResult());
       }
-      context.emitError(
-          binaryExpr, "Binary operator " + binaryExpr.getOperator() + " is not supported.");
+      return EmitResult.failure(
+          context,
+          binaryExpr,
+          "Binary operator " + binaryExpr.getOperator() + " is not supported.");
+    }
+
+    private static @NotNull String getResolvedFuncName(
+        String funcName, List<Type> args, EmitContext context) {
+      StringBuilder sb = new StringBuilder(funcName);
+      for (Type arg : args) {
+        sb.append("_");
+        sb.append(arg);
+      }
+      return sb.toString();
+    }
+
+    /**
+     * Emit a function call.
+     *
+     * @param methodCallExpr the method call expression to emit.
+     * @param context the emit context.
+     * @return the optional value resulting from the function call, or an empty optional if there
+     *     was an error during emission.
+     */
+    private @NotNull EmitResult<Optional<Value>> emitFunctionCall(
+        MethodCallExpr methodCallExpr, EmitContext context) {
+      // Get the call args of the method
+      List<Value> args = new ArrayList<>();
+      for (Expression arg : methodCallExpr.getArguments()) {
+        EmitResult<Optional<Value>> argValue = emitExpression(arg, context);
+        if (argValue.isFailure() || argValue.get().isEmpty()) {
+          return EmitResult.failure(
+              context, methodCallExpr, "Could not resolve argument " + arg + " of method call.");
+        }
+        args.add(argValue.get().get());
+      }
+      List<Type> argTypes = args.stream().map(Value::getType).toList();
+
+      Optional<MethodDeclaration> targetMethodOpt =
+          findTargetMethod(methodCallExpr, argTypes, context);
+      if (targetMethodOpt.isEmpty()) {
+        return EmitResult.failure(
+            context, methodCallExpr, "Method " + methodCallExpr.getNameAsString() + " not found.");
+      }
+
+      String funcName = getResolvedFuncName(methodCallExpr.getNameAsString(), argTypes, context);
+      Optional<Type> returnType = Optional.empty();
+      if (!targetMethodOpt.get().getType().isVoidType()) {
+        returnType = fromAstType(targetMethodOpt.get().getType(), context);
+      }
+      FuncOps.CallOp callOp =
+          context.insert(
+              new FuncOps.CallOp(
+                  context.loc(methodCallExpr), funcName, args, returnType.orElse(null)));
+
+      return EmitResult.success(callOp.getOutput().map(OperationResult::getValue));
+    }
+
+    /**
+     * Find the method declaration corresponding to a method call with the given argument types.
+     * This is used to resolve overloaded method calls. If no method declaration is found, an error
+     * is emitted and an empty optional is returned.
+     *
+     * @param site the method call site
+     * @param args the argument types of the method call
+     * @param context the emit context
+     * @return the method declaration corresponding to the method call, or an empty optional if no
+     */
+    private Optional<MethodDeclaration> findTargetMethod(
+        MethodCallExpr site, List<Type> args, EmitContext context) {
+      // Go upwards from this node to find the method declaration.
+      Optional<Node> currentNode = Optional.of(site);
+      while (currentNode.isPresent()) {
+        if (currentNode.get() instanceof ClassOrInterfaceDeclaration classDecl) {
+          for (MethodDeclaration method : classDecl.getMethodsByName(site.getName().asString())) {
+            if (method.getParameters().size() != args.size()) {
+              continue;
+            }
+            // Currently no support for implicit casts.
+            boolean allArgsMatch = true;
+            for (int i = 0; i < args.size(); i++) {
+              Optional<Type> paramTypeOpt = fromAstType(method.getParameter(i).getType(), context);
+              if (paramTypeOpt.isEmpty() || !paramTypeOpt.get().equals(args.get(i))) {
+                allArgsMatch = false;
+                break;
+              }
+            }
+            if (allArgsMatch) {
+              return Optional.of(method);
+            }
+          }
+        }
+        currentNode = currentNode.get().getParentNode();
+      }
       return Optional.empty();
     }
   }

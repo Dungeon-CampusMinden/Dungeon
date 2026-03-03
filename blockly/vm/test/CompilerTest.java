@@ -3,6 +3,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import compiler.java.JavaCompiler;
 import core.serialization.Utils;
+import dgir.vm.api.OpRunnerRegistry;
+import dgir.vm.api.VM;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -19,6 +21,7 @@ public class CompilerTest {
   public static boolean printResult = true;
   public static boolean saveResult = true;
   public static String savePath = "test_results/";
+  public static VM vm = new VM();
 
   public static void testSource(String source) {
     String callerName = core.Utils.getCallingMethodName();
@@ -48,9 +51,9 @@ public class CompilerTest {
       }
     }
 
-    assert programOp.get().verify(true) : "Verification failed";
-
     String result = Utils.getMapper(true).writeValueAsString(programOp.get());
+    assert programOp.get().verify(true) : "Verification failed\n" + result;
+
     if (printResult) System.out.println(result);
     if (saveResult) {
       String filePath = savePath + callerName + ".json";
@@ -62,6 +65,14 @@ public class CompilerTest {
       } catch (IOException e) {
         System.out.println("Failed to save result to " + filePath + ": " + e);
       }
+    }
+
+    OpRunnerRegistry.registerAllRunners();
+    vm.init(programOp.get());
+    try {
+      assert vm.run() : "Execution failed";
+    } catch (Exception e) {
+      throw new RuntimeException("Execution failed", e);
     }
   }
 
@@ -105,6 +116,42 @@ public class %ClassName {
   }
 
   @Test
+  void variableAssignment_scoped() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 5;
+    {
+      int y = 10;
+      x = y;
+    }
+    int z = x + 5;
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void variableAssignment_unaryExpr() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 5;
+    x = -x;
+    x = +x;
+    x = ~x;
+    boolean y = true;
+    y = !y;
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
   void variableAssignment_binaryExpr() {
     String code =
 """
@@ -121,6 +168,45 @@ public class %ClassName {
     float i = h % 4;
     int j = 4 + 3;
     float k = 4 + 3f * 2 / 4;
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void functionCall() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int result = add(5, 10);
+  }
+
+  public static int add(int a, int b) {
+    return a + b;
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void functionCallWithOverload() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int result = add(5, 10);
+    float resultfloat = add(5f, 10f);
+  }
+
+  public static int add(int a, int b) {
+    return a + b;
+  }
+
+  public static float add(float a, float b) {
+    return a + b;
   }
 }
 """;
