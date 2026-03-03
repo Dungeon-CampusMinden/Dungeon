@@ -39,7 +39,6 @@ jobs:
 
             # 4. Beide JARs bauen (Desktop und Web)
             - name: Build JARs with Gradle
-                # Wir rufen hier deine beiden neuen Tasks auf
               run: ./gradlew jarDesktop jarWeb
 
             # 5. Beide JAR-Artefakte für den nächsten Job speichern
@@ -47,9 +46,7 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   name: Blockly-JARs
-                  # Der Stern sorgt dafür, dass alle Dateien im Ordner genommen werden
                   path: blockly/build/libs/*.jar
-
     deploy:
       needs: build
       runs-on: ubuntu-latest
