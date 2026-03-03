@@ -373,7 +373,7 @@ public sealed interface FuncOps {
     @Contract(pure = true)
     public @NotNull BuiltinAttrs.TypeAttribute getTypeAttribute() {
       return getOperation()
-          .getAttributeAs(BuiltinAttrs.TypeAttribute.class, "type")
+          .getAttributeAs("type", BuiltinAttrs.TypeAttribute.class)
           .orElseThrow(() -> new RuntimeException("Type attribute not found"));
     }
 

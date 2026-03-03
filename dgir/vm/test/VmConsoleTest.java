@@ -1,11 +1,14 @@
-import static dialect.arith.ArithAttrs.*;
-import static dialect.arith.ArithOps.*;
+import static dialect.arith.ArithAttrs.BinModeAttr;
+import static dialect.arith.ArithOps.BinaryOp;
+import static dialect.arith.ArithOps.ConstantOp;
 import static dialect.builtin.BuiltinOps.ProgramOp;
 import static dialect.builtin.BuiltinTypes.*;
-import static dialect.cf.CfOps.*;
+import static dialect.cf.CfOps.BranchCondOp;
+import static dialect.cf.CfOps.BranchOp;
 import static dialect.func.FuncOps.*;
 import static dialect.func.FuncTypes.FuncType;
-import static dialect.io.IoOps.*;
+import static dialect.io.IoOps.ConsoleInOp;
+import static dialect.io.IoOps.PrintOp;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import core.debug.Location;
@@ -540,7 +543,7 @@ public class VmConsoleTest extends VmTestBase {
   }
 
   /**
-   * Tests CompareOp with constant integer operands: compares 10 &gt; 5 (true) and 3 &gt; 8 (false)
+   * Tests BinaryOp with constant integer operands: compares 10 &gt; 5 (true) and 3 &gt; 8 (false)
    * and prints the boolean results.
    */
   @Test
@@ -555,13 +558,13 @@ public class VmConsoleTest extends VmTestBase {
 
     var cmpGt =
         mainOp.addOperation(
-            new CompareOp(LOC, ten.getValue(), five.getValue(), CompModeAttr.CompMode.GT), 0);
+            new BinaryOp(LOC, ten.getValue(), five.getValue(), BinModeAttr.BinMode.GT), 0);
     var cmpLt =
         mainOp.addOperation(
-            new CompareOp(LOC, three.getValue(), eight.getValue(), CompModeAttr.CompMode.LT), 0);
+            new BinaryOp(LOC, three.getValue(), eight.getValue(), BinModeAttr.BinMode.LT), 0);
     var cmpEq =
         mainOp.addOperation(
-            new CompareOp(LOC, five.getValue(), five.getValue(), CompModeAttr.CompMode.EQ), 0);
+            new BinaryOp(LOC, five.getValue(), five.getValue(), BinModeAttr.BinMode.EQ), 0);
 
     var fmtGt = mainOp.addOperation(new ConstantOp(LOC, "10 > 5: %d\n"), 0);
     var fmtLt = mainOp.addOperation(new ConstantOp(LOC, "3 < 8: %d\n"), 0);
@@ -601,7 +604,7 @@ public class VmConsoleTest extends VmTestBase {
   }
 
   /**
-   * Tests CompareOp with two integers read from the console. The program reads two INT32 values,
+   * Tests BinaryOp with two integers read from the console. The program reads two INT32 values,
    * compares them with GE (greater-or-equal), and branches to print an appropriate message.
    *
    * <p>Tested with both orderings to exercise both branches.
@@ -621,7 +624,7 @@ public class VmConsoleTest extends VmTestBase {
     var b = entryBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
     var cmp =
         entryBlock.addOperation(
-            new CompareOp(LOC, a.getResult(), b.getResult(), CompModeAttr.CompMode.GE));
+            new BinaryOp(LOC, a.getResult(), b.getResult(), BinModeAttr.BinMode.GE));
     entryBlock.addOperation(
         new BranchCondOp(LOC, cmp.getOutputValue().orElseThrow(), geBlock, ltBlock));
 
@@ -652,12 +655,12 @@ public class VmConsoleTest extends VmTestBase {
   }
 
   /**
-   * Tests combining BinaryOp and CompareOp with console input. The program reads two integers,
+   * Tests combining BinaryOp and BinaryOp with console input. The program reads two integers,
    * computes their product, then checks whether the product exceeds a constant threshold (100), and
    * prints a message accordingly.
    */
   @Test
-  void binaryOpAndCompareOpWithConsoleInputTest() {
+  void binaryOpAndBinaryOpWithConsoleInputTest() {
     ProgramOp programOp = new ProgramOp(LOC);
     FuncOp mainOp = programOp.addOperation(new FuncOp(LOC, "main"));
 
@@ -675,11 +678,11 @@ public class VmConsoleTest extends VmTestBase {
     var threshold = entryBlock.addOperation(new ConstantOp(LOC, 100));
     var cmp =
         entryBlock.addOperation(
-            new CompareOp(
+            new BinaryOp(
                 LOC,
                 product.getOutputValue().orElseThrow(),
                 threshold.getValue(),
-                CompModeAttr.CompMode.GT));
+                BinModeAttr.BinMode.GT));
     entryBlock.addOperation(
         new BranchCondOp(LOC, cmp.getOutputValue().orElseThrow(), bigBlock, smallBlock));
 

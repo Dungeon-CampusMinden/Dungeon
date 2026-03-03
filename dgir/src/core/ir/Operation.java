@@ -412,7 +412,7 @@ public final class Operation implements Serializable {
    */
   @Contract(pure = true)
   public <T extends Attribute> @NotNull Optional<T> getAttributeAs(
-      @NotNull Class<T> clazz, @NotNull String name) {
+      @NotNull String name, @NotNull Class<T> clazz) {
     var attribute = getAttribute(name);
     if (attribute.isEmpty() || !clazz.isInstance(attribute.get())) return Optional.empty();
     return Optional.of(clazz.cast(attribute.get()));

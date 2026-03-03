@@ -68,7 +68,7 @@ public sealed interface ArithOps {
 
     @Override
     public Function<Operation, Boolean> getVerifier() {
-      return BinaryNumericOp::verifyBinaryNumericOperands;
+      return UnaryNumericOp::verifyUnaryNumericOperand;
     }
 
     protected static boolean verifyUnaryNumericOperand(@NotNull Operation operation) {
@@ -124,74 +124,12 @@ public sealed interface ArithOps {
     }
   }
 
-  /** Base class for binary numeric operations in the {@code arith} dialect. */
-  abstract class BinaryNumericOp extends ArithOp implements IBinaryOperands {
-
-    /** Default constructor used during dialect registration. */
-    BinaryNumericOp() {
-      super();
-    }
-
-    @Override
-    public Function<Operation, Boolean> getVerifier() {
-      return BinaryNumericOp::verifyBinaryNumericOperands;
-    }
-
-    protected static boolean verifyBinaryNumericOperands(@NotNull Operation operation) {
-      IBinaryOperands binaryOperands =
-          operation
-              .asTrait(IBinaryOperands.class)
-              .orElseThrow(
-                  () ->
-                      new AssertionError(
-                          "Operation does not implement IBinaryOperands: " + operation));
-      Type lhsType = binaryOperands.getLhs().getType();
-      Type rhsType = binaryOperands.getRhs().getType();
-      if (!isNumeric(lhsType) || !isNumeric(rhsType)) {
-        operation.emitError("Operands must be numeric");
-        return false;
-      }
-      return true;
-    }
-  }
-
-  /** Base class for binary numeric ops that return the dominant operand type. */
-  abstract class BinaryNumericResultOp extends BinaryNumericOp implements IHasResult {
-    /** Default constructor used during dialect registration. */
-    BinaryNumericResultOp() {
-      super();
-    }
-
-    @Override
-    public Function<Operation, Boolean> getVerifier() {
-      return operation -> {
-        if (!verifyBinaryNumericOperands(operation)) {
-          return false;
-        }
-        var binaryOp = operation.asTrait(IBinaryOperands.class).orElseThrow();
-        if (operation.getOutput().isEmpty()) {
-          operation.emitError("Operation must have an output");
-          return false;
-        }
-        var lhsType = binaryOp.getLhs().getType();
-        var rhsType = binaryOp.getRhs().getType();
-        var expectedType = getDominantType(lhsType, rhsType);
-        var actualType = operation.getOutput().map(OperationResult::getType).orElseThrow();
-        if (!actualType.equals(expectedType)) {
-          operation.emitError("Result type must be the dominant operand type");
-          return false;
-        }
-        return true;
-      };
-    }
-  }
-
   /**
    * Unified binary numeric operation for the {@code arith} dialect.
    *
    * <p>MLIR reference: {@code arith.bin}
    */
-  final class BinaryOp extends BinaryNumericResultOp implements ArithOps {
+  final class BinaryOp extends ArithOp implements ArithOps, IBinaryOperands, IHasResult {
 
     @Override
     public @NotNull String getIdent() {
@@ -206,19 +144,53 @@ public sealed interface ArithOps {
     @Override
     public Function<Operation, Boolean> getVerifier() {
       return operation -> {
-        if (!super.getVerifier().apply(operation)) {
+        BinaryOp binaryOp = operation.as(BinaryOp.class).orElseThrow();
+        Type lhsType = binaryOp.getLhs().getType();
+        Type rhsType = binaryOp.getRhs().getType();
+        if (!isNumeric(lhsType) || !isNumeric(rhsType)) {
+          binaryOp.emitError("Operands must be numeric");
           return false;
         }
-        if (operation.getAttributeAs(BinModeAttr.class, "binMode").isEmpty()) {
-          operation.emitError("Binary operation must define a binMode attribute");
+
+        if (binaryOp.getAttributeAs("binMode", BinModeAttr.class).isEmpty()) {
+          binaryOp.emitError("Binary operation must define a binMode attribute");
           return false;
         }
-        BinMode binMode = operation.getAttributeAs(BinModeAttr.class, "binMode").get().getMode();
-        Optional<String> modeError =
-            binMode.verifier.apply(operation.as(BinaryOp.class).orElseThrow());
+        BinMode binMode = binaryOp.getAttributeAs("binMode", BinModeAttr.class).get().getMode();
+        Optional<String> modeError = binMode.operandsVerifier.apply(binaryOp);
         if (modeError.isPresent()) {
-          operation.emitError(modeError.get());
+          binaryOp.emitError(modeError.get());
           return false;
+        }
+        switch (binMode) {
+          // Regular arithmetic operations.
+          case ADD, SUB, MUL, DIV, MOD -> {
+            if (!binaryOp.getResult().getType().equals(getDominantType(lhsType, rhsType))) {
+              binaryOp.emitError("Result type must be the dominant type of LHS and RHS");
+              return false;
+            }
+          }
+          // Binary logical operations.
+          case BOR, BAND, BXOR -> {
+            if (!binaryOp.getResult().getType().equals(lhsType)) {
+              binaryOp.emitError("Result type must match LHS and RHS type");
+              return false;
+            }
+          }
+          // Binary shift operations.
+          case LSH, RSHS, RSHU -> {
+            if (!binaryOp.getResult().getType().equals(lhsType)) {
+              binaryOp.emitError("Result type must match LHS type");
+              return false;
+            }
+          }
+          // Logical operations.
+          case AND, OR, XOR, EQ, NE, LT, LE, GT, GE -> {
+            if (!binaryOp.getResult().getType().equals(IntegerT.BOOL)) {
+              binaryOp.emitError("Result type must be boolean");
+              return false;
+            }
+          }
         }
         return true;
       };

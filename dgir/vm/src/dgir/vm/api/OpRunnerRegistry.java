@@ -5,7 +5,6 @@ import core.ir.Operation;
 import core.ir.OperationDetails;
 import dgir.vm.dialect.arith.BinaryRunner;
 import dgir.vm.dialect.arith.CastRunner;
-import dgir.vm.dialect.arith.CompareRunner;
 import dgir.vm.dialect.arith.ConstantRunner;
 import dgir.vm.dialect.builtin.IdRunner;
 import dgir.vm.dialect.builtin.ProgramRunner;
@@ -83,7 +82,7 @@ public class OpRunnerRegistry {
   public static void registerAllRunners() {
     // arith
     List<OpRunner> arithRunners =
-        List.of(new ConstantRunner(), new BinaryRunner(), new CompareRunner(), new CastRunner());
+        List.of(new ConstantRunner(), new BinaryRunner(), new CastRunner());
     registerOpRunners(arithRunners);
 
     // builtin

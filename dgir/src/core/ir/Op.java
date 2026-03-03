@@ -269,7 +269,7 @@ public abstract class Op {
   @Contract(pure = true)
   public <T extends Attribute> @NotNull Optional<T> getAttributeAs(
       @NotNull String name, @NotNull Class<T> clazz) {
-    return getOperation().getAttributeAs(clazz, name);
+    return getOperation().getAttributeAs(name, clazz);
   }
 
   public void setAttribute(@NotNull String name, @NotNull Attribute attribute) {

@@ -30,7 +30,7 @@ public interface ISymbol extends IOpTrait {
   @Contract(pure = true)
   default @NotNull String getSymbol() {
     return getOperation()
-        .getAttributeAs(StringAttribute.class, SymbolTable.getSymbolAttributeName())
+        .getAttributeAs(SymbolTable.getSymbolAttributeName(), StringAttribute.class)
         .orElseThrow()
         .getValue();
   }

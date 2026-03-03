@@ -1,11 +1,11 @@
 package dialect.builtin;
 
 import static dialect.builtin.BuiltinTypes.*;
-import static dialect.builtin.BuiltinTypes.IntegerT;
-import static dialect.builtin.BuiltinTypes.StringT;
 import static dialect.func.FuncOps.CallOp;
 import static dialect.func.FuncOps.FuncOp;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import core.Dialect;
 import core.ir.Attribute;
 import core.ir.Type;
@@ -100,7 +100,9 @@ public sealed interface BuiltinAttrs {
      *     IntegerT#convertToValidNumber(Number)}.
      * @param type the integer type that determines the bit-width.
      */
-    public IntegerAttribute(Number value, IntegerT type) {
+    @JsonCreator
+    public IntegerAttribute(
+        @JsonProperty("value") Number value, @JsonProperty("type") IntegerT type) {
       super(type);
       this.value = type.convertToValidNumber(value);
     }
@@ -155,7 +157,9 @@ public sealed interface BuiltinAttrs {
       this.value = value;
     }
 
-    public FloatAttribute(@NotNull Number value, @NotNull FloatT type) {
+    @JsonCreator
+    public FloatAttribute(
+        @JsonProperty("value") @NotNull Number value, @JsonProperty("type") @NotNull FloatT type) {
       super(type);
       this.value = value;
     }
@@ -173,7 +177,6 @@ public sealed interface BuiltinAttrs {
 
     public void setValue(@NotNull Number value) {
       this.value = ((FloatT) getType()).convertToValidNumber(value);
-      ;
     }
   }
 

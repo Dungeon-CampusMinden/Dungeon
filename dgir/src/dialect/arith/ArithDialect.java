@@ -1,17 +1,16 @@
 package dialect.arith;
 
+import static dialect.arith.ArithOps.*;
+
 import core.Dialect;
 import core.Utils;
 import core.ir.Attribute;
 import core.ir.Op;
 import core.ir.Type;
+import java.util.List;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
-
-import java.util.List;
-
-import static dialect.arith.ArithOps.*;
 
 /**
  * The {@code arith} dialect provides basic arithmetic operations.
@@ -23,7 +22,7 @@ import static dialect.arith.ArithOps.*;
  * <ul>
  *   <li>{@link ConstantOp} — produces a constant value
  *   <li>{@link BinaryOp} — unified binary numeric operation
- *   <li>{@link CompareOp} — compares two numeric operands
+ *   <li>{@link BinaryOp} — compares two numeric operands
  *   <li>{@link CastOp} — casts a numeric operand to a target type
  * </ul>
  */

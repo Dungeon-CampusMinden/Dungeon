@@ -24,7 +24,7 @@ public class BinaryRunner extends OpRunner {
     var rhs = NumericUtils.getNumber(state, binOp.getRhs());
     var resultType = binOp.getResultType();
 
-    var result = binaryNumeric(lhs, rhs, resultType, binOp.getMode());
+    var result = binaryOperation(lhs, rhs, resultType, binOp.getMode());
     state.setValueForOutput(op, result);
     return Action.Next();
   }
@@ -36,7 +36,7 @@ public class BinaryRunner extends OpRunner {
    * appropriate integer type. Supported operations are addition, subtraction, multiplication,
    * division, and modulus.
    */
-  static @NotNull Number binaryNumeric(
+  static @NotNull Number binaryOperation(
       @NotNull Number lhs,
       @NotNull Number rhs,
       @NotNull Type resultType,
@@ -51,6 +51,13 @@ public class BinaryRunner extends OpRunner {
           case MUL -> left * right;
           case DIV -> left / right;
           case MOD -> left % right;
+          case LT -> left < right ? 1 : 0;
+          case LE -> left <= right ? 1 : 0;
+          case GT -> left > right ? 1 : 0;
+          case GE -> left >= right ? 1 : 0;
+          case EQ -> left == right ? 1 : 0;
+          case NE -> left != right ? 1 : 0;
+          default -> throw new IllegalArgumentException("Unsupported float operation: " + binMode);
         };
       }
       double left = lhs.doubleValue();
@@ -61,6 +68,13 @@ public class BinaryRunner extends OpRunner {
         case MUL -> left * right;
         case DIV -> left / right;
         case MOD -> left % right;
+        case LT -> left < right ? 1 : 0;
+        case LE -> left <= right ? 1 : 0;
+        case GT -> left > right ? 1 : 0;
+        case GE -> left >= right ? 1 : 0;
+        case EQ -> left == right ? 1 : 0;
+        case NE -> left != right ? 1 : 0;
+        default -> throw new IllegalArgumentException("Unsupported double operation: " + binMode);
       };
     }
 
@@ -74,6 +88,23 @@ public class BinaryRunner extends OpRunner {
             case MUL -> left * right;
             case DIV -> left / right;
             case MOD -> left % right;
+            case BOR -> left | right;
+            case BAND -> left & right;
+            case BXOR -> left ^ right;
+            case LSH -> left << right;
+            case RSHS -> left >> right;
+            case RSHU -> left >>> right;
+            case AND -> (left != 0) && (right != 0) ? 1 : 0;
+            case OR -> (left != 0) || (right != 0) ? 1 : 0;
+            case XOR -> ((left != 0) ^ (right != 0)) ? 1 : 0;
+            case LT -> left < right ? 1 : 0;
+            case LE -> left <= right ? 1 : 0;
+            case GT -> left > right ? 1 : 0;
+            case GE -> left >= right ? 1 : 0;
+            case EQ -> left == right ? 1 : 0;
+            case NE -> left != right ? 1 : 0;
+            default ->
+                throw new IllegalArgumentException("Unsupported integer operation: " + binMode);
           };
       return integerT.convertToValidNumber(result);
     }
@@ -81,4 +112,3 @@ public class BinaryRunner extends OpRunner {
     throw new IllegalArgumentException("Unsupported numeric result type: " + resultType);
   }
 }
-

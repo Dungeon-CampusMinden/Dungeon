@@ -70,7 +70,7 @@ public class SymbolTable {
   @Contract(pure = true)
   private static @NotNull Optional<String> getNameIfSymbol(
       @NotNull Operation op, @NotNull String symbolAttributeName) {
-    var attr = op.getAttributeAs(StringAttribute.class, symbolAttributeName);
+    var attr = op.getAttributeAs(symbolAttributeName, StringAttribute.class);
     return attr.map(StringAttribute::getValue);
   }
 

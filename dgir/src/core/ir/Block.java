@@ -257,4 +257,12 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   public boolean isBefore(@NotNull Operation a, @NotNull Operation b) {
     return operations.indexOf(a) < operations.indexOf(b);
   }
+
+  // =========================================================================
+  // Object
+  // =========================================================================
+  @Override
+  public String toString() {
+    return "Block{" + "operations=" + operations + '}';
+  }
 }

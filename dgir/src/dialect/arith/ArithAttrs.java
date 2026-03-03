@@ -91,17 +91,17 @@ public sealed interface ArithAttrs {
 
       // Bitwise
       /** Bitwise OR */
-      BOR(BinMode::onlyNumericOperands),
+      BOR(BinMode::onlySameIntegerOperands),
       /** Bitwise AND */
-      BAND(BinMode::onlyNumericOperands),
+      BAND(BinMode::onlySameIntegerOperands),
       /** Bitwise XOR */
-      BXOR(BinMode::onlyNumericOperands),
+      BXOR(BinMode::onlySameIntegerOperands),
       /** Bitwise shift left */
-      LSH(BinMode::onlyNumericOperands),
+      LSH(BinMode::onlyIntegerOperands),
       /** Signed bitwise shift right */
-      RSHS(BinMode::onlyNumericOperands),
+      RSHS(BinMode::onlyIntegerOperands),
       /** Unsigned bitwise shift right */
-      RSHU(BinMode::onlyNumericOperands),
+      RSHU(BinMode::onlyIntegerOperands),
 
       // Logical
       AND(BinMode::onlyBooleanOperands),
@@ -115,10 +115,10 @@ public sealed interface ArithAttrs {
       EQ(BinMode::anyOperands),
       NE(BinMode::anyOperands);
 
-      public final @NotNull Function<@NotNull BinaryOp, @NotNull Optional<String>> verifier;
+      public final @NotNull Function<@NotNull BinaryOp, @NotNull Optional<String>> operandsVerifier;
 
-      BinMode(@NotNull Function<@NotNull BinaryOp, @NotNull Optional<String>> verifier) {
-        this.verifier = verifier;
+      BinMode(@NotNull Function<@NotNull BinaryOp, @NotNull Optional<String>> operandsVerifier) {
+        this.operandsVerifier = operandsVerifier;
       }
 
       static Optional<String> onlyNumericOperands(@NotNull BinaryOp binaryOp) {
@@ -140,6 +140,35 @@ public sealed interface ArithAttrs {
         if (widthRhs <= 1) {
           return Optional.of("RHS must be a numeric type with a width greater than 1");
         }
+        return Optional.empty();
+      }
+
+      static Optional<String> onlyIntegerOperands(@NotNull BinaryOp binaryOp) {
+        int widthLhs =
+            switch (binaryOp.getLhs().getType()) {
+              case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
+              default -> 0;
+            };
+        int widthRhs =
+            switch (binaryOp.getRhs().getType()) {
+              case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
+              default -> 0;
+            };
+        if (widthLhs <= 1) {
+          return Optional.of("LHS must be an integer type with a width greater than 1");
+        }
+        if (widthRhs <= 1) {
+          return Optional.of("RHS must be an integer type with a width greater than 1");
+        }
+        return Optional.empty();
+      }
+
+      static Optional<String> onlySameIntegerOperands(@NotNull BinaryOp binaryOp) {
+        Optional<String> error = onlyIntegerOperands(binaryOp);
+        if (error.isPresent()) return error;
+
+        if (!binaryOp.getResult().getType().equals(binaryOp.getLhs().getType()))
+          return Optional.of("Operands must be of the same type");
         return Optional.empty();
       }
 
