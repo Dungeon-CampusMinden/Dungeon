@@ -38,12 +38,22 @@ tasks.register('runBlockly', JavaExec) {
     errorOutput = System.err
 }
 
+tasks.register("npmInstall", Exec) {
+    group = 'build'
+    workingDir = file("$projectDir/frontend")
+    def os = System.getProperty('os.name').toLowerCase()
+    commandLine os.contains('windows') ? ['npm.cmd', 'install'] : ['npm', 'install']
+}
+
+
 tasks.register("npmBuild", Exec) {
     group = 'build'
     workingDir = file("$projectDir/frontend")
 
     def os = System.getProperty('os.name').toLowerCase()
     commandLine os.contains('windows') ? ['npm.cmd', 'run', 'build'] : ['npm', 'run', 'build']
+
+    dependsOn 'npmInstall'
 }
 
 
