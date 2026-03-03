@@ -44,6 +44,7 @@ import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
 import modules.computer.*;
+import modules.computer.content.BlogTab;
 import modules.trash.TrashMinigameUI;
 import util.LastHourSounds;
 import util.Lore;
@@ -56,7 +57,9 @@ public class LastHourLevel extends DungeonLevel {
 
   private DoorTile storageDoor;
   private Entity pc;
+  private ComputerStateComponent cscLastTick;
   private Entity keypad;
+  private int lastKnownVisibleCommentCount = 0;
 
   /** The state of the PC when it's off. */
   public static final String PC_STATE_OFF = "off";
@@ -91,7 +94,7 @@ public class LastHourLevel extends DungeonLevel {
 
     keypad =
         KeypadFactory.createKeypad(
-            getPoint("keypad-storage"), List.of(1, 2, 3, 4), () -> storageDoor.open(), true);
+            getPoint("keypad-storage"), Lore.DoorCode, () -> storageDoor.open(), true);
     Game.add(keypad);
 
     setupPC();
@@ -128,7 +131,6 @@ public class LastHourLevel extends DungeonLevel {
                       .fetch(InputComponent.class)
                       .ifPresent(
                           pc -> {
-                            pc.deactivateControls(true);
                             BlackFadeCutscene.show(
                                 Lore.OutroTexts, true, false, () -> Game.exit("Win"));
                           });
@@ -310,7 +312,7 @@ public class LastHourLevel extends DungeonLevel {
 
   private static final Deco[] trashcans = {Deco.TrashCanBlue, Deco.TrashCanGreen, Deco.TrashCanRed};
   private static final String trashNote = "images/note-password-2.png";
-  private static final int trashIndex = 5;
+  private static final int trashIndex = 3;
 
   private void setupTrashcans() {
     DialogFactory.register(LastHourDialogTypes.TRASHCAN, TrashMinigameUI::build);
@@ -416,8 +418,13 @@ public class LastHourLevel extends DungeonLevel {
     }
 
     ComputerStateComponent csc = ComputerStateComponent.getState().get();
+    if(cscLastTick == null) {
+      cscLastTick = csc;
+      return; // Skip update check on first tick.
+    }
+
     DrawComponent dc = pc.fetch(DrawComponent.class).orElseThrow();
-    if (!dc.currentStateName().equals(pcStateToDCState(csc))) {
+    if (!pcStateToDCState(cscLastTick).equals(pcStateToDCState(csc))) {
       // Update local state to match shared state
       if (csc.isInfected()) {
         dc.sendSignal(PC_SIGNAL_INFECT);
@@ -432,13 +439,28 @@ public class LastHourLevel extends DungeonLevel {
       }
     }
 
-    ComputerDialog.getInstance()
+    // Detect transition to LOGGED_IN and set BlogTab login timestamp
+    if (cscLastTick.state() != ComputerProgress.LOGGED_IN
+        && csc.state() == ComputerProgress.LOGGED_IN) {
+      BlogTab.setTimestampOfLogin((int) (System.currentTimeMillis() / 1000L));
+    }
+
+    // Check if a new blog comment has become visible and play a notification sound
+    if (csc.state().hasReached(ComputerProgress.LOGGED_IN)) {
+      int currentVisibleComments = BlogTab.countVisibleComments();
+      if (currentVisibleComments > lastKnownVisibleCommentCount) {
+        Sounds.play(CoreSounds.INTERFACE_BUTTON_BACKWARD);
+      }
+      lastKnownVisibleCommentCount = currentVisibleComments;
+    }
+
+    if (cscLastTick != csc) {
+      ComputerDialog.getInstance()
         .ifPresent(
-            cd -> {
-              if (cd.sharedState() != csc) {
-                cd.updateState(csc);
-              }
-            });
+          cd -> cd.updateState(csc));
+    }
+
+    cscLastTick = csc;
   }
 
   static Entity interactableEntity = null;
