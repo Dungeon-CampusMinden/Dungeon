@@ -166,14 +166,14 @@ public class JoystickSystem extends System {
       return;
     }
     if (moveLeftVector.y() > 0) {
-      Game.network().sendInput(new InputMessage(InputMessage.Action.MOVE, Direction.UP));
+      Game.network().sendInput(InputMessage.move(Direction.UP));
     } else if (moveLeftVector.y() < 0) {
-      Game.network().sendInput(new InputMessage(InputMessage.Action.MOVE, Direction.DOWN));
+      Game.network().sendInput(InputMessage.move(Direction.DOWN));
     }
     if (moveLeftVector.x() > 0) {
-      Game.network().sendInput(new InputMessage(InputMessage.Action.MOVE, Direction.RIGHT));
+      Game.network().sendInput(InputMessage.move(Direction.RIGHT));
     } else if (moveLeftVector.x() < 0) {
-      Game.network().sendInput(new InputMessage(InputMessage.Action.MOVE, Direction.LEFT));
+      Game.network().sendInput(InputMessage.move(Direction.LEFT));
     }
   }
 
@@ -188,16 +188,16 @@ public class JoystickSystem extends System {
    */
   private void handleActions(Controller controller, Point target) {
     if (isRtTriggerJustPressed(controller)) {
-      Game.network().sendInput(new InputMessage(InputMessage.Action.CAST_SKILL, target));
+      Game.network().sendInput(InputMessage.castSkill(target, true));
     }
     if (isJustPressed(controller, JoystickConfig.BUTTON_INTERACT)) {
-      Game.network().sendInput(new InputMessage(InputMessage.Action.INTERACT, target));
+      Game.network().sendInput(InputMessage.interact(target));
     }
     if (isJustPressed(controller, JoystickConfig.BUTTON_NEXT_SKILL)) {
-      Game.network().sendInput(new InputMessage(InputMessage.Action.NEXT_SKILL, Vector2.ZERO));
+      Game.network().sendInput(InputMessage.nextSkill(true));
     }
     if (isJustPressed(controller, JoystickConfig.BUTTON_PREV_SKILL)) {
-      Game.network().sendInput(new InputMessage(InputMessage.Action.PREV_SKILL, Vector2.ZERO));
+      Game.network().sendInput(InputMessage.prevSkill(true));
     }
   }
 
