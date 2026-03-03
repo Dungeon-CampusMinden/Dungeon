@@ -13,6 +13,7 @@ import java.util.*;
 import modules.computer.ComputerFactory;
 import modules.computer.ComputerStateComponent;
 import util.LastHourSounds;
+import util.Lore;
 
 /** Tab content for when the computer is infected with a virus. */
 public class VirusTab extends ComputerTab {
@@ -21,13 +22,6 @@ public class VirusTab extends ComputerTab {
   public static String KEY = "virus";
 
   private String virusType;
-  private final Map<String, String> typeToCode =
-      Map.of(
-          "Trojan", "ESCAPE",
-          "Ransomware", "ESCAPE",
-          "Spyware", "ESCAPE",
-          "Adware", "ESCAPE",
-          "Worm", "ESCAPE");
 
   /**
    * Creates a new VirusTab with the given shared computer state.
@@ -69,7 +63,7 @@ public class VirusTab extends ComputerTab {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             String inputCode = codeField.getText();
-            if (virusType == null || inputCode.equals(typeToCode.get(virusType))) {
+            if (virusType == null || inputCode.equals(Lore.VirusTypeToCode.get(virusType))) {
               virusLabel.setText("Virus Neutralized!");
               virusLabel.setColor(new Color(0, 0.8f, 0, 1));
               virusLabel.addAction(
