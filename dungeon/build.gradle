@@ -48,7 +48,7 @@ protobuf {
 sourceSets {
     main {
         java {
-            srcDirs = ['src/', "$buildDir/generated/source/proto/main/java"]
+            srcDirs = ['src/', "$buildDir/generated/sources/proto/main/java"]
         }
         resources {
             srcDirs = ['assets/']
