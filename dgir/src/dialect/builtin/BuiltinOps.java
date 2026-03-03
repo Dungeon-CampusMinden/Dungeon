@@ -190,9 +190,9 @@ public sealed interface BuiltinOps {
 
     private IdOp() {}
 
-    public IdOp(@NotNull Location location, @NotNull Value value, @NotNull Value target) {
-      setOperation(true, Operation.Create(location, this, List.of(value), null, value.getType()));
-      setOutputValue(target);
+    public IdOp(@NotNull Location location, @NotNull Value from, @NotNull Value to) {
+      setOperation(true, Operation.Create(location, this, List.of(from), null, from.getType()));
+      setOutputValue(to);
     }
   }
 }

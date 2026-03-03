@@ -142,7 +142,9 @@ public class %ClassName {
     int x = 5;
     x = -x;
     x = +x;
-    x = ~x;
+    x++;
+    ++x;
+    int z = x++;
     boolean y = true;
     y = !y;
   }
@@ -207,6 +209,24 @@ public class %ClassName {
 
   public static float add(float a, float b) {
     return a + b;
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void assignmentOperators() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 5;
+    x += 10;
+    x -= 5;
+    x *= 2;
+    x /= 2;
+    x %= 4;
   }
 }
 """;

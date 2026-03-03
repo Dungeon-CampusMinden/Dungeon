@@ -589,27 +589,37 @@ public class JavaCompiler {
 
     @Override
     public void visit(AssignExpr n, EmitContext context) {
-      if (!n.getTarget().isNameExpr()) {
-        context.emitError(n, "Assignment target " + n.getTarget() + " is not a variable.");
+      EmitResult<Optional<Value>> targetValueRes = emitExpression(n.getTarget(), context);
+      if (targetValueRes.isFailure() || targetValueRes.get().isEmpty()) {
         return;
       }
-
-      String varName = n.getTarget().asNameExpr().getName().asString();
-      var targetValueOpt = resolveName(varName, n.getTarget(), context);
-      if (targetValueOpt.isEmpty()) {
-        return;
-      }
+      Value targetValue = targetValueRes.get().get();
 
       EmitResult<Optional<Value>> rhs = emitExpression(n.getValue(), context);
       if (rhs.isFailure() || rhs.get().isEmpty()) {
         return;
       }
+
       Value rhsValue = rhs.get().get();
+
       if (n.getOperator() == AssignExpr.Operator.ASSIGN) {
-        context.insert(new BuiltinOps.IdOp(context.loc(n), rhsValue, targetValueOpt.get()));
+        context.insert(new BuiltinOps.IdOp(context.loc(n), rhsValue, targetValue));
         return;
       }
-      context.emitError(n, "Assignment operator " + n.getOperator() + " is not supported.");
+
+      EmitResult<Value> result =
+          emitBinary(
+              n,
+              n.getOperator().toBinaryOperator().get(),
+              targetValue,
+              rhsValue,
+              Optional.of(targetValue),
+              context);
+
+      if (result.isFailure()) {
+        context.emitError(
+            n, "Failed to emit binary operation for assignment operator " + n.getOperator());
+      }
     }
 
     @Override
@@ -661,7 +671,8 @@ public class JavaCompiler {
             resolveName(nameExpr.getName().asString(), nameExpr, context)
                 .map(value -> EmitResult.of(Optional.of(value)))
                 .orElse(EmitResult.failure());
-        case BinaryExpr binaryExpr -> emitBinary(binaryExpr, context).map(Optional::of);
+        case BinaryExpr binaryExpr ->
+            emitBinary(binaryExpr, context, Optional.empty()).map(Optional::of);
         case MethodCallExpr methodCallExpr -> emitFunctionCall(methodCallExpr, context);
         default -> {
           context.emitError(
@@ -687,7 +698,54 @@ public class JavaCompiler {
           .orElseGet(EmitResult::failure);
     }
 
-    private @NotNull EmitResult<Value> emitBinary(BinaryExpr binaryExpr, EmitContext context) {
+    private @NotNull EmitResult<Value> emitBinary(
+        Node site,
+        BinaryExpr.Operator operator,
+        Value lhs,
+        Value rhs,
+        @NotNull Optional<Value> targetValue,
+        EmitContext context) {
+      Optional<BinMode> binModeOpt =
+          Optional.ofNullable(
+              switch (operator) {
+                case PLUS -> BinMode.ADD;
+                case MINUS -> BinMode.SUB;
+                case MULTIPLY -> BinMode.MUL;
+                case DIVIDE -> BinMode.DIV;
+                case REMAINDER -> BinMode.MOD;
+                default -> null;
+              });
+
+      if (binModeOpt.isPresent()) {
+        var binOp = context.insert(new BinaryOp(context.loc(site), lhs, rhs, binModeOpt.get()));
+        targetValue.ifPresent(binOp::setOutputValue);
+        return EmitResult.of(binOp.getResult());
+      }
+
+      Optional<CompMode> compModeOpt =
+          Optional.ofNullable(
+              switch (operator) {
+                case EQUALS -> CompMode.EQ;
+                case NOT_EQUALS -> CompMode.NE;
+                case LESS -> CompMode.LT;
+                case GREATER -> CompMode.GT;
+                case LESS_EQUALS -> CompMode.LE;
+                case GREATER_EQUALS -> CompMode.GE;
+                default -> null;
+              });
+      if (compModeOpt.isPresent()) {
+        var compOp = context.insert(new CompareOp(context.loc(site), lhs, rhs, compModeOpt.get()));
+        targetValue.ifPresent(compOp::setOutputValue);
+        return EmitResult.of(compOp.getResult());
+      }
+      return EmitResult.failure(
+          context, site, "Binary operator " + operator + " is not supported.");
+    }
+
+    private @NotNull EmitResult<Value> emitBinary(
+        @NotNull BinaryExpr binaryExpr,
+        @NotNull EmitContext context,
+        @NotNull Optional<Value> targetValue) {
       EmitResult<Optional<Value>> lhsRes = emitExpression(binaryExpr.getLeft(), context);
       EmitResult<Optional<Value>> rhsRes = emitExpression(binaryExpr.getRight(), context);
       if (lhsRes.isFailure()
@@ -699,44 +757,7 @@ public class JavaCompiler {
 
       Value lhs = lhsRes.get().get();
       Value rhs = rhsRes.get().get();
-
-      Optional<BinMode> binModeOpt =
-          Optional.ofNullable(
-              switch (binaryExpr.getOperator()) {
-                case PLUS -> BinMode.ADD;
-                case MINUS -> BinMode.SUB;
-                case MULTIPLY -> BinMode.MUL;
-                case DIVIDE -> BinMode.DIV;
-                case REMAINDER -> BinMode.MOD;
-                default -> null;
-              });
-
-      if (binModeOpt.isPresent()) {
-        var binOp =
-            context.insert(new BinaryOp(context.loc(binaryExpr), lhs, rhs, binModeOpt.get()));
-        return EmitResult.of(binOp.getResult());
-      }
-
-      Optional<CompMode> compModeOpt =
-          Optional.ofNullable(
-              switch (binaryExpr.getOperator()) {
-                case EQUALS -> CompMode.EQ;
-                case NOT_EQUALS -> CompMode.NE;
-                case LESS -> CompMode.LT;
-                case GREATER -> CompMode.GT;
-                case LESS_EQUALS -> CompMode.LE;
-                case GREATER_EQUALS -> CompMode.GE;
-                default -> null;
-              });
-      if (compModeOpt.isPresent()) {
-        var compOp =
-            context.insert(new CompareOp(context.loc(binaryExpr), lhs, rhs, compModeOpt.get()));
-        return EmitResult.of(compOp.getResult());
-      }
-      return EmitResult.failure(
-          context,
-          binaryExpr,
-          "Binary operator " + binaryExpr.getOperator() + " is not supported.");
+      return emitBinary(binaryExpr, binaryExpr.getOperator(), lhs, rhs, targetValue, context);
     }
 
     private static @NotNull String getResolvedFuncName(
