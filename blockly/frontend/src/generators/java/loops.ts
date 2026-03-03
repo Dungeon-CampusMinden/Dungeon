@@ -11,7 +11,6 @@ export function repeat(block: Blockly.Block, generator: Blockly.Generator) {
 
   // create a variable name that is unique to this block (java var can only contain letters, _)
   const repeat_var = block.id.replace(/[^a-zA-Z_]/g, '');
-
   return "for(int " + repeat_var + " = 0; " + repeat_var + " < " + times + "; " + repeat_var + "++) {\n" + repeat_body + "\n}";
 }
 

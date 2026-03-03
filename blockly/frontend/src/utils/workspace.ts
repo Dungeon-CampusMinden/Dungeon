@@ -8,12 +8,13 @@ import {
   call_code_status_route
 } from "../api/api.ts";
 import {completeLevel, getCurrentLevel} from "./level.ts";
-import {updateElementAlignment, updatePopup} from "./popup.ts";
-import {checkIfVariablesAreDeclared, hasMissingIterationCount,
-  containsDirection,
-  hasEmptyWhileLoopHead, hasIfWithMissingCondition,
+import {updatePopup} from "./popup.ts";
+import {
+  checkIfVariablesAreDeclared, hasMissingIterationCount,
+  hasEmptyWhileLoopHead,
   hasIncompleteIfComparison, isHeroActiveWithoutParameters, isHeroInteractWithoutParameters,
-  isMissingDirectionInIsNearComponent, isMissingDirectionInIsNearTile
+  isMissingDirectionInIsNearComponent, isMissingDirectionInIsNearTile, containsString, hasMissingBossDirection,
+  hasEmptyNotCondition, hasIncompleteLogicalOperator
 } from "./errorChecking.ts";
 
 let startBlock: Blockly.Block | null = null;
@@ -241,55 +242,21 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
     // send the full program in a single request
     const fullProgram = codeSnippets.join("\n");
 
+    console.log(fullProgram);
 
-    const apiResponse = await call_code_route(fullProgram);
 
     // check if Variables are declared
-    const message = checkIfVariablesAreDeclared(codeSnippets);
-    updateElementAlignment();
-    // check if for loop has number of iterations
-    if (hasMissingIterationCount(fullProgram)) {
-      updatePopup("Die Anzahl der Iterationen fehlt in der Schleife.");
-      return;
-    } else if (message) {
-      updatePopup(message);
-      return;
-    } else if (hasEmptyWhileLoopHead(fullProgram)) {
-      updatePopup("In der While-Schleife ist keine Bedingung angegeben.");
-      return;
-    } else if (hasIfWithMissingCondition(fullProgram)) {
-      updatePopup("Im Wenn-Dann Befehl fehlt eine Abfrage.");
-      return;
-    } else if (isMissingDirectionInIsNearTile(fullProgram, "WALL")) {
-      updatePopup("Das Wand-Element braucht eine Richtungangabe");
-      return;
-    } else if (isMissingDirectionInIsNearTile(fullProgram, "FLOOR")) {
-      updatePopup("Das Boden-Element braucht eine Richtungsangabe");
-      return;
-    } else if (isMissingDirectionInIsNearTile(fullProgram, "PIT")) {
-      updatePopup("Das Loch-Element braucht eine Richtungsangabe.");
-      return;
-    } else if (isMissingDirectionInIsNearComponent(fullProgram, "LeverComponent")) {
-      updatePopup("Schalter/Fackel braucht eine Richtungsangabe.");
-      return;
-    } else if (isMissingDirectionInIsNearComponent(fullProgram, "AIComponent")) {
-      updatePopup("Das Monster-Element braucht eine Richtungsangabe.");
-      return;
-    } else if (isHeroActiveWithoutParameters(fullProgram)) {
-      updatePopup("Das Aktiv-Element braucht eine Richtungsangabe.");
-      return;
-    } else if (isHeroInteractWithoutParameters(fullProgram)) {
-      updatePopup("Das Benutzen braucht eine Richtungsangabe.");
-      return;
-    } else if (hasIncompleteIfComparison(fullProgram)) {
-      updatePopup("Bei einem Vergleich muss eine Wert auf beiden Seiten stehen");
-      return;
-    } else if (containsDirection(fullProgram)) {
-      updatePopup("Eine Rotation muss eine Richtungsangabe enthalten");
+    const error = validateProgram(fullProgram);
+
+    if (error) {
+      updatePopup(error);
+      buttons.startBtn.disabled = false;
       return;
     }
 
-    if (!apiResponse || message) {
+    const apiResponse = await call_code_route(fullProgram);
+
+    if (!apiResponse) {
 
       await call_clear_route();
       workspace.highlightBlock(null);
@@ -339,6 +306,36 @@ const setupResetButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg) => 
     await call_reset_route();
   });
 }
+
+const validateProgram = (fullProgram : string) => {
+  // 1. Definition der Validierungsregeln
+  const rules = [
+    { check: () => hasMissingIterationCount(fullProgram), msg: "Die Anzahl der Iterationen fehlt in der Schleife." },
+    { check: () => hasMissingBossDirection(fullProgram), msg: "Der Boss-guckt-Befehl braucht eine Richtungsangabe"},
+    { check: () => hasEmptyWhileLoopHead(fullProgram), msg: "In der While-Schleife ist keine Bedingung angegeben." },
+    { check: () => containsString(fullProgram,"missing if condition"), msg: "Im Wenn-Dann Befehl fehlt eine Abfrage." },
+    { check: () => isMissingDirectionInIsNearTile(fullProgram, "WALL"), msg: "Das Wand-Element braucht eine Richtungangabe" },
+    { check: () => isMissingDirectionInIsNearTile(fullProgram, "FLOOR"), msg: "Das Boden-Element braucht eine Richtungsangabe" },
+    { check: () => isMissingDirectionInIsNearTile(fullProgram, "PIT"), msg: "Das Loch-Element braucht eine Richtungsangabe." },
+    { check: () => isMissingDirectionInIsNearComponent(fullProgram, "LeverComponent"), msg: "Schalter/Fackel braucht eine Richtungsangabe." },
+    { check: () => isMissingDirectionInIsNearComponent(fullProgram, "AIComponent"), msg: "Das Monster-Element braucht eine Richtungsangabe" },
+    { check: () => isHeroActiveWithoutParameters(fullProgram), msg: "Das Aktiv-Element braucht eine Richtungsangabe." },
+    { check: () => isHeroInteractWithoutParameters(fullProgram), msg: "Das Benutzen braucht eine Richtungsangabe." },
+    { check: () => hasIncompleteIfComparison(fullProgram), msg: "Bei einem Vergleich muss eine Wert auf beiden Seiten stehen" },
+    { check: () => containsString(fullProgram, "no direction in rotation"), msg: "Eine Rotation muss eine Richtungsangabe enthalten" },
+    { check: () => containsString(fullProgram,"no value was assigned to the variable"), msg: "Der Variable wurde keine Wert zugewiesen" },
+    { check: () => hasEmptyNotCondition(fullProgram), msg: "Der Nicht-Befehl braucht eine Bedingung" },
+    { check: () => hasIncompleteLogicalOperator(fullProgram), msg: "Und und oder block nicht richtig benutzt"},
+    { check: () => checkIfVariablesAreDeclared(fullProgram), msg: checkIfVariablesAreDeclared(fullProgram)}
+  ];
+
+  // 2. Den ersten Fehler finden
+  const error = rules.find(rule => rule.check());
+
+  if (error == undefined) return ""
+
+  return error.msg;
+};
 
 /**
  * Place the default start block in the workspace

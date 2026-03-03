@@ -9,16 +9,6 @@ export function hasEmptyWhileLoopHead(code: string): boolean {
   return regex.test(code);
 }
 /**
- * Checks whether an if statement has a missing condition
- * @param code the code to check
- * @returns whether an if statmeent has a missing condition
- */
-export function hasIfWithMissingCondition(code: string): boolean {
-  const regex = /if\s*\(\s*falsch\s*\)/;
-
-  return regex.test(code);
-}
-/**
  * Checks whether a tile has no direction statement
  * @param code the code to check
  * @param tileType the tile type to check for in the code
@@ -81,78 +71,102 @@ export function isHeroInteractWithoutParameters(code: string): boolean {
  * @returns whether the if comparison is incomplete
  */
 export function hasIncompleteIfComparison(code: string): boolean {
-  const regex = /if\s*\(\s*([^\s=]*)?\s*==\s*([^\s)]*)?\s*\)/;
+  const incompletePattern = /\(\s*(?:==|!=|>=|<=|>|<)|(?:==|!=|>=|<=|>|<)\s*\)|(?:&&|\|\|)\s*(?:==|!=|>=|<=|>|<)|(?:==|!=|>=|<=|>|<)\s*(?:&&|\|\|)/;
 
-  // Teste, ob eine oder beide Seiten leer sind
-  const match = code.match(regex);
-  if (!match) return false;
-
-  const left = match[1] ?? "";
-  const right = match[2] ?? "";
-
-  // true wenn eine oder beide Seiten leer
-  return left.trim() === "" || right.trim() === "";
-
+  return incompletePattern.test(code);
 }
 
 /**
- * Check for the error message that a simple rotation has no direction
- * @param code whether the message is in the code
+ * Checks if a certain string is contained in the code
+ * @param code the code to check
+ * @param searchTerm to look for
+ * @returns whether the string is contaiend in the code
  */
-export function containsDirection(code: string): boolean {
-  return /keine\s+Richtungsangabe/.test(code);
+export function containsString(code: string, searchTerm: string): boolean {
+  return code.includes(searchTerm);
 }
 
+/**
+ * Check if there is an incomplete logical operation (&& or || operation)
+ * @param code the code to check
+ * @returns whether there is an incomplete logical operation
+ */
+export function hasIncompleteLogicalOperator(code: string): boolean {
+  const pattern = /(\(\s*&&|\(\s*\|\||&&\s*\)|\|\|\s*\))/;
+
+  return pattern.test(code);
+}
 /**
  *
  * Check if a variable is used but not initialized in the code
- * @param codeLines
- * @returns a message with the variable that is not declared
+ * @param fullProgram
+ @returns a message with the variable that is not declared
  */
-export const checkIfVariablesAreDeclared = (codeLines : string[]) => {
+export const checkIfVariablesAreDeclared = (fullProgram : string) => {
 
-// Globaler Scope
-  const scopes: Set<string>[] = [new Set<string>()];
-  let message = "";
+  const scopes = [new Set()];
+  const codeLines = fullProgram.split("\n");
+
+  const keywords = new Set(["if", "else", "while", "for", "return", "let", "var", "const", "int", "true", "false", "hero", "move"]);
+
   for (let line of codeLines) {
     line = line.trim();
+    if (!line) continue;
 
-    // Variablen deklarieren (nur let, var, const - C-Typen kannst du hinzufügen)
-    const matchDecl = line.match(/(let|var|const|int)\s+([a-zA-Z_][a-zA-Z0-9_]*)/);
-    if (matchDecl) {
-      const varName = matchDecl[2];
+    const declMatch = line.match(/(?:let|var|const|int)\s+([a-zA-Z_]\w*)/);
+    if (declMatch) {
+      const varName = declMatch[1];
       scopes[scopes.length - 1].add(varName);
-      continue;
     }
 
-    // Variablen zuweisen
-    const matchAssign = line.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\s*=/);
-    if (matchAssign) {
-      const varName = matchAssign[1];
-      // Prüfen, ob Variable in einem Scope existiert
-      const exists = scopes.some(scope => scope.has(varName));
+    const potentialVars = line.match(/(?<![.\w])\b[a-zA-Z_]\w*\b(?![.\w])/g) || [];
+
+    for (const word of potentialVars) {
+      if (keywords.has(word) || (declMatch && declMatch[1] === word)) {
+        continue;
+      }
+
+      const exists = scopes.some(scope => scope.has(word));
+
       if (!exists) {
-        message = `Fehler: Variable '${varName}' wurde nicht erstellt!`
+        return `Fehler: Variable '${word}' wurde nicht erstellt!`;
       }
     }
   }
-  return message;
-}
+  return "";
+};
 
 /**
  * Checks if a for loop does not have an interation count
  * @param code whether the number of iterations are missing in the for loop
+ * @returns whether the for loop has an interation count
  */
 export function hasMissingIterationCount(code: string): boolean {
-  /**
-   * Erklärung des Regex:
-   * - for\s*\(           → for-Schleife mit öffnender Klammer
-   * - [^;]*;             → Initialisierungsteil
-   * - \s*[^<]*<\s*;     → Vergleich mit "<", aber nichts danach (FEHLER)
-   */
   const invalidForRegex =
     /for\s*\(\s*[^;]*;\s*[^<]*<\s*;\s*[^)]*\)/;
 
   return invalidForRegex.test(code);
+}
+
+/**
+ * Checks whether the boss direction command is missing the direction
+ * @param code the code to check
+ * @returns whether the direction is missing in the code
+ */
+export function hasMissingBossDirection(code: string): boolean {
+  const emptyArgsRegex = /checkBossViewDirection\s*\(\s*\)/;
+
+  return emptyArgsRegex.test(code);
+}
+
+/**
+ * Checks if there is a not command with a missing condition
+ * @param code code to check
+ * @returns whether the not command is missing a direction
+ */
+export function hasEmptyNotCondition(code: string): boolean {
+  const emptyNotRegex = /!\s*(?=[)|&])/;
+
+  return emptyNotRegex.test(code);
 }
 
