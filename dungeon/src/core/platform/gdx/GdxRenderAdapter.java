@@ -4,6 +4,7 @@ import core.platform.Platform;
 import core.platform.RenderAdapter;
 import core.platform.gdx.render.DrawSystem;
 import core.platform.gdx.render.GdxBlendUtils;
+import core.systems.CameraSystem;
 import core.systems.SoundSystem;
 import java.util.List;
 
@@ -13,6 +14,7 @@ public final class GdxRenderAdapter implements RenderAdapter {
   public List<SystemBinding> defaultRenderSystems() {
     return List.of(
       new SystemBinding(SoundSystem.class, SoundSystem::new),
+      new SystemBinding(CameraSystem.class, CameraSystem::new),
       new SystemBinding(DrawSystem.class, DrawSystem::getInstance)
     );
   }

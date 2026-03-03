@@ -107,11 +107,6 @@ public final class ECSManagement {
     registerIfAbsent(FrictionSystem.class, FrictionSystem::new);
     registerIfAbsent(MoveSystem.class, MoveSystem::new);
     registerIfAbsent(InputSystem.class, InputSystem::new);
-
-    // Only meaningful when rendering is present (libGDX camera etc.)
-    if (profile.includeRendering()) {
-      registerIfAbsent(CameraSystem.class, CameraSystem::new);
-    }
   }
 
   private static void registerIfAbsent(

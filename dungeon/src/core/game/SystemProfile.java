@@ -10,6 +10,9 @@ public enum SystemProfile {
   /** libGDX client host: rendering + audio + HUD are available. */
   GDX_CLIENT(true, true),
 
+  /** LITIENGINE client host: rendering + audio are available, HUD still disabled for now. */
+  LITIENGINE_CLIENT(true, false),
+
   /** LITIENGINE host (current stage): simulation only, no libGDX rendering/audio/HUD. */
   LITIENGINE_SIMULATION(false, false);
 

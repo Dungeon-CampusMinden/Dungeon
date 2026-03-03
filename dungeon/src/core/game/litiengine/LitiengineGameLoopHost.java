@@ -4,6 +4,7 @@ import core.game.*;
 import core.platform.Platform;
 import core.platform.litiengine.LitiengineInputBridge;
 import core.platform.litiengine.LitiengineLoopHost;
+import core.platform.litiengine.LitiengineRenderAdapter;
 import core.platform.litiengine.sound.LitiengineSoundPlayer;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
@@ -65,6 +66,7 @@ public final class LitiengineGameLoopHost {
     Platform.runtime(new core.platform.litiengine.LitiengineRuntimeAdapter());
     Platform.resources(new core.platform.classpath.ClasspathResourcesAdapter());
     Platform.render(new core.platform.NullRenderAdapter());
+    Platform.render(new LitiengineRenderAdapter());
     Platform.pathfinding(new core.platform.grid.GridPathfindingAdapter());
 
     // Bridge LITIENGINE input events into our engine-agnostic InputManager.
@@ -76,6 +78,8 @@ public final class LitiengineGameLoopHost {
     // Host chooses which default systems exist (simulation only).
     ECSManagement.bootstrapDefaultSystems(SystemProfile.LITIENGINE_SIMULATION);
     ECSManagement.bootstrapGameplaySystems(SystemProfile.LITIENGINE_SIMULATION);
+    ECSManagement.bootstrapDefaultSystems(SystemProfile.LITIENGINE_CLIENT);
+    ECSManagement.bootstrapGameplaySystems(SystemProfile.LITIENGINE_CLIENT);
     ECSManagement.system(core.systems.LevelSystem.class, ls -> ls.onLevelLoad(GameLoop.onLevelLoad));
 
     // Drive ECS tick from LITIENGINE update loop.
