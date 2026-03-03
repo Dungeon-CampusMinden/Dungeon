@@ -111,6 +111,13 @@ public abstract class PlayHandle {
   public abstract boolean isPlaying();
 
   /**
+   * Enables or disables looping for the sound.
+   *
+   * <p>Returns true if the sound is currently set to loop, false otherwise.
+   */
+  public abstract void looping(boolean looping);
+
+  /**
    * Registers a callback to execute when the sound finishes playing.
    *
    * <p>Called when a non-looping sound completes naturally or when any sound is stopped via {@link
@@ -124,17 +131,13 @@ public abstract class PlayHandle {
    * @param callback the runnable to execute on finish (null is ignored)
    */
   public void onFinished(Runnable callback) {
+    if (callback == null) return;
     this.onFinishedCallback = callback;
-  }
 
-  /**
-   * Enables or disables looping for the sound.
-   *
-   * <p>Looping audio continue playing indefinitely until explicitly stopped.
-   *
-   * @param looping true to loop indefinitely, false for one-shot playback (default: false)
-   */
-  public abstract void looping(boolean looping);
+    if (finished) {
+      callback.run();
+    }
+  }
 
   /**
    * Marks this sound as finished and executes the onFinished callback if one is registered.
