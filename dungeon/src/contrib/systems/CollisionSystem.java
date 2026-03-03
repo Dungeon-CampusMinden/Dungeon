@@ -222,7 +222,7 @@ public final class CollisionSystem extends System {
   }
 
   private boolean isStationary(Entity e) {
-    return e.fetch(VelocityComponent.class).map(vc -> vc.maxSpeed() == 0f).orElse(true);
+    return e.fetch(CollideComponent.class).map(cc -> cc.isStatic(e)).orElse(true);
   }
 
   /**

@@ -4,11 +4,13 @@ import contrib.utils.components.collide.Collider;
 import contrib.utils.components.collide.Hitbox;
 import core.Component;
 import core.Entity;
+import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Rectangle;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;
+import java.util.function.Function;
 
 /**
  * Allow an entity to collide with other entities that have a {@link CollideComponent}.
@@ -105,6 +107,10 @@ public final class CollideComponent implements Component {
    * </ul>
    */
   private TriConsumer<Entity, Entity, Direction> collideHold;
+
+  /** Optional Callback to check, if the entity is static. */
+  private Function<Entity, Boolean> staticCallback =
+      entity -> entity.fetch(VelocityComponent.class).map(vc -> vc.maxSpeed() == 0f).orElse(true);
 
   /**
    * Creates a new {@code CollideComponent}.
@@ -352,5 +358,24 @@ public final class CollideComponent implements Component {
    */
   public void collider(Collider collider) {
     this.collider = collider;
+  }
+
+  /**
+   * Returns if the entity is static.
+   *
+   * @param entity The entity that should be checked.
+   * @return True if the entity is static.
+   */
+  public boolean isStatic(Entity entity) {
+    return staticCallback.apply(entity);
+  }
+
+  /**
+   * Sets the entity static or non-static.
+   *
+   * @param callback Function that receives an entity and returns true, if the entity is static.
+   */
+  public void staticCallback(Function<Entity, Boolean> callback) {
+    this.staticCallback = callback != null ? callback : this.staticCallback;
   }
 }
