@@ -98,7 +98,6 @@ public class JoystickSystem extends System {
    * @param player the player entity to process joystick input for
    */
   private void executeJoystick(Entity player) {
-
     boolean controlsDisabled = isControlsDisabled(player);
     getActiveController()
         .ifPresent(
@@ -113,6 +112,15 @@ public class JoystickSystem extends System {
             });
   }
 
+  private boolean isControllerStillConnected(Controller controller) {
+    if (controller == null) {
+      return false;
+    }
+
+    var controllers = Controllers.getControllers();
+    return java.util.Arrays.asList(controllers.items).stream().anyMatch(c -> c == controller);
+  }
+
   /**
    * Returns the currently active controller, lazily resolving the first connected controller if
    * none is cached yet.
@@ -120,7 +128,7 @@ public class JoystickSystem extends System {
    * @return the active controller, or null if no controller is connected
    */
   private Optional<Controller> getActiveController() {
-    if (activeController == null) {
+    if (activeController == null || !isControllerStillConnected(activeController)) {
       var controllers = Controllers.getControllers();
       activeController = controllers.size == 0 ? null : controllers.first();
     }
@@ -134,8 +142,7 @@ public class JoystickSystem extends System {
    * @return true if the player has an InputComponent and controls are deactivated, false otherwise
    */
   private boolean isControlsDisabled(Entity player) {
-    InputComponent inputComponent = player.fetch(InputComponent.class).orElse(null);
-    return inputComponent != null && inputComponent.deactivateControls();
+    return player.fetch(InputComponent.class).map(InputComponent::deactivateControls).orElse(false);
   }
 
   /**
@@ -338,8 +345,8 @@ public class JoystickSystem extends System {
     cursorY -= aim.y() * JoystickConfig.CURSOR_SPEED * dt;
 
     // screen limits
-    float maxX = Gdx.graphics.getWidth() - 1f;
-    float maxY = Gdx.graphics.getHeight() - 1f;
+    float maxX = Game.windowWidth() - 1f;
+    float maxY = Game.windowHeight() - 1f;
 
     // keep inside screen
     if (cursorX < 0f) cursorX = 0f;
