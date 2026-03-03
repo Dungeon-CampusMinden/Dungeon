@@ -1,11 +1,12 @@
 :root {
-  --header-height: 60px;
+    --header-height: 60px;
+    --toolbox-width: 0px;
 }
 
 body {
-  margin: 0;
-  max-width: 100vw;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    max-width: 100vw;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 header {
@@ -31,12 +32,14 @@ header {
   width: 100%;
   max-width: 100vw;
   height: calc(100vh - var(--header-height));
+    position: relative;
 }
 
 #blockly {
   flex-basis: 100%;
   height: 100%;
   min-width: 600px;
+  position:relative;
 }
 
 #outputPanel {
@@ -137,6 +140,7 @@ header {
     display: flex;
     align-items: center;
     padding: 0 10px;
+    position:relative;
 }
 
 .level-selector {
@@ -154,4 +158,59 @@ header {
 .level-nav-button:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+}
+
+.popupDiv {
+    position: absolute;
+    background-color: #d83838;
+    z-index: 1;
+    text-align: center;
+    display: None;
+    opacity: 0;
+    font-weight: bold;
+    font-size: 1.6rem;
+    /* Element starts  where the toolbox ends*/
+    left: var(--toolbox-width);
+    /* Die width 100% minus the width of the toolbox */
+    width: calc(100% - var(--toolbox-width));
+
+    z-index: 50;
+}
+
+
+.cross {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.cross span {
+    position: relative; /* Basis für die Pseudoelemente */
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.cross span::before,
+.cross span::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #fff;
+    transform-origin: center;
+}
+
+.cross span::before {
+    transform: rotate(45deg);
+}
+
+.cross span::after {
+    transform: rotate(-45deg);
 }
