@@ -1,12 +1,12 @@
-import core.debug.Location;
-import org.junit.jupiter.api.Test;
-
 import static dialect.arith.ArithOps.ConstantOp;
 import static dialect.builtin.BuiltinOps.ProgramOp;
 import static dialect.func.FuncOps.FuncOp;
 import static dialect.func.FuncOps.ReturnOp;
 import static dialect.io.IoOps.PrintOp;
 import static dialect.scf.ScfOps.*;
+
+import core.debug.Location;
+import org.junit.jupiter.api.Test;
 
 /**
  * VM-level execution tests for all SCF runners: ForRunner, ContinueRunner, BreakRunner, IfRunner,
@@ -567,7 +567,7 @@ public class ScfTest extends VmTestBase {
         ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, tMsg.getValue()));
         ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
-        var fMsg = ifOp.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp(LOC, "F\n"));
+        var fMsg = ifOp.getElseRegion().orElseThrow().getEntryBlock().addOperation(new ConstantOp(LOC, "F\n"));
         ifOp.getElseRegion().get().getEntryBlock().addOperation(new PrintOp(LOC, fMsg.getValue()));
         ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp(LOC));
 

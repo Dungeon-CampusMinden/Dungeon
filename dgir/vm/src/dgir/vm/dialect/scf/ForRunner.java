@@ -35,7 +35,7 @@ public class ForRunner extends OpRunner {
   }
 
   public static Quartet<Long, Long, Long, Long> getBounds(ForOp forOp, State state) {
-    Value initialValue = forOp.getInductionValue();
+    Value initialValue = forOp.getInitialValue();
     Value lowerBound = forOp.getLowerBound();
     Value upperBound = forOp.getUpperBound();
     Value step = forOp.getStep();
