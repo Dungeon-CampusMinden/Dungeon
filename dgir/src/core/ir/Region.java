@@ -96,34 +96,36 @@ public final class Region {
     return Collections.unmodifiableList(blocks);
   }
 
-  public void addBlock(@NotNull Block block) {
-    addBlockAt(blocks.size(), block);
+  public Block addBlock(@NotNull Block block) {
+    return addBlockAt(blocks.size(), block);
   }
 
-  public void addBlockAt(int index, @NotNull Block block) {
+  public Block addBlockAt(int index, @NotNull Block block) {
     assert block.getParent().isEmpty() : "Block is already part of a region.";
     assert index >= 0 && index <= blocks.size() : "Index out of bounds.";
     blocks.add(index, block);
     block.setParent(this);
+    return block;
   }
 
-  public void addBlockBefore(@NotNull Block block, @NotNull Block before) {
-    addBlockAt(blocks.indexOf(before), block);
+  public Block addBlockBefore(@NotNull Block block, @NotNull Block before) {
+    return addBlockAt(blocks.indexOf(before), block);
   }
 
-  public void addBlockAfter(@NotNull Block block, @NotNull Block after) {
-    addBlockAt(blocks.indexOf(after) + 1, block);
+  public Block addBlockAfter(@NotNull Block block, @NotNull Block after) {
+    return addBlockAt(blocks.indexOf(after) + 1, block);
   }
 
-  public void removeBlock(@NotNull Block block) {
+  public Block removeBlock(@NotNull Block block) {
     assert blocks.contains(block) : "Block is not part of this region.";
-    removeBlockAt(blocks.indexOf(block));
+    return removeBlockAt(blocks.indexOf(block));
   }
 
-  public void removeBlockAt(int index) {
+  public Block removeBlockAt(int index) {
     assert index >= 0 && index < blocks.size() : "Index out of bounds.";
     Block block = blocks.remove(index);
     if (block != null) block.setParent(null);
+    return block;
   }
 
   /** Ensure this region has at least one (entry) block. */
@@ -194,6 +196,12 @@ public final class Region {
 
     this.bodyValues.clear();
     this.bodyValues.addAll(bodyValues);
+  }
+
+  public void setBodyValue(@NotNull Value value, int index) {
+    assert index >= 0 && index < bodyValues.size() : "Index out of bounds.";
+    assert bodyValues.get(index).getType().equals(value.getType()) : "Body value type must match.";
+    bodyValues.set(index, value);
   }
 
   // =========================================================================

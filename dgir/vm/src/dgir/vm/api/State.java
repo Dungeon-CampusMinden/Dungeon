@@ -3,10 +3,9 @@ package dgir.vm.api;
 import core.ir.Operation;
 import core.ir.Value;
 import core.ir.ValueOperand;
+import java.util.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.*;
 
 public class State {
   private final @NotNull Map<Value, Object> values = new HashMap<>();
@@ -45,11 +44,11 @@ public class State {
   }
 
   /** Closes the current stack frame and removes all values defined in it from the state. */
-  public void popStackFrame() {
+  public Optional<Pair<Set<Value>, Boolean>> popStackFrame() {
     // Remove all values defined in the current stack frame from the state if they are not defined
     // in any other stack frame.
     var frame = stackFrames.pop();
-    if (frame == null) return;
+    if (frame == null) return Optional.empty();
     var definedValues = frame.getLeft();
     // Make sure to not remove values defined in other stack frames as they are still accessible
     // there.
@@ -59,6 +58,7 @@ public class State {
         values.remove(value);
       }
     }
+    return Optional.of(frame);
   }
 
   /**
@@ -156,11 +156,11 @@ public class State {
   }
 
   /**
-   * Returns all values that are visible in the current scope as an unmodifiable map from
-   * {@link Value} to its bound object.  Values in isolated parent frames are excluded.
+   * Returns all values that are visible in the current scope as an unmodifiable map from {@link
+   * Value} to its bound object. Values in isolated parent frames are excluded.
    *
-   * <p>Intended for DAP {@code VariablesResponse} population; may be called from any thread
-   * while the VM is paused.
+   * <p>Intended for DAP {@code VariablesResponse} population; may be called from any thread while
+   * the VM is paused.
    *
    * @return a snapshot map of visible value bindings, innermost scope first.
    */

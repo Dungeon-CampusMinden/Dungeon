@@ -3,15 +3,13 @@ package dgir.vm.api;
 import core.ir.Block;
 import core.ir.Operation;
 import core.ir.Region;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public sealed interface Action
-    permits Action.Next, Action.Jump, Action.Call, Action.StepIntoRegion, Action.Terminate, Action.Abort {
+public sealed interface Action {
   /** Executes the next operation in the current block. */
   static @NotNull Action Next() {
     return new Next();
@@ -24,8 +22,21 @@ public sealed interface Action
    * @param target The target block.
    * @return An action that represents the jump.
    */
-  static @NotNull Action Jump(@NotNull Block target) {
-    return new Jump(target);
+  static @NotNull Action JumpToBlock(@NotNull Block target) {
+    return new JumpToBlock(target);
+  }
+
+  /**
+   * Jumps to the given region and executes it. The region must be part of the same operation as the
+   * current operation.
+   *
+   * @param target The target region.
+   * @param args The arguments to pass to the region. The number and types of the arguments must
+   *     match the region's arguments.
+   * @return An action that represents the jump.
+   */
+  static @NotNull Action JumpToRegion(@NotNull Region target, @NotNull Object... args) {
+    return new JumpToRegion(target, List.of(args));
   }
 
   /**
@@ -48,9 +59,7 @@ public sealed interface Action
    * @return An action that represents the step into.
    */
   static @NotNull Action StepIntoRegion(
-      @NotNull Region region,
-      boolean isolatedFromAbove,
-      @NotNull Object... args) {
+      @NotNull Region region, boolean isolatedFromAbove, @NotNull Object... args) {
     return new StepIntoRegion(region, isolatedFromAbove, List.of(args));
   }
 
@@ -72,7 +81,8 @@ public sealed interface Action
    * @param message The error message.
    * @return An action that represents the abort.
    */
-  static @NotNull Action Abort(@NotNull Optional<Exception> exception, @NotNull String message, @Nullable Object... args) {
+  static @NotNull Action Abort(
+      @NotNull Optional<Exception> exception, @NotNull String message, @Nullable Object... args) {
     return new Abort(MessageFormat.format(message, args), exception);
   }
 
@@ -85,7 +95,16 @@ public sealed interface Action
    *
    * @param target The target block.
    */
-  record Jump(@NotNull Block target) implements Action {}
+  record JumpToBlock(@NotNull Block target) implements Action {}
+
+  /**
+   * Jumps to the given region and executes it. The region must be part of the same operation as the
+   * current operation.
+   *
+   * @param target The target region.
+   */
+  record JumpToRegion(@NotNull Region target, @NotNull List<@NotNull Object> args)
+      implements Action {}
 
   /**
    * Calls the given function operation.
@@ -107,10 +126,7 @@ public sealed interface Action
    *     from the above stack frame. If true, values defined in the above stack frame will not be
    *     accessible in the new stack frame.
    */
-  record StepIntoRegion(
-      @NotNull Region region,
-      boolean isolatedFromAbove,
-      List<Object> args)
+  record StepIntoRegion(@NotNull Region region, boolean isolatedFromAbove, List<Object> args)
       implements Action {
     public StepIntoRegion {
       args = List.copyOf(args);

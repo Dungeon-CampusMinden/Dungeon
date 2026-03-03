@@ -1,20 +1,19 @@
 package dgir.vm.api;
 
+import static dialect.builtin.BuiltinOps.*;
+
 import core.debug.Location;
 import core.ir.Operation;
 import core.ir.Value;
 import core.traits.INoTerminator;
 import dgir.vm.dap.DebugUtils;
+import java.util.*;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-
-import java.util.*;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
-
-import static dialect.builtin.BuiltinOps.*;
 
 public class VM {
   private @Nullable ProgramOp program;
@@ -35,10 +34,11 @@ public class VM {
   private final @NotNull Set<Breakpoint> breakpoints = new HashSet<>();
 
   /**
-   * Pause/resume lock. When a debugger callback returns {@link DebugControl#PAUSE} the VM
-   * thread waits on {@link #resumeCondition}; {@link #resume()} or {@link #stepOver()} signals it.
+   * Pause/resume lock. When a debugger callback returns {@link DebugControl#PAUSE} the VM thread
+   * waits on {@link #resumeCondition}; {@link #resume()} or {@link #stepOver()} signals it.
    */
   private final @NotNull ReentrantLock pauseLock = new ReentrantLock();
+
   private final @NotNull Condition resumeCondition = pauseLock.newCondition();
   private volatile boolean paused = false;
 
@@ -47,13 +47,13 @@ public class VM {
     /** Normal execution — no pending single-step. */
     NONE,
     /**
-     * Step-in: pause at the very next operation, regardless of call depth.
-     * Equivalent to the DAP "stepIn" command.
+     * Step-in: pause at the very next operation, regardless of call depth. Equivalent to the DAP
+     * "stepIn" command.
      */
     STEP_IN,
     /**
-     * Step-over: keep running until the call-stack depth has returned to
-     * {@link #stepTargetDepth}, then pause. Equivalent to the DAP "next" command.
+     * Step-over: keep running until the call-stack depth has returned to {@link #stepTargetDepth},
+     * then pause. Equivalent to the DAP "next" command.
      */
     STEP_OVER
   }
@@ -62,14 +62,14 @@ public class VM {
   private volatile StepMode stepMode = StepMode.NONE;
 
   /**
-   * The call-stack depth that must be reached (or gone below) before the VM pauses
-   * again when {@link #stepMode} is {@link StepMode#STEP_OVER}.
+   * The call-stack depth that must be reached (or gone below) before the VM pauses again when
+   * {@link #stepMode} is {@link StepMode#STEP_OVER}.
    */
   private volatile int stepTargetDepth = 0;
 
   /**
-   * The source location (file + line) of the operation that was <em>current</em> when a
-   * {@link #stepOver()} or {@link #stepIn()} command was issued.
+   * The source location (file + line) of the operation that was <em>current</em> when a {@link
+   * #stepOver()} or {@link #stepIn()} command was issued.
    *
    * <p>Used to implement <em>line-granular</em> stepping: if the depth condition is satisfied but
    * the next operation still belongs to the same source line, the VM keeps executing silently
@@ -115,9 +115,9 @@ public class VM {
   // =========================================================================
 
   /**
-   * Attach a {@link Debugger} to this VM. While a debugger is attached the VM calls
-   * {@link Debugger#onStep} (and {@link Debugger#onBreakpointHit} when applicable) before each
-   * operation is dispatched. Pass {@code null} to detach and disable debug mode.
+   * Attach a {@link Debugger} to this VM. While a debugger is attached the VM calls {@link
+   * Debugger#onStep} (and {@link Debugger#onBreakpointHit} when applicable) before each operation
+   * is dispatched. Pass {@code null} to detach and disable debug mode.
    *
    * @param debugger the debugger to attach, or {@code null} to disable debug mode.
    */
@@ -126,7 +126,8 @@ public class VM {
   }
 
   /**
-   * Returns the currently attached {@link Debugger}, or {@code Optional.empty()} if none is attached.
+   * Returns the currently attached {@link Debugger}, or {@code Optional.empty()} if none is
+   * attached.
    *
    * @return the active debugger.
    */
@@ -168,11 +169,11 @@ public class VM {
   }
 
   /**
-   * Return the {@link Location} of the operation that would be executed next, or
-   * {@link Location#UNKNOWN} if the stack is empty or the VM has not been initialised.
+   * Return the {@link Location} of the operation that would be executed next, or {@link
+   * Location#UNKNOWN} if the stack is empty or the VM has not been initialised.
    *
-   * <p>This may be called from any thread (including while the VM is paused) to obtain the
-   * current program counter for DAP {@code StoppedEvent} / {@code StackTraceResponse} payloads.
+   * <p>This may be called from any thread (including while the VM is paused) to obtain the current
+   * program counter for DAP {@code StoppedEvent} / {@code StackTraceResponse} payloads.
    *
    * @return the current source location.
    */
@@ -185,10 +186,10 @@ public class VM {
   /**
    * Returns a snapshot of the current operation stack from top (innermost) to bottom (outermost).
    *
-   * <p>This may be called from any thread while the VM is paused to populate the DAP
-   * {@code StackTraceResponse}.  Each entry is a pending {@link Operation}; entries that are
-   * call-site markers (operations whose next op was pushed beneath them) are included so the
-   * debugger can show a meaningful call chain.
+   * <p>This may be called from any thread while the VM is paused to populate the DAP {@code
+   * StackTraceResponse}. Each entry is a pending {@link Operation}; entries that are call-site
+   * markers (operations whose next op was pushed beneath them) are included so the debugger can
+   * show a meaningful call chain.
    *
    * @return an unmodifiable list of operations, innermost first.
    */
@@ -198,8 +199,8 @@ public class VM {
 
   /**
    * Returns the current {@link State}, or {@code Optional.empty()} if the VM has not been
-   * initialised yet.  Callers may inspect the state while the VM is paused to populate
-   * DAP {@code VariablesResponse} payloads.
+   * initialised yet. Callers may inspect the state while the VM is paused to populate DAP {@code
+   * VariablesResponse} payloads.
    *
    * @return the active state.
    */
@@ -250,9 +251,9 @@ public class VM {
   }
 
   /**
-   * Step into the current operation: pause at the very next operation executed, which may be
-   * inside a nested region or function call. Implements the DAP "stepIn" command.
-   * Calling this when the VM is not paused is a no-op.
+   * Step into the current operation: pause at the very next operation executed, which may be inside
+   * a nested region or function call. Implements the DAP "stepIn" command. Calling this when the VM
+   * is not paused is a no-op.
    *
    * <p>Stepping is <em>line-granular</em>: if the next operation still belongs to the same source
    * line, the VM keeps advancing until it reaches a different line (or the program ends).
@@ -399,8 +400,21 @@ public class VM {
         }
         // Jump to another block in the same region. This is used for control flow operations like
         // if and while.
-        case Action.Jump jump -> {
-          opStack.push(jump.target().getOperations().getFirst());
+        case Action.JumpToBlock jumpToBlock -> {
+          opStack.push(jumpToBlock.target().getOperations().getFirst());
+        }
+        // Jump to another region in the same block. This is used for control flow operations like
+        // while which have a
+        // separate region for the body and the condition check logic.
+        case Action.JumpToRegion jumpToRegion -> {
+          // Remove all the values currently held
+          var oldFrame = state.popStackFrame().orElseThrow();
+          state.pushStackFrame(oldFrame.getRight());
+          // Set the values of the region's arguments in the new stack frame. These values are
+          // stored as body values in the region.
+          List<Value> bodyValues = jumpToRegion.target().getBodyValues();
+          setupRegion(state, bodyValues, jumpToRegion.args());
+          opStack.push(jumpToRegion.target().getEntryOperation());
         }
         // Return from the current region. This is used for function calls, as well as for returning
         // from if and while
@@ -426,7 +440,8 @@ public class VM {
                         "Reached end of block without an explicit jump or return after stepping into region.");
                     throw new IllegalStateException();
                   });
-          // Push the current op onto the stack so that we can retrieve it when we want to set the return value that
+          // Push the current op onto the stack so that we can retrieve it when we want to set the
+          // return value that
           // the region returns.
           opStack.push(currentOp);
           // Open a new stack frame for the region and jump to the first operation in the region.
@@ -501,9 +516,9 @@ public class VM {
   // =========================================================================
 
   /**
-   * Block the calling thread until {@link #resume()} or {@link #stepOver()} signals it.
-   * Interrupted exceptions are re-wrapped as {@link RuntimeException} so the outer try/catch in
-   * {@link #step()} can abort cleanly.
+   * Block the calling thread until {@link #resume()} or {@link #stepOver()} signals it. Interrupted
+   * exceptions are re-wrapped as {@link RuntimeException} so the outer try/catch in {@link #step()}
+   * can abort cleanly.
    */
   private void waitForResume() {
     pauseLock.lock();
@@ -536,8 +551,7 @@ public class VM {
 
     Operation currentOp = opStack.pop();
     OpRunner runner = OpRunnerRegistry.getOpRunner(currentOp);
-    assert runner != null
-        : "No runner registered for operation " + currentOp.getDetails().ident();
+    assert runner != null : "No runner registered for operation " + currentOp.getDetails().ident();
 
     return runner.run(currentOp, state);
   }

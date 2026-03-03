@@ -7,6 +7,7 @@ import dgir.vm.dialect.arith.BinaryRunner;
 import dgir.vm.dialect.arith.CastRunner;
 import dgir.vm.dialect.arith.CompareRunner;
 import dgir.vm.dialect.arith.ConstantRunner;
+import dgir.vm.dialect.builtin.IdRunner;
 import dgir.vm.dialect.builtin.ProgramRunner;
 import dgir.vm.dialect.cf.BranchCondRunner;
 import dgir.vm.dialect.cf.BranchRunner;
@@ -16,12 +17,11 @@ import dgir.vm.dialect.func.ReturnRunner;
 import dgir.vm.dialect.io.ConsoleInRunner;
 import dgir.vm.dialect.io.PrintRunner;
 import dgir.vm.dialect.scf.*;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This class is responsible for managing the registry of operation runners in the Blockly VM. It
@@ -83,15 +83,11 @@ public class OpRunnerRegistry {
   public static void registerAllRunners() {
     // arith
     List<OpRunner> arithRunners =
-        List.of(
-            new ConstantRunner(),
-            new BinaryRunner(),
-            new CompareRunner(),
-            new CastRunner());
+        List.of(new ConstantRunner(), new BinaryRunner(), new CompareRunner(), new CastRunner());
     registerOpRunners(arithRunners);
 
     // builtin
-    List<OpRunner> builtinRunners = List.of(new ProgramRunner());
+    List<OpRunner> builtinRunners = List.of(new ProgramRunner(), new IdRunner());
     registerOpRunners(builtinRunners);
 
     // cf
@@ -113,7 +109,8 @@ public class OpRunnerRegistry {
             new ContinueRunner(),
             new ForRunner(),
             new IfRunner(),
-            new ScopeRunner());
+            new ScopeRunner(),
+            new WhileRunner());
     registerOpRunners(scfRunners);
   }
 }

@@ -35,6 +35,8 @@ import core.serialization.Utils;
 import core.traits.ITerminator;
 import dialect.arith.ArithOps.BinaryOp;
 import dialect.arith.ArithOps.CompareOp;
+import dialect.builtin.BuiltinOps;
+import dialect.cf.CfOps;
 import dialect.dg.DungeonDialect;
 import dialect.func.FuncOps;
 import java.text.MessageFormat;
@@ -180,10 +182,11 @@ public class JavaCompiler {
       StringBuilder formated =
           new StringBuilder(
               MessageFormat.format(
-                  "{0}:{1}:{2} -> {3}", loc.file(), loc.line(), loc.column(), message));
+                  "{0}:{1}:{2}\n\"{3}\"\n{4}\n",
+                  loc.file(), loc.line(), loc.column(), node, message));
       // Append the string representation of the args to the message.
       if (args.length > 0) {
-        formated.append("\nAdditional info:\n");
+        formated.append("Additional info:\n");
         for (Object arg : args) {
           formated.append("- ").append(arg).append("\n");
         }
@@ -263,31 +266,6 @@ public class JavaCompiler {
   }
 
   private static final class JavaAstEmitter extends VoidVisitorAdapter<EmitContext> {
-    private @NotNull EmitResult<Value> resolveName(
-        @NotNull String name, @NotNull Node site, EmitContext context) {
-      return EmitResult.ofOptional(
-          context.getValue(name),
-          context,
-          site,
-          "Variable " + name + " is not defined in the current scope.");
-    }
-
-    private void bindName(
-        @NotNull String name, @NotNull Value value, @NotNull Node site, EmitContext context) {
-      context.putValue(name, value);
-      value.setDebugInfo(new ValueDebugInfo(context.loc(site), name));
-    }
-
-    private Optional<Type> implicitCastAllowed(Type to, Type from) {
-      if (from.equals(to)) {
-        return Optional.of(to);
-      }
-      if (isNumeric(from) && isNumeric(to)) {
-        return Optional.ofNullable(getDominantType(to, from).equals(to) ? to : null);
-      }
-      return Optional.empty();
-    }
-
     private EmitResult<ProgramOp> emit(CompilationUnit compilationUnit, String filename) {
       // Register all dialects so that we can use them during emission.
       Dialect.registerAllDialects();
@@ -347,7 +325,7 @@ public class JavaCompiler {
         context.program = program;
       } else {
         String incompleteProgram = Utils.getMapper(true).writeValueAsString(program);
-        context.emitError(n, "Incorrect program: \n" + n, incompleteProgram);
+        context.emitError(n, "Incorrect program", incompleteProgram);
       }
       context.popScope();
     }
@@ -526,6 +504,7 @@ public class JavaCompiler {
             var scope = context.insert(new ScopeOp(context.loc(n)));
             var pip = context.setInsertionPoint(scope.getEntryBlock(), -1);
             blockStmt.accept(this, context);
+            scope.addImplicitTerminators();
             pip.ifPresent(p -> context.setInsertionPoint(p.a, p.b));
           }
           case BreakStmt breakStmt -> context.insert(new BreakOp(context.loc(n)));
@@ -555,6 +534,60 @@ public class JavaCompiler {
     }
 
     @Override
+    public void visit(ForStmt n, EmitContext context) {
+      if (n.getCompare().isEmpty()) {
+        context.emitError(n, "For loop without comparison is not supported.");
+        return;
+      }
+      if (n.getUpdate().isEmpty()) {
+        context.emitError(n, "For loop without update is not supported.");
+        return;
+      }
+
+      // First emit the initialization outside the for loop.
+      for (Expression initExpr : n.getInitialization()) {
+        EmitResult<Optional<Value>> initValueRes = emitExpression(initExpr, context);
+        if (initValueRes.isFailure()) {
+          return;
+        }
+      }
+      // We are using a while op so that we can support more complex update expressions.
+      WhileOp whileOp = context.insert(new WhileOp(context.loc(n)));
+      Block continueBlock = whileOp.getConditionRegion().addBlock(new Block());
+      continueBlock.addOperation(new ContinueOp(context.loc(n)));
+      Block breakBlock = whileOp.getConditionRegion().addBlock(new Block());
+      breakBlock.addOperation(new BreakOp(context.loc(n)));
+
+      // Open the new scope and place the comparison expression in it.
+      context.pushScope();
+      context.setInsertionPoint(whileOp.getConditionRegion().getEntryBlock(), -1);
+      EmitResult<Optional<Value>> compareValueRes = emitExpression(n.getCompare().get(), context);
+      if (compareValueRes.isFailure() || compareValueRes.get().isEmpty()) {
+        return;
+      }
+      Value compareValue = compareValueRes.get().get();
+      context.insert(
+          new CfOps.BranchCondOp(
+              context.loc(n.getCompare().get()), compareValue, continueBlock, breakBlock));
+
+      context.setInsertionPoint(whileOp.getBodyRegion().getEntryBlock(), -1);
+      n.getBody().accept(this, context);
+    }
+
+    @Override
+    public void visit(ReturnStmt n, EmitContext arg) {
+      if (n.getExpression().isPresent()) {
+        EmitResult<Optional<Value>> exprRes = emitExpression(n.getExpression().get(), arg);
+        if (exprRes.isFailure() || exprRes.get().isEmpty()) {
+          return;
+        }
+        arg.insert(new ReturnOp(arg.loc(n), exprRes.get().get()));
+      } else {
+        arg.insert(new ReturnOp(arg.loc(n)));
+      }
+    }
+
+    @Override
     public void visit(AssignExpr n, EmitContext context) {
       if (!n.getTarget().isNameExpr()) {
         context.emitError(n, "Assignment target " + n.getTarget() + " is not a variable.");
@@ -562,7 +595,8 @@ public class JavaCompiler {
       }
 
       String varName = n.getTarget().asNameExpr().getName().asString();
-      if (resolveName(varName, n, context).isFailure()) {
+      var targetValueOpt = resolveName(varName, n.getTarget(), context);
+      if (targetValueOpt.isEmpty()) {
         return;
       }
 
@@ -570,38 +604,12 @@ public class JavaCompiler {
       if (rhs.isFailure() || rhs.get().isEmpty()) {
         return;
       }
-
-      context.putValue(varName, rhs.get().get());
-      rhs.get().get().setDebugInfo(new ValueDebugInfo(context.loc(n), varName));
-    }
-
-    private @NotNull Optional<TypedAttribute> valueAttrFromLiteralExpr(
-        LiteralExpr literalExpr, EmitContext context) {
-      return Optional.ofNullable(
-          switch (literalExpr) {
-            case BooleanLiteralExpr boolL ->
-                new IntegerAttribute(boolL.getValue() ? 1 : 0, IntegerT.BOOL);
-            case CharLiteralExpr charL ->
-                new IntegerAttribute((byte) charL.getValue().charAt(0), IntegerT.INT8);
-            case DoubleLiteralExpr doubleL -> {
-              if (doubleL.getValue().contains("f") || doubleL.getValue().contains("F"))
-                yield new FloatAttribute(Float.parseFloat(doubleL.getValue()), FloatT.FLOAT32);
-              else yield new FloatAttribute(Double.parseDouble(doubleL.getValue()), FloatT.FLOAT64);
-            }
-            case IntegerLiteralExpr intL ->
-                new IntegerAttribute(Integer.parseInt(intL.getValue()), IntegerT.INT32);
-            case LongLiteralExpr longL ->
-                new IntegerAttribute(Long.parseLong(longL.getValue()), IntegerT.INT64);
-            case StringLiteralExpr stringL -> new StringAttribute(stringL.getValue());
-            default -> {
-              context.emitError(
-                  literalExpr,
-                  "Literal expression "
-                      + literalExpr
-                      + " is not supported. Only boolean, char, double, integer, long, and string literals are supported.");
-              yield null;
-            }
-          });
+      Value rhsValue = rhs.get().get();
+      if (n.getOperator() == AssignExpr.Operator.ASSIGN) {
+        context.insert(new BuiltinOps.IdOp(context.loc(n), rhsValue, targetValueOpt.get()));
+        return;
+      }
+      context.emitError(n, "Assignment operator " + n.getOperator() + " is not supported.");
     }
 
     @Override
@@ -645,25 +653,14 @@ public class JavaCompiler {
       bindName(variableDeclarator.getName().asString(), initValue, variableDeclarator, context);
     }
 
-    @Override
-    public void visit(ReturnStmt n, EmitContext arg) {
-      if (n.getExpression().isPresent()) {
-        EmitResult<Optional<Value>> exprRes = emitExpression(n.getExpression().get(), arg);
-        if (exprRes.isFailure() || exprRes.get().isEmpty()) {
-          return;
-        }
-        arg.insert(new ReturnOp(arg.loc(n), exprRes.get().get()));
-      } else {
-        arg.insert(new ReturnOp(arg.loc(n)));
-      }
-    }
-
     private @NotNull EmitResult<Optional<Value>> emitExpression(
         Expression expression, EmitContext context) {
       return switch (expression) {
         case LiteralExpr literalExpr -> emitLiteral(literalExpr, context).map(Optional::of);
         case NameExpr nameExpr ->
-            resolveName(nameExpr.getName().asString(), expression, context).map(Optional::of);
+            resolveName(nameExpr.getName().asString(), nameExpr, context)
+                .map(value -> EmitResult.of(Optional.of(value)))
+                .orElse(EmitResult.failure());
         case BinaryExpr binaryExpr -> emitBinary(binaryExpr, context).map(Optional::of);
         case MethodCallExpr methodCallExpr -> emitFunctionCall(methodCallExpr, context);
         default -> {
@@ -831,6 +828,61 @@ public class JavaCompiler {
         currentNode = currentNode.get().getParentNode();
       }
       return Optional.empty();
+    }
+
+    private @NotNull Optional<Value> resolveName(
+        @NotNull String name, @NotNull Node site, EmitContext context) {
+      var valueOpt = context.getValue(name);
+      if (valueOpt.isEmpty()) {
+        context.emitError(site, "Variable " + name + " is not defined in the current scope.");
+        return Optional.empty();
+      }
+      return valueOpt;
+    }
+
+    private void bindName(
+        @NotNull String name, @NotNull Value value, @NotNull Node site, EmitContext context) {
+      context.putValue(name, value);
+      value.setDebugInfo(new ValueDebugInfo(context.loc(site), name));
+    }
+
+    private Optional<Type> implicitCastAllowed(Type to, Type from) {
+      if (from.equals(to)) {
+        return Optional.of(to);
+      }
+      if (isNumeric(from) && isNumeric(to)) {
+        return Optional.ofNullable(getDominantType(to, from).equals(to) ? to : null);
+      }
+      return Optional.empty();
+    }
+
+    private @NotNull Optional<TypedAttribute> valueAttrFromLiteralExpr(
+        LiteralExpr literalExpr, EmitContext context) {
+      return Optional.ofNullable(
+          switch (literalExpr) {
+            case BooleanLiteralExpr boolL ->
+                new IntegerAttribute(boolL.getValue() ? 1 : 0, IntegerT.BOOL);
+            case CharLiteralExpr charL ->
+                new IntegerAttribute((byte) charL.getValue().charAt(0), IntegerT.INT8);
+            case DoubleLiteralExpr doubleL -> {
+              if (doubleL.getValue().contains("f") || doubleL.getValue().contains("F"))
+                yield new FloatAttribute(Float.parseFloat(doubleL.getValue()), FloatT.FLOAT32);
+              else yield new FloatAttribute(Double.parseDouble(doubleL.getValue()), FloatT.FLOAT64);
+            }
+            case IntegerLiteralExpr intL ->
+                new IntegerAttribute(Integer.parseInt(intL.getValue()), IntegerT.INT32);
+            case LongLiteralExpr longL ->
+                new IntegerAttribute(Long.parseLong(longL.getValue()), IntegerT.INT64);
+            case StringLiteralExpr stringL -> new StringAttribute(stringL.getValue());
+            default -> {
+              context.emitError(
+                  literalExpr,
+                  "Literal expression "
+                      + literalExpr
+                      + " is not supported. Only boolean, char, double, integer, long, and string literals are supported.");
+              yield null;
+            }
+          });
     }
   }
 }

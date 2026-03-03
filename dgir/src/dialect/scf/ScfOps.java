@@ -1,23 +1,25 @@
 package dialect.scf;
 
+import static dialect.arith.ArithAttrs.BinModeAttr.BinMode;
+import static dialect.arith.ArithAttrs.CompModeAttr.CompMode;
+
 import core.Dialect;
 import core.debug.Location;
-import core.ir.Op;
-import core.ir.Operation;
-import core.ir.Region;
-import core.ir.Value;
+import core.ir.*;
 import core.traits.IControlFlow;
 import core.traits.ISingleRegion;
 import core.traits.ISpecificParentOp;
 import core.traits.ITerminator;
+import dialect.arith.ArithOps;
 import dialect.builtin.BuiltinTypes;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
-
+import dialect.cf.CfOps;
+import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 /**
  * Sealed marker interface for all operations in the {@link ScfDialect}.
@@ -273,13 +275,24 @@ public sealed interface ScfOps {
     // =========================================================================
 
     /**
-     * Returns the induction variable for the loop body.
+     * Returns the induction variable of this loop, which is the first body value of its single
+     * region.
+     *
+     * @return the induction variable.
+     */
+    @Contract(pure = true)
+    public @NotNull Value getInductionValue() {
+      return getRegion().getBodyValue(0).orElseThrow();
+    }
+
+    /**
+     * Returns the initial value of the induction variable (operand 0) visible inside the loop body.
      *
      * @return the body value at index 0.
      */
     @Contract(pure = true)
-    public Value getInductionValue() {
-      return getRegion().getBodyValue(0).orElseThrow();
+    public @NotNull Value getInitialValue() {
+      return getOperand(0).flatMap(Operand::getValue).orElseThrow();
     }
 
     /**
@@ -288,8 +301,8 @@ public sealed interface ScfOps {
      * @return the body value at index 1.
      */
     @Contract(pure = true)
-    public Value getLowerBound() {
-      return getRegion().getBodyValue(1).orElseThrow();
+    public @NotNull Value getLowerBound() {
+      return getOperand(1).flatMap(Operand::getValue).orElseThrow();
     }
 
     /**
@@ -298,8 +311,8 @@ public sealed interface ScfOps {
      * @return the body value at index 2.
      */
     @Contract(pure = true)
-    public Value getUpperBound() {
-      return getRegion().getBodyValue(2).orElseThrow();
+    public @NotNull Value getUpperBound() {
+      return getOperand(2).flatMap(Operand::getValue).orElseThrow();
     }
 
     /**
@@ -308,8 +321,8 @@ public sealed interface ScfOps {
      * @return the body value at index 3.
      */
     @Contract(pure = true)
-    public Value getStep() {
-      return getRegion().getBodyValue(3).orElseThrow();
+    public @NotNull Value getStep() {
+      return getOperand(3).flatMap(Operand::getValue).orElseThrow();
     }
   }
 
@@ -417,7 +430,8 @@ public sealed interface ScfOps {
    * }
    * }</pre>
    */
-  final class ScopeOp extends ScfOp implements ScfOps, ISingleRegion, IControlFlow {
+  final class ScopeOp extends ScfOp
+      implements ScfOps, ImplicitTerminator, ISingleRegion, IControlFlow {
 
     // =========================================================================
     // Type Info
@@ -447,6 +461,74 @@ public sealed interface ScfOps {
      */
     public ScopeOp(@NotNull Location location) {
       setOperation(true, Operation.Create(location, this, null, null, null, 1));
+    }
+
+    @Override
+    public Constructor<? extends ITerminator> getImplicitTerminatorType()
+        throws NoSuchMethodException {
+      return ContinueOp.class.getConstructor(Location.class);
+    }
+  }
+
+  final class WhileOp extends ScfOp implements ScfOps, IControlFlow {
+    @Override
+    public @NotNull String getIdent() {
+      return "scf.while";
+    }
+
+    @Override
+    public Function<Operation, Boolean> getVerifier() {
+      return null;
+    }
+
+    private WhileOp() {}
+
+    public WhileOp(@NotNull Location location) {
+      setOperation(true, Operation.Create(location, this, null, null, null, 2));
+    }
+
+    public static void setupStaticForLoop(
+        WhileOp op, Value induction, int compareVal, CompMode compMode, int step) {
+      Region condRegion = op.getConditionRegion();
+
+      Block continueBlock = condRegion.addBlock(new Block());
+      {
+        var stepConst = continueBlock.addOperation(new ArithOps.ConstantOp(Location.UNKNOWN, step));
+        var addOp =
+            continueBlock.addOperation(
+                new ArithOps.BinaryOp(
+                    Location.UNKNOWN, induction, stepConst.getResult(), BinMode.ADD));
+        addOp.setOutputValue(induction);
+        continueBlock.addOperation(new ContinueOp(Location.UNKNOWN));
+      }
+
+      Block breakBlock = condRegion.addBlock(new Block());
+      {
+        breakBlock.addOperation(new BreakOp(Location.UNKNOWN));
+      }
+
+      Block entryBlock = condRegion.getEntryBlock();
+      {
+        var compConst =
+            entryBlock.addOperation(new ArithOps.ConstantOp(Location.UNKNOWN, compareVal));
+        var compResult =
+            entryBlock.addOperation(
+                new ArithOps.CompareOp(
+                    Location.UNKNOWN, induction, compConst.getValue(), compMode));
+        entryBlock.addOperation(
+            new CfOps.BranchCondOp(
+                Location.UNKNOWN, compResult.getResult(), continueBlock, breakBlock));
+      }
+    }
+
+    @Contract(pure = true)
+    public @NotNull Region getConditionRegion() {
+      return getRegion(0).orElseThrow();
+    }
+
+    @Contract(pure = true)
+    public @NotNull Region getBodyRegion() {
+      return getRegion(1).orElseThrow();
     }
   }
 }

@@ -1,17 +1,18 @@
 package dialect.builtin;
 
+import static dialect.func.FuncOps.FuncOp;
+
 import core.Dialect;
 import core.debug.Location;
 import core.ir.Block;
 import core.ir.Op;
 import core.ir.Operation;
+import core.ir.Value;
 import core.traits.*;
+import java.util.List;
+import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.Function;
-
-import static dialect.func.FuncOps.FuncOp;
 
 /**
  * Sealed marker interface for all operations in the {@link BuiltinDialect}.
@@ -158,6 +159,40 @@ public sealed interface BuiltinOps {
       }
       throw new IllegalStateException(
           "Could not find main function. This should have been caught by verification.");
+    }
+  }
+
+  /**
+   * Identity operation that returns its operand as the result. Used for assignment of values to an
+   * existing value.
+   */
+  final class IdOp extends BuiltinOp implements BuiltinOps, ISingleOperand, IHasResult {
+    @Contract(pure = true)
+    @Override
+    public @NotNull String getIdent() {
+      return "id";
+    }
+
+    @Override
+    public Function<Operation, Boolean> getVerifier() {
+      return operation -> {
+        if (!operation
+            .getOperandValue(0)
+            .orElseThrow()
+            .getType()
+            .equals(operation.getOutputValue().orElseThrow().getType())) {
+          operation.emitError("Result type must match operand type");
+          return false;
+        }
+        return true;
+      };
+    }
+
+    private IdOp() {}
+
+    public IdOp(@NotNull Location location, @NotNull Value value, @NotNull Value target) {
+      setOperation(true, Operation.Create(location, this, List.of(value), null, value.getType()));
+      setOutputValue(target);
     }
   }
 }

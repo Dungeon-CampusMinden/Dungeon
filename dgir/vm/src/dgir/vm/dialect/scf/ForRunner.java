@@ -1,5 +1,7 @@
 package dgir.vm.dialect.scf;
 
+import static dialect.scf.ScfOps.ForOp;
+
 import core.ir.Operation;
 import core.ir.Value;
 import dgir.vm.api.Action;
@@ -7,8 +9,6 @@ import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
 import io.arxila.javatuples.Quartet;
 import org.jetbrains.annotations.NotNull;
-
-import static dialect.scf.ScfOps.ForOp;
 
 public class ForRunner extends OpRunner {
 
@@ -35,10 +35,10 @@ public class ForRunner extends OpRunner {
   }
 
   public static Quartet<Long, Long, Long, Long> getBounds(ForOp forOp, State state) {
-    Value initialValue = forOp.getOperandValue(0).orElseThrow();
-    Value lowerBound = forOp.getOperandValue(1).orElseThrow();
-    Value upperBound = forOp.getOperandValue(2).orElseThrow();
-    Value step = forOp.getOperandValue(3).orElseThrow();
+    Value initialValue = forOp.getInductionValue();
+    Value lowerBound = forOp.getLowerBound();
+    Value upperBound = forOp.getUpperBound();
+    Value step = forOp.getStep();
 
     long initialValueNum = state.getValue(initialValue, Number.class).orElseThrow().longValue();
     long lowerBoundNum = state.getValue(lowerBound, Number.class).orElseThrow().longValue();
