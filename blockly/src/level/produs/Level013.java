@@ -63,16 +63,16 @@ public class Level013 extends BlocklyLevel {
         "Variablen",
         "Sonstige");
 
-    addWebPopup(new ImagePopup("popups/level013/webpopups/01_Abfrage.png"));
-    addWebPopup(new ImagePopup("popups/level013/webpopups/02_Abfrage.png"));
-    addWebPopup(new ImagePopup("popups/level013/webpopups/03_Abfrage.png"));
-    addWebPopup(new ImagePopup("popups/level013/webpopups/04_Abfrage.png"));
+    addWebPopup(new ImagePopup("popups/level013/webpopups/01_Abfrage.jpg"));
+    addWebPopup(new ImagePopup("popups/level013/webpopups/02_Abfrage.jpg"));
+    addWebPopup(new ImagePopup("popups/level013/webpopups/03_Abfrage.jpg"));
+    addWebPopup(new ImagePopup("popups/level013/webpopups/04_Abfrage.jpg"));
 
-    addCodePopup(new ImagePopup("popups/level013/codepopups/01_Abfrage.png"));
-    addCodePopup(new ImagePopup("popups/level013/codepopups/02_Abfrage.png"));
-    addCodePopup(new ImagePopup("popups/level013/codepopups/03_Abfrage.png"));
-    addCodePopup(new ImagePopup("popups/level013/codepopups/04_Abfrage.png"));
-    addCodePopup(new ImagePopup("popups/overview1.png"));
+    addCodePopup(new ImagePopup("popups/level013/codepopups/01_Abfrage.jpg"));
+    addCodePopup(new ImagePopup("popups/level013/codepopups/02_Abfrage.jpg"));
+    addCodePopup(new ImagePopup("popups/level013/codepopups/03_Abfrage.jpg"));
+    addCodePopup(new ImagePopup("popups/level013/codepopups/04_Abfrage.jpg"));
+    addCodePopup(new ImagePopup("popups/overview1.jpg"));
   }
 
   @Override
