@@ -1,3 +1,20 @@
+import core.debug.Location;
+import core.debug.ValueDebugInfo;
+import core.ir.Operation;
+import dgir.vm.api.DebugControl;
+import dgir.vm.api.VM;
+import dgir.vm.dap.DapAdapter;
+import dgir.vm.dialect.io.IoRunners;
+import org.eclipse.lsp4j.debug.*;
+import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.util.Map;
+import java.util.concurrent.Callable;
+
 import static dialect.arith.ArithOps.ConstantOp;
 import static dialect.builtin.BuiltinOps.ProgramOp;
 import static dialect.func.FuncOps.FuncOp;
@@ -7,21 +24,6 @@ import static dialect.scf.ScfOps.ContinueOp;
 import static dialect.scf.ScfOps.ForOp;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
-import core.debug.Location;
-import core.ir.Operation;
-import dgir.vm.api.DebugControl;
-import dgir.vm.api.VM;
-import dgir.vm.dap.DapAdapter;
-import dgir.vm.dialect.io.IoRunners;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import org.eclipse.lsp4j.debug.*;
-import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 /**
  * Unit tests for {@link DapAdapter}.
@@ -59,6 +61,7 @@ class DapAdapterTest extends VmTestBase {
     ProgramOp prog = new ProgramOp(new Location("test.java", 1, 1));
     FuncOp main = prog.addOperation(new FuncOp(new Location("test.java", 2, 2), "main"));
     var a = main.addOperation(new ConstantOp(new Location("test.java", 3, 12), text), 0);
+    a.getValue().setDebugInfo(new ValueDebugInfo(a.getLocation(), "a"));
     main.addOperation(new PrintOp(new Location("test.java", 3, 3), a.getValue()), 0);
     main.addOperation(new ReturnOp(new Location("test.java", 4, 2)), 0);
     return prog;
@@ -83,8 +86,10 @@ class DapAdapterTest extends VmTestBase {
     ProgramOp prog = new ProgramOp(new Location("test.java", 1, 1));
     FuncOp main = prog.addOperation(new FuncOp(new Location("test.java", 2, 2), "main"));
     var a = main.addOperation(new ConstantOp(new Location("test.java", 3, 3), "A\n"), 0);
+    a.getValue().setDebugInfo(new ValueDebugInfo(a.getLocation(), "a"));
     main.addOperation(new PrintOp(new Location("test.java", 4, 3), a.getValue()), 0);
     var b = main.addOperation(new ConstantOp(new Location("test.java", 5, 3), "B\n"), 0);
+    b.getValue().setDebugInfo(new ValueDebugInfo(b.getLocation(), "b"));
     main.addOperation(new PrintOp(new Location("test.java", 6, 3), b.getValue()), 0);
     main.addOperation(new ReturnOp(new Location("test.java", 7, 2)), 0);
     return prog;
@@ -712,7 +717,7 @@ class DapAdapterTest extends VmTestBase {
         });
     clearInvocations(h.client());
 
-    // Step again — executes the PrintOp, moving to the next ConstantOp.
+    // Step again — executes the PrintOp, moving to return op.
     h.adapter().next(new NextArguments()).get();
     await(
         () -> {
