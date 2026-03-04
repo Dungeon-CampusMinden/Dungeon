@@ -33,9 +33,6 @@ tasks.register('runBlockly', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     def webFlag = project.hasProperty('web') ? project.property('web') : 'false'
     args "web=${webFlag}"
-
-    standardOutput = System.out
-    errorOutput = System.err
 }
 
 tasks.register("npmInstall", Exec) {
@@ -44,7 +41,6 @@ tasks.register("npmInstall", Exec) {
     def os = System.getProperty('os.name').toLowerCase()
     commandLine os.contains('windows') ? ['npm.cmd', 'install'] : ['npm', 'install']
 }
-
 
 tasks.register("npmBuild", Exec) {
     group = 'build'
@@ -55,7 +51,6 @@ tasks.register("npmBuild", Exec) {
 
     dependsOn 'npmInstall'
 }
-
 
 def configureBaseJar(jar) {
     jar.with {
