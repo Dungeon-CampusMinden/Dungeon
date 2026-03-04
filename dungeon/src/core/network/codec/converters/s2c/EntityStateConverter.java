@@ -63,6 +63,7 @@ public final class EntityStateConverter
                 builder.addInventory(slot);
               }
             });
+    message.metadata().filter(metadata -> !metadata.isEmpty()).ifPresent(builder::putAllMetadata);
 
     return builder.build();
   }
@@ -124,6 +125,10 @@ public final class EntityStateConverter
         }
       }
       builder.inventory(items);
+    }
+
+    if (!proto.getMetadataMap().isEmpty()) {
+      builder.metadata(proto.getMetadataMap());
     }
 
     return builder.build();

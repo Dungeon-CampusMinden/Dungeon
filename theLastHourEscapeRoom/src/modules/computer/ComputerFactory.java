@@ -1,7 +1,6 @@
 package modules.computer;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.HeadlessDialogGroup;
@@ -10,6 +9,8 @@ import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.network.codec.DialogValueCodecRegistry;
+import core.network.messages.c2s.DialogResponseMessage;
 import java.util.Optional;
 import java.util.Set;
 import level.LastHourLevel;
@@ -23,19 +24,17 @@ public class ComputerFactory {
   /** Key for updating the computer state from the dialog callbacks. */
   public static final String UPDATE_STATE_KEY = "update_state";
 
-  private static UIComponent computerDialogInstance;
-
   static {
-    DialogFactory.register(LastHourDialogTypes.COMPUTER, ComputerFactory::build);
+    ensureRegistration();
   }
 
-  /**
-   * Returns the current instance of the computer dialog, or null if it is not open.
-   *
-   * @return the current computer dialog instance, or null if not open
-   */
-  public static UIComponent getComputerDialogInstance() {
-    return computerDialogInstance;
+  /** Ensures dialog type and codec registration for computer dialog networking. */
+  public static void ensureRegistration() {
+    DialogFactory.register(LastHourDialogTypes.COMPUTER, ComputerFactory::build);
+    DialogValueCodecRegistry registry = DialogValueCodecRegistry.global();
+    if (registry.byType(ComputerStateComponent.class).isEmpty()) {
+      registry.register(new ComputerStateComponentCodec());
+    }
   }
 
   /**
@@ -71,19 +70,33 @@ public class ComputerFactory {
                             ComputerStateComponent state =
                                 stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
                             builder.put(STATE_KEY, state);
-                            computerDialogInstance = DialogFactory.show(builder.build(), who.id());
+                            var computerDialogInstance =
+                                DialogFactory.show(builder.build(), who.id());
                             computerDialogInstance.registerCallback(
                                 UPDATE_STATE_KEY,
                                 data -> {
                                   if (data
                                       instanceof
                                       ComputerStateComponent(
-                                          ComputerProgress state1,
+                                          ComputerProgress computerState,
                                           boolean isInfected,
                                           String virusType)) {
-                                    ComputerStateComponent.setState(state1);
+                                    ComputerStateComponent.setState(computerState);
                                     ComputerStateComponent.setInfection(isInfected);
                                     ComputerStateComponent.setVirusType(virusType);
+                                  } else if (data
+                                      instanceof
+                                      DialogResponseMessage.CustomPayload(var wrappedValue)) {
+                                    if (wrappedValue
+                                        instanceof
+                                        ComputerStateComponent(
+                                            ComputerProgress state1,
+                                            boolean isInfected,
+                                            String virusType)) {
+                                      ComputerStateComponent.setState(state1);
+                                      ComputerStateComponent.setInfection(isInfected);
+                                      ComputerStateComponent.setVirusType(virusType);
+                                    }
                                   }
                                 });
                           });

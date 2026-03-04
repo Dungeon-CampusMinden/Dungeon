@@ -42,10 +42,7 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import modules.computer.*;
 import modules.trash.TrashMinigameUI;
 import util.LastHourSounds;
@@ -58,8 +55,8 @@ public class LastHourLevel extends DungeonLevel {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LastHourLevel.class);
 
   private DoorTile storageDoor;
-  private static Entity pc;
-  private static Entity keypad;
+  private Entity pc;
+  private Entity keypad;
 
   /** The state of the PC when it's off. */
   public static final String PC_STATE_OFF = "off";
@@ -69,6 +66,8 @@ public class LastHourLevel extends DungeonLevel {
   private static final String PC_SIGNAL_ON = "on";
   private static final String PC_SIGNAL_INFECT = "infect";
   private static final String PC_SIGNAL_CLEAR = "clear";
+
+  private static final Set<Integer> INTRO_SHOWN_TO = new HashSet<>();
 
   /**
    * Creates a new Demo Level.
@@ -84,12 +83,6 @@ public class LastHourLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.levelEntities(Set.of(DecoComponent.class))
-        .forEach(
-            e -> {
-              e.remove(InteractionComponent.class);
-            });
-
     storageDoor = (DoorTile) tileAt(getPoint("door-storage")).orElseThrow();
     storageDoor.close();
 
@@ -98,12 +91,7 @@ public class LastHourLevel extends DungeonLevel {
 
     keypad =
         KeypadFactory.createKeypad(
-            getPoint("keypad-storage"),
-            List.of(1, 2, 3, 4),
-            () -> {
-              storageDoor.open();
-            },
-            true);
+            getPoint("keypad-storage"), List.of(1, 2, 3, 4), () -> storageDoor.open(), true);
     Game.add(keypad);
 
     setupPC();
@@ -115,13 +103,17 @@ public class LastHourLevel extends DungeonLevel {
     setupTimer();
     setupEndTrigger();
 
+    EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
+  }
+
+  private void showIntro(int targetId) {
     BlackFadeCutscene.show(
         Lore.IntroTexts,
         false,
         true,
-        () -> DialogFactory.showOkDialog(Lore.PostIntroDialogTexts.getFirst(), "", () -> {}));
-
-    EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
+        () -> DialogFactory.showOkDialog(Lore.PostIntroDialogTexts.getFirst(), "", () -> {}),
+        targetId);
+    INTRO_SHOWN_TO.add(targetId);
   }
 
   private void setupEndTrigger() {
@@ -382,13 +374,14 @@ public class LastHourLevel extends DungeonLevel {
   @Override
   protected void onTick() {
     checkPCStateUpdate();
+    Game.allPlayers().filter(p -> !INTRO_SHOWN_TO.contains(p.id())).forEach(p -> showIntro(p.id()));
     if (!Game.isHeadless()) {
       checkInteractFeedback();
-      updateLightingShader(getPoint("timer"), getPoint("keypad-storage"));
+      updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
     }
   }
 
-  static void updateLightingShader(Point timerPos, Point keypadPos) {
+  static void updateLightingShader(Point pcPos, Point timerPos, Entity keypad) {
     if (!(DrawSystem.getInstance().sceneShaders().get("lighting") instanceof LightingShader ls))
       return;
 
@@ -400,13 +393,16 @@ public class LastHourLevel extends DungeonLevel {
         ls.ambientLight(0.2f);
         Color color = state.isInfected() ? Color.RED : Color.BLUE;
         float intensity = state.isInfected() ? 0.8f : 0.5f;
-        ls.addLightSource(EntityUtils.getPosition(pc), intensity, color);
+        ls.addLightSource(pcPos, intensity, color);
 
         ls.addLightSource(timerPos.translate(0.75f, 0), 0.5f, Color.RED);
 
         var keyComp = keypad.fetch(KeypadComponent.class).orElseThrow();
         Color keypadColor = keyComp.isUnlocked() ? Color.GREEN : Color.RED;
-        ls.addLightSource(keypadPos.translate(0.5f, 0.5f), 0.3f, keypadColor);
+        ls.addLightSource(
+            Game.positionOf(keypad).orElse(new Point(0, 0)).translate(0.5f, 0.5f),
+            0.3f,
+            keypadColor);
       }
     }
 

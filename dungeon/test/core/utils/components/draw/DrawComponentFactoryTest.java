@@ -27,6 +27,7 @@ public class DrawComponentFactoryTest {
             2.0f,
             "idle",
             3,
+            123,
             new DrawInfoData.AnimationConfigData(5, true, false, false),
             null,
             null);
@@ -43,6 +44,7 @@ public class DrawComponentFactoryTest {
     assertEquals(1.5f, animation.getScaleX(), DELTA);
     assertEquals(2.0f, animation.getScaleY(), DELTA);
     assertEquals(15, animation.frameCount());
+    assertEquals(123, drawComponent.depth());
   }
 
   /** Verifies reconstruction with explicit spritesheet payloads. */
@@ -55,6 +57,7 @@ public class DrawComponentFactoryTest {
             null,
             "idle",
             1,
+            -8,
             new DrawInfoData.AnimationConfigData(2, false, true, true),
             new DrawInfoData.SpritesheetConfigData(8, 12, 1, 2, 3, 4),
             null);
@@ -76,6 +79,7 @@ public class DrawComponentFactoryTest {
     assertTrue(animationConfig.centered());
     assertTrue(animationConfig.mirrored());
     assertEquals(2, animation.frameCount());
+    assertEquals(-8, drawComponent.depth());
   }
 
   /** Verifies frames-per-sprite values below 1 are clamped during reconstruction. */
@@ -88,6 +92,7 @@ public class DrawComponentFactoryTest {
             null,
             "idle",
             4,
+            77,
             new DrawInfoData.AnimationConfigData(0, true, false, false),
             null,
             null);
@@ -97,6 +102,7 @@ public class DrawComponentFactoryTest {
 
     assertEquals(1, animation.getConfig().framesPerSprite());
     assertEquals(4, animation.frameCount());
+    assertEquals(77, drawComponent.depth());
   }
 
   /** Verifies custom state definitions are reconstructed for spawn synchronization. */
@@ -123,6 +129,7 @@ public class DrawComponentFactoryTest {
             null,
             "closed",
             0,
+            2048,
             new DrawInfoData.AnimationConfigData(1, true, false, false),
             null,
             List.of(
@@ -137,5 +144,6 @@ public class DrawComponentFactoryTest {
     assertTrue(drawComponent.hasState("open"));
     drawComponent.stateMachine().setState("open", null);
     assertEquals("open", drawComponent.currentStateName());
+    assertEquals(2048, drawComponent.depth());
   }
 }

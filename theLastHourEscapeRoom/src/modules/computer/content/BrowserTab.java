@@ -8,9 +8,10 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import contrib.hud.dialogs.DialogCallbackResolver;
 import core.utils.Scene2dElementFactory;
 import java.util.*;
-import modules.computer.ComputerDialog;
+import modules.computer.ComputerFactory;
 import modules.computer.ComputerStateComponent;
 
 /** A tab representing a web browser within the computer dialog. */
@@ -163,13 +164,14 @@ public class BrowserTab extends ComputerTab {
     }
 
     if (url.equals("https://cloud.gogle.com/s?id=cf4PngLVZo6bbzm")) {
-      ComputerStateComponent.setInfection(true);
-      ComputerStateComponent.setVirusType("Ransomware");
-      ComputerDialog.getInstance()
-          .ifPresent(
-              dialog -> {
-                dialog.updateState(ComputerStateComponent.getState().orElseThrow());
-              });
+      var newState =
+          ComputerStateComponent.getState()
+              .orElseThrow()
+              .withVirusType("Ransomware")
+              .withInfection(true);
+      DialogCallbackResolver.createButtonCallback(
+              context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
+          .accept(newState);
     }
 
     contentTable.add(target).grow();
