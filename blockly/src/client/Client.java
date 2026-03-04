@@ -137,7 +137,6 @@ public class Client {
           createSystems();
 
           startServer();
-
         });
   }
 
