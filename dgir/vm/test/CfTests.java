@@ -78,7 +78,8 @@ public class CfTests extends VmTestBase {
     Block invalid = main.addBlock(new Block());
 
     entry.addOperation(new BranchOp(LOC, invalid));
-    invalid.addOperation(new PrintOp(LOC, invalid.addOperation(new ConstantOp(LOC, "x")).getValue()));
+    invalid.addOperation(
+        new PrintOp(LOC, invalid.addOperation(new ConstantOp(LOC, "x")).getValue()));
 
     assertThrows(AssertionError.class, () -> createVm(prog));
   }
@@ -209,7 +210,8 @@ public class CfTests extends VmTestBase {
     var cond = entry.addOperation(new ConstantOp(LOC, true));
     entry.addOperation(new BranchCondOp(LOC, cond.getValue(), bad, good));
 
-    bad.addOperation(new PrintOp(LOC, bad.addOperation(new ConstantOp(LOC, "bad-path")).getValue()));
+    bad.addOperation(
+        new PrintOp(LOC, bad.addOperation(new ConstantOp(LOC, "bad-path")).getValue()));
     good.addOperation(new ReturnOp(LOC));
 
     assertThrows(AssertionError.class, () -> createVm(prog));

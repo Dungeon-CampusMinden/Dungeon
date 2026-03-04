@@ -41,6 +41,12 @@ jar {
     dependsOn configurations.runtimeClasspath
 }
 
+tasks.register('testDgirVm_BlocklyCompiler', Test) {
+    group = 'verification'
+    description = 'Runs both :dgir:test and :dgir:vm:test.'
+    dependsOn ':dgir:test', ':dgir:vm:test', ':blockly:vm:test'
+}
+
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }

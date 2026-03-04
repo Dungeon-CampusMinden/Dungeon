@@ -25,6 +25,12 @@ dependencies {
     testRuntimeOnly supportDependencies.junitLauncher
 }
 
+tasks.register('testDgirAndVm', Test) {
+    group = 'verification'
+    description = 'Runs both :dgir:test and :dgir:vm:test.'
+    dependsOn ':dgir:test', ':dgir:vm:test'
+}
+
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }
