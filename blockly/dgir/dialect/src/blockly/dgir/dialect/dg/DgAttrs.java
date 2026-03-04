@@ -1,7 +1,7 @@
 package blockly.dgir.dialect.dg;
 
-import core.Dialect;
-import core.ir.Attribute;
+import dgir.core.Dialect;
+import dgir.core.ir.Attribute;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 

@@ -1,10 +1,10 @@
 package blockly.dgir.dialect.dg;
 
-import core.Dialect;
-import core.Utils;
-import core.ir.Attribute;
-import core.ir.Op;
-import core.ir.Type;
+import dgir.core.Dialect;
+import dgir.core.Utils;
+import dgir.core.ir.Attribute;
+import dgir.core.ir.Op;
+import dgir.core.ir.Type;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 

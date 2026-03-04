@@ -1,6 +1,6 @@
-import core.debug.Location;
-import core.debug.ValueDebugInfo;
-import core.ir.Operation;
+import dgir.core.debug.Location;
+import dgir.core.debug.ValueDebugInfo;
+import dgir.core.ir.Operation;
 import dgir.vm.api.DebugControl;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapAdapter;
@@ -15,13 +15,13 @@ import org.mockito.ArgumentCaptor;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import static dialect.arith.ArithOps.ConstantOp;
-import static dialect.builtin.BuiltinOps.ProgramOp;
-import static dialect.func.FuncOps.FuncOp;
-import static dialect.func.FuncOps.ReturnOp;
-import static dialect.io.IoOps.PrintOp;
-import static dialect.scf.ScfOps.ContinueOp;
-import static dialect.scf.ScfOps.ForOp;
+import static dgir.dialect.arith.ArithOps.ConstantOp;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.func.FuncOps.FuncOp;
+import static dgir.dialect.func.FuncOps.ReturnOp;
+import static dgir.dialect.io.IoOps.PrintOp;
+import static dgir.dialect.scf.ScfOps.ContinueOp;
+import static dgir.dialect.scf.ScfOps.ForOp;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

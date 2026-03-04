@@ -1,12 +1,11 @@
 package dgir.vm.dap;
 
-
-import core.debug.Location;
-import core.debug.ValueDebugInfo;
-import core.ir.Block;
-import core.ir.Operation;
-import core.ir.Region;
-import core.ir.Value;
+import dgir.core.debug.Location;
+import dgir.core.debug.ValueDebugInfo;
+import dgir.core.ir.Block;
+import dgir.core.ir.Operation;
+import dgir.core.ir.Region;
+import dgir.core.ir.Value;
 import dgir.vm.api.DebugControl;
 import dgir.vm.api.Debugger;
 import dgir.vm.api.VM;
@@ -26,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static dialect.func.FuncOps.FuncOp;
+import static dgir.dialect.func.FuncOps.FuncOp;
 
 /**
  * DAP adapter for the DGIR {@link VM}.

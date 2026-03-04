@@ -1,9 +1,9 @@
 package dgir.vm.dialect.scf;
 
-import core.Dialect;
+import dgir.core.Dialect;
 import dgir.vm.api.DialectRunner;
 import dgir.vm.api.OpRunner;
-import dialect.scf.ScfDialect;
+import dgir.dialect.scf.ScfDialect;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 

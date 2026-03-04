@@ -1,13 +1,13 @@
-import static dialect.builtin.BuiltinOps.ProgramOp;
-import static dialect.func.FuncOps.FuncOp;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.func.FuncOps.FuncOp;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import core.analysis.DotCFG;
-import core.debug.Location;
-import core.ir.Op;
-import core.ir.Operation;
-import core.serialization.Utils;
+import dgir.core.analysis.DotCFG;
+import dgir.core.debug.Location;
+import dgir.core.ir.Op;
+import dgir.core.ir.Operation;
+import dgir.core.serialization.Utils;
 import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -46,7 +46,7 @@ public class TestUtils {
     assertEquals("", TestUtils.compareSerializedOperations(mapper, op.getOperation(), result));
 
     String callerName =
-        core.Utils.STACK_WALKER.walk(
+        dgir.core.Utils.STACK_WALKER.walk(
             stream ->
                 stream
                     .skip(1)

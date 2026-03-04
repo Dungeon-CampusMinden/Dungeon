@@ -1,19 +1,19 @@
-import core.Dialect;
-import core.debug.Location;
-import core.ir.Block;
-import core.serialization.Utils;
+import dgir.core.Dialect;
+import dgir.core.debug.Location;
+import dgir.core.ir.Block;
+import dgir.core.serialization.Utils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
-import static dialect.arith.ArithOps.ConstantOp;
-import static dialect.builtin.BuiltinOps.ProgramOp;
-import static dialect.cf.CfOps.BranchCondOp;
-import static dialect.cf.CfOps.BranchOp;
-import static dialect.func.FuncOps.FuncOp;
-import static dialect.func.FuncOps.ReturnOp;
-import static dialect.io.IoOps.PrintOp;
+import static dgir.dialect.arith.ArithOps.ConstantOp;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.cf.CfOps.BranchCondOp;
+import static dgir.dialect.cf.CfOps.BranchOp;
+import static dgir.dialect.func.FuncOps.FuncOp;
+import static dgir.dialect.func.FuncOps.ReturnOp;
+import static dgir.dialect.io.IoOps.PrintOp;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

@@ -1,11 +1,11 @@
 package dgir.vm.dialect.scf;
 
-import core.ir.Operation;
-import core.ir.Value;
+import dgir.core.ir.Operation;
+import dgir.core.ir.Value;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.scf.ScfOps;
+import dgir.dialect.scf.ScfOps;
 import io.arxila.javatuples.Quartet;
 import org.jetbrains.annotations.NotNull;
 

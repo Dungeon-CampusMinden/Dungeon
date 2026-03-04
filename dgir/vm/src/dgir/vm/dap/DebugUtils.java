@@ -1,6 +1,6 @@
 package dgir.vm.dap;
 
-import core.debug.Location;
+import dgir.core.debug.Location;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.jetbrains.annotations.Contract;
 

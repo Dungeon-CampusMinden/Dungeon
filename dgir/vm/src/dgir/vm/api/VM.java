@@ -1,9 +1,9 @@
 package dgir.vm.api;
 
-import core.debug.Location;
-import core.ir.Operation;
-import core.ir.Value;
-import core.traits.INoTerminator;
+import dgir.core.debug.Location;
+import dgir.core.ir.Operation;
+import dgir.core.ir.Value;
+import dgir.core.traits.INoTerminator;
 import dgir.vm.dap.DebugUtils;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
 
 public class VM {
   private @Nullable ProgramOp program;

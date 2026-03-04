@@ -1,23 +1,24 @@
-import static dgir.vm.dialect.io.IoRunners.ConsoleInRunner;
-import static dialect.arith.ArithAttrs.BinModeAttr;
-import static dialect.arith.ArithOps.BinaryOp;
-import static dialect.arith.ArithOps.ConstantOp;
-import static dialect.builtin.BuiltinOps.ProgramOp;
-import static dialect.builtin.BuiltinTypes.*;
-import static dialect.cf.CfOps.BranchCondOp;
-import static dialect.cf.CfOps.BranchOp;
-import static dialect.func.FuncOps.*;
-import static dialect.func.FuncTypes.FuncType;
-import static dialect.io.IoOps.ConsoleInOp;
-import static dialect.io.IoOps.PrintOp;
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import core.debug.Location;
-import core.ir.Block;
+import dgir.core.debug.Location;
+import dgir.core.ir.Block;
 import dgir.vm.api.VM;
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayInputStream;
 import java.util.List;
-import org.junit.jupiter.api.Test;
+
+import static dgir.dialect.arith.ArithAttrs.BinModeAttr;
+import static dgir.dialect.arith.ArithOps.BinaryOp;
+import static dgir.dialect.arith.ArithOps.ConstantOp;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.builtin.BuiltinTypes.*;
+import static dgir.dialect.cf.CfOps.BranchCondOp;
+import static dgir.dialect.cf.CfOps.BranchOp;
+import static dgir.dialect.func.FuncOps.*;
+import static dgir.dialect.func.FuncTypes.FuncType;
+import static dgir.dialect.io.IoOps.ConsoleInOp;
+import static dgir.dialect.io.IoOps.PrintOp;
+import static dgir.vm.dialect.io.IoRunners.ConsoleInRunner;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /** Testcases for the VM, only testing output from and to the console. */
 public class VmConsoleTest extends VmTestBase {

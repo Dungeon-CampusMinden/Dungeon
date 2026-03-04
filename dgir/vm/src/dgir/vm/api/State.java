@@ -1,8 +1,8 @@
 package dgir.vm.api;
 
-import core.ir.Operation;
-import core.ir.Value;
-import core.ir.ValueOperand;
+import dgir.core.ir.Operation;
+import dgir.core.ir.Value;
+import dgir.core.ir.ValueOperand;
 import java.util.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;

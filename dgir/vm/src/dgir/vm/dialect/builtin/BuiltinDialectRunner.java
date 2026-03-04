@@ -1,9 +1,9 @@
 package dgir.vm.dialect.builtin;
 
-import core.Dialect;
+import dgir.core.Dialect;
 import dgir.vm.api.DialectRunner;
 import dgir.vm.api.OpRunner;
-import dialect.builtin.BuiltinDialect;
+import dgir.dialect.builtin.BuiltinDialect;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 

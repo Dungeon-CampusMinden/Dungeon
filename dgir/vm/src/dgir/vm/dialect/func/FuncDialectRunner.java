@@ -1,9 +1,9 @@
 package dgir.vm.dialect.func;
 
-import core.Dialect;
+import dgir.core.Dialect;
 import dgir.vm.api.DialectRunner;
 import dgir.vm.api.OpRunner;
-import dialect.func.FuncDialect;
+import dgir.dialect.func.FuncDialect;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 

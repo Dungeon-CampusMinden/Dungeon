@@ -1,9 +1,9 @@
 package dgir.vm.dialect.cf;
 
-import core.Dialect;
+import dgir.core.Dialect;
 import dgir.vm.api.DialectRunner;
 import dgir.vm.api.OpRunner;
-import dialect.cf.CfDialect;
+import dgir.dialect.cf.CfDialect;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,7 +1,7 @@
 package dgir.vm.api;
 
-import core.debug.Location;
-import core.ir.Operation;
+import dgir.core.debug.Location;
+import dgir.core.ir.Operation;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.jetbrains.annotations.NotNull;
 

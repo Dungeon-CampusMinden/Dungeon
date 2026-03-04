@@ -1,9 +1,9 @@
-import static dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import core.Dialect;
-import core.serialization.Utils;
+import dgir.core.Dialect;
+import dgir.core.serialization.Utils;
 import dgir.vm.api.DialectRunner;
 import dgir.vm.api.VM;
 import dgir.vm.dialect.io.IoRunners;

@@ -1,10 +1,10 @@
 package dgir.vm.dialect.cf;
 
-import core.ir.Operation;
+import dgir.core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.cf.CfOps;
+import dgir.dialect.cf.CfOps;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;

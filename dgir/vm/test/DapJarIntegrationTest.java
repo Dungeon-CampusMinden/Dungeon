@@ -1,7 +1,7 @@
 import static org.junit.jupiter.api.Assertions.*;
 
-import core.Dialect;
-import core.serialization.Utils;
+import dgir.core.Dialect;
+import dgir.core.serialization.Utils;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetAddress;

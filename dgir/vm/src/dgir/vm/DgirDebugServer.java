@@ -1,9 +1,9 @@
 package dgir.vm;
 
-import static dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
 
-import core.Dialect;
-import core.serialization.Utils;
+import dgir.core.Dialect;
+import dgir.core.serialization.Utils;
 import dgir.vm.api.DialectRunner;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapServer;

@@ -1,17 +1,17 @@
-import static dialect.arith.ArithAttrs.BinModeAttr;
-import static dialect.arith.ArithOps.*;
-import static dialect.builtin.BuiltinAttrs.IntegerAttribute;
-import static dialect.builtin.BuiltinOps.ProgramOp;
-import static dialect.builtin.BuiltinTypes.*;
-import static dialect.func.FuncOps.FuncOp;
-import static dialect.func.FuncOps.ReturnOp;
-import static org.junit.jupiter.api.Assertions.*;
-
-import core.Dialect;
-import core.debug.Location;
+import dgir.core.Dialect;
+import dgir.core.debug.Location;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import static dgir.dialect.arith.ArithAttrs.BinModeAttr;
+import static dgir.dialect.arith.ArithOps.*;
+import static dgir.dialect.builtin.BuiltinAttrs.IntegerAttribute;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.builtin.BuiltinTypes.*;
+import static dgir.dialect.func.FuncOps.FuncOp;
+import static dgir.dialect.func.FuncOps.ReturnOp;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ArithTests {
   private static final Location LOC = Location.UNKNOWN;

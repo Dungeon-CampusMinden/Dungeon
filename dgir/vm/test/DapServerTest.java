@@ -1,13 +1,13 @@
-import static dialect.arith.ArithOps.ConstantOp;
-import static dialect.builtin.BuiltinOps.ProgramOp;
-import static dialect.func.FuncOps.FuncOp;
-import static dialect.func.FuncOps.ReturnOp;
-import static dialect.io.IoOps.PrintOp;
+import static dgir.dialect.arith.ArithOps.ConstantOp;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.func.FuncOps.FuncOp;
+import static dgir.dialect.func.FuncOps.ReturnOp;
+import static dgir.dialect.io.IoOps.PrintOp;
 import static org.junit.jupiter.api.Assertions.*;
 
-import core.Dialect;
-import core.debug.Location;
-import core.debug.ValueDebugInfo;
+import dgir.core.Dialect;
+import dgir.core.debug.Location;
+import dgir.core.debug.ValueDebugInfo;
 import dgir.vm.api.OpRunnerRegistry;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapServer;

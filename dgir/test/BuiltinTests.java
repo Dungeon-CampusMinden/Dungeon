@@ -1,17 +1,17 @@
-import core.Dialect;
-import core.debug.Location;
+import dgir.core.Dialect;
+import dgir.core.debug.Location;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static dialect.arith.ArithOps.ConstantOp;
-import static dialect.builtin.BuiltinOps.ProgramOp;
-import static dialect.builtin.BuiltinTypes.StringT;
-import static dialect.func.FuncOps.*;
-import static dialect.func.FuncTypes.FuncType;
-import static dialect.io.IoOps.PrintOp;
+import static dgir.dialect.arith.ArithOps.ConstantOp;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.builtin.BuiltinTypes.StringT;
+import static dgir.dialect.func.FuncOps.*;
+import static dgir.dialect.func.FuncTypes.FuncType;
+import static dgir.dialect.io.IoOps.PrintOp;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

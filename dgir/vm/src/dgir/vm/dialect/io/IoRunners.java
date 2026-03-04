@@ -1,11 +1,11 @@
 package dgir.vm.dialect.io;
 
-import core.ir.Operation;
+import dgir.core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.builtin.BuiltinTypes;
-import dialect.io.IoOps;
+import dgir.dialect.builtin.BuiltinTypes;
+import dgir.dialect.io.IoOps;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;

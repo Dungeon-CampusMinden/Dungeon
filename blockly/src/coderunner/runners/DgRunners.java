@@ -1,6 +1,6 @@
 package coderunner.runners;
 
-import core.ir.Operation;
+import dgir.core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;

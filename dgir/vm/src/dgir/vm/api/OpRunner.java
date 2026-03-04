@@ -1,8 +1,8 @@
 package dgir.vm.api;
 
-import core.ir.OperationDetails;
-import core.ir.Op;
-import core.ir.Operation;
+import dgir.core.ir.OperationDetails;
+import dgir.core.ir.Op;
+import dgir.core.ir.Operation;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class OpRunner {

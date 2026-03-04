@@ -1,12 +1,12 @@
-import static dialect.arith.ArithOps.ConstantOp;
-import static dialect.builtin.BuiltinOps.ProgramOp;
-import static dialect.func.FuncOps.FuncOp;
-import static dialect.func.FuncOps.ReturnOp;
-import static dialect.io.IoOps.PrintOp;
-import static dialect.scf.ScfOps.*;
-
-import core.debug.Location;
+import dgir.core.debug.Location;
 import org.junit.jupiter.api.Test;
+
+import static dgir.dialect.arith.ArithOps.ConstantOp;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.func.FuncOps.FuncOp;
+import static dgir.dialect.func.FuncOps.ReturnOp;
+import static dgir.dialect.io.IoOps.PrintOp;
+import static dgir.dialect.scf.ScfOps.*;
 
 /**
  * VM-level execution tests for all SCF runners: ForRunner, ContinueRunner, BreakRunner, IfRunner,

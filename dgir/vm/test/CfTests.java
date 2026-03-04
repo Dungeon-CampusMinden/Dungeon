@@ -1,22 +1,21 @@
-import core.debug.Location;
-import core.ir.Block;
+import dgir.core.debug.Location;
+import dgir.core.ir.Block;
+import dgir.dialect.builtin.BuiltinTypes.IntegerT;
 import dgir.vm.api.VM;
-import dialect.builtin.BuiltinTypes.IntegerT;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static dialect.arith.ArithAttrs.BinModeAttr.BinMode.EQ;
-import static dialect.arith.ArithOps.BinaryOp;
-import static dialect.arith.ArithOps.ConstantOp;
-import static dialect.builtin.BuiltinOps.ProgramOp;
-import static dialect.cf.CfOps.BranchCondOp;
-import static dialect.cf.CfOps.BranchOp;
-import static dialect.cf.CfOps.AssertOp;
-import static dialect.func.FuncOps.*;
-import static dialect.func.FuncTypes.FuncType;
-import static dialect.io.IoOps.PrintOp;
-import static org.junit.jupiter.api.Assertions.*;
+import static dgir.dialect.arith.ArithAttrs.BinModeAttr.BinMode.EQ;
+import static dgir.dialect.arith.ArithOps.BinaryOp;
+import static dgir.dialect.arith.ArithOps.ConstantOp;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.cf.CfOps.*;
+import static dgir.dialect.func.FuncOps.*;
+import static dgir.dialect.func.FuncTypes.FuncType;
+import static dgir.dialect.io.IoOps.PrintOp;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /** VM-level execution tests for CF dialect runners (branch and conditional branch). */
 public class CfTests extends VmTestBase {

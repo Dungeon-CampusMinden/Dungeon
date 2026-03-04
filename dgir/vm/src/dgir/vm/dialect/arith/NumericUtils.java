@@ -1,11 +1,12 @@
 package dgir.vm.dialect.arith;
 
-import static dialect.builtin.BuiltinTypes.*;
-
-import core.ir.Type;
-import core.ir.Value;
+import dgir.core.ir.Type;
+import dgir.core.ir.Value;
 import dgir.vm.api.State;
 import org.jetbrains.annotations.NotNull;
+
+import static dgir.dialect.builtin.BuiltinTypes.FloatT;
+import static dgir.dialect.builtin.BuiltinTypes.IntegerT;
 
 final class NumericUtils {
   private NumericUtils() {}

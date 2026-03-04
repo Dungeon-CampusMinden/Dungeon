@@ -1,5 +1,5 @@
-import core.serialization.Utils;
-import dialect.builtin.BuiltinOps;
+import dgir.core.serialization.Utils;
+import dgir.dialect.builtin.BuiltinOps;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

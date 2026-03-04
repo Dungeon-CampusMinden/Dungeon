@@ -1,6 +1,6 @@
 import blockly.dgir.compiler.java.JavaCompiler;
-import core.Dialect;
-import core.serialization.Utils;
+import dgir.core.Dialect;
+import dgir.core.serialization.Utils;
 import dgir.vm.api.DialectRunner;
 import dgir.vm.api.VM;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,7 +15,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
-import static dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class CompilerTest {
@@ -33,7 +33,7 @@ public class CompilerTest {
   }
 
   public static void testSource(String source) {
-    String callerName = core.Utils.getCallingMethodName();
+    String callerName = dgir.core.Utils.getCallingMethodName();
     String formatedCode = source.replace("%ClassName", callerName);
 
     // Ensure the output directory exists before writing files

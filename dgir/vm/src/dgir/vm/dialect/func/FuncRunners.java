@@ -1,12 +1,12 @@
 package dgir.vm.dialect.func;
 
-import core.SymbolTable;
-import core.ir.Operation;
-import core.ir.Value;
+import dgir.core.SymbolTable;
+import dgir.core.ir.Operation;
+import dgir.core.ir.Value;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dialect.func.FuncOps;
+import dgir.dialect.func.FuncOps;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 

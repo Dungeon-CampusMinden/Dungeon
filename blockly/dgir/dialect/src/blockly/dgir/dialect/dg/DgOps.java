@@ -1,12 +1,13 @@
 package blockly.dgir.dialect.dg;
 
-import core.Dialect;
-import core.debug.Location;
-import core.ir.NamedAttribute;
-import core.ir.Op;
-import core.ir.Operation;
-import core.traits.INoOperands;
-import core.traits.INoResult;
+import dgir.core.Dialect;
+import dgir.core.Utils;
+import dgir.core.debug.Location;
+import dgir.core.ir.NamedAttribute;
+import dgir.core.ir.Op;
+import dgir.core.ir.Operation;
+import dgir.core.traits.INoOperands;
+import dgir.core.traits.INoResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -19,7 +20,7 @@ import static blockly.dgir.dialect.dg.DgAttrs.*;
  * Sealed marker interface for all operations in the {@link DungeonDialect}.
  *
  * <p>Every concrete op must both extend {@link DungeonOp} and implement this interface so that
- * {@link core.Utils.Dialect#allOps} can discover it automatically via reflection.
+ * {@link Utils.Dialect#allOps} can discover it automatically via reflection.
  */
 public sealed interface DgOps {
   /**

@@ -1,5 +1,6 @@
 package blockly.dgir.compiler.java;
 
+import blockly.dgir.dialect.dg.DungeonDialect;
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.Range;
 import com.github.javaparser.StaticJavaParser;
@@ -15,16 +16,15 @@ import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.utils.Pair;
-import core.Dialect;
-import core.debug.Location;
-import core.debug.ValueDebugInfo;
-import core.ir.*;
-import core.serialization.Utils;
-import dialect.arith.ArithOps.BinaryOp;
-import dialect.builtin.BuiltinOps;
-import dialect.cf.CfOps;
-import blockly.dgir.dialect.dg.DungeonDialect;
-import dialect.func.FuncOps;
+import dgir.core.Dialect;
+import dgir.core.debug.Location;
+import dgir.core.debug.ValueDebugInfo;
+import dgir.core.ir.*;
+import dgir.core.serialization.Utils;
+import dgir.dialect.arith.ArithOps.BinaryOp;
+import dgir.dialect.builtin.BuiltinOps;
+import dgir.dialect.cf.CfOps;
+import dgir.dialect.func.FuncOps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,16 +32,16 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static dialect.arith.ArithAttrs.BinModeAttr.BinMode;
-import static dialect.arith.ArithOps.CastOp;
-import static dialect.arith.ArithOps.ConstantOp;
-import static dialect.builtin.BuiltinAttrs.*;
-import static dialect.builtin.BuiltinOps.ProgramOp;
-import static dialect.builtin.BuiltinTypes.*;
-import static dialect.func.FuncOps.FuncOp;
-import static dialect.func.FuncOps.ReturnOp;
-import static dialect.func.FuncTypes.FuncType;
-import static dialect.scf.ScfOps.*;
+import static dgir.dialect.arith.ArithAttrs.BinModeAttr.BinMode;
+import static dgir.dialect.arith.ArithOps.CastOp;
+import static dgir.dialect.arith.ArithOps.ConstantOp;
+import static dgir.dialect.builtin.BuiltinAttrs.*;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.builtin.BuiltinTypes.*;
+import static dgir.dialect.func.FuncOps.FuncOp;
+import static dgir.dialect.func.FuncOps.ReturnOp;
+import static dgir.dialect.func.FuncTypes.FuncType;
+import static dgir.dialect.scf.ScfOps.*;
 
 public class JavaCompiler {
   static Logger logger = Logger.getLogger(JavaCompiler.class.getName());

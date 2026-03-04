@@ -1,9 +1,9 @@
 package dgir.vm.api;
 
-import core.Dialect;
-import core.ir.Op;
-import core.ir.Operation;
-import core.ir.OperationDetails;
+import dgir.core.Dialect;
+import dgir.core.ir.Op;
+import dgir.core.ir.Operation;
+import dgir.core.ir.OperationDetails;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
