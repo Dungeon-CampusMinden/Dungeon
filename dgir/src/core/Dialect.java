@@ -54,6 +54,9 @@ public abstract class Dialect {
    * into their respective registries.
    */
   public void register() {
+    if (DGIRContext.registeredDialects.containsKey(this.getClass())) {
+      return;
+    }
     DGIRContext.registeredDialects.put(this.getClass(), this);
     DGIRContext.registeredDialectsByName.put(this.getNamespace(), this);
 

@@ -1,3 +1,4 @@
+import static dgir.vm.dialect.io.IoRunners.ConsoleInRunner;
 import static dialect.arith.ArithAttrs.BinModeAttr;
 import static dialect.arith.ArithOps.BinaryOp;
 import static dialect.arith.ArithOps.ConstantOp;
@@ -14,7 +15,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import core.debug.Location;
 import core.ir.Block;
 import dgir.vm.api.VM;
-import dgir.vm.dialect.io.ConsoleInRunner;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import org.junit.jupiter.api.Test;

@@ -3,7 +3,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import compiler.java.JavaCompiler;
 import core.serialization.Utils;
-import dgir.vm.api.OpRunnerRegistry;
+import dgir.vm.api.DialectRunner;
 import dgir.vm.api.VM;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class CompilerTest {
@@ -22,6 +23,11 @@ public class CompilerTest {
   public static boolean saveResult = true;
   public static String savePath = "test_results/";
   public static VM vm = new VM();
+
+  @BeforeAll
+  public static void setup() {
+    DialectRunner.registerAllDialects();
+  }
 
   public static void testSource(String source) {
     String callerName = core.Utils.getCallingMethodName();
@@ -67,7 +73,6 @@ public class CompilerTest {
       }
     }
 
-    OpRunnerRegistry.registerAllRunners();
     vm.init(programOp.get());
     try {
       assert vm.run() : "Execution failed";

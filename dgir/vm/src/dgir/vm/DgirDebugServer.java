@@ -1,20 +1,19 @@
 package dgir.vm;
 
+import static dialect.builtin.BuiltinOps.ProgramOp;
+
 import core.Dialect;
 import core.serialization.Utils;
-import dgir.vm.api.OpRunnerRegistry;
+import dgir.vm.api.DialectRunner;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapServer;
-import org.jetbrains.annotations.NotNull;
-import tools.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
-
-import static dialect.builtin.BuiltinOps.ProgramOp;
+import org.jetbrains.annotations.NotNull;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Entry-point for the DGIR VM DAP debug server.
@@ -80,7 +79,7 @@ public class DgirDebugServer {
 
     // Register all dialects and op runners (once, globally)
     Dialect.registerAllDialects();
-    OpRunnerRegistry.registerAllRunners();
+    DialectRunner.registerAllDialects();
 
     // Load the program if provided
     final ProgramOp program = programPath != null ? loadProgram(programPath) : null;

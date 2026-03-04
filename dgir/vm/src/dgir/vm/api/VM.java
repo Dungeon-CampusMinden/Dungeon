@@ -552,10 +552,11 @@ public class VM {
     assert state != null : "No state to execute the operation in.";
 
     Operation currentOp = opStack.pop();
-    OpRunner runner = OpRunnerRegistry.getOpRunner(currentOp);
-    assert runner != null : "No runner registered for operation " + currentOp.getDetails().ident();
+    var runnerOpt = OpRunnerRegistry.getOpRunner(currentOp);
+    assert runnerOpt.isPresent()
+        : "No runner registered for operation " + currentOp.getDetails().ident();
 
-    return runner.run(currentOp, state);
+    return runnerOpt.get().run(currentOp, state);
   }
 
   private void cleanupAfterAbort() {

@@ -1,26 +1,14 @@
 package dgir.vm.api;
 
+import core.Dialect;
 import core.ir.Op;
 import core.ir.Operation;
 import core.ir.OperationDetails;
-import dgir.vm.dialect.arith.BinaryRunner;
-import dgir.vm.dialect.arith.CastRunner;
-import dgir.vm.dialect.arith.ConstantRunner;
-import dgir.vm.dialect.builtin.IdRunner;
-import dgir.vm.dialect.builtin.ProgramRunner;
-import dgir.vm.dialect.cf.BranchCondRunner;
-import dgir.vm.dialect.cf.BranchRunner;
-import dgir.vm.dialect.func.CallRunner;
-import dgir.vm.dialect.func.FuncRunner;
-import dgir.vm.dialect.func.ReturnRunner;
-import dgir.vm.dialect.io.ConsoleInRunner;
-import dgir.vm.dialect.io.PrintRunner;
-import dgir.vm.dialect.scf.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * This class is responsible for managing the registry of operation runners in the Blockly VM. It
@@ -33,9 +21,23 @@ import org.jetbrains.annotations.Nullable;
  * logic of the VM.
  */
 public class OpRunnerRegistry {
-  private static final @NotNull Map<OperationDetails, OpRunner> registry = new HashMap<>();
+  private static final @NotNull Map<@NotNull Class<? extends Dialect>, @NotNull DialectRunner>
+      dialectRunners = new HashMap<>();
+  private static final @NotNull Map<@NotNull OperationDetails, @NotNull OpRunner> opRunners =
+      new HashMap<>();
 
   private OpRunnerRegistry() {}
+
+  public static void registerDialectRunner(@NotNull DialectRunner runner) {
+    if (dialectRunners.containsKey(runner.getDialect())) return;
+    registerOpRunners(runner.allRunners());
+    dialectRunners.put(runner.getDialect(), runner);
+  }
+
+  public static @NotNull Optional<DialectRunner> getDialectRunner(
+      @NotNull Class<? extends Dialect> dialect) {
+    return Optional.ofNullable(dialectRunners.get(dialect));
+  }
 
   public static void registerOpRunners(@NotNull List<OpRunner> runners) {
     for (OpRunner runner : runners) {
@@ -52,19 +54,19 @@ public class OpRunnerRegistry {
   }
 
   public static void registerOpRunner(@NotNull OperationDetails details, @NotNull OpRunner runner) {
-    registry.put(details, runner);
+    opRunners.put(details, runner);
   }
 
-  public static @Nullable OpRunner getOpRunner(@NotNull Op op) {
+  public static @NotNull Optional<OpRunner> getOpRunner(@NotNull Op op) {
     return getOpRunner(op.getDetails());
   }
 
-  public static @Nullable OpRunner getOpRunner(@NotNull Operation op) {
+  public static @NotNull Optional<OpRunner> getOpRunner(@NotNull Operation op) {
     return getOpRunner(op.getDetails());
   }
 
-  public static @Nullable OpRunner getOpRunner(@NotNull OperationDetails details) {
-    return registry.get(details);
+  public static @NotNull Optional<OpRunner> getOpRunner(@NotNull OperationDetails details) {
+    return Optional.ofNullable(opRunners.get(details));
   }
 
   public static boolean hasOpRunner(@NotNull Op op) {
@@ -76,40 +78,6 @@ public class OpRunnerRegistry {
   }
 
   public static boolean hasOpRunner(@NotNull OperationDetails details) {
-    return registry.containsKey(details);
-  }
-
-  public static void registerAllRunners() {
-    // arith
-    List<OpRunner> arithRunners =
-        List.of(new ConstantRunner(), new BinaryRunner(), new CastRunner());
-    registerOpRunners(arithRunners);
-
-    // builtin
-    List<OpRunner> builtinRunners = List.of(new ProgramRunner(), new IdRunner());
-    registerOpRunners(builtinRunners);
-
-    // cf
-    List<OpRunner> cfRunners = List.of(new BranchCondRunner(), new BranchRunner());
-    registerOpRunners(cfRunners);
-
-    // func
-    List<OpRunner> funcRunners = List.of(new CallRunner(), new FuncRunner(), new ReturnRunner());
-    registerOpRunners(funcRunners);
-
-    // io
-    List<OpRunner> ioRunners = List.of(new PrintRunner(), new ConsoleInRunner());
-    registerOpRunners(ioRunners);
-
-    // scf
-    List<OpRunner> scfRunners =
-        List.of(
-            new BreakRunner(),
-            new ContinueRunner(),
-            new ForRunner(),
-            new IfRunner(),
-            new ScopeRunner(),
-            new WhileRunner());
-    registerOpRunners(scfRunners);
+    return opRunners.containsKey(details);
   }
 }

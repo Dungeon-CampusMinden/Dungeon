@@ -1,19 +1,3 @@
-import core.debug.Location;
-import core.ir.Operation;
-import dgir.vm.api.DebugControl;
-import dgir.vm.api.VM;
-import dgir.vm.dap.DapAdapter;
-import dgir.vm.dialect.io.PrintRunner;
-import org.eclipse.lsp4j.debug.*;
-import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
-import java.util.Map;
-import java.util.concurrent.Callable;
-
 import static dialect.arith.ArithOps.ConstantOp;
 import static dialect.builtin.BuiltinOps.ProgramOp;
 import static dialect.func.FuncOps.FuncOp;
@@ -23,6 +7,21 @@ import static dialect.scf.ScfOps.ContinueOp;
 import static dialect.scf.ScfOps.ForOp;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
+import core.debug.Location;
+import core.ir.Operation;
+import dgir.vm.api.DebugControl;
+import dgir.vm.api.VM;
+import dgir.vm.dap.DapAdapter;
+import dgir.vm.dialect.io.IoRunners;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import org.eclipse.lsp4j.debug.*;
+import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 /**
  * Unit tests for {@link DapAdapter}.
@@ -34,7 +33,7 @@ import static org.mockito.Mockito.*;
 class DapAdapterTest extends VmTestBase {
   @BeforeAll
   static void init() {
-    PrintRunner.parallelSystemOut = false;
+    IoRunners.PrintRunner.parallelSystemOut = false;
   }
 
   // ---------------------------------------------------------------------------
