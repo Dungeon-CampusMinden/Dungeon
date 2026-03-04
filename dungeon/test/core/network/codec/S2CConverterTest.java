@@ -92,6 +92,7 @@ public class S2CConverterTest {
         3.0f,
         "idle",
         20,
+        512,
         animationConfig,
         spritesheetConfig,
         List.of(
@@ -225,6 +226,7 @@ public class S2CConverterTest {
     assertNotNull(roundTrip.drawInfo().states());
     assertEquals(1, roundTrip.drawInfo().states().size());
     assertEquals("idle", roundTrip.drawInfo().states().getFirst().stateName());
+    assertEquals(512, roundTrip.drawInfo().depth());
   }
 
   /** Verifies entity spawn batch conversion roundtrip. */

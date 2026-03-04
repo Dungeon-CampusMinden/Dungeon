@@ -203,7 +203,9 @@ public final class CommonProtoConverters {
     }
 
     core.network.proto.s2c.DrawInfo.Builder builder =
-        core.network.proto.s2c.DrawInfo.newBuilder().setTexturePath(texturePath);
+        core.network.proto.s2c.DrawInfo.newBuilder()
+            .setTexturePath(texturePath)
+            .setDepth(drawInfo.depth());
     if (drawInfo.scaleX() != null) {
       builder.setScaleX(drawInfo.scaleX());
     }
@@ -269,6 +271,7 @@ public final class CommonProtoConverters {
 
     Float scaleX = proto.hasScaleX() ? proto.getScaleX() : null;
     Float scaleY = proto.hasScaleY() ? proto.getScaleY() : null;
+    int depth = proto.getDepth();
     String animationName = null;
     Integer currentFrame = null;
 
@@ -320,6 +323,7 @@ public final class CommonProtoConverters {
         scaleY,
         animationName,
         currentFrame,
+        depth,
         animationConfig,
         spritesheetConfig,
         states);
