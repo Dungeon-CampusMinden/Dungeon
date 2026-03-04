@@ -7,6 +7,8 @@ import dgir.vm.api.State;
 import dialect.cf.CfOps;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public sealed interface CfRunners {
   final class BranchCondRunner extends OpRunner implements CfRunners {
     public BranchCondRunner() {
@@ -34,6 +36,29 @@ public sealed interface CfRunners {
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
       return Action.JumpToBlock(op.getSuccessors().getFirst());
+    }
+  }
+
+  final class AssertRunner extends OpRunner implements CfRunners {
+    public AssertRunner() {
+      super(CfOps.AssertOp.class);
+    }
+
+    @Override
+    protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
+      CfOps.AssertOp assertOp = op.as(CfOps.AssertOp.class).orElseThrow();
+      byte condition =
+          state.getValue(assertOp.getOperand(0).orElseThrow(), Byte.class).orElseThrow();
+      if (condition == 0) {
+        if (assertOp.getOperand(1).isPresent()) {
+          String message = state.getValue(assertOp.getOperand(1).get(), String.class).orElseThrow();
+          return Action.Abort(Optional.empty(), assertOp.getLocation() + " -> " + message);
+        } else {
+          return Action.Abort(
+              Optional.empty(), assertOp.getLocation() + " -> " + "Assertion failed.");
+        }
+      }
+      return Action.Next();
     }
   }
 }

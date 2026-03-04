@@ -6,8 +6,7 @@ import core.ir.Block;
 import core.ir.Op;
 import core.ir.Operation;
 import core.ir.Value;
-import core.traits.IControlFlow;
-import core.traits.ITerminator;
+import core.traits.*;
 import dialect.builtin.BuiltinTypes;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -127,7 +126,7 @@ public sealed interface CfOps {
    * cf.br ^target
    * }</pre>
    */
-  public final class BranchOp extends CfOp implements CfOps, ITerminator, IControlFlow {
+  final class BranchOp extends CfOp implements CfOps, ITerminator, IControlFlow {
 
     // =========================================================================
     // Type Info
@@ -172,6 +171,60 @@ public sealed interface CfOps {
     @Contract(pure = true)
     public @NotNull Block getTarget() {
       return getSuccessors().getFirst();
+    }
+  }
+
+  /**
+   * Assert that a condition holds at runtime, and abort execution if it does not. This is useful
+   * for encoding invariants that cannot be verified statically, but should be checked during
+   * testing.
+   *
+   * <p>It can either be used with a string attribute as its message or with a value as its message
+   * or none.
+   */
+  final class AssertOp extends CfOp implements CfOps, INoResult {
+    @Override
+    public @NotNull String getIdent() {
+      return "cf.assert";
+    }
+
+    @Override
+    public Function<Operation, Boolean> getVerifier() {
+      return operation -> {
+        AssertOp assertOp = operation.as(AssertOp.class).orElseThrow();
+
+        if (assertOp.getOperands().isEmpty() || assertOp.getOperands().size() > 2) {
+          assertOp.emitError("AssertOp must have either 1 or 2 operands");
+          return false;
+        }
+
+        if (assertOp.getOperandValue(0).isEmpty()) {
+          assertOp.emitError("Condition operand is missing");
+          return false;
+        }
+        if (!assertOp.getOperandValue(0).get().getType().equals(BuiltinTypes.IntegerT.BOOL)) {
+          assertOp.emitError("Condition operand must be of type int1");
+        }
+        if (assertOp.getOperandValue(1).isEmpty()) {
+          return true;
+        }
+        Value messageOperand = assertOp.getOperandValue(1).orElseThrow();
+        if (!messageOperand.getType().equals(BuiltinTypes.StringT.INSTANCE)) {
+          assertOp.emitError("Message operand must be of type string");
+          return false;
+        }
+        return true;
+      };
+    }
+
+    private AssertOp() {}
+
+    public AssertOp(@NotNull Location location, @NotNull Value condition) {
+      setOperation(Operation.Create(location, this, List.of(condition), null, null));
+    }
+
+    public AssertOp(@NotNull Location location, @NotNull Value condition, @NotNull Value message) {
+      setOperation(Operation.Create(location, this, List.of(condition, message), null, null));
     }
   }
 }

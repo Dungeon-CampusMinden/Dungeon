@@ -1,11 +1,11 @@
-import static dialect.builtin.BuiltinOps.ProgramOp;
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import compiler.java.JavaCompiler;
 import core.Dialect;
 import core.serialization.Utils;
 import dgir.vm.api.DialectRunner;
 import dgir.vm.api.VM;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -14,8 +14,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+
+import static dialect.builtin.BuiltinOps.ProgramOp;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class CompilerTest {
   public static boolean printSource = false;
@@ -239,4 +240,7 @@ public class %ClassName {
 """;
     testSource(code);
   }
+
+  @Test
+  void consoleOutTest() {}
 }
