@@ -16,7 +16,7 @@ sourceSets.test.resources.srcDirs = ['test_assets/']
 dependencies {
     implementation project(':dungeon')
     implementation project(':dgir')
-    implementation project(':blockly:vm')
+    implementation project(':blockly:dgir')
     implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.27.1'
 
     // JUnit 4 and Mockito for testing

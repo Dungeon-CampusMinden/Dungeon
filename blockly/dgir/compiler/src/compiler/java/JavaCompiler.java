@@ -1,16 +1,5 @@
 package compiler.java;
 
-import static dialect.arith.ArithAttrs.BinModeAttr.BinMode;
-import static dialect.arith.ArithOps.CastOp;
-import static dialect.arith.ArithOps.ConstantOp;
-import static dialect.builtin.BuiltinAttrs.*;
-import static dialect.builtin.BuiltinOps.ProgramOp;
-import static dialect.builtin.BuiltinTypes.*;
-import static dialect.func.FuncOps.FuncOp;
-import static dialect.func.FuncOps.ReturnOp;
-import static dialect.func.FuncTypes.FuncType;
-import static dialect.scf.ScfOps.*;
-
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.Range;
 import com.github.javaparser.StaticJavaParser;
@@ -36,11 +25,23 @@ import dialect.builtin.BuiltinOps;
 import dialect.cf.CfOps;
 import dialect.dg.DungeonDialect;
 import dialect.func.FuncOps;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.logging.Logger;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import static dialect.arith.ArithAttrs.BinModeAttr.BinMode;
+import static dialect.arith.ArithOps.CastOp;
+import static dialect.arith.ArithOps.ConstantOp;
+import static dialect.builtin.BuiltinAttrs.*;
+import static dialect.builtin.BuiltinOps.ProgramOp;
+import static dialect.builtin.BuiltinTypes.*;
+import static dialect.func.FuncOps.FuncOp;
+import static dialect.func.FuncOps.ReturnOp;
+import static dialect.func.FuncTypes.FuncType;
+import static dialect.scf.ScfOps.*;
 
 public class JavaCompiler {
   static Logger logger = Logger.getLogger(JavaCompiler.class.getName());

@@ -1,0 +1,36 @@
+plugins {
+    id 'java-library'
+    id "net.ltgt.errorprone" version "4.4.0"
+}
+
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['assets/']
+
+sourceSets.test.java.srcDirs = ['test/']
+sourceSets.test.resources.srcDirs = ['test_assets/']
+
+dependencies {
+    api project(':blockly:dgir:compiler')
+    api project(':blockly:dgir:dialect')
+    implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.27.1'
+
+    errorprone "com.google.errorprone:error_prone_core:2.46.0"
+
+    // JUnit 4 and Mockito for testing
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
+}
+
+tasks.register('test_dgir_blockydgir', Test) {
+    group = 'verification'
+    description = 'Runs both :dgir:test and :dgir:vm:test.'
+    dependsOn ':dgir:test', ':dgir:vm:test', ':blockly:dgir:compiler:test', ':blockly:dgir:dialect:test'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+
+repositories {
+    mavenCentral()
+}
