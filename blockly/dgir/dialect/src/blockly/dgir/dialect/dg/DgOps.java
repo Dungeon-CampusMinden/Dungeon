@@ -1,6 +1,4 @@
-package dialect.dg;
-
-import static dialect.dg.DgAttrs.*;
+package blockly.dgir.dialect.dg;
 
 import core.Dialect;
 import core.debug.Location;
@@ -9,10 +7,13 @@ import core.ir.Op;
 import core.ir.Operation;
 import core.traits.INoOperands;
 import core.traits.INoResult;
-import java.util.List;
-import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.List;
+import java.util.function.Function;
+
+import static blockly.dgir.dialect.dg.DgAttrs.*;
 
 /**
  * Sealed marker interface for all operations in the {@link DungeonDialect}.

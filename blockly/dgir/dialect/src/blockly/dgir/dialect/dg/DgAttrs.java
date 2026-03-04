@@ -1,4 +1,4 @@
-package dialect.dg;
+package blockly.dgir.dialect.dg;
 
 import core.Dialect;
 import core.ir.Attribute;

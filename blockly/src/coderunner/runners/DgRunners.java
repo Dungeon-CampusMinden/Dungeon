@@ -1,7 +1,5 @@
 package coderunner.runners;
 
-import static dialect.dg.DgOps.*;
-
 import core.ir.Operation;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;

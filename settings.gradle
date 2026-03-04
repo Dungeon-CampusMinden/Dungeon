@@ -30,6 +30,3 @@ include 'dungeon',
     'advancedDungeon',
     'escapeRoom',
     'theLastHourEscapeRoom'
-
-include 'blockly:dgir:compiler'
-include 'blockly:dgir:dialect'

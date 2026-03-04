@@ -1,4 +1,4 @@
-package compiler.java;
+package blockly.dgir.compiler.java;
 
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.Range;
@@ -23,7 +23,7 @@ import core.serialization.Utils;
 import dialect.arith.ArithOps.BinaryOp;
 import dialect.builtin.BuiltinOps;
 import dialect.cf.CfOps;
-import dialect.dg.DungeonDialect;
+import blockly.dgir.dialect.dg.DungeonDialect;
 import dialect.func.FuncOps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

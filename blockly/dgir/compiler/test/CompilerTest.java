@@ -1,4 +1,4 @@
-import compiler.java.JavaCompiler;
+import blockly.dgir.compiler.java.JavaCompiler;
 import core.Dialect;
 import core.serialization.Utils;
 import dgir.vm.api.DialectRunner;
