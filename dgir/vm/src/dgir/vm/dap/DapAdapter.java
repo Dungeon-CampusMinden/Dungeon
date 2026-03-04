@@ -1,8 +1,6 @@
 package dgir.vm.dap;
 
 
-import static dialect.func.FuncOps.FuncOp;
-
 import core.debug.Location;
 import core.debug.ValueDebugInfo;
 import core.ir.Block;
@@ -12,6 +10,14 @@ import core.ir.Value;
 import dgir.vm.api.DebugControl;
 import dgir.vm.api.Debugger;
 import dgir.vm.api.VM;
+import org.eclipse.lsp4j.debug.*;
+import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
+import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.lang.Thread;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -19,12 +25,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.eclipse.lsp4j.debug.*;
-import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
-import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import static dialect.func.FuncOps.FuncOp;
 
 /**
  * DAP adapter for the DGIR {@link VM}.
