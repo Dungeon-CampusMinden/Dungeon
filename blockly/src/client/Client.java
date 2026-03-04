@@ -93,8 +93,6 @@ public class Client {
     // build and start game
     try {
       Game.run();
-    } catch (Error error) {
-      java.lang.System.out.println(error.getMessage());
     } finally {
       // Ensure that the server is stopped when the game ends
       if (httpServer != null) {
@@ -140,7 +138,6 @@ public class Client {
 
           startServer();
 
-          DungeonLoader.loadLevel(0);
         });
   }
 

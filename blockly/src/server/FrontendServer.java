@@ -25,7 +25,6 @@ public class FrontendServer {
         "/",
         exchange -> {
           String uriPath = exchange.getRequestURI().getPath();
-          System.out.println(exchange.getRequestMethod() + " " + uriPath);
 
           // Default auf index.html
           if (uriPath.equals("/")) {
