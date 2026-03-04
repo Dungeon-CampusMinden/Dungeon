@@ -7,9 +7,7 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.file.*;
 
-/**
-  * This class is hosting the html files for the blockly dungeon.
- */
+/** This class is hosting the html files for the blockly dungeon. */
 public class FrontendServer {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(BlocklyCodeRunner.class);
