@@ -49,8 +49,8 @@ public sealed interface FuncRunners {
       FuncOps.ReturnOp returnOp = op.as(FuncOps.ReturnOp.class).orElseThrow();
       Optional<Value> returnValue = returnOp.getReturnValue();
       return returnValue
-          .map(value -> Action.Terminate(state.getValue(value)))
-          .orElseGet(() -> Action.Terminate(null));
+          .map(value -> Action.Terminate(state.getValue(value), true))
+          .orElseGet(() -> Action.Terminate(null, true));
     }
   }
 }

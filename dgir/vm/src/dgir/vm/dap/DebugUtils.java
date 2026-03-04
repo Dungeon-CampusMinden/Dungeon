@@ -2,8 +2,10 @@ package dgir.vm.dap;
 
 import core.debug.Location;
 import org.eclipse.lsp4j.debug.Breakpoint;
+import org.jetbrains.annotations.Contract;
 
 public interface DebugUtils {
+  @Contract(pure = true)
   static boolean breakpointMatches(Breakpoint bp, Location location) {
     if (bp == null || location == null) return false;
     Integer line = bp.getLine();

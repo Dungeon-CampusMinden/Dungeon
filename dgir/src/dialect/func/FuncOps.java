@@ -8,6 +8,7 @@ import core.debug.Location;
 import core.ir.*;
 import core.traits.*;
 import dialect.builtin.BuiltinAttrs;
+import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -281,7 +282,7 @@ public sealed interface FuncOps {
    * }</pre>
    */
   final class FuncOp extends FuncBaseOp
-      implements FuncOps, ISymbol, IIsolatedFromAbove, IGlobal, ISingleRegion {
+      implements FuncOps, ImplicitTerminator, ISymbol, IIsolatedFromAbove, IGlobal, ISingleRegion {
 
     // =========================================================================
     // Type Info
@@ -305,6 +306,12 @@ public sealed interface FuncOps {
           new NamedAttribute(
               SymbolTable.getSymbolAttributeName(), new BuiltinAttrs.StringAttribute("foo")),
           new NamedAttribute("type", new BuiltinAttrs.TypeAttribute(new FuncType())));
+    }
+
+    @Override
+    public Constructor<? extends ITerminator> getImplicitTerminatorType()
+        throws NoSuchMethodException {
+      return ReturnOp.class.getConstructor(Location.class);
     }
 
     // =========================================================================

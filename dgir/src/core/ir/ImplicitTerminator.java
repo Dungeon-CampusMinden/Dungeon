@@ -1,5 +1,6 @@
 package core.ir;
 
+import core.debug.Location;
 import core.traits.ITerminator;
 import java.lang.reflect.Constructor;
 
@@ -23,10 +24,14 @@ public interface ImplicitTerminator {
       for (Block block : region.getBlocks()) {
         if (block.getTerminator().isEmpty()) {
           try {
-            Op terminator =
-                (Op)
-                    getImplicitTerminatorType()
-                        .newInstance(block.getParentOperation().orElseThrow().getLocation());
+            Location trueLocation;
+
+            if (block.getOperations().isEmpty())
+              trueLocation = block.getParentOperation().orElseThrow().getLocation();
+            else trueLocation = block.getOperations().getLast().getLocation();
+            Location debugLocation =
+                new Location(trueLocation.file(), trueLocation.line() + 1, trueLocation.column());
+            Op terminator = (Op) getImplicitTerminatorType().newInstance(debugLocation);
             block.addOperation(terminator);
           } catch (Exception e) {
             throw new RuntimeException(

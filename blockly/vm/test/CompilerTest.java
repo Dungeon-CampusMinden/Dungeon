@@ -2,6 +2,7 @@ import static dialect.builtin.BuiltinOps.ProgramOp;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import compiler.java.JavaCompiler;
+import core.Dialect;
 import core.serialization.Utils;
 import dgir.vm.api.DialectRunner;
 import dgir.vm.api.VM;
@@ -26,6 +27,7 @@ public class CompilerTest {
 
   @BeforeAll
   public static void setup() {
+    Dialect.registerAllDialects();
     DialectRunner.registerAllDialects();
   }
 

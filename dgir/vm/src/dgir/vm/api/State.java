@@ -6,12 +6,14 @@ import core.ir.ValueOperand;
 import java.util.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 public class State {
   private final @NotNull Map<Value, Object> values = new HashMap<>();
   public long instructionCount = 0;
 
   public final @NotNull Deque<Pair<Set<Value>, Boolean>> stackFrames = new ArrayDeque<>();
+  public final @NotNull Deque<Operation> callStack = new ArrayDeque<>();
 
   /**
    * Opens a new stack frame.
@@ -59,6 +61,22 @@ public class State {
       }
     }
     return Optional.of(frame);
+  }
+
+  public void pushCallStack(Operation op) {
+    callStack.push(op);
+  }
+
+  public Optional<Operation> popCallStack() {
+    return Optional.ofNullable(callStack.pop());
+  }
+
+  public Optional<Operation> peekCallStack() {
+    return Optional.ofNullable(callStack.peek());
+  }
+
+  public @NotNull @Unmodifiable SequencedCollection<@NotNull Operation> getCallStack() {
+    return Collections.unmodifiableSequencedCollection(callStack);
   }
 
   /**
@@ -152,6 +170,7 @@ public class State {
   public void reset() {
     values.clear();
     stackFrames.clear();
+    callStack.clear();
     instructionCount = 0;
   }
 

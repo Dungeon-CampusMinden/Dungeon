@@ -9,7 +9,7 @@
             "name": "Debug DGIR Program",
             "request": "launch",
             "dapPort": 4711,
-            "jarPath": "${workspaceFolder}/dgir-vm-dap.jar",
+            "jarPath": "${workspaceFolder}/../../../dgir/vm/build/libs/dgir-vm-dap.jar",
             "stopOnEntry": true,
             "useTerminal": true,
             "stopServerOnExit": true

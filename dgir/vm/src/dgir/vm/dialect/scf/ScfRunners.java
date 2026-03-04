@@ -18,7 +18,7 @@ public sealed interface ScfRunners {
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
       // Just terminate the current region.
-      return Action.Terminate(null);
+      return Action.Terminate(null, false);
     }
   }
 
@@ -45,7 +45,7 @@ public sealed interface ScfRunners {
       // the
       // ContinueOp
       else {
-        return Action.Terminate(null);
+        return Action.Terminate(null, false);
       }
     }
 
@@ -72,7 +72,7 @@ public sealed interface ScfRunners {
       }
 
       // Terminate the loop.
-      return Action.Terminate(null);
+      return Action.Terminate(null, false);
     }
 
     public Action handleWhileOp(ScfOps.ContinueOp continueOp, ScfOps.WhileOp whileOp, State state) {

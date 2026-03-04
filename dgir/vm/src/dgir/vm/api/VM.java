@@ -20,8 +20,7 @@ public class VM {
   private @Nullable State state;
   private @Nullable Action lastAction;
 
-  private final @NotNull Deque<Operation> callStack = new ArrayDeque<>();
-  private final @NotNull Deque<Operation> opStack = new ArrayDeque<>();
+  private final @NotNull Deque<@NotNull Operation> opStack = new ArrayDeque<>();
 
   // =========================================================================
   // Debug support
@@ -32,6 +31,16 @@ public class VM {
 
   /** Active breakpoints. Only consulted when a {@link Debugger} is attached. */
   private final @NotNull Set<Breakpoint> breakpoints = new HashSet<>();
+
+  /**
+   * The breakpoints that have been hit in the current stackframe. This is used to prevent firing
+   * the same breakpoint multiple times when stepping through an op that matches a breakpoint (e.g.
+   * because it has multiple source locations. The set is cleared whenever we step or jump to a
+   * different operation, so the same breakpoint can be hit again if we return to the same line
+   * later.
+   */
+  private final @NotNull Deque<@NotNull Optional<Breakpoint>> currentHitBreakpoints =
+      new ArrayDeque<>();
 
   /**
    * Pause/resume lock. When a debugger callback returns {@link DebugControl#PAUSE} the VM thread
@@ -55,7 +64,12 @@ public class VM {
      * Step-over: keep running until the call-stack depth has returned to {@link #stepTargetDepth},
      * then pause. Equivalent to the DAP "next" command.
      */
-    STEP_OVER
+    STEP_OVER,
+    /**
+     * Step-out: keep running until the call-stack depth has returned to 0, then pause. Equivalent
+     * to the DAP "stepOut" command.
+     */
+    STEP_OUT
   }
 
   /** The active single-step mode; only consulted while the VM is running. */
@@ -104,7 +118,6 @@ public class VM {
     assert state != null : "VM not initialized with a state.";
     assert program != null : "VM not initialized with a program.";
     state.reset();
-    callStack.clear();
     opStack.clear();
     opStack.push(program.getOperation());
     lastAction = null;
@@ -179,22 +192,7 @@ public class VM {
    */
   public @NotNull Location getCurrentLocation() {
     if (opStack.isEmpty()) return Location.UNKNOWN;
-    Operation top = opStack.peek();
-    return top == null ? Location.UNKNOWN : top.getLocation();
-  }
-
-  /**
-   * Returns a snapshot of the current operation stack from top (innermost) to bottom (outermost).
-   *
-   * <p>This may be called from any thread while the VM is paused to populate the DAP {@code
-   * StackTraceResponse}. Each entry is a pending {@link Operation}; entries that are call-site
-   * markers (operations whose next op was pushed beneath them) are included so the debugger can
-   * show a meaningful call chain.
-   *
-   * @return an unmodifiable list of operations, innermost first.
-   */
-  public @NotNull @Unmodifiable List<Operation> getCallStack() {
-    return List.copyOf(callStack);
+    return opStack.peek().getLocation();
   }
 
   /**
@@ -233,6 +231,7 @@ public class VM {
    * different source line (or the program ends).
    */
   public void stepOver() {
+    assert state != null : "VM not initialised with a state.";
     pauseLock.lock();
     try {
       paused = false;
@@ -240,7 +239,7 @@ public class VM {
       // Record the current callstack depth so we can detect when we have returned to
       // the same "level". The op currently on top will be executed next (and may push
       // nested ops); we want to pause once the stack is back at this depth.
-      stepTargetDepth = callStack.size();
+      stepTargetDepth = state.getCallStack().size();
       // Remember which source line we are stepping from so we can skip over peer IR
       // operations that belong to the same line.
       stepOriginLocation = getCurrentLocation();
@@ -265,6 +264,31 @@ public class VM {
       stepMode = StepMode.STEP_IN;
       // Remember which source line we are stepping from so we can skip over peer IR
       // operations that belong to the same line.
+      stepOriginLocation = getCurrentLocation();
+      resumeCondition.signalAll();
+    } finally {
+      pauseLock.unlock();
+    }
+  }
+
+  /**
+   * Step out of the current function: keep running until the call stack is back at the level of the
+   * current function's caller, then pause. Implements the DAP "stepOut" command. Calling this when
+   * the VM is not paused is a no-op.
+   *
+   * <p>Stepping is <em>line-granular</em>: if the next operation still belongs to the same source
+   * line, the VM keeps advancing until it reaches a different line (or the program ends
+   */
+  public void stepOut() {
+    assert state != null : "VM not initialised with a state.";
+    pauseLock.lock();
+    try {
+      paused = false;
+      stepMode = StepMode.STEP_OUT;
+      // Record the current callstack depth -1 so we can step through the outer stack frame as
+      // expected without entering
+      // called methods.
+      stepTargetDepth = state.getCallStack().size() - 1;
       stepOriginLocation = getCurrentLocation();
       resumeCondition.signalAll();
     } finally {
@@ -307,12 +331,10 @@ public class VM {
       assert state != null : "No state to execute the operation in.";
 
       Operation currentOp = opStack.peek();
-      assert currentOp != null : "Reached end of program without an explicit jump or return.";
 
       // We reached the end of the program. This is a special case since the operation will not
       // push a next operation onto the stack and we would loop endlessly if we did not stop here.
       if (currentOp.hasTrait(INoTerminator.class) && lastAction instanceof Action.Terminate) {
-        callStack.pop();
         opStack.pop();
         return Action.Next();
       }
@@ -323,26 +345,42 @@ public class VM {
       if (debugger != null) {
         Location location = currentOp.getLocation();
 
-        // Check breakpoints first; only fire the first matching one per step.
-        // Breakpoints always interrupt execution, even during a step-over.
-        for (Breakpoint bp : breakpoints) {
-          if (DebugUtils.breakpointMatches(bp, location)) {
-            DebugControl bpCtrl = debugger.onBreakpointHit(currentOp, bp, location);
-            if (bpCtrl == DebugControl.PAUSE) {
-              // A breakpoint hit cancels any pending step mode so the prior step context
-              // does not bleed into the next user command.
-              stepMode = StepMode.NONE;
-              stepOriginLocation = Location.UNKNOWN;
-              // Block until the user issues continue/next/stepIn.
-              // Important: currentOp is still on opStack (it was peek()ed, not pop()ed), so
-              // any stepOver()/stepIn() call that arrives while we wait here will read
-              // getCurrentLocation() == currentOp.getLocation(). That means stepOriginLocation
-              // is set to the breakpointed op's line, which is exactly right: the subsequent
-              // step will execute the breakpointed op and then advance to the next source line,
-              // skipping any peer IR ops that share the same line as the breakpoint.
-              waitForResume();
+        // Only hit breakpoints if we handled the entry hit. It has priority and overshadows
+        // breakpoints.
+        if (debugger.entryHit()) {
+          assert currentHitBreakpoints.size() == state.getCallStack().size()
+              : "currentHitBreakpoints should always have a set for the current stack frame.";
+          // Check breakpoints first; only fire the first matching one per step.
+          // Breakpoints always interrupt execution, even during a step-over.
+          for (Breakpoint bp : breakpoints) {
+            if (DebugUtils.breakpointMatches(bp, location)
+                && (currentHitBreakpoints.isEmpty() || currentHitBreakpoints.peek().isEmpty())) {
+              DebugControl bpCtrl = debugger.onBreakpointHit(currentOp, bp, location);
+              if (bpCtrl == DebugControl.PAUSE) {
+                // Push the breakpoint onto the stack so that we can detect when it is hit again.
+                currentHitBreakpoints.pop();
+                currentHitBreakpoints.push(Optional.of(bp));
+                // A breakpoint hit cancels any pending step mode so the prior step context
+                // does not bleed into the next user command.
+                stepMode = StepMode.NONE;
+                stepOriginLocation = Location.UNKNOWN;
+                // Block until the user issues continue/next/stepIn/stepOut.
+                waitForResume();
+              }
+              break;
             }
-            break;
+          }
+        } else {
+          // Avoid hitting the breakpoint after stopping on entry by pushing marking the breakpoint
+          // on the entry line as hit
+          for (Breakpoint bp : breakpoints) {
+            if (DebugUtils.breakpointMatches(bp, location)) {
+              // Push the breakpoint onto the stack so that we can detect when it is hit again.
+              currentHitBreakpoints.pop();
+              currentHitBreakpoints.push(Optional.of(bp));
+              stepOriginLocation = location;
+              break;
+            }
           }
         }
 
@@ -380,112 +418,68 @@ public class VM {
           cleanupAfterAbort();
         }
         // Call another function. This is only used for function calls.
-        case Action.Call call -> {
-          // Push the next operation beneath the call operation to the op stack.
-          // This way when returning from the function, the VM will know which operation to execute
-          // next.
-          currentOp.getNext().ifPresent(opStack::push);
-          // Push the current op onto the stack so that we can retrieve it when we want to set the
-          // return value of the function.
-          opStack.push(currentOp);
-          state.pushStackFrame(true);
-
-          Operation funcOp = call.funcOp();
-          // Set the values of the function's arguments in the new stack frame.
-          // These values are stored as body values in the function's region.'
-          List<Value> bodyValues = funcOp.getFirstRegion().orElseThrow().getBodyValues();
-          setupRegion(state, bodyValues, call.args());
-          callStack.push(funcOp);
-          opStack.push(funcOp.getFirstRegion().get().getEntryOperation());
-        }
+        case Action.Call call -> handleCall(call, currentOp);
         // Jump to another block in the same region. This is used for control flow operations like
         // if and while.
-        case Action.JumpToBlock jumpToBlock -> {
-          opStack.push(jumpToBlock.target().getOperations().getFirst());
-        }
+        case Action.JumpToBlock jumpToBlock -> handleJumpToBlock(jumpToBlock);
         // Jump to another region in the same block. This is used for control flow operations like
         // while which have a
         // separate region for the body and the condition check logic.
-        case Action.JumpToRegion jumpToRegion -> {
-          assert currentOp.getParentOperation().equals(jumpToRegion.target().getParent())
-              : "Jumping to other region only allowed in the same parent operation.";
-          // Remove all the values currently held
-          var oldFrame = state.popStackFrame().orElseThrow();
-          state.pushStackFrame(oldFrame.getRight());
-          // Set the values of the region's arguments in the new stack frame. These values are
-          // stored as body values in the region.
-          List<Value> bodyValues = jumpToRegion.target().getBodyValues();
-          setupRegion(state, bodyValues, jumpToRegion.args());
-          opStack.push(jumpToRegion.target().getEntryOperation());
-        }
+        case Action.JumpToRegion jumpToRegion -> handleJumpToRegion(jumpToRegion, currentOp);
         // Return from the current region. This is used for function calls, as well as for returning
         // from if and while
         // blocks and similar structured control flow ops
-        case Action.Terminate aTerminate -> {
-          state.popStackFrame();
-          Operation caller = opStack.pop();
-          if (aTerminate.value() != null) {
-            state.setValueForOutput(caller, aTerminate.value());
-          }
-        }
+        case Action.Terminate aTerminate -> handleTerminate(aTerminate);
         // Step into a region. This is used for nested regions like the then and else regions of an
         // if operation, or the
         // body of a while operation, as well as function calls.
         // It opens a new stack frame for the region and jumps to the first operation in the region.
-        case Action.StepIntoRegion stepIntoRegion -> {
-          currentOp
-              .getNext()
-              .ifPresentOrElse(
-                  opStack::push,
-                  () -> {
-                    currentOp.emitError(
-                        "Reached end of block without an explicit jump or return after stepping into region.");
-                    throw new IllegalStateException();
-                  });
-          // Push the current op onto the stack so that we can retrieve it when we want to set the
-          // return value that
-          // the region returns.
-          opStack.push(currentOp);
-          // Open a new stack frame for the region and jump to the first operation in the region.
-          state.pushStackFrame(stepIntoRegion.isolatedFromAbove());
+        case Action.StepIntoRegion stepIntoRegion ->
+            handleStepIntoRegion(stepIntoRegion, currentOp);
+      }
+      Operation nextOp = opStack.peek();
+      Location nextLocation = nextOp != null ? nextOp.getLocation() : currentOp.getLocation();
 
-          // Same as for the func op we need to push the body values of the region onto the stack.
-          List<Value> bodyValues = stepIntoRegion.region().getBodyValues();
-          setupRegion(state, bodyValues, stepIntoRegion.args());
-          opStack.push(stepIntoRegion.region().getEntryOperation());
+      // Line-granularity: even if the depth is right, keep running silently while the
+      // next operation is still on the same source line we stepped from.  This prevents
+      // the user having to press "next" multiple times to advance through a single
+      // high-level statement that lowers to several IR operations on the same line.
+      //
+      // Special cases that always pause regardless of line:
+      //   • The program is about to end (nextOp == null) — we must pause so the debugger
+      //     can show the final state before the exited event fires.
+      //   • The origin location is UNKNOWN — locations are not tracked for this program,
+      //     so fall back to op-granular stepping.
+      boolean onSameLine =
+          nextOp != null
+              && !stepOriginLocation.equals(Location.UNKNOWN)
+              && nextLocation.file().equals(stepOriginLocation.file())
+              && nextLocation.line() == stepOriginLocation.line();
+
+      // If we are currently on a breakpoint, check if the next operation is still on the same
+      // breakpoint. If not, we can remove the breakpoint from the stack and allow it to be hit
+      // again if we return to the same line later.
+      if (!currentHitBreakpoints.isEmpty() && currentHitBreakpoints.peek().isPresent()) {
+        boolean onSameBreakpoint = isOnSameBreakpoint(onSameLine, nextLocation);
+
+        // Remove the current breakpoint since we might hit another one on the same line next
+        if (!onSameBreakpoint) {
+          currentHitBreakpoints.pop();
+          currentHitBreakpoints.push(Optional.empty());
         }
       }
 
       // If we did a single-step, decide whether to pause now.
       if (stepMode != StepMode.NONE) {
-        Operation nextOp = opStack.peek();
-        Location nextLocation = nextOp != null ? nextOp.getLocation() : currentOp.getLocation();
-
         // Depth condition: have we returned to the level we started stepping at?
         boolean depthConditionMet =
             switch (stepMode) {
               // Step-in: depth is always satisfied after any single operation.
               case STEP_IN -> true;
               // Step-over: only once the call-stack depth is back at (or below) the target.
-              case STEP_OVER -> callStack.size() <= stepTargetDepth;
+              case STEP_OVER, STEP_OUT -> state.getCallStack().size() <= stepTargetDepth;
               case NONE -> false;
             };
-
-        // Line-granularity: even if the depth is right, keep running silently while the
-        // next operation is still on the same source line we stepped from.  This prevents
-        // the user having to press "next" multiple times to advance through a single
-        // high-level statement that lowers to several IR operations on the same line.
-        //
-        // Special cases that always pause regardless of line:
-        //   • The program is about to end (nextOp == null) — we must pause so the debugger
-        //     can show the final state before the exited event fires.
-        //   • The origin location is UNKNOWN — locations are not tracked for this program,
-        //     so fall back to op-granular stepping.
-        boolean onSameLine =
-            nextOp != null
-                && !stepOriginLocation.equals(Location.UNKNOWN)
-                && nextLocation.file().equals(stepOriginLocation.file())
-                && nextLocation.line() == stepOriginLocation.line();
 
         boolean shouldPauseNow = depthConditionMet && !onSameLine;
 
@@ -511,6 +505,117 @@ public class VM {
       cleanupAfterAbort();
       return Action.Abort(Optional.of(e), "Error during execution: " + e);
     }
+  }
+
+  private void handleStepIntoRegion(Action.StepIntoRegion stepIntoRegion, Operation currentOp) {
+    assert state != null;
+    currentOp
+        .getNext()
+        .ifPresentOrElse(
+            opStack::push,
+            () -> {
+              currentOp.emitError(
+                  "Reached end of block without an explicit jump or return after stepping into region.");
+              throw new IllegalStateException();
+            });
+    // Push the current op onto the stack so that we can retrieve it when we want to set the
+    // return value that
+    // the region returns.
+    opStack.push(currentOp);
+    // Open a new stack frame for the region and jump to the first operation in the region.
+    state.pushStackFrame(stepIntoRegion.isolatedFromAbove());
+    currentHitBreakpoints.push(Optional.empty());
+
+    // Same as for the func op we need to push the body values of the region onto the stack.
+    List<Value> bodyValues = stepIntoRegion.region().getBodyValues();
+    setupRegion(state, bodyValues, stepIntoRegion.args());
+    opStack.push(stepIntoRegion.region().getEntryOperation());
+  }
+
+  private void handleTerminate(Action.Terminate aTerminate) {
+    assert state != null;
+    state.popStackFrame();
+    if (aTerminate.fromCall()) state.popCallStack();
+    currentHitBreakpoints.pop();
+    Operation caller = opStack.pop();
+    if (aTerminate.value() != null) {
+      state.setValueForOutput(caller, aTerminate.value());
+    }
+  }
+
+  private void handleJumpToRegion(Action.JumpToRegion jumpToRegion, Operation currentOp) {
+    assert state != null;
+    assert currentOp.getParentOperation().equals(jumpToRegion.target().getParent())
+        : "Jumping to other region only allowed in the same parent operation.";
+    // Remove all the values currently held
+    var oldFrame = state.popStackFrame().orElseThrow();
+    currentHitBreakpoints.pop();
+    state.pushStackFrame(oldFrame.getRight());
+    currentHitBreakpoints.push(Optional.empty());
+    // Set the values of the region's arguments in the new stack frame. These values are
+    // stored as body values in the region.
+    List<Value> bodyValues = jumpToRegion.target().getBodyValues();
+    setupRegion(state, bodyValues, jumpToRegion.args());
+    opStack.push(jumpToRegion.target().getEntryOperation());
+  }
+
+  private void handleJumpToBlock(Action.JumpToBlock jumpToBlock) {
+    opStack.push(jumpToBlock.target().getOperations().getFirst());
+    // Reset the currently hit breakpoints since we are jumping to another block and might hit
+    // the same breakpoint again.
+    currentHitBreakpoints.pop();
+    currentHitBreakpoints.push(Optional.empty());
+  }
+
+  private void handleCall(Action.Call call, Operation currentOp) {
+    assert state != null;
+    // Push the next operation beneath the call operation to the op stack.
+    // This way when returning from the function, the VM will know which operation to execute
+    // next.
+    currentOp.getNext().ifPresent(opStack::push);
+    // Push the current op onto the stack so that we can retrieve it when we want to set the
+    // return value of the function.
+    opStack.push(currentOp);
+    state.pushStackFrame(true);
+    currentHitBreakpoints.push(Optional.empty());
+
+    Operation funcOp = call.funcOp();
+    // Set the values of the function's arguments in the new stack frame.
+    // These values are stored as body values in the function's region.'
+    List<Value> bodyValues = funcOp.getFirstRegion().orElseThrow().getBodyValues();
+    setupRegion(state, bodyValues, call.args());
+    state.pushCallStack(funcOp);
+    opStack.push(funcOp.getFirstRegion().get().getEntryOperation());
+  }
+
+  /**
+   * Helper for determining whether the next operation is still on the same breakpoint as the
+   * current one. This is used to prevent firing the same breakpoint multiple times when stepping
+   * through an op that matches a breakpoint (e.g. because it has multiple source locations). The
+   * set of currently hit breakpoints is tracked in {@link #currentHitBreakpoints} and this method
+   * checks whether the next operation belongs to the same breakpoint as the current one by
+   * comparing the source location of the next operation with the location of the breakpoint. If the
+   * breakpoint is column sensitive, it also checks the column of the next operation to make sure we
+   * are not on another breakpoint on the same line.
+   *
+   * @param onSameLine whether the next operation is on the same line as the current one.
+   * @param nextLocation the source location of the next operation.
+   * @return true if the next operation is on the same breakpoint as the current one,
+   */
+  private boolean isOnSameBreakpoint(boolean onSameLine, Location nextLocation) {
+    boolean onSameBreakpoint = onSameLine;
+    assert !currentHitBreakpoints.isEmpty();
+    Optional<Breakpoint> currentBreakpoint = currentHitBreakpoints.peek();
+    // If the breakpoint is column sensitive check the column of the next operation as well to
+    // check if we are on another breakpoint.
+    if (onSameLine
+        && currentBreakpoint.isPresent()
+        && currentBreakpoint.get().getColumn() != null) {
+      onSameBreakpoint =
+          currentBreakpoint.get().getColumn().equals(nextLocation.column())
+              && currentBreakpoint.get().getLine() == nextLocation.line();
+    }
+    return onSameBreakpoint;
   }
 
   // =========================================================================

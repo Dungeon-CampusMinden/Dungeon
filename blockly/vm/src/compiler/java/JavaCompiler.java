@@ -31,7 +31,6 @@ import core.debug.Location;
 import core.debug.ValueDebugInfo;
 import core.ir.*;
 import core.serialization.Utils;
-import core.traits.ITerminator;
 import dialect.arith.ArithOps.BinaryOp;
 import dialect.builtin.BuiltinOps;
 import dialect.cf.CfOps;
@@ -486,12 +485,7 @@ public class JavaCompiler {
       previousInsertionPoint.ifPresent(p -> context.setInsertionPoint(p.a, p.b));
       // Make sure we have an implicit return in case the method has a void return type and the last
       // statement is not a return statement.
-      for (Block block : funcOp.getRegion().getBlocks()) {
-        if (block.getOperations().isEmpty()
-            || !block.getOperations().getLast().hasTrait(ITerminator.class)) {
-          block.addOperation(new ReturnOp(context.loc(n)));
-        }
-      }
+      funcOp.addImplicitTerminators();
     }
 
     @Override
@@ -574,14 +568,19 @@ public class JavaCompiler {
 
     @Override
     public void visit(ReturnStmt n, EmitContext arg) {
+      Location trueLocation = arg.loc(n);
+      // Move the debug location one further down than the actual return statement, so we can step
+      // to the closing curly bracket of functions and inspect the values produced.
+      Location debugLocation =
+          new Location(trueLocation.file(), trueLocation.line() + 1, trueLocation.column());
       if (n.getExpression().isPresent()) {
         EmitResult<Optional<Value>> exprRes = emitExpression(n.getExpression().get(), arg);
         if (exprRes.isFailure() || exprRes.get().isEmpty()) {
           return;
         }
-        arg.insert(new ReturnOp(arg.loc(n), exprRes.get().get()));
+        arg.insert(new ReturnOp(debugLocation, exprRes.get().get()));
       } else {
-        arg.insert(new ReturnOp(arg.loc(n)));
+        arg.insert(new ReturnOp(debugLocation));
       }
     }
 

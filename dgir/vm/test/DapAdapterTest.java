@@ -145,6 +145,11 @@ class DapAdapterTest extends VmTestBase {
     return prog;
   }
 
+  static ProgramOp functionCallsWithOverload() {
+    return TestUtils.loadProgram("functionCallWithOverload.json")
+        .orElseThrow(() -> new RuntimeException("Failed to load test program"));
+  }
+
   /** Create a VM + DapAdapter wired with a mock client; returns both. */
   static AdapterHandle createHandle(ProgramOp prog) {
     VM vm = new VM();

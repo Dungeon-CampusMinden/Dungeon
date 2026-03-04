@@ -68,10 +68,11 @@ public sealed interface Action {
    * does not return anything.
    *
    * @param value The value to return. Can be null if the block does not return anything.
+   * @param fromCall Whether the termination is from a call operation
    * @return An action that represents the return.
    */
-  static @NotNull Action Terminate(@Nullable Object value) {
-    return new Terminate(value);
+  static @NotNull Action Terminate(@Nullable Object value, boolean fromCall) {
+    return new Terminate(value, fromCall);
   }
 
   /**
@@ -138,8 +139,9 @@ public sealed interface Action {
    * does not return anything.
    *
    * @param value The value to return. Can be null if the block does not return anything.
+   * @param fromCall Whether the termination is from a call operation
    */
-  record Terminate(@Nullable Object value) implements Action {}
+  record Terminate(@Nullable Object value, boolean fromCall) implements Action {}
 
   /**
    * Aborts the execution of the program with the given message.

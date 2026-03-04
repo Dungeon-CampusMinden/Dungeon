@@ -7,14 +7,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import core.Dialect;
 import core.debug.Location;
+import core.ir.Operation;
 import dgir.vm.api.OpRunnerRegistry;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapServer;
 import dgir.vm.dialect.io.IoRunners;
+import dialect.builtin.BuiltinAttrs.FloatAttribute;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -195,6 +198,52 @@ class DapServerTest extends VmTestBase {
     main.addOperation(new PrintOp(new Location("test.dgir", 6, 1), b.getValue()), 0);
     main.addOperation(new ReturnOp(new Location("test.dgir", 7, 1)), 0);
     return prog;
+  }
+
+  /**
+   * Loads a DGIR program from the test resource {@code "functionCallWithOverload.json"}, which
+   * contains a simple program that calls an overloaded function.
+   *
+   * <pre>{@code
+   * public class functionCallWithOverload {
+   *   public static void main() {
+   *     int result = add(5, 10);
+   *     float resultfloat = add(5f, 10f);
+   *   }
+   *
+   *   public static int add(int a, int b) {
+   *     return a + b;
+   *   }
+   *
+   *   public static float add(float a, float b) {
+   *     return a + b;
+   *   }
+   * }
+   * }</pre>
+   */
+  static ProgramOp functionCallsWithOverload() {
+    ProgramOp program =
+        TestUtils.loadProgram("functionCallWithOverload.json")
+            .orElseThrow(() -> new RuntimeException("Failed to load test program"));
+    normalizeFloatAttributes(program.getOperation());
+    return program;
+  }
+
+  private static void normalizeFloatAttributes(Operation op) {
+    for (var namedAttr : op.getNamedAttributes()) {
+      if (namedAttr.getAttribute() instanceof FloatAttribute floatAttr) {
+        // JSON deserialization may leave float32 values as Double; normalize to the declared width.
+        floatAttr.setValue(floatAttr.getValue());
+      }
+    }
+
+    for (var region : op.getRegions()) {
+      for (var block : region.getBlocks()) {
+        for (var nested : block.getOperations()) {
+          normalizeFloatAttributes(nested);
+        }
+      }
+    }
   }
 
   /**
@@ -412,6 +461,55 @@ class DapServerTest extends VmTestBase {
     Map<String, Object> launchArgs = stopOnEntry ? Map.of("stopOnEntry", true) : Map.of();
     remote.launch(launchArgs).get(5, TimeUnit.SECONDS);
     remote.configurationDone(new ConfigurationDoneArguments()).get(5, TimeUnit.SECONDS);
+  }
+
+  static void initializeHandshake(ClientSession session) throws Exception {
+    InitializeRequestArguments initArgs = new InitializeRequestArguments();
+    initArgs.setClientID("test");
+    assertNotNull(session.remote().initialize(initArgs).get(5, TimeUnit.SECONDS));
+    session.client().awaitInitialized();
+  }
+
+  static void launchAndConfigDone(ClientSession session, boolean stopOnEntry) throws Exception {
+    Map<String, Object> launchArgs = stopOnEntry ? Map.of("stopOnEntry", true) : Map.of();
+    session.remote().launch(launchArgs).get(5, TimeUnit.SECONDS);
+    session.remote().configurationDone(new ConfigurationDoneArguments()).get(5, TimeUnit.SECONDS);
+  }
+
+  static void setBreakpointsOnLines(ClientSession session, String sourcePath, int... lines)
+      throws Exception {
+    Source src = new Source();
+    src.setPath(sourcePath);
+
+    SourceBreakpoint[] sourceBreakpoints = new SourceBreakpoint[lines.length];
+    for (int i = 0; i < lines.length; i++) {
+      SourceBreakpoint sb = new SourceBreakpoint();
+      sb.setLine(lines[i]);
+      sourceBreakpoints[i] = sb;
+    }
+
+    SetBreakpointsArguments bpArgs = new SetBreakpointsArguments();
+    bpArgs.setSource(src);
+    bpArgs.setBreakpoints(sourceBreakpoints);
+
+    SetBreakpointsResponse bpResp =
+        session.remote().setBreakpoints(bpArgs).get(5, TimeUnit.SECONDS);
+    assertEquals(lines.length, bpResp.getBreakpoints().length);
+    for (var bp : bpResp.getBreakpoints()) {
+      assertTrue(bp.isVerified(), "Breakpoint should be verified");
+    }
+  }
+
+  static StackFrame topFrame(ClientSession session) throws Exception {
+    StackTraceArguments stArgs = new StackTraceArguments();
+    stArgs.setThreadId(1);
+    StackTraceResponse st = session.remote().stackTrace(stArgs).get(5, TimeUnit.SECONDS);
+    assertTrue(st.getStackFrames().length > 0, "Expected at least one frame");
+    return st.getStackFrames()[0];
+  }
+
+  static int topLine(ClientSession session) throws Exception {
+    return topFrame(session).getLine();
   }
 
   // =========================================================================
@@ -973,5 +1071,134 @@ class DapServerTest extends VmTestBase {
     }
 
     assertEquals(2, callCount[0], "vmFactory should have been called twice");
+  }
+
+  // =========================================================================
+  // Overload program DAP tests
+  // =========================================================================
+
+  static final String OVERLOAD_SOURCE = "functionCallWithOverload.java";
+
+  /**
+   * Verifies that the overload program runs to completion when started with the stop-on-entry
+   * option, and that stepping over the first three lines reaches the fourth line.
+   *
+   * <p><b>Steps:</b>
+   *
+   * <ol>
+   *   <li>Connect to a server running the overload program.
+   *   <li>Perform the full DAP handshake with {@code stopOnEntry=true}.
+   *   <li>Wait for the {@code stopped("entry")} event and assert the top line is 2.
+   *   <li>Send two {@code next} requests and assert the top line advances to 4.
+   *   <li>Send {@code continue}; wait for {@code exited} and {@code terminated}.
+   * </ol>
+   */
+  @Test
+  void endToEnd_overload_stopOnEntry_stepOver_reachesFourthLine() throws Exception {
+    ClientSession session = connect(functionCallsWithOverload());
+    fullHandshake(session, true);
+
+    StoppedEventArguments entry = session.client().awaitStopped();
+    assertEquals("entry", entry.getReason());
+    assertEquals(2, topLine(session));
+
+    session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
+    StoppedEventArguments firstStep = session.client().awaitStopped();
+    assertEquals("step", firstStep.getReason());
+    assertEquals(3, topLine(session));
+
+    session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
+    StoppedEventArguments secondStep = session.client().awaitStopped();
+    assertEquals("step", secondStep.getReason());
+    assertEquals(4, topLine(session));
+
+    session.remote().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+    session.client().awaitExited();
+    session.client().awaitTerminated();
+    session.close();
+  }
+
+  /**
+   * Verifies that a breakpoint set on line 3 of the overload program causes the adapter to pause
+   * execution at that line, and that stepping over it then reaches line 4.
+   *
+   * <p><b>Steps:</b>
+   *
+   * <ol>
+   *   <li>Connect to a server running the overload program.
+   *   <li>Perform the initialize handshake.
+   *   <li>Set a breakpoint on line 3 and launch the program with stop-on-entry.
+   *   <li>Wait for the {@code stopped("entry")} event.
+   *   <li>Send a {@code continue} request; wait for the {@code stopped("breakpoint")} event at line
+   *       3.
+   *   <li>Send a {@code next} request; assert the top line advances to 4.
+   *   <li>Send {@code continue}; wait for {@code exited} and {@code terminated}.
+   * </ol>
+   */
+  @Test
+  void endToEnd_overload_breakpointLine3_thenStepOver_reachesLine4() throws Exception {
+    ClientSession session = connect(functionCallsWithOverload());
+    initializeHandshake(session);
+    setBreakpointsOnLines(session, OVERLOAD_SOURCE, 3);
+    launchAndConfigDone(session, true);
+
+    StoppedEventArguments entry = session.client().awaitStopped();
+    assertEquals("entry", entry.getReason());
+    assertEquals(3, topLine(session));
+
+    session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
+    StoppedEventArguments stepped = session.client().awaitStopped();
+    assertEquals("step", stepped.getReason());
+    assertEquals(4, topLine(session));
+
+    session.remote().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+    session.client().awaitExited();
+    session.client().awaitTerminated();
+    session.close();
+  }
+
+  /**
+   * Verifies that breakpoints set on lines 3 and 8 of the overload program are hit in sequence when
+   * stepping into the {@code add(int, int)} callee and then stepping out again.
+   *
+   * <p><b>Steps:</b>
+   *
+   * <ol>
+   *   <li>Connect to a server running the overload program.
+   *   <li>Perform the initialize handshake.
+   *   <li>Set breakpoints on lines 3 and 8, then launch the program.
+   *   <li>Wait for the breakpoint at line 3.
+   *   <li>Send a {@code stepIn} request; wait for the breakpoint at line 8 or a step event.
+   *   <li>Send a {@code stepOut} request; wait for the next step event.
+   *   <li>Send {@code continue}; wait for {@code exited} and {@code terminated}.
+   * </ol>
+   */
+  @Test
+  void endToEnd_overload_breakpoints3and8_stepIn_and_stepOut() throws Exception {
+    ClientSession session = connect(functionCallsWithOverload());
+    initializeHandshake(session);
+    setBreakpointsOnLines(session, OVERLOAD_SOURCE, 3, 8);
+    launchAndConfigDone(session, false);
+
+    StoppedEventArguments bp3 = session.client().awaitStopped();
+    assertEquals("breakpoint", bp3.getReason());
+    assertEquals(3, topLine(session));
+
+    session.remote().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
+    StoppedEventArguments inCallee = session.client().awaitStopped();
+    assertTrue(
+        Set.of("step", "breakpoint").contains(inCallee.getReason()),
+        "stepIn into add(int,int) should pause by step or by breakpoint");
+    assertEquals(8, topLine(session));
+
+    session.remote().stepOut(new StepOutArguments()).get(5, TimeUnit.SECONDS);
+    StoppedEventArguments outToCaller = session.client().awaitStopped();
+    assertEquals("step", outToCaller.getReason());
+    assertEquals(4, topLine(session));
+
+    session.remote().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+    session.client().awaitExited();
+    session.client().awaitTerminated();
+    session.close();
   }
 }

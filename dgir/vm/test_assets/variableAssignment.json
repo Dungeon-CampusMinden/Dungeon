@@ -1,6 +1,6 @@
 {
     "ident": "program",
-    "loc": "HelloWorld.java:1:1",
+    "loc": "variableAssignment.java:1:1",
     "regions": [
         {
             "blocks": [
@@ -9,7 +9,7 @@
                     "operations": [
                         {
                             "ident": "func.func",
-                            "loc": "HelloWorld.java:2:4",
+                            "loc": "variableAssignment.java:2:3",
                             "attributes": [
                                 {
                                     "name": "type",
@@ -35,49 +35,65 @@
                                             "operations": [
                                                 {
                                                     "ident": "arith.constant",
-                                                    "loc": "HelloWorld.java:3:8",
+                                                    "loc": "variableAssignment.java:3:13",
                                                     "attributes": [
                                                         {
                                                             "name": "value",
                                                             "attribute": {
-                                                                "ident": "stringAttr",
-                                                                "type": "string",
-                                                                "value": "Hello World!\n"
+                                                                "ident": "integerAttr",
+                                                                "type": "int32",
+                                                                "value": 5
                                                             }
                                                         }
                                                     ],
                                                     "output": {
                                                         "@id": "%0",
-                                                        "type": "string",
+                                                        "type": "int32",
                                                         "debug": {
-                                                            "loc": "HelloWorld.java:3:9",
-                                                            "name": "greeting"
+                                                            "loc": "variableAssignment.java:3:9",
+                                                            "name": "x"
                                                         }
                                                     }
                                                 },
                                                 {
-                                                    "ident": "io.print",
-                                                    "loc": "HelloWorld.java:4:8",
+                                                    "ident": "arith.constant",
+                                                    "loc": "variableAssignment.java:4:9",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "integerAttr",
+                                                                "type": "int32",
+                                                                "value": 10
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%1",
+                                                        "type": "int32"
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "id",
+                                                    "loc": "variableAssignment.java:4:5",
                                                     "operands": [
                                                         {
-                                                            "index": 0,
-                                                            "value": "%0"
+                                                            "value": "%1"
                                                         }
-                                                    ]
+                                                    ],
+                                                    "output": "%0"
                                                 },
                                                 {
                                                     "ident": "func.return",
-                                                    "loc": "HelloWorld.java:4:8"
+                                                    "loc": "variableAssignment.java:2:3"
                                                 }
-                                            ],
-                                            "index": 0
+                                            ]
                                         }
                                     ]
                                 }
                             ]
                         }
-                    ],
-                    "index": 0
+                    ]
                 }
             ]
         }

@@ -1,7 +1,7 @@
 package dgir.vm.api;
 
-import core.ir.Operation;
 import core.debug.Location;
+import core.ir.Operation;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,5 +50,7 @@ public interface Debugger {
       @NotNull Operation operation,
       @NotNull Breakpoint breakpoint,
       @NotNull Location location);
+
+  boolean entryHit();
 }
 

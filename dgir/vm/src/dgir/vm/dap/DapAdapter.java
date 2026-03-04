@@ -1,6 +1,9 @@
 package dgir.vm.dap;
 
+import static dialect.func.FuncOps.FuncOp;
+
 import core.debug.Location;
+import core.debug.ValueDebugInfo;
 import core.ir.Block;
 import core.ir.Operation;
 import core.ir.Region;
@@ -8,13 +11,6 @@ import core.ir.Value;
 import dgir.vm.api.DebugControl;
 import dgir.vm.api.Debugger;
 import dgir.vm.api.VM;
-import org.eclipse.lsp4j.debug.*;
-import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
-import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.lang.Thread;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -22,8 +18,12 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static dialect.func.FuncOps.FuncOp;
+import org.eclipse.lsp4j.debug.*;
+import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
+import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * DAP adapter for the DGIR {@link VM}.
@@ -112,6 +112,15 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   }
 
   // =========================================================================
+  // Getters
+  // =========================================================================
+  @Override
+  @Contract(pure = true)
+  public boolean entryHit() {
+    return entryHit;
+  }
+
+  // =========================================================================
   // IDebugProtocolServer — lifecycle
   // =========================================================================
 
@@ -128,6 +137,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     caps.setSupportsConfigurationDoneRequest(true);
     caps.setSupportsBreakpointLocationsRequest(true);
     caps.setSupportsStepInTargetsRequest(true);
+    caps.setSupportsStepBack(true);
     caps.setSupportsSingleThreadExecutionRequests(true);
     caps.setSupportsEvaluateForHovers(true);
     // Notify the client that we are ready for breakpoint configuration.
@@ -145,6 +155,9 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   public CompletableFuture<Void> launch(Map<String, Object> args) {
     Object soe = args != null ? args.get("stopOnEntry") : null;
     stopOnEntry = Boolean.TRUE.equals(soe);
+    if (!stopOnEntry) {
+      entryHit = true;
+    }
     startVmThread();
     return CompletableFuture.completedFuture(null);
   }
@@ -239,7 +252,8 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
 
     String requestedPath = args.getSource() != null ? args.getSource().getPath() : null;
     int startLine = args.getLine() > 0 ? args.getLine() : 1;
-    int endLine = args.getEndLine() > 0 ? args.getEndLine() : startLine;
+    int endLine = startLine;
+    if (args.getEndLine() != null) endLine = args.getEndLine() > 0 ? args.getEndLine() : startLine;
 
     List<BreakpointLocation> locations = new ArrayList<>();
 
@@ -329,6 +343,13 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     return CompletableFuture.completedFuture(null);
   }
 
+  @Override
+  public CompletableFuture<Void> stepOut(StepOutArguments args) {
+    stepPending = true;
+    vm.stepOut();
+    return CompletableFuture.completedFuture(null);
+  }
+
   /** DAP pause: request a suspend on the next safe point. */
   @Override
   public CompletableFuture<Void> pause(PauseArguments args) {
@@ -359,7 +380,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
    */
   @Override
   public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
-    List<Operation> callStack = vm.getCallStack();
+    List<Operation> callStack = vm.getState().orElseThrow().getCallStack().stream().toList();
     List<StackFrame> frames = new ArrayList<>();
 
     Location currentLoc = vm.getCurrentLocation();
@@ -484,13 +505,15 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
                 Value value = entry.getKey();
                 Object obj = entry.getValue();
 
-                Variable v = new Variable();
-                v.setName(getValueDebugName(value));
-                v.setValue(formatValue(obj));
-                v.setType(value.getType().toString());
-                // No nested children for primitive/object values at the IR level.
-                v.setVariablesReference(0);
-                vars.add(v);
+                if (!value.getDebugInfo().equals(ValueDebugInfo.UNKNOWN)) {
+                  Variable v = new Variable();
+                  v.setName(getValueDebugName(value));
+                  v.setValue(formatValue(obj));
+                  v.setType(value.getType().toString());
+                  // No nested children for primitive/object values at the IR level.
+                  v.setVariablesReference(0);
+                  vars.add(v);
+                }
               }
             });
 
@@ -557,7 +580,6 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
    */
   @Override
   public @NotNull DebugControl onStep(@NotNull Operation operation, @NotNull Location location) {
-
     if (stopOnEntry && !entryHit) {
       if (isEntryOperation(operation)) {
         entryHit = true;
