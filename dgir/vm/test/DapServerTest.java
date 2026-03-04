@@ -7,17 +7,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import core.Dialect;
 import core.debug.Location;
-import core.ir.Operation;
+import core.debug.ValueDebugInfo;
 import dgir.vm.api.OpRunnerRegistry;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapServer;
 import dgir.vm.dialect.io.IoRunners;
-import dialect.builtin.BuiltinAttrs.FloatAttribute;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -193,8 +191,10 @@ class DapServerTest extends VmTestBase {
     ProgramOp prog = new ProgramOp(new Location("test.dgir", 1, 1));
     FuncOp main = prog.addOperation(new FuncOp(new Location("test.dgir", 2, 1), "main"));
     var a = main.addOperation(new ConstantOp(new Location("test.dgir", 3, 1), "A"), 0);
+    a.getValue().setDebugInfo(new ValueDebugInfo(a.getLocation(), "a"));
     main.addOperation(new PrintOp(new Location("test.dgir", 4, 1), a.getValue()), 0);
     var b = main.addOperation(new ConstantOp(new Location("test.dgir", 5, 1), "B"), 0);
+    b.getValue().setDebugInfo(new ValueDebugInfo(b.getLocation(), "b"));
     main.addOperation(new PrintOp(new Location("test.dgir", 6, 1), b.getValue()), 0);
     main.addOperation(new ReturnOp(new Location("test.dgir", 7, 1)), 0);
     return prog;
@@ -222,28 +222,8 @@ class DapServerTest extends VmTestBase {
    * }</pre>
    */
   static ProgramOp functionCallsWithOverload() {
-    ProgramOp program =
-        TestUtils.loadProgram("functionCallWithOverload.json")
-            .orElseThrow(() -> new RuntimeException("Failed to load test program"));
-    normalizeFloatAttributes(program.getOperation());
-    return program;
-  }
-
-  private static void normalizeFloatAttributes(Operation op) {
-    for (var namedAttr : op.getNamedAttributes()) {
-      if (namedAttr.getAttribute() instanceof FloatAttribute floatAttr) {
-        // JSON deserialization may leave float32 values as Double; normalize to the declared width.
-        floatAttr.setValue(floatAttr.getValue());
-      }
-    }
-
-    for (var region : op.getRegions()) {
-      for (var block : region.getBlocks()) {
-        for (var nested : block.getOperations()) {
-          normalizeFloatAttributes(nested);
-        }
-      }
-    }
+    return TestUtils.loadProgram("functionCallWithOverload.json")
+        .orElseThrow(() -> new RuntimeException("Failed to load test program"));
   }
 
   /**
@@ -932,7 +912,7 @@ class DapServerTest extends VmTestBase {
     session.client().awaitStopped(); // entry pause
 
     // Step into one to execute ConstantOp("A") and produce the first binding.
-    session.remote().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
+    session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
     session.client().awaitStopped(); // step
 
     // Step again — executes PrintOp("A"), creating the first visible binding.
@@ -1100,17 +1080,17 @@ class DapServerTest extends VmTestBase {
 
     StoppedEventArguments entry = session.client().awaitStopped();
     assertEquals("entry", entry.getReason());
-    assertEquals(2, topLine(session));
+    assertEquals(3, topLine(session));
 
     session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
     StoppedEventArguments firstStep = session.client().awaitStopped();
     assertEquals("step", firstStep.getReason());
-    assertEquals(3, topLine(session));
+    assertEquals(4, topLine(session));
 
     session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
     StoppedEventArguments secondStep = session.client().awaitStopped();
     assertEquals("step", secondStep.getReason());
-    assertEquals(4, topLine(session));
+    assertEquals(5, topLine(session));
 
     session.remote().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
     session.client().awaitExited();
@@ -1186,9 +1166,12 @@ class DapServerTest extends VmTestBase {
 
     session.remote().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
     StoppedEventArguments inCallee = session.client().awaitStopped();
-    assertTrue(
-        Set.of("step", "breakpoint").contains(inCallee.getReason()),
-        "stepIn into add(int,int) should pause by step or by breakpoint");
+    assertEquals("step", inCallee.getReason(), "stepIn into add(int,int) should pause by step");
+    assertEquals(8, topLine(session));
+
+    session.remote().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
+    StoppedEventArguments breakpoint8 = session.client().awaitStopped();
+    assertEquals("breakpoint", breakpoint8.getReason(), "step should pause at breakpoint line 8");
     assertEquals(8, topLine(session));
 
     session.remote().stepOut(new StepOutArguments()).get(5, TimeUnit.SECONDS);

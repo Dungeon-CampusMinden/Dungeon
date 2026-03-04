@@ -165,7 +165,7 @@
                                                 },
                                                 {
                                                     "ident": "func.return",
-                                                    "loc": "functionCallWithOverload.java:2:3"
+                                                    "loc": "functionCallWithOverload.java:5:25"
                                                 }
                                             ]
                                         }
@@ -240,7 +240,7 @@
                                                 },
                                                 {
                                                     "ident": "func.return",
-                                                    "loc": "functionCallWithOverload.java:8:5",
+                                                    "loc": "functionCallWithOverload.java:9:5",
                                                     "operands": [
                                                         {
                                                             "value": "%9"
@@ -320,7 +320,7 @@
                                                 },
                                                 {
                                                     "ident": "func.return",
-                                                    "loc": "functionCallWithOverload.java:12:5",
+                                                    "loc": "functionCallWithOverload.java:13:5",
                                                     "operands": [
                                                         {
                                                             "value": "%13"

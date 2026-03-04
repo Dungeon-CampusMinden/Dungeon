@@ -98,7 +98,7 @@
                                                                         },
                                                                         {
                                                                             "ident": "scf.continue",
-                                                                            "loc": "variableAssignment_scoped.java:2:29"
+                                                                            "loc": "variableAssignment_scoped.java:7:7"
                                                                         }
                                                                     ]
                                                                 }
@@ -155,7 +155,7 @@
                                                 },
                                                 {
                                                     "ident": "func.return",
-                                                    "loc": "variableAssignment_scoped.java:2:3"
+                                                    "loc": "variableAssignment_scoped.java:9:13"
                                                 }
                                             ]
                                         }

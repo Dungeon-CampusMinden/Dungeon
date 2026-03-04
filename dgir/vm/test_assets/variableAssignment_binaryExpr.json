@@ -628,7 +628,7 @@
                                                 },
                                                 {
                                                     "ident": "func.return",
-                                                    "loc": "variableAssignment_binaryExpr.java:2:3"
+                                                    "loc": "variableAssignment_binaryExpr.java:14:15"
                                                 }
                                             ]
                                         }

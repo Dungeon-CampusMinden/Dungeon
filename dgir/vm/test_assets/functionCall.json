@@ -100,7 +100,7 @@
                                                 },
                                                 {
                                                     "ident": "func.return",
-                                                    "loc": "functionCall.java:2:3"
+                                                    "loc": "functionCall.java:4:18"
                                                 }
                                             ]
                                         }
@@ -175,7 +175,7 @@
                                                 },
                                                 {
                                                     "ident": "func.return",
-                                                    "loc": "functionCall.java:7:5",
+                                                    "loc": "functionCall.java:8:5",
                                                     "operands": [
                                                         {
                                                             "value": "%6"

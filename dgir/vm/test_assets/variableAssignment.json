@@ -85,7 +85,7 @@
                                                 },
                                                 {
                                                     "ident": "func.return",
-                                                    "loc": "variableAssignment.java:2:3"
+                                                    "loc": "variableAssignment.java:5:5"
                                                 }
                                             ]
                                         }

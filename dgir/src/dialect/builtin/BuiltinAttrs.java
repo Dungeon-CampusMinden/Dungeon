@@ -89,7 +89,7 @@ public sealed interface BuiltinAttrs {
      */
     public IntegerAttribute(@NotNull Number value) {
       super(IntegerT.INT64);
-      this.value = value;
+      this.value = ((IntegerT) getType()).convertToValidNumber(value);
     }
 
     /**
@@ -104,7 +104,7 @@ public sealed interface BuiltinAttrs {
     public IntegerAttribute(
         @JsonProperty("value") Number value, @JsonProperty("type") IntegerT type) {
       super(type);
-      this.value = type.convertToValidNumber(value);
+      this.value = ((IntegerT) getType()).convertToValidNumber(value);
     }
 
     // =========================================================================
@@ -154,14 +154,14 @@ public sealed interface BuiltinAttrs {
 
     public FloatAttribute(@NotNull Number value) {
       super(FloatT.FLOAT64);
-      this.value = value;
+      this.value = ((FloatT) getType()).convertToValidNumber(value);
     }
 
     @JsonCreator
     public FloatAttribute(
         @JsonProperty("value") @NotNull Number value, @JsonProperty("type") @NotNull FloatT type) {
       super(type);
-      this.value = value;
+      this.value = ((FloatT) getType()).convertToValidNumber(value);
     }
 
     @Contract(pure = true)

@@ -257,7 +257,7 @@
                                                 },
                                                 {
                                                     "ident": "func.return",
-                                                    "loc": "assignmentOperators.java:2:3"
+                                                    "loc": "assignmentOperators.java:9:5"
                                                 }
                                             ]
                                         }
