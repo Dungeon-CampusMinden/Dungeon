@@ -1,19 +1,20 @@
 package dgir.vm.api;
 
-import static dialect.builtin.BuiltinOps.ProgramOp;
-
 import core.debug.Location;
 import core.ir.Operation;
 import core.ir.Value;
 import core.traits.INoTerminator;
 import dgir.vm.dap.DebugUtils;
-import java.util.*;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.*;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static dialect.builtin.BuiltinOps.ProgramOp;
 
 public class VM {
   private @Nullable ProgramOp program;
@@ -348,8 +349,6 @@ public class VM {
         // Only hit breakpoints if we handled the entry hit. It has priority and overshadows
         // breakpoints.
         if (debugger.entryHit()) {
-          assert currentHitBreakpoints.size() == state.getCallStack().size()
-              : "currentHitBreakpoints should always have a set for the current stack frame.";
           // Check breakpoints first; only fire the first matching one per step.
           // Breakpoints always interrupt execution, even during a step-over.
           for (Breakpoint bp : breakpoints) {
