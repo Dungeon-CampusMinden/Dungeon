@@ -101,6 +101,50 @@ tasks.register('runMPClient', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+tasks.register("checkNoEngineImports") {
+    group = "verification"
+    description = "Fails if libGDX/LITIENGINE imports appear outside allowed backend packages."
+
+    doLast {
+        def base = file("src/main/java")
+        if (!base.exists()) return
+
+        // Allowlist paths (relative to src/main/java)
+        def allowPrefixes = [
+            "core/platform/gdx/",
+            "core/game/gdx/",
+            "core/ui/gdx/",
+            "core/platform/litiengine/",
+            "core/game/litiengine/",
+            "contrib/hud/"
+        ]
+
+        def forbidden = []
+        base.eachFileRecurse { f ->
+            if (!f.name.endsWith(".java")) return
+
+            def rel = base.toPath().relativize(f.toPath()).toString().replace("\\", "/")
+            def allowed = allowPrefixes.any { rel.startsWith(it) }
+
+            if (allowed) return
+
+            def text = f.getText("UTF-8")
+            if (text.contains("import com.badlogic.gdx.") || text.contains("import de.gurkenlabs.litiengine.")) {
+                forbidden << rel
+            }
+        }
+
+        if (!forbidden.isEmpty()) {
+            throw new GradleException("Forbidden engine imports found outside backend packages:\n- " +
+                forbidden.join("\n- "))
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn("checkNoEngineImports")
+}
+
 tasks.named('test', Test) {
     useJUnitPlatform()
     javaLauncher = java25Launcher
