@@ -1,8 +1,6 @@
 package core.platform.litiengine.render;
 
 import core.utils.components.draw.animation.AnimationFrame;
-import de.gurkenlabs.litiengine.resources.Resources;
-
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -27,10 +25,7 @@ public final class LitiengineAnimationFrames {
     final String raw = frame.texturePath() == null ? null : frame.texturePath().pathString();
     if (raw == null || raw.isBlank()) return null;
 
-    final String resolved = resolveImplicitFilePath(raw);
-
-    // Let LITIENGINE handle its internal resource cache.
-    final BufferedImage base = Resources.images().get(resolved);
+    final BufferedImage base = LitiengineImages.get(raw);
     if (base == null) return null;
 
     BufferedImage out = base;

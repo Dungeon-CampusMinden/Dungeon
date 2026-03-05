@@ -121,17 +121,39 @@ public final class LitiengineSpriteRenderSystem extends System {
         // - either cached tile image (if present)
         // - fallback to colored rect by tile type
         final LevelElement elem = tile.levelElement();
-        BufferedImage img = tryResolveTileImage(elem);
+        BufferedImage img = imageForTile(tile);
         if (img != null) {
-          double scaleX = TILE_PX / (double) img.getWidth();
-          double scaleY = TILE_PX / (double) img.getHeight();
-          ImageRenderer.renderScaled(g, img, sx, sy, scaleX, scaleY);
+          drawTileImage(g, img, sx, sy);
         } else {
           g.setColor(colorFor(elem));
           g.fillRect(sx, sy, TILE_PX, TILE_PX);
         }
       }
     }
+  }
+
+  private void drawTileImage(Graphics2D g, BufferedImage img, int sx, int sy) {
+    if (img.getWidth() <= 0 || img.getHeight() <= 0) return;
+    double scaleX = TILE_PX / (double) img.getWidth();
+    double scaleY = TILE_PX / (double) img.getHeight();
+    ImageRenderer.renderScaled(g, img, sx, sy, scaleX, scaleY);
+  }
+
+  private BufferedImage imageForTile(Tile t) {
+    if (t == null || t.texturePath() == null) return null;
+    String raw = t.texturePath().pathString();
+    if (raw == null || raw.isBlank()) return null;
+
+    // Use the same implicit resolution that LitiengineImages uses internally.
+    String key = LitiengineImages.resolveImplicitFilePath(raw);
+
+    if (tileImageCache.containsKey(key)) {
+      return tileImageCache.get(key); // can be null -> cached miss
+    }
+
+    BufferedImage img = LitiengineImages.get(raw);
+    tileImageCache.put(key, img);
+    return img;
   }
 
   private void renderEntities(Graphics2D g, Optional<ILevel> levelOpt, CameraView view) {
@@ -282,13 +304,6 @@ public final class LitiengineSpriteRenderSystem extends System {
 
   private static float clamp(float v, float min, float max) {
     return Math.max(min, Math.min(max, v));
-  }
-
-  private BufferedImage tryResolveTileImage(LevelElement elem) {
-    if (elem == null) return null;
-    // Keep it conservative: only try cache lookup if you already have keys.
-    // You can expand this mapping later (tile spritesheets / atlas).
-    return tileImageCache.get(elem.name());
   }
 
   private static Color colorFor(LevelElement elem) {

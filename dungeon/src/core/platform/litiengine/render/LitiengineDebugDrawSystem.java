@@ -141,7 +141,7 @@ public final class LitiengineDebugDrawSystem extends System {
       return tileImageCache.get(resolved);
     }
 
-    BufferedImage img = de.gurkenlabs.litiengine.resources.Resources.images().get(resolved);
+    final BufferedImage img = LitiengineImages.get(raw);
     tileImageCache.put(resolved, img);
     return img;
   }

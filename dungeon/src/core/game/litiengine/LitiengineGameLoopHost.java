@@ -1,7 +1,10 @@
 package core.game.litiengine;
 
 import core.game.*;
+import core.platform.CompositeResourcesAdapter;
 import core.platform.Platform;
+import core.platform.classpath.ClasspathResourcesAdapter;
+import core.platform.fs.FileSystemResourcesAdapter;
 import core.platform.litiengine.LitiengineInputBridge;
 import core.platform.litiengine.LitiengineLoopHost;
 import core.platform.litiengine.LitiengineRenderAdapter;
@@ -64,7 +67,12 @@ public final class LitiengineGameLoopHost {
     // Bind platform adapters AFTER init so Game.window() etc. are available.
     Platform.window(new core.platform.litiengine.LitiengineWindowAdapter());
     Platform.runtime(new core.platform.litiengine.LitiengineRuntimeAdapter());
-    Platform.resources(new core.platform.classpath.ClasspathResourcesAdapter());
+    Platform.resources(
+      new CompositeResourcesAdapter(
+        new ClasspathResourcesAdapter(),
+        FileSystemResourcesAdapter.autoDetect()
+      )
+    );
     Platform.render(new LitiengineRenderAdapter());
     Platform.pathfinding(new core.platform.grid.GridPathfindingAdapter());
 
