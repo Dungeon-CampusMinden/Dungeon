@@ -30,8 +30,8 @@ public final class LitiengineGameLoopHost {
         public void initialized(String... initArgs) {
           try {
             if (Game.screens() != null) {
-              Game.screens().add(new DungeonDebugScreen());
-              Game.screens().display(DungeonDebugScreen.NAME);
+              Game.screens().add(new EcsRenderScreen());
+              Game.screens().display(EcsRenderScreen.NAME);
             }
           } catch (Exception e) {
             Game.log().severe("Failed to set up debug screen in initialized(): " + e.getMessage());
@@ -43,7 +43,7 @@ public final class LitiengineGameLoopHost {
           // Safety net: ensure a current screen exists once the game has started.
           try {
             if (Game.screens() != null && Game.screens().current() == null) {
-              Game.screens().display(DungeonDebugScreen.NAME);
+              Game.screens().display(EcsRenderScreen.NAME);
             }
           } catch (Exception e) {
             Game.log().severe("Failed to display debug screen in started(): " + e.getMessage());
