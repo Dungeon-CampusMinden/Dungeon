@@ -1,10 +1,9 @@
-package core.systems;
+package core.systems.input;
 
 import com.badlogic.gdx.Input;
 import core.Entity;
 import core.System;
 import core.components.InputComponent;
-import core.utils.InputManager;
 import core.utils.components.MissingComponentException;
 import java.util.Map;
 

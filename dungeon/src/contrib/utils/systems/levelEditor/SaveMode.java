@@ -3,7 +3,7 @@ package contrib.utils.systems.levelEditor;
 import com.badlogic.gdx.graphics.Color;
 import contrib.systems.LevelEditorSystem;
 import core.level.loader.DungeonSaver;
-import core.utils.InputManager;
+import core.systems.input.InputManager;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
