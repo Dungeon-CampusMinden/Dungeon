@@ -1,6 +1,7 @@
 package blockly.dgir.compiler.java;
 
 import com.github.javaparser.ast.Node;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
@@ -13,47 +14,43 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public sealed interface EmitResult<T> {
-  static <T> EmitResult<T> success(T result) {
+  @Contract("_ -> new")
+  static <T> @NonNull EmitResult<T> success(T result) {
     return new Success<>(result);
   }
 
-  static <T> EmitResult<T> failure() {
+  @Contract(" -> new")
+  static <T> @NonNull EmitResult<T> failure() {
     return new Failure<>();
   }
 
-  static <T> EmitResult<T> failure(
-      JavaCompiler.EmitContext context, Node node, String message, Object... args) {
+  @Contract("_, _, _, _ -> new")
+  static <T> @NonNull EmitResult<T> failure(
+      @NonNull EmitContext context, Node node, String message, Object... args) {
     context.emitError(node, message, args);
     return new Failure<>();
   }
 
-  static <T> EmitResult<T> of(@NotNull T result) {
+  @Contract("_ -> new")
+  static <T> @NonNull EmitResult<T> of(@NotNull T result) {
     return success(result);
   }
 
-  static <T> EmitResult<T> ofNullable(@Nullable T result) {
+  static <T> @NotNull EmitResult<T> ofNullable(@Nullable T result) {
     return result == null ? failure() : success(result);
   }
 
-  static <T> EmitResult<T> ofNullable(
-      @Nullable T result,
-      JavaCompiler.EmitContext context,
-      Node node,
-      String message,
-      Object... args) {
+  static <T> @NotNull EmitResult<T> ofNullable(
+      @Nullable T result, EmitContext context, Node node, String message, Object... args) {
     return result == null ? failure(context, node, message, args) : success(result);
   }
 
-  static <T> EmitResult<T> ofOptional(@NotNull Optional<T> result) {
+  static <T> @NonNull EmitResult<T> ofOptional(@NotNull Optional<T> result) {
     return result.map(EmitResult::success).orElseGet(EmitResult::failure);
   }
 
-  static <T> EmitResult<T> ofOptional(
-      @NotNull Optional<T> result,
-      JavaCompiler.EmitContext context,
-      Node node,
-      String message,
-      Object... args) {
+  static <T> @NonNull EmitResult<T> ofOptional(
+      @NotNull Optional<T> result, EmitContext context, Node node, String message, Object... args) {
     return result.map(EmitResult::success).orElseGet(() -> failure(context, node, message, args));
   }
 
@@ -64,7 +61,7 @@ public sealed interface EmitResult<T> {
   @NotNull
   T get();
 
-  default <U> EmitResult<U> map(@NotNull Function<? super T, ? extends U> mapper) {
+  default <U> @NotNull EmitResult<U> map(@NotNull Function<? super T, ? extends U> mapper) {
     if (isFailure()) {
       return failure();
     } else {
@@ -72,7 +69,8 @@ public sealed interface EmitResult<T> {
     }
   }
 
-  default <U> EmitResult<U> flatMap(Function<? super T, ? extends EmitResult<? extends U>> mapper) {
+  default <U> @NotNull EmitResult<U> flatMap(
+      Function<? super T, ? extends EmitResult<? extends U>> mapper) {
     Objects.requireNonNull(mapper);
     if (isFailure()) {
       return failure();
@@ -83,7 +81,7 @@ public sealed interface EmitResult<T> {
     }
   }
 
-  default EmitResult<T> or(@NotNull Supplier<? extends EmitResult<? extends T>> supplier) {
+  default @NotNull EmitResult<T> or(@NotNull Supplier<? extends EmitResult<? extends T>> supplier) {
     if (isSuccess()) {
       return this;
     } else {
@@ -93,7 +91,7 @@ public sealed interface EmitResult<T> {
     }
   }
 
-  default Stream<T> stream() {
+  default @NotNull Stream<T> stream() {
     if (isFailure()) {
       return Stream.empty();
     } else {
@@ -101,29 +99,32 @@ public sealed interface EmitResult<T> {
     }
   }
 
-  default T orElse(T other) {
+  default @Nullable T orElse(@Nullable T other) {
     return isSuccess() ? get() : other;
   }
 
-  default T orElseGet(Supplier<? extends T> supplier) {
+  default @Nullable T orElseGet(@NotNull Supplier<? extends T> supplier) {
     return isSuccess() ? get() : supplier.get();
   }
 
-  default Optional<T> toOptional() {
+  default @NotNull Optional<T> toOptional() {
     return isSuccess() ? Optional.of(get()) : Optional.empty();
   }
 
   record Success<T>(@NotNull T result) implements EmitResult<T> {
+    @Contract(pure = true)
     @Override
     public boolean isSuccess() {
       return true;
     }
 
+    @Contract(pure = true)
     @Override
     public boolean isFailure() {
       return false;
     }
 
+    @Contract(pure = true)
     @Override
     public @NonNull T get() {
       return result;
@@ -131,16 +132,19 @@ public sealed interface EmitResult<T> {
   }
 
   record Failure<T>() implements EmitResult<T> {
+    @Contract(pure = true)
     @Override
     public boolean isSuccess() {
       return false;
     }
 
+    @Contract(pure = true)
     @Override
     public boolean isFailure() {
       return true;
     }
 
+    @Contract(pure = true)
     @Override
     public @NonNull T get() {
       throw new NoSuchElementException("Cannot get result from a failure.");

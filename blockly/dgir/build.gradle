@@ -14,6 +14,6 @@ tasks.register('test_dgir_blockydgir') {
 }
 
 // Make aggregate verification run all relevant DGIR tests.
-tasks.named('check') {
+tasks.named('test') {
     dependsOn tasks.named('test_dgir_blockydgir')
 }

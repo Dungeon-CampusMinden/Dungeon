@@ -4,7 +4,7 @@ import Intrinsic;
 
 public class Hero {
   @Intrinsitc("dg.hero.move")
-  public static move() {}
+  public static void move() {}
 
   @Intrinsitc("dg.hero.turn")
   public static void turnLeft() {}

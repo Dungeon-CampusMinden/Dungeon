@@ -26,6 +26,18 @@ tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }
 
+tasks.register('generateResourceIndex') {
+    def dir = file("assets/imports/Dungeon")
+    doLast {
+        def index = dir.listFiles()
+            .findAll { it.isFile() && it.name != "_index.txt" }
+            .collect { it.name }
+            .join("\n")
+        new File(dir, "_index.txt").text = index
+    }
+}
+processResources.dependsOn generateResourceIndex
+
 repositories {
     mavenCentral()
 }

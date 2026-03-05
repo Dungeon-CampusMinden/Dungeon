@@ -2,20 +2,24 @@ package blockly.dgir.compiler.java;
 
 import blockly.dgir.dialect.dg.DungeonDialect;
 import com.github.javaparser.ParseProblemException;
-import com.github.javaparser.Range;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
-import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import com.github.javaparser.utils.Pair;
+import com.github.javaparser.resolution.UnsolvedSymbolException;
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
+import com.github.javaparser.resolution.types.ResolvedType;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import dgir.core.Dialect;
 import dgir.core.debug.Location;
 import dgir.core.debug.ValueDebugInfo;
@@ -26,12 +30,14 @@ import dgir.dialect.builtin.BuiltinOps;
 import dgir.dialect.cf.CfOps;
 import dgir.dialect.func.FuncOps;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.text.MessageFormat;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Logger;
 
+import static blockly.dgir.compiler.java.CompilerUtils.fromAstType;
 import static dgir.dialect.arith.ArithAttrs.BinModeAttr.BinMode;
 import static dgir.dialect.arith.ArithOps.CastOp;
 import static dgir.dialect.arith.ArithOps.ConstantOp;
@@ -45,222 +51,56 @@ import static dgir.dialect.scf.ScfOps.*;
 
 public class JavaCompiler {
   static Logger logger = Logger.getLogger(JavaCompiler.class.getName());
+  static boolean symbolSolverInitialized = false;
 
   protected JavaCompiler() {}
 
   public static @NotNull Optional<ProgramOp> compileSource(
       @NotNull String source, @NotNull String filename) {
+    IntrinsicRegistry.init();
     CompilationUnit result;
+
+    if (!symbolSolverInitialized) {
+      symbolSolverInitialized = true;
+      Map<String, String> intrinsics;
+      try {
+        intrinsics = IntrinsicRegistry.loadAllDungeonFiles();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      Path tempdir;
+      try {
+        tempdir = Files.createTempDirectory("dgir-java-compiler-intrinsics");
+      } catch (IllegalArgumentException | IOException e) {
+        throw new RuntimeException(
+            "Failed to create temporary directory for JavaParser sources", e);
+      }
+      for (Map.Entry<String, String> entry : intrinsics.entrySet()) {
+        Path path = tempdir.resolve(entry.getKey().replace('.', '/') + ".java");
+        try {
+          Files.createDirectories(path.getParent());
+          Files.writeString(path, entry.getValue());
+        } catch (IOException e) {
+          throw new RuntimeException(
+              "Failed to write Java source file for intrinsic " + entry.getKey(), e);
+        }
+      }
+
+      CombinedTypeSolver typeSolver = new CombinedTypeSolver();
+      typeSolver.add(new ReflectionTypeSolver());
+
+      typeSolver.add(new JavaParserTypeSolver(tempdir));
+      StaticJavaParser.getParserConfiguration().setSymbolResolver(new JavaSymbolSolver(typeSolver));
+    }
     try {
       result = StaticJavaParser.parse(source);
     } catch (ParseProblemException e) {
       logger.severe("Failed to parse Java source code: " + e.getMessage());
       return Optional.empty();
-    } catch (RuntimeException e) {
-      logger.severe("Unexpected error while parsing Java source code: " + e.getMessage());
-      return Optional.empty();
     }
 
     JavaAstEmitter emitter = new JavaAstEmitter();
     return emitter.emit(result, filename).toOptional();
-  }
-
-  public static final class EmitContext {
-    private final @NotNull String filename;
-
-    private final List<String> info = new ArrayList<>();
-    private final List<String> warnings = new ArrayList<>();
-    private final List<String> errors = new ArrayList<>();
-
-    private @Nullable ProgramOp program = null;
-
-    /**
-     * A stack of symbol tables representing the current scope. Each map maps variable names to
-     * their corresponding IR values. The top of the stack is the innermost scope, and the bottom is
-     * the outermost scope. This is used to resolve variable references during emission.
-     *
-     * <p>Everytime an IIsolatedFromAbove scope is entered, a new symbol table is pushed onto the
-     * stack. Therefore, only the topmost symbol table should be used for variable resolution.
-     * Otherwise, there is a chance that variables from outer scopes are accidentally captured,
-     * which would be a bug.
-     */
-    private final @NotNull Deque<Map<@NotNull String, @NotNull Value>> scopedSymbolTable =
-        new ArrayDeque<>();
-
-    /** The block into which the next IR operation will be inserted. */
-    private @Nullable Block insertionBlock = null;
-
-    /**
-     * The index within the insertion block at which the next IR operation will be inserted. If the
-     * index is not -1, it will be incremented after each insertion.
-     */
-    private int insertionIndex = -1;
-
-    EmitContext(@NotNull String filename) {
-      this.filename = filename;
-    }
-
-    @NotNull
-    Location loc(@NotNull Node node) {
-      if (node.getRange().isEmpty()) {
-        logger.warning("No range information available for AST node, using default location.");
-        return new Location(filename, 0, 0);
-      }
-      Range r = node.getRange().get();
-      return new Location(filename, r.begin.line, r.begin.column);
-    }
-
-    void pushScope() {
-      scopedSymbolTable.push(new HashMap<>());
-    }
-
-    void popScope() {
-      scopedSymbolTable.pop();
-    }
-
-    void putValue(@NotNull String s, @NotNull Value value) {
-      assert !scopedSymbolTable.isEmpty() : "There must be at least one scope to put a value in.";
-      scopedSymbolTable.peek().put(s, value);
-    }
-
-    @NotNull
-    Optional<Value> getValue(@NotNull String s) {
-      assert !scopedSymbolTable.isEmpty() : "There must be at least one scope to get a value from.";
-      return Optional.ofNullable(scopedSymbolTable.peek().get(s));
-    }
-
-    /**
-     * Set the insertion point for the next IR operation to be inserted.
-     *
-     * @param block the block to insert into. The new operation will be inserted at the index of
-     *     this block.
-     * @param index the index within the block to insert at. If index is -1, the new operation will
-     *     be inserted at the end of the block.
-     * @return an optional containing the old insertion point, or empty if there was no old
-     *     insertion point.
-     */
-    Optional<Pair<Block, Integer>> setInsertionPoint(@Nullable Block block, int index) {
-      Optional<Pair<Block, Integer>> oldInsertionPoint = Optional.empty();
-      if (insertionBlock != null) {
-        oldInsertionPoint = Optional.of(new Pair<>(insertionBlock, insertionIndex));
-      }
-      insertionBlock = block;
-      insertionIndex = index;
-      return oldInsertionPoint;
-    }
-
-    @NotNull
-    Operation insert(@NotNull Operation op) {
-      assert insertionBlock != null : "Insertion block must be set before inserting an operation.";
-      if (insertionIndex == -1) {
-        insertionBlock.addOperation(op);
-      } else {
-        insertionBlock.addOperation(op, insertionIndex++);
-      }
-      return op;
-    }
-
-    <OpT extends Op> @NotNull OpT insert(@NotNull OpT op) {
-      insert(op.getOperation());
-      return op;
-    }
-
-    /**
-     * Creates a descriptive diagnostic message for the given AST node and message. The message
-     * should be human-readable and should include the source location of the node for easier
-     * debugging.
-     *
-     * @param node the AST node
-     * @param message the diagnostic message
-     * @return a formatted diagnostic message
-     */
-    @NotNull
-    String formatDiagnostic(Node node, @NotNull String message, Object... args) {
-      Location loc = loc(node);
-      StringBuilder formated =
-          new StringBuilder(
-              MessageFormat.format(
-                  "{0}:{1}:{2}\n\"{3}\"\n{4}\n",
-                  loc.file(), loc.line(), loc.column(), node, message));
-      // Append the string representation of the args to the message.
-      if (args.length > 0) {
-        formated.append("Additional info:\n");
-        for (Object arg : args) {
-          formated.append("- ").append(arg).append("\n");
-        }
-      }
-      return formated.toString();
-    }
-
-    /**
-     * Emit an error message for the given AST node and message.
-     *
-     * @param node the AST node
-     * @param message the diagnostic message
-     * @param args any additional objects to include in the diagnostic message. These will be
-     *     appended to the message.
-     */
-    void emitError(Node node, String message, Object... args) {
-      errors.add(formatDiagnostic(node, message, args));
-    }
-
-    /**
-     * Emit a warning message for the given AST node and message.
-     *
-     * @param node the AST node
-     * @param message the diagnostic message
-     * @param args any additional objects to include in the diagnostic message. These will be
-     *     appended to the message.
-     */
-    void emitWarning(Node node, String message, Object... args) {
-      warnings.add(formatDiagnostic(node, message, args));
-    }
-
-    /**
-     * Emit an info message for the given AST node and message.
-     *
-     * @param node the AST node
-     * @param message the diagnostic message
-     * @param args any additional objects to include in the diagnostic message. These will be
-     *     appended to the message.
-     */
-    public void emitInfo(Node node, String message, Object... args) {
-      info.add(formatDiagnostic(node, message, args));
-    }
-
-    void printDiagnostics() {
-      for (String error : errors) {
-        logger.severe(error);
-      }
-      for (String warning : warnings) {
-        logger.warning(warning);
-      }
-      for (String info : info) {
-        logger.info(info);
-      }
-    }
-  }
-
-  private static Optional<Type> fromAstType(
-      com.github.javaparser.ast.type.Type type, EmitContext context) {
-    if (!type.isPrimitiveType()) {
-      context.emitError(type, "Only primitive types are supported.", type);
-      return Optional.empty();
-    }
-    PrimitiveType primitiveType = type.asPrimitiveType();
-    return switch (primitiveType.getType()) {
-      case BOOLEAN -> Optional.of(IntegerT.BOOL);
-      case CHAR, BYTE -> Optional.of(IntegerT.INT8);
-      case SHORT -> Optional.of(IntegerT.INT16);
-      case INT -> Optional.of(IntegerT.INT32);
-      case LONG -> Optional.of(IntegerT.INT64);
-      case FLOAT -> Optional.of(FloatT.FLOAT32);
-      case DOUBLE -> Optional.of(FloatT.FLOAT64);
-      default -> {
-        context.emitError(type, "Unknown primitive type: " + primitiveType.getType(), type);
-        yield Optional.empty();
-      }
-    };
   }
 
   private static final class JavaAstEmitter extends VoidVisitorAdapter<EmitContext> {
@@ -281,7 +121,7 @@ public class JavaCompiler {
       // Check that there are no unsupported imports.
       for (ImportDeclaration importDeclaration : n.getImports()) {
         switch (importDeclaration.getName().asString()) {
-          case "Dungeon.Hero":
+          case "Dungeon.Hero", "Dungeon.IO":
             continue;
           default:
             context.emitError(n, "Import " + importDeclaration.getName() + " is not supported.");
@@ -314,18 +154,18 @@ public class JavaCompiler {
       }
       // Program looks generally ok, create the root ProgramOp.
       ProgramOp program = new ProgramOp(context.loc(n));
-      context.pushScope();
+      context.pushSymbolScope(true);
       context.setInsertionPoint(program.getEntryBlock(), -1);
 
       n.getTypes().forEach(t -> t.accept(this, context));
 
-      if (context.errors.isEmpty()) {
+      if (context.compilationSuccessfull()) {
         context.program = program;
       } else {
         String incompleteProgram = Utils.getMapper(true).writeValueAsString(program);
         context.emitError(n, "Incorrect program", incompleteProgram);
       }
-      context.popScope();
+      context.popSymbolScope();
     }
 
     @Override
@@ -378,6 +218,7 @@ public class JavaCompiler {
 
     @Override
     public void visit(MethodDeclaration n, EmitContext context) {
+      ResolvedMethodDeclaration resolvedN = n.resolve();
       if (!n.isStatic()) {
         context.emitError(
             n, "Method " + n.getName() + " is not static. Only static methods are supported.");
@@ -427,61 +268,79 @@ public class JavaCompiler {
                 + " has annotations. Annotations are not supported and will be ignored.");
 
       // Get the input types of the method and their names.
-      List<Type> inputTypes = new ArrayList<>();
       List<String> inputNames = new ArrayList<>();
-      for (Parameter param : n.getParameters()) {
-        n.getAnnotations()
-            .forEach(
-                a ->
-                    context.emitWarning(
-                        a, "Annotations on function parameters are not supported.", a));
-        if (!param.getVarArgsAnnotations().isEmpty()) {
-          context.emitError(
-              param,
-              "Method "
-                  + n.getName()
-                  + " has a varargs parameter. Varargs parameters are not supported.");
-          return;
-        }
-        // Try to get the DGIR Type of the parameter, and if that fails, return. The error is
-        // already in the diagnostics.
-        Optional<Type> typeOpt = fromAstType(param.getType(), context);
-        if (typeOpt.isEmpty()) {
-          return;
-        }
-        inputTypes.add(typeOpt.get());
-        inputNames.add(param.getName().getIdentifier());
+      List<Type> inputTypes =
+          new ArrayList<>(
+              n.getParameters().stream()
+                  .map(
+                      param -> {
+                        if (!param.getAnnotations().isEmpty())
+                          context.emitWarning(
+                              param,
+                              "Annotations on function parameters are not supported.",
+                              param.getAnnotations());
+                        if (!param.getVarArgsAnnotations().isEmpty()) {
+                          context.emitError(
+                              param,
+                              "Varargs annotations on function parameters are not supported.",
+                              param.getVarArgsAnnotations());
+                          return null;
+                        }
+                        // Try to get the DGIR Type of the parameter, and if that fails, return. The
+                        // error is
+                        // already in the diagnostics.
+                        Optional<ResolvedType> resolvedType = CompilerUtils.resolveType(param.getType(), context);
+                        if (resolvedType.isEmpty()) {
+                          return null;
+                        }
+                        Optional<Type> type = fromAstType(resolvedType.get(), param, context);
+                        if (type.isEmpty()) {
+                          return null;
+                        }
+                        inputNames.add(param.getName().getIdentifier());
+                        return type.get();
+                      })
+                  .toList());
+      // Check that all types were resolved correctly
+      if (inputTypes.stream().anyMatch(Objects::isNull)) {
+        return;
       }
 
       // Get the return type of the method.
       Optional<Type> outputType = Optional.empty();
       if (!n.getType().isVoidType()) {
-        outputType = fromAstType(n.getType(), context);
+        Optional<ResolvedType> resolvedType = CompilerUtils.resolveType(n.getType(), context);
+        if (resolvedType.isEmpty()) {
+          return;
+        }
+        outputType = fromAstType(resolvedType.get(), n, context);
         if (outputType.isEmpty()) {
           return;
         }
       }
 
       // Create the function op.
+      String fullyQualifiedMethodName =
+          "main".equals(n.getNameAsString()) ? "main" : resolvedN.getQualifiedSignature();
       FuncOp funcOp =
           context.insert(
               new FuncOp(
                   context.loc(n),
-                  getResolvedFuncName(n.getName().asString(), inputTypes, context),
+                  fullyQualifiedMethodName,
                   new FuncType(inputTypes, outputType.orElse(null))));
 
       // Emit all statements in the method body. These will insert themselves into the function op.
       var previousInsertionPoint = context.setInsertionPoint(funcOp.getEntryBlock(), -1);
       // Put the function arguments in the symbol table so that they can be referenced in the body.
-      context.pushScope();
+      context.pushSymbolScope(true);
       for (int i = 0; i < inputNames.size(); i++) {
-        context.putValue(inputNames.get(i), funcOp.getArgument(i).orElseThrow());
+        context.putSymbol(inputNames.get(i), funcOp.getArgument(i).orElseThrow());
       }
 
       // Emit the body of the method.
       n.getBody().get().accept(this, context);
 
-      context.popScope();
+      context.popSymbolScope();
       // Set the insertion point to the parent scope.
       previousInsertionPoint.ifPresent(p -> context.setInsertionPoint(p.a, p.b));
       // Make sure we have an implicit return in case the method has a void return type and the last
@@ -552,7 +411,7 @@ public class JavaCompiler {
       breakBlock.addOperation(new BreakOp(context.loc(n)));
 
       // Open the new scope and place the comparison expression in it.
-      context.pushScope();
+      context.pushSymbolScope(false);
       context.setInsertionPoint(whileOp.getConditionRegion().getEntryBlock(), -1);
       EmitResult<Optional<Value>> compareValueRes = emitExpression(n.getCompare().get(), context);
       if (compareValueRes.isFailure() || compareValueRes.get().isEmpty()) {
@@ -638,7 +497,16 @@ public class JavaCompiler {
       }
       Value initValue = initValueRes.get().get();
       // Check that the init value and the target have the same value and emit cast statement if not
-      var variableType = fromAstType(n.getVariables().get(0).getType(), context);
+      Optional<ResolvedValueDeclaration> resolvedVariable = CompilerUtils.resolve(variableDeclarator, context);
+      if (resolvedVariable.isEmpty()) {
+        context.emitError(
+            variableDeclarator,
+            "Could not resolve variable declaration for variable "
+                + variableDeclarator.getName()
+                + ". Make sure the type of the variable is supported and that all necessary classes are imported.");
+        return;
+      }
+      var variableType = fromAstType(resolvedVariable.get().getType(), variableDeclarator, context);
       if (variableType.isEmpty()) {
         return;
       }
@@ -757,16 +625,6 @@ public class JavaCompiler {
       return emitBinary(binaryExpr, binaryExpr.getOperator(), lhs, rhs, targetValue, context);
     }
 
-    private static @NotNull String getResolvedFuncName(
-        @NotNull String funcName, @NotNull List<Type> args, @NotNull EmitContext context) {
-      StringBuilder sb = new StringBuilder(funcName);
-      for (Type arg : args) {
-        sb.append("_");
-        sb.append(arg);
-      }
-      return sb.toString();
-    }
-
     /**
      * Emit a function call.
      *
@@ -789,17 +647,18 @@ public class JavaCompiler {
       }
       List<Type> argTypes = args.stream().map(Value::getType).toList();
 
-      Optional<MethodDeclaration> targetMethodOpt =
-          findTargetMethod(methodCallExpr, argTypes, context);
-      if (targetMethodOpt.isEmpty()) {
+      ResolvedMethodDeclaration targetMethodOpt;
+      try {
+        targetMethodOpt = methodCallExpr.resolve();
+      } catch (UnsolvedSymbolException e) {
         return EmitResult.failure(
-            context, methodCallExpr, "Method " + methodCallExpr.getNameAsString() + " not found.");
+            context, methodCallExpr, "Could not resolve method call target: " + e.getName());
       }
 
-      String funcName = getResolvedFuncName(methodCallExpr.getNameAsString(), argTypes, context);
+      String funcName = targetMethodOpt.getQualifiedSignature();
       Optional<Type> returnType = Optional.empty();
-      if (!targetMethodOpt.get().getType().isVoidType()) {
-        returnType = fromAstType(targetMethodOpt.get().getType(), context);
+      if (!targetMethodOpt.getReturnType().isVoid()) {
+        returnType = fromAstType(targetMethodOpt.getReturnType(), methodCallExpr, context);
       }
       FuncOps.CallOp callOp =
           context.insert(
@@ -892,48 +751,9 @@ public class JavaCompiler {
           context, unaryExpr, "Unary operator " + unaryExpr.getOperator() + " is not supported.");
     }
 
-    /**
-     * Find the method declaration corresponding to a method call with the given argument types.
-     * This is used to resolve overloaded method calls. If no method declaration is found, an error
-     * is emitted and an empty optional is returned.
-     *
-     * @param site the method call site
-     * @param args the argument types of the method call
-     * @param context the emit context
-     * @return the method declaration corresponding to the method call, or an empty optional if no
-     */
-    private @NotNull Optional<MethodDeclaration> findTargetMethod(
-        @NotNull MethodCallExpr site, @NotNull List<Type> args, @NotNull EmitContext context) {
-      // Go upwards from this node to find the method declaration.
-      Optional<Node> currentNode = Optional.of(site);
-      while (currentNode.isPresent()) {
-        if (currentNode.get() instanceof ClassOrInterfaceDeclaration classDecl) {
-          for (MethodDeclaration method : classDecl.getMethodsByName(site.getName().asString())) {
-            if (method.getParameters().size() != args.size()) {
-              continue;
-            }
-            // Currently no support for implicit casts.
-            boolean allArgsMatch = true;
-            for (int i = 0; i < args.size(); i++) {
-              Optional<Type> paramTypeOpt = fromAstType(method.getParameter(i).getType(), context);
-              if (paramTypeOpt.isEmpty() || !paramTypeOpt.get().equals(args.get(i))) {
-                allArgsMatch = false;
-                break;
-              }
-            }
-            if (allArgsMatch) {
-              return Optional.of(method);
-            }
-          }
-        }
-        currentNode = currentNode.get().getParentNode();
-      }
-      return Optional.empty();
-    }
-
     private @NotNull Optional<Value> resolveName(
         @NotNull String name, @NotNull Node site, EmitContext context) {
-      var valueOpt = context.getValue(name);
+      var valueOpt = context.lookupSymbol(name);
       if (valueOpt.isEmpty()) {
         context.emitError(site, "Variable " + name + " is not defined in the current scope.");
         return Optional.empty();
@@ -943,7 +763,7 @@ public class JavaCompiler {
 
     private void bindName(
         @NotNull String name, @NotNull Value value, @NotNull Node site, EmitContext context) {
-      context.putValue(name, value);
+      context.putSymbol(name, value);
       value.setDebugInfo(new ValueDebugInfo(context.loc(site), name));
     }
 

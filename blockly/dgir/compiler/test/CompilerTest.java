@@ -209,6 +209,8 @@ public class %ClassName {
   public static void main() {
     int result = add(5, 10);
     float resultfloat = add(5f, 10f);
+    float mixedFloatResult = add(5f, 10);
+    float mixedIntResult = add(5, 10f);
   }
 
   public static int add(int a, int b) {
