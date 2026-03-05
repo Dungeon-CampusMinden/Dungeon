@@ -29,8 +29,7 @@ public class ScopedSymbolTable {
     this.parent = null;
   }
 
-  protected ScopedSymbolTable(
-      @NotNull ScopedSymbolTable parent) {
+  protected ScopedSymbolTable(@NotNull ScopedSymbolTable parent) {
     this.parent = parent;
   }
 
@@ -46,12 +45,10 @@ public class ScopedSymbolTable {
     scopedSymbols.push(new Pair<>(isolatedFromAbove, new HashMap<>()));
   }
 
-  public @NotNull Pair<@NotNull Boolean, @NotNull Map<@NotNull String, @NotNull Value>>
-      popScope() {
+  public @NotNull Pair<@NotNull Boolean, @NotNull Map<@NotNull String, @NotNull Value>> popScope() {
     assert !scopedSymbols.isEmpty() : "Cannot pop from an empty scoped symbol table.";
     return scopedSymbols.pop();
   }
-
 
   public void insertScoped(@NotNull String name, @NotNull Value symbol) {
     assert !scopedSymbols.isEmpty() && scopedSymbols.peek().b != null

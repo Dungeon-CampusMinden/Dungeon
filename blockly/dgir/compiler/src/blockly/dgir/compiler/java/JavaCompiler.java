@@ -289,7 +289,8 @@ public class JavaCompiler {
                         // Try to get the DGIR Type of the parameter, and if that fails, return. The
                         // error is
                         // already in the diagnostics.
-                        Optional<ResolvedType> resolvedType = CompilerUtils.resolveType(param.getType(), context);
+                        Optional<ResolvedType> resolvedType =
+                            CompilerUtils.resolveType(param.getType(), context);
                         if (resolvedType.isEmpty()) {
                           return null;
                         }
@@ -497,7 +498,8 @@ public class JavaCompiler {
       }
       Value initValue = initValueRes.get().get();
       // Check that the init value and the target have the same value and emit cast statement if not
-      Optional<ResolvedValueDeclaration> resolvedVariable = CompilerUtils.resolve(variableDeclarator, context);
+      Optional<ResolvedValueDeclaration> resolvedVariable =
+          CompilerUtils.resolve(variableDeclarator, context);
       if (resolvedVariable.isEmpty()) {
         context.emitError(
             variableDeclarator,
