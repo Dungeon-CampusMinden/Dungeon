@@ -1,4 +1,4 @@
-package contrib.systems;
+package contrib.hud.systems;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;

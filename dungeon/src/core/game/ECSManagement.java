@@ -1,7 +1,7 @@
 package core.game;
 
 import contrib.systems.EventScheduler;
-import contrib.systems.HudSystem;
+import contrib.hud.systems.HudSystem;
 import contrib.systems.LevelTickSystem;
 import core.Component;
 import core.Entity;

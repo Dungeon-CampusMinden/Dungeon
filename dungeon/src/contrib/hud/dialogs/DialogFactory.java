@@ -7,7 +7,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.modules.keypad.KeypadUI;
-import contrib.utils.AttributeBarUtil;
+import contrib.hud.utils.AttributeBarUtil;
 import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
 import core.Game;

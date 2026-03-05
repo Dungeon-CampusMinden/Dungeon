@@ -7,7 +7,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.systems.HealthSystem;
-import contrib.systems.HudSystem;
+import contrib.hud.systems.HudSystem;
 import contrib.systems.PositionSync;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.skill.Skill;

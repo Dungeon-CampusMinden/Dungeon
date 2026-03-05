@@ -18,7 +18,7 @@ import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogFactory;
-import contrib.systems.AttributeBarSystem;
+import contrib.hud.systems.AttributeBarSystem;
 import contrib.systems.DebugDrawSystem;
 import core.Entity;
 import core.Game;

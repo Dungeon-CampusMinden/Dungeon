@@ -1,11 +1,11 @@
-package contrib.systems;
+package contrib.hud.systems;
 
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import contrib.components.BarDisplayable;
 import contrib.components.HealthComponent;
 import contrib.components.ManaComponent;
 import contrib.components.StaminaComponent;
-import contrib.utils.AttributeBarUtil;
+import contrib.hud.utils.AttributeBarUtil;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;

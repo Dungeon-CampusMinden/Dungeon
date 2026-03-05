@@ -1,4 +1,4 @@
-package contrib.utils;
+package contrib.hud.utils;
 
 import static contrib.hud.UIUtils.defaultSkin;
 
