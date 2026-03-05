@@ -9,7 +9,7 @@ import java.awt.Graphics2D;
 /**
  * Thin LITIENGINE screen that bridges the active Graphics2D context into the ECS render pipeline.
  *
- * <p>All actual drawing is performed by ECS render systems (e.g. LitiengineDebugDrawSystem).
+ * <p>All actual drawing is performed by ECS render systems (e.g. LitiengineSpriteRenderSystem).
  */
 public final class EcsRenderScreen extends Screen {
   public static final String NAME = "ecs-render";

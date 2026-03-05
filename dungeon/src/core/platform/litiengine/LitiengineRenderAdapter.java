@@ -6,16 +6,16 @@ import java.util.List;
 /**
  * LITIENGINE render adapter.
  *
- * <p>At the current migration stage only bind client-side systems that are backend-agnostic
- * (e.g. SoundSystem). Rendering systems will be added incrementally.
+ * <p>Bind client-side systems for the LITIENGINE backend.
  */
 public final class LitiengineRenderAdapter implements RenderAdapter {
   @Override
   public List<SystemBinding> defaultRenderSystems() {
     return List.of(
       new SystemBinding(core.systems.SoundSystem.class, core.systems.SoundSystem::new),
-      new SystemBinding(core.platform.litiengine.render.LitiengineDebugDrawSystem.class,
-        core.platform.litiengine.render.LitiengineDebugDrawSystem::new)
+      new SystemBinding(
+        core.platform.litiengine.render.LitiengineSpriteRenderSystem.class,
+        core.platform.litiengine.render.LitiengineSpriteRenderSystem::new)
     );
   }
 }
