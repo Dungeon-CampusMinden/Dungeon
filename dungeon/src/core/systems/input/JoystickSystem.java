@@ -49,8 +49,6 @@ public class JoystickSystem extends System {
   private boolean rtAxisButtonPressed = false;
   private boolean ltMouseDown = false;
 
-  private Controller activeController;
-
   private final Set<Integer> pressedButtons = new HashSet<>();
 
   private float cursorX = -1f;
@@ -65,7 +63,6 @@ public class JoystickSystem extends System {
   public JoystickSystem() {
     super(AuthoritativeSide.CLIENT, PlayerComponent.class, InputComponent.class);
     var controllers = Controllers.getControllers();
-    this.activeController = controllers.size == 0 ? null : controllers.first();
   }
 
   /** Keep joystick input active even when the game is paused by UI dialogs. */
@@ -92,68 +89,33 @@ public class JoystickSystem extends System {
   /**
    * Processes joystick input for a specific player entity.
    *
-   * <p>Updates mouse cursor, handles mouse simulation, and processes movement/actions if controls
-   * are enabled. Inventory toggle is always available regardless of control state.
+   * <p>Updates mouse cursor, handles mouse simulation, and processes movement/actions
    *
    * @param player the player entity to process joystick input for
    */
   private void executeJoystick(Entity player) {
-    boolean controlsDisabled = isControlsDisabled(player);
     getActiveController()
         .ifPresent(
             controller -> {
               updateMouseCursor(controller);
               handleMouse(controller);
-              if (!controlsDisabled) {
-                handleMovement(controller);
-                handleActions(controller, SkillTools.cursorPositionAsPoint());
-              }
+              handleMovement(controller);
+              handleActions(controller, SkillTools.cursorPositionAsPoint());
               handleInventoryToggle(controller, player);
             });
   }
 
-  private boolean isControllerStillConnected(Controller controller) {
-    if (controller == null) {
-      return false;
-    }
-    var controllers = Controllers.getControllers();
-    for (int i = 0; i < controllers.size; i++) {
-      if (controllers.get(i) == controller) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Returns the currently active controller, lazily resolving the first connected controller if
-   * none is cached yet.
-   *
-   * @return the active controller, or null if no controller is connected
-   */
   private Optional<Controller> getActiveController() {
-    if (activeController == null || !isControllerStillConnected(activeController)) {
-      var controllers = Controllers.getControllers();
-      activeController = controllers.size == 0 ? null : controllers.first();
-    }
-    return Optional.ofNullable(activeController);
-  }
+    var controllers = Controllers.getControllers();
+    Controller activeController = controllers.size == 0 ? null : controllers.first();
 
-  /**
-   * Checks if controls are disabled for the given player entity.
-   *
-   * @param player the player entity to check
-   * @return true if the player has an InputComponent and controls are deactivated, false otherwise
-   */
-  private boolean isControlsDisabled(Entity player) {
-    return player.fetch(InputComponent.class).map(InputComponent::deactivateControls).orElse(false);
+    return Optional.ofNullable(activeController);
   }
 
   /**
    * Processes movement input from the controller and sends movement commands to the network.
    *
-   * <p>Reads input from the left stick first, falling back to D-Pad if the stick is neutral. Sends
-   * movement commands for UP, DOWN, LEFT, and RIGHT directions based on the input vector.
+   * <p>Reads input from the left stick first, falling back to D-Pad if the stick is neutral.
    *
    * @param controller the controller to read movement input from
    */
@@ -177,15 +139,6 @@ public class JoystickSystem extends System {
     }
   }
 
-  /**
-   * Processes action input from the controller and sends action commands to the network.
-   *
-   * <p>Handles right trigger for skill casting, interact button, and skill selection buttons
-   * (next/prev). All actions use the current cursor position as the target point.
-   *
-   * @param controller the controller to read action input from
-   * @param target the target point for actions (typically the cursor position)
-   */
   private void handleActions(Controller controller, Point target) {
     if (isRtTriggerJustPressed(controller)) {
       Game.network().sendInput(InputMessage.castSkill(target, true));
@@ -201,15 +154,6 @@ public class JoystickSystem extends System {
     }
   }
 
-  /**
-   * Handles inventory toggle input from the controller.
-   *
-   * <p>Checks if the inventory button was just pressed and toggles the inventory for the player
-   * entity if so.
-   *
-   * @param controller the controller to read inventory button input from
-   * @param player the player entity to toggle inventory for
-   */
   private void handleInventoryToggle(Controller controller, Entity player) {
     if (isJustPressed(controller, JoystickConfig.BUTTON_INVENTAR)) {
       HeroController.toggleInventory(player);
@@ -286,8 +230,7 @@ public class JoystickSystem extends System {
   /**
    * Reads right stick input from the controller and returns a direction vector.
    *
-   * <p>Applies deadzone filtering and inverts the Y-axis. Returns {@link Vector2#ZERO} if input is
-   * within the deadzone threshold.
+   * <p>Applies deadzone filtering and inverts the Y-axis.
    *
    * @param controller the controller to read right stick input from
    * @return a direction vector from the right stick, or ZERO if within deadzone
