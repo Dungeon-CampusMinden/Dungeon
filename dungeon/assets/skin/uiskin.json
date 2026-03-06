@@ -32,6 +32,18 @@ com.badlogic.gdx.graphics.Color: {
 		b: 0.7490196
 		a: 1
 	}
+    white: {
+        r: 1
+        g: 1
+        b: 1
+        a: 1
+    }
+    bone-white: {
+        r: 0.88
+        g: 0.84
+        b: 0.75
+        a: 1
+    }
 	experience_green: {
 		r: 0.16078432
 		g: 1
@@ -45,17 +57,29 @@ com.badlogic.gdx.graphics.Color: {
 		a: 1
 	}
 	health_red: {
-		r: 1
-		g: 0
-		b: 0
+		r: 0.8
+		g: 0.15
+		b: 0.15
 		a: 1
 	}
 	mana_blue: {
-		r: 0
-		g: 0
-		b: 1
+		r: 0.15
+		g: 0.25
+		b: 0.7
 		a: 1
 	}
+    stamina_green: {
+        r: 0.25
+        g: 0.65
+        b: 0.25
+        a: 1
+    }
+    exp_orange: {
+        r: 0.85
+        g: 0.6
+        b: 0.05
+        a: 1
+    }
 	orange: {
 		r: 0.94509804
 		g: 0.6745098
@@ -80,13 +104,42 @@ com.badlogic.gdx.graphics.Color: {
 		b: 1
 		a: 1
 	}
+    system-red: {
+        r: 0.9
+        g: 0.25
+        b: 0.25
+        a: 1
+    }
+    system-yellow: {
+        r: 0.95
+        g: 0.85
+        b: 0.35
+        a: 1
+    }
+    system-green: {
+        r: 0.3
+        g: 0.9
+        b: 0.5
+        a: 1
+    }
+    system-white: {
+        r: 0.95
+        g: 0.95
+        b: 0.92
+        a: 1
+    }
 }
 com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable: {
 	progress-bar-fill: {
 		region: progress-bar-fill
 		minWidth: 1
 		minHeight: 10
-	}
+	},
+    progress-bar-hud-fill: {
+        region: progress-bar-fill
+        minWidth: 1
+        minHeight: 18
+    }
 }
 com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable: {
 	progress-bar-smaller: {
@@ -97,7 +150,16 @@ com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable: {
 		rightWidth: 1
 		topHeight: 1
 		bottomHeight: 1
-	}
+	},
+    progress-bar-hud: {
+        patch: progress-bar-smaller
+        minWidth: 20
+        minHeight: 20
+        leftWidth: 1
+        rightWidth: 1
+        topHeight: 1
+        bottomHeight: 1
+    }
 }
 com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 	round-dark-gray: {
@@ -145,9 +207,36 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 			a: 1
 		}
 	}
+    dark-gray: {
+        name: white
+        color: {
+            r: 0.22
+            g: 0.22
+            b: 0.22
+            a: 1
+        }
+    }
+    dark-red: {
+        name: white
+        color: {
+            r: 0.5
+            g: 0.05
+            b: 0.05
+            a: 1
+        }
+    }
+    yellow: {
+        name: white
+        color: {
+            r: 1
+            g: 1
+            b: 0
+            a: 1
+        }
+    }
 	progress-bar-fill-experience: {
 		name: progress-bar-fill
-		color: experience_green
+		color: exp_orange
 		minWidth: 1
 		minHeight: 10
 	}
@@ -165,10 +254,46 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 	}
 	progress-bar-fill-stamina: {
 		name: progress-bar-fill
-		color: orange
+		color: stamina_green
 		minWidth: 1
 		minHeight: 10
 	}
+    progress-bar-hud-fill-experience: {
+        name: progress-bar-hud-fill
+        color: exp_orange
+        minWidth: 1
+        minHeight: 18
+    }
+    progress-bar-hud-fill-health: {
+        name: progress-bar-hud-fill
+        color: health_red
+        minWidth: 1
+        minHeight: 18
+    }
+    progress-bar-hud-fill-mana: {
+        name: progress-bar-hud-fill
+        color: mana_blue
+        minWidth: 1
+        minHeight: 18
+    }
+    progress-bar-hud-fill-stamina: {
+        name: progress-bar-hud-fill
+        color: stamina_green
+        minWidth: 1
+        minHeight: 18
+    }
+    scroll-track-thin: {
+        name: white
+        color: { r: 0, g: 0, b: 0, a: 0.45 }
+    }
+    scroll-thumb-thin: {
+        name: white
+        color: { r: 0.8, g: 0.8, b: 0.8, a: 1 }
+    }
+    transparent-background: {
+        name: white
+        color: { r: 0, g: 0, b: 0, a: 0.35 }
+    }
 }
 com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable: {
 	healthbar: {
@@ -249,6 +374,38 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		font: roboto-semibold-32
 		fontColor: white
 	}
+    healthlabel: {
+        font: roboto-semibold-32
+        fontColor: white
+    }
+    manalabel: {
+        font: roboto-semibold-32
+        fontColor: white
+    }
+    staminalabel: {
+        font: roboto-semibold-32
+        fontColor: black
+    }
+    enemycounterlabel: {
+        font: roboto-semibold-32
+        fontColor: bone-white
+    }
+    redmessage: {
+        font: roboto-semibold-32
+        fontColor: system-red
+    }
+    yellowmessage: {
+        font: roboto-semibold-32
+        fontColor: system-yellow
+    }
+    greenmessage: {
+        font: roboto-semibold-32
+        fontColor: system-green
+    }
+    whitemessage: {
+        font: roboto-semibold-32
+        fontColor: system-white
+    }
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
 	default: {
@@ -283,6 +440,22 @@ com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
 		background: progress-bar-smaller
 		knobBefore: progress-bar-fill-experience
 	}
+    healthbarhud: {
+        background: progress-bar-hud
+        knobBefore: progress-bar-hud-fill-health
+    }
+    manabarhud: {
+        background: progress-bar-hud
+        knobBefore: progress-bar-hud-fill-mana
+    }
+    staminabarhud: {
+        background: progress-bar-hud
+        knobBefore: progress-bar-hud-fill-stamina
+    }
+    experiencebarhud: {
+        background: progress-bar-hud
+        knobBefore: progress-bar-hud-fill-experience
+    }
 }
 com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 	default: {
@@ -292,6 +465,13 @@ com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 		vScroll: scrollbar_future_transparent_small
 		vScrollKnob: scrollbar_future_grey_small
 	}
+    thin-transparent: {
+        background: transparent-background
+        vScroll: scroll-track-thin
+        vScrollKnob: scroll-thumb-thin
+        hScroll: scroll-track-thin
+        hScrollKnob: scroll-thumb-thin
+    }
 }
 com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
 	default: {

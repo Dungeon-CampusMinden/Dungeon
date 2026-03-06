@@ -1,0 +1,79 @@
+package contrib.hud.newhud;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import contrib.components.AIComponent;
+import core.Game;
+
+/**
+ * The EnemyCounter is a HUD element that displays the current number of entities dangerous to the
+ * hero within the current dungeon level.
+ *
+ * <p>It counts the number of currently active {@link AIComponent} instances.
+ */
+public class EnemyCounter extends Table implements HUDElement {
+
+  private final Label counterLabel;
+  private final Label tooltipLabel;
+  private long enemyCount = 0;
+
+  /**
+   * Creates a new EnemyCounter.
+   *
+   * @param skin The skin that defines the appearance of UI elements.
+   */
+  public EnemyCounter(Skin skin) {
+    super(skin);
+
+    setSize(64, 64);
+    setBackground(skin.getDrawable("dark-red"));
+    pad(5);
+
+    Image skullIcon = new Image();
+    skullIcon.setDrawable(
+        new TextureRegionDrawable(new Texture("dungeon/assets/hud/skull_icon.png")));
+    add(skullIcon).size(48, 48);
+    counterLabel = new Label("0", skin, "enemycounterlabel");
+    add(counterLabel).size(24, 24);
+
+    tooltipLabel = new Label("", skin);
+    Tooltip<Label> tooltip = new Tooltip<>(tooltipLabel);
+    tooltip.setInstant(true);
+    addListener(tooltip);
+  }
+
+  @Override
+  public void init() {
+    layoutElement();
+    this.setVisible(false);
+  }
+
+  @Override
+  public void layoutElement() {
+    pack();
+    setPosition(0, Gdx.graphics.getHeight() / 2f - getHeight() / 2f);
+  }
+
+  @Override
+  public void update() {
+    countEnemies();
+  }
+
+  private void countEnemies() {
+    long currentEnemyCount =
+        Game.allEntities().filter(entity -> entity.fetch(AIComponent.class).isPresent()).count();
+
+    if (currentEnemyCount != enemyCount) {
+      this.setVisible(true);
+      counterLabel.setText((int) currentEnemyCount);
+      tooltipLabel.setText("There are " + currentEnemyCount + " enemies nearby!");
+      enemyCount = currentEnemyCount;
+
+      if (enemyCount == 0) {
+        this.setVisible(false);
+      }
+    }
+  }
+}
