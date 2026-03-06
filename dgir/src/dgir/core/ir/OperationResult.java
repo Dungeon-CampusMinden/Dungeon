@@ -26,7 +26,7 @@ public class OperationResult {
    * Create a result wrapping an existing {@link Value}.
    *
    * @param parent the operation that produces this result.
-   * @param value  the pre-existing value to wrap.
+   * @param value the pre-existing value to wrap.
    */
   public OperationResult(@NotNull Operation parent, @NotNull Value value) {
     this.parent = parent;
@@ -37,7 +37,7 @@ public class OperationResult {
    * Create a result by allocating a fresh {@link Value} of the given type.
    *
    * @param parent the operation that produces this result.
-   * @param type   the type of the new value.
+   * @param type the type of the new value.
    */
   public OperationResult(@NotNull Operation parent, @NotNull Type type) {
     this.parent = parent;
@@ -66,10 +66,12 @@ public class OperationResult {
    */
   public void setValue(@NotNull Value value) {
     assert value.getType().equals(this.value.getType())
-        : "Type mismatch while setting result value: "
-            + value.getType()
-            + " != "
-            + this.value.getType();
+        : parent
+            + "\nType mismatch while setting result value: Existing  "
+            + this.value.getType()
+            + " != Provided "
+            + value.getType();
+
     this.value = value;
   }
 

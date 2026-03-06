@@ -85,8 +85,6 @@ public sealed interface ArithAttrs {
       SUB(BinMode::onlyNumericOperands),
       /** Signed Multiplication */
       MUL(BinMode::onlyNumericOperands),
-      /** Unsigned Multiplication */
-      MULUI(BinMode::onlyIntegerOperands),
       /** Division */
       DIV(BinMode::onlyNumericOperands),
       DIVUI(BinMode::onlyIntegerOperands),

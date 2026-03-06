@@ -267,6 +267,7 @@ public class JavaCompiler {
 
       // Get the input types of the method and their names.
       List<String> inputNames = new ArrayList<>();
+      List<ResolvedType> resolvedInputTypes = new ArrayList<>();
       List<Type> inputTypes =
           new ArrayList<>(
               n.getParameters().stream()
@@ -292,6 +293,7 @@ public class JavaCompiler {
                         if (resolvedType.isEmpty()) {
                           return null;
                         }
+                        resolvedInputTypes.add(resolvedType.get());
                         Optional<Type> type = fromAstType(resolvedType.get(), param, context);
                         if (type.isEmpty()) {
                           return null;
@@ -333,7 +335,8 @@ public class JavaCompiler {
       // Put the function arguments in the symbol table so that they can be referenced in the body.
       context.pushSymbolScope(true);
       for (int i = 0; i < inputNames.size(); i++) {
-        context.putSymbol(inputNames.get(i), funcOp.getArgument(i).orElseThrow());
+        context.putSymbol(
+            inputNames.get(i), funcOp.getArgument(i).orElseThrow(), resolvedInputTypes.get(i));
       }
 
       // Emit the body of the method.
@@ -459,7 +462,18 @@ public class JavaCompiler {
       Value rhsValue = rhs.get().get();
 
       if (n.getOperator() == AssignExpr.Operator.ASSIGN) {
-        context.insert(new BuiltinOps.IdOp(context.loc(n), rhsValue, targetValue));
+        EmitResult<Value> implicitCast =
+            CompilerUtils.emitImplicitCastIfNeeded(
+                n.getValue(),
+                rhsValue,
+                n.getValue().calculateResolvedType(),
+                context.lookupType(targetValue).orElseThrow(),
+                true,
+                context);
+        if (implicitCast.isFailure()) {
+          return;
+        }
+        context.insert(new BuiltinOps.IdOp(context.loc(n), implicitCast.get(), targetValue));
         return;
       }
 
@@ -522,6 +536,7 @@ public class JavaCompiler {
       bindName(
           variableDeclarator.getName().asString(),
           implicitCastRes.orElse(initValue),
+          resolvedVariable.get().getType(),
           variableDeclarator,
           context);
     }
@@ -798,8 +813,12 @@ public class JavaCompiler {
     }
 
     private void bindName(
-        @NotNull String name, @NotNull Value value, @NotNull Node site, EmitContext context) {
-      context.putSymbol(name, value);
+        @NotNull String name,
+        @NotNull Value value,
+        @NotNull ResolvedType resolvedType,
+        @NotNull Node site,
+        EmitContext context) {
+      context.putSymbol(name, value, resolvedType);
       value.setDebugInfo(new ValueDebugInfo(context.loc(site), name));
     }
 
@@ -810,7 +829,7 @@ public class JavaCompiler {
             case BooleanLiteralExpr boolL ->
                 new IntegerAttribute(boolL.getValue() ? 1 : 0, IntegerT.BOOL);
             case CharLiteralExpr charL ->
-                new IntegerAttribute((byte) charL.getValue().charAt(0), IntegerT.INT8);
+                new IntegerAttribute(charL.getValue().charAt(0), IntegerT.UINT16);
             case DoubleLiteralExpr doubleL -> {
               if (doubleL.getValue().contains("f") || doubleL.getValue().contains("F"))
                 yield new FloatAttribute(Float.parseFloat(doubleL.getValue()), FloatT.FLOAT32);

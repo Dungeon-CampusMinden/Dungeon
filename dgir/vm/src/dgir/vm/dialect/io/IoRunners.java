@@ -1,17 +1,19 @@
 package dgir.vm.dialect.io;
 
 import dgir.core.ir.Operation;
+import dgir.core.ir.Value;
+import dgir.dialect.builtin.BuiltinTypes;
+import dgir.dialect.io.IoOps;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dgir.dialect.builtin.BuiltinTypes;
-import dgir.dialect.io.IoOps;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.Scanner;
-import org.jetbrains.annotations.NotNull;
 
 public sealed interface IoRunners {
   final class ConsoleInRunner extends OpRunner implements IoRunners {
@@ -45,7 +47,7 @@ public sealed interface IoRunners {
           case BuiltinTypes.StringT s -> state.setValueForOutput(op, scanner.nextLine());
           case BuiltinTypes.IntegerT i -> {
             switch (i.getWidth()) {
-              case 1 -> state.setValueForOutput(op, (byte) (scanner.nextByte() == 0 ? 0 : 1));
+              case 1 -> state.setValueForOutput(op, (byte) (scanner.nextBoolean() ? 1 : 0));
               case 8 -> state.setValueForOutput(op, scanner.nextByte());
               case 16 -> state.setValueForOutput(op, scanner.nextShort());
               case 32 -> state.setValueForOutput(op, scanner.nextInt());
@@ -91,13 +93,13 @@ public sealed interface IoRunners {
       assert !printOp.getOperands().isEmpty() : "Print operation must have at least one operand";
 
       if (printOp.getOperands().size() == 1) {
-        Object value = state.getValue(printOp.getOperand(0).orElseThrow());
-        out.print(value);
+        Object message = normalizeOperand(op.getOperandValue(0).orElseThrow(), state);
+        out.print(message);
         if (parallelSystemOut && out != System.out) {
-          System.out.print(value);
+          System.out.print(message);
         }
       } else {
-        Object formatString = state.getValue(printOp.getOperand(0).orElseThrow());
+        Object formatString = normalizeOperand(op.getOperandValue(0).orElseThrow(), state);
         assert formatString instanceof String : "Format string must be a string";
         Object[] args =
             printOp.getOperands().subList(1, printOp.getOperands().size()).stream()
@@ -110,6 +112,13 @@ public sealed interface IoRunners {
       }
 
       return Action.Next();
+    }
+
+    private @NotNull Object normalizeOperand(@NotNull Value operandValue, @NotNull State state) {
+      if (operandValue.getType().equals(BuiltinTypes.IntegerT.BOOL)) {
+        return ((byte) state.getValue(operandValue)) != 0;
+      }
+      return state.getValue(operandValue);
     }
   }
 }

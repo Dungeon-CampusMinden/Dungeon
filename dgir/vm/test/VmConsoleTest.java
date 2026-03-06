@@ -285,14 +285,14 @@ public class VmConsoleTest extends VmTestBase {
     VM vm = createVm(programOp);
     // Test positive case
     {
-      String simulatedInput = "1\n";
+      String simulatedInput = "true\n";
       ConsoleInRunner.setInputStream(new ByteArrayInputStream(simulatedInput.getBytes(UTF_8)));
       runVM(vm, "You said true!\n");
     }
     resetOutput();
     // Test negative case
     {
-      String simulatedInput = "0\n";
+      String simulatedInput = "false\n";
       ConsoleInRunner.setInputStream(new ByteArrayInputStream(simulatedInput.getBytes(UTF_8)));
       runVM(vm, "You said false!\n");
     }
@@ -446,15 +446,15 @@ public class VmConsoleTest extends VmTestBase {
     mergeBlock.addOperation(new ReturnOp(LOC));
 
     VM vm = createVm(programOp);
-    // Test true branch: flag=1 -> read integer 7 -> print "You entered: 7\n"
+    // Test true branch: flag=true -> read integer 7 -> print "You entered: 7\n"
     {
-      ConsoleInRunner.setInputStream(new ByteArrayInputStream("1\n7\n".getBytes(UTF_8)));
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream("true\n7\n".getBytes(UTF_8)));
       runVM(vm, "You entered: 7\n");
     }
     resetOutput();
     // Test false branch: flag=0 -> no further console read -> print "No input given.\n"
     {
-      ConsoleInRunner.setInputStream(new ByteArrayInputStream("0\n".getBytes(UTF_8)));
+      ConsoleInRunner.setInputStream(new ByteArrayInputStream("false\n".getBytes(UTF_8)));
       runVM(vm, "No input given.\n");
     }
   }

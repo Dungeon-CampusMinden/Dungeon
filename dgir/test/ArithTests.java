@@ -294,8 +294,6 @@ public class ArithTests {
         funcMain.addOperation(new ConstantOp(LOC, new FloatAttribute(2.0f, FloatT.FLOAT32)), 0);
 
     funcMain.addOperation(
-        new BinaryOp(LOC, uint32Op.getValue(), float32Op.getValue(), BinModeAttr.BinMode.MULUI), 0);
-    funcMain.addOperation(
         new BinaryOp(LOC, uint32Op.getValue(), float32Op.getValue(), BinModeAttr.BinMode.DIVUI), 0);
     funcMain.addOperation(
         new BinaryOp(LOC, uint32Op.getValue(), float32Op.getValue(), BinModeAttr.BinMode.MODUI), 0);
@@ -315,10 +313,6 @@ public class ArithTests {
     var uint16Op =
         funcMain.addOperation(new ConstantOp(LOC, new IntegerAttribute(4, IntegerT.UINT16)), 0);
 
-    var muluiOp =
-        funcMain.addOperation(
-            new BinaryOp(LOC, int32Op.getValue(), uint16Op.getValue(), BinModeAttr.BinMode.MULUI),
-            0);
     var divuiOp =
         funcMain.addOperation(
             new BinaryOp(LOC, int32Op.getValue(), uint16Op.getValue(), BinModeAttr.BinMode.DIVUI),
@@ -328,7 +322,6 @@ public class ArithTests {
             new BinaryOp(LOC, int32Op.getValue(), uint16Op.getValue(), BinModeAttr.BinMode.MODUI),
             0);
 
-    assertEquals(IntegerT.INT32, muluiOp.getOutputValue().orElseThrow().getType());
     assertEquals(IntegerT.INT32, divuiOp.getOutputValue().orElseThrow().getType());
     assertEquals(IntegerT.INT32, moduiOp.getOutputValue().orElseThrow().getType());
 

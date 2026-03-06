@@ -3,6 +3,7 @@ package blockly.dgir.compiler.java;
 import blockly.dgir.compiler.SymbolTable.ScopedSymbolTable;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.utils.Pair;
 import dgir.core.debug.Location;
 import dgir.core.ir.Block;
@@ -30,7 +31,8 @@ public final class EmitContext {
 
   public @Nullable BuiltinOps.ProgramOp program = null;
 
-  private final ScopedSymbolTable symbolTable = ScopedSymbolTable.createRoot();
+  private final ScopedSymbolTable<String, Value> symbolTable = ScopedSymbolTable.createRoot();
+  private final ScopedSymbolTable<Value, ResolvedType> typeTable = ScopedSymbolTable.createRoot();
 
   /** The block into which the next IR operation will be inserted. */
   private @Nullable Block insertionBlock = null;
@@ -61,19 +63,27 @@ public final class EmitContext {
 
   public void pushSymbolScope(boolean isolatedFromAbove) {
     symbolTable.pushScope(isolatedFromAbove);
+    typeTable.pushScope(isolatedFromAbove);
   }
 
   @NotNull
   public Pair<@NotNull Boolean, @NotNull Map<@NotNull String, @NotNull Value>> popSymbolScope() {
+    typeTable.popScope();
     return symbolTable.popScope();
   }
 
-  public void putSymbol(@NotNull String name, @NotNull Value value) {
+  public void putSymbol(
+      @NotNull String name, @NotNull Value value, @NotNull ResolvedType resolvedType) {
     symbolTable.insertScoped(name, value);
+    typeTable.insertScoped(value, resolvedType);
   }
 
   public @NotNull Optional<Value> lookupSymbol(@NotNull String qualifiedMangledName) {
     return symbolTable.lookupScoped(qualifiedMangledName);
+  }
+
+  public @NotNull Optional<ResolvedType> lookupType(@NotNull Value value) {
+    return typeTable.lookupScoped(value);
   }
 
   /**

@@ -168,23 +168,13 @@ public sealed interface BuiltinTypes {
       return value -> {
         if (!(value instanceof Number number)) return false;
 
-        switch (number) {
-          case Byte ignored when getWidth() == 1 || getWidth() == 8 -> {
-            return true;
-          }
-          case Short ignored when getWidth() == 16 -> {
-            return true;
-          }
-          case Integer ignored when getWidth() == 32 -> {
-            return true;
-          }
-          case Long ignored when getWidth() == 64 -> {
-            return true;
-          }
-          default -> {
-            return false;
-          }
-        }
+        return switch (number) {
+          case Byte ignored when getWidth() == 1 || getWidth() == 8 -> true;
+          case Short ignored when getWidth() == 16 -> true;
+          case Integer ignored when getWidth() == 32 -> true;
+          case Long ignored when getWidth() == 64 -> true;
+          default -> false;
+        };
       };
     }
 
@@ -291,6 +281,33 @@ public sealed interface BuiltinTypes {
         case 64 -> number;
         default -> throw new RuntimeException("Invalid integer width: " + getWidth());
       };
+    }
+
+    /**
+     * For a given number, return its normalized long representation according to this integer type.
+     * For signed types, this is just the long value of the number. For unsigned types, this is the
+     * long value masked to the appropriate number of bits. For example, if this is {@code uint8}
+     * and the input number is -1 (which would be 0xFFFFFFFFFFFFFFFF in two's complement), the
+     * normalized long representation would be 255 (0xFF), which is the correct unsigned
+     * interpretation of the bits.
+     *
+     * @param number the number to normalize
+     * @return the normalized long representation of the number.
+     */
+    public long normalizedLongRepresentation(Number number) {
+      assert number instanceof Byte
+              || number instanceof Short
+              || number instanceof Integer
+              || number instanceof Long
+          : "Input number must be an instance of Byte, Short, Integer, or Long: " + number;
+      long value = number.longValue();
+      if (isSigned()) {
+        return value;
+      } else {
+        if (width >= 64) return value;
+        long mask = (1L << width) - 1L;
+        return value & mask;
+      }
     }
   }
 

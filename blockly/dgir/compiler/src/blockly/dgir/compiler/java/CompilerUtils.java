@@ -122,7 +122,7 @@ public class CompilerUtils {
     if (isPrimitiveVariableAssignment) {
       String sourceDesc = source.asPrimitive().describe();
       switch (target.asPrimitive().describe()) {
-        case "byte", "short" -> {
+        case "byte", "short", "char" -> {
           switch (sourceDesc) {
             case "char", "int" -> {
               return true;

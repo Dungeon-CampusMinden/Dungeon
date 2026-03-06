@@ -257,8 +257,8 @@ public class %ClassName {
     float f = b;
     double d = b;
 
-    b = 'b';
-    s = 's';
+    b = 'a';
+    s = 'a';
     s = 1;
     c = 1;
     i = s;
