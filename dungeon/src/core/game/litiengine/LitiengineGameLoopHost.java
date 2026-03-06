@@ -90,7 +90,6 @@ public final class LitiengineGameLoopHost {
     ECSManagement.bootstrapGameplaySystems(SystemProfile.LITIENGINE_CLIENT);
     ECSManagement.system(core.systems.LevelSystem.class, ls -> ls.onLevelLoad(GameLoop.onLevelLoad));
 
-    // One-time startup (mirrors what the GDX host does once at the beginning)
     ClientStartup.setupAndLoadInitialLevelOnce();
 
     // Drive ECS tick from LITIENGINE update loop.

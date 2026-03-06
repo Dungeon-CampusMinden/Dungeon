@@ -13,7 +13,6 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import contrib.components.UIComponent;
-import contrib.crafting.Crafting;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.hud.UIUtils;
@@ -25,6 +24,7 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.configuration.KeyboardConfig;
 import core.game.*;
+import core.game.bootstrap.ClientStartup;
 import core.level.loader.DungeonLoader;
 import core.level.loader.LevelParser;
 import core.network.ConnectionListener;
@@ -226,15 +226,7 @@ public final class GdxGameLoopHost extends ScreenAdapter {
       setupClient();
     }
 
-    // IMPORTANT: user setup usually spawns the hero and other initial entities.
-    PreRunConfiguration.userOnSetup().execute();
-
-    // Start networking (even in single player this may be a LocalNetworkHandler).
-    Game.network().start();
-
-    // Load data and execute LevelSystem once to load initial level.
-    Crafting.loadRecipes();
-    Game.system(LevelSystem.class, LevelSystem::execute);
+    ClientStartup.setupAndLoadInitialLevelOnce();
   }
 
   private void setupMessageHandlers() {
