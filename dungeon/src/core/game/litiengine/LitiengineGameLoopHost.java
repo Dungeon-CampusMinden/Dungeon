@@ -1,6 +1,7 @@
 package core.game.litiengine;
 
 import core.game.*;
+import core.game.bootstrap.ClientStartup;
 import core.platform.CompositeResourcesAdapter;
 import core.platform.Platform;
 import core.platform.classpath.ClasspathResourcesAdapter;
@@ -88,6 +89,9 @@ public final class LitiengineGameLoopHost {
     ECSManagement.bootstrapDefaultSystems(SystemProfile.LITIENGINE_CLIENT);
     ECSManagement.bootstrapGameplaySystems(SystemProfile.LITIENGINE_CLIENT);
     ECSManagement.system(core.systems.LevelSystem.class, ls -> ls.onLevelLoad(GameLoop.onLevelLoad));
+
+    // One-time startup (mirrors what the GDX host does once at the beginning)
+    ClientStartup.setupAndLoadInitialLevelOnce();
 
     // Drive ECS tick from LITIENGINE update loop.
     Game.loop()
