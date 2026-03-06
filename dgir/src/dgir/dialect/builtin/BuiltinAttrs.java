@@ -1,18 +1,23 @@
 package dgir.dialect.builtin;
 
-import static dgir.dialect.builtin.BuiltinTypes.*;
-import static dgir.dialect.func.FuncOps.CallOp;
-import static dgir.dialect.func.FuncOps.FuncOp;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dgir.core.Dialect;
 import dgir.core.ir.Attribute;
 import dgir.core.ir.Type;
 import dgir.core.ir.TypedAttribute;
-import java.util.Optional;
+import dgir.core.serialization.IntegerAttributeDeserializer;
+import dgir.core.serialization.IntegerAttributeSerializer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+
+import java.util.Optional;
+
+import static dgir.dialect.builtin.BuiltinTypes.*;
+import static dgir.dialect.func.FuncOps.CallOp;
+import static dgir.dialect.func.FuncOps.FuncOp;
 
 public sealed interface BuiltinAttrs {
   abstract class BuiltinBaseAttr extends Attribute {
@@ -54,6 +59,8 @@ public sealed interface BuiltinAttrs {
    * <p>Ident: {@code integerAttr}. The stored value is always the narrowest Java numeric type that
    * matches the integer width — e.g. {@link Integer} for {@link IntegerT#INT32}.
    */
+  @JsonSerialize(using = IntegerAttributeSerializer.class)
+  @JsonDeserialize(using = IntegerAttributeDeserializer.class)
   final class IntegerAttribute extends BuiltinBaseTypedAttr implements BuiltinAttrs {
     // =========================================================================
     // Type Info
@@ -87,7 +94,7 @@ public sealed interface BuiltinAttrs {
      *
      * @param value the integer value.
      */
-    public IntegerAttribute(@NotNull Number value) {
+    public IntegerAttribute(long value) {
       super(IntegerT.INT64);
       this.value = ((IntegerT) getType()).convertToValidNumber(value);
     }
@@ -97,12 +104,12 @@ public sealed interface BuiltinAttrs {
      * deserialization).
      *
      * @param value the integer value; will be converted to the correct Java type via {@link
-     *     IntegerT#convertToValidNumber(Number)}.
+     *     IntegerT#convertToValidNumber(long)}.
      * @param type the integer type that determines the bit-width.
      */
     @JsonCreator
     public IntegerAttribute(
-        @JsonProperty("value") Number value, @JsonProperty("type") IntegerT type) {
+        @JsonProperty("value") long value, @JsonProperty("type") IntegerT type) {
       super(type);
       this.value = ((IntegerT) getType()).convertToValidNumber(value);
     }
@@ -133,8 +140,12 @@ public sealed interface BuiltinAttrs {
      *
      * @param value the new integer value.
      */
-    public void setValue(@NotNull Number value) {
+    public void setValue(long value) {
       this.value = ((IntegerT) getType()).convertToValidNumber(value);
+    }
+
+    public void setValue(boolean value) {
+      this.value = ((IntegerT) getType()).convertToValidNumber(value ? 1L : 0L);
     }
   }
 

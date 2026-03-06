@@ -2,6 +2,7 @@ package dgir.core.serialization;
 
 import dgir.core.debug.Location;
 import dgir.core.ir.*;
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
@@ -12,7 +13,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Deserializes an {@link Operation} from its JSON object form.
+ *
+ * <p>Required field: {@code ident}. Optional fields ({@code operands}, {@code attributes}, {@code
+ * output}, {@code successors}, {@code regions}, {@code loc}) are validated when present. Malformed
+ * input is reported via {@link DeserializationContext#reportInputMismatch}.
+ */
 public class OperationDeserializer extends StdDeserializer<Operation> {
+  /**
+   * Stores unresolved successor references until all nested regions/blocks/operations are available
+   * for identity resolution.
+   */
   private static final Map<Operation, Map<BlockOperand, JsonNode>> unresolvedSuccessorReferences =
       new HashMap<>();
 
@@ -24,101 +36,122 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
     super(vc);
   }
 
+  /** Deserialize a full operation payload, then resolve successor references in a second step. */
   @Override
-  public Operation deserialize(JsonParser jp, DeserializationContext ctxt) {
+  public Operation deserialize(JsonParser jp, DeserializationContext ctxt) throws JacksonException {
     JsonNode node = jp.readValueAsTree();
-    // Get the ident field so that we can lookup the correct operation type.
-    var operationDetails = OperationDetails.Registered.lookup(node.get("ident").asString());
-    assert operationDetails.isPresent()
-        : "Operation "
-            + node.get("ident").asString()
-            + " must be a registered to deserialize.\n\tMake sure to load its dialect before deserializing.";
 
-    // Deserialize the operands from the node, these are serialized as a list of value references.
+    // Resolve operation kind from ident before touching optional fields.
+    JsonNode identNode = node.get("ident");
+    if (identNode == null || identNode.isNull()) {
+      return ctxt.reportInputMismatch(Operation.class, "Missing required field 'ident'.");
+    }
+    if (!identNode.isString()) {
+      return ctxt.reportInputMismatch(Operation.class, "Field 'ident' must be a string.");
+    }
+
+    String ident = identNode.asString();
+    var operationDetails = OperationDetails.Registered.lookup(ident);
+    if (operationDetails.isEmpty()) {
+      return ctxt.reportInputMismatch(
+          Operation.class,
+          "Operation '%s' must be registered to deserialize. Load its dialect first.",
+          ident);
+    }
+
     List<Value> operands = null;
-    if (node.has("operands")) {
+    JsonNode operandsNode = node.get("operands");
+    if (operandsNode != null && !operandsNode.isNull()) {
+      if (!operandsNode.isArray()) {
+        return ctxt.reportInputMismatch(Operation.class, "Field 'operands' must be an array.");
+      }
       operands = new ArrayList<>();
-      for (JsonNode operandNode : node.get("operands")) {
-        // Let Jackson resolve the identity reference so already-deserialized body values inside a
-        // region are reused.
-        Value value = ctxt.readTreeAsValue(operandNode.get("value"), Value.class);
+      for (JsonNode operandNode : operandsNode) {
+        // Operand entries are wrappers of the form {"value": <value-ref>}.
+        JsonNode valueRef = operandNode.get("value");
+        if (valueRef == null || valueRef.isNull()) {
+          return ctxt.reportInputMismatch(
+              Operation.class, "Each operand entry must contain field 'value'.");
+        }
+        Value value = ctxt.readTreeAsValue(valueRef, Value.class);
         operands.add(value);
       }
     }
-    // Deserialize the attributes if they exist.
+
     List<NamedAttribute> attributes = null;
-    if (node.has("attributes")) {
+    JsonNode attributesNode = node.get("attributes");
+    if (attributesNode != null && !attributesNode.isNull()) {
+      if (!attributesNode.isArray()) {
+        return ctxt.reportInputMismatch(Operation.class, "Field 'attributes' must be an array.");
+      }
       attributes = new ArrayList<>();
-      for (JsonNode attributeNode : node.get("attributes")) {
+      for (JsonNode attributeNode : attributesNode) {
         NamedAttribute attribute = ctxt.readTreeAsValue(attributeNode, NamedAttribute.class);
         attributes.add(attribute);
       }
     }
-    // Deserialize the output if it exists. Since only the output type is serialized we only need to
-    // deserialize that.
+
     Value outputValue = null;
-    if (node.has("output")) {
-      JsonNode outputNode = node.get("output");
+    JsonNode outputNode = node.get("output");
+    if (outputNode != null && !outputNode.isNull()) {
       outputValue = ctxt.readTreeAsValue(outputNode, Value.class);
     }
 
-    // Deserialize successors if they exist.
-    // Since successors are mostly forward references we will perform a 2 step resolve of their IDs.
-    // For that we store
-    // all the unresolved references in a static lookup map and try to resolve all the references
-    // once we deserialized
-    // all the child regions, as those are were the operations with the unresolved references
-    // reside.
     List<Block> successors = null;
     Map<Block, JsonNode> unresolvedSuccessors = new HashMap<>();
-    if (node.has("successors")) {
+    JsonNode successorsNode = node.get("successors");
+    if (successorsNode != null && !successorsNode.isNull()) {
+      if (!successorsNode.isArray()) {
+        return ctxt.reportInputMismatch(Operation.class, "Field 'successors' must be an array.");
+      }
       successors = new ArrayList<>();
-      for (JsonNode successorNode : node.get("successors")) {
+      for (JsonNode successorNode : successorsNode) {
+        JsonNode valueRef = successorNode.get("value");
+        if (valueRef == null || valueRef.isNull()) {
+          return ctxt.reportInputMismatch(
+              Operation.class, "Each successor entry must contain field 'value'.");
+        }
+        // Use placeholders first; resolve to real blocks once all child regions are read.
         Block placeHolderBlock = new Block();
         successors.add(placeHolderBlock);
-        unresolvedSuccessors.put(placeHolderBlock, successorNode.get("value"));
-        // The references themselves are connected to their BlockOperands after the operation itself
-        // is created and added
-        // to the global list of unresolved references for further processing.
+        unresolvedSuccessors.put(placeHolderBlock, valueRef);
       }
     }
 
-    // Deserialize regions if they exist.
     List<Region> regions = null;
-    if (node.has("regions")) {
+    JsonNode regionsNode = node.get("regions");
+    if (regionsNode != null && !regionsNode.isNull()) {
+      if (!regionsNode.isArray()) {
+        return ctxt.reportInputMismatch(Operation.class, "Field 'regions' must be an array.");
+      }
       regions = new ArrayList<>();
-      for (JsonNode regionNode : node.get("regions")) {
+      for (JsonNode regionNode : regionsNode) {
         Region region = ctxt.readTreeAsValue(regionNode, Region.class);
         regions.add(region);
       }
     }
 
     Location location = Location.UNKNOWN;
-    // Get the source location if it exists
-    if (node.has("loc")) {
-      location = ctxt.readTreeAsValue(node.get("loc"), Location.class);
+    JsonNode locNode = node.get("loc");
+    if (locNode != null && !locNode.isNull()) {
+      location = ctxt.readTreeAsValue(locNode, Location.class);
     }
 
-    // Now that the regions are deserialized, we can go over all their operations and resolve their
-    // block operands.
-    // Note!: This step does not resolve the block operands of this operation, as those are part of
-    // the parent region and
-    // not the ones we just deserialized. In fact, this operation is the result of another region
-    // deserialization
     if (regions != null) {
-      // Go over all regions and their blocks and operations and resolve the block operands.
       for (Region region : regions) {
         for (Block block : region.getBlocks()) {
           for (Operation operation : block.getOperations()) {
-            // Check if we have any unresolved references for this operation.
             Map<BlockOperand, JsonNode> unresolvedReferences =
                 unresolvedSuccessorReferences.get(operation);
             if (unresolvedReferences != null) {
-              // Go over all unresolved references and resolve them.
               for (Map.Entry<BlockOperand, JsonNode> entry : unresolvedReferences.entrySet()) {
                 BlockOperand blockOperand = entry.getKey();
                 JsonNode blockId = entry.getValue();
-                // Now we just use jackson to resolve the reference
+                if (blockId == null || blockId.isNull()) {
+                  return ctxt.reportInputMismatch(
+                      Operation.class, "Encountered unresolved successor block reference.");
+                }
+                // Let Jackson resolve block identity references after region materialization.
                 Block targetBlock = ctxt.readTreeAsValue(blockId, Block.class);
                 blockOperand.setValue(targetBlock);
               }
@@ -130,11 +163,7 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
 
     Op op = operationDetails.get().createDefaultInstance();
     Operation operation;
-    // In case we do have the output value resolved we must set it on the operation so that it
-    // points to the correct value
     if (outputValue != null) {
-      // Create the operation instance with the resolved output value type and set the output value
-      // on the operation.
       operation =
           Operation.Create(
               location,
@@ -145,20 +174,17 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
               regions != null ? regions.size() : 0);
       operation.setOutputValue(outputValue);
     } else {
-      // Create the operation instance.
       operation =
           Operation.Create(
               location, op, operands, successors, null, regions != null ? regions.size() : 0);
     }
 
-    // Set the attributes if they were deserialized.
     if (attributes != null) {
       for (NamedAttribute attribute : attributes) {
         operation.setAttribute(attribute.getName(), attribute.getAttribute());
       }
     }
 
-    // Take the deserialized regions and set their parent operation to this operation.
     if (regions != null) {
       for (int i = 0; i < regions.size(); i++) {
         operation.getRegions().get(i).setBodyValues(regions.get(i).getBodyValues());
@@ -166,18 +192,26 @@ public class OperationDeserializer extends StdDeserializer<Operation> {
       }
     }
 
-    // Connect the unresolved successors and connect them to their corresponding BlockOperands.
     Map<BlockOperand, JsonNode> unresolvedBlockOperands = new HashMap<>();
     for (BlockOperand blockOperand : operation.getBlockOperands()) {
-      // This gives us a direct lookup from the BlockOperand to the ID of the Block it must resolve
-      // to.
-      // That way we can can update the block operands directly, without having to access the
-      // operation itself.
-      unresolvedBlockOperands.put(
-          blockOperand, unresolvedSuccessors.get(blockOperand.getValue().orElseThrow()));
+      Block placeholder = blockOperand.getValue().orElse(null);
+      if (placeholder == null) {
+        return ctxt.reportInputMismatch(
+            Operation.class, "Encountered unset successor placeholder.");
+      }
+      JsonNode unresolvedId = unresolvedSuccessors.get(placeholder);
+      if (unresolvedId == null || unresolvedId.isNull()) {
+        return ctxt.reportInputMismatch(
+            Operation.class,
+            "Missing unresolved successor id for block operand in operation '%s'.",
+            ident);
+      }
+      // Keep unresolved ids so parent-region deserialization can bind forward edges later.
+      unresolvedBlockOperands.put(blockOperand, unresolvedId);
     }
-    if (!unresolvedBlockOperands.isEmpty())
+    if (!unresolvedBlockOperands.isEmpty()) {
       unresolvedSuccessorReferences.put(operation, unresolvedBlockOperands);
+    }
 
     return operation;
   }

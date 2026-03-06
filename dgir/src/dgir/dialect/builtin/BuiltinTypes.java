@@ -3,10 +3,13 @@ package dgir.dialect.builtin;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dgir.core.Dialect;
 import dgir.core.ir.Type;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+
 import java.util.List;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
 public sealed interface BuiltinTypes {
   static boolean isNumeric(@NotNull Type type) {
@@ -29,18 +32,32 @@ public sealed interface BuiltinTypes {
     }
 
     int lhsWidth = ((IntegerT) lhsType).getWidth();
+    boolean lhsIsSigned = ((IntegerT) lhsType).isSigned();
     int rhsWidth = ((IntegerT) rhsType).getWidth();
-    return integerTypeByWidth(Math.max(lhsWidth, rhsWidth));
+    boolean rhsIsSigned = ((IntegerT) rhsType).isSigned();
+    // By default, the result is signed if both operands are signed. However, if one operand is
+    // wider than the other, we take the signedness of the wider operand. This allows operations
+    // like int8 + uint32 to yield a uint32 result, which is more intuitive and prevents accidental
+    // overflow.
+    boolean shouldBeSigned = lhsIsSigned && rhsIsSigned;
+    if (lhsIsSigned != rhsIsSigned) {
+      if (lhsWidth > rhsWidth) {
+        shouldBeSigned = lhsIsSigned;
+      } else {
+        shouldBeSigned = rhsIsSigned;
+      }
+    }
+    return integerTypeByWidth(Math.max(lhsWidth, rhsWidth), shouldBeSigned);
   }
 
-  static @NotNull IntegerT integerTypeByWidth(int width) {
+  static @NotNull IntegerT integerTypeByWidth(int width, boolean isSigned) {
     return switch (width) {
-      case 1 -> IntegerT.INT1;
-      case 8 -> IntegerT.INT8;
-      case 16 -> IntegerT.INT16;
-      case 32 -> IntegerT.INT32;
-      case 64 -> IntegerT.INT64;
-      default -> new IntegerT(width);
+      case 1 -> IntegerT.UINT1;
+      case 8 -> isSigned ? IntegerT.INT8 : IntegerT.UINT8;
+      case 16 -> isSigned ? IntegerT.INT16 : IntegerT.UINT16;
+      case 32 -> isSigned ? IntegerT.INT32 : IntegerT.UINT32;
+      case 64 -> isSigned ? IntegerT.INT64 : IntegerT.UINT64;
+      default -> throw new IllegalArgumentException("Invalid integer width: " + width);
     };
   }
 
@@ -79,6 +96,10 @@ public sealed interface BuiltinTypes {
    *   IntegerT.INT16                 — 16-bit signed integer
    *   IntegerT.INT32                 — 32-bit signed integer
    *   IntegerT.INT64                 — 64-bit signed integer
+   *   IntegerT.UINT8                 — 8-bit unsigned integer
+   *   IntegerT.UINT16                — 16-bit unsigned integer
+   *   IntegerT.UINT32                — 32-bit unsigned integer
+   *   IntegerT.UINT64                — 64-bit unsigned integer
    * </pre>
    */
   final class IntegerT extends BuiltinType implements BuiltinTypes {
@@ -88,22 +109,34 @@ public sealed interface BuiltinTypes {
     // =========================================================================
 
     /** 1-bit integer used as a boolean ({@code false} = 0, {@code true} = 1). */
-    public static final IntegerT INT1 = new IntegerT(1);
+    public static final IntegerT UINT1 = new IntegerT(1, false);
 
-    /** Alias for {@link #INT1}. */
-    public static final IntegerT BOOL = INT1;
+    /** Alias for {@link #UINT1}. */
+    public static final IntegerT BOOL = UINT1;
 
     /** 8-bit signed integer. */
-    public static final IntegerT INT8 = new IntegerT(8);
+    public static final IntegerT INT8 = new IntegerT(8, true);
 
     /** 16-bit signed integer. */
-    public static final IntegerT INT16 = new IntegerT(16);
+    public static final IntegerT INT16 = new IntegerT(16, true);
 
     /** 32-bit signed integer. */
-    public static final IntegerT INT32 = new IntegerT(32);
+    public static final IntegerT INT32 = new IntegerT(32, true);
 
     /** 64-bit signed integer. */
-    public static final IntegerT INT64 = new IntegerT(64);
+    public static final IntegerT INT64 = new IntegerT(64, true);
+
+    /** 8-bit unsigned integer. */
+    public static final IntegerT UINT8 = new IntegerT(8, false);
+
+    /** 16-bit unsigned integer. */
+    public static final IntegerT UINT16 = new IntegerT(16, false);
+
+    /** 32-bit unsigned integer. */
+    public static final IntegerT UINT32 = new IntegerT(32, false);
+
+    /** 64-bit unsigned integer. */
+    public static final IntegerT UINT64 = new IntegerT(64, false);
 
     // =========================================================================
     // Type Info
@@ -111,7 +144,23 @@ public sealed interface BuiltinTypes {
 
     @Override
     public @NotNull String getIdent() {
-      return "int" + getWidth();
+      return (isSigned() ? "" : "u") + "int" + getWidth();
+    }
+
+    /**
+     * Equality is based on the parameterized ident, ignoring the "u" prefix for unsigned types.
+     * This allows signed and unsigned types of the same width to be considered equal for type
+     * checking purposes, since the signedness is mostly a semantic detail that is important for the
+     * arithmetic operations.
+     */
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (obj instanceof Type other) {
+        String normalizedOther = other.getParameterizedIdent().replace("u", "");
+        String normalizedThis = getParameterizedIdent().replace("u", "");
+        return normalizedThis.equals(normalizedOther);
+      }
+      return false;
     }
 
     @Override
@@ -141,7 +190,7 @@ public sealed interface BuiltinTypes {
 
     @Override
     public @NotNull @Unmodifiable List<Type> getDefaultTypeInstances() {
-      return List.of(INT1, INT8, INT16, INT32, INT64);
+      return List.of(UINT1, INT8, INT16, INT32, INT64, UINT8, UINT16, UINT32, UINT64);
     }
 
     // =========================================================================
@@ -151,24 +200,39 @@ public sealed interface BuiltinTypes {
     /** The bit-width of this integer type (1, 8, 16, 32, or 64). */
     private final int width;
 
+    /** Whether this type is signed. */
+    private final boolean signed;
+
     // =========================================================================
     // Constructors
     // =========================================================================
 
     /** Create a default 32-bit integer type. */
-    public IntegerT() {
+    IntegerT() {
       width = 32;
+      signed = true;
     }
 
     /**
-     * Create an integer type with the given bit-width.
+     * Create a signed integer type with the given bit-width.
      *
      * @param width must be one of 1, 8, 16, 32, or 64.
      */
-    public IntegerT(int width) {
+    private IntegerT(int width) {
+      this(width, true);
+    }
+
+    /**
+     * Create an integer type with the given bit-width and signedness.
+     *
+     * @param width must be one of 1, 8, 16, 32, or 64.
+     * @param isSigned whether this type is signed.
+     */
+    private IntegerT(int width, boolean isSigned) {
       assert width == 1 || width == 8 || width == 16 || width == 32 || width == 64
           : "Invalid integer width: " + width;
       this.width = width;
+      this.signed = isSigned;
     }
 
     // =========================================================================
@@ -180,8 +244,19 @@ public sealed interface BuiltinTypes {
      *
      * @return the bit-width (1, 8, 16, 32, or 64).
      */
+    @Contract(pure = true)
     public int getWidth() {
       return width;
+    }
+
+    /**
+     * Returns whether this integer type is signed.
+     *
+     * @return {@code true} if this type is signed, {@code false} otherwise.
+     */
+    @Contract(pure = true)
+    public boolean isSigned() {
+      return signed;
     }
 
     /**
@@ -189,17 +264,31 @@ public sealed interface BuiltinTypes {
      * IntegerT}. For example, if this is {@link #INT16} and the input is a {@code Byte}, it is
      * widened to a {@code Short}.
      *
-     * @param number the number to convert; must not be a floating-point value.
+     * <p>For the 1-bit boolean type, any nonzero input is converted to 1, and zero is converted to
+     * 0.
+     *
+     * <p>Signedness is implicitly handled. If you want to store a value of 255 in a byte, just pass
+     * 255 to the function. The conversion to byte will cause the "signed" value to be -1, which is
+     * the correct two's complement representation of 255 in a byte. During execution, it is the
+     * responsibility of the runtime to call the correctly signed operations.
+     *
+     * <p>If you want to assign large unsigned values to long variables, you can use {@code UINT64}
+     * and pass in a {@code Long} value. The conversion will not change the bits, so a value like
+     * 2^63 will be represented as -2^63 in the resulting {@code Long}. Again, it is the
+     * responsibility of the runtime to handle this correctly. {@code 0xFFFFFFFFFFFFFFFFL} is the
+     * largest value that can be represented in an {@code Unsigned Long}.
+     *
+     * @param number the number to convert
      * @return the converted number in the narrowest Java type that matches this width.
-     * @throws IllegalArgumentException if {@code number} is a float or double.
      */
-    public Number convertToValidNumber(Number number) {
+    @Contract(pure = true)
+    public Number convertToValidNumber(long number) {
       return switch (getWidth()) {
-        case 1 -> (byte) (number.intValue() == 0 ? 0 : 1); // Mask to 1 bit for boolean
-        case 8 -> number.byteValue();
-        case 16 -> number.shortValue();
-        case 32 -> number.intValue();
-        case 64 -> number.longValue();
+        case 1 -> (byte) (number == 0 ? 0 : 1);
+        case 8 -> (byte) number;
+        case 16 -> (short) number;
+        case 32 -> (int) number;
+        case 64 -> number;
         default -> throw new RuntimeException("Invalid integer width: " + getWidth());
       };
     }
@@ -268,7 +357,7 @@ public sealed interface BuiltinTypes {
     // =========================================================================
 
     /** Create a default 32-bit float type. */
-    public FloatT() {
+    FloatT() {
       width = 32;
     }
 
@@ -277,7 +366,7 @@ public sealed interface BuiltinTypes {
      *
      * @param width must be either 32 or 64.
      */
-    public FloatT(int width) {
+    private FloatT(int width) {
       assert width == 32 || width == 64 : "Invalid float width: " + width;
       this.width = width;
     }
@@ -345,6 +434,6 @@ public sealed interface BuiltinTypes {
     // =========================================================================
 
     /** Creates a new {@code StringT} instance. Prefer {@link #INSTANCE} over this constructor. */
-    public StringT() {}
+    StringT() {}
   }
 }

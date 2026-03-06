@@ -69,9 +69,10 @@ public class CompilerUtils {
       @NotNull Value source,
       @NotNull ResolvedType sourceType,
       @NotNull ResolvedType targetType,
+      boolean isPrimitiveVariableAssignment,
       @NotNull EmitContext context) {
     if (sourceType.equals(targetType)) return EmitResult.of(source);
-    if (isImplicitlyAssignable(sourceType, targetType)) {
+    if (isImplicitlyAssignable(sourceType, targetType, isPrimitiveVariableAssignment)) {
       // Insert implicit cast
       Optional<Type> targetDgirType = fromAstType(targetType, site, context);
       return targetDgirType
@@ -103,13 +104,33 @@ public class CompilerUtils {
           "double", 6);
 
   public static boolean isImplicitlyAssignable(
-      @NotNull ResolvedType source, @NotNull ResolvedType target) {
+      @NotNull ResolvedType source,
+      @NotNull ResolvedType target,
+      boolean isPrimitiveVariableAssignment) {
     // Exact match
     if (source.equals(target)) return true;
 
     // Both must be primitives for implicit widening
     if (!source.isPrimitive() || !target.isPrimitive()) return false;
 
+    // During primitive variable assignment, we allow narrowing of integers to the smaller integer
+    // types
+    // This is to allow for code like `byte b = 1;` without requiring an explicit cast, since the
+    // literal `1` is of type `int` by default. However, in other contexts (e.g. method argument
+    // passing), we require an explicit cast for narrowing conversions to avoid accidental data
+    // loss.
+    if (isPrimitiveVariableAssignment) {
+      String sourceDesc = source.asPrimitive().describe();
+      switch (target.asPrimitive().describe()) {
+        case "byte", "short" -> {
+          switch (sourceDesc) {
+            case "char", "int" -> {
+              return true;
+            }
+          }
+        }
+      }
+    }
     return WIDENING_ORDER.getOrDefault(source.asPrimitive().describe(), Integer.MAX_VALUE)
         <= WIDENING_ORDER.getOrDefault(target.asPrimitive().describe(), Integer.MAX_VALUE);
   }

@@ -358,9 +358,9 @@ public class JavaCompiler {
             scope.addImplicitTerminators();
             pip.ifPresent(p -> context.setInsertionPoint(p.a, p.b));
           }
-          case BreakStmt breakStmt -> context.insert(new BreakOp(context.loc(n)));
-          case ContinueStmt continueStmt -> context.insert(new ContinueOp(context.loc(n)));
-          case EmptyStmt emptyStmt -> {
+          case BreakStmt ignored -> context.insert(new BreakOp(context.loc(n)));
+          case ContinueStmt ignored -> context.insert(new ContinueOp(context.loc(n)));
+          case EmptyStmt ignored -> {
             // Do nothing for empty statements.
           }
           case ExpressionStmt expressionStmt -> expressionStmt.accept(this, context);
@@ -501,15 +501,29 @@ public class JavaCompiler {
       if (resolvedVariable.isEmpty()) {
         return;
       }
-      EmitResult<Value> implicitCastRes =
+      EmitResult<@NotNull Value> implicitCastRes =
           CompilerUtils.emitImplicitCastIfNeeded(
               variableDeclarator,
               initValue,
               variableDeclarator.getInitializer().get().calculateResolvedType(),
               resolvedVariable.get().getType(),
+              initializer.isLiteralExpr(),
               context);
 
-      bindName(variableDeclarator.getName().asString(), initValue, variableDeclarator, context);
+      if (implicitCastRes.isFailure()) {
+        context.emitError(
+            n,
+            "Failed to emit implicit cast for variable "
+                + variableDeclarator.getName()
+                + " with initializer "
+                + initializer);
+      }
+
+      bindName(
+          variableDeclarator.getName().asString(),
+          implicitCastRes.orElse(initValue),
+          variableDeclarator,
+          context);
     }
 
     private @NotNull EmitResult<Optional<Value>> emitExpression(
@@ -663,6 +677,7 @@ public class JavaCompiler {
                 callArg,
                 methodCallExpr.getArgument(i).calculateResolvedType(),
                 targetMethodArgType,
+                false,
                 context);
         if (castCallArg.isFailure()) {
           return EmitResult.failure(

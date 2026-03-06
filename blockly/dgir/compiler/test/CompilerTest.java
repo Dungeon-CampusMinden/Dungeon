@@ -244,5 +244,44 @@ public class %ClassName {
   }
 
   @Test
-  void consoleOutTest() {}
+  void wideningPrimitiveConversion() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    byte b = 1;
+    short s = b;
+    char c = b;
+    int i = b;
+    long l = b;
+    float f = b;
+    double d = b;
+
+    b = 'b';
+    s = 's';
+    s = 1;
+    c = 1;
+    i = s;
+    l = s;
+    f = s;
+    d = s;
+
+    i = c;
+    l = c;
+    f = c;
+    d = c;
+
+    l = i;
+    f = i;
+    d = i;
+
+    f = l;
+    d = l;
+
+    d = f;
+  }
+}
+""";
+    testSource(code);
+  }
 }

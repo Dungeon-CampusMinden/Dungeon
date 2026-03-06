@@ -99,11 +99,11 @@ public sealed interface EmitResult<T> {
     }
   }
 
-  default @Nullable T orElse(@Nullable T other) {
+  default T orElse(T other) {
     return isSuccess() ? get() : other;
   }
 
-  default @Nullable T orElseGet(@NotNull Supplier<? extends T> supplier) {
+  default T orElseGet(@NotNull Supplier<? extends T> supplier) {
     return isSuccess() ? get() : supplier.get();
   }
 

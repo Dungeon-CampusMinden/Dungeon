@@ -42,7 +42,7 @@ final class NumericUtils {
    */
   static @NotNull Number convertToType(@NotNull Number value, @NotNull Type targetType) {
     if (targetType instanceof IntegerT integerT) {
-      return integerT.convertToValidNumber(value);
+      return integerT.convertToValidNumber(value.longValue());
     }
     if (targetType instanceof FloatT floatT) {
       return floatT.convertToValidNumber(value);

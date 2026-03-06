@@ -166,13 +166,12 @@ public sealed interface ArithOps {
         }
         switch (binMode) {
           // Regular arithmetic operations.
-          case ADD, SUB, MUL, DIV, MOD -> {
+          case ADD, SUB, MUL, MULUI, DIV, DIVUI, MOD, MODUI -> {
             if (!binaryOp.getResult().getType().equals(getDominantType(lhsType, rhsType))) {
               binaryOp.emitError("Result type must be the dominant type of LHS and RHS");
               return false;
             }
           }
-          // Binary logical operations.
           case BOR, BAND, BXOR -> {
             if (!binaryOp.getResult().getType().equals(lhsType)) {
               binaryOp.emitError("Result type must match LHS and RHS type");
@@ -214,17 +213,10 @@ public sealed interface ArithOps {
       Type outputType =
           switch (binMode) {
             // Regular arithmetic operations.
-            case ADD, SUB, MUL, DIV, MOD -> getDominantType(lhs.getType(), rhs.getType());
-            // Binary logical operations.
-            case BOR, BAND, BXOR -> {
-              if (lhs.getType().equals(rhs.getType())) {
-                yield lhs.getType();
-              } else {
-                throw new AssertionError("LHS and RHS must have the same type");
-              }
-            }
-            // Binary shift operations.
-            case LSH, RSHS, RSHU -> lhs.getType();
+            case ADD, SUB, MUL, MULUI, DIV, DIVUI, MOD, MODUI ->
+                getDominantType(lhs.getType(), rhs.getType());
+            // Binary operations.
+            case BOR, BAND, BXOR, LSH, RSHS, RSHU -> lhs.getType();
             // Logical operations.
             case AND, OR, XOR, EQ, NE, LT, LE, GT, GE -> IntegerT.BOOL;
           };

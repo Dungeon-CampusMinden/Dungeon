@@ -1,5 +1,7 @@
 import dgir.core.Dialect;
 import dgir.core.debug.Location;
+import dgir.core.ir.Attribute;
+import dgir.dialect.builtin.BuiltinAttrs;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -8,10 +10,12 @@ import java.util.List;
 
 import static dgir.dialect.arith.ArithOps.ConstantOp;
 import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.builtin.BuiltinTypes.IntegerT;
 import static dgir.dialect.builtin.BuiltinTypes.StringT;
 import static dgir.dialect.func.FuncOps.*;
 import static dgir.dialect.func.FuncTypes.FuncType;
 import static dgir.dialect.io.IoOps.PrintOp;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -100,5 +104,42 @@ public class BuiltinTests {
     ProgramOp programOp = entry.getLeft();
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
+  }
+
+  /** Checks that signed integer attributes preserve signed values across JSON round-trip. */
+  @Test
+  public void signedIntegerRoundTrip() {
+    Attribute original = new BuiltinAttrs.IntegerAttribute(-1, IntegerT.INT8);
+
+    String json = TestUtils.mapper.writeValueAsString(original);
+    Attribute parsed = TestUtils.mapper.readValue(json, Attribute.class);
+
+    assertTrue(parsed instanceof BuiltinAttrs.IntegerAttribute);
+    BuiltinAttrs.IntegerAttribute parsedInteger = (BuiltinAttrs.IntegerAttribute) parsed;
+    assertEquals("int8", parsedInteger.getType().getParameterizedIdent());
+    assertEquals(-1, parsedInteger.getValue().byteValue());
+  }
+
+  /** Checks that unsigned integer attributes keep the expected unsigned bit pattern. */
+  @Test
+  public void unsignedIntegerStorage() {
+    BuiltinAttrs.IntegerAttribute value = new BuiltinAttrs.IntegerAttribute(255, IntegerT.UINT8);
+
+    assertEquals("uint8", value.getType().getParameterizedIdent());
+    assertEquals(255, Byte.toUnsignedInt(value.getValue().byteValue()));
+  }
+
+  /** Checks implicit narrowing and bool normalization done by IntegerAttribute conversion. */
+  @Test
+  public void implicitIntegerCasting() {
+    BuiltinAttrs.IntegerAttribute narrowed = new BuiltinAttrs.IntegerAttribute(300, IntegerT.INT8);
+    BuiltinAttrs.IntegerAttribute normalizedBool =
+        new BuiltinAttrs.IntegerAttribute(42, IntegerT.BOOL);
+
+    assertEquals("int8", narrowed.getType().getParameterizedIdent());
+    assertEquals(44, narrowed.getValue().byteValue());
+
+    assertEquals("uint1", normalizedBool.getType().getParameterizedIdent());
+    assertEquals(1, normalizedBool.getValue().byteValue());
   }
 }

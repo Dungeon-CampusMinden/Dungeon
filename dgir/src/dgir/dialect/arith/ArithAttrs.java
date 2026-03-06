@@ -1,14 +1,15 @@
 package dgir.dialect.arith;
 
-import static dgir.dialect.arith.ArithOps.BinaryOp;
-import static dgir.dialect.builtin.BuiltinTypes.isNumeric;
-
 import dgir.core.Dialect;
 import dgir.core.ir.Attribute;
 import dgir.dialect.builtin.BuiltinTypes;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Optional;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
+
+import static dgir.dialect.arith.ArithOps.BinaryOp;
+import static dgir.dialect.builtin.BuiltinTypes.isNumeric;
 
 public sealed interface ArithAttrs {
   abstract class ArithAttribute extends Attribute {
@@ -82,12 +83,17 @@ public sealed interface ArithAttrs {
       ADD(BinMode::onlyNumericOperands),
       /** Subtraction */
       SUB(BinMode::onlyNumericOperands),
-      /** Multiplication */
+      /** Signed Multiplication */
       MUL(BinMode::onlyNumericOperands),
+      /** Unsigned Multiplication */
+      MULUI(BinMode::onlyIntegerOperands),
       /** Division */
       DIV(BinMode::onlyNumericOperands),
+      DIVUI(BinMode::onlyIntegerOperands),
       /** Remainder */
       MOD(BinMode::onlyNumericOperands),
+      /** Unsigned Remainder */
+      MODUI(BinMode::onlyIntegerOperands),
 
       // Bitwise
       /** Bitwise OR */
@@ -134,11 +140,11 @@ public sealed interface ArithAttrs {
               case BuiltinTypes.FloatT floatT -> floatT.getWidth();
               default -> 0;
             };
-        if (widthLhs <= 1) {
-          return Optional.of("LHS must be a numeric type with a width greater than 1");
+        if (widthLhs == 0) {
+          return Optional.of("LHS must be a numeric type with a width greater than 0");
         }
-        if (widthRhs <= 1) {
-          return Optional.of("RHS must be a numeric type with a width greater than 1");
+        if (widthRhs == 0) {
+          return Optional.of("RHS must be a numeric type with a width greater than 0");
         }
         return Optional.empty();
       }
@@ -154,11 +160,11 @@ public sealed interface ArithAttrs {
               case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
               default -> 0;
             };
-        if (widthLhs <= 1) {
-          return Optional.of("LHS must be an integer type with a width greater than 1");
+        if (widthLhs == 0) {
+          return Optional.of("LHS must be an integer type with a width greater than 0");
         }
-        if (widthRhs <= 1) {
-          return Optional.of("RHS must be an integer type with a width greater than 1");
+        if (widthRhs == 0) {
+          return Optional.of("RHS must be an integer type with a width greater than 0");
         }
         return Optional.empty();
       }
