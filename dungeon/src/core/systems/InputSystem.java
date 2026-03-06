@@ -1,9 +1,9 @@
 package core.systems;
 
-import com.badlogic.gdx.Input;
 import core.Entity;
 import core.System;
 import core.components.InputComponent;
+import core.input.MouseButtons;
 import core.utils.InputManager;
 import core.utils.components.MissingComponentException;
 import java.util.Map;
@@ -78,7 +78,7 @@ public final class InputSystem extends System {
 
   private void execute(final Entity entity, int key, final InputComponent.InputData data) {
     boolean isMouseButton =
-        key == Input.Buttons.LEFT || key == Input.Buttons.RIGHT || key == Input.Buttons.MIDDLE;
+        key == MouseButtons.LEFT || key == MouseButtons.RIGHT || key == MouseButtons.MIDDLE;
     boolean isPressed =
         isMouseButton ? InputManager.isButtonPressed(key) : InputManager.isKeyPressed(key);
     boolean isJustPressed =

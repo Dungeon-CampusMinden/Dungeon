@@ -1,6 +1,5 @@
 package core.components;
 
-import com.badlogic.gdx.Input;
 import core.Component;
 import core.systems.InputSystem;
 import java.io.Serial;
@@ -16,7 +15,6 @@ import java.io.Serializable;
  * <p>This component is used to identify the player entity in the game. It contains information
  * about whether the player is the local player and manages the count of open dialogs.
  *
- * @see Input.Keys
  * @see InputSystem
  */
 public final class PlayerComponent implements Component, Serializable {
