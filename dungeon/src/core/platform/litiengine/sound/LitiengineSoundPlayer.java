@@ -17,9 +17,9 @@ public final class LitiengineSoundPlayer implements ISoundPlayer {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LitiengineSoundPlayer.class);
 
   private static final String[] SOUND_DIRS = {
-    "dungeon/assets/sounds/",
     "sounds/",
-    "assets/sounds/"
+    "assets/sounds/",
+    "dungeon/assets/sounds/"
   };
   private static final String[] EXT = {".wav", ".ogg", ".mp3"};
 
@@ -58,6 +58,11 @@ public final class LitiengineSoundPlayer implements ISoundPlayer {
       int maxDistance = Game.audio().getMaxDistance();
       SFXPlayback playback = Game.audio().playSound(s, looping, maxDistance, volume);
 
+      if (playback == null) {
+        LOGGER.warn("Failed to play sound '{}' (resolved='{}'): playback is null", soundName, resolved);
+        return Optional.empty();
+      }
+
       LitienginePlayHandle handle = new LitienginePlayHandle(instanceId, s, playback, volume, looping);
       if (onFinished != null) handle.onFinished(onFinished);
 
@@ -70,24 +75,31 @@ public final class LitiengineSoundPlayer implements ISoundPlayer {
   }
 
   private String resolvePath(String soundName) {
-    // allow already-resolved paths
-    if (soundName.contains("/") && (soundName.endsWith(".wav") || soundName.endsWith(".ogg") || soundName.endsWith(".mp3"))) {
-      return soundName;
+    // already explicit path with extension
+    String s = soundName.replace('\\', '/').trim();
+    if (s.contains("/") && (s.endsWith(".wav") || s.endsWith(".ogg") || s.endsWith(".mp3"))) {
+      return canOpenResource(s) ? s : null;
     }
 
     for (String dir : SOUND_DIRS) {
       for (String ext : EXT) {
-        String candidate = dir + soundName + ext;
-        try {
-          // Resources.getLocation returns null if not found. It's safe to probe.
-          if (Resources.getLocation(candidate) != null) {
-            return candidate;
-          }
-        } catch (Exception ignored) {
-        }
+        String candidate = dir + s + ext;
+        if (canOpenResource(candidate)) return candidate;
       }
     }
     return null;
+  }
+
+  private static boolean canOpenResource(String candidate) {
+    try {
+      var url = Resources.getLocation(candidate);
+      if (url == null) return false;
+      try (var in = url.openStream()) {
+        return in != null;
+      }
+    } catch (Exception ignored) {
+      return false;
+    }
   }
 
   @Override
