@@ -496,7 +496,8 @@ public class JavaCompiler {
       }
       Value initValue = initValueRes.get().get();
       // Check that the init value and the target have the same value and emit cast statement if not
-      Optional<ResolvedValueDeclaration> resolvedVariable = CompilerUtils.resolve(variableDeclarator, context);
+      Optional<ResolvedValueDeclaration> resolvedVariable =
+          CompilerUtils.resolve(variableDeclarator, context);
       if (resolvedVariable.isEmpty()) {
         return;
       }
