@@ -78,6 +78,7 @@ public final class LitiengineGameLoopHost {
     );
     Platform.render(new LitiengineRenderAdapter());
     Platform.pathfinding(new core.platform.grid.GridPathfindingAdapter());
+    Platform.cursor(new core.platform.litiengine.input.LitiengineCursorAdapter());
 
     // Bridge LITIENGINE input events into our engine-agnostic InputManager.
     LitiengineInputBridge.install();

@@ -83,7 +83,10 @@ public final class LitiengineSpriteRenderSystem extends System {
       final Optional<ILevel> levelOpt = Game.currentLevel();
       final CameraView view = computeCameraView(levelOpt);
 
-      // Apply camera transform (world -> screen offset)
+      // Publish view for cursor mapping
+      LitiengineCameraViews.set(view.offsetX, view.offsetY, view.levelHeight, TILE_PX);
+
+      // Then proceed with translate/clip as before
       g.translate(view.offsetX, view.offsetY);
 
       levelOpt.ifPresent(level -> renderLevelTiles(g, level, view));

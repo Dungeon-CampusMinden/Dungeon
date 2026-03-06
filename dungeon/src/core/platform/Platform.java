@@ -9,6 +9,7 @@ public final class Platform {
   private static ResourcesAdapter resources = new core.platform.classpath.ClasspathResourcesAdapter();
   private static RenderAdapter render = new NullRenderAdapter();
   private static PathfindingAdapter pathfinding = new NullPathfindingAdapter();
+  private static CursorAdapter cursor = new NullCursorAdapter();
   private static volatile GameLoopHost loopHost;
 
   private Platform() {}
@@ -51,6 +52,14 @@ public final class Platform {
 
   public static void pathfinding(PathfindingAdapter adapter) {
     pathfinding = Objects.requireNonNull(adapter);
+  }
+
+  public static CursorAdapter cursor() {
+    return cursor;
+  }
+
+  public static void cursor(CursorAdapter adapter) {
+    cursor = Objects.requireNonNull(adapter);
   }
 
   public static void loopHost(GameLoopHost host) {
