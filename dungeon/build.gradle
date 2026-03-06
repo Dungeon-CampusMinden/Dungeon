@@ -101,12 +101,10 @@ tasks.register('runMPClient', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register("checkNoEngineImports") {
-    group = "verification"
-    description = "Fails if libGDX/LITIENGINE imports appear outside allowed backend packages."
-
+tasks.register('checkNoEngineImports') {
     doLast {
-        // Allowlist paths (relative to the respective java srcDir root, e.g. 'src/')
+        def enforcePrefixes = ["core/"]
+
         def allowPrefixes = [
             "core/platform/gdx/",
             "core/game/gdx/",
@@ -118,27 +116,32 @@ tasks.register("checkNoEngineImports") {
 
         def forbidden = []
 
-        // IMPORTANT: scan the *actual* java source roots (your project uses 'src/', not 'src/main/java')
-        sourceSets.main.java.srcDirs.each { File base ->
-            if (base == null || !base.exists()) return
+        sourceSets.main.java.srcDirs.each { srcDir ->
+            if (srcDir == null || !srcDir.exists()) return
 
-            base.eachFileRecurse { File f ->
-                if (!f.name.endsWith(".java")) return
+            def javaRoot = srcDir.toPath()
 
-                def rel = base.toPath().relativize(f.toPath()).toString().replace("\\", "/")
+            fileTree(srcDir).matching { include "**/*.java" }.files.each { f ->
+                def rel = javaRoot.relativize(f.toPath()).toString().replace('\\', '/')
+
+                if (!enforcePrefixes.any { rel.startsWith(it) }) return
+
+                def txt = f.getText("UTF-8")
+                def hasEngineImport =
+                    txt.contains("import com.badlogic.gdx.") ||
+                        txt.contains("import de.gurkenlabs.litiengine.")
+
+                if (!hasEngineImport) return
+
                 def allowed = allowPrefixes.any { rel.startsWith(it) }
-                if (allowed) return
-
-                def text = f.getText("UTF-8")
-                if (text.contains("import com.badlogic.gdx.") || text.contains("import de.gurkenlabs.litiengine.")) {
-                    forbidden << rel
-                }
+                if (!allowed) forbidden << rel
             }
         }
 
         if (!forbidden.isEmpty()) {
             throw new GradleException(
-                "Forbidden engine imports found outside backend packages:\n- " + forbidden.join("\n- ")
+                "Forbidden engine imports found outside backend packages:\n  - " +
+                    forbidden.join("\n  - ")
             )
         }
     }
