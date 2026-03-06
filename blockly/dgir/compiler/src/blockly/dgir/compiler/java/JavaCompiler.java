@@ -12,7 +12,6 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import com.github.javaparser.resolution.types.ResolvedType;
@@ -39,7 +38,6 @@ import java.util.logging.Logger;
 
 import static blockly.dgir.compiler.java.CompilerUtils.fromAstType;
 import static dgir.dialect.arith.ArithAttrs.BinModeAttr.BinMode;
-import static dgir.dialect.arith.ArithOps.CastOp;
 import static dgir.dialect.arith.ArithOps.ConstantOp;
 import static dgir.dialect.builtin.BuiltinAttrs.*;
 import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
@@ -498,35 +496,17 @@ public class JavaCompiler {
       }
       Value initValue = initValueRes.get().get();
       // Check that the init value and the target have the same value and emit cast statement if not
-      Optional<ResolvedValueDeclaration> resolvedVariable =
-          CompilerUtils.resolve(variableDeclarator, context);
+      Optional<ResolvedValueDeclaration> resolvedVariable = CompilerUtils.resolve(variableDeclarator, context);
       if (resolvedVariable.isEmpty()) {
-        context.emitError(
-            variableDeclarator,
-            "Could not resolve variable declaration for variable "
-                + variableDeclarator.getName()
-                + ". Make sure the type of the variable is supported and that all necessary classes are imported.");
         return;
       }
-      var variableType = fromAstType(resolvedVariable.get().getType(), variableDeclarator, context);
-      if (variableType.isEmpty()) {
-        return;
-      }
-      if (!variableType.get().equals(initValue.getType())) {
-        Optional<Type> castTypeOpt = implicitCastAllowed(variableType.get(), initValue.getType());
-        if (castTypeOpt.isEmpty()) {
-          context.emitError(
-              n,
-              "Cannot assign value of type "
-                  + initValue.getType()
-                  + " to variable of type "
-                  + variableType.get()
-                  + " because there is no implicit cast between these types.");
-          return;
-        }
-        initValue =
-            context.insert(new CastOp(context.loc(n), initValue, variableType.get())).getResult();
-      }
+      EmitResult<Value> implicitCastRes =
+          CompilerUtils.emitImplicitCastIfNeeded(
+              variableDeclarator,
+              initValue,
+              variableDeclarator.getInitializer().get().calculateResolvedType(),
+              resolvedVariable.get().getType(),
+              context);
 
       bindName(variableDeclarator.getName().asString(), initValue, variableDeclarator, context);
     }
@@ -541,7 +521,7 @@ public class JavaCompiler {
                 .orElse(EmitResult.failure());
         case BinaryExpr binaryExpr ->
             emitBinary(binaryExpr, context, Optional.empty()).map(Optional::of);
-        case MethodCallExpr methodCallExpr -> emitFunctionCall(methodCallExpr, context);
+        case MethodCallExpr methodCallExpr -> emitMethodCall(methodCallExpr, context);
         case UnaryExpr unaryExpr -> emitUnary(unaryExpr, context).map(Optional::of);
         default -> {
           context.emitError(
@@ -635,8 +615,32 @@ public class JavaCompiler {
      * @return the optional value resulting from the function call, or an empty optional if there
      *     was an error during emission.
      */
-    private @NotNull EmitResult<Optional<Value>> emitFunctionCall(
+    private @NotNull EmitResult<Optional<Value>> emitMethodCall(
         @NotNull MethodCallExpr methodCallExpr, @NotNull EmitContext context) {
+      Optional<ResolvedMethodDeclaration> targetMethod =
+          CompilerUtils.resolve(methodCallExpr, context);
+      if (targetMethod.isEmpty()) {
+        context.emitError(
+            methodCallExpr,
+            "Could not resolve method call target. Make sure the method is defined in the same class or imported and that all necessary classes are imported.");
+        return EmitResult.failure();
+      }
+      if (!targetMethod.get().isStatic()) {
+        context.emitError(methodCallExpr, "Method calls to non-static methods are not supported.");
+        return EmitResult.failure();
+      }
+
+      if (targetMethod.get().getNumberOfParams() != methodCallExpr.getArguments().size()) {
+        context.emitError(
+            methodCallExpr,
+            "Method call arguments do not match the method signature. Expected "
+                + targetMethod.get().getTypeParameters().size()
+                + " arguments but found "
+                + methodCallExpr.getArguments().size()
+                + ".");
+        return EmitResult.failure();
+      }
+
       // Get the call args of the method
       List<Value> args = new ArrayList<>();
       for (Expression arg : methodCallExpr.getArguments()) {
@@ -647,20 +651,34 @@ public class JavaCompiler {
         }
         args.add(argValue.get().get());
       }
-      List<Type> argTypes = args.stream().map(Value::getType).toList();
 
-      ResolvedMethodDeclaration targetMethodOpt;
-      try {
-        targetMethodOpt = methodCallExpr.resolve();
-      } catch (UnsolvedSymbolException e) {
-        return EmitResult.failure(
-            context, methodCallExpr, "Could not resolve method call target: " + e.getName());
+      // Check if the caller arguments with the callee param types and emit casts if necessary
+      for (int i = 0; i < args.size(); i++) {
+        Value callArg = args.get(i);
+        ResolvedType targetMethodArgType = targetMethod.get().getParam(i).getType();
+        EmitResult<Value> castCallArg =
+            CompilerUtils.emitImplicitCastIfNeeded(
+                targetMethod.get().getParam(i).toAst().orElseThrow(),
+                callArg,
+                methodCallExpr.getArgument(i).calculateResolvedType(),
+                targetMethodArgType,
+                context);
+        if (castCallArg.isFailure()) {
+          return EmitResult.failure(
+              context,
+              methodCallExpr,
+              "Argument "
+                  + callArg
+                  + " cannot be implicitly cast to parameter type "
+                  + targetMethodArgType.describe());
+        }
+        args.set(i, castCallArg.get());
       }
 
-      String funcName = targetMethodOpt.getQualifiedSignature();
+      String funcName = targetMethod.get().getQualifiedSignature();
       Optional<Type> returnType = Optional.empty();
-      if (!targetMethodOpt.getReturnType().isVoid()) {
-        returnType = fromAstType(targetMethodOpt.getReturnType(), methodCallExpr, context);
+      if (!targetMethod.get().getReturnType().isVoid()) {
+        returnType = fromAstType(targetMethod.get().getReturnType(), methodCallExpr, context);
       }
       FuncOps.CallOp callOp =
           context.insert(
@@ -767,16 +785,6 @@ public class JavaCompiler {
         @NotNull String name, @NotNull Value value, @NotNull Node site, EmitContext context) {
       context.putSymbol(name, value);
       value.setDebugInfo(new ValueDebugInfo(context.loc(site), name));
-    }
-
-    private Optional<Type> implicitCastAllowed(Type to, Type from) {
-      if (from.equals(to)) {
-        return Optional.of(to);
-      }
-      if (isNumeric(from) && isNumeric(to)) {
-        return Optional.ofNullable(getDominantType(to, from).equals(to) ? to : null);
-      }
-      return Optional.empty();
     }
 
     private @NotNull Optional<TypedAttribute> valueAttrFromLiteralExpr(
