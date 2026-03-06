@@ -15,6 +15,7 @@ import core.components.PlayerComponent;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.platform.gdx.render.DrawSystem;
+import core.ui.gdx.GdxFontHelper;
 import core.utils.*;
 import core.utils.components.draw.DepthLayer;
 import core.platform.gdx.render.shader.OutlineShader;
@@ -34,7 +35,7 @@ public class LevelEditorSystem extends System {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LevelEditorSystem.class);
 
   /** The font used for rendering the level editor text. */
-  public static final BitmapFont FONT = FontHelper.getDefaultFont(24);
+  public static final BitmapFont FONT = GdxFontHelper.getDefaultFont(24);
 
   private static boolean internalStopped = false;
   private static boolean active = false;

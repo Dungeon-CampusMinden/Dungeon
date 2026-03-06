@@ -8,6 +8,7 @@ import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
+import core.platform.gdx.systems.GdxCameraSystem;
 import core.utils.Point;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -15,20 +16,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-/** Tests for the {@link CameraSystem} class. */
+/** Tests for the {@link GdxCameraSystem} class. */
 public class CameraSystemTest {
 
   private static final Point testPoint = new Point(3, 3);
   private final ILevel level = Mockito.mock(ILevel.class);
   private final Tile startTile = Mockito.mock(Tile.class);
-  private CameraSystem cameraSystem;
+  private GdxCameraSystem gdxCameraSystem;
   private Point expectedFocusPoint;
 
   /** WTF? . */
   @BeforeEach
   public void setup() {
-    cameraSystem = new CameraSystem();
-    Game.add(cameraSystem);
+    gdxCameraSystem = new GdxCameraSystem();
+    Game.add(gdxCameraSystem);
     Mockito.when(startTile.position()).thenReturn(testPoint);
     Mockito.when(level.randomTilePoint(Mockito.any())).thenReturn(Optional.of(testPoint));
     Mockito.when(level.startTile()).thenReturn(Optional.of(startTile));
@@ -42,9 +43,9 @@ public class CameraSystemTest {
     Game.currentLevel(null);
     Game.removeAllSystems();
     // reset Camera
-    CameraSystem.camera().viewportWidth = CameraSystem.viewportWidth();
-    CameraSystem.camera().viewportHeight = CameraSystem.viewportHeight();
-    CameraSystem.camera().position.set(0, 0, 0);
+    GdxCameraSystem.camera().viewportWidth = GdxCameraSystem.viewportWidth();
+    GdxCameraSystem.camera().viewportHeight = GdxCameraSystem.viewportHeight();
+    GdxCameraSystem.camera().position.set(0, 0, 0);
   }
 
   /** WTF? . */
@@ -57,9 +58,9 @@ public class CameraSystemTest {
     entity.add(positionComponent);
     entity.add(new CameraComponent());
 
-    cameraSystem.execute();
-    assertEquals(expectedFocusPoint.x(), CameraSystem.camera().position.x, 0.001);
-    assertEquals(expectedFocusPoint.y(), CameraSystem.camera().position.y, 0.001);
+    gdxCameraSystem.execute();
+    assertEquals(expectedFocusPoint.x(), GdxCameraSystem.camera().position.x, 0.001);
+    assertEquals(expectedFocusPoint.y(), GdxCameraSystem.camera().position.y, 0.001);
   }
 
   /** WTF? . */
@@ -69,10 +70,10 @@ public class CameraSystemTest {
 
     expectedFocusPoint = level.startTile().orElseThrow().position();
 
-    cameraSystem.execute();
+    gdxCameraSystem.execute();
 
-    assertEquals(expectedFocusPoint.x(), CameraSystem.camera().position.x, 0.001);
-    assertEquals(expectedFocusPoint.y(), CameraSystem.camera().position.y, 0.001);
+    assertEquals(expectedFocusPoint.x(), GdxCameraSystem.camera().position.x, 0.001);
+    assertEquals(expectedFocusPoint.y(), GdxCameraSystem.camera().position.y, 0.001);
   }
 
   /** WTF? . */
@@ -80,13 +81,13 @@ public class CameraSystemTest {
   public void executeWithoutLevel() {
     Game.currentLevel(null);
     Point expectedFocusPoint = new Point(0, 0);
-    cameraSystem.execute();
-    assertEquals(expectedFocusPoint.x(), CameraSystem.camera().position.x, 0.001);
-    assertEquals(expectedFocusPoint.y(), CameraSystem.camera().position.y, 0.001);
+    gdxCameraSystem.execute();
+    assertEquals(expectedFocusPoint.x(), GdxCameraSystem.camera().position.x, 0.001);
+    assertEquals(expectedFocusPoint.y(), GdxCameraSystem.camera().position.y, 0.001);
   }
 
   /**
-   * Positive test for {@link CameraSystem#isPointInFrustum(Point)}.
+   * Positive test for {@link GdxCameraSystem#isPointInFrustum(Point)}.
    *
    * <p>It checks if a point within the camera's frustum is correctly identified as visible.
    */
@@ -94,11 +95,11 @@ public class CameraSystemTest {
   public void isPointInFrustumWithVisiblePoint() {
     float x = 1.0f;
     float y = 1.0f;
-    assertTrue(CameraSystem.isPointInFrustum(new Point(x, y)));
+    assertTrue(GdxCameraSystem.isPointInFrustum(new Point(x, y)));
   }
 
   /**
-   * Negative test for {@link CameraSystem#isPointInFrustum(Point)}.
+   * Negative test for {@link GdxCameraSystem#isPointInFrustum(Point)}.
    *
    * <p>It checks if a point outside the camera's frustum is correctly identified as not visible.
    */
@@ -106,6 +107,6 @@ public class CameraSystemTest {
   public void isPointInFrustumWithInvisiblePoint() {
     float x = 100.0f;
     float y = 100.0f;
-    assertFalse(CameraSystem.isPointInFrustum(new Point(x, y)));
+    assertFalse(GdxCameraSystem.isPointInFrustum(new Point(x, y)));
   }
 }

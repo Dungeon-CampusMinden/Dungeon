@@ -1,4 +1,4 @@
-package core.utils;
+package core.ui.gdx;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -11,7 +11,7 @@ import java.util.Map;
  * A utility class for loading, caching, and reusing bitmap fonts. Fonts are generated from TrueType
  * font files with optional color and border customization.
  */
-public class FontHelper {
+public class GdxFontHelper {
 
   /** Internal path to default font file. */
   public static final String DEFAULT_FONT_PATH = "fonts/Roboto-SemiBold.ttf";

@@ -3,8 +3,6 @@ package core.network.server;
 import static core.network.config.NetworkConfig.SERVER_SNAPSHOT_HZ;
 import static core.network.config.NetworkConfig.SERVER_TICK_HZ;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.headless.HeadlessFiles;
 import contrib.entities.HeroBuilder;
 import contrib.entities.HeroController;
 import core.Entity;
@@ -71,7 +69,6 @@ public final class AuthoritativeServerLoop {
    * tasks.
    */
   public void start() {
-    Gdx.files = new HeadlessFiles();
 
     PreRunConfiguration.frameRate(SERVER_TICK_HZ);
     PreRunConfiguration.userOnSetup().execute();

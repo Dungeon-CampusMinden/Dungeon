@@ -1,290 +1,196 @@
 package core.game;
 
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener;
 import java.util.List;
-import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
- * Manages window event listeners for the game window.
+ * A static event manager for window-related events.
  *
- * <p>This manager provides a centralized way to register, remove, and handle various window events
- * like creation, iconification, maximization, focus changes, close requests, file drops, and
- * refresh requests. It acts as a wrapper around the LibGDX window listener system.
+ * <p>Provides registration and dispatch methods for various window lifecycle events such as
+ * creation, focus changes, iconification, maximization, refresh requests, file drops, and close
+ * requests. Listeners are stored in thread-safe lists and invoked safely, suppressing any
+ * exceptions thrown during listener execution.
  *
- * <p>Example usage:
- *
- * <pre>{@code
- * // Listen for focus changes
- * WindowEventManager.registerFocusChangeListener(focus -> System.out.println("Focus: " + focus));
- *
- * // Prevent window from closing
- * WindowEventManager.registerCloseRequestListener(() -> false);
- *
- * // Handle window creation
- * WindowEventManager.registerWindowCreatedListener(
- *     window -> System.out.println("Window created: " + window));
- *
- * // Track window minimization state
- * WindowEventManager.registerIconificationListener(
- *     iconified -> System.out.println("Window iconified: " + iconified));
- *
- * // Track window maximization state
- * WindowEventManager.registerMaximizationListener(
- *     maximized -> System.out.println("Window maximized: " + maximized));
- * }</pre>
+ * <p>This class cannot be instantiated.
  */
-public class WindowEventManager {
+public final class WindowEventManager {
 
-  private static final List<WindowCreatedListener> windowCreatedListeners = new Vector<>();
-  private static final List<Consumer<Boolean>> windowIconifiedListeners = new Vector<>();
-  private static final List<Consumer<Boolean>> windowMaximizedListeners = new Vector<>();
-  private static final List<Consumer<Boolean>> windowFocusListeners = new Vector<>();
-  private static final List<Supplier<Boolean>> closeRequestedListeners = new Vector<>();
-  private static final List<WindowFilesDroppedListener> filesDroppedListeners = new Vector<>();
-  private static final List<Runnable> windowRefreshListeners = new Vector<>();
-
-  private static final Lwjgl3WindowListener windowListener = createWindowListener();
-
-  /** Interface for window creation event listeners. */
-  @FunctionalInterface
-  public interface WindowCreatedListener {
-    /**
-     * Called when a window is created.
-     *
-     * @param window The newly created window instance
-     */
-    void onWindowCreated(Lwjgl3Window window);
-  }
-
-  /** Interface for file drop event listeners. */
-  @FunctionalInterface
-  public interface WindowFilesDroppedListener {
-    /**
-     * Called when files are dropped onto the window.
-     *
-     * @param filePaths Array of file paths that were dropped onto the window
-     */
-    void onFilesDropped(String[] filePaths);
-  }
-
-  // Private constructor to prevent instantiation
+  /** Private constructor to prevent instantiation of this utility class. */
   private WindowEventManager() {}
 
+  /** Listeners notified when the window is created. */
+  private static final List<Consumer<Object>> WINDOW_CREATED = new CopyOnWriteArrayList<>();
+
+  /** Listeners notified when files are dropped onto the window. */
+  private static final List<Consumer<String[]>> FILES_DROPPED = new CopyOnWriteArrayList<>();
+
+  /** Listeners notified when the window focus changes. */
+  private static final List<Consumer<Boolean>> FOCUS_CHANGED = new CopyOnWriteArrayList<>();
+
+  /** Listeners notified when the window is iconified or restored. */
+  private static final List<Consumer<Boolean>> ICONIFIED = new CopyOnWriteArrayList<>();
+
+  /** Listeners notified when the window is maximized or restored. */
+  private static final List<Consumer<Boolean>> MAXIMIZED = new CopyOnWriteArrayList<>();
+
+  /** Listeners notified when a window refresh is requested. */
+  private static final List<Runnable> REFRESH_REQUESTED = new CopyOnWriteArrayList<>();
+
   /**
-   * Registers a listener for window creation events.
+   * Listeners consulted when a close request is received. Each supplier returns {@code true} to
+   * allow closing, or {@code false} to prevent it.
+   */
+  private static final List<BooleanSupplier> CLOSE_REQUESTED = new CopyOnWriteArrayList<>();
+
+  /**
+   * Registers a listener that is called when the window is created.
    *
-   * @param listener The listener to be called when a new window is created
+   * @param l the listener to register; ignored if {@code null}
    */
-  public static void registerWindowCreatedListener(WindowCreatedListener listener) {
-    register(windowCreatedListeners, listener);
+  public static void registerWindowCreatedListener(Consumer<Object> l) {
+    if (l != null) WINDOW_CREATED.add(l);
   }
 
   /**
-   * Registers a listener for window iconification events.
+   * Registers a listener that is called when files are dropped onto the window.
    *
-   * @param listener The listener to be called when the window is iconified or restored (receives
-   *     true when iconified, false when restored)
+   * @param l the listener to register; ignored if {@code null}
    */
-  public static void registerIconificationListener(Consumer<Boolean> listener) {
-    register(windowIconifiedListeners, listener);
+  public static void registerFilesDroppedListener(Consumer<String[]> l) {
+    if (l != null) FILES_DROPPED.add(l);
   }
 
   /**
-   * Registers a listener for window maximization events.
+   * Registers a listener that is called when the window focus changes.
    *
-   * @param listener The listener to be called when the window is maximized or restored (receives
-   *     true when maximized, false when restored)
+   * @param l the listener to register, receiving {@code true} if the window gained focus and
+   *     {@code false} if it lost focus; ignored if {@code null}
    */
-  public static void registerMaximizationListener(Consumer<Boolean> listener) {
-    register(windowMaximizedListeners, listener);
+  public static void registerFocusChangedListener(Consumer<Boolean> l) {
+    if (l != null) FOCUS_CHANGED.add(l);
   }
 
   /**
-   * Registers a listener for window focus change events.
+   * Registers a listener that is called when the window is iconified or restored.
    *
-   * @param listener The listener to be called when the window gains or loses focus (receives true
-   *     when focus is gained, false when focus is lost)
+   * @param l the listener to register, receiving {@code true} when iconified and {@code false}
+   *     when restored; ignored if {@code null}
    */
-  public static void registerFocusChangeListener(Consumer<Boolean> listener) {
-    register(windowFocusListeners, listener);
+  public static void registerIconifiedListener(Consumer<Boolean> l) {
+    if (l != null) ICONIFIED.add(l);
   }
 
   /**
-   * Registers a listener for window close request events.
+   * Registers a listener that is called when the window is maximized or restored.
    *
-   * @param listener The listener to be called when window closure is requested (should return true
-   *     to allow the window to close, false to prevent closure)
+   * @param l the listener to register, receiving {@code true} when maximized and {@code false}
+   *     when restored; ignored if {@code null}
    */
-  public static void registerCloseRequestListener(Supplier<Boolean> listener) {
-    register(closeRequestedListeners, listener);
+  public static void registerMaximizedListener(Consumer<Boolean> l) {
+    if (l != null) MAXIMIZED.add(l);
   }
 
   /**
-   * Registers a listener for files dropped onto the window.
+   * Registers a listener that is called when a window refresh is requested.
    *
-   * @param listener The listener to be called when files are dropped onto the window
+   * @param l the listener to register; ignored if {@code null}
    */
-  public static void registerFilesDroppedListener(WindowFilesDroppedListener listener) {
-    register(filesDroppedListeners, listener);
+  public static void registerWindowRefreshListener(Runnable l) {
+    if (l != null) REFRESH_REQUESTED.add(l);
   }
 
   /**
-   * Registers a listener for window refresh requests.
+   * Registers a listener that is consulted when the window receives a close request.
    *
-   * @param listener The listener to be called when a window refresh is requested
-   */
-  public static void registerWindowRefreshListener(Runnable listener) {
-    register(windowRefreshListeners, listener);
-  }
-
-  private static <T> void register(List<T> list, T listener) {
-    if (listener != null) list.add(listener);
-  }
-
-  /**
-   * Removes a window creation event listener.
+   * <p>The supplier should return {@code true} to allow the window to close, or {@code false} to
+   * prevent it. If any registered supplier returns {@code false}, the close operation is canceled.
    *
-   * @param listener The listener to remove
-   * @return true if the listener was found and removed, false otherwise
+   * @param l the listener to register; ignored if {@code null}
    */
-  public static boolean unregisterWindowCreatedListener(WindowCreatedListener listener) {
-    return windowCreatedListeners.remove(listener);
+  public static void registerCloseRequestListener(BooleanSupplier l) {
+    if (l != null) CLOSE_REQUESTED.add(l);
   }
 
   /**
-   * Removes a window iconification event listener.
+   * Fires the window-created event, notifying all registered listeners with the given window
+   * object.
    *
-   * @param listener The listener to remove
-   * @return true if the listener was found and removed, false otherwise
+   * @param window the window object that was created
    */
-  public static boolean unregisterIconificationListener(Consumer<Boolean> listener) {
-    return windowIconifiedListeners.remove(listener);
+  public static void fireWindowCreated(Object window) {
+    WINDOW_CREATED.forEach(c -> safe(() -> c.accept(window)));
   }
 
   /**
-   * Removes a window maximization event listener.
+   * Fires the files-dropped event, notifying all registered listeners with the given file paths.
    *
-   * @param listener The listener to remove
-   * @return true if the listener was found and removed, false otherwise
+   * @param files an array of absolute paths of the files that were dropped onto the window
    */
-  public static boolean unregisterMaximizationListener(Consumer<Boolean> listener) {
-    return windowMaximizedListeners.remove(listener);
+  public static void fireFilesDropped(String[] files) {
+    FILES_DROPPED.forEach(c -> safe(() -> c.accept(files)));
   }
 
   /**
-   * Removes a window focus change event listener.
+   * Fires the focus-changed event, notifying all registered listeners.
    *
-   * @param listener The listener to remove
-   * @return true if the listener was found and removed, false otherwise
+   * @param focused {@code true} if the window gained focus, {@code false} if it lost focus
    */
-  public static boolean unregisterFocusChangeListener(Consumer<Boolean> listener) {
-    return windowFocusListeners.remove(listener);
+  public static void fireFocusChanged(boolean focused) {
+    FOCUS_CHANGED.forEach(c -> safe(() -> c.accept(focused)));
   }
 
   /**
-   * Removes a window close request event listener.
+   * Fires the iconified event, notifying all registered listeners.
    *
-   * @param listener The listener to remove
-   * @return true if the listener was found and removed, false otherwise
+   * @param iconified {@code true} if the window was iconified, {@code false} if it was restored
    */
-  public static boolean unregisterCloseRequestListener(Supplier<Boolean> listener) {
-    return closeRequestedListeners.remove(listener);
+  public static void fireIconified(boolean iconified) {
+    ICONIFIED.forEach(c -> safe(() -> c.accept(iconified)));
   }
 
   /**
-   * Removes a files dropped event listener.
+   * Fires the maximized event, notifying all registered listeners.
    *
-   * @param listener The listener to remove
-   * @return true if the listener was found and removed, false otherwise
+   * @param maximized {@code true} if the window was maximized, {@code false} if it was restored
    */
-  public static boolean unregisterFilesDroppedListener(WindowFilesDroppedListener listener) {
-    return filesDroppedListeners.remove(listener);
+  public static void fireMaximized(boolean maximized) {
+    MAXIMIZED.forEach(c -> safe(() -> c.accept(maximized)));
   }
 
   /**
-   * Removes a window refresh request event listener.
+   * Fires the refresh-requested event, notifying all registered listeners.
+   */
+  public static void fireRefreshRequested() {
+    REFRESH_REQUESTED.forEach(WindowEventManager::safe);
+  }
+
+  /**
+   * Fires the close-requested event and collects the votes of all registered listeners.
    *
-   * @param listener The listener to remove
-   * @return true if the listener was found and removed, false otherwise
-   */
-  public static boolean unregisterWindowRefreshListener(Runnable listener) {
-    return windowRefreshListeners.remove(listener);
-  }
-
-  /**
-   * Clears all registered window event listeners. This should be called when shutting down the
-   * application or when window event handling is no longer needed.
-   */
-  public static void clearAllListeners() {
-    windowCreatedListeners.clear();
-    windowIconifiedListeners.clear();
-    windowMaximizedListeners.clear();
-    windowFocusListeners.clear();
-    closeRequestedListeners.clear();
-    filesDroppedListeners.clear();
-    windowRefreshListeners.clear();
-  }
-
-  /**
-   * Gets the window listener implementation that handles all registered event listeners. This
-   * method is intended to be used by the window creation system.
+   * <p>Each listener is asked whether the window should be allowed to close. If all listeners
+   * return {@code true}, this method returns {@code true}. If any listener returns {@code false},
+   * the result is {@code false}. Exceptions thrown by individual listeners are silently ignored.
    *
-   * @return The window listener implementation
+   * @return {@code true} if all listeners agree to close the window, {@code false} otherwise
    */
-  public static Lwjgl3WindowListener windowListener() {
-    return windowListener;
+  public static boolean fireCloseRequested() {
+    boolean allow = true;
+    for (BooleanSupplier s : CLOSE_REQUESTED) {
+      try {
+        allow &= s.getAsBoolean();
+      } catch (Exception ignored) {}
+    }
+    return allow;
   }
 
   /**
-   * Creates a window listener implementation that dispatches events to all registered listeners.
+   * Executes the given {@link Runnable} safely, suppressing any exceptions that may be thrown.
    *
-   * @return A window listener implementation
+   * @param r the runnable to execute
    */
-  private static Lwjgl3WindowListener createWindowListener() {
-    return new Lwjgl3WindowListener() {
-      @Override
-      public void created(Lwjgl3Window window) {
-        windowCreatedListeners.forEach(listener -> listener.onWindowCreated(window));
-      }
-
-      @Override
-      public void iconified(boolean isIconified) {
-        windowIconifiedListeners.forEach(listener -> listener.accept(isIconified));
-      }
-
-      @Override
-      public void maximized(boolean isMaximized) {
-        windowMaximizedListeners.forEach(listener -> listener.accept(isMaximized));
-      }
-
-      @Override
-      public void focusLost() {
-        windowFocusListeners.forEach(listener -> listener.accept(false));
-      }
-
-      @Override
-      public void focusGained() {
-        windowFocusListeners.forEach(listener -> listener.accept(true));
-      }
-
-      @Override
-      public boolean closeRequested() {
-        return closeRequestedListeners.stream()
-            .allMatch(Supplier::get); // Check if all listeners approve the close request
-      }
-
-      @Override
-      public void filesDropped(String[] filePaths) {
-        filesDroppedListeners.forEach(listener -> listener.onFilesDropped(filePaths));
-      }
-
-      @Override
-      public void refreshRequested() {
-        windowRefreshListeners.forEach(Runnable::run);
-      }
-    };
+  private static void safe(Runnable r) {
+    try { r.run(); } catch (Exception ignored) {}
   }
 }

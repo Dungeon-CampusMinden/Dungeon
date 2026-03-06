@@ -10,8 +10,8 @@ import contrib.systems.LevelEditorSystem;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;
-import core.systems.CameraSystem;
-import core.utils.FontHelper;
+import core.platform.gdx.systems.GdxCameraSystem;
+import core.ui.gdx.GdxFontHelper;
 import core.utils.InputManager;
 import core.utils.Point;
 import java.util.LinkedHashMap;
@@ -33,7 +33,7 @@ public class StartTilesMode extends LevelEditorMode {
     Color.SALMON
   };
 
-  private static final BitmapFont FONT = FontHelper.getDefaultFont(16);
+  private static final BitmapFont FONT = GdxFontHelper.getDefaultFont(16);
 
   private static int currentStartTileIndex = 0;
 
@@ -94,7 +94,7 @@ public class StartTilesMode extends LevelEditorMode {
       String label = "Start: " + (i + 1);
       Point textPosition = position.translate(0.5f, 0.5f);
       Vector3 screen =
-          CameraSystem.camera().project(new Vector3(textPosition.x(), textPosition.y(), 0));
+          GdxCameraSystem.camera().project(new Vector3(textPosition.x(), textPosition.y(), 0));
       GlyphLayout textSize = new GlyphLayout(FONT, label);
       DebugDrawSystem.drawText(
           FONT,

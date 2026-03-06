@@ -11,7 +11,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
-import core.utils.FontHelper;
+import core.ui.gdx.GdxFontHelper;
 import core.utils.InputManager;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -39,7 +39,7 @@ public class DecoTestSystem extends System {
 
   /** Constructor for DecoTestSystem. */
   public DecoTestSystem() {
-    font = FontHelper.getFont("fonts/Roboto-Bold.ttf", 16);
+    font = GdxFontHelper.getFont("fonts/Roboto-Bold.ttf", 16);
   }
 
   /** Executes the system. */

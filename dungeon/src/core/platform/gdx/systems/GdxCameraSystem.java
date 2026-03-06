@@ -1,4 +1,4 @@
-package core.systems;
+package core.platform.gdx.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -29,7 +29,7 @@ import core.utils.Vector2;
  *
  * @see CameraComponent
  */
-public final class CameraSystem extends System {
+public final class GdxCameraSystem extends System {
   /** WTF? . */
   public static final float DEFAULT_ZOOM_FACTOR = 0.35f;
 
@@ -46,8 +46,8 @@ public final class CameraSystem extends System {
     camera().zoom = DEFAULT_ZOOM_FACTOR;
   }
 
-  /** Create a new {@link CameraSystem}. */
-  public CameraSystem() {
+  /** Create a new {@link GdxCameraSystem}. */
+  public GdxCameraSystem() {
     super(AuthoritativeSide.CLIENT, CameraComponent.class, PositionComponent.class);
   }
 

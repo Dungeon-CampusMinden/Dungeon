@@ -1,9 +1,9 @@
-package core.utils.components.draw;
+package core.platform.gdx.render;
 
 import com.badlogic.gdx.graphics.Color;
 
 /** Utility class for color operations. */
-public class ColorUtils {
+public class GdxColorUtils {
 
   /**
    * Converts a color to premultiplied alpha (PMA) format.

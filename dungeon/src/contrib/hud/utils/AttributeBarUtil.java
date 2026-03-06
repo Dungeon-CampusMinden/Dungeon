@@ -17,7 +17,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.systems.CameraSystem;
+import core.platform.gdx.systems.GdxCameraSystem;
 import core.ui.StageHandle;
 import core.utils.Point;
 import core.utils.logging.DungeonLogger;
@@ -132,7 +132,7 @@ public final class AttributeBarUtil {
   public static void updatePosition(ProgressBar bar, PositionComponent pc, float verticalOffset) {
     Point pos = pc.position();
     Vector3 worldCoords = new Vector3(pos.x(), pos.y(), 0);
-    Vector3 screenCoords = CameraSystem.camera().project(worldCoords);
+    Vector3 screenCoords = GdxCameraSystem.camera().project(worldCoords);
 
     StageHandle stageHandle =
       Game.stage().orElseThrow(() -> new RuntimeException("No stage available"));

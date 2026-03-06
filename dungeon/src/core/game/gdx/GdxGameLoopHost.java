@@ -35,6 +35,8 @@ import core.network.messages.s2c.*;
 import core.platform.gdx.GdxInputBridge;
 import core.platform.gdx.render.DrawSystem;
 import core.platform.gdx.sound.GdxSoundPlayer;
+import core.platform.gdx.systems.GdxCameraSystem;
+import core.platform.gdx.window.GdxWindowEventsBridge;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
 import core.systems.*;
@@ -75,7 +77,7 @@ public final class GdxGameLoopHost extends ScreenAdapter {
     config.setTitle(PreRunConfiguration.windowTitle());
     config.setWindowIcon(PreRunConfiguration.logoPath().pathString());
     config.disableAudio(PreRunConfiguration.disableAudio());
-    config.setWindowListener(WindowEventManager.windowListener());
+    config.setWindowListener(GdxWindowEventsBridge.listener());
 
     if (SharedLibraryLoader.isMac && Gdx.app == null) {
       org.lwjgl.system.Configuration.GLFW_LIBRARY_NAME.set("glfw_async");
@@ -123,7 +125,7 @@ public final class GdxGameLoopHost extends ScreenAdapter {
     // Host-specific: keep projection in sync (was in old GameLoop.render()).
     ECSManagement.system(
       DrawSystem.class,
-      drawSystem -> DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
+      drawSystem -> DrawSystem.batch().setProjectionMatrix(GdxCameraSystem.camera().combined));
 
     // Host-specific: sound update belongs to the host (not the core).
     Game.soundPlayer().update(delta);
@@ -139,7 +141,7 @@ public final class GdxGameLoopHost extends ScreenAdapter {
 
     // Host-specific: input + camera update order (was in old GameLoop.render()).
     InputManager.update();
-    CameraSystem.camera().update();
+    GdxCameraSystem.camera().update();
 
     // Host-specific: Stage act/draw after ECS tick.
     Optional.ofNullable(stage).ifPresent(s -> updateStage(s, delta));

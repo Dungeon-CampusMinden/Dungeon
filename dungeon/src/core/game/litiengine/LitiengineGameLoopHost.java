@@ -57,6 +57,8 @@ public final class LitiengineGameLoopHost {
     // Initialize LITIENGINE
     Game.init(args);
 
+    core.platform.litiengine.window.LitiengineWindowEventsBridge.install();
+
     // init sound backend after engine init
     soundPlayer = PreRunConfiguration.disableAudio()
       ? new NoSoundPlayer()

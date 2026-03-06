@@ -7,7 +7,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.systems.CameraSystem;
+import core.platform.gdx.systems.GdxCameraSystem;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
@@ -60,7 +60,7 @@ public final class SkillTools {
     }
 
     Vector3 mousePosition =
-        CameraSystem.camera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+        GdxCameraSystem.camera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
     return new Point(mousePosition.x, mousePosition.y);
   }
 

@@ -22,7 +22,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.platform.gdx.render.shader.GdxShaderComponent;
-import core.systems.CameraSystem;
+import core.platform.gdx.systems.GdxCameraSystem;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Vector2;
@@ -408,7 +408,7 @@ public final class DrawSystem extends System implements Disposable {
     Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-    batch().setProjectionMatrix(CameraSystem.camera().combined);
+    batch().setProjectionMatrix(GdxCameraSystem.camera().combined);
     batch().begin();
     GdxBlendUtils.setBlending(batch());
     renderAction.run();
@@ -716,7 +716,7 @@ public final class DrawSystem extends System implements Disposable {
     fboRegion.flip(config.mirrored(), true);
     Affine2 transform = makeTransform(position, config);
     batch()
-        .setColor(config.tintColor() != -1 ? ColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
+        .setColor(config.tintColor() != -1 ? GdxColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
     batch().draw(fboRegion, config.size().x(), config.size().y(), transform);
   }
 
@@ -733,7 +733,7 @@ public final class DrawSystem extends System implements Disposable {
     GdxBlendUtils.setBlending(batch());
     Affine2 transform = makeTransform(position, config);
     batch()
-        .setColor(config.tintColor() != -1 ? ColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
+        .setColor(config.tintColor() != -1 ? GdxColorUtils.pmaColor(config.tintColor()) : Color.WHITE);
     batch().draw(sprite, config.size().x(), config.size().y(), transform);
   }
 
@@ -784,7 +784,7 @@ public final class DrawSystem extends System implements Disposable {
 
     // Mouse position in screen space
     Point mousePos = SkillTools.cursorPositionAsPoint();
-    Vector3 unprojected = CameraSystem.camera().project(new Vector3(mousePos.x(), mousePos.y(), 0));
+    Vector3 unprojected = GdxCameraSystem.camera().project(new Vector3(mousePos.x(), mousePos.y(), 0));
     shader.setUniformf(
         "u_mouse", unprojected.x / Game.windowWidth(), unprojected.y / Game.windowHeight());
 
@@ -799,7 +799,7 @@ public final class DrawSystem extends System implements Disposable {
 
   private Rectangle getFboWorldBounds(DSData dsd) {
     if (dsd == null) {
-      return CameraSystem.getCameraWorldBounds();
+      return GdxCameraSystem.getCameraWorldBounds();
     }
     return getFboWorldBounds(
         dsd.pc.position(), dsd.pc.scale(), Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()));
@@ -873,7 +873,7 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   private TileBounds getCameraTileBounds(Tile[][] layout) {
-    Rectangle cameraBounds = CameraSystem.getCameraWorldBounds();
+    Rectangle cameraBounds = GdxCameraSystem.getCameraWorldBounds();
     float minWorldX = cameraBounds.x();
     float maxWorldX = cameraBounds.x() + cameraBounds.width();
     float minWorldY = cameraBounds.y();
@@ -906,7 +906,7 @@ public final class DrawSystem extends System implements Disposable {
       return false;
     }
 
-    Rectangle cameraBounds = CameraSystem.getCameraWorldBounds();
+    Rectangle cameraBounds = GdxCameraSystem.getCameraWorldBounds();
 
     Point pos = data.pc.position();
     float width = data.dc.getWidth() * data.pc.scale().x();

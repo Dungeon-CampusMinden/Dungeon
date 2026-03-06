@@ -19,14 +19,14 @@ import core.components.*;
 import core.game.WindowEventManager;
 import core.level.DungeonLevel;
 import core.level.elements.ILevel;
-import core.systems.CameraSystem;
-import core.utils.FontHelper;
+import core.platform.gdx.systems.GdxCameraSystem;
+import core.ui.gdx.GdxFontHelper;
 import core.utils.InputManager;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.BlendUtils;
-import core.utils.components.draw.ColorUtils;
+import core.platform.gdx.render.GdxColorUtils;
 import core.utils.components.draw.animation.Animation;
 import java.util.*;
 
@@ -64,7 +64,7 @@ public class DebugDrawSystem extends System {
       withAlpha(Color.YELLOW, 0.7f); // more opaque yellow for highlighted named points
 
   private static final int CIRCLE_SEGMENTS = 60; // resolution of circles (higher = smoother)
-  private static final BitmapFont FONT = FontHelper.getDefaultFont();
+  private static final BitmapFont FONT = GdxFontHelper.getDefaultFont();
 
   private static final Map<Entity, String> quickInfoCache = new HashMap<Entity, String>();
 
@@ -85,7 +85,7 @@ public class DebugDrawSystem extends System {
   public void render(float delta) {
     if (!render) return;
 
-    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.setProjectionMatrix(GdxCameraSystem.camera().combined);
     filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
 
     if (!LevelEditorSystem.active()) {
@@ -142,7 +142,7 @@ public class DebugDrawSystem extends System {
     if (entity.isPresent(CollideComponent.class)) drawCollideHitbox(entity, alpha);
     if (entity.isPresent(InteractionComponent.class))
       drawInteractionRange(entity, EntityUtils.getPosition(entity), alpha);
-    if (CameraSystem.isEntityHovered(entity) && decoComponent.isEmpty()) drawEntityInfo(entity, pc);
+    if (GdxCameraSystem.isEntityHovered(entity) && decoComponent.isEmpty()) drawEntityInfo(entity, pc);
   }
 
   /** Draws named points from the current level. */
@@ -413,7 +413,7 @@ public class DebugDrawSystem extends System {
    * @param worldPos The world position near which to render the text.
    */
   private void drawInfoOverlay(String text, Point worldPos) {
-    Vector3 screenPos = CameraSystem.camera().project(new Vector3(worldPos.x(), worldPos.y(), 0));
+    Vector3 screenPos = GdxCameraSystem.camera().project(new Vector3(worldPos.x(), worldPos.y(), 0));
 
     GlyphLayout layout = new GlyphLayout(FONT, text);
 
@@ -436,7 +436,7 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
     SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);
     SHAPE_RENDERER.end();
-    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.setProjectionMatrix(GdxCameraSystem.camera().combined);
 
     drawText(text, new Point(textX, textY));
   }
@@ -467,7 +467,7 @@ public class DebugDrawSystem extends System {
   }
 
   private static Color withAlpha(Color color, float alpha) {
-    return ColorUtils.pmaColor(new Color(color.r, color.g, color.b, alpha));
+    return GdxColorUtils.pmaColor(new Color(color.r, color.g, color.b, alpha));
   }
 
   /**
@@ -484,9 +484,9 @@ public class DebugDrawSystem extends System {
       float x, float y, float width, float height, Color color) {
     // Enable blending for transparency
     BlendUtils.setBlending();
-    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.setProjectionMatrix(GdxCameraSystem.camera().combined);
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
-    SHAPE_RENDERER.setColor(ColorUtils.pmaColor(color));
+    SHAPE_RENDERER.setColor(GdxColorUtils.pmaColor(color));
     SHAPE_RENDERER.rect(x, y, width, height);
     SHAPE_RENDERER.end();
   }
@@ -551,7 +551,7 @@ public class DebugDrawSystem extends System {
    * @param color the color of the text
    */
   public static void drawTextInWorldCoords(BitmapFont font, String text, Point world, Color color) {
-    Vector3 screen = CameraSystem.camera().project(new Vector3(world.x(), world.y(), 0));
+    Vector3 screen = GdxCameraSystem.camera().project(new Vector3(world.x(), world.y(), 0));
     drawText(font, text, new Point(screen.x, screen.y), color);
   }
 
@@ -586,7 +586,7 @@ public class DebugDrawSystem extends System {
    */
   public static void drawTextInWorldCoordsCentered(
       BitmapFont font, String text, Point world, Color color) {
-    Vector3 screen = CameraSystem.camera().project(new Vector3(world.x(), world.y(), 0));
+    Vector3 screen = GdxCameraSystem.camera().project(new Vector3(world.x(), world.y(), 0));
     GlyphLayout layout = new GlyphLayout(font, text);
     float textX = screen.x - layout.width / 2f;
     float textY = screen.y + layout.height / 2f;
