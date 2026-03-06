@@ -17,6 +17,8 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
+import portal.physicsobject.PortalCubeComponent;
+import portal.physicsobject.PortalSphereComponent;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
@@ -239,13 +241,25 @@ public class PortalFactory {
       otherPositionComponent.position(PortalUtils.calculatePortalExit(portal));
       other.add(new PortalIgnoreComponent());
       EventScheduler.scheduleAction(() -> other.remove(PortalIgnoreComponent.class), PORTAL_DELAY);
-      other
-          .fetch(VelocityComponent.class)
-          .ifPresent(
-              vc -> {
-                vc.clearForces();
-                vc.currentVelocity(Vector2.ONE);
-              });
+
+      if (other.isPresent(PortalCubeComponent.class)
+          || other.isPresent(PortalSphereComponent.class)) {
+        other
+            .fetch(VelocityComponent.class)
+            .ifPresent(
+                vc -> {
+                  vc.clearForces();
+                  vc.currentVelocity(Vector2.ZERO);
+                });
+      } else {
+        other
+            .fetch(VelocityComponent.class)
+            .ifPresent(
+                vc -> {
+                  vc.clearForces();
+                  vc.currentVelocity(Vector2.ONE);
+                });
+      }
 
       if (Game.player().get().name().equals(other.name())) {
         handleRotation(other, PortalColor.GREEN);
@@ -282,13 +296,24 @@ public class PortalFactory {
       other.add(new PortalIgnoreComponent());
       EventScheduler.scheduleAction(() -> other.remove(PortalIgnoreComponent.class), PORTAL_DELAY);
 
-      other
-          .fetch(VelocityComponent.class)
-          .ifPresent(
-              vc -> {
-                vc.clearForces();
-                vc.currentVelocity(Vector2.ONE);
-              });
+      if (other.isPresent(PortalCubeComponent.class)
+          || other.isPresent(PortalSphereComponent.class)) {
+        other
+            .fetch(VelocityComponent.class)
+            .ifPresent(
+                vc -> {
+                  vc.clearForces();
+                  vc.currentVelocity(Vector2.ZERO);
+                });
+      } else {
+        other
+            .fetch(VelocityComponent.class)
+            .ifPresent(
+                vc -> {
+                  vc.clearForces();
+                  vc.currentVelocity(Vector2.ONE);
+                });
+      }
       if (Game.player().get().name().equals(other.name())) {
         handleRotation(other, PortalColor.BLUE);
       }
@@ -392,6 +417,17 @@ public class PortalFactory {
         handleRotation(other, PortalColor.GREEN);
       }
 
+      if (other.isPresent(PortalCubeComponent.class)
+          || other.isPresent(PortalSphereComponent.class)) {
+        other
+            .fetch(VelocityComponent.class)
+            .ifPresent(
+                vc -> {
+                  vc.clearForces();
+                  vc.currentVelocity(Vector2.ZERO);
+                });
+      }
+
       handleProjectiles(other, greenPortalDirection, bluePortalDirection);
     }
   }
@@ -448,6 +484,17 @@ public class PortalFactory {
 
       if (Game.player().get().name().equals(other.name())) {
         handleRotation(other, PortalColor.BLUE);
+      }
+
+      if (other.isPresent(PortalCubeComponent.class)
+          || other.isPresent(PortalSphereComponent.class)) {
+        other
+            .fetch(VelocityComponent.class)
+            .ifPresent(
+                vc -> {
+                  vc.clearForces();
+                  vc.currentVelocity(Vector2.ZERO);
+                });
       }
 
       handleProjectiles(other, bluePortalDirection, greenPortalDirection);
