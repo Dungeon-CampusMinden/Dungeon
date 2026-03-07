@@ -1,6 +1,5 @@
 package contrib.utils.components.skill.projectileSkill;
 
-import com.badlogic.gdx.math.MathUtils;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import core.Entity;
@@ -9,6 +8,7 @@ import core.sound.SoundSpec;
 import core.utils.*;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
 /**
@@ -160,8 +160,12 @@ public class FireballSkill extends DamageProjectileSkill {
             projectile,
             SoundSpec.builder(PROJECTILE_SOUND)
                 .volume(volume)
-                .pitch(MathUtils.random(minPitch, maxPitch))
+                .pitch(randomRange(minPitch, maxPitch))
                 .maxDistance(maxDistance)
                 .attenuation(attenuationFactor));
+  }
+
+  private static float randomRange(float min, float max) {
+    return min + (max - min) * ThreadLocalRandom.current().nextFloat();
   }
 }

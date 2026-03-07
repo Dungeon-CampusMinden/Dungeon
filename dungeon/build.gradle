@@ -103,7 +103,14 @@ tasks.register('runMPClient', JavaExec) {
 
 tasks.register('checkNoEngineImports') {
     doLast {
-        def enforcePrefixes = ["core/"]
+        // Diese Pfade müssen engine-frei sein (LITIENGINE-Gameplay-Pfad)
+        def enforcePrefixes = [
+            "core/",
+            "contrib/entities/",
+            "contrib/utils/components/skill/",
+            "contrib/systems/EventScheduler.java",
+            "contrib/systems/LevelTickSystem.java"
+        ]
 
         def allowPrefixes = [
             "core/platform/gdx/",
@@ -118,13 +125,12 @@ tasks.register('checkNoEngineImports') {
 
         sourceSets.main.java.srcDirs.each { srcDir ->
             if (srcDir == null || !srcDir.exists()) return
-
             def javaRoot = srcDir.toPath()
 
             fileTree(srcDir).matching { include "**/*.java" }.files.each { f ->
-                def rel = javaRoot.relativize(f.toPath()).toString().replace('\\', '/')
+                def rel = javaRoot.relativize(f.toPath()).toString().replace('\\','/')
 
-                if (!enforcePrefixes.any { rel.startsWith(it) }) return
+                if (!enforcePrefixes.any { p -> rel.startsWith(p) || rel == p }) return
 
                 def txt = f.getText("UTF-8")
                 def hasEngineImport =
@@ -139,10 +145,8 @@ tasks.register('checkNoEngineImports') {
         }
 
         if (!forbidden.isEmpty()) {
-            throw new GradleException(
-                "Forbidden engine imports found outside backend packages:\n  - " +
-                    forbidden.join("\n  - ")
-            )
+            throw new GradleException("Forbidden engine imports found outside backend packages:\n  - " +
+                forbidden.join("\n  - "))
         }
     }
 }

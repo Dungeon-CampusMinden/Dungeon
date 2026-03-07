@@ -1,14 +1,11 @@
 package contrib.utils.components.skill;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector3;
 import contrib.systems.EventScheduler;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.platform.Platform;
-import core.platform.gdx.systems.GdxCameraSystem;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
