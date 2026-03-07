@@ -37,6 +37,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import static blockly.dgir.compiler.java.CompilerUtils.fromAstType;
+import static blockly.dgir.compiler.java.CompilerUtils.isAccessibleFrom;
 import static dgir.dialect.arith.ArithAttrs.BinModeAttr.BinMode;
 import static dgir.dialect.arith.ArithOps.ConstantOp;
 import static dgir.dialect.builtin.BuiltinAttrs.*;
@@ -131,25 +132,6 @@ public class JavaCompiler {
             n, "Module " + n.getModule() + " and models in general are not supported.");
         return;
       }
-      if (n.getPackageDeclaration().isPresent()) {
-        context.emitError(
-            n, "Package declaration " + n.getPackageDeclaration() + " is not supported.");
-        return;
-      }
-      if (n.getTypes().size() != 1) {
-        context.emitError(
-            n,
-            "Only one class is supported and that is the class containing the main method."
-                + " Found "
-                + n.getTypes().size()
-                + " classes.");
-        return;
-      }
-      // Check that there is a main method which takes no arguments.
-      if (n.getType(0).getMethodsBySignature("main").isEmpty()) {
-        logger.severe("No main method found.");
-        return;
-      }
       // Program looks generally ok, create the root ProgramOp.
       ProgramOp program = new ProgramOp(context.loc(n));
       context.pushSymbolScope(true);
@@ -196,11 +178,6 @@ public class JavaCompiler {
                 + n.getName()
                 + " has members which arent methods. Classes with non method members are not supported.");
         return;
-      }
-      if (!n.isPublic()) {
-        context.emitWarning(
-            n,
-            "Class " + n.getName() + " is not public. It is recommended to make the class public.");
       }
       if (!n.getAnnotations().isEmpty()) {
         context.emitWarning(
@@ -468,7 +445,6 @@ public class JavaCompiler {
                 rhsValue,
                 n.getValue().calculateResolvedType(),
                 context.lookupType(targetValue).orElseThrow(),
-                true,
                 context);
         if (implicitCast.isFailure()) {
           return;
@@ -515,13 +491,12 @@ public class JavaCompiler {
       if (resolvedVariable.isEmpty()) {
         return;
       }
-      EmitResult<@NotNull Value> implicitCastRes =
+      EmitResult<Value> implicitCastRes =
           CompilerUtils.emitImplicitCastIfNeeded(
               variableDeclarator,
               initValue,
               variableDeclarator.getInitializer().get().calculateResolvedType(),
               resolvedVariable.get().getType(),
-              initializer.isLiteralExpr(),
               context);
 
       if (implicitCastRes.isFailure()) {
@@ -650,25 +625,36 @@ public class JavaCompiler {
       Optional<ResolvedMethodDeclaration> targetMethod =
           CompilerUtils.resolve(methodCallExpr, context);
       if (targetMethod.isEmpty()) {
-        context.emitError(
+        return EmitResult.failure(
+            context,
             methodCallExpr,
             "Could not resolve method call target. Make sure the method is defined in the same class or imported and that all necessary classes are imported.");
-        return EmitResult.failure();
       }
+      // Make sure the target method is accessible from the current context. This also checks that
+      // the method is
+      var callingClass =
+          methodCallExpr.findAncestor(ClassOrInterfaceDeclaration.class).orElseThrow().resolve();
+      if (isAccessibleFrom(callingClass, targetMethod.get())) {
+        return EmitResult.failure(
+            context,
+            methodCallExpr,
+            "Method callee " + targetMethod.get() + " is not visible from " + callingClass);
+      }
+
       if (!targetMethod.get().isStatic()) {
-        context.emitError(methodCallExpr, "Method calls to non-static methods are not supported.");
-        return EmitResult.failure();
+        return EmitResult.failure(
+            context, methodCallExpr, "Method calls to non-static methods are not supported.");
       }
 
       if (targetMethod.get().getNumberOfParams() != methodCallExpr.getArguments().size()) {
-        context.emitError(
+        return EmitResult.failure(
+            context,
             methodCallExpr,
             "Method call arguments do not match the method signature. Expected "
                 + targetMethod.get().getTypeParameters().size()
                 + " arguments but found "
                 + methodCallExpr.getArguments().size()
                 + ".");
-        return EmitResult.failure();
       }
 
       // Get the call args of the method
@@ -692,7 +678,6 @@ public class JavaCompiler {
                 callArg,
                 methodCallExpr.getArgument(i).calculateResolvedType(),
                 targetMethodArgType,
-                false,
                 context);
         if (castCallArg.isFailure()) {
           return EmitResult.failure(

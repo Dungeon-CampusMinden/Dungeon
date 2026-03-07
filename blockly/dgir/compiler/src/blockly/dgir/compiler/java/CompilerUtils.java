@@ -1,20 +1,18 @@
 package blockly.dgir.compiler.java;
 
+import com.github.javaparser.ast.AccessSpecifier;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.AnnotationDeclaration;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
-import com.github.javaparser.resolution.declarations.ResolvedDeclaration;
-import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
-import com.github.javaparser.resolution.types.ResolvedReferenceType;
-import com.github.javaparser.resolution.types.ResolvedType;
+import com.github.javaparser.resolution.declarations.*;
+import com.github.javaparser.resolution.types.*;
 import dgir.core.ir.Type;
 import dgir.core.ir.Value;
 import dgir.dialect.arith.ArithOps;
 import dgir.dialect.builtin.BuiltinTypes;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class CompilerUtils {
@@ -69,10 +67,9 @@ public class CompilerUtils {
       @NotNull Value source,
       @NotNull ResolvedType sourceType,
       @NotNull ResolvedType targetType,
-      boolean isPrimitiveVariableAssignment,
       @NotNull EmitContext context) {
     if (sourceType.equals(targetType)) return EmitResult.of(source);
-    if (isImplicitlyAssignable(sourceType, targetType, isPrimitiveVariableAssignment)) {
+    if (targetType.isAssignableBy(sourceType)) {
       // Insert implicit cast
       Optional<Type> targetDgirType = fromAstType(targetType, site, context);
       return targetDgirType
@@ -93,60 +90,94 @@ public class CompilerUtils {
         "Type mismatch: cannot assign " + sourceType.describe() + " to " + targetType.describe());
   }
 
-  public static final @NotNull @Unmodifiable Map<String, Integer> WIDENING_ORDER =
-      Map.of(
-          "byte", 1,
-          "short", 2,
-          "char", 2, // char can be widened to int but not to short since it is 16bit unsigned
-          "int", 3,
-          "long", 4,
-          "float", 5,
-          "double", 6);
+  /** Checks whether the target is target is accessible from the source. */
+  public static boolean isAccessibleFrom(
+      ResolvedReferenceTypeDeclaration from, ResolvedDeclaration target) {
+    Optional<ResolvedTypeDeclaration> targetDeclaringType;
+    AccessSpecifier targetAccessSpecifier;
 
-  public static boolean isImplicitlyAssignable(
-      @NotNull ResolvedType source,
-      @NotNull ResolvedType target,
-      boolean isPrimitiveVariableAssignment) {
-    // Exact match
-    if (source.equals(target)) return true;
-
-    // Both must be primitives for implicit widening
-    if (!source.isPrimitive() || !target.isPrimitive()) return false;
-
-    // During primitive variable assignment, we allow narrowing of integers to the smaller integer
-    // types
-    // This is to allow for code like `byte b = 1;` without requiring an explicit cast, since the
-    // literal `1` is of type `int` by default. However, in other contexts (e.g. method argument
-    // passing), we require an explicit cast for narrowing conversions to avoid accidental data
-    // loss.
-    if (isPrimitiveVariableAssignment) {
-      String sourceDesc = source.asPrimitive().describe();
-      switch (target.asPrimitive().describe()) {
-        case "byte", "short", "char" -> {
-          switch (sourceDesc) {
-            case "char", "int" -> {
-              return true;
-            }
-          }
-        }
+    switch (target) {
+      case ResolvedFieldDeclaration fieldDeclaration -> {
+        targetDeclaringType =
+            Optional.ofNullable(fieldDeclaration.declaringType())
+                .map(Optional::of)
+                .orElseThrow(
+                    () ->
+                        new IllegalStateException(
+                            "Field declaration does not have a declaring type."));
+        targetAccessSpecifier = fieldDeclaration.accessSpecifier();
       }
+      case ResolvedMethodLikeDeclaration methodLikeDeclaration -> {
+        targetDeclaringType = Optional.of(methodLikeDeclaration.declaringType());
+        targetAccessSpecifier = methodLikeDeclaration.accessSpecifier();
+      }
+      case ResolvedTypeDeclaration typeDeclaration -> {
+        targetDeclaringType = typeDeclaration.containerType().flatMap(r -> Optional.of((ResolvedTypeDeclaration) r));
+        targetAccessSpecifier = getAccessSpecifier(typeDeclaration);
+      }
+      case ResolvedValueDeclaration valueDeclaration -> {
+        targetDeclaringType = getDeclaringType(valueDeclaration.getType());
+        targetAccessSpecifier = getAccessSpecifier(valueDeclaration.getType());
+      }
+      default ->
+          throw new IllegalArgumentException(
+              "Unsupported target type: " + target.getClass().getName());
     }
-    return WIDENING_ORDER.getOrDefault(source.asPrimitive().describe(), Integer.MAX_VALUE)
-        <= WIDENING_ORDER.getOrDefault(target.asPrimitive().describe(), Integer.MAX_VALUE);
+    return false;
   }
 
-  public static boolean isReferenceAssignable(
-      @NotNull ResolvedType source, @NotNull ResolvedType target) {
-    if (!source.isReferenceType() || !target.isReferenceType()) return false;
+  public static Optional<ResolvedTypeDeclaration> getDeclaringType(ResolvedType type) {
+    return Optional.ofNullable(
+        switch (type) {
+          case ResolvedArrayType arrayType ->
+              getDeclaringType(arrayType.getComponentType()).orElse(null);
+          case ResolvedReferenceType refType -> {
+            var declaration =
+                refType
+                    .getTypeDeclaration()
+                    .orElseThrow(
+                        () ->
+                            new IllegalStateException(
+                                "Reference type does not have a declaration."));
+            yield declaration.containerType().orElse(null);
+          }
+          case ResolvedPrimitiveType primitiveType -> null;
+          default -> throw new IllegalStateException("Unexpected value: " + type);
+        });
+  }
 
-    ResolvedReferenceType srcRef = source.asReferenceType();
-    ResolvedReferenceType tgtRef = target.asReferenceType();
+  public static AccessSpecifier getAccessSpecifier(ResolvedTypeDeclaration declaration) {
+    return switch (declaration){
+      // We do not support type parameters.
+      // case ResolvedTypeParameterDeclaration typeParameterDeclaration ->
+      case ResolvedReferenceTypeDeclaration referenceTypeDeclaration -> getAccessSpecifier(referenceTypeDeclaration);
+      default -> throw new IllegalStateException("Unexpected value: " + declaration);
+    };
+  }
 
-    // Same type
-    if (srcRef.getQualifiedName().equals(tgtRef.getQualifiedName())) return true;
+  public static AccessSpecifier getAccessSpecifier(ResolvedReferenceTypeDeclaration declaration) {
+    return switch (declaration) {
+      case ResolvedAnnotationDeclaration annotationDeclaration ->
+        ((AnnotationDeclaration) annotationDeclaration.toAst().orElseThrow())
+          .getAccessSpecifier();
+      case ResolvedClassDeclaration classDeclaration -> classDeclaration.accessSpecifier();
+      case ResolvedEnumDeclaration enumDeclaration -> enumDeclaration.accessSpecifier();
+      case ResolvedInterfaceDeclaration interfaceDeclaration ->
+        interfaceDeclaration.accessSpecifier();
+      case ResolvedRecordDeclaration recordDeclaration -> recordDeclaration.accessSpecifier();
+      default -> throw new IllegalStateException("Unexpected value: " + declaration);
+    };
+  }
 
-    // Check full ancestor chain (superclasses + interfaces)
-    return srcRef.getAllAncestors().stream()
-        .anyMatch(a -> a.getQualifiedName().equals(tgtRef.getQualifiedName()));
+  public static AccessSpecifier getAccessSpecifier(ResolvedType resolvedType) {
+    return switch (resolvedType) {
+      case ResolvedArrayType arrayType -> getAccessSpecifier(arrayType.getComponentType());
+      case ResolvedReferenceType refType ->
+          getAccessSpecifier(refType.getTypeDeclaration().orElseThrow());
+      case ResolvedPrimitiveType primitiveType ->
+          AccessSpecifier.PUBLIC; // Primitive types are always public
+      case ResolvedVoidType voidType -> AccessSpecifier.PUBLIC; // Void type is always public
+      default -> throw new IllegalStateException("Unexpected value: " + );
+    };
   }
 }

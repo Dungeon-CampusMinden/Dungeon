@@ -284,4 +284,29 @@ public class %ClassName {
 """;
     testSource(code);
   }
+
+  @Test
+  void multipleClassesWithStaticFunctions() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int a = OtherClass.add(5, 10);
+    float b = OtherClass.add(5f, 10f);
+    float c = OtherClass.add(5f, 10);
+  }
+}
+
+public class OtherClass {
+  public static int add(int a, int b) {
+    return a + b;
+  }
+
+  public static float add(float a, float b) {
+    return a + b;
+  }
+}
+""";
+    testSource(code);
+  }
 }
