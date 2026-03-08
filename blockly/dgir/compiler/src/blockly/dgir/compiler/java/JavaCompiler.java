@@ -36,8 +36,9 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Logger;
 
+import static blockly.dgir.compiler.java.Access.isDeclarationAccessibleFrom;
+import static blockly.dgir.compiler.java.Access.isTypeUseAccessibleFrom;
 import static blockly.dgir.compiler.java.CompilerUtils.fromAstType;
-import static blockly.dgir.compiler.java.CompilerUtils.isAccessibleFrom;
 import static dgir.dialect.arith.ArithAttrs.BinModeAttr.BinMode;
 import static dgir.dialect.arith.ArithOps.ConstantOp;
 import static dgir.dialect.builtin.BuiltinAttrs.*;
@@ -48,6 +49,7 @@ import static dgir.dialect.func.FuncOps.ReturnOp;
 import static dgir.dialect.func.FuncTypes.FuncType;
 import static dgir.dialect.scf.ScfOps.*;
 
+@SuppressWarnings({"unchecked", "OptionalUsedAsFieldOrParameterType"})
 public class JavaCompiler {
   static Logger logger = Logger.getLogger(JavaCompiler.class.getName());
   static boolean symbolSolverInitialized = false;
@@ -135,6 +137,7 @@ public class JavaCompiler {
       // Program looks generally ok, create the root ProgramOp.
       ProgramOp program = new ProgramOp(context.loc(n));
       context.pushSymbolScope(true);
+      context.setProgramBlock(program.getEntryBlock());
       context.setInsertionPoint(program.getEntryBlock(), -1);
 
       n.getTypes().forEach(t -> t.accept(this, context));
@@ -171,12 +174,10 @@ public class JavaCompiler {
             "Class " + n.getName() + " has type parameters. Generics classes are not supported.");
         return;
       }
-      if (n.getMembers().stream().anyMatch(m -> !(m instanceof MethodDeclaration))) {
-        context.emitError(
-            n,
-            "Class "
-                + n.getName()
-                + " has members which arent methods. Classes with non method members are not supported.");
+      if (n.getMembers().stream()
+          .anyMatch(
+              m -> !(m instanceof MethodDeclaration || m instanceof ClassOrInterfaceDeclaration))) {
+        context.emitError(n, "Class " + n.getName() + " has members which arent supported.");
         return;
       }
       if (!n.getAnnotations().isEmpty()) {
@@ -186,9 +187,17 @@ public class JavaCompiler {
                 + n.getName()
                 + " has annotations. Annotations are not supported and will be ignored.");
       }
+      if (n.findAncestor(ClassOrInterfaceDeclaration.class).isPresent() && !n.isStatic()) {
+        context.emitError(
+            n,
+            "Class "
+                + n.getName()
+                + " is an inner class but is not static. Only static inner classes are supported.");
+        return;
+      }
 
-      // Emit all methods in the class. These will insert themselves into the program op
-      n.getMethods().forEach(m -> m.accept(this, context));
+      // Emit all methods in the class.
+      n.getMembers().forEach(m -> m.accept(this, context));
     }
 
     @Override
@@ -226,14 +235,6 @@ public class JavaCompiler {
         context.emitError(
             n, "Method " + n.getName() + " has no body. Methods with no body are not supported.");
         return;
-      }
-
-      if (!n.isPublic()) {
-        context.emitWarning(
-            n,
-            "Method "
-                + n.getName()
-                + " is not public. It is recommended to make the method public.");
       }
       if (!n.getAnnotations().isEmpty())
         context.emitWarning(
@@ -300,6 +301,7 @@ public class JavaCompiler {
       // Create the function op.
       String fullyQualifiedMethodName =
           "main".equals(n.getNameAsString()) ? "main" : resolvedN.getQualifiedSignature();
+      var pip = context.setInsertionPoint(context.getProgramBlock().orElseThrow(), -1);
       FuncOp funcOp =
           context.insert(
               new FuncOp(
@@ -308,7 +310,7 @@ public class JavaCompiler {
                   new FuncType(inputTypes, outputType.orElse(null))));
 
       // Emit all statements in the method body. These will insert themselves into the function op.
-      var previousInsertionPoint = context.setInsertionPoint(funcOp.getEntryBlock(), -1);
+      context.setInsertionPoint(funcOp.getEntryBlock(), -1);
       // Put the function arguments in the symbol table so that they can be referenced in the body.
       context.pushSymbolScope(true);
       for (int i = 0; i < inputNames.size(); i++) {
@@ -321,7 +323,7 @@ public class JavaCompiler {
 
       context.popSymbolScope();
       // Set the insertion point to the parent scope.
-      previousInsertionPoint.ifPresent(p -> context.setInsertionPoint(p.a, p.b));
+      pip.ifPresent(p -> context.setInsertionPoint(p.a, p.b));
       // Make sure we have an implicit return in case the method has a void return type and the last
       // statement is not a return statement.
       funcOp.addImplicitTerminators();
@@ -445,18 +447,27 @@ public class JavaCompiler {
                 rhsValue,
                 n.getValue().calculateResolvedType(),
                 context.lookupType(targetValue).orElseThrow(),
-                context);
+                context,
+                n.getValue().isLiteralExpr());
         if (implicitCast.isFailure()) {
           return;
         }
-        context.insert(new BuiltinOps.IdOp(context.loc(n), implicitCast.get(), targetValue));
+        try {
+          context.insert(new BuiltinOps.IdOp(context.loc(n), implicitCast.get(), targetValue));
+        } catch (AssertionError e) {
+          context.emitError(
+              n, "Failed to emit assignment of value " + n.getValue() + " to " + n.getTarget());
+          return;
+        }
         return;
       }
 
       EmitResult<Value> result =
           emitBinary(
               n,
-              n.getOperator().toBinaryOperator().get(),
+              n.getOperator()
+                  .toBinaryOperator()
+                  .orElseThrow(() -> new RuntimeException("Unsupported assignment operator")),
               targetValue,
               rhsValue,
               Optional.of(targetValue),
@@ -485,19 +496,42 @@ public class JavaCompiler {
         return;
       }
       Value initValue = initValueRes.get().get();
-      // Check that the init value and the target have the same value and emit cast statement if not
+
+      // Get the resolved variable declaration so that we can get the type of the variable and check
+      // that it is accessible from the current context.
       Optional<ResolvedValueDeclaration> resolvedVariable =
           CompilerUtils.resolve(variableDeclarator, context);
       if (resolvedVariable.isEmpty()) {
         return;
       }
+      // Check that the target variable type is accessible in the current context
+      {
+        // The class in which the variable is declared
+        var contextClass =
+            CompilerUtils.resolve(
+                variableDeclarator.findAncestor(ClassOrInterfaceDeclaration.class).orElseThrow(),
+                context);
+        if (contextClass.isEmpty()) {
+          return;
+        }
+
+        if (!isTypeUseAccessibleFrom(contextClass.get(), resolvedVariable.get().getType())) {
+          context.emitError(
+              variableDeclarator,
+              "Variable " + variableDeclarator.getName() + " is not visible from " + contextClass);
+          return;
+        }
+      }
+
+      // Check that the init value and the target have the same value and emit cast statement if not
       EmitResult<Value> implicitCastRes =
           CompilerUtils.emitImplicitCastIfNeeded(
               variableDeclarator,
               initValue,
               variableDeclarator.getInitializer().get().calculateResolvedType(),
               resolvedVariable.get().getType(),
-              context);
+              context,
+              initializer.isLiteralExpr());
 
       if (implicitCastRes.isFailure()) {
         context.emitError(
@@ -561,7 +595,7 @@ public class JavaCompiler {
         @NotNull Optional<Value> targetValue,
         @NotNull EmitContext context) {
       Optional<BinMode> binModeOpt =
-          Optional.ofNullable(
+          Optional.of(
               switch (operator) {
                 case PLUS -> BinMode.ADD;
                 case MINUS -> BinMode.SUB;
@@ -582,16 +616,11 @@ public class JavaCompiler {
                 case LEFT_SHIFT -> BinMode.LSH;
                 case SIGNED_RIGHT_SHIFT -> BinMode.RSHS;
                 case UNSIGNED_RIGHT_SHIFT -> BinMode.RSHU;
-                default -> null;
               });
 
-      if (binModeOpt.isPresent()) {
-        var binOp = context.insert(new BinaryOp(context.loc(site), lhs, rhs, binModeOpt.get()));
-        targetValue.ifPresent(binOp::setOutputValue);
-        return EmitResult.of(binOp.getResult());
-      }
-      return EmitResult.failure(
-          context, site, "Binary operator " + operator + " is not supported.");
+      var binOp = context.insert(new BinaryOp(context.loc(site), lhs, rhs, binModeOpt.get()));
+      targetValue.ifPresent(binOp::setOutputValue);
+      return EmitResult.of(binOp.getResult());
     }
 
     private @NotNull EmitResult<Value> emitBinary(
@@ -625,36 +654,20 @@ public class JavaCompiler {
       Optional<ResolvedMethodDeclaration> targetMethod =
           CompilerUtils.resolve(methodCallExpr, context);
       if (targetMethod.isEmpty()) {
-        return EmitResult.failure(
-            context,
-            methodCallExpr,
-            "Could not resolve method call target. Make sure the method is defined in the same class or imported and that all necessary classes are imported.");
+        return EmitResult.failure();
       }
       // Make sure the target method is accessible from the current context. This also checks that
       // the method is
       var callingClass =
           methodCallExpr.findAncestor(ClassOrInterfaceDeclaration.class).orElseThrow().resolve();
-      if (isAccessibleFrom(callingClass, targetMethod.get())) {
+      if (!isDeclarationAccessibleFrom(callingClass, targetMethod.get())) {
         return EmitResult.failure(
             context,
             methodCallExpr,
-            "Method callee " + targetMethod.get() + " is not visible from " + callingClass);
-      }
-
-      if (!targetMethod.get().isStatic()) {
-        return EmitResult.failure(
-            context, methodCallExpr, "Method calls to non-static methods are not supported.");
-      }
-
-      if (targetMethod.get().getNumberOfParams() != methodCallExpr.getArguments().size()) {
-        return EmitResult.failure(
-            context,
-            methodCallExpr,
-            "Method call arguments do not match the method signature. Expected "
-                + targetMethod.get().getTypeParameters().size()
-                + " arguments but found "
-                + methodCallExpr.getArguments().size()
-                + ".");
+            "Method callee "
+                + targetMethod.get().getQualifiedName()
+                + " is not visible from "
+                + callingClass.getQualifiedName());
       }
 
       // Get the call args of the method
@@ -678,7 +691,8 @@ public class JavaCompiler {
                 callArg,
                 methodCallExpr.getArgument(i).calculateResolvedType(),
                 targetMethodArgType,
-                context);
+                context,
+                methodCallExpr.getArgument(i).isLiteralExpr());
         if (castCallArg.isFailure()) {
           return EmitResult.failure(
               context,
@@ -767,7 +781,7 @@ public class JavaCompiler {
                   .getResult());
         }
         case POSTFIX_INCREMENT -> {
-          // Copy the value to a new value and return that so that we can modify the increment
+          // Copy the value to a new value and return that so we can modify the increment
           // target.
           BuiltinOps.IdOp idOp =
               context.insert(new BuiltinOps.IdOp(context.loc(unaryExpr), operand));
@@ -775,7 +789,7 @@ public class JavaCompiler {
           return EmitResult.of(idOp.getResult());
         }
         case POSTFIX_DECREMENT -> {
-          // Copy the value to a new value and return that so that we can modify the increment
+          // Copy the value to a new value and return that so we can modify the increment
           // target.
           BuiltinOps.IdOp idOp =
               context.insert(new BuiltinOps.IdOp(context.loc(unaryExpr), operand));

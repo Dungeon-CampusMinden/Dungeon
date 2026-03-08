@@ -11,6 +11,7 @@ import dgir.core.ir.Op;
 import dgir.core.ir.Operation;
 import dgir.core.ir.Value;
 import dgir.dialect.builtin.BuiltinOps;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,6 +34,8 @@ public final class EmitContext {
 
   private final ScopedSymbolTable<String, Value> symbolTable = ScopedSymbolTable.createRoot();
   private final ScopedSymbolTable<Value, ResolvedType> typeTable = ScopedSymbolTable.createRoot();
+
+  private @Nullable Block programBlock = null;
 
   /** The block into which the next IR operation will be inserted. */
   private @Nullable Block insertionBlock = null;
@@ -86,6 +89,15 @@ public final class EmitContext {
     return typeTable.lookupScoped(value);
   }
 
+  @Contract(pure = true)
+  public @NotNull Optional<Block> getProgramBlock() {
+    return Optional.ofNullable(programBlock);
+  }
+
+  public void setProgramBlock(@NotNull Block block) {
+    programBlock = block;
+  }
+
   /**
    * Set the insertion point for the next IR operation to be inserted.
    *
@@ -134,8 +146,7 @@ public final class EmitContext {
     StringBuilder formated =
         new StringBuilder(
             MessageFormat.format(
-                "{0}:{1}:{2}\n\"{3}\"\n{4}\n",
-                loc.file(), loc.line(), loc.column(), node, message));
+                "{0}:{1}:{2} \"{3}\"\n{4}\n", loc.file(), loc.line(), loc.column(), node, message));
     // Append the string representation of the args to the message.
     if (args.length > 0) {
       formated.append("Additional info:\n");

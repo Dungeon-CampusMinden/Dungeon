@@ -3,6 +3,7 @@ import dgir.core.Dialect;
 import dgir.core.serialization.Utils;
 import dgir.vm.api.DialectRunner;
 import dgir.vm.api.VM;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -251,7 +252,7 @@ public class %ClassName {
   public static void main() {
     byte b = 1;
     short s = b;
-    char c = b;
+    char c = 'a';
     int i = b;
     long l = b;
     float f = b;
@@ -308,5 +309,138 @@ public class OtherClass {
 }
 """;
     testSource(code);
+  }
+
+  @Test
+  void nestedClass() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int a = NestedClass.add(5, 10);
+    float b = NestedClass.add(5f, 10f);
+    float c = NestedClass.add(5f, 10);
+  }
+
+  public static class NestedClass {
+    public static int add(int a, int b) {
+      return a + b;
+    }
+
+    public static float add(float a, float b) {
+      return a + b;
+    }
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void nestedClasses() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int a = NestedClass1.add(5, 10);
+    float b = NestedClass2.add(5f, 10f);
+    float d = OtherClass.add(5f, 10f);
+    float e = OtherClass.add(5f, 10);
+    float f = OtherClass.NestedClass3.add(5f, 10f);
+    float g = OtherClass.NestedClass3.add(5f, 10);
+  }
+
+  private static class NestedClass1 {
+    private static int add(int a, int b) {
+      return a + b;
+    }
+  }
+
+  public static class NestedClass2 {
+    public static float add(float a, float b) {
+      return a + b;
+    }
+
+    public static int add(int a, int b) {
+      return a + b;
+    }
+  }
+}
+
+class OtherClass {
+  public static int add(int a, int b) {
+    return a + b;
+  }
+
+  static float add(float a, float b) {
+    return a + b;
+  }
+
+  public static class NestedClass3 {
+    public static int add(int a, int b) {
+      return nestedClasses.NestedClass2.add(a, b);
+    }
+
+    static float add(float a, float b) {
+      return a + b;
+    }
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void nestedClassesInvalidAccess() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int a = NestedClass1.add(5, 10);
+    float b = NestedClass2.add(5f, 10f);
+    float d = OtherClass.add(5f, 10f);
+    float e = OtherClass.add(5f, 10);
+    float f = OtherClass.NestedClass3.add(5f, 10f);
+    float g = OtherClass.NestedClass3.add(5f, 10);
+  }
+
+  private static class NestedClass1 {
+    private static int add(int a, int b) {
+      return a + b;
+    }
+  }
+
+  public static class NestedClass2 {
+    public static float add(float a, float b) {
+      return a + b;
+    }
+
+    private static int add(int a, int b) {
+      return a + b;
+    }
+  }
+}
+
+class OtherClass {
+  public static int add(int a, int b) {
+    return a + b;
+  }
+
+  static float add(float a, float b) {
+    return a + b;
+  }
+
+  public static class NestedClass3 {
+    public static int add(int a, int b) {
+      return nestedClassesInvalidAccess.NestedClass2.add(a, b);
+    }
+
+    static float add(float a, float b) {
+      return a + b;
+    }
+  }
+}
+""";
+    Assertions.assertThrows(AssertionError.class, () -> testSource(code));
   }
 }
