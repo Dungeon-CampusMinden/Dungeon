@@ -114,7 +114,7 @@ public class LastHourLevel extends DungeonLevel {
         Lore.IntroTexts,
         false,
         true,
-        () -> DialogFactory.showOkDialog(Lore.PostIntroDialogTexts.getFirst(), "", () -> {}),
+        () -> DialogFactory.showOkDialog(Lore.PostIntroDialogTexts.getFirst(), "", () -> {}, targetId),
         targetId);
     INTRO_SHOWN_TO.add(targetId);
   }
@@ -152,6 +152,8 @@ public class LastHourLevel extends DungeonLevel {
     DrawSystem.getInstance().sceneShaders().add("lighting", new LightingShader().ambientLight(0));
   }
 
+  private static final String cabinetImagePath = "images/virus-phrases.png";
+
   private void setupInteractables() {
     Entity desk0 = DecoFactory.createDeco(getPoint("desk-nothing0"), Deco.StampingTable);
     desk0.remove(DecoComponent.class);
@@ -178,7 +180,7 @@ public class LastHourLevel extends DungeonLevel {
                           "A bunch of papers laying all over the place on the desk.\nYou weed through them, until a weird looking note catches your eye",
                           "",
                           () -> {
-                            DialogUtils.showImagePopUp("images/note-password-1.png");
+                            DialogUtils.showImagePopUp("images/note-password-1.png", who.id());
                           },
                           who.id());
                     })));
@@ -209,6 +211,16 @@ public class LastHourLevel extends DungeonLevel {
                       () ->
                           new Interaction(
                               (e, who) -> {
+                                if (index == 2) {
+                                  DialogFactory.showOkDialog(
+                                      "You open the locker. Lots of white coats are hanging inside,\nbut one of them has a piece of paper in the pocket.\n\nYou unfold the paper to take a look at it.",
+                                      "",
+                                      () -> {
+                                        DialogUtils.showImagePopUp(cabinetImagePath, who.id());
+                                      },
+                                      who.id());
+                                  return;
+                                }
                                 DialogFactory.showOkDialog(
                                     "You open the locker, but it's empty except for some white coats.\nSeems like someone already went through it...",
                                     "",
@@ -289,7 +301,7 @@ public class LastHourLevel extends DungeonLevel {
                                 () -> {
                                   ComputerStateComponent.setState(ComputerProgress.ON);
                                   Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
-                                });
+                                }, who.id());
                           },
                           () -> {},
                           who.id());
@@ -305,7 +317,7 @@ public class LastHourLevel extends DungeonLevel {
             () ->
                 new Interaction(
                     (e, who) -> {
-                      DialogUtils.showImagePopUp("images/scientist_profile.png");
+                      DialogUtils.showImagePopUp("images/scientist_profile.png", who.id());
                     })));
     Game.add(profilePaper);
   }
