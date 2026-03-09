@@ -324,6 +324,7 @@ public class LastHourLevel extends DungeonLevel {
 
   private static final Deco[] trashcans = {Deco.TrashCanBlue, Deco.TrashCanGreen, Deco.TrashCanRed};
   private static final String trashNote = "images/note-password-2.png";
+  private static final List<Integer> PaperCounts = List.of(50, 10, 50, 50, 5, 15, 3);
   private static final int trashIndex = 3;
 
   private void setupTrashcans() {
@@ -346,6 +347,7 @@ public class LastHourLevel extends DungeonLevel {
                                 builder.put(
                                     TrashMinigameUI.KEY_NOTE_PATH,
                                     index == trashIndex ? trashNote : null);
+                                builder.put(TrashMinigameUI.KEY_PAPER_COUNT, PaperCounts.get(index % PaperCounts.size()));
                                 DialogFactory.show(builder.build(), who.id());
                               })));
               Game.add(trashcan);
@@ -354,7 +356,7 @@ public class LastHourLevel extends DungeonLevel {
 
   private final List<String> decoderTablePaths =
       List.of(
-          "images/base64.png",
+          "images/random_nothing.png",
           "images/binary_hex.jpg",
           "images/hex_ascii.png",
           "images/braille.png",

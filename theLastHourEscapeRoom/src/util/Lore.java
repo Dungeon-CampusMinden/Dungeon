@@ -56,7 +56,10 @@ public class Lore {
           Tuple.of(
               "His office was found ransacked...\n\nHis project may have attracted more attention than he realized.",
               32),
-          Tuple.of("The Last Hour", 120));
+          Tuple.of(
+            "Your intrusion to his office triggered an alarm and locked the door behind you.\n\nA timer on the wall shows: You have 20 minutes until something happens...",
+            32),
+          Tuple.of("Escape...", 120));
 
   /** List of post intro dialog texts. */
   public static final List<String> PostIntroDialogTexts =
