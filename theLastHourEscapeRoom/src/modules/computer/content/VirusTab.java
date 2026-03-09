@@ -63,7 +63,8 @@ public class VirusTab extends ComputerTab {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             String inputCode = codeField.getText();
-            if (virusType == null || inputCode.equals(Lore.VirusTypeToCode.get(virusType))) {
+            if (virusType == null
+                || inputCode.trim().equalsIgnoreCase(Lore.VirusTypeToCode.get(virusType))) {
               virusLabel.setText("Virus Neutralized!");
               virusLabel.setColor(new Color(0, 0.8f, 0, 1));
               virusLabel.addAction(

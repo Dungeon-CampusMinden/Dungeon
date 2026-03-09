@@ -13,6 +13,7 @@ import core.game.PreRunConfiguration;
 import core.level.loader.DungeonLoader;
 import core.network.config.NetworkConfig;
 import core.network.messages.s2c.EntitySpawnEvent;
+import core.utils.CursorUtil;
 import core.utils.Tuple;
 import core.utils.components.draw.DrawComponentFactory;
 import core.utils.components.path.SimpleIPath;
@@ -57,6 +58,7 @@ public final class LastHourClient {
         () -> {
           registerEntitySpawnHandler();
           Game.add(new Debugger());
+          Game.stage().ifPresent(CursorUtil::initListener);
           System.out.println("DevClient started");
         });
 

@@ -389,8 +389,7 @@ public class BrowserTab extends ComputerTab {
     table.add(downloadInfo).center().padBottom(20).row();
 
     TextButton downloadButton =
-        Scene2dElementFactory.createButton(
-            Lore.AccessCodeDownloadFileName, "clean-blue-outline", 18);
+        Scene2dElementFactory.createButton("Open PDF", "clean-blue-outline", 18);
     downloadButton.padLeft(downloadButton.getPadLeft() + 10);
     downloadButton.padRight(downloadButton.getPadRight() + 10);
     downloadButton.addListener(
