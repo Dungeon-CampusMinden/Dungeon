@@ -62,7 +62,7 @@ public class Lore {
   public static final List<String> PostIntroDialogTexts =
       List.of(
           """
-        Your task is to reconstruct his final steps. Gain access to his laptop, investigate his communication, and uncover the clues he left behind.
+        Your task is to reconstruct his final steps. Gain access to his PC, investigate his communication, and uncover the clues he left behind.
 
         But be careful: not every piece of information can be trusted. Among helpful messages, there may be deliberate manipulation attempts.
 
@@ -127,43 +127,43 @@ public class Lore {
   /** List of URLs mentioned in the emails, which may or may not be trustworthy. */
   public static final List<String> EmailCodeUrls =
       List.of(
-          "https://secugate-support.com/sg4/recovery-sequence",
+          "https://support.secugate.com/sg4/recovery-sequence",
           "http://secure-sg4-reset-now.com/verify",
           "http://quick-unlock-sg4.net/code",
-          "https://sg4-analysis-tool.co/extract");
+          "https://support.seecugate.com/extract");
 
   /** List of emails, each with a sender, sender email, subject, content and list of attachments. */
   public static final List<EmailsTab.Email> EmailList =
       List.of(
           new EmailsTab.Email(
               "Andreas Keller",
-              "andreas.keller@secugate-systems.com",
+              "andreas.keller@secugate.com",
               "Re: SG-4 Access Code - Controlled Reconstruction",
-              "Dear Dr. Mertens,\\pRegarding your inquiry about the SG-4 access system, I may be able to assist. The SG-4 model includes a recoverable access interface. I have prepared a test environment through which the code can be reconstructed in a controlled simulation.\\pPlease first access the following page:\\p\\ahttps://secugate-support.com/sg4/recovery-sequence;"
+              "Dear Dr. Mertens,\\pRegarding your inquiry about the SG-4 access system, I may be able to assist. The SG-4 model includes a recoverable access interface. I have prepared a test environment through which the code can be reconstructed in a controlled simulation.\\pPlease first access the following page:\\p\\aSecuGate Support - Access Recovery;"
                   + EmailCodeUrls.get(0)
-                  + "\\pThere you will find four binary blocks that must be translated into ASCII digits. Use the resulting number as the password for:\\p\\ahttps://secugate-support.com/sg4/access;"
-                  + RealAccessUrl
                   + "\\pThere you will receive the final access code.\\pKind regards,\nAndreas Keller\nTechnical Support\nSecuGate Systems",
               List.of()),
           new EmailsTab.Email(
               "SecuGate Support",
               "support@secugate-reset247.com",
               "URGENT! Your Access Has Been Disabled",
-              "Your SG-4 system has been temporarily locked for security reasons.\\pTo avoid permanent deactivation, immediate action is required.\\p\\ahttp://secure-sg4-reset-now.com/verify;"
-                  + EmailCodeUrls.get(1),
+              "Your SG-4 system has been temporarily locked for security reasons.\\pTo avoid permanent deactivation, immediate action is required.\\p\\aSecuGate Access Recovery Portal;"
+                  + EmailCodeUrls.get(1) + "\\pFollow the instructions on the portal to restore access.\\pThis is an automated message, please do not reply.",
               List.of()),
           new EmailsTab.Email(
               "Marc",
               "marc.unlockhelp@gmail.com",
               "About your door issue",
-              "Hey Elias,\\pThe SG-4 thing is easy. Just check this out:\\p\\ahttp://quick-unlock-sg4.net/code;"
-                  + EmailCodeUrls.get(2),
+              "Hey Elias,\\pThe SG-4 thing is easy. Just check this out:\\p\\aSG-4 Diagnostic Access Tool;"
+                  + EmailCodeUrls.get(2) + "\\pKind regards,\nMarc\nFreelance IT Specialist",
               List.of()),
           new EmailsTab.Email(
-              "SG4 System Service",
-              "system.service@sg4-security.co",
+              "SG4 Recovery System",
+              "system@secugate.com",
               "Automatic Code Extraction - SG-4",
-              "\\ahttps://sg4-analysis-tool.co/extract;" + EmailCodeUrls.get(3),
+              "Dear Dr. Mertens,\\pFollowing your inquiry regarding the SG-4 access control system, an automated extraction routine can be used to recover the stored access parameters.\\p"
+                  + "Please initiate the diagnostic process through the following interface:\\p\\aSG-4 Diagnostic Interface;"
+                  + EmailCodeUrls.get(3),
               List.of()));
 
   /** List of ASCII codes used for the security code pages in the browser recovery portal. */
@@ -179,9 +179,9 @@ public class Lore {
   /** Mapping from virus type name to the code required to neutralize it in the virus tab. */
   public static final Map<String, String> VirusTypeToCode =
       Map.of(
-          "Trojan", "ESCAPE",
-          "Ransomware", "ESCAPE",
-          "Adware", "ESCAPE");
+          "Trojan", "verify before trust",
+          "Ransomware", "backup your data",
+          "Adware", "read before click");
 
   /** File name of the access code document downloaded from the recovery portal. */
   public static final String AccessCodeDownloadFileName = "unlock_code.pdf";
