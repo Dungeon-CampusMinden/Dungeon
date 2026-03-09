@@ -1,6 +1,6 @@
 ext {
     // -- PLUGINS
-    spotlessVersion = '8.2.1'
+    spotlessVersion = '8.3.0'
     protobufGradlePluginVersion = '0.9.6'
 
     // -- DEPENDENCIES
