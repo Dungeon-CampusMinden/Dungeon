@@ -1,6 +1,7 @@
 package dgir.vm.api;
 
 import dgir.core.ir.Value;
+import dgir.core.ir.ValueOperand;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -162,14 +163,48 @@ public class Stack {
    *
    * @param value the value to look up.
    * @return the bound object.
-   * @throws IllegalStateException if {@code value} is not currently bound.
    */
-  public @NotNull Object get(@NotNull Value value) {
+  public @NotNull Object getOrThrow(@NotNull Value value) {
     Object result = values.get(value);
     if (result == null) {
       throw new IllegalStateException("Value " + value + " is not defined in the current scope.");
     }
     return result;
+  }
+
+  /**
+   * Returns the runtime object bound to the value referenced by {@code operand}.
+   *
+   * @param operand the operand to look up.
+   * @return the bound object.
+   */
+  public @NotNull Object getOrThrow(@NotNull ValueOperand operand) {
+    return getOrThrow(operand.getValueOrThrow());
+  }
+
+  /**
+   * Returns the runtime object bound to {@code value} as an instance of {@code clazz}.
+   *
+   * @param value the value to look up.
+   * @param clazz the expected runtime type of the bound object.
+   * @return the bound object cast to {@code clazz}.
+   * @param <T> the expected type.
+   */
+  public @NotNull <T> T getAsOrThrow(@NotNull Value value, @NotNull Class<T> clazz) {
+    return clazz.cast(getOrThrow(value));
+  }
+
+  /**
+   * Returns the runtime object bound to the value referenced by {@code operand} as an instance of
+   * {@code clazz}.
+   *
+   * @param operand the operand to look up; must reference a value.
+   * @param clazz the expected runtime type of the bound object.
+   * @return the bound object cast to {@code clazz}.
+   * @param <T> the expected type.
+   */
+  public @NotNull <T> T getAsOrThrow(@NotNull ValueOperand operand, @NotNull Class<T> clazz) {
+    return clazz.cast(getOrThrow(operand));
   }
 
   // =========================================================================

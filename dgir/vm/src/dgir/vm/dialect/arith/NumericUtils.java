@@ -22,7 +22,7 @@ final class NumericUtils {
    * @throws IllegalStateException if the value is not numeric
    */
   static @NotNull Number getNumber(@NotNull State state, @NotNull Value value) {
-    Object obj = state.getValue(value);
+    Object obj = state.getValueOrThrow(value);
     if (!(obj instanceof Number number)) {
       throw new IllegalStateException("Operand value must be numeric: " + obj);
     }

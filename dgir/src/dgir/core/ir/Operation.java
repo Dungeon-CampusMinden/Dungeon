@@ -295,6 +295,19 @@ public final class Operation implements Serializable {
   }
 
   /**
+   * Returns the operand at the given index, throwing if out of range.
+   *
+   * @param index zero-based operand index.
+   * @return the operand, never {@code null}.
+   * @throws NoSuchElementException if the index is out of range.
+   */
+  @Contract(pure = true)
+  public @NotNull ValueOperand getOperandOrThrow(int index) {
+    if (index >= operands.size()) throw new NoSuchElementException("No operand at index " + index);
+    return operands.get(index);
+  }
+
+  /**
    * Returns the value referenced by the operand at the given index, if present.
    *
    * @param i zero-based operand index.
@@ -305,9 +318,37 @@ public final class Operation implements Serializable {
     return getOperand(i).flatMap(ValueOperand::getValue);
   }
 
+  /**
+   * Returns the value referenced by the operand at the given index, throwing if absent.
+   *
+   * @param i zero-based operand index.
+   * @return the referenced {@link Value}, never {@code null}.
+   * @throws NoSuchElementException if the index is out of range or the operand is unset.
+   */
+  @Contract(pure = true)
+  public @NotNull Value getOperandValueOrThrow(int i) {
+    if (i >= operands.size()) throw new NoSuchElementException("No operand at index " + i);
+    return operands
+        .get(i)
+        .getValue()
+        .orElseThrow(() -> new NoSuchElementException("Operand " + i + " has no value"));
+  }
+
   @Contract(pure = true)
   public @NotNull Optional<Type> getOperandType(int i) {
     return getOperandValue(i).map(Value::getType);
+  }
+
+  /**
+   * Returns the type of the value referenced by the operand at the given index, throwing if absent.
+   *
+   * @param i zero-based operand index.
+   * @return the {@link Type}, never {@code null}.
+   * @throws NoSuchElementException if the index is out of range or the operand is unset.
+   */
+  @Contract(pure = true)
+  public @NotNull Type getOperandTypeOrThrow(int i) {
+    return getOperandValueOrThrow(i).getType();
   }
 
   /**
@@ -345,6 +386,18 @@ public final class Operation implements Serializable {
   }
 
   /**
+   * Returns the {@link OperationResult} for this operation, throwing if this is a void operation.
+   *
+   * @return the result wrapper, never {@code null}.
+   * @throws NoSuchElementException if this operation has no output.
+   */
+  @Contract(pure = true)
+  public @NotNull OperationResult getOutputOrThrow() {
+    if (output == null) throw new NoSuchElementException("Operation has no output: " + this);
+    return output;
+  }
+
+  /**
    * Returns the output {@link Value} produced by this operation, if any.
    *
    * @return the output value, or empty for void operations.
@@ -353,6 +406,19 @@ public final class Operation implements Serializable {
   public @NotNull Optional<Value> getOutputValue() {
     if (output == null) return Optional.empty();
     return getOutput().map(OperationResult::getValue);
+  }
+
+  /**
+   * Returns the output {@link Value} produced by this operation, throwing if this is a void
+   * operation.
+   *
+   * @return the output value, never {@code null}.
+   * @throws NoSuchElementException if this operation has no output.
+   */
+  @Contract(pure = true)
+  public @NotNull Value getOutputValueOrThrow() {
+    if (output == null) throw new NoSuchElementException("Operation has no output: " + this);
+    return output.getValue();
   }
 
   /**
@@ -420,6 +486,26 @@ public final class Operation implements Serializable {
   }
 
   /**
+   * Returns the attribute for the given name cast to {@code clazz}, throwing if absent, unset, or
+   * the wrong type.
+   *
+   * @param name the attribute name.
+   * @param clazz the expected attribute class.
+   * @param <T> the attribute type.
+   * @return the typed attribute, never {@code null}.
+   * @throws NoSuchElementException if the attribute is absent, unset, or the wrong type.
+   */
+  @Contract(pure = true)
+  public <T extends Attribute> @NotNull T getAttributeAsOrThrow(
+      @NotNull String name, @NotNull Class<T> clazz) {
+    var attribute = getAttributeMap().get(name);
+    if (attribute == null)
+      throw new NoSuchElementException(
+          "Attribute '" + name + "' of type " + clazz.getSimpleName() + " not found on: " + this);
+    return clazz.cast(attribute.getAttribute());
+  }
+
+  /**
    * Set the value of an existing named attribute.
    *
    * @param name the attribute name; the attribute must already exist in the map.
@@ -459,6 +545,20 @@ public final class Operation implements Serializable {
   }
 
   /**
+   * Returns the region at the given index, throwing if out of range.
+   *
+   * @param index zero-based region index.
+   * @return the region, never {@code null}.
+   * @throws NoSuchElementException if the index is out of range.
+   */
+  @Contract(pure = true)
+  public @NotNull Region getRegionOrThrow(int index) {
+    if (index >= regions.size())
+      throw new NoSuchElementException("No region at index " + index + " on: " + this);
+    return regions.get(index);
+  }
+
+  /**
    * Returns the first region attached to this operation, if any.
    *
    * @return the first region, or empty if this operation has no regions.
@@ -466,6 +566,18 @@ public final class Operation implements Serializable {
   @Contract(pure = true)
   public @NotNull Optional<Region> getFirstRegion() {
     return regions.isEmpty() ? Optional.empty() : Optional.of(regions.getFirst());
+  }
+
+  /**
+   * Returns the first region attached to this operation, throwing if none exists.
+   *
+   * @return the first region, never {@code null}.
+   * @throws NoSuchElementException if this operation has no regions.
+   */
+  @Contract(pure = true)
+  public @NotNull Region getFirstRegionOrThrow() {
+    if (regions.isEmpty()) throw new NoSuchElementException("Operation has no regions: " + this);
+    return regions.getFirst();
   }
 
   // =========================================================================
@@ -483,6 +595,18 @@ public final class Operation implements Serializable {
   }
 
   /**
+   * Returns the block that contains this operation, throwing if unplaced.
+   *
+   * @return the parent block, never {@code null}.
+   * @throws NoSuchElementException if this operation has no parent block.
+   */
+  @Contract(pure = true)
+  public @NotNull Block getParentOrThrow() {
+    if (parent == null) throw new NoSuchElementException("Operation has no parent block: " + this);
+    return parent;
+  }
+
+  /**
    * Returns the region that contains the parent block of this operation, if any.
    *
    * @return the parent region, or empty if not available.
@@ -493,6 +617,20 @@ public final class Operation implements Serializable {
   }
 
   /**
+   * Returns the region that contains the parent block of this operation, throwing if absent.
+   *
+   * @return the parent region, never {@code null}.
+   * @throws NoSuchElementException if not available.
+   */
+  @Contract(pure = true)
+  public @NotNull Region getParentRegionOrThrow() {
+    return getParentOrThrow()
+        .getParent()
+        .orElseThrow(
+            () -> new NoSuchElementException("Parent block has no parent region: " + this));
+  }
+
+  /**
    * Returns the operation that owns the parent region of this operation, if any.
    *
    * @return the parent operation, or empty if this operation is at the top of the tree.
@@ -500,6 +638,20 @@ public final class Operation implements Serializable {
   @Contract(pure = true)
   public @NotNull Optional<Operation> getParentOperation() {
     return getParentRegion().flatMap(Region::getParent);
+  }
+
+  /**
+   * Returns the operation that owns the parent region of this operation, throwing if absent.
+   *
+   * @return the parent operation, never {@code null}.
+   * @throws NoSuchElementException if this operation is at the top of the tree.
+   */
+  @Contract(pure = true)
+  public @NotNull Operation getParentOperationOrThrow() {
+    return getParentRegionOrThrow()
+        .getParent()
+        .orElseThrow(
+            () -> new NoSuchElementException("Parent region has no parent operation: " + this));
   }
 
   /**
@@ -562,6 +714,18 @@ public final class Operation implements Serializable {
               if (index == -1 || index == block.getOperationsRaw().size() - 1) return null;
               return block.getOperationsRaw().get(index + 1);
             });
+  }
+
+  /**
+   * Get the next operation in the same block as this operation, throwing if there is none.
+   *
+   * @return The next operation, never {@code null}.
+   * @throws NoSuchElementException if this is the last operation in its block or has no parent.
+   */
+  @Contract(pure = true)
+  public @NotNull Operation getNextOrThrow() {
+    return getNext()
+        .orElseThrow(() -> new NoSuchElementException("No next operation for: " + this));
   }
 
   @Contract(pure = true)

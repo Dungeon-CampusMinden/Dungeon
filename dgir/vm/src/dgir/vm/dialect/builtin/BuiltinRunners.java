@@ -15,7 +15,7 @@ public sealed interface BuiltinRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      state.setValueForOutput(op, state.getValue(op.getOperand(0).orElseThrow()));
+      state.setValueForOutput(op, state.getValueOrThrow(op.getOperandOrThrow(0)));
       return Action.Next();
     }
   }

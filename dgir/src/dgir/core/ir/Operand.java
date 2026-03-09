@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -80,6 +81,11 @@ public abstract class Operand<
     return Optional.ofNullable(value);
   }
 
+  @Contract(pure = true)
+  public @NotNull ValueT getValueOrThrow() {
+    return Objects.requireNonNull(value);
+  }
+
   /**
    * Get the use-list object for the value currently referenced by this operand.
    *
@@ -108,7 +114,6 @@ public abstract class Operand<
   /** Insert this operand into the use-list of the currently referenced value. */
   private void insertIntoCurrentUseList() {
     if (value != null) {
-      //noinspection unchecked
       value.getUses().add((DerivedT) this);
     }
   }
@@ -116,7 +121,6 @@ public abstract class Operand<
   /** Remove this operand from the use-list of the currently referenced value. */
   private void removeFromCurrentUseList() {
     if (value != null)
-      //noinspection unchecked
       value.getUses().remove((DerivedT) this);
   }
 

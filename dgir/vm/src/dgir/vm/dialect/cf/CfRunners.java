@@ -17,11 +17,11 @@ public sealed interface CfRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      byte condition = state.getValue(op.getOperand(0).orElseThrow(), Byte.class).orElseThrow();
+      byte condition = state.getValueAsOrThrow(op.getOperandOrThrow(0), Byte.class);
       if (condition != 0) {
-        return Action.JumpToBlock(op.getBlockOperands().getFirst().getValue().orElseThrow());
+        return Action.JumpToBlock(op.getBlockOperands().getFirst().getValueOrThrow());
       } else {
-        return Action.JumpToBlock(op.getBlockOperands().get(1).getValue().orElseThrow());
+        return Action.JumpToBlock(op.getBlockOperands().get(1).getValueOrThrow());
       }
     }
   }
@@ -44,10 +44,10 @@ public sealed interface CfRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      byte condition = state.getValue(op.getOperand(0).orElseThrow(), Byte.class).orElseThrow();
+      byte condition = state.getValueAsOrThrow(op.getOperandOrThrow(0), Byte.class);
       if (condition == 0) {
         if (op.getOperand(1).isPresent()) {
-          String message = state.getValue(op.getOperand(1).get(), String.class).orElseThrow();
+          String message = state.getValueAsOrThrow(op.getOperand(1).get(), String.class);
           return Action.Abort(Optional.empty(), op.getLocation() + " -> " + message);
         } else {
           return Action.Abort(Optional.empty(), op.getLocation() + " -> " + "Assertion failed.");

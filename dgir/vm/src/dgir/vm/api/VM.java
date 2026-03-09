@@ -324,6 +324,8 @@ public class VM {
       return false;
     }
 
+    System.out.println(
+        "Program completed successfully. Total instructions executed: " + state.instructionCount);
     return true;
   }
 
@@ -582,10 +584,10 @@ public class VM {
     Operation funcOp = call.funcOp();
     // Set the values of the function's arguments in the new stack frame.
     // These values are stored as body values in the function's region.'
-    List<Value> bodyValues = funcOp.getFirstRegion().orElseThrow().getBodyValues();
+    List<Value> bodyValues = funcOp.getFirstRegionOrThrow().getBodyValues();
     setupRegion(state, bodyValues, call.args());
     state.pushCallStack(funcOp);
-    opStack.push(funcOp.getFirstRegion().get().getEntryOperation());
+    opStack.push(funcOp.getFirstRegionOrThrow().getEntryOperation());
   }
 
   /**

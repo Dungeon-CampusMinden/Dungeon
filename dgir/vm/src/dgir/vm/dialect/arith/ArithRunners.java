@@ -19,16 +19,14 @@ public sealed interface ArithRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      var operand = op.getOperandValue(0).orElseThrow();
+      var operand = op.getOperandValueOrThrow(0);
       var operandValue = NumericUtils.getNumber(state, operand);
 
       state.setValueForOutput(
           op,
           unaryOperation(
               operandValue,
-              op.getAttributeAs("unaryMode", ArithAttrs.UnaryModeAttr.class)
-                  .orElseThrow()
-                  .getMode(),
+              op.getAttributeAsOrThrow("unaryMode", ArithAttrs.UnaryModeAttr.class).getMode(),
               operand.getType()));
       return Action.Next();
     }
@@ -93,8 +91,8 @@ public sealed interface ArithRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation binOp, @NotNull State state) {
-      var lhsValue = binOp.getOperandValue(0).orElseThrow();
-      var rhsValue = binOp.getOperandValue(1).orElseThrow();
+      var lhsValue = binOp.getOperandValueOrThrow(0);
+      var rhsValue = binOp.getOperandValueOrThrow(1);
 
       var result =
           binaryOperation(
@@ -102,11 +100,8 @@ public sealed interface ArithRunners {
               NumericUtils.getNumber(state, rhsValue),
               lhsValue.getType(),
               rhsValue.getType(),
-              binOp.getOutputValue().orElseThrow().getType(),
-              binOp
-                  .getAttributeAs("binMode", ArithAttrs.BinModeAttr.class)
-                  .orElseThrow()
-                  .getMode());
+              binOp.getOutputValueOrThrow().getType(),
+              binOp.getAttributeAsOrThrow("binMode", ArithAttrs.BinModeAttr.class).getMode());
       state.setValueForOutput(binOp, result);
       return Action.Next();
     }
@@ -321,8 +316,8 @@ public sealed interface ArithRunners {
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
       state.setValue(
-          op.getOutputValue().orElseThrow(),
-          op.getAttributeAs("value", TypedAttribute.class).orElseThrow().getStorage());
+          op.getOutputValueOrThrow(),
+          op.getAttributeAsOrThrow("value", TypedAttribute.class).getStorage());
       return Action.Next();
     }
   }

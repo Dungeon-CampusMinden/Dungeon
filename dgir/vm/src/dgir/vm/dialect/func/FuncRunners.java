@@ -2,7 +2,6 @@ package dgir.vm.dialect.func;
 
 import dgir.core.SymbolTable;
 import dgir.core.ir.Operation;
-import dgir.core.ir.Value;
 import dgir.dialect.builtin.BuiltinAttrs;
 import dgir.dialect.func.FuncOps;
 import dgir.vm.api.Action;
@@ -12,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public sealed interface FuncRunners {
   final class FuncRunner extends OpRunner implements FuncRunners {
@@ -40,13 +38,14 @@ public sealed interface FuncRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      Object[] args = op.getOperands().stream().map(state::getValue).toArray();
+      Object[] args = new Object[op.getOperands().size()];
+      for (int i = 0; i < op.getOperands().size(); i++) {
+        args[i] = state.getValueOrThrow(op.getOperandOrThrow(i));
+      }
 
       Operation calleeOp =
           calleeCache.computeIfAbsent(
-              op.getAttributeAs("callee", BuiltinAttrs.SymbolRefAttribute.class)
-                  .orElseThrow()
-                  .getValue(),
+              op.getAttributeAsOrThrow("callee", BuiltinAttrs.SymbolRefAttribute.class).getValue(),
               calleeName ->
                   SymbolTable.lookupSymbolInNearestTable(op, calleeName)
                       .orElseThrow(
@@ -63,9 +62,9 @@ public sealed interface FuncRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      Optional<Value> returnValue = op.getOperandValue(0);
+      var returnValue = op.getOperandValue(0);
       return returnValue
-          .map(value -> Action.Terminate(state.getValue(value), true))
+          .map(value -> Action.Terminate(state.getValueOrThrow(value), true))
           .orElseGet(() -> Action.Terminate(null, true));
     }
   }

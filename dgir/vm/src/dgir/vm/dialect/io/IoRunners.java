@@ -103,7 +103,7 @@ public sealed interface IoRunners {
         assert formatString instanceof String : "Format string must be a string";
         Object[] args =
             printOp.getOperands().subList(1, printOp.getOperands().size()).stream()
-                .map(state::getValue)
+                .map(state::getValueOrThrow)
                 .toArray();
         out.printf(formatString.toString(), args);
         if (parallelSystemOut && out != System.out) {
@@ -116,9 +116,9 @@ public sealed interface IoRunners {
 
     private @NotNull Object normalizeOperand(@NotNull Value operandValue, @NotNull State state) {
       if (operandValue.getType().equals(BuiltinTypes.IntegerT.BOOL)) {
-        return ((byte) state.getValue(operandValue)) != 0;
+        return ((byte) state.getValueOrThrow(operandValue)) != 0;
       }
-      return state.getValue(operandValue);
+      return state.getValueOrThrow(operandValue);
     }
   }
 }

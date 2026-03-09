@@ -29,7 +29,7 @@ public sealed interface ScfRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      Operation parentOp = op.getParentOperation().orElseThrow();
+      Operation parentOp = op.getParentOperationOrThrow();
       // If we have a for op we need to handle it properly by incrementing the induction variable
       // and
       // checking if we should continue the loop or not.
@@ -52,37 +52,24 @@ public sealed interface ScfRunners {
       long upperBoundNum = bounds.value2();
       long stepNum = bounds.value3();
 
-      Value induction =
-          forOp.getRegion(0).map(region -> region.getBodyValue(0).orElseThrow()).orElseThrow();
-      // Increment the body value (induction variable) by the step and check if we should continue
-      // the
-      // loop.
-      long inductionValue = state.getValue(induction, Long.class).orElseThrow();
+      Value induction = forOp.getRegionOrThrow(0).getBodyValue(0).orElseThrow();
+      long inductionValue = state.getValueAsOrThrow(induction, Long.class);
 
-      // Increment the induction value by the step.
       inductionValue += stepNum;
       state.setValue(induction, inductionValue);
 
-      // Check if we reached the end of the loop.
       if (inductionValue < upperBoundNum && inductionValue >= lowerBoundNum) {
-        // Continue the loop by jumping to the beginning of the loop body region with the updated
-        // induction variable.
-        return Action.JumpToRegion(forOp.getRegion(0).orElseThrow(), inductionValue);
+        return Action.JumpToRegion(forOp.getRegionOrThrow(0), inductionValue);
       }
 
-      // Terminate the loop.
       return Action.Terminate(null, false);
     }
 
     public Action handleWhileOp(Operation continueOp, Operation whileOp, State state) {
-      // Check if we are in the condition region
-      if (whileOp.getRegion(0).orElseThrow().equals(continueOp.getParentRegion().orElseThrow())) {
-        // If we are we need to jump to the body region to execute another iteration of the loop.
-        return Action.JumpToRegion(whileOp.getRegion(1).orElseThrow());
+      if (whileOp.getRegionOrThrow(0).equals(continueOp.getParentRegionOrThrow())) {
+        return Action.JumpToRegion(whileOp.getRegionOrThrow(1));
       } else {
-        // If we are not in the condition region we need to jump to the condition region to check if
-        // we should continue the loop.
-        return Action.JumpToRegion(whileOp.getRegion(0).orElseThrow());
+        return Action.JumpToRegion(whileOp.getRegionOrThrow(0));
       }
     }
   }
@@ -100,27 +87,23 @@ public sealed interface ScfRunners {
       long lowerBoundNum = bounds.value1();
       long upperBoundNum = bounds.value2();
 
-      // Step into the loop body if the initial value is less than the upper bound and greater than
-      // or equal to the lower
-      // bound, otherwise skip the loop.
       if (initialValueNum < upperBoundNum && initialValueNum >= lowerBoundNum) {
-        // Set the body value (induction variable) to the initial value.
-        return Action.StepIntoRegion(forOp.getRegion(0).orElseThrow(), false, initialValueNum);
+        return Action.StepIntoRegion(forOp.getRegionOrThrow(0), false, initialValueNum);
       } else {
         return Action.Next();
       }
     }
 
     public static Quartet<Long, Long, Long, Long> getBounds(Operation forOp, State state) {
-      Value initialValue = forOp.getOperandValue(0).orElseThrow();
-      Value lowerBound = forOp.getOperandValue(1).orElseThrow();
-      Value upperBound = forOp.getOperandValue(2).orElseThrow();
-      Value step = forOp.getOperandValue(3).orElseThrow();
+      Value initialValue = forOp.getOperandValueOrThrow(0);
+      Value lowerBound = forOp.getOperandValueOrThrow(1);
+      Value upperBound = forOp.getOperandValueOrThrow(2);
+      Value step = forOp.getOperandValueOrThrow(3);
 
-      long initialValueNum = state.getValue(initialValue, Number.class).orElseThrow().longValue();
-      long lowerBoundNum = state.getValue(lowerBound, Number.class).orElseThrow().longValue();
-      long upperBoundNum = state.getValue(upperBound, Number.class).orElseThrow().longValue();
-      long stepNum = state.getValue(step, Number.class).orElseThrow().longValue();
+      long initialValueNum = state.getValueAsOrThrow(initialValue, Number.class).longValue();
+      long lowerBoundNum = state.getValueAsOrThrow(lowerBound, Number.class).longValue();
+      long upperBoundNum = state.getValueAsOrThrow(upperBound, Number.class).longValue();
+      long stepNum = state.getValueAsOrThrow(step, Number.class).longValue();
 
       return new Quartet<>(initialValueNum, lowerBoundNum, upperBoundNum, stepNum);
     }
@@ -133,15 +116,11 @@ public sealed interface ScfRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      ScfOps.IfOp ifOp = op.as(ScfOps.IfOp.class).orElseThrow();
-      byte condition = state.getValue(ifOp.getOperand(0).orElseThrow(), Byte.class).orElseThrow();
-      // Step into the then region if the condition is true, otherwise step into the else region if
-      // it exists, or just
-      // continue to the next operation.
+      byte condition = state.getValueAsOrThrow(op.getOperandOrThrow(0), Byte.class);
       if (condition != 0) {
-        return Action.StepIntoRegion(ifOp.getThenRegion(), false);
-      } else if (ifOp.getElseRegion().isPresent()) {
-        return Action.StepIntoRegion(ifOp.getElseRegion().get(), false);
+        return Action.StepIntoRegion(op.getRegionOrThrow(0), false);
+      } else if (op.getRegions().size() > 1) {
+        return Action.StepIntoRegion(op.getRegionOrThrow(1), false);
       }
       return Action.Next();
     }
@@ -154,8 +133,7 @@ public sealed interface ScfRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      // Just step into the scope region.
-      return Action.StepIntoRegion(op.getRegion(0).orElseThrow(), false);
+      return Action.StepIntoRegion(op.getRegionOrThrow(0), false);
     }
   }
 

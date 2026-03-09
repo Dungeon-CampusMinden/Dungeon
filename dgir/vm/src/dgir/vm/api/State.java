@@ -70,31 +70,8 @@ public class State {
   }
 
   // =========================================================================
-  // Value access
+  // Value access — Optional variants (for nullable / conditional use)
   // =========================================================================
-
-  /**
-   * Gets the object associated with the given value.
-   *
-   * @param value The value to get the object for.
-   * @return The object associated with the given value.
-   * @throws IllegalStateException If the value is not defined in the current scope.
-   */
-  public @NotNull Object getValue(@NotNull Value value) {
-    return stack.get(value);
-  }
-
-  /**
-   * Gets the object associated with the given operand.
-   *
-   * @param operand The operand to get the object for.
-   * @return The object associated with the operand.
-   * @throws AssertionError If the operand does not reference a value.
-   */
-  public @NotNull Object getValue(@NotNull ValueOperand operand) {
-    return stack.get(
-        operand.getValue().orElseThrow(() -> new AssertionError("Operand value must be present")));
-  }
 
   /**
    * Gets the object associated with the given value and casts it to the given class. Returns an
@@ -102,37 +79,95 @@ public class State {
    *
    * @param value The value to get the object for.
    * @param clazz The class to cast the object to.
-   * @param <T> The type of the class to cast the object to.
-   * @return The object associated with the given value cast to the given class, or an empty
-   *     optional if the object is not an instance of the given class.
+   * @param <T> The type to cast to.
+   * @return The typed value, or empty if the wrong type.
    * @throws IllegalStateException If the value is not defined in the current scope.
    */
   public <T> @NotNull Optional<T> getValue(@NotNull Value value, @NotNull Class<T> clazz) {
-    var obj = stack.get(value);
+    var obj = stack.getOrThrow(value);
     if (clazz.isInstance(obj)) return Optional.of(clazz.cast(obj));
     return Optional.empty();
   }
 
   /**
-   * Gets the object associated with the given operand and casts it to the given class. Returns an
+   * Gets the object associated with the operand's value and casts it to the given class. Returns an
    * empty optional if the object is not an instance of the given class.
    *
    * @param operand The operand to get the object for.
    * @param clazz The class to cast the object to.
-   * @param <T> The type of the class to cast the object to.
-   * @return The object associated with the given value cast to the given class, or an empty
-   *     optional if the object is not an instance of the given class.
+   * @param <T> The type to cast to.
+   * @return The typed value, or empty if the wrong type.
    * @throws IllegalStateException If the value is not defined in the current scope.
    */
   public <T> @NotNull Optional<T> getValue(@NotNull ValueOperand operand, @NotNull Class<T> clazz) {
-    return getValue(operand.getValue().orElseThrow(), clazz);
+    return getValue(operand.getValueOrThrow(), clazz);
   }
+
+  // =========================================================================
+  // Value access — unchecked variants (no Optional allocation)
+  // =========================================================================
+
+  /**
+   * Gets the object associated with the given value.
+   *
+   * @param value The value to get the object for.
+   * @return The bound object, never {@code null}.
+   * @throws IllegalStateException If the value is not defined in the current scope.
+   */
+  public @NotNull Object getValueOrThrow(@NotNull Value value) {
+    return stack.getOrThrow(value);
+  }
+
+  /**
+   * Gets the object associated with the given operand's value.
+   *
+   * @param operand The operand to get the object for.
+   * @return The bound object, never {@code null}.
+   * @throws AssertionError If the operand does not reference a value.
+   * @throws IllegalStateException If the value is not defined in the current scope.
+   */
+  public @NotNull Object getValueOrThrow(@NotNull ValueOperand operand) {
+    return stack.getOrThrow(operand);
+  }
+
+  /**
+   * Gets the object associated with the given value, cast to {@code clazz}.
+   *
+   * @param value The value to get the object for.
+   * @param clazz The expected runtime type.
+   * @param <T> The expected type.
+   * @return The bound object cast to {@code T}, never {@code null}.
+   * @throws IllegalStateException If the value is not defined in the current scope.
+   * @throws ClassCastException If the bound object is not an instance of {@code clazz}.
+   */
+  public <T> @NotNull T getValueAsOrThrow(@NotNull Value value, @NotNull Class<T> clazz) {
+    return stack.getAsOrThrow(value, clazz);
+  }
+
+  /**
+   * Gets the object associated with the given operand's value, cast to {@code clazz}.
+   *
+   * @param operand The operand to get the object for.
+   * @param clazz The expected runtime type.
+   * @param <T> The expected type.
+   * @return The bound object cast to {@code T}, never {@code null}.
+   * @throws AssertionError If the operand does not reference a value.
+   * @throws IllegalStateException If the value is not defined in the current scope.
+   * @throws ClassCastException If the bound object is not an instance of {@code clazz}.
+   */
+  public <T> @NotNull T getValueAsOrThrow(@NotNull ValueOperand operand, @NotNull Class<T> clazz) {
+    return stack.getAsOrThrow(operand, clazz);
+  }
+
+  // =========================================================================
+  // Value mutation
+  // =========================================================================
 
   /**
    * Sets the object associated with the given value.
    *
-   * @param value The value to set the object for.
-   * @param object The object to associate with the given value.
+   * @param value The value to bind.
+   * @param object The runtime object to associate with the given value.
    */
   public void setValue(@NotNull Value value, @NotNull Object object) {
     stack.set(value, object);
@@ -143,9 +178,10 @@ public class State {
    *
    * @param operation The operation whose output value should be set.
    * @param object The object to associate with the output value.
+   * @throws NoSuchElementException If the operation has no output value.
    */
   public void setValueForOutput(@NotNull Operation operation, @NotNull Object object) {
-    stack.set(operation.getOutputValue().orElseThrow(), object);
+    stack.set(operation.getOutputValueOrThrow(), object);
   }
 
   // =========================================================================
