@@ -548,9 +548,9 @@ public class VM {
     assert currentOp.getParentOperation().equals(jumpToRegion.target().getParent())
         : "Jumping to other region only allowed in the same parent operation.";
     // Remove all the values currently held
-    var oldFrame = state.popStackFrame().orElseThrow();
+    boolean wasIsolated = state.popStackFrame().orElseThrow();
     currentHitBreakpoints.pop();
-    state.pushStackFrame(oldFrame.getRight());
+    state.pushStackFrame(wasIsolated);
     currentHitBreakpoints.push(Optional.empty());
     // Set the values of the region's arguments in the new stack frame. These values are
     // stored as body values in the region.
@@ -560,7 +560,7 @@ public class VM {
   }
 
   private void handleJumpToBlock(Action.JumpToBlock jumpToBlock) {
-    opStack.push(jumpToBlock.target().getOperations().getFirst());
+    opStack.push(jumpToBlock.target().getOperationsRaw().getFirst());
     // Reset the currently hit breakpoints since we are jumping to another block and might hit
     // the same breakpoint again.
     currentHitBreakpoints.pop();

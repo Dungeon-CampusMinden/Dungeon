@@ -1,17 +1,18 @@
 package dgir.core;
 
-import static dgir.dialect.builtin.BuiltinAttrs.StringAttribute;
-
 import dgir.core.ir.Op;
 import dgir.core.ir.Operation;
 import dgir.core.ir.Region;
 import dgir.core.traits.IOpTrait;
 import dgir.core.traits.ISymbol;
 import dgir.core.traits.ISymbolTable;
-import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+
+import static dgir.dialect.builtin.BuiltinAttrs.StringAttribute;
 
 /**
  * Static helpers for resolving named symbols within the IR.
@@ -49,7 +50,7 @@ public class SymbolTable {
                         "Operation does not have a region. Symbol tables must have at least one region."));
     if (region.getBlocks().isEmpty()) return null;
 
-    for (Operation op : region.getBlocks().getFirst().getOperations()) {
+    for (Operation op : region.getBlocks().getFirst().getOperationsRaw()) {
       Optional<String> name = getNameIfSymbol(op, getSymbolAttributeName());
       if (name.isPresent() && name.get().equals(symbolName)) {
         return op;

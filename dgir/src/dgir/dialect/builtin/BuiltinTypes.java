@@ -359,8 +359,6 @@ public sealed interface BuiltinTypes {
     /** The bit-width of this floating-point type (32 or 64). */
     private final int width;
 
-    private final @NotNull Function<@NotNull Number, @NotNull Number> conversionFunction;
-
     // =========================================================================
     // Constructors
     // =========================================================================
@@ -378,7 +376,6 @@ public sealed interface BuiltinTypes {
     private FloatT(int width) {
       assert width == 32 || width == 64 : "Invalid float width: " + width;
       this.width = width;
-      conversionFunction = pickCorrectConversion(width);
     }
 
     // =========================================================================
@@ -396,14 +393,9 @@ public sealed interface BuiltinTypes {
     }
 
     public Number convertToValidNumber(Number number) {
-      return conversionFunction.apply(number);
-    }
-
-    private static @NotNull Function<@NotNull Number, @NotNull Number> pickCorrectConversion(
-        int width) {
       return switch (width) {
-        case 32 -> Number::floatValue;
-        case 64 -> Number::doubleValue;
+        case 32 -> number.floatValue();
+        case 64 -> number.doubleValue();
         default -> throw new RuntimeException("Invalid float width: " + width);
       };
     }

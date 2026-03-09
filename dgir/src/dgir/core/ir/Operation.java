@@ -545,7 +545,7 @@ public final class Operation implements Serializable {
    */
   @Contract(pure = true)
   public int getIndex() {
-    return getParent().map(block -> block.getOperations().indexOf(this)).orElse(-1);
+    return getParent().map(block -> block.getOperationsRaw().indexOf(this)).orElse(-1);
   }
 
   /**
@@ -558,9 +558,9 @@ public final class Operation implements Serializable {
     return getParent()
         .map(
             block -> {
-              int index = block.getOperations().indexOf(this);
-              if (index == -1 || index == block.getOperations().size() - 1) return null;
-              return block.getOperations().get(index + 1);
+              int index = block.getOperationsRaw().indexOf(this);
+              if (index == -1 || index == block.getOperationsRaw().size() - 1) return null;
+              return block.getOperationsRaw().get(index + 1);
             });
   }
 

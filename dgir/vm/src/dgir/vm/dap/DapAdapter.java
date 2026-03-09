@@ -309,7 +309,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     // Recurse into nested regions → blocks → operations.
     for (Region region : op.getRegions()) {
       for (Block block : region.getBlocks()) {
-        for (Operation nested : block.getOperations()) {
+        for (Operation nested : block.getOperationsRaw()) {
           collectBreakpointLocations(nested, requestedPath, startLine, endLine, out);
         }
       }

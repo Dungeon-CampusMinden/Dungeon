@@ -73,6 +73,19 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
   /**
    * Returns the operations in this block in execution order.
    *
+   * <p>Modifying the returned list may cause undefined behavior. Use {@link #addOperation} and
+   * {@link #removeOperation} to modify the block's operations.
+   *
+   * @return the operations list.
+   */
+  @Contract(pure = true)
+  public @NotNull List<Operation> getOperationsRaw() {
+    return operations;
+  }
+
+  /**
+   * Returns the operations in this block in execution order.
+   *
    * @return an unmodifiable view of the operations list.
    */
   @Contract(pure = true)

@@ -3,42 +3,55 @@ package dgir.vm.api;
 import dgir.core.ir.Operation;
 import dgir.core.ir.Value;
 import dgir.core.ir.ValueOperand;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
 
 public class State {
-  private final @NotNull Map<Value, Object> values = new HashMap<>();
+
+  // =========================================================================
+  // Value store
+  // =========================================================================
+
+  /** Scoped, allocation-efficient store for value bindings. See {@link Stack}. */
+  private final @NotNull Stack stack = new Stack();
+
   public long instructionCount = 0;
 
-  public final @NotNull Deque<Pair<Set<Value>, Boolean>> stackFrames = new ArrayDeque<>();
+  // =========================================================================
+  // Call stack
+  // =========================================================================
+
   public final @NotNull Deque<Operation> callStack = new ArrayDeque<>();
+
+  // =========================================================================
+  // Frame management
+  // =========================================================================
 
   /**
    * Opens a new stack frame.
    *
-   * @param isIsolatedFromAbove Whether this stack frame is isolated from the above stack frame. If
-   *     true, then values defined in the above stack frame are not accessible in this stack frame.
+   * @param isIsolatedFromAbove Whether this stack frame is isolated from the frame above. If {@code
+   *     true}, values in the enclosing frame are not accessible via {@link #getVisibleValues()}.
    */
   public void pushStackFrame(boolean isIsolatedFromAbove) {
-    stackFrames.push(Pair.of(new HashSet<>(), isIsolatedFromAbove));
+    stack.pushFrame(isIsolatedFromAbove);
   }
 
-  /** Closes the current stack frame and removes all values defined in it from the state. */
-  public Optional<Pair<Set<Value>, Boolean>> popStackFrame() {
-    // Remove all values defined in the current stack frame from the state if they are not defined
-    // in any other stack frame.
-    var frame = stackFrames.pop();
-    if (frame == null) return Optional.empty();
-    var definedValues = frame.getLeft();
-    // Remove all values only initially defined in the current stack frame.
-    for (Value value : definedValues) {
-      values.remove(value);
-    }
-    return Optional.of(frame);
+  /**
+   * Closes the current stack frame and removes all values defined in it from the store.
+   *
+   * @return the {@code isIsolatedFromAbove} flag of the popped frame, or {@link Optional#empty()}
+   *     if the frame stack was already empty.
+   */
+  public Optional<Boolean> popStackFrame() {
+    return stack.popFrame();
   }
+
+  // =========================================================================
+  // Call stack
+  // =========================================================================
 
   public void pushCallStack(Operation op) {
     callStack.push(op);
@@ -56,20 +69,19 @@ public class State {
     return Collections.unmodifiableSequencedCollection(callStack);
   }
 
+  // =========================================================================
+  // Value access
+  // =========================================================================
+
   /**
    * Gets the object associated with the given value.
    *
    * @param value The value to get the object for.
-   * @return The object associated with the given value or null.
-   * @throws IllegalStateException If the value is not defined in the current stack frame.
+   * @return The object associated with the given value.
+   * @throws IllegalStateException If the value is not defined in the current scope.
    */
   public @NotNull Object getValue(@NotNull Value value) {
-    var result = values.get(value);
-    if (result == null) {
-      throw new IllegalStateException(
-          "Value " + value + " is not defined in the current stack frame.");
-    }
-    return result;
+    return stack.get(value);
   }
 
   /**
@@ -77,10 +89,10 @@ public class State {
    *
    * @param operand The operand to get the object for.
    * @return The object associated with the operand.
-   * @throws IllegalStateException If the operand does not reference a value.
+   * @throws AssertionError If the operand does not reference a value.
    */
   public @NotNull Object getValue(@NotNull ValueOperand operand) {
-    return getValue(
+    return stack.get(
         operand.getValue().orElseThrow(() -> new AssertionError("Operand value must be present")));
   }
 
@@ -93,17 +105,16 @@ public class State {
    * @param <T> The type of the class to cast the object to.
    * @return The object associated with the given value cast to the given class, or an empty
    *     optional if the object is not an instance of the given class.
-   * @throws IllegalStateException If the value is not defined in the current stack frame.
+   * @throws IllegalStateException If the value is not defined in the current scope.
    */
   public <T> @NotNull Optional<T> getValue(@NotNull Value value, @NotNull Class<T> clazz) {
-    var obj = getValue(value);
+    var obj = stack.get(value);
     if (clazz.isInstance(obj)) return Optional.of(clazz.cast(obj));
-
     return Optional.empty();
   }
 
   /**
-   * Gets the object associated with the given value and casts it to the given class. Returns an
+   * Gets the object associated with the given operand and casts it to the given class. Returns an
    * empty optional if the object is not an instance of the given class.
    *
    * @param operand The operand to get the object for.
@@ -111,7 +122,7 @@ public class State {
    * @param <T> The type of the class to cast the object to.
    * @return The object associated with the given value cast to the given class, or an empty
    *     optional if the object is not an instance of the given class.
-   * @throws IllegalStateException If the value is not defined in the current stack frame.
+   * @throws IllegalStateException If the value is not defined in the current scope.
    */
   public <T> @NotNull Optional<T> getValue(@NotNull ValueOperand operand, @NotNull Class<T> clazz) {
     return getValue(operand.getValue().orElseThrow(), clazz);
@@ -124,14 +135,7 @@ public class State {
    * @param object The object to associate with the given value.
    */
   public void setValue(@NotNull Value value, @NotNull Object object) {
-    var previous = values.put(value, object);
-    // If the value was already defined before, do not add it to the current stack frame
-    if (previous == null) {
-      // Add the value to the set of defined values in the current stack frame.
-      var frame = stackFrames.peek();
-      assert frame != null : "Cannot set a value outside of a stack frame.";
-      frame.getLeft().add(value);
-    }
+    stack.set(value, object);
   }
 
   /**
@@ -141,16 +145,23 @@ public class State {
    * @param object The object to associate with the output value.
    */
   public void setValueForOutput(@NotNull Operation operation, @NotNull Object object) {
-    setValue(operation.getOutputValue().orElseThrow(), object);
+    stack.set(operation.getOutputValue().orElseThrow(), object);
   }
 
-  /** Resets execution state after an abort. */
+  // =========================================================================
+  // Reset
+  // =========================================================================
+
+  /** Resets execution state after an abort or before re-running a program. */
   public void reset() {
-    values.clear();
-    stackFrames.clear();
+    stack.reset();
     callStack.clear();
     instructionCount = 0;
   }
+
+  // =========================================================================
+  // Debug helpers
+  // =========================================================================
 
   /**
    * Returns all values that are visible in the current scope as an unmodifiable map from {@link
@@ -162,18 +173,6 @@ public class State {
    * @return a snapshot map of visible value bindings, innermost scope first.
    */
   public @NotNull Map<Value, Object> getVisibleValues() {
-    Map<Value, Object> result = new LinkedHashMap<>();
-    for (Pair<Set<Value>, Boolean> frame : stackFrames) {
-      Set<Value> defined = frame.getLeft();
-      boolean isolated = frame.getRight();
-      if (defined != null) {
-        for (Value v : defined) {
-          // Only add if not already shadowed by a deeper frame entry.
-          result.putIfAbsent(v, values.get(v));
-        }
-      }
-      if (isolated) break;
-    }
-    return Collections.unmodifiableMap(result);
+    return stack.getVisibleValues();
   }
 }
