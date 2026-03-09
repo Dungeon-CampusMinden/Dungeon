@@ -33,7 +33,6 @@ public final class EmitContext {
   public @Nullable BuiltinOps.ProgramOp program = null;
 
   private final ScopedSymbolTable<String, Value> symbolTable = ScopedSymbolTable.createRoot();
-  private final ScopedSymbolTable<Value, ResolvedType> typeTable = ScopedSymbolTable.createRoot();
 
   private @Nullable Block programBlock = null;
 
@@ -66,27 +65,20 @@ public final class EmitContext {
 
   public void pushSymbolScope(boolean isolatedFromAbove) {
     symbolTable.pushScope(isolatedFromAbove);
-    typeTable.pushScope(isolatedFromAbove);
   }
 
   @NotNull
   public Pair<@NotNull Boolean, @NotNull Map<@NotNull String, @NotNull Value>> popSymbolScope() {
-    typeTable.popScope();
     return symbolTable.popScope();
   }
 
   public void putSymbol(
       @NotNull String name, @NotNull Value value, @NotNull ResolvedType resolvedType) {
     symbolTable.insertScoped(name, value);
-    typeTable.insertScoped(value, resolvedType);
   }
 
   public @NotNull Optional<Value> lookupSymbol(@NotNull String qualifiedMangledName) {
     return symbolTable.lookupScoped(qualifiedMangledName);
-  }
-
-  public @NotNull Optional<ResolvedType> lookupType(@NotNull Value value) {
-    return typeTable.lookupScoped(value);
   }
 
   @Contract(pure = true)

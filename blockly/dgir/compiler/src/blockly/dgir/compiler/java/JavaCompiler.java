@@ -436,6 +436,18 @@ public class JavaCompiler {
         return;
       }
       Value targetValue = targetValueRes.get().get();
+      ResolvedType targetType;
+      switch (n.getTarget()) {
+        case NameExpr nameExpr -> {
+          var resolvedTarget = CompilerUtils.resolve(nameExpr, context);
+          if (resolvedTarget.isEmpty()) {
+            context.emitError(nameExpr, "Failed to resolve target of assignment: " + nameExpr);
+            return;
+          }
+          targetType = resolvedTarget.get().getType();
+        }
+        default -> targetType = n.getTarget().calculateResolvedType();
+      }
 
       EmitResult<Optional<Value>> rhs = emitExpression(n.getValue(), context);
       if (rhs.isFailure() || rhs.get().isEmpty()) {
@@ -450,7 +462,7 @@ public class JavaCompiler {
                 n.getValue(),
                 rhsValue,
                 n.getValue().calculateResolvedType(),
-                context.lookupType(targetValue).orElseThrow(),
+                targetType,
                 context,
                 n.getValue().isLiteralExpr());
         if (implicitCast.isFailure()) {
