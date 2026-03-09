@@ -4,6 +4,7 @@ import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.modules.interaction.InteractionComponent;
+import contrib.systems.AttributeBarSystem;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
@@ -57,8 +58,11 @@ public final class LastHourClient {
     Game.userOnSetup(
         () -> {
           registerEntitySpawnHandler();
-          Game.add(new Debugger());
+          if(TheLastHour.DEBUG_MODE) {
+            Game.add(new Debugger());
+          }
           Game.stage().ifPresent(CursorUtil::initListener);
+          Game.remove(AttributeBarSystem.class);
           System.out.println("DevClient started");
         });
 
