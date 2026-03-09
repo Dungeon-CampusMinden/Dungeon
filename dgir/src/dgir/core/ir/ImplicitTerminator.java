@@ -2,6 +2,8 @@ package dgir.core.ir;
 
 import dgir.core.debug.Location;
 import dgir.core.traits.ITerminator;
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.Constructor;
 
 /**
@@ -16,7 +18,8 @@ public interface ImplicitTerminator {
    *
    * @return the type of the implicit terminator.
    */
-  Constructor<? extends ITerminator> getImplicitTerminatorType() throws NoSuchMethodException;
+  @NotNull
+  Constructor<? extends ITerminator> getImplicitTerminatorType();
 
   default void addImplicitTerminators() {
     Op op = (Op) this;

@@ -45,8 +45,7 @@ public class VmConsoleTest extends VmTestBase {
     ProgramOp programOp = new ProgramOp(LOC);
 
     FuncOp stringOp =
-        programOp.addOperation(
-            new FuncOp(LOC, "string", new FuncType(List.of(), StringT.INSTANCE)));
+        programOp.addOperation(new FuncOp(LOC, "string", FuncType.of(List.of(), StringT.INSTANCE)));
     {
       var text = stringOp.addOperation(new ConstantOp(LOC, "Hello World!\n"), 0);
       stringOp.addOperation(new ReturnOp(LOC, text.getValue()), 0);
@@ -165,7 +164,7 @@ public class VmConsoleTest extends VmTestBase {
     // Helper function: returns true (int1)
     FuncOp condFunc =
         programOp.addOperation(
-            new FuncOp(LOC, "getCondition", new FuncType(List.of(), IntegerT.BOOL)));
+            new FuncOp(LOC, "getCondition", FuncType.of(List.of(), IntegerT.BOOL)));
     {
       var t = condFunc.addOperation(new ConstantOp(LOC, true), 0);
       condFunc.addOperation(new ReturnOp(LOC, t.getValue()), 0);
@@ -211,7 +210,7 @@ public class VmConsoleTest extends VmTestBase {
     // Helper function: takes an int1 parameter and prints "positive\n" or "non-positive\n"
     FuncOp printFunc =
         programOp.addOperation(
-            new FuncOp(LOC, "printBranch", new FuncType(List.of(IntegerT.BOOL), null)));
+            new FuncOp(LOC, "printBranch", FuncType.of(List.of(IntegerT.BOOL), null)));
     {
       Block funcEntry = printFunc.getEntryBlock();
       Block posBlock = printFunc.addBlock(new Block());

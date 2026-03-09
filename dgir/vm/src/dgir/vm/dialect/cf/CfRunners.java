@@ -17,13 +17,11 @@ public sealed interface CfRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      CfOps.BranchCondOp branchCondOp = op.as(CfOps.BranchCondOp.class).orElseThrow();
-      byte condition =
-          state.getValue(branchCondOp.getOperand(0).orElseThrow(), Byte.class).orElseThrow();
+      byte condition = state.getValue(op.getOperand(0).orElseThrow(), Byte.class).orElseThrow();
       if (condition != 0) {
-        return Action.JumpToBlock(op.getSuccessors().get(0));
+        return Action.JumpToBlock(op.getBlockOperands().getFirst().getValue().orElseThrow());
       } else {
-        return Action.JumpToBlock(op.getSuccessors().get(1));
+        return Action.JumpToBlock(op.getBlockOperands().get(1).getValue().orElseThrow());
       }
     }
   }
@@ -46,16 +44,13 @@ public sealed interface CfRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      CfOps.AssertOp assertOp = op.as(CfOps.AssertOp.class).orElseThrow();
-      byte condition =
-          state.getValue(assertOp.getOperand(0).orElseThrow(), Byte.class).orElseThrow();
+      byte condition = state.getValue(op.getOperand(0).orElseThrow(), Byte.class).orElseThrow();
       if (condition == 0) {
-        if (assertOp.getOperand(1).isPresent()) {
-          String message = state.getValue(assertOp.getOperand(1).get(), String.class).orElseThrow();
-          return Action.Abort(Optional.empty(), assertOp.getLocation() + " -> " + message);
+        if (op.getOperand(1).isPresent()) {
+          String message = state.getValue(op.getOperand(1).get(), String.class).orElseThrow();
+          return Action.Abort(Optional.empty(), op.getLocation() + " -> " + message);
         } else {
-          return Action.Abort(
-              Optional.empty(), assertOp.getLocation() + " -> " + "Assertion failed.");
+          return Action.Abort(Optional.empty(), op.getLocation() + " -> " + "Assertion failed.");
         }
       }
       return Action.Next();

@@ -7,7 +7,6 @@ import dgir.core.ir.Block;
 import dgir.core.ir.Op;
 import dgir.core.ir.Operation;
 import dgir.core.ir.Value;
-import dgir.core.traits.*;
 import dgir.core.traits.IControlFlow;
 import dgir.core.traits.INoResult;
 import dgir.core.traits.ITerminator;
@@ -15,7 +14,9 @@ import dgir.dialect.builtin.BuiltinTypes;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Constructor;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -87,8 +88,13 @@ public sealed interface CfOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return ignored -> true;
+    }
+
+    @Override
+    public @NotNull Optional<Constructor<? extends ITerminator>> getLocationConstructor() {
+      return Optional.empty();
     }
 
     // =========================================================================
@@ -143,8 +149,13 @@ public sealed interface CfOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return ignored -> true;
+    }
+
+    @Override
+    public @NotNull Optional<Constructor<? extends ITerminator>> getLocationConstructor() {
+      return Optional.empty();
     }
 
     // =========================================================================
@@ -193,7 +204,7 @@ public sealed interface CfOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return operation -> {
         AssertOp assertOp = operation.as(AssertOp.class).orElseThrow();
 

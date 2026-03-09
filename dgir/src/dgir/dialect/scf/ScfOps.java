@@ -92,7 +92,7 @@ public sealed interface ScfOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return ignored -> true;
     }
 
@@ -101,11 +101,7 @@ public sealed interface ScfOps {
     // =========================================================================
 
     /** Default constructor used during dialect registration. */
-    private BreakOp() {
-      executeIfRegistered(
-          BreakOp.class,
-          () -> setOperation(false, Operation.Create(Location.UNKNOWN, this, null, null, null)));
-    }
+    private BreakOp() {}
 
     /**
      * Create a break op.
@@ -127,7 +123,20 @@ public sealed interface ScfOps {
      */
     @Override
     public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
-      return List.of(ForOp.class);
+      return List.of(ForOp.class, WhileOp.class);
+    }
+
+    @Override
+    public @NotNull Optional<Constructor<? extends ITerminator>> getLocationConstructor() {
+      try {
+        return Optional.of(getClass().getConstructor(Location.class));
+      } catch (NoSuchMethodException e) {
+        throw new AssertionError(
+            "Terminator "
+                + getClass()
+                + " does not define a public constructor that takes only a location as parameter.",
+            e);
+      }
     }
   }
 
@@ -159,7 +168,7 @@ public sealed interface ScfOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return ignored -> true;
     }
 
@@ -168,11 +177,7 @@ public sealed interface ScfOps {
     // =========================================================================
 
     /** Default constructor used during dialect registration. */
-    private ContinueOp() {
-      executeIfRegistered(
-          ContinueOp.class,
-          () -> setOperation(true, Operation.Create(Location.UNKNOWN, this, null, null, null)));
-    }
+    private ContinueOp() {}
 
     /**
      * Create a continue op.
@@ -195,7 +200,20 @@ public sealed interface ScfOps {
     @Contract(pure = true)
     @Override
     public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
-      return List.of(IfOp.class, ScopeOp.class, ForOp.class);
+      return List.of(IfOp.class, ScopeOp.class, ForOp.class, WhileOp.class);
+    }
+
+    @Override
+    public @NotNull Optional<Constructor<? extends ITerminator>> getLocationConstructor() {
+      try {
+        return Optional.of(getClass().getConstructor(Location.class));
+      } catch (NoSuchMethodException e) {
+        throw new AssertionError(
+            "Terminator "
+                + getClass()
+                + " does not define a public constructor that takes only a location as parameter.",
+            e);
+      }
     }
   }
 
@@ -235,7 +253,7 @@ public sealed interface ScfOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return ignored -> true;
     }
 
@@ -357,7 +375,7 @@ public sealed interface ScfOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return operation -> {
         // Make sure the operations condition is of type int1
         Optional<Value> condOpt = operation.getOperandValue(0);
@@ -444,7 +462,7 @@ public sealed interface ScfOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return ignored -> true;
     }
 
@@ -465,21 +483,25 @@ public sealed interface ScfOps {
     }
 
     @Override
-    public Constructor<? extends ITerminator> getImplicitTerminatorType()
-        throws NoSuchMethodException {
-      return ContinueOp.class.getConstructor(Location.class);
+    public @NotNull Constructor<? extends ITerminator> getImplicitTerminatorType() {
+      return new ContinueOp()
+          .getLocationConstructor()
+          .orElseThrow(
+              () ->
+                  new AssertionError(
+                      "ContinueOp must have a public constructor that takes a location"));
     }
   }
 
-  final class WhileOp extends ScfOp implements ScfOps, IControlFlow {
+  final class WhileOp extends ScfOp implements ScfOps, ImplicitTerminator, IControlFlow {
     @Override
     public @NotNull String getIdent() {
       return "scf.while";
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
-      return null;
+    public @NotNull Function<Operation, Boolean> getVerifier() {
+      return ignored -> true;
     }
 
     private WhileOp() {}
@@ -529,6 +551,11 @@ public sealed interface ScfOps {
     @Contract(pure = true)
     public @NotNull Region getBodyRegion() {
       return getRegion(1).orElseThrow();
+    }
+
+    @Override
+    public @NotNull Constructor<? extends ITerminator> getImplicitTerminatorType() {
+      return new ContinueOp().getLocationConstructor().orElseThrow();
     }
   }
 }

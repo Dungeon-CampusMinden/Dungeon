@@ -29,17 +29,14 @@ public sealed interface ScfRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      ScfOps.ContinueOp continueOp = op.as(ScfOps.ContinueOp.class).orElseThrow();
-      Operation parentOp = continueOp.getParentOperation().orElseThrow();
+      Operation parentOp = op.getParentOperation().orElseThrow();
       // If we have a for op we need to handle it properly by incrementing the induction variable
       // and
       // checking if we should continue the loop or not.
       if (parentOp.isa(ScfOps.ForOp.class)) {
-        ScfOps.ForOp forOp = parentOp.as(ScfOps.ForOp.class).orElseThrow();
-        return handleForOp(forOp, state);
+        return handleForOp(parentOp, state);
       } else if (parentOp.isa(ScfOps.WhileOp.class)) {
-        ScfOps.WhileOp whileOp = parentOp.as(ScfOps.WhileOp.class).orElseThrow();
-        return handleWhileOp(continueOp, whileOp, state);
+        return handleWhileOp(op, parentOp, state);
       }
       // Only loops need special handling. IfOp, ScopeOps or the like simply mark their end using
       // the
@@ -49,41 +46,43 @@ public sealed interface ScfRunners {
       }
     }
 
-    public Action handleForOp(ScfOps.ForOp forOp, State state) {
+    public Action handleForOp(Operation forOp, State state) {
       Quartet<Long, Long, Long, Long> bounds = ForRunner.getBounds(forOp, state);
       long lowerBoundNum = bounds.value1();
       long upperBoundNum = bounds.value2();
       long stepNum = bounds.value3();
 
+      Value induction =
+          forOp.getRegion(0).map(region -> region.getBodyValue(0).orElseThrow()).orElseThrow();
       // Increment the body value (induction variable) by the step and check if we should continue
       // the
       // loop.
-      long inductionValue = state.getValue(forOp.getInductionValue(), Long.class).orElseThrow();
+      long inductionValue = state.getValue(induction, Long.class).orElseThrow();
 
       // Increment the induction value by the step.
       inductionValue += stepNum;
-      state.setValue(forOp.getInductionValue(), inductionValue);
+      state.setValue(induction, inductionValue);
 
       // Check if we reached the end of the loop.
       if (inductionValue < upperBoundNum && inductionValue >= lowerBoundNum) {
         // Continue the loop by jumping to the beginning of the loop body region with the updated
         // induction variable.
-        return Action.JumpToRegion(forOp.getRegion(), inductionValue);
+        return Action.JumpToRegion(forOp.getRegion(0).orElseThrow(), inductionValue);
       }
 
       // Terminate the loop.
       return Action.Terminate(null, false);
     }
 
-    public Action handleWhileOp(ScfOps.ContinueOp continueOp, ScfOps.WhileOp whileOp, State state) {
+    public Action handleWhileOp(Operation continueOp, Operation whileOp, State state) {
       // Check if we are in the condition region
-      if (whileOp.getConditionRegion().equals(continueOp.getParentRegion().orElseThrow())) {
+      if (whileOp.getRegion(0).orElseThrow().equals(continueOp.getParentRegion().orElseThrow())) {
         // If we are we need to jump to the body region to execute another iteration of the loop.
-        return Action.JumpToRegion(whileOp.getBodyRegion());
+        return Action.JumpToRegion(whileOp.getRegion(1).orElseThrow());
       } else {
         // If we are not in the condition region we need to jump to the condition region to check if
         // we should continue the loop.
-        return Action.JumpToRegion(whileOp.getConditionRegion());
+        return Action.JumpToRegion(whileOp.getRegion(0).orElseThrow());
       }
     }
   }
@@ -95,8 +94,7 @@ public sealed interface ScfRunners {
     }
 
     @Override
-    protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      ScfOps.ForOp forOp = op.as(ScfOps.ForOp.class).orElseThrow();
+    protected @NotNull Action runImpl(@NotNull Operation forOp, @NotNull State state) {
       Quartet<Long, Long, Long, Long> bounds = getBounds(forOp, state);
       long initialValueNum = bounds.value0();
       long lowerBoundNum = bounds.value1();
@@ -107,17 +105,17 @@ public sealed interface ScfRunners {
       // bound, otherwise skip the loop.
       if (initialValueNum < upperBoundNum && initialValueNum >= lowerBoundNum) {
         // Set the body value (induction variable) to the initial value.
-        return Action.StepIntoRegion(forOp.getRegion(), false, initialValueNum);
+        return Action.StepIntoRegion(forOp.getRegion(0).orElseThrow(), false, initialValueNum);
       } else {
         return Action.Next();
       }
     }
 
-    public static Quartet<Long, Long, Long, Long> getBounds(ScfOps.ForOp forOp, State state) {
-      Value initialValue = forOp.getInitialValue();
-      Value lowerBound = forOp.getLowerBound();
-      Value upperBound = forOp.getUpperBound();
-      Value step = forOp.getStep();
+    public static Quartet<Long, Long, Long, Long> getBounds(Operation forOp, State state) {
+      Value initialValue = forOp.getOperandValue(0).orElseThrow();
+      Value lowerBound = forOp.getOperandValue(1).orElseThrow();
+      Value upperBound = forOp.getOperandValue(2).orElseThrow();
+      Value step = forOp.getOperandValue(3).orElseThrow();
 
       long initialValueNum = state.getValue(initialValue, Number.class).orElseThrow().longValue();
       long lowerBoundNum = state.getValue(lowerBound, Number.class).orElseThrow().longValue();
@@ -161,7 +159,7 @@ public sealed interface ScfRunners {
     }
   }
 
-  public class WhileRunner extends OpRunner {
+  final class WhileRunner extends OpRunner implements ScfRunners {
     public WhileRunner() {
       super(ScfOps.WhileOp.class);
     }

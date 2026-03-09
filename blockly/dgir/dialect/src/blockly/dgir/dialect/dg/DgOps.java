@@ -10,6 +10,7 @@ import dgir.core.traits.INoOperands;
 import dgir.core.traits.INoResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.function.Function;
@@ -51,7 +52,7 @@ public sealed interface DgOps {
    */
   abstract class HeroOp extends DungeonOp implements INoOperands, INoResult {
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NonNull Function<Operation, Boolean> getVerifier() {
       // No verification needed since the traits guarantee that the operation has no operands and no
       // results.
       return ignored -> true;

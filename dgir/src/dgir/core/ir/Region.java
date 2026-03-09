@@ -1,11 +1,12 @@
 package dgir.core.ir;
 
 import com.fasterxml.jackson.annotation.*;
-import java.util.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
+
+import java.util.*;
 
 /**
  * A region containing an ordered list of {@link Block}s, attached to an {@link Operation}.
@@ -33,7 +34,7 @@ import org.jetbrains.annotations.UnmodifiableView;
  * @see Operation
  * @see Block
  */
-@JsonPropertyOrder({"bodyValues", "blocks"})
+@JsonPropertyOrder({"index", "bodyValues", "blocks"})
 public final class Region {
 
   // =========================================================================
@@ -213,6 +214,11 @@ public final class Region {
     return Optional.ofNullable(parent);
   }
 
+  @Contract(pure = true)
+  public int getIndex() {
+    return parent == null ? -1 : parent.getRegions().indexOf(this);
+  }
+
   /**
    * Move all blocks from {@code other} into this region. Uses of {@code other}'s body values are
    * replaced with the corresponding values from this region.
@@ -249,5 +255,24 @@ public final class Region {
     for (Type type : types)
       values.add(new Value(Objects.requireNonNull(type, "body value type cannot be null")));
     return values;
+  }
+
+  // =========================================================================
+  // Object
+  // =========================================================================
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder("Region[" + getIndex() + "] (");
+    for (int i = 0; i < bodyValues.size(); i++) {
+      builder.append(bodyValues.get(i));
+      if (i < bodyValues.size() - 1) builder.append(", ");
+    }
+
+    builder.append(") {");
+    builder.append(blocks.stream().map(Block::toString).reduce("", (a, b) -> a + "\n  " + b));
+    builder.append("\n}");
+
+    return builder.toString();
   }
 }

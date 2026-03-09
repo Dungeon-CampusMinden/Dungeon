@@ -20,6 +20,8 @@ public abstract class OpRunner {
     return targetOp;
   }
 
+  public void clearsState() {}
+
   public final @NotNull Action run(@NotNull Operation op, @NotNull State state) {
     if (!op.getDetails().equals(targetOp)) {
       throw new IllegalArgumentException(

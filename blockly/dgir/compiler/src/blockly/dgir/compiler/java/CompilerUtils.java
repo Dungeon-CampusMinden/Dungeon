@@ -49,7 +49,8 @@ public class CompilerUtils {
     return switch (primitiveType) {
       case BOOLEAN -> Optional.of(BuiltinTypes.IntegerT.BOOL);
       case BYTE -> Optional.of(BuiltinTypes.IntegerT.INT8);
-      case CHAR, SHORT -> Optional.of(BuiltinTypes.IntegerT.INT16);
+      case CHAR -> Optional.of(BuiltinTypes.IntegerT.UINT16);
+      case SHORT -> Optional.of(BuiltinTypes.IntegerT.INT16);
       case INT -> Optional.of(BuiltinTypes.IntegerT.INT32);
       case LONG -> Optional.of(BuiltinTypes.IntegerT.INT64);
       case FLOAT -> Optional.of(BuiltinTypes.FloatT.FLOAT32);

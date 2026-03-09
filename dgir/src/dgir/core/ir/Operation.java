@@ -6,16 +6,17 @@ import dgir.core.debug.Location;
 import dgir.core.serialization.OperationDeserializer;
 import dgir.core.serialization.OperationSerializer;
 import dgir.core.traits.IOpTrait;
-import java.io.Serializable;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
+
+import java.io.Serializable;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Carries the runtime state associated with a concrete operation instance.
@@ -531,8 +532,7 @@ public final class Operation implements Serializable {
     if (currentParent.isEmpty()) return Optional.empty();
 
     while (currentParent.isPresent()) {
-      Optional<T> asTrait = currentParent.get().asTrait(traitClass);
-      if (asTrait.isPresent()) return asTrait;
+      if (currentParent.get().hasTrait(traitClass)) return currentParent.get().asTrait(traitClass);
       currentParent = currentParent.get().getParentOperation();
     }
     return Optional.empty();
@@ -639,24 +639,15 @@ public final class Operation implements Serializable {
                           "{0} = {1}", attr.getName(), attr.getAttribute().getStorage()))
               .collect(Collectors.joining(", "));
       if (!attrs.isEmpty()) {
-        sb.append(" { ");
+        sb.append(" [ ");
         sb.append(attrs);
-        sb.append(" }");
+        sb.append(" ]");
       }
     }
-
-    if (!regions.isEmpty()) {
-      for (Region region : regions) {
-        sb.append(" { ");
-        List<Block> blocks = region.getBlocks();
-        for (int j = 0; j < blocks.size(); j++) {
-          Block block = blocks.get(j);
-          sb.append("[").append(block.getOperations().size()).append("]");
-          if (j < blocks.size() - 1) sb.append(", ");
-        }
-        sb.append(" }");
-      }
-    }
+    sb.append(
+        regions.stream()
+            .map(region -> "{ [" + region.getIndex() + "] {" + region.getBlocks().size() + "} }")
+            .reduce("", (a, b) -> a + " " + b));
 
     return sb.toString();
   }

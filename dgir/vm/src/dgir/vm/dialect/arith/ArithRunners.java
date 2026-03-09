@@ -2,6 +2,7 @@ package dgir.vm.dialect.arith;
 
 import dgir.core.ir.Operation;
 import dgir.core.ir.Type;
+import dgir.core.ir.TypedAttribute;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
@@ -11,6 +12,74 @@ import dgir.dialect.builtin.BuiltinTypes;
 import org.jetbrains.annotations.NotNull;
 
 public sealed interface ArithRunners {
+  final class UnaryRunner extends OpRunner implements ArithRunners {
+    public UnaryRunner() {
+      super(ArithOps.UnaryOp.class);
+    }
+
+    @Override
+    protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
+      var operand = op.getOperandValue(0).orElseThrow();
+      var operandValue = NumericUtils.getNumber(state, operand);
+
+      state.setValueForOutput(
+          op,
+          unaryOperation(
+              operandValue,
+              op.getAttributeAs("unaryMode", ArithAttrs.UnaryModeAttr.class)
+                  .orElseThrow()
+                  .getMode(),
+              operand.getType()));
+      return Action.Next();
+    }
+
+    static Number unaryOperation(
+        Number number, ArithAttrs.UnaryModeAttr.UnaryMode mode, Type operandType) {
+      return switch (operandType) {
+        case BuiltinTypes.FloatT floatT ->
+            floatT.convertToValidNumber(unaryDoubleOperation(number.doubleValue(), mode));
+        case BuiltinTypes.IntegerT integerT when integerT.equals(BuiltinTypes.IntegerT.BOOL) ->
+            integerT.convertToValidNumber(unaryBooleanOperation(number.byteValue(), mode));
+        case BuiltinTypes.IntegerT ignored -> unaryLongOperation(number.longValue(), mode);
+        default ->
+            throw new IllegalArgumentException(
+                "Unsupported operand type for unary operation: " + operandType);
+      };
+    }
+
+    static double unaryDoubleOperation(double operand, ArithAttrs.UnaryModeAttr.UnaryMode mode) {
+      return switch (mode) {
+        case NEGATE -> -operand;
+        case INCREMENT -> operand + 1;
+        case DECREMENT -> operand - 1;
+        case COMPLEMENT ->
+            throw new UnsupportedOperationException("Complement not supported for doubles");
+        case LOGICAL_COMPLEMENT ->
+            throw new UnsupportedOperationException("Logical complement not supported for doubles");
+      };
+    }
+
+    static long unaryLongOperation(long operand, ArithAttrs.UnaryModeAttr.UnaryMode mode) {
+      return switch (mode) {
+        case NEGATE -> -operand;
+        case INCREMENT -> operand + 1;
+        case DECREMENT -> operand - 1;
+        case COMPLEMENT -> ~operand;
+        case LOGICAL_COMPLEMENT ->
+            throw new UnsupportedOperationException("Logical complement not supported for longs");
+      };
+    }
+
+    static byte unaryBooleanOperation(byte operand, ArithAttrs.UnaryModeAttr.UnaryMode mode) {
+      return switch (mode) {
+        case NEGATE, INCREMENT, DECREMENT, COMPLEMENT ->
+            throw new UnsupportedOperationException(
+                "Only logical complement supported for boolean operations");
+        case LOGICAL_COMPLEMENT -> (byte) (operand == 0 ? 1 : 0);
+      };
+    }
+  }
+
   /**
    * Executes {@code arith.bin} operations.
    *
@@ -23,16 +92,22 @@ public sealed interface ArithRunners {
     }
 
     @Override
-    protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      ArithOps.BinaryOp binOp = op.as(ArithOps.BinaryOp.class).orElseThrow();
-      var lhs = NumericUtils.getNumber(state, binOp.getLhs());
-      var rhs = NumericUtils.getNumber(state, binOp.getRhs());
-      var lhsType = binOp.getLhs().getType();
-      var rhsType = binOp.getRhs().getType();
-      var resultType = binOp.getResultType();
+    protected @NotNull Action runImpl(@NotNull Operation binOp, @NotNull State state) {
+      var lhsValue = binOp.getOperandValue(0).orElseThrow();
+      var rhsValue = binOp.getOperandValue(1).orElseThrow();
 
-      var result = binaryOperation(lhs, rhs, lhsType, rhsType, resultType, binOp.getMode());
-      state.setValueForOutput(op, result);
+      var result =
+          binaryOperation(
+              NumericUtils.getNumber(state, lhsValue),
+              NumericUtils.getNumber(state, rhsValue),
+              lhsValue.getType(),
+              rhsValue.getType(),
+              binOp.getOutputValue().orElseThrow().getType(),
+              binOp
+                  .getAttributeAs("binMode", ArithAttrs.BinModeAttr.class)
+                  .orElseThrow()
+                  .getMode());
+      state.setValueForOutput(binOp, result);
       return Action.Next();
     }
 
@@ -79,8 +154,8 @@ public sealed interface ArithRunners {
         BuiltinTypes.IntegerT dominantType =
             (BuiltinTypes.IntegerT) BuiltinTypes.getDominantType(lhsType, rhsType);
         // Keep only the active bit-width before comparing unsigned values.
-        long left = dominantType.normalizedLongRepresentation(lhs);
-        long right = dominantType.normalizedLongRepresentation(rhs);
+        long left = dominantType.normalizedLongRepresentation(lhs.longValue());
+        long right = dominantType.normalizedLongRepresentation(rhs.longValue());
         comparison =
             dominantType.isSigned() ? Long.compare(left, right) : Long.compareUnsigned(left, right);
       }
@@ -95,7 +170,7 @@ public sealed interface ArithRunners {
             default ->
                 throw new IllegalArgumentException("Unsupported comparison operation: " + binMode);
           };
-      return boolType.convertToValidNumber(result ? 1 : 0);
+      return (byte) (result ? 1 : 0);
     }
 
     /**
@@ -142,8 +217,8 @@ public sealed interface ArithRunners {
         throw new IllegalArgumentException(
             "Unsigned integer operation requires an integer result type: " + resultType);
       }
-      long left = integerT.normalizedLongRepresentation(lhs);
-      long right = integerT.normalizedLongRepresentation(rhs);
+      long left = integerT.normalizedLongRepresentation(lhs.longValue());
+      long right = integerT.normalizedLongRepresentation(rhs.longValue());
       long result =
           switch (binMode) {
             case DIVUI -> Long.divideUnsigned(left, right);
@@ -194,8 +269,8 @@ public sealed interface ArithRunners {
 
       if (resultType instanceof BuiltinTypes.IntegerT integerT) {
         // Mask before bit operations so the operation respects the declared integer width.
-        long left = integerT.normalizedLongRepresentation(lhs);
-        long right = integerT.normalizedLongRepresentation(rhs);
+        long left = integerT.normalizedLongRepresentation(lhs.longValue());
+        long right = integerT.normalizedLongRepresentation(rhs.longValue());
         int shiftAmount = (int) rhs.longValue();
         long result =
             switch (binMode) {
@@ -245,8 +320,9 @@ public sealed interface ArithRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      ArithOps.ConstantOp constantOp = op.as(ArithOps.ConstantOp.class).orElseThrow();
-      state.setValue(constantOp.getValue(), constantOp.getValueStorage());
+      state.setValue(
+          op.getOutputValue().orElseThrow(),
+          op.getAttributeAs("value", TypedAttribute.class).orElseThrow().getStorage());
       return Action.Next();
     }
   }

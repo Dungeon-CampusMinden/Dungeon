@@ -24,6 +24,8 @@ import dgir.core.debug.Location;
 import dgir.core.debug.ValueDebugInfo;
 import dgir.core.ir.*;
 import dgir.core.serialization.Utils;
+import dgir.dialect.arith.ArithAttrs;
+import dgir.dialect.arith.ArithOps;
 import dgir.dialect.arith.ArithOps.BinaryOp;
 import dgir.dialect.builtin.BuiltinOps;
 import dgir.dialect.cf.CfOps;
@@ -307,7 +309,7 @@ public class JavaCompiler {
               new FuncOp(
                   context.loc(n),
                   fullyQualifiedMethodName,
-                  new FuncType(inputTypes, outputType.orElse(null))));
+                  FuncType.of(inputTypes, outputType.orElse(null))));
 
       // Emit all statements in the method body. These will insert themselves into the function op.
       context.setInsertionPoint(funcOp.getEntryBlock(), -1);
@@ -405,6 +407,8 @@ public class JavaCompiler {
 
       context.setInsertionPoint(whileOp.getBodyRegion().getEntryBlock(), -1);
       n.getBody().accept(this, context);
+      n.getUpdate().forEach(updateExpr -> emitExpression(updateExpr, context));
+      whileOp.addImplicitTerminators();
     }
 
     @Override
@@ -456,7 +460,7 @@ public class JavaCompiler {
           context.insert(new BuiltinOps.IdOp(context.loc(n), implicitCast.get(), targetValue));
         } catch (AssertionError e) {
           context.emitError(
-              n, "Failed to emit assignment of value " + n.getValue() + " to " + n.getTarget());
+              n, "Failed to emit assignment of value " + n.getValue() + " to " + n.getTarget(), e);
           return;
         }
         return;
@@ -481,73 +485,7 @@ public class JavaCompiler {
 
     @Override
     public void visit(VariableDeclarationExpr n, EmitContext context) {
-      if (n.getVariables().size() != 1) {
-        context.emitError(n, "Only one variable declaration is supported.");
-        return;
-      }
-      VariableDeclarator variableDeclarator = n.getVariables().get(0);
-      if (variableDeclarator.getInitializer().isEmpty()) {
-        context.emitError(n, "Variable " + variableDeclarator.getName() + " is not initialized.");
-        return;
-      }
-      Expression initializer = variableDeclarator.getInitializer().get();
-      EmitResult<Optional<Value>> initValueRes = emitExpression(initializer, context);
-      if (initValueRes.isFailure() || initValueRes.get().isEmpty()) {
-        return;
-      }
-      Value initValue = initValueRes.get().get();
-
-      // Get the resolved variable declaration so that we can get the type of the variable and check
-      // that it is accessible from the current context.
-      Optional<ResolvedValueDeclaration> resolvedVariable =
-          CompilerUtils.resolve(variableDeclarator, context);
-      if (resolvedVariable.isEmpty()) {
-        return;
-      }
-      // Check that the target variable type is accessible in the current context
-      {
-        // The class in which the variable is declared
-        var contextClass =
-            CompilerUtils.resolve(
-                variableDeclarator.findAncestor(ClassOrInterfaceDeclaration.class).orElseThrow(),
-                context);
-        if (contextClass.isEmpty()) {
-          return;
-        }
-
-        if (!isTypeUseAccessibleFrom(contextClass.get(), resolvedVariable.get().getType())) {
-          context.emitError(
-              variableDeclarator,
-              "Variable " + variableDeclarator.getName() + " is not visible from " + contextClass);
-          return;
-        }
-      }
-
-      // Check that the init value and the target have the same value and emit cast statement if not
-      EmitResult<Value> implicitCastRes =
-          CompilerUtils.emitImplicitCastIfNeeded(
-              variableDeclarator,
-              initValue,
-              variableDeclarator.getInitializer().get().calculateResolvedType(),
-              resolvedVariable.get().getType(),
-              context,
-              initializer.isLiteralExpr());
-
-      if (implicitCastRes.isFailure()) {
-        context.emitError(
-            n,
-            "Failed to emit implicit cast for variable "
-                + variableDeclarator.getName()
-                + " with initializer "
-                + initializer);
-      }
-
-      bindName(
-          variableDeclarator.getName().asString(),
-          implicitCastRes.orElse(initValue),
-          resolvedVariable.get().getType(),
-          variableDeclarator,
-          context);
+      emitVariableDeclaration(n, context);
     }
 
     private @NotNull EmitResult<Optional<Value>> emitExpression(
@@ -562,6 +500,8 @@ public class JavaCompiler {
             emitBinary(binaryExpr, context, Optional.empty()).map(Optional::of);
         case MethodCallExpr methodCallExpr -> emitMethodCall(methodCallExpr, context);
         case UnaryExpr unaryExpr -> emitUnary(unaryExpr, context).map(Optional::of);
+        case VariableDeclarationExpr variableDeclarationExpr ->
+            emitVariableDeclaration(variableDeclarationExpr, context);
         default -> {
           context.emitError(
               expression,
@@ -744,61 +684,112 @@ public class JavaCompiler {
             "Unary operator can only be applied to numeric types. Found type " + operand.getType());
         return EmitResult.failure();
       }
-      switch (unaryExpr.getOperator()) {
-        case PLUS -> {
-          return EmitResult.of(operand);
-        }
-        case MINUS -> {
-          ConstantOp minusOne = context.insert(new ConstantOp(context.loc(unaryExpr), -1));
-          return emitBinary(
-                  unaryExpr,
-                  BinaryExpr.Operator.MULTIPLY,
-                  operand,
-                  minusOne.getValue(),
-                  Optional.empty(),
-                  context)
-              .or(
-                  () ->
-                      EmitResult.failure(
-                          context, unaryExpr, "Failed to emit unary minus operator."));
-        }
-        case PREFIX_INCREMENT -> {
-          return emitIncrement(unaryExpr, true, operand, context);
-        }
-        case PREFIX_DECREMENT -> {
-          return emitIncrement(unaryExpr, false, operand, context);
-        }
-        case LOGICAL_COMPLEMENT -> {
-          return EmitResult.of(
-              context
-                  .insert(new BinaryOp(context.loc(unaryExpr), operand, operand, BinMode.XOR))
-                  .getResult());
-        }
-        case BITWISE_COMPLEMENT -> {
-          return EmitResult.of(
-              context
-                  .insert(new BinaryOp(context.loc(unaryExpr), operand, operand, BinMode.BXOR))
-                  .getResult());
-        }
-        case POSTFIX_INCREMENT -> {
-          // Copy the value to a new value and return that so we can modify the increment
-          // target.
+      boolean postfix = false;
+      ArithAttrs.UnaryModeAttr.UnaryMode unaryMode =
+          switch (unaryExpr.getOperator()) {
+            case PLUS -> null;
+            case MINUS -> ArithAttrs.UnaryModeAttr.UnaryMode.NEGATE;
+            case PREFIX_INCREMENT -> ArithAttrs.UnaryModeAttr.UnaryMode.INCREMENT;
+            case PREFIX_DECREMENT -> ArithAttrs.UnaryModeAttr.UnaryMode.DECREMENT;
+            case LOGICAL_COMPLEMENT -> ArithAttrs.UnaryModeAttr.UnaryMode.LOGICAL_COMPLEMENT;
+            case BITWISE_COMPLEMENT -> ArithAttrs.UnaryModeAttr.UnaryMode.COMPLEMENT;
+            case POSTFIX_INCREMENT -> {
+              postfix = true;
+              yield ArithAttrs.UnaryModeAttr.UnaryMode.INCREMENT;
+            }
+            case POSTFIX_DECREMENT -> {
+              postfix = true;
+              yield ArithAttrs.UnaryModeAttr.UnaryMode.DECREMENT;
+            }
+          };
+
+      if (unaryMode != null) {
+        Value result = null;
+        if (postfix) {
+          // Copy the value to a new value and return that so we can modify the increment target.
           BuiltinOps.IdOp idOp =
               context.insert(new BuiltinOps.IdOp(context.loc(unaryExpr), operand));
-          emitIncrement(unaryExpr, true, operand, context);
-          return EmitResult.of(idOp.getResult());
+          result = idOp.getResult();
         }
-        case POSTFIX_DECREMENT -> {
-          // Copy the value to a new value and return that so we can modify the increment
-          // target.
-          BuiltinOps.IdOp idOp =
-              context.insert(new BuiltinOps.IdOp(context.loc(unaryExpr), operand));
-          emitIncrement(unaryExpr, false, operand, context);
-          return EmitResult.of(idOp.getResult());
+        ArithOps.UnaryOp unary =
+            context.insert(new ArithOps.UnaryOp(context.loc(unaryExpr), operand, unaryMode));
+        unary.setOutputValue(operand);
+        result = result == null ? unary.getResult() : result;
+        return EmitResult.of(result);
+      }
+      return EmitResult.of(operand);
+    }
+
+    private @NotNull EmitResult<Optional<Value>> emitVariableDeclaration(
+        @NotNull VariableDeclarationExpr n, @NotNull EmitContext context) {
+      if (n.getVariables().size() != 1) {
+        return EmitResult.failure(context, n, "Only one variable declaration is supported.");
+      }
+      VariableDeclarator variableDeclarator = n.getVariables().get(0);
+      if (variableDeclarator.getInitializer().isEmpty()) {
+        return EmitResult.failure(
+            context, n, "Variable " + variableDeclarator.getName() + " is not initialized.");
+      }
+      Expression initializer = variableDeclarator.getInitializer().get();
+      EmitResult<Optional<Value>> initValueRes = emitExpression(initializer, context);
+      if (initValueRes.isFailure() || initValueRes.get().isEmpty()) {
+        return EmitResult.failure();
+      }
+      Value initValue = initValueRes.get().get();
+
+      // Get the resolved variable declaration so that we can get the type of the variable and check
+      // that it is accessible from the current context.
+      Optional<ResolvedValueDeclaration> resolvedVariable =
+          CompilerUtils.resolve(variableDeclarator, context);
+      if (resolvedVariable.isEmpty()) {
+        return EmitResult.failure();
+      }
+      // Check that the target variable type is accessible in the current context
+      {
+        // The class in which the variable is declared
+        var contextClass =
+            CompilerUtils.resolve(
+                variableDeclarator.findAncestor(ClassOrInterfaceDeclaration.class).orElseThrow(),
+                context);
+        if (contextClass.isEmpty()) {
+          return EmitResult.failure();
+        }
+
+        if (!isTypeUseAccessibleFrom(contextClass.get(), resolvedVariable.get().getType())) {
+          return EmitResult.failure(
+              context,
+              variableDeclarator,
+              "Variable " + variableDeclarator.getName() + " is not visible from " + contextClass);
         }
       }
-      return EmitResult.failure(
-          context, unaryExpr, "Unary operator " + unaryExpr.getOperator() + " is not supported.");
+
+      // Check that the init value and the target have the same value and emit cast statement if not
+      EmitResult<Value> implicitCastRes =
+          CompilerUtils.emitImplicitCastIfNeeded(
+              variableDeclarator,
+              initValue,
+              variableDeclarator.getInitializer().get().calculateResolvedType(),
+              resolvedVariable.get().getType(),
+              context,
+              initializer.isLiteralExpr());
+
+      if (implicitCastRes.isFailure()) {
+        context.emitError(
+            n,
+            "Failed to emit implicit cast for variable "
+                + variableDeclarator.getName()
+                + " with initializer "
+                + initializer);
+      }
+
+      bindName(
+          variableDeclarator.getName().asString(),
+          implicitCastRes.orElse(initValue),
+          resolvedVariable.get().getType(),
+          variableDeclarator,
+          context);
+
+      return implicitCastRes.map(Optional::of).map(EmitResult::of).orElseGet(EmitResult::failure);
     }
 
     private @NotNull Optional<Value> resolveName(

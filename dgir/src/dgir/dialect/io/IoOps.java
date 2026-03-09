@@ -76,7 +76,7 @@ public sealed interface IoOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return operation -> {
         ConsoleInOp consoleInOp = operation.as(ConsoleInOp.class).orElseThrow();
         // Check that the operation has exactly one result and that the type is either integer,
@@ -170,7 +170,7 @@ public sealed interface IoOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return operation -> {
         PrintOp printOp = operation.as(PrintOp.class).orElseThrow();
 

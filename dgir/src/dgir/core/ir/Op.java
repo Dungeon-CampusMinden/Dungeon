@@ -5,16 +5,17 @@ import dgir.core.debug.Location;
 import dgir.core.serialization.OpDeserializer;
 import dgir.core.serialization.OpSerializer;
 import dgir.core.traits.IOpTrait;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Abstract base class for all operations in the DGIR.
@@ -79,7 +80,7 @@ public abstract class Op {
   @Contract(pure = true)
   @NotNull
   @Unmodifiable
-  public List<NamedAttribute> getDefaultAttributes() {
+  public List<@NotNull NamedAttribute> getDefaultAttributes() {
     return List.of();
   }
 
@@ -90,7 +91,7 @@ public abstract class Op {
    *
    * @return a verifier function for this operation.
    */
-  public abstract Function<Operation, Boolean> getVerifier();
+  public abstract @NotNull Function<@NotNull Operation, @NotNull Boolean> getVerifier();
 
   // =========================================================================
   // Constructors

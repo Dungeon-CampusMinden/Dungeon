@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static dgir.dialect.arith.ArithAttrs.*;
 import static dgir.dialect.arith.ArithAttrs.BinModeAttr;
 import static dgir.dialect.arith.ArithAttrs.BinModeAttr.BinMode;
 import static dgir.dialect.builtin.BuiltinAttrs.*;
@@ -62,67 +63,57 @@ public sealed interface ArithOps {
     }
   }
 
-  abstract class UnaryNumericOp extends ArithOp implements ISingleOperand {
-    /** Default constructor used during dialect registration. */
-    UnaryNumericOp() {
-      super();
+  final class UnaryOp extends ArithOp implements ArithOps, ISingleOperand, IHasResult {
+    @Override
+    public @NotNull String getIdent() {
+      return "arith.unary";
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
-      return UnaryNumericOp::verifyUnaryNumericOperand;
-    }
-
-    protected static boolean verifyUnaryNumericOperand(@NotNull Operation operation) {
-      ISingleOperand unaryOperand =
-          operation
-              .asTrait(ISingleOperand.class)
-              .orElseThrow(
-                  () ->
-                      new AssertionError(
-                          "Operation does not implement ISingleOperand: " + operation));
-      Type target = unaryOperand.getOperand().getType();
-      if (!isNumeric(target)) {
-        operation.emitError("Operands must be numeric");
-        return false;
-      }
-      return true;
-    }
-  }
-
-  abstract class UnaryNumericResultOp extends UnaryNumericOp implements IHasResult {
-    /** Default constructor used during dialect registration. */
-    UnaryNumericResultOp() {
-      super();
+    public @NotNull @Unmodifiable List<@NotNull NamedAttribute> getDefaultAttributes() {
+      return List.of(new NamedAttribute("unaryMode", new UnaryModeAttr()));
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return operation -> {
-        if (!verifyUnaryNumericOperand(operation)) {
+        var unaryOp = operation.as(UnaryOp.class).orElseThrow();
+        Type targetType = unaryOp.getOperand().getType();
+        if (!isNumeric(targetType)) {
+          operation.emitError("Operands must be numeric");
           return false;
         }
-        var unaryOp = operation.asTrait(ISingleOperand.class).orElseThrow();
-        if (operation.getOutput().isEmpty()) {
-          operation.emitError("Operation must have an output");
-          return false;
-        }
-        var expectedType = unaryOp.getOperand().getType();
-        var actualType = operation.getOutput().map(OperationResult::getType).orElseThrow();
-        if (!actualType.equals(expectedType)) {
+        if (!unaryOp.getResultType().equals(targetType)) {
           operation.emitError("Result type must match the operand type");
+          return false;
+        }
+        if (unaryOp.getAttributeAs("unaryMode", UnaryModeAttr.class).isEmpty()) {
+          unaryOp.emitError("Unary operation must define a unaryMode attribute");
+          return false;
+        }
+        UnaryModeAttr.UnaryMode unaryMode =
+            unaryOp.getAttributeAs("unaryMode", UnaryModeAttr.class).get().getMode();
+        Optional<String> result = unaryMode.operandVerifier.apply(unaryOp);
+        if (result.isPresent()) {
+          unaryOp.emitError(result.get());
           return false;
         }
         return true;
       };
     }
-  }
 
-  final class UnaryOp extends UnaryNumericResultOp implements ArithOps {
+    private UnaryOp() {}
 
-    @Override
-    public @NotNull String getIdent() {
-      return "arith.unary";
+    public UnaryOp(
+        @NotNull Location loc, @NotNull Value operand, @NotNull UnaryModeAttr.UnaryMode mode) {
+      setOperation(Operation.Create(loc, this, List.of(operand), null, operand.getType()));
+      getAttributeAs("unaryMode", UnaryModeAttr.class).orElseThrow().setMode(mode);
+    }
+
+    public @NotNull UnaryModeAttr.UnaryMode getMode() {
+      return getAttributeAs("unaryMode", UnaryModeAttr.class)
+          .map(UnaryModeAttr::getMode)
+          .orElseThrow(() -> new AssertionError("No unaryMode attribute found."));
     }
   }
 
@@ -140,11 +131,11 @@ public sealed interface ArithOps {
 
     @Override
     public @NotNull @Unmodifiable List<NamedAttribute> getDefaultAttributes() {
-      return List.of(new NamedAttribute("binMode", new BinModeAttr(BinMode.ADD)));
+      return List.of(new NamedAttribute("binMode", new BinModeAttr()));
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return operation -> {
         BinaryOp binaryOp = operation.as(BinaryOp.class).orElseThrow();
         Type lhsType = binaryOp.getLhs().getType();
@@ -222,7 +213,7 @@ public sealed interface ArithOps {
           };
 
       setOperation(Operation.Create(loc, this, List.of(lhs, rhs), null, outputType));
-      setAttribute("binMode", new BinModeAttr(binMode));
+      getAttributeAs("binMode", BinModeAttr.class).orElseThrow().setMode(binMode);
     }
 
     public @NotNull BinMode getMode() {
@@ -246,7 +237,7 @@ public sealed interface ArithOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return operation -> {
         var castOp = operation.as(CastOp.class).orElseThrow();
         if (!isNumeric(castOp.getOperandType())) {
@@ -277,7 +268,7 @@ public sealed interface ArithOps {
      */
     public CastOp(@NotNull Location loc, @NotNull Value value, @NotNull Type targetType) {
       setOperation(Operation.Create(loc, this, List.of(value), null, targetType));
-      setAttribute("to", new TypeAttribute(targetType));
+      getAttributeAs("to", TypeAttribute.class).orElseThrow().setType(targetType);
     }
 
     public @NotNull Type getTargetType() {
@@ -306,7 +297,7 @@ public sealed interface ArithOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return ignored -> true;
     }
 

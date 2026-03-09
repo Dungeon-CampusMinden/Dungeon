@@ -17,6 +17,8 @@ dependencies {
     implementation 'org.jgrapht:jgrapht-io:1.5.2'
     implementation 'guru.nidi:graphviz-java:0.18.1'
     implementation 'com.eclipsesource.j2v8:j2v8_linux_x86_64:4.6.0'
+    implementation 'org.eclipse.collections:eclipse-collections-api:13.0.0'
+    implementation 'org.eclipse.collections:eclipse-collections:13.0.0'
     api 'org.jetbrains:annotations:24.1.0'
 
     errorprone "com.google.errorprone:error_prone_core:2.46.0"

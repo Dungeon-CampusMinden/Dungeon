@@ -172,7 +172,7 @@ public class CfTests extends VmTestBase {
     ProgramOp prog = new ProgramOp(LOC);
 
     FuncOp condFn =
-        prog.addOperation(new FuncOp(LOC, "cond", new FuncType(List.of(), IntegerT.BOOL)));
+        prog.addOperation(new FuncOp(LOC, "cond", FuncType.of(List.of(), IntegerT.BOOL)));
     var fnCond = condFn.addOperation(new ConstantOp(LOC, false), 0);
     condFn.addOperation(new ReturnOp(LOC, fnCond.getValue()), 0);
 

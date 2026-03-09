@@ -4,14 +4,16 @@ import dgir.core.Dialect;
 import dgir.core.Utils;
 import dgir.core.ir.Type;
 import dgir.core.ir.TypeDetails;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Function;
+import dgir.core.ir.TypeUniquer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
 
 public sealed interface FuncTypes {
   /**
@@ -92,7 +94,7 @@ public sealed interface FuncTypes {
             output = TypeDetails.fromParameterizedIdent(outputPart);
           }
         }
-        return new FuncType(inputs, output);
+        return FuncType.of(inputs, output);
       };
     }
 
@@ -106,6 +108,18 @@ public sealed interface FuncTypes {
       // I currently do not know what about a value passed to type should do wrong since its just
       // other types.
       return value -> true;
+    }
+
+    // =========================================================================
+    // Factory
+    // =========================================================================
+
+    public static FuncType empty() {
+      return TypeUniquer.uniqueInstance(new FuncType());
+    }
+
+    public static FuncType of(@NotNull List<Type> inputs, @Nullable Type output) {
+      return TypeUniquer.uniqueInstance(new FuncType(inputs, output));
     }
 
     // =========================================================================
@@ -123,7 +137,7 @@ public sealed interface FuncTypes {
     // =========================================================================
 
     /** Create a no-argument void function type. */
-    public FuncType() {
+    private FuncType() {
       inputs = List.of();
       output = null;
     }
@@ -134,7 +148,7 @@ public sealed interface FuncTypes {
      * @param inputs the ordered list of parameter types; must not be {@code null}.
      * @param output the return type, or {@code null} for a void function.
      */
-    public FuncType(@NotNull List<Type> inputs, @Nullable Type output) {
+    private FuncType(@NotNull List<Type> inputs, @Nullable Type output) {
       this.inputs = Collections.unmodifiableList(inputs);
       this.output = output;
     }

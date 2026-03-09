@@ -52,7 +52,7 @@ public sealed interface BuiltinTypes {
 
   static @NotNull IntegerT integerTypeByWidth(int width, boolean isSigned) {
     return switch (width) {
-      case 1 -> IntegerT.UINT1;
+      case 1 -> IntegerT.INT1;
       case 8 -> isSigned ? IntegerT.INT8 : IntegerT.UINT8;
       case 16 -> isSigned ? IntegerT.INT16 : IntegerT.UINT16;
       case 32 -> isSigned ? IntegerT.INT32 : IntegerT.UINT32;
@@ -109,10 +109,10 @@ public sealed interface BuiltinTypes {
     // =========================================================================
 
     /** 1-bit integer used as a boolean ({@code false} = 0, {@code true} = 1). */
-    public static final IntegerT UINT1 = new IntegerT(1, false);
+    public static final IntegerT INT1 = new IntegerT(1, true);
 
-    /** Alias for {@link #UINT1}. */
-    public static final IntegerT BOOL = UINT1;
+    /** Alias for {@link #INT1}. */
+    public static final IntegerT BOOL = INT1;
 
     /** 8-bit signed integer. */
     public static final IntegerT INT8 = new IntegerT(8, true);
@@ -153,8 +153,7 @@ public sealed interface BuiltinTypes {
      * checking purposes, since the signedness is mostly a semantic detail that is important for the
      * arithmetic operations.
      */
-    @Override
-    public boolean equals(@Nullable Object obj) {
+    public boolean equal(@Nullable Object obj) {
       if (obj instanceof Type other) {
         String normalizedOther = other.getParameterizedIdent().replace("u", "");
         String normalizedThis = getParameterizedIdent().replace("u", "");
@@ -180,7 +179,7 @@ public sealed interface BuiltinTypes {
 
     @Override
     public @NotNull @Unmodifiable List<Type> getDefaultTypeInstances() {
-      return List.of(UINT1, INT8, INT16, INT32, INT64, UINT8, UINT16, UINT32, UINT64);
+      return List.of(INT1, INT8, INT16, INT32, INT64, UINT8, UINT16, UINT32, UINT64);
     }
 
     // =========================================================================
@@ -199,8 +198,7 @@ public sealed interface BuiltinTypes {
 
     /** Create a default 32-bit integer type. */
     IntegerT() {
-      width = 32;
-      signed = true;
+      this(32);
     }
 
     /**
@@ -273,13 +271,13 @@ public sealed interface BuiltinTypes {
      */
     @Contract(pure = true)
     public Number convertToValidNumber(long number) {
-      return switch (getWidth()) {
+      return switch (width) {
         case 1 -> (byte) (number == 0 ? 0 : 1);
         case 8 -> (byte) number;
         case 16 -> (short) number;
         case 32 -> (int) number;
         case 64 -> number;
-        default -> throw new RuntimeException("Invalid integer width: " + getWidth());
+        default -> throw new RuntimeException("Invalid integer width: " + width);
       };
     }
 
@@ -294,19 +292,11 @@ public sealed interface BuiltinTypes {
      * @param number the number to normalize
      * @return the normalized long representation of the number.
      */
-    public long normalizedLongRepresentation(Number number) {
-      assert number instanceof Byte
-              || number instanceof Short
-              || number instanceof Integer
-              || number instanceof Long
-          : "Input number must be an instance of Byte, Short, Integer, or Long: " + number;
-      long value = number.longValue();
+    public long normalizedLongRepresentation(long number) {
       if (isSigned()) {
-        return value;
+        return number;
       } else {
-        if (width >= 64) return value;
-        long mask = (1L << width) - 1L;
-        return value & mask;
+        return number & (1L << width) - 1L;
       }
     }
   }
@@ -319,8 +309,8 @@ public sealed interface BuiltinTypes {
    * <p>Pre-built singleton instances:
    *
    * <pre>
-   *   FloatT.FLOAT32  — 32-bit IEEE 754 float
-   *   FloatT.FLOAT64  — 64-bit IEEE 754 double
+   *   FloatT.FLOAT32 — 32-bit IEEE 754 float
+   *   FloatT.FLOAT64 — 64-bit IEEE 754 double
    * </pre>
    */
   final class FloatT extends BuiltinType implements BuiltinTypes {
@@ -369,13 +359,15 @@ public sealed interface BuiltinTypes {
     /** The bit-width of this floating-point type (32 or 64). */
     private final int width;
 
+    private final @NotNull Function<@NotNull Number, @NotNull Number> conversionFunction;
+
     // =========================================================================
     // Constructors
     // =========================================================================
 
     /** Create a default 32-bit float type. */
     FloatT() {
-      width = 32;
+      this(32);
     }
 
     /**
@@ -386,6 +378,7 @@ public sealed interface BuiltinTypes {
     private FloatT(int width) {
       assert width == 32 || width == 64 : "Invalid float width: " + width;
       this.width = width;
+      conversionFunction = pickCorrectConversion(width);
     }
 
     // =========================================================================
@@ -403,10 +396,15 @@ public sealed interface BuiltinTypes {
     }
 
     public Number convertToValidNumber(Number number) {
-      return switch (getWidth()) {
-        case 32 -> number.floatValue();
-        case 64 -> number.doubleValue();
-        default -> throw new RuntimeException("Invalid float width: " + getWidth());
+      return conversionFunction.apply(number);
+    }
+
+    private static @NotNull Function<@NotNull Number, @NotNull Number> pickCorrectConversion(
+        int width) {
+      return switch (width) {
+        case 32 -> Number::floatValue;
+        case 64 -> Number::doubleValue;
+        default -> throw new RuntimeException("Invalid float width: " + width);
       };
     }
   }

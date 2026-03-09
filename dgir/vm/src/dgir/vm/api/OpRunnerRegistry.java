@@ -4,11 +4,9 @@ import dgir.core.Dialect;
 import dgir.core.ir.Op;
 import dgir.core.ir.Operation;
 import dgir.core.ir.OperationDetails;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
 
 /**
  * This class is responsible for managing the registry of operation runners in the Blockly VM. It
@@ -23,10 +21,16 @@ import org.jetbrains.annotations.NotNull;
 public class OpRunnerRegistry {
   private static final @NotNull Map<@NotNull Class<? extends Dialect>, @NotNull DialectRunner>
       dialectRunners = new HashMap<>();
-  private static final @NotNull Map<@NotNull OperationDetails, @NotNull OpRunner> opRunners =
-      new HashMap<>();
+  private static final @NotNull IdentityHashMap<@NotNull OperationDetails, @NotNull OpRunner>
+      opRunners = new IdentityHashMap<>();
 
   private OpRunnerRegistry() {}
+
+  public static void clearRunnerStates() {
+    for (OpRunner runner : opRunners.values()) {
+      runner.clearsState();
+    }
+  }
 
   public static void registerDialectRunner(@NotNull DialectRunner runner) {
     if (dialectRunners.containsKey(runner.getDialect())) return;

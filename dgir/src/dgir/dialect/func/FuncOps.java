@@ -88,7 +88,7 @@ public sealed interface FuncOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return operation -> {
         CallOp callOp = operation.as(CallOp.class).orElseThrow();
 
@@ -248,7 +248,7 @@ public sealed interface FuncOps {
       List<Type> inputTypes =
           getOperands().stream().map(ValueOperand::getType).map(type -> type.orElse(null)).toList();
       Type outputType = getOutput().map(OperationResult::getType).orElse(null);
-      return new FuncType(inputTypes, outputType);
+      return FuncType.of(inputTypes, outputType);
     }
 
     @Contract(pure = true)
@@ -297,7 +297,7 @@ public sealed interface FuncOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return ignored -> true;
     }
 
@@ -307,13 +307,17 @@ public sealed interface FuncOps {
       return List.of(
           new NamedAttribute(
               SymbolTable.getSymbolAttributeName(), new BuiltinAttrs.StringAttribute("foo")),
-          new NamedAttribute("type", new BuiltinAttrs.TypeAttribute(new FuncType())));
+          new NamedAttribute("type", new BuiltinAttrs.TypeAttribute(FuncType.empty())));
     }
 
     @Override
-    public Constructor<? extends ITerminator> getImplicitTerminatorType()
-        throws NoSuchMethodException {
-      return ReturnOp.class.getConstructor(Location.class);
+    public @NotNull Constructor<? extends ITerminator> getImplicitTerminatorType() {
+      return new ReturnOp()
+          .getLocationConstructor()
+          .orElseThrow(
+              () ->
+                  new AssertionError(
+                      "FuncOp's implicit terminator must have a location constructor"));
     }
 
     // =========================================================================
@@ -329,7 +333,7 @@ public sealed interface FuncOps {
      * @param name the symbol name of the function.
      */
     public FuncOp(@NotNull Location location, @NotNull String name) {
-      this(location, name, new FuncType());
+      this(location, name, FuncType.empty());
     }
 
     /**
@@ -426,7 +430,7 @@ public sealed interface FuncOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return operation -> {
         ReturnOp returnOp = operation.as(ReturnOp.class).orElseThrow();
 
@@ -462,6 +466,19 @@ public sealed interface FuncOps {
         }
         return true;
       };
+    }
+
+    @Override
+    public @NotNull Optional<Constructor<? extends ITerminator>> getLocationConstructor() {
+      try {
+        return Optional.of(ReturnOp.class.getConstructor(Location.class));
+      } catch (NoSuchMethodException e) {
+        throw new AssertionError(
+            "Terminator "
+                + ReturnOp.class
+                + "does not define a public constructor that takes only a location as parameter.",
+            e);
+      }
     }
 
     // =========================================================================

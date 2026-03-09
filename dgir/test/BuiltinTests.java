@@ -57,7 +57,7 @@ public class BuiltinTests {
 
     var fooFuncOp =
         programOp.addOperation(
-            new FuncOp(LOC, "foo", new FuncType(List.of(StringT.INSTANCE), StringT.INSTANCE)));
+            new FuncOp(LOC, "foo", FuncType.of(List.of(StringT.INSTANCE), StringT.INSTANCE)));
     {
       fooFuncOp.addOperation(new ReturnOp(LOC, fooFuncOp.getArgument(0).orElseThrow()), 0);
     }
@@ -139,7 +139,7 @@ public class BuiltinTests {
     assertEquals("int8", narrowed.getType().getParameterizedIdent());
     assertEquals(44, narrowed.getValue().byteValue());
 
-    assertEquals("uint1", normalizedBool.getType().getParameterizedIdent());
+    assertEquals("int1", normalizedBool.getType().getParameterizedIdent());
     assertEquals(1, normalizedBool.getValue().byteValue());
   }
 }

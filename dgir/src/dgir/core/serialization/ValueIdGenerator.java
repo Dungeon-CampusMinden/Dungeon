@@ -1,6 +1,7 @@
 package dgir.core.serialization;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import dgir.core.debug.ValueDebugInfo;
 import dgir.core.ir.Value;
 
 import java.io.Serial;
@@ -41,6 +42,8 @@ public class ValueIdGenerator extends ObjectIdGenerator<String> {
 
   @Override
   public String generateId(Object forPojo) {
-    return "%" + nextId++;
+    Value value = (Value) forPojo;
+    if (value.getDebugInfo().equals(ValueDebugInfo.UNKNOWN)) return "%" + nextId++;
+    else return "%" + value.getDebugInfo().name() + "_" + nextId++;
   }
 }

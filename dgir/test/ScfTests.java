@@ -809,7 +809,7 @@ public class ScfTests {
 
     // Create helper function with SCF ops
     FuncOp helperFunc =
-        programOp.addOperation(new FuncOp(LOC, "helper", new FuncType(List.of(), IntegerT.INT32)));
+        programOp.addOperation(new FuncOp(LOC, "helper", FuncType.of(List.of(), IntegerT.INT32)));
 
     var initValue = helperFunc.addOperation(new ConstantOp(LOC, 0), 0);
     var lowerBound = helperFunc.addOperation(new ConstantOp(LOC, 0), 0);

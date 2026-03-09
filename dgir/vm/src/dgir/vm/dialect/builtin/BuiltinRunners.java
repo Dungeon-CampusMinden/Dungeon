@@ -15,8 +15,7 @@ public sealed interface BuiltinRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      BuiltinOps.IdOp idOp = op.as(BuiltinOps.IdOp.class).orElseThrow();
-      state.setValueForOutput(op, state.getValue(idOp.getOperand()));
+      state.setValueForOutput(op, state.getValue(op.getOperand(0).orElseThrow()));
       return Action.Next();
     }
   }

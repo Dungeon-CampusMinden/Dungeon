@@ -192,7 +192,10 @@ public class OperationVerifier {
     }
 
     // Operation must be registered
-    Optional<OperationDetails.Registered> details = operation.getDetails() instanceof OperationDetails.Registered registered ? Optional.of(registered) : Optional.empty();
+    Optional<OperationDetails.Registered> details =
+        operation.getDetails() instanceof OperationDetails.Registered registered
+            ? Optional.of(registered)
+            : Optional.empty();
     if (details.isEmpty()) {
       operation.emitError("Operation is not registered");
       return false;
@@ -201,8 +204,7 @@ public class OperationVerifier {
     // Verify traits first, then the operation's own verify()
     if (!details.get().verifyTraits(operation)) return false;
     if (!details.get().verify(operation)) {
-      operation.emitError(
-          "Operation failed verification through registered details.");
+      operation.emitError("Operation failed verification through registered details.");
       return false;
     }
 
@@ -252,7 +254,14 @@ public class OperationVerifier {
     }
 
     if (!isValidWithoutTerminator(block) && !block.hasTerminator()) {
-      block.getOperations().getLast().emitError("Block does not have a terminator");
+      block
+          .getParentOperation()
+          .orElse(block.getOperations().getLast())
+          .emitError(
+              block
+                  + " in Region["
+                  + block.getParent().map(Region::getIndex).orElse(-1)
+                  + "] does not have a terminator");
       return false;
     }
 

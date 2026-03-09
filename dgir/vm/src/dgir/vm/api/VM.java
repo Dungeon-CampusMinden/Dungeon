@@ -122,6 +122,7 @@ public class VM {
     opStack.clear();
     opStack.push(program.getOperation());
     lastAction = null;
+    OpRunnerRegistry.clearRunnerStates();
   }
 
   // =========================================================================

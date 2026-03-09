@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static dgir.dialect.arith.ArithOps.*;
 import static dgir.dialect.arith.ArithOps.BinaryOp;
 import static dgir.dialect.builtin.BuiltinTypes.isNumeric;
 
@@ -40,10 +41,55 @@ public sealed interface ArithAttrs {
     }
 
     public enum UnaryMode {
-      NEGATE,
-      INCREMENT,
-      DECREMENT,
-      COMPLEMENT
+      NEGATE(UnaryMode::onlyNumericOperand),
+      INCREMENT(UnaryMode::onlyNumericOperand),
+      DECREMENT(UnaryMode::onlyNumericOperand),
+      COMPLEMENT(UnaryMode::onlyIntegerOperand),
+      LOGICAL_COMPLEMENT(UnaryMode::onlyBooleanOperand),
+      ;
+
+      public final @NotNull Function<@NotNull UnaryOp, @NotNull Optional<String>> operandVerifier;
+
+      UnaryMode(@NotNull Function<@NotNull UnaryOp, @NotNull Optional<String>> operandVerifier) {
+        this.operandVerifier = operandVerifier;
+      }
+
+      public static Optional<String> onlyNumericOperand(@NotNull UnaryOp unaryOp) {
+        int width =
+            switch (unaryOp.getOperand().getType()) {
+              case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
+              case BuiltinTypes.FloatT floatT -> floatT.getWidth();
+              default -> 0;
+            };
+        if (width == 0) {
+          return Optional.of("Operand must be a numeric type with a width greater than 0");
+        }
+        return Optional.empty();
+      }
+
+      public static Optional<String> onlyIntegerOperand(@NotNull UnaryOp unaryOp) {
+        int width =
+            switch (unaryOp.getOperand().getType()) {
+              case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
+              default -> 0;
+            };
+        if (width == 0) {
+          return Optional.of("Operand must be an integer type with a width greater than 0");
+        }
+        return Optional.empty();
+      }
+
+      public static Optional<String> onlyBooleanOperand(@NotNull UnaryOp unaryOp) {
+        int width =
+            switch (unaryOp.getOperand().getType()) {
+              case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
+              default -> 1;
+            };
+        if (width != 1) {
+          return Optional.of("Operand must be a boolean type with a width of 1");
+        }
+        return Optional.empty();
+      }
     }
 
     private @NotNull UnaryMode unaryMode;

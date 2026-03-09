@@ -3,8 +3,10 @@ package dgir.core.traits;
 import dgir.core.OperationVerifier;
 import dgir.core.ir.Block;
 import dgir.core.ir.Operation;
-import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.Constructor;
+import java.util.Optional;
 
 /**
  * Marks an operation as a block terminator — the last operation in a {@link Block} that transfers
@@ -13,9 +15,6 @@ import org.jetbrains.annotations.NotNull;
  * <p>The verifier checks that the op is placed inside a block and that it is indeed the last
  * operation in that block. {@link OperationVerifier} also checks this structurally during
  * block-exit validation.
- *
- * <p>Examples: {@link dialect.cf.BranchOp}, {@link dialect.cf.BranchCondOp}, {@link
- * dialect.func.ReturnOp}, {@link dialect.scf.BreakOp}, {@link dialect.scf.ContinueOp}.
  */
 public interface ITerminator extends IOpTrait {
   default boolean verify(@NotNull ITerminator ignored) {
@@ -32,4 +31,12 @@ public interface ITerminator extends IOpTrait {
     }
     return true;
   }
+
+  /**
+   * Returns the constructor for this terminator which takes a location.
+   *
+   * @return the constructor for this terminator which takes a location.
+   */
+  @NotNull
+  Optional<Constructor<? extends ITerminator>> getLocationConstructor();
 }

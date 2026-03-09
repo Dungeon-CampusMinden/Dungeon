@@ -94,7 +94,7 @@ public sealed interface BuiltinOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return operation -> {
         // Make sure that there is a toplevel func op with symbol_name "main"
         boolean hasMainFunc = false;
@@ -176,7 +176,7 @@ public sealed interface BuiltinOps {
     }
 
     @Override
-    public Function<Operation, Boolean> getVerifier() {
+    public @NotNull Function<Operation, Boolean> getVerifier() {
       return operation -> {
         if (!operation
             .getOperandValue(0)
