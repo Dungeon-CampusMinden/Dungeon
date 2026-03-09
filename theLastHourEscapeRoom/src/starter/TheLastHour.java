@@ -7,6 +7,7 @@ import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.entities.HeroController;
 import contrib.modules.keypad.KeypadSystem;
+import contrib.systems.AttributeBarSystem;
 import contrib.systems.CollisionSystem;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
@@ -44,7 +45,9 @@ public class TheLastHour {
   private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
   private static Music backgroundMusic;
 
-  private static final boolean DEBUG_MODE = true;
+  /** Enable or disable debug mode, which adds extra systems for debugging and level editing. */
+  public static final boolean DEBUG_MODE = false;
+
   private static final boolean RUN_MP_SERVER = true;
 
   /**
@@ -80,6 +83,7 @@ public class TheLastHour {
       ECSManagement.add(new VelocitySystem());
       ECSManagement.add(new FrictionSystem());
       ECSManagement.add(new MoveSystem());
+      ECSManagement.remove(AttributeBarSystem.class);
 
       ECSManagement.system(
           LevelSystem.class,
