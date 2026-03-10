@@ -371,7 +371,7 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Sets the entity static or non-static.
+   * Sets the callback that definies if an entity is static or non-static.
    *
    * @param callback Function that receives an entity and returns true, if the entity is static.
    */
