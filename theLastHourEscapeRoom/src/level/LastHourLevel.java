@@ -114,7 +114,9 @@ public class LastHourLevel extends DungeonLevel {
         Lore.IntroTexts,
         false,
         true,
-        () -> DialogFactory.showOkDialog(Lore.PostIntroDialogTexts.getFirst(), "", () -> {}, targetId),
+        () ->
+            DialogFactory.showOkDialog(
+                Lore.PostIntroDialogTexts.getFirst(), "", () -> {}, targetId),
         targetId);
     INTRO_SHOWN_TO.add(targetId);
   }
@@ -142,16 +144,14 @@ public class LastHourLevel extends DungeonLevel {
     Entity triggerLockMove = new Entity("end-trigger-lock-move");
     triggerLockMove.add(new PositionComponent(getPoint("end-trigger-lock-move")));
     triggerLockMove.add(
-      new CollideComponent(
-        Vector2.ZERO,
-        Vector2.ONE,
-        (e, other, dir) -> {
-          other
-            .fetch(InputComponent.class)
-            .ifPresent(InputComponent::deactivateControls);
-        },
-        null)
-        .isSolid(false));
+        new CollideComponent(
+                Vector2.ZERO,
+                Vector2.ONE,
+                (e, other, dir) -> {
+                  other.fetch(InputComponent.class).ifPresent(InputComponent::deactivateControls);
+                },
+                null)
+            .isSolid(false));
     Game.add(trigger);
   }
 
@@ -316,7 +316,8 @@ public class LastHourLevel extends DungeonLevel {
                                 () -> {
                                   ComputerStateComponent.setState(ComputerProgress.ON);
                                   Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
-                                }, who.id());
+                                },
+                                who.id());
                           },
                           () -> {},
                           who.id());
@@ -362,7 +363,9 @@ public class LastHourLevel extends DungeonLevel {
                                 builder.put(
                                     TrashMinigameUI.KEY_NOTE_PATH,
                                     index == trashIndex ? trashNote : null);
-                                builder.put(TrashMinigameUI.KEY_PAPER_COUNT, PaperCounts.get(index % PaperCounts.size()));
+                                builder.put(
+                                    TrashMinigameUI.KEY_PAPER_COUNT,
+                                    PaperCounts.get(index % PaperCounts.size()));
                                 DialogFactory.show(builder.build(), who.id());
                               })));
               Game.add(trashcan);

@@ -249,15 +249,17 @@ public class EmailsTab extends ComputerTab {
   }
 
   private void clickedAttachment(String attachmentName) {
-    if(Lore.VirusAttachmentNames.contains(attachmentName)) {
+    if (Lore.VirusAttachmentNames.contains(attachmentName)) {
       var newState =
-        ComputerStateComponent.getState()
-          .orElseThrow()
-          .withVirusType(Lore.CodePageIndexToVirusType.get((int)(Math.random() * Lore.CodePageIndexToVirusType.size())))
-          .withInfection(true);
+          ComputerStateComponent.getState()
+              .orElseThrow()
+              .withVirusType(
+                  Lore.CodePageIndexToVirusType.get(
+                      (int) (Math.random() * Lore.CodePageIndexToVirusType.size())))
+              .withInfection(true);
       DialogCallbackResolver.createButtonCallback(
-          context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
-        .accept(newState);
+              context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
+          .accept(newState);
       return;
     }
     ComputerDialog.getInstance()

@@ -58,7 +58,7 @@ public final class LastHourClient {
     Game.userOnSetup(
         () -> {
           registerEntitySpawnHandler();
-          if(TheLastHour.DEBUG_MODE) {
+          if (TheLastHour.DEBUG_MODE) {
             Game.add(new Debugger());
           }
           Game.stage().ifPresent(CursorUtil::initListener);
