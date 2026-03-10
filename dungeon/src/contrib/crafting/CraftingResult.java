@@ -7,7 +7,7 @@ package contrib.crafting;
  * recipe is crafted and can be used to add items to the player's inventory, add components to the
  * player's entity, etc...
  */
-public interface CraftingResult {
+public interface CraftingResult extends Copyable<CraftingResult>  {
 
   /**
    * Returns the type of the crafting result.
@@ -29,4 +29,6 @@ public interface CraftingResult {
    * @return The amount of the crafting result.
    */
   int getAmount();
+  @Override
+  CraftingResult copy();
 }
