@@ -42,9 +42,11 @@ import core.sound.player.GdxSoundPlayer;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
 import core.systems.*;
+import core.systems.input.InputManager;
+import core.systems.input.InputSystem;
+import core.systems.input.JoystickSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
-import core.utils.InputManager;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.DrawComponentFactory;
 import core.utils.logging.DungeonLogger;
@@ -593,5 +595,6 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new InputSystem());
     ECSManagement.add(new DebugDrawSystem());
     ECSManagement.add(new AttributeBarSystem());
+    ECSManagement.add(new JoystickSystem());
   }
 }

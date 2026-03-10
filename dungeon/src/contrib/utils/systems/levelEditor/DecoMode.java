@@ -13,7 +13,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.DungeonLevel;
-import core.utils.InputManager;
+import core.systems.input.InputManager;
 import core.utils.Point;
 import core.utils.Rectangle;
 import core.utils.Vector2;
