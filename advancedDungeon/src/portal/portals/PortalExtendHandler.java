@@ -15,8 +15,6 @@ public class PortalExtendHandler {
    * @param other The entity that is being extended.
    */
   public static void clearExtendedEntity(Entity portal, Entity other) {
-    // TODO: warum geht das, die portalextend component wird doch immer zum collider hinzugefügt und
-    // nicht zur Entity direkt
     other
         .fetch(PortalExtendComponent.class)
         .ifPresent(
