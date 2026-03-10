@@ -532,6 +532,16 @@ public class %ClassName {
     assert b1 : "Expected true, but got " + b1;
     assert s3.length() == 13 : "Expected length 13, but got " + s3.length();
     assert s3.charAt(11) == 'd' : "Expected 'd', but got " + s3.charAt(6);
+    assert s3.substring(0, 5).equals("Hello") : "Expected 'Hello', but got " + s3.substring(0, 5);
+    assert s3.indexOf("world") == 7 : "Expected index of 'world' to be 7, but got " + s3.indexOf("world");
+    assert s3.lastIndexOf("world") == 7 : "Expected index of 'world' to be 7, but got " + s3.lastIndexOf("world");
+    assert s3.isEmpty() == false : "Expected false for isEmpty, but got " + s3.isEmpty();
+    assert s3.toUpperCase().equals("HELLO, WORLD!") : "Expected 'HELLO, WORLD!', but got " + s3.toUpperCase();
+    assert s3.toLowerCase().equals("hello, world!") : "Expected 'hello, world!', but got " + s3.toLowerCase();
+    assert s3.startsWith("Hello") : "Expected 'Hello', but got " + s3.startsWith("Hello");
+    assert s3.endsWith("!") : "Expected '!', but got " + s3.endsWith("!");
+
+    assert "Hello".append(" World").toUpperCase().equals("HELLO WORLD!") : "Bruh";
   }
 }
 """;

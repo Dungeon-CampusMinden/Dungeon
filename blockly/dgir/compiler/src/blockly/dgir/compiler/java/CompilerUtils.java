@@ -23,7 +23,7 @@ public class CompilerUtils {
     try {
       resolved = target.resolve();
     } catch (UnsolvedSymbolException e) {
-      context.emitError((Node) target, "Failed to resolve symbol: " + e.getName());
+      context.emitError((Node) target, "Failed to resolve " + e.getName());
       return Optional.empty();
     }
     return Optional.ofNullable(resolved);

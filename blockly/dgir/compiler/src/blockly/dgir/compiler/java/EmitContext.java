@@ -108,6 +108,8 @@ public final class EmitContext {
   /** The point at which the next operation will be inserted. */
   private @Nullable InsertionPoint insertionPoint = null;
 
+  private @Nullable EmitResult<Optional<Value>> lastResult;
+
   EmitContext(@NotNull String filename) {
     this.filename = filename;
   }
@@ -189,6 +191,31 @@ public final class EmitContext {
   <OpT extends Op> @NotNull OpT insert(@NotNull OpT op) {
     insert(op.getOperation());
     return op;
+  }
+
+  public void succeed() {
+    lastResult = EmitResult.of(Optional.empty());
+  }
+
+  public void succeed(@NotNull Value value) {
+    lastResult = EmitResult.of(Optional.of(value));
+  }
+
+  public void fail() {
+    lastResult = EmitResult.failure();
+  }
+
+  public void fail(Node node, String message, Object... args) {
+    lastResult = EmitResult.failure(this, node, message, args);
+  }
+
+  public @NotNull EmitResult<Optional<Value>> consumeLastResult() {
+    if (lastResult == null) {
+      throw new IllegalStateException("No value available to consume.");
+    }
+    EmitResult<Optional<Value>> result = lastResult;
+    lastResult = null;
+    return result;
   }
 
   /**

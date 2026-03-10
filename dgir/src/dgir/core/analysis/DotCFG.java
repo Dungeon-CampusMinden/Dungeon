@@ -3,11 +3,14 @@ package dgir.core.analysis;
 import dgir.core.ir.Block;
 import dgir.core.ir.Operation;
 import dgir.core.ir.Region;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Builds a hierarchical CFG (control-flow graph) representation in Graphviz DOT format.
@@ -53,8 +56,8 @@ public class DotCFG {
     private final @NotNull List<Cluster> children = new ArrayList<>();
 
     /**
-     * Function that generates a unique DOT node identifier for an operation.
-     * Defaults to {@code <ident>_<hashCode>} with dots replaced by underscores.
+     * Function that generates a unique DOT node identifier for an operation. Defaults to {@code
+     * <ident>_<hashCode>} with dots replaced by underscores.
      */
     public static Function<Operation, String> identGenerator =
         op -> op.getDetails().ident().replace(".", "_") + "_" + op.hashCode();
@@ -130,7 +133,7 @@ public class DotCFG {
     /**
      * Indent each non-empty line of {@code s} by {@code level} tab characters.
      *
-     * @param s     the string to pad.
+     * @param s the string to pad.
      * @param level the number of tab characters to prepend to each non-empty line.
      * @return the indented string.
      */

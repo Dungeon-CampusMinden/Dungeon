@@ -29,9 +29,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TestUtils {
   public static ObjectMapper mapper = Utils.getMapper(true);
   public static boolean printResult = true;
-  public static boolean saveResult = false;
-  public static boolean printCfg = false;
-  public static boolean saveCfg = false;
+  public static boolean saveResult = true;
+  public static boolean printCfg = true;
+  public static boolean saveCfg = true;
   public static boolean saveCfgImage = true;
   // The file path for saved files (cfg and image)
   public static String savePath = "test_results/";
