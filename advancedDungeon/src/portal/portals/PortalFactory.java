@@ -1,9 +1,7 @@
 package portal.portals;
 
 import contrib.components.CollideComponent;
-import contrib.components.ProjectileComponent;
 import contrib.components.SkillComponent;
-import contrib.systems.EventScheduler;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
@@ -18,8 +16,6 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
 import portal.portals.components.PortalComponent;
-import portal.portals.components.PortalExtendComponent;
-import portal.portals.components.PortalIgnoreComponent;
 import portal.riddles.utils.PortalUtils;
 
 // TODO: die ganze klasse muss refactored werden
@@ -49,98 +45,87 @@ public class PortalFactory {
    *
    * @param point the position where the portal will be placed.
    * @param direction The output direction of the portal.
-   * @param color the portal color, see {@link PortalColor}
+   * @param color the portal color, see {@link PortalColor}f
    */
   public static void createPortal(Point point, Direction direction, PortalColor color) {
-    System.out.println(color);
+    Optional<Entity> portalToCreate =
+        color == PortalColor.BLUE ? PortalUtils.getBluePortal() : PortalUtils.getGreenPortal();
+    Optional<Entity> otherPortal =
+        color == PortalColor.BLUE ? PortalUtils.getGreenPortal() : PortalUtils.getBluePortal();
+    String portalName =
+        color == PortalColor.BLUE ? PortalUtils.BLUE_PORTAL_NAME : PortalUtils.GREEN_PORTAL_NAME;
+    SimpleIPath texturePath =
+        color == PortalColor.BLUE ? BLUE_PORTAL_TEXTURE : GREEN_PORTAL_TEXTURE;
 
-    Optional<Entity> portalToCreate;
-    Optional<Entity> otherPortal;
-    String portalName;
-    SimpleIPath texturePath;
-    if (color == PortalColor.BLUE) {
-      portalToCreate = PortalUtils.getBluePortal();
-      otherPortal = PortalUtils.getGreenPortal();
-      portalName = PortalUtils.BLUE_PORTAL_NAME;
-      texturePath = BLUE_PORTAL_TEXTURE;
-    } else {
-      portalToCreate = PortalUtils.getGreenPortal();
-      otherPortal = PortalUtils.getBluePortal();
-      portalName = PortalUtils.GREEN_PORTAL_NAME;
-      texturePath = GREEN_PORTAL_TEXTURE;
+    checkIfOtherPortalIsPresent(otherPortal, point);
+    portalToCreate.ifPresentOrElse(portal -> updateExistingPortal(portal, point, direction, color),
+        () ->
+          spawnNewPortal(portalName, texturePath, point, direction, color)
+        );
+  }
+
+  private static void spawnNewPortal(String portalName, SimpleIPath texturePath, Point point, Direction direction, PortalColor color ) {
+    Entity portal = new Entity(portalName);
+    // To allow collision with the stationary Portal elements like lightwalls.
+    portal.add(new VelocityComponent(0.0000000001f));
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(texturePath);
+
+    State fallback = new State("NONE", animationMap.get("fallback"));
+    State top = new State("UP", animationMap.get("bottom"));
+    State bottom = new State("DOWN", animationMap.get("fallback"));
+    State left = new State("LEFT", animationMap.get("left"));
+    State right = new State("RIGHT", animationMap.get("right"));
+    StateMachine sm = new StateMachine(Arrays.asList(fallback, top, bottom, left, right));
+    sm.setState(direction.name(), null);
+    portal.add(new DrawComponent(sm));
+    updateVisual(color, direction);
+
+    PositionComponent pc = new PositionComponent(point);
+    pc.viewDirection(direction);
+    portal.add(pc);
+
+    CollideComponent cc = PortalCollisionHandler.setCollideComponent(
+      direction, PortalCollisionHandler.createOnCollideHandler(color));
+    cc.onHold(PortalCollisionHandler.createOnHoldHandler(color));
+
+    cc.isSolid(false);
+    portal.add(cc);
+    portal.add(new PortalComponent());
+
+    Game.add(portal);
+    ignorePortalInProjectiles(portal);
+  }
+
+  private static void updateExistingPortal(Entity portal, Point point, Direction direction, PortalColor color) {
+    Point oldPosition = portal.fetch(PositionComponent.class).get().position();
+    // wenn das Portal an die gleiche stelle geschossen wird, passiert nichts
+    if (oldPosition.equals(point)) {
+      return;
     }
 
-    otherPortal
-      .ifPresent(
-        portal -> {
-          if (portal.fetch(PositionComponent.class).get().position().equals(point)) {
-            Entity other =
-              portal.fetch(PortalComponent.class).get().getExtendedEntityThrough();
-            if (other != null) {
-              PortalExtendHandler.clearExtendedEntity(portal, other);
-            }
-            PortalUtils.getGreenPortal().ifPresent(PortalFactory::clearPortal);
-          }
-        });
+    // cleared the Extended Entity property
+    Entity other = portal.fetch(PortalComponent.class).get().getExtendedEntityThrough();
+    if (other != null) {
+      PortalExtendHandler.clearExtendedEntity(portal, other);
+    }
 
-    portalToCreate
-      .ifPresentOrElse(
-        portal -> {
-          Point oldPosition = portal.fetch(PositionComponent.class).get().position();
-          // wenn das Portal an die gleiche stelle geschossen wird, passiert nichts
-          if (oldPosition.equals(point)) {
-            return;
-          }
+    // moves the portal
+    moveExistingPortal(portal, direction, point, color);
+    updateVisual(color, direction);
+  }
 
-          // cleared the Extended Entity property
-          Entity other =
-            portal.fetch(PortalComponent.class).get().getExtendedEntityThrough();
+
+  private static void checkIfOtherPortalIsPresent(Optional<Entity> otherPortal, Point point) {
+    otherPortal.ifPresent(
+      portal -> {
+        if (portal.fetch(PositionComponent.class).get().position().equals(point)) {
+          Entity other = portal.fetch(PortalComponent.class).get().getExtendedEntityThrough();
           if (other != null) {
             PortalExtendHandler.clearExtendedEntity(portal, other);
           }
-
-          // moves the portal
-          moveExistingPortal(portal, direction, point, color);
-          updateVisual(color, direction);
-        },
-        () -> {
-          Entity portal = new Entity(portalName);
-          // To allow collision with the stationary Portal elements like lightwalls.
-          portal.add(new VelocityComponent(0.0000000001f));
-          Map<String, Animation> animationMap =
-            Animation.loadAnimationSpritesheet(texturePath);
-
-          State fallback = new State("NONE", animationMap.get("fallback"));
-          State top = new State("UP", animationMap.get("bottom"));
-          State bottom = new State("DOWN", animationMap.get("fallback"));
-          State left = new State("LEFT", animationMap.get("left"));
-          State right = new State("RIGHT", animationMap.get("right"));
-          StateMachine sm = new StateMachine(Arrays.asList(fallback, top, bottom, left, right));
-          sm.setState(direction.name(), null);
-          portal.add(new DrawComponent(sm));
-          updateVisual(color, direction);
-
-          PositionComponent pc = new PositionComponent(point);
-          pc.viewDirection(direction);
-          portal.add(pc);
-
-          if (color ==  PortalColor.BLUE) {
-            CollideComponent cc = PortalCollisionHandler.setCollideComponent(direction, PortalCollisionHandler.createOnCollideHandler(PortalColor.BLUE));
-            cc.isSolid(false);
-            cc.onHold(PortalCollisionHandler.createOnHoldHandler(PortalColor.BLUE));
-            portal.add(cc);
-          } else {
-            CollideComponent cc = PortalCollisionHandler.setCollideComponent(direction, PortalCollisionHandler.createOnCollideHandler(PortalColor.GREEN));
-            cc.isSolid(false);
-            cc.onHold(PortalCollisionHandler.createOnHoldHandler(PortalColor.GREEN));
-            portal.add(cc);
-          }
-
-          portal.add(new PortalComponent());
-
-          Game.add(portal);
-          ignorePortalInProjectiles(portal);
-        });
+          otherPortal.ifPresent(PortalFactory::clearPortal);
+        }
+      });
   }
 
   /**
@@ -181,7 +166,10 @@ public class PortalFactory {
                 ? PortalCollisionHandler.createOnCollideHandler(PortalColor.BLUE)
                 : PortalCollisionHandler.createOnCollideHandler(PortalColor.GREEN));
     cc.isSolid(false);
-    cc.onHold(color == PortalColor.BLUE ? PortalCollisionHandler.createOnHoldHandler(PortalColor.BLUE) : PortalCollisionHandler.createOnHoldHandler(PortalColor.GREEN));
+    cc.onHold(
+        color == PortalColor.BLUE
+            ? PortalCollisionHandler.createOnHoldHandler(PortalColor.BLUE)
+            : PortalCollisionHandler.createOnHoldHandler(PortalColor.GREEN));
     portal.remove(CollideComponent.class);
     portal.add(cc);
   }
@@ -222,5 +210,4 @@ public class PortalFactory {
     }
     Game.remove(portal);
   }
-
 }

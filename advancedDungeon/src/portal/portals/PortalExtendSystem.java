@@ -4,11 +4,10 @@ import core.Entity;
 import core.System;
 import core.components.PositionComponent;
 import core.utils.components.MissingComponentException;
+import java.util.Optional;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.riddles.utils.PortalUtils;
-
-import java.util.Optional;
 
 /**
  * The PortalExtendSystem manages the interaction with portals for entities that need to be extended
@@ -57,37 +56,32 @@ public class PortalExtendSystem extends System {
    */
   private void applyPortalExtendLogic(PortalExtendComponent pec) {
     if (pec.isThroughBlue()) {
-      PortalUtils.getGreenPortal().ifPresent(exit ->
-        PortalUtils.getBluePortal().ifPresent(entry ->
-          applyExtend(exit, entry, pec)
-        )
-      );
+      PortalUtils.getGreenPortal()
+          .ifPresent(
+              exit ->
+                  PortalUtils.getBluePortal().ifPresent(entry -> applyExtend(exit, entry, pec)));
     } else if (pec.isThroughGreen()) {
-      PortalUtils.getBluePortal().ifPresent(exit ->
-        PortalUtils.getGreenPortal().ifPresent(entry ->
-          applyExtend(exit, entry, pec)
-        )
-      );
+      PortalUtils.getBluePortal()
+          .ifPresent(
+              exit ->
+                  PortalUtils.getGreenPortal().ifPresent(entry -> applyExtend(exit, entry, pec)));
     }
   }
 
-  private void applyExtend(Entity exitPortal,Entity entryPortal, PortalExtendComponent pec) {
-    Optional<PortalComponent> portalComponent =  exitPortal.fetch(PortalComponent.class);
+  private void applyExtend(Entity exitPortal, Entity entryPortal, PortalExtendComponent pec) {
+    Optional<PortalComponent> portalComponent = exitPortal.fetch(PortalComponent.class);
     Optional<PortalComponent> otherPortalComponent = entryPortal.fetch(PortalComponent.class);
 
     Optional<Entity> other = otherPortalComponent.map(PortalComponent::getExtendedEntityThrough);
 
-    portalComponent.ifPresent(pc ->
-      other.ifPresent(pc::setExtendedEntityThrough)
-    );
+    portalComponent.ifPresent(pc -> other.ifPresent(pc::setExtendedEntityThrough));
 
-    exitPortal.fetch(PositionComponent.class).ifPresent(position -> {
-      pec.onExtend.accept(position.viewDirection(), position.position(), pec);
-      pec.setExtended(true);
-    });
-
-
+    exitPortal
+        .fetch(PositionComponent.class)
+        .ifPresent(
+            position -> {
+              pec.onExtend.accept(position.viewDirection(), position.position(), pec);
+              pec.setExtended(true);
+            });
   }
-
-
 }
