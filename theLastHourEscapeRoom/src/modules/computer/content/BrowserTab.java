@@ -154,16 +154,18 @@ public class BrowserTab extends ComputerTab {
    * @param url the URL to navigate to
    */
   public void navigate(String url) {
-    if(Lore.VirusWebsites.contains(url)) {
+    if (Lore.VirusWebsites.contains(url)) {
       localState().browserHistory().add(url);
       var newState =
-        ComputerStateComponent.getState()
-          .orElseThrow()
-          .withVirusType(Lore.CodePageIndexToVirusType.get((int)(Math.random() * Lore.CodePageIndexToVirusType.size())))
-          .withInfection(true);
+          ComputerStateComponent.getState()
+              .orElseThrow()
+              .withVirusType(
+                  Lore.CodePageIndexToVirusType.get(
+                      (int) (Math.random() * Lore.CodePageIndexToVirusType.size())))
+              .withInfection(true);
       DialogCallbackResolver.createButtonCallback(
-          context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
-        .accept(newState);
+              context().dialogId(), ComputerFactory.UPDATE_STATE_KEY)
+          .accept(newState);
       return;
     }
 
