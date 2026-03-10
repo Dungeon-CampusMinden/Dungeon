@@ -12,3 +12,4 @@ private String texture = "portal/portal_cube/portal_cube.png";
 public Entity spawn(Point spawn) {
   return Cube.portalCube(spawn, mass, isPickupable, texture);
 }
+```
