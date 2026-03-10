@@ -86,36 +86,37 @@ public class PortalCollisionHandler {
   public static TriConsumer<Entity, Entity, Direction> createOnCollideHandler(
       PortalColor portalColor) {
     return (portal, other, direction) -> {
-
-
-
       Optional<Entity> otherPortal = getOtherPortal(portalColor);
 
+
+      PositionComponent otherPc = other.fetch(PositionComponent.class).get();
+      PositionComponent portalPc = portal.fetch(PositionComponent.class).get();
+
+
+
       if (other.fetch(PortalExtendComponent.class).isPresent()) {
-        handleExtendCollide(portal, other, otherPortal,portalColor);
+        handleExtendCollide(portal, other, otherPortal, portalColor);
         return;
       }
 
-      if (other.fetch(PortalIgnoreComponent.class).isPresent()) {
-        return;
-      }
-
+      if (other.fetch(PortalIgnoreComponent.class).isPresent()) return;
       if (otherPortal.isEmpty()) return;
       if (isEntityPortal(other)) return;
 
-      PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
-      PositionComponent portalPositionComponent = portal.fetch(PositionComponent.class).get();
 
-      if (isPlayerFacingWrongDirection(other, portalPositionComponent, otherPositionComponent)) return;
+      if (isPlayerFacingWrongDirection(other, portalPc, otherPc)) return;
 
-      teleportEntity(other, portal, otherPositionComponent);
-
-      Direction portalDirection = portal.fetch(PositionComponent.class).get().viewDirection();
-      Direction otherPortalDirection = otherPortal.get().fetch(PositionComponent.class).get().viewDirection();
+      teleportEntity(other, portal, otherPc);
 
       if (isPlayer(other)) handleRotation(other, portalColor);
 
+      Direction portalDirection = portal.fetch(PositionComponent.class).get().viewDirection();
+      Direction otherPortalDirection =
+        otherPortal.get().fetch(PositionComponent.class).get().viewDirection();
+
       handleProjectiles(other, portalDirection, otherPortalDirection);
+
+
     };
   }
 
@@ -158,12 +159,14 @@ public class PortalCollisionHandler {
       PositionComponent portalPositionComponent = portal.fetch(PositionComponent.class).get();
       PositionComponent otherPositionComponent = other.fetch(PositionComponent.class).get();
 
-      Optional<Entity> otherPortal =
-          color == PortalColor.BLUE ? PortalUtils.getGreenPortal() : PortalUtils.getBluePortal();
-
       if (isPlayerFacingWrongDirection(other, portalPositionComponent, otherPositionComponent)) return;
 
       teleportEntity(other, portal, otherPositionComponent);
+
+      other.fetch(VelocityComponent.class).ifPresent(vc -> {
+        vc.clearForces();
+        vc.currentVelocity(Vector2.ONE);
+      });
 
       if (isPlayer(other)) handleRotation(other, color);
     };
@@ -173,10 +176,7 @@ public class PortalCollisionHandler {
     otherPc.position(PortalUtils.calculatePortalExit(portal));
     other.add(new PortalIgnoreComponent());
     EventScheduler.scheduleAction(() -> other.remove(PortalIgnoreComponent.class), PORTAL_DELAY);
-    other.fetch(VelocityComponent.class).ifPresent(vc -> {
-      vc.clearForces();
-      vc.currentVelocity(Vector2.ONE);
-    });
+
   }
 
   private static boolean isPlayerFacingWrongDirection(Entity other, PositionComponent portalPc, PositionComponent otherPc) {
