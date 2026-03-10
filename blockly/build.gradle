@@ -1,20 +1,13 @@
-plugins {
-  id 'antlr'
-}
-
 repositories {
-  mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-  implementation project(':dungeon'), 'com.github.javaparser:javaparser-symbol-solver-core:3.28.0'
+    implementation project(':dungeon'), 'com.github.javaparser:javaparser-symbol-solver-core:3.28.0'
 
-  // ANTLR version 4 for DSL Grammar
-  antlr supportDependencies.antlr
-
-  // JUnit 4 and Mockito for testing
-  testImplementation supportDependencies.junit
-  testRuntimeOnly supportDependencies.junitLauncher
+    // JUnit 4 and Mockito for testing
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
 }
 
 sourceSets.main.java.srcDirs = ['src/', "$buildDir/generated-src/"]
@@ -27,14 +20,12 @@ processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-sourceSets.main.antlr.srcDirs = ['src']
-
-// generate ANTLR visitor and listener classes from grammar
-generateGrammarSource {
-  maxHeapSize = '64m'
-  arguments += ['-visitor', '-listener', '-long-messages']
+tasks.withType(Jar) {
+    // filter everythink that should not be in the jar
+    exclude("**/*.xcf")
+    exclude("**/debug/**")
+    exclude("**/*.pdf") // Falls eine Library Dokumentation mitschleppt
 }
-
 
 tasks.register('runBlockly', JavaExec) {
     group = 'starter'
@@ -44,46 +35,94 @@ tasks.register('runBlockly', JavaExec) {
     args "web=${webFlag}"
 }
 
+tasks.register("npmInstall", Exec) {
+    group = 'build'
+    workingDir = file("$projectDir/frontend")
+    def os = System.getProperty('os.name').toLowerCase()
+    commandLine os.contains('windows') ? ['npm.cmd', 'install'] : ['npm', 'install']
+}
 
-tasks.named('jar', Jar) {
-    dependsOn project(':dungeon').tasks.named('jar')
-    archiveBaseName.set('Blockly')
-    archiveFileName.set('Blockly.jar')
+tasks.register("npmBuild", Exec) {
+    group = 'build'
+    workingDir = file("$projectDir/frontend")
 
-    from sourceSets.main.output
-    from project(':dungeon').sourceSets.main.output
+    def os = System.getProperty('os.name').toLowerCase()
+    commandLine os.contains('windows') ? ['npm.cmd', 'run', 'build'] : ['npm', 'run', 'build']
 
-    from {
-        configurations.runtimeClasspath.collect {
-            it.isDirectory() ? it : zipTree(it)
+    dependsOn 'npmInstall'
+}
+
+def configureBaseJar(jar) {
+    jar.with {
+        dependsOn project(':dungeon').tasks.named('jar')
+        dependsOn tasks.named('npmBuild')
+
+        from sourceSets.main.output
+        from project(':dungeon').sourceSets.main.output
+
+        from {
+            configurations.runtimeClasspath.collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
         }
+
+        // Source für Language Server
+        from(project(':dungeon').projectDir) {
+            include 'src/core/level/utils/LevelElement.java'
+            eachFile { it.path = it.path.replaceFirst('src/', '') }
+            includeEmptyDirs = false
+        }
+        from(projectDir) {
+            include 'src/core/utils/Direction.java'
+            include 'src/coderunner/BlocklyCommands.java'
+            eachFile { it.path = it.path.replaceFirst('src/', '') }
+            includeEmptyDirs = false
+        }
+
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+        manifest {
+            attributes 'Main-Class': 'client.Client'
+        }
+
+        into('assets') {
+            from project(':dungeon').file('assets')
+            from projectDir.toPath().resolve('frontend/dist').toFile()
+        }
+
+        exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
     }
+}
 
+tasks.named("jar", Jar) {
+    group = 'build'
+    archiveFileName.set('Blockly.jar')
+    configureBaseJar(it)
+}
 
-    // Source für Language Server
-    from(project(':dungeon').projectDir) {
-        include 'src/core/level/utils/LevelElement.java'
-        eachFile { it.path = it.path.replaceFirst('src/', '') }
-        includeEmptyDirs = false
+tasks.register("jarWeb",  Jar) {
+    group = 'build'
+    archiveFileName.set('Blockly-web.jar')
+    archiveClassifier = 'web'
+    configureBaseJar(it)
+    from(resources.text.fromString("web=true")) {
+        rename { "application.properties" }
     }
-    from(projectDir) {
-        include 'src/core/utils/Direction.java'
-        include 'src/coderunner/BlocklyCommands.java'
-        eachFile { it.path = it.path.replaceFirst('src/', '') }
-        includeEmptyDirs = false
+}
+
+tasks.register("jarDesktop", Jar) {
+    group = 'build'
+    archiveFileName.set('Blockly-desktop.jar')
+    archiveClassifier = 'desktop'
+    configureBaseJar(it)
+    from(resources.text.fromString("web=false")) {
+        rename { "application.properties" }
     }
+}
 
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes 'Main-Class': 'client.Client'
-    }
-
-    into('assets') {
-        from project(':dungeon').file('assets')
-    }
-
-    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+// Optional: Mit 'build' beide gleichzeitig erstellen
+artifacts {
+    archives jarDesktop, jarWeb
 }
 
 tasks.named('test', Test) {

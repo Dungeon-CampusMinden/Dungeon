@@ -20,8 +20,10 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
+import java.util.Properties;
 import java.util.Set;
 import level.produs.*;
+import server.FrontendServer;
 import server.Server;
 import systems.BlocklyCommandExecuteSystem;
 import systems.TintTilesSystem;
@@ -62,10 +64,22 @@ public class Client {
    * @throws IOException if textures can not be loaded.
    */
   public static void main(String[] args) throws IOException {
-    for (String arg : args) {
-      if (arg.equalsIgnoreCase("web=true")) {
-        runInWeb = true;
+    try {
+      Properties props = new Properties();
+      // loads the file that sets the web mode (incase jar was created with jardesktop or jarweb)
+      props.load(Client.class.getResourceAsStream("/application.properties"));
+      runInWeb = Boolean.parseBoolean(props.getProperty("web"));
+    } catch (Exception e) {
+      for (String arg : args) {
+        // incase the program is executed from runBlockly or the normal jar
+        if (arg.equalsIgnoreCase("web=true")) {
+          runInWeb = true;
+        }
       }
+    }
+
+    if (runInWeb) {
+      FrontendServer.run();
     }
 
     StateMachine.setResetFrame(false);
