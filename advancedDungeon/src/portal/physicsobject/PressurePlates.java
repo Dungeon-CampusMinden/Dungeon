@@ -64,43 +64,45 @@ public class PressurePlates {
     Entity pressurePlate = new Entity(name);
     pressurePlate.add(new PositionComponent(position));
 
+    pressurePlate.add(buildDrawComponent(spriteSheet));
+    pressurePlate.add(new LeverComponent(false, command));
+    PressurePlateComponent pressurePlateComponent = new PressurePlateComponent(massTrigger);
+    pressurePlate.add(pressurePlateComponent);
+
+    pressurePlate.add(buildCollideComponent(pressurePlateComponent, requiredComponent));
+
+    return pressurePlate;
+  }
+
+  private static CollideComponent buildCollideComponent(
+    PressurePlateComponent ppc,
+    Class<? extends Component> requiredComponent) {
+
+    TriConsumer<Entity, Entity, Direction> onEnter = (self, other, dir) -> {
+      if (other.isPresent(ProjectileComponent.class)) return;
+      other.fetch(VelocityComponent.class)
+        .filter(vc -> other.isPresent(requiredComponent))
+        .ifPresent(vc -> ppc.increase(vc.mass()));
+    };
+
+    TriConsumer<Entity, Entity, Direction> onLeave = (self, other, dir) -> {
+      if (other.isPresent(ProjectileComponent.class)) return;
+      other.fetch(VelocityComponent.class)
+        .filter(vc -> other.isPresent(requiredComponent))
+        .ifPresent(vc -> ppc.decrease(vc.mass()));
+    };
+
+    return new CollideComponent(onEnter, onLeave).isSolid(false);
+  }
+
+  private static DrawComponent buildDrawComponent(IPath spriteSheet) {
     Map<String, Animation> map = Animation.loadAnimationSpritesheet(spriteSheet);
     State stOff = State.fromMap(map, "off");
     State stOn = State.fromMap(map, "on");
     StateMachine sm = new StateMachine(Arrays.asList(stOff, stOn));
     sm.addTransition(stOff, "on", stOn);
     sm.addTransition(stOn, "off", stOff);
-    pressurePlate.add(new DrawComponent(sm, DepthLayer.Ground));
-
-    LeverComponent leverComponent = new LeverComponent(false, command);
-    pressurePlate.add(leverComponent);
-
-    PressurePlateComponent pressurePlateComponent = new PressurePlateComponent(massTrigger);
-    pressurePlate.add(pressurePlateComponent);
-
-    TriConsumer<Entity, Entity, Direction> onCollideEnter =
-        (self, other, dir) -> {
-          if (other.isPresent(ProjectileComponent.class)) return;
-
-          other
-              .fetch(VelocityComponent.class)
-              .filter(vc -> other.isPresent(requiredComponent))
-              .ifPresent(vc -> pressurePlateComponent.increase(vc.mass()));
-        };
-
-    TriConsumer<Entity, Entity, Direction> onCollideLeave =
-        (self, other, dir) -> {
-          if (other.isPresent(ProjectileComponent.class)) return;
-
-          other
-              .fetch(VelocityComponent.class)
-              .filter(vc -> other.isPresent(requiredComponent))
-              .ifPresent(vc -> pressurePlateComponent.decrease(vc.mass()));
-        };
-
-    pressurePlate.add(new CollideComponent(onCollideEnter, onCollideLeave).isSolid(false));
-
-    return pressurePlate;
+    return new DrawComponent(sm, DepthLayer.Ground);
   }
 
   /**
