@@ -1,6 +1,7 @@
 package blockly.dgir.compiler.java;
 
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedDeclaration;
@@ -10,6 +11,7 @@ import dgir.core.ir.Type;
 import dgir.core.ir.Value;
 import dgir.dialect.arith.ArithOps;
 import dgir.dialect.builtin.BuiltinTypes;
+import dgir.dialect.str.StrTypes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -41,25 +43,31 @@ public class CompilerUtils {
 
   public static Optional<Type> fromAstType(
       @NotNull ResolvedType type, Node site, @NotNull EmitContext context) {
-    if (!type.isPrimitive()) {
-      context.emitError(site, "Only primitive types are supported.");
-      return Optional.empty();
+    if (type.isPrimitive()) {
+      ResolvedPrimitiveType primitiveType = type.asPrimitive();
+      return switch (primitiveType) {
+        case BOOLEAN -> Optional.of(BuiltinTypes.IntegerT.BOOL);
+        case BYTE -> Optional.of(BuiltinTypes.IntegerT.INT8);
+        case CHAR -> Optional.of(BuiltinTypes.IntegerT.UINT16);
+        case SHORT -> Optional.of(BuiltinTypes.IntegerT.INT16);
+        case INT -> Optional.of(BuiltinTypes.IntegerT.INT32);
+        case LONG -> Optional.of(BuiltinTypes.IntegerT.INT64);
+        case FLOAT -> Optional.of(BuiltinTypes.FloatT.FLOAT32);
+        case DOUBLE -> Optional.of(BuiltinTypes.FloatT.FLOAT64);
+        default -> {
+          context.emitError(site, "Unsupported primitive type: " + primitiveType.describe());
+          yield Optional.empty();
+        }
+      };
+    } else if (type.describe().equals("java.lang.String") || site instanceof StringLiteralExpr) {
+      return Optional.of(StrTypes.StringT.INSTANCE);
     }
-    ResolvedPrimitiveType primitiveType = type.asPrimitive();
-    return switch (primitiveType) {
-      case BOOLEAN -> Optional.of(BuiltinTypes.IntegerT.BOOL);
-      case BYTE -> Optional.of(BuiltinTypes.IntegerT.INT8);
-      case CHAR -> Optional.of(BuiltinTypes.IntegerT.UINT16);
-      case SHORT -> Optional.of(BuiltinTypes.IntegerT.INT16);
-      case INT -> Optional.of(BuiltinTypes.IntegerT.INT32);
-      case LONG -> Optional.of(BuiltinTypes.IntegerT.INT64);
-      case FLOAT -> Optional.of(BuiltinTypes.FloatT.FLOAT32);
-      case DOUBLE -> Optional.of(BuiltinTypes.FloatT.FLOAT64);
-      default -> {
-        context.emitError(site, "Unsupported primitive type: " + primitiveType.describe());
-        yield Optional.empty();
-      }
-    };
+
+    context.emitError(
+        site,
+        "Cant convert from ast type. Only primitive types and String are supported. Found: "
+            + type.describe());
+    return Optional.empty();
   }
 
   public static @NotNull EmitResult<Value> emitImplicitCastIfNeeded(
@@ -69,7 +77,8 @@ public class CompilerUtils {
       @NotNull ResolvedType targetType,
       @NotNull EmitContext context,
       boolean isLiteralAssignment) {
-    if (sourceType.equals(targetType)) return EmitResult.of(source);
+    if (sourceType.describe().equals(targetType.describe())
+        || targetType.describe().equals("java.lang.Object")) return EmitResult.of(source);
     boolean override = false;
     // Allow implicit cast for literal assignments that are valid in Java, e.g. char c = 65; or byte
     // b = 100; short = 'b'

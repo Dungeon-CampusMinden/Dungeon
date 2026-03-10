@@ -79,6 +79,7 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    * @return the operations list.
    */
   @Contract(pure = true)
+  @JsonIgnore
   public @NotNull List<Operation> getOperationsRaw() {
     return operations;
   }

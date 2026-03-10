@@ -16,12 +16,81 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public final class EmitContext {
+  public static final class InsertionPoint implements AutoCloseable {
+    private final @NotNull Block block;
+    private int index;
+    private final @NotNull EmitContext context;
+    private final @NotNull Optional<InsertionPoint> previous;
+
+    public InsertionPoint(
+        @NotNull Block block,
+        int index,
+        @NotNull EmitContext context,
+        @NotNull Optional<InsertionPoint> previous) {
+      this.block = block;
+      this.index = index;
+      this.context = context;
+      this.previous = previous;
+    }
+
+    @Override
+    public void close() {
+      previous.ifPresent(context::setInsertionPoint);
+    }
+
+    public Block block() {
+      return block;
+    }
+
+    public int index() {
+      return index;
+    }
+
+    public EmitContext context() {
+      return context;
+    }
+
+    public Optional<InsertionPoint> previous() {
+      return previous;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) return true;
+      if (obj == null || obj.getClass() != this.getClass()) return false;
+      var that = (InsertionPoint) obj;
+      return Objects.equals(this.block, that.block)
+          && this.index == that.index
+          && Objects.equals(this.context, that.context)
+          && Objects.equals(this.previous, that.previous);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(block, index, context, previous);
+    }
+
+    @Override
+    public String toString() {
+      return "InsertionPoint["
+          + "block="
+          + block
+          + ", "
+          + "index="
+          + index
+          + ", "
+          + "context="
+          + context
+          + ", "
+          + "previous="
+          + previous
+          + ']';
+    }
+  }
+
   private static final java.util.logging.Logger logger =
       java.util.logging.Logger.getLogger(EmitContext.class.getName());
   private final @NotNull String filename;
@@ -36,14 +105,8 @@ public final class EmitContext {
 
   private @Nullable Block programBlock = null;
 
-  /** The block into which the next IR operation will be inserted. */
-  private @Nullable Block insertionBlock = null;
-
-  /**
-   * The index within the insertion block at which the next IR operation will be inserted. If the
-   * index is not -1, it will be incremented after each insertion.
-   */
-  private int insertionIndex = -1;
+  /** The point at which the next operation will be inserted. */
+  private @Nullable InsertionPoint insertionPoint = null;
 
   EmitContext(@NotNull String filename) {
     this.filename = filename;
@@ -100,22 +163,25 @@ public final class EmitContext {
    * @return an optional containing the old insertion point, or empty if there was no old insertion
    *     point.
    */
-  public Optional<Pair<Block, Integer>> setInsertionPoint(@Nullable Block block, int index) {
-    Optional<Pair<Block, Integer>> oldInsertionPoint = Optional.empty();
-    if (insertionBlock != null) {
-      oldInsertionPoint = Optional.of(new Pair<>(insertionBlock, insertionIndex));
+  public @Nullable InsertionPoint setInsertionPoint(@Nullable Block block, int index) {
+    if (block != null) {
+      insertionPoint = new InsertionPoint(block, index, this, Optional.ofNullable(insertionPoint));
+    } else {
+      insertionPoint = null;
     }
-    insertionBlock = block;
-    insertionIndex = index;
-    return oldInsertionPoint;
+    return insertionPoint;
+  }
+
+  public void setInsertionPoint(@Nullable InsertionPoint insertionPoint) {
+    this.insertionPoint = insertionPoint;
   }
 
   public @NotNull Operation insert(@NotNull Operation op) {
-    assert insertionBlock != null : "Insertion block must be set before inserting an operation.";
-    if (insertionIndex == -1) {
-      insertionBlock.addOperation(op);
+    assert insertionPoint != null : "Insertion block must be set before inserting an operation.";
+    if (insertionPoint.index == -1) {
+      insertionPoint.block.addOperation(op);
     } else {
-      insertionBlock.addOperation(op, insertionIndex++);
+      insertionPoint.block.addOperation(op, insertionPoint.index++);
     }
     return op;
   }

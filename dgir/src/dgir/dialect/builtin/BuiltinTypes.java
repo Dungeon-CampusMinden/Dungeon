@@ -18,7 +18,8 @@ public sealed interface BuiltinTypes {
 
   static @NotNull Type getDominantType(@NotNull Type lhsType, @NotNull Type rhsType) {
     if (!isNumeric(lhsType) || !isNumeric(rhsType)) {
-      throw new IllegalArgumentException("Dominant type requires numeric operands");
+      throw new IllegalArgumentException(
+          "Dominant type requires numeric operands. Got " + lhsType + " and " + rhsType);
     }
 
     if (lhsType instanceof FloatT || rhsType instanceof FloatT) {

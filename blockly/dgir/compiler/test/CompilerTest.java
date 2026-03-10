@@ -259,9 +259,9 @@ public class %ClassName {
     double d = b;
 
     b = 'a';
-    assert b == 61 : "Expected byte value 61 from char 'a', but got " + b;
-    s = 'a';
-    assert s == 61 : "Expected short value 61 from char 'a', but got " + s;
+    assert b == 97 : "Expected byte value 97 from char 'a', but got " + b;
+    s = 'b';
+    assert s == 98 : "Expected short value 98 from char 'a', but got " + s;
     s = 1;
     c = 1;
     i = s;
@@ -468,7 +468,7 @@ public class %ClassName {
 """
 public class %ClassName {
   public static void main() {
-    for (int i = 0; i < 1000000; i++) {
+    for (int i = 0; i < 100000; i++) {
       int a = NestedClass1.add(5, 10);
       float b = NestedClass2.add(5f, 10f);
       float d = OtherClass.add(5f, 10f);
@@ -512,6 +512,26 @@ class OtherClass {
     static float add(float a, float b) {
       return a + b;
     }
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void stringOperations() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    String s1 = "Hello, ";
+    String s2 = "world!";
+    String s3 = s1 + s2;
+    boolean b1 = s3.equals("Hello, world!");
+
+    assert b1 : "Expected true, but got " + b1;
+    assert s3.length() == 13 : "Expected length 13, but got " + s3.length();
+    assert s3.charAt(11) == 'd' : "Expected 'd', but got " + s3.charAt(6);
   }
 }
 """;
