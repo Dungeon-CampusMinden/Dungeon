@@ -7,6 +7,7 @@ import dgir.core.debug.Location;
 import dgir.core.ir.*;
 import dgir.core.traits.*;
 import dgir.dialect.builtin.BuiltinAttrs;
+import dgir.dialect.str.StrAttrs;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -306,7 +307,7 @@ public sealed interface FuncOps {
     public @NotNull List<NamedAttribute> getDefaultAttributes() {
       return List.of(
           new NamedAttribute(
-              SymbolTable.getSymbolAttributeName(), new BuiltinAttrs.StringAttribute("foo")),
+              SymbolTable.getSymbolAttributeName(), new StrAttrs.StringAttribute("foo")),
           new NamedAttribute("type", new BuiltinAttrs.TypeAttribute(FuncType.empty())));
     }
 
@@ -355,15 +356,14 @@ public sealed interface FuncOps {
     // =========================================================================
 
     /**
-     * Returns the {@link BuiltinAttrs.StringAttribute} that holds the function's symbol name.
+     * Returns the {@link StrAttrs.StringAttribute} that holds the function's symbol name.
      *
      * @return the symbol name attribute.
      * @throws RuntimeException if the attribute is absent.
      */
     @Contract(pure = true)
-    public @NotNull BuiltinAttrs.StringAttribute getFuncNameAttribute() {
-      return getAttributeAs(
-              SymbolTable.getSymbolAttributeName(), BuiltinAttrs.StringAttribute.class)
+    public @NotNull StrAttrs.StringAttribute getFuncNameAttribute() {
+      return getAttributeAs(SymbolTable.getSymbolAttributeName(), StrAttrs.StringAttribute.class)
           .orElseThrow(() -> new RuntimeException("Symbol attribute not found"));
     }
 

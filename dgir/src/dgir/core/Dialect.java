@@ -7,6 +7,7 @@ import dgir.dialect.cf.CfDialect;
 import dgir.dialect.func.FuncDialect;
 import dgir.dialect.io.IoDialect;
 import dgir.dialect.scf.ScfDialect;
+import dgir.dialect.str.StrDialect;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -81,8 +82,8 @@ public abstract class Dialect {
   /**
    * Look up a registered dialect by its class.
    *
-   * @param dialectClass The class of the dialect to look up (e.g. {@code ArithDialect.class} or {@code
-   *     FuncDialect.class}).
+   * @param dialectClass The class of the dialect to look up (e.g. {@code ArithDialect.class} or
+   *     {@code FuncDialect.class}).
    * @return An optional containing the registered dialect, or empty if no such dialect is
    *     registered.
    */
@@ -95,8 +96,8 @@ public abstract class Dialect {
    * Look up a registered dialect by its class, throwing an exception if no such dialect is
    * registered.
    *
-   * @param dialectClass The class of the dialect to look up (e.g. {@code ArithDialect.class} or {@code
-   *     FuncDialect.class}).
+   * @param dialectClass The class of the dialect to look up (e.g. {@code ArithDialect.class} or
+   *     {@code FuncDialect.class}).
    * @return The registered dialect.
    */
   @Contract(pure = true)
@@ -114,7 +115,14 @@ public abstract class Dialect {
    */
   public static void registerAllDialects() {
     List<Dialect> dialects =
-        List.of(new ArithDialect(), new BuiltinDialect(), new CfDialect(), new FuncDialect(), new IoDialect(), new ScfDialect());
+        List.of(
+            new ArithDialect(),
+            new BuiltinDialect(),
+            new CfDialect(),
+            new FuncDialect(),
+            new IoDialect(),
+            new ScfDialect(),
+            new StrDialect());
     dialects.forEach(Dialect::register);
   }
 }

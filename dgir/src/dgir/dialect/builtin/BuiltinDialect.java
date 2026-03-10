@@ -32,14 +32,12 @@ import static dgir.dialect.builtin.BuiltinTypes.*;
  * <ul>
  *   <li>{@link IntegerT} — fixed-width integer ({@code int1/8/16/32/64})
  *   <li>{@link FloatT} — floating-point ({@code float32/64})
- *   <li>{@link StringT} — UTF-16 string ({@code string})
  * </ul>
  *
  * <p>Attributes:
  *
  * <ul>
  *   <li>{@link IntegerAttribute} — carries an integer value together with its {@link IntegerT} type
- *   <li>{@link StringAttribute} — carries a {@link String} value
  *   <li>{@link TypeAttribute} — wraps a {@link Type} as an attribute
  *   <li>{@link SymbolRefAttribute} — references a symbol by name
  * </ul>

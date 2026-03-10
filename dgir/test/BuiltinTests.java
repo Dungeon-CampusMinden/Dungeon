@@ -11,13 +11,11 @@ import java.util.List;
 import static dgir.dialect.arith.ArithOps.ConstantOp;
 import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
 import static dgir.dialect.builtin.BuiltinTypes.IntegerT;
-import static dgir.dialect.builtin.BuiltinTypes.StringT;
 import static dgir.dialect.func.FuncOps.*;
 import static dgir.dialect.func.FuncTypes.FuncType;
 import static dgir.dialect.io.IoOps.PrintOp;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static dgir.dialect.str.StrTypes.StringT;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BuiltinTests {
   private static final Location LOC = Location.UNKNOWN;

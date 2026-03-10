@@ -4,6 +4,7 @@ import dgir.core.ir.Operation;
 import dgir.core.ir.Value;
 import dgir.dialect.builtin.BuiltinTypes;
 import dgir.dialect.io.IoOps;
+import dgir.dialect.str.StrTypes;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
@@ -44,7 +45,7 @@ public sealed interface IoRunners {
 
       try {
         switch (consoleInOp.getResultType()) {
-          case BuiltinTypes.StringT s -> state.setValueForOutput(op, scanner.nextLine());
+          case StrTypes.StringT s -> state.setValueForOutput(op, scanner.nextLine());
           case BuiltinTypes.IntegerT i -> {
             switch (i.getWidth()) {
               case 1 -> state.setValueForOutput(op, (byte) (scanner.nextBoolean() ? 1 : 0));

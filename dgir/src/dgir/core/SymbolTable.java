@@ -6,24 +6,22 @@ import dgir.core.ir.Region;
 import dgir.core.traits.IOpTrait;
 import dgir.core.traits.ISymbol;
 import dgir.core.traits.ISymbolTable;
+import dgir.dialect.str.StrAttrs;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-import static dgir.dialect.builtin.BuiltinAttrs.StringAttribute;
-
 /**
  * Static helpers for resolving named symbols within the IR.
  *
- * <p>A <em>symbol</em> is any operation that implements {@link ISymbol}; it carries a
- * {@code "symbol_name"} {@link StringAttribute} that serves as its
- * unique identifier within the enclosing {@link ISymbolTable} scope.
+ * <p>A <em>symbol</em> is any operation that implements {@link ISymbol}; it carries a {@code
+ * "symbol_name"} {@link StrAttrs.StringAttribute} that serves as its unique identifier within the
+ * enclosing {@link ISymbolTable} scope.
  *
  * <p>Lookup always searches the <em>first block</em> of the <em>first region</em> of the nearest
- * enclosing {@link ISymbolTable} op. Multi-region or multi-block symbol tables are not
- * supported.
+ * enclosing {@link ISymbolTable} op. Multi-region or multi-block symbol tables are not supported.
  */
 public class SymbolTable {
   /**
@@ -71,8 +69,8 @@ public class SymbolTable {
   @Contract(pure = true)
   private static @NotNull Optional<String> getNameIfSymbol(
       @NotNull Operation op, @NotNull String symbolAttributeName) {
-    var attr = op.getAttributeAs(symbolAttributeName, StringAttribute.class);
-    return attr.map(StringAttribute::getValue);
+    var attr = op.getAttributeAs(symbolAttributeName, StrAttrs.StringAttribute.class);
+    return attr.map(StrAttrs.StringAttribute::getValue);
   }
 
   /**

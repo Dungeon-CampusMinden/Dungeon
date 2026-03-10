@@ -11,6 +11,7 @@ import dgir.core.traits.IControlFlow;
 import dgir.core.traits.INoResult;
 import dgir.core.traits.ITerminator;
 import dgir.dialect.builtin.BuiltinTypes;
+import dgir.dialect.str.StrTypes;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -224,7 +225,7 @@ public sealed interface CfOps {
           return true;
         }
         Value messageOperand = assertOp.getOperandValue(1).orElseThrow();
-        if (!messageOperand.getType().equals(BuiltinTypes.StringT.INSTANCE)) {
+        if (!messageOperand.getType().equals(StrTypes.StringT.INSTANCE)) {
           assertOp.emitError("Message operand must be of type string");
           return false;
         }

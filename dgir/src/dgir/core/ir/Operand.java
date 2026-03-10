@@ -82,6 +82,7 @@ public abstract class Operand<
   }
 
   @Contract(pure = true)
+  @JsonIgnore
   public @NotNull ValueT getValueOrThrow() {
     return Objects.requireNonNull(value);
   }

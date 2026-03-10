@@ -1,6 +1,7 @@
 import dgir.core.Dialect;
 import dgir.core.debug.Location;
 import dgir.core.serialization.Utils;
+import dgir.dialect.str.StrTypes;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,6 @@ import java.util.List;
 import static dgir.dialect.arith.ArithOps.ConstantOp;
 import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
 import static dgir.dialect.builtin.BuiltinTypes.IntegerT;
-import static dgir.dialect.builtin.BuiltinTypes.StringT;
 import static dgir.dialect.func.FuncOps.*;
 import static dgir.dialect.func.FuncTypes.FuncType;
 import static dgir.dialect.io.IoOps.PrintOp;
@@ -67,7 +67,7 @@ public class FuncTests {
    */
   @Test
   public void funcWithMismatchedReturn() {
-    FuncType type = FuncType.of(List.of(IntegerT.INT32), StringT.INSTANCE);
+    FuncType type = FuncType.of(List.of(IntegerT.INT32), StrTypes.StringT.INSTANCE);
     FuncOp funcOp = new FuncOp(LOC, "mismatch", type);
 
     // Returning an INT32 when the function expects StringT

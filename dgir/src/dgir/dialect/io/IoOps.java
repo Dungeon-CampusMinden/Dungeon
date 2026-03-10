@@ -8,6 +8,7 @@ import dgir.core.ir.Operation;
 import dgir.core.ir.Type;
 import dgir.core.ir.Value;
 import dgir.dialect.builtin.BuiltinTypes;
+import dgir.dialect.str.StrTypes;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -92,7 +93,7 @@ public sealed interface IoOps {
           case BuiltinTypes.FloatT ignored -> {
             return true;
           }
-          case BuiltinTypes.StringT ignored -> {
+          case StrTypes.StringT ignored -> {
             return true;
           }
           default -> {

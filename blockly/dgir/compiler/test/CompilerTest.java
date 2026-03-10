@@ -259,7 +259,9 @@ public class %ClassName {
     double d = b;
 
     b = 'a';
+    assert b == 61 : "Expected byte value 61 from char 'a', but got " + b;
     s = 'a';
+    assert s == 61 : "Expected short value 61 from char 'a', but got " + s;
     s = 1;
     c = 1;
     i = s;

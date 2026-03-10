@@ -30,6 +30,7 @@ import dgir.dialect.arith.ArithOps.BinaryOp;
 import dgir.dialect.builtin.BuiltinOps;
 import dgir.dialect.cf.CfOps;
 import dgir.dialect.func.FuncOps;
+import dgir.dialect.str.StrAttrs;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -841,7 +842,7 @@ public class JavaCompiler {
                 new IntegerAttribute(Integer.parseInt(intL.getValue()), IntegerT.INT32);
             case LongLiteralExpr longL ->
                 new IntegerAttribute(Long.parseLong(longL.getValue()), IntegerT.INT64);
-            case StringLiteralExpr stringL -> new StringAttribute(stringL.getValue());
+            case StringLiteralExpr stringL -> new StrAttrs.StringAttribute(stringL.getValue());
             default -> {
               context.emitError(
                   literalExpr,

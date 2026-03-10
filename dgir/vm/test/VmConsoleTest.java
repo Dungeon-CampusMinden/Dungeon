@@ -10,13 +10,15 @@ import static dgir.dialect.arith.ArithAttrs.BinModeAttr;
 import static dgir.dialect.arith.ArithOps.BinaryOp;
 import static dgir.dialect.arith.ArithOps.ConstantOp;
 import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
-import static dgir.dialect.builtin.BuiltinTypes.*;
+import static dgir.dialect.builtin.BuiltinTypes.FloatT;
+import static dgir.dialect.builtin.BuiltinTypes.IntegerT;
 import static dgir.dialect.cf.CfOps.BranchCondOp;
 import static dgir.dialect.cf.CfOps.BranchOp;
 import static dgir.dialect.func.FuncOps.*;
 import static dgir.dialect.func.FuncTypes.FuncType;
 import static dgir.dialect.io.IoOps.ConsoleInOp;
 import static dgir.dialect.io.IoOps.PrintOp;
+import static dgir.dialect.str.StrTypes.StringT;
 import static dgir.vm.dialect.io.IoRunners.ConsoleInRunner;
 import static java.nio.charset.StandardCharsets.UTF_8;
 

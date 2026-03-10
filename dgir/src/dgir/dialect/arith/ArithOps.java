@@ -8,6 +8,7 @@ import dgir.core.traits.IBinaryOperands;
 import dgir.core.traits.IHasResult;
 import dgir.core.traits.INoOperands;
 import dgir.core.traits.ISingleOperand;
+import dgir.dialect.str.StrAttrs;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -331,7 +332,7 @@ public sealed interface ArithOps {
      * @param value the string literal to embed.
      */
     public ConstantOp(@NotNull Location location, @NotNull String value) {
-      this(location, new StringAttribute(value));
+      this(location, new StrAttrs.StringAttribute(value));
     }
 
     /**

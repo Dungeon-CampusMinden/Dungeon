@@ -1,5 +1,6 @@
 import dgir.core.Dialect;
 import dgir.core.debug.Location;
+import dgir.dialect.str.StrTypes;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -132,7 +133,7 @@ public class ArithTests {
     FuncOp funcMain = entry.getRight();
 
     var int32Op = funcMain.addOperation(new ConstantOp(LOC, 1), 0);
-    funcMain.addOperation(new CastOp(LOC, int32Op.getValue(), StringT.INSTANCE), 0);
+    funcMain.addOperation(new CastOp(LOC, int32Op.getValue(), StrTypes.StringT.INSTANCE), 0);
 
     funcMain.addOperation(new ReturnOp(LOC), 0);
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
