@@ -238,16 +238,24 @@ public class Lore {
           "Global Parcel Logistics",
           "tracking@parcel-hold-center.info",
           "Package Delivery Failed - Immediate Confirmation Required",
-          "Dear Customer,\\pA shipment addressed to you could not be delivered due to missing confirmation.\\pFailure to respond within 24 hours may result in return or storage fees.\\p\\aConfirm delivery details;https://parcel-hold-center.info/confirm",
+          "Dear Customer,\\pA shipment addressed to you could not be delivered due to missing confirmation.\\pFailure to respond within 24 hours may result in return or storage fees.\\p\\aConfirm delivery details;https://adq.mmcaok.com/pl10fonmxdm1asmokxx0",
           List.of("Tracking Details.pdf")),
 
         new EmailsTab.Email(
           "CryptoGrowth Alerts",
           "alerts@cryptogrowth-daily.biz",
           "Your account qualified for guaranteed returns",
-          "Investor Notice,\\pOur automated trading platform has identified you as eligible for a limited high-yield investment opportunity with guaranteed daily profit.\\pSpaces are extremely limited.\\p\\aActivate investment account;https://cryptogrowth-daily.biz/start",
-          List.of())
+        "Investor Notice,\\pOur automated trading platform has identified you as eligible for a limited high-yield investment opportunity with guaranteed daily profit.\\pSpaces are extremely limited.\\p\\aActivate investment account;https://cryptogrowth-daily.biz/start?si=1ujg0h1ju8mnc980mumsdnuz0",
+        List.of())
       );
+
+  public static final List<String> VirusAttachmentNames = List.of("Tracking Details.pdf", "Linkin_Park_-_In_The_End.mp3.exe");
+  public static final List<String> VirusWebsites = List.of(
+    "https://illegal-music-downloader.com/download/12345",
+    "https://adq.mmcaok.com/pl10fonmxdm1asmokxx0",
+    "https://local-connections-now.net/start",
+    "https://royal-transferdesk.org/secure",
+    "https://cryptogrowth-daily.biz/start?si=1ujg0h1ju8mnc980mumsdnuz0");
 
   /** List of ASCII codes used for the security code pages in the browser recovery portal. */
   public static final List<String> AsciiCodes = List.of("6548", "1765", "3912", "8256");
