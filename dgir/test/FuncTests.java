@@ -105,7 +105,7 @@ public class FuncTests {
     FuncOp otherFunc =
         programOp.addOperation(new FuncOp(LOC, "other", FuncType.of(List.of(), IntegerT.INT32)));
     var constOp = otherFunc.addOperation(new ConstantOp(LOC, 42), 0);
-    otherFunc.addOperation(new ReturnOp(LOC, constOp.getValue()), 0);
+    otherFunc.addOperation(new ReturnOp(LOC, constOp.getResult()), 0);
 
     var callOp = mainFunc.addOperation(new CallOp(LOC, otherFunc), 0);
     mainFunc.addOperation(new PrintOp(LOC, callOp.getOutputValue().orElseThrow()), 0);
@@ -157,7 +157,7 @@ public class FuncTests {
 
     // Call with String arg, expects Int
     var strOp = mainFunc.addOperation(new ConstantOp(LOC, "test"), 0);
-    mainFunc.addOperation(new CallOp(LOC, target, strOp.getValue()), 0);
+    mainFunc.addOperation(new CallOp(LOC, target, strOp.getResult()), 0);
     mainFunc.addOperation(new ReturnOp(LOC), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));

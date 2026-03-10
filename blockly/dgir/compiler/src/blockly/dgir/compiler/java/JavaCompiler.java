@@ -3,18 +3,17 @@ package blockly.dgir.compiler.java;
 import blockly.dgir.dialect.dg.DungeonDialect;
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.modules.ModuleDeclaration;
 import com.github.javaparser.ast.stmt.*;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
-import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
@@ -24,7 +23,9 @@ import dgir.core.Dialect;
 import dgir.core.SymbolTable;
 import dgir.core.debug.Location;
 import dgir.core.debug.ValueDebugInfo;
-import dgir.core.ir.*;
+import dgir.core.ir.Block;
+import dgir.core.ir.Type;
+import dgir.core.ir.Value;
 import dgir.core.serialization.Utils;
 import dgir.dialect.arith.ArithAttrs;
 import dgir.dialect.arith.ArithOps;
@@ -33,10 +34,12 @@ import dgir.dialect.builtin.BuiltinOps;
 import dgir.dialect.builtin.BuiltinTypes;
 import dgir.dialect.cf.CfOps;
 import dgir.dialect.func.FuncOps;
-import dgir.dialect.str.StrAttrs;
+import dgir.dialect.scf.ScfOps;
 import dgir.dialect.str.StrOps;
 import dgir.dialect.str.StrTypes;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,17 +49,17 @@ import java.util.logging.Logger;
 
 import static blockly.dgir.compiler.java.Access.isDeclarationAccessibleFrom;
 import static blockly.dgir.compiler.java.Access.isTypeUseAccessibleFrom;
-import static blockly.dgir.compiler.java.CompilerUtils.fromAstType;
+import static blockly.dgir.compiler.java.CompilerUtils.*;
 import static dgir.dialect.arith.ArithAttrs.BinModeAttr.BinMode;
 import static dgir.dialect.arith.ArithOps.ConstantOp;
 import static dgir.dialect.builtin.BuiltinAttrs.FloatAttribute;
 import static dgir.dialect.builtin.BuiltinAttrs.IntegerAttribute;
 import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
-import static dgir.dialect.builtin.BuiltinTypes.*;
+import static dgir.dialect.builtin.BuiltinTypes.FloatT;
+import static dgir.dialect.builtin.BuiltinTypes.IntegerT;
 import static dgir.dialect.func.FuncOps.FuncOp;
 import static dgir.dialect.func.FuncOps.ReturnOp;
 import static dgir.dialect.func.FuncTypes.FuncType;
-import static dgir.dialect.scf.ScfOps.*;
 
 @SuppressWarnings({"unchecked", "OptionalUsedAsFieldOrParameterType"})
 public class JavaCompiler {
@@ -113,7 +116,8 @@ public class JavaCompiler {
     return emitter.emit(result, filename).toOptional();
   }
 
-  private static final class JavaAstEmitter extends VoidVisitorAdapter<EmitContext> {
+  private static final class JavaAstEmitter
+      extends GenericVisitorAdapter<@Nullable EmitResult<Optional<Value>>, @NotNull EmitContext> {
     private EmitResult<ProgramOp> emit(CompilationUnit compilationUnit, String filename) {
       // Register all dialects so that we can use them during emission.
       Dialect.registerAllDialects();
@@ -126,197 +130,320 @@ public class JavaCompiler {
       return EmitResult.ofNullable(context.program);
     }
 
+    private @NotNull EmitResult<Boolean> visitNodeList(
+        @NotNull NodeList<?> members, @NotNull EmitContext context) {
+      List<EmitResult<Optional<Value>>> results =
+          members.stream()
+              .collect(
+                  ArrayList::new,
+                  (emitResults, node) ->
+                      emitResults.add(EmitResult.ofNullable(node.accept(this, context))),
+                  List::addAll);
+      List<Object> failedMembers = new ArrayList<>();
+      for (int i = 0; i < members.size(); i++) {
+        if (results.get(i).isFailure()) failedMembers.add(members.get(i));
+      }
+      return failedMembers.isEmpty()
+          ? EmitResult.of(true)
+          : EmitResult.failure(
+              context,
+              members.getParentNode().orElseThrow(),
+              "Failed to emit members: " + failedMembers);
+    }
+
+    private @NotNull EmitResult<List<Value>> visitNodeListWithResult(
+        @NotNull NodeList<?> members, @NotNull EmitContext context) {
+      List<EmitResult<Optional<Value>>> results =
+          members.stream()
+              .collect(
+                  ArrayList::new,
+                  (emitResults, node) ->
+                      emitResults.add(EmitResult.ofNullable(node.accept(this, context))),
+                  List::addAll);
+      return results.stream()
+              .anyMatch(
+                  optionalEmitResult ->
+                      optionalEmitResult.isFailure() || optionalEmitResult.get().isEmpty())
+          ? EmitResult.failure()
+          : EmitResult.of(
+              results.stream()
+                  .map(optionalEmitResult -> optionalEmitResult.get().orElseThrow())
+                  .toList());
+    }
+
     @Override
-    public void visit(CompilationUnit n, EmitContext context) {
-      // Check that there are no unsupported imports.
-      for (ImportDeclaration importDeclaration : n.getImports()) {
-        switch (importDeclaration.getName().asString()) {
-          case "Dungeon.Hero", "Dungeon.IO":
-            continue;
-          default:
-            context.emitError(n, "Import " + importDeclaration.getName() + " is not supported.");
-            return;
-        }
-      }
-      if (n.getModule().isPresent()) {
-        context.emitError(
-            n, "Module " + n.getModule() + " and models in general are not supported.");
-        return;
-      }
-      // Program looks generally ok, create the root ProgramOp.
+    public @NonNull EmitResult<Optional<Value>> visit(CompilationUnit n, EmitContext context) {
       ProgramOp program = new ProgramOp(context.loc(n));
       context.pushSymbolScope(true);
       context.setProgramBlock(program.getEntryBlock());
+
       try (var programInsertion = context.setInsertionPoint(program.getEntryBlock(), -1)) {
-        n.getTypes().forEach(t -> t.accept(this, context));
+        {
+          EmitResult<Boolean> result = visitNodeList(n.getImports(), context);
+          if (result.isFailure()) return EmitResult.failure(context, n, "Failed to emit imports");
+        }
+        if (n.getModule().isPresent()) {
+          EmitResult<Optional<Value>> result =
+              EmitResult.ofNullable(n.getModule().get().accept(this, context));
+          if (result.isFailure()) return result;
+        }
+        if (n.getPackageDeclaration().isPresent()) {
+          EmitResult<Optional<Value>> result =
+              EmitResult.ofNullable(n.getPackageDeclaration().get().accept(this, context));
+          if (result.isFailure()) return result;
+        }
+        {
+          EmitResult<Boolean> result = visitNodeList(n.getTypes(), context);
+          if (result.isFailure()) return EmitResult.failure(context, n, "Failed to emit types");
+        }
+        if (context.compilationSuccessfull()) {
+          context.program = program;
+        } else {
+          String incompleteProgram = Utils.getMapper(true).writeValueAsString(program);
+          context.emitError(n, "Incorrect program", incompleteProgram);
+        }
+        context.popSymbolScope();
+        return context.compilationSuccessfull()
+            ? EmitResult.success(Optional.empty())
+            : EmitResult.failure();
       }
-
-      if (context.compilationSuccessfull()) {
-        context.program = program;
-      } else {
-        String incompleteProgram = Utils.getMapper(true).writeValueAsString(program);
-        context.emitError(n, "Incorrect program", incompleteProgram);
-      }
-      context.popSymbolScope();
     }
 
     @Override
-    public void visit(ImportDeclaration n, EmitContext context) {
-      context.emitError(n, "Import " + n.getName() + " is not supported.");
+    public EmitResult<Optional<Value>> visit(ImportDeclaration n, EmitContext context) {
+      return switch (n.getNameAsString()) {
+        case "Dungeon.Hero", "Dungeon.IO" -> EmitResult.success(Optional.empty());
+        default ->
+            EmitResult.failure(
+                context, n, "Import of " + n.getNameAsString() + " is not supported.");
+      };
     }
 
     @Override
-    public void visit(ClassOrInterfaceDeclaration n, EmitContext context) {
-      if (!n.getExtendedTypes().isEmpty()) {
-        context.emitError(
-            n, "Class " + n.getName() + " extends a class. Extending is not supported.");
-        return;
-      }
-      if (!n.getImplementedTypes().isEmpty()) {
-        context.emitError(
-            n, "Class " + n.getName() + " implements an interface. Implementing is not supported.");
-        return;
-      }
-      if (!n.getTypeParameters().isEmpty()) {
-        context.emitError(
-            n,
-            "Class " + n.getName() + " has type parameters. Generics classes are not supported.");
-        return;
-      }
-      if (n.getMembers().stream()
-          .anyMatch(
-              m -> !(m instanceof MethodDeclaration || m instanceof ClassOrInterfaceDeclaration))) {
-        context.emitError(n, "Class " + n.getName() + " has members which arent supported.");
-        return;
-      }
-      if (!n.getAnnotations().isEmpty()) {
-        context.emitWarning(
-            n,
-            "Class "
-                + n.getName()
-                + " has annotations. Annotations are not supported and will be ignored.");
-      }
-      if (n.findAncestor(ClassOrInterfaceDeclaration.class).isPresent() && !n.isStatic()) {
-        context.emitError(
-            n,
-            "Class "
-                + n.getName()
-                + " is an inner class but is not static. Only static inner classes are supported.");
-        return;
-      }
-      n.getMembers().forEach(m -> m.accept(this, context));
+    public EmitResult<Optional<Value>> visit(ModuleDeclaration n, EmitContext context) {
+      return EmitResult.failure(context, n, "Modules are not supported.");
     }
 
     @Override
-    public void visit(MethodDeclaration n, EmitContext context) {
-      ResolvedMethodDeclaration resolvedN = n.resolve();
-      if (!n.isStatic()) {
-        context.emitError(
-            n, "Method " + n.getName() + " is not static. Only static methods are supported.");
-        return;
+    public EmitResult<Optional<Value>> visit(PackageDeclaration n, EmitContext context) {
+      return EmitResult.success(Optional.empty());
+    }
+
+    @Override
+    public @NotNull EmitResult<Optional<Value>> visit(
+        ClassOrInterfaceDeclaration n, EmitContext context) {
+      {
+        if (n.isInterface() || n.isRecordDeclaration() || n.isAnnotationDeclaration()) {
+          return EmitResult.failure(
+              context,
+              n,
+              "Class "
+                  + n.getName()
+                  + " is an interface. Interfaces are not supported. Type: "
+                  + (n.isInterface() ? "interface" : "record"));
+        }
+        if (n.isEnumDeclaration()) {
+          return EmitResult.failure(
+              context, n, "Class " + n.getName() + " is an enum. Enums are not supported.");
+        }
+        if (!n.isStatic() && n.findAncestor(ClassOrInterfaceDeclaration.class).isPresent()) {
+          return EmitResult.failure(
+              context,
+              n,
+              "Class "
+                  + n.getName()
+                  + " is a non-static inner class. Inner classes must be static.");
+        }
       }
-      if (!n.getThrownExceptions().isEmpty()) {
-        context.emitError(
-            n,
-            "Method " + n.getName() + " throws an exception. Throwing is not supported.",
-            n.getThrownExceptions());
-        return;
+      {
+        if (n.getExtendedTypes().isNonEmpty())
+          return EmitResult.failure(
+              context,
+              n,
+              "Class "
+                  + n.getName()
+                  + " extends a class. Extending is not supported. Extended types: "
+                  + n.getExtendedTypes());
       }
-      if (!n.getTypeParameters().isEmpty()) {
-        context.emitError(
-            n,
-            "Method " + n.getName() + " has type parameters. Generics methods are not supported.",
-            n.getTypeParameters());
-        return;
+      {
+        if (n.getImplementedTypes().isNonEmpty())
+          return EmitResult.failure(
+              context,
+              n,
+              "Class "
+                  + n.getName()
+                  + " implements an interface. Implementing is not supported. Implemented types: "
+                  + n.getImplementedTypes());
       }
+      {
+        if (n.getTypeParameters().isNonEmpty())
+          return EmitResult.failure(
+              context,
+              n,
+              "Class "
+                  + n.getName()
+                  + " has type parameters. Generics classes are not supported. Type parameters: "
+                  + n.getTypeParameters());
+      }
+      {
+        if (n.getTypeParameters().isNonEmpty()) {
+          return EmitResult.failure(
+              context,
+              n,
+              "Class "
+                  + n.getName()
+                  + " has type parameters. Generics classes are not supported. Type parameters: "
+                  + n.getTypeParameters());
+        }
+      }
+
+      {
+        if (n.getAnnotations().isNonEmpty()) {
+          context.emitWarning(
+              n,
+              "Class "
+                  + n.getName()
+                  + " has annotations. Annotations are not supported and will be ignored. Annotations: "
+                  + n.getAnnotations());
+        }
+        EmitResult<Boolean> result = visitNodeList(n.getAnnotations(), context);
+        if (result.isFailure())
+          return EmitResult.failure(
+              context, n, "Failed to emit annotations of class " + n.getNameAsString());
+      }
+
+      {
+        EmitResult<Boolean> result = visitNodeList(n.getMembers(), context);
+        if (result.isFailure())
+          return EmitResult.failure(
+              context, n, "Failed to emit members of class " + n.getNameAsString());
+      }
+
+      return EmitResult.success(Optional.empty());
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(NormalAnnotationExpr n, EmitContext context) {
+      context.emitWarning(
+          n, "Annotation " + n.getNameAsString() + " is not supported and will be ignored.");
+      return EmitResult.success(Optional.empty());
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(SingleMemberAnnotationExpr n, EmitContext context) {
+      context.emitWarning(
+          n, "Annotation " + n.getNameAsString() + " is not supported and will be ignored.");
+      return EmitResult.success(Optional.empty());
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(MarkerAnnotationExpr n, EmitContext context) {
+      context.emitWarning(
+          n, "Annotation " + n.getNameAsString() + " is not supported and will be ignored.");
+      return EmitResult.success(Optional.empty());
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(MethodDeclaration n, EmitContext context) {
+      {
+        for (Modifier modifier : n.getModifiers()) {
+          switch (modifier.getKeyword()) {
+            case PUBLIC, PROTECTED, PRIVATE, STATIC -> {}
+            default -> {
+              return EmitResult.failure(
+                  context,
+                  n,
+                  "Method "
+                      + n.getName()
+                      + " has modifier "
+                      + modifier
+                      + ". Modifier "
+                      + modifier
+                      + " is not supported. Supported modifiers are: public, protected, private, static.");
+            }
+          }
+        }
+      }
+
       if (n.getReceiverParameter().isPresent()) {
-        context.emitError(
+        return EmitResult.failure(
+            context,
             n,
             "Method "
                 + n.getName()
-                + " has a receiver parameter. Receivers are not supported. (Who are you to speak in such strange ways?)",
-            n.getReceiverParameter());
-        return;
-      }
-      if (n.getBody().isEmpty()) {
-        context.emitError(
-            n, "Method " + n.getName() + " has no body. Methods with no body are not supported.");
-        return;
-      }
-      if (!n.getAnnotations().isEmpty())
-        context.emitWarning(
-            n,
-            "Method "
-                + n.getName()
-                + " has annotations. Annotations are not supported and will be ignored.");
-
-      // Get the input types of the method and their names.
-      List<String> inputNames = new ArrayList<>();
-      List<ResolvedType> resolvedInputTypes = new ArrayList<>();
-      List<Type> inputTypes =
-          new ArrayList<>(
-              n.getParameters().stream()
-                  .map(
-                      param -> {
-                        if (!param.getAnnotations().isEmpty())
-                          context.emitWarning(
-                              param,
-                              "Annotations on function parameters are not supported.",
-                              param.getAnnotations());
-                        if (!param.getVarArgsAnnotations().isEmpty()) {
-                          context.emitError(
-                              param,
-                              "Varargs annotations on function parameters are not supported.",
-                              param.getVarArgsAnnotations());
-                          return null;
-                        }
-                        // Try to get the DGIR Type of the parameter, and if that fails, return. The
-                        // error is
-                        // already in the diagnostics.
-                        Optional<ResolvedType> resolvedType =
-                            CompilerUtils.resolveType(param.getType(), context);
-                        if (resolvedType.isEmpty()) {
-                          return null;
-                        }
-                        resolvedInputTypes.add(resolvedType.get());
-                        Optional<Type> type = fromAstType(resolvedType.get(), param, context);
-                        if (type.isEmpty()) {
-                          return null;
-                        }
-                        inputNames.add(param.getName().getIdentifier());
-                        return type.get();
-                      })
-                  .toList());
-      // Check that all types were resolved correctly
-      if (inputTypes.stream().anyMatch(Objects::isNull)) {
-        return;
+                + " has a receiver parameter. Receiver parameters are not supported. Receiver parameter: "
+                + n.getReceiverParameter().get());
       }
 
-      // Get the return type of the method.
-      Optional<Type> outputType = Optional.empty();
+      {
+        if (n.getThrownExceptions().isNonEmpty())
+          return EmitResult.failure(
+              context,
+              n,
+              "Method "
+                  + n.getName()
+                  + " declares thrown exceptions. Throwing exceptions is not supported. Thrown exceptions: "
+                  + n.getThrownExceptions());
+      }
+
+      {
+        if (n.getAnnotations().isNonEmpty()) {
+          context.emitWarning(
+              n,
+              "Method "
+                  + n.getName()
+                  + " has annotations. Annotations are not supported and will be ignored. Annotations: "
+                  + n.getAnnotations());
+          EmitResult<Boolean> result = visitNodeList(n.getAnnotations(), context);
+          if (result.isFailure())
+            return EmitResult.failure(
+                context, n, "Failed to emit annotations of method " + n.getNameAsString());
+        }
+      }
+
+      List<ParameterInfo> parameterInfos;
+      {
+        parameterInfos =
+            new ArrayList<>(
+                n.getParameters().stream()
+                    .map(parameter -> resolveParameter(parameter, context).orElse(null))
+                    .toList());
+        if (parameterInfos.stream().anyMatch(Objects::isNull)) {
+          return EmitResult.failure(
+              context, n, "Failed to resolve input parameter(s) of method " + n.getNameAsString());
+        }
+      }
+
+      Type returnType = null;
       if (!n.getType().isVoidType()) {
-        Optional<ResolvedType> resolvedType = CompilerUtils.resolveType(n.getType(), context);
+        Optional<CompilerUtils.TypeInfo> resolvedType =
+            CompilerUtils.resolveType(n.getType(), context);
         if (resolvedType.isEmpty()) {
-          return;
+          return EmitResult.failure(
+              context, n, "Failed to resolve return type of method " + n.getNameAsString());
         }
-        outputType = fromAstType(resolvedType.get(), n, context);
-        if (outputType.isEmpty()) {
-          return;
-        }
+        returnType = resolvedType.get().type();
       }
 
-      // Create the function op.
-      String fullyQualifiedMethodName =
-          "main".equals(n.getNameAsString()) ? "main" : resolvedN.getQualifiedSignature();
-      try (var programInsertion =
+      Optional<ResolvedMethodDeclaration> resolvedN = CompilerUtils.resolve(n, context);
+      if (resolvedN.isEmpty()) {
+        return EmitResult.failure(context, n, "Failed to resolve method " + n.getNameAsString());
+      }
+
+      try (var methodInsertion =
           context.setInsertionPoint(context.getProgramBlock().orElseThrow(), -1)) {
+
+        // Create the function op.
+        String fullyQualifiedMethodName =
+            "main".equals(n.getNameAsString()) ? "main" : resolvedN.get().getQualifiedSignature();
 
         FuncOp funcOp =
             context.insert(
                 new FuncOp(
                     context.loc(n),
                     fullyQualifiedMethodName,
-                    FuncType.of(inputTypes, outputType.orElse(null))));
+                    FuncType.of(
+                        parameterInfos.stream().map(ParameterInfo::type).toList(), returnType)));
 
         // Emit all statements in the method body. These will insert themselves into the function
         // op.
@@ -324,460 +451,510 @@ public class JavaCompiler {
           // Put the function arguments in the symbol table so that they can be referenced in the
           // body.
           context.pushSymbolScope(true);
-          for (int i = 0; i < inputNames.size(); i++) {
-            context.putSymbol(
-                inputNames.get(i), funcOp.getArgument(i).orElseThrow(), resolvedInputTypes.get(i));
+          for (int i = 0; i < parameterInfos.size(); i++) {
+            context.putSymbol(parameterInfos.get(i).name, funcOp.getArgument(i).orElseThrow());
           }
 
-          // Emit the body of the method.
-          n.getBody().get().accept(this, context);
+          EmitResult<Optional<Value>> result;
+          if (n.getBody().isPresent()) {
+            result = EmitResult.ofNullable(n.getBody().get().accept(this, context));
+          } else {
+            return EmitResult.failure(
+                context,
+                n,
+                "Method "
+                    + n.getNameAsString()
+                    + " has no body. Abstract methods are not supported.");
+          }
 
           context.popSymbolScope();
           // Make sure we have an implicit return in case the method has a void return type and the
-          // last
-          // statement is not a return statement.
+          // last statement is not a return statement.
           funcOp.addImplicitTerminators();
+
+          if (result.isFailure()) return result;
         }
       }
+
+      return EmitResult.success(Optional.empty());
     }
 
     @Override
-    public void visit(BlockStmt n, EmitContext context) {
-      for (Statement stmt : n.getStatements()) {
-        switch (stmt) {
-          case AssertStmt assertStmt -> assertStmt.accept(this, context);
-          case BlockStmt blockStmt -> {
-            var scope = context.insert(new ScopeOp(context.loc(n)));
-            try (var blockInsertion = context.setInsertionPoint(scope.getEntryBlock(), -1)) {
-              blockStmt.accept(this, context);
-              scope.addImplicitTerminators();
-            }
-          }
-          case BreakStmt ignored -> context.insert(new BreakOp(context.loc(n)));
-          case ContinueStmt ignored -> context.insert(new ContinueOp(context.loc(n)));
-          case EmptyStmt ignored -> {
-            // Do nothing for empty statements.
-          }
-          case ExpressionStmt expressionStmt -> expressionStmt.accept(this, context);
-          case ForStmt forStmt -> forStmt.accept(this, context);
-          case IfStmt ifStmt -> ifStmt.accept(this, context);
-          case ReturnStmt returnStmt -> returnStmt.accept(this, context);
-          default -> {
-            context.emitError(n, "Statement " + stmt + " is not supported.");
-          }
-        }
+    public EmitResult<Optional<Value>> visit(BlockStmt n, EmitContext context) {
+      EmitResult<Boolean> result;
+      {
+        result = visitNodeList(n.getStatements(), context);
+        if (result.isFailure())
+          return EmitResult.failure(context, n, "Failed to emit statements of block");
       }
+      return EmitResult.success(Optional.empty());
     }
 
     @Override
-    public void visit(AssertStmt n, EmitContext context) {
-      EmitResult<Optional<Value>> exprRes = emitExpression(n.getCheck(), context);
-      if (exprRes.isFailure() || exprRes.get().isEmpty()) {
-        return;
+    public EmitResult<Optional<Value>> visit(AssertStmt n, EmitContext context) {
+      EmitResult<Optional<Value>> checkResult;
+      {
+        checkResult = EmitResult.ofNullable(n.getCheck().accept(this, context));
+        if (checkResult.isFailure() || checkResult.get().isEmpty())
+          return EmitResult.failure(context, n, "Failed to emit check expression of assertion");
       }
+
+      EmitResult<Optional<Value>> messageResult = null;
       if (n.getMessage().isPresent()) {
-        EmitResult<Optional<Value>> messageRes =
-            n.getMessage()
-                .map(expression -> emitExpression(expression, context))
-                .orElse(EmitResult.of(Optional.empty()));
-        if (messageRes.isFailure() || messageRes.get().isEmpty()) {
-          return;
-        }
+        messageResult = EmitResult.ofNullable(n.getMessage().get().accept(this, context));
+        if (messageResult.isFailure() || messageResult.get().isEmpty())
+          return EmitResult.failure(context, n, "Failed to emit message expression of assertion");
+      }
+
+      if (messageResult != null) {
         context.insert(
-            new CfOps.AssertOp(context.loc(n), exprRes.get().get(), messageRes.get().get()));
+            new CfOps.AssertOp(context.loc(n), checkResult.get().get(), messageResult.get().get()));
       } else {
-        context.insert(new CfOps.AssertOp(context.loc(n), exprRes.get().get()));
+        context.insert(new CfOps.AssertOp(context.loc(n), checkResult.get().get()));
       }
+      return EmitResult.success(Optional.empty());
     }
 
     @Override
-    public void visit(ExpressionStmt n, EmitContext context) {
-      switch (n.getExpression()) {
-        case AssignExpr assignExpr -> assignExpr.accept(this, context);
-        case VariableDeclarationExpr variableDeclarationExpr ->
-            variableDeclarationExpr.accept(this, context);
-        default -> emitExpression(n.getExpression(), context);
-      }
+    public EmitResult<Optional<Value>> visit(ExpressionStmt n, EmitContext context) {
+      var result = EmitResult.ofNullable(n.getExpression().accept(this, context));
+      if (result.isFailure()) return result;
+      return EmitResult.success(Optional.empty());
     }
 
     @Override
-    public void visit(ForStmt n, EmitContext context) {
-      if (n.getCompare().isEmpty()) {
-        context.emitError(n, "For loop without comparison is not supported.");
-        return;
-      }
-      if (n.getUpdate().isEmpty()) {
-        context.emitError(n, "For loop without update is not supported.");
-        return;
-      }
-
+    public EmitResult<Optional<Value>> visit(ForStmt n, EmitContext context) {
       // First emit the initialization outside the for loop.
-      for (Expression initExpr : n.getInitialization()) {
-        EmitResult<Optional<Value>> initValueRes = emitExpression(initExpr, context);
-        if (initValueRes.isFailure()) {
-          return;
+      {
+        EmitResult<Boolean> initResult;
+        {
+          initResult = visitNodeList(n.getInitialization(), context);
+          if (initResult.isFailure())
+            return EmitResult.failure(context, n, "Failed to emit initialization of for loop");
         }
       }
+
       // We are using a while op so that we can support more complex update expressions.
-      WhileOp whileOp = context.insert(new WhileOp(context.loc(n)));
-      Block continueBlock = whileOp.getConditionRegion().addBlock(new Block());
-      continueBlock.addOperation(new ContinueOp(context.loc(n)));
-      Block breakBlock = whileOp.getConditionRegion().addBlock(new Block());
-      breakBlock.addOperation(new BreakOp(context.loc(n)));
+      ScfOps.WhileOp whileOp = context.insert(new ScfOps.WhileOp(context.loc(n)));
+      {
+        Block continueBlock = whileOp.getConditionRegion().addBlock(new Block());
+        continueBlock.addOperation(new ScfOps.ContinueOp(context.loc(n)));
+        Block breakBlock = whileOp.getConditionRegion().addBlock(new Block());
+        breakBlock.addOperation(new ScfOps.BreakOp(context.loc(n)));
 
-      // Open the new scope and place the comparison expression in it.
-      context.pushSymbolScope(false);
-      try (var conditionInsertion =
-          context.setInsertionPoint(whileOp.getConditionRegion().getEntryBlock(), -1)) {
-        EmitResult<Optional<Value>> compareValueRes = emitExpression(n.getCompare().get(), context);
-        if (compareValueRes.isFailure() || compareValueRes.get().isEmpty()) {
-          return;
+        // Open the new scope and place the comparison expression in it.
+        try (var conditionInsertion =
+            context.setInsertionPoint(whileOp.getConditionRegion().getEntryBlock(), -1)) {
+          context.pushSymbolScope(false);
+          if (n.getCompare().isPresent()) {
+            EmitResult<Optional<Value>> compareResult =
+                EmitResult.ofNullable(n.getCompare().get().accept(this, context));
+            if (compareResult.isFailure() || compareResult.get().isEmpty()) {
+              return EmitResult.failure(
+                  context, n, "Failed to emit compare expression of for loop");
+            }
+            Value compareValue = compareResult.get().get();
+            context.insert(
+                new CfOps.BranchCondOp(
+                    context.loc(n.getCompare().get()), compareValue, continueBlock, breakBlock));
+          }
+          context.popSymbolScope();
         }
-        Value compareValue = compareValueRes.get().get();
-        context.insert(
-            new CfOps.BranchCondOp(
-                context.loc(n.getCompare().get()), compareValue, continueBlock, breakBlock));
-      }
 
-      try (var bodyInsertion =
-          context.setInsertionPoint(whileOp.getBodyRegion().getEntryBlock(), -1)) {
-        n.getBody().accept(this, context);
-        n.getUpdate().forEach(updateExpr -> emitExpression(updateExpr, context));
-        whileOp.addImplicitTerminators();
+        try (var bodyInsertion =
+            context.setInsertionPoint(whileOp.getBodyRegion().getEntryBlock(), -1)) {
+          context.pushSymbolScope(false);
+          EmitResult<Optional<Value>> bodyResult =
+              EmitResult.ofNullable(n.getBody().accept(this, context));
+          if (bodyResult.isFailure()) {
+            return EmitResult.failure(context, n, "Failed to emit body of for loop");
+          }
+          EmitResult<Boolean> updateResult = visitNodeList(n.getUpdate(), context);
+          if (updateResult.isFailure()) {
+            return EmitResult.failure(context, n, "Failed to emit update expressions of for loop");
+          }
+          whileOp.addImplicitTerminators();
+          context.popSymbolScope();
+        }
       }
+      return EmitResult.success(Optional.empty());
     }
 
     @Override
-    public void visit(ReturnStmt n, EmitContext arg) {
-      Location trueLocation = arg.loc(n);
+    public EmitResult<Optional<Value>> visit(ReturnStmt n, EmitContext context) {
+      Location trueLocation = context.loc(n);
       // Move the debug location one further down than the actual return statement, so we can step
       // to the closing curly bracket of functions and inspect the values produced.
       Location debugLocation =
           new Location(trueLocation.file(), trueLocation.line() + 1, trueLocation.column());
       if (n.getExpression().isPresent()) {
-        EmitResult<Optional<Value>> exprRes = emitExpression(n.getExpression().get(), arg);
+        EmitResult<Optional<Value>> exprRes =
+            EmitResult.ofNullable(n.getExpression().get().accept(this, context));
         if (exprRes.isFailure() || exprRes.get().isEmpty()) {
-          return;
+          return EmitResult.failure(
+              context, n, "Failed to emit return expression of return statement");
         }
-        arg.insert(new ReturnOp(debugLocation, exprRes.get().get()));
+        context.insert(new ReturnOp(debugLocation, exprRes.get().get()));
       } else {
-        arg.insert(new ReturnOp(debugLocation));
+        context.insert(new ReturnOp(debugLocation));
       }
+      return EmitResult.success(Optional.empty());
     }
 
     @Override
-    public void visit(AssignExpr n, EmitContext context) {
-      EmitResult<Optional<Value>> targetValueRes = emitExpression(n.getTarget(), context);
-      if (targetValueRes.isFailure() || targetValueRes.get().isEmpty()) {
-        return;
+    public EmitResult<Optional<Value>> visit(AssignExpr n, EmitContext context) {
+      EmitResult<Optional<Value>> targetRes;
+      EmitResult<Optional<Value>> valueRes;
+      {
+        targetRes = EmitResult.ofNullable(n.getTarget().accept(this, context));
+        if (targetRes.isFailure() || targetRes.get().isEmpty())
+          return EmitResult.failure(
+              context, n, "Failed to emit target of assignment: " + n.getTarget());
       }
-      Value targetValue = targetValueRes.get().get();
-      ResolvedType targetType;
-      switch (n.getTarget()) {
-        case NameExpr nameExpr -> {
-          var resolvedTarget = CompilerUtils.resolve(nameExpr, context);
-          if (resolvedTarget.isEmpty()) {
-            context.emitError(nameExpr, "Failed to resolve target of assignment: " + nameExpr);
-            return;
-          }
-          targetType = resolvedTarget.get().getType();
-        }
-        default -> targetType = n.getTarget().calculateResolvedType();
+      {
+        valueRes = EmitResult.ofNullable(n.getValue().accept(this, context));
+        if (valueRes.isFailure())
+          return EmitResult.failure(context, n, "Failed to emit value of assignment");
       }
 
-      EmitResult<Optional<Value>> rhs = emitExpression(n.getValue(), context);
-      if (rhs.isFailure() || rhs.get().isEmpty()) {
-        return;
+      EmitResult<Value> implicitCast =
+          CompilerUtils.emitImplicitCastIfNeeded(
+              valueRes.get().get(),
+              targetRes.get().get().getType(),
+              n.getValue().isLiteralExpr(),
+              context,
+              n);
+      if (implicitCast.isFailure()) {
+        return EmitResult.failure(context, n, "Failed to emit implicit cast for assignment");
       }
-
-      Value rhsValue = rhs.get().get();
-
-      if (n.getOperator() == AssignExpr.Operator.ASSIGN) {
-        EmitResult<Value> implicitCast =
-            CompilerUtils.emitImplicitCastIfNeeded(
-                n.getValue(),
-                rhsValue,
-                n.getValue().calculateResolvedType(),
-                targetType,
-                context,
-                n.getValue().isLiteralExpr());
-        if (implicitCast.isFailure()) {
-          return;
-        }
-        try {
-          context.insert(new BuiltinOps.IdOp(context.loc(n), implicitCast.get(), targetValue));
-        } catch (AssertionError e) {
-          context.emitError(
-              n, "Failed to emit assignment of value " + n.getValue() + " to " + n.getTarget(), e);
-          return;
-        }
-        return;
-      }
-
-      EmitResult<Value> result =
-          emitBinary(
-              n,
-              n.getOperator()
-                  .toBinaryOperator()
-                  .orElseThrow(() -> new RuntimeException("Unsupported assignment operator")),
-              targetValue,
-              rhsValue,
-              Optional.of(targetValue),
-              context);
-
-      if (result.isFailure()) {
-        context.emitError(
-            n, "Failed to emit binary operation for assignment operator " + n.getOperator());
-      }
-    }
-
-    @Override
-    public void visit(VariableDeclarationExpr n, EmitContext context) {
-      emitVariableDeclaration(n, context);
-    }
-
-    private @NotNull EmitResult<Optional<Value>> emitExpression(
-        Expression expression, EmitContext context) {
-      return switch (expression) {
-        case LiteralExpr literalExpr -> emitLiteral(literalExpr, context).map(Optional::of);
-        case NameExpr nameExpr ->
-            resolveName(nameExpr.getName().asString(), nameExpr, context)
-                .map(value -> EmitResult.of(Optional.of(value)))
-                .orElse(EmitResult.failure());
-        case BinaryExpr binaryExpr ->
-            emitBinary(binaryExpr, context, Optional.empty()).map(Optional::of);
-        case MethodCallExpr methodCallExpr -> emitMethodCall(methodCallExpr, context);
-        case UnaryExpr unaryExpr -> emitUnary(unaryExpr, context).map(Optional::of);
-        case VariableDeclarationExpr variableDeclarationExpr ->
-            emitVariableDeclaration(variableDeclarationExpr, context);
-        default -> {
-          context.emitError(
-              expression,
-              expression.getClass().getSimpleName()
-                  + " '"
-                  + expression
-                  + "' is not supported in this context.");
-          yield EmitResult.failure();
-        }
-      };
-    }
-
-    private @NotNull EmitResult<Value> emitLiteral(
-        @NotNull LiteralExpr literalExpr, @NotNull EmitContext context) {
-      Optional<TypedAttribute> attrOpt = valueAttrFromLiteralExpr(literalExpr, context);
-      return attrOpt
-          .map(
-              typedAttribute ->
-                  EmitResult.success(
-                      context
-                          .insert(new ConstantOp(context.loc(literalExpr), typedAttribute))
-                          .getValue()))
-          .orElseGet(EmitResult::failure);
-    }
-
-    private @NotNull EmitResult<Value> emitBinary(
-        @NotNull Node site,
-        @NotNull BinaryExpr.Operator operator,
-        @NotNull Value lhs,
-        @NotNull Value rhs,
-        @NotNull Optional<Value> targetValue,
-        @NotNull EmitContext context) {
-      if (lhs.getType() == StrTypes.StringT.INSTANCE
-          || rhs.getType() == StrTypes.StringT.INSTANCE) {
-        return emitStringBinary(site, operator, lhs, rhs, targetValue, context);
-      }
-
-      Optional<BinMode> binModeOpt =
-          Optional.of(
-              switch (operator) {
-                case PLUS -> BinMode.ADD;
-                case MINUS -> BinMode.SUB;
-                case MULTIPLY -> BinMode.MUL;
-                case DIVIDE -> BinMode.DIV;
-                case REMAINDER -> BinMode.MOD;
-                case OR -> BinMode.OR;
-                case AND -> BinMode.AND;
-                case BINARY_OR -> BinMode.BOR;
-                case BINARY_AND -> BinMode.BAND;
-                case XOR -> BinMode.XOR;
-                case EQUALS -> BinMode.EQ;
-                case NOT_EQUALS -> BinMode.NE;
-                case LESS -> BinMode.LT;
-                case GREATER -> BinMode.GT;
-                case LESS_EQUALS -> BinMode.LE;
-                case GREATER_EQUALS -> BinMode.GE;
-                case LEFT_SHIFT -> BinMode.LSH;
-                case SIGNED_RIGHT_SHIFT -> BinMode.RSHS;
-                case UNSIGNED_RIGHT_SHIFT -> BinMode.RSHU;
-              });
-
-      var binOp = context.insert(new BinaryOp(context.loc(site), lhs, rhs, binModeOpt.get()));
-      targetValue.ifPresent(binOp::setOutputValue);
-      return EmitResult.of(binOp.getResult());
-    }
-
-    private @NotNull EmitResult<Value> emitStringBinary(
-        @NotNull Node site,
-        @NotNull BinaryExpr.Operator operator,
-        @NotNull Value lhs,
-        @NotNull Value rhs,
-        @NotNull Optional<Value> targetValue,
-        @NotNull EmitContext context) {
-      if (operator != BinaryExpr.Operator.PLUS) {
-        context.emitError(site, "Only string concatenation is supported for strings.");
-        return EmitResult.failure();
-      }
-      var concatOp = context.insert(new StrOps.ConcatOp(context.loc(site), lhs, rhs));
-      targetValue.ifPresent(concatOp::setOutputValue);
-      return EmitResult.of(concatOp.getResult());
-    }
-
-    private @NotNull EmitResult<Value> emitBinary(
-        @NotNull BinaryExpr binaryExpr,
-        @NotNull EmitContext context,
-        @NotNull Optional<Value> targetValue) {
-      EmitResult<Optional<Value>> lhsRes = emitExpression(binaryExpr.getLeft(), context);
-      EmitResult<Optional<Value>> rhsRes = emitExpression(binaryExpr.getRight(), context);
-      if (lhsRes.isFailure()
-          || lhsRes.get().isEmpty()
-          || rhsRes.isFailure()
-          || rhsRes.get().isEmpty()) {
-        return EmitResult.failure(context, binaryExpr, "Could not resolve left or right operand.");
-      }
-
-      Value lhs = lhsRes.get().get();
-      Value rhs = rhsRes.get().get();
-      return emitBinary(binaryExpr, binaryExpr.getOperator(), lhs, rhs, targetValue, context);
-    }
-
-    /**
-     * Emit a function call.
-     *
-     * @param methodCallExpr the method call expression to emit.
-     * @param context the emit context.
-     * @return the optional value resulting from the function call, or an empty optional if there
-     *     was an error during emission.
-     */
-    private @NotNull EmitResult<Optional<Value>> emitMethodCall(
-        @NotNull MethodCallExpr methodCallExpr, @NotNull EmitContext context) {
-      Optional<ResolvedMethodDeclaration> targetMethod =
-          CompilerUtils.resolve(methodCallExpr, context);
-      if (targetMethod.isEmpty()) {
-        return EmitResult.failure();
-      }
-
-      // If at any point we want to use the string just emit all the methods upfront.
-      if (targetMethod.get().declaringType().getQualifiedName().equals("java.lang.String")) {
-        emitStringIntrinsicMethods(targetMethod.get().declaringType(), context);
-      }
-
-      // Make sure the target method is accessible from the current context. This also checks that
-      // the method is
-      var callingClass =
-          methodCallExpr.findAncestor(ClassOrInterfaceDeclaration.class).orElseThrow().resolve();
-      if (!isDeclarationAccessibleFrom(callingClass, targetMethod.get())) {
+      try {
+        var id =
+            context.insert(
+                new BuiltinOps.IdOp(context.loc(n), implicitCast.get(), targetRes.get().get()));
+        return EmitResult.of(Optional.of(id.getResult()));
+      } catch (AssertionError e) {
         return EmitResult.failure(
             context,
-            methodCallExpr,
-            "Method callee "
-                + targetMethod.get().getQualifiedName()
-                + " is not visible from "
-                + callingClass.getQualifiedName());
+            n,
+            "Failed to emit assignment of value " + n.getValue() + " to " + n.getTarget(),
+            e);
       }
+    }
 
-      // Get the call args of the method
-      List<Value> args = new ArrayList<>();
-
-      for (Expression arg : methodCallExpr.getArguments()) {
-        EmitResult<Optional<Value>> argValue = emitExpression(arg, context);
-        if (argValue.isFailure() || argValue.get().isEmpty()) {
+    @Override
+    public EmitResult<Optional<Value>> visit(BinaryExpr n, EmitContext context) {
+      EmitResult<Optional<Value>> lhsResult;
+      {
+        lhsResult = EmitResult.ofNullable(n.getLeft().accept(this, context));
+        if (lhsResult.isFailure() || lhsResult.get().isEmpty())
+          return EmitResult.failure(context, n, "Failed to emit left operand of binary expression");
+      }
+      EmitResult<Optional<Value>> rhsResult;
+      {
+        rhsResult = EmitResult.ofNullable(n.getRight().accept(this, context));
+        if (rhsResult.isFailure() || rhsResult.get().isEmpty())
           return EmitResult.failure(
-              context, methodCallExpr, "Could not resolve argument " + arg + " of method call.");
+              context, n, "Failed to emit right operand of binary expression");
+      }
+      Value lhs = lhsResult.get().get();
+      Value rhs = rhsResult.get().get();
+
+      if (lhs.getType() == StrTypes.StringT.INSTANCE
+          || rhs.getType() == StrTypes.StringT.INSTANCE) {
+        if (n.getOperator() != BinaryExpr.Operator.PLUS) {
+          context.emitError(n, "Only string concatenation is supported for strings.");
+          return EmitResult.failure();
         }
-        args.add(argValue.get().get());
+        var concatOp = context.insert(new StrOps.ConcatOp(context.loc(n), lhs, rhs));
+        return EmitResult.of(Optional.of(concatOp.getResult()));
+      } else {
+        Optional<BinMode> binModeOpt =
+            Optional.of(
+                switch (n.getOperator()) {
+                  case PLUS -> BinMode.ADD;
+                  case MINUS -> BinMode.SUB;
+                  case MULTIPLY -> BinMode.MUL;
+                  case DIVIDE -> BinMode.DIV;
+                  case REMAINDER -> BinMode.MOD;
+                  case OR -> BinMode.OR;
+                  case AND -> BinMode.AND;
+                  case BINARY_OR -> BinMode.BOR;
+                  case BINARY_AND -> BinMode.BAND;
+                  case XOR -> BinMode.XOR;
+                  case EQUALS -> BinMode.EQ;
+                  case NOT_EQUALS -> BinMode.NE;
+                  case LESS -> BinMode.LT;
+                  case GREATER -> BinMode.GT;
+                  case LESS_EQUALS -> BinMode.LE;
+                  case GREATER_EQUALS -> BinMode.GE;
+                  case LEFT_SHIFT -> BinMode.LSH;
+                  case SIGNED_RIGHT_SHIFT -> BinMode.RSHS;
+                  case UNSIGNED_RIGHT_SHIFT -> BinMode.RSHU;
+                });
+
+        var binOp = context.insert(new BinaryOp(context.loc(n), lhs, rhs, binModeOpt.get()));
+        return EmitResult.of(Optional.of(binOp.getResult()));
+      }
+    }
+
+    public EmitResult<Optional<Value>> visit(BooleanLiteralExpr n, EmitContext context) {
+      return EmitResult.of(
+          Optional.of(context.insert(new ConstantOp(context.loc(n), n.getValue())).getResult()));
+    }
+
+    public EmitResult<Optional<Value>> visit(CastExpr n, EmitContext context) {
+      EmitResult<Optional<Value>> expressionResult;
+      {
+        expressionResult = EmitResult.ofNullable(n.getExpression().accept(this, context));
+        if (expressionResult.isFailure() || expressionResult.get().isEmpty())
+          return EmitResult.failure(
+              context, n.getExpression(), "Failed to emit expression of cast");
       }
 
-      // Check if the caller arguments with the callee param types and emit casts if necessary
-      for (int i = 0; i < args.size(); i++) {
-        Value callArg = args.get(i);
-        ResolvedType targetMethodArgType = targetMethod.get().getParam(i).getType();
-        EmitResult<Value> castCallArg =
-            CompilerUtils.emitImplicitCastIfNeeded(
-                methodCallExpr.getArgument(i),
-                callArg,
-                methodCallExpr.getArgument(i).calculateResolvedType(),
-                targetMethodArgType,
+      TypeInfo typeInfo;
+      {
+        var resolvedTypeInfo = CompilerUtils.resolveType(n.getType(), context);
+        if (resolvedTypeInfo.isEmpty()) {
+          return EmitResult.failure(
+              context,
+              n,
+              "Failed to emit cast of type "
+                  + expressionResult.get().get().getType()
+                  + " to "
+                  + n.getType());
+        }
+        typeInfo = resolvedTypeInfo.get();
+      }
+
+      Value value = expressionResult.get().get();
+      Type castType = typeInfo.type();
+      return EmitResult.of(
+          Optional.of(
+              context.insert(new ArithOps.CastOp(context.loc(n), value, castType)).getResult()));
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(CharLiteralExpr n, EmitContext context) {
+      return EmitResult.of(
+          Optional.of(
+              context
+                  .insert(
+                      new ConstantOp(
+                          context.loc(n), new IntegerAttribute(n.asChar(), IntegerT.UINT16)))
+                  .getResult()));
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(ConditionalExpr n, EmitContext context) {
+      return EmitResult.failure(context, n, "Ternary operator is not supported.");
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(DoubleLiteralExpr n, EmitContext context) {
+      boolean isFloat = n.getValue().toLowerCase().endsWith("f");
+      return EmitResult.of(
+          Optional.of(
+              context
+                  .insert(
+                      new ConstantOp(
+                          context.loc(n),
+                          new FloatAttribute(
+                              n.asDouble(), isFloat ? FloatT.FLOAT32 : FloatT.FLOAT64)))
+                  .getResult()));
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(EnclosedExpr n, EmitContext context) {
+      return EmitResult.ofNullable(n.getInner().accept(this, context));
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(FieldAccessExpr n, EmitContext context) {
+      return EmitResult.failure(context, n, "Field access is not supported.");
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(IntegerLiteralExpr n, EmitContext context) {
+      return EmitResult.of(
+          Optional.of(
+              context
+                  .insert(
+                      new ConstantOp(
+                          context.loc(n),
+                          new IntegerAttribute(n.asNumber().longValue(), IntegerT.INT32)))
+                  .getResult()));
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(LongLiteralExpr n, EmitContext context) {
+      return EmitResult.of(
+          Optional.of(
+              context
+                  .insert(
+                      new ConstantOp(
+                          context.loc(n),
+                          new IntegerAttribute(n.asNumber().longValue(), IntegerT.INT64)))
+                  .getResult()));
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(MethodCallExpr n, EmitContext context) {
+      EmitResult<Optional<Value>> result;
+
+      if (n.getTypeArguments().isPresent()) {
+        return EmitResult.failure(
+            context,
+            n,
+            "Method call "
+                + n.getName()
+                + " has type arguments. Method calls with type arguments are not supported. Type arguments: "
+                + n.getTypeArguments().get());
+      }
+
+      Optional<ResolvedMethodDeclaration> targetMethodOpt = resolve(n, context);
+      if (targetMethodOpt.isEmpty()) {
+        return EmitResult.failure(context, n, "Failed to resolve method call " + n.getName());
+      }
+      ResolvedMethodDeclaration targetMethod = targetMethodOpt.get();
+      // If at any point we want to use the string just emit all the methods upfront.
+      if (targetMethod.declaringType().getQualifiedName().equals("java.lang.String")) {
+        emitStringIntrinsicMethods(targetMethod.declaringType(), context);
+      }
+
+      ResolvedReferenceTypeDeclaration callingClass;
+      {
+        // Make sure the target method is accessible from the current context. This also checks that
+        // the method is
+        var callingClassOpt = n.findAncestor(ClassOrInterfaceDeclaration.class);
+        if (callingClassOpt.isEmpty()) {
+          return EmitResult.failure(
+              context,
+              n,
+              "Method call "
+                  + n.getName()
+                  + " is not in a class or interface. Method calls must be in a class or interface.");
+        }
+        var resolvedCallingClassOpt = resolve(callingClassOpt.get(), context);
+        if (resolvedCallingClassOpt.isEmpty()) {
+          return EmitResult.failure(
+              context,
+              n,
+              "Failed to resolve class or interface "
+                  + callingClassOpt.get().getNameAsString()
+                  + " of method call "
+                  + n.getName());
+        }
+        callingClass = resolvedCallingClassOpt.get();
+        if (!isDeclarationAccessibleFrom(callingClass, targetMethod)) {
+          return EmitResult.failure(
+              context,
+              n,
+              "Method callee "
+                  + targetMethod.getQualifiedName()
+                  + " is not visible from "
+                  + callingClass.getQualifiedName());
+        }
+      }
+
+      EmitResult<Optional<Value>> scopeResult = null;
+      if (n.getScope().isPresent()) {
+        scopeResult = EmitResult.ofNullable(n.getScope().get().accept(this, context));
+        if (scopeResult.isFailure())
+          return EmitResult.failure(
+              context, n, "Failed to emit scope of method call " + n.getName());
+      }
+
+      List<Value> args;
+      {
+        EmitResult<List<Value>> argumentsResult;
+        argumentsResult = visitNodeListWithResult(n.getArguments(), context);
+        if (argumentsResult.isFailure())
+          return EmitResult.failure(
+              context, n, "Failed to emit arguments of method call " + n.getName());
+
+        args = argumentsResult.get();
+
+        // Check if the caller arguments with the callee param types and emit casts if necessary
+        for (int i = 0; i < args.size(); i++) {
+          Value callArg = args.get(i);
+          ResolvedType targetType = targetMethod.getParam(i).getType();
+          EmitResult<Value> castCallArg =
+              CompilerUtils.emitImplicitCastIfNeeded(
+                  callArg, targetType, n.getArgument(i).isLiteralExpr(), context, n);
+          if (castCallArg.isFailure()) {
+            return EmitResult.failure(
                 context,
-                methodCallExpr.getArgument(i).isLiteralExpr());
-        if (castCallArg.isFailure()) {
-          return EmitResult.failure(
-              context,
-              methodCallExpr,
-              "Argument "
-                  + callArg
-                  + " cannot be implicitly cast to parameter type "
-                  + targetMethodArgType.describe());
+                n,
+                "Argument "
+                    + callArg
+                    + " cannot be implicitly cast to parameter type "
+                    + targetType.describe());
+          }
+          args.set(i, castCallArg.get());
         }
-        args.set(i, castCallArg.get());
       }
 
-      boolean isStaticCall = targetMethod.get().isStatic();
+      boolean isStaticCall = targetMethod.isStatic();
       if (!isStaticCall) {
-        EmitResult<Optional<Value>> scopeValue =
-            emitExpression(methodCallExpr.getScope().orElseThrow(), context);
-        if (scopeValue.isFailure() || scopeValue.get().isEmpty()) {
+        if (scopeResult == null)
           return EmitResult.failure(
               context,
-              methodCallExpr,
-              "Could not resolve scope (variable) of method call: "
-                  + methodCallExpr.getScope().orElseThrow());
-        }
-        Value scopeValueRes = scopeValue.get().get();
-        args.addFirst(scopeValueRes);
+              n,
+              "Method call "
+                  + n.getName()
+                  + " is an instance method call but has no scope. Instance method calls must have a scope.");
+        args.addFirst(scopeResult.get().orElseThrow());
       }
 
-      String funcName = targetMethod.get().getQualifiedSignature();
+      String funcName = targetMethod.getQualifiedSignature();
       Optional<Type> returnType = Optional.empty();
-      if (!targetMethod.get().getReturnType().isVoid()) {
-        returnType = fromAstType(targetMethod.get().getReturnType(), methodCallExpr, context);
+      if (!targetMethod.getReturnType().isVoid()) {
+        returnType = fromAstType(targetMethod.getReturnType(), n, context);
+        if (returnType.isEmpty()) {
+          return EmitResult.failure(
+              context, n, "Failed to resolve return type of method " + n.getNameAsString());
+        }
       }
       FuncOps.CallOp callOp =
           context.insert(
-              new FuncOps.CallOp(
-                  context.loc(methodCallExpr), funcName, args, returnType.orElse(null)));
+              new FuncOps.CallOp(context.loc(n), funcName, args, returnType.orElse(null)));
 
-      return EmitResult.success(callOp.getOutput().map(OperationResult::getValue));
+      return EmitResult.success(callOp.getOutputValue());
     }
 
-    private @NotNull EmitResult<Value> emitIncrement(
-        @NotNull Node site, boolean positive, @NotNull Value target, @NotNull EmitContext context) {
-      ConstantOp one = context.insert(new ConstantOp(context.loc(site), 1));
-      if (positive) {
-        return emitBinary(
-            site, BinaryExpr.Operator.PLUS, target, one.getValue(), Optional.of(target), context);
-      } else {
-        return emitBinary(
-            site, BinaryExpr.Operator.MINUS, target, one.getValue(), Optional.of(target), context);
+    @Override
+    public EmitResult<Optional<Value>> visit(NameExpr n, EmitContext context) {
+      Optional<Value> resolved = resolveName(n.getName().asString(), n, context);
+      if (resolved.isEmpty()) {
+        return EmitResult.failure(context, n, "Failed to resolve name " + n.getName());
       }
+      return EmitResult.of(resolved);
     }
 
-    private @NotNull EmitResult<Value> emitUnary(
-        @NotNull UnaryExpr unaryExpr, @NotNull EmitContext context) {
-      EmitResult<Optional<Value>> operandRes = emitExpression(unaryExpr.getExpression(), context);
-      if (operandRes.isFailure() || operandRes.get().isEmpty()) {
-        return EmitResult.failure(
-            context, unaryExpr, "Could not resolve operand of unary expression.");
+    @Override
+    public EmitResult<Optional<Value>> visit(NullLiteralExpr n, EmitContext context) {
+      return EmitResult.failure(context, n, "Null literals are not supported.");
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(StringLiteralExpr n, EmitContext context) {
+      return EmitResult.of(
+          Optional.of(context.insert(new ConstantOp(context.loc(n), n.getValue())).getResult()));
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(UnaryExpr n, EmitContext context) {
+      EmitResult<Optional<Value>> operandResult;
+      {
+        operandResult = EmitResult.ofNullable(n.getExpression().accept(this, context));
+        if (operandResult.isFailure() || operandResult.get().isEmpty())
+          return EmitResult.failure(context, n, "Failed to emit expression of unary expression");
       }
-      Value operand = operandRes.get().get();
-      if (!isNumeric(operand.getType())) {
-        context.emitError(
-            unaryExpr,
-            "Unary operator can only be applied to numeric types. Found type " + operand.getType());
-        return EmitResult.failure();
-      }
+      Value operand = operandResult.get().get();
+
       boolean postfix = false;
       ArithAttrs.UnaryModeAttr.UnaryMode unaryMode =
-          switch (unaryExpr.getOperator()) {
+          switch (n.getOperator()) {
             case PLUS -> null;
             case MINUS -> ArithAttrs.UnaryModeAttr.UnaryMode.NEGATE;
             case PREFIX_INCREMENT -> ArithAttrs.UnaryModeAttr.UnaryMode.INCREMENT;
@@ -794,45 +971,66 @@ public class JavaCompiler {
             }
           };
 
-      if (unaryMode != null) {
-        Value result = null;
-        if (postfix) {
-          // Copy the value to a new value and return that so we can modify the increment target.
-          BuiltinOps.IdOp idOp =
-              context.insert(new BuiltinOps.IdOp(context.loc(unaryExpr), operand));
-          result = idOp.getResult();
-        }
-        ArithOps.UnaryOp unary =
-            context.insert(new ArithOps.UnaryOp(context.loc(unaryExpr), operand, unaryMode));
-        unary.setOutputValue(operand);
-        result = result == null ? unary.getResult() : result;
-        return EmitResult.of(result);
+      if (unaryMode == null) {
+        return EmitResult.failure(context, n, "Unsupported unary operator " + n.getOperator());
       }
-      return EmitResult.of(operand);
+
+      Value result = null;
+      if (postfix) {
+        // Copy the value to a new value and return that so we can modify the increment target.
+        BuiltinOps.IdOp idOp = context.insert(new BuiltinOps.IdOp(context.loc(n), operand));
+        result = idOp.getResult();
+      }
+      ArithOps.UnaryOp unary =
+          context.insert(new ArithOps.UnaryOp(context.loc(n), operand, unaryMode));
+      unary.setOutputValue(operand);
+      result = result == null ? unary.getResult() : result;
+      return EmitResult.of(Optional.of(result));
     }
 
-    private @NotNull EmitResult<Optional<Value>> emitVariableDeclaration(
+    @Override
+    public @NotNull EmitResult<Optional<Value>> visit(
         @NotNull VariableDeclarationExpr n, @NotNull EmitContext context) {
-      if (n.getVariables().size() != 1) {
-        return EmitResult.failure(context, n, "Only one variable declaration is supported.");
+      {
+        if (n.getAnnotations().isNonEmpty())
+          context.emitWarning(
+              n,
+              "Variable declaration has annotations. Annotations are not supported and will be ignored. Annotations: "
+                  + n.getAnnotations());
+
+        EmitResult<Boolean> result = visitNodeList(n.getAnnotations(), context);
+        if (result.isFailure())
+          return EmitResult.failure(
+              context, n, "Failed to emit annotations of variable declaration");
       }
-      VariableDeclarator variableDeclarator = n.getVariables().get(0);
-      if (variableDeclarator.getInitializer().isEmpty()) {
-        return EmitResult.failure(
-            context, n, "Variable " + variableDeclarator.getName() + " is not initialized.");
+
+      VariableDeclarator declarator;
+      {
+        if (n.getVariables().isEmpty()) {
+          return EmitResult.failure(
+              context, n, "Variable declaration must declare at least one variable.");
+        }
+        if (n.getVariables().size() > 1) {
+          return EmitResult.failure(
+              context, n, "Variable declaration cannot declare more than one variable.");
+        }
+        declarator = n.getVariables().get(0);
+        if (declarator.getInitializer().isEmpty()) {
+          return EmitResult.failure(context, n, "Variable declaration must have an initializer.");
+        }
       }
-      Expression initializer = variableDeclarator.getInitializer().get();
-      EmitResult<Optional<Value>> initValueRes = emitExpression(initializer, context);
-      if (initValueRes.isFailure() || initValueRes.get().isEmpty()) {
-        return EmitResult.failure();
-      }
-      Value initValue = initValueRes.get().get();
+
+      EmitResult<Optional<Value>> initializerResult =
+          EmitResult.ofNullable(declarator.getInitializer().orElseThrow().accept(this, context));
+      if (initializerResult.isFailure() || initializerResult.get().isEmpty())
+        return EmitResult.failure(context, n, "Failed to emit initializer of variable declaration");
+      Value initValue = initializerResult.get().get();
 
       // Get the resolved variable declaration so that we can get the type of the variable and check
       // that it is accessible from the current context.
-      Optional<ResolvedValueDeclaration> resolvedVariable =
-          CompilerUtils.resolve(variableDeclarator, context);
-      if (resolvedVariable.isEmpty()) {
+      Optional<TypeInfo> initializerTypeInfo =
+          CompilerUtils.resolveType(declarator.getType(), context);
+      if (initializerTypeInfo.isEmpty()) {
         return EmitResult.failure();
       }
       // Check that the target variable type is accessible in the current context
@@ -840,45 +1038,40 @@ public class JavaCompiler {
         // The class in which the variable is declared
         var contextClass =
             CompilerUtils.resolve(
-                variableDeclarator.findAncestor(ClassOrInterfaceDeclaration.class).orElseThrow(),
-                context);
+                declarator.findAncestor(ClassOrInterfaceDeclaration.class).orElseThrow(), context);
         if (contextClass.isEmpty()) {
           return EmitResult.failure();
         }
 
-        if (!isTypeUseAccessibleFrom(contextClass.get(), resolvedVariable.get().getType())) {
+        if (!isTypeUseAccessibleFrom(
+            contextClass.get(), initializerTypeInfo.get().resolvedType())) {
           return EmitResult.failure(
               context,
-              variableDeclarator,
-              "Variable " + variableDeclarator.getName() + " is not visible from " + contextClass);
+              declarator,
+              "Variable " + declarator.getName() + " is not visible from " + contextClass);
         }
       }
 
       // Check that the init value and the target have the same value and emit cast statement if not
       EmitResult<Value> implicitCastRes =
           CompilerUtils.emitImplicitCastIfNeeded(
-              variableDeclarator,
               initValue,
-              variableDeclarator.getInitializer().get().calculateResolvedType(),
-              resolvedVariable.get().getType(),
+              initializerTypeInfo.get().resolvedType(),
+              declarator.getInitializer().get().isLiteralExpr(),
               context,
-              initializer.isLiteralExpr());
+              declarator);
 
       if (implicitCastRes.isFailure()) {
         context.emitError(
             n,
             "Failed to emit implicit cast for variable "
-                + variableDeclarator.getName()
+                + declarator.getName()
                 + " with initializer "
-                + initializer);
+                + declarator.getInitializer().get());
       }
 
       bindName(
-          variableDeclarator.getName().asString(),
-          implicitCastRes.orElse(initValue),
-          resolvedVariable.get().getType(),
-          variableDeclarator,
-          context);
+          declarator.getName().asString(), implicitCastRes.orElse(initValue), declarator, context);
 
       return implicitCastRes.map(Optional::of).map(EmitResult::of).orElseGet(EmitResult::failure);
     }
@@ -894,42 +1087,51 @@ public class JavaCompiler {
     }
 
     private void bindName(
-        @NotNull String name,
-        @NotNull Value value,
-        @NotNull ResolvedType resolvedType,
-        @NotNull Node site,
-        EmitContext context) {
-      context.putSymbol(name, value, resolvedType);
+        @NotNull String name, @NotNull Value value, @NotNull Node site, EmitContext context) {
+      context.putSymbol(name, value);
       value.setDebugInfo(new ValueDebugInfo(context.loc(site), name));
     }
 
-    private @NotNull Optional<TypedAttribute> valueAttrFromLiteralExpr(
-        @NotNull LiteralExpr literalExpr, @NotNull EmitContext context) {
-      return Optional.ofNullable(
-          switch (literalExpr) {
-            case BooleanLiteralExpr boolL ->
-                new IntegerAttribute(boolL.getValue() ? 1 : 0, IntegerT.BOOL);
-            case CharLiteralExpr charL ->
-                new IntegerAttribute(charL.getValue().charAt(0), IntegerT.UINT16);
-            case DoubleLiteralExpr doubleL -> {
-              if (doubleL.getValue().contains("f") || doubleL.getValue().contains("F"))
-                yield new FloatAttribute(Float.parseFloat(doubleL.getValue()), FloatT.FLOAT32);
-              else yield new FloatAttribute(Double.parseDouble(doubleL.getValue()), FloatT.FLOAT64);
-            }
-            case IntegerLiteralExpr intL ->
-                new IntegerAttribute(Integer.parseInt(intL.getValue()), IntegerT.INT32);
-            case LongLiteralExpr longL ->
-                new IntegerAttribute(Long.parseLong(longL.getValue()), IntegerT.INT64);
-            case StringLiteralExpr stringL -> new StrAttrs.StringAttribute(stringL.getValue());
-            default -> {
-              context.emitError(
-                  literalExpr,
-                  "Literal expression "
-                      + literalExpr
-                      + " is not supported. Only boolean, char, double, integer, long, and string literals are supported.");
-              yield null;
-            }
-          });
+    private record ParameterInfo(String name, Type type, ResolvedType resolvedType) {}
+
+    private EmitResult<ParameterInfo> resolveParameter(Parameter n, EmitContext context) {
+      EmitResult<Optional<Value>> result;
+      {
+        if (n.getAnnotations().isNonEmpty()) {
+          context.emitWarning(
+              n,
+              "Parameter "
+                  + n.getName()
+                  + " has annotations. Annotations are not supported and will be ignored. Annotations: "
+                  + n.getAnnotations());
+        }
+        result = EmitResult.ofNullable(n.getAnnotations().accept(this, context));
+        if (result.isFailure()) return EmitResult.failure();
+      }
+
+      {
+        if (n.getVarArgsAnnotations().isNonEmpty()) {
+          context.emitError(
+              n,
+              "Parameter "
+                  + n.getName()
+                  + " has varargs annotations. Varargs annotations are not supported. Annotations: "
+                  + n.getVarArgsAnnotations());
+          return EmitResult.failure();
+        }
+      }
+
+      Optional<CompilerUtils.TypeInfo> typeInfo = CompilerUtils.resolveType(n.getType(), context);
+      return typeInfo
+          .map(
+              info ->
+                  EmitResult.of(
+                      new ParameterInfo(
+                          n.getName().getIdentifier(), info.type(), info.resolvedType())))
+          .orElseGet(
+              () ->
+                  EmitResult.failure(
+                      context, n, "Failed to resolve type of parameter " + n.getName()));
     }
 
     /**

@@ -27,7 +27,7 @@ public class SimpleScfTest {
   @Test
   public void testIfOpDirectly() {
     var condOp = new ConstantOp(LOC, true);
-    IfOp ifOp = new IfOp(LOC, condOp.getValue(), false);
+    IfOp ifOp = new IfOp(LOC, condOp.getResult(), false);
 
     ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
@@ -47,10 +47,10 @@ public class SimpleScfTest {
     ForOp forOp =
         new ForOp(
             LOC,
-            initValue.getValue(),
-            lowerBound.getValue(),
-            upperBound.getValue(),
-            step.getValue());
+            initValue.getResult(),
+            lowerBound.getResult(),
+            upperBound.getResult(),
+            step.getResult());
 
     forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 

@@ -35,11 +35,11 @@ public class CfTests extends VmTestBase {
     Block target = main.addBlock(new Block());
 
     var before = entry.addOperation(new ConstantOp(LOC, "before\n"));
-    entry.addOperation(new PrintOp(LOC, before.getValue()));
+    entry.addOperation(new PrintOp(LOC, before.getResult()));
     entry.addOperation(new BranchOp(LOC, target));
 
     var after = target.addOperation(new ConstantOp(LOC, "after\n"));
-    target.addOperation(new PrintOp(LOC, after.getValue()));
+    target.addOperation(new PrintOp(LOC, after.getResult()));
     target.addOperation(new ReturnOp(LOC));
 
     runProgram(prog, "before\nafter\n");
@@ -55,13 +55,13 @@ public class CfTests extends VmTestBase {
     Block b1 = main.addBlock(new Block());
     Block b2 = main.addBlock(new Block());
 
-    b0.addOperation(new PrintOp(LOC, b0.addOperation(new ConstantOp(LOC, "0\n")).getValue()));
+    b0.addOperation(new PrintOp(LOC, b0.addOperation(new ConstantOp(LOC, "0\n")).getResult()));
     b0.addOperation(new BranchOp(LOC, b1));
 
-    b1.addOperation(new PrintOp(LOC, b1.addOperation(new ConstantOp(LOC, "1\n")).getValue()));
+    b1.addOperation(new PrintOp(LOC, b1.addOperation(new ConstantOp(LOC, "1\n")).getResult()));
     b1.addOperation(new BranchOp(LOC, b2));
 
-    b2.addOperation(new PrintOp(LOC, b2.addOperation(new ConstantOp(LOC, "2\n")).getValue()));
+    b2.addOperation(new PrintOp(LOC, b2.addOperation(new ConstantOp(LOC, "2\n")).getResult()));
     b2.addOperation(new ReturnOp(LOC));
 
     runProgram(prog, "0\n1\n2\n");
@@ -78,7 +78,7 @@ public class CfTests extends VmTestBase {
 
     entry.addOperation(new BranchOp(LOC, invalid));
     invalid.addOperation(
-        new PrintOp(LOC, invalid.addOperation(new ConstantOp(LOC, "x")).getValue()));
+        new PrintOp(LOC, invalid.addOperation(new ConstantOp(LOC, "x")).getResult()));
 
     assertThrows(AssertionError.class, () -> createVm(prog));
   }
@@ -99,12 +99,12 @@ public class CfTests extends VmTestBase {
     Block merge = main.addBlock(new Block());
 
     var cond = entry.addOperation(new ConstantOp(LOC, true));
-    entry.addOperation(new BranchCondOp(LOC, cond.getValue(), yes, no));
+    entry.addOperation(new BranchCondOp(LOC, cond.getResult(), yes, no));
 
-    yes.addOperation(new PrintOp(LOC, yes.addOperation(new ConstantOp(LOC, "yes\n")).getValue()));
+    yes.addOperation(new PrintOp(LOC, yes.addOperation(new ConstantOp(LOC, "yes\n")).getResult()));
     yes.addOperation(new BranchOp(LOC, merge));
 
-    no.addOperation(new PrintOp(LOC, no.addOperation(new ConstantOp(LOC, "no\n")).getValue()));
+    no.addOperation(new PrintOp(LOC, no.addOperation(new ConstantOp(LOC, "no\n")).getResult()));
     no.addOperation(new BranchOp(LOC, merge));
 
     merge.addOperation(new ReturnOp(LOC));
@@ -124,12 +124,12 @@ public class CfTests extends VmTestBase {
     Block merge = main.addBlock(new Block());
 
     var cond = entry.addOperation(new ConstantOp(LOC, false));
-    entry.addOperation(new BranchCondOp(LOC, cond.getValue(), yes, no));
+    entry.addOperation(new BranchCondOp(LOC, cond.getResult(), yes, no));
 
-    yes.addOperation(new PrintOp(LOC, yes.addOperation(new ConstantOp(LOC, "yes\n")).getValue()));
+    yes.addOperation(new PrintOp(LOC, yes.addOperation(new ConstantOp(LOC, "yes\n")).getResult()));
     yes.addOperation(new BranchOp(LOC, merge));
 
-    no.addOperation(new PrintOp(LOC, no.addOperation(new ConstantOp(LOC, "no\n")).getValue()));
+    no.addOperation(new PrintOp(LOC, no.addOperation(new ConstantOp(LOC, "no\n")).getResult()));
     no.addOperation(new BranchOp(LOC, merge));
 
     merge.addOperation(new ReturnOp(LOC));
@@ -150,15 +150,15 @@ public class CfTests extends VmTestBase {
 
     var lhs = entry.addOperation(new ConstantOp(LOC, 21));
     var rhs = entry.addOperation(new ConstantOp(LOC, 21));
-    var eq = entry.addOperation(new BinaryOp(LOC, lhs.getValue(), rhs.getValue(), EQ));
+    var eq = entry.addOperation(new BinaryOp(LOC, lhs.getResult(), rhs.getResult(), EQ));
     entry.addOperation(new BranchCondOp(LOC, eq.getResult(), equal, notEqual));
 
     equal.addOperation(
-        new PrintOp(LOC, equal.addOperation(new ConstantOp(LOC, "equal\n")).getValue()));
+        new PrintOp(LOC, equal.addOperation(new ConstantOp(LOC, "equal\n")).getResult()));
     equal.addOperation(new BranchOp(LOC, merge));
 
     notEqual.addOperation(
-        new PrintOp(LOC, notEqual.addOperation(new ConstantOp(LOC, "not-equal\n")).getValue()));
+        new PrintOp(LOC, notEqual.addOperation(new ConstantOp(LOC, "not-equal\n")).getResult()));
     notEqual.addOperation(new BranchOp(LOC, merge));
 
     merge.addOperation(new ReturnOp(LOC));
@@ -174,7 +174,7 @@ public class CfTests extends VmTestBase {
     FuncOp condFn =
         prog.addOperation(new FuncOp(LOC, "cond", FuncType.of(List.of(), IntegerT.BOOL)));
     var fnCond = condFn.addOperation(new ConstantOp(LOC, false), 0);
-    condFn.addOperation(new ReturnOp(LOC, fnCond.getValue()), 0);
+    condFn.addOperation(new ReturnOp(LOC, fnCond.getResult()), 0);
 
     FuncOp main = prog.addOperation(new FuncOp(LOC, "main"));
     Block entry = main.getEntryBlock();
@@ -185,10 +185,10 @@ public class CfTests extends VmTestBase {
     var call = entry.addOperation(new CallOp(LOC, condFn));
     entry.addOperation(new BranchCondOp(LOC, call.getOutputValue().orElseThrow(), yes, no));
 
-    yes.addOperation(new PrintOp(LOC, yes.addOperation(new ConstantOp(LOC, "T\n")).getValue()));
+    yes.addOperation(new PrintOp(LOC, yes.addOperation(new ConstantOp(LOC, "T\n")).getResult()));
     yes.addOperation(new BranchOp(LOC, merge));
 
-    no.addOperation(new PrintOp(LOC, no.addOperation(new ConstantOp(LOC, "F\n")).getValue()));
+    no.addOperation(new PrintOp(LOC, no.addOperation(new ConstantOp(LOC, "F\n")).getResult()));
     no.addOperation(new BranchOp(LOC, merge));
 
     merge.addOperation(new ReturnOp(LOC));
@@ -207,10 +207,10 @@ public class CfTests extends VmTestBase {
     Block good = main.addBlock(new Block());
 
     var cond = entry.addOperation(new ConstantOp(LOC, true));
-    entry.addOperation(new BranchCondOp(LOC, cond.getValue(), bad, good));
+    entry.addOperation(new BranchCondOp(LOC, cond.getResult(), bad, good));
 
     bad.addOperation(
-        new PrintOp(LOC, bad.addOperation(new ConstantOp(LOC, "bad-path")).getValue()));
+        new PrintOp(LOC, bad.addOperation(new ConstantOp(LOC, "bad-path")).getResult()));
     good.addOperation(new ReturnOp(LOC));
 
     assertThrows(AssertionError.class, () -> createVm(prog));
@@ -228,8 +228,8 @@ public class CfTests extends VmTestBase {
 
     var cond = main.addOperation(new ConstantOp(LOC, true), 0);
     var ok = main.addOperation(new ConstantOp(LOC, "after-assert\n"), 0);
-    main.addOperation(new AssertOp(LOC, cond.getValue()), 0);
-    main.addOperation(new PrintOp(LOC, ok.getValue()), 0);
+    main.addOperation(new AssertOp(LOC, cond.getResult()), 0);
+    main.addOperation(new PrintOp(LOC, ok.getResult()), 0);
     main.addOperation(new ReturnOp(LOC), 0);
 
     runProgram(prog, "after-assert\n");
@@ -243,8 +243,8 @@ public class CfTests extends VmTestBase {
 
     var cond = main.addOperation(new ConstantOp(LOC, false), 0);
     var after = main.addOperation(new ConstantOp(LOC, "should-not-print\n"), 0);
-    main.addOperation(new AssertOp(LOC, cond.getValue()), 0);
-    main.addOperation(new PrintOp(LOC, after.getValue()), 0);
+    main.addOperation(new AssertOp(LOC, cond.getResult()), 0);
+    main.addOperation(new PrintOp(LOC, after.getResult()), 0);
     main.addOperation(new ReturnOp(LOC), 0);
 
     VM vm = createVm(prog);
@@ -261,8 +261,8 @@ public class CfTests extends VmTestBase {
     var cond = main.addOperation(new ConstantOp(LOC, false), 0);
     var msg = main.addOperation(new ConstantOp(LOC, "assert failed"), 0);
     var after = main.addOperation(new ConstantOp(LOC, "never\n"), 0);
-    main.addOperation(new AssertOp(LOC, cond.getValue(), msg.getValue()), 0);
-    main.addOperation(new PrintOp(LOC, after.getValue()), 0);
+    main.addOperation(new AssertOp(LOC, cond.getResult(), msg.getResult()), 0);
+    main.addOperation(new PrintOp(LOC, after.getResult()), 0);
     main.addOperation(new ReturnOp(LOC), 0);
 
     VM vm = createVm(prog);

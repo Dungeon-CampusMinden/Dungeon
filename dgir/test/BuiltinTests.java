@@ -84,7 +84,7 @@ public class BuiltinTests {
     var constOp = funcMainOp.addOperation(new ConstantOp(LOC, 42), 0);
 
     var secondConstOp =
-        funcMainOp.addOperation(new ConstantOp(LOC, 100).setOutputValue(constOp.getValue()), 0);
+        funcMainOp.addOperation(new ConstantOp(LOC, 100).setOutputValue(constOp.getResult()), 0);
 
     funcMainOp.addOperation(new PrintOp(LOC, secondConstOp.getOutputValue().orElseThrow()), 0);
     funcMainOp.addOperation(new ReturnOp(LOC), 0);

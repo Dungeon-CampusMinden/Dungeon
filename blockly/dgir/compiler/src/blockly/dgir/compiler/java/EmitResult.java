@@ -40,6 +40,10 @@ public sealed interface EmitResult<T> {
     return result == null ? failure() : success(result);
   }
 
+  static <T> @NotNull EmitResult<T> ofNullable(@Nullable EmitResult<T> result) {
+    return result == null ? failure() : result;
+  }
+
   static <T> @NotNull EmitResult<T> ofNullable(
       @Nullable T result, EmitContext context, Node node, String message, Object... args) {
     return result == null ? failure(context, node, message, args) : success(result);

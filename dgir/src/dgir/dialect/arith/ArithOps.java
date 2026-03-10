@@ -390,16 +390,5 @@ public sealed interface ArithOps {
     public Object getValueStorage() {
       return getValueAttribute().getStorage();
     }
-
-    /**
-     * Returns the SSA {@link Value} produced by this operation.
-     *
-     * @return the output value.
-     * @throws AssertionError if the output is absent.
-     */
-    @Contract(pure = true)
-    public @NotNull Value getValue() {
-      return getOutputValue().orElseThrow(() -> new AssertionError("No output value found."));
-    }
   }
 }

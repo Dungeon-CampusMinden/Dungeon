@@ -152,7 +152,7 @@ class DapServerTest extends VmTestBase {
     ProgramOp prog = new ProgramOp(LOC);
     FuncOp main = prog.addOperation(new FuncOp(LOC, "main"));
     var c = main.addOperation(new ConstantOp(LOC, text), 0);
-    main.addOperation(new PrintOp(LOC, c.getValue()), 0);
+    main.addOperation(new PrintOp(LOC, c.getResult()), 0);
     main.addOperation(new ReturnOp(LOC), 0);
     return prog;
   }
@@ -191,11 +191,11 @@ class DapServerTest extends VmTestBase {
     ProgramOp prog = new ProgramOp(new Location("test.dgir", 1, 1));
     FuncOp main = prog.addOperation(new FuncOp(new Location("test.dgir", 2, 1), "main"));
     var a = main.addOperation(new ConstantOp(new Location("test.dgir", 3, 1), "A"), 0);
-    a.getValue().setDebugInfo(new ValueDebugInfo(a.getLocation(), "a"));
-    main.addOperation(new PrintOp(new Location("test.dgir", 4, 1), a.getValue()), 0);
+    a.getResult().setDebugInfo(new ValueDebugInfo(a.getLocation(), "a"));
+    main.addOperation(new PrintOp(new Location("test.dgir", 4, 1), a.getResult()), 0);
     var b = main.addOperation(new ConstantOp(new Location("test.dgir", 5, 1), "B"), 0);
-    b.getValue().setDebugInfo(new ValueDebugInfo(b.getLocation(), "b"));
-    main.addOperation(new PrintOp(new Location("test.dgir", 6, 1), b.getValue()), 0);
+    b.getResult().setDebugInfo(new ValueDebugInfo(b.getLocation(), "b"));
+    main.addOperation(new PrintOp(new Location("test.dgir", 6, 1), b.getResult()), 0);
     main.addOperation(new ReturnOp(new Location("test.dgir", 7, 1)), 0);
     return prog;
   }

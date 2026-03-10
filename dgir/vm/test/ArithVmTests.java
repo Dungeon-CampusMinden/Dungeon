@@ -30,7 +30,7 @@ public class ArithVmTests extends VmTestBase {
     var rhs = main.addOperation(new ConstantOp(LOC, new FloatAttribute(1.2f, FloatT.FLOAT32)), 0);
     var gt =
         main.addOperation(
-            new BinaryOp(LOC, lhs.getValue(), rhs.getValue(), BinModeAttr.BinMode.GT), 0);
+            new BinaryOp(LOC, lhs.getResult(), rhs.getResult(), BinModeAttr.BinMode.GT), 0);
 
     main.addOperation(new PrintOp(LOC, gt.getResult()), 0);
     main.addOperation(new ReturnOp(LOC), 0);
@@ -47,14 +47,14 @@ public class ArithVmTests extends VmTestBase {
     var rhs = main.addOperation(new ConstantOp(LOC, new IntegerAttribute(2, IntegerT.UINT32)), 0);
     var div =
         main.addOperation(
-            new BinaryOp(LOC, lhs.getValue(), rhs.getValue(), BinModeAttr.BinMode.DIVUI), 0);
+            new BinaryOp(LOC, lhs.getResult(), rhs.getResult(), BinModeAttr.BinMode.DIVUI), 0);
     var mod =
         main.addOperation(
-            new BinaryOp(LOC, lhs.getValue(), rhs.getValue(), BinModeAttr.BinMode.MODUI), 0);
+            new BinaryOp(LOC, lhs.getResult(), rhs.getResult(), BinModeAttr.BinMode.MODUI), 0);
 
     var format = main.addOperation(new ConstantOp(LOC, "%d,%d\n"), 0);
     main.addOperation(
-        new PrintOp(LOC, List.of(format.getValue(), div.getResult(), mod.getResult())), 0);
+        new PrintOp(LOC, List.of(format.getResult(), div.getResult(), mod.getResult())), 0);
     main.addOperation(new ReturnOp(LOC), 0);
 
     runProgram(program, "2147483647,1\n");
@@ -69,7 +69,7 @@ public class ArithVmTests extends VmTestBase {
     var rhs = main.addOperation(new ConstantOp(LOC, new IntegerAttribute(1, IntegerT.UINT32)), 0);
     var lt =
         main.addOperation(
-            new BinaryOp(LOC, lhs.getValue(), rhs.getValue(), BinModeAttr.BinMode.LT), 0);
+            new BinaryOp(LOC, lhs.getResult(), rhs.getResult(), BinModeAttr.BinMode.LT), 0);
 
     main.addOperation(new PrintOp(LOC, lt.getResult()), 0);
     main.addOperation(new ReturnOp(LOC), 0);
@@ -86,7 +86,7 @@ public class ArithVmTests extends VmTestBase {
     var rhs = main.addOperation(new ConstantOp(LOC, 1), 0);
     var shifted =
         main.addOperation(
-            new BinaryOp(LOC, lhs.getValue(), rhs.getValue(), BinModeAttr.BinMode.RSHU), 0);
+            new BinaryOp(LOC, lhs.getResult(), rhs.getResult(), BinModeAttr.BinMode.RSHU), 0);
 
     main.addOperation(new PrintOp(LOC, shifted.getResult()), 0);
     main.addOperation(new ReturnOp(LOC), 0);

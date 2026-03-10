@@ -3,7 +3,6 @@ package blockly.dgir.compiler.java;
 import blockly.dgir.compiler.SymbolTable.ScopedSymbolTable;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.utils.Pair;
 import dgir.core.debug.Location;
 import dgir.core.ir.Block;
@@ -137,8 +136,7 @@ public final class EmitContext {
     return symbolTable.popScope();
   }
 
-  public void putSymbol(
-      @NotNull String name, @NotNull Value value, @NotNull ResolvedType resolvedType) {
+  public void putSymbol(@NotNull String name, @NotNull Value value) {
     symbolTable.insertScoped(name, value);
   }
 

@@ -61,8 +61,8 @@ class DapAdapterTest extends VmTestBase {
     ProgramOp prog = new ProgramOp(new Location("test.java", 1, 1));
     FuncOp main = prog.addOperation(new FuncOp(new Location("test.java", 2, 2), "main"));
     var a = main.addOperation(new ConstantOp(new Location("test.java", 3, 12), text), 0);
-    a.getValue().setDebugInfo(new ValueDebugInfo(a.getLocation(), "a"));
-    main.addOperation(new PrintOp(new Location("test.java", 3, 3), a.getValue()), 0);
+    a.getResult().setDebugInfo(new ValueDebugInfo(a.getLocation(), "a"));
+    main.addOperation(new PrintOp(new Location("test.java", 3, 3), a.getResult()), 0);
     main.addOperation(new ReturnOp(new Location("test.java", 4, 2)), 0);
     return prog;
   }
@@ -86,11 +86,11 @@ class DapAdapterTest extends VmTestBase {
     ProgramOp prog = new ProgramOp(new Location("test.java", 1, 1));
     FuncOp main = prog.addOperation(new FuncOp(new Location("test.java", 2, 2), "main"));
     var a = main.addOperation(new ConstantOp(new Location("test.java", 3, 3), "A\n"), 0);
-    a.getValue().setDebugInfo(new ValueDebugInfo(a.getLocation(), "a"));
-    main.addOperation(new PrintOp(new Location("test.java", 4, 3), a.getValue()), 0);
+    a.getResult().setDebugInfo(new ValueDebugInfo(a.getLocation(), "a"));
+    main.addOperation(new PrintOp(new Location("test.java", 4, 3), a.getResult()), 0);
     var b = main.addOperation(new ConstantOp(new Location("test.java", 5, 3), "B\n"), 0);
-    b.getValue().setDebugInfo(new ValueDebugInfo(b.getLocation(), "b"));
-    main.addOperation(new PrintOp(new Location("test.java", 6, 3), b.getValue()), 0);
+    b.getResult().setDebugInfo(new ValueDebugInfo(b.getLocation(), "b"));
+    main.addOperation(new PrintOp(new Location("test.java", 6, 3), b.getResult()), 0);
     main.addOperation(new ReturnOp(new Location("test.java", 7, 2)), 0);
     return prog;
   }
@@ -126,10 +126,10 @@ class DapAdapterTest extends VmTestBase {
           main.addOperation(
               new ForOp(
                   new Location("test.java", 3, 3),
-                  initValue.getValue(),
-                  lowerBound.getValue(),
-                  upperBound.getValue(),
-                  step.getValue()),
+                  initValue.getResult(),
+                  lowerBound.getResult(),
+                  upperBound.getResult(),
+                  step.getResult()),
               0);
       {
         ConstantOp printValue =
@@ -141,7 +141,7 @@ class DapAdapterTest extends VmTestBase {
             .addOperation(
                 new PrintOp(
                     new Location("test.java", 4, 5),
-                    printValue.getValue(),
+                    printValue.getResult(),
                     forOp.getInductionValue()));
         forOp.getEntryBlock().addOperation(new ContinueOp(new Location("test.java", 4, 3)));
       }
@@ -555,7 +555,7 @@ class DapAdapterTest extends VmTestBase {
     ProgramOp prog = new ProgramOp(new Location("same-line.java", 1, 1));
     FuncOp main = prog.addOperation(new FuncOp(new Location("same-line.java", 2, 3), "main"));
     var c = main.addOperation(new ConstantOp(new Location("same-line.java", 3, 14), "X"), 0);
-    main.addOperation(new PrintOp(new Location("same-line.java", 3, 5), c.getValue()), 0);
+    main.addOperation(new PrintOp(new Location("same-line.java", 3, 5), c.getResult()), 0);
     main.addOperation(new ReturnOp(new Location("same-line.java", 4, 3)), 0);
 
     var h = createHandle(prog);

@@ -35,7 +35,7 @@ public class VmConsoleTest extends VmTestBase {
     ProgramOp programOp = new ProgramOp(LOC);
     FuncOp funcOp = programOp.addOperation(new FuncOp(LOC, "main"));
     var text = funcOp.addOperation(new ConstantOp(LOC, "Hello World!\n"), 0);
-    funcOp.addOperation(new PrintOp(LOC, List.of(text.getValue())), 0);
+    funcOp.addOperation(new PrintOp(LOC, List.of(text.getResult())), 0);
     funcOp.addOperation(new ReturnOp(LOC), 0);
 
     runProgram(programOp, "Hello World!\n");
@@ -50,7 +50,7 @@ public class VmConsoleTest extends VmTestBase {
         programOp.addOperation(new FuncOp(LOC, "string", FuncType.of(List.of(), StringT.INSTANCE)));
     {
       var text = stringOp.addOperation(new ConstantOp(LOC, "Hello World!\n"), 0);
-      stringOp.addOperation(new ReturnOp(LOC, text.getValue()), 0);
+      stringOp.addOperation(new ReturnOp(LOC, text.getResult()), 0);
     }
 
     {
@@ -77,12 +77,12 @@ public class VmConsoleTest extends VmTestBase {
 
     // Entry block: print "before\n", then branch unconditionally
     var before = entryBlock.addOperation(new ConstantOp(LOC, "before\n"));
-    entryBlock.addOperation(new PrintOp(LOC, before.getValue()));
+    entryBlock.addOperation(new PrintOp(LOC, before.getResult()));
     entryBlock.addOperation(new BranchOp(LOC, afterBlock));
 
     // After block: print "after\n", then return
     var after = afterBlock.addOperation(new ConstantOp(LOC, "after\n"));
-    afterBlock.addOperation(new PrintOp(LOC, after.getValue()));
+    afterBlock.addOperation(new PrintOp(LOC, after.getResult()));
     afterBlock.addOperation(new ReturnOp(LOC));
 
     runProgram(programOp, "before\nafter\n");
@@ -103,16 +103,16 @@ public class VmConsoleTest extends VmTestBase {
 
     // Entry: define condition = true, branch conditionally
     var cond = entryBlock.addOperation(new ConstantOp(LOC, true));
-    entryBlock.addOperation(new BranchCondOp(LOC, cond.getValue(), trueBlock, falseBlock));
+    entryBlock.addOperation(new BranchCondOp(LOC, cond.getResult(), trueBlock, falseBlock));
 
     // True block: print "yes\n", jump to merge
     var yes = trueBlock.addOperation(new ConstantOp(LOC, "yes\n"));
-    trueBlock.addOperation(new PrintOp(LOC, yes.getValue()));
+    trueBlock.addOperation(new PrintOp(LOC, yes.getResult()));
     trueBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // False block: print "no\n", jump to merge
     var no = falseBlock.addOperation(new ConstantOp(LOC, "no\n"));
-    falseBlock.addOperation(new PrintOp(LOC, no.getValue()));
+    falseBlock.addOperation(new PrintOp(LOC, no.getResult()));
     falseBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // Merge block: return
@@ -137,16 +137,16 @@ public class VmConsoleTest extends VmTestBase {
 
     // Entry: define condition = false, branch conditionally
     var cond = entryBlock.addOperation(new ConstantOp(LOC, false));
-    entryBlock.addOperation(new BranchCondOp(LOC, cond.getValue(), trueBlock, falseBlock));
+    entryBlock.addOperation(new BranchCondOp(LOC, cond.getResult(), trueBlock, falseBlock));
 
     // True block: print "yes\n", jump to merge
     var yes = trueBlock.addOperation(new ConstantOp(LOC, "yes\n"));
-    trueBlock.addOperation(new PrintOp(LOC, yes.getValue()));
+    trueBlock.addOperation(new PrintOp(LOC, yes.getResult()));
     trueBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // False block: print "no\n", jump to merge
     var no = falseBlock.addOperation(new ConstantOp(LOC, "no\n"));
-    falseBlock.addOperation(new PrintOp(LOC, no.getValue()));
+    falseBlock.addOperation(new PrintOp(LOC, no.getResult()));
     falseBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // Merge block: return
@@ -169,7 +169,7 @@ public class VmConsoleTest extends VmTestBase {
             new FuncOp(LOC, "getCondition", FuncType.of(List.of(), IntegerT.BOOL)));
     {
       var t = condFunc.addOperation(new ConstantOp(LOC, true), 0);
-      condFunc.addOperation(new ReturnOp(LOC, t.getValue()), 0);
+      condFunc.addOperation(new ReturnOp(LOC, t.getResult()), 0);
     }
 
     // Main function
@@ -187,12 +187,12 @@ public class VmConsoleTest extends VmTestBase {
 
     // True block
     var yes = trueBlock.addOperation(new ConstantOp(LOC, "condition true\n"));
-    trueBlock.addOperation(new PrintOp(LOC, yes.getValue()));
+    trueBlock.addOperation(new PrintOp(LOC, yes.getResult()));
     trueBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // False block
     var no = falseBlock.addOperation(new ConstantOp(LOC, "condition false\n"));
-    falseBlock.addOperation(new PrintOp(LOC, no.getValue()));
+    falseBlock.addOperation(new PrintOp(LOC, no.getResult()));
     falseBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // Merge block: return
@@ -225,13 +225,13 @@ public class VmConsoleTest extends VmTestBase {
 
       {
         var posText = posBlock.addOperation(new ConstantOp(LOC, "positive\n"));
-        posBlock.addOperation(new PrintOp(LOC, posText.getValue()));
+        posBlock.addOperation(new PrintOp(LOC, posText.getResult()));
         posBlock.addOperation(new BranchOp(LOC, retBlock));
       }
 
       {
         var negText = negBlock.addOperation(new ConstantOp(LOC, "non-positive\n"));
-        negBlock.addOperation(new PrintOp(LOC, negText.getValue()));
+        negBlock.addOperation(new PrintOp(LOC, negText.getResult()));
         negBlock.addOperation(new BranchOp(LOC, retBlock));
       }
 
@@ -243,8 +243,8 @@ public class VmConsoleTest extends VmTestBase {
     {
       var trueVal = mainOp.addOperation(new ConstantOp(LOC, true), 0);
       var falseVal = mainOp.addOperation(new ConstantOp(LOC, false), 0);
-      mainOp.addOperation(new CallOp(LOC, printFunc, trueVal.getValue()), 0);
-      mainOp.addOperation(new CallOp(LOC, printFunc, falseVal.getValue()), 0);
+      mainOp.addOperation(new CallOp(LOC, printFunc, trueVal.getResult()), 0);
+      mainOp.addOperation(new CallOp(LOC, printFunc, falseVal.getResult()), 0);
       mainOp.addOperation(new ReturnOp(LOC), 0);
     }
 
@@ -272,12 +272,12 @@ public class VmConsoleTest extends VmTestBase {
 
     // Yes block: print "You said true!\n", jump to merge
     var yesText = yesBlock.addOperation(new ConstantOp(LOC, "You said true!\n"));
-    yesBlock.addOperation(new PrintOp(LOC, yesText.getValue()));
+    yesBlock.addOperation(new PrintOp(LOC, yesText.getResult()));
     yesBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // No block: print "You said false!\n", jump to merge
     var noText = noBlock.addOperation(new ConstantOp(LOC, "You said false!\n"));
-    noBlock.addOperation(new PrintOp(LOC, noText.getValue()));
+    noBlock.addOperation(new PrintOp(LOC, noText.getResult()));
     noBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // Merge block: return
@@ -351,7 +351,7 @@ public class VmConsoleTest extends VmTestBase {
     // Read the name from the console
     var name = mainOp.addOperation(new ConsoleInOp(LOC, StringT.INSTANCE), 0);
     // Print formatted: "Hello, <name>!\n"
-    mainOp.addOperation(new PrintOp(LOC, fmt.getValue(), name.getResult()), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmt.getResult(), name.getResult()), 0);
     mainOp.addOperation(new ReturnOp(LOC), 0);
 
     ConsoleInRunner.setInputStream(new ByteArrayInputStream("World\n".getBytes(UTF_8)));
@@ -372,7 +372,7 @@ public class VmConsoleTest extends VmTestBase {
     // Read an INT32 from the console
     var number = mainOp.addOperation(new ConsoleInOp(LOC, IntegerT.INT32), 0);
     // Print formatted: "The answer is <number>.\n"
-    mainOp.addOperation(new PrintOp(LOC, fmt.getValue(), number.getResult()), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmt.getResult(), number.getResult()), 0);
     mainOp.addOperation(new ReturnOp(LOC), 0);
 
     ConsoleInRunner.setInputStream(new ByteArrayInputStream("42\n".getBytes(UTF_8)));
@@ -393,7 +393,7 @@ public class VmConsoleTest extends VmTestBase {
     // Read a FLOAT32 from the console
     var number = mainOp.addOperation(new ConsoleInOp(LOC, FloatT.FLOAT32), 0);
     // Print formatted: "Pi is approximately <number>.\n"
-    mainOp.addOperation(new PrintOp(LOC, fmt.getValue(), number.getResult()), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmt.getResult(), number.getResult()), 0);
     mainOp.addOperation(new ReturnOp(LOC), 0);
 
     ConsoleInRunner.setInputStream(new ByteArrayInputStream("3.14159\n".getBytes(UTF_8)));
@@ -435,12 +435,12 @@ public class VmConsoleTest extends VmTestBase {
     // True block: read an integer from console, print it formatted, jump to merge
     var fmt = trueBlock.addOperation(new ConstantOp(LOC, "You entered: %d\n"));
     var n = trueBlock.addOperation(new ConsoleInOp(LOC, IntegerT.INT32));
-    trueBlock.addOperation(new PrintOp(LOC, fmt.getValue(), n.getResult()));
+    trueBlock.addOperation(new PrintOp(LOC, fmt.getResult(), n.getResult()));
     trueBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // False block: print a fixed message without any console input, jump to merge
     var noInput = falseBlock.addOperation(new ConstantOp(LOC, "No input given.\n"));
-    falseBlock.addOperation(new PrintOp(LOC, noInput.getValue()));
+    falseBlock.addOperation(new PrintOp(LOC, noInput.getResult()));
     falseBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // Merge block: return
@@ -476,7 +476,7 @@ public class VmConsoleTest extends VmTestBase {
     var scoreIn = mainOp.addOperation(new ConsoleInOp(LOC, IntegerT.INT32), 0);
     // Print formatted
     mainOp.addOperation(
-        new PrintOp(LOC, fmt.getValue(), nameIn.getResult(), scoreIn.getResult()), 0);
+        new PrintOp(LOC, fmt.getResult(), nameIn.getResult(), scoreIn.getResult()), 0);
     mainOp.addOperation(new ReturnOp(LOC), 0);
 
     // Two consecutive lines: first the name, then the score
@@ -494,10 +494,10 @@ public class VmConsoleTest extends VmTestBase {
     var rhs = mainOp.addOperation(new ConstantOp(LOC, 7), 0);
     var product =
         mainOp.addOperation(
-            new BinaryOp(LOC, lhs.getValue(), rhs.getValue(), BinModeAttr.BinMode.MUL), 0);
+            new BinaryOp(LOC, lhs.getResult(), rhs.getResult(), BinModeAttr.BinMode.MUL), 0);
     var fmt = mainOp.addOperation(new ConstantOp(LOC, "6 * 7 = %d\n"), 0);
     mainOp.addOperation(
-        new PrintOp(LOC, fmt.getValue(), product.getOutputValue().orElseThrow()), 0);
+        new PrintOp(LOC, fmt.getResult(), product.getOutputValue().orElseThrow()), 0);
     mainOp.addOperation(new ReturnOp(LOC), 0);
 
     runProgram(programOp, "6 * 7 = 42\n");
@@ -517,28 +517,30 @@ public class VmConsoleTest extends VmTestBase {
 
     var sum =
         mainOp.addOperation(
-            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.BinMode.ADD), 0);
+            new BinaryOp(LOC, a.getResult(), b.getResult(), BinModeAttr.BinMode.ADD), 0);
     var diff =
         mainOp.addOperation(
-            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.BinMode.SUB), 0);
+            new BinaryOp(LOC, a.getResult(), b.getResult(), BinModeAttr.BinMode.SUB), 0);
     var quot =
         mainOp.addOperation(
-            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.BinMode.DIV), 0);
+            new BinaryOp(LOC, a.getResult(), b.getResult(), BinModeAttr.BinMode.DIV), 0);
     var rem =
         mainOp.addOperation(
-            new BinaryOp(LOC, a.getValue(), b.getValue(), BinModeAttr.BinMode.MOD), 0);
+            new BinaryOp(LOC, a.getResult(), b.getResult(), BinModeAttr.BinMode.MOD), 0);
 
     var fmtSum = mainOp.addOperation(new ConstantOp(LOC, "20 + 3 = %d\n"), 0);
     var fmtDiff = mainOp.addOperation(new ConstantOp(LOC, "20 - 3 = %d\n"), 0);
     var fmtQuot = mainOp.addOperation(new ConstantOp(LOC, "20 / 3 = %d\n"), 0);
     var fmtRem = mainOp.addOperation(new ConstantOp(LOC, "20 %% 3 = %d\n"), 0);
 
-    mainOp.addOperation(new PrintOp(LOC, fmtSum.getValue(), sum.getOutputValue().orElseThrow()), 0);
     mainOp.addOperation(
-        new PrintOp(LOC, fmtDiff.getValue(), diff.getOutputValue().orElseThrow()), 0);
+        new PrintOp(LOC, fmtSum.getResult(), sum.getOutputValue().orElseThrow()), 0);
     mainOp.addOperation(
-        new PrintOp(LOC, fmtQuot.getValue(), quot.getOutputValue().orElseThrow()), 0);
-    mainOp.addOperation(new PrintOp(LOC, fmtRem.getValue(), rem.getOutputValue().orElseThrow()), 0);
+        new PrintOp(LOC, fmtDiff.getResult(), diff.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(
+        new PrintOp(LOC, fmtQuot.getResult(), quot.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(
+        new PrintOp(LOC, fmtRem.getResult(), rem.getOutputValue().orElseThrow()), 0);
     mainOp.addOperation(new ReturnOp(LOC), 0);
 
     runProgram(programOp, "20 + 3 = 23\n20 - 3 = 17\n20 / 3 = 6\n20 % 3 = 2\n");
@@ -560,24 +562,24 @@ public class VmConsoleTest extends VmTestBase {
 
     var cmpGt =
         mainOp.addOperation(
-            new BinaryOp(LOC, ten.getValue(), five.getValue(), BinModeAttr.BinMode.GT), 0);
+            new BinaryOp(LOC, ten.getResult(), five.getResult(), BinModeAttr.BinMode.GT), 0);
     var cmpLt =
         mainOp.addOperation(
-            new BinaryOp(LOC, three.getValue(), eight.getValue(), BinModeAttr.BinMode.LT), 0);
+            new BinaryOp(LOC, three.getResult(), eight.getResult(), BinModeAttr.BinMode.LT), 0);
     var cmpEq =
         mainOp.addOperation(
-            new BinaryOp(LOC, five.getValue(), five.getValue(), BinModeAttr.BinMode.EQ), 0);
+            new BinaryOp(LOC, five.getResult(), five.getResult(), BinModeAttr.BinMode.EQ), 0);
 
     var fmtGt = mainOp.addOperation(new ConstantOp(LOC, "10 > 5: %d\n"), 0);
     var fmtLt = mainOp.addOperation(new ConstantOp(LOC, "3 < 8: %d\n"), 0);
     var fmtEq = mainOp.addOperation(new ConstantOp(LOC, "5 == 5: %d\n"), 0);
 
     mainOp.addOperation(
-        new PrintOp(LOC, fmtGt.getValue(), cmpGt.getOutputValue().orElseThrow()), 0);
+        new PrintOp(LOC, fmtGt.getResult(), cmpGt.getOutputValue().orElseThrow()), 0);
     mainOp.addOperation(
-        new PrintOp(LOC, fmtLt.getValue(), cmpLt.getOutputValue().orElseThrow()), 0);
+        new PrintOp(LOC, fmtLt.getResult(), cmpLt.getOutputValue().orElseThrow()), 0);
     mainOp.addOperation(
-        new PrintOp(LOC, fmtEq.getValue(), cmpEq.getOutputValue().orElseThrow()), 0);
+        new PrintOp(LOC, fmtEq.getResult(), cmpEq.getOutputValue().orElseThrow()), 0);
     mainOp.addOperation(new ReturnOp(LOC), 0);
 
     runProgram(programOp, "10 > 5: 1\n3 < 8: 1\n5 == 5: 1\n");
@@ -598,7 +600,7 @@ public class VmConsoleTest extends VmTestBase {
         mainOp.addOperation(
             new BinaryOp(LOC, a.getResult(), b.getResult(), BinModeAttr.BinMode.ADD), 0);
     var fmt = mainOp.addOperation(new ConstantOp(LOC, "Sum: %d\n"), 0);
-    mainOp.addOperation(new PrintOp(LOC, fmt.getValue(), sum.getOutputValue().orElseThrow()), 0);
+    mainOp.addOperation(new PrintOp(LOC, fmt.getResult(), sum.getOutputValue().orElseThrow()), 0);
     mainOp.addOperation(new ReturnOp(LOC), 0);
 
     ConsoleInRunner.setInputStream(new ByteArrayInputStream("13\n29\n".getBytes(UTF_8)));
@@ -632,12 +634,12 @@ public class VmConsoleTest extends VmTestBase {
 
     // a >= b branch
     var geMsg = geBlock.addOperation(new ConstantOp(LOC, "first is greater or equal\n"));
-    geBlock.addOperation(new PrintOp(LOC, geMsg.getValue()));
+    geBlock.addOperation(new PrintOp(LOC, geMsg.getResult()));
     geBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // a < b branch
     var ltMsg = ltBlock.addOperation(new ConstantOp(LOC, "first is smaller\n"));
-    ltBlock.addOperation(new PrintOp(LOC, ltMsg.getValue()));
+    ltBlock.addOperation(new PrintOp(LOC, ltMsg.getResult()));
     ltBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     mergeBlock.addOperation(new ReturnOp(LOC));
@@ -683,7 +685,7 @@ public class VmConsoleTest extends VmTestBase {
             new BinaryOp(
                 LOC,
                 product.getOutputValue().orElseThrow(),
-                threshold.getValue(),
+                threshold.getResult(),
                 BinModeAttr.BinMode.GT));
     entryBlock.addOperation(
         new BranchCondOp(LOC, cmp.getOutputValue().orElseThrow(), bigBlock, smallBlock));
@@ -691,13 +693,13 @@ public class VmConsoleTest extends VmTestBase {
     // product > 100
     var fmtBig = bigBlock.addOperation(new ConstantOp(LOC, "Product %d exceeds 100!\n"));
     bigBlock.addOperation(
-        new PrintOp(LOC, fmtBig.getValue(), product.getOutputValue().orElseThrow()));
+        new PrintOp(LOC, fmtBig.getResult(), product.getOutputValue().orElseThrow()));
     bigBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     // product <= 100
     var fmtSmall = smallBlock.addOperation(new ConstantOp(LOC, "Product %d is within 100.\n"));
     smallBlock.addOperation(
-        new PrintOp(LOC, fmtSmall.getValue(), product.getOutputValue().orElseThrow()));
+        new PrintOp(LOC, fmtSmall.getResult(), product.getOutputValue().orElseThrow()));
     smallBlock.addOperation(new BranchOp(LOC, mergeBlock));
 
     mergeBlock.addOperation(new ReturnOp(LOC));

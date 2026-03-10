@@ -536,7 +536,8 @@ public sealed interface ScfOps {
             entryBlock.addOperation(new ArithOps.ConstantOp(Location.UNKNOWN, compareVal));
         var compResult =
             entryBlock.addOperation(
-                new ArithOps.BinaryOp(Location.UNKNOWN, induction, compConst.getValue(), compMode));
+                new ArithOps.BinaryOp(
+                    Location.UNKNOWN, induction, compConst.getResult(), compMode));
         entryBlock.addOperation(
             new CfOps.BranchCondOp(
                 Location.UNKNOWN, compResult.getResult(), continueBlock, breakBlock));

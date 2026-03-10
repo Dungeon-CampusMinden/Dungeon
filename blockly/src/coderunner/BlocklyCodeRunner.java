@@ -1,6 +1,6 @@
-import blockly.dgir.compiler.java.java.JavaCompiler;
+package coderunner;
 
-import blockly.dgir.compiler.JavaCompiler;
+import blockly.dgir.compiler.java.JavaCompiler;
 import core.utils.logging.DungeonLogger;
 import server.Server;
 
