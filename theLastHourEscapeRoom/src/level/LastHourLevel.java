@@ -138,6 +138,21 @@ public class LastHourLevel extends DungeonLevel {
                 null)
             .isSolid(false));
     Game.add(trigger);
+
+    Entity triggerLockMove = new Entity("end-trigger-lock-move");
+    triggerLockMove.add(new PositionComponent(getPoint("end-trigger-lock-move")));
+    triggerLockMove.add(
+      new CollideComponent(
+        Vector2.ZERO,
+        Vector2.ONE,
+        (e, other, dir) -> {
+          other
+            .fetch(InputComponent.class)
+            .ifPresent(InputComponent::deactivateControls);
+        },
+        null)
+        .isSolid(false));
+    Game.add(trigger);
   }
 
   private void setupTimer() {
