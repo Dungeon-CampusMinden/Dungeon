@@ -18,10 +18,7 @@ import java.util.IdentityHashMap;
 import java.util.Optional;
 
 public class CompilerUtils {
-  private static final IdentityHashMap<Type, ResolvedType> typeToResolved = new IdentityHashMap<>();
   private static final IdentityHashMap<ResolvedType, Type> resolvedToType = new IdentityHashMap<>();
-  private static final IdentityHashMap<com.github.javaparser.ast.type.Type, Type> astTypeToType =
-      new IdentityHashMap<>();
 
   public static <T extends ResolvedDeclaration, B extends Resolvable<T>> Optional<T> resolve(
       @NotNull B target, @NotNull EmitContext context) {
@@ -53,8 +50,6 @@ public class CompilerUtils {
 
   public static Optional<Type> fromAstType(
       @NotNull com.github.javaparser.ast.type.Type type, Node site, @NotNull EmitContext context) {
-    if (astTypeToType.containsKey(type)) return Optional.of(astTypeToType.get(type));
-
     Optional<TypeInfo> resolvedType = resolveType(type, context);
     if (resolvedType.isEmpty()) {
       context.emitError(site, "Failed to resolve type " + type + " for " + site);
@@ -62,14 +57,10 @@ public class CompilerUtils {
     }
 
     resolvedToType.put(resolvedType.get().resolvedType, resolvedType.get().type);
-    typeToResolved.put(resolvedType.get().type, resolvedType.get().resolvedType);
 
     Optional<Type> result = fromAstType(resolvedType.get().resolvedType, site, context);
-    result.ifPresentOrElse(
-        value -> astTypeToType.put(type, value),
-        () ->
-            context.emitError(
-                site, "Failed to get dgir type for ast type " + type + " for " + site));
+    if (result.isEmpty())
+      context.emitError(site, "Failed to get dgir type for ast type " + type + " for " + site);
     return result;
   }
 
@@ -113,32 +104,34 @@ public class CompilerUtils {
     result.ifPresent(
         value -> {
           resolvedToType.put(type, value);
-          typeToResolved.put(value, type);
         });
     return result;
   }
 
   public static @NotNull EmitResult<Value> emitImplicitCastIfNeeded(
       @NotNull Value source,
+      @NotNull ResolvedType sourceType,
       @NotNull ResolvedType targetType,
       boolean isLiteralAssignment,
       @NotNull EmitContext context,
       @NotNull Node site) {
-    if (source.getType().equals(targetType)) return EmitResult.of(source);
+    if (sourceType.describe().equals(targetType.describe())
+        || sourceType.describe().equals("java.lang.Object")
+        || targetType.describe().equals("java.lang.Object")) return EmitResult.of(source);
     boolean override = false;
     // Allow implicit cast for literal assignments that are valid in Java, e.g. char c = 65; or byte
     // b = 100; short = 'b'
     if (isLiteralAssignment)
       override =
-          switch (source.getType()) {
-            case BuiltinTypes.IntegerT sourceI when sourceI.getWidth() <= 16 ->
-                switch (targetType.describe()) {
-                  case "short", "char" -> true;
+          switch (targetType.describe()) {
+            case "byte", "short", "char" ->
+                switch (sourceType.describe()) {
+                  case "int", "char" -> true;
                   default -> false;
                 };
             default -> false;
           };
-    if (targetType.isAssignableBy(typeToResolved.get(source.getType())) || override) {
+    if (targetType.isAssignableBy(sourceType) || override) {
       // Insert implicit cast
       Optional<Type> targetDgirType = fromAstType(targetType, site, context);
       return targetDgirType
@@ -154,20 +147,8 @@ public class CompilerUtils {
                       context, site, "Could not resolve target type for implicit cast."));
     }
     return EmitResult.failure(
-        context, site, "Type mismatch: cannot assign " + source.getType() + " to " + targetType);
-  }
-
-  public static @NotNull EmitResult<Value> emitImplicitCastIfNeeded(
-      @NotNull Value source,
-      @NotNull Type targetType,
-      boolean isLiteralAssignment,
-      @NotNull EmitContext context,
-      @NotNull Node site) {
-    if (!typeToResolved.containsKey(targetType) || !typeToResolved.containsKey(source.getType())) {
-      context.emitError(site, "Could not resolve target type for implicit cast.");
-      return EmitResult.failure();
-    }
-    return emitImplicitCastIfNeeded(
-        source, typeToResolved.get(targetType), isLiteralAssignment, context, site);
+        context,
+        site,
+        "Type mismatch: cannot assign " + sourceType.describe() + " to " + targetType.describe());
   }
 }

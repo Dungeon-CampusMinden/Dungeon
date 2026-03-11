@@ -105,10 +105,24 @@ public sealed interface ArithOps {
 
     private UnaryOp() {}
 
+    /**
+     * Create a unary op.
+     *
+     * <p>In case of increment or decrement operations the output value will automatically be set to
+     * the operand, as these operations conceptually update the operand in-place. For other unary
+     * operation kinds, the output value will be left defaulted to the operand type.
+     *
+     * @param loc the source location of this operation.
+     * @param operand the operand to operate on.
+     * @param mode the unary operation kind.
+     */
     public UnaryOp(
         @NotNull Location loc, @NotNull Value operand, @NotNull UnaryModeAttr.UnaryMode mode) {
       setOperation(Operation.Create(loc, this, List.of(operand), null, operand.getType()));
       getAttributeAs("unaryMode", UnaryModeAttr.class).orElseThrow().setMode(mode);
+      switch (mode) {
+        case INCREMENT, DECREMENT -> setOutputValue(operand);
+      }
     }
 
     public @NotNull UnaryModeAttr.UnaryMode getMode() {

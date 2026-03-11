@@ -286,7 +286,7 @@ public class JavaCompiler {
                   + n.getTypeParameters());
       }
       {
-        if (n.getTypeParameters().isNonEmpty()) {
+        if (n.getTypeParameters().isNonEmpty())
           return EmitResult.failure(
               context,
               n,
@@ -294,22 +294,16 @@ public class JavaCompiler {
                   + n.getName()
                   + " has type parameters. Generics classes are not supported. Type parameters: "
                   + n.getTypeParameters());
-        }
       }
 
       {
-        if (n.getAnnotations().isNonEmpty()) {
+        if (n.getAnnotations().isNonEmpty())
           context.emitWarning(
               n,
               "Class "
                   + n.getName()
                   + " has annotations. Annotations are not supported and will be ignored. Annotations: "
                   + n.getAnnotations());
-        }
-        EmitResult<Boolean> result = visitNodeList(n.getAnnotations(), context);
-        if (result.isFailure())
-          return EmitResult.failure(
-              context, n, "Failed to emit annotations of class " + n.getNameAsString());
       }
 
       {
@@ -394,10 +388,6 @@ public class JavaCompiler {
                   + n.getName()
                   + " has annotations. Annotations are not supported and will be ignored. Annotations: "
                   + n.getAnnotations());
-          EmitResult<Boolean> result = visitNodeList(n.getAnnotations(), context);
-          if (result.isFailure())
-            return EmitResult.failure(
-                context, n, "Failed to emit annotations of method " + n.getNameAsString());
         }
       }
 
@@ -613,14 +603,22 @@ public class JavaCompiler {
       }
       {
         valueRes = EmitResult.ofNullable(n.getValue().accept(this, context));
-        if (valueRes.isFailure())
+        if (valueRes.isFailure() || valueRes.get().isEmpty())
           return EmitResult.failure(context, n, "Failed to emit value of assignment");
+      }
+
+      ResolvedType targetType;
+      if (n.getTarget() instanceof NameExpr nameExpr) {
+        targetType = nameExpr.resolve().getType();
+      } else {
+        targetType = n.getTarget().calculateResolvedType();
       }
 
       EmitResult<Value> implicitCast =
           CompilerUtils.emitImplicitCastIfNeeded(
               valueRes.get().get(),
-              targetRes.get().get().getType(),
+              n.getValue().calculateResolvedType(),
+              targetType,
               n.getValue().isLiteralExpr(),
               context,
               n);
@@ -857,7 +855,7 @@ public class JavaCompiler {
       }
 
       EmitResult<Optional<Value>> scopeResult = null;
-      if (n.getScope().isPresent()) {
+      if (n.getScope().isPresent() && !targetMethod.isStatic()) {
         scopeResult = EmitResult.ofNullable(n.getScope().get().accept(this, context));
         if (scopeResult.isFailure())
           return EmitResult.failure(
@@ -872,15 +870,16 @@ public class JavaCompiler {
           return EmitResult.failure(
               context, n, "Failed to emit arguments of method call " + n.getName());
 
-        args = argumentsResult.get();
+        args = new ArrayList<>(argumentsResult.get());
 
         // Check if the caller arguments with the callee param types and emit casts if necessary
         for (int i = 0; i < args.size(); i++) {
           Value callArg = args.get(i);
+          ResolvedType callArgType = n.getArgument(i).calculateResolvedType();
           ResolvedType targetType = targetMethod.getParam(i).getType();
           EmitResult<Value> castCallArg =
               CompilerUtils.emitImplicitCastIfNeeded(
-                  callArg, targetType, n.getArgument(i).isLiteralExpr(), context, n);
+                  callArg, callArgType, targetType, n.getArgument(i).isLiteralExpr(), context, n);
           if (castCallArg.isFailure()) {
             return EmitResult.failure(
                 context,
@@ -894,8 +893,7 @@ public class JavaCompiler {
         }
       }
 
-      boolean isStaticCall = targetMethod.isStatic();
-      if (!isStaticCall) {
+      if (!targetMethod.isStatic()) {
         if (scopeResult == null)
           return EmitResult.failure(
               context,
@@ -953,6 +951,7 @@ public class JavaCompiler {
       Value operand = operandResult.get().get();
 
       boolean postfix = false;
+      boolean invalid = false;
       ArithAttrs.UnaryModeAttr.UnaryMode unaryMode =
           switch (n.getOperator()) {
             case PLUS -> null;
@@ -969,10 +968,16 @@ public class JavaCompiler {
               postfix = true;
               yield ArithAttrs.UnaryModeAttr.UnaryMode.DECREMENT;
             }
+            default -> {
+              invalid = true;
+              yield null;
+            }
           };
 
       if (unaryMode == null) {
-        return EmitResult.failure(context, n, "Unsupported unary operator " + n.getOperator());
+        if (invalid)
+          return EmitResult.failure(context, n, "Unsupported unary operator " + n.getOperator());
+        else return EmitResult.success(operandResult.get());
       }
 
       Value result = null;
@@ -983,7 +988,6 @@ public class JavaCompiler {
       }
       ArithOps.UnaryOp unary =
           context.insert(new ArithOps.UnaryOp(context.loc(n), operand, unaryMode));
-      unary.setOutputValue(operand);
       result = result == null ? unary.getResult() : result;
       return EmitResult.of(Optional.of(result));
     }
@@ -997,11 +1001,6 @@ public class JavaCompiler {
               n,
               "Variable declaration has annotations. Annotations are not supported and will be ignored. Annotations: "
                   + n.getAnnotations());
-
-        EmitResult<Boolean> result = visitNodeList(n.getAnnotations(), context);
-        if (result.isFailure())
-          return EmitResult.failure(
-              context, n, "Failed to emit annotations of variable declaration");
       }
 
       VariableDeclarator declarator;
@@ -1056,6 +1055,7 @@ public class JavaCompiler {
       EmitResult<Value> implicitCastRes =
           CompilerUtils.emitImplicitCastIfNeeded(
               initValue,
+              declarator.getInitializer().orElseThrow().calculateResolvedType(),
               initializerTypeInfo.get().resolvedType(),
               declarator.getInitializer().get().isLiteralExpr(),
               context,
@@ -1095,7 +1095,6 @@ public class JavaCompiler {
     private record ParameterInfo(String name, Type type, ResolvedType resolvedType) {}
 
     private EmitResult<ParameterInfo> resolveParameter(Parameter n, EmitContext context) {
-      EmitResult<Optional<Value>> result;
       {
         if (n.getAnnotations().isNonEmpty()) {
           context.emitWarning(
@@ -1105,8 +1104,6 @@ public class JavaCompiler {
                   + " has annotations. Annotations are not supported and will be ignored. Annotations: "
                   + n.getAnnotations());
         }
-        result = EmitResult.ofNullable(n.getAnnotations().accept(this, context));
-        if (result.isFailure()) return EmitResult.failure();
       }
 
       {

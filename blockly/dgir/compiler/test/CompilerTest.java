@@ -541,7 +541,7 @@ public class %ClassName {
     assert s3.startsWith("Hello") : "Expected 'Hello', but got " + s3.startsWith("Hello");
     assert s3.endsWith("!") : "Expected '!', but got " + s3.endsWith("!");
 
-    assert "Hello".append(" World").toUpperCase().equals("HELLO WORLD!") : "Bruh";
+    assert "Hello".concat(" World").toUpperCase().equals("HELLO WORLD") : "Expected 'HELLO WORLD', but got " + "Hello".concat(" World").toUpperCase();
   }
 }
 """;

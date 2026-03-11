@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -434,17 +435,12 @@ public sealed interface FuncOps {
       return operation -> {
         ReturnOp returnOp = operation.as(ReturnOp.class).orElseThrow();
 
-        // Ensure that the parent operation is a func.func op
         Optional<Operation> parentOp = operation.getParentOperation();
         if (parentOp.isEmpty()) {
           operation.emitError("Return operation must be nested in a function");
           return false;
         }
-        Optional<FuncOp> parentFuncOp = parentOp.get().as(FuncOp.class);
-        if (parentFuncOp.isEmpty()) {
-          operation.emitError("Return operation must be nested in a function");
-          return false;
-        }
+        FuncOp parentFuncOp = parentOp.get().as(FuncOp.class).orElseThrow();
         // Ensure that the return op's operand type matches the function output type
         if (returnOp.getOperandType().isPresent()) {
           var returnType =
@@ -452,7 +448,7 @@ public sealed interface FuncOps {
                   .getOperandType()
                   .get()
                   .orElseThrow(() -> new RuntimeException("Return op operand value is not set."));
-          var funcType = parentFuncOp.get().getType();
+          var funcType = parentFuncOp.getType();
           if (!returnType.equals(funcType.getOutput())) {
             operation.emitError(
                 "Return type "
@@ -529,6 +525,103 @@ public sealed interface FuncOps {
     @Contract(pure = true)
     public @NotNull Optional<Value> getReturnValue() {
       return getOperand().flatMap(value -> value);
+    }
+  }
+
+  /** Creates a constant function reference. Can be used for indirect function calls. */
+  final class ConstantOp extends FuncBaseOp implements FuncOps, INoOperands, IHasResult {
+
+    @Override
+    public @NotNull String getIdent() {
+      return "func.constant";
+    }
+
+    @Override
+    public @NotNull Function<@NotNull Operation, @NotNull Boolean> getVerifier() {
+      return operation -> {
+        if (!(operation.getOutputValueOrThrow().getType() instanceof FuncType)) {
+          operation.emitError("Constant function must return a function type.");
+          return false;
+        }
+        return true;
+      };
+    }
+
+    @Override
+    public @NotNull @Unmodifiable List<@NotNull NamedAttribute> getDefaultAttributes() {
+      return List.of(new NamedAttribute("callee", new BuiltinAttrs.SymbolRefAttribute("foo")));
+    }
+
+    private ConstantOp() {}
+
+    public ConstantOp(
+        @NotNull Location location, @NotNull String name, @NotNull FuncType funcType) {
+      setOperation(Operation.Create(location, this, null, null, funcType));
+      getAttributeAs("callee", BuiltinAttrs.SymbolRefAttribute.class).orElseThrow().setValue(name);
+    }
+
+    public ConstantOp(@NotNull Location location, @NotNull FuncOp funcOp) {
+      this(location, funcOp.getFuncName(), funcOp.getType());
+    }
+  }
+
+  final class CallIndirectOp extends FuncBaseOp implements FuncOps {
+    @Override
+    public @NotNull String getIdent() {
+      return "func.call_indirect";
+    }
+
+    @Override
+    public @NotNull Function<@NotNull Operation, @NotNull Boolean> getVerifier() {
+      return operation -> {
+        CallIndirectOp callIndirectOp = operation.as(CallIndirectOp.class).orElseThrow();
+        // Make sure the first argument is a value of function type
+        if (callIndirectOp.getOperands().isEmpty()) {
+          operation.emitError(
+              "Indirect call must have at least one operand (the function to call)");
+          return false;
+        }
+        var targetOperand = callIndirectOp.getOperandValue(0).orElseThrow();
+        if (!(targetOperand.getType() instanceof FuncType funcType)) {
+          operation.emitError("Indirect call target value must hold a function type");
+          return false;
+        }
+        // Make sure that the function type matches the call site (i.e. the operand types and result
+        // type match the function type)
+        if (!callIndirectOp.getSignature().equals(funcType)) {
+          operation.emitError(
+              "Function type does not match call site type for indirect call: "
+                  + funcType.getParameterizedIdent()
+                  + " != "
+                  + callIndirectOp.getSignature().getParameterizedIdent());
+          return false;
+        }
+        return true;
+      };
+    }
+
+    private CallIndirectOp() {}
+
+    public CallIndirectOp(
+        @NotNull Location location, @NotNull Value target, @NotNull List<Value> operands) {
+      if (!(target.getType() instanceof FuncType funcType)) {
+        throw new IllegalArgumentException("Target value must have a function type");
+      }
+      List<Value> operandsWithTarget = new ArrayList<>(operands);
+      operandsWithTarget.addFirst(target);
+      setOperation(
+          Operation.Create(location, this, operandsWithTarget, null, funcType.getOutput()));
+    }
+
+    public @NotNull FuncType getSignature() {
+      List<Type> inputTypes =
+          getOperands().stream()
+              .skip(1)
+              .map(ValueOperand::getType)
+              .map(type -> type.orElse(null))
+              .toList();
+      Type outputType = getOutput().map(OperationResult::getType).orElse(null);
+      return FuncType.of(inputTypes, outputType);
     }
   }
 }

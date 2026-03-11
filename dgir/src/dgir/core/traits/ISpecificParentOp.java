@@ -2,11 +2,14 @@ package dgir.core.traits;
 
 import dgir.core.ir.Op;
 import dgir.core.ir.Operation;
-import java.util.List;
-import java.util.Optional;
+import dgir.dialect.func.FuncOps;
+import dgir.dialect.scf.ScfOps;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Constrains an operation to be directly nested inside one of a specific set of parent op types.
@@ -14,10 +17,9 @@ import org.jetbrains.annotations.Unmodifiable;
  * <p>The verifier walks to the immediate parent operation and checks its type against the list
  * returned by {@link #getValidParentTypes()}. An op with no parent passes unconditionally.
  *
- * <p>Examples: {@link dialect.scf.BreakOp} (only valid inside {@link dialect.scf.ForOp}),
- * {@link dialect.scf.ContinueOp} (valid inside {@link dialect.scf.IfOp},
- * {@link dialect.scf.ScopeOp}, or {@link dialect.scf.ForOp}),
- * {@link dialect.func.ReturnOp} (only valid inside {@link dialect.func.FuncOp}).
+ * <p>Examples: {@link ScfOps.BreakOp} (only valid inside {@link ScfOps.ForOp}), {@link
+ * ScfOps.ContinueOp} (valid inside {@link ScfOps.IfOp}, {@link ScfOps.ScopeOp}, or {@link
+ * ScfOps.ForOp}), {@link FuncOps.ReturnOp} (only valid inside {@link FuncOps.FuncOp}).
  */
 public interface ISpecificParentOp extends IOpTrait {
   @Contract(pure = true)

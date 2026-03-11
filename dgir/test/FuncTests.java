@@ -1,6 +1,7 @@
 import dgir.core.Dialect;
 import dgir.core.debug.Location;
 import dgir.core.serialization.Utils;
+import dgir.dialect.arith.ArithOps;
 import dgir.dialect.str.StrTypes;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeAll;
@@ -9,14 +10,12 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
-import static dgir.dialect.arith.ArithOps.ConstantOp;
 import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
 import static dgir.dialect.builtin.BuiltinTypes.IntegerT;
 import static dgir.dialect.func.FuncOps.*;
 import static dgir.dialect.func.FuncTypes.FuncType;
 import static dgir.dialect.io.IoOps.PrintOp;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test cases for FuncOp and related operations. These test check for correct serialization and
@@ -104,7 +103,7 @@ public class FuncTests {
 
     FuncOp otherFunc =
         programOp.addOperation(new FuncOp(LOC, "other", FuncType.of(List.of(), IntegerT.INT32)));
-    var constOp = otherFunc.addOperation(new ConstantOp(LOC, 42), 0);
+    var constOp = otherFunc.addOperation(new ArithOps.ConstantOp(LOC, 42), 0);
     otherFunc.addOperation(new ReturnOp(LOC, constOp.getResult()), 0);
 
     var callOp = mainFunc.addOperation(new CallOp(LOC, otherFunc), 0);
@@ -156,8 +155,158 @@ public class FuncTests {
     target.addOperation(new ReturnOp(LOC, target.getArgument(0).orElseThrow()), 0);
 
     // Call with String arg, expects Int
-    var strOp = mainFunc.addOperation(new ConstantOp(LOC, "test"), 0);
+    var strOp = mainFunc.addOperation(new ArithOps.ConstantOp(LOC, "test"), 0);
     mainFunc.addOperation(new CallOp(LOC, target, strOp.getResult()), 0);
+    mainFunc.addOperation(new ReturnOp(LOC), 0);
+
+    assertFalse(TestUtils.testValidityAndSerialization(programOp));
+  }
+
+  // =========================================================================
+  // ConstantOp tests
+  // =========================================================================
+
+  /**
+   * Basic test for a {@code func.constant} that holds a reference to an existing function. The
+   * result type must be the referenced function's {@link FuncType}.
+   */
+  @Test
+  public void basicConstantFuncRef() {
+    Pair<ProgramOp, FuncOp> entry = TestUtils.createProgramOpWithEntryFunc();
+    ProgramOp programOp = entry.getLeft();
+    FuncOp mainFunc = entry.getRight();
+
+    FuncType targetType = FuncType.of(List.of(IntegerT.INT32), IntegerT.INT32);
+    FuncOp targetFunc = programOp.addOperation(new FuncOp(LOC, "target", targetType));
+    targetFunc.addOperation(new ReturnOp(LOC, targetFunc.getArgument(0).orElseThrow()), 0);
+
+    // Create a constant reference to the target function; its result type must be a FuncType.
+    var funcRef = mainFunc.addOperation(new ConstantOp(LOC, targetFunc), 0);
+    mainFunc.addOperation(new ReturnOp(LOC), 0);
+
+    assertInstanceOf(FuncType.class, funcRef.getResult().getType());
+    assertTrue(TestUtils.testValidityAndSerialization(programOp));
+  }
+
+  /**
+   * Test that a {@code func.constant} can be serialized and deserialized when constructed from a
+   * name and explicit {@link FuncType} (without a live {@link FuncOp} reference).
+   */
+  @Test
+  public void constantFuncRefByName() {
+    Pair<ProgramOp, FuncOp> entry = TestUtils.createProgramOpWithEntryFunc();
+    ProgramOp programOp = entry.getLeft();
+    FuncOp mainFunc = entry.getRight();
+
+    FuncType targetType = FuncType.of(List.of(), IntegerT.INT32);
+    FuncOp targetFunc = programOp.addOperation(new FuncOp(LOC, "noArgFunc", targetType));
+    var constOp = targetFunc.addOperation(new ArithOps.ConstantOp(LOC, 0), 0);
+    targetFunc.addOperation(new ReturnOp(LOC, constOp.getResult()), 0);
+
+    // Construct via explicit name + type overload
+    mainFunc.addOperation(new ConstantOp(LOC, "noArgFunc", targetType), 0);
+    mainFunc.addOperation(new ReturnOp(LOC), 0);
+
+    assertTrue(TestUtils.testValidityAndSerialization(programOp));
+  }
+
+  // =========================================================================
+  // CallIndirectOp tests
+  // =========================================================================
+
+  /**
+   * Positive test: indirect call to a no-argument function through a {@code func.constant}
+   * reference.
+   */
+  @Test
+  public void callIndirectBasic() {
+    Pair<ProgramOp, FuncOp> entry = TestUtils.createProgramOpWithEntryFunc();
+    ProgramOp programOp = entry.getLeft();
+    FuncOp mainFunc = entry.getRight();
+
+    // target: () -> int32
+    FuncType targetType = FuncType.of(List.of(), IntegerT.INT32);
+    FuncOp targetFunc = programOp.addOperation(new FuncOp(LOC, "target", targetType));
+    var fortyTwo = targetFunc.addOperation(new ArithOps.ConstantOp(LOC, 42), 0);
+    targetFunc.addOperation(new ReturnOp(LOC, fortyTwo.getResult()), 0);
+
+    // Obtain a function reference and call it indirectly.
+    var funcRef = mainFunc.addOperation(new ConstantOp(LOC, targetFunc), 0);
+    var callOp = mainFunc.addOperation(new CallIndirectOp(LOC, funcRef.getResult(), List.of()), 0);
+    mainFunc.addOperation(new PrintOp(LOC, callOp.getOutputValue().orElseThrow()), 0);
+    mainFunc.addOperation(new ReturnOp(LOC), 0);
+
+    assertTrue(TestUtils.testValidityAndSerialization(programOp));
+  }
+
+  /**
+   * Positive test: indirect call to a function that takes arguments, with correctly typed
+   * arguments.
+   */
+  @Test
+  public void callIndirectWithArgs() {
+    Pair<ProgramOp, FuncOp> entry = TestUtils.createProgramOpWithEntryFunc();
+    ProgramOp programOp = entry.getLeft();
+    FuncOp mainFunc = entry.getRight();
+
+    // identity: (int32) -> int32
+    FuncType targetType = FuncType.of(List.of(IntegerT.INT32), IntegerT.INT32);
+    FuncOp identityFunc = programOp.addOperation(new FuncOp(LOC, "identity", targetType));
+    identityFunc.addOperation(new ReturnOp(LOC, identityFunc.getArgument(0).orElseThrow()), 0);
+
+    var funcRef = mainFunc.addOperation(new ConstantOp(LOC, identityFunc), 0);
+    var arg = mainFunc.addOperation(new ArithOps.ConstantOp(LOC, 7), 0);
+    var callOp =
+        mainFunc.addOperation(
+            new CallIndirectOp(LOC, funcRef.getResult(), List.of(arg.getResult())), 0);
+    mainFunc.addOperation(new PrintOp(LOC, callOp.getOutputValue().orElseThrow()), 0);
+    mainFunc.addOperation(new ReturnOp(LOC), 0);
+
+    assertTrue(TestUtils.testValidityAndSerialization(programOp));
+  }
+
+  /**
+   * Negative test: indirect call where the argument count does not match the function's expected
+   * parameter count.
+   */
+  @Test
+  public void callIndirectWrongArgCount() {
+    Pair<ProgramOp, FuncOp> entry = TestUtils.createProgramOpWithEntryFunc();
+    ProgramOp programOp = entry.getLeft();
+    FuncOp mainFunc = entry.getRight();
+
+    // target expects one INT32 argument
+    FuncType targetType = FuncType.of(List.of(IntegerT.INT32), IntegerT.INT32);
+    FuncOp targetFunc = programOp.addOperation(new FuncOp(LOC, "target", targetType));
+    targetFunc.addOperation(new ReturnOp(LOC, targetFunc.getArgument(0).orElseThrow()), 0);
+
+    // Call with zero arguments — signature mismatch
+    var funcRef = mainFunc.addOperation(new ConstantOp(LOC, targetFunc), 0);
+    mainFunc.addOperation(new CallIndirectOp(LOC, funcRef.getResult(), List.of()), 0);
+    mainFunc.addOperation(new ReturnOp(LOC), 0);
+
+    assertFalse(TestUtils.testValidityAndSerialization(programOp));
+  }
+
+  /**
+   * Negative test: indirect call where the argument type does not match the function's expected
+   * parameter type.
+   */
+  @Test
+  public void callIndirectWrongArgType() {
+    Pair<ProgramOp, FuncOp> entry = TestUtils.createProgramOpWithEntryFunc();
+    ProgramOp programOp = entry.getLeft();
+    FuncOp mainFunc = entry.getRight();
+
+    // target expects INT32, but we pass a String
+    FuncType targetType = FuncType.of(List.of(IntegerT.INT32), IntegerT.INT32);
+    FuncOp targetFunc = programOp.addOperation(new FuncOp(LOC, "target", targetType));
+    targetFunc.addOperation(new ReturnOp(LOC, targetFunc.getArgument(0).orElseThrow()), 0);
+
+    var funcRef = mainFunc.addOperation(new ConstantOp(LOC, targetFunc), 0);
+    var strArg = mainFunc.addOperation(new ArithOps.ConstantOp(LOC, "notAnInt"), 0);
+    mainFunc.addOperation(
+        new CallIndirectOp(LOC, funcRef.getResult(), List.of(strArg.getResult())), 0);
     mainFunc.addOperation(new ReturnOp(LOC), 0);
 
     assertFalse(TestUtils.testValidityAndSerialization(programOp));
