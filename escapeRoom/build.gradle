@@ -47,50 +47,6 @@ tasks.register('runMushRoom', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-processResources {
-    from new File(project(':dungeon').projectDir, '/assets')
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-tasks.named('test', Test) {
-    useJUnitPlatform()
-}
-
-tasks.named('jar', Jar) {
-    dependsOn project(':dungeon').tasks.named('jar')
-    archiveBaseName.set('EscaperoomDemo')
-    archiveFileName.set('EscapeRoomDemo.jar')
-
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    // include compiled classes
-    from sourceSets.main.output
-    from project(':dungeon').sourceSets.main.output
-
-    // include dependencies
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-
-    // include assets
-    into('assets') {
-        from new File(project(':dungeon').projectDir, '/assets')
-    }
-
-    // manifest
-    manifest {
-        attributes 'Main-Class': application.mainClass.get()
-    }
-
-    // exclude signature files
-    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
-}
-
-tasks.named('jpackageImage'){
-    dependsOn 'installDist'
-}
-
-
 /*
     "Creates an image containing your application, a custom JRE, and appropriate start scripts.
     If the property distDir is not set, this task depends on either installDist or installShadowDist"
@@ -128,4 +84,3 @@ runtime {
 
     }
 }
-
