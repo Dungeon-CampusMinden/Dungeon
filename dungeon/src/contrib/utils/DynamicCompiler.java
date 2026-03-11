@@ -8,7 +8,11 @@ import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import javax.tools.*;
 
 /**
@@ -59,9 +63,21 @@ public class DynamicCompiler {
   private static JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
   private static StandardJavaFileManager fileManager =
       compiler.getStandardFileManager(null, null, null);
+  private static final Map<String, String> hashCache = new HashMap<>();
+  private static final Map<String, Class<?>> classCache = new HashMap<>();
+
+  private static String sha256(String input) throws NoSuchAlgorithmException {
+    MessageDigest md = MessageDigest.getInstance("SHA-256");
+    byte[] hash = md.digest(input.getBytes());
+    StringBuilder sb = new StringBuilder();
+    for (byte b : hash) sb.append(String.format("%02x", b));
+    return sb.toString();
+  }
 
   /**
-   * Compiles and loads a Java class from the specified source file.
+   * Compiles and loads a Java class from the specified source file. If the source file has already
+   * been compiled and there have not been any recent changes, it loads the compiled file from
+   * cache.
    *
    * @param sourcePath Path to the source file containing the class.
    * @param className Fully qualified class name (must match declaration inside file).
@@ -69,12 +85,19 @@ public class DynamicCompiler {
    * @throws Exception If compilation or loading fails.
    */
   public static Class<?> compileAndLoad(IPath sourcePath, String className) throws Exception {
+    Path filePath = Paths.get(sourcePath.pathString());
+    String sourceCode = Files.readString(filePath);
+
+    String newHash = sha256(sourceCode);
+    String oldHash = hashCache.get(className);
+
+    if (newHash.equals(oldHash) && classCache.containsKey(className)) {
+      return classCache.get(className);
+    }
+
     File outputRoot = new File(System.getProperty("BASEREFLECTIONDIR"));
     File outputFile = new File(outputRoot, className.replace('.', '/') + ".java");
     outputFile.getParentFile().mkdirs();
-
-    Path filePath = Paths.get(sourcePath.pathString());
-    String sourceCode = Files.readString(filePath);
 
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
       writer.write(sourceCode);
@@ -86,14 +109,14 @@ public class DynamicCompiler {
         compiler.getTask(null, fileManager, null, null, null, compilationUnits);
 
     boolean success = task.call();
-    if (!success) {
-      throw new Exception("Compilation failed.");
-    }
+    if (!success) throw new Exception("Compilation failed.");
 
-    // Load compiled class using custom loader to override any previous versions
     MyClassLoader classLoader = new MyClassLoader(new URL[] {outputRoot.toURI().toURL()});
     Class<?> loadedClass = classLoader.loadClass(className);
     outputFile.delete();
+
+    hashCache.put(className, newHash);
+    classCache.put(className, loadedClass);
 
     return loadedClass;
   }
