@@ -67,13 +67,10 @@ public class PortalLevel_8 extends AdvancedLevel {
     Game.add(lightBridge2);
     Game.add(lightBridge3);
     Game.add(lightBridge4);
-    //
-    //
     pressurePlate = PressurePlates.cubePressurePlate(namedPoints.get("pressurePlate"), 1);
     Game.add(pressurePlate);
     plate = pressurePlate.fetch(LeverComponent.class).orElse(null);
-    //
-    //
+
     Entity cube = Cube.portalCube(namedPoints.get("cube1"));
     Game.add(cube);
 

@@ -208,7 +208,6 @@ public class PortalStarter {
           DungeonLoader.addLevel(Tuple.of("tractorbeam1", TractorBeamLevel_1.class));
           DungeonLoader.addLevel(Tuple.of("portallevel8", PortalLevel_8.class));
           DungeonLoader.addLevel(Tuple.of("portallevel9", PortalLevel_9.class));
-
           createSystems();
           createHero();
 
