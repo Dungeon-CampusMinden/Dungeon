@@ -115,8 +115,8 @@ public class LastHourLevel extends DungeonLevel {
         false,
         true,
         () ->
-            DialogFactory.showOkDialog(
-                Lore.PostIntroDialogTexts.getFirst(), "", () -> {}, targetId),
+            DialogFactory.showTextDialog(
+                Lore.PostIntroDialogTexts.getFirst(), "", () -> {}, null, targetId),
         targetId);
     INTRO_SHOWN_TO.add(targetId);
   }
