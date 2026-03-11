@@ -6,9 +6,8 @@ plugins {
 
 application {
     mainClass = "starter.MushRoom"
-    applicationName = "escapeRoom"
+    applicationName = "mushRoom"
 }
-
 
 dependencies {
     api project(':dungeon')
@@ -23,28 +22,33 @@ sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
 sourceSets.test.java.srcDirs = ['test/']
 
-tasks.register('runCoopDungeon', JavaExec) {
-    group 'starter'
-    mainClass = 'starter.CoopDungeon'
-    classpath = sourceSets.main.runtimeClasspath
+
+// Task to generate config launcher files automatically
+tasks.register('generateLauncherProperties') {
+    doLast {
+        def launchersDir = layout.buildDirectory.dir("jpackage-launchers").get().asFile
+        launchersDir.mkdirs()
+
+        def launchers = [
+            [name: 'CoopDungeon', mainClass: 'starter.CoopDungeon'],
+            [name: 'DemoRoom', mainClass: 'starter.DemoRoom'],
+            [name: 'SpriteTestRoom', mainClass: 'starter.SpriteTestRoom'],
+            [name: 'MushRoom', mainClass: 'starter.MushRoom']
+        ]
+
+        // generate properties files
+        launchers.each { launcher ->
+            def propsFile = new File(launchersDir, "${launcher.name}.properties")
+            propsFile.text = """main-class=${launcher.mainClass}
+app-name=${launcher.name}
+"""
+        }
+    }
 }
 
-tasks.register('runDemoRoom', JavaExec) {
-    group 'starter'
-    mainClass = 'starter.DemoRoom'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-tasks.register('runSpriteTestRoom', JavaExec) {
-    group 'starter'
-    mainClass = 'starter.SpriteTestRoom'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-tasks.register('runMushRoom', JavaExec) {
-    group 'starter'
-    mainClass = 'starter.MushRoom'
-    classpath = sourceSets.main.runtimeClasspath
+// jpackage should depend of properties files for launchers
+tasks.named('jpackageImage').configure {
+    dependsOn 'generateLauncherProperties'
 }
 
 /*
@@ -79,8 +83,19 @@ runtime {
         // Directory containing all JARs (created by installDist task)    "../build/install/dungeon/lib"
         def inputDir = layout.buildDirectory.dir("install/${application.applicationName}/lib").get().asFile
 
+        // Directory containing launcher property files
+        def launchersDir = file("jpackage-launchers")
+
         // Options passed to jpackage tool (jpackage requires --input option to know where all jars are)
-        imageOptions = ["--input", inputDir.absolutePath]
+        // --add-launcher adds additional launchers for other main classes
+        imageOptions = [
+            "--input", inputDir.absolutePath,
+            "--add-launcher", "CoopDungeon=${launchersDir.absolutePath}/CoopDungeon.properties",
+            "--add-launcher", "DemoRoom=${launchersDir.absolutePath}/DemoRoom.properties",
+            "--add-launcher", "SpriteTestRoom=${launchersDir.absolutePath}/SpriteTestRoom.properties"
+
+
+        ]
 
     }
 }
