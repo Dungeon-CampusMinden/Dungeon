@@ -66,7 +66,6 @@ public class DynamicCompiler {
   private static final Map<String, String> hashCache = new HashMap<>();
   private static final Map<String, Class<?>> classCache = new HashMap<>();
 
-
   private static String sha256(String input) throws NoSuchAlgorithmException {
     MessageDigest md = MessageDigest.getInstance("SHA-256");
     byte[] hash = md.digest(input.getBytes());
@@ -76,7 +75,9 @@ public class DynamicCompiler {
   }
 
   /**
-   * Compiles and loads a Java class from the specified source file.
+   * Compiles and loads a Java class from the specified source file. If the source file has already
+   * been compiled and there have not been any recent changes, it loads the compiled file from
+   * cache.
    *
    * @param sourcePath Path to the source file containing the class.
    * @param className Fully qualified class name (must match declaration inside file).
@@ -91,11 +92,8 @@ public class DynamicCompiler {
     String oldHash = hashCache.get(className);
 
     if (newHash.equals(oldHash) && classCache.containsKey(className)) {
-      System.out.println("reading from cache");
       return classCache.get(className);
     }
-
-    System.out.println("reading from file");
 
     File outputRoot = new File(System.getProperty("BASEREFLECTIONDIR"));
     File outputFile = new File(outputRoot, className.replace('.', '/') + ".java");
@@ -106,14 +104,14 @@ public class DynamicCompiler {
     }
 
     Iterable<? extends JavaFileObject> compilationUnits =
-      fileManager.getJavaFileObjects(outputFile);
+        fileManager.getJavaFileObjects(outputFile);
     JavaCompiler.CompilationTask task =
-      compiler.getTask(null, fileManager, null, null, null, compilationUnits);
+        compiler.getTask(null, fileManager, null, null, null, compilationUnits);
 
     boolean success = task.call();
     if (!success) throw new Exception("Compilation failed.");
 
-    MyClassLoader classLoader = new MyClassLoader(new URL[]{outputRoot.toURI().toURL()});
+    MyClassLoader classLoader = new MyClassLoader(new URL[] {outputRoot.toURI().toURL()});
     Class<?> loadedClass = classLoader.loadClass(className);
     outputFile.delete();
 
