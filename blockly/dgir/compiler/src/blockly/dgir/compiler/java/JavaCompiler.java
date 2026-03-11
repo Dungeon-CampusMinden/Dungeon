@@ -1,5 +1,7 @@
 package blockly.dgir.compiler.java;
 
+import blockly.dgir.dialect.dg.DgAttrs;
+import blockly.dgir.dialect.dg.DgOps;
 import blockly.dgir.dialect.dg.DungeonDialect;
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
@@ -31,9 +33,9 @@ import dgir.dialect.arith.ArithAttrs;
 import dgir.dialect.arith.ArithOps;
 import dgir.dialect.arith.ArithOps.BinaryOp;
 import dgir.dialect.builtin.BuiltinOps;
-import dgir.dialect.builtin.BuiltinTypes;
 import dgir.dialect.cf.CfOps;
 import dgir.dialect.func.FuncOps;
+import dgir.dialect.io.IoOps;
 import dgir.dialect.scf.ScfOps;
 import dgir.dialect.str.StrOps;
 import dgir.dialect.str.StrTypes;
@@ -61,7 +63,7 @@ import static dgir.dialect.func.FuncOps.FuncOp;
 import static dgir.dialect.func.FuncOps.ReturnOp;
 import static dgir.dialect.func.FuncTypes.FuncType;
 
-@SuppressWarnings({"unchecked", "OptionalUsedAsFieldOrParameterType"})
+@SuppressWarnings({"unchecked"})
 public class JavaCompiler {
   static Logger logger = Logger.getLogger(JavaCompiler.class.getName());
   static boolean symbolSolverInitialized = false;
@@ -406,8 +408,7 @@ public class JavaCompiler {
 
       Type returnType = null;
       if (!n.getType().isVoidType()) {
-        Optional<CompilerUtils.TypeInfo> resolvedType =
-            CompilerUtils.resolveType(n.getType(), context);
+        Optional<TypeInfo> resolvedType = resolveType(n.getType(), context);
         if (resolvedType.isEmpty()) {
           return EmitResult.failure(
               context, n, "Failed to resolve return type of method " + n.getNameAsString());
@@ -415,7 +416,7 @@ public class JavaCompiler {
         returnType = resolvedType.get().type();
       }
 
-      Optional<ResolvedMethodDeclaration> resolvedN = CompilerUtils.resolve(n, context);
+      Optional<ResolvedMethodDeclaration> resolvedN = resolve(n, context);
       if (resolvedN.isEmpty()) {
         return EmitResult.failure(context, n, "Failed to resolve method " + n.getNameAsString());
       }
@@ -615,7 +616,7 @@ public class JavaCompiler {
       }
 
       EmitResult<Value> implicitCast =
-          CompilerUtils.emitImplicitCastIfNeeded(
+          emitImplicitCastIfNeeded(
               valueRes.get().get(),
               n.getValue().calculateResolvedType(),
               targetType,
@@ -711,7 +712,7 @@ public class JavaCompiler {
 
       TypeInfo typeInfo;
       {
-        var resolvedTypeInfo = CompilerUtils.resolveType(n.getType(), context);
+        var resolvedTypeInfo = resolveType(n.getType(), context);
         if (resolvedTypeInfo.isEmpty()) {
           return EmitResult.failure(
               context,
@@ -797,8 +798,6 @@ public class JavaCompiler {
 
     @Override
     public EmitResult<Optional<Value>> visit(MethodCallExpr n, EmitContext context) {
-      EmitResult<Optional<Value>> result;
-
       if (n.getTypeArguments().isPresent()) {
         return EmitResult.failure(
             context,
@@ -873,12 +872,19 @@ public class JavaCompiler {
         args = new ArrayList<>(argumentsResult.get());
 
         // Check if the caller arguments with the callee param types and emit casts if necessary
+        int varargsIndex = -1;
         for (int i = 0; i < args.size(); i++) {
           Value callArg = args.get(i);
           ResolvedType callArgType = n.getArgument(i).calculateResolvedType();
-          ResolvedType targetType = targetMethod.getParam(i).getType();
+          ResolvedType targetType =
+              targetMethod.getParam(varargsIndex == -1 ? i : varargsIndex).getType();
+          if (varargsIndex == -1) {
+            if (targetMethod.getParam(i).isVariadic()) {
+              varargsIndex = i;
+            }
+          }
           EmitResult<Value> castCallArg =
-              CompilerUtils.emitImplicitCastIfNeeded(
+              emitImplicitCastIfNeeded(
                   callArg, callArgType, targetType, n.getArgument(i).isLiteralExpr(), context, n);
           if (castCallArg.isFailure()) {
             return EmitResult.failure(
@@ -902,6 +908,11 @@ public class JavaCompiler {
                   + n.getName()
                   + " is an instance method call but has no scope. Instance method calls must have a scope.");
         args.addFirst(scopeResult.get().orElseThrow());
+      }
+
+      if (IntrinsicRegistry.signatureToOpCode.containsKey(targetMethod.getQualifiedSignature())) {
+        context.emitInfo(n, "Intrinsic: " + targetMethod.getQualifiedSignature());
+        return emitIntrinsic(n, targetMethod.getQualifiedSignature(), args, context);
       }
 
       String funcName = targetMethod.getQualifiedSignature();
@@ -1027,8 +1038,7 @@ public class JavaCompiler {
 
       // Get the resolved variable declaration so that we can get the type of the variable and check
       // that it is accessible from the current context.
-      Optional<TypeInfo> initializerTypeInfo =
-          CompilerUtils.resolveType(declarator.getType(), context);
+      Optional<TypeInfo> initializerTypeInfo = resolveType(declarator.getType(), context);
       if (initializerTypeInfo.isEmpty()) {
         return EmitResult.failure();
       }
@@ -1036,7 +1046,7 @@ public class JavaCompiler {
       {
         // The class in which the variable is declared
         var contextClass =
-            CompilerUtils.resolve(
+            resolve(
                 declarator.findAncestor(ClassOrInterfaceDeclaration.class).orElseThrow(), context);
         if (contextClass.isEmpty()) {
           return EmitResult.failure();
@@ -1053,7 +1063,7 @@ public class JavaCompiler {
 
       // Check that the init value and the target have the same value and emit cast statement if not
       EmitResult<Value> implicitCastRes =
-          CompilerUtils.emitImplicitCastIfNeeded(
+          emitImplicitCastIfNeeded(
               initValue,
               declarator.getInitializer().orElseThrow().calculateResolvedType(),
               initializerTypeInfo.get().resolvedType(),
@@ -1118,7 +1128,7 @@ public class JavaCompiler {
         }
       }
 
-      Optional<CompilerUtils.TypeInfo> typeInfo = CompilerUtils.resolveType(n.getType(), context);
+      Optional<TypeInfo> typeInfo = resolveType(n.getType(), context);
       return typeInfo
           .map(
               info ->
@@ -1129,6 +1139,137 @@ public class JavaCompiler {
               () ->
                   EmitResult.failure(
                       context, n, "Failed to resolve type of parameter " + n.getName()));
+    }
+
+    private EmitResult<Optional<Value>> emitIntrinsic(
+        MethodCallExpr n, String intrinsicName, List<Value> args, EmitContext context) {
+      switch (intrinsicName) {
+
+        // Hero Operations
+
+        case "Dungeon.Hero.move()" -> {
+          context.insert(new DgOps.MoveOp(context.loc(n)));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.turnLeft()" -> {
+          context.insert(new DgOps.TurnOp(context.loc(n), DgAttrs.TurnDirectionAttr.TurnDir.LEFT));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.turnRight()" -> {
+          context.insert(new DgOps.TurnOp(context.loc(n), DgAttrs.TurnDirectionAttr.TurnDir.RIGHT));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.useHere()" -> {
+          context.insert(new DgOps.UseOp(context.loc(n), DgAttrs.UseDirectionAttr.UseDir.HERE));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.useLeft()" -> {
+          context.insert(new DgOps.UseOp(context.loc(n), DgAttrs.UseDirectionAttr.UseDir.LEFT));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.useRight()" -> {
+          context.insert(new DgOps.UseOp(context.loc(n), DgAttrs.UseDirectionAttr.UseDir.RIGHT));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.useUp()" -> {
+          context.insert(new DgOps.UseOp(context.loc(n), DgAttrs.UseDirectionAttr.UseDir.UP));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.useDown()" -> {
+          context.insert(new DgOps.UseOp(context.loc(n), DgAttrs.UseDirectionAttr.UseDir.DOWN));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.push()" -> {
+          context.insert(new DgOps.PushOp(context.loc(n)));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.pull()" -> {
+          context.insert(new DgOps.PullOp(context.loc(n)));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.dropClover()" -> {
+          context.insert(new DgOps.DropOp(context.loc(n), DgAttrs.DropTypeAttr.DropType.CLOVER));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.dropBreadCrumbs()" -> {
+          context.insert(
+              new DgOps.DropOp(context.loc(n), DgAttrs.DropTypeAttr.DropType.BREADCRUMBS));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.pickUp()" -> {
+          context.insert(new DgOps.PickupOp(context.loc(n)));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.fireball()" -> {
+          context.insert(new DgOps.FireballOp(context.loc(n)));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.Hero.rest()" -> {
+          context.insert(new DgOps.RestOp(context.loc(n)));
+          return EmitResult.of(Optional.empty());
+        }
+
+        // IO Operations
+
+        case "Dungeon.IO.print(java.lang.String)" -> {
+          context.insert(new IoOps.PrintOp(context.loc(n), args.getFirst()));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.IO.println(java.lang.String)" -> {
+          var formatString = context.insert(new ConstantOp(context.loc(n), "%s\n"));
+          context.insert(
+              new IoOps.PrintOp(context.loc(n), formatString.getResult(), args.getFirst()));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.IO.printf(java.lang.String, java.lang.Object...)" -> {
+          context.insert(new IoOps.PrintOp(context.loc(n), args));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.IO.printfln(java.lang.String, java.lang.Object...)" -> {
+          var formatString = context.insert(new ConstantOp(context.loc(n), "%s\n"));
+          List<Value> printfArgs = new ArrayList<>();
+          printfArgs.add(formatString.getResult());
+          printfArgs.addAll(args);
+          context.insert(new IoOps.PrintOp(context.loc(n), printfArgs));
+          return EmitResult.of(Optional.empty());
+        }
+        case "Dungeon.IO.nextFloat()" -> {
+          var result = context.insert(new IoOps.ConsoleInOp(context.loc(n), FloatT.FLOAT32));
+          return EmitResult.of(Optional.of(result.getResult()));
+        }
+        case "Dungeon.IO.nextDouble()" -> {
+          var result = context.insert(new IoOps.ConsoleInOp(context.loc(n), FloatT.FLOAT64));
+          return EmitResult.of(Optional.of(result.getResult()));
+        }
+        case "Dungeon.IO.nextBoolean()" -> {
+          var result = context.insert(new IoOps.ConsoleInOp(context.loc(n), IntegerT.BOOL));
+          return EmitResult.of(Optional.of(result.getResult()));
+        }
+        case "Dungeon.IO.nextByte()" -> {
+          var result = context.insert(new IoOps.ConsoleInOp(context.loc(n), IntegerT.INT8));
+          return EmitResult.of(Optional.of(result.getResult()));
+        }
+        case "Dungeon.IO.nextShort()" -> {
+          var result = context.insert(new IoOps.ConsoleInOp(context.loc(n), IntegerT.INT16));
+          return EmitResult.of(Optional.of(result.getResult()));
+        }
+        case "Dungeon.IO.nextInt()" -> {
+          var result = context.insert(new IoOps.ConsoleInOp(context.loc(n), IntegerT.INT32));
+          return EmitResult.of(Optional.of(result.getResult()));
+        }
+        case "Dungeon.IO.nextLong()" -> {
+          var result = context.insert(new IoOps.ConsoleInOp(context.loc(n), IntegerT.INT64));
+          return EmitResult.of(Optional.of(result.getResult()));
+        }
+        case "Dungeon.IO.nextLine()" -> {
+          var result =
+              context.insert(new IoOps.ConsoleInOp(context.loc(n), StrTypes.StringT.INSTANCE));
+          return EmitResult.of(Optional.of(result.getResult()));
+        }
+
+        default -> context.emitError(n, "Intrinsic method " + intrinsicName + " is not supported.");
+      }
+      return EmitResult.success(Optional.empty());
     }
 
     /**
@@ -1165,8 +1306,7 @@ public class JavaCompiler {
                   new FuncOp(
                       loc,
                       "java.lang.String.length()",
-                      FuncType.of(
-                          List.of(StrTypes.StringT.INSTANCE), BuiltinTypes.IntegerT.INT32)));
+                      FuncType.of(List.of(StrTypes.StringT.INSTANCE), IntegerT.INT32)));
           try (var bodyInsertion = context.setInsertionPoint(lengthFunc.getEntryBlock(), -1)) {
             StrOps.LengthOp lengthOp =
                 context.insert(new StrOps.LengthOp(loc, lengthFunc.getArgument(0).orElseThrow()));
@@ -1183,7 +1323,7 @@ public class JavaCompiler {
                       "java.lang.String.equals(java.lang.Object)",
                       FuncType.of(
                           List.of(StrTypes.StringT.INSTANCE, StrTypes.StringT.INSTANCE),
-                          BuiltinTypes.IntegerT.BOOL)));
+                          IntegerT.BOOL)));
           try (var bodyInsertion = context.setInsertionPoint(equalsFunc.getEntryBlock(), -1)) {
             StrOps.EqualsOp equalsOp =
                 context.insert(
@@ -1203,8 +1343,7 @@ public class JavaCompiler {
                       loc,
                       "java.lang.String.charAt(int)",
                       FuncType.of(
-                          List.of(StrTypes.StringT.INSTANCE, BuiltinTypes.IntegerT.INT32),
-                          BuiltinTypes.IntegerT.UINT16)));
+                          List.of(StrTypes.StringT.INSTANCE, IntegerT.INT32), IntegerT.UINT16)));
           try (var bodyInsertion = context.setInsertionPoint(charAtFunc.getEntryBlock(), -1)) {
             StrOps.CharAtOp charAtOp =
                 context.insert(
@@ -1223,7 +1362,7 @@ public class JavaCompiler {
                   new FuncOp(
                       loc,
                       "java.lang.String.isEmpty()",
-                      FuncType.of(List.of(StrTypes.StringT.INSTANCE), BuiltinTypes.IntegerT.BOOL)));
+                      FuncType.of(List.of(StrTypes.StringT.INSTANCE), IntegerT.BOOL)));
           try (var bodyInsertion = context.setInsertionPoint(func.getEntryBlock(), -1)) {
             StrOps.IsEmptyOp op =
                 context.insert(new StrOps.IsEmptyOp(loc, func.getArgument(0).orElseThrow()));
@@ -1284,7 +1423,7 @@ public class JavaCompiler {
                       loc,
                       "java.lang.String.substring(int)",
                       FuncType.of(
-                          List.of(StrTypes.StringT.INSTANCE, BuiltinTypes.IntegerT.INT32),
+                          List.of(StrTypes.StringT.INSTANCE, IntegerT.INT32),
                           StrTypes.StringT.INSTANCE)));
           try (var bodyInsertion = context.setInsertionPoint(func.getEntryBlock(), -1)) {
             StrOps.SubstringOp op =
@@ -1303,10 +1442,7 @@ public class JavaCompiler {
                       loc,
                       "java.lang.String.substring(int, int)",
                       FuncType.of(
-                          List.of(
-                              StrTypes.StringT.INSTANCE,
-                              BuiltinTypes.IntegerT.INT32,
-                              BuiltinTypes.IntegerT.INT32),
+                          List.of(StrTypes.StringT.INSTANCE, IntegerT.INT32, IntegerT.INT32),
                           StrTypes.StringT.INSTANCE)));
           try (var bodyInsertion = context.setInsertionPoint(func.getEntryBlock(), -1)) {
             StrOps.SubstringOp op =
@@ -1348,7 +1484,7 @@ public class JavaCompiler {
                       "java.lang.String.startsWith(java.lang.String)",
                       FuncType.of(
                           List.of(StrTypes.StringT.INSTANCE, StrTypes.StringT.INSTANCE),
-                          BuiltinTypes.IntegerT.BOOL)));
+                          IntegerT.BOOL)));
           try (var bodyInsertion = context.setInsertionPoint(func.getEntryBlock(), -1)) {
             StrOps.StartsWithOp op =
                 context.insert(
@@ -1367,7 +1503,7 @@ public class JavaCompiler {
                       "java.lang.String.endsWith(java.lang.String)",
                       FuncType.of(
                           List.of(StrTypes.StringT.INSTANCE, StrTypes.StringT.INSTANCE),
-                          BuiltinTypes.IntegerT.BOOL)));
+                          IntegerT.BOOL)));
           try (var bodyInsertion = context.setInsertionPoint(func.getEntryBlock(), -1)) {
             StrOps.EndsWithOp op =
                 context.insert(
@@ -1386,7 +1522,7 @@ public class JavaCompiler {
                       "java.lang.String.indexOf(java.lang.String)",
                       FuncType.of(
                           List.of(StrTypes.StringT.INSTANCE, StrTypes.StringT.INSTANCE),
-                          BuiltinTypes.IntegerT.INT32)));
+                          IntegerT.INT32)));
           try (var bodyInsertion = context.setInsertionPoint(func.getEntryBlock(), -1)) {
             StrOps.IndexOfOp op =
                 context.insert(
@@ -1405,7 +1541,7 @@ public class JavaCompiler {
                       "java.lang.String.lastIndexOf(java.lang.String)",
                       FuncType.of(
                           List.of(StrTypes.StringT.INSTANCE, StrTypes.StringT.INSTANCE),
-                          BuiltinTypes.IntegerT.INT32)));
+                          IntegerT.INT32)));
           try (var bodyInsertion = context.setInsertionPoint(func.getEntryBlock(), -1)) {
             StrOps.LastIndexOfOp op =
                 context.insert(

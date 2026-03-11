@@ -133,7 +133,7 @@ public sealed interface DgOps {
    *   <li>{@code direction}: {@link UseDirectionAttr} (default {@code HERE})
    * </ul>
    */
-  final class InteractOp extends HeroOp implements DgOps {
+  final class UseOp extends HeroOp implements DgOps {
     @Override
     public @NotNull String getIdent() {
       return "dg.use";
@@ -146,9 +146,9 @@ public sealed interface DgOps {
               "direction", new DgAttrs.UseDirectionAttr(UseDirectionAttr.UseDir.HERE)));
     }
 
-    private InteractOp() {}
+    private UseOp() {}
 
-    public InteractOp(Location location, UseDirectionAttr.UseDir useDir) {
+    public UseOp(Location location, UseDirectionAttr.UseDir useDir) {
       super(location);
       getDirectionAttribute().setDirection(useDir);
     }
@@ -225,6 +225,11 @@ public sealed interface DgOps {
 
     public DropOp(Location location) {
       super(location);
+    }
+
+    public DropOp(Location location, DropTypeAttr.DropType dropType) {
+      super(location);
+      getAttributeAs("dropType", DropTypeAttr.class).orElseThrow().setDropType(dropType);
     }
   }
 

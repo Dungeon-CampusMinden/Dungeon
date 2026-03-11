@@ -145,7 +145,6 @@ public class IntrinsicRegistry {
   private static final class IntrinsicsEmitter extends VoidVisitorAdapter<Map<String, String>> {
     @Override
     public void visit(MethodDeclaration md, Map<String, String> collector) {
-      super.visit(md, collector);
       md.getAnnotationByName("Intrinsic")
           .ifPresent(
               annotation -> {
@@ -155,7 +154,7 @@ public class IntrinsicRegistry {
                         .getMemberValue()
                         .asStringLiteralExpr()
                         .getValue();
-                collector.put(md.getSignature().asString(), opcodeName);
+                collector.put(opcodeName, md.getDeclarationAsString());
               });
     }
   }

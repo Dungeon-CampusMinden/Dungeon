@@ -117,7 +117,8 @@ public class CompilerUtils {
       @NotNull Node site) {
     if (sourceType.describe().equals(targetType.describe())
         || sourceType.describe().equals("java.lang.Object")
-        || targetType.describe().equals("java.lang.Object")) return EmitResult.of(source);
+        || targetType.describe().equals("java.lang.Object")
+        || targetType.describe().equals("java.lang.Object[]")) return EmitResult.of(source);
     boolean override = false;
     // Allow implicit cast for literal assignments that are valid in Java, e.g. char c = 65; or byte
     // b = 100; short = 'b'

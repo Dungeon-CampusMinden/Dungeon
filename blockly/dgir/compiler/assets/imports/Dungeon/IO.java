@@ -8,7 +8,7 @@ public class IO {
    *
    * @param s The string to print.
    */
-  @Intrinsic("io.print")
+  @Intrinsic("Dungeon.IO.print(java.lang.String)")
   public static void print(String s) {
     System.out.print(s);
   }
@@ -18,7 +18,7 @@ public class IO {
    *
    * @param s The string to print.
    */
-  @Intrinsic("io.print")
+  @Intrinsic("Dungeon.IO.println(java.lang.String)")
   public static void println(String s) {
     System.out.println(s);
   }
@@ -30,7 +30,7 @@ public class IO {
    *     arguments.
    * @param args The arguments to be inserted into the format string.
    */
-  @Intrinsic("io.print")
+  @Intrinsic("Dungeon.IO.printf(java.lang.String, java.lang.Object...)")
   public static void printf(String format, Object... args) {
     System.out.printf(format, args);
   }
@@ -43,8 +43,8 @@ public class IO {
    *     arguments.
    * @param args The arguments to be inserted into the format string.
    */
-  @Intrinsic("io.print")
-  public static void prinfln(String format, Object... args) {
+  @Intrinsic("Dungeon.IO.printfln(java.lang.String, java.lang.Object...)")
+  public static void printfln(String format, Object... args) {
     System.out.printf(format + "\n", args);
   }
 
@@ -54,9 +54,19 @@ public class IO {
    *
    * @return true if the input is "true", false otherwise.
    */
-  @Intrinsic("io.consoleIn")
-  public static boolean nextBool() {
+  @Intrinsic("Dungeon.IO.nextBoolean()")
+  public static boolean nextBoolean() {
     return new java.util.Scanner(java.lang.System.in).nextBoolean();
+  }
+
+  /**
+   * Reads a byte value from standard input.
+   *
+   * @return byte value
+   */
+  @Intrinsic("Dungeon.IO.nextByte()")
+  public static byte nextByte() {
+    return new java.util.Scanner(java.lang.System.in).nextByte();
   }
 
   /**
@@ -64,7 +74,7 @@ public class IO {
    *
    * @return short value
    */
-  @Intrinsic("io.consoleIn")
+  @Intrinsic("Dungeon.IO.nextShort()")
   public static short nextShort() {
     return new java.util.Scanner(java.lang.System.in).nextShort();
   }
@@ -73,7 +83,7 @@ public class IO {
    * Reads an integer value from standard input.
    * @return integer value
    */
-  @Intrinsic("io.consoleIn")
+  @Intrinsic("Dungeon.IO.nextInt()")
   public static int nextInt() {
     return new java.util.Scanner(java.lang.System.in).nextInt();
   }
@@ -82,7 +92,7 @@ public class IO {
    * Reads a long value from standard input.
    * @return long value
    */
-  @Intrinsic("io.consoleIn")
+  @Intrinsic("Dungeon.IO.nextLong()")
   public static long nextLong() {
     return new java.util.Scanner(java.lang.System.in).nextLong();
   }
@@ -91,7 +101,7 @@ public class IO {
    * Reads a float value from standard input.
    * @return float value
    */
-  @Intrinsic("io.consoleIn")
+  @Intrinsic("Dungeon.IO.nextFloat()")
   public static float nextFloat() {
     return new java.util.Scanner(java.lang.System.in).nextFloat();
   }
@@ -100,7 +110,7 @@ public class IO {
    * Reads a double value from standard input.
    * @return double value
    */
-  @Intrinsic("io.consoleIn")
+  @Intrinsic("Dungeon.IO.nextDouble()")
   public static double nextDouble() {
     return new java.util.Scanner(java.lang.System.in).nextLine();
   }
@@ -109,7 +119,7 @@ public class IO {
    * Reads a line of text from standard input.
    * @return line of text
    */
-  @Intrinsic("io.consoleIn")
+  @Intrinsic("Dungeon.IO.nextLine()")
   public static String nextLine() {
     return new java.util.Scanner(java.lang.System.in).nextLine();
   }

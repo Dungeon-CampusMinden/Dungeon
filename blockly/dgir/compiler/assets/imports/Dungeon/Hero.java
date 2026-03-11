@@ -3,48 +3,48 @@ package Dungeon;
 import Intrinsic;
 
 public class Hero {
-  @Intrinsitc("dg.hero.move")
+  @Intrinsic("Dungeon.Hero.move()")
   public static void move() {}
 
-  @Intrinsitc("dg.hero.turn")
+  @Intrinsic("Dungeon.Hero.turnLeft()")
   public static void turnLeft() {}
 
-  @Intrinsitc("dg.hero.turn")
+  @Intrinsic("Dungeon.Hero.turnRight()")
   public static void turnRight() {}
 
-  @Intrinsitc("dg.hero.use")
+  @Intrinsic("Dungeon.Hero.useHere()")
   public static void useHere() {}
 
-  @Intrinsitc("dg.hero.use")
+  @Intrinsic("Dungeon.Hero.useLeft()")
   public static void useLeft() {}
 
-  @Intrinsitc("dg.hero.use")
+  @Intrinsic("Dungeon.Hero.useRight()")
   public static void useRight() {}
 
-  @Intrinsitc("dg.hero.use")
+  @Intrinsic("Dungeon.Hero.useUp()")
   public static void useUp() {}
 
-  @Intrinsitc("dg.hero.use")
+  @Intrinsic("Dungeon.Hero.useDown()")
   public static void useDown() {}
 
-  @Intrinsitc("dg.hero.push")
+  @Intrinsic("Dungeon.Hero.push()")
   public static void push() {}
 
-  @Intrinsitc("dg.hero.pull")
+  @Intrinsic("Dungeon.Hero.pull()")
   public static void pull() {}
 
-  @Intrinsitc("dg.hero.drop")
+  @Intrinsic("Dungeon.Hero.dropClover()")
   public static void dropClover() {}
 
-  @Intrinsitc("dg.hero.drop")
+  @Intrinsic("Dungeon.Hero.dropBreadCrumbs()")
   public static void dropBreadCrumbs() {}
 
-  @Intrinsitc("dg.hero.pickUp")
+  @Intrinsic("Dungeon.Hero.pickUp()")
   public static void pickUp() {}
 
-  @Intrinsitc("dg.hero.attack")
+  @Intrinsic("Dungeon.Hero.fireball()")
   public static void fireball() {}
 
-  @Intrinsitc("dg.hero.rest")
+  @Intrinsic("Dungeon.Hero.rest()")
   public static void rest() {}
 }
