@@ -17,6 +17,7 @@ import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
 import portal.riddles.utils.PortalUtils;
 
+/** Collision Handler for portals. */
 public class PortalCollisionHandler {
 
   private static final int PORTAL_DELAY = 600;
@@ -81,6 +82,7 @@ public class PortalCollisionHandler {
    * extend it if both portals are alive.
    *
    * @param portalColor the color of the portal
+   * @return the Triconsumer for the oncollide handler
    */
   public static TriConsumer<Entity, Entity, Direction> createOnCollideHandler(
       PortalColor portalColor) {
@@ -138,6 +140,12 @@ public class PortalCollisionHandler {
     return entity.isPresent(PortalComponent.class);
   }
 
+  /**
+   * returns an on hold handler.
+   *
+   * @param color the color of the portal
+   * @return the Triconsumer for the on hold handler
+   */
   public static TriConsumer<Entity, Entity, Direction> createOnHoldHandler(PortalColor color) {
     return (portal, other, direction) -> {
       if (other.fetch(PortalIgnoreComponent.class).isPresent()) {

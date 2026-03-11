@@ -6,6 +6,7 @@ import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.riddles.utils.PortalUtils;
 
+/** Handles functions for portal extensions. */
 public class PortalExtendHandler {
 
   /**
