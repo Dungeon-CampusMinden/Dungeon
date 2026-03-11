@@ -6,6 +6,7 @@ import contrib.components.SkillComponent;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.entities.HeroController;
+import contrib.modules.emote.EmoteSystem;
 import contrib.modules.keypad.KeypadSystem;
 import contrib.systems.AttributeBarSystem;
 import contrib.systems.CollisionSystem;
@@ -46,9 +47,9 @@ public class TheLastHour {
   private static Music backgroundMusic;
 
   /** Enable or disable debug mode, which adds extra systems for debugging and level editing. */
-  public static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = true;
 
-  private static final boolean RUN_MP_SERVER = true;
+  private static final boolean RUN_MP_SERVER = false;
 
   /**
    * Main entry point to launch the basic dungeon game.
@@ -103,6 +104,7 @@ public class TheLastHour {
 
     ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new KeypadSystem());
+    ECSManagement.add(new EmoteSystem());
 
     if (DEBUG_MODE && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());

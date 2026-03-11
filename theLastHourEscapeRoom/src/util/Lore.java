@@ -130,8 +130,7 @@ public class Lore {
 
           The kicker: I forgot where I placed the manual that explains the decoding steps.
 
-          Does anyone happen to know how to continue with this?
-          """,
+          Does anyone happen to know how to continue with this?""",
               List.of(
                   new BlogTab.BlogComment(
                       "BinaryCoffee",

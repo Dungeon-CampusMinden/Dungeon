@@ -11,6 +11,8 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
+import contrib.modules.emote.Emote;
+import contrib.modules.emote.EmoteFactory;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadComponent;
@@ -481,7 +483,8 @@ public class LastHourLevel extends DungeonLevel {
     if (csc.state().hasReached(ComputerProgress.LOGGED_IN)) {
       int currentVisibleComments = BlogTab.countVisibleComments();
       if (currentVisibleComments > lastKnownVisibleCommentCount) {
-        Sounds.play(CoreSounds.INTERFACE_BUTTON_BACKWARD);
+        Sounds.play(LastHourSounds.COMPUTER_COMMENT_RECEIVED);
+        Game.add(EmoteFactory.createEmote(getPoint("pc-main").translate(0.5f, 2f), Emote.IDEA, 4000));
       }
       lastKnownVisibleCommentCount = currentVisibleComments;
     }
