@@ -90,6 +90,13 @@ public record Recipe(boolean ordered, CraftingIngredient[] ingredients, Crafting
    *     the recipe
    */
   public CraftingResult[] results() {
-    return this.results;
+    CraftingResult[] copy = new CraftingResult[this.results.length];
+
+    for (int i = 0; i < this.results.length; i++) {
+      copy[i] = this.results[i].copy();
+    }
+
+    return copy;
   }
 }
+
