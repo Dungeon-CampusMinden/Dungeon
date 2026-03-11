@@ -65,6 +65,7 @@ public final class DrawComponentFactory {
         animation.getScaleY(),
         stateName,
         frameIndex,
+        component.depth(),
         animationConfig,
         spritesheetConfig,
         states);
@@ -84,6 +85,7 @@ public final class DrawComponentFactory {
     List<DrawInfoData.StateData> stateDataList = info.states();
     if (stateDataList != null && !stateDataList.isEmpty()) {
       DrawComponent drawComponent = fromStateData(stateDataList);
+      applyDepth(info, drawComponent);
       applyCurrentState(info, drawComponent);
       return drawComponent;
     }
@@ -126,6 +128,7 @@ public final class DrawComponentFactory {
 
     // TODO: Centralize texture/atlas resolution via AssetManager once available.
     DrawComponent drawComponent = new DrawComponent(new SimpleIPath(texturePath), config);
+    applyDepth(info, drawComponent);
     applyCurrentState(info, drawComponent);
 
     return drawComponent;
@@ -282,6 +285,10 @@ public final class DrawComponentFactory {
       int frameCount = Math.max(0, frameIndex) * Math.max(framesPerSprite, 1);
       animation.frameCount(frameCount);
     }
+  }
+
+  private static void applyDepth(DrawInfoData info, DrawComponent drawComponent) {
+    drawComponent.depth(info.depth());
   }
 
   private static int currentFrameIndex(Animation animation) {

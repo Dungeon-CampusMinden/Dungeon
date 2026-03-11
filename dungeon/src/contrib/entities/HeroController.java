@@ -307,7 +307,7 @@ public class HeroController {
             .put(DialogContextKeys.OWNER_ENTITY, hero.id())
             .build();
 
-    DialogFactory.show(context, hero.id()); // analytics inside DialogFactory
+    DialogFactory.show(context, false, true, hero.id());
   }
 
   /**
@@ -371,7 +371,9 @@ public class HeroController {
     registerDefaultHandler(
         InputMessage.Action.PREV_SKILL, false, HeroController::handleSkillChange);
     registerDefaultHandler(
-        InputMessage.Action.TOGGLE_INVENTORY, true, HeroController::handleToggleInventory);
+        InputMessage.Action.TOGGLE_INVENTORY,
+        false,
+        HeroController::handleToggleInventory); // TODO: cant close inventory if paused
     registerDefaultHandler(InputMessage.Action.INV_DROP, true, HeroController::handleInventoryDrop);
     registerDefaultHandler(InputMessage.Action.INV_MOVE, true, HeroController::handleInventoryMove);
     registerDefaultHandler(InputMessage.Action.INV_USE, true, HeroController::handleInventoryUse);

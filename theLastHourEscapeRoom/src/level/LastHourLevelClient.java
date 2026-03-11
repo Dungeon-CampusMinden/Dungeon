@@ -2,6 +2,8 @@ package level;
 
 import static level.LastHourLevel.*;
 
+import contrib.modules.worldTimer.WorldTimerSystem;
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.level.DungeonLevel;
@@ -31,15 +33,26 @@ public class LastHourLevelClient extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.add(new WorldTimerSystem());
     setupLightingShader();
   }
 
   @Override
   protected void onTick() {
     checkInteractFeedback();
-    updateLightingShader(getPoint("timer"), getPoint("keypad-storage"));
-
     findEntities();
+
+    if (pc != null && keypad != null)
+      updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
+
+    if (ComputerStateComponent.getState().isPresent())
+      ComputerDialog.getInstance()
+          .ifPresent(
+              cd -> {
+                if (cd.sharedState() != ComputerStateComponent.getState().get()) {
+                  cd.updateState(ComputerStateComponent.getState().get());
+                }
+              });
   }
 
   private void findEntities() {
@@ -51,7 +64,7 @@ public class LastHourLevelClient extends DungeonLevel {
     }
     if (keypad == null) {
       Game.levelEntities()
-          .filter(e -> e.name().equals("keypad-main"))
+          .filter(e -> e.name().equals("keypad"))
           .findFirst()
           .ifPresent(e -> keypad = e);
     }

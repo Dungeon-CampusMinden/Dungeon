@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import core.components.PositionComponent;
+import core.level.utils.Coordinate;
 import core.sound.SoundSpec;
 import core.utils.Direction;
 import core.utils.Point;
@@ -42,6 +43,19 @@ public class CommonProtoConvertersTest {
     assertEquals(vector.y(), protoVector.getY(), DELTA);
     assertEquals(vector.x(), roundTrip.x(), DELTA);
     assertEquals(vector.y(), roundTrip.y(), DELTA);
+  }
+
+  /** Verifies coordinate conversion roundtrip. */
+  @Test
+  public void testCoordinateRoundTrip() {
+    Coordinate coordinate = new Coordinate(7, -3);
+    core.network.proto.common.Coordinate protoCoordinate =
+        CommonProtoConverters.toProto(coordinate);
+    Coordinate roundTrip = CommonProtoConverters.fromProto(protoCoordinate);
+
+    assertEquals(coordinate.x(), protoCoordinate.getX());
+    assertEquals(coordinate.y(), protoCoordinate.getY());
+    assertEquals(coordinate, roundTrip);
   }
 
   /** Verifies direction conversion to protobuf. */
@@ -169,6 +183,7 @@ public class CommonProtoConvertersTest {
             2.5f,
             "idle",
             7,
+            15,
             new DrawInfoData.AnimationConfigData(6, false, true, true),
             new DrawInfoData.SpritesheetConfigData(32, 48, 4, 8, 3, 5),
             List.of(
@@ -183,6 +198,7 @@ public class CommonProtoConvertersTest {
     assertEquals(drawInfo.scaleY(), roundTrip.scaleY(), DELTA);
     assertEquals(drawInfo.animationName(), roundTrip.animationName());
     assertEquals(drawInfo.currentFrame(), roundTrip.currentFrame());
+    assertEquals(drawInfo.depth(), roundTrip.depth());
     assertEquals(
         drawInfo.animationConfig().framesPerSprite(),
         roundTrip.animationConfig().framesPerSprite());
@@ -212,6 +228,7 @@ public class CommonProtoConvertersTest {
             null,
             null,
             null,
+            0,
             new DrawInfoData.AnimationConfigData(10, true, false, false),
             null,
             null);
@@ -224,6 +241,7 @@ public class CommonProtoConvertersTest {
     assertEquals(drawInfo.scaleY(), roundTrip.scaleY());
     assertEquals(drawInfo.animationName(), roundTrip.animationName());
     assertEquals(drawInfo.currentFrame(), roundTrip.currentFrame());
+    assertEquals(drawInfo.depth(), roundTrip.depth());
     assertEquals(
         drawInfo.animationConfig().framesPerSprite(),
         roundTrip.animationConfig().framesPerSprite());

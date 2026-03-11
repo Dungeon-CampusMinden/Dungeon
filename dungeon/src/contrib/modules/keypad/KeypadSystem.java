@@ -9,6 +9,7 @@ import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.network.messages.c2s.DialogResponseMessage;
 
 /**
  * System that manages the opening and closing of keypad UIs based on the state of KeypadComponents.
@@ -27,28 +28,36 @@ public class KeypadSystem extends System {
         .forEach(this::execute);
   }
 
-  private void execute(Data d) {
-    Entity overlay = d.kc.overlay();
+  private void execute(Data data) {
+    Entity overlay = data.kc.overlay();
 
-    if (overlay == null && d.kc.isUIOpen()) {
+    if (overlay == null && data.kc.isUIOpen()) {
       // Dialog is closed but should be open
       Entity newOverlay = new Entity("keypad-overlay");
       DialogContext context =
           DialogContext.builder()
               .type(DialogType.DefaultTypes.KEYPAD)
-              .put(DialogContextKeys.ENTITY, d.e.id())
+              .put(DialogContextKeys.ENTITY, data.e.id())
               .put(DialogContextKeys.OWNER_ENTITY, newOverlay.id())
               .build();
       UIComponent uic = new UIComponent(context, true);
-      uic.registerCallback(DialogContextKeys.ON_CLOSE, (ignored) -> d.kc.isUIOpen(false));
+      uic.registerCallback(DialogContextKeys.ON_CLOSE, (ignored) -> data.kc.isUIOpen(false));
       newOverlay.add(uic);
-      d.kc.overlay(newOverlay);
+      data.kc.overlay(newOverlay);
       Game.add(newOverlay);
 
-    } else if (overlay != null && !d.kc.isUIOpen()) {
+      uic.registerCallback(
+          DialogContextKeys.ON_CONFIRM,
+          (payload) -> {
+            if (payload instanceof DialogResponseMessage.StringValue(String value)) {
+              KeypadUI.onButtonPress(data.e, value);
+            }
+          });
+
+    } else if (overlay != null && !data.kc.isUIOpen()) {
       // Dialog is open but should be closed
       Game.remove(overlay);
-      d.kc.overlay(null);
+      data.kc.overlay(null);
     }
   }
 
