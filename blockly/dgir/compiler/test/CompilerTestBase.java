@@ -1,8 +1,11 @@
 import blockly.dgir.compiler.java.JavaCompiler;
+import blockly.dgir.dialect.dg.DungeonDialect;
+import blockly.dgir.vm.dialect.dg.DungeonDialectRunner;
 import dgir.core.Dialect;
 import dgir.core.serialization.Utils;
 import dgir.dialect.builtin.BuiltinOps;
 import dgir.vm.api.DialectRunner;
+import dgir.vm.api.OpRunnerRegistry;
 import dgir.vm.api.VM;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -28,7 +31,9 @@ public class CompilerTestBase {
   @BeforeAll
   public static void setup() {
     Dialect.registerAllDialects();
+    new DungeonDialect().register();
     DialectRunner.registerAllDialects();
+    OpRunnerRegistry.registerDialectRunner(new DungeonDialectRunner());
   }
 
   public static void testSource(String source) {
