@@ -58,13 +58,17 @@ public class PortalFactory {
         color == PortalColor.BLUE ? BLUE_PORTAL_TEXTURE : GREEN_PORTAL_TEXTURE;
 
     checkIfOtherPortalIsPresent(otherPortal, point);
-    portalToCreate.ifPresentOrElse(portal -> updateExistingPortal(portal, point, direction, color),
-        () ->
-          spawnNewPortal(portalName, texturePath, point, direction, color)
-        );
+    portalToCreate.ifPresentOrElse(
+        portal -> updateExistingPortal(portal, point, direction, color),
+        () -> spawnNewPortal(portalName, texturePath, point, direction, color));
   }
 
-  private static void spawnNewPortal(String portalName, SimpleIPath texturePath, Point point, Direction direction, PortalColor color ) {
+  private static void spawnNewPortal(
+      String portalName,
+      SimpleIPath texturePath,
+      Point point,
+      Direction direction,
+      PortalColor color) {
     Entity portal = new Entity(portalName);
     // To allow collision with the stationary Portal elements like lightwalls.
     portal.add(new VelocityComponent(0.0000000001f));
@@ -84,8 +88,9 @@ public class PortalFactory {
     pc.viewDirection(direction);
     portal.add(pc);
 
-    CollideComponent cc = PortalCollisionHandler.setCollideComponent(
-      direction, PortalCollisionHandler.createOnCollideHandler(color));
+    CollideComponent cc =
+        PortalCollisionHandler.setCollideComponent(
+            direction, PortalCollisionHandler.createOnCollideHandler(color));
     cc.onHold(PortalCollisionHandler.createOnHoldHandler(color));
 
     cc.isSolid(false);
@@ -96,7 +101,8 @@ public class PortalFactory {
     ignorePortalInProjectiles(portal);
   }
 
-  private static void updateExistingPortal(Entity portal, Point point, Direction direction, PortalColor color) {
+  private static void updateExistingPortal(
+      Entity portal, Point point, Direction direction, PortalColor color) {
     Point oldPosition = portal.fetch(PositionComponent.class).get().position();
     // wenn das Portal an die gleiche stelle geschossen wird, passiert nichts
     if (oldPosition.equals(point)) {
@@ -114,18 +120,17 @@ public class PortalFactory {
     updateVisual(color, direction);
   }
 
-
   private static void checkIfOtherPortalIsPresent(Optional<Entity> otherPortal, Point point) {
     otherPortal.ifPresent(
-      portal -> {
-        if (portal.fetch(PositionComponent.class).get().position().equals(point)) {
-          Entity other = portal.fetch(PortalComponent.class).get().getExtendedEntityThrough();
-          if (other != null) {
-            PortalExtendHandler.clearExtendedEntity(portal, other);
+        portal -> {
+          if (portal.fetch(PositionComponent.class).get().position().equals(point)) {
+            Entity other = portal.fetch(PortalComponent.class).get().getExtendedEntityThrough();
+            if (other != null) {
+              PortalExtendHandler.clearExtendedEntity(portal, other);
+            }
+            otherPortal.ifPresent(PortalFactory::clearPortal);
           }
-          otherPortal.ifPresent(PortalFactory::clearPortal);
-        }
-      });
+        });
   }
 
   /**

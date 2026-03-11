@@ -297,7 +297,6 @@ public class LightWallFactory {
       segments.forEach(Game::add);
     }
 
-
     /**
      * Creates the collider for the light wall.
      *

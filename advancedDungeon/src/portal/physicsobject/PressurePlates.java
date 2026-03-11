@@ -75,22 +75,25 @@ public class PressurePlates {
   }
 
   private static CollideComponent buildCollideComponent(
-    PressurePlateComponent ppc,
-    Class<? extends Component> requiredComponent) {
+      PressurePlateComponent ppc, Class<? extends Component> requiredComponent) {
 
-    TriConsumer<Entity, Entity, Direction> onEnter = (self, other, dir) -> {
-      if (other.isPresent(ProjectileComponent.class)) return;
-      other.fetch(VelocityComponent.class)
-        .filter(vc -> other.isPresent(requiredComponent))
-        .ifPresent(vc -> ppc.increase(vc.mass()));
-    };
+    TriConsumer<Entity, Entity, Direction> onEnter =
+        (self, other, dir) -> {
+          if (other.isPresent(ProjectileComponent.class)) return;
+          other
+              .fetch(VelocityComponent.class)
+              .filter(vc -> other.isPresent(requiredComponent))
+              .ifPresent(vc -> ppc.increase(vc.mass()));
+        };
 
-    TriConsumer<Entity, Entity, Direction> onLeave = (self, other, dir) -> {
-      if (other.isPresent(ProjectileComponent.class)) return;
-      other.fetch(VelocityComponent.class)
-        .filter(vc -> other.isPresent(requiredComponent))
-        .ifPresent(vc -> ppc.decrease(vc.mass()));
-    };
+    TriConsumer<Entity, Entity, Direction> onLeave =
+        (self, other, dir) -> {
+          if (other.isPresent(ProjectileComponent.class)) return;
+          other
+              .fetch(VelocityComponent.class)
+              .filter(vc -> other.isPresent(requiredComponent))
+              .ifPresent(vc -> ppc.decrease(vc.mass()));
+        };
 
     return new CollideComponent(onEnter, onLeave).isSolid(false);
   }
