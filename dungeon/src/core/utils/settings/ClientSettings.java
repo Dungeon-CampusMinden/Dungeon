@@ -61,24 +61,9 @@ public class ClientSettings {
     effectsVolume.onChange((v) -> onVolumeChange.accept(EFFECTS_VOLUME, v));
     musicVolume.onChange((v) -> onVolumeChange.accept(MUSIC_VOLUME, v));
 
-    EnumSetting<CharacterClass> heroClassSetting =
-        new EnumSetting<>(
-            "Hero Class",
-            CharacterClass.WIZARD,
-            CharacterClass.values(),
-            ClientSettings::formatEnumTitle);
-
     registerSetting(MASTER_VOLUME, masterVolume);
     registerSetting(EFFECTS_VOLUME, effectsVolume);
     registerSetting(MUSIC_VOLUME, musicVolume);
-
-    registerSetting("hero", heroClassSetting);
-    registerSetting(
-        "deco",
-        new EnumSetting<>(
-            "Selected Deco", Deco.Desk, Deco.values(), ClientSettings::formatEnumTitle));
-
-    registerSetting("colorblind", new BoolSetting("Colorblind Mode", false));
 
     registerSetting("section1", new SectionDividerSetting("Controls"));
     registerSetting("controls1", new ButtonBindingSetting("Pause", Input.Keys.P, false));
