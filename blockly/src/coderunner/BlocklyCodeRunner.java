@@ -2,6 +2,8 @@ package coderunner;
 
 import blockly.dgir.compiler.java.JavaCompiler;
 import core.utils.logging.DungeonLogger;
+import dgir.vm.api.DapServerUtils;
+import dgir.vm.dap.DapServer;
 import server.Server;
 
 import java.util.Optional;
@@ -21,20 +23,25 @@ import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
  * @see Server Server
  */
 public class BlocklyCodeRunner {
-
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(BlocklyCodeRunner.class);
   private static BlocklyCodeRunner instance;
+
+  private DapServer dapServer;
 
   private static final String baseCode =
 """
 import Dungeon.Hero;
+import Dungeon.IO;
 
 public class Main {
   %s
 }
 """;
 
-  private BlocklyCodeRunner() {} // private constructor for singleton
+  // private constructor for singleton
+  private BlocklyCodeRunner() {
+    dapServer = DapServerUtils.createServer();
+  }
 
   /**
    * Returns the instance of the BlocklyCodeRunner.
@@ -65,6 +72,11 @@ public class Main {
     if (program.isEmpty()) {
       LOGGER.error("Failed to compile code");
       return;
+    }
+    try {
+      dapServer.reloadProgram(program.get());
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
     }
   }
 }

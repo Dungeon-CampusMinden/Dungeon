@@ -1,19 +1,20 @@
 package dgir.vm;
 
-import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
-
 import dgir.core.Dialect;
 import dgir.core.serialization.Utils;
 import dgir.vm.api.DialectRunner;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapServer;
+import org.jetbrains.annotations.NotNull;
+import tools.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
-import org.jetbrains.annotations.NotNull;
-import tools.jackson.databind.ObjectMapper;
+
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
 
 /**
  * Entry-point for the DGIR VM DAP debug server.
@@ -86,11 +87,12 @@ public class DgirDebugServer {
 
     if (program == null) {
       System.err.println(
-          "Warning: no --program supplied; the DAP server will start but each session will immediately exit.");
+          "Warning: no --program supplied; the DAP server will start but all connections will be"
+              + " rejected until a program is loaded via reloadProgram.");
     }
 
-    // Build the DAP server; each session gets its own VM instance
-    DapServer server =
+    // Build the DAP server with a single shared VM instance.
+    try (DapServer server =
         new DapServer(
             port,
             () -> {
@@ -99,13 +101,13 @@ public class DgirDebugServer {
                 vm.init(program);
               }
               return vm;
-            });
+            })) {
+      server.start();
+      LOG.info("DGIR DAP server listening on port " + port + ". Press Ctrl-C to stop.");
 
-    server.start();
-    LOG.info("DGIR DAP server listening on port " + port + ". Press Ctrl-C to stop.");
-
-    // Block the main thread indefinitely
-    Thread.currentThread().join();
+      // Block the main thread indefinitely
+      Thread.currentThread().join();
+    }
   }
 
   // =========================================================================

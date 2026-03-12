@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
+import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 
@@ -88,6 +89,10 @@ public sealed interface Action {
     return new Abort(MessageFormat.format(message, args), exception);
   }
 
+  static @NotNull Action ActionStack(@NotNull Deque<@NotNull Action> actions) {
+    return new ActionStack(actions);
+  }
+
   /** Executes the next operation in the current block. */
   record Next() implements Action {}
 
@@ -150,4 +155,12 @@ public sealed interface Action {
    * @param message The error message.
    */
   record Abort(@NotNull String message, @NotNull Optional<Exception> e) implements Action {}
+
+  /**
+   * A list of actions to execute in sequence without evaluating the state in between.
+   *
+   * @param actions The list of actions to execute in sequence. Must not be empty. The actions will
+   *     be executed in the order they are given in the list.
+   */
+  record ActionStack(@NotNull Deque<@NotNull Action> actions) implements Action {}
 }

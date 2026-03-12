@@ -291,7 +291,7 @@ public class ScfTest extends VmTestBase {
 
       var yes = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "yes\n"));
       ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, yes.getResult()));
-      ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+      ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
       main.addOperation(new ReturnOp(LOC), 0);
     }
@@ -309,7 +309,7 @@ public class ScfTest extends VmTestBase {
 
       var yes = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "yes\n"));
       ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, yes.getResult()));
-      ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+      ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
       main.addOperation(new ReturnOp(LOC), 0);
     }
@@ -327,7 +327,7 @@ public class ScfTest extends VmTestBase {
 
       var thenMsg = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "then\n"));
       ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, thenMsg.getResult()));
-      ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+      ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
       var elseMsg =
           ifOp.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp(LOC, "else\n"));
@@ -335,7 +335,7 @@ public class ScfTest extends VmTestBase {
           .get()
           .getEntryBlock()
           .addOperation(new PrintOp(LOC, elseMsg.getResult()));
-      ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp(LOC));
+      ifOp.getElseRegion().get().getEntryBlock().addOperation(new EndOp(LOC));
 
       main.addOperation(new ReturnOp(LOC), 0);
     }
@@ -353,7 +353,7 @@ public class ScfTest extends VmTestBase {
 
       var thenMsg = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "then\n"));
       ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, thenMsg.getResult()));
-      ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+      ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
       var elseMsg =
           ifOp.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp(LOC, "else\n"));
@@ -361,7 +361,7 @@ public class ScfTest extends VmTestBase {
           .get()
           .getEntryBlock()
           .addOperation(new PrintOp(LOC, elseMsg.getResult()));
-      ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp(LOC));
+      ifOp.getElseRegion().get().getEntryBlock().addOperation(new EndOp(LOC));
 
       main.addOperation(new ReturnOp(LOC), 0);
     }
@@ -379,7 +379,7 @@ public class ScfTest extends VmTestBase {
 
       var skip = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "skip\n"));
       ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, skip.getResult()));
-      ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+      ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
       var after = main.addOperation(new ConstantOp(LOC, "after\n"), 0);
       main.addOperation(new PrintOp(LOC, after.getResult()), 0);
@@ -401,7 +401,7 @@ public class ScfTest extends VmTestBase {
       ScopeOp scope = main.addOperation(new ScopeOp(LOC), 0);
       var msg = scope.getEntryBlock().addOperation(new ConstantOp(LOC, "scope\n"));
       scope.getEntryBlock().addOperation(new PrintOp(LOC, msg.getResult()));
-      scope.getEntryBlock().addOperation(new ContinueOp(LOC));
+      scope.getEntryBlock().addOperation(new EndOp(LOC));
 
       main.addOperation(new ReturnOp(LOC), 0);
     }
@@ -417,7 +417,7 @@ public class ScfTest extends VmTestBase {
       ScopeOp scope = main.addOperation(new ScopeOp(LOC), 0);
       var inMsg = scope.getEntryBlock().addOperation(new ConstantOp(LOC, "in\n"));
       scope.getEntryBlock().addOperation(new PrintOp(LOC, inMsg.getResult()));
-      scope.getEntryBlock().addOperation(new ContinueOp(LOC));
+      scope.getEntryBlock().addOperation(new EndOp(LOC));
 
       var afterMsg = main.addOperation(new ConstantOp(LOC, "out\n"), 0);
       main.addOperation(new PrintOp(LOC, afterMsg.getResult()), 0);
@@ -616,11 +616,11 @@ public class ScfTest extends VmTestBase {
 
         var tMsg = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "T\n"));
         ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, tMsg.getResult()));
-        ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+        ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
         var fMsg = ifOp.getElseRegion().orElseThrow().getEntryBlock().addOperation(new ConstantOp(LOC, "F\n"));
         ifOp.getElseRegion().get().getEntryBlock().addOperation(new PrintOp(LOC, fMsg.getResult()));
-        ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp(LOC));
+        ifOp.getElseRegion().get().getEntryBlock().addOperation(new EndOp(LOC));
 
         forOp.getEntryBlock().addOperation(new ContinueOp(LOC));
       }
@@ -651,11 +651,11 @@ public class ScfTest extends VmTestBase {
 
         var tMsg = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "T\n"));
         ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, tMsg.getResult()));
-        ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+        ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
         var fMsg = ifOp.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp(LOC, "F\n"));
         ifOp.getElseRegion().get().getEntryBlock().addOperation(new PrintOp(LOC, fMsg.getResult()));
-        ifOp.getElseRegion().get().getEntryBlock().addOperation(new ContinueOp(LOC));
+        ifOp.getElseRegion().get().getEntryBlock().addOperation(new EndOp(LOC));
 
         forOp.getEntryBlock().addOperation(new ContinueOp(LOC));
       }
@@ -682,9 +682,9 @@ public class ScfTest extends VmTestBase {
 
         var msg = innerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "inner\n"));
         innerIf.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, msg.getResult()));
-        innerIf.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+        innerIf.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
-        outerIf.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+        outerIf.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
       }
       main.addOperation(new ReturnOp(LOC), 0);
     }
@@ -709,9 +709,9 @@ public class ScfTest extends VmTestBase {
 
         var msg = innerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "skip\n"));
         innerIf.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, msg.getResult()));
-        innerIf.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+        innerIf.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
-        outerIf.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+        outerIf.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
       }
       main.addOperation(new ReturnOp(LOC), 0);
     }
@@ -736,9 +736,9 @@ public class ScfTest extends VmTestBase {
 
         var msg = innerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "skip\n"));
         innerIf.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, msg.getResult()));
-        innerIf.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+        innerIf.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
-        outerIf.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+        outerIf.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
       }
       main.addOperation(new ReturnOp(LOC), 0);
     }
@@ -765,7 +765,7 @@ public class ScfTest extends VmTestBase {
         ScopeOp scope = forOp.getEntryBlock().addOperation(new ScopeOp(LOC));
         var msg = scope.getEntryBlock().addOperation(new ConstantOp(LOC, "s\n"));
         scope.getEntryBlock().addOperation(new PrintOp(LOC, msg.getResult()));
-        scope.getEntryBlock().addOperation(new ContinueOp(LOC));
+        scope.getEntryBlock().addOperation(new EndOp(LOC));
 
         forOp.getEntryBlock().addOperation(new ContinueOp(LOC));
       }
@@ -799,7 +799,7 @@ public class ScfTest extends VmTestBase {
         scope
             .getEntryBlock()
             .addOperation(new PrintOp(LOC, fmt.getResult(), forOp.getInductionValue()));
-        scope.getEntryBlock().addOperation(new ContinueOp(LOC));
+        scope.getEntryBlock().addOperation(new EndOp(LOC));
 
         forOp.getEntryBlock().addOperation(new ContinueOp(LOC));
       }
@@ -819,11 +819,11 @@ public class ScfTest extends VmTestBase {
         ScopeOp inner = outer.getEntryBlock().addOperation(new ScopeOp(LOC));
         var innerMsg = inner.getEntryBlock().addOperation(new ConstantOp(LOC, "inner\n"));
         inner.getEntryBlock().addOperation(new PrintOp(LOC, innerMsg.getResult()));
-        inner.getEntryBlock().addOperation(new ContinueOp(LOC));
+        inner.getEntryBlock().addOperation(new EndOp(LOC));
 
         var outerMsg = outer.getEntryBlock().addOperation(new ConstantOp(LOC, "outer\n"));
         outer.getEntryBlock().addOperation(new PrintOp(LOC, outerMsg.getResult()));
-        outer.getEntryBlock().addOperation(new ContinueOp(LOC));
+        outer.getEntryBlock().addOperation(new EndOp(LOC));
       }
       main.addOperation(new ReturnOp(LOC), 0);
     }
@@ -843,9 +843,9 @@ public class ScfTest extends VmTestBase {
 
         var msg = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "hit\n"));
         ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, msg.getResult()));
-        ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+        ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
-        scope.getEntryBlock().addOperation(new ContinueOp(LOC));
+        scope.getEntryBlock().addOperation(new EndOp(LOC));
       }
       main.addOperation(new ReturnOp(LOC), 0);
     }
@@ -879,9 +879,9 @@ public class ScfTest extends VmTestBase {
 
           var msg = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "x\n"));
           ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, msg.getResult()));
-          ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+          ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
-          scope.getEntryBlock().addOperation(new ContinueOp(LOC));
+          scope.getEntryBlock().addOperation(new EndOp(LOC));
         }
         forOp.getEntryBlock().addOperation(new ContinueOp(LOC));
       }
@@ -903,14 +903,14 @@ public class ScfTest extends VmTestBase {
       ScopeOp scope = main.addOperation(new ScopeOp(LOC), 0);
       var aMsg = scope.getEntryBlock().addOperation(new ConstantOp(LOC, "a\n"));
       scope.getEntryBlock().addOperation(new PrintOp(LOC, aMsg.getResult()));
-      scope.getEntryBlock().addOperation(new ContinueOp(LOC));
+      scope.getEntryBlock().addOperation(new EndOp(LOC));
 
       // If
       var cond = main.addOperation(new ConstantOp(LOC, true), 0);
       IfOp ifOp = main.addOperation(new IfOp(LOC, cond.getResult(), false), 0);
       var bMsg = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "b\n"));
       ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, bMsg.getResult()));
-      ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
+      ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
       // For
       var init = main.addOperation(new ConstantOp(LOC, 0), 0);

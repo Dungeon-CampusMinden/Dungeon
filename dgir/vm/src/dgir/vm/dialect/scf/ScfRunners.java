@@ -2,14 +2,39 @@ package dgir.vm.dialect.scf;
 
 import dgir.core.ir.Operation;
 import dgir.core.ir.Value;
+import dgir.dialect.scf.ScfOps;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
-import dgir.dialect.scf.ScfOps;
 import io.arxila.javatuples.Quartet;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 public sealed interface ScfRunners {
+  final class EndRunner extends OpRunner implements ScfRunners {
+    public EndRunner() {
+      super(ScfOps.EndOp.class);
+    }
+
+    @Override
+    protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
+      return Action.Terminate(null, false);
+    }
+  }
+
+  private static Pair<Integer, Operation> getDepth(@NotNull Operation op) {
+    int depth = 0;
+    Operation parent = op.getParentOperation().orElse(null);
+    while (parent != null && !parent.isa(ScfOps.WhileOp.class) && !parent.isa(ScfOps.ForOp.class)) {
+      parent = parent.getParentOperation().orElse(null);
+      depth++;
+    }
+    if (parent == null) {
+      throw new IllegalStateException("Unexpected continue op: " + op);
+    }
+    return Pair.of(depth, parent);
+  }
+
   final class BreakRunner extends OpRunner implements ScfRunners {
     public BreakRunner() {
       super(ScfOps.BreakOp.class);
@@ -17,7 +42,6 @@ public sealed interface ScfRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      // Just terminate the current region.
       return Action.Terminate(null, false);
     }
   }
@@ -29,21 +53,16 @@ public sealed interface ScfRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      Operation parentOp = op.getParentOperationOrThrow();
+      Operation parent = op.getParentOperationOrThrow();
       // If we have a for op we need to handle it properly by incrementing the induction variable
       // and
       // checking if we should continue the loop or not.
-      if (parentOp.isa(ScfOps.ForOp.class)) {
-        return handleForOp(parentOp, state);
-      } else if (parentOp.isa(ScfOps.WhileOp.class)) {
-        return handleWhileOp(op, parentOp, state);
+      if (parent.isa(ScfOps.ForOp.class)) {
+        return handleForOp(parent, state);
+      } else if (parent.isa(ScfOps.WhileOp.class)) {
+        return handleWhileOp(op, parent, state);
       }
-      // Only loops need special handling. IfOp, ScopeOps or the like simply mark their end using
-      // the
-      // ContinueOp
-      else {
-        return Action.Terminate(null, false);
-      }
+      throw new IllegalStateException("Unexpected continue op: " + op);
     }
 
     public Action handleForOp(Operation forOp, State state) {

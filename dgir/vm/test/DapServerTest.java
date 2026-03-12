@@ -6,14 +6,10 @@ import dgir.vm.api.VM;
 import dgir.vm.dap.DapServer;
 import dgir.vm.dialect.io.IoRunners;
 import org.eclipse.lsp4j.debug.*;
-import org.eclipse.lsp4j.debug.launch.DSPLauncher;
-import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
-import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -725,71 +721,144 @@ class DapServerTest extends VmTestBase {
   }
 
   // =========================================================================
-  // Multiple sequential clients (factory called per session)
+  // Single-attachment policy
   // =========================================================================
 
   /**
-   * Verifies that the {@link DapServer} creates a fresh {@link VM} for each client connection by
-   * calling the VM factory once per accepted session, and that each session completes independently
-   * with exit code {@code 0}.
+   * Verifies that the {@link DapServer} rejects a second DAP client while the first one is still
+   * attached (paused at the entry stop).
    *
-   * <p>The server is shared across two sequential client connections. An internal counter tracks
-   * how many times the factory lambda is invoked. Each client connection goes through the full DAP
-   * handshake and waits for {@code exited} and {@code terminated} events before the next connection
-   * is opened.
+   * <p>The server enforces a single-attachment rule: at most one debugger may be connected at a
+   * time. When a second client tries to connect while another is active the server closes the
+   * incoming socket immediately.
    *
    * <p><b>Steps:</b>
    *
    * <ol>
-   *   <li>Create a server with a factory that increments a counter on every call and returns a new
-   *       {@link VM} running a program named after the current call count.
-   *   <li>Connect client 1, perform the full handshake, wait for {@code exited(exitCode=0)} and
-   *       {@code terminated}.
-   *   <li>Connect client 2, repeat the same handshake and assertions.
-   *   <li>Assert the factory was called exactly twice.
+   *   <li>Connect client 1 and perform the full handshake with {@code stopOnEntry=true} so it stays
+   *       attached (VM paused at entry).
+   *   <li>Open a raw TCP socket for client 2; start the lsp4j client launcher.
+   *   <li>Assert that client 2's listening future completes quickly (server closed the socket).
+   *   <li>Resume client 1 and wait for the program to finish.
    * </ol>
    */
   @Test
-  void server_handlesMultipleSequentialClients() throws Exception {
-    final int[] callCount = {0};
+  void server_rejectsSecondClientWhileFirstIsAttached() throws Exception {
+    var serverAndSession = createServerAndConnect(simplePrintProgram("test"));
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> first = serverAndSession.getRight()) {
+        fullHandshake(first, true);
+        first.client().awaitStopped(); // VM is now paused at entry
+
+        // Second client tries to connect while the first is attached.
+        CollectingClient secondClient = new CollectingClient();
+        ClientSession<CollectingClient> second = connect(server, secondClient);
+        try {
+          // Server must close the socket → listening future completes (with or without exception).
+          second.listeningFuture().get(5, TimeUnit.SECONDS);
+        } finally {
+          second.close();
+        }
+
+        // First session must still be functional — resume and wait for completion.
+        first.server().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+        first.client().awaitExited();
+        first.client().awaitTerminated();
+      }
+    }
+  }
+
+  /**
+   * Verifies that the {@link DapServer} rejects a client that tries to attach after the program has
+   * already finished running.
+   *
+   * <p><b>Steps:</b>
+   *
+   * <ol>
+   *   <li>Connect client 1, run the program to completion, wait for {@code terminated}.
+   *   <li>Close client 1's socket so the server clears its client reference.
+   *   <li>Open a second socket and verify the listening future completes quickly (rejected).
+   * </ol>
+   */
+  @Test
+  void server_rejectsClientWhenVmHasFinished() throws Exception {
+    var serverAndSession = createServerAndConnect(simplePrintProgram("done"));
+    try (DapServer server = serverAndSession.getLeft()) {
+
+      // Run the program to completion with the first client.
+      try (ClientSession<CollectingClient> first = serverAndSession.getRight()) {
+        fullHandshake(first, false);
+        first.client().awaitExited();
+        first.client().awaitTerminated();
+        // Explicitly disconnect so the server clears the client reference synchronously
+        // before we try the second connection.
+        first.server().disconnect(new DisconnectArguments()).get(5, TimeUnit.SECONDS);
+      } // first.close() — socket closed
+
+      // Second client: should be rejected because the VM has finished.
+      CollectingClient secondClient = new CollectingClient();
+      ClientSession<CollectingClient> second = connect(server, secondClient);
+      try {
+        second.listeningFuture().get(5, TimeUnit.SECONDS);
+      } finally {
+        second.close();
+      }
+    }
+  }
+
+  /**
+   * Verifies that the VM continues running after a DAP client detaches mid-session (via {@code
+   * disconnect}).
+   *
+   * <p>When the client calls {@code disconnect}, the adapter resumes the VM (it was paused at the
+   * entry stop), removes the debugger callback, and clears breakpoints. The VM then runs to
+   * completion independently.
+   *
+   * <p><b>Steps:</b>
+   *
+   * <ol>
+   *   <li>Create a server whose factory produces an instrumented VM that counts down a latch when
+   *       {@link VM#run()} returns.
+   *   <li>Connect a client and pause at entry.
+   *   <li>Send {@code disconnect} — VM should be resumed.
+   *   <li>Assert that the VM runs to completion within 5 s.
+   * </ol>
+   */
+  @Test
+  void server_vmContinuesAfterClientDetaches() throws Exception {
+    CountDownLatch vmDone = new CountDownLatch(1);
+    boolean[] exitOk = {false};
+
     try (DapServer server =
         new DapServer(
             0,
             () -> {
-              callCount[0]++;
-              VM vm = new VM();
-              vm.init(simplePrintProgram("session-" + callCount[0]));
+              VM vm =
+                  new VM() {
+                    @Override
+                    public boolean run() {
+                      boolean ok = super.run();
+                      exitOk[0] = ok;
+                      vmDone.countDown();
+                      return ok;
+                    }
+                  };
+              vm.init(simplePrintProgram("continue-after-detach"));
               return vm;
             })) {
       server.start();
 
-      for (int i = 1; i <= 2; i++) {
+      try (ClientSession<CollectingClient> session = connect(server)) {
+        fullHandshake(session, true);
+        session.client().awaitStopped(); // VM paused at entry
 
-        CollectingClient client = new CollectingClient();
-        Socket socket = new Socket(InetAddress.getLoopbackAddress(), server.getBoundPort());
-        Launcher<IDebugProtocolServer> launcher =
-            DSPLauncher.createClientLauncher(
-                client, socket.getInputStream(), socket.getOutputStream());
-        try (ClientSession<CollectingClient> session =
-            new ClientSession<>(
-                socket, client, launcher.getRemoteProxy(), launcher.startListening())) {
-          InitializeRequestArguments initArgs = new InitializeRequestArguments();
-          session.server().initialize(initArgs).get(5, TimeUnit.SECONDS);
-          client.awaitInitialized();
-
-          session.server().launch(Map.of()).get(5, TimeUnit.SECONDS);
-          session
-              .server()
-              .configurationDone(new ConfigurationDoneArguments())
-              .get(5, TimeUnit.SECONDS);
-
-          ExitedEventArguments exited = client.awaitExited();
-          assertEquals(0, exited.getExitCode(), "Session " + i + " should exit cleanly");
-          client.awaitTerminated();
-        }
+        // Detach the debugger — VM should resume and run to completion.
+        session.server().disconnect(new DisconnectArguments()).get(5, TimeUnit.SECONDS);
       }
+
+      assertTrue(vmDone.await(5, TimeUnit.SECONDS), "VM should complete after client detaches");
+      assertTrue(exitOk[0], "VM should exit successfully after detach");
     }
-    assertEquals(2, callCount[0], "vmFactory should have been called twice");
   }
 
   // =========================================================================
@@ -1209,6 +1278,81 @@ class DapServerTest extends VmTestBase {
 
       assertTrue(done.await(5, TimeUnit.SECONDS), "Headless VM should complete within 5 s");
       assertTrue(exitOk[0], "Headless program should exit successfully");
+    }
+  }
+
+  /**
+   * Verifies that a second {@link DapServer#reloadProgram} call stops the first headless VM run
+   * before starting the replacement, so that at most one VM run is active at any time.
+   *
+   * <p>The server uses a <em>single</em> VM instance (as per the new single-VM architecture). The
+   * VM's {@code run()} override blocks on the first call (simulating a long-running program) and
+   * completes normally on the second call (after the reload has re-initialised it).
+   *
+   * <p><b>Steps:</b>
+   *
+   * <ol>
+   *   <li>Create a server with a factory that returns one custom VM.
+   *   <li>Call {@link DapServer#reloadProgram} — starts the first run, which blocks.
+   *   <li>Wait until the first run signals that it is spinning.
+   *   <li>Call {@link DapServer#reloadProgram} again — must stop the first run, then start the
+   *       second run on the same VM instance.
+   *   <li>Assert that the first run received a stop request.
+   *   <li>Assert that the second run completed successfully.
+   * </ol>
+   */
+  @Test
+  void reload_headless_stopsRunningVmBeforeStartingNew() throws Exception {
+    CountDownLatch firstRunStarted = new CountDownLatch(1);
+    CountDownLatch secondRunDone = new CountDownLatch(1);
+    boolean[] firstRunWasStopped = {false};
+    boolean[] secondRunExitOk = {false};
+    int[] runCount = {0};
+
+    // Single VM whose run() blocks on the first invocation and completes normally on the second.
+    VM vm =
+        new VM() {
+          @Override
+          public boolean run() {
+            runCount[0]++;
+            if (runCount[0] == 1) {
+              // First run: spin until stop() is called from the outside.
+              firstRunStarted.countDown();
+              while (!isStopRequested()) {
+                try {
+                  java.lang.Thread.sleep(5);
+                } catch (InterruptedException e) {
+                  java.lang.Thread.currentThread().interrupt();
+                  break;
+                }
+              }
+              firstRunWasStopped[0] = isStopRequested();
+              return false; // externally stopped — not a clean finish
+            } else {
+              // Second run: execute the reloaded program normally.
+              boolean ok = super.run();
+              secondRunExitOk[0] = ok;
+              secondRunDone.countDown();
+              return ok;
+            }
+          }
+        };
+
+    try (DapServer server = new DapServer(0, () -> vm)) {
+      server.start();
+
+      // First reload — starts the blocking first run on a daemon thread.
+      server.reloadProgram(simplePrintProgram("prog-1"));
+
+      // Wait until the first run is actually spinning.
+      assertTrue(firstRunStarted.await(5, TimeUnit.SECONDS), "First run should start within 5 s");
+
+      // Second reload — must stop the spinning first run, then start the second run.
+      server.reloadProgram(simplePrintProgram("prog-2"));
+
+      assertTrue(secondRunDone.await(5, TimeUnit.SECONDS), "Second run should complete within 5 s");
+      assertTrue(firstRunWasStopped[0], "First run must have received a stop request");
+      assertTrue(secondRunExitOk[0], "Second run should exit successfully");
     }
   }
 }

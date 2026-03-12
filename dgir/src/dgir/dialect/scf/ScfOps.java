@@ -4,10 +4,7 @@ import dgir.core.Dialect;
 import dgir.core.Utils;
 import dgir.core.debug.Location;
 import dgir.core.ir.*;
-import dgir.core.traits.IControlFlow;
-import dgir.core.traits.ISingleRegion;
-import dgir.core.traits.ISpecificParentOp;
-import dgir.core.traits.ITerminator;
+import dgir.core.traits.*;
 import dgir.dialect.arith.ArithOps;
 import dgir.dialect.builtin.BuiltinTypes;
 import dgir.dialect.cf.CfOps;
@@ -63,23 +60,6 @@ public sealed interface ScfOps {
     }
   }
 
-  /**
-   * Breaks out of the nearest enclosing {@link ForOp} in the {@code scf} dialect.
-   *
-   * <p>This is a terminator; it must be the last operation in its parent block. It is only valid
-   * when directly nested inside a {@link ForOp} body (enforced by {@link ISpecificParentOp}).
-   *
-   * <p>Ident: {@code scf.break}
-   *
-   * <pre>{@code
-   * scf.for (%i = ...) {
-   *   scf.if %cond {
-   *     scf.break
-   *   }
-   *   scf.continue
-   * }
-   * }</pre>
-   */
   final class BreakOp extends ScfOp implements ScfOps, ITerminator, ISpecificParentOp {
 
     // =========================================================================
@@ -116,16 +96,6 @@ public sealed interface ScfOps {
     // Functions
     // =========================================================================
 
-    /**
-     * Returns the only valid parent op type: {@link ForOp}.
-     *
-     * @return an unmodifiable singleton list containing {@link ForOp}.
-     */
-    @Override
-    public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
-      return List.of(ForOp.class, WhileOp.class);
-    }
-
     @Override
     public @NotNull Optional<Constructor<? extends ITerminator>> getLocationConstructor() {
       try {
@@ -138,24 +108,79 @@ public sealed interface ScfOps {
             e);
       }
     }
+
+    @Override
+    public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
+      return List.of(ForOp.class, WhileOp.class);
+    }
   }
 
   /**
-   * Marks the end of a structured control-flow region body in the {@code scf} dialect.
+   * Explicit scope/branch terminator for selected SCF constructs.
    *
-   * <p>This is a terminator that completes the current iteration of a loop or the body of a
-   * conditional. It is valid inside {@link IfOp}, {@link ScopeOp}, and {@link ForOp} bodies
-   * (enforced by {@link ISpecificParentOp}).
+   * <p>{@code scf.end} is valid only as a direct child of {@link IfOp} or {@link ScopeOp}. It marks
+   * the end of the currently active region/block in those constructs.
    *
-   * <p>Ident: {@code scf.continue}
-   *
-   * <pre>{@code
-   * scf.for (%i = ...) {
-   *   // ... body ...
-   *   scf.continue
-   * }
-   * }</pre>
+   * <p>Ident: {@code scf.end}
    */
+  final class EndOp extends ScfOp implements ScfOps, ITerminator, ISpecificParentOp {
+
+    /** {@inheritDoc} */
+    @Override
+    public @NotNull String getIdent() {
+      return "scf.end";
+    }
+
+    /**
+     * Verifier for {@code scf.end}.
+     *
+     * <p>Structural placement constraints are enforced via {@link ISpecificParentOp}; therefore
+     * this verifier itself is a no-op.
+     */
+    @Override
+    public @NotNull Function<@NotNull Operation, @NotNull Boolean> getVerifier() {
+      return ignored -> true;
+    }
+
+    /**
+     * Restricts {@code scf.end} to direct parents that represent explicit region boundaries in this
+     * dialect.
+     */
+    @Override
+    public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
+      return List.of(IfOp.class, ScopeOp.class);
+    }
+
+    /**
+     * Returns the required single-{@link Location} constructor so this terminator can be
+     * materialized by generic IR utilities.
+     */
+    @Override
+    public @NotNull Optional<Constructor<? extends ITerminator>> getLocationConstructor() {
+      try {
+        return Optional.of(getClass().getConstructor(Location.class));
+      } catch (NoSuchMethodException e) {
+        throw new AssertionError(
+            "Terminator "
+                + getClass()
+                + " does not define a public constructor that takes only a location as parameter.",
+            e);
+      }
+    }
+
+    /** Default constructor used during dialect registration. */
+    private EndOp() {}
+
+    /**
+     * Create an explicit {@code scf.end} terminator.
+     *
+     * @param location the source location of this operation.
+     */
+    public EndOp(@NotNull Location location) {
+      setOperation(true, Operation.Create(location, this, null, null, null));
+    }
+  }
+
   final class ContinueOp extends ScfOp implements ScfOps, ITerminator, ISpecificParentOp {
 
     // =========================================================================
@@ -192,17 +217,6 @@ public sealed interface ScfOps {
     // Functions
     // =========================================================================
 
-    /**
-     * Returns the valid parent op types: {@link IfOp}, {@link ScopeOp}, and {@link ForOp}.
-     *
-     * @return an unmodifiable list of the three permitted parent classes.
-     */
-    @Contract(pure = true)
-    @Override
-    public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
-      return List.of(IfOp.class, ScopeOp.class, ForOp.class, WhileOp.class);
-    }
-
     @Override
     public @NotNull Optional<Constructor<? extends ITerminator>> getLocationConstructor() {
       try {
@@ -214,6 +228,16 @@ public sealed interface ScfOps {
                 + " does not define a public constructor that takes only a location as parameter.",
             e);
       }
+    }
+
+    /**
+     * Restricts {@code scf.continue} to loop-like parents.
+     *
+     * <p>Semantically, this operation requests continuation of the nearest enclosing loop.
+     */
+    @Override
+    public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
+      return List.of(ForOp.class, WhileOp.class);
     }
   }
 
@@ -305,9 +329,9 @@ public sealed interface ScfOps {
     }
 
     /**
-     * Returns the initial value of the induction variable (operand 0) visible inside the loop body.
+     * Returns operand 0: the initial value used to seed the induction variable before loop entry.
      *
-     * @return the body value at index 0.
+     * @return the initial induction value operand.
      */
     @Contract(pure = true)
     public @NotNull Value getInitialValue() {
@@ -315,9 +339,9 @@ public sealed interface ScfOps {
     }
 
     /**
-     * Returns the lower bound value (operand 1) visible inside the loop body.
+     * Returns operand 1: the inclusive lower-bound value used by the loop.
      *
-     * @return the body value at index 1.
+     * @return the lower-bound operand value.
      */
     @Contract(pure = true)
     public @NotNull Value getLowerBound() {
@@ -325,9 +349,9 @@ public sealed interface ScfOps {
     }
 
     /**
-     * Returns the upper bound value (operand 2) visible inside the loop body.
+     * Returns operand 2: the exclusive upper-bound value used by the loop.
      *
-     * @return the body value at index 2.
+     * @return the upper-bound operand value.
      */
     @Contract(pure = true)
     public @NotNull Value getUpperBound() {
@@ -335,9 +359,9 @@ public sealed interface ScfOps {
     }
 
     /**
-     * Returns the step value (operand 3) visible inside the loop body.
+     * Returns operand 3: the per-iteration step value.
      *
-     * @return the body value at index 3.
+     * @return the step operand value.
      */
     @Contract(pure = true)
     public @NotNull Value getStep() {
@@ -363,7 +387,7 @@ public sealed interface ScfOps {
    * }
    * }</pre>
    */
-  final class IfOp extends ScfOp implements ScfOps, IControlFlow {
+  final class IfOp extends ScfOp implements ScfOps, IControlFlow, ImplicitTerminator {
 
     // =========================================================================
     // Type Info
@@ -432,6 +456,15 @@ public sealed interface ScfOps {
       if (getRegions().size() == 1) return Optional.empty();
       return Optional.of(getRegions().get(1));
     }
+
+    @Override
+    public @NotNull Constructor<? extends ITerminator> getImplicitTerminatorType() {
+      return new EndOp()
+          .getLocationConstructor()
+          .orElseThrow(
+              () ->
+                  new AssertionError("EndOp must have a public constructor that takes a location"));
+    }
   }
 
   /**
@@ -493,23 +526,63 @@ public sealed interface ScfOps {
     }
   }
 
+  /**
+   * Structured while-loop in the {@code scf} dialect.
+   *
+   * <p>The op owns two regions:
+   *
+   * <ol>
+   *   <li><b>condition region</b> ({@link #getConditionRegion()}) that decides whether to continue
+   *   <li><b>body region</b> ({@link #getBodyRegion()}) containing loop-body operations
+   * </ol>
+   *
+   * <p>By convention, the condition region uses {@link ContinueOp} to continue and {@link BreakOp}
+   * to terminate the loop.
+   *
+   * <p>Ident: {@code scf.while}
+   */
   final class WhileOp extends ScfOp implements ScfOps, ImplicitTerminator, IControlFlow {
+    /** {@inheritDoc} */
     @Override
     public @NotNull String getIdent() {
       return "scf.while";
     }
 
+    /**
+     * Verifier for {@code scf.while}.
+     *
+     * <p>No additional structural/type checks are performed here beyond generic IR invariants.
+     */
     @Override
     public @NotNull Function<Operation, Boolean> getVerifier() {
       return ignored -> true;
     }
 
+    /** Default constructor used during dialect registration. */
     private WhileOp() {}
 
+    /**
+     * Create a while-loop with two regions (condition and body).
+     *
+     * @param location the source location of this operation.
+     */
     public WhileOp(@NotNull Location location) {
       setOperation(true, Operation.Create(location, this, null, null, null, 2));
     }
 
+    /**
+     * Convenience builder that configures the condition region to emulate a counted loop.
+     *
+     * <p>The generated condition region compares {@code induction} against {@code compareVal} using
+     * {@code compMode}. On success it updates {@code induction += step} and emits {@link
+     * ContinueOp}; otherwise it emits {@link BreakOp}.
+     *
+     * @param op target while-op to mutate.
+     * @param induction mutable loop-carried induction value.
+     * @param compareVal integer compare constant.
+     * @param compMode comparison mode for the condition.
+     * @param step per-iteration increment added to {@code induction}.
+     */
     public static void setupStaticForLoop(
         WhileOp op, Value induction, int compareVal, BinMode compMode, int step) {
       Region condRegion = op.getConditionRegion();
@@ -544,16 +617,32 @@ public sealed interface ScfOps {
       }
     }
 
+    /**
+     * Returns region 0, the condition/control region.
+     *
+     * @return the while-loop condition region.
+     */
     @Contract(pure = true)
     public @NotNull Region getConditionRegion() {
       return getRegion(0).orElseThrow();
     }
 
+    /**
+     * Returns region 1, the body region.
+     *
+     * @return the while-loop body region.
+     */
     @Contract(pure = true)
     public @NotNull Region getBodyRegion() {
       return getRegion(1).orElseThrow();
     }
 
+    /**
+     * Declares the implicit terminator type used by while regions when one is not present
+     * explicitly.
+     *
+     * @return constructor for {@link ContinueOp}.
+     */
     @Override
     public @NotNull Constructor<? extends ITerminator> getImplicitTerminatorType() {
       return new ContinueOp().getLocationConstructor().orElseThrow();

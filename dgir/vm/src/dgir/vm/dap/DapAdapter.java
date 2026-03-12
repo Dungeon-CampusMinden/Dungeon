@@ -95,6 +95,12 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
    */
   private volatile boolean reloadInProgress = false;
 
+  /**
+   * Set to {@code true} the first time {@link #startVmThread()} is called. Used by {@link
+   * #isVmFinished()} to distinguish "never started" from "started and already done".
+   */
+  private volatile boolean vmStarted = false;
+
   /** When {@code true}, pause before the very first operation (DAP {@code stopOnEntry}). */
   private volatile boolean stopOnEntry = false;
 
@@ -128,10 +134,14 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   /**
    * Called by {@link DapServer} once the lsp4j launcher has created the remote proxy.
    *
+   * <p>Also re-installs this adapter as the VM's debugger, since a previous {@link #onSessionEnded}
+   * call may have cleared it.
+   *
    * @param client the lsp4j-generated client proxy used to send events.
    */
   public void setClient(@NotNull IDebugProtocolClient client) {
     this.client = client;
+    vm.setDebugger(this); // Re-install in case a prior disconnect() cleared it.
   }
 
   // =========================================================================
@@ -152,6 +162,64 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     return entryHit;
   }
 
+  /**
+   * Returns {@code true} if a DAP client is currently attached to this adapter.
+   *
+   * <p>The {@link DapServer} uses this to reject second connections while one is already active.
+   *
+   * @return {@code true} when a client proxy is set
+   */
+  public boolean hasActiveClient() {
+    return client != null;
+  }
+
+  /**
+   * Returns {@code true} if the VM thread is currently alive (running or waiting on a debug pause).
+   *
+   * @return {@code true} when the VM daemon thread is alive
+   */
+  public boolean isVmRunning() {
+    Thread t = vmThreadRef.get();
+    return t != null && t.isAlive();
+  }
+
+  /**
+   * Returns {@code true} if the VM was started at least once and its thread has since terminated.
+   *
+   * <p>The {@link DapServer} uses this to reject connections when the program has already finished
+   * and no {@link DapServer#reloadProgram} has been issued yet.
+   *
+   * @return {@code true} when the VM has run and is no longer running
+   */
+  public boolean isVmFinished() {
+    return vmStarted && !isVmRunning();
+  }
+
+  // =========================================================================
+  // Session lifecycle helpers
+  // =========================================================================
+
+  /**
+   * Called by {@link DapServer} when the client TCP session ends (either via an explicit {@code
+   * disconnect} request or because the socket was closed).
+   *
+   * <p>Idempotent: if the client reference is already {@code null} (i.e. {@link
+   * #disconnect(DisconnectArguments)} was already called) this method is a no-op.
+   *
+   * <p>Clears the client reference so that {@link #hasActiveClient()} returns {@code false} and a
+   * future connection attempt can attach. Also resumes the VM (in case it is paused at a
+   * breakpoint) and removes the debugger callback so the VM continues freely after the detach.
+   */
+  public void onSessionEnded() {
+    IDebugProtocolClient c = client;
+    if (c == null) return; // already handled (e.g. explicit disconnect request)
+    client = null;
+    vm.setDebugger(null);
+    vm.clearBreakpoints();
+    vm.resume();
+    configDone.countDown(); // unblock in case launch/configDone was never sent
+  }
+
   // =========================================================================
   // IDebugProtocolServer — lifecycle
   // =========================================================================
@@ -159,12 +227,22 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   /**
    * DAP initialize: announces adapter capabilities and signals that breakpoint setup may begin.
    *
+   * <p>Also resets per-session debug state (step flags, debug-name map) so that a fresh DAP session
+   * always starts from a clean slate, even when the adapter is reused across multiple client
+   * connections without a {@link #reloadProgram} in between.
+   *
    * <p>Important: the client relies on these flags to decide which requests it can send. For
    * example, hover uses {@code evaluate} with {@code context="hover"}, so we must advertise {@code
    * supportsEvaluateForHovers}.
    */
   @Override
   public CompletableFuture<Capabilities> initialize(InitializeRequestArguments args) {
+    // Reset transient debug state for this new session.
+    pauseRequested = false;
+    stepPending = false;
+    valueNames.clear();
+    nextValueId.set(0);
+
     Capabilities caps = new Capabilities();
     caps.setSupportsConfigurationDoneRequest(true);
     caps.setSupportsBreakpointLocationsRequest(true);
@@ -180,24 +258,36 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   /**
    * DAP launch: starts the VM in debug mode (optionally stopping on entry).
    *
-   * <p>We read {@code stopOnEntry} from the launch arguments and defer VM execution until {@link
-   * #configurationDone} signals that all breakpoints are registered.
+   * <p>If the VM is already running (e.g. because it was started headlessly via {@link
+   * DapServer#reloadProgram} before this client connected) this request is a no-op: the live VM
+   * continues executing and the client can observe it via breakpoints set during the {@code
+   * initialize} handshake.
    */
   @Override
   public CompletableFuture<Void> launch(Map<String, Object> args) {
-    Object soe = args != null ? args.get("stopOnEntry") : null;
-    stopOnEntry = Boolean.TRUE.equals(soe);
-    if (!stopOnEntry) {
-      entryHit = true;
+    if (!isVmRunning()) {
+      Object soe = args != null ? args.get("stopOnEntry") : null;
+      stopOnEntry = Boolean.TRUE.equals(soe);
+      if (!stopOnEntry) {
+        entryHit = true;
+      }
+      startVmThread();
     }
-    startVmThread();
     return CompletableFuture.completedFuture(null);
   }
 
-  /** DAP attach: connects to a VM that is already prepared and starts it after configuration. */
+  /**
+   * DAP attach: connects to the VM that is already running (or prepared) and starts it after
+   * configuration.
+   *
+   * <p>If the VM is already running the request is a no-op: the VM continues and the client can
+   * observe it via any breakpoints it sets during the handshake.
+   */
   @Override
   public CompletableFuture<Void> attach(Map<String, Object> args) {
-    startVmThread();
+    if (!isVmRunning()) {
+      startVmThread();
+    }
     return CompletableFuture.completedFuture(null);
   }
 
@@ -209,16 +299,16 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   }
 
   /**
-   * DAP disconnect: detach the debugger and resume the VM so it can exit cleanly.
+   * DAP disconnect: detach the debugger and let the VM continue running.
    *
-   * <p>We also clear breakpoints and unblock configuration in case launch was never called.
+   * <p>Clears the client reference (so {@link #hasActiveClient()} returns {@code false}), removes
+   * the debugger callback, clears all breakpoints, and resumes the VM in case it is currently
+   * paused at a breakpoint or step. The VM thread is <em>not</em> stopped — it keeps running until
+   * the program finishes normally or until a subsequent {@link #reloadProgram} call replaces it.
    */
   @Override
   public CompletableFuture<Void> disconnect(DisconnectArguments args) {
-    vm.setDebugger(null);
-    vm.clearBreakpoints();
-    vm.resume();
-    configDone.countDown(); // unblock in case launch hasn't been called
+    onSessionEnded();
     return CompletableFuture.completedFuture(null);
   }
 
@@ -673,6 +763,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
    * session end.
    */
   private void startVmThread() {
+    vmStarted = true;
     Thread t =
         new Thread(
             () -> {

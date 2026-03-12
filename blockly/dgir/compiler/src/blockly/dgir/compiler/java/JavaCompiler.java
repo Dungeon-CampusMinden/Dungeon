@@ -150,7 +150,7 @@ public class JavaCompiler {
           : EmitResult.failure(
               context,
               members.getParentNode().orElseThrow(),
-              "Failed to emit members: " + failedMembers);
+              "Failed to emit expression from node list: " + failedMembers);
     }
 
     private @NotNull EmitResult<List<Value>> visitNodeListWithResult(
@@ -471,17 +471,6 @@ public class JavaCompiler {
     }
 
     @Override
-    public EmitResult<Optional<Value>> visit(BlockStmt n, EmitContext context) {
-      EmitResult<Boolean> result;
-      {
-        result = visitNodeList(n.getStatements(), context);
-        if (result.isFailure())
-          return EmitResult.failure(context, n, "Failed to emit statements of block");
-      }
-      return EmitResult.success(Optional.empty());
-    }
-
-    @Override
     public EmitResult<Optional<Value>> visit(AssertStmt n, EmitContext context) {
       EmitResult<Optional<Value>> checkResult;
       {
@@ -507,10 +496,55 @@ public class JavaCompiler {
     }
 
     @Override
+    public EmitResult<Optional<Value>> visit(BlockStmt n, EmitContext context) {
+      EmitResult<Boolean> result;
+      {
+        result = visitNodeList(n.getStatements(), context);
+        if (result.isFailure())
+          return EmitResult.failure(context, n, "Failed to emit statements of block");
+      }
+      return EmitResult.success(Optional.empty());
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(BreakStmt n, EmitContext context) {
+      context.insert(new ScfOps.BreakOp(context.loc(n)));
+      return EmitResult.success(Optional.empty());
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(ContinueStmt n, EmitContext context) {
+      context.insert(new ScfOps.ContinueOp(context.loc(n)));
+      return EmitResult.success(Optional.empty());
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(DoStmt n, EmitContext context) {
+      return EmitResult.failure(context, n, "Do statements are not supported.");
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(EmptyStmt n, EmitContext context) {
+      return EmitResult.success(Optional.empty());
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(
+        ExplicitConstructorInvocationStmt n, EmitContext context) {
+      return EmitResult.failure(
+          context, n, "Explicit constructor invocation statements are not supported.");
+    }
+
+    @Override
     public EmitResult<Optional<Value>> visit(ExpressionStmt n, EmitContext context) {
       var result = EmitResult.ofNullable(n.getExpression().accept(this, context));
       if (result.isFailure()) return result;
       return EmitResult.success(Optional.empty());
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(ForEachStmt n, EmitContext context) {
+      return EmitResult.failure(context, n, "For each statements are not supported.");
     }
 
     @Override
@@ -572,6 +606,58 @@ public class JavaCompiler {
     }
 
     @Override
+    public EmitResult<Optional<Value>> visit(IfStmt n, EmitContext context) {
+      EmitResult<Optional<Value>> conditionResult;
+      {
+        conditionResult = EmitResult.ofNullable(n.getCondition().accept(this, context));
+        if (conditionResult.isFailure()) return conditionResult;
+      }
+      var ifOp =
+          context.insert(
+              new ScfOps.IfOp(
+                  context.loc(n), conditionResult.get().orElseThrow(), n.hasElseBlock()));
+
+      try (var thenInsertion =
+          context.setInsertionPoint(ifOp.getThenRegion().getEntryBlock(), -1)) {
+        EmitResult<Optional<Value>> thenResult;
+        {
+          thenResult = EmitResult.ofNullable(n.getThenStmt().accept(this, context));
+          if (thenResult.isFailure()) return thenResult;
+        }
+      }
+
+      if (n.hasElseBlock())
+        try (var elseInsertion =
+            context.setInsertionPoint(ifOp.getElseRegion().orElseThrow().getEntryBlock(), -1)) {
+          EmitResult<Optional<Value>> elseResult = null;
+          if (n.getElseStmt().isPresent()) {
+            elseResult = EmitResult.ofNullable(n.getElseStmt().get().accept(this, context));
+            if (elseResult.isFailure()) return elseResult;
+          }
+        }
+
+      ifOp.addImplicitTerminators();
+      return EmitResult.success(Optional.empty());
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(LabeledStmt n, EmitContext context) {
+      return EmitResult.failure(context, n, "Labeled statements are not supported.");
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(LocalClassDeclarationStmt n, EmitContext context) {
+      return EmitResult.failure(
+          context, n, "Local class declaration statements are not supported.");
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(LocalRecordDeclarationStmt n, EmitContext context) {
+      return EmitResult.failure(
+          context, n, "Local record declaration statements are not supported.");
+    }
+
+    @Override
     public EmitResult<Optional<Value>> visit(ReturnStmt n, EmitContext context) {
       Location trueLocation = context.loc(n);
       // Move the debug location one further down than the actual return statement, so we can step
@@ -588,6 +674,73 @@ public class JavaCompiler {
         context.insert(new ReturnOp(debugLocation, exprRes.get().get()));
       } else {
         context.insert(new ReturnOp(debugLocation));
+      }
+      return EmitResult.success(Optional.empty());
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(SwitchStmt n, EmitContext context) {
+      return EmitResult.failure(context, n, "Switch statements are not supported.");
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(SynchronizedStmt n, EmitContext context) {
+      return EmitResult.failure(context, n, "Synchronized statements are not supported.");
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(ThrowStmt n, EmitContext context) {
+      return EmitResult.failure(context, n, "Throw statements are not supported.");
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(TryStmt n, EmitContext context) {
+      return EmitResult.failure(context, n, "Try statements are not supported.");
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(UnparsableStmt n, EmitContext context) {
+      return EmitResult.failure(context, n, "Why are u gey?");
+    }
+
+    @Override
+    public EmitResult<Optional<Value>> visit(WhileStmt n, EmitContext context) {
+      ScfOps.WhileOp whileOp = context.insert(new ScfOps.WhileOp(context.loc(n)));
+      {
+        Block continueBlock = whileOp.getConditionRegion().addBlock(new Block());
+        continueBlock.addOperation(new ScfOps.ContinueOp(context.loc(n.getCondition())));
+        Block breakBlock = whileOp.getConditionRegion().addBlock(new Block());
+        breakBlock.addOperation(new ScfOps.BreakOp(context.loc(n.getCondition())));
+
+        // Open the new scope and place the comparison expression in it.
+        try (var conditionInsertion =
+            context.setInsertionPoint(whileOp.getConditionRegion().getEntryBlock(), -1)) {
+          context.pushSymbolScope(false);
+          EmitResult<Optional<Value>> conditionResult;
+          {
+            conditionResult = EmitResult.ofNullable(n.getCondition().accept(this, context));
+            if (conditionResult.isFailure() || conditionResult.get().isEmpty())
+              return conditionResult;
+            Value compareValue = conditionResult.get().get();
+            context.insert(
+                new CfOps.BranchCondOp(
+                    context.loc(n.getCondition()), compareValue, continueBlock, breakBlock));
+          }
+          context.popSymbolScope();
+        }
+
+        try (var bodyInsertion =
+            context.setInsertionPoint(whileOp.getBodyRegion().getEntryBlock(), -1)) {
+          context.pushSymbolScope(false);
+
+          EmitResult<Optional<Value>> bodyResult;
+          {
+            bodyResult = EmitResult.ofNullable(n.getBody().accept(this, context));
+            if (bodyResult.isFailure()) return bodyResult;
+          }
+          whileOp.addImplicitTerminators();
+          context.popSymbolScope();
+        }
       }
       return EmitResult.success(Optional.empty());
     }
@@ -948,7 +1101,10 @@ public class JavaCompiler {
     @Override
     public EmitResult<Optional<Value>> visit(StringLiteralExpr n, EmitContext context) {
       return EmitResult.of(
-          Optional.of(context.insert(new ConstantOp(context.loc(n), n.getValue())).getResult()));
+          Optional.of(
+              context
+                  .insert(new ConstantOp(context.loc(n), n.getValue().replace("\\n", "\n")))
+                  .getResult()));
     }
 
     @Override

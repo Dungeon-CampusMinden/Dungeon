@@ -439,4 +439,140 @@ public class %ClassName {
 """;
     testSource(code);
   }
+
+  @Test
+  void scfIf() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 5;
+    if (x > 0) {
+      x += 10;
+    } else if (x < 0) {
+      x -= 10;
+    } else {
+      x = 0;
+    }
+  }
+}
+""";
+    testSource(code);
+  }
+
+  void scfIfWithNestedClassLookup() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 5;
+    if (x > 0) {
+      x += NestedClass1.add(5, 10);
+    } else if (x < 0) {
+      x -= NestedClass2.add(5, 10);
+    } else {
+      x = 0;
+    }
+  }
+
+  private static class NestedClass1 {
+    private static int add(int a, int b) {
+      return a + b;
+    }
+  }
+
+  public static class NestedClass2 {
+    public static int add(int a, int b) {
+      return a + b;
+    }
+  }
+}
+""";
+    testSource(code);
+  }
+
+  void scfWhileWithBreak() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 0;
+    while (x < 10) {
+      x++;
+      if (x == 5) {
+        break;
+      }
+    }
+  }
+}
+""";
+    testSource(code);
+  }
+
+  void scfForWithContinueAndBreak() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 0;
+    for (int i = 0; i < 10; i++) {
+      if (i % 2 == 0) {
+        if (i * 2 == 8) {
+          break;
+        }
+        continue;
+      }
+      x += i;
+      if (x > 10) {
+        break;
+      }
+    }
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void infiniteWhileLoop() {
+    String code =
+"""
+import Dungeon.IO;
+
+public class %ClassName {
+  public static void main() {
+    int i = 0;
+    while (true) {
+      break;
+    }
+    while (true) {
+      if (i++ == 2)
+        break;
+      // Infinite loop
+      IO.print("This will run forever!\\n");
+    }
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void infiniteForLoop() {
+    String code =
+"""
+import Dungeon.IO;
+
+public class %ClassName {
+  public static void main() {
+    for(;;) {
+      // Infinite loop
+      IO.print("This will run forever!\\n");
+      break;
+    }
+  }
+}
+""";
+    testSource(code);
+  }
 }
