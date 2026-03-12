@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
+
 /**
  * TCP server that accepts DAP client connections and wires each one to a {@link VM} via a {@link
  * DapAdapter}.
@@ -57,6 +59,13 @@ public class DapServer implements AutoCloseable {
   private final int port;
   private final @NotNull Supplier<VM> vmFactory;
   private final @NotNull AtomicReference<ServerSocket> serverSocketRef = new AtomicReference<>();
+
+  /**
+   * The {@link DapAdapter} for the most recently accepted DAP client connection, or {@code null} if
+   * no client has connected yet. Used by {@link #reloadProgram} to push a new program into an
+   * active debug session without closing it.
+   */
+  private final @NotNull AtomicReference<DapAdapter> currentAdapter = new AtomicReference<>();
 
   /**
    * Create a server that listens on the given port.
@@ -153,6 +162,8 @@ public class DapServer implements AutoCloseable {
   private void handleSession(@NotNull Socket socket) {
     VM vm = vmFactory.get();
     DapAdapter adapter = new DapAdapter(vm);
+    // Expose the adapter so reloadProgram() can reach it from outside the session thread.
+    currentAdapter.set(adapter);
     Launcher<IDebugProtocolClient> launcher;
     try {
       // Let lsp4j build the JSON-RPC / DAP message pump.
@@ -207,6 +218,63 @@ public class DapServer implements AutoCloseable {
             "dap-session-cleanup");
     cleanup.setDaemon(true);
     return cleanup;
+  }
+
+  // =========================================================================
+  // Live reload
+  // =========================================================================
+
+  /**
+   * Replaces the running program with {@code newProgram}, keeping the DAP server and any active
+   * debugger session alive.
+   *
+   * <h2>When a DAP client (e.g. VS Code) is connected</h2>
+   *
+   * Delegates to {@link DapAdapter#reloadProgram(ProgramOp, boolean)}. The adapter stops the
+   * current VM, re-initialises it, fires an {@code initialized} event to the client, and starts a
+   * new VM thread that waits for the client to re-send breakpoints and {@code configurationDone}.
+   * The VS Code debug session remains open throughout.
+   *
+   * <h2>When no client is connected (headless / blockly-only)</h2>
+   *
+   * No adapter is available, so a standalone {@link VM} is created from the {@link #vmFactory},
+   * re-initialised with {@code newProgram}, and executed on a daemon thread without any DAP events.
+   * This allows the blockly frontend to run programs even before a debugger attaches.
+   *
+   * @param newProgram the DGIR program to execute next
+   * @param stopOnEntry when {@code true} and a DAP client is connected, the VM pauses before the
+   *     first operation of {@code main} so the user can inspect state immediately
+   * @throws InterruptedException if the thread join inside the adapter is interrupted
+   */
+  public void reloadProgram(@NotNull ProgramOp newProgram, boolean stopOnEntry)
+      throws InterruptedException {
+    DapAdapter adapter = currentAdapter.get();
+    if (adapter != null) {
+      adapter.reloadProgram(newProgram, stopOnEntry);
+    } else {
+      // No DAP client connected — run headlessly on a daemon thread.
+      Thread t =
+          new Thread(
+              () -> {
+                VM vm = vmFactory.get();
+                vm.init(newProgram);
+                vm.run();
+              },
+              "dap-vm-headless");
+      t.setDaemon(true);
+      t.start();
+    }
+  }
+
+  /**
+   * Convenience overload that reloads the program without pausing on entry.
+   *
+   * @param newProgram the DGIR program to execute next
+   * @throws InterruptedException if the thread join inside the adapter is interrupted
+   * @see #reloadProgram(ProgramOp, boolean)
+   */
+  public void reloadProgram(@NotNull ProgramOp newProgram) throws InterruptedException {
+    reloadProgram(newProgram, false);
   }
 
   /** Calls {@link #stop()}, implementing {@link AutoCloseable} for use in try-with-resources. */

@@ -87,42 +87,54 @@ public class DapServerUtils {
     }
 
     /**
-     * Blocks until a {@code stopped} event arrives or {@link CollectingClient#timeoutMillis}
-     * seconds elapse.
+     * Blocks until a {@code stopped} event arrives or the configured timeout elapses.
      *
      * @return the next {@link StoppedEventArguments} from the queue
      * @throws Exception if the wait is interrupted or the assertion fails on timeout
      */
     public StoppedEventArguments awaitStopped() throws Exception {
-      StoppedEventArguments e = stoppedQueue.poll(5, TimeUnit.MILLISECONDS);
-      assert e != null : "Expected stopped event within " + timeoutMillis + " s";
+      StoppedEventArguments e = stoppedQueue.poll(timeoutMillis, TimeUnit.MILLISECONDS);
+      assert e != null : "Expected stopped event within " + timeoutMillis + " ms";
       return e;
     }
 
     /**
-     * Blocks until an {@code exited} event arrives or {@link CollectingClient#timeoutMillis}
-     * seconds elapse.
+     * Blocks until an {@code exited} event arrives or the configured timeout elapses.
      *
      * @return the next {@link ExitedEventArguments} from the queue
      * @throws Exception if the wait is interrupted or the assertion fails on timeout
      */
     public ExitedEventArguments awaitExited() throws Exception {
-      ExitedEventArguments e = exitedQueue.poll(5, TimeUnit.MILLISECONDS);
-      assert e != null : "Expected exited event within " + timeoutMillis + " s";
+      ExitedEventArguments e = exitedQueue.poll(timeoutMillis, TimeUnit.MILLISECONDS);
+      assert e != null : "Expected exited event within " + timeoutMillis + " ms";
       return e;
     }
 
     /**
-     * Blocks until a {@code terminated} event arrives or {@link CollectingClient#timeoutMillis}
-     * seconds elapse.
+     * Blocks until a {@code terminated} event arrives or the configured timeout elapses.
      *
      * @return the next {@link TerminatedEventArguments} from the queue
      * @throws Exception if the wait is interrupted or the assertion fails on timeout
      */
     public TerminatedEventArguments awaitTerminated() throws Exception {
-      TerminatedEventArguments e = terminatedQueue.poll(5, TimeUnit.MILLISECONDS);
-      assert e != null : "Expected terminated event within " + timeoutMillis + " s";
+      TerminatedEventArguments e = terminatedQueue.poll(timeoutMillis, TimeUnit.MILLISECONDS);
+      assert e != null : "Expected terminated event within " + timeoutMillis + " ms";
       return e;
+    }
+
+    /**
+     * Polls for a {@code terminated} event without asserting its presence.
+     *
+     * <p>Returns {@code null} if no event arrives within {@code timeoutMs}. Use this in tests that
+     * need to <em>verify the absence</em> of a {@code terminated} event (e.g. after a live reload
+     * where the DAP session must stay open).
+     *
+     * @param timeoutMs maximum milliseconds to wait
+     * @return the event, or {@code null} if none arrived within the timeout
+     * @throws InterruptedException if the wait is interrupted
+     */
+    public TerminatedEventArguments tryAwaitTerminated(long timeoutMs) throws InterruptedException {
+      return terminatedQueue.poll(timeoutMs, TimeUnit.MILLISECONDS);
     }
 
     /**

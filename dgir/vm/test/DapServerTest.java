@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static dgir.dialect.arith.ArithOps.ConstantOp;
@@ -935,6 +936,279 @@ class DapServerTest extends VmTestBase {
         session.client().awaitExited();
         session.client().awaitTerminated();
       }
+    }
+  }
+
+  // =========================================================================
+  // Live reload
+  // =========================================================================
+
+  /**
+   * Verifies that {@link DapServer#reloadProgram} replaces a program that is paused on entry and
+   * runs the new program to completion, firing {@code exited(exitCode=0)} and {@code terminated}.
+   *
+   * <p>This is the primary "run again" scenario: the user (or blockly frontend) submits a new
+   * program while the previous one is still paused at the DAP entry-stop.
+   *
+   * <p><b>Steps:</b>
+   *
+   * <ol>
+   *   <li>Connect and perform the full handshake with {@code stopOnEntry=true}.
+   *   <li>Drain the {@code stopped("entry")} event — VM is now paused.
+   *   <li>Call {@link DapServer#reloadProgram} with a different program.
+   *   <li>Wait for the {@code initialized} event that signals the adapter is ready for new config.
+   *   <li>Send {@code configurationDone} to unblock the new VM thread.
+   *   <li>Wait for {@code exited(0)} and {@code terminated}.
+   * </ol>
+   */
+  @Test
+  void reload_whilePausedOnEntry_newProgramRunsToCompletion() throws Exception {
+    var serverAndSession = createServerAndConnect(simplePrintProgram("first"));
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        fullHandshake(session, true);
+
+        StoppedEventArguments entry = session.client().awaitStopped();
+        assertEquals("entry", entry.getReason(), "Should stop at entry of first program");
+
+        // Reload while the VM is paused — replaces execution entirely.
+        server.reloadProgram(simplePrintProgram("second"));
+
+        // Adapter fires 'initialized' so the client can re-register breakpoints.
+        session.client().awaitInitialized();
+
+        // Complete the DAP configuration handshake for the new program.
+        session
+            .server()
+            .configurationDone(new ConfigurationDoneArguments())
+            .get(5, TimeUnit.SECONDS);
+
+        ExitedEventArguments exited = session.client().awaitExited();
+        assertEquals(0, exited.getExitCode(), "Reloaded program should exit cleanly");
+        session.client().awaitTerminated();
+      }
+    }
+  }
+
+  /**
+   * Verifies that {@link DapServer#reloadProgram} does <em>not</em> fire a {@code terminated} event
+   * to the connected DAP client, ensuring the VS Code debug session remains open.
+   *
+   * <p>A {@code terminated} event from the adapter signals VS Code to close the debug panel. For
+   * the blockly use case the session must survive across multiple program reloads.
+   *
+   * <p><b>Steps:</b>
+   *
+   * <ol>
+   *   <li>Connect and perform the full handshake with {@code stopOnEntry=true}.
+   *   <li>Drain the entry-stop event.
+   *   <li>Call {@link DapServer#reloadProgram}.
+   *   <li>Wait for the {@code initialized} event confirming the reload has completed.
+   *   <li>Assert that <em>no</em> {@code terminated} event arrived before {@code initialized}.
+   *   <li>Clean up by sending {@code configurationDone} and draining the remaining events.
+   * </ol>
+   */
+  @Test
+  void reload_doesNotFireTerminatedEvent_sessionStaysAlive() throws Exception {
+    var serverAndSession = createServerAndConnect(simplePrintProgram("first"));
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        fullHandshake(session, true);
+        session.client().awaitStopped(); // drain entry stop
+
+        server.reloadProgram(simplePrintProgram("second"));
+
+        // Poll for terminated with a short window — it must NOT have been sent.
+        TerminatedEventArguments spurious = session.client().tryAwaitTerminated(200);
+        assertNull(spurious, "reloadProgram() must not fire 'terminated' to the DAP client");
+
+        // Confirm reload completed by checking that 'initialized' did arrive.
+        session.client().awaitInitialized();
+
+        session
+            .server()
+            .configurationDone(new ConfigurationDoneArguments())
+            .get(5, TimeUnit.SECONDS);
+        session.client().awaitExited();
+        session.client().awaitTerminated();
+      }
+    }
+  }
+
+  /**
+   * Verifies that {@link DapServer#reloadProgram} correctly replaces a program that is paused at a
+   * source breakpoint, and that the new program runs to completion.
+   *
+   * <p><b>Steps:</b>
+   *
+   * <ol>
+   *   <li>Connect, initialize, set a breakpoint on line 4 of {@code test.dgir}, then launch.
+   *   <li>Wait for the {@code stopped("breakpoint")} event — VM is paused at the breakpoint.
+   *   <li>Call {@link DapServer#reloadProgram} with a new program.
+   *   <li>Wait for {@code initialized}, send {@code configurationDone}.
+   *   <li>Wait for {@code exited(0)} and {@code terminated}.
+   * </ol>
+   */
+  @Test
+  void reload_whilePausedAtBreakpoint_newProgramRunsToCompletion() throws Exception {
+    var serverAndSession = createServerAndConnect(multiLinePrintProgram());
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        initializeHandshake(session);
+        setBreakpointsOnLines(session.server(), "test.dgir", 4);
+        launchAndConfigDone(session, false);
+
+        StoppedEventArguments bp = session.client().awaitStopped();
+        assertEquals("breakpoint", bp.getReason(), "Should pause at the breakpoint");
+
+        // Replace the paused program.
+        server.reloadProgram(simplePrintProgram("after-breakpoint-reload"));
+
+        session.client().awaitInitialized();
+        session
+            .server()
+            .configurationDone(new ConfigurationDoneArguments())
+            .get(5, TimeUnit.SECONDS);
+
+        ExitedEventArguments exited = session.client().awaitExited();
+        assertEquals(0, exited.getExitCode());
+        session.client().awaitTerminated();
+      }
+    }
+  }
+
+  /**
+   * Verifies that reloading with {@code stopOnEntry=true} causes the <em>new</em> program to pause
+   * before its first operation, delivering a {@code stopped("entry")} event.
+   *
+   * <p><b>Steps:</b>
+   *
+   * <ol>
+   *   <li>Connect and perform the full handshake with {@code stopOnEntry=true} for program 1.
+   *   <li>Drain the first entry-stop.
+   *   <li>Call {@link DapServer#reloadProgram} with program 2, passing {@code stopOnEntry=true}.
+   *   <li>Wait for {@code initialized} and send {@code configurationDone}.
+   *   <li>Assert that a new {@code stopped("entry")} event fires for program 2.
+   *   <li>Resume and wait for {@code exited(0)} and {@code terminated}.
+   * </ol>
+   */
+  @Test
+  void reload_withStopOnEntry_pausesNewProgramAtEntry() throws Exception {
+    var serverAndSession = createServerAndConnect(simplePrintProgram("first"));
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        fullHandshake(session, true);
+        session.client().awaitStopped(); // drain entry stop for first program
+
+        // Reload with stopOnEntry so the new program also pauses.
+        server.reloadProgram(multiLinePrintProgram(), /* stopOnEntry= */ true);
+
+        session.client().awaitInitialized();
+        session
+            .server()
+            .configurationDone(new ConfigurationDoneArguments())
+            .get(5, TimeUnit.SECONDS);
+
+        StoppedEventArguments secondEntry = session.client().awaitStopped();
+        assertEquals(
+            "entry",
+            secondEntry.getReason(),
+            "Reloaded program must deliver a stopped('entry') event when stopOnEntry=true");
+
+        session.server().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+        ExitedEventArguments exited = session.client().awaitExited();
+        assertEquals(0, exited.getExitCode());
+        session.client().awaitTerminated();
+      }
+    }
+  }
+
+  /**
+   * Verifies that three consecutive reloads each run a distinct program to completion, with the DAP
+   * session remaining open throughout all reloads.
+   *
+   * <p><b>Steps:</b>
+   *
+   * <ol>
+   *   <li>Connect and pause program 1 on entry.
+   *   <li>Reload with program 2; complete the handshake; assert {@code exited(0)} and {@code
+   *       terminated}.
+   *   <li>Reload with program 3 immediately after; complete the handshake; assert {@code exited(0)}
+   *       and {@code terminated}.
+   *   <li>Reload with program 4 immediately after; complete the handshake; assert {@code exited(0)}
+   *       and {@code terminated}.
+   * </ol>
+   */
+  @Test
+  void reload_multipleSequential_eachRunsToCompletion() throws Exception {
+    var serverAndSession = createServerAndConnect(simplePrintProgram("prog-0"));
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        fullHandshake(session, true);
+        session.client().awaitStopped(); // entry stop for prog-0
+
+        for (int i = 1; i <= 3; i++) {
+          server.reloadProgram(simplePrintProgram("prog-" + i));
+
+          session.client().awaitInitialized();
+          session
+              .server()
+              .configurationDone(new ConfigurationDoneArguments())
+              .get(5, TimeUnit.SECONDS);
+
+          ExitedEventArguments exited = session.client().awaitExited();
+          assertEquals(0, exited.getExitCode(), "prog-" + i + " should exit cleanly");
+          session.client().awaitTerminated();
+        }
+      }
+    }
+  }
+
+  /**
+   * Verifies that {@link DapServer#reloadProgram} executes a program headlessly when no DAP client
+   * is connected, without throwing any exceptions.
+   *
+   * <p>When no VS Code (or other DAP client) has attached yet, the server must still be able to run
+   * programs on behalf of the blockly frontend. The program is executed on a daemon thread without
+   * any DAP protocol events.
+   *
+   * <p>A custom VM subclass is used to detect when {@link dgir.vm.api.VM#run()} completes so the
+   * test can await completion without relying on a fixed sleep.
+   *
+   * <p><b>Steps:</b>
+   *
+   * <ol>
+   *   <li>Create and start a server whose factory produces instrumented VMs.
+   *   <li>Call {@link DapServer#reloadProgram} <em>before</em> any client connects.
+   *   <li>Await the completion latch (max 5 s).
+   *   <li>Assert the program ran to completion ({@code exitOk == true}).
+   * </ol>
+   */
+  @Test
+  void reload_headless_noClientConnected_programRuns() throws Exception {
+    CountDownLatch done = new CountDownLatch(1);
+    boolean[] exitOk = {false};
+
+    // Instrumented VM that signals the latch when run() finishes.
+    VM instrumentedVm =
+        new VM() {
+          @Override
+          public boolean run() {
+            boolean ok = super.run();
+            exitOk[0] = ok;
+            done.countDown();
+            return ok;
+          }
+        };
+
+    try (DapServer server = new DapServer(0, () -> instrumentedVm)) {
+      server.start();
+
+      // No client has connected — reloadProgram must run headlessly.
+      server.reloadProgram(simplePrintProgram("headless-run"));
+
+      assertTrue(done.await(5, TimeUnit.SECONDS), "Headless VM should complete within 5 s");
+      assertTrue(exitOk[0], "Headless program should exit successfully");
     }
   }
 }

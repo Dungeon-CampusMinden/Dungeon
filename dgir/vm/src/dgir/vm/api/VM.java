@@ -52,6 +52,13 @@ public class VM {
   private final @NotNull Condition resumeCondition = pauseLock.newCondition();
   private volatile boolean paused = false;
 
+  /**
+   * Set to {@code true} by {@link #stop()} to request a clean abort of the current {@link #run()}
+   * call. Checked in the main execution loop and in {@link #waitForResume()} so that a paused VM is
+   * also unblocked when a stop is requested.
+   */
+  private volatile boolean stopRequested = false;
+
   /** Distinguishes between the three single-step modes used by the debugger. */
   private enum StepMode {
     /** Normal execution — no pending single-step. */
@@ -224,6 +231,30 @@ public class VM {
   }
 
   /**
+   * Requests a clean abort of the current {@link #run()} invocation.
+   *
+   * <p>Sets the {@code stopRequested} flag and then calls {@link #resume()} so that a VM currently
+   * blocked inside {@link #waitForResume()} (e.g. at a breakpoint) is immediately unblocked. The
+   * {@link #run()} loop will exit on the next iteration check and return {@code false}.
+   *
+   * <p>This is safe to call from any thread. If the VM is not running the call is a no-op.
+   */
+  public void stop() {
+    stopRequested = true;
+    resume(); // unblock any waitForResume()
+  }
+
+  /**
+   * Returns {@code true} if the current (or most recent) {@link #run()} was terminated via {@link
+   * #stop()} rather than by natural program completion or an error.
+   *
+   * @return {@code true} when a stop was requested
+   */
+  public boolean isStopRequested() {
+    return stopRequested;
+  }
+
+  /**
    * Step over the current operation: execute it (including any nested regions or function calls)
    * and pause at the next operation at the same call-stack depth. Implements the DAP "next"
    * command. Calling this when the VM is not paused is a no-op.
@@ -308,12 +339,16 @@ public class VM {
       return false;
     }
 
+    stopRequested = false; // reset for each run() invocation
     resetState();
 
     Action currentAction = Action.Next();
-    while (!(currentAction instanceof Action.Abort) && !opStack.isEmpty()) {
+    while (!(currentAction instanceof Action.Abort) && !opStack.isEmpty() && !stopRequested) {
       currentAction = step();
     }
+
+    // An external stop() call is not a program error; return false without printing an error.
+    if (stopRequested) return false;
 
     if (currentAction instanceof Action.Abort(String message, Optional<Exception> exception)) {
       exception.ifPresent(

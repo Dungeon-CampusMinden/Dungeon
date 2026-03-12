@@ -24,7 +24,10 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
 import static dgir.dialect.func.FuncOps.FuncOp;
 
 /**
@@ -49,6 +52,8 @@ import static dgir.dialect.func.FuncOps.FuncOp;
  */
 public class DapAdapter implements IDebugProtocolServer, Debugger {
 
+  private static final Logger LOG = Logger.getLogger(DapAdapter.class.getName());
+
   /** Single logical thread ID exposed to the DAP client. */
   private static final int THREAD_ID = 1;
 
@@ -71,8 +76,24 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   /**
    * Counts down to zero when {@code configurationDone} arrives, which unblocks the VM thread so
    * that all breakpoints set during client startup are already registered before execution begins.
+   *
+   * <p>Replaced with a fresh {@link CountDownLatch} on each {@link #reloadProgram} call so that the
+   * next {@code configurationDone} request from the client unlocks the new VM thread.
    */
-  private final @NotNull CountDownLatch configDone = new CountDownLatch(1);
+  private volatile @NotNull CountDownLatch configDone = new CountDownLatch(1);
+
+  /**
+   * Reference to the currently running (or most recently started) VM daemon thread. Used by {@link
+   * #reloadProgram} to join the old thread before starting a new one.
+   */
+  private final @NotNull AtomicReference<Thread> vmThreadRef = new AtomicReference<>();
+
+  /**
+   * Set to {@code true} while {@link #reloadProgram} is executing. Suppresses the {@code
+   * exited}/{@code terminated} events that the VM thread would normally fire so that the DAP client
+   * does not see a "session ended" signal mid-reload.
+   */
+  private volatile boolean reloadInProgress = false;
 
   /** When {@code true}, pause before the very first operation (DAP {@code stopOnEntry}). */
   private volatile boolean stopOnEntry = false;
@@ -643,6 +664,13 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   /**
    * Launch the VM on a daemon thread. Waits for {@link #configDone} before calling {@link VM#run()}
    * so all breakpoints set during client startup are already registered.
+   *
+   * <p>The thread reference is stored in {@link #vmThreadRef} so that {@link #reloadProgram} can
+   * join it before starting a replacement thread.
+   *
+   * <p>The {@code exited} and {@code terminated} events are suppressed when {@link
+   * #reloadInProgress} is {@code true}, preventing the DAP client from treating the reload as a
+   * session end.
    */
   private void startVmThread() {
     Thread t =
@@ -657,7 +685,9 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
 
               boolean ok = vm.run();
 
-              if (client != null) {
+              // During a reload the adapter intentionally kills the VM; do not report
+              // exited/terminated to the client, as the reload will fire 'initialized' instead.
+              if (client != null && !reloadInProgress) {
                 ExitedEventArguments exited = new ExitedEventArguments();
                 exited.setExitCode(ok ? 0 : 1);
                 client.exited(exited);
@@ -667,6 +697,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
             "dap-vm");
     t.setDaemon(true);
     t.start();
+    vmThreadRef.set(t);
   }
 
   /**
@@ -685,6 +716,107 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
       args.setDescription(location.toString());
     }
     client.stopped(args);
+  }
+
+  // =========================================================================
+  // Live reload
+  // =========================================================================
+
+  /**
+   * Replaces the currently running (or pending) program with {@code newProgram} without closing the
+   * DAP session.
+   *
+   * <h2>Protocol flow</h2>
+   *
+   * <ol>
+   *   <li>Marks {@link #reloadInProgress} so that the dying VM thread does <em>not</em> fire {@code
+   *       exited}/{@code terminated} events (which would close the VS Code session).
+   *   <li>Releases the old {@link #configDone} latch in case {@code launch}/{@code attach} was
+   *       never called (prevents the VM thread from blocking forever).
+   *   <li>Calls {@link VM#stop()} to unblock any {@link VM#waitForResume()} call and cause {@link
+   *       VM#run()} to return on its next iteration.
+   *   <li>Joins the old VM thread with a 5-second safety timeout.
+   *   <li>Re-initialises the VM with {@code newProgram} and resets all adapter state flags.
+   *   <li>Installs a fresh {@link CountDownLatch} so the next {@link #configurationDone} call will
+   *       unblock the new VM thread.
+   *   <li>Fires an {@code initialized} event back to the DAP client (if connected). VS Code
+   *       responds by re-sending {@code setBreakpoints} for every open source file and then {@code
+   *       configurationDone}, which starts the new VM thread.
+   *   <li>If <em>no</em> client is connected, starts the VM thread immediately (headless run).
+   * </ol>
+   *
+   * <h2>stopOnEntry behaviour</h2>
+   *
+   * Pass {@code stopOnEntry = true} to pause execution before the first operation of {@code main},
+   * identical to the behaviour of the {@code launch} request.
+   *
+   * <h2>Thread safety</h2>
+   *
+   * This method is safe to call from any thread (e.g. the blockly backend thread). It must
+   * <em>not</em> be called concurrently with itself.
+   *
+   * @param newProgram the DGIR program to load; must already be {@link
+   *     dgir.dialect.builtin.BuiltinOps.ProgramOp} verified
+   * @param stopOnEntry when {@code true} the VM pauses before the first operation of {@code main}
+   * @throws InterruptedException if the join on the old VM thread is interrupted
+   */
+  public void reloadProgram(@NotNull ProgramOp newProgram, boolean stopOnEntry)
+      throws InterruptedException {
+    reloadInProgress = true;
+
+    // Release the configDone latch in case the VM thread is still waiting on it
+    // (i.e. launch/attach was never sent or configurationDone was never sent).
+    configDone.countDown();
+
+    // Stop the running VM and wait for its thread to finish.
+    vm.stop();
+    Thread oldThread = vmThreadRef.getAndSet(null);
+    if (oldThread != null && oldThread.isAlive()) {
+      oldThread.join(5_000);
+      if (oldThread.isAlive()) {
+        LOG.warning("Old VM thread did not terminate within 5 s; continuing anyway.");
+      }
+    }
+
+    reloadInProgress = false;
+
+    // Re-initialise the VM with the new program.
+    vm.init(newProgram);
+
+    // Reset all per-run adapter state.
+    this.stopOnEntry = stopOnEntry;
+    this.entryHit = !stopOnEntry; // if no stopOnEntry, mark entry as already handled
+    this.stepPending = false;
+    this.pauseRequested = false;
+    valueNames.clear();
+    nextValueId.set(0);
+
+    // Install a fresh latch: the next configurationDone call will count it down.
+    configDone = new CountDownLatch(1);
+
+    if (client != null) {
+      // Signal the client that we are ready for a new round of breakpoint configuration.
+      // VS Code responds with setBreakpoints (for each open file) + configurationDone,
+      // which unblocks the new VM thread via the configurationDone() handler.
+      client.initialized();
+      // Start the VM thread now so it is ready to receive configurationDone.
+      startVmThread();
+    } else {
+      // No debugger attached — start immediately without waiting for configurationDone.
+      configDone.countDown();
+      startVmThread();
+    }
+  }
+
+  /**
+   * Convenience overload that reloads the program without pausing on entry.
+   *
+   * @param newProgram the DGIR program to load
+   * @throws InterruptedException if the join on the old VM thread is interrupted
+   * @see #reloadProgram(ProgramOp, boolean)
+   */
+  public void reloadProgram(@NotNull ProgramOp newProgram) throws InterruptedException {
+    reloadProgram(newProgram, false);
   }
 
   /**
