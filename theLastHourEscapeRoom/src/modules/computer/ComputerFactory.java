@@ -4,6 +4,8 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.HeadlessDialogGroup;
+import contrib.modules.emote.Emote;
+import contrib.modules.emote.EmoteFactory;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -75,6 +77,7 @@ public class ComputerFactory {
                             computerDialogInstance.registerCallback(
                                 UPDATE_STATE_KEY,
                                 data -> {
+                                  boolean isNowInfected = false;
                                   if (data
                                       instanceof
                                       ComputerStateComponent(
@@ -84,6 +87,7 @@ public class ComputerFactory {
                                     ComputerStateComponent.setState(computerState);
                                     ComputerStateComponent.setInfection(isInfected);
                                     ComputerStateComponent.setVirusType(virusType);
+                                    isNowInfected = isInfected;
                                   } else if (data
                                       instanceof
                                       DialogResponseMessage.CustomPayload(var wrappedValue)) {
@@ -96,7 +100,12 @@ public class ComputerFactory {
                                       ComputerStateComponent.setState(state1);
                                       ComputerStateComponent.setInfection(isInfected);
                                       ComputerStateComponent.setVirusType(virusType);
+                                      isNowInfected = isInfected;
                                     }
+                                  }
+
+                                  if(isNowInfected){
+                                    Game.add(EmoteFactory.createEmote(LastHourLevel.getInstance().getPoint("pc-main").translate(0.5f, 2f), Emote.FACE_ANGRY, 3000));
                                   }
                                 });
                           });
