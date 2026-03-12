@@ -116,6 +116,15 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   // =========================================================================
   // Getters
   // =========================================================================
+
+  /**
+   * Returns {@code true} once the initial entry-stop has been delivered to the client.
+   *
+   * <p>After this flag is set, the {@link #onStep} callback stops checking for the entry condition
+   * and lets the normal step/pause logic take over.
+   *
+   * @return {@code true} if the {@code "entry"} stopped event has already been fired
+   */
   @Override
   @Contract(pure = true)
   public boolean entryHit() {
@@ -345,6 +354,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     return CompletableFuture.completedFuture(null);
   }
 
+  /** DAP stepOut: request a step that runs to the end of the current function and then pauses. */
   @Override
   public CompletableFuture<Void> stepOut(StepOutArguments args) {
     stepPending = true;
@@ -568,6 +578,17 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   // Debugger — VM callbacks (called on the VM thread)
   // =========================================================================
 
+  /**
+   * Returns {@code true} if {@code operation} is the first operation inside the {@code main}
+   * function — i.e. the one that should receive the {@code "entry"} stopped event when {@code
+   * stopOnEntry} is enabled.
+   *
+   * <p>The heuristic used is: the operation's parent operation is at index {@code 0} and that
+   * parent is a {@link dgir.dialect.func.FuncOps.FuncOp} whose name is {@code "main"}.
+   *
+   * @param operation the operation about to be executed
+   * @return {@code true} if this is the entry point of the {@code main} function
+   */
   private static boolean isEntryOperation(@NotNull Operation operation) {
     return operation
         .getParentOperation()
@@ -666,6 +687,17 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     client.stopped(args);
   }
 
+  /**
+   * Returns a stable, human-readable debug name for the given {@link Value}.
+   *
+   * <p>If the value carries an explicit source-level name (i.e. {@link Value#getName()} is
+   * non-blank and not {@code "<unknown>"}), that name is returned as-is. Otherwise a synthetic name
+   * of the form {@code %N} (where {@code N} is a session-scoped integer counter) is assigned on the
+   * first call and reused on subsequent calls for the same value object.
+   *
+   * @param value the IR value to name
+   * @return the display name used in {@code variables} and {@code evaluate} responses
+   */
   private @NotNull String getValueDebugName(@NotNull Value value) {
     // Prefer source-level names; fallback to stable synthetic names when missing.
     String explicit = value.getName();
@@ -674,6 +706,16 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
         value, ignored -> VALUE_NAME_PREFIX + nextValueId.getAndIncrement());
   }
 
+  /**
+   * Formats a runtime value for display in the debugger UI.
+   *
+   * <p>Currently delegates to {@link Object#toString()}. {@code null} values are represented as the
+   * literal string {@code "null"}. This method is intended as a single extension point for richer
+   * formatting of structured types in the future.
+   *
+   * @param value the runtime object to format; may be {@code null}
+   * @return a non-null string representation of {@code value}
+   */
   private static @NotNull String formatValue(@Nullable Object value) {
     // Keep formatting minimal for now; extend for structured types later.
     return value != null ? value.toString() : "null";

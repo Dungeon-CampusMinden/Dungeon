@@ -1,10 +1,3 @@
-import static dgir.dialect.arith.ArithOps.ConstantOp;
-import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
-import static dgir.dialect.func.FuncOps.FuncOp;
-import static dgir.dialect.func.FuncOps.ReturnOp;
-import static dgir.dialect.io.IoOps.PrintOp;
-import static org.junit.jupiter.api.Assertions.*;
-
 import dgir.core.Dialect;
 import dgir.core.debug.Location;
 import dgir.core.debug.ValueDebugInfo;
@@ -12,21 +5,26 @@ import dgir.vm.api.OpRunnerRegistry;
 import dgir.vm.api.VM;
 import dgir.vm.dap.DapServer;
 import dgir.vm.dialect.io.IoRunners;
+import org.eclipse.lsp4j.debug.*;
+import org.eclipse.lsp4j.debug.launch.DSPLauncher;
+import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
+import org.eclipse.lsp4j.jsonrpc.Launcher;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import org.eclipse.lsp4j.debug.*;
-import org.eclipse.lsp4j.debug.launch.DSPLauncher;
-import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
-import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
-import org.eclipse.lsp4j.jsonrpc.Launcher;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+
+import static dgir.dialect.arith.ArithOps.ConstantOp;
+import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
+import static dgir.dialect.func.FuncOps.FuncOp;
+import static dgir.dialect.func.FuncOps.ReturnOp;
+import static dgir.dialect.io.IoOps.PrintOp;
+import static dgir.vm.api.DapServerUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Integration tests for {@link DapServer}.
@@ -68,25 +66,6 @@ import org.junit.jupiter.api.Test;
  * <h2>Timeout policy</h2>
  *
  * Every blocking call uses a {@code 5-second} timeout so a hung VM never stalls the test suite.
- *
- * <h2>Expected log noise</h2>
- *
- * Every test that calls {@link ClientSession#close()} (i.e. all end-to-end tests) will produce
- *
- * <p>two INFO log lines from the server side after the socket is closed:
- *
- * <pre>
- * INFO: Socket closed
- *   java.net.SocketException: Socket closed
- *       at ...StreamMessageProducer.listen(...)
- *       ...
- * INFO: DAP session closed.
- * </pre>
- *
- * These are <b>not errors</b>. Closing the client socket is the normal teardown path; lsp4j's
- * {@code StreamMessageProducer} catches the resulting {@code SocketException} and logs it at INFO
- * before marking the JSON-RPC stream as finished. The server's cleanup thread then closes its side
- * of the socket and logs {@code "DAP session closed."}. Both messages can safely be ignored.
  */
 class DapServerTest extends VmTestBase {
 
@@ -94,12 +73,6 @@ class DapServerTest extends VmTestBase {
    * A well-known source location constant used for operations that do not require a real location.
    */
   static final Location LOC = Location.UNKNOWN;
-
-  /**
-   * The {@link DapServer} under test. Created in individual tests (or in {@link #connect}) and shut
-   * down in {@link #stopServer()} after each test.
-   */
-  DapServer server;
 
   /**
    * One-time JUnit setup: registers all DGIR dialects with the {@link Dialect} registry and all
@@ -111,15 +84,6 @@ class DapServerTest extends VmTestBase {
   @BeforeAll
   static void registerDialects() {
     IoRunners.PrintRunner.out = System.out;
-  }
-
-  /**
-   * Ensures the server is stopped after every test, regardless of test outcome. Calling {@link
-   * DapServer#stop()} on an already-stopped or never-started server is safe.
-   */
-  @AfterEach
-  void stopServer() {
-    if (server != null) server.stop();
   }
 
   // ---------------------------------------------------------------------------
@@ -220,276 +184,13 @@ class DapServerTest extends VmTestBase {
    *   }
    * }
    * }</pre>
+   *
+   * @return a fully-constructed {@link ProgramOp} loaded from the JSON resource file
+   * @throws RuntimeException if the resource file cannot be found or parsed
    */
   static ProgramOp functionCallsWithOverload() {
     return TestUtils.loadProgram("functionCallWithOverload.json")
         .orElseThrow(() -> new RuntimeException("Failed to load test program"));
-  }
-
-  /**
-   * Starts a {@link DapServer} for {@code prog} and connects a lsp4j DAP client to it, returning a
-   * {@link ClientSession} that bundles the raw socket and the collecting client.
-   *
-   * <p>The server is started on port {@code 0} so the OS picks a free port. The method:
-   *
-   * <ol>
-   *   <li>Creates and starts the server (assigns {@link #server} so {@link #stopServer()} can clean
-   *       it up).
-   *   <li>Reads the OS-assigned port via {@link DapServer#getBoundPort()}.
-   *   <li>Opens a loopback TCP socket to that port.
-   *   <li>Creates a {@link CollectingClient} and wires it up with a lsp4j {@link
-   *       DSPLauncher#createClientLauncher client launcher}.
-   *   <li>Starts the launcher's listening thread and returns the session.
-   * </ol>
-   *
-   * @param prog the DGIR program to debug; wrapped in a {@link VM} and passed to {@link VM#init} by
-   *     the server's VM factory
-   * @return a {@link ClientSession} representing the established debug session
-   * @throws IOException if the server cannot bind or the socket cannot connect
-   */
-  ClientSession connect(ProgramOp prog) throws IOException {
-    server =
-        new DapServer(
-            0,
-            () -> {
-              VM vm = new VM();
-              vm.init(prog);
-              return vm;
-            });
-    server.start();
-
-    int port = server.getBoundPort();
-    assertTrue(port > 0, "Server should be bound to a port");
-
-    Socket socket = new Socket(InetAddress.getLoopbackAddress(), port);
-    CollectingClient collectingClient = new CollectingClient();
-
-    Launcher<IDebugProtocolServer> launcher =
-        DSPLauncher.createClientLauncher(
-            collectingClient, socket.getInputStream(), socket.getOutputStream());
-
-    collectingClient.remoteServer = launcher.getRemoteProxy();
-    @SuppressWarnings("unused")
-    var listeningFuture = launcher.startListening();
-
-    return new ClientSession(socket, collectingClient);
-  }
-
-  /**
-   * Holds the TCP socket and {@link CollectingClient} for one debug session.
-   *
-   * <p>Use {@link #remote()} to send DAP requests to the server, and {@link #client()} to access
-   * the event queues. Call {@link #close()} at the end of every test to release the socket.
-   *
-   * @param socket the open loopback socket connected to the {@link DapServer}
-   * @param client the DAP client that collects asynchronous events from the server
-   */
-  record ClientSession(Socket socket, CollectingClient client) {
-    /**
-     * Closes the underlying TCP socket, signalling end-of-stream to the server.
-     *
-     * <p>When this method is called, the server-side lsp4j {@code StreamMessageProducer} detects
-     * the closed stream and logs a {@code SocketException: Socket closed} at INFO level. This is
-     * <b>expected and harmless</b>: it is the normal shutdown path for a JSON-RPC stream that ends
-     * without an explicit {@code disconnect} request. The server's cleanup thread then closes its
-     * side of the socket and logs {@code "DAP session closed."}.
-     *
-     * @throws IOException if the socket cannot be closed
-     */
-    void close() throws IOException {
-      socket.close();
-    }
-
-    /**
-     * Returns the lsp4j remote proxy that can be used to send DAP requests (e.g. {@code
-     * initialize}, {@code launch}, {@code continue_}, etc.) to the server.
-     *
-     * @return the remote {@link IDebugProtocolServer} proxy
-     */
-    IDebugProtocolServer remote() {
-      return client.remoteServer;
-    }
-  }
-
-  /**
-   * A DAP client implementation that collects all asynchronous events it receives into {@link
-   * BlockingQueue}s, enabling test code to wait for specific events with a timeout.
-   *
-   * <p>The queues are intentionally unbounded so that spurious or out-of-order events do not cause
-   * the client to block on the lsp4j dispatch thread. Test methods drain specific queues via the
-   * {@code await*} helper methods.
-   */
-  static class CollectingClient implements IDebugProtocolClient {
-    /** The lsp4j remote-server proxy through which DAP requests are sent. */
-    IDebugProtocolServer remoteServer;
-
-    /** Collects every {@code stopped} event sent by the adapter. */
-    final BlockingQueue<StoppedEventArguments> stopped = new LinkedBlockingQueue<>();
-
-    /** Collects every {@code exited} event sent by the adapter. */
-    final BlockingQueue<ExitedEventArguments> exited = new LinkedBlockingQueue<>();
-
-    /** Collects every {@code terminated} event sent by the adapter. */
-    final BlockingQueue<TerminatedEventArguments> terminated = new LinkedBlockingQueue<>();
-
-    /** Collects the single {@code initialized} notification sent by the adapter. */
-    final BlockingQueue<Object> initialized = new LinkedBlockingQueue<>();
-
-    /** {@inheritDoc} */
-    @Override
-    public void stopped(StoppedEventArguments args) {
-      stopped.add(args);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void exited(ExitedEventArguments args) {
-      exited.add(args);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void terminated(TerminatedEventArguments args) {
-      terminated.add(args);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void initialized() {
-      initialized.add(true);
-    }
-
-    /**
-     * Blocks until a {@code stopped} event arrives or 5 seconds elapse.
-     *
-     * @return the next {@link StoppedEventArguments} from the queue
-     * @throws Exception if the wait is interrupted or the assertion fails on timeout
-     */
-    StoppedEventArguments awaitStopped() throws Exception {
-      StoppedEventArguments e = stopped.poll(5, TimeUnit.SECONDS);
-      assertNotNull(e, "Expected stopped event within 5 s");
-      return e;
-    }
-
-    /**
-     * Blocks until an {@code exited} event arrives or 5 seconds elapse.
-     *
-     * @return the next {@link ExitedEventArguments} from the queue
-     * @throws Exception if the wait is interrupted or the assertion fails on timeout
-     */
-    ExitedEventArguments awaitExited() throws Exception {
-      ExitedEventArguments e = exited.poll(5, TimeUnit.SECONDS);
-      assertNotNull(e, "Expected exited event within 5 s");
-      return e;
-    }
-
-    /**
-     * Blocks until a {@code terminated} event arrives or 5 seconds elapse.
-     *
-     * @return the next {@link TerminatedEventArguments} from the queue
-     * @throws Exception if the wait is interrupted or the assertion fails on timeout
-     */
-    TerminatedEventArguments awaitTerminated() throws Exception {
-      TerminatedEventArguments e = terminated.poll(5, TimeUnit.SECONDS);
-      assertNotNull(e, "Expected terminated event within 5 s");
-      return e;
-    }
-
-    /**
-     * Blocks until the {@code initialized} notification arrives or 5 seconds elapse.
-     *
-     * @throws Exception if the wait is interrupted or the assertion fails on timeout
-     */
-    void awaitInitialized() throws Exception {
-      Object e = initialized.poll(5, TimeUnit.SECONDS);
-      assertNotNull(e, "Expected initialized event within 5 s");
-    }
-  }
-
-  /**
-   * Performs the standard DAP handshake required before execution can start:
-   *
-   * <ol>
-   *   <li>{@code initialize} – negotiates capabilities; waits for the {@code initialized}
-   *       notification back from the server.
-   *   <li>{@code launch} – tells the adapter to start (or prepare to start) the program; {@code
-   *       stopOnEntry} controls whether the VM pauses before its very first operation.
-   *   <li>{@code configurationDone} – signals that all configuration (breakpoints, etc.) has been
-   *       sent; the VM begins execution immediately after this call returns on the server side.
-   * </ol>
-   *
-   * <p>All three requests time out after 5 seconds. A non-null {@link Capabilities} response is
-   * asserted after {@code initialize}.
-   *
-   * @param session the active {@link ClientSession} whose {@link ClientSession#remote() remote}
-   *     proxy and {@link ClientSession#client() client} queues are used
-   * @param stopOnEntry when {@code true}, the launch arguments include {@code {"stopOnEntry":
-   *     true}}, causing the adapter to fire a {@code stopped("entry")} event before the first
-   *     operation executes
-   * @throws Exception if any request times out or an assertion fails
-   */
-  static void fullHandshake(ClientSession session, boolean stopOnEntry) throws Exception {
-    IDebugProtocolServer remote = session.remote();
-
-    InitializeRequestArguments initArgs = new InitializeRequestArguments();
-    initArgs.setClientID("test");
-    Capabilities caps = remote.initialize(initArgs).get(5, TimeUnit.SECONDS);
-    assertNotNull(caps);
-
-    session.client().awaitInitialized();
-
-    Map<String, Object> launchArgs = stopOnEntry ? Map.of("stopOnEntry", true) : Map.of();
-    remote.launch(launchArgs).get(5, TimeUnit.SECONDS);
-    remote.configurationDone(new ConfigurationDoneArguments()).get(5, TimeUnit.SECONDS);
-  }
-
-  static void initializeHandshake(ClientSession session) throws Exception {
-    InitializeRequestArguments initArgs = new InitializeRequestArguments();
-    initArgs.setClientID("test");
-    assertNotNull(session.remote().initialize(initArgs).get(5, TimeUnit.SECONDS));
-    session.client().awaitInitialized();
-  }
-
-  static void launchAndConfigDone(ClientSession session, boolean stopOnEntry) throws Exception {
-    Map<String, Object> launchArgs = stopOnEntry ? Map.of("stopOnEntry", true) : Map.of();
-    session.remote().launch(launchArgs).get(5, TimeUnit.SECONDS);
-    session.remote().configurationDone(new ConfigurationDoneArguments()).get(5, TimeUnit.SECONDS);
-  }
-
-  static void setBreakpointsOnLines(ClientSession session, String sourcePath, int... lines)
-      throws Exception {
-    Source src = new Source();
-    src.setPath(sourcePath);
-
-    SourceBreakpoint[] sourceBreakpoints = new SourceBreakpoint[lines.length];
-    for (int i = 0; i < lines.length; i++) {
-      SourceBreakpoint sb = new SourceBreakpoint();
-      sb.setLine(lines[i]);
-      sourceBreakpoints[i] = sb;
-    }
-
-    SetBreakpointsArguments bpArgs = new SetBreakpointsArguments();
-    bpArgs.setSource(src);
-    bpArgs.setBreakpoints(sourceBreakpoints);
-
-    SetBreakpointsResponse bpResp =
-        session.remote().setBreakpoints(bpArgs).get(5, TimeUnit.SECONDS);
-    assertEquals(lines.length, bpResp.getBreakpoints().length);
-    for (var bp : bpResp.getBreakpoints()) {
-      assertTrue(bp.isVerified(), "Breakpoint should be verified");
-    }
-  }
-
-  static StackFrame topFrame(ClientSession session) throws Exception {
-    StackTraceArguments stArgs = new StackTraceArguments();
-    stArgs.setThreadId(1);
-    StackTraceResponse st = session.remote().stackTrace(stArgs).get(5, TimeUnit.SECONDS);
-    assertTrue(st.getStackFrames().length > 0, "Expected at least one frame");
-    return st.getStackFrames()[0];
-  }
-
-  static int topLine(ClientSession session) throws Exception {
-    return topFrame(session).getLine();
   }
 
   // =========================================================================
@@ -512,19 +213,21 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void server_bindsToRandomPort() throws IOException {
-    server =
+    try (DapServer server =
         new DapServer(
             0,
             () -> {
               VM vm = new VM();
               vm.init(simplePrintProgram("x"));
               return vm;
-            });
-    assertEquals(-1, server.getBoundPort(), "Port should be -1 before start");
+            })) {
 
-    server.start();
-    int port = server.getBoundPort();
-    assertTrue(port > 0 && port <= 65535, "Should have a valid bound port: " + port);
+      assertEquals(-1, server.getBoundPort(), "Port should be -1 before start");
+
+      server.start();
+      int port = server.getBoundPort();
+      assertTrue(port > 0 && port <= 65535, "Should have a valid bound port: " + port);
+    }
   }
 
   /**
@@ -542,24 +245,25 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void server_stop_closesListeningSocket() throws IOException, InterruptedException {
-    server =
+    try (DapServer server =
         new DapServer(
             0,
             () -> {
               VM vm = new VM();
               vm.init(simplePrintProgram("x"));
               return vm;
-            });
-    server.start();
-    int port = server.getBoundPort();
-    server.stop();
+            })) {
+      server.start();
+      int port = server.getBoundPort();
+      server.stop();
 
-    // After stop, connections should be refused
-    java.lang.Thread.sleep(50);
-    assertThrows(
-        IOException.class,
-        () -> new Socket(java.net.InetAddress.getLoopbackAddress(), port).close(),
-        "Server should refuse connections after stop");
+      // After stop, connections should be refused
+      java.lang.Thread.sleep(50);
+      assertThrows(
+          IOException.class,
+          () -> new Socket(java.net.InetAddress.getLoopbackAddress(), port).close(),
+          "Server should refuse connections after stop");
+    }
   }
 
   /**
@@ -579,18 +283,19 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void server_getBoundPort_returns_minusOne_afterStop() throws IOException {
-    server =
+    try (DapServer server =
         new DapServer(
             0,
             () -> {
               VM vm = new VM();
               vm.init(simplePrintProgram("x"));
               return vm;
-            });
-    server.start();
-    assertTrue(server.getBoundPort() > 0);
-    server.stop();
-    assertEquals(-1, server.getBoundPort());
+            })) {
+      server.start();
+      assertTrue(server.getBoundPort() > 0);
+      server.stop();
+      assertEquals(-1, server.getBoundPort());
+    }
   }
 
   // =========================================================================
@@ -615,14 +320,18 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void endToEnd_simpleProgram_runsToCompletion() throws Exception {
-    ClientSession session = connect(simplePrintProgram("hello"));
-    fullHandshake(session, false);
+    var serverAndSession = createServerAndConnect(simplePrintProgram("hello"));
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
 
-    ExitedEventArguments exited = session.client().awaitExited();
-    assertEquals(0, exited.getExitCode());
+        fullHandshake(session, false);
 
-    session.client().awaitTerminated();
-    session.close();
+        ExitedEventArguments exited = session.client().awaitExited();
+        assertEquals(0, exited.getExitCode());
+
+        session.client().awaitTerminated();
+      }
+    }
   }
 
   /**
@@ -640,19 +349,22 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void endToEnd_stopOnEntry_thenContinue_runsToCompletion() throws Exception {
-    ClientSession session = connect(simplePrintProgram("stop-on-entry"));
-    fullHandshake(session, true);
+    var serverAndSession = createServerAndConnect(simplePrintProgram("stop-on-entry"));
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        fullHandshake(session, true);
 
-    StoppedEventArguments stopped = session.client().awaitStopped();
-    assertEquals("entry", stopped.getReason());
+        StoppedEventArguments stopped = session.client().awaitStopped();
+        assertEquals("entry", stopped.getReason());
 
-    // Continue
-    ContinueArguments contArgs = new ContinueArguments();
-    session.remote().continue_(contArgs).get(5, TimeUnit.SECONDS);
+        // Continue
+        ContinueArguments contArgs = new ContinueArguments();
+        session.server().continue_(contArgs).get(5, TimeUnit.SECONDS);
 
-    session.client().awaitExited();
-    session.client().awaitTerminated();
-    session.close();
+        session.client().awaitExited();
+        session.client().awaitTerminated();
+      }
+    }
   }
 
   // =========================================================================
@@ -685,37 +397,42 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void endToEnd_breakpointHit_pausesExecution() throws Exception {
-    ClientSession session = connect(multiLinePrintProgram());
+    var serverAndSession = createServerAndConnect(multiLinePrintProgram());
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        InitializeRequestArguments initArgs = new InitializeRequestArguments();
+        initArgs.setClientID("test");
+        session.server().initialize(initArgs).get(5, TimeUnit.SECONDS);
+        session.client().awaitInitialized();
 
-    InitializeRequestArguments initArgs = new InitializeRequestArguments();
-    initArgs.setClientID("test");
-    session.remote().initialize(initArgs).get(5, TimeUnit.SECONDS);
-    session.client().awaitInitialized();
+        // Set a breakpoint on line 4
+        Source src = new Source();
+        src.setPath("test.dgir");
+        SourceBreakpoint sb = new SourceBreakpoint();
+        sb.setLine(4);
+        SetBreakpointsArguments bpArgs = new SetBreakpointsArguments();
+        bpArgs.setSource(src);
+        bpArgs.setBreakpoints(new SourceBreakpoint[] {sb});
+        SetBreakpointsResponse bpResp =
+            session.server().setBreakpoints(bpArgs).get(5, TimeUnit.SECONDS);
+        assertEquals(1, bpResp.getBreakpoints().length);
+        assertTrue(bpResp.getBreakpoints()[0].isVerified());
 
-    // Set a breakpoint on line 4
-    Source src = new Source();
-    src.setPath("test.dgir");
-    SourceBreakpoint sb = new SourceBreakpoint();
-    sb.setLine(4);
-    SetBreakpointsArguments bpArgs = new SetBreakpointsArguments();
-    bpArgs.setSource(src);
-    bpArgs.setBreakpoints(new SourceBreakpoint[] {sb});
-    SetBreakpointsResponse bpResp =
-        session.remote().setBreakpoints(bpArgs).get(5, TimeUnit.SECONDS);
-    assertEquals(1, bpResp.getBreakpoints().length);
-    assertTrue(bpResp.getBreakpoints()[0].isVerified());
+        session.server().launch(Map.of()).get(5, TimeUnit.SECONDS);
+        session
+            .server()
+            .configurationDone(new ConfigurationDoneArguments())
+            .get(5, TimeUnit.SECONDS);
 
-    session.remote().launch(Map.of()).get(5, TimeUnit.SECONDS);
-    session.remote().configurationDone(new ConfigurationDoneArguments()).get(5, TimeUnit.SECONDS);
+        StoppedEventArguments stopped = session.client().awaitStopped();
+        assertEquals("breakpoint", stopped.getReason());
+        assertEquals(1, stopped.getThreadId());
 
-    StoppedEventArguments stopped = session.client().awaitStopped();
-    assertEquals("breakpoint", stopped.getReason());
-    assertEquals(1, stopped.getThreadId());
-
-    session.remote().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
-    session.client().awaitExited();
-    session.client().awaitTerminated();
-    session.close();
+        session.server().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+        session.client().awaitExited();
+        session.client().awaitTerminated();
+      }
+    }
   }
 
   // =========================================================================
@@ -748,25 +465,28 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void endToEnd_stepThroughProgram_firesStepEvents() throws Exception {
-    ClientSession session = connect(multiLinePrintProgram());
-    fullHandshake(session, true);
+    var serverAndSession = createServerAndConnect(multiLinePrintProgram());
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        fullHandshake(session, true);
 
-    StoppedEventArguments first = session.client().awaitStopped();
-    assertEquals("entry", first.getReason());
+        StoppedEventArguments first = session.client().awaitStopped();
+        assertEquals("entry", first.getReason());
 
-    // Step through three distinct source lines
-    for (int i = 0; i < 3; i++) {
-      if (i == 0) session.remote().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
-      else session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
-      StoppedEventArguments stepped = session.client().awaitStopped();
-      assertEquals("step", stepped.getReason());
+        // Step through three distinct source lines
+        for (int i = 0; i < 3; i++) {
+          if (i == 0) session.server().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
+          else session.server().next(new NextArguments()).get(5, TimeUnit.SECONDS);
+          StoppedEventArguments stepped = session.client().awaitStopped();
+          assertEquals("step", stepped.getReason());
+        }
+
+        // Continue the rest
+        session.server().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+        session.client().awaitExited();
+        session.client().awaitTerminated();
+      }
     }
-
-    // Continue the rest
-    session.remote().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
-    session.client().awaitExited();
-    session.client().awaitTerminated();
-    session.close();
   }
 
   /**
@@ -785,18 +505,21 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void endToEnd_stepIn_behavesLikeNext() throws Exception {
-    ClientSession session = connect(multiLinePrintProgram());
-    fullHandshake(session, true);
+    var serverAndSession = createServerAndConnect(multiLinePrintProgram());
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        fullHandshake(session, true);
 
-    session.client().awaitStopped(); // entry
+        session.client().awaitStopped(); // entry
 
-    session.remote().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
-    StoppedEventArguments stepped = session.client().awaitStopped();
-    assertEquals("step", stepped.getReason());
+        session.server().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
+        StoppedEventArguments stepped = session.client().awaitStopped();
+        assertEquals("step", stepped.getReason());
 
-    session.remote().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
-    session.client().awaitExited();
-    session.close();
+        session.server().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+        session.client().awaitExited();
+      }
+    }
   }
 
   // =========================================================================
@@ -821,18 +544,21 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void endToEnd_threads_returnsSingleThread() throws Exception {
-    ClientSession session = connect(multiLinePrintProgram());
-    fullHandshake(session, true);
+    var serverAndSession = createServerAndConnect(multiLinePrintProgram());
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        fullHandshake(session, true);
 
-    session.client().awaitStopped(); // entry
+        session.client().awaitStopped(); // entry
 
-    ThreadsResponse threads = session.remote().threads().get(5, TimeUnit.SECONDS);
-    assertEquals(1, threads.getThreads().length);
-    assertEquals("main", threads.getThreads()[0].getName());
+        ThreadsResponse threads = session.server().threads().get(5, TimeUnit.SECONDS);
+        assertEquals(1, threads.getThreads().length);
+        assertEquals("main", threads.getThreads()[0].getName());
 
-    session.remote().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
-    session.client().awaitExited();
-    session.close();
+        session.server().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+        session.client().awaitExited();
+      }
+    }
   }
 
   /**
@@ -855,25 +581,28 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void endToEnd_stackTrace_whilePaused_returnsFrames() throws Exception {
-    ClientSession session = connect(multiLinePrintProgram());
-    fullHandshake(session, true);
+    var serverAndSession = createServerAndConnect(multiLinePrintProgram());
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        fullHandshake(session, true);
 
-    session.client().awaitStopped(); // entry
+        session.client().awaitStopped(); // entry
 
-    StackTraceArguments stArgs = new StackTraceArguments();
-    stArgs.setThreadId(1);
-    StackTraceResponse st = session.remote().stackTrace(stArgs).get(5, TimeUnit.SECONDS);
+        StackTraceArguments stArgs = new StackTraceArguments();
+        stArgs.setThreadId(1);
+        StackTraceResponse st = session.server().stackTrace(stArgs).get(5, TimeUnit.SECONDS);
 
-    assertTrue(st.getTotalFrames() > 0);
-    assertTrue(st.getStackFrames().length > 0);
-    for (StackFrame f : st.getStackFrames()) {
-      assertNotNull(f.getSource());
-      assertTrue(f.getId() > 0);
+        assertTrue(st.getTotalFrames() > 0);
+        assertTrue(st.getStackFrames().length > 0);
+        for (StackFrame f : st.getStackFrames()) {
+          assertNotNull(f.getSource());
+          assertTrue(f.getId() > 0);
+        }
+
+        session.server().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+        session.client().awaitExited();
+      }
     }
-
-    session.remote().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
-    session.client().awaitExited();
-    session.close();
   }
 
   /**
@@ -906,41 +635,45 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void endToEnd_scopesAndVariables_whilePaused() throws Exception {
-    ClientSession session = connect(multiLinePrintProgram());
-    fullHandshake(session, true);
+    var serverAndSession = createServerAndConnect(multiLinePrintProgram());
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        fullHandshake(session, true);
 
-    session.client().awaitStopped(); // entry pause
+        session.client().awaitStopped(); // entry pause
 
-    // Step into one to execute ConstantOp("A") and produce the first binding.
-    session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
-    session.client().awaitStopped(); // step
+        // Step into one to execute ConstantOp("A") and produce the first binding.
+        session.server().next(new NextArguments()).get(5, TimeUnit.SECONDS);
+        session.client().awaitStopped(); // step
 
-    // Step again — executes PrintOp("A"), creating the first visible binding.
-    session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
-    session.client().awaitStopped(); // step
+        // Step again — executes PrintOp("A"), creating the first visible binding.
+        session.server().next(new NextArguments()).get(5, TimeUnit.SECONDS);
+        session.client().awaitStopped(); // step
 
-    // Scopes
-    ScopesArguments scopesArgs = new ScopesArguments();
-    scopesArgs.setFrameId(1);
-    ScopesResponse scopes = session.remote().scopes(scopesArgs).get(5, TimeUnit.SECONDS);
-    assertEquals(1, scopes.getScopes().length);
-    assertEquals("Locals", scopes.getScopes()[0].getName());
+        // Scopes
+        ScopesArguments scopesArgs = new ScopesArguments();
+        scopesArgs.setFrameId(1);
+        ScopesResponse scopes = session.server().scopes(scopesArgs).get(5, TimeUnit.SECONDS);
+        assertEquals(1, scopes.getScopes().length);
+        assertEquals("Locals", scopes.getScopes()[0].getName());
 
-    // Variables
-    VariablesArguments varArgs = new VariablesArguments();
-    varArgs.setVariablesReference(scopes.getScopes()[0].getVariablesReference());
-    VariablesResponse vars = session.remote().variables(varArgs).get(5, TimeUnit.SECONDS);
-    assertNotNull(vars.getVariables());
-    assertTrue(vars.getVariables().length >= 1, "Expected at least one variable after stepping");
+        // Variables
+        VariablesArguments varArgs = new VariablesArguments();
+        varArgs.setVariablesReference(scopes.getScopes()[0].getVariablesReference());
+        VariablesResponse vars = session.server().variables(varArgs).get(5, TimeUnit.SECONDS);
+        assertNotNull(vars.getVariables());
+        assertTrue(
+            vars.getVariables().length >= 1, "Expected at least one variable after stepping");
 
-    for (Variable v : vars.getVariables()) {
-      assertNotNull(v.getName());
-      assertNotNull(v.getValue());
+        for (Variable v : vars.getVariables()) {
+          assertNotNull(v.getName());
+          assertNotNull(v.getValue());
+        }
+
+        session.server().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+        session.client().awaitExited();
+      }
     }
-
-    session.remote().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
-    session.client().awaitExited();
-    session.close();
   }
 
   // =========================================================================
@@ -967,21 +700,27 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void endToEnd_setExceptionBreakpoints_isAccepted() throws Exception {
-    ClientSession session = connect(simplePrintProgram("x"));
+    var serverAndSession = createServerAndConnect(simplePrintProgram("x"));
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
 
-    InitializeRequestArguments initArgs = new InitializeRequestArguments();
-    session.remote().initialize(initArgs).get(5, TimeUnit.SECONDS);
-    session.client().awaitInitialized();
+        InitializeRequestArguments initArgs = new InitializeRequestArguments();
+        session.server().initialize(initArgs).get(5, TimeUnit.SECONDS);
+        session.client().awaitInitialized();
 
-    SetExceptionBreakpointsArguments args = new SetExceptionBreakpointsArguments();
-    args.setFilters(new String[0]);
-    // Should not throw
-    assertNotNull(session.remote().setExceptionBreakpoints(args).get(5, TimeUnit.SECONDS));
+        SetExceptionBreakpointsArguments args = new SetExceptionBreakpointsArguments();
+        args.setFilters(new String[0]);
+        // Should not throw
+        assertNotNull(session.server().setExceptionBreakpoints(args).get(5, TimeUnit.SECONDS));
 
-    session.remote().launch(Map.of()).get(5, TimeUnit.SECONDS);
-    session.remote().configurationDone(new ConfigurationDoneArguments()).get(5, TimeUnit.SECONDS);
-    session.client().awaitExited();
-    session.close();
+        session.server().launch(Map.of()).get(5, TimeUnit.SECONDS);
+        session
+            .server()
+            .configurationDone(new ConfigurationDoneArguments())
+            .get(5, TimeUnit.SECONDS);
+        session.client().awaitExited();
+      }
+    }
   }
 
   // =========================================================================
@@ -1012,7 +751,7 @@ class DapServerTest extends VmTestBase {
   @Test
   void server_handlesMultipleSequentialClients() throws Exception {
     final int[] callCount = {0};
-    server =
+    try (DapServer server =
         new DapServer(
             0,
             () -> {
@@ -1020,36 +759,35 @@ class DapServerTest extends VmTestBase {
               VM vm = new VM();
               vm.init(simplePrintProgram("session-" + callCount[0]));
               return vm;
-            });
-    server.start();
+            })) {
+      server.start();
 
-    for (int i = 1; i <= 2; i++) {
-      try (Socket socket =
-          new Socket(java.net.InetAddress.getLoopbackAddress(), server.getBoundPort())) {
+      for (int i = 1; i <= 2; i++) {
+
         CollectingClient client = new CollectingClient();
+        Socket socket = new Socket(InetAddress.getLoopbackAddress(), server.getBoundPort());
         Launcher<IDebugProtocolServer> launcher =
             DSPLauncher.createClientLauncher(
                 client, socket.getInputStream(), socket.getOutputStream());
-        client.remoteServer = launcher.getRemoteProxy();
-        @SuppressWarnings("unused")
-        var listeningFuture = launcher.startListening();
+        try (ClientSession<CollectingClient> session =
+            new ClientSession<>(
+                socket, client, launcher.getRemoteProxy(), launcher.startListening())) {
+          InitializeRequestArguments initArgs = new InitializeRequestArguments();
+          session.server().initialize(initArgs).get(5, TimeUnit.SECONDS);
+          client.awaitInitialized();
 
-        InitializeRequestArguments initArgs = new InitializeRequestArguments();
-        client.remoteServer.initialize(initArgs).get(5, TimeUnit.SECONDS);
-        client.awaitInitialized();
+          session.server().launch(Map.of()).get(5, TimeUnit.SECONDS);
+          session
+              .server()
+              .configurationDone(new ConfigurationDoneArguments())
+              .get(5, TimeUnit.SECONDS);
 
-        client.remoteServer.launch(Map.of()).get(5, TimeUnit.SECONDS);
-        client
-            .remoteServer
-            .configurationDone(new ConfigurationDoneArguments())
-            .get(5, TimeUnit.SECONDS);
-
-        ExitedEventArguments exited = client.awaitExited();
-        assertEquals(0, exited.getExitCode(), "Session " + i + " should exit cleanly");
-        client.awaitTerminated();
+          ExitedEventArguments exited = client.awaitExited();
+          assertEquals(0, exited.getExitCode(), "Session " + i + " should exit cleanly");
+          client.awaitTerminated();
+        }
       }
     }
-
     assertEquals(2, callCount[0], "vmFactory should have been called twice");
   }
 
@@ -1057,6 +795,11 @@ class DapServerTest extends VmTestBase {
   // Overload program DAP tests
   // =========================================================================
 
+  /**
+   * The virtual source file path used by the overload test program ({@code
+   * "functionCallWithOverload.java"}). Breakpoints in the overload tests are set against this path
+   * so that the DAP {@code setBreakpoints} request and the IR operation locations agree.
+   */
   static final String OVERLOAD_SOURCE = "functionCallWithOverload.java";
 
   /**
@@ -1075,27 +818,30 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void endToEnd_overload_stopOnEntry_stepOver_reachesFourthLine() throws Exception {
-    ClientSession session = connect(functionCallsWithOverload());
-    fullHandshake(session, true);
+    var serverAndSession = createServerAndConnect(functionCallsWithOverload());
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        fullHandshake(session, true);
 
-    StoppedEventArguments entry = session.client().awaitStopped();
-    assertEquals("entry", entry.getReason());
-    assertEquals(3, topLine(session));
+        StoppedEventArguments entry = session.client().awaitStopped();
+        assertEquals("entry", entry.getReason());
+        assertEquals(3, topLine(session.server()));
 
-    session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
-    StoppedEventArguments firstStep = session.client().awaitStopped();
-    assertEquals("step", firstStep.getReason());
-    assertEquals(4, topLine(session));
+        session.server().next(new NextArguments()).get(5, TimeUnit.SECONDS);
+        StoppedEventArguments firstStep = session.client().awaitStopped();
+        assertEquals("step", firstStep.getReason());
+        assertEquals(4, topLine(session.server()));
 
-    session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
-    StoppedEventArguments secondStep = session.client().awaitStopped();
-    assertEquals("step", secondStep.getReason());
-    assertEquals(5, topLine(session));
+        session.server().next(new NextArguments()).get(5, TimeUnit.SECONDS);
+        StoppedEventArguments secondStep = session.client().awaitStopped();
+        assertEquals("step", secondStep.getReason());
+        assertEquals(5, topLine(session.server()));
 
-    session.remote().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
-    session.client().awaitExited();
-    session.client().awaitTerminated();
-    session.close();
+        session.server().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+        session.client().awaitExited();
+        session.client().awaitTerminated();
+      }
+    }
   }
 
   /**
@@ -1117,24 +863,27 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void endToEnd_overload_breakpointLine3_thenStepOver_reachesLine4() throws Exception {
-    ClientSession session = connect(functionCallsWithOverload());
-    initializeHandshake(session);
-    setBreakpointsOnLines(session, OVERLOAD_SOURCE, 3);
-    launchAndConfigDone(session, true);
+    var serverAndSession = createServerAndConnect(functionCallsWithOverload());
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        initializeHandshake(session);
+        setBreakpointsOnLines(session.server(), OVERLOAD_SOURCE, 3);
+        launchAndConfigDone(session, true);
 
-    StoppedEventArguments entry = session.client().awaitStopped();
-    assertEquals("entry", entry.getReason());
-    assertEquals(3, topLine(session));
+        StoppedEventArguments entry = session.client().awaitStopped();
+        assertEquals("entry", entry.getReason());
+        assertEquals(3, topLine(session.server()));
 
-    session.remote().next(new NextArguments()).get(5, TimeUnit.SECONDS);
-    StoppedEventArguments stepped = session.client().awaitStopped();
-    assertEquals("step", stepped.getReason());
-    assertEquals(4, topLine(session));
+        session.server().next(new NextArguments()).get(5, TimeUnit.SECONDS);
+        StoppedEventArguments stepped = session.client().awaitStopped();
+        assertEquals("step", stepped.getReason());
+        assertEquals(4, topLine(session.server()));
 
-    session.remote().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
-    session.client().awaitExited();
-    session.client().awaitTerminated();
-    session.close();
+        session.server().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+        session.client().awaitExited();
+        session.client().awaitTerminated();
+      }
+    }
   }
 
   /**
@@ -1155,33 +904,37 @@ class DapServerTest extends VmTestBase {
    */
   @Test
   void endToEnd_overload_breakpoints3and8_stepIn_and_stepOut() throws Exception {
-    ClientSession session = connect(functionCallsWithOverload());
-    initializeHandshake(session);
-    setBreakpointsOnLines(session, OVERLOAD_SOURCE, 3, 8);
-    launchAndConfigDone(session, false);
+    var serverAndSession = createServerAndConnect(functionCallsWithOverload());
+    try (DapServer server = serverAndSession.getLeft()) {
+      try (ClientSession<CollectingClient> session = serverAndSession.getRight()) {
+        initializeHandshake(session);
+        setBreakpointsOnLines(session.server(), OVERLOAD_SOURCE, 3, 8);
+        launchAndConfigDone(session, false);
 
-    StoppedEventArguments bp3 = session.client().awaitStopped();
-    assertEquals("breakpoint", bp3.getReason());
-    assertEquals(3, topLine(session));
+        StoppedEventArguments bp3 = session.client().awaitStopped();
+        assertEquals("breakpoint", bp3.getReason());
+        assertEquals(3, topLine(session.server()));
 
-    session.remote().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
-    StoppedEventArguments inCallee = session.client().awaitStopped();
-    assertEquals("step", inCallee.getReason(), "stepIn into add(int,int) should pause by step");
-    assertEquals(8, topLine(session));
+        session.server().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
+        StoppedEventArguments inCallee = session.client().awaitStopped();
+        assertEquals("step", inCallee.getReason(), "stepIn into add(int,int) should pause by step");
+        assertEquals(8, topLine(session.server()));
 
-    session.remote().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
-    StoppedEventArguments breakpoint8 = session.client().awaitStopped();
-    assertEquals("breakpoint", breakpoint8.getReason(), "step should pause at breakpoint line 8");
-    assertEquals(8, topLine(session));
+        session.server().stepIn(new StepInArguments()).get(5, TimeUnit.SECONDS);
+        StoppedEventArguments breakpoint8 = session.client().awaitStopped();
+        assertEquals(
+            "breakpoint", breakpoint8.getReason(), "step should pause at breakpoint line 8");
+        assertEquals(8, topLine(session.server()));
 
-    session.remote().stepOut(new StepOutArguments()).get(5, TimeUnit.SECONDS);
-    StoppedEventArguments outToCaller = session.client().awaitStopped();
-    assertEquals("step", outToCaller.getReason());
-    assertEquals(4, topLine(session));
+        session.server().stepOut(new StepOutArguments()).get(5, TimeUnit.SECONDS);
+        StoppedEventArguments outToCaller = session.client().awaitStopped();
+        assertEquals("step", outToCaller.getReason());
+        assertEquals(4, topLine(session.server()));
 
-    session.remote().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
-    session.client().awaitExited();
-    session.client().awaitTerminated();
-    session.close();
+        session.server().continue_(new ContinueArguments()).get(5, TimeUnit.SECONDS);
+        session.client().awaitExited();
+        session.client().awaitTerminated();
+      }
+    }
   }
 }

@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  * }
  * }</pre>
  */
-public class DapServer {
+public class DapServer implements AutoCloseable {
 
   private static final Logger LOG = Logger.getLogger(DapServer.class.getName());
 
@@ -141,6 +141,15 @@ public class DapServer {
   // Session wiring
   // =========================================================================
 
+  /**
+   * Wires a newly accepted client {@link Socket} to a fresh {@link VM} / {@link DapAdapter} pair.
+   *
+   * <p>A lsp4j {@code DSPLauncher} is used to build the JSON-RPC message pump. The adapter receives
+   * the remote client proxy via {@link DapAdapter#setClient} so it can fire events back. A daemon
+   * cleanup thread waits for the listening future to complete and then closes the socket.
+   *
+   * @param socket the accepted TCP socket; ownership is transferred to the cleanup thread
+   */
   private void handleSession(@NotNull Socket socket) {
     VM vm = vmFactory.get();
     DapAdapter adapter = new DapAdapter(vm);
@@ -159,14 +168,27 @@ public class DapServer {
     adapter.setClient(launcher.getRemoteProxy());
 
     // Start listening for incoming messages on a daemon thread.
-    Future<?> listening = launcher.startListening();
+    Future<Void> listening = launcher.startListening();
 
     // Clean-up thread: close the socket once the session ends.
     Thread cleanup = getCleanupThread(socket, listening);
     cleanup.start();
   }
 
-  private static @NotNull Thread getCleanupThread(@NotNull Socket socket, Future<?> listening) {
+  /**
+   * Builds a daemon thread that waits for the lsp4j listening future to complete and then closes
+   * the client socket.
+   *
+   * <p>This ensures that every accepted socket is released even if the client disconnects without
+   * sending an explicit {@code disconnect} request. The thread is named {@code
+   * "dap-session-cleanup"}.
+   *
+   * @param socket the socket to close when the session ends
+   * @param listening the {@link Future} returned by {@code launcher.startListening()}
+   * @return a configured daemon thread; the caller is responsible for calling {@link
+   *     Thread#start()}
+   */
+  private static @NotNull Thread getCleanupThread(@NotNull Socket socket, Future<Void> listening) {
     Thread cleanup =
         new Thread(
             () -> {
@@ -185,5 +207,11 @@ public class DapServer {
             "dap-session-cleanup");
     cleanup.setDaemon(true);
     return cleanup;
+  }
+
+  /** Calls {@link #stop()}, implementing {@link AutoCloseable} for use in try-with-resources. */
+  @Override
+  public void close() {
+    stop();
   }
 }
