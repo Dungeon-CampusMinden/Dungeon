@@ -37,44 +37,7 @@ tasks.register('runTheLastHour', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.named('jar', Jar) {
-    dependsOn project(':dungeon').tasks.named('jar')
-    dependsOn project(':escapeRoom').tasks.named('jar')
 
-    archiveBaseName.set('TheLastHour')
-    archiveFileName.set('TheLastHour.jar')
-
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    // include compiled classes
-    from sourceSets.main.output
-    from project(':dungeon').sourceSets.main.output
-    from project(':theLastHourEscapeRoom').sourceSets.main.output
-    // include dependencies
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-
-    // include assets
-    into('assets') {
-        from new File(project(':dungeon').projectDir, '/assets')
-        from new File(project(':theLastHourEscapeRoom').projectDir, '/assets')
-    }
-
-    // manifest
-    manifest {
-        attributes(
-                'Main-Class': 'starter.TheLastHour'
-        )
-    }
-
-    // exclude signature files
-    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
-}
-
-tasks.named('jpackageImage'){
-    dependsOn 'installDist'
-}
 
 /*
     "Creates an image containing your application, a custom JRE, and appropriate start scripts.
@@ -107,6 +70,7 @@ runtime {
 
         // Directory containing all JARs (created by installDist task)    "../build/install/dungeon/lib"
         def inputDir = layout.buildDirectory.dir("install/${application.applicationName}/lib").get().asFile
+
 
         // Options passed to jpackage tool (jpackage requires --input option to know where all jars are)
         imageOptions = ["--input", inputDir.absolutePath]
