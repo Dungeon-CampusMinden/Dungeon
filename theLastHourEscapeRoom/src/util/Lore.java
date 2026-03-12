@@ -61,15 +61,23 @@ public class Lore {
               32),
           Tuple.of("The Last Hour", 120));
 
-  /** List of post intro dialog texts. */
-  public static final List<String> PostIntroDialogTexts =
-      List.of(
+  /** First post intro dialog. */
+  public static final String PostIntroDialogText1 =
           """
-        Your task is to reconstruct his final steps. Gain access to his PC, investigate his communication, and uncover the clues he left behind.
+        Your task is to reconstruct Dr. Mertens' final steps. Gain access to his PC, investigate his communication, and uncover the clues he left behind.
 
         But be careful: not every piece of information can be trusted. Among helpful messages, there may be deliberate manipulation attempts.
 
-        If you discover what Dr. Mertens was working on, you may come closer to understanding why he disappeared.""");
+        If you discover what he was working on, you may come closer to understanding why he disappeared.""";
+
+  /** 2nd intro dialog. */
+  public static final String PostIntroDialogText2 =
+          """
+        Controls:
+
+        Move -> WASD
+        Interact -> E
+        Close Dialog -> <ESC>""";
 
   /** List of outro texts, each with a corresponding font sizes. */
   public static final List<Tuple<String, Integer>> OutroTexts =

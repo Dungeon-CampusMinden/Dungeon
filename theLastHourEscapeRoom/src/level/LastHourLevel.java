@@ -56,6 +56,7 @@ import util.ui.BlackFadeCutscene;
 /** The Last Hour Room. */
 public class LastHourLevel extends DungeonLevel {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LastHourLevel.class);
+  private static LastHourLevel Instance = null;
 
   private DoorTile storageDoor;
   private Entity pc;
@@ -84,6 +85,15 @@ public class LastHourLevel extends DungeonLevel {
   public LastHourLevel(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, "last-hour-1");
+    Instance = this;
+  }
+
+  /**
+   * Gets the instance of the LastHourLevel.
+   * @return The instance of the LastHourLevel.
+   */
+  public static LastHourLevel getInstance() {
+    return Instance;
   }
 
   @Override
@@ -118,7 +128,8 @@ public class LastHourLevel extends DungeonLevel {
         true,
         () ->
             DialogFactory.showTextDialog(
-                Lore.PostIntroDialogTexts.getFirst(), "", () -> {}, null, targetId),
+                Lore.PostIntroDialogText1, "", () -> DialogFactory.showOkDialog(
+                  Lore.PostIntroDialogText2, "", () -> {}, targetId), null, targetId),
         targetId);
     INTRO_SHOWN_TO.add(targetId);
   }
@@ -496,27 +507,19 @@ public class LastHourLevel extends DungeonLevel {
     cscLastTick = csc;
   }
 
-  static Entity interactableEntity = null;
+  static List<Entity> currentInteractablesInRange = new ArrayList<>();
 
   static void checkInteractFeedback() {
     Game.player()
         .ifPresent(
             p -> {
-              Optional<Entity> found =
-                  HeroController.findInteractable(p, SkillTools.cursorPositionAsPoint());
-              if (found.isPresent() && found.get() != interactableEntity) {
-                // New interactable entity
-                if (interactableEntity != null) {
-                  // Remove old feedback
-                  removeInteractFeedback(interactableEntity);
-                }
-                interactableEntity = found.get();
-                addInteractFeedback(interactableEntity);
-              } else if (found.isEmpty() && interactableEntity != null) {
-                // No interactable entity anymore, remove old feedback
-                removeInteractFeedback(interactableEntity);
-                interactableEntity = null;
-              }
+              List<Entity> interactables = HeroController.findInteractablesInRange(p);
+              Optional<Entity> closest = HeroController.findInteractable(p, SkillTools.cursorPositionAsPoint());
+
+              currentInteractablesInRange.forEach(LastHourLevel::removeInteractFeedback);
+              currentInteractablesInRange.clear();
+              interactables.forEach(e -> addInteractFeedback(e, closest.isPresent() && e.id() == closest.get().id()));
+              currentInteractablesInRange.addAll(interactables);
             });
   }
 
@@ -529,12 +532,13 @@ public class LastHourLevel extends DungeonLevel {
             });
   }
 
-  static void addInteractFeedback(Entity entity) {
+  static void addInteractFeedback(Entity entity, boolean isImportant) {
+    Color color = isImportant ? new Color(0.8f, 0, 0, 1f) : new Color(0.8f, 0.7f, 0, 0.4f);
     entity
         .fetch(DrawComponent.class)
         .ifPresent(
             dc -> {
-              dc.shaders().add("outline", new OutlineShader(1, new Color(0.8f, 0, 0, 1f)));
+              dc.shaders().add("outline", new OutlineShader(1, color));
             });
   }
 

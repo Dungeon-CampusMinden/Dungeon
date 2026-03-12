@@ -211,7 +211,7 @@ public class HeroController {
    */
   public static Optional<Entity> findInteractable(Entity hero, Point point) {
     Point heroPos = EntityUtils.getPosition(hero);
-    Optional<InteractionData> target = Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class)).map(InteractionData::of).filter(
+    Optional<InteractionData> target = findInteractablesInRange(hero).stream().map(InteractionData::of).filter(
       data -> heroPos.distanceSquared(EntityUtils.getPosition(data.e())) <= data.ic().interactions().interact().range() * data.ic().interactions().interact().range()
     ).min(Comparator.comparingDouble(data -> EntityUtils.getPosition(data.e()).distanceSquared(point)));
     return target.map(InteractionData::e);
@@ -224,6 +224,18 @@ public class HeroController {
           e.fetch(PositionComponent.class).orElseThrow(),
           e.fetch(InteractionComponent.class).orElseThrow());
     }
+  }
+
+  /**
+   * Finds all interactable entities within the interaction range of the hero.
+   * @param hero the entity for which to find interactables in range
+   * @return a list of entities in range
+   */
+  public static List<Entity> findInteractablesInRange(Entity hero) {
+    Point heroPos = EntityUtils.getPosition(hero);
+    return Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class)).filter(
+      e -> heroPos.distanceSquared(EntityUtils.getPosition(e)) <= e.fetch(InteractionComponent.class).orElseThrow().interactions().interact().range() * e.fetch(InteractionComponent.class).orElseThrow().interactions().interact().range()
+    ).toList();
   }
 
   /**
