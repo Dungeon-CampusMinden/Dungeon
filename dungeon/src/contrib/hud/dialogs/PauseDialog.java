@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
+import core.Entity;
 import core.Game;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
@@ -53,19 +54,41 @@ public class PauseDialog extends Table {
   }
 
   /**
-   * Shows the pause menu dialog for the given target entity IDs.
+   * Shows the pause menu dialog for the given target entity.
    *
-   * @param targetIds The target entity IDs for which the dialog is displayed
+   * @param caller the entity for which the pause menu should be shown.
    * @return The {@link UIComponent} containing the dialog
    */
-  public static UIComponent showPauseDialog(int... targetIds) {
-    DialogContext ctx = DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).build();
+  public static UIComponent showPauseDialog(Entity caller) {
+    // Find if the player has any open pause menu dialog already:
+    boolean hasClosed = caller.fetch(UIComponent.class).map(uic -> {
+      if (uic.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU) {
+        UIUtils.closeDialog(uic);
+        return true;
+      }
+      return false;
+    }).orElse(false);
 
-    UIComponent ui = DialogFactory.show(ctx, targetIds);
+    if(hasClosed) return null;
+
+    DialogContext ctx = DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).build();
+    ctx.owner(caller.id());
+
+    UIComponent ui = DialogFactory.show(ctx, caller.id());
 
     // Register callback
-    ui.registerCallback(DialogContextKeys.ON_RESUME, data -> UIUtils.closeDialog(ui));
-    ui.registerCallback(DialogContextKeys.ON_QUIT, data -> Game.exit("Quit from pause menu"));
+    ui.registerCallback(DialogContextKeys.ON_RESUME, data -> {
+      int a = 5 + 2;
+      UIUtils.closeDialog(ui);
+    });
+    ui.registerCallback(DialogContextKeys.ON_QUIT, data -> {
+      if(Game.isHeadless()){
+        // On server, this button closes the game for the player, not all players.
+        //TODO add removing player here
+      } else {
+        Game.exit("Quit from pause menu");
+      }
+    });
 
     return ui;
   }
