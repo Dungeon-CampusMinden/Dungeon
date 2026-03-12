@@ -6,6 +6,7 @@ import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.PauseDialog;
 import contrib.systems.HealthSystem;
 import contrib.systems.HudSystem;
 import contrib.systems.PositionSync;
@@ -403,6 +404,10 @@ public final class HeroBuilder {
                             }))),
         false,
         true);
+    inputComp.registerCallback(
+      KeyboardConfig.PAUSE_MENU.value(),
+      PauseDialog::showPauseDialog,
+      false, false);
   }
   // endregion
 }
