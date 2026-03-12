@@ -46,6 +46,10 @@ app-name=${launcher.name}
     }
 }
 
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
+
 // jpackage should depend of properties files for launchers
 tasks.named('jpackageImage').configure {
     dependsOn 'generateLauncherProperties'
