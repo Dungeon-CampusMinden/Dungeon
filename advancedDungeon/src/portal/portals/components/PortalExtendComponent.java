@@ -14,8 +14,6 @@ public class PortalExtendComponent implements Component {
   private boolean isExtended = false;
 
   /** Default extend method. */
-  // TODO: was sind immer diese consumer wofür braucht man die?
-  // WANN wird der überschrieben
   public TriConsumer<Direction, Point, PortalExtendComponent> onExtend = (d, p, pec) -> {};
 
   /** Default trim method. */
