@@ -20,7 +20,7 @@ import static dgir.dialect.builtin.BuiltinOps.ProgramOp;
 import static dgir.dialect.func.FuncOps.FuncOp;
 import static dgir.dialect.func.FuncOps.ReturnOp;
 import static dgir.dialect.io.IoOps.PrintOp;
-import static dgir.dialect.scf.ScfOps.ContinueOp;
+import static dgir.dialect.scf.ScfOps.EndOp;
 import static dgir.dialect.scf.ScfOps.ForOp;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

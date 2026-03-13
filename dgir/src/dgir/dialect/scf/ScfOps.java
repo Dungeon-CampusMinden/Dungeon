@@ -4,10 +4,11 @@ import dgir.core.Dialect;
 import dgir.core.Utils;
 import dgir.core.debug.Location;
 import dgir.core.ir.*;
-import dgir.core.traits.*;
-import dgir.dialect.arith.ArithOps;
+import dgir.core.traits.IControlFlow;
+import dgir.core.traits.ISingleRegion;
+import dgir.core.traits.ISpecificParentOp;
+import dgir.core.traits.ITerminator;
 import dgir.dialect.builtin.BuiltinTypes;
-import dgir.dialect.cf.CfOps;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -16,8 +17,6 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
-import static dgir.dialect.arith.ArithAttrs.BinModeAttr.BinMode;
 
 /**
  * Sealed marker interface for all operations in the {@link ScfDialect}.
@@ -60,66 +59,8 @@ public sealed interface ScfOps {
     }
   }
 
-  final class BreakOp extends ScfOp implements ScfOps, ITerminator, ISpecificParentOp {
-
-    // =========================================================================
-    // Type Info
-    // =========================================================================
-
-    @Override
-    public @NotNull String getIdent() {
-      return "scf.break";
-    }
-
-    @Override
-    public @NotNull Function<Operation, Boolean> getVerifier() {
-      return ignored -> true;
-    }
-
-    // =========================================================================
-    // Constructors
-    // =========================================================================
-
-    /** Default constructor used during dialect registration. */
-    private BreakOp() {}
-
-    /**
-     * Create a break op.
-     *
-     * @param location the source location of this operation.
-     */
-    public BreakOp(@NotNull Location location) {
-      setOperation(false, Operation.Create(location, this, null, null, null));
-    }
-
-    // =========================================================================
-    // Functions
-    // =========================================================================
-
-    @Override
-    public @NotNull Optional<Constructor<? extends ITerminator>> getLocationConstructor() {
-      try {
-        return Optional.of(getClass().getConstructor(Location.class));
-      } catch (NoSuchMethodException e) {
-        throw new AssertionError(
-            "Terminator "
-                + getClass()
-                + " does not define a public constructor that takes only a location as parameter.",
-            e);
-      }
-    }
-
-    @Override
-    public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
-      return List.of(ForOp.class, WhileOp.class);
-    }
-  }
-
   /**
-   * Explicit scope/branch terminator for selected SCF constructs.
-   *
-   * <p>{@code scf.end} is valid only as a direct child of {@link IfOp} or {@link ScopeOp}. It marks
-   * the end of the currently active region/block in those constructs.
+   * Explicit scope/branch terminator for SCF constructs.
    *
    * <p>Ident: {@code scf.end}
    */
@@ -148,7 +89,7 @@ public sealed interface ScfOps {
      */
     @Override
     public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
-      return List.of(IfOp.class, ScopeOp.class);
+      return List.of(IfOp.class, ScopeOp.class, WhileOp.class, ForOp.class);
     }
 
     /**
@@ -181,66 +122,6 @@ public sealed interface ScfOps {
     }
   }
 
-  final class ContinueOp extends ScfOp implements ScfOps, ITerminator, ISpecificParentOp {
-
-    // =========================================================================
-    // Type Info
-    // =========================================================================
-
-    @Override
-    public @NotNull String getIdent() {
-      return "scf.continue";
-    }
-
-    @Override
-    public @NotNull Function<Operation, Boolean> getVerifier() {
-      return ignored -> true;
-    }
-
-    // =========================================================================
-    // Constructors
-    // =========================================================================
-
-    /** Default constructor used during dialect registration. */
-    private ContinueOp() {}
-
-    /**
-     * Create a continue op.
-     *
-     * @param location the source location of this operation.
-     */
-    public ContinueOp(@NotNull Location location) {
-      setOperation(true, Operation.Create(location, this, null, null, null));
-    }
-
-    // =========================================================================
-    // Functions
-    // =========================================================================
-
-    @Override
-    public @NotNull Optional<Constructor<? extends ITerminator>> getLocationConstructor() {
-      try {
-        return Optional.of(getClass().getConstructor(Location.class));
-      } catch (NoSuchMethodException e) {
-        throw new AssertionError(
-            "Terminator "
-                + getClass()
-                + " does not define a public constructor that takes only a location as parameter.",
-            e);
-      }
-    }
-
-    /**
-     * Restricts {@code scf.continue} to loop-like parents.
-     *
-     * <p>Semantically, this operation requests continuation of the nearest enclosing loop.
-     */
-    @Override
-    public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
-      return List.of(ForOp.class, WhileOp.class);
-    }
-  }
-
   /**
    * Counted for-loop in the {@code scf} dialect.
    *
@@ -256,6 +137,10 @@ public sealed interface ScfOps {
    *
    * <p>The four operands passed at construction time seed the initial induction variable, lower
    * bound, upper bound, and step respectively.
+   *
+   * <p>Additionally, a "break" value is available as the second body value of the loop's single
+   * region, which can be set to true to terminate the loop early (similar to "break" in most
+   * languages) regardless of the loop condition.
    *
    * <p>Ident: {@code scf.for}
    *
@@ -310,7 +195,7 @@ public sealed interface ScfOps {
               List.of(initValue, lowerBound, upperBound, step),
               null,
               null,
-              List.of(BuiltinTypes.IntegerT.INT32)));
+              List.of(BuiltinTypes.IntegerT.INT32, BuiltinTypes.IntegerT.BOOL)));
     }
 
     // =========================================================================
@@ -366,6 +251,17 @@ public sealed interface ScfOps {
     @Contract(pure = true)
     public @NotNull Value getStep() {
       return getOperand(3).flatMap(Operand::getValue).orElseThrow();
+    }
+
+    /**
+     * Returns the break value that can be set to terminate the loop early (similar to "break" in
+     * most languages).
+     *
+     * @return the break value.
+     */
+    @Contract(pure = true)
+    public @NotNull Value getBreakValue() {
+      return getRegion().getBodyValue(1).orElseThrow();
     }
   }
 
@@ -517,7 +413,7 @@ public sealed interface ScfOps {
 
     @Override
     public @NotNull Constructor<? extends ITerminator> getImplicitTerminatorType() {
-      return new ContinueOp()
+      return new EndOp()
           .getLocationConstructor()
           .orElseThrow(
               () ->
@@ -536,8 +432,8 @@ public sealed interface ScfOps {
    *   <li><b>body region</b> ({@link #getBodyRegion()}) containing loop-body operations
    * </ol>
    *
-   * <p>By convention, the condition region uses {@link ContinueOp} to continue and {@link BreakOp}
-   * to terminate the loop.
+   * <p>Setting the break value to {@code true} will terminate the loop early even if the condition
+   * region would otherwise evaluate to true, allowing constructs like "break" in most languages.
    *
    * <p>Ident: {@code scf.while}
    */
@@ -567,54 +463,16 @@ public sealed interface ScfOps {
      * @param location the source location of this operation.
      */
     public WhileOp(@NotNull Location location) {
-      setOperation(true, Operation.Create(location, this, null, null, null, 2));
-    }
-
-    /**
-     * Convenience builder that configures the condition region to emulate a counted loop.
-     *
-     * <p>The generated condition region compares {@code induction} against {@code compareVal} using
-     * {@code compMode}. On success it updates {@code induction += step} and emits {@link
-     * ContinueOp}; otherwise it emits {@link BreakOp}.
-     *
-     * @param op target while-op to mutate.
-     * @param induction mutable loop-carried induction value.
-     * @param compareVal integer compare constant.
-     * @param compMode comparison mode for the condition.
-     * @param step per-iteration increment added to {@code induction}.
-     */
-    public static void setupStaticForLoop(
-        WhileOp op, Value induction, int compareVal, BinMode compMode, int step) {
-      Region condRegion = op.getConditionRegion();
-
-      Block continueBlock = condRegion.addBlock(new Block());
-      {
-        var stepConst = continueBlock.addOperation(new ArithOps.ConstantOp(Location.UNKNOWN, step));
-        var addOp =
-            continueBlock.addOperation(
-                new ArithOps.BinaryOp(
-                    Location.UNKNOWN, induction, stepConst.getResult(), BinMode.ADD));
-        addOp.setOutputValue(induction);
-        continueBlock.addOperation(new ContinueOp(Location.UNKNOWN));
-      }
-
-      Block breakBlock = condRegion.addBlock(new Block());
-      {
-        breakBlock.addOperation(new BreakOp(Location.UNKNOWN));
-      }
-
-      Block entryBlock = condRegion.getEntryBlock();
-      {
-        var compConst =
-            entryBlock.addOperation(new ArithOps.ConstantOp(Location.UNKNOWN, compareVal));
-        var compResult =
-            entryBlock.addOperation(
-                new ArithOps.BinaryOp(
-                    Location.UNKNOWN, induction, compConst.getResult(), compMode));
-        entryBlock.addOperation(
-            new CfOps.BranchCondOp(
-                Location.UNKNOWN, compResult.getResult(), continueBlock, breakBlock));
-      }
+      setOperation(
+          true,
+          Operation.Create(
+              location,
+              this,
+              null,
+              null,
+              null,
+              List.of(BuiltinTypes.IntegerT.BOOL),
+              List.of(BuiltinTypes.IntegerT.BOOL)));
     }
 
     /**
@@ -638,14 +496,27 @@ public sealed interface ScfOps {
     }
 
     /**
+     * Returns the value that can be set if the loop should terminate early (set by calling break in
+     * most languages).
+     *
+     * @param conditionRegion if true, returns the break value for the condition region, otherwise
+     *     returns the break value for the body region.
+     * @return the break value.
+     */
+    @Contract(pure = true)
+    public @NotNull Value getBreakValue(boolean conditionRegion) {
+      return getOperand(conditionRegion ? 0 : 1).flatMap(Operand::getValue).orElseThrow();
+    }
+
+    /**
      * Declares the implicit terminator type used by while regions when one is not present
      * explicitly.
      *
-     * @return constructor for {@link ContinueOp}.
+     * @return constructor for {@link EndOp}.
      */
     @Override
     public @NotNull Constructor<? extends ITerminator> getImplicitTerminatorType() {
-      return new ContinueOp().getLocationConstructor().orElseThrow();
+      return new EndOp().getLocationConstructor().orElseThrow();
     }
   }
 }

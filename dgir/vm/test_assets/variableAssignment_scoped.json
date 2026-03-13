@@ -97,7 +97,7 @@
                                                                             "output": "%0"
                                                                         },
                                                                         {
-                                                                            "ident": "scf.continue",
+                                                                            "ident": "scf.end",
                                                                             "loc": "variableAssignment_scoped.java:7:7"
                                                                         }
                                                                     ]
