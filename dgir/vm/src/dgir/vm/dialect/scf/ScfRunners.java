@@ -2,7 +2,6 @@ package dgir.vm.dialect.scf;
 
 import dgir.core.ir.Operation;
 import dgir.core.ir.Value;
-import dgir.dialect.builtin.BuiltinTypes;
 import dgir.dialect.scf.ScfOps;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
@@ -46,15 +45,12 @@ public sealed interface ScfRunners {
 
       Value induction = forOp.getRegionOrThrow(0).getBodyValue(0).orElseThrow();
       long inductionValue = state.getValueAsOrThrow(induction, Long.class);
-      boolean breakValue =
-          state.getValueAsOrThrow(
-              forOp.getRegionOrThrow(0).getBodyValue(1).orElseThrow(), Boolean.class);
 
       inductionValue += stepNum;
       state.setValue(induction, inductionValue);
 
-      if (inductionValue < upperBoundNum && inductionValue >= lowerBoundNum && !breakValue) {
-        return Action.JumpToRegion(forOp.getRegionOrThrow(0), inductionValue, false);
+      if (inductionValue < upperBoundNum && inductionValue >= lowerBoundNum) {
+        return Action.JumpToRegion(forOp.getRegionOrThrow(0), inductionValue);
       }
 
       return Action.Terminate(null, false);
@@ -62,13 +58,9 @@ public sealed interface ScfRunners {
 
     public Action handleWhileOp(Operation continueOp, Operation whileOp, State state) {
       if (whileOp.getRegionOrThrow(0).equals(continueOp.getParentRegionOrThrow())) {
-        return Action.JumpToRegion(
-            whileOp.getRegionOrThrow(1),
-            state.getValueOrThrow(whileOp.getRegionOrThrow(0).getBodyValue(0).orElseThrow()));
+        return Action.JumpToRegion(whileOp.getRegionOrThrow(1));
       } else {
-        return Action.JumpToRegion(
-            whileOp.getRegionOrThrow(0),
-            state.getValueOrThrow(whileOp.getRegionOrThrow(1).getBodyValue(0).orElseThrow()));
+        return Action.JumpToRegion(whileOp.getRegionOrThrow(0));
       }
     }
   }
@@ -87,8 +79,7 @@ public sealed interface ScfRunners {
       long upperBoundNum = bounds.value2();
 
       if (initialValueNum < upperBoundNum && initialValueNum >= lowerBoundNum) {
-        return Action.StepIntoRegion(
-            forOp.getRegionOrThrow(0), false, initialValueNum, BuiltinTypes.IntegerT.FALSE);
+        return Action.StepIntoRegion(forOp.getRegionOrThrow(0), false, initialValueNum);
       } else {
         return Action.Next();
       }
@@ -145,8 +136,7 @@ public sealed interface ScfRunners {
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
       ScfOps.WhileOp whileOp = op.as(ScfOps.WhileOp.class).orElseThrow();
-      return Action.StepIntoRegion(
-          whileOp.getConditionRegion(), false, BuiltinTypes.IntegerT.FALSE);
+      return Action.StepIntoRegion(whileOp.getConditionRegion(), false);
     }
   }
 }

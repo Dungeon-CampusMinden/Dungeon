@@ -1,6 +1,11 @@
 package blockly.dgir.compiler.java;
 
+import com.github.javaparser.ast.DataKey;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedDeclaration;
@@ -19,6 +24,42 @@ import java.util.Optional;
 
 public class CompilerUtils {
   private static final IdentityHashMap<ResolvedType, Type> resolvedToType = new IdentityHashMap<>();
+
+  /** Marker for compiler-generated nodes that should be hidden by source-level debugging. */
+  public static final DataKey<Boolean> SYNTHETIC_DEBUG_NODE = new DataKey<>() {};
+
+  public static boolean isSyntheticDebugNode(Node node) {
+    return node.containsData(SYNTHETIC_DEBUG_NODE)
+        && Boolean.TRUE.equals(node.getData(SYNTHETIC_DEBUG_NODE));
+  }
+
+  public static <T extends Node> T markSyntheticNode(T node) {
+    node.setData(SYNTHETIC_DEBUG_NODE, true);
+    return node;
+  }
+
+  public static <T extends Node> T markSyntheticTree(T node) {
+    node.walk(CompilerUtils::markSyntheticNode);
+    return node;
+  }
+
+  public static boolean containsLocalFlag(BlockStmt body, String flagName) {
+    for (Statement stmt : body.getStatements()) {
+      if (!stmt.isExpressionStmt()) {
+        continue;
+      }
+      Expression expression = stmt.asExpressionStmt().getExpression();
+      if (!expression.isVariableDeclarationExpr()) {
+        continue;
+      }
+      for (VariableDeclarator variable : expression.asVariableDeclarationExpr().getVariables()) {
+        if (flagName.equals(variable.getNameAsString())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 
   public static <T extends ResolvedDeclaration, B extends Resolvable<T>> Optional<T> resolve(
       @NotNull B target, @NotNull EmitContext context) {

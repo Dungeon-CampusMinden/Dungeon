@@ -1,5 +1,7 @@
 package blockly.dgir.compiler.java;
 
+import blockly.dgir.compiler.java.transformations.DeadCodeElimination;
+import blockly.dgir.compiler.java.transformations.LoopLowering;
 import blockly.dgir.dialect.dg.DgAttrs;
 import blockly.dgir.dialect.dg.DgOps;
 import blockly.dgir.dialect.dg.DungeonDialect;
@@ -115,6 +117,9 @@ public class JavaCompiler {
       return Optional.empty();
     }
 
+    new DeadCodeElimination().visit(result, null);
+    new LoopLowering().visit(result, null);
+    new DeadCodeElimination().visit(result, null);
     JavaAstEmitter emitter = new JavaAstEmitter();
     return emitter.emit(result, filename).toOptional();
   }
@@ -177,36 +182,36 @@ public class JavaCompiler {
     @Override
     public @NonNull EmitResult<Optional<Value>> visit(CompilationUnit n, EmitContext context) {
       ProgramOp program = new ProgramOp(context.loc(n));
-      context.pushSymbolScope(true);
-      context.setProgramBlock(program.getEntryBlock());
+      try (var programSymScope = new EmitContext.SymbolScope(context, true)) {
+        context.setProgramBlock(program.getEntryBlock());
 
-      try (var programInsertion = context.setInsertionPoint(program.getEntryBlock(), -1)) {
-        {
-          EmitResult<Boolean> result = visitNodeList(n.getImports(), context);
-          if (result.isFailure()) return EmitResult.failure(context, n, "Failed to emit imports");
+        try (var programInsertion = context.setInsertionPoint(program.getEntryBlock(), -1)) {
+          {
+            EmitResult<Boolean> result = visitNodeList(n.getImports(), context);
+            if (result.isFailure()) return EmitResult.failure(context, n, "Failed to emit imports");
+          }
+          if (n.getModule().isPresent()) {
+            EmitResult<Optional<Value>> result =
+                EmitResult.ofNullable(n.getModule().get().accept(this, context));
+            if (result.isFailure()) return result;
+          }
+          if (n.getPackageDeclaration().isPresent()) {
+            EmitResult<Optional<Value>> result =
+                EmitResult.ofNullable(n.getPackageDeclaration().get().accept(this, context));
+            if (result.isFailure()) return result;
+          }
+          {
+            EmitResult<Boolean> result = visitNodeList(n.getTypes(), context);
+            if (result.isFailure()) return EmitResult.failure(context, n, "Failed to emit types");
+          }
+          if (context.compilationSuccessful()) {
+            context.program = program;
+          } else {
+            String incompleteProgram = Utils.getMapper(true).writeValueAsString(program);
+            context.emitError(n, "Incorrect program", incompleteProgram);
+          }
         }
-        if (n.getModule().isPresent()) {
-          EmitResult<Optional<Value>> result =
-              EmitResult.ofNullable(n.getModule().get().accept(this, context));
-          if (result.isFailure()) return result;
-        }
-        if (n.getPackageDeclaration().isPresent()) {
-          EmitResult<Optional<Value>> result =
-              EmitResult.ofNullable(n.getPackageDeclaration().get().accept(this, context));
-          if (result.isFailure()) return result;
-        }
-        {
-          EmitResult<Boolean> result = visitNodeList(n.getTypes(), context);
-          if (result.isFailure()) return EmitResult.failure(context, n, "Failed to emit types");
-        }
-        if (context.compilationSuccessfull()) {
-          context.program = program;
-        } else {
-          String incompleteProgram = Utils.getMapper(true).writeValueAsString(program);
-          context.emitError(n, "Incorrect program", incompleteProgram);
-        }
-        context.popSymbolScope();
-        return context.compilationSuccessfull()
+        return context.compilationSuccessful()
             ? EmitResult.success(Optional.empty())
             : EmitResult.failure();
       }
@@ -438,11 +443,10 @@ public class JavaCompiler {
                         parameterInfos.stream().map(ParameterInfo::type).toList(), returnType)));
 
         // Emit all statements in the method body. These will insert themselves into the function
-        // op.
-        try (var funcBodyInsertion = context.setInsertionPoint(funcOp.getEntryBlock(), -1)) {
-          // Put the function arguments in the symbol table so that they can be referenced in the
-          // body.
-          context.pushSymbolScope(true);
+        // op. Also, put the function arguments in the symbol table so that they can be referenced
+        // in the body.
+        try (var funcBodyInsertion = context.setInsertionPoint(funcOp.getEntryBlock(), -1);
+            var funcBodySymScope = new EmitContext.SymbolScope(context, true)) {
           for (int i = 0; i < parameterInfos.size(); i++) {
             context.putSymbol(parameterInfos.get(i).name, funcOp.getArgument(i).orElseThrow());
           }
@@ -459,7 +463,6 @@ public class JavaCompiler {
                     + " has no body. Abstract methods are not supported.");
           }
 
-          context.popSymbolScope();
           // Make sure we have an implicit return in case the method has a void return type and the
           // last statement is not a return statement.
           funcOp.addImplicitTerminators();
@@ -587,9 +590,8 @@ public class JavaCompiler {
 
       // We are using a while op so that we can support more complex update expressions.
       ScfOps.WhileOp whileOp = context.insert(new ScfOps.WhileOp(context.loc(n)));
-      {
-        // Open the new scope and place the comparison expression in it.
-        context.pushSymbolScope(false);
+      // Open the new scope and place the comparison expression in it.
+      try (var conditionSymScope = new EmitContext.SymbolScope(context, false)) {
         try (var conditionInsertion =
             context.setInsertionPoint(whileOp.getConditionRegion().getEntryBlock(), -1)) {
           Block conditionContinueBlock = whileOp.getConditionRegion().addBlock(new Block());
@@ -613,24 +615,10 @@ public class JavaCompiler {
                     conditionBreakBlock));
           }
         }
-        context.popSymbolScope();
       }
-      {
-        // Open a new scope and place the body and update expressions inside it.
-        context.pushSymbolScope(false);
-        // Create the update block. This is only called if there are no break statements in the loop
-        // body.
-        Block updateBlock = whileOp.getBodyRegion().addBlock(new Block());
-        try (var updateInsertion = context.setInsertionPoint(updateBlock, -1)) {
-          EmitResult<Boolean> updateResult = visitNodeList(n.getUpdate(), context);
-          if (updateResult.isFailure()) {
-            return EmitResult.failure(context, n, "Failed to emit update expressions of for loop");
-          }
-        }
-        // Create the break block. This is called if there was a break statement in the loop body.
-        Block breakBlock = whileOp.getBodyRegion().addBlock(new Block());
-        breakBlock.addOperation(new ScfOps.EndOp(context.loc(n)));
 
+      // Open a new scope and place the body and update expressions inside it.
+      try (var bodySymbolScope = new EmitContext.SymbolScope(context, false)) {
         // Create the body block.
         try (var bodyInsertion =
             context.setInsertionPoint(whileOp.getBodyRegion().getEntryBlock(), -1)) {
@@ -640,13 +628,54 @@ public class JavaCompiler {
             return EmitResult.failure(context, n, "Failed to emit body of for loop");
           }
 
-          // Create the branch to break or continue
-          context.insert(
-              new CfOps.BranchCondOp(
-                  context.loc(n), whileOp.getBreakValue(), breakBlock, updateBlock));
-        }
+          if (n.getBody().isBlockStmt()) {
+            BlockStmt blockStmt = n.getBody().asBlockStmt();
+            // If there was a call to break or continue the skip and break flags are added
+            // In case they exists we need to create a block for the update and one for the
+            // terminate condition
+            // Otherwise, just emit the update result.
+            if (containsLocalFlag(blockStmt, "skip")) {
+              // Create the update block. This is only called if there are no break statements in
+              // the loop
+              // body.
+              Block updateBlock = whileOp.getBodyRegion().addBlock(new Block());
+              try (var updateInsertion = context.setInsertionPoint(updateBlock, -1)) {
+                EmitResult<Boolean> updateResult = visitNodeList(n.getUpdate(), context);
+                if (updateResult.isFailure()) {
+                  return EmitResult.failure(
+                      context, n, "Failed to emit update expressions of for loop");
+                }
+              }
 
-        context.popSymbolScope();
+              // Create the break block. This is called if there was a break statement in the loop
+              // body.
+              Block breakBlock = whileOp.getBodyRegion().addBlock(new Block());
+              breakBlock.addOperation(new ScfOps.EndOp(context.loc(n)));
+
+              // Create the branch to break or continue
+              // The second operation is the constant op defining the skip flag
+              context.insert(
+                  new CfOps.BranchCondOp(
+                      context.loc(n),
+                      whileOp
+                          .getBodyRegion()
+                          .getEntryBlock()
+                          .getOperations()
+                          .get(1)
+                          .getOutputValueOrThrow(),
+                      breakBlock,
+                      updateBlock));
+            } else {
+              EmitResult<Boolean> updateResult = visitNodeList(n.getUpdate(), context);
+              if (updateResult.isFailure()) {
+                return EmitResult.failure(
+                    context, n, "Failed to emit update expressions of for loop");
+              }
+            }
+          } else {
+            return EmitResult.failure(context, n, "Failed to emit body of for loop");
+          }
+        }
       }
       whileOp.addImplicitTerminators();
       return EmitResult.success(Optional.empty());
@@ -754,51 +783,73 @@ public class JavaCompiler {
     public EmitResult<Optional<Value>> visit(WhileStmt n, EmitContext context) {
       ScfOps.WhileOp whileOp = context.insert(new ScfOps.WhileOp(context.loc(n)));
       {
-        {
+        // Open the new scope and place the comparison expression in it.
+        try (var conditionInsertion =
+                context.setInsertionPoint(whileOp.getConditionRegion().getEntryBlock(), -1);
+            var conditionSymScope = new EmitContext.SymbolScope(context, false)) {
           Block continueBlock = whileOp.getConditionRegion().addBlock(new Block());
           continueBlock.addOperation(new ScfOps.ContinueOp(context.loc(n.getCondition())));
           Block breakBlock = whileOp.getConditionRegion().addBlock(new Block());
           breakBlock.addOperation(new ScfOps.EndOp(context.loc(n.getCondition())));
 
-          // Open the new scope and place the comparison expression in it.
-          context.pushSymbolScope(false);
-          try (var conditionInsertion =
-              context.setInsertionPoint(whileOp.getConditionRegion().getEntryBlock(), -1)) {
-            EmitResult<Optional<Value>> conditionResult;
-            {
-              conditionResult = EmitResult.ofNullable(n.getCondition().accept(this, context));
-              if (conditionResult.isFailure() || conditionResult.get().isEmpty())
-                return conditionResult;
-              Value compareValue = conditionResult.get().get();
-              context.insert(
-                  new CfOps.BranchCondOp(
-                      context.loc(n.getCondition()), compareValue, continueBlock, breakBlock));
-            }
-          }
-          context.popSymbolScope();
-        }
-        {
-          context.pushSymbolScope(false);
-          Block continueBlock = whileOp.getBodyRegion().addBlock(new Block());
-          continueBlock.addOperation(new ScfOps.ContinueOp(context.loc(n)));
-          // Create the break block. This is called if there was a break statement in the loop body.
-          Block breakBlock = whileOp.getBodyRegion().addBlock(new Block());
-          breakBlock.addOperation(new ScfOps.EndOp(context.loc(n)));
-
-          try (var bodyInsertion =
-              context.setInsertionPoint(whileOp.getBodyRegion().getEntryBlock(), -1)) {
-
-            EmitResult<Optional<Value>> bodyResult;
-            {
-              bodyResult = EmitResult.ofNullable(n.getBody().accept(this, context));
-              if (bodyResult.isFailure()) return bodyResult;
-            }
-
+          EmitResult<Optional<Value>> conditionResult;
+          {
+            conditionResult = EmitResult.ofNullable(n.getCondition().accept(this, context));
+            if (conditionResult.isFailure() || conditionResult.get().isEmpty())
+              return conditionResult;
+            Value compareValue = conditionResult.get().get();
             context.insert(
                 new CfOps.BranchCondOp(
-                    context.loc(n), whileOp.getBreakValue(), breakBlock, continueBlock));
+                    context.loc(n.getCondition()), compareValue, continueBlock, breakBlock));
           }
-          context.popSymbolScope();
+        }
+
+        try (var bodyInsertion =
+                context.setInsertionPoint(whileOp.getBodyRegion().getEntryBlock(), -1);
+            var conditionSymScope = new EmitContext.SymbolScope(context, false)) {
+          EmitResult<Optional<Value>> bodyResult;
+          {
+            bodyResult = EmitResult.ofNullable(n.getBody().accept(this, context));
+            if (bodyResult.isFailure()) return bodyResult;
+          }
+
+          if (n.getBody().isBlockStmt()) {
+            BlockStmt blockStmt = n.getBody().asBlockStmt();
+            // If there was a call to break or continue the skip and break flags are added
+            // In case they exists we need to create a block for the update and one for the
+            // terminate condition
+            // Otherwise, just emit the update result.
+            if (containsLocalFlag(blockStmt, "skip")) {
+              // Create the continue block. This is only called if there are no break statements
+              // where hit.
+              Block continueBlock = whileOp.getBodyRegion().addBlock(new Block());
+              continueBlock.addOperation(new ScfOps.ContinueOp(context.loc(n)));
+              // Create the break block. This is called if there was a break statement in the loop
+              // body.
+              Block breakBlock = whileOp.getBodyRegion().addBlock(new Block());
+              breakBlock.addOperation(new ScfOps.EndOp(context.loc(n)));
+
+              // Create the branch to break or continue
+              // The second operation is the constant op defining the skip flag
+              context.insert(
+                  new CfOps.BranchCondOp(
+                      context.loc(n),
+                      whileOp
+                          .getBodyRegion()
+                          .getEntryBlock()
+                          .getOperations()
+                          .get(1)
+                          .getOutputValueOrThrow(),
+                      breakBlock,
+                      continueBlock));
+            } else {
+              // Just add an implicit continue at the end of the loop body to jump back to the
+              // condition.
+              context.insert(new ScfOps.ContinueOp(context.loc(n)));
+            }
+          } else {
+            return EmitResult.failure(context, n, "Failed to emit body of for loop");
+          }
         }
       }
       whileOp.addImplicitTerminators();

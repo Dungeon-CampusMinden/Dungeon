@@ -507,6 +507,7 @@ public class %ClassName {
         break;
       }
       IO.print("x is " + x + "\\n");
+      IO.print("This should be in the same skip guard after lowering.\\n");
     }
     assert x == 5 : "Expected x to be 5, but got " + x;
   }
@@ -534,7 +535,7 @@ public class %ClassName {
         break;
       }
     }
-    assert x == 4 : "Expected x to be 4, but got " + x;
+    assert x == 3 : "Expected x to be 3, but got " + x;
   }
 }
 """;
@@ -587,6 +588,26 @@ public class %ClassName {
       break;
     }
     IO.print(message);
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void returnFromInsideLoop() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 0;
+    for (int i = 0; i < 10; i++) {
+      if (i == 5) {
+        return;
+      }
+      x += i;
+    }
+    assert false : "This should not be reachable, because the return statement should exit the method when i == 5. If this assertion fails, it means the return statement did not work as expected.";
   }
 }
 """;

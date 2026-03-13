@@ -271,10 +271,7 @@ public sealed interface ScfOps {
               List.of(initValue, lowerBound, upperBound, step),
               null,
               null,
-              List.of(
-                  BuiltinTypes.IntegerT.INT32,
-                  BuiltinTypes.IntegerT.BOOL,
-                  BuiltinTypes.IntegerT.BOOL)));
+              List.of(BuiltinTypes.IntegerT.INT32)));
     }
 
     // =========================================================================
@@ -330,28 +327,6 @@ public sealed interface ScfOps {
     @Contract(pure = true)
     public @NotNull Value getStep() {
       return getOperand(3).flatMap(Operand::getValue).orElseThrow();
-    }
-
-    /**
-     * Returns the break value that can be set to terminate the loop early (similar to "break" in
-     * most languages).
-     *
-     * @return the break value.
-     */
-    @Contract(pure = true)
-    public @NotNull Value getBreakValue() {
-      return getRegion().getBodyValue(1).orElseThrow();
-    }
-
-    /**
-     * Returns the skip value that can be set to skip the rest of the current iteration and proceed
-     * to the next one (similar to "continue" in most languages).
-     *
-     * @return the skip value.
-     */
-    @Contract(pure = true)
-    public @NotNull Value getSkipValue() {
-      return getRegion().getBodyValue(2).orElseThrow();
     }
   }
 
@@ -553,16 +528,7 @@ public sealed interface ScfOps {
      * @param location the source location of this operation.
      */
     public WhileOp(@NotNull Location location) {
-      setOperation(
-          true,
-          Operation.Create(
-              location,
-              this,
-              null,
-              null,
-              null,
-              List.of(),
-              List.of(BuiltinTypes.IntegerT.BOOL, BuiltinTypes.IntegerT.BOOL)));
+      setOperation(true, Operation.Create(location, this, null, null, null, 2));
     }
 
     /**
@@ -583,28 +549,6 @@ public sealed interface ScfOps {
     @Contract(pure = true)
     public @NotNull Region getBodyRegion() {
       return getRegion(1).orElseThrow();
-    }
-
-    /**
-     * Returns the value that can be set if the loop should terminate early (set by calling break in
-     * most languages).
-     *
-     * @return the break value.
-     */
-    @Contract(pure = true)
-    public @NotNull Value getBreakValue() {
-      return getRegion(1).flatMap(region -> region.getBodyValue(0)).orElseThrow();
-    }
-
-    /**
-     * Returns the value that can be set to skip the rest of the current iteration and proceed to
-     * the next one (set by calling continue in most languages).
-     *
-     * @return the skip value.
-     */
-    @Contract(pure = true)
-    public @NotNull Value getSkipValue() {
-      return getRegion(1).flatMap(region -> region.getBodyValue(1)).orElseThrow();
     }
 
     /**

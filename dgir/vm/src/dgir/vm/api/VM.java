@@ -683,7 +683,10 @@ public class VM {
   private static void setupRegion(
       @NotNull State state, @NotNull List<Value> bodyValues, @NotNull List<Object> args) {
     assert bodyValues.size() == args.size()
-        : "Number of arguments does not match number of body values.";
+        : "Number of arguments does not match number of body values. Expected "
+            + bodyValues.size()
+            + " but got "
+            + args.size();
     for (int i = 0; i < bodyValues.size(); i++) {
       state.setValue(bodyValues.get(i), args.get(i));
     }

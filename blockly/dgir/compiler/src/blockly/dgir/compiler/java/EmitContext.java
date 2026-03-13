@@ -3,7 +3,6 @@ package blockly.dgir.compiler.java;
 import blockly.dgir.compiler.SymbolTable.ScopedSymbolTable;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.utils.Pair;
 import dgir.core.debug.Location;
 import dgir.core.ir.Block;
 import dgir.core.ir.Op;
@@ -15,7 +14,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static blockly.dgir.compiler.java.CompilerUtils.isSyntheticDebugNode;
 
 public final class EmitContext {
   public static final class InsertionPoint implements AutoCloseable {
@@ -55,38 +59,19 @@ public final class EmitContext {
     public Optional<InsertionPoint> previous() {
       return previous;
     }
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-      if (obj == this) return true;
-      if (obj == null || obj.getClass() != this.getClass()) return false;
-      var that = (InsertionPoint) obj;
-      return Objects.equals(this.block, that.block)
-          && this.index == that.index
-          && Objects.equals(this.context, that.context)
-          && Objects.equals(this.previous, that.previous);
+  public static final class SymbolScope implements AutoCloseable {
+    private final @NotNull EmitContext context;
+
+    public SymbolScope(@NotNull EmitContext context, boolean isolatedFromAbove) {
+      this.context = context;
+      context.symbolTable.pushScope(isolatedFromAbove);
     }
 
     @Override
-    public int hashCode() {
-      return Objects.hash(block, index, context, previous);
-    }
-
-    @Override
-    public String toString() {
-      return "InsertionPoint["
-          + "block="
-          + block
-          + ", "
-          + "index="
-          + index
-          + ", "
-          + "context="
-          + context
-          + ", "
-          + "previous="
-          + previous
-          + ']';
+    public void close() {
+      context.symbolTable.popScope();
     }
   }
 
@@ -113,27 +98,21 @@ public final class EmitContext {
     this.filename = filename;
   }
 
-  public boolean compilationSuccessfull() {
+  public boolean compilationSuccessful() {
     return errors.isEmpty();
   }
 
   @NotNull
   public Location loc(@NotNull Node node) {
+    if (isSyntheticDebugNode(node)) {
+      return Location.UNKNOWN;
+    }
     if (node.getRange().isEmpty()) {
       logger.warning("No range information available for AST node, using default location.");
-      return new Location(filename, 0, 0);
+      return Location.UNKNOWN;
     }
     Range r = node.getRange().get();
     return new Location(filename, r.begin.line, r.begin.column);
-  }
-
-  public void pushSymbolScope(boolean isolatedFromAbove) {
-    symbolTable.pushScope(isolatedFromAbove);
-  }
-
-  @NotNull
-  public Pair<@NotNull Boolean, @NotNull Map<@NotNull String, @NotNull Value>> popSymbolScope() {
-    return symbolTable.popScope();
   }
 
   public void putSymbol(@NotNull String name, @NotNull Value value) {
