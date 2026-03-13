@@ -38,7 +38,8 @@ public sealed interface ArithRunners {
             floatT.convertToValidNumber(unaryDoubleOperation(number.doubleValue(), mode));
         case BuiltinTypes.IntegerT integerT when integerT.equals(BuiltinTypes.IntegerT.BOOL) ->
             integerT.convertToValidNumber(unaryBooleanOperation(number.byteValue(), mode));
-        case BuiltinTypes.IntegerT ignored -> unaryLongOperation(number.longValue(), mode);
+        case BuiltinTypes.IntegerT integerT ->
+            integerT.convertToValidNumber(unaryLongOperation(number.longValue(), mode));
         default ->
             throw new IllegalArgumentException(
                 "Unsupported operand type for unary operation: " + operandType);

@@ -436,16 +436,9 @@ public class VM {
         }
       }
 
-      Action currentAction = lastAction;
-      if (!(lastAction instanceof Action.ActionStack)) {
-        currentAction = stepImpl();
-      }
+      Action currentAction = stepImpl();
 
-      Action effectiveAction =
-          currentAction instanceof Action.ActionStack(Deque<Action> actions)
-              ? actions.pop() // the next action to execute is the top of the stack
-              : currentAction; // otherwise, it's just the current action
-      switch (effectiveAction) {
+      switch (currentAction) {
         // Just continue to the next operation in the current block.
         case Action.Next ignored -> {
           currentOp
@@ -481,7 +474,6 @@ public class VM {
         // It opens a new stack frame for the region and jumps to the first operation in the region.
         case Action.StepIntoRegion stepIntoRegion ->
             handleStepIntoRegion(stepIntoRegion, currentOp);
-        case Action.ActionStack actionStack -> {}
       }
       Operation nextOp = opStack.peek();
       Location nextLocation = nextOp != null ? nextOp.getLocation() : currentOp.getLocation();
@@ -544,16 +536,7 @@ public class VM {
         }
       }
 
-      // If the last action was an ActionStack with remaining actions, keep it as the last action so
-      // that the next step() call continues to execute the remaining actions in the stack without
-      // resetting it to the current action. Otherwise, set the last action to the current action
-      // for the next step() call.
-      if (currentAction instanceof Action.ActionStack(Deque<Action> actions)
-          && !actions.isEmpty()) {
-        lastAction = currentAction;
-      } else {
-        lastAction = effectiveAction;
-      }
+      lastAction = currentAction;
       ++state.instructionCount;
       return currentAction;
     } catch (Exception e) {

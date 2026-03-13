@@ -2,42 +2,18 @@ package dgir.vm.dialect.scf;
 
 import dgir.core.ir.Operation;
 import dgir.core.ir.Value;
+import dgir.dialect.builtin.BuiltinTypes;
 import dgir.dialect.scf.ScfOps;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
 import dgir.vm.api.State;
 import io.arxila.javatuples.Quartet;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 public sealed interface ScfRunners {
   final class EndRunner extends OpRunner implements ScfRunners {
     public EndRunner() {
       super(ScfOps.EndOp.class);
-    }
-
-    @Override
-    protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      return Action.Terminate(null, false);
-    }
-  }
-
-  private static Pair<Integer, Operation> getDepth(@NotNull Operation op) {
-    int depth = 0;
-    Operation parent = op.getParentOperation().orElse(null);
-    while (parent != null && !parent.isa(ScfOps.WhileOp.class) && !parent.isa(ScfOps.ForOp.class)) {
-      parent = parent.getParentOperation().orElse(null);
-      depth++;
-    }
-    if (parent == null) {
-      throw new IllegalStateException("Unexpected continue op: " + op);
-    }
-    return Pair.of(depth, parent);
-  }
-
-  final class BreakRunner extends OpRunner implements ScfRunners {
-    public BreakRunner() {
-      super(ScfOps.BreakOp.class);
     }
 
     @Override
@@ -53,16 +29,13 @@ public sealed interface ScfRunners {
 
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
-      Operation parent = op.getParentOperationOrThrow();
-      // If we have a for op we need to handle it properly by incrementing the induction variable
-      // and
-      // checking if we should continue the loop or not.
-      if (parent.isa(ScfOps.ForOp.class)) {
-        return handleForOp(parent, state);
-      } else if (parent.isa(ScfOps.WhileOp.class)) {
-        return handleWhileOp(op, parent, state);
+      Operation parentOp = op.getParentOperationOrThrow();
+      if (parentOp.isa(ScfOps.ForOp.class)) {
+        return handleForOp(parentOp, state);
+      } else if (parentOp.isa(ScfOps.WhileOp.class)) {
+        return handleWhileOp(op, parentOp, state);
       }
-      throw new IllegalStateException("Unexpected continue op: " + op);
+      throw new IllegalStateException("Unexpected parent operation for continue op: " + parentOp);
     }
 
     public Action handleForOp(Operation forOp, State state) {
@@ -73,12 +46,15 @@ public sealed interface ScfRunners {
 
       Value induction = forOp.getRegionOrThrow(0).getBodyValue(0).orElseThrow();
       long inductionValue = state.getValueAsOrThrow(induction, Long.class);
+      boolean breakValue =
+          state.getValueAsOrThrow(
+              forOp.getRegionOrThrow(0).getBodyValue(1).orElseThrow(), Boolean.class);
 
       inductionValue += stepNum;
       state.setValue(induction, inductionValue);
 
-      if (inductionValue < upperBoundNum && inductionValue >= lowerBoundNum) {
-        return Action.JumpToRegion(forOp.getRegionOrThrow(0), inductionValue);
+      if (inductionValue < upperBoundNum && inductionValue >= lowerBoundNum && !breakValue) {
+        return Action.JumpToRegion(forOp.getRegionOrThrow(0), inductionValue, false);
       }
 
       return Action.Terminate(null, false);
@@ -86,9 +62,13 @@ public sealed interface ScfRunners {
 
     public Action handleWhileOp(Operation continueOp, Operation whileOp, State state) {
       if (whileOp.getRegionOrThrow(0).equals(continueOp.getParentRegionOrThrow())) {
-        return Action.JumpToRegion(whileOp.getRegionOrThrow(1));
+        return Action.JumpToRegion(
+            whileOp.getRegionOrThrow(1),
+            state.getValueOrThrow(whileOp.getRegionOrThrow(0).getBodyValue(0).orElseThrow()));
       } else {
-        return Action.JumpToRegion(whileOp.getRegionOrThrow(0));
+        return Action.JumpToRegion(
+            whileOp.getRegionOrThrow(0),
+            state.getValueOrThrow(whileOp.getRegionOrThrow(1).getBodyValue(0).orElseThrow()));
       }
     }
   }
@@ -107,7 +87,8 @@ public sealed interface ScfRunners {
       long upperBoundNum = bounds.value2();
 
       if (initialValueNum < upperBoundNum && initialValueNum >= lowerBoundNum) {
-        return Action.StepIntoRegion(forOp.getRegionOrThrow(0), false, initialValueNum);
+        return Action.StepIntoRegion(
+            forOp.getRegionOrThrow(0), false, initialValueNum, BuiltinTypes.IntegerT.FALSE);
       } else {
         return Action.Next();
       }
@@ -164,7 +145,8 @@ public sealed interface ScfRunners {
     @Override
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
       ScfOps.WhileOp whileOp = op.as(ScfOps.WhileOp.class).orElseThrow();
-      return Action.StepIntoRegion(whileOp.getConditionRegion(), false);
+      return Action.StepIntoRegion(
+          whileOp.getConditionRegion(), false, BuiltinTypes.IntegerT.FALSE);
     }
   }
 }

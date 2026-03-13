@@ -460,6 +460,7 @@ public class %ClassName {
     testSource(code);
   }
 
+  @Test
   void scfIfWithNestedClassLookup() {
     String code =
 """
@@ -491,9 +492,12 @@ public class %ClassName {
     testSource(code);
   }
 
+  @Test
   void scfWhileWithBreak() {
     String code =
 """
+import Dungeon.IO;
+
 public class %ClassName {
   public static void main() {
     int x = 0;
@@ -502,13 +506,16 @@ public class %ClassName {
       if (x == 5) {
         break;
       }
+      IO.print("x is " + x + "\\n");
     }
+    assert x == 5 : "Expected x to be 5, but got " + x;
   }
 }
 """;
     testSource(code);
   }
 
+  @Test
   void scfForWithContinueAndBreak() {
     String code =
 """
@@ -527,6 +534,7 @@ public class %ClassName {
         break;
       }
     }
+    assert x == 4 : "Expected x to be 4, but got " + x;
   }
 }
 """;
@@ -543,14 +551,17 @@ public class %ClassName {
   public static void main() {
     int i = 0;
     while (true) {
+      i++;
       break;
     }
     while (true) {
-      if (i++ == 2)
+      if (i++ == 3)
         break;
       // Infinite loop
-      IO.print("This will run forever!\\n");
+      assert i <= 3 : "Break statement did not work, expected i to be at most 3, but got " + i;
+      IO.print("This will run forever, and this message will appear 2 times!\\n");
     }
+    assert i == 4 : "Expected i to be 4, but got " + i;
   }
 }
 """;
@@ -565,11 +576,17 @@ import Dungeon.IO;
 
 public class %ClassName {
   public static void main() {
-    for(;;) {
+    String message = "This infinite loop never ran.";
+    for(int i = 0;; ++i) {
       // Infinite loop
-      IO.print("This will run forever!\\n");
+      if (i == 0){
+        message = "This infinite loop will run forever!\\n";
+      }else{
+        message = "This infinites loop break statement does not work!\\n";
+      }
       break;
     }
+    IO.print(message);
   }
 }
 """;

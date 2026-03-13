@@ -170,6 +170,9 @@ public class State {
    * @param object The runtime object to associate with the given value.
    */
   public void setValue(@NotNull Value value, @NotNull Object object) {
+    if (!value.getType().validate(object)) {
+      throw new IllegalArgumentException("Object " + object + " is not valid for value " + value);
+    }
     stack.set(value, object);
   }
 
@@ -181,6 +184,10 @@ public class State {
    * @throws NoSuchElementException If the operation has no output value.
    */
   public void setValueForOutput(@NotNull Operation operation, @NotNull Object object) {
+    if (!operation.getOutputValueOrThrow().getType().validate(object)) {
+      throw new IllegalArgumentException(
+          "Object " + object + " is not valid for value " + operation.getOutputValueOrThrow());
+    }
     stack.set(operation.getOutputValueOrThrow(), object);
   }
 

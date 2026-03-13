@@ -3,6 +3,7 @@ package dgir.core.traits;
 import dgir.core.OperationVerifier;
 import dgir.core.ir.Block;
 import dgir.core.ir.Operation;
+import dgir.core.ir.Region;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
@@ -26,7 +27,18 @@ public interface ITerminator extends IOpTrait {
       return false;
     }
     if (!block.get().getOperations().getLast().equals(self)) {
-      self.emitError("Terminator must be the last operation in the region.");
+      self.emitError(
+          "Terminator must be the last operation in the block.\n\t"
+              + " Found terminator at index "
+              + block.get().getOperations().indexOf(self)
+              + " but expected at index "
+              + (block.get().getOperations().size() - 1)
+              + " \n\tGot terminator: \n\t\t"
+              + block.get().getOperations().getLast()
+              + " \n\tin operation: \n\t\t"
+              + self.getParentOperation().orElse(null)
+              + " \n\tin region\n\t\t "
+              + block.get().getParent().map(Region::getIndex).orElse(null));
       return false;
     }
     return true;

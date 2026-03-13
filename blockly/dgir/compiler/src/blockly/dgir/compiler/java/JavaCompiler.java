@@ -26,6 +26,7 @@ import dgir.core.SymbolTable;
 import dgir.core.debug.Location;
 import dgir.core.debug.ValueDebugInfo;
 import dgir.core.ir.Block;
+import dgir.core.ir.Operation;
 import dgir.core.ir.Type;
 import dgir.core.ir.Value;
 import dgir.core.serialization.Utils;
@@ -508,7 +509,32 @@ public class JavaCompiler {
 
     @Override
     public EmitResult<Optional<Value>> visit(BreakStmt n, EmitContext context) {
-      context.insert(new ScfOps.BreakOp(context.loc(n)));
+      if (n.getParentNode().isEmpty() || n.getParentNode().get().getParentNode().isEmpty()) {
+        return EmitResult.failure(context, n, "Break statement has no parent node.");
+      }
+
+      Optional<Operation> ancestorLoopOpt =
+          context.findAncestor(ScfOps.WhileOp.class, ScfOps.ForOp.class);
+      if (ancestorLoopOpt.isEmpty()) {
+        return EmitResult.failure(context, n, "Break statements are not supported outside loops.");
+      }
+      Operation ancestorLoop = ancestorLoopOpt.get();
+
+      {
+        var breakTrue = context.insert(new ConstantOp(context.loc(n), true));
+        var skipTrue = context.insert(new ConstantOp(context.loc(n), true));
+        // If we are inside a loop, set the break value to true.
+        if (ancestorLoop.isa(ScfOps.ForOp.class)) {
+          breakTrue.setOutputValue(
+              ancestorLoop.getFirstRegionOrThrow().getBodyValue(1).orElseThrow());
+          skipTrue.setOutputValue(
+              ancestorLoop.getFirstRegionOrThrow().getBodyValue(2).orElseThrow());
+        } else {
+          breakTrue.setOutputValue(ancestorLoop.getRegionOrThrow(1).getBodyValue(0).orElseThrow());
+          skipTrue.setOutputValue(ancestorLoop.getRegionOrThrow(1).getBodyValue(1).orElseThrow());
+        }
+      }
+
       return EmitResult.success(Optional.empty());
     }
 
@@ -562,15 +588,15 @@ public class JavaCompiler {
       // We are using a while op so that we can support more complex update expressions.
       ScfOps.WhileOp whileOp = context.insert(new ScfOps.WhileOp(context.loc(n)));
       {
-        Block continueBlock = whileOp.getConditionRegion().addBlock(new Block());
-        continueBlock.addOperation(new ScfOps.ContinueOp(context.loc(n)));
-        Block breakBlock = whileOp.getConditionRegion().addBlock(new Block());
-        breakBlock.addOperation(new ScfOps.BreakOp(context.loc(n)));
-
         // Open the new scope and place the comparison expression in it.
+        context.pushSymbolScope(false);
         try (var conditionInsertion =
             context.setInsertionPoint(whileOp.getConditionRegion().getEntryBlock(), -1)) {
-          context.pushSymbolScope(false);
+          Block conditionContinueBlock = whileOp.getConditionRegion().addBlock(new Block());
+          conditionContinueBlock.addOperation(new ScfOps.ContinueOp(context.loc(n)));
+          Block conditionBreakBlock = whileOp.getConditionRegion().addBlock(new Block());
+          conditionBreakBlock.addOperation(new ScfOps.EndOp(context.loc(n)));
+
           if (n.getCompare().isPresent()) {
             EmitResult<Optional<Value>> compareResult =
                 EmitResult.ofNullable(n.getCompare().get().accept(this, context));
@@ -581,27 +607,48 @@ public class JavaCompiler {
             Value compareValue = compareResult.get().get();
             context.insert(
                 new CfOps.BranchCondOp(
-                    context.loc(n.getCompare().get()), compareValue, continueBlock, breakBlock));
+                    context.loc(n.getCompare().get()),
+                    compareValue,
+                    conditionContinueBlock,
+                    conditionBreakBlock));
           }
-          context.popSymbolScope();
         }
+        context.popSymbolScope();
+      }
+      {
+        // Open a new scope and place the body and update expressions inside it.
+        context.pushSymbolScope(false);
+        // Create the update block. This is only called if there are no break statements in the loop
+        // body.
+        Block updateBlock = whileOp.getBodyRegion().addBlock(new Block());
+        try (var updateInsertion = context.setInsertionPoint(updateBlock, -1)) {
+          EmitResult<Boolean> updateResult = visitNodeList(n.getUpdate(), context);
+          if (updateResult.isFailure()) {
+            return EmitResult.failure(context, n, "Failed to emit update expressions of for loop");
+          }
+        }
+        // Create the break block. This is called if there was a break statement in the loop body.
+        Block breakBlock = whileOp.getBodyRegion().addBlock(new Block());
+        breakBlock.addOperation(new ScfOps.EndOp(context.loc(n)));
 
+        // Create the body block.
         try (var bodyInsertion =
             context.setInsertionPoint(whileOp.getBodyRegion().getEntryBlock(), -1)) {
-          context.pushSymbolScope(false);
           EmitResult<Optional<Value>> bodyResult =
               EmitResult.ofNullable(n.getBody().accept(this, context));
           if (bodyResult.isFailure()) {
             return EmitResult.failure(context, n, "Failed to emit body of for loop");
           }
-          EmitResult<Boolean> updateResult = visitNodeList(n.getUpdate(), context);
-          if (updateResult.isFailure()) {
-            return EmitResult.failure(context, n, "Failed to emit update expressions of for loop");
-          }
-          whileOp.addImplicitTerminators();
-          context.popSymbolScope();
+
+          // Create the branch to break or continue
+          context.insert(
+              new CfOps.BranchCondOp(
+                  context.loc(n), whileOp.getBreakValue(), breakBlock, updateBlock));
         }
+
+        context.popSymbolScope();
       }
+      whileOp.addImplicitTerminators();
       return EmitResult.success(Optional.empty());
     }
 
@@ -707,41 +754,54 @@ public class JavaCompiler {
     public EmitResult<Optional<Value>> visit(WhileStmt n, EmitContext context) {
       ScfOps.WhileOp whileOp = context.insert(new ScfOps.WhileOp(context.loc(n)));
       {
-        Block continueBlock = whileOp.getConditionRegion().addBlock(new Block());
-        continueBlock.addOperation(new ScfOps.ContinueOp(context.loc(n.getCondition())));
-        Block breakBlock = whileOp.getConditionRegion().addBlock(new Block());
-        breakBlock.addOperation(new ScfOps.BreakOp(context.loc(n.getCondition())));
+        {
+          Block continueBlock = whileOp.getConditionRegion().addBlock(new Block());
+          continueBlock.addOperation(new ScfOps.ContinueOp(context.loc(n.getCondition())));
+          Block breakBlock = whileOp.getConditionRegion().addBlock(new Block());
+          breakBlock.addOperation(new ScfOps.EndOp(context.loc(n.getCondition())));
 
-        // Open the new scope and place the comparison expression in it.
-        try (var conditionInsertion =
-            context.setInsertionPoint(whileOp.getConditionRegion().getEntryBlock(), -1)) {
+          // Open the new scope and place the comparison expression in it.
           context.pushSymbolScope(false);
-          EmitResult<Optional<Value>> conditionResult;
-          {
-            conditionResult = EmitResult.ofNullable(n.getCondition().accept(this, context));
-            if (conditionResult.isFailure() || conditionResult.get().isEmpty())
-              return conditionResult;
-            Value compareValue = conditionResult.get().get();
-            context.insert(
-                new CfOps.BranchCondOp(
-                    context.loc(n.getCondition()), compareValue, continueBlock, breakBlock));
+          try (var conditionInsertion =
+              context.setInsertionPoint(whileOp.getConditionRegion().getEntryBlock(), -1)) {
+            EmitResult<Optional<Value>> conditionResult;
+            {
+              conditionResult = EmitResult.ofNullable(n.getCondition().accept(this, context));
+              if (conditionResult.isFailure() || conditionResult.get().isEmpty())
+                return conditionResult;
+              Value compareValue = conditionResult.get().get();
+              context.insert(
+                  new CfOps.BranchCondOp(
+                      context.loc(n.getCondition()), compareValue, continueBlock, breakBlock));
+            }
           }
           context.popSymbolScope();
         }
-
-        try (var bodyInsertion =
-            context.setInsertionPoint(whileOp.getBodyRegion().getEntryBlock(), -1)) {
+        {
           context.pushSymbolScope(false);
+          Block continueBlock = whileOp.getBodyRegion().addBlock(new Block());
+          continueBlock.addOperation(new ScfOps.ContinueOp(context.loc(n)));
+          // Create the break block. This is called if there was a break statement in the loop body.
+          Block breakBlock = whileOp.getBodyRegion().addBlock(new Block());
+          breakBlock.addOperation(new ScfOps.EndOp(context.loc(n)));
 
-          EmitResult<Optional<Value>> bodyResult;
-          {
-            bodyResult = EmitResult.ofNullable(n.getBody().accept(this, context));
-            if (bodyResult.isFailure()) return bodyResult;
+          try (var bodyInsertion =
+              context.setInsertionPoint(whileOp.getBodyRegion().getEntryBlock(), -1)) {
+
+            EmitResult<Optional<Value>> bodyResult;
+            {
+              bodyResult = EmitResult.ofNullable(n.getBody().accept(this, context));
+              if (bodyResult.isFailure()) return bodyResult;
+            }
+
+            context.insert(
+                new CfOps.BranchCondOp(
+                    context.loc(n), whileOp.getBreakValue(), breakBlock, continueBlock));
           }
-          whileOp.addImplicitTerminators();
           context.popSymbolScope();
         }
       }
+      whileOp.addImplicitTerminators();
       return EmitResult.success(Optional.empty());
     }
 

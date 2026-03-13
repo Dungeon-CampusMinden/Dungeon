@@ -139,6 +139,17 @@ public sealed interface BuiltinTypes {
     /** 64-bit unsigned integer. */
     public static final IntegerT UINT64 = new IntegerT(64, false);
 
+    public static final byte FALSE = 0;
+    public static final byte TRUE = 1;
+
+    public static byte toByte(boolean value) {
+      return value ? TRUE : FALSE;
+    }
+
+    public static boolean toBoolean(byte value) {
+      return value == TRUE;
+    }
+
     // =========================================================================
     // Type Info
     // =========================================================================

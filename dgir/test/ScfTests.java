@@ -300,7 +300,7 @@ public class ScfTests {
 
     // Use the induction variable
     forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, forOp.getInductionValue()));
-    forOp.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     funcOp.addOperation(new ReturnOp(LOC), 0);
 
@@ -396,7 +396,7 @@ public class ScfTests {
     innerScope.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, scopeConst.getResult()));
     innerScope.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
-    forOp.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
     funcOp.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
@@ -485,7 +485,7 @@ public class ScfTests {
                     step.getResult()));
 
     forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, forOp.getInductionValue()));
-    forOp.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
     funcOp.addOperation(new ReturnOp(LOC), 0);
@@ -543,7 +543,7 @@ public class ScfTests {
     elseScope.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
     ifOp.getElseRegion().get().getEntryBlock().addOperation(new EndOp(LOC));
 
-    forOp.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
     outerScope.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
     funcOp.addOperation(new ReturnOp(LOC), 0);
 
@@ -586,7 +586,7 @@ public class ScfTests {
                 step.getResult()),
             0);
     forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, forOp.getInductionValue()));
-    forOp.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Second scope
     ScopeOp scope2 = funcOp.addOperation(new ScopeOp(LOC), 0);
@@ -663,7 +663,7 @@ public class ScfTests {
     var loopValue =
         forOp.getRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "Inside loop"));
     forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, loopValue.getResult()));
-    forOp.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Try to use value defined inside loop - this should fail
     funcOp.addOperation(new PrintOp(LOC, loopValue.getResult()), 0);
@@ -694,7 +694,7 @@ public class ScfTests {
             0);
 
     forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, forOp.getInductionValue()));
-    forOp.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     // Try to use induction variable outside loop - this should fail
     funcOp.addOperation(new PrintOp(LOC, forOp.getInductionValue()), 0);
@@ -773,7 +773,7 @@ public class ScfTests {
                 step.getResult()),
             0);
 
-    forOp.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     funcOp.addOperation(new ReturnOp(LOC), 0);
 
@@ -832,7 +832,7 @@ public class ScfTests {
                 step.getResult()),
             0);
     forOp.getRegion().getEntryBlock().addOperation(new PrintOp(LOC, forOp.getInductionValue()));
-    forOp.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     var returnValue = helperFunc.addOperation(new ConstantOp(LOC, 42), 0);
     helperFunc.addOperation(new ReturnOp(LOC, returnValue.getResult()), 0);

@@ -123,6 +123,82 @@ public sealed interface ScfOps {
   }
 
   /**
+   * Marks the end of a structured control-flow region body in the {@code scf} dialect.
+   *
+   * <p>This is a terminator that tells a loop to proceed to the next iteration (in the case of a
+   * for-loop) or to re-evaluate its condition (in the case of a while-loop).
+   *
+   * <p>Ident: {@code scf.continue}
+   *
+   * <pre>{@code
+   * scf.for (%i = ...) {
+   *   // ... body ...
+   *   scf.continue
+   * }
+   * }</pre>
+   */
+  final class ContinueOp extends ScfOp implements ScfOps, ITerminator, ISpecificParentOp {
+
+    // =========================================================================
+    // Type Info
+    // =========================================================================
+
+    @Override
+    public @NotNull String getIdent() {
+      return "scf.continue";
+    }
+
+    @Override
+    public @NotNull Function<Operation, Boolean> getVerifier() {
+      return ignored -> true;
+    }
+
+    // =========================================================================
+    // Constructors
+    // =========================================================================
+
+    /** Default constructor used during dialect registration. */
+    private ContinueOp() {}
+
+    /**
+     * Create a continue op.
+     *
+     * @param location the source location of this operation.
+     */
+    public ContinueOp(@NotNull Location location) {
+      setOperation(true, Operation.Create(location, this, null, null, null));
+    }
+
+    // =========================================================================
+    // Functions
+    // =========================================================================
+
+    /**
+     * Returns the valid parent op types: {@link ForOp} and {@link WhileOp}.
+     *
+     * @return an unmodifiable list of the three permitted parent classes.
+     */
+    @Contract(pure = true)
+    @Override
+    public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
+      return List.of(ForOp.class, WhileOp.class);
+    }
+
+    @Override
+    public @NotNull Optional<Constructor<? extends ITerminator>> getLocationConstructor() {
+      try {
+        return Optional.of(getClass().getConstructor(Location.class));
+      } catch (NoSuchMethodException e) {
+        throw new AssertionError(
+            "Terminator "
+                + getClass()
+                + " does not define a public constructor that takes only a location as parameter.",
+            e);
+      }
+    }
+  }
+
+  /**
    * Counted for-loop in the {@code scf} dialect.
    *
    * <p>The loop body occupies a single region. The region receives four body values that are
@@ -195,7 +271,10 @@ public sealed interface ScfOps {
               List.of(initValue, lowerBound, upperBound, step),
               null,
               null,
-              List.of(BuiltinTypes.IntegerT.INT32, BuiltinTypes.IntegerT.BOOL)));
+              List.of(
+                  BuiltinTypes.IntegerT.INT32,
+                  BuiltinTypes.IntegerT.BOOL,
+                  BuiltinTypes.IntegerT.BOOL)));
     }
 
     // =========================================================================
@@ -262,6 +341,17 @@ public sealed interface ScfOps {
     @Contract(pure = true)
     public @NotNull Value getBreakValue() {
       return getRegion().getBodyValue(1).orElseThrow();
+    }
+
+    /**
+     * Returns the skip value that can be set to skip the rest of the current iteration and proceed
+     * to the next one (similar to "continue" in most languages).
+     *
+     * @return the skip value.
+     */
+    @Contract(pure = true)
+    public @NotNull Value getSkipValue() {
+      return getRegion().getBodyValue(2).orElseThrow();
     }
   }
 
@@ -471,8 +561,8 @@ public sealed interface ScfOps {
               null,
               null,
               null,
-              List.of(BuiltinTypes.IntegerT.BOOL),
-              List.of(BuiltinTypes.IntegerT.BOOL)));
+              List.of(),
+              List.of(BuiltinTypes.IntegerT.BOOL, BuiltinTypes.IntegerT.BOOL)));
     }
 
     /**
@@ -499,13 +589,22 @@ public sealed interface ScfOps {
      * Returns the value that can be set if the loop should terminate early (set by calling break in
      * most languages).
      *
-     * @param conditionRegion if true, returns the break value for the condition region, otherwise
-     *     returns the break value for the body region.
      * @return the break value.
      */
     @Contract(pure = true)
-    public @NotNull Value getBreakValue(boolean conditionRegion) {
-      return getOperand(conditionRegion ? 0 : 1).flatMap(Operand::getValue).orElseThrow();
+    public @NotNull Value getBreakValue() {
+      return getRegion(1).flatMap(region -> region.getBodyValue(0)).orElseThrow();
+    }
+
+    /**
+     * Returns the value that can be set to skip the rest of the current iteration and proceed to
+     * the next one (set by calling continue in most languages).
+     *
+     * @return the skip value.
+     */
+    @Contract(pure = true)
+    public @NotNull Value getSkipValue() {
+      return getRegion(1).flatMap(region -> region.getBodyValue(1)).orElseThrow();
     }
 
     /**
@@ -516,7 +615,7 @@ public sealed interface ScfOps {
      */
     @Override
     public @NotNull Constructor<? extends ITerminator> getImplicitTerminatorType() {
-      return new EndOp().getLocationConstructor().orElseThrow();
+      return new ContinueOp().getLocationConstructor().orElseThrow();
     }
   }
 }

@@ -17,6 +17,7 @@ import static dgir.dialect.scf.ScfOps.*;
  */
 public class ScfTest extends VmTestBase {
   static final Location LOC = Location.UNKNOWN;
+
   /** Probe: for(i=0; i<3; i++) print(i) -- verify the actual output produced. */
   @Test
   void basicForLoopOutput() {
@@ -241,7 +242,7 @@ public class ScfTest extends VmTestBase {
       forOp
           .getEntryBlock()
           .addOperation(new PrintOp(LOC, fmt.getResult(), forOp.getInductionValue()));
-      forOp.getEntryBlock().addOperation(new BreakOp(LOC));
+      forOp.getEntryBlock().addOperation(new EndOp(LOC));
 
       main.addOperation(new ReturnOp(LOC), 0);
     }
@@ -268,7 +269,7 @@ public class ScfTest extends VmTestBase {
               new ForOp(
                   LOC, init.getResult(), lower.getResult(), upper.getResult(), step.getResult()),
               0);
-      forOp.getEntryBlock().addOperation(new BreakOp(LOC));
+      forOp.getEntryBlock().addOperation(new EndOp(LOC));
 
       main.addOperation(new PrintOp(LOC, after.getResult()), 0);
       main.addOperation(new ReturnOp(LOC), 0);
@@ -325,7 +326,8 @@ public class ScfTest extends VmTestBase {
       var cond = main.addOperation(new ConstantOp(LOC, true), 0);
       IfOp ifOp = main.addOperation(new IfOp(LOC, cond.getResult(), true), 0);
 
-      var thenMsg = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "then\n"));
+      var thenMsg =
+          ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "then\n"));
       ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, thenMsg.getResult()));
       ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
@@ -351,7 +353,8 @@ public class ScfTest extends VmTestBase {
       var cond = main.addOperation(new ConstantOp(LOC, false), 0);
       IfOp ifOp = main.addOperation(new IfOp(LOC, cond.getResult(), true), 0);
 
-      var thenMsg = ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "then\n"));
+      var thenMsg =
+          ifOp.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "then\n"));
       ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, thenMsg.getResult()));
       ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
@@ -573,7 +576,7 @@ public class ScfTest extends VmTestBase {
                         innerLower.getResult(),
                         innerUpper.getResult(),
                         innerStep.getResult()));
-        inner.getEntryBlock().addOperation(new BreakOp(LOC));
+        inner.getEntryBlock().addOperation(new EndOp(LOC));
 
         outer
             .getEntryBlock()
@@ -618,7 +621,11 @@ public class ScfTest extends VmTestBase {
         ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, tMsg.getResult()));
         ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
-        var fMsg = ifOp.getElseRegion().orElseThrow().getEntryBlock().addOperation(new ConstantOp(LOC, "F\n"));
+        var fMsg =
+            ifOp.getElseRegion()
+                .orElseThrow()
+                .getEntryBlock()
+                .addOperation(new ConstantOp(LOC, "F\n"));
         ifOp.getElseRegion().get().getEntryBlock().addOperation(new PrintOp(LOC, fMsg.getResult()));
         ifOp.getElseRegion().get().getEntryBlock().addOperation(new EndOp(LOC));
 
@@ -653,7 +660,8 @@ public class ScfTest extends VmTestBase {
         ifOp.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, tMsg.getResult()));
         ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
-        var fMsg = ifOp.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp(LOC, "F\n"));
+        var fMsg =
+            ifOp.getElseRegion().get().getEntryBlock().addOperation(new ConstantOp(LOC, "F\n"));
         ifOp.getElseRegion().get().getEntryBlock().addOperation(new PrintOp(LOC, fMsg.getResult()));
         ifOp.getElseRegion().get().getEntryBlock().addOperation(new EndOp(LOC));
 
@@ -673,14 +681,16 @@ public class ScfTest extends VmTestBase {
       var outerCond = main.addOperation(new ConstantOp(LOC, true), 0);
       IfOp outerIf = main.addOperation(new IfOp(LOC, outerCond.getResult(), false), 0);
       {
-        var innerCond = outerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, true));
+        var innerCond =
+            outerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, true));
         IfOp innerIf =
             outerIf
                 .getThenRegion()
                 .getEntryBlock()
                 .addOperation(new IfOp(LOC, innerCond.getResult(), false));
 
-        var msg = innerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "inner\n"));
+        var msg =
+            innerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "inner\n"));
         innerIf.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, msg.getResult()));
         innerIf.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
@@ -700,14 +710,16 @@ public class ScfTest extends VmTestBase {
       var outerCond = main.addOperation(new ConstantOp(LOC, true), 0);
       IfOp outerIf = main.addOperation(new IfOp(LOC, outerCond.getResult(), false), 0);
       {
-        var innerCond = outerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, false));
+        var innerCond =
+            outerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, false));
         IfOp innerIf =
             outerIf
                 .getThenRegion()
                 .getEntryBlock()
                 .addOperation(new IfOp(LOC, innerCond.getResult(), false));
 
-        var msg = innerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "skip\n"));
+        var msg =
+            innerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "skip\n"));
         innerIf.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, msg.getResult()));
         innerIf.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 
@@ -727,14 +739,16 @@ public class ScfTest extends VmTestBase {
       var outerCond = main.addOperation(new ConstantOp(LOC, false), 0);
       IfOp outerIf = main.addOperation(new IfOp(LOC, outerCond.getResult(), false), 0);
       {
-        var innerCond = outerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, true));
+        var innerCond =
+            outerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, true));
         IfOp innerIf =
             outerIf
                 .getThenRegion()
                 .getEntryBlock()
                 .addOperation(new IfOp(LOC, innerCond.getResult(), false));
 
-        var msg = innerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "skip\n"));
+        var msg =
+            innerIf.getThenRegion().getEntryBlock().addOperation(new ConstantOp(LOC, "skip\n"));
         innerIf.getThenRegion().getEntryBlock().addOperation(new PrintOp(LOC, msg.getResult()));
         innerIf.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
 

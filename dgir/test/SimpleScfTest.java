@@ -18,7 +18,7 @@ public class SimpleScfTest {
   @Test
   public void testScopeOpDirectly() {
     ScopeOp scopeOp = new ScopeOp(LOC);
-    scopeOp.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
+    scopeOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     System.out.println("Scope verify: " + scopeOp.verify(true));
     System.out.println("Has terminator: " + scopeOp.getRegion().getEntryBlock().hasTerminator());
@@ -29,7 +29,7 @@ public class SimpleScfTest {
     var condOp = new ConstantOp(LOC, true);
     IfOp ifOp = new IfOp(LOC, condOp.getResult(), false);
 
-    ifOp.getThenRegion().getEntryBlock().addOperation(new EndOp(LOC));
+    ifOp.getThenRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     System.out.println("ConstOp verify: " + condOp.verify(true));
     System.out.println("If verify: " + ifOp.verify(true));
@@ -52,7 +52,7 @@ public class SimpleScfTest {
             upperBound.getResult(),
             step.getResult());
 
-    forOp.getRegion().getEntryBlock().addOperation(new EndOp(LOC));
+    forOp.getRegion().getEntryBlock().addOperation(new ContinueOp(LOC));
 
     System.out.println("For verify: " + forOp.verify(true));
     System.out.println("Has induction value: " + true);

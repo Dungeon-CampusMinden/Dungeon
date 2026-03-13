@@ -176,6 +176,17 @@ public final class EmitContext {
     this.insertionPoint = insertionPoint;
   }
 
+  @SafeVarargs
+  public final @NotNull Optional<Operation> findAncestor(Class<? extends Op>... clazz) {
+    assert insertionPoint != null : "Insertion block must be set before finding an ancestor.";
+    Operation parent = insertionPoint.block.getParentOperation().orElseThrow();
+    List<Class<? extends Op>> classes = Arrays.asList(clazz);
+    while (parent != null && classes.stream().noneMatch(parent::isa)) {
+      parent = parent.getParentOperation().orElse(null);
+    }
+    return Optional.ofNullable(parent);
+  }
+
   public @NotNull Operation insert(@NotNull Operation op) {
     assert insertionPoint != null : "Insertion block must be set before inserting an operation.";
     if (insertionPoint.index == -1) {
@@ -189,31 +200,6 @@ public final class EmitContext {
   <OpT extends Op> @NotNull OpT insert(@NotNull OpT op) {
     insert(op.getOperation());
     return op;
-  }
-
-  public void succeed() {
-    lastResult = EmitResult.of(Optional.empty());
-  }
-
-  public void succeed(@NotNull Value value) {
-    lastResult = EmitResult.of(Optional.of(value));
-  }
-
-  public void fail() {
-    lastResult = EmitResult.failure();
-  }
-
-  public void fail(Node node, String message, Object... args) {
-    lastResult = EmitResult.failure(this, node, message, args);
-  }
-
-  public @NotNull EmitResult<Optional<Value>> consumeLastResult() {
-    if (lastResult == null) {
-      throw new IllegalStateException("No value available to consume.");
-    }
-    EmitResult<Optional<Value>> result = lastResult;
-    lastResult = null;
-    return result;
   }
 
   /**
