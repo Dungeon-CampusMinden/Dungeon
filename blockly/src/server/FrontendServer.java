@@ -11,14 +11,14 @@ import java.nio.file.*;
 public class FrontendServer {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(BlocklyCodeRunner.class);
-
+  private static  HttpServer server;
   /**
    * Starts the frontend server.
    *
    * @throws IOException if textures can not be loaded.
    */
   public static void run() throws IOException {
-    HttpServer server = HttpServer.create(new InetSocketAddress(8081), 0);
+    server = HttpServer.create(new InetSocketAddress(8081), 0);
     LOGGER.debug(new File(".").getAbsolutePath());
 
     server.createContext(
@@ -85,5 +85,15 @@ public class FrontendServer {
     }
 
     return null;
+  }
+  /**
+   * Stops the frontend server.
+   */
+  public static void stopServer() {
+    if (server != null) {
+
+      server.stop(0);
+      System.out.println("Server gestoppt.");
+    }
   }
 }
