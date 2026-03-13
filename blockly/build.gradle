@@ -2,7 +2,7 @@ plugins {
   id 'antlr'
     id 'java-library'
     id 'application'
-    id 'org.beryx.runtime' version '2.0.1'
+    id 'org.beryx.runtime' version "${beryxRuntimeVersion}"
 }
 
 application {
