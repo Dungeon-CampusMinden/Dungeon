@@ -99,6 +99,7 @@ public class Client {
         httpServer.stop(0);
       }
       BlocklyCodeRunner.instance().stopCode();
+      FrontendServer.stopServer();
     }
   }
 
