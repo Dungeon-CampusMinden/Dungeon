@@ -12,6 +12,8 @@ public class FrontendServer {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(BlocklyCodeRunner.class);
 
+  private static HttpServer server;
+
   /**
    * Starts the frontend server.
    *
@@ -78,7 +80,6 @@ public class FrontendServer {
 
     // fallback: loading assets from dev system
     File file = new File(path.replaceFirst("^assets", "blockly/frontend/dist"));
-    System.out.println(file.toPath());
 
     if (file.exists()) {
       return new FileInputStream(file);
@@ -86,4 +87,13 @@ public class FrontendServer {
 
     return null;
   }
+  /** Stops the frontend server. */
+  public static void stopServer() {
+    if (server != null) {
+
+      server.stop(0);
+      System.out.println("Server gestoppt.");
+    }
+  }
+
 }
