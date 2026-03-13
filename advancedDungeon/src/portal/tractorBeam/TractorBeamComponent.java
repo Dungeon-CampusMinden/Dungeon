@@ -17,8 +17,6 @@ import portal.portals.components.PortalExtendComponent;
 /** Component represents a tractor beam that can be extended and trimmed. */
 public class TractorBeamComponent implements Component {
 
-  private Direction direction;
-  private Point from;
   private List<Entity> tractorBeamEntities;
   private boolean active = false;
   private boolean reversed = false;
@@ -32,13 +30,9 @@ public class TractorBeamComponent implements Component {
   /**
    * Constructs a TractorBeamComponent so it can be extended and trimmed.
    *
-   * @param direction Direction where it extends into.
-   * @param from Point from which the extending happens.
    * @param tractorBeamEntities The list of Entities for the Animation.
    */
-  public TractorBeamComponent(Direction direction, Point from, List<Entity> tractorBeamEntities) {
-    this.direction = direction;
-    this.from = from;
+  public TractorBeamComponent(List<Entity> tractorBeamEntities) {
     this.tractorBeamEntities = tractorBeamEntities;
 
     activate();
