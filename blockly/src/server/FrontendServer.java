@@ -20,7 +20,7 @@ public class FrontendServer {
    * @throws IOException if textures can not be loaded.
    */
   public static void run() throws IOException {
-    HttpServer server = HttpServer.create(new InetSocketAddress(8081), 0);
+    server = HttpServer.create(new InetSocketAddress(8081), 0);
     LOGGER.debug(new File(".").getAbsolutePath());
 
     server.createContext(
@@ -87,7 +87,9 @@ public class FrontendServer {
 
     return null;
   }
-  /** Stops the frontend server. */
+  /**
+   * Stops the frontend server.
+   */
   public static void stopServer() {
     if (server != null) {
 
@@ -95,5 +97,4 @@ public class FrontendServer {
       System.out.println("Server gestoppt.");
     }
   }
-
 }
