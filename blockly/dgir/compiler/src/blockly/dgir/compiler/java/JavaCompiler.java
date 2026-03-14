@@ -118,7 +118,6 @@ public class JavaCompiler {
       return Optional.empty();
     }
 
-
     EmitContext context = new EmitContext(filename);
 
     new DeadCodeElimination().visit(result, null);
