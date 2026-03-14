@@ -9,9 +9,22 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class DungeonDialectRunner extends DialectRunner {
+  private static DungeonDialectRunner instance;
+
+  public static @NotNull DungeonDialectRunner get() {
+    synchronized (DungeonDialectRunner.class) {
+      if (instance == null) {
+        instance = new DungeonDialectRunner();
+      }
+      return instance;
+    }
+  }
+
+  private DungeonDialectRunner() {}
+
   @Override
-  public @NotNull Class<? extends Dialect> getDialect() {
-    return DungeonDialect.class;
+  public @NotNull Dialect getDialect() {
+    return DungeonDialect.get();
   }
 
   @Override

@@ -313,6 +313,40 @@ public class DapServer implements AutoCloseable {
     reloadProgram(newProgram, false);
   }
 
+  // =========================================================================
+  // VM runtime state
+  // =========================================================================
+
+  /**
+   * Returns {@code true} while the VM thread started by the last {@link #reloadProgram} call is
+   * still alive (running or blocked on a debug pause).
+   *
+   * <p>Returns {@code false} when no program has been loaded yet, or when the VM thread has already
+   * terminated (program completed or was stopped).
+   *
+   * @return {@code true} if the VM is currently running
+   */
+  public boolean isVmRunning() {
+    DapAdapter adapter = currentAdapter.get();
+    return adapter != null && adapter.isVmRunning();
+  }
+
+  /**
+   * Stops the VM immediately without reloading a program.
+   *
+   * <p>Sets the VM's {@code stopRequested} flag and interrupts the VM thread so that any blocking
+   * wait inside an op runner (e.g. {@link java.util.concurrent.CountDownLatch#await()}) returns
+   * promptly. The VM thread will terminate asynchronously; use {@link #isVmRunning()} to poll for
+   * completion if necessary.
+   *
+   * <p>This is a no-op when no program is loaded or the VM is not running.
+   */
+  public void stopVm() {
+    DapAdapter adapter = currentAdapter.get();
+    if (adapter != null) {
+      adapter.stopVm();
+    }
+  }
 
   /** Calls {@link #stop()}, implementing {@link AutoCloseable} for use in try-with-resources. */
   @Override

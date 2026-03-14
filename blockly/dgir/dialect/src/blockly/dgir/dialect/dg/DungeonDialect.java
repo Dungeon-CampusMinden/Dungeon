@@ -11,6 +11,19 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.List;
 
 public class DungeonDialect extends Dialect {
+  private static DungeonDialect instance;
+
+  public static @NotNull DungeonDialect get() {
+    synchronized (DungeonDialect.class) {
+      if (instance == null) {
+        instance = new DungeonDialect();
+      }
+    }
+    return instance;
+  }
+
+  private DungeonDialect() {}
+
   @NotNull
   @Override
   public String getNamespace() {

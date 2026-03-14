@@ -32,6 +32,25 @@ tasks.register('runJar', JavaExec) {
     println(project.properties)
 }
 
+
+tasks.register('runBlocklyDebug', JavaExec) {
+    group = 'application'
+    description = 'Start Blockly Dungeon with debug systems active (hitboxes, tile editor, tank controls) (--debug).'
+    mainClass = 'client.Client'
+    classpath = sourceSets.main.runtimeClasspath
+    args '--debug'
+    workingDir = rootProject.projectDir
+}
+
+tasks.register('runBlocklySandbox', JavaExec) {
+    group = 'application'
+    description = 'Start Blockly Dungeon in sandbox mode: empty level, no popups, all blocks unlocked, debug systems active (--sandbox).'
+    mainClass = 'client.Client'
+    classpath = sourceSets.main.runtimeClasspath
+    args '--sandbox'
+    workingDir = rootProject.projectDir
+}
+
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {

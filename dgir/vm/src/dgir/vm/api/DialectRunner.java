@@ -20,20 +20,27 @@ import java.util.Map;
 
 public abstract class DialectRunner {
   private static final @NotNull Map<Class<? extends DialectRunner>, List<@NotNull OpRunner>>
-      dialectRunners = new HashMap<>();
+      dialectOpRunners = new HashMap<>();
 
-  public abstract @NotNull Class<? extends Dialect> getDialect();
+  public abstract @NotNull Dialect getDialect();
 
   public abstract @NotNull List<@NotNull OpRunner> allRunners();
 
+  public void register() {
+    if (OpRunnerRegistry.getDialectRunner(getDialect().getClass()).isPresent()) return;
+    getDialect().register();
+    OpRunnerRegistry.registerDialectRunner(this);
+    OpRunnerRegistry.registerOpRunners(allRunners());
+  }
+
   public static void registerAllDialects() {
-    OpRunnerRegistry.registerDialectRunner(new ArithDialectRunner());
-    OpRunnerRegistry.registerDialectRunner(new BuiltinDialectRunner());
-    OpRunnerRegistry.registerDialectRunner(new CfDialectRunner());
-    OpRunnerRegistry.registerDialectRunner(new FuncDialectRunner());
-    OpRunnerRegistry.registerDialectRunner(new IoDialectRunner());
-    OpRunnerRegistry.registerDialectRunner(new ScfDialectRunner());
-    OpRunnerRegistry.registerDialectRunner(new StrDialectRunner());
+    ArithDialectRunner.get().register();
+    BuiltinDialectRunner.get().register();
+    CfDialectRunner.get().register();
+    FuncDialectRunner.get().register();
+    IoDialectRunner.get().register();
+    ScfDialectRunner.get().register();
+    StrDialectRunner.get().register();
   }
 
   @NotNull
@@ -43,8 +50,8 @@ public abstract class DialectRunner {
     // Check that diRunners is a sealed interface
     assert diRunners.isSealed() : diRunners.getSimpleName() + " interface must be sealed";
 
-    if (dialectRunners.containsKey(dialect)) {
-      return dialectRunners.get(dialect);
+    if (dialectOpRunners.containsKey(dialect)) {
+      return dialectOpRunners.get(dialect);
     }
 
     // Go over all permitted subclasses of this interface and collect their prototypes. This
@@ -71,7 +78,7 @@ public abstract class DialectRunner {
           throw new RuntimeException(
               "Executing default constructor failed for OpRunner: " + subclass.getName(), e);
         } catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e) {
-          throw new RuntimeException(e);
+          throw new RuntimeException(e.getMessage(), e);
         }
         if (!isAccessible) defaultConstructor.setAccessible(false);
       } catch (NoSuchMethodException e) {
@@ -79,7 +86,7 @@ public abstract class DialectRunner {
             "OpRunner class must have a default constructor: " + subclass.getName(), e);
       }
     }
-    dialectRunners.put(dialect, ops);
+    dialectOpRunners.put(dialect, ops);
     return ops;
   }
 }

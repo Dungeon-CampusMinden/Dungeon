@@ -20,9 +20,10 @@ import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import dgir.vm.api.OpRunnerRegistry;
+import dgir.vm.api.DialectRunner;
 import entities.HeroTankControlledFactory;
 import level.produs.*;
+import level.sandbox.SandboxLevel;
 import server.Server;
 import systems.BlocklyCommandExecuteSystem;
 import systems.HeroActionTickSystem;
@@ -33,11 +34,14 @@ import java.util.Set;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
- * have any effect
+ * have any effect.
  *
  * <p>Usage: run with the Gradle task {@code runBlockly}.
  *
- * <p>For the Web-Ui you have to start the frontend yourself.
+ * <p>The HTTP server (default port 8080) always starts automatically. Point the Blockly browser
+ * frontend at {@code http://localhost:8080} — no special flag is required.
+ *
+ * <p>For the Web-UI you have to start the frontend yourself.
  */
 public class Client {
 
@@ -47,30 +51,56 @@ public class Client {
   /** Force to apply for movement of all entities. */
   public static final Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
 
-  private static final boolean DEBUG_MODE = false;
-  private static final boolean ACTIVATE_TANKE_CONTROLLS = DEBUG_MODE;
   private static volatile boolean scheduleRestart = false;
 
   private static HttpServer httpServer;
 
   /**
-   * If true, the Web interface Blockly is used for interaction with the Dunogen. Otherwise, the
-   * Code API is used.
+   * If {@code true}, extra debug systems are activated at startup:
+   *
+   * <ul>
+   *   <li>{@link contrib.utils.components.Debugger} – renders hitboxes and component info
+   *   <li>{@code DebugDrawSystem} – draws pathfinding graphs and tile borders
+   *   <li>{@code LevelEditorSystem} – allows editing tiles at runtime
+   *   <li>Tank controls for the hero are enabled
+   * </ul>
+   *
+   * <p>Enable via the {@code --debug} command-line argument or the {@code runBlocklyDebug} Gradle
+   * task.
    */
-  public static boolean runInWeb = false;
+  public static boolean debugMode = false;
 
   /**
-   * Setup and run the game. Also start the server that is listening to the requests from blockly
-   * frontend.
+   * If {@code true}, the game runs in sandbox mode: only the empty {@link SandboxLevel} is loaded,
+   * all Blockly blocks are unlocked, popups are suppressed, and extra debug systems are active.
+   *
+   * <p>Enable via the {@code --sandbox} command-line argument or the {@code runBlocklySandbox}
+   * Gradle task.
+   */
+  public static boolean sandboxMode = false;
+
+  /**
+   * Setup and run the game. Also starts the HTTP server that the Blockly browser frontend connects
+   * to.
+   *
+   * <p>Recognised command-line arguments:
+   *
+   * <ul>
+   *   <li>{@code --debug} – activate debug systems (hitboxes, tile editor, …)
+   *   <li>{@code --sandbox} – start on the empty sandbox level with all blocks unlocked and no
+   *       popups; implies {@code --debug}
+   * </ul>
    *
    * @param args CLI arguments
    * @throws IOException if textures can not be loaded.
    */
   public static void main(String[] args) throws IOException {
     for (String arg : args) {
-      if (arg.equalsIgnoreCase("web=true")) {
-        runInWeb = true;
-        break;
+      if (arg.equalsIgnoreCase("--debug")) {
+        debugMode = true;
+      }
+      if (arg.equalsIgnoreCase("--sandbox")) {
+        sandboxMode = true;
       }
     }
 
@@ -97,33 +127,38 @@ public class Client {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          // chapter 1
-          DungeonLoader.addLevel(Tuple.of("level001", Level001.class));
-          DungeonLoader.addLevel(Tuple.of("level002", Level002.class));
-          DungeonLoader.addLevel(Tuple.of("level003", Level003.class));
-          DungeonLoader.addLevel(Tuple.of("level004", Level004.class));
-          DungeonLoader.addLevel(Tuple.of("level005", Level005.class));
-          DungeonLoader.addLevel(Tuple.of("level006", Level006.class));
-          DungeonLoader.addLevel(Tuple.of("level007", Level007.class));
-          DungeonLoader.addLevel(Tuple.of("level008", Level008.class));
-          DungeonLoader.addLevel(Tuple.of("level009", Level009.class));
-          DungeonLoader.addLevel(Tuple.of("level010", Level010.class));
-          DungeonLoader.addLevel(Tuple.of("level011", Level011.class));
-          DungeonLoader.addLevel(Tuple.of("level012", Level012.class));
+          if (sandboxMode) {
+            // Sandbox: only expose the empty sandbox level – no story progression, no popups.
+            DungeonLoader.addLevel(Tuple.of("sandbox", SandboxLevel.class));
+          } else {
+            // chapter 1
+            DungeonLoader.addLevel(Tuple.of("level001", Level001.class));
+            DungeonLoader.addLevel(Tuple.of("level002", Level002.class));
+            DungeonLoader.addLevel(Tuple.of("level003", Level003.class));
+            DungeonLoader.addLevel(Tuple.of("level004", Level004.class));
+            DungeonLoader.addLevel(Tuple.of("level005", Level005.class));
+            DungeonLoader.addLevel(Tuple.of("level006", Level006.class));
+            DungeonLoader.addLevel(Tuple.of("level007", Level007.class));
+            DungeonLoader.addLevel(Tuple.of("level008", Level008.class));
+            DungeonLoader.addLevel(Tuple.of("level009", Level009.class));
+            DungeonLoader.addLevel(Tuple.of("level010", Level010.class));
+            DungeonLoader.addLevel(Tuple.of("level011", Level011.class));
+            DungeonLoader.addLevel(Tuple.of("level012", Level012.class));
 
-          // chapter 2
-          DungeonLoader.addLevel(Tuple.of("level013", Level013.class));
-          DungeonLoader.addLevel(Tuple.of("level014", Level014.class));
-          DungeonLoader.addLevel(Tuple.of("level015", Level015.class));
-          DungeonLoader.addLevel(Tuple.of("level016", Level016.class));
-          DungeonLoader.addLevel(Tuple.of("level017", Level017.class));
+            // chapter 2
+            DungeonLoader.addLevel(Tuple.of("level013", Level013.class));
+            DungeonLoader.addLevel(Tuple.of("level014", Level014.class));
+            DungeonLoader.addLevel(Tuple.of("level015", Level015.class));
+            DungeonLoader.addLevel(Tuple.of("level016", Level016.class));
+            DungeonLoader.addLevel(Tuple.of("level017", Level017.class));
 
-          // chapter 3
-          DungeonLoader.addLevel(Tuple.of("level018", Level018.class));
-          DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
-          DungeonLoader.addLevel(Tuple.of("level020", Level020.class));
-          DungeonLoader.addLevel(Tuple.of("level021", Level021.class));
-          DungeonLoader.addLevel(Tuple.of("level022", Level022.class));
+            // chapter 3
+            DungeonLoader.addLevel(Tuple.of("level018", Level018.class));
+            DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
+            DungeonLoader.addLevel(Tuple.of("level020", Level020.class));
+            DungeonLoader.addLevel(Tuple.of("level021", Level021.class));
+            DungeonLoader.addLevel(Tuple.of("level022", Level022.class));
+          }
 
           createHero();
           createSystems();
@@ -167,14 +202,16 @@ public class Client {
     Game.frameRate(30);
     Game.disableAudio(true);
     Game.resizeable(true);
-    Game.windowTitle("Blockly Dungeon");
+    Game.windowTitle(sandboxMode ? "Blockly Dungeon [SANDBOX]" : "Blockly Dungeon");
   }
 
   private static void createSystems() {
+    // Register the dgir default dialects (builtin, scf, func, …).
+    DialectRunner.registerAllDialects();
+    // Register the dungeon dialect runners (move, turn, use, push, pull, drop, pickup, …).
+    DungeonDialectRunner.get().register();
     // Register the game-side action gateway so DgRunners can schedule hero actions.
     DgActionGateway.register(new DgHeroActionGateway());
-    // Register the dungeon dialect runners (move, turn, use, push, pull, drop, pickup, …).
-    OpRunnerRegistry.registerDialectRunner(new DungeonDialectRunner());
 
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
@@ -194,7 +231,7 @@ public class Client {
     Game.add(new FogSystem());
     Game.add(new PressurePlateSystem());
     Game.add(new BlocklyCommandExecuteSystem());
-    if (DEBUG_MODE) Game.add(new Debugger());
+    if (debugMode || sandboxMode) Game.add(new Debugger());
     Game.add(
         new System() {
           @Override
@@ -205,7 +242,7 @@ public class Client {
             }
           }
         });
-    if (DEBUG_MODE) {
+    if (debugMode || sandboxMode) {
       Game.add(new DebugDrawSystem());
       Game.add(new LevelEditorSystem());
     }
@@ -230,7 +267,7 @@ public class Client {
    */
   public static void createHero() {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
-    Entity hero = HeroTankControlledFactory.blocklyHero(ACTIVATE_TANKE_CONTROLLS);
+    Entity hero = HeroTankControlledFactory.blocklyHero(debugMode || sandboxMode);
     hero.add(new AmmunitionComponent());
     Game.add(hero);
   }

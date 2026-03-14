@@ -116,13 +116,13 @@ public abstract class Dialect {
   public static void registerAllDialects() {
     List<Dialect> dialects =
         List.of(
-            new ArithDialect(),
-            new BuiltinDialect(),
-            new CfDialect(),
-            new FuncDialect(),
-            new IoDialect(),
-            new ScfDialect(),
-            new StrDialect());
+            ArithDialect.get(),
+            BuiltinDialect.get(),
+            CfDialect.get(),
+            FuncDialect.get(),
+            IoDialect.get(),
+            ScfDialect.get(),
+            StrDialect.get());
     dialects.forEach(Dialect::register);
   }
 }

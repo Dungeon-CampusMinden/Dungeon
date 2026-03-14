@@ -25,11 +25,24 @@ import static dgir.dialect.scf.ScfOps.*;
  *   <li>{@link ForOp} — counted for-loop with an induction variable
  *   <li>{@link IfOp} — conditional with an optional else branch
  *   <li>{@link ScopeOp} — opens a new variable scope with no other semantic effect
- *   <li>{@link BreakOp} — breaks out of the nearest enclosing {@link ForOp}
+ *   <li>{@link EndOp} - marks the end of a structured control-flow region
  *   <li>{@link ContinueOp} — marks the end of a structured control-flow region
  * </ul>
  */
 public class ScfDialect extends Dialect {
+  private static ScfDialect instance;
+
+  public static @NotNull ScfDialect get() {
+    synchronized (ScfDialect.class) {
+      if (instance == null) {
+        instance = new ScfDialect();
+      }
+    }
+    return instance;
+  }
+
+  private ScfDialect() {}
+
   @Contract(pure = true)
   @Override
   public @NotNull String getNamespace() {

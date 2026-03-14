@@ -26,6 +26,19 @@ import static dgir.dialect.io.IoOps.*;
  * </ul>
  */
 public class IoDialect extends Dialect {
+  private static IoDialect instance;
+
+  public static @NotNull IoDialect get() {
+    synchronized (IoDialect.class) {
+      if (instance == null) {
+        instance = new IoDialect();
+      }
+    }
+    return instance;
+  }
+
+  private IoDialect() {}
+
   @Contract(pure = true)
   @Override
   public @NotNull String getNamespace() {

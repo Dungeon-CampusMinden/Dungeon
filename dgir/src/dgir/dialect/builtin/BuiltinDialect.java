@@ -43,6 +43,18 @@ import static dgir.dialect.builtin.BuiltinTypes.*;
  * </ul>
  */
 public class BuiltinDialect extends Dialect {
+  private static BuiltinDialect instance;
+
+  public static @NotNull BuiltinDialect get() {
+    synchronized (BuiltinDialect.class) {
+      if (instance == null) {
+        instance = new BuiltinDialect();
+      }
+    }
+    return instance;
+  }
+
+  private BuiltinDialect() {}
 
   @Contract(pure = true)
   @Override

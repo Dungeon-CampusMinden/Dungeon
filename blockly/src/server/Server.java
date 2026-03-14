@@ -13,6 +13,8 @@ import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
 import core.utils.Point;
 import core.utils.logging.DungeonLogger;
+import level.BlocklyLevel;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,7 +23,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import level.BlocklyLevel;
 
 /**
  * Controls communication between the Blockly frontend and the dungeon game. Provides HTTP endpoints
@@ -37,7 +38,7 @@ public class Server {
   private static Server instance;
 
   /** Default port for the server. */
-  private static final int DEFAULT_PORT = 8080;
+  public static final int DEFAULT_PORT = 8080;
 
   /**
    * This boolean will be set to true on error or if the user clicked the reset button in the

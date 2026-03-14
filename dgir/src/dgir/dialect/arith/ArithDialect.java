@@ -1,16 +1,17 @@
 package dgir.dialect.arith;
 
-import static dgir.dialect.arith.ArithOps.*;
-
-import dgir.core.Dialect;
 import dgir.core.DgirCoreUtils;
+import dgir.core.Dialect;
 import dgir.core.ir.Attribute;
 import dgir.core.ir.Op;
 import dgir.core.ir.Type;
-import java.util.List;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.List;
+
+import static dgir.dialect.arith.ArithOps.*;
 
 /**
  * The {@code arith} dialect provides basic arithmetic operations.
@@ -27,6 +28,18 @@ import org.jetbrains.annotations.Unmodifiable;
  * </ul>
  */
 public class ArithDialect extends Dialect {
+  private static ArithDialect instance;
+
+  public static @NotNull ArithDialect get() {
+    synchronized (ArithDialect.class) {
+      if (instance == null) {
+        instance = new ArithDialect();
+      }
+    }
+    return instance;
+  }
+
+  private ArithDialect() {}
 
   @Contract(pure = true)
   @Override

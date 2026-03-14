@@ -11,6 +11,19 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.List;
 
 public class StrDialect extends Dialect {
+  public static StrDialect instance;
+
+  public static @NotNull StrDialect get() {
+    synchronized (StrDialect.class) {
+      if (instance == null) {
+        instance = new StrDialect();
+      }
+    }
+    return instance;
+  }
+
+  private StrDialect() {}
+
   @Override
   public @NotNull String getNamespace() {
     return "str";

@@ -26,6 +26,18 @@ import static dgir.dialect.cf.CfOps.*;
  * </ul>
  */
 public class CfDialect extends Dialect {
+  private static CfDialect instance;
+
+  public static @NotNull CfDialect get() {
+    synchronized (CfDialect.class) {
+      if (instance == null) {
+        instance = new CfDialect();
+      }
+    }
+    return instance;
+  }
+
+  private CfDialect() {}
 
   @Contract(pure = true)
   @Override
@@ -51,5 +63,3 @@ public class CfDialect extends Dialect {
     return List.of();
   }
 }
-
-

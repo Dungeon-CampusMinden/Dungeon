@@ -174,13 +174,29 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
   }
 
   /**
-   * Returns {@code true} if the VM thread is currently alive (running or waiting on a debug pause).
+   * Returns {@code true} while {@link #startVmThread()} is executing (running or waiting on a debug
+   * pause).
    *
    * @return {@code true} when the VM daemon thread is alive
    */
   public boolean isVmRunning() {
     Thread t = vmThreadRef.get();
     return t != null && t.isAlive();
+  }
+
+  /**
+   * Stops the VM immediately and interrupts the VM thread so any blocking wait inside an op runner
+   * (e.g. {@link java.util.concurrent.CountDownLatch#await()}) is unblocked.
+   *
+   * <p>Unlike {@link #reloadProgram}, this method does not join the old thread or load a new
+   * program. The VM thread will terminate asynchronously.
+   */
+  public void stopVm() {
+    vm.stop();
+    Thread t = vmThreadRef.get();
+    if (t != null && t.isAlive()) {
+      t.interrupt();
+    }
   }
 
   /**

@@ -131,8 +131,7 @@ public class JavaCompiler {
 
     // Register all dialects so that we can use them during emission.
     Dialect.registerAllDialects();
-    DungeonDialect dungeonDialect = new DungeonDialect();
-    dungeonDialect.register();
+    DungeonDialect.get().register();
 
     JavaAstEmitter emitter = new JavaAstEmitter();
     EmitResult<Optional<Value>> emitResult = emitter.visit(result, context);

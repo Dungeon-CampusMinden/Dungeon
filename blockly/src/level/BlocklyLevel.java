@@ -1,6 +1,5 @@
 package level;
 
-import client.Client;
 import contrib.hud.DialogUtils;
 import core.level.DungeonLevel;
 import core.level.utils.DesignLabel;
@@ -19,17 +18,8 @@ public abstract class BlocklyLevel extends DungeonLevel {
   private final Set<String> blockedBlocklyElements = new HashSet<>();
   private final DesignLabel designLabel;
 
-  /**
-   * List of Popups to display with {@link #showPopups()} if the game is controlled via the Blockly
-   * Web UI.
-   */
+  /** List of popups shown in sequence by {@link #showPopups()}. */
   private List<Popup> webPopups = new ArrayList<>();
-
-  /**
-   * List of Popups to display with {@link #showPopups()} if the game is controlled via the
-   * Code-API.
-   */
-  private List<Popup> codePopups = new ArrayList<>();
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -50,18 +40,14 @@ public abstract class BlocklyLevel extends DungeonLevel {
   }
 
   /**
-   * Shows each popup in {@link #webPopups} in the order they were added.
+   * Shows each popup added via {@link #addWebPopup(Popup)} or {@link #addPopup(Popup)} in the order
+   * they were added.
    *
-   * <p>When a popup is closed, the next one in the list will open automatically.
+   * <p>When a popup is closed, the next one in the list opens automatically.
    */
   public void showPopups() {
-    if (Client.runInWeb) {
-      if (webPopups.isEmpty()) return;
-      showNextPopup(webPopups, 0);
-    } else {
-      if (codePopups.isEmpty()) return;
-      showNextPopup(codePopups, 0);
-    }
+    if (webPopups.isEmpty()) return;
+    showNextPopup(webPopups, 0);
   }
 
   /**
@@ -118,30 +104,31 @@ public abstract class BlocklyLevel extends DungeonLevel {
   }
 
   /**
-   * Adds the given popup to the collection of web popups.
+   * Adds the given popup to the popup queue shown at level start.
    *
-   * @param popup the {@link Popup} instance to add to the web popups list
+   * @param popup the {@link Popup} instance to add
    */
   protected void addWebPopup(Popup popup) {
     this.webPopups.add(popup);
   }
 
   /**
-   * Adds the given popup to the collection of code popups.
-   *
-   * @param popup the {@link Popup} instance to add to the code popups list
+   * @deprecated The distinction between a web-UI popup and a code-API popup no longer exists — the
+   *     web interface is always the active UI. This method now forwards to {@link
+   *     #addWebPopup(Popup)} so existing calls continue to work without silent data loss.
+   * @param popup the {@link Popup} instance to add
    */
+  @Deprecated
   protected void addCodePopup(Popup popup) {
-    this.codePopups.add(popup);
+    addWebPopup(popup);
   }
 
   /**
-   * Adds the given popup to both the code and web popup collections.
+   * Adds the given popup to the popup queue shown at level start.
    *
-   * @param popup the {@link Popup} instance to add to both lists
+   * @param popup the {@link Popup} instance to add
    */
   protected void addPopup(Popup popup) {
-    addCodePopup(popup);
     addWebPopup(popup);
   }
 

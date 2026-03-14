@@ -1,16 +1,30 @@
 package dgir.vm.dialect.scf;
 
 import dgir.core.Dialect;
+import dgir.dialect.scf.ScfDialect;
 import dgir.vm.api.DialectRunner;
 import dgir.vm.api.OpRunner;
-import dgir.dialect.scf.ScfDialect;
-import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class ScfDialectRunner extends DialectRunner {
+  private static ScfDialectRunner instance;
+
+  public static ScfDialectRunner get() {
+    synchronized (ScfDialectRunner.class) {
+      if (instance == null) {
+        instance = new ScfDialectRunner();
+      }
+    }
+    return instance;
+  }
+
+  private ScfDialectRunner() {}
+
   @Override
-  public @NotNull Class<? extends Dialect> getDialect() {
-    return ScfDialect.class;
+  public @NotNull Dialect getDialect() {
+    return ScfDialect.get();
   }
 
   @Override

@@ -33,9 +33,7 @@ public class OpRunnerRegistry {
   }
 
   public static void registerDialectRunner(@NotNull DialectRunner runner) {
-    if (dialectRunners.containsKey(runner.getDialect())) return;
-    registerOpRunners(runner.allRunners());
-    dialectRunners.put(runner.getDialect(), runner);
+    dialectRunners.put(runner.getDialect().getClass(), runner);
   }
 
   public static @NotNull Optional<DialectRunner> getDialectRunner(

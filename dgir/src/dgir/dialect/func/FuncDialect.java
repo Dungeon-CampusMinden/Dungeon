@@ -34,6 +34,18 @@ import static dgir.dialect.func.FuncTypes.*;
  * </ul>
  */
 public class FuncDialect extends Dialect {
+  private static FuncDialect instance;
+
+  public static @NotNull FuncDialect get() {
+    synchronized (FuncDialect.class) {
+      if (instance == null) {
+        instance = new FuncDialect();
+      }
+    }
+    return instance;
+  }
+
+  private FuncDialect() {}
 
   @Contract(pure = true)
   @Override

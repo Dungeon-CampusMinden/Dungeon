@@ -9,9 +9,22 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class StrDialectRunner extends DialectRunner {
+  private static StrDialectRunner instance;
+
+  public static StrDialectRunner get() {
+    synchronized (StrDialectRunner.class) {
+      if (instance == null) {
+        instance = new StrDialectRunner();
+      }
+    }
+    return instance;
+  }
+
+  private StrDialectRunner() {}
+
   @Override
-  public @NotNull Class<? extends Dialect> getDialect() {
-    return StrDialect.class;
+  public @NotNull Dialect getDialect() {
+    return StrDialect.get();
   }
 
   @Override

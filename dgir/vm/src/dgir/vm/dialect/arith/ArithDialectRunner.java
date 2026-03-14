@@ -1,16 +1,30 @@
 package dgir.vm.dialect.arith;
 
 import dgir.core.Dialect;
+import dgir.dialect.arith.ArithDialect;
 import dgir.vm.api.DialectRunner;
 import dgir.vm.api.OpRunner;
-import dgir.dialect.arith.ArithDialect;
-import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class ArithDialectRunner extends DialectRunner {
+  private static ArithDialectRunner instance;
+
+  public static ArithDialectRunner get() {
+    synchronized (ArithDialectRunner.class) {
+      if (instance == null) {
+        instance = new ArithDialectRunner();
+      }
+    }
+    return instance;
+  }
+
+  private ArithDialectRunner() {}
+
   @Override
-  public @NotNull Class<? extends Dialect> getDialect() {
-    return ArithDialect.class;
+  public @NotNull Dialect getDialect() {
+    return ArithDialect.get();
   }
 
   @Override

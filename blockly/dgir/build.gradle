@@ -2,18 +2,10 @@ plugins {
     id 'base'
 }
 
-tasks.register('test_dgir_blockydgir') {
-    group = 'verification'
-    description = 'Runs DGIR and Blockly-DGIR test suites.'
-    dependsOn(
-        ':dgir:test',
-        ':dgir:vm:test',
-        ':blockly:dgir:compiler:test',
-        ':blockly:dgir:dialect:test'
-    )
-}
-
 // Make aggregate verification run all relevant DGIR tests.
 tasks.named('test') {
-    dependsOn tasks.named('test_dgir_blockydgir')
+    dependsOn ':dgir:test'
+    dependsOn ':dgir:vm:test'
+    dependsOn ':blockly:dgir:compiler:test'
+    dependsOn ':blockly:dgir:dialect:test'
 }

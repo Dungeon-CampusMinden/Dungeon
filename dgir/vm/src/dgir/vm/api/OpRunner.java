@@ -9,7 +9,12 @@ public abstract class OpRunner {
   private final @NotNull OperationDetails targetOp;
 
   public OpRunner(@NotNull Class<? extends Op> targetOpType) {
-    this(OperationDetails.Registered.lookup(targetOpType).orElseThrow());
+    this(
+        OperationDetails.Registered.lookup(targetOpType)
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        "No OperationDetails registered for " + targetOpType)));
   }
 
   public OpRunner(@NotNull OperationDetails targetOp) {

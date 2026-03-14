@@ -55,11 +55,25 @@ public class Main {
     return instance;
   }
 
+  /**
+   * Returns {@code true} while the VM that was started by the last {@link #compileAndRunCode} call
+   * is still executing.
+   *
+   * @return {@code true} if the VM thread is alive
+   */
   public boolean isRunning() {
-    return false;
+    return dapServer.isVmRunning();
   }
 
-  public void stopExecution() {}
+  /**
+   * Requests the current program to stop and interrupts the VM thread so any blocking wait inside
+   * an op runner is unblocked immediately.
+   *
+   * <p>This is a no-op when nothing is running.
+   */
+  public void stopExecution() {
+    dapServer.stopVm();
+  }
 
   public void compileAndRunCode(String code) {
     compileAndRunCode(code, 0);
