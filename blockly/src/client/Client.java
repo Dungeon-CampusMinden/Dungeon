@@ -1,6 +1,9 @@
 package client;
 
+import blockly.dgir.vm.dialect.dg.DgActionGateway;
+import blockly.dgir.vm.dialect.dg.DungeonDialectRunner;
 import coderunner.BlocklyCodeRunner;
+import coderunner.DgHeroActionGateway;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
 import contrib.systems.*;
@@ -17,13 +20,16 @@ import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
+import dgir.vm.api.OpRunnerRegistry;
 import entities.HeroTankControlledFactory;
-import java.io.IOException;
-import java.util.Set;
 import level.produs.*;
 import server.Server;
 import systems.BlocklyCommandExecuteSystem;
+import systems.HeroActionTickSystem;
 import systems.TintTilesSystem;
+
+import java.io.IOException;
+import java.util.Set;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
@@ -135,8 +141,8 @@ public class Client {
           Game.system(
               BlocklyCommandExecuteSystem.class,
               s -> {
-                // stopping the system will also avoid adding new commands to the queue. The System
-                // will be reactivated in BlocklyLevel#onTick
+                // Stopping the system also avoids adding new commands to the queue.
+                // The system is reactivated in the level loop when appropriate.
                 s.fullStop();
                 s.clear();
               });
@@ -165,6 +171,11 @@ public class Client {
   }
 
   private static void createSystems() {
+    // Register the game-side action gateway so DgRunners can schedule hero actions.
+    DgActionGateway.register(new DgHeroActionGateway());
+    // Register the dungeon dialect runners (move, turn, use, push, pull, drop, pickup, …).
+    OpRunnerRegistry.registerDialectRunner(new DungeonDialectRunner());
+
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
     Game.add(new HealthSystem());
@@ -173,6 +184,7 @@ public class Client {
     Game.add(new IdleSoundSystem());
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
+    Game.add(new HeroActionTickSystem());
     Game.add(new LeverSystem());
     Game.add(new BlockSystem());
     Game.add(new FallingSystem());

@@ -3,7 +3,6 @@ package entities;
 import client.Client;
 import coderunner.BlocklyCommands;
 import coderunner.Direction;
-import components.HeroActionComponent;
 import contrib.entities.EntityFactory;
 import core.Entity;
 import core.Game;
@@ -13,9 +12,10 @@ import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import level.BlocklyLevel;
+
 import java.io.IOException;
 import java.util.Objects;
-import level.BlocklyLevel;
 
 /**
  * This class is used to create a player entity with tank controls. The player can only move in the
@@ -62,10 +62,7 @@ public class HeroTankControlledFactory {
     ic.registerCallback(
         KeyboardConfig.PAUSE.value(),
         ignored -> {
-          if (HeroActionComponent.ACTION_LOCK.tryAcquire()) {
-            HeroActionComponent.ACTION_LOCK.release();
-            Game.currentLevel().ifPresent(level -> ((BlocklyLevel) level).showPopups());
-          }
+          Game.currentLevel().ifPresent(level -> ((BlocklyLevel) level).showPopups());
         },
         false);
 

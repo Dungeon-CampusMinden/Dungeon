@@ -824,7 +824,7 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
    *       exited}/{@code terminated} events (which would close the VS Code session).
    *   <li>Releases the old {@link #configDone} latch in case {@code launch}/{@code attach} was
    *       never called (prevents the VM thread from blocking forever).
-   *   <li>Calls {@link VM#stop()} to unblock any {@link VM#waitForResume()} call and cause {@link
+   *   <li>Calls {@link VM#stop()} to unblock any {@code waitForResume()} call and cause {@link
    *       VM#run()} to return on its next iteration.
    *   <li>Joins the old VM thread with a 5-second safety timeout.
    *   <li>Re-initialises the VM with {@code newProgram} and resets all adapter state flags.
@@ -863,6 +863,9 @@ public class DapAdapter implements IDebugProtocolServer, Debugger {
     vm.stop();
     Thread oldThread = vmThreadRef.getAndSet(null);
     if (oldThread != null && oldThread.isAlive()) {
+      // Interrupt the VM thread so that any CountDownLatch.await() calls inside op runners
+      // (e.g. waiting for a HeroActionComponent to finish) are unblocked immediately.
+      oldThread.interrupt();
       oldThread.join(5_000);
       if (oldThread.isAlive()) {
         LOG.warning("Old VM thread did not terminate within 5 s; continuing anyway.");

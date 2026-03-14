@@ -1,9 +1,7 @@
 package level;
 
 import client.Client;
-import components.HeroActionComponent;
 import contrib.hud.DialogUtils;
-import core.Game;
 import core.level.DungeonLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -49,14 +47,6 @@ public abstract class BlocklyLevel extends DungeonLevel {
       String name) {
     super(layout, designLabel, namedPoints, name);
     this.designLabel = designLabel;
-  }
-
-  @Override
-  protected void onTick() {
-    super.onTick();
-    Game.player()
-        .flatMap(entity -> entity.fetch(HeroActionComponent.class))
-        .ifPresent(HeroActionComponent::tick);
   }
 
   /**

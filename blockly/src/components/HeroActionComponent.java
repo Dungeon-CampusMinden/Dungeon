@@ -1,8 +1,5 @@
 package components;
 
-import static coderunner.BlocklyCommands.DISABLE_SHOOT_AT_HERO;
-import static coderunner.BlocklyCommands.MAGIC_OFFSET;
-
 import client.Client;
 import contrib.components.AIComponent;
 import contrib.components.BlockComponent;
@@ -22,22 +19,17 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
-import java.util.List;
-import java.util.concurrent.Semaphore;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import systems.FireballScheduler;
 
+import java.util.List;
+
+import static coderunner.BlocklyCommands.DISABLE_SHOOT_AT_HERO;
+import static coderunner.BlocklyCommands.MAGIC_OFFSET;
+
 /** Base component for all hero actions, such as moving, interaction, etc. */
 public sealed interface HeroActionComponent extends Component {
-  /**
-   * This lock is used to ensure that while an action is executed, the vm thread is blocked and
-   * waits until it is allowed to execute the next action.
-   *
-   * <p>TODO maybe make the execution lock global and part of the vm.
-   */
-  @NotNull Semaphore ACTION_LOCK = new Semaphore(1);
-
   String MOVEMENT_FORCE_ID = "Movement";
 
   /** String identifier for the breadcrumb item. */
@@ -51,18 +43,24 @@ public sealed interface HeroActionComponent extends Component {
 
   void tick();
 
-  /** Called during construction of an action component and engages the ACTION_LOCK */
-  default void startAction() {
-    ACTION_LOCK.acquireUninterruptibly();
+  /**
+   * Returns the completion callback for this action, or {@code null} if none is registered.
+   *
+   * <p>The default implementation returns {@code null}. Inner classes that support VM-thread
+   * blocking override this to return the {@link Runnable} supplied at construction time.
+   */
+  default @Nullable Runnable getOnComplete() {
+    return null;
   }
 
   /**
    * Removes this component from the hero and notifies the global execution lock that the hero
-   * stopped his action.
+   * stopped his action. Also fires the {@link #getOnComplete()} callback if one is registered.
    */
   default void endAction() {
     Game.player().ifPresent(hero -> hero.remove(this.getClass()));
-    ACTION_LOCK.release();
+    Runnable cb = getOnComplete();
+    if (cb != null) cb.run();
   }
 
   final class MoveBase {
@@ -172,6 +170,8 @@ public sealed interface HeroActionComponent extends Component {
    */
   final class Move implements HeroActionComponent {
 
+    private final @Nullable Runnable onComplete;
+
     @NotNull
     MoveBase.MovementData hero =
         MoveBase.MovementData.fromEntity(Game.player().orElseThrow(MissingPlayerException::new));
@@ -185,7 +185,16 @@ public sealed interface HeroActionComponent extends Component {
             .orElse(null);
 
     public Move() {
-      startAction();
+      this(null);
+    }
+
+    public Move(@Nullable Runnable onComplete) {
+      this.onComplete = onComplete;
+    }
+
+    @Override
+    public @Nullable Runnable getOnComplete() {
+      return onComplete;
     }
 
     /**
@@ -214,8 +223,14 @@ public sealed interface HeroActionComponent extends Component {
   final class MovePushable implements HeroActionComponent {
     final @Nullable MoveBase.MovementData hero;
     final @NotNull List<MoveBase.@NotNull MovementData> entitesToMove;
+    private @Nullable Runnable onComplete;
 
     public MovePushable(boolean push) {
+      this(push, null);
+    }
+
+    public MovePushable(boolean push, @Nullable Runnable onComplete) {
+      this.onComplete = onComplete;
       var heroTemp =
           MoveBase.MovementData.fromEntity(Game.player().orElseThrow(MissingPlayerException::new));
 
@@ -223,7 +238,6 @@ public sealed interface HeroActionComponent extends Component {
       if (heroTemp.velocityC.maxSpeed() == 0) {
         hero = null;
         entitesToMove = List.of();
-        startAction();
         return;
       }
 
@@ -233,7 +247,6 @@ public sealed interface HeroActionComponent extends Component {
       if (heroTemp.targetTile == null) {
         hero = null;
         entitesToMove = List.of();
-        startAction();
         return;
       }
 
@@ -267,7 +280,6 @@ public sealed interface HeroActionComponent extends Component {
           || Game.entityAtTile(hero.targetTile).anyMatch(e -> e.isPresent(BlockComponent.class))
           || Game.entityAtTile(hero.targetTile).anyMatch(e -> e.isPresent(AIComponent.class))) {
         entitesToMove = List.of();
-        startAction();
         return;
       }
 
@@ -280,8 +292,11 @@ public sealed interface HeroActionComponent extends Component {
               // Create a MovementData for each pushable entity
               .map(MoveBase.MovementData::fromEntity)
               .toList();
+    }
 
-      startAction();
+    @Override
+    public @Nullable Runnable getOnComplete() {
+      return onComplete;
     }
 
     @Override
@@ -297,19 +312,17 @@ public sealed interface HeroActionComponent extends Component {
         return;
       }
 
-      // First move the player
+      // Move the hero; call endAction once the hero has reached the target tile
       MoveBase.moveEntity(
           hero,
           () -> {
-            // Add the BlockComponent back to the pushable entities after the player has reached
-            // their destination.
             for (MoveBase.MovementData entityData : entitesToMove) {
               entityData.entity.add(new BlockComponent());
               Rotate.turnEntity(entityData.entity, hero.direction);
-              DISABLE_SHOOT_AT_HERO = false;
             }
+            endAction();
           });
-      // Then move the pushable entities
+      // Move pushable entities in parallel (no-op callback – endAction fires via hero callback)
       MoveBase.moveEntities(() -> {}, entitesToMove.toArray(MoveBase.MovementData[]::new));
     }
   }
@@ -324,14 +337,23 @@ public sealed interface HeroActionComponent extends Component {
     // Fetch all the necessary components
     private final @NotNull Entity hero = Game.player().orElseThrow(MissingPlayerException::new);
     private final @NotNull Direction newDirection;
+    private final @Nullable Runnable onComplete;
 
     public Rotate(final @NotNull Direction direction) {
+      this(direction, null);
+    }
+
+    public Rotate(final @NotNull Direction direction, @Nullable Runnable onComplete) {
+      this.onComplete = onComplete;
       if (direction == Direction.NONE || direction == Direction.UP || direction == Direction.DOWN) {
         throw new IllegalArgumentException("Invalid rotation direction: " + direction);
       }
       newDirection = EntityUtils.getViewDirection(hero).applyRelative(direction);
+    }
 
-      startAction();
+    @Override
+    public @Nullable Runnable getOnComplete() {
+      return onComplete;
     }
 
     @Override
@@ -356,10 +378,20 @@ public sealed interface HeroActionComponent extends Component {
 
   final class Drop implements HeroActionComponent {
     private final @NotNull String item;
+    private final @Nullable Runnable onComplete;
 
     public Drop(String item) {
+      this(item, null);
+    }
+
+    public Drop(String item, @Nullable Runnable onComplete) {
       this.item = item;
-      startAction();
+      this.onComplete = onComplete;
+    }
+
+    @Override
+    public @Nullable Runnable getOnComplete() {
+      return onComplete;
     }
 
     @Override
@@ -377,14 +409,26 @@ public sealed interface HeroActionComponent extends Component {
         default ->
             throw new IllegalArgumentException("Can not convert " + item + " to droppable Item.");
       }
+      endAction();
     }
   }
 
   final class ShootFireball implements HeroActionComponent {
+    private final @Nullable Runnable onComplete;
+
     public ShootFireball() {
+      this(null);
+    }
+
+    public ShootFireball(@Nullable Runnable onComplete) {
+      this.onComplete = onComplete;
       FireballScheduler.shoot();
-      startAction();
       EventScheduler.scheduleAction(this::endAction, 10000);
+    }
+
+    @Override
+    public @Nullable Runnable getOnComplete() {
+      return onComplete;
     }
 
     @Override
@@ -392,8 +436,19 @@ public sealed interface HeroActionComponent extends Component {
   }
 
   final class Pickup implements HeroActionComponent {
+    private final @Nullable Runnable onComplete;
+
     public Pickup() {
-      startAction();
+      this(null);
+    }
+
+    public Pickup(@Nullable Runnable onComplete) {
+      this.onComplete = onComplete;
+    }
+
+    @Override
+    public @Nullable Runnable getOnComplete() {
+      return onComplete;
     }
 
     @Override
@@ -426,14 +481,25 @@ public sealed interface HeroActionComponent extends Component {
   }
 
   final class Rest implements HeroActionComponent {
+    private final @Nullable Runnable onComplete;
+
     /**
      * Let the player do nothing for a short moment.
      *
      * @param duration Duration in seconds
      */
     public Rest(float duration) {
-      startAction();
+      this(duration, null);
+    }
+
+    public Rest(float duration, @Nullable Runnable onComplete) {
+      this.onComplete = onComplete;
       EventScheduler.scheduleAction(this::endAction, (long) (1000 * duration));
+    }
+
+    @Override
+    public @Nullable Runnable getOnComplete() {
+      return onComplete;
     }
 
     @Override
