@@ -94,7 +94,7 @@ public final class EmitContext {
 
   private @Nullable EmitResult<Optional<Value>> lastResult;
 
-  EmitContext(@NotNull String filename) {
+  public EmitContext(@NotNull String filename) {
     this.filename = filename;
   }
 
@@ -105,7 +105,7 @@ public final class EmitContext {
   @NotNull
   public Location loc(@NotNull Node node) {
     if (isSyntheticDebugNode(node)) {
-      return Location.UNKNOWN;
+      return new Location(filename, -1, -1);
     }
     if (node.getRange().isEmpty()) {
       logger.warning("No range information available for AST node, using default location.");

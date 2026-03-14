@@ -61,7 +61,7 @@ public class %ClassName {
     IO.print("Hello, world!\\n");
     IO.println("Hello, world!");
     IO.printf("Hello, %s!\\n", "world");
-    IO.printfln("Hello, %s! the %i nd", "world", 2);
+    IO.printf("Hello, %s! the %snd\\n", "world", 2);
     String input = IO.nextLine();
     boolean bool = IO.nextBoolean();
     byte b = IO.nextByte();

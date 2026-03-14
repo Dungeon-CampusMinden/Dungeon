@@ -36,19 +36,6 @@ public class IO {
   }
 
   /**
-   * Prints a formatted string to standard output using the specified format string and arguments,
-   * and then adds a newline character.
-   *
-   * @param format The format string, which may contain format specifiers that are replaced by the
-   *     arguments.
-   * @param args The arguments to be inserted into the format string.
-   */
-  @Intrinsic("Dungeon.IO.printfln(java.lang.String, java.lang.Object...)")
-  public static void printfln(String format, Object... args) {
-    System.out.printf(format + "\n", args);
-  }
-
-  /**
    * Reads a boolean value from standard input. The input should be "true" or "false" (case
    * insensitive).
    *

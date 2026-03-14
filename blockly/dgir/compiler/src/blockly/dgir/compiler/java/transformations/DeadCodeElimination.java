@@ -28,6 +28,14 @@ public class DeadCodeElimination extends VoidVisitorAdapter<Void> {
     // Recursively visit child nodes first to ensure we eliminate dead code in nested blocks.
     super.visit(n, arg);
 
+    if (n.getStatements().size() == 1) {
+      Statement stmt = n.getStatement(0);
+      if (stmt instanceof BlockStmt block) {
+        // If the block only contains a single statement which is itself a block, we can flatten it.
+        n.replace(block);
+      }
+    }
+
     for (int i = 0; i < n.getStatements().size(); i++) {
       Statement stmt = n.getStatement(i);
       // If we encounter a continue statement, all subsequent statements in the block are dead code

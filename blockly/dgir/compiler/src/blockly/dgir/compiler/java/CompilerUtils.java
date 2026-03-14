@@ -13,8 +13,6 @@ import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import dgir.core.ir.Type;
-import dgir.core.ir.Value;
-import dgir.dialect.arith.ArithOps;
 import dgir.dialect.builtin.BuiltinTypes;
 import dgir.dialect.str.StrTypes;
 import org.jetbrains.annotations.NotNull;
@@ -147,50 +145,5 @@ public class CompilerUtils {
           resolvedToType.put(type, value);
         });
     return result;
-  }
-
-  public static @NotNull EmitResult<Value> emitImplicitCastIfNeeded(
-      @NotNull Value source,
-      @NotNull ResolvedType sourceType,
-      @NotNull ResolvedType targetType,
-      boolean isLiteralAssignment,
-      @NotNull EmitContext context,
-      @NotNull Node site) {
-    if (sourceType.describe().equals(targetType.describe())
-        || sourceType.describe().equals("java.lang.Object")
-        || targetType.describe().equals("java.lang.Object")
-        || targetType.describe().equals("java.lang.Object[]")) return EmitResult.of(source);
-    boolean override = false;
-    // Allow implicit cast for literal assignments that are valid in Java, e.g. char c = 65; or byte
-    // b = 100; short = 'b'
-    if (isLiteralAssignment)
-      override =
-          switch (targetType.describe()) {
-            case "byte", "short", "char" ->
-                switch (sourceType.describe()) {
-                  case "int", "char" -> true;
-                  default -> false;
-                };
-            default -> false;
-          };
-    if (targetType.isAssignableBy(sourceType) || override) {
-      // Insert implicit cast
-      Optional<Type> targetDgirType = fromAstType(targetType, site, context);
-      return targetDgirType
-          .map(
-              type ->
-                  EmitResult.of(
-                      context
-                          .insert(new ArithOps.CastOp(context.loc(site), source, type))
-                          .getResult()))
-          .orElseGet(
-              () ->
-                  EmitResult.failure(
-                      context, site, "Could not resolve target type for implicit cast."));
-    }
-    return EmitResult.failure(
-        context,
-        site,
-        "Type mismatch: cannot assign " + sourceType.describe() + " to " + targetType.describe());
   }
 }

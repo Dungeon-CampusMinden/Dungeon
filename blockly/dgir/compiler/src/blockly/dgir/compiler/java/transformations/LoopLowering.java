@@ -63,12 +63,14 @@ public class LoopLowering extends GenericVisitorAdapter<Boolean, Boolean> {
   @Override
   public Boolean visit(IfStmt n, Boolean maySkip) {
     // Evaluate both control-flow branches independently and join by logical OR.
-    boolean maySkipThen = n.getThenStmt().accept(this, maySkip);
+    Boolean maySkipThen = n.getThenStmt().accept(this, maySkip);
+    maySkipThen = maySkipThen != null && maySkipThen;
 
-    boolean maySkipElse =
+    Boolean maySkipElse =
         n.getElseStmt()
             .map(e -> e.accept(this, maySkip))
             .orElse(maySkip); // no-else: else path inherits incoming maySkip
+    maySkipElse = maySkipElse != null && maySkipElse;
 
     return maySkipThen || maySkipElse;
   }
@@ -93,7 +95,8 @@ public class LoopLowering extends GenericVisitorAdapter<Boolean, Boolean> {
     BlockStmt loweredBody = ensureBlockBody(n.getBody());
 
     // Nested loop: its body gets its own local flags
-    boolean withSkip = loweredBody.accept(this, false);
+    Boolean withSkip = loweredBody.accept(this, false);
+    withSkip = withSkip != null && withSkip;
     if (withSkip) {
       ensureLoopFlags(loweredBody);
     }

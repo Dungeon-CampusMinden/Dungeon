@@ -1,6 +1,7 @@
 package blockly.dgir.compiler.java;
 
 import blockly.dgir.compiler.java.transformations.DeadCodeElimination;
+import blockly.dgir.compiler.java.transformations.ImplicitCastElimination;
 import blockly.dgir.compiler.java.transformations.LoopLowering;
 import blockly.dgir.dialect.dg.DgAttrs;
 import blockly.dgir.dialect.dg.DgOps;
@@ -117,27 +118,34 @@ public class JavaCompiler {
       return Optional.empty();
     }
 
+
+    EmitContext context = new EmitContext(filename);
+
     new DeadCodeElimination().visit(result, null);
     new LoopLowering().visit(result, null);
+    Boolean castEliminationResult = new ImplicitCastElimination().visit(result, context);
+    if (castEliminationResult != null) {
+      context.printDiagnostics();
+      return Optional.empty();
+    }
     new DeadCodeElimination().visit(result, null);
+
+    // Register all dialects so that we can use them during emission.
+    Dialect.registerAllDialects();
+    DungeonDialect dungeonDialect = new DungeonDialect();
+    dungeonDialect.register();
+
     JavaAstEmitter emitter = new JavaAstEmitter();
-    return emitter.emit(result, filename).toOptional();
+    EmitResult<Optional<Value>> emitResult = emitter.visit(result, context);
+    context.printDiagnostics();
+    if (emitResult.isFailure()) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(context.program);
   }
 
   private static final class JavaAstEmitter
       extends GenericVisitorAdapter<@Nullable EmitResult<Optional<Value>>, @NotNull EmitContext> {
-    private EmitResult<ProgramOp> emit(CompilationUnit compilationUnit, String filename) {
-      // Register all dialects so that we can use them during emission.
-      Dialect.registerAllDialects();
-      DungeonDialect dungeonDialect = new DungeonDialect();
-      dungeonDialect.register();
-
-      EmitContext context = new EmitContext(filename);
-      compilationUnit.accept(this, context);
-      context.printDiagnostics();
-      return EmitResult.ofNullable(context.program);
-    }
-
     private @NotNull EmitResult<Boolean> visitNodeList(
         @NotNull NodeList<?> members, @NotNull EmitContext context) {
       List<EmitResult<Optional<Value>>> results =
@@ -878,22 +886,10 @@ public class JavaCompiler {
       } else {
         targetType = n.getTarget().calculateResolvedType();
       }
-
-      EmitResult<Value> implicitCast =
-          emitImplicitCastIfNeeded(
-              valueRes.get().get(),
-              n.getValue().calculateResolvedType(),
-              targetType,
-              n.getValue().isLiteralExpr(),
-              context,
-              n);
-      if (implicitCast.isFailure()) {
-        return EmitResult.failure(context, n, "Failed to emit implicit cast for assignment");
-      }
       try {
         var id =
             context.insert(
-                new BuiltinOps.IdOp(context.loc(n), implicitCast.get(), targetRes.get().get()));
+                new BuiltinOps.IdOp(context.loc(n), valueRes.get().get(), targetRes.get().get()));
         return EmitResult.of(Optional.of(id.getResult()));
       } catch (AssertionError e) {
         return EmitResult.failure(
@@ -1147,19 +1143,7 @@ public class JavaCompiler {
               varargsIndex = i;
             }
           }
-          EmitResult<Value> castCallArg =
-              emitImplicitCastIfNeeded(
-                  callArg, callArgType, targetType, n.getArgument(i).isLiteralExpr(), context, n);
-          if (castCallArg.isFailure()) {
-            return EmitResult.failure(
-                context,
-                n,
-                "Argument "
-                    + callArg
-                    + " cannot be implicitly cast to parameter type "
-                    + targetType.describe());
-          }
-          args.set(i, castCallArg.get());
+          args.set(i, callArg);
         }
       }
 
@@ -1280,77 +1264,58 @@ public class JavaCompiler {
               "Variable declaration has annotations. Annotations are not supported and will be ignored. Annotations: "
                   + n.getAnnotations());
       }
+      if (n.getVariables().isEmpty()) {
+        return EmitResult.failure(
+            context, n, "Variable declaration must declare at least one variable.");
+      }
 
-      VariableDeclarator declarator;
-      {
-        if (n.getVariables().isEmpty()) {
-          return EmitResult.failure(
-              context, n, "Variable declaration must declare at least one variable.");
-        }
-        if (n.getVariables().size() > 1) {
-          return EmitResult.failure(
-              context, n, "Variable declaration cannot declare more than one variable.");
-        }
-        declarator = n.getVariables().get(0);
-        if (declarator.getInitializer().isEmpty()) {
+      for (VariableDeclarator varDecl : n.getVariables()) {
+        if (varDecl.getInitializer().isEmpty()) {
           return EmitResult.failure(context, n, "Variable declaration must have an initializer.");
         }
-      }
 
-      EmitResult<Optional<Value>> initializerResult =
-          EmitResult.ofNullable(declarator.getInitializer().orElseThrow().accept(this, context));
-      if (initializerResult.isFailure() || initializerResult.get().isEmpty())
-        return EmitResult.failure(context, n, "Failed to emit initializer of variable declaration");
-      Value initValue = initializerResult.get().get();
+        EmitResult<Optional<Value>> initializerResult =
+            EmitResult.ofNullable(varDecl.getInitializer().orElseThrow().accept(this, context));
+        if (initializerResult.isFailure() || initializerResult.get().isEmpty())
+          return EmitResult.failure(
+              context, n, "Failed to emit initializer of variable declaration");
+        Value initValue = initializerResult.get().get();
 
-      // Get the resolved variable declaration so that we can get the type of the variable and check
-      // that it is accessible from the current context.
-      Optional<TypeInfo> initializerTypeInfo = resolveType(declarator.getType(), context);
-      if (initializerTypeInfo.isEmpty()) {
-        return EmitResult.failure();
-      }
-      // Check that the target variable type is accessible in the current context
-      {
-        // The class in which the variable is declared
-        var contextClass =
-            resolve(
-                declarator.findAncestor(ClassOrInterfaceDeclaration.class).orElseThrow(), context);
-        if (contextClass.isEmpty()) {
+        // Get the resolved variable declaration so that we can get the type of the variable and
+        // check
+        // that it is accessible from the current context.
+        Optional<TypeInfo> initializerTypeInfo = resolveType(varDecl.getType(), context);
+        if (initializerTypeInfo.isEmpty()) {
           return EmitResult.failure();
         }
+        // Check that the target variable type is accessible in the current context
+        {
+          // The class in which the variable is declared
+          var contextClass =
+              resolve(
+                  varDecl.findAncestor(ClassOrInterfaceDeclaration.class).orElseThrow(), context);
+          if (contextClass.isEmpty()) {
+            return EmitResult.failure();
+          }
 
-        if (!isTypeUseAccessibleFrom(
-            contextClass.get(), initializerTypeInfo.get().resolvedType())) {
-          return EmitResult.failure(
-              context,
-              declarator,
-              "Variable " + declarator.getName() + " is not visible from " + contextClass);
+          if (!isTypeUseAccessibleFrom(
+              contextClass.get(), initializerTypeInfo.get().resolvedType())) {
+            return EmitResult.failure(
+                context,
+                varDecl,
+                "Variable type "
+                    + initializerTypeInfo.get().resolvedType()
+                    + " for variable "
+                    + varDecl.getName()
+                    + " is not visible from "
+                    + contextClass);
+          }
         }
+
+        bindName(varDecl.getName().asString(), initValue, varDecl, context);
       }
 
-      // Check that the init value and the target have the same value and emit cast statement if not
-      EmitResult<Value> implicitCastRes =
-          emitImplicitCastIfNeeded(
-              initValue,
-              declarator.getInitializer().orElseThrow().calculateResolvedType(),
-              initializerTypeInfo.get().resolvedType(),
-              declarator.getInitializer().get().isLiteralExpr(),
-              context,
-              declarator);
-
-      if (implicitCastRes.isFailure()) {
-        context.emitError(
-            n,
-            "Failed to emit implicit cast for variable "
-                + declarator.getName()
-                + " with initializer "
-                + declarator.getInitializer().get());
-      }
-
-      bindName(
-          declarator.getName().asString(), implicitCastRes.orElse(initValue), declarator, context);
-
-      return implicitCastRes.map(Optional::of).map(EmitResult::of).orElseGet(EmitResult::failure);
+      return EmitResult.of(Optional.empty());
     }
 
     private @NotNull Optional<Value> resolveName(
@@ -1490,14 +1455,6 @@ public class JavaCompiler {
         }
         case "Dungeon.IO.printf(java.lang.String, java.lang.Object...)" -> {
           context.insert(new IoOps.PrintOp(context.loc(n), args));
-          return EmitResult.of(Optional.empty());
-        }
-        case "Dungeon.IO.printfln(java.lang.String, java.lang.Object...)" -> {
-          var formatString = context.insert(new ConstantOp(context.loc(n), "%s\n"));
-          List<Value> printfArgs = new ArrayList<>();
-          printfArgs.add(formatString.getResult());
-          printfArgs.addAll(args);
-          context.insert(new IoOps.PrintOp(context.loc(n), printfArgs));
           return EmitResult.of(Optional.empty());
         }
         case "Dungeon.IO.nextFloat()" -> {

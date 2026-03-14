@@ -417,8 +417,7 @@ public sealed interface FuncOps {
    * func.return
    * }</pre>
    */
-  final class ReturnOp extends FuncBaseOp
-      implements FuncOps, ITerminator, IZeroOrOneOperand, ISpecificParentOp {
+  final class ReturnOp extends FuncBaseOp implements FuncOps, ITerminator, IZeroOrOneOperand {
 
     // =========================================================================
     // Type Info
@@ -436,11 +435,15 @@ public sealed interface FuncOps {
         ReturnOp returnOp = operation.as(ReturnOp.class).orElseThrow();
 
         Optional<Operation> parentOp = operation.getParentOperation();
+        while (parentOp.isPresent() && !parentOp.get().isa(FuncOp.class)) {
+          parentOp = parentOp.get().getParentOperation();
+        }
         if (parentOp.isEmpty()) {
-          operation.emitError("Return operation must be nested in a function");
+          operation.emitError("Return op must be nested inside a function op.");
           return false;
         }
-        FuncOp parentFuncOp = parentOp.get().as(FuncOp.class).orElseThrow();
+
+        FuncOp ancestorFuncOp = parentOp.get().as(FuncOp.class).orElseThrow();
         // Ensure that the return op's operand type matches the function output type
         if (returnOp.getOperandType().isPresent()) {
           var returnType =
@@ -448,7 +451,7 @@ public sealed interface FuncOps {
                   .getOperandType()
                   .get()
                   .orElseThrow(() -> new RuntimeException("Return op operand value is not set."));
-          var funcType = parentFuncOp.getType();
+          var funcType = ancestorFuncOp.getType();
           if (!returnType.equals(funcType.getOutput())) {
             operation.emitError(
                 "Return type "
@@ -510,12 +513,6 @@ public sealed interface FuncOps {
     // =========================================================================
     // Functions
     // =========================================================================
-
-    @Contract(pure = true)
-    @Override
-    public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
-      return List.of(FuncOp.class);
-    }
 
     /**
      * Returns the value being returned, or empty if this is a void return.
