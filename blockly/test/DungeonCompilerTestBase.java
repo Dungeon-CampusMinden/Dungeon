@@ -1,4 +1,8 @@
 import client.Client;
+import core.Game;
+import core.components.PositionComponent;
+import core.utils.Direction;
+import core.utils.Point;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
@@ -51,7 +55,7 @@ public class DungeonCompilerTestBase {
             () -> {
               try {
                 // Use --sandbox to start on the empty sandbox level with no blocking popups.
-                Client.main(new String[] {"--sandbox"});
+                Client.main(new String[] {"--sandbox", "--debug"});
               } catch (IOException e) {
                 throw new RuntimeException(e);
               }
@@ -60,6 +64,7 @@ public class DungeonCompilerTestBase {
     clientThread.setDaemon(true);
     clientThread.start();
     awaitServerReady(Duration.ofSeconds(30));
+    awaitPlayerPosition(Duration.ofSeconds(5));
   }
 
   /**
@@ -168,6 +173,23 @@ public class DungeonCompilerTestBase {
     HTTP.send(req, HttpResponse.BodyHandlers.ofString());
   }
 
+  /** Returns the hero's current position. */
+  protected static @NotNull Point playerPosition() {
+    return Game.player()
+        .flatMap(hero -> hero.fetch(PositionComponent.class))
+        .map(PositionComponent::position)
+        .map(Point::new)
+        .orElseThrow(() -> new AssertionError("No player position available"));
+  }
+
+  /** Returns the hero's current facing direction. */
+  protected static @NotNull Direction playerDirection() {
+    return Game.player()
+        .flatMap(hero -> hero.fetch(PositionComponent.class))
+        .map(PositionComponent::viewDirection)
+        .orElseThrow(() -> new AssertionError("No player direction available"));
+  }
+
   // =========================================================================
   // Private helpers
   // =========================================================================
@@ -200,5 +222,22 @@ public class DungeonCompilerTestBase {
       }
     }
     throw new AssertionError("Dungeon server did not start within " + timeout);
+  }
+
+  private static @NotNull Point awaitPlayerPosition(@NotNull Duration timeout) {
+    long deadline = System.currentTimeMillis() + timeout.toMillis();
+    while (System.currentTimeMillis() < deadline) {
+      try {
+        return playerPosition();
+      } catch (AssertionError ignored) {
+        try {
+          Thread.sleep(50);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          throw new AssertionError("Interrupted while waiting for the player to spawn");
+        }
+      }
+    }
+    throw new AssertionError("Player did not become available within " + timeout);
   }
 }

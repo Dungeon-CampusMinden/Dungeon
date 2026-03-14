@@ -67,6 +67,11 @@ public sealed interface HeroActionComponent extends Component {
     /** The distance threshold to determine when the hero has reached the target tile. */
     public static final double distanceThreshold = 0.01;
 
+    private static void clearMovementForce(final @NotNull MovementData entityData) {
+      entityData.velocityC.clearForces();
+      entityData.velocityC.currentVelocity(Vector2.ZERO);
+    }
+
     /**
      * Data class to hold the necessary components for movement.
      *
@@ -112,7 +117,6 @@ public sealed interface HeroActionComponent extends Component {
             startPosition.distance(
                 targetTile != null ? targetTile.coordinate().toPoint() : startPosition);
 
-        final double distanceThreshold = 0.01;
         return new MovementData(
             entity,
             movementDirection,
@@ -138,22 +142,24 @@ public sealed interface HeroActionComponent extends Component {
           || (!entityData.targetTile.isAccessible() && !(entityData.targetTile instanceof PitTile))
           || Game.entityAtTile(entityData.targetTile)
               .anyMatch(e -> e.isPresent(BlockComponent.class))) {
+        clearMovementForce(entityData);
         onFinish.run();
         return;
       }
+      entityData.velocityC.maxSpeed(10000);
 
-      entityData.velocityC.clearForces();
-      entityData.velocityC.currentVelocity(Vector2.ZERO);
-      entityData.velocityC.applyForce(
-          MOVEMENT_FORCE_ID, entityData.direction.scale(Client.MOVEMENT_FORCE.x()));
       // Check if we reached our destination
       if (entityData.velocityC.maxSpeed() > 0
           && entityData.startPosition.distance(entityData.positionC.position())
               >= entityData.totalDistance - distanceThreshold) {
         // Snap the hero to the target tile
+        clearMovementForce(entityData);
         entityData.positionC.position(entityData.targetTile);
         onFinish.run();
+        return;
       }
+      entityData.velocityC.applyForce(
+          MOVEMENT_FORCE_ID, entityData.direction.scale(Client.MOVEMENT_FORCE.x()).scale(5f));
     }
 
     private static void moveEntities(
