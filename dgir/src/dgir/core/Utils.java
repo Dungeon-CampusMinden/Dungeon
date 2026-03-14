@@ -162,7 +162,7 @@ public class Utils {
         STACK_WALKER.walk(
             stream ->
                 stream
-                    .skip(2) // skip getCallingMethodName() itself
+                    .skip(3) // skip getCallingMethodName() itself
                     .findFirst()
                     .map(StackFrame::getMethodName));
     return caller.orElseThrow(

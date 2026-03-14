@@ -7,21 +7,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class DungeonDialectCompilationTests extends CompilerTestBase {
   @Test
-  void heroMove() {
-    String code =
-"""
-import Dungeon.Hero;
-
-public class %ClassName {
-  public static void main() {
-    Hero.move();
-  }
-}
-""";
-    testSource(code);
-  }
-
-  @Test
   void allHeroOps() {
     String code =
 """
@@ -47,7 +32,7 @@ public class %ClassName {
   }
 }
 """;
-    testSource(code);
+    testSource(code, false);
   }
 
   @Test

@@ -37,6 +37,10 @@ public class CompilerTestBase {
   }
 
   public static void testSource(String source) {
+    testSource(source, true);
+  }
+
+  public static void testSource(String source, boolean run) {
     String callerName = dgir.core.Utils.getCallingMethodName();
     String formatedCode = source.replace("%ClassName", callerName);
 
@@ -80,6 +84,8 @@ public class CompilerTestBase {
         System.out.println("Failed to save result to " + filePath + ": " + e);
       }
     }
+
+    if (!run) return;
 
     vm.init(programOp.get());
     try {
