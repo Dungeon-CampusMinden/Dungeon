@@ -281,13 +281,10 @@ public class ArithTests {
     ProgramOp programOp = entry.getLeft();
     FuncOp funcMain = entry.getRight();
 
-    var int32Op =
-        funcMain.addOperation(new ConstantOp(LOC, new IntegerAttribute(255, IntegerT.INT8)), 0);
-    var uint16Op =
-        funcMain.addOperation(new ConstantOp(LOC, new IntegerAttribute(255, IntegerT.UINT8)), 0);
-    var float64Op =
-        funcMain.addOperation(new ConstantOp(LOC, new IntegerAttribute(-1, IntegerT.UINT16)), 0);
-    var returnOp = funcMain.addOperation(new ReturnOp(LOC), 0);
+    funcMain.addOperation(new ConstantOp(LOC, new IntegerAttribute(255, IntegerT.INT8)), 0);
+    funcMain.addOperation(new ConstantOp(LOC, new IntegerAttribute(255, IntegerT.UINT8)), 0);
+    funcMain.addOperation(new ConstantOp(LOC, new IntegerAttribute(-1, IntegerT.UINT16)), 0);
+    funcMain.addOperation(new ReturnOp(LOC), 0);
 
     assertTrue(TestUtils.testValidityAndSerialization(programOp));
   }

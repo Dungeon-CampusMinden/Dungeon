@@ -2,6 +2,7 @@ package dgir.vm.dialect.scf;
 
 import dgir.core.ir.Operation;
 import dgir.core.ir.Value;
+import dgir.dialect.builtin.BuiltinTypes;
 import dgir.dialect.scf.ScfOps;
 import dgir.vm.api.Action;
 import dgir.vm.api.OpRunner;
@@ -44,13 +45,15 @@ public sealed interface ScfRunners {
       long stepNum = bounds.value3();
 
       Value induction = forOp.getRegionOrThrow(0).getBodyValue(0).orElseThrow();
-      long inductionValue = state.getValueAsOrThrow(induction, Long.class);
+      long inductionValue = state.getValueAsOrThrow(induction, Number.class).longValue();
 
       inductionValue += stepNum;
-      state.setValue(induction, inductionValue);
-
       if (inductionValue < upperBoundNum && inductionValue >= lowerBoundNum) {
-        return Action.JumpToRegion(forOp.getRegionOrThrow(0), inductionValue);
+        return Action.JumpToRegion(
+            forOp.getRegionOrThrow(0),
+            ((BuiltinTypes.IntegerT)
+                    forOp.getFirstRegionOrThrow().getBodyValue(0).orElseThrow().getType())
+                .convertToValidNumber(inductionValue));
       }
 
       return Action.Terminate(null, false);
@@ -79,7 +82,11 @@ public sealed interface ScfRunners {
       long upperBoundNum = bounds.value2();
 
       if (initialValueNum < upperBoundNum && initialValueNum >= lowerBoundNum) {
-        return Action.StepIntoRegion(forOp.getRegionOrThrow(0), false, initialValueNum);
+        return Action.StepIntoRegion(
+            forOp.getRegionOrThrow(0),
+            false,
+            ((BuiltinTypes.IntegerT) forOp.getOperandValueOrThrow(0).getType())
+                .convertToValidNumber(initialValueNum));
       } else {
         return Action.Next();
       }

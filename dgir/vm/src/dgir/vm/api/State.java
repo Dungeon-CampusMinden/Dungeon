@@ -23,30 +23,44 @@ public class State {
   // Call stack
   // =========================================================================
 
-  public final @NotNull Deque<Operation> callStack = new ArrayDeque<>();
+  private final @NotNull Deque<Operation> callStack = new ArrayDeque<>();
 
   // =========================================================================
   // Frame management
   // =========================================================================
 
-  /**
-   * Opens a new stack frame.
-   *
-   * @param isIsolatedFromAbove Whether this stack frame is isolated from the frame above. If {@code
-   *     true}, values in the enclosing frame are not accessible via {@link #getVisibleValues()}.
-   */
-  public void pushStackFrame(boolean isIsolatedFromAbove) {
-    stack.pushFrame(isIsolatedFromAbove);
+  /** Opens a new call frame. */
+  public void pushCallFrame() {
+    stack.pushCallFrame();
   }
 
   /**
-   * Closes the current stack frame and removes all values defined in it from the store.
+   * Closes the current call frame and all scopes contained in it.
    *
-   * @return the {@code isIsolatedFromAbove} flag of the popped frame, or {@link Optional#empty()}
-   *     if the frame stack was already empty.
+   * @return metadata for the scopes closed by the frame pop, innermost scope first.
    */
-  public Optional<Boolean> popStackFrame() {
-    return stack.popFrame();
+  public @NotNull Optional<Stack.ClosedCallFrame> popCallFrame() {
+    return stack.popCallFrame();
+  }
+
+  /**
+   * Opens a new scope inside the current call frame.
+   *
+   * @param opener the operation that opened the scope.
+   * @param isIsolatedFromAbove whether this scope hides outer scopes from {@link
+   *     #getVisibleValues()}.
+   */
+  public void pushScope(@NotNull Operation opener, boolean isIsolatedFromAbove) {
+    stack.pushScope(opener, isIsolatedFromAbove);
+  }
+
+  /**
+   * Closes the current scope and removes all values defined in it from the store.
+   *
+   * @return metadata for the closed scope, or {@link Optional#empty()} if no scope is open.
+   */
+  public @NotNull Optional<Stack.ClosedScope> popScope() {
+    return stack.popScope();
   }
 
   // =========================================================================

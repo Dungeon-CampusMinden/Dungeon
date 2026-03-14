@@ -437,10 +437,18 @@ public sealed interface FuncOps {
         Optional<Operation> parentOp = operation.getParentOperation();
         while (parentOp.isPresent() && !parentOp.get().isa(FuncOp.class)) {
           parentOp = parentOp.get().getParentOperation();
-        }
-        if (parentOp.isEmpty()) {
-          operation.emitError("Return op must be nested inside a function op.");
-          return false;
+          if (parentOp.isEmpty()) {
+            operation.emitError("Return op must be nested inside a function op.");
+            return false;
+          }
+          if (!parentOp.get().isa(FuncOp.class) && parentOp.get().getOutput().isPresent()) {
+            operation.emitError(
+                "Return ops ancesotr "
+                    + parentOp.get()
+                    + " must not have a result value, but has output with value: "
+                    + parentOp.get().getOutputValue());
+            return false;
+          }
         }
 
         FuncOp ancestorFuncOp = parentOp.get().as(FuncOp.class).orElseThrow();

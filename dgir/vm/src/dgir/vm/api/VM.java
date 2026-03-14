@@ -21,7 +21,7 @@ public class VM {
   private @Nullable State state;
   private @Nullable Action lastAction;
 
-  private final @NotNull Deque<@NotNull Operation> opStack = new ArrayDeque<>();
+  private @Nullable Operation nextOperation;
 
   // =========================================================================
   // Debug support
@@ -126,8 +126,8 @@ public class VM {
     assert state != null : "VM not initialized with a state.";
     assert program != null : "VM not initialized with a program.";
     state.reset();
-    opStack.clear();
-    opStack.push(program.getOperation());
+    currentHitBreakpoints.clear();
+    nextOperation = program.getOperation();
     lastAction = null;
     OpRunnerRegistry.clearRunnerStates();
   }
@@ -200,8 +200,8 @@ public class VM {
    * @return the current source location.
    */
   public @NotNull Location getCurrentLocation() {
-    if (opStack.isEmpty()) return Location.UNKNOWN;
-    return opStack.peek().getLocation();
+    if (nextOperation == null) return Location.UNKNOWN;
+    return nextOperation.getLocation();
   }
 
   /**
@@ -343,7 +343,7 @@ public class VM {
     resetState();
 
     Action currentAction = Action.Next();
-    while (!(currentAction instanceof Action.Abort) && !opStack.isEmpty() && !stopRequested) {
+    while (!(currentAction instanceof Action.Abort) && nextOperation != null && !stopRequested) {
       currentAction = step();
     }
 
@@ -366,15 +366,15 @@ public class VM {
 
   public @NotNull Action step() {
     try {
-      assert !opStack.isEmpty() : "No operation to execute.";
+      assert nextOperation != null : "No operation to execute.";
       assert state != null : "No state to execute the operation in.";
 
-      Operation currentOp = opStack.peek();
+      Operation currentOp = nextOperation;
 
       // We reached the end of the program. This is a special case since the operation will not
       // push a next operation onto the stack and we would loop endlessly if we did not stop here.
       if (currentOp.hasTrait(INoTerminator.class) && lastAction instanceof Action.Terminate) {
-        opStack.pop();
+        nextOperation = null;
         return Action.Next();
       }
 
@@ -444,7 +444,7 @@ public class VM {
           currentOp
               .getNext()
               .ifPresentOrElse(
-                  opStack::push,
+                  operation -> nextOperation = operation,
                   () -> {
                     currentOp.emitError("Reached end of block without an explicit jump or return.");
                     cleanupAfterAbort();
@@ -475,8 +475,7 @@ public class VM {
         case Action.StepIntoRegion stepIntoRegion ->
             handleStepIntoRegion(stepIntoRegion, currentOp);
       }
-      Operation nextOp = opStack.peek();
-      Location nextLocation = nextOp != null ? nextOp.getLocation() : currentOp.getLocation();
+      Location nextLocation = getCurrentLocation();
 
       // Line-granularity: even if the depth is right, keep running silently while the
       // next operation is still on the same source line we stepped from.  This prevents
@@ -489,7 +488,7 @@ public class VM {
       //   • The origin location is UNKNOWN — locations are not tracked for this program,
       //     so fall back to op-granular stepping.
       boolean onSameLine =
-          nextOp != null
+          nextOperation != null
               && !stepOriginLocation.equals(Location.UNKNOWN)
               && nextLocation.file().equals(stepOriginLocation.file())
               && nextLocation.line() == stepOriginLocation.line();
@@ -529,7 +528,7 @@ public class VM {
           // rather than deferring to the next iteration's pre-execution hook so the pause
           // happens even when the op-stack is now empty (end of program).
           if (debugger != null) {
-            debugger.onStep(nextOp != null ? nextOp : currentOp, nextLocation);
+            debugger.onStep(nextOperation != null ? nextOperation : currentOp, nextLocation);
           }
           // Always pause — the step is complete.
           waitForResume();
@@ -547,37 +546,47 @@ public class VM {
 
   private void handleStepIntoRegion(Action.StepIntoRegion stepIntoRegion, Operation currentOp) {
     assert state != null;
-    currentOp
-        .getNext()
-        .ifPresentOrElse(
-            opStack::push,
-            () -> {
-              currentOp.emitError(
-                  "Reached end of block without an explicit jump or return after stepping into region.");
-              throw new IllegalStateException();
-            });
-    // Push the current op onto the stack so that we can retrieve it when we want to set the
-    // return value that
-    // the region returns.
-    opStack.push(currentOp);
-    // Open a new stack frame for the region and jump to the first operation in the region.
-    state.pushStackFrame(stepIntoRegion.isolatedFromAbove());
+    // Open a new scope for the region and jump to the first operation in the region.
+    state.pushScope(currentOp, stepIntoRegion.isolatedFromAbove());
     currentHitBreakpoints.push(Optional.empty());
 
     // Same as for the func op we need to push the body values of the region onto the stack.
     List<Value> bodyValues = stepIntoRegion.region().getBodyValues();
     setupRegion(state, bodyValues, stepIntoRegion.args());
-    opStack.push(stepIntoRegion.region().getEntryOperation());
+    nextOperation = stepIntoRegion.region().getEntryOperation();
+  }
+
+  /**
+   * Finalizes a closed scope by popping the matching opener from the op stack and optionally
+   * binding a produced value to that opener's output.
+   */
+  private void finalizeClosedScope(
+      @NotNull Stack.ClosedScope closedScope, @Nullable Object outputValue, boolean bindOutput) {
+    assert state != null;
+    currentHitBreakpoints.pop();
+
+    if (bindOutput && outputValue != null && closedScope.opener().getOutputValue().isPresent()) {
+      state.setValueForOutput(closedScope.opener(), outputValue);
+    }
   }
 
   private void handleTerminate(Action.Terminate aTerminate) {
     assert state != null;
-    state.popStackFrame();
-    if (aTerminate.fromCall()) state.popCallStack();
-    currentHitBreakpoints.pop();
-    Operation caller = opStack.pop();
-    if (aTerminate.value() != null) {
-      state.setValueForOutput(caller, aTerminate.value());
+    if (aTerminate.fromCall()) {
+      // Returning from a function closes the whole call frame. This also unwinds any still-open
+      // nested scopes inside that function before finally completing the call operation itself.
+      Stack.ClosedCallFrame closedFrame = state.popCallFrame().orElseThrow();
+      List<Stack.ClosedScope> closedScopes = closedFrame.closedScopes();
+      for (int i = 0; i < closedScopes.size(); i++) {
+        finalizeClosedScope(closedScopes.get(i), aTerminate.value(), i == closedScopes.size() - 1);
+      }
+      nextOperation = closedScopes.getLast().opener().getNext().orElse(null);
+      state.popCallStack();
+    } else {
+      Optional<Stack.ClosedScope> closedScope = state.popScope();
+      assert closedScope.isPresent() : "Trying to terminate scope with no scopes present.";
+      finalizeClosedScope(closedScope.get(), aTerminate.value(), true);
+      nextOperation = closedScope.get().opener().getNext().orElse(null);
     }
   }
 
@@ -585,45 +594,41 @@ public class VM {
     assert state != null;
     assert currentOp.getParentOperation().equals(jumpToRegion.target().getParent())
         : "Jumping to other region only allowed in the same parent operation.";
-    // Remove all the values currently held
-    boolean wasIsolated = state.popStackFrame().orElseThrow();
+    Stack.ClosedScope closedScope = state.popScope().orElseThrow();
     currentHitBreakpoints.pop();
-    state.pushStackFrame(wasIsolated);
+    Operation opener = jumpToRegion.target().getParent().orElseThrow();
+    assert opener.equals(closedScope.opener())
+        : "Jumped to a region owned by a different scope opener.";
+    state.pushScope(opener, closedScope.isIsolatedFromAbove());
     currentHitBreakpoints.push(Optional.empty());
     // Set the values of the region's arguments in the new stack frame. These values are
     // stored as body values in the region.
     List<Value> bodyValues = jumpToRegion.target().getBodyValues();
     setupRegion(state, bodyValues, jumpToRegion.args());
-    opStack.push(jumpToRegion.target().getEntryOperation());
+    nextOperation = jumpToRegion.target().getEntryOperation();
   }
 
   private void handleJumpToBlock(Action.JumpToBlock jumpToBlock) {
-    opStack.push(jumpToBlock.target().getOperationsRaw().getFirst());
+    nextOperation = jumpToBlock.target().getOperationsRaw().getFirst();
     // Reset the currently hit breakpoints since we are jumping to another block and might hit
     // the same breakpoint again.
     currentHitBreakpoints.pop();
     currentHitBreakpoints.push(Optional.empty());
   }
 
-  private void handleCall(Action.Call call, Operation currentOp) {
+  private void handleCall(Action.Call call, Operation caller) {
     assert state != null;
-    // Push the next operation beneath the call operation to the op stack.
-    // This way when returning from the function, the VM will know which operation to execute
-    // next.
-    currentOp.getNext().ifPresent(opStack::push);
-    // Push the current op onto the stack so that we can retrieve it when we want to set the
-    // return value of the function.
-    opStack.push(currentOp);
-    state.pushStackFrame(true);
+    Operation funcOp = call.funcOp();
+    state.pushCallStack(funcOp);
+    state.pushCallFrame();
+    state.pushScope(caller, true);
     currentHitBreakpoints.push(Optional.empty());
 
-    Operation funcOp = call.funcOp();
     // Set the values of the function's arguments in the new stack frame.
     // These values are stored as body values in the function's region.'
     List<Value> bodyValues = funcOp.getFirstRegionOrThrow().getBodyValues();
     setupRegion(state, bodyValues, call.args());
-    state.pushCallStack(funcOp);
-    opStack.push(funcOp.getFirstRegionOrThrow().getEntryOperation());
+    nextOperation = funcOp.getFirstRegionOrThrow().getEntryOperation();
   }
 
   /**
@@ -693,20 +698,23 @@ public class VM {
   }
 
   protected @NotNull Action stepImpl() {
-    assert program != null : "VM not initialized with a program.";
-    assert !opStack.isEmpty() : "No operation to execute.";
-    assert state != null : "No state to execute the operation in.";
-
-    Operation currentOp = opStack.pop();
-    var runnerOpt = OpRunnerRegistry.getOpRunner(currentOp);
+    if (program == null) {
+      return Action.Abort(Optional.empty(), "VM not initialized with a program.");
+    } else if (nextOperation == null) {
+      return Action.Abort(Optional.empty(), "Program ended without an explicit jump or return.");
+    } else if (state == null) {
+      return Action.Abort(Optional.empty(), "VM not initialized with a state.");
+    }
+    var runnerOpt = OpRunnerRegistry.getOpRunner(nextOperation);
     assert runnerOpt.isPresent()
-        : "No runner registered for operation " + currentOp.getDetails().ident();
+        : "No runner registered for operation " + nextOperation.getDetails().ident();
 
-    return runnerOpt.get().run(currentOp, state);
+    return runnerOpt.get().run(nextOperation, state);
   }
 
   private void cleanupAfterAbort() {
-    opStack.clear();
+    nextOperation = null;
+    currentHitBreakpoints.clear();
     if (state != null) {
       state.reset();
     }

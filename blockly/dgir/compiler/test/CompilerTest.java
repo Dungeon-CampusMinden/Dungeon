@@ -345,7 +345,7 @@ class OtherClass {
 public class %ClassName {
   public static void main() {
     int x = 0;
-    for (int i = 0; i < 1000000; i++) {
+    for (int i = 0; i < 1_000_000; i++) {
       x += i;
     }
   }
@@ -360,7 +360,7 @@ public class %ClassName {
 """
 public class %ClassName {
   public static void main() {
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 100_000; i++) {
       int a = NestedClass1.add(5, 10);
       float b = NestedClass2.add(5f, 10f);
       float d = OtherClass.add(5f, 10f);

@@ -55,8 +55,8 @@ public sealed interface Action {
    *
    * @param region The region to step into. Must be a region that is a child of the current
    *     operation.
-   * @param isolatedFromAbove Whether the new stack frame created for the region should be isolated
-   *     from the above stack frame.
+   * @param isolatedFromAbove Whether the new scope created for the region should be isolated from
+   *     enclosing scopes.
    * @return An action that represents the step into.
    */
   static @NotNull Action StepIntoRegion(
@@ -124,9 +124,9 @@ public sealed interface Action {
    *
    * @param region The region to step into. Must be a region that is a child of the current
    *     operation.
-   * @param isolatedFromAbove Whether the new stack frame created for the region should be isolated
-   *     from the above stack frame. If true, values defined in the above stack frame will not be
-   *     accessible in the new stack frame.
+   * @param isolatedFromAbove Whether the new scope created for the region should be isolated from
+   *     enclosing scopes. If true, values defined in surrounding scopes will not be accessible in
+   *     the new scope.
    */
   record StepIntoRegion(@NotNull Region region, boolean isolatedFromAbove, List<Object> args)
       implements Action {
