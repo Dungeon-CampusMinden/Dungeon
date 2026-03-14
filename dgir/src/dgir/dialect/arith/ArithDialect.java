@@ -3,7 +3,7 @@ package dgir.dialect.arith;
 import static dgir.dialect.arith.ArithOps.*;
 
 import dgir.core.Dialect;
-import dgir.core.Utils;
+import dgir.core.DgirCoreUtils;
 import dgir.core.ir.Attribute;
 import dgir.core.ir.Op;
 import dgir.core.ir.Type;
@@ -37,7 +37,7 @@ public class ArithDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return Utils.Dialect.allOps(ArithDialect.class, ArithOps.class);
+    return DgirCoreUtils.Dialect.allOps(ArithDialect.class, ArithOps.class);
   }
 
   @Contract(pure = true)
@@ -49,6 +49,6 @@ public class ArithDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @Unmodifiable @NotNull List<Attribute> allAttributes() {
-    return Utils.Dialect.allAttributes(ArithDialect.class, ArithAttrs.class);
+    return DgirCoreUtils.Dialect.allAttributes(ArithDialect.class, ArithAttrs.class);
   }
 }

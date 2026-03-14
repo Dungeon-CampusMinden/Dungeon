@@ -18,7 +18,7 @@ import java.util.*;
  * Miscellaneous utility helpers used throughout the DGIR. All inner classes have private
  * constructors — they are purely namespace containers.
  */
-public class Utils {
+public class DgirCoreUtils {
 
   /**
    * Split {@code text} by the first occurrence of {@code delimiter} that appears at nesting depth

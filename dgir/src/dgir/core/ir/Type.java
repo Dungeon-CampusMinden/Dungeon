@@ -3,7 +3,7 @@ package dgir.core.ir;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import dgir.core.Dialect;
-import dgir.core.Utils;
+import dgir.core.DgirCoreUtils;
 import dgir.core.serialization.TypeDeserializer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Contract;
@@ -176,7 +176,7 @@ public abstract class Type {
   void setDetails(@NotNull TypeDetails details) {
     // Only allow TypeDetails.Registered to set details, since they are the registration of the
     // types.
-    assert Utils.getCallingClass().isAssignableFrom(TypeDetails.Registered.class)
+    assert DgirCoreUtils.getCallingClass().isAssignableFrom(TypeDetails.Registered.class)
         : "Only TypeDetails.Registered can set details for a type.";
     this.details = details;
   }

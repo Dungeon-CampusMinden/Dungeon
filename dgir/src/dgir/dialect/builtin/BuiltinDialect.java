@@ -1,7 +1,7 @@
 package dgir.dialect.builtin;
 
 import dgir.core.Dialect;
-import dgir.core.Utils;
+import dgir.core.DgirCoreUtils;
 import dgir.core.ir.Attribute;
 import dgir.core.ir.Op;
 import dgir.core.ir.Type;
@@ -53,18 +53,18 @@ public class BuiltinDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return Utils.Dialect.allOps(BuiltinDialect.class, BuiltinOps.class);
+    return DgirCoreUtils.Dialect.allOps(BuiltinDialect.class, BuiltinOps.class);
   }
 
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Type> allTypes() {
-    return Utils.Dialect.allTypes(BuiltinDialect.class, BuiltinTypes.class);
+    return DgirCoreUtils.Dialect.allTypes(BuiltinDialect.class, BuiltinTypes.class);
   }
 
   @Contract(pure = true)
   @Override
   public @Unmodifiable @NotNull List<Attribute> allAttributes() {
-    return Utils.Dialect.allAttributes(BuiltinDialect.class, BuiltinAttrs.class);
+    return DgirCoreUtils.Dialect.allAttributes(BuiltinDialect.class, BuiltinAttrs.class);
   }
 }

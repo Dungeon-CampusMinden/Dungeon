@@ -10,6 +10,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import dgir.core.DgirCoreUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -25,7 +26,7 @@ public class TransformationTestBase {
   }
 
   public static void assertCode(String expected, String source) {
-    String callerName = dgir.core.Utils.getCallingMethodName(3);
+    String callerName = DgirCoreUtils.getCallingMethodName(3);
     EmitContext context = new EmitContext(callerName);
     assertCodeAfterTransformation(
         expected, source, cu -> new LogicalBinaryToConditional().visit(cu, context), context);
@@ -37,14 +38,14 @@ public class TransformationTestBase {
   }
 
   public static void assertCodeAfterLoopLowering(String expected, String source) {
-    String callerName = dgir.core.Utils.getCallingMethodName(3);
+    String callerName = DgirCoreUtils.getCallingMethodName(3);
     EmitContext context = new EmitContext(callerName);
     assertCodeAfterTransformation(
         expected, source, cu -> new LoopLowering().visit(cu, false), context);
   }
 
   public static void assertCodeAfterImplicitCastElimination(String expected, String source) {
-    String callerName = dgir.core.Utils.getCallingMethodName(3);
+    String callerName = DgirCoreUtils.getCallingMethodName(3);
     EmitContext context = new EmitContext(callerName);
     assertCodeAfterTransformation(
         expected, source, cu -> new ImplicitCastElimination().visit(cu, context), context);
@@ -55,7 +56,7 @@ public class TransformationTestBase {
       String source,
       Consumer<CompilationUnit> transform,
       @Nullable EmitContext context) {
-    String callerName = dgir.core.Utils.getCallingMethodName(3);
+    String callerName = DgirCoreUtils.getCallingMethodName(3);
     String formatedCode = source.replace("%ClassName", callerName);
     String formatedExpected = expected.replace("%ClassName", callerName);
 

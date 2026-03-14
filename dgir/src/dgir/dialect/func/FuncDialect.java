@@ -1,7 +1,7 @@
 package dgir.dialect.func;
 
 import dgir.core.Dialect;
-import dgir.core.Utils;
+import dgir.core.DgirCoreUtils;
 import dgir.core.ir.Attribute;
 import dgir.core.ir.Op;
 import dgir.core.ir.Type;
@@ -44,13 +44,13 @@ public class FuncDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return Utils.Dialect.allOps(FuncDialect.class, FuncOps.class);
+    return DgirCoreUtils.Dialect.allOps(FuncDialect.class, FuncOps.class);
   }
 
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Type> allTypes() {
-    return Utils.Dialect.allTypes(FuncDialect.class, FuncTypes.class);
+    return DgirCoreUtils.Dialect.allTypes(FuncDialect.class, FuncTypes.class);
   }
 
   @Contract(pure = true)

@@ -1,6 +1,7 @@
 import blockly.dgir.compiler.java.JavaCompiler;
 import blockly.dgir.dialect.dg.DungeonDialect;
 import blockly.dgir.vm.dialect.dg.DungeonDialectRunner;
+import dgir.core.DgirCoreUtils;
 import dgir.core.Dialect;
 import dgir.core.serialization.Utils;
 import dgir.dialect.builtin.BuiltinOps;
@@ -41,7 +42,7 @@ public class CompilerTestBase {
   }
 
   public static void testSource(String source, boolean run) {
-    String callerName = dgir.core.Utils.getCallingMethodName();
+    String callerName = DgirCoreUtils.getCallingMethodName();
     String formatedCode = source.replace("%ClassName", callerName);
 
     // Ensure the output directory exists before writing files

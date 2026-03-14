@@ -1,7 +1,7 @@
 package dgir.dialect.func;
 
 import dgir.core.Dialect;
-import dgir.core.Utils;
+import dgir.core.DgirCoreUtils;
 import dgir.core.ir.Type;
 import dgir.core.ir.TypeDetails;
 import dgir.core.ir.TypeUniquer;
@@ -76,8 +76,8 @@ public sealed interface FuncTypes {
       return args -> {
         // Extract the single parameter (the full "(inputs) -> (output)" string), then split on "->"
         // at depth 0 so nested func types containing "->" are never split prematurely.
-        String param = Utils.getParameterStrings(args.getLeft()).getFirst();
-        List<String> arrowParts = Utils.splitAtDepthZero(param, "->");
+        String param = DgirCoreUtils.getParameterStrings(args.getLeft()).getFirst();
+        List<String> arrowParts = DgirCoreUtils.splitAtDepthZero(param, "->");
         String inputsPart = arrowParts.get(0).trim();
         String outputPart = arrowParts.get(1).trim();
         List<Type> inputs;

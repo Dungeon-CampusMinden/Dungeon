@@ -1,7 +1,7 @@
 package dgir.core.ir;
 
 import dgir.core.OperationVerifier;
-import dgir.core.Utils;
+import dgir.core.DgirCoreUtils;
 import dgir.core.debug.Location;
 import dgir.core.serialization.OperationDeserializer;
 import dgir.core.serialization.OperationSerializer;
@@ -662,10 +662,10 @@ public final class Operation implements Serializable {
    *     non-null parent and the new value is also non-null.
    */
   public void setParent(Block parent) {
-    assert Utils.getCallingClass() == Block.class
+    assert DgirCoreUtils.getCallingClass() == Block.class
         : MessageFormat.format(
             "Assigning the parent of an operation is only allowed from the Block class. Was called from {0}",
-            Utils.getCallingClass().getName());
+            DgirCoreUtils.getCallingClass().getName());
     assert this.parent == null || parent == null
         : "Operation already has a parent. Unparent first before setting a new parent. (Use the block interface to unparent.)";
     this.parent = parent;

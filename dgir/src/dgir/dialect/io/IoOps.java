@@ -1,7 +1,7 @@
 package dgir.dialect.io;
 
 import dgir.core.Dialect;
-import dgir.core.Utils;
+import dgir.core.DgirCoreUtils;
 import dgir.core.debug.Location;
 import dgir.core.ir.Op;
 import dgir.core.ir.Operation;
@@ -19,7 +19,7 @@ import java.util.function.Function;
  * Sealed marker interface for all operations in the {@link IoDialect}.
  *
  * <p>Every concrete op must both extend {@link IoOp} and implement this interface so that {@link
- * Utils.Dialect#allOps} can discover it automatically via reflection.
+ * DgirCoreUtils.Dialect#allOps} can discover it automatically via reflection.
  */
 public sealed interface IoOps {
   /**

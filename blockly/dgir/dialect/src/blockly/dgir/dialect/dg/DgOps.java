@@ -1,7 +1,7 @@
 package blockly.dgir.dialect.dg;
 
 import dgir.core.Dialect;
-import dgir.core.Utils;
+import dgir.core.DgirCoreUtils;
 import dgir.core.debug.Location;
 import dgir.core.ir.NamedAttribute;
 import dgir.core.ir.Op;
@@ -21,7 +21,7 @@ import static blockly.dgir.dialect.dg.DgAttrs.*;
  * Sealed marker interface for all operations in the {@link DungeonDialect}.
  *
  * <p>Every concrete op must both extend {@link DungeonOp} and implement this interface so that
- * {@link Utils.Dialect#allOps} can discover it automatically via reflection.
+ * {@link DgirCoreUtils.Dialect#allOps} can discover it automatically via reflection.
  */
 public sealed interface DgOps {
   /**

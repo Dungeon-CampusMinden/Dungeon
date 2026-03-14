@@ -1,3 +1,4 @@
+import dgir.core.DgirCoreUtils;
 import dgir.core.analysis.DotCFG;
 import dgir.core.debug.Location;
 import dgir.core.ir.Op;
@@ -50,7 +51,7 @@ public class TestUtils {
         "Serialization mismatch for op: " + op.getClass().getSimpleName());
 
     String callerName =
-        dgir.core.Utils.STACK_WALKER.walk(
+        DgirCoreUtils.STACK_WALKER.walk(
             stream ->
                 stream
                     .skip(1)

@@ -2,7 +2,7 @@ package dgir.core.ir;
 
 import dgir.core.DGIRContext;
 import dgir.core.Dialect;
-import dgir.core.Utils;
+import dgir.core.DgirCoreUtils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -189,8 +189,8 @@ public sealed interface TypeDetails {
    * Parse a comma-separated list of (possibly nested/parameterized) type strings into a list of
    * Type instances.
    *
-   * <p>Splitting is performed by {@link Utils#splitAtDepthZero(String, String)} so that commas
-   * inside nested angle-bracket ({@code < >}) or parenthesis ({@code ( )}) groups are never
+   * <p>Splitting is performed by {@link DgirCoreUtils#splitAtDepthZero(String, String)} so that
+   * commas inside nested angle-bracket ({@code < >}) or parenthesis ({@code ( )}) groups are never
    * treated as separators.
    *
    * <p>Examples:
@@ -209,7 +209,7 @@ public sealed interface TypeDetails {
     if (parameterString.isBlank()) {
       return List.of();
     }
-    return Utils.splitAtDepthZero(parameterString, ",").stream()
+    return DgirCoreUtils.splitAtDepthZero(parameterString, ",").stream()
         .map(String::trim)
         .filter(s -> !s.isEmpty())
         .map(TypeDetails::fromParameterizedIdent)

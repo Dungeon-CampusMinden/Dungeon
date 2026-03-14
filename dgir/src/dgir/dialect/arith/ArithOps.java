@@ -1,7 +1,7 @@
 package dgir.dialect.arith;
 
 import dgir.core.Dialect;
-import dgir.core.Utils;
+import dgir.core.DgirCoreUtils;
 import dgir.core.debug.Location;
 import dgir.core.ir.*;
 import dgir.core.traits.IBinaryOperands;
@@ -27,7 +27,7 @@ import static dgir.dialect.builtin.BuiltinTypes.*;
  * Sealed marker interface for all operations in the {@link ArithDialect}.
  *
  * <p>Every concrete op must both extend {@link ArithOp} and implement this interface so that {@link
- * Utils.Dialect#allOps} can discover it automatically via reflection.
+ * DgirCoreUtils.Dialect#allOps} can discover it automatically via reflection.
  */
 public sealed interface ArithOps {
   /**

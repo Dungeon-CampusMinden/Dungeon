@@ -1,7 +1,7 @@
 package dgir.dialect.io;
 
 import dgir.core.Dialect;
-import dgir.core.Utils;
+import dgir.core.DgirCoreUtils;
 import dgir.core.ir.Attribute;
 import dgir.core.ir.Op;
 import dgir.core.ir.Type;
@@ -35,7 +35,7 @@ public class IoDialect extends Dialect {
   @Contract(pure = true)
   @Override
   public @NotNull @Unmodifiable List<Op> allOps() {
-    return Utils.Dialect.allOps(IoDialect.class, IoOps.class);
+    return DgirCoreUtils.Dialect.allOps(IoDialect.class, IoOps.class);
   }
 
   @Contract(pure = true)

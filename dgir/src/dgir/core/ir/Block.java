@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dgir.core.IRObjectWithUseList;
-import dgir.core.Utils;
+import dgir.core.DgirCoreUtils;
 import dgir.core.analysis.DotCFG;
 import dgir.core.serialization.BlockIdGenerator;
 import dgir.core.traits.ITerminator;
@@ -238,9 +238,9 @@ public final class Block extends IRObjectWithUseList<Block, BlockOperand> implem
    *     non-null parent and the new value is also non-null.
    */
   public void setParent(@Nullable Region parent) {
-    assert Utils.getCallingClass() == Region.class
+    assert DgirCoreUtils.getCallingClass() == Region.class
         : "Assigning the parent of a block is only allowed from the Region class. Was called from "
-            + Utils.getCallingClass().getName();
+            + DgirCoreUtils.getCallingClass().getName();
     assert this.parent == null || parent == null
         : "Block already has a parent. Unparent first before setting a new parent. (Use the region interface to unparent.)";
     this.parent = parent;
