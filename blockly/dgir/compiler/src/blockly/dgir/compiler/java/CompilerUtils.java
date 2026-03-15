@@ -65,7 +65,7 @@ public class CompilerUtils {
     try {
       resolved = target.resolve();
     } catch (UnsolvedSymbolException e) {
-      context.emitError((Node) target, "Failed to resolve " + e.getName());
+      context.emitError((Node) target, "Failed to resolve " + e.getName() + ": " + e.getMessage());
       return Optional.empty();
     }
     return Optional.ofNullable(resolved);
@@ -79,7 +79,7 @@ public class CompilerUtils {
     try {
       resolved = target.resolve();
     } catch (UnsolvedSymbolException e) {
-      context.emitError(target, "Failed to resolve type: " + e.getName());
+      context.emitError(target, "Failed to resolve type: " + e.getName() + ": " + e.getMessage());
       return Optional.empty();
     }
     Type type = fromAstType(resolved, target, context).orElse(null);
@@ -91,16 +91,10 @@ public class CompilerUtils {
       @NotNull com.github.javaparser.ast.type.Type type, Node site, @NotNull EmitContext context) {
     Optional<TypeInfo> resolvedType = resolveType(type, context);
     if (resolvedType.isEmpty()) {
-      context.emitError(site, "Failed to resolve type " + type + " for " + site);
       return Optional.empty();
     }
-
     resolvedToType.put(resolvedType.get().resolvedType, resolvedType.get().type);
-
-    Optional<Type> result = fromAstType(resolvedType.get().resolvedType, site, context);
-    if (result.isEmpty())
-      context.emitError(site, "Failed to get dgir type for ast type " + type + " for " + site);
-    return result;
+    return fromAstType(resolvedType.get().resolvedType, site, context);
   }
 
   public static Optional<Type> fromAstType(

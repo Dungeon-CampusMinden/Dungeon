@@ -4,10 +4,7 @@ import dgir.core.Dialect;
 import dgir.core.DgirCoreUtils;
 import dgir.core.debug.Location;
 import dgir.core.ir.*;
-import dgir.core.traits.IControlFlow;
-import dgir.core.traits.ISingleRegion;
-import dgir.core.traits.ISpecificParentOp;
-import dgir.core.traits.ITerminator;
+import dgir.core.traits.*;
 import dgir.dialect.builtin.BuiltinTypes;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -198,6 +195,35 @@ public sealed interface ScfOps {
     }
   }
 
+  final class YieldOp extends ScfOp
+      implements ScfOps, ITerminator, ISingleOperand, ISpecificParentOp {
+    @Override
+    public @NotNull String getIdent() {
+      return "scf.yield";
+    }
+
+    @Override
+    public @NotNull Function<Operation, Boolean> getVerifier() {
+      return ignored -> true;
+    }
+
+    private YieldOp() {}
+
+    public YieldOp(@NotNull Location location, @NotNull Value value) {
+      setOperation(true, Operation.Create(location, this, List.of(value), null, null));
+    }
+
+    @Override
+    public @NotNull @Unmodifiable List<Class<? extends Op>> getValidParentTypes() {
+      return List.of(IfOp.class);
+    }
+
+    @Override
+    public @NotNull Optional<Constructor<? extends ITerminator>> getLocationConstructor() {
+      return Optional.empty();
+    }
+  }
+
   /**
    * Counted for-loop in the {@code scf} dialect.
    *
@@ -373,6 +399,29 @@ public sealed interface ScfOps {
           operation.emitError("Condition operand must be of type int1");
           return false;
         }
+
+        if (operation.getOutput().isPresent()) {
+          for (Region region : operation.getRegions()) {
+            for (Block block : region.getBlocks()) {
+              if (block.getTerminator().orElseThrow().isa(YieldOp.class)) {
+                YieldOp yieldOp = block.getTerminator().get().as(YieldOp.class).orElseThrow();
+                if (!yieldOp
+                    .getOperand(0)
+                    .orElseThrow()
+                    .getType()
+                    .orElseThrow()
+                    .equals(operation.getOutputValue().orElseThrow().getType())) {
+                  operation.emitError("Yielded value type must match the if-op's result type");
+                  return false;
+                }
+              } else {
+                operation.emitError(
+                    "If-op with results must only have yield terminators in its regions");
+                return false;
+              }
+            }
+          }
+        }
         return true;
       };
     }
@@ -390,9 +439,19 @@ public sealed interface ScfOps {
      * @param condition a {@link BuiltinTypes.IntegerT#BOOL} value controlling the branch.
      * @param withElseBlock {@code true} to also create an else region.
      */
-    public IfOp(@NotNull Location location, Value condition, boolean withElseBlock) {
+    public IfOp(@NotNull Location location, @NotNull Value condition, boolean withElseBlock) {
       setOperation(
           Operation.Create(location, this, List.of(condition), null, null, withElseBlock ? 2 : 1));
+    }
+
+    public IfOp(
+        @NotNull Location location,
+        @NotNull Value condition,
+        boolean withElseBlock,
+        @NotNull Type resultType) {
+      setOperation(
+          Operation.Create(
+              location, this, List.of(condition), null, resultType, withElseBlock ? 2 : 1));
     }
 
     // =========================================================================
@@ -420,6 +479,10 @@ public sealed interface ScfOps {
 
     @Override
     public @NotNull Constructor<? extends ITerminator> getImplicitTerminatorType() {
+      if (getOutput().isPresent())
+        throw new RuntimeException(
+            "Implicit terminators are not supported for if ops with results");
+
       return new EndOp()
           .getLocationConstructor()
           .orElseThrow(
@@ -560,6 +623,57 @@ public sealed interface ScfOps {
     @Override
     public @NotNull Constructor<? extends ITerminator> getImplicitTerminatorType() {
       return new ContinueOp().getLocationConstructor().orElseThrow();
+    }
+  }
+
+  final class SelectOp extends ScfOp implements ScfOps, IHasResult {
+    @Override
+    public @NotNull String getIdent() {
+      return "scf.select";
+    }
+
+    @Override
+    public @NotNull Function<@NotNull Operation, @NotNull Boolean> getVerifier() {
+      return operation -> {
+        if (operation.getOperands().size() != 3) {
+          operation.emitError("Select op must have 3 operands");
+          return false;
+        }
+        SelectOp selectOp = operation.as(SelectOp.class).orElseThrow();
+        // Make sure the return type matches the types of the true and false values
+        Value trueVal = selectOp.getTrue();
+        Value falseVal = selectOp.getFalse();
+        if (!trueVal.getType().equals(falseVal.getType())) {
+          operation.emitError("Return type of select op must match true and false values");
+          return false;
+        }
+        if (!trueVal.getType().equals(selectOp.getResultType())) {
+          operation.emitError("Return type of select op must match true and false values");
+          return false;
+        }
+        return true;
+      };
+    }
+
+    private SelectOp() {}
+
+    public SelectOp(@NotNull Location location, Value cond, Value trueVal, Value falseVal) {
+      setOperation(
+          true,
+          Operation.Create(
+              location, this, List.of(cond, trueVal, falseVal), null, trueVal.getType()));
+    }
+
+    public Value getCondition() {
+      return getOperand(0).flatMap(Operand::getValue).orElseThrow();
+    }
+
+    public Value getTrue() {
+      return getOperand(1).flatMap(Operand::getValue).orElseThrow();
+    }
+
+    public Value getFalse() {
+      return getOperand(2).flatMap(Operand::getValue).orElseThrow();
     }
   }
 }

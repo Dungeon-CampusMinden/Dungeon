@@ -2,6 +2,7 @@ package blockly.dgir.compiler.java;
 
 import blockly.dgir.compiler.java.transformations.DeadCodeElimination;
 import blockly.dgir.compiler.java.transformations.ImplicitCastElimination;
+import blockly.dgir.compiler.java.transformations.LogicalBinaryToConditional;
 import blockly.dgir.compiler.java.transformations.LoopLowering;
 import blockly.dgir.dialect.dg.DgAttrs;
 import blockly.dgir.dialect.dg.DgOps;
@@ -127,6 +128,7 @@ public class JavaCompiler {
       context.printDiagnostics();
       return Optional.empty();
     }
+    new LogicalBinaryToConditional().visit(result, context);
     new DeadCodeElimination().visit(result, null);
 
     // Register all dialects so that we can use them during emission.
@@ -157,12 +159,7 @@ public class JavaCompiler {
       for (int i = 0; i < members.size(); i++) {
         if (results.get(i).isFailure()) failedMembers.add(members.get(i));
       }
-      return failedMembers.isEmpty()
-          ? EmitResult.of(true)
-          : EmitResult.failure(
-              context,
-              members.getParentNode().orElseThrow(),
-              "Failed to emit expression from node list: " + failedMembers);
+      return failedMembers.isEmpty() ? EmitResult.of(true) : EmitResult.failure();
     }
 
     private @NotNull EmitResult<List<Value>> visitNodeListWithResult(
@@ -208,7 +205,7 @@ public class JavaCompiler {
           }
           {
             EmitResult<Boolean> result = visitNodeList(n.getTypes(), context);
-            if (result.isFailure()) return EmitResult.failure(context, n, "Failed to emit types");
+            if (result.isFailure()) return EmitResult.failure();
           }
           if (context.compilationSuccessful()) {
             context.program = program;
@@ -322,9 +319,7 @@ public class JavaCompiler {
 
       {
         EmitResult<Boolean> result = visitNodeList(n.getMembers(), context);
-        if (result.isFailure())
-          return EmitResult.failure(
-              context, n, "Failed to emit members of class " + n.getNameAsString());
+        if (result.isFailure()) return EmitResult.failure();
       }
 
       return EmitResult.success(Optional.empty());
@@ -413,8 +408,7 @@ public class JavaCompiler {
                     .map(parameter -> resolveParameter(parameter, context).orElse(null))
                     .toList());
         if (parameterInfos.stream().anyMatch(Objects::isNull)) {
-          return EmitResult.failure(
-              context, n, "Failed to resolve input parameter(s) of method " + n.getNameAsString());
+          return EmitResult.failure();
         }
       }
 
@@ -422,15 +416,14 @@ public class JavaCompiler {
       if (!n.getType().isVoidType()) {
         Optional<TypeInfo> resolvedType = resolveType(n.getType(), context);
         if (resolvedType.isEmpty()) {
-          return EmitResult.failure(
-              context, n, "Failed to resolve return type of method " + n.getNameAsString());
+          return EmitResult.failure();
         }
         returnType = resolvedType.get().type();
       }
 
       Optional<ResolvedMethodDeclaration> resolvedN = resolve(n, context);
       if (resolvedN.isEmpty()) {
-        return EmitResult.failure(context, n, "Failed to resolve method " + n.getNameAsString());
+        return EmitResult.failure();
       }
 
       try (var methodInsertion =
@@ -485,15 +478,13 @@ public class JavaCompiler {
       EmitResult<Optional<Value>> checkResult;
       {
         checkResult = EmitResult.ofNullable(n.getCheck().accept(this, context));
-        if (checkResult.isFailure() || checkResult.get().isEmpty())
-          return EmitResult.failure(context, n, "Failed to emit check expression of assertion");
+        if (checkResult.isFailure() || checkResult.get().isEmpty()) return checkResult;
       }
 
       EmitResult<Optional<Value>> messageResult = null;
       if (n.getMessage().isPresent()) {
         messageResult = EmitResult.ofNullable(n.getMessage().get().accept(this, context));
-        if (messageResult.isFailure() || messageResult.get().isEmpty())
-          return EmitResult.failure(context, n, "Failed to emit message expression of assertion");
+        if (messageResult.isFailure() || messageResult.get().isEmpty()) return messageResult;
       }
 
       if (messageResult != null) {
@@ -510,8 +501,7 @@ public class JavaCompiler {
       EmitResult<Boolean> result;
       {
         result = visitNodeList(n.getStatements(), context);
-        if (result.isFailure())
-          return EmitResult.failure(context, n, "Failed to emit statements of block");
+        if (result.isFailure()) return EmitResult.failure();
       }
       return EmitResult.success(Optional.empty());
     }
@@ -589,8 +579,7 @@ public class JavaCompiler {
         EmitResult<Boolean> initResult;
         {
           initResult = visitNodeList(n.getInitialization(), context);
-          if (initResult.isFailure())
-            return EmitResult.failure(context, n, "Failed to emit initialization of for loop");
+          if (initResult.isFailure()) return EmitResult.failure();
         }
       }
 
@@ -609,8 +598,7 @@ public class JavaCompiler {
             EmitResult<Optional<Value>> compareResult =
                 EmitResult.ofNullable(n.getCompare().get().accept(this, context));
             if (compareResult.isFailure() || compareResult.get().isEmpty()) {
-              return EmitResult.failure(
-                  context, n, "Failed to emit compare expression of for loop");
+              return compareResult;
             }
             Value compareValue = compareResult.get().get();
             context.insert(
@@ -631,7 +619,7 @@ public class JavaCompiler {
           EmitResult<Optional<Value>> bodyResult =
               EmitResult.ofNullable(n.getBody().accept(this, context));
           if (bodyResult.isFailure()) {
-            return EmitResult.failure(context, n, "Failed to emit body of for loop");
+            return bodyResult;
           }
 
           if (n.getBody().isBlockStmt()) {
@@ -648,8 +636,7 @@ public class JavaCompiler {
               try (var updateInsertion = context.setInsertionPoint(updateBlock, -1)) {
                 EmitResult<Boolean> updateResult = visitNodeList(n.getUpdate(), context);
                 if (updateResult.isFailure()) {
-                  return EmitResult.failure(
-                      context, n, "Failed to emit update expressions of for loop");
+                  return EmitResult.failure();
                 }
               }
 
@@ -674,8 +661,7 @@ public class JavaCompiler {
             } else {
               EmitResult<Boolean> updateResult = visitNodeList(n.getUpdate(), context);
               if (updateResult.isFailure()) {
-                return EmitResult.failure(
-                    context, n, "Failed to emit update expressions of for loop");
+                return EmitResult.failure();
               }
             }
           } else {
@@ -868,14 +854,11 @@ public class JavaCompiler {
       EmitResult<Optional<Value>> valueRes;
       {
         targetRes = EmitResult.ofNullable(n.getTarget().accept(this, context));
-        if (targetRes.isFailure() || targetRes.get().isEmpty())
-          return EmitResult.failure(
-              context, n, "Failed to emit target of assignment: " + n.getTarget());
+        if (targetRes.isFailure() || targetRes.get().isEmpty()) return targetRes;
       }
       {
         valueRes = EmitResult.ofNullable(n.getValue().accept(this, context));
-        if (valueRes.isFailure() || valueRes.get().isEmpty())
-          return EmitResult.failure(context, n, "Failed to emit value of assignment");
+        if (valueRes.isFailure() || valueRes.get().isEmpty()) return valueRes;
       }
 
       ResolvedType targetType;
@@ -903,15 +886,12 @@ public class JavaCompiler {
       EmitResult<Optional<Value>> lhsResult;
       {
         lhsResult = EmitResult.ofNullable(n.getLeft().accept(this, context));
-        if (lhsResult.isFailure() || lhsResult.get().isEmpty())
-          return EmitResult.failure(context, n, "Failed to emit left operand of binary expression");
+        if (lhsResult.isFailure() || lhsResult.get().isEmpty()) return lhsResult;
       }
       EmitResult<Optional<Value>> rhsResult;
       {
         rhsResult = EmitResult.ofNullable(n.getRight().accept(this, context));
-        if (rhsResult.isFailure() || rhsResult.get().isEmpty())
-          return EmitResult.failure(
-              context, n, "Failed to emit right operand of binary expression");
+        if (rhsResult.isFailure() || rhsResult.get().isEmpty()) return rhsResult;
       }
       Value lhs = lhsResult.get().get();
       Value rhs = rhsResult.get().get();
@@ -1003,7 +983,42 @@ public class JavaCompiler {
 
     @Override
     public EmitResult<Optional<Value>> visit(ConditionalExpr n, EmitContext context) {
-      return EmitResult.failure(context, n, "Ternary operator is not supported.");
+      EmitResult<Optional<Value>> conditionRes =
+          EmitResult.ofNullable(n.getCondition().accept(this, context));
+      if (conditionRes.isFailure() || conditionRes.get().isEmpty()) return conditionRes;
+
+      ResolvedType resolvedOutputType;
+      try {
+        resolvedOutputType = n.calculateResolvedType();
+      } catch (Exception e) {
+        return EmitResult.failure(
+            context, n, "Failed to resolve type of conditional expression", e);
+      }
+      Optional<Type> outputTypeOpt = fromAstType(resolvedOutputType, n, context);
+      if (outputTypeOpt.isEmpty()) {
+        return EmitResult.failure(context, n, "Failed to resolve type of conditional expression");
+      }
+
+      var ifOp =
+          context.insert(
+              new ScfOps.IfOp(context.loc(n), conditionRes.get().get(), true, outputTypeOpt.get()));
+      try (var thenInsertion =
+          context.setInsertionPoint(ifOp.getThenRegion().getEntryBlock(), -1)) {
+        EmitResult<Optional<Value>> thenRes =
+            EmitResult.ofNullable(n.getThenExpr().accept(this, context));
+        if (thenRes.isFailure() || thenRes.get().isEmpty()) return thenRes;
+        context.insert(new ScfOps.YieldOp(context.loc(n), thenRes.get().get()));
+      }
+
+      try (var elseInsertion =
+          context.setInsertionPoint(ifOp.getElseRegion().orElseThrow().getEntryBlock(), -1)) {
+        EmitResult<Optional<Value>> elseRes =
+            EmitResult.ofNullable(n.getElseExpr().accept(this, context));
+        if (elseRes.isFailure() || elseRes.get().isEmpty()) return elseRes;
+        context.insert(new ScfOps.YieldOp(context.loc(n), elseRes.get().get()));
+      }
+
+      return EmitResult.success(Optional.of(ifOp.getOutputValue().orElseThrow()));
     }
 
     @Override
@@ -1275,8 +1290,7 @@ public class JavaCompiler {
         EmitResult<Optional<Value>> initializerResult =
             EmitResult.ofNullable(varDecl.getInitializer().orElseThrow().accept(this, context));
         if (initializerResult.isFailure() || initializerResult.get().isEmpty())
-          return EmitResult.failure(
-              context, n, "Failed to emit initializer of variable declaration");
+          return initializerResult;
         Value initValue = initializerResult.get().get();
 
         // Get the resolved variable declaration so that we can get the type of the variable and

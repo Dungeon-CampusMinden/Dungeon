@@ -68,6 +68,17 @@ public sealed interface ScfRunners {
     }
   }
 
+  final class YieldRunner extends OpRunner implements ScfRunners {
+    public YieldRunner() {
+      super(ScfOps.YieldOp.class);
+    }
+
+    @Override
+    protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
+      return Action.Terminate(state.getValueOrThrow(op.getOperandOrThrow(0)), false);
+    }
+  }
+
   final class ForRunner extends OpRunner implements ScfRunners {
 
     public ForRunner() {
@@ -144,6 +155,23 @@ public sealed interface ScfRunners {
     protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
       ScfOps.WhileOp whileOp = op.as(ScfOps.WhileOp.class).orElseThrow();
       return Action.StepIntoRegion(whileOp.getConditionRegion(), false);
+    }
+  }
+
+  final class SelectRunner extends OpRunner implements ScfRunners {
+    public SelectRunner() {
+      super(ScfOps.SelectOp.class);
+    }
+
+    @Override
+    protected @NotNull Action runImpl(@NotNull Operation op, @NotNull State state) {
+      byte condition = state.getValueAsOrThrow(op.getOperandOrThrow(0), Byte.class);
+      if (condition != 0) {
+        state.setValueForOutput(op, state.getValueOrThrow(op.getOperandOrThrow(1)));
+      } else if (op.getRegions().size() > 1) {
+        state.setValueForOutput(op, state.getValueOrThrow(op.getOperandOrThrow(2)));
+      }
+      return Action.Next();
     }
   }
 }

@@ -72,6 +72,13 @@ public class LoopLowering extends GenericVisitorAdapter<Boolean, Boolean> {
             .orElse(maySkip); // no-else: else path inherits incoming maySkip
     maySkipElse = maySkipElse != null && maySkipElse;
 
+    if (!n.getThenStmt().isBlockStmt()) {
+      wrapInBlockStmt(n.getThenStmt());
+    }
+    if (n.getElseStmt().isPresent() && !n.getElseStmt().get().isBlockStmt()) {
+      wrapInBlockStmt(n.getElseStmt().get());
+    }
+
     return maySkipThen || maySkipElse;
   }
 
@@ -101,6 +108,9 @@ public class LoopLowering extends GenericVisitorAdapter<Boolean, Boolean> {
       ensureLoopFlags(loweredBody);
     }
     n.setBody(loweredBody);
+    if (!n.getBody().isBlockStmt()) {
+      wrapInBlockStmt(n.getBody());
+    }
     // The outer maySkip is unchanged by a nested loop
     return maySkip;
   }
@@ -115,6 +125,9 @@ public class LoopLowering extends GenericVisitorAdapter<Boolean, Boolean> {
       ensureLoopFlags(loweredBody);
     }
     n.setBody(loweredBody);
+    if (!n.getBody().isBlockStmt()) {
+      wrapInBlockStmt(n.getBody());
+    }
     return maySkip;
   }
 
@@ -128,6 +141,9 @@ public class LoopLowering extends GenericVisitorAdapter<Boolean, Boolean> {
       ensureLoopFlags(loweredBody);
     }
     n.setBody(loweredBody);
+    if (!n.getBody().isBlockStmt()) {
+      wrapInBlockStmt(n.getBody());
+    }
     return maySkip;
   }
 
@@ -198,5 +214,11 @@ public class LoopLowering extends GenericVisitorAdapter<Boolean, Boolean> {
     IfStmt guard = markSyntheticNode(new IfStmt(skipIsFalseCondition(), guardedBody, null));
     stmts.subList(startIndex, stmts.size()).clear();
     stmts.add(guard);
+  }
+
+  private void wrapInBlockStmt(Statement stmt) {
+    BlockStmt block =
+        new BlockStmt(stmt.getTokenRange().orElse(null), NodeList.nodeList(stmt.clone()));
+    stmt.replace(block);
   }
 }

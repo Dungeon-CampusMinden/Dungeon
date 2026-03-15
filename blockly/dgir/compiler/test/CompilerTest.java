@@ -613,4 +613,20 @@ public class %ClassName {
 """;
     testSource(code);
   }
+
+  @Test
+  void binaryLogicalWithSideEffects() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 0;
+    boolean result = (x++ > 0) && (x++ > 1) || (x++ > 2);
+    assert x == 2 : "Expected x to be 2, but got " + x;
+    assert result == false : "Expected result to be false, but got " + result;
+  }
+}
+""";
+    testSource(code);
+  }
 }
