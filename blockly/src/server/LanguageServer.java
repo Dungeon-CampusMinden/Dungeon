@@ -1,13 +1,14 @@
 package server;
 
-import coderunner.BlocklyCommands;
-import coderunner.Direction;
 import coderunner.HideLanguage;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.body.EnumConstantDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import components.HeroActionComponent;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.logging.DungeonLogger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +38,7 @@ public class LanguageServer {
   private static final Map<String, Class<?>> classMap =
       Map.of(
           "hero",
-          BlocklyCommands.class,
+          HeroActionComponent.class,
           "Direction",
           Direction.class,
           "LevelElement",

@@ -4,6 +4,7 @@ import blockly.dgir.vm.dialect.dg.DgActionGateway;
 import blockly.dgir.vm.dialect.dg.DungeonDialectRunner;
 import coderunner.BlocklyCodeRunner;
 import coderunner.DgHeroActionGateway;
+import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
 import contrib.systems.*;
@@ -25,12 +26,12 @@ import entities.HeroTankControlledFactory;
 import level.produs.*;
 import level.sandbox.SandboxLevel;
 import server.Server;
-import systems.BlocklyCommandExecuteSystem;
 import systems.HeroActionTickSystem;
 import systems.TintTilesSystem;
 
 import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
@@ -49,11 +50,13 @@ public class Client {
   public static final String WIZARD_NAME = "Algorim";
 
   /** Force to apply for movement of all entities. */
-  public static final Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
+  public static float MOVEMENT_FORCE = 7.5f;
 
-  private static volatile boolean scheduleRestart = false;
+  private static final AtomicBoolean restartQueued = new AtomicBoolean(false);
 
   private static HttpServer httpServer;
+
+  public static boolean SHOOT_AT_PLAYER = true;
 
   /**
    * If {@code true}, extra debug systems are activated at startup:
@@ -173,14 +176,6 @@ public class Client {
     Game.userOnLevelLoad(
         (firstLoad) -> {
           BlocklyCodeRunner.instance().stopExecution();
-          Game.system(
-              BlocklyCommandExecuteSystem.class,
-              s -> {
-                // Stopping the system also avoids adding new commands to the queue.
-                // The system is reactivated in the level loop when appropriate.
-                s.fullStop();
-                s.clear();
-              });
           Game.player()
               .flatMap(e -> e.fetch(VelocityComponent.class))
               .ifPresent(
@@ -230,19 +225,8 @@ public class Client {
     EventScheduler.setPausable(false);
     Game.add(new FogSystem());
     Game.add(new PressurePlateSystem());
-    Game.add(new BlocklyCommandExecuteSystem());
-    if (debugMode || sandboxMode) Game.add(new Debugger());
-    Game.add(
-        new System() {
-          @Override
-          public void execute() {
-            if (scheduleRestart) {
-              scheduleRestart = false;
-              restart();
-            }
-          }
-        });
-    if (debugMode || sandboxMode) {
+    if (debugMode) Game.add(new Debugger());
+    if (debugMode) {
       Game.add(new DebugDrawSystem());
       Game.add(new LevelEditorSystem());
     }
@@ -267,7 +251,7 @@ public class Client {
    */
   public static void createHero() {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
-    Entity hero = HeroTankControlledFactory.blocklyHero(debugMode || sandboxMode);
+    Entity hero = HeroTankControlledFactory.blocklyHero(debugMode);
     hero.add(new AmmunitionComponent());
     Game.add(hero);
   }
@@ -276,24 +260,40 @@ public class Client {
    * Restarts the game by removing all entities, recreating the player, and reloading the current
    * level.
    *
-   * <p>If this method is called from a thread other than the main thread, the restart is scheduled
-   * to occur on the next game tick. This is to ensure thread safety and prevent race conditions.
+   * <p>Restart work is always dispatched to the LibGDX application thread via {@link
+   * com.badlogic.gdx.Application#postRunnable(Runnable)}. This is robust even when tests start the
+   * game loop on a non-"main" thread.
    *
    * <p>During the restart, the {@link PositionSystem} is stopped and then run again to ensure that
    * the player is placed correctly in the level. This prevents a race condition where the player
    * might be placed before the level is fully loaded.
    */
   public static void restart() {
-    // if not the main thread, schedule restart
-    if (!Thread.currentThread().getName().equals("main")) {
-      scheduleRestart = true;
-      Server.waitDelta(); // wait for the next tick to execute the restart
+    // Coalesce concurrent restart requests; one queued restart is enough.
+    if (!restartQueued.compareAndSet(false, true)) return;
+
+    Runnable restartTask =
+        () -> {
+          try {
+            performRestart();
+          } finally {
+            restartQueued.set(false);
+          }
+        };
+
+    if (Gdx.app != null) {
+      Gdx.app.postRunnable(restartTask);
       return;
     }
+
+    // Fallback for tests without a LibGDX app instance.
+    restartTask.run();
+  }
+
+  private static void performRestart() {
     BlocklyCodeRunner.instance().stopExecution();
     Game.removeAllEntities();
     Game.system(PositionSystem.class, System::stop);
-    Game.system(BlocklyCommandExecuteSystem.class, s -> s.clear());
     createHero();
     DungeonLoader.reloadCurrentLevel();
     Game.system(PositionSystem.class, System::run);

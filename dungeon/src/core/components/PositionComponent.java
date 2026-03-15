@@ -40,6 +40,8 @@ public final class PositionComponent implements Component, Serializable {
   public static final Point ILLEGAL_POSITION = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
 
   private Point position;
+  // TODO clarify what the semantic difference between viewDirection and rotation is. Maybe we can
+  // remove one of them?
   private Direction viewDirection;
   private float rotation;
   private Vector2 scale = Vector2.ONE;

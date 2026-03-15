@@ -3,15 +3,26 @@ package coderunner;
 import blockly.dgir.dialect.dg.DgAttrs;
 import blockly.dgir.vm.dialect.dg.DgActionGateway;
 import com.badlogic.gdx.Gdx;
+import components.AmmunitionComponent;
+import components.BlocklyItemComponent;
 import components.HeroActionComponent;
+import contrib.components.CollideComponent;
 import contrib.modules.interaction.InteractionComponent;
+import contrib.systems.EventScheduler;
+import contrib.utils.EntityUtils;
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
+import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Direction;
+import core.utils.MissingPlayerException;
+import core.utils.Point;
+import core.utils.Vector2;
+import core.utils.components.MissingComponentException;
+import entities.MiscFactory;
+import entities.monster.BlocklyMonster;
 import org.jetbrains.annotations.NotNull;
-
-import static coderunner.BlocklyCommands.MAGIC_OFFSET;
 
 /**
  * Game-side implementation of {@link DgActionGateway}.
@@ -30,6 +41,33 @@ import static coderunner.BlocklyCommands.MAGIC_OFFSET;
  * the VM thread is never left blocked indefinitely.
  */
 public class DgHeroActionGateway implements DgActionGateway {
+  public static float REST_DURATION = 1f;
+
+  /**
+   * All this stuff should ideally be in a config file and not hardcoded. TODO Maybe find a willing
+   * intern to do this in a future PR?
+   */
+  private static final float FIREBALL_REST_TIME = 1f;
+
+  private static final float FIREBALL_RANGE = Integer.MAX_VALUE;
+  private static final float FIREBALL_SPEED = 15;
+  private static final int FIREBALL_DMG = 1;
+  private static final boolean IGNORE_FIRST_WALL = false;
+  private static final FireballSkill fireballSkill =
+      new FireballSkill(
+          () -> {
+            Entity player = Game.player().orElseThrow(MissingPlayerException::new);
+            return player
+                .fetch(CollideComponent.class)
+                .map(cc -> cc.collider().absoluteCenter())
+                .map(p -> p.translate(EntityUtils.getViewDirection(player)))
+                .orElseThrow(() -> MissingComponentException.build(player, CollideComponent.class));
+          },
+          1,
+          FIREBALL_SPEED,
+          FIREBALL_RANGE,
+          FIREBALL_DMG,
+          IGNORE_FIRST_WALL);
 
   @Override
   public void move(@NotNull Runnable onComplete) {
@@ -53,12 +91,34 @@ public class DgHeroActionGateway implements DgActionGateway {
         };
     Gdx.app.postRunnable(
         () -> {
-          var heroOpt = Game.player();
-          if (heroOpt.isEmpty()) {
-            onComplete.run();
-            return;
+          // Update player
+          {
+            var heroOpt = Game.player();
+            if (heroOpt.isEmpty()) {
+              onComplete.run();
+              return;
+            }
+            PositionComponent pc =
+                heroOpt
+                    .get()
+                    .fetch(PositionComponent.class)
+                    .orElseThrow(
+                        () ->
+                            MissingComponentException.build(
+                                heroOpt.get(), PositionComponent.class));
+            pc.viewDirection(pc.viewDirection().applyRelative(direction));
           }
-          heroOpt.get().add(new HeroActionComponent.Rotate(direction, onComplete));
+          // Update black night
+          {
+            var blackNightOpt =
+                Game.levelEntities()
+                    .filter(entity -> entity.name().equals(BlocklyMonster.BLACK_KNIGHT_NAME))
+                    .findFirst();
+            blackNightOpt
+                .flatMap(entity -> entity.fetch(PositionComponent.class))
+                .ifPresent(pc -> pc.viewDirection(pc.viewDirection().applyRelative(direction)));
+          }
+          onComplete.run();
         });
   }
 
@@ -98,7 +158,12 @@ public class DgHeroActionGateway implements DgActionGateway {
             onComplete.run();
             return;
           }
-          heroOpt.get().add(new HeroActionComponent.MovePushable(true, onComplete));
+          var moveC = HeroActionComponent.MovePushable.of(true, onComplete);
+          if (moveC.isEmpty()) {
+            onComplete.run();
+            return;
+          }
+          heroOpt.get().add(moveC.get());
         });
   }
 
@@ -111,17 +176,17 @@ public class DgHeroActionGateway implements DgActionGateway {
             onComplete.run();
             return;
           }
-          heroOpt.get().add(new HeroActionComponent.MovePushable(false, onComplete));
+          var moveC = HeroActionComponent.MovePushable.of(false, onComplete);
+          if (moveC.isEmpty()) {
+            onComplete.run();
+            return;
+          }
+          heroOpt.get().add(moveC.get());
         });
   }
 
   @Override
   public void drop(@NotNull DgAttrs.DropTypeAttr.DropType dropType, @NotNull Runnable onComplete) {
-    String item =
-        switch (dropType) {
-          case CLOVER -> HeroActionComponent.CLOVER;
-          case BREADCRUMBS -> HeroActionComponent.BREADCRUMB;
-        };
     Gdx.app.postRunnable(
         () -> {
           var heroOpt = Game.player();
@@ -129,7 +194,20 @@ public class DgHeroActionGateway implements DgActionGateway {
             onComplete.run();
             return;
           }
-          heroOpt.get().add(new HeroActionComponent.Drop(item, onComplete));
+          var hero = heroOpt.get();
+          Point heroPos =
+              hero.fetch(PositionComponent.class)
+                  .map(PositionComponent::position)
+                  .map(pos -> pos.translate(0.5f, 0.5f))
+                  .orElse(null);
+
+          switch (dropType) {
+            case BREADCRUMBS -> Game.add(MiscFactory.breadcrumb(heroPos));
+            case CLOVER -> Game.add(MiscFactory.clover(heroPos));
+            default ->
+                throw new IllegalArgumentException(
+                    "Can not convert " + dropType + " to droppable Item.");
+          }
         });
   }
 
@@ -142,7 +220,26 @@ public class DgHeroActionGateway implements DgActionGateway {
             onComplete.run();
             return;
           }
-          heroOpt.get().add(new HeroActionComponent.Pickup(onComplete));
+          var hero = heroOpt.get();
+          // Get the tile at the position of the hero
+          hero.fetch(PositionComponent.class)
+              .map(PositionComponent::position)
+              .map(pos -> pos.translate(0.5f, 0.5f))
+              .flatMap(Game::tileAt)
+              .map(Game::entityAtTile)
+              // Filter the entities to only include entities that are items
+              .ifPresent(
+                  stream ->
+                      stream
+                          .filter(e -> e.isPresent(BlocklyItemComponent.class))
+                          // Trigger the interaction of each item with the hero, which
+                          // should result in the item being picked up and added to the
+                          // inventory
+                          .forEach(
+                              item ->
+                                  item.fetch(InteractionComponent.class)
+                                      .ifPresent(ic -> ic.triggerInteraction(item, hero))));
+          onComplete.run();
         });
   }
 
@@ -155,7 +252,16 @@ public class DgHeroActionGateway implements DgActionGateway {
             onComplete.run();
             return;
           }
-          heroOpt.get().add(new HeroActionComponent.ShootFireball(onComplete));
+          var hero = heroOpt.get();
+          hero.fetch(AmmunitionComponent.class)
+              .filter(AmmunitionComponent::checkAmmunition)
+              .ifPresent(
+                  ac -> {
+                    fireballSkill.execute(hero);
+                    ac.spendAmmo();
+                  });
+
+          EventScheduler.scheduleAction(onComplete, (long) (1000 * FIREBALL_REST_TIME));
         });
   }
 
@@ -168,8 +274,8 @@ public class DgHeroActionGateway implements DgActionGateway {
             onComplete.run();
             return;
           }
-          // Use a 1-second rest duration (RestOp carries no duration attribute).
-          heroOpt.get().add(new HeroActionComponent.Rest(1.0f, onComplete));
+
+          EventScheduler.scheduleAction(onComplete, (long) (1000 * REST_DURATION));
         });
   }
 
@@ -187,7 +293,7 @@ public class DgHeroActionGateway implements DgActionGateway {
   private static Tile resolveTile(
       @NotNull PositionComponent pc, @NotNull DgAttrs.UseDirectionAttr.UseDir dir) {
     if (dir == DgAttrs.UseDirectionAttr.UseDir.HERE) {
-      return Game.tileAt(pc.position().translate(MAGIC_OFFSET)).orElse(null);
+      return Game.tileAt(pc.position().translate(Vector2.of(0.5f, 0.5f))).orElse(null);
     }
     Direction relative =
         switch (dir) {
@@ -198,7 +304,8 @@ public class DgHeroActionGateway implements DgActionGateway {
           default -> Direction.NONE;
         };
     return Game.tileAt(
-            pc.position().translate(MAGIC_OFFSET), pc.viewDirection().applyRelative(relative))
+            pc.position().translate(Vector2.of(0.5f, 0.5f)),
+            pc.viewDirection().applyRelative(relative))
         .orElse(null);
   }
 }

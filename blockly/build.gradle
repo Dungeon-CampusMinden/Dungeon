@@ -47,7 +47,7 @@ tasks.register('runBlocklySandbox', JavaExec) {
     description = 'Start Blockly Dungeon in sandbox mode: empty level, no popups, all blocks unlocked, debug systems active (--sandbox).'
     mainClass = 'client.Client'
     classpath = sourceSets.main.runtimeClasspath
-    args '--sandbox'
+    args '--sandbox', '--debug'
     workingDir = rootProject.projectDir
 }
 

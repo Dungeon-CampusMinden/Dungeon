@@ -50,6 +50,7 @@ public class DungeonCompilerTestBase {
    */
   @BeforeAll
   static void setUpDungeon() {
+    Client.MOVEMENT_FORCE = Client.MOVEMENT_FORCE * 5f; // increase player speed for faster tests
     clientThread =
         new Thread(
             () -> {
@@ -74,6 +75,7 @@ public class DungeonCompilerTestBase {
   @AfterEach
   void stopCodeAfterEach() throws IOException, InterruptedException {
     stopExecution();
+    resetGame();
   }
 
   /** Interrupts the dungeon thread when the whole test class has finished. */
@@ -171,6 +173,17 @@ public class DungeonCompilerTestBase {
             .timeout(Duration.ofSeconds(5))
             .build();
     HTTP.send(req, HttpResponse.BodyHandlers.ofString());
+  }
+
+  protected static void resetGame() throws IOException, InterruptedException {
+    HttpRequest req =
+        HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/reset"))
+            .POST(HttpRequest.BodyPublishers.noBody())
+            .timeout(Duration.ofSeconds(5))
+            .build();
+    HTTP.send(req, HttpResponse.BodyHandlers.ofString());
+    Thread.sleep(1000);
   }
 
   /** Returns the hero's current position. */

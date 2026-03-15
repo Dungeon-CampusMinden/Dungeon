@@ -83,6 +83,8 @@ public enum BlocklyMonster {
               .collideDamage(99999) // one hit kill
               .collideCooldown(0));
 
+  public static final String BLACK_KNIGHT_NAME = "Blockly Black Knight";
+
   private final Supplier<Builder> builderSupplier;
 
   /**
@@ -138,7 +140,7 @@ public enum BlocklyMonster {
 
       // hotfix for https://github.com/Dungeon-CampusMinden/Dungeon/issues/2413
       // the boss uses player textures so we can copy the player statemachine
-      if (name().equals("Blockly Black Knight")) {
+      if (name().equals(BLACK_KNIGHT_NAME)) {
         Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(texture());
         State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);
         State stMove = new DirectionalState(VelocitySystem.STATE_NAME, animationMap, "run");

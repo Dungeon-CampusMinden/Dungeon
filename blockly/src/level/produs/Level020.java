@@ -3,7 +3,6 @@ package level.produs;
 import client.Client;
 import contrib.hud.DialogUtils;
 import contrib.systems.EventScheduler;
-import contrib.utils.IAction;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -18,9 +17,10 @@ import core.utils.MissingPlayerException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.monster.BlocklyMonster;
-import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
+
+import java.util.Map;
 
 /**
  * This is the first level of the 3-stage boss fight. It features a Red-Light Green-Light mechanic:
@@ -59,7 +59,7 @@ public class Level020 extends BlocklyLevel {
 
   private Entity boss;
   private PositionComponent bosspc;
-  private IAction turnAction =
+  private Runnable turnAction =
       () -> {
         if (bosspc.viewDirection() == Direction.LEFT) {
           boss.fetch(PositionComponent.class).ifPresent(pc -> pc.viewDirection(Direction.RIGHT));
