@@ -83,7 +83,8 @@ public class Lore {
   public static final List<Tuple<String, Integer>> OutroTexts =
       List.of(
           Tuple.of(
-              "This tunnel leads to the next room in the game, but it is the end of the demo!", 32),
+              "This tunnel leads onward to the next room, but this is where the demo ends for now.",
+              32),
           Tuple.of("Congratulations!\n\nYou escaped! :D", 120));
 
   /** List of blog entries, each with a title, content and a list of comments. */
