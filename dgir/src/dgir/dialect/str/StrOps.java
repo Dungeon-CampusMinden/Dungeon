@@ -351,16 +351,16 @@ public sealed interface StrOps {
           operation.emitError("Operation must have at least two operands and at most three");
           return false;
         }
-        if (op.getOperandValue(0).orElseThrow().getType() != StrTypes.StringT.INSTANCE) {
+        if (!op.getOperandValue(0).orElseThrow().getType().equals(StrTypes.StringT.INSTANCE)) {
           operation.emitError("LHS operand (string) must be string");
           return false;
         }
-        if (op.getOperandValue(1).orElseThrow().getType() != BuiltinTypes.IntegerT.INT32) {
+        if (!op.getOperandValue(1).orElseThrow().getType().equals(BuiltinTypes.IntegerT.INT32)) {
           operation.emitError("RHS operand (beginIndex) must be int");
           return false;
         }
         if (operation.getOperands().size() == 3
-            && op.getOperandValue(2).orElseThrow().getType() != BuiltinTypes.IntegerT.INT32) {
+            && !op.getOperandValue(2).orElseThrow().getType().equals(BuiltinTypes.IntegerT.INT32)) {
           operation.emitError("Optional third operand (endIndex) must be int");
           return false;
         }
