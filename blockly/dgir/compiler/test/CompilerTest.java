@@ -663,4 +663,111 @@ public class %ClassName {
 """;
     testSource(code);
   }
+
+  @Test
+  void simpleSwitchStatement() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 2;
+    String result = "";
+    switch (x) {
+      case 1:
+        result = "One";
+        break;
+      case 2:
+        result = "Two";
+        break;
+      case 3:
+        result = "Three";
+        break;
+      default:
+        result = "Other";
+    }
+    assert result.equals("Two") : "Expected result to be 'Two', but got " + result;
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void nestedSwitchStatement() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 2;
+    int y = 3;
+    String result = "";
+    switch (x) {
+      case 1:
+        result = "One";
+        break;
+      case 2:
+        switch (y) {
+          case 3:
+            result = "Two and Three";
+            break;
+          default:
+            result = "Two and Other";
+        }
+        break;
+      case 3:
+        result = "Three";
+        break;
+      default:
+        result = "Other";
+    }
+    assert result.equals("Two and Three") : "Expected result to be 'Two and Three', but got " + result;
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void switchExpressions() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 2;
+    String result = switch (x) {
+      case 1 -> "One";
+      case 2 -> "Two";
+      case 3 -> "Three";
+      default -> "Other";
+    };
+    assert result.equals("Two") : "Expected result to be 'Two', but got " + result;
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void switchExpressionsWithNestedSwitch() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 2;
+    int y = 3;
+    String result = switch (x) {
+      case 1 -> "One";
+      case 2 -> switch (y) {
+        case 3 -> "Two and Three";
+        default -> "Two and Other";
+      };
+      case 3 -> "Three";
+      default -> "Other";
+    };
+    assert result.equals("Two and Three") : "Expected result to be 'Two and Three', but got " + result;
+  }
+}
+""";
+    testSource(code);
+  }
 }

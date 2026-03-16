@@ -1,5 +1,6 @@
 package blockly.dgir.compiler.java;
 
+import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.DataKey;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -9,6 +10,7 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedDeclaration;
+import com.github.javaparser.resolution.model.typesystem.LazyType;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
@@ -20,28 +22,46 @@ import org.jetbrains.annotations.NotNull;
 import java.util.IdentityHashMap;
 import java.util.Optional;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class CompilerUtils {
   private static final IdentityHashMap<ResolvedType, Type> resolvedToType = new IdentityHashMap<>();
 
-  /** Marker for compiler-generated nodes that should be hidden by source-level debugging. */
-  public static final DataKey<Boolean> SYNTHETIC_DEBUG_NODE = new DataKey<>() {};
-
-  public static boolean isSyntheticDebugNode(Node node) {
-    return node.containsData(SYNTHETIC_DEBUG_NODE)
-        && Boolean.TRUE.equals(node.getData(SYNTHETIC_DEBUG_NODE));
+  public static @NotNull Optional<TokenRange> mergeTokenRanges(
+      @NotNull Optional<TokenRange> first, @NotNull Optional<TokenRange> second) {
+    if (first.isEmpty()) {
+      return second;
+    }
+    return second
+        .map(javaTokens -> new TokenRange(first.get().getBegin(), javaTokens.getEnd()))
+        .or(() -> first);
   }
 
-  public static <T extends Node> T markSyntheticNode(T node) {
-    node.setData(SYNTHETIC_DEBUG_NODE, true);
+  /** Returns the first available token range from the given source anchors. */
+  public static @NotNull Optional<TokenRange> tokenRangeFrom(@NotNull Node... anchors) {
+    for (Node anchor : anchors) {
+      Optional<TokenRange> tokenRange = anchor.getTokenRange();
+      if (tokenRange.isPresent()) {
+        return tokenRange;
+      }
+    }
+    return Optional.empty();
+  }
+
+  /** Assigns the first available source token range to a generated node. */
+  public static <T extends Node> @NotNull T setTokenRangeFrom(
+      @NotNull T node, @NotNull Node... anchors) {
+    tokenRangeFrom(anchors).ifPresent(node::setTokenRange);
     return node;
   }
 
-  public static <T extends Node> T markSyntheticTree(T node) {
-    node.walk(CompilerUtils::markSyntheticNode);
+  /** Assigns a token range when present and leaves the node unchanged otherwise. */
+  public static <T extends Node> @NotNull T setTokenRange(
+      @NotNull T node, @NotNull Optional<TokenRange> tokenRange) {
+    tokenRange.ifPresent(node::setTokenRange);
     return node;
   }
 
-  public static boolean containsLocalFlag(Statement body, String flagName) {
+  public static boolean containsLocalFlag(@NotNull Statement body, @NotNull String flagName) {
     if (body instanceof BlockStmt blockStmt) {
       for (Statement stmt : blockStmt.getStatements()) {
         if (!stmt.isExpressionStmt()) {
@@ -61,8 +81,8 @@ public class CompilerUtils {
     return false;
   }
 
-  public static <T extends ResolvedDeclaration, B extends Resolvable<T>> Optional<T> resolve(
-      @NotNull B target, @NotNull EmitContext context) {
+  public static <T extends ResolvedDeclaration, B extends Resolvable<T>>
+      @NotNull Optional<T> resolve(@NotNull B target, @NotNull EmitContext context) {
     T resolved;
     try {
       resolved = target.resolve();
@@ -75,7 +95,7 @@ public class CompilerUtils {
 
   public record TypeInfo(@NotNull Type type, @NotNull ResolvedType resolvedType) {}
 
-  public static Optional<TypeInfo> resolveType(
+  public static @NotNull Optional<TypeInfo> resolveType(
       @NotNull com.github.javaparser.ast.type.Type target, @NotNull EmitContext context) {
     ResolvedType resolved;
     try {
@@ -89,8 +109,10 @@ public class CompilerUtils {
     return Optional.empty();
   }
 
-  public static Optional<Type> fromAstType(
-      @NotNull com.github.javaparser.ast.type.Type type, Node site, @NotNull EmitContext context) {
+  public static @NotNull Optional<Type> fromAstType(
+      @NotNull com.github.javaparser.ast.type.Type type,
+      @NotNull Node site,
+      @NotNull EmitContext context) {
     Optional<TypeInfo> resolvedType = resolveType(type, context);
     if (resolvedType.isEmpty()) {
       return Optional.empty();
@@ -99,8 +121,9 @@ public class CompilerUtils {
     return fromAstType(resolvedType.get().resolvedType, site, context);
   }
 
-  public static Optional<Type> fromAstType(
-      @NotNull ResolvedType type, Node site, @NotNull EmitContext context) {
+  public static @NotNull Optional<Type> fromAstType(
+      @NotNull ResolvedType type, @NotNull Node site, @NotNull EmitContext context) {
+    if (type instanceof LazyType lazyType) type = lazyType.getType();
     if (resolvedToType.containsKey(type)) return Optional.of(resolvedToType.get(type));
 
     Optional<Type> result;
@@ -136,9 +159,10 @@ public class CompilerUtils {
         return Optional.empty();
       }
     }
+    @NotNull ResolvedType finalType = type;
     result.ifPresent(
         value -> {
-          resolvedToType.put(type, value);
+          resolvedToType.put(finalType, value);
         });
     return result;
   }

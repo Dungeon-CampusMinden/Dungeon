@@ -1,6 +1,17 @@
 package transformations;
 
+import blockly.dgir.compiler.java.transformations.LoopLowering;
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.TokenRange;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.BreakStmt;
+import com.github.javaparser.ast.stmt.IfStmt;
+import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.stmt.WhileStmt;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LoopLoweringTests extends TransformationTestBase {
   @Test
@@ -121,5 +132,46 @@ public class %ClassName {
 }
 """;
     assertCodeAfterLoopLowering(expected, code);
+  }
+
+  @Test
+  void generatedBreakUpdateAndSkipGuardKeepOriginalLineRanges() {
+    String code =
+"""
+public class RangeLoopClass {
+  public void test() {
+    while (true) {
+      break;
+      int x = 1;
+    }
+  }
+}
+""";
+
+    CompilationUnit cu = StaticJavaParser.parse(code);
+    BreakStmt originalBreak = cu.findFirst(BreakStmt.class).orElseThrow();
+    int breakLine = beginLine(originalBreak.getTokenRange().orElseThrow());
+    int nextLine =
+        beginLine(
+            originalBreak
+                .findAncestor(BlockStmt.class)
+                .orElseThrow()
+                .getStatement(1)
+                .getTokenRange()
+                .orElseThrow());
+
+    cu.accept(new LoopLowering(), false);
+
+    WhileStmt loweredWhile = cu.findFirst(WhileStmt.class).orElseThrow();
+    BlockStmt loweredBody = loweredWhile.getBody().asBlockStmt();
+    Statement loweredBreakUpdate = loweredBody.getStatement(2);
+    IfStmt loweredGuard = loweredBody.getStatement(3).asIfStmt();
+
+    assertEquals(breakLine, beginLine(loweredBreakUpdate.getTokenRange().orElseThrow()));
+    assertEquals(nextLine, beginLine(loweredGuard.getTokenRange().orElseThrow()));
+  }
+
+  private static int beginLine(TokenRange tokenRange) {
+    return tokenRange.getBegin().getRange().orElseThrow().begin.line;
   }
 }

@@ -19,8 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static blockly.dgir.compiler.java.CompilerUtils.isSyntheticDebugNode;
-
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public final class EmitContext {
   public static final class InsertionPoint implements AutoCloseable {
@@ -103,9 +101,6 @@ public final class EmitContext {
 
   @NotNull
   public Location loc(@NotNull Node node) {
-    if (isSyntheticDebugNode(node)) {
-      return new Location(filename, -1, -1);
-    }
     if (node.getRange().isEmpty()) {
       logger.warning("No range information available for AST node, using default location.");
       return Location.UNKNOWN;

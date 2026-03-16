@@ -11,6 +11,8 @@ import com.github.javaparser.resolution.types.ResolvedType;
 import java.util.Objects;
 import java.util.Optional;
 
+import static blockly.dgir.compiler.java.CompilerUtils.setTokenRangeFrom;
+
 /**
  * Replaces implicit casts (e.g. byte a = 1) with explicit casts (e.g. byte a = (byte) 1). Also
  * casts function arguments to the expected type when the argument type does not match the parameter
@@ -71,11 +73,10 @@ public class ImplicitCastElimination extends GenericVisitorAdapter<Boolean, Emit
             default -> false;
           };
     if (targetType.isAssignableBy(valueType) || override) {
-      return Optional.of(
-          new CastExpr(
-              value.getTokenRange().orElse(null),
-              StaticJavaParser.parseType(targetType.describe()),
-              value.clone()));
+      CastExpr castExpr = new CastExpr(StaticJavaParser.parseType(targetType.describe()), value.clone());
+      setTokenRangeFrom(castExpr, value, n);
+      setTokenRangeFrom(castExpr.getType(), value, n);
+      return Optional.of(castExpr);
     }
     return Optional.empty();
   }

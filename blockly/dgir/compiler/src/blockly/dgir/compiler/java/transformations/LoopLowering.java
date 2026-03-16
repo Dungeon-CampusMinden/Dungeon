@@ -49,14 +49,14 @@ public class LoopLowering extends GenericVisitorAdapter<Boolean, Boolean> {
   public Boolean visit(BreakStmt n, Boolean maySkip) {
     // break -> skipBreak = true; skip = true; (guarded when we are already in a maybe-skipped
     // region)
-    n.replace(createControlFlowFlagUpdate(true, maySkip));
+    n.replace(createControlFlowFlagUpdate(n, true));
     return true; // always true after a break
   }
 
   @Override
   public Boolean visit(ContinueStmt n, Boolean maySkip) {
     // continue -> skip = true; (guarded when we are already in a maybe-skipped region)
-    n.replace(createControlFlowFlagUpdate(false, maySkip));
+    n.replace(createControlFlowFlagUpdate(n, false));
     return true; // always true after a continue
   }
 
@@ -152,48 +152,56 @@ public class LoopLowering extends GenericVisitorAdapter<Boolean, Boolean> {
     return maySkip; // plain statements don't change maySkip
   }
 
-  private Statement createControlFlowFlagUpdate(boolean isBreak, boolean ignored) {
+  private Statement createControlFlowFlagUpdate(Statement source, boolean isBreak) {
     // Flag writes are materialized as statements so later passes can consume them.
-    BlockStmt updates = new BlockStmt();
+    BlockStmt updates = setTokenRangeFrom(new BlockStmt(), source);
     if (isBreak) {
-      updates.addStatement(assignTrue("skipBreak"));
+      updates.addStatement(assignTrue("skipBreak", source));
     }
-    updates.addStatement(assignTrue("skip"));
-    return markSyntheticTree(updates);
+    updates.addStatement(assignTrue("skip", source));
+    return updates;
   }
 
-  private Statement assignTrue(String variableName) {
-    return new ExpressionStmt(
-        new AssignExpr(
-            new NameExpr(variableName), new BooleanLiteralExpr(true), AssignExpr.Operator.ASSIGN));
+  private Statement assignTrue(String variableName, Statement source) {
+    NameExpr lhs = setTokenRangeFrom(new NameExpr(variableName), source);
+    BooleanLiteralExpr rhs = setTokenRangeFrom(new BooleanLiteralExpr(true), source);
+    AssignExpr assignExpr = setTokenRangeFrom(new AssignExpr(lhs, rhs, AssignExpr.Operator.ASSIGN), source);
+    return setTokenRangeFrom(new ExpressionStmt(assignExpr), source);
   }
 
   private BlockStmt ensureBlockBody(Statement stmt) {
     if (stmt.isBlockStmt()) {
       return stmt.asBlockStmt();
     }
-    return markSyntheticNode(new BlockStmt(NodeList.nodeList(stmt)));
+    return setTokenRangeFrom(new BlockStmt(NodeList.nodeList(stmt)), stmt);
   }
 
   private void ensureLoopFlags(BlockStmt body) {
     // Keep transformation idempotent: only add missing declarations.
     if (!containsLocalFlag(body, "skip")) {
-      body.addStatement(0, createFlagDeclaration("skip"));
+      body.addStatement(0, createFlagDeclaration("skip", body));
     }
     if (!containsLocalFlag(body, "skipBreak")) {
-      body.addStatement(1, createFlagDeclaration("skipBreak"));
+      body.addStatement(1, createFlagDeclaration("skipBreak", body));
     }
   }
 
-  private Statement createFlagDeclaration(String name) {
+  private Statement createFlagDeclaration(String name, Statement source) {
     VariableDeclarator decl =
-        new VariableDeclarator(PrimitiveType.booleanType(), name, new BooleanLiteralExpr(false));
-    return markSyntheticTree(new ExpressionStmt(new VariableDeclarationExpr(decl)));
+        new VariableDeclarator(
+            setTokenRangeFrom(PrimitiveType.booleanType(), source),
+            name,
+            setTokenRangeFrom(new BooleanLiteralExpr(false), source));
+    setTokenRangeFrom(decl, source);
+    VariableDeclarationExpr variableDeclarationExpr =
+        setTokenRangeFrom(new VariableDeclarationExpr(decl), source);
+    return setTokenRangeFrom(new ExpressionStmt(variableDeclarationExpr), source);
   }
 
-  private UnaryExpr skipIsFalseCondition() {
-    return markSyntheticTree(
-        new UnaryExpr(new NameExpr("skip"), UnaryExpr.Operator.LOGICAL_COMPLEMENT));
+  private UnaryExpr skipIsFalseCondition(Statement source) {
+    NameExpr skipRef = setTokenRangeFrom(new NameExpr("skip"), source);
+    return setTokenRangeFrom(
+        new UnaryExpr(skipRef, UnaryExpr.Operator.LOGICAL_COMPLEMENT), source);
   }
 
   /**
@@ -206,19 +214,19 @@ public class LoopLowering extends GenericVisitorAdapter<Boolean, Boolean> {
   private void wrapInSkipGuard(NodeList<Statement> stmts, int startIndex) {
     if (stmts.isEmpty()) return;
     if (startIndex >= stmts.size()) return;
+    Statement source = stmts.get(startIndex);
     NodeList<Statement> guardedStmts = new NodeList<>();
     for (int i = startIndex; i < stmts.size(); i++) {
       guardedStmts.add(stmts.get(i));
     }
-    BlockStmt guardedBody = markSyntheticNode(new BlockStmt(guardedStmts));
-    IfStmt guard = markSyntheticNode(new IfStmt(skipIsFalseCondition(), guardedBody, null));
+    BlockStmt guardedBody = setTokenRangeFrom(new BlockStmt(guardedStmts), source);
+    IfStmt guard = setTokenRangeFrom(new IfStmt(skipIsFalseCondition(source), guardedBody, null), source);
     stmts.subList(startIndex, stmts.size()).clear();
     stmts.add(guard);
   }
 
   private void wrapInBlockStmt(Statement stmt) {
-    BlockStmt block =
-        new BlockStmt(stmt.getTokenRange().orElse(null), NodeList.nodeList(stmt.clone()));
+    BlockStmt block = setTokenRangeFrom(new BlockStmt(NodeList.nodeList(stmt.clone())), stmt);
     stmt.replace(block);
   }
 }

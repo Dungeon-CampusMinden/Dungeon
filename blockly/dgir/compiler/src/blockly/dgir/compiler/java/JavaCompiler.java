@@ -1,13 +1,11 @@
 package blockly.dgir.compiler.java;
 
-import blockly.dgir.compiler.java.transformations.DeadCodeElimination;
-import blockly.dgir.compiler.java.transformations.ImplicitCastElimination;
-import blockly.dgir.compiler.java.transformations.LogicalBinaryToConditional;
-import blockly.dgir.compiler.java.transformations.LoopLowering;
+import blockly.dgir.compiler.java.transformations.*;
 import blockly.dgir.dialect.dg.DgAttrs;
 import blockly.dgir.dialect.dg.DgOps;
 import blockly.dgir.dialect.dg.DungeonDialect;
 import com.github.javaparser.ParseProblemException;
+import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -77,6 +75,7 @@ public class JavaCompiler {
 
   public static @NotNull Optional<ProgramOp> compileSource(
       @NotNull String source, @NotNull String filename) {
+    StaticJavaParser.getParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21);
     IntrinsicRegistry.init();
     CompilationUnit result;
 
@@ -122,6 +121,7 @@ public class JavaCompiler {
     EmitContext context = new EmitContext(filename);
 
     new DeadCodeElimination().visit(result, null);
+    new SwitchToIf().visit(result, context);
     new LoopLowering().visit(result, null);
     Boolean castEliminationResult = new ImplicitCastElimination().visit(result, context);
     if (castEliminationResult != null) {
