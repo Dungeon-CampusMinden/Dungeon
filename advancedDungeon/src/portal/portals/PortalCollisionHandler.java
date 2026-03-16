@@ -170,7 +170,7 @@ public class PortalCollisionHandler {
           .ifPresent(
               vc -> {
                 vc.clearForces();
-                vc.currentVelocity(Vector2.ONE);
+                vc.currentVelocity(Vector2.ZERO);
               });
 
       if (isPlayer(other)) handleRotation(other, color);
