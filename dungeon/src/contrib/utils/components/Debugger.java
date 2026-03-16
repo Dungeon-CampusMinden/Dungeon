@@ -6,6 +6,7 @@ import contrib.components.HealthComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.PauseDialog;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
@@ -24,6 +25,8 @@ import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
+import core.network.NetworkUtils;
+import core.network.server.DialogTracker;
 import core.systems.CameraSystem;
 import core.systems.input.InputManager;
 import core.utils.Direction;
@@ -190,6 +193,8 @@ public class Debugger extends System {
 
   /** Pauses the game. */
   public static void PAUSE_GAME() {
+    if(NetworkUtils.isNetworkClient()) return;
+
     if (isPaused()) {
       unpause();
     } else {
