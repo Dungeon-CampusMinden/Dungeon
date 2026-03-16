@@ -57,6 +57,8 @@ public class TractorBeamFactory {
   private final int totalPoints;
   private int currentIndex = 0;
   private final Direction beamDirection;
+  private static String beamEmitterName = "beamEmitter";
+  private static String tractorBeamName = "tractorBeam";
 
   /**
    * Creates a new {@code TractorBeamFactory} for generating tractor beam entities from one specific
@@ -159,7 +161,7 @@ public class TractorBeamFactory {
     float x = from.x() + currentIndex * (to.x() - from.x()) / (totalPoints - 1);
     float y = from.y() + currentIndex * (to.y() - from.y()) / (totalPoints - 1);
 
-    Entity tractorBeam = new Entity("tractorBeam");
+    Entity tractorBeam = new Entity(tractorBeamName);
     tractorBeam.add(new PositionComponent(new Point(x, y)));
     tractorBeam
         .fetch(PositionComponent.class)
@@ -196,7 +198,7 @@ public class TractorBeamFactory {
     Entity beamEmitter = factory.createBeamEmitter(from, direction);
 
     tractorBeamEntities.add(beamEmitter);
-    TractorBeamComponent tbc = new TractorBeamComponent(direction, from, tractorBeamEntities);
+    TractorBeamComponent tbc = new TractorBeamComponent(tractorBeamEntities);
     beamEmitter.add(tbc);
     PortalExtendComponent pec = new PortalExtendComponent();
     pec.onExtend = tbc::extend;
@@ -219,21 +221,23 @@ public class TractorBeamFactory {
    */
   public Entity createBeamEmitter(Point spawnPoint, Direction direction) {
 
-    Entity beamEmitter = new Entity("beamEmitter");
+    Entity beamEmitter = new Entity(beamEmitterName);
+
     beamEmitter.add(new PortalIgnoreComponent());
     beamEmitter.add(new PositionComponent(spawnPoint));
     beamEmitter.fetch(PositionComponent.class).ifPresent(pc -> pc.rotation(rotationFor(direction)));
     beamEmitter.fetch(PositionComponent.class).ifPresent(pc -> pc.viewDirection(direction));
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(BEAM_EMITTER);
+
+    State idle = State.fromMap(animationMap, "idle");
     StateMachine sm;
+    sm = new StateMachine(List.of(idle));
+    beamEmitter.add(new DrawComponent(sm));
+
     float hitboxX = 1f;
     float hitboxY = 1f;
     float offsetX = 0f;
     float offsetY = 0f;
-
-    State idle = State.fromMap(animationMap, "idle");
-    sm = new StateMachine(List.of(idle));
-    beamEmitter.add(new DrawComponent(sm));
 
     switch (direction) {
       case Direction.LEFT:
@@ -252,85 +256,62 @@ public class TractorBeamFactory {
         break;
     }
 
-    // On colide enter reload the beamforce calculation via DynamicCompiler
-    TriConsumer<Entity, Entity, Direction> enter =
-        (you, entity2, direction1) -> {
-          you.fetch(TractorBeamComponent.class).get().forceToApply(beamForce(beamDirection));
-          you.fetch(TractorBeamComponent.class)
-              .get()
-              .reversedForceToApply(reversedBeamForce(beamDirection));
-        };
-
-    TriConsumer<Entity, Entity, Direction> action =
-        (you, other, collisionDir) ->
-            other
-                .fetch(VelocityComponent.class)
-                .ifPresent(
-                    vc -> {
-                      if (!you.fetch(TractorBeamComponent.class).get().isActive()) {
-                        return;
-                      }
-                      if (you.fetch(TractorBeamComponent.class)
-                          .get()
-                          .forceToApply()
-                          .equals(Vector2.ZERO)) {
-                        return;
-                      }
-                      if (other.isPresent(PortalComponent.class)) {
-                        return;
-                      }
-                      if (!other.isPresent(FlyComponent.class)) {
-                        other.add(new FlyComponent());
-                      }
-                      Vector2 forceVector;
-                      if (you.fetch(TractorBeamComponent.class).get().isReversed())
-                        forceVector =
-                            you.fetch(TractorBeamComponent.class).get().reversedForceToApply();
-                      else forceVector = you.fetch(TractorBeamComponent.class).get().forceToApply();
-                      if (you.fetch(TractorBeamComponent.class)
-                          .get()
-                          .oldForces
-                          .containsKey(other)) {
-                        Vector2 oldForce =
-                            you.fetch(TractorBeamComponent.class).get().oldForces.get(other);
-                        if (oldForce.x() == 0 && forceVector.x() == 0) {
-                          vc.applyForce("beamEmitter", forceVector);
-                        } else if (oldForce.y() == 0 && forceVector.y() == 0) {
-                          vc.applyForce("beamEmitter", forceVector);
-                        }
-                      } else {
-                        vc.applyForce("beamEmitter", forceVector);
-                        you.fetch(TractorBeamComponent.class)
-                            .get()
-                            .oldForces
-                            .put(other, forceVector);
-                      }
-                    });
-
-    TriConsumer<Entity, Entity, Direction> actionLeave =
-        (you, other, collisionDir) -> {
-          you.fetch(TractorBeamComponent.class).get().oldForces.remove(other);
-          if (other.fetch(ProjectileComponent.class).isEmpty()) {
-            other.remove(FlyComponent.class);
-          }
-          if (other.isPresent(VelocityComponent.class)) {
-            other.fetch(VelocityComponent.class).get().currentVelocity(Vector2.ZERO);
-            other.fetch(VelocityComponent.class).get().clearForces();
-          }
-        };
-
     beamEmitter.add(
         new CollideComponent(
-            Vector2.of(offsetX, offsetY), Vector2.of(hitboxX, hitboxY), enter, actionLeave));
+            Vector2.of(offsetX, offsetY),
+            Vector2.of(hitboxX, hitboxY),
+            createEnterConsumer(beamDirection),
+            createOnLeaveConsumer()));
     beamEmitter
         .fetch(CollideComponent.class)
         .ifPresent(
             cc -> {
-              cc.onHold(action);
+              cc.onHold(createActionConsumer());
               cc.isSolid(false);
             });
 
     return beamEmitter;
+  }
+
+  private static TriConsumer<Entity, Entity, Direction> createActionConsumer() {
+    return (you, other, collisionDir) ->
+        other
+            .fetch(VelocityComponent.class)
+            .ifPresent(
+                vc -> {
+                  if (!you.fetch(TractorBeamComponent.class).get().isActive()) {
+                    return;
+                  }
+                  if (you.fetch(TractorBeamComponent.class)
+                      .get()
+                      .forceToApply()
+                      .equals(Vector2.ZERO)) {
+                    return;
+                  }
+                  if (other.isPresent(PortalComponent.class)) {
+                    return;
+                  }
+                  if (!other.isPresent(FlyComponent.class)) {
+                    other.add(new FlyComponent());
+                  }
+                  Vector2 forceVector;
+                  if (you.fetch(TractorBeamComponent.class).get().isReversed())
+                    forceVector =
+                        you.fetch(TractorBeamComponent.class).get().reversedForceToApply();
+                  else forceVector = you.fetch(TractorBeamComponent.class).get().forceToApply();
+                  if (you.fetch(TractorBeamComponent.class).get().oldForces.containsKey(other)) {
+                    Vector2 oldForce =
+                        you.fetch(TractorBeamComponent.class).get().oldForces.get(other);
+                    if (oldForce.x() == 0 && forceVector.x() == 0) {
+                      vc.applyForce(beamEmitterName, forceVector);
+                    } else if (oldForce.y() == 0 && forceVector.y() == 0) {
+                      vc.applyForce(beamEmitterName, forceVector);
+                    }
+                  } else {
+                    vc.applyForce(beamEmitterName, forceVector);
+                    you.fetch(TractorBeamComponent.class).get().oldForces.put(other, forceVector);
+                  }
+                });
   }
 
   private static Vector2 beamForce(Direction dir) {
@@ -343,6 +324,29 @@ public class TractorBeamFactory {
       DialogUtils.showTextPopup(BEAMFORCE, "Code Error");
     }
     return Vector2.ZERO;
+  }
+
+  private static TriConsumer<Entity, Entity, Direction> createEnterConsumer(
+      Direction beamDirection) {
+    return (you, entity2, direction1) -> {
+      you.fetch(TractorBeamComponent.class).get().forceToApply(beamForce(beamDirection));
+      you.fetch(TractorBeamComponent.class)
+          .get()
+          .reversedForceToApply(reversedBeamForce(beamDirection));
+    };
+  }
+
+  private static TriConsumer<Entity, Entity, Direction> createOnLeaveConsumer() {
+    return (you, other, collisionDir) -> {
+      you.fetch(TractorBeamComponent.class).get().oldForces.remove(other);
+      if (other.fetch(ProjectileComponent.class).isEmpty()) {
+        other.remove(FlyComponent.class);
+      }
+      if (other.isPresent(VelocityComponent.class)) {
+        other.fetch(VelocityComponent.class).get().currentVelocity(Vector2.ZERO);
+        other.fetch(VelocityComponent.class).get().clearForces();
+      }
+    };
   }
 
   /**
@@ -359,83 +363,90 @@ public class TractorBeamFactory {
     Entity lastEntity = null;
     for (Entity tractorBeamEntity : tractorBeamEntities) {
       lastEntity = tractorBeamEntity;
-      if (tractorBeamEntity.name().equals("tractorBeam")) {
-        tractorBeamEntity
-            .fetch(DrawComponent.class)
-            .ifPresent(
-                dc -> {
-                  String currentState = dc.currentStateName();
-
-                  if (currentState.contains("blue")) {
-                    dc.sendSignal("reverse_color");
-                  } else if (currentState.contains("red")) {
-                    dc.sendSignal("normalize_color");
-                  }
-                });
-
-      } else if (tractorBeamEntity.name().equals("beamEmitter")) {
-        if (tractorBeamEntity.fetch(PositionComponent.class).isEmpty()) {
-          return;
-        }
-        if (tractorBeamEntity.fetch(TractorBeamComponent.class).isEmpty()) {
-          return;
-        }
-        Direction viewDir = tractorBeamEntity.fetch(PositionComponent.class).get().viewDirection();
-        boolean isReversed = tractorBeamEntity.fetch(TractorBeamComponent.class).get().isReversed();
-
-        if (isReversed) {
-          viewDir = viewDir.opposite();
-        }
-        final Direction dir = viewDir;
-        // dynamically reload calculation of reversed force to apply
-        tractorBeamEntity
-            .fetch(TractorBeamComponent.class)
-            .get()
-            .reversedForceToApply(reversedBeamForce(dir));
-        tractorBeamEntity.fetch(TractorBeamComponent.class).get().forceToApply(beamForce(dir));
-        if (tractorBeamEntity
-            .fetch(TractorBeamComponent.class)
-            .get()
-            .reversedForceToApply()
-            .equals(Vector2.ZERO)) {
-          return;
-        }
-        tractorBeamEntity
-            .fetch(CollideComponent.class)
-            .ifPresent(
-                cc ->
-                    cc.onHold(
-                        (you, other, collisionDir) ->
-                            other
-                                .fetch(VelocityComponent.class)
-                                .ifPresent(
-                                    vc -> {
-                                      if (!other.isPresent(FlyComponent.class)) {
-                                        other.add(new FlyComponent());
-                                      }
-                                      Vector2 forceVector;
-                                      if (tractorBeamEntity
-                                          .fetch(TractorBeamComponent.class)
-                                          .get()
-                                          .isReversed())
-                                        forceVector =
-                                            tractorBeamEntity
-                                                .fetch(TractorBeamComponent.class)
-                                                .get()
-                                                .reversedForceToApply();
-                                      else
-                                        forceVector =
-                                            tractorBeamEntity
-                                                .fetch(TractorBeamComponent.class)
-                                                .get()
-                                                .forceToApply();
-                                      vc.applyForce("beamEmitter", forceVector);
-                                    })));
+      if (tractorBeamEntity.name().equals(tractorBeamName)) {
+        handleTractorBeamVisual(tractorBeamEntity);
+      } else if (tractorBeamEntity.name().equals(beamEmitterName)) {
+        handleBeamEmitter(tractorBeamEntity);
       }
     }
     if (lastEntity != null) {
       lastEntity.fetch(TractorBeamComponent.class).ifPresent(TractorBeamComponent::toggleReversed);
     }
+  }
+
+  private static void handleBeamEmitter(Entity tractorBeamEntity) {
+    if (tractorBeamEntity.fetch(PositionComponent.class).isEmpty()) {
+      return;
+    }
+    if (tractorBeamEntity.fetch(TractorBeamComponent.class).isEmpty()) {
+      return;
+    }
+    Direction viewDir = tractorBeamEntity.fetch(PositionComponent.class).get().viewDirection();
+    boolean isReversed = tractorBeamEntity.fetch(TractorBeamComponent.class).get().isReversed();
+
+    if (isReversed) {
+      viewDir = viewDir.opposite();
+    }
+    final Direction dir = viewDir;
+    // dynamically reload calculation of reversed force to apply
+    tractorBeamEntity
+        .fetch(TractorBeamComponent.class)
+        .get()
+        .reversedForceToApply(reversedBeamForce(dir));
+    tractorBeamEntity.fetch(TractorBeamComponent.class).get().forceToApply(beamForce(dir));
+    if (tractorBeamEntity
+        .fetch(TractorBeamComponent.class)
+        .get()
+        .reversedForceToApply()
+        .equals(Vector2.ZERO)) {
+      return;
+    }
+    tractorBeamEntity
+        .fetch(CollideComponent.class)
+        .ifPresent(
+            cc ->
+                cc.onHold(
+                    (you, other, collisionDir) ->
+                        other
+                            .fetch(VelocityComponent.class)
+                            .ifPresent(
+                                vc -> {
+                                  if (!other.isPresent(FlyComponent.class)) {
+                                    other.add(new FlyComponent());
+                                  }
+                                  Vector2 forceVector;
+                                  if (tractorBeamEntity
+                                      .fetch(TractorBeamComponent.class)
+                                      .get()
+                                      .isReversed())
+                                    forceVector =
+                                        tractorBeamEntity
+                                            .fetch(TractorBeamComponent.class)
+                                            .get()
+                                            .reversedForceToApply();
+                                  else
+                                    forceVector =
+                                        tractorBeamEntity
+                                            .fetch(TractorBeamComponent.class)
+                                            .get()
+                                            .forceToApply();
+                                  vc.applyForce(beamEmitterName, forceVector);
+                                })));
+  }
+
+  private static void handleTractorBeamVisual(Entity tractorBeamEntity) {
+    tractorBeamEntity
+        .fetch(DrawComponent.class)
+        .ifPresent(
+            dc -> {
+              String currentState = dc.currentStateName();
+
+              if (currentState.contains("blue")) {
+                dc.sendSignal("reverse_color");
+              } else if (currentState.contains("red")) {
+                dc.sendSignal("normalize_color");
+              }
+            });
   }
 
   private static Vector2 reversedBeamForce(Direction dir) {
@@ -458,13 +469,8 @@ public class TractorBeamFactory {
    */
   public static void reverseExtensionBeam(List<Entity> extensionBeamEntities) {
     // find index of first beamEmitter
-    int firstEmitterIndex = -1;
-    for (int i = 0; i < extensionBeamEntities.size(); i++) {
-      if (extensionBeamEntities.get(i).name().equals("beamEmitter")) {
-        firstEmitterIndex = i;
-        break;
-      }
-    }
+
+    int firstEmitterIndex = indexOfFirstBeamEmitter(extensionBeamEntities);
 
     if (firstEmitterIndex == -1) return;
 
@@ -474,28 +480,14 @@ public class TractorBeamFactory {
     while (i < extensionBeamEntities.size()) {
 
       while (i < extensionBeamEntities.size()
-          && extensionBeamEntities.get(i).name().equals("tractorBeam")) {
-
+          && extensionBeamEntities.get(i).name().equals(tractorBeamName)) {
         Entity tractorBeamEntity = extensionBeamEntities.get(i);
-
-        tractorBeamEntity
-            .fetch(DrawComponent.class)
-            .ifPresent(
-                dc -> {
-                  String currentState = dc.currentStateName();
-
-                  if (currentState.contains("blue")) {
-                    dc.sendSignal("reverse_color");
-                  } else if (currentState.contains("red")) {
-                    dc.sendSignal("normalize_color");
-                  }
-                });
-
+        handleTractorBeamVisual(tractorBeamEntity);
         i++;
       }
 
       if (i < extensionBeamEntities.size()
-          && extensionBeamEntities.get(i).name().equals("beamEmitter")) {
+          && extensionBeamEntities.get(i).name().equals(beamEmitterName)) {
 
         Entity emitter = extensionBeamEntities.get(i);
         if (emitter.fetch(PositionComponent.class).isEmpty()) {
@@ -533,7 +525,7 @@ public class TractorBeamFactory {
                                                 .fetch(TractorBeamComponent.class)
                                                 .get()
                                                 .forceToApply();
-                                      vc.applyForce("beamEmitter", forceVector);
+                                      vc.applyForce(beamEmitterName, forceVector);
                                     })));
 
         i++;
@@ -541,6 +533,17 @@ public class TractorBeamFactory {
         break;
       }
     }
+  }
+
+  private static int indexOfFirstBeamEmitter(List<Entity> extensionBeamEntities) {
+    int firstEmitterIndex = -1;
+    for (int i = 0; i < extensionBeamEntities.size(); i++) {
+      if (extensionBeamEntities.get(i).name().equals(beamEmitterName)) {
+        firstEmitterIndex = i;
+        break;
+      }
+    }
+    return firstEmitterIndex;
   }
 
   /**
@@ -593,7 +596,7 @@ public class TractorBeamFactory {
     int firstEmitterIndex = -1;
 
     for (int i = 0; i < entities.size(); i++) {
-      if ("beamEmitter".equals(entities.get(i).name())) {
+      if (beamEmitterName.equals(entities.get(i).name())) {
         firstEmitterIndex = i;
         break;
       }
@@ -618,7 +621,7 @@ public class TractorBeamFactory {
    */
   public static boolean checkActiveState(List<Entity> tractorBeamEntities) {
     for (Entity entity : tractorBeamEntities) {
-      if (entity.name().equals("beamEmitter")) {
+      if (entity.name().equals(beamEmitterName)) {
         TractorBeamComponent tbc = entity.fetch(TractorBeamComponent.class).orElse(null);
         if (tbc != null) {
           return tbc.isActive();

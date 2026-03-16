@@ -40,13 +40,8 @@ public class Cube {
     portalCube.add(new DrawComponent(new Animation(new SimpleIPath(texture))));
 
     final boolean[] attached = {false};
-    CollideComponent cc = new CollideComponent();
-    cc.collideLeave(
-        (self, other, dir) -> {
-          if (!cc.isSolid() && !attached[0]) {
-            cc.isSolid(true);
-          }
-        });
+
+    CollideComponent cc = createCollideComponent(attached);
     portalCube.add(cc);
 
     if (isPickupable)
@@ -69,33 +64,56 @@ public class Cube {
       boolean[] attached, Entity portalCube, CollideComponent cc) {
     return new Interaction(
         (cube, hero) -> {
-          PositionComponent interactorPositioncomponent =
-              hero.fetch(PositionComponent.class).orElseThrow();
-          PositionComponent interactedPositioncomponent =
-              cube.fetch(PositionComponent.class).orElseThrow();
-          if (!attached[0]) {
-            AttachmentComponent attachmentComponent =
-                new AttachmentComponent(
-                    Vector2.ZERO, interactedPositioncomponent, interactorPositioncomponent);
-            portalCube.add(attachmentComponent);
-            cc.isSolid(false);
-            attached[0] = true;
-          } else {
-            portalCube.remove(AttachmentComponent.class);
-            Game.tileAt(interactedPositioncomponent.coordinate())
-                .ifPresent(
-                    tile -> {
-                      if (tile.levelElement() == LevelElement.WALL
-                          || tile.levelElement() == LevelElement.GITTER
-                          || tile.levelElement() == LevelElement.GLASSWALL
-                          || tile.levelElement() == LevelElement.PORTAL) {
-                        interactedPositioncomponent.position(
-                            interactorPositioncomponent.position());
-                      }
-                    });
-            attached[0] = false;
-          }
+          handlePickup(hero, cube, portalCube, cc, attached);
         },
         2f);
+  }
+
+  private static void handlePickup(
+      Entity hero, Entity cube, Entity portalCube, CollideComponent cc, boolean[] attached) {
+    PositionComponent interactorPositioncomponent =
+        hero.fetch(PositionComponent.class).orElseThrow();
+    PositionComponent interactedPositioncomponent =
+        cube.fetch(PositionComponent.class).orElseThrow();
+    if (!attached[0]) {
+      AttachmentComponent attachmentComponent =
+          new AttachmentComponent(
+              Vector2.ZERO, interactedPositioncomponent, interactorPositioncomponent);
+      portalCube.add(attachmentComponent);
+      cc.isSolid(false);
+      attached[0] = true;
+    } else {
+      detachCube(portalCube, interactorPositioncomponent, interactedPositioncomponent, attached);
+    }
+  }
+
+  private static void detachCube(
+      Entity portalCube,
+      PositionComponent interactorPositioncomponent,
+      PositionComponent interactedPositioncomponent,
+      boolean[] attached) {
+    portalCube.remove(AttachmentComponent.class);
+    Game.tileAt(interactedPositioncomponent.coordinate())
+        .ifPresent(
+            tile -> {
+              if (tile.levelElement() == LevelElement.WALL
+                  || tile.levelElement() == LevelElement.GITTER
+                  || tile.levelElement() == LevelElement.GLASSWALL
+                  || tile.levelElement() == LevelElement.PORTAL) {
+                interactedPositioncomponent.position(interactorPositioncomponent.position());
+              }
+            });
+    attached[0] = false;
+  }
+
+  private static CollideComponent createCollideComponent(boolean[] attached) {
+    CollideComponent cc = new CollideComponent();
+    cc.collideLeave(
+        (self, other, dir) -> {
+          if (!cc.isSolid() && !attached[0]) {
+            cc.isSolid(true);
+          }
+        });
+    return cc;
   }
 }

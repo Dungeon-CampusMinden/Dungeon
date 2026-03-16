@@ -124,7 +124,7 @@ public class LightWallFactory {
               Vector2.of(0f, 0f),
               Vector2.of(1f, 1f),
               CollideComponent.DEFAULT_COLLIDER,
-              (a, b, c) -> {}));
+              CollideComponent.DEFAULT_COLLIDER));
       beams.add(new BeamComponent(emitter, start, direction, true));
       emitter.add(new PortalIgnoreComponent());
       if (active) activate();
