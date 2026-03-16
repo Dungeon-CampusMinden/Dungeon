@@ -90,6 +90,7 @@ public class LastHourLevel extends DungeonLevel {
 
   /**
    * Gets the instance of the LastHourLevel.
+   *
    * @return The instance of the LastHourLevel.
    */
   public static LastHourLevel getInstance() {
@@ -128,8 +129,11 @@ public class LastHourLevel extends DungeonLevel {
         true,
         () ->
             DialogFactory.showTextDialog(
-                Lore.PostIntroDialogText1, "", () -> DialogFactory.showOkDialog(
-                  Lore.PostIntroDialogText2, "", () -> {}, targetId), null, targetId),
+                Lore.PostIntroDialogText1,
+                "",
+                () -> DialogFactory.showOkDialog(Lore.PostIntroDialogText2, "", () -> {}, targetId),
+                null,
+                targetId),
         targetId);
     INTRO_SHOWN_TO.add(targetId);
   }
@@ -495,7 +499,8 @@ public class LastHourLevel extends DungeonLevel {
       int currentVisibleComments = BlogTab.countVisibleComments();
       if (currentVisibleComments > lastKnownVisibleCommentCount) {
         Sounds.play(LastHourSounds.COMPUTER_COMMENT_RECEIVED);
-        Game.add(EmoteFactory.createEmote(getPoint("pc-main").translate(0.5f, 2f), Emote.IDEA, 4000));
+        Game.add(
+            EmoteFactory.createEmote(getPoint("pc-main").translate(0.5f, 2f), Emote.IDEA, 4000));
       }
       lastKnownVisibleCommentCount = currentVisibleComments;
     }
@@ -514,11 +519,13 @@ public class LastHourLevel extends DungeonLevel {
         .ifPresent(
             p -> {
               List<Entity> interactables = HeroController.findInteractablesInRange(p);
-              Optional<Entity> closest = HeroController.findInteractable(p, SkillTools.cursorPositionAsPoint());
+              Optional<Entity> closest =
+                  HeroController.findInteractable(p, SkillTools.cursorPositionAsPoint());
 
               currentInteractablesInRange.forEach(LastHourLevel::removeInteractFeedback);
               currentInteractablesInRange.clear();
-              interactables.forEach(e -> addInteractFeedback(e, closest.isPresent() && e.id() == closest.get().id()));
+              interactables.forEach(
+                  e -> addInteractFeedback(e, closest.isPresent() && e.id() == closest.get().id()));
               currentInteractablesInRange.addAll(interactables);
             });
   }

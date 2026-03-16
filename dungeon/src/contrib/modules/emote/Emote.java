@@ -65,12 +65,14 @@ public enum Emote {
   SWIRL("swirl");
 
   private final String name;
+
   Emote(String name) {
     this.name = name;
   }
 
   /**
    * Gets the name of the emote.
+   *
    * @return the name of the emote
    */
   public String getName() {
@@ -79,6 +81,7 @@ public enum Emote {
 
   /**
    * Gets the path to the emote's image file.
+   *
    * @return the path to the emote's image file
    */
   public String getPath() {

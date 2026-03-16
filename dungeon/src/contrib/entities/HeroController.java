@@ -13,7 +13,6 @@ import contrib.item.Item;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.HudSystem;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.cursorSkill.CursorSkill;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
@@ -23,17 +22,14 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
-import core.level.utils.LevelUtils;
 import core.network.input.InputCommandRouter;
 import core.network.messages.c2s.InputMessage;
 import core.network.server.ClientState;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Stream;
 
 /**
  * Controller class for handling hero entity actions such as movement, skill usage, and
@@ -201,8 +197,8 @@ public class HeroController {
   }
 
   /**
-   * This function filters for all interactable entities within range of the hero, then finds the one
-   * closest to the target point.
+   * This function filters for all interactable entities within range of the hero, then finds the
+   * one closest to the target point.
    *
    * @param hero the hero entity attempting the interaction
    * @param point the target point where the interaction is attempted (e.g., cursor position)
@@ -211,9 +207,17 @@ public class HeroController {
    */
   public static Optional<Entity> findInteractable(Entity hero, Point point) {
     Point heroPos = EntityUtils.getPosition(hero);
-    Optional<InteractionData> target = findInteractablesInRange(hero).stream().map(InteractionData::of).filter(
-      data -> heroPos.distanceSquared(EntityUtils.getPosition(data.e())) <= data.ic().interactions().interact().range() * data.ic().interactions().interact().range()
-    ).min(Comparator.comparingDouble(data -> EntityUtils.getPosition(data.e()).distanceSquared(point)));
+    Optional<InteractionData> target =
+        findInteractablesInRange(hero).stream()
+            .map(InteractionData::of)
+            .filter(
+                data ->
+                    heroPos.distanceSquared(EntityUtils.getPosition(data.e()))
+                        <= data.ic().interactions().interact().range()
+                            * data.ic().interactions().interact().range())
+            .min(
+                Comparator.comparingDouble(
+                    data -> EntityUtils.getPosition(data.e()).distanceSquared(point)));
     return target.map(InteractionData::e);
   }
 
@@ -228,14 +232,27 @@ public class HeroController {
 
   /**
    * Finds all interactable entities within the interaction range of the hero.
+   *
    * @param hero the entity for which to find interactables in range
    * @return a list of entities in range
    */
   public static List<Entity> findInteractablesInRange(Entity hero) {
     Point heroPos = EntityUtils.getPosition(hero);
-    return Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class)).filter(
-      e -> heroPos.distanceSquared(EntityUtils.getPosition(e)) <= e.fetch(InteractionComponent.class).orElseThrow().interactions().interact().range() * e.fetch(InteractionComponent.class).orElseThrow().interactions().interact().range()
-    ).toList();
+    return Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class))
+        .filter(
+            e ->
+                heroPos.distanceSquared(EntityUtils.getPosition(e))
+                    <= e.fetch(InteractionComponent.class)
+                            .orElseThrow()
+                            .interactions()
+                            .interact()
+                            .range()
+                        * e.fetch(InteractionComponent.class)
+                            .orElseThrow()
+                            .interactions()
+                            .interact()
+                            .range())
+        .toList();
   }
 
   /**

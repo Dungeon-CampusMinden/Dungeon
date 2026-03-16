@@ -1,8 +1,6 @@
 package core.utils.settings;
 
 import com.badlogic.gdx.Input;
-import contrib.entities.CharacterClass;
-import contrib.entities.deco.Deco;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.function.BiConsumer;

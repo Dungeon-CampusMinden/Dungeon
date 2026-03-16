@@ -104,8 +104,14 @@ public class ComputerFactory {
                                     }
                                   }
 
-                                  if(isNowInfected){
-                                    Game.add(EmoteFactory.createEmote(LastHourLevel.getInstance().getPoint("pc-main").translate(0.5f, 2f), Emote.FACE_ANGRY, 3000));
+                                  if (isNowInfected) {
+                                    Game.add(
+                                        EmoteFactory.createEmote(
+                                            LastHourLevel.getInstance()
+                                                .getPoint("pc-main")
+                                                .translate(0.5f, 2f),
+                                            Emote.FACE_ANGRY,
+                                            3000));
                                   }
                                 });
                           });

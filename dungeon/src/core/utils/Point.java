@@ -100,7 +100,9 @@ public record Point(float x, float y) {
   }
 
   /**
-   * Calculates the squared distance between this point and the given point. More efficient when only comparing distances is necessary.
+   * Calculates the squared distance between this point and the given point. More efficient when
+   * only comparing distances is necessary.
+   *
    * @param otherPos The point to which the squared distance is calculated.
    * @return The squared distance between this point and the given point.
    */

@@ -8,8 +8,7 @@ import core.utils.Point;
 
 public class EmoteSystem extends System {
 
-
-  public EmoteSystem(){
+  public EmoteSystem() {
     super(AuthoritativeSide.SERVER, EmoteComponent.class, PositionComponent.class);
   }
 
@@ -18,7 +17,7 @@ public class EmoteSystem extends System {
     filteredEntityStream().map(Data::of).forEach(this::process);
   }
 
-  private void process(Data data){
+  private void process(Data data) {
     data.ec().update(1f / Game.frameRate());
     if (data.ec().isDone()) {
       Game.remove(data.e());
@@ -30,13 +29,14 @@ public class EmoteSystem extends System {
   }
 
   @Override
-  public void stop() {
+  public void stop() {}
 
-  }
-
-  private record Data(Entity e, PositionComponent pc, EmoteComponent ec){
-    static Data of(Entity e){
-      return new Data(e, e.fetch(PositionComponent.class).orElseThrow(), e.fetch(EmoteComponent.class).orElseThrow());
+  private record Data(Entity e, PositionComponent pc, EmoteComponent ec) {
+    static Data of(Entity e) {
+      return new Data(
+          e,
+          e.fetch(PositionComponent.class).orElseThrow(),
+          e.fetch(EmoteComponent.class).orElseThrow());
     }
   }
 }

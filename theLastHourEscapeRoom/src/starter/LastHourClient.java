@@ -1,14 +1,17 @@
 package starter;
 
+import contrib.components.CollideComponent;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.systems.AttributeBarSystem;
+import contrib.systems.PositionSync;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
 import core.level.loader.DungeonLoader;
@@ -77,7 +80,7 @@ public final class LastHourClient {
   }
 
   /**
-   * Registers a custom spawn handler that supports metadata-only entities for computer state
+   * Registers a custom spawn handler that supports metadata-only Last Hour entities and collider
    * synchronization.
    */
   private static void registerEntitySpawnHandler() {
@@ -111,6 +114,7 @@ public final class LastHourClient {
                   .ifPresent(newEntity::add);
               LastHourSnapshotTranslator.worldTimerStateFromMetadata(event.metadata())
                   .ifPresent(newEntity::add);
+              applyCollideMetadata(newEntity, event.metadata());
               newEntity.persistent(event.isPersistent());
               Game.add(newEntity);
             });
@@ -128,12 +132,52 @@ public final class LastHourClient {
       return;
     }
 
-    Game.add(
+    Entity hero =
         HeroBuilder.builder()
             .id(event.entityId())
             .characterClass(CharacterClass.fromByteId(event.characterClassId()))
+            .persistent(event.isPersistent())
             .isLocalPlayer(isLocal)
             .username(playerComponent.playerName())
-            .build());
+            .build();
+    applySpawnPosition(hero, event.positionComponent());
+    applyCollideMetadata(hero, event.metadata());
+    Game.add(hero);
+  }
+
+  private static void applySpawnPosition(Entity entity, PositionComponent positionComponent) {
+    if (positionComponent == null) {
+      return;
+    }
+
+    entity
+        .fetch(PositionComponent.class)
+        .ifPresent(
+            existingPosition -> {
+              existingPosition.position(positionComponent.position());
+              existingPosition.viewDirection(positionComponent.viewDirection());
+              existingPosition.rotation(positionComponent.rotation());
+              existingPosition.scale(positionComponent.scale());
+              PositionSync.syncPosition(entity);
+            });
+  }
+
+  private static void applyCollideMetadata(Entity entity, Map<String, String> metadata) {
+    LastHourSnapshotTranslator.collideComponentFromMetadata(metadata)
+        .ifPresent(
+            collideComponent -> {
+              CollideComponent component =
+                  entity
+                      .fetch(CollideComponent.class)
+                      .orElseGet(
+                          () -> {
+                            CollideComponent newComponent = new CollideComponent();
+                            entity.add(newComponent);
+                            return newComponent;
+                          });
+              component.isSolid(collideComponent.isSolid());
+              component.collider(collideComponent.collider());
+              PositionSync.syncPosition(entity);
+            });
   }
 }

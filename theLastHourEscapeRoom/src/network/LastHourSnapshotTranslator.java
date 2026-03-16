@@ -1,10 +1,11 @@
 package network;
 
+import contrib.components.CollideComponent;
 import contrib.modules.keypad.KeypadComponent;
 import contrib.modules.worldTimer.WorldTimerComponent;
 import core.Entity;
 import core.Game;
-import core.game.ECSManagement;
+import core.components.PositionComponent;
 import core.network.DefaultSnapshotTranslator;
 import core.network.MessageDispatcher;
 import core.network.SnapshotTranslator;
@@ -16,16 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import modules.computer.ComputerProgress;
 import modules.computer.ComputerStateComponent;
 
-/**
- * Snapshot translator for The Last Hour that synchronizes the shared {@link ComputerStateComponent}
- * through metadata.
- */
+/** Snapshot translator for The Last Hour that synchronizes custom shared state through metadata. */
 public final class LastHourSnapshotTranslator implements SnapshotTranslator {
 
   private static final DungeonLogger LOGGER =
@@ -34,10 +31,10 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
   private final SnapshotTranslator delegate = new DefaultSnapshotTranslator();
 
   /**
-   * Builds a snapshot and appends the computer state entity as metadata-only state.
+   * Builds a snapshot and appends custom metadata for shared Last Hour components.
    *
    * @param serverTick the current server tick
-   * @return a snapshot including computer metadata state when available
+   * @return a snapshot including custom metadata state when available
    */
   @Override
   public Optional<SnapshotMessage> translateToSnapshot(int serverTick) {
@@ -49,26 +46,19 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     SnapshotMessage snapshot = baseSnapshot.orElseThrow();
     List<EntityState> entities = new ArrayList<>(snapshot.entities());
 
-    ECSManagement.levelEntities(Set.of(ComputerStateComponent.class))
-        .findFirst()
-        .flatMap(
-            entity ->
-                entity.fetch(ComputerStateComponent.class).map(state -> Map.entry(entity, state)))
-        .ifPresent(
-            entry -> {
-              Entity entity = entry.getKey();
-              entities.removeIf(existing -> existing.entityId() == entity.id());
-              entities.add(computerState(entity, entry.getValue()));
-            });
-
-    ECSManagement.levelEntities(Set.of(KeypadComponent.class))
+    Game.levelEntities()
         .forEach(
-            keypadEntity -> {
-              KeypadComponent keypad = keypadEntity.fetch(KeypadComponent.class).orElseThrow();
-              int index = indexOfEntityStateById(entities, keypadEntity.id()).orElse(-1);
+            entity -> {
+              Map<String, String> metadata = snapshotMetadata(entity);
+              if (metadata.isEmpty()) {
+                return;
+              }
+
+              int index = indexOfEntityStateById(entities, entity.id()).orElse(-1);
               if (index >= 0) {
-                EntityState baseState = entities.get(index);
-                entities.set(index, withMergedMetadata(baseState, keypadMetadata(keypad)));
+                entities.set(index, withMergedMetadata(entities.get(index), metadata));
+              } else {
+                entities.add(metadataOnlyState(entity, metadata));
               }
             });
 
@@ -76,7 +66,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
   }
 
   /**
-   * Applies the base snapshot behavior and updates local computer state entities from metadata.
+   * Applies the base snapshot behavior and updates local Last Hour entities from metadata.
    *
    * @param snapshot the received snapshot message
    * @param dispatcher the message dispatcher used by the default translator
@@ -86,59 +76,37 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     delegate.applySnapshot(snapshot, dispatcher);
 
     for (EntityState entityState : snapshot.entities()) {
-      Optional<WorldTimerComponent> mappedWorldTimerState =
-          entityState.metadata().flatMap(LastHourSnapshotTranslator::worldTimerStateFromMetadata);
-      if (mappedWorldTimerState.isPresent()) {
-        WorldTimerComponent worldTimerState = mappedWorldTimerState.orElseThrow();
-        Game.findEntityById(entityState.entityId())
-            .ifPresent(
-                entity -> {
-                  entity.remove(WorldTimerComponent.class);
-                  entity.add(worldTimerState);
-                });
+      Optional<Entity> targetEntity = Game.findEntityById(entityState.entityId());
+      if (targetEntity.isEmpty()) {
         continue;
       }
 
-      Optional<KeypadComponent> mappedKeypadState =
-          entityState.metadata().flatMap(LastHourSnapshotTranslator::keypadStateFromMetadata);
-      if (mappedKeypadState.isPresent()) {
-        KeypadComponent keypadState = mappedKeypadState.orElseThrow();
-        Game.findEntityById(entityState.entityId())
-            .ifPresent(entity -> applyKeypadState(entity, keypadState));
-        continue;
-      }
-
-      Optional<ComputerStateComponent> mappedState =
-          entityState.metadata().flatMap(LastHourSnapshotTranslator::computerStateFromMetadata);
-      if (mappedState.isEmpty()) {
-        continue;
-      }
-
-      ComputerStateComponent computerState = mappedState.orElseThrow();
-      Game.findEntityById(entityState.entityId())
+      Entity entity = targetEntity.orElseThrow();
+      entityState
+          .metadata()
+          .flatMap(LastHourSnapshotTranslator::worldTimerStateFromMetadata)
           .ifPresent(
-              entity -> {
+              worldTimerState -> {
+                entity.remove(WorldTimerComponent.class);
+                entity.add(worldTimerState);
+              });
+      entityState
+          .metadata()
+          .flatMap(LastHourSnapshotTranslator::keypadStateFromMetadata)
+          .ifPresent(keypadState -> applyKeypadState(entity, keypadState));
+      entityState
+          .metadata()
+          .flatMap(LastHourSnapshotTranslator::computerStateFromMetadata)
+          .ifPresent(
+              computerState -> {
                 entity.remove(ComputerStateComponent.class);
                 entity.add(computerState);
               });
+      entityState
+          .metadata()
+          .flatMap(LastHourSnapshotTranslator::collideComponentFromMetadata)
+          .ifPresent(collideState -> LastHourCollideSync.apply(entity, collideState));
     }
-  }
-
-  private EntityState computerState(Entity entity, ComputerStateComponent state) {
-    return EntityState.builder()
-        .entityId(entity.id())
-        .entityName(entity.name())
-        .metadata(
-            Map.of(
-                LastHourEntitySpawnStrategy.METADATA_TYPE,
-                LastHourEntitySpawnStrategy.TYPE_COMPUTER,
-                LastHourEntitySpawnStrategy.METADATA_PROGRESS,
-                state.state().name(),
-                LastHourEntitySpawnStrategy.METADATA_INFECTED,
-                String.valueOf(state.isInfected()),
-                LastHourEntitySpawnStrategy.METADATA_VIRUS_TYPE,
-                state.virusType() == null ? "" : state.virusType()))
-        .build();
   }
 
   private EntityState withMergedMetadata(EntityState baseState, Map<String, String> metadata) {
@@ -163,6 +131,23 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     return builder.build();
   }
 
+  private EntityState metadataOnlyState(Entity entity, Map<String, String> metadata) {
+    EntityState.Builder builder = EntityState.builder().entityId(entity.id()).metadata(metadata);
+    if (entity.name() != null && !entity.name().isBlank()) {
+      builder.entityName(entity.name());
+    }
+    entity
+        .fetch(PositionComponent.class)
+        .ifPresent(
+            positionComponent -> {
+              builder.position(positionComponent.position());
+              builder.viewDirection(positionComponent.viewDirection());
+              builder.rotation(positionComponent.rotation());
+              builder.scale(positionComponent.scale());
+            });
+    return builder.build();
+  }
+
   private Optional<Integer> indexOfEntityStateById(List<EntityState> entities, int entityId) {
     for (int i = 0; i < entities.size(); i++) {
       if (entities.get(i).entityId() == entityId) {
@@ -170,6 +155,33 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
       }
     }
     return Optional.empty();
+  }
+
+  private Map<String, String> snapshotMetadata(Entity entity) {
+    Map<String, String> metadata = new HashMap<>();
+    entity
+        .fetch(ComputerStateComponent.class)
+        .ifPresent(state -> metadata.putAll(computerStateMetadata(state)));
+    entity
+        .fetch(KeypadComponent.class)
+        .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));
+    entity
+        .fetch(WorldTimerComponent.class)
+        .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
+    LastHourCollideSync.appendMetadata(entity, metadata);
+    return metadata;
+  }
+
+  private Map<String, String> computerStateMetadata(ComputerStateComponent state) {
+    return Map.of(
+        LastHourEntitySpawnStrategy.METADATA_TYPE,
+        LastHourEntitySpawnStrategy.TYPE_COMPUTER,
+        LastHourEntitySpawnStrategy.METADATA_PROGRESS,
+        state.state().name(),
+        LastHourEntitySpawnStrategy.METADATA_INFECTED,
+        String.valueOf(state.isInfected()),
+        LastHourEntitySpawnStrategy.METADATA_VIRUS_TYPE,
+        state.virusType() == null ? "" : state.virusType());
   }
 
   private Map<String, String> keypadMetadata(KeypadComponent keypad) {
@@ -230,6 +242,18 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
             metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_INFECTED, "false"));
     String virusType = metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_VIRUS_TYPE, "");
     return Optional.of(new ComputerStateComponent(progress, infected, virusType));
+  }
+
+  /**
+   * Create a {@link CollideComponent} from metadata if the collider payload is present and valid.
+   *
+   * @param metadata the metadata to parse the collider from
+   * @return an Optional containing the collider state if parsing was successful, or an empty
+   *     Optional if no collider metadata is present or parsing fails
+   */
+  public static Optional<CollideComponent> collideComponentFromMetadata(
+      Map<String, String> metadata) {
+    return LastHourCollideSync.fromMetadata(metadata);
   }
 
   /**
