@@ -31,6 +31,19 @@ tasks.register('runTheLastHour', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+tasks.register('runTheLastHourServer', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.TheLastHour'
+    classpath = sourceSets.main.runtimeClasspath
+    args '--server'
+}
+
+tasks.register('runTheLastHourClient', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.LastHourClient'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 tasks.register('buildTheFinalHourJar', Jar) {
     group = 'jar'
     archiveBaseName.set('TheLastHour')

@@ -27,6 +27,7 @@ import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import core.utils.settings.ClientSettings;
 import java.io.IOException;
+import java.util.Arrays;
 import level.LastHourLevel;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
@@ -43,6 +44,7 @@ import network.LastHourSnapshotTranslator;
 public class TheLastHour {
 
   private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
+  private static final String SERVER_ARGUMENT = "--server";
   private static Music backgroundMusic;
 
   /** Enable or disable debug mode, which adds extra systems for debugging and level editing. */
@@ -59,7 +61,9 @@ public class TheLastHour {
    * @param args command-line arguments (not used in this starter)
    */
   public static void main(String[] args) {
-    if (RUN_MP_SERVER) {
+    boolean runMpServer = args != null && Arrays.asList(args).contains(SERVER_ARGUMENT);
+
+    if (runMpServer) {
       Game.userOnFrame(TheLastHour::onFrame);
       PreRunConfiguration.multiplayerEnabled(true);
       PreRunConfiguration.isNetworkServer(true);
@@ -73,7 +77,7 @@ public class TheLastHour {
       throw new RuntimeException(e);
     }
     Game.disableAudio(false);
-    Game.userOnSetup(TheLastHour::onUserSetup);
+    Game.userOnSetup(() -> onUserSetup(runMpServer));
     Game.frameRate(60);
     Game.windowTitle("The Last Hour");
     NetworkConfig.SNAPSHOT_TRANSLATOR = new LastHourSnapshotTranslator();
@@ -81,8 +85,8 @@ public class TheLastHour {
     Game.run();
   }
 
-  private static void onUserSetup() {
-    if (RUN_MP_SERVER) {
+  private static void onUserSetup(boolean runMpServer) {
+    if (runMpServer) {
       ECSManagement.add(new PositionSystem());
       ECSManagement.add(new VelocitySystem());
       ECSManagement.add(new FrictionSystem());
