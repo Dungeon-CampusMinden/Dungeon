@@ -1,10 +1,12 @@
 package core.game;
 
+import contrib.entities.CharacterClass;
 import core.configuration.Configuration;
 import core.utils.IVoidFunction;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -27,6 +29,7 @@ public final class PreRunConfiguration {
   private static String NETWORK_SERVER_ADDRESS = "127.0.0.1";
   private static int NETWORK_PORT = 7777;
   private static String USERNAME = "Player";
+  private static Optional<CharacterClass> MULTIPLAYER_CHARACTER_CLASS = Optional.empty();
 
   private static int WINDOW_WIDTH = 1280;
   private static int WINDOW_HEIGHT = 720;
@@ -366,5 +369,33 @@ public final class PreRunConfiguration {
     } else {
       throw new IllegalArgumentException("Username must not be empty or contain underscores.");
     }
+  }
+
+  /**
+   * Gets the requested character class for multiplayer connections.
+   *
+   * @return the requested character class, or an empty {@link Optional} to use the server default
+   */
+  public static Optional<CharacterClass> multiplayerCharacterClass() {
+    return MULTIPLAYER_CHARACTER_CLASS;
+  }
+
+  /**
+   * Sets the requested character class for multiplayer connections.
+   *
+   * @param characterClass the requested character class
+   */
+  public static void multiplayerCharacterClass(CharacterClass characterClass) {
+    multiplayerCharacterClass(Optional.of(characterClass));
+  }
+
+  /**
+   * Sets the requested character class for multiplayer connections.
+   *
+   * @param characterClass the requested character class, or an empty {@link Optional} to let the
+   *     server choose the default
+   */
+  public static void multiplayerCharacterClass(Optional<CharacterClass> characterClass) {
+    MULTIPLAYER_CHARACTER_CLASS = characterClass == null ? Optional.empty() : characterClass;
   }
 }

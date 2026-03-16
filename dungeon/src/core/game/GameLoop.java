@@ -86,7 +86,7 @@ public final class GameLoop extends ScreenAdapter {
         boolean firstLoad = !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().get());
         if (firstLoad && Game.isCheckPatternEnabled())
           Game.currentLevel()
-            .ifPresent(level -> CheckPatternPainter.paintCheckerPattern(level.layout()));
+              .ifPresent(level -> CheckPatternPainter.paintCheckerPattern(level.layout()));
 
         if (!PreRunConfiguration.isNetworkServer()) return; // no authority
 

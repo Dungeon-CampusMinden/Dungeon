@@ -2,6 +2,7 @@ package core.network.codec;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import contrib.entities.CharacterClass;
 import core.network.codec.converters.c2s.ConnectRequestConverter;
 import core.network.codec.converters.c2s.DialogResponseConverter;
 import core.network.codec.converters.c2s.InputMessageConverter;
@@ -18,6 +19,7 @@ import core.utils.Point;
 import core.utils.Vector2;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 /** Tests for c2s message converters. */
@@ -39,7 +41,8 @@ public class C2SConverterTest {
   @Test
   public void testConnectRequestRoundTripWithSession() {
     byte[] token = new byte[] {1, 2, 3};
-    ConnectRequest request = new ConnectRequest((short) 3, "Alice", 42, token);
+    ConnectRequest request =
+        new ConnectRequest((short) 3, "Alice", 42, token, Optional.of(CharacterClass.HUNTER));
 
     core.network.proto.c2s.ConnectRequest proto = CONNECT_REQUEST_CONVERTER.toProto(request);
     assertEquals(3, proto.getProtocolVersion());
@@ -48,12 +51,15 @@ public class C2SConverterTest {
     assertEquals(42, proto.getSessionId());
     assertTrue(proto.hasSessionToken());
     assertArrayEquals(token, proto.getSessionToken().toByteArray());
+    assertTrue(proto.hasCharacterClassId());
+    assertEquals(CharacterClass.HUNTER.ordinal(), proto.getCharacterClassId());
 
     ConnectRequest roundTrip = CONNECT_REQUEST_CONVERTER.fromProto(proto);
     assertEquals(request.protocolVersion(), roundTrip.protocolVersion());
     assertEquals(request.playerName(), roundTrip.playerName());
     assertEquals(request.sessionId(), roundTrip.sessionId());
     assertArrayEquals(request.sessionToken(), roundTrip.sessionToken());
+    assertEquals(request.characterClass(), roundTrip.characterClass());
   }
 
   /** Verifies connect request conversion without session data. */
@@ -66,10 +72,12 @@ public class C2SConverterTest {
     assertEquals("Bob", proto.getPlayerName());
     assertFalse(proto.hasSessionId());
     assertFalse(proto.hasSessionToken());
+    assertFalse(proto.hasCharacterClassId());
 
     ConnectRequest roundTrip = CONNECT_REQUEST_CONVERTER.fromProto(proto);
     assertEquals(0, roundTrip.sessionId());
     assertArrayEquals(new byte[0], roundTrip.sessionToken());
+    assertTrue(roundTrip.characterClass().isEmpty());
   }
 
   /** Verifies move action conversion. */

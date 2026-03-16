@@ -9,8 +9,6 @@ import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import core.Entity;
 import core.Game;
-import core.network.NetworkUtils;
-import core.network.messages.s2c.GameOverEvent;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
 import core.utils.BaseContainerUI;
@@ -84,12 +82,16 @@ public class PauseDialog extends Table {
     UIComponent ui = DialogFactory.show(ctx, caller.id());
 
     // Register callback
-    ui.registerCallback(DialogContextKeys.ON_RESUME, data -> {
-      UIUtils.closeDialog(ui);
-    });
-    ui.registerCallback(DialogContextKeys.ON_QUIT, data -> {
-      Game.exit("Quit from pause menu");
-    });
+    ui.registerCallback(
+        DialogContextKeys.ON_RESUME,
+        data -> {
+          UIUtils.closeDialog(ui);
+        });
+    ui.registerCallback(
+        DialogContextKeys.ON_QUIT,
+        data -> {
+          Game.exit("Quit from pause menu");
+        });
 
     return ui;
   }

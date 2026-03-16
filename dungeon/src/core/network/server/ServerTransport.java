@@ -4,6 +4,7 @@ import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.*;
 
+import contrib.entities.CharacterClass;
 import contrib.entities.HeroController;
 import core.Entity;
 import core.Game;
@@ -480,7 +481,12 @@ public final class ServerTransport {
     byte[] sessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
 
     session.attachClientState(
-        new ClientState(newClientId, playerName, ServerRuntime.SESSION_ID, sessionToken));
+        new ClientState(
+            newClientId,
+            playerName,
+            ServerRuntime.SESSION_ID,
+            sessionToken,
+            req.characterClass().orElse(CharacterClass.WIZARD)));
     clientIdToSession.put(newClientId, session);
 
     session.sendMessage(new ConnectAck(newClientId, ServerRuntime.SESSION_ID, sessionToken), true);
@@ -546,7 +552,7 @@ public final class ServerTransport {
     String playerName = req.playerName();
     byte[] newSessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
 
-    // reattach old ClientState to new Session
+    // Reuse the previous ClientState so reconnects keep the original character class selection.
     ClientState oldClientState = oldSession.clientState().orElseThrow();
     oldClientState.resetForReconnect(ServerRuntime.SESSION_ID, newSessionToken, true);
     session.attachClientState(oldClientState);
