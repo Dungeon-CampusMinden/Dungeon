@@ -43,7 +43,7 @@ jobs:
 
             # 5. Beide JAR-Artefakte für den nächsten Job speichern
             - name: Upload Build Artifacts
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               with:
                   name: Blockly-JARs
                   path: blockly/build/libs/*.jar
