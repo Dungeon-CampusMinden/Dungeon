@@ -38,10 +38,20 @@ public class LaserComponent implements Component {
     this.active = active;
   }
 
+  /**
+   * Returns if the laser is already being deactivated.
+   *
+   * @return true if the laser is being deactivated already, otherwise false.
+   */
   public boolean isBeingDeactivated() {
     return isBeingDeactivated;
   }
 
+  /**
+   * Sets the state if the laser counts as being deactivated or not.
+   *
+   * @param beingDeactivated true if laser is being deactivated after this, otherwise false.
+   */
   public void setBeingDeactivated(boolean beingDeactivated) {
     isBeingDeactivated = beingDeactivated;
   }
