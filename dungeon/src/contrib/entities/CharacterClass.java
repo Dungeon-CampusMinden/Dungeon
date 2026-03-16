@@ -71,7 +71,12 @@ public enum CharacterClass {
   /** Wizard character class, specifically made for the MushRoom game. */
   MUSHROOM_WIZARD(
       "character/wizard", Vector2.of(5, 5), 1.3f, 15, List.of(), List.of(), 16, 100, 10, 50, 5),
-  ;
+  /** The Last Hour class for the Rogue. */
+  THE_LAST_HOUR_ROGUE(
+      "character/rogue", Vector2.of(5, 5), 1.2f, 20, List.of(), List.of(), 10, 0, 0, 0, 0),
+  /** The Last Hour class for the Char03. */
+  THE_LAST_HOUR_CHAR03(
+      "character/char03", Vector2.of(5, 5), 1.2f, 20, List.of(), List.of(), 10, 0, 0, 0, 0);
 
   private final IPath textures;
   private final Vector2 speed;
