@@ -63,7 +63,7 @@ public class Lore {
 
   /** First post intro dialog. */
   public static final String PostIntroDialogText1 =
-          """
+      """
         Your task is to reconstruct Dr. Mertens' final steps. Gain access to his PC, investigate his communication, and uncover the clues he left behind.
 
         But be careful: not every piece of information can be trusted. Among helpful messages, there may be deliberate manipulation attempts.
@@ -72,7 +72,7 @@ public class Lore {
 
   /** 2nd intro dialog. */
   public static final String PostIntroDialogText2 =
-          """
+      """
         Controls:
 
         Move -> WASD

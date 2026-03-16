@@ -18,5 +18,4 @@ public class EmoteFactory {
     entity.add(dc);
     return entity;
   }
-
 }

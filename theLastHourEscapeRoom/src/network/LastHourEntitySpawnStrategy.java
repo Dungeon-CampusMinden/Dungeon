@@ -4,6 +4,7 @@ import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadComponent;
 import contrib.modules.worldTimer.WorldTimerComponent;
 import core.Entity;
+import core.components.PositionComponent;
 import core.network.config.DefaultEntitySpawnStrategy;
 import core.network.config.EntitySpawnStrategy;
 import core.network.messages.s2c.EntitySpawnEvent;
@@ -15,7 +16,8 @@ import modules.computer.ComputerStateComponent;
 
 /**
  * Entity spawn strategy for The Last Hour that supports metadata-only spawn events for {@link
- * ComputerStateComponent}, {@link KeypadComponent} entities.
+ * ComputerStateComponent}, {@link KeypadComponent}, {@link WorldTimerComponent}, and {@link
+ * contrib.components.CollideComponent} entities.
  */
 public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
@@ -77,6 +79,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     defaultSpawn.ifPresent(spawnEvent -> metadata.putAll(spawnEvent.metadata()));
 
     entity
+        .fetch(ComputerStateComponent.class)
+        .ifPresent(state -> metadata.putAll(computerStateMetadata(state)));
+    entity
         .fetch(KeypadComponent.class)
         .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));
     entity
@@ -85,6 +90,7 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     entity
         .fetch(InteractionComponent.class)
         .ifPresent(interaction -> metadata.put(METADATA_INTERACTABLE, String.valueOf(true)));
+    LastHourCollideSync.appendMetadata(entity, metadata);
 
     if (defaultSpawn.isPresent() && !metadata.isEmpty()) {
       EntitySpawnEvent base = defaultSpawn.orElseThrow();
@@ -104,28 +110,17 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
       return defaultSpawn;
     }
 
-    return entity
-        .fetch(ComputerStateComponent.class)
-        .map(
-            state -> {
-              Map<String, String> mergedMetadata = new HashMap<>(metadata);
-              mergedMetadata.putAll(computerStateMetadata(state));
-              return EntitySpawnEvent.builder()
-                  .entityId(entity.id())
-                  .isPersistent(false)
-                  .metadata(mergedMetadata)
-                  .build();
-            })
-        .or(
-            () ->
-                metadata.isEmpty()
-                    ? Optional.empty()
-                    : Optional.of(
-                        EntitySpawnEvent.builder()
-                            .entityId(entity.id())
-                            .isPersistent(false)
-                            .metadata(metadata)
-                            .build()));
+    if (metadata.isEmpty()) {
+      return Optional.empty();
+    }
+
+    return Optional.of(
+        EntitySpawnEvent.builder()
+            .entityId(entity.id())
+            .positionComponent(entity.fetch(PositionComponent.class).orElse(null))
+            .isPersistent(entity.isPersistent())
+            .metadata(metadata)
+            .build());
   }
 
   private Map<String, String> computerStateMetadata(ComputerStateComponent state) {

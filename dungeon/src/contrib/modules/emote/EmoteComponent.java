@@ -43,9 +43,10 @@ public class EmoteComponent implements Component {
 
   /**
    * Calculates the vertical offset for the wobbling animation, as difference to last frame.
+   *
    * @return difference in vertical offset since last frame
    */
-  public float getWobbleMoveFrame(){
+  public float getWobbleMoveFrame() {
     float wobbleOffset = (float) Math.sin(t * 2 * Math.PI) * WOBBLE_DISTANCE;
     float oldWobbleOffset = (float) Math.sin(oldT * 2 * Math.PI) * WOBBLE_DISTANCE;
     return wobbleOffset - oldWobbleOffset;

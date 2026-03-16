@@ -63,15 +63,20 @@ public class PauseDialog extends Table {
    */
   public static UIComponent showPauseDialog(Entity caller) {
     // Find if the player has any open pause menu dialog already:
-    boolean hasClosed = caller.fetch(UIComponent.class).map(uic -> {
-      if (uic.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU) {
-        UIUtils.closeDialog(uic);
-        return true;
-      }
-      return false;
-    }).orElse(false);
+    boolean hasClosed =
+        caller
+            .fetch(UIComponent.class)
+            .map(
+                uic -> {
+                  if (uic.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU) {
+                    UIUtils.closeDialog(uic);
+                    return true;
+                  }
+                  return false;
+                })
+            .orElse(false);
 
-    if(hasClosed) return null;
+    if (hasClosed) return null;
 
     DialogContext ctx = DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).build();
     ctx.owner(caller.id());

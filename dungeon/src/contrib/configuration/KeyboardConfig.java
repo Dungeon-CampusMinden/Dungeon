@@ -18,7 +18,7 @@ public class KeyboardConfig {
 
   /** WTF? . */
   public static final ConfigKey<Integer> PAUSE_MENU =
-    new ConfigKey<>(new String[] {"ui", "open_pause_menu"}, new ConfigIntValue(Input.Keys.P));
+      new ConfigKey<>(new String[] {"ui", "open_pause_menu"}, new ConfigIntValue(Input.Keys.P));
 
   /** WTF? . */
   public static final ConfigKey<Integer> INTERACT_WORLD =
