@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import static blockly.dgir.compiler.java.CompilerUtils.isSyntheticDebugNode;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public final class EmitContext {
   public static final class InsertionPoint implements AutoCloseable {
     private final @NotNull Block block;
@@ -41,7 +42,7 @@ public final class EmitContext {
 
     @Override
     public void close() {
-      previous.ifPresent(context::setInsertionPoint);
+      previous().ifPresent(context::setInsertionPoint);
     }
 
     public Block block() {

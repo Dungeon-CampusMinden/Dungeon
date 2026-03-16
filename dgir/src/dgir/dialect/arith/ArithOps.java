@@ -103,6 +103,7 @@ public sealed interface ArithOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private UnaryOp() {}
 
     /**
@@ -204,6 +205,7 @@ public sealed interface ArithOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private BinaryOp() {}
 
     /**
@@ -273,6 +275,7 @@ public sealed interface ArithOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private CastOp() {}
 
     /**
@@ -327,6 +330,7 @@ public sealed interface ArithOps {
     // Constructors
     // =========================================================================
 
+    @SuppressWarnings("unused")
     private ConstantOp() {}
 
     /**

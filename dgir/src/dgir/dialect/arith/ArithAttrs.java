@@ -6,7 +6,6 @@ import dgir.dialect.builtin.BuiltinTypes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 import static dgir.dialect.arith.ArithOps.*;
 import static dgir.dialect.arith.ArithOps.BinaryOp;
@@ -90,10 +89,9 @@ public sealed interface ArithAttrs {
 
       private static Optional<String> onlyIntegerOperand(@NotNull UnaryOp unaryOp) {
         int width =
-            switch (unaryOp.getOperand().getType()) {
-              case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
-              default -> 0;
-            };
+            unaryOp.getOperand().getType() instanceof BuiltinTypes.IntegerT integerT
+                ? integerT.getWidth()
+                : 0;
         if (width == 0) {
           return Optional.of("Operand must be an integer type with a width greater than 0");
         }
@@ -102,10 +100,9 @@ public sealed interface ArithAttrs {
 
       private static Optional<String> onlyBooleanOperand(@NotNull UnaryOp unaryOp) {
         int width =
-            switch (unaryOp.getOperand().getType()) {
-              case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
-              default -> 1;
-            };
+            unaryOp.getOperand().getType() instanceof BuiltinTypes.IntegerT integerT
+                ? integerT.getWidth()
+                : 0;
         if (width != 1) {
           return Optional.of("Operand must be a boolean type with a width of 1");
         }
@@ -322,15 +319,13 @@ public sealed interface ArithAttrs {
 
       private static Optional<String> onlyIntegerOperands(@NotNull BinaryOp binaryOp) {
         int widthLhs =
-            switch (binaryOp.getLhs().getType()) {
-              case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
-              default -> 0;
-            };
+            binaryOp.getLhs().getType() instanceof BuiltinTypes.IntegerT integerT
+                ? integerT.getWidth()
+                : 0;
         int widthRhs =
-            switch (binaryOp.getRhs().getType()) {
-              case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
-              default -> 0;
-            };
+            binaryOp.getRhs().getType() instanceof BuiltinTypes.IntegerT integerT
+                ? integerT.getWidth()
+                : 0;
         if (widthLhs == 0) {
           return Optional.of("LHS must be an integer type with a width greater than 0");
         }
@@ -351,15 +346,13 @@ public sealed interface ArithAttrs {
 
       private static Optional<String> onlyBooleanOperands(@NotNull BinaryOp binaryOp) {
         int widthLhs =
-            switch (binaryOp.getLhs().getType()) {
-              case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
-              default -> 1;
-            };
+            binaryOp.getLhs().getType() instanceof BuiltinTypes.IntegerT integerT
+                ? integerT.getWidth()
+                : 0;
         int widthRhs =
-            switch (binaryOp.getRhs().getType()) {
-              case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
-              default -> 1;
-            };
+            binaryOp.getRhs().getType() instanceof BuiltinTypes.IntegerT integerT
+                ? integerT.getWidth()
+                : 0;
         if (widthLhs != 1) {
           return Optional.of("LHS must be a boolean type with a width of 1");
         }

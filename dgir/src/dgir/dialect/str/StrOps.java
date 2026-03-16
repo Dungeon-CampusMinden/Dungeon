@@ -55,8 +55,10 @@ public sealed interface StrOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private ToStringOp() {}
 
+    @SuppressWarnings("unused")
     public ToStringOp(@NotNull Location location, @NotNull Value operand) {
       setOperation(
           true,
@@ -98,6 +100,7 @@ public sealed interface StrOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private ConcatOp() {}
 
     public ConcatOp(@NotNull Location location, @NotNull Value left, @NotNull Value right) {
@@ -129,6 +132,7 @@ public sealed interface StrOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private LengthOp() {}
 
     public LengthOp(@NotNull Location location, @NotNull Value operand) {
@@ -164,6 +168,7 @@ public sealed interface StrOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private CharAtOp() {}
 
     public CharAtOp(@NotNull Location location, @NotNull Value string, @NotNull Value index) {
@@ -262,6 +267,7 @@ public sealed interface StrOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private ToLowerCaseOp() {}
 
     public ToLowerCaseOp(@NotNull Location location, @NotNull Value operand) {
@@ -293,6 +299,7 @@ public sealed interface StrOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private ToUpperCaseOp() {}
 
     public ToUpperCaseOp(@NotNull Location location, @NotNull Value operand) {
@@ -324,6 +331,7 @@ public sealed interface StrOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private TrimOp() {}
 
     public TrimOp(@NotNull Location location, @NotNull Value operand) {
@@ -368,6 +376,7 @@ public sealed interface StrOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private SubstringOp() {}
 
     public SubstringOp(
@@ -443,6 +452,7 @@ public sealed interface StrOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private StartsWithOp() {}
 
     public StartsWithOp(@NotNull Location location, @NotNull Value string, @NotNull Value prefix) {
@@ -471,6 +481,7 @@ public sealed interface StrOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private EndsWithOp() {}
 
     public EndsWithOp(@NotNull Location location, @NotNull Value string, @NotNull Value suffix) {
@@ -503,6 +514,7 @@ public sealed interface StrOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private IndexOfOp() {}
 
     public IndexOfOp(@NotNull Location location, @NotNull Value string, @NotNull Value substring) {
@@ -535,6 +547,7 @@ public sealed interface StrOps {
       };
     }
 
+    @SuppressWarnings("unused")
     private LastIndexOfOp() {}
 
     public LastIndexOfOp(

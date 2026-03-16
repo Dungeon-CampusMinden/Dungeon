@@ -1,7 +1,6 @@
 package blockly.dgir.compiler.java.transformations;
 
 import blockly.dgir.compiler.java.EmitContext;
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.*;

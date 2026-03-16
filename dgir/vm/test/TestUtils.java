@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import tools.jackson.databind.ObjectMapper;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public interface TestUtils {
   @NotNull Optional<Path> TEST_PROGRAMS_DIR = findTestProgramsDir();
   @NotNull ObjectMapper MAPPER = Utils.getMapper(true);
@@ -34,10 +35,6 @@ public interface TestUtils {
       dir = dir.getParent();
     }
     return rootPath.toAbsolutePath().getParent().getParent();
-  }
-
-  static @NotNull Optional<Path> findDapJar() {
-    return Optional.of(findWorkspaceRoot().resolve("dgir/vm/build/libs/dgir-vm-dap.jar"));
   }
 
   static @NotNull Optional<Path> findTestProgramsDir() {
