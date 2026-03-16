@@ -249,12 +249,15 @@ public final class HeroBuilder {
             characterClass.mass(),
             (e) -> {},
             true));
-    hero.add(
-        new ManaComponent(
-            characterClass.mana(), characterClass.mana(), characterClass.manaRestore()));
-    hero.add(
-        new StaminaComponent(
-            characterClass.stamina(), characterClass.stamina(), characterClass.staminaRestore()));
+    if (characterClass.mana() > 0)
+      hero.add(
+          new ManaComponent(
+              characterClass.mana(), characterClass.mana(), characterClass.manaRestore()));
+    if (characterClass.stamina() > 0)
+      hero.add(
+          new StaminaComponent(
+              characterClass.stamina(), characterClass.stamina(), characterClass.staminaRestore()));
+
     hero.add(new SkillComponent(characterClass.startSkills().toArray(new Skill[0])));
 
     HealthComponent hc =
