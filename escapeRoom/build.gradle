@@ -88,7 +88,8 @@ runtime {
         def inputDir = layout.buildDirectory.dir("install/${application.applicationName}/lib").get().asFile
 
         // Directory containing launcher property files
-        def launchersDir = file("jpackage-launchers")
+        def launchersDir = layout.buildDirectory.dir("jpackage-launchers").get().asFile
+
 
         // Options passed to jpackage tool (jpackage requires --input option to know where all jars are)
         // --add-launcher adds additional launchers for other main classes
