@@ -10,7 +10,13 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   {
     type: "start",
     message0: "Start",
-    nextStatement: null,
+    message1: "%1",
+    args1: [
+      {
+        type: "input_statement",
+        name: "DO",
+      }
+    ],
     colour: 120,
     tooltip: "Startpunkt des Spiels",
   },

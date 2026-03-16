@@ -11,7 +11,7 @@ import * as directions from "./java/directions.ts";
 import * as items from "./java/items.ts";
 
 class JavaGenerator extends Blockly.Generator {
-  public variables: Map<string, number|string>;
+  public variables: Map<string, number | string>;
 
   constructor() {
     super("JAVA");
@@ -24,12 +24,7 @@ class JavaGenerator extends Blockly.Generator {
     code: string,
     thisOnly?: boolean | undefined
   ): string {
-    const nextBlock =
-      block.nextConnection?.targetBlock() || null;
-
-    if (block.type === "start") {
-      return code + javaGenerator.blockToCode(nextBlock);
-    }
+    const nextBlock = block.nextConnection?.targetBlock() || null;
 
     if (nextBlock && !thisOnly) {
       return code + "\n" + javaGenerator.blockToCode(nextBlock);

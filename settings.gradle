@@ -1,3 +1,32 @@
+pluginManagement {
+    plugins {
+        id 'org.jetbrains.kotlin.jvm' version '2.3.0'
+    }
+}// The foojay resolver plugin allows Gradle to automatically download
+// and use different JDK versions for different projects or tasks.
+// This is especially useful for projects that require specific JDK versions
+// without needing to manually install them on the system.
+plugins {
+    id("org.gradle.toolchains.foojay-resolver") version "1.0.0"
+}
+
+toolchainManagement {
+    jvm {
+        javaRepositories {
+            repository("foojay") {
+                resolverClass = org.gradle.toolchains.foojay.FoojayToolchainResolver
+            }
+        }
+    }
+}
+
+
 rootProject.name = 'Dungeon Projekt'
 
-include 'dungeon', 'blockly', 'advancedDungeon','escapeRoom','theLastHourEscapeRoom'
+
+include 'dungeon',
+    'blockly', 'blockly:dgir', 'blockly:dgir:compiler', 'blockly:dgir:dialect',
+    'dgir', 'dgir:vm',
+    'advancedDungeon',
+    'escapeRoom',
+    'theLastHourEscapeRoom'

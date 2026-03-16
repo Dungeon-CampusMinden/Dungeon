@@ -1,0 +1,343 @@
+{
+    "ident": "program",
+    "loc": "variableAssignment_unaryExpr.java:1:1",
+    "regions": [
+        {
+            "blocks": [
+                {
+                    "@id": ".blk_0",
+                    "operations": [
+                        {
+                            "ident": "func.func",
+                            "loc": "variableAssignment_unaryExpr.java:2:3",
+                            "attributes": [
+                                {
+                                    "name": "type",
+                                    "attribute": {
+                                        "ident": "typeAttr",
+                                        "type": "func.func<() -> ()>"
+                                    }
+                                },
+                                {
+                                    "name": "symbol_name",
+                                    "attribute": {
+                                        "ident": "stringAttr",
+                                        "type": "string",
+                                        "value": "main"
+                                    }
+                                }
+                            ],
+                            "regions": [
+                                {
+                                    "blocks": [
+                                        {
+                                            "@id": ".blk_1",
+                                            "operations": [
+                                                {
+                                                    "ident": "arith.constant",
+                                                    "loc": "variableAssignment_unaryExpr.java:3:13",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "integerAttr",
+                                                                "type": "int32",
+                                                                "value": 5
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%0",
+                                                        "type": "int32",
+                                                        "debug": {
+                                                            "loc": "variableAssignment_unaryExpr.java:3:9",
+                                                            "name": "x"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "arith.constant",
+                                                    "loc": "variableAssignment_unaryExpr.java:4:9",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "integerAttr",
+                                                                "type": "int32",
+                                                                "value": -1
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%1",
+                                                        "type": "int32"
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "arith.bin",
+                                                    "loc": "variableAssignment_unaryExpr.java:4:9",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%0"
+                                                        },
+                                                        {
+                                                            "value": "%1"
+                                                        }
+                                                    ],
+                                                    "attributes": [
+                                                        {
+                                                            "name": "binMode",
+                                                            "attribute": {
+                                                                "ident": "arith.binMode",
+                                                                "mode": "MUL"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%2",
+                                                        "type": "int32"
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "id",
+                                                    "loc": "variableAssignment_unaryExpr.java:4:5",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%2"
+                                                        }
+                                                    ],
+                                                    "output": "%0"
+                                                },
+                                                {
+                                                    "ident": "id",
+                                                    "loc": "variableAssignment_unaryExpr.java:5:5",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%0"
+                                                        }
+                                                    ],
+                                                    "output": "%0"
+                                                },
+                                                {
+                                                    "ident": "id",
+                                                    "loc": "variableAssignment_unaryExpr.java:6:5",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%0"
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%3",
+                                                        "type": "int32"
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "arith.constant",
+                                                    "loc": "variableAssignment_unaryExpr.java:6:5",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "integerAttr",
+                                                                "type": "int32",
+                                                                "value": 1
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%4",
+                                                        "type": "int32"
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "arith.bin",
+                                                    "loc": "variableAssignment_unaryExpr.java:6:5",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%0"
+                                                        },
+                                                        {
+                                                            "value": "%4"
+                                                        }
+                                                    ],
+                                                    "attributes": [
+                                                        {
+                                                            "name": "binMode",
+                                                            "attribute": {
+                                                                "ident": "arith.binMode",
+                                                                "mode": "ADD"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": "%0"
+                                                },
+                                                {
+                                                    "ident": "arith.constant",
+                                                    "loc": "variableAssignment_unaryExpr.java:7:5",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "integerAttr",
+                                                                "type": "int32",
+                                                                "value": 1
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%5",
+                                                        "type": "int32"
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "arith.bin",
+                                                    "loc": "variableAssignment_unaryExpr.java:7:5",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%0"
+                                                        },
+                                                        {
+                                                            "value": "%5"
+                                                        }
+                                                    ],
+                                                    "attributes": [
+                                                        {
+                                                            "name": "binMode",
+                                                            "attribute": {
+                                                                "ident": "arith.binMode",
+                                                                "mode": "ADD"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": "%0"
+                                                },
+                                                {
+                                                    "ident": "id",
+                                                    "loc": "variableAssignment_unaryExpr.java:8:13",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%0"
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%6",
+                                                        "type": "int32",
+                                                        "debug": {
+                                                            "loc": "variableAssignment_unaryExpr.java:8:9",
+                                                            "name": "z"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "arith.constant",
+                                                    "loc": "variableAssignment_unaryExpr.java:8:13",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "integerAttr",
+                                                                "type": "int32",
+                                                                "value": 1
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%7",
+                                                        "type": "int32"
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "arith.bin",
+                                                    "loc": "variableAssignment_unaryExpr.java:8:13",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%0"
+                                                        },
+                                                        {
+                                                            "value": "%7"
+                                                        }
+                                                    ],
+                                                    "attributes": [
+                                                        {
+                                                            "name": "binMode",
+                                                            "attribute": {
+                                                                "ident": "arith.binMode",
+                                                                "mode": "ADD"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": "%0"
+                                                },
+                                                {
+                                                    "ident": "arith.constant",
+                                                    "loc": "variableAssignment_unaryExpr.java:9:17",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "integerAttr",
+                                                                "type": "int1",
+                                                                "value": 1
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%8",
+                                                        "type": "int1",
+                                                        "debug": {
+                                                            "loc": "variableAssignment_unaryExpr.java:9:13",
+                                                            "name": "y"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "arith.bin",
+                                                    "loc": "variableAssignment_unaryExpr.java:10:9",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%8"
+                                                        },
+                                                        {
+                                                            "value": "%8"
+                                                        }
+                                                    ],
+                                                    "attributes": [
+                                                        {
+                                                            "name": "binMode",
+                                                            "attribute": {
+                                                                "ident": "arith.binMode",
+                                                                "mode": "XOR"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%9",
+                                                        "type": "int1"
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "id",
+                                                    "loc": "variableAssignment_unaryExpr.java:10:5",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%9"
+                                                        }
+                                                    ],
+                                                    "output": "%8"
+                                                },
+                                                {
+                                                    "ident": "func.return",
+                                                    "loc": "variableAssignment_unaryExpr.java:11:5"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

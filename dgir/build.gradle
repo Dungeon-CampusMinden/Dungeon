@@ -1,0 +1,38 @@
+plugins {
+    id 'java-library'
+    id "net.ltgt.errorprone" version "4.4.0"
+}
+
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['assets/']
+
+sourceSets.test.java.srcDirs = ['test/']
+sourceSets.test.resources.srcDirs = ['test_assets/']
+
+dependencies {
+    implementation "org.apache.commons:commons-lang3:3.20.0"
+    api 'tools.jackson.core:jackson-databind:3.0.3'
+    implementation 'guru.nidi:graphviz-java-all-j2v8:0.18.1'
+    implementation 'org.eclipse.collections:eclipse-collections-api:13.0.0'
+    implementation 'org.eclipse.collections:eclipse-collections:13.0.0'
+    api 'org.jetbrains:annotations:24.1.0'
+
+    errorprone "com.google.errorprone:error_prone_core:2.46.0"
+
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
+}
+
+tasks.register('testDgirAndVm', Test) {
+    group = 'verification'
+    description = 'Runs both :dgir:test and :dgir:vm:test.'
+    dependsOn ':dgir:test', ':dgir:vm:test'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+
+repositories {
+    mavenCentral()
+}

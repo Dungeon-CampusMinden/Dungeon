@@ -89,7 +89,4 @@ public class Level005 extends BlocklyLevel {
     guardBuilder.viewDirection(Direction.UP);
     guardBuilder.build(m4C.toPoint());
   }
-
-  @Override
-  protected void onTick() {}
 }

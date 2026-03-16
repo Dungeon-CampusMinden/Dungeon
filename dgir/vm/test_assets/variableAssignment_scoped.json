@@ -1,0 +1,171 @@
+{
+    "ident": "program",
+    "loc": "variableAssignment_scoped.java:1:1",
+    "regions": [
+        {
+            "blocks": [
+                {
+                    "@id": ".blk_0",
+                    "operations": [
+                        {
+                            "ident": "func.func",
+                            "loc": "variableAssignment_scoped.java:2:3",
+                            "attributes": [
+                                {
+                                    "name": "type",
+                                    "attribute": {
+                                        "ident": "typeAttr",
+                                        "type": "func.func<() -> ()>"
+                                    }
+                                },
+                                {
+                                    "name": "symbol_name",
+                                    "attribute": {
+                                        "ident": "stringAttr",
+                                        "type": "string",
+                                        "value": "main"
+                                    }
+                                }
+                            ],
+                            "regions": [
+                                {
+                                    "blocks": [
+                                        {
+                                            "@id": ".blk_1",
+                                            "operations": [
+                                                {
+                                                    "ident": "arith.constant",
+                                                    "loc": "variableAssignment_scoped.java:3:13",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "integerAttr",
+                                                                "type": "int32",
+                                                                "value": 5
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%0",
+                                                        "type": "int32",
+                                                        "debug": {
+                                                            "loc": "variableAssignment_scoped.java:3:9",
+                                                            "name": "x"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "scf.scope",
+                                                    "loc": "variableAssignment_scoped.java:2:29",
+                                                    "regions": [
+                                                        {
+                                                            "blocks": [
+                                                                {
+                                                                    "@id": ".blk_2",
+                                                                    "operations": [
+                                                                        {
+                                                                            "ident": "arith.constant",
+                                                                            "loc": "variableAssignment_scoped.java:5:15",
+                                                                            "attributes": [
+                                                                                {
+                                                                                    "name": "value",
+                                                                                    "attribute": {
+                                                                                        "ident": "integerAttr",
+                                                                                        "type": "int32",
+                                                                                        "value": 10
+                                                                                    }
+                                                                                }
+                                                                            ],
+                                                                            "output": {
+                                                                                "@id": "%1",
+                                                                                "type": "int32",
+                                                                                "debug": {
+                                                                                    "loc": "variableAssignment_scoped.java:5:11",
+                                                                                    "name": "y"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "ident": "id",
+                                                                            "loc": "variableAssignment_scoped.java:6:7",
+                                                                            "operands": [
+                                                                                {
+                                                                                    "value": "%1"
+                                                                                }
+                                                                            ],
+                                                                            "output": "%0"
+                                                                        },
+                                                                        {
+                                                                            "ident": "scf.end",
+                                                                            "loc": "variableAssignment_scoped.java:7:7"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "ident": "arith.constant",
+                                                    "loc": "variableAssignment_scoped.java:8:17",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "integerAttr",
+                                                                "type": "int32",
+                                                                "value": 5
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%2",
+                                                        "type": "int32"
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "arith.bin",
+                                                    "loc": "variableAssignment_scoped.java:8:13",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%0"
+                                                        },
+                                                        {
+                                                            "value": "%2"
+                                                        }
+                                                    ],
+                                                    "attributes": [
+                                                        {
+                                                            "name": "binMode",
+                                                            "attribute": {
+                                                                "ident": "arith.binMode",
+                                                                "mode": "ADD"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%3",
+                                                        "type": "int32",
+                                                        "debug": {
+                                                            "loc": "variableAssignment_scoped.java:8:9",
+                                                            "name": "z"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "func.return",
+                                                    "loc": "variableAssignment_scoped.java:9:13"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

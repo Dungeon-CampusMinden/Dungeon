@@ -71,7 +71,4 @@ public class Level003 extends BlocklyLevel {
         .map(DoorTile.class::cast)
         .ifPresent(DoorTile::close);
   }
-
-  @Override
-  protected void onTick() {}
 }

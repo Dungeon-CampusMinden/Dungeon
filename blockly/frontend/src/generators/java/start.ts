@@ -1,5 +1,12 @@
 import * as Blockly from "blockly";
 
-export function start(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "";
+export function start(block: Blockly.Block, generator: Blockly.Generator) {
+  const bodyBlock = block.getInputTargetBlock("DO");
+  const body = bodyBlock
+    ? generator.prefixLines(
+        generator.blockToCode(bodyBlock) as string,
+        generator.INDENT
+      )
+    : "";
+  return "public static void main() {\n" + body + "\n}";
 }

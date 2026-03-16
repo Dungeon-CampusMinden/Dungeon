@@ -1,5 +1,5 @@
 import * as Blockly from "blockly";
-import { Order } from "../java.ts";
+import {Order} from "../java.ts";
 
 export function logic_boolean(
   block: Blockly.Block,
@@ -45,7 +45,7 @@ export function logic_wall_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "hero.isNearTile(LevelElement.WALL, " + dir + ")";
+  const code = "Hero.isNearTile(LevelElement.WALL, " + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -54,7 +54,7 @@ export function logic_floor_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "hero.isNearTile(LevelElement.FLOOR, " + dir + ")";
+  const code = "Hero.isNearTile(LevelElement.FLOOR, " + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -63,7 +63,7 @@ export function logic_pit_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "hero.isNearTile(LevelElement.PIT, " + dir + ")";
+  const code = "Hero.isNearTile(LevelElement.PIT, " + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -72,7 +72,7 @@ export function logic_monster_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "hero.isNearComponent(AIComponent.class, " + dir + ")";
+  const code = "Hero.isNearComponent(AIComponent.class, " + dir + ")";
   return [code, Order.NONE];
 }
 export function logic_switch_direction(
@@ -80,7 +80,7 @@ export function logic_switch_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "hero.isNearComponent(LeverComponent.class, " + dir + ")";
+  const code = "Hero.isNearComponent(LeverComponent.class, " + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -89,7 +89,7 @@ export function logic_breadcrumbs_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "hero.isNearComponent(BreadcrumbComponent.class, " + dir + ")";
+  const code = "Hero.isNearComponent(BreadcrumbComponent.class, " + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -98,7 +98,7 @@ export function logic_clover_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "hero.isNearComponent(CloverComponent.class, " + dir + ")";
+  const code = "Hero.isNearComponent(CloverComponent.class, " + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -107,7 +107,7 @@ export function logic_active_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "hero.active(" + dir + ")";
+  const code = "Hero.active(" + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -116,7 +116,7 @@ export function logic_bossView_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "hero.checkBossViewDirection(" + dir + ")";
+  const code = "Hero.checkBossViewDirection(" + dir + ")";
   return [code, Order.NONE];
 }
 

@@ -1,17 +1,17 @@
 package contrib.systems;
 
 import com.badlogic.gdx.utils.TimeUtils;
-import contrib.utils.IAction;
 import core.System;
+
 import java.util.PriorityQueue;
 
 /**
  * This class is responsible for scheduling and executing timed actions. It maintains a list of
  * scheduled actions, each of which is represented by a ScheduledAction object that encapsulates a
- * IAction and an execution time. The class provides methods to schedule new actions, clear all
+ * Runnable and an execution time. The class provides methods to schedule new actions, clear all
  * scheduled actions, and update the state of scheduled actions.
  *
- * @see IAction
+ * @see Runnable
  */
 public class EventScheduler extends System {
 
@@ -36,7 +36,7 @@ public class EventScheduler extends System {
    * @param delayMillis The delay in milliseconds after which the action should be executed.
    * @return The scheduled action that was created and added to the list.
    */
-  public static ScheduledAction scheduleAction(IAction action, long delayMillis) {
+  public static ScheduledAction scheduleAction(Runnable action, long delayMillis) {
     long executeAt = TimeUtils.millis() + delayMillis;
     ScheduledAction scheduledAction = new ScheduledAction(action, executeAt);
     scheduledActions.add(scheduledAction);
@@ -97,7 +97,7 @@ public class EventScheduler extends System {
       if (currentTime < scheduledAction.executeAt) {
         break; // No more actions to execute
       }
-      scheduledAction.action.execute();
+      scheduledAction.action.run();
       scheduledActions.poll(); // Remove the action from the queue
     }
   }
@@ -112,7 +112,7 @@ public class EventScheduler extends System {
    * @param action The action to be executed.
    * @param executeAt The time at which the action should be executed, in milliseconds.
    */
-  public record ScheduledAction(IAction action, long executeAt)
+  public record ScheduledAction(Runnable action, long executeAt)
       implements Comparable<ScheduledAction> {
     @Override
     public int compareTo(ScheduledAction other) {

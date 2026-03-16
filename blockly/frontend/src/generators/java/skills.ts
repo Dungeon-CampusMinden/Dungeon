@@ -2,15 +2,15 @@ import * as Blockly from "blockly";
 import {Order} from "../java.ts";
 
 export function interact(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "interagieren();";
+  return "Hero.interact();";
 }
 
 export function fireball(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "hero.shootFireball();";
+  return "Hero.shootFireball();";
 }
 
 export function wait(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "hero.rest();";
+  return "Hero.rest();";
 }
 
 export function use(
@@ -18,19 +18,19 @@ export function use(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  return "hero.interact(" + dir + ");";
+  return "Hero.interact(" + dir + ");";
 }
 
 export function push(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "hero.push();";
+  return "Hero.push();";
 }
 
 export function pull(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "hero.pull();";
+  return "Hero.pull();";
 }
 
 export function pickup(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "hero.pickup();";
+  return "Hero.pickup();";
 }
 
 export function drop_item(
@@ -38,6 +38,6 @@ export function drop_item(
   generator: Blockly.Generator
 ) {
   const item = generator.valueToCode(block, "ITEM", Order.NONE);
-  return "hero.dropItem(" + item + ");";
+  return "Hero.dropItem(" + item + ");";
 }
 

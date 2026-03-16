@@ -1,9 +1,6 @@
 package entities;
 
 import client.Client;
-import coderunner.BlocklyCodeRunner;
-import coderunner.BlocklyCommands;
-import coderunner.Direction;
 import contrib.entities.EntityFactory;
 import core.Entity;
 import core.Game;
@@ -11,12 +8,13 @@ import core.components.InputComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
+import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import level.BlocklyLevel;
+
 import java.io.IOException;
 import java.util.Objects;
-import java.util.function.Consumer;
-import level.BlocklyLevel;
 
 /**
  * This class is used to create a player entity with tank controls. The player can only move in the
@@ -51,23 +49,15 @@ public class HeroTankControlledFactory {
 
       // Add rotation controls
       ic.registerCallback(
-          KeyboardConfig.MOVEMENT_LEFT.value(),
-          (entity) -> BlocklyCommands.rotate(Direction.LEFT),
-          false);
+          KeyboardConfig.MOVEMENT_LEFT.value(), (entity) -> rotatePlayer(Direction.LEFT), false);
       ic.registerCallback(
-          KeyboardConfig.MOVEMENT_RIGHT.value(),
-          (entity) -> BlocklyCommands.rotate(Direction.RIGHT),
-          false);
+          KeyboardConfig.MOVEMENT_RIGHT.value(), (entity) -> rotatePlayer(Direction.RIGHT), false);
     }
 
     ic.registerCallback(
         KeyboardConfig.PAUSE.value(),
-        new Consumer<Entity>() {
-          @Override
-          public void accept(Entity entity) {
-            if (!BlocklyCodeRunner.instance().isCodeRunning())
-              Game.currentLevel().ifPresent(level -> ((BlocklyLevel) level).showPopups());
-          }
+        ignored -> {
+          Game.currentLevel().ifPresent(level -> ((BlocklyLevel) level).showPopups());
         },
         false);
 
@@ -79,19 +69,18 @@ public class HeroTankControlledFactory {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    core.utils.Direction direction = pc.viewDirection();
     VelocityComponent vc =
         entity
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
-    Vector2 newVelocity = Vector2.ZERO;
-    switch (direction) {
-      case UP -> newVelocity = Vector2.of(0, Client.MOVEMENT_FORCE.y());
-      case DOWN -> newVelocity = Vector2.of(0, -Client.MOVEMENT_FORCE.y());
-      case LEFT -> newVelocity = Vector2.of(-Client.MOVEMENT_FORCE.x(), 0);
-      case RIGHT -> newVelocity = Vector2.of(Client.MOVEMENT_FORCE.x(), 0);
-    }
+    Vector2 newVelocity = pc.viewDirection().scale(Client.MOVEMENT_FORCE);
     vc.applyForce("MOVEMENT", newVelocity);
+  }
+
+  private static void rotatePlayer(Direction direction) {
+    Game.player()
+        .flatMap(hero -> hero.fetch(PositionComponent.class))
+        .ifPresent(pc -> pc.viewDirection(pc.viewDirection().applyRelative(direction)));
   }
 }

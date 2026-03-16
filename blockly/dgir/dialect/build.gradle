@@ -1,0 +1,31 @@
+plugins {
+    id 'java-library'
+    id "net.ltgt.errorprone" version "4.4.0"
+}
+
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['assets/']
+
+sourceSets.test.java.srcDirs = ['test/']
+sourceSets.test.resources.srcDirs = ['test_assets/']
+
+dependencies {
+    api project(':dgir')
+    api project(':dgir:vm')
+    implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.27.1'
+
+    errorprone "com.google.errorprone:error_prone_core:2.46.0"
+
+    testImplementation project(':dgir:vm')
+    // JUnit 4 and Mockito for testing
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+
+repositories {
+    mavenCentral()
+}

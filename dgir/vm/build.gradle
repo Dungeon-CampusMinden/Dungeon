@@ -1,0 +1,87 @@
+plugins {
+    id 'java-library'
+    id "net.ltgt.errorprone" version "4.4.0"
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['assets/']
+
+sourceSets.test.java.srcDirs = ['test/']
+sourceSets.test.resources.srcDirs = ['test_assets/']
+
+configurations {
+    mockitoAgent
+}
+
+dependencies {
+    // The vm is dependent on the main dgir module, as it provides the core game logic and data structures.
+    api project(':dgir')
+    implementation 'io.arxila.javatuples:javatuples:2.0.1'
+    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j:1.0.0'
+    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.debug:1.0.0'
+
+    errorprone "com.google.errorprone:error_prone_core:2.46.0"
+
+    implementation "org.apache.commons:commons-lang3:3.20.0"
+    implementation 'org.jetbrains:annotations:24.1.0'
+
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
+    testImplementation supportDependencies.mockito_core
+    mockitoAgent(supportDependencies.mockito_core) {
+        transitive = false
+    }
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    jvmArgs += "-javaagent:${configurations.mockitoAgent.asPath}"
+}
+
+repositories {
+    mavenCentral()
+}
+
+// ---------------------------------------------------------------------------
+// Fat-jar for the DAP debug server
+// ---------------------------------------------------------------------------
+// Creates dgir/vm/build/libs/dgir-vm-dap.jar — a self-contained executable
+// jar with the main class set to DgirDebugServer.
+// Build with:  ./gradlew :dgir:vm:dapJar
+// Run with:    java -jar dgir/vm/build/libs/dgir-vm-dap.jar --program my.dgir
+tasks.register('dapJar', Jar) {
+    group = 'build'
+    description = 'Assembles a self-contained (fat) JAR for the DGIR DAP debug server.'
+    archiveBaseName.set('dgir-vm-dap')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // Exclude JAR signature files from dependencies — merging signed jars into a fat jar
+    // invalidates their signatures and causes a SecurityException at startup.
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.RSA'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/LICENSE'
+    exclude 'META-INF/LICENSE.txt'
+    exclude 'META-INF/NOTICE'
+    exclude 'META-INF/NOTICE.txt'
+
+    manifest {
+        attributes(
+            'Main-Class': 'dgir.vm.DgirDebugServer',
+            'Implementation-Title': 'DGIR VM DAP Server',
+            'Implementation-Version': archiveVersion
+        )
+    }
+
+    // Include this subproject's compiled classes
+    from sourceSets.main.output
+
+    // Include all runtime dependency classes (flattened into the jar)
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+

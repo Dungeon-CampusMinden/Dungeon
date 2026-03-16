@@ -1,7 +1,6 @@
 package contrib.utils.components.skill.selfSkill;
 
 import contrib.systems.EventScheduler;
-import contrib.utils.IAction;
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
@@ -52,12 +51,9 @@ public class DashSkill extends Skill {
               float oldMaxSpeed = vc.maxSpeed();
               vc.maxSpeed(vc.maxSpeed() * scalar);
               EventScheduler.scheduleAction(
-                  new IAction() {
-                    @Override
-                    public void execute() {
-                      vc.maxSpeed(oldMaxSpeed);
-                      SkillTools.blink(caster, 0x0000FFFF, duration, 3);
-                    }
+                  () -> {
+                    vc.maxSpeed(oldMaxSpeed);
+                    SkillTools.blink(caster, 0x0000FFFF, duration, 3);
                   },
                   duration);
             });

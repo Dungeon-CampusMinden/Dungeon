@@ -1,11 +1,12 @@
 package entities.monster;
 
-import coderunner.BlocklyCommands;
+import client.Client;
 import contrib.utils.components.ai.ISkillUser;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
+import core.utils.Vector2;
 import entities.EntityUtils;
 import java.util.function.Consumer;
 
@@ -50,14 +51,14 @@ public class StraightRangeAI implements Consumer<Entity>, ISkillUser {
 
   @Override
   public void accept(final Entity entity) {
-    if (BlocklyCommands.DISABLE_SHOOT_ON_HERO) {
+    if (!Client.SHOOT_AT_PLAYER) {
       return;
     }
 
     boolean playerInRange =
         Game.player()
             .flatMap(hero -> hero.fetch(PositionComponent.class))
-            .map(pc -> pc.position().translate(BlocklyCommands.MAGIC_OFFSET))
+            .map(pc -> pc.position().translate(Vector2.of(0.5f, 0.5f)))
             .map(
                 pos -> {
                   Entity dummy = new Entity("dummy");

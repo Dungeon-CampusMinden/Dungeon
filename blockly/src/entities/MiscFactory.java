@@ -1,7 +1,6 @@
 package entities;
 
 import client.Client;
-import components.*;
 import contrib.components.*;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
@@ -17,6 +16,7 @@ import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import components.*;
 
 /** Factory class for creating miscellaneous game entities. */
 public class MiscFactory {
@@ -41,7 +41,7 @@ public class MiscFactory {
     stone.add(new PushableComponent());
     stone.add(new PositionComponent(position));
     stone.add(new BlockComponent());
-    stone.add(new VelocityComponent(Client.MOVEMENT_FORCE.x()));
+    stone.add(new VelocityComponent(Client.MOVEMENT_FORCE));
     stone.add(new CollideComponent().isSolid(false));
     stone.add(new BlockViewComponent());
     DrawComponent dc = new DrawComponent(new Animation(STONE));

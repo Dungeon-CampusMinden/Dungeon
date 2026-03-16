@@ -74,6 +74,5 @@ public class Level019 extends BlocklyLevel {
             });
   }
 
-  @Override
-  protected void onTick() {}
+
 }

@@ -105,6 +105,7 @@ public class Level016 extends BlocklyLevel {
 
   @Override
   protected void onTick() {
+    super.onTick();
     if (Game.player().isPresent()) {
       float x = Game.player().get().fetch(PositionComponent.class).orElseThrow().position().x();
       if (x >= 11) LevelManagementUtils.cameraFocusHero();

@@ -54,6 +54,12 @@ Führen Sie dann den folgenden Befehl aus, um die Java-Anwendung zu starten:
 gradlew runBlockly
 ```
 
+**CLI-Argumente mit Gradle übergeben:** Wenn Sie der Java-Anwendung Argumente mitgeben möchten (z. B. `web=true` für die Web-Oberfläche), nutzen Sie `--args`:
+
+```bash
+gradlew runBlockly --args="web=true"
+```
+
 Starten Sie dann den Vite.js-Entwicklungsserver, um "Blocky" lokal auszuführen:
 
 Dafür müssen Sie in das `frontend`-Verzeichnis wechseln:
@@ -130,15 +136,14 @@ Nach dem Erstellen der Executable müssen folgende Dateien in den `content`-Ordn
 
 Nun kann die Executable gestartet werden. Die erstellte Executable startet einen Webserver, welcher die Blockly-Oberfläche lädt und auch den Blockly-Dungeon in Java öffnet (dazu muss Java 21 oder höher installiert sein). Die Executable muss sich im selben Verzeichnis wie der `content`-Ordner befinden.
 
-Unter macOS (arm64) muss das Executable vorher freigegeben werden.  
+Unter macOS (arm64) muss das Executable vorher freigegeben werden.
 Dafür im Verzeichnis ein Terminal öffnen und:
 
 1. `sudo xattr -rd com.apple.quarantine blockly_macos_arm64` ausführen
 2. `chmod +x blockly_macos_arm64` ausführen
 
-Ab dann kann das Spiel mit  
-`./blockly_macos_arm64`  
+Ab dann kann das Spiel mit
+`./blockly_macos_arm64`
 über das Terminal gestartet werden.
 
 Evtl. die Webseite einmal neu laden, damit die Verbindung zum Dungeon korrekt läuft.
-

@@ -12,9 +12,10 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import entities.monster.BlocklyMonster;
-import java.util.Map;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
+
+import java.util.Map;
 
 /**
  * In this final level, the boss mirrors the player's movements. The player must cleverly lure the
@@ -62,7 +63,7 @@ public class Level022 extends BlocklyLevel {
     BlocklyMonster.BLACK_KNIGHT
         .builder()
         .attackRange(0)
-        .speed(Client.MOVEMENT_FORCE.x())
+        .speed(Client.MOVEMENT_FORCE)
         .addToGame()
         .viewDirection(Direction.LEFT)
         .onDeath(

@@ -1,0 +1,11 @@
+plugins {
+    id 'base'
+}
+
+// Make aggregate verification run all relevant DGIR tests.
+tasks.named('test') {
+    dependsOn ':dgir:test'
+    dependsOn ':dgir:vm:test'
+    dependsOn ':blockly:dgir:compiler:test'
+    dependsOn ':blockly:dgir:dialect:test'
+}

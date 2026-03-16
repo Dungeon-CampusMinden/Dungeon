@@ -3,12 +3,11 @@ package entities.monster;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
-import core.System;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Vector2;
+
 import java.util.function.Supplier;
-import systems.BlocklyCommandExecuteSystem;
 
 /**
  * Subclass of {@link FireballSkill}.
@@ -37,6 +36,7 @@ public class InevitableFireballSkill extends FireballSkill {
 
   @Override
   protected void onSpawn(Entity caster, Entity projectile) {
-    Game.system(BlocklyCommandExecuteSystem.class, System::stop);
+    // TODO replace this call with the new system
+    // Game.system(BlocklyCommandExecuteSystem.class, System::stop);
   }
 }

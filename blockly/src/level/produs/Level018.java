@@ -50,6 +50,5 @@ public class Level018 extends BlocklyLevel {
     ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
   }
 
-  @Override
-  protected void onTick() {}
+
 }

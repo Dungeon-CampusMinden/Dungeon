@@ -66,6 +66,5 @@ public class Level010 extends BlocklyLevel {
     hedgehogBuilder.build(getPoint(4));
   }
 
-  @Override
-  protected void onTick() {}
+
 }

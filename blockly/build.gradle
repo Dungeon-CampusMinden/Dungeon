@@ -1,93 +1,81 @@
 plugins {
-  id 'antlr'
+    id 'application'
 }
 
-repositories {
-  mavenCentral()
+application {
+    // Define the main class for the application
+    mainClass = 'client.Client'
 }
 
-dependencies {
-  implementation project(':dungeon'), 'com.github.javaparser:javaparser-symbol-solver-core:3.27.1'
-
-  // ANTLR version 4 for DSL Grammar
-  antlr supportDependencies.antlr
-
-  // JUnit 4 and Mockito for testing
-  testImplementation supportDependencies.junit
-  testRuntimeOnly supportDependencies.junitLauncher
-}
-
-sourceSets.main.java.srcDirs = ['src/', "$buildDir/generated-src/"]
+sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
 
 sourceSets.test.java.srcDirs = ['test/']
+sourceSets.test.resources.srcDirs = ['test_assets/']
 
-processResources {
-    from new File(project(':dungeon').projectDir, '/assets')
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+dependencies {
+    implementation project(':dungeon')
+    implementation project(':dgir')
+    implementation project(':dgir:vm')
+    implementation project(':blockly:dgir:compiler')
+    implementation project(':blockly:dgir:dialect')
+    implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.27.1'
+
+    // JUnit 4 and Mockito for testing
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
 }
 
-sourceSets.main.antlr.srcDirs = ['src']
-
-// generate ANTLR visitor and listener classes from grammar
-generateGrammarSource {
-  maxHeapSize = '64m'
-  arguments += ['-visitor', '-listener', '-long-messages']
+tasks.register('runJar', JavaExec) {
+    group = 'application'
+    classpath tasks.named('jar').map { it.outputs }
+    println(project.properties)
 }
 
 
-tasks.register('runBlockly', JavaExec) {
-    group = 'starter'
+tasks.register('runBlocklyDebug', JavaExec) {
+    group = 'application'
+    description = 'Start Blockly Dungeon with debug systems active (hitboxes, tile editor, tank controls) (--debug).'
     mainClass = 'client.Client'
     classpath = sourceSets.main.runtimeClasspath
-    def webFlag = project.hasProperty('web') ? project.property('web') : 'false'
-    args "web=${webFlag}"
+    args '--debug'
+    workingDir = rootProject.projectDir
 }
 
+tasks.register('runBlocklySandbox', JavaExec) {
+    group = 'application'
+    description = 'Start Blockly Dungeon in sandbox mode: empty level, no popups, all blocks unlocked, debug systems active (--sandbox).'
+    mainClass = 'client.Client'
+    classpath = sourceSets.main.runtimeClasspath
+    args '--sandbox', '--debug'
+    workingDir = rootProject.projectDir
+}
 
-tasks.register('buildBlocklyJar', Jar) {
-    group 'jar'
-    archiveBaseName = 'Blockly'
-    from sourceSets.main.output
-    from project(':dungeon').sourceSets.main.output
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes('Main-Class': 'client.Client')
+    }
+    // Bundle runtime classpath into the fat jar so all jar dependencies are included.
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
-
-    // Include source files from Language Server
-    from(project(':dungeon').projectDir) {
-        include 'src/core/level/utils/LevelElement.java'
-        // Remove 'src/' prefix from paths
-        eachFile { file ->
-            file.path = file.path.replaceFirst('src/', '')
-        }
-        includeEmptyDirs = false
-    }
-    from(projectDir) {
-        include 'src/core/utils/Direction.java'
-        include 'src/coderunner/BlocklyCommands.java'
-        // Remove 'src/' prefix from paths
-        eachFile { file ->
-            file.path = file.path.replaceFirst('src/', '')
-        }
-        includeEmptyDirs = false
-    }
-
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes 'Main-Class': 'client.Client'
-    }
-
-    archiveFileName = 'Blockly.jar'
-
-    into('assets') {
-        from new File(project(':dungeon').projectDir, '/assets')
-    }
-
+    // Exclude signature metadata from shaded dependencies to prevent invalid digest errors.
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+    dependsOn project(':dungeon').tasks.named('jar')
 }
 
-tasks.named('test', Test) {
+tasks.withType(Test).configureEach {
     useJUnitPlatform()
+}
+
+// Wire optional frontend startup into run/runJar
+tasks.withType(JavaExec).forEach {
+    it.doFirst {
+        println("\u001B[31mIf the frontend is not already running, start it with\n 'npm run dev'\nin the 'frontend' directory.\u001B[0m")
+    }
+}
+
+repositories {
+    mavenCentral()
 }

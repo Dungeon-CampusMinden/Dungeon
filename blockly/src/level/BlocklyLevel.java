@@ -1,16 +1,12 @@
 package level;
 
-import client.Client;
 import contrib.hud.DialogUtils;
-import core.Game;
-import core.System;
 import core.level.DungeonLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import java.util.*;
-import systems.BlocklyCommandExecuteSystem;
 
 /**
  * This class is used to store the values from a parsed level file. It contains the layout (the
@@ -23,16 +19,10 @@ public abstract class BlocklyLevel extends DungeonLevel {
   private final DesignLabel designLabel;
 
   /**
-   * List of Popups to display with {@link #showPopups()} if the game is controlled via the Blockly
-   * Web UI.
-   */
-  private List<Popup> webPopups = new ArrayList<>();
-
-  /**
    * List of Popups to display with {@link #showPopups()} if the game is controlled via the
    * Code-API.
    */
-  private List<Popup> codePopups = new ArrayList<>();
+  private final List<Popup> popups = new ArrayList<>();
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -52,29 +42,14 @@ public abstract class BlocklyLevel extends DungeonLevel {
     this.designLabel = designLabel;
   }
 
-  @Override
-  public void onTick(boolean isFirstTick) {
-    if (isFirstTick) {
-      onFirstTick();
-      Game.system(BlocklyCommandExecuteSystem.class, System::run);
-    } else {
-      onTick();
-    }
-  }
-
   /**
-   * Shows each popup in {@link #webPopups} in the order they were added.
+   * Shows each popup added via {@link #addPopup(Popup)} in the order they were added.
    *
-   * <p>When a popup is closed, the next one in the list will open automatically.
+   * <p>When a popup is closed, the next one in the list opens automatically.
    */
   public void showPopups() {
-    if (Client.runInWeb) {
-      if (webPopups.isEmpty()) return;
-      showNextPopup(webPopups, 0);
-    } else {
-      if (codePopups.isEmpty()) return;
-      showNextPopup(codePopups, 0);
-    }
+    if (popups.isEmpty()) return;
+    showNextPopup(popups, 0);
   }
 
   /**
@@ -131,31 +106,12 @@ public abstract class BlocklyLevel extends DungeonLevel {
   }
 
   /**
-   * Adds the given popup to the collection of web popups.
+   * Adds the given popup to the popup queue shown at level start.
    *
-   * @param popup the {@link Popup} instance to add to the web popups list
-   */
-  protected void addWebPopup(Popup popup) {
-    this.webPopups.add(popup);
-  }
-
-  /**
-   * Adds the given popup to the collection of code popups.
-   *
-   * @param popup the {@link Popup} instance to add to the code popups list
-   */
-  protected void addCodePopup(Popup popup) {
-    this.codePopups.add(popup);
-  }
-
-  /**
-   * Adds the given popup to both the code and web popup collections.
-   *
-   * @param popup the {@link Popup} instance to add to both lists
+   * @param popup the {@link Popup} instance to add
    */
   protected void addPopup(Popup popup) {
-    addCodePopup(popup);
-    addWebPopup(popup);
+    this.popups.add(popup);
   }
 
   /**

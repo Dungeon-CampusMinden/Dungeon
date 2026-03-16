@@ -1,0 +1,123 @@
+{
+  "name": "dgir-debugger",
+  "displayName": "DGIR Debugger",
+  "description": "Debug DGIR programs via DgirDebugServer",
+  "version": "0.1.0",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.97.0"
+  },
+  "categories": [
+    "Debuggers"
+  ],
+  "activationEvents": [
+    "onDebugInitialConfigurations",
+    "onDebugResolve:dgir",
+    "onCommand:dgir.debugCurrentFile"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dgir.debugCurrentFile",
+        "title": "DGIR: Debug Current File",
+        "category": "DGIR"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "dgir",
+        "label": "DGIR Debugger",
+        "languages": [
+          "java",
+          "json"
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the debug configuration."
+              },
+              "type": {
+                "type": "string",
+                "description": "Debug type."
+              },
+              "request": {
+                "type": "string",
+                "description": "Debug request type."
+              },
+              "program": {
+                "type": "string",
+                "description": "Path to the compiled DGIR JSON program (e.g., HelloWorld.json)."
+              },
+              "jarPath": {
+                "type": "string",
+                "description": "Path to dgir-vm-dap.jar built from :dgir:vm:dapJar."
+              },
+              "javaPath": {
+                "type": "string",
+                "description": "Java executable used to start DgirDebugServer (default: java)."
+              },
+              "dapPort": {
+                "type": "number",
+                "description": "DAP TCP port for the DgirDebugServer (default: 4711)."
+              },
+              "host": {
+                "type": "string",
+                "description": "DAP host to connect to (default: 127.0.0.1)."
+              },
+              "startServer": {
+                "type": "boolean",
+                "description": "Start DgirDebugServer automatically (default: true)."
+              },
+              "useTerminal": {
+                "type": "boolean",
+                "description": "Run DgirDebugServer in a VS Code terminal for interactive stdin/stdout (default: true)."
+              },
+              "stopServerOnExit": {
+                "type": "boolean",
+                "description": "Send Ctrl+C to stop the server when the debug session ends (default: true)."
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Pause before the first operation."
+              },
+              "sourceFileMap": {
+                "type": "object",
+                "description": "Optional path translation table used by the extension when talking to the DGIR DAP server:\n- VS Code sends absolute file paths for breakpoints (e.g. /home/me/project/src/Foo.java).\n- DGIR debug info typically uses workspace-relative paths (e.g. src/Foo.java).\n- The map rewrites paths both ways so breakpoints bind to the right file and stack traces open the correct source.\n- Example: { \"/home/me/project/src/Foo.java\": \"src/Foo.java\" }"
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "dgir",
+            "name": "Debug DGIR Program",
+            "request": "launch",
+            "program": "${workspaceFolder}/dgir/vm/test_assets/HelloWorld.json",
+            "dapPort": 4711,
+            "jarPath": "${workspaceFolder}/dgir/vm/build/libs/dgir-vm-dap.jar",
+            "stopOnEntry": true,
+            "useTerminal": true,
+            "stopServerOnExit": true
+          }
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "20.x",
+    "@types/vscode": "^1.97.0",
+    "typescript": "^5.7.3"
+  }
+}

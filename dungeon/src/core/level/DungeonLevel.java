@@ -464,7 +464,7 @@ public class DungeonLevel implements ILevel, ITickable {
     ArrayList<Tuple<Point, Integer>> toRet = new ArrayList<>();
     int i = 0;
     while (namedPoints.containsKey(baseName + i)) {
-      toRet.add(new Tuple(getPoint(baseName + i), i));
+      toRet.add(new Tuple<>(getPoint(baseName + i), i));
       i++;
     }
     return toRet;

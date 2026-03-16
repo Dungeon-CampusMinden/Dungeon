@@ -1,0 +1,196 @@
+{
+    "ident": "program",
+    "loc": "functionCall.java:1:1",
+    "regions": [
+        {
+            "blocks": [
+                {
+                    "@id": ".blk_0",
+                    "operations": [
+                        {
+                            "ident": "func.func",
+                            "loc": "functionCall.java:2:3",
+                            "attributes": [
+                                {
+                                    "name": "type",
+                                    "attribute": {
+                                        "ident": "typeAttr",
+                                        "type": "func.func<() -> ()>"
+                                    }
+                                },
+                                {
+                                    "name": "symbol_name",
+                                    "attribute": {
+                                        "ident": "stringAttr",
+                                        "type": "string",
+                                        "value": "main"
+                                    }
+                                }
+                            ],
+                            "regions": [
+                                {
+                                    "blocks": [
+                                        {
+                                            "@id": ".blk_1",
+                                            "operations": [
+                                                {
+                                                    "ident": "arith.constant",
+                                                    "loc": "functionCall.java:3:22",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "integerAttr",
+                                                                "type": "int32",
+                                                                "value": 5
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%0",
+                                                        "type": "int32"
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "arith.constant",
+                                                    "loc": "functionCall.java:3:25",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "value",
+                                                            "attribute": {
+                                                                "ident": "integerAttr",
+                                                                "type": "int32",
+                                                                "value": 10
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%1",
+                                                        "type": "int32"
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "func.call",
+                                                    "loc": "functionCall.java:3:18",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%0"
+                                                        },
+                                                        {
+                                                            "value": "%1"
+                                                        }
+                                                    ],
+                                                    "attributes": [
+                                                        {
+                                                            "name": "callee",
+                                                            "attribute": {
+                                                                "ident": "symbolRefAttr",
+                                                                "value": "add_int32_int32"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%2",
+                                                        "type": "int32",
+                                                        "debug": {
+                                                            "loc": "functionCall.java:3:9",
+                                                            "name": "result"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "func.return",
+                                                    "loc": "functionCall.java:4:18"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "ident": "func.func",
+                            "loc": "functionCall.java:6:3",
+                            "attributes": [
+                                {
+                                    "name": "type",
+                                    "attribute": {
+                                        "ident": "typeAttr",
+                                        "type": "func.func<(int32, int32) -> (int32)>"
+                                    }
+                                },
+                                {
+                                    "name": "symbol_name",
+                                    "attribute": {
+                                        "ident": "stringAttr",
+                                        "type": "string",
+                                        "value": "add_int32_int32"
+                                    }
+                                }
+                            ],
+                            "output": {
+                                "@id": "%3",
+                                "type": "int32"
+                            },
+                            "regions": [
+                                {
+                                    "bodyValues": [
+                                        {
+                                            "@id": "%4",
+                                            "type": "int32"
+                                        },
+                                        {
+                                            "@id": "%5",
+                                            "type": "int32"
+                                        }
+                                    ],
+                                    "blocks": [
+                                        {
+                                            "@id": ".blk_2",
+                                            "operations": [
+                                                {
+                                                    "ident": "arith.bin",
+                                                    "loc": "functionCall.java:7:12",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%4"
+                                                        },
+                                                        {
+                                                            "value": "%5"
+                                                        }
+                                                    ],
+                                                    "attributes": [
+                                                        {
+                                                            "name": "binMode",
+                                                            "attribute": {
+                                                                "ident": "arith.binMode",
+                                                                "mode": "ADD"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "output": {
+                                                        "@id": "%6",
+                                                        "type": "int32"
+                                                    }
+                                                },
+                                                {
+                                                    "ident": "func.return",
+                                                    "loc": "functionCall.java:8:5",
+                                                    "operands": [
+                                                        {
+                                                            "value": "%6"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
