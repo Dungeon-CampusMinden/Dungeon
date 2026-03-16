@@ -9,7 +9,7 @@ jobs:
 
         steps:
             - name: Checkout Repository
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
             # 1. Node.js Setup für das Frontend
             - name: Set up Node.js
@@ -54,7 +54,7 @@ jobs:
         contents: write
       steps:
         - name: Checkout repository
-          uses: actions/checkout@v3
+          uses: actions/checkout@v6
           with:
             fetch-depth: 0
 
