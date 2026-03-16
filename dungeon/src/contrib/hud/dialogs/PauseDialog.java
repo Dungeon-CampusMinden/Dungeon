@@ -9,6 +9,8 @@ import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import core.Entity;
 import core.Game;
+import core.network.NetworkUtils;
+import core.network.messages.s2c.GameOverEvent;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
 import core.utils.BaseContainerUI;
@@ -78,16 +80,10 @@ public class PauseDialog extends Table {
 
     // Register callback
     ui.registerCallback(DialogContextKeys.ON_RESUME, data -> {
-      int a = 5 + 2;
       UIUtils.closeDialog(ui);
     });
     ui.registerCallback(DialogContextKeys.ON_QUIT, data -> {
-      if(Game.isHeadless()){
-        // On server, this button closes the game for the player, not all players.
-        //TODO add removing player here
-      } else {
-        Game.exit("Quit from pause menu");
-      }
+      Game.exit("Quit from pause menu");
     });
 
     return ui;
@@ -124,8 +120,7 @@ public class PauseDialog extends Table {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_RESUME)
-                .accept(null);
+            Game.player().orElseThrow().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
             Sounds.play(CoreSounds.INTERFACE_DIALOG_CLOSED);
           }
         });
@@ -141,8 +136,7 @@ public class PauseDialog extends Table {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_QUIT)
-                .accept(null);
+            Game.exit("Quit from pause menu");
             Sounds.play(CoreSounds.INTERFACE_DIALOG_CLOSED);
           }
         });
