@@ -46,6 +46,7 @@ public final class LastHourClient {
     PreRunConfiguration.networkServerAddress("127.0.0.1");
     PreRunConfiguration.networkPort(7777);
     PreRunConfiguration.username("Player1");
+    PreRunConfiguration.multiplayerCharacterClass(CharacterClass.WIZARD);
 
     registerCustomDialogs();
 

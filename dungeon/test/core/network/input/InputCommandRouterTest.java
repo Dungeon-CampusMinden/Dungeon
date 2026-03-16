@@ -2,6 +2,7 @@ package core.network.input;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import contrib.entities.CharacterClass;
 import core.Entity;
 import core.network.messages.c2s.InputMessage;
 import core.network.server.ClientState;
@@ -106,7 +107,7 @@ public class InputCommandRouterTest {
   }
 
   private static ClientState clientState() {
-    return new ClientState((short) 1, "tester", 1, new byte[] {1, 2, 3});
+    return new ClientState((short) 1, "tester", 1, new byte[] {1, 2, 3}, CharacterClass.WIZARD);
   }
 
   private static InputMessage moveMessage() {

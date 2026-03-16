@@ -8,7 +8,6 @@ import contrib.hud.dialogs.DialogType;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
-import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.network.messages.c2s.DialogResponseMessage;
@@ -62,18 +61,19 @@ public class KeypadFactory {
                 new Interaction(
                     (e, who) -> {
                       DialogContext context =
-                        DialogContext.builder()
-                          .type(DialogType.DefaultTypes.KEYPAD)
-                          .put(DialogContextKeys.ENTITY, e.id())
-                          .build();
+                          DialogContext.builder()
+                              .type(DialogType.DefaultTypes.KEYPAD)
+                              .put(DialogContextKeys.ENTITY, e.id())
+                              .build();
                       UIComponent uic = DialogFactory.show(context, who.id());
                       uic.registerCallback(
-                        DialogContextKeys.ON_CONFIRM,
-                        (payload) -> {
-                          if (payload instanceof DialogResponseMessage.StringValue(String value)) {
-                            KeypadUI.onButtonPress(e, value);
-                          }
-                        });
+                          DialogContextKeys.ON_CONFIRM,
+                          (payload) -> {
+                            if (payload
+                                instanceof DialogResponseMessage.StringValue(String value)) {
+                              KeypadUI.onButtonPress(e, value);
+                            }
+                          });
                       LOGGER.info("Interacted with keypad sprite");
                     },
                     DEFAULT_INTERACTION_RADIUS)));

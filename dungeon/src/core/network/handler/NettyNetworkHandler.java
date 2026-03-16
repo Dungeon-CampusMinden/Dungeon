@@ -1,5 +1,6 @@
 package core.network.handler;
 
+import contrib.entities.CharacterClass;
 import core.network.*;
 import core.network.client.ClientNetwork;
 import core.network.messages.NetworkMessage;
@@ -46,12 +47,17 @@ public class NettyNetworkHandler implements INetworkHandler {
   private SnapshotTranslator translator;
 
   @Override
-  public void initialize(boolean isServer, String serverAddress, int port, String username)
+  public void initialize(
+      boolean isServer,
+      String serverAddress,
+      int port,
+      String username,
+      Optional<CharacterClass> characterClass)
       throws NetworkException {
     this.serverMode = isServer;
     this.port = port;
     if (!serverMode) {
-      client.initialize(serverAddress, port, username);
+      client.initialize(serverAddress, port, username, characterClass);
     }
   }
 

@@ -1,5 +1,6 @@
 package core.network.server;
 
+import contrib.entities.CharacterClass;
 import core.Entity;
 import core.Game;
 import core.network.config.NetworkConfig;
@@ -23,6 +24,9 @@ public class ClientState {
 
   /** Unique client username assigned during handshake. */
   private final String username;
+
+  /** Selected character class for this client. Preserved across reconnects. */
+  private final CharacterClass characterClass;
 
   /** Session identifier for the current connection (changes on reconnect with new session). */
   private int sessionId;
@@ -78,9 +82,15 @@ public class ClientState {
    * @param username The client's username (non-null, non-empty).
    * @param sessionId The session ID
    * @param sessionToken A random token for reconnect validation.
+   * @param characterClass The selected character class for this client.
    * @throws IllegalArgumentException If clientId < 0 or username is invalid.
    */
-  public ClientState(short clientId, String username, int sessionId, byte[] sessionToken) {
+  public ClientState(
+      short clientId,
+      String username,
+      int sessionId,
+      byte[] sessionToken,
+      CharacterClass characterClass) {
     if (clientId < 0) {
       throw new IllegalArgumentException("clientId must be non-negative");
     }
@@ -90,9 +100,13 @@ public class ClientState {
     if (sessionToken == null) {
       throw new IllegalArgumentException("sessionToken must be non-null");
     }
+    if (characterClass == null) {
+      throw new IllegalArgumentException("characterClass must be non-null");
+    }
 
     this.clientId = clientId;
     this.username = username;
+    this.characterClass = characterClass;
     this.sessionId = sessionId;
     this.sessionToken = sessionToken.clone();
     this.lastActivityTimeMs = System.currentTimeMillis();
@@ -224,6 +238,15 @@ public class ClientState {
    */
   public String username() {
     return username;
+  }
+
+  /**
+   * Returns the selected character class for this client.
+   *
+   * @return the selected character class
+   */
+  public CharacterClass characterClass() {
+    return characterClass;
   }
 
   /**

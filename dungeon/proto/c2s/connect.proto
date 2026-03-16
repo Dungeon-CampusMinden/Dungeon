@@ -22,4 +22,7 @@ message ConnectRequest {
 
   // Previous session token (empty if new connection).
   optional bytes session_token = 4;
+
+  // Requested player character class (absent means use the server default).
+  optional int32 character_class_id = 5;
 }
