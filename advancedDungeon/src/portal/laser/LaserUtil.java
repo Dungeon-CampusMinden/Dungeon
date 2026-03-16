@@ -2,7 +2,6 @@ package portal.laser;
 
 import contrib.components.CollideComponent;
 import contrib.components.SpikyComponent;
-import contrib.systems.EventScheduler;
 import contrib.systems.PositionSync;
 import contrib.utils.components.collide.Hitbox;
 import contrib.utils.components.health.DamageType;
@@ -19,9 +18,6 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.path.SimpleIPath;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import portal.portals.components.PortalExtendComponent;
 
@@ -40,7 +36,7 @@ public class LaserUtil {
    */
   public static void activate(Entity emitter) {
     LaserComponent laserComponent = emitter.fetch(LaserComponent.class).get();
-    if(laserComponent.isActive()) {
+    if (laserComponent.isActive()) {
       return;
     }
     laserComponent.setActive(true);
@@ -59,7 +55,6 @@ public class LaserUtil {
 
     updateEmitterVisual(emitter, true);
     configureEmitterHitbox(emitter, totalPoints, dir);
-
   }
 
   /**
@@ -70,14 +65,14 @@ public class LaserUtil {
   public static void deactivate(Entity emitter) {
     LaserComponent laserComponent = emitter.fetch(LaserComponent.class).get();
     laserComponent.setBeingDeactivated(true);
-    if(!laserComponent.isActive()) {
+    if (!laserComponent.isActive()) {
       return;
     }
     laserComponent.setActive(false);
     Game.levelEntities(Set.of(LaserComponent.class))
-            .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
-            .filter(entity -> entity.fetch(LaserEmitterComponent.class).isEmpty())
-            .forEach(Game::remove);
+        .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
+        .filter(entity -> entity.fetch(LaserEmitterComponent.class).isEmpty())
+        .forEach(Game::remove);
 
     updateEmitterVisual(emitter, false);
     emitter.remove(SpikyComponent.class);
@@ -127,9 +122,9 @@ public class LaserUtil {
     if (!laserComponent.isBeingDeactivated()) {
       laserComponent.setBeingDeactivated(true);
       Game.levelEntities(Set.of(LaserComponent.class))
-        .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
-        .filter(entity -> entity.fetch(LaserExtendComponent.class).isPresent())
-        .forEach(Game::remove);
+          .filter(entity -> entity.fetch(LaserComponent.class).get().equals(laserComponent))
+          .filter(entity -> entity.fetch(LaserExtendComponent.class).isPresent())
+          .forEach(Game::remove);
       laserComponent.setBeingDeactivated(false);
     }
   }
@@ -218,7 +213,6 @@ public class LaserUtil {
     CollideComponent cc = new CollideComponent();
     cc.collider(newCollider);
     emitter.add(cc);
-
 
     emitter.fetch(CollideComponent.class).ifPresent(c -> c.isSolid(false));
   }

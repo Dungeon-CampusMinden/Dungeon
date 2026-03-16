@@ -48,6 +48,7 @@ public class LaserFactory {
 
   /**
    * Creates an emitter entity.
+   *
    * @param position position of the emitter.
    * @param direction direction the emitter is facing.
    * @return the emitter entity.

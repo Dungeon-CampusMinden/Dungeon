@@ -55,7 +55,11 @@ public class LaserCube {
                         new Point(
                             pc.position().x() + pc.viewDirection().x(),
                             pc.position().y() + pc.viewDirection().y());
-                    LaserUtil.extendLaser(pc.viewDirection(), newPos.translate(pc.viewDirection().opposite()),other.fetch(PortalExtendComponent.class).get(),lc);
+                    LaserUtil.extendLaser(
+                        pc.viewDirection(),
+                        newPos.translate(pc.viewDirection().opposite()),
+                        other.fetch(PortalExtendComponent.class).get(),
+                        lc);
                   });
         };
 
