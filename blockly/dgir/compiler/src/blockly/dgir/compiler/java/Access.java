@@ -262,9 +262,6 @@ public class Access {
    * Context for validating accessibility of a declaration from a type declaration context. This
    * includes the declaring type (if any) and package of the source and target declarations, as well
    * as the access specifier of the target declaration.
-   *
-   * @param type
-   * @param packageName
    */
   private record AccessContext(
       @NotNull Optional<ResolvedReferenceTypeDeclaration> type,

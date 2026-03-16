@@ -5,9 +5,10 @@ import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 public class DeadCodeElimination extends VoidVisitorAdapter<Void> {
+  @Override
   public void visit(ForStmt n, Void arg) {
     // Recursively visit child nodes first to ensure we eliminate dead code in nested blocks.
-    super.visit(n, arg);
+    super.visit(n, null);
 
     Statement body = n.getBody();
     if (body instanceof ContinueStmt) {
@@ -24,9 +25,10 @@ public class DeadCodeElimination extends VoidVisitorAdapter<Void> {
     }
   }
 
+  @Override
   public void visit(BlockStmt n, Void arg) {
     // Recursively visit child nodes first to ensure we eliminate dead code in nested blocks.
-    super.visit(n, arg);
+    super.visit(n, null);
 
     if (n.getStatements().size() == 1) {
       Statement stmt = n.getStatement(0);

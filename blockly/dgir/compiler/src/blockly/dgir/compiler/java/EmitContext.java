@@ -92,8 +92,6 @@ public final class EmitContext {
   /** The point at which the next operation will be inserted. */
   private @Nullable InsertionPoint insertionPoint = null;
 
-  private @Nullable EmitResult<Optional<Value>> lastResult;
-
   public EmitContext(@NotNull String filename) {
     this.filename = filename;
   }

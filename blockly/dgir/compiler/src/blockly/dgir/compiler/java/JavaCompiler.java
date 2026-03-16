@@ -861,12 +861,6 @@ public class JavaCompiler {
         if (valueRes.isFailure() || valueRes.get().isEmpty()) return valueRes;
       }
 
-      ResolvedType targetType;
-      if (n.getTarget() instanceof NameExpr nameExpr) {
-        targetType = nameExpr.resolve().getType();
-      } else {
-        targetType = n.getTarget().calculateResolvedType();
-      }
       try {
         var id =
             context.insert(
@@ -896,8 +890,8 @@ public class JavaCompiler {
       Value lhs = lhsResult.get().get();
       Value rhs = rhsResult.get().get();
 
-      if (lhs.getType() == StrTypes.StringT.INSTANCE
-          || rhs.getType() == StrTypes.StringT.INSTANCE) {
+      if (lhs.getType().equals(StrTypes.StringT.INSTANCE)
+          || rhs.getType().equals(StrTypes.StringT.INSTANCE)) {
         if (n.getOperator() != BinaryExpr.Operator.PLUS) {
           context.emitError(n, "Only string concatenation is supported for strings.");
           return EmitResult.failure();
@@ -934,11 +928,13 @@ public class JavaCompiler {
       }
     }
 
+    @Override
     public EmitResult<Optional<Value>> visit(BooleanLiteralExpr n, EmitContext context) {
       return EmitResult.of(
           Optional.of(context.insert(new ConstantOp(context.loc(n), n.getValue())).getResult()));
     }
 
+    @Override
     public EmitResult<Optional<Value>> visit(CastExpr n, EmitContext context) {
       EmitResult<Optional<Value>> expressionResult;
       {
@@ -1023,7 +1019,7 @@ public class JavaCompiler {
 
     @Override
     public EmitResult<Optional<Value>> visit(DoubleLiteralExpr n, EmitContext context) {
-      boolean isFloat = n.getValue().toLowerCase().endsWith("f");
+      boolean isFloat = n.getValue().toLowerCase(Locale.ROOT).endsWith("f");
       return EmitResult.of(
           Optional.of(
               context
@@ -1148,9 +1144,6 @@ public class JavaCompiler {
         int varargsIndex = -1;
         for (int i = 0; i < args.size(); i++) {
           Value callArg = args.get(i);
-          ResolvedType callArgType = n.getArgument(i).calculateResolvedType();
-          ResolvedType targetType =
-              targetMethod.getParam(varargsIndex == -1 ? i : varargsIndex).getType();
           if (varargsIndex == -1) {
             if (targetMethod.getParam(i).isVariadic()) {
               varargsIndex = i;

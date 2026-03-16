@@ -1,6 +1,7 @@
 import dgir.core.serialization.Utils;
 import dgir.dialect.builtin.BuiltinOps;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -60,7 +61,7 @@ public interface TestUtils {
 
   static @NotNull Optional<String> loadTestFile(Path path) {
     try {
-      return Optional.of(new String(Files.readAllBytes(path)));
+      return Optional.of(Files.readString(path, StandardCharsets.UTF_8));
     } catch (IOException e) {
       return Optional.empty();
     }

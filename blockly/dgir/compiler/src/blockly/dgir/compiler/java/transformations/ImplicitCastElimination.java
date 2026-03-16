@@ -1,6 +1,7 @@
 package blockly.dgir.compiler.java.transformations;
 
 import blockly.dgir.compiler.java.EmitContext;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.*;
@@ -8,6 +9,7 @@ import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.types.ResolvedType;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -31,7 +33,7 @@ public class ImplicitCastElimination extends GenericVisitorAdapter<Boolean, Emit
     // In case primitive types should get cast to object do nothing for now but warn the user that
     // this is not expected behavior
     if (targetType.describe().equals("java.lang.Object")) {
-      if ((valueType.isPrimitive()) && targetType.describe().equals("java.lang.Object")) {
+      if (valueType.isPrimitive() && targetType.describe().equals("java.lang.Object")) {
         System.err.println(
             "Implicit cast from "
                 + valueType.describe()
@@ -79,6 +81,7 @@ public class ImplicitCastElimination extends GenericVisitorAdapter<Boolean, Emit
     return Optional.empty();
   }
 
+  @Override
   public Boolean visit(AssignExpr n, EmitContext arg) {
     // Recursively visit child nodes first to ensure we eliminate implicit casts in nested
     // expressions.
@@ -105,7 +108,7 @@ public class ImplicitCastElimination extends GenericVisitorAdapter<Boolean, Emit
         createImplicitCastIfValid(
             n, targetType, valueType, n.getValue(), n.getValue().isLiteralExpr());
     if (castExpr.isPresent()) {
-      if (castExpr.get() != n.getValue()) {
+      if (!Objects.equals(castExpr.get(), n.getValue())) {
         boolean replaced = n.getValue().replace(castExpr.get());
         if (!replaced) {
           arg.emitError(n, "Failed to replace value of " + n);
@@ -119,6 +122,7 @@ public class ImplicitCastElimination extends GenericVisitorAdapter<Boolean, Emit
     return null;
   }
 
+  @Override
   public Boolean visit(VariableDeclarationExpr n, EmitContext arg) {
     // Recursively visit child nodes first to ensure we eliminate implicit casts in nested
     // expressions.
@@ -150,7 +154,7 @@ public class ImplicitCastElimination extends GenericVisitorAdapter<Boolean, Emit
                         var.getInitializer().get(),
                         var.getInitializer().get().isLiteralExpr());
                 if (castExpr.isPresent()) {
-                  if (castExpr.get() != var.getInitializer().get()) {
+                  if (!Objects.equals(castExpr.get(), var.getInitializer().get())) {
                     boolean replaced = var.getInitializer().get().replace(castExpr.get());
                     if (!replaced) {
                       arg.emitError(
@@ -169,6 +173,7 @@ public class ImplicitCastElimination extends GenericVisitorAdapter<Boolean, Emit
     return null;
   }
 
+  @Override
   public Boolean visit(MethodCallExpr n, EmitContext arg) {
     // Recursively visit child nodes first to ensure we eliminate implicit casts in nested
     // expressions.
@@ -208,7 +213,7 @@ public class ImplicitCastElimination extends GenericVisitorAdapter<Boolean, Emit
       var castExpr =
           createImplicitCastIfValid(n, targetType, callArgType, n.getArguments().get(i), false);
       if (castExpr.isPresent()) {
-        if (castExpr.get() != n.getArguments().get(i)) {
+        if (!Objects.equals(castExpr.get(), n.getArguments().get(i))) {
           boolean replaced = n.getArgument(i).replace(castExpr.get());
           if (!replaced) {
             arg.emitError(n.getArgument(i), "Failed to replace argument " + i + " of " + n);
