@@ -167,6 +167,7 @@ public class ComparePathfindingStarter {
    *
    * @param rows The number of rows in the original level (used for offset calculation)
    */
+  @SuppressWarnings("unchecked")
   private static void setupPathFindingSystem(int rows) {
     Game.system(
         PathfindingSystem.class,

@@ -9,7 +9,6 @@ import contrib.hud.UIUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.systems.EventScheduler;
-import contrib.utils.IAction;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -34,7 +33,7 @@ import produsAdvanced.AdvancedDungeon;
 public class Hero {
 
   /** Erzeugt eine Pause zwischen Interaktionen. */
-  private static final IAction INTERACTION_COOLDOWN = () -> {};
+  private static final Runnable INTERACTION_COOLDOWN = () -> {};
 
   private static EventScheduler.ScheduledAction cooldownEvent;
 
