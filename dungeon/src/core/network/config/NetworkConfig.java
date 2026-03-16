@@ -18,7 +18,15 @@ public final class NetworkConfig {
    * Translator for converting game state snapshots to/from byte arrays. Used by both client and
    * server.
    */
-  public static final SnapshotTranslator SNAPSHOT_TRANSLATOR = new DefaultSnapshotTranslator();
+  public static SnapshotTranslator SNAPSHOT_TRANSLATOR = new DefaultSnapshotTranslator();
+
+  /**
+   * Strategy for converting entities into spawn messages.
+   *
+   * <p>The default strategy requires {@code PositionComponent} and {@code DrawComponent}.
+   * Subprojects may replace this to support data-only entities.
+   */
+  public static EntitySpawnStrategy ENTITY_SPAWN_STRATEGY = new DefaultEntitySpawnStrategy();
 
   /** Maximum size of serialized payload for TCP communication, in bytes. */
   public static final int MAX_TCP_OBJECT_SIZE = 1 << 20; // 1 MiB
