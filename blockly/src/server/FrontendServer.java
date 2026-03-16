@@ -11,6 +11,7 @@ import java.nio.file.*;
 public class FrontendServer {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(BlocklyCodeRunner.class);
+  private static HttpServer server;
 
   /**
    * Starts the frontend server.
@@ -18,7 +19,7 @@ public class FrontendServer {
    * @throws IOException if textures can not be loaded.
    */
   public static void run() throws IOException {
-    HttpServer server = HttpServer.create(new InetSocketAddress(8081), 0);
+    server = HttpServer.create(new InetSocketAddress(8081), 0);
     LOGGER.debug(new File(".").getAbsolutePath());
 
     server.createContext(
@@ -78,12 +79,20 @@ public class FrontendServer {
 
     // fallback: loading assets from dev system
     File file = new File(path.replaceFirst("^assets", "blockly/frontend/dist"));
-    System.out.println(file.toPath());
 
     if (file.exists()) {
       return new FileInputStream(file);
     }
 
     return null;
+  }
+
+  /** Stops the frontend server. */
+  public static void stopServer() {
+    if (server != null) {
+
+      server.stop(0);
+      System.out.println("Server gestoppt.");
+    }
   }
 }

@@ -1,7 +1,13 @@
 plugins {
     id 'java-library'
+    id 'application'
+    id 'org.beryx.runtime' version "${beryxRuntimeVersion}"
 }
 
+application {
+    mainClass = "starter.TheLastHour"
+    applicationName = "theLastHourEscapeRoom"
+}
 
 dependencies {
     api project(':escapeRoom')
@@ -31,36 +37,19 @@ tasks.register('runTheLastHour', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('buildTheFinalHourJar', Jar) {
-    group = 'jar'
-    archiveBaseName.set('TheLastHour')
-    archiveFileName.set('TheLastHour.jar')
 
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+runtime {
 
-    // include compiled classes
-    from sourceSets.main.output
-    from project(':dungeon').sourceSets.main.output
-    from project(':theLastHourEscapeRoom').sourceSets.main.output
-    // include dependencies
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    // Configuration for jpackage tool
+    jpackage {
+
+        def inputDir = layout.buildDirectory.dir("install/${application.applicationName}/lib").get().asFile
+
+        imageOptions = ["--input", inputDir.absolutePath,
+                        "--main-jar", "${application.applicationName}.jar"]
+
     }
-
-    // include assets
-    into('assets') {
-        from new File(project(':dungeon').projectDir, '/assets')
-        from new File(project(':theLastHourEscapeRoom').projectDir, '/assets')
-    }
-
-    // manifest
-    manifest {
-        attributes(
-                'Main-Class': 'starter.TheFinalHour'
-        )
-    }
-
-    // exclude signature files
-    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
+
+
 

@@ -37,6 +37,31 @@ subprojects {
         }
     }
 }
+// Configuration of runtime for projects that use plugin org.beryx.runtime
+subprojects {
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin('org.beryx.runtime')) {
+            project.runtime {
+                options = ['--strip-debug',
+                           '--compress', '2',
+                           '--no-header-files',
+                           '--no-man-pages',
+                           '--strip-native-commands',
+                           '--vm', 'server']
+
+                // base modules common for every project
+                modules = [
+                    'java.base',
+                    'java.desktop',
+                    'java.logging',
+                    'java.naming',
+                    'jdk.unsupported',
+                    'jdk.zipfs'
+                ]
+            }
+        }
+    }
+}
 
 allprojects {
     apply plugin: 'java'

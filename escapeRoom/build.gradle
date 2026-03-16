@@ -1,7 +1,13 @@
 plugins {
     id 'java-library'
+    id 'application'
+    id 'org.beryx.runtime' version "${beryxRuntimeVersion}"
 }
 
+application {
+    mainClass = "starter.MushRoom"
+    applicationName = "mushRoom"
+}
 
 dependencies {
     api project(':dungeon')
@@ -16,67 +22,62 @@ sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
 sourceSets.test.java.srcDirs = ['test/']
 
-tasks.register('runCoopDungeon', JavaExec) {
-    group 'starter'
-    mainClass = 'starter.CoopDungeon'
-    classpath = sourceSets.main.runtimeClasspath
-}
 
-tasks.register('runDemoRoom', JavaExec) {
-    group 'starter'
-    mainClass = 'starter.DemoRoom'
-    classpath = sourceSets.main.runtimeClasspath
-}
+// Task to generate config launcher files automatically
+tasks.register('generateLauncherProperties') {
+    doLast {
+        def launchersDir = layout.buildDirectory.dir("jpackage-launchers").get().asFile
+        launchersDir.mkdirs()
 
-tasks.register('runSpriteTestRoom', JavaExec) {
-    group 'starter'
-    mainClass = 'starter.SpriteTestRoom'
-    classpath = sourceSets.main.runtimeClasspath
-}
+        def launchers = [
+            [name: 'CoopDungeon', mainClass: 'starter.CoopDungeon'],
+            [name: 'DemoRoom', mainClass: 'starter.DemoRoom'],
+            [name: 'SpriteTestRoom', mainClass: 'starter.SpriteTestRoom'],
+            [name: 'MushRoom', mainClass: 'starter.MushRoom']
+        ]
 
-tasks.register('runMushRoom', JavaExec) {
-    group 'starter'
-    mainClass = 'starter.MushRoom'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-processResources {
-    from new File(project(':dungeon').projectDir, '/assets')
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        // generate properties files
+        launchers.each { launcher ->
+            def propsFile = new File(launchersDir, "${launcher.name}.properties")
+            propsFile.text = """main-class=${launcher.mainClass}
+app-name=${launcher.name}
+"""
+        }
+    }
 }
 
 tasks.named('test', Test) {
     useJUnitPlatform()
 }
 
-tasks.register('buildDemoRoom', Jar) {
-    group = 'jar'
-    archiveBaseName.set('EscaperoomDemo')
-    archiveFileName.set('EscapeRoomDemo.jar')
+// jpackage should depend of properties files for launchers
+tasks.named('jpackageImage').configure {
+    dependsOn 'generateLauncherProperties'
+}
 
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    // include compiled classes
-    from sourceSets.main.output
-    from project(':dungeon').sourceSets.main.output
+runtime {
 
-    // include dependencies
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    // Configuration for jpackage tool
+    jpackage {
+
+        // Directory containing all JARs (created by installDist task)    "../build/install/dungeon/lib"
+        def inputDir = layout.buildDirectory.dir("install/${application.applicationName}/lib").get().asFile
+
+        // Directory containing launcher property files
+        def launchersDir = layout.buildDirectory.dir("jpackage-launchers").get().asFile
+
+
+        // Options passed to jpackage tool (jpackage requires --input option to know where all jars are)
+        // --add-launcher adds additional launchers for other main classes
+        imageOptions = [
+            "--input", inputDir.absolutePath,
+            "--add-launcher", "CoopDungeon=${launchersDir.absolutePath}/CoopDungeon.properties",
+            "--add-launcher", "DemoRoom=${launchersDir.absolutePath}/DemoRoom.properties",
+            "--add-launcher", "SpriteTestRoom=${launchersDir.absolutePath}/SpriteTestRoom.properties"
+
+
+        ]
+
     }
-
-    // include assets
-    into('assets') {
-        from new File(project(':dungeon').projectDir, '/assets')
-    }
-
-    // manifest
-    manifest {
-        attributes(
-                'Main-Class': 'starter.DemoRoom'
-        )
-    }
-
-    // exclude signature files
-    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
