@@ -1,3 +1,0 @@
-Intrinsic.java
-IO.java
-Hero.java
