@@ -49,6 +49,9 @@ public class TheLastHour {
   public static final boolean DEBUG_MODE = true;
 
   private static final boolean RUN_MP_SERVER = true;
+  private static final CharacterClass[] MULTIPLAYER_CHARACTER_CLASSES = {
+    CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03
+  };
 
   /**
    * Main entry point to launch the basic dungeon game.
@@ -60,6 +63,7 @@ public class TheLastHour {
       Game.userOnFrame(TheLastHour::onFrame);
       PreRunConfiguration.multiplayerEnabled(true);
       PreRunConfiguration.isNetworkServer(true);
+      PreRunConfiguration.multiplayerCharacterClasses(MULTIPLAYER_CHARACTER_CLASSES);
     }
 
     DungeonLoader.addLevel(Tuple.of("lasthour", LastHourLevel.class));

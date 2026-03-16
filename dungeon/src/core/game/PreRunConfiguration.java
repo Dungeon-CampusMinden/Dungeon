@@ -6,6 +6,7 @@ import core.utils.IVoidFunction;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -29,7 +30,9 @@ public final class PreRunConfiguration {
   private static String NETWORK_SERVER_ADDRESS = "127.0.0.1";
   private static int NETWORK_PORT = 7777;
   private static String USERNAME = "Player";
-  private static Optional<CharacterClass> MULTIPLAYER_CHARACTER_CLASS = Optional.empty();
+  private static CharacterClass MULTIPLAYER_CHARACTER_CLASS = null;
+  private static List<CharacterClass> MULTIPLAYER_CHARACTER_CLASSES =
+      List.of(CharacterClass.WIZARD);
 
   private static int WINDOW_WIDTH = 1280;
   private static int WINDOW_HEIGHT = 720;
@@ -377,7 +380,7 @@ public final class PreRunConfiguration {
    * @return the requested character class, or an empty {@link Optional} to use the server default
    */
   public static Optional<CharacterClass> multiplayerCharacterClass() {
-    return MULTIPLAYER_CHARACTER_CLASS;
+    return Optional.ofNullable(MULTIPLAYER_CHARACTER_CLASS);
   }
 
   /**
@@ -386,16 +389,31 @@ public final class PreRunConfiguration {
    * @param characterClass the requested character class
    */
   public static void multiplayerCharacterClass(CharacterClass characterClass) {
-    multiplayerCharacterClass(Optional.of(characterClass));
+    MULTIPLAYER_CHARACTER_CLASS = characterClass;
   }
 
   /**
-   * Sets the requested character class for multiplayer connections.
+   * Gets the fallback character classes used by multiplayer servers for clients without an explicit
+   * class selection.
    *
-   * @param characterClass the requested character class, or an empty {@link Optional} to let the
-   *     server choose the default
+   * @return the ordered fallback character classes used for round-robin assignment
    */
-  public static void multiplayerCharacterClass(Optional<CharacterClass> characterClass) {
-    MULTIPLAYER_CHARACTER_CLASS = characterClass == null ? Optional.empty() : characterClass;
+  public static List<CharacterClass> multiplayerCharacterClasses() {
+    return MULTIPLAYER_CHARACTER_CLASSES;
+  }
+
+  /**
+   * Sets the fallback character classes used by multiplayer servers for clients without an explicit
+   * class selection.
+   *
+   * @param characterClasses the ordered fallback character classes used for round-robin assignment
+   * @throws IllegalArgumentException if the list is null or empty
+   */
+  public static void multiplayerCharacterClasses(CharacterClass... characterClasses) {
+    if (characterClasses == null || characterClasses.length == 0) {
+      throw new IllegalArgumentException("characterClasses must not be null or empty.");
+    }
+
+    MULTIPLAYER_CHARACTER_CLASSES = List.of(characterClasses);
   }
 }

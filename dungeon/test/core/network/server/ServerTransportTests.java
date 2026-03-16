@@ -2,11 +2,15 @@ package core.network.server;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import contrib.entities.CharacterClass;
 import core.Game;
+import core.game.PreRunConfiguration;
 import core.network.messages.NetworkMessage;
+import core.network.messages.c2s.ConnectRequest;
 import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,6 +70,7 @@ public class ServerTransportTests {
     ServerTransport transport = new ServerTransport();
     transports.add(transport);
     currentTransport.set(transport);
+    PreRunConfiguration.multiplayerCharacterClasses(CharacterClass.WIZARD);
     MockNetworkHandler.useLocalNetworkHandler();
   }
 
@@ -83,6 +88,7 @@ public class ServerTransportTests {
       transports.remove(transport);
       currentTransport.remove();
     }
+    PreRunConfiguration.multiplayerCharacterClasses(CharacterClass.WIZARD);
   }
 
   /**
@@ -235,5 +241,40 @@ public class ServerTransportTests {
 
     assertFalse(transport1.tcpServerChannel().isActive());
     assertFalse(transport2.tcpServerChannel().isActive());
+  }
+
+  /** Validates that fallback character classes are assigned in round-robin order. */
+  @Test
+  public void test_fallbackCharacterClassesRotate() {
+    ServerTransport transport = currentTransport.get();
+    PreRunConfiguration.multiplayerCharacterClasses(
+        CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03);
+
+    assertEquals(
+        CharacterClass.THE_LAST_HOUR_ROGUE,
+        transport.selectedCharacterClass(new ConnectRequest((short) 1, "player1")));
+    assertEquals(
+        CharacterClass.THE_LAST_HOUR_CHAR03,
+        transport.selectedCharacterClass(new ConnectRequest((short) 1, "player2")));
+    assertEquals(
+        CharacterClass.THE_LAST_HOUR_ROGUE,
+        transport.selectedCharacterClass(new ConnectRequest((short) 1, "player3")));
+  }
+
+  /** Validates that explicit character-class requests do not consume the fallback rotation. */
+  @Test
+  public void test_explicitCharacterClassDoesNotAdvanceFallbackRotation() {
+    ServerTransport transport = currentTransport.get();
+    PreRunConfiguration.multiplayerCharacterClasses(
+        CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03);
+
+    assertEquals(
+        CharacterClass.HUNTER,
+        transport.selectedCharacterClass(
+            new ConnectRequest(
+                (short) 1, "player1", 0, new byte[0], Optional.of(CharacterClass.HUNTER))));
+    assertEquals(
+        CharacterClass.THE_LAST_HOUR_ROGUE,
+        transport.selectedCharacterClass(new ConnectRequest((short) 1, "player2")));
   }
 }

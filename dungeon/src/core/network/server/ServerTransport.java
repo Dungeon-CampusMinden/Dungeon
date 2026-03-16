@@ -8,6 +8,7 @@ import contrib.entities.CharacterClass;
 import contrib.entities.HeroController;
 import core.Entity;
 import core.Game;
+import core.game.PreRunConfiguration;
 import core.network.MessageDispatcher;
 import core.network.config.NetworkConfig;
 import core.network.messages.NetworkMessage;
@@ -61,6 +62,7 @@ public final class ServerTransport {
   private final ConcurrentHashMap<Short, String> clientIdToName = new ConcurrentHashMap<>();
 
   private final AtomicInteger nextClientId = new AtomicInteger(1);
+  private int nextFallbackCharacterClassIndex = 0;
 
   // Netty resources
   private EventLoopGroup bossGroup;
@@ -486,7 +488,7 @@ public final class ServerTransport {
             playerName,
             ServerRuntime.SESSION_ID,
             sessionToken,
-            req.characterClass().orElse(CharacterClass.WIZARD)));
+            selectedCharacterClass(req)));
     clientIdToSession.put(newClientId, session);
 
     session.sendMessage(new ConnectAck(newClientId, ServerRuntime.SESSION_ID, sessionToken), true);
@@ -805,5 +807,17 @@ public final class ServerTransport {
       return false;
     }
     return true;
+  }
+
+  CharacterClass selectedCharacterClass(ConnectRequest request) {
+    return request.characterClass().orElseGet(this::nextFallbackCharacterClass);
+  }
+
+  CharacterClass nextFallbackCharacterClass() {
+    List<CharacterClass> characterClasses = PreRunConfiguration.multiplayerCharacterClasses();
+    CharacterClass characterClass =
+        characterClasses.get(nextFallbackCharacterClassIndex % characterClasses.size());
+    nextFallbackCharacterClassIndex++;
+    return characterClass;
   }
 }
