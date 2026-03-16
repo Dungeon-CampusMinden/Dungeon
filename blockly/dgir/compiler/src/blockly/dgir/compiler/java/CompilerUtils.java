@@ -41,18 +41,20 @@ public class CompilerUtils {
     return node;
   }
 
-  public static boolean containsLocalFlag(BlockStmt body, String flagName) {
-    for (Statement stmt : body.getStatements()) {
-      if (!stmt.isExpressionStmt()) {
-        continue;
-      }
-      Expression expression = stmt.asExpressionStmt().getExpression();
-      if (!expression.isVariableDeclarationExpr()) {
-        continue;
-      }
-      for (VariableDeclarator variable : expression.asVariableDeclarationExpr().getVariables()) {
-        if (flagName.equals(variable.getNameAsString())) {
-          return true;
+  public static boolean containsLocalFlag(Statement body, String flagName) {
+    if (body instanceof BlockStmt blockStmt) {
+      for (Statement stmt : blockStmt.getStatements()) {
+        if (!stmt.isExpressionStmt()) {
+          continue;
+        }
+        Expression expression = stmt.asExpressionStmt().getExpression();
+        if (!expression.isVariableDeclarationExpr()) {
+          continue;
+        }
+        for (VariableDeclarator variable : expression.asVariableDeclarationExpr().getVariables()) {
+          if (flagName.equals(variable.getNameAsString())) {
+            return true;
+          }
         }
       }
     }

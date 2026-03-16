@@ -545,7 +545,71 @@ public class JavaCompiler {
 
     @Override
     public EmitResult<Optional<Value>> visit(DoStmt n, EmitContext context) {
-      return EmitResult.failure(context, n, "Do statements are not supported.");
+      // Same as while loop but body is placed in the condition region before the condition check
+      ScfOps.WhileOp whileOp = context.insert(new ScfOps.WhileOp(context.loc(n)));
+      {
+        try (var conditionRegionSymScope = new EmitContext.SymbolScope(context, false)) {
+          Block conditionBlock = whileOp.getConditionRegion().addBlock(new Block());
+          Block continueBlock = whileOp.getConditionRegion().addBlock(new Block());
+          continueBlock.addOperation(new ScfOps.ContinueOp(context.loc(n.getCondition())));
+          Block breakBlock = whileOp.getConditionRegion().addBlock(new Block());
+          breakBlock.addOperation(new ScfOps.EndOp(context.loc(n.getCondition())));
+
+          // Open the new scope and place the comparison expression in it.
+          try (var bodyInsertion =
+              context.setInsertionPoint(whileOp.getConditionRegion().getEntryBlock(), -1)) {
+
+            EmitResult<Optional<Value>> bodyResult;
+            {
+              bodyResult = EmitResult.ofNullable(n.getBody().accept(this, context));
+              if (bodyResult.isFailure()) return bodyResult;
+            }
+
+            // If there was a call to break or continue the skip and break flags are added
+            // we need to jump to the correct block
+            // If not jump to the regular condition check
+            if (containsLocalFlag(n.getBody(), "skipBreak")) {
+              // Create the branch to break or continue
+              // The second operation is the constant op defining the skip-break flag
+              context.insert(
+                  new CfOps.BranchCondOp(
+                      context.loc(n),
+                      whileOp
+                          .getConditionRegion()
+                          .getEntryBlock()
+                          .getOperations()
+                          .get(1)
+                          .getOutputValueOrThrow(),
+                      breakBlock,
+                      conditionBlock));
+            } else {
+              context.insert(new CfOps.BranchOp(context.loc(n), conditionBlock));
+            }
+          }
+          try (var conditionInsertion = context.setInsertionPoint(conditionBlock, -1)) {
+            EmitResult<Optional<Value>> conditionResult;
+            {
+              conditionResult = EmitResult.ofNullable(n.getCondition().accept(this, context));
+              if (conditionResult.isFailure() || conditionResult.get().isEmpty())
+                return conditionResult;
+              Value compareValue = conditionResult.get().get();
+              context.insert(
+                  new CfOps.BranchCondOp(
+                      context.loc(n.getCondition()), compareValue, continueBlock, breakBlock));
+            }
+          }
+        }
+
+        try (var continueInsertion =
+                context.setInsertionPoint(whileOp.getBodyRegion().getEntryBlock(), -1);
+            var continueSymScope = new EmitContext.SymbolScope(context, false)) {
+          // Just add an implicit continue at the end of the loop body to jump back to the
+          // condition.
+          context.insert(new ScfOps.ContinueOp(context.loc(n)));
+        }
+      }
+      whileOp.addImplicitTerminators();
+      return EmitResult.success(Optional.empty());
     }
 
     @Override
@@ -805,40 +869,33 @@ public class JavaCompiler {
             if (bodyResult.isFailure()) return bodyResult;
           }
 
-          if (n.getBody().isBlockStmt()) {
-            BlockStmt blockStmt = n.getBody().asBlockStmt();
-            // If there was a call to break or continue the skip and break flags are added
-            // In case they exists we need to create a block for the update and one for the
-            // terminate condition
-            // Otherwise, just emit the update result.
-            if (containsLocalFlag(blockStmt, "skip")) {
-              // Create the continue block. This is only called if there are no break statements
-              // where hit.
-              Block continueBlock = whileOp.getBodyRegion().addBlock(new Block());
-              continueBlock.addOperation(new ScfOps.ContinueOp(context.loc(n)));
-              // Create the break block. This is called if there was a break statement in the loop
-              // body.
-              Block breakBlock = whileOp.getBodyRegion().addBlock(new Block());
-              breakBlock.addOperation(new ScfOps.EndOp(context.loc(n)));
+          // If there was a call to break or continue the skip and break flags are added
+          // In case they exists we need to create a block for the update and one for the
+          // terminate condition
+          // Otherwise, just emit the update result.
+          if (containsLocalFlag(n.getBody(), "skipBreak")) {
+            // Create the continue block. This is only called if there are no break statements
+            // where hit.
+            Block continueBlock = whileOp.getBodyRegion().addBlock(new Block());
+            continueBlock.addOperation(new ScfOps.ContinueOp(context.loc(n)));
+            // Create the break block. This is called if there was a break statement in the loop
+            // body.
+            Block breakBlock = whileOp.getBodyRegion().addBlock(new Block());
+            breakBlock.addOperation(new ScfOps.EndOp(context.loc(n)));
 
-              // Create the branch to break or continue
-              // The second operation is the constant op defining the skip flag
-              context.insert(
-                  new CfOps.BranchCondOp(
-                      context.loc(n),
-                      whileOp
-                          .getBodyRegion()
-                          .getEntryBlock()
-                          .getOperations()
-                          .get(1)
-                          .getOutputValueOrThrow(),
-                      breakBlock,
-                      continueBlock));
-            } else {
-              // Just add an implicit continue at the end of the loop body to jump back to the
-              // condition.
-              context.insert(new ScfOps.ContinueOp(context.loc(n)));
-            }
+            // Create the branch to break or continue
+            // The second operation is the constant op defining the skip flag
+            context.insert(
+                new CfOps.BranchCondOp(
+                    context.loc(n),
+                    whileOp
+                        .getBodyRegion()
+                        .getEntryBlock()
+                        .getOperations()
+                        .get(1)
+                        .getOutputValueOrThrow(),
+                    breakBlock,
+                    continueBlock));
           } else {
             return EmitResult.failure(context, n, "Failed to emit body of for loop");
           }

@@ -629,4 +629,38 @@ public class %ClassName {
 """;
     testSource(code);
   }
+
+  @Test
+  void doLoop() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 0;
+    do {
+      x++;
+    } while (x < 5);
+    assert x == 5 : "Expected x to be 5, but got " + x;
+  }
+}
+""";
+    testSource(code);
+  }
+
+  @Test
+  void doLoopWithBreak() {
+    String code =
+"""
+public class %ClassName {
+  public static void main() {
+    int x = 0;
+    do {
+      break;
+    } while (x < 5);
+    assert x == 0 : "Expected x to be 0, but got " + x;
+  }
+}
+""";
+    testSource(code);
+  }
 }
