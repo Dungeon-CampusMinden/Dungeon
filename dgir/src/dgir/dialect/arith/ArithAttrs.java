@@ -41,20 +41,41 @@ public sealed interface ArithAttrs {
     }
 
     public enum UnaryMode {
-      NEGATE(UnaryMode::onlyNumericOperand),
-      INCREMENT(UnaryMode::onlyNumericOperand),
-      DECREMENT(UnaryMode::onlyNumericOperand),
-      COMPLEMENT(UnaryMode::onlyIntegerOperand),
-      LOGICAL_COMPLEMENT(UnaryMode::onlyBooleanOperand),
+      NEGATE {
+        @Override
+        public @NotNull Optional<String> verifyOperand(@NotNull UnaryOp unaryOp) {
+          return UnaryMode.onlyNumericOperand(unaryOp);
+        }
+      },
+      INCREMENT {
+        @Override
+        public @NotNull Optional<String> verifyOperand(@NotNull UnaryOp unaryOp) {
+          return UnaryMode.onlyNumericOperand(unaryOp);
+        }
+      },
+      DECREMENT {
+        @Override
+        public @NotNull Optional<String> verifyOperand(@NotNull UnaryOp unaryOp) {
+          return UnaryMode.onlyNumericOperand(unaryOp);
+        }
+      },
+      COMPLEMENT {
+        @Override
+        public @NotNull Optional<String> verifyOperand(@NotNull UnaryOp unaryOp) {
+          return UnaryMode.onlyIntegerOperand(unaryOp);
+        }
+      },
+      LOGICAL_COMPLEMENT {
+        @Override
+        public @NotNull Optional<String> verifyOperand(@NotNull UnaryOp unaryOp) {
+          return UnaryMode.onlyBooleanOperand(unaryOp);
+        }
+      },
       ;
 
-      public final @NotNull Function<@NotNull UnaryOp, @NotNull Optional<String>> operandVerifier;
+      public abstract @NotNull Optional<String> verifyOperand(@NotNull UnaryOp unaryOp);
 
-      UnaryMode(@NotNull Function<@NotNull UnaryOp, @NotNull Optional<String>> operandVerifier) {
-        this.operandVerifier = operandVerifier;
-      }
-
-      public static Optional<String> onlyNumericOperand(@NotNull UnaryOp unaryOp) {
+      private static Optional<String> onlyNumericOperand(@NotNull UnaryOp unaryOp) {
         int width =
             switch (unaryOp.getOperand().getType()) {
               case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
@@ -67,7 +88,7 @@ public sealed interface ArithAttrs {
         return Optional.empty();
       }
 
-      public static Optional<String> onlyIntegerOperand(@NotNull UnaryOp unaryOp) {
+      private static Optional<String> onlyIntegerOperand(@NotNull UnaryOp unaryOp) {
         int width =
             switch (unaryOp.getOperand().getType()) {
               case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
@@ -79,7 +100,7 @@ public sealed interface ArithAttrs {
         return Optional.empty();
       }
 
-      public static Optional<String> onlyBooleanOperand(@NotNull UnaryOp unaryOp) {
+      private static Optional<String> onlyBooleanOperand(@NotNull UnaryOp unaryOp) {
         int width =
             switch (unaryOp.getOperand().getType()) {
               case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
@@ -126,52 +147,158 @@ public sealed interface ArithAttrs {
     public enum BinMode {
       // Arithmetic
       /** Addition */
-      ADD(BinMode::onlyNumericOperands),
+      ADD {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyNumericOperands(unaryOp);
+        }
+      },
       /** Subtraction */
-      SUB(BinMode::onlyNumericOperands),
+      SUB {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyNumericOperands(unaryOp);
+        }
+      },
       /** Signed Multiplication */
-      MUL(BinMode::onlyNumericOperands),
+      MUL {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyNumericOperands(unaryOp);
+        }
+      },
       /** Division */
-      DIV(BinMode::onlyNumericOperands),
-      DIVUI(BinMode::onlyIntegerOperands),
+      DIV {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyNumericOperands(unaryOp);
+        }
+      },
+      DIVUI {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyIntegerOperands(unaryOp);
+        }
+      },
       /** Remainder */
-      MOD(BinMode::onlyNumericOperands),
+      MOD {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyNumericOperands(unaryOp);
+        }
+      },
       /** Unsigned Remainder */
-      MODUI(BinMode::onlyIntegerOperands),
+      MODUI {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyIntegerOperands(unaryOp);
+        }
+      },
 
       // Bitwise
       /** Bitwise OR */
-      BOR(BinMode::onlySameIntegerOperands),
+      BOR {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlySameIntegerOperands(unaryOp);
+        }
+      },
       /** Bitwise AND */
-      BAND(BinMode::onlySameIntegerOperands),
+      BAND {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlySameIntegerOperands(unaryOp);
+        }
+      },
       /** Bitwise XOR */
-      BXOR(BinMode::onlySameIntegerOperands),
+      BXOR {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlySameIntegerOperands(unaryOp);
+        }
+      },
       /** Bitwise shift left */
-      LSH(BinMode::onlyIntegerOperands),
+      LSH {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyIntegerOperands(unaryOp);
+        }
+      },
       /** Signed bitwise shift right */
-      RSHS(BinMode::onlyIntegerOperands),
+      RSHS {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyIntegerOperands(unaryOp);
+        }
+      },
       /** Unsigned bitwise shift right */
-      RSHU(BinMode::onlyIntegerOperands),
+      RSHU {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyIntegerOperands(unaryOp);
+        }
+      },
 
       // Logical
-      AND(BinMode::onlyBooleanOperands),
-      OR(BinMode::onlyBooleanOperands),
-      XOR(BinMode::onlyBooleanOperands),
-      LT(BinMode::onlyNumericOperands),
-      LE(BinMode::onlyNumericOperands),
-      GT(BinMode::onlyNumericOperands),
-      GE(BinMode::onlyNumericOperands),
+      AND {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyBooleanOperands(unaryOp);
+        }
+      },
+      OR {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyBooleanOperands(unaryOp);
+        }
+      },
+      XOR {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyBooleanOperands(unaryOp);
+        }
+      },
+      LT {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyNumericOperands(unaryOp);
+        }
+      },
+      LE {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyNumericOperands(unaryOp);
+        }
+      },
+      GT {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyNumericOperands(unaryOp);
+        }
+      },
+      GE {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.onlyNumericOperands(unaryOp);
+        }
+      },
 
-      EQ(BinMode::anyOperands),
-      NE(BinMode::anyOperands);
+      EQ {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.anyOperands(unaryOp);
+        }
+      },
+      NE {
+        @Override
+        public @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp) {
+          return BinMode.anyOperands(unaryOp);
+        }
+      };
 
-      public final @NotNull Function<@NotNull BinaryOp, @NotNull Optional<String>> operandsVerifier;
+      public abstract @NotNull Optional<String> verifyOperands(@NotNull BinaryOp unaryOp);
 
-      BinMode(@NotNull Function<@NotNull BinaryOp, @NotNull Optional<String>> operandsVerifier) {
-        this.operandsVerifier = operandsVerifier;
-      }
-
-      static Optional<String> onlyNumericOperands(@NotNull BinaryOp binaryOp) {
+      private static Optional<String> onlyNumericOperands(@NotNull BinaryOp binaryOp) {
         int widthLhs =
             switch (binaryOp.getLhs().getType()) {
               case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
@@ -193,7 +320,7 @@ public sealed interface ArithAttrs {
         return Optional.empty();
       }
 
-      static Optional<String> onlyIntegerOperands(@NotNull BinaryOp binaryOp) {
+      private static Optional<String> onlyIntegerOperands(@NotNull BinaryOp binaryOp) {
         int widthLhs =
             switch (binaryOp.getLhs().getType()) {
               case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
@@ -213,7 +340,7 @@ public sealed interface ArithAttrs {
         return Optional.empty();
       }
 
-      static Optional<String> onlySameIntegerOperands(@NotNull BinaryOp binaryOp) {
+      private static Optional<String> onlySameIntegerOperands(@NotNull BinaryOp binaryOp) {
         Optional<String> error = onlyIntegerOperands(binaryOp);
         if (error.isPresent()) return error;
 
@@ -222,7 +349,7 @@ public sealed interface ArithAttrs {
         return Optional.empty();
       }
 
-      static Optional<String> onlyBooleanOperands(@NotNull BinaryOp binaryOp) {
+      private static Optional<String> onlyBooleanOperands(@NotNull BinaryOp binaryOp) {
         int widthLhs =
             switch (binaryOp.getLhs().getType()) {
               case BuiltinTypes.IntegerT integerT -> integerT.getWidth();
@@ -242,7 +369,7 @@ public sealed interface ArithAttrs {
         return Optional.empty();
       }
 
-      static Optional<String> anyOperands(@NotNull BinaryOp binaryOp) {
+      private static Optional<String> anyOperands(@NotNull BinaryOp binaryOp) {
         if (!isNumeric(binaryOp.getResult().getType()) || !isNumeric(binaryOp.getRhs().getType())) {
           return Optional.of("Operands must be numeric");
         }

@@ -94,7 +94,7 @@ public sealed interface ArithOps {
         }
         UnaryModeAttr.UnaryMode unaryMode =
             unaryOp.getAttributeAs("unaryMode", UnaryModeAttr.class).get().getMode();
-        Optional<String> result = unaryMode.operandVerifier.apply(unaryOp);
+        Optional<String> result = unaryMode.verifyOperand(unaryOp);
         if (result.isPresent()) {
           unaryOp.emitError(result.get());
           return false;
@@ -122,6 +122,7 @@ public sealed interface ArithOps {
       getAttributeAs("unaryMode", UnaryModeAttr.class).orElseThrow().setMode(mode);
       switch (mode) {
         case INCREMENT, DECREMENT -> setOutputValue(operand);
+        default -> {}
       }
     }
 
@@ -165,7 +166,7 @@ public sealed interface ArithOps {
           return false;
         }
         BinMode binMode = binaryOp.getAttributeAs("binMode", BinModeAttr.class).get().getMode();
-        Optional<String> modeError = binMode.operandsVerifier.apply(binaryOp);
+        Optional<String> modeError = binMode.verifyOperands(binaryOp);
         if (modeError.isPresent()) {
           binaryOp.emitError(modeError.get());
           return false;
