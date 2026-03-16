@@ -11,7 +11,6 @@ import java.nio.file.*;
 public class FrontendServer {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(BlocklyCodeRunner.class);
-
   private static HttpServer server;
 
   /**
@@ -42,13 +41,11 @@ public class FrontendServer {
             resourcePath = "assets/index.html";
             is = loadAsset(resourcePath);
           }
-
           // SPA fallback
           if (is == null) {
             exchange.sendResponseHeaders(404, -1);
             return;
           }
-
           byte[] bytes = is.readAllBytes();
           is.close();
 
@@ -75,24 +72,18 @@ public class FrontendServer {
   private static InputStream loadAsset(String path) throws IOException {
     // load assets from jar asset path
     InputStream is = FrontendServer.class.getClassLoader().getResourceAsStream(path);
-
     if (is != null) return is;
-
     // fallback: loading assets from dev system
     File file = new File(path.replaceFirst("^assets", "blockly/frontend/dist"));
-
     if (file.exists()) {
       return new FileInputStream(file);
     }
-
     return null;
   }
-  /**
-   * Stops the frontend server.
-   */
+
+  /** Stops the frontend server. */
   public static void stopServer() {
     if (server != null) {
-
       server.stop(0);
       System.out.println("Server gestoppt.");
     }
