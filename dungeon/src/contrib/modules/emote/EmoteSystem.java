@@ -6,8 +6,10 @@ import core.System;
 import core.components.PositionComponent;
 import core.utils.Point;
 
+/** System that processes emotes, updating their wobbling. */
 public class EmoteSystem extends System {
 
+  /** Create a new EmoteSystem that processes emote entities. */
   public EmoteSystem() {
     super(AuthoritativeSide.SERVER, EmoteComponent.class, PositionComponent.class);
   }

@@ -57,6 +57,7 @@ public class TrashMinigameUI extends Group {
    * Creates a new TrashMinigameUI.
    *
    * @param importantNotePath the path to the important note texture, or null if there is no note
+   * @param paperCount the number of crumbled papers to place in the playfield
    */
   public TrashMinigameUI(String importantNotePath, int paperCount) {
     setSize(Game.windowWidth(), Game.windowHeight());

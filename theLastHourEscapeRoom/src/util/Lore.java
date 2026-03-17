@@ -172,7 +172,7 @@ public class Lore {
               That final ASCII conversion should reveal the numeric code you were trying to recover.""",
                       360))));
 
-  /** The real access URL */
+  /** The real access URL. */
   public static final String RealAccessUrl = "https://secugate-support.com/sg4/access";
 
   /** List of URLs mentioned in the emails, which may or may not be trustworthy. */
@@ -249,8 +249,11 @@ public class Lore {
               "Investor Notice,\\pOur automated trading platform has identified you as eligible for a limited high-yield investment opportunity with guaranteed daily profit.\\pSpaces are extremely limited.\\p\\aActivate investment account;https://cryptogrowth-daily.biz/start?si=1ujg0h1ju8mnc980mumsdnuz0",
               List.of()));
 
+  /** List of attachment file names that lead to viruses. */
   public static final List<String> VirusAttachmentNames =
       List.of("Tracking Details.pdf", "Linkin_Park_-_In_The_End.mp3.exe");
+
+  /** List of URLs that lead to viruses. */
   public static final List<String> VirusWebsites =
       List.of(
           "https://illegal-music-downloader.com/download/12345",
