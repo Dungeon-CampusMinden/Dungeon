@@ -13,6 +13,7 @@ import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.skill.selfSkill.DashSkill;
 import contrib.utils.components.skill.selfSkill.MeleeAttackSkill;
 import contrib.utils.components.skill.selfSkill.SelfHealSkill;
+import core.utils.Rectangle;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
@@ -40,7 +41,8 @@ public enum CharacterClass {
       100,
       10,
       50,
-      5),
+      5,
+      new Rectangle(0.8f, 0.8f, 0.1f, 0.1f)),
 
   /**
    * Hunter character class.
@@ -66,17 +68,18 @@ public enum CharacterClass {
       0,
       0,
       120,
-      5),
+      5,
+      new Rectangle(0.8f, 0.8f, 0.1f, 0.1f)),
 
   /** Wizard character class, specifically made for the MushRoom game. */
   MUSHROOM_WIZARD(
-      "character/wizard", Vector2.of(5, 5), 1.3f, 15, List.of(), List.of(), 16, 100, 10, 50, 5),
+      "character/wizard", Vector2.of(5, 5), 1.3f, 15, List.of(), List.of(), 16, 100, 10, 50, 5, new Rectangle(0.8f, 0.8f, 0.1f, 0.1f)),
   /** The Last Hour class for the Rogue. */
   THE_LAST_HOUR_ROGUE(
-      "character/rogue", Vector2.of(5, 5), 1.2f, 20, List.of(), List.of(), 10, 0, 0, 0, 0),
+      "character/rogue", Vector2.of(5, 5), 1.2f, 20, List.of(), List.of(), 10, 0, 0, 0, 0, new Rectangle(0.8f, 0.8f, 0.6f, 0.5f)),
   /** The Last Hour class for the Char03. */
   THE_LAST_HOUR_CHAR03(
-      "character/char03", Vector2.of(5, 5), 1.2f, 20, List.of(), List.of(), 10, 0, 0, 0, 0);
+      "character/char03", Vector2.of(5, 5), 1.2f, 20, List.of(), List.of(), 10, 0, 0, 0, 0, new Rectangle(0.8f, 0.8f, 0.6f, 0.3f));
 
   private final IPath textures;
   private final Vector2 speed;
@@ -89,6 +92,7 @@ public enum CharacterClass {
   private final float manaRestore;
   private final int stamina;
   private final float staminaRestore;
+  private final Rectangle hitbox;
 
   /**
    * Constructs a new {@code CharacterClass} with the specified attributes.
@@ -119,7 +123,8 @@ public enum CharacterClass {
       int mana,
       float manaRestore,
       int energy,
-      float energyRestore) {
+      float energyRestore,
+      Rectangle hitbox) {
     this.textures = new SimpleIPath(textures);
     this.speed = speed;
     this.mass = mass;
@@ -131,6 +136,7 @@ public enum CharacterClass {
     this.manaRestore = manaRestore;
     this.stamina = energy;
     this.staminaRestore = energyRestore;
+    this.hitbox = hitbox;
   }
 
   /**
@@ -249,5 +255,14 @@ public enum CharacterClass {
    */
   public float staminaRestore() {
     return staminaRestore;
+  }
+
+  /**
+   * Returns the hitbox dimensions for the character class.
+   *
+   * @return a {@link Rectangle} representing the hitbox
+   */
+  public Rectangle hitbox() {
+    return hitbox;
   }
 }
