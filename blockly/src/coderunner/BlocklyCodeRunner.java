@@ -8,9 +8,8 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,6 +17,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import systems.BlocklyCommandExecuteSystem;
 
@@ -37,6 +38,7 @@ public class BlocklyCodeRunner {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(BlocklyCodeRunner.class);
   private static BlocklyCodeRunner instance;
+
 
   /** List of whitelisted Blockly command method names without the trailing (); or parameters. */
   private static final List<String> WHITELIST =
@@ -106,6 +108,7 @@ public class BlocklyCodeRunner {
   private final AtomicBoolean codeRunning = new AtomicBoolean(false);
   private ExecutorService executor;
   private Future<?> currentExecution;
+  private boolean folderTransfered = false;
 
   private BlocklyCodeRunner() {} // private constructor for singleton
 
@@ -131,6 +134,59 @@ public class BlocklyCodeRunner {
     executeJavaCode(code, DEFAULT_SLEEP_AFTER_EACH_LINE);
   }
 
+
+  public void prepareCompilerResources(Path tempDir) {
+    Path libFolder = tempDir.resolve("unpacked_libs");
+
+    // Nur entpacken, wenn der Ordner noch nicht da ist
+
+      try {
+        Files.createDirectories(libFolder);
+        File jarFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+
+        try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(jarFile)) {
+          java.util.Enumeration<? extends java.util.zip.ZipEntry> entries = zip.entries();
+
+          while (entries.hasMoreElements()) {
+            java.util.zip.ZipEntry entry = entries.nextElement();
+            Path entryPath = libFolder.resolve(entry.getName());
+
+            if (entry.isDirectory()) {
+              // Ordner erstellen, falls er nicht existiert
+              if (!Files.exists(entryPath)) {
+                Files.createDirectories(entryPath);
+              }
+            } else {
+              // Sicherstellen, dass der Eltern-Ordner existiert
+              Path parent = entryPath.getParent();
+              if (parent != null && !Files.exists(parent)) {
+                Files.createDirectories(parent);
+              }
+
+              // Datei entpacken
+              try (InputStream is = zip.getInputStream(entry)) {
+                // Wir prüfen, ob ein Ordner mit dem gleichen Namen den Weg versperrt
+                if (Files.exists(entryPath) && Files.isDirectory(entryPath)) {
+                  // System.out.println("Überspringe: Ordner blockiert Datei " + entry.getName());
+                } else {
+                  Files.copy(is, entryPath, StandardCopyOption.REPLACE_EXISTING);
+                }
+              } catch (IOException e) {
+                // Case-Sensitivity Konflikte (LICENSE vs license) abfangen
+                 System.out.println("Konnte Datei nicht entpacken: " + entry.getName());
+              }
+            }
+          } // Ende while
+        } // Ende try-with-resources (zip)
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
+      System.out.println("fertig mit dem entpacken der dateien");
+
+  }
+
+
   /**
    * Executes the given Java code.
    *
@@ -139,12 +195,21 @@ public class BlocklyCodeRunner {
    * @throws RuntimeException If an error occurs during execution.
    */
   public void executeJavaCode(String code, int sleepAfterEachLine) throws RuntimeException {
+
     if (sleepAfterEachLine > 0) code = addSleepCalls(code); // no sleep if time is 0
     codeRunning.set(true);
     code = String.format(CodeWrapper, code, sleepAfterEachLine);
 
     // In system temp directory
     Path tempDir = tempFolder();
+    Path libFolder = tempDir.resolve("unpacked_libs");
+
+    if (!folderTransfered) {
+      System.out.println("transfering folders once");
+      prepareCompilerResources(tempDir);
+      folderTransfered = true;
+    }
+
     Path tempFile;
     if (tempDir == null) {
       return;
@@ -159,7 +224,12 @@ public class BlocklyCodeRunner {
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 
-    int compilationResult = compiler.run(null, null, errorStream, tempFile.toFile().toString());
+    String[] compilerArgs = {
+      "-classpath", libFolder.toAbsolutePath().toString(),
+      tempFile.toFile().toString()
+    };
+
+    int compilationResult = compiler.run(null, null, errorStream, compilerArgs);
 
     if (compilationResult != 0) {
       String errors = errorStream.toString();
@@ -183,25 +253,25 @@ public class BlocklyCodeRunner {
 
     executor = Executors.newSingleThreadExecutor();
     currentExecution =
-        executor.submit(
-            () -> {
-              try {
-                method.invoke(null, new BlocklyCommands());
-                // Code executed successfully
-                codeRunning.set(false);
-              } catch (InvocationTargetException | IllegalAccessException e) {
-                codeRunning.set(false);
-                if (e.getCause() instanceof InterruptedException) {
-                  return; // ignore interruption exception
-                }
+      executor.submit(
+        () -> {
+          try {
+            method.invoke(null, new BlocklyCommands());
+            // Code executed successfully
+            codeRunning.set(false);
+          } catch (InvocationTargetException | IllegalAccessException e) {
+            codeRunning.set(false);
+            if (e.getCause() instanceof InterruptedException) {
+              return; // ignore interruption exception
+            }
 
-                String causeMessage =
-                    e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-                causeMessage = causeMessage != null ? causeMessage : e.toString();
-                LOGGER.warn(String.format("Error executing code: %s", causeMessage), e);
-                throw new RuntimeException("Execution error: " + causeMessage);
-              }
-            });
+            String causeMessage =
+              e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+            causeMessage = causeMessage != null ? causeMessage : e.toString();
+            LOGGER.warn(String.format("Error executing code: %s", causeMessage), e);
+            throw new RuntimeException("Execution error: " + causeMessage);
+          }
+        });
   }
 
   /**
@@ -261,6 +331,7 @@ public class BlocklyCodeRunner {
    * @return Path to the temporary folder. If no folder is found or cannot be created, returns null.
    */
   private Path tempFolder() {
+    System.out.println("temp folder under " + System.getProperty("java.io.tmpdir"));
     File tempDir = new File(System.getProperty("java.io.tmpdir"));
     File[] tempFiles = tempDir.listFiles();
     if (tempFiles != null) {
