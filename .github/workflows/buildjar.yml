@@ -9,11 +9,11 @@ jobs:
 
         steps:
             - name: Checkout Repository
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
             # 1. Node.js Setup für das Frontend
             - name: Set up Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: '20'
                   cache: 'npm'
@@ -28,7 +28,7 @@ jobs:
 
             # 3. Java Setup
             - name: Set up JDK 21
-              uses: actions/setup-java@v4
+              uses: actions/setup-java@v5
               with:
                   java-version: '21'
                   distribution: 'temurin'
@@ -43,7 +43,7 @@ jobs:
 
             # 5. Beide JAR-Artefakte für den nächsten Job speichern
             - name: Upload Build Artifacts
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               with:
                   name: Blockly-JARs
                   path: blockly/build/libs/*.jar
@@ -54,12 +54,12 @@ jobs:
         contents: write
       steps:
         - name: Checkout repository
-          uses: actions/checkout@v3
+          uses: actions/checkout@v6
           with:
             fetch-depth: 0
 
         - name: Download the JARs
-          uses: actions/download-artifact@v4
+          uses: actions/download-artifact@v8
           with:
             name: Blockly-JARs
 
