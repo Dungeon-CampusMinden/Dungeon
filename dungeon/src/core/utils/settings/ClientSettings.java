@@ -53,7 +53,7 @@ public class ClientSettings {
   private void init() {
     IntSliderSetting masterVolume = new IntSliderSetting("Master Volume", 70, 0, 100, 5);
     IntSliderSetting effectsVolume = new IntSliderSetting("Effects Volume", 70, 0, 100, 5);
-    IntSliderSetting musicVolume = new IntSliderSetting("Music Volume", 0, 0, 100, 5);
+    IntSliderSetting musicVolume = new IntSliderSetting("Music Volume", 5, 0, 100, 5);
 
     masterVolume.onChange((v) -> onVolumeChange.accept(MASTER_VOLUME, v));
     effectsVolume.onChange((v) -> onVolumeChange.accept(EFFECTS_VOLUME, v));
