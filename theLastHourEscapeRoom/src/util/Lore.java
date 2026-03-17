@@ -77,6 +77,7 @@ public class Lore {
 
         Move -> WASD
         Interact -> E
+        Pause/Settings -> P
         Close Dialog -> <ESC>""";
 
   /** List of outro texts, each with a corresponding font sizes. */

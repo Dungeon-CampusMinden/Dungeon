@@ -43,14 +43,14 @@ import network.LastHourSnapshotTranslator;
  */
 public class TheLastHour {
 
-  private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
   private static final String SERVER_ARGUMENT = "--server";
+
+  private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
   private static Music backgroundMusic;
 
   /** Enable or disable debug mode, which adds extra systems for debugging and level editing. */
-  public static final boolean DEBUG_MODE = true;
+  public static final boolean DEBUG_MODE = false;
 
-  private static final boolean RUN_MP_SERVER = true;
   private static final CharacterClass[] MULTIPLAYER_CHARACTER_CLASSES = {
     CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03
   };
@@ -119,7 +119,11 @@ public class TheLastHour {
     }
   }
 
-  private static void setupMusic() {
+  /**
+   * Initializes and starts the background music for the game, and sets up listeners to adjust the
+   * volume based on client settings changes.
+   */
+  public static void setupMusic() {
     backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
     backgroundMusic.setLooping(true);
     backgroundMusic.play();

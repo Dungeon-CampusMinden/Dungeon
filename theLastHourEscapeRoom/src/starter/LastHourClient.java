@@ -45,7 +45,7 @@ public final class LastHourClient {
     PreRunConfiguration.isNetworkServer(false);
     PreRunConfiguration.networkServerAddress("127.0.0.1");
     PreRunConfiguration.networkPort(7777);
-    PreRunConfiguration.username("Player2");
+    PreRunConfiguration.username("Player1");
     PreRunConfiguration.multiplayerCharacterClass(null); // server decides
 
     registerCustomDialogs();
@@ -67,6 +67,7 @@ public final class LastHourClient {
           }
           Game.stage().ifPresent(CursorUtil::initListener);
           Game.remove(AttributeBarSystem.class);
+          TheLastHour.setupMusic();
           System.out.println("DevClient started");
         });
 
