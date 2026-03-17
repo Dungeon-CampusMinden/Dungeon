@@ -123,7 +123,7 @@ public class KeypadUI extends Group {
     super.draw(batch, parentAlpha);
   }
 
-  static void onButtonPress(Entity keypadEntity, String action) {
+  static void onButtonPress(Entity keypadEntity, Entity caller, String action) {
     LOGGER.info("Clicked button: " + action);
 
     var drawComp = keypadEntity.fetch(DrawComponent.class).orElseThrow();
@@ -142,7 +142,7 @@ public class KeypadUI extends Group {
 
     if (!action.equals("Submit")) {
       float pitch = 1 + (number - 5) * 0.05f;
-      Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").pitch(pitch));
+      Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").pitch(pitch).targets(caller.id()));
     }
   }
 

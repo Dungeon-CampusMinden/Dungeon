@@ -71,7 +71,7 @@ public class KeypadFactory {
                           (payload) -> {
                             if (payload
                                 instanceof DialogResponseMessage.StringValue(String value)) {
-                              KeypadUI.onButtonPress(e, value);
+                              KeypadUI.onButtonPress(e, who, value);
                             }
                           });
                       LOGGER.info("Interacted with keypad sprite");
