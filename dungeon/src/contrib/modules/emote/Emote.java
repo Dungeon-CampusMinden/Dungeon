@@ -3,65 +3,65 @@ package contrib.modules.emote;
 /** All available emote types. */
 public enum Emote {
 
-  /** An emote */
+  /** An emote. */
   BLANK("blank"),
-  /** An emote */
+  /** An emote. */
   ALERT("alert"),
-  /** An emote */
+  /** An emote. */
   ANGER("anger"),
-  /** An emote */
+  /** An emote. */
   BARS("bars"),
-  /** An emote */
+  /** An emote. */
   CASH("cash"),
-  /** An emote */
+  /** An emote. */
   CIRCLE("circle"),
-  /** An emote */
+  /** An emote. */
   CLOUD("cloud"),
-  /** An emote */
+  /** An emote. */
   CROSS("cross"),
-  /** An emote */
+  /** An emote. */
   DOTS1("dots1"),
-  /** An emote */
+  /** An emote. */
   DOTS2("dots2"),
-  /** An emote */
+  /** An emote. */
   DOTS3("dots3"),
-  /** An emote */
+  /** An emote. */
   DROP("drop"),
-  /** An emote */
+  /** An emote. */
   DROPS("drops"),
-  /** An emote */
+  /** An emote. */
   EXCLAMATION("exclamation"),
-  /** An emote */
+  /** An emote. */
   EXCLAMATIONS("exclamations"),
-  /** An emote */
+  /** An emote. */
   FACE_ANGRY("faceAngry"),
-  /** An emote */
+  /** An emote. */
   FACE_HAPPY("faceHappy"),
-  /** An emote */
+  /** An emote. */
   FACE_SAD("faceSad"),
-  /** An emote */
+  /** An emote. */
   HEART("heart"),
-  /** An emote */
+  /** An emote. */
   HEART_BROKEN("heartBroken"),
-  /** An emote */
+  /** An emote. */
   HEARTS("hearts"),
-  /** An emote */
+  /** An emote. */
   IDEA("idea"),
-  /** An emote */
+  /** An emote. */
   LAUGH("laugh"),
-  /** An emote */
+  /** An emote. */
   MUSIC("music"),
-  /** An emote */
+  /** An emote. */
   QUESTION("question"),
-  /** An emote */
+  /** An emote. */
   SLEEP("sleep"),
-  /** An emote */
+  /** An emote. */
   SLEEPS("sleeps"),
-  /** An emote */
+  /** An emote. */
   STAR("star"),
-  /** An emote */
+  /** An emote. */
   STARS("stars"),
-  /** An emote */
+  /** An emote. */
   SWIRL("swirl");
 
   private final String name;
