@@ -61,33 +61,36 @@ jobs:
                   name: vs-code-extension
                   path: doc/produs_unterlagen/blockly-code-runner-1.0.2.vsix
     deploy:
+        needs: [build, upload_extension]
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
 
-      needs: build
-      runs-on: ubuntu-latest
-      permissions:
-        contents: write
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v6
-          with:
-            fetch-depth: 0
+            - name: Download the JARs
+              uses: actions/download-artifact@v8
+              with:
+                name: Blockly-JARs
 
-        - name: Download the JARs
-          uses: actions/download-artifact@v8
-          with:
-            name: Blockly-JARs
+            - name: Download VS-Code Extension
+              uses: actions/download-artifact@v4
+              with:
+                name: vs-code-extension
 
+            - name: Install GitHub CLI
+              run: sudo apt update && sudo apt install -y gh
 
-        - name: Install GitHub CLI
-          run: sudo apt update && sudo apt install -y gh
-
-        - name: Create GitHub Release
-          run: |
-              TAG="v1.0.${{ github.run_number }}"
-              gh release create "$TAG" *.jar *.vsix \
-                --title "Release $TAG" \
-                --notes "Automatisch generiert von GitHub Actions" \
-                --draft=true \
-                --prerelease=false
-          env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Create GitHub Release
+              run: |
+                  TAG="v1.0.${{ github.run_number }}"
+                  gh release create "$TAG" *.jar *.vsix \
+                    --title "Release $TAG" \
+                    --notes "Automatisch generiert von GitHub Actions" \
+                    --draft=true \
+                    --prerelease=false
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
