@@ -122,11 +122,8 @@ public class MoveSystem extends System {
 
       // If corner correction not possible, hit wall
       if (!triggeredXCC) {
-        float wallX = fromWall(newPos.x(), sv.x() > 0);
-        if (hasCollider) {
-          float xOffset = collider.offset().x();
-          wallX += sv.x() > 0 ? xOffset : -xOffset;
-        }
+        float colliderEdge = hasCollider ? scaledXEdge(collider, sv.x() > 0) : 0f;
+        float wallX = snapToWall(newPos.x(), sv.x() > 0, colliderEdge);
         newPos = new Point(wallX, newPos.y());
         hasHitWall = true;
       }
@@ -157,11 +154,8 @@ public class MoveSystem extends System {
 
       // If corner correction not possible, hit wall
       if (!triggeredYCC) {
-        float wallY = fromWall(newPos.y(), sv.y() > 0);
-        if (hasCollider) {
-          float yOffset = collider.offset().y();
-          wallY += sv.y() > 0 ? yOffset : -yOffset;
-        }
+        float colliderEdge = hasCollider ? scaledYEdge(collider, sv.y() > 0) : 0f;
+        float wallY = snapToWall(newPos.y(), sv.y() > 0, colliderEdge);
         newPos = new Point(newPos.x(), wallY);
         hasHitWall = true;
       }
@@ -187,22 +181,23 @@ public class MoveSystem extends System {
     }
   }
 
-  /**
-   * Returns either the lower or upper edge position of a wall. Adds a small epsilon to avoid
-   * floating point precision issues.
-   *
-   * @param position the current position
-   * @param lower whether to return the lower edge (true) or upper edge (false)
-   * @return the wall edge position
-   */
-  private float fromWall(float position, boolean lower) {
-    if (lower) {
-      return (float) Math.floor(position)
-          - CollisionSystem.COLLIDE_SET_DISTANCE; // Lower edge + a bit of distance in -x direction
-    } else {
-      return (float) Math.ceil(position)
-          + CollisionSystem.COLLIDE_SET_DISTANCE; // Upper edge + a bit of distance in +x direction
-    }
+  private float snapToWall(float position, boolean positiveDirection, float colliderEdge) {
+    float absoluteEdge = position + colliderEdge;
+    float wallEdge =
+      positiveDirection ? (float) Math.floor(absoluteEdge) : (float) Math.ceil(absoluteEdge);
+    float distance =
+      positiveDirection
+        ? -CollisionSystem.COLLIDE_SET_DISTANCE
+        : CollisionSystem.COLLIDE_SET_DISTANCE;
+    return wallEdge - colliderEdge + distance;
+  }
+
+  private float scaledXEdge(Collider collider, boolean positiveDirection) {
+    return (positiveDirection ? collider.right() : collider.left()) * collider.scale().x();
+  }
+
+  private float scaledYEdge(Collider collider, boolean positiveDirection) {
+    return (positiveDirection ? collider.top() : collider.bottom()) * collider.scale().y();
   }
 
   private Optional<Point> closestAvailablePos(
