@@ -151,8 +151,12 @@ public class MoveSystemTest {
     // distance).
     Point resultingPos =
         new Point(
-            oldPos.x() - CollisionSystem.COLLIDE_SET_DISTANCE,
-            oldPos.y() - CollisionSystem.COLLIDE_SET_DISTANCE);
+            (float) Math.floor(oldPos.x() + cc.collider().right())
+                - cc.collider().right()
+                - CollisionSystem.COLLIDE_SET_DISTANCE,
+            (float) Math.floor(oldPos.y() + cc.collider().top())
+                - cc.collider().top()
+                - CollisionSystem.COLLIDE_SET_DISTANCE);
 
     String layoutStr =
         """
@@ -269,6 +273,44 @@ public class MoveSystemTest {
     assertEquals(oldPos, pc.position());
     // onWallHit should be triggered
     verify(onWallHit, times(1)).accept(entity);
+  }
+
+  /**
+   * Tests that upward wall resolution uses the collider's actual top edge and snaps a tall hero
+   * flush below the ceiling instead of leaving it partially inside the wall.
+   */
+  @Test
+  void moveFlushBelowUpperWallForTallHeroHitbox() {
+    cc = new CollideComponent(Vector2.of(0.6f, 0.5f), Vector2.of(0.8f, 0.8f));
+    entity.add(cc);
+    vc.currentVelocity(Vector2.of(0, 1));
+
+    Point startPos = new Point(START_POSITION.x(), 0.85f);
+    pc.position(startPos);
+
+    Tile floorTile = mock(Tile.class);
+    when(floorTile.isAccessible()).thenReturn(true);
+    Tile wallTile = mock(Tile.class);
+    when(wallTile.isAccessible()).thenReturn(false);
+
+    DungeonLevel level = mock(DungeonLevel.class);
+    when(level.tileAt(any(Point.class)))
+        .thenAnswer(
+            invocation -> {
+              Point point = invocation.getArgument(0);
+              return Optional.of(point.y() >= 2f ? wallTile : floorTile);
+            });
+    Game.currentLevel(level);
+
+    Consumer<Entity> onWallHit = mock(Consumer.class);
+    vc.onWallHit(onWallHit);
+
+    system.execute();
+
+    Point expectedPos =
+        new Point(startPos.x(), 2f - cc.collider().top() - CollisionSystem.COLLIDE_SET_DISTANCE);
+    assertEquals(expectedPos, pc.position());
+    verify(onWallHit).accept(entity);
   }
 
   /** Tests that when velocity is zero, the position does not change. */
