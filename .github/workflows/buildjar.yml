@@ -1,7 +1,7 @@
 name: Build and Release Blockly JARs
 
 on:
-  workflow_dispatch:
+    workflow_dispatch:
 
 jobs:
     build:
@@ -47,32 +47,50 @@ jobs:
               with:
                   name: Blockly-JARs
                   path: blockly/build/libs/*.jar
+
+    upload_extension:
+        runs-on: ubuntu-latest
+        steps:
+
+            -   name: Checkout Repository
+                uses: actions/checkout@v6
+
+            - name: Upload Build Artifacts
+              uses: actions/upload-artifact@v7
+              with:
+                  name: vs-code-extension
+                  path: doc/produs_unterlagen/blockly-code-runner-1.0.2.vsix
     deploy:
-      needs: build
-      runs-on: ubuntu-latest
-      permissions:
-        contents: write
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v6
-          with:
-            fetch-depth: 0
+        needs: [build, upload_extension]
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+              with:
+                  fetch-depth: 0
 
-        - name: Download the JARs
-          uses: actions/download-artifact@v8
-          with:
-            name: Blockly-JARs
+            - name: Download the JARs
+              uses: actions/download-artifact@v8
+              with:
+                name: Blockly-JARs
 
-        - name: Install GitHub CLI
-          run: sudo apt update && sudo apt install -y gh
+            - name: Download VS-Code Extension
+              uses: actions/download-artifact@v8
+              with:
+                name: vs-code-extension
 
-        - name: Create GitHub Release
-          run: |
-            TAG="v1.0.${{ github.run_number }}"
-            gh release create "$TAG" *.jar \
-              --title "Release $TAG" \
-              --notes "Automatisch generiert von GitHub Actions" \
-              --draft=true \
-              --prerelease=false
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Install GitHub CLI
+              run: sudo apt update && sudo apt install -y gh
+
+            - name: Create GitHub Release
+              run: |
+                  TAG="v1.0.${{ github.run_number }}"
+                  gh release create "$TAG" *.jar *.vsix \
+                    --title "Release $TAG" \
+                    --notes "Automatisch generiert von GitHub Actions" \
+                    --draft=true \
+                    --prerelease=false
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
