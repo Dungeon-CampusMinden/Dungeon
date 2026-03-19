@@ -42,6 +42,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   /** Metadata key for the virus type affecting the computer. */
   public static final String METADATA_VIRUS_TYPE = "virusType";
 
+  /** Metadata key for the timestamp of login. */
+  public static final String METADATA_TIMESTAMP_OF_LOGIN = "timestampOfLogin";
+
   /** Metadata key for the keypad's correct digit sequence. */
   public static final String METADATA_KEYPAD_CORRECT_DIGITS = "keypad.correctDigits";
 
@@ -132,7 +135,10 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
         METADATA_INFECTED,
         String.valueOf(state.isInfected()),
         METADATA_VIRUS_TYPE,
-        state.virusType() == null ? "" : state.virusType());
+        state.virusType() == null ? "" : state.virusType(),
+        METADATA_TIMESTAMP_OF_LOGIN,
+        String.valueOf(state.timestampOfLogin())
+    );
   }
 
   private Map<String, String> keypadMetadata(KeypadComponent keypad) {

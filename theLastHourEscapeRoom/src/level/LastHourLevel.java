@@ -312,7 +312,7 @@ public class LastHourLevel extends DungeonLevel {
     Game.add(pc);
 
     Entity computerState = new Entity("computer-state");
-    computerState.add(new ComputerStateComponent(ComputerProgress.OFF, false, null));
+    computerState.add(new ComputerStateComponent(ComputerProgress.OFF, false, null, 0));
     Game.add(computerState);
 
     // Power switch (hidden under papers)
@@ -488,12 +488,6 @@ public class LastHourLevel extends DungeonLevel {
           Sounds.play(CoreSounds.INTERFACE_BUTTON_BACKWARD);
         }
       }
-    }
-
-    // Detect transition to LOGGED_IN and set BlogTab login timestamp
-    if (cscLastTick.state() != ComputerProgress.LOGGED_IN
-        && csc.state() == ComputerProgress.LOGGED_IN) {
-      BlogTab.setTimestampOfLogin((int) (System.currentTimeMillis() / 1000L));
     }
 
     // Check if a new blog comment has become visible and play a notification sound

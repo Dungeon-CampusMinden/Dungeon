@@ -16,7 +16,7 @@ import java.util.Set;
  * @param virusType the type of virus currently infecting the computer, or an empty string if not
  *     infected
  */
-public record ComputerStateComponent(ComputerProgress state, boolean isInfected, String virusType)
+public record ComputerStateComponent(ComputerProgress state, boolean isInfected, String virusType, int timestampOfLogin)
     implements Component, Serializable, DialogResponseMessage.Payload {
 
   /**
@@ -26,7 +26,7 @@ public record ComputerStateComponent(ComputerProgress state, boolean isInfected,
    * @return a new ComputerStateComponent with the updated state
    */
   public ComputerStateComponent withState(ComputerProgress newState) {
-    return new ComputerStateComponent(newState, this.isInfected, this.virusType);
+    return new ComputerStateComponent(newState, this.isInfected, this.virusType, this.timestampOfLogin);
   }
 
   /**
@@ -36,7 +36,7 @@ public record ComputerStateComponent(ComputerProgress state, boolean isInfected,
    * @return a new ComputerStateComponent with the updated infection status
    */
   public ComputerStateComponent withInfection(boolean infected) {
-    return new ComputerStateComponent(this.state, infected, this.virusType);
+    return new ComputerStateComponent(this.state, infected, this.virusType, this.timestampOfLogin);
   }
 
   /**
@@ -46,7 +46,16 @@ public record ComputerStateComponent(ComputerProgress state, boolean isInfected,
    * @return a new ComputerStateComponent with the updated virus type
    */
   public ComputerStateComponent withVirusType(String virusType) {
-    return new ComputerStateComponent(this.state, this.isInfected, virusType);
+    return new ComputerStateComponent(this.state, this.isInfected, virusType, this.timestampOfLogin);
+  }
+
+  /**
+   * Create a new ComputerStateComponent with the given timestamp of login.
+   * @param timestampOfLogin the new timestamp of login
+   * @return a new ComputerStateComponent with the updated timestamp of login
+   */
+  public ComputerStateComponent withTimestampOfLogin(int timestampOfLogin) {
+    return new ComputerStateComponent(this.state, this.isInfected, this.virusType, timestampOfLogin);
   }
 
   /**
@@ -86,6 +95,19 @@ public record ComputerStateComponent(ComputerProgress state, boolean isInfected,
     ComputerStateComponent csc = e.fetch(ComputerStateComponent.class).orElseThrow();
     e.remove(ComputerStateComponent.class);
     e.add(csc.withVirusType(virusType));
+  }
+
+    /**
+    * Updates the timestamp of login on the existing state entity within the current level.
+    *
+    * @param timestampOfLogin the new timestamp of login to set
+    * @throws java.util.NoSuchElementException if no state Entity is found
+    */
+  public static void setTimestampOfLogin(int timestampOfLogin) {
+    Entity e = getStateEntity().orElseThrow();
+    ComputerStateComponent csc = e.fetch(ComputerStateComponent.class).orElseThrow();
+    e.remove(ComputerStateComponent.class);
+    e.add(csc.withTimestampOfLogin(timestampOfLogin));
   }
 
   /**

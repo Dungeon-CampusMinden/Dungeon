@@ -43,6 +43,7 @@ public final class ComputerStateComponentCodec implements DialogValueCodec<Compu
       if (hasVirusType) {
         dataOutput.writeUTF(value.virusType());
       }
+      dataOutput.writeInt(value.timestampOfLogin());
       dataOutput.flush();
       return outputStream.toByteArray();
     } catch (IOException e) {
@@ -56,7 +57,8 @@ public final class ComputerStateComponentCodec implements DialogValueCodec<Compu
       ComputerProgress state = ComputerProgress.valueOf(dataInput.readUTF());
       boolean infected = dataInput.readBoolean();
       String virusType = dataInput.readBoolean() ? dataInput.readUTF() : null;
-      return new ComputerStateComponent(state, infected, virusType);
+      int timestampOfLogin = dataInput.readInt();
+      return new ComputerStateComponent(state, infected, virusType, timestampOfLogin);
     } catch (IOException e) {
       throw new UncheckedIOException("Failed to decode ComputerStateComponent", e);
     }

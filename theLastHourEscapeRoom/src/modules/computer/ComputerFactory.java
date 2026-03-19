@@ -83,10 +83,12 @@ public class ComputerFactory {
                                       ComputerStateComponent(
                                           ComputerProgress computerState,
                                           boolean isInfected,
-                                          String virusType)) {
+                                          String virusType,
+                                          int timestampOfLogin)) {
                                     ComputerStateComponent.setState(computerState);
                                     ComputerStateComponent.setInfection(isInfected);
                                     ComputerStateComponent.setVirusType(virusType);
+                                    ComputerStateComponent.setTimestampOfLogin(timestampOfLogin);
                                     isNowInfected = isInfected;
                                   } else if (data
                                       instanceof
@@ -96,10 +98,12 @@ public class ComputerFactory {
                                         ComputerStateComponent(
                                             ComputerProgress state1,
                                             boolean isInfected,
-                                            String virusType)) {
+                                            String virusType,
+                                            int timestampOfLogin)) {
                                       ComputerStateComponent.setState(state1);
                                       ComputerStateComponent.setInfection(isInfected);
                                       ComputerStateComponent.setVirusType(virusType);
+                                      ComputerStateComponent.setTimestampOfLogin(timestampOfLogin);
                                       isNowInfected = isInfected;
                                     }
                                   }
