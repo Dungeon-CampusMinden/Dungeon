@@ -19,6 +19,8 @@ import core.utils.logging.DungeonLogger;
 import demoDungeon.level.Level01;
 import hint.HintLogComponent;
 import hint.HintLogDialog;
+
+import java.awt.*;
 import java.io.IOException;
 
 /**
@@ -26,7 +28,12 @@ import java.io.IOException;
  *
  * <p>Usage: run with the Gradle task {@code runDemoRoom}.
  */
-public class DemoRoom {
+public class DemoRoom extends Starter {
+
+  static {
+    MenuStarter.register(new DemoRoom());
+  }
+
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DemoRoom.class);
 
   private static final boolean DEBUG_MODE = false;
@@ -46,6 +53,16 @@ public class DemoRoom {
     Game.windowTitle("Demo-Room");
     Game.run();
   }
+
+
+  public void run() throws IOException {
+    configGame();
+    onSetup();
+
+    Game.windowTitle("Demo-Room");
+    Game.run();
+  }
+
 
   private static void onSetup() {
     Game.userOnLevelLoad(firstLoad -> bindLocalHintLogInput());
