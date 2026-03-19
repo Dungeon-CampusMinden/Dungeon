@@ -81,16 +81,14 @@ jobs:
               with:
                 name: vs-code-extension
 
-            - name: Install GitHub CLI
-              run: sudo apt update && sudo apt install -y gh
-
             - name: Create GitHub Release
               run: |
-                  TAG="v1.0.${{ github.run_number }}"
-                  gh release create "$TAG" *.jar *.vsix \
-                    --title "Release $TAG" \
-                    --notes "Automatisch generiert von GitHub Actions" \
-                    --draft=true \
-                    --prerelease=false
+                TAG="v1.0.${{ github.run_number }}"
+                gh release create "$TAG" *.jar *.vsix \
+                  --title "Release $TAG" \
+                  --notes-file ".github/workflows/releaseInstructions.md" \
+                  --draft=true \
+                  --prerelease=false
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
