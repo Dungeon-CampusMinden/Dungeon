@@ -112,6 +112,37 @@ tasks.named("jar", Jar) {
     configureBaseJar(it)
 }
 
+tasks.register("jarWeb",  Jar) {
+    group = 'build'
+    archiveFileName.set('Blockly-web.jar')
+    archiveClassifier = 'web'
+    configureBaseJar(it)
+    from(resources.text.fromString("web=true")) {
+        rename { "application.properties" }
+    }
+}
+
+tasks.register("jarDesktop", Jar) {
+    group = 'build'
+    archiveFileName.set('Blockly-desktop.jar')
+    archiveClassifier = 'desktop'
+    configureBaseJar(it)
+    from(resources.text.fromString("web=false")) {
+        rename { "application.properties" }
+    }
+}
+
+// Optional: Mit 'build' beide gleichzeitig erstellen
+artifacts {
+    archives jarDesktop, jarWeb
+}
+
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    failOnNoDiscoveredTests = false
+}
+
 //Task that will generate properties files
 tasks.register('generateLauncherProperties') {
     doLast {
@@ -131,14 +162,8 @@ arguments=web=true
     }
 }
 
-
 tasks.named('jpackageImage').configure {
     dependsOn 'generateLauncherProperties'
-}
-
-tasks.named('test', Test) {
-    useJUnitPlatform()
-    failOnNoDiscoveredTests = false
 }
 
 
