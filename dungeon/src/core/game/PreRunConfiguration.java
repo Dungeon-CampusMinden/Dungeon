@@ -1,6 +1,7 @@
 package core.game;
 
 import core.configuration.Configuration;
+import core.language.Language;
 import core.utils.IVoidFunction;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -41,6 +42,8 @@ public final class PreRunConfiguration {
   private static IVoidFunction userOnFrame = () -> {};
   private static IVoidFunction userOnSetup = () -> {};
   private static Consumer<Boolean> userOnLevelLoad = (b) -> {};
+
+  private static Language DEFAULT_LANGUAGE = Language.DE;
 
   /**
    * Gets the width of the game window.
@@ -366,5 +369,23 @@ public final class PreRunConfiguration {
     } else {
       throw new IllegalArgumentException("Username must not be empty or contain underscores.");
     }
+  }
+
+  /**
+   * Gets the defaultLanguage for the game.
+   *
+   * @return The defaultLanguage.
+   */
+  public static Language defaultLanguage() {
+    return DEFAULT_LANGUAGE;
+  }
+
+  /**
+   * Sets the defaultLanguage.
+   *
+   * @param defaultLanguage The defaultLanguage to set.
+   */
+  public static void defaultLanguage(Language defaultLanguage) {
+    DEFAULT_LANGUAGE = defaultLanguage;
   }
 }
