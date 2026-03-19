@@ -46,7 +46,7 @@ public class LoginTab extends ComputerTab {
     }
 
     Image companyLogo = new Image(skin, Lore.CompanyDrawable);
-    this.add(companyLogo).width(200).height(200).center().padBottom(20).row();
+    this.add(companyLogo).width(200).height(200).center().padBottom(5).row();
 
     Label label = Scene2dElementFactory.createLabel(Lore.CompanyName, 64, Color.BLACK);
     this.add(label).center().padBottom(10).row();
@@ -95,7 +95,8 @@ public class LoginTab extends ComputerTab {
                   .accept(
                       ComputerStateComponent.getState()
                           .orElseThrow()
-                          .withState(ComputerProgress.LOGGED_IN));
+                          .withState(ComputerProgress.LOGGED_IN)
+                          .withTimestampOfLogin((int) (System.currentTimeMillis() / 1000L)));
               ComputerDialog.getInstance()
                   .ifPresent(
                       computer -> {
