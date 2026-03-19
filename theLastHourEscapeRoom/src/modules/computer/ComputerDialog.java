@@ -326,7 +326,9 @@ public class ComputerDialog extends Group {
       return;
     }
     contentArea.clearChildren();
-    contentArea.add(tabContentMap.get(tabKey)).grow();
+    ComputerTab tab = tabContentMap.get(tabKey);
+    contentArea.add(tab).grow();
+    tab.onShow();
   }
 
   private void setActiveTab(String tabKey) {

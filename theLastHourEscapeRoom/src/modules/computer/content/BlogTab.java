@@ -38,22 +38,12 @@ public class BlogTab extends ComputerTab {
   }
 
   /**
-   * Sets the UNIX timestamp of when the player logged in. This is used to determine when time-gated
-   * blog comments become visible. Static so it can be set before the BlogTab is instantiated, e.g.
-   * in multiplayer where login may occur before the tab exists.
-   *
-   * @param timestamp the UNIX timestamp (seconds) of the login event
-   */
-  public static void setTimestampOfLogin(int timestamp) {
-    timestampOfLogin = timestamp;
-  }
-
-  /**
    * Returns the number of seconds elapsed since the login timestamp.
    *
    * @return seconds since login, or 0 if no login timestamp has been set
    */
   public static int secondsSinceLogin() {
+    int timestampOfLogin = ComputerStateComponent.getState().map(ComputerStateComponent::timestampOfLogin).orElse(0);
     if (timestampOfLogin == 0) return 0;
     return (int) (System.currentTimeMillis() / 1000L) - timestampOfLogin;
   }
@@ -192,6 +182,14 @@ public class BlogTab extends ComputerTab {
     table.add(content).growX().padTop(4).row();
 
     return table;
+  }
+
+  @Override
+  public void onShow() {
+    int current = countVisibleComments();
+    if (current != lastVisibleCommentCount) {
+      createActors();
+    }
   }
 
   @Override
