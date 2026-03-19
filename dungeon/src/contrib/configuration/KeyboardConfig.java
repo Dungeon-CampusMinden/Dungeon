@@ -88,6 +88,20 @@ public class KeyboardConfig {
       new ConfigKey<>(
           new String[] {"skill", "mouse_right_skill"}, new ConfigIntValue(Input.Buttons.RIGHT));
 
+  /**
+   * This key is used to quickly use the first item in the inventory without opening the inventory.
+   */
+  public static final ConfigKey<Integer> QUICK_ACCESS_1 =
+      new ConfigKey<>(
+          new String[] {"quick_access", "use_item"}, new ConfigIntValue(Input.Keys.NUM_1));
+
+  /**
+   * This key is used to quickly use the second item in the inventory without opening the inventory.
+   */
+  public static final ConfigKey<Integer> QUICK_ACCESS_2 =
+      new ConfigKey<>(
+          new String[] {"quick_access", "use_item"}, new ConfigIntValue(Input.Keys.NUM_2));
+
   /** Keybinding to zoom in ,if the {@link contrib.utils.components.Debugger} is active. */
   public static final ConfigKey<Integer> DEBUG_ZOOM_IN =
       new ConfigKey<>(new String[] {"debug", "zoom_in"}, new ConfigIntValue(Input.Keys.K));
