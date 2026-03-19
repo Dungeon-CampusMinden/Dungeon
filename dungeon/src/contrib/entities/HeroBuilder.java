@@ -408,7 +408,7 @@ public final class HeroBuilder {
         false,
         true);
     inputComp.registerCallback(
-        KeyboardConfig.PAUSE_MENU.value(), PauseDialog::showPauseDialog, false, false);
+        KeyboardConfig.PAUSE_MENU.value(), PauseDialog::showPauseDialog, false, true);
   }
   // endregion
 }
