@@ -84,7 +84,7 @@ jobs:
             - name: Create GitHub Release
               run: |
                 TAG="v1.0.${{ github.run_number }}"
-                gh release create "$TAG" *.jar \
+                gh release create "$TAG" *.jar *.vsix \
                   --title "Release $TAG" \
                   --notes-file ".github/workflows/releaseInstructions.md" \
                   --draft=true \
