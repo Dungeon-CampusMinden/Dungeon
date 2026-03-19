@@ -171,7 +171,7 @@ public class LastHourLevel extends DungeonLevel {
                 },
                 null)
             .isSolid(false));
-    Game.add(trigger);
+    Game.add(triggerLockMove);
   }
 
   private void setupTimer() {
