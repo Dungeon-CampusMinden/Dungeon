@@ -100,6 +100,17 @@ public record Point(float x, float y) {
   }
 
   /**
+   * Calculates the squared distance between this point and the given point. More efficient when
+   * only comparing distances is necessary.
+   *
+   * @param otherPos The point to which the squared distance is calculated.
+   * @return The squared distance between this point and the given point.
+   */
+  public double distanceSquared(Point otherPos) {
+    return Math.pow(otherPos.x() - x(), 2) + Math.pow(otherPos.y() - y(), 2);
+  }
+
+  /**
    * Create new Point flooring the values.
    *
    * @return floored Point

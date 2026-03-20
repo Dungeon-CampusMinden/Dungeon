@@ -11,6 +11,8 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
+import contrib.modules.emote.Emote;
+import contrib.modules.emote.EmoteFactory;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.modules.keypad.KeypadComponent;
@@ -44,6 +46,7 @@ import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
 import modules.computer.*;
+import modules.computer.content.BlogTab;
 import modules.trash.TrashMinigameUI;
 import util.LastHourSounds;
 import util.Lore;
@@ -53,10 +56,13 @@ import util.ui.BlackFadeCutscene;
 /** The Last Hour Room. */
 public class LastHourLevel extends DungeonLevel {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LastHourLevel.class);
+  private static LastHourLevel Instance = null;
 
   private DoorTile storageDoor;
   private Entity pc;
+  private ComputerStateComponent cscLastTick;
   private Entity keypad;
+  private int lastKnownVisibleCommentCount = 0;
 
   /** The state of the PC when it's off. */
   public static final String PC_STATE_OFF = "off";
@@ -79,6 +85,16 @@ public class LastHourLevel extends DungeonLevel {
   public LastHourLevel(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, "last-hour-1");
+    Instance = this;
+  }
+
+  /**
+   * Gets the instance of the LastHourLevel.
+   *
+   * @return The instance of the LastHourLevel.
+   */
+  public static LastHourLevel getInstance() {
+    return Instance;
   }
 
   @Override
@@ -91,7 +107,7 @@ public class LastHourLevel extends DungeonLevel {
 
     keypad =
         KeypadFactory.createKeypad(
-            getPoint("keypad-storage"), List.of(1, 2, 3, 4), () -> storageDoor.open(), true);
+            getPoint("keypad-storage"), Lore.DoorCode, () -> storageDoor.open(), true);
     Game.add(keypad);
 
     setupPC();
@@ -111,7 +127,13 @@ public class LastHourLevel extends DungeonLevel {
         Lore.IntroTexts,
         false,
         true,
-        () -> DialogFactory.showOkDialog(Lore.PostIntroDialogTexts.getFirst(), "", () -> {}),
+        () ->
+            DialogFactory.showTextDialog(
+                Lore.PostIntroDialogText1,
+                "",
+                () -> DialogFactory.showOkDialog(Lore.PostIntroDialogText2, "", () -> {}, targetId),
+                null,
+                targetId),
         targetId);
     INTRO_SHOWN_TO.add(targetId);
   }
@@ -128,7 +150,6 @@ public class LastHourLevel extends DungeonLevel {
                       .fetch(InputComponent.class)
                       .ifPresent(
                           pc -> {
-                            pc.deactivateControls(true);
                             BlackFadeCutscene.show(
                                 Lore.OutroTexts, true, false, () -> Game.exit("Win"));
                           });
@@ -136,6 +157,21 @@ public class LastHourLevel extends DungeonLevel {
                 null)
             .isSolid(false));
     Game.add(trigger);
+
+    Entity triggerLockMove = new Entity("end-trigger-lock-move");
+    triggerLockMove.add(new PositionComponent(getPoint("end-trigger-lock-move")));
+    triggerLockMove.add(
+        new CollideComponent(
+                Vector2.ZERO,
+                Vector2.ONE,
+                (e, other, dir) -> {
+                  other
+                      .fetch(InputComponent.class)
+                      .ifPresent(inputComponent -> inputComponent.deactivateControls(true));
+                },
+                null)
+            .isSolid(false));
+    Game.add(triggerLockMove);
   }
 
   private void setupTimer() {
@@ -149,6 +185,8 @@ public class LastHourLevel extends DungeonLevel {
   static void setupLightingShader() {
     DrawSystem.getInstance().sceneShaders().add("lighting", new LightingShader().ambientLight(0));
   }
+
+  private static final String cabinetImagePath = "images/virus-phrases.png";
 
   private void setupInteractables() {
     Entity desk0 = DecoFactory.createDeco(getPoint("desk-nothing0"), Deco.StampingTable);
@@ -176,7 +214,7 @@ public class LastHourLevel extends DungeonLevel {
                           "A bunch of papers laying all over the place on the desk.\nYou weed through them, until a weird looking note catches your eye",
                           "",
                           () -> {
-                            DialogUtils.showImagePopUp("images/note-password-1.png");
+                            DialogUtils.showImagePopUp("images/note-password-1.png", who.id());
                           },
                           who.id());
                     })));
@@ -207,6 +245,16 @@ public class LastHourLevel extends DungeonLevel {
                       () ->
                           new Interaction(
                               (e, who) -> {
+                                if (index == 2) {
+                                  DialogFactory.showOkDialog(
+                                      "You open the locker. Lots of white coats are hanging inside,\nbut one of them has a piece of paper in the pocket.\n\nYou unfold the paper to take a look at it.",
+                                      "",
+                                      () -> {
+                                        DialogUtils.showImagePopUp(cabinetImagePath, who.id());
+                                      },
+                                      who.id());
+                                  return;
+                                }
                                 DialogFactory.showOkDialog(
                                     "You open the locker, but it's empty except for some white coats.\nSeems like someone already went through it...",
                                     "",
@@ -264,7 +312,7 @@ public class LastHourLevel extends DungeonLevel {
     Game.add(pc);
 
     Entity computerState = new Entity("computer-state");
-    computerState.add(new ComputerStateComponent(ComputerProgress.OFF, false, null));
+    computerState.add(new ComputerStateComponent(ComputerProgress.OFF, false, null, 0));
     Game.add(computerState);
 
     // Power switch (hidden under papers)
@@ -287,7 +335,8 @@ public class LastHourLevel extends DungeonLevel {
                                 () -> {
                                   ComputerStateComponent.setState(ComputerProgress.ON);
                                   Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
-                                });
+                                },
+                                who.id());
                           },
                           () -> {},
                           who.id());
@@ -303,14 +352,15 @@ public class LastHourLevel extends DungeonLevel {
             () ->
                 new Interaction(
                     (e, who) -> {
-                      DialogUtils.showImagePopUp("images/scientist_profile.png");
+                      DialogUtils.showImagePopUp("images/scientist_profile.png", who.id());
                     })));
     Game.add(profilePaper);
   }
 
   private static final Deco[] trashcans = {Deco.TrashCanBlue, Deco.TrashCanGreen, Deco.TrashCanRed};
   private static final String trashNote = "images/note-password-2.png";
-  private static final int trashIndex = 5;
+  private static final List<Integer> PaperCounts = List.of(50, 10, 50, 50, 5, 15, 3);
+  private static final int trashIndex = 3;
 
   private void setupTrashcans() {
     DialogFactory.register(LastHourDialogTypes.TRASHCAN, TrashMinigameUI::build);
@@ -332,6 +382,9 @@ public class LastHourLevel extends DungeonLevel {
                                 builder.put(
                                     TrashMinigameUI.KEY_NOTE_PATH,
                                     index == trashIndex ? trashNote : null);
+                                builder.put(
+                                    TrashMinigameUI.KEY_PAPER_COUNT,
+                                    PaperCounts.get(index % PaperCounts.size()));
                                 DialogFactory.show(builder.build(), who.id());
                               })));
               Game.add(trashcan);
@@ -340,7 +393,7 @@ public class LastHourLevel extends DungeonLevel {
 
   private final List<String> decoderTablePaths =
       List.of(
-          "images/base64.png",
+          "images/random_nothing.png",
           "images/binary_hex.jpg",
           "images/hex_ascii.png",
           "images/braille.png",
@@ -416,8 +469,13 @@ public class LastHourLevel extends DungeonLevel {
     }
 
     ComputerStateComponent csc = ComputerStateComponent.getState().get();
+    if (cscLastTick == null) {
+      cscLastTick = csc;
+      return; // Skip update check on first tick.
+    }
+
     DrawComponent dc = pc.fetch(DrawComponent.class).orElseThrow();
-    if (!dc.currentStateName().equals(pcStateToDCState(csc))) {
+    if (!pcStateToDCState(cscLastTick).equals(pcStateToDCState(csc))) {
       // Update local state to match shared state
       if (csc.isInfected()) {
         dc.sendSignal(PC_SIGNAL_INFECT);
@@ -432,36 +490,39 @@ public class LastHourLevel extends DungeonLevel {
       }
     }
 
-    ComputerDialog.getInstance()
-        .ifPresent(
-            cd -> {
-              if (cd.sharedState() != csc) {
-                cd.updateState(csc);
-              }
-            });
+    // Check if a new blog comment has become visible and play a notification sound
+    if (csc.state().hasReached(ComputerProgress.LOGGED_IN)) {
+      int currentVisibleComments = BlogTab.countVisibleComments();
+      if (currentVisibleComments > lastKnownVisibleCommentCount) {
+        Sounds.play(LastHourSounds.COMPUTER_COMMENT_RECEIVED);
+        Game.add(
+            EmoteFactory.createEmote(getPoint("pc-main").translate(0.5f, 2f), Emote.IDEA, 4000));
+      }
+      lastKnownVisibleCommentCount = currentVisibleComments;
+    }
+
+    if (cscLastTick != csc) {
+      ComputerDialog.getInstance().ifPresent(cd -> cd.updateState(csc));
+    }
+
+    cscLastTick = csc;
   }
 
-  static Entity interactableEntity = null;
+  static List<Entity> currentInteractablesInRange = new ArrayList<>();
 
   static void checkInteractFeedback() {
     Game.player()
         .ifPresent(
             p -> {
-              Optional<Entity> found =
+              List<Entity> interactables = HeroController.findInteractablesInRange(p);
+              Optional<Entity> closest =
                   HeroController.findInteractable(p, SkillTools.cursorPositionAsPoint());
-              if (found.isPresent() && found.get() != interactableEntity) {
-                // New interactable entity
-                if (interactableEntity != null) {
-                  // Remove old feedback
-                  removeInteractFeedback(interactableEntity);
-                }
-                interactableEntity = found.get();
-                addInteractFeedback(interactableEntity);
-              } else if (found.isEmpty() && interactableEntity != null) {
-                // No interactable entity anymore, remove old feedback
-                removeInteractFeedback(interactableEntity);
-                interactableEntity = null;
-              }
+
+              currentInteractablesInRange.forEach(LastHourLevel::removeInteractFeedback);
+              currentInteractablesInRange.clear();
+              interactables.forEach(
+                  e -> addInteractFeedback(e, closest.isPresent() && e.id() == closest.get().id()));
+              currentInteractablesInRange.addAll(interactables);
             });
   }
 
@@ -474,12 +535,13 @@ public class LastHourLevel extends DungeonLevel {
             });
   }
 
-  static void addInteractFeedback(Entity entity) {
+  static void addInteractFeedback(Entity entity, boolean isImportant) {
+    Color color = isImportant ? new Color(0.8f, 0, 0, 1f) : new Color(0.8f, 0.7f, 0, 0.4f);
     entity
         .fetch(DrawComponent.class)
         .ifPresent(
             dc -> {
-              dc.shaders().add("outline", new OutlineShader(1, new Color(0.8f, 0, 0, 1f)));
+              dc.shaders().add("outline", new OutlineShader(1, color));
             });
   }
 

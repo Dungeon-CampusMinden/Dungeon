@@ -6,7 +6,8 @@ import contrib.components.SkillComponent;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.entities.HeroController;
-import contrib.modules.keypad.KeypadSystem;
+import contrib.modules.emote.EmoteSystem;
+import contrib.systems.AttributeBarSystem;
 import contrib.systems.CollisionSystem;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
@@ -26,6 +27,7 @@ import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import core.utils.settings.ClientSettings;
 import java.io.IOException;
+import java.util.Arrays;
 import level.LastHourLevel;
 import network.LastHourEntitySpawnStrategy;
 import network.LastHourSnapshotTranslator;
@@ -41,11 +43,17 @@ import network.LastHourSnapshotTranslator;
  */
 public class TheLastHour {
 
+  private static final String SERVER_ARGUMENT = "--server";
+
   private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
   private static Music backgroundMusic;
 
-  private static final boolean DEBUG_MODE = true;
-  private static final boolean RUN_MP_SERVER = true;
+  /** Enable or disable debug mode, which adds extra systems for debugging and level editing. */
+  public static final boolean DEBUG_MODE = false;
+
+  private static final CharacterClass[] MULTIPLAYER_CHARACTER_CLASSES = {
+    CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03
+  };
 
   /**
    * Main entry point to launch the basic dungeon game.
@@ -53,10 +61,13 @@ public class TheLastHour {
    * @param args command-line arguments (not used in this starter)
    */
   public static void main(String[] args) {
-    if (RUN_MP_SERVER) {
+    boolean runMpServer = args != null && Arrays.asList(args).contains(SERVER_ARGUMENT);
+
+    if (runMpServer) {
       Game.userOnFrame(TheLastHour::onFrame);
       PreRunConfiguration.multiplayerEnabled(true);
       PreRunConfiguration.isNetworkServer(true);
+      PreRunConfiguration.multiplayerCharacterClasses(MULTIPLAYER_CHARACTER_CLASSES);
     }
 
     DungeonLoader.addLevel(Tuple.of("lasthour", LastHourLevel.class));
@@ -66,7 +77,7 @@ public class TheLastHour {
       throw new RuntimeException(e);
     }
     Game.disableAudio(false);
-    Game.userOnSetup(TheLastHour::onUserSetup);
+    Game.userOnSetup(() -> onUserSetup(runMpServer));
     Game.frameRate(60);
     Game.windowTitle("The Last Hour");
     NetworkConfig.SNAPSHOT_TRANSLATOR = new LastHourSnapshotTranslator();
@@ -74,12 +85,13 @@ public class TheLastHour {
     Game.run();
   }
 
-  private static void onUserSetup() {
-    if (RUN_MP_SERVER) {
+  private static void onUserSetup(boolean runMpServer) {
+    if (runMpServer) {
       ECSManagement.add(new PositionSystem());
       ECSManagement.add(new VelocitySystem());
       ECSManagement.add(new FrictionSystem());
       ECSManagement.add(new MoveSystem());
+      ECSManagement.remove(AttributeBarSystem.class);
 
       ECSManagement.system(
           LevelSystem.class,
@@ -90,7 +102,8 @@ public class TheLastHour {
                     Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
                   }));
     } else {
-      Entity hero = HeroBuilder.builder().characterClass(CharacterClass.WIZARD).build();
+      Entity hero =
+          HeroBuilder.builder().characterClass(CharacterClass.THE_LAST_HOUR_CHAR03).build();
       hero.fetch(SkillComponent.class).ifPresent(SkillComponent::removeAll);
       Game.add(hero);
       Game.stage().ifPresent(CursorUtil::initListener);
@@ -98,7 +111,7 @@ public class TheLastHour {
     }
 
     ECSManagement.add(new CollisionSystem());
-    ECSManagement.add(new KeypadSystem());
+    ECSManagement.add(new EmoteSystem());
 
     if (DEBUG_MODE && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());
@@ -107,7 +120,11 @@ public class TheLastHour {
     }
   }
 
-  private static void setupMusic() {
+  /**
+   * Initializes and starts the background music for the game, and sets up listeners to adjust the
+   * volume based on client settings changes.
+   */
+  public static void setupMusic() {
     backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
     backgroundMusic.setLooping(true);
     backgroundMusic.play();

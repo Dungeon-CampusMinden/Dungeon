@@ -19,20 +19,17 @@ import core.Entity;
 import core.Game;
 import core.components.InputComponent;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
-import core.level.utils.LevelUtils;
 import core.network.input.InputCommandRouter;
 import core.network.messages.c2s.InputMessage;
 import core.network.server.ClientState;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Stream;
 
 /**
  * Controller class for handling hero entity actions such as movement, skill usage, and
@@ -200,9 +197,8 @@ public class HeroController {
   }
 
   /**
-   * First attempts to find an interactable entity at the specified point (e.g., mouse cursor
-   * position). If no interactable entity is found or the entity is out of range, it searches within
-   * a 1-tile radius around the hero.
+   * This function filters for all interactable entities within range of the hero, then finds the
+   * one closest to the target point.
    *
    * @param hero the hero entity attempting the interaction
    * @param point the target point where the interaction is attempted (e.g., cursor position)
@@ -210,28 +206,53 @@ public class HeroController {
    *     was found within range
    */
   public static Optional<Entity> findInteractable(Entity hero, Point point) {
-    // Try finding interactable at the exact point first
-    Optional<Entity> target =
-        Game.tileAt(point)
-            .map(Game::entityAtTile)
-            .orElse(Stream.empty())
-            .filter(e -> e.fetch(InteractionComponent.class).isPresent())
-            .findFirst();
+    Point heroPos = EntityUtils.getPosition(hero);
+    Optional<InteractionData> target =
+        findInteractablesInRange(hero).stream()
+            .map(InteractionData::of)
+            .filter(
+                data ->
+                    heroPos.distanceSquared(EntityUtils.getPosition(data.e()))
+                        <= data.ic().interactions().interact().range()
+                            * data.ic().interactions().interact().range())
+            .min(
+                Comparator.comparingDouble(
+                    data -> EntityUtils.getPosition(data.e()).distanceSquared(point)));
+    return target.map(InteractionData::e);
+  }
 
-    // If nothing found at point, search in 1-tile radius around hero
-    if (target.isEmpty()) {
-      LOGGER.trace(
-          "No interactable found at point {}, searching in radius around hero {}",
-          point,
-          hero.id());
-      target =
-          LevelUtils.tilesInRange(EntityUtils.getPosition(hero), 1f).stream()
-              .flatMap(Game::entityAtTile)
-              .filter(e -> e.fetch(InteractionComponent.class).isPresent())
-              .findFirst();
+  private record InteractionData(Entity e, PositionComponent pc, InteractionComponent ic) {
+    static InteractionData of(Entity e) {
+      return new InteractionData(
+          e,
+          e.fetch(PositionComponent.class).orElseThrow(),
+          e.fetch(InteractionComponent.class).orElseThrow());
     }
+  }
 
-    return target;
+  /**
+   * Finds all interactable entities within the interaction range of the hero.
+   *
+   * @param hero the entity for which to find interactables in range
+   * @return a list of entities in range
+   */
+  public static List<Entity> findInteractablesInRange(Entity hero) {
+    Point heroPos = EntityUtils.getPosition(hero);
+    return Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class))
+        .filter(
+            e ->
+                heroPos.distanceSquared(EntityUtils.getPosition(e))
+                    <= e.fetch(InteractionComponent.class)
+                            .orElseThrow()
+                            .interactions()
+                            .interact()
+                            .range()
+                        * e.fetch(InteractionComponent.class)
+                            .orElseThrow()
+                            .interactions()
+                            .interact()
+                            .range())
+        .toList();
   }
 
   /**

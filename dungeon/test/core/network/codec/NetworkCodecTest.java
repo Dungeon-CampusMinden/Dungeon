@@ -3,6 +3,7 @@ package core.network.codec;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.protobuf.Message;
+import contrib.entities.CharacterClass;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.*;
 import core.network.messages.s2c.*;
@@ -11,6 +12,7 @@ import core.utils.Vector2;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class NetworkCodecTest {
@@ -33,7 +35,8 @@ class NetworkCodecTest {
 
   private static List<NetworkMessage> sampleMessages() {
     return List.of(
-        new ConnectRequest((short) 1, "player", 42, new byte[] {1, 2, 3}),
+        new ConnectRequest(
+            (short) 1, "player", 42, new byte[] {1, 2, 3}, Optional.of(CharacterClass.HUNTER)),
         new InputMessage(
             42,
             100,

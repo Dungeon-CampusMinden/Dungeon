@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import core.network.ConnectionListener;
 import core.network.messages.c2s.InputMessage;
 import core.utils.Vector2;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,34 +39,35 @@ public class ClientNetworkTests {
   /** Validates that client network initializes without throwing exceptions. */
   @Test
   public void test_clientInitializes() {
-    assertDoesNotThrow(() -> client.initialize(TEST_HOST, TEST_PORT, "TestPlayer"));
+    assertDoesNotThrow(
+        () -> client.initialize(TEST_HOST, TEST_PORT, "TestPlayer", Optional.empty()));
   }
 
   /** Validates that client is not connected after initialization with valid parameters. */
   @Test
   public void test_initializeWithValidParams() {
-    client.initialize("localhost", TEST_PORT, "Player1");
+    client.initialize("localhost", TEST_PORT, "Player1", Optional.empty());
     assertFalse(client.isConnected());
   }
 
   /** Validates that the message dispatcher is available after initialization. */
   @Test
   public void test_dispatcherAvailable() {
-    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer");
+    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer", Optional.empty());
     assertNotNull(client.dispatcher());
   }
 
   /** Validates that client is not connected before calling start. */
   @Test
   public void test_notConnectedBeforeStart() {
-    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer");
+    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer", Optional.empty());
     assertFalse(client.isConnected());
   }
 
   /** Validates that shutdown can be called multiple times without error. */
   @Test
   public void test_shutdownIdempotent() {
-    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer");
+    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer", Optional.empty());
     client.shutdown("test");
     client.shutdown("test");
   }
@@ -73,14 +75,14 @@ public class ClientNetworkTests {
   /** Validates that client ID returns 0 before connection is established. */
   @Test
   public void test_clientIdBeforeConnection() {
-    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer");
+    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer", Optional.empty());
     assertEquals(0, (short) client.clientId());
   }
 
   /** Validates that sending a reliable message returns a CompletableFuture. */
   @Test
   public void test_sendReliableReturnsFuture() {
-    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer");
+    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer", Optional.empty());
     CompletableFuture<Boolean> result = client.sendReliable(null);
     assertNotNull(result);
   }
@@ -88,7 +90,7 @@ public class ClientNetworkTests {
   /** Validates that sending an unreliable input message does not throw exceptions. */
   @Test
   public void test_sendUnreliableInputSafe() {
-    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer");
+    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer", Optional.empty());
     assertDoesNotThrow(
         () ->
             client.sendUnreliableInput(
@@ -103,21 +105,21 @@ public class ClientNetworkTests {
   /** Validates that adding a null connection listener does not throw exceptions. */
   @Test
   public void test_addNullListenerSafe() {
-    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer");
+    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer", Optional.empty());
     assertDoesNotThrow(() -> client.addConnectionListener(null));
   }
 
   /** Validates that removing a null connection listener does not throw exceptions. */
   @Test
   public void test_removeNullListenerSafe() {
-    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer");
+    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer", Optional.empty());
     assertDoesNotThrow(() -> client.removeConnectionListener(null));
   }
 
   /** Validates that connection listeners can be added and removed without error. */
   @Test
   public void test_addRemoveListener() {
-    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer");
+    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer", Optional.empty());
     ConnectionListener listener = new TestConnectionListener();
     assertDoesNotThrow(() -> client.addConnectionListener(listener));
     assertDoesNotThrow(() -> client.removeConnectionListener(listener));

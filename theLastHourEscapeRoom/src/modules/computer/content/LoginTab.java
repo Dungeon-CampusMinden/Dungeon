@@ -20,7 +20,7 @@ public class LoginTab extends ComputerTab {
 
   // Password feedback
   private static final String WRONG_FEEDBACK = "Invalid username or password.";
-  private static final String CORRECT_FEEDBACK = "Login successful!\nWelcome Mr. So-And-So";
+  private static final String CORRECT_FEEDBACK = "Login successful!\nWelcome Dr. Mertens";
   private static final Color WRONG_COLOR = Color.RED;
   private static final Color CORRECT_COLOR = new Color(0, 0.5f, 0, 1);
 
@@ -46,7 +46,7 @@ public class LoginTab extends ComputerTab {
     }
 
     Image companyLogo = new Image(skin, Lore.CompanyDrawable);
-    this.add(companyLogo).width(200).height(200).center().padBottom(20).row();
+    this.add(companyLogo).width(200).height(200).center().padBottom(5).row();
 
     Label label = Scene2dElementFactory.createLabel(Lore.CompanyName, 64, Color.BLACK);
     this.add(label).center().padBottom(10).row();
@@ -95,7 +95,8 @@ public class LoginTab extends ComputerTab {
                   .accept(
                       ComputerStateComponent.getState()
                           .orElseThrow()
-                          .withState(ComputerProgress.LOGGED_IN));
+                          .withState(ComputerProgress.LOGGED_IN)
+                          .withTimestampOfLogin((int) (System.currentTimeMillis() / 1000L)));
               ComputerDialog.getInstance()
                   .ifPresent(
                       computer -> {

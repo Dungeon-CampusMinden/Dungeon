@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
+import core.Entity;
 import core.Game;
 import core.sound.CoreSounds;
 import core.sound.Sounds;
@@ -53,19 +54,47 @@ public class PauseDialog extends Table {
   }
 
   /**
-   * Shows the pause menu dialog for the given target entity IDs.
+   * Shows the pause menu dialog for the given target entity.
    *
-   * @param targetIds The target entity IDs for which the dialog is displayed
+   * @param caller the entity for which the pause menu should be shown.
    * @return The {@link UIComponent} containing the dialog
    */
-  public static UIComponent showPauseDialog(int... targetIds) {
-    DialogContext ctx = DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).build();
+  public static UIComponent showPauseDialog(Entity caller) {
+    boolean isInInput = Game.stage().map(s -> s.getKeyboardFocus() != null).orElse(false);
+    if (isInInput) return null;
 
-    UIComponent ui = DialogFactory.show(ctx, targetIds);
+    // Find if the player has any open pause menu dialog already:
+    boolean hasClosed =
+        caller
+            .fetch(UIComponent.class)
+            .map(
+                uic -> {
+                  if (uic.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU) {
+                    UIUtils.closeDialog(uic);
+                    return true;
+                  }
+                  return false;
+                })
+            .orElse(false);
+
+    if (hasClosed) return null;
+
+    DialogContext ctx = DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).build();
+    ctx.owner(caller.id());
+
+    UIComponent ui = DialogFactory.show(ctx, caller.id());
 
     // Register callback
-    ui.registerCallback(DialogContextKeys.ON_RESUME, data -> UIUtils.closeDialog(ui));
-    ui.registerCallback(DialogContextKeys.ON_QUIT, data -> Game.exit("Quit from pause menu"));
+    ui.registerCallback(
+        DialogContextKeys.ON_RESUME,
+        data -> {
+          UIUtils.closeDialog(ui);
+        });
+    ui.registerCallback(
+        DialogContextKeys.ON_QUIT,
+        data -> {
+          Game.exit("Quit from pause menu");
+        });
 
     return ui;
   }
@@ -101,8 +130,7 @@ public class PauseDialog extends Table {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_RESUME)
-                .accept(null);
+            Game.player().orElseThrow().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
             Sounds.play(CoreSounds.INTERFACE_DIALOG_CLOSED);
           }
         });
@@ -118,8 +146,7 @@ public class PauseDialog extends Table {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_QUIT)
-                .accept(null);
+            Game.exit("Quit from pause menu");
             Sounds.play(CoreSounds.INTERFACE_DIALOG_CLOSED);
           }
         });

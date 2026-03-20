@@ -152,6 +152,9 @@ public abstract class ComputerTab extends Table {
     return ctx;
   }
 
+  /** Called when the tab becomes the active (visible) tab in the dialog. */
+  public void onShow() {}
+
   /** Called when the tab is removed from the dialog. */
   public void onRemove() {}
 }

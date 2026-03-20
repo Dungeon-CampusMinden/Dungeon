@@ -4,9 +4,11 @@ import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.*;
 
+import contrib.entities.CharacterClass;
 import contrib.entities.HeroController;
 import core.Entity;
 import core.Game;
+import core.game.PreRunConfiguration;
 import core.network.MessageDispatcher;
 import core.network.config.NetworkConfig;
 import core.network.messages.NetworkMessage;
@@ -60,6 +62,7 @@ public final class ServerTransport {
   private final ConcurrentHashMap<Short, String> clientIdToName = new ConcurrentHashMap<>();
 
   private final AtomicInteger nextClientId = new AtomicInteger(1);
+  private int nextFallbackCharacterClassIndex = 0;
 
   // Netty resources
   private EventLoopGroup bossGroup;
@@ -480,7 +483,12 @@ public final class ServerTransport {
     byte[] sessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
 
     session.attachClientState(
-        new ClientState(newClientId, playerName, ServerRuntime.SESSION_ID, sessionToken));
+        new ClientState(
+            newClientId,
+            playerName,
+            ServerRuntime.SESSION_ID,
+            sessionToken,
+            selectedCharacterClass(req)));
     clientIdToSession.put(newClientId, session);
 
     session.sendMessage(new ConnectAck(newClientId, ServerRuntime.SESSION_ID, sessionToken), true);
@@ -546,7 +554,7 @@ public final class ServerTransport {
     String playerName = req.playerName();
     byte[] newSessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
 
-    // reattach old ClientState to new Session
+    // Reuse the previous ClientState so reconnects keep the original character class selection.
     ClientState oldClientState = oldSession.clientState().orElseThrow();
     oldClientState.resetForReconnect(ServerRuntime.SESSION_ID, newSessionToken, true);
     session.attachClientState(oldClientState);
@@ -799,5 +807,17 @@ public final class ServerTransport {
       return false;
     }
     return true;
+  }
+
+  CharacterClass selectedCharacterClass(ConnectRequest request) {
+    return request.characterClass().orElseGet(this::nextFallbackCharacterClass);
+  }
+
+  CharacterClass nextFallbackCharacterClass() {
+    List<CharacterClass> characterClasses = PreRunConfiguration.multiplayerCharacterClasses();
+    CharacterClass characterClass =
+        characterClasses.get(nextFallbackCharacterClassIndex % characterClasses.size());
+    nextFallbackCharacterClassIndex++;
+    return characterClass;
   }
 }

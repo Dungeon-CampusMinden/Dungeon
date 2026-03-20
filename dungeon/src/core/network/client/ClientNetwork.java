@@ -4,6 +4,7 @@ import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.*;
 
+import contrib.entities.CharacterClass;
 import core.Game;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
@@ -35,6 +36,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -73,6 +75,7 @@ public final class ClientNetwork {
   private String remoteHost;
   private int port;
   private String username;
+  private Optional<CharacterClass> requestedCharacterClass = Optional.empty();
 
   private EventLoopGroup group;
   private Channel tcp;
@@ -95,11 +98,15 @@ public final class ClientNetwork {
    * @param host server hostname or IP to connect to
    * @param port server port
    * @param username username used in the TCP ConnectRequest handshake
+   * @param characterClass requested character class for the player, or empty to use the server
+   *     default
    */
-  public void initialize(String host, int port, String username) {
+  public void initialize(
+      String host, int port, String username, Optional<CharacterClass> characterClass) {
     this.remoteHost = host;
     this.port = port;
     this.username = username;
+    this.requestedCharacterClass = characterClass == null ? Optional.empty() : characterClass;
     this.group = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
     this.udpRemote = new InetSocketAddress(host, port);
   }
@@ -353,16 +360,10 @@ public final class ClientNetwork {
                             LOGGER.info(
                                 "Loaded last session from file: sessionId={}; Trying to reconnect.",
                                 sessionId);
-                            data =
-                                serialize(
-                                    new ConnectRequest(
-                                        CLIENT_PROTOCOL_VERSION,
-                                        username,
-                                        sessionId,
-                                        sessionToken));
+                            data = serialize(connectRequest(sessionId, sessionToken));
                           } else {
                             LOGGER.info("No valid last session file found; starting new session.");
-                            data = serialize(new ConnectRequest(CLIENT_PROTOCOL_VERSION, username));
+                            data = serialize(connectRequest());
                           }
                           if (data.length <= MAX_TCP_OBJECT_SIZE) {
                             ByteBuf buf = ctx.alloc().buffer(4 + data.length);
@@ -474,7 +475,13 @@ public final class ClientNetwork {
   private void onConnectAck(short newClientId, int sessionId, byte[] sessionToken) {
     this.clientId = newClientId;
     LOGGER.info("Received ConnectAck clientId={}, sessionId={}", newClientId, sessionId);
-    session.attachClientState(new ClientState(newClientId, username, sessionId, sessionToken));
+    session.attachClientState(
+        new ClientState(
+            newClientId,
+            username,
+            sessionId,
+            sessionToken,
+            requestedCharacterClass.orElse(CharacterClass.WIZARD)));
     scheduleUdpRegistration(newClientId);
     saveLastSessionToFile(sessionId, sessionToken);
   }
@@ -487,7 +494,7 @@ public final class ClientNetwork {
       // Invalidate last session file upon session-related rejections; Try to connect again without
       // session
       invalidateLastSessionFile();
-      session.sendMessage(new ConnectRequest(CLIENT_PROTOCOL_VERSION, username), true);
+      session.sendMessage(connectRequest(), true);
     } else {
       // Close the connection upon rejection
       enqueueLifecycle(() -> notifyDisconnected(reasonStr));
@@ -619,6 +626,15 @@ public final class ClientNetwork {
 
   private void enqueueLifecycle(Runnable r) {
     if (r != null) lifecycleEvents.offer(r);
+  }
+
+  private ConnectRequest connectRequest() {
+    return connectRequest(0, new byte[0]);
+  }
+
+  private ConnectRequest connectRequest(int sessionId, byte[] sessionToken) {
+    return new ConnectRequest(
+        CLIENT_PROTOCOL_VERSION, username, sessionId, sessionToken, requestedCharacterClass);
   }
 
   private void notifyConnected() {

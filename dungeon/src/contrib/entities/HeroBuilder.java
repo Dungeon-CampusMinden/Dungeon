@@ -6,6 +6,7 @@ import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.PauseDialog;
 import contrib.systems.HealthSystem;
 import contrib.systems.HudSystem;
 import contrib.systems.PositionSync;
@@ -248,12 +249,15 @@ public final class HeroBuilder {
             characterClass.mass(),
             (e) -> {},
             true));
-    hero.add(
-        new ManaComponent(
-            characterClass.mana(), characterClass.mana(), characterClass.manaRestore()));
-    hero.add(
-        new StaminaComponent(
-            characterClass.stamina(), characterClass.stamina(), characterClass.staminaRestore()));
+    if (characterClass.mana() > 0)
+      hero.add(
+          new ManaComponent(
+              characterClass.mana(), characterClass.mana(), characterClass.manaRestore()));
+    if (characterClass.stamina() > 0)
+      hero.add(
+          new StaminaComponent(
+              characterClass.stamina(), characterClass.stamina(), characterClass.staminaRestore()));
+
     hero.add(new SkillComponent(characterClass.startSkills().toArray(new Skill[0])));
 
     HealthComponent hc =
@@ -277,7 +281,7 @@ public final class HeroBuilder {
             });
     hc.currentHealthpoints(characterClass.hp());
     hero.add(hc);
-    CollideComponent col = new CollideComponent();
+    CollideComponent col = new CollideComponent(characterClass.hitbox());
     col.onHold(
         (you, other, direction) ->
             other
@@ -403,6 +407,8 @@ public final class HeroBuilder {
                             }))),
         false,
         true);
+    inputComp.registerCallback(
+        KeyboardConfig.PAUSE_MENU.value(), PauseDialog::showPauseDialog, false, true);
   }
   // endregion
 }

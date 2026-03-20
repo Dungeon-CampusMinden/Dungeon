@@ -83,12 +83,16 @@ public final class GameLoop extends ScreenAdapter {
    */
   public static final IVoidFunction onLevelLoad =
       () -> {
+        boolean firstLoad = !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().get());
+        if (firstLoad && Game.isCheckPatternEnabled())
+          Game.currentLevel()
+              .ifPresent(level -> CheckPatternPainter.paintCheckerPattern(level.layout()));
+
         if (!PreRunConfiguration.isNetworkServer()) return; // no authority
 
         SoundTracker.instance().clear();
 
         List<Entity> allPlayers = ECSManagement.allPlayers().toList();
-        boolean firstLoad = !ECSManagement.levelStorageMap().containsKey(Game.currentLevel().get());
         allPlayers.forEach(ECSManagement::remove);
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
         // cleanup).
@@ -118,9 +122,6 @@ public final class GameLoop extends ScreenAdapter {
                         .decorations()
                         .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a()))));
 
-        if (firstLoad && Game.isCheckPatternEnabled())
-          Game.currentLevel()
-              .ifPresent(level -> CheckPatternPainter.paintCheckerPattern(level.layout()));
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
       };
 
