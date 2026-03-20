@@ -183,8 +183,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         LastHourEntitySpawnStrategy.METADATA_VIRUS_TYPE,
         state.virusType() == null ? "" : state.virusType(),
         LastHourEntitySpawnStrategy.METADATA_TIMESTAMP_OF_LOGIN,
-        String.valueOf(state.timestampOfLogin())
-    );
+        String.valueOf(state.timestampOfLogin()));
   }
 
   private Map<String, String> keypadMetadata(KeypadComponent keypad) {
@@ -244,7 +243,9 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         Boolean.parseBoolean(
             metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_INFECTED, "false"));
     String virusType = metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_VIRUS_TYPE, "");
-    int timestampOfLogin = Integer.parseInt(metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_TIMESTAMP_OF_LOGIN, "0"));
+    int timestampOfLogin =
+        Integer.parseInt(
+            metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_TIMESTAMP_OF_LOGIN, "0"));
     return Optional.of(new ComputerStateComponent(progress, infected, virusType, timestampOfLogin));
   }
 

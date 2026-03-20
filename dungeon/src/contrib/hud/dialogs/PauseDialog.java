@@ -61,7 +61,7 @@ public class PauseDialog extends Table {
    */
   public static UIComponent showPauseDialog(Entity caller) {
     boolean isInInput = Game.stage().map(s -> s.getKeyboardFocus() != null).orElse(false);
-    if(isInInput) return null;
+    if (isInInput) return null;
 
     // Find if the player has any open pause menu dialog already:
     boolean hasClosed =

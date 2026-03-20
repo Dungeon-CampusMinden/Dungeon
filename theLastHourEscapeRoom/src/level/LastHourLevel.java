@@ -166,8 +166,8 @@ public class LastHourLevel extends DungeonLevel {
                 Vector2.ONE,
                 (e, other, dir) -> {
                   other
-                    .fetch(InputComponent.class)
-                    .ifPresent(inputComponent -> inputComponent.deactivateControls(true));
+                      .fetch(InputComponent.class)
+                      .ifPresent(inputComponent -> inputComponent.deactivateControls(true));
                 },
                 null)
             .isSolid(false));

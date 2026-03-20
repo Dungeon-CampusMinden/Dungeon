@@ -137,8 +137,7 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
         METADATA_VIRUS_TYPE,
         state.virusType() == null ? "" : state.virusType(),
         METADATA_TIMESTAMP_OF_LOGIN,
-        String.valueOf(state.timestampOfLogin())
-    );
+        String.valueOf(state.timestampOfLogin()));
   }
 
   private Map<String, String> keypadMetadata(KeypadComponent keypad) {

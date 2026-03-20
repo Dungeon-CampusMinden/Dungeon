@@ -43,7 +43,8 @@ public class BlogTab extends ComputerTab {
    * @return seconds since login, or 0 if no login timestamp has been set
    */
   public static int secondsSinceLogin() {
-    int timestampOfLogin = ComputerStateComponent.getState().map(ComputerStateComponent::timestampOfLogin).orElse(0);
+    int timestampOfLogin =
+        ComputerStateComponent.getState().map(ComputerStateComponent::timestampOfLogin).orElse(0);
     if (timestampOfLogin == 0) return 0;
     return (int) (System.currentTimeMillis() / 1000L) - timestampOfLogin;
   }

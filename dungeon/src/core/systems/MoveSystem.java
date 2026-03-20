@@ -184,11 +184,11 @@ public class MoveSystem extends System {
   private float snapToWall(float position, boolean positiveDirection, float colliderEdge) {
     float absoluteEdge = position + colliderEdge;
     float wallEdge =
-      positiveDirection ? (float) Math.floor(absoluteEdge) : (float) Math.ceil(absoluteEdge);
+        positiveDirection ? (float) Math.floor(absoluteEdge) : (float) Math.ceil(absoluteEdge);
     float distance =
-      positiveDirection
-        ? -CollisionSystem.COLLIDE_SET_DISTANCE
-        : CollisionSystem.COLLIDE_SET_DISTANCE;
+        positiveDirection
+            ? -CollisionSystem.COLLIDE_SET_DISTANCE
+            : CollisionSystem.COLLIDE_SET_DISTANCE;
     return wallEdge - colliderEdge + distance;
   }
 
