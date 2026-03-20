@@ -15,6 +15,7 @@ import java.util.Set;
  * @param isInfected whether the computer is currently infected with a virus
  * @param virusType the type of virus currently infecting the computer, or an empty string if not
  *     infected
+ * @param timestampOfLogin the timestamp of the last login to the computer, or 0 if never logged in
  */
 public record ComputerStateComponent(
     ComputerProgress state, boolean isInfected, String virusType, int timestampOfLogin)

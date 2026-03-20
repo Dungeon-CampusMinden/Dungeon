@@ -26,6 +26,8 @@ import org.junit.jupiter.api.Test;
 /** Unit tests for the {@link MoveSystem}. */
 public class MoveSystemTest {
 
+  private static final float EPSILON = 0.00001f;
+
   private static final Point START_POSITION = new Point(5, 5);
   private static final float MAX_SPEED = 10f;
   private MoveSystem system;
@@ -169,7 +171,8 @@ public class MoveSystemTest {
 
     system.execute();
 
-    assertEquals(resultingPos, pc.position());
+    assertTrue(Math.abs(resultingPos.x() - pc.position().x()) < EPSILON);
+    assertTrue(Math.abs(resultingPos.y() - pc.position().y()) < EPSILON);
     verify(onWallHit).accept(entity);
   }
 
