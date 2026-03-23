@@ -103,7 +103,6 @@ tasks.register('runMPClient', JavaExec) {
 
 tasks.register('checkNoEngineImports') {
     doLast {
-        // Diese Pfade müssen engine-frei sein (LITIENGINE-Gameplay-Pfad)
         def enforcePrefixes = [
             "core/",
             "contrib/entities/",
@@ -155,7 +154,6 @@ tasks.named("check") {
     dependsOn("checkNoEngineImports")
 }
 
-// Optional but recommended: make this run on the command you actually use most.
 tasks.named("compileJava") {
     dependsOn("checkNoEngineImports")
 }

@@ -211,7 +211,7 @@ public class Debugger extends System {
 
   private static boolean isPaused() {
     if (pauseMenu == null) return false;
-    return pauseMenu.fetch(UIComponent.class).map(x -> x.dialog().getStage() != null).orElse(false);
+    return pauseMenu.fetch(UIComponent.class).map(x -> x.dialog().isAttached()).orElse(false);
   }
 
   private static void ADVANCE_FRAME() {

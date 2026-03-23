@@ -1,6 +1,6 @@
 package contrib.components;
 
-import com.badlogic.gdx.scenes.scene2d.Group;
+import core.ui.UiNodeHandle;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import core.Component;
@@ -29,7 +29,7 @@ public final class UIComponent implements Component {
 
   private Consumer<UIComponent> onClose = (uiComponent) -> {};
 
-  private Group dialog = null;
+  private UiNodeHandle dialog;
 
   /**
    * Create a new UIComponent.
@@ -172,14 +172,8 @@ public final class UIComponent implements Component {
     return dialogContext;
   }
 
-  /**
-   * Get the dialog Group.
-   *
-   * <p>Creates the dialog if it does not exist yet.
-   *
-   * @return the dialog Group
-   */
-  public Group dialog() {
+
+  public UiNodeHandle dialog() {
     if (dialog == null) {
       dialog = DialogFactory.create(dialogContext);
     }

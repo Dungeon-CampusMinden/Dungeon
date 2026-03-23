@@ -6,18 +6,19 @@ import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
-import contrib.modules.keypad.KeypadUI;
 import contrib.hud.utils.AttributeBarUtil;
+import contrib.modules.keypad.KeypadUI;
 import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
 import core.Game;
+import core.ui.UiNodeHandle;
+import core.ui.gdx.GdxUiNodeHandle;
 import core.utils.IVoidFunction;
 import core.utils.logging.DungeonLogger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-
 /**
  * Central factory for creating and displaying dialogs in a unified manner.
  *
@@ -41,20 +42,20 @@ import java.util.function.Function;
 public class DialogFactory {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DialogFactory.class);
-  private static final Map<DialogType, Function<DialogContext, Group>> registry = new HashMap<>();
+  private static final Map<DialogType, Function<DialogContext, UiNodeHandle>> registry = new HashMap<>();
 
   static {
-    register(DialogType.DefaultTypes.OK, OkDialog::build);
-    register(DialogType.DefaultTypes.YES_NO, YesNoDialog::build);
-    register(DialogType.DefaultTypes.TEXT, TextDialog::build);
-    register(DialogType.DefaultTypes.IMAGE, ShowImageUI::build);
-    register(DialogType.DefaultTypes.FREE_INPUT, FreeInputDialog::build);
-    register(DialogType.DefaultTypes.INVENTORY, InventoryGUI::buildSimple);
-    register(DialogType.DefaultTypes.DUAL_INVENTORY, InventoryGUI::buildDual);
-    register(DialogType.DefaultTypes.CRAFTING_GUI, CraftingGUI::build);
-    register(DialogType.DefaultTypes.KEYPAD, KeypadUI::build);
-    register(DialogType.DefaultTypes.PROGRESS_BAR, AttributeBarUtil::buildProgressBar);
-    register(DialogType.DefaultTypes.PAUSE_MENU, PauseDialog::build);
+    register(DialogType.DefaultTypes.OK, ctx -> wrap(OkDialog.build(ctx)));
+    register(DialogType.DefaultTypes.YES_NO, ctx -> wrap(YesNoDialog.build(ctx)));
+    register(DialogType.DefaultTypes.TEXT, ctx -> wrap(TextDialog.build(ctx)));
+    register(DialogType.DefaultTypes.IMAGE, ctx -> wrap(ShowImageUI.build(ctx)));
+    register(DialogType.DefaultTypes.FREE_INPUT, ctx -> wrap(FreeInputDialog.build(ctx)));
+    register(DialogType.DefaultTypes.INVENTORY, ctx -> wrap(InventoryGUI.buildSimple(ctx)));
+    register(DialogType.DefaultTypes.DUAL_INVENTORY, ctx -> wrap(InventoryGUI.buildDual(ctx)));
+    register(DialogType.DefaultTypes.CRAFTING_GUI, ctx -> wrap(CraftingGUI.build(ctx)));
+    register(DialogType.DefaultTypes.KEYPAD, ctx -> wrap(KeypadUI.build(ctx)));
+    register(DialogType.DefaultTypes.PROGRESS_BAR, ctx -> wrap(AttributeBarUtil.buildProgressBar(ctx)));
+    register(DialogType.DefaultTypes.PAUSE_MENU, ctx -> wrap(PauseDialog.build(ctx)));
     LOGGER.debug("Registered built-in dialog types");
   }
 
@@ -69,7 +70,7 @@ public class DialogFactory {
    * @param creator Function that creates a dialog from a context
    * @throws DialogCreationException if a dialog type with the given name is already registered
    */
-  public static void register(DialogType type, Function<DialogContext, Group> creator) {
+  public static void register(DialogType type, Function<DialogContext, UiNodeHandle> creator) {
     Objects.requireNonNull(type, "type");
     Objects.requireNonNull(creator, "creator");
     if (registry.containsKey(type)) {
@@ -79,24 +80,25 @@ public class DialogFactory {
   }
 
   /**
-   * Creates a dialog of the specified type without displaying it.
+   * Creates a dialog based on the provided context.
    *
-   * <p>This method only creates the dialog instance based on the provided context. It does not add
-   * it to any UI or manage its lifecycle.
+   * <p>This method retrieves the appropriate dialog creator from the registry and applies it to the
+   * context. If centering is enabled in the context, the resulting dialog will be centered on
+   * screen.
    *
    * @param ctx The context containing all necessary data for dialog creation
-   * @return The created dialog instance
+   * @return The created dialog wrapped in a UiNodeHandle
    * @throws DialogCreationException if the dialog type is not registered
    */
-  public static Group create(DialogContext ctx) {
+  public static UiNodeHandle create(DialogContext ctx) {
     Objects.requireNonNull(ctx, "context");
-    Function<DialogContext, Group> creator = registry.get(ctx.dialogType());
+    Function<DialogContext, UiNodeHandle> creator = registry.get(ctx.dialogType());
     if (creator == null) {
       throw new DialogCreationException("Unknown dialog type: " + ctx);
     }
-    Group dialog = creator.apply(ctx);
+    UiNodeHandle dialog = creator.apply(ctx);
     if (ctx.center()) {
-      UIUtils.center(dialog);
+      dialog.unwrap(Group.class).ifPresent(UIUtils::center);
     }
     return dialog;
   }
@@ -296,5 +298,9 @@ public class DialogFactory {
     }
 
     return ui;
+  }
+
+  private static UiNodeHandle wrap(Group group) {
+    return new GdxUiNodeHandle(group);
   }
 }

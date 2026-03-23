@@ -11,6 +11,7 @@ import contrib.hud.elements.GUICombination;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
+import core.ui.UiNodeHandle;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
@@ -162,19 +163,35 @@ public final class UIUtils {
   }
 
   /**
-   * Retrieves all {@link InventoryComponent}s from the given {@link UIComponent}'s dialog, if it is
-   * a {@link GUICombination}.
+   * Retrieves all inventory components from the UI dialogs associated with the given UIComponent.
    *
-   * @param ui the UIComponent whose dialog to check for inventories
-   * @return a stream of InventoryComponents found in the dialog's combinable GUIs
+   * <p>This method extracts all InventoryComponents from the GUI combination elements within the
+   * dialog. It filters for elements that implement IInventoryHolder and extracts their associated
+   * inventory components.
+   *
+   * @param ui the UIComponent whose dialogs are to be searched for inventory components
+   * @return a Stream of InventoryComponents found in the UI dialogs
    */
   public static Stream<InventoryComponent> getInventoriesFromUI(UIComponent ui) {
-    return (ui.dialog() instanceof GUICombination guiCombination)
-        ? guiCombination.combinableGuis().stream()
-            .filter(IInventoryHolder.class::isInstance)
-            .map(IInventoryHolder.class::cast)
-            .map(IInventoryHolder::inventoryComponent)
-        : Stream.empty();
+    return ui.dialog()
+      .unwrap(GUICombination.class)
+      .stream()
+      .flatMap(guiCombination -> guiCombination.combinableGuis().stream())
+      .filter(IInventoryHolder.class::isInstance)
+      .map(IInventoryHolder.class::cast)
+      .map(IInventoryHolder::inventoryComponent);
+  }
+
+  /**
+   * Searches for an Actor of the specified type within the given UiNodeHandle dialog.
+   *
+   * @param dialog the UiNodeHandle to search within
+   * @param type the Class type of the Actor to find
+   * @param <T> the type of the Actor
+   * @return an Optional containing the found Actor, or an empty Optional if not found
+   */
+  public static <T> Optional<T> findTypeInGroup(UiNodeHandle dialog, Class<T> type) {
+    return dialog.unwrap(Group.class).flatMap(group -> findTypeInGroup(group, type));
   }
 
   /**

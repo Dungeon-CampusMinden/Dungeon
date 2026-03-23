@@ -12,6 +12,7 @@ import core.game.PreRunConfiguration;
 import core.network.NetworkUtils;
 import core.network.messages.s2c.DialogShowMessage;
 import core.network.server.DialogTracker;
+import core.ui.UiNodeHandle;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
@@ -31,7 +32,7 @@ public final class HudSystem extends System {
    * The removeListener only gets the Entity after its Component is removed. Which means no longer
    * any access to the Group. This is why we need the last group an entity had as a mapping.
    */
-  private final Map<Entity, Group> entityGroupMap = new HashMap<>();
+  private final Map<Entity, UiNodeHandle> entityGroupMap = new HashMap<>();
 
   private final Map<Entity, UIComponent> entityUIComponentMap = new HashMap<>();
 
@@ -60,7 +61,7 @@ public final class HudSystem extends System {
    * @param entity Entity which no longer has a UIComponent.
    */
   private void removeListener(final Entity entity) {
-    Group remove = entityGroupMap.remove(entity);
+    UiNodeHandle remove = entityGroupMap.remove(entity);
     if (remove != null) {
       remove.remove();
     }
@@ -78,7 +79,7 @@ public final class HudSystem extends System {
             .fetch(UIComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, UIComponent.class));
 
-    Group dialog = component.dialog();
+    UiNodeHandle dialogHandle = component.dialog();
 
     // check if we should draw it
     int[] myIds = Game.allPlayers().mapToInt(Entity::id).toArray();
@@ -108,8 +109,14 @@ public final class HudSystem extends System {
             stageHandle
                 .unwrap(Stage.class)
                 .orElseThrow(() -> new IllegalStateException("Stage is not a libGDX Stage"));
+
+          Group dialog =
+            dialogHandle
+              .unwrap(Group.class)
+              .orElseThrow(() -> new IllegalStateException("Dialog is not a libGDX Group"));
+
               addDialogToStage(dialog, stage);
-              addMapping(entity, dialog, component);
+              addMapping(entity, dialogHandle, component);
               DialogTracker.instance().registerDialog(component);
             },
             () -> {
@@ -117,7 +124,7 @@ public final class HudSystem extends System {
               if (PreRunConfiguration.multiplayerEnabled()
                   && PreRunConfiguration.isNetworkServer()) {
                 sendDialogToClients(entity, component, affectedIds);
-                addMapping(entity, dialog, component);
+                addMapping(entity, dialogHandle, component);
               }
             });
   }
@@ -153,8 +160,8 @@ public final class HudSystem extends System {
     }
   }
 
-  private void addMapping(final Entity entity, final Group dialog, final UIComponent component) {
-    Group previous = entityGroupMap.put(entity, dialog);
+  private void addMapping(final Entity entity, final UiNodeHandle dialog, final UIComponent component) {
+    UiNodeHandle previous = entityGroupMap.put(entity, dialog);
     if (previous != null) {
       previous.remove();
     }
