@@ -95,10 +95,10 @@ public final class Crafting {
       String path =
         new File(Objects.requireNonNull(Game.class.getResource("")).getPath())
           .getParent()
-          // Erst die Protokolle entfernen
+          // replace protocols
           .replaceAll("(!|file:\\\\)", "")
           .replaceAll("(!|file:)", "")
-          // JETZT die URL-Kodierung für Leerzeichen fixen
+          // replace the url whitespaces with real whitespaces
           .replace("%20", " ");
 
       JarFile jar = new JarFile(path);
