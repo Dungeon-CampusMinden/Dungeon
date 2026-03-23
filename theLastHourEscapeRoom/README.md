@@ -13,7 +13,7 @@ The game requires [Java SE Development Kit 21 LTS](https://jdk.java.net/21/) to 
 
 ## How to Play (Singleplayer)
 
-* Download [TheLastHour.jar]()
+* Download [TheLastHour.jar](https://github.com/Dungeon-CampusMinden/Dungeon/releases)
 * Start the game by double-clicking the downloaded JAR file
 * If the JAR doesn't launch, make sure Java 21 is installed and open a terminal:
   * Verify your Java installation with `java --version`
