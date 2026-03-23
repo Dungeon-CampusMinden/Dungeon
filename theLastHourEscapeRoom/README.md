@@ -24,7 +24,7 @@ The game requires [Java SE Development Kit 21 LTS](https://jdk.java.net/21/) to 
 
 *Note: Since this is a work-in-progress project, the multiplayer setup is not yet user-friendly. We recommend non-technical users play the singleplayer mode.*
 
-*Note: Multiplayer does not currently support play over the internet — make sure both devices are on the same local network.*
+*Note: Multiplayer does not currently support play over the internet - make sure both devices are on the same local network.*
 
 Multiplayer requires two separate devices; local co-op on a single device is not yet supported.
 
