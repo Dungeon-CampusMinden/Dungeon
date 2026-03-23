@@ -44,7 +44,7 @@ tasks.register('runTheLastHourClient', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('buildTheFinalHourJar', Jar) {
+tasks.register('buildTheLastHourJar', Jar) {
     group = 'jar'
     archiveBaseName.set('TheLastHour')
     archiveFileName.set('TheLastHour.jar')
@@ -69,7 +69,7 @@ tasks.register('buildTheFinalHourJar', Jar) {
     // manifest
     manifest {
         attributes(
-                'Main-Class': 'starter.TheFinalHour'
+                'Main-Class': 'starter.TheLastHour'
         )
     }
 
