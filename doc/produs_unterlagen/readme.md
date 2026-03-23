@@ -1,4 +1,4 @@
-# How to Produs Guide 
+# How to Produs Guide
 
 Welcome to the **How to Produs Guide**.
 
@@ -13,6 +13,42 @@ To understand the workshop concept read
 * [Advanced Dungeon](./materials/advanced_workshop.md)
 
 ---
+For the blockly and Java Dungeon there are two different approaches for installation: There is a simple way for
+non-coders and a more advanced way for experienced programmers.
+
+In all cases you have to install **Java 21**
+
+## Blockly Dungeon (easy Installation)
+
+1. Install **Java 21**
+2. Download the blockly Jar.
+   1. Go to https://github.com/Dungeon-CampusMinden/Dungeon
+   2. Click on the releases on the right side of the page
+   3. Scroll to the last release and download the **Blockly-web.jar**
+3. Make sure there are no spaces in the filename, this leads to an error
+4. Start the dungeon by double-clicking the JAR file
+5. Open your browser and go to [http://localhost:8081/](http://localhost:8081/)
+
+## Java Dungeon (easy Installation)
+
+1. Install **Java 21**
+2. Download the blockly Jar.
+    1. Go to https://github.com/Dungeon-CampusMinden/Dungeon
+    2. Click on the releases on the right side of the page
+    3. Scroll to the last release and download the **Blockly-desktop.jar**
+3. Make sure there are no spaces in the filename, this leads to an error
+4. Start the dungeon by double-clicking the JAR file
+5. Install [Visual Studio Code](https://code.visualstudio.com/)
+6. Download the `.vsix` file below and install the extension (see next)
+7. In VS Code, create a new file with a `.java` extension
+8. Use the cheat sheets to write your code:
+    * [Dungeon Commands](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/commands_cheat_sheet.md)
+    * [Simple Java Commands](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/java-cheat-sheet_simple.md)
+9. Click `Run Blockly Code` in the top-right corner of Visual Studio Code to see your work in action
+
+
+
+
 
 ## Step 1: Install the Required Tools
 
@@ -42,7 +78,7 @@ After installing everything:
    ```bash
    .\gradlew.bat runBasicStarter
    ```
-or 
+or
    ```bash
    bash gradlew runBasicStarter
    ```
