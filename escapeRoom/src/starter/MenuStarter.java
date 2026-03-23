@@ -24,6 +24,7 @@ import core.game.PreRunConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public   class MenuStarter extends ApplicationAdapter {
 
@@ -33,11 +34,15 @@ public   class MenuStarter extends ApplicationAdapter {
   private Table levelTable;
   private TextureRegionDrawable menuBackground;
   private static Stage stage;
+  private static HashMap<Starter, String> starters = new HashMap<>();
+  private static Lwjgl3ApplicationConfiguration config;
 
   public static void main(String args[]) {
+    starters.put(new MushRoom(), "MushRoom");
+    starters.put(new DemoRoom(), "DemoRoom");
+    starters.put(new SpriteTestRoom(), "SpriteTestRoom");
     // 1. Die Konfiguration für das Fenster erstellen
-    Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-
+     config = new Lwjgl3ApplicationConfiguration();
     // 2. Fenstereigenschaften festlegen
     config.setTitle("Mein Rotes Fenster");
     config.setWindowedMode(800, 600); // Breite und Höhe
@@ -46,14 +51,6 @@ public   class MenuStarter extends ApplicationAdapter {
 
     // 3. Die App starten: Verbindet die Konfiguration mit deiner Logik-Klasse
     new Lwjgl3Application(new MenuStarter(), config);
-
-
-  }
-
-  private static ArrayList<Starter> starters = new ArrayList<>();
-  public static void register(Starter starter) {
-    System.out.println("registered");
-    starters.add(starter);
   }
 
   @Override
@@ -94,67 +91,62 @@ public   class MenuStarter extends ApplicationAdapter {
   }
 
   private void createMainMenu() {
-
-    System.out.println("length of arry list"  + starters.size());
+    System.out.println("Anzahl der Starter: " + starters.size());
 
     mainMenuTable = new Table();
     mainMenuTable.setFillParent(true);
 
     Texture bgTexture = new Texture(Gdx.files.internal("blumenwiese.png"));
     menuBackground = new TextureRegionDrawable(new TextureRegion(bgTexture));
-    mainMenuTable.setBackground(menuBackground);;
+    mainMenuTable.setBackground(menuBackground);
+    mainMenuTable.center();
 
-    mainMenuTable.center(); // Menü zentrieren
+    // ITERATION ÜBER DIE HASHMAP
+    // Wir gehen durch jedes Paar (Starter und sein Name)
+    for (HashMap.Entry<Starter, String> entry : starters.entrySet()) {
+      Starter starter = entry.getKey();
+      String name = entry.getValue();
 
-    TextButton startButton = new TextButton("Start", skin);
-    TextButton exitButton  = new TextButton("Exit", skin);
+      // Button mit dem Namen aus der Map erstellen
+      TextButton dynamicButton = new TextButton(name, skin);
 
-    // Start Button startet das Spiel
-    startButton.addListener(new ClickListener() {
-      @Override
-      public void clicked(InputEvent event, float x, float y) {
-        Game.exit();
+      dynamicButton.addListener(new ClickListener() {
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+          // Das aktuelle Menü beenden
+          Game.exit();
 
-//        try {
-//          new DemoRoom().run();
-//        } catch (IOException e) {
-//          throw new RuntimeException(e);
-//        }
+          // Den Starter in einem neuen Thread ausführen (dein "Warten"-Trick)
+          new Thread(() -> {
+            try {
+              Thread.sleep(1000);
+              // Führt die run() Methode des jeweiligen Starters aus
+              starter.run();
 
-        String javaHome = System.getProperty("java.home");
-        String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
+              System.out.println("Spiel wurde beendet! Starte Menü neu...");
 
-        // 2. Den aktuellen Classpath auslesen (damit DemoRoom gefunden wird)
-        String classpath = System.getProperty("java.class.path");
+              // Menü wieder öffnen
+              Gdx.app.postRunnable(() -> {
+                // Hier rufst du die Main-Klasse deines Menüs wieder auf
+                // oder startest eine neue Lwjgl3Application
+                new Lwjgl3Application(new MenuStarter(), config);
+              });
 
-        // 3. Den neuen Prozess konfigurieren
-        // "starter.DemoRoom" muss der EXAKTE Pfad zu deiner Klasse sein
-        ProcessBuilder builder = new ProcessBuilder(
-          javaBin,
-          "-cp", classpath,
-          "starter.DemoRoom"
-        );
 
-        // 4. Arbeitsverzeichnis setzen (Wichtig für Assets wie Sounds/Bilder)
-        builder.directory(new File(System.getProperty("user.dir")));
-
-        // 5. Fehler/Ausgaben vom Spiel in deine jetzige Konsole leiten
-        builder.inheritIO();
-
-        // 6. Das neue Spiel starten
-        try {
-          builder.start();
-        } catch (IOException e) {
-          throw new RuntimeException(e);
+            } catch (InterruptedException | IOException e) {
+              e.printStackTrace();
+            }
+          }).start();
         }
+      });
 
-        // 7. Das Menü-Fenster schließen
-        Gdx.app.exit();
+      // Button zur Tabelle hinzufügen
+      mainMenuTable.add(dynamicButton).pad(10).width(200);
+      mainMenuTable.row(); // Nächste Zeile für den nächsten Button
+    }
 
-      }
-    });
-
-//    // Exit Button schließt das Spiel
+    // Am Ende noch den Exit-Button (optional)
+    TextButton exitButton = new TextButton("Exit", skin);
     exitButton.addListener(new ClickListener() {
       @Override
       public void clicked(InputEvent event, float x, float y) {
@@ -162,16 +154,8 @@ public   class MenuStarter extends ApplicationAdapter {
       }
     });
 
-    mainMenuTable.add(startButton).pad(10).width(200);
-    mainMenuTable.row();
-    mainMenuTable.add(exitButton).pad(10).width(200);
-    mainMenuTable.row();
-
+    mainMenuTable.add(exitButton).pad(30, 10, 10, 10).width(200); // Etwas mehr Abstand nach oben
     stage.addActor(mainMenuTable);
-
-
-
-
   }
 
 

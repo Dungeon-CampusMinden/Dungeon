@@ -30,10 +30,6 @@ import java.io.IOException;
  */
 public class DemoRoom extends Starter {
 
-  static {
-    MenuStarter.register(new DemoRoom());
-  }
-
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DemoRoom.class);
 
   private static final boolean DEBUG_MODE = false;
