@@ -93,12 +93,14 @@ public final class Crafting {
   private static void loadFromJar() {
     try {
       String path =
-          new File(Objects.requireNonNull(Game.class.getResource("")).getPath())
-              .getParent()
-              // for windows
-              .replaceAll("(!|file:\\\\)", "")
-              // for unix/macos
-              .replaceAll("(!|file:)", "");
+        new File(Objects.requireNonNull(Game.class.getResource("")).getPath())
+          .getParent()
+          // Erst die Protokolle entfernen
+          .replaceAll("(!|file:\\\\)", "")
+          .replaceAll("(!|file:)", "")
+          // JETZT die URL-Kodierung für Leerzeichen fixen
+          .replace("%20", " ");
+
       JarFile jar = new JarFile(path);
       Enumeration<JarEntry> entries = jar.entries();
       while (entries.hasMoreElements()) {
