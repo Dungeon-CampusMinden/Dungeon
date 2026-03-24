@@ -255,50 +255,81 @@ public class DialogFactory {
     return ui;
   }
 
-  /**
-   * Shows a customizable text dialog with optional multiple buttons and custom result handling.
-   *
-   * @param text The message to display in the dialog body
-   * @param title The dialog window title
-   * @param onConfirm Callback executed when the confirm button is pressed (can be null)
-   * @param confirmLabel Label for the confirm button (uses default if null)
-   * @param cancelLabel Label for the cancel button (no cancel button if null)
-   * @param additionalButtons List of additional button labels (can be null)
-   * @param targetEntityIds The target entity IDs for which the dialog is displayed
-   * @return The {@link UIComponent} containing the dialog
-   */
-  public static UIComponent showTextDialog(
-      String text,
-      String title,
-      IVoidFunction onConfirm,
-      String confirmLabel,
-      String cancelLabel,
-      String[] additionalButtons,
-      int... targetEntityIds) {
-    DialogContext.Builder builder =
+    /**
+     * Shows a simple text dialog with a message and an optional close button.
+     *
+     * @param text The message to display in the dialog body
+     * @param title The dialog window title
+     * @param canClose whether the dialog can be closed by the user
+     * @return The {@link UIComponent} containing the dialog
+     */
+    public static UIComponent showTextDialog(
+      final String text, final String title, final boolean canClose) {
+      DialogContext ctx =
         DialogContext.builder()
-            .type(DialogType.DefaultTypes.TEXT)
-            .put(DialogContextKeys.TITLE, title)
-            .put(DialogContextKeys.MESSAGE, text);
-    if (confirmLabel != null) builder.put(DialogContextKeys.CONFIRM_LABEL, confirmLabel);
-    if (cancelLabel != null) builder.put(DialogContextKeys.CANCEL_LABEL, cancelLabel);
-    if (additionalButtons != null)
-      builder.put(DialogContextKeys.ADDITIONAL_BUTTONS, additionalButtons);
+          .type(DialogType.DefaultTypes.TEXT)
+          .put(DialogContextKeys.TITLE, title)
+          .put(DialogContextKeys.MESSAGE, text)
+          .build();
 
-    UIComponent ui = show(builder.build(), targetEntityIds);
+      return show(ctx, canClose);
+    }
 
-    // Register callbacks
-    if (onConfirm != null) {
-      ui.registerCallback(
+    /**
+     * Shows a simple text dialog with a message and an optional close button.
+     *
+     * @param text The message to display in the dialog body
+     * @param title The dialog window title
+     * @param canClose whether the dialog can be closed by the user
+     * @param targetEntityIds array of entity IDs to notify when the dialog is closed
+     * @return The {@link UIComponent} containing the dialog
+     */
+    public static UIComponent showTextDialog(
+      final String text,
+      final String title,
+      final boolean canClose,
+      final int... targetEntityIds) {
+      DialogContext ctx =
+        DialogContext.builder()
+          .type(DialogType.DefaultTypes.TEXT)
+          .put(DialogContextKeys.TITLE, title)
+          .put(DialogContextKeys.MESSAGE, text)
+          .build();
+
+      return show(ctx, true, canClose, targetEntityIds);
+    }
+
+    /**
+     * Shows an image dialog with an optional confirmation callback.
+     *
+     * @param imagePath The path to the image file to display
+     * @param title The dialog window title
+     * @param onConfirm Callback executed when the dialog is confirmed (nullable)
+     * @param targetEntityIds array of entity IDs to notify when the dialog is closed
+     * @return The {@link UIComponent} containing the dialog
+     */
+    public static UIComponent showImageDialog(
+      String imagePath, String title, IVoidFunction onConfirm, int... targetEntityIds) {
+      DialogContext ctx =
+        DialogContext.builder()
+          .type(DialogType.DefaultTypes.IMAGE)
+          .put(DialogContextKeys.TITLE, title)
+          .put(DialogContextKeys.IMAGE, imagePath)
+          .build();
+
+      UIComponent ui = show(ctx, targetEntityIds);
+
+      if (onConfirm != null) {
+        ui.registerCallback(
           DialogContextKeys.ON_CONFIRM,
           data -> {
             onConfirm.execute();
             UIUtils.closeDialog(ui, true);
           });
-    }
+      }
 
-    return ui;
-  }
+      return ui;
+    }
 
   private static UiNodeHandle wrap(Group group) {
     return new GdxUiNodeHandle(group);

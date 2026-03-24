@@ -1,5 +1,6 @@
 package starter;
 
+import contrib.hud.dialogs.GdxDialogFactoryBootstrap;
 import core.platform.Platform;
 import core.platform.gdx.GdxRuntimeAdapter;
 import core.platform.gdx.GdxWindowAdapter;
@@ -15,5 +16,7 @@ public final class GdxPlatformBootstrap {
     Platform.render(new core.platform.gdx.GdxRenderAdapter());
     Platform.pathfinding(new core.platform.gdx.GdxPathfindingAdapter());
     Platform.cursor(new core.platform.gdx.input.GdxCursorAdapter());
+
+    GdxDialogFactoryBootstrap.init();
   }
 }

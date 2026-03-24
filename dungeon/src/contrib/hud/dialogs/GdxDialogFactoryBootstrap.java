@@ -1,0 +1,52 @@
+package contrib.hud.dialogs;
+
+import com.badlogic.gdx.scenes.scene2d.Group;
+import contrib.hud.crafting.CraftingGUI;
+import contrib.hud.inventory.InventoryGUI;
+import contrib.hud.utils.AttributeBarUtil;
+import contrib.modules.keypad.KeypadUI;
+import contrib.utils.components.showImage.ShowImageUI;
+import core.ui.UiNodeHandle;
+import core.ui.gdx.GdxUiNodeHandle;
+
+/**
+ * Registers the built-in libGDX-backed dialog implementations.
+ *
+ * <p>This keeps the concrete Scene2D dialog wiring out of {@link DialogFactory}.
+ */
+public final class GdxDialogFactoryBootstrap {
+  private static boolean initialized = false;
+
+  private GdxDialogFactoryBootstrap() {}
+
+  public static synchronized void init() {
+    if (initialized) {
+      return;
+    }
+
+    DialogFactory.register(DialogType.DefaultTypes.OK, ctx -> wrap(OkDialog.build(ctx)));
+    DialogFactory.register(DialogType.DefaultTypes.YES_NO, ctx -> wrap(YesNoDialog.build(ctx)));
+    DialogFactory.register(DialogType.DefaultTypes.TEXT, ctx -> wrap(TextDialog.build(ctx)));
+    DialogFactory.register(DialogType.DefaultTypes.IMAGE, ctx -> wrap(ShowImageUI.build(ctx)));
+    DialogFactory.register(
+      DialogType.DefaultTypes.FREE_INPUT, ctx -> wrap(FreeInputDialog.build(ctx)));
+    DialogFactory.register(
+      DialogType.DefaultTypes.INVENTORY, ctx -> wrap(InventoryGUI.buildSimple(ctx)));
+    DialogFactory.register(
+      DialogType.DefaultTypes.DUAL_INVENTORY, ctx -> wrap(InventoryGUI.buildDual(ctx)));
+    DialogFactory.register(
+      DialogType.DefaultTypes.CRAFTING_GUI, ctx -> wrap(CraftingGUI.build(ctx)));
+    DialogFactory.register(DialogType.DefaultTypes.KEYPAD, ctx -> wrap(KeypadUI.build(ctx)));
+    DialogFactory.register(
+      DialogType.DefaultTypes.PROGRESS_BAR,
+      ctx -> wrap(AttributeBarUtil.buildProgressBar(ctx)));
+    DialogFactory.register(
+      DialogType.DefaultTypes.PAUSE_MENU, ctx -> wrap(PauseDialog.build(ctx)));
+
+    initialized = true;
+  }
+
+  private static UiNodeHandle wrap(Group group) {
+    return new GdxUiNodeHandle(group);
+  }
+}
