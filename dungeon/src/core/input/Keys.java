@@ -59,6 +59,10 @@ public final class Keys {
   public static final int COMMA = 55;
   public static final int PERIOD = 56;
 
+  // Modifiers
+  public static final int SHIFT_LEFT = 59;
+  public static final int SHIFT_RIGHT = 60;
+
   // Common controls
   public static final int TAB = 61;
   public static final int SPACE = 62;
@@ -132,6 +136,9 @@ public final class Keys {
 
       case COMMA -> ",";
       case PERIOD -> ".";
+
+      case SHIFT_LEFT -> "SHIFT_LEFT";
+      case SHIFT_RIGHT -> "SHIFT_RIGHT";
 
       case TAB -> "TAB";
       case SPACE -> "SPACE";

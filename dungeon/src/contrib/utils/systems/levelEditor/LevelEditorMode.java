@@ -1,10 +1,11 @@
 package contrib.utils.systems.levelEditor;
 
-import com.badlogic.gdx.Input;
 import contrib.systems.LevelEditorSystem;
 import contrib.utils.components.skill.SkillTools;
 import core.Game;
 import core.System;
+import core.input.Keys;
+import core.input.MouseButtons;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;
@@ -20,22 +21,22 @@ public abstract class LevelEditorMode {
   private static DungeonLevel level = null;
 
   /** Primary action button. Direction UP */
-  public static final int PRIMARY_UP = Input.Keys.E;
+  public static final int PRIMARY_UP = Keys.E;
 
   /** Primary action button. Direction DOWN */
-  public static final int PRIMARY_DOWN = Input.Keys.Q;
+  public static final int PRIMARY_DOWN = Keys.Q;
 
   /** Secondary action button. Direction UP */
-  public static final int SECONDARY_UP = Input.Keys.C;
+  public static final int SECONDARY_UP = Keys.C;
 
   /** Secondary action button. Direction DOWN. */
-  public static final int SECONDARY_DOWN = Input.Keys.Z;
+  public static final int SECONDARY_DOWN = Keys.Z;
 
   /** Tertiary action button. */
-  public static final int TERTIARY = Input.Keys.X;
+  public static final int TERTIARY = Keys.X;
 
   /** Quaternary action button. */
-  public static final int QUARTERNARY = Input.Keys.V;
+  public static final int QUARTERNARY = Keys.V;
 
   private final String name;
   private final Map<Integer, String> controls = new LinkedHashMap<>();
@@ -148,10 +149,10 @@ public abstract class LevelEditorMode {
     status.append("\nControls:");
     for (Map.Entry<Integer, String> entry : controls.entrySet()) {
       // Special handling for mouse buttons
-      if (entry.getKey() == Input.Buttons.LEFT || entry.getKey() == Input.Buttons.RIGHT) {
+      if (entry.getKey() == MouseButtons.LEFT || entry.getKey() == MouseButtons.RIGHT) {
         status
             .append("\n- ")
-            .append(entry.getKey() == Input.Buttons.LEFT ? "LMB" : "RMB")
+            .append(entry.getKey() == MouseButtons.LEFT ? "LMB" : "RMB")
             .append(": ")
             .append(entry.getValue());
         continue;
@@ -171,12 +172,12 @@ public abstract class LevelEditorMode {
    * @return the key as string, with Y and Z swapped for german layout
    */
   private String keyToString(int key) {
-    if (key == Input.Keys.Y) {
+    if (key == Keys.Y) {
       return "Z";
-    } else if (key == Input.Keys.Z) {
+    } else if (key == Keys.Z) {
       return "Y";
     }
-    return Input.Keys.toString(key);
+    return Keys.toString(key);
   }
 
   protected enum SnapMode {

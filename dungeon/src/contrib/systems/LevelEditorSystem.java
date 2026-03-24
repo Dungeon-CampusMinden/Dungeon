@@ -1,7 +1,6 @@
 package contrib.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -12,6 +11,8 @@ import core.Game;
 import core.System;
 import core.components.InputComponent;
 import core.components.PlayerComponent;
+import core.input.Keys;
+import core.input.MouseButtons;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.platform.gdx.render.DrawSystem;
@@ -39,21 +40,21 @@ public class LevelEditorSystem extends System {
 
   private static boolean internalStopped = false;
   private static boolean active = false;
-  private static final int TOGGLE_ACTIVE = Input.Keys.F4;
+  private static final int TOGGLE_ACTIVE = Keys.F4;
 
-  private static final int TOGGLE_DEBUG_SHADER = Input.Keys.SPACE;
+  private static final int TOGGLE_DEBUG_SHADER = Keys.SPACE;
   private boolean debugShaderActive = false;
   private static final String DEBUG_SHADER_KEY = "LevelEditorSystem_debug";
 
   private static Mode currentMode = Mode.Tiles;
   private static LevelEditorMode currentModeInstance = currentMode.getModeInstance();
-  private static final int MODE_1 = Input.Keys.NUM_1;
-  private static final int MODE_2 = Input.Keys.NUM_2;
-  private static final int MODE_3 = Input.Keys.NUM_3;
-  private static final int MODE_4 = Input.Keys.NUM_4;
-  private static final int MODE_5 = Input.Keys.NUM_5;
-  private static final int MODE_6 = Input.Keys.NUM_6;
-  private static final int MODE_7 = Input.Keys.NUM_7;
+  private static final int MODE_1 = Keys.NUM_1;
+  private static final int MODE_2 = Keys.NUM_2;
+  private static final int MODE_3 = Keys.NUM_3;
+  private static final int MODE_4 = Keys.NUM_4;
+  private static final int MODE_5 = Keys.NUM_5;
+  private static final int MODE_6 = Keys.NUM_6;
+  private static final int MODE_7 = Keys.NUM_7;
 
   private static String feedbackMessage = "";
   private static Color feedbackMessageColor = Color.WHITE;
@@ -90,8 +91,8 @@ public class LevelEditorSystem extends System {
                 pc.removeCallback(LevelEditorMode.SECONDARY_UP);
                 pc.removeCallback(LevelEditorMode.SECONDARY_DOWN);
                 pc.removeCallback(LevelEditorMode.TERTIARY);
-                pc.removeCallback(Input.Buttons.LEFT);
-                pc.removeCallback(Input.Buttons.RIGHT);
+                pc.removeCallback(MouseButtons.LEFT);
+                pc.removeCallback(MouseButtons.RIGHT);
               });
       player
           .fetch(HealthComponent.class)

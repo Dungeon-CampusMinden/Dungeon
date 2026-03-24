@@ -1,6 +1,5 @@
 package contrib.utils.systems.levelEditor;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
@@ -12,6 +11,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.input.MouseButtons;
 import core.level.DungeonLevel;
 import core.utils.InputManager;
 import core.utils.Point;
@@ -62,7 +62,7 @@ public class DecoMode extends LevelEditorMode {
     // - Mouse move [holding a deco]: show preview of deco at cursor position
     Point cursorPos = getCursorPosition();
     Point snapPos = decoSnapMode.getPosition(cursorPos);
-    if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
+    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
       rapidFireActive = true;
 
       if (decoHeldEntity != null) {
@@ -72,7 +72,7 @@ public class DecoMode extends LevelEditorMode {
         setupPreviewEntity(snapPos);
         rapidFireActive = false;
       }
-    } else if (InputManager.isButtonJustPressed(Input.Buttons.RIGHT) && decoHeldEntity == null) {
+    } else if (InputManager.isButtonJustPressed(MouseButtons.RIGHT) && decoHeldEntity == null) {
       rapidFireActive = false;
       // Pickup deco on cursor
       Optional<DecoEntityData> clickedDeco = getDecoOnPosition(cursorPos);
@@ -101,7 +101,7 @@ public class DecoMode extends LevelEditorMode {
       }
     }
 
-    if (InputManager.isButtonPressed(Input.Buttons.LEFT) && rapidFireActive) {
+    if (InputManager.isButtonPressed(MouseButtons.LEFT) && rapidFireActive) {
       boolean checkBlocked = decoSnapMode.checkBlocked();
       placeDeco(snapPos, checkBlocked);
       if (!checkBlocked) {
@@ -180,8 +180,8 @@ public class DecoMode extends LevelEditorMode {
     controls.put(SECONDARY_UP, "Change Grid Snap");
     controls.put(TERTIARY, "Delete on Cursor");
     controls.put(QUARTERNARY, "Pick from Cursor");
-    controls.put(Input.Buttons.LEFT, "Place Deco");
-    controls.put(Input.Buttons.RIGHT, "Pickup Deco");
+    controls.put(MouseButtons.LEFT, "Place Deco");
+    controls.put(MouseButtons.RIGHT, "Pickup Deco");
     return controls;
   }
 

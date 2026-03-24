@@ -1,9 +1,9 @@
 package contrib.utils.systems.levelEditor;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import contrib.systems.DebugDrawSystem;
 import contrib.utils.CheckPatternPainter;
+import core.input.MouseButtons;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.InputManager;
@@ -47,13 +47,13 @@ public class TilesMode extends LevelEditorMode {
   @Override
   public void execute() {
     if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
-      if (InputManager.isButtonPressed(Input.Buttons.RIGHT)) {
+      if (InputManager.isButtonPressed(MouseButtons.RIGHT)) {
         selectedTileIndexR -= 1;
       } else {
         selectedTileIndexL -= 1;
       }
     } else if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
-      if (InputManager.isButtonPressed(Input.Buttons.RIGHT)) {
+      if (InputManager.isButtonPressed(MouseButtons.RIGHT)) {
         selectedTileIndexR += 1;
       } else {
         selectedTileIndexL += 1;
@@ -83,7 +83,7 @@ public class TilesMode extends LevelEditorMode {
      */
     Optional<LevelElement> levelElement = Optional.empty();
     int targetBrushSize;
-    if (InputManager.isButtonPressed(Input.Buttons.LEFT)) {
+    if (InputManager.isButtonPressed(MouseButtons.LEFT)) {
       levelElement =
           Optional.of(
               LevelElement.values()[
@@ -91,7 +91,7 @@ public class TilesMode extends LevelEditorMode {
       targetBrushSize = brushSize;
     } else {
       targetBrushSize = 1;
-      if (InputManager.isButtonPressed(Input.Buttons.RIGHT)) {
+      if (InputManager.isButtonPressed(MouseButtons.RIGHT)) {
         levelElement =
             Optional.of(
                 LevelElement.values()[
@@ -177,8 +177,8 @@ public class TilesMode extends LevelEditorMode {
     controls.put(SECONDARY_DOWN, "Brush Size [L] -1");
     controls.put(TERTIARY, "Place SKIP Tile");
     controls.put(QUARTERNARY, "Pick from cursor");
-    controls.put(Input.Buttons.LEFT, "Place Tile [L]");
-    controls.put(Input.Buttons.RIGHT, "Place Tile [R]");
+    controls.put(MouseButtons.LEFT, "Place Tile [L]");
+    controls.put(MouseButtons.RIGHT, "Place Tile [R]");
     return controls;
   }
 }

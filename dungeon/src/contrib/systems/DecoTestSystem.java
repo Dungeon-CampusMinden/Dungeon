@@ -1,7 +1,6 @@
 package contrib.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import contrib.components.CollideComponent;
 import contrib.entities.deco.Deco;
@@ -11,6 +10,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
+import core.input.Keys;
 import core.ui.gdx.GdxFontHelper;
 import core.utils.InputManager;
 import core.utils.Point;
@@ -24,11 +24,11 @@ import core.utils.logging.DungeonLogger;
 public class DecoTestSystem extends System {
   private static final DungeonLogger LOGGER =
       DungeonLogger.getLogger(DecoTestSystem.class.getName());
-  private static final int CHANGE_MODE = Input.Keys.UP;
+  private static final int CHANGE_MODE = Keys.UP;
 
-  private static final int MODE_MODIFY_PLUS = Input.Keys.RIGHT;
-  private static final int MODE_MODIFY_MINUS = Input.Keys.LEFT;
-  private static final int MOVE_DECO = Input.Keys.DOWN;
+  private static final int MODE_MODIFY_PLUS = Keys.RIGHT;
+  private static final int MODE_MODIFY_MINUS = Keys.LEFT;
+  private static final int MOVE_DECO = Keys.DOWN;
   private static final int RAPID_FIRE_THRESHOLD = 5;
   private static int rapidFireCounter = 0;
 

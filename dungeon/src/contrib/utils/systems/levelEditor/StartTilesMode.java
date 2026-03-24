@@ -1,12 +1,12 @@
 package contrib.utils.systems.levelEditor;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Vector3;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
+import core.input.MouseButtons;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;
@@ -57,9 +57,9 @@ public class StartTilesMode extends LevelEditorMode {
     // - LMB: set the selected start tile to the cursor position. if the index is equal to the list
     // size, add a new start tile at the cursor position.
     // - RMB: remove the start tile at the cursor position, if it exists.
-    if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
+    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
       setStartTile();
-    } else if (InputManager.isButtonJustPressed(Input.Buttons.RIGHT)) {
+    } else if (InputManager.isButtonJustPressed(MouseButtons.RIGHT)) {
       removeStartTile();
     }
   }
@@ -115,8 +115,8 @@ public class StartTilesMode extends LevelEditorMode {
     Map<Integer, String> controls = new LinkedHashMap<>();
     controls.put(PRIMARY_UP, "Next Start Tile Index");
     controls.put(PRIMARY_DOWN, "Prev Start Tile Index");
-    controls.put(Input.Buttons.LEFT, "Place Start Tile");
-    controls.put(Input.Buttons.RIGHT, "Delete Start Tile on Cursor");
+    controls.put(MouseButtons.LEFT, "Place Start Tile");
+    controls.put(MouseButtons.RIGHT, "Delete Start Tile on Cursor");
     return controls;
   }
 

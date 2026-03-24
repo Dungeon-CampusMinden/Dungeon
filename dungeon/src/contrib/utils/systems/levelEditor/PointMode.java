@@ -1,6 +1,5 @@
 package contrib.utils.systems.levelEditor;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
@@ -10,6 +9,7 @@ import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import contrib.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
+import core.input.MouseButtons;
 import core.level.utils.Coordinate;
 import core.utils.InputManager;
 import core.utils.Point;
@@ -44,7 +44,7 @@ public class PointMode extends LevelEditorMode {
 
     Point cursorPos = getCursorPosition();
     Point snapPos = snapMode.getPosition(cursorPos);
-    if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
+    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
       if (heldPointName != null) {
         // Place held deco
         getLevel().addNamedPoint(heldPointName, snapPos);
@@ -67,7 +67,7 @@ public class PointMode extends LevelEditorMode {
               UIUtils.closeDialog(dialogUI, true);
             });
       }
-    } else if (InputManager.isButtonJustPressed(Input.Buttons.RIGHT)) {
+    } else if (InputManager.isButtonJustPressed(MouseButtons.RIGHT)) {
       Optional<String> clickedPoint = getOnPosition(cursorPos);
       clickedPoint.ifPresent(point -> heldPointName = point);
 
@@ -108,8 +108,8 @@ public class PointMode extends LevelEditorMode {
     Map<Integer, String> controls = new LinkedHashMap<>();
     controls.put(SECONDARY_UP, "Change Snap Mode");
     controls.put(TERTIARY, "Delete Point");
-    controls.put(Input.Buttons.LEFT, "Place Point");
-    controls.put(Input.Buttons.RIGHT, "Pickup Point / Clone Held Point");
+    controls.put(MouseButtons.LEFT, "Place Point");
+    controls.put(MouseButtons.RIGHT, "Pickup Point / Clone Held Point");
     return controls;
   }
 
