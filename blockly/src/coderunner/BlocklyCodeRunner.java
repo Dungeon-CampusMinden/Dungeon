@@ -6,6 +6,7 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.*;
@@ -130,15 +131,13 @@ public class BlocklyCodeRunner {
    * @param code Java code that should be executed.
    * @throws RuntimeException If an error occurs during execution.
    */
-  public void executeJavaCode(String code) throws RuntimeException {
+  public void executeJavaCode(String code) throws RuntimeException, URISyntaxException {
     executeJavaCode(code, DEFAULT_SLEEP_AFTER_EACH_LINE);
   }
 
 
   public void prepareCompilerResources(Path tempDir) {
     Path libFolder = tempDir.resolve("unpacked_libs");
-
-    // Nur entpacken, wenn der Ordner noch nicht da ist
 
       try {
         Files.createDirectories(libFolder);
@@ -152,28 +151,27 @@ public class BlocklyCodeRunner {
             Path entryPath = libFolder.resolve(entry.getName());
 
             if (entry.isDirectory()) {
-              // Ordner erstellen, falls er nicht existiert
+              // create folder if it does not exist
               if (!Files.exists(entryPath)) {
                 Files.createDirectories(entryPath);
               }
             } else {
-              // Sicherstellen, dass der Eltern-Ordner existiert
+              // make sure the parent folder exists
               Path parent = entryPath.getParent();
               if (parent != null && !Files.exists(parent)) {
                 Files.createDirectories(parent);
               }
 
-              // Datei entpacken
+              // extract file
               try (InputStream is = zip.getInputStream(entry)) {
-                // Wir prüfen, ob ein Ordner mit dem gleichen Namen den Weg versperrt
+                // check if there is a folder with the same name
                 if (Files.exists(entryPath) && Files.isDirectory(entryPath)) {
-                  // System.out.println("Überspringe: Ordner blockiert Datei " + entry.getName());
                 } else {
                   Files.copy(is, entryPath, StandardCopyOption.REPLACE_EXISTING);
                 }
               } catch (IOException e) {
                 // Case-Sensitivity Konflikte (LICENSE vs license) abfangen
-                 System.out.println("Konnte Datei nicht entpacken: " + entry.getName());
+                 System.out.println("Could not extract files: " + entry.getName());
               }
             }
           } // Ende while
@@ -181,9 +179,6 @@ public class BlocklyCodeRunner {
       } catch (Exception e) {
         e.printStackTrace();
       }
-
-      System.out.println("fertig mit dem entpacken der dateien");
-
   }
 
 
@@ -194,7 +189,7 @@ public class BlocklyCodeRunner {
    * @param sleepAfterEachLine The time to sleep after each line of code execution, in milliseconds.
    * @throws RuntimeException If an error occurs during execution.
    */
-  public void executeJavaCode(String code, int sleepAfterEachLine) throws RuntimeException {
+  public void executeJavaCode(String code, int sleepAfterEachLine) throws RuntimeException, URISyntaxException {
 
     if (sleepAfterEachLine > 0) code = addSleepCalls(code); // no sleep if time is 0
     codeRunning.set(true);
@@ -204,8 +199,8 @@ public class BlocklyCodeRunner {
     Path tempDir = tempFolder();
     Path libFolder = tempDir.resolve("unpacked_libs");
 
-    if (!folderTransfered) {
-      System.out.println("transfering folders once");
+    String path = String.valueOf(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+    if (!folderTransfered && path.endsWith(".jar")) {
       prepareCompilerResources(tempDir);
       folderTransfered = true;
     }
@@ -331,7 +326,6 @@ public class BlocklyCodeRunner {
    * @return Path to the temporary folder. If no folder is found or cannot be created, returns null.
    */
   private Path tempFolder() {
-    System.out.println("temp folder under " + System.getProperty("java.io.tmpdir"));
     File tempDir = new File(System.getProperty("java.io.tmpdir"));
     File[] tempFiles = tempDir.listFiles();
     if (tempFiles != null) {

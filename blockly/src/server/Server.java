@@ -211,7 +211,6 @@ public class Server {
    * @throws IOException If an error occurs while sending the response
    */
   private void handleCodeRequest(HttpExchange exchange) throws IOException {
-    System.out.println("test");
     // Check if this is a stop request
     String query = exchange.getRequestURI().getQuery();
     boolean isStopRequest = query != null && query.contains("stop=1");
@@ -228,13 +227,13 @@ public class Server {
         }
       }
     }
-////
+
     if (isStopRequest) {
       handleStopCodeExecution(exchange);
       return;
     }
-////
-//    // Handle normal code execution request
+
+    // Handle normal code execution request
     if (BlocklyCodeRunner.instance().isCodeRunning()) {
       String response = "Another code execution is already running. Please stop it first.";
       exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
@@ -252,7 +251,6 @@ public class Server {
     interruptExecution = false;
     try {
       if (sleepAfterEachLine >= 0) {
-        // hier wird die datei erzeugt
         BlocklyCodeRunner.instance().executeJavaCode(text, sleepAfterEachLine);
       } else {
         BlocklyCodeRunner.instance().executeJavaCode(text);
@@ -267,7 +265,7 @@ public class Server {
 
       String response;
       int statusCode;
-//
+
       if (interruptExecution) {
         response = errorMsg.isEmpty() ? "Code execution interrupted" : "Error: " + errorMsg;
         statusCode = 400;
@@ -288,15 +286,15 @@ public class Server {
       os.write(response.getBytes());
       os.close();
     } catch (Exception e) {
-//      LOGGER.error("Error executing code: " + e);
-//      setError(e.getMessage());
-//      String response = errorMsg;
-//      exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-//      exchange.sendResponseHeaders(400, response.getBytes().length);
-//      OutputStream os = exchange.getResponseBody();
-//      os.write(response.getBytes());
-//      os.close();
-//      BlocklyCodeRunner.instance().stopCode();
+      LOGGER.error("Error executing code: " + e);
+      setError(e.getMessage());
+      String response = errorMsg;
+      exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+      exchange.sendResponseHeaders(400, response.getBytes().length);
+      OutputStream os = exchange.getResponseBody();
+      os.write(response.getBytes());
+      os.close();
+      BlocklyCodeRunner.instance().stopCode();
     }
   }
 
