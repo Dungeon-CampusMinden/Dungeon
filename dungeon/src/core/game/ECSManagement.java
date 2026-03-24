@@ -1,7 +1,6 @@
 package core.game;
 
 import contrib.systems.EventScheduler;
-import contrib.hud.systems.HudSystem;
 import contrib.systems.LevelTickSystem;
 import core.Component;
 import core.Entity;
@@ -83,10 +82,6 @@ public final class ECSManagement {
 
     registerIfAbsent(EventScheduler.class, EventScheduler::new);
     registerIfAbsent(LevelTickSystem.class, LevelTickSystem::new);
-
-    if (profile.includeHud()) {
-      registerIfAbsent(HudSystem.class, HudSystem::new);
-    }
   }
 
   /**

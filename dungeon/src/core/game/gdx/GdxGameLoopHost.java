@@ -44,6 +44,7 @@ import core.ui.StageHandle;
 import core.ui.gdx.GdxStageHandle;
 import core.utils.InputManager;
 import core.utils.logging.DungeonLogger;
+import starter.GdxPlatformBootstrap;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -220,6 +221,8 @@ public final class GdxGameLoopHost extends ScreenAdapter {
     doSetup = false;
 
     ECSManagement.bootstrapDefaultSystems(SystemProfile.GDX_CLIENT);
+    ECSManagement.bootstrapGameplaySystems(SystemProfile.GDX_CLIENT);
+    GdxPlatformBootstrap.installHudSystems();
 
     // Client-side setup (systems, message handlers, stage, audio) – exactly like before.
     if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
@@ -379,9 +382,6 @@ public final class GdxGameLoopHost extends ScreenAdapter {
 
   /** Create the systems. */
   private void createSystems() {
-    // Core gameplay systems (shared across hosts)
-    ECSManagement.bootstrapGameplaySystems(SystemProfile.GDX_CLIENT);
-
     // Keep existing LevelSystem hook
     ECSManagement.system(LevelSystem.class, ls -> ls.onLevelLoad(GameLoop.onLevelLoad));
 

@@ -3,32 +3,26 @@ package core.game;
 /**
  * Defines which default ECS systems should be bootstrapped for a specific host/backend.
  *
- * <p>This replaces boolean flags (which become ambiguous quickly) with explicit, documented
- * profiles.
+ * <p>This profile only describes core-level optional groups. Backend- or contrib-specific systems
+ * (for example HUD systems) must be wired explicitly by the host/bootstrap code.
  */
 public enum SystemProfile {
-  /** libGDX client host: rendering + audio + HUD are available. */
-  GDX_CLIENT(true, true),
+  /** libGDX client host: rendering/audio are available. */
+  GDX_CLIENT(true),
 
-  /** LITIENGINE client host: rendering + audio are available, HUD still disabled for now. */
-  LITIENGINE_CLIENT(true, false),
+  /** LITIENGINE client host: rendering/audio are available, HUD still wired separately. */
+  LITIENGINE_CLIENT(true),
 
-  /** LITIENGINE host (current stage): simulation only, no libGDX rendering/audio/HUD. */
-  LITIENGINE_SIMULATION(false, false);
+  /** LITIENGINE simulation host: no rendering/audio. */
+  LITIENGINE_SIMULATION(false);
 
   private final boolean includeRendering;
-  private final boolean includeHud;
 
-  SystemProfile(boolean includeRendering, boolean includeHud) {
+  SystemProfile(boolean includeRendering) {
     this.includeRendering = includeRendering;
-    this.includeHud = includeHud;
   }
 
   public boolean includeRendering() {
     return includeRendering;
-  }
-
-  public boolean includeHud() {
-    return includeHud;
   }
 }
