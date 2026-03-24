@@ -1,6 +1,5 @@
 package contrib.hud;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -12,6 +11,7 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.ui.UiNodeHandle;
+import core.ui.gdx.GdxUiAssetLoader;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
@@ -28,21 +28,21 @@ public final class UIUtils {
   private static Skin DEFAULT_SKIN;
 
   /**
-   * Retrieve the default skin.
+   * Returns the default UI skin, loading it from the asset loader if not already cached.
    *
-   * <p>Load the skin on demand (singleton with lazy initialisation). This allows to write JUnit
-   * tests for this class w/o mocking libGDX.
+   * <p>The skin is loaded lazily on first access and then cached for subsequent calls. If loading
+   * fails, an IllegalStateException is thrown.
    *
-   * @return the default skin.
-   * @throws IllegalStateException if the skin cannot be loaded (e.g. in headless mode).
+   * @return the default UI skin
+   * @throws IllegalStateException if the skin cannot be loaded
    */
   public static Skin defaultSkin() {
     if (DEFAULT_SKIN == null) {
       try {
-        DEFAULT_SKIN = new Skin(Gdx.files.internal(SKIN_FOR_DIALOG.pathString()));
-      } catch (UnsatisfiedLinkError e) {
+        DEFAULT_SKIN = GdxUiAssetLoader.loadSkin(SKIN_FOR_DIALOG);
+      } catch (RuntimeException e) {
         throw new IllegalStateException(
-            "Could not load default skin. Are you running in a headless environment?", e);
+          "Could not load default skin. Are you running without the libGDX UI backend?", e);
       }
     }
     return DEFAULT_SKIN;

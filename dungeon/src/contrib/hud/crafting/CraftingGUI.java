@@ -1,6 +1,5 @@
 package contrib.hud.crafting;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -29,6 +28,7 @@ import contrib.item.Item;
 import core.Entity;
 import core.Game;
 import core.platform.gdx.render.GdxAnimationFrames;
+import core.ui.gdx.GdxUiAssetLoader;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
@@ -136,11 +136,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
       numberBackground = new TextureRegion(texture, 0, 0, 1, 1);
 
       // Init Font
-      bitmapFont =
-          new BitmapFont(
-              Gdx.files.internal(FONT_FNT.pathString()),
-              Gdx.files.internal(FONT_PNG.pathString()),
-              false);
+      bitmapFont = GdxUiAssetLoader.loadBitmapFont(FONT_FNT, FONT_PNG);
     }
   }
 

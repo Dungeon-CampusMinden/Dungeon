@@ -31,6 +31,7 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.network.messages.c2s.InputMessage;
 import core.platform.gdx.render.GdxAnimationFrames;
+import core.ui.gdx.GdxUiAssetLoader;
 import core.utils.*;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
@@ -72,11 +73,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
       texture = new Texture(pixmap);
       background = new TextureRegion(texture, 0, 0, 1, 1);
       hoverBackground = new TextureRegion(texture, 1, 0, 1, 1);
-      bitmapFont =
-          new BitmapFont(
-              Gdx.files.internal(FONT_FNT.pathString()),
-              Gdx.files.internal(FONT_PNG.pathString()),
-              false);
+      bitmapFont = GdxUiAssetLoader.loadBitmapFont(FONT_FNT, FONT_PNG);
     }
   }
 
