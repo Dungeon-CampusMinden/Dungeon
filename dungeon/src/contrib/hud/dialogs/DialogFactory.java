@@ -1,20 +1,11 @@
 package contrib.hud.dialogs;
 
-import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
-import contrib.hud.crafting.CraftingGUI;
-import contrib.hud.inventory.InventoryGUI;
-import contrib.hud.utils.AttributeBarUtil;
-import contrib.modules.keypad.KeypadUI;
-import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
 import core.Game;
 import core.ui.UiNodeHandle;
-import core.ui.gdx.GdxUiNodeHandle;
 import core.utils.IVoidFunction;
-import core.utils.logging.DungeonLogger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -41,30 +32,14 @@ import java.util.function.Function;
  */
 public class DialogFactory {
 
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DialogFactory.class);
   private static final Map<DialogType, Function<DialogContext, UiNodeHandle>> registry = new HashMap<>();
-
-  static {
-    register(DialogType.DefaultTypes.OK, ctx -> wrap(OkDialog.build(ctx)));
-    register(DialogType.DefaultTypes.YES_NO, ctx -> wrap(YesNoDialog.build(ctx)));
-    register(DialogType.DefaultTypes.TEXT, ctx -> wrap(TextDialog.build(ctx)));
-    register(DialogType.DefaultTypes.IMAGE, ctx -> wrap(ShowImageUI.build(ctx)));
-    register(DialogType.DefaultTypes.FREE_INPUT, ctx -> wrap(FreeInputDialog.build(ctx)));
-    register(DialogType.DefaultTypes.INVENTORY, ctx -> wrap(InventoryGUI.buildSimple(ctx)));
-    register(DialogType.DefaultTypes.DUAL_INVENTORY, ctx -> wrap(InventoryGUI.buildDual(ctx)));
-    register(DialogType.DefaultTypes.CRAFTING_GUI, ctx -> wrap(CraftingGUI.build(ctx)));
-    register(DialogType.DefaultTypes.KEYPAD, ctx -> wrap(KeypadUI.build(ctx)));
-    register(DialogType.DefaultTypes.PROGRESS_BAR, ctx -> wrap(AttributeBarUtil.buildProgressBar(ctx)));
-    register(DialogType.DefaultTypes.PAUSE_MENU, ctx -> wrap(PauseDialog.build(ctx)));
-    LOGGER.debug("Registered built-in dialog types");
-  }
 
   /**
    * Registers a custom dialog type with the factory.
    *
    * <p>This allows extending the dialog system with new dialog types without modifying existing
    * code. The creator function receives a {@link DialogContext} and must return a fully configured
-   * {@link Dialog}.
+   * dialog handle.
    *
    * @param type The unique type of the dialog
    * @param creator Function that creates a dialog from a context
@@ -327,8 +302,4 @@ public class DialogFactory {
 
       return ui;
     }
-
-  private static UiNodeHandle wrap(Group group) {
-    return new GdxUiNodeHandle(group);
-  }
 }
