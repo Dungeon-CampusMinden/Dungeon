@@ -1,6 +1,8 @@
 package core.ui.gdx;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import core.ui.StageHandle;
 import core.ui.UiNodeHandle;
 import java.util.Optional;
 
@@ -40,6 +42,43 @@ public final class GdxUiNodeHandle implements UiNodeHandle {
   @Override
   public boolean isAttached() {
     return group != null && group.getStage() != null;
+  }
+
+  @Override
+  public void attachTo(StageHandle stageHandle) {
+    if (group == null || stageHandle == null) {
+      return;
+    }
+
+    Stage targetStage = stageHandle.unwrap(Stage.class).orElse(null);
+    if (targetStage == null) {
+      return;
+    }
+
+    if (group.getStage() != targetStage) {
+      if (group.getStage() != null) {
+        group.remove();
+      }
+      targetStage.addActor(group);
+    }
+  }
+
+  @Override
+  public void toFront() {
+    if (group != null) {
+      group.toFront();
+    }
+  }
+
+  @Override
+  public void centerOn(StageHandle stageHandle) {
+    if (group == null || stageHandle == null) {
+      return;
+    }
+
+    group.setPosition(
+      (stageHandle.getWidth() - group.getWidth()) / 2f,
+      (stageHandle.getHeight() - group.getHeight()) / 2f);
   }
 
   @Override

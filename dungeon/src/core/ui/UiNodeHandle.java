@@ -37,6 +37,25 @@ public interface UiNodeHandle {
   boolean isAttached();
 
   /**
+   * Attaches this dialog to the given stage.
+   *
+   * @param stageHandle backend-agnostic stage handle
+   */
+  void attachTo(StageHandle stageHandle);
+
+  /**
+   * Moves this dialog to the front if supported by the backend.
+   */
+  void toFront();
+
+  /**
+   * Centers this dialog on the given stage.
+   *
+   * @param stageHandle backend-agnostic stage handle
+   */
+  void centerOn(StageHandle stageHandle);
+
+  /**
    * Tries to unwrap the backend-specific UI object.
    *
    * @param type expected backend type

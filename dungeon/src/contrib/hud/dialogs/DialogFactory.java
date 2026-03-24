@@ -80,27 +80,24 @@ public class DialogFactory {
   }
 
   /**
-   * Creates a dialog based on the provided context.
+   * Creates a dialog of the specified type from the given context.
    *
-   * <p>This method retrieves the appropriate dialog creator from the registry and applies it to the
-   * context. If centering is enabled in the context, the resulting dialog will be centered on
-   * screen.
+   * <p>This method looks up the appropriate dialog creator from the registry based on the dialog
+   * type specified in the context and instantiates the dialog.
    *
    * @param ctx The context containing all necessary data for dialog creation
-   * @return The created dialog wrapped in a UiNodeHandle
+   * @return The UiNodeHandle wrapping the created dialog
    * @throws DialogCreationException if the dialog type is not registered
    */
   public static UiNodeHandle create(DialogContext ctx) {
     Objects.requireNonNull(ctx, "context");
+
     Function<DialogContext, UiNodeHandle> creator = registry.get(ctx.dialogType());
     if (creator == null) {
       throw new DialogCreationException("Unknown dialog type: " + ctx);
     }
-    UiNodeHandle dialog = creator.apply(ctx);
-    if (ctx.center()) {
-      dialog.unwrap(Group.class).ifPresent(UIUtils::center);
-    }
-    return dialog;
+
+    return creator.apply(ctx);
   }
 
   /**

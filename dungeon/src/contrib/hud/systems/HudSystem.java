@@ -75,9 +75,9 @@ public final class HudSystem extends System {
    */
   private void addListener(final Entity entity) {
     UIComponent component =
-        entity
-            .fetch(UIComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, UIComponent.class));
+      entity
+        .fetch(UIComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, UIComponent.class));
 
     UiNodeHandle dialogHandle = component.dialog();
 
@@ -85,9 +85,9 @@ public final class HudSystem extends System {
     int[] myIds = Game.allPlayers().mapToInt(Entity::id).toArray();
     int[] targetIds = component.targetEntityIds();
     int[] affectedIds =
-        Arrays.stream(myIds)
-            .filter(id -> Arrays.stream(targetIds).anyMatch(targetId -> targetId == id))
-            .toArray();
+      Arrays.stream(myIds)
+        .filter(id -> Arrays.stream(targetIds).anyMatch(targetId -> targetId == id))
+        .toArray();
 
     if (targetIds.length != 0 && affectedIds.length == 0) {
       // This UI is not for any of the current players
@@ -98,35 +98,31 @@ public final class HudSystem extends System {
     for (Integer targetId : targetIds) {
       Optional<Entity> target = Game.findEntityById(targetId);
       target
-          .flatMap(t -> t.fetch(PlayerComponent.class))
-          .ifPresent(PlayerComponent::incrementOpenDialogs);
+        .flatMap(t -> t.fetch(PlayerComponent.class))
+        .ifPresent(PlayerComponent::incrementOpenDialogs);
     }
 
     Game.stage()
-        .ifPresentOrElse(
+      .ifPresentOrElse(
         stageHandle -> {
-          Stage stage =
-            stageHandle
-                .unwrap(Stage.class)
-                .orElseThrow(() -> new IllegalStateException("Stage is not a libGDX Stage"));
+          if (component.dialogContext().center()) {
+            dialogHandle.centerOn(stageHandle);
+          }
 
-          Group dialog =
-            dialogHandle
-              .unwrap(Group.class)
-              .orElseThrow(() -> new IllegalStateException("Dialog is not a libGDX Group"));
+          dialogHandle.attachTo(stageHandle);
+          dialogHandle.toFront();
 
-              addDialogToStage(dialog, stage);
-              addMapping(entity, dialogHandle, component);
-              DialogTracker.instance().registerDialog(component);
-            },
-            () -> {
-              // Headless mode,
-              if (PreRunConfiguration.multiplayerEnabled()
-                  && PreRunConfiguration.isNetworkServer()) {
-                sendDialogToClients(entity, component, affectedIds);
-                addMapping(entity, dialogHandle, component);
-              }
-            });
+          addMapping(entity, dialogHandle, component);
+          DialogTracker.instance().registerDialog(component);
+        },
+        () -> {
+          // Headless mode
+          if (PreRunConfiguration.multiplayerEnabled()
+            && PreRunConfiguration.isNetworkServer()) {
+            sendDialogToClients(entity, component, affectedIds);
+            addMapping(entity, dialogHandle, component);
+          }
+        });
   }
 
   /**
@@ -168,14 +164,6 @@ public final class HudSystem extends System {
     UIComponent previousUiComponent = entityUIComponentMap.put(entity, component);
     if (previousUiComponent != null) {
       UIUtils.closeDialog(previousUiComponent);
-    }
-  }
-
-  private void addDialogToStage(final Group group, final Stage stage) {
-    if (!stage.getActors().contains(group, true)) {
-      stage.addActor(group);
-    } else {
-      group.toFront(); // ensure it's on top
     }
   }
 
