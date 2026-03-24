@@ -1,6 +1,7 @@
 package portal.energyPellet;
 
 import contrib.components.HealthComponent;
+import contrib.components.TransportableComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
@@ -215,6 +216,7 @@ public class EnergyPelletSkill extends DamageProjectileSkill {
 
   @Override
   protected void onSpawn(Entity caster, Entity projectile) {
+    projectile.add(new TransportableComponent());
     if (scheduledRemoveAction != null && EventScheduler.isScheduled(scheduledRemoveAction)) {
       EventScheduler.cancelAction(scheduledRemoveAction);
     }
