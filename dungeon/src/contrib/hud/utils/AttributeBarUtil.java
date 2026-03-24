@@ -2,9 +2,7 @@ package contrib.hud.utils;
 
 import static contrib.hud.UIUtils.defaultSkin;
 
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import contrib.components.UIComponent;
@@ -17,9 +15,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.platform.gdx.systems.GdxCameraSystem;
-import core.ui.StageHandle;
-import core.utils.Point;
+import core.platform.Platform;
 import core.utils.logging.DungeonLogger;
 import java.io.Serial;
 import java.io.Serializable;
@@ -122,30 +118,12 @@ public final class AttributeBarUtil {
     return bar;
   }
 
-  /**
-   * Updates the position of the progress bar to follow the entity.
-   *
-   * @param bar the progress bar
-   * @param pc position component of the entity
-   * @param verticalOffset offset above the entity
-   */
-  public static void updatePosition(ProgressBar bar, PositionComponent pc, float verticalOffset) {
-    Point pos = pc.position();
-    Vector3 worldCoords = new Vector3(pos.x(), pos.y(), 0);
-    Vector3 screenCoords = GdxCameraSystem.camera().project(worldCoords);
+  private static void updatePosition(
+    ProgressBar bar, PositionComponent pc, float verticalOffset) {
 
-    StageHandle stageHandle =
-      Game.stage().orElseThrow(() -> new RuntimeException("No stage available"));
-
-    Stage stage =
-      stageHandle
-        .unwrap(Stage.class)
-        .orElseThrow(() -> new RuntimeException("No libGDX stage available"));
-
-    screenCoords.x = screenCoords.x / stage.getViewport().getScreenWidth() * stage.getWidth();
-    screenCoords.y = screenCoords.y / stage.getViewport().getScreenHeight() * stage.getHeight();
-
-    bar.setPosition(screenCoords.x, screenCoords.y - verticalOffset);
+    Game.stage()
+      .flatMap(stageHandle -> Platform.render().projectWorldToStage(pc.position(), stageHandle))
+      .ifPresent(screenPoint -> bar.setPosition(screenPoint.x(), screenPoint.y() - verticalOffset));
   }
 
   /**
