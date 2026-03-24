@@ -5,13 +5,11 @@ import core.utils.logging.DungeonLogger;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.net.*;
 import java.nio.file.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -131,54 +129,36 @@ public class BlocklyCodeRunner {
    * @param code Java code that should be executed.
    * @throws RuntimeException If an error occurs during execution.
    */
-  public void executeJavaCode(String code) throws RuntimeException, URISyntaxException {
+  public void executeJavaCode(String code) throws Exception {
     executeJavaCode(code, DEFAULT_SLEEP_AFTER_EACH_LINE);
   }
 
 
-  public void prepareCompilerResources(Path tempDir) {
-    Path libFolder = tempDir.resolve("unpacked_libs");
+  private void prepareCompilerResources(Path tempDir) throws Exception {
+    // create directory
+    Path libFolder = Files.createDirectories(tempDir.resolve("unpacked_libs"));
+    URI jarUri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
 
-      try {
-        Files.createDirectories(libFolder);
-        File jarFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+    try (FileSystem zipFs = FileSystems.newFileSystem(URI.create("jar:" + jarUri), Map.of())) {
+      Path root = zipFs.getPath("/");
 
-        try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(jarFile)) {
-          java.util.Enumeration<? extends java.util.zip.ZipEntry> entries = zip.entries();
+      // go through the jar and process each file
+      Files.walk(root)
+        .filter(Files::isRegularFile) // only files
+        .forEach(source -> copyToTemp(source, root, libFolder));
+    }
+  }
 
-          while (entries.hasMoreElements()) {
-            java.util.zip.ZipEntry entry = entries.nextElement();
-            Path entryPath = libFolder.resolve(entry.getName());
+  private void copyToTemp(Path source, Path root, Path targetDir) {
+    try {
+      // path relativ to jar file
+      Path target = targetDir.resolve(root.relativize(source).toString());
 
-            if (entry.isDirectory()) {
-              // create folder if it does not exist
-              if (!Files.exists(entryPath)) {
-                Files.createDirectories(entryPath);
-              }
-            } else {
-              // make sure the parent folder exists
-              Path parent = entryPath.getParent();
-              if (parent != null && !Files.exists(parent)) {
-                Files.createDirectories(parent);
-              }
-
-              // extract file
-              try (InputStream is = zip.getInputStream(entry)) {
-                // check if there is a folder with the same name
-                if (Files.exists(entryPath) && Files.isDirectory(entryPath)) {
-                } else {
-                  Files.copy(is, entryPath, StandardCopyOption.REPLACE_EXISTING);
-                }
-              } catch (IOException e) {
-                // Case-Sensitivity Konflikte (LICENSE vs license) abfangen
-                 System.out.println("Could not extract files: " + entry.getName());
-              }
-            }
-          } // Ende while
-        } // Ende try-with-resources (zip)
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+      Files.createDirectories(target.getParent());
+      Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+    } catch (IOException e) {
+      System.err.println("Skip: " + source + " (" + e.getMessage() + ")");
+    }
   }
 
 
@@ -189,7 +169,7 @@ public class BlocklyCodeRunner {
    * @param sleepAfterEachLine The time to sleep after each line of code execution, in milliseconds.
    * @throws RuntimeException If an error occurs during execution.
    */
-  public void executeJavaCode(String code, int sleepAfterEachLine) throws RuntimeException, URISyntaxException {
+  public void executeJavaCode(String code, int sleepAfterEachLine) throws Exception {
 
     if (sleepAfterEachLine > 0) code = addSleepCalls(code); // no sleep if time is 0
     codeRunning.set(true);
