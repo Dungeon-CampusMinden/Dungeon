@@ -2,6 +2,7 @@ package portal.physicsobject;
 
 import contrib.components.AttachmentComponent;
 import contrib.components.CollideComponent;
+import contrib.components.TransportableComponent;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -48,6 +49,8 @@ public class Sphere {
 
     sphere.add(new PositionComponent(position));
     sphere.add(new VelocityComponent(sphere_maxSpeed, mass, entity -> {}, false));
+    TransportableComponent tComp = new TransportableComponent();
+    sphere.add(tComp);
 
     final boolean[] attached = {false};
 
