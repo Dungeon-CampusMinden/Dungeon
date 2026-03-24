@@ -79,9 +79,9 @@ public class PortalCollisionHandler {
 
   /**
    * Returns a consumer that teleports an entity that collides with the blue portal to the
-   * corresponding green portal.  If the entity has a {@link PortalExtendComponent} its going to
-   * extend it if both portals are alive.
-   *  Only entities with {@link TransportableComponent} are teleported;
+   * corresponding green portal. If the entity has a {@link PortalExtendComponent} its going to
+   * extend it if both portals are alive. Only entities with {@link TransportableComponent} are
+   * teleported;
    *
    * @param portalColor the color of the portal
    * @return the Triconsumer for the oncollide handler
