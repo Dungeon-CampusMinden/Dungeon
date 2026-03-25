@@ -26,7 +26,7 @@ import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
-import core.platform.gdx.systems.GdxCameraSystem;
+import core.platform.Platform;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.InputManager;
@@ -64,8 +64,16 @@ public class Debugger extends System {
    */
   public static void ZOOM_CAMERA(float amount) {
     LOGGER.debug("Change Camera Zoom {}", amount);
-    GdxCameraSystem.camera().zoom = Math.max(0.1f, GdxCameraSystem.camera().zoom + amount);
-    LOGGER.debug("New Camera Zoom {}", GdxCameraSystem.camera().zoom);
+
+    if (!Platform.camera().supportsZoom()) {
+      LOGGER.debug("Camera zoom is not supported by the active backend.");
+      return;
+    }
+
+    float newZoom = Math.max(0.1f, Platform.camera().zoom() + amount);
+    Platform.camera().zoom(newZoom);
+
+    LOGGER.debug("New Camera Zoom {}", Platform.camera().zoom());
   }
 
   /** Teleports the Player to the current position of the cursor. */

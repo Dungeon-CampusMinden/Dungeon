@@ -3,13 +3,15 @@ package core.game.litiengine;
 import core.game.*;
 import core.game.bootstrap.ClientStartup;
 import core.platform.CompositeResourcesAdapter;
+import core.platform.NullCameraAdapter;
 import core.platform.Platform;
 import core.platform.classpath.ClasspathResourcesAdapter;
 import core.platform.fs.FileSystemResourcesAdapter;
-import core.platform.litiengine.LitiengineInputBridge;
-import core.platform.litiengine.LitiengineLoopHost;
-import core.platform.litiengine.LitiengineRenderAdapter;
+import core.platform.grid.GridPathfindingAdapter;
+import core.platform.litiengine.*;
+import core.platform.litiengine.input.LitiengineCursorAdapter;
 import core.platform.litiengine.sound.LitiengineSoundPlayer;
+import core.platform.litiengine.window.LitiengineWindowEventsBridge;
 import core.sound.player.ISoundPlayer;
 import core.sound.player.NoSoundPlayer;
 import core.utils.InputManager;
@@ -58,18 +60,16 @@ public final class LitiengineGameLoopHost {
     // Initialize LITIENGINE
     Game.init(args);
 
-    core.platform.litiengine.window.LitiengineWindowEventsBridge.install();
+    LitiengineWindowEventsBridge.install();
 
     // init sound backend after engine init
     soundPlayer = PreRunConfiguration.disableAudio()
       ? new NoSoundPlayer()
       : new LitiengineSoundPlayer();
 
-    Platform.loopHost(new LitiengineLoopHost());
-
     // Bind platform adapters AFTER init so Game.window() etc. are available.
-    Platform.window(new core.platform.litiengine.LitiengineWindowAdapter());
-    Platform.runtime(new core.platform.litiengine.LitiengineRuntimeAdapter());
+    Platform.window(new LitiengineWindowAdapter());
+    Platform.runtime(new LitiengineRuntimeAdapter());
     Platform.resources(
       new CompositeResourcesAdapter(
         new ClasspathResourcesAdapter(),
@@ -77,8 +77,10 @@ public final class LitiengineGameLoopHost {
       )
     );
     Platform.render(new LitiengineRenderAdapter());
-    Platform.pathfinding(new core.platform.grid.GridPathfindingAdapter());
-    Platform.cursor(new core.platform.litiengine.input.LitiengineCursorAdapter());
+    Platform.pathfinding(new GridPathfindingAdapter());
+    Platform.cursor(new LitiengineCursorAdapter());
+    Platform.camera(new NullCameraAdapter());
+    Platform.loopHost(new LitiengineLoopHost());
 
     // Bridge LITIENGINE input events into our engine-agnostic InputManager.
     LitiengineInputBridge.install();

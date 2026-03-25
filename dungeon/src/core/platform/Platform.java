@@ -10,6 +10,7 @@ public final class Platform {
   private static RenderAdapter render = new NullRenderAdapter();
   private static PathfindingAdapter pathfinding = new NullPathfindingAdapter();
   private static CursorAdapter cursor = new NullCursorAdapter();
+  private static CameraAdapter camera = new NullCameraAdapter();
   private static volatile GameLoopHost loopHost;
 
   private Platform() {}
@@ -60,6 +61,14 @@ public final class Platform {
 
   public static void cursor(CursorAdapter adapter) {
     cursor = Objects.requireNonNull(adapter);
+  }
+
+  public static CameraAdapter camera() {
+    return camera;
+  }
+
+  public static void camera(CameraAdapter adapter) {
+    camera = Objects.requireNonNull(adapter);
   }
 
   public static void loopHost(GameLoopHost host) {
