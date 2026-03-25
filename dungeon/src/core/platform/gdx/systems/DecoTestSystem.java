@@ -1,17 +1,17 @@
-package contrib.systems;
+package core.platform.gdx.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import contrib.components.CollideComponent;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
+import contrib.systems.PositionSync;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.input.Keys;
-import core.platform.gdx.systems.DebugDrawSystem;
 import core.ui.gdx.GdxFontHelper;
 import core.utils.InputManager;
 import core.utils.Point;
