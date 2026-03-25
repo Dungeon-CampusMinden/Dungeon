@@ -1,4 +1,4 @@
-package contrib.utils.systems.levelEditor;
+package core.platform.gdx.levelEditor;
 
 import com.badlogic.gdx.graphics.Color;
 import contrib.components.UIComponent;
@@ -8,7 +8,7 @@ import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import core.platform.gdx.systems.DebugDrawSystem;
-import contrib.systems.LevelEditorSystem;
+import core.platform.gdx.systems.LevelEditorSystem;
 import core.input.MouseButtons;
 import core.level.utils.Coordinate;
 import core.utils.InputManager;

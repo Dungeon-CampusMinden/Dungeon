@@ -1,11 +1,10 @@
-package contrib.systems;
+package core.platform.gdx.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import contrib.components.HealthComponent;
-import contrib.utils.systems.levelEditor.*;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -15,8 +14,8 @@ import core.input.Keys;
 import core.input.MouseButtons;
 import core.level.DungeonLevel;
 import core.level.Tile;
+import core.platform.gdx.levelEditor.*;
 import core.platform.gdx.render.DrawSystem;
-import core.platform.gdx.systems.DebugDrawSystem;
 import core.ui.gdx.GdxFontHelper;
 import core.utils.*;
 import core.utils.components.draw.DepthLayer;

@@ -1,7 +1,7 @@
-package contrib.utils.systems.levelEditor;
+package core.platform.gdx.levelEditor;
 
 import com.badlogic.gdx.graphics.Color;
-import contrib.systems.LevelEditorSystem;
+import core.platform.gdx.systems.LevelEditorSystem;
 import contrib.systems.PositionSync;
 import core.Game;
 import core.components.PositionComponent;

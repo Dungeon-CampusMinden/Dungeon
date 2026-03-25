@@ -10,7 +10,7 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import core.platform.gdx.systems.DebugDrawSystem;
-import contrib.systems.LevelEditorSystem;
+import core.platform.gdx.systems.LevelEditorSystem;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.SelfDefendTransition;

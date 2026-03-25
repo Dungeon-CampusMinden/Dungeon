@@ -1,6 +1,6 @@
-package contrib.utils.systems.levelEditor;
+package core.platform.gdx.levelEditor;
 
-import contrib.systems.LevelEditorSystem;
+import core.platform.gdx.systems.LevelEditorSystem;
 import contrib.utils.components.skill.SkillTools;
 import core.Game;
 import core.System;

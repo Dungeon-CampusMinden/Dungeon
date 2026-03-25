@@ -1,11 +1,11 @@
-package contrib.utils.systems.levelEditor;
+package core.platform.gdx.levelEditor;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Vector3;
 import core.platform.gdx.systems.DebugDrawSystem;
-import contrib.systems.LevelEditorSystem;
+import core.platform.gdx.systems.LevelEditorSystem;
 import core.input.MouseButtons;
 import core.level.DungeonLevel;
 import core.level.Tile;

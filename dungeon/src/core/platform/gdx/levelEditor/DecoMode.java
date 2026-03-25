@@ -1,4 +1,4 @@
-package contrib.utils.systems.levelEditor;
+package core.platform.gdx.levelEditor;
 
 import com.badlogic.gdx.graphics.Color;
 import contrib.components.CollideComponent;

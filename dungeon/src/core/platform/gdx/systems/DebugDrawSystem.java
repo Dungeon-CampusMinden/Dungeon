@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import contrib.components.*;
 import contrib.modules.interaction.InteractionComponent;
-import contrib.systems.LevelEditorSystem;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;

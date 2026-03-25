@@ -1,7 +1,7 @@
-package contrib.utils.systems.levelEditor;
+package core.platform.gdx.levelEditor;
 
 import com.badlogic.gdx.graphics.Color;
-import contrib.systems.LevelEditorSystem;
+import core.platform.gdx.systems.LevelEditorSystem;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.utils.LevelElement;

@@ -1,7 +1,7 @@
-package contrib.utils.systems.levelEditor;
+package core.platform.gdx.levelEditor;
 
 import com.badlogic.gdx.graphics.Color;
-import contrib.systems.LevelEditorSystem;
+import core.platform.gdx.systems.LevelEditorSystem;
 import core.level.loader.DungeonSaver;
 import core.utils.InputManager;
 import java.util.LinkedHashMap;
