@@ -143,38 +143,6 @@ tasks.named('test', Test) {
     failOnNoDiscoveredTests = false
 }
 
-//Task that will generate properties files
-tasks.register('generateLauncherProperties') {
-    doLast {
-        def launchersDir = layout.buildDirectory.dir("jpackage-launchers").get().asFile
-        launchersDir.mkdirs()
-
-
-        def desktopProps = new File(launchersDir, "desktop.properties")
-        desktopProps.text = """app-name=blockly-desktop
-arguments=web=false
-"""
-
-        def webProps = new File(launchersDir, "web.properties")
-        webProps.text = """app-name=blockly-web
-arguments=web=true
-"""
-    }
-}
-
-tasks.named('jpackageImage').configure {
-    dependsOn 'generateLauncherProperties'
-}
-
-
-/*
-    "Creates an image containing your application, a custom JRE, and appropriate start scripts.
-    If the property distDir is not set, this task depends on either installDist or installShadowDist"
-
-    runtime(Config Block)
-    Configuration block for org.beryx.runtime plugin(Java Badass Runtime)
-    This plugin creates a custom JRE (using jlink) and packages it with the application (using jpackage)
-*/
 runtime {
     options = ['--strip-debug',
                '--compress', '2',
@@ -202,15 +170,43 @@ runtime {
         // Directory containing all JARs (created by installDist task)    "../build/install/dungeon/lib"
         def inputDir = layout.buildDirectory.dir("install/${application.applicationName}/lib").get().asFile
 
-        def launchersDir = layout.buildDirectory.dir("jpackage-launchers").get().asFile
-
         // Options passed to jpackage tool (jpackage requires --input option to know where all jars are)
-        imageOptions = ["--input", inputDir.absolutePath,
-                        "--main-jar", "Blockly.jar",
-                        "--add-launcher", "desktop=${launchersDir.absolutePath}/desktop.properties",
-                        "--add-launcher", "web=${launchersDir.absolutePath}/web.properties"]
+        def options = ["--input", inputDir.absolutePath,
+                       "--main-jar", "Blockly-desktop.jar",
+                       "--arguments", "web=false"]
 
+        // macOS requires -XstartOnFirstThread for any app that opens a graphical window (LWJGL/LibGDX)
+        if (System.getProperty('os.name').toLowerCase().contains('mac')) {
+            options += ["--java-options", "-XstartOnFirstThread"]
+        }
+
+        imageOptions = options
     }
+}
+
+
+tasks.register('jpackageImageWeb', Exec) {
+    group = 'build'
+    description = 'Creates an application image for Blockly in web mode'
+    dependsOn 'jpackageImage'
+
+    def os = System.getProperty('os.name').toLowerCase()
+    def javaHome = System.getProperty('java.home')
+    def jpackageExe = "${javaHome}/bin/jpackage${os.contains('windows') ? '.exe' : ''}"
+
+    def inputDir = layout.buildDirectory.dir("install/${application.applicationName}/lib").get().asFile
+    def jreDir = layout.buildDirectory.dir("jre").get().asFile
+    def outputDir = layout.buildDirectory.dir("jpackage").get().asFile
+
+    commandLine jpackageExe,
+        '--type', 'app-image',
+        '--name', 'blockly-web',
+        '--dest', outputDir.absolutePath,
+        '--input', inputDir.absolutePath,
+        '--main-jar', 'Blockly-web.jar',
+        '--main-class', 'client.Client',
+        '--runtime-image', jreDir.absolutePath,
+        '--arguments', 'web=true'
 }
 
 
