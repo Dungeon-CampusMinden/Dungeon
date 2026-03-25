@@ -4,6 +4,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.utils.Direction;
 import core.utils.Point;
 import portal.laserGrid.LasergridComponent;
 import portal.util.ToggleableComponent;
@@ -30,12 +31,27 @@ public class Tools {
    * @param entity Das Objekt, dessen Position abgefragt werden soll
    * @return Die Position des Objekts oder {@code null}, wenn keine vorhanden ist
    */
-  public static PositionComponent getPositionComponent(Entity entity) {
-    return entity.fetch(PositionComponent.class).orElse(null);
+  public static Point getPosition(Entity entity) {
+    return entity.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
   }
 
   /**
-   * Holt die Laser-Gitter-Komponente eines Objekts.
+   * Holt die Information in welche Richtung eine Spielfigur sieht oder ein Objekt ausgerichtet ist.
+   *
+   * <p> Viele Objekte im Spiel haben eine Richtung in die sie zeigen. Diese Methode versucht, die Richtungsdaten aus
+   * dem übergebenen Objekt zu lesen.
+   *
+   * <p>Wenn das Objekt keine Richtung besitzt, wird {@code null} zurückgegeben.
+   *
+   * @param entity Das Objekt, dessen Blickrichtung abgefragt werden soll
+   * @return Die Blickrichtung des Objekts oder {@code null}, wenn keine vorhanden ist
+   */
+  public static Direction getViewDirection(Entity entity) {
+    return entity.fetch(PositionComponent.class).map(PositionComponent::viewDirection).orElse(null);
+  }
+
+  /**
+   * Holt die Information, ob ein Laser-Gitter eines Objekts aktiv ist.
    *
    * <p>Ein Laser-Gitter besteht aus mehreren Laserstrahlen, die gemeinsam ein Hindernis oder eine
    * Gefahr bilden können.
@@ -45,14 +61,14 @@ public class Tools {
    * <p>Wenn das Objekt kein Laser-Gitter besitzt, wird {@code null} zurückgegeben.
    *
    * @param entity Das Objekt, dessen Laser-Gitter abgefragt werden soll
-   * @return Die {@link LasergridComponent} oder {@code null}, wenn keine vorhanden ist
+   * @return Wahrheitswert, ob Laser-Gitter aktiv ist (true) oder nicht (false) oder {@code null}, wenn keine vorhanden ist
    */
-  public static LasergridComponent getLaserGridComponent(Entity entity) {
-    return entity.fetch(LasergridComponent.class).orElse(null);
+  public static boolean isLasergridActive(Entity entity) {
+    return entity.fetch(LasergridComponent.class).map(LasergridComponent::isActive).orElse(null);
   }
 
   /**
-   * Holt den Schalter-Zustand eines Objekts.
+   * Holt die Information, ob ein Schalter-Zustand eines Objekts aktiv ist.
    *
    * <p>Einige Objekte im Spiel können an- oder ausgeschaltet werden, zum Beispiel Pellet-Catcher.
    * Diese Methode versucht, die entsprechende Schalter-Komponente aus dem übergebenen Objekt zu
@@ -61,10 +77,10 @@ public class Tools {
    * <p>Wenn das Objekt keinen Schalter-Zustand besitzt, wird {@code null} zurückgegeben.
    *
    * @param entity Das Objekt, dessen Schalter-Zustand abgefragt werden soll
-   * @return Die {@link ToggleableComponent} des Objekts oder {@code null}, wenn keine vorhanden ist
+   * @return Wahrheitswert, ob Schalter-Zustand  des Objekts aktiv ist (true) oder nicht (false) oder {@code null}, wenn keine vorhanden ist
    */
-  public static ToggleableComponent getToggleComponent(Entity entity) {
-    return entity.fetch(ToggleableComponent.class).orElse(null);
+  public static boolean isToggleActive(Entity entity) {
+    return entity.fetch(ToggleableComponent.class).map(ToggleableComponent::isActive).orElse(null);
   }
 
   /**
