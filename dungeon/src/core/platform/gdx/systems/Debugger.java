@@ -1,4 +1,4 @@
-package contrib.utils.components;
+package core.platform.gdx.systems;
 
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
@@ -9,8 +9,6 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
-import core.platform.gdx.systems.DebugDrawSystem;
-import core.platform.gdx.systems.LevelEditorSystem;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.SelfDefendTransition;

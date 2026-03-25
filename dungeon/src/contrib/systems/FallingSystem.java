@@ -4,7 +4,7 @@ import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
 import contrib.components.HealthComponent;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.Debugger;
+import core.platform.gdx.systems.Debugger;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;

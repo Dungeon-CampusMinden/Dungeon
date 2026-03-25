@@ -1,6 +1,6 @@
 package starter;
 
-import contrib.utils.components.Debugger;
+import core.platform.gdx.systems.Debugger;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
