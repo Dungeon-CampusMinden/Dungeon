@@ -117,7 +117,8 @@ tasks.register('checkNoEngineImports') {
             "core/ui/gdx/",
             "core/platform/litiengine/",
             "core/game/litiengine/",
-            "contrib/hud/"
+            "contrib/hud/",
+            "contrib/platform/gdx/"
         ]
 
         def forbidden = []

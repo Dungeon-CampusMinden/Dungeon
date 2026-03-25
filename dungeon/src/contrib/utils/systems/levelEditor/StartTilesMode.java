@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Vector3;
-import contrib.systems.DebugDrawSystem;
+import core.platform.gdx.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import core.input.MouseButtons;
 import core.level.DungeonLevel;

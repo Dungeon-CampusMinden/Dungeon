@@ -1,4 +1,4 @@
-package contrib.systems;
+package core.platform.gdx.systems;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import contrib.components.*;
 import contrib.modules.interaction.InteractionComponent;
+import contrib.systems.LevelEditorSystem;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
@@ -19,7 +20,6 @@ import core.game.WindowEventManager;
 import core.input.Keys;
 import core.level.DungeonLevel;
 import core.level.elements.ILevel;
-import core.platform.gdx.systems.GdxCameraSystem;
 import core.ui.gdx.GdxFontHelper;
 import core.utils.InputManager;
 import core.utils.Point;

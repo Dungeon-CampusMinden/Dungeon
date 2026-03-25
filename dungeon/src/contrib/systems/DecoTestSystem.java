@@ -11,6 +11,7 @@ import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.input.Keys;
+import core.platform.gdx.systems.DebugDrawSystem;
 import core.ui.gdx.GdxFontHelper;
 import core.utils.InputManager;
 import core.utils.Point;

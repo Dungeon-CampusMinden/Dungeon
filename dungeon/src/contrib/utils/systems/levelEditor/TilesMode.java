@@ -1,7 +1,7 @@
 package contrib.utils.systems.levelEditor;
 
 import com.badlogic.gdx.graphics.Color;
-import contrib.systems.DebugDrawSystem;
+import core.platform.gdx.systems.DebugDrawSystem;
 import contrib.utils.CheckPatternPainter;
 import core.input.MouseButtons;
 import core.level.utils.Coordinate;

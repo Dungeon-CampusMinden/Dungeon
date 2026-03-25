@@ -5,6 +5,7 @@ import core.configuration.ConfigMap;
 import core.configuration.values.ConfigIntValue;
 import core.input.Keys;
 import core.input.MouseButtons;
+import core.platform.gdx.systems.DebugDrawSystem;
 
 /** WTF? . */
 @ConfigMap(path = {"keyboard"})
@@ -112,8 +113,8 @@ public class KeyboardConfig {
       new ConfigKey<>(new String[] {"open", "open_doors"}, new ConfigIntValue(Keys.C));
 
   /**
-   * Keybinding to toggle the {@link contrib.systems.DebugDrawSystem Debug-HUD}, if the {@link
-   * contrib.utils.components.Debugger} and {@link contrib.systems.DebugDrawSystem} are active.
+   * Keybinding to toggle the {@link DebugDrawSystem Debug-HUD}, if the {@link
+   * contrib.utils.components.Debugger} and {@link DebugDrawSystem} are active.
    */
   public static final ConfigKey<Integer> DEBUG_TOGGLE_HUD =
       new ConfigKey<>(new String[] {"debug", "toggle_hud"}, new ConfigIntValue(Keys.F3));

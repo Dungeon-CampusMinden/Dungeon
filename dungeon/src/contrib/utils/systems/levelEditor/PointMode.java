@@ -7,7 +7,7 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
-import contrib.systems.DebugDrawSystem;
+import core.platform.gdx.systems.DebugDrawSystem;
 import contrib.systems.LevelEditorSystem;
 import core.input.MouseButtons;
 import core.level.utils.Coordinate;

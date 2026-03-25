@@ -16,6 +16,7 @@ import core.input.MouseButtons;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.platform.gdx.render.DrawSystem;
+import core.platform.gdx.systems.DebugDrawSystem;
 import core.ui.gdx.GdxFontHelper;
 import core.utils.*;
 import core.utils.components.draw.DepthLayer;
