@@ -10,7 +10,7 @@ ext {
     junitLauncherVersion = '6.0.3'
 
     mockitoVersion = '5.23.0'
-    protobufVersion = '4.34.0'
+    protobufVersion = '4.34.1'
     jk1licenseVersion = '3.1.1'
     gdxControllersVersion = '2.2.4'
 
