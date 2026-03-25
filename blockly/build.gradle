@@ -132,6 +132,28 @@ tasks.register("jarDesktop", Jar) {
     }
 }
 
+tasks.register('installDesktopDist', Sync) {
+    dependsOn tasks.named('jarDesktop')
+
+    into layout.buildDirectory.dir("installDesktop/blockly/lib")
+
+    from(tasks.named('jarDesktop'))
+    from(configurations.runtimeClasspath)
+}
+
+tasks.register('installWebDist', Sync) {
+    dependsOn tasks.named('jarWeb')
+
+    into layout.buildDirectory.dir("installWeb/blockly/lib")
+
+    from(tasks.named('jarWeb'))
+    from(configurations.runtimeClasspath)
+}
+
+tasks.named('jpackageImage') {
+    dependsOn tasks.named('installDesktopDist')
+}
+
 // Optional: Mit 'build' beide gleichzeitig erstellen
 artifacts {
     archives jarDesktop, jarWeb
@@ -167,13 +189,12 @@ runtime {
     // Configuration for jpackage tool
     jpackage {
 
-        // Directory containing all JARs (created by installDist task)    "../build/install/dungeon/lib"
-        def inputDir = layout.buildDirectory.dir("install/${application.applicationName}/lib").get().asFile
+        // Directory containing all JARs
+        def inputDir = layout.buildDirectory.dir("installDesktop/blockly/lib").get().asFile
 
         // Options passed to jpackage tool (jpackage requires --input option to know where all jars are)
         def options = ["--input", inputDir.absolutePath,
-                       "--main-jar", "Blockly-desktop.jar",
-                       "--arguments", "web=false"]
+                       "--main-jar", "Blockly-desktop.jar"]
 
         // macOS requires -XstartOnFirstThread for any app that opens a graphical window (LWJGL/LibGDX)
         if (System.getProperty('os.name').toLowerCase().contains('mac')) {
@@ -188,13 +209,14 @@ runtime {
 tasks.register('jpackageImageWeb', Exec) {
     group = 'build'
     description = 'Creates an application image for Blockly in web mode'
-    dependsOn 'jpackageImage'
+    dependsOn 'jre', 'installWebDist'
+
 
     def os = System.getProperty('os.name').toLowerCase()
     def javaHome = System.getProperty('java.home')
     def jpackageExe = "${javaHome}/bin/jpackage${os.contains('windows') ? '.exe' : ''}"
 
-    def inputDir = layout.buildDirectory.dir("install/${application.applicationName}/lib").get().asFile
+    def inputDir = layout.buildDirectory.dir("installWeb/blockly/lib").get().asFile
     def jreDir = layout.buildDirectory.dir("jre").get().asFile
     def outputDir = layout.buildDirectory.dir("jpackage").get().asFile
 
@@ -205,8 +227,6 @@ tasks.register('jpackageImageWeb', Exec) {
         '--input', inputDir.absolutePath,
         '--main-jar', 'Blockly-web.jar',
         '--main-class', 'client.Client',
-        '--runtime-image', jreDir.absolutePath,
-        '--arguments', 'web=true'
-}
+        '--runtime-image', jreDir.absolutePath}
 
 
