@@ -88,6 +88,7 @@ public class PortalUtils {
     // Fallback: place exit point in front of the portal based on its view direction
     Point portalPosition = Tools.getPosition(portal);
     Direction portalViewDirection = Tools.getViewDirection(portal);
-    return new Point(portalPosition.x() + portalViewDirection.x(), portalPosition.y() + portalViewDirection.y());
+    return new Point(
+        portalPosition.x() + portalViewDirection.x(), portalPosition.y() + portalViewDirection.y());
   }
 }

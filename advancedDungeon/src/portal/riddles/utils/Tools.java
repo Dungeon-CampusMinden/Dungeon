@@ -38,8 +38,8 @@ public class Tools {
   /**
    * Holt die Information in welche Richtung eine Spielfigur sieht oder ein Objekt ausgerichtet ist.
    *
-   * <p> Viele Objekte im Spiel haben eine Richtung in die sie zeigen. Diese Methode versucht, die Richtungsdaten aus
-   * dem übergebenen Objekt zu lesen.
+   * <p>Viele Objekte im Spiel haben eine Richtung in die sie zeigen. Diese Methode versucht, die
+   * Richtungsdaten aus dem übergebenen Objekt zu lesen.
    *
    * <p>Wenn das Objekt keine Richtung besitzt, wird {@code null} zurückgegeben.
    *
@@ -61,7 +61,8 @@ public class Tools {
    * <p>Wenn das Objekt kein Laser-Gitter besitzt, wird {@code null} zurückgegeben.
    *
    * @param entity Das Objekt, dessen Laser-Gitter abgefragt werden soll
-   * @return Wahrheitswert, ob Laser-Gitter aktiv ist (true) oder nicht (false) oder {@code null}, wenn keine vorhanden ist
+   * @return Wahrheitswert, ob Laser-Gitter aktiv ist (true) oder nicht (false) oder {@code null},
+   *     wenn keine vorhanden ist
    */
   public static boolean isLasergridActive(Entity entity) {
     return entity.fetch(LasergridComponent.class).map(LasergridComponent::isActive).orElse(null);
@@ -77,7 +78,8 @@ public class Tools {
    * <p>Wenn das Objekt keinen Schalter-Zustand besitzt, wird {@code null} zurückgegeben.
    *
    * @param entity Das Objekt, dessen Schalter-Zustand abgefragt werden soll
-   * @return Wahrheitswert, ob Schalter-Zustand  des Objekts aktiv ist (true) oder nicht (false) oder {@code null}, wenn keine vorhanden ist
+   * @return Wahrheitswert, ob Schalter-Zustand des Objekts aktiv ist (true) oder nicht (false) oder
+   *     {@code null}, wenn keine vorhanden ist
    */
   public static boolean isToggleActive(Entity entity) {
     return entity.fetch(ToggleableComponent.class).map(ToggleableComponent::isActive).orElse(null);
