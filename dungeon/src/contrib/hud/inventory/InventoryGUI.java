@@ -57,23 +57,20 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   private static final int LINE_GAP = 5;
   private static final Vector2 HOVER_OFFSET = Vector2.of(10, 10);
   private static final BitmapFont bitmapFont;
-  private static final Texture texture;
+  private static final Texture backgroundTexture;
   private static final TextureRegion background, hoverBackground;
 
   static {
     if (Game.isHeadless()) {
       bitmapFont = null;
-      texture = null;
+      backgroundTexture = null;
       background = null;
       hoverBackground = null;
     } else {
-      // Prepare background texture
-      Pixmap pixmap = new Pixmap(2, 1, Pixmap.Format.RGBA8888);
-      pixmap.drawPixel(0, 0, BACKGROUND_COLOR); // Background
-      pixmap.drawPixel(1, 0, HOVER_BACKGROUND_COLOR); // Hover
-      texture = new Texture(pixmap);
-      background = new TextureRegion(texture, 0, 0, 1, 1);
-      hoverBackground = new TextureRegion(texture, 1, 0, 1, 1);
+      backgroundTexture =
+        GdxUiAssetLoader.createHorizontalStripTexture(BACKGROUND_COLOR, HOVER_BACKGROUND_COLOR);
+      background = new TextureRegion(backgroundTexture, 0, 0, 1, 1);
+      hoverBackground = new TextureRegion(backgroundTexture, 1, 0, 1, 1);
       bitmapFont = GdxUiAssetLoader.loadBitmapFont(FONT_FNT, FONT_PNG);
     }
   }
