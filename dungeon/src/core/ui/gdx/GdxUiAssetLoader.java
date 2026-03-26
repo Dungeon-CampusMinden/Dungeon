@@ -2,6 +2,7 @@ package core.ui.gdx;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import core.platform.Platform;
@@ -22,6 +23,10 @@ public final class GdxUiAssetLoader {
 
   public static BitmapFont loadBitmapFont(IPath fntPath, IPath pngPath) {
     return new BitmapFont(requireInternalFile(fntPath), requireInternalFile(pngPath), false);
+  }
+
+  public static Texture loadTexture(IPath texturePath) {
+    return new Texture(requireInternalFile(texturePath));
   }
 
   public static FileHandle requireInternalFile(IPath path) {

@@ -1,6 +1,5 @@
 package contrib.hud.image;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
@@ -16,6 +15,9 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.Game;
+import core.ui.gdx.GdxUiAssetLoader;
+import core.utils.components.path.SimpleIPath;
+import java.util.Objects;
 
 /** UI element that displays an image with optional text, used through the ShowImageSystem. */
 public class ShowImageUI extends Group {
@@ -28,6 +30,7 @@ public class ShowImageUI extends Group {
 
   private Image background;
   private String currentImagePath = null;
+  private Texture currentTexture;
   private float animation;
 
   /**
@@ -48,8 +51,9 @@ public class ShowImageUI extends Group {
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
     currentImagePath = component.imagePath();
-    background = new Image(new Texture(Gdx.files.internal(currentImagePath)));
+    background = new Image();
     background.setOrigin(Align.center);
+    updateBackgroundTexture(currentImagePath);
     this.addActor(background);
 
     if (component.textConfig() != null) {
@@ -74,7 +78,7 @@ public class ShowImageUI extends Group {
     ShowImageUI showImageUI = new ShowImageUI(new ShowImageComponent(img_path));
 
     ctx.find(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class)
-        .ifPresent(showImageUI.component::transitionSpeed);
+      .ifPresent(showImageUI.component::transitionSpeed);
     return showImageUI;
   }
 
@@ -84,11 +88,11 @@ public class ShowImageUI extends Group {
     this.setOrigin(Align.center);
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
-    if (!currentImagePath.equals(component.imagePath())) {
+    if (!Objects.equals(currentImagePath, component.imagePath())) {
       currentImagePath = component.imagePath();
-      background.setDrawable(
-          new TextureRegionDrawable(new Texture(Gdx.files.internal(currentImagePath))));
+      updateBackgroundTexture(currentImagePath);
     }
+
     float imageWidth = background.getImageWidth();
     float imageHeight = background.getImageHeight();
     float maxWidth = Game.windowWidth() * component.maxSize();
@@ -108,6 +112,25 @@ public class ShowImageUI extends Group {
     }
 
     super.draw(batch, parentAlpha);
+  }
+
+  @Override
+  public boolean remove() {
+    disposeCurrentTexture();
+    return super.remove();
+  }
+
+  private void updateBackgroundTexture(String imagePath) {
+    disposeCurrentTexture();
+    currentTexture = GdxUiAssetLoader.loadTexture(new SimpleIPath(imagePath));
+    background.setDrawable(new TextureRegionDrawable(currentTexture));
+  }
+
+  private void disposeCurrentTexture() {
+    if (currentTexture != null) {
+      currentTexture.dispose();
+      currentTexture = null;
+    }
   }
 
   private float animationOffsetX() {
