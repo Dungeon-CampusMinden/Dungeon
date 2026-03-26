@@ -4,6 +4,7 @@ import contrib.hud.DialogUtils;
 import contrib.utils.DynamicCompiler;
 import core.Entity;
 import core.Game;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import java.util.Optional;
@@ -85,8 +86,9 @@ public class PortalUtils {
     }
 
     // Fallback: place exit point in front of the portal based on its view direction
-    return Tools.getPositionComponent(portal)
-        .position()
-        .translate(Tools.getPositionComponent(portal).viewDirection());
+    Point portalPosition = Tools.getPosition(portal);
+    Direction portalViewDirection = Tools.getViewDirection(portal);
+    return new Point(
+        portalPosition.x() + portalViewDirection.x(), portalPosition.y() + portalViewDirection.y());
   }
 }
