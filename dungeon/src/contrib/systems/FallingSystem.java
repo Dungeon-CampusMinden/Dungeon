@@ -3,8 +3,6 @@ package contrib.systems;
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
 import contrib.components.HealthComponent;
-import contrib.utils.EntityUtils;
-import core.platform.gdx.systems.Debugger;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
@@ -71,19 +69,38 @@ public class FallingSystem extends System {
         .ifPresent(
             hc -> {
               if (DEBUG_DONT_KILL && entity.isPresent(PlayerComponent.class)) {
-                teleportPlayerIfPossible();
+                teleportPlayerIfPossible(entity);
                 return;
               }
               hc.receiveHit(new Damage(hc.currentHealthpoints(), DamageType.FALL, entity));
             });
   }
 
-  private void teleportPlayerIfPossible() {
-    Point playerCoords = EntityUtils.getPlayerPosition();
-    if (playerCoords != null) {
-      getSafeTile(playerCoords)
-          .ifPresentOrElse(Debugger::TELEPORT, () -> LOGGER.warn("No safe place to teleport."));
+  private void teleportPlayerIfPossible(Entity player) {
+    PositionComponent pc =
+      player
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(player, PositionComponent.class));
+
+    getSafeTile(pc.position())
+      .ifPresentOrElse(
+        safeTile -> teleportEntityTo(player, safeTile.coordinate().toPoint()),
+        () -> LOGGER.warn("No safe place to teleport."));
+  }
+
+  private void teleportEntityTo(Entity entity, Point targetLocation) {
+    PositionComponent pc =
+      entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+
+    Tile targetTile = Game.tileAt(targetLocation).orElse(null);
+    if (targetTile == null || !targetTile.isAccessible()) {
+      LOGGER.warn("Cannot teleport to non-existing or non-accessible tile");
+      return;
     }
+
+    pc.position(targetLocation);
   }
 
   private Optional<Tile> getSafeTile(Point playerCoords) throws NoSuchElementException {
