@@ -2,7 +2,7 @@ package contrib.hud;
 
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.*;
-import contrib.utils.components.showImage.ShowImageUI;
+import contrib.hud.image.ShowImageUI;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.Entity;
 import core.Game;

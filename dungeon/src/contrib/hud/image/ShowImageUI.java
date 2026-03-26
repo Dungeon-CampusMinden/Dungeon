@@ -1,4 +1,4 @@
-package contrib.utils.components.showImage;
+package contrib.hud.image;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,6 +14,7 @@ import contrib.components.ShowImageComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
+import contrib.utils.components.showImage.TransitionSpeed;
 import core.Game;
 
 /** UI element that displays an image with optional text, used through the ShowImageSystem. */

@@ -4,8 +4,8 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.hud.utils.AttributeBarUtil;
-import contrib.modules.keypad.KeypadUI;
-import contrib.utils.components.showImage.ShowImageUI;
+import contrib.hud.keypad.KeypadUI;
+import contrib.hud.image.ShowImageUI;
 import core.ui.UiNodeHandle;
 import core.ui.gdx.GdxUiNodeHandle;
 
