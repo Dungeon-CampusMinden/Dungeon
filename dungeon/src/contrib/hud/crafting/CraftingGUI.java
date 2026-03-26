@@ -115,7 +115,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private static final String BUTTON_OK_TEXTURE_PATH = "hud/check.png";
   private static final String BUTTON_CANCEL_TEXTURE_PATH = "hud/cross.png";
 
-  private static final Texture texture;
+  private static final Texture numberBackgroundTexture;
   private static final TextureRegion numberBackground;
   private static final Animation backgroundAnimation;
   private static final BitmapFont bitmapFont;
@@ -123,19 +123,16 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   static {
     if (Game.isHeadless()) {
       backgroundAnimation = null;
-      texture = null;
+      numberBackgroundTexture = null;
       numberBackground = null;
       bitmapFont = null;
     } else {
       backgroundAnimation = new Animation(new SimpleIPath(BACKGROUND_TEXTURE_PATH));
 
-      Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-      pixmap.drawPixel(0, 0, NUMBER_BACKGROUND_COLOR);
+      numberBackgroundTexture =
+        GdxUiAssetLoader.createHorizontalStripTexture(NUMBER_BACKGROUND_COLOR);
+      numberBackground = new TextureRegion(numberBackgroundTexture, 0, 0, 1, 1);
 
-      texture = new Texture(pixmap);
-      numberBackground = new TextureRegion(texture, 0, 0, 1, 1);
-
-      // Init Font
       bitmapFont = GdxUiAssetLoader.loadBitmapFont(FONT_FNT, FONT_PNG);
     }
   }
