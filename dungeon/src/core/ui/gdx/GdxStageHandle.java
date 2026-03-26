@@ -1,5 +1,6 @@
 package core.ui.gdx;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import core.ui.StageHandle;
@@ -54,11 +55,11 @@ public final class GdxStageHandle implements StageHandle {
 
   @Override
   public int mouseX() {
-    return 0;
+    return Gdx.input != null ? Gdx.input.getX() : 0;
   }
 
   @Override
   public int mouseY() {
-    return 0;
+    return Gdx.input != null ? Gdx.input.getY() : 0;
   }
 }

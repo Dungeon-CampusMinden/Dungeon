@@ -31,6 +31,7 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.network.messages.c2s.InputMessage;
 import core.platform.gdx.render.GdxAnimationFrames;
+import core.ui.StageHandle;
 import core.ui.gdx.GdxUiAssetLoader;
 import core.utils.*;
 import core.utils.Vector2;
@@ -245,7 +246,11 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   private int getSlotByMousePosition() {
-    Vector2 mousePos = Vector2.of(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+    StageHandle stage = Game.stage().orElseThrow();
+
+    Vector2 mousePos =
+      Vector2.of(stage.mouseX(), Math.round(stage.getHeight()) - stage.mouseY());
+
     Vector2 relMousePos = Vector2.of(mousePos.x() - this.x(), mousePos.y() - this.y());
     return getSlotByCoordinates(relMousePos.x(), relMousePos.y());
   }
