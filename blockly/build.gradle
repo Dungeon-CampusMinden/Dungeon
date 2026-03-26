@@ -194,7 +194,8 @@ runtime {
 
         // Options passed to jpackage tool (jpackage requires --input option to know where all jars are)
         def options = ["--input", inputDir.absolutePath,
-                       "--main-jar", "Blockly-desktop.jar"]
+                       "--main-jar", "Blockly-desktop.jar",
+                       "--main-class", "client.Client"]
 
         // macOS requires -XstartOnFirstThread for any app that opens a graphical window (LWJGL/LibGDX)
         if (System.getProperty('os.name').toLowerCase().contains('mac')) {
@@ -220,13 +221,22 @@ tasks.register('jpackageImageWeb', Exec) {
     def jreDir = layout.buildDirectory.dir("jre").get().asFile
     def outputDir = layout.buildDirectory.dir("jpackage").get().asFile
 
-    commandLine jpackageExe,
+    def options = [
         '--type', 'app-image',
         '--name', 'blockly-web',
         '--dest', outputDir.absolutePath,
         '--input', inputDir.absolutePath,
         '--main-jar', 'Blockly-web.jar',
         '--main-class', 'client.Client',
-        '--runtime-image', jreDir.absolutePath}
+        '--runtime-image', jreDir.absolutePath
+    ]
+
+    // macOS requires -XstartOnFirstThread for any app that opens a graphical window (LWJGL/LibGDX)
+    if (os.contains('mac')) {
+        options += ['--java-options', '-XstartOnFirstThread']
+    }
+
+    commandLine([jpackageExe] + options)
+}
 
 
