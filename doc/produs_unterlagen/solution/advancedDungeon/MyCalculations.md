@@ -11,9 +11,9 @@ public Point calculatePortalExit(Entity portal) {
         otherPortal = Tools.getPortal(PortalUtils.GREEN_PORTAL_NAME);
     else otherPortal = Tools.getPortal(PortalUtils.BLUE_PORTAL_NAME);
 
-    PositionComponent pc = Tools.getPositionComponent(otherPortal);
-    Direction direction = pc.viewDirection();
-    return pc.position().translate(direction);
+    Point portalPosition = Tools.getPosition(otherPortal);
+    Direction portalViewDirection = Tools.getViewDirection(otherPortal);
+    new Point(portalPosition.x() + portalViewDirection.x(), portalPosition.y() + portalViewDirection.y());
 }
 
 ```

@@ -7,11 +7,11 @@ Diese Funktion aktiviert/deaktiviert alle übergebenen Lasergitter, indem deren 
 ```java
 @Override
 public void activate(Entity[] grid) {
-  for (Entity laser : grid) Tools.getLaserGridComponent(laser).activate();
+  for (Entity laser : grid) Tools.activateLasergrid(laser);
 }
 
 @Override
 public void deactivate(Entity[] grid) {
-  for (Entity laser : grid) Tools.getLaserGridComponent(laser).deactivate();
+  for (Entity laser : grid) Tools.deactivateLasergrid(laser);
 }
 ```

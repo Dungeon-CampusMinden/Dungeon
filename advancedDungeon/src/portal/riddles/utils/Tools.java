@@ -69,6 +69,36 @@ public class Tools {
   }
 
   /**
+   * Aktiviert das Laser-Gitter eines Objekts.
+   *
+   * <p>Ein Laser-Gitter besteht aus mehreren Laserstrahlen, die gemeinsam ein Hindernis oder eine
+   * Gefahr bilden können.
+   *
+   * <p>Diese Methode versucht, die Laser-Gitter-Informationen aus dem übergebenen Objekt zu lesen
+   * und zu aktivieren.
+   *
+   * @param entity Das Objekt, dessen Laser-Gitter aktiviert werden soll
+   */
+  public static void activateLasergrid(Entity entity) {
+    entity.fetch(LasergridComponent.class).ifPresent(LasergridComponent::activate);
+  }
+
+  /**
+   * Deaktiviert das Laser-Gitter eines Objekts.
+   *
+   * <p>Ein Laser-Gitter besteht aus mehreren Laserstrahlen, die gemeinsam ein Hindernis oder eine
+   * Gefahr bilden können.
+   *
+   * <p>Diese Methode versucht, die Laser-Gitter-Informationen aus dem übergebenen Objekt zu lesen
+   * und zu deaktivieren.
+   *
+   * @param entity Das Objekt, dessen Laser-Gitter deaktiviert werden soll
+   */
+  public static void deactivateLasergrid(Entity entity) {
+    entity.fetch(LasergridComponent.class).ifPresent(LasergridComponent::deactivate);
+  }
+
+  /**
    * Holt die Information, ob ein Schalter-Zustand eines Objekts aktiv ist.
    *
    * <p>Einige Objekte im Spiel können an- oder ausgeschaltet werden, zum Beispiel Pellet-Catcher.
@@ -83,6 +113,32 @@ public class Tools {
    */
   public static boolean isToggleActive(Entity entity) {
     return entity.fetch(ToggleableComponent.class).map(ToggleableComponent::isActive).orElse(null);
+  }
+
+  /**
+   * Aktiviert den Schalter-Zustand eines Objekts.
+   *
+   * <p>Einige Objekte im Spiel können an- oder ausgeschaltet werden, zum Beispiel Pellet-Catcher.
+   * Diese Methode versucht, die entsprechende Schalter-Komponente aus dem übergebenen Objekt zu
+   * lesen und aktiviert den Schalter.
+   *
+   * @param entity Das Objekt, dessen Schalter-Zustand aktiviert werden soll
+   */
+  public static void activateToggle(Entity entity) {
+    entity.fetch(ToggleableComponent.class).ifPresent(ToggleableComponent::activate);
+  }
+
+  /**
+   * Deaktiviert den Schalter-Zustand eines Objekts.
+   *
+   * <p>Einige Objekte im Spiel können an- oder ausgeschaltet werden, zum Beispiel Pellet-Catcher.
+   * Diese Methode versucht, die entsprechende Schalter-Komponente aus dem übergebenen Objekt zu
+   * lesen und deaktiviert den Schalter.
+   *
+   * @param entity Das Objekt, dessen Schalter-Zustand deaktiviert werden soll
+   */
+  public static void deactivateToggle(Entity entity) {
+    entity.fetch(ToggleableComponent.class).ifPresent(ToggleableComponent::deactivate);
   }
 
   /**
