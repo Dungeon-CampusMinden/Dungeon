@@ -1,9 +1,10 @@
 package core.ui.gdx;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import core.utils.components.path.SimpleIPath;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -104,21 +105,24 @@ public class GdxFontHelper {
     FontEntry entry = new FontEntry(path, size, color, borderWidth, borderColor);
 
     if (!fontStorage.containsKey(entry)) {
-      FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(path));
-      FreeTypeFontGenerator.FreeTypeFontParameter params =
+      FreeTypeFontGenerator generator =
+        new FreeTypeFontGenerator(GdxUiAssetLoader.requireInternalFile(new SimpleIPath(path)));
+      try {
+        FreeTypeFontGenerator.FreeTypeFontParameter params =
           new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-      params.size = size;
-      params.color = color;
-      params.borderWidth = borderWidth;
-      params.borderColor = borderColor;
-      params.genMipMaps = true;
+        params.size = size;
+        params.color = color;
+        params.borderWidth = borderWidth;
+        params.borderColor = borderColor;
+        params.genMipMaps = true;
 
-      BitmapFont font = generator.generateFont(params);
-      fontStorage.put(entry, font);
-      generator.dispose();
+        BitmapFont font = generator.generateFont(params);
+        fontStorage.put(entry, font);
+      } finally {
+        generator.dispose();
+      }
     }
-
     return fontStorage.get(entry);
   }
 
