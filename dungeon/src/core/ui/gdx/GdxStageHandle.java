@@ -51,4 +51,14 @@ public final class GdxStageHandle implements StageHandle {
     }
     stage.setKeyboardFocus(a);
   }
+
+  @Override
+  public int mouseX() {
+    return 0;
+  }
+
+  @Override
+  public int mouseY() {
+    return 0;
+  }
 }

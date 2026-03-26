@@ -33,4 +33,7 @@ public interface StageHandle {
    * <p>Uses Object to avoid leaking libGDX Actor into core API.
    */
   void setKeyboardFocus(Object actor);
+
+  int mouseX();
+  int mouseY();
 }
