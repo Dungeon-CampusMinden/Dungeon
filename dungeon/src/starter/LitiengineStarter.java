@@ -5,6 +5,7 @@ import core.Game;
 import core.configuration.KeyboardConfig;
 import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
+import core.platform.gdx.systems.Debugger;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -34,7 +35,11 @@ public final class LitiengineStarter {
     Game.windowTitle("LITIENGINE Dungeon");
 
     // Spawn hero
-    Game.userOnSetup(() -> Game.add(EntityFactory.newHero()));
+    Game.userOnSetup(
+      () -> {
+        Game.add(EntityFactory.newHero());
+        Game.add(new Debugger());
+      });
 
     // Initialize network/logging etc. (host will do the one-time startup afterward)
     Game.initialize();

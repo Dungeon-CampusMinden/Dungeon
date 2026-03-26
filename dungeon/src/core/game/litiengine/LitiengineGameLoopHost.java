@@ -3,7 +3,6 @@ package core.game.litiengine;
 import core.game.*;
 import core.game.bootstrap.ClientStartup;
 import core.platform.CompositeResourcesAdapter;
-import core.platform.NullCameraAdapter;
 import core.platform.Platform;
 import core.platform.classpath.ClasspathResourcesAdapter;
 import core.platform.fs.FileSystemResourcesAdapter;
@@ -79,7 +78,7 @@ public final class LitiengineGameLoopHost {
     Platform.render(new LitiengineRenderAdapter());
     Platform.pathfinding(new GridPathfindingAdapter());
     Platform.cursor(new LitiengineCursorAdapter());
-    Platform.camera(new NullCameraAdapter());
+    Platform.camera(new LitiengineCameraAdapter());
     Platform.loopHost(new LitiengineLoopHost());
 
     // Bridge LITIENGINE input events into our engine-agnostic InputManager.

@@ -37,10 +37,8 @@ public final class LitiengineSpriteRenderSystem extends System {
   private static final DungeonLogger LOGGER =
     DungeonLogger.getLogger(LitiengineSpriteRenderSystem.class);
 
-  // Current "world unit" assumption: 1 tile == TILE_PX pixels.
-  // (This commit adds a basic camera transform; scaling can be modeled later.)
-  private static final int TILE_PX = 32;
-  private static final int ENTITY_PX = 10;
+  private static final int BASE_TILE_PX = 32;
+  private static final int MIN_TILE_PX = 8;
 
   // How many tiles beyond the viewport we still render (avoid pop-in).
   private static final int VIEW_MARGIN_TILES = 2;
@@ -84,10 +82,10 @@ public final class LitiengineSpriteRenderSystem extends System {
       final CameraView view = computeCameraView(levelOpt);
 
       // Publish view for cursor mapping
-      LitiengineCameraViews.set(view.offsetX, view.offsetY, view.levelHeight, TILE_PX);
+      LitiengineCameraViews.set(view.offsetX(), view.offsetY(), view.levelHeight(), view.tilePx());
 
       // Then proceed with translate/clip as before
-      g.translate(view.offsetX, view.offsetY);
+      g.translate(view.offsetX(), view.offsetY());
 
       levelOpt.ifPresent(level -> renderLevelTiles(g, level, view));
       renderEntities(g, levelOpt, view);
@@ -116,29 +114,26 @@ public final class LitiengineSpriteRenderSystem extends System {
         final Tile tile = layout[y][x];
         if (tile == null) continue;
 
-        final int sx = x * TILE_PX;
-        // flip y so that y=0 is bottom row in world space (matches existing renderer)
-        final int sy = (height - 1 - y) * TILE_PX;
+        final int tilePx = view.tilePx();
+        final int sx = x * tilePx;
+        final int sy = (height - 1 - y) * tilePx;
 
-        // Keep your current "simple" tile visualization:
-        // - either cached tile image (if present)
-        // - fallback to colored rect by tile type
         final LevelElement elem = tile.levelElement();
         BufferedImage img = imageForTile(tile);
         if (img != null) {
-          drawTileImage(g, img, sx, sy);
+          drawTileImage(g, img, sx, sy, tilePx);
         } else {
           g.setColor(colorFor(elem));
-          g.fillRect(sx, sy, TILE_PX, TILE_PX);
+          g.fillRect(sx, sy, tilePx, tilePx);
         }
       }
     }
   }
 
-  private void drawTileImage(Graphics2D g, BufferedImage img, int sx, int sy) {
+  private void drawTileImage(Graphics2D g, BufferedImage img, int sx, int sy, int tilePx) {
     if (img.getWidth() <= 0 || img.getHeight() <= 0) return;
-    double scaleX = TILE_PX / (double) img.getWidth();
-    double scaleY = TILE_PX / (double) img.getHeight();
+    double scaleX = tilePx / (double) img.getWidth();
+    double scaleY = tilePx / (double) img.getHeight();
     ImageRenderer.renderScaled(g, img, sx, sy, scaleX, scaleY);
   }
 
@@ -160,7 +155,7 @@ public final class LitiengineSpriteRenderSystem extends System {
   }
 
   private void renderEntities(Graphics2D g, Optional<ILevel> levelOpt, CameraView view) {
-    final int levelHeight = view.levelHeight;
+    final int levelHeight = view.levelHeight();
 
     // Sort entities by y so "lower" entities appear in front (cheap painter's algorithm).
     final List<Entity> entities =
@@ -176,23 +171,24 @@ public final class LitiengineSpriteRenderSystem extends System {
       final Point pos = pcOpt.get().position();
 
       // Viewport culling in world space (tiles).
-      if (pos.x() < view.minTileX || pos.x() > view.maxTileX || pos.y() < view.minTileY || pos.y() > view.maxTileY) {
+      if (pos.x() < view.minTileX() || pos.x() > view.maxTileX() || pos.y() < view.minTileY() || pos.y() > view.maxTileY()) {
         continue;
       }
 
       final Optional<DrawComponent> dcOpt = e.fetch(DrawComponent.class);
       if (dcOpt.isPresent()) {
-        if (tryDrawEntitySprite(g, pos, levelHeight, dcOpt.get())) {
+        if (tryDrawEntitySprite(g, pos, levelHeight, view.tilePx(), dcOpt.get())) {
           continue;
         }
       }
 
       // Fallback marker (debug)
-      drawEntityMarker(g, e, pos, levelHeight);
+      drawEntityMarker(g, e, pos, levelHeight, view.tilePx());
     }
   }
 
-  private boolean tryDrawEntitySprite(Graphics2D g, Point pos, int levelHeight, DrawComponent dc) {
+  private boolean tryDrawEntitySprite(
+    Graphics2D g, Point pos, int levelHeight, int tilePx, DrawComponent dc) {
     final core.utils.components.draw.animation.AnimationFrame frame;
     try {
       frame = dc.stateMachine().getFrame();
@@ -203,22 +199,23 @@ public final class LitiengineSpriteRenderSystem extends System {
     BufferedImage img = LitiengineAnimationFrames.toImage(frame);
     if (img == null) return false;
 
-    float sxWorld = pos.x() * TILE_PX;
+    float sxWorld = pos.x() * tilePx;
     float syWorld =
-      (levelHeight > 0) ? (levelHeight - 1 - pos.y()) * TILE_PX : (pos.y() * TILE_PX);
+      (levelHeight > 0) ? (levelHeight - 1 - pos.y()) * tilePx : (pos.y() * tilePx);
 
-    int wPx = TILE_PX;
-    int hPx = TILE_PX;
+    int wPx = tilePx;
+    int hPx = tilePx;
+
     try {
       float wWorld = dc.stateMachine().getWidth();
       float hWorld = dc.stateMachine().getHeight();
-      if (wWorld > 0) wPx = Math.max(1, Math.round(wWorld * TILE_PX));
-      if (hWorld > 0) hPx = Math.max(1, Math.round(hWorld * TILE_PX));
+      if (wWorld > 0) wPx = Math.max(1, Math.round(wWorld * tilePx));
+      if (hWorld > 0) hPx = Math.max(1, Math.round(hWorld * tilePx));
     } catch (Exception ignored) {
     }
 
-    int drawX = Math.round(sxWorld + (TILE_PX - wPx) / 2f);
-    int drawY = Math.round(syWorld + TILE_PX - hPx);
+    int drawX = Math.round(sxWorld + (tilePx - wPx) / 2f);
+    int drawY = Math.round(syWorld + tilePx - hPx);
 
     double scaleX = wPx / (double) img.getWidth();
     double scaleY = hPx / (double) img.getHeight();
@@ -226,12 +223,12 @@ public final class LitiengineSpriteRenderSystem extends System {
     return true;
   }
 
-  private void drawEntityMarker(Graphics2D g, Entity e, Point pos, int levelHeight) {
-    int sx = Math.round(pos.x() * TILE_PX);
+  private void drawEntityMarker(Graphics2D g, Entity e, Point pos, int levelHeight, int tilePx) {
+    int sx = Math.round(pos.x() * tilePx);
     int sy =
       (levelHeight > 0)
-        ? Math.round((levelHeight - 1 - pos.y()) * TILE_PX)
-        : Math.round(pos.y() * TILE_PX);
+        ? Math.round((levelHeight - 1 - pos.y()) * tilePx)
+        : Math.round(pos.y() * tilePx);
 
     Color c = new Color(255, 165, 0);
     if (e.isPresent(PlayerComponent.class)) {
@@ -240,47 +237,49 @@ public final class LitiengineSpriteRenderSystem extends System {
     }
 
     g.setColor(c);
-    int r = ENTITY_PX / 2;
-    g.fillOval(sx - r, sy - r, ENTITY_PX, ENTITY_PX);
+    int size = Math.max(6, Math.round(tilePx * 0.3f));
+    int r = size / 2;
+    g.fillOval(sx - r, sy - r, size, size);
   }
 
   private CameraView computeCameraView(Optional<ILevel> levelOpt) {
     final int screenW = getWidthSafe();
     final int screenH = getHeightSafe();
     final int levelHeight = levelOpt.map(l -> l.layout() != null ? l.layout().length : 0).orElse(0);
+    final int tilePx = effectiveTilePx();
 
     final Point target = resolveCameraTarget(levelOpt);
     this.cameraActual = lerpPoint(this.cameraActual, target, CAMERA_LERP);
 
     final Point focus = (this.cameraActual != null) ? this.cameraActual : target;
 
-    final int viewTilesX = (int) Math.ceil(screenW / (double) TILE_PX) + (VIEW_MARGIN_TILES * 2);
-    final int viewTilesY = (int) Math.ceil(screenH / (double) TILE_PX) + (VIEW_MARGIN_TILES * 2);
+    final int viewTilesX =
+      (int) Math.ceil(screenW / (double) tilePx) + (VIEW_MARGIN_TILES * 2);
+    final int viewTilesY =
+      (int) Math.ceil(screenH / (double) tilePx) + (VIEW_MARGIN_TILES * 2);
 
     final int minTileX = (int) Math.floor(focus.x() - viewTilesX / 2.0);
     final int maxTileX = minTileX + viewTilesX;
     final int minTileY = (int) Math.floor(focus.y() - viewTilesY / 2.0);
     final int maxTileY = minTileY + viewTilesY;
 
-    final double focusPxX = focus.x() * TILE_PX + (TILE_PX / 2.0);
+    final double focusPxX = focus.x() * tilePx + (tilePx / 2.0);
     final double focusPxY =
       (levelHeight > 0)
-        ? (levelHeight - 1 - focus.y()) * TILE_PX + (TILE_PX / 2.0)
-        : (focus.y() * TILE_PX + (TILE_PX / 2.0));
+        ? ((levelHeight - 1 - focus.y()) * tilePx + (tilePx / 2.0))
+        : (focus.y() * tilePx + (tilePx / 2.0));
 
     final double offsetX = (screenW / 2.0) - focusPxX;
     final double offsetY = (screenH / 2.0) - focusPxY;
 
-    return new CameraView(offsetX, offsetY, minTileX, maxTileX, minTileY, maxTileY, levelHeight);
+    return new CameraView(offsetX, offsetY, minTileX, maxTileX, minTileY, maxTileY, levelHeight, tilePx);
   }
 
   private Point resolveCameraTarget(Optional<ILevel> levelOpt) {
-    // 1) Prefer local player if present
     Optional<Point> playerPos =
       Game.player().flatMap(p -> p.fetch(PositionComponent.class)).map(PositionComponent::position);
     if (playerPos.isPresent()) return playerPos.get();
 
-    // 2) Otherwise: any entity with CameraComponent
     Optional<Point> camPos =
       ECSManagement.levelEntities()
         .filter(e -> e.isPresent(CameraComponent.class))
@@ -288,8 +287,6 @@ public final class LitiengineSpriteRenderSystem extends System {
         .flatMap(e -> e.fetch(PositionComponent.class))
         .map(PositionComponent::position);
     return camPos.orElseGet(() -> Game.startTile().map(Tile::position).orElseGet(() -> new Point(0, 0)));
-
-    // 3) Fallback: start tile or origin
   }
 
   private static Point lerpPoint(Point current, Point target, float alpha) {
@@ -326,7 +323,8 @@ public final class LitiengineSpriteRenderSystem extends System {
     int maxTileX,
     int minTileY,
     int maxTileY,
-    int levelHeight
+    int levelHeight,
+    int tilePx
   ) {}
 
   private int getWidthSafe() {
@@ -343,5 +341,9 @@ public final class LitiengineSpriteRenderSystem extends System {
     } catch (Exception ignored) {
       return 720;
     }
+  }
+
+  private static int effectiveTilePx() {
+    return Math.max(MIN_TILE_PX, Math.round(BASE_TILE_PX * LitiengineCameraState.zoom()));
   }
 }
