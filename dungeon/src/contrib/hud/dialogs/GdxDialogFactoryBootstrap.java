@@ -19,7 +19,9 @@ public final class GdxDialogFactoryBootstrap {
       return;
     }
 
-    DialogFactory.register(DialogType.DefaultTypes.OK, ctx -> wrap(OkDialog.build(ctx)));
+    DialogFactory.register(
+      DialogType.DefaultTypes.OK,
+      ctx -> wrap(GdxOkDialogBuilder.build(ctx)));
     DialogFactory.register(DialogType.DefaultTypes.YES_NO, ctx -> wrap(YesNoDialog.build(ctx)));
     DialogFactory.register(DialogType.DefaultTypes.TEXT, ctx -> wrap(TextDialog.build(ctx)));
     DialogFactory.register(
