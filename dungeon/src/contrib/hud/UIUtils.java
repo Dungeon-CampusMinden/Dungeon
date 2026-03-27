@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogCreationException;
-import contrib.hud.elements.GUICombination;
+import contrib.hud.elements.InventoryComponentProvider;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -162,23 +162,20 @@ public final class UIUtils {
   }
 
   /**
-   * Retrieves all inventory components from the UI dialogs associated with the given UIComponent.
+   * Retrieves all InventoryComponents from the UI dialog.
    *
-   * <p>This method extracts all InventoryComponents from the GUI combination elements within the
-   * dialog. It filters for elements that implement IInventoryHolder and extracts their associated
-   * inventory components.
+   * <p>This method extracts InventoryComponents from the dialog associated with the given
+   * UIComponent. It unwraps the dialog to find all InventoryComponentProviders and then streams
+   * their inventory components.
    *
-   * @param ui the UIComponent whose dialogs are to be searched for inventory components
-   * @return a Stream of InventoryComponents found in the UI dialogs
+   * @param ui the UIComponent whose dialog contains the inventory components
+   * @return a Stream of InventoryComponents found in the dialog
    */
   public static Stream<InventoryComponent> getInventoriesFromUI(UIComponent ui) {
     return ui.dialog()
-      .unwrap(GUICombination.class)
+      .unwrap(InventoryComponentProvider.class)
       .stream()
-      .flatMap(guiCombination -> guiCombination.combinableGuis().stream())
-      .filter(IInventoryHolder.class::isInstance)
-      .map(IInventoryHolder.class::cast)
-      .map(IInventoryHolder::inventoryComponent);
+      .flatMap(InventoryComponentProvider::inventoryComponents);
   }
 
   /**

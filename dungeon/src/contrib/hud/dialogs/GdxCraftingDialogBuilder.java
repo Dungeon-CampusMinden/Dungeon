@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.crafting.CraftingGUI;
-import contrib.hud.elements.GUICombination;
+import contrib.hud.elements.InventoryGuiGroup;
 import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
 import core.utils.logging.DungeonLogger;
@@ -46,6 +46,6 @@ public final class GdxCraftingDialogBuilder {
 
     CraftingGUI.registerCallbacks(uiComponent, craftingGUI);
 
-    return new GUICombination(inventoryGUI, craftingGUI);
+    return new InventoryGuiGroup(inventoryGUI, craftingGUI);
   }
 }

@@ -21,7 +21,7 @@ import java.util.Arrays;
  * com.badlogic.gdx.scenes.scene2d.Stage Stage} for display. This addition should be facilitated
  * through the use of a {@link UIComponent}.
  */
-public final class GUICombination extends Group {
+public class GUICombination extends Group {
 
   /** The gap between the CombinableGUIs in pixels. */
   public static final int GAP = 10;

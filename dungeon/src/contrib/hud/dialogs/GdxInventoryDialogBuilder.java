@@ -2,7 +2,7 @@ package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import contrib.components.InventoryComponent;
-import contrib.hud.elements.GUICombination;
+import contrib.hud.elements.InventoryGuiGroup;
 import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
 import core.utils.logging.DungeonLogger;
@@ -32,7 +32,7 @@ public final class GdxInventoryDialogBuilder {
     }
 
     InventoryGUI inventoryGUI = new InventoryGUI(inventory);
-    return new GUICombination(inventoryGUI);
+    return new InventoryGuiGroup(inventoryGUI);
   }
 
   /**
@@ -61,6 +61,6 @@ public final class GdxInventoryDialogBuilder {
 
     InventoryGUI inventoryGUI = new InventoryGUI(title, inventory);
     InventoryGUI otherInventoryGUI = new InventoryGUI(otherTitle, otherInventory);
-    return new GUICombination(inventoryGUI, otherInventoryGUI);
+    return new InventoryGuiGroup(inventoryGUI, otherInventoryGUI);
   }
 }
