@@ -2,7 +2,6 @@ package contrib.hud.elements;
 
 import contrib.components.InventoryComponent;
 import contrib.hud.IInventoryHolder;
-import java.util.Arrays;
 import java.util.stream.Stream;
 
 /**
@@ -11,8 +10,6 @@ import java.util.stream.Stream;
 public final class InventoryGuiGroup extends GUICombination
   implements InventoryComponentProvider {
 
-  private final CombinableGUI[] guis;
-
   /**
    * Creates a new inventory-capable GUI root.
    *
@@ -20,7 +17,6 @@ public final class InventoryGuiGroup extends GUICombination
    */
   public InventoryGuiGroup(final CombinableGUI... combinableGuis) {
     super(combinableGuis);
-    this.guis = combinableGuis.clone();
   }
 
   /**
@@ -31,12 +27,11 @@ public final class InventoryGuiGroup extends GUICombination
    */
   public InventoryGuiGroup(int guisPerRow, final CombinableGUI... combinableGuis) {
     super(guisPerRow, combinableGuis);
-    this.guis = combinableGuis.clone();
   }
 
   @Override
   public Stream<InventoryComponent> inventoryComponents() {
-    return Arrays.stream(guis)
+    return combinableGuiStream()
       .filter(IInventoryHolder.class::isInstance)
       .map(IInventoryHolder.class::cast)
       .map(IInventoryHolder::inventoryComponent);

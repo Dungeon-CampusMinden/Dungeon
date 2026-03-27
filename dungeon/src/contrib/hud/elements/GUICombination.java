@@ -9,6 +9,7 @@ import core.Game;
 import core.utils.Vector2;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 /**
  * An object of this class represents a combination of multiple {@link CombinableGUI
@@ -120,6 +121,18 @@ public class GUICombination extends Group {
    */
   public ArrayList<CombinableGUI> combinableGuis() {
     return this.combinableGuis;
+  }
+
+  /**
+   * Returns a stream over the contained GUI elements.
+   *
+   * <p>This is intended for specialized subclasses that expose backend-agnostic
+   * capabilities derived from the contained GUIs.
+   *
+   * @return stream of contained GUI elements
+   */
+  protected Stream<CombinableGUI> combinableGuiStream() {
+    return this.combinableGuis.stream();
   }
 
   /**
