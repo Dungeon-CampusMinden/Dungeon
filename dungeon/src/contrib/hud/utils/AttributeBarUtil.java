@@ -11,11 +11,13 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
 import contrib.hud.dialogs.HeadlessDialogGroup;
+import contrib.hud.elements.AttributeBarHandle;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.platform.Platform;
+import core.ui.gdx.GdxAttributeBarHandle;
 import core.utils.logging.DungeonLogger;
 import java.io.Serial;
 import java.io.Serializable;
@@ -40,7 +42,7 @@ public final class AttributeBarUtil {
   /** Gap between stacked bars. */
   public static final float BAR_GAP = 15f;
 
-  private AttributeBarUtil() {} // Utility class, no instances
+  private AttributeBarUtil() {}
 
   /**
    * Creates a progress bar for the given entity and maps it in the provided map.
@@ -50,36 +52,38 @@ public final class AttributeBarUtil {
    *
    * @param entity the entity to attach the bar to
    * @param barDisplayable the component providing bar data
-   * @param barMapping map from component class to progress bar
+   * @param barMapping map from component class to progress bar handle
    * @param verticalOffset vertical offset above the entity
    */
   public static void addBarToEntity(
-      Entity entity,
-      contrib.components.BarDisplayable barDisplayable,
-      Map<Class<? extends contrib.components.BarDisplayable>, ProgressBar> barMapping,
-      float verticalOffset) {
+    Entity entity,
+    contrib.components.BarDisplayable barDisplayable,
+    Map<Class<? extends contrib.components.BarDisplayable>, AttributeBarHandle> barMapping,
+    float verticalOffset) {
     Entity barEntity = Entity.createLocalEntity(barDisplayable.barStyleName() + "_" + entity.id());
 
     DialogContext context =
-        DialogContext.builder()
-            .type(DialogType.DefaultTypes.PROGRESS_BAR)
-            .center(false) // we will position it ourselves
-            .put(
-                DialogContextKeys.PROGRESS_BAR,
-                new ProgressBarContext(
-                    entity.fetch(PositionComponent.class).orElseThrow(),
-                    barDisplayable.barStyleName(),
-                    verticalOffset))
-            .put(DialogContextKeys.OWNER_ENTITY, barEntity.id())
-            .build();
+      DialogContext.builder()
+        .type(DialogType.DefaultTypes.PROGRESS_BAR)
+        .center(false)
+        .put(
+          DialogContextKeys.PROGRESS_BAR,
+          new ProgressBarContext(
+            entity.fetch(PositionComponent.class).orElseThrow(),
+            barDisplayable.barStyleName(),
+            verticalOffset))
+        .put(DialogContextKeys.OWNER_ENTITY, barEntity.id())
+        .build();
+
     UIComponent uiComp = new UIComponent(context, false, false, new int[] {});
     barEntity.add(uiComp);
     Game.add(barEntity);
 
     UIUtils.findTypeInGroup(uiComp.dialog(), ProgressBar.class)
-        .ifPresentOrElse(
-            bar -> barMapping.put(barDisplayable.getClass(), bar),
-            () -> LOGGER.error("Failed to create progress bar for entity {}", entity));
+      .map(GdxAttributeBarHandle::new)
+      .ifPresentOrElse(
+        handle -> barMapping.put(barDisplayable.getClass(), handle),
+        () -> LOGGER.error("Failed to create progress bar for entity {}", entity));
   }
 
   /**
@@ -91,13 +95,12 @@ public final class AttributeBarUtil {
    * @return a Group containing the progress bar
    */
   public static Group buildProgressBar(DialogContext ctx) {
-    // On headless server, return placeholder
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup("ProgressBar", null);
     }
 
     ProgressBarContext barContext =
-        ctx.require(DialogContextKeys.PROGRESS_BAR, ProgressBarContext.class);
+      ctx.require(DialogContextKeys.PROGRESS_BAR, ProgressBarContext.class);
     ProgressBar bar = createBar(barContext);
     Container<ProgressBar> container = new Container<>(bar);
     container.setLayoutEnabled(false);
@@ -110,6 +113,7 @@ public final class AttributeBarUtil {
     PositionComponent pc = barContext.pc();
     String styleName = barContext.styleName();
     float verticalOffset = barContext.verticalOffset();
+
     ProgressBar bar = new ProgressBar(MIN, MAX, STEP_SIZE, false, defaultSkin(), styleName);
     bar.setAnimateDuration(UPDATE_DURATION);
     bar.setSize(DEFAULT_BAR_WIDTH, DEFAULT_BAR_HEIGHT);
@@ -118,9 +122,14 @@ public final class AttributeBarUtil {
     return bar;
   }
 
-  private static void updatePosition(
-    ProgressBar bar, PositionComponent pc, float verticalOffset) {
+  private static void updatePosition(ProgressBar bar, PositionComponent pc, float verticalOffset) {
+    Game.stage()
+      .flatMap(stageHandle -> Platform.render().projectWorldToStage(pc.position(), stageHandle))
+      .ifPresent(screenPoint -> bar.setPosition(screenPoint.x(), screenPoint.y() - verticalOffset));
+  }
 
+  public static void updatePosition(
+    AttributeBarHandle bar, PositionComponent pc, float verticalOffset) {
     Game.stage()
       .flatMap(stageHandle -> Platform.render().projectWorldToStage(pc.position(), stageHandle))
       .ifPresent(screenPoint -> bar.setPosition(screenPoint.x(), screenPoint.y() - verticalOffset));
@@ -131,26 +140,29 @@ public final class AttributeBarUtil {
    *
    * @param entity the entity
    * @param barDisplayable the component providing bar data
-   * @param barMapping map from component class to progress bar
+   * @param barMapping map from component class to progress bar handle
    * @param verticalOffset vertical offset
    */
   public static void updateBar(
-      Entity entity,
-      contrib.components.BarDisplayable barDisplayable,
-      Map<Class<? extends contrib.components.BarDisplayable>, ProgressBar> barMapping,
-      float verticalOffset) {
-    ProgressBar bar = barMapping.get(barDisplayable.getClass());
-    if (bar == null) return;
+    Entity entity,
+    contrib.components.BarDisplayable barDisplayable,
+    Map<Class<? extends contrib.components.BarDisplayable>, AttributeBarHandle> barMapping,
+    float verticalOffset) {
+    AttributeBarHandle bar = barMapping.get(barDisplayable.getClass());
+    if (bar == null) {
+      return;
+    }
 
     bar.setVisible(
-        entity.fetch(DrawComponent.class).map(DrawComponent::isVisible).orElse(false)
-            && barDisplayable.current() != barDisplayable.max());
+      entity.fetch(DrawComponent.class).map(DrawComponent::isVisible).orElse(false)
+        && barDisplayable.current() != barDisplayable.max());
+
     updatePosition(bar, entity.fetch(PositionComponent.class).orElseThrow(), verticalOffset);
     bar.setValue(barDisplayable.current() / barDisplayable.max());
   }
 
-  private record ProgressBarContext(PositionComponent pc, String styleName, float verticalOffset)
-      implements Serializable {
+  private record ProgressBarContext(
+    PositionComponent pc, String styleName, float verticalOffset) implements Serializable {
     @Serial private static final long serialVersionUID = 1L;
   }
 }
