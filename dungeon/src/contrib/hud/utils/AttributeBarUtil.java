@@ -1,26 +1,19 @@
 package contrib.hud.utils;
 
-import static contrib.hud.UIUtils.defaultSkin;
-
-import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
-import contrib.hud.dialogs.HeadlessDialogGroup;
+import contrib.hud.elements.AttributeBarDialogData;
 import contrib.hud.elements.AttributeBarHandle;
+import contrib.hud.elements.AttributeBarHandleProvider;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.platform.Platform;
-import core.ui.gdx.GdxAttributeBarHandle;
 import core.utils.logging.DungeonLogger;
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -31,13 +24,6 @@ import java.util.Map;
  */
 public final class AttributeBarUtil {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AttributeBarUtil.class);
-
-  private static final float MIN = 0f;
-  private static final float MAX = 1f;
-  private static final float STEP_SIZE = 0.01f;
-  private static final float UPDATE_DURATION = 0.1f;
-  private static final int DEFAULT_BAR_WIDTH = 50;
-  private static final int DEFAULT_BAR_HEIGHT = 10;
 
   /** Gap between stacked bars. */
   public static final float BAR_GAP = 15f;
@@ -68,7 +54,7 @@ public final class AttributeBarUtil {
         .center(false)
         .put(
           DialogContextKeys.PROGRESS_BAR,
-          new ProgressBarContext(
+          new AttributeBarDialogData(
             entity.fetch(PositionComponent.class).orElseThrow(),
             barDisplayable.barStyleName(),
             verticalOffset))
@@ -79,53 +65,11 @@ public final class AttributeBarUtil {
     barEntity.add(uiComp);
     Game.add(barEntity);
 
-    UIUtils.findTypeInGroup(uiComp.dialog(), ProgressBar.class)
-      .map(GdxAttributeBarHandle::new)
+    UIUtils.findTypeInGroup(uiComp.dialog(), AttributeBarHandleProvider.class)
+      .map(AttributeBarHandleProvider::attributeBarHandle)
       .ifPresentOrElse(
         handle -> barMapping.put(barDisplayable.getClass(), handle),
-        () -> LOGGER.error("Failed to create progress bar for entity {}", entity));
-  }
-
-  /**
-   * Builds a progress bar group from the given DialogContext.
-   *
-   * <p>On headless servers, returns a {@link HeadlessDialogGroup} placeholder.
-   *
-   * @param ctx the DialogContext containing the progress bar
-   * @return a Group containing the progress bar
-   */
-  public static Group buildProgressBar(DialogContext ctx) {
-    if (Game.isHeadless()) {
-      return new HeadlessDialogGroup("ProgressBar", null);
-    }
-
-    ProgressBarContext barContext =
-      ctx.require(DialogContextKeys.PROGRESS_BAR, ProgressBarContext.class);
-    ProgressBar bar = createBar(barContext);
-    Container<ProgressBar> container = new Container<>(bar);
-    container.setLayoutEnabled(false);
-    container.pack();
-    container.setPosition(0, 0);
-    return container;
-  }
-
-  private static ProgressBar createBar(ProgressBarContext barContext) {
-    PositionComponent pc = barContext.pc();
-    String styleName = barContext.styleName();
-    float verticalOffset = barContext.verticalOffset();
-
-    ProgressBar bar = new ProgressBar(MIN, MAX, STEP_SIZE, false, defaultSkin(), styleName);
-    bar.setAnimateDuration(UPDATE_DURATION);
-    bar.setSize(DEFAULT_BAR_WIDTH, DEFAULT_BAR_HEIGHT);
-    updatePosition(bar, pc, verticalOffset);
-    bar.setVisible(true);
-    return bar;
-  }
-
-  private static void updatePosition(ProgressBar bar, PositionComponent pc, float verticalOffset) {
-    Game.stage()
-      .flatMap(stageHandle -> Platform.render().projectWorldToStage(pc.position(), stageHandle))
-      .ifPresent(screenPoint -> bar.setPosition(screenPoint.x(), screenPoint.y() - verticalOffset));
+        () -> LOGGER.error("Failed to create attribute bar handle for entity {}", entity));
   }
 
   public static void updatePosition(
@@ -159,10 +103,5 @@ public final class AttributeBarUtil {
 
     updatePosition(bar, entity.fetch(PositionComponent.class).orElseThrow(), verticalOffset);
     bar.setValue(barDisplayable.current() / barDisplayable.max());
-  }
-
-  private record ProgressBarContext(
-    PositionComponent pc, String styleName, float verticalOffset) implements Serializable {
-    @Serial private static final long serialVersionUID = 1L;
   }
 }

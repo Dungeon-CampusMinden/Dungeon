@@ -3,7 +3,6 @@ package contrib.hud.dialogs;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
-import contrib.hud.utils.AttributeBarUtil;
 import contrib.hud.keypad.KeypadUI;
 import contrib.hud.image.ShowImageUI;
 import core.ui.UiNodeHandle;
@@ -39,7 +38,7 @@ public final class GdxDialogFactoryBootstrap {
     DialogFactory.register(DialogType.DefaultTypes.KEYPAD, ctx -> wrap(KeypadUI.build(ctx)));
     DialogFactory.register(
       DialogType.DefaultTypes.PROGRESS_BAR,
-      ctx -> wrap(AttributeBarUtil.buildProgressBar(ctx)));
+      ctx -> wrap(GdxProgressBarDialogBuilder.build(ctx)));
     DialogFactory.register(
       DialogType.DefaultTypes.PAUSE_MENU, ctx -> wrap(PauseDialog.build(ctx)));
 
