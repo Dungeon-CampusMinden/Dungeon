@@ -61,8 +61,8 @@ public class PortalStarter {
   private static final String CONFIG_CLASSNAME = "portal.riddles.MyPortalConfig";
   private static final float ZOOM = .3f;
   private static final int FPS = 30;
-  private static final int WIDTH = 640;
-  private static final int HEIGHT = 480;
+  private static final int WIDTH = 1280;
+  private static final int HEIGHT = 720;
 
   /** Global reference to the {@link Hero} instance used in the game. */
   public static Hero hero;
