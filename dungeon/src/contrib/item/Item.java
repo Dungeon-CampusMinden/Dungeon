@@ -485,4 +485,17 @@ public class Item implements CraftingIngredient, CraftingResult {
         && stackSize == other.stackSize
         && maxStackSize == other.maxStackSize;
   }
+  @Override
+  public Item copy() {
+    Item copy = new Item(
+      this.displayName,
+      this.description,
+      this.inventoryAnimation,
+      this.worldAnimation,
+      this.stackSize,
+      this.maxStackSize
+    );
+    copy.simpleInteraction = this.simpleInteraction;
+    return copy;
+  }
 }
