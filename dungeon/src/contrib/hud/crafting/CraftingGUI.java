@@ -1,9 +1,7 @@
 package contrib.hud.crafting;
 
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.InventoryComponent;
@@ -15,17 +13,12 @@ import contrib.crafting.Recipe;
 import contrib.hud.IInventoryHolder;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
-import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogCreationException;
 import contrib.hud.elements.Button;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.elements.ImageButton;
-import contrib.hud.inventory.InventoryGUI;
 import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
-import core.Entity;
 import core.Game;
 import core.platform.gdx.render.GdxAnimationFrames;
 import core.ui.gdx.GdxUiAssetLoader;
@@ -150,7 +143,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
    * @param targetInventory The target inventory.
    * @param dialogId The dialog ID for network callbacks.
    */
-  CraftingGUI(
+  public CraftingGUI(
       InventoryComponent sourceInventory, InventoryComponent targetInventory, String dialogId) {
     var oldCallback = sourceInventory.onItemAdded();
     sourceInventory.onItemAdded(
@@ -218,34 +211,6 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   /**
-   * Builds a CraftingGUI from the given DialogContext.
-   *
-   * @param ctx The dialog context containing the necessary attributes.
-   * @return A new CraftingGUI instance wrapped in a GUICombination.
-   */
-  public static Group build(DialogContext ctx) {
-    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
-    Entity craftEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
-    InventoryComponent heroInventory = entity.fetch(InventoryComponent.class).orElse(null);
-    InventoryComponent craftInventory = craftEntity.fetch(InventoryComponent.class).orElse(null);
-    if (craftInventory == null || heroInventory == null) {
-      Entity missingEntity = (craftInventory == null) ? entity : craftEntity;
-      LOGGER.error("Entity {} has no InventoryComponent for CraftingGuiDialog", missingEntity);
-      throw new DialogCreationException("Missing InventoryComponent for CraftingGuiDialog");
-    }
-    InventoryGUI inventoryGUI = new InventoryGUI(heroInventory);
-    CraftingGUI craftingGUI = new CraftingGUI(craftInventory, heroInventory, ctx.dialogId());
-
-    CraftingGUI.registerCallbacks(
-        entity
-            .fetch(UIComponent.class)
-            .orElseThrow(() -> new DialogCreationException("Owner entity has no UIComponent")),
-        craftingGUI);
-
-    return new GUICombination(inventoryGUI, craftingGUI);
-  }
-
-  /**
    * Registers the standard crafting callbacks on the given UIComponent.
    *
    * <p>Call this method after creating a UIComponent for CraftingGUI to enable the craft and cancel
@@ -254,7 +219,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
    * @param uiComponent the UIComponent to register callbacks on
    * @param craftingGUI the CraftingGUI instance
    */
-  private static void registerCallbacks(UIComponent uiComponent, CraftingGUI craftingGUI) {
+  public static void registerCallbacks(UIComponent uiComponent, CraftingGUI craftingGUI) {
     uiComponent.registerCallback(
         CALLBACK_CRAFT,
         data -> {

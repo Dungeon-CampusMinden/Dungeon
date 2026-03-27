@@ -1,8 +1,6 @@
 package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import contrib.hud.crafting.CraftingGUI;
-import contrib.hud.inventory.InventoryGUI;
 import core.ui.UiNodeHandle;
 import core.ui.gdx.GdxUiNodeHandle;
 
@@ -35,7 +33,8 @@ public final class GdxDialogFactoryBootstrap {
       DialogType.DefaultTypes.DUAL_INVENTORY,
       ctx -> wrap(GdxInventoryDialogBuilder.buildDual(ctx)));
     DialogFactory.register(
-      DialogType.DefaultTypes.CRAFTING_GUI, ctx -> wrap(CraftingGUI.build(ctx)));
+      DialogType.DefaultTypes.CRAFTING_GUI,
+      ctx -> wrap(GdxCraftingDialogBuilder.build(ctx)));
     DialogFactory.register(
       DialogType.DefaultTypes.KEYPAD,
       ctx -> wrap(GdxKeypadDialogBuilder.build(ctx)));
