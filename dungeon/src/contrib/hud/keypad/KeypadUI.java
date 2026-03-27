@@ -7,8 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
-import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
 import contrib.modules.keypad.KeypadComponent;
 import core.Entity;
 import core.Game;
@@ -19,8 +17,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/** The UI for a keypad entity, allowing the player to input a code. */
-public class KeypadUI extends Group {
+/** libGDX Scene2D UI for a keypad entity, allowing the player to input a code. */
+public final class KeypadUI extends Group {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(KeypadUI.class);
 
@@ -66,7 +64,7 @@ public class KeypadUI extends Group {
     parentTable.add(tableButtons);
 
     List<String> buttons =
-        Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "Back", "0", "Submit");
+      Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "Back", "0", "Submit");
 
     for (int i = 0; i < buttons.size(); i++) {
       String action = buttons.get(i);
@@ -77,28 +75,18 @@ public class KeypadUI extends Group {
         btn.getLabel().setFontScale(1.25f);
       }
       btn.addListener(
-          new ClickListener() {
-            @Override
-            public void clicked(InputEvent e, float x, float y) {
-              onButtonPress(action);
-            }
-          });
+        new ClickListener() {
+          @Override
+          public void clicked(InputEvent e, float x, float y) {
+            onButtonPress(action);
+          }
+        });
       Cell<TextButton> c = tableButtons.add(btn).height(100).width(100).pad(10);
       if (i % 3 == 2) {
         c.row();
       }
       buttonCells.add(c);
     }
-  }
-
-  /**
-   * Builds a KeypadUI from the given DialogContext.
-   *
-   * @param context The dialog context containing the keypad entity.
-   * @return A new KeypadUI instance.
-   */
-  public static Group build(DialogContext context) {
-    return new KeypadUI(context.requireEntity(DialogContextKeys.ENTITY));
   }
 
   @Override
