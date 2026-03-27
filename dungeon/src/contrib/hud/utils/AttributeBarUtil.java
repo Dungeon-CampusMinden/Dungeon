@@ -1,7 +1,6 @@
 package contrib.hud.utils;
 
 import contrib.components.UIComponent;
-import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
@@ -65,7 +64,8 @@ public final class AttributeBarUtil {
     barEntity.add(uiComp);
     Game.add(barEntity);
 
-    UIUtils.findTypeInGroup(uiComp.dialog(), AttributeBarHandleProvider.class)
+    uiComp.dialog()
+      .unwrap(AttributeBarHandleProvider.class)
       .map(AttributeBarHandleProvider::attributeBarHandle)
       .ifPresentOrElse(
         handle -> barMapping.put(barDisplayable.getClass(), handle),

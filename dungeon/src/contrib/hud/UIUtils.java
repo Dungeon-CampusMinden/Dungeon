@@ -10,7 +10,6 @@ import contrib.hud.elements.GUICombination;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
-import core.ui.UiNodeHandle;
 import core.ui.gdx.GdxUiAssetLoader;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -180,18 +179,6 @@ public final class UIUtils {
       .filter(IInventoryHolder.class::isInstance)
       .map(IInventoryHolder.class::cast)
       .map(IInventoryHolder::inventoryComponent);
-  }
-
-  /**
-   * Searches for an Actor of the specified type within the given UiNodeHandle dialog.
-   *
-   * @param dialog the UiNodeHandle to search within
-   * @param type the Class type of the Actor to find
-   * @param <T> the type of the Actor
-   * @return an Optional containing the found Actor, or an empty Optional if not found
-   */
-  public static <T> Optional<T> findTypeInGroup(UiNodeHandle dialog, Class<T> type) {
-    return dialog.unwrap(Group.class).flatMap(group -> findTypeInGroup(group, type));
   }
 
   /**
