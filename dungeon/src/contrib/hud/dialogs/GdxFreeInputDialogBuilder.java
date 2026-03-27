@@ -1,0 +1,35 @@
+package contrib.hud.dialogs;
+
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import contrib.hud.UIUtils;
+import core.Game;
+
+/**
+ * Builds the libGDX-backed free input dialog.
+ */
+public final class GdxFreeInputDialogBuilder {
+
+  private GdxFreeInputDialogBuilder() {}
+
+  /**
+   * Builds a Scene2D free-input dialog from the given context.
+   *
+   * @param ctx the dialog context
+   * @return the Scene2D group representing the free-input dialog
+   */
+  public static Group build(DialogContext ctx) {
+    String title =
+      ctx.find(DialogContextKeys.TITLE, String.class).orElse(FreeInputDialog.TITLE_DEFAULT);
+    String question = ctx.require(DialogContextKeys.QUESTION, String.class);
+
+    if (Game.isHeadless()) {
+      return new HeadlessDialogGroup(
+        title, question, FreeInputDialog.OK_BUTTON, FreeInputDialog.CANCEL_BUTTON);
+    }
+
+    Dialog dialog = FreeInputDialog.create(UIUtils.defaultSkin(), title, question, ctx);
+    dialog.setSize(700, 350);
+    return dialog;
+  }
+}
