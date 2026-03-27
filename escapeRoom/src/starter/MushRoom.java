@@ -32,7 +32,7 @@ import mushRoom.modules.mushrooms.Mushrooms;
  *
  * <p>Usage: run with the Gradle task {@code runDemoRoom}.
  */
-public class MushRoom {
+public class MushRoom extends Starter {
   private static final boolean DEBUG_MODE = true;
   private static final String BACKGROUND_MUSIC = "sounds/forest_bgm.wav";
   private static final String AMBIENT_MUSIC = "sounds/forest_ambient.wav";
@@ -51,6 +51,16 @@ public class MushRoom {
     Game.windowTitle("MushRoom");
     Game.run();
   }
+
+
+  public void run() throws IOException {
+    configGame();
+    onSetup();
+
+    Game.windowTitle("MushRoom");
+    Game.run();
+  }
+
 
   private static void onSetup() {
     PreRunConfiguration.enableCheckPattern(false);
