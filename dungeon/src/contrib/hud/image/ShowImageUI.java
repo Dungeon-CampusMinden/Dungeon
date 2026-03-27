@@ -11,8 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.ShowImageComponent;
 import contrib.hud.UIUtils;
-import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.Game;
 import core.ui.gdx.GdxUiAssetLoader;
@@ -42,7 +40,9 @@ public class ShowImageUI extends Group {
     this.component = sic;
     createActors();
     animation = 0;
-    if (sic.transitionSpeed() == TransitionSpeed.DISABLED) animation = 1;
+    if (sic.transitionSpeed() == TransitionSpeed.DISABLED) {
+      animation = 1;
+    }
   }
 
   private void createActors() {
@@ -65,21 +65,6 @@ public class ShowImageUI extends Group {
       table.add(label);
       this.addActor(table);
     }
-  }
-
-  /**
-   * Builds a ShowImageUI from the given DialogContext.
-   *
-   * @param ctx the DialogContext containing the necessary attributes
-   * @return a new ShowImageUI instance
-   */
-  public static Group build(DialogContext ctx) {
-    String img_path = ctx.require(DialogContextKeys.IMAGE, String.class);
-    ShowImageUI showImageUI = new ShowImageUI(new ShowImageComponent(img_path));
-
-    ctx.find(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class)
-      .ifPresent(showImageUI.component::transitionSpeed);
-    return showImageUI;
   }
 
   @Override
@@ -108,7 +93,8 @@ public class ShowImageUI extends Group {
     this.setPosition(animationOffsetX(), animationOffsetY());
     this.setColor(1, 1, 1, animation);
     if (animation < 1) {
-      animation = Math.min(1, animation + (1f / component.transitionSpeed().framesToComplete));
+      animation =
+        Math.min(1, animation + (1f / component.transitionSpeed().framesToComplete));
     }
 
     super.draw(batch, parentAlpha);

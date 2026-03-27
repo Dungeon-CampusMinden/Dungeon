@@ -26,7 +26,8 @@ public final class GdxDialogFactoryBootstrap {
     DialogFactory.register(DialogType.DefaultTypes.OK, ctx -> wrap(OkDialog.build(ctx)));
     DialogFactory.register(DialogType.DefaultTypes.YES_NO, ctx -> wrap(YesNoDialog.build(ctx)));
     DialogFactory.register(DialogType.DefaultTypes.TEXT, ctx -> wrap(TextDialog.build(ctx)));
-    DialogFactory.register(DialogType.DefaultTypes.IMAGE, ctx -> wrap(ShowImageUI.build(ctx)));
+    DialogFactory.register(
+      DialogType.DefaultTypes.IMAGE, ctx -> wrap(GdxShowImageDialogBuilder.build(ctx)));
     DialogFactory.register(
       DialogType.DefaultTypes.FREE_INPUT, ctx -> wrap(FreeInputDialog.build(ctx)));
     DialogFactory.register(
