@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
 import core.Game;
-import core.platform.gdx.render.TextureGenerator;
+import core.ui.gdx.GdxUiAssetLoader;
 
 /**
  * Package-private builder for the pause menu.
@@ -61,7 +61,7 @@ final class PauseDialog {
 
     // Simple 1-color background texture
     Table container = new Table();
-    Texture t = TextureGenerator.generateColorTexture(1, 1, new Color(0, 0, 0, 0.7f));
+    Texture t = GdxUiAssetLoader.createSolidColorTexture(new Color(0, 0, 0, 0.7f));
     container.setBackground(new TextureRegionDrawable(t));
 
     // Label

@@ -2,6 +2,7 @@ package core.ui.gdx;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -29,6 +30,17 @@ public final class GdxUiAssetLoader {
 
   public static Texture loadTexture(IPath texturePath) {
     return new Texture(requireInternalFile(texturePath));
+  }
+
+  /**
+   * Creates a solid-color texture for simple UI backgrounds.
+   *
+   * <p>This is a convenience wrapper around {@link #createHorizontalStripTexture(int...)} for the
+   * common case of a single UI color.
+   */
+  public static Texture createSolidColorTexture(Color color) {
+    Objects.requireNonNull(color, "color");
+    return createHorizontalStripTexture(Color.rgba8888(color));
   }
 
   /**
