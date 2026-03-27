@@ -29,9 +29,11 @@ public final class GdxDialogFactoryBootstrap {
     DialogFactory.register(
       DialogType.DefaultTypes.FREE_INPUT, ctx -> wrap(FreeInputDialog.build(ctx)));
     DialogFactory.register(
-      DialogType.DefaultTypes.INVENTORY, ctx -> wrap(InventoryGUI.buildSimple(ctx)));
+      DialogType.DefaultTypes.INVENTORY,
+      ctx -> wrap(GdxInventoryDialogBuilder.buildSimple(ctx)));
     DialogFactory.register(
-      DialogType.DefaultTypes.DUAL_INVENTORY, ctx -> wrap(InventoryGUI.buildDual(ctx)));
+      DialogType.DefaultTypes.DUAL_INVENTORY,
+      ctx -> wrap(GdxInventoryDialogBuilder.buildDual(ctx)));
     DialogFactory.register(
       DialogType.DefaultTypes.CRAFTING_GUI, ctx -> wrap(CraftingGUI.build(ctx)));
     DialogFactory.register(
