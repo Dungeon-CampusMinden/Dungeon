@@ -538,11 +538,16 @@ public final class ECSManagement {
         return; // Early exit if a new level was loaded this tick.
       }
 
+      if (system.isRunning()) {
+        system.deltaTime(system.deltaTime() + deltaSeconds);
+      }
+
       system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
 
       if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
         system.execute();
         system.lastExecuteInFrames(0);
+        system.deltaTime(0f);
       }
     }
 

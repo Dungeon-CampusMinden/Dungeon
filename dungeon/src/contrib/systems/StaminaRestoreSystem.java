@@ -1,15 +1,13 @@
 package contrib.systems;
 
 import contrib.components.StaminaComponent;
-import core.Game;
 import core.System;
 
 /**
- * A system that restores stamina to all entities with an {@link StaminaComponent}.
+ * A system that restores stamina to all entities with a {@link StaminaComponent}.
  *
- * <p>The restoration amount is calculated based on the stamina regeneration rate defined in each
- * {@code StaminaComponent}. To ensure frame-rate-independent behavior, the per-second restoration
- * value is divided by the current game frame rate.
+ * <p>The restoration amount is calculated from the elapsed time since this system was last
+ * executed, making the regeneration independent of the configured frame rate.
  */
 public class StaminaRestoreSystem extends System {
 
@@ -23,20 +21,25 @@ public class StaminaRestoreSystem extends System {
   }
 
   /**
-   * Executes the stamina restoration for all entities that contain an {@link StaminaComponent}.
+   * Executes the stamina restoration for all entities that contain a {@link StaminaComponent}.
    *
-   * <p>For each entity, the system restores an amount of stamina equal to:
+   * <p>For each entity, the system restores:
    *
    * <pre>
-   * restorePerSecond / Game.frameRate()
+   * restorePerSecond * deltaTime()
    * </pre>
    *
-   * <p>ensuring smooth, frame-rate-independent regeneration.
+   * <p>This ensures host-agnostic, time-based regeneration.
    */
   @Override
   public void execute() {
+    final float deltaSeconds = deltaTime();
+    if (deltaSeconds <= 0f) {
+      return;
+    }
+
     filteredEntityStream()
-        .flatMap(e -> e.fetch(StaminaComponent.class).stream())
-        .forEach(c -> c.restore(c.restorePerSecond() / Game.frameRate()));
+      .flatMap(e -> e.fetch(StaminaComponent.class).stream())
+      .forEach(c -> c.restore(c.restorePerSecond() * deltaSeconds));
   }
 }

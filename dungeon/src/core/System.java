@@ -64,6 +64,7 @@ public abstract class System {
   protected Consumer<Entity> onEntityRemove = (e) -> {};
 
   private int lastExecuteInFrames = 0;
+  private float deltaTime = 0f;
 
   /**
    * Create a new system.
@@ -272,6 +273,31 @@ public abstract class System {
    */
   public void lastExecuteInFrames(int lastExecuteInFrames) {
     this.lastExecuteInFrames = lastExecuteInFrames;
+  }
+
+  /**
+   * Returns the accumulated delta time in seconds since the last successful {@link #execute()}
+   * invocation of this system.
+   *
+   * <p>The value is maintained by the ECS loop and can be used by systems that want to apply
+   * time-based logic instead of frame-based logic.
+   *
+   * @return accumulated delta time in seconds
+   */
+  public final float deltaTime() {
+    return deltaTime;
+  }
+
+  /**
+   * Updates the accumulated delta time in seconds since the last successful {@link #execute()}
+   * invocation of this system.
+   *
+   * <p>The ECS loop is responsible for maintaining this value.
+   *
+   * @param deltaTime accumulated delta time in seconds
+   */
+  public final void deltaTime(float deltaTime) {
+    this.deltaTime = Math.max(0f, deltaTime);
   }
 
   /**
