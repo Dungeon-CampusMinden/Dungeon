@@ -1,7 +1,5 @@
 package contrib.hud.systems;
 
-import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import core.Entity;
@@ -105,12 +103,15 @@ public final class HudSystem extends System {
     Game.stage()
       .ifPresentOrElse(
         stageHandle -> {
+          if (!dialogHandle.isAttached()) {
+            dialogHandle.attachTo(stageHandle);
+          } else {
+            dialogHandle.toFront();
+          }
+
           if (component.dialogContext().center()) {
             dialogHandle.centerOn(stageHandle);
           }
-
-          dialogHandle.attachTo(stageHandle);
-          dialogHandle.toFront();
 
           addMapping(entity, dialogHandle, component);
           DialogTracker.instance().registerDialog(component);
