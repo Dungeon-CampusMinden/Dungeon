@@ -143,12 +143,6 @@ public final class GameLoop {
 
   public static void run(String[] args) {
     GameLoopHost host = Platform.loopHost();
-    if (host == null) {
-      host = tryLoadDefaultHost();
-      if (host != null) {
-        Platform.loopHost(host);
-      }
-    }
 
     if (host == null) {
       throw new IllegalStateException(
@@ -171,19 +165,5 @@ public final class GameLoop {
   public static ISoundPlayer soundPlayer() {
     GameLoopHost host = Platform.loopHost();
     return host == null ? new core.sound.player.NoSoundPlayer() : host.soundPlayer();
-  }
-
-  private static GameLoopHost tryLoadDefaultHost() {
-    return tryNew("core.platform.gdx.GdxLoopHost");
-  }
-
-  private static GameLoopHost tryNew(String fqcn) {
-    try {
-      Class<?> c = Class.forName(fqcn);
-      Object o = c.getDeclaredConstructor().newInstance();
-      return (GameLoopHost) o;
-    } catch (Throwable ignored) {
-      return null;
-    }
   }
 }

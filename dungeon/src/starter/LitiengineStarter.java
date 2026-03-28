@@ -3,8 +3,11 @@ package starter;
 import contrib.entities.EntityFactory;
 import core.Game;
 import core.configuration.KeyboardConfig;
+import core.game.GameLoop;
 import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
+import core.platform.Platform;
+import core.platform.litiengine.LitiengineLoopHost;
 import core.platform.litiengine.systems.LitiengineDebugControlsSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
@@ -41,10 +44,13 @@ public final class LitiengineStarter {
         Game.add(new LitiengineDebugControlsSystem());
       });
 
-    // Initialize network/logging etc. (host will do the one-time startup afterward)
+    // Install the concrete loop host explicitly instead of bypassing GameLoop.
+    Platform.loopHost(new LitiengineLoopHost());
+
+    // Initialize network/logging etc.
     Game.initialize();
 
-    // Start LITIENGINE host loop
-    core.game.litiengine.LitiengineGameLoopHost.run(args, new core.game.GameLoopCore());
+    // Start through the host-agnostic facade.
+    GameLoop.run(args);
   }
 }

@@ -25,6 +25,7 @@ public final class GdxPlatformBootstrap {
     Platform.pathfinding(new GdxPathfindingAdapter());
     Platform.cursor(new GdxCursorAdapter());
     Platform.camera(new GdxCameraAdapter());
+    Platform.loopHost(new GdxLoopHost());
 
     GdxDialogFactoryBootstrap.init();
   }
