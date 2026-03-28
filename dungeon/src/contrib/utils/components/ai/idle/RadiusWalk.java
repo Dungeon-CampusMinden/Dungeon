@@ -2,19 +2,17 @@ package contrib.utils.components.ai.idle;
 
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
-import core.Game;
 import core.level.path.TilePath;
 import core.level.utils.LevelUtils;
+import core.utils.Time;
 import java.util.function.Consumer;
 
-/**
- * Implements an idle AI that lets the entity walk in a specific radius from its current position.
- */
+/** Implements an idle AI that lets the entity walk in a specific radius from its current position. */
 public final class RadiusWalk implements Consumer<Entity> {
   private final float radius;
-  private final int breakTime;
+  private final long breakTimeMs;
   private TilePath path;
-  private int currentBreak = 0;
+  private long waitStartedAtMs = Long.MIN_VALUE;
 
   /**
    * Finds a point in the radius and then moves there. When the point has been reached, a new point
@@ -25,20 +23,33 @@ public final class RadiusWalk implements Consumer<Entity> {
    */
   public RadiusWalk(float radius, int breakTimeInSeconds) {
     this.radius = radius;
-    this.breakTime = breakTimeInSeconds * Game.frameRate();
+    this.breakTimeMs = Math.max(0L, breakTimeInSeconds) * 1000L;
   }
 
   @Override
   public void accept(final Entity entity) {
     if (path == null || AIUtils.pathFinishedOrLeft(entity, path)) {
-      if (currentBreak >= breakTime) {
-        currentBreak = 0;
-        path = LevelUtils.calculateTilePathToRandomTileInRange(entity, radius);
-        accept(entity);
-      }
+      handleWaitingForNextPath(entity);
+      return;
+    }
 
-      currentBreak++;
+    AIUtils.followPath(entity, path);
+  }
 
-    } else AIUtils.followPath(entity, path);
+  private void handleWaitingForNextPath(final Entity entity) {
+    if (waitStartedAtMs == Long.MIN_VALUE) {
+      waitStartedAtMs = Time.nowMs();
+    }
+
+    if (Time.sinceMs(waitStartedAtMs) < breakTimeMs) {
+      return;
+    }
+
+    waitStartedAtMs = Long.MIN_VALUE;
+    path = LevelUtils.calculateTilePathToRandomTileInRange(entity, radius);
+
+    if (!AIUtils.pathFinishedOrLeft(entity, path)) {
+      AIUtils.followPath(entity, path);
+    }
   }
 }

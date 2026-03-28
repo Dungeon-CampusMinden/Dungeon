@@ -2,20 +2,20 @@ package contrib.utils.components.ai.idle;
 
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
-import core.Game;
 import core.components.PositionComponent;
 import core.level.path.TilePath;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
+import core.utils.Time;
 import core.utils.components.MissingComponentException;
 import java.util.function.Consumer;
 
 /** Implements an idle AI that lets the entity walk in a specific radius from a fixed point. */
 public final class StaticRadiusWalk implements Consumer<Entity> {
   private final float radius;
-  private final int breakTime;
+  private final long breakTimeMs;
   private TilePath path;
-  private int currentBreak = 0;
+  private long waitStartedAtMs = Long.MIN_VALUE;
   private Point center;
 
   /**
@@ -27,40 +27,57 @@ public final class StaticRadiusWalk implements Consumer<Entity> {
    */
   public StaticRadiusWalk(float radius, int breakTimeInSeconds) {
     this.radius = radius;
-    this.breakTime = breakTimeInSeconds * Game.frameRate();
+    this.breakTimeMs = Math.max(0L, breakTimeInSeconds) * 1000L;
   }
 
   @Override
   public void accept(final Entity entity) {
     if (path == null || AIUtils.pathFinishedOrLeft(entity, path)) {
-      if (center == null) {
-        PositionComponent pc =
-            entity
-                .fetch(PositionComponent.class)
-                .orElseThrow(
-                    () -> MissingComponentException.build(entity, PositionComponent.class));
+      handleWaitingForNextPath(entity);
+      return;
+    }
 
-        if (pc.position().equals(PositionComponent.ILLEGAL_POSITION)) return;
-        else center = pc.position();
+    AIUtils.followPath(entity, path);
+  }
+
+  private void handleWaitingForNextPath(final Entity entity) {
+    if (center == null) {
+      PositionComponent pc =
+        entity
+          .fetch(PositionComponent.class)
+          .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+
+      if (pc.position().equals(PositionComponent.ILLEGAL_POSITION)) {
+        return;
       }
+      center = pc.position();
+    }
 
-      if (currentBreak >= breakTime) {
-        currentBreak = 0;
-        PositionComponent pc2 =
-            entity
-                .fetch(PositionComponent.class)
-                .orElseThrow(
-                    () -> MissingComponentException.build(entity, PositionComponent.class));
-        if (pc2.position().equals(PositionComponent.ILLEGAL_POSITION)) return;
-        Point currentPosition = pc2.position();
-        // center is the start position of the entity, so it must be accessible
-        Point newEndTile =
-            LevelUtils.randomAccessibleTileInRangeAsPoint(center, radius).orElse(center);
-        path = LevelUtils.calculateTilePath(currentPosition, newEndTile);
-        accept(entity);
-      }
-      currentBreak++;
+    if (waitStartedAtMs == Long.MIN_VALUE) {
+      waitStartedAtMs = Time.nowMs();
+    }
 
-    } else AIUtils.followPath(entity, path);
+    if (Time.sinceMs(waitStartedAtMs) < breakTimeMs) {
+      return;
+    }
+
+    PositionComponent pc =
+      entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+
+    if (pc.position().equals(PositionComponent.ILLEGAL_POSITION)) {
+      return;
+    }
+
+    waitStartedAtMs = Long.MIN_VALUE;
+
+    Point currentPosition = pc.position();
+    Point newEndTile = LevelUtils.randomAccessibleTileInRangeAsPoint(center, radius).orElse(center);
+    path = LevelUtils.calculateTilePath(currentPosition, newEndTile);
+
+    if (!AIUtils.pathFinishedOrLeft(entity, path)) {
+      AIUtils.followPath(entity, path);
+    }
   }
 }
