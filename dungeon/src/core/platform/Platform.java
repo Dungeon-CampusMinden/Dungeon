@@ -11,6 +11,7 @@ public final class Platform {
   private static PathfindingAdapter pathfinding = new NullPathfindingAdapter();
   private static CursorAdapter cursor = new NullCursorAdapter();
   private static CameraAdapter camera = new NullCameraAdapter();
+  private static ClipboardAdapter clipboard = new NullClipboardAdapter();
   private static volatile GameLoopHost loopHost;
 
   private Platform() {}
@@ -36,14 +37,14 @@ public final class Platform {
   }
 
   public static void resources(ResourcesAdapter adapter) {
-    resources = java.util.Objects.requireNonNull(adapter);
+    resources = Objects.requireNonNull(adapter);
   }
 
-  public static RenderAdapter render() { // NEW
+  public static RenderAdapter render() {
     return render;
   }
 
-  public static void render(RenderAdapter adapter) { // NEW
+  public static void render(RenderAdapter adapter) {
     render = Objects.requireNonNull(adapter);
   }
 
@@ -69,6 +70,14 @@ public final class Platform {
 
   public static void camera(CameraAdapter adapter) {
     camera = Objects.requireNonNull(adapter);
+  }
+
+  public static ClipboardAdapter clipboard() {
+    return clipboard;
+  }
+
+  public static void clipboard(ClipboardAdapter adapter) {
+    clipboard = Objects.requireNonNull(adapter);
   }
 
   public static void loopHost(GameLoopHost host) {

@@ -4,6 +4,7 @@ import core.game.*;
 import core.game.bootstrap.ClientStartup;
 import core.platform.CompositeResourcesAdapter;
 import core.platform.Platform;
+import core.platform.awt.AwtClipboardAdapter;
 import core.platform.classpath.ClasspathResourcesAdapter;
 import core.platform.fs.FileSystemResourcesAdapter;
 import core.platform.grid.GridPathfindingAdapter;
@@ -79,6 +80,7 @@ public final class LitiengineGameLoopHost {
     Platform.pathfinding(new GridPathfindingAdapter());
     Platform.cursor(new LitiengineCursorAdapter());
     Platform.camera(new LitiengineCameraAdapter());
+    Platform.clipboard(new AwtClipboardAdapter());
     Platform.loopHost(new LitiengineLoopHost());
 
     // Bridge LITIENGINE input events into our engine-agnostic InputManager.

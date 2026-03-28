@@ -6,11 +6,11 @@ import contrib.hud.systems.HudSystem;
 import core.System;
 import core.game.ECSManagement;
 import core.platform.Platform;
+import core.platform.awt.AwtClipboardAdapter;
 import core.platform.gdx.*;
 import core.platform.gdx.input.GdxCursorAdapter;
 import core.platform.gdx.systems.DebugDrawSystem;
 import core.platform.gdx.systems.GdxCameraSystem;
-
 import java.util.function.Supplier;
 
 /** Explicitly wires the libGDX backend into the platform abstraction. */
@@ -25,6 +25,7 @@ public final class GdxPlatformBootstrap {
     Platform.pathfinding(new GdxPathfindingAdapter());
     Platform.cursor(new GdxCursorAdapter());
     Platform.camera(new GdxCameraAdapter());
+    Platform.clipboard(new AwtClipboardAdapter());
     Platform.loopHost(new GdxLoopHost());
 
     GdxDialogFactoryBootstrap.init();
