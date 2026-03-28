@@ -8,6 +8,8 @@ import core.game.ECSManagement;
 import core.platform.Platform;
 import core.platform.gdx.*;
 import core.platform.gdx.input.GdxCursorAdapter;
+import core.platform.gdx.systems.DebugDrawSystem;
+import core.platform.gdx.systems.GdxCameraSystem;
 
 import java.util.function.Supplier;
 
@@ -30,6 +32,16 @@ public final class GdxPlatformBootstrap {
   public static void installHudSystems() {
     addIfAbsent(HudSystem.class, HudSystem::new);
     addIfAbsent(AttributeBarSystem.class, AttributeBarSystem::new);
+  }
+
+  /**
+   * Installs libGDX-specific client systems that are intentionally not part of the
+   * engine-agnostic core bootstrap.
+   */
+  public static void installClientSystems() {
+    addIfAbsent(GdxCameraSystem.class, GdxCameraSystem::new);
+    addIfAbsent(DebugDrawSystem.class, DebugDrawSystem::new);
+    installHudSystems();
   }
 
   private static <T extends System> void addIfAbsent(Class<T> type, Supplier<T> factory) {

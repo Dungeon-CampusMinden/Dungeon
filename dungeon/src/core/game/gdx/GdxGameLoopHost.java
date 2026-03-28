@@ -17,8 +17,6 @@ import contrib.entities.CharacterClass;
 import contrib.entities.HeroBuilder;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogFactory;
-import contrib.hud.systems.AttributeBarSystem;
-import core.platform.gdx.systems.DebugDrawSystem;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -385,8 +383,7 @@ public final class GdxGameLoopHost extends ScreenAdapter {
     // Keep existing LevelSystem hook
     ECSManagement.system(LevelSystem.class, ls -> ls.onLevelLoad(GameLoop.onLevelLoad));
 
-    // GDX-client extras (still contrib/libGDX specific)
-    ECSManagement.add(new DebugDrawSystem());
-    ECSManagement.add(new AttributeBarSystem());
+    // Install libGDX-specific client systems that are intentionally wired by the GDX host.
+    GdxPlatformBootstrap.installClientSystems();
   }
 }
