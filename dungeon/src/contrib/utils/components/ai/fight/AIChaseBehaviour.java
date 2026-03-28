@@ -2,9 +2,9 @@ package contrib.utils.components.ai.fight;
 
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
-import core.Game;
 import core.level.path.TilePath;
 import core.level.utils.LevelUtils;
+import core.utils.Time;
 import java.util.function.Consumer;
 
 /**
@@ -14,20 +14,45 @@ import java.util.function.Consumer;
  * specified range.
  *
  * <p>Otherwise, it will continue to follow the last calculated path towards the player.
+ *
+ * <p>The path refresh outside the direct chase range is time-based instead of frame-based so the
+ * behavior stays stable across different hosts and frame rates.
  */
 public class AIChaseBehaviour implements Consumer<Entity> {
+
+  /**
+   * Default interval in milliseconds after which the cached chase path is recalculated while the
+   * player is not currently inside the direct chase range.
+   */
+  private static final long DEFAULT_REPATH_INTERVAL_MS = 1000L;
+
   private final float chaseRange;
-  private final int delay = Game.frameRate();
-  private int timeSinceLastUpdate = delay;
+  private final long repathIntervalMs;
+
+  private long lastPathUpdateMs = Long.MIN_VALUE;
   private TilePath path;
 
   /**
    * Creates a new AIChaseBehaviour with the given chase range.
    *
+   * <p>The cached path outside the direct chase range is refreshed once per second.
+   *
    * @param chaseRange The distance within which the entity will attempt to chase the player.
    */
   public AIChaseBehaviour(final float chaseRange) {
+    this(chaseRange, DEFAULT_REPATH_INTERVAL_MS);
+  }
+
+  /**
+   * Creates a new AIChaseBehaviour with the given chase range and repath interval.
+   *
+   * @param chaseRange The distance within which the entity will attempt to chase the player.
+   * @param repathIntervalMs Interval in milliseconds for recalculating the cached chase path when
+   *     the player is currently outside the direct chase range.
+   */
+  public AIChaseBehaviour(final float chaseRange, final long repathIntervalMs) {
     this.chaseRange = chaseRange;
+    this.repathIntervalMs = Math.max(0L, repathIntervalMs);
   }
 
   @Override
@@ -40,17 +65,23 @@ public class AIChaseBehaviour implements Consumer<Entity> {
   }
 
   private void handlePlayerInChaseRange(final Entity entity) {
-    path = LevelUtils.calculateTilePathToPlayer(entity);
+    refreshPath(entity);
     AIUtils.followPath(entity, path);
-    timeSinceLastUpdate = delay;
   }
 
   private void handlePlayerNotInChaseRange(final Entity entity) {
-    if (timeSinceLastUpdate >= delay) {
-      path = LevelUtils.calculateTilePathToPlayer(entity);
-      timeSinceLastUpdate = 0;
-    }
-    timeSinceLastUpdate++;
+    refreshPathIfDue(entity);
     AIUtils.followPath(entity, path);
+  }
+
+  private void refreshPathIfDue(final Entity entity) {
+    if (path == null || Time.sinceMs(lastPathUpdateMs) >= repathIntervalMs) {
+      refreshPath(entity);
+    }
+  }
+
+  private void refreshPath(final Entity entity) {
+    path = LevelUtils.calculateTilePathToPlayer(entity);
+    lastPathUpdateMs = Time.nowMs();
   }
 }
