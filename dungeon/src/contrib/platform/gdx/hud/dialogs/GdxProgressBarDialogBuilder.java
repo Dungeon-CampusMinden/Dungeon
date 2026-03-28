@@ -1,10 +1,13 @@
-package contrib.hud.dialogs;
+package contrib.platform.gdx.hud.dialogs;
 
 import static contrib.hud.UIUtils.defaultSkin;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.HeadlessDialogGroup;
 import contrib.hud.elements.AttributeBarDialogData;
 import contrib.hud.elements.AttributeBarHandle;
 import contrib.hud.elements.AttributeBarHandleProvider;

@@ -1,6 +1,7 @@
 package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
+import contrib.platform.gdx.hud.dialogs.GdxProgressBarDialogBuilder;
 import core.ui.UiNodeHandle;
 import core.ui.gdx.GdxUiNodeHandle;
 
