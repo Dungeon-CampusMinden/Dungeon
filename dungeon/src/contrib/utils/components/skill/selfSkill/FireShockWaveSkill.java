@@ -33,7 +33,7 @@ public class FireShockWaveSkill extends Skill {
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
   private static final int REMOVE_AFTER = 2000;
   private static final long DELAY_BETWEEN_WAVES = 250L;
-  private static final int HIT_COOLDOWN = Game.frameRate() / 4;
+  private static final long HIT_COOLDOWN_MS = 250L;
 
   private final int radius;
   private final int damage;
@@ -82,7 +82,7 @@ public class FireShockWaveSkill extends Skill {
           entity.add(new CollideComponent());
           DrawComponent drawComp = new DrawComponent(TEXTURE);
           entity.add(drawComp);
-          entity.add(new SpikyComponent(damage, DAMAGE_TYPE, HIT_COOLDOWN));
+          entity.add(new SpikyComponent(damage, DAMAGE_TYPE, HIT_COOLDOWN_MS));
           // To allow shooting through
           entity.add(
               new ProjectileComponent(new Point(0, 0), new Point(0, 0), Vector2.ZERO, e -> {}));

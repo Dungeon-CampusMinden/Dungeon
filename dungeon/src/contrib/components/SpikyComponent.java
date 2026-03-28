@@ -1,6 +1,5 @@
 package contrib.components;
 
-import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Component;
 
@@ -13,26 +12,16 @@ import core.Component;
  * <p>This component stores information about the {@link DamageType}, the damage amount, so you can
  * create a new {@link contrib.utils.components.health.Damage} object.
  *
- * <p>This component also stores a cooldown (in frames) so you can prevent continuous damage. The
- * cooldown will be reduced by the {@link contrib.systems.SpikeSystem}.
- *
- * <p>To apply damage on collision, first create an entity (like a monster) with a {@link
- * CollideComponent} and {@link SpikyComponent}. Also create an entity (like the player) that has a
- * {@link CollideComponent} and {@link HealthComponent}. Now implement the damage calculation. In
- * the player's collision method, check whether the other entity (the monster) implements the {@link
- * SpikyComponent} and whether the cooldown has expired ({@link #isActive()}). If so, use {@link
- * HealthComponent#receiveHit(Damage)} to deal damage to the player. Remember to activate the
- * cooldown of this component using {@link #activateCoolDown()}.
- *
- * <p>Use {@link #damageAmount} and {@link #damageType} to get the damage information.
+ * <p>The cooldown is tracked in seconds so the behavior stays stable across different hosts and
+ * frame rates.
  *
  * @see contrib.entities.EntityFactory
  */
 public final class SpikyComponent implements Component {
   private final int damageAmount;
   private final DamageType damageType;
-  private final int coolDown;
-  private int currentCoolDown;
+  private final float coolDownSeconds;
+  private float currentCoolDownSeconds;
   private boolean active = true;
 
   /**
@@ -40,13 +29,13 @@ public final class SpikyComponent implements Component {
    *
    * @param damageAmount The amount of damage that should be caused on collision.
    * @param damageType The type of damage to cause.
-   * @param coolDown How many frames to wait before reapplying damage to an entity.
+   * @param coolDownMs How long to wait before reapplying damage to an entity.
    */
-  public SpikyComponent(int damageAmount, final DamageType damageType, int coolDown) {
+  public SpikyComponent(int damageAmount, final DamageType damageType, long coolDownMs) {
     this.damageAmount = damageAmount;
     this.damageType = damageType;
-    this.coolDown = coolDown;
-    this.currentCoolDown = coolDown;
+    this.coolDownSeconds = Math.max(0L, coolDownMs) / 1000f;
+    this.currentCoolDownSeconds = coolDownSeconds;
   }
 
   /**
@@ -68,22 +57,29 @@ public final class SpikyComponent implements Component {
   }
 
   /**
-   * Is the cool down 0?
+   * Is the cool down expired?
    *
-   * @return true if the cool down is 0, false if not.
+   * @return true if the cool down is expired, false if not.
    */
   public boolean isActive() {
-    return this.active() && this.currentCoolDown == 0;
+    return this.active() && this.currentCoolDownSeconds <= 0f;
   }
 
   /** Set the current cool down to the cool down configured in the constructor. */
   public void activateCoolDown() {
-    currentCoolDown = coolDown;
+    currentCoolDownSeconds = coolDownSeconds;
   }
 
-  /** Reduce the current cool down by one. */
-  public void reduceCoolDown() {
-    currentCoolDown = Math.max(0, currentCoolDown - 1);
+  /**
+   * Reduce the current cool down by the given elapsed time.
+   *
+   * @param deltaSeconds elapsed time in seconds since the last update
+   */
+  public void reduceCoolDown(float deltaSeconds) {
+    if (deltaSeconds <= 0f) {
+      return;
+    }
+    currentCoolDownSeconds = Math.max(0f, currentCoolDownSeconds - deltaSeconds);
   }
 
   /**
