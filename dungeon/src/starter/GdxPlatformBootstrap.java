@@ -1,6 +1,6 @@
 package starter;
 
-import contrib.hud.dialogs.GdxDialogFactoryBootstrap;
+import contrib.platform.gdx.hud.dialogs.GdxDialogFactoryBootstrap;
 import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
 import core.System;
