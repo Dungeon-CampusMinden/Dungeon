@@ -1,6 +1,5 @@
 package starter;
 
-import core.platform.gdx.systems.Debugger;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
@@ -31,7 +30,7 @@ public final class MultiplayerClient {
     Game.windowTitle("Dev Client - " + PreRunConfiguration.username());
     Game.userOnSetup(
         () -> {
-          Game.add(new Debugger());
+          GdxPlatformBootstrap.installDebugger();
           System.out.println("DevClient started");
         });
 

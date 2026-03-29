@@ -10,6 +10,7 @@ import core.platform.awt.AwtClipboardAdapter;
 import core.platform.gdx.*;
 import core.platform.gdx.input.GdxCursorAdapter;
 import core.platform.gdx.systems.DebugDrawSystem;
+import core.platform.gdx.systems.Debugger;
 import core.platform.gdx.systems.GdxCameraSystem;
 import java.util.function.Supplier;
 
@@ -34,6 +35,11 @@ public final class GdxPlatformBootstrap {
   public static void installHudSystems() {
     addIfAbsent(HudSystem.class, HudSystem::new);
     addIfAbsent(AttributeBarSystem.class, AttributeBarSystem::new);
+  }
+
+  /** Installs the libGDX debugger if it is not already present. */
+  public static void installDebugger() {
+    addIfAbsent(Debugger.class, Debugger::new);
   }
 
   /**
