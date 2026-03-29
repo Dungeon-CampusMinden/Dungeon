@@ -19,17 +19,11 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.debug.DebugGameplayActions;
 import core.level.Tile;
-import core.level.elements.tile.DoorTile;
-import core.level.elements.tile.ExitTile;
-import core.level.utils.Coordinate;
-import core.level.utils.LevelElement;
-import core.platform.Platform;
-import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.InputManager;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
 
@@ -55,62 +49,28 @@ public class Debugger extends System {
     super(AuthoritativeSide.CLIENT);
   }
 
-  /**
-   * Zooms the camera in or out by the given amount.
-   *
-   * @param amount the length of the zoom change
-   */
   public static void ZOOM_CAMERA(float amount) {
-    LOGGER.debug("Change Camera Zoom {}", amount);
-
-    if (!Platform.camera().supportsZoom()) {
-      LOGGER.debug("Camera zoom is not supported by the active backend.");
-      return;
-    }
-
-    float newZoom = Math.max(0.1f, Platform.camera().zoom() + amount);
-    Platform.camera().zoom(newZoom);
-
-    LOGGER.debug("New Camera Zoom {}", Platform.camera().zoom());
+    DebugGameplayActions.zoomCamera(amount);
   }
 
   /** Teleports the Player to the current position of the cursor. */
   public static void TELEPORT_TO_CURSOR() {
-    LOGGER.info("TELEPORT TO CURSOR");
-    TELEPORT(SkillTools.cursorPositionAsPoint());
+    DebugGameplayActions.teleportToCursor();
   }
 
   /** Teleports the Player to the end of the level, on a neighboring accessible tile if possible. */
   public static void TELEPORT_TO_END() {
-    LOGGER.info("TELEPORT TO END");
-
-    Game.endTiles().stream()
-        .findFirst()
-        .ifPresent(
-            end -> {
-              Coordinate endTile = end.coordinate();
-              Coordinate[] neighborTiles = {
-                endTile.translate(Direction.UP),
-                endTile.translate(Direction.DOWN),
-                endTile.translate(Direction.LEFT),
-                endTile.translate(Direction.RIGHT),
-              };
-              for (Coordinate neighborTile : neighborTiles) {
-                Game.tileAt(neighborTile).ifPresent(Debugger::TELEPORT);
-              }
-            });
+    DebugGameplayActions.teleportToEndNeighbor();
   }
 
   /** Will teleport the Player on the EndTile so the next level gets loaded. */
   public static void LOAD_NEXT_LEVEL() {
-    LOGGER.info("TELEPORT ON END");
-    Game.endTiles().stream().findFirst().ifPresent(Debugger::TELEPORT);
+    DebugGameplayActions.loadNextLevel();
   }
 
   /** Teleports the player to the start of the level. */
   public static void TELEPORT_TO_START() {
-    LOGGER.info("TELEPORT TO START");
-    Game.startTile().ifPresent(Debugger::TELEPORT);
+    DebugGameplayActions.teleportToStart();
   }
 
   /**
@@ -119,7 +79,7 @@ public class Debugger extends System {
    * @param targetLocation the tile to teleport to
    */
   public static void TELEPORT(Tile targetLocation) {
-    TELEPORT(targetLocation.coordinate().toPoint());
+    DebugGameplayActions.teleport(targetLocation);
   }
 
   /**
@@ -128,26 +88,7 @@ public class Debugger extends System {
    * @param targetLocation the location to teleport to
    */
   public static void TELEPORT(Point targetLocation) {
-    Game.player()
-        .ifPresent(
-            player -> {
-              PositionComponent pc =
-                  player
-                      .fetch(PositionComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(player, PositionComponent.class));
-
-              // Attempt to teleport to targetLocation
-              LOGGER.info("Attempting to teleport to {}", targetLocation);
-              Tile t = Game.tileAt(targetLocation).orElse(null);
-              if (t == null || !t.isAccessible()) {
-                LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
-                return;
-              }
-
-              pc.position(targetLocation);
-              LOGGER.info("Teleport successful");
-            });
+    DebugGameplayActions.teleport(targetLocation);
   }
 
   /** Spawns a monster at the cursor's position. */
@@ -237,8 +178,7 @@ public class Debugger extends System {
   }
 
   private static void OPEN_DOORS() {
-    Game.endTiles().forEach(ExitTile::open);
-    Game.allTiles(LevelElement.DOOR).forEach(door -> ((DoorTile) door).open());
+    DebugGameplayActions.openDoors();
   }
 
   @Override
