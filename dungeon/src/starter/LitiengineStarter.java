@@ -6,9 +6,6 @@ import core.configuration.KeyboardConfig;
 import core.game.GameLoop;
 import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
-import core.platform.Platform;
-import core.platform.litiengine.LitiengineLoopHost;
-import core.platform.litiengine.systems.LitiengineDebugControlsSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -41,11 +38,11 @@ public final class LitiengineStarter {
     Game.userOnSetup(
       () -> {
         Game.add(EntityFactory.newHero());
-        Game.add(new LitiengineDebugControlsSystem());
+        LitienginePlatformBootstrap.installDebugger();
       });
 
     // Install the concrete loop host explicitly instead of bypassing GameLoop.
-    Platform.loopHost(new LitiengineLoopHost());
+    LitienginePlatformBootstrap.init();
 
     // Initialize network/logging etc.
     Game.initialize();
