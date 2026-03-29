@@ -40,9 +40,15 @@ import core.utils.logging.DungeonLogger;
  */
 public class Debugger extends System {
 
+  private enum FrameAdvanceState {
+    IDLE,
+    SKIP_CURRENT_EXECUTION,
+    PAUSE_AFTER_NEXT_EXECUTION
+  }
+
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Debugger.class);
   private static Entity pauseMenu;
-  private static int advanceTimer = 0;
+  private static FrameAdvanceState frameAdvanceState = FrameAdvanceState.IDLE;
 
   /** Creates a new Debugger system. */
   public Debugger() {
@@ -136,6 +142,7 @@ public class Debugger extends System {
 
   /** Pauses the game. */
   public static void PAUSE_GAME() {
+    frameAdvanceState = FrameAdvanceState.IDLE;
     if (isPaused()) {
       unpause();
     } else {
@@ -162,17 +169,24 @@ public class Debugger extends System {
   }
 
   private static void ADVANCE_FRAME() {
-    if (!isPaused()) return;
+    if (!isPaused()) {
+      return;
+    }
+
     unpause();
-    advanceTimer = 2; // Set to 2 to account for the current frame
+    frameAdvanceState = FrameAdvanceState.SKIP_CURRENT_EXECUTION;
     LOGGER.info("Advanced one frame");
   }
 
   private static void checkFrameAdvance() {
-    if (advanceTimer > 0) {
-      advanceTimer--;
-      if (advanceTimer == 0) {
+    switch (frameAdvanceState) {
+      case IDLE -> {
+        // nothing to do
+      }
+      case SKIP_CURRENT_EXECUTION -> frameAdvanceState = FrameAdvanceState.PAUSE_AFTER_NEXT_EXECUTION;
+      case PAUSE_AFTER_NEXT_EXECUTION -> {
         pause();
+        frameAdvanceState = FrameAdvanceState.IDLE;
       }
     }
   }
