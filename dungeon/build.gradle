@@ -105,10 +105,12 @@ tasks.register('checkNoEngineImports') {
     doLast {
         def enforcePrefixes = [
             "core/",
+            "contrib/components/",
+            "contrib/configuration/",
             "contrib/entities/",
-            "contrib/utils/components/skill/",
-            "contrib/systems/EventScheduler.java",
-            "contrib/systems/LevelTickSystem.java"
+            "contrib/systems/",
+            "contrib/utils/components/ai/",
+            "contrib/utils/components/skill/"
         ]
 
         def allowPrefixes = [
@@ -145,8 +147,10 @@ tasks.register('checkNoEngineImports') {
         }
 
         if (!forbidden.isEmpty()) {
-            throw new GradleException("Forbidden engine imports found outside backend packages:\n  - " +
-                forbidden.join("\n  - "))
+            throw new GradleException(
+                "Forbidden engine imports found outside backend packages:\n  - "
+                    + forbidden.sort().join("\n  - ")
+            )
         }
     }
 }
