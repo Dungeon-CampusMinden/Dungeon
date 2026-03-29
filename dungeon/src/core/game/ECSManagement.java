@@ -544,7 +544,14 @@ public final class ECSManagement {
 
       system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
 
-      if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
+      boolean dueByTime =
+        system.usesTimeBasedScheduling() && system.deltaTime() >= system.executeEverySeconds();
+
+      boolean dueByFrames =
+        !system.usesTimeBasedScheduling()
+          && system.lastExecuteInFrames() >= system.executeEveryXFrames();
+
+      if (system.isRunning() && (dueByTime || dueByFrames)) {
         system.execute();
         system.lastExecuteInFrames(0);
         system.deltaTime(0f);

@@ -40,6 +40,7 @@ public abstract class System {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(System.class);
   private final Set<Class<? extends Component>> filterRules;
   private final int executeEveryXFrames;
+  private final float executeEverySeconds;
   private final AuthoritativeSide authoritativeSide;
   protected boolean run;
 
@@ -66,27 +67,52 @@ public abstract class System {
   private int lastExecuteInFrames = 0;
   private float deltaTime = 0f;
 
-  /**
-   * Create a new system.
-   *
-   * <p>A System needs to be registered with the Game via {@link Game#add(System)}.
-   *
-   * @param authSide The authoritative side the system should run on.
-   * @param executeEveryXFrames how often the system should be executed 1 means every frame
-   * @param filterRules Needed Component-Classes. Entities need the components to be processed by
-   *     this system.
-   */
   @SafeVarargs
   public System(
-      AuthoritativeSide authSide,
-      int executeEveryXFrames,
-      Class<? extends Component>... filterRules) {
+    AuthoritativeSide authSide,
+    int executeEveryXFrames,
+    float executeEverySeconds,
+    Class<? extends Component>... filterRules) {
+    if (executeEveryXFrames <= 0) {
+      throw new IllegalArgumentException("executeEveryXFrames must be > 0");
+    }
+    if (!(executeEverySeconds >= 0f)) {
+      throw new IllegalArgumentException("executeEverySeconds must be >= 0");
+    }
+
     this.executeEveryXFrames = executeEveryXFrames;
-    if (filterRules != null) this.filterRules = Set.of(filterRules);
-    else this.filterRules = new HashSet<>();
+    this.executeEverySeconds = executeEverySeconds;
+
+    if (filterRules != null) {
+      this.filterRules = Set.of(filterRules);
+    } else {
+      this.filterRules = new HashSet<>();
+    }
+
     run = true;
     this.authoritativeSide = authSide;
     LOGGER.debug(String.format("A new %s was created", getClass().getName()));
+  }
+
+  @SafeVarargs
+  public System(
+    AuthoritativeSide authSide,
+    int executeEveryXFrames,
+    Class<? extends Component>... filterRules) {
+    this(authSide, executeEveryXFrames, 0f, filterRules);
+  }
+
+  @SafeVarargs
+  public System(
+    AuthoritativeSide authSide,
+    float executeEverySeconds,
+    Class<? extends Component>... filterRules) {
+    this(authSide, DEFAULT_EVERY_FRAME_EXECUTE, executeEverySeconds, filterRules);
+  }
+
+  @SafeVarargs
+  public System(float executeEverySeconds, Class<? extends Component>... filterRules) {
+    this(AuthoritativeSide.SERVER, executeEverySeconds, filterRules);
   }
 
   /**
@@ -257,6 +283,21 @@ public abstract class System {
    */
   public int executeEveryXFrames() {
     return executeEveryXFrames;
+  }
+
+  /**
+   * @return the time interval in seconds between executes; values {@code <= 0} mean that frame-based
+   *     scheduling is used instead
+   */
+  public float executeEverySeconds() {
+    return executeEverySeconds;
+  }
+
+  /**
+   * @return true if this system should be scheduled by elapsed time instead of frame count
+   */
+  public boolean usesTimeBasedScheduling() {
+    return executeEverySeconds > 0f;
   }
 
   /**
