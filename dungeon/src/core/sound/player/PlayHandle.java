@@ -1,7 +1,5 @@
 package core.sound.player;
 
-import core.platform.gdx.sound.GdxSoundPlayer;
-
 /**
  * Abstract base class for controlling a playing sound instance.
  *
@@ -13,7 +11,6 @@ import core.platform.gdx.sound.GdxSoundPlayer;
  * playback parameters or register completion callbacks.
  *
  * @see ISoundPlayer#playWithInstance(long, String, float, boolean, float, float, Runnable)
- * @see GdxSoundPlayer
  */
 public abstract class PlayHandle {
 

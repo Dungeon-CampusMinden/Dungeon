@@ -3,7 +3,6 @@ package core.components;
 import core.Component;
 import core.level.Tile;
 import core.level.utils.Coordinate;
-import core.platform.gdx.render.DrawSystem;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -13,10 +12,10 @@ import java.io.Serializable;
 /**
  * Store the position of the associated entity in the level.
  *
- * <p>Various systems access the position of an entity through this component, e.g., the {@link
- * DrawSystem} uses the position to draw an entity in the right place, and the {@link
+ * <p>Various systems access the position of an entity through this component. For example, {@link
  * core.systems.VelocitySystem} updates the position and direction of view values based on the
- * velocity and the previous position of an entity.
+ * velocity and the previous position of an entity, while rendering systems use it to draw an
+ * entity in the right place.
  *
  * <p>If the position is the {@link #ILLEGAL_POSITION}, the {@link core.systems.PositionSystem} will
  * change the position to a random position of an accessible tile in the current level.

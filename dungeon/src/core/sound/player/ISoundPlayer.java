@@ -1,7 +1,6 @@
 package core.sound.player;
 
 import core.Entity;
-import core.platform.gdx.sound.GdxSoundPlayer;
 import core.sound.AudioApi;
 import core.sound.SoundSpec;
 import core.utils.Point;
@@ -14,9 +13,9 @@ import java.util.Optional;
  * unique instance IDs for updates and lifecycle management. Use {@link AudioApi} for high-level
  * sound operations.
  *
- * <p><b>Implementations:</b> {@link GdxSoundPlayer} for clients, {@link NoSoundPlayer} for servers.
+ * <p><b>Implementations:</b> backend-specific sound players for clients and {@link NoSoundPlayer}
+ * for servers.
  *
- * @see GdxSoundPlayer
  * @see NoSoundPlayer
  * @see PlayHandle
  * @see AudioApi
@@ -238,7 +237,6 @@ public interface ISoundPlayer {
    *
    * <p>Triggers onFinished callbacks for all stopped audio.
    *
-   * @see IPlayHandle#stop()
    */
   void stopAll();
 

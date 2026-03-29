@@ -1,6 +1,5 @@
 package core.sound.player;
 
-import core.platform.gdx.sound.GdxSoundPlayer;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
 
@@ -14,7 +13,6 @@ import java.util.*;
  * <p>Useful for non-audio environments such as dedicated servers or junit tests.
  *
  * @see ISoundPlayer
- * @see GdxSoundPlayer
  */
 public class NoSoundPlayer implements ISoundPlayer {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(NoSoundPlayer.class);
