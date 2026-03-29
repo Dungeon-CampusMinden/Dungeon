@@ -44,7 +44,6 @@ dependencies {
     api supportDependencies.gdx_platform
     api supportDependencies.gdx_backend_lwjgl3
     api supportDependencies.gdx_lwjgl3_glfw_awt_macos
-    api supportDependencies.gdx_ai
     api supportDependencies.gdx_freetype
     api supportDependencies.gdx_freetype_platform
     api supportDependencies.gdx_backend_headless

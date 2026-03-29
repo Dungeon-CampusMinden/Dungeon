@@ -7,11 +7,17 @@ import core.System;
 import core.game.ECSManagement;
 import core.platform.Platform;
 import core.platform.awt.AwtClipboardAdapter;
-import core.platform.gdx.*;
+import core.platform.gdx.GdxCameraAdapter;
+import core.platform.gdx.GdxLoopHost;
+import core.platform.gdx.GdxRenderAdapter;
+import core.platform.gdx.GdxResourcesAdapter;
+import core.platform.gdx.GdxRuntimeAdapter;
+import core.platform.gdx.GdxWindowAdapter;
 import core.platform.gdx.input.GdxCursorAdapter;
 import core.platform.gdx.systems.DebugDrawSystem;
 import core.platform.gdx.systems.Debugger;
 import core.platform.gdx.systems.GdxCameraSystem;
+import core.platform.grid.GridPathfindingAdapter;
 import java.util.function.Supplier;
 
 /** Explicitly wires the libGDX backend into the platform abstraction. */
@@ -23,12 +29,11 @@ public final class GdxPlatformBootstrap {
     Platform.runtime(new GdxRuntimeAdapter());
     Platform.resources(new GdxResourcesAdapter());
     Platform.render(new GdxRenderAdapter());
-    Platform.pathfinding(new GdxPathfindingAdapter());
+    Platform.pathfinding(new GridPathfindingAdapter());
     Platform.cursor(new GdxCursorAdapter());
     Platform.camera(new GdxCameraAdapter());
     Platform.clipboard(new AwtClipboardAdapter());
     Platform.loopHost(new GdxLoopHost());
-
     GdxDialogFactoryBootstrap.init();
   }
 
