@@ -82,7 +82,7 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
 
   // Combat
   private int collideDamage = 0;
-  private int collideCooldown = Game.frameRate();
+  private long collideCooldownMs = 1000L;
   private DamageType damageType = DamageType.PHYSICAL;
 
   // Drops
@@ -285,14 +285,23 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
   }
 
   /**
-   * Set cooldown (in frames) between collisions that deal damage.
+   * Set cooldown (in milliseconds) between collision hits.
    *
-   * @param cooldownFrames cooldown frames
+   * @param collideCooldownMs cooldown in milliseconds
    * @return this builder
    */
-  public T collideCooldown(int cooldownFrames) {
-    this.collideCooldown = cooldownFrames;
+  public T collideCooldownMs(long collideCooldownMs) {
+    this.collideCooldownMs = Math.max(0L, collideCooldownMs);
     return self();
+  }
+
+  /**
+   * Get collision damage cooldown in milliseconds.
+   *
+   * @return collide cooldown in milliseconds
+   */
+  public long collideCooldownMs() {
+    return collideCooldownMs;
   }
 
   /**
@@ -535,15 +544,6 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
   }
 
   /**
-   * Get collide cooldown in frames.
-   *
-   * @return collide cooldown
-   */
-  public int collideCooldown() {
-    return collideCooldown;
-  }
-
-  /**
    * Get damage type.
    *
    * @return damage type
@@ -593,7 +593,7 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
     monster.add(new VelocityComponent(speed(), mass(), onWallHit(), canEnterOpenPits()));
     monster.add(new CollideComponent());
     if (collideDamage() > 0)
-      monster.add(new SpikyComponent(collideDamage(), damageType(), collideCooldown()));
+      monster.add(new SpikyComponent(collideDamage(), damageType(), collideCooldownMs()));
     monster.add(
         new AIComponent(
             fightAISupplier().get(), idleAISupplier().get(), transitionAISupplier().get()));

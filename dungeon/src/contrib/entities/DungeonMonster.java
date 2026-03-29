@@ -1,7 +1,6 @@
 package contrib.entities;
 
 import contrib.utils.components.health.DamageType;
-import core.Game;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -32,7 +31,7 @@ public enum DungeonMonster {
               .idleAI(AIFactory::randomIdleAI)
               .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
               .collideDamage(5)
-              .collideCooldown(2 * Game.frameRate())
+              .collideCooldownMs(2000L)
               .damageType(DamageType.PHYSICAL)),
   /**
    * A slow-moving undead. Relatively low health but moderate mass. Cannot enter open pits. Emits a
@@ -59,7 +58,7 @@ public enum DungeonMonster {
               .idleAI(AIFactory::randomIdleAI)
               .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
               .collideDamage(4)
-              .collideCooldown(2 * Game.frameRate())
+              .collideCooldownMs(2000L)
               .damageType(DamageType.PHYSICAL)),
   /**
    * A large, powerful monster. Slow but deals high collision damage. Cannot enter open pits. Emits
@@ -86,7 +85,7 @@ public enum DungeonMonster {
               .idleAI(AIFactory::randomIdleAI)
               .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
               .collideDamage(8)
-              .collideCooldown(2 * Game.frameRate())
+              .collideCooldownMs(2000L)
               .damageType(DamageType.PHYSICAL)),
   /**
    * A small, agile goblin. Fast and light, deals low collision damage. Cannot enter open pits. Uses
@@ -113,7 +112,7 @@ public enum DungeonMonster {
               .idleAI(AIFactory::randomIdleAI)
               .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
               .collideDamage(3)
-              .collideCooldown(2 * Game.frameRate())
+              .collideCooldownMs(2000L)
               .damageType(DamageType.PHYSICAL)),
   /**
    * An undead ice-themed monster. Moderate speed and health. Cannot enter open pits. Emits a
@@ -140,7 +139,7 @@ public enum DungeonMonster {
               .idleAI(AIFactory::randomIdleAI)
               .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
               .collideDamage(4)
-              .collideCooldown(2 * Game.frameRate())
+              .collideCooldownMs(2000L)
               .damageType(DamageType.PHYSICAL)),
   /**
    * A magical orc shaman. Moderate speed and health, cannot enter open pits. Uses basic death
@@ -167,7 +166,7 @@ public enum DungeonMonster {
               .idleAI(AIFactory::randomIdleAI)
               .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
               .collideDamage(4)
-              .collideCooldown(2 * Game.frameRate())
+              .collideCooldownMs(2000L)
               .damageType(DamageType.PHYSICAL));
 
   /** Random instance for monsters. */
