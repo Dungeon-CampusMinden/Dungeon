@@ -2,12 +2,12 @@ package contrib.utils.components.ai.idle;
 
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
-import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.path.TilePath;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
+import core.utils.Time;
 import core.utils.components.MissingComponentException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,60 +23,57 @@ import java.util.function.Consumer;
 public final class PatrolWalk implements Consumer<Entity> {
 
   private static final Random RANDOM = new Random();
+
   private final List<Tile> checkpoints = new ArrayList<>();
   private final int numberCheckpoints;
-  private final int pauseFrames;
+  private final long maxPauseTimeMs;
   private final float radius;
   private final MODE mode;
+
   private TilePath currentPath;
   private boolean initialized = false;
   private boolean forward = true;
-  private int frameCounter = -1;
   private int currentCheckpoint = 0;
+  private long waitStartedAtMs = Long.MIN_VALUE;
+  private long currentPauseDurationMs = 0L;
 
   /**
-   * WTF? (erster Satz kurze Beschreibung) .
+   * Walks a random pattern in a radius around the entity.
    *
-   * <p>Walks a random pattern in a radius around the entity. The checkpoints will be chosen
-   * randomly at first idle. After being initialized, the checkpoints won't change anymore, only the
-   * order may be.
+   * <p>The checkpoints will be chosen randomly at first idle. After being initialized, the
+   * checkpoints won't change anymore, only the order may be.
    *
-   * @param radius Max distance from the entity to walk.
-   * @param numberCheckpoints Number of checkpoints to walk to.
-   * @param pauseTime Max time in milliseconds to wait on a checkpoint. The actual time is a random
-   *     number between 0 and this value.
-   * @param mode WTF? .
+   * @param radius max distance from the entity to walk
+   * @param numberCheckpoints number of checkpoints to walk to
+   * @param pauseTime max time in milliseconds to wait on a checkpoint. The actual pause duration is
+   *     chosen randomly between {@code 0} and this value.
+   * @param mode patrol mode
    */
   public PatrolWalk(float radius, int numberCheckpoints, int pauseTime, final MODE mode) {
     this.radius = radius;
     this.numberCheckpoints = numberCheckpoints;
-    this.pauseFrames = pauseTime / (1000 / Game.frameRate());
+    this.maxPauseTimeMs = Math.max(0L, pauseTime);
     this.mode = mode;
   }
 
   private void init(final Entity entity) {
     initialized = true;
+
     PositionComponent position =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+      entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+
     Point center = position.position();
-    Tile tile = Game.tileAt(position.position()).orElse(null);
+    Tile tile = core.Game.tileAt(position.position()).orElse(null);
 
     if (tile == null) {
       return;
     }
 
     List<Tile> accessibleTiles = LevelUtils.accessibleTilesInRange(center, radius);
-
-    if (accessibleTiles.isEmpty()) {
-      return;
-    }
-
     int maxTries = 0;
-    while (this.checkpoints.size() < numberCheckpoints
-        || accessibleTiles.size() == this.checkpoints.size()
-        || maxTries >= 1000) {
+    while (this.checkpoints.size() < this.numberCheckpoints && maxTries < 1000) {
       Tile t = accessibleTiles.get(RANDOM.nextInt(accessibleTiles.size()));
       if (!this.checkpoints.contains(t)) {
         this.checkpoints.add(t);
@@ -87,53 +84,72 @@ public final class PatrolWalk implements Consumer<Entity> {
 
   @Override
   public void accept(final Entity entity) {
-    if (!initialized) this.init(entity);
+    if (!initialized) {
+      this.init(entity);
+    }
+
     if (this.checkpoints.isEmpty()) {
       initialized = false;
       return;
     }
+
     PositionComponent position =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+      entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
     if (currentPath != null && !AIUtils.pathFinished(entity, currentPath)) {
       if (AIUtils.pathLeft(entity, currentPath)) {
         currentPath =
-            LevelUtils.calculateTilePath(
-                position.position(), this.checkpoints.get(currentCheckpoint).position());
+          LevelUtils.calculateTilePath(
+            position.position(), this.checkpoints.get(currentCheckpoint).position());
       }
       AIUtils.followPath(entity, currentPath);
       return;
     }
 
     if (currentPath != null && AIUtils.pathFinished(entity, currentPath)) {
-      frameCounter = 0;
       currentPath = null;
+      beginPause();
       return;
     }
 
-    if (frameCounter++ < pauseFrames && frameCounter != -1) {
-      return;
+    if (isWaiting()) {
+      if (!pauseFinished()) {
+        return;
+      }
+      endPause();
     }
 
-    // HERE: (Path to checkpoint finished + pause time over) OR currentPath = null
-    this.frameCounter = -1;
+    selectNextCheckpoint();
+    currentPath =
+      LevelUtils.calculateTilePath(
+        position.position(), this.checkpoints.get(currentCheckpoint).position());
+  }
 
+  private void beginPause() {
+    waitStartedAtMs = Time.nowMs();
+    currentPauseDurationMs =
+      maxPauseTimeMs <= 0L ? 0L : RANDOM.nextLong(maxPauseTimeMs + 1L);
+  }
+
+  private boolean isWaiting() {
+    return waitStartedAtMs != Long.MIN_VALUE;
+  }
+
+  private boolean pauseFinished() {
+    return Time.sinceMs(waitStartedAtMs) >= currentPauseDurationMs;
+  }
+
+  private void endPause() {
+    waitStartedAtMs = Long.MIN_VALUE;
+    currentPauseDurationMs = 0L;
+  }
+
+  private void selectNextCheckpoint() {
     switch (mode) {
-      case RANDOM -> {
-        Random rnd = new Random();
-        currentCheckpoint = rnd.nextInt(checkpoints.size());
-        currentPath =
-            LevelUtils.calculateTilePath(
-                position.position(), this.checkpoints.get(currentCheckpoint).position());
-      }
-      case LOOP -> {
-        currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
-        currentPath =
-            LevelUtils.calculateTilePath(
-                position.position(), this.checkpoints.get(currentCheckpoint).position());
-      }
+      case RANDOM -> currentCheckpoint = RANDOM.nextInt(checkpoints.size());
+      case LOOP -> currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
       case BACK_AND_FORTH -> {
         if (forward) {
           currentCheckpoint += 1;
@@ -148,9 +164,6 @@ public final class PatrolWalk implements Consumer<Entity> {
             currentCheckpoint = 1;
           }
         }
-        currentPath =
-            LevelUtils.calculateTilePath(
-                position.position(), this.checkpoints.get(currentCheckpoint).position());
       }
       default -> {}
     }
