@@ -22,7 +22,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.elements.tile.DoorTile;
-import core.platform.gdx.render.DrawSystem;
+import core.platform.Platform;
 import core.utils.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
@@ -738,9 +738,7 @@ public final class MiscFactory {
     stBreaking.setOnEnter(
         (s) -> {
           cc.isSolid(false);
-          Game.system(
-              DrawSystem.class,
-              ds -> ds.changeEntityDepth(destroyableObj, DepthLayer.BackgroundDeco.depth()));
+          Platform.render().changeEntityDepth(destroyableObj, DepthLayer.BackgroundDeco.depth());
         });
 
     // Wrapper-InteractionComponent

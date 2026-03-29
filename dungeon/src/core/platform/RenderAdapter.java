@@ -1,5 +1,6 @@
 package core.platform;
 
+import core.Entity;
 import core.System;
 import core.ui.StageHandle;
 import core.utils.Point;
@@ -38,4 +39,7 @@ public interface RenderAdapter {
 
   /** Straight alpha blending on a backend-specific batch object (or null). */
   default void setStraightAlphaBlending(Object batch) {}
+
+  /** Updates the draw depth of an entity if the active backend supports runtime depth changes. */
+  default void changeEntityDepth(Entity entity, int depth) {}
 }

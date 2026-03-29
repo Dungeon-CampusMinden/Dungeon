@@ -2,6 +2,7 @@ package core.platform.gdx;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import core.Entity;
 import core.platform.Platform;
 import core.platform.RenderAdapter;
 import core.platform.gdx.render.DrawSystem;
@@ -63,5 +64,11 @@ public final class GdxRenderAdapter implements RenderAdapter {
   public void setStraightAlphaBlending(Object batch) {
     if (!Platform.runtime().supportsGdxRendering()) return;
     GdxBlendUtils.setStraightAlphaBlending(batch);
+  }
+
+  @Override
+  public void changeEntityDepth(Entity entity, int depth) {
+    if (!Platform.runtime().supportsGdxRendering() || entity == null) return;
+    DrawSystem.getInstance().changeEntityDepth(entity, depth);
   }
 }
