@@ -65,7 +65,9 @@ public class NettyNetworkHandler implements INetworkHandler {
   public CompletableFuture<Boolean> send(short clientId, NetworkMessage message, boolean reliable) {
     if (serverMode) {
       return server.sendMessage(clientId, message, reliable);
-    } else return client.sendReliable(message);
+    } else {
+      return client.send(message, reliable);
+    }
   }
 
   @Override
