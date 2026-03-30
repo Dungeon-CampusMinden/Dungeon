@@ -134,6 +134,23 @@ public final class Game {
   }
 
   /**
+   * Returns the configured target frame duration in seconds.
+   *
+   * <p>This is useful for systems that historically executed once per configured game tick but
+   * should now use the ECS time-based scheduling API instead of raw frame counters.
+   *
+   * @return configured target frame duration in seconds, or {@code 0f} if no valid frame rate is
+   *     configured
+   */
+  public static float targetFrameDurationSeconds() {
+    int fps = frameRate();
+    if (fps <= 0) {
+      return 0f;
+    }
+    return 1f / fps;
+  }
+
+  /**
    * Checks if the game-window can be resized.
    *
    * @return True if the game-window can be resized. , false otherwise.

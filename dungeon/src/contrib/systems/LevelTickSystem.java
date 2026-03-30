@@ -6,22 +6,26 @@ import core.System;
 import core.level.elements.ILevel;
 
 /**
- * The LevelTickSystem is responsible for ticking the current level. It checks if the current level
- * has changed and calls the onTick method of the current level if it implements the ITickable
- * interface.
+ * The LevelTickSystem is responsible for ticking the current level.
+ *
+ * <p>It checks if the current level has changed and calls the {@code onTick} method of the current
+ * level if it implements the {@link ITickable} interface.
+ *
+ * <p>The system now uses time-based ECS scheduling so the level tick cadence is derived from the
+ * configured target frame duration instead of implicit per-frame execution.
  *
  * @see ITickable
- * @see core.level.DungeonLevel DungeonLevel
+ * @see core.level.DungeonLevel
  */
 public class LevelTickSystem extends System {
 
-  /** Creates a new LevelTickSystem. */
-  public LevelTickSystem() {
-    super(AuthoritativeSide.SERVER);
-  }
-
   /** The current level of the game. */
   private ILevel currentLevel = null;
+
+  /** Creates a new LevelTickSystem. */
+  public LevelTickSystem() {
+    super(AuthoritativeSide.SERVER, Game.targetFrameDurationSeconds());
+  }
 
   @Override
   public void execute() {
