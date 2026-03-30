@@ -85,23 +85,22 @@ public final class ECSManagement {
   }
 
   /**
-   * Registers the core gameplay systems (movement/input) according to the given {@link SystemProfile}.
+   * Registers the core gameplay systems according to the given {@link SystemProfile}.
    *
-   * <p>Reason: These systems are currently bootstrapped by host code (e.g. GdxGameLoopHost),
-   * which prevents non-libGDX hosts from running meaningful simulation.
-   *
-   * <p>Important: This method only registers engine-core systems (no contrib HUD/debug systems),
-   * keeping core independent of contrib.
+   * <p>These are engine-core systems only. Contrib gameplay systems must still be wired explicitly
+   * by the respective host/bootstrap path.
    */
   public static synchronized void bootstrapGameplaySystems(SystemProfile profile) {
     if (profile == null) throw new IllegalArgumentException("profile must not be null");
 
-    // Backend-agnostic simulation/gameplay systems
     registerIfAbsent(PositionSystem.class, PositionSystem::new);
     registerIfAbsent(VelocitySystem.class, VelocitySystem::new);
     registerIfAbsent(FrictionSystem.class, FrictionSystem::new);
     registerIfAbsent(MoveSystem.class, MoveSystem::new);
-    registerIfAbsent(InputSystem.class, InputSystem::new);
+
+    if (profile.includeInput()) {
+      registerIfAbsent(InputSystem.class, InputSystem::new);
+    }
   }
 
   private static void registerIfAbsent(
