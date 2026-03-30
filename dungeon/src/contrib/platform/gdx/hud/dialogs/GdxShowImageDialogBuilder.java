@@ -1,7 +1,10 @@
-package contrib.hud.dialogs;
+package contrib.platform.gdx.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import contrib.components.ShowImageComponent;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.HeadlessDialogGroup;
 import contrib.hud.image.ShowImageUI;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.Game;
