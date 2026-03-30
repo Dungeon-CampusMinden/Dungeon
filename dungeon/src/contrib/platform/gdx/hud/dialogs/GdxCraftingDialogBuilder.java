@@ -1,9 +1,12 @@
-package contrib.hud.dialogs;
+package contrib.platform.gdx.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.crafting.CraftingGUI;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogCreationException;
 import contrib.hud.elements.InventoryGuiGroup;
 import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
