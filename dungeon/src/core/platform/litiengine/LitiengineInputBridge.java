@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 public final class LitiengineInputBridge {
+
   private static boolean installed = false;
 
   private LitiengineInputBridge() {}
@@ -16,41 +17,54 @@ public final class LitiengineInputBridge {
     if (installed) return;
     installed = true;
 
-    // Keyboard
-    Input.keyboard().onKeyPressed(e -> {
-      final int gdx = mapAwtKeyToGdx(e.getKeyCode());
-      if (gdx != -1) {
-        InputManager.notifyKeyDown(gdx);
-      }
-    });
+    // Keyboard pressed/released for gameplay input
+    Input.keyboard().onKeyPressed(
+      e -> {
+        final int gdx = mapAwtKeyToGdx(e.getKeyCode());
+        if (gdx != -1) {
+          InputManager.notifyKeyDown(gdx);
+        }
+      });
 
-    Input.keyboard().onKeyReleased(e -> {
-      final int gdx = mapAwtKeyToGdx(e.getKeyCode());
-      if (gdx != -1) {
-        InputManager.notifyKeyUp(gdx);
-      }
-    });
+    Input.keyboard().onKeyReleased(
+      e -> {
+        final int gdx = mapAwtKeyToGdx(e.getKeyCode());
+        if (gdx != -1) {
+          InputManager.notifyKeyUp(gdx);
+        }
+      });
+
+    // Keyboard typed for text input (dialogs, future UI widgets)
+    Input.keyboard().onKeyTyped(
+      e -> {
+        if (e.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
+          InputManager.notifyKeyTyped(e.getKeyChar());
+        }
+      });
 
     // Mouse
-    Input.mouse().onPressed(e -> {
-      final int btn = mapAwtButtonToGdx(e.getButton());
-      if (btn != -1) {
-        InputManager.notifyButtonDown(btn);
-      }
-    });
+    Input.mouse().onPressed(
+      e -> {
+        final int btn = mapAwtButtonToGdx(e.getButton());
+        if (btn != -1) {
+          InputManager.notifyButtonDown(btn);
+        }
+      });
 
-    Input.mouse().onReleased(e -> {
-      final int btn = mapAwtButtonToGdx(e.getButton());
-      if (btn != -1) {
-        InputManager.notifyButtonUp(btn);
-      }
-    });
+    Input.mouse().onReleased(
+      e -> {
+        final int btn = mapAwtButtonToGdx(e.getButton());
+        if (btn != -1) {
+          InputManager.notifyButtonUp(btn);
+        }
+      });
   }
 
-  /** Maps AWT key codes to libGDX key codes. Only maps keys that are relevant to our game input handling.
+  /**
+   * Maps AWT key codes to engine-agnostic key codes.
    *
-   * @param awtKey the AWT key code from the KeyEvent
-   * @return the corresponding libGDX key code, or -1 if the key is not mapped/supported
+   * <p>This mapping intentionally only covers gameplay-relevant pressed/released keys. Typed text
+   * input is handled separately via {@code onKeyTyped}.
    */
   private static int mapAwtKeyToGdx(int awtKey) {
     return switch (awtKey) {

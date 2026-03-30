@@ -39,6 +39,7 @@ public final class GdxInputBridge {
 
         @Override
         public boolean keyTyped(char character) {
+          InputManager.notifyKeyTyped(character);
           return delegate.keyTyped(character);
         }
 

@@ -9,9 +9,12 @@ import java.util.Set;
  * Engine-agnostic input state tracker.
  *
  * <p>Backends feed input events via {@link #notifyKeyDown(int)}, {@link #notifyKeyUp(int)},
- * {@link #notifyButtonDown(int)}, {@link #notifyButtonUp(int)}.
+ * {@link #notifyButtonDown(int)}, {@link #notifyButtonUp(int)} and {@link #notifyKeyTyped(char)}.
  *
  * <p>Call {@link #update()} once per frame to clear "just pressed/released" states.
+ *
+ * <p>Typed characters are buffered independently and remain available until explicitly consumed via
+ * {@link #consumeTypedCharacters()}.
  */
 public final class InputManager {
 
@@ -29,6 +32,9 @@ public final class InputManager {
   private static final Map<Integer, Long> previousButtonTapTimesMs = new HashMap<>();
   private static final Map<Integer, Long> keyDownTimesMs = new HashMap<>();
   private static final Map<Integer, Long> buttonDownTimesMs = new HashMap<>();
+
+  /** Buffer for typed characters (text input), independent of key press state tracking. */
+  private static final StringBuilder typedCharacters = new StringBuilder();
 
   private InputManager() {} // static utility class
 
@@ -98,7 +104,7 @@ public final class InputManager {
    */
   public static boolean isKeyDoubleTapped(int keycode, long maxIntervalMs) {
     return isDoubleTapped(
-        keycode, justPressedKeys, lastKeyTapTimesMs, previousKeyTapTimesMs, maxIntervalMs);
+      keycode, justPressedKeys, lastKeyTapTimesMs, previousKeyTapTimesMs, maxIntervalMs);
   }
 
   /**
@@ -153,7 +159,7 @@ public final class InputManager {
    */
   public static boolean isButtonDoubleTapped(int button, long maxIntervalMs) {
     return isDoubleTapped(
-        button, justPressedButtons, lastButtonTapTimesMs, previousButtonTapTimesMs, maxIntervalMs);
+      button, justPressedButtons, lastButtonTapTimesMs, previousButtonTapTimesMs, maxIntervalMs);
   }
 
   /**
@@ -181,10 +187,27 @@ public final class InputManager {
   }
 
   /**
+   * Returns all currently buffered typed characters and clears the buffer.
+   *
+   * <p>This is intended for text-input UIs such as FREE_INPUT dialogs.
+   *
+   * @return typed characters since the last consume call
+   */
+  public static String consumeTypedCharacters() {
+    if (typedCharacters.isEmpty()) {
+      return "";
+    }
+
+    String result = typedCharacters.toString();
+    typedCharacters.setLength(0);
+    return result;
+  }
+
+  /**
    * Clears all tracked input states.
    *
-   * <p>Useful when changing input processors or when focus is lost. This also clears tap history
-   * and hold start times.
+   * <p>Useful when changing input processors or when focus is lost. This also clears tap history,
+   * hold start times and typed text input.
    */
   public static void reset() {
     justPressedKeys.clear();
@@ -199,6 +222,7 @@ public final class InputManager {
     previousButtonTapTimesMs.clear();
     keyDownTimesMs.clear();
     buttonDownTimesMs.clear();
+    typedCharacters.setLength(0);
   }
 
   /**
@@ -213,16 +237,16 @@ public final class InputManager {
   }
 
   private static void registerPress(
-      int code,
-      Set<Integer> justPressed,
-      Set<Integer> pressed,
-      Set<Integer> justReleased,
-      Map<Integer, Long> lastTapTimesMs,
-      Map<Integer, Long> previousTapTimesMs,
-      Map<Integer, Long> downTimesMs,
-      long nowMs) {
+    int code,
+    Set<Integer> justPressed,
+    Set<Integer> pressed,
+    Set<Integer> justReleased,
+    Map<Integer, Long> lastTapTimesMs,
+    Map<Integer, Long> previousTapTimesMs,
+    Map<Integer, Long> downTimesMs,
+    long nowMs) {
     boolean isNewPress =
-        !pressed.contains(code) && (!justPressed.contains(code) || justReleased.contains(code));
+      !pressed.contains(code) && (!justPressed.contains(code) || justReleased.contains(code));
     if (isNewPress) {
       justReleased.remove(code);
       Long lastTap = lastTapTimesMs.get(code);
@@ -238,18 +262,18 @@ public final class InputManager {
   }
 
   private static void registerRelease(
-      int code, Set<Integer> pressed, Set<Integer> justReleased, Map<Integer, Long> downTimesMs) {
+    int code, Set<Integer> pressed, Set<Integer> justReleased, Map<Integer, Long> downTimesMs) {
     pressed.remove(code);
     justReleased.add(code);
     downTimesMs.remove(code);
   }
 
   private static boolean isDoubleTapped(
-      int code,
-      Set<Integer> justPressed,
-      Map<Integer, Long> lastTapTimesMs,
-      Map<Integer, Long> previousTapTimesMs,
-      long maxIntervalMs) {
+    int code,
+    Set<Integer> justPressed,
+    Map<Integer, Long> lastTapTimesMs,
+    Map<Integer, Long> previousTapTimesMs,
+    long maxIntervalMs) {
     if (!justPressed.contains(code) || maxIntervalMs < 0) {
       return false;
     }
@@ -259,10 +283,10 @@ public final class InputManager {
   }
 
   private static boolean isHeld(
-      int code,
-      long holdDurationMs,
-      Map<Integer, Long> downTimesMs,
-      java.util.function.IntPredicate isPressed) {
+    int code,
+    long holdDurationMs,
+    Map<Integer, Long> downTimesMs,
+    java.util.function.IntPredicate isPressed) {
     if (holdDurationMs <= 0) {
       return isPressed.test(code);
     }
@@ -274,7 +298,7 @@ public final class InputManager {
   }
 
   private static void updateFrame(
-      Set<Integer> justPressed, Set<Integer> pressed, Set<Integer> justReleased) {
+    Set<Integer> justPressed, Set<Integer> pressed, Set<Integer> justReleased) {
     if (!justReleased.isEmpty()) {
       justPressed.removeAll(justReleased);
     }
@@ -284,7 +308,6 @@ public final class InputManager {
   }
 
   public static void notifyKeyDown(int keycode) {
-    // Ignore repeats while the key is already down
     if (pressedKeys.contains(keycode) || justPressedKeys.contains(keycode)) return;
 
     registerPress(
@@ -299,9 +322,20 @@ public final class InputManager {
   }
 
   public static void notifyKeyUp(int keycode) {
-    // Ignore spurious releases
     if (!pressedKeys.contains(keycode) && !justPressedKeys.contains(keycode)) return;
     registerRelease(keycode, pressedKeys, justReleasedKeys, keyDownTimesMs);
+  }
+
+  /**
+   * Registers a typed character for text-input UIs.
+   *
+   * @param character the typed character
+   */
+  public static void notifyKeyTyped(char character) {
+    if (character == java.awt.event.KeyEvent.CHAR_UNDEFINED) {
+      return;
+    }
+    typedCharacters.append(character);
   }
 
   public static void notifyButtonDown(int button) {
