@@ -469,7 +469,7 @@ public final class ClientNetwork {
               @Override
               public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
                 LOGGER.warn("UDP client error", cause);
-                onUdpUnavailable("UDP unavailable, using TCP fallback", true);
+                onUdpUnavailable("UDP unavailable, using TCP fallback");
               }
             });
     try {
@@ -478,7 +478,7 @@ public final class ClientNetwork {
           .addListener(
               future -> {
                 udp = null;
-                onUdpUnavailable("UDP unavailable, using TCP fallback", true);
+                onUdpUnavailable("UDP unavailable, using TCP fallback");
               });
     } catch (Exception e) {
       LOGGER.warn("Failed to bind UDP channel for {}:{} - {}", remoteHost, port, e.getMessage());
@@ -503,7 +503,7 @@ public final class ClientNetwork {
             requestedCharacterClass.orElse(CharacterClass.WIZARD)));
     session.udpReady(false);
     LOGGER.info("UDP unavailable, using TCP fallback");
-    onUdpUnavailable("UDP unavailable, using TCP fallback", true);
+    onUdpUnavailable("UDP unavailable, using TCP fallback");
     ensureUdpMaintenanceScheduled(udpRecoveryState.nextDelayMs());
     saveLastSessionToFile(sessionId, sessionToken);
   }
@@ -644,7 +644,7 @@ public final class ClientNetwork {
 
     long now = System.currentTimeMillis();
     if (udpRecoveryState.stale(now)) {
-      onUdpUnavailable("UDP stale, reverting to TCP fallback", true);
+      onUdpUnavailable("UDP stale, reverting to TCP fallback");
     }
 
     startUdpIfNeeded();
@@ -700,8 +700,8 @@ public final class ClientNetwork {
     }
   }
 
-  private void onUdpUnavailable(String message, boolean resetBackoff) {
-    boolean changed = udpRecoveryState.enterRetryMode(resetBackoff);
+  private void onUdpUnavailable(String message) {
+    boolean changed = udpRecoveryState.enterRetryMode();
     if (session != null) {
       session.udpReady(false);
     }

@@ -59,7 +59,7 @@ public class UdpRecoveryStateTests {
     state.markRecovered(1_000L);
 
     assertTrue(state.stale(5_501L));
-    assertTrue(state.enterRetryMode(true));
+    assertTrue(state.enterRetryMode());
     assertTrue(state.retryMode());
     assertFalse(state.udpReady());
     assertEquals(UDP_RETRY_INITIAL_DELAY_MS, state.nextDelayMs());
