@@ -30,6 +30,7 @@ import core.network.MessageDispatcher;
 import core.network.client.ClientNetwork;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.*;
+import core.platform.Platform;
 import core.platform.gdx.GdxInputBridge;
 import core.platform.gdx.render.DrawSystem;
 import core.platform.gdx.sound.GdxSoundPlayer;
@@ -353,12 +354,7 @@ public final class GdxGameLoopHost extends ScreenAdapter {
 
   private void fullscreenKey() {
     if (InputManager.isKeyJustPressed(KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
-      if (!Gdx.graphics.isFullscreen()) {
-        Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-      } else {
-        Gdx.graphics.setWindowedMode(
-          PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
-      }
+      Platform.window().toggleFullscreen();
     }
   }
 
