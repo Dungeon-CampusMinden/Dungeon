@@ -1,5 +1,6 @@
 package core.game.litiengine;
 
+import core.configuration.KeyboardConfig;
 import core.game.*;
 import core.game.bootstrap.ClientStartup;
 import core.platform.CompositeResourcesAdapter;
@@ -17,7 +18,6 @@ import core.sound.player.NoSoundPlayer;
 import core.utils.InputManager;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.GameListener;
-import de.gurkenlabs.litiengine.IUpdateable;
 
 public final class LitiengineGameLoopHost {
   private LitiengineGameLoopHost() {}
@@ -99,20 +99,25 @@ public final class LitiengineGameLoopHost {
     // Drive ECS tick from LITIENGINE update loop.
     Game.loop()
       .attach(
-        new IUpdateable() {
-          @Override
-          public void update() {
-            final float deltaSeconds = Game.loop().getDeltaTime() / 1000.0f;
+        () -> {
+          final float deltaSeconds = Game.loop().getDeltaTime() / 1000.0f;
 
-            core.Game.soundPlayer().update(deltaSeconds);
-            loopCore.beforeRender(deltaSeconds);
-            loopCore.tick(deltaSeconds, false);
+          core.Game.soundPlayer().update(deltaSeconds);
+          loopCore.beforeRender(deltaSeconds);
+          loopCore.tick(deltaSeconds, false);
 
-            // Must be called once per frame to clear justPressed/justReleased.
-            InputManager.update();
-          }
+          fullscreenKey();
+
+          // Must be called once per frame to clear justPressed/justReleased.
+          InputManager.update();
         });
 
     Game.start();
+  }
+
+  private static void fullscreenKey() {
+    if (InputManager.isKeyJustPressed(KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
+      Platform.window().toggleFullscreen();
+    }
   }
 }
