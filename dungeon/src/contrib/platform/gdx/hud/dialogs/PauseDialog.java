@@ -1,4 +1,4 @@
-package contrib.hud.dialogs;
+package contrib.platform.gdx.hud.dialogs;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
