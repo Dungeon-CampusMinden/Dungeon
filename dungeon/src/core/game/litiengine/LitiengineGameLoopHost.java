@@ -3,12 +3,7 @@ package core.game.litiengine;
 import core.configuration.KeyboardConfig;
 import core.game.*;
 import core.game.bootstrap.ClientStartup;
-import core.platform.CompositeResourcesAdapter;
 import core.platform.Platform;
-import core.platform.awt.AwtClipboardAdapter;
-import core.platform.classpath.ClasspathResourcesAdapter;
-import core.platform.fs.FileSystemResourcesAdapter;
-import core.platform.grid.GridPathfindingAdapter;
 import core.platform.litiengine.*;
 import core.platform.litiengine.input.LitiengineCursorAdapter;
 import core.platform.litiengine.sound.LitiengineSoundPlayer;
@@ -70,18 +65,9 @@ public final class LitiengineGameLoopHost {
     // Bind platform adapters AFTER init so Game.window() etc. are available.
     Platform.window(new LitiengineWindowAdapter());
     Platform.runtime(new LitiengineRuntimeAdapter());
-    Platform.resources(
-      new CompositeResourcesAdapter(
-        new ClasspathResourcesAdapter(),
-        FileSystemResourcesAdapter.autoDetect()
-      )
-    );
     Platform.render(new LitiengineRenderAdapter());
-    Platform.pathfinding(new GridPathfindingAdapter());
     Platform.cursor(new LitiengineCursorAdapter());
     Platform.camera(new LitiengineCameraAdapter());
-    Platform.clipboard(new AwtClipboardAdapter());
-    Platform.loopHost(new LitiengineLoopHost());
 
     // Bridge LITIENGINE input events into our engine-agnostic InputManager.
     LitiengineInputBridge.install();

@@ -2,7 +2,12 @@ package starter;
 
 import core.System;
 import core.game.ECSManagement;
+import core.platform.CompositeResourcesAdapter;
 import core.platform.Platform;
+import core.platform.awt.AwtClipboardAdapter;
+import core.platform.classpath.ClasspathResourcesAdapter;
+import core.platform.fs.FileSystemResourcesAdapter;
+import core.platform.grid.GridPathfindingAdapter;
 import core.platform.litiengine.LitiengineLoopHost;
 import core.platform.litiengine.systems.LitiengineDebugControlsSystem;
 import java.util.function.Supplier;
@@ -12,6 +17,12 @@ public final class LitienginePlatformBootstrap {
   private LitienginePlatformBootstrap() {}
 
   public static void init() {
+    Platform.resources(
+      new CompositeResourcesAdapter(
+        new ClasspathResourcesAdapter(),
+        FileSystemResourcesAdapter.autoDetect()));
+    Platform.pathfinding(new GridPathfindingAdapter());
+    Platform.clipboard(new AwtClipboardAdapter());
     Platform.loopHost(new LitiengineLoopHost());
   }
 
