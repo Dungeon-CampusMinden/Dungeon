@@ -93,13 +93,13 @@ public final class Crafting {
   private static void loadFromJar() {
     try {
       String path =
-        new File(Objects.requireNonNull(Game.class.getResource("")).getPath())
-          .getParent()
-          // replace protocols
-          .replaceAll("(!|file:\\\\)", "")
-          .replaceAll("(!|file:)", "")
-          // replace the url whitespaces with real whitespaces
-          .replace("%20", " ");
+          new File(Objects.requireNonNull(Game.class.getResource("")).getPath())
+              .getParent()
+              // replace protocols
+              .replaceAll("(!|file:\\\\)", "")
+              .replaceAll("(!|file:)", "")
+              // replace the url whitespaces with real whitespaces
+              .replace("%20", " ");
 
       JarFile jar = new JarFile(path);
       Enumeration<JarEntry> entries = jar.entries();
