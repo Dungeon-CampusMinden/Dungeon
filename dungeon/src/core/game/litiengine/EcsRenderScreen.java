@@ -1,6 +1,7 @@
 package core.game.litiengine;
 
 import core.game.ECSManagement;
+import core.platform.litiengine.ui.LitiengineUiOverlayRegistry;
 import core.platform.litiengine.render.LitiengineGraphicsContext;
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.gui.screens.Screen;
@@ -26,6 +27,7 @@ public final class EcsRenderScreen extends Screen {
     try {
       final float deltaSeconds = Game.loop().getDeltaTime() / 1000.0f;
       ECSManagement.renderAll(deltaSeconds);
+      LitiengineUiOverlayRegistry.renderAll(g);
     } finally {
       LitiengineGraphicsContext.clear();
     }

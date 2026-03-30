@@ -3,6 +3,7 @@ package core.platform.litiengine;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
+import core.platform.litiengine.dialogs.LitiengineOkDialogBuilder;
 import core.ui.HeadlessUiNodeHandle;
 import core.ui.UiNodeHandle;
 
@@ -37,6 +38,9 @@ public final class LitiengineDialogFactoryBootstrap {
     registerFallback(DialogType.DefaultTypes.KEYPAD);
     registerFallback(DialogType.DefaultTypes.PROGRESS_BAR);
     registerFallback(DialogType.DefaultTypes.PAUSE_MENU);
+
+    // First real LITIENGINE dialog implementation:
+    DialogFactory.replace(DialogType.DefaultTypes.OK, LitiengineOkDialogBuilder::build);
 
     initialized = true;
   }
