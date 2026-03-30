@@ -5,8 +5,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogDesign;
-import contrib.hud.dialogs.TextDialog;
 
 import java.util.function.BiFunction;
 

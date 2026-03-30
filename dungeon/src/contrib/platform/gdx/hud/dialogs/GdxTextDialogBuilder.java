@@ -1,8 +1,9 @@
-package contrib.hud.dialogs;
+package contrib.platform.gdx.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import contrib.hud.UIUtils;
+import contrib.hud.dialogs.*;
 import core.Game;
 import java.util.ArrayList;
 import java.util.Arrays;

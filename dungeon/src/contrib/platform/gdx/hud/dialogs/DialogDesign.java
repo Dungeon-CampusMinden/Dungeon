@@ -1,4 +1,4 @@
-package contrib.hud.dialogs;
+package contrib.platform.gdx.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;

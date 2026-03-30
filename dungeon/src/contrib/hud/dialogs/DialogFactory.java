@@ -2,6 +2,7 @@ package contrib.hud.dialogs;
 
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
+import contrib.platform.gdx.hud.dialogs.DialogDesign;
 import core.Entity;
 import core.Game;
 import core.ui.UiNodeHandle;
