@@ -4,18 +4,20 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import core.platform.litiengine.dialogs.LitiengineOkDialogBuilder;
+import core.platform.litiengine.dialogs.LitiengineYesNoDialogBuilder;
 import core.ui.HeadlessUiNodeHandle;
 import core.ui.UiNodeHandle;
 
 /**
  * Registers a temporary LITIENGINE dialog backend.
  *
- * <p>At the current migration stage, this backend does not render actual dialogs yet. Instead, it
- * installs neutral fallback handles so dialog creation, lifecycle handling, and callbacks can
- * already work without depending on libGDX Scene2D.
+ * <p>At the current migration stage, this backend does not render actual dialogs yet.
+ * Instead, it installs neutral fallback handles so dialog creation, lifecycle handling,
+ * and callbacks can already work without depending on libGDX Scene2D.
  *
- * <p>The fallback registration is intentionally weak: real LITIENGINE dialog implementations should
- * be able to replace individual dialog types later without changing this bootstrap.
+ * <p>The fallback registration is intentionally weak: real LITIENGINE dialog
+ * implementations should be able to replace individual dialog types later without
+ * changing this bootstrap.
  */
 public final class LitiengineDialogFactoryBootstrap {
   private static boolean initialized = false;
@@ -39,8 +41,9 @@ public final class LitiengineDialogFactoryBootstrap {
     registerFallback(DialogType.DefaultTypes.PROGRESS_BAR);
     registerFallback(DialogType.DefaultTypes.PAUSE_MENU);
 
-    // First real LITIENGINE dialog implementation:
+    // Real LITIENGINE dialog implementations available so far:
     DialogFactory.replace(DialogType.DefaultTypes.OK, LitiengineOkDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.YES_NO, LitiengineYesNoDialogBuilder::build);
 
     initialized = true;
   }
