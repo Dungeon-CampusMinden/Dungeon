@@ -1,7 +1,8 @@
 package contrib.platform.gdx.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import contrib.hud.dialogs.*;
+import contrib.hud.dialogs.DialogFactory;
+import contrib.hud.dialogs.DialogType;
 import core.ui.UiNodeHandle;
 import core.ui.gdx.GdxUiNodeHandle;
 
@@ -20,38 +21,29 @@ public final class GdxDialogFactoryBootstrap {
       return;
     }
 
-    DialogFactory.register(
-      DialogType.DefaultTypes.OK,
-      ctx -> wrap(GdxOkDialogBuilder.build(ctx)));
-    DialogFactory.register(
-      DialogType.DefaultTypes.YES_NO,
-      ctx -> wrap(GdxYesNoDialogBuilder.build(ctx)));
-    DialogFactory.register(
-      DialogType.DefaultTypes.TEXT,
-      ctx -> wrap(GdxTextDialogBuilder.build(ctx)));
-    DialogFactory.register(
+    DialogFactory.replace(DialogType.DefaultTypes.OK, ctx -> wrap(GdxOkDialogBuilder.build(ctx)));
+    DialogFactory.replace(
+      DialogType.DefaultTypes.YES_NO, ctx -> wrap(GdxYesNoDialogBuilder.build(ctx)));
+    DialogFactory.replace(
+      DialogType.DefaultTypes.TEXT, ctx -> wrap(GdxTextDialogBuilder.build(ctx)));
+    DialogFactory.replace(
       DialogType.DefaultTypes.IMAGE, ctx -> wrap(GdxShowImageDialogBuilder.build(ctx)));
-    DialogFactory.register(
-      DialogType.DefaultTypes.FREE_INPUT,
-      ctx -> wrap(GdxFreeInputDialogBuilder.build(ctx)));
-    DialogFactory.register(
-      DialogType.DefaultTypes.INVENTORY,
-      ctx -> wrap(GdxInventoryDialogBuilder.buildSimple(ctx)));
-    DialogFactory.register(
+    DialogFactory.replace(
+      DialogType.DefaultTypes.FREE_INPUT, ctx -> wrap(GdxFreeInputDialogBuilder.build(ctx)));
+    DialogFactory.replace(
+      DialogType.DefaultTypes.INVENTORY, ctx -> wrap(GdxInventoryDialogBuilder.buildSimple(ctx)));
+    DialogFactory.replace(
       DialogType.DefaultTypes.DUAL_INVENTORY,
       ctx -> wrap(GdxInventoryDialogBuilder.buildDual(ctx)));
-    DialogFactory.register(
-      DialogType.DefaultTypes.CRAFTING_GUI,
-      ctx -> wrap(GdxCraftingDialogBuilder.build(ctx)));
-    DialogFactory.register(
-      DialogType.DefaultTypes.KEYPAD,
-      ctx -> wrap(GdxKeypadDialogBuilder.build(ctx)));
-    DialogFactory.register(
+    DialogFactory.replace(
+      DialogType.DefaultTypes.CRAFTING_GUI, ctx -> wrap(GdxCraftingDialogBuilder.build(ctx)));
+    DialogFactory.replace(
+      DialogType.DefaultTypes.KEYPAD, ctx -> wrap(GdxKeypadDialogBuilder.build(ctx)));
+    DialogFactory.replace(
       DialogType.DefaultTypes.PROGRESS_BAR,
       ctx -> wrap(GdxProgressBarDialogBuilder.build(ctx)));
-    DialogFactory.register(
-      DialogType.DefaultTypes.PAUSE_MENU,
-      ctx -> wrap(GdxPauseMenuDialogBuilder.build(ctx)));
+    DialogFactory.replace(
+      DialogType.DefaultTypes.PAUSE_MENU, ctx -> wrap(GdxPauseMenuDialogBuilder.build(ctx)));
 
     initialized = true;
   }
