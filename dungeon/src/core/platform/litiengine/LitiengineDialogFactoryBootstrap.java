@@ -4,6 +4,7 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import core.platform.litiengine.dialogs.LitiengineOkDialogBuilder;
+import core.platform.litiengine.dialogs.LitiengineTextDialogBuilder;
 import core.platform.litiengine.dialogs.LitiengineYesNoDialogBuilder;
 import core.ui.HeadlessUiNodeHandle;
 import core.ui.UiNodeHandle;
@@ -44,6 +45,7 @@ public final class LitiengineDialogFactoryBootstrap {
     // Real LITIENGINE dialog implementations available so far:
     DialogFactory.replace(DialogType.DefaultTypes.OK, LitiengineOkDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.YES_NO, LitiengineYesNoDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.TEXT, LitiengineTextDialogBuilder::build);
 
     initialized = true;
   }
