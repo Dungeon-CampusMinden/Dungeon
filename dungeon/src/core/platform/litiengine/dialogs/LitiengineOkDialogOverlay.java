@@ -7,14 +7,8 @@ import core.input.MouseButtons;
 import core.platform.litiengine.ui.LitiengineUiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A minimal real OK dialog for the LITIENGINE backend.
@@ -25,9 +19,7 @@ final class LitiengineOkDialogOverlay implements LitiengineUiOverlay {
 
   private static final int DEFAULT_WIDTH = 460;
   private static final int DEFAULT_HEIGHT = 220;
-  private static final int PADDING = 20;
-  private static final int BUTTON_WIDTH = 120;
-  private static final int BUTTON_HEIGHT = 34;
+  private static final int BUTTON_GAP = 16;
 
   private final String title;
   private final String text;
@@ -54,54 +46,20 @@ final class LitiengineOkDialogOverlay implements LitiengineUiOverlay {
 
     handleInput();
 
-    AlphaComposite oldComposite = (AlphaComposite) g.getComposite();
-    Color oldColor = g.getColor();
-    Font oldFont = g.getFont();
+    LitiengineDialogOverlaySupport.RenderState state =
+      LitiengineDialogOverlaySupport.beginDialog(g);
 
     try {
-      int windowWidth = Game.windowWidth();
-      int windowHeight = Game.windowHeight();
+      int textY = LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
 
-      g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.35f));
-      g.setColor(Color.BLACK);
-      g.fillRect(0, 0, windowWidth, windowHeight);
-
-      g.setComposite(AlphaComposite.SrcOver);
-      g.setColor(new Color(32, 32, 40, 235));
-      g.fillRoundRect(x, y, width, height, 14, 14);
-
-      g.setColor(new Color(180, 180, 210));
-      g.drawRoundRect(x, y, width, height, 14, 14);
-
-      g.setColor(Color.WHITE);
-      g.setFont(oldFont.deriveFont(Font.BOLD, 18f));
-      g.drawString(title, x + PADDING, y + 32);
-
-      g.setFont(oldFont.deriveFont(15f));
-      FontMetrics fm = g.getFontMetrics();
-
-      int textY = y + 62;
-      for (String line : wrapText(text, fm, width - 2 * PADDING)) {
-        g.drawString(line, x + PADDING, textY);
-        textY += fm.getHeight();
-      }
+      LitiengineDialogOverlaySupport.drawWrappedText(
+        g, text, x + LitiengineDialogOverlaySupport.PADDING, textY,
+        width - 2 * LitiengineDialogOverlaySupport.PADDING);
 
       Rectangle ok = okBounds();
-      g.setColor(okPressed ? new Color(105, 135, 190) : new Color(75, 95, 140));
-      g.fillRoundRect(ok.x, ok.y, ok.width, ok.height, 10, 10);
-
-      g.setColor(Color.WHITE);
-      g.drawRoundRect(ok.x, ok.y, ok.width, ok.height, 10, 10);
-
-      String label = "OK";
-      FontMetrics buttonFm = g.getFontMetrics();
-      int tx = ok.x + (ok.width - buttonFm.stringWidth(label)) / 2;
-      int ty = ok.y + ((ok.height - buttonFm.getHeight()) / 2) + buttonFm.getAscent();
-      g.drawString(label, tx, ty);
+      LitiengineDialogOverlaySupport.drawButton(g, ok, "OK", okPressed);
     } finally {
-      g.setComposite(oldComposite);
-      g.setColor(oldColor);
-      g.setFont(oldFont);
+      LitiengineDialogOverlaySupport.finishDialog(g, state);
     }
   }
 
@@ -131,46 +89,9 @@ final class LitiengineOkDialogOverlay implements LitiengineUiOverlay {
   }
 
   private Rectangle okBounds() {
-    int bx = x + (width - BUTTON_WIDTH) / 2;
-    int by = y + height - BUTTON_HEIGHT - 18;
-    return new Rectangle(bx, by, BUTTON_WIDTH, BUTTON_HEIGHT);
-  }
-
-  private static List<String> wrapText(String text, FontMetrics fm, int maxWidth) {
-    List<String> lines = new ArrayList<>();
-    if (text == null || text.isBlank()) {
-      lines.add("");
-      return lines;
-    }
-
-    for (String paragraph : text.split("\n")) {
-      String[] words = paragraph.trim().split("\\s+");
-      StringBuilder current = new StringBuilder();
-
-      for (String word : words) {
-        String candidate = current.isEmpty() ? word : current + " " + word;
-        if (fm.stringWidth(candidate) <= maxWidth) {
-          current.setLength(0);
-          current.append(candidate);
-        } else {
-          if (!current.isEmpty()) {
-            lines.add(current.toString());
-          }
-          current.setLength(0);
-          current.append(word);
-        }
-      }
-
-      if (!current.isEmpty()) {
-        lines.add(current.toString());
-      }
-
-      if (paragraph.isBlank()) {
-        lines.add("");
-      }
-    }
-
-    return lines;
+    return LitiengineDialogOverlaySupport.centeredButtonRow(
+        x, y, width, height, 1, BUTTON_GAP)
+      .get(0);
   }
 
   @Override

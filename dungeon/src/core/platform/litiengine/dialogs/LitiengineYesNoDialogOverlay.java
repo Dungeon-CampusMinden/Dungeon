@@ -7,14 +7,8 @@ import core.input.MouseButtons;
 import core.platform.litiengine.ui.LitiengineUiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A minimal real yes/no dialog for the LITIENGINE backend.
@@ -25,9 +19,6 @@ final class LitiengineYesNoDialogOverlay implements LitiengineUiOverlay {
 
   private static final int DEFAULT_WIDTH = 500;
   private static final int DEFAULT_HEIGHT = 230;
-  private static final int PADDING = 20;
-  private static final int BUTTON_WIDTH = 120;
-  private static final int BUTTON_HEIGHT = 34;
   private static final int BUTTON_GAP = 20;
 
   private static final String YES_LABEL = "Ja";
@@ -60,61 +51,24 @@ final class LitiengineYesNoDialogOverlay implements LitiengineUiOverlay {
 
     handleInput();
 
-    var oldComposite = g.getComposite();
-    Color oldColor = g.getColor();
-    Font oldFont = g.getFont();
+    LitiengineDialogOverlaySupport.RenderState state =
+      LitiengineDialogOverlaySupport.beginDialog(g);
 
     try {
-      int windowWidth = Game.windowWidth();
-      int windowHeight = Game.windowHeight();
+      int textY = LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
 
-      g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.35f));
-      g.setColor(Color.BLACK);
-      g.fillRect(0, 0, windowWidth, windowHeight);
-
-      g.setComposite(AlphaComposite.SrcOver);
-      g.setColor(new Color(32, 32, 40, 235));
-      g.fillRoundRect(x, y, width, height, 14, 14);
-
-      g.setColor(new Color(180, 180, 210));
-      g.drawRoundRect(x, y, width, height, 14, 14);
-
-      g.setColor(Color.WHITE);
-      g.setFont(oldFont.deriveFont(Font.BOLD, 18f));
-      g.drawString(title, x + PADDING, y + 32);
-
-      g.setFont(oldFont.deriveFont(15f));
-      FontMetrics fm = g.getFontMetrics();
-
-      int textY = y + 62;
-      for (String line : wrapText(text, fm, width - 2 * PADDING)) {
-        g.drawString(line, x + PADDING, textY);
-        textY += fm.getHeight();
-      }
+      LitiengineDialogOverlaySupport.drawWrappedText(
+        g, text, x + LitiengineDialogOverlaySupport.PADDING, textY,
+        width - 2 * LitiengineDialogOverlaySupport.PADDING);
 
       Rectangle no = noBounds();
       Rectangle yes = yesBounds();
 
-      drawButton(g, no, NO_LABEL, noPressed);
-      drawButton(g, yes, YES_LABEL, yesPressed);
+      LitiengineDialogOverlaySupport.drawButton(g, no, NO_LABEL, noPressed);
+      LitiengineDialogOverlaySupport.drawButton(g, yes, YES_LABEL, yesPressed);
     } finally {
-      g.setComposite(oldComposite);
-      g.setColor(oldColor);
-      g.setFont(oldFont);
+      LitiengineDialogOverlaySupport.finishDialog(g, state);
     }
-  }
-
-  private void drawButton(Graphics2D g, Rectangle bounds, String label, boolean pressed) {
-    g.setColor(pressed ? new Color(105, 135, 190) : new Color(75, 95, 140));
-    g.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, 10, 10);
-
-    g.setColor(Color.WHITE);
-    g.drawRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, 10, 10);
-
-    FontMetrics fm = g.getFontMetrics();
-    int tx = bounds.x + (bounds.width - fm.stringWidth(label)) / 2;
-    int ty = bounds.y + ((bounds.height - fm.getHeight()) / 2) + fm.getAscent();
-    g.drawString(label, tx, ty);
   }
 
   private void handleInput() {
@@ -152,53 +106,15 @@ final class LitiengineYesNoDialogOverlay implements LitiengineUiOverlay {
   }
 
   private Rectangle noBounds() {
-    int totalWidth = 2 * BUTTON_WIDTH + BUTTON_GAP;
-    int startX = x + (width - totalWidth) / 2;
-    int by = y + height - BUTTON_HEIGHT - 18;
-    return new Rectangle(startX, by, BUTTON_WIDTH, BUTTON_HEIGHT);
+    return LitiengineDialogOverlaySupport.centeredButtonRow(
+        x, y, width, height, 2, BUTTON_GAP)
+      .get(0);
   }
 
   private Rectangle yesBounds() {
-    Rectangle no = noBounds();
-    return new Rectangle(no.x + BUTTON_WIDTH + BUTTON_GAP, no.y, BUTTON_WIDTH, BUTTON_HEIGHT);
-  }
-
-  private static List<String> wrapText(String text, FontMetrics fm, int maxWidth) {
-    List<String> lines = new ArrayList<>();
-    if (text == null || text.isBlank()) {
-      lines.add("");
-      return lines;
-    }
-
-    for (String paragraph : text.split("\n")) {
-      if (paragraph.isBlank()) {
-        lines.add("");
-        continue;
-      }
-
-      String[] words = paragraph.trim().split("\\s+");
-      StringBuilder current = new StringBuilder();
-
-      for (String word : words) {
-        String candidate = current.isEmpty() ? word : current + " " + word;
-        if (fm.stringWidth(candidate) <= maxWidth) {
-          current.setLength(0);
-          current.append(candidate);
-        } else {
-          if (!current.isEmpty()) {
-            lines.add(current.toString());
-          }
-          current.setLength(0);
-          current.append(word);
-        }
-      }
-
-      if (!current.isEmpty()) {
-        lines.add(current.toString());
-      }
-    }
-
-    return lines;
+    return LitiengineDialogOverlaySupport.centeredButtonRow(
+        x, y, width, height, 2, BUTTON_GAP)
+      .get(1);
   }
 
   @Override
