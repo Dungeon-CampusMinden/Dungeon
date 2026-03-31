@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     implementation project(':dungeon')
+    implementation project(':portal')
 }
 
 sourceSets.main.java.srcDirs = ['src/']
