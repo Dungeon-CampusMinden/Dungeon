@@ -1,0 +1,39 @@
+Tue Mar 31 16:30:41 CEST 2026 Main Update Loop threw an exception:
+java.lang.UnsatisfiedLinkError: 'java.nio.ByteBuffer com.badlogic.gdx.graphics.g2d.Gdx2DPixmap.newPixmap(long[], int, int, int)'
+	at com.badlogic.gdx.graphics.g2d.Gdx2DPixmap.newPixmap(Native Method)
+	at com.badlogic.gdx.graphics.g2d.Gdx2DPixmap.<init>(Gdx2DPixmap.java:137)
+	at com.badlogic.gdx.graphics.Pixmap.<init>(Pixmap.java:137)
+	at core.ui.gdx.GdxUiAssetLoader.createHorizontalStripTexture(GdxUiAssetLoader.java:57)
+	at contrib.hud.inventory.InventoryGUI.<clinit>(InventoryGUI.java:67)
+	at contrib.entities.HeroController.toggleInventory(HeroController.java:218)
+	at core.systems.InputSystem.execute(InputSystem.java:88)
+	at core.systems.InputSystem.lambda$execute$1(InputSystem.java:74)
+	at java.base/java.util.HashMap.forEach(HashMap.java:1430)
+	at core.systems.InputSystem.execute(InputSystem.java:71)
+	at core.systems.InputSystem.execute(InputSystem.java:39)
+	at java.base/java.util.HashMap$KeySpliterator.forEachRemaining(HashMap.java:1716)
+	at java.base/java.util.stream.ReferencePipeline$Head.forEach(ReferencePipeline.java:803)
+	at core.systems.InputSystem.execute(InputSystem.java:30)
+	at core.game.ECSManagement.executeOneTick(ECSManagement.java:554)
+	at core.game.GameLoopCore.tick(GameLoopCore.java:58)
+	at core.game.litiengine.LitiengineGameLoopHost.lambda$run$1(LitiengineGameLoopHost.java:93)
+	at de.gurkenlabs.litiengine.UpdateLoop.update(UpdateLoop.java:154)
+	at de.gurkenlabs.litiengine.UpdateLoop.process(UpdateLoop.java:138)
+	at de.gurkenlabs.litiengine.GameLoop.process(GameLoop.java:87)
+	at de.gurkenlabs.litiengine.UpdateLoop.run(UpdateLoop.java:57)
+
+====Runtime Information====
+Operating System: Windows 11
+	Architecture: amd64
+	Version: 10.0
+Memory:
+	Max heap size: 8.0 GiB
+	Current heap size: 516.0 MiB
+	Heap used: 52.5 MiB
+	Free heap: 463.5 MiB
+Java Version: Java(TM) SE Runtime Environment 25.0.2+10-LTS-69 
+	Vendor: Oracle Corporation
+Uptime: PT3.887S
+Screens: 1
+	Screen 0: 2560x1440@144hz
+
