@@ -61,6 +61,7 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
 
   private int pressedButtonIndex = -1;
   private SlotSelection pressedSlotSelection = null;
+  private boolean leftButtonDownLastFrame = false;
 
   LitiengineCraftingDialogOverlay(
     String targetTitle,
@@ -253,41 +254,62 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   private void handleInput(List<Rectangle> buttons, GridLayout leftGrid, GridLayout rightGrid) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
+      pressedButtonIndex = -1;
+      pressedSlotSelection = null;
+      leftButtonDownLastFrame = false;
       return;
     }
 
     int mouseX = stage.mouseX();
     int mouseY = stage.mouseY();
+    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
-      pressedButtonIndex = findButtonIndex(mouseX, mouseY, buttons);
-      pressedSlotSelection =
-        pressedButtonIndex >= 0 ? null : findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
+    if (leftButtonDown && !leftButtonDownLastFrame) {
+      pressedButtonIndex = buttonIndexAt(mouseX, mouseY, buttons);
+
+      if (pressedButtonIndex < 0) {
+        pressedSlotSelection = findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
+      } else {
+        pressedSlotSelection = null;
+      }
     }
 
-    if (InputManager.isButtonJustReleased(MouseButtons.LEFT)) {
-      int releasedButtonIndex = findButtonIndex(mouseX, mouseY, buttons);
-      SlotSelection releasedSlotSelection = findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
-
+    if (!leftButtonDown && leftButtonDownLastFrame) {
+      int releasedButtonIndex = buttonIndexAt(mouseX, mouseY, buttons);
       int previouslyPressedButton = pressedButtonIndex;
-      SlotSelection previouslyPressedSlot = pressedSlotSelection;
-
       pressedButtonIndex = -1;
-      pressedSlotSelection = null;
 
       if (previouslyPressedButton >= 0 && previouslyPressedButton == releasedButtonIndex) {
-        if (releasedButtonIndex == 0) {
+        if (previouslyPressedButton == 0) {
           onCraft();
-        } else if (releasedButtonIndex == 1) {
+        } else if (previouslyPressedButton == 1) {
           onCancel();
         }
+
+        pressedSlotSelection = null;
+        leftButtonDownLastFrame = leftButtonDown;
         return;
       }
+
+      SlotSelection releasedSlotSelection = findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
+      SlotSelection previouslyPressedSlot = pressedSlotSelection;
+      pressedSlotSelection = null;
 
       if (previouslyPressedSlot != null && previouslyPressedSlot.equals(releasedSlotSelection)) {
         transferClickedItem(previouslyPressedSlot);
       }
     }
+
+    leftButtonDownLastFrame = leftButtonDown;
+  }
+
+  private int buttonIndexAt(int mouseX, int mouseY, List<Rectangle> buttons) {
+    for (int i = 0; i < buttons.size(); i++) {
+      if (buttons.get(i).contains(mouseX, mouseY)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   private void transferClickedItem(SlotSelection slotSelection) {

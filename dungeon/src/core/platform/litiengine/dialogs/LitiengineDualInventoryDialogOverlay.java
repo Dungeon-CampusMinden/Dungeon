@@ -37,6 +37,7 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
   private boolean visible = true;
 
   private SlotSelection pressedSlotSelection = null;
+  private boolean leftButtonDownLastFrame = false;
 
   LitiengineDualInventoryDialogOverlay(
     String leftTitle,
@@ -147,17 +148,20 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
   private void handleInput(GridLayout leftGrid, GridLayout rightGrid) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
+      pressedSlotSelection = null;
+      leftButtonDownLastFrame = false;
       return;
     }
 
     int mouseX = stage.mouseX();
     int mouseY = stage.mouseY();
+    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
+    if (leftButtonDown && !leftButtonDownLastFrame) {
       pressedSlotSelection = findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
     }
 
-    if (InputManager.isButtonJustReleased(MouseButtons.LEFT)) {
+    if (!leftButtonDown && leftButtonDownLastFrame) {
       SlotSelection releasedSlotSelection = findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
       SlotSelection previouslyPressedSlot = pressedSlotSelection;
       pressedSlotSelection = null;
@@ -166,6 +170,8 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
         transferClickedItem(previouslyPressedSlot);
       }
     }
+
+    leftButtonDownLastFrame = leftButtonDown;
   }
 
   private void transferClickedItem(SlotSelection slotSelection) {
