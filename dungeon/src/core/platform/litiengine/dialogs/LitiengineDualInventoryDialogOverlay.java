@@ -9,7 +9,6 @@ import core.ui.StageHandle;
 import core.utils.InputManager;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 
 /**
  * Minimal dual-inventory overlay for the LITIENGINE backend.

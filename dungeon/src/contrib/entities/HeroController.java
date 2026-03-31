@@ -9,7 +9,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
-import contrib.hud.inventory.InventoryGUI;
+import contrib.hud.InventoryDialogState;
 import contrib.item.Item;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
@@ -190,7 +190,7 @@ public class HeroController {
     }
     var pc = playerComp.get();
 
-    if (pc.openDialogs() && !InventoryGUI.inPlayerInventory(hero)) {
+    if (pc.openDialogs() && !InventoryDialogState.isOpen(hero)) {
       LOGGER.debug("Player {} has other dialogs open, cannot toggle inventory.", hero.id());
       return;
     }
@@ -215,7 +215,7 @@ public class HeroController {
     if (!Game.network().isServer()) {
       Game.network().send((short) 0, new InventoryUIMessage(isUIOpen), true);
     }
-    InventoryGUI.setInventoryOpen(hero, isUIOpen);
+    InventoryDialogState.setOpen(hero, isUIOpen);
   }
 
   /**
@@ -291,8 +291,7 @@ public class HeroController {
       return false;
     }
 
-    Optional<InventoryComponent> playerInv =
-        InventoryGUI.getPlayerInventoryGUI(player).map(IInventoryHolder::inventoryComponent);
+    Optional<InventoryComponent> playerInv = player.fetch(InventoryComponent.class);
     if (playerInv.isEmpty()) {
       LOGGER.debug("No inventory GUI found for entity {}", player.id());
       return false;
@@ -430,10 +429,7 @@ public class HeroController {
           case INTERACT -> HeroController.interact(playerEntity, msg.point());
           case INV_DROP -> {
             Optional<InventoryComponent> invComp =
-                clientState
-                    .playerEntity()
-                    .flatMap(InventoryGUI::getPlayerInventoryGUI)
-                    .map(InventoryGUI::inventoryComponent);
+              clientState.playerEntity().flatMap(entity -> entity.fetch(InventoryComponent.class));
             if (invComp.isEmpty()) {
               LOGGER.warn(
                   "No inventory component found for entity {} to drop item", playerEntity.id());
