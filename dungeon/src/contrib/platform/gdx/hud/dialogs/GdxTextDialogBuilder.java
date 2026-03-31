@@ -2,16 +2,11 @@ package contrib.platform.gdx.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import contrib.hud.UIUtils;
-import contrib.hud.dialogs.*;
-import core.Game;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import contrib.hud.dialogs.DialogCallbackResolver;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
 
-/**
- * Builds the libGDX-backed text dialog.
- */
+/** Builds the libGDX-backed text dialog. */
 public final class GdxTextDialogBuilder {
 
   private GdxTextDialogBuilder() {}
@@ -26,27 +21,30 @@ public final class GdxTextDialogBuilder {
     String title = ctx.require(DialogContextKeys.TITLE, String.class);
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
     String confirmButton =
-      ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class)
-        .orElse(OkDialog.DEFAULT_OK_BUTTON);
-    String cancelButton =
-      ctx.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(null);
+      ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(OkDialog.DEFAULT_OK_BUTTON);
+    String cancelButton = ctx.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(null);
     String[] extraButtons =
-      ctx.find(DialogContextKeys.ADDITIONAL_BUTTONS, String[].class)
-        .orElse(new String[] {});
+      ctx.find(DialogContextKeys.ADDITIONAL_BUTTONS, String[].class).orElse(new String[] {});
 
-    if (Game.isHeadless()) {
-      List<String> allButtons = new ArrayList<>();
-      allButtons.add(confirmButton);
-      if (cancelButton != null) {
-        allButtons.add(cancelButton);
-      }
-      allButtons.addAll(Arrays.asList(extraButtons));
-      return new HeadlessDialogGroup(title, text, allButtons.toArray(new String[0]));
-    }
+    return GdxDialogBuilderSupport.build(
+      GdxDialogBuilderSupport.headless(
+        title,
+        text,
+        GdxDialogBuilderSupport.buttons(confirmButton, cancelButton, extraButtons)),
+      () -> buildScene2dDialog(ctx, text, confirmButton, title, cancelButton, extraButtons));
+  }
+
+  private static Dialog buildScene2dDialog(
+    DialogContext ctx,
+    String text,
+    String confirmButton,
+    String title,
+    String cancelButton,
+    String[] extraButtons) {
 
     Dialog dialog =
       TextDialog.create(
-        UIUtils.defaultSkin(),
+        GdxDialogBuilderSupport.defaultSkin(),
         text,
         confirmButton,
         title,
@@ -62,8 +60,7 @@ public final class GdxTextDialogBuilder {
           } else {
             for (String extraButton : extraButtons) {
               if (id.equals(extraButton)) {
-                DialogCallbackResolver.createButtonCallback(
-                    ctx.dialogId(), "on" + extraButton)
+                DialogCallbackResolver.createButtonCallback(ctx.dialogId(), "on" + extraButton)
                   .accept(null);
               }
             }

@@ -1,15 +1,10 @@
 package contrib.platform.gdx.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.HeadlessDialogGroup;
-import core.Game;
 
-/**
- * Builds the libGDX-backed yes/no dialog.
- */
+/** Builds the libGDX-backed yes/no dialog. */
 public final class GdxYesNoDialogBuilder {
 
   private GdxYesNoDialogBuilder() {}
@@ -24,11 +19,11 @@ public final class GdxYesNoDialogBuilder {
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("Dialog");
 
-    if (Game.isHeadless()) {
-      return new HeadlessDialogGroup(
-        title, text, YesNoDialog.DEFAULT_DIALOG_NO, YesNoDialog.DEFAULT_DIALOG_YES);
-    }
-
-    return YesNoDialog.create(UIUtils.defaultSkin(), text, title, ctx.dialogId());
+    return GdxDialogBuilderSupport.build(
+      GdxDialogBuilderSupport.headless(
+        title, text, YesNoDialog.DEFAULT_DIALOG_NO, YesNoDialog.DEFAULT_DIALOG_YES),
+      () ->
+        YesNoDialog.create(
+          GdxDialogBuilderSupport.defaultSkin(), text, title, ctx.dialogId()));
   }
 }

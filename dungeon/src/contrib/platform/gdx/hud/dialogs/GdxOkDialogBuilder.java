@@ -1,15 +1,10 @@
 package contrib.platform.gdx.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.HeadlessDialogGroup;
-import core.Game;
 
-/**
- * Builds the libGDX-backed OK dialog.
- */
+/** Builds the libGDX-backed OK dialog. */
 public final class GdxOkDialogBuilder {
 
   private GdxOkDialogBuilder() {}
@@ -24,10 +19,8 @@ public final class GdxOkDialogBuilder {
     String text = ctx.require(DialogContextKeys.MESSAGE, String.class);
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse("OK");
 
-    if (Game.isHeadless()) {
-      return new HeadlessDialogGroup(title, text, OkDialog.DEFAULT_OK_BUTTON);
-    }
-
-    return OkDialog.create(UIUtils.defaultSkin(), title, text, ctx.dialogId());
+    return GdxDialogBuilderSupport.build(
+      GdxDialogBuilderSupport.headless(title, text, OkDialog.DEFAULT_OK_BUTTON),
+      () -> OkDialog.create(GdxDialogBuilderSupport.defaultSkin(), title, text, ctx.dialogId()));
   }
 }
