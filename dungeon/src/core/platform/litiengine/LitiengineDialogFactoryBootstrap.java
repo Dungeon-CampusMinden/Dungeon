@@ -3,13 +3,7 @@ package core.platform.litiengine;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
-import core.platform.litiengine.dialogs.LitiengineFreeInputDialogBuilder;
-import core.platform.litiengine.dialogs.LitiengineOkDialogBuilder;
-import core.platform.litiengine.dialogs.LitienginePauseMenuDialogBuilder;
-import core.platform.litiengine.dialogs.LitiengineProgressBarDialogBuilder;
-import core.platform.litiengine.dialogs.LitiengineShowImageDialogBuilder;
-import core.platform.litiengine.dialogs.LitiengineTextDialogBuilder;
-import core.platform.litiengine.dialogs.LitiengineYesNoDialogBuilder;
+import core.platform.litiengine.dialogs.*;
 import core.ui.HeadlessUiNodeHandle;
 import core.ui.UiNodeHandle;
 
@@ -54,6 +48,7 @@ public final class LitiengineDialogFactoryBootstrap {
     DialogFactory.replace(DialogType.DefaultTypes.FREE_INPUT, LitiengineFreeInputDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.PROGRESS_BAR, LitiengineProgressBarDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.PAUSE_MENU, LitienginePauseMenuDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.KEYPAD, LitiengineKeypadDialogBuilder::build);
 
     initialized = true;
   }
