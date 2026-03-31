@@ -1,5 +1,7 @@
 package starter;
 
+import contrib.hud.systems.AttributeBarSystem;
+import contrib.hud.systems.HudSystem;
 import core.System;
 import core.game.ECSManagement;
 import core.platform.CompositeResourcesAdapter;
@@ -29,6 +31,11 @@ public final class LitienginePlatformBootstrap {
     // Register a temporary non-Scene2D dialog backend so dialog creation
     // already works on the LITIENGINE path.
     LitiengineDialogFactoryBootstrap.init();
+  }
+
+  public static void installHudSystems() {
+    addIfAbsent(HudSystem.class, HudSystem::new);
+    addIfAbsent(AttributeBarSystem.class, AttributeBarSystem::new);
   }
 
   /** Installs the LITIENGINE debugger controls if they are not already present. */

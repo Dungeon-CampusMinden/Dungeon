@@ -38,6 +38,7 @@ public final class LitiengineStarter {
     Game.userOnSetup(
       () -> {
         Game.add(EntityFactory.newHero());
+        LitienginePlatformBootstrap.installHudSystems();
         LitienginePlatformBootstrap.installDebugger();
       });
 

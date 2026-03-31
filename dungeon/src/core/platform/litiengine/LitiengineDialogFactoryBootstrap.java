@@ -5,6 +5,7 @@ import contrib.hud.dialogs.DialogFactory;
 import contrib.hud.dialogs.DialogType;
 import core.platform.litiengine.dialogs.LitiengineFreeInputDialogBuilder;
 import core.platform.litiengine.dialogs.LitiengineOkDialogBuilder;
+import core.platform.litiengine.dialogs.LitiengineProgressBarDialogBuilder;
 import core.platform.litiengine.dialogs.LitiengineTextDialogBuilder;
 import core.platform.litiengine.dialogs.LitiengineYesNoDialogBuilder;
 import core.ui.HeadlessUiNodeHandle;
@@ -48,6 +49,7 @@ public final class LitiengineDialogFactoryBootstrap {
     DialogFactory.replace(DialogType.DefaultTypes.YES_NO, LitiengineYesNoDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.TEXT, LitiengineTextDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.FREE_INPUT, LitiengineFreeInputDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.PROGRESS_BAR, LitiengineProgressBarDialogBuilder::build);
 
     initialized = true;
   }
