@@ -1,9 +1,14 @@
-package contrib.hud.keypad;
+package contrib.platform.gdx.hud.dialogs;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
@@ -17,13 +22,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/** libGDX Scene2D UI for a keypad entity, allowing the player to input a code. */
-public final class KeypadUI extends Group {
+/**
+ * libGDX Scene2D keypad dialog for a keypad entity.
+ *
+ * <p>This class is backend-specific and belongs to the GDX dialog layer.
+ */
+final class GdxKeypadDialog extends Group {
 
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(KeypadUI.class);
+  private static final DungeonLogger LOGGER =
+    DungeonLogger.getLogger(GdxKeypadDialog.class);
 
   private static final float BACKGROUND_SCALE = 1.5f;
-  private static final float BACKGROUND_OFFSET_Y = 60;
 
   private final Entity keypad;
 
@@ -31,12 +40,7 @@ public final class KeypadUI extends Group {
   private final List<Cell<TextButton>> buttonCells = new ArrayList<>();
   private Label numberLabel;
 
-  /**
-   * Creates a new KeypadUI for the given keypad entity.
-   *
-   * @param keypad The keypad entity this UI is associated with.
-   */
-  public KeypadUI(Entity keypad) {
+  GdxKeypadDialog(Entity keypad) {
     this.keypad = keypad;
     createActors();
   }
@@ -48,7 +52,7 @@ public final class KeypadUI extends Group {
 
     background = new Image(getSkin(), "keypad-ui-off");
     background.setOrigin(Align.center);
-    background.setScale(1.5f);
+    background.setScale(BACKGROUND_SCALE);
     background.setPosition(getX(Align.center), getY(Align.center), Align.center);
     this.addActor(background);
 
@@ -69,11 +73,13 @@ public final class KeypadUI extends Group {
     for (int i = 0; i < buttons.size(); i++) {
       String action = buttons.get(i);
       TextButton btn = new TextButton(action, getSkin(), "keypad");
+
       if (!action.equals("Back") && !action.equals("Submit")) {
         btn.getLabel().setFontScale(2f);
       } else {
         btn.getLabel().setFontScale(1.25f);
       }
+
       btn.addListener(
         new ClickListener() {
           @Override
@@ -81,6 +87,7 @@ public final class KeypadUI extends Group {
             onButtonPress(action);
           }
         });
+
       Cell<TextButton> c = tableButtons.add(btn).height(100).width(100).pad(10);
       if (i % 3 == 2) {
         c.row();
@@ -116,6 +123,9 @@ public final class KeypadUI extends Group {
       switch (action) {
         case "Back" -> kc.backspace();
         case "Submit" -> onSubmit();
+        default -> {
+          // no-op
+        }
       }
     }
 
@@ -127,7 +137,10 @@ public final class KeypadUI extends Group {
 
   private void onSubmit() {
     KeypadComponent kc = keypad.fetch(KeypadComponent.class).orElseThrow();
-    if (kc.isUnlocked()) return;
+    if (kc.isUnlocked()) {
+      return;
+    }
+
     kc.checkUnlock();
     if (kc.isUnlocked()) {
       keypad.fetch(DrawComponent.class).orElseThrow().sendSignal("open");

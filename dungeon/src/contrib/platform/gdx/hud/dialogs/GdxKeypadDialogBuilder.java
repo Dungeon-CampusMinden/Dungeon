@@ -4,7 +4,6 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.HeadlessDialogGroup;
-import contrib.hud.keypad.KeypadUI;
 import core.Entity;
 import core.Game;
 
@@ -27,6 +26,6 @@ public final class GdxKeypadDialogBuilder {
     }
 
     Entity keypad = ctx.requireEntity(DialogContextKeys.ENTITY);
-    return new KeypadUI(keypad);
+    return new GdxKeypadDialog(keypad);
   }
 }
