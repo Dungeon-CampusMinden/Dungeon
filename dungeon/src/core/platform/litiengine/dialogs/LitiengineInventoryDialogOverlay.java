@@ -1,16 +1,21 @@
 package core.platform.litiengine.dialogs;
 
 import contrib.components.InventoryComponent;
+import contrib.entities.HeroController;
 import contrib.item.Item;
+import core.Entity;
 import core.Game;
+import core.input.MouseButtons;
 import core.platform.litiengine.ui.LitiengineUiOverlay;
+import core.ui.StageHandle;
+import core.utils.InputManager;
 import java.awt.Graphics2D;
 
 /**
  * Minimal single-inventory overlay for the LITIENGINE backend.
  *
- * <p>This intentionally starts as a visual-only implementation: it renders inventory slots and
- * item names, but does not yet implement drag-and-drop, item usage, or slot transfer logic.
+ * <p>This version renders inventory slots and supports simple right-click item usage for player
+ * inventories.
  */
 final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
 
@@ -18,7 +23,9 @@ final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
   private static final int DEFAULT_HEIGHT = 360;
 
   private final String title;
+  private final Entity owner;
   private final InventoryComponent inventory;
+  private final boolean allowUseItems;
 
   private int x;
   private int y;
@@ -26,9 +33,14 @@ final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
   private int height = DEFAULT_HEIGHT;
   private boolean visible = true;
 
-  LitiengineInventoryDialogOverlay(String title, InventoryComponent inventory) {
+  private Integer pressedSlotIndex = null;
+
+  LitiengineInventoryDialogOverlay(
+    String title, Entity owner, InventoryComponent inventory, boolean allowUseItems) {
     this.title = (title == null || title.isBlank()) ? "Inventory" : title;
+    this.owner = owner;
     this.inventory = inventory;
+    this.allowUseItems = allowUseItems;
   }
 
   @Override
@@ -59,12 +71,15 @@ final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
       y = (Game.windowHeight() - height) / 2;
     }
 
+    int contentY;
+    int startX;
+    int gridTop;
+
     LitiengineDialogOverlaySupport.RenderState state =
       LitiengineDialogOverlaySupport.beginDialog(g);
 
     try {
-      int contentY =
-        LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
+      contentY = LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, title);
 
       LitiengineInventoryGridRenderer.drawInventoryInfo(
         g,
@@ -73,16 +88,52 @@ final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
         x + LitiengineDialogOverlaySupport.PADDING,
         contentY);
 
-      int gridTop =
+      gridTop =
         contentY
           + LitiengineInventoryGridRenderer.INFO_LINE_GAP
           + LitiengineInventoryGridRenderer.GRID_TOP_GAP;
 
-      int startX = x + (width - LitiengineInventoryGridRenderer.gridWidth(columns)) / 2;
+      startX = x + (width - LitiengineInventoryGridRenderer.gridWidth(columns)) / 2;
 
       LitiengineInventoryGridRenderer.drawGrid(g, slots, startX, gridTop, columns);
     } finally {
       LitiengineDialogOverlaySupport.finishDialog(g, state);
+    }
+
+    handleInput(new GridLayout(startX, gridTop, columns, slots));
+  }
+
+  private void handleInput(GridLayout grid) {
+    if (!allowUseItems) {
+      return;
+    }
+
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null) {
+      return;
+    }
+
+    int mouseX = stage.mouseX();
+    int mouseY = stage.mouseY();
+
+    if (InputManager.isButtonJustPressed(MouseButtons.RIGHT)) {
+      int slotIndex =
+        LitiengineInventoryGridRenderer.findSlotIndexAt(
+          mouseX, mouseY, grid.slots(), grid.startX(), grid.startY(), grid.columns());
+      pressedSlotIndex = slotIndex >= 0 ? slotIndex : null;
+    }
+
+    if (InputManager.isButtonJustReleased(MouseButtons.RIGHT)) {
+      int releasedSlotIndex =
+        LitiengineInventoryGridRenderer.findSlotIndexAt(
+          mouseX, mouseY, grid.slots(), grid.startX(), grid.startY(), grid.columns());
+
+      Integer previouslyPressedSlot = pressedSlotIndex;
+      pressedSlotIndex = null;
+
+      if (previouslyPressedSlot != null && previouslyPressedSlot == releasedSlotIndex) {
+        HeroController.useItem(owner, releasedSlotIndex);
+      }
     }
   }
 
@@ -135,4 +186,6 @@ final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
   public void visible(boolean visible) {
     this.visible = visible;
   }
+
+  private record GridLayout(int startX, int startY, int columns, Item[] slots) {}
 }

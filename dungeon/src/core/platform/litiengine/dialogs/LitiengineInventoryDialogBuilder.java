@@ -27,7 +27,10 @@ public final class LitiengineInventoryDialogBuilder {
     }
 
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(defaultTitle(entity));
-    return new LitiengineUiNodeHandle(new LitiengineInventoryDialogOverlay(title, inventory));
+    boolean allowUseItems = entity.isPresent(PlayerComponent.class);
+
+    return new LitiengineUiNodeHandle(
+      new LitiengineInventoryDialogOverlay(title, entity, inventory, allowUseItems));
   }
 
   private static String defaultTitle(Entity entity) {
