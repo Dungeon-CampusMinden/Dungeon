@@ -7,6 +7,7 @@ import core.platform.litiengine.dialogs.LitiengineFreeInputDialogBuilder;
 import core.platform.litiengine.dialogs.LitiengineOkDialogBuilder;
 import core.platform.litiengine.dialogs.LitienginePauseMenuDialogBuilder;
 import core.platform.litiengine.dialogs.LitiengineProgressBarDialogBuilder;
+import core.platform.litiengine.dialogs.LitiengineShowImageDialogBuilder;
 import core.platform.litiengine.dialogs.LitiengineTextDialogBuilder;
 import core.platform.litiengine.dialogs.LitiengineYesNoDialogBuilder;
 import core.ui.HeadlessUiNodeHandle;
@@ -49,6 +50,7 @@ public final class LitiengineDialogFactoryBootstrap {
     DialogFactory.replace(DialogType.DefaultTypes.OK, LitiengineOkDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.YES_NO, LitiengineYesNoDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.TEXT, LitiengineTextDialogBuilder::build);
+    DialogFactory.replace(DialogType.DefaultTypes.IMAGE, LitiengineShowImageDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.FREE_INPUT, LitiengineFreeInputDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.PROGRESS_BAR, LitiengineProgressBarDialogBuilder::build);
     DialogFactory.replace(DialogType.DefaultTypes.PAUSE_MENU, LitienginePauseMenuDialogBuilder::build);

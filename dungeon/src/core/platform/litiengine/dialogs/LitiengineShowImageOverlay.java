@@ -1,0 +1,215 @@
+package core.platform.litiengine.dialogs;
+
+import contrib.utils.components.showImage.TransitionSpeed;
+import core.Game;
+import core.platform.litiengine.render.LitiengineImages;
+import core.platform.litiengine.ui.LitiengineUiOverlay;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+
+/**
+ * Minimal image popup for the LITIENGINE backend.
+ *
+ * <p>Mirrors the current GDX dialog semantics: only image path + transition speed are
+ * taken from the dialog context.
+ */
+final class LitiengineShowImageOverlay implements LitiengineUiOverlay {
+
+  private static final float DEFAULT_MAX_SIZE = 0.85f;
+  private static final int PANEL_PADDING = 12;
+  private static final int PANEL_ARC = 14;
+  private static final int ANIMATION_OFFSET_X = -5;
+  private static final int ANIMATION_OFFSET_Y = -50;
+
+  private final String imagePath;
+  private final TransitionSpeed transitionSpeed;
+
+  private String loadedImagePath;
+  private BufferedImage image;
+
+  private int x;
+  private int y;
+  private int width = 480;
+  private int height = 320;
+  private boolean visible = true;
+  private float animation;
+
+  LitiengineShowImageOverlay(String imagePath, TransitionSpeed transitionSpeed) {
+    this.imagePath = imagePath;
+    this.transitionSpeed = transitionSpeed;
+    this.animation = transitionSpeed == TransitionSpeed.DISABLED ? 1f : 0f;
+  }
+
+  @Override
+  public void render(Graphics2D g) {
+    if (!visible) {
+      return;
+    }
+
+    ensureImageLoaded();
+
+    LitiengineDialogOverlaySupport.RenderState state =
+      LitiengineDialogOverlaySupport.beginDialog(g);
+
+    try {
+      if (image == null) {
+        renderMissingImage(g);
+      } else {
+        renderImage(g);
+      }
+    } finally {
+      LitiengineDialogOverlaySupport.finishDialog(g, state);
+    }
+
+    advanceAnimation();
+  }
+
+  private void ensureImageLoaded() {
+    if (imagePath == null || imagePath.isBlank()) {
+      image = null;
+      loadedImagePath = imagePath;
+      return;
+    }
+
+    if (imagePath.equals(loadedImagePath)) {
+      return;
+    }
+
+    loadedImagePath = imagePath;
+    image = LitiengineImages.get(imagePath);
+  }
+
+  private void renderImage(Graphics2D g) {
+    int windowWidth = Game.windowWidth();
+    int windowHeight = Game.windowHeight();
+
+    float maxWidth = windowWidth * DEFAULT_MAX_SIZE;
+    float maxHeight = windowHeight * DEFAULT_MAX_SIZE;
+
+    double scale =
+      Math.min(maxWidth / image.getWidth(), maxHeight / image.getHeight());
+
+    if (!(scale > 0d)) {
+      scale = 1d;
+    }
+
+    int drawWidth = Math.max(1, (int) Math.round(image.getWidth() * scale));
+    int drawHeight = Math.max(1, (int) Math.round(image.getHeight() * scale));
+
+    this.width = drawWidth + 2 * PANEL_PADDING;
+    this.height = drawHeight + 2 * PANEL_PADDING;
+
+    int baseX = (windowWidth - width) / 2;
+    int baseY = (windowHeight - height) / 2;
+
+    this.x = baseX + animationOffsetX();
+    this.y = baseY + animationOffsetY();
+
+    g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, easedAnimation()));
+    g.setColor(new Color(20, 20, 26, 235));
+    g.fillRoundRect(x, y, width, height, PANEL_ARC, PANEL_ARC);
+
+    g.drawImage(image, x + PANEL_PADDING, y + PANEL_PADDING, drawWidth, drawHeight, null);
+
+    g.setColor(new Color(220, 220, 230));
+    g.drawRoundRect(x, y, width, height, PANEL_ARC, PANEL_ARC);
+  }
+
+  private void renderMissingImage(Graphics2D g) {
+    this.width = 500;
+    this.height = 150;
+
+    int windowWidth = Game.windowWidth();
+    int windowHeight = Game.windowHeight();
+
+    this.x = (windowWidth - width) / 2 + animationOffsetX();
+    this.y = (windowHeight - height) / 2 + animationOffsetY();
+
+    g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, easedAnimation()));
+
+    int textY =
+      LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, "Image");
+
+    LitiengineDialogOverlaySupport.drawWrappedText(
+      g,
+      "Could not load image:\n" + imagePath,
+      x + LitiengineDialogOverlaySupport.PADDING,
+      textY,
+      width - 2 * LitiengineDialogOverlaySupport.PADDING);
+  }
+
+  private void advanceAnimation() {
+    if (animation >= 1f || transitionSpeed == TransitionSpeed.DISABLED) {
+      animation = 1f;
+      return;
+    }
+
+    int frames = (int) Math.max(1, transitionSpeed.framesToComplete);
+    animation = Math.min(1f, animation + (1f / frames));
+  }
+
+  private float easedAnimation() {
+    float t = Math.clamp(animation, 0f, 1f);
+    return t * t * (3f - 2f * t);
+  }
+
+  private int animationOffsetX() {
+    return Math.round(ANIMATION_OFFSET_X * (1f - easedAnimation()));
+  }
+
+  private int animationOffsetY() {
+    return Math.round(ANIMATION_OFFSET_Y * (1f - easedAnimation()));
+  }
+
+  @Override
+  public int x() {
+    return x;
+  }
+
+  @Override
+  public void x(int x) {
+    this.x = x;
+  }
+
+  @Override
+  public int y() {
+    return y;
+  }
+
+  @Override
+  public void y(int y) {
+    this.y = y;
+  }
+
+  @Override
+  public int width() {
+    return width;
+  }
+
+  @Override
+  public void width(int width) {
+    this.width = width;
+  }
+
+  @Override
+  public int height() {
+    return height;
+  }
+
+  @Override
+  public void height(int height) {
+    this.height = height;
+  }
+
+  @Override
+  public boolean visible() {
+    return visible;
+  }
+
+  @Override
+  public void visible(boolean visible) {
+    this.visible = visible;
+  }
+}
