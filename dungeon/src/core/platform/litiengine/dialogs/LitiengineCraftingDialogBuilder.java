@@ -35,7 +35,8 @@ public final class LitiengineCraftingDialogBuilder {
       ctx.find(DialogContextKeys.SECONDARY_TITLE, String.class).orElse(defaultTitle(craftEntity));
 
     return new LitiengineUiNodeHandle(
-      new LitiengineCraftingDialogOverlay(title, heroInventory, craftTitle, craftInventory));
+      new LitiengineCraftingDialogOverlay(
+        title, heroInventory, craftTitle, craftInventory, ctx.dialogId()));
   }
 
   private static String defaultTitle(Entity entity) {

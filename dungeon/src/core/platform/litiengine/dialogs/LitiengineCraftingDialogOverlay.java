@@ -5,38 +5,57 @@ import contrib.crafting.Crafting;
 import contrib.crafting.CraftingResult;
 import contrib.crafting.CraftingType;
 import contrib.crafting.Recipe;
+import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.item.Item;
 import core.Game;
+import core.input.MouseButtons;
 import core.platform.litiengine.ui.LitiengineUiOverlay;
+import core.ui.StageHandle;
+import core.utils.InputManager;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 /**
  * Minimal crafting overlay for the LITIENGINE backend.
  *
- * <p>This version is intentionally visual-only. It shows the target inventory, the crafting input
- * inventory, and a recipe preview, but does not yet implement drag-and-drop, craft, cancel, or
- * transfer interaction.
+ * <p>This version shows the target inventory, the crafting input inventory, a recipe preview,
+ * and two real Craft/Cancel buttons. Item transfer and drag-and-drop are still not implemented.
  */
 final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
 
   private static final int DEFAULT_WIDTH = 1180;
-  private static final int DEFAULT_HEIGHT = 560;
+  private static final int DEFAULT_HEIGHT = 600;
 
   private static final int PANEL_GAP = 26;
   private static final int PANEL_HEADER_GAP = 14;
 
   private static final int PREVIEW_TOP_GAP = 24;
-  private static final int PREVIEW_HEIGHT = 120;
+  private static final int PREVIEW_HEIGHT = 150;
   private static final int PREVIEW_PADDING = 14;
+  private static final int BUTTON_GAP = 16;
+
+  private static final String CRAFT_BUTTON = "Craft";
+  private static final String CANCEL_BUTTON = "Cancel";
+
+  /**
+   * Existing callback keys used by the server-side crafting logic.
+   *
+   * <p>These intentionally mirror the established callback protocol without importing the
+   * libGDX-based CraftingGUI class into the LITIENGINE overlay.
+   */
+  private static final String CALLBACK_CRAFT = "craft";
+  private static final String CALLBACK_CANCEL = "cancel";
 
   private final String targetTitle;
   private final InventoryComponent targetInventory;
   private final String craftingTitle;
   private final InventoryComponent craftingInventory;
+  private final String dialogId;
 
   private int x;
   private int y;
@@ -44,16 +63,20 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   private int height = DEFAULT_HEIGHT;
   private boolean visible = true;
 
+  private int pressedButtonIndex = -1;
+
   LitiengineCraftingDialogOverlay(
     String targetTitle,
     InventoryComponent targetInventory,
     String craftingTitle,
-    InventoryComponent craftingInventory) {
+    InventoryComponent craftingInventory,
+    String dialogId) {
     this.targetTitle = (targetTitle == null || targetTitle.isBlank()) ? "Inventory" : targetTitle;
     this.targetInventory = targetInventory;
     this.craftingTitle =
       (craftingTitle == null || craftingTitle.isBlank()) ? "Crafting" : craftingTitle;
     this.craftingInventory = craftingInventory;
+    this.dialogId = dialogId;
   }
 
   @Override
@@ -143,13 +166,16 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
         g, craftingSlots, rightStartX, gridTop, rightColumns);
 
       int previewY = gridTop + maxGridHeight + PREVIEW_TOP_GAP;
-      drawRecipePreview(g, previewY);
+      List<Rectangle> buttons = buttonBounds(previewY);
+
+      handleInput(buttons);
+      drawRecipePreview(g, previewY, buttons);
     } finally {
       LitiengineDialogOverlaySupport.finishDialog(g, state);
     }
   }
 
-  private void drawRecipePreview(Graphics2D g, int previewY) {
+  private void drawRecipePreview(Graphics2D g, int previewY, List<Rectangle> buttons) {
     int previewX = x + LitiengineDialogOverlaySupport.PADDING;
     int previewWidth = width - 2 * LitiengineDialogOverlaySupport.PADDING;
 
@@ -165,6 +191,11 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
       previewX + PREVIEW_PADDING,
       previewY + 50,
       previewWidth - 2 * PREVIEW_PADDING);
+
+    LitiengineDialogOverlaySupport.drawButton(
+      g, buttons.get(0), CRAFT_BUTTON, pressedButtonIndex == 0);
+    LitiengineDialogOverlaySupport.drawButton(
+      g, buttons.get(1), CANCEL_BUTTON, pressedButtonIndex == 1);
   }
 
   private String buildRecipePreviewText() {
@@ -173,11 +204,11 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
     if (recipe.isEmpty()) {
       if (craftingInventory.isEmpty()) {
         return "Add items to the crafting inventory to preview a matching recipe.\n"
-          + "Crafting interaction is not implemented in this minimal LITIENGINE version yet.";
+          + "Craft and Cancel already trigger the existing server-side callbacks.";
       }
 
       return "No matching recipe found for the current crafting inputs.\n"
-        + "Crafting interaction is not implemented in this minimal LITIENGINE version yet.";
+        + "Craft and Cancel already trigger the existing server-side callbacks.";
     }
 
     Recipe currentRecipe = recipe.get();
@@ -196,7 +227,7 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
       + resultText
       + "\n"
       + orderText
-      + "\nCrafting interaction is not implemented in this minimal LITIENGINE version yet.";
+      + "\nUse Craft to forward the current crafting items to the existing callback.";
   }
 
   private Optional<Recipe> currentRecipe() {
@@ -215,6 +246,60 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
       return item.displayName();
     }
     return result.resultType().name();
+  }
+
+  private void handleInput(List<Rectangle> buttons) {
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null) {
+      return;
+    }
+
+    int mouseX = stage.mouseX();
+    int mouseY = stage.mouseY();
+
+    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
+      pressedButtonIndex = findButtonIndex(mouseX, mouseY, buttons);
+    }
+
+    if (InputManager.isButtonJustReleased(MouseButtons.LEFT)) {
+      int releasedIndex = findButtonIndex(mouseX, mouseY, buttons);
+      int previouslyPressed = pressedButtonIndex;
+      pressedButtonIndex = -1;
+
+      if (previouslyPressed >= 0 && previouslyPressed == releasedIndex) {
+        if (releasedIndex == 0) {
+          onCraft();
+        } else if (releasedIndex == 1) {
+          onCancel();
+        }
+      }
+    }
+  }
+
+  private int findButtonIndex(int mouseX, int mouseY, List<Rectangle> buttons) {
+    for (int i = 0; i < buttons.size(); i++) {
+      if (buttons.get(i).contains(mouseX, mouseY)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  private void onCraft() {
+    DialogCallbackResolver.createButtonCallback(dialogId, CALLBACK_CRAFT)
+      .accept(craftingInventory.items());
+  }
+
+  private void onCancel() {
+    DialogCallbackResolver.createButtonCallback(dialogId, CALLBACK_CANCEL).accept(null);
+  }
+
+  private List<Rectangle> buttonBounds(int previewY) {
+    int previewX = x + LitiengineDialogOverlaySupport.PADDING;
+    int previewWidth = width - 2 * LitiengineDialogOverlaySupport.PADDING;
+
+    return LitiengineDialogOverlaySupport.centeredButtonRow(
+      previewX, previewY, previewWidth, PREVIEW_HEIGHT, 2, BUTTON_GAP);
   }
 
   private void drawPanelBackground(Graphics2D g, int x, int y, int width, int height) {
