@@ -37,6 +37,7 @@ final class LitiengineTextDialogOverlay implements LitiengineUiOverlay {
   private boolean visible = true;
 
   private int pressedButtonIndex = -1;
+  private boolean leftButtonDownLastFrame = false;
 
   LitiengineTextDialogOverlay(
     String title,
@@ -86,6 +87,8 @@ final class LitiengineTextDialogOverlay implements LitiengineUiOverlay {
   private void handleInput() {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
+      pressedButtonIndex = -1;
+      leftButtonDownLastFrame = false;
       return;
     }
 
@@ -94,33 +97,32 @@ final class LitiengineTextDialogOverlay implements LitiengineUiOverlay {
 
     List<String> labels = buttonLabels();
     List<Rectangle> bounds = buttonBounds(labels.size());
+    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
-      pressedButtonIndex = -1;
-      for (int i = 0; i < bounds.size(); i++) {
-        if (bounds.get(i).contains(mouseX, mouseY)) {
-          pressedButtonIndex = i;
-          break;
-        }
-      }
+    if (leftButtonDown && !leftButtonDownLastFrame) {
+      pressedButtonIndex = buttonIndexAt(mouseX, mouseY, bounds);
     }
 
-    if (InputManager.isButtonJustReleased(MouseButtons.LEFT)) {
-      int releasedIndex = -1;
-      for (int i = 0; i < bounds.size(); i++) {
-        if (bounds.get(i).contains(mouseX, mouseY)) {
-          releasedIndex = i;
-          break;
-        }
-      }
-
+    if (!leftButtonDown && leftButtonDownLastFrame) {
+      int releasedIndex = buttonIndexAt(mouseX, mouseY, bounds);
       int previouslyPressed = pressedButtonIndex;
       pressedButtonIndex = -1;
 
       if (previouslyPressed >= 0 && previouslyPressed == releasedIndex) {
-        triggerCallback(labels.get(releasedIndex));
+        triggerCallback(labels.get(previouslyPressed));
       }
     }
+
+    leftButtonDownLastFrame = leftButtonDown;
+  }
+
+  private int buttonIndexAt(int mouseX, int mouseY, List<Rectangle> bounds) {
+    for (int i = 0; i < bounds.size(); i++) {
+      if (bounds.get(i).contains(mouseX, mouseY)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   private void triggerCallback(String label) {
@@ -130,7 +132,7 @@ final class LitiengineTextDialogOverlay implements LitiengineUiOverlay {
       return;
     }
 
-    if (cancelLabel != null && label.equals(cancelLabel)) {
+    if (label.equals(cancelLabel)) {
       DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CANCEL)
         .accept(null);
       return;

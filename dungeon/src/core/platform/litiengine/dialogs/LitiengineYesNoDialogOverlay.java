@@ -36,6 +36,7 @@ final class LitiengineYesNoDialogOverlay implements LitiengineUiOverlay {
 
   private boolean yesPressed = false;
   private boolean noPressed = false;
+  private boolean leftButtonDownLastFrame = false;
 
   LitiengineYesNoDialogOverlay(String title, String text, String dialogId) {
     this.title = title;
@@ -74,6 +75,9 @@ final class LitiengineYesNoDialogOverlay implements LitiengineUiOverlay {
   private void handleInput() {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
+      yesPressed = false;
+      noPressed = false;
+      leftButtonDownLastFrame = false;
       return;
     }
 
@@ -82,13 +86,14 @@ final class LitiengineYesNoDialogOverlay implements LitiengineUiOverlay {
 
     Rectangle no = noBounds();
     Rectangle yes = yesBounds();
+    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
+    if (leftButtonDown && !leftButtonDownLastFrame) {
       noPressed = no.contains(mouseX, mouseY);
       yesPressed = yes.contains(mouseX, mouseY);
     }
 
-    if (InputManager.isButtonJustReleased(MouseButtons.LEFT)) {
+    if (!leftButtonDown && leftButtonDownLastFrame) {
       boolean releasedOnNo = noPressed && no.contains(mouseX, mouseY);
       boolean releasedOnYes = yesPressed && yes.contains(mouseX, mouseY);
 
@@ -103,6 +108,8 @@ final class LitiengineYesNoDialogOverlay implements LitiengineUiOverlay {
           .accept(null);
       }
     }
+
+    leftButtonDownLastFrame = leftButtonDown;
   }
 
   private Rectangle noBounds() {

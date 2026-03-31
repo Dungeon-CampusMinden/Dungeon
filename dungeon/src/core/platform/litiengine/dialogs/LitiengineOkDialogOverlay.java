@@ -31,6 +31,7 @@ final class LitiengineOkDialogOverlay implements LitiengineUiOverlay {
   private int height = DEFAULT_HEIGHT;
   private boolean visible = true;
   private boolean okPressed = false;
+  private boolean leftButtonDownLastFrame = false;
 
   LitiengineOkDialogOverlay(String title, String text, String dialogId) {
     this.title = title;
@@ -66,19 +67,22 @@ final class LitiengineOkDialogOverlay implements LitiengineUiOverlay {
   private void handleInput() {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
+      okPressed = false;
+      leftButtonDownLastFrame = false;
       return;
     }
 
     int mouseX = stage.mouseX();
     int mouseY = stage.mouseY();
     Rectangle ok = okBounds();
+    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    if (InputManager.isButtonJustPressed(MouseButtons.LEFT) && ok.contains(mouseX, mouseY)) {
-      okPressed = true;
+    if (leftButtonDown && !leftButtonDownLastFrame) {
+      okPressed = ok.contains(mouseX, mouseY);
     }
 
-    if (okPressed && InputManager.isButtonJustReleased(MouseButtons.LEFT)) {
-      boolean releasedInside = ok.contains(mouseX, mouseY);
+    if (!leftButtonDown && leftButtonDownLastFrame) {
+      boolean releasedInside = okPressed && ok.contains(mouseX, mouseY);
       okPressed = false;
 
       if (releasedInside) {
@@ -86,6 +90,8 @@ final class LitiengineOkDialogOverlay implements LitiengineUiOverlay {
           .accept(null);
       }
     }
+
+    leftButtonDownLastFrame = leftButtonDown;
   }
 
   private Rectangle okBounds() {
