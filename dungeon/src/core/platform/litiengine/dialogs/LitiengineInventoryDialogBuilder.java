@@ -1,0 +1,40 @@
+package core.platform.litiengine.dialogs;
+
+import contrib.components.InventoryComponent;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogCreationException;
+import core.Entity;
+import core.components.PlayerComponent;
+import core.ui.UiNodeHandle;
+import core.ui.litiengine.LitiengineUiNodeHandle;
+import core.utils.logging.DungeonLogger;
+
+/** Builds the LITIENGINE-backed inventory dialog. */
+public final class LitiengineInventoryDialogBuilder {
+  private static final DungeonLogger LOGGER =
+    DungeonLogger.getLogger(LitiengineInventoryDialogBuilder.class);
+
+  private LitiengineInventoryDialogBuilder() {}
+
+  public static UiNodeHandle build(DialogContext ctx) {
+    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
+    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
+
+    if (inventory == null) {
+      LOGGER.warn("Entity {} has no InventoryComponent for InventoryDialog", entity);
+      throw new DialogCreationException("Missing InventoryComponent for InventoryDialog");
+    }
+
+    String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(defaultTitle(entity));
+    return new LitiengineUiNodeHandle(new LitiengineInventoryDialogOverlay(title, inventory));
+  }
+
+  private static String defaultTitle(Entity entity) {
+    return entity
+      .fetch(PlayerComponent.class)
+      .map(PlayerComponent::playerName)
+      .filter(name -> !name.isBlank())
+      .orElseGet(() -> entity.name().isBlank() ? "Inventory" : entity.name());
+  }
+}
