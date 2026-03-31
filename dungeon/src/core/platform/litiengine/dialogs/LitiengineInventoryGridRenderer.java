@@ -10,8 +10,9 @@ import java.awt.Rectangle;
 /**
  * Shared visual renderer for inventory slot grids in LITIENGINE overlays.
  *
- * <p>This helper intentionally stays visual-only. It renders slot boxes and item labels,
- * but does not implement click, transfer, drag-and-drop, or item usage logic.
+ * <p>This helper intentionally stays lightweight. It renders slot boxes and item labels and also
+ * exposes slot geometry helpers so overlays can implement simple click interaction without
+ * duplicating grid calculations.
  */
 final class LitiengineInventoryGridRenderer {
 
@@ -51,20 +52,14 @@ final class LitiengineInventoryGridRenderer {
       y + g.getFontMetrics().getAscent());
   }
 
-  static void drawGrid(
-    Graphics2D g,
-    Item[] slots,
-    int startX,
-    int startY,
-    int columns) {
-
+  static void drawGrid(Graphics2D g, Item[] slots, int startX, int startY, int columns) {
     for (int i = 0; i < slots.length; i++) {
       Rectangle bounds = slotBounds(i, startX, startY, columns);
       drawSlot(g, bounds, i, slots[i]);
     }
   }
 
-  private static Rectangle slotBounds(int index, int startX, int startY, int columns) {
+  static Rectangle slotBounds(int index, int startX, int startY, int columns) {
     int col = index % columns;
     int row = index / columns;
 
@@ -73,6 +68,15 @@ final class LitiengineInventoryGridRenderer {
       startY + row * (SLOT_HEIGHT + SLOT_GAP),
       SLOT_WIDTH,
       SLOT_HEIGHT);
+  }
+
+  static int findSlotIndexAt(int mouseX, int mouseY, Item[] slots, int startX, int startY, int columns) {
+    for (int i = 0; i < slots.length; i++) {
+      if (slotBounds(i, startX, startY, columns).contains(mouseX, mouseY)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   private static void drawSlot(Graphics2D g, Rectangle bounds, int slotIndex, Item item) {
