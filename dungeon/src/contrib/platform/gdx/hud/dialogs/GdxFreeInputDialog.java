@@ -1,5 +1,6 @@
 package contrib.platform.gdx.hud.dialogs;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -11,18 +12,17 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 
 /**
- * Package-private Scene2D dialog for free text input.
+ * Package-private Scene2D free input dialog.
+ *
+ * <p>Creates a dialog with a text field for user input and OK/Cancel buttons.
  */
-final class FreeInputDialog {
-  /** Callback key for the input submission callback. */
-  public static final String CALLBACK_INPUT = "input";
-
+final class GdxFreeInputDialog {
   static final String TITLE_DEFAULT = "Frage";
   static final String OK_BUTTON = "OK";
   static final String CANCEL_BUTTON = "Abbrechen";
   static final String INPUT_PLACEHOLDER_DEFAULT = "Deine Antwort…";
 
-  private FreeInputDialog() {}
+  private GdxFreeInputDialog() {}
 
   /**
    * Creates the actual Scene2D dialog instance.
@@ -70,12 +70,23 @@ final class FreeInputDialog {
 
     Table content = dialog.getContentTable();
     content.pad(16);
-    content.add(new Label(question, skin)).align(Align.center).padBottom(10).row();
-    content.add(input).width(200).padBottom(10).row();
 
-    dialog.button(okLabel, okLabel);
+    Label questionLabel = new Label(question, skin);
+    questionLabel.setWrap(true);
+    questionLabel.setAlignment(Align.center);
+
+    content.add(questionLabel).width(600).padBottom(16).row();
+    content.add(input).width(600).row();
+
+    dialog.getButtonTable().padTop(16);
     dialog.button(cancelLabel, cancelLabel);
+    dialog.button(okLabel, okLabel);
 
+    dialog.key(Input.Keys.ENTER, okLabel);
+    dialog.key(Input.Keys.ESCAPE, cancelLabel);
+
+    dialog.setSize(700, 350);
+    dialog.pack();
     return dialog;
   }
 }

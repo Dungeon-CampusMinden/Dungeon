@@ -1,16 +1,13 @@
 package contrib.platform.gdx.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.HeadlessDialogGroup;
 import core.Game;
 
-/**
- * Builds the libGDX-backed free input dialog.
- */
+/** Builds the libGDX-backed free input dialog. */
 public final class GdxFreeInputDialogBuilder {
 
   private GdxFreeInputDialogBuilder() {}
@@ -23,16 +20,17 @@ public final class GdxFreeInputDialogBuilder {
    */
   public static Group build(DialogContext ctx) {
     String title =
-      ctx.find(DialogContextKeys.TITLE, String.class).orElse(FreeInputDialog.TITLE_DEFAULT);
+      ctx.find(DialogContextKeys.TITLE, String.class).orElse(GdxFreeInputDialog.TITLE_DEFAULT);
     String question = ctx.require(DialogContextKeys.QUESTION, String.class);
 
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup(
-        title, question, FreeInputDialog.OK_BUTTON, FreeInputDialog.CANCEL_BUTTON);
+        title,
+        question,
+        GdxFreeInputDialog.OK_BUTTON,
+        GdxFreeInputDialog.CANCEL_BUTTON);
     }
 
-    Dialog dialog = FreeInputDialog.create(UIUtils.defaultSkin(), title, question, ctx);
-    dialog.setSize(700, 350);
-    return dialog;
+    return GdxFreeInputDialog.create(UIUtils.defaultSkin(), title, question, ctx);
   }
 }
