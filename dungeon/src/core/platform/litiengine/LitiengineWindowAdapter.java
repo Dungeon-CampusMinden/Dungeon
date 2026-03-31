@@ -71,7 +71,7 @@ public final class LitiengineWindowAdapter implements WindowAdapter {
 
     try {
       if (fullscreen) {
-        Game.config().graphics().setDisplayMode(DisplayMode.FULLSCREEN);
+        Game.config().graphics().setDisplayMode(DisplayMode.BORDERLESS);
       } else {
         Game.config().graphics().setDisplayMode(DisplayMode.WINDOWED);
         Game.window()

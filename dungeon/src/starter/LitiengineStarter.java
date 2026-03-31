@@ -1,20 +1,28 @@
 package starter;
 
 import contrib.components.InventoryComponent;
+import contrib.components.UIComponent;
+import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.crafting.CraftingIngredient;
 import contrib.crafting.Recipe;
 import contrib.entities.EntityFactory;
 import contrib.entities.MiscFactory;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceBerry;
+import contrib.systems.EventScheduler;
 import core.Entity;
 import core.Game;
-import core.configuration.KeyboardConfig;
 import core.game.GameLoop;
+import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
+import core.platform.Platform;
+import core.utils.InputManager;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
@@ -31,10 +39,14 @@ import java.io.IOException;
  * <ul>
  *   <li>the hero starts with guaranteed crafting items,
  *   <li>a crafting cauldron is spawned next to the start tile,
- *   <li>a guaranteed test recipe is registered.
+ *   <li>a guaranteed test recipe is registered,
+ *   <li>a starter-only fallback opens crafting via {@code E} if the normal interaction path
+ *       does not react.
  * </ul>
  */
 public final class LitiengineStarter {
+  private static Entity craftingCauldron;
+
   private LitiengineStarter() {}
 
   static void main(String[] args) {
@@ -49,6 +61,11 @@ public final class LitiengineStarter {
     Game.disableAudio(false);
     Game.frameRate(30);
     Game.windowTitle("LITIENGINE Dungeon");
+
+    // Use borderless fullscreen on startup for the LITIENGINE test client.
+    PreRunConfiguration.windowWidth(1600);
+    PreRunConfiguration.windowHeight(900);
+    PreRunConfiguration.fullScreen(true);
 
     Game.userOnSetup(
       () -> {
@@ -70,8 +87,14 @@ public final class LitiengineStarter {
 
         Game.startTile()
           .map(tile -> tile.position().translate(Vector2.of(1f, 0f)))
-          .ifPresent(position -> Game.add(MiscFactory.newCraftingCauldron(position)));
+          .ifPresent(
+            position -> {
+              craftingCauldron = MiscFactory.newCraftingCauldron(position);
+              Game.add(craftingCauldron);
+            });
       });
+
+    Game.userOnFrame(LitiengineStarter::handleStarterShortcuts);
 
     LitienginePlatformBootstrap.init();
     Game.initialize();
@@ -101,5 +124,55 @@ public final class LitiengineStarter {
           inventory.add(new ItemResourceBerry());
           inventory.add(new ItemResourceBerry());
         });
+  }
+
+  /**
+   * Starter-only test shortcuts.
+   *
+   * <p>If the normal world interaction path does not react to {@code E}, we schedule a tiny fallback
+   * that opens the same crafting dialog directly for the stored test cauldron. If the normal
+   * interaction already opened a UI in the same frame, the fallback stays inactive.
+   *
+   * <p>Additionally, {@code ESC} leaves borderless/fullscreen when no dialog is open.
+   */
+  private static void handleStarterShortcuts() {
+    if (InputManager.isKeyJustPressed(KeyboardConfig.INTERACT_WORLD.value())) {
+      EventScheduler.scheduleAction(LitiengineStarter::openCraftingDialogIfStillClosed, 0);
+    }
+
+    if (InputManager.isKeyJustPressed(KeyboardConfig.CLOSE_UI.value())
+      && !hasOpenUi()
+      && Platform.window().isFullscreen()) {
+      Platform.window().setFullscreen(false);
+    }
+  }
+
+  private static boolean hasOpenUi() {
+    return Game.player().map(player -> player.isPresent(UIComponent.class)).orElse(false);
+  }
+
+  private static void openCraftingDialogIfStillClosed() {
+    if (hasOpenUi()) {
+      return;
+    }
+
+    Entity hero = Game.player().orElse(null);
+    if (hero == null || craftingCauldron == null) {
+      return;
+    }
+
+    if (hero.fetch(InventoryComponent.class).isEmpty()) {
+      return;
+    }
+
+    DialogContext context =
+      DialogContext.builder()
+        .type(DialogType.DefaultTypes.CRAFTING_GUI)
+        .put(DialogContextKeys.ENTITY, hero.id())
+        .put(DialogContextKeys.SECONDARY_ENTITY, craftingCauldron.id())
+        .put(DialogContextKeys.OWNER_ENTITY, hero.id())
+        .build();
+
+    hero.add(new UIComponent(context, true, hero.id()));
   }
 }
