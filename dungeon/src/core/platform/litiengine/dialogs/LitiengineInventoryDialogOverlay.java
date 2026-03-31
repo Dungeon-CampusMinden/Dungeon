@@ -34,6 +34,7 @@ final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
   private boolean visible = true;
 
   private Integer pressedSlotIndex = null;
+  private boolean rightButtonDownLastFrame = false;
 
   LitiengineInventoryDialogOverlay(
     String title, Entity owner, InventoryComponent inventory, boolean allowUseItems) {
@@ -105,25 +106,30 @@ final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
 
   private void handleInput(GridLayout grid) {
     if (!allowUseItems) {
+      pressedSlotIndex = null;
+      rightButtonDownLastFrame = false;
       return;
     }
 
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
+      pressedSlotIndex = null;
+      rightButtonDownLastFrame = false;
       return;
     }
 
     int mouseX = stage.mouseX();
     int mouseY = stage.mouseY();
+    boolean rightButtonDown = InputManager.isButtonPressed(MouseButtons.RIGHT);
 
-    if (InputManager.isButtonJustPressed(MouseButtons.RIGHT)) {
+    if (rightButtonDown && !rightButtonDownLastFrame) {
       int slotIndex =
         LitiengineInventoryGridRenderer.findSlotIndexAt(
           mouseX, mouseY, grid.slots(), grid.startX(), grid.startY(), grid.columns());
       pressedSlotIndex = slotIndex >= 0 ? slotIndex : null;
     }
 
-    if (InputManager.isButtonJustReleased(MouseButtons.RIGHT)) {
+    if (!rightButtonDown && rightButtonDownLastFrame) {
       int releasedSlotIndex =
         LitiengineInventoryGridRenderer.findSlotIndexAt(
           mouseX, mouseY, grid.slots(), grid.startX(), grid.startY(), grid.columns());
@@ -135,6 +141,8 @@ final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
         HeroController.useItem(owner, releasedSlotIndex);
       }
     }
+
+    rightButtonDownLastFrame = rightButtonDown;
   }
 
   @Override
