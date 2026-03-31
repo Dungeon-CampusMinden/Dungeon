@@ -52,6 +52,8 @@ public final class LitiengineDialogFactoryBootstrap {
     DialogFactory.replace(DialogType.DefaultTypes.INVENTORY, LitiengineInventoryDialogBuilder::build);
     DialogFactory.replace(
       DialogType.DefaultTypes.DUAL_INVENTORY, LitiengineDualInventoryDialogBuilder::build);
+    DialogFactory.replace(
+      DialogType.DefaultTypes.CRAFTING_GUI, LitiengineCraftingDialogBuilder::build);
 
     initialized = true;
   }
