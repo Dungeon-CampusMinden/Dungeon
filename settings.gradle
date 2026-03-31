@@ -1,3 +1,5 @@
 rootProject.name = 'Dungeon Projekt'
 
 include 'dungeon', 'blockly', 'advancedDungeon','escapeRoom','theLastHourEscapeRoom'
+include 'portal'
+
