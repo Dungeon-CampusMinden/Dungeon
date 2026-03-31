@@ -16,7 +16,7 @@ ext {
 
 
     // -- NETWORK / SERVER
-    nettyVersion = '4.2.10.Final'
+    nettyVersion = '4.2.12.Final'
 
     supportDependencies = [
         // LibGDX
