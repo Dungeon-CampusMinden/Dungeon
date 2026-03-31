@@ -8,9 +8,6 @@ import contrib.crafting.CraftingIngredient;
 import contrib.crafting.Recipe;
 import contrib.entities.EntityFactory;
 import contrib.entities.MiscFactory;
-import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceBerry;
@@ -165,14 +162,6 @@ public final class LitiengineStarter {
       return;
     }
 
-    DialogContext context =
-      DialogContext.builder()
-        .type(DialogType.DefaultTypes.CRAFTING_GUI)
-        .put(DialogContextKeys.ENTITY, hero.id())
-        .put(DialogContextKeys.SECONDARY_ENTITY, craftingCauldron.id())
-        .put(DialogContextKeys.OWNER_ENTITY, hero.id())
-        .build();
-
-    hero.add(new UIComponent(context, true, hero.id()));
+    hero.add(MiscFactory.createCraftingDialogUi(hero, craftingCauldron));
   }
 }

@@ -1,6 +1,10 @@
 package contrib.entities;
 
 import contrib.components.*;
+import contrib.crafting.Crafting;
+import contrib.crafting.CraftingResult;
+import contrib.crafting.CraftingType;
+import contrib.crafting.Recipe;
 import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
@@ -66,6 +70,8 @@ public final class MiscFactory {
   private static final SimpleIPath STONE_TEXTURES = new SimpleIPath("objects/stone");
   private static final SimpleIPath VASE_TEXTURES = new SimpleIPath("objects/vase");
   private static final SimpleIPath COOKING_POT_TEXTURES = new SimpleIPath("objects/magic_kettle");
+  private static final String CALLBACK_CRAFT = "craft";
+  private static final String CALLBACK_CANCEL = "cancel";
 
   /** Maximum number of items displayed per row in the inventory UI. */
   private static final int INVENTORY_UI_MAX_ITEMS_PER_ROW = 6;
@@ -321,26 +327,18 @@ public final class MiscFactory {
     DrawComponent dc = new DrawComponent(new SimpleIPath("objects/cauldron"));
     dc.depth(DepthLayer.Player.depth());
     cauldron.add(dc);
+
     InventoryComponent invComp = new InventoryComponent();
     cauldron.add(invComp);
+
     cauldron.add(
-        new InteractionComponent(
-            () ->
-                new Interaction(
-                    (entity, who) ->
-                        who.fetch(InventoryComponent.class)
-                            .ifPresent(
-                                ic -> {
-                                  var context =
-                                      DialogContext.builder()
-                                          .type(DialogType.DefaultTypes.CRAFTING_GUI)
-                                          .put(DialogContextKeys.ENTITY, who.id())
-                                          .put(DialogContextKeys.SECONDARY_ENTITY, entity.id())
-                                          .put(DialogContextKeys.OWNER_ENTITY, who.id())
-                                          .build();
-                                  UIComponent ui = new UIComponent(context, true, who.id());
-                                  who.add(ui);
-                                }))));
+      new InteractionComponent(
+        () ->
+          new Interaction(
+            (entity, who) ->
+              who.fetch(InventoryComponent.class)
+                .ifPresent(ic -> who.add(createCraftingDialogUi(who, entity))))));
+
     cauldron.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
     return cauldron;
   }
@@ -356,6 +354,89 @@ public final class MiscFactory {
    */
   public static Entity newCraftingCauldron() {
     return newCraftingCauldron(PositionComponent.ILLEGAL_POSITION);
+  }
+
+  public static UIComponent createCraftingDialogUi(Entity who, Entity craftingEntity) {
+    var context =
+      DialogContext.builder()
+        .type(DialogType.DefaultTypes.CRAFTING_GUI)
+        .put(DialogContextKeys.ENTITY, who.id())
+        .put(DialogContextKeys.SECONDARY_ENTITY, craftingEntity.id())
+        .put(DialogContextKeys.OWNER_ENTITY, who.id())
+        .build();
+
+    UIComponent ui = getUiComponent(who, craftingEntity, context);
+
+    ui.onClose(
+      uic -> {
+        InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
+        InventoryComponent craftingInventory =
+          craftingEntity.fetch(InventoryComponent.class).orElse(null);
+
+        if (targetInventory == null || craftingInventory == null) {
+          return;
+        }
+
+        cancelCrafting(targetInventory, craftingInventory);
+      });
+
+    return ui;
+  }
+
+  private static UIComponent getUiComponent(Entity who, Entity craftingEntity, DialogContext context) {
+    UIComponent ui = new UIComponent(context, true, who.id());
+
+    ui.registerCallback(
+      CALLBACK_CRAFT,
+      data -> {
+        InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
+        InventoryComponent craftingInventory =
+          craftingEntity.fetch(InventoryComponent.class).orElse(null);
+
+        if (targetInventory == null || craftingInventory == null) {
+          return;
+        }
+
+        craftFromInventory(targetInventory, craftingInventory);
+      });
+
+    ui.registerCallback(
+      CALLBACK_CANCEL,
+      data -> {
+        InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
+        InventoryComponent craftingInventory =
+          craftingEntity.fetch(InventoryComponent.class).orElse(null);
+
+        if (targetInventory == null || craftingInventory == null) {
+          return;
+        }
+
+        cancelCrafting(targetInventory, craftingInventory);
+      });
+    return ui;
+  }
+
+  private static void craftFromInventory(
+    InventoryComponent targetInventory, InventoryComponent craftingInventory) {
+    Item[] ingredients =
+      Arrays.stream(craftingInventory.items()).filter(Objects::nonNull).toArray(Item[]::new);
+
+    Optional<Recipe> recipe = Crafting.recipeByIngredients(ingredients);
+    if (recipe.isEmpty()) {
+      return;
+    }
+
+    CraftingResult[] results = recipe.get().results();
+    Arrays.stream(results)
+      .filter(result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
+      .forEach(result -> targetInventory.add((Item) result));
+
+    craftingInventory.clear();
+  }
+
+  private static void cancelCrafting(
+    InventoryComponent targetInventory, InventoryComponent craftingInventory) {
+    craftingInventory.transferAll(targetInventory);
   }
 
   /**
