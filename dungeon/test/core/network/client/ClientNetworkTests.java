@@ -3,13 +3,22 @@ package core.network.client;
 import static org.junit.jupiter.api.Assertions.*;
 
 import core.network.ConnectionListener;
+import core.network.config.NetworkConfig;
 import core.network.messages.c2s.InputMessage;
+import core.network.server.Session;
 import core.utils.Vector2;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import java.lang.reflect.Field;
+import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 /**
  * Unit tests for {@link ClientNetwork}.
@@ -123,6 +132,105 @@ public class ClientNetworkTests {
     ConnectionListener listener = new TestConnectionListener();
     assertDoesNotThrow(() -> client.addConnectionListener(listener));
     assertDoesNotThrow(() -> client.removeConnectionListener(listener));
+  }
+
+  /** Validates that small inputs fall back to TCP before UDP registration succeeds. */
+  @Test
+  public void test_sendUnreliableInputFallsBackToTcpBeforeAck() throws Exception {
+    AtomicInteger udpCalls = new AtomicInteger();
+    AtomicInteger tcpCalls = new AtomicInteger();
+    Session session = testSession(udpCalls, tcpCalls);
+    session.udpAddress(new InetSocketAddress(TEST_HOST, TEST_PORT));
+    session.udpReady(false);
+    prepareConnectedClient(session, (short) 7);
+
+    client.sendUnreliableInput(
+        new InputMessage(
+            1, 1, (short) 1, InputMessage.Action.MOVE, new InputMessage.Move(Vector2.of(1, 0))));
+
+    assertEquals(0, udpCalls.get());
+    assertEquals(1, tcpCalls.get());
+  }
+
+  /** Validates that UDP resumes once the server acknowledges the registration. */
+  @Test
+  public void test_sendUnreliableInputUsesUdpAfterAck() throws Exception {
+    AtomicInteger udpCalls = new AtomicInteger();
+    AtomicInteger tcpCalls = new AtomicInteger();
+    Session session = testSession(udpCalls, tcpCalls);
+    session.udpAddress(new InetSocketAddress(TEST_HOST, TEST_PORT));
+    session.udpReady(false);
+    prepareConnectedClient(session, (short) 7);
+
+    client.onRegisterAck(true);
+    client.sendUnreliableInput(
+        new InputMessage(
+            1, 1, (short) 1, InputMessage.Action.MOVE, new InputMessage.Move(Vector2.of(0, 1))));
+
+    assertTrue(client.udpRecoveryState().udpReady());
+    assertEquals(1, udpCalls.get());
+    assertEquals(0, tcpCalls.get());
+  }
+
+  /** Validates that oversized inputs always use TCP regardless of UDP state. */
+  @Test
+  public void test_sendUnreliableInputUsesTcpForOversizedPayload() throws Exception {
+    AtomicInteger udpCalls = new AtomicInteger();
+    AtomicInteger tcpCalls = new AtomicInteger();
+    Session session = testSession(udpCalls, tcpCalls);
+    session.udpAddress(new InetSocketAddress(TEST_HOST, TEST_PORT));
+    session.udpReady(true);
+    prepareConnectedClient(session, (short) 7);
+
+    client.sendUnreliableInput(
+        new InputMessage(
+            1,
+            1,
+            (short) 1,
+            InputMessage.Action.CUSTOM,
+            new InputMessage.Custom("test:large", new byte[NetworkConfig.SAFE_UDP_MTU + 1], 1)));
+
+    assertEquals(0, udpCalls.get());
+    assertEquals(1, tcpCalls.get());
+  }
+
+  private Session testSession(AtomicInteger udpCalls, AtomicInteger tcpCalls) {
+    return new Session(
+        Mockito.mock(ChannelHandlerContext.class),
+        (target, msg) -> {
+          udpCalls.incrementAndGet();
+          return CompletableFuture.completedFuture(true);
+        },
+        (ctx, msg) -> {
+          tcpCalls.incrementAndGet();
+          return CompletableFuture.completedFuture(true);
+        });
+  }
+
+  private void prepareConnectedClient(Session session, short assignedClientId) throws Exception {
+    setField("session", session);
+    setField("clientId", assignedClientId);
+
+    Channel tcpChannel = Mockito.mock(Channel.class);
+    Mockito.when(tcpChannel.isActive()).thenReturn(true);
+    setField("tcp", tcpChannel);
+
+    AtomicBoolean running = atomicBooleanField("running");
+    AtomicBoolean connected = atomicBooleanField("connected");
+    running.set(true);
+    connected.set(true);
+  }
+
+  private AtomicBoolean atomicBooleanField(String fieldName) throws Exception {
+    Field field = ClientNetwork.class.getDeclaredField(fieldName);
+    field.setAccessible(true);
+    return (AtomicBoolean) field.get(client);
+  }
+
+  private void setField(String fieldName, Object value) throws Exception {
+    Field field = ClientNetwork.class.getDeclaredField(fieldName);
+    field.setAccessible(true);
+    field.set(client, value);
   }
 
   /** Test implementation of {@link ConnectionListener} for validating listener behavior. */
