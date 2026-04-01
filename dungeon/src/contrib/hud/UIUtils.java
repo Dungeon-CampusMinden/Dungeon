@@ -173,7 +173,7 @@ public final class UIUtils {
    */
   public static Stream<InventoryComponent> getInventoriesFromUI(UIComponent ui) {
     return ui.dialog()
-      .unwrap(InventoryComponentProvider.class)
+      .flatMap(handle -> handle.unwrap(InventoryComponentProvider.class))
       .stream()
       .flatMap(InventoryComponentProvider::inventoryComponents);
   }

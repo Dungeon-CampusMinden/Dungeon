@@ -2,6 +2,7 @@ package contrib.hud.systems;
 
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogFactory;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -48,9 +49,11 @@ public final class HudSystem extends System {
    */
   public Optional<Tuple<Entity, UIComponent>> topmostCloseableUI() {
     return entityUIComponentMap.entrySet().stream()
-        .filter(entry -> entry.getValue().isVisible() && entry.getValue().canBeClosed())
-        .max(Comparator.comparingInt(entry -> entry.getValue().dialog().getZIndex()))
-        .map(entry -> Tuple.of(entry.getKey(), entry.getValue()));
+      .filter(entry -> entry.getValue().isVisible() && entry.getValue().canBeClosed())
+      .max(
+        Comparator.comparingInt(
+          entry -> entry.getValue().dialog().map(UiNodeHandle::getZIndex).orElse(-1)))
+      .map(entry -> Tuple.of(entry.getKey(), entry.getValue()));
   }
 
   /**
@@ -77,7 +80,7 @@ public final class HudSystem extends System {
         .fetch(UIComponent.class)
         .orElseThrow(() -> MissingComponentException.build(entity, UIComponent.class));
 
-    UiNodeHandle dialogHandle = component.dialog();
+    UiNodeHandle dialogHandle = resolveDialogHandle(component);
 
     // check if we should draw it
     int[] myIds = Game.allPlayers().mapToInt(Entity::id).toArray();
@@ -126,6 +129,17 @@ public final class HudSystem extends System {
         });
   }
 
+  private UiNodeHandle resolveDialogHandle(UIComponent component) {
+    return component
+      .dialog()
+      .orElseGet(
+        () -> {
+          UiNodeHandle created = DialogFactory.create(component.dialogContext());
+          component.dialog(created);
+          return created;
+        });
+  }
+
   /**
    * Sends the dialog to all connected and relevant clients.
    *
@@ -136,12 +150,11 @@ public final class HudSystem extends System {
    * @param component the UIComponent to send
    * @param targetIds all clients that are connect and should receive the dialog
    */
-  private void sendDialogToClients(
-      final Entity entity, final UIComponent component, int[] targetIds) {
+  private void sendDialogToClients(final Entity entity, final UIComponent component, int[] targetIds) {
     Set<Short> clientIds =
-        (targetIds.length == 0)
-            ? NetworkUtils.getAllConnectedClientIds()
-            : NetworkUtils.entityIdsToClientIds(targetIds);
+      (targetIds.length == 0)
+        ? NetworkUtils.getAllConnectedClientIds()
+        : NetworkUtils.entityIdsToClientIds(targetIds);
 
     if (clientIds.isEmpty()) {
       return; // No clients to send to
@@ -151,7 +164,7 @@ public final class HudSystem extends System {
 
     // Send dialog to all target clients
     DialogShowMessage msg =
-        new DialogShowMessage(component.dialogContext(), component.canBeClosed());
+      new DialogShowMessage(component.dialogContext(), component.canBeClosed());
     for (short clientId : clientIds) {
       Game.network().send(clientId, msg, true);
     }
@@ -183,9 +196,7 @@ public final class HudSystem extends System {
 
   private boolean pausesGame(final Entity entity) {
     Optional<UIComponent> uiComponent = entity.fetch(UIComponent.class);
-    return uiComponent
-        .filter(component -> component.isVisible() && component.willPauseGame())
-        .isPresent();
+    return uiComponent.filter(component -> component.isVisible() && component.willPauseGame()).isPresent();
   }
 
   private void pauseGame() {

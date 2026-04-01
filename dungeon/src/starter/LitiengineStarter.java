@@ -1,7 +1,6 @@
 package starter;
 
 import contrib.components.InventoryComponent;
-import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.crafting.CraftingIngredient;
@@ -11,15 +10,12 @@ import contrib.entities.MiscFactory;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceBerry;
-import contrib.systems.EventScheduler;
 import core.Entity;
 import core.Game;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
-import core.platform.Platform;
-import core.utils.InputManager;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;

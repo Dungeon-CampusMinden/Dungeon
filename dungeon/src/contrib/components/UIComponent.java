@@ -1,11 +1,12 @@
 package contrib.components;
 
-import core.ui.UiNodeHandle;
 import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogFactory;
 import core.Component;
+import core.ui.UiNodeHandle;
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -29,6 +30,12 @@ public final class UIComponent implements Component {
 
   private Consumer<UIComponent> onClose = (uiComponent) -> {};
 
+  /**
+   * Lazily installed by the HUD layer.
+   *
+   * <p>The component itself only stores dialog state and configuration. Concrete dialog handle
+   * creation is performed by the UI/HUD system.
+   */
   private UiNodeHandle dialog;
 
   /**
@@ -41,10 +48,10 @@ public final class UIComponent implements Component {
    *     UIs). Empty array for all entities.
    */
   public UIComponent(
-      DialogContext dialogContext,
-      boolean willPauseGame,
-      boolean canBeClosed,
-      int... targetEntityIds) {
+    DialogContext dialogContext,
+    boolean willPauseGame,
+    boolean canBeClosed,
+    int... targetEntityIds) {
     this.dialogContext = dialogContext;
     this.willPauseGame = willPauseGame;
     this.canBeClosed = canBeClosed;
@@ -78,9 +85,9 @@ public final class UIComponent implements Component {
   /**
    * Registers a callback for the given key.
    *
-   * <p>Callbacks are stored server-side only. When a client sends a {@link
-   * core.network.messages.c2s.DialogResponseMessage}, the server looks up the callback by key and
-   * executes it with the provided data.
+   * <p>Callbacks are stored server-side only. When a client sends a
+   * {@link core.network.messages.c2s.DialogResponseMessage}, the server looks up the callback by
+   * key and executes it with the provided data.
    *
    * @param key the callback key (e.g., "onConfirm", "craft", "cancel")
    * @param callback the callback to execute, receives optional custom data
@@ -131,7 +138,7 @@ public final class UIComponent implements Component {
    * @return true when the dialog is shown
    */
   public boolean isVisible() {
-    return dialog().isVisible();
+    return dialog != null && dialog.isVisible();
   }
 
   /**
@@ -172,11 +179,21 @@ public final class UIComponent implements Component {
     return dialogContext;
   }
 
+  /**
+   * Returns the installed dialog handle, if one already exists.
+   *
+   * @return optional dialog handle
+   */
+  public Optional<UiNodeHandle> dialog() {
+    return Optional.ofNullable(dialog);
+  }
 
-  public UiNodeHandle dialog() {
-    if (dialog == null) {
-      dialog = DialogFactory.create(dialogContext);
-    }
-    return dialog;
+  /**
+   * Installs or replaces the concrete dialog handle.
+   *
+   * @param dialog the dialog handle created by the HUD layer
+   */
+  public void dialog(UiNodeHandle dialog) {
+    this.dialog = dialog;
   }
 }

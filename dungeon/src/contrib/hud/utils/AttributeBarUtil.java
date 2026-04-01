@@ -65,7 +65,7 @@ public final class AttributeBarUtil {
     Game.add(barEntity);
 
     uiComp.dialog()
-      .unwrap(AttributeBarHandleProvider.class)
+      .flatMap(handle -> handle.unwrap(AttributeBarHandleProvider.class))
       .map(AttributeBarHandleProvider::attributeBarHandle)
       .ifPresentOrElse(
         handle -> barMapping.put(barDisplayable.getClass(), handle),

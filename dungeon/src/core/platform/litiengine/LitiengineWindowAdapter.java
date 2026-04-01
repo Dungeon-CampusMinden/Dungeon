@@ -1,10 +1,7 @@
 package core.platform.litiengine;
 
-import core.game.PreRunConfiguration;
 import core.platform.WindowAdapter;
 import de.gurkenlabs.litiengine.Game;
-import de.gurkenlabs.litiengine.configuration.DisplayMode;
-import de.gurkenlabs.litiengine.gui.screens.Resolution;
 
 /**
  * LITIENGINE-backed implementation of the platform window abstraction.

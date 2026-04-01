@@ -489,7 +489,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
 
                 UIComponent uiComponent =
                     Game.player().flatMap(e -> e.fetch(UIComponent.class)).orElse(null);
-                if (uiComponent != null && uiComponent.dialog().unwrap(GUICombination.class).isPresent()) {
+                if (uiComponent != null
+                  && uiComponent.dialog().flatMap(handle -> handle.unwrap(GUICombination.class)).isPresent()) {
                   // if two inventories are open, transfer items between them if key is pressed
                   if (KeyboardConfig.TRANSFER_ITEM.value() == button) {
                     int sourceSlot = getSlotByMousePosition();

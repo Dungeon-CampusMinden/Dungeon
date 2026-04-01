@@ -21,6 +21,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.debug.DebugGameplayActions;
 import core.level.Tile;
+import core.ui.UiNodeHandle;
 import core.utils.IVoidFunction;
 import core.utils.InputManager;
 import core.utils.Point;
@@ -152,9 +153,9 @@ public class Debugger extends System {
 
   private static void pause() {
     UIComponent ui =
-        DialogFactory.show(
-            DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).center(false).build());
-    ui.dialog().setVisible(true);
+      DialogFactory.show(
+        DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).center(false).build());
+    ui.dialog().ifPresent(dialog -> dialog.setVisible(true));
     pauseMenu = ui.dialogContext().ownerEntity();
   }
 
@@ -165,7 +166,10 @@ public class Debugger extends System {
 
   private static boolean isPaused() {
     if (pauseMenu == null) return false;
-    return pauseMenu.fetch(UIComponent.class).map(x -> x.dialog().isAttached()).orElse(false);
+    return pauseMenu.fetch(UIComponent.class)
+      .flatMap(UIComponent::dialog)
+      .map(UiNodeHandle::isAttached)
+      .orElse(false);
   }
 
   private static void ADVANCE_FRAME() {
