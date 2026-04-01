@@ -2,6 +2,7 @@ package portal.physicsobject;
 
 import contrib.components.AttachmentComponent;
 import contrib.components.CollideComponent;
+import contrib.components.TransportableComponent;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -43,6 +44,8 @@ public class Cube {
 
     CollideComponent cc = createCollideComponent(attached);
     portalCube.add(cc);
+    TransportableComponent tComp = new TransportableComponent();
+    portalCube.add(tComp);
 
     if (isPickupable)
       portalCube.add(new InteractionComponent(() -> pickupInteraction(attached, portalCube, cc)));
