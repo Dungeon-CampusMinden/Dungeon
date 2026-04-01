@@ -17,7 +17,7 @@ import spriteTestDungeon.level.Level01;
  *
  * <p>Usage: run with the Gradle task {@code runDemoRoom}.
  */
-public class SpriteTestRoom {
+public class SpriteTestRoom extends Starter {
   private static final boolean DEBUG_MODE = true;
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final int START_LEVEL = 0;
@@ -29,6 +29,14 @@ public class SpriteTestRoom {
    * @throws IOException If an I/O error occurs.
    */
   public static void main(String[] args) throws IOException {
+    configGame();
+    onSetup();
+
+    Game.windowTitle("Sprite Test Room");
+    Game.run();
+  }
+
+  public void run() throws IOException {
     configGame();
     onSetup();
 
