@@ -371,13 +371,13 @@ public final class HeroBuilder {
                         InputMessage.Action.INTERACT, SkillTools.cursorPositionAsPoint())),
         false);
     inputComp.registerCallback(
-        KeyboardConfig.INTERACT_WORLD.value(),
-        (caller) ->
-            Game.network()
-                .sendInput(
-                    new InputMessage(
-                        InputMessage.Action.INTERACT, SkillTools.cursorPositionAsPoint())),
-        false);
+      KeyboardConfig.INTERACT_WORLD.value(),
+      (caller) ->
+        Game.network()
+          .sendInput(
+            new InputMessage(
+              InputMessage.Action.INTERACT, keyboardInteractionPoint(caller))),
+      false);
 
     // UI controls
     inputComp.registerCallback(
@@ -413,5 +413,11 @@ public final class HeroBuilder {
         false,
         true);
   }
-  // endregion
+
+  private static Point keyboardInteractionPoint(Entity caller) {
+    return caller
+      .fetch(PositionComponent.class)
+      .map(PositionComponent::position)
+      .orElseGet(SkillTools::cursorPositionAsPoint);
+  }
 }
