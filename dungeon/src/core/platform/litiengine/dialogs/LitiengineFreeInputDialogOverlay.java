@@ -48,6 +48,7 @@ final class LitiengineFreeInputDialogOverlay implements LitiengineUiOverlay {
   private boolean visible = true;
 
   private int pressedButtonIndex = -1;
+  private boolean leftButtonDownLastFrame = false;
 
   LitiengineFreeInputDialogOverlay(
     String title,
@@ -128,6 +129,8 @@ final class LitiengineFreeInputDialogOverlay implements LitiengineUiOverlay {
   private void handleInput() {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
+      pressedButtonIndex = -1;
+      leftButtonDownLastFrame = false;
       return;
     }
 
@@ -161,26 +164,14 @@ final class LitiengineFreeInputDialogOverlay implements LitiengineUiOverlay {
     int mouseX = stage.mouseX();
     int mouseY = stage.mouseY();
     List<Rectangle> buttons = buttonBounds();
+    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
-      pressedButtonIndex = -1;
-      for (int i = 0; i < buttons.size(); i++) {
-        if (buttons.get(i).contains(mouseX, mouseY)) {
-          pressedButtonIndex = i;
-          break;
-        }
-      }
+    if (leftButtonDown && !leftButtonDownLastFrame) {
+      pressedButtonIndex = buttonIndexAt(mouseX, mouseY, buttons);
     }
 
-    if (InputManager.isButtonJustReleased(MouseButtons.LEFT)) {
-      int releasedIndex = -1;
-      for (int i = 0; i < buttons.size(); i++) {
-        if (buttons.get(i).contains(mouseX, mouseY)) {
-          releasedIndex = i;
-          break;
-        }
-      }
-
+    if (!leftButtonDown && leftButtonDownLastFrame) {
+      int releasedIndex = buttonIndexAt(mouseX, mouseY, buttons);
       int previouslyPressed = pressedButtonIndex;
       pressedButtonIndex = -1;
 
@@ -192,6 +183,17 @@ final class LitiengineFreeInputDialogOverlay implements LitiengineUiOverlay {
         }
       }
     }
+
+    leftButtonDownLastFrame = leftButtonDown;
+  }
+
+  private int buttonIndexAt(int mouseX, int mouseY, List<Rectangle> buttons) {
+    for (int i = 0; i < buttons.size(); i++) {
+      if (buttons.get(i).contains(mouseX, mouseY)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   private void onSubmit() {
