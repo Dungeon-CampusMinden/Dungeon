@@ -50,6 +50,7 @@ final class LitiengineKeypadDialogOverlay implements LitiengineUiOverlay {
   private boolean visible = true;
 
   private int pressedButtonIndex = -1;
+  private boolean leftButtonDownLastFrame = false;
 
   LitiengineKeypadDialogOverlay(Entity keypad) {
     this.keypad = keypad;
@@ -103,18 +104,21 @@ final class LitiengineKeypadDialogOverlay implements LitiengineUiOverlay {
   private void handleInput() {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
+      pressedButtonIndex = -1;
+      leftButtonDownLastFrame = false;
       return;
     }
 
     int mouseX = stage.mouseX();
     int mouseY = stage.mouseY();
     List<Rectangle> buttons = buttonBounds();
+    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
-    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
+    if (leftButtonDown && !leftButtonDownLastFrame) {
       pressedButtonIndex = findButtonIndex(mouseX, mouseY, buttons);
     }
 
-    if (InputManager.isButtonJustReleased(MouseButtons.LEFT)) {
+    if (!leftButtonDown && leftButtonDownLastFrame) {
       int releasedIndex = findButtonIndex(mouseX, mouseY, buttons);
       int previouslyPressed = pressedButtonIndex;
       pressedButtonIndex = -1;
@@ -123,6 +127,8 @@ final class LitiengineKeypadDialogOverlay implements LitiengineUiOverlay {
         onButtonPress(BUTTON_LABELS.get(releasedIndex));
       }
     }
+
+    leftButtonDownLastFrame = leftButtonDown;
   }
 
   private int findButtonIndex(int mouseX, int mouseY, List<Rectangle> buttons) {
