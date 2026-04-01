@@ -4,6 +4,7 @@ import contrib.hud.DialogUtils;
 import contrib.utils.DynamicCompiler;
 import core.Entity;
 import core.Game;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import java.util.Optional;
@@ -22,7 +23,7 @@ public class PortalUtils {
 
   /** Path to the user-defined calculations source file. */
   private static final SimpleIPath CALCULATIONS_PATH =
-      new SimpleIPath("advancedDungeon/src/portal/riddles/MyCalculations.java");
+    new SimpleIPath("advancedDungeon/src/portal/riddles/MyCalculations.java");
 
   /** Fully qualified class name of the user-defined calculations implementation. */
   private static final String CALCULATIONS_CLASSNAME = "portal.riddles.MyCalculations";
@@ -41,8 +42,8 @@ public class PortalUtils {
    */
   public static Optional<Entity> getBluePortal() {
     return Game.levelEntities()
-        .filter(entity -> entity.name().equals(BLUE_PORTAL_NAME))
-        .findFirst();
+      .filter(entity -> entity.name().equals(BLUE_PORTAL_NAME))
+      .findFirst();
   }
 
   /**
@@ -53,8 +54,8 @@ public class PortalUtils {
    */
   public static Optional<Entity> getGreenPortal() {
     return Game.levelEntities()
-        .filter(entity -> entity.name().equals(GREEN_PORTAL_NAME))
-        .findFirst();
+      .filter(entity -> entity.name().equals(GREEN_PORTAL_NAME))
+      .findFirst();
   }
 
   /**
@@ -85,8 +86,8 @@ public class PortalUtils {
     }
 
     // Fallback: place exit point in front of the portal based on its view direction
-    return Tools.getPositionComponent(portal)
-        .position()
-        .translate(Tools.getPositionComponent(portal).viewDirection());
+    Point portalPosition = Tools.getPosition(portal);
+    Direction portalViewDirection = Tools.getViewDirection(portal);
+    return portalPosition.translate(portalViewDirection);
   }
 }
