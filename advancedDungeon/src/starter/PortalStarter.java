@@ -33,6 +33,9 @@ import portal.portals.PortalColor;
 import portal.portals.PortalExtendSystem;
 import portal.portals.PortalSkill;
 import portal.portals.abstraction.PortalConfig;
+import portal.PortalRegistry;
+import portal.portals.abstraction.Calculations;
+import portal.energyPellet.abstraction.EnergyPelletCatcherBehavior;
 
 /**
  * Starter for the Portal Dungeon.
@@ -186,6 +189,30 @@ public class PortalStarter {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
+        PortalRegistry.setDebugMode(DEBUG_MODE);
+        PortalRegistry.registerCalculations(
+          () -> {
+            try {
+              return (Calculations)
+                DynamicCompiler.loadUserInstance(
+                  new SimpleIPath("advancedDungeon/src/portal/riddles/MyCalculations.java"),
+                  "portal.riddles.MyCalculations");
+            } catch (Exception e) {
+              throw new RuntimeException("Failed to load MyCalculations", e);
+            }
+          });
+
+        PortalRegistry.registerPelletCatcherBehavior(
+          () -> {
+            try {
+              return (EnergyPelletCatcherBehavior)
+                DynamicCompiler.loadUserInstance(
+                  new SimpleIPath("advancedDungeon/src/portal/riddles/MyEnergyPelletCatcherBehavior.java"),
+                  "portal.riddles.MyEnergyPelletCatcherBehavior");
+            } catch (Exception e) {
+              throw new RuntimeException("Failed to load MyEnergyPelletCatcherBehavior", e);
+            }
+          });
           WindowEventManager.registerFocusChangeListener(
               isInFocus -> {
                 if (isInFocus && !DEBUG_MODE) recompilePlayerControl();
