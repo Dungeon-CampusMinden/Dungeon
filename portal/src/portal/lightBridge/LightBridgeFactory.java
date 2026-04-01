@@ -26,7 +26,6 @@ import portal.PortalRegistry;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
 
-
 /**
  * Factory for creating and managing light bridges and their emitters. A light bridge consists of
  * segments that are spawned on activation and removed on deactivation. Pits underneath segments are
@@ -424,11 +423,9 @@ public class LightBridgeFactory {
      */
     private Point calculateEndPoint(
         Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
-      Object o = null;
       try {
-        Point endPoint =
-          PortalRegistry.getCalculations().calculateLightWallAndBridgeEnd(from, beamDirection, stoppingTiles);
-        return endPoint;
+        return PortalRegistry.getCalculations()
+            .calculateLightWallAndBridgeEnd(from, beamDirection, stoppingTiles);
       } catch (Exception e) {
         if (PortalRegistry.isDebugMode()) e.printStackTrace();
         DialogUtils.showTextPopup("Da stimmt etwas mit meinen Berechnungen nicht,", "Code Error");
