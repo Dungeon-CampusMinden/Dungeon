@@ -19,7 +19,9 @@ import core.utils.Vector2;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
+import java.awt.*;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Properties;
 import java.util.Set;
 import level.produs.*;
@@ -56,6 +58,8 @@ public class Client {
    */
   public static boolean runInWeb = false;
 
+  private static int webserverPort = 8081;
+
   /**
    * Setup and run the game. Also start the server that is listening to the requests from blockly
    * frontend.
@@ -79,7 +83,8 @@ public class Client {
     }
 
     if (runInWeb) {
-      FrontendServer.run();
+      FrontendServer.run(webserverPort);
+      openBrowser("http://localhost:" + webserverPort);
     }
 
     StateMachine.setResetFrame(false);
@@ -263,5 +268,17 @@ public class Client {
     DungeonLoader.reloadCurrentLevel();
     Game.system(PositionSystem.class, System::run);
     DialogTracker.instance().clear();
+  }
+
+  private static void openBrowser(String url) {
+    // open the browser on this port
+    if (Desktop.isDesktopSupported()) {
+      Desktop desktop = Desktop.getDesktop();
+      try {
+        desktop.browse(new URI(url));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
   }
 }
