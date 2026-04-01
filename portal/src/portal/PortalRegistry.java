@@ -12,8 +12,13 @@ public final class PortalRegistry {
 
   private PortalRegistry() {}
 
-  public static void setDebugMode(boolean debug) { debugMode = debug; }
-  public static boolean isDebugMode() { return debugMode; }
+  public static void setDebugMode(boolean debug) {
+    debugMode = debug;
+  }
+
+  public static boolean isDebugMode() {
+    return debugMode;
+  }
 
   public static void registerCalculations(Supplier<Calculations> supplier) {
     calculationsSupplier = supplier;

@@ -10,13 +10,11 @@ import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.path.SimpleIPath;
 import portal.PortalRegistry;
-import portal.energyPellet.abstraction.EnergyPelletCatcherBehavior;
 import portal.util.ToggleableComponent;
 
 /** An EnergyPelletCatcher is like a switch that activates when it is hit by an Energy Pellet. */
 public class EnergyPelletCatcher {
   private static final SimpleIPath PELLET_CATCHER = new SimpleIPath("portal/pellet_catcher");
-
 
   /**
    * Creates a new entity that can catch energy pellets.
@@ -35,7 +33,6 @@ public class EnergyPelletCatcher {
     TriConsumer<Entity, Entity, Direction> action =
         (self, pellet, direction) -> {
           if (pellet.name().matches("energyPelletLauncher_\\d+_skill_projectile")) {
-            Object o = null;
             try {
               PortalRegistry.getPelletCatcherBehavior().catchPellet(self, pellet);
             } catch (Exception e) {

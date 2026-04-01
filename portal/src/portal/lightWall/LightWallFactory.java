@@ -21,7 +21,6 @@ import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import portal.PortalRegistry;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
@@ -31,9 +30,6 @@ import portal.portals.components.PortalIgnoreComponent;
  * create, activate, and deactivate light wall emitters.
  */
 public class LightWallFactory {
-  private static final SimpleIPath PATH =
-      new SimpleIPath("advancedDungeon/src/portal/riddles/MyCalculations.java");
-  private static final String CLASSNAME = "portal.riddles.MyCalculations";
 
   private static final SimpleIPath SEGMENT_SPRITESHEET_PATH = new SimpleIPath("portal/light_wall");
   private static final SimpleIPath EMITTER_TEXTURE_ACTIVE =
@@ -338,10 +334,9 @@ public class LightWallFactory {
      */
     private Point calculateEndPoint(
         Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
-      Object o = null;
       try {
-        Point endPoint = PortalRegistry.getCalculations().calculateLightWallAndBridgeEnd(from,beamDirection,stoppingTiles);
-        return endPoint;
+        return PortalRegistry.getCalculations()
+            .calculateLightWallAndBridgeEnd(from, beamDirection, stoppingTiles);
       } catch (Exception e) {
         if (PortalRegistry.isDebugMode()) e.printStackTrace();
         DialogUtils.showTextPopup("Da stimmt etwas mit meinen Berechnungen nicht,", "Code Error");

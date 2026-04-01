@@ -17,9 +17,8 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.Vector2;
-import portal.PortalRegistry;
-
 import java.util.Objects;
+import portal.PortalRegistry;
 
 /**
  * Die Klasse {@code Hero} kapselt eine Spielfigur (Entity) und stellt Methoden zur Steuerung und
