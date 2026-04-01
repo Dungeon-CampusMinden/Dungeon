@@ -1,14 +1,12 @@
 package portal.riddles.utils;
 
 import contrib.hud.DialogUtils;
-import contrib.utils.DynamicCompiler;
 import core.Entity;
 import core.Game;
 import core.utils.Point;
-import core.utils.components.path.SimpleIPath;
 import java.util.Optional;
+import portal.PortalRegistry;
 import portal.portals.abstraction.Calculations;
-import starter.PortalStarter;
 
 /**
  * Utility class for portal-related engine functionality.
@@ -19,13 +17,6 @@ import starter.PortalStarter;
  * <p>It acts as a bridge between engine code and dynamically compiled gameplay logic.
  */
 public class PortalUtils {
-
-  /** Path to the user-defined calculations source file. */
-  private static final SimpleIPath CALCULATIONS_PATH =
-      new SimpleIPath("advancedDungeon/src/portal/riddles/MyCalculations.java");
-
-  /** Fully qualified class name of the user-defined calculations implementation. */
-  private static final String CALCULATIONS_CLASSNAME = "portal.riddles.MyCalculations";
 
   /** Name of the blue portal entity. */
   public static final String BLUE_PORTAL_NAME = "BLUE_PORTAL";
@@ -73,14 +64,12 @@ public class PortalUtils {
    * @return the calculated exit position, or a fallback position if an error occurs
    */
   public static Point calculatePortalExit(Entity portal) {
-    Object o = null;
     try {
-      o = DynamicCompiler.loadUserInstance(CALCULATIONS_PATH, CALCULATIONS_CLASSNAME);
-      Point returnPoint = ((Calculations) o).calculatePortalExit(portal);
+      Point returnPoint = PortalRegistry.getCalculations().calculatePortalExit(portal);
       if (returnPoint == null) throw new Exception();
       return returnPoint;
     } catch (Exception e) {
-      if (PortalStarter.DEBUG_MODE) e.printStackTrace();
+      if (PortalRegistry.isDebugMode()) e.printStackTrace();
       DialogUtils.showTextPopup("Da stimmt etwas nicht mit meinen Berechnungen.", "Code Error");
     }
 

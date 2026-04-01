@@ -2,7 +2,6 @@ package portal.lightWall;
 
 import contrib.components.CollideComponent;
 import contrib.hud.DialogUtils;
-import contrib.utils.DynamicCompiler;
 import contrib.utils.components.collide.Hitbox;
 import core.Component;
 import core.Entity;
@@ -22,10 +21,10 @@ import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import portal.portals.abstraction.Calculations;
+
+import portal.PortalRegistry;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
-import starter.PortalStarter;
 
 /**
  * Factory class for creating and managing light walls and their emitters. Provides methods to
@@ -341,12 +340,10 @@ public class LightWallFactory {
         Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
       Object o = null;
       try {
-        o = DynamicCompiler.loadUserInstance(PATH, CLASSNAME);
-        Point endPoint =
-            ((Calculations) (o)).calculateLightWallAndBridgeEnd(from, beamDirection, stoppingTiles);
+        Point endPoint = PortalRegistry.getCalculations().calculateLightWallAndBridgeEnd(from,beamDirection,stoppingTiles);
         return endPoint;
       } catch (Exception e) {
-        if (PortalStarter.DEBUG_MODE) e.printStackTrace();
+        if (PortalRegistry.isDebugMode()) e.printStackTrace();
         DialogUtils.showTextPopup("Da stimmt etwas mit meinen Berechnungen nicht,", "Code Error");
       }
       return from;

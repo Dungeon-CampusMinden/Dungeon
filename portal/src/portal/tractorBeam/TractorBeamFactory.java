@@ -4,7 +4,6 @@ import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
 import contrib.components.ProjectileComponent;
 import contrib.hud.DialogUtils;
-import contrib.utils.DynamicCompiler;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -24,11 +23,12 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
+import portal.PortalRegistry;
 import portal.portals.abstraction.Calculations;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;
-import starter.PortalStarter;
+
 
 /**
  * A factory for creating tractor beam entities between two points.
@@ -47,9 +47,6 @@ public class TractorBeamFactory {
 
   private static final SimpleIPath TRACTOR_BEAM = new SimpleIPath("portal/tractor_beam");
   private static final SimpleIPath BEAM_EMITTER = new SimpleIPath("portal/beam_emitter");
-  private static final SimpleIPath PATH =
-      new SimpleIPath("advancedDungeon/src/portal/riddles/MyCalculations.java");
-  private static final String CLASSNAME = "portal.riddles.MyCalculations";
   private static final String BEAMFORCE =
       "Die Berechnung der Kraft des Traktorstrahls ist nicht richtig.";
   private final Point from;
@@ -317,10 +314,9 @@ public class TractorBeamFactory {
   private static Vector2 beamForce(Direction dir) {
     Object o;
     try {
-      o = DynamicCompiler.loadUserInstance(PATH, CLASSNAME);
-      return ((Calculations) o).beamForce(dir);
+      return PortalRegistry.getCalculations().beamForce(dir);
     } catch (Exception e) {
-      if (PortalStarter.DEBUG_MODE) e.printStackTrace();
+      if (PortalRegistry.isDebugMode()) e.printStackTrace();
       DialogUtils.showTextPopup(BEAMFORCE, "Code Error");
     }
     return Vector2.ZERO;
@@ -452,10 +448,9 @@ public class TractorBeamFactory {
   private static Vector2 reversedBeamForce(Direction dir) {
     Object o;
     try {
-      o = DynamicCompiler.loadUserInstance(PATH, CLASSNAME);
-      return ((Calculations) o).reversedBeamForce(dir);
+      return PortalRegistry.getCalculations().reversedBeamForce(dir);
     } catch (Exception e) {
-      if (PortalStarter.DEBUG_MODE) e.printStackTrace();
+      if (PortalRegistry.isDebugMode()) e.printStackTrace();
       DialogUtils.showTextPopup(BEAMFORCE, "Code Error");
     }
     return Vector2.ZERO;
