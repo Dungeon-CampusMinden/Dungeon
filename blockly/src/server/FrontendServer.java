@@ -16,10 +16,11 @@ public class FrontendServer {
   /**
    * Starts the frontend server.
    *
+   * @param port the port that the webserver should run on
    * @throws IOException if textures can not be loaded.
    */
-  public static void run() throws IOException {
-    server = HttpServer.create(new InetSocketAddress(8081), 0);
+  public static void run(int port) throws IOException {
+    server = HttpServer.create(new InetSocketAddress(port), 0);
     LOGGER.debug(new File(".").getAbsolutePath());
 
     server.createContext(
