@@ -61,7 +61,7 @@ public final class LitiengineStarter {
     // Use borderless fullscreen on startup for the LITIENGINE test client.
     PreRunConfiguration.windowWidth(1600);
     PreRunConfiguration.windowHeight(900);
-    PreRunConfiguration.fullScreen(true);
+    PreRunConfiguration.fullScreen(false);
 
     Game.userOnSetup(
       () -> {

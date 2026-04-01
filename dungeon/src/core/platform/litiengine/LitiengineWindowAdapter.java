@@ -42,47 +42,18 @@ public final class LitiengineWindowAdapter implements WindowAdapter {
 
   @Override
   public boolean supportsFullscreen() {
-    try {
-      return Game.window() != null && Game.config() != null && Game.config().graphics() != null;
-    } catch (Exception ignored) {
-      return false;
-    }
+    return false;
   }
 
   @Override
   public boolean isFullscreen() {
-    try {
-      if (Game.config() == null || Game.config().graphics() == null) {
-        return false;
-      }
-
-      DisplayMode mode = Game.config().graphics().getDisplayMode();
-      return mode == DisplayMode.FULLSCREEN || mode == DisplayMode.BORDERLESS;
-    } catch (Exception ignored) {
-      return false;
-    }
+    return false;
   }
 
   @Override
   public void setFullscreen(boolean fullscreen) {
-    if (!supportsFullscreen()) {
-      return;
-    }
-
-    try {
-      if (fullscreen) {
-        Game.config().graphics().setDisplayMode(DisplayMode.BORDERLESS);
-      } else {
-        Game.config().graphics().setDisplayMode(DisplayMode.WINDOWED);
-        Game.window()
-          .setResolution(
-            Resolution.custom(
-              PreRunConfiguration.windowWidth(),
-              PreRunConfiguration.windowHeight(),
-              "Dungeon Windowed"));
-      }
-    } catch (Exception ignored) {
-      // fail-safe
-    }
+    // Temporarily disabled on the LITIENGINE path.
+    // Runtime display-mode switching currently appears unstable and can lead
+    // to Game.window() becoming unavailable during engine rendering.
   }
 }

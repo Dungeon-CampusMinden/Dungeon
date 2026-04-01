@@ -1,6 +1,5 @@
 package core.game.litiengine;
 
-import core.configuration.KeyboardConfig;
 import core.game.*;
 import core.game.bootstrap.ClientStartup;
 import core.platform.Platform;
@@ -69,8 +68,6 @@ public final class LitiengineGameLoopHost {
     Platform.cursor(new LitiengineCursorAdapter());
     Platform.camera(new LitiengineCameraAdapter());
 
-    applyStartupWindowMode();
-
     // Bridge LITIENGINE input events into our engine-agnostic InputManager.
     LitiengineInputBridge.install();
 
@@ -94,26 +91,10 @@ public final class LitiengineGameLoopHost {
           loopCore.beforeRender(deltaSeconds);
           loopCore.tick(deltaSeconds, false);
 
-          fullscreenKey();
-
           // Must be called once per frame to clear justPressed/justReleased.
           InputManager.update();
         });
 
     Game.start();
-  }
-
-  private static void fullscreenKey() {
-    if (InputManager.isKeyJustPressed(KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
-      Platform.window().toggleFullscreen();
-    }
-  }
-
-  private static void applyStartupWindowMode() {
-    if (!Platform.window().supportsFullscreen()) {
-      return;
-    }
-
-    Platform.window().setFullscreen(PreRunConfiguration.fullScreen());
   }
 }
