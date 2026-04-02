@@ -43,12 +43,11 @@ public class LaserUtil {
     PositionComponent pc = emitter.fetch(PositionComponent.class).get();
 
     Direction dir = pc.viewDirection();
-    Point start = pc.position().translate(dir);
-    Point end = calculateEndPoint(start, dir);
-    int totalPoints = calculateNumberOfPoints(start, end);
+    Point end = calculateEndPoint(pc.position(), dir);
+    int totalPoints = calculateNumberOfPoints(pc.position(), end);
 
     for (int i = 0; i < totalPoints; i++) {
-      Entity segment = LaserFactory.createSegment(start, end, totalPoints, i, dir);
+      Entity segment = LaserFactory.createSegment(pc.position().translate(dir), end, totalPoints, i, dir);
       segment.add(laserComponent);
       Game.add(segment);
     }
@@ -90,9 +89,8 @@ public class LaserUtil {
    */
   public static void extendLaser(
       Direction direction, Point from, PortalExtendComponent pec, LaserComponent comp) {
-    Point startintPoint = from.translate(direction);
-    Point end = calculateEndPoint(startintPoint, direction);
-    int totalPoints = calculateNumberOfPoints(startintPoint, end);
+    Point end = calculateEndPoint(from, direction);
+    int totalPoints = calculateNumberOfPoints(from.translate(direction.opposite()), end);
 
     Entity newEmitter = LaserFactory.createEmitter(from, direction);
     newEmitter.add(comp);
@@ -101,13 +99,13 @@ public class LaserUtil {
     newEmitter.remove(DrawComponent.class);
 
     for (int i = 0; i < totalPoints; i++) {
-      Entity segment = LaserFactory.createSegment(startintPoint, end, totalPoints, i, direction);
+      Entity segment = LaserFactory.createSegment(from, end, totalPoints, i, direction);
       segment.add(comp);
       segment.add(new LaserExtendComponent());
       Game.add(segment);
     }
 
-    configureEmitterHitbox(newEmitter, totalPoints, direction);
+    configureEmitterHitbox(newEmitter, totalPoints-1, direction);
     Game.add(newEmitter);
   }
 
@@ -162,7 +160,7 @@ public class LaserUtil {
   private static int calculateNumberOfPoints(Point from, Point to) {
     float dx = Math.abs(to.x() - from.x());
     float dy = Math.abs(to.y() - from.y());
-    return (int) Math.max(dx, dy) + 1;
+    return (int) Math.max(dx, dy);
   }
 
   /**
@@ -201,20 +199,14 @@ public class LaserUtil {
       }
       default -> {}
     }
-    // To allow collision with the laser cube and receiver but it still doesnt get moved if you run
-    // into the laser
-    emitter.remove(VelocityComponent.class);
-    VelocityComponent velocityComponent = new VelocityComponent(0.0000000001f);
-    velocityComponent.mass(9999);
-    emitter.add(velocityComponent);
     emitter.add(new SpikyComponent(9999, DamageType.PHYSICAL, 10));
     Hitbox newCollider = new Hitbox(Vector2.of(hitboxX, hitboxY), Vector2.of(offsetX, offsetY));
 
     CollideComponent cc = new CollideComponent();
     cc.collider(newCollider);
+    cc.staticCallback((a)-> false);
+    cc.isSolid(false);
     emitter.add(cc);
-
-    emitter.fetch(CollideComponent.class).ifPresent(c -> c.isSolid(false));
   }
 
   /**
