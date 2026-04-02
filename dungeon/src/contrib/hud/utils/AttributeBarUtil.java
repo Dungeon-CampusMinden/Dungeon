@@ -69,7 +69,7 @@ public final class AttributeBarUtil {
       .map(AttributeBarHandleProvider::attributeBarHandle)
       .ifPresentOrElse(
         handle -> barMapping.put(barDisplayable.getClass(), handle),
-        () -> LOGGER.error("Failed to create attribute bar handle for entity {}", entity));
+        () -> LOGGER.error("Failed to create progress bar for entity {}", entity));
   }
 
   public static void updatePosition(

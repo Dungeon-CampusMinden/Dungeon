@@ -2,9 +2,9 @@ package contrib.platform.gdx.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import contrib.hud.UIUtils;
 import contrib.hud.dialogs.HeadlessDialogGroup;
 import core.Game;
+import core.ui.gdx.GdxUiSkinCache;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +20,7 @@ final class GdxDialogBuilderSupport {
   private GdxDialogBuilderSupport() {}
 
   static Skin defaultSkin() {
-    return UIUtils.defaultSkin();
+    return GdxUiSkinCache.defaultSkin();
   }
 
   static Group build(Group headlessDialog, Supplier<? extends Group> gdxBuilder) {

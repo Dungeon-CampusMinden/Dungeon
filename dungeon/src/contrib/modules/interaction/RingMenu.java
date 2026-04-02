@@ -6,8 +6,9 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import contrib.hud.UIUtils;
 import core.Game;
+import core.ui.gdx.GdxUiSkinCache;
+
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -21,7 +22,7 @@ public class RingMenu extends Group {
 
   private static final float RADIUS = 120f;
 
-  private final Skin skin = UIUtils.defaultSkin();
+  private final Skin skin = GdxUiSkinCache.defaultSkin();
   private final Consumer<Interaction> onSelected;
 
   private RingMenu(Consumer<Interaction> onSelected) {

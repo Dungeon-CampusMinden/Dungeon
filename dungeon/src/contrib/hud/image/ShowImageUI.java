@@ -10,10 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.ShowImageComponent;
-import contrib.hud.UIUtils;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.Game;
 import core.ui.gdx.GdxUiAssetLoader;
+import core.ui.gdx.GdxUiSkinCache;
 import core.utils.components.path.SimpleIPath;
 import java.util.Objects;
 
@@ -59,7 +59,7 @@ public class ShowImageUI extends Group {
     if (component.textConfig() != null) {
       Table table = new Table();
       table.setFillParent(true);
-      Label label = new Label(component.textConfig().text(), UIUtils.defaultSkin());
+      Label label = new Label(component.textConfig().text(), GdxUiSkinCache.defaultSkin());
       label.setFontScale(component.textConfig().scale());
       label.setColor(component.textConfig().color());
       table.add(label);

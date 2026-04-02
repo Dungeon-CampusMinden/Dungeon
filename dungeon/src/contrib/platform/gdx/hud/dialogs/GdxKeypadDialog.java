@@ -11,12 +11,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import contrib.hud.UIUtils;
 import contrib.modules.keypad.KeypadComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.sound.SoundSpec;
+import core.ui.gdx.GdxUiSkinCache;
 import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -151,6 +151,6 @@ final class GdxKeypadDialog extends Group {
   }
 
   private Skin getSkin() {
-    return UIUtils.defaultSkin();
+    return GdxUiSkinCache.defaultSkin();
   }
 }

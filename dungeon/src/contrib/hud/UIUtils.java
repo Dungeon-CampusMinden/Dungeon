@@ -1,8 +1,5 @@
 package contrib.hud;
 
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogCreationException;
@@ -10,42 +7,14 @@ import contrib.hud.elements.InventoryComponentProvider;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
-import core.ui.gdx.GdxUiAssetLoader;
-import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-/** UI utility functions, such as a formatter for the window or dialog. */
+/** Backend-neutral UI utility functions. */
 public final class UIUtils {
+
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(UIUtils.class.getName());
-
-  /** The default UI-Skin. */
-  private static final IPath SKIN_FOR_DIALOG = new SimpleIPath("skin/uiskin.json");
-
-  private static Skin DEFAULT_SKIN;
-
-  /**
-   * Returns the default UI skin, loading it from the asset loader if not already cached.
-   *
-   * <p>The skin is loaded lazily on first access and then cached for subsequent calls. If loading
-   * fails, an IllegalStateException is thrown.
-   *
-   * @return the default UI skin
-   * @throws IllegalStateException if the skin cannot be loaded
-   */
-  public static Skin defaultSkin() {
-    if (DEFAULT_SKIN == null) {
-      try {
-        DEFAULT_SKIN = GdxUiAssetLoader.loadSkin(SKIN_FOR_DIALOG);
-      } catch (RuntimeException e) {
-        throw new IllegalStateException(
-          "Could not load default skin. Are you running without the libGDX UI backend?", e);
-      }
-    }
-    return DEFAULT_SKIN;
-  }
 
   /**
    * Limits the length of the string to 40 characters, after which a line break occurs
@@ -59,33 +28,18 @@ public final class UIUtils {
   /**
    * Line break character to use in the {@link UIUtils#formatString} method.
    *
-   * <p>No need for {@code System.lineSeparator()} as libGDX wants {@code '\n'}
+   * <p>No need for {@code System.lineSeparator()} as libGDX wanted {@code '\n'} before and the
+   * wrapped text format remains compatible for the existing dialog content.
    */
   private static final char LS = '\n';
 
-  /**
-   * Centers the actor based on the current window width and height.
-   *
-   * @param actor Actor whose position should be updated.
-   */
-  public static void center(final Actor actor) {
-    actor.setPosition(
-        (Game.windowWidth() - actor.getWidth()) / 2, (Game.windowHeight() - actor.getHeight()) / 2);
-  }
+  private UIUtils() {}
 
   /**
    * Wrap texts to a maximum line length.
    *
-   * <p>This function can be used to soft-wrap texts to a maximum of {@link UIUtils#MAX_ROW_LENGTH}
-   * characters per line. The text is sanitised before wrapping by replacing multiple consecutive
-   * whitespace characters (including line breaks) with single spaces. The text is then wrapped
-   * according to the following algorithm: The last space before the maximum line length of {@link
-   * UIUtils#MAX_ROW_LENGTH} characters is replaced by a line break. Any words exceeding the maximum
-   * line length are cut off and wrapped at the position of the maximum line length.
-   *
    * @param text text to be soft-wrapped at {@link UIUtils#MAX_ROW_LENGTH} characters per line
-   * @return the reformatted text where all lines have been soft-wrapped to at maximum {@link
-   *     UIUtils#MAX_ROW_LENGTH} characters per line
+   * @return the reformatted text
    */
   public static String formatString(final String text) {
     return formatString(text, MAX_ROW_LENGTH);
@@ -94,17 +48,9 @@ public final class UIUtils {
   /**
    * Wrap texts to a maximum line length of {@code maxLen} characters.
    *
-   * <p>This function can be used to soft-wrap texts to a maximum of {@code maxLen} characters per
-   * line. The text is sanitised before wrapping by replacing multiple consecutive whitespace
-   * characters (including line breaks) with single spaces. The text is then wrapped according to
-   * the following algorithm: The last space before the maximum line length of {@code maxLen}
-   * characters is replaced by a line break. Any words exceeding the maximum line length are cut off
-   * and wrapped at the position of the maximum line length.
-   *
-   * @param text text to be soft-wrapped at {@code maxLen} characters per line
+   * @param text text to be soft-wrapped
    * @param maxLen maximum number of characters per line
-   * @return the reformatted text where all lines have been soft-wrapped to at maximum {@code
-   *     maxLen} characters per line
+   * @return the reformatted text
    */
   public static String formatString(final String text, int maxLen) {
     if (text == null) {
@@ -162,14 +108,13 @@ public final class UIUtils {
   }
 
   /**
-   * Retrieves all InventoryComponents from the UI dialog.
+   * Retrieves all inventory components from the concrete dialog node of the given UI component.
    *
-   * <p>This method extracts InventoryComponents from the dialog associated with the given
-   * UIComponent. It unwraps the dialog to find all InventoryComponentProviders and then streams
-   * their inventory components.
+   * <p>The dialog stays backend-specific internally, but the extraction is performed via the
+   * backend-neutral {@link InventoryComponentProvider} capability.
    *
-   * @param ui the UIComponent whose dialog contains the inventory components
-   * @return a Stream of InventoryComponents found in the dialog
+   * @param ui the UI component whose dialog contains inventory data
+   * @return stream of contained inventory components
    */
   public static Stream<InventoryComponent> getInventoriesFromUI(UIComponent ui) {
     return ui.dialog()
@@ -179,44 +124,16 @@ public final class UIUtils {
   }
 
   /**
-   * Recursively searches for an Actor of the specified type within the given Group and its
-   * subgroups.
+   * Closes the dialog associated with the given UI component and optionally deletes its owner.
    *
-   * @param dialog the Group to search within
-   * @param type the Class type of the Actor to find
-   * @param <T> the type of the Actor
-   * @return an Optional containing the found Actor, or an empty Optional if not found
-   */
-  public static <T> Optional<T> findTypeInGroup(Group dialog, Class<T> type) {
-    for (Actor actor : dialog.getChildren()) {
-      if (type.isInstance(actor)) {
-        return Optional.of(type.cast(actor));
-      } else if (actor instanceof Group group) {
-        Optional<T> result = findTypeInGroup(group, type);
-        if (result.isPresent()) {
-          return result;
-        }
-      }
-    }
-    return Optional.empty();
-  }
-
-  /**
-   * Closes the dialog associated with the given UIComponent and optionally deletes its owner.
-   *
-   * <p>This method removes the UIComponent from its owner entity and optionally removes the owner
-   * entity from the game. If the owner of the UIComponent has a PlayerComponent, the number of open
-   * dialogs is decremented. All target entities are notified of the dialog closure.
-   *
-   * @param uiComponent the UIComponent whose dialog is to be closed
+   * @param uiComponent the UI component whose dialog is to be closed
    * @param deleteOwner whether to remove the owner entity from the game after closing the dialog
-   * @param callDefaultClose whether to call the onClose (default close behavior) callback of the
-   *     UIComponent
+   * @param callDefaultClose whether to call the default onClose callback
    */
   public static void closeDialog(
-      UIComponent uiComponent, boolean deleteOwner, boolean callDefaultClose) {
+    UIComponent uiComponent, boolean deleteOwner, boolean callDefaultClose) {
     if (callDefaultClose) {
-      uiComponent.onClose().accept(uiComponent); // onClose callback
+      uiComponent.onClose().accept(uiComponent);
     }
 
     try {
@@ -226,9 +143,10 @@ public final class UIUtils {
       for (Integer targetId : uiComponent.targetEntityIds()) {
         Optional<Entity> target = Game.findEntityById(targetId);
         target
-            .flatMap(t -> t.fetch(PlayerComponent.class))
-            .ifPresent(PlayerComponent::decrementOpenDialogs);
+          .flatMap(t -> t.fetch(PlayerComponent.class))
+          .ifPresent(PlayerComponent::decrementOpenDialogs);
       }
+
       LOGGER.debug("Closed dialog on entity {}", ownerEntity.id());
 
       if (deleteOwner) {
@@ -240,13 +158,9 @@ public final class UIUtils {
   }
 
   /**
-   * Closes the dialog associated with the given UIComponent and optionally deletes its owner.
+   * Closes the dialog associated with the given UI component and optionally deletes its owner.
    *
-   * <p>This method removes the UIComponent from its owner entity and optionally removes the owner
-   * entity from the game. If the owner of the UIComponent has a PlayerComponent, the number of open
-   * dialogs is decremented. All target entities are notified of the dialog closure.
-   *
-   * @param uiComponent the UIComponent whose dialog is to be closed
+   * @param uiComponent the UI component whose dialog is to be closed
    * @param deleteOwner whether to remove the owner entity from the game after closing the dialog
    */
   public static void closeDialog(UIComponent uiComponent, boolean deleteOwner) {
@@ -254,14 +168,9 @@ public final class UIUtils {
   }
 
   /**
-   * Closes the dialog associated with the given UIComponent.
+   * Closes the dialog associated with the given UI component.
    *
-   * <p>If the owner of the UIComponent has a PlayerComponent, the number of open dialogs is
-   * decremented.
-   *
-   * <p>By default, the owner entity is not deleted.
-   *
-   * @param uiComponent the UIComponent whose dialog is to be closed
+   * @param uiComponent the UI component whose dialog is to be closed
    */
   public static void closeDialog(UIComponent uiComponent) {
     closeDialog(uiComponent, false);

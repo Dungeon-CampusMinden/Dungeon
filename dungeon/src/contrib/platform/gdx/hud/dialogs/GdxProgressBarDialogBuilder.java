@@ -1,6 +1,6 @@
 package contrib.platform.gdx.hud.dialogs;
 
-import static contrib.hud.UIUtils.defaultSkin;
+import static contrib.platform.gdx.hud.dialogs.GdxDialogBuilderSupport.defaultSkin;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
