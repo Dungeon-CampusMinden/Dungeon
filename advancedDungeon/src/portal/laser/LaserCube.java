@@ -47,7 +47,8 @@ public class LaserCube {
               .ifPresent(
                   lc -> {
                     if (you.fetch(LaserCubeComponent.class).get().isActive()
-                        || you.fetch(LaserCubeComponent.class).get().isBeingMoved()) {
+                        || you.fetch(LaserCubeComponent.class).get().isBeingMoved()
+                    || pc.viewDirection() == collisionDir) {
                       return;
                     }
                     you.fetch(LaserCubeComponent.class).get().setActive(true);
