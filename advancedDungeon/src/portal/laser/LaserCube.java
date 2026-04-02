@@ -57,32 +57,32 @@ public class LaserCube {
                             pc.position().y() + pc.viewDirection().y());
                     LaserUtil.extendLaser(
                         pc.viewDirection(),
-                        newPos.translate(pc.viewDirection().opposite()),
+                        pc.position(),
                         other.fetch(PortalExtendComponent.class).get(),
                         lc);
                   });
         };
 
-    CollideComponent cc =
-        new CollideComponent(
-            Vector2.of(-0.05f / 2, -0.05f / 2),
-            Vector2.of(1.05f, 1.05f),
-            collideEnter,
-            CollideComponent.DEFAULT_COLLIDER);
+    TriConsumer<Entity, Entity, Direction> collideLeave =
+      (you, other, collisionDir) -> {
+        other
+          .fetch(LaserComponent.class)
+          .ifPresent(
+            lc -> {
+              you.fetch(LaserCubeComponent.class).get().setActive(false);
+            });
+        CollideComponent cc = you.fetch(CollideComponent.class).get();
+        if (!cc.isSolid() && !attached[0]) {
+          cc.isSolid(true);
+        }
+      };
 
-    cc.collideLeave(
-        (self, other, dir) -> {
-          other
-              .fetch(LaserComponent.class)
-              .ifPresent(
-                  lc -> {
-                    self.fetch(LaserCubeComponent.class).get().setActive(false);
-                  });
-          if (!cc.isSolid() && !attached[0]) {
-            cc.isSolid(true);
-          }
-        });
-    laserCube.add(cc);
+    laserCube.add(
+      new CollideComponent(
+      Vector2.of(-0.05f / 2, -0.05f / 2),
+      Vector2.of(1.05f, 1.05f),
+      collideEnter,
+      collideLeave));
 
     laserCube.add(
         new InteractionComponent(
@@ -103,7 +103,7 @@ public class LaserCube {
                         attachmentComponent.setTextureRotating(false);
                         attachmentComponent.setRotatingWithOrigin(true);
                         laserCube.add(attachmentComponent);
-                        cc.isSolid(false);
+                        interacted.fetch(CollideComponent.class).ifPresent(cc -> cc.isSolid(false));
                         attached[0] = true;
                         laserCube.fetch(LaserCubeComponent.class).get().setBeingMoved(true);
                       } else {
