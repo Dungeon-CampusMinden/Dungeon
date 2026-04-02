@@ -154,6 +154,70 @@ tasks.register('checkNoEngineImports') {
     }
 }
 
+tasks.register('reportLibgdxImports') {
+    group = 'verification'
+    description = 'Lists all files in the dungeon module that contain libGDX import statements.'
+
+    doLast {
+        def excludedPrefixes = [
+            "build/",
+            ".gradle/",
+            ".idea/",
+            "out/"
+        ]
+
+        def matches = []
+
+        fileTree(projectDir) {
+            include "**/*.java"
+        }.files.each { f ->
+            def rel = projectDir.toPath().relativize(f.toPath()).toString().replace('\\', '/')
+
+            if (excludedPrefixes.any { rel.startsWith(it) }) return
+
+            def lines = f.readLines("UTF-8")
+            def importHits = []
+
+            lines.eachWithIndex { line, index ->
+                if (line =~ /^\s*import\s+com\.badlogic\.gdx\./) {
+                    importHits << "line ${index + 1}: ${line.trim()}"
+                }
+            }
+
+            if (!importHits.isEmpty()) {
+                matches << [file: rel, imports: importHits]
+            }
+        }
+
+        def reportDir = new File(buildDir, "reports")
+        reportDir.mkdirs()
+        def reportFile = new File(reportDir, "libgdx-imports.txt")
+
+        if (matches.isEmpty()) {
+            reportFile.text = "No libGDX imports found.\n"
+            println "No libGDX imports found."
+            println "Report written to: ${reportFile}"
+            return
+        }
+
+        def sb = new StringBuilder()
+        sb.append("Files containing libGDX imports:\n\n")
+
+        matches.sort { it.file }.each { match ->
+            sb.append("- ${match.file}\n")
+            match.imports.each { hit ->
+                sb.append("    ${hit}\n")
+            }
+            sb.append("\n")
+        }
+
+        reportFile.text = sb.toString()
+
+        println sb.toString()
+        println "Report written to: ${reportFile}"
+    }
+}
+
 tasks.named("check") {
     dependsOn("checkNoEngineImports")
 }
