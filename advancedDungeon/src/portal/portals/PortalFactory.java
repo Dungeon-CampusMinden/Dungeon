@@ -115,7 +115,7 @@ public class PortalFactory {
               CollideComponent cc =
                   setCollideComponent(direction, PortalFactory::onBlueCollideEnter);
               cc.isSolid(false);
-              cc.staticCallback((a)->false);
+              cc.staticCallback((a) -> false);
               cc.onHold(PortalFactory::onHoldBlue);
               portal.add(cc);
 
@@ -183,7 +183,7 @@ public class PortalFactory {
               CollideComponent cc =
                   setCollideComponent(direction, PortalFactory::onGreenCollideEnter);
               cc.isSolid(false);
-              cc.staticCallback((a)->false);
+              cc.staticCallback((a) -> false);
               cc.onHold(PortalFactory::onHoldGreen);
 
               portal.add(pc);

@@ -39,7 +39,11 @@ public class LaserFactory {
     PortalExtendComponent pec = new PortalExtendComponent();
     pec.onExtend =
         (outputDirection, point, portalExtendComponent) -> {
-          LaserUtil.extendLaser(outputDirection, point.translate(outputDirection), portalExtendComponent, laserComponent);
+          LaserUtil.extendLaser(
+              outputDirection,
+              point.translate(outputDirection),
+              portalExtendComponent,
+              laserComponent);
         };
     pec.onTrim = LaserUtil::trimLaser;
     emitter.add(pec);

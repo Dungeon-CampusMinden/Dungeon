@@ -9,7 +9,6 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.PortalTile;
 import core.level.elements.tile.WallTile;
@@ -47,7 +46,8 @@ public class LaserUtil {
     int totalPoints = calculateNumberOfPoints(pc.position(), end);
 
     for (int i = 0; i < totalPoints; i++) {
-      Entity segment = LaserFactory.createSegment(pc.position().translate(dir), end, totalPoints, i, dir);
+      Entity segment =
+          LaserFactory.createSegment(pc.position().translate(dir), end, totalPoints, i, dir);
       segment.add(laserComponent);
       Game.add(segment);
     }
@@ -105,7 +105,7 @@ public class LaserUtil {
       Game.add(segment);
     }
 
-    configureEmitterHitbox(newEmitter, totalPoints-1, direction);
+    configureEmitterHitbox(newEmitter, totalPoints - 1, direction);
     Game.add(newEmitter);
   }
 
@@ -204,7 +204,7 @@ public class LaserUtil {
 
     CollideComponent cc = new CollideComponent();
     cc.collider(newCollider);
-    cc.staticCallback((a)-> false);
+    cc.staticCallback((a) -> false);
     cc.isSolid(false);
     emitter.add(cc);
   }

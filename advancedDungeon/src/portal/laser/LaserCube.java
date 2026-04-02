@@ -48,7 +48,7 @@ public class LaserCube {
                   lc -> {
                     if (you.fetch(LaserCubeComponent.class).get().isActive()
                         || you.fetch(LaserCubeComponent.class).get().isBeingMoved()
-                    || pc.viewDirection() == collisionDir) {
+                        || pc.viewDirection() == collisionDir) {
                       return;
                     }
                     you.fetch(LaserCubeComponent.class).get().setActive(true);
@@ -59,7 +59,7 @@ public class LaserCube {
                     System.out.println(newPos);
                     LaserUtil.extendLaser(
                         pc.viewDirection(),
-//                        pc.position(),
+                        //                        pc.position(),
                         newPos,
                         other.fetch(PortalExtendComponent.class).get(),
                         lc);
@@ -67,25 +67,25 @@ public class LaserCube {
         };
 
     TriConsumer<Entity, Entity, Direction> collideLeave =
-      (you, other, collisionDir) -> {
-        other
-          .fetch(LaserComponent.class)
-          .ifPresent(
-            lc -> {
-              you.fetch(LaserCubeComponent.class).get().setActive(false);
-            });
-        CollideComponent cc = you.fetch(CollideComponent.class).get();
-        if (!cc.isSolid() && !attached[0]) {
-          cc.isSolid(true);
-        }
-      };
+        (you, other, collisionDir) -> {
+          other
+              .fetch(LaserComponent.class)
+              .ifPresent(
+                  lc -> {
+                    you.fetch(LaserCubeComponent.class).get().setActive(false);
+                  });
+          CollideComponent cc = you.fetch(CollideComponent.class).get();
+          if (!cc.isSolid() && !attached[0]) {
+            cc.isSolid(true);
+          }
+        };
 
     laserCube.add(
-      new CollideComponent(
-      Vector2.of(-0.05f / 2, -0.05f / 2),
-      Vector2.of(1.05f, 1.05f),
-      collideEnter,
-      collideLeave));
+        new CollideComponent(
+            Vector2.of(-0.05f / 2, -0.05f / 2),
+            Vector2.of(1.05f, 1.05f),
+            collideEnter,
+            collideLeave));
 
     laserCube.add(
         new InteractionComponent(
