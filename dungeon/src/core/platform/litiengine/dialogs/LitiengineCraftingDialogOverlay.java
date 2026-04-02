@@ -1,10 +1,7 @@
 package core.platform.litiengine.dialogs;
 
 import contrib.components.InventoryComponent;
-import contrib.crafting.Crafting;
-import contrib.crafting.CraftingResult;
-import contrib.crafting.CraftingType;
-import contrib.crafting.Recipe;
+import contrib.crafting.*;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.item.Item;
 import core.Game;
@@ -202,7 +199,7 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   }
 
   private String buildRecipePreviewText() {
-    Optional<Recipe> recipe = currentRecipe();
+    Optional<Recipe> recipe = CraftingDialogLogic.currentRecipe(craftingInventory);
 
     if (recipe.isEmpty()) {
       if (craftingInventory.isEmpty()) {
@@ -219,7 +216,7 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
     String resultText =
       Arrays.stream(currentRecipe.results())
         .filter(result -> result.resultType() == CraftingType.ITEM)
-        .map(this::resultLabel)
+        .map(CraftingDialogLogic::resultLabel)
         .filter(label -> !label.isBlank())
         .reduce((a, b) -> a + ", " + b)
         .orElse("Crafting result available.");
@@ -231,24 +228,6 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
       + "\n"
       + orderText
       + "\nClick items between both inventories and use Craft to forward the current input.";
-  }
-
-  private Optional<Recipe> currentRecipe() {
-    Item[] ingredients =
-      Arrays.stream(craftingInventory.items()).filter(Objects::nonNull).toArray(Item[]::new);
-
-    if (ingredients.length == 0) {
-      return Optional.empty();
-    }
-
-    return Crafting.recipeByIngredients(ingredients);
-  }
-
-  private String resultLabel(CraftingResult result) {
-    if (result instanceof Item item) {
-      return item.displayName();
-    }
-    return result.resultType().name();
   }
 
   private void handleInput(List<Rectangle> buttons, GridLayout leftGrid, GridLayout rightGrid) {

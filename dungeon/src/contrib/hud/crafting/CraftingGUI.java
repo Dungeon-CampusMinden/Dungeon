@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
-import contrib.crafting.Crafting;
+import contrib.crafting.CraftingDialogLogic;
 import contrib.crafting.CraftingResult;
 import contrib.crafting.CraftingType;
 import contrib.crafting.Recipe;
@@ -28,7 +28,6 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
 import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * This class represents the GUI for the crafting system. If this gui is open, the player can craft
@@ -383,28 +382,17 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   private void updateRecipe() {
-    Item[] itemData =
-        Arrays.stream(this.inventory.items()).filter(Objects::nonNull).toArray(Item[]::new);
-    this.currentRecipe = Crafting.recipeByIngredients(itemData).orElse(null);
+    this.currentRecipe = CraftingDialogLogic.currentRecipe(this.inventory).orElse(null);
   }
 
   private void craft() {
-    if (this.currentRecipe == null) return;
-    CraftingResult[] results = this.currentRecipe.results();
-    Arrays.stream(results)
-        .filter(result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
-        .forEach(
-            result -> {
-              Item item = (Item) result;
-              this.targetInventory.add(item);
-            });
-    this.inventory.clear();
+    CraftingDialogLogic.craft(this.inventory, this.targetInventory);
     this.updateRecipe();
   }
 
   /** Allows to reset the CraftingGUI moving all Items back to the Inventory they came from. */
   public void cancel() {
-    this.inventory.transferAll(targetInventory);
+    CraftingDialogLogic.cancel(this.inventory, this.targetInventory);
     this.updateRecipe();
   }
 
