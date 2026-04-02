@@ -14,7 +14,6 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**

@@ -1,9 +1,7 @@
 package contrib.hud.crafting;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-import com.badlogic.gdx.utils.Align;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.crafting.CraftingDialogLogic;
@@ -19,12 +17,11 @@ import contrib.hud.elements.GUICombination;
 import contrib.hud.elements.ImageButton;
 import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
+import contrib.platform.gdx.hud.GdxHudItemRenderer;
 import core.Game;
 import core.platform.gdx.render.GdxAnimationFrames;
-import core.ui.gdx.GdxUiAssetLoader;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
-import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
 import java.util.Arrays;
@@ -58,9 +55,6 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
 
   /** Callback key for the cancel action. */
   public static final String CALLBACK_CANCEL = "cancel";
-
-  private static final IPath FONT_FNT = new SimpleIPath("skin/myFont.fnt");
-  private static final IPath FONT_PNG = new SimpleIPath("skin/myFont.png");
 
   // Position settings
   private static final int NUMBER_PADDING = 5;
@@ -99,33 +93,18 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private static final float BUTTON_CANCEL_WIDTH = 0.15f;
   private static final float BUTTON_CANCEL_HEIGHT = 0.15f;
 
-  // Colors
-  private static final int NUMBER_BACKGROUND_COLOR = 0xd93030ff;
-
   // Textures
   private static final String BACKGROUND_TEXTURE_PATH = "hud/crafting/background.png";
   private static final String BUTTON_OK_TEXTURE_PATH = "hud/check.png";
   private static final String BUTTON_CANCEL_TEXTURE_PATH = "hud/cross.png";
 
-  private static final Texture numberBackgroundTexture;
-  private static final TextureRegion numberBackground;
   private static final Animation backgroundAnimation;
-  private static final BitmapFont bitmapFont;
 
   static {
     if (Game.isHeadless()) {
       backgroundAnimation = null;
-      numberBackgroundTexture = null;
-      numberBackground = null;
-      bitmapFont = null;
     } else {
       backgroundAnimation = new Animation(new SimpleIPath(BACKGROUND_TEXTURE_PATH));
-
-      numberBackgroundTexture =
-        GdxUiAssetLoader.createHorizontalStripTexture(NUMBER_BACKGROUND_COLOR);
-      numberBackground = new TextureRegion(numberBackgroundTexture, 0, 0, 1, 1);
-
-      bitmapFont = GdxUiAssetLoader.loadBitmapFont(FONT_FNT, FONT_PNG);
     }
   }
 
@@ -287,36 +266,18 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     // Draw inserted items
     {
       int size =
-          Math.min(
-              Math.round(this.height() * INPUT_ITEMS_MAX_SIZE),
-              (this.width() - this.inventory.count() * ITEM_GAP) / this.inventory.count());
-      int rowWidth = size * this.inventory.count() + ITEM_GAP * (this.inventory.count() + 1);
+        Math.min(
+          Math.round(this.height() * INPUT_ITEMS_MAX_SIZE),
+          (this.width() - this.inventory.count() * ITEM_GAP) / this.inventory.count());
+      int rowWidth = GdxHudItemRenderer.rowWidth(this.inventory.count(), size, ITEM_GAP);
       int startX = this.x() + Math.round(this.width() * INPUT_ITEMS_X) - rowWidth / 2;
       int startY = this.y() + Math.round(this.height() * INPUT_ITEMS_Y);
 
       for (int i = 0; i < this.inventory.count(); i++) {
-        Sprite sprite = GdxAnimationFrames.toSprite(this.inventory.get(i).orElseThrow().inventoryAnimation().update());
-        int textureX = startX + ITEM_GAP * (i + 1) + size * i;
-        batch.draw(sprite, textureX, startY, size, size);
+        Item item = this.inventory.get(i).orElseThrow();
+        int itemX = startX + ITEM_GAP * (i + 1) + size * i;
 
-        GlyphLayout layout = new GlyphLayout(bitmapFont, Integer.toString(i + 1));
-        int boxX = textureX + (size / 2) - Math.round((layout.height / 2)) - NUMBER_PADDING;
-        int boxY = startY - NUMBER_PADDING;
-        batch.draw(
-            numberBackground,
-            boxX,
-            boxY,
-            layout.height + 2 * NUMBER_PADDING,
-            layout.height + 2 * NUMBER_PADDING);
-
-        bitmapFont.draw(
-            batch,
-            Integer.toString(i + 1),
-            boxX + NUMBER_PADDING,
-            boxY + NUMBER_PADDING + layout.height,
-            layout.width,
-            Align.center,
-            false);
+        GdxHudItemRenderer.drawIndexedItem(batch, item, itemX, startY, size, i + 1, NUMBER_PADDING);
       }
     }
 
@@ -327,55 +288,32 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
       }
 
       int nrItemResults =
-          (int)
-              Arrays.stream(this.currentRecipe.results())
-                  .filter(
-                      result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
-                  .count();
+        (int)
+          Arrays.stream(this.currentRecipe.results())
+            .filter(
+              result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
+            .count();
       if (nrItemResults == 0) {
         return;
       }
 
       int size =
-          Math.min(
-              Math.round(this.height() * RESULT_ITEM_MAX_SIZE),
-              (this.width() - nrItemResults * ITEM_GAP) / nrItemResults);
-      int rowWidth = size * nrItemResults + ITEM_GAP * (nrItemResults + 1);
-      int x = this.x() + Math.round(this.width() * RESULT_ITEM_X) - rowWidth / 2;
-      int y = this.y() + Math.round(this.height() * RESULT_ITEM_Y);
+        Math.min(
+          Math.round(this.height() * RESULT_ITEM_MAX_SIZE),
+          (this.width() - nrItemResults * ITEM_GAP) / nrItemResults);
+      int rowWidth = GdxHudItemRenderer.rowWidth(nrItemResults, size, ITEM_GAP);
+      int startX = this.x() + Math.round(this.width() * RESULT_ITEM_X) - rowWidth / 2;
+      int startY = this.y() + Math.round(this.height() * RESULT_ITEM_Y);
 
       int i = 0;
       for (CraftingResult result : this.currentRecipe.results()) {
         if (result.resultType() != CraftingType.ITEM || !(result instanceof Item item)) {
           continue;
         }
-        Sprite sprite = GdxAnimationFrames.toSprite(item.inventoryAnimation().update());
-        batch.draw(sprite, x + ITEM_GAP * (i + 1) + size * i, y, size, size);
 
-        GlyphLayout layout = new GlyphLayout(bitmapFont, item.displayName());
-        int boxX =
-            x
-                + ITEM_GAP * (i + 1)
-                + size * i
-                + (size / 2)
-                - Math.round((layout.width / 2))
-                - NUMBER_PADDING;
-        int boxY = y - NUMBER_PADDING;
-        batch.draw(
-            numberBackground,
-            boxX,
-            boxY,
-            layout.width + 2 * NUMBER_PADDING,
-            layout.height + 2 * NUMBER_PADDING);
-        bitmapFont.draw(
-            batch,
-            item.displayName(),
-            boxX + NUMBER_PADDING,
-            boxY + NUMBER_PADDING + layout.height,
-            layout.width,
-            Align.center,
-            false);
-
+        int itemX = startX + ITEM_GAP * (i + 1) + size * i;
+        GdxHudItemRenderer.drawNamedItem(
+          batch, item, itemX, startY, size, item.displayName(), NUMBER_PADDING);
         i++;
       }
     }
