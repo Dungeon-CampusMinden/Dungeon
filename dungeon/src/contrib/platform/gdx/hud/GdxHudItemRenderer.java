@@ -147,7 +147,20 @@ public final class GdxHudItemRenderer {
       false);
   }
 
-  private static void drawItem(Batch batch, Item item, int x, int y, int size) {
+  /**
+   * Draws a plain inventory item icon without any additional label or badge.
+   *
+   * @param batch target batch
+   * @param item item to draw
+   * @param x item x position
+   * @param y item y position
+   * @param size side length of the square icon
+   */
+  public static void drawItem(Batch batch, Item item, int x, int y, int size) {
+    if (batch == null || item == null || Game.isHeadless()) {
+      return;
+    }
+
     Sprite sprite = GdxAnimationFrames.toSprite(item.inventoryAnimation().update());
     batch.draw(sprite, x, y, size, size);
   }

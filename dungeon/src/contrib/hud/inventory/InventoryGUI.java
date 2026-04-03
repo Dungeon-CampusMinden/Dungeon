@@ -22,6 +22,7 @@ import contrib.hud.UIUtils;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.item.Item;
+import contrib.platform.gdx.hud.GdxHudItemRenderer;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -215,30 +216,34 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   private void drawItems(Batch batch) {
-    for (int i = 0; i < this.inventoryComponent.items().length; i++) {
-      if (this.inventoryComponent.items()[i] == null) continue;
-      float x = this.x() + this.slotSize * (i % this.slotsPerRow) + (2 * BORDER_PADDING);
-      float y =
-          this.y()
-              + this.slotSize * (float) Math.floor((i / (float) this.slotsPerRow))
-              + (2 * BORDER_PADDING);
+    Item[] items = this.inventoryComponent.items();
+
+    for (int i = 0; i < items.length; i++) {
+      Item item = items[i];
+      if (item == null) {
+        continue;
+      }
+
+      int itemX = this.x() + this.slotSize * (i % this.slotsPerRow) + (2 * BORDER_PADDING);
+      int itemY =
+        this.y() + this.slotSize * (i / this.slotsPerRow) + (2 * BORDER_PADDING);
 
       // Don't draw item being dragged
       if (this.dragAndDrop().isDragging()) {
         DragAndDrop.Payload payload = this.dragAndDrop().getDragPayload();
         if (payload != null
-            && payload.getObject() instanceof ItemDragPayload itemDragPayload
-            && itemDragPayload.inventoryComponent() == this.inventoryComponent
-            && itemDragPayload.slot() == i) {
+          && payload.getObject() instanceof ItemDragPayload itemDragPayload
+          && itemDragPayload.inventoryComponent() == this.inventoryComponent
+          && itemDragPayload.slot() == i) {
           continue;
         }
       }
 
-      batch.draw(
-        GdxAnimationFrames.toRegion(this.inventoryComponent.items()[i].inventoryAnimation().update()),
-        x,
-        y,
-        this.slotSize - (4 * BORDER_PADDING),
+      GdxHudItemRenderer.drawItem(
+        batch,
+        item,
+        itemX,
+        itemY,
         this.slotSize - (4 * BORDER_PADDING));
     }
   }
