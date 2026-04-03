@@ -1,7 +1,6 @@
 package contrib.hud.crafting;
 
 import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.crafting.*;
@@ -9,9 +8,9 @@ import contrib.hud.IInventoryHolder;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.elements.GuiInteractionContext;
-import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
 import contrib.platform.gdx.hud.GdxCraftingActionBar;
+import contrib.platform.gdx.hud.GdxCraftingDropTargetBinder;
 import contrib.platform.gdx.hud.GdxGuiInteractionContext;
 import contrib.platform.gdx.hud.GdxHudItemRenderer;
 import core.Game;
@@ -105,35 +104,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   protected void initInteraction(GuiInteractionContext interactionContext) {
     interactionContext(GdxGuiInteractionContext.class)
       .flatMap(GdxGuiInteractionContext::dragAndDrop)
-      .ifPresent(
-        dragAndDrop ->
-          dragAndDrop.addTarget(
-            new DragAndDrop.Target(this.actor()) {
-              @Override
-              public boolean drag(
-                DragAndDrop.Source source,
-                DragAndDrop.Payload payload,
-                float x,
-                float y,
-                int pointer) {
-                return payload != null
-                  && payload.getObject() instanceof ItemDragPayload itemDragPayload
-                  && interaction.acceptsDraggedItem(itemDragPayload);
-              }
-
-              @Override
-              public void drop(
-                DragAndDrop.Source source,
-                DragAndDrop.Payload payload,
-                float x,
-                float y,
-                int pointer) {
-                if (payload != null
-                  && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-                  interaction.handleDraggedItem(itemDragPayload);
-                }
-              }
-            }));
+      .ifPresent(dragAndDrop -> GdxCraftingDropTargetBinder.bind(dragAndDrop, this.actor(), interaction));
   }
 
   /**
