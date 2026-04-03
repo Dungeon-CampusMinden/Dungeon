@@ -2,61 +2,73 @@ package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import core.utils.Vector2;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * A GUI element that can be combined with other GUI elements using {@link GUICombination}. Gui
- * Elements that should be displayed together should extend this class.
+ * A GUI element that can be combined with other GUI elements using {@link GUICombination}.
+ *
+ * <p>GUI elements that should be displayed together should extend this class.
  *
  * <p>This class is used to create GUI elements that can be combined in one {@link GUICombination}
  * to be displayed together. The {@link GUICombination} will call the methods of this class to draw
  * the element and to calculate the preferred size.
  *
- * <p>Also this class provides a {@link DragAndDrop} object that can be used to drag and drop
- * elements between multiple {@link CombinableGUI CombinableGUIs}.
- *
- * <p>The method {@link CombinableGUI#preferredSize(GUICombination.AvailableSpace)} is called by the
- * parent {@link GUICombination} if the available space for a GUI element changes and the size needs
- * to be recalculated. The method should calculate the preferred size of the element based on the
- * available space and return it as a {@link Vector2}. It should not be greater than the available
- * space.
+ * <p>Interaction is exposed through a backend-neutral {@link GuiInteractionContext}. Concrete
+ * backends may unwrap specialized interaction helpers from that context.
  */
 public abstract class CombinableGUI {
 
   // Position of the GUI-Element and its size
   private int x, y, width, height;
-  // Drag and Drop context object for the GUICombination
-  private DragAndDrop dragAndDrop;
-  // Actor "dummy". Only used for DragAndDrop (thx GDX <3)
+
+  private GuiInteractionContext interactionContext = new GuiInteractionContext() {};
+  // Still needed for existing GDX button/input handling.
   private Actor actor;
 
   /**
-   * Set the drag and drop object. This should not be called directly as it is called by the parent
-   * {@link GUICombination} on initialization.
+   * Sets the interaction context for this GUI element.
    *
-   * @param dragAndDrop the drag and drop object
+   * <p>This is called by the parent {@link GUICombination} during initialization.
+   *
+   * @param interactionContext backend-neutral interaction context
    */
-  public void dragAndDrop(final DragAndDrop dragAndDrop) {
-    this.dragAndDrop = dragAndDrop;
-    this.initDragAndDrop(this.dragAndDrop);
+  public final void interactionContext(final GuiInteractionContext interactionContext) {
+    this.interactionContext =
+      interactionContext == null ? new GuiInteractionContext() {} : interactionContext;
+    this.initInteraction(this.interactionContext);
   }
 
   /**
-   * Get the drag and drop object.
+   * Returns the current interaction context.
    *
-   * @return the drag and drop object
+   * @return current interaction context
    */
-  public DragAndDrop dragAndDrop() {
-    return this.dragAndDrop;
+  protected final GuiInteractionContext interactionContext() {
+    return this.interactionContext;
   }
 
   /**
-   * Initialize the drag and drop object.
+   * Tries to unwrap the current interaction context to a backend-specific type.
    *
-   * @param dragAndDrop the drag and drop object to initialize
+   * @param type requested type
+   * @param <T> target type
+   * @return matching backend-specific interaction helper if available
    */
-  protected abstract void initDragAndDrop(final DragAndDrop dragAndDrop);
+  protected final <T> Optional<T> interactionContext(Class<T> type) {
+    Objects.requireNonNull(type, "type");
+    return this.interactionContext.unwrap(type);
+  }
+
+  /**
+   * Initializes backend-specific interaction hooks.
+   *
+   * <p>Default implementation does nothing.
+   *
+   * @param interactionContext backend-neutral interaction context
+   */
+  protected void initInteraction(final GuiInteractionContext interactionContext) {}
 
   /**
    * Draw the element.
@@ -80,9 +92,6 @@ public abstract class CombinableGUI {
   /**
    * Draw debug information for the element.
    *
-   * <p>This method should be used for drawing debug information like borders. It will only be
-   * called if the parent {@link GUICombination} is in debug mode.
-   *
    * <p>The default implementation does nothing.
    */
   protected void drawDebug() {}
@@ -90,52 +99,27 @@ public abstract class CombinableGUI {
   /**
    * Calculate the preferred size of the gui element.
    *
-   * <p>The calculation should be based on the available space. The element should not be greater
-   * than the available space.
-   *
-   * @param availableSpace the available space for the element to be drawn in.
-   * @return the preferred size of the element.
+   * @param availableSpace the available space for the element to be drawn in
+   * @return the preferred size of the element
    */
   protected abstract Vector2 preferredSize(final GUICombination.AvailableSpace availableSpace);
 
   /** Called when the bounds of the element change. */
   protected void boundsUpdate() {}
 
-  /**
-   * Get the x coordinate of the left edge of the element.
-   *
-   * @return the x coordinate.
-   */
-  public final int x() {
+  public int x() {
     return this.x;
   }
 
-  /**
-   * Set the x coordinate of the left edge of the element.
-   *
-   * @param x the x coordinate.
-   */
-  public final void x(int x) {
-    this.actor.setPosition(x, this.y);
+  public void x(int x) {
     this.x = x;
   }
 
-  /**
-   * Get the y coordinate of the top edge of the element.
-   *
-   * @return the y coordinate.
-   */
-  public final int y() {
+  public int y() {
     return this.y;
   }
 
-  /**
-   * Set the y coordinate of the top edge of the element.
-   *
-   * @param y the y coordinate.
-   */
-  public final void y(int y) {
-    this.actor.setPosition(this.x, y);
+  public void y(int y) {
     this.y = y;
   }
 
@@ -152,13 +136,8 @@ public abstract class CombinableGUI {
    * Set the width of the element.
    *
    * @param width the width.
-   * @throws IllegalArgumentException if the width is negative.
    */
   public void width(int width) {
-    if (width < 0) {
-      throw new IllegalArgumentException("Width cannot be negative");
-    }
-    this.actor.setSize(width, this.height);
     this.width = width;
   }
 
@@ -175,22 +154,17 @@ public abstract class CombinableGUI {
    * Set the height of the element.
    *
    * @param height the height.
-   * @throws IllegalArgumentException if the height is negative.
    */
   public void height(int height) {
-    if (height < 0) {
-      throw new IllegalArgumentException("Height cannot be negative");
-    }
-    this.actor.setSize(this.width, height);
     this.height = height;
   }
 
   /**
-   * Generate a GDX-Actor for the element with the current position and size.
+   * Actor anchor for existing Scene2D-specific input hooks such as {@link Button}.
    *
-   * <p>This Actor may be used for GDX-functionality like DragAndDrop.
+   * <p>This stays for now so the drag-and-drop refactor remains small and focused.
    *
-   * @return an Actor for the element.
+   * @return lazily created Scene2D actor
    */
   protected Actor actor() {
     if (this.actor == null) {

@@ -4,39 +4,21 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-import contrib.components.UIComponent;
+import contrib.platform.gdx.hud.GdxGuiInteractionContext;
 import core.Game;
 import core.utils.Vector2;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-/**
- * An object of this class represents a combination of multiple {@link CombinableGUI
- * CombinableGUIs}.
- *
- * <p>This class calculates the position and available space for each {@link CombinableGUI}, calling
- * the methods of the {@link CombinableGUI} to draw the elements and calculate the preferred size.
- *
- * <p>The class inherits from {@link Group}, allowing it to be added to a {@link
- * com.badlogic.gdx.scenes.scene2d.Stage Stage} for display. This addition should be facilitated
- * through the use of a {@link UIComponent}.
- */
 public class GUICombination extends Group {
 
-  /** The gap between the CombinableGUIs in pixels. */
   public static final int GAP = 10;
 
   private final DragAndDrop dragAndDrop;
   private final ArrayList<CombinableGUI> combinableGuis;
   private final int guisPerRow;
 
-  /**
-   * Creates a GUICombination, a combination of multiple CombinableGUI elements.
-   *
-   * @param guisPerRow The number of CombinableGUI elements to display per row.
-   * @param combinableGuis The CombinableGUI elements to be combined.
-   */
   public GUICombination(int guisPerRow, final CombinableGUI... combinableGuis) {
     this.guisPerRow = guisPerRow;
     this.setPosition(0, 0);
@@ -45,27 +27,24 @@ public class GUICombination extends Group {
     if (Game.isHeadless()) {
       this.dragAndDrop = null;
       this.combinableGuis.forEach(
-          combinableGUI -> {
-            this.addActor(combinableGUI.actor());
-          });
+        combinableGUI -> {
+          combinableGUI.interactionContext(new GuiInteractionContext() {});
+          this.addActor(combinableGUI.actor());
+        });
       return;
     }
+
     this.dragAndDrop = new DragAndDrop();
     this.setSize(Game.stage().orElseThrow().getWidth(), Game.stage().orElseThrow().getHeight());
 
     this.combinableGuis.forEach(
-        combinableGUI -> {
-          combinableGUI.dragAndDrop(this.dragAndDrop);
-          this.addActor(combinableGUI.actor());
-        });
+      combinableGUI -> {
+        combinableGUI.interactionContext(new GdxGuiInteractionContext(this.dragAndDrop));
+        this.addActor(combinableGUI.actor());
+      });
     this.scalePositionChildren();
   }
 
-  /**
-   * Creates a GUICombination, a combination of multiple CombinableGUI elements.
-   *
-   * @param combinableGuis The CombinableGUI elements to be combined.
-   */
   public GUICombination(final CombinableGUI... combinableGuis) {
     this(2, combinableGuis);
   }
@@ -81,8 +60,8 @@ public class GUICombination extends Group {
       int row = i / columns;
       int column = i % columns;
       AvailableSpace avs =
-          new AvailableSpace(
-              column * width + (column + 1) * GAP, row * height + (row + 1) * GAP, width, height);
+        new AvailableSpace(
+          column * width + (column + 1) * GAP, row * height + (row + 1) * GAP, width, height);
       Vector2 size = combinableGUI.preferredSize(avs);
       combinableGUI.width((int) size.x());
       combinableGUI.height((int) size.y());
@@ -114,34 +93,13 @@ public class GUICombination extends Group {
     this.combinableGuis.forEach(CombinableGUI::drawDebug);
   }
 
-  /**
-   * Returns the list of CombinableGUI elements that are part of this GUICombination.
-   *
-   * @return An ArrayList of CombinableGUI elements.
-   */
   public ArrayList<CombinableGUI> combinableGuis() {
     return this.combinableGuis;
   }
 
-  /**
-   * Returns a stream over the contained GUI elements.
-   *
-   * <p>This is intended for specialized subclasses that expose backend-agnostic
-   * capabilities derived from the contained GUIs.
-   *
-   * @return stream of contained GUI elements
-   */
   protected Stream<CombinableGUI> combinableGuiStream() {
     return this.combinableGuis.stream();
   }
 
-  /**
-   * WTF? .
-   *
-   * @param x foo
-   * @param y foo
-   * @param width foo
-   * @param height foo
-   */
   public record AvailableSpace(int x, int y, int width, int height) {}
 }

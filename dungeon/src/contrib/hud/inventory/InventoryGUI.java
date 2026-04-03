@@ -21,7 +21,9 @@ import contrib.hud.IInventoryHolder;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
+import contrib.hud.elements.GuiInteractionContext;
 import contrib.item.Item;
+import contrib.platform.gdx.hud.GdxGuiInteractionContext;
 import contrib.platform.gdx.hud.GdxHudItemRenderer;
 import core.Entity;
 import core.Game;
@@ -229,8 +231,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
         this.y() + this.slotSize * (i / this.slotsPerRow) + (2 * BORDER_PADDING);
 
       // Don't draw item being dragged
-      if (this.dragAndDrop().isDragging()) {
-        DragAndDrop.Payload payload = this.dragAndDrop().getDragPayload();
+      if (this.isDragging()) {
+        DragAndDrop.Payload payload = this.currentDragPayload();
         if (payload != null
           && payload.getObject() instanceof ItemDragPayload itemDragPayload
           && itemDragPayload.inventoryComponent() == this.inventoryComponent
@@ -302,7 +304,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
     if (mousePos.y() < this.y() || mousePos.y() > this.y() + this.height()) return;
 
     // Check if mouse is dragging an item
-    if (this.dragAndDrop().isDragging()) return;
+    if (this.isDragging()) return;
 
     int hoveredSlot = this.getSlotByCoordinates(relMousePos.x(), relMousePos.y());
     Optional<Item> item = InventoryGUI.this.inventoryComponent.get(hoveredSlot);
@@ -342,9 +344,13 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   @Override
-  protected void initDragAndDrop(DragAndDrop dragAndDrop) {
-    dragAndDrop.addSource(dropAndDropSource);
-    dragAndDrop.addTarget(dropAndDropTarget);
+  protected void initInteraction(GuiInteractionContext interactionContext) {
+    gdxDragAndDrop()
+      .ifPresent(
+        dragAndDrop -> {
+          dragAndDrop.addSource(dropAndDropSource);
+          dragAndDrop.addTarget(dropAndDropTarget);
+        });
   }
 
   private DragAndDrop.Source buildDragAndDropSource() {
@@ -367,7 +373,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
         Image image = new Image(new SpriteDrawable(GdxAnimationFrames.toSprite(itemToTransfer.inventoryAnimation().update())));
         image.setSize(InventoryGUI.this.slotSize, InventoryGUI.this.slotSize);
         payload.setDragActor(image);
-        dragAndDrop().setDragActorPosition(image.getWidth() / 2, -image.getHeight() / 2);
+        gdxDragAndDrop()
+          .ifPresent(dragAndDrop -> dragAndDrop.setDragActorPosition(image.getWidth() / 2, -image.getHeight() / 2));
 
         return payload;
       }
@@ -583,5 +590,18 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
    */
   public InventoryComponent inventoryComponent() {
     return this.inventoryComponent;
+  }
+
+  private Optional<DragAndDrop> gdxDragAndDrop() {
+    return interactionContext(GdxGuiInteractionContext.class)
+      .flatMap(GdxGuiInteractionContext::dragAndDrop);
+  }
+
+  private boolean isDragging() {
+    return gdxDragAndDrop().map(DragAndDrop::isDragging).orElse(false);
+  }
+
+  private DragAndDrop.Payload currentDragPayload() {
+    return gdxDragAndDrop().map(DragAndDrop::getDragPayload).orElse(null);
   }
 }

@@ -8,9 +8,11 @@ import contrib.crafting.*;
 import contrib.hud.IInventoryHolder;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
+import contrib.hud.elements.GuiInteractionContext;
+import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
 import contrib.platform.gdx.hud.GdxCraftingActionBar;
-import contrib.platform.gdx.hud.GdxDragDropTargets;
+import contrib.platform.gdx.hud.GdxGuiInteractionContext;
 import contrib.platform.gdx.hud.GdxHudItemRenderer;
 import core.Game;
 import core.platform.gdx.render.GdxAnimationFrames;
@@ -99,16 +101,39 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     this.actionBar = new GdxCraftingActionBar(this, dialogId, this.controller::craftingPayload);
   }
 
-  // Init CraftingGUI as drag and drop target so that items can be dragged into the cauldron/ui
-  // but not as source
-  // so that items can't be dragged out of the cauldron/ui.
   @Override
-  protected void initDragAndDrop(DragAndDrop dragAndDrop) {
-    dragAndDrop.addTarget(
-      GdxDragDropTargets.itemPayloadTarget(
-        this.actor(),
-        interaction::acceptsDraggedItem,
-        interaction::handleDraggedItem));
+  protected void initInteraction(GuiInteractionContext interactionContext) {
+    interactionContext(GdxGuiInteractionContext.class)
+      .flatMap(GdxGuiInteractionContext::dragAndDrop)
+      .ifPresent(
+        dragAndDrop ->
+          dragAndDrop.addTarget(
+            new DragAndDrop.Target(this.actor()) {
+              @Override
+              public boolean drag(
+                DragAndDrop.Source source,
+                DragAndDrop.Payload payload,
+                float x,
+                float y,
+                int pointer) {
+                return payload != null
+                  && payload.getObject() instanceof ItemDragPayload itemDragPayload
+                  && interaction.acceptsDraggedItem(itemDragPayload);
+              }
+
+              @Override
+              public void drop(
+                DragAndDrop.Source source,
+                DragAndDrop.Payload payload,
+                float x,
+                float y,
+                int pointer) {
+                if (payload != null
+                  && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
+                  interaction.handleDraggedItem(itemDragPayload);
+                }
+              }
+            }));
   }
 
   /**
