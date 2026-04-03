@@ -20,13 +20,6 @@ public class Button {
   private static final IPath BUTTON_HOVER_PATH = new SimpleIPath("hud/button/button_hover.png");
   private static final IPath BUTTON_PRESS_PATH = new SimpleIPath("hud/button/button_press.png");
 
-  /**
-   * Kept for call-site compatibility and layout context.
-   *
-   * <p>The button no longer uses the parent for backend-specific rendering.
-   */
-  protected final CombinableGUI parent;
-
   protected int x, y, width, height;
 
   private boolean pressed = false;
@@ -44,18 +37,16 @@ public class Button {
   /**
    * Create a new button.
    *
-   * @param parent The parent gui
    * @param x The x position in global stage coordinates
    * @param y The y position in global stage coordinates
    * @param width The width of the button
    * @param height The height of the button
    */
-  public Button(final CombinableGUI parent, int x, int y, int width, int height) {
+  public Button(int x, int y, int width, int height) {
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
-    this.parent = parent;
   }
 
   /**
@@ -70,8 +61,8 @@ public class Button {
   /**
    * Updates the button from the current engine-neutral stage/input abstractions.
    *
-   * <p>This keeps existing call sites simple while also allowing non-libGDX backends to drive the
-   * same state machine via {@link #update(int, int, boolean)}.
+   * <p>This keeps the existing GDX call sites working while also allowing other backends to drive
+   * the same state machine explicitly via {@link #update(int, int, boolean)}.
    */
   public void updateFromStage() {
     StageHandle stage = Game.stage().orElse(null);

@@ -60,7 +60,7 @@ final class LitiengineTextDialogOverlay implements LitiengineUiOverlay {
     actionButtons.clear();
 
     for (String label : buttonLabels()) {
-      Button button = new Button(null, 0, 0, 1, 1);
+      Button button = new Button(0, 0, 1, 1);
       button.onClick(ignored -> triggerCallback(label));
       actionButtons.add(button);
     }

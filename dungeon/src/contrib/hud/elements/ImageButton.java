@@ -10,16 +10,14 @@ public class ImageButton extends Button {
   /**
    * Create a new image button.
    *
-   * @param parent The parent GUI.
    * @param animation The animation to display.
    * @param x The x position.
    * @param y The y position.
    * @param width The width.
    * @param height The height.
    */
-  public ImageButton(
-    final CombinableGUI parent, final Animation animation, int x, int y, int width, int height) {
-    super(parent, x, y, width, height);
+  public ImageButton(final Animation animation, int x, int y, int width, int height) {
+    super(x, y, width, height);
     this.animation = animation;
   }
 

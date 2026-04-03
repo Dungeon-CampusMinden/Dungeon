@@ -72,7 +72,6 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
     for (CraftingDialogAction action : CraftingDialogAction.values()) {
       ImageButton button =
         new ImageButton(
-          null,
           new Animation(new SimpleIPath(action.iconPath())),
           0,
           0,
