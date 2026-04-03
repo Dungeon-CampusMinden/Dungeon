@@ -25,6 +25,8 @@ import java.util.Optional;
  */
 final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
 
+  private static final CraftingDialogLayout LAYOUT = new CraftingDialogLayout();
+
   private static final int DEFAULT_WIDTH = 1180;
   private static final int DEFAULT_HEIGHT = 600;
 
@@ -151,8 +153,8 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
       LitiengineInventoryGridRenderer.drawGrid(
         g, craftingSlots, rightStartX, gridTop, rightColumns);
 
-      int previewY = gridTop + maxGridHeight + PREVIEW_TOP_GAP;
-      List<Rectangle> buttons = buttonBounds(previewY);
+      Rectangle previewPanelBounds = previewPanelBounds(gridTop, maxGridHeight);
+      List<Rectangle> buttons = buttonBounds(previewPanelBounds.y);
 
       GridLayout leftGrid =
         new GridLayout(InventorySide.TARGET, leftStartX, gridTop, leftColumns, targetSlots);
@@ -160,34 +162,140 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
         new GridLayout(InventorySide.CRAFTING, rightStartX, gridTop, rightColumns, craftingSlots);
 
       handleInput(buttons, leftGrid, rightGrid);
-      drawRecipePreview(g, previewY, buttons);
+      drawRecipePreview(g, previewPanelBounds, buttons);
     } finally {
       LitiengineDialogOverlaySupport.finishDialog(g, state);
     }
   }
 
-  private void drawRecipePreview(Graphics2D g, int previewY, List<Rectangle> buttons) {
-    int previewX = x + LitiengineDialogOverlaySupport.PADDING;
-    int previewWidth = width - 2 * LitiengineDialogOverlaySupport.PADDING;
-
-    drawPanelBackground(g, previewX, previewY, previewWidth, PREVIEW_HEIGHT);
+  private void drawRecipePreview(Graphics2D g, Rectangle previewPanelBounds, List<Rectangle> buttons) {
+    drawPanelBackground(
+      g,
+      previewPanelBounds.x,
+      previewPanelBounds.y,
+      previewPanelBounds.width,
+      previewPanelBounds.height);
 
     g.setColor(Color.WHITE);
-    g.drawString("Recipe Preview", previewX + PREVIEW_PADDING, previewY + 24);
+    g.drawString(
+      "Recipe Preview",
+      previewPanelBounds.x + PREVIEW_PADDING,
+      previewPanelBounds.y + 24);
 
-    String previewText = buildRecipePreviewText();
-    LitiengineDialogOverlaySupport.drawWrappedText(
-      g,
-      previewText,
-      previewX + PREVIEW_PADDING,
-      previewY + 50,
-      previewWidth - 2 * PREVIEW_PADDING);
+    g.setColor(new Color(210, 210, 210));
+    g.drawString(
+      previewStatusLine(),
+      previewPanelBounds.x + PREVIEW_PADDING,
+      previewPanelBounds.y + 42);
+
+    Rectangle previewLayoutBounds = previewLayoutBounds(previewPanelBounds, buttons);
+
+    drawCraftingPreview(g, previewLayoutBounds);
+    drawResultPreview(g, previewLayoutBounds);
 
     CraftingDialogAction[] actions = CraftingDialogAction.values();
     for (int i = 0; i < actions.length; i++) {
       LitiengineDialogOverlaySupport.drawButton(
         g, buttons.get(i), actions[i].label(), pressedButtonIndex == i);
     }
+  }
+
+  private Rectangle previewPanelBounds(int gridTop, int maxGridHeight) {
+    int previewX = x + LitiengineDialogOverlaySupport.PADDING;
+    int previewY = gridTop + maxGridHeight + PREVIEW_TOP_GAP;
+    int previewWidth = width - 2 * LitiengineDialogOverlaySupport.PADDING;
+    return new Rectangle(previewX, previewY, previewWidth, PREVIEW_HEIGHT);
+  }
+
+  private Rectangle previewLayoutBounds(Rectangle previewPanelBounds, List<Rectangle> buttons) {
+    int layoutX = previewPanelBounds.x + PREVIEW_PADDING;
+    int layoutY = previewPanelBounds.y + 52;
+    int layoutWidth = previewPanelBounds.width - 2 * PREVIEW_PADDING;
+
+    int buttonsTop =
+      buttons.stream()
+        .mapToInt(rect -> rect.y)
+        .min()
+        .orElse(previewPanelBounds.y + previewPanelBounds.height);
+
+    int layoutBottom = buttonsTop - 10;
+    int layoutHeight = Math.max(50, layoutBottom - layoutY);
+
+    return new Rectangle(layoutX, layoutY, layoutWidth, layoutHeight);
+  }
+
+  private void drawCraftingPreview(Graphics2D g, Rectangle previewLayoutBounds) {
+    Item[] craftingSlots = controller.craftingSlots();
+    List<CraftingDialogLayout.SlotBounds> slots =
+      LAYOUT.visibleCraftingSlots(
+        craftingSlots,
+        previewLayoutBounds.x,
+        previewLayoutBounds.y,
+        previewLayoutBounds.width,
+        previewLayoutBounds.height);
+
+    for (int i = 0; i < slots.size(); i++) {
+      CraftingDialogLayout.SlotBounds slot = slots.get(i);
+      Item item = craftingSlots[slot.slotIndex()];
+      Rectangle bounds =
+        mirrorLayoutBounds(slot.x(), slot.y(), slot.size(), previewLayoutBounds);
+
+      drawPreviewItem(g, item, bounds.x, bounds.y, bounds.width, Integer.toString(i + 1));
+    }
+  }
+
+  private void drawResultPreview(Graphics2D g, Rectangle previewLayoutBounds) {
+    Item[] resultItems = controller.resultItems();
+    List<CraftingDialogLayout.ItemBounds> resultSlots =
+      LAYOUT.resultSlots(
+        resultItems,
+        previewLayoutBounds.x,
+        previewLayoutBounds.y,
+        previewLayoutBounds.width,
+        previewLayoutBounds.height);
+
+    for (int i = 0; i < resultSlots.size(); i++) {
+      CraftingDialogLayout.ItemBounds slot = resultSlots.get(i);
+      Rectangle bounds =
+        mirrorLayoutBounds(slot.x(), slot.y(), slot.size(), previewLayoutBounds);
+
+      drawPreviewItem(g, resultItems[i], bounds.x, bounds.y, bounds.width, resultItems[i].displayName());
+    }
+  }
+
+  private Rectangle mirrorLayoutBounds(int absoluteX, int absoluteY, int size, Rectangle layoutBounds) {
+    int relativeY = absoluteY - layoutBounds.y;
+    int mirroredY = layoutBounds.y + layoutBounds.height - relativeY - size;
+    return new Rectangle(absoluteX, mirroredY, size, size);
+  }
+
+  private void drawPreviewItem(Graphics2D g, Item item, int x, int y, int size, String label) {
+    g.setColor(new Color(44, 47, 58, 210));
+    g.fillRoundRect(x, y, size, size, 10, 10);
+
+    g.setColor(new Color(102, 107, 124, 220));
+    g.drawRoundRect(x, y, size, size, 10, 10);
+
+    if (item != null) {
+      String itemText = item.displayName();
+      if (itemText.length() > 16) {
+        itemText = itemText.substring(0, 16);
+      }
+
+      g.setColor(Color.WHITE);
+      g.drawString(itemText, x + 6, y + Math.max(18, size / 2));
+    }
+
+    if (label != null && !label.isBlank()) {
+      g.setColor(new Color(210, 210, 210));
+      g.drawString(label, x + 6, y + size - 8);
+    }
+  }
+
+  private String previewStatusLine() {
+    String text = buildRecipePreviewText();
+    int newline = text.indexOf('\n');
+    return newline >= 0 ? text.substring(0, newline) : text;
   }
 
   private String buildRecipePreviewText() {
