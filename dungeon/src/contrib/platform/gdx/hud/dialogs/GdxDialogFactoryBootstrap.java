@@ -36,8 +36,6 @@ public final class GdxDialogFactoryBootstrap {
       DialogType.DefaultTypes.DUAL_INVENTORY,
       ctx -> wrap(GdxInventoryDialogBuilder.buildDual(ctx)));
     DialogFactory.replace(
-      DialogType.DefaultTypes.CRAFTING_GUI, ctx -> wrap(GdxCraftingDialogBuilder.build(ctx)));
-    DialogFactory.replace(
       DialogType.DefaultTypes.KEYPAD, ctx -> wrap(GdxKeypadDialogBuilder.build(ctx)));
     DialogFactory.replace(
       DialogType.DefaultTypes.PROGRESS_BAR,
