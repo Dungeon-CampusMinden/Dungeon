@@ -40,6 +40,7 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   private final String craftingTitle;
   private final String dialogId;
   private final CraftingDialogController controller;
+  private final CraftingDialogInteraction interaction;
 
   private int x;
   private int y;
@@ -60,6 +61,7 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
     this.craftingTitle =
       (craftingTitle == null || craftingTitle.isBlank()) ? "Crafting" : craftingTitle;
     this.controller = controller;
+    this.interaction = new CraftingDialogInteraction(controller);
     this.dialogId = dialogId;
   }
 
@@ -282,7 +284,7 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   }
 
   private void transferClickedItem(SlotSelection slotSelection) {
-    controller.transferBySlot(slotSelection.side().controllerSide(), slotSelection.slotIndex());
+    interaction.transferClickedSlot(slotSelection.side().controllerSide(), slotSelection.slotIndex());
   }
 
   private SlotSelection findSlotSelection(int mouseX, int mouseY, GridLayout leftGrid, GridLayout rightGrid) {
