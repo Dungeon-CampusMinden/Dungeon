@@ -2,22 +2,23 @@ package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import core.Game;
+import core.input.MouseButtons;
 import core.platform.gdx.render.TextureMap;
 import core.ui.StageHandle;
+import core.utils.InputManager;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Consumer;
 
 /**
  * Represents a button in the GUI.
  *
- * <p>This class defines a button with a specified position (x, y) and size (width, height) within
- * the root stage, accessible via {@link Game#stage()}.
+ * <p>This class defines a button with a specified position (x, y) and size (width, height)
+ * within the root stage, accessible via {@link Game#stage()}.
  *
- * <p>The button automatically registers its own {@link InputListener} on its parent's actor to
- * detect clicks.
+ * <p>Input handling is deliberately polling-based via the engine-agnostic {@link InputManager}
+ * and {@link StageHandle}. This removes the former dependency on a Scene2D {@code InputListener}
+ * attached to the parent {@link CombinableGUI}.
  */
 public class Button {
 
@@ -32,18 +33,26 @@ public class Button {
       TEXTURE_BUTTON_PRESS = null;
     } else {
       TEXTURE_BUTTON =
-          TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_idle.png"));
+        TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_idle.png"));
       TEXTURE_BUTTON_HOVER =
-          TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_hover.png"));
+        TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_hover.png"));
       TEXTURE_BUTTON_PRESS =
-          TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_press.png"));
+        TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_press.png"));
     }
   }
 
+  /**
+   * Kept for call-site compatibility and layout context.
+   *
+   * <p>The button no longer uses the parent for Scene2D input registration.
+   */
   protected final CombinableGUI parent;
+
   protected int x, y, width, height;
+
   private boolean pressed = false;
-  private Consumer<Button> onClick;
+  private boolean leftButtonDownLastFrame = false;
+  private Consumer<Button> onClick = ignored -> {};
 
   /**
    * Create a new button.
@@ -60,35 +69,6 @@ public class Button {
     this.width = width;
     this.height = height;
     this.parent = parent;
-
-    if (!Game.isHeadless()) this.init();
-  }
-
-  // Init button by registering an input listener on the parent actor for detecting clicks.
-  private void init() {
-    this.parent
-        .actor()
-        .addListener(
-            new InputListener() {
-              @Override
-              public boolean touchDown(
-                  InputEvent event, float x, float y, int pointer, int button) {
-                if (Button.this.x() <= (x + Button.this.parent.x())
-                    && (Button.this.x() + Button.this.width()) >= (x + Button.this.parent.x())
-                    && Button.this.y() <= (y + Button.this.parent.y())
-                    && (Button.this.y() + Button.this.height()) >= (y + Button.this.parent.y())) {
-                  Button.this.pressed = true;
-                  Button.this.onClick.accept(Button.this);
-                  return true;
-                }
-                return false;
-              }
-
-              @Override
-              public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                Button.this.pressed = false;
-              }
-            });
   }
 
   /**
@@ -97,7 +77,7 @@ public class Button {
    * @param onClick The consumer to be called when the button is clicked
    */
   public void onClick(Consumer<Button> onClick) {
-    this.onClick = onClick;
+    this.onClick = onClick != null ? onClick : ignored -> {};
   }
 
   /**
@@ -106,22 +86,62 @@ public class Button {
    * @param batch The batch to draw on
    */
   public void draw(Batch batch) {
-    StageHandle stage = Game.stage().orElseThrow();
-    int mouseX = stage.mouseX();
-    int mouseY = Math.round(stage.getHeight()) - stage.mouseY();
-    if (mouseX >= this.x
-        && mouseX <= this.x + this.width
-        && mouseY >= this.y
-        && mouseY <= this.y + this.height) {
-      batch.draw(
-          this.pressed ? TEXTURE_BUTTON_PRESS : TEXTURE_BUTTON_HOVER,
-          this.x,
-          this.y,
-          this.width,
-          this.height);
-    } else {
-      batch.draw(TEXTURE_BUTTON, this.x, this.y, this.width, this.height);
+    updateInteractionState();
+
+    boolean hovered = isMouseOver();
+    Texture textureToDraw =
+      hovered
+        ? (this.pressed ? TEXTURE_BUTTON_PRESS : TEXTURE_BUTTON_HOVER)
+        : TEXTURE_BUTTON;
+
+    batch.draw(textureToDraw, this.x, this.y, this.width, this.height);
+  }
+
+  private void updateInteractionState() {
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null) {
+      this.pressed = false;
+      this.leftButtonDownLastFrame = false;
+      return;
     }
+
+    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
+    boolean hovered = contains(stage.mouseX(), toHudY(stage));
+
+    if (leftButtonDown && !leftButtonDownLastFrame && hovered) {
+      this.pressed = true;
+    }
+
+    if (!leftButtonDown && leftButtonDownLastFrame) {
+      boolean clickReleasedOnSameButton = this.pressed && hovered;
+      this.pressed = false;
+
+      if (clickReleasedOnSameButton) {
+        this.onClick.accept(this);
+      }
+    }
+
+    if (!leftButtonDown && !leftButtonDownLastFrame) {
+      this.pressed = false;
+    }
+
+    this.leftButtonDownLastFrame = leftButtonDown;
+  }
+
+  protected boolean contains(int mouseX, int mouseY) {
+    return mouseX >= this.x
+      && mouseX <= this.x + this.width
+      && mouseY >= this.y
+      && mouseY <= this.y + this.height;
+  }
+
+  protected boolean isMouseOver() {
+    StageHandle stage = Game.stage().orElse(null);
+    return stage != null && contains(stage.mouseX(), toHudY(stage));
+  }
+
+  private int toHudY(StageHandle stage) {
+    return Math.round(stage.getHeight()) - stage.mouseY();
   }
 
   /**

@@ -2,6 +2,8 @@ package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import contrib.platform.gdx.hud.GdxGuiInteractionContext;
 import core.utils.Vector2;
 import java.util.Objects;
 import java.util.Optional;
@@ -62,6 +64,20 @@ public abstract class CombinableGUI {
   }
 
   /**
+   * Temporary compatibility bridge for legacy libGDX HUD code that still injects a shared
+   * DragAndDrop instance directly.
+   *
+   * <p>The new primary API is {@link #interactionContext(GuiInteractionContext)}.
+   *
+   * @param dragAndDrop shared libGDX DragAndDrop context
+   * @deprecated migrate callers to {@link #interactionContext(GuiInteractionContext)}
+   */
+  @Deprecated
+  public final void dragAndDrop(final DragAndDrop dragAndDrop) {
+    this.interactionContext(new GdxGuiInteractionContext(dragAndDrop));
+  }
+
+  /**
    * Initializes backend-specific interaction hooks.
    *
    * <p>Default implementation does nothing.
@@ -113,7 +129,9 @@ public abstract class CombinableGUI {
 
   public void x(int x) {
     this.x = x;
+    this.syncActorBounds();
   }
+
 
   public int y() {
     return this.y;
@@ -121,6 +139,7 @@ public abstract class CombinableGUI {
 
   public void y(int y) {
     this.y = y;
+    this.syncActorBounds();
   }
 
   /**
@@ -139,6 +158,7 @@ public abstract class CombinableGUI {
    */
   public void width(int width) {
     this.width = width;
+    this.syncActorBounds();
   }
 
   /**
@@ -157,21 +177,29 @@ public abstract class CombinableGUI {
    */
   public void height(int height) {
     this.height = height;
+    this.syncActorBounds();
   }
 
   /**
-   * Actor anchor for existing Scene2D-specific input hooks such as {@link Button}.
+   * Returns the backend anchor actor for legacy libGDX HUD integration.
    *
-   * <p>This stays for now so the drag-and-drop refactor remains small and focused.
+   * <p>This actor is intentionally kept as a narrow compatibility seam for drag-and-drop,
+   * keyboard focus and remaining Scene2D listeners. It is no longer the primary interaction API
+   * of {@link CombinableGUI}.
    *
-   * @return lazily created Scene2D actor
+   * @return libGDX anchor actor
    */
-  protected Actor actor() {
+  protected final Actor actor() {
     if (this.actor == null) {
       this.actor = new Actor();
-      this.actor.setPosition(this.x, this.y);
-      this.actor.setSize(this.width, this.height);
+      this.syncActorBounds();
     }
     return this.actor;
+  }
+
+  private void syncActorBounds() {
+    if (this.actor != null) {
+      this.actor.setBounds(this.x, this.y, this.width, this.height);
+    }
   }
 }
