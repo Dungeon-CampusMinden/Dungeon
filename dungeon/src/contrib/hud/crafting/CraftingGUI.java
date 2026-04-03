@@ -2,7 +2,6 @@ package contrib.hud.crafting;
 
 import com.badlogic.gdx.graphics.g2d.*;
 import contrib.components.InventoryComponent;
-import contrib.components.UIComponent;
 import contrib.crafting.*;
 import contrib.hud.IInventoryHolder;
 import contrib.hud.elements.CombinableGUI;
@@ -53,12 +52,11 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private boolean leftButtonDownLastFrame = false;
 
   public CraftingGUI(
-    InventoryComponent sourceInventory,
-    InventoryComponent targetInventory,
+    CraftingDialogController controller,
     String dialogId,
     CraftingActionBarFactory actionBarFactory,
     CraftingDialogBodyRendererFactory bodyRendererFactory) {
-    this.controller = new CraftingDialogController(targetInventory, sourceInventory);
+    this.controller = Objects.requireNonNull(controller, "controller must not be null");
     this.interaction = new CraftingDialogInteraction(this.controller);
     this.actionBar =
       Objects.requireNonNull(actionBarFactory, "actionBarFactory must not be null")
@@ -71,19 +69,6 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   protected void initInteraction(GuiInteractionContext interactionContext) {
     // Crafting slot interaction is now handled via backend-neutral click polling.
     // This aligns the libGDX dialog semantics with the existing LITIENGINE crafting overlay.
-  }
-
-  /**
-   * Registers the standard crafting callbacks on the given UIComponent.
-   *
-   * <p>Call this method after creating a UIComponent for CraftingGUI to enable the craft and cancel
-   * functionality on the server.
-   *
-   * @param uiComponent the UIComponent to register callbacks on
-   * @param craftingGUI the CraftingGUI instance
-   */
-  public static void registerCallbacks(UIComponent uiComponent, CraftingGUI craftingGUI) {
-    craftingGUI.controller.registerCallbacks(uiComponent);
   }
 
   @Override

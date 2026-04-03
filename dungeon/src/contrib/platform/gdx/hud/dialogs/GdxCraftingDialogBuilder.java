@@ -3,6 +3,7 @@ package contrib.platform.gdx.hud.dialogs;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
+import contrib.crafting.CraftingDialogController;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
@@ -43,19 +44,22 @@ public final class GdxCraftingDialogBuilder {
     }
 
     InventoryGUI inventoryGUI = new InventoryGUI(heroInventory);
-    CraftingGUI craftingGUI =
-      new CraftingGUI(
-        craftInventory,
-        heroInventory,
-        ctx.dialogId(),
-        GdxCraftingActionBar::new,
-        GdxCraftingDialogRenderer::new);
+
+    CraftingDialogController controller =
+      new CraftingDialogController(heroInventory, craftInventory);
 
     UIComponent uiComponent =
       entity.fetch(UIComponent.class)
         .orElseThrow(() -> new DialogCreationException("Owner entity has no UIComponent"));
 
-    CraftingGUI.registerCallbacks(uiComponent, craftingGUI);
+    controller.registerCallbacks(uiComponent);
+
+    CraftingGUI craftingGUI =
+      new CraftingGUI(
+        controller,
+        ctx.dialogId(),
+        GdxCraftingActionBar::new,
+        GdxCraftingDialogRenderer::new);
 
     return new InventoryGuiGroup(inventoryGUI, craftingGUI);
   }
