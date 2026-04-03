@@ -44,10 +44,9 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   private static final String CALLBACK_CANCEL = "cancel";
 
   private final String targetTitle;
-  private final InventoryComponent targetInventory;
   private final String craftingTitle;
-  private final InventoryComponent craftingInventory;
   private final String dialogId;
+  private final CraftingDialogController controller;
 
   private int x;
   private int y;
@@ -61,15 +60,13 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
 
   LitiengineCraftingDialogOverlay(
     String targetTitle,
-    InventoryComponent targetInventory,
     String craftingTitle,
-    InventoryComponent craftingInventory,
+    CraftingDialogController controller,
     String dialogId) {
     this.targetTitle = (targetTitle == null || targetTitle.isBlank()) ? "Inventory" : targetTitle;
-    this.targetInventory = targetInventory;
     this.craftingTitle =
       (craftingTitle == null || craftingTitle.isBlank()) ? "Crafting" : craftingTitle;
-    this.craftingInventory = craftingInventory;
+    this.controller = controller;
     this.dialogId = dialogId;
   }
 
@@ -79,8 +76,8 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
       return;
     }
 
-    Item[] targetSlots = targetInventory.items();
-    Item[] craftingSlots = craftingInventory.items();
+    Item[] targetSlots = controller.targetSlots();
+    Item[] craftingSlots = controller.craftingSlots();
 
     int leftColumns = LitiengineInventoryGridRenderer.columnsFor(targetSlots);
     int rightColumns = LitiengineInventoryGridRenderer.columnsFor(craftingSlots);
@@ -135,9 +132,9 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
       int infoY = contentY + PANEL_HEADER_GAP + LitiengineInventoryGridRenderer.INFO_LINE_GAP;
 
       LitiengineInventoryGridRenderer.drawInventoryInfo(
-        g, targetInventory, targetSlots, leftStartX, infoY);
+        g, controller.targetInventory(), targetSlots, leftStartX, infoY);
       LitiengineInventoryGridRenderer.drawInventoryInfo(
-        g, craftingInventory, craftingSlots, rightStartX, infoY);
+        g, controller.craftingInventory(), craftingSlots, rightStartX, infoY);
 
       int gridTop = infoY + LitiengineInventoryGridRenderer.GRID_TOP_GAP + 4;
 
@@ -198,10 +195,10 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   }
 
   private String buildRecipePreviewText() {
-    Optional<Recipe> recipe = CraftingDialogLogic.currentRecipe(craftingInventory);
+    Optional<Recipe> recipe = controller.currentRecipe();
 
     if (recipe.isEmpty()) {
-      if (craftingInventory.isEmpty()) {
+      if (controller.craftingInventory().isEmpty()) {
         return "Click items to move them into the crafting inventory.\n"
           + "Craft and Cancel already trigger the existing server-side callbacks.";
       }
@@ -291,17 +288,7 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   }
 
   private void transferClickedItem(SlotSelection slotSelection) {
-    InventoryComponent source =
-      slotSelection.side() == InventorySide.TARGET ? targetInventory : craftingInventory;
-    InventoryComponent destination =
-      slotSelection.side() == InventorySide.TARGET ? craftingInventory : targetInventory;
-
-    Item item = source.get(slotSelection.slotIndex()).orElse(null);
-    if (item == null) {
-      return;
-    }
-
-    source.transfer(item, destination);
+    controller.transferBySlot(slotSelection.side().controllerSide(), slotSelection.slotIndex());
   }
 
   private SlotSelection findSlotSelection(int mouseX, int mouseY, GridLayout leftGrid, GridLayout rightGrid) {
@@ -337,12 +324,13 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   }
 
   private void onCraft() {
-    DialogCallbackResolver.createButtonCallback(dialogId, CALLBACK_CRAFT)
-      .accept(craftingInventory.items());
+    DialogCallbackResolver.createButtonCallback(dialogId, CraftingDialogController.CALLBACK_CRAFT)
+      .accept(controller.craftingPayload());
   }
 
   private void onCancel() {
-    DialogCallbackResolver.createButtonCallback(dialogId, CALLBACK_CANCEL).accept(null);
+    DialogCallbackResolver.createButtonCallback(dialogId, CraftingDialogController.CALLBACK_CANCEL)
+      .accept(null);
   }
 
   private List<Rectangle> buttonBounds(int previewY) {
@@ -411,8 +399,18 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   }
 
   private enum InventorySide {
-    TARGET,
-    CRAFTING
+    TARGET(CraftingDialogController.InventorySide.TARGET),
+    CRAFTING(CraftingDialogController.InventorySide.CRAFTING);
+
+    private final CraftingDialogController.InventorySide controllerSide;
+
+    InventorySide(CraftingDialogController.InventorySide controllerSide) {
+      this.controllerSide = controllerSide;
+    }
+
+    private CraftingDialogController.InventorySide controllerSide() {
+      return controllerSide;
+    }
   }
 
   private record SlotSelection(InventorySide side, int slotIndex) {}

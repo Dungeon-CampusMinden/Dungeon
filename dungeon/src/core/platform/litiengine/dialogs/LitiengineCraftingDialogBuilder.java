@@ -1,6 +1,8 @@
 package core.platform.litiengine.dialogs;
 
 import contrib.components.InventoryComponent;
+import contrib.components.UIComponent;
+import contrib.crafting.CraftingDialogController;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogCreationException;
@@ -30,13 +32,20 @@ public final class LitiengineCraftingDialogBuilder {
       throw new DialogCreationException("Missing InventoryComponent for CraftingGuiDialog");
     }
 
+    UIComponent uiComponent =
+      entity.fetch(UIComponent.class)
+        .orElseThrow(() -> new DialogCreationException("Owner entity has no UIComponent"));
+
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(defaultTitle(entity));
     String craftTitle =
       ctx.find(DialogContextKeys.SECONDARY_TITLE, String.class).orElse(defaultTitle(craftEntity));
 
+    CraftingDialogController controller =
+      new CraftingDialogController(heroInventory, craftInventory);
+    controller.registerCallbacks(uiComponent);
+
     return new LitiengineUiNodeHandle(
-      new LitiengineCraftingDialogOverlay(
-        title, heroInventory, craftTitle, craftInventory, ctx.dialogId()));
+      new LitiengineCraftingDialogOverlay(title, craftTitle, controller, ctx.dialogId()));
   }
 
   private static String defaultTitle(Entity entity) {

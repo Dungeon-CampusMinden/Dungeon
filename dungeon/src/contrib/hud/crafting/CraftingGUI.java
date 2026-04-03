@@ -4,12 +4,8 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
-import contrib.crafting.CraftingDialogLogic;
-import contrib.crafting.CraftingResult;
-import contrib.crafting.CraftingType;
-import contrib.crafting.Recipe;
+import contrib.crafting.*;
 import contrib.hud.IInventoryHolder;
-import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.elements.Button;
 import contrib.hud.elements.CombinableGUI;
@@ -25,6 +21,7 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * This class represents the GUI for the crafting system. If this gui is open, the player can craft
@@ -108,10 +105,8 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     }
   }
 
-  private final InventoryComponent inventory;
+  private final CraftingDialogController controller;
   private final Button buttonOk, buttonCancel;
-  private final InventoryComponent targetInventory;
-  private Recipe currentRecipe = null;
 
   /**
    * Create a CraftingGUI that has the given InventoryComponent as target inventory for successfully
@@ -122,15 +117,8 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
    * @param dialogId The dialog ID for network callbacks.
    */
   public CraftingGUI(
-      InventoryComponent sourceInventory, InventoryComponent targetInventory, String dialogId) {
-    var oldCallback = sourceInventory.onItemAdded();
-    sourceInventory.onItemAdded(
-        item -> {
-          oldCallback.accept(item);
-          this.updateRecipe();
-        });
-    this.inventory = sourceInventory;
-    this.targetInventory = targetInventory;
+    InventoryComponent sourceInventory, InventoryComponent targetInventory, String dialogId) {
+    this.controller = new CraftingDialogController(targetInventory, sourceInventory);
 
     if (Game.isHeadless()) {
       this.buttonOk = new Button(this, 0, 0, 0, 0);
@@ -139,17 +127,22 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
     }
 
     this.buttonOk =
-        new ImageButton(this, new Animation(new SimpleIPath(BUTTON_OK_TEXTURE_PATH)), 0, 0, 1, 1);
+      new ImageButton(this, new Animation(new SimpleIPath(BUTTON_OK_TEXTURE_PATH)), 0, 0, 1, 1);
     this.buttonCancel =
-        new ImageButton(
-            this, new Animation(new SimpleIPath(BUTTON_CANCEL_TEXTURE_PATH)), 0, 0, 1, 1);
+      new ImageButton(
+        this, new Animation(new SimpleIPath(BUTTON_CANCEL_TEXTURE_PATH)), 0, 0, 1, 1);
+
     this.buttonOk.onClick(
-        (button) ->
-            DialogCallbackResolver.createButtonCallback(dialogId, CALLBACK_CRAFT)
-                .accept(this.inventory.items()));
+      button ->
+        DialogCallbackResolver.createButtonCallback(
+            dialogId, CraftingDialogController.CALLBACK_CRAFT)
+          .accept(this.controller.craftingPayload()));
+
     this.buttonCancel.onClick(
-        (button) ->
-            DialogCallbackResolver.createButtonCallback(dialogId, CALLBACK_CANCEL).accept(null));
+      button ->
+        DialogCallbackResolver.createButtonCallback(
+            dialogId, CraftingDialogController.CALLBACK_CANCEL)
+          .accept(null));
   }
 
   // Init CraftingGUI as drag and drop target so that items can be dragged into the cauldron/ui
@@ -158,34 +151,33 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   @Override
   protected void initDragAndDrop(DragAndDrop dragAndDrop) {
     dragAndDrop.addTarget(
-        new DragAndDrop.Target(this.actor()) {
-          @Override
-          public boolean drag(
-              DragAndDrop.Source source,
-              DragAndDrop.Payload payload,
-              float x,
-              float y,
-              int pointer) {
-            if (payload != null && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-              return itemDragPayload.item() != null;
-            }
-            return false;
+      new DragAndDrop.Target(this.actor()) {
+        @Override
+        public boolean drag(
+          DragAndDrop.Source source,
+          DragAndDrop.Payload payload,
+          float x,
+          float y,
+          int pointer) {
+          if (payload != null && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
+            return itemDragPayload.item() != null;
           }
+          return false;
+        }
 
-          @Override
-          public void drop(
-              DragAndDrop.Source source,
-              DragAndDrop.Payload payload,
-              float x,
-              float y,
-              int pointer) {
-            if (payload != null && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-              CraftingGUI.this.targetInventory.transfer(
-                  itemDragPayload.item(), CraftingGUI.this.inventory);
-              CraftingGUI.this.updateRecipe();
-            }
+        @Override
+        public void drop(
+          DragAndDrop.Source source,
+          DragAndDrop.Payload payload,
+          float x,
+          float y,
+          int pointer) {
+          if (payload != null && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
+            controller.transferByItem(
+              CraftingDialogController.InventorySide.TARGET, itemDragPayload.item());
           }
-        });
+        }
+      });
   }
 
   /**
@@ -198,24 +190,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
    * @param craftingGUI the CraftingGUI instance
    */
   public static void registerCallbacks(UIComponent uiComponent, CraftingGUI craftingGUI) {
-    uiComponent.registerCallback(
-        CALLBACK_CRAFT,
-        data -> {
-          if (data instanceof Item[] items) {
-            craftingGUI.inventory.setItems(items);
-          } else {
-            LOGGER.warn("Invalid data for crafting callback: expected Item[], got {}", data);
-          }
-          craftingGUI.craft();
-          UIUtils.closeDialog(uiComponent);
-        });
-    uiComponent.registerCallback(
-        CALLBACK_CANCEL,
-        data -> {
-          craftingGUI.cancel();
-          UIUtils.closeDialog(uiComponent);
-        });
-    uiComponent.onClose(ui -> craftingGUI.cancel());
+    craftingGUI.controller.registerCallbacks(uiComponent);
   }
 
   @Override
@@ -259,7 +234,10 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
    * @param batch The batch to draw to.
    */
   private void drawItems(Batch batch) {
-    if (this.inventory.isEmpty()) {
+    Item[] craftingItems =
+      Arrays.stream(this.controller.craftingSlots()).filter(Objects::nonNull).toArray(Item[]::new);
+
+    if (craftingItems.length == 0) {
       return;
     }
 
@@ -268,74 +246,47 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
       int size =
         Math.min(
           Math.round(this.height() * INPUT_ITEMS_MAX_SIZE),
-          (this.width() - this.inventory.count() * ITEM_GAP) / this.inventory.count());
-      int rowWidth = GdxHudItemRenderer.rowWidth(this.inventory.count(), size, ITEM_GAP);
+          (this.width() - craftingItems.length * ITEM_GAP) / craftingItems.length);
+
+      int rowWidth = GdxHudItemRenderer.rowWidth(craftingItems.length, size, ITEM_GAP);
       int startX = this.x() + Math.round(this.width() * INPUT_ITEMS_X) - rowWidth / 2;
       int startY = this.y() + Math.round(this.height() * INPUT_ITEMS_Y);
 
-      for (int i = 0; i < this.inventory.count(); i++) {
-        Item item = this.inventory.get(i).orElseThrow();
+      for (int i = 0; i < craftingItems.length; i++) {
         int itemX = startX + ITEM_GAP * (i + 1) + size * i;
 
-        GdxHudItemRenderer.drawIndexedItem(batch, item, itemX, startY, size, i + 1, NUMBER_PADDING);
+        GdxHudItemRenderer.drawIndexedItem(
+          batch, craftingItems[i], itemX, startY, size, i + 1, NUMBER_PADDING);
       }
     }
 
     // Draw result if present
     {
-      if (this.currentRecipe == null) {
-        return;
-      }
-
-      int nrItemResults =
-        (int)
-          Arrays.stream(this.currentRecipe.results())
-            .filter(
-              result -> result.resultType() == CraftingType.ITEM && result instanceof Item)
-            .count();
-      if (nrItemResults == 0) {
+      Item[] resultItems = this.controller.resultItems();
+      if (resultItems.length == 0) {
         return;
       }
 
       int size =
         Math.min(
           Math.round(this.height() * RESULT_ITEM_MAX_SIZE),
-          (this.width() - nrItemResults * ITEM_GAP) / nrItemResults);
-      int rowWidth = GdxHudItemRenderer.rowWidth(nrItemResults, size, ITEM_GAP);
+          (this.width() - resultItems.length * ITEM_GAP) / resultItems.length);
+
+      int rowWidth = GdxHudItemRenderer.rowWidth(resultItems.length, size, ITEM_GAP);
       int startX = this.x() + Math.round(this.width() * RESULT_ITEM_X) - rowWidth / 2;
       int startY = this.y() + Math.round(this.height() * RESULT_ITEM_Y);
 
-      int i = 0;
-      for (CraftingResult result : this.currentRecipe.results()) {
-        if (result.resultType() != CraftingType.ITEM || !(result instanceof Item item)) {
-          continue;
-        }
-
+      for (int i = 0; i < resultItems.length; i++) {
         int itemX = startX + ITEM_GAP * (i + 1) + size * i;
+
         GdxHudItemRenderer.drawNamedItem(
-          batch, item, itemX, startY, size, item.displayName(), NUMBER_PADDING);
-        i++;
+          batch, resultItems[i], itemX, startY, size, resultItems[i].displayName(), NUMBER_PADDING);
       }
     }
   }
 
-  private void updateRecipe() {
-    this.currentRecipe = CraftingDialogLogic.currentRecipe(this.inventory).orElse(null);
-  }
-
-  private void craft() {
-    CraftingDialogLogic.craft(this.inventory, this.targetInventory);
-    this.updateRecipe();
-  }
-
-  /** Allows to reset the CraftingGUI moving all Items back to the Inventory they came from. */
-  public void cancel() {
-    CraftingDialogLogic.cancel(this.inventory, this.targetInventory);
-    this.updateRecipe();
-  }
-
   @Override
   public InventoryComponent inventoryComponent() {
-    return this.inventory;
+    return this.controller.craftingInventory();
   }
 }
