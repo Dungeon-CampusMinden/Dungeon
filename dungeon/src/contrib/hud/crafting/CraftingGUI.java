@@ -9,7 +9,6 @@ import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.elements.GuiInteractionContext;
 import contrib.item.Item;
-import contrib.platform.gdx.hud.GdxCraftingActionBar;
 import contrib.platform.gdx.hud.GdxHudItemRenderer;
 import core.Game;
 import core.input.MouseButtons;
@@ -22,6 +21,7 @@ import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This class represents the GUI for the crafting system. If this gui is open, the player can craft
@@ -84,7 +84,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
 
   private final CraftingDialogController controller;
   private final CraftingDialogInteraction interaction;
-  private final GdxCraftingActionBar actionBar;
+  private final CraftingActionBar actionBar;
 
   private int pressedCraftingSlot = -1;
   private boolean leftButtonDownLastFrame = false;
@@ -98,10 +98,15 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
    * @param dialogId The dialog ID for network callbacks.
    */
   public CraftingGUI(
-    InventoryComponent sourceInventory, InventoryComponent targetInventory, String dialogId) {
+    InventoryComponent sourceInventory,
+    InventoryComponent targetInventory,
+    String dialogId,
+    CraftingActionBarFactory actionBarFactory) {
     this.controller = new CraftingDialogController(targetInventory, sourceInventory);
     this.interaction = new CraftingDialogInteraction(this.controller);
-    this.actionBar = new GdxCraftingActionBar(this, dialogId, this.controller::craftingPayload);
+    this.actionBar =
+      Objects.requireNonNull(actionBarFactory, "actionBarFactory must not be null")
+        .create(this, dialogId, this.controller::craftingPayload);
   }
 
   @Override

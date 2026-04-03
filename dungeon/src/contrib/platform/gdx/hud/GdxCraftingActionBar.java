@@ -2,6 +2,7 @@ package contrib.platform.gdx.hud;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import contrib.crafting.CraftingDialogAction;
+import contrib.hud.crafting.CraftingActionBar;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.hud.elements.Button;
 import contrib.hud.elements.CombinableGUI;
@@ -20,7 +21,7 @@ import java.util.function.Supplier;
  * <p>This class isolates the remaining Button/ImageButton construction and drawing from
  * {@code CraftingGUI}. The dialog itself only references shared crafting actions.
  */
-public final class GdxCraftingActionBar {
+public final class GdxCraftingActionBar implements CraftingActionBar {
 
   private final Map<CraftingDialogAction, Button> buttons =
     new EnumMap<>(CraftingDialogAction.class);
@@ -54,6 +55,7 @@ public final class GdxCraftingActionBar {
    * @param parentWidth parent width
    * @param parentHeight parent height
    */
+  @Override
   public void updateBounds(int parentX, int parentY, int parentWidth, int parentHeight) {
     for (CraftingDialogAction action : CraftingDialogAction.values()) {
       Button button = buttons.get(action);
@@ -69,6 +71,7 @@ public final class GdxCraftingActionBar {
    *
    * @param batch target batch
    */
+  @Override
   public void draw(Batch batch) {
     for (CraftingDialogAction action : CraftingDialogAction.values()) {
       buttons.get(action).draw(batch);
