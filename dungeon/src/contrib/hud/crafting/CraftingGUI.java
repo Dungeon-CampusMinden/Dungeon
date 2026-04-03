@@ -8,19 +8,13 @@ import contrib.hud.IInventoryHolder;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.elements.GuiInteractionContext;
-import contrib.item.Item;
-import contrib.platform.gdx.hud.GdxHudItemRenderer;
+import contrib.platform.gdx.hud.GdxCraftingDialogRenderer;
 import core.Game;
 import core.input.MouseButtons;
-import core.platform.gdx.render.GdxAnimationFrames;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 import core.utils.Vector2;
-import core.utils.components.draw.animation.Animation;
-import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -46,41 +40,9 @@ import java.util.Objects;
  */
 public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CraftingGUI.class);
-
-  // Position settings
-  private static final int NUMBER_PADDING = 5;
-  private static final int ITEM_GAP = 10;
-
-  // X coordinate of the center of the input item row.
-  private static final float INPUT_ITEMS_X = 0.5f;
-
-  // Y coordinate of the bottom edge of the input item row.
-  private static final float INPUT_ITEMS_Y = 0.775f;
-
-  // The size is based on the height of the crafting GUI and items are always square.
-  private static final float INPUT_ITEMS_MAX_SIZE = 0.2f;
-
-  // X coordinate of the center of the result item.
-  private static final float RESULT_ITEM_X = 0.5f;
-
-  // Y coordinate of the bottom edge of the result item.
-  private static final float RESULT_ITEM_Y = 0.219f;
-
-  // The size is based on the height of the crafting GUI and items are always square.
-  private static final float RESULT_ITEM_MAX_SIZE = 0.1f;
-
-  // Textures
-  private static final String BACKGROUND_TEXTURE_PATH = "hud/crafting/background.png";
-
-  private static final Animation backgroundAnimation;
-
-  static {
-    if (Game.isHeadless()) {
-      backgroundAnimation = null;
-    } else {
-      backgroundAnimation = new Animation(new SimpleIPath(BACKGROUND_TEXTURE_PATH));
-    }
-  }
+  private static final CraftingDialogLayout LAYOUT = new CraftingDialogLayout();
+  private static final GdxCraftingDialogRenderer DIALOG_RENDERER =
+    new GdxCraftingDialogRenderer();
 
   private final CraftingDialogController controller;
   private final CraftingDialogInteraction interaction;
@@ -147,71 +109,8 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   @Override
   protected void draw(Batch batch) {
     this.handleCraftingInput();
-
-    assert backgroundAnimation != null;
-    batch.draw(
-      GdxAnimationFrames.toRegion(backgroundAnimation.update()),
-      this.x(),
-      this.y(),
-      this.width(),
-      this.height());
-
-    this.drawItems(batch);
+    DIALOG_RENDERER.draw(batch, this.controller, this.x(), this.y(), this.width(), this.height());
     this.actionBar.draw(batch);
-  }
-
-  /**
-   * Draws the items that have been added to the cauldron.
-   *
-   * @param batch The batch to draw to.
-   */
-  private void drawItems(Batch batch) {
-    Item[] craftingSlots = this.controller.craftingSlots();
-    List<Integer> visibleCraftingSlots = this.visibleCraftingSlotIndices(craftingSlots);
-
-    if (visibleCraftingSlots.isEmpty()) {
-      return;
-    }
-
-    // Draw inserted items
-    {
-      int size = this.craftingItemSize(visibleCraftingSlots.size());
-      int rowWidth = GdxHudItemRenderer.rowWidth(visibleCraftingSlots.size(), size, ITEM_GAP);
-      int startX = this.x() + Math.round(this.width() * INPUT_ITEMS_X) - rowWidth / 2;
-      int startY = this.y() + Math.round(this.height() * INPUT_ITEMS_Y);
-
-      for (int i = 0; i < visibleCraftingSlots.size(); i++) {
-        int itemX = startX + ITEM_GAP * (i + 1) + size * i;
-        Item item = craftingSlots[visibleCraftingSlots.get(i)];
-
-        GdxHudItemRenderer.drawIndexedItem(
-          batch, item, itemX, startY, size, i + 1, NUMBER_PADDING);
-      }
-    }
-
-    // Draw result if present
-    {
-      Item[] resultItems = this.controller.resultItems();
-      if (resultItems.length == 0) {
-        return;
-      }
-
-      int size =
-        Math.min(
-          Math.round(this.height() * RESULT_ITEM_MAX_SIZE),
-          (this.width() - resultItems.length * ITEM_GAP) / resultItems.length);
-
-      int rowWidth = GdxHudItemRenderer.rowWidth(resultItems.length, size, ITEM_GAP);
-      int startX = this.x() + Math.round(this.width() * RESULT_ITEM_X) - rowWidth / 2;
-      int startY = this.y() + Math.round(this.height() * RESULT_ITEM_Y);
-
-      for (int i = 0; i < resultItems.length; i++) {
-        int itemX = startX + ITEM_GAP * (i + 1) + size * i;
-
-        GdxHudItemRenderer.drawNamedItem(
-          batch, resultItems[i], itemX, startY, size, resultItems[i].displayName(), NUMBER_PADDING);
-      }
-    }
   }
 
   private void handleCraftingInput() {
@@ -245,45 +144,15 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   private int findCraftingSlotAt(int mouseX, int mouseY) {
-    Item[] craftingSlots = this.controller.craftingSlots();
-    List<Integer> visibleCraftingSlots = this.visibleCraftingSlotIndices(craftingSlots);
-    if (visibleCraftingSlots.isEmpty()) {
-      return -1;
-    }
-
-    int size = this.craftingItemSize(visibleCraftingSlots.size());
-    int rowWidth = GdxHudItemRenderer.rowWidth(visibleCraftingSlots.size(), size, ITEM_GAP);
-    int startX = this.x() + Math.round(this.width() * INPUT_ITEMS_X) - rowWidth / 2;
-    int startY = this.y() + Math.round(this.height() * INPUT_ITEMS_Y);
-
-    for (int i = 0; i < visibleCraftingSlots.size(); i++) {
-      int itemX = startX + ITEM_GAP * (i + 1) + size * i;
-
-      if (mouseX >= itemX
-        && mouseX <= itemX + size
-        && mouseY >= startY
-        && mouseY <= startY + size) {
-        return visibleCraftingSlots.get(i);
+    for (CraftingDialogLayout.SlotBounds slot :
+      LAYOUT.visibleCraftingSlots(
+        this.controller.craftingSlots(), this.x(), this.y(), this.width(), this.height())) {
+      if (slot.contains(mouseX, mouseY)) {
+        return slot.slotIndex();
       }
     }
 
     return -1;
-  }
-
-  private int craftingItemSize(int visibleItemCount) {
-    return Math.min(
-      Math.round(this.height() * INPUT_ITEMS_MAX_SIZE),
-      (this.width() - visibleItemCount * ITEM_GAP) / visibleItemCount);
-  }
-
-  private List<Integer> visibleCraftingSlotIndices(Item[] craftingSlots) {
-    List<Integer> indices = new ArrayList<>();
-    for (int i = 0; i < craftingSlots.length; i++) {
-      if (craftingSlots[i] != null) {
-        indices.add(i);
-      }
-    }
-    return indices;
   }
 
   @Override
