@@ -17,35 +17,20 @@ import java.util.Optional;
  *
  * <p>Rendering remains backend-specific.
  */
-public final class CraftingDialogController {
+public record CraftingDialogController(InventoryComponent targetInventory, InventoryComponent craftingInventory) {
   private static final DungeonLogger LOGGER =
     DungeonLogger.getLogger(CraftingDialogController.class);
 
   public static final String CALLBACK_CRAFT = "craft";
   public static final String CALLBACK_CANCEL = "cancel";
 
-  private final InventoryComponent targetInventory;
-  private final InventoryComponent craftingInventory;
-
   /**
    * Creates a new controller for one crafting dialog session.
    *
-   * @param targetInventory the inventory that receives crafted items and provides source items
+   * @param targetInventory   the inventory that receives crafted items and provides source items
    * @param craftingInventory the inventory used as crafting input
    */
-  public CraftingDialogController(
-    InventoryComponent targetInventory, InventoryComponent craftingInventory) {
-    this.targetInventory = targetInventory;
-    this.craftingInventory = craftingInventory;
-  }
-
-  public InventoryComponent targetInventory() {
-    return targetInventory;
-  }
-
-  public InventoryComponent craftingInventory() {
-    return craftingInventory;
-  }
+  public CraftingDialogController {}
 
   public Item[] targetSlots() {
     return targetInventory.items();
@@ -112,7 +97,7 @@ public final class CraftingDialogController {
    * Transfers the given item from the specified side to the opposite side.
    *
    * @param sourceSide the source side
-   * @param item the item to move
+   * @param item       the item to move
    * @return true if the transfer succeeded
    */
   public boolean transferByItem(InventorySide sourceSide, Item item) {
@@ -130,7 +115,7 @@ public final class CraftingDialogController {
    * Transfers the item at the given slot from the specified side to the opposite side.
    *
    * @param sourceSide the source side
-   * @param slotIndex the slot index
+   * @param slotIndex  the slot index
    * @return true if the transfer succeeded
    */
   public boolean transferBySlot(InventorySide sourceSide, int slotIndex) {
@@ -183,7 +168,9 @@ public final class CraftingDialogController {
     uiComponent.onClose(ui -> cancel());
   }
 
-  /** Dialog-local source side for transfers. */
+  /**
+   * Dialog-local source side for transfers.
+   */
   public enum InventorySide {
     TARGET,
     CRAFTING

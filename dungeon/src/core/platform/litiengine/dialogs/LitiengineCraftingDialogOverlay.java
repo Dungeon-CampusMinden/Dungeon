@@ -1,6 +1,5 @@
 package core.platform.litiengine.dialogs;
 
-import contrib.components.InventoryComponent;
 import contrib.crafting.*;
 import contrib.hud.dialogs.DialogCallbackResolver;
 import contrib.item.Item;
@@ -36,12 +35,6 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   private static final int PREVIEW_HEIGHT = 150;
   private static final int PREVIEW_PADDING = 14;
   private static final int BUTTON_GAP = 16;
-
-  private static final String CRAFT_BUTTON = "Craft";
-  private static final String CANCEL_BUTTON = "Cancel";
-
-  private static final String CALLBACK_CRAFT = "craft";
-  private static final String CALLBACK_CANCEL = "cancel";
 
   private final String targetTitle;
   private final String craftingTitle;
@@ -188,10 +181,11 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
       previewY + 50,
       previewWidth - 2 * PREVIEW_PADDING);
 
-    LitiengineDialogOverlaySupport.drawButton(
-      g, buttons.get(0), CRAFT_BUTTON, pressedButtonIndex == 0);
-    LitiengineDialogOverlaySupport.drawButton(
-      g, buttons.get(1), CANCEL_BUTTON, pressedButtonIndex == 1);
+    CraftingDialogAction[] actions = CraftingDialogAction.values();
+    for (int i = 0; i < actions.length; i++) {
+      LitiengineDialogOverlaySupport.drawButton(
+        g, buttons.get(i), actions[i].label(), pressedButtonIndex == i);
+    }
   }
 
   private String buildRecipePreviewText() {
@@ -314,22 +308,13 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
     return null;
   }
 
-  private int findButtonIndex(int mouseX, int mouseY, List<Rectangle> buttons) {
-    for (int i = 0; i < buttons.size(); i++) {
-      if (buttons.get(i).contains(mouseX, mouseY)) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
   private void onCraft() {
-    DialogCallbackResolver.createButtonCallback(dialogId, CraftingDialogController.CALLBACK_CRAFT)
+    DialogCallbackResolver.createButtonCallback(dialogId, CraftingDialogAction.CRAFT.callbackKey())
       .accept(controller.craftingPayload());
   }
 
   private void onCancel() {
-    DialogCallbackResolver.createButtonCallback(dialogId, CraftingDialogController.CALLBACK_CANCEL)
+    DialogCallbackResolver.createButtonCallback(dialogId, CraftingDialogAction.CANCEL.callbackKey())
       .accept(null);
   }
 
@@ -338,7 +323,12 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
     int previewWidth = width - 2 * LitiengineDialogOverlaySupport.PADDING;
 
     return LitiengineDialogOverlaySupport.centeredButtonRow(
-      previewX, previewY, previewWidth, PREVIEW_HEIGHT, 2, BUTTON_GAP);
+      previewX,
+      previewY,
+      previewWidth,
+      PREVIEW_HEIGHT,
+      CraftingDialogAction.values().length,
+      BUTTON_GAP);
   }
 
   private void drawPanelBackground(Graphics2D g, int x, int y, int width, int height) {

@@ -6,13 +6,11 @@ import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.crafting.*;
 import contrib.hud.IInventoryHolder;
-import contrib.hud.dialogs.DialogCallbackResolver;
-import contrib.hud.elements.Button;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
-import contrib.hud.elements.ImageButton;
 import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
+import contrib.platform.gdx.hud.GdxCraftingActionBar;
 import contrib.platform.gdx.hud.GdxHudItemRenderer;
 import core.Game;
 import core.platform.gdx.render.GdxAnimationFrames;
@@ -47,20 +45,9 @@ import java.util.Objects;
 public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CraftingGUI.class);
 
-  /** Callback key for the craft action. */
-  public static final String CALLBACK_CRAFT = "craft";
-
-  /** Callback key for the cancel action. */
-  public static final String CALLBACK_CANCEL = "cancel";
-
   // Position settings
   private static final int NUMBER_PADDING = 5;
   private static final int ITEM_GAP = 10;
-
-  // Positioning and sizing
-  // These values should fit the background texture of the crafting GUI and should be between 0
-  // and 1.
-  // 0 is the bottom-left corner and 1 is the top right corner.
 
   // X coordinate of the center of the input item row.
   private static final float INPUT_ITEMS_X = 0.5f;
@@ -80,20 +67,8 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   // The size is based on the height of the crafting GUI and items are always square.
   private static final float RESULT_ITEM_MAX_SIZE = 0.1f;
 
-  private static final float BUTTON_OK_X = 0.812f;
-  private static final float BUTTON_OK_Y = 0.05f;
-  private static final float BUTTON_OK_WIDTH = 0.15f;
-  private static final float BUTTON_OK_HEIGHT = 0.15f;
-
-  private static final float BUTTON_CANCEL_X = 0.036f;
-  private static final float BUTTON_CANCEL_Y = 0.05f;
-  private static final float BUTTON_CANCEL_WIDTH = 0.15f;
-  private static final float BUTTON_CANCEL_HEIGHT = 0.15f;
-
   // Textures
   private static final String BACKGROUND_TEXTURE_PATH = "hud/crafting/background.png";
-  private static final String BUTTON_OK_TEXTURE_PATH = "hud/check.png";
-  private static final String BUTTON_CANCEL_TEXTURE_PATH = "hud/cross.png";
 
   private static final Animation backgroundAnimation;
 
@@ -106,7 +81,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   private final CraftingDialogController controller;
-  private final Button buttonOk, buttonCancel;
+  private final GdxCraftingActionBar actionBar;
 
   /**
    * Create a CraftingGUI that has the given InventoryComponent as target inventory for successfully
@@ -119,30 +94,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   public CraftingGUI(
     InventoryComponent sourceInventory, InventoryComponent targetInventory, String dialogId) {
     this.controller = new CraftingDialogController(targetInventory, sourceInventory);
-
-    if (Game.isHeadless()) {
-      this.buttonOk = new Button(this, 0, 0, 0, 0);
-      this.buttonCancel = new Button(this, 0, 0, 0, 0);
-      return;
-    }
-
-    this.buttonOk =
-      new ImageButton(this, new Animation(new SimpleIPath(BUTTON_OK_TEXTURE_PATH)), 0, 0, 1, 1);
-    this.buttonCancel =
-      new ImageButton(
-        this, new Animation(new SimpleIPath(BUTTON_CANCEL_TEXTURE_PATH)), 0, 0, 1, 1);
-
-    this.buttonOk.onClick(
-      button ->
-        DialogCallbackResolver.createButtonCallback(
-            dialogId, CraftingDialogController.CALLBACK_CRAFT)
-          .accept(this.controller.craftingPayload()));
-
-    this.buttonCancel.onClick(
-      button ->
-        DialogCallbackResolver.createButtonCallback(
-            dialogId, CraftingDialogController.CALLBACK_CANCEL)
-          .accept(null));
+    this.actionBar = new GdxCraftingActionBar(this, dialogId, this.controller::craftingPayload);
   }
 
   // Init CraftingGUI as drag and drop target so that items can be dragged into the cauldron/ui
@@ -206,26 +158,21 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
 
   @Override
   protected void boundsUpdate() {
-    this.buttonOk.width(Math.round(this.width() * BUTTON_OK_WIDTH));
-    this.buttonOk.height(Math.round(this.height() * BUTTON_OK_HEIGHT));
-    this.buttonOk.x(this.x() + Math.round(this.width() * BUTTON_OK_X));
-    this.buttonOk.y(this.y() + Math.round(this.height() * BUTTON_OK_Y));
-
-    this.buttonCancel.width(Math.round(this.width() * BUTTON_CANCEL_WIDTH));
-    this.buttonCancel.height(Math.round(this.height() * BUTTON_CANCEL_HEIGHT));
-    this.buttonCancel.x(this.x() + Math.round(this.width() * BUTTON_CANCEL_X));
-    this.buttonCancel.y(this.y() + Math.round(this.height() * BUTTON_CANCEL_Y));
+    this.actionBar.updateBounds(this.x(), this.y(), this.width(), this.height());
   }
 
   @Override
   protected void draw(Batch batch) {
-    // Draw background
-    batch.draw(GdxAnimationFrames.toRegion(backgroundAnimation.update()), this.x(), this.y(), this.width(), this.height());
+    assert backgroundAnimation != null;
+    batch.draw(
+      GdxAnimationFrames.toRegion(backgroundAnimation.update()),
+      this.x(),
+      this.y(),
+      this.width(),
+      this.height());
 
     this.drawItems(batch);
-
-    this.buttonOk.draw(batch);
-    this.buttonCancel.draw(batch);
+    this.actionBar.draw(batch);
   }
 
   /**
