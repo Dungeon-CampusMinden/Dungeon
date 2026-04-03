@@ -1,45 +1,27 @@
 package contrib.hud.elements;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import core.Game;
 import core.input.MouseButtons;
 import core.platform.gdx.render.TextureMap;
 import core.ui.StageHandle;
 import core.utils.InputManager;
+import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Consumer;
 
 /**
- * Represents a button in the GUI.
+ * Represents a button with backend-neutral interaction state.
  *
- * <p>This class defines a button with a specified position (x, y) and size (width, height)
- * within the root stage, accessible via {@link Game#stage()}.
- *
- * <p>Input handling is deliberately polling-based via the engine-agnostic {@link InputManager}
- * and {@link StageHandle}. This removes the former dependency on a Scene2D {@code InputListener}
- * attached to the parent {@link CombinableGUI}.
+ * <p>The button owns its bounds, click semantics and visual state calculation. Rendering can use
+ * the exposed {@link #backgroundTexturePath()} in any backend. The existing libGDX path is kept as
+ * a thin compatibility bridge via {@link #draw(Batch)}.
  */
 public class Button {
 
-  private static final Texture TEXTURE_BUTTON;
-  private static final Texture TEXTURE_BUTTON_HOVER;
-  private static final Texture TEXTURE_BUTTON_PRESS;
-
-  static {
-    if (Game.isHeadless()) {
-      TEXTURE_BUTTON = null;
-      TEXTURE_BUTTON_HOVER = null;
-      TEXTURE_BUTTON_PRESS = null;
-    } else {
-      TEXTURE_BUTTON =
-        TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_idle.png"));
-      TEXTURE_BUTTON_HOVER =
-        TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_hover.png"));
-      TEXTURE_BUTTON_PRESS =
-        TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_press.png"));
-    }
-  }
+  private static final IPath BUTTON_IDLE_PATH = new SimpleIPath("hud/button/button_idle.png");
+  private static final IPath BUTTON_HOVER_PATH = new SimpleIPath("hud/button/button_hover.png");
+  private static final IPath BUTTON_PRESS_PATH = new SimpleIPath("hud/button/button_press.png");
 
   /**
    * Kept for call-site compatibility and layout context.
@@ -51,8 +33,16 @@ public class Button {
   protected int x, y, width, height;
 
   private boolean pressed = false;
+  private boolean hovered = false;
   private boolean leftButtonDownLastFrame = false;
   private Consumer<Button> onClick = ignored -> {};
+
+  /** Visual state of the button background. */
+  public enum VisualState {
+    IDLE,
+    HOVER,
+    PRESSED
+  }
 
   /**
    * Create a new button.
@@ -81,39 +71,43 @@ public class Button {
   }
 
   /**
-   * Draw the button.
+   * Updates the button from the current engine-neutral stage/input abstractions.
    *
-   * @param batch The batch to draw on
+   * <p>This keeps the existing GDX call sites working while also allowing other backends to drive
+   * the same state machine explicitly via {@link #update(int, int, boolean)}.
    */
-  public void draw(Batch batch) {
-    updateInteractionState();
-
-    boolean hovered = isMouseOver();
-    Texture textureToDraw =
-      hovered
-        ? (this.pressed ? TEXTURE_BUTTON_PRESS : TEXTURE_BUTTON_HOVER)
-        : TEXTURE_BUTTON;
-
-    batch.draw(textureToDraw, this.x, this.y, this.width, this.height);
-  }
-
-  private void updateInteractionState() {
+  public void updateFromStage() {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
-      this.pressed = false;
-      this.leftButtonDownLastFrame = false;
+      resetInteractionState();
       return;
     }
 
-    boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
-    boolean hovered = contains(stage.mouseX(), toHudY(stage));
+    update(
+      stage.mouseX(),
+      Math.round(stage.getHeight()) - stage.mouseY(),
+      InputManager.isButtonPressed(MouseButtons.LEFT));
+  }
 
-    if (leftButtonDown && !leftButtonDownLastFrame && hovered) {
+  /**
+   * Updates the button state from explicit mouse data.
+   *
+   * <p>This method is backend-neutral and can be used by non-libGDX render/input paths such as
+   * LITIENGINE overlays.
+   *
+   * @param mouseX mouse x in HUD/screen coordinates
+   * @param mouseY mouse y in HUD/screen coordinates
+   * @param leftButtonDown whether the primary mouse button is currently down
+   */
+  public void update(int mouseX, int mouseY, boolean leftButtonDown) {
+    this.hovered = contains(mouseX, mouseY);
+
+    if (leftButtonDown && !leftButtonDownLastFrame && this.hovered) {
       this.pressed = true;
     }
 
     if (!leftButtonDown && leftButtonDownLastFrame) {
-      boolean clickReleasedOnSameButton = this.pressed && hovered;
+      boolean clickReleasedOnSameButton = this.pressed && this.hovered;
       this.pressed = false;
 
       if (clickReleasedOnSameButton) {
@@ -128,6 +122,63 @@ public class Button {
     this.leftButtonDownLastFrame = leftButtonDown;
   }
 
+  /** Resets the transient interaction state. */
+  public void resetInteractionState() {
+    this.pressed = false;
+    this.hovered = false;
+    this.leftButtonDownLastFrame = false;
+  }
+
+  /**
+   * Returns the current backend-neutral visual state.
+   *
+   * <p>The pressed background is only shown while the cursor is still over the button, preserving
+   * the previous visual behaviour.
+   *
+   * @return current visual state
+   */
+  public VisualState visualState() {
+    if (!this.hovered) {
+      return VisualState.IDLE;
+    }
+
+    return this.pressed ? VisualState.PRESSED : VisualState.HOVER;
+  }
+
+  /**
+   * Returns the background asset path for the current visual state.
+   *
+   * <p>This can be consumed by any backend-specific renderer.
+   *
+   * @return button background asset path
+   */
+  public IPath backgroundTexturePath() {
+    return switch (visualState()) {
+      case PRESSED -> BUTTON_PRESS_PATH;
+      case HOVER -> BUTTON_HOVER_PATH;
+      case IDLE -> BUTTON_IDLE_PATH;
+    };
+  }
+
+  /**
+   * Thin libGDX compatibility bridge for existing HUD code.
+   *
+   * @param batch The batch to draw on
+   */
+  public void draw(Batch batch) {
+    if (Game.isHeadless()) {
+      return;
+    }
+
+    updateFromStage();
+    batch.draw(
+      TextureMap.instance().textureAt(backgroundTexturePath()),
+      this.x,
+      this.y,
+      this.width,
+      this.height);
+  }
+
   protected boolean contains(int mouseX, int mouseY) {
     return mouseX >= this.x
       && mouseX <= this.x + this.width
@@ -135,17 +186,22 @@ public class Button {
       && mouseY <= this.y + this.height;
   }
 
+  /**
+   * @return true if the button is currently hovered according to the last update cycle
+   */
   protected boolean isMouseOver() {
-    StageHandle stage = Game.stage().orElse(null);
-    return stage != null && contains(stage.mouseX(), toHudY(stage));
-  }
-
-  private int toHudY(StageHandle stage) {
-    return Math.round(stage.getHeight()) - stage.mouseY();
+    return this.hovered;
   }
 
   /**
-   * Get the x position of the button in {@link Game#stage() Stage} coordinates.
+   * @return true if a press started on this button and has not yet been released
+   */
+  protected boolean isPressed() {
+    return this.pressed;
+  }
+
+  /**
+   * Get the x position of the button in stage coordinates.
    *
    * @return The x position
    */
@@ -154,7 +210,7 @@ public class Button {
   }
 
   /**
-   * Set the x position of the button in {@link Game#stage() Stage} coordinates.
+   * Set the x position of the button in stage coordinates.
    *
    * @param x The x position
    */
@@ -163,7 +219,7 @@ public class Button {
   }
 
   /**
-   * Get the y position of the button in {@link Game#stage() Stage} coordinates.
+   * Get the y position of the button in stage coordinates.
    *
    * @return The y position
    */
@@ -172,7 +228,7 @@ public class Button {
   }
 
   /**
-   * Set the y position of the button in {@link Game#stage() Stage} coordinates.
+   * Set the y position of the button in stage coordinates.
    *
    * @param y The y position
    */
