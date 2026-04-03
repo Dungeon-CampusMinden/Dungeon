@@ -3,6 +3,7 @@ package contrib.platform.gdx.hud;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import contrib.crafting.CraftingDialogController;
 import contrib.crafting.CraftingDialogLayout;
+import contrib.hud.crafting.CraftingDialogBodyRenderer;
 import contrib.item.Item;
 import core.Game;
 import core.platform.gdx.render.GdxAnimationFrames;
@@ -16,7 +17,7 @@ import java.util.List;
  * <p>This class owns the remaining background and item-preview rendering that used to live directly
  * in {@code CraftingGUI}. The geometry comes from the backend-neutral {@link CraftingDialogLayout}.
  */
-public final class GdxCraftingDialogRenderer {
+public final class GdxCraftingDialogRenderer implements CraftingDialogBodyRenderer {
 
   private static final int NUMBER_PADDING = 5;
   private static final String BACKGROUND_TEXTURE_PATH = "hud/crafting/background.png";
@@ -43,6 +44,7 @@ public final class GdxCraftingDialogRenderer {
    * @param width dialog width
    * @param height dialog height
    */
+  @Override
   public void draw(
     Batch batch, CraftingDialogController controller, int x, int y, int width, int height) {
     if (batch == null || controller == null || Game.isHeadless()) {

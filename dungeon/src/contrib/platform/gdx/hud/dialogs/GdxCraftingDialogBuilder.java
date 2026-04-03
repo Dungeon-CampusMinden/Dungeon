@@ -10,6 +10,7 @@ import contrib.hud.dialogs.DialogCreationException;
 import contrib.hud.elements.InventoryGuiGroup;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.platform.gdx.hud.GdxCraftingActionBar;
+import contrib.platform.gdx.hud.GdxCraftingDialogRenderer;
 import core.Entity;
 import core.utils.logging.DungeonLogger;
 
@@ -47,7 +48,8 @@ public final class GdxCraftingDialogBuilder {
         craftInventory,
         heroInventory,
         ctx.dialogId(),
-        GdxCraftingActionBar::new);
+        GdxCraftingActionBar::new,
+        GdxCraftingDialogRenderer::new);
 
     UIComponent uiComponent =
       entity.fetch(UIComponent.class)

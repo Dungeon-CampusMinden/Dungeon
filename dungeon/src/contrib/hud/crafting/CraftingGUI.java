@@ -47,28 +47,24 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   private final CraftingDialogController controller;
   private final CraftingDialogInteraction interaction;
   private final CraftingActionBar actionBar;
+  private final CraftingDialogBodyRenderer bodyRenderer;
 
   private int pressedCraftingSlot = -1;
   private boolean leftButtonDownLastFrame = false;
 
-  /**
-   * Create a CraftingGUI that has the given InventoryComponent as target inventory for successfully
-   * crafted items.
-   *
-   * @param sourceInventory The source inventory where items to be crafted are stored.
-   * @param targetInventory The target inventory.
-   * @param dialogId The dialog ID for network callbacks.
-   */
   public CraftingGUI(
     InventoryComponent sourceInventory,
     InventoryComponent targetInventory,
     String dialogId,
-    CraftingActionBarFactory actionBarFactory) {
+    CraftingActionBarFactory actionBarFactory,
+    CraftingDialogBodyRendererFactory bodyRendererFactory) {
     this.controller = new CraftingDialogController(targetInventory, sourceInventory);
     this.interaction = new CraftingDialogInteraction(this.controller);
     this.actionBar =
       Objects.requireNonNull(actionBarFactory, "actionBarFactory must not be null")
         .create(this, dialogId, this.controller::craftingPayload);
+    this.bodyRenderer =
+      Objects.requireNonNull(bodyRendererFactory, "bodyRendererFactory must not be null").create();
   }
 
   @Override
@@ -109,7 +105,7 @@ public class CraftingGUI extends CombinableGUI implements IInventoryHolder {
   @Override
   protected void draw(Batch batch) {
     this.handleCraftingInput();
-    DIALOG_RENDERER.draw(batch, this.controller, this.x(), this.y(), this.width(), this.height());
+    this.bodyRenderer.draw(batch, this.controller, this.x(), this.y(), this.width(), this.height());
     this.actionBar.draw(batch);
   }
 
