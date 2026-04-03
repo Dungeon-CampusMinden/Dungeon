@@ -8,10 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
@@ -24,11 +21,11 @@ import contrib.hud.elements.GuiInteractionContext;
 import contrib.item.Item;
 import contrib.platform.gdx.hud.GdxGuiInteractionContext;
 import contrib.platform.gdx.hud.GdxHudItemRenderer;
+import contrib.platform.gdx.hud.GdxInventoryDragAndDropAdapters;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.network.messages.c2s.InputMessage;
-import core.platform.gdx.render.GdxAnimationFrames;
 import core.ui.StageHandle;
 import core.ui.gdx.GdxUiAssetLoader;
 import core.utils.*;
@@ -100,8 +97,22 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
       this.dropAndDropTarget = null;
       return;
     }
-    this.dropAndDropSource = this.buildDragAndDropSource();
-    this.dropAndDropTarget = this.buildDragAndDropTarget();
+    this.dropAndDropSource =
+      GdxInventoryDragAndDropAdapters.itemSource(
+        this.actor(),
+        this.inventoryComponent,
+        this::getSlotByCoordinates,
+        InventoryGUI::isPlayersInventory,
+        () -> this.slotSize,
+        this::gdxDragAndDrop,
+        this::handleDraggedItemDroppedOutside);
+
+    this.dropAndDropTarget =
+      GdxInventoryDragAndDropAdapters.itemTarget(
+        this.actor(),
+        this::getSlotByCoordinates,
+        itemDragPayload -> true,
+        this::handleDraggedItemDroppedOnSlot);
   }
 
   /**
@@ -352,100 +363,6 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
         });
   }
 
-  private DragAndDrop.Source buildDragAndDropSource() {
-    return new DragAndDrop.Source(this.actor()) {
-      @Override
-      public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
-        int draggedSlot = InventoryGUI.this.getSlotByCoordinates(x, y);
-        Optional<Item> item = InventoryGUI.this.inventoryComponent.get(draggedSlot);
-        if (item.isEmpty()) return null;
-        Item itemToTransfer = item.get();
-        boolean isHeroInv =
-            isPlayersInventory(Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent);
-
-        DragAndDrop.Payload payload = new DragAndDrop.Payload();
-        payload.setObject(
-            new ItemDragPayload(
-                InventoryGUI.this.inventoryComponent, isHeroInv, draggedSlot, itemToTransfer));
-
-        // TODO: Test if SpriteDrawable is equivalent to creating a texture on the fly
-        Image image = new Image(new SpriteDrawable(GdxAnimationFrames.toSprite(itemToTransfer.inventoryAnimation().update())));
-        image.setSize(InventoryGUI.this.slotSize, InventoryGUI.this.slotSize);
-        payload.setDragActor(image);
-        gdxDragAndDrop()
-          .ifPresent(dragAndDrop -> dragAndDrop.setDragActorPosition(image.getWidth() / 2, -image.getHeight() / 2));
-
-        return payload;
-      }
-
-      @Override
-      public void dragStop(
-          InputEvent event,
-          float x,
-          float y,
-          int pointer,
-          DragAndDrop.Payload payload,
-          DragAndDrop.Target target) {
-        if (target == null
-            && payload != null
-            && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-          if (Game.network().isServer()) {
-            HeroController.dropItem(
-                Game.player().orElseThrow(),
-                itemDragPayload.inventoryComponent(),
-                itemDragPayload.slot());
-          } else {
-            Game.network()
-                .send(
-                    (short) 0,
-                    new InputMessage(
-                        InputMessage.Action.INV_DROP, Vector2.of(itemDragPayload.slot(), 0)),
-                    true);
-          }
-        }
-      }
-    };
-  }
-
-  private DragAndDrop.Target buildDragAndDropTarget() {
-    return new DragAndDrop.Target(this.actor()) {
-      @Override
-      public boolean drag(
-          DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-        // Valid if item in hand (cursor)
-        return payload.getObject() != null && payload.getObject() instanceof ItemDragPayload;
-      }
-
-      @Override
-      public void drop(
-          DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-        int slot = InventoryGUI.this.getSlotByCoordinates(x, y);
-        if (payload.getObject() != null
-            && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-          int sourceSlot = itemDragPayload.slot();
-          if (itemDragPayload.wasHeroInv()) {
-            sourceSlot = (-sourceSlot) - 1; // negative slots for hero inventory (to distinguish)
-          }
-          int targetSlot = slot;
-          if (isPlayersInventory(
-              Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent)) {
-            targetSlot = (-slot) - 1; // negative slots for hero inventory (to distinguish)
-          }
-          if (Game.network().isServer()) {
-            HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
-          } else {
-            Game.network()
-                .send(
-                    (short) 0,
-                    new InputMessage(
-                        InputMessage.Action.INV_MOVE, Vector2.of(sourceSlot, targetSlot)),
-                    true);
-          }
-        }
-      }
-    };
-  }
-
   private void handleInput() {
     Entity player = Game.player().orElse(null);
     if (player == null) {
@@ -614,5 +531,44 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
 
   private DragAndDrop.Payload currentDragPayload() {
     return gdxDragAndDrop().map(DragAndDrop::getDragPayload).orElse(null);
+  }
+
+  private void handleDraggedItemDroppedOutside(ItemDragPayload itemDragPayload) {
+    if (Game.network().isServer()) {
+      HeroController.dropItem(
+        Game.player().orElseThrow(),
+        itemDragPayload.inventoryComponent(),
+        itemDragPayload.slot());
+    } else {
+      Game.network()
+        .send(
+          (short) 0,
+          new InputMessage(
+            InputMessage.Action.INV_DROP, Vector2.of(itemDragPayload.slot(), 0)),
+          true);
+    }
+  }
+
+  private void handleDraggedItemDroppedOnSlot(ItemDragPayload itemDragPayload, int slot) {
+    int sourceSlot = itemDragPayload.slot();
+    if (itemDragPayload.wasHeroInv()) {
+      sourceSlot = (-sourceSlot) - 1;
+    }
+
+    int targetSlot = slot;
+    if (isPlayersInventory(Game.player().orElseThrow(), this.inventoryComponent)) {
+      targetSlot = (-slot) - 1;
+    }
+
+    if (Game.network().isServer()) {
+      HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
+    } else {
+      Game.network()
+        .send(
+          (short) 0,
+          new InputMessage(
+            InputMessage.Action.INV_MOVE, Vector2.of(sourceSlot, targetSlot)),
+          true);
+    }
   }
 }
