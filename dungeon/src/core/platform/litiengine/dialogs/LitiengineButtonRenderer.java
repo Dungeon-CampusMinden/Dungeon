@@ -29,7 +29,6 @@ final class LitiengineButtonRenderer {
       return;
     }
 
-    button.updateFromStage();
     drawBackground(g, button);
     drawForeground(g, button, label);
   }
