@@ -2,18 +2,19 @@ package core.platform.litiengine.dialogs;
 
 import contrib.crafting.*;
 import contrib.hud.dialogs.DialogCallbackResolver;
+import contrib.hud.elements.ImageButton;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
 import core.platform.litiengine.ui.LitiengineUiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.path.SimpleIPath;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Minimal crafting overlay for the LITIENGINE backend.
@@ -50,7 +51,9 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   private int height = DEFAULT_HEIGHT;
   private boolean visible = true;
 
-  private int pressedButtonIndex = -1;
+  private final Map<CraftingDialogAction, ImageButton> actionButtons =
+    new EnumMap<>(CraftingDialogAction.class);
+
   private SlotSelection pressedSlotSelection = null;
   private boolean leftButtonDownLastFrame = false;
 
@@ -65,6 +68,24 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
     this.controller = controller;
     this.interaction = new CraftingDialogInteraction(controller);
     this.dialogId = dialogId;
+
+    for (CraftingDialogAction action : CraftingDialogAction.values()) {
+      ImageButton button =
+        new ImageButton(
+          null,
+          new Animation(new SimpleIPath(action.iconPath())),
+          0,
+          0,
+          1,
+          1);
+
+      button.onClick(
+        ignored ->
+          DialogCallbackResolver.createButtonCallback(dialogId, action.callbackKey())
+            .accept(action == CraftingDialogAction.CRAFT ? controller.craftingPayload() : null));
+
+      actionButtons.put(action, button);
+    }
   }
 
   @Override
@@ -154,15 +175,16 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
         g, craftingSlots, rightStartX, gridTop, rightColumns);
 
       Rectangle previewPanelBounds = previewPanelBounds(gridTop, maxGridHeight);
-      List<Rectangle> buttons = buttonBounds(previewPanelBounds.y);
+      List<Rectangle> buttonBounds = buttonBounds(previewPanelBounds.y);
+      syncActionButtonBounds(buttonBounds);
 
       GridLayout leftGrid =
         new GridLayout(InventorySide.TARGET, leftStartX, gridTop, leftColumns, targetSlots);
       GridLayout rightGrid =
         new GridLayout(InventorySide.CRAFTING, rightStartX, gridTop, rightColumns, craftingSlots);
 
-      handleInput(buttons, leftGrid, rightGrid);
-      drawRecipePreview(g, previewPanelBounds, buttons);
+      handleInput(leftGrid, rightGrid);
+      drawRecipePreview(g, previewPanelBounds, buttonBounds);
     } finally {
       LitiengineDialogOverlaySupport.finishDialog(g, state);
     }
@@ -193,10 +215,8 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
     drawCraftingPreview(g, previewLayoutBounds);
     drawResultPreview(g, previewLayoutBounds);
 
-    CraftingDialogAction[] actions = CraftingDialogAction.values();
-    for (int i = 0; i < actions.length; i++) {
-      LitiengineDialogOverlaySupport.drawButton(
-        g, buttons.get(i), actions[i].label(), pressedButtonIndex == i);
+    for (CraftingDialogAction action : CraftingDialogAction.values()) {
+      LitiengineButtonRenderer.draw(g, actionButtons.get(action), action.label());
     }
   }
 
@@ -330,10 +350,9 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
       + "\nClick items between both inventories and use Craft to forward the current input.";
   }
 
-  private void handleInput(List<Rectangle> buttons, GridLayout leftGrid, GridLayout rightGrid) {
+  private void handleInput(GridLayout leftGrid, GridLayout rightGrid) {
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
-      pressedButtonIndex = -1;
       pressedSlotSelection = null;
       leftButtonDownLastFrame = false;
       return;
@@ -344,27 +363,15 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
     boolean leftButtonDown = InputManager.isButtonPressed(MouseButtons.LEFT);
 
     if (leftButtonDown && !leftButtonDownLastFrame) {
-      pressedButtonIndex = buttonIndexAt(mouseX, mouseY, buttons);
-
-      if (pressedButtonIndex < 0) {
-        pressedSlotSelection = findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
-      } else {
+      if (findActionButtonAt(mouseX, mouseY).isPresent()) {
         pressedSlotSelection = null;
+      } else {
+        pressedSlotSelection = findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
       }
     }
 
     if (!leftButtonDown && leftButtonDownLastFrame) {
-      int releasedButtonIndex = buttonIndexAt(mouseX, mouseY, buttons);
-      int previouslyPressedButton = pressedButtonIndex;
-      pressedButtonIndex = -1;
-
-      if (previouslyPressedButton >= 0 && previouslyPressedButton == releasedButtonIndex) {
-        if (previouslyPressedButton == 0) {
-          onCraft();
-        } else if (previouslyPressedButton == 1) {
-          onCancel();
-        }
-
+      if (findActionButtonAt(mouseX, mouseY).isPresent()) {
         pressedSlotSelection = null;
         leftButtonDownLastFrame = leftButtonDown;
         return;
@@ -382,17 +389,39 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
     leftButtonDownLastFrame = leftButtonDown;
   }
 
-  private int buttonIndexAt(int mouseX, int mouseY, List<Rectangle> buttons) {
-    for (int i = 0; i < buttons.size(); i++) {
-      if (buttons.get(i).contains(mouseX, mouseY)) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
   private void transferClickedItem(SlotSelection slotSelection) {
     interaction.transferClickedSlot(slotSelection.side().controllerSide(), slotSelection.slotIndex());
+  }
+
+  private void syncActionButtonBounds(List<Rectangle> bounds) {
+    CraftingDialogAction[] actions = CraftingDialogAction.values();
+
+    for (int i = 0; i < actions.length && i < bounds.size(); i++) {
+      Rectangle rect = bounds.get(i);
+      ImageButton button = actionButtons.get(actions[i]);
+      button.x(rect.x);
+      button.y(rect.y);
+      button.width(rect.width);
+      button.height(rect.height);
+    }
+  }
+
+  private Optional<CraftingDialogAction> findActionButtonAt(int mouseX, int mouseY) {
+    for (CraftingDialogAction action : CraftingDialogAction.values()) {
+      ImageButton button = actionButtons.get(action);
+      if (button == null) {
+        continue;
+      }
+
+      if (mouseX >= button.x()
+        && mouseX <= button.x() + button.width()
+        && mouseY >= button.y()
+        && mouseY <= button.y() + button.height()) {
+        return Optional.of(action);
+      }
+    }
+
+    return Optional.empty();
   }
 
   private SlotSelection findSlotSelection(int mouseX, int mouseY, GridLayout leftGrid, GridLayout rightGrid) {
@@ -416,16 +445,6 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
     }
 
     return null;
-  }
-
-  private void onCraft() {
-    DialogCallbackResolver.createButtonCallback(dialogId, CraftingDialogAction.CRAFT.callbackKey())
-      .accept(controller.craftingPayload());
-  }
-
-  private void onCancel() {
-    DialogCallbackResolver.createButtonCallback(dialogId, CraftingDialogAction.CANCEL.callbackKey())
-      .accept(null);
   }
 
   private List<Rectangle> buttonBounds(int previewY) {
