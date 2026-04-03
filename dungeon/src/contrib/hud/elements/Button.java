@@ -1,9 +1,7 @@
 package contrib.hud.elements;
 
-import com.badlogic.gdx.graphics.g2d.Batch;
 import core.Game;
 import core.input.MouseButtons;
-import core.platform.gdx.render.TextureMap;
 import core.ui.StageHandle;
 import core.utils.InputManager;
 import core.utils.components.path.IPath;
@@ -13,9 +11,8 @@ import java.util.function.Consumer;
 /**
  * Represents a button with backend-neutral interaction state.
  *
- * <p>The button owns its bounds, click semantics and visual state calculation. Rendering can use
- * the exposed {@link #backgroundTexturePath()} in any backend. The existing libGDX path is kept as
- * a thin compatibility bridge via {@link #draw(Batch)}.
+ * <p>The button owns its bounds, click semantics and visual state calculation. Concrete backends
+ * can render the button using {@link #backgroundTexturePath()}.
  */
 public class Button {
 
@@ -26,7 +23,7 @@ public class Button {
   /**
    * Kept for call-site compatibility and layout context.
    *
-   * <p>The button no longer uses the parent for Scene2D input registration.
+   * <p>The button no longer uses the parent for backend-specific rendering.
    */
   protected final CombinableGUI parent;
 
@@ -73,8 +70,8 @@ public class Button {
   /**
    * Updates the button from the current engine-neutral stage/input abstractions.
    *
-   * <p>This keeps the existing GDX call sites working while also allowing other backends to drive
-   * the same state machine explicitly via {@link #update(int, int, boolean)}.
+   * <p>This keeps existing call sites simple while also allowing non-libGDX backends to drive the
+   * same state machine via {@link #update(int, int, boolean)}.
    */
   public void updateFromStage() {
     StageHandle stage = Game.stage().orElse(null);
@@ -158,25 +155,6 @@ public class Button {
       case HOVER -> BUTTON_HOVER_PATH;
       case IDLE -> BUTTON_IDLE_PATH;
     };
-  }
-
-  /**
-   * Thin libGDX compatibility bridge for existing HUD code.
-   *
-   * @param batch The batch to draw on
-   */
-  public void draw(Batch batch) {
-    if (Game.isHeadless()) {
-      return;
-    }
-
-    updateFromStage();
-    batch.draw(
-      TextureMap.instance().textureAt(backgroundTexturePath()),
-      this.x,
-      this.y,
-      this.width,
-      this.height);
   }
 
   protected boolean contains(int mouseX, int mouseY) {
