@@ -2,8 +2,6 @@ package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-import contrib.platform.gdx.hud.GdxGuiInteractionContext;
 import core.utils.Vector2;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,6 +24,7 @@ public abstract class CombinableGUI {
   private int x, y, width, height;
 
   private GuiInteractionContext interactionContext = new GuiInteractionContext() {};
+
   // Still needed for existing GDX button/input handling.
   private Actor actor;
 
@@ -61,20 +60,6 @@ public abstract class CombinableGUI {
   protected final <T> Optional<T> interactionContext(Class<T> type) {
     Objects.requireNonNull(type, "type");
     return this.interactionContext.unwrap(type);
-  }
-
-  /**
-   * Temporary compatibility bridge for legacy libGDX HUD code that still injects a shared
-   * DragAndDrop instance directly.
-   *
-   * <p>The new primary API is {@link #interactionContext(GuiInteractionContext)}.
-   *
-   * @param dragAndDrop shared libGDX DragAndDrop context
-   * @deprecated migrate callers to {@link #interactionContext(GuiInteractionContext)}
-   */
-  @Deprecated
-  public final void dragAndDrop(final DragAndDrop dragAndDrop) {
-    this.interactionContext(new GdxGuiInteractionContext(dragAndDrop));
   }
 
   /**
@@ -131,7 +116,6 @@ public abstract class CombinableGUI {
     this.x = x;
     this.syncActorBounds();
   }
-
 
   public int y() {
     return this.y;
