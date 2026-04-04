@@ -1,15 +1,14 @@
 package core.platform.litiengine.dialogs;
 
 import contrib.components.InventoryComponent;
+import contrib.hud.UIUtils;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
 import core.platform.litiengine.ui.LitiengineUiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.awt.*;
 
 /**
  * Dual-inventory overlay for the LITIENGINE backend.
@@ -35,6 +34,13 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
   private static final int DRAG_PREVIEW_PADDING_Y = 7;
   private static final int DRAG_TARGET_INSET = 3;
   private static final int DRAG_TARGET_ARC = 8;
+
+  private static final int TOOLTIP_OFFSET_X = 12;
+  private static final int TOOLTIP_OFFSET_Y = 14;
+  private static final int TOOLTIP_PADDING_X = 12;
+  private static final int TOOLTIP_PADDING_Y = 10;
+  private static final int TOOLTIP_LINE_GAP = 6;
+  private static final int TOOLTIP_CORNER_RADIUS = 10;
 
   private final String leftTitle;
   private final InventoryComponent leftInventory;
@@ -176,6 +182,8 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
           drawDropTargetHighlight(g, hoveredTarget, leftGrid, rightGrid);
         }
         drawDragPreview(g);
+      } else {
+        drawHoverTooltip(g, leftGrid, rightGrid);
       }
     } finally {
       LitiengineDialogOverlaySupport.finishDialog(g, state);
@@ -280,6 +288,108 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
     }
 
     return hovered;
+  }
+
+  private void drawHoverTooltip(Graphics2D g, GridLayout leftGrid, GridLayout rightGrid) {
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null) {
+      return;
+    }
+
+    int mouseX = stage.mouseX();
+    int mouseY = stage.mouseY();
+
+    if (mouseX < x || mouseX > x + width || mouseY < y || mouseY > y + height) {
+      return;
+    }
+
+    SlotSelection hoveredSlot = findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
+    if (hoveredSlot == null) {
+      return;
+    }
+
+    InventoryComponent hoveredInventory = inventoryOf(hoveredSlot.side());
+    Item hoveredItem = hoveredInventory.get(hoveredSlot.slotIndex()).orElse(null);
+    if (hoveredItem == null) {
+      return;
+    }
+
+    String itemTitle = safeDisplayName(hoveredItem);
+    String formattedDescription =
+      UIUtils.formatString(hoveredItem.description() == null ? "" : hoveredItem.description());
+
+    String[] descriptionLines =
+      formattedDescription.isBlank() ? new String[0] : formattedDescription.split("\\R");
+
+    FontMetrics metrics = g.getFontMetrics();
+
+    int descriptionWidth = 0;
+    for (String line : descriptionLines) {
+      descriptionWidth = Math.max(descriptionWidth, metrics.stringWidth(line));
+    }
+
+    int tooltipWidth =
+      Math.max(metrics.stringWidth(itemTitle), descriptionWidth) + 2 * TOOLTIP_PADDING_X;
+
+    int tooltipHeight = 2 * TOOLTIP_PADDING_Y + metrics.getAscent();
+    if (descriptionLines.length > 0) {
+      tooltipHeight += TOOLTIP_LINE_GAP + descriptionLines.length * metrics.getHeight();
+    }
+
+    int tooltipX = mouseX + TOOLTIP_OFFSET_X;
+    int tooltipY = mouseY + TOOLTIP_OFFSET_Y;
+
+    if (tooltipX + tooltipWidth > stage.getWidth()) {
+      tooltipX = mouseX - tooltipWidth - TOOLTIP_OFFSET_X;
+    }
+
+    if (tooltipY + tooltipHeight > stage.getHeight()) {
+      tooltipY = mouseY - tooltipHeight - TOOLTIP_OFFSET_Y;
+    }
+
+    g.setColor(new Color(248, 248, 252, 235));
+    g.fillRoundRect(
+      tooltipX,
+      tooltipY,
+      tooltipWidth,
+      tooltipHeight,
+      TOOLTIP_CORNER_RADIUS,
+      TOOLTIP_CORNER_RADIUS);
+
+    g.setColor(new Color(84, 88, 96, 220));
+    g.drawRoundRect(
+      tooltipX,
+      tooltipY,
+      tooltipWidth,
+      tooltipHeight,
+      TOOLTIP_CORNER_RADIUS,
+      TOOLTIP_CORNER_RADIUS);
+
+    int textX = tooltipX + TOOLTIP_PADDING_X;
+    int baselineY = tooltipY + TOOLTIP_PADDING_Y + metrics.getAscent();
+
+    g.setColor(Color.BLACK);
+    g.drawString(itemTitle, textX, baselineY);
+
+    if (descriptionLines.length > 0) {
+      g.setColor(new Color(0x000000b0, true));
+      baselineY += TOOLTIP_LINE_GAP + metrics.getHeight();
+      for (String line : descriptionLines) {
+        g.drawString(line, textX, baselineY);
+        baselineY += metrics.getHeight();
+      }
+    }
+  }
+
+  private String safeDisplayName(Item item) {
+    if (item == null) {
+      return "";
+    }
+
+    String displayName = item.displayName();
+    return displayName == null || displayName.isBlank()
+      ? item.getClass().getSimpleName()
+      : displayName;
   }
 
   private void transferClickedItem(SlotSelection slotSelection) {
