@@ -471,9 +471,11 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
       return;
     }
 
-    interaction.transferClickedSlot(
+    interaction.transferDroppedSlot(
       drag.source().side().controllerSide(),
-      drag.source().slotIndex());
+      drag.source().slotIndex(),
+      releasedSlotSelection.side().controllerSide(),
+      releasedSlotSelection.slotIndex());
   }
 
   private SlotSelection hoveredDropTarget(GridLayout leftGrid, GridLayout rightGrid) {
