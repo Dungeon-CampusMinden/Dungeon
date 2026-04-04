@@ -14,12 +14,11 @@ import java.awt.Rectangle;
 /**
  * Dual-inventory overlay for the LITIENGINE backend.
  *
- * <p>This version keeps the existing click-based transfer and additionally supports a lightweight
- * drag gesture: dragging an item from one side onto the opposite side transfers it between the two
- * inventories.
+ * <p>This version keeps the existing click-based transfer and additionally supports drag-based
+ * item movement between both inventories.
  *
- * <p>The first step intentionally keeps transfer semantics simple. Dropping onto the opposite
- * inventory means "transfer this item to the other inventory", not "move to an exact target slot".
+ * <p>Dragging an item onto a concrete slot on the opposite side performs an exact slot-to-slot
+ * transfer.
  */
 final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay {
 
@@ -251,7 +250,7 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
       return;
     }
 
-    transferDraggedItem(completedDrag);
+    transferDraggedItem(completedDrag, releasedSlotSelection);
   }
 
   private void transferClickedItem(SlotSelection slotSelection) {
@@ -266,10 +265,14 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
     source.transfer(item, destination);
   }
 
-  private void transferDraggedItem(DragState drag) {
+  private void transferDraggedItem(DragState drag, SlotSelection releasedSlotSelection) {
     InventoryComponent source = inventoryOf(drag.source().side());
-    InventoryComponent destination = oppositeInventoryOf(drag.source().side());
-    source.transfer(drag.item(), destination);
+    InventoryComponent destination = inventoryOf(releasedSlotSelection.side());
+
+    source.transfer(
+      drag.source().slotIndex(),
+      destination,
+      releasedSlotSelection.slotIndex());
   }
 
   private InventoryComponent inventoryOf(InventorySide side) {
