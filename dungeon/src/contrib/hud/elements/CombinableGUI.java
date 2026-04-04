@@ -1,7 +1,6 @@
 package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import core.utils.Vector2;
 import java.util.Objects;
 import java.util.Optional;
@@ -20,13 +19,8 @@ import java.util.Optional;
  */
 public abstract class CombinableGUI {
 
-  // Position of the GUI-Element and its size
   private int x, y, width, height;
-
   private GuiInteractionContext interactionContext = new GuiInteractionContext() {};
-
-  // Still needed for existing GDX button/input handling.
-  private Actor actor;
 
   /**
    * Sets the interaction context for this GUI element.
@@ -74,8 +68,6 @@ public abstract class CombinableGUI {
   /**
    * Draw the element.
    *
-   * <p>This method should be used for drawing the main part of the element.
-   *
    * @param batch the batch to draw to
    */
   protected abstract void draw(final Batch batch);
@@ -83,18 +75,11 @@ public abstract class CombinableGUI {
   /**
    * Draw the top layer of the element.
    *
-   * <p>This method should be used for things like hover information that need to be on top of
-   * everything else.
-   *
    * @param batch the batch to draw to
    */
   protected void drawTopLayer(final Batch batch) {}
 
-  /**
-   * Draw debug information for the element.
-   *
-   * <p>The default implementation does nothing.
-   */
+  /** Draw debug information for the element. */
   protected void drawDebug() {}
 
   /**
@@ -114,7 +99,6 @@ public abstract class CombinableGUI {
 
   public void x(int x) {
     this.x = x;
-    this.syncActorBounds();
   }
 
   public int y() {
@@ -123,67 +107,21 @@ public abstract class CombinableGUI {
 
   public void y(int y) {
     this.y = y;
-    this.syncActorBounds();
   }
 
-  /**
-   * Get the width of the element.
-   *
-   * @return the width.
-   */
   public final int width() {
     return this.width;
   }
 
-  /**
-   * Set the width of the element.
-   *
-   * @param width the width.
-   */
   public void width(int width) {
     this.width = width;
-    this.syncActorBounds();
   }
 
-  /**
-   * Get the height of the element.
-   *
-   * @return the height.
-   */
   public final int height() {
     return this.height;
   }
 
-  /**
-   * Set the height of the element.
-   *
-   * @param height the height.
-   */
   public void height(int height) {
     this.height = height;
-    this.syncActorBounds();
-  }
-
-  /**
-   * Returns the backend anchor actor for legacy libGDX HUD integration.
-   *
-   * <p>This actor is intentionally kept as a narrow compatibility seam for drag-and-drop,
-   * keyboard focus and remaining Scene2D listeners. It is no longer the primary interaction API
-   * of {@link CombinableGUI}.
-   *
-   * @return libGDX anchor actor
-   */
-  protected final Actor actor() {
-    if (this.actor == null) {
-      this.actor = new Actor();
-      this.syncActorBounds();
-    }
-    return this.actor;
-  }
-
-  private void syncActorBounds() {
-    if (this.actor != null) {
-      this.actor.setBounds(this.x, this.y, this.width, this.height);
-    }
   }
 }

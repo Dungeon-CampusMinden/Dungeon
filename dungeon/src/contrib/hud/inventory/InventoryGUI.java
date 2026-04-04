@@ -1,6 +1,5 @@
 package contrib.hud.inventory;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -8,6 +7,10 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
@@ -15,9 +18,13 @@ import contrib.configuration.KeyboardConfig;
 import contrib.entities.HeroController;
 import contrib.hud.IInventoryHolder;
 import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogContext;
+import contrib.hud.dialogs.DialogContextKeys;
+import contrib.hud.dialogs.DialogCreationException;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.elements.GuiInteractionContext;
+import contrib.hud.elements.InventoryGuiGroup;
 import contrib.item.Item;
 import contrib.platform.gdx.hud.GdxGuiInteractionContext;
 import contrib.platform.gdx.hud.GdxHudItemRenderer;
@@ -28,7 +35,7 @@ import core.components.PlayerComponent;
 import core.network.messages.c2s.InputMessage;
 import core.ui.StageHandle;
 import core.ui.gdx.GdxUiAssetLoader;
-import core.utils.*;
+import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -51,6 +58,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   private static final int BORDER_PADDING = 5;
   private static final int LINE_GAP = 5;
   private static final Vector2 HOVER_OFFSET = Vector2.of(10, 10);
+
   private static final BitmapFont bitmapFont;
   private static final Texture backgroundTexture;
   private static final TextureRegion background, hoverBackground;
@@ -63,15 +71,18 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
       hoverBackground = null;
     } else {
       backgroundTexture =
-        GdxUiAssetLoader.createHorizontalStripTexture(BACKGROUND_COLOR, HOVER_BACKGROUND_COLOR);
+        GdxUiAssetLoader.createHorizontalStripTexture(
+          BACKGROUND_COLOR, HOVER_BACKGROUND_COLOR);
       background = new TextureRegion(backgroundTexture, 0, 0, 1, 1);
       hoverBackground = new TextureRegion(backgroundTexture, 1, 0, 1, 1);
       bitmapFont = GdxUiAssetLoader.loadBitmapFont(FONT_FNT, FONT_PNG);
     }
   }
 
-  private final DragAndDrop.Source dropAndDropSource;
-  private final DragAndDrop.Target dropAndDropTarget;
+  private DragAndDrop.Source dropAndDropSource;
+  private DragAndDrop.Target dropAndDropTarget;
+  private boolean inputListenerInstalled = false;
+
   private final InventoryComponent inventoryComponent;
   private Texture textureSlots;
   private String title;
@@ -90,34 +101,14 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
     this.inventoryComponent = inventoryComponent;
     this.title = title;
     this.slotsPerRow =
-        Math.max(Math.min(maxItemsPerRow, this.inventoryComponent.items().length), 1);
+      Math.max(Math.min(maxItemsPerRow, this.inventoryComponent.items().length), 1);
 
-    if (Game.isHeadless()) {
-      this.dropAndDropSource = null;
-      this.dropAndDropTarget = null;
-      return;
-    }
-    this.dropAndDropSource =
-      GdxInventoryDragAndDropAdapters.itemSource(
-        this.actor(),
-        this.inventoryComponent,
-        this::getSlotByCoordinates,
-        InventoryGUI::isPlayersInventory,
-        () -> this.slotSize,
-        this::gdxDragAndDrop,
-        this::handleDraggedItemDroppedOutside);
-
-    this.dropAndDropTarget =
-      GdxInventoryDragAndDropAdapters.itemTarget(
-        this.actor(),
-        this::getSlotByCoordinates,
-        itemDragPayload -> true,
-        this::handleDraggedItemDroppedOnSlot);
+    this.dropAndDropSource = null;
+    this.dropAndDropTarget = null;
   }
 
   /**
-   * Create a new inventory GUI. The max number of items per row is set to the default value. (see
-   * {@link InventoryGUI#DEFAULT_MAX_ITEMS_PER_ROW})
+   * Create a new inventory GUI. The max number of items per row is set to the default value.
    *
    * @param title the title of the inventory
    * @param inventoryComponent the inventory component on which the GUI is based.
@@ -133,10 +124,10 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
    */
   public InventoryGUI(InventoryComponent inventoryComponent) {
     this(
-        Game.findInAll(inventoryComponent)
-            .map(InventoryGUI::generateTitleFromEntity)
-            .orElse("INVENTORY"),
-        inventoryComponent);
+      Game.findInAll(inventoryComponent)
+        .map(InventoryGUI::generateTitleFromEntity)
+        .orElse("INVENTORY"),
+      inventoryComponent);
   }
 
   private static String generateTitleFromEntity(Entity entity) {
@@ -166,13 +157,60 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   public static Optional<InventoryGUI> getPlayerInventoryGUI(Entity player) {
     LOGGER.debug("Fetching InventoryGUI for player " + player.id() + ".");
     return player
-        .fetch(UIComponent.class)
-        .flatMap(
-            uiComp ->
-                UIUtils.getInventoriesFromUI(uiComp)
-                    .filter(invComp -> isPlayersInventory(player, invComp))
-                    .map(InventoryGUI::new)
-                    .findFirst());
+      .fetch(UIComponent.class)
+      .flatMap(
+        uiComp ->
+          UIUtils.getInventoriesFromUI(uiComp)
+            .filter(invComp -> isPlayersInventory(player, invComp))
+            .map(InventoryGUI::new)
+            .findFirst());
+  }
+
+  /**
+   * Builds an InventoryDialog from the given DialogContext for a single inventory.
+   *
+   * @param ctx The dialog context containing the entity with the inventory component.
+   * @return A new InventoryDialog instance.
+   */
+  public static Group buildSimple(DialogContext ctx) {
+    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
+    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
+
+    if (inventory == null) {
+      LOGGER.error("Entity {} has no InventoryComponent for InventoryDialog", entity);
+      throw new DialogCreationException("Missing InventoryComponent for InventoryDialog");
+    }
+
+    String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(entity.name());
+    InventoryGUI inventoryGUI = new InventoryGUI(title, inventory);
+    return new InventoryGuiGroup(inventoryGUI);
+  }
+
+  /**
+   * Builds an InventoryDialog from the given DialogContext for two inventories.
+   *
+   * @param ctx The dialog context containing the entities with the inventory components.
+   * @return A new InventoryDialog instance.
+   */
+  public static Group buildDual(DialogContext ctx) {
+    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
+    Entity otherEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
+    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
+    InventoryComponent otherInventory = otherEntity.fetch(InventoryComponent.class).orElse(null);
+
+    if (inventory == null || otherInventory == null) {
+      Entity missingEntity = (inventory == null) ? entity : otherEntity;
+      LOGGER.error("Entity {} has no InventoryComponent for DualInventoryDialog", missingEntity);
+      throw new DialogCreationException("Missing InventoryComponent for DualInventoryDialog");
+    }
+
+    String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(entity.name());
+    String otherTitle =
+      ctx.find(DialogContextKeys.SECONDARY_TITLE, String.class).orElse(otherEntity.name());
+
+    InventoryGUI inventoryGUI = new InventoryGUI(title, inventory);
+    InventoryGUI otherInventoryGUI = new InventoryGUI(otherTitle, otherInventory);
+    return new InventoryGuiGroup(inventoryGUI, otherInventoryGUI);
   }
 
   /**
@@ -187,39 +225,79 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   @Override
+  protected void initInteraction(GuiInteractionContext interactionContext) {
+    if (Game.isHeadless()) {
+      return;
+    }
+
+    Optional<Actor> actor = gdxActor();
+    actor.ifPresent(this::ensureInputListenerInstalled);
+
+    Optional<DragAndDrop> dragAndDrop = gdxDragAndDrop();
+    if (actor.isEmpty() || dragAndDrop.isEmpty()) {
+      this.dropAndDropSource = null;
+      this.dropAndDropTarget = null;
+      return;
+    }
+
+    this.dropAndDropSource =
+      GdxInventoryDragAndDropAdapters.itemSource(
+        actor.get(),
+        this.inventoryComponent,
+        this::getSlotByCoordinates,
+        InventoryGUI::isPlayersInventory,
+        () -> this.slotSize,
+        this::gdxDragAndDrop,
+        this::handleDraggedItemDroppedOutside);
+
+    this.dropAndDropTarget =
+      GdxInventoryDragAndDropAdapters.itemTarget(
+        actor.get(),
+        this::getSlotByCoordinates,
+        itemDragPayload -> true,
+        this::handleDraggedItemDroppedOnSlot);
+
+    dragAndDrop.get().addSource(this.dropAndDropSource);
+    dragAndDrop.get().addTarget(this.dropAndDropTarget);
+  }
+
+  @Override
   public void draw(Batch batch) {
-    // Draw & cache slot squares
     this.drawSlots();
 
-    // Draw Background & Slots
     batch.draw(background, this.x(), this.y(), this.width(), this.height());
-    batch.draw(this.textureSlots, this.x(), this.y(), this.width(), this.height());
 
-    // Draw Items
+    if (this.textureSlots != null) {
+      batch.draw(this.textureSlots, this.x(), this.y(), this.width(), this.height());
+    }
+
     this.drawItems(batch);
 
-    // Draw inventory title
-    if (!this.title.isEmpty()) this.drawInventoryTitle(batch);
+    if (!this.title.isEmpty()) {
+      this.drawInventoryTitle(batch);
+    }
   }
 
   @Override
   protected void drawTopLayer(Batch batch) {
-    this.handleInput();
     this.drawItemInfo(batch);
   }
 
   private int getSlotByMousePosition() {
-    StageHandle stage = Game.stage().orElseThrow();
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null) {
+      return -1;
+    }
 
-    Vector2 mousePos =
-      Vector2.of(stage.mouseX(), Math.round(stage.getHeight()) - stage.mouseY());
-
-    Vector2 relMousePos = Vector2.of(mousePos.x() - this.x(), mousePos.y() - this.y());
+    Point mousePos = new Point(stage.mouseX(), Math.round(stage.getHeight()) - stage.mouseY());
+    Point relMousePos = new Point(mousePos.x() - this.x(), mousePos.y() - this.y());
     return getSlotByCoordinates(relMousePos.x(), relMousePos.y());
   }
 
   private int getSlotByCoordinates(int x, int y) {
-    if (this.slotSize == 0) return -1; // Prevent division by zero
+    if (this.slotSize == 0) {
+      return -1;
+    }
     return (x / this.slotSize) + (y / this.slotSize) * this.slotsPerRow;
   }
 
@@ -229,18 +307,18 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
 
   private void drawItems(Batch batch) {
     Item[] items = this.inventoryComponent.items();
-
     for (int i = 0; i < items.length; i++) {
       Item item = items[i];
       if (item == null) {
         continue;
       }
 
-      int itemX = this.x() + this.slotSize * (i % this.slotsPerRow) + (2 * BORDER_PADDING);
-      int itemY =
-        this.y() + this.slotSize * (i / this.slotsPerRow) + (2 * BORDER_PADDING);
+      int x = this.x() + this.slotSize * (i % this.slotsPerRow) + (2 * BORDER_PADDING);
+      int y =
+        this.y()
+          + this.slotSize * (int) Math.floor(i / (float) this.slotsPerRow)
+          + (2 * BORDER_PADDING);
 
-      // Don't draw item being dragged
       if (this.isDragging()) {
         DragAndDrop.Payload payload = this.currentDragPayload();
         if (payload != null
@@ -252,77 +330,106 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
       }
 
       GdxHudItemRenderer.drawItem(
-        batch,
-        item,
-        itemX,
-        itemY,
-        this.slotSize - (4 * BORDER_PADDING));
+        batch, item, x, y, this.slotSize - (4 * BORDER_PADDING));
     }
   }
 
   private void drawSlots() {
-    if (this.textureSlots == null
-        || this.textureSlots.getWidth() != this.width()
-        || this.textureSlots.getHeight() != this.height()) {
-      if (this.textureSlots != null) this.textureSlots.dispose();
+    if (Game.isHeadless()) {
+      return;
+    }
 
-      // Minimized windows have 0 width and height -> container will be 0x0 -> Crash on pixmap
-      // creation
-      if (this.width() <= 0 || this.height() <= 0) return;
+    if (this.textureSlots == null
+      || this.textureSlots.getWidth() != this.width()
+      || this.textureSlots.getHeight() != this.height()) {
+      if (this.textureSlots != null) {
+        this.textureSlots.dispose();
+      }
+
+      if (this.width() <= 0 || this.height() <= 0) {
+        return;
+      }
 
       Pixmap pixmap = new Pixmap(this.width(), this.height(), Pixmap.Format.RGBA8888);
-      pixmap.setColor(BORDER_COLOR);
-      int rows = (int) Math.ceil(this.inventoryComponent.items().length / (float) this.slotsPerRow);
-      for (int y = 0; y < rows; y++) {
-        for (int x = 0; x < this.slotsPerRow; x++) {
-          if (x + y * this.slotsPerRow >= this.inventoryComponent.items().length) break;
-          pixmap.drawRectangle(
-              x * this.slotSize + BORDER_PADDING,
-              pixmap.getHeight() - ((y * this.slotSize) + BORDER_PADDING),
-              this.slotSize - (2 * BORDER_PADDING),
-              -this.slotSize + (2 * BORDER_PADDING));
+      try {
+        pixmap.setColor(0, 0, 0, 0);
+        pixmap.fill();
+
+        pixmap.setColor(new Color(BORDER_COLOR));
+        int rows =
+          (int)
+            Math.max(
+              Math.ceil(this.inventoryComponent.items().length / (float) this.slotsPerRow),
+              1.0f);
+
+        for (int row = 0; row < rows; row++) {
+          for (int col = 0; col < this.slotsPerRow; col++) {
+            int slotIndex = col + row * this.slotsPerRow;
+            if (slotIndex >= this.inventoryComponent.items().length) {
+              break;
+            }
+
+            int slotX = col * this.slotSize;
+            int slotY = row * this.slotSize;
+            pixmap.drawRectangle(slotX, slotY, this.slotSize, this.slotSize);
+          }
         }
+
+        this.textureSlots = new Texture(pixmap);
+      } finally {
+        pixmap.dispose();
       }
-      this.textureSlots = new Texture(pixmap);
     }
   }
 
   private void drawInventoryTitle(Batch batch) {
+    if (bitmapFont == null || this.title == null || this.title.isBlank()) {
+      return;
+    }
 
-    GlyphLayout glyphLayout = new GlyphLayout(bitmapFont, this.title);
-
-    int x = this.x() + (this.width() / 2) - Math.round(glyphLayout.width) / 2;
-    int y = this.y() + this.height() + BORDER_PADDING;
-
-    batch.draw(
-        hoverBackground,
-        x,
-        y,
-        glyphLayout.width + (BORDER_PADDING * 2),
-        glyphLayout.height + (BORDER_PADDING * 2));
-    bitmapFont.setColor(Color.BLACK);
-    bitmapFont.draw(batch, this.title, x + BORDER_PADDING, y + glyphLayout.height + BORDER_PADDING);
+    GlyphLayout layout = new GlyphLayout(bitmapFont, this.title);
+    bitmapFont.setColor(Color.WHITE);
+    bitmapFont.draw(
+      batch,
+      this.title,
+      this.x() + (this.width() - layout.width) / 2f,
+      this.y() + this.height() + layout.height + BORDER_PADDING);
   }
 
   private void drawItemInfo(Batch batch) {
-    // Flip Y axis (mouse origin top left, batch origin bottom left)
-    Point mousePos = new Point(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+    if (bitmapFont == null || hoverBackground == null) {
+      return;
+    }
+
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null) {
+      return;
+    }
+
+    Point mousePos = new Point(stage.mouseX(), Math.round(stage.getHeight()) - stage.mouseY());
     Point relMousePos = new Point(mousePos.x() - this.x(), mousePos.y() - this.y());
 
-    // Check if mouse is in inventory bounds
-    if (mousePos.x() < this.x() || mousePos.x() > this.x() + this.width()) return;
-    if (mousePos.y() < this.y() || mousePos.y() > this.y() + this.height()) return;
+    if (mousePos.x() < this.x() || mousePos.x() > this.x() + this.width()) {
+      return;
+    }
+    if (mousePos.y() < this.y() || mousePos.y() > this.y() + this.height()) {
+      return;
+    }
 
-    // Check if mouse is dragging an item
-    if (this.isDragging()) return;
+    if (this.isDragging()) {
+      return;
+    }
 
     int hoveredSlot = this.getSlotByCoordinates(relMousePos.x(), relMousePos.y());
-    Optional<Item> item = InventoryGUI.this.inventoryComponent.get(hoveredSlot);
-    if (item.isEmpty()) return;
-    Item itemToShow = item.get();
+    Optional<Item> item = this.inventoryComponent.get(hoveredSlot);
+    if (item.isEmpty()) {
+      return;
+    }
 
+    Item itemToShow = item.get();
     String title = itemToShow.displayName();
     String description = UIUtils.formatString(itemToShow.description());
+
     GlyphLayout layoutName = new GlyphLayout(bitmapFont, title);
     GlyphLayout layoutDesc = new GlyphLayout(bitmapFont, description);
 
@@ -330,8 +437,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
     float width = Math.max(layoutName.width, layoutDesc.width) + HOVER_OFFSET.x();
     float height = layoutName.height + layoutDesc.height + HOVER_OFFSET.y() + LINE_GAP;
 
-    // if out of bounds, move to the left of cursor
-    if (hoverPos.x() + width > Gdx.graphics.getWidth()) {
+    if (hoverPos.x() + width > stage.getWidth()) {
       hoverPos = hoverPos.translate(Vector2.of(-width - HOVER_OFFSET.x(), 0));
     }
 
@@ -340,10 +446,11 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
 
     bitmapFont.setColor(Color.BLACK);
     bitmapFont.draw(
-        batch,
-        title,
-        textPos.x(),
-        textPos.y() + layoutName.height + LINE_GAP); // place above description
+      batch,
+      title,
+      textPos.x(),
+      textPos.y() + layoutName.height + LINE_GAP);
+
     bitmapFont.setColor(new Color(0x000000b0));
     bitmapFont.draw(batch, description, textPos.x(), textPos.y());
   }
@@ -353,85 +460,77 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
     return owner.isPresent() && owner.get().id() == player.id();
   }
 
-  @Override
-  protected void initInteraction(GuiInteractionContext interactionContext) {
-    gdxDragAndDrop()
-      .ifPresent(
-        dragAndDrop -> {
-          dragAndDrop.addSource(dropAndDropSource);
-          dragAndDrop.addTarget(dropAndDropTarget);
-        });
+  private void ensureInputListenerInstalled(Actor actor) {
+    if (this.inputListenerInstalled) {
+      return;
+    }
+
+    Game.stage().ifPresent(stage -> stage.setKeyboardFocus(actor));
+
+    actor.addListener(
+      new InputListener() {
+        @Override
+        public boolean keyDown(InputEvent event, int keycode) {
+          Entity player = Game.player().orElse(null);
+          if (player == null) {
+            return false;
+          }
+
+          if (inPlayerInventory(player) && KeyboardConfig.USE_ITEM.value() == keycode) {
+            return useHoveredSlot(player, getSlotByMousePosition());
+          }
+
+          return false;
+        }
+
+        @Override
+        public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+          Entity player = Game.player().orElse(null);
+          if (player == null) {
+            return false;
+          }
+
+          if (inPlayerInventory(player)) {
+            if (KeyboardConfig.MOUSE_USE_ITEM.value() == button) {
+              return useHoveredSlot(player, getSlotByMousePosition());
+            }
+            return false;
+          }
+
+          if (KeyboardConfig.TRANSFER_ITEM.value() == button) {
+            transferHoveredSlot(player, getSlotByMousePosition());
+            return true;
+          }
+
+          return false;
+        }
+      });
+
+    this.inputListenerInstalled = true;
   }
 
-  private void handleInput() {
-    Entity player = Game.player().orElse(null);
-    if (player == null) {
-      return;
+  private boolean useHoveredSlot(Entity player, int slot) {
+    if (slot < 0) {
+      return false;
     }
 
-    if (isDragging() || currentDragPayload() != null) {
-      return;
-    }
-
-    int hoveredSlot = this.getHoveredSlotIndex();
-    if (hoveredSlot < 0) {
-      return;
-    }
-
-    if (inPlayerInventory(player)) {
-      if (InputManager.isKeyJustPressed(KeyboardConfig.USE_ITEM.value())) {
-        this.useHoveredSlot(player, hoveredSlot);
-        return;
-      }
-
-      if (InputManager.isButtonJustPressed(KeyboardConfig.MOUSE_USE_ITEM.value())) {
-        this.useHoveredSlot(player, hoveredSlot);
-      }
-      return;
-    }
-
-    if (InputManager.isButtonJustPressed(KeyboardConfig.TRANSFER_ITEM.value())) {
-      this.transferHoveredSlot(player, hoveredSlot);
-    }
-  }
-
-  private int getHoveredSlotIndex() {
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null) {
-      return -1;
-    }
-
-    int mouseX = stage.mouseX();
-    int mouseY = Math.round(stage.getHeight()) - stage.mouseY();
-
-    if (mouseX < this.x()
-      || mouseX >= this.x() + this.width()
-      || mouseY < this.y()
-      || mouseY >= this.y() + this.height()) {
-      return -1;
-    }
-
-    int slot =
-      this.getSlotByCoordinates(
-        mouseX - this.x(),
-        mouseY - this.y());
-
-    return slot >= 0 && slot < this.inventoryComponent.items().length ? slot : -1;
-  }
-
-  private void useHoveredSlot(Entity player, int slot) {
     if (Game.network().isServer()) {
-      HeroController.useItem(player, slot);
+      return HeroController.useItem(player, slot);
     } else {
       Game.network()
         .send(
           (short) 0,
           new InputMessage(InputMessage.Action.INV_USE, Vector2.of(slot, 0)),
           true);
+      return true;
     }
   }
 
   private void transferHoveredSlot(Entity player, int slot) {
+    if (slot < 0) {
+      return;
+    }
+
     UIComponent uiComponent = player.fetch(UIComponent.class).orElse(null);
     if (uiComponent == null
       || uiComponent.dialog().flatMap(handle -> handle.unwrap(GUICombination.class)).isEmpty()) {
@@ -477,11 +576,11 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   @Override
   protected Vector2 preferredSize(GUICombination.AvailableSpace availableSpace) {
     int rows =
-        (int)
-            Math.max(
-                Math.ceil(this.inventoryComponent.items().length / (float) this.slotsPerRow), 1.0f);
+      (int)
+        Math.max(
+          Math.ceil(this.inventoryComponent.items().length / (float) this.slotsPerRow), 1.0f);
     int width =
-        (int) Math.min(availableSpace.width(), (Game.stage().orElseThrow().getWidth() * 0.75f));
+      (int) Math.min(availableSpace.width(), (Game.stage().orElseThrow().getWidth() * 0.75f));
     int height = (width / this.slotsPerRow) * rows;
 
     if (height > availableSpace.height()) {
@@ -523,6 +622,11 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   private Optional<DragAndDrop> gdxDragAndDrop() {
     return interactionContext(GdxGuiInteractionContext.class)
       .flatMap(GdxGuiInteractionContext::dragAndDrop);
+  }
+
+  private Optional<Actor> gdxActor() {
+    return interactionContext(GdxGuiInteractionContext.class)
+      .flatMap(GdxGuiInteractionContext::actor);
   }
 
   private boolean isDragging() {

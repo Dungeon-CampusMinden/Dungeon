@@ -2,6 +2,7 @@ package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import contrib.platform.gdx.hud.GdxGuiInteractionContext;
@@ -9,7 +10,6 @@ import core.Game;
 import core.utils.Vector2;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Stream;
 
 public class GUICombination extends Group {
 
@@ -27,10 +27,7 @@ public class GUICombination extends Group {
     if (Game.isHeadless()) {
       this.dragAndDrop = null;
       this.combinableGuis.forEach(
-        combinableGUI -> {
-          combinableGUI.interactionContext(new GuiInteractionContext() {});
-          this.addActor(combinableGUI.actor());
-        });
+        combinableGUI -> combinableGUI.interactionContext(new GuiInteractionContext() {}));
       return;
     }
 
@@ -39,9 +36,11 @@ public class GUICombination extends Group {
 
     this.combinableGuis.forEach(
       combinableGUI -> {
-        combinableGUI.interactionContext(new GdxGuiInteractionContext(this.dragAndDrop));
-        this.addActor(combinableGUI.actor());
+        Actor anchor = new Actor();
+        combinableGUI.interactionContext(new GdxGuiInteractionContext(anchor, this.dragAndDrop));
+        this.addActor(anchor);
       });
+
     this.scalePositionChildren();
   }
 
@@ -59,15 +58,31 @@ public class GUICombination extends Group {
       CombinableGUI combinableGUI = this.combinableGuis.get(i);
       int row = i / columns;
       int column = i % columns;
+
       AvailableSpace avs =
         new AvailableSpace(
-          column * width + (column + 1) * GAP, row * height + (row + 1) * GAP, width, height);
+          column * width + (column + 1) * GAP,
+          row * height + (row + 1) * GAP,
+          width,
+          height);
+
       Vector2 size = combinableGUI.preferredSize(avs);
       combinableGUI.width((int) size.x());
       combinableGUI.height((int) size.y());
       combinableGUI.x(avs.x + (avs.width - (int) size.x()) / 2);
       combinableGUI.y(avs.y + (avs.height - (int) size.y()) / 2);
       combinableGUI.boundsUpdate();
+
+      combinableGUI
+        .interactionContext(GdxGuiInteractionContext.class)
+        .flatMap(GdxGuiInteractionContext::actor)
+        .ifPresent(
+          actor ->
+            actor.setBounds(
+              combinableGUI.x(),
+              combinableGUI.y(),
+              combinableGUI.width(),
+              combinableGUI.height()));
     }
   }
 
@@ -95,10 +110,6 @@ public class GUICombination extends Group {
 
   public ArrayList<CombinableGUI> combinableGuis() {
     return this.combinableGuis;
-  }
-
-  protected Stream<CombinableGUI> combinableGuiStream() {
-    return this.combinableGuis.stream();
   }
 
   public record AvailableSpace(int x, int y, int width, int height) {}

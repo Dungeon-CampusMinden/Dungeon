@@ -31,7 +31,7 @@ public final class InventoryGuiGroup extends GUICombination
 
   @Override
   public Stream<InventoryComponent> inventoryComponents() {
-    return combinableGuiStream()
+    return combinableGuis().stream()
       .filter(IInventoryHolder.class::isInstance)
       .map(IInventoryHolder.class::cast)
       .map(IInventoryHolder::inventoryComponent);

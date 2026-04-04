@@ -1,5 +1,6 @@
 package contrib.platform.gdx.hud;
 
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import contrib.hud.elements.GuiInteractionContext;
 import java.util.Objects;
@@ -8,19 +9,22 @@ import java.util.Optional;
 /**
  * libGDX-specific interaction context for {@link contrib.hud.elements.CombinableGUI}.
  *
- * <p>Currently this wraps the shared Scene2D {@link DragAndDrop} instance that is created by
- * {@link contrib.hud.elements.GUICombination}.
+ * <p>This bundles the shared Scene2D drag-and-drop context together with the technical
+ * Scene2D anchor actor that backend-specific adapters may still require.
  */
 public final class GdxGuiInteractionContext implements GuiInteractionContext {
 
   private final DragAndDrop dragAndDrop;
+  private final Actor actor;
 
   /**
    * Creates a new libGDX interaction context.
    *
+   * @param actor technical Scene2D anchor actor for this GUI
    * @param dragAndDrop shared Scene2D drag-and-drop context, may be {@code null} in headless mode
    */
-  public GdxGuiInteractionContext(DragAndDrop dragAndDrop) {
+  public GdxGuiInteractionContext(Actor actor, DragAndDrop dragAndDrop) {
+    this.actor = actor;
     this.dragAndDrop = dragAndDrop;
   }
 
@@ -31,6 +35,15 @@ public final class GdxGuiInteractionContext implements GuiInteractionContext {
    */
   public Optional<DragAndDrop> dragAndDrop() {
     return Optional.ofNullable(dragAndDrop);
+  }
+
+  /**
+   * Returns the technical Scene2D anchor actor if available.
+   *
+   * @return optional anchor actor
+   */
+  public Optional<Actor> actor() {
+    return Optional.ofNullable(actor);
   }
 
   @Override
