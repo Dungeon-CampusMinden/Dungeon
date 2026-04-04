@@ -44,6 +44,8 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   private static final int DRAG_PREVIEW_OFFSET_Y = 18;
   private static final int DRAG_PREVIEW_PADDING_X = 10;
   private static final int DRAG_PREVIEW_PADDING_Y = 7;
+  private static final int DRAG_TARGET_INSET = 3;
+  private static final int DRAG_TARGET_ARC = 8;
 
   private final String targetTitle;
   private final String craftingTitle;
@@ -193,10 +195,6 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
         rightPanelBounds.width,
         rightPanelBounds.height);
 
-      if (dragState != null) {
-        drawDropTargetHighlight(g, leftPanelBounds, rightPanelBounds);
-      }
-
       LitiengineInventoryGridRenderer.drawGrid(g, targetSlots, leftStartX, gridTop, leftColumns);
       LitiengineInventoryGridRenderer.drawGrid(
         g, craftingSlots, rightStartX, gridTop, rightColumns);
@@ -209,6 +207,13 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
         new GridLayout(InventorySide.TARGET, leftStartX, gridTop, leftColumns, targetSlots);
       GridLayout rightGrid =
         new GridLayout(InventorySide.CRAFTING, rightStartX, gridTop, rightColumns, craftingSlots);
+
+      if (dragState != null) {
+        SlotSelection hoveredTarget = hoveredDropTarget(leftGrid, rightGrid);
+        if (hoveredTarget != null) {
+          drawDropTargetHighlight(g, hoveredTarget, leftGrid, rightGrid);
+        }
+      }
 
       handleInput(leftGrid, rightGrid);
       drawRecipePreview(g, previewPanelBounds, buttonBounds);
@@ -471,6 +476,30 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
       drag.source().slotIndex());
   }
 
+  private SlotSelection hoveredDropTarget(GridLayout leftGrid, GridLayout rightGrid) {
+    if (dragState == null) {
+      return null;
+    }
+
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null) {
+      return null;
+    }
+
+    SlotSelection hovered =
+      findSlotSelection(stage.mouseX(), stage.mouseY(), leftGrid, rightGrid);
+
+    if (hovered == null) {
+      return null;
+    }
+
+    if (hovered.side() == dragState.source().side()) {
+      return null;
+    }
+
+    return hovered;
+  }
+
   private Item itemAt(SlotSelection slotSelection) {
     if (slotSelection == null) {
       return null;
@@ -490,17 +519,28 @@ final class LitiengineCraftingDialogOverlay implements LitiengineUiOverlay {
   }
 
   private void drawDropTargetHighlight(
-    Graphics2D g, Rectangle leftPanelBounds, Rectangle rightPanelBounds) {
-    Rectangle targetBounds =
-      dragState.source().side() == InventorySide.TARGET ? rightPanelBounds : leftPanelBounds;
+    Graphics2D g, SlotSelection targetSlot, GridLayout leftGrid, GridLayout rightGrid) {
+    GridLayout targetGrid = targetSlot.side() == InventorySide.TARGET ? leftGrid : rightGrid;
 
-    g.setColor(new Color(88, 168, 116, 60));
+    Rectangle bounds =
+      LitiengineInventoryGridRenderer.slotBounds(
+        targetSlot.slotIndex(),
+        targetGrid.startX(),
+        targetGrid.startY(),
+        targetGrid.columns());
+
+    int insetX = bounds.x + DRAG_TARGET_INSET;
+    int insetY = bounds.y + DRAG_TARGET_INSET;
+    int insetWidth = bounds.width - 2 * DRAG_TARGET_INSET;
+    int insetHeight = bounds.height - 2 * DRAG_TARGET_INSET;
+
+    g.setColor(new Color(88, 168, 116, 70));
     g.fillRoundRect(
-      targetBounds.x, targetBounds.y, targetBounds.width, targetBounds.height, 12, 12);
+      insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
 
-    g.setColor(new Color(132, 214, 156, 180));
+    g.setColor(new Color(132, 214, 156, 210));
     g.drawRoundRect(
-      targetBounds.x, targetBounds.y, targetBounds.width, targetBounds.height, 12, 12);
+      insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
   }
 
   private void drawDragPreview(Graphics2D g) {
