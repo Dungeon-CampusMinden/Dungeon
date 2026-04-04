@@ -21,14 +21,9 @@ import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogCreationException;
-import contrib.hud.elements.CombinableGUI;
-import contrib.hud.elements.GUICombination;
-import contrib.hud.elements.GuiInteractionContext;
-import contrib.hud.elements.InventoryGuiGroup;
+import contrib.hud.elements.*;
 import contrib.item.Item;
-import contrib.platform.gdx.hud.GdxGuiInteractionContext;
-import contrib.platform.gdx.hud.GdxHudItemRenderer;
-import contrib.platform.gdx.hud.GdxInventoryDragAndDropAdapters;
+import contrib.platform.gdx.hud.*;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -262,7 +257,28 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   @Override
-  public void draw(Batch batch) {
+  protected void renderContent(final GuiRenderContext renderContext) {
+    renderContext
+      .unwrap(GdxGuiRenderContext.class)
+      .ifPresent(gdxRenderContext -> GdxInventoryGuiRenderer.render(this, gdxRenderContext));
+  }
+
+  @Override
+  protected void renderTopLayerContent(final GuiRenderContext renderContext) {
+    renderContext
+      .unwrap(GdxGuiRenderContext.class)
+      .ifPresent(gdxRenderContext -> GdxInventoryGuiRenderer.renderTopLayer(this, gdxRenderContext));
+  }
+
+  /**
+   * Temporary libGDX render bridge for the main inventory layer.
+   *
+   * <p>This keeps the existing batch-based drawing code intact while the top-level render entry point
+   * already uses the backend-neutral {@link GuiRenderContext} API.
+   *
+   * @param batch active libGDX batch
+   */
+  public final void renderGdxMainLayer(final Batch batch) {
     this.drawSlots();
 
     batch.draw(background, this.x(), this.y(), this.width(), this.height());
@@ -278,8 +294,12 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
     }
   }
 
-  @Override
-  protected void drawTopLayer(Batch batch) {
+  /**
+   * Temporary libGDX render bridge for the inventory top layer.
+   *
+   * @param batch active libGDX batch
+   */
+  public final void renderGdxTopLayer(final Batch batch) {
     this.drawItemInfo(batch);
   }
 
