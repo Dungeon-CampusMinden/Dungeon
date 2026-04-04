@@ -9,14 +9,17 @@ import core.ui.StageHandle;
 import core.utils.InputManager;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
 /**
- * Minimal dual-inventory overlay for the LITIENGINE backend.
+ * Dual-inventory overlay for the LITIENGINE backend.
  *
- * <p>This version shows two inventories side by side and supports simple click-based item transfer
- * between them.
+ * <p>This version keeps the existing click-based transfer and additionally supports a lightweight
+ * drag gesture: dragging an item from one side onto the opposite side transfers it between the two
+ * inventories.
  *
- * <p>Drag-and-drop and more advanced slot interaction are still not implemented.
+ * <p>The first step intentionally keeps transfer semantics simple. Dropping onto the opposite
+ * inventory means "transfer this item to the other inventory", not "move to an exact target slot".
  */
 final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay {
 
@@ -24,6 +27,13 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
   private static final int DEFAULT_HEIGHT = 420;
   private static final int PANEL_GAP = 26;
   private static final int PANEL_HEADER_GAP = 14;
+
+  private static final int PANEL_PADDING = 12;
+  private static final int DRAG_THRESHOLD_PX = 8;
+  private static final int DRAG_PREVIEW_OFFSET_X = 14;
+  private static final int DRAG_PREVIEW_OFFSET_Y = 18;
+  private static final int DRAG_PREVIEW_PADDING_X = 10;
+  private static final int DRAG_PREVIEW_PADDING_Y = 7;
 
   private final String leftTitle;
   private final InventoryComponent leftInventory;
@@ -38,6 +48,9 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
 
   private SlotSelection pressedSlotSelection = null;
   private boolean leftButtonDownLastFrame = false;
+  private int pressedMouseX = 0;
+  private int pressedMouseY = 0;
+  private DragState dragState = null;
 
   LitiengineDualInventoryDialogOverlay(
     String leftTitle,
@@ -71,15 +84,13 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
       leftGridWidth + rightGridWidth + PANEL_GAP + 2 * LitiengineDialogOverlaySupport.PADDING;
     width = Math.max(DEFAULT_WIDTH, contentWidth);
 
-    int maxGridHeight =
-      Math.max(
-        LitiengineInventoryGridRenderer.gridHeight(leftRows),
-        LitiengineInventoryGridRenderer.gridHeight(rightRows));
+    int leftGridHeight = LitiengineInventoryGridRenderer.gridHeight(leftRows);
+    int rightGridHeight = LitiengineInventoryGridRenderer.gridHeight(rightRows);
+    int maxGridHeight = Math.max(leftGridHeight, rightGridHeight);
 
     height =
       Math.max(
-        DEFAULT_HEIGHT,
-        160 + maxGridHeight + LitiengineDialogOverlaySupport.PADDING);
+        DEFAULT_HEIGHT, 160 + maxGridHeight + LitiengineDialogOverlaySupport.PADDING);
 
     if (x == 0 && y == 0) {
       x = (Game.windowWidth() - width) / 2;
@@ -115,24 +126,48 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
       LitiengineInventoryGridRenderer.drawInventoryInfo(
         g, rightInventory, rightSlots, rightStartX, infoY);
 
-      gridTop = infoY + LitiengineInventoryGridRenderer.GRID_TOP_GAP + 4;
+      gridTop =
+        infoY
+          + LitiengineInventoryGridRenderer.GRID_TOP_GAP
+          + LitiengineInventoryGridRenderer.INFO_LINE_GAP;
+
+      Rectangle leftPanelBounds =
+        new Rectangle(
+          leftStartX - PANEL_PADDING,
+          gridTop - PANEL_PADDING,
+          leftGridWidth + 2 * PANEL_PADDING,
+          leftGridHeight + 2 * PANEL_PADDING);
+
+      Rectangle rightPanelBounds =
+        new Rectangle(
+          rightStartX - PANEL_PADDING,
+          gridTop - PANEL_PADDING,
+          rightGridWidth + 2 * PANEL_PADDING,
+          rightGridHeight + 2 * PANEL_PADDING);
 
       drawPanelBackground(
         g,
-        leftStartX - 12,
-        gridTop - 12,
-        leftGridWidth + 24,
-        LitiengineInventoryGridRenderer.gridHeight(leftRows) + 24);
-
+        leftPanelBounds.x,
+        leftPanelBounds.y,
+        leftPanelBounds.width,
+        leftPanelBounds.height);
       drawPanelBackground(
         g,
-        rightStartX - 12,
-        gridTop - 12,
-        rightGridWidth + 24,
-        LitiengineInventoryGridRenderer.gridHeight(rightRows) + 24);
+        rightPanelBounds.x,
+        rightPanelBounds.y,
+        rightPanelBounds.width,
+        rightPanelBounds.height);
+
+      if (dragState != null) {
+        drawDropTargetHighlight(g, leftPanelBounds, rightPanelBounds);
+      }
 
       LitiengineInventoryGridRenderer.drawGrid(g, leftSlots, leftStartX, gridTop, leftColumns);
       LitiengineInventoryGridRenderer.drawGrid(g, rightSlots, rightStartX, gridTop, rightColumns);
+
+      if (dragState != null) {
+        drawDragPreview(g);
+      }
     } finally {
       LitiengineDialogOverlaySupport.finishDialog(g, state);
     }
@@ -149,6 +184,7 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
     StageHandle stage = Game.stage().orElse(null);
     if (stage == null) {
       pressedSlotSelection = null;
+      dragState = null;
       leftButtonDownLastFrame = false;
       return;
     }
@@ -159,14 +195,24 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
 
     if (leftButtonDown && !leftButtonDownLastFrame) {
       pressedSlotSelection = findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
+      pressedMouseX = mouseX;
+      pressedMouseY = mouseY;
+      dragState = null;
+    } else if (leftButtonDown) {
+      maybeStartDrag(mouseX, mouseY);
     }
 
     if (!leftButtonDown && leftButtonDownLastFrame) {
       SlotSelection releasedSlotSelection = findSlotSelection(mouseX, mouseY, leftGrid, rightGrid);
       SlotSelection previouslyPressedSlot = pressedSlotSelection;
-      pressedSlotSelection = null;
+      DragState completedDrag = dragState;
 
-      if (previouslyPressedSlot != null && previouslyPressedSlot.equals(releasedSlotSelection)) {
+      pressedSlotSelection = null;
+      dragState = null;
+
+      if (completedDrag != null) {
+        handleDraggedRelease(completedDrag, releasedSlotSelection);
+      } else if (previouslyPressedSlot != null && previouslyPressedSlot.equals(releasedSlotSelection)) {
         transferClickedItem(previouslyPressedSlot);
       }
     }
@@ -174,11 +220,43 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
     leftButtonDownLastFrame = leftButtonDown;
   }
 
+  private void maybeStartDrag(int mouseX, int mouseY) {
+    if (dragState != null || pressedSlotSelection == null) {
+      return;
+    }
+
+    int deltaX = mouseX - pressedMouseX;
+    int deltaY = mouseY - pressedMouseY;
+    int thresholdSquared = DRAG_THRESHOLD_PX * DRAG_THRESHOLD_PX;
+    if ((deltaX * deltaX) + (deltaY * deltaY) < thresholdSquared) {
+      return;
+    }
+
+    InventoryComponent source = inventoryOf(pressedSlotSelection.side());
+    Item draggedItem = source.get(pressedSlotSelection.slotIndex()).orElse(null);
+    if (draggedItem == null) {
+      pressedSlotSelection = null;
+      return;
+    }
+
+    dragState = new DragState(pressedSlotSelection, draggedItem);
+  }
+
+  private void handleDraggedRelease(DragState completedDrag, SlotSelection releasedSlotSelection) {
+    if (releasedSlotSelection == null) {
+      return;
+    }
+
+    if (releasedSlotSelection.side() == completedDrag.source().side()) {
+      return;
+    }
+
+    transferDraggedItem(completedDrag);
+  }
+
   private void transferClickedItem(SlotSelection slotSelection) {
-    InventoryComponent source =
-      slotSelection.side() == InventorySide.LEFT ? leftInventory : rightInventory;
-    InventoryComponent destination =
-      slotSelection.side() == InventorySide.LEFT ? rightInventory : leftInventory;
+    InventoryComponent source = inventoryOf(slotSelection.side());
+    InventoryComponent destination = oppositeInventoryOf(slotSelection.side());
 
     Item item = source.get(slotSelection.slotIndex()).orElse(null);
     if (item == null) {
@@ -186,6 +264,74 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
     }
 
     source.transfer(item, destination);
+  }
+
+  private void transferDraggedItem(DragState drag) {
+    InventoryComponent source = inventoryOf(drag.source().side());
+    InventoryComponent destination = oppositeInventoryOf(drag.source().side());
+    source.transfer(drag.item(), destination);
+  }
+
+  private InventoryComponent inventoryOf(InventorySide side) {
+    return side == InventorySide.LEFT ? leftInventory : rightInventory;
+  }
+
+  private InventoryComponent oppositeInventoryOf(InventorySide side) {
+    return side == InventorySide.LEFT ? rightInventory : leftInventory;
+  }
+
+  private void drawDropTargetHighlight(
+    Graphics2D g, Rectangle leftPanelBounds, Rectangle rightPanelBounds) {
+    Rectangle targetBounds =
+      dragState.source().side() == InventorySide.LEFT ? rightPanelBounds : leftPanelBounds;
+
+    g.setColor(new Color(88, 168, 116, 60));
+    g.fillRoundRect(
+      targetBounds.x, targetBounds.y, targetBounds.width, targetBounds.height, 12, 12);
+    g.setColor(new Color(132, 214, 156, 180));
+    g.drawRoundRect(
+      targetBounds.x, targetBounds.y, targetBounds.width, targetBounds.height, 12, 12);
+  }
+
+  private void drawDragPreview(Graphics2D g) {
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null || dragState == null) {
+      return;
+    }
+
+    int previewX = stage.mouseX() + DRAG_PREVIEW_OFFSET_X;
+    int previewY = stage.mouseY() + DRAG_PREVIEW_OFFSET_Y;
+
+    String label = dragLabel(dragState.item());
+    int textWidth = g.getFontMetrics().stringWidth(label);
+    int textHeight = g.getFontMetrics().getAscent();
+
+    int boxWidth = textWidth + 2 * DRAG_PREVIEW_PADDING_X;
+    int boxHeight = textHeight + 2 * DRAG_PREVIEW_PADDING_Y;
+
+    g.setColor(new Color(20, 20, 24, 220));
+    g.fillRoundRect(previewX, previewY, boxWidth, boxHeight, 10, 10);
+    g.setColor(new Color(220, 220, 230, 220));
+    g.drawRoundRect(previewX, previewY, boxWidth, boxHeight, 10, 10);
+
+    g.setColor(Color.WHITE);
+    g.drawString(
+      label,
+      previewX + DRAG_PREVIEW_PADDING_X,
+      previewY + DRAG_PREVIEW_PADDING_Y + textHeight - 2);
+  }
+
+  private String dragLabel(Item item) {
+    if (item == null) {
+      return "";
+    }
+
+    String baseLabel =
+      item.displayName() == null || item.displayName().isBlank()
+        ? item.getClass().getSimpleName()
+        : item.displayName();
+
+    return item.stackSize() > 1 ? baseLabel + " x" + item.stackSize() : baseLabel;
   }
 
   private SlotSelection findSlotSelection(int mouseX, int mouseY, GridLayout leftGrid, GridLayout rightGrid) {
@@ -274,6 +420,8 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
   }
 
   private record SlotSelection(InventorySide side, int slotIndex) {}
+
+  private record DragState(SlotSelection source, Item item) {}
 
   private record GridLayout(
     InventorySide side, int startX, int startY, int columns, Item[] slots) {}
