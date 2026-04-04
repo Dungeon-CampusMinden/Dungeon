@@ -3,9 +3,7 @@ package contrib.hud.inventory;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -22,7 +20,6 @@ import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogCreationException;
 import contrib.hud.elements.*;
-import contrib.item.Item;
 import contrib.platform.gdx.hud.*;
 import core.Entity;
 import core.Game;
@@ -271,36 +268,96 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   /**
-   * Temporary libGDX render bridge for the main inventory layer.
+   * Ensures that the cached libGDX slot texture matches the current inventory widget bounds.
    *
-   * <p>This keeps the existing batch-based drawing code intact while the top-level render entry point
-   * already uses the backend-neutral {@link GuiRenderContext} API.
-   *
-   * @param batch active libGDX batch
+   * <p>This remains in InventoryGUI for now because the texture cache belongs to the widget state,
+   * while the concrete drawing is handled by the backend renderer.
    */
-  public final void renderGdxMainLayer(final Batch batch) {
+  public final void ensureGdxSlotTexture() {
     this.drawSlots();
-
-    batch.draw(background, this.x(), this.y(), this.width(), this.height());
-
-    if (this.textureSlots != null) {
-      batch.draw(this.textureSlots, this.x(), this.y(), this.width(), this.height());
-    }
-
-    this.drawItems(batch);
-
-    if (!this.title.isEmpty()) {
-      this.drawInventoryTitle(batch);
-    }
   }
 
   /**
-   * Temporary libGDX render bridge for the inventory top layer.
+   * Returns the cached libGDX slot texture.
    *
-   * @param batch active libGDX batch
+   * @return cached slot texture, may be null
    */
-  public final void renderGdxTopLayer(final Batch batch) {
-    this.drawItemInfo(batch);
+  public final Texture gdxSlotTexture() {
+    return this.textureSlots;
+  }
+
+  /**
+   * Returns the calculated slot size used by the current inventory layout.
+   *
+   * @return slot size in pixels
+   */
+  public final int gdxSlotSize() {
+    return this.slotSize;
+  }
+
+  /**
+   * Returns the number of slots per row used by the current inventory layout.
+   *
+   * @return slot count per row
+   */
+  public final int gdxSlotsPerRow() {
+    return this.slotsPerRow;
+  }
+
+  /**
+   * Resolves a slot index for the given widget-local coordinates.
+   *
+   * @param x local x coordinate
+   * @param y local y coordinate
+   * @return slot index or -1 if invalid
+   */
+  public final int gdxSlotByCoordinates(int x, int y) {
+    return this.getSlotByCoordinates(x, y);
+  }
+
+  /**
+   * Returns whether a libGDX drag operation is currently active for this inventory context.
+   *
+   * @return true if an item is currently being dragged
+   */
+  public final boolean gdxIsDragging() {
+    return this.isDragging();
+  }
+
+  /**
+   * Returns the current libGDX drag payload, if any.
+   *
+   * @return active drag payload or null
+   */
+  public final DragAndDrop.Payload gdxCurrentDragPayload() {
+    return this.currentDragPayload();
+  }
+
+  /**
+   * Exposes the cached libGDX background region used for inventory rendering.
+   *
+   * @return background texture region, may be null in headless mode
+   */
+  public static TextureRegion gdxBackgroundRegion() {
+    return background;
+  }
+
+  /**
+   * Exposes the cached libGDX hover background region used for tooltips.
+   *
+   * @return hover background region, may be null in headless mode
+   */
+  public static TextureRegion gdxHoverBackgroundRegion() {
+    return hoverBackground;
+  }
+
+  /**
+   * Exposes the cached libGDX bitmap font used for inventory labels and tooltips.
+   *
+   * @return bitmap font, may be null in headless mode
+   */
+  public static BitmapFont gdxBitmapFont() {
+    return bitmapFont;
   }
 
   private int getSlotByMousePosition() {
@@ -323,35 +380,6 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
 
   private int getSlotByCoordinates(float x, float y) {
     return this.getSlotByCoordinates((int) x, (int) y);
-  }
-
-  private void drawItems(Batch batch) {
-    Item[] items = this.inventoryComponent.items();
-    for (int i = 0; i < items.length; i++) {
-      Item item = items[i];
-      if (item == null) {
-        continue;
-      }
-
-      int x = this.x() + this.slotSize * (i % this.slotsPerRow) + (2 * BORDER_PADDING);
-      int y =
-        this.y()
-          + this.slotSize * (int) Math.floor(i / (float) this.slotsPerRow)
-          + (2 * BORDER_PADDING);
-
-      if (this.isDragging()) {
-        DragAndDrop.Payload payload = this.currentDragPayload();
-        if (payload != null
-          && payload.getObject() instanceof ItemDragPayload itemDragPayload
-          && itemDragPayload.inventoryComponent() == this.inventoryComponent
-          && itemDragPayload.slot() == i) {
-          continue;
-        }
-      }
-
-      GdxHudItemRenderer.drawItem(
-        batch, item, x, y, this.slotSize - (4 * BORDER_PADDING));
-    }
   }
 
   private void drawSlots() {
@@ -400,79 +428,6 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
         pixmap.dispose();
       }
     }
-  }
-
-  private void drawInventoryTitle(Batch batch) {
-    if (bitmapFont == null || this.title == null || this.title.isBlank()) {
-      return;
-    }
-
-    GlyphLayout layout = new GlyphLayout(bitmapFont, this.title);
-    bitmapFont.setColor(Color.WHITE);
-    bitmapFont.draw(
-      batch,
-      this.title,
-      this.x() + (this.width() - layout.width) / 2f,
-      this.y() + this.height() + layout.height + BORDER_PADDING);
-  }
-
-  private void drawItemInfo(Batch batch) {
-    if (bitmapFont == null || hoverBackground == null) {
-      return;
-    }
-
-    StageHandle stage = Game.stage().orElse(null);
-    if (stage == null) {
-      return;
-    }
-
-    Point mousePos = new Point(stage.mouseX(), Math.round(stage.getHeight()) - stage.mouseY());
-    Point relMousePos = new Point(mousePos.x() - this.x(), mousePos.y() - this.y());
-
-    if (mousePos.x() < this.x() || mousePos.x() > this.x() + this.width()) {
-      return;
-    }
-    if (mousePos.y() < this.y() || mousePos.y() > this.y() + this.height()) {
-      return;
-    }
-
-    if (this.isDragging()) {
-      return;
-    }
-
-    int hoveredSlot = this.getSlotByCoordinates(relMousePos.x(), relMousePos.y());
-    Optional<Item> item = this.inventoryComponent.get(hoveredSlot);
-    if (item.isEmpty()) {
-      return;
-    }
-
-    Item itemToShow = item.get();
-    String title = itemToShow.displayName();
-    String description = UIUtils.formatString(itemToShow.description());
-
-    GlyphLayout layoutName = new GlyphLayout(bitmapFont, title);
-    GlyphLayout layoutDesc = new GlyphLayout(bitmapFont, description);
-
-    Point hoverPos = mousePos.translate(HOVER_OFFSET);
-    float width = Math.max(layoutName.width, layoutDesc.width) + HOVER_OFFSET.x();
-    float height = layoutName.height + layoutDesc.height + HOVER_OFFSET.y() + LINE_GAP;
-
-    if (hoverPos.x() + width > stage.getWidth()) {
-      hoverPos = hoverPos.translate(Vector2.of(-width - HOVER_OFFSET.x(), 0));
-    }
-
-    batch.draw(hoverBackground, hoverPos.x(), hoverPos.y(), width, height);
-    Point textPos = hoverPos.translate(Vector2.of(BORDER_PADDING, layoutDesc.height + LINE_GAP));
-
-    bitmapFont.setColor(Color.BLACK);
-    bitmapFont.draw(
-      batch,
-      title,
-      textPos.x(),
-      textPos.y() + layoutName.height + LINE_GAP);
-
-    bitmapFont.setColor(new Color(0x000000b0));
-    bitmapFont.draw(batch, description, textPos.x(), textPos.y());
   }
 
   private static boolean isPlayersInventory(Entity player, InventoryComponent inventoryComponent) {
