@@ -1,7 +1,6 @@
 package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
-import contrib.platform.gdx.hud.GdxGuiRenderContext;
 import core.utils.Vector2;
 import java.util.Objects;
 import java.util.Optional;
@@ -84,7 +83,7 @@ public abstract class CombinableGUI {
   /**
    * Entry point used by the parent container to render the top layer of this widget.
    *
-   * <p>The new primary API is {@link #renderTopLayer(GuiRenderContext)}.
+   * <p>The new primary API is {@link #renderTopLayerContent(GuiRenderContext)}.
    *
    * @param renderContext backend-neutral render context
    */
@@ -95,29 +94,49 @@ public abstract class CombinableGUI {
   /**
    * Renders the main layer of this widget using a backend-neutral render context.
    *
-   * <p>Default implementation bridges to the legacy libGDX {@link Batch}-based draw method if the
-   * current render context is a {@link GdxGuiRenderContext}.
+   * <p>Default implementation delegates the temporary legacy rendering path back to the active
+   * backend via {@link GuiRenderContext#renderLegacyContent(CombinableGUI)}.
    *
    * @param renderContext backend-neutral render context
    */
   protected void renderContent(final GuiRenderContext renderContext) {
-    renderContext
-      .unwrap(GdxGuiRenderContext.class)
-      .ifPresent(gdx -> this.draw(gdx.batch()));
+    renderContext.renderLegacyContent(this);
   }
 
   /**
    * Renders the top layer of this widget using a backend-neutral render context.
    *
-   * <p>Default implementation bridges to the legacy libGDX {@link Batch}-based draw method if the
-   * current render context is a {@link GdxGuiRenderContext}.
+   * <p>Default implementation delegates the temporary legacy rendering path back to the active
+   * backend via {@link GuiRenderContext#renderLegacyTopLayer(CombinableGUI)}.
    *
    * @param renderContext backend-neutral render context
    */
   protected void renderTopLayerContent(final GuiRenderContext renderContext) {
-    renderContext
-      .unwrap(GdxGuiRenderContext.class)
-      .ifPresent(gdx -> this.drawTopLayer(gdx.batch()));
+    renderContext.renderLegacyTopLayer(this);
+  }
+
+  /**
+   * Temporary backend-adapter bridge for the old libGDX main-layer render hook.
+   *
+   * <p>This keeps the legacy {@link Batch}-based subclasses working while the actual dispatch
+   * decision is moved out of this class and into backend-specific render contexts.
+   *
+   * @param batch libGDX batch
+   */
+  public final void renderLegacyBatchContent(final Batch batch) {
+    this.draw(batch);
+  }
+
+  /**
+   * Temporary backend-adapter bridge for the old libGDX top-layer render hook.
+   *
+   * <p>This keeps the legacy {@link Batch}-based subclasses working while the actual dispatch
+   * decision is moved out of this class and into backend-specific render contexts.
+   *
+   * @param batch libGDX batch
+   */
+  public final void renderLegacyBatchTopLayer(final Batch batch) {
+    this.drawTopLayer(batch);
   }
 
   /**

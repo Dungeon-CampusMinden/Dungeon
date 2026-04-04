@@ -20,4 +20,30 @@ public interface GuiRenderContext {
   default <T> Optional<T> unwrap(Class<T> type) {
     return Optional.empty();
   }
+
+  /**
+   * Gives the active backend a chance to execute the temporary legacy main-layer render path of
+   * {@link CombinableGUI}.
+   *
+   * <p>Backends that do not support the legacy compatibility seam can keep the default no-op
+   * implementation.
+   *
+   * @param gui gui element to render
+   */
+  default void renderLegacyContent(CombinableGUI gui) {
+    // no-op by default
+  }
+
+  /**
+   * Gives the active backend a chance to execute the temporary legacy top-layer render path of
+   * {@link CombinableGUI}.
+   *
+   * <p>Backends that do not support the legacy compatibility seam can keep the default no-op
+   * implementation.
+   *
+   * @param gui gui element to render
+   */
+  default void renderLegacyTopLayer(CombinableGUI gui) {
+    // no-op by default
+  }
 }

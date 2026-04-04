@@ -1,18 +1,17 @@
 package contrib.platform.gdx.hud;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
+import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GuiRenderContext;
 import java.util.Objects;
 import java.util.Optional;
 
 /**
- * libGDX-specific render context for {@link contrib.hud.elements.CombinableGUI}.
+ * libGDX-specific render context for {@link CombinableGUI}.
  *
  * <p>This wraps the Scene2D/libGDX {@link Batch} used by the current HUD rendering path.
  */
-public final class GdxGuiRenderContext implements GuiRenderContext {
-
-  private final Batch batch;
+public record GdxGuiRenderContext(Batch batch) implements GuiRenderContext {
 
   /**
    * Creates a new libGDX render context.
@@ -28,8 +27,21 @@ public final class GdxGuiRenderContext implements GuiRenderContext {
    *
    * @return active batch
    */
+  @Override
   public Batch batch() {
     return this.batch;
+  }
+
+  @Override
+  public void renderLegacyContent(CombinableGUI gui) {
+    Objects.requireNonNull(gui, "gui");
+    gui.renderLegacyBatchContent(this.batch);
+  }
+
+  @Override
+  public void renderLegacyTopLayer(CombinableGUI gui) {
+    Objects.requireNonNull(gui, "gui");
+    gui.renderLegacyBatchTopLayer(this.batch);
   }
 
   @Override
