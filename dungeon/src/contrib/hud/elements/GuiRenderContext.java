@@ -1,0 +1,23 @@
+package contrib.hud.elements;
+
+import java.util.Optional;
+
+/**
+ * Backend-neutral render context for combined HUD widgets.
+ *
+ * <p>Concrete backends can expose specialized render services by implementing this interface
+ * and allowing widgets to unwrap them on demand.
+ */
+public interface GuiRenderContext {
+
+  /**
+   * Tries to unwrap this render context to a backend-specific type.
+   *
+   * @param type requested backend-specific type
+   * @param <T> target type
+   * @return matching backend object if available
+   */
+  default <T> Optional<T> unwrap(Class<T> type) {
+    return Optional.empty();
+  }
+}

@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import contrib.platform.gdx.hud.GdxGuiInteractionContext;
+import contrib.platform.gdx.hud.GdxGuiRenderContext;
 import core.Game;
 import core.utils.Vector2;
 import java.util.ArrayList;
@@ -99,8 +100,9 @@ public class GUICombination extends Group {
 
   @Override
   public void draw(final Batch batch, float parentAlpha) {
-    this.combinableGuis.forEach(combinableGUI -> combinableGUI.draw(batch));
-    this.combinableGuis.forEach(combinableGUI -> combinableGUI.drawTopLayer(batch));
+    GuiRenderContext renderContext = new GdxGuiRenderContext(batch);
+    this.combinableGuis.forEach(combinableGUI -> combinableGUI.render(renderContext));
+    this.combinableGuis.forEach(combinableGUI -> combinableGUI.renderTopLayer(renderContext));
   }
 
   @Override

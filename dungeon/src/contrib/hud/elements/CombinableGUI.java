@@ -1,6 +1,7 @@
 package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
+import contrib.platform.gdx.hud.GdxGuiRenderContext;
 import core.utils.Vector2;
 import java.util.Objects;
 import java.util.Optional;
@@ -16,6 +17,10 @@ import java.util.Optional;
  *
  * <p>Interaction is exposed through a backend-neutral {@link GuiInteractionContext}. Concrete
  * backends may unwrap specialized interaction helpers from that context.
+ *
+ * <p>Rendering is exposed through a backend-neutral {@link GuiRenderContext}. The old
+ * libGDX-specific {@code Batch}-based draw methods are kept as a temporary compatibility seam so
+ * subclasses can be migrated incrementally.
  */
 public abstract class CombinableGUI {
 
@@ -66,20 +71,84 @@ public abstract class CombinableGUI {
   protected void initInteraction(final GuiInteractionContext interactionContext) {}
 
   /**
-   * Draw the element.
+   * Entry point used by the parent container to render the main layer of this widget.
    *
-   * @param batch the batch to draw to
+   * <p>The new primary API is {@link #renderContent(GuiRenderContext)}.
+   *
+   * @param renderContext backend-neutral render context
    */
-  protected abstract void draw(final Batch batch);
+  final void render(final GuiRenderContext renderContext) {
+    this.renderContent(renderContext);
+  }
 
   /**
-   * Draw the top layer of the element.
+   * Entry point used by the parent container to render the top layer of this widget.
    *
-   * @param batch the batch to draw to
+   * <p>The new primary API is {@link #renderTopLayer(GuiRenderContext)}.
+   *
+   * @param renderContext backend-neutral render context
    */
+  final void renderTopLayer(final GuiRenderContext renderContext) {
+    this.renderTopLayerContent(renderContext);
+  }
+
+  /**
+   * Renders the main layer of this widget using a backend-neutral render context.
+   *
+   * <p>Default implementation bridges to the legacy libGDX {@link Batch}-based draw method if the
+   * current render context is a {@link GdxGuiRenderContext}.
+   *
+   * @param renderContext backend-neutral render context
+   */
+  protected void renderContent(final GuiRenderContext renderContext) {
+    renderContext
+      .unwrap(GdxGuiRenderContext.class)
+      .ifPresent(gdx -> this.draw(gdx.batch()));
+  }
+
+  /**
+   * Renders the top layer of this widget using a backend-neutral render context.
+   *
+   * <p>Default implementation bridges to the legacy libGDX {@link Batch}-based draw method if the
+   * current render context is a {@link GdxGuiRenderContext}.
+   *
+   * @param renderContext backend-neutral render context
+   */
+  protected void renderTopLayerContent(final GuiRenderContext renderContext) {
+    renderContext
+      .unwrap(GdxGuiRenderContext.class)
+      .ifPresent(gdx -> this.drawTopLayer(gdx.batch()));
+  }
+
+  /**
+   * Legacy libGDX render hook.
+   *
+   * <p>This method remains temporarily so subclasses can be migrated incrementally to
+   * {@link #renderContent(GuiRenderContext)}.
+   *
+   * @param batch libGDX batch
+   * @deprecated migrate to {@link #renderContent(GuiRenderContext)}
+   */
+  @Deprecated
+  protected void draw(final Batch batch) {}
+
+  /**
+   * Legacy libGDX top-layer render hook.
+   *
+   * <p>This method remains temporarily so subclasses can be migrated incrementally to
+   * {@link #renderTopLayerContent(GuiRenderContext)}.
+   *
+   * @param batch libGDX batch
+   * @deprecated migrate to {@link #renderTopLayerContent(GuiRenderContext)}
+   */
+  @Deprecated
   protected void drawTopLayer(final Batch batch) {}
 
-  /** Draw debug information for the element. */
+  /**
+   * Draw debug information for the element.
+   *
+   * <p>The default implementation does nothing.
+   */
   protected void drawDebug() {}
 
   /**
