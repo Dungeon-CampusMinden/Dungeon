@@ -46,7 +46,7 @@ public final class GdxInventoryGuiRenderer {
 
     inventoryGUI.ensureGdxSlotTexture();
 
-    TextureRegion background = InventoryGUI.gdxBackgroundRegion();
+    TextureRegion background = GdxInventoryGuiAssets.backgroundRegion();
     if (background != null) {
       batch.draw(
         background,
@@ -125,7 +125,7 @@ public final class GdxInventoryGuiRenderer {
   }
 
   private static void drawInventoryTitle(final InventoryGUI inventoryGUI, final Batch batch) {
-    BitmapFont font = InventoryGUI.gdxBitmapFont();
+    BitmapFont font = GdxInventoryGuiAssets.bitmapFont();
     if (font == null || inventoryGUI.title() == null || inventoryGUI.title().isBlank()) {
       return;
     }
@@ -140,8 +140,8 @@ public final class GdxInventoryGuiRenderer {
   }
 
   private static void drawItemInfo(final InventoryGUI inventoryGUI, final Batch batch) {
-    BitmapFont font = InventoryGUI.gdxBitmapFont();
-    TextureRegion hoverBackground = InventoryGUI.gdxHoverBackgroundRegion();
+    BitmapFont font = GdxInventoryGuiAssets.bitmapFont();
+    TextureRegion hoverBackground = GdxInventoryGuiAssets.hoverBackgroundRegion();
 
     if (font == null || hoverBackground == null) {
       return;

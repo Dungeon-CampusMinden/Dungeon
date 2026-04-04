@@ -3,8 +3,6 @@ package contrib.hud.inventory;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -26,11 +24,8 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.network.messages.c2s.InputMessage;
 import core.ui.StageHandle;
-import core.ui.gdx.GdxUiAssetLoader;
 import core.utils.Point;
 import core.utils.Vector2;
-import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
 import core.utils.logging.DungeonLogger;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,35 +36,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InventoryGUI.class);
   private static final Map<Integer, Boolean> inventoryOpenMap = new HashMap<>();
 
-  private static final IPath FONT_FNT = new SimpleIPath("skin/myFont.fnt");
-  private static final IPath FONT_PNG = new SimpleIPath("skin/myFont.png");
   private static final int DEFAULT_MAX_ITEMS_PER_ROW = 8;
   private static final int BORDER_COLOR = 0x9dc1ebff;
-  private static final int BACKGROUND_COLOR = 0x3e3e63e1;
-  private static final int HOVER_BACKGROUND_COLOR = 0xffffffff;
-  private static final int BORDER_PADDING = 5;
-  private static final int LINE_GAP = 5;
-  private static final Vector2 HOVER_OFFSET = Vector2.of(10, 10);
-
-  private static final BitmapFont bitmapFont;
-  private static final Texture backgroundTexture;
-  private static final TextureRegion background, hoverBackground;
-
-  static {
-    if (Game.isHeadless()) {
-      bitmapFont = null;
-      backgroundTexture = null;
-      background = null;
-      hoverBackground = null;
-    } else {
-      backgroundTexture =
-        GdxUiAssetLoader.createHorizontalStripTexture(
-          BACKGROUND_COLOR, HOVER_BACKGROUND_COLOR);
-      background = new TextureRegion(backgroundTexture, 0, 0, 1, 1);
-      hoverBackground = new TextureRegion(backgroundTexture, 1, 0, 1, 1);
-      bitmapFont = GdxUiAssetLoader.loadBitmapFont(FONT_FNT, FONT_PNG);
-    }
-  }
 
   private DragAndDrop.Source dropAndDropSource;
   private DragAndDrop.Target dropAndDropTarget;
@@ -331,33 +299,6 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
    */
   public final DragAndDrop.Payload gdxCurrentDragPayload() {
     return this.currentDragPayload();
-  }
-
-  /**
-   * Exposes the cached libGDX background region used for inventory rendering.
-   *
-   * @return background texture region, may be null in headless mode
-   */
-  public static TextureRegion gdxBackgroundRegion() {
-    return background;
-  }
-
-  /**
-   * Exposes the cached libGDX hover background region used for tooltips.
-   *
-   * @return hover background region, may be null in headless mode
-   */
-  public static TextureRegion gdxHoverBackgroundRegion() {
-    return hoverBackground;
-  }
-
-  /**
-   * Exposes the cached libGDX bitmap font used for inventory labels and tooltips.
-   *
-   * @return bitmap font, may be null in headless mode
-   */
-  public static BitmapFont gdxBitmapFont() {
-    return bitmapFont;
   }
 
   private int getSlotByMousePosition() {
