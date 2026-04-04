@@ -41,6 +41,8 @@ final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
   private static final int DRAG_PREVIEW_OFFSET_Y = 18;
   private static final int DRAG_PREVIEW_PADDING_X = 10;
   private static final int DRAG_PREVIEW_PADDING_Y = 7;
+  private static final int DRAG_TARGET_INSET = 3;
+  private static final int DRAG_TARGET_ARC = 8;
 
   private final String title;
   private final Entity owner;
@@ -122,6 +124,13 @@ final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
       grid = new GridLayout(startX, gridTop, columns, slots);
 
       LitiengineInventoryGridRenderer.drawGrid(g, slots, startX, gridTop, columns);
+
+      if (dragState != null) {
+        Integer hoveredTargetSlotIndex = hoveredDropTargetSlotIndex(grid);
+        if (hoveredTargetSlotIndex != null) {
+          drawDropTargetHighlight(g, grid, hoveredTargetSlotIndex);
+        }
+      }
 
       if (dragState == null) {
         drawHoverTooltip(g, grid);
@@ -331,6 +340,45 @@ final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
     if (!dialogBounds().contains(mouseX, mouseY)) {
       dropDraggedItem(completedDrag.sourceSlot());
     }
+  }
+
+  private Integer hoveredDropTargetSlotIndex(GridLayout grid) {
+    if (dragState == null) {
+      return null;
+    }
+
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null) {
+      return null;
+    }
+
+    int hoveredSlotIndex = findSlotIndex(grid, stage.mouseX(), stage.mouseY());
+    if (hoveredSlotIndex < 0) {
+      return null;
+    }
+
+    if (hoveredSlotIndex == dragState.sourceSlot()) {
+      return null;
+    }
+
+    return hoveredSlotIndex;
+  }
+
+  private void drawDropTargetHighlight(Graphics2D g, GridLayout grid, int slotIndex) {
+    Rectangle bounds =
+      LitiengineInventoryGridRenderer.slotBounds(
+        slotIndex, grid.startX(), grid.startY(), grid.columns());
+
+    int insetX = bounds.x + DRAG_TARGET_INSET;
+    int insetY = bounds.y + DRAG_TARGET_INSET;
+    int insetWidth = bounds.width - 2 * DRAG_TARGET_INSET;
+    int insetHeight = bounds.height - 2 * DRAG_TARGET_INSET;
+
+    g.setColor(new Color(88, 168, 116, 70));
+    g.fillRoundRect(insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
+
+    g.setColor(new Color(132, 214, 156, 210));
+    g.drawRoundRect(insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
   }
 
   private void moveDraggedItem(int sourceSlot, int targetSlot) {
