@@ -126,6 +126,63 @@ public record CraftingDialogController(InventoryComponent targetInventory, Inven
   }
 
   /**
+   * Transfers the item from a concrete source slot to a concrete target slot on the opposite side.
+   *
+   * <p>This method is intentionally strict:
+   *
+   * <ul>
+   *   <li>source and target side must differ
+   *   <li>the source slot must contain an item
+   *   <li>the target slot must be empty
+   * </ul>
+   *
+   * <p>This provides the backend-neutral semantic foundation for exact slot drops in concrete UI
+   * backends such as LITIENGINE.
+   *
+   * @param sourceSide source inventory side
+   * @param sourceSlotIndex source slot index
+   * @param targetSide target inventory side
+   * @param targetSlotIndex target slot index
+   * @return true if the transfer succeeded
+   */
+  public boolean transferBySlotToSlot(
+    InventorySide sourceSide,
+    int sourceSlotIndex,
+    InventorySide targetSide,
+    int targetSlotIndex) {
+    if (sourceSide == null || targetSide == null) {
+      return false;
+    }
+
+    if (sourceSide == targetSide) {
+      return false;
+    }
+
+    InventoryComponent source = inventoryOf(sourceSide);
+    InventoryComponent target = inventoryOf(targetSide);
+
+    Item item = source.get(sourceSlotIndex).orElse(null);
+    if (item == null) {
+      return false;
+    }
+
+    if (target.get(targetSlotIndex).isPresent()) {
+      return false;
+    }
+
+    if (source.remove(sourceSlotIndex).isEmpty()) {
+      return false;
+    }
+
+    target.set(targetSlotIndex, item);
+    return true;
+  }
+
+  private InventoryComponent inventoryOf(InventorySide side) {
+    return side == InventorySide.TARGET ? targetInventory : craftingInventory;
+  }
+
+  /**
    * Executes the craft action on the current crafting inventory.
    */
   public void craft() {

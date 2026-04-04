@@ -63,4 +63,25 @@ public final class CraftingDialogInteraction {
     CraftingDialogController.InventorySide sourceSide, int slotIndex) {
     return controller.transferBySlot(sourceSide, slotIndex);
   }
+
+  /**
+   * Handles a slot-to-slot transfer triggered by a drag/drop style interaction.
+   *
+   * <p>This method allows UI backends to express "move item from this exact source slot to that
+   * exact target slot" without implementing crafting transfer rules themselves.
+   *
+   * @param sourceSide source inventory side
+   * @param sourceSlotIndex source slot index
+   * @param targetSide target inventory side
+   * @param targetSlotIndex target slot index
+   * @return true if the transfer succeeded
+   */
+  public boolean transferDroppedSlot(
+    CraftingDialogController.InventorySide sourceSide,
+    int sourceSlotIndex,
+    CraftingDialogController.InventorySide targetSide,
+    int targetSlotIndex) {
+    return controller.transferBySlotToSlot(
+      sourceSide, sourceSlotIndex, targetSide, targetSlotIndex);
+  }
 }
