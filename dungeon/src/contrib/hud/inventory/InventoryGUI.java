@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
@@ -14,9 +13,6 @@ import contrib.configuration.KeyboardConfig;
 import contrib.entities.HeroController;
 import contrib.hud.IInventoryHolder;
 import contrib.hud.UIUtils;
-import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogCreationException;
 import contrib.hud.elements.*;
 import contrib.platform.gdx.hud.*;
 import core.Entity;
@@ -124,53 +120,6 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
             .filter(invComp -> isPlayersInventory(player, invComp))
             .map(InventoryGUI::new)
             .findFirst());
-  }
-
-  /**
-   * Builds an InventoryDialog from the given DialogContext for a single inventory.
-   *
-   * @param ctx The dialog context containing the entity with the inventory component.
-   * @return A new InventoryDialog instance.
-   */
-  public static Group buildSimple(DialogContext ctx) {
-    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
-    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
-
-    if (inventory == null) {
-      LOGGER.error("Entity {} has no InventoryComponent for InventoryDialog", entity);
-      throw new DialogCreationException("Missing InventoryComponent for InventoryDialog");
-    }
-
-    String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(entity.name());
-    InventoryGUI inventoryGUI = new InventoryGUI(title, inventory);
-    return new InventoryGuiGroup(inventoryGUI);
-  }
-
-  /**
-   * Builds an InventoryDialog from the given DialogContext for two inventories.
-   *
-   * @param ctx The dialog context containing the entities with the inventory components.
-   * @return A new InventoryDialog instance.
-   */
-  public static Group buildDual(DialogContext ctx) {
-    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
-    Entity otherEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
-    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
-    InventoryComponent otherInventory = otherEntity.fetch(InventoryComponent.class).orElse(null);
-
-    if (inventory == null || otherInventory == null) {
-      Entity missingEntity = (inventory == null) ? entity : otherEntity;
-      LOGGER.error("Entity {} has no InventoryComponent for DualInventoryDialog", missingEntity);
-      throw new DialogCreationException("Missing InventoryComponent for DualInventoryDialog");
-    }
-
-    String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(entity.name());
-    String otherTitle =
-      ctx.find(DialogContextKeys.SECONDARY_TITLE, String.class).orElse(otherEntity.name());
-
-    InventoryGUI inventoryGUI = new InventoryGUI(title, inventory);
-    InventoryGUI otherInventoryGUI = new InventoryGUI(otherTitle, otherInventory);
-    return new InventoryGuiGroup(inventoryGUI, otherInventoryGUI);
   }
 
   /**
