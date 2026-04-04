@@ -1,14 +1,15 @@
 package core.platform.litiengine.dialogs;
 
 import contrib.components.InventoryComponent;
-import contrib.hud.UIUtils;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
 import core.platform.litiengine.ui.LitiengineUiOverlay;
 import core.ui.StageHandle;
 import core.utils.InputManager;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
 /**
  * Dual-inventory overlay for the LITIENGINE backend.
@@ -34,13 +35,6 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
   private static final int DRAG_PREVIEW_PADDING_Y = 7;
   private static final int DRAG_TARGET_INSET = 3;
   private static final int DRAG_TARGET_ARC = 8;
-
-  private static final int TOOLTIP_OFFSET_X = 12;
-  private static final int TOOLTIP_OFFSET_Y = 14;
-  private static final int TOOLTIP_PADDING_X = 12;
-  private static final int TOOLTIP_PADDING_Y = 10;
-  private static final int TOOLTIP_LINE_GAP = 6;
-  private static final int TOOLTIP_CORNER_RADIUS = 10;
 
   private final String leftTitle;
   private final InventoryComponent leftInventory;
@@ -117,8 +111,7 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
 
     try {
       contentY =
-        LitiengineDialogOverlaySupport.drawFrameAndTitle(
-          g, x, y, width, height, "Inventory");
+        LitiengineDialogOverlaySupport.drawFrameAndTitle(g, x, y, width, height, "Inventory");
 
       int totalGridWidth = leftGridWidth + PANEL_GAP + rightGridWidth;
       leftStartX = x + (width - totalGridWidth) / 2;
@@ -266,6 +259,25 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
     transferDraggedItem(completedDrag, releasedSlotSelection);
   }
 
+  private void transferClickedItem(SlotSelection slotSelection) {
+    InventoryComponent source = inventoryOf(slotSelection.side());
+    InventoryComponent destination = oppositeInventoryOf(slotSelection.side());
+
+    Item item = source.get(slotSelection.slotIndex()).orElse(null);
+    if (item == null) {
+      return;
+    }
+
+    source.transfer(item, destination);
+  }
+
+  private void transferDraggedItem(DragState drag, SlotSelection releasedSlotSelection) {
+    InventoryComponent source = inventoryOf(drag.source().side());
+    InventoryComponent destination = inventoryOf(releasedSlotSelection.side());
+
+    source.transfer(drag.source().slotIndex(), destination, releasedSlotSelection.slotIndex());
+  }
+
   private SlotSelection hoveredDropTarget(GridLayout leftGrid, GridLayout rightGrid) {
     if (dragState == null) {
       return null;
@@ -276,8 +288,7 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
       return null;
     }
 
-    SlotSelection hovered =
-      findSlotSelection(stage.mouseX(), stage.mouseY(), leftGrid, rightGrid);
+    SlotSelection hovered = findSlotSelection(stage.mouseX(), stage.mouseY(), leftGrid, rightGrid);
 
     if (hovered == null) {
       return null;
@@ -314,104 +325,8 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
       return;
     }
 
-    String itemTitle = safeDisplayName(hoveredItem);
-    String formattedDescription =
-      UIUtils.formatString(hoveredItem.description() == null ? "" : hoveredItem.description());
-
-    String[] descriptionLines =
-      formattedDescription.isBlank() ? new String[0] : formattedDescription.split("\\R");
-
-    FontMetrics metrics = g.getFontMetrics();
-
-    int descriptionWidth = 0;
-    for (String line : descriptionLines) {
-      descriptionWidth = Math.max(descriptionWidth, metrics.stringWidth(line));
-    }
-
-    int tooltipWidth =
-      Math.max(metrics.stringWidth(itemTitle), descriptionWidth) + 2 * TOOLTIP_PADDING_X;
-
-    int tooltipHeight = 2 * TOOLTIP_PADDING_Y + metrics.getAscent();
-    if (descriptionLines.length > 0) {
-      tooltipHeight += TOOLTIP_LINE_GAP + descriptionLines.length * metrics.getHeight();
-    }
-
-    int tooltipX = mouseX + TOOLTIP_OFFSET_X;
-    int tooltipY = mouseY + TOOLTIP_OFFSET_Y;
-
-    if (tooltipX + tooltipWidth > stage.getWidth()) {
-      tooltipX = mouseX - tooltipWidth - TOOLTIP_OFFSET_X;
-    }
-
-    if (tooltipY + tooltipHeight > stage.getHeight()) {
-      tooltipY = mouseY - tooltipHeight - TOOLTIP_OFFSET_Y;
-    }
-
-    g.setColor(new Color(248, 248, 252, 235));
-    g.fillRoundRect(
-      tooltipX,
-      tooltipY,
-      tooltipWidth,
-      tooltipHeight,
-      TOOLTIP_CORNER_RADIUS,
-      TOOLTIP_CORNER_RADIUS);
-
-    g.setColor(new Color(84, 88, 96, 220));
-    g.drawRoundRect(
-      tooltipX,
-      tooltipY,
-      tooltipWidth,
-      tooltipHeight,
-      TOOLTIP_CORNER_RADIUS,
-      TOOLTIP_CORNER_RADIUS);
-
-    int textX = tooltipX + TOOLTIP_PADDING_X;
-    int baselineY = tooltipY + TOOLTIP_PADDING_Y + metrics.getAscent();
-
-    g.setColor(Color.BLACK);
-    g.drawString(itemTitle, textX, baselineY);
-
-    if (descriptionLines.length > 0) {
-      g.setColor(new Color(0x000000b0, true));
-      baselineY += TOOLTIP_LINE_GAP + metrics.getHeight();
-      for (String line : descriptionLines) {
-        g.drawString(line, textX, baselineY);
-        baselineY += metrics.getHeight();
-      }
-    }
-  }
-
-  private String safeDisplayName(Item item) {
-    if (item == null) {
-      return "";
-    }
-
-    String displayName = item.displayName();
-    return displayName == null || displayName.isBlank()
-      ? item.getClass().getSimpleName()
-      : displayName;
-  }
-
-  private void transferClickedItem(SlotSelection slotSelection) {
-    InventoryComponent source = inventoryOf(slotSelection.side());
-    InventoryComponent destination = oppositeInventoryOf(slotSelection.side());
-
-    Item item = source.get(slotSelection.slotIndex()).orElse(null);
-    if (item == null) {
-      return;
-    }
-
-    source.transfer(item, destination);
-  }
-
-  private void transferDraggedItem(DragState drag, SlotSelection releasedSlotSelection) {
-    InventoryComponent source = inventoryOf(drag.source().side());
-    InventoryComponent destination = inventoryOf(releasedSlotSelection.side());
-
-    source.transfer(
-      drag.source().slotIndex(),
-      destination,
-      releasedSlotSelection.slotIndex());
+    LitiengineItemTooltipSupport.drawTooltip(
+      g, hoveredItem, mouseX, mouseY, (int) stage.getWidth(), (int) stage.getHeight());
   }
 
   private InventoryComponent inventoryOf(InventorySide side) {
@@ -439,12 +354,10 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
     int insetHeight = bounds.height - 2 * DRAG_TARGET_INSET;
 
     g.setColor(new Color(88, 168, 116, 70));
-    g.fillRoundRect(
-      insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
+    g.fillRoundRect(insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
 
     g.setColor(new Color(132, 214, 156, 210));
-    g.drawRoundRect(
-      insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
+    g.drawRoundRect(insetX, insetY, insetWidth, insetHeight, DRAG_TARGET_ARC, DRAG_TARGET_ARC);
   }
 
   private void drawDragPreview(Graphics2D g) {
@@ -480,15 +393,12 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
       return "";
     }
 
-    String baseLabel =
-      item.displayName() == null || item.displayName().isBlank()
-        ? item.getClass().getSimpleName()
-        : item.displayName();
-
+    String baseLabel = LitiengineItemTooltipSupport.displayName(item);
     return item.stackSize() > 1 ? baseLabel + " x" + item.stackSize() : baseLabel;
   }
 
-  private SlotSelection findSlotSelection(int mouseX, int mouseY, GridLayout leftGrid, GridLayout rightGrid) {
+  private SlotSelection findSlotSelection(
+    int mouseX, int mouseY, GridLayout leftGrid, GridLayout rightGrid) {
     int leftIndex =
       LitiengineInventoryGridRenderer.findSlotIndexAt(
         mouseX, mouseY, leftGrid.slots(), leftGrid.startX(), leftGrid.startY(), leftGrid.columns());
