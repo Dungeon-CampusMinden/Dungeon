@@ -30,12 +30,12 @@ public class KeyboardConfig {
       new ConfigKey<>(new String[] {"item", "use"}, new ConfigIntValue(Keys.E));
 
   /**
-   * This key is used to use an item. Only works if in Hero's inventory.
+   * This key is used to use an item. Only works if the player's inventory dialog is open.
    *
-   * @see contrib.hud.inventory.InventoryGUI#inPlayerInventory
+   * @see contrib.hud.InventoryDialogState#isOpen(core.Entity)
    */
   public static final ConfigKey<Integer> MOUSE_USE_ITEM =
-      new ConfigKey<>(new String[] {"item", "mouse"}, new ConfigIntValue(MouseButtons.RIGHT));
+    new ConfigKey<>(new String[] {"item", "mouse"}, new ConfigIntValue(MouseButtons.RIGHT));
 
   /**
    * Quickly transfers an item from one inventory to another. E.g. chest to player or player to

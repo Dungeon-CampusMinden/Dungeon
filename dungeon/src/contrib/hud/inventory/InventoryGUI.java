@@ -12,6 +12,7 @@ import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.HeroController;
 import contrib.hud.IInventoryHolder;
+import contrib.hud.InventoryDialogState;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.*;
 import contrib.platform.gdx.hud.*;
@@ -23,14 +24,11 @@ import core.ui.StageHandle;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /** WTF? . */
 public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InventoryGUI.class);
-  private static final Map<Integer, Boolean> inventoryOpenMap = new HashMap<>();
 
   private static final int DEFAULT_MAX_ITEMS_PER_ROW = 8;
   private static final int BORDER_COLOR = 0x9dc1ebff;
@@ -97,11 +95,49 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   /**
    * Checks if the given player's inventory is currently open.
    *
+   * <p>This method remains as a temporary compatibility bridge for legacy GDX inventory code.
+   * The actual state ownership lives in {@link InventoryDialogState}.
+   *
    * @param player the player entity
    * @return true if the inventory is open, false otherwise
    */
   public static boolean inPlayerInventory(Entity player) {
-    return inventoryOpenMap.getOrDefault(player.id(), false);
+    return InventoryDialogState.isOpen(player);
+  }
+
+  /**
+   * Retrieves the InventoryGUI associated with the given player's inventory, if it exists.
+   *
+   * @param player the player entity
+   * @return an Optional containing the InventoryGUI if found, or empty if not found
+   */
+  public static Optional<InventoryGUI> getPlayerInventoryGUI(Entity player) {
+    LOGGER.debug("Fetching InventoryGUI for player " + player.id() + ".");
+    return player
+      .fetch(UIComponent.class)
+      .flatMap(
+        uiComp ->
+          UIUtils.getInventoriesFromUI(uiComp)
+            .filter(invComp -> isPlayersInventory(player, invComp))
+            .map(InventoryGUI::new)
+            .findFirst());
+  }
+
+  /**
+   * Sets whether the inventory is open for the given player.
+   *
+   * <p>This method remains as a temporary compatibility bridge for legacy GDX inventory code.
+   * The actual state ownership lives in {@link InventoryDialogState}.
+   *
+   * @param player the player entity
+   * @param open true if the inventory is open, false otherwise
+   */
+  public static void setInventoryOpen(Entity player, boolean open) {
+    LOGGER.debug(
+      "Delegating inventory open state for player {} to InventoryDialogState: {}",
+      player.id(),
+      open);
+    InventoryDialogState.setOpen(player, open);
   }
 
   @Override

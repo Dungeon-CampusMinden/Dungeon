@@ -6,8 +6,8 @@ import static core.network.config.NetworkConfig.*;
 
 import contrib.components.UIComponent;
 import contrib.entities.HeroController;
+import contrib.hud.InventoryDialogState;
 import contrib.hud.UIUtils;
-import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -438,7 +438,7 @@ public final class ServerTransport {
 
   private void onInventoryUIMessage(Session session, InventoryUIMessage msg) {
     LOGGER.debug(
-        "Received InventoryUIMessage (open={}) from client {}", msg.open(), session.clientId());
+      "Received InventoryUIMessage (open={}) from client {}", msg.open(), session.clientId());
 
     Optional<Entity> sessionEntity = session.clientState().flatMap(ClientState::playerEntity);
     if (sessionEntity.isEmpty()) {
@@ -447,13 +447,14 @@ public final class ServerTransport {
     }
 
     Entity player = sessionEntity.get();
-    if (msg.open() == InventoryGUI.inPlayerInventory(player)) { // already correct state
+    if (msg.open() == InventoryDialogState.isOpen(player)) {
       LOGGER.debug(
-          "Ignoring redundant InventoryUIMessage (open={}) from client {}",
-          msg.open(),
-          session.clientId());
+        "Ignoring redundant InventoryUIMessage (open={}) from client {}",
+        msg.open(),
+        session.clientId());
       return;
     }
+
     HeroController.toggleInventory(player);
   }
 
