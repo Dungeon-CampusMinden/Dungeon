@@ -117,14 +117,26 @@ public class DialogFactory {
     DialogContext context, boolean willPause, boolean canBeClosed, int[] targetEntityIds) {
     Objects.requireNonNull(context, "context");
 
-    Entity dialogEntity = context.ownerEntity();
-    UIComponent ui = new UIComponent(context, willPause, canBeClosed, targetEntityIds);
-    dialogEntity.add(ui);
-    Game.add(dialogEntity);
+    Entity ownerEntity =
+      context
+        .find(DialogContextKeys.OWNER_ENTITY, Integer.class)
+        .flatMap(Game::findEntityById)
+        .orElseGet(
+          () -> {
+            Entity newEntity = new Entity("dialog-" + context.dialogType());
+            Game.add(newEntity);
+            return Game.findEntityById(newEntity.id())
+              .orElseThrow(
+                () ->
+                  new DialogCreationException(
+                    "Cannot find newly created dialog entity"));
+          });
 
-    return dialogEntity
-      .fetch(UIComponent.class)
-      .orElseThrow(() -> new DialogCreationException("Could not create dialog entity"));
+    context.owner(ownerEntity.id());
+
+    UIComponent ui = new UIComponent(context, willPause, canBeClosed, targetEntityIds);
+    ownerEntity.add(ui);
+    return ui;
   }
 
   public static UIComponent show(final DialogContext context, int... targetEntityIds) {

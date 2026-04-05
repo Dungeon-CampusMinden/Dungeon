@@ -76,6 +76,8 @@ public final class MiscFactory {
   /** Maximum number of items displayed per row in the inventory UI. */
   private static final int INVENTORY_UI_MAX_ITEMS_PER_ROW = 6;
 
+  private static final float CAULDRON_INTERACTION_RADIUS = 2f;
+
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
    *
@@ -337,7 +339,8 @@ public final class MiscFactory {
           new Interaction(
             (entity, who) ->
               who.fetch(InventoryComponent.class)
-                .ifPresent(ic -> who.add(createCraftingDialogUi(who, entity))))));
+                .ifPresent(ic -> createCraftingDialogUi(who, entity)),
+            CAULDRON_INTERACTION_RADIUS)));
 
     cauldron.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
     return cauldron;
@@ -357,7 +360,7 @@ public final class MiscFactory {
   }
 
   public static UIComponent createCraftingDialogUi(Entity who, Entity craftingEntity) {
-    var context =
+    DialogContext context =
       DialogContext.builder()
         .type(DialogType.DefaultTypes.CRAFTING_GUI)
         .put(DialogContextKeys.ENTITY, who.id())
@@ -365,26 +368,12 @@ public final class MiscFactory {
         .put(DialogContextKeys.OWNER_ENTITY, who.id())
         .build();
 
-    UIComponent ui = getUiComponent(who, craftingEntity, context);
-
-    ui.onClose(
-      uic -> {
-        InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
-        InventoryComponent craftingInventory =
-          craftingEntity.fetch(InventoryComponent.class).orElse(null);
-
-        if (targetInventory == null || craftingInventory == null) {
-          return;
-        }
-
-        cancelCrafting(targetInventory, craftingInventory);
-      });
-
-    return ui;
-  }
-
-  private static UIComponent getUiComponent(Entity who, Entity craftingEntity, DialogContext context) {
-    UIComponent ui = new UIComponent(context, true, who.id());
+    UIComponent ui =
+      DialogFactory.show(
+        context,
+        true,
+        true,
+        new int[] {who.id()});
 
     ui.registerCallback(
       CALLBACK_CRAFT,
@@ -412,7 +401,22 @@ public final class MiscFactory {
         }
 
         cancelCrafting(targetInventory, craftingInventory);
+        UIUtils.closeDialog(ui, false);
       });
+
+    ui.onClose(
+      uic -> {
+        InventoryComponent targetInventory = who.fetch(InventoryComponent.class).orElse(null);
+        InventoryComponent craftingInventory =
+          craftingEntity.fetch(InventoryComponent.class).orElse(null);
+
+        if (targetInventory == null || craftingInventory == null) {
+          return;
+        }
+
+        cancelCrafting(targetInventory, craftingInventory);
+      });
+
     return ui;
   }
 

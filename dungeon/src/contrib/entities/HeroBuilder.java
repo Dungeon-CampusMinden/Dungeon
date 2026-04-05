@@ -415,9 +415,18 @@ public final class HeroBuilder {
   }
 
   private static Point keyboardInteractionPoint(Entity caller) {
-    return caller
-      .fetch(PositionComponent.class)
-      .map(PositionComponent::position)
-      .orElseGet(SkillTools::cursorPositionAsPoint);
+    PositionComponent positionComponent = caller.fetch(PositionComponent.class).orElse(null);
+    if (positionComponent == null) {
+      return SkillTools.cursorPositionAsPoint();
+    }
+
+    Point position = positionComponent.position();
+    Direction facing = positionComponent.viewDirection();
+
+    if (facing == null) {
+      return position;
+    }
+
+    return position.translate(facing.scale(1f));
   }
 }

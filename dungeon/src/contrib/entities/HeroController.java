@@ -4,12 +4,15 @@ import contrib.components.*;
 import contrib.components.InventoryComponent;
 import contrib.components.SkillComponent;
 import contrib.components.UIComponent;
+import contrib.hud.DialogUtils;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
 import contrib.hud.InventoryDialogState;
 import contrib.item.Item;
+import contrib.modules.interaction.ISimpleIInteractable;
+import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.cursorSkill.CursorSkill;
@@ -18,13 +21,14 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.VelocityComponent;
-import core.level.utils.LevelUtils;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.InventoryUIMessage;
 import core.network.server.ClientState;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.DungeonLogger;
+
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -107,53 +111,84 @@ public class HeroController {
   }
 
   /**
-   * Handles interaction between the hero and an interactable entity. First attempts to find an
-   * interactable entity at the specified point (e.g., mouse cursor position). If no interactable
-   * entity is found or the entity is out of range, it searches within a 1-tile radius around the
-   * hero. If an interactable entity is found and within its interaction radius, the interaction is
-   * triggered.
+   * Handles interaction between the hero and an interactable entity.
+   *
+   * <p>First, this tries to resolve a reachable interactable entity at the requested target point
+   * (e.g. mouse cursor). If no reachable interactable is found there, it falls back to the nearest
+   * reachable interactable entity around the hero using the interaction's declared range.
    *
    * @param hero the hero entity attempting the interaction
-   * @param point the target point where the interaction is attempted (e.g., cursor position)
+   * @param point the target point where the interaction is attempted
    */
   public static void interact(Entity hero, Point point) {
     LOGGER.debug("Hero {} interacting at point {}", hero.id(), point);
 
-    // Abort interaction if hero has Dialogs open
     if (hero.isPresent(UIComponent.class)) {
       LOGGER.debug("Hero {} has dialogs open, cannot interact.", hero.id());
       return;
     }
 
-    // Try finding interactable at the exact point first
-    Optional<Entity> target =
-        Game.tileAt(point)
-            .map(Game::entityAtTile)
-            .orElse(Stream.empty())
-            .filter(e -> e.fetch(InteractionComponent.class).isPresent())
-            .findFirst();
-
-    // If nothing found at point, search in 1-tile radius around hero
-    if (target.isEmpty()) {
-      LOGGER.trace(
-          "No interactable found at point {}, searching in radius around hero {}",
-          point,
-          hero.id());
-      target =
-          LevelUtils.tilesInRange(EntityUtils.getPosition(hero), 1f).stream()
-              .flatMap(Game::entityAtTile)
-              .filter(e -> e.fetch(InteractionComponent.class).isPresent())
-              .findFirst();
-    }
-
-    // Trigger interaction if entity found
-    target.ifPresentOrElse(
+    resolveInteractionTarget(hero, point)
+      .ifPresentOrElse(
         entity -> {
           InteractionComponent ic = entity.fetch(InteractionComponent.class).orElseThrow();
           LOGGER.trace("Hero {} interacting with entity {}", hero.id(), entity.id());
           ic.triggerInteraction(entity, hero);
         },
-        () -> LOGGER.trace("No interactable entity found for hero {} to interact with", hero.id()));
+        () -> {
+          LOGGER.trace("No reachable interactable entity found for hero {}", hero.id());
+          DialogUtils.showTextPopup("Dafür bin ich zu weit weg.", "Zu weit weg.", hero.id());
+        });
+  }
+
+  private static Optional<Entity> resolveInteractionTarget(Entity hero, Point point) {
+    Optional<Entity> pointTarget =
+      nearestReachableInteractable(
+        Game.entityAtPoint(point)
+          .filter(entity -> entity.id() != hero.id()),
+        hero,
+        point);
+
+    if (pointTarget.isPresent()) {
+      return pointTarget;
+    }
+
+    Point heroReferencePoint = EntityUtils.getPosition(hero);
+
+    return nearestReachableInteractable(
+      Game.levelEntities()
+        .filter(entity -> entity.id() != hero.id())
+        .filter(entity -> entity.fetch(InteractionComponent.class).isPresent())
+        .filter(entity -> isWithinInteractionRange(entity, hero)),
+      hero,
+      heroReferencePoint);
+  }
+
+  private static Optional<Entity> nearestReachableInteractable(
+    Stream<Entity> candidates, Entity hero, Point referencePoint) {
+    return candidates
+      .filter(entity -> entity.fetch(InteractionComponent.class).isPresent())
+      .filter(entity -> isWithinInteractionRange(entity, hero))
+      .min(
+        Comparator.comparingDouble(
+          entity -> Point.calculateDistance(EntityUtils.getPosition(entity), referencePoint)));
+  }
+
+  private static boolean isWithinInteractionRange(Entity entity, Entity hero) {
+    return EntityUtils.getDistance(entity, hero) <= interactionRange(entity);
+  }
+
+  private static float interactionRange(Entity entity) {
+    InteractionComponent interactionComponent = entity.fetch(InteractionComponent.class).orElse(null);
+    if (interactionComponent == null) {
+      return Interaction.DEFAULT_INTERACTION_RADIUS;
+    }
+
+    if (interactionComponent.interactions() instanceof ISimpleIInteractable simpleInteractable) {
+      return simpleInteractable.interact().range();
+    }
+
+    return Interaction.DEFAULT_INTERACTION_RADIUS;
   }
 
   /**

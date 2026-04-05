@@ -172,12 +172,24 @@ public final class HudSystem extends System {
 
   private void addMapping(final Entity entity, final UiNodeHandle dialog, final UIComponent component) {
     UiNodeHandle previous = entityGroupMap.put(entity, dialog);
-    if (previous != null) {
+    if (previous != null && previous != dialog) {
       previous.remove();
     }
+
     UIComponent previousUiComponent = entityUIComponentMap.put(entity, component);
-    if (previousUiComponent != null) {
-      UIUtils.closeDialog(previousUiComponent);
+    if (previousUiComponent != null && previousUiComponent != component) {
+      disposeReplacedUi(previousUiComponent);
+    }
+  }
+
+  private void disposeReplacedUi(final UIComponent previousUiComponent) {
+    previousUiComponent.onClose().accept(previousUiComponent);
+
+    for (Integer targetId : previousUiComponent.targetEntityIds()) {
+      Optional<Entity> target = Game.findEntityById(targetId);
+      target
+        .flatMap(t -> t.fetch(PlayerComponent.class))
+        .ifPresent(PlayerComponent::decrementOpenDialogs);
     }
   }
 
