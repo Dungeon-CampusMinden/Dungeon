@@ -10,6 +10,10 @@ import core.ui.gdx.GdxUiNodeHandle;
  * Registers the built-in libGDX-backed dialog implementations.
  *
  * <p>This keeps the concrete Scene2D dialog wiring out of {@link DialogFactory}.
+ *
+ * <p>Inventory-related dialogs are intentionally no longer wired here. Their active migration path
+ * now lives in the LITIENGINE backend, and the remaining Scene2D inventory implementation should
+ * not stay on the active dialog bootstrap path.
  */
 public final class GdxDialogFactoryBootstrap {
   private static boolean initialized = false;
@@ -30,11 +34,6 @@ public final class GdxDialogFactoryBootstrap {
       DialogType.DefaultTypes.IMAGE, ctx -> wrap(GdxShowImageDialogBuilder.build(ctx)));
     DialogFactory.replace(
       DialogType.DefaultTypes.FREE_INPUT, ctx -> wrap(GdxFreeInputDialogBuilder.build(ctx)));
-    DialogFactory.replace(
-      DialogType.DefaultTypes.INVENTORY, ctx -> wrap(GdxInventoryDialogBuilder.buildSimple(ctx)));
-    DialogFactory.replace(
-      DialogType.DefaultTypes.DUAL_INVENTORY,
-      ctx -> wrap(GdxInventoryDialogBuilder.buildDual(ctx)));
     DialogFactory.replace(
       DialogType.DefaultTypes.KEYPAD, ctx -> wrap(GdxKeypadDialogBuilder.build(ctx)));
     DialogFactory.replace(
