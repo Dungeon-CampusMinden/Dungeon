@@ -104,35 +104,6 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
     return inventoryOpenMap.getOrDefault(player.id(), false);
   }
 
-  /**
-   * Retrieves the InventoryGUI associated with the given player's inventory, if it exists.
-   *
-   * @param player the player entity
-   * @return an Optional containing the InventoryGUI if found, or empty if not found
-   */
-  public static Optional<InventoryGUI> getPlayerInventoryGUI(Entity player) {
-    LOGGER.debug("Fetching InventoryGUI for player " + player.id() + ".");
-    return player
-      .fetch(UIComponent.class)
-      .flatMap(
-        uiComp ->
-          UIUtils.getInventoriesFromUI(uiComp)
-            .filter(invComp -> isPlayersInventory(player, invComp))
-            .map(InventoryGUI::new)
-            .findFirst());
-  }
-
-  /**
-   * Sets whether the inventory is open for the given player.
-   *
-   * @param player the player entity
-   * @param open true if the inventory is open, false otherwise
-   */
-  public static void setInventoryOpen(Entity player, boolean open) {
-    LOGGER.debug("Setting inventory open state for player " + player.id() + " to " + open + ".");
-    inventoryOpenMap.put(player.id(), open);
-  }
-
   @Override
   protected void initInteraction(GuiInteractionContext interactionContext) {
     if (Game.isHeadless()) {
