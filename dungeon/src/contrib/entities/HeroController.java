@@ -427,11 +427,10 @@ public class HeroController {
           case PREV_SKILL -> HeroController.changeSkill(playerEntity, false);
           case INTERACT -> HeroController.interact(playerEntity, msg.point());
           case INV_DROP -> {
-            Optional<InventoryComponent> invComp =
-              clientState.playerEntity().flatMap(entity -> entity.fetch(InventoryComponent.class));
+            Optional<InventoryComponent> invComp = playerEntity.fetch(InventoryComponent.class);
             if (invComp.isEmpty()) {
               LOGGER.warn(
-                  "No inventory component found for entity {} to drop item", playerEntity.id());
+                "No inventory component found for entity {} to drop item", playerEntity.id());
               break;
             }
             int itemIndex = (int) msg.point().x();

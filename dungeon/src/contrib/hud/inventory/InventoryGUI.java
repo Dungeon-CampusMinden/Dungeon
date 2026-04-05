@@ -3,10 +3,16 @@ package contrib.hud.inventory;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
@@ -15,11 +21,13 @@ import contrib.hud.IInventoryHolder;
 import contrib.hud.InventoryDialogState;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.*;
+import contrib.item.Item;
 import contrib.platform.gdx.hud.*;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.network.messages.c2s.InputMessage;
+import core.platform.gdx.render.GdxAnimationFrames;
 import core.ui.StageHandle;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -32,6 +40,9 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
 
   private static final int DEFAULT_MAX_ITEMS_PER_ROW = 8;
   private static final int BORDER_COLOR = 0x9dc1ebff;
+  private static final int GDX_BORDER_PADDING = 5;
+  private static final int GDX_LINE_GAP = 5;
+  private static final Vector2 GDX_HOVER_OFFSET = Vector2.of(10, 10);
 
   private DragAndDrop.Source dropAndDropSource;
   private DragAndDrop.Target dropAndDropTarget;
@@ -105,41 +116,6 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
     return InventoryDialogState.isOpen(player);
   }
 
-  /**
-   * Retrieves the InventoryGUI associated with the given player's inventory, if it exists.
-   *
-   * @param player the player entity
-   * @return an Optional containing the InventoryGUI if found, or empty if not found
-   */
-  public static Optional<InventoryGUI> getPlayerInventoryGUI(Entity player) {
-    LOGGER.debug("Fetching InventoryGUI for player " + player.id() + ".");
-    return player
-      .fetch(UIComponent.class)
-      .flatMap(
-        uiComp ->
-          UIUtils.getInventoriesFromUI(uiComp)
-            .filter(invComp -> isPlayersInventory(player, invComp))
-            .map(InventoryGUI::new)
-            .findFirst());
-  }
-
-  /**
-   * Sets whether the inventory is open for the given player.
-   *
-   * <p>This method remains as a temporary compatibility bridge for legacy GDX inventory code.
-   * The actual state ownership lives in {@link InventoryDialogState}.
-   *
-   * @param player the player entity
-   * @param open true if the inventory is open, false otherwise
-   */
-  public static void setInventoryOpen(Entity player, boolean open) {
-    LOGGER.debug(
-      "Delegating inventory open state for player {} to InventoryDialogState: {}",
-      player.id(),
-      open);
-    InventoryDialogState.setOpen(player, open);
-  }
-
   @Override
   protected void initInteraction(GuiInteractionContext interactionContext) {
     if (Game.isHeadless()) {
@@ -156,22 +132,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
       return;
     }
 
-    this.dropAndDropSource =
-      GdxInventoryDragAndDropAdapters.itemSource(
-        actor.get(),
-        this.inventoryComponent,
-        this::getSlotByCoordinates,
-        InventoryGUI::isPlayersInventory,
-        () -> this.slotSize,
-        this::gdxDragAndDrop,
-        this::handleDraggedItemDroppedOutside);
-
-    this.dropAndDropTarget =
-      GdxInventoryDragAndDropAdapters.itemTarget(
-        actor.get(),
-        this::getSlotByCoordinates,
-        itemDragPayload -> true,
-        this::handleDraggedItemDroppedOnSlot);
+    this.dropAndDropSource = buildGdxDragSource(actor.get());
+    this.dropAndDropTarget = buildGdxDragTarget(actor.get());
 
     dragAndDrop.get().addSource(this.dropAndDropSource);
     dragAndDrop.get().addTarget(this.dropAndDropTarget);
@@ -179,64 +141,218 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
 
   @Override
   protected void renderContent(final GuiRenderContext renderContext) {
-    renderContext
-      .unwrap(GdxGuiRenderContext.class)
-      .ifPresent(gdxRenderContext -> GdxInventoryGuiRenderer.render(this, gdxRenderContext));
+    renderContext.unwrap(GdxGuiRenderContext.class).ifPresent(this::renderGdxContent);
   }
 
   @Override
   protected void renderTopLayerContent(final GuiRenderContext renderContext) {
-    renderContext
-      .unwrap(GdxGuiRenderContext.class)
-      .ifPresent(gdxRenderContext -> GdxInventoryGuiRenderer.renderTopLayer(this, gdxRenderContext));
+    renderContext.unwrap(GdxGuiRenderContext.class).ifPresent(this::renderGdxTopLayer);
   }
 
-  /**
-   * Ensures that the cached libGDX slot texture matches the current inventory widget bounds.
-   *
-   * <p>This remains in InventoryGUI for now because the texture cache belongs to the widget state,
-   * while the concrete drawing is handled by the backend renderer.
-   */
-  public final void ensureGdxSlotTexture() {
-    this.drawSlots();
+  private DragAndDrop.Source buildGdxDragSource(Actor actor) {
+    return new DragAndDrop.Source(actor) {
+      @Override
+      public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
+        int draggedSlot = getSlotByCoordinates(x, y);
+        Optional<Item> item = inventoryComponent.get(draggedSlot);
+        if (item.isEmpty()) {
+          return null;
+        }
+
+        Entity player = Game.player().orElseThrow();
+        Item itemToTransfer = item.get();
+        boolean isHeroInv = isPlayersInventory(player, inventoryComponent);
+
+        DragAndDrop.Payload payload = new DragAndDrop.Payload();
+        payload.setObject(
+          new ItemDragPayload(inventoryComponent, isHeroInv, draggedSlot, itemToTransfer));
+
+        Image image =
+          new Image(
+            new SpriteDrawable(
+              GdxAnimationFrames.toSprite(itemToTransfer.inventoryAnimation().update())));
+        image.setSize(slotSize, slotSize);
+        payload.setDragActor(image);
+
+        gdxDragAndDrop()
+          .ifPresent(
+            dragAndDrop ->
+              dragAndDrop.setDragActorPosition(image.getWidth() / 2f, -image.getHeight() / 2f));
+
+        return payload;
+      }
+
+      @Override
+      public void dragStop(
+        InputEvent event,
+        float x,
+        float y,
+        int pointer,
+        DragAndDrop.Payload payload,
+        DragAndDrop.Target target) {
+        if (target == null) {
+          ItemDragPayload itemDragPayload = extractItemDragPayload(payload);
+          if (itemDragPayload != null) {
+            handleDraggedItemDroppedOutside(itemDragPayload);
+          }
+        }
+      }
+    };
   }
 
-  /**
-   * Returns the cached libGDX slot texture.
-   *
-   * @return cached slot texture, may be null
-   */
-  public final Texture gdxSlotTexture() {
-    return this.textureSlots;
+  private DragAndDrop.Target buildGdxDragTarget(Actor actor) {
+    return new DragAndDrop.Target(actor) {
+      @Override
+      public boolean drag(
+        DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+        return extractItemDragPayload(payload) != null;
+      }
+
+      @Override
+      public void drop(
+        DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+        ItemDragPayload itemPayload = extractItemDragPayload(payload);
+        if (itemPayload == null) {
+          return;
+        }
+
+        int slot = getSlotByCoordinates(x, y);
+        handleDraggedItemDroppedOnSlot(itemPayload, slot);
+      }
+    };
   }
 
-  /**
-   * Returns the calculated slot size used by the current inventory layout.
-   *
-   * @return slot size in pixels
-   */
-  public final int gdxSlotSize() {
-    return this.slotSize;
+  private static ItemDragPayload extractItemDragPayload(DragAndDrop.Payload payload) {
+    if (payload == null || !(payload.getObject() instanceof ItemDragPayload itemPayload)) {
+      return null;
+    }
+    return itemPayload;
   }
 
-  /**
-   * Returns the number of slots per row used by the current inventory layout.
-   *
-   * @return slot count per row
-   */
-  public final int gdxSlotsPerRow() {
-    return this.slotsPerRow;
+  private void renderGdxContent(GdxGuiRenderContext renderContext) {
+    Batch batch = renderContext.batch();
+
+    drawSlots();
+
+    TextureRegion background = GdxInventoryGuiAssets.backgroundRegion();
+    if (background != null) {
+      batch.draw(background, x(), y(), width(), height());
+    }
+
+    if (textureSlots != null) {
+      batch.draw(textureSlots, x(), y(), width(), height());
+    }
+
+    drawGdxItems(batch);
   }
 
-  /**
-   * Resolves a slot index for the given widget-local coordinates.
-   *
-   * @param x local x coordinate
-   * @param y local y coordinate
-   * @return slot index or -1 if invalid
-   */
-  public final int gdxSlotByCoordinates(int x, int y) {
-    return this.getSlotByCoordinates(x, y);
+  private void renderGdxTopLayer(GdxGuiRenderContext renderContext) {
+    Batch batch = renderContext.batch();
+    drawGdxInventoryTitle(batch);
+    drawGdxItemInfo(batch);
+  }
+
+  private void drawGdxItems(Batch batch) {
+    Item[] items = inventoryComponent.items();
+
+    for (int i = 0; i < items.length; i++) {
+      Item item = items[i];
+      if (item == null) {
+        continue;
+      }
+
+      int itemX = x() + slotSize * (i % slotsPerRow) + (2 * GDX_BORDER_PADDING);
+      int itemY = y() + slotSize * (i / slotsPerRow) + (2 * GDX_BORDER_PADDING);
+
+      if (gdxIsDragging()) {
+        DragAndDrop.Payload payload = gdxCurrentDragPayload();
+        if (payload != null
+          && payload.getObject() instanceof ItemDragPayload itemDragPayload
+          && itemDragPayload.inventoryComponent() == inventoryComponent
+          && itemDragPayload.slot() == i) {
+          continue;
+        }
+      }
+
+      GdxHudItemRenderer.drawItem(
+        batch, item, itemX, itemY, slotSize - (4 * GDX_BORDER_PADDING));
+    }
+  }
+
+  private void drawGdxInventoryTitle(Batch batch) {
+    BitmapFont font = GdxInventoryGuiAssets.bitmapFont();
+    if (font == null || title == null || title.isBlank()) {
+      return;
+    }
+
+    GlyphLayout layout = new GlyphLayout(font, title);
+    font.setColor(Color.WHITE);
+    font.draw(
+      batch,
+      title,
+      x() + (width() - layout.width) / 2f,
+      y() + height() + layout.height + GDX_BORDER_PADDING);
+  }
+
+  private void drawGdxItemInfo(Batch batch) {
+    BitmapFont font = GdxInventoryGuiAssets.bitmapFont();
+    TextureRegion hoverBackground = GdxInventoryGuiAssets.hoverBackgroundRegion();
+
+    if (font == null || hoverBackground == null) {
+      return;
+    }
+
+    StageHandle stage = Game.stage().orElse(null);
+    if (stage == null) {
+      return;
+    }
+
+    Point mousePos = new Point(stage.mouseX(), Math.round(stage.getHeight()) - stage.mouseY());
+    Point relMousePos = new Point(mousePos.x() - x(), mousePos.y() - y());
+
+    if (mousePos.x() < x() || mousePos.x() > x() + width()) {
+      return;
+    }
+    if (mousePos.y() < y() || mousePos.y() > y() + height()) {
+      return;
+    }
+
+    if (gdxIsDragging()) {
+      return;
+    }
+
+    int hoveredSlot = getSlotByCoordinates((int) relMousePos.x(), (int) relMousePos.y());
+    Optional<Item> item = inventoryComponent.get(hoveredSlot);
+    if (item.isEmpty()) {
+      return;
+    }
+
+    Item itemToShow = item.get();
+    String itemTitle = itemToShow.displayName();
+    String description = UIUtils.formatString(itemToShow.description());
+
+    GlyphLayout layoutName = new GlyphLayout(font, itemTitle);
+    GlyphLayout layoutDesc = new GlyphLayout(font, description);
+
+    Point hoverPos = mousePos.translate(GDX_HOVER_OFFSET);
+    float tooltipWidth = Math.max(layoutName.width, layoutDesc.width) + GDX_HOVER_OFFSET.x();
+    float tooltipHeight =
+      layoutName.height + layoutDesc.height + GDX_HOVER_OFFSET.y() + GDX_LINE_GAP;
+
+    if (hoverPos.x() + tooltipWidth > stage.getWidth()) {
+      hoverPos = hoverPos.translate(Vector2.of(-tooltipWidth - GDX_HOVER_OFFSET.x(), 0));
+    }
+
+    batch.draw(hoverBackground, hoverPos.x(), hoverPos.y(), tooltipWidth, tooltipHeight);
+
+    Point textPos =
+      hoverPos.translate(Vector2.of(GDX_BORDER_PADDING, layoutDesc.height + GDX_LINE_GAP));
+
+    font.setColor(Color.BLACK);
+    font.draw(batch, itemTitle, textPos.x(), textPos.y() + layoutName.height + GDX_LINE_GAP);
+
+    font.setColor(new Color(0x000000b0));
+    font.draw(batch, description, textPos.x(), textPos.y());
   }
 
   /**
