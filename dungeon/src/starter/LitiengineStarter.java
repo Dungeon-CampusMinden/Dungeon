@@ -10,6 +10,7 @@ import contrib.entities.MiscFactory;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceBerry;
+import contrib.item.concreteItem.ItemWoodenArrow;
 import core.Entity;
 import core.Game;
 import core.game.GameLoop;
@@ -20,6 +21,7 @@ import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * Entry point for the LITIENGINE-based dungeon game.
@@ -80,6 +82,10 @@ public final class LitiengineStarter {
         Game.startTile()
           .map(tile -> tile.position().translate(Vector2.of(1f, 0f)))
           .ifPresent(position -> Game.add(MiscFactory.newCraftingCauldron(position)));
+
+        Game.startTile()
+          .map(tile -> tile.position().translate(Vector2.of(5f, 0f)))
+          .ifPresent(position -> Game.add(MiscFactory.newChest(createChestTestItems(), position)));
       });
 
     LitienginePlatformBootstrap.init();
@@ -110,5 +116,10 @@ public final class LitiengineStarter {
           inventory.add(new ItemResourceBerry());
           inventory.add(new ItemResourceBerry());
         });
+  }
+
+  /** Creates a small deterministic test loot set for the starter chest. */
+  private static Set<contrib.item.Item> createChestTestItems() {
+    return Set.of(new ItemPotionHealth(), new ItemPotionWater(), new ItemWoodenArrow(5));
   }
 }
