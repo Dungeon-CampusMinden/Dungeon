@@ -2,6 +2,7 @@ package core.platform.litiengine.dialogs;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.HeroController;
+import contrib.hud.elements.InventoryComponentProvider;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
@@ -14,6 +15,7 @@ import core.utils.Vector2;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.util.stream.Stream;
 
 /**
  * Single-inventory overlay for the LITIENGINE backend.
@@ -22,7 +24,8 @@ import java.awt.Rectangle;
  * shows item hover information and adds drag-based item movement inside the player inventory as
  * well as dropping items outside the dialog.
  */
-final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
+final class LitiengineInventoryDialogOverlay
+  implements LitiengineUiOverlay, InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 620;
   private static final int DEFAULT_HEIGHT = 360;
@@ -442,6 +445,11 @@ final class LitiengineInventoryDialogOverlay implements LitiengineUiOverlay {
   @Override
   public void visible(boolean visible) {
     this.visible = visible;
+  }
+
+  @Override
+  public Stream<InventoryComponent> inventoryComponents() {
+    return Stream.of(inventory);
   }
 
   private record GridLayout(int startX, int startY, int columns, Item[] slots) {}

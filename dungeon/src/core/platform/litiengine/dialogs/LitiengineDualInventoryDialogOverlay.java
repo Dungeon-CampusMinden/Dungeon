@@ -1,6 +1,7 @@
 package core.platform.litiengine.dialogs;
 
 import contrib.components.InventoryComponent;
+import contrib.hud.elements.InventoryComponentProvider;
 import contrib.item.Item;
 import core.Game;
 import core.input.MouseButtons;
@@ -10,6 +11,7 @@ import core.utils.InputManager;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.util.stream.Stream;
 
 /**
  * Dual-inventory overlay for the LITIENGINE backend.
@@ -20,7 +22,8 @@ import java.awt.Rectangle;
  * <p>Dragging an item onto a concrete slot on the opposite side performs an exact slot-to-slot
  * transfer.
  */
-final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay {
+final class LitiengineDualInventoryDialogOverlay
+  implements LitiengineUiOverlay, InventoryComponentProvider {
 
   private static final int DEFAULT_WIDTH = 1180;
   private static final int DEFAULT_HEIGHT = 420;
@@ -476,6 +479,11 @@ final class LitiengineDualInventoryDialogOverlay implements LitiengineUiOverlay 
   @Override
   public void visible(boolean visible) {
     this.visible = visible;
+  }
+
+  @Override
+  public Stream<InventoryComponent> inventoryComponents() {
+    return Stream.of(leftInventory, rightInventory);
   }
 
   private enum InventorySide {
