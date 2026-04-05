@@ -16,6 +16,7 @@ import core.Entity;
 import core.Game;
 import core.components.*;
 import core.game.PreRunConfiguration;
+import core.level.Tile;
 import core.level.elements.ILevel;
 import core.network.messages.c2s.InputMessage;
 import core.sound.SoundSpec;
@@ -423,10 +424,8 @@ public final class HeroBuilder {
     Point position = positionComponent.position();
     Direction facing = positionComponent.viewDirection();
 
-    if (facing == null) {
-      return position;
-    }
-
-    return position.translate(facing.scale(1f));
+    return Game.tileAt(position, facing)
+      .map(Tile::position)
+      .orElseGet(() -> position.translate(facing));
   }
 }

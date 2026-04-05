@@ -21,6 +21,7 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.VelocityComponent;
+import core.level.utils.LevelUtils;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.InventoryUIMessage;
 import core.network.server.ClientState;
@@ -52,6 +53,8 @@ public class HeroController {
 
   /** The ID for the movement force. */
   public static final String MOVEMENT_ID = "Movement";
+
+  private static final float INTERACTION_TARGET_SEARCH_RADIUS = 1f;
 
   private HeroController() {}
 
@@ -144,8 +147,7 @@ public class HeroController {
   private static Optional<Entity> resolveInteractionTarget(Entity hero, Point point) {
     Optional<Entity> pointTarget =
       nearestReachableInteractable(
-        Game.entityAtPoint(point)
-          .filter(entity -> entity.id() != hero.id()),
+        Game.entityAtPoint(point).filter(entity -> entity.id() != hero.id()),
         hero,
         point);
 
@@ -153,15 +155,12 @@ public class HeroController {
       return pointTarget;
     }
 
-    Point heroReferencePoint = EntityUtils.getPosition(hero);
-
     return nearestReachableInteractable(
-      Game.levelEntities()
-        .filter(entity -> entity.id() != hero.id())
-        .filter(entity -> entity.fetch(InteractionComponent.class).isPresent())
-        .filter(entity -> isWithinInteractionRange(entity, hero)),
+      LevelUtils.tilesInRange(point, INTERACTION_TARGET_SEARCH_RADIUS).stream()
+        .flatMap(Game::entityAtTile)
+        .filter(entity -> entity.id() != hero.id()),
       hero,
-      heroReferencePoint);
+      point);
   }
 
   private static Optional<Entity> nearestReachableInteractable(
