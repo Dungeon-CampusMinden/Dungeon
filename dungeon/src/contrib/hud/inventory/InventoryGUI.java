@@ -312,7 +312,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
             return false;
           }
 
-          if (inPlayerInventory(player) && KeyboardConfig.USE_ITEM.value() == keycode) {
+          if (KeyboardConfig.USE_ITEM.value() == keycode && allowItemUse(player)) {
             return useHoveredSlot(player, getSlotByMousePosition());
           }
 
@@ -326,14 +326,11 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
             return false;
           }
 
-          if (inPlayerInventory(player)) {
-            if (KeyboardConfig.MOUSE_USE_ITEM.value() == button) {
-              return useHoveredSlot(player, getSlotByMousePosition());
-            }
-            return false;
+          if (KeyboardConfig.MOUSE_USE_ITEM.value() == button && allowItemUse(player)) {
+            return useHoveredSlot(player, getSlotByMousePosition());
           }
 
-          if (KeyboardConfig.TRANSFER_ITEM.value() == button) {
+          if (KeyboardConfig.TRANSFER_ITEM.value() == button && allowQuickTransfer(player)) {
             transferHoveredSlot(player, getSlotByMousePosition());
             return true;
           }
@@ -474,11 +471,17 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   private void handleDraggedItemDroppedOutside(ItemDragPayload itemDragPayload) {
+    if (!allowDropOutside(itemDragPayload)) {
+      return;
+    }
+
+    Entity player = Game.player().orElse(null);
+    if (player == null) {
+      return;
+    }
+
     if (Game.network().isServer()) {
-      HeroController.dropItem(
-        Game.player().orElseThrow(),
-        itemDragPayload.inventoryComponent(),
-        itemDragPayload.slot());
+      HeroController.dropItem(player, itemDragPayload.inventoryComponent(), itemDragPayload.slot());
     } else {
       Game.network()
         .send(
@@ -490,18 +493,23 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
   }
 
   private void handleDraggedItemDroppedOnSlot(ItemDragPayload itemDragPayload, int slot) {
+    Entity player = Game.player().orElse(null);
+    if (player == null) {
+      return;
+    }
+
     int sourceSlot = itemDragPayload.slot();
-    if (itemDragPayload.wasHeroInv()) {
+    if (draggedFromPlayerInventory(itemDragPayload)) {
       sourceSlot = (-sourceSlot) - 1;
     }
 
     int targetSlot = slot;
-    if (isPlayersInventory(Game.player().orElseThrow(), this.inventoryComponent)) {
+    if (belongsToPlayer(player)) {
       targetSlot = (-slot) - 1;
     }
 
     if (Game.network().isServer()) {
-      HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
+      HeroController.moveItem(player, sourceSlot, targetSlot);
     } else {
       Game.network()
         .send(
@@ -510,5 +518,25 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
             InputMessage.Action.INV_MOVE, Vector2.of(sourceSlot, targetSlot)),
           true);
     }
+  }
+
+  private boolean belongsToPlayer(Entity player) {
+    return player != null && isPlayersInventory(player, this.inventoryComponent);
+  }
+
+  private boolean draggedFromPlayerInventory(ItemDragPayload payload) {
+    return payload != null && payload.wasHeroInv();
+  }
+
+  private boolean allowItemUse(Entity player) {
+    return belongsToPlayer(player);
+  }
+
+  private boolean allowQuickTransfer(Entity player) {
+    return player != null && !belongsToPlayer(player);
+  }
+
+  private boolean allowDropOutside(ItemDragPayload payload) {
+    return draggedFromPlayerInventory(payload);
   }
 }
