@@ -18,7 +18,6 @@ import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.HeroController;
 import contrib.hud.IInventoryHolder;
-import contrib.hud.InventoryDialogState;
 import contrib.hud.UIUtils;
 import contrib.hud.elements.*;
 import contrib.item.Item;
@@ -101,19 +100,6 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
     }
 
     return entity.name().split("_(?=\\d+)")[0].toLowerCase();
-  }
-
-  /**
-   * Checks if the given player's inventory is currently open.
-   *
-   * <p>This method remains as a temporary compatibility bridge for legacy GDX inventory code.
-   * The actual state ownership lives in {@link InventoryDialogState}.
-   *
-   * @param player the player entity
-   * @return true if the inventory is open, false otherwise
-   */
-  public static boolean inPlayerInventory(Entity player) {
-    return InventoryDialogState.isOpen(player);
   }
 
   @Override
@@ -360,7 +346,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
    *
    * @return true if an item is currently being dragged
    */
-  public final boolean gdxIsDragging() {
+  private boolean gdxIsDragging() {
     return this.isDragging();
   }
 
@@ -369,7 +355,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder {
    *
    * @return active drag payload or null
    */
-  public final DragAndDrop.Payload gdxCurrentDragPayload() {
+  private DragAndDrop.Payload gdxCurrentDragPayload() {
     return this.currentDragPayload();
   }
 
