@@ -5,8 +5,6 @@ import contrib.components.InventoryComponent;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogCreationException;
-import contrib.hud.elements.InventoryGuiGroup;
-import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
 import core.utils.logging.DungeonLogger;
 
@@ -34,8 +32,7 @@ public final class GdxInventoryDialogBuilder {
       throw new DialogCreationException("Missing InventoryComponent for InventoryDialog");
     }
 
-    InventoryGUI inventoryGUI = new InventoryGUI(inventory);
-    return new InventoryGuiGroup(inventoryGUI);
+    return GdxInventoryDialogRootFactory.createSimple(inventory);
   }
 
   /**
@@ -62,8 +59,7 @@ public final class GdxInventoryDialogBuilder {
     String otherTitle =
       ctx.find(DialogContextKeys.SECONDARY_TITLE, String.class).orElse(otherEntity.name());
 
-    InventoryGUI inventoryGUI = new InventoryGUI(title, inventory);
-    InventoryGUI otherInventoryGUI = new InventoryGUI(otherTitle, otherInventory);
-    return new InventoryGuiGroup(inventoryGUI, otherInventoryGUI);
+    return GdxInventoryDialogRootFactory.createDual(
+      title, inventory, otherTitle, otherInventory);
   }
 }
