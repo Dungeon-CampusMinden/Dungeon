@@ -32,8 +32,6 @@ public final class GdxDialogFactoryBootstrap {
     DialogFactory.replace(
       DialogType.DefaultTypes.PROGRESS_BAR,
       ctx -> wrap(GdxProgressBarDialogBuilder.build(ctx)));
-    DialogFactory.replace(
-      DialogType.DefaultTypes.PAUSE_MENU, ctx -> wrap(GdxPauseMenuDialogBuilder.build(ctx)));
 
     initialized = true;
   }
