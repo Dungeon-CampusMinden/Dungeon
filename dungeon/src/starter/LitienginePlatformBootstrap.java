@@ -15,6 +15,7 @@ import core.platform.litiengine.LitiengineDialogFactoryBootstrap;
 import core.platform.litiengine.LitiengineLoopHost;
 import core.platform.litiengine.interaction.LitiengineInteractionSelectionUi;
 import core.platform.litiengine.systems.LitiengineDebugControlsSystem;
+import core.platform.litiengine.systems.LitiengineLevelEditorSystem;
 import java.util.function.Supplier;
 
 /** Explicitly wires LITIENGINE-specific startup steps into the platform abstraction. */
@@ -44,6 +45,7 @@ public final class LitienginePlatformBootstrap {
   /** Installs the LITIENGINE debugger controls if they are not already present. */
   public static void installDebugger() {
     addIfAbsent(LitiengineDebugControlsSystem.class, LitiengineDebugControlsSystem::new);
+    addIfAbsent(LitiengineLevelEditorSystem.class, LitiengineLevelEditorSystem::new);
   }
 
   private static <T extends System> void addIfAbsent(Class<T> type, Supplier<T> factory) {
