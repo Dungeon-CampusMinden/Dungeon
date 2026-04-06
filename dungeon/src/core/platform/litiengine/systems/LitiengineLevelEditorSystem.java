@@ -10,6 +10,8 @@ import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
+import core.platform.litiengine.render.LitiengineCameraViews;
+import core.platform.litiengine.render.LitiengineGraphicsContext;
 import core.platform.litiengine.ui.LitiengineLevelEditorOverlay;
 import core.platform.litiengine.ui.LitiengineUiOverlayRegistry;
 import core.systems.LevelSystem;
@@ -19,10 +21,12 @@ import core.utils.Point;
 import core.utils.Time;
 import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;
-import java.awt.Color;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Minimal LITIENGINE-native level editor.
@@ -55,6 +59,9 @@ public final class LitiengineLevelEditorSystem extends System {
   private static final int QUARTERNARY = Keys.V;
 
   private static final int MAX_BRUSH_SIZE = 7;
+  private static final Color BRUSH_PREVIEW_FILL = new Color(255, 255, 255, 36);
+  private static final Color BRUSH_PREVIEW_BORDER = new Color(255, 255, 255, 175);
+  private static final int BRUSH_PREVIEW_INSET_PX = 1;
 
   private final LitiengineLevelEditorOverlay overlay = new LitiengineLevelEditorOverlay();
 
@@ -89,6 +96,20 @@ public final class LitiengineLevelEditorSystem extends System {
     handleModeHotkeys();
     executeCurrentMode();
     syncOverlay();
+  }
+
+  @Override
+  public void render(float deltaSeconds) {
+    if (!this.active || this.currentMode != Mode.TILES) {
+      return;
+    }
+
+    Graphics2D g = LitiengineGraphicsContext.get();
+    if (g == null) {
+      return;
+    }
+
+    renderTileBrushPreview(g);
   }
 
   /** Returns whether the editor is currently active. */
@@ -145,22 +166,85 @@ public final class LitiengineLevelEditorSystem extends System {
   }
 
   private void applyBrush(LevelElement element, int targetBrushSize) {
-    Point cursorPos = snappedCursorTile();
-
     LevelSystem.level()
       .ifPresent(
-        level -> {
-          for (int dx = -targetBrushSize + 1; dx < targetBrushSize; dx++) {
-            for (int dy = -targetBrushSize + 1; dy < targetBrushSize; dy++) {
-              if (Math.abs(dx) + Math.abs(dy) >= targetBrushSize) {
-                continue;
-              }
+        level ->
+          forEachBrushTile(
+            targetBrushSize,
+            targetPos ->
+              level.tileAt(targetPos).ifPresent(tile -> level.changeTileElementType(tile, element))));
+  }
 
-              Point targetPos = cursorPos.translate(Vector2.of(dx, dy));
-              level.tileAt(targetPos).ifPresent(tile -> level.changeTileElementType(tile, element));
-            }
-          }
-        });
+  private void forEachBrushTile(int targetBrushSize, Consumer<Point> consumer) {
+    if (consumer == null) {
+      return;
+    }
+
+    int normalizedBrushSize = Math.max(1, targetBrushSize);
+    Point cursorPos = snappedCursorTile();
+
+    for (int dx = -normalizedBrushSize + 1; dx < normalizedBrushSize; dx++) {
+      for (int dy = -normalizedBrushSize + 1; dy < normalizedBrushSize; dy++) {
+        if (Math.abs(dx) + Math.abs(dy) >= normalizedBrushSize) {
+          continue;
+        }
+
+        consumer.accept(cursorPos.translate(Vector2.of(dx, dy)));
+      }
+    }
+  }
+
+  private void renderTileBrushPreview(Graphics2D g) {
+    LitiengineCameraViews.View view = LitiengineCameraViews.get();
+    if (view == null || view.tilePx() <= 0) {
+      return;
+    }
+
+    int levelHeight =
+      view.levelHeight() > 0
+        ? view.levelHeight()
+        : Game.currentLevel().map(level -> level.layout().length).orElse(0);
+
+    int previewBrushSize = currentPreviewBrushSize();
+
+    Graphics2D g2 = (Graphics2D) g.create();
+    try {
+      g2.setStroke(new BasicStroke(Math.max(1f, view.tilePx() / 16f)));
+
+      forEachBrushTile(
+        previewBrushSize,
+        tilePos -> drawPreviewTile(g2, tilePos, view, levelHeight));
+    } finally {
+      g2.dispose();
+    }
+  }
+
+  private int currentPreviewBrushSize() {
+    if (InputManager.isButtonPressed(MouseButtons.RIGHT) || InputManager.isKeyPressed(TERTIARY)) {
+      return 1;
+    }
+
+    return this.brushSize;
+  }
+
+  private void drawPreviewTile(
+    Graphics2D g, Point tilePos, LitiengineCameraViews.View view, int levelHeight) {
+    int tilePx = view.tilePx();
+
+    int screenX = (int) Math.round(tilePos.x() * tilePx + view.offsetX());
+
+    float screenTileY =
+      levelHeight > 0 ? (levelHeight - 1 - tilePos.y()) * tilePx : tilePos.y() * tilePx;
+    int screenY = (int) Math.round(screenTileY + view.offsetY());
+
+    int inset = Math.min(BRUSH_PREVIEW_INSET_PX, Math.max(0, tilePx / 4));
+    int size = Math.max(1, tilePx - 2 * inset);
+
+    g.setColor(BRUSH_PREVIEW_FILL);
+    g.fillRect(screenX + inset, screenY + inset, size, size);
+
+    g.setColor(BRUSH_PREVIEW_BORDER);
+    g.drawRect(screenX + inset, screenY + inset, size, size);
   }
 
   private Point snappedCursorTile() {
