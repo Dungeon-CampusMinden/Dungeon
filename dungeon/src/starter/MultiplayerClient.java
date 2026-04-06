@@ -15,7 +15,7 @@ public final class MultiplayerClient {
    * @param args command line arguments
    * @throws IOException if an I/O error occurs
    */
-  public static void main(String[] args) throws IOException {
+  static void main(String[] args) throws IOException {
     // PreRun configuration for multiplayer client
     PreRunConfiguration.multiplayerEnabled(true);
     PreRunConfiguration.isNetworkServer(false);
@@ -30,7 +30,7 @@ public final class MultiplayerClient {
     Game.windowTitle("Dev Client - " + PreRunConfiguration.username());
     Game.userOnSetup(
         () -> {
-          GdxPlatformBootstrap.installDebugger();
+          LitienginePlatformBootstrap.installDebugger();
           System.out.println("DevClient started");
         });
 
