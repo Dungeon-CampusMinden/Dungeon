@@ -1,10 +1,8 @@
 package starter;
 
-import contrib.modules.interaction.InteractionSelection;
 import contrib.platform.gdx.hud.dialogs.GdxDialogFactoryBootstrap;
 import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
-import contrib.platform.gdx.interaction.GdxInteractionSelectionUi;
 import core.System;
 import core.game.ECSManagement;
 import core.platform.Platform;
@@ -37,7 +35,6 @@ public final class GdxPlatformBootstrap {
     Platform.clipboard(new AwtClipboardAdapter());
     Platform.loopHost(new GdxLoopHost());
     GdxDialogFactoryBootstrap.init();
-    InteractionSelection.install(GdxInteractionSelectionUi.INSTANCE);
   }
 
   public static void installHudSystems() {
