@@ -11,7 +11,7 @@ ext {
 
     mockitoVersion = '5.23.0'
     protobufVersion = '4.34.1'
-    jk1licenseVersion = '3.1.1'
+    jk1licenseVersion = '3.1.2'
     gdxControllersVersion = '2.2.4'
 
 
