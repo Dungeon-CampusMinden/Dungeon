@@ -20,6 +20,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -199,6 +200,8 @@ public final class LitiengineSpriteRenderSystem extends System {
     BufferedImage img = LitiengineAnimationFrames.toImage(frame);
     if (img == null) return false;
 
+    BufferedImage renderImg = applyTintIfNeeded(img, dc.tintColor());
+
     float sxWorld = pos.x() * tilePx;
     float syWorld =
       (levelHeight > 0) ? (levelHeight - 1 - pos.y()) * tilePx : (pos.y() * tilePx);
@@ -217,10 +220,38 @@ public final class LitiengineSpriteRenderSystem extends System {
     int drawX = Math.round(sxWorld + (tilePx - wPx) / 2f);
     int drawY = Math.round(syWorld + tilePx - hPx);
 
-    double scaleX = wPx / (double) img.getWidth();
-    double scaleY = hPx / (double) img.getHeight();
-    ImageRenderer.renderScaled(g, img, drawX, drawY, scaleX, scaleY);
+    double scaleX = wPx / (double) renderImg.getWidth();
+    double scaleY = hPx / (double) renderImg.getHeight();
+    ImageRenderer.renderScaled(g, renderImg, drawX, drawY, scaleX, scaleY);
     return true;
+  }
+
+  private BufferedImage applyTintIfNeeded(BufferedImage source, int tintRgba8888) {
+    if (source == null) {
+      return null;
+    }
+
+    // DrawComponent contract: -1 means "no tint".
+    if (tintRgba8888 == -1) {
+      return source;
+    }
+
+    float redScale = ((tintRgba8888 >>> 24) & 0xFF) / 255f;
+    float greenScale = ((tintRgba8888 >>> 16) & 0xFF) / 255f;
+    float blueScale = ((tintRgba8888 >>> 8) & 0xFF) / 255f;
+    float alphaScale = (tintRgba8888 & 0xFF) / 255f;
+
+    BufferedImage tinted =
+      new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+    RescaleOp op =
+      new RescaleOp(
+        new float[] {redScale, greenScale, blueScale, alphaScale},
+        new float[] {0f, 0f, 0f, 0f},
+        null);
+
+    op.filter(source, tinted);
+    return tinted;
   }
 
   private void drawEntityMarker(Graphics2D g, Entity e, Point pos, int levelHeight, int tilePx) {
