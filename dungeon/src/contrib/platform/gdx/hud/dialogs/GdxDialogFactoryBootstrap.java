@@ -25,11 +25,6 @@ public final class GdxDialogFactoryBootstrap {
       return;
     }
 
-    DialogFactory.replace(DialogType.DefaultTypes.OK, ctx -> wrap(GdxOkDialogBuilder.build(ctx)));
-    DialogFactory.replace(
-      DialogType.DefaultTypes.YES_NO, ctx -> wrap(GdxYesNoDialogBuilder.build(ctx)));
-    DialogFactory.replace(
-      DialogType.DefaultTypes.TEXT, ctx -> wrap(GdxTextDialogBuilder.build(ctx)));
     DialogFactory.replace(
       DialogType.DefaultTypes.FREE_INPUT, ctx -> wrap(GdxFreeInputDialogBuilder.build(ctx)));
     DialogFactory.replace(
