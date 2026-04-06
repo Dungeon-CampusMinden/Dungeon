@@ -78,6 +78,7 @@ public final class LitiengineLevelEditorSystem extends System {
   private static final int DECO_PREVIEW_TINT = 0xFFFFFF80;
   private static final int DECO_PREVIEW_BLOCKED_TINT = 0xFF6B6B99;
   private static final int DECO_DEFAULT_TINT = -1;
+  private static final int DECO_HOVER_TINT = 0xFFFF00FF;
   private static final double DECO_CURSOR_DISTANCE = 0.75d;
 
   private final LitiengineLevelEditorOverlay overlay = new LitiengineLevelEditorOverlay();
@@ -95,6 +96,7 @@ public final class LitiengineLevelEditorSystem extends System {
   private int selectedDecoIndex = 0;
   private Entity decoPreviewEntity = null;
   private Entity heldDecoEntity = null;
+  private Entity hoveredDecoEntity = null;
 
   private String feedbackMessage = "";
   private Color feedbackColor = Color.WHITE;
@@ -207,6 +209,7 @@ public final class LitiengineLevelEditorSystem extends System {
       showFeedback("Selected deco: " + selectedDeco().name(), Color.WHITE);
     }
 
+    Point cursorPos = Platform.cursor().world();
     Point snapPos = snappedCursorTile();
 
     if (InputManager.isKeyJustPressed(QUARTERNARY)) {
@@ -224,6 +227,7 @@ public final class LitiengineLevelEditorSystem extends System {
     }
 
     if (heldDecoEntity != null) {
+      clearHoveredDecoIndicator();
       updateHeldDecoPosition(snapPos);
       updateDecoPlacementIndicator();
       return;
@@ -232,6 +236,7 @@ public final class LitiengineLevelEditorSystem extends System {
     ensureDecoPreviewEntity();
     updateDecoPreviewPosition(snapPos);
     updateDecoPlacementIndicator();
+    updateHoveredDecoIndicator(cursorPos);
   }
 
   private void applyBrush(LevelElement element, int targetBrushSize) {
@@ -438,6 +443,60 @@ public final class LitiengineLevelEditorSystem extends System {
     applyDecoPlacementTint(indicatorEntity, isCurrentDecoPlacementBlocked());
   }
 
+  private void updateHoveredDecoIndicator(Point cursorPos) {
+    Optional<Entity> hoveredDeco = findHoverableDecoNear(cursorPos);
+
+    boolean sameEntity =
+      hoveredDecoEntity != null
+        && hoveredDeco.isPresent()
+        && hoveredDecoEntity.equals(hoveredDeco.get());
+
+    if (sameEntity) {
+      return;
+    }
+
+    clearHoveredDecoIndicator();
+
+    if (hoveredDeco.isPresent()) {
+      hoveredDecoEntity = hoveredDeco.get();
+      applyHoveredDecoTint(hoveredDecoEntity);
+    }
+  }
+
+  private Optional<Entity> findHoverableDecoNear(Point worldPos) {
+    return findPlacedDecoNear(worldPos)
+      .filter(entity -> heldDecoEntity == null || !entity.equals(heldDecoEntity));
+  }
+
+  private void applyHoveredDecoTint(Entity entity) {
+    if (entity == null) {
+      return;
+    }
+
+    entity.fetch(DrawComponent.class).ifPresent(dc -> dc.tintColor(DECO_HOVER_TINT));
+  }
+
+  private void clearHoveredDecoIndicator() {
+    if (hoveredDecoEntity == null) {
+      return;
+    }
+
+    resetDecoTint(hoveredDecoEntity);
+    hoveredDecoEntity = null;
+  }
+
+  private String currentHoveredDecoName() {
+    if (hoveredDecoEntity == null) {
+      return "none";
+    }
+
+    return hoveredDecoEntity
+      .fetch(DecoComponent.class)
+      .map(DecoComponent::type)
+      .map(Enum::name)
+      .orElse("unknown");
+  }
+
   private boolean isCurrentDecoPlacementBlocked() {
     if (heldDecoEntity != null) {
       Point placementPos =
@@ -480,6 +539,7 @@ public final class LitiengineLevelEditorSystem extends System {
       return;
     }
 
+    clearHoveredDecoIndicator();
     heldDecoEntity = placedDeco.get();
     removeDecoPreviewEntity();
 
@@ -589,6 +649,10 @@ public final class LitiengineLevelEditorSystem extends System {
         .map(DecoComponent::type)
         .map(Enum::name)
         .orElse("Deco");
+
+    if (hoveredDecoEntity != null && hoveredDecoEntity.equals(placedDeco.get())) {
+      clearHoveredDecoIndicator();
+    }
 
     Game.remove(placedDeco.get());
     syncPlacedDecos();
@@ -702,6 +766,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
     restorePlayerCallbacks();
     enablePlayerGodMode(false);
+    clearHoveredDecoIndicator();
     releaseHeldDecoIfNecessary();
     removeDecoPreviewEntity();
 
@@ -789,6 +854,7 @@ public final class LitiengineLevelEditorSystem extends System {
     Mode oldMode = this.currentMode;
 
     if (oldMode == Mode.DECOS) {
+      clearHoveredDecoIndicator();
       releaseHeldDecoIfNecessary();
       removeDecoPreviewEntity();
     }
@@ -873,6 +939,7 @@ public final class LitiengineLevelEditorSystem extends System {
         + currentDeco.name()
         + ")");
     lines.add("Placement: " + (isCurrentDecoPlacementBlocked() ? "blocked" : "valid"));
+    lines.add("Hover: " + currentHoveredDecoName());
     lines.add("Preview tint: white = valid, red = blocked");
     lines.add("E/Q: next/prev deco");
     lines.add("LMB: place new deco or place held deco");
