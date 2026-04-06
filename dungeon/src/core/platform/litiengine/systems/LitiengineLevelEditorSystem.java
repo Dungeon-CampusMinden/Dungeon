@@ -1,10 +1,15 @@
 package core.platform.litiengine.systems;
 
+import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
+import contrib.entities.deco.Deco;
+import contrib.entities.deco.DecoFactory;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.components.DrawComponent;
 import core.components.InputComponent;
+import core.components.PositionComponent;
 import core.input.Keys;
 import core.input.MouseButtons;
 import core.level.Tile;
@@ -21,8 +26,9 @@ import core.utils.Point;
 import core.utils.Time;
 import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;
-
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -63,16 +69,27 @@ public final class LitiengineLevelEditorSystem extends System {
   private static final Color BRUSH_PREVIEW_BORDER = new Color(255, 255, 255, 175);
   private static final int BRUSH_PREVIEW_INSET_PX = 1;
 
+  /**
+   * DrawComponent tintColor uses packed RGBA8888.
+   *
+   * <p>White with ~50% alpha, equivalent to the old preview idea from the legacy deco editor mode.
+   */
+  private static final int DECO_PREVIEW_TINT = 0xFFFFFF80;
+
   private final LitiengineLevelEditorOverlay overlay = new LitiengineLevelEditorOverlay();
 
   private boolean active = false;
   private Mode currentMode = Mode.TILES;
   private Map<Integer, InputComponent.InputData> playerCallbacks = null;
 
-  // First real mode state: tiles.
+  // Tiles mode state.
   private int selectedTileIndexL = 1;
   private int selectedTileIndexR = 2;
   private int brushSize = 1;
+
+  // Decos mode state.
+  private int selectedDecoIndex = 0;
+  private Entity decoPreviewEntity = null;
 
   private String feedbackMessage = "";
   private Color feedbackColor = Color.WHITE;
@@ -100,7 +117,11 @@ public final class LitiengineLevelEditorSystem extends System {
 
   @Override
   public void render(float deltaSeconds) {
-    if (!this.active || this.currentMode != Mode.TILES) {
+    if (!this.active) {
+      return;
+    }
+
+    if (this.currentMode != Mode.TILES) {
       return;
     }
 
@@ -120,7 +141,8 @@ public final class LitiengineLevelEditorSystem extends System {
   private void executeCurrentMode() {
     switch (currentMode) {
       case TILES -> executeTilesMode();
-      case DECOS, POINTS, LEVEL_BOUNDS, SHIFT_LEVEL, START_TILES, SAVE_LEVEL -> {
+      case DECOS -> executeDecosPreviewMode();
+      case POINTS, LEVEL_BOUNDS, SHIFT_LEVEL, START_TILES, SAVE_LEVEL -> {
         // intentionally not ported yet
       }
     }
@@ -165,6 +187,26 @@ public final class LitiengineLevelEditorSystem extends System {
     }
   }
 
+  /**
+   * First LITIENGINE-native DECO mode step: visible selection and ghost preview only.
+   *
+   * <p>Placement/removal follows in the next commit. This keeps the port small and focused.
+   */
+  private void executeDecosPreviewMode() {
+    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
+      selectedDecoIndex = Math.floorMod(selectedDecoIndex + 1, Deco.values().length);
+      previewDecoEntityChanged();
+      showFeedback("Selected deco: " + selectedDeco().name(), Color.WHITE);
+    } else if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
+      selectedDecoIndex = Math.floorMod(selectedDecoIndex - 1, Deco.values().length);
+      previewDecoEntityChanged();
+      showFeedback("Selected deco: " + selectedDeco().name(), Color.WHITE);
+    }
+
+    ensureDecoPreviewEntity();
+    updateDecoPreviewPosition(snappedCursorTile());
+  }
+
   private void applyBrush(LevelElement element, int targetBrushSize) {
     LevelSystem.level()
       .ifPresent(
@@ -172,7 +214,8 @@ public final class LitiengineLevelEditorSystem extends System {
           forEachBrushTile(
             targetBrushSize,
             targetPos ->
-              level.tileAt(targetPos).ifPresent(tile -> level.changeTileElementType(tile, element))));
+              level.tileAt(targetPos)
+                .ifPresent(tile -> level.changeTileElementType(tile, element))));
   }
 
   private void forEachBrushTile(int targetBrushSize, Consumer<Point> consumer) {
@@ -211,9 +254,7 @@ public final class LitiengineLevelEditorSystem extends System {
     try {
       g2.setStroke(new BasicStroke(Math.max(1f, view.tilePx() / 16f)));
 
-      forEachBrushTile(
-        previewBrushSize,
-        tilePos -> drawPreviewTile(g2, tilePos, view, levelHeight));
+      forEachBrushTile(previewBrushSize, tilePos -> drawPreviewTile(g2, tilePos, view, levelHeight));
     } finally {
       g2.dispose();
     }
@@ -267,6 +308,67 @@ public final class LitiengineLevelEditorSystem extends System {
     return values[Math.floorMod(selectedTileIndexR, values.length)];
   }
 
+  private Deco selectedDeco() {
+    Deco[] values = Deco.values();
+    return values[Math.floorMod(selectedDecoIndex, values.length)];
+  }
+
+  private void ensureDecoPreviewEntity() {
+    if (decoPreviewEntity != null) {
+      return;
+    }
+
+    setupDecoPreviewEntity(snappedCursorTile());
+  }
+
+  private void setupDecoPreviewEntity(Point pos) {
+    Entity preview = DecoFactory.createDeco(pos, selectedDeco());
+
+    preview
+      .fetch(DrawComponent.class)
+      .ifPresent(dc -> dc.tintColor(DECO_PREVIEW_TINT));
+
+    preview
+      .fetch(CollideComponent.class)
+      .ifPresent(cc -> cc.isSolid(false));
+
+    Game.add(preview);
+    decoPreviewEntity = preview;
+    updateDecoPreviewPosition(pos);
+  }
+
+  private void removeDecoPreviewEntity() {
+    if (decoPreviewEntity == null) {
+      return;
+    }
+
+    Game.remove(decoPreviewEntity);
+    decoPreviewEntity = null;
+  }
+
+  private void previewDecoEntityChanged() {
+    Point currentPos = snappedCursorTile();
+
+    if (decoPreviewEntity != null) {
+      currentPos =
+        decoPreviewEntity
+          .fetch(PositionComponent.class)
+          .map(PositionComponent::position)
+          .orElse(currentPos);
+    }
+
+    removeDecoPreviewEntity();
+    setupDecoPreviewEntity(currentPos);
+  }
+
+  private void updateDecoPreviewPosition(Point pos) {
+    if (decoPreviewEntity == null) {
+      return;
+    }
+
+    decoPreviewEntity.fetch(PositionComponent.class).ifPresent(pc -> pc.position(pos));
+  }
+
   private void setActive(boolean active) {
     if (this.active == active) {
       return;
@@ -283,6 +385,10 @@ public final class LitiengineLevelEditorSystem extends System {
         LitiengineUiOverlayRegistry.add(overlay);
       }
 
+      if (this.currentMode == Mode.DECOS) {
+        ensureDecoPreviewEntity();
+      }
+
       showFeedback("LITIENGINE level editor active", new Color(120, 220, 120));
       syncOverlay();
       LOGGER.info("Activated LITIENGINE level editor.");
@@ -291,6 +397,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
     restorePlayerCallbacks();
     enablePlayerGodMode(false);
+    removeDecoPreviewEntity();
 
     overlay.visible(false);
     LitiengineUiOverlayRegistry.remove(overlay);
@@ -373,7 +480,18 @@ public final class LitiengineLevelEditorSystem extends System {
       return;
     }
 
+    Mode oldMode = this.currentMode;
+
+    if (oldMode == Mode.DECOS && newMode != Mode.DECOS) {
+      removeDecoPreviewEntity();
+    }
+
     this.currentMode = newMode;
+
+    if (this.active && newMode == Mode.DECOS) {
+      ensureDecoPreviewEntity();
+    }
+
     showFeedback("Switched to " + newMode.displayName() + " mode", Color.WHITE);
   }
 
@@ -387,7 +505,7 @@ public final class LitiengineLevelEditorSystem extends System {
       overlay.x(12);
       overlay.y(12);
       overlay.width(Math.max(420, Math.min(820, Math.round(stage.getWidth()) - 24)));
-      overlay.height(currentMode == Mode.TILES ? 320 : 230);
+      overlay.height(currentMode == Mode.TILES || currentMode == Mode.DECOS ? 320 : 230);
     }
 
     overlay.content(
@@ -407,9 +525,11 @@ public final class LitiengineLevelEditorSystem extends System {
 
     if (currentMode == Mode.TILES) {
       lines.addAll(buildTilesModeLines());
+    } else if (currentMode == Mode.DECOS) {
+      lines.addAll(buildDecosModeLines());
     } else {
       lines.add("This mode is not ported yet on the LITIENGINE path.");
-      lines.add("Tiles is the first mode with real editing behavior so far.");
+      lines.add("Tiles and Decos preview are the first implemented editor steps so far.");
     }
 
     return lines;
@@ -427,6 +547,26 @@ public final class LitiengineLevelEditorSystem extends System {
     lines.add("Hold RMB + E/Q: next/prev right tile");
     lines.add("C/Z: brush + / -");
     lines.add("LMB: paint | RMB: alt paint | X: erase to SKIP | V: pipette to left paint");
+    return lines;
+  }
+
+  private List<String> buildDecosModeLines() {
+    Point cursor = snappedCursorTile();
+    Deco currentDeco = selectedDeco();
+
+    List<String> lines = new ArrayList<>();
+    lines.add("Cursor tile: (" + (int) cursor.x() + ", " + (int) cursor.y() + ")");
+    lines.add(
+      "Current deco: "
+        + (Math.floorMod(selectedDecoIndex, Deco.values().length) + 1)
+        + "/"
+        + Deco.values().length
+        + " ("
+        + currentDeco.name()
+        + ")");
+    lines.add("E/Q: next/prev deco");
+    lines.add("Preview: follows cursor as a translucent ghost entity");
+    lines.add("Placement/removal will follow in the next dedicated commit");
     return lines;
   }
 
