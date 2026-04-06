@@ -14,6 +14,9 @@ import java.util.Optional;
  * to be displayed together. The {@link GUICombination} will call the methods of this class to draw
  * the element and to calculate the preferred size.
  *
+ * <p>The preferred-size contract itself is backend-neutral and described by
+ * {@link GuiAvailableSpace}.
+ *
  * <p>Interaction is exposed through a backend-neutral {@link GuiInteractionContext}. Concrete
  * backends may unwrap specialized interaction helpers from that context.
  *
@@ -176,7 +179,7 @@ public abstract class CombinableGUI {
    * @param availableSpace the available space for the element to be drawn in
    * @return the preferred size of the element
    */
-  protected abstract Vector2 preferredSize(final GUICombination.AvailableSpace availableSpace);
+  protected abstract Vector2 preferredSize(final GuiAvailableSpace availableSpace);
 
   /** Called when the bounds of the element change. */
   protected void boundsUpdate() {}

@@ -60,19 +60,18 @@ public class GUICombination extends Group {
       int row = i / columns;
       int column = i % columns;
 
-      AvailableSpace avs =
-        new AvailableSpace(
+      GuiAvailableSpace availableSpace =
+        new GuiAvailableSpace(
           column * width + (column + 1) * GAP,
           row * height + (row + 1) * GAP,
           width,
           height);
 
-      Vector2 size = combinableGUI.preferredSize(avs);
+      Vector2 size = combinableGUI.preferredSize(availableSpace);
       combinableGUI.width((int) size.x());
       combinableGUI.height((int) size.y());
-      combinableGUI.x(avs.x + (avs.width - (int) size.x()) / 2);
-      combinableGUI.y(avs.y + (avs.height - (int) size.y()) / 2);
-      combinableGUI.boundsUpdate();
+      combinableGUI.x(availableSpace.x() + (availableSpace.width() - (int) size.x()) / 2);
+      combinableGUI.y(availableSpace.y() + (availableSpace.height() - (int) size.y()) / 2);
 
       combinableGUI
         .interactionContext(GdxGuiInteractionContext.class)
@@ -113,6 +112,4 @@ public class GUICombination extends Group {
   public ArrayList<CombinableGUI> combinableGuis() {
     return this.combinableGuis;
   }
-
-  public record AvailableSpace(int x, int y, int width, int height) {}
 }
