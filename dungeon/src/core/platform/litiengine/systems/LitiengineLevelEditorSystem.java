@@ -7,11 +7,17 @@ import core.System;
 import core.components.InputComponent;
 import core.input.Keys;
 import core.input.MouseButtons;
+import core.level.Tile;
+import core.level.utils.LevelElement;
+import core.platform.Platform;
 import core.platform.litiengine.ui.LitiengineLevelEditorOverlay;
 import core.platform.litiengine.ui.LitiengineUiOverlayRegistry;
+import core.systems.LevelSystem;
 import core.ui.StageHandle;
 import core.utils.InputManager;
+import core.utils.Point;
 import core.utils.Time;
+import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -19,11 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Minimal LITIENGINE-native shell for the level editor.
+ * Minimal LITIENGINE-native level editor.
  *
- * <p>This first step ports the editor lifecycle to the LITIENGINE path:
- * toggle active state, switch modes, suspend conflicting player callbacks and render
- * a native overlay. Concrete mode behavior is ported in follow-up commits.
+ * <p>This version keeps the editor lifecycle inside the LITIENGINE backend and ports the first
+ * actual editing mode: tile painting.
  */
 public final class LitiengineLevelEditorSystem extends System {
   private static final DungeonLogger LOGGER =
@@ -41,17 +46,32 @@ public final class LitiengineLevelEditorSystem extends System {
   private static final int MODE_6 = Keys.NUM_6;
   private static final int MODE_7 = Keys.NUM_7;
 
+  // Shared editor controls, aligned with the former GDX level editor modes.
+  private static final int PRIMARY_UP = Keys.E;
+  private static final int PRIMARY_DOWN = Keys.Q;
+  private static final int SECONDARY_UP = Keys.C;
+  private static final int SECONDARY_DOWN = Keys.Z;
+  private static final int TERTIARY = Keys.X;
+  private static final int QUARTERNARY = Keys.V;
+
+  private static final int MAX_BRUSH_SIZE = 7;
+
   private final LitiengineLevelEditorOverlay overlay = new LitiengineLevelEditorOverlay();
 
   private boolean active = false;
   private Mode currentMode = Mode.TILES;
   private Map<Integer, InputComponent.InputData> playerCallbacks = null;
 
+  // First real mode state: tiles.
+  private int selectedTileIndexL = 1;
+  private int selectedTileIndexR = 2;
+  private int brushSize = 1;
+
   private String feedbackMessage = "";
   private Color feedbackColor = Color.WHITE;
   private long feedbackUntilMs = 0L;
 
-  /** Creates the LITIENGINE level editor shell. */
+  /** Creates the LITIENGINE level editor. */
   public LitiengineLevelEditorSystem() {
     super(AuthoritativeSide.CLIENT);
   }
@@ -67,12 +87,100 @@ public final class LitiengineLevelEditorSystem extends System {
     }
 
     handleModeHotkeys();
+    executeCurrentMode();
     syncOverlay();
   }
 
-  /** Returns whether the editor shell is currently active. */
+  /** Returns whether the editor is currently active. */
   public boolean active() {
     return this.active;
+  }
+
+  private void executeCurrentMode() {
+    switch (currentMode) {
+      case TILES -> executeTilesMode();
+      case DECOS, POINTS, LEVEL_BOUNDS, SHIFT_LEVEL, START_TILES, SAVE_LEVEL -> {
+        // intentionally not ported yet
+      }
+    }
+  }
+
+  private void executeTilesMode() {
+    if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
+      if (InputManager.isButtonPressed(MouseButtons.RIGHT)) {
+        selectedTileIndexR -= 1;
+      } else {
+        selectedTileIndexL -= 1;
+      }
+    } else if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
+      if (InputManager.isButtonPressed(MouseButtons.RIGHT)) {
+        selectedTileIndexR += 1;
+      } else {
+        selectedTileIndexL += 1;
+      }
+    }
+
+    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
+      brushSize = Math.min(MAX_BRUSH_SIZE, brushSize + 1);
+    } else if (InputManager.isKeyJustPressed(SECONDARY_DOWN)) {
+      brushSize = Math.max(1, brushSize - 1);
+    }
+
+    if (InputManager.isKeyJustPressed(QUARTERNARY)) {
+      tileElementAtCursor()
+        .ifPresent(
+          element -> {
+            selectedTileIndexL = element.ordinal();
+            showFeedback("Picked tile " + element.name() + " for left paint", Color.WHITE);
+          });
+    }
+
+    if (InputManager.isButtonPressed(MouseButtons.LEFT)) {
+      applyBrush(selectedLeftElement(), brushSize);
+    } else if (InputManager.isButtonPressed(MouseButtons.RIGHT)) {
+      applyBrush(selectedRightElement(), 1);
+    } else if (InputManager.isKeyPressed(TERTIARY)) {
+      applyBrush(LevelElement.SKIP, 1);
+    }
+  }
+
+  private void applyBrush(LevelElement element, int targetBrushSize) {
+    Point cursorPos = snappedCursorTile();
+
+    LevelSystem.level()
+      .ifPresent(
+        level -> {
+          for (int dx = -targetBrushSize + 1; dx < targetBrushSize; dx++) {
+            for (int dy = -targetBrushSize + 1; dy < targetBrushSize; dy++) {
+              if (Math.abs(dx) + Math.abs(dy) >= targetBrushSize) {
+                continue;
+              }
+
+              Point targetPos = cursorPos.translate(Vector2.of(dx, dy));
+              level.tileAt(targetPos).ifPresent(tile -> level.changeTileElementType(tile, element));
+            }
+          }
+        });
+  }
+
+  private Point snappedCursorTile() {
+    Point cursorWorld = Platform.cursor().world();
+    return new Point((float) Math.floor(cursorWorld.x()), (float) Math.floor(cursorWorld.y()));
+  }
+
+  private java.util.Optional<LevelElement> tileElementAtCursor() {
+    Point cursorPos = snappedCursorTile();
+    return LevelSystem.level().flatMap(level -> level.tileAt(cursorPos)).map(Tile::levelElement);
+  }
+
+  private LevelElement selectedLeftElement() {
+    LevelElement[] values = LevelElement.values();
+    return values[Math.floorMod(selectedTileIndexL, values.length)];
+  }
+
+  private LevelElement selectedRightElement() {
+    LevelElement[] values = LevelElement.values();
+    return values[Math.floorMod(selectedTileIndexR, values.length)];
   }
 
   private void setActive(boolean active) {
@@ -93,7 +201,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
       showFeedback("LITIENGINE level editor active", new Color(120, 220, 120));
       syncOverlay();
-      LOGGER.info("Activated LITIENGINE level editor shell.");
+      LOGGER.info("Activated LITIENGINE level editor.");
       return;
     }
 
@@ -106,7 +214,7 @@ public final class LitiengineLevelEditorSystem extends System {
     feedbackMessage = "";
     feedbackUntilMs = 0L;
 
-    LOGGER.info("Deactivated LITIENGINE level editor shell.");
+    LOGGER.info("Deactivated LITIENGINE level editor.");
   }
 
   private void suspendConflictingPlayerCallbacks() {
@@ -115,18 +223,20 @@ public final class LitiengineLevelEditorSystem extends System {
       return;
     }
 
-    player.fetch(InputComponent.class).ifPresent(pc -> {
-      playerCallbacks = pc.callbacks();
+    player.fetch(InputComponent.class)
+      .ifPresent(
+        pc -> {
+          playerCallbacks = pc.callbacks();
 
-      pc.removeCallback(Keys.E);
-      pc.removeCallback(Keys.Q);
-      pc.removeCallback(Keys.C);
-      pc.removeCallback(Keys.Z);
-      pc.removeCallback(Keys.X);
-      pc.removeCallback(Keys.V);
-      pc.removeCallback(MouseButtons.LEFT);
-      pc.removeCallback(MouseButtons.RIGHT);
-    });
+          pc.removeCallback(Keys.E);
+          pc.removeCallback(Keys.Q);
+          pc.removeCallback(Keys.C);
+          pc.removeCallback(Keys.Z);
+          pc.removeCallback(Keys.X);
+          pc.removeCallback(Keys.V);
+          pc.removeCallback(MouseButtons.LEFT);
+          pc.removeCallback(MouseButtons.RIGHT);
+        });
   }
 
   private void restorePlayerCallbacks() {
@@ -140,9 +250,12 @@ public final class LitiengineLevelEditorSystem extends System {
       return;
     }
 
-    player.fetch(InputComponent.class).ifPresent(pc ->
-      playerCallbacks.forEach((key, value) ->
-        pc.registerCallback(key, value.callback(), value.repeat(), value.pauseable())));
+    player.fetch(InputComponent.class)
+      .ifPresent(
+        pc ->
+          playerCallbacks.forEach(
+            (key, value) ->
+              pc.registerCallback(key, value.callback(), value.repeat(), value.pauseable())));
 
     playerCallbacks = null;
   }
@@ -189,8 +302,8 @@ public final class LitiengineLevelEditorSystem extends System {
     if (stage != null) {
       overlay.x(12);
       overlay.y(12);
-      overlay.width(Math.max(420, Math.min(760, Math.round(stage.getWidth()) - 24)));
-      overlay.height(230);
+      overlay.width(Math.max(420, Math.min(820, Math.round(stage.getWidth()) - 24)));
+      overlay.height(currentMode == Mode.TILES ? 320 : 230);
     }
 
     overlay.content(
@@ -207,8 +320,29 @@ public final class LitiengineLevelEditorSystem extends System {
     lines.add("Current mode: " + currentMode.displayName());
     lines.add("Modes: " + modeSelectionText());
     lines.add("");
-    lines.add("This commit ports the editor shell only.");
-    lines.add("Mode behavior will follow in small dedicated commits.");
+
+    if (currentMode == Mode.TILES) {
+      lines.addAll(buildTilesModeLines());
+    } else {
+      lines.add("This mode is not ported yet on the LITIENGINE path.");
+      lines.add("Tiles is the first mode with real editing behavior so far.");
+    }
+
+    return lines;
+  }
+
+  private List<String> buildTilesModeLines() {
+    Point cursor = snappedCursorTile();
+
+    List<String> lines = new ArrayList<>();
+    lines.add("Cursor tile: (" + (int) cursor.x() + ", " + (int) cursor.y() + ")");
+    lines.add("Left paint: " + selectedLeftElement().name());
+    lines.add("Right paint: " + selectedRightElement().name());
+    lines.add("Brush size: " + brushSize);
+    lines.add("E/Q: next/prev left tile");
+    lines.add("Hold RMB + E/Q: next/prev right tile");
+    lines.add("C/Z: brush + / -");
+    lines.add("LMB: paint | RMB: alt paint | X: erase to SKIP | V: pipette to left paint");
     return lines;
   }
 
