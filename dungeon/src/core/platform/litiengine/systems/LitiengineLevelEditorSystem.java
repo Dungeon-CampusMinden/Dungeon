@@ -5,6 +5,8 @@ import contrib.components.DecoComponent;
 import contrib.components.HealthComponent;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
+import contrib.systems.PositionSync;
+import contrib.utils.components.collide.Collider;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -205,7 +207,7 @@ public final class LitiengineLevelEditorSystem extends System {
       showFeedback("Selected deco: " + selectedDeco().name(), Color.WHITE);
     }
 
-    Point cursorPos = snappedCursorTile();
+    Point snapPos = snappedCursorTile();
 
     if (InputManager.isKeyJustPressed(QUARTERNARY)) {
       pipetteDecoAtCursor();
@@ -215,20 +217,20 @@ public final class LitiengineLevelEditorSystem extends System {
       deleteDecoAtCursor();
     } else if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
       if (heldDecoEntity != null) {
-        placeHeldDeco();
+        placeHeldDeco(snapPos);
       } else {
-        placeSelectedDeco();
+        placeSelectedDeco(snapPos);
       }
     }
 
     if (heldDecoEntity != null) {
-      updateHeldDecoPosition(cursorPos);
+      updateHeldDecoPosition(snapPos);
       updateDecoPlacementIndicator();
       return;
     }
 
     ensureDecoPreviewEntity();
-    updateDecoPreviewPosition(cursorPos);
+    updateDecoPreviewPosition(snapPos);
     updateDecoPlacementIndicator();
   }
 
@@ -386,20 +388,45 @@ public final class LitiengineLevelEditorSystem extends System {
     setupDecoPreviewEntity(currentPos);
   }
 
-  private void updateDecoPreviewPosition(Point pos) {
+  private void updateDecoPreviewPosition(Point snapPos) {
     if (decoPreviewEntity == null) {
       return;
     }
 
-    decoPreviewEntity.fetch(PositionComponent.class).ifPresent(pc -> pc.position(pos));
+    setEditorDecoPosition(decoPreviewEntity, snapPos);
   }
 
-  private void updateHeldDecoPosition(Point pos) {
+  private void updateHeldDecoPosition(Point snapPos) {
     if (heldDecoEntity == null) {
       return;
     }
 
-    heldDecoEntity.fetch(PositionComponent.class).ifPresent(pc -> pc.position(pos));
+    setEditorDecoPosition(heldDecoEntity, snapPos);
+  }
+
+  private void setEditorDecoPosition(Entity entity, Point snapPos) {
+    if (entity == null || snapPos == null) {
+      return;
+    }
+
+    Point actualPos = alignedDecoPosition(entity, snapPos);
+    entity.fetch(PositionComponent.class).ifPresent(pc -> pc.position(actualPos));
+    PositionSync.syncPosition(entity);
+  }
+
+  private Point alignedDecoPosition(Entity entity, Point snapPos) {
+    if (entity == null || snapPos == null) {
+      return snapPos;
+    }
+
+    Vector2 offset =
+      entity
+        .fetch(CollideComponent.class)
+        .map(CollideComponent::collider)
+        .map(Collider::offset)
+        .orElse(Vector2.ZERO);
+
+    return snapPos.translate(offset.scale(-1));
   }
 
   private void updateDecoPlacementIndicator() {
@@ -467,22 +494,19 @@ public final class LitiengineLevelEditorSystem extends System {
     showFeedback("Picked up deco: " + pickedName, new Color(120, 220, 120));
   }
 
-  private void placeHeldDeco() {
+  private void placeHeldDeco(Point snapPos) {
     if (heldDecoEntity == null) {
       return;
     }
 
-    Point placementPos =
-      heldDecoEntity
-        .fetch(PositionComponent.class)
-        .map(PositionComponent::position)
-        .orElse(snappedCursorTile());
+    Point placementPos = alignedDecoPosition(heldDecoEntity, snapPos);
 
     if (isDecoPlacementBlocked(heldDecoEntity, placementPos)) {
       showFeedback("Cannot place held deco: target blocked", new Color(255, 210, 120));
       return;
     }
 
+    setEditorDecoPosition(heldDecoEntity, snapPos);
     Entity placedEntity = heldDecoEntity;
 
     String placedName =
@@ -497,7 +521,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
     heldDecoEntity = null;
     ensureDecoPreviewEntity();
-    updateDecoPreviewPosition(placementPos);
+    updateDecoPreviewPosition(snapPos);
     updateDecoPlacementIndicator();
 
     showFeedback("Placed held deco: " + placedName, new Color(120, 220, 120));
@@ -537,8 +561,9 @@ public final class LitiengineLevelEditorSystem extends System {
     heldDecoEntity = null;
   }
 
-  private void placeSelectedDeco() {
-    Point placementPos = currentDecoPreviewPosition();
+  private void placeSelectedDeco(Point snapPos) {
+    Point placementPos =
+      decoPreviewEntity != null ? alignedDecoPosition(decoPreviewEntity, snapPos) : snapPos;
 
     if (decoPreviewEntity != null && isDecoPlacementBlocked(decoPreviewEntity, placementPos)) {
       showFeedback("Cannot place deco: target blocked", new Color(255, 210, 120));
