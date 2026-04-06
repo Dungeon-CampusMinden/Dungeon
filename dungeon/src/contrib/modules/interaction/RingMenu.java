@@ -57,14 +57,7 @@ public class RingMenu extends Group {
   }
 
   private void build(IInteractable interactable) {
-    List<Interaction> interactions =
-        List.of(
-            interactable.look(),
-            interactable.interact(),
-            interactable.take(),
-            interactable.talk(),
-            interactable.usewithitem(),
-            interactable.attack());
+    List<Interaction> interactions = InteractionChoices.from(interactable);
 
     float centerX = getStage().getWidth() / 2f;
     float centerY = getStage().getHeight() / 2f;

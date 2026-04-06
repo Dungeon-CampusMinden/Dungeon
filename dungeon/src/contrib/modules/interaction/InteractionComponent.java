@@ -55,28 +55,29 @@ public final class InteractionComponent implements Component {
   }
 
   /**
-   * Triggers the interaction associated with this component.
+   * Triggers an interaction between two entities.
    *
-   * <p>If the assigned {@link IInteractable} is an {@link ISimpleIInteractable}, the interaction is
-   * executed directly. Otherwise, a selection menu (implemented by {@code RingMenue}) is shown to
-   * allow the player to choose a specific interaction. Once chosen, the corresponding {@link
-   * Interaction} is executed.
+   * <p>If the interactions provider is an {@link ISimpleIInteractable}, the default interaction
+   * is executed directly. Otherwise, an interaction selection dialog is displayed to allow the
+   * user to choose which interaction to perform.
    *
-   * @param entity the entity that owns this component
+   * @param entity the entity being interacted with
    * @param who the entity performing the interaction
    */
   public void triggerInteraction(final Entity entity, final Entity who) {
-    if (interactions instanceof ISimpleIInteractable) interactions.interact().interact(entity, who);
-    else {
-      RingMenu.show(
-          interactions,
-          interaction -> {
-            if (interaction != null) {
-              interaction.interact(entity, who);
-            }
-            // else: cancelled
-          });
+    if (interactions instanceof ISimpleIInteractable simpleInteractable) {
+      simpleInteractable.interact().interact(entity, who);
+      return;
     }
+
+    InteractionSelection.show(
+      interactions,
+      interaction -> {
+        if (interaction != null) {
+          interaction.interact(entity, who);
+        }
+        // null = canceled
+      });
   }
 
   /**

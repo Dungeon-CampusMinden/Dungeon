@@ -2,6 +2,7 @@ package starter;
 
 import contrib.hud.systems.AttributeBarSystem;
 import contrib.hud.systems.HudSystem;
+import contrib.modules.interaction.InteractionSelection;
 import core.System;
 import core.game.ECSManagement;
 import core.platform.CompositeResourcesAdapter;
@@ -12,6 +13,7 @@ import core.platform.fs.FileSystemResourcesAdapter;
 import core.platform.grid.GridPathfindingAdapter;
 import core.platform.litiengine.LitiengineDialogFactoryBootstrap;
 import core.platform.litiengine.LitiengineLoopHost;
+import core.platform.litiengine.interaction.LitiengineInteractionSelectionUi;
 import core.platform.litiengine.systems.LitiengineDebugControlsSystem;
 import java.util.function.Supplier;
 
@@ -31,6 +33,7 @@ public final class LitienginePlatformBootstrap {
     // Register a temporary non-Scene2D dialog backend so dialog creation
     // already works on the LITIENGINE path.
     LitiengineDialogFactoryBootstrap.init();
+    InteractionSelection.install(LitiengineInteractionSelectionUi.INSTANCE);
   }
 
   public static void installHudSystems() {
