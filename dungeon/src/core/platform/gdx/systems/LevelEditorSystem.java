@@ -15,12 +15,8 @@ import core.input.MouseButtons;
 import core.level.DungeonLevel;
 import core.level.Tile;
 import core.platform.gdx.levelEditor.*;
-import core.platform.gdx.render.DrawSystem;
 import core.ui.gdx.GdxFontHelper;
 import core.utils.*;
-import core.utils.components.draw.DepthLayer;
-import core.platform.gdx.render.shader.OutlineShader;
-import core.platform.gdx.render.shader.PassthroughShader;
 import core.utils.logging.DungeonLogger;
 import java.util.Map;
 import java.util.Optional;
@@ -41,10 +37,6 @@ public class LevelEditorSystem extends System {
   private static boolean internalStopped = false;
   private static boolean active = false;
   private static final int TOGGLE_ACTIVE = Keys.F4;
-
-  private static final int TOGGLE_DEBUG_SHADER = Keys.SPACE;
-  private boolean debugShaderActive = false;
-  private static final String DEBUG_SHADER_KEY = "LevelEditorSystem_debug";
 
   private static Mode currentMode = Mode.Tiles;
   private static LevelEditorMode currentModeInstance = currentMode.getModeInstance();
@@ -142,10 +134,6 @@ public class LevelEditorSystem extends System {
         modeSelection.append(i + 1);
       }
     }
-    modeSelection
-        .append("\n ( SPACE to toggle layer debug shader [")
-        .append(DrawSystem.shadersActiveLastFrame())
-        .append("] )");
     modeSelection.append("\n\n");
     status = modeSelection + status;
     DebugDrawSystem.drawText(FONT, status, new Point(10.0f, Game.windowHeight() - 10.0f));
@@ -183,10 +171,6 @@ public class LevelEditorSystem extends System {
       return;
     }
 
-    if (InputManager.isKeyJustPressed(TOGGLE_DEBUG_SHADER)) {
-      toggleDebugShader();
-    }
-
     Mode previousMode = currentMode;
     if (InputManager.isKeyPressed(MODE_1)) {
       currentMode = Mode.getMode(0);
@@ -212,27 +196,6 @@ public class LevelEditorSystem extends System {
       }
       currentModeInstance.doExecute();
     }
-  }
-
-  private void toggleDebugShader() {
-    DrawSystem ds = (DrawSystem) Game.systems().get(DrawSystem.class);
-    if (debugShaderActive) {
-      ds.levelShaders().remove(DEBUG_SHADER_KEY);
-      ds.entityDepthShaders(DepthLayer.Player.depth()).remove(DEBUG_SHADER_KEY);
-      ds.entityDepthShaders(DepthLayer.BackgroundDeco.depth()).remove(DEBUG_SHADER_KEY);
-      ds.entityDepthShaders(DepthLayer.Normal.depth()).remove(DEBUG_SHADER_KEY);
-      ds.sceneShaders().remove(DEBUG_SHADER_KEY);
-    } else {
-      ds.levelShaders().add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.BLUE));
-      ds.entityDepthShaders(DepthLayer.Player.depth())
-          .add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.RED));
-      ds.entityDepthShaders(DepthLayer.BackgroundDeco.depth())
-          .add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.GREEN));
-      ds.entityDepthShaders(DepthLayer.Normal.depth())
-          .add(DEBUG_SHADER_KEY, new OutlineShader(3).color(Color.WHITE));
-      ds.sceneShaders().add(DEBUG_SHADER_KEY, new PassthroughShader().debugPMA(true));
-    }
-    debugShaderActive = !debugShaderActive;
   }
 
   /**
