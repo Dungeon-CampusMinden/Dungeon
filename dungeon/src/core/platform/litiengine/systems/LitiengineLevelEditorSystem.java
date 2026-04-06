@@ -429,11 +429,8 @@ public final class LitiengineLevelEditorSystem extends System {
         .map(PositionComponent::position)
         .orElse(snappedCursorTile());
 
-    Optional<Entity> blockingDeco =
-      findPlacedDecoNear(placementPos).filter(entity -> !entity.equals(heldDecoEntity));
-
-    if (blockingDeco.isPresent()) {
-      showFeedback("Cannot place held deco: position already occupied", new Color(255, 210, 120));
+    if (isDecoPlacementBlocked(heldDecoEntity, placementPos)) {
+      showFeedback("Cannot place held deco: target blocked", new Color(255, 210, 120));
       return;
     }
 
@@ -488,8 +485,8 @@ public final class LitiengineLevelEditorSystem extends System {
   private void placeSelectedDeco() {
     Point placementPos = currentDecoPreviewPosition();
 
-    if (findPlacedDecoNear(placementPos).isPresent()) {
-      showFeedback("Cannot place deco: position already occupied", new Color(255, 210, 120));
+    if (decoPreviewEntity != null && isDecoPlacementBlocked(decoPreviewEntity, placementPos)) {
+      showFeedback("Cannot place deco: target blocked", new Color(255, 210, 120));
       return;
     }
 
@@ -538,7 +535,7 @@ public final class LitiengineLevelEditorSystem extends System {
     return Game.levelEntities()
       .filter(entity -> entity.isPresent(DecoComponent.class))
       .filter(entity -> entity.isPresent(PositionComponent.class))
-      .filter(entity -> decoPreviewEntity == null || !entity.equals(decoPreviewEntity))
+      .filter(entity -> !entity.equals(decoPreviewEntity))
       .filter(
         entity ->
           entity
@@ -547,6 +544,32 @@ public final class LitiengineLevelEditorSystem extends System {
             .map(pos -> pos.distance(worldPos) <= DECO_CURSOR_DISTANCE)
             .orElse(false))
       .findFirst();
+  }
+
+  private boolean isDecoPlacementBlocked(Entity movingDeco, Point placementPos) {
+    if (movingDeco == null || placementPos == null) {
+      return true;
+    }
+
+    Optional<CollideComponent> movingCollide = movingDeco.fetch(CollideComponent.class);
+    if (movingCollide.isEmpty()) {
+      return findPlacedDecoNear(placementPos).filter(entity -> !entity.equals(movingDeco)).isPresent();
+    }
+
+    Point oldColliderPos = movingCollide.get().collider().position();
+    movingCollide.get().collider().position(placementPos);
+
+    try {
+      return Game.levelEntities()
+        .filter(entity -> entity.isPresent(DecoComponent.class))
+        .filter(entity -> entity.isPresent(CollideComponent.class))
+        .filter(entity -> !entity.equals(movingDeco))
+        .filter(entity -> !entity.equals(decoPreviewEntity))
+        .map(entity -> entity.fetch(CollideComponent.class).orElseThrow())
+        .anyMatch(otherCollide -> movingCollide.get().collider().collide(otherCollide.collider()));
+    } finally {
+      movingCollide.get().collider().position(oldColliderPos);
+    }
   }
 
   private void syncPlacedDecos() {
