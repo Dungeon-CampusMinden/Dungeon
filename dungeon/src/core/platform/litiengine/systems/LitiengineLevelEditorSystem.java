@@ -94,6 +94,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
   // Decos mode state.
   private int selectedDecoIndex = 0;
+  private SnapMode snapMode = SnapMode.OnGrid;
   private Entity decoPreviewEntity = null;
   private Entity heldDecoEntity = null;
   private Entity hoveredDecoEntity = null;
@@ -209,8 +210,16 @@ public final class LitiengineLevelEditorSystem extends System {
       showFeedback("Selected deco: " + selectedDeco().name(), Color.WHITE);
     }
 
+    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
+      snapMode = snapMode.nextMode();
+      if (heldDecoEntity == null) {
+        previewDecoEntityChanged();
+      }
+      showFeedback("Snap mode: " + snapMode.displayName(), Color.WHITE);
+    }
+
     Point cursorPos = Platform.cursor().world();
-    Point snapPos = snappedCursorTile();
+    Point snapPos = currentDecoSnapPosition();
 
     if (InputManager.isKeyJustPressed(QUARTERNARY)) {
       pipetteDecoAtCursor();
@@ -325,6 +334,10 @@ public final class LitiengineLevelEditorSystem extends System {
     return new Point((float) Math.floor(cursorWorld.x()), (float) Math.floor(cursorWorld.y()));
   }
 
+  private Point currentDecoSnapPosition() {
+    return snapMode.getPosition(Platform.cursor().world());
+  }
+
   private java.util.Optional<LevelElement> tileElementAtCursor() {
     Point cursorPos = snappedCursorTile();
     return LevelSystem.level().flatMap(level -> level.tileAt(cursorPos)).map(Tile::levelElement);
@@ -379,7 +392,7 @@ public final class LitiengineLevelEditorSystem extends System {
   }
 
   private void previewDecoEntityChanged() {
-    Point currentPos = snappedCursorTile();
+    Point currentPos = currentDecoSnapPosition();
 
     if (decoPreviewEntity != null) {
       currentPos =
@@ -498,12 +511,16 @@ public final class LitiengineLevelEditorSystem extends System {
   }
 
   private boolean isCurrentDecoPlacementBlocked() {
+    if (!snapMode.checkBlocked()) {
+      return false;
+    }
+
     if (heldDecoEntity != null) {
       Point placementPos =
         heldDecoEntity
           .fetch(PositionComponent.class)
           .map(PositionComponent::position)
-          .orElse(snappedCursorTile());
+          .orElse(currentDecoSnapPosition());
       return isDecoPlacementBlocked(heldDecoEntity, placementPos);
     }
 
@@ -561,7 +578,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
     Point placementPos = alignedDecoPosition(heldDecoEntity, snapPos);
 
-    if (isDecoPlacementBlocked(heldDecoEntity, placementPos)) {
+    if (snapMode.checkBlocked() && isDecoPlacementBlocked(heldDecoEntity, placementPos)) {
       showFeedback("Cannot place held deco: target blocked", new Color(255, 210, 120));
       return;
     }
@@ -625,7 +642,9 @@ public final class LitiengineLevelEditorSystem extends System {
     Point placementPos =
       decoPreviewEntity != null ? alignedDecoPosition(decoPreviewEntity, snapPos) : snapPos;
 
-    if (decoPreviewEntity != null && isDecoPlacementBlocked(decoPreviewEntity, placementPos)) {
+    if (snapMode.checkBlocked()
+      && decoPreviewEntity != null
+      && isDecoPlacementBlocked(decoPreviewEntity, placementPos)) {
       showFeedback("Cannot place deco: target blocked", new Color(255, 210, 120));
       return;
     }
@@ -754,7 +773,9 @@ public final class LitiengineLevelEditorSystem extends System {
       }
 
       if (this.currentMode == Mode.DECOS) {
+        Point snapPos = currentDecoSnapPosition();
         ensureDecoPreviewEntity();
+        updateDecoPreviewPosition(snapPos);
         updateDecoPlacementIndicator();
       }
 
@@ -862,7 +883,9 @@ public final class LitiengineLevelEditorSystem extends System {
     this.currentMode = newMode;
 
     if (this.active && newMode == Mode.DECOS && heldDecoEntity == null) {
+      Point snapPos = currentDecoSnapPosition();
       ensureDecoPreviewEntity();
+      updateDecoPreviewPosition(snapPos);
       updateDecoPlacementIndicator();
     }
 
@@ -938,9 +961,11 @@ public final class LitiengineLevelEditorSystem extends System {
         + " ("
         + currentDeco.name()
         + ")");
+    lines.add("Snap mode: " + snapMode.displayName());
     lines.add("Placement: " + (isCurrentDecoPlacementBlocked() ? "blocked" : "valid"));
     lines.add("Hover: " + currentHoveredDecoName());
     lines.add("Preview tint: white = valid, red = blocked");
+    lines.add("C: next snap mode");
     lines.add("E/Q: next/prev deco");
     lines.add("LMB: place new deco or place held deco");
     lines.add("RMB: pick up placed deco near cursor");
@@ -1010,6 +1035,86 @@ public final class LitiengineLevelEditorSystem extends System {
         throw new IllegalArgumentException("Invalid mode number: " + number);
       }
       return values()[number];
+    }
+  }
+
+  private enum SnapMode {
+    OnGrid("OnGrid"),
+    QuarterGrid("QuarterGrid"),
+    PixelGrid("PixelGrid"),
+    OffGrid("OffGrid"),
+    CheckerGridEven("CheckerGridEven"),
+    CheckerGridOdd("CheckerGridOdd");
+
+    private final String displayName;
+
+    SnapMode(String displayName) {
+      this.displayName = displayName;
+    }
+
+    public String displayName() {
+      return displayName;
+    }
+
+    public SnapMode previousMode() {
+      return values()[(this.ordinal() - 1 + values().length) % values().length];
+    }
+
+    public SnapMode nextMode() {
+      return values()[(this.ordinal() + 1) % values().length];
+    }
+
+    public Point getPosition(Point position) {
+      return switch (this) {
+        case OnGrid ->
+          new Point((float) Math.floor(position.x()), (float) Math.floor(position.y()));
+        case QuarterGrid ->
+          new Point(
+            (float) Math.floor(position.x() * 4) / 4.0f,
+            (float) Math.floor(position.y() * 4) / 4.0f);
+        case PixelGrid ->
+          new Point(
+            (float) Math.floor(position.x() * 16) / 16.0f,
+            (float) Math.floor(position.y() * 16) / 16.0f);
+        case CheckerGridEven, CheckerGridOdd -> {
+          int parity = (this == CheckerGridEven) ? 0 : 1;
+
+          float px = position.x() - 0.5f;
+          float py = position.y() - 0.5f;
+
+          float gx = (float) Math.floor(px);
+          float gy = (float) Math.floor(py);
+
+          float bestX = gx;
+          float bestY = gy;
+          float bestDist = Float.MAX_VALUE;
+
+          for (int dx = 0; dx <= 1; dx++) {
+            for (int dy = 0; dy <= 1; dy++) {
+              float cx = gx + dx;
+              float cy = gy + dy;
+              if (((int) (cx + cy)) % 2 == parity) {
+                float dist = (px - cx) * (px - cx) + (py - cy) * (py - cy);
+                if (dist < bestDist) {
+                  bestDist = dist;
+                  bestX = cx;
+                  bestY = cy;
+                }
+              }
+            }
+          }
+
+          yield new Point(bestX, bestY);
+        }
+        case OffGrid -> position;
+      };
+    }
+
+    public boolean checkBlocked() {
+      return this == OnGrid
+        || this == QuarterGrid
+        || this == CheckerGridEven
+        || this == CheckerGridOdd;
     }
   }
 }
