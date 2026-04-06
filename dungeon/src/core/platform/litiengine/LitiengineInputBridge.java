@@ -110,6 +110,7 @@ public final class LitiengineInputBridge {
       case KeyEvent.VK_K -> Keys.K;
       case KeyEvent.VK_L -> Keys.L;
       case KeyEvent.VK_X -> Keys.X;
+      case KeyEvent.VK_V -> Keys.V;
       case KeyEvent.VK_COMMA -> Keys.COMMA;
       case KeyEvent.VK_PERIOD -> Keys.PERIOD;
 

@@ -90,6 +90,7 @@ public final class LitiengineLevelEditorSystem extends System {
   // Decos mode state.
   private int selectedDecoIndex = 0;
   private Entity decoPreviewEntity = null;
+  private Entity heldDecoEntity = null;
 
   private String feedbackMessage = "";
   private Color feedbackColor = Color.WHITE;
@@ -190,22 +191,41 @@ public final class LitiengineLevelEditorSystem extends System {
   private void executeDecosMode() {
     if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
       selectedDecoIndex = Math.floorMod(selectedDecoIndex + 1, Deco.values().length);
-      previewDecoEntityChanged();
+      if (heldDecoEntity == null) {
+        previewDecoEntityChanged();
+      }
       showFeedback("Selected deco: " + selectedDeco().name(), Color.WHITE);
     } else if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
       selectedDecoIndex = Math.floorMod(selectedDecoIndex - 1, Deco.values().length);
-      previewDecoEntityChanged();
+      if (heldDecoEntity == null) {
+        previewDecoEntityChanged();
+      }
       showFeedback("Selected deco: " + selectedDeco().name(), Color.WHITE);
     }
 
-    ensureDecoPreviewEntity();
-    updateDecoPreviewPosition(snappedCursorTile());
+    Point cursorPos = snappedCursorTile();
 
-    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
-      placeSelectedDeco();
-    } else if (InputManager.isKeyJustPressed(TERTIARY)) {
+    if (InputManager.isKeyJustPressed(QUARTERNARY)) {
+      pipetteDecoAtCursor();
+    } else if (InputManager.isButtonJustPressed(MouseButtons.RIGHT) && heldDecoEntity == null) {
+      pickupDecoAtCursor();
+    } else if (InputManager.isKeyJustPressed(TERTIARY) && heldDecoEntity == null) {
       deleteDecoAtCursor();
+    } else if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
+      if (heldDecoEntity != null) {
+        placeHeldDeco();
+      } else {
+        placeSelectedDeco();
+      }
     }
+
+    if (heldDecoEntity != null) {
+      updateHeldDecoPosition(cursorPos);
+      return;
+    }
+
+    ensureDecoPreviewEntity();
+    updateDecoPreviewPosition(cursorPos);
   }
 
   private void applyBrush(LevelElement element, int targetBrushSize) {
@@ -370,6 +390,101 @@ public final class LitiengineLevelEditorSystem extends System {
     decoPreviewEntity.fetch(PositionComponent.class).ifPresent(pc -> pc.position(pos));
   }
 
+  private void updateHeldDecoPosition(Point pos) {
+    if (heldDecoEntity == null) {
+      return;
+    }
+
+    heldDecoEntity.fetch(PositionComponent.class).ifPresent(pc -> pc.position(pos));
+  }
+
+  private void pickupDecoAtCursor() {
+    Optional<Entity> placedDeco = findPlacedDecoNear(Platform.cursor().world());
+    if (placedDeco.isEmpty()) {
+      return;
+    }
+
+    heldDecoEntity = placedDeco.get();
+    removeDecoPreviewEntity();
+
+    String pickedName =
+      heldDecoEntity
+        .fetch(DecoComponent.class)
+        .map(DecoComponent::type)
+        .map(Enum::name)
+        .orElse("Deco");
+
+    updateHeldDecoPosition(snappedCursorTile());
+    showFeedback("Picked up deco: " + pickedName, new Color(120, 220, 120));
+  }
+
+  private void placeHeldDeco() {
+    if (heldDecoEntity == null) {
+      return;
+    }
+
+    Point placementPos =
+      heldDecoEntity
+        .fetch(PositionComponent.class)
+        .map(PositionComponent::position)
+        .orElse(snappedCursorTile());
+
+    Optional<Entity> blockingDeco =
+      findPlacedDecoNear(placementPos).filter(entity -> !entity.equals(heldDecoEntity));
+
+    if (blockingDeco.isPresent()) {
+      showFeedback("Cannot place held deco: position already occupied", new Color(255, 210, 120));
+      return;
+    }
+
+    String placedName =
+      heldDecoEntity
+        .fetch(DecoComponent.class)
+        .map(DecoComponent::type)
+        .map(Enum::name)
+        .orElse("Deco");
+
+    syncPlacedDecos();
+    heldDecoEntity = null;
+    ensureDecoPreviewEntity();
+    updateDecoPreviewPosition(placementPos);
+
+    showFeedback("Placed held deco: " + placedName, new Color(120, 220, 120));
+  }
+
+  private void pipetteDecoAtCursor() {
+    Optional<Entity> placedDeco = findPlacedDecoNear(Platform.cursor().world());
+    if (placedDeco.isEmpty()) {
+      return;
+    }
+
+    Optional<Deco> decoType = placedDeco.get().fetch(DecoComponent.class).map(DecoComponent::type);
+    if (decoType.isEmpty()) {
+      return;
+    }
+
+    Deco[] values = Deco.values();
+    for (int i = 0; i < values.length; i++) {
+      if (values[i] == decoType.get()) {
+        selectedDecoIndex = i;
+        if (heldDecoEntity == null) {
+          previewDecoEntityChanged();
+        }
+        showFeedback("Picked deco type: " + decoType.get().name(), Color.WHITE);
+        return;
+      }
+    }
+  }
+
+  private void releaseHeldDecoIfNecessary() {
+    if (heldDecoEntity == null) {
+      return;
+    }
+
+    syncPlacedDecos();
+    heldDecoEntity = null;
+  }
+
   private void placeSelectedDeco() {
     Point placementPos = currentDecoPreviewPosition();
 
@@ -483,6 +598,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
     restorePlayerCallbacks();
     enablePlayerGodMode(false);
+    releaseHeldDecoIfNecessary();
     removeDecoPreviewEntity();
 
     overlay.visible(false);
@@ -568,13 +684,14 @@ public final class LitiengineLevelEditorSystem extends System {
 
     Mode oldMode = this.currentMode;
 
-    if (oldMode == Mode.DECOS && newMode != Mode.DECOS) {
+    if (oldMode == Mode.DECOS) {
+      releaseHeldDecoIfNecessary();
       removeDecoPreviewEntity();
     }
 
     this.currentMode = newMode;
 
-    if (this.active && newMode == Mode.DECOS) {
+    if (this.active && newMode == Mode.DECOS && heldDecoEntity == null) {
       ensureDecoPreviewEntity();
     }
 
@@ -651,10 +768,14 @@ public final class LitiengineLevelEditorSystem extends System {
         + currentDeco.name()
         + ")");
     lines.add("E/Q: next/prev deco");
-    lines.add("LMB: place selected deco");
+    lines.add("LMB: place new deco or place held deco");
+    lines.add("RMB: pick up placed deco near cursor");
     lines.add("X: delete placed deco near cursor");
-    lines.add("Preview: translucent ghost entity at placement position");
-    lines.add("Pickup/move and pipette follow in later commits");
+    lines.add("V: pipette deco type near cursor");
+    lines.add(
+      heldDecoEntity == null
+        ? "State: preview ghost active"
+        : "State: holding placed deco");
     return lines;
   }
 
