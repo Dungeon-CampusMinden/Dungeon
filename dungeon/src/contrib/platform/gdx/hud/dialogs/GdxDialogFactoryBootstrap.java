@@ -31,8 +31,6 @@ public final class GdxDialogFactoryBootstrap {
     DialogFactory.replace(
       DialogType.DefaultTypes.TEXT, ctx -> wrap(GdxTextDialogBuilder.build(ctx)));
     DialogFactory.replace(
-      DialogType.DefaultTypes.IMAGE, ctx -> wrap(GdxShowImageDialogBuilder.build(ctx)));
-    DialogFactory.replace(
       DialogType.DefaultTypes.FREE_INPUT, ctx -> wrap(GdxFreeInputDialogBuilder.build(ctx)));
     DialogFactory.replace(
       DialogType.DefaultTypes.KEYPAD, ctx -> wrap(GdxKeypadDialogBuilder.build(ctx)));
