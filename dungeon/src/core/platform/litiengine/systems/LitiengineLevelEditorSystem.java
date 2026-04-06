@@ -1,6 +1,7 @@
 package core.platform.litiengine.systems;
 
 import contrib.components.CollideComponent;
+import contrib.components.DecoComponent;
 import contrib.components.HealthComponent;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
@@ -21,10 +22,7 @@ import core.platform.litiengine.ui.LitiengineLevelEditorOverlay;
 import core.platform.litiengine.ui.LitiengineUiOverlayRegistry;
 import core.systems.LevelSystem;
 import core.ui.StageHandle;
-import core.utils.InputManager;
-import core.utils.Point;
-import core.utils.Time;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.logging.DungeonLogger;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -32,6 +30,7 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -75,6 +74,7 @@ public final class LitiengineLevelEditorSystem extends System {
    * <p>White with ~50% alpha, equivalent to the old preview idea from the legacy deco editor mode.
    */
   private static final int DECO_PREVIEW_TINT = 0xFFFFFF80;
+  private static final double DECO_CURSOR_DISTANCE = 0.75d;
 
   private final LitiengineLevelEditorOverlay overlay = new LitiengineLevelEditorOverlay();
 
@@ -141,7 +141,7 @@ public final class LitiengineLevelEditorSystem extends System {
   private void executeCurrentMode() {
     switch (currentMode) {
       case TILES -> executeTilesMode();
-      case DECOS -> executeDecosPreviewMode();
+      case DECOS -> executeDecosMode();
       case POINTS, LEVEL_BOUNDS, SHIFT_LEVEL, START_TILES, SAVE_LEVEL -> {
         // intentionally not ported yet
       }
@@ -187,12 +187,7 @@ public final class LitiengineLevelEditorSystem extends System {
     }
   }
 
-  /**
-   * First LITIENGINE-native DECO mode step: visible selection and ghost preview only.
-   *
-   * <p>Placement/removal follows in the next commit. This keeps the port small and focused.
-   */
-  private void executeDecosPreviewMode() {
+  private void executeDecosMode() {
     if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
       selectedDecoIndex = Math.floorMod(selectedDecoIndex + 1, Deco.values().length);
       previewDecoEntityChanged();
@@ -205,6 +200,12 @@ public final class LitiengineLevelEditorSystem extends System {
 
     ensureDecoPreviewEntity();
     updateDecoPreviewPosition(snappedCursorTile());
+
+    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
+      placeSelectedDeco();
+    } else if (InputManager.isKeyJustPressed(TERTIARY)) {
+      deleteDecoAtCursor();
+    }
   }
 
   private void applyBrush(LevelElement element, int targetBrushSize) {
@@ -367,6 +368,91 @@ public final class LitiengineLevelEditorSystem extends System {
     }
 
     decoPreviewEntity.fetch(PositionComponent.class).ifPresent(pc -> pc.position(pos));
+  }
+
+  private void placeSelectedDeco() {
+    Point placementPos = currentDecoPreviewPosition();
+
+    if (findPlacedDecoNear(placementPos).isPresent()) {
+      showFeedback("Cannot place deco: position already occupied", new Color(255, 210, 120));
+      return;
+    }
+
+    Entity placedDeco = DecoFactory.createDeco(placementPos, selectedDeco());
+    Game.add(placedDeco);
+    syncPlacedDecos();
+
+    showFeedback("Placed deco: " + selectedDeco().name(), new Color(120, 220, 120));
+  }
+
+  private void deleteDecoAtCursor() {
+    Optional<Entity> placedDeco = findPlacedDecoNear(Platform.cursor().world());
+    if (placedDeco.isEmpty()) {
+      return;
+    }
+
+    String removedName =
+      placedDeco.get()
+        .fetch(DecoComponent.class)
+        .map(DecoComponent::type)
+        .map(Enum::name)
+        .orElse("Deco");
+
+    Game.remove(placedDeco.get());
+    syncPlacedDecos();
+
+    showFeedback("Removed deco: " + removedName, new Color(255, 180, 180));
+  }
+
+  private Point currentDecoPreviewPosition() {
+    if (decoPreviewEntity == null) {
+      return snappedCursorTile();
+    }
+
+    return decoPreviewEntity
+      .fetch(PositionComponent.class)
+      .map(PositionComponent::position)
+      .orElse(snappedCursorTile());
+  }
+
+  private Optional<Entity> findPlacedDecoNear(Point worldPos) {
+    if (worldPos == null) {
+      return Optional.empty();
+    }
+
+    return Game.levelEntities()
+      .filter(entity -> entity.isPresent(DecoComponent.class))
+      .filter(entity -> entity.isPresent(PositionComponent.class))
+      .filter(entity -> decoPreviewEntity == null || !entity.equals(decoPreviewEntity))
+      .filter(
+        entity ->
+          entity
+            .fetch(PositionComponent.class)
+            .map(PositionComponent::position)
+            .map(pos -> pos.distance(worldPos) <= DECO_CURSOR_DISTANCE)
+            .orElse(false))
+      .findFirst();
+  }
+
+  private void syncPlacedDecos() {
+    Game.currentLevel()
+      .ifPresent(
+        level -> {
+          List<Tuple<Deco, Point>> placedDecos =
+            Game.levelEntities()
+              .filter(entity -> entity.isPresent(DecoComponent.class))
+              .filter(entity -> entity.isPresent(PositionComponent.class))
+              .filter(entity -> !entity.equals(decoPreviewEntity))
+              .map(
+                entity ->
+                  new Tuple<>(
+                    entity.fetch(DecoComponent.class).orElseThrow().type(),
+                    entity.fetch(PositionComponent.class).orElseThrow().position()))
+              .toList();
+
+          level.decorations().clear();
+          level.decorations().addAll(placedDecos);
+        });
   }
 
   private void setActive(boolean active) {
@@ -565,8 +651,10 @@ public final class LitiengineLevelEditorSystem extends System {
         + currentDeco.name()
         + ")");
     lines.add("E/Q: next/prev deco");
-    lines.add("Preview: follows cursor as a translucent ghost entity");
-    lines.add("Placement/removal will follow in the next dedicated commit");
+    lines.add("LMB: place selected deco");
+    lines.add("X: delete placed deco near cursor");
+    lines.add("Preview: translucent ghost entity at placement position");
+    lines.add("Pickup/move and pipette follow in later commits");
     return lines;
   }
 
