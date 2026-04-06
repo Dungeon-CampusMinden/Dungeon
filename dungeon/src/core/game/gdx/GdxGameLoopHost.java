@@ -32,7 +32,6 @@ import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.*;
 import core.platform.Platform;
 import core.platform.gdx.GdxInputBridge;
-import core.platform.gdx.render.DrawSystem;
 import core.platform.gdx.sound.GdxSoundPlayer;
 import core.platform.gdx.systems.GdxCameraSystem;
 import core.platform.gdx.window.GdxWindowEventsBridge;
@@ -121,11 +120,6 @@ public final class GdxGameLoopHost extends ScreenAdapter {
 
     // Host-specific: fullscreen toggle key (still uses libGDX display modes).
     fullscreenKey();
-
-    // Host-specific: keep projection in sync (was in old GameLoop.render()).
-    ECSManagement.system(
-      DrawSystem.class,
-      drawSystem -> DrawSystem.batch().setProjectionMatrix(GdxCameraSystem.camera().combined));
 
     // Host-specific: sound update belongs to the host (not the core).
     Game.soundPlayer().update(delta);

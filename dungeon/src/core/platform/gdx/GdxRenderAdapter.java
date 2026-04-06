@@ -2,10 +2,8 @@ package core.platform.gdx;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import core.Entity;
 import core.platform.Platform;
 import core.platform.RenderAdapter;
-import core.platform.gdx.render.DrawSystem;
 import core.platform.gdx.render.GdxBlendUtils;
 import core.platform.gdx.systems.GdxCameraSystem;
 import core.systems.SoundSystem;
@@ -19,8 +17,7 @@ public final class GdxRenderAdapter implements RenderAdapter {
   @Override
   public List<SystemBinding> defaultRenderSystems() {
     return List.of(
-      new SystemBinding(SoundSystem.class, SoundSystem::new),
-      new SystemBinding(DrawSystem.class, DrawSystem::getInstance));
+      new SystemBinding(SoundSystem.class, SoundSystem::new));
   }
 
   @Override
@@ -64,11 +61,5 @@ public final class GdxRenderAdapter implements RenderAdapter {
   public void setStraightAlphaBlending(Object batch) {
     if (!Platform.runtime().supportsGdxRendering()) return;
     GdxBlendUtils.setStraightAlphaBlending(batch);
-  }
-
-  @Override
-  public void changeEntityDepth(Entity entity, int depth) {
-    if (!Platform.runtime().supportsGdxRendering() || entity == null) return;
-    DrawSystem.getInstance().changeEntityDepth(entity, depth);
   }
 }
