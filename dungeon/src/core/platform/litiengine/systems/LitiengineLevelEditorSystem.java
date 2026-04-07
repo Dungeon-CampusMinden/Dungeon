@@ -862,6 +862,8 @@ public final class LitiengineLevelEditorSystem extends System {
       suspendConflictingPlayerCallbacks();
       enablePlayerGodMode(true);
 
+      onModeEnter(this.currentMode);
+
       overlay.visible(true);
       if (!LitiengineUiOverlayRegistry.contains(overlay)) {
         LitiengineUiOverlayRegistry.add(overlay);
@@ -879,6 +881,8 @@ public final class LitiengineLevelEditorSystem extends System {
       LOGGER.info("Activated LITIENGINE level editor.");
       return;
     }
+
+    onModeExit(this.currentMode);
 
     restorePlayerCallbacks();
     enablePlayerGodMode(false);
