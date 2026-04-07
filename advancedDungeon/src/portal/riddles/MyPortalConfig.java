@@ -43,47 +43,21 @@ public class MyPortalConfig extends PortalConfig {
    */
   @Override
   public long cooldown() {
-    return 300;
+    return 500;
   }
 
-  /**
-   * Bestimmt die Geschwindigkeit des Portal-Schusses.
-   *
-   * <p>Dieser Wert beeinflusst, wie schnell sich der Portal-Schuss in Richtung seines Zielpunkts
-   * bewegt.
-   *
-   * @return Die Geschwindigkeit des Portal-Schusses
-   */
   @Override
   public float speed() {
-    return 1;
+    return 10;
   }
 
-  /**
-   * Bestimmt die Reichweite des Portal-Schusses.
-   *
-   * <p>Die Reichweite gibt an, wie weit entfernt der Zielpunkt maximal sein darf.
-   *
-   * @return Die Reichweite des Portal-Schusses
-   */
   @Override
   public float range() {
-    return 1;
+    return Integer.MAX_VALUE;
   }
 
-  /**
-   * Legt den Zielpunkt des Portal-Schusses fest.
-   *
-   * <p>Diese Methode liefert eine Funktion, die bestimmt, <b>auf welchen Punkt der Portal-Schuss
-   * zielt</b>.
-   *
-   * <p>Der zurückgegebene {@link Point} beschreibt die Position, die der Portal-Schuss anfliegen
-   * soll. Auf Basis dieses Punktes berechnet die Engine anschließend die Flugbahn.
-   *
-   * @return Eine Funktion, die den Zielpunkt des Portal-Schusses liefert
-   */
   @Override
   public Supplier<Point> target() {
-    return () -> new Point(0, 0);
+    return () -> hero.getMousePosition();
   }
 }

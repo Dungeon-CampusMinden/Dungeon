@@ -1,6 +1,7 @@
 package portal.riddles;
 
 import core.Entity;
+import portal.lightWall.LightWallFactory;
 import portal.lightWall.LightWallSwitch;
 
 /**
@@ -22,16 +23,10 @@ public class MyLightWallSwitch extends LightWallSwitch {
    */
   @Override
   public void activate(Entity emitter) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    LightWallFactory.activate(emitter);
   }
-
-  /**
-   * Wird aufgerufen, wenn die Lichtwand ausgeschaltet werden soll.
-   *
-   * @param emitter Die Lichtwand (oder ihr Erzeuger)
-   */
   @Override
   public void deactivate(Entity emitter) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    LightWallFactory.deactivate(emitter);
   }
 }

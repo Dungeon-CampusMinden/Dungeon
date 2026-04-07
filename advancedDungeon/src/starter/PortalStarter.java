@@ -50,7 +50,7 @@ public class PortalStarter {
    *
    * <p>Also disables recompilation for player control.
    */
-  public static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = true;
 
   private static final boolean LEVELEDITOR_MODE = false;
 

@@ -2,6 +2,7 @@ package portal.riddles;
 
 import core.Entity;
 import portal.lightBridge.BridgeSwitch;
+import portal.lightBridge.LightBridgeFactory;
 
 /**
  * Dein eigener Schalter für eine Lichtbrücke.
@@ -21,20 +22,11 @@ public class MyBridgeSwitch extends BridgeSwitch {
    *
    * @param emitter Die Lichtbrücke (oder ihr Erzeuger), die aktiviert werden soll
    */
-  @Override
   public void activate(Entity emitter) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    LightBridgeFactory.activate(emitter);
   }
 
-  /**
-   * Wird aufgerufen, wenn der Schalter deaktiviert wird.
-   *
-   * <p>Hier legst du fest, was passieren soll, wenn die Lichtbrücke ausgeschaltet wird.
-   *
-   * @param emitter Die Lichtbrücke (oder ihr Erzeuger), die deaktiviert werden soll
-   */
-  @Override
   public void deactivate(Entity emitter) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    LightBridgeFactory.deactivate(emitter);
   }
 }

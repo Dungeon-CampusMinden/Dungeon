@@ -2,6 +2,7 @@ package portal.riddles;
 
 import core.Entity;
 import portal.laserGrid.LaserGridSwitch;
+import portal.riddles.utils.Tools;
 
 /**
  * Dein eigener Schalter für ein Laser-Gitter.
@@ -26,18 +27,11 @@ public class MyLaserGridSwitch extends LaserGridSwitch {
    */
   @Override
   public void activate(Entity[] grid) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    for (Entity laser : grid) Tools.getLaserGridComponent(laser).activate();
   }
 
-  /**
-   * Wird aufgerufen, wenn das Laser-Gitter deaktiviert werden soll.
-   *
-   * <p>Hier legst du fest, was mit den Lasern passieren soll, wenn der Schalter ausgeschaltet wird.
-   *
-   * @param grid Die Laser-Elemente des Gitters
-   */
   @Override
   public void deactivate(Entity[] grid) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    for (Entity laser : grid) Tools.getLaserGridComponent(laser).deactivate();
   }
 }

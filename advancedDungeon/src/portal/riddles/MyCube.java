@@ -22,26 +22,11 @@ import portal.physicsobject.PortalCube;
  */
 public class MyCube extends PortalCube {
 
-  /** Die Masse des Würfels (beeinflusst, wie schwer er zu bewegen ist). */
-  private float mass = 0.1f;
-
-  /** Gibt an, ob der Würfel aufgehoben werden kann. */
-  private boolean isPickupable = false;
-
-  /** Der Pfad zur Grafik des Würfels. */
+  private float mass = 20f;
+  private boolean isPickupable = true;
   private String texture = "portal/portal_cube/portal_cube.png";
 
-  /**
-   * Erzeugt einen neuen Würfel an der angegebenen Position.
-   *
-   * <p>Hier wird der Würfel mit den oben festgelegten Eigenschaften erstellt und im Spiel
-   * platziert.
-   *
-   * @param spawn Die Position, an der der Würfel erscheinen soll
-   * @return Der erzeugte Würfel als {@link Entity}
-   */
-  @Override
   public Entity spawn(Point spawn) {
-    return Cube.portalCube(new Point(0, 0), mass, isPickupable, texture);
+    return Cube.portalCube(spawn, mass, isPickupable, texture);
   }
 }

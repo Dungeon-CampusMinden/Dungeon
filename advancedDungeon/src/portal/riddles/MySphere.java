@@ -23,25 +23,11 @@ import portal.physicsobject.Sphere;
  */
 public class MySphere extends PortalSphere {
 
-  /** Die Masse der Kugel (beeinflusst, wie leicht sie rollt). */
-  private float mass = 0.1f;
-
-  /** Gibt an, ob die Kugel aufgehoben werden kann. */
-  private boolean isPickupable = false;
-
-  /** Der Pfad zur Grafik der Kugel. */
+  private float mass = 20f;
+  private boolean isPickupable = true;
   private String texture = "portal/kubus/kubus.png";
 
-  /**
-   * Erzeugt eine neue Kugel an der angegebenen Position.
-   *
-   * <p>Hier wird die Kugel mit den oben festgelegten Eigenschaften erstellt und im Spiel platziert.
-   *
-   * @param spawn Die Position, an der die Kugel erscheinen soll
-   * @return Die erzeugte Kugel als {@link Entity}
-   */
-  @Override
   public Entity spawn(Point spawn) {
-    return Sphere.portalSphere(new Point(0, 0), mass, isPickupable, texture);
+    return Sphere.portalSphere(spawn, mass, isPickupable, texture);
   }
 }

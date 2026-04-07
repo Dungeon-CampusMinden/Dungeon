@@ -1,11 +1,17 @@
 package portal.riddles;
 
 import core.Entity;
+import core.components.PositionComponent;
+import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import portal.portals.abstraction.Calculations;
+import portal.riddles.utils.PortalUtils;
+import portal.riddles.utils.Tools;
+
+import java.util.Arrays;
 
 /**
  * Eine konkrete Implementierung von {@link Calculations}, die grundlegende Berechnungen für das
@@ -38,7 +44,15 @@ public class MyCalculations extends Calculations {
    * @return Die berechnete Zielposition als {@link Point}
    */
   public Point calculatePortalExit(Entity portal) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    Entity otherPortal;
+
+    if (portal.name().equals(PortalUtils.BLUE_PORTAL_NAME))
+      otherPortal = Tools.getPortal(PortalUtils.GREEN_PORTAL_NAME);
+    else otherPortal = Tools.getPortal(PortalUtils.BLUE_PORTAL_NAME);
+
+    PositionComponent pc = Tools.getPositionComponent(otherPortal);
+    Direction direction = pc.viewDirection();
+    return pc.position().translate(direction);
   }
 
   /**
@@ -66,8 +80,18 @@ public class MyCalculations extends Calculations {
    * @return Der letzte Punkt, den die Lichtwand noch erreichen darf
    */
   public Point calculateLightWallAndBridgeEnd(
-      Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    Point from, Direction beamDirection, LevelElement[] stoppingTiles) {
+    Point lastPoint = from;
+    Point currentPoint = from;
+
+    while (true) {
+      Tile currentTile = Tools.tileAt(currentPoint);
+      if (currentTile == null) break;
+      if (Arrays.asList(stoppingTiles).contains(currentTile.levelElement())) break;
+      lastPoint = currentPoint;
+      currentPoint = currentPoint.translate(beamDirection);
+    }
+    return lastPoint;
   }
 
   /**
@@ -91,23 +115,11 @@ public class MyCalculations extends Calculations {
    * @param direction Die Richtung, in die der Traktorstrahl zeigt
    * @return Ein {@link Vector2}, der die Kraft des Traktorstrahls beschreibt
    */
+  private static final float FORCE_MAGNITUDE = 20f;
   public Vector2 beamForce(Direction direction) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return Vector2.of(direction.x() * FORCE_MAGNITUDE, direction.y() * FORCE_MAGNITUDE);
   }
-
-  /**
-   * Bestimmt die entgegengesetzte Kraft des Traktorstrahls.
-   *
-   * <p>Diese Methode wird verwendet, wenn ein Objekt <b>in die andere Richtung</b> bewegt werden
-   * soll, zum Beispiel beim Zurückstoßen oder Herausziehen aus dem Strahl.
-   *
-   * <p>Meist ist diese Kraft genau das Gegenteil von {@link #beamForce(Direction)}. Du kannst sie
-   * aber auch schwächer oder stärker machen, um besondere Effekte zu erzeugen.
-   *
-   * @param direction Die ursprüngliche Richtung des Traktorstrahls
-   * @return Ein {@link Vector2}, der die entgegengesetzte Kraft beschreibt
-   */
   public Vector2 reversedBeamForce(Direction direction) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return this.beamForce(direction).scale(-1);
   }
 }
