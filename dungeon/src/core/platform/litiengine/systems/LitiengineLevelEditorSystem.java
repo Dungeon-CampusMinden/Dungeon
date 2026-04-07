@@ -25,7 +25,6 @@ import core.platform.litiengine.render.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineGraphicsContext;
 import core.platform.litiengine.ui.LitiengineLevelEditorOverlay;
 import core.platform.litiengine.ui.LitiengineUiOverlayRegistry;
-import core.systems.LevelSystem;
 import core.ui.StageHandle;
 import core.utils.*;
 import core.utils.logging.DungeonLogger;
@@ -33,7 +32,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.*;
-import java.util.function.Consumer;
 
 /**
  * Minimal LITIENGINE-native level editor.
@@ -65,11 +63,6 @@ public final class LitiengineLevelEditorSystem extends System {
   private static final int TERTIARY = Keys.X;
   private static final int QUARTERNARY = Keys.V;
 
-  private static final int MAX_BRUSH_SIZE = 7;
-  private static final Color BRUSH_PREVIEW_FILL = new Color(255, 255, 255, 36);
-  private static final Color BRUSH_PREVIEW_BORDER = new Color(255, 255, 255, 175);
-  private static final int BRUSH_PREVIEW_INSET_PX = 1;
-
   /**
    * DrawComponent tintColor uses packed RGBA8888.
    *
@@ -86,11 +79,6 @@ public final class LitiengineLevelEditorSystem extends System {
   private boolean active = false;
   private Mode currentMode = Mode.TILES;
   private Map<Integer, InputComponent.InputData> playerCallbacks = null;
-
-  // Tiles mode state.
-  private int selectedTileIndexL = 1;
-  private int selectedTileIndexR = 2;
-  private int brushSize = 1;
 
   // Decos mode state.
   private int selectedDecoIndex = 0;
@@ -126,6 +114,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
   private boolean debugVisualizationActive = false;
 
+  private final LevelEditorMode tilesMode = new TilesMode(this);
   private final LevelEditorMode saveMode = new SaveMode(this);
   private final LevelEditorMode shiftLevelMode = new ShiftLevelMode(this);
   private final LevelEditorMode levelBoundsMode = new LevelBoundsMode(this);
@@ -194,7 +183,7 @@ public final class LitiengineLevelEditorSystem extends System {
     }
 
     if (this.currentMode == Mode.TILES) {
-      renderTileBrushPreview(g);
+      tilesMode.render(g, deltaSeconds);
     } else if (this.currentMode == Mode.POINTS) {
       pointMode.render(g, deltaSeconds);
     } else if (this.currentMode == Mode.START_TILES) {
@@ -208,52 +197,13 @@ public final class LitiengineLevelEditorSystem extends System {
 
   private void executeCurrentMode() {
     switch (currentMode) {
-      case TILES -> executeTilesMode();
+      case TILES -> tilesMode.doExecute();
       case DECOS -> executeDecosMode();
       case POINTS -> pointMode.doExecute();
       case LEVEL_BOUNDS -> levelBoundsMode.doExecute();
       case SHIFT_LEVEL -> shiftLevelMode.doExecute();
       case START_TILES -> startTilesMode.doExecute();
       case SAVE_LEVEL -> saveMode.doExecute();
-    }
-  }
-
-  private void executeTilesMode() {
-    if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
-      if (InputManager.isButtonPressed(MouseButtons.RIGHT)) {
-        selectedTileIndexR -= 1;
-      } else {
-        selectedTileIndexL -= 1;
-      }
-    } else if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
-      if (InputManager.isButtonPressed(MouseButtons.RIGHT)) {
-        selectedTileIndexR += 1;
-      } else {
-        selectedTileIndexL += 1;
-      }
-    }
-
-    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
-      brushSize = Math.min(MAX_BRUSH_SIZE, brushSize + 1);
-    } else if (InputManager.isKeyJustPressed(SECONDARY_DOWN)) {
-      brushSize = Math.max(1, brushSize - 1);
-    }
-
-    if (InputManager.isKeyJustPressed(QUARTERNARY)) {
-      tileElementAtCursor()
-        .ifPresent(
-          element -> {
-            selectedTileIndexL = element.ordinal();
-            showFeedback("Picked tile " + element.name() + " for left paint", Color.WHITE);
-          });
-    }
-
-    if (InputManager.isButtonPressed(MouseButtons.LEFT)) {
-      applyBrush(selectedLeftElement(), brushSize);
-    } else if (InputManager.isButtonPressed(MouseButtons.RIGHT)) {
-      applyBrush(selectedRightElement(), 1);
-    } else if (InputManager.isKeyPressed(TERTIARY)) {
-      applyBrush(LevelElement.SKIP, 1);
     }
   }
 
@@ -310,87 +260,6 @@ public final class LitiengineLevelEditorSystem extends System {
     updateHoveredDecoIndicator(cursorPos);
   }
 
-  private void applyBrush(LevelElement element, int targetBrushSize) {
-    LevelSystem.level()
-      .ifPresent(
-        level ->
-          forEachBrushTile(
-            targetBrushSize,
-            targetPos ->
-              level.tileAt(targetPos)
-                .ifPresent(tile -> level.changeTileElementType(tile, element))));
-  }
-
-  private void forEachBrushTile(int targetBrushSize, Consumer<Point> consumer) {
-    if (consumer == null) {
-      return;
-    }
-
-    int normalizedBrushSize = Math.max(1, targetBrushSize);
-    Point cursorPos = snappedCursorTile();
-
-    for (int dx = -normalizedBrushSize + 1; dx < normalizedBrushSize; dx++) {
-      for (int dy = -normalizedBrushSize + 1; dy < normalizedBrushSize; dy++) {
-        if (Math.abs(dx) + Math.abs(dy) >= normalizedBrushSize) {
-          continue;
-        }
-
-        consumer.accept(cursorPos.translate(Vector2.of(dx, dy)));
-      }
-    }
-  }
-
-  private void renderTileBrushPreview(Graphics2D g) {
-    LitiengineCameraViews.View view = LitiengineCameraViews.get();
-    if (view == null || view.tilePx() <= 0) {
-      return;
-    }
-
-    int levelHeight =
-      view.levelHeight() > 0
-        ? view.levelHeight()
-        : Game.currentLevel().map(level -> level.layout().length).orElse(0);
-
-    int previewBrushSize = currentPreviewBrushSize();
-
-    Graphics2D g2 = (Graphics2D) g.create();
-    try {
-      g2.setStroke(new BasicStroke(Math.max(1f, view.tilePx() / 16f)));
-
-      forEachBrushTile(previewBrushSize, tilePos -> drawPreviewTile(g2, tilePos, view, levelHeight));
-    } finally {
-      g2.dispose();
-    }
-  }
-
-  private int currentPreviewBrushSize() {
-    if (InputManager.isButtonPressed(MouseButtons.RIGHT) || InputManager.isKeyPressed(TERTIARY)) {
-      return 1;
-    }
-
-    return this.brushSize;
-  }
-
-  private void drawPreviewTile(
-    Graphics2D g, Point tilePos, LitiengineCameraViews.View view, int levelHeight) {
-    int tilePx = view.tilePx();
-
-    int screenX = (int) Math.round(tilePos.x() * tilePx + view.offsetX());
-
-    float screenTileY =
-      levelHeight > 0 ? (levelHeight - 1 - tilePos.y()) * tilePx : tilePos.y() * tilePx;
-    int screenY = (int) Math.round(screenTileY + view.offsetY());
-
-    int inset = Math.clamp(tilePx / 4, 0, BRUSH_PREVIEW_INSET_PX);
-    int size = Math.max(1, tilePx - 2 * inset);
-
-    g.setColor(BRUSH_PREVIEW_FILL);
-    g.fillRect(screenX + inset, screenY + inset, size, size);
-
-    g.setColor(BRUSH_PREVIEW_BORDER);
-    g.drawRect(screenX + inset, screenY + inset, size, size);
-  }
-
   private Point snappedCursorTile() {
     Point cursorWorld = Platform.cursor().world();
     return new Point((float) Math.floor(cursorWorld.x()), (float) Math.floor(cursorWorld.y()));
@@ -398,21 +267,6 @@ public final class LitiengineLevelEditorSystem extends System {
 
   private Point currentDecoSnapPosition() {
     return decoSnapMode.getPosition(Platform.cursor().world());
-  }
-
-  private java.util.Optional<LevelElement> tileElementAtCursor() {
-    Point cursorPos = snappedCursorTile();
-    return LevelSystem.level().flatMap(level -> level.tileAt(cursorPos)).map(Tile::levelElement);
-  }
-
-  private LevelElement selectedLeftElement() {
-    LevelElement[] values = LevelElement.values();
-    return values[Math.floorMod(selectedTileIndexL, values.length)];
-  }
-
-  private LevelElement selectedRightElement() {
-    LevelElement[] values = LevelElement.values();
-    return values[Math.floorMod(selectedTileIndexR, values.length)];
   }
 
   private Deco selectedDeco() {
@@ -995,7 +849,7 @@ public final class LitiengineLevelEditorSystem extends System {
     lines.add("");
 
     if (currentMode == Mode.TILES) {
-      lines.addAll(buildTilesModeLines());
+      lines.addAll(tilesMode.getFullStatusLines());
     } else if (currentMode == Mode.DECOS) {
       lines.addAll(buildDecosModeLines());
     } else if (currentMode == Mode.POINTS) {
@@ -1012,21 +866,6 @@ public final class LitiengineLevelEditorSystem extends System {
       lines.add("This mode is not ported yet on the LITIENGINE path.");
     }
 
-    return lines;
-  }
-
-  private List<String> buildTilesModeLines() {
-    Point cursor = snappedCursorTile();
-
-    List<String> lines = new ArrayList<>();
-    lines.add("Cursor tile: (" + (int) cursor.x() + ", " + (int) cursor.y() + ")");
-    lines.add("Left paint: " + selectedLeftElement().name());
-    lines.add("Right paint: " + selectedRightElement().name());
-    lines.add("Brush size: " + brushSize);
-    lines.add("E/Q: next/prev left tile");
-    lines.add("Hold RMB + E/Q: next/prev right tile");
-    lines.add("C/Z: brush + / -");
-    lines.add("LMB: paint | RMB: alt paint | X: erase to SKIP | V: pipette to left paint");
     return lines;
   }
 
