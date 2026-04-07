@@ -150,7 +150,8 @@ public final class LitiengineLevelEditorSystem extends System {
     switch (currentMode) {
       case TILES -> executeTilesMode();
       case DECOS -> executeDecosMode();
-      case POINTS, LEVEL_BOUNDS, SHIFT_LEVEL, START_TILES, SAVE_LEVEL -> {
+      case SAVE_LEVEL -> executeSaveLevelMode();
+      case POINTS, LEVEL_BOUNDS, SHIFT_LEVEL, START_TILES -> {
         // intentionally not ported yet
       }
     }
@@ -246,6 +247,13 @@ public final class LitiengineLevelEditorSystem extends System {
     updateDecoPreviewPosition(snapPos);
     updateDecoPlacementIndicator();
     updateHoveredDecoIndicator(cursorPos);
+  }
+
+  private void executeSaveLevelMode() {
+    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
+      core.level.loader.DungeonSaver.saveCurrentDungeon();
+      showFeedback("Exported level to clipboard!", new Color(120, 220, 120));
+    }
   }
 
   private void applyBrush(LevelElement element, int targetBrushSize) {
@@ -924,6 +932,9 @@ public final class LitiengineLevelEditorSystem extends System {
       lines.addAll(buildTilesModeLines());
     } else if (currentMode == Mode.DECOS) {
       lines.addAll(buildDecosModeLines());
+    } else if (currentMode == Mode.SAVE_LEVEL) {
+      lines.add("E: save level to clipboard");
+      lines.add("Uses DungeonSaver serialization of the current DungeonLevel.");
     } else {
       lines.add("This mode is not ported yet on the LITIENGINE path.");
       lines.add("Tiles and Decos preview are the first implemented editor steps so far.");
