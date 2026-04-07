@@ -3,14 +3,8 @@ package core.platform.litiengine.systems;
 import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
 import contrib.components.HealthComponent;
-import contrib.components.UIComponent;
 import contrib.entities.deco.Deco;
 import contrib.entities.deco.DecoFactory;
-import contrib.hud.UIUtils;
-import contrib.hud.dialogs.DialogContext;
-import contrib.hud.dialogs.DialogContextKeys;
-import contrib.hud.dialogs.DialogFactory;
-import contrib.hud.dialogs.DialogType;
 import contrib.systems.PositionSync;
 import contrib.utils.components.collide.Collider;
 import core.Entity;
@@ -24,13 +18,9 @@ import core.input.Keys;
 import core.input.MouseButtons;
 import core.level.DungeonLevel;
 import core.level.Tile;
-import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
-import core.platform.litiengine.levelEditor.LevelBoundsMode;
-import core.platform.litiengine.levelEditor.LevelEditorMode;
-import core.platform.litiengine.levelEditor.SaveMode;
-import core.platform.litiengine.levelEditor.ShiftLevelMode;
+import core.platform.litiengine.levelEditor.*;
 import core.platform.litiengine.render.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineGraphicsContext;
 import core.platform.litiengine.ui.LitiengineLevelEditorOverlay;
@@ -104,7 +94,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
   // Decos mode state.
   private int selectedDecoIndex = 0;
-  private SnapMode decoSnapMode = SnapMode.OnGrid;
+  private EditorSnapMode decoSnapMode = EditorSnapMode.OnGrid;
   private Entity decoPreviewEntity = null;
   private Entity heldDecoEntity = null;
   private Entity hoveredDecoEntity = null;
@@ -112,16 +102,6 @@ public final class LitiengineLevelEditorSystem extends System {
   private String feedbackMessage = "";
   private Color feedbackColor = Color.WHITE;
   private long feedbackUntilMs = 0L;
-
-  // Points mode state.
-  private SnapMode pointSnapMode = SnapMode.OnGrid;
-  private String heldPointName = null;
-
-  private static final Color POINT_MARKER_COLOR = new Color(255, 196, 77, 220);
-  private static final Color HELD_POINT_MARKER_COLOR = new Color(120, 220, 120, 230);
-  private static final Color POINT_LABEL_COLOR = Color.WHITE;
-  private static final int POINT_MARKER_MIN_PX = 8;
-  private static final int POINT_MARKER_MAX_PX = 18;
 
   private static final Color LEVEL_BOUNDS_OUTLINE_COLOR = new Color(0, 255, 0, 77);
   private static final float LEVEL_BOUNDS_OUTLINE_STROKE = 2.0f;
@@ -165,6 +145,7 @@ public final class LitiengineLevelEditorSystem extends System {
   private final LevelEditorMode saveMode = new SaveMode(this);
   private final LevelEditorMode shiftLevelMode = new ShiftLevelMode(this);
   private final LevelEditorMode levelBoundsMode = new LevelBoundsMode(this);
+  private final LevelEditorMode pointMode = new PointMode(this);
 
   /** Creates the LITIENGINE level editor. */
   public LitiengineLevelEditorSystem() {
@@ -230,7 +211,7 @@ public final class LitiengineLevelEditorSystem extends System {
     if (this.currentMode == Mode.TILES) {
       renderTileBrushPreview(g);
     } else if (this.currentMode == Mode.POINTS) {
-      renderPointMarkers(g);
+      pointMode.render(g, deltaSeconds);
     } else if (this.currentMode == Mode.START_TILES) {
       renderStartTileMarkers(g);
     }
@@ -244,7 +225,7 @@ public final class LitiengineLevelEditorSystem extends System {
     switch (currentMode) {
       case TILES -> executeTilesMode();
       case DECOS -> executeDecosMode();
-      case POINTS -> executePointsMode();
+      case POINTS -> pointMode.doExecute();
       case LEVEL_BOUNDS -> levelBoundsMode.doExecute();
       case SHIFT_LEVEL -> shiftLevelMode.doExecute();
       case START_TILES -> executeStartTilesMode();
@@ -1033,7 +1014,7 @@ public final class LitiengineLevelEditorSystem extends System {
     } else if (currentMode == Mode.DECOS) {
       lines.addAll(buildDecosModeLines());
     } else if (currentMode == Mode.POINTS) {
-      lines.addAll(buildPointsModeLines());
+      lines.addAll(pointMode.getFullStatusLines());
     } else if (currentMode == Mode.LEVEL_BOUNDS) {
       lines.addAll(levelBoundsMode.getFullStatusLines());
     } else if (currentMode == Mode.SHIFT_LEVEL) {
@@ -1092,22 +1073,6 @@ public final class LitiengineLevelEditorSystem extends System {
       heldDecoEntity == null
         ? "State: preview ghost active"
         : "State: holding placed deco");
-    return lines;
-  }
-
-  private List<String> buildPointsModeLines() {
-    Point cursor = currentPointSnapPosition();
-
-    List<String> lines = new ArrayList<>();
-    lines.add("Cursor point: (" + cursor.x() + ", " + cursor.y() + ")");
-    lines.add("Snap mode: " + pointSnapMode.displayName());
-    lines.add("Held point: " + (heldPointName == null ? "<none>" : heldPointName));
-    lines.add(
-      "Total points: " + currentDungeonLevel().map(level -> level.namedPoints().size()).orElse(0));
-    lines.add("C: next snap mode");
-    lines.add("LMB: place held point or open point-name dialog");
-    lines.add("RMB: pick point on cursor or clone held point");
-    lines.add("X: delete point on cursor");
     return lines;
   }
 
@@ -1171,272 +1136,10 @@ public final class LitiengineLevelEditorSystem extends System {
     }
   }
 
-  private enum SnapMode {
-    OnGrid("OnGrid"),
-    QuarterGrid("QuarterGrid"),
-    PixelGrid("PixelGrid"),
-    OffGrid("OffGrid"),
-    CheckerGridEven("CheckerGridEven"),
-    CheckerGridOdd("CheckerGridOdd");
-
-    private final String displayName;
-
-    SnapMode(String displayName) {
-      this.displayName = displayName;
-    }
-
-    public String displayName() {
-      return displayName;
-    }
-
-    public SnapMode previousMode() {
-      return values()[(this.ordinal() - 1 + values().length) % values().length];
-    }
-
-    public SnapMode nextMode() {
-      return values()[(this.ordinal() + 1) % values().length];
-    }
-
-    public Point getPosition(Point position) {
-      return switch (this) {
-        case OnGrid ->
-          new Point((float) Math.floor(position.x()), (float) Math.floor(position.y()));
-        case QuarterGrid ->
-          new Point(
-            (float) Math.floor(position.x() * 4) / 4.0f,
-            (float) Math.floor(position.y() * 4) / 4.0f);
-        case PixelGrid ->
-          new Point(
-            (float) Math.floor(position.x() * 16) / 16.0f,
-            (float) Math.floor(position.y() * 16) / 16.0f);
-        case CheckerGridEven, CheckerGridOdd -> {
-          int parity = (this == CheckerGridEven) ? 0 : 1;
-
-          float px = position.x() - 0.5f;
-          float py = position.y() - 0.5f;
-
-          float gx = (float) Math.floor(px);
-          float gy = (float) Math.floor(py);
-
-          float bestX = gx;
-          float bestY = gy;
-          float bestDist = Float.MAX_VALUE;
-
-          for (int dx = 0; dx <= 1; dx++) {
-            for (int dy = 0; dy <= 1; dy++) {
-              float cx = gx + dx;
-              float cy = gy + dy;
-              if (((int) (cx + cy)) % 2 == parity) {
-                float dist = (px - cx) * (px - cx) + (py - cy) * (py - cy);
-                if (dist < bestDist) {
-                  bestDist = dist;
-                  bestX = cx;
-                  bestY = cy;
-                }
-              }
-            }
-          }
-
-          yield new Point(bestX, bestY);
-        }
-        case OffGrid -> position;
-      };
-    }
-
-    public boolean checkBlocked() {
-      return this == OnGrid
-        || this == QuarterGrid
-        || this == CheckerGridEven
-        || this == CheckerGridOdd;
-    }
-  }
-
-  private void executePointsMode() {
-    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
-      pointSnapMode = pointSnapMode.nextMode();
-      showFeedback("Snap mode: " + pointSnapMode.displayName(), Color.WHITE);
-    }
-
-    Point cursorPos = Platform.cursor().world();
-    Point snapPos = currentPointSnapPosition();
-
-    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
-      if (heldPointName != null) {
-        currentDungeonLevel().ifPresent(level -> level.addNamedPoint(heldPointName, snapPos));
-        showFeedback("Placed point: " + heldPointName, new Color(120, 220, 120));
-        heldPointName = null;
-      } else {
-        openAddNamedPointDialog(snapPos);
-      }
-      return;
-    }
-
-    if (InputManager.isButtonJustPressed(MouseButtons.RIGHT)) {
-      Optional<String> clickedPoint = findNamedPointAt(cursorPos);
-      clickedPoint.ifPresent(point -> heldPointName = point);
-
-      if (heldPointName == null) {
-        showFeedback("No point to pick up on coordinate!", new Color(255, 220, 120));
-      } else if (clickedPoint.isEmpty()) {
-        currentDungeonLevel().ifPresent(
-          level -> {
-            String baseName = heldPointName.replaceAll("\\d+$", "");
-            String newPointName = baseName + (level.getHighestPointNumber(baseName) + 1);
-            level.addNamedPoint(newPointName, snapPos);
-            showFeedback("Cloned point: " + newPointName, new Color(120, 220, 120));
-          });
-      } else {
-        showFeedback("Picked point: " + heldPointName, new Color(120, 220, 120));
-      }
-      return;
-    }
-
-    if (InputManager.isKeyPressed(TERTIARY)) {
-      findNamedPointAt(cursorPos)
-        .ifPresent(
-          pointName ->
-            currentDungeonLevel().ifPresent(
-              level -> {
-                level.removeNamedPoint(pointName);
-                showFeedback("Removed point: " + pointName, new Color(255, 180, 180));
-              }));
-    }
-  }
-
-  private void openAddNamedPointDialog(Point snapPos) {
-    final Point dialogSnapPos = snapPos;
-
-    UIComponent dialogUI =
-      DialogFactory.show(
-        DialogContext.builder()
-          .type(DialogType.DefaultTypes.FREE_INPUT)
-          .put(DialogContextKeys.TITLE, "Add Named Point")
-          .put(DialogContextKeys.QUESTION, "Name of new point")
-          .build());
-
-    dialogUI.registerCallback(
-      DialogContextKeys.INPUT_CALLBACK,
-      data -> {
-        if (data instanceof String string) {
-          String pointName = string.trim();
-          if (!pointName.isEmpty()) {
-            currentDungeonLevel().ifPresent(level -> level.addNamedPoint(pointName, dialogSnapPos));
-            showFeedback("Added point: " + pointName, new Color(120, 220, 120));
-          }
-        }
-        UIUtils.closeDialog(dialogUI, true);
-      });
-
-    dialogUI.registerCallback(
-      DialogContextKeys.ON_CANCEL,
-      data -> UIUtils.closeDialog(dialogUI, true));
-  }
-
   private Optional<DungeonLevel> currentDungeonLevel() {
     return Game.currentLevel()
       .filter(DungeonLevel.class::isInstance)
       .map(DungeonLevel.class::cast);
-  }
-
-  private Point currentPointSnapPosition() {
-    return pointSnapMode.getPosition(Platform.cursor().world());
-  }
-
-  private Optional<String> findNamedPointAt(Point worldPos) {
-    if (worldPos == null) {
-      return Optional.empty();
-    }
-
-    Coordinate toCheck = worldPos.toCoordinate();
-    return currentDungeonLevel().flatMap(level -> level.namedPoints().entrySet().stream()
-      .filter(entry -> entry.getValue().toCoordinate().equals(toCheck))
-      .map(Map.Entry::getKey)
-      .findFirst());
-  }
-
-  private void renderPointMarkers(Graphics2D g) {
-    LitiengineCameraViews.View view = LitiengineCameraViews.get();
-    if (view == null || view.tilePx() <= 0) {
-      return;
-    }
-
-    int levelHeight =
-      view.levelHeight() > 0
-        ? view.levelHeight()
-        : currentDungeonLevel().map(level -> level.layout().length).orElse(0);
-
-    int markerSize = Math.clamp(view.tilePx() / 3, POINT_MARKER_MIN_PX, POINT_MARKER_MAX_PX);
-
-    Graphics2D g2 = (Graphics2D) g.create();
-    try {
-      currentDungeonLevel()
-        .ifPresent(
-          level ->
-            level.namedPoints().forEach(
-              (name, pos) -> drawNamedPointMarker(g2, name, pos, levelHeight, view, markerSize)));
-
-      if (heldPointName != null) {
-        drawHeldPointGhost(
-          g2, heldPointName, currentPointSnapPosition(), levelHeight, view, markerSize);
-      }
-    } finally {
-      g2.dispose();
-    }
-  }
-
-  private void drawNamedPointMarker(
-    Graphics2D g,
-    String name,
-    Point pointPos,
-    int levelHeight,
-    LitiengineCameraViews.View view,
-    int markerSize) {
-
-    int tilePx = view.tilePx();
-    int screenX = (int) Math.round(pointPos.x() * tilePx + view.offsetX() + tilePx * 0.5f);
-
-    float screenTileY =
-      levelHeight > 0 ? (levelHeight - 1 - pointPos.y()) * tilePx : pointPos.y() * tilePx;
-    int screenY = (int) Math.round(screenTileY + view.offsetY() + tilePx * 0.5f);
-
-    int radius = markerSize / 2;
-    boolean heldPoint = name != null && name.equals(heldPointName);
-
-    g.setColor(heldPoint ? HELD_POINT_MARKER_COLOR : POINT_MARKER_COLOR);
-    g.fillOval(screenX - radius, screenY - radius, markerSize, markerSize);
-
-    g.setColor(Color.BLACK);
-    g.drawOval(screenX - radius, screenY - radius, markerSize, markerSize);
-
-    g.setColor(POINT_LABEL_COLOR);
-    g.drawString(name, screenX + radius + 4, screenY - 4);
-  }
-
-  private void drawHeldPointGhost(
-    Graphics2D g,
-    String name,
-    Point pointPos,
-    int levelHeight,
-    LitiengineCameraViews.View view,
-    int markerSize) {
-
-    int tilePx = view.tilePx();
-    int screenX = (int) Math.round(pointPos.x() * tilePx + view.offsetX() + tilePx * 0.5f);
-
-    float screenTileY =
-      levelHeight > 0 ? (levelHeight - 1 - pointPos.y()) * tilePx : pointPos.y() * tilePx;
-    int screenY = (int) Math.round(screenTileY + view.offsetY() + tilePx * 0.5f);
-
-    int radius = markerSize / 2;
-
-    g.setColor(HELD_POINT_MARKER_COLOR);
-    g.fillOval(screenX - radius, screenY - radius, markerSize, markerSize);
-
-    g.setColor(Color.BLACK);
-    g.drawOval(screenX - radius, screenY - radius, markerSize, markerSize);
-
-    g.setColor(POINT_LABEL_COLOR);
-    g.drawString(name + " (held)", screenX + radius + 4, screenY - 4);
   }
 
   private void renderLevelBoundsOutline(Graphics2D g) {
@@ -1624,17 +1327,22 @@ public final class LitiengineLevelEditorSystem extends System {
   }
 
   private void onModeEnter(Mode mode) {
-    if (Objects.requireNonNull(mode) == Mode.START_TILES) {
-      currentStartTileIndex =
-        currentDungeonLevel()
-          .map(level -> Math.min(currentStartTileIndex, level.startTiles().size()))
-          .orElse(0);
+    switch (Objects.requireNonNull(mode)) {
+      case POINTS -> pointMode.onEnter();
+      case START_TILES ->
+        currentStartTileIndex =
+          currentDungeonLevel()
+            .map(level -> Math.min(currentStartTileIndex, level.startTiles().size()))
+            .orElse(0);
+      default -> {
+        // no-op for now
+      }
     }
   }
 
   private void onModeExit(Mode mode) {
     switch (mode) {
-      case POINTS -> heldPointName = null;
+      case POINTS -> pointMode.onExit();
       case DECOS -> hoveredDecoEntity = null;
       default -> {
         // no-op for now
