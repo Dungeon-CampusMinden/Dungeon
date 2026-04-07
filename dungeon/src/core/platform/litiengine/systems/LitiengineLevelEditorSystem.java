@@ -27,6 +27,7 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
+import core.platform.litiengine.levelEditor.LevelBoundsMode;
 import core.platform.litiengine.levelEditor.LevelEditorMode;
 import core.platform.litiengine.levelEditor.SaveMode;
 import core.platform.litiengine.render.LitiengineCameraViews;
@@ -161,6 +162,7 @@ public final class LitiengineLevelEditorSystem extends System {
   private boolean debugVisualizationActive = false;
 
   private final LevelEditorMode saveMode = new SaveMode(this);
+  private final LevelEditorMode levelBoundsMode = new LevelBoundsMode(this);
 
   /** Creates the LITIENGINE level editor. */
   public LitiengineLevelEditorSystem() {
@@ -241,7 +243,7 @@ public final class LitiengineLevelEditorSystem extends System {
       case TILES -> executeTilesMode();
       case DECOS -> executeDecosMode();
       case POINTS -> executePointsMode();
-      case LEVEL_BOUNDS -> executeLevelBoundsMode();
+      case LEVEL_BOUNDS -> levelBoundsMode.doExecute();
       case SHIFT_LEVEL -> executeShiftLevelMode();
       case START_TILES -> executeStartTilesMode();
       case SAVE_LEVEL -> saveMode.doExecute();
@@ -1031,7 +1033,7 @@ public final class LitiengineLevelEditorSystem extends System {
     } else if (currentMode == Mode.POINTS) {
       lines.addAll(buildPointsModeLines());
     } else if (currentMode == Mode.LEVEL_BOUNDS) {
-      lines.addAll(buildLevelBoundsModeLines());
+      lines.addAll(levelBoundsMode.getFullStatusLines());
     } else if (currentMode == Mode.SHIFT_LEVEL) {
       lines.addAll(buildShiftLevelModeLines());
     } else if (currentMode == Mode.START_TILES) {
@@ -1104,21 +1106,6 @@ public final class LitiengineLevelEditorSystem extends System {
     lines.add("LMB: place held point or open point-name dialog");
     lines.add("RMB: pick point on cursor or clone held point");
     lines.add("X: delete point on cursor");
-    return lines;
-  }
-
-  private List<String> buildLevelBoundsModeLines() {
-    List<String> lines = new ArrayList<>();
-
-    currentDungeonLevel()
-      .ifPresentOrElse(
-        level -> lines.add("Current size: " + level.layout()[0].length + "x" + level.layout().length),
-        () -> lines.add("Current size: <no dungeon level>"));
-
-    lines.add("E/Q: height + / -");
-    lines.add("C/Z: width + / -");
-    lines.add("New cells are filled with SKIP.");
-    lines.add("Existing tiles keep their current LevelElement.");
     return lines;
   }
 
@@ -1466,55 +1453,6 @@ public final class LitiengineLevelEditorSystem extends System {
 
     g.setColor(POINT_LABEL_COLOR);
     g.drawString(name + " (held)", screenX + radius + 4, screenY - 4);
-  }
-
-  private void executeLevelBoundsMode() {
-    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
-      resizeLevelBounds(0, 1);
-    } else if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
-      resizeLevelBounds(0, -1);
-    }
-
-    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
-      resizeLevelBounds(1, 0);
-    } else if (InputManager.isKeyJustPressed(SECONDARY_DOWN)) {
-      resizeLevelBounds(-1, 0);
-    }
-  }
-
-  private void resizeLevelBounds(int addX, int addY) {
-    currentDungeonLevel()
-      .ifPresent(
-        level -> {
-          Tile[][] layout = level.layout();
-          int rows = layout.length;
-          int cols = layout[0].length;
-
-          int newRows = rows + addY;
-          int newCols = cols + addX;
-
-          if (newRows < 1 || newCols < 1) {
-            showFeedback("Level size must stay at least 1x1.", new Color(255, 220, 120));
-            return;
-          }
-
-          LevelElement[][] newLayout = new LevelElement[newRows][newCols];
-
-          for (int y = 0; y < newRows; y++) {
-            for (int x = 0; x < newCols; x++) {
-              if (y >= rows || x >= cols) {
-                newLayout[y][x] = LevelElement.SKIP;
-              } else {
-                newLayout[y][x] = layout[y][x].levelElement();
-              }
-            }
-          }
-
-          level.setLayout(newLayout);
-          showFeedback(
-            "Resized level to " + newCols + "x" + newRows + " (" + addX + ", " + addY + ")",
-            Color.WHITE);
-        });
   }
 
   private void renderLevelBoundsOutline(Graphics2D g) {
@@ -1951,5 +1889,9 @@ public final class LitiengineLevelEditorSystem extends System {
 
   public void showModeFeedback(String message, Color color) {
     showFeedback(message, color);
+  }
+
+  public java.util.Optional<core.level.DungeonLevel> currentDungeonLevelForModes() {
+    return currentDungeonLevel();
   }
 }
