@@ -115,6 +115,7 @@ public final class LitiengineLevelEditorSystem extends System {
   private boolean debugVisualizationActive = false;
 
   private final LevelEditorMode tilesMode = new TilesMode(this);
+  private final LevelEditorMode decoMode = new DecoMode(this);
   private final LevelEditorMode saveMode = new SaveMode(this);
   private final LevelEditorMode shiftLevelMode = new ShiftLevelMode(this);
   private final LevelEditorMode levelBoundsMode = new LevelBoundsMode(this);
@@ -198,66 +199,13 @@ public final class LitiengineLevelEditorSystem extends System {
   private void executeCurrentMode() {
     switch (currentMode) {
       case TILES -> tilesMode.doExecute();
-      case DECOS -> executeDecosMode();
+      case DECOS -> decoMode.doExecute();
       case POINTS -> pointMode.doExecute();
       case LEVEL_BOUNDS -> levelBoundsMode.doExecute();
       case SHIFT_LEVEL -> shiftLevelMode.doExecute();
       case START_TILES -> startTilesMode.doExecute();
       case SAVE_LEVEL -> saveMode.doExecute();
     }
-  }
-
-  private void executeDecosMode() {
-    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
-      selectedDecoIndex = Math.floorMod(selectedDecoIndex + 1, Deco.values().length);
-      if (heldDecoEntity == null) {
-        previewDecoEntityChanged();
-      }
-      showFeedback("Selected deco: " + selectedDeco().name(), Color.WHITE);
-    } else if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
-      selectedDecoIndex = Math.floorMod(selectedDecoIndex - 1, Deco.values().length);
-      if (heldDecoEntity == null) {
-        previewDecoEntityChanged();
-      }
-      showFeedback("Selected deco: " + selectedDeco().name(), Color.WHITE);
-    }
-
-    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
-      decoSnapMode = decoSnapMode.nextMode();
-      if (heldDecoEntity == null) {
-        previewDecoEntityChanged();
-      }
-      showFeedback("Snap mode: " + decoSnapMode.displayName(), Color.WHITE);
-    }
-
-    Point cursorPos = Platform.cursor().world();
-    Point snapPos = currentDecoSnapPosition();
-
-    if (InputManager.isKeyJustPressed(QUARTERNARY)) {
-      pipetteDecoAtCursor();
-    } else if (InputManager.isButtonJustPressed(MouseButtons.RIGHT) && heldDecoEntity == null) {
-      pickupDecoAtCursor();
-    } else if (InputManager.isKeyJustPressed(TERTIARY) && heldDecoEntity == null) {
-      deleteDecoAtCursor();
-    } else if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
-      if (heldDecoEntity != null) {
-        placeHeldDeco(snapPos);
-      } else {
-        placeSelectedDeco(snapPos);
-      }
-    }
-
-    if (heldDecoEntity != null) {
-      clearHoveredDecoIndicator();
-      updateHeldDecoPosition(snapPos);
-      updateDecoPlacementIndicator();
-      return;
-    }
-
-    ensureDecoPreviewEntity();
-    updateDecoPreviewPosition(snapPos);
-    updateDecoPlacementIndicator();
-    updateHoveredDecoIndicator(cursorPos);
   }
 
   private Point snappedCursorTile() {
@@ -690,13 +638,6 @@ public final class LitiengineLevelEditorSystem extends System {
         LitiengineUiOverlayRegistry.add(overlay);
       }
 
-      if (this.currentMode == Mode.DECOS) {
-        Point snapPos = currentDecoSnapPosition();
-        ensureDecoPreviewEntity();
-        updateDecoPreviewPosition(snapPos);
-        updateDecoPlacementIndicator();
-      }
-
       showFeedback("LITIENGINE level editor active", new Color(120, 220, 120));
       syncOverlay();
       LOGGER.info("Activated LITIENGINE level editor.");
@@ -707,9 +648,6 @@ public final class LitiengineLevelEditorSystem extends System {
 
     restorePlayerCallbacks();
     enablePlayerGodMode(false);
-    clearHoveredDecoIndicator();
-    releaseHeldDecoIfNecessary();
-    removeDecoPreviewEntity();
 
     overlay.visible(false);
     LitiengineUiOverlayRegistry.remove(overlay);
@@ -851,7 +789,7 @@ public final class LitiengineLevelEditorSystem extends System {
     if (currentMode == Mode.TILES) {
       lines.addAll(tilesMode.getFullStatusLines());
     } else if (currentMode == Mode.DECOS) {
-      lines.addAll(buildDecosModeLines());
+      lines.addAll(decoMode.getFullStatusLines());
     } else if (currentMode == Mode.POINTS) {
       lines.addAll(pointMode.getFullStatusLines());
     } else if (currentMode == Mode.LEVEL_BOUNDS) {
@@ -866,37 +804,6 @@ public final class LitiengineLevelEditorSystem extends System {
       lines.add("This mode is not ported yet on the LITIENGINE path.");
     }
 
-    return lines;
-  }
-
-  private List<String> buildDecosModeLines() {
-    Point cursor = snappedCursorTile();
-    Deco currentDeco = selectedDeco();
-
-    List<String> lines = new ArrayList<>();
-    lines.add("Cursor tile: (" + (int) cursor.x() + ", " + (int) cursor.y() + ")");
-    lines.add(
-      "Current deco: "
-        + (Math.floorMod(selectedDecoIndex, Deco.values().length) + 1)
-        + "/"
-        + Deco.values().length
-        + " ("
-        + currentDeco.name()
-        + ")");
-    lines.add("Snap mode: " + decoSnapMode.displayName());
-    lines.add("Placement: " + (isCurrentDecoPlacementBlocked() ? "blocked" : "valid"));
-    lines.add("Hover: " + currentHoveredDecoName());
-    lines.add("Preview tint: white = valid, red = blocked");
-    lines.add("C: next snap mode");
-    lines.add("E/Q: next/prev deco");
-    lines.add("LMB: place new deco or place held deco");
-    lines.add("RMB: pick up placed deco near cursor");
-    lines.add("X: delete placed deco near cursor");
-    lines.add("V: pipette deco type near cursor");
-    lines.add(
-      heldDecoEntity == null
-        ? "State: preview ghost active"
-        : "State: holding placed deco");
     return lines;
   }
 
@@ -1002,6 +909,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
   private void onModeEnter(Mode mode) {
     switch (Objects.requireNonNull(mode)) {
+      case DECOS -> decoMode.onEnter();
       case POINTS -> pointMode.onEnter();
       case START_TILES -> startTilesMode.onEnter();
       default -> {
@@ -1012,8 +920,8 @@ public final class LitiengineLevelEditorSystem extends System {
 
   private void onModeExit(Mode mode) {
     switch (mode) {
+      case DECOS -> decoMode.onExit();
       case POINTS -> pointMode.onExit();
-      case DECOS -> hoveredDecoEntity = null;
       default -> {
         // no-op for now
       }
@@ -1148,5 +1056,91 @@ public final class LitiengineLevelEditorSystem extends System {
 
   public Point snappedCursorTileForModes() {
     return snappedCursorTile();
+  }
+
+  public void changeSelectedDecoByForModes(int delta) {
+    selectedDecoIndex = Math.floorMod(selectedDecoIndex + delta, Deco.values().length);
+  }
+
+  public boolean isHoldingDecoForModes() {
+    return heldDecoEntity != null;
+  }
+
+  public void cycleDecoSnapModeForModes() {
+    decoSnapMode = decoSnapMode.nextMode();
+  }
+
+  public String decoSnapModeDisplayNameForModes() {
+    return decoSnapMode.displayName();
+  }
+
+  public Deco selectedDecoForModes() {
+    return selectedDeco();
+  }
+
+  public int selectedDecoDisplayIndexForModes() {
+    return Math.floorMod(selectedDecoIndex, Deco.values().length) + 1;
+  }
+
+  public int availableDecoCountForModes() {
+    return Deco.values().length;
+  }
+
+  public Point currentDecoSnapPositionForModes() {
+    return currentDecoSnapPosition();
+  }
+
+  public void previewDecoEntityChangedForModes() {
+    previewDecoEntityChanged();
+  }
+
+  public void pipetteDecoAtCursorForModes() {
+    pipetteDecoAtCursor();
+  }
+
+  public void pickupDecoAtCursorForModes() {
+    pickupDecoAtCursor();
+  }
+
+  public void deleteDecoAtCursorForModes() {
+    deleteDecoAtCursor();
+  }
+
+  public void placeHeldDecoForModes(Point snapPos) {
+    placeHeldDeco(snapPos);
+  }
+
+  public void placeSelectedDecoForModes(Point snapPos) {
+    placeSelectedDeco(snapPos);
+  }
+
+  public void updateHeldDecoPlacementForModes(Point snapPos) {
+    clearHoveredDecoIndicator();
+    updateHeldDecoPosition(snapPos);
+    updateDecoPlacementIndicator();
+  }
+
+  public void refreshDecoPreviewForModes(Point snapPos) {
+    ensureDecoPreviewEntity();
+    updateDecoPreviewPosition(snapPos);
+    updateDecoPlacementIndicator();
+  }
+
+  public void updateHoveredDecoForModes(Point cursorPos) {
+    updateHoveredDecoIndicator(cursorPos);
+  }
+
+  public boolean isCurrentDecoPlacementBlockedForModes() {
+    return isCurrentDecoPlacementBlocked();
+  }
+
+  public String currentHoveredDecoNameForModes() {
+    return currentHoveredDecoName();
+  }
+
+  public void clearDecoEditingArtifactsForModes() {
+    clearHoveredDecoIndicator();
+    releaseHeldDecoIfNecessary();
+    removeDecoPreviewEntity();
   }
 }
