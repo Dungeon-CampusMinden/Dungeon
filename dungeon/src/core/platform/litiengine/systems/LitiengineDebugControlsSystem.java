@@ -41,13 +41,19 @@ public final class LitiengineDebugControlsSystem extends System {
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.value())) {
       DebugGameplayActions.loadNextLevel();
     }
-
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value())) {
       DebugGameplayActions.openDoors();
     }
-
-    // Intentionally no DEBUG_SPAWN_MONSTER here for now.
-    // That path still depends on asset/draw initialization we do not want in the
-    // lightweight LITIENGINE debug path yet.
+    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value())) {
+      LitiengineDebugDrawSystem.toggleHUD();
+      LOGGER.info(
+        "LITIENGINE debug HUD {}",
+        LitiengineDebugDrawSystem.isHudVisible() ? "enabled" : "disabled");
+    }
   }
- }
+
+  @Override
+  public void stop() {
+    // Cant be stopped
+  }
+}
