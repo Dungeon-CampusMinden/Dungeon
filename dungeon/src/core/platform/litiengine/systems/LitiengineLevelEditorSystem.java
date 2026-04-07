@@ -106,22 +106,6 @@ public final class LitiengineLevelEditorSystem extends System {
   private static final Color LEVEL_BOUNDS_OUTLINE_COLOR = new Color(0, 255, 0, 77);
   private static final float LEVEL_BOUNDS_OUTLINE_STROKE = 2.0f;
 
-  // Start tiles mode state.
-  private int currentStartTileIndex = 0;
-
-  private static final Color[] START_TILE_COLORS = {
-    Color.GREEN,
-    Color.BLUE,
-    Color.YELLOW,
-    Color.CYAN,
-    Color.MAGENTA,
-    Color.ORANGE,
-    Color.PINK,
-    new Color(50, 205, 50),   // lime
-    new Color(135, 206, 235), // sky
-    new Color(250, 128, 114)  // salmon
-  };
-
   private boolean internalStopped = false;
   private Mode previousMode = Mode.TILES;
 
@@ -146,6 +130,7 @@ public final class LitiengineLevelEditorSystem extends System {
   private final LevelEditorMode shiftLevelMode = new ShiftLevelMode(this);
   private final LevelEditorMode levelBoundsMode = new LevelBoundsMode(this);
   private final LevelEditorMode pointMode = new PointMode(this);
+  private final LevelEditorMode startTilesMode = new StartTilesMode(this);
 
   /** Creates the LITIENGINE level editor. */
   public LitiengineLevelEditorSystem() {
@@ -213,7 +198,7 @@ public final class LitiengineLevelEditorSystem extends System {
     } else if (this.currentMode == Mode.POINTS) {
       pointMode.render(g, deltaSeconds);
     } else if (this.currentMode == Mode.START_TILES) {
-      renderStartTileMarkers(g);
+      startTilesMode.render(g, deltaSeconds);
     }
   }
   /** Returns whether the editor is currently active. */
@@ -228,7 +213,7 @@ public final class LitiengineLevelEditorSystem extends System {
       case POINTS -> pointMode.doExecute();
       case LEVEL_BOUNDS -> levelBoundsMode.doExecute();
       case SHIFT_LEVEL -> shiftLevelMode.doExecute();
-      case START_TILES -> executeStartTilesMode();
+      case START_TILES -> startTilesMode.doExecute();
       case SAVE_LEVEL -> saveMode.doExecute();
     }
   }
@@ -1020,7 +1005,7 @@ public final class LitiengineLevelEditorSystem extends System {
     } else if (currentMode == Mode.SHIFT_LEVEL) {
       lines.addAll(shiftLevelMode.getFullStatusLines());
     } else if (currentMode == Mode.START_TILES) {
-      lines.addAll(buildStartTilesModeLines());
+      lines.addAll(startTilesMode.getFullStatusLines());
     } else if (currentMode == Mode.SAVE_LEVEL) {
       lines.addAll(saveMode.getFullStatusLines());
     } else {
@@ -1176,164 +1161,10 @@ public final class LitiengineLevelEditorSystem extends System {
         });
   }
 
-  private void executeStartTilesMode() {
-    int maxIndex =
-      currentDungeonLevel()
-        .map(level -> level.startTiles().size())
-        .orElse(0);
-
-    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
-      currentStartTileIndex = (currentStartTileIndex + 1) % (maxIndex + 1);
-    } else if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
-      currentStartTileIndex = Math.floorMod(currentStartTileIndex - 1, maxIndex + 1);
-    }
-
-    if (InputManager.isButtonJustPressed(MouseButtons.LEFT)) {
-      setStartTileAtCursor();
-    } else if (InputManager.isButtonJustPressed(MouseButtons.RIGHT)) {
-      removeStartTileAtCursor();
-    }
-  }
-
-  private void setStartTileAtCursor() {
-    Point cursorPos = snappedCursorTile();
-
-    currentDungeonLevel()
-      .ifPresent(
-        level -> {
-          Tile tile = level.tileAt(cursorPos).orElse(null);
-          if (tile == null || tile.levelElement() != LevelElement.FLOOR) {
-            showFeedback(
-              "Start tile must be within the level bounds and on a FLOOR tile!",
-              Color.RED);
-            return;
-          }
-
-          if (currentStartTileIndex == level.startTiles().size()) {
-            level.startTiles().add(tile);
-            showFeedback(
-              "Added start tile " + (currentStartTileIndex + 1),
-              START_TILE_COLORS[currentStartTileIndex % START_TILE_COLORS.length]);
-          } else {
-            level.startTiles().set(currentStartTileIndex, tile);
-            showFeedback(
-              "Updated start tile " + (currentStartTileIndex + 1),
-              START_TILE_COLORS[currentStartTileIndex % START_TILE_COLORS.length]);
-          }
-        });
-  }
-
-  private void removeStartTileAtCursor() {
-    currentDungeonLevel()
-      .ifPresent(
-        level -> {
-          int maxIndex = level.startTiles().size();
-          Point cursorPos = snappedCursorTile();
-
-          if (maxIndex <= 1) {
-            showFeedback("Cannot remove the last start tile.", Color.YELLOW);
-            return;
-          }
-
-          Tile tile = level.tileAt(cursorPos).orElse(null);
-          if (tile == null) {
-            showFeedback("No start tile found under cursor.", Color.YELLOW);
-            return;
-          }
-
-          boolean removed = level.startTiles().remove(tile);
-          if (!removed) {
-            showFeedback("No start tile found under cursor.", Color.YELLOW);
-            return;
-          }
-
-          if (currentStartTileIndex > level.startTiles().size()) {
-            currentStartTileIndex = Math.max(0, level.startTiles().size());
-          }
-
-          showFeedback("Removed start tile.", Color.YELLOW);
-        });
-  }
-
-  private void renderStartTileMarkers(Graphics2D g) {
-    LitiengineCameraViews.View view = LitiengineCameraViews.get();
-    if (view == null || view.tilePx() <= 0) {
-      return;
-    }
-
-    currentDungeonLevel()
-      .ifPresent(
-        level -> {
-          Tile[][] layout = level.layout();
-          int levelHeight = layout.length;
-          int tilePx = view.tilePx();
-
-          Graphics2D g2 = (Graphics2D) g.create();
-          try {
-            g2.setStroke(new BasicStroke(2.0f));
-
-            for (int i = 0; i < level.startTiles().size(); i++) {
-              Tile tile = level.startTiles().get(i);
-              Point pos = tile.position();
-
-              int drawX = (int) Math.round(pos.x() * tilePx + view.offsetX());
-              int drawY =
-                (int)
-                  Math.round((levelHeight - 1 - pos.y()) * tilePx + view.offsetY());
-
-              Color color = START_TILE_COLORS[i % START_TILE_COLORS.length];
-              g2.setColor(color);
-              g2.drawRect(drawX, drawY, Math.max(0, tilePx - 1), Math.max(0, tilePx - 1));
-
-              g2.drawString(
-                "Start: " + (i + 1),
-                drawX + 4,
-                drawY + Math.max(14, tilePx / 2));
-            }
-          } finally {
-            g2.dispose();
-          }
-        });
-  }
-
-  private List<String> buildStartTilesModeLines() {
-    List<String> lines = new ArrayList<>();
-
-    currentDungeonLevel()
-      .ifPresentOrElse(
-        level -> {
-          int size = level.startTiles().size();
-          int shownIndex = Math.min(currentStartTileIndex, size);
-
-          lines.add("Selected start tile slot: " + (shownIndex + 1));
-          lines.add("Existing start tiles: " + size);
-
-          if (currentStartTileIndex < size) {
-            Tile selected = level.startTiles().get(currentStartTileIndex);
-            Point pos = selected.position();
-            lines.add(
-              "Selected position: (" + (int) pos.x() + ", " + (int) pos.y() + ")");
-          } else {
-            lines.add("Selected slot: <new start tile>");
-          }
-        },
-        () -> lines.add("No dungeon level loaded."));
-
-    lines.add("E/Q: next/prev start tile slot");
-    lines.add("LMB: place or replace selected start tile");
-    lines.add("RMB: delete start tile on cursor");
-    lines.add("Placement is only valid on FLOOR tiles.");
-    return lines;
-  }
-
   private void onModeEnter(Mode mode) {
     switch (Objects.requireNonNull(mode)) {
       case POINTS -> pointMode.onEnter();
-      case START_TILES ->
-        currentStartTileIndex =
-          currentDungeonLevel()
-            .map(level -> Math.min(currentStartTileIndex, level.startTiles().size()))
-            .orElse(0);
+      case START_TILES -> startTilesMode.onEnter();
       default -> {
         // no-op for now
       }
@@ -1474,5 +1305,9 @@ public final class LitiengineLevelEditorSystem extends System {
 
   public java.util.Optional<core.level.DungeonLevel> currentDungeonLevelForModes() {
     return currentDungeonLevel();
+  }
+
+  public Point snappedCursorTileForModes() {
+    return snappedCursorTile();
   }
 }

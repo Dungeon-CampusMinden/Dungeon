@@ -1,6 +1,7 @@
 package core.platform.litiengine.levelEditor;
 
 import core.input.Keys;
+import core.input.MouseButtons;
 import core.platform.litiengine.systems.LitiengineLevelEditorSystem;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
@@ -123,6 +124,8 @@ public abstract class LevelEditorMode {
       case SECONDARY_DOWN -> "Z";
       case TERTIARY -> "X";
       case QUARTERNARY -> "V";
+      case MouseButtons.LEFT -> "LMB";
+      case MouseButtons.RIGHT -> "RMB";
       default -> Integer.toString(keycode);
     };
   }
