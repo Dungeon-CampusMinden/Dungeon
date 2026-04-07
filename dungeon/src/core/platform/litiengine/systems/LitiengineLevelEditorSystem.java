@@ -1121,7 +1121,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
     lines.add("E/Q: height + / -");
     lines.add("C/Z: width + / -");
-    lines.add("New cells are filled with FLOOR.");
+    lines.add("New cells are filled with SKIP.");
     lines.add("Existing tiles keep their current LevelElement.");
     return lines;
   }
@@ -1507,7 +1507,7 @@ public final class LitiengineLevelEditorSystem extends System {
           for (int y = 0; y < newRows; y++) {
             for (int x = 0; x < newCols; x++) {
               if (y >= rows || x >= cols) {
-                newLayout[y][x] = LevelElement.FLOOR;
+                newLayout[y][x] = LevelElement.SKIP;
               } else {
                 newLayout[y][x] = layout[y][x].levelElement();
               }
