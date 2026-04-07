@@ -176,12 +176,14 @@ public final class LitiengineLevelEditorSystem extends System {
       case TILES -> executeTilesMode();
       case DECOS -> executeDecosMode();
       case POINTS -> executePointsMode();
+      case LEVEL_BOUNDS -> executeLevelBoundsMode();
       case SAVE_LEVEL -> executeSaveLevelMode();
-      case LEVEL_BOUNDS, SHIFT_LEVEL, START_TILES -> {
+      case SHIFT_LEVEL, START_TILES -> {
         // intentionally not ported yet
       }
     }
   }
+
   private void executeTilesMode() {
     if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
       if (InputManager.isButtonPressed(MouseButtons.RIGHT)) {
@@ -962,12 +964,14 @@ public final class LitiengineLevelEditorSystem extends System {
       lines.addAll(buildDecosModeLines());
     } else if (currentMode == Mode.POINTS) {
       lines.addAll(buildPointsModeLines());
+    } else if (currentMode == Mode.LEVEL_BOUNDS) {
+      lines.addAll(buildLevelBoundsModeLines());
     } else if (currentMode == Mode.SAVE_LEVEL) {
       lines.add("E: save level to clipboard");
       lines.add("Uses DungeonSaver serialization of the current DungeonLevel.");
     } else {
       lines.add("This mode is not ported yet on the LITIENGINE path.");
-      lines.add("Tiles and Decos preview are the first implemented editor steps so far.");
+      lines.add("Tiles, Decos, Points and Save Level are implemented so far.");
     }
 
     return lines;
@@ -1032,6 +1036,21 @@ public final class LitiengineLevelEditorSystem extends System {
     lines.add("LMB: place held point or open point-name dialog");
     lines.add("RMB: pick point on cursor or clone held point");
     lines.add("X: delete point on cursor");
+    return lines;
+  }
+
+  private List<String> buildLevelBoundsModeLines() {
+    List<String> lines = new ArrayList<>();
+
+    currentDungeonLevel()
+      .ifPresentOrElse(
+        level -> lines.add("Current size: " + level.layout()[0].length + "x" + level.layout().length),
+        () -> lines.add("Current size: <no dungeon level>"));
+
+    lines.add("E/Q: height + / -");
+    lines.add("C/Z: width + / -");
+    lines.add("New cells are filled with SKIP.");
+    lines.add("Existing tiles keep their current LevelElement.");
     return lines;
   }
 
@@ -1361,5 +1380,54 @@ public final class LitiengineLevelEditorSystem extends System {
 
     g.setColor(POINT_LABEL_COLOR);
     g.drawString(name + " (held)", screenX + radius + 4, screenY - 4);
+  }
+
+  private void executeLevelBoundsMode() {
+    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
+      resizeLevelBounds(0, 1);
+    } else if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
+      resizeLevelBounds(0, -1);
+    }
+
+    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
+      resizeLevelBounds(1, 0);
+    } else if (InputManager.isKeyJustPressed(SECONDARY_DOWN)) {
+      resizeLevelBounds(-1, 0);
+    }
+  }
+
+  private void resizeLevelBounds(int addX, int addY) {
+    currentDungeonLevel()
+      .ifPresent(
+        level -> {
+          Tile[][] layout = level.layout();
+          int rows = layout.length;
+          int cols = layout[0].length;
+
+          int newRows = rows + addY;
+          int newCols = cols + addX;
+
+          if (newRows < 1 || newCols < 1) {
+            showFeedback("Level size must stay at least 1x1.", new Color(255, 220, 120));
+            return;
+          }
+
+          LevelElement[][] newLayout = new LevelElement[newRows][newCols];
+
+          for (int y = 0; y < newRows; y++) {
+            for (int x = 0; x < newCols; x++) {
+              if (y >= rows || x >= cols) {
+                newLayout[y][x] = LevelElement.SKIP;
+              } else {
+                newLayout[y][x] = layout[y][x].levelElement();
+              }
+            }
+          }
+
+          level.setLayout(newLayout);
+          showFeedback(
+            "Resized level to " + newCols + "x" + newRows + " (" + addX + ", " + addY + ")",
+            Color.WHITE);
+        });
   }
 }
