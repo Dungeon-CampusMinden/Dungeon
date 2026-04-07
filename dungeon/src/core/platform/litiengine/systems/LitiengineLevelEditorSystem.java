@@ -27,6 +27,8 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.platform.Platform;
+import core.platform.litiengine.levelEditor.LevelEditorMode;
+import core.platform.litiengine.levelEditor.SaveMode;
 import core.platform.litiengine.render.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineGraphicsContext;
 import core.platform.litiengine.ui.LitiengineLevelEditorOverlay;
@@ -158,6 +160,8 @@ public final class LitiengineLevelEditorSystem extends System {
 
   private boolean debugVisualizationActive = false;
 
+  private final LevelEditorMode saveMode = new SaveMode(this);
+
   /** Creates the LITIENGINE level editor. */
   public LitiengineLevelEditorSystem() {
     super(AuthoritativeSide.CLIENT);
@@ -240,7 +244,7 @@ public final class LitiengineLevelEditorSystem extends System {
       case LEVEL_BOUNDS -> executeLevelBoundsMode();
       case SHIFT_LEVEL -> executeShiftLevelMode();
       case START_TILES -> executeStartTilesMode();
-      case SAVE_LEVEL -> executeSaveLevelMode();
+      case SAVE_LEVEL -> saveMode.doExecute();
     }
   }
 
@@ -334,13 +338,6 @@ public final class LitiengineLevelEditorSystem extends System {
     updateDecoPreviewPosition(snapPos);
     updateDecoPlacementIndicator();
     updateHoveredDecoIndicator(cursorPos);
-  }
-
-  private void executeSaveLevelMode() {
-    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
-      core.level.loader.DungeonSaver.saveCurrentDungeon();
-      showFeedback("Exported level to clipboard!", new Color(120, 220, 120));
-    }
   }
 
   private void applyBrush(LevelElement element, int targetBrushSize) {
@@ -1040,8 +1037,7 @@ public final class LitiengineLevelEditorSystem extends System {
     } else if (currentMode == Mode.START_TILES) {
       lines.addAll(buildStartTilesModeLines());
     } else if (currentMode == Mode.SAVE_LEVEL) {
-      lines.add("E: save level to clipboard");
-      lines.add("Uses DungeonSaver serialization of the current DungeonLevel.");
+      lines.addAll(saveMode.getFullStatusLines());
     } else {
       lines.add("This mode is not ported yet on the LITIENGINE path.");
     }
@@ -1951,5 +1947,9 @@ public final class LitiengineLevelEditorSystem extends System {
     }
 
     return "DRAW";
+  }
+
+  public void showModeFeedback(String message, Color color) {
+    showFeedback(message, color);
   }
 }
