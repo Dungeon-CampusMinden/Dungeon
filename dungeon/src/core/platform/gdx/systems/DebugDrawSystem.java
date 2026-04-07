@@ -86,10 +86,6 @@ public class DebugDrawSystem extends System {
 
     SHAPE_RENDERER.setProjectionMatrix(GdxCameraSystem.camera().combined);
     filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
-
-    if (!LevelEditorSystem.active()) {
-      drawNamedPoints();
-    }
   }
 
   private void drawPosition(Entity entity) {
