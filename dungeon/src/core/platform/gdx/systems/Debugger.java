@@ -222,8 +222,6 @@ public class Debugger extends System {
       Debugger.TELEPORT_TO_START();
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_ON_END.value()))
       Debugger.LOAD_NEXT_LEVEL();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value())
-        && !LevelEditorSystem.active()) Debugger.SPAWN_MONSTER_ON_CURSOR();
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value()))
       Debugger.OPEN_DOORS();
     if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.PAUSE.value()))

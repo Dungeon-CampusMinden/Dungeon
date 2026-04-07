@@ -1,12 +1,7 @@
 package core.platform.litiengine.systems;
 
-import contrib.components.CollideComponent;
 import contrib.components.DecoComponent;
 import contrib.components.HealthComponent;
-import contrib.entities.deco.Deco;
-import contrib.entities.deco.DecoFactory;
-import contrib.systems.PositionSync;
-import contrib.utils.components.collide.Collider;
 import core.Entity;
 import core.Game;
 import core.System;
