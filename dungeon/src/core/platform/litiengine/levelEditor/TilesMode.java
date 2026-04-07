@@ -3,11 +3,10 @@ package core.platform.litiengine.levelEditor;
 import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;
-import core.platform.litiengine.render.LitiengineCameraViews;
+import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
 import core.utils.InputManager;
 import core.utils.Point;
 import core.utils.Vector2;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.LinkedHashMap;
@@ -19,9 +18,6 @@ import java.util.Optional;
 public final class TilesMode extends LevelEditorMode {
 
   private static final int MAX_BRUSH_SIZE = 7;
-  private static final Color BRUSH_PREVIEW_FILL = new Color(255, 255, 255, 36);
-  private static final Color BRUSH_PREVIEW_BORDER = new Color(255, 255, 255, 175);
-  private static final int BRUSH_PREVIEW_INSET_PX = 1;
 
   private int selectedTileIndexL = 1;
   private int selectedTileIndexR = 2;
@@ -74,25 +70,17 @@ public final class TilesMode extends LevelEditorMode {
 
   @Override
   public void render(Graphics2D g, float deltaSeconds) {
-    LitiengineCameraViews.View view = LitiengineCameraViews.get();
-    if (view == null || view.tilePx() <= 0) {
-      return;
-    }
+    Color previewColor = new Color(255, 255, 255, 64);
 
-    int levelHeight =
-      view.levelHeight() > 0
-        ? view.levelHeight()
-        : system().currentDungeonLevelForModes().map(level -> level.layout().length).orElse(0);
-
-    int previewBrushSize = currentPreviewBrushSize();
-
-    Graphics2D g2 = (Graphics2D) g.create();
-    try {
-      g2.setStroke(new BasicStroke(Math.max(1f, view.tilePx() / 16f)));
-      forEachBrushTile(previewBrushSize, tilePos -> drawPreviewTile(g2, tilePos, view, levelHeight));
-    } finally {
-      g2.dispose();
-    }
+    forEachBrushTile(
+      currentPreviewBrushSize(),
+      tilePos ->
+        LitiengineDebugDrawSystem.drawRectangleOutline(
+          tilePos.x(),
+          tilePos.y(),
+          1.0f,
+          1.0f,
+          previewColor));
   }
 
   @Override
@@ -157,26 +145,6 @@ public final class TilesMode extends LevelEditorMode {
     }
 
     return this.brushSize;
-  }
-
-  private void drawPreviewTile(
-    Graphics2D g, Point tilePos, LitiengineCameraViews.View view, int levelHeight) {
-    int tilePx = view.tilePx();
-
-    int screenX = (int) Math.round(tilePos.x() * tilePx + view.offsetX());
-
-    float screenTileY =
-      levelHeight > 0 ? (levelHeight - 1 - tilePos.y()) * tilePx : tilePos.y() * tilePx;
-    int screenY = (int) Math.round(screenTileY + view.offsetY());
-
-    int inset = Math.clamp(tilePx / 4, 0, BRUSH_PREVIEW_INSET_PX);
-    int size = Math.max(1, tilePx - 2 * inset);
-
-    g.setColor(BRUSH_PREVIEW_FILL);
-    g.fillRect(screenX + inset, screenY + inset, size, size);
-
-    g.setColor(BRUSH_PREVIEW_BORDER);
-    g.drawRect(screenX + inset, screenY + inset, size, size);
   }
 
   private Optional<LevelElement> tileElementAtCursor() {

@@ -4,9 +4,9 @@ import core.input.MouseButtons;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.platform.litiengine.render.LitiengineCameraViews;
+import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
 import core.utils.InputManager;
 import core.utils.Point;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.LinkedHashMap;
@@ -67,34 +67,33 @@ public final class StartTilesMode extends LevelEditorMode {
       .currentDungeonLevelForModes()
       .ifPresent(
         level -> {
-          Tile[][] layout = level.layout();
-          int levelHeight = layout.length;
+          int levelHeight = level.layout().length;
           int tilePx = view.tilePx();
 
-          Graphics2D g2 = (Graphics2D) g.create();
-          try {
-            g2.setStroke(new BasicStroke(2.0f));
+          for (int i = 0; i < level.startTiles().size(); i++) {
+            Tile tile = level.startTiles().get(i);
+            Point pos = tile.position();
 
-            for (int i = 0; i < level.startTiles().size(); i++) {
-              Tile tile = level.startTiles().get(i);
-              Point pos = tile.position();
+            Color color = START_TILE_COLORS[i % START_TILE_COLORS.length];
 
-              int drawX = (int) Math.round(pos.x() * tilePx + view.offsetX());
-              int drawY =
-                (int)
-                  Math.round((levelHeight - 1 - pos.y()) * tilePx + view.offsetY());
+            LitiengineDebugDrawSystem.drawRectangleOutline(
+              pos.x(),
+              pos.y(),
+              1.0f,
+              1.0f,
+              color);
 
-              Color color = START_TILE_COLORS[i % START_TILE_COLORS.length];
-              g2.setColor(color);
-              g2.drawRect(drawX, drawY, Math.max(0, tilePx - 1), Math.max(0, tilePx - 1));
+            float screenX = (float) (pos.x() * tilePx + view.offsetX() + 4);
+            float screenY =
+              (float)
+                ((levelHeight - 1 - pos.y()) * tilePx
+                  + view.offsetY()
+                  + Math.max(14, tilePx / 2));
 
-              g2.drawString(
-                "Start: " + (i + 1),
-                drawX + 4,
-                drawY + Math.max(14, tilePx / 2));
-            }
-          } finally {
-            g2.dispose();
+            LitiengineDebugDrawSystem.drawText(
+              "Start: " + (i + 1),
+              new Point(screenX, screenY),
+              color);
           }
         });
   }

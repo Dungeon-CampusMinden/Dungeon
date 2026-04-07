@@ -152,14 +152,21 @@ public final class LitiengineLevelEditorSystem extends System {
       renderDebugVisualization(g);
     }
 
-    if (this.currentMode == Mode.TILES) {
-      tilesMode.render(g, deltaSeconds);
-    } else if (this.currentMode == Mode.POINTS) {
-      pointMode.render(g, deltaSeconds);
-    } else if (this.currentMode == Mode.START_TILES) {
-      startTilesMode.render(g, deltaSeconds);
-    }
+    activeModeInstance().render(g, deltaSeconds);
   }
+
+  private LevelEditorMode activeModeInstance() {
+    return switch (this.currentMode) {
+      case TILES -> tilesMode;
+      case DECOS -> decoMode;
+      case POINTS -> pointMode;
+      case LEVEL_BOUNDS -> levelBoundsMode;
+      case SHIFT_LEVEL -> shiftLevelMode;
+      case START_TILES -> startTilesMode;
+      case SAVE_LEVEL -> saveMode;
+    };
+  }
+
   /** Returns whether the editor is currently active. */
   public boolean active() {
     return this.active;

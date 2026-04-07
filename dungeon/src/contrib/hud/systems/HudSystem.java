@@ -1,7 +1,6 @@
 package contrib.hud.systems;
 
 import contrib.components.UIComponent;
-import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogFactory;
 import core.Entity;
 import core.Game;

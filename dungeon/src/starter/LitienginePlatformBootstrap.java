@@ -46,8 +46,8 @@ public final class LitienginePlatformBootstrap {
   /** Installs the LITIENGINE debugger controls if they are not already present. */
   public static void installDebugger() {
     addIfAbsent(LitiengineDebugControlsSystem.class, LitiengineDebugControlsSystem::new);
-    addIfAbsent(LitiengineDebugDrawSystem.class, LitiengineDebugDrawSystem::new);
     addIfAbsent(LitiengineLevelEditorSystem.class, LitiengineLevelEditorSystem::new);
+    addIfAbsent(LitiengineDebugDrawSystem.class, LitiengineDebugDrawSystem::new);
   }
 
   private static <T extends System> void addIfAbsent(Class<T> type, Supplier<T> factory) {
