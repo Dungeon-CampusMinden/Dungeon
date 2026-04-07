@@ -141,6 +141,23 @@ public final class LitiengineLevelEditorSystem extends System {
   private boolean internalStopped = false;
   private Mode previousMode = Mode.TILES;
 
+  private static final int TOGGLE_DEBUG_VISUALIZATION = Keys.SPACE;
+
+  private static final Color DEBUG_LEVEL_TILE_OUTLINE_COLOR = new Color(80, 140, 255, 150);
+  private static final Color DEBUG_BLOCKED_TILE_FILL_COLOR = new Color(255, 80, 80, 85);
+  private static final Color DEBUG_SEE_THROUGH_TILE_FILL_COLOR = new Color(80, 220, 120, 70);
+
+  private static final Color DEBUG_PLAYER_ENTITY_COLOR = Color.RED;
+  private static final Color DEBUG_DECO_ENTITY_COLOR = Color.GREEN;
+  private static final Color DEBUG_NORMAL_ENTITY_COLOR = Color.WHITE;
+
+  private static final Color DEBUG_COORD_TEXT_COLOR = new Color(230, 230, 255, 220);
+  private static final int DEBUG_TEXT_MIN_TILE_PX = 32;
+  private static final float DEBUG_ENTITY_STROKE = 2.0f;
+  private static final int DEBUG_ENTITY_INSET_PX = 2;
+
+  private boolean debugVisualizationActive = false;
+
   /** Creates the LITIENGINE level editor. */
   public LitiengineLevelEditorSystem() {
     super(AuthoritativeSide.CLIENT);
@@ -160,6 +177,13 @@ public final class LitiengineLevelEditorSystem extends System {
     if (pc.isPresent() && pc.get().openDialogs()) {
       syncOverlay();
       return;
+    }
+
+    if (InputManager.isKeyJustPressed(TOGGLE_DEBUG_VISUALIZATION)) {
+      debugVisualizationActive = !debugVisualizationActive;
+      showFeedback(
+        "Debug visualization: " + (debugVisualizationActive ? "ON" : "OFF"),
+        Color.WHITE);
     }
 
     Mode oldMode = this.currentMode;
@@ -191,6 +215,10 @@ public final class LitiengineLevelEditorSystem extends System {
 
     renderLevelBoundsOutline(g);
 
+    if (debugVisualizationActive) {
+      renderDebugVisualization(g);
+    }
+
     if (this.currentMode == Mode.TILES) {
       renderTileBrushPreview(g);
     } else if (this.currentMode == Mode.POINTS) {
@@ -199,7 +227,6 @@ public final class LitiengineLevelEditorSystem extends System {
       renderStartTileMarkers(g);
     }
   }
-
   /** Returns whether the editor is currently active. */
   public boolean active() {
     return this.active;
@@ -991,6 +1018,8 @@ public final class LitiengineLevelEditorSystem extends System {
     lines.add("F4: toggle editor");
     lines.add("1-7: switch mode");
     lines.add("Current mode: " + currentMode.displayName());
+    lines.add(
+      "SPACE: toggle debug visualization [" + (debugVisualizationActive ? "ON" : "OFF") + "]");
     lines.add("Modes: " + modeSelectionText());
     lines.add("");
 
@@ -1810,5 +1839,113 @@ public final class LitiengineLevelEditorSystem extends System {
   @Override
   public void run() {
     this.internalStopped = false;
+  }
+
+  private void renderDebugVisualization(Graphics2D g) {
+    LitiengineCameraViews.View view = LitiengineCameraViews.get();
+    if (view == null || view.tilePx() <= 0) {
+      return;
+    }
+
+    currentDungeonLevel()
+      .ifPresent(
+        level -> {
+          Graphics2D g2 = (Graphics2D) g.create();
+          try {
+            renderDebugTiles(g2, level, view);
+            renderDebugEntities(g2, level.layout().length, view);
+          } finally {
+            g2.dispose();
+          }
+        });
+  }
+
+  private void renderDebugTiles(Graphics2D g, DungeonLevel level, LitiengineCameraViews.View view) {
+    Tile[][] layout = level.layout();
+    int levelHeight = layout.length;
+    int tilePx = view.tilePx();
+
+    for (int y = 0; y < layout.length; y++) {
+      for (int x = 0; x < layout[y].length; x++) {
+        Tile tile = layout[y][x];
+        LevelElement element = tile.levelElement();
+
+        int drawX = (int) Math.round(x * tilePx + view.offsetX());
+        int drawY = (int) Math.round((levelHeight - 1 - y) * tilePx + view.offsetY());
+
+        if (!element.value()) {
+          g.setColor(DEBUG_BLOCKED_TILE_FILL_COLOR);
+          g.fillRect(drawX, drawY, tilePx, tilePx);
+        } else if (element.canSeeThrough()) {
+          g.setColor(DEBUG_SEE_THROUGH_TILE_FILL_COLOR);
+          g.fillRect(drawX, drawY, tilePx, tilePx);
+        }
+
+        g.setColor(DEBUG_LEVEL_TILE_OUTLINE_COLOR);
+        g.drawRect(drawX, drawY, Math.max(0, tilePx - 1), Math.max(0, tilePx - 1));
+
+        if (tilePx >= DEBUG_TEXT_MIN_TILE_PX) {
+          g.setColor(DEBUG_COORD_TEXT_COLOR);
+          g.drawString(x + "," + y, drawX + 4, drawY + Math.max(14, tilePx / 2));
+        }
+      }
+    }
+  }
+
+  private void renderDebugEntities(
+    Graphics2D g, int levelHeight, LitiengineCameraViews.View view) {
+
+    int tilePx = view.tilePx();
+
+    g.setStroke(new BasicStroke(DEBUG_ENTITY_STROKE));
+
+    Game.levelEntities(Set.of(PositionComponent.class, DrawComponent.class))
+      .forEach(
+        entity -> {
+          PositionComponent pc = entity.fetch(PositionComponent.class).orElse(null);
+          if (pc == null) {
+            return;
+          }
+
+          Point pos = pc.position();
+          int drawX = (int) Math.round(pos.x() * tilePx + view.offsetX());
+          int drawY =
+            (int) Math.round((levelHeight - 1 - pos.y()) * tilePx + view.offsetY());
+
+          g.setColor(debugEntityColor(entity));
+          g.drawRect(
+            drawX + DEBUG_ENTITY_INSET_PX,
+            drawY + DEBUG_ENTITY_INSET_PX,
+            Math.max(0, tilePx - 1 - DEBUG_ENTITY_INSET_PX * 2),
+            Math.max(0, tilePx - 1 - DEBUG_ENTITY_INSET_PX * 2));
+
+          if (tilePx >= DEBUG_TEXT_MIN_TILE_PX) {
+            g.drawString(debugEntityLabel(entity), drawX + 4, drawY + tilePx - 6);
+          }
+        });
+  }
+
+  private Color debugEntityColor(Entity entity) {
+    if (entity.isPresent(PlayerComponent.class)) {
+      return DEBUG_PLAYER_ENTITY_COLOR;
+    }
+
+    if (entity.isPresent(DecoComponent.class)) {
+      return DEBUG_DECO_ENTITY_COLOR;
+    }
+
+    return DEBUG_NORMAL_ENTITY_COLOR;
+  }
+
+  private String debugEntityLabel(Entity entity) {
+    if (entity.isPresent(PlayerComponent.class)) {
+      return "PLAYER";
+    }
+
+    if (entity.isPresent(DecoComponent.class)) {
+      return "DECO";
+    }
+
+    return "DRAW";
   }
 }
