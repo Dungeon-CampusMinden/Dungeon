@@ -38,10 +38,7 @@ import core.utils.logging.DungeonLogger;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -182,8 +179,9 @@ public final class LitiengineLevelEditorSystem extends System {
       case DECOS -> executeDecosMode();
       case POINTS -> executePointsMode();
       case LEVEL_BOUNDS -> executeLevelBoundsMode();
+      case SHIFT_LEVEL -> executeShiftLevelMode();
       case SAVE_LEVEL -> executeSaveLevelMode();
-      case SHIFT_LEVEL, START_TILES -> {
+      case START_TILES -> {
         // intentionally not ported yet
       }
     }
@@ -971,12 +969,14 @@ public final class LitiengineLevelEditorSystem extends System {
       lines.addAll(buildPointsModeLines());
     } else if (currentMode == Mode.LEVEL_BOUNDS) {
       lines.addAll(buildLevelBoundsModeLines());
+    } else if (currentMode == Mode.SHIFT_LEVEL) {
+      lines.addAll(buildShiftLevelModeLines());
     } else if (currentMode == Mode.SAVE_LEVEL) {
       lines.add("E: save level to clipboard");
       lines.add("Uses DungeonSaver serialization of the current DungeonLevel.");
     } else {
       lines.add("This mode is not ported yet on the LITIENGINE path.");
-      lines.add("Tiles, Decos, Points and Save Level are implemented so far.");
+      lines.add("Tiles, Decos, Points, Level Bounds and Save Level are implemented so far.");
     }
 
     return lines;
@@ -1056,6 +1056,24 @@ public final class LitiengineLevelEditorSystem extends System {
     lines.add("C/Z: width + / -");
     lines.add("New cells are filled with FLOOR.");
     lines.add("Existing tiles keep their current LevelElement.");
+    return lines;
+  }
+
+  private List<String> buildShiftLevelModeLines() {
+    List<String> lines = new ArrayList<>();
+
+    currentDungeonLevel()
+      .ifPresentOrElse(
+        level -> {
+          lines.add("Current size: " + level.layout()[0].length + "x" + level.layout().length);
+          lines.add("Named points: " + level.namedPoints().size());
+        },
+        () -> lines.add("Current size: <no dungeon level>"));
+
+    lines.add("E/Q: shift level up / down");
+    lines.add("C/Z: shift level right / left");
+    lines.add("Blocked if a non-SKIP border tile would be overwritten.");
+    lines.add("Also shifts named points and entities with PositionComponent.");
     return lines;
   }
 
@@ -1468,5 +1486,116 @@ public final class LitiengineLevelEditorSystem extends System {
             g2.dispose();
           }
         });
+  }
+
+  private void executeShiftLevelMode() {
+    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
+      shiftLevel(0, 1);
+    } else if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
+      shiftLevel(0, -1);
+    }
+
+    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
+      shiftLevel(1, 0);
+    } else if (InputManager.isKeyJustPressed(SECONDARY_DOWN)) {
+      shiftLevel(-1, 0);
+    }
+  }
+
+  private void shiftLevel(int x, int y) {
+    if (x == 0 && y == 0) {
+      return;
+    }
+
+    String directionName = x == 1 ? "RIGHT" : x == -1 ? "LEFT" : y == 1 ? "UP" : "DOWN";
+    showFeedback("Shifting level " + directionName, Color.WHITE);
+
+    currentDungeonLevel()
+      .ifPresent(
+        level -> {
+          Tile[][] layout = level.layout();
+
+          if (!canShift(layout, x, y)) {
+            showFeedback("Cannot shift level: overwriting non-SKIP tiles!", Color.RED);
+            return;
+          }
+
+          int rows = layout.length;
+          int cols = layout[0].length;
+
+          LevelElement[][] newLayout = new LevelElement[rows][cols];
+
+          for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+              int newI = i - y;
+              int newJ = j - x;
+
+              if (newI >= 0 && newI < rows && newJ >= 0 && newJ < cols) {
+                newLayout[i][j] = layout[newI][newJ].levelElement();
+              } else {
+                newLayout[i][j] = LevelElement.SKIP;
+              }
+            }
+          }
+
+          for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+              level.changeTileElementType(layout[i][j], newLayout[i][j]);
+            }
+          }
+
+          // Same second pass as in the old ShiftLevelMode to refresh resulting tile visuals again.
+          for (Tile[] tiles : layout) {
+            for (int j = 0; j < cols; j++) {
+              level.changeTileElementType(tiles[j], tiles[j].levelElement());
+            }
+          }
+
+          level.namedPoints().replaceAll((name, point) -> new Point(point.x() + x, point.y() + y));
+
+          Game.levelEntities(Set.of(PositionComponent.class))
+            .forEach(
+              entity -> {
+                PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
+                Point old = pc.position();
+                pc.position(new Point(old.x() + x, old.y() + y));
+                PositionSync.syncPosition(entity);
+              });
+        });
+  }
+
+  private boolean canShift(Tile[][] layout, int x, int y) {
+    int rows = layout.length;
+    int cols = layout[0].length;
+
+    if (x == 1) {
+      for (Tile[] tiles : layout) {
+        if (tiles[cols - 1].levelElement() != LevelElement.SKIP) {
+          return false;
+        }
+      }
+    } else if (x == -1) {
+      for (Tile[] tiles : layout) {
+        if (tiles[0].levelElement() != LevelElement.SKIP) {
+          return false;
+        }
+      }
+    }
+
+    if (y == 1) {
+      for (int j = 0; j < cols; j++) {
+        if (layout[rows - 1][j].levelElement() != LevelElement.SKIP) {
+          return false;
+        }
+      }
+    } else if (y == -1) {
+      for (int j = 0; j < cols; j++) {
+        if (layout[0][j].levelElement() != LevelElement.SKIP) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 }
