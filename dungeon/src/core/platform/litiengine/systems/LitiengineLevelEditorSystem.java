@@ -30,6 +30,7 @@ import core.platform.Platform;
 import core.platform.litiengine.levelEditor.LevelBoundsMode;
 import core.platform.litiengine.levelEditor.LevelEditorMode;
 import core.platform.litiengine.levelEditor.SaveMode;
+import core.platform.litiengine.levelEditor.ShiftLevelMode;
 import core.platform.litiengine.render.LitiengineCameraViews;
 import core.platform.litiengine.render.LitiengineGraphicsContext;
 import core.platform.litiengine.ui.LitiengineLevelEditorOverlay;
@@ -162,6 +163,7 @@ public final class LitiengineLevelEditorSystem extends System {
   private boolean debugVisualizationActive = false;
 
   private final LevelEditorMode saveMode = new SaveMode(this);
+  private final LevelEditorMode shiftLevelMode = new ShiftLevelMode(this);
   private final LevelEditorMode levelBoundsMode = new LevelBoundsMode(this);
 
   /** Creates the LITIENGINE level editor. */
@@ -244,7 +246,7 @@ public final class LitiengineLevelEditorSystem extends System {
       case DECOS -> executeDecosMode();
       case POINTS -> executePointsMode();
       case LEVEL_BOUNDS -> levelBoundsMode.doExecute();
-      case SHIFT_LEVEL -> executeShiftLevelMode();
+      case SHIFT_LEVEL -> shiftLevelMode.doExecute();
       case START_TILES -> executeStartTilesMode();
       case SAVE_LEVEL -> saveMode.doExecute();
     }
@@ -1035,7 +1037,7 @@ public final class LitiengineLevelEditorSystem extends System {
     } else if (currentMode == Mode.LEVEL_BOUNDS) {
       lines.addAll(levelBoundsMode.getFullStatusLines());
     } else if (currentMode == Mode.SHIFT_LEVEL) {
-      lines.addAll(buildShiftLevelModeLines());
+      lines.addAll(shiftLevelMode.getFullStatusLines());
     } else if (currentMode == Mode.START_TILES) {
       lines.addAll(buildStartTilesModeLines());
     } else if (currentMode == Mode.SAVE_LEVEL) {
@@ -1106,24 +1108,6 @@ public final class LitiengineLevelEditorSystem extends System {
     lines.add("LMB: place held point or open point-name dialog");
     lines.add("RMB: pick point on cursor or clone held point");
     lines.add("X: delete point on cursor");
-    return lines;
-  }
-
-  private List<String> buildShiftLevelModeLines() {
-    List<String> lines = new ArrayList<>();
-
-    currentDungeonLevel()
-      .ifPresentOrElse(
-        level -> {
-          lines.add("Current size: " + level.layout()[0].length + "x" + level.layout().length);
-          lines.add("Named points: " + level.namedPoints().size());
-        },
-        () -> lines.add("Current size: <no dungeon level>"));
-
-    lines.add("E/Q: shift level up / down");
-    lines.add("C/Z: shift level right / left");
-    lines.add("Blocked if a non-SKIP border tile would be overwritten.");
-    lines.add("Also shifts named points and entities with PositionComponent.");
     return lines;
   }
 
@@ -1487,117 +1471,6 @@ public final class LitiengineLevelEditorSystem extends System {
             g2.dispose();
           }
         });
-  }
-
-  private void executeShiftLevelMode() {
-    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
-      shiftLevel(0, 1);
-    } else if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
-      shiftLevel(0, -1);
-    }
-
-    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
-      shiftLevel(1, 0);
-    } else if (InputManager.isKeyJustPressed(SECONDARY_DOWN)) {
-      shiftLevel(-1, 0);
-    }
-  }
-
-  private void shiftLevel(int x, int y) {
-    if (x == 0 && y == 0) {
-      return;
-    }
-
-    String directionName = x == 1 ? "RIGHT" : x == -1 ? "LEFT" : y == 1 ? "UP" : "DOWN";
-    showFeedback("Shifting level " + directionName, Color.WHITE);
-
-    currentDungeonLevel()
-      .ifPresent(
-        level -> {
-          Tile[][] layout = level.layout();
-
-          if (!canShift(layout, x, y)) {
-            showFeedback("Cannot shift level: overwriting non-SKIP tiles!", Color.RED);
-            return;
-          }
-
-          int rows = layout.length;
-          int cols = layout[0].length;
-
-          LevelElement[][] newLayout = new LevelElement[rows][cols];
-
-          for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-              int newI = i - y;
-              int newJ = j - x;
-
-              if (newI >= 0 && newI < rows && newJ >= 0 && newJ < cols) {
-                newLayout[i][j] = layout[newI][newJ].levelElement();
-              } else {
-                newLayout[i][j] = LevelElement.SKIP;
-              }
-            }
-          }
-
-          for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-              level.changeTileElementType(layout[i][j], newLayout[i][j]);
-            }
-          }
-
-          // Same second pass as in the old ShiftLevelMode to refresh resulting tile visuals again.
-          for (Tile[] tiles : layout) {
-            for (int j = 0; j < cols; j++) {
-              level.changeTileElementType(tiles[j], tiles[j].levelElement());
-            }
-          }
-
-          level.namedPoints().replaceAll((name, point) -> new Point(point.x() + x, point.y() + y));
-
-          Game.levelEntities(Set.of(PositionComponent.class))
-            .forEach(
-              entity -> {
-                PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
-                Point old = pc.position();
-                pc.position(new Point(old.x() + x, old.y() + y));
-                PositionSync.syncPosition(entity);
-              });
-        });
-  }
-
-  private boolean canShift(Tile[][] layout, int x, int y) {
-    int rows = layout.length;
-    int cols = layout[0].length;
-
-    if (x == 1) {
-      for (Tile[] tiles : layout) {
-        if (tiles[cols - 1].levelElement() != LevelElement.SKIP) {
-          return false;
-        }
-      }
-    } else if (x == -1) {
-      for (Tile[] tiles : layout) {
-        if (tiles[0].levelElement() != LevelElement.SKIP) {
-          return false;
-        }
-      }
-    }
-
-    if (y == 1) {
-      for (int j = 0; j < cols; j++) {
-        if (layout[rows - 1][j].levelElement() != LevelElement.SKIP) {
-          return false;
-        }
-      }
-    } else if (y == -1) {
-      for (int j = 0; j < cols; j++) {
-        if (layout[0][j].levelElement() != LevelElement.SKIP) {
-          return false;
-        }
-      }
-    }
-
-    return true;
   }
 
   private void executeStartTilesMode() {
