@@ -122,6 +122,9 @@ public final class LitiengineLevelEditorSystem extends System {
   private static final int POINT_MARKER_MIN_PX = 8;
   private static final int POINT_MARKER_MAX_PX = 18;
 
+  private static final Color LEVEL_BOUNDS_OUTLINE_COLOR = new Color(0, 255, 0, 77);
+  private static final float LEVEL_BOUNDS_OUTLINE_STROKE = 2.0f;
+
   /** Creates the LITIENGINE level editor. */
   public LitiengineLevelEditorSystem() {
     super(AuthoritativeSide.CLIENT);
@@ -158,6 +161,8 @@ public final class LitiengineLevelEditorSystem extends System {
     if (g == null) {
       return;
     }
+
+    renderLevelBoundsOutline(g);
 
     if (this.currentMode == Mode.TILES) {
       renderTileBrushPreview(g);
@@ -1049,7 +1054,7 @@ public final class LitiengineLevelEditorSystem extends System {
 
     lines.add("E/Q: height + / -");
     lines.add("C/Z: width + / -");
-    lines.add("New cells are filled with SKIP.");
+    lines.add("New cells are filled with FLOOR.");
     lines.add("Existing tiles keep their current LevelElement.");
     return lines;
   }
@@ -1417,7 +1422,7 @@ public final class LitiengineLevelEditorSystem extends System {
           for (int y = 0; y < newRows; y++) {
             for (int x = 0; x < newCols; x++) {
               if (y >= rows || x >= cols) {
-                newLayout[y][x] = LevelElement.SKIP;
+                newLayout[y][x] = LevelElement.FLOOR;
               } else {
                 newLayout[y][x] = layout[y][x].levelElement();
               }
@@ -1428,6 +1433,40 @@ public final class LitiengineLevelEditorSystem extends System {
           showFeedback(
             "Resized level to " + newCols + "x" + newRows + " (" + addX + ", " + addY + ")",
             Color.WHITE);
+        });
+  }
+
+  private void renderLevelBoundsOutline(Graphics2D g) {
+    LitiengineCameraViews.View view = LitiengineCameraViews.get();
+    if (view == null || view.tilePx() <= 0) {
+      return;
+    }
+
+    currentDungeonLevel()
+      .ifPresent(
+        level -> {
+          Tile[][] layout = level.layout();
+          if (layout.length == 0 || layout[0].length == 0) {
+            return;
+          }
+
+          int tilePx = view.tilePx();
+          int levelWidth = layout[0].length;
+          int levelHeight = layout.length;
+
+          int drawX = (int) Math.round(view.offsetX());
+          int drawY = (int) Math.round(view.offsetY());
+          int drawWidth = levelWidth * tilePx;
+          int drawHeight = levelHeight * tilePx;
+
+          Graphics2D g2 = (Graphics2D) g.create();
+          try {
+            g2.setColor(LEVEL_BOUNDS_OUTLINE_COLOR);
+            g2.setStroke(new BasicStroke(LEVEL_BOUNDS_OUTLINE_STROKE));
+            g2.drawRect(drawX, drawY, Math.max(0, drawWidth - 1), Math.max(0, drawHeight - 1));
+          } finally {
+            g2.dispose();
+          }
         });
   }
 }
