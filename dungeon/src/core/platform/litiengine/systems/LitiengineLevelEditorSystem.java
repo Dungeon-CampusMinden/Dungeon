@@ -138,6 +138,9 @@ public final class LitiengineLevelEditorSystem extends System {
     new Color(250, 128, 114)  // salmon
   };
 
+  private boolean internalStopped = false;
+  private Mode previousMode = Mode.TILES;
+
   /** Creates the LITIENGINE level editor. */
   public LitiengineLevelEditorSystem() {
     super(AuthoritativeSide.CLIENT);
@@ -159,8 +162,19 @@ public final class LitiengineLevelEditorSystem extends System {
       return;
     }
 
+    Mode oldMode = this.currentMode;
     handleModeHotkeys();
-    executeCurrentMode();
+
+    if (oldMode != this.currentMode) {
+      onModeExit(oldMode);
+      onModeEnter(this.currentMode);
+      this.previousMode = this.currentMode;
+    }
+
+    if (!this.internalStopped || oldMode != this.currentMode) {
+      executeCurrentMode();
+    }
+
     syncOverlay();
   }
 
@@ -1767,5 +1781,34 @@ public final class LitiengineLevelEditorSystem extends System {
     lines.add("RMB: delete start tile on cursor");
     lines.add("Placement is only valid on FLOOR tiles.");
     return lines;
+  }
+
+  private void onModeEnter(Mode mode) {
+    if (Objects.requireNonNull(mode) == Mode.START_TILES) {
+      currentStartTileIndex =
+        currentDungeonLevel()
+          .map(level -> Math.min(currentStartTileIndex, level.startTiles().size()))
+          .orElse(0);
+    }
+  }
+
+  private void onModeExit(Mode mode) {
+    switch (mode) {
+      case POINTS -> heldPointName = null;
+      case DECOS -> hoveredDecoEntity = null;
+      default -> {
+        // no-op for now
+      }
+    }
+  }
+
+  @Override
+  public void stop() {
+    this.internalStopped = true;
+  }
+
+  @Override
+  public void run() {
+    this.internalStopped = false;
   }
 }
