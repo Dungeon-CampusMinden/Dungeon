@@ -2,6 +2,7 @@ package contrib.hud;
 
 import contrib.components.UIComponent;
 import contrib.hud.dialogs.*;
+import contrib.utils.components.showImage.ShowImageText;
 import contrib.utils.components.showImage.TransitionSpeed;
 import core.Entity;
 import core.Game;
@@ -45,22 +46,39 @@ public class DialogUtils {
   }
 
   /**
-   * Displays an image in a popup with a specified transition speed and an optional close callback.
+   * Displays an image in a popup with the full image-dialog payload.
    *
    * @param imagePath the path to the image to display
-   * @param speed the transition speed for showing and hiding the image
-   * @param onClose the callback function to execute when the popup is closed
+   * @param speed the transition speed for showing the image
+   * @param maxSize the maximum size factor of the image relative to the screen
+   * @param textConfig optional text configuration rendered on top of the image
+   * @param onClose callback executed when the popup is closed
    */
   public static void showImagePopUp(
-      String imagePath, TransitionSpeed speed, IVoidFunction onClose) {
+    String imagePath,
+    TransitionSpeed speed,
+    float maxSize,
+    ShowImageText textConfig,
+    IVoidFunction onClose) {
+
     Entity dialogEntity = new Entity();
-    DialogContext context =
-        DialogContext.builder()
-            .type(DialogType.DefaultTypes.IMAGE)
-            .put(DialogContextKeys.IMAGE, imagePath)
-            .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, speed)
-            .put(DialogContextKeys.OWNER_ENTITY, dialogEntity.id())
-            .build();
+
+    var builder =
+      DialogContext.builder()
+        .type(DialogType.DefaultTypes.IMAGE)
+        .put(DialogContextKeys.IMAGE, imagePath)
+        .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, speed)
+        .put(DialogContextKeys.IMAGE_MAX_SIZE, maxSize)
+        .put(DialogContextKeys.OWNER_ENTITY, dialogEntity.id());
+
+    if (textConfig != null && textConfig.text() != null && !textConfig.text().isBlank()) {
+      builder
+        .put(DialogContextKeys.IMAGE_TEXT, textConfig.text())
+        .put(DialogContextKeys.IMAGE_TEXT_SCALE, textConfig.scale())
+        .put(DialogContextKeys.IMAGE_TEXT_COLOR_RGBA8888, textConfig.rgba8888Color());
+    }
+
+    DialogContext context = builder.build();
     UIComponent ui = new UIComponent(context, true, true, new int[] {});
 
     // Default onClose behavior (e.g. when pressing ESC)
@@ -70,22 +88,16 @@ public class DialogUtils {
     Game.add(dialogEntity);
   }
 
-  /**
-   * Displays an image in a popup.
-   *
-   * @param imagePath The path to the image to display. *
-   * @param onClose the callback function to execute when the popup is closed
-   */
-  public static void showImagePopUp(String imagePath, IVoidFunction onClose) {
-    showImagePopUp(imagePath, TransitionSpeed.MEDIUM, onClose);
+  public static void showImagePopUp(
+    String imagePath, TransitionSpeed speed, IVoidFunction onClose) {
+    showImagePopUp(imagePath, speed, 0.85f, null, onClose);
   }
 
-  /**
-   * Displays an image in a popup.
-   *
-   * @param imagePath The path to the image to display.
-   */
+  public static void showImagePopUp(String imagePath, IVoidFunction onClose) {
+    showImagePopUp(imagePath, TransitionSpeed.MEDIUM, 0.85f, null, onClose);
+  }
+
   public static void showImagePopUp(String imagePath) {
-    showImagePopUp(imagePath, TransitionSpeed.MEDIUM, () -> {});
+    showImagePopUp(imagePath, TransitionSpeed.MEDIUM, 0.85f, null, () -> {});
   }
 }

@@ -5,6 +5,7 @@ import contrib.components.UIComponent;
 import contrib.hud.dialogs.DialogContext;
 import contrib.hud.dialogs.DialogContextKeys;
 import contrib.hud.dialogs.DialogType;
+import contrib.utils.components.showImage.ShowImageText;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -28,8 +29,8 @@ public class ShowImageSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream(ShowImageComponent.class, DrawComponent.class, PositionComponent.class)
-        .map(this::buildDataObject)
-        .forEach(this::execute);
+      .map(this::buildDataObject)
+      .forEach(this::execute);
   }
 
   /**
@@ -41,29 +42,41 @@ public class ShowImageSystem extends System {
     Entity overlay = d.sic.overlay();
 
     if (overlay == null && d.sic.isUIOpen()) {
-      // Dialog is closed but should be open
       Entity newOverlay = new Entity("show-image-overlay");
-      DialogContext context =
-          DialogContext.builder()
-              .type(DialogType.DefaultTypes.IMAGE)
-              .put(DialogContextKeys.IMAGE, d.sic.imagePath())
-              .put(DialogContextKeys.OWNER_ENTITY, newOverlay.id())
-              .build();
+
+      var builder =
+        DialogContext.builder()
+          .type(DialogType.DefaultTypes.IMAGE)
+          .put(DialogContextKeys.IMAGE, d.sic.imagePath())
+          .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, d.sic.transitionSpeed())
+          .put(DialogContextKeys.IMAGE_MAX_SIZE, d.sic.maxSize())
+          .put(DialogContextKeys.OWNER_ENTITY, newOverlay.id());
+
+      ShowImageText textConfig = d.sic.textConfig();
+      if (textConfig != null && textConfig.text() != null && !textConfig.text().isBlank()) {
+        builder
+          .put(DialogContextKeys.IMAGE_TEXT, textConfig.text())
+          .put(DialogContextKeys.IMAGE_TEXT_SCALE, textConfig.scale())
+          .put(DialogContextKeys.IMAGE_TEXT_COLOR_RGBA8888, textConfig.rgba8888Color());
+      }
+
+      DialogContext context = builder.build();
+
       UIComponent uic = new UIComponent(context, true);
-      // Register close callback
+
       uic.registerCallback(
-          "onClose",
-          data -> {
-            d.sic.isUIOpen(false);
-            d.sic.onClose(d.e, newOverlay);
-          });
+        "onClose",
+        data -> {
+          d.sic.isUIOpen(false);
+          d.sic.onClose(d.e, newOverlay);
+        });
+
       newOverlay.add(uic);
       d.sic.overlay(newOverlay);
       Game.add(newOverlay);
       d.sic.onOpen(d.e, newOverlay);
 
     } else if (overlay != null && !d.sic.isUIOpen()) {
-      // Dialog is open but should be closed
       Game.remove(overlay);
       d.sic.overlay(null);
     }
@@ -71,11 +84,15 @@ public class ShowImageSystem extends System {
 
   private SIData buildDataObject(Entity e) {
     return new SIData(
-        e,
-        e.fetch(ShowImageComponent.class).orElseThrow(),
-        e.fetch(DrawComponent.class).orElseThrow(),
-        e.fetch(PositionComponent.class).orElseThrow());
+      e,
+      e.fetch(ShowImageComponent.class).orElseThrow(),
+      e.fetch(DrawComponent.class).orElseThrow(),
+      e.fetch(PositionComponent.class).orElseThrow());
   }
 
-  private record SIData(Entity e, ShowImageComponent sic, DrawComponent dc, PositionComponent pc) {}
+  private record SIData(
+    Entity e,
+    ShowImageComponent sic,
+    DrawComponent dc,
+    PositionComponent pc) {}
 }

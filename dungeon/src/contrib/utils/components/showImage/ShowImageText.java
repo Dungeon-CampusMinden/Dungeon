@@ -29,4 +29,14 @@ public record ShowImageText(String text, float scale, Color color) {
   public ShowImageText(String text) {
     this(text, 1f, Color.BLACK);
   }
+
+  /**
+   * Encodes the configured libGDX color as RGBA8888 so it can be transported through the dialog
+   * context without forcing the target renderer to depend on libGDX color APIs.
+   *
+   * @return the configured color as RGBA8888
+   */
+  public int rgba8888Color() {
+    return Color.rgba8888(color == null ? Color.BLACK : color);
+  }
 }

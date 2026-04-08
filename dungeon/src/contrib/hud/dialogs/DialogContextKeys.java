@@ -79,6 +79,18 @@ public class DialogContextKeys {
   /** The key for the image transition speed in the dialog. */
   public static final String IMAGE_TRANSITION_SPEED = "imageTransitionSpeed";
 
+  /** The key for the image max size factor in the dialog. */
+  public static final String IMAGE_MAX_SIZE = "imageMaxSize";
+
+  /** The key for optional overlay text shown on top of the image. */
+  public static final String IMAGE_TEXT = "imageText";
+
+  /** The key for the scale factor of the optional image overlay text. */
+  public static final String IMAGE_TEXT_SCALE = "imageTextScale";
+
+  /** The key for the optional image overlay text color encoded as RGBA8888. */
+  public static final String IMAGE_TEXT_COLOR_RGBA8888 = "imageTextColorRgba8888";
+
   /** The key for the progress bar component in the dialog. */
   public static final String PROGRESS_BAR = "progressBar";
 

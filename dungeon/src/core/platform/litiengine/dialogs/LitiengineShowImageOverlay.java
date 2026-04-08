@@ -6,14 +6,16 @@ import core.platform.litiengine.render.LitiengineImages;
 import core.platform.litiengine.ui.LitiengineUiOverlay;
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 /**
- * Minimal image popup for the LITIENGINE backend.
+ * LITIENGINE image popup that mirrors the old ShowImageUI feature set.
  *
- * <p>Mirrors the current GDX dialog semantics: only image path + transition speed are
- * taken from the dialog context.
+ * <p>Supports image path, transition speed, max size, and optional centered overlay text.
  */
 final class LitiengineShowImageOverlay implements LitiengineUiOverlay {
 
@@ -23,8 +25,16 @@ final class LitiengineShowImageOverlay implements LitiengineUiOverlay {
   private static final int ANIMATION_OFFSET_X = -5;
   private static final int ANIMATION_OFFSET_Y = -50;
 
+  private static final int TEXT_SIDE_PADDING = 24;
+  private static final int TEXT_VERTICAL_PADDING = 12;
+  private static final int TEXT_ARC = 12;
+
   private final String imagePath;
   private final TransitionSpeed transitionSpeed;
+  private final float maxSize;
+  private final String imageText;
+  private final float imageTextScale;
+  private final Color imageTextColor;
 
   private String loadedImagePath;
   private BufferedImage image;
@@ -36,10 +46,22 @@ final class LitiengineShowImageOverlay implements LitiengineUiOverlay {
   private boolean visible = true;
   private float animation;
 
-  LitiengineShowImageOverlay(String imagePath, TransitionSpeed transitionSpeed) {
+  LitiengineShowImageOverlay(
+    String imagePath,
+    TransitionSpeed transitionSpeed,
+    float maxSize,
+    String imageText,
+    float imageTextScale,
+    int imageTextColorRgba8888) {
+
     this.imagePath = imagePath;
-    this.transitionSpeed = transitionSpeed;
-    this.animation = transitionSpeed == TransitionSpeed.DISABLED ? 1f : 0f;
+    this.transitionSpeed = transitionSpeed == null ? TransitionSpeed.MEDIUM : transitionSpeed;
+    this.maxSize = maxSize > 0f ? maxSize : DEFAULT_MAX_SIZE;
+    this.imageText = normalizeText(imageText);
+    this.imageTextScale = imageTextScale > 0f ? imageTextScale : 1f;
+    this.imageTextColor = awtColorFromRgba8888(imageTextColorRgba8888);
+
+    this.animation = this.transitionSpeed == TransitionSpeed.DISABLED ? 1f : 0f;
   }
 
   @Override
@@ -85,12 +107,10 @@ final class LitiengineShowImageOverlay implements LitiengineUiOverlay {
     int windowWidth = Game.windowWidth();
     int windowHeight = Game.windowHeight();
 
-    float maxWidth = windowWidth * DEFAULT_MAX_SIZE;
-    float maxHeight = windowHeight * DEFAULT_MAX_SIZE;
+    float maxWidth = windowWidth * maxSize;
+    float maxHeight = windowHeight * maxSize;
 
-    double scale =
-      Math.min(maxWidth / image.getWidth(), maxHeight / image.getHeight());
-
+    double scale = Math.min(maxWidth / image.getWidth(), maxHeight / image.getHeight());
     if (!(scale > 0d)) {
       scale = 1d;
     }
@@ -111,10 +131,58 @@ final class LitiengineShowImageOverlay implements LitiengineUiOverlay {
     g.setColor(new Color(20, 20, 26, 235));
     g.fillRoundRect(x, y, width, height, PANEL_ARC, PANEL_ARC);
 
-    g.drawImage(image, x + PANEL_PADDING, y + PANEL_PADDING, drawWidth, drawHeight, null);
+    int imageX = x + PANEL_PADDING;
+    int imageY = y + PANEL_PADDING;
+
+    g.drawImage(image, imageX, imageY, drawWidth, drawHeight, null);
+
+    renderOverlayText(g, imageX, imageY, drawWidth, drawHeight);
 
     g.setColor(new Color(220, 220, 230));
     g.drawRoundRect(x, y, width, height, PANEL_ARC, PANEL_ARC);
+  }
+
+  private void renderOverlayText(Graphics2D g, int imageX, int imageY, int imageWidth, int imageHeight) {
+    if (imageText == null || imageText.isBlank()) {
+      return;
+    }
+
+    Font previousFont = g.getFont();
+    Font textFont =
+      previousFont.deriveFont(Math.max(14f, previousFont.getSize2D() * imageTextScale));
+    g.setFont(textFont);
+
+    FontMetrics fm = g.getFontMetrics();
+    int maxTextWidth = Math.max(40, imageWidth - 2 * TEXT_SIDE_PADDING);
+    List<String> lines = LitiengineDialogOverlaySupport.wrapText(imageText, fm, maxTextWidth);
+
+    int textBlockHeight = lines.size() * fm.getHeight();
+    int boxWidth = maxTextWidth + TEXT_SIDE_PADDING;
+    int boxHeight = textBlockHeight + 2 * TEXT_VERTICAL_PADDING;
+
+    int boxX = imageX + (imageWidth - boxWidth) / 2;
+    int boxY = imageY + (imageHeight - boxHeight) / 2;
+
+    g.setColor(new Color(255, 255, 255, 120));
+    g.fillRoundRect(boxX, boxY, boxWidth, boxHeight, TEXT_ARC, TEXT_ARC);
+
+    g.setColor(new Color(0, 0, 0, 90));
+    g.drawRoundRect(boxX, boxY, boxWidth, boxHeight, TEXT_ARC, TEXT_ARC);
+
+    int lineY = boxY + TEXT_VERTICAL_PADDING + fm.getAscent();
+    for (String line : lines) {
+      int lineX = imageX + (imageWidth - fm.stringWidth(line)) / 2;
+
+      g.setColor(new Color(0, 0, 0, 180));
+      g.drawString(line, lineX + 1, lineY + 1);
+
+      g.setColor(imageTextColor);
+      g.drawString(line, lineX, lineY);
+
+      lineY += fm.getHeight();
+    }
+
+    g.setFont(previousFont);
   }
 
   private void renderMissingImage(Graphics2D g) {
@@ -161,6 +229,23 @@ final class LitiengineShowImageOverlay implements LitiengineUiOverlay {
 
   private int animationOffsetY() {
     return Math.round(ANIMATION_OFFSET_Y * (1f - easedAnimation()));
+  }
+
+  private static String normalizeText(String text) {
+    if (text == null) {
+      return null;
+    }
+
+    String normalized = text.strip();
+    return normalized.isEmpty() ? null : normalized;
+  }
+
+  private static Color awtColorFromRgba8888(int rgba8888) {
+    int r = (rgba8888 >>> 24) & 0xFF;
+    int g = (rgba8888 >>> 16) & 0xFF;
+    int b = (rgba8888 >>> 8) & 0xFF;
+    int a = rgba8888 & 0xFF;
+    return new Color(r, g, b, a);
   }
 
   @Override

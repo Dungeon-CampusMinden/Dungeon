@@ -17,6 +17,20 @@ public final class LitiengineShowImageDialogBuilder {
       ctx.find(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class)
         .orElse(TransitionSpeed.MEDIUM);
 
-    return new LitiengineUiNodeHandle(new LitiengineShowImageOverlay(imagePath, speed));
+    float maxSize =
+      ctx.find(DialogContextKeys.IMAGE_MAX_SIZE, Float.class).orElse(0.85f);
+
+    String imageText =
+      ctx.find(DialogContextKeys.IMAGE_TEXT, String.class).orElse(null);
+
+    float imageTextScale =
+      ctx.find(DialogContextKeys.IMAGE_TEXT_SCALE, Float.class).orElse(1f);
+
+    int imageTextColorRgba8888 =
+      ctx.find(DialogContextKeys.IMAGE_TEXT_COLOR_RGBA8888, Integer.class).orElse(0x000000ff);
+
+    return new LitiengineUiNodeHandle(
+      new LitiengineShowImageOverlay(
+        imagePath, speed, maxSize, imageText, imageTextScale, imageTextColorRgba8888));
   }
 }
