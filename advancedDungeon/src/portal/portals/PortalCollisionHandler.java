@@ -2,7 +2,7 @@ package portal.portals;
 
 import contrib.components.CollideComponent;
 import contrib.components.ProjectileComponent;
-import contrib.components.PortableComponent;
+import portal.portals.components.PortableComponent;
 import contrib.systems.EventScheduler;
 import core.Entity;
 import core.Game;
