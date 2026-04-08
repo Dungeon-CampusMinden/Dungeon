@@ -696,12 +696,19 @@ public class HeroController {
       var hudSys = Game.systems().get(HudSystem.class);
       boolean paused =
           hudSys instanceof HudSystem hudSystem && hudSystem.hasOpenPausingUI(playerEntity);
+      if (!clientState.advanceProcessedSeq(msg.sequence())) {
+        LOGGER.debug(
+            "Ignoring stale or duplicate input sequence {} for client {}",
+            msg.sequence(),
+            clientState);
+        clientState.updateLastActivity();
+        continue;
+      }
       try {
         applyInput(clientState, msg, playerEntity, paused);
       } catch (Exception e) {
         LOGGER.warn("Failed to apply input for client {}: {}", clientState, e.getMessage(), e);
       }
-      clientState.updateProcessedSeq(msg.sequence());
       clientState.updateLastActivity();
     }
   }
