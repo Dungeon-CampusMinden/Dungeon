@@ -12,6 +12,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import core.utils.Time;
 import core.utils.logging.DungeonLogger;
 import de.gurkenlabs.litiengine.graphics.ImageRenderer;
 
@@ -376,5 +377,30 @@ public final class LitiengineSpriteRenderSystem extends System {
 
   private static int effectiveTilePx() {
     return Math.max(MIN_TILE_PX, Math.round(BASE_TILE_PX * LitiengineCameraState.zoom()));
+  }
+
+  private void drawEntitySprite(
+    final Graphics2D g,
+    final Entity entity,
+    final BufferedImage image,
+    final int drawX,
+    final int drawY,
+    final int drawWidth,
+    final int drawHeight) {
+
+    LitiengineOutlineEffectComponent outline =
+      entity.fetch(LitiengineOutlineEffectComponent.class).orElse(null);
+
+    if (outline == null) {
+      drawEntitySprite(g, entity, image, drawX, drawY, drawWidth, drawHeight);
+      return;
+    }
+
+    long nowMs = Time.nowMs();
+    int outlinePx = LitiengineImageEffects.effectiveOutlineWidth(outline, nowMs);
+    Color outlineColor = LitiengineImageEffects.effectiveOutlineColor(outline, nowMs);
+
+    LitiengineImageEffects.drawOutlinedSprite(
+      g, image, drawX, drawY, drawWidth, drawHeight, outlineColor, outlinePx);
   }
 }
