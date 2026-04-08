@@ -160,8 +160,6 @@ public class BlocklyCodeRunner {
       System.err.println("Skip: " + source + " (" + e.getMessage() + ")");
     }
   }
-
-
   /**
    * Executes the given Java code.
    *
@@ -170,7 +168,6 @@ public class BlocklyCodeRunner {
    * @throws RuntimeException If an error occurs during execution.
    */
   public void executeJavaCode(String code, int sleepAfterEachLine) throws Exception {
-
     if (sleepAfterEachLine > 0) code = addSleepCalls(code); // no sleep if time is 0
     codeRunning.set(true);
     code = String.format(CodeWrapper, code, sleepAfterEachLine);
@@ -316,7 +313,6 @@ public class BlocklyCodeRunner {
     if (tempFiles != null) {
       for (File file : tempFiles) {
         if (file.isDirectory() && file.getName().equals(TEMP_FOLDER_NAME)) {
-          System.out.println(file.getAbsolutePath());
           return file.toPath();
         }
       }
