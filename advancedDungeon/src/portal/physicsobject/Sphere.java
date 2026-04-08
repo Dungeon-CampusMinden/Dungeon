@@ -49,8 +49,7 @@ public class Sphere {
 
     sphere.add(new PositionComponent(position));
     sphere.add(new VelocityComponent(sphere_maxSpeed, mass, entity -> {}, false));
-    TransportableComponent tComp = new TransportableComponent();
-    sphere.add(tComp);
+    sphere.add(new TransportableComponent());
 
     final boolean[] attached = {false};
 
