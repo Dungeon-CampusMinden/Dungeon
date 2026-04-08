@@ -181,6 +181,7 @@ public class BlocklyCodeRunner {
 
     String path = String.valueOf(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
     if (!folderTransfered && path.endsWith(".jar")) {
+      System.out.println("transferring folders");
       prepareCompilerResources(tempDir);
       folderTransfered = true;
     }
@@ -199,12 +200,16 @@ public class BlocklyCodeRunner {
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 
-    String[] compilerArgs = {
-      "-classpath", libFolder.toAbsolutePath().toString(),
-      tempFile.toFile().toString()
-    };
-
-    int compilationResult = compiler.run(null, null, errorStream, compilerArgs);
+    int compilationResult;
+    if (path.endsWith(".jar")) {
+      String[] compilerArgs = {
+        "-classpath", libFolder.toAbsolutePath().toString(),
+        tempFile.toFile().toString()
+      };
+      compilationResult = compiler.run(null, null, errorStream, compilerArgs);
+    } else {
+      compilationResult = compiler.run(null, null, errorStream, tempFile.toFile().toString());
+    }
 
     if (compilationResult != 0) {
       String errors = errorStream.toString();
@@ -311,6 +316,7 @@ public class BlocklyCodeRunner {
     if (tempFiles != null) {
       for (File file : tempFiles) {
         if (file.isDirectory() && file.getName().equals(TEMP_FOLDER_NAME)) {
+          System.out.println(file.getAbsolutePath());
           return file.toPath();
         }
       }
