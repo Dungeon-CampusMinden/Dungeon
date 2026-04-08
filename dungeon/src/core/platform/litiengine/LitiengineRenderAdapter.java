@@ -1,6 +1,7 @@
 package core.platform.litiengine;
 
 import core.platform.RenderAdapter;
+import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
 import java.util.List;
 
 /**
@@ -17,5 +18,10 @@ public final class LitiengineRenderAdapter implements RenderAdapter {
         core.platform.litiengine.render.LitiengineSpriteRenderSystem.class,
         core.platform.litiengine.render.LitiengineSpriteRenderSystem::new)
     );
+  }
+
+  @Override
+  public void toggleDebugHud() {
+    LitiengineDebugDrawSystem.toggleHUD();
   }
 }

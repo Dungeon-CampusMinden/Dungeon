@@ -21,6 +21,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.debug.DebugGameplayActions;
 import core.level.Tile;
+import core.platform.Platform;
 import core.ui.UiNodeHandle;
 import core.utils.IVoidFunction;
 import core.utils.InputManager;
@@ -229,7 +230,7 @@ public class Debugger extends System {
     if (InputManager.isKeyJustPressed(core.configuration.KeyboardConfig.ADVANCE_FRAME.value()))
       Debugger.ADVANCE_FRAME();
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value()))
-      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleHUD);
+      Platform.render().toggleDebugHud();
     checkFrameAdvance();
   }
 }

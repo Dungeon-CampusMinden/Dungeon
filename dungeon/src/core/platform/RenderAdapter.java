@@ -42,4 +42,9 @@ public interface RenderAdapter {
 
   /** Updates the draw depth of an entity if the active backend supports runtime depth changes. */
   default void changeEntityDepth(Entity entity, int depth) {}
+
+  /** Toggles a backend-specific debug HUD if supported by the active render backend. */
+  default void toggleDebugHud() {
+    // no-op by default
+  }
 }

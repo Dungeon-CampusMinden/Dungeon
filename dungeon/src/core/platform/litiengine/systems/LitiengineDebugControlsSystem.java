@@ -4,7 +4,6 @@ import contrib.configuration.KeyboardConfig;
 import core.System;
 import core.debug.DebugGameplayActions;
 import core.utils.InputManager;
-import core.utils.logging.DungeonLogger;
 
 /**
  * Lightweight debug controls for the LITIENGINE host.
@@ -13,8 +12,6 @@ import core.utils.logging.DungeonLogger;
  * during LITIENGINE testing. GDX/HUD-specific debugger features stay in the GDX debugger.
  */
 public final class LitiengineDebugControlsSystem extends System {
-  private static final DungeonLogger LOGGER =
-    DungeonLogger.getLogger(LitiengineDebugControlsSystem.class);
 
   public LitiengineDebugControlsSystem() {
     super(AuthoritativeSide.CLIENT);
@@ -43,12 +40,6 @@ public final class LitiengineDebugControlsSystem extends System {
     }
     if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value())) {
       DebugGameplayActions.openDoors();
-    }
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value())) {
-      LitiengineDebugDrawSystem.toggleHUD();
-      LOGGER.info(
-        "LITIENGINE debug HUD {}",
-        LitiengineDebugDrawSystem.isHudVisible() ? "enabled" : "disabled");
     }
   }
 
