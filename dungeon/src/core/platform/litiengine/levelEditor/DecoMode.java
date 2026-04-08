@@ -17,10 +17,7 @@ import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import java.awt.Color;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * LITIENGINE level editor mode for placing, moving, deleting and pipetting deco entities.
@@ -45,6 +42,7 @@ public final class DecoMode extends LevelEditorMode {
   private Entity decoPreviewEntity = null;
   private Entity heldDecoEntity = null;
   private Entity hoveredDecoEntity = null;
+  private final Map<Entity, Integer> rememberedEditorTints = new IdentityHashMap<>();
 
   public DecoMode(core.platform.litiengine.systems.LitiengineLevelEditorSystem system) {
     super(system, "Deco Mode");
@@ -118,6 +116,7 @@ public final class DecoMode extends LevelEditorMode {
     clearHoveredDecoIndicator();
     releaseHeldDecoIfNecessary();
     removeDecoPreviewEntity();
+    restoreAllRememberedEditorTints();
   }
 
   @Override
@@ -187,6 +186,7 @@ public final class DecoMode extends LevelEditorMode {
       return;
     }
 
+    restoreEditorTint(decoPreviewEntity);
     Game.remove(decoPreviewEntity);
     decoPreviewEntity = null;
   }
@@ -278,15 +278,11 @@ public final class DecoMode extends LevelEditorMode {
 
   private Optional<Entity> findHoverableDecoNear(Point worldPos) {
     return findPlacedDecoNear(worldPos)
-      .filter(entity -> heldDecoEntity == null || !entity.equals(heldDecoEntity));
+      .filter(entity -> !entity.equals(heldDecoEntity));
   }
 
   private void applyHoveredDecoTint(Entity entity) {
-    if (entity == null) {
-      return;
-    }
-
-    entity.fetch(DrawComponent.class).ifPresent(dc -> dc.tintColor(DECO_HOVER_TINT));
+    applyEditorTint(entity, DECO_HOVER_TINT);
   }
 
   private void clearHoveredDecoIndicator() {
@@ -332,22 +328,11 @@ public final class DecoMode extends LevelEditorMode {
   }
 
   private void applyDecoPlacementTint(Entity entity, boolean blocked) {
-    if (entity == null) {
-      return;
-    }
-
-    entity
-      .fetch(DrawComponent.class)
-      .ifPresent(
-        dc -> dc.tintColor(blocked ? DECO_PREVIEW_BLOCKED_TINT : DECO_PREVIEW_TINT));
+    applyEditorTint(entity, blocked ? DECO_PREVIEW_BLOCKED_TINT : DECO_PREVIEW_TINT);
   }
 
   private void resetDecoTint(Entity entity) {
-    if (entity == null) {
-      return;
-    }
-
-    entity.fetch(DrawComponent.class).ifPresent(dc -> dc.tintColor(DECO_DEFAULT_TINT));
+    restoreEditorTint(entity);
   }
 
   private void pickupDecoAtCursor() {
@@ -393,7 +378,7 @@ public final class DecoMode extends LevelEditorMode {
         .map(Enum::name)
         .orElse("Deco");
 
-    resetDecoTint(placedEntity);
+    restoreEditorTint(placedEntity);
     syncPlacedDecos();
 
     heldDecoEntity = null;
@@ -433,7 +418,7 @@ public final class DecoMode extends LevelEditorMode {
       return;
     }
 
-    resetDecoTint(heldDecoEntity);
+    restoreEditorTint(heldDecoEntity);
     syncPlacedDecos();
     heldDecoEntity = null;
   }
@@ -555,5 +540,50 @@ public final class DecoMode extends LevelEditorMode {
           level.decorations().clear();
           level.decorations().addAll(placedDecos);
         });
+  }
+
+  private void rememberOriginalTint(Entity entity) {
+    if (entity == null || rememberedEditorTints.containsKey(entity)) {
+      return;
+    }
+
+    entity.fetch(DrawComponent.class).ifPresent(dc -> rememberedEditorTints.put(entity, dc.tintColor()));
+  }
+
+  private void applyEditorTint(Entity entity, int tint) {
+    if (entity == null) {
+      return;
+    }
+
+    entity.fetch(DrawComponent.class)
+      .ifPresent(
+        dc -> {
+          rememberedEditorTints.putIfAbsent(entity, dc.tintColor());
+          dc.tintColor(tint);
+        });
+  }
+
+  private void restoreEditorTint(Entity entity) {
+    if (entity == null) {
+      return;
+    }
+
+    Integer originalTint = rememberedEditorTints.remove(entity);
+
+    entity.fetch(DrawComponent.class)
+      .ifPresent(dc -> dc.tintColor(originalTint != null ? originalTint : DECO_DEFAULT_TINT));
+  }
+
+  private void restoreAllRememberedEditorTints() {
+    for (Map.Entry<Entity, Integer> entry : new IdentityHashMap<>(rememberedEditorTints).entrySet()) {
+      Entity entity = entry.getKey();
+      Integer tint = entry.getValue();
+
+      if (entity != null) {
+        entity.fetch(DrawComponent.class).ifPresent(dc -> dc.tintColor(tint));
+      }
+    }
+
+    rememberedEditorTints.clear();
   }
 }
