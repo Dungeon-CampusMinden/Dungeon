@@ -179,7 +179,7 @@ public final class LitiengineSpriteRenderSystem extends System {
 
       final Optional<DrawComponent> dcOpt = e.fetch(DrawComponent.class);
       if (dcOpt.isPresent()) {
-        if (tryDrawEntitySprite(g, pos, levelHeight, view.tilePx(), dcOpt.get())) {
+        if (tryDrawEntitySprite(g, e, pos, levelHeight, view.tilePx(), dcOpt.get())) {
           continue;
         }
       }
@@ -190,7 +190,7 @@ public final class LitiengineSpriteRenderSystem extends System {
   }
 
   private boolean tryDrawEntitySprite(
-    Graphics2D g, Point pos, int levelHeight, int tilePx, DrawComponent dc) {
+    Graphics2D g, Entity entity, Point pos, int levelHeight, int tilePx, DrawComponent dc) {
     final core.utils.components.draw.animation.AnimationFrame frame;
     try {
       frame = dc.stateMachine().getFrame();
@@ -202,6 +202,9 @@ public final class LitiengineSpriteRenderSystem extends System {
     if (img == null) return false;
 
     BufferedImage renderImg = applyTintIfNeeded(img, dc.tintColor());
+    if (renderImg == null || renderImg.getWidth() <= 0 || renderImg.getHeight() <= 0) {
+      return false;
+    }
 
     float sxWorld = pos.x() * tilePx;
     float syWorld =
@@ -221,9 +224,22 @@ public final class LitiengineSpriteRenderSystem extends System {
     int drawX = Math.round(sxWorld + (tilePx - wPx) / 2f);
     int drawY = Math.round(syWorld + tilePx - hPx);
 
-    double scaleX = wPx / (double) renderImg.getWidth();
-    double scaleY = hPx / (double) renderImg.getHeight();
-    ImageRenderer.renderScaled(g, renderImg, drawX, drawY, scaleX, scaleY);
+    LitiengineOutlineEffectComponent outline =
+      entity.fetch(LitiengineOutlineEffectComponent.class).orElse(null);
+
+    if (outline == null) {
+      double scaleX = wPx / (double) renderImg.getWidth();
+      double scaleY = hPx / (double) renderImg.getHeight();
+      ImageRenderer.renderScaled(g, renderImg, drawX, drawY, scaleX, scaleY);
+      return true;
+    }
+
+    long nowMs = Time.nowMs();
+    int outlinePx = LitiengineImageEffects.effectiveOutlineWidth(outline, nowMs);
+    Color outlineColor = LitiengineImageEffects.effectiveOutlineColor(outline, nowMs);
+
+    LitiengineImageEffects.drawOutlinedSprite(
+      g, renderImg, drawX, drawY, wPx, hPx, outlineColor, outlinePx);
     return true;
   }
 
@@ -377,30 +393,5 @@ public final class LitiengineSpriteRenderSystem extends System {
 
   private static int effectiveTilePx() {
     return Math.max(MIN_TILE_PX, Math.round(BASE_TILE_PX * LitiengineCameraState.zoom()));
-  }
-
-  private void drawEntitySprite(
-    final Graphics2D g,
-    final Entity entity,
-    final BufferedImage image,
-    final int drawX,
-    final int drawY,
-    final int drawWidth,
-    final int drawHeight) {
-
-    LitiengineOutlineEffectComponent outline =
-      entity.fetch(LitiengineOutlineEffectComponent.class).orElse(null);
-
-    if (outline == null) {
-      drawEntitySprite(g, entity, image, drawX, drawY, drawWidth, drawHeight);
-      return;
-    }
-
-    long nowMs = Time.nowMs();
-    int outlinePx = LitiengineImageEffects.effectiveOutlineWidth(outline, nowMs);
-    Color outlineColor = LitiengineImageEffects.effectiveOutlineColor(outline, nowMs);
-
-    LitiengineImageEffects.drawOutlinedSprite(
-      g, image, drawX, drawY, drawWidth, drawHeight, outlineColor, outlinePx);
   }
 }
