@@ -39,21 +39,6 @@ public final class InputManager {
   private InputManager() {} // static utility class
 
   /**
-   * Legacy entry point for libGDX runs.
-   *
-   * <p>Calls the libGDX bridge via reflection if present (so this class stays libGDX-free).
-   */
-  @Deprecated
-  public static void init() {
-    try {
-      Class<?> c = Class.forName("core.platform.gdx.GdxInputBridge");
-      c.getMethod("install").invoke(null);
-    } catch (Throwable ignored) {
-      // Not running on libGDX backend.
-    }
-  }
-
-  /**
    * Checks if a key was just pressed in the current frame.
    *
    * @param keycode The key to check.
