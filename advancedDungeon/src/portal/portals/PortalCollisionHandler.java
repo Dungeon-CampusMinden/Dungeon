@@ -2,7 +2,6 @@ package portal.portals;
 
 import contrib.components.CollideComponent;
 import contrib.components.ProjectileComponent;
-import portal.portals.components.PortableComponent;
 import contrib.systems.EventScheduler;
 import core.Entity;
 import core.Game;
@@ -13,6 +12,7 @@ import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
 import java.util.Optional;
+import portal.portals.components.PortableComponent;
 import portal.portals.components.PortalComponent;
 import portal.portals.components.PortalExtendComponent;
 import portal.portals.components.PortalIgnoreComponent;

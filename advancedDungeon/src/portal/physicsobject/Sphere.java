@@ -2,7 +2,6 @@ package portal.physicsobject;
 
 import contrib.components.AttachmentComponent;
 import contrib.components.CollideComponent;
-import portal.portals.components.PortableComponent;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -19,6 +18,7 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.Map;
+import portal.portals.components.PortableComponent;
 
 /** A sphere which can be moved by walking into it. */
 public class Sphere {

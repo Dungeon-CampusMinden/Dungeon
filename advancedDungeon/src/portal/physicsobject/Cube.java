@@ -2,7 +2,6 @@ package portal.physicsobject;
 
 import contrib.components.AttachmentComponent;
 import contrib.components.CollideComponent;
-import portal.portals.components.PortableComponent;
 import contrib.modules.interaction.Interaction;
 import contrib.modules.interaction.InteractionComponent;
 import core.Entity;
@@ -15,6 +14,7 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
+import portal.portals.components.PortableComponent;
 
 /** A Cube can be picked up and used to trigger {@link PressurePlates}. */
 public class Cube {
