@@ -1,6 +1,5 @@
 package contrib.utils.components.health;
 
-import com.badlogic.gdx.utils.Null;
 import core.Entity;
 
 /**
@@ -12,4 +11,4 @@ import core.Entity;
  *     account resistances or vulnerabilities.
  * @param cause Entity that caused the damage (e.g. the player). Can be null.
  */
-public record Damage(int damageAmount, DamageType damageType, @Null Entity cause) {}
+public record Damage(int damageAmount, DamageType damageType, Entity cause) {}
