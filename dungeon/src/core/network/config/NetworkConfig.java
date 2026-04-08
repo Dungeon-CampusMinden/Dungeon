@@ -52,6 +52,21 @@ public final class NetworkConfig {
    */
   public static final int UDP_REGISTER_INTERVAL_MS = 500;
 
+  /** Initial delay before the next UDP retry attempt, in milliseconds. */
+  public static final int UDP_RETRY_INITIAL_DELAY_MS = 500;
+
+  /** Multiplier applied to the UDP retry delay after each failed retry cycle. */
+  public static final int UDP_RETRY_MULTIPLIER = 2;
+
+  /** Maximum delay between UDP retry attempts, in milliseconds. */
+  public static final int UDP_RETRY_MAX_DELAY_MS = 120_000;
+
+  /** Interval for UDP keepalive re-registration while UDP is healthy, in milliseconds. */
+  public static final int UDP_KEEPALIVE_INTERVAL_MS = 2_000;
+
+  /** Time without a successful UDP acknowledgement after which UDP is considered stale. */
+  public static final int UDP_STALE_AFTER_MS = 4_500;
+
   /** Offset for the length field in TCP frames, in bytes. */
   public static final int TCP_LENGTH_FIELD_OFFSET = 0;
 

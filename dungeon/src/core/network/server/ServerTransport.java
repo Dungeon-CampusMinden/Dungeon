@@ -324,6 +324,7 @@ public final class ServerTransport {
         if (udpAddr != null) {
           udpToClientId.remove(udpAddr);
         }
+        session.udpReady(false);
 
         // Remove Player Entity on disconnect
         session.clientState().flatMap(ClientState::playerEntity).ifPresent(Game::remove);
@@ -387,6 +388,7 @@ public final class ServerTransport {
         return;
       }
 
+      session.markUdpActivity();
       inboundQueue.offer(Tuple.of(session, msg));
     }
 
@@ -413,6 +415,7 @@ public final class ServerTransport {
         LOGGER.error("Dispatch error", e);
       }
     }
+    expireStaleUdpSessions(System.currentTimeMillis());
   }
 
   private void setupDispatchers() {
@@ -489,6 +492,7 @@ public final class ServerTransport {
             ServerRuntime.SESSION_ID,
             sessionToken,
             selectedCharacterClass(req)));
+    session.udpReady(false);
     clientIdToSession.put(newClientId, session);
 
     session.sendMessage(new ConnectAck(newClientId, ServerRuntime.SESSION_ID, sessionToken), true);
@@ -558,10 +562,15 @@ public final class ServerTransport {
     ClientState oldClientState = oldSession.clientState().orElseThrow();
     oldClientState.resetForReconnect(ServerRuntime.SESSION_ID, newSessionToken, true);
     session.attachClientState(oldClientState);
+    session.udpReady(false);
     clientIdToSession.put(clientId, session);
 
     // remove old mappings
     clientIdToName.put(clientId, playerName);
+    if (oldSession.udpAddress() != null) {
+      udpToClientId.remove(oldSession.udpAddress());
+    }
+    oldSession.udpReady(false);
     sessions.remove(oldSession.tcpCtx().channel().id());
     try {
       oldSession.close(); // should be already closed, but just in case
@@ -635,8 +644,27 @@ public final class ServerTransport {
     }
 
     sess.udpAddress(sender);
+    sess.markUdpActivity();
+    sess.udpReady(true);
     udpToClientId.put(sender, reg.clientId());
     tcpSession.sendMessage(new RegisterAck(true), true);
+  }
+
+  void expireStaleUdpSessions(long now) {
+    for (Session session : clientIdToSession.values()) {
+      if (!session.udpReady()) {
+        continue;
+      }
+      if (now - session.udpLastSeenTimeMs() <= UDP_STALE_AFTER_MS) {
+        continue;
+      }
+
+      InetSocketAddress udpAddress = session.udpAddress();
+      if (udpAddress != null) {
+        udpToClientId.remove(udpAddress);
+      }
+      session.udpReady(false);
+    }
   }
 
   /**
