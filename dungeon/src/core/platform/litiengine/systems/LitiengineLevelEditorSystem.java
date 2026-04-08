@@ -23,7 +23,7 @@ import core.platform.litiengine.ui.LitiengineUiOverlayRegistry;
 import core.ui.StageHandle;
 import core.utils.*;
 import core.utils.logging.DungeonLogger;
-import java.awt.BasicStroke;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.*;
@@ -146,10 +146,10 @@ public final class LitiengineLevelEditorSystem extends System {
       return;
     }
 
-    renderLevelBoundsOutline(g);
+    renderLevelBoundsOutline();
 
     if (debugVisualizationActive) {
-      renderDebugVisualization(g);
+      renderDebugVisualization();
     }
 
     activeModeInstance().render(g, deltaSeconds);
@@ -432,7 +432,7 @@ public final class LitiengineLevelEditorSystem extends System {
       .map(DungeonLevel.class::cast);
   }
 
-  private void renderLevelBoundsOutline(Graphics2D g) {
+  private void renderLevelBoundsOutline() {
     LitiengineCameraViews.View view = LitiengineCameraViews.get();
     if (view == null || view.tilePx() <= 0) {
       return;
@@ -446,23 +446,15 @@ public final class LitiengineLevelEditorSystem extends System {
             return;
           }
 
-          int tilePx = view.tilePx();
           int levelWidth = layout[0].length;
           int levelHeight = layout.length;
 
-          int drawX = (int) Math.round(view.offsetX());
-          int drawY = (int) Math.round(view.offsetY());
-          int drawWidth = levelWidth * tilePx;
-          int drawHeight = levelHeight * tilePx;
-
-          Graphics2D g2 = (Graphics2D) g.create();
-          try {
-            g2.setColor(LEVEL_BOUNDS_OUTLINE_COLOR);
-            g2.setStroke(new BasicStroke(LEVEL_BOUNDS_OUTLINE_STROKE));
-            g2.drawRect(drawX, drawY, Math.max(0, drawWidth - 1), Math.max(0, drawHeight - 1));
-          } finally {
-            g2.dispose();
-          }
+          LitiengineDebugDrawSystem.drawRectangleOutline(
+            0f,
+            0f,
+            levelWidth,
+            levelHeight,
+            LEVEL_BOUNDS_OUTLINE_COLOR);
         });
   }
 
@@ -497,7 +489,7 @@ public final class LitiengineLevelEditorSystem extends System {
     this.internalStopped = false;
   }
 
-  private void renderDebugVisualization(Graphics2D g) {
+  private void renderDebugVisualization() {
     LitiengineCameraViews.View view = LitiengineCameraViews.get();
     if (view == null || view.tilePx() <= 0) {
       return;
@@ -506,17 +498,12 @@ public final class LitiengineLevelEditorSystem extends System {
     currentDungeonLevel()
       .ifPresent(
         level -> {
-          Graphics2D g2 = (Graphics2D) g.create();
-          try {
-            renderDebugTiles(g2, level, view);
-            renderDebugEntities(g2, level.layout().length, view);
-          } finally {
-            g2.dispose();
-          }
+          renderDebugTiles(level, view);
+          renderDebugEntities(level.layout().length, view);
         });
   }
 
-  private void renderDebugTiles(Graphics2D g, DungeonLevel level, LitiengineCameraViews.View view) {
+  private void renderDebugTiles(DungeonLevel level, LitiengineCameraViews.View view) {
     Tile[][] layout = level.layout();
     int levelHeight = layout.length;
     int tilePx = view.tilePx();
@@ -526,34 +513,31 @@ public final class LitiengineLevelEditorSystem extends System {
         Tile tile = layout[y][x];
         LevelElement element = tile.levelElement();
 
-        int drawX = (int) Math.round(x * tilePx + view.offsetX());
-        int drawY = (int) Math.round((levelHeight - 1 - y) * tilePx + view.offsetY());
-
         if (!element.value()) {
-          g.setColor(DEBUG_BLOCKED_TILE_FILL_COLOR);
-          g.fillRect(drawX, drawY, tilePx, tilePx);
+          LitiengineDebugDrawSystem.fillWorldRectangle(
+            x, y, 1f, 1f, DEBUG_BLOCKED_TILE_FILL_COLOR);
         } else if (element.canSeeThrough()) {
-          g.setColor(DEBUG_SEE_THROUGH_TILE_FILL_COLOR);
-          g.fillRect(drawX, drawY, tilePx, tilePx);
+          LitiengineDebugDrawSystem.fillWorldRectangle(
+            x, y, 1f, 1f, DEBUG_SEE_THROUGH_TILE_FILL_COLOR);
         }
 
-        g.setColor(DEBUG_LEVEL_TILE_OUTLINE_COLOR);
-        g.drawRect(drawX, drawY, Math.max(0, tilePx - 1), Math.max(0, tilePx - 1));
+        LitiengineDebugDrawSystem.drawRectangleOutline(
+          x, y, 1f, 1f, DEBUG_LEVEL_TILE_OUTLINE_COLOR);
 
         if (tilePx >= DEBUG_TEXT_MIN_TILE_PX) {
-          g.setColor(DEBUG_COORD_TEXT_COLOR);
-          g.drawString(x + "," + y, drawX + 4, drawY + Math.max(14, tilePx / 2));
+          LitiengineDebugDrawSystem.drawText(
+            x + "," + y,
+            tileDebugTextPosition(x, y, levelHeight, view),
+            DEBUG_COORD_TEXT_COLOR);
         }
       }
     }
   }
 
-  private void renderDebugEntities(
-    Graphics2D g, int levelHeight, LitiengineCameraViews.View view) {
-
+  private void renderDebugEntities(int levelHeight, LitiengineCameraViews.View view) {
     int tilePx = view.tilePx();
-
-    g.setStroke(new BasicStroke(DEBUG_ENTITY_STROKE));
+    float insetWorld = DEBUG_ENTITY_INSET_PX / (float) tilePx;
+    float sizeWorld = Math.max(0.05f, 1f - insetWorld * 2f);
 
     Game.levelEntities(Set.of(PositionComponent.class, DrawComponent.class))
       .forEach(
@@ -564,19 +548,19 @@ public final class LitiengineLevelEditorSystem extends System {
           }
 
           Point pos = pc.position();
-          int drawX = (int) Math.round(pos.x() * tilePx + view.offsetX());
-          int drawY =
-            (int) Math.round((levelHeight - 1 - pos.y()) * tilePx + view.offsetY());
 
-          g.setColor(debugEntityColor(entity));
-          g.drawRect(
-            drawX + DEBUG_ENTITY_INSET_PX,
-            drawY + DEBUG_ENTITY_INSET_PX,
-            Math.max(0, tilePx - 1 - DEBUG_ENTITY_INSET_PX * 2),
-            Math.max(0, tilePx - 1 - DEBUG_ENTITY_INSET_PX * 2));
+          LitiengineDebugDrawSystem.drawRectangleOutline(
+            pos.x() + insetWorld,
+            pos.y() + insetWorld,
+            sizeWorld,
+            sizeWorld,
+            debugEntityColor(entity));
 
           if (tilePx >= DEBUG_TEXT_MIN_TILE_PX) {
-            g.drawString(debugEntityLabel(entity), drawX + 4, drawY + tilePx - 6);
+            LitiengineDebugDrawSystem.drawText(
+              debugEntityLabel(entity),
+              entityDebugLabelPosition(pos, levelHeight, view),
+              debugEntityColor(entity));
           }
         });
   }
@@ -615,5 +599,41 @@ public final class LitiengineLevelEditorSystem extends System {
 
   public Point snappedCursorTileForModes() {
     return snappedCursorTile();
+  }
+
+  private Point tileDebugTextPosition(
+    int tileX,
+    int tileY,
+    int levelHeight,
+    LitiengineCameraViews.View view) {
+
+    int tilePx = view.tilePx();
+
+    float screenX = (float) (tileX * tilePx + view.offsetX() + 4);
+    float screenY =
+      (float)
+        ((levelHeight - 1 - tileY) * tilePx
+          + view.offsetY()
+          + Math.max(14, tilePx / 2));
+
+    return new Point(screenX, screenY);
+  }
+
+  private Point entityDebugLabelPosition(
+    Point pos,
+    int levelHeight,
+    LitiengineCameraViews.View view) {
+
+    int tilePx = view.tilePx();
+
+    float screenX = (float) (pos.x() * tilePx + view.offsetX() + 4);
+    float screenY =
+      (float)
+        ((levelHeight - 1 - pos.y()) * tilePx
+          + view.offsetY()
+          + tilePx
+          - 6);
+
+    return new Point(screenX, screenY);
   }
 }

@@ -32,6 +32,7 @@ public final class LitiengineDebugDrawSystem extends System {
   private static final Object LOCK = new Object();
 
   private static final List<WorldRectangle> WORLD_RECTANGLES = new ArrayList<>();
+  private static final List<WorldFill> WORLD_FILLS = new ArrayList<>();
   private static final List<ScreenText> SCREEN_TEXTS = new ArrayList<>();
   private static final List<ScreenMarker> SCREEN_MARKERS = new ArrayList<>();
 
@@ -66,14 +67,17 @@ public final class LitiengineDebugDrawSystem extends System {
     }
 
     List<WorldRectangle> rectangles;
+    List<WorldFill> fills;
     List<ScreenText> texts;
     List<ScreenMarker> markers;
 
     synchronized (LOCK) {
       rectangles = new ArrayList<>(WORLD_RECTANGLES);
+      fills = new ArrayList<>(WORLD_FILLS);
       texts = new ArrayList<>(SCREEN_TEXTS);
       markers = new ArrayList<>(SCREEN_MARKERS);
       WORLD_RECTANGLES.clear();
+      WORLD_FILLS.clear();
       SCREEN_TEXTS.clear();
       SCREEN_MARKERS.clear();
     }
@@ -87,6 +91,7 @@ public final class LitiengineDebugDrawSystem extends System {
           ? view.levelHeight()
           : Game.currentLevel().map(level -> level.layout().length).orElse(0);
 
+      renderWorldFills(g, fills, view, levelHeight);
       renderWorldRectangles(g, rectangles, view, levelHeight);
       renderScreenMarkers(g, markers);
       renderScreenTexts(g, texts);
@@ -107,6 +112,7 @@ public final class LitiengineDebugDrawSystem extends System {
   public static void clearQueuedDrawCalls() {
     synchronized (LOCK) {
       WORLD_RECTANGLES.clear();
+      WORLD_FILLS.clear();
       SCREEN_TEXTS.clear();
       SCREEN_MARKERS.clear();
     }
@@ -256,7 +262,56 @@ public final class LitiengineDebugDrawSystem extends System {
     }
   }
 
+  private static void renderWorldFills(
+    Graphics2D g,
+    List<WorldFill> fills,
+    LitiengineCameraViews.View view,
+    int levelHeight) {
+
+    int tilePx = view.tilePx();
+
+    for (WorldFill fill : fills) {
+      int screenX = (int) Math.round(view.offsetX() + fill.x() * tilePx);
+
+      int screenY =
+        levelHeight > 0
+          ? (int)
+          Math.round(
+            view.offsetY() + (levelHeight - fill.y() - fill.height()) * tilePx)
+          : (int) Math.round(view.offsetY() + fill.y() * tilePx);
+
+      int screenWidth = Math.max(1, Math.round(fill.width() * tilePx));
+      int screenHeight = Math.max(1, Math.round(fill.height() * tilePx));
+
+      g.setColor(fill.color());
+      g.fillRect(screenX, screenY, screenWidth, screenHeight);
+    }
+  }
+
+  /**
+   * Queues a filled world-space rectangle for the current frame.
+   *
+   * @param x world x of bottom-left corner
+   * @param y world y of bottom-left corner
+   * @param width world width
+   * @param height world height
+   * @param color fill color
+   */
+  public static void fillWorldRectangle(
+    float x, float y, float width, float height, Color color) {
+
+    if (width <= 0 || height <= 0) {
+      return;
+    }
+
+    synchronized (LOCK) {
+      WORLD_FILLS.add(new WorldFill(x, y, width, height, color == null ? Color.WHITE : color));
+    }
+  }
+
   private record WorldRectangle(float x, float y, float width, float height, Color color) {}
+
+  private record WorldFill(float x, float y, float width, float height, Color color) {}
 
   private record ScreenText(String text, Point screen, Color color) {}
 
