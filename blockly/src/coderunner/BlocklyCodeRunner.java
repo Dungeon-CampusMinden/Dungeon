@@ -178,7 +178,6 @@ public class BlocklyCodeRunner {
 
     String path = String.valueOf(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
     if (!folderTransfered && path.endsWith(".jar")) {
-      System.out.println("transferring folders");
       prepareCompilerResources(tempDir);
       folderTransfered = true;
     }
