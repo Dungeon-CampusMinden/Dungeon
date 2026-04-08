@@ -7,7 +7,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.*;
 import java.nio.file.*;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -16,8 +15,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import systems.BlocklyCommandExecuteSystem;
 
@@ -37,7 +34,6 @@ public class BlocklyCodeRunner {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(BlocklyCodeRunner.class);
   private static BlocklyCodeRunner instance;
-
 
   /** List of whitelisted Blockly command method names without the trailing (); or parameters. */
   private static final List<String> WHITELIST =
@@ -133,7 +129,6 @@ public class BlocklyCodeRunner {
     executeJavaCode(code, DEFAULT_SLEEP_AFTER_EACH_LINE);
   }
 
-
   private void prepareCompilerResources(Path tempDir) throws Exception {
     // create directory
     Path libFolder = Files.createDirectories(tempDir.resolve("unpacked_libs"));
@@ -144,8 +139,8 @@ public class BlocklyCodeRunner {
 
       // go through the jar and process each file
       Files.walk(root)
-        .filter(Files::isRegularFile) // only files
-        .forEach(source -> copyToTemp(source, root, libFolder));
+          .filter(Files::isRegularFile) // only files
+          .forEach(source -> copyToTemp(source, root, libFolder));
     }
   }
 
@@ -160,6 +155,7 @@ public class BlocklyCodeRunner {
       System.err.println("Skip: " + source + " (" + e.getMessage() + ")");
     }
   }
+
   /**
    * Executes the given Java code.
    *
@@ -176,7 +172,8 @@ public class BlocklyCodeRunner {
     Path tempDir = tempFolder();
     Path libFolder = tempDir.resolve("unpacked_libs");
 
-    String path = String.valueOf(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+    String path =
+        String.valueOf(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
     if (!folderTransfered && path.endsWith(".jar")) {
       prepareCompilerResources(tempDir);
       folderTransfered = true;
@@ -199,8 +196,7 @@ public class BlocklyCodeRunner {
     int compilationResult;
     if (path.endsWith(".jar")) {
       String[] compilerArgs = {
-        "-classpath", libFolder.toAbsolutePath().toString(),
-        tempFile.toFile().toString()
+        "-classpath", libFolder.toAbsolutePath().toString(), tempFile.toFile().toString()
       };
       compilationResult = compiler.run(null, null, errorStream, compilerArgs);
     } else {
@@ -229,25 +225,25 @@ public class BlocklyCodeRunner {
 
     executor = Executors.newSingleThreadExecutor();
     currentExecution =
-      executor.submit(
-        () -> {
-          try {
-            method.invoke(null, new BlocklyCommands());
-            // Code executed successfully
-            codeRunning.set(false);
-          } catch (InvocationTargetException | IllegalAccessException e) {
-            codeRunning.set(false);
-            if (e.getCause() instanceof InterruptedException) {
-              return; // ignore interruption exception
-            }
+        executor.submit(
+            () -> {
+              try {
+                method.invoke(null, new BlocklyCommands());
+                // Code executed successfully
+                codeRunning.set(false);
+              } catch (InvocationTargetException | IllegalAccessException e) {
+                codeRunning.set(false);
+                if (e.getCause() instanceof InterruptedException) {
+                  return; // ignore interruption exception
+                }
 
-            String causeMessage =
-              e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-            causeMessage = causeMessage != null ? causeMessage : e.toString();
-            LOGGER.warn(String.format("Error executing code: %s", causeMessage), e);
-            throw new RuntimeException("Execution error: " + causeMessage);
-          }
-        });
+                String causeMessage =
+                    e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+                causeMessage = causeMessage != null ? causeMessage : e.toString();
+                LOGGER.warn(String.format("Error executing code: %s", causeMessage), e);
+                throw new RuntimeException("Execution error: " + causeMessage);
+              }
+            });
   }
 
   /**
