@@ -44,8 +44,7 @@ public class Cube {
 
     CollideComponent cc = createCollideComponent(attached);
     portalCube.add(cc);
-    TransportableComponent tComp = new TransportableComponent();
-    portalCube.add(tComp);
+    portalCube.add(new TransportableComponent());
 
     if (isPickupable)
       portalCube.add(new InteractionComponent(() -> pickupInteraction(attached, portalCube, cc)));
