@@ -16,6 +16,7 @@ import core.platform.litiengine.LitiengineLoopHost;
 import core.platform.litiengine.interaction.LitiengineInteractionSelectionUi;
 import core.platform.litiengine.systems.LitiengineDebugControlsSystem;
 import core.platform.litiengine.systems.LitiengineDebugDrawSystem;
+import core.platform.litiengine.systems.LitiengineEntityDebugSystem;
 import core.platform.litiengine.systems.LitiengineLevelEditorSystem;
 import java.util.function.Supplier;
 
@@ -48,6 +49,7 @@ public final class LitienginePlatformBootstrap {
     addIfAbsent(LitiengineDebugControlsSystem.class, LitiengineDebugControlsSystem::new);
     addIfAbsent(LitiengineLevelEditorSystem.class, LitiengineLevelEditorSystem::new);
     addIfAbsent(LitiengineDebugDrawSystem.class, LitiengineDebugDrawSystem::new);
+    addIfAbsent(LitiengineEntityDebugSystem.class, LitiengineEntityDebugSystem::new);
   }
 
   private static <T extends System> void addIfAbsent(Class<T> type, Supplier<T> factory) {

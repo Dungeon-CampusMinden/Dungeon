@@ -12,6 +12,7 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Minimal free-form debug draw layer for the LITIENGINE backend.
@@ -35,6 +36,10 @@ public final class LitiengineDebugDrawSystem extends System {
   private static final List<WorldFill> WORLD_FILLS = new ArrayList<>();
   private static final List<ScreenText> SCREEN_TEXTS = new ArrayList<>();
   private static final List<ScreenMarker> SCREEN_MARKERS = new ArrayList<>();
+  private static final List<WorldLine> WORLD_LINES = new CopyOnWriteArrayList<>();
+  private static final List<WorldCircleOutline> WORLD_CIRCLE_OUTLINES = new CopyOnWriteArrayList<>();
+  private static final List<WorldCircleFill> WORLD_CIRCLE_FILLS = new CopyOnWriteArrayList<>();
+  private static final List<ScreenRectangle> SCREEN_RECTANGLES = new CopyOnWriteArrayList<>();
 
   private static volatile boolean hudVisible = true;
 
@@ -95,6 +100,10 @@ public final class LitiengineDebugDrawSystem extends System {
       renderWorldRectangles(g, rectangles, view, levelHeight);
       renderScreenMarkers(g, markers);
       renderScreenTexts(g, texts);
+      renderWorldCircleFills(g);
+      renderWorldLines(g);
+      renderWorldCircleOutlines(g);
+      renderScreenRectangles(g);
     } finally {
       g.dispose();
     }
@@ -288,6 +297,82 @@ public final class LitiengineDebugDrawSystem extends System {
     }
   }
 
+  private void renderWorldLines(java.awt.Graphics2D g) {
+    java.util.List<WorldLine> lines = new java.util.ArrayList<>(WORLD_LINES);
+    WORLD_LINES.clear();
+
+    for (WorldLine line : lines) {
+      core.utils.Point from = worldToScreen(line.from());
+      core.utils.Point to = worldToScreen(line.to());
+
+      g.setColor(line.color());
+      g.drawLine(
+        Math.round(from.x()),
+        Math.round(from.y()),
+        Math.round(to.x()),
+        Math.round(to.y()));
+    }
+  }
+
+  private void renderWorldCircleOutlines(java.awt.Graphics2D g) {
+    java.util.List<WorldCircleOutline> circles = new java.util.ArrayList<>(WORLD_CIRCLE_OUTLINES);
+    WORLD_CIRCLE_OUTLINES.clear();
+
+    for (WorldCircleOutline circle : circles) {
+      core.utils.Point center = worldToScreen(circle.center());
+      int radiusPx = worldLengthToScreen(circle.radius());
+
+      g.setColor(circle.color());
+      g.drawOval(
+        Math.round(center.x()) - radiusPx,
+        Math.round(center.y()) - radiusPx,
+        radiusPx * 2,
+        radiusPx * 2);
+    }
+  }
+
+  private void renderWorldCircleFills(java.awt.Graphics2D g) {
+    java.util.List<WorldCircleFill> circles = new java.util.ArrayList<>(WORLD_CIRCLE_FILLS);
+    WORLD_CIRCLE_FILLS.clear();
+
+    for (WorldCircleFill circle : circles) {
+      core.utils.Point center = worldToScreen(circle.center());
+      int radiusPx = worldLengthToScreen(circle.radius());
+
+      g.setColor(circle.color());
+      g.fillOval(
+        Math.round(center.x()) - radiusPx,
+        Math.round(center.y()) - radiusPx,
+        radiusPx * 2,
+        radiusPx * 2);
+    }
+  }
+
+  private void renderScreenRectangles(java.awt.Graphics2D g) {
+    java.util.List<ScreenRectangle> rectangles = new java.util.ArrayList<>(SCREEN_RECTANGLES);
+    SCREEN_RECTANGLES.clear();
+
+    for (ScreenRectangle rect : rectangles) {
+      if (rect.fill() != null) {
+        g.setColor(rect.fill());
+        g.fillRect(
+          Math.round(rect.topLeft().x()),
+          Math.round(rect.topLeft().y()),
+          rect.width(),
+          rect.height());
+      }
+
+      if (rect.outline() != null) {
+        g.setColor(rect.outline());
+        g.drawRect(
+          Math.round(rect.topLeft().x()),
+          Math.round(rect.topLeft().y()),
+          rect.width(),
+          rect.height());
+      }
+    }
+  }
+
   /**
    * Queues a filled world-space rectangle for the current frame.
    *
@@ -309,6 +394,49 @@ public final class LitiengineDebugDrawSystem extends System {
     }
   }
 
+  public static void drawWorldLine(Point from, Point to, Color color) {
+    if (from == null || to == null || color == null) return;
+    WORLD_LINES.add(new WorldLine(from, to, color));
+  }
+
+  public static void drawWorldCircleOutline(
+    Point center, float radius, Color color) {
+    if (center == null || color == null || radius <= 0f) return;
+    WORLD_CIRCLE_OUTLINES.add(new WorldCircleOutline(center, radius, color));
+  }
+
+  public static void drawWorldCircleFill(
+    Point center, float radius, Color color) {
+    if (center == null || color == null || radius <= 0f) return;
+    WORLD_CIRCLE_FILLS.add(new WorldCircleFill(center, radius, color));
+  }
+
+  public static void drawScreenRectangle(
+    Point topLeft, int width, int height, Color fill, Color outline) {
+    if (topLeft == null || width <= 0 || height <= 0) return;
+    SCREEN_RECTANGLES.add(new ScreenRectangle(topLeft, width, height, fill, outline));
+  }
+
+  public static Point worldToScreen(Point worldPoint) {
+    LitiengineCameraViews.View view = LitiengineCameraViews.get();
+
+    int tilePx = view.tilePx();
+    int levelHeight = view.levelHeight();
+
+    float screenX = (float) (worldPoint.x() * tilePx + view.offsetX());
+    float screenY =
+      levelHeight > 0
+        ? (float) (((levelHeight - 1) - worldPoint.y()) * tilePx + view.offsetY())
+        : (float) (worldPoint.y() * tilePx + view.offsetY());
+
+    return new Point(screenX, screenY);
+  }
+
+  public static int worldLengthToScreen(float worldLength) {
+    LitiengineCameraViews.View view = LitiengineCameraViews.get();
+    return Math.max(1, Math.round(worldLength * view.tilePx()));
+  }
+
   private record WorldRectangle(float x, float y, float width, float height, Color color) {}
 
   private record WorldFill(float x, float y, float width, float height, Color color) {}
@@ -316,4 +444,12 @@ public final class LitiengineDebugDrawSystem extends System {
   private record ScreenText(String text, Point screen, Color color) {}
 
   private record ScreenMarker(Point center, int diameterPx, Color fillColor, Color outlineColor) {}
+
+  private record WorldLine(Point from, Point to, Color color) {}
+
+  private record WorldCircleOutline(Point center, float radius, Color color) {}
+
+  private record WorldCircleFill(Point center, float radius, Color color) {}
+
+  private record ScreenRectangle(Point topLeft, int width, int height, Color fill, Color outline) {}
 }
